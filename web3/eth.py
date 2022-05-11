@@ -39,9 +39,6 @@ from hexbytes import (
 from web3._utils.blocks import (
     select_method_for_block_identifier,
 )
-from web3._utils.decorators import (
-    deprecated_for,
-)
 from web3._utils.empty import (
     Empty,
     empty,
@@ -81,7 +78,6 @@ from web3.iban import (
     Iban,
 )
 from web3.method import (
-    DeprecatedMethod,
     Method,
     default_root_munger,
 )
@@ -130,43 +126,11 @@ class BaseEth(Module):
         self._default_block = value
 
     @property
-    def defaultBlock(self) -> BlockIdentifier:
-        warnings.warn(
-            'defaultBlock is deprecated in favor of default_block',
-            category=DeprecationWarning,
-        )
-        return self._default_block
-
-    @defaultBlock.setter
-    def defaultBlock(self, value: BlockIdentifier) -> None:
-        warnings.warn(
-            'defaultBlock is deprecated in favor of default_block',
-            category=DeprecationWarning,
-        )
-        self._default_block = value
-
-    @property
     def default_account(self) -> Union[ChecksumAddress, Empty]:
         return self._default_account
 
     @default_account.setter
     def default_account(self, account: Union[ChecksumAddress, Empty]) -> None:
-        self._default_account = account
-
-    @property
-    def defaultAccount(self) -> Union[ChecksumAddress, Empty]:
-        warnings.warn(
-            'defaultAccount is deprecated in favor of default_account',
-            category=DeprecationWarning,
-        )
-        return self._default_account
-
-    @defaultAccount.setter
-    def defaultAccount(self, account: Union[ChecksumAddress, Empty]) -> None:
-        warnings.warn(
-            'defaultAccount is deprecated in favor of default_account',
-            category=DeprecationWarning,
-        )
         self._default_account = account
 
     def send_transaction_munger(self, transaction: TxParams) -> Tuple[TxParams]:
@@ -562,27 +526,6 @@ class Eth(BaseEth):
     def icapNamereg(self) -> NoReturn:
         raise NotImplementedError()
 
-    _protocol_version: Method[Callable[[], str]] = Method(
-        RPC.eth_protocolVersion,
-        is_property=True,
-    )
-
-    @property
-    def protocol_version(self) -> str:
-        warnings.warn(
-            "This method has been deprecated in some clients.",
-            category=DeprecationWarning,
-        )
-        return self._protocol_version()
-
-    @property
-    def protocolVersion(self) -> str:
-        warnings.warn(
-            'protocolVersion is deprecated in favor of protocol_version',
-            category=DeprecationWarning,
-        )
-        return self.protocol_version
-
     @property
     def syncing(self) -> Union[SyncStatus, bool]:
         return self._is_syncing()
@@ -604,14 +547,6 @@ class Eth(BaseEth):
         return self._gas_price()
 
     @property
-    def gasPrice(self) -> Wei:
-        warnings.warn(
-            'gasPrice is deprecated in favor of gas_price',
-            category=DeprecationWarning,
-        )
-        return self.gas_price
-
-    @property
     def accounts(self) -> Tuple[ChecksumAddress]:
         return self._get_accounts()
 
@@ -620,24 +555,8 @@ class Eth(BaseEth):
         return self.get_block_number()
 
     @property
-    def blockNumber(self) -> BlockNumber:
-        warnings.warn(
-            'blockNumber is deprecated in favor of block_number',
-            category=DeprecationWarning,
-        )
-        return self.block_number
-
-    @property
     def chain_id(self) -> int:
         return self._chain_id()
-
-    @property
-    def chainId(self) -> int:
-        warnings.warn(
-            'chainId is deprecated in favor of chain_id',
-            category=DeprecationWarning,
-        )
-        return self.chain_id
 
     get_balance: Method[Callable[..., Wei]] = Method(
         RPC.eth_getBalance,
@@ -744,15 +663,6 @@ class Eth(BaseEth):
     ) -> HexBytes:
         return self._get_raw_transaction_by_block(block_identifier, index)
 
-    def getTransactionFromBlock(
-        self, block_identifier: BlockIdentifier, transaction_index: int
-    ) -> NoReturn:
-        """
-        Alias for the method getTransactionByBlock
-        Deprecated to maintain naming consistency with the json-rpc API
-        """
-        raise DeprecationWarning("This method has been deprecated as of EIP 1474.")
-
     get_transaction_by_block: Method[Callable[[BlockIdentifier, int], TxData]] = Method(
         method_choice_depends_on_args=select_method_for_block_identifier(
             if_predefined=RPC.eth_getTransactionByBlockNumberAndIndex,
@@ -761,12 +671,6 @@ class Eth(BaseEth):
         ),
         mungers=[default_root_munger]
     )
-
-    @deprecated_for("wait_for_transaction_receipt")
-    def waitForTransactionReceipt(
-        self, transaction_hash: _Hash32, timeout: int = 120, poll_latency: float = 0.1
-    ) -> TxReceipt:
-        return self.wait_for_transaction_receipt(transaction_hash, timeout, poll_latency)
 
     def wait_for_transaction_receipt(
         self, transaction_hash: _Hash32, timeout: float = 120, poll_latency: float = 0.1
@@ -799,22 +703,12 @@ class Eth(BaseEth):
         mungers=[BaseEth.block_id_munger],
     )
 
-    @deprecated_for("replace_transaction")
-    def replaceTransaction(self, transaction_hash: _Hash32, new_transaction: TxParams) -> HexBytes:
-        return self.replace_transaction(transaction_hash, new_transaction)
-
     def replace_transaction(self, transaction_hash: _Hash32, new_transaction: TxParams) -> HexBytes:
         current_transaction = get_required_transaction(self.w3, transaction_hash)
         return replace_transaction(self.w3, current_transaction, new_transaction)
 
     # todo: Update Any to stricter kwarg checking with TxParams
     # https://github.com/python/mypy/issues/4441
-    @deprecated_for("modify_transaction")
-    def modifyTransaction(
-        self, transaction_hash: _Hash32, **transaction_params: Any
-    ) -> HexBytes:
-        return self.modify_transaction(transaction_hash, **transaction_params)
-
     def modify_transaction(
         self, transaction_hash: _Hash32, **transaction_params: Any
     ) -> HexBytes:
@@ -959,74 +853,15 @@ class Eth(BaseEth):
         else:
             return ContractFactory
 
-    @deprecated_for("set_contract_factory")
-    def setContractFactory(
-        self, contractFactory: Type[Union[Contract, ConciseContract, ContractCaller]]
-    ) -> None:
-        return self.set_contract_factory(contractFactory)
-
     def set_contract_factory(
         self, contractFactory: Type[Union[Contract, ConciseContract, ContractCaller]]
     ) -> None:
         self.defaultContractFactory = contractFactory
-
-    def getCompilers(self) -> NoReturn:
-        raise DeprecationWarning("This method has been deprecated as of EIP 1474.")
 
     get_work: Method[Callable[[], List[HexBytes]]] = Method(
         RPC.eth_getWork,
         is_property=True,
     )
 
-    @deprecated_for("generate_gas_price")
-    def generateGasPrice(self, transaction_params: Optional[TxParams] = None) -> Optional[Wei]:
-        return self._generate_gas_price(transaction_params)
-
     def generate_gas_price(self, transaction_params: Optional[TxParams] = None) -> Optional[Wei]:
         return self._generate_gas_price(transaction_params)
-
-    @deprecated_for("set_gas_price_strategy")
-    def setGasPriceStrategy(self, gas_price_strategy: GasPriceStrategy) -> None:
-        return self.set_gas_price_strategy(gas_price_strategy)
-
-    # Deprecated Methods
-    getBalance = DeprecatedMethod(get_balance, 'getBalance', 'get_balance')
-    getStorageAt = DeprecatedMethod(get_storage_at, 'getStorageAt', 'get_storage_at')
-    getBlock = DeprecatedMethod(get_block, 'getBlock', 'get_block')  # type: ignore
-    getBlockTransactionCount = DeprecatedMethod(get_block_transaction_count,
-                                                'getBlockTransactionCount',
-                                                'get_block_transaction_count')
-    getCode = DeprecatedMethod(get_code, 'getCode', 'get_code')
-    getProof = DeprecatedMethod(get_proof, 'getProof', 'get_proof')
-    getTransaction = DeprecatedMethod(get_transaction,   # type: ignore
-                                      'getTransaction',
-                                      'get_transaction')
-    getTransactionByBlock = DeprecatedMethod(get_transaction_by_block,
-                                             'getTransactionByBlock',
-                                             'get_transaction_by_block')
-    getTransactionCount = DeprecatedMethod(get_transaction_count,
-                                           'getTransactionCount',
-                                           'get_transaction_count')
-    getUncleByBlock = DeprecatedMethod(get_uncle_by_block, 'getUncleByBlock', 'get_uncle_by_block')
-    getUncleCount = DeprecatedMethod(get_uncle_count, 'getUncleCount', 'get_uncle_count')
-    sendTransaction = DeprecatedMethod(send_transaction,  # type: ignore
-                                       'sendTransaction',
-                                       'send_transaction')
-    signTransaction = DeprecatedMethod(sign_transaction, 'signTransaction', 'sign_transaction')
-    signTypedData = DeprecatedMethod(sign_typed_data, 'signTypedData', 'sign_typed_data')
-    submitHashrate = DeprecatedMethod(submit_hashrate, 'submitHashrate', 'submit_hashrate')
-    submitWork = DeprecatedMethod(submit_work, 'submitWork', 'submit_work')
-    getLogs = DeprecatedMethod(get_logs, 'getLogs', 'get_logs')
-    estimateGas = DeprecatedMethod(estimate_gas, 'estimateGas', 'estimate_gas')  # type: ignore
-    sendRawTransaction = DeprecatedMethod(send_raw_transaction,  # type: ignore
-                                          'sendRawTransaction',
-                                          'send_raw_transaction')
-    getTransactionReceipt = DeprecatedMethod(get_transaction_receipt,  # type: ignore
-                                             'getTransactionReceipt',
-                                             'get_transaction_receipt')
-    uninstallFilter = DeprecatedMethod(uninstall_filter, 'uninstallFilter', 'uninstall_filter')
-    getFilterLogs = DeprecatedMethod(get_filter_logs, 'getFilterLogs', 'get_filter_logs')
-    getFilterChanges = DeprecatedMethod(get_filter_changes,
-                                        'getFilterChanges',
-                                        'get_filter_changes')
-    getWork = DeprecatedMethod(get_work, 'getWork', 'get_work')

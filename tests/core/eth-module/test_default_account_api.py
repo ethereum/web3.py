@@ -22,48 +22,9 @@ def test_uses_default_account_when_set(w3, extra_accounts,
     assert txn['from'] == extra_accounts[2]
 
 
-def test_uses_defaultAccount_when_set_with_warning(w3, extra_accounts,
-                                                   wait_for_transaction):
-    with pytest.warns(DeprecationWarning):
-        w3.eth.defaultAccount = extra_accounts[2]
-
-    with pytest.warns(DeprecationWarning):
-        assert w3.eth.defaultAccount == extra_accounts[2]
-
-    txn_hash = w3.eth.send_transaction({
-        "to": extra_accounts[1],
-        "value": 1234,
-    })
-
-    wait_for_transaction(w3, txn_hash)
-
-    txn = w3.eth.get_transaction(txn_hash)
-    assert txn['from'] == extra_accounts[2]
-
-
 def test_uses_given_from_address_when_provided(w3, extra_accounts,
                                                wait_for_transaction):
     w3.eth.default_account = extra_accounts[2]
-    txn_hash = w3.eth.send_transaction({
-        "from": extra_accounts[5],
-        "to": extra_accounts[1],
-        "value": 1234,
-    })
-
-    wait_for_transaction(w3, txn_hash)
-
-    txn = w3.eth.get_transaction(txn_hash)
-    assert txn['from'] == extra_accounts[5]
-
-
-def test_uses_given_from_address_when_provided_with_warning(w3, extra_accounts,
-                                                            wait_for_transaction):
-    with pytest.warns(DeprecationWarning):
-        w3.eth.defaultAccount = extra_accounts[2]
-
-    with pytest.warns(DeprecationWarning):
-        assert w3.eth.defaultAccount == extra_accounts[2]
-
     txn_hash = w3.eth.send_transaction({
         "from": extra_accounts[5],
         "to": extra_accounts[1],

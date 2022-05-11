@@ -20,18 +20,6 @@ def test_uses_default_block(w3, extra_accounts,
     assert(w3.eth.default_block == w3.eth.block_number)
 
 
-def test_uses_defaultBlock_with_warning(w3, extra_accounts,
-                                        wait_for_transaction):
-    with pytest.warns(DeprecationWarning):
-        assert w3.eth.defaultBlock == 'latest'
-
-    with pytest.warns(DeprecationWarning):
-        w3.eth.defaultBlock = w3.eth.block_number
-
-    with pytest.warns(DeprecationWarning):
-        assert(w3.eth.defaultBlock == w3.eth.block_number)
-
-
 def test_get_block_formatters_with_null_values(w3):
     null_values_block = {
         'baseFeePerGas': None,

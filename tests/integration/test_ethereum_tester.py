@@ -18,7 +18,6 @@ from web3._utils.module_testing import (
     EthModuleTest,
     GoEthereumPersonalModuleTest,
     NetModuleTest,
-    VersionModuleTest,
     Web3ModuleTest,
 )
 from web3._utils.module_testing.emitter_contract import (
@@ -247,16 +246,8 @@ class TestEthereumTesterEthModule(EthModuleTest):
     test_eth_sign_ens_names = not_implemented(
         EthModuleTest.test_eth_sign_ens_names, ValueError
     )
-    test_eth_signTypedData_deprecated = not_implemented(
-        EthModuleTest.test_eth_signTypedData_deprecated,
-        ValueError
-    )
     test_eth_sign_typed_data = not_implemented(
         EthModuleTest.test_eth_sign_typed_data,
-        ValueError
-    )
-    test_eth_signTransaction_deprecated = not_implemented(
-        EthModuleTest.test_eth_signTransaction_deprecated,
         ValueError
     )
     test_eth_sign_transaction_legacy = not_implemented(
@@ -270,11 +261,7 @@ class TestEthereumTesterEthModule(EthModuleTest):
     test_eth_sign_transaction_ens_names = not_implemented(
         EthModuleTest.test_eth_sign_transaction_ens_names, ValueError
     )
-    test_eth_submitHashrate_deprecated = not_implemented(
-        EthModuleTest.test_eth_submitHashrate_deprecated, ValueError)
     test_eth_submit_hashrate = not_implemented(EthModuleTest.test_eth_submit_hashrate, ValueError)
-    test_eth_submitWork_deprecated = not_implemented(
-        EthModuleTest.test_eth_submitWork_deprecated, ValueError)
     test_eth_submit_work = not_implemented(EthModuleTest.test_eth_submit_work, ValueError)
     test_eth_get_raw_transaction = not_implemented(
         EthModuleTest.test_eth_get_raw_transaction, ValueError)
@@ -327,10 +314,6 @@ class TestEthereumTesterEthModule(EthModuleTest):
         super().test_eth_replace_transaction_underpriced(w3, unlocked_account)
 
     @disable_auto_mine
-    def test_eth_replaceTransaction_deprecated(self, eth_tester, w3, unlocked_account):
-        super().test_eth_replaceTransaction_deprecated(w3, unlocked_account)
-
-    @disable_auto_mine
     def test_eth_replace_transaction_incorrect_nonce(self, eth_tester, w3, unlocked_account):
         super().test_eth_replace_transaction_incorrect_nonce(w3, unlocked_account)
 
@@ -362,10 +345,6 @@ class TestEthereumTesterEthModule(EthModuleTest):
         super().test_eth_replace_transaction_gas_price_defaulting_strategy_lower(
             w3, unlocked_account
         )
-
-    @disable_auto_mine
-    def test_eth_modifyTransaction_deprecated(self, eth_tester, w3, unlocked_account):
-        super().test_eth_modifyTransaction_deprecated(w3, unlocked_account)
 
     @disable_auto_mine
     def test_eth_modify_transaction_legacy(self, eth_tester, w3, unlocked_account):
@@ -410,12 +389,6 @@ class TestEthereumTesterEthModule(EthModuleTest):
 
     def test_eth_chain_id(self, w3):
         chain_id = w3.eth.chain_id
-        assert is_integer(chain_id)
-        assert chain_id == 61
-
-    def test_eth_chainId(self, w3):
-        with pytest.warns(DeprecationWarning):
-            chain_id = w3.eth.chainId
         assert is_integer(chain_id)
         assert chain_id == 61
 
@@ -505,10 +478,6 @@ class TestEthereumTesterEthModule(EthModuleTest):
             w3, unlocked_account,
         )
 
-    @disable_auto_mine
-    def test_eth_sendTransaction_deprecated(self, eth_tester, w3, unlocked_account):
-        super().test_eth_sendTransaction_deprecated(w3, unlocked_account)
-
     @pytest.mark.xfail(raises=ValueError, reason="eth-tester does not have miner_start support")
     def test_eth_send_transaction_with_nonce(self, eth_tester, w3, unlocked_account):
         super().test_eth_send_transaction_with_nonce(w3, unlocked_account)
@@ -528,10 +497,6 @@ class TestEthereumTesterEthModule(EthModuleTest):
     @disable_auto_mine
     def test_eth_send_transaction_no_max_fee(self, eth_tester, w3, unlocked_account):
         super().test_eth_send_transaction_no_max_fee(w3, unlocked_account)
-
-
-class TestEthereumTesterVersionModule(VersionModuleTest):
-    pass
 
 
 class TestEthereumTesterNetModule(NetModuleTest):
