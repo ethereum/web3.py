@@ -650,7 +650,8 @@ class Contract(BaseContract):
                                      address: ChecksumAddress,
                                      callable_check: Callable[..., Any]
                                      ) -> List['ContractFunction']:
-        return find_functions_by_identifier(contract_abi, w3, address, callable_check)
+        return find_functions_by_identifier(contract_abi, w3, address,
+                                            callable_check, ContractFunction)  # type: ignore
 
 
 class AsyncContract(BaseContract):
@@ -762,7 +763,8 @@ class AsyncContract(BaseContract):
                                      address: ChecksumAddress,
                                      callable_check: Callable[..., Any]
                                      ) -> List['AsyncContractFunction']:
-        return async_find_functions_by_identifier(contract_abi, w3, address, callable_check)
+        return find_functions_by_identifier(contract_abi, w3, address,
+                                            callable_check, AsyncContractFunction)  # type: ignore
 
 
 def mk_collision_prop(fn_name: str) -> Callable[[], None]:
@@ -2313,29 +2315,12 @@ async def async_build_transaction_for_function(
 
 
 def find_functions_by_identifier(
-    contract_abi: ABI, w3: 'Web3', address: ChecksumAddress, callable_check: Callable[..., Any]
-) -> List[ContractFunction]:
+    contract_abi: ABI, w3: 'Web3', address: ChecksumAddress, callable_check: Callable[..., Any],
+    function_type: Union[Type[ContractFunction], Type[AsyncContractFunction]]
+) -> List[Union[ContractFunction, AsyncContractFunction]]:
     fns_abi = filter_by_type('function', contract_abi)
     return [
-        ContractFunction.factory(
-            fn_abi['name'],
-            w3=w3,
-            contract_abi=contract_abi,
-            address=address,
-            function_identifier=fn_abi['name'],
-            abi=fn_abi
-        )
-        for fn_abi in fns_abi
-        if callable_check(fn_abi)
-    ]
-
-
-def async_find_functions_by_identifier(
-    contract_abi: ABI, w3: 'Web3', address: ChecksumAddress, callable_check: Callable[..., Any]
-) -> List[AsyncContractFunction]:
-    fns_abi = filter_by_type('function', contract_abi)
-    return [
-        AsyncContractFunction.factory(
+        function_type.factory(
             fn_abi['name'],
             w3=w3,
             contract_abi=contract_abi,
