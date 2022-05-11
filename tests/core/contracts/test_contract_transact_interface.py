@@ -178,11 +178,9 @@ def test_transacting_with_contract_with_byte_array_argument(w3, arrays_contract,
 
 def test_transacting_with_contract_respects_explicit_gas(w3,
                                                          STRING_CONTRACT,
-                                                         skip_if_testrpc,
                                                          wait_for_block,
                                                          call,
                                                          transact):
-    skip_if_testrpc(w3)
 
     wait_for_block(w3)
 
@@ -198,7 +196,7 @@ def test_transacting_with_contract_respects_explicit_gas(w3,
     txn_hash = transact(contract=string_contract,
                         contract_function='setValue',
                         func_args=[to_bytes(text="ÄLÄMÖLÖ")],
-                        tx_kwargs={'gas': 200000})
+                        tx_params={'gas': 200000})
     txn_receipt = w3.eth.wait_for_transaction_receipt(txn_hash, 30)
     assert txn_receipt is not None
 
@@ -212,11 +210,9 @@ def test_transacting_with_contract_respects_explicit_gas(w3,
 
 def test_auto_gas_computation_when_transacting(w3,
                                                STRING_CONTRACT,
-                                               skip_if_testrpc,
                                                wait_for_block,
                                                call,
                                                transact):
-    skip_if_testrpc(w3)
 
     wait_for_block(w3)
 
@@ -473,17 +469,15 @@ async def test_async_transacting_with_contract_with_byte_array_argument(
 async def test_async_transacting_with_contract_respects_explicit_gas(
         async_w3,
         STRING_CONTRACT,
-        async_skip_if_testrpc,
         async_wait_for_block,
         async_call,
         async_transact):
-    await async_skip_if_testrpc(async_w3)
 
     await async_wait_for_block(async_w3)
 
     StringContract = async_w3.eth.contract(**STRING_CONTRACT)
 
-    deploy_txn = StringContract.constructor("Caqalai").transact()
+    deploy_txn = await StringContract.constructor("Caqalai").transact()
     deploy_receipt = await async_w3.eth.wait_for_transaction_receipt(deploy_txn, 30)
     assert deploy_receipt is not None
     string_contract = StringContract(address=deploy_receipt['contractAddress'])
@@ -493,7 +487,7 @@ async def test_async_transacting_with_contract_respects_explicit_gas(
     txn_hash = await async_transact(contract=string_contract,
                                     contract_function='setValue',
                                     func_args=[to_bytes(text="ÄLÄMÖLÖ")],
-                                    tx_kwargs={'gas': 200000})
+                                    tx_params={'gas': 200000})
     txn_receipt = await async_w3.eth.wait_for_transaction_receipt(txn_hash, 30)
     assert txn_receipt is not None
 
@@ -509,11 +503,9 @@ async def test_async_transacting_with_contract_respects_explicit_gas(
 async def test_async_auto_gas_computation_when_transacting(
         async_w3,
         STRING_CONTRACT,
-        async_skip_if_testrpc,
         async_wait_for_block,
         async_call,
         async_transact):
-    await async_skip_if_testrpc(async_w3)
 
     await async_wait_for_block(async_w3)
 

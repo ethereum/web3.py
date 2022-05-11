@@ -2017,7 +2017,7 @@ def call_contract_function(
 
 
 async def async_call_contract_function(
-        w3: 'Web3',
+        async_w3: 'Web3',
         address: ChecksumAddress,
         normalizers: Tuple[Callable[..., Any], ...],
         function_identifier: FunctionIdentifier,
@@ -2034,7 +2034,7 @@ async def async_call_contract_function(
     """
     call_transaction = prepare_transaction(
         address,
-        w3,
+        async_w3,
         fn_identifier=function_identifier,
         contract_abi=contract_abi,
         fn_abi=fn_abi,
@@ -2043,25 +2043,29 @@ async def async_call_contract_function(
         fn_kwargs=kwargs,
     )
 
-    return_data = await w3.eth.call(  # type: ignore
+    return_data = await async_w3.eth.call(  # type: ignore
         call_transaction,
         block_identifier=block_id,
         state_override=state_override,
     )
 
     if fn_abi is None:
-        fn_abi = find_matching_fn_abi(contract_abi, w3.codec, function_identifier, args, kwargs)
+        fn_abi = find_matching_fn_abi(contract_abi,
+                                      async_w3.codec,
+                                      function_identifier,
+                                      args,
+                                      kwargs)
 
     output_types = get_abi_output_types(fn_abi)
 
     try:
-        output_data = w3.codec.decode_abi(output_types, return_data)
+        output_data = async_w3.codec.decode_abi(output_types, return_data)
     except DecodingError as e:
         # Provide a more helpful error message than the one provided by
         # eth-abi-utils
         is_missing_code_error = (
             return_data in ACCEPTABLE_EMPTY_STRINGS
-            and await w3.eth.get_code(address) in ACCEPTABLE_EMPTY_STRINGS)  # type: ignore
+            and await async_w3.eth.get_code(address) in ACCEPTABLE_EMPTY_STRINGS)  # type: ignore
         if is_missing_code_error:
             msg = (
                 "Could not transact with/call contract function, is contract "
