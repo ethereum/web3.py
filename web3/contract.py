@@ -540,6 +540,38 @@ class BaseContract:
                                      ) -> List[Any]:
         raise NotImplementedError("This method should be implemented in the inherited class")
 
+    @staticmethod
+    def get_fallback_function(
+        abi: ABI, w3: 'Web3',
+        function_type: Union[Type['ContractFunction'], Type['AsyncContractFunction']],
+        address: Optional[ChecksumAddress] = None
+    ) -> Union['ContractFunction', 'AsyncContractFunction']:
+        if abi and fallback_func_abi_exists(abi):
+            return function_type.factory(
+                'fallback',
+                w3=w3,
+                contract_abi=abi,
+                address=address,
+                function_identifier=FallbackFn)()
+
+        return cast('ContractFunction', NonExistentFallbackFunction())
+
+    @staticmethod
+    def get_receive_function(
+        abi: ABI, w3: 'Web3',
+        function_type: Union[Type['ContractFunction'], Type['AsyncContractFunction']],
+        address: Optional[ChecksumAddress] = None
+    ) -> Union['ContractFunction', 'AsyncContractFunction']:
+        if abi and receive_func_abi_exists(abi):
+            return function_type.factory(
+                'receive',
+                w3=w3,
+                contract_abi=abi,
+                address=address,
+                function_identifier=ReceiveFn)()
+
+        return cast('ContractFunction', NonExistentReceiveFunction())
+
 
 class Contract(BaseContract):
 
@@ -568,8 +600,10 @@ class Contract(BaseContract):
         self.functions = ContractFunctions(self.abi, self.w3, self.address)
         self.caller = ContractCaller(self.abi, self.w3, self.address)
         self.events = ContractEvents(self.abi, self.w3, self.address)
-        self.fallback = Contract.get_fallback_function(self.abi, self.w3, self.address)
-        self.receive = Contract.get_receive_function(self.abi, self.w3, self.address)
+        self.fallback = Contract.get_fallback_function(self.abi, self.w3,
+                                                       ContractFunction, self.address)
+        self.receive = Contract.get_receive_function(self.abi, self.w3,
+                                                     ContractFunction, self.address)
 
     @classmethod
     def factory(cls, w3: 'Web3', class_name: Optional[str] = None, **kwargs: Any) -> 'Contract':
@@ -591,8 +625,10 @@ class Contract(BaseContract):
         contract.functions = ContractFunctions(contract.abi, contract.w3)
         contract.caller = ContractCaller(contract.abi, contract.w3, contract.address)
         contract.events = ContractEvents(contract.abi, contract.w3)
-        contract.fallback = Contract.get_fallback_function(contract.abi, contract.w3)
-        contract.receive = Contract.get_receive_function(contract.abi, contract.w3)
+        contract.fallback = Contract.get_fallback_function(contract.abi, contract.w3,
+                                                           ContractFunction)
+        contract.receive = Contract.get_receive_function(contract.abi, contract.w3,
+                                                         ContractFunction)
 
         return contract
 
@@ -614,34 +650,6 @@ class Contract(BaseContract):
                                    cls.bytecode,
                                    *args,
                                    **kwargs)
-
-    @staticmethod
-    def get_fallback_function(
-        abi: ABI, w3: 'Web3', address: Optional[ChecksumAddress] = None
-    ) -> 'ContractFunction':
-        if abi and fallback_func_abi_exists(abi):
-            return ContractFunction.factory(
-                'fallback',
-                w3=w3,
-                contract_abi=abi,
-                address=address,
-                function_identifier=FallbackFn)()
-
-        return cast('ContractFunction', NonExistentFallbackFunction())
-
-    @staticmethod
-    def get_receive_function(
-        abi: ABI, w3: 'Web3', address: Optional[ChecksumAddress] = None
-    ) -> 'ContractFunction':
-        if abi and receive_func_abi_exists(abi):
-            return ContractFunction.factory(
-                'receive',
-                w3=w3,
-                contract_abi=abi,
-                address=address,
-                function_identifier=ReceiveFn)()
-
-        return cast('ContractFunction', NonExistentReceiveFunction())
 
     @combomethod
     def find_functions_by_identifier(cls,
@@ -680,8 +688,10 @@ class AsyncContract(BaseContract):
         self.functions = AsyncContractFunctions(self.abi, self.w3, self.address)
         self.caller = AsyncContractCaller(self.abi, self.w3, self.address)
         self.events = AsyncContractEvents(self.abi, self.w3, self.address)
-        self.fallback = AsyncContract.get_fallback_function(self.abi, self.w3, self.address)
-        self.receive = AsyncContract.get_receive_function(self.abi, self.w3, self.address)
+        self.fallback = AsyncContract.get_fallback_function(self.abi, self.w3,
+                                                            AsyncContractFunction, self.address)
+        self.receive = AsyncContract.get_receive_function(self.abi, self.w3,
+                                                          AsyncContractFunction, self.address)
 
     @classmethod
     def factory(cls, w3: 'Web3',
@@ -705,8 +715,10 @@ class AsyncContract(BaseContract):
         contract.functions = AsyncContractFunctions(contract.abi, contract.w3)
         contract.caller = AsyncContractCaller(contract.abi, contract.w3, contract.address)
         contract.events = AsyncContractEvents(contract.abi, contract.w3)
-        contract.fallback = AsyncContract.get_fallback_function(contract.abi, contract.w3)
-        contract.receive = AsyncContract.get_receive_function(contract.abi, contract.w3)
+        contract.fallback = AsyncContract.get_fallback_function(contract.abi, contract.w3,
+                                                                AsyncContractFunction)
+        contract.receive = AsyncContract.get_receive_function(contract.abi, contract.w3,
+                                                              AsyncContractFunction)
         return contract
 
     @classmethod
@@ -727,34 +739,6 @@ class AsyncContract(BaseContract):
                                         cls.bytecode,
                                         *args,
                                         **kwargs)
-
-    @staticmethod
-    def get_fallback_function(
-        abi: ABI, w3: 'Web3', address: Optional[ChecksumAddress] = None
-    ) -> 'AsyncContractFunction':
-        if abi and fallback_func_abi_exists(abi):
-            return AsyncContractFunction.factory(
-                'fallback',
-                w3=w3,
-                contract_abi=abi,
-                address=address,
-                function_identifier=FallbackFn)()
-
-        return cast('AsyncContractFunction', NonExistentFallbackFunction())
-
-    @staticmethod
-    def get_receive_function(
-        abi: ABI, w3: 'Web3', address: Optional[ChecksumAddress] = None
-    ) -> 'AsyncContractFunction':
-        if abi and receive_func_abi_exists(abi):
-            return AsyncContractFunction.factory(
-                'receive',
-                w3=w3,
-                contract_abi=abi,
-                address=address,
-                function_identifier=ReceiveFn)()
-
-        return cast('AsyncContractFunction', NonExistentReceiveFunction())
 
     @combomethod
     def find_functions_by_identifier(cls,
