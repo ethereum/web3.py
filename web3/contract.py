@@ -554,7 +554,7 @@ class BaseContract:
                 address=address,
                 function_identifier=FallbackFn)()
 
-        return cast('ContractFunction', NonExistentFallbackFunction())
+        return cast(function_type, NonExistentFallbackFunction())  # type: ignore
 
     @staticmethod
     def get_receive_function(
@@ -570,7 +570,7 @@ class BaseContract:
                 address=address,
                 function_identifier=ReceiveFn)()
 
-        return cast('ContractFunction', NonExistentReceiveFunction())
+        return cast(function_type, NonExistentReceiveFunction())  # type: ignore
 
 
 class Contract(BaseContract):
