@@ -1384,7 +1384,7 @@ class AsyncContractFunction(BaseContractFunction):
             self._return_data_normalizers,
             self.function_identifier,
             call_transaction,
-            block_id,  # type: ignore
+            block_id,  # type: ignore BlockIdentifier does have an Awaitable type in types.py
             self.contract_abi,
             self.abi,
             state_override,
