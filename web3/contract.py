@@ -1213,6 +1213,11 @@ class BaseContractFunction:
             return _repr + '>'
         return f'<Function {self.fn_name}>'
 
+    @classmethod
+    def factory(cls, class_name: str, **kwargs: Any) -> Union['AsyncContractFunction',
+                                                              'ContractFunction']:
+        return PropertyCheckingFactory(class_name, (cls,), kwargs)(kwargs.get('abi'))
+
 
 class ContractFunction(BaseContractFunction):
 
@@ -1276,10 +1281,6 @@ class ContractFunction(BaseContractFunction):
                                       *self.args,
                                       **self.kwargs
                                       )
-
-    @classmethod
-    def factory(cls, class_name: str, **kwargs: Any) -> 'ContractFunction':
-        return PropertyCheckingFactory(class_name, (cls,), kwargs)(kwargs.get('abi'))
 
     def transact(self, transaction: Optional[TxParams] = None) -> HexBytes:
         setup_transaction = self._transact(transaction)
@@ -1390,10 +1391,6 @@ class AsyncContractFunction(BaseContractFunction):
             *self.args,
             **self.kwargs
         )
-
-    @classmethod
-    def factory(cls, class_name: str, **kwargs: Any) -> 'AsyncContractFunction':
-        return PropertyCheckingFactory(class_name, (cls,), kwargs)(kwargs.get('abi'))
 
     async def transact(self, transaction: Optional[TxParams] = None) -> HexBytes:
         setup_transaction = self._transact(transaction)
