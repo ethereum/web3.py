@@ -248,28 +248,60 @@ jobs:
       # Please don't use this key for any shenanigans
       WEB3_INFURA_PROJECT_ID: 7707850c2fb7465ebe6f150d67182e22
 
-  py37-integration-goethereum-ipc:
+  py37-integration-goethereum-ipc_eth:
     <<: *geth_steps
     docker:
       - image: cimg/python:3.7
     environment:
-      TOXENV: py37-integration-goethereum-ipc
+      TOXENV: py37-integration-goethereum-ipc_eth
       GETH_VERSION: v1.10.17
 
-  py37-integration-goethereum-http:
+  py37-integration-goethereum-ipc_non_eth:
     <<: *geth_steps
     docker:
       - image: cimg/python:3.7
     environment:
-      TOXENV: py37-integration-goethereum-http
+      TOXENV: py37-integration-goethereum-ipc_non_eth
       GETH_VERSION: v1.10.17
 
-  py37-integration-goethereum-ws:
+  py37-integration-goethereum-http_eth:
     <<: *geth_steps
     docker:
       - image: cimg/python:3.7
     environment:
-      TOXENV: py37-integration-goethereum-ws
+      TOXENV: py37-integration-goethereum-http_eth
+      GETH_VERSION: v1.10.17
+
+  py37-integration-goethereum-http_non_eth:
+    <<: *geth_steps
+    docker:
+      - image: cimg/python:3.7
+    environment:
+      TOXENV: py37-integration-goethereum-http_non_eth
+      GETH_VERSION: v1.10.17
+
+  py37-integration-goethereum-http_async:
+    <<: *geth_steps
+    docker:
+      - image: cimg/python:3.7
+    environment:
+      TOXENV: py37-integration-goethereum-http_async
+      GETH_VERSION: v1.10.17
+
+  py37-integration-goethereum-ws_eth:
+    <<: *geth_steps
+    docker:
+      - image: cimg/python:3.7
+    environment:
+      TOXENV: py37-integration-goethereum-ws_eth
+      GETH_VERSION: v1.10.17
+
+  py37-integration-goethereum-ws_non_eth:
+    <<: *geth_steps
+    docker:
+      - image: cimg/python:3.7
+    environment:
+      TOXENV: py37-integration-goethereum-ws_non_eth
       GETH_VERSION: v1.10.17
 
   py37-integration-ethtester-pyevm:
@@ -318,28 +350,60 @@ jobs:
       # Please don't use this key for any shenanigans
       WEB3_INFURA_PROJECT_ID: 7707850c2fb7465ebe6f150d67182e22
 
-  py38-integration-goethereum-ipc:
+  py38-integration-goethereum-ipc_eth:
     <<: *geth_steps
     docker:
       - image: cimg/python:3.8
     environment:
-      TOXENV: py38-integration-goethereum-ipc
+      TOXENV: py38-integration-goethereum-ipc_eth
       GETH_VERSION: v1.10.17
 
-  py38-integration-goethereum-http:
+  py38-integration-goethereum-ipc_non_eth:
     <<: *geth_steps
     docker:
       - image: cimg/python:3.8
     environment:
-      TOXENV: py38-integration-goethereum-http
+      TOXENV: py38-integration-goethereum-ipc_non_eth
       GETH_VERSION: v1.10.17
 
-  py38-integration-goethereum-ws:
+  py38-integration-goethereum-http_eth:
     <<: *geth_steps
     docker:
       - image: cimg/python:3.8
     environment:
-      TOXENV: py38-integration-goethereum-ws
+      TOXENV: py38-integration-goethereum-http_eth
+      GETH_VERSION: v1.10.17
+
+  py38-integration-goethereum-http_non_eth:
+    <<: *geth_steps
+    docker:
+      - image: cimg/python:3.8
+    environment:
+      TOXENV: py38-integration-goethereum-http_non_eth
+      GETH_VERSION: v1.10.17
+
+  py38-integration-goethereum-http_async:
+    <<: *geth_steps
+    docker:
+      - image: cimg/python:3.8
+    environment:
+      TOXENV: py38-integration-goethereum-http_async
+      GETH_VERSION: v1.10.17
+
+  py38-integration-goethereum-ws_eth:
+    <<: *geth_steps
+    docker:
+      - image: cimg/python:3.8
+    environment:
+      TOXENV: py38-integration-goethereum-ws_eth
+      GETH_VERSION: v1.10.17
+
+  py38-integration-goethereum-ws_non_eth:
+    <<: *geth_steps
+    docker:
+      - image: cimg/python:3.8
+    environment:
+      TOXENV: py38-integration-goethereum-ws_non_eth
       GETH_VERSION: v1.10.17
 
   py38-integration-ethtester-pyevm:
@@ -383,28 +447,60 @@ jobs:
       # Please don't use this key for any shenanigans
       WEB3_INFURA_PROJECT_ID: 7707850c2fb7465ebe6f150d67182e22
 
-  py39-integration-goethereum-ipc:
+  py39-integration-goethereum-ipc_eth:
     <<: *geth_steps
     docker:
       - image: cimg/python:3.9
     environment:
-      TOXENV: py39-integration-goethereum-ipc
+      TOXENV: py39-integration-goethereum-ipc_eth
       GETH_VERSION: v1.10.17
 
-  py39-integration-goethereum-http:
+  py39-integration-goethereum-ipc_non_eth:
     <<: *geth_steps
     docker:
       - image: cimg/python:3.9
     environment:
-      TOXENV: py39-integration-goethereum-http
+      TOXENV: py39-integration-goethereum-ipc_non_eth
       GETH_VERSION: v1.10.17
 
-  py39-integration-goethereum-ws:
+  py39-integration-goethereum-http_eth:
     <<: *geth_steps
     docker:
       - image: cimg/python:3.9
     environment:
-      TOXENV: py39-integration-goethereum-ws
+      TOXENV: py39-integration-goethereum-http_eth
+      GETH_VERSION: v1.10.17
+
+  py39-integration-goethereum-http_non_eth:
+    <<: *geth_steps
+    docker:
+      - image: cimg/python:3.9
+    environment:
+      TOXENV: py39-integration-goethereum-http_non_eth
+      GETH_VERSION: v1.10.17
+
+  py39-integration-goethereum-http_async:
+    <<: *geth_steps
+    docker:
+      - image: cimg/python:3.9
+    environment:
+      TOXENV: py39-integration-goethereum-http_async
+      GETH_VERSION: v1.10.17
+
+  py39-integration-goethereum-ws_eth:
+    <<: *geth_steps
+    docker:
+      - image: cimg/python:3.9
+    environment:
+      TOXENV: py39-integration-goethereum-ws_eth
+      GETH_VERSION: v1.10.17
+
+  py39-integration-goethereum-ws_non_eth:
+    <<: *geth_steps
+    docker:
+      - image: cimg/python:3.9
+    environment:
+      TOXENV: py39-integration-goethereum-ws_non_eth
       GETH_VERSION: v1.10.17
 
   py39-integration-ethtester-pyevm:
@@ -448,28 +544,60 @@ jobs:
       # Please don't use this key for any shenanigans
       WEB3_INFURA_PROJECT_ID: 7707850c2fb7465ebe6f150d67182e22
 
-  py310-integration-goethereum-ipc:
+  py310-integration-goethereum-ipc_eth:
     <<: *geth_steps
     docker:
       - image: cimg/python:3.10
     environment:
-      TOXENV: py310-integration-goethereum-ipc
+      TOXENV: py310-integration-goethereum-ipc_eth
       GETH_VERSION: v1.10.17
 
-  py310-integration-goethereum-http:
+  py310-integration-goethereum-ipc_non_eth:
     <<: *geth_steps
     docker:
       - image: cimg/python:3.10
     environment:
-      TOXENV: py310-integration-goethereum-http
+      TOXENV: py310-integration-goethereum-ipc_non_eth
       GETH_VERSION: v1.10.17
 
-  py310-integration-goethereum-ws:
+  py310-integration-goethereum-http_eth:
     <<: *geth_steps
     docker:
       - image: cimg/python:3.10
     environment:
-      TOXENV: py310-integration-goethereum-ws
+      TOXENV: py310-integration-goethereum-http_eth
+      GETH_VERSION: v1.10.17
+
+  py310-integration-goethereum-http_non_eth:
+    <<: *geth_steps
+    docker:
+      - image: cimg/python:3.10
+    environment:
+      TOXENV: py310-integration-goethereum-http_non_eth
+      GETH_VERSION: v1.10.17
+
+  py310-integration-goethereum-http_async:
+    <<: *geth_steps
+    docker:
+      - image: cimg/python:3.10
+    environment:
+      TOXENV: py310-integration-goethereum-http_async
+      GETH_VERSION: v1.10.17
+
+  py310-integration-goethereum-ws_eth:
+    <<: *geth_steps
+    docker:
+      - image: cimg/python:3.10
+    environment:
+      TOXENV: py310-integration-goethereum-ws_eth
+      GETH_VERSION: v1.10.17
+
+  py310-integration-goethereum-ws_non_eth:
+    <<: *geth_steps
+    docker:
+      - image: cimg/python:3.10
+    environment:
+      TOXENV: py310-integration-goethereum-ws_non_eth
       GETH_VERSION: v1.10.17
 
   py310-integration-ethtester-pyevm:
@@ -509,30 +637,46 @@ workflows:
       - benchmark
       - py37-ens
       - py37-ethpm
-      - py37-integration-goethereum-ipc
-      - py37-integration-goethereum-http
-      - py37-integration-goethereum-ws
+      - py37-integration-goethereum-ipc_eth
+      - py37-integration-goethereum-ipc_non_eth
+      - py37-integration-goethereum-http_eth
+      - py37-integration-goethereum-http_non_eth
+      - py37-integration-goethereum-http_async
+      - py37-integration-goethereum-ws_eth
+      - py37-integration-goethereum-ws_non_eth
       - py37-integration-ethtester-pyevm
       - py37-wheel-cli
       - py37-wheel-cli-windows
       - py38-ens
       - py38-ethpm
-      - py38-integration-goethereum-ipc
-      - py38-integration-goethereum-http
-      - py38-integration-goethereum-ws
+      - py38-integration-goethereum-ipc_eth
+      - py38-integration-goethereum-ipc_non_eth
+      - py38-integration-goethereum-http_eth
+      - py38-integration-goethereum-http_non_eth
+      - py38-integration-goethereum-http_async
+      - py38-integration-goethereum-ws_eth
+      - py38-integration-goethereum-ws_non_eth
       - py38-integration-ethtester-pyevm
       - py38-wheel-cli
       - py39-ens
       - py39-ethpm
-      - py39-integration-goethereum-ipc
-      - py39-integration-goethereum-http
-      - py39-integration-goethereum-ws
+      - py39-integration-goethereum-ipc_eth
+      - py39-integration-goethereum-ipc_non_eth
+      - py39-integration-goethereum-http_eth
+      - py39-integration-goethereum-http_non_eth
+      - py39-integration-goethereum-http_async
+      - py39-integration-goethereum-ws_eth
+      - py39-integration-goethereum-ws_non_eth
       - py39-integration-ethtester-pyevm
       - py39-wheel-cli
       - py310-ens
       - py310-ethpm
-      - py310-integration-goethereum-ipc
-      - py310-integration-goethereum-http
-      - py310-integration-goethereum-ws
+      - py310-integration-goethereum-ipc_eth
+      - py310-integration-goethereum-ipc_non_eth
+      - py310-integration-goethereum-http_eth
+      - py310-integration-goethereum-http_non_eth
+      - py310-integration-goethereum-http_async
+      - py310-integration-goethereum-ws_eth
+      - py310-integration-goethereum-ws_non_eth
       - py310-integration-ethtester-pyevm
       - py310-wheel-cli
