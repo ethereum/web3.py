@@ -156,7 +156,7 @@ def emitter_contract_address(emitter_contract, address_conversion_func):
     return address_conversion_func(emitter_contract.address)
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def unlocked_account(w3, unlockable_account, unlockable_account_pw):
     w3.geth.personal.unlock_account(unlockable_account, unlockable_account_pw)
     yield unlockable_account

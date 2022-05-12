@@ -95,6 +95,44 @@ def w3(geth_process, endpoint_uri):
     return _w3
 
 
+class TestGoEthereumTest(GoEthereumTest):
+    pass
+
+
+class TestGoEthereumAdminModuleTest(GoEthereumAdminModuleTest):
+    @pytest.mark.xfail(reason="running geth with the --nodiscover flag doesn't allow peer addition")
+    def test_admin_peers(self, w3: "Web3") -> None:
+        super().test_admin_peers(w3)
+
+    def test_admin_start_stop_rpc(self, w3: "Web3") -> None:
+        # This test causes all tests after it to fail on CI if it's allowed to run
+        pytest.xfail(reason='Only one RPC endpoint is allowed to be active at any time')
+        super().test_admin_start_stop_rpc(w3)
+
+    def test_admin_start_stop_ws(self, w3: "Web3") -> None:
+        # This test causes all tests after it to fail on CI if it's allowed to run
+        pytest.xfail(reason='Only one WS endpoint is allowed to be active at any time')
+        super().test_admin_start_stop_ws(w3)
+
+
+class TestGoEthereumEthModuleTest(GoEthereumEthModuleTest):
+    pass
+
+
+class TestGoEthereumNetModuleTest(GoEthereumNetModuleTest):
+    pass
+
+
+class TestGoEthereumPersonalModuleTest(GoEthereumPersonalModuleTest):
+    pass
+
+
+class TestGoEthereumTxPoolModuleTest(GoEthereumTxPoolModuleTest):
+    pass
+
+
+# -- async -- #
+
 @pytest_asyncio.fixture(scope="module")
 async def async_w3(geth_process, endpoint_uri):
     await wait_for_aiohttp(endpoint_uri)
@@ -117,26 +155,6 @@ async def async_w3(geth_process, endpoint_uri):
     return _w3
 
 
-class TestGoEthereumTest(GoEthereumTest):
-    pass
-
-
-class TestGoEthereumAdminModuleTest(GoEthereumAdminModuleTest):
-    @pytest.mark.xfail(reason="running geth with the --nodiscover flag doesn't allow peer addition")
-    def test_admin_peers(self, w3: "Web3") -> None:
-        super().test_admin_peers(w3)
-
-    def test_admin_start_stop_rpc(self, w3: "Web3") -> None:
-        # This test causes all tests after it to fail on CI if it's allowed to run
-        pytest.xfail(reason='Only one RPC endpoint is allowed to be active at any time')
-        super().test_admin_start_stop_rpc(w3)
-
-    def test_admin_start_stop_ws(self, w3: "Web3") -> None:
-        # This test causes all tests after it to fail on CI if it's allowed to run
-        pytest.xfail(reason='Only one WS endpoint is allowed to be active at any time')
-        super().test_admin_start_stop_ws(w3)
-
-
 class TestGoEthereumAsyncAdminModuleTest(GoEthereumAsyncAdminModuleTest):
     @pytest.mark.asyncio
     @pytest.mark.xfail(reason="running geth with the --nodiscover flag doesn't allow peer addition")
@@ -156,19 +174,7 @@ class TestGoEthereumAsyncAdminModuleTest(GoEthereumAsyncAdminModuleTest):
         await super().test_admin_start_stop_ws(w3)
 
 
-class TestGoEthereumEthModuleTest(GoEthereumEthModuleTest):
-    pass
-
-
-class TestGoEthereumNetModuleTest(GoEthereumNetModuleTest):
-    pass
-
-
 class TestGoEthereumAsyncNetModuleTest(GoEthereumAsyncNetModuleTest):
-    pass
-
-
-class TestGoEthereumPersonalModuleTest(GoEthereumPersonalModuleTest):
     pass
 
 
@@ -177,10 +183,6 @@ class TestGoEthereumAsyncPersonalModuleTest(GoEthereumAsyncPersonalModuleTest):
 
 
 class TestGoEthereumAsyncEthModuleTest(GoEthereumAsyncEthModuleTest):
-    pass
-
-
-class TestGoEthereumTxPoolModuleTest(GoEthereumTxPoolModuleTest):
     pass
 
 
