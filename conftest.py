@@ -92,8 +92,6 @@ def wait_for_block():
     return _wait_for_block
 
 
-
-
 @pytest.fixture(scope="module")
 def wait_for_transaction():
     def _wait_for_transaction(w3, txn_hash, timeout=120):
