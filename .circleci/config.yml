@@ -27,6 +27,7 @@ common: &common
           - ~/.ethash
           - ~/.py-geth
         key: cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
+  resource_class: xlarge
 
 docs_steps: &docs_steps
   working_directory: ~/repo
@@ -56,9 +57,11 @@ docs_steps: &docs_steps
           - ~/.ethash
           - ~/.py-geth
         key: cache-docs-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
+  resource_class: xlarge
 
 geth_steps: &geth_steps
   working_directory: ~/repo
+  resource_class: xlarge
   steps:
     - checkout
     - restore_cache:
@@ -142,6 +145,7 @@ geth_custom_steps: &geth_custom_steps
 
 ethpm_steps: &ethpm_steps
   working_directory: ~/repo
+  resource_class: xlarge
   steps:
     - checkout
     - restore_cache:
