@@ -255,7 +255,7 @@ jobs:
   docs:
     <<: *docs_steps
     docker:
-      - image: cimg/python:3.6
+      - image: circleci/python:3.6
     environment:
       TOXENV: docs
 
