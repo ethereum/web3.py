@@ -250,3 +250,28 @@ def test_latest_block_cache_middleware_does_not_cache_error_response(
         w3.manager.request_blocking('fake_endpoint', [])
 
     assert next(counter) == 2
+
+
+def test_latest_block_cache_middleware_does_not_cache_get_latest_block(
+        w3_base,
+        block_data_middleware,
+        result_generator_middleware):
+    w3 = w3_base
+    w3.middleware_onion.add(block_data_middleware)
+    w3.middleware_onion.add(result_generator_middleware)
+
+    current_block_hash = w3.eth.get_block('latest')['hash']
+
+    def cache_class():
+        return {
+            generate_cache_key(
+                (current_block_hash, 'eth_getBlockByNumber', ['latest'])
+            ): {'result': 'value-a'},
+        }
+
+    w3.middleware_onion.add(construct_latest_block_based_cache_middleware(
+        cache_class=cache_class,
+        rpc_whitelist={'eth_getBlockByNumber'},
+    ))
+
+    assert w3.manager.request_blocking('eth_getBlockByNumber', ['latest']) != 'value-a'
