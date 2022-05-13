@@ -181,7 +181,7 @@ def test_contract_function_methods(string_contract):
     get_value_func = string_contract.get_function_by_signature('getValue()')
     assert isinstance(set_value_func('Hello').transact(), HexBytes)
     assert get_value_func().call() == 'Hello'
-    assert isinstance(set_value_func('Hello World').estimateGas(), int)
+    assert isinstance(set_value_func('Hello World').estimate_gas(), int)
     assert isinstance(set_value_func('Hello World').build_transaction(), dict)
 
 

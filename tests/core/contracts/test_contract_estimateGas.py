@@ -71,9 +71,9 @@ def payable_tester_contract(web3, PayableTesterContract, address_conversion_func
     return _payable_tester
 
 
-def test_contract_estimateGas(web3, math_contract, estimateGas, transact):
-    gas_estimate = estimateGas(contract=math_contract,
-                               contract_function='increment')
+def test_contract_estimate_gas(web3, math_contract, estimate_gas, transact):
+    gas_estimate = estimate_gas(contract=math_contract,
+                                contract_function='increment')
 
     txn_hash = transact(
         contract=math_contract,
@@ -85,8 +85,8 @@ def test_contract_estimateGas(web3, math_contract, estimateGas, transact):
     assert abs(gas_estimate - gas_used) < 21000
 
 
-def test_contract_fallback_estimateGas(web3, fallback_function_contract):
-    gas_estimate = fallback_function_contract.fallback.estimateGas()
+def test_contract_fallback_estimate_gas(web3, fallback_function_contract):
+    gas_estimate = fallback_function_contract.fallback.estimate_gas()
 
     txn_hash = fallback_function_contract.fallback.transact()
 
@@ -96,10 +96,10 @@ def test_contract_fallback_estimateGas(web3, fallback_function_contract):
     assert abs(gas_estimate - gas_used) < 21000
 
 
-def test_contract_estimateGas_with_arguments(web3, math_contract, estimateGas, transact):
-    gas_estimate = estimateGas(contract=math_contract,
-                               contract_function='add',
-                               func_args=[5, 6])
+def test_contract_estimate_gas_with_arguments(web3, math_contract, estimate_gas, transact):
+    gas_estimate = estimate_gas(contract=math_contract,
+                                contract_function='add',
+                                func_args=[5, 6])
 
     txn_hash = transact(
         contract=math_contract,
@@ -111,13 +111,13 @@ def test_contract_estimateGas_with_arguments(web3, math_contract, estimateGas, t
     assert abs(gas_estimate - gas_used) < 21000
 
 
-def test_estimateGas_not_sending_ether_to_nonpayable_function(
+def test_estimate_gas_not_sending_ether_to_nonpayable_function(
         web3,
         payable_tester_contract,
-        estimateGas,
+        estimate_gas,
         transact):
-    gas_estimate = estimateGas(contract=payable_tester_contract,
-                               contract_function='doNoValueCall')
+    gas_estimate = estimate_gas(contract=payable_tester_contract,
+                                contract_function='doNoValueCall')
 
     txn_hash = transact(
         contract=payable_tester_contract,
@@ -129,18 +129,18 @@ def test_estimateGas_not_sending_ether_to_nonpayable_function(
     assert abs(gas_estimate - gas_used) < 21000
 
 
-def test_estimateGas_sending_ether_to_nonpayable_function(
+def test_estimate_gas_sending_ether_to_nonpayable_function(
         web3,
         payable_tester_contract,
-        estimateGas):
+        estimate_gas):
     with pytest.raises(ValidationError):
-        estimateGas(contract=payable_tester_contract,
-                    contract_function='doNoValueCall',
-                    tx_params={'value': 1})
+        estimate_gas(contract=payable_tester_contract,
+                     contract_function='doNoValueCall',
+                     tx_params={'value': 1})
 
 
-def test_estimateGas_accepts_latest_block(web3, math_contract, transact):
-    gas_estimate = math_contract.functions.counter().estimateGas(block_identifier='latest')
+def test_estimate_gas_accepts_latest_block(web3, math_contract, transact):
+    gas_estimate = math_contract.functions.counter().estimate_gas(block_identifier='latest')
 
     txn_hash = transact(
         contract=math_contract,
@@ -152,14 +152,14 @@ def test_estimateGas_accepts_latest_block(web3, math_contract, transact):
     assert abs(gas_estimate - gas_used) < 21000
 
 
-def test_estimateGas_block_identifier_unique_estimates(web3, math_contract, transact):
+def test_estimate_gas_block_identifier_unique_estimates(web3, math_contract, transact):
     txn_hash = transact(contract=math_contract, contract_function="increment")
     web3.eth.wait_for_transaction_receipt(txn_hash)
 
-    latest_gas_estimate = math_contract.functions.counter().estimateGas(
+    latest_gas_estimate = math_contract.functions.counter().estimate_gas(
         block_identifier="latest"
     )
-    earliest_gas_estimate = math_contract.functions.counter().estimateGas(
+    earliest_gas_estimate = math_contract.functions.counter().estimate_gas(
         block_identifier="earliest"
     )
 

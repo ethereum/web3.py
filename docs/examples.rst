@@ -361,7 +361,7 @@ The following example demonstrates a few things:
 
     store_var_contract = w3.eth.contract(address=address, abi=contract_interface["abi"])
 
-    gas_estimate = store_var_contract.functions.setVar(255).estimateGas()
+    gas_estimate = store_var_contract.functions.setVar(255).estimate_gas()
     print(f'Gas estimate to transact with setVar: {gas_estimate}')
 
     if gas_estimate < 100000:
