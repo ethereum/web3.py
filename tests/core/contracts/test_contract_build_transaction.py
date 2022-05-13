@@ -235,3 +235,8 @@ def test_build_transaction_with_contract_with_arguments(web3, skip_if_testrpc, m
     else:
         assert 'gas' in txn
     assert dissoc(txn, 'gas') == expected
+
+
+def test_buildTransaction_deprecated(math_contract):
+    with pytest.warns(DeprecationWarning, match="deprecated in favor of build_transaction"):
+        math_contract.functions.counter().buildTransaction()

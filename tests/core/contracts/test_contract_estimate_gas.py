@@ -164,3 +164,8 @@ def test_estimate_gas_block_identifier_unique_estimates(web3, math_contract, tra
     )
 
     assert latest_gas_estimate != earliest_gas_estimate
+
+
+def test_estimateGas_deprecated(math_contract):
+    with pytest.warns(DeprecationWarning, match="deprecated in favor of estimate_gas"):
+        math_contract.functions.counter().estimateGas()
