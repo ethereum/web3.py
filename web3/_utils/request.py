@@ -78,7 +78,7 @@ def _remove_session(key: str, session: requests.Session) -> None:
 
 _session_cache = lru.LRU(8, callback=_remove_session)
 _async_session_cache_lock = threading.Lock()
-_async_session_cache = SessionCache(size=8)
+_async_session_cache = SessionCache(size=20)
 
 
 def _get_session(endpoint_uri: URI) -> requests.Session:
