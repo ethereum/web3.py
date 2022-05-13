@@ -12,11 +12,10 @@ from typing import (
     cast,
 )
 
-import lru
-
-from eth_utils import (  # noqa: F401
+from eth_utils import (
     is_list_like,
 )
+import lru
 
 from web3._utils.caching import (
     generate_cache_key,

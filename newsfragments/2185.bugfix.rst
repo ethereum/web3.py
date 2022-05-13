@@ -1,0 +1,1 @@
+Fix bug in _is_latest_block_number_request in cache middleware
