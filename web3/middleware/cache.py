@@ -12,6 +12,9 @@ from typing import (
     cast,
 )
 
+from eth_utils import (
+    is_list_like,
+)
 import lru
 
 from web3._utils.caching import (
@@ -318,7 +321,7 @@ AVG_BLOCK_TIME_UPDATED_AT_KEY: Literal['avg_block_time_updated_at'] = 'avg_block
 def _is_latest_block_number_request(method: RPCEndpoint, params: Any) -> bool:
     if method != 'eth_getBlockByNumber':
         return False
-    elif params[:1] == ['latest']:
+    elif is_list_like(params) and tuple(params[:1]) == ('latest',):
         return True
     return False
 
