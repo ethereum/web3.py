@@ -57,6 +57,7 @@ docs_steps: &docs_steps
           - ~/.ethash
           - ~/.py-geth
         key: cache-docs-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
+  resource_class: xlarge
 
 # parity_steps: &parity_steps
   # working_directory: ~/repo
@@ -139,6 +140,7 @@ geth_steps: &geth_steps
           - ~/.ethash
           - ~/.py-geth
         key: cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
+  resource_class: xlarge
 
 geth_custom_steps: &geth_custom_steps
   working_directory: ~/repo
@@ -212,6 +214,7 @@ ethpm_steps: &ethpm_steps
           - ~/.cache/pip
           - ~/.local
         key: ethpm-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
+  resource_class: xlarge
 
 orbs:
   win: circleci/windows@2.2.0
