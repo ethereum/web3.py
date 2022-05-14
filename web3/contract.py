@@ -708,7 +708,7 @@ class ContractConstructor:
 
 
 class ConciseMethod:
-    ALLOWED_MODIFIERS = {'call', 'estimate_gas', 'transact', 'build_transaction'}
+    ALLOWED_MODIFIERS = {'call', 'estimateGas', 'transact', 'buildTransaction'}
 
     def __init__(
         self, function: 'ContractFunction',
