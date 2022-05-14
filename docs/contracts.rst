@@ -845,6 +845,7 @@ Methods
     `More information about archival nodes here <https://ethereum.stackexchange.com/a/84200/620>`_.
 
 .. py:method:: ContractFunction.estimateGas(transaction, block_identifier=None)
+
     .. warning:: Deprecated: This method is deprecated in favor of :class:`~estimate_gas`
 
 .. py:method:: ContractFunction.estimate_gas(transaction, block_identifier=None)
@@ -876,6 +877,7 @@ Methods
         nodes would result in an error like:  ``ValueError: {'code': -32602, 'message': 'too many arguments, want at most 1'}``
 
 .. py:method:: ContractFunction.buildTransaction(transaction)
+  
     .. warning:: Deprecated: This method is deprecated in favor of :class:`~build_transaction`
 
 .. py:method:: ContractFunction.build_transaction(transaction)
