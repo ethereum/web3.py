@@ -90,6 +90,10 @@ Example ``account_test_script.py``
     
     print(f"Your hot wallet address is {account.address}")
     
+    # Now you can use web3.eth.send_transaction(), Contract.functions.xxx.transact() functions 
+    # with your local private key through middleware and you no longer get the error 
+    # "ValueError: The method eth_sendTransaction does not exist/is not available
+    
 Example how to run this in UNIX shell:
 
 .. code-block:: shell
@@ -102,6 +106,7 @@ Example how to run this in UNIX shell:
     
     # Run our script
     python account_test_script.py
+    
     
 This will print::
 
