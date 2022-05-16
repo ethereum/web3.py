@@ -1,0 +1,1 @@
+Pin Jinja2<=3.0.3 to get docs to build
