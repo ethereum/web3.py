@@ -3,6 +3,35 @@ Release Notes
 
 .. towncrier release notes start
 
+v5.29.1 (2022-05-16)
+--------------------
+
+Bugfixes
+~~~~~~~~
+
+- Fix bug in _is_latest_block_number_request in cache middleware (`#2185
+  <https://github.com/ethereum/web3.py/issues/2185>`__)
+- Increase SessionCache size (`#2451
+  <https://github.com/ethereum/web3.py/issues/2451>`__)
+
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Doc fix: Pending transaction filter returns a ``TransactionFilter`` not a
+  ``BlockFilter`` (`#2444 <https://github.com/ethereum/web3.py/issues/2444>`__)
+
+
+Misc
+~~~~
+
+- `#2450 <https://github.com/ethereum/web3.py/issues/2450>`__, `#2453
+  <https://github.com/ethereum/web3.py/issues/2453>`__, `#2470
+  <https://github.com/ethereum/web3.py/issues/2470>`__, `#2472
+  <https://github.com/ethereum/web3.py/issues/2472>`__, `#2476
+  <https://github.com/ethereum/web3.py/issues/2476>`__
+
+
 v5.29.0 (2022-04-13)
 --------------------
 

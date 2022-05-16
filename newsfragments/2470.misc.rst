@@ -1,1 +1,0 @@
-The circleci/ images have been deprecated for a while moving to cimg/ images.
