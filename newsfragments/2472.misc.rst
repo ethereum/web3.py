@@ -1,0 +1,1 @@
+Move doc CI build back to circleci/python3.6 image
