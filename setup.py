@@ -31,7 +31,8 @@ extras_require = {
         "toposort>=1.4",
         "towncrier==18.5.0",
         "urllib3",
-        "wheel"
+        "wheel",
+        "Jinja2<=3.0.3", # Jinja v3.1.0 dropped support for python 3.6
     ],
     'dev': [
         "bumpversion",
