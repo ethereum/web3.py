@@ -21,7 +21,6 @@ from web3._utils.rpc_abi import (
     RPC,
 )
 from web3.method import (
-    DeprecatedMethod,
     Method,
     default_root_munger,
 )
@@ -94,15 +93,3 @@ ec_recover: Method[Callable[[str, HexStr], ChecksumAddress]] = Method(
     RPC.personal_ecRecover,
     mungers=[default_root_munger],
 )
-
-#
-# Deprecated Methods
-#
-importRawKey = DeprecatedMethod(import_raw_key, 'importRawKey', 'import_raw_key')
-newAccount = DeprecatedMethod(new_account, 'newAccount', 'new_account')
-listAccounts = DeprecatedMethod(list_accounts, 'listAccounts', 'list_accounts')
-sendTransaction = DeprecatedMethod(send_transaction, 'sendTransaction', 'send_transaction')
-lockAccount = DeprecatedMethod(lock_account, 'lockAccount', 'lock_account')
-unlockAccount = DeprecatedMethod(unlock_account, 'unlockAccount', 'unlock_account')
-signTypedData = DeprecatedMethod(sign_typed_data, 'signTypedData', 'sign_typed_data')
-ecRecover = DeprecatedMethod(ec_recover, 'ecRecover', 'ec_recover')

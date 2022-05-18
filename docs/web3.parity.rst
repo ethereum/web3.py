@@ -25,10 +25,6 @@ The following methods are available on the ``web3.parity.personal`` namespace.
         >>> web3.parity.personal.list_accounts()
         ['0xd3CdA913deB6f67967B99D67aCDFa1712C293601']
 
-.. py:method:: listAccounts
-
-    .. warning:: Deprecated: This method is deprecated in favor of
-      :meth:`~web3.parity.personal.list_accounts()`
 
 .. py:method:: import_raw_key(self, private_key, passphrase)
 
@@ -42,11 +38,6 @@ The following methods are available on the ``web3.parity.personal`` namespace.
         >>> web3.parity.personal.import_raw_key(some_private_key, 'the-passphrase')
         '0xd3CdA913deB6f67967B99D67aCDFa1712C293601'
 
-.. py:method:: importRawKey(self, private_key, passphrase)
-
-    .. warning:: Deprecated: This method is deprecated in favor of
-      :meth:`~web3.parity.personal.import_raw_key()`
-
 .. py:method:: new_account(self, password)
 
     * Delegates to ``personal_newAccount`` RPC Method
@@ -58,11 +49,6 @@ The following methods are available on the ``web3.parity.personal`` namespace.
 
         >>> web3.parity.personal.new_account('the-passphrase')
         '0xd3CdA913deB6f67967B99D67aCDFa1712C293601'
-
-.. py:method:: newAccount(self, password)
-
-    .. warning:: Deprecated: This method is deprecated in favor of
-      :meth:`~web3.parity.personal.new_account()`
 
 .. py:method:: unlock_account(self, account, passphrase, duration=None)
 
@@ -80,21 +66,11 @@ The following methods are available on the ``web3.parity.personal`` namespace.
         >>> web3.parity.personal.unlock_account('0xd3CdA913deB6f67967B99D67aCDFa1712C293601', 'the-passphrase')
         True
 
-.. py:method:: unlockAccount(self, account, passphrase, duration=None)
-
-    .. warning:: Deprecated: This method is deprecated in favor of
-      :meth:`~web3.parity.personal.unlock_account()`
-
 .. py:method:: send_transaction(self, transaction, passphrase)
 
     * Delegates to ``personal_sendTransaction`` RPC Method
 
     Sends the transaction.
-
-.. py:method:: sendTransaction(self, account, passphrase, duration=None)
-
-    .. warning:: Deprecated: This method is deprecated in favor of
-      :meth:`~web3.parity.personal.send_transaction()`
 
 .. py:method:: sign_typed_data(self, jsonMessage, account, passphrase)
 
@@ -104,8 +80,3 @@ The following methods are available on the ``web3.parity.personal`` namespace.
     and **NOT** the JSON String itself.
 
     Signs the ``Structured Data`` (or ``Typed Data``) with the passphrase of the given ``account``
-
-.. py:method:: signTypedData(self, jsonMessage, account, passphrase)
-
-    .. warning:: Deprecated: This method is deprecated in favor of
-      :meth:`~web3.parity.personal.sign_typed_data()`

@@ -10,7 +10,6 @@ from web3._utils.rpc_abi import (
     RPC,
 )
 from web3.method import (
-    DeprecatedMethod,
     Method,
     default_root_munger,
 )
@@ -65,14 +64,3 @@ stop_auto_dag: Method[Callable[[], bool]] = Method(
     RPC.miner_stopAutoDag,
     is_property=True,
 )
-
-
-#
-# Deprecated Methods
-#
-makeDag = DeprecatedMethod(make_dag, 'makeDag', 'make_dag')
-setExtra = DeprecatedMethod(set_extra, 'setExtra', 'set_extra')
-setEtherbase = DeprecatedMethod(set_etherbase, 'setEtherbase', 'set_etherbase')
-setGasPrice = DeprecatedMethod(set_gas_price, 'setGasPrice', 'set_gas_price')
-startAutoDag = DeprecatedMethod(start_auto_dag, 'startAutoDag', 'start_auto_dag')
-stopAutoDag = DeprecatedMethod(stop_auto_dag, 'stopAutoDag', 'stop_auto_dag')
