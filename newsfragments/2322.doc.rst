@@ -1,1 +1,0 @@
-Clarify info about Infura filters over HTTP

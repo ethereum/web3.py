@@ -17,7 +17,7 @@ common: &common
         command: pip install --user tox
     - run:
         name: run tox
-        command: ~/.local/bin/tox -r
+        command: python -m tox -r
     - save_cache:
         paths:
           - .tox
@@ -27,6 +27,7 @@ common: &common
           - ~/.ethash
           - ~/.py-geth
         key: cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
+  resource_class: xlarge
 
 docs_steps: &docs_steps
   working_directory: ~/repo
@@ -46,7 +47,7 @@ docs_steps: &docs_steps
         command: pip install -U web3
     - run:
         name: run tox
-        command: ~/.local/bin/tox -r
+        command: python -m tox -r
     - save_cache:
         paths:
           - .tox
@@ -56,9 +57,11 @@ docs_steps: &docs_steps
           - ~/.ethash
           - ~/.py-geth
         key: cache-docs-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
+  resource_class: xlarge
 
 geth_steps: &geth_steps
   working_directory: ~/repo
+  resource_class: xlarge
   steps:
     - checkout
     - restore_cache:
@@ -76,8 +79,8 @@ geth_steps: &geth_steps
           echo $GETH_VERSION
           export GETH_BINARY="$HOME/.py-geth/geth-$GETH_VERSION/bin/geth"
           if [ ! -e "$GETH_BINARY" ]; then
-            curl -O https://storage.googleapis.com/golang/go1.14.2.linux-amd64.tar.gz
-            tar xvf go1.14.2.linux-amd64.tar.gz
+            curl -O https://storage.googleapis.com/golang/go1.18.1.linux-amd64.tar.gz
+            tar xvf go1.18.1.linux-amd64.tar.gz
             sudo chown -R root:root ./go
             sudo mv go /usr/local
             sudo ln -s /usr/local/go/bin/go /usr/local/bin/go
@@ -90,7 +93,7 @@ geth_steps: &geth_steps
           geth makedag 0 $HOME/.ethash
     - run:
         name: run tox
-        command: ~/.local/bin/tox -r
+        command: python -m tox -r
     - save_cache:
         paths:
           - .tox
@@ -119,8 +122,8 @@ geth_custom_steps: &geth_custom_steps
           echo $GETH_VERSION
           export GETH_BINARY="./custom_geth"
           echo 'export GETH_BINARY="./custom_geth"' >> $BASH_ENV
-          curl -O https://storage.googleapis.com/golang/go1.14.2.linux-amd64.tar.gz
-          tar xvf go1.14.2.linux-amd64.tar.gz
+          curl -O https://storage.googleapis.com/golang/go1.18.1.linux-amd64.tar.gz
+          tar xvf go1.18.1.linux-amd64.tar.gz
           sudo chown -R root:root ./go
           sudo mv go /usr/local
           sudo ln -s /usr/local/go/bin/go /usr/local/bin/go
@@ -130,7 +133,7 @@ geth_custom_steps: &geth_custom_steps
           ./custom_geth makedag 0 $HOME/.ethash
     - run:
         name: run tox
-        command: ~/.local/bin/tox -r
+        command: python -m tox -r
     - save_cache:
         paths:
           - .tox
@@ -142,6 +145,7 @@ geth_custom_steps: &geth_custom_steps
 
 ethpm_steps: &ethpm_steps
   working_directory: ~/repo
+  resource_class: xlarge
   steps:
     - checkout
     - restore_cache:
@@ -166,7 +170,7 @@ ethpm_steps: &ethpm_steps
         command: pip install --user tox
     - run:
         name: run tox
-        command: ~/.local/bin/tox -r
+        command: python -m tox -r
     - save_cache:
         paths:
           - .tox
@@ -203,20 +207,17 @@ windows_steps: &windows_steps
 
 
 jobs:
-  #
-  # Python 3.6
-  #
   lint:
     <<: *common
     docker:
-      - image: circleci/python:3.9
+      - image: cimg/python:3.9
     environment:
       TOXENV: lint
 
   docs:
     <<: *docs_steps
     docker:
-      - image: circleci/python:3.9
+      - image: cimg/python:3.9
     environment:
       TOXENV: docs
 
@@ -227,21 +228,21 @@ jobs:
   py37-core:
     <<: *common
     docker:
-      - image: circleci/python:3.7
+      - image: cimg/python:3.7
     environment:
       TOXENV: py37-core
 
   py37-ens:
     <<: *common
     docker:
-      - image: circleci/python:3.7
+      - image: cimg/python:3.7
     environment:
       TOXENV: py37-ens
 
   py37-ethpm:
     <<: *ethpm_steps
     docker:
-      - image: circleci/python:3.7
+      - image: cimg/python:3.7
     environment:
       TOXENV: py37-ethpm
       # Please don't use this key for any shenanigans
@@ -250,31 +251,31 @@ jobs:
   py37-integration-goethereum-ipc:
     <<: *geth_steps
     docker:
-      - image: circleci/python:3.7
+      - image: cimg/python:3.7
     environment:
       TOXENV: py37-integration-goethereum-ipc
-      GETH_VERSION: v1.10.13
+      GETH_VERSION: v1.10.17
 
   py37-integration-goethereum-http:
     <<: *geth_steps
     docker:
-      - image: circleci/python:3.7
+      - image: cimg/python:3.7
     environment:
       TOXENV: py37-integration-goethereum-http
-      GETH_VERSION: v1.10.13
+      GETH_VERSION: v1.10.17
 
   py37-integration-goethereum-ws:
     <<: *geth_steps
     docker:
-      - image: circleci/python:3.7
+      - image: cimg/python:3.7
     environment:
       TOXENV: py37-integration-goethereum-ws
-      GETH_VERSION: v1.10.13
+      GETH_VERSION: v1.10.17
 
   py37-integration-ethtester-pyevm:
     <<: *common
     docker:
-      - image: circleci/python:3.7
+      - image: cimg/python:3.7
     environment:
       TOXENV: py37-integration-ethtester
       ETHEREUM_TESTER_CHAIN_BACKEND: eth_tester.backends.PyEVMBackend
@@ -282,7 +283,7 @@ jobs:
   py37-wheel-cli:
     <<: *common
     docker:
-      - image: circleci/python:3.7
+      - image: cimg/python:3.7
     environment:
       TOXENV: py37-wheel-cli
 
@@ -297,21 +298,21 @@ jobs:
   py38-core:
     <<: *common
     docker:
-      - image: circleci/python:3.8
+      - image: cimg/python:3.8
     environment:
       TOXENV: py38-core
 
   py38-ens:
     <<: *common
     docker:
-      - image: circleci/python:3.8
+      - image: cimg/python:3.8
     environment:
       TOXENV: py38-ens
 
   py38-ethpm:
     <<: *ethpm_steps
     docker:
-      - image: circleci/python:3.8
+      - image: cimg/python:3.8
     environment:
       TOXENV: py38-ethpm
       # Please don't use this key for any shenanigans
@@ -320,31 +321,31 @@ jobs:
   py38-integration-goethereum-ipc:
     <<: *geth_steps
     docker:
-      - image: circleci/python:3.8
+      - image: cimg/python:3.8
     environment:
       TOXENV: py38-integration-goethereum-ipc
-      GETH_VERSION: v1.10.13
+      GETH_VERSION: v1.10.17
 
   py38-integration-goethereum-http:
     <<: *geth_steps
     docker:
-      - image: circleci/python:3.8
+      - image: cimg/python:3.8
     environment:
       TOXENV: py38-integration-goethereum-http
-      GETH_VERSION: v1.10.13
+      GETH_VERSION: v1.10.17
 
   py38-integration-goethereum-ws:
     <<: *geth_steps
     docker:
-      - image: circleci/python:3.8
+      - image: cimg/python:3.8
     environment:
       TOXENV: py38-integration-goethereum-ws
-      GETH_VERSION: v1.10.13
+      GETH_VERSION: v1.10.17
 
   py38-integration-ethtester-pyevm:
     <<: *common
     docker:
-      - image: circleci/python:3.8
+      - image: cimg/python:3.8
     environment:
       TOXENV: py38-integration-ethtester
       ETHEREUM_TESTER_CHAIN_BACKEND: eth_tester.backends.PyEVMBackend
@@ -352,7 +353,7 @@ jobs:
   py38-wheel-cli:
     <<: *common
     docker:
-      - image: circleci/python:3.8
+      - image: cimg/python:3.8
     environment:
       TOXENV: py38-wheel-cli
 
@@ -362,21 +363,21 @@ jobs:
   py39-core:
     <<: *common
     docker:
-      - image: circleci/python:3.9
+      - image: cimg/python:3.9
     environment:
       TOXENV: py39-core
 
   py39-ens:
     <<: *common
     docker:
-      - image: circleci/python:3.9
+      - image: cimg/python:3.9
     environment:
       TOXENV: py39-ens
 
   py39-ethpm:
     <<: *ethpm_steps
     docker:
-      - image: circleci/python:3.9
+      - image: cimg/python:3.9
     environment:
       TOXENV: py39-ethpm
       # Please don't use this key for any shenanigans
@@ -385,31 +386,31 @@ jobs:
   py39-integration-goethereum-ipc:
     <<: *geth_steps
     docker:
-      - image: circleci/python:3.9
+      - image: cimg/python:3.9
     environment:
       TOXENV: py39-integration-goethereum-ipc
-      GETH_VERSION: v1.10.13
+      GETH_VERSION: v1.10.17
 
   py39-integration-goethereum-http:
     <<: *geth_steps
     docker:
-      - image: circleci/python:3.9
+      - image: cimg/python:3.9
     environment:
       TOXENV: py39-integration-goethereum-http
-      GETH_VERSION: v1.10.13
+      GETH_VERSION: v1.10.17
 
   py39-integration-goethereum-ws:
     <<: *geth_steps
     docker:
-      - image: circleci/python:3.9
+      - image: cimg/python:3.9
     environment:
       TOXENV: py39-integration-goethereum-ws
-      GETH_VERSION: v1.10.13
+      GETH_VERSION: v1.10.17
 
   py39-integration-ethtester-pyevm:
     <<: *common
     docker:
-      - image: circleci/python:3.9
+      - image: cimg/python:3.9
     environment:
       TOXENV: py39-integration-ethtester
       ETHEREUM_TESTER_CHAIN_BACKEND: eth_tester.backends.PyEVMBackend
@@ -417,7 +418,7 @@ jobs:
   py39-wheel-cli:
     <<: *common
     docker:
-      - image: circleci/python:3.9
+      - image: cimg/python:3.9
         environment:
           TOXENV: py39-wheel-cli
 
@@ -427,21 +428,21 @@ jobs:
   py310-core:
     <<: *common
     docker:
-      - image: circleci/python:3.10
+      - image: cimg/python:3.10
     environment:
       TOXENV: py310-core
 
   py310-ens:
     <<: *common
     docker:
-      - image: circleci/python:3.10
+      - image: cimg/python:3.10
     environment:
       TOXENV: py310-ens
 
   py310-ethpm:
     <<: *ethpm_steps
     docker:
-      - image: circleci/python:3.10
+      - image: cimg/python:3.10
     environment:
       TOXENV: py310-ethpm
       # Please don't use this key for any shenanigans
@@ -450,31 +451,31 @@ jobs:
   py310-integration-goethereum-ipc:
     <<: *geth_steps
     docker:
-      - image: circleci/python:3.10
+      - image: cimg/python:3.10
     environment:
       TOXENV: py310-integration-goethereum-ipc
-      GETH_VERSION: v1.10.11
+      GETH_VERSION: v1.10.17
 
   py310-integration-goethereum-http:
     <<: *geth_steps
     docker:
-      - image: circleci/python:3.10
+      - image: cimg/python:3.10
     environment:
       TOXENV: py310-integration-goethereum-http
-      GETH_VERSION: v1.10.11
+      GETH_VERSION: v1.10.17
 
   py310-integration-goethereum-ws:
     <<: *geth_steps
     docker:
-      - image: circleci/python:3.10
+      - image: cimg/python:3.10
     environment:
       TOXENV: py310-integration-goethereum-ws
-      GETH_VERSION: v1.10.11
+      GETH_VERSION: v1.10.17
 
   py310-integration-ethtester-pyevm:
     <<: *common
     docker:
-      - image: circleci/python:3.10
+      - image: cimg/python:3.10
     environment:
       TOXENV: py310-integration-ethtester
       ETHEREUM_TESTER_CHAIN_BACKEND: eth_tester.backends.PyEVMBackend
@@ -482,17 +483,17 @@ jobs:
   py310-wheel-cli:
     <<: *common
     docker:
-      - image: circleci/python:3.10
+      - image: cimg/python:3.10
         environment:
           TOXENV: py310-wheel-cli
 
   benchmark:
     <<: *geth_steps
     docker:
-      - image: circleci/python:3.10
+      - image: cimg/python:3.10
     environment:
       TOXENV: benchmark
-      GETH_VERSION: v1.10.13
+      GETH_VERSION: v1.10.17
 
 workflows:
   version: 2.1

@@ -790,7 +790,7 @@ The script can be run with: ``python ./eventscanner.py <your JSON-RPC API URL>``
     import time
     import logging
     from abc import ABC, abstractmethod
-    from typing import Tuple, Optional, Callable, List, Iterable
+    from typing import Tuple, Optional, Callable, List, Iterable, Dict, Any
 
     from web3 import Web3
     from web3.contract import Contract
@@ -865,7 +865,7 @@ The script can be run with: ``python ./eventscanner.py <your JSON-RPC API URL>``
         because it cannot correctly throttle and decrease the `eth_getLogs` block number range.
         """
 
-        def __init__(self, w3: Web3, contract: Contract, state: EventScannerState, events: List, filters: {},
+        def __init__(self, w3: Web3, contract: Contract, state: EventScannerState, events: List, filters: Dict[str, Any],
                      max_chunk_scan_size: int = 10000, max_request_retries: int = 30, request_retry_seconds: float = 3.0):
             """
             :param contract: Contract
@@ -1130,7 +1130,7 @@ The script can be run with: ``python ./eventscanner.py <your JSON-RPC API URL>``
     def _fetch_events_for_all_contracts(
             w3,
             event,
-            argument_filters: dict,
+            argument_filters: Dict[str, Any],
             from_block: int,
             to_block: int) -> Iterable:
         """Get events using eth_getLogs API.
@@ -1363,7 +1363,7 @@ The script can be run with: ``python ./eventscanner.py <your JSON-RPC API URL>``
             state = JSONifiedState()
             state.restore()
 
-            # chain_id: int, w3: Web3, abi: dict, state: EventScannerState, events: List, filters: {}, max_chunk_scan_size: int=10000
+            # chain_id: int, w3: Web3, abi: Dict, state: EventScannerState, events: List, filters: Dict, max_chunk_scan_size: int=10000
             scanner = EventScanner(
                 w3=w3,
                 contract=ERC20,

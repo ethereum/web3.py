@@ -3,6 +3,9 @@ from unittest.mock import (
     patch,
 )
 
+from eth_typing import (
+    HexStr,
+)
 from eth_utils import (
     is_same_address,
     to_bytes,
@@ -23,53 +26,45 @@ API at: https://github.com/carver/ens.py/issues/2
 
 
 @pytest.mark.parametrize(
-    'name, full_name, namehash_hex',
+    'name, namehash_hex',
     [
         (
-            'tester.eth',
             'tester.eth',
             '0x2a7ac1c833d35677c2ff34a908951de142cc1653de6080ad4e38f4c9cc00aafe',
         ),
         (
-            'TESTER.eth',
             'TESTER.eth',
             '0x2a7ac1c833d35677c2ff34a908951de142cc1653de6080ad4e38f4c9cc00aafe',
         ),
         # handles alternative dot separators
         (
             'tester．eth',
-            'tester．eth',
             '0x2a7ac1c833d35677c2ff34a908951de142cc1653de6080ad4e38f4c9cc00aafe',
         ),
         (
             'tester。eth',
-            'tester。eth',
             '0x2a7ac1c833d35677c2ff34a908951de142cc1653de6080ad4e38f4c9cc00aafe',
         ),
         (
-            'tester｡eth',
             'tester｡eth',
             '0x2a7ac1c833d35677c2ff34a908951de142cc1653de6080ad4e38f4c9cc00aafe',
         ),
         # confirm that set-owner works
         (
             'lots.of.subdomains.tester.eth',
-            'lots.of.subdomains.tester.eth',
             '0x0d62a759aa1f1c9680de8603a12a5eb175cd1bfa79426229868eba99f4dce692',
         ),
     ],
 )
-def test_set_address(ens, name, full_name, namehash_hex, TEST_ADDRESS):
+def test_set_address(ens, name, namehash_hex, TEST_ADDRESS):
     assert ens.address(name) is None
     owner = ens.owner('tester.eth')
 
     ens.setup_address(name, TEST_ADDRESS)
     assert is_same_address(ens.address(name), TEST_ADDRESS)
 
-    namehash = Web3.toBytes(hexstr=namehash_hex)
-    normal_name = ens.nameprep(full_name)
-    assert is_same_address(ens.address(name), TEST_ADDRESS)
-
+    namehash = Web3.toBytes(hexstr=HexStr(namehash_hex))
+    normal_name = ens.nameprep(name)
     # check that the correct namehash is set:
     assert is_same_address(ens.resolver(normal_name).caller.addr(namehash), TEST_ADDRESS)
 

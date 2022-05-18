@@ -7,7 +7,7 @@ from setuptools import (
 extras_require = {
     'tester': [
         "eth-tester[py-evm]==v0.6.0-beta.5",
-        "py-geth>=3.7.0,<4",
+        "py-geth>=3.8.0,<4",
     ],
     'linter': [
         "flake8==3.8.3",
@@ -23,7 +23,7 @@ extras_require = {
         "click>=5.1",
         "configparser==3.5.0",
         "contextlib2>=0.5.4",
-        "py-geth>=3.6.0,<4",
+        "py-geth>=3.8.0,<4",
         "py-solc>=0.4.0",
         "pytest>=6.2.5,<7",
         "sphinx>=4.2.0,<5",
@@ -65,7 +65,7 @@ with open('./README.md') as readme:
 setup(
     name='web3',
     # *IMPORTANT*: Don't manually change the version here. Use the 'bumpversion' utility.
-    version='6.0.0-beta.1',
+    version='6.0.0-beta.2',
     description="""Web3.py""",
     long_description_content_type='text/markdown',
     long_description=long_description,
@@ -91,7 +91,7 @@ setup(
         "typing-extensions>=3.7.4.1,<5;python_version<'3.8'",
         "websockets>=10.0.0,<11",
     ],
-    python_requires='>=3.7,<3.11',
+    python_requires='>=3.7.2,<3.11',
     extras_require=extras_require,
     py_modules=['web3', 'ens', 'ethpm'],
     entry_points={"pytest11": ["pytest_ethereum = web3.tools.pytest_ethereum.plugins"]},

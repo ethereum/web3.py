@@ -1,1 +1,0 @@
-Add ``attach_methods()`` to ``Module`` class to facilitate attaching methods to modules.
