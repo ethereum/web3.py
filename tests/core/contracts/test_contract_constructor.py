@@ -428,7 +428,6 @@ async def test_async_contract_constructor_build_transaction_to_field_error(Async
         await AsyncMathContract.constructor().build_transaction({'to': '123'})
 
 
-@pytest.mark.xfail
 @pytest.mark.asyncio
 async def test_async_contract_constructor_build_transaction_no_constructor(
         async_w3,
@@ -450,7 +449,6 @@ async def test_async_contract_constructor_build_transaction_no_constructor(
     assert new_txn['nonce'] == nonce
 
 
-@pytest.mark.xfail
 @pytest.mark.asyncio
 async def test_async_contract_constructor_build_transaction_with_constructor_without_argument(
         async_w3,
@@ -472,7 +470,6 @@ async def test_async_contract_constructor_build_transaction_with_constructor_wit
     assert new_txn['nonce'] == nonce
 
 
-@pytest.mark.xfail
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
     'constructor_args,constructor_kwargs',
