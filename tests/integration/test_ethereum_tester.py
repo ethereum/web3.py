@@ -390,7 +390,13 @@ class TestEthereumTesterEthModule(EthModuleTest):
     def test_eth_chain_id(self, w3):
         chain_id = w3.eth.chain_id
         assert is_integer(chain_id)
-        assert chain_id == 61
+        assert chain_id == 131277322940537
+
+    def test_eth_chainId(self, w3):
+        with pytest.warns(DeprecationWarning):
+            chain_id = w3.eth.chainId
+        assert is_integer(chain_id)
+        assert chain_id == 131277322940537
 
     @disable_auto_mine
     def test_eth_wait_for_transaction_receipt_unmined(self,

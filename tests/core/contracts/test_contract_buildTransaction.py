@@ -21,7 +21,7 @@ def test_build_transaction_not_paying_to_nonpayable_function(
         'value': 0,
         'maxFeePerGas': 2750000000,
         'maxPriorityFeePerGas': 10 ** 9,
-        'chainId': 61,
+        'chainId': 131277322940537,
     }
 
 
@@ -43,7 +43,7 @@ def test_build_transaction_with_contract_no_arguments(w3, math_contract, build_t
         'value': 0,
         'maxFeePerGas': 2750000000,
         'maxPriorityFeePerGas': 10 ** 9,
-        'chainId': 61,
+        'chainId': 131277322940537,
     }
 
 
@@ -55,7 +55,7 @@ def test_build_transaction_with_contract_fallback_function(w3, fallback_function
         'value': 0,
         'maxFeePerGas': 2750000000,
         'maxPriorityFeePerGas': 10 ** 9,
-        'chainId': 61,
+        'chainId': 131277322940537,
     }
 
 
@@ -75,7 +75,7 @@ def test_build_transaction_with_contract_class_method(
         'value': 0,
         'maxFeePerGas': 2750000000,
         'maxPriorityFeePerGas': 10 ** 9,
-        'chainId': 61,
+        'chainId': 131277322940537,
     }
 
 
@@ -90,7 +90,7 @@ def test_build_transaction_with_contract_default_account_is_set(
         'value': 0,
         'maxFeePerGas': 2750000000,
         'maxPriorityFeePerGas': 10 ** 9,
-        'chainId': 61,
+        'chainId': 131277322940537,
     }
 
 
@@ -104,7 +104,7 @@ def test_build_transaction_with_gas_price_strategy_set(w3, math_contract, build_
         'data': '0xd09de08a',
         'value': 0,
         'gasPrice': 5,
-        'chainId': 61,
+        'chainId': 131277322940537,
     }
 
 
@@ -133,41 +133,41 @@ def test_build_transaction_with_contract_to_address_supplied_errors(w3,
             {}, (5,), {}, {
                 'data': '0x7cf5dab00000000000000000000000000000000000000000000000000000000000000005',  # noqa: E501
                 'value': 0, 'maxFeePerGas': 2750000000, 'maxPriorityFeePerGas': 1000000000,
-                'chainId': 61,
+                'chainId': 131277322940537,
             }, False
         ),
         (
             {'gas': 800000}, (5,), {}, {
                 'data': '0x7cf5dab00000000000000000000000000000000000000000000000000000000000000005',  # noqa: E501
                 'value': 0, 'maxFeePerGas': 2750000000, 'maxPriorityFeePerGas': 1000000000,
-                'chainId': 61,
+                'chainId': 131277322940537,
             }, False
         ),
         (  # legacy transaction, explicit gasPrice
             {'gasPrice': 22 ** 8}, (5,), {}, {
                 'data': '0x7cf5dab00000000000000000000000000000000000000000000000000000000000000005',  # noqa: E501
-                'value': 0, 'gasPrice': 22 ** 8, 'chainId': 61,
+                'value': 0, 'gasPrice': 22 ** 8, 'chainId': 131277322940537,
             }, False
         ),
         (
             {'maxFeePerGas': 22 ** 8, 'maxPriorityFeePerGas': 22 ** 8}, (5,), {}, {
                 'data': '0x7cf5dab00000000000000000000000000000000000000000000000000000000000000005',  # noqa: E501
                 'value': 0, 'maxFeePerGas': 22 ** 8, 'maxPriorityFeePerGas': 22 ** 8,
-                'chainId': 61,
+                'chainId': 131277322940537,
             }, False
         ),
         (
             {'nonce': 7}, (5,), {}, {
                 'data': '0x7cf5dab00000000000000000000000000000000000000000000000000000000000000005',  # noqa: E501
                 'value': 0, 'maxFeePerGas': 2750000000, 'maxPriorityFeePerGas': 1000000000,
-                'nonce': 7, 'chainId': 61,
+                'nonce': 7, 'chainId': 131277322940537,
             }, True
         ),
         (
             {'value': 20000}, (5,), {}, {
                 'data': '0x7cf5dab00000000000000000000000000000000000000000000000000000000000000005',  # noqa: E501
                 'value': 20000, 'maxFeePerGas': 2750000000, 'maxPriorityFeePerGas': 1000000000,
-                'chainId': 61,
+                'chainId': 131277322940537,
             }, False
         ),
     ),
@@ -217,7 +217,7 @@ async def test_async_build_transaction_not_paying_to_nonpayable_function(
         'value': 0,
         'maxFeePerGas': 2750000000,
         'maxPriorityFeePerGas': 10 ** 9,
-        'chainId': 61,
+        'chainId': 131277322940537,
     }
 
 
@@ -244,7 +244,7 @@ async def test_async_build_transaction_with_contract_no_arguments(
         'value': 0,
         'maxFeePerGas': 2750000000,
         'maxPriorityFeePerGas': 10 ** 9,
-        'chainId': 61,
+        'chainId': 131277322940537,
     }
 
 
@@ -259,7 +259,7 @@ async def test_async_build_transaction_with_contract_fallback_function(
         'value': 0,
         'maxFeePerGas': 2750000000,
         'maxPriorityFeePerGas': 10 ** 9,
-        'chainId': 61,
+        'chainId': 131277322940537,
     }
 
 
@@ -280,7 +280,7 @@ async def test_async_build_transaction_with_contract_class_method(
         'value': 0,
         'maxFeePerGas': 2750000000,
         'maxPriorityFeePerGas': 10 ** 9,
-        'chainId': 61,
+        'chainId': 131277322940537,
     }
 
 
@@ -296,7 +296,7 @@ async def test_async_build_transaction_with_contract_default_account_is_set(
         'value': 0,
         'maxFeePerGas': 2750000000,
         'maxPriorityFeePerGas': 10 ** 9,
-        'chainId': 61,
+        'chainId': 131277322940537,
     }
 
 
@@ -314,7 +314,7 @@ async def test_async_build_transaction_with_gas_price_strategy_set(
         'data': '0xd09de08a',
         'value': 0,
         'gasPrice': 5,
-        'chainId': 61,
+        'chainId': 131277322940537,
     }
 
 
@@ -348,41 +348,41 @@ async def test_async_build_transaction_with_contract_to_address_supplied_errors(
             {}, (5,), {}, {
                 'data': '0x7cf5dab00000000000000000000000000000000000000000000000000000000000000005',  # noqa: E501
                 'value': 0, 'maxFeePerGas': 2750000000, 'maxPriorityFeePerGas': 1000000000,
-                'chainId': 61,
+                'chainId': 131277322940537,
             }, False
         ),
         (
             {'gas': 800000}, (5,), {}, {
                 'data': '0x7cf5dab00000000000000000000000000000000000000000000000000000000000000005',  # noqa: E501
                 'value': 0, 'maxFeePerGas': 2750000000, 'maxPriorityFeePerGas': 1000000000,
-                'chainId': 61,
+                'chainId': 131277322940537,
             }, False
         ),
         (  # legacy transaction, explicit gasPrice
             {'gasPrice': 22 ** 8}, (5,), {}, {
                 'data': '0x7cf5dab00000000000000000000000000000000000000000000000000000000000000005',  # noqa: E501
-                'value': 0, 'gasPrice': 22 ** 8, 'chainId': 61,
+                'value': 0, 'gasPrice': 22 ** 8, 'chainId': 131277322940537,
             }, False
         ),
         (
             {'maxFeePerGas': 22 ** 8, 'maxPriorityFeePerGas': 22 ** 8}, (5,), {}, {
                 'data': '0x7cf5dab00000000000000000000000000000000000000000000000000000000000000005',  # noqa: E501
                 'value': 0, 'maxFeePerGas': 22 ** 8, 'maxPriorityFeePerGas': 22 ** 8,
-                'chainId': 61,
+                'chainId': 131277322940537,
             }, False
         ),
         (
             {'nonce': 7}, (5,), {}, {
                 'data': '0x7cf5dab00000000000000000000000000000000000000000000000000000000000000005',  # noqa: E501
                 'value': 0, 'maxFeePerGas': 2750000000, 'maxPriorityFeePerGas': 1000000000,
-                'nonce': 7, 'chainId': 61,
+                'nonce': 7, 'chainId': 131277322940537,
             }, True
         ),
         (
             {'value': 20000}, (5,), {}, {
                 'data': '0x7cf5dab00000000000000000000000000000000000000000000000000000000000000005',  # noqa: E501
                 'value': 20000, 'maxFeePerGas': 2750000000, 'maxPriorityFeePerGas': 1000000000,
-                'chainId': 61,
+                'chainId': 131277322940537,
             }, False
         ),
     ),

@@ -77,6 +77,7 @@ TRANSACTION_REQUEST_KEY_MAPPING = {
     'maxFeePerGas': 'max_fee_per_gas',
     'maxPriorityFeePerGas': 'max_priority_fee_per_gas',
     'accessList': 'access_list',
+    'chainId': 'chain_id',
 }
 transaction_request_remapper = apply_key_map(TRANSACTION_REQUEST_KEY_MAPPING)
 
@@ -125,6 +126,7 @@ TRANSACTION_RESULT_KEY_MAPPING = {
     'access_list': 'accessList',
     'block_hash': 'blockHash',
     'block_number': 'blockNumber',
+    'chain_id': 'chainId',
     'gas_price': 'gasPrice',
     'max_fee_per_gas': 'maxFeePerGas',
     'max_priority_fee_per_gas': 'maxPriorityFeePerGas',

@@ -32,8 +32,8 @@ def test_attach_methods_to_module(web3_with_external_modules):
         'method1': Method('eth_getBalance'),
     })
 
-    assert w3.eth.chain_id == 61
-    assert w3.module1.property1 == 61
+    assert w3.eth.chain_id == 131277322940537
+    assert w3.module1.property1 == 131277322940537
 
     coinbase = w3.eth.coinbase
     assert w3.eth.get_balance(coinbase, 'latest') == 1000000000000000000000000

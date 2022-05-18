@@ -1012,7 +1012,7 @@ class AsyncContractConstructor(BaseContractConstructor):
         Build the transaction dictionary without sending
         """
         built_transaction = self._build_transaction(transaction)
-        return async_fill_transaction_defaults(self.w3, built_transaction)
+        return await async_fill_transaction_defaults(self.w3, built_transaction)
 
     @combomethod
     async def estimate_gas(
