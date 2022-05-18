@@ -209,7 +209,7 @@ API_ENDPOINTS = {
         ),
         'mining': static_return(False),
         'hashrate': static_return(0),
-        'chainId': static_return('0x3d'),
+        'chainId': static_return(131277322940537),  # from fixture generation file
         'feeHistory': not_implemented,
         'maxPriorityFeePerGas': static_return(10 ** 9),
         'gasPrice': static_return(10 ** 9),  # must be >= base fee post-London

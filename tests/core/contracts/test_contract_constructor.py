@@ -428,77 +428,77 @@ async def test_async_contract_constructor_build_transaction_to_field_error(Async
         await AsyncMathContract.constructor().build_transaction({'to': '123'})
 
 
-# @pytest.mark.asyncio
-# async def test_async_contract_constructor_build_transaction_no_constructor(
-#         async_w3,
-#         AsyncMathContract,
-#         address_conversion_func):
-#     async_w3_accounts = await async_w3.eth.accounts
-#     txn_hash = await AsyncMathContract.constructor().transact(
-#         {'from': address_conversion_func(async_w3_accounts[0])}
-#     )
-#     txn = await async_w3.eth.get_transaction(txn_hash)
-#     async_w3_coinbase = await async_w3.eth.coinbase
-#     nonce = await async_w3.eth.get_transaction_count(async_w3_coinbase)
-#     unsent_txn = await AsyncMathContract.constructor().build_transaction({'nonce': nonce})
-#     assert txn['data'] == unsent_txn['data']
+@pytest.mark.asyncio
+async def test_async_contract_constructor_build_transaction_no_constructor(
+        async_w3,
+        AsyncMathContract,
+        address_conversion_func):
+    async_w3_accounts = await async_w3.eth.accounts
+    txn_hash = await AsyncMathContract.constructor().transact(
+        {'from': address_conversion_func(async_w3_accounts[0])}
+    )
+    txn = await async_w3.eth.get_transaction(txn_hash)
+    async_w3_coinbase = await async_w3.eth.coinbase
+    nonce = await async_w3.eth.get_transaction_count(async_w3_coinbase)
+    unsent_txn = await AsyncMathContract.constructor().build_transaction({'nonce': nonce})
+    assert txn['data'] == unsent_txn['data']
 
-#     new_txn_hash = await async_w3.eth.send_transaction(unsent_txn)
-#     new_txn = await async_w3.eth.get_transaction(new_txn_hash)
-#     assert new_txn['data'] == unsent_txn['data']
-#     assert new_txn['nonce'] == nonce
-
-
-# @pytest.mark.asyncio
-# async def test_async_contract_constructor_build_transaction_with_constructor_without_argument(
-#         async_w3,
-#         AsyncMathContract,
-#         address_conversion_func):
-#     async_w3_accounts = await async_w3.eth.accounts
-#     txn_hash = await AsyncMathContract.constructor().transact(
-#         {'from': address_conversion_func(async_w3_accounts[0])}
-#     )
-#     txn = await async_w3.eth.get_transaction(txn_hash)
-#     async_w3_coinbase = await async_w3.eth.coinbase
-#     nonce = await async_w3.eth.get_transaction_count(async_w3_coinbase)
-#     unsent_txn = await AsyncMathContract.constructor().build_transaction({'nonce': nonce})
-#     assert txn['data'] == unsent_txn['data']
-
-#     new_txn_hash = await async_w3.eth.send_transaction(unsent_txn)
-#     new_txn = await async_w3.eth.get_transaction(new_txn_hash)
-#     assert new_txn['data'] == unsent_txn['data']
-#     assert new_txn['nonce'] == nonce
+    new_txn_hash = await async_w3.eth.send_transaction(unsent_txn)
+    new_txn = await async_w3.eth.get_transaction(new_txn_hash)
+    assert new_txn['data'] == unsent_txn['data']
+    assert new_txn['nonce'] == nonce
 
 
-# @pytest.mark.asyncio
-# @pytest.mark.parametrize(
-#     'constructor_args,constructor_kwargs',
-#     (
-#         ([1234, b'abcd'], {}),
-#         ([1234], {'b': b'abcd'}),
-#         ([], {'a': 1234, 'b': b'abcd'}),
-#         ([], {'b': b'abcd', 'a': 1234}),
-#     ),
-# )
-# async def test_async_contract_constructor_build_transaction_with_constructor_with_argument(
-#         async_w3,
-#         AsyncWithConstructorArgumentsContract,
-#         constructor_args,
-#         constructor_kwargs,
-#         address_conversion_func):
-#     async_w3_accounts = await async_w3.eth.accounts
-#     txn_hash = await AsyncWithConstructorArgumentsContract.constructor(
-#         *constructor_args, **constructor_kwargs).transact(
-#         {'from': address_conversion_func(async_w3_accounts[0])}
-#     )
-#     txn = await async_w3.eth.get_transaction(txn_hash)
-#     async_w3_coinbase = await async_w3.eth.coinbase
-#     nonce = await async_w3.eth.get_transaction_count(async_w3_coinbase)
-#     unsent_txn = await AsyncWithConstructorArgumentsContract.constructor(
-#         *constructor_args, **constructor_kwargs).build_transaction({'nonce': nonce})
-#     assert txn['data'] == unsent_txn['data']
+@pytest.mark.asyncio
+async def test_async_contract_constructor_build_transaction_with_constructor_without_argument(
+        async_w3,
+        AsyncMathContract,
+        address_conversion_func):
+    async_w3_accounts = await async_w3.eth.accounts
+    txn_hash = await AsyncMathContract.constructor().transact(
+        {'from': address_conversion_func(async_w3_accounts[0])}
+    )
+    txn = await async_w3.eth.get_transaction(txn_hash)
+    async_w3_coinbase = await async_w3.eth.coinbase
+    nonce = await async_w3.eth.get_transaction_count(async_w3_coinbase)
+    unsent_txn = await AsyncMathContract.constructor().build_transaction({'nonce': nonce})
+    assert txn['data'] == unsent_txn['data']
 
-#     new_txn_hash = await async_w3.eth.send_transaction(unsent_txn)
-#     new_txn = await async_w3.eth.get_transaction(new_txn_hash)
-#     assert new_txn['data'] == unsent_txn['data']
-#     assert new_txn['nonce'] == nonce
+    new_txn_hash = await async_w3.eth.send_transaction(unsent_txn)
+    new_txn = await async_w3.eth.get_transaction(new_txn_hash)
+    assert new_txn['data'] == unsent_txn['data']
+    assert new_txn['nonce'] == nonce
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    'constructor_args,constructor_kwargs',
+    (
+        ([1234, b'abcd'], {}),
+        ([1234], {'b': b'abcd'}),
+        ([], {'a': 1234, 'b': b'abcd'}),
+        ([], {'b': b'abcd', 'a': 1234}),
+    ),
+)
+async def test_async_contract_constructor_build_transaction_with_constructor_with_argument(
+        async_w3,
+        AsyncWithConstructorArgumentsContract,
+        constructor_args,
+        constructor_kwargs,
+        address_conversion_func):
+    async_w3_accounts = await async_w3.eth.accounts
+    txn_hash = await AsyncWithConstructorArgumentsContract.constructor(
+        *constructor_args, **constructor_kwargs).transact(
+        {'from': address_conversion_func(async_w3_accounts[0])}
+    )
+    txn = await async_w3.eth.get_transaction(txn_hash)
+    async_w3_coinbase = await async_w3.eth.coinbase
+    nonce = await async_w3.eth.get_transaction_count(async_w3_coinbase)
+    unsent_txn = await AsyncWithConstructorArgumentsContract.constructor(
+        *constructor_args, **constructor_kwargs).build_transaction({'nonce': nonce})
+    assert txn['data'] == unsent_txn['data']
+
+    new_txn_hash = await async_w3.eth.send_transaction(unsent_txn)
+    new_txn = await async_w3.eth.get_transaction(new_txn_hash)
+    assert new_txn['data'] == unsent_txn['data']
+    assert new_txn['nonce'] == nonce
