@@ -67,6 +67,7 @@ from ens.utils import (
 if TYPE_CHECKING:
     from web3 import Web3  # noqa: F401
     from web3.contract import (  # noqa: F401
+        AsyncContract,
         Contract,
     )
     from web3.providers import (  # noqa: F401
@@ -232,7 +233,7 @@ class ENS:
         if address is None:
             address = EMPTY_ADDR_HEX
         transact['from'] = owner
-        resolver: 'Contract' = self._set_resolver(name, transact=transact)
+        resolver: Union['Contract', 'AsyncContract'] = self._set_resolver(name, transact=transact)
         return resolver.functions.setAddr(raw_name_to_hash(name), address).transact(transact)
 
     def setup_name(
@@ -285,7 +286,7 @@ class ENS:
                 self.setup_address(name, address, transact=transact)
             return self._setup_reverse(name, address, transact=transact)
 
-    def resolver(self, name: str) -> Optional['Contract']:
+    def resolver(self, name: str) -> Optional[Union['Contract', 'AsyncContract']]:
         """
         Get the resolver for an ENS name.
 
@@ -294,7 +295,8 @@ class ENS:
         normal_name = normalize_name(name)
         return self._get_resolver(normal_name)[0]
 
-    def reverser(self, target_address: ChecksumAddress) -> Optional['Contract']:
+    def reverser(self,
+                 target_address: ChecksumAddress) -> Optional[Union['Contract', 'AsyncContract']]:
         reversed_domain = address_to_reverse_domain(target_address)
         return self.resolver(reversed_domain)
 
@@ -511,7 +513,7 @@ class ENS:
         name: str,
         resolver_addr: Optional[ChecksumAddress] = None,
         transact: Optional["TxParams"] = None
-    ) -> 'Contract':
+    ) -> Union['Contract', 'AsyncContract']:
         if not transact:
             transact = {}
         transact = deepcopy(transact)
@@ -529,7 +531,7 @@ class ENS:
         self,
         normal_name: str,
         fn_name: str = 'addr'
-    ) -> Tuple[Optional['Contract'], str]:
+    ) -> Tuple[Optional[Union['Contract', 'AsyncContract']], str]:
         current_name = normal_name
 
         # look for a resolver, starting at the full name and taking the parent each time that no
@@ -549,7 +551,8 @@ class ENS:
             current_name = self.parent(current_name)
 
     def _decode_ensip10_resolve_data(
-        self, contract_call_result: bytes, extended_resolver: 'Contract', fn_name: str,
+        self, contract_call_result: bytes,
+        extended_resolver: Union['Contract', 'AsyncContract'], fn_name: str,
     ) -> Any:
         func = extended_resolver.get_function_by_name(fn_name)
         output_types = get_abi_output_types(func.abi)
@@ -568,18 +571,21 @@ class ENS:
         transact['from'] = address
         return self._reverse_registrar().functions.setName(name).transact(transact)
 
-    def _type_aware_resolver(self, address: ChecksumAddress, func: str) -> 'Contract':
+    def _type_aware_resolver(self,
+                             address: ChecksumAddress,
+                             func: str) -> Union['Contract', 'AsyncContract']:
         return (
             self._reverse_resolver_contract(address=address) if func == 'name' else
             self._resolver_contract(address=address)
         )
 
-    def _reverse_registrar(self) -> 'Contract':
+    def _reverse_registrar(self) -> Union['Contract', 'AsyncContract']:
         addr = self.ens.caller.owner(normal_name_to_hash(REVERSE_REGISTRAR_DOMAIN))
         return self.w3.eth.contract(address=addr, abi=abis.REVERSE_REGISTRAR)
 
 
-def _resolver_supports_interface(resolver: 'Contract', interface_id: HexStr) -> bool:
+def _resolver_supports_interface(resolver: Union['Contract', 'AsyncContract'],
+                                 interface_id: HexStr) -> bool:
     if not any('supportsInterface' in repr(func) for func in resolver.all_functions()):
         return False
     return resolver.caller.supportsInterface(interface_id)

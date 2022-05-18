@@ -83,6 +83,7 @@ transaction_request_remapper = apply_key_map(TRANSACTION_REQUEST_KEY_MAPPING)
 
 
 TRANSACTION_REQUEST_FORMATTERS = {
+    'chainId': to_integer_if_hex,
     'gas': to_integer_if_hex,
     'gasPrice': to_integer_if_hex,
     'value': to_integer_if_hex,
