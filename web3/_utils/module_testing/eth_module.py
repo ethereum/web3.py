@@ -2432,6 +2432,7 @@ class EthModuleTest:
             'gas': 21000,
             'maxPriorityFeePerGas': w3.toWei(1, 'gwei'),
             'maxFeePerGas': w3.toWei(2, 'gwei'),
+            'chainId': w3.eth.chain_id,
         }
         txn_hash = w3.eth.send_transaction(txn_params)
 
