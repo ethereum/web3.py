@@ -6,3 +6,4 @@ global-include *.pyi
 
 recursive-exclude * __pycache__
 recursive-exclude * *.py[co]
+recursive-exclude * venv*
