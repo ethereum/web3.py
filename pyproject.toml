@@ -41,3 +41,8 @@ showcontent = true
 directory = "misc"
 name = "Miscellaneous changes"
 showcontent = false
+
+[[tool.towncrier.type]]
+directory = "breaking"
+name = "Breaking changes"
+showcontent = true

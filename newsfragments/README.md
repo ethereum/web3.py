@@ -15,6 +15,7 @@ Each file should be named like `<ISSUE>.<TYPE>.rst`, where
 * `internal`
 * `removal`
 * `misc`
+* `breaking`
 
 So for example: `123.feature.rst`, `456.bugfix.rst`
 
