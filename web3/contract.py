@@ -964,8 +964,8 @@ class ContractFunction:
             self.contract_abi,
             self.abi,
             state_override,
-            *self.args,
-            **self.kwargs
+            *self.args is self.args else [],
+            **self.kwargs if self.kwargs else {}
         )
 
     def transact(self, transaction: Optional[TxParams] = None) -> HexBytes:
@@ -1001,8 +1001,8 @@ class ContractFunction:
             transact_transaction,
             self.contract_abi,
             self.abi,
-            *self.args,
-            **self.kwargs
+            *self.args is self.args else [],
+            **self.kwargs if self.kwargs else {}
         )
 
     def estimateGas(
@@ -1044,8 +1044,8 @@ class ContractFunction:
             self.contract_abi,
             self.abi,
             block_identifier,
-            *self.args,
-            **self.kwargs
+            *self.args is self.args else [],
+            **self.kwargs if self.kwargs else {}
         )
 
     def buildTransaction(self, transaction: Optional[TxParams] = None) -> TxParams:
@@ -1083,8 +1083,8 @@ class ContractFunction:
             built_transaction,
             self.contract_abi,
             self.abi,
-            *self.args,
-            **self.kwargs
+            *self.args is self.args else [],
+            **self.kwargs if self.kwargs else {}
         )
 
     @combomethod
