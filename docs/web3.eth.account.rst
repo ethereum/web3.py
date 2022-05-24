@@ -361,7 +361,7 @@ To sign a transaction locally that will invoke a smart contract:
     >>> unicorn_txn = unicorns.functions.transfer(
     ...     '0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359',
     ...     1,
-    ... ).buildTransaction({
+    ... ).build_transaction({
     ...     'chainId': 1,
     ...     'gas': 70000,
     ...     'maxFeePerGas': w3.toWei('2', 'gwei'),

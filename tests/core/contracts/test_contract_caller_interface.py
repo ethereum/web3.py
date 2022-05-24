@@ -2,7 +2,7 @@ import pytest
 
 import pytest_asyncio
 
-from utils import (
+from _utils import (
     async_deploy,
     deploy,
 )
@@ -176,7 +176,7 @@ def test_caller_with_args_and_no_transaction_keyword(w3,
 
 
 @pytest.mark.asyncio
-async def async_test_caller_default(async_math_contract):
+async def test_async_caller_default(async_math_contract):
     result = await async_math_contract.caller.add(3, 5)
     assert result == 8
 

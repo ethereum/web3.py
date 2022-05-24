@@ -7,7 +7,7 @@ from eth_utils import (
     decode_hex,
 )
 
-from utils import (
+from _utils import (
     deploy,
 )
 from web3.contract import (
