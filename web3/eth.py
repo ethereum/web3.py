@@ -863,51 +863,10 @@ class Eth(BaseEth):
         mungers=[default_root_munger],
     )
 
-    @overload
-    def contract(self, address: None = None, **kwargs: Any) -> Type[Contract]: ...  # noqa: E704,E501
-
-    @overload  # noqa: F811
-    def contract(self, address: Union[Address, ChecksumAddress, ENS], **kwargs: Any) -> Contract: ...  # noqa: E704,E501
-
-    def contract(  # noqa: F811
-        self, address: Optional[Union[Address, ChecksumAddress, ENS]] = None, **kwargs: Any
-    ) -> Union[Type[Contract], Contract]:
-        ContractFactoryClass = kwargs.pop('ContractFactoryClass', self.defaultContractFactory)
-
-        ContractFactory = ContractFactoryClass.factory(self.w3, **kwargs)
-
-        if address:
-            return ContractFactory(address)
-        else:
-            return ContractFactory
-
-    def set_contract_factory(
-        self, contractFactory: Type[Union[Contract, ConciseContract, ContractCaller]]
-    ) -> None:
-        self.defaultContractFactory = contractFactory
-
     get_work: Method[Callable[[], List[HexBytes]]] = Method(
         RPC.eth_getWork,
         is_property=True,
     )
-
-    @overload
-    def contract(self, address: None = None, **kwargs: Any) -> Type[Contract]: ...  # noqa: E704,E501
-
-    @overload  # noqa: F811
-    def contract(self, address: Union[Address, ChecksumAddress, ENS], **kwargs: Any) -> Contract: ...  # noqa: E704,E501
-
-    def contract(  # noqa: F811
-        self, address: Optional[Union[Address, ChecksumAddress, ENS]] = None, **kwargs: Any
-    ) -> Union[Type[Contract], Contract]:
-        ContractFactoryClass = kwargs.pop('ContractFactoryClass', self.defaultContractFactory)
-
-        ContractFactory = ContractFactoryClass.factory(self.w3, **kwargs)
-
-        if address:
-            return ContractFactory(address)
-        else:
-            return ContractFactory
 
     def generate_gas_price(self, transaction_params: Optional[TxParams] = None) -> Optional[Wei]:
         return self._generate_gas_price(transaction_params)

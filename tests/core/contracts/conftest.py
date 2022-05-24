@@ -7,7 +7,7 @@ from eth_utils import (
 )
 import pytest_asyncio
 
-from utils import (
+from _utils import (
     async_deploy,
     async_partial,
     deploy,
@@ -191,7 +191,7 @@ def MathContract(w3, MATH_ABI, MATH_CODE, MATH_RUNTIME):
     )
 
 
-@pytest_asyncio.fixture()
+@pytest.fixture()
 def AsyncMathContract(async_w3, MATH_ABI, MATH_CODE, MATH_RUNTIME):
     return async_w3.eth.contract(
         abi=MATH_ABI,

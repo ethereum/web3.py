@@ -1,3 +1,4 @@
+import asyncio
 import pytest
 import time
 import warnings
@@ -92,54 +93,12 @@ def wait_for_block():
 
 
 @pytest.fixture(scope="module")
-def async_wait_for_block():
-    async def _wait_for_block(w3, block_number=1, timeout=None):
-        if not timeout:
-            timeout = (block_number - w3.eth.block_number) * 3
-        poll_delay_counter = PollDelayCounter()
-        with Timeout(timeout) as timeout:
-            while w3.eth.block_number < block_number:
-                w3.manager.request_blocking("evm_mine", [])
-                timeout.sleep(poll_delay_counter())
-    return _wait_for_block
-
-
-@pytest.fixture(scope="module")
-def async_wait_for_block():
-    async def _wait_for_block(w3, block_number=1, timeout=None):
-        if not timeout:
-            timeout = (block_number - await w3.eth.block_number) * 3
-        poll_delay_counter = PollDelayCounter()
-        with Timeout(timeout) as timeout:
-            while await w3.eth.block_number < block_number:
-                w3.manager.request_blocking("evm_mine", [])
-                timeout.sleep(poll_delay_counter())
-    return _wait_for_block
-
-
-@pytest.fixture(scope="module")
 def wait_for_transaction():
     def _wait_for_transaction(w3, txn_hash, timeout=120):
         poll_delay_counter = PollDelayCounter()
         with Timeout(timeout) as timeout:
             while True:
                 txn_receipt = w3.eth.get_transaction_receipt(txn_hash)
-                if txn_receipt is not None:
-                    break
-                time.sleep(poll_delay_counter())
-                timeout.check()
-
-        return txn_receipt
-    return _wait_for_transaction
-
-
-@pytest.fixture(scope="module")
-def async_wait_for_transaction():
-    async def _wait_for_transaction(w3, txn_hash, timeout=120):
-        poll_delay_counter = PollDelayCounter()
-        with Timeout(timeout) as timeout:
-            while True:
-                txn_receipt = await w3.eth.get_transaction_receipt(txn_hash)
                 if txn_receipt is not None:
                     break
                 time.sleep(poll_delay_counter())

@@ -244,11 +244,6 @@ Each Contract Factory exposes the following methods.
         >>> txn_receipt['contractAddress']
         '0x4c0883a69102937d6231471b5dbb6204fe5129617082792ae468d01a3f362318'
 
-.. py:classmethod:: Contract.constructor(*args, **kwargs).estimateGas(transaction=None, block_identifier=None)
-    :noindex:
-
-    .. warning:: Deprecated: This method is deprecated in favor of :py:meth:`Contract.constructor(*args, **kwargs).estimate_gas`
-
 .. py:classmethod:: Contract.constructor(*args, **kwargs).estimate_gas(transaction=None, block_identifier=None)
     :noindex:
 
@@ -271,11 +266,6 @@ Each Contract Factory exposes the following methods.
 
         >>> token_contract.constructor(web3.eth.coinbase, 12345).estimate_gas()
         12563
-
-.. py:classmethod:: Contract.constructor(*args, **kwargs).buildTransaction(transaction=None)
-    :noindex:
-
-    .. warning:: Deprecated: This method is deprecated in favor of :py:meth:`Contract.constructor(*args, **kwargs).build_transaction`
 
 .. py:classmethod:: Contract.constructor(*args, **kwargs).build_transaction(transaction=None)
     :noindex:
@@ -843,10 +833,6 @@ Methods
     a "missing trie node" error, because Ethereum node may have purged the past state from its database.
     `More information about archival nodes here <https://ethereum.stackexchange.com/a/84200/620>`_.
 
-.. py:method:: ContractFunction.estimateGas(transaction, block_identifier=None)
-
-    .. warning:: Deprecated: This method is deprecated in favor of :class:`~estimate_gas`
-
 .. py:method:: ContractFunction.estimate_gas(transaction, block_identifier=None)
 
     Call a contract function, executing the transaction locally using the
@@ -875,10 +861,6 @@ Methods
         hence passing a value of ``block_identifier`` when connected to a geth
         nodes would result in an error like:  ``ValueError: {'code': -32602, 'message': 'too many arguments, want at most 1'}``
 
-.. py:method:: ContractFunction.buildTransaction(transaction)
-
-    .. warning:: Deprecated: This method is deprecated in favor of :class:`~build_transaction`
-  
 .. py:method:: ContractFunction.build_transaction(transaction)
 
     Builds a transaction dictionary based on the contract function call specified.
@@ -941,7 +923,7 @@ Fallback Function
     Call fallback function, executing the transaction locally using the
     ``eth_call`` API.  This will not create a new public transaction.
 
-.. py:method:: Contract.fallback.estimateGas(transaction)
+.. py:method:: Contract.fallback.estimate_gas(transaction)
 
     Call fallback function and return the gas estimation.
 
@@ -949,7 +931,7 @@ Fallback Function
 
     Execute fallback function by sending a new public transaction.
 
-.. py:method:: Contract.fallback.buildTransaction(transaction)
+.. py:method:: Contract.fallback.build_transaction(transaction)
 
     Builds a transaction dictionary based on the contract fallback function call.
 

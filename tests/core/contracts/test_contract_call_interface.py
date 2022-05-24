@@ -2,13 +2,9 @@ from decimal import (
     Decimal,
     getcontext,
 )
-from distutils.version import (
-    LooseVersion,
-)
 import json
 import pytest
 
-import eth_abi
 from eth_tester.exceptions import (
     TransactionFailed,
 )
@@ -20,7 +16,7 @@ from hexbytes import (
 )
 import pytest_asyncio
 
-from utils import (
+from _utils import (
     async_deploy,
     deploy,
 )
@@ -37,6 +33,8 @@ from web3.exceptions import (
     NoABIFunctionsFound,
     ValidationError,
 )
+
+MULTIPLE_FUNCTIONS = json.loads('[{"constant":false,"inputs":[],"name":"a","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"","type":"bytes32"}],"name":"a","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"","type":"uint256"}],"name":"a","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"","type":"uint8"}],"name":"a","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"","type":"int8"}],"name":"a","outputs":[],"type":"function"}]')  # noqa: E501
 
 
 @pytest.fixture(params=[b'\x04\x06', '0x0406', '0406'])
@@ -241,25 +239,6 @@ def test_call_get_string_value(string_contract, call):
     # encoding of string return values. Thus, we need to decode
     # ourselves for fair comparison.
     assert result == "Caqalai"
-
-
-@pytest.mark.skipif(
-    LooseVersion(eth_abi.__version__) >= LooseVersion("2"),
-    reason="eth-abi >=2 does utf-8 string decoding")
-def test_call_read_string_variable(string_contract, call):
-    result = call(contract=string_contract,
-                  contract_function='constValue')
-    assert result == b"\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f\x20\x21\x22\x23\x24\x25\x26\x27\x28\x29\x2a\x2b\x2c\x2d\x2e\x2f\x30\x31\x32\x33\x34\x35\x36\x37\x38\x39\x3a\x3b\x3c\x3d\x3e\x3f\x40\x41\x42\x43\x44\x45\x46\x47\x48\x49\x4a\x4b\x4c\x4d\x4e\x4f\x50\x51\x52\x53\x54\x55\x56\x57\x58\x59\x5a\x5b\x5c\x5d\x5e\x5f\x60\x61\x62\x63\x64\x65\x66\x67\x68\x69\x6a\x6b\x6c\x6d\x6e\x6f\x70\x71\x72\x73\x74\x75\x76\x77\x78\x79\x7a\x7b\x7c\x7d\x7e\x7f\x80\x81\x82\x83\x84\x85\x86\x87\x88\x89\x8a\x8b\x8c\x8d\x8e\x8f\x90\x91\x92\x93\x94\x95\x96\x97\x98\x99\x9a\x9b\x9c\x9d\x9e\x9f\xa0\xa1\xa2\xa3\xa4\xa5\xa6\xa7\xa8\xa9\xaa\xab\xac\xad\xae\xaf\xb0\xb1\xb2\xb3\xb4\xb5\xb6\xb7\xb8\xb9\xba\xbb\xbc\xbd\xbe\xbf\xc0\xc1\xc2\xc3\xc4\xc5\xc6\xc7\xc8\xc9\xca\xcb\xcc\xcd\xce\xcf\xd0\xd1\xd2\xd3\xd4\xd5\xd6\xd7\xd8\xd9\xda\xdb\xdc\xdd\xde\xdf\xe0\xe1\xe2\xe3\xe4\xe5\xe6\xe7\xe8\xe9\xea\xeb\xec\xed\xee\xef\xf0\xf1\xf2\xf3\xf4\xf5\xf6\xf7\xf8\xf9\xfa\xfb\xfc\xfd\xfe\xff".decode(errors='backslashreplace')  # noqa: E501
-
-
-@pytest.mark.skipif(
-    LooseVersion(eth_abi.__version__) < LooseVersion("2"),
-    reason="eth-abi does not raise exception on undecodable bytestrings")
-def test_call_on_undecodable_string(string_contract, call):
-    with pytest.raises(BadFunctionCallOutput):
-        call(
-            contract=string_contract,
-            contract_function='constValue')
 
 
 def test_call_get_bytes32_array(arrays_contract, call):
@@ -628,28 +607,22 @@ def test_function_1_match_identifier_wrong_args_encoding(arrays_contract):
         arrays_contract.functions.setBytes32Value('dog').call()
 
 
-def test_function_multiple_match_identifiers_no_correct_number_of_args(w3):
-    MULTIPLE_FUNCTIONS = json.loads('[{"constant":false,"inputs":[],"name":"a","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"","type":"bytes32"}],"name":"a","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"","type":"uint256"}],"name":"a","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"","type":"uint8"}],"name":"a","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"","type":"int8"}],"name":"a","outputs":[],"type":"function"}]')  # noqa: E501
+@pytest.mark.parametrize(
+    'arg1,arg2,diagnosis',
+    (
+        (100, 'dog', diagnosis_arg_regex),
+        ('dog', None, diagnosis_encoding_regex),
+        (100, None, diagnosis_ambiguous_encoding),
+    )
+)
+def test_function_multiple_error_diagnoses(w3, arg1, arg2, diagnosis):
     Contract = w3.eth.contract(abi=MULTIPLE_FUNCTIONS)
-    regex = message_regex + diagnosis_arg_regex
+    regex = message_regex + diagnosis
     with pytest.raises(ValidationError, match=regex):
-        Contract.functions.a(100, 'dog').call()
-
-
-def test_function_multiple_match_identifiers_no_correct_encoding_of_args(w3):
-    MULTIPLE_FUNCTIONS = json.loads('[{"constant":false,"inputs":[],"name":"a","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"","type":"bytes32"}],"name":"a","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"","type":"uint256"}],"name":"a","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"","type":"uint8"}],"name":"a","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"","type":"int8"}],"name":"a","outputs":[],"type":"function"}]')  # noqa: E501
-    Contract = w3.eth.contract(abi=MULTIPLE_FUNCTIONS)
-    regex = message_regex + diagnosis_encoding_regex
-    with pytest.raises(ValidationError, match=regex):
-        Contract.functions.a('dog').call()
-
-
-def test_function_multiple_possible_encodings(w3):
-    MULTIPLE_FUNCTIONS = json.loads('[{"constant":false,"inputs":[],"name":"a","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"","type":"bytes32"}],"name":"a","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"","type":"uint256"}],"name":"a","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"","type":"uint8"}],"name":"a","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"","type":"int8"}],"name":"a","outputs":[],"type":"function"}]')  # noqa: E501
-    Contract = w3.eth.contract(abi=MULTIPLE_FUNCTIONS)
-    regex = message_regex + diagnosis_ambiguous_encoding
-    with pytest.raises(ValidationError, match=regex):
-        Contract.functions.a(100).call()
+        if arg2:
+            Contract.functions.a(arg1, arg2).call()
+        else:
+            Contract.functions.a(arg1).call()
 
 
 def test_function_no_abi(w3):
@@ -932,27 +905,6 @@ async def test_async_call_get_string_value(async_string_contract, async_call):
 
 
 @pytest.mark.asyncio
-@pytest.mark.skipif(
-    LooseVersion(eth_abi.__version__) >= LooseVersion("2"),
-    reason="eth-abi >=2 does utf-8 string decoding")
-async def test_async_call_read_string_variable(async_string_contract, async_call):
-    result = await async_call(contract=async_string_contract,
-                              contract_function='constValue')
-    assert result == b"\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f\x20\x21\x22\x23\x24\x25\x26\x27\x28\x29\x2a\x2b\x2c\x2d\x2e\x2f\x30\x31\x32\x33\x34\x35\x36\x37\x38\x39\x3a\x3b\x3c\x3d\x3e\x3f\x40\x41\x42\x43\x44\x45\x46\x47\x48\x49\x4a\x4b\x4c\x4d\x4e\x4f\x50\x51\x52\x53\x54\x55\x56\x57\x58\x59\x5a\x5b\x5c\x5d\x5e\x5f\x60\x61\x62\x63\x64\x65\x66\x67\x68\x69\x6a\x6b\x6c\x6d\x6e\x6f\x70\x71\x72\x73\x74\x75\x76\x77\x78\x79\x7a\x7b\x7c\x7d\x7e\x7f\x80\x81\x82\x83\x84\x85\x86\x87\x88\x89\x8a\x8b\x8c\x8d\x8e\x8f\x90\x91\x92\x93\x94\x95\x96\x97\x98\x99\x9a\x9b\x9c\x9d\x9e\x9f\xa0\xa1\xa2\xa3\xa4\xa5\xa6\xa7\xa8\xa9\xaa\xab\xac\xad\xae\xaf\xb0\xb1\xb2\xb3\xb4\xb5\xb6\xb7\xb8\xb9\xba\xbb\xbc\xbd\xbe\xbf\xc0\xc1\xc2\xc3\xc4\xc5\xc6\xc7\xc8\xc9\xca\xcb\xcc\xcd\xce\xcf\xd0\xd1\xd2\xd3\xd4\xd5\xd6\xd7\xd8\xd9\xda\xdb\xdc\xdd\xde\xdf\xe0\xe1\xe2\xe3\xe4\xe5\xe6\xe7\xe8\xe9\xea\xeb\xec\xed\xee\xef\xf0\xf1\xf2\xf3\xf4\xf5\xf6\xf7\xf8\xf9\xfa\xfb\xfc\xfd\xfe\xff".decode(errors='backslashreplace')  # noqa: E501
-
-
-@pytest.mark.asyncio
-@pytest.mark.skipif(
-    LooseVersion(eth_abi.__version__) < LooseVersion("2"),
-    reason="eth-abi does not raise exception on undecodable bytestrings")
-async def test_async_call_on_undecodable_string(async_string_contract, async_call):
-    with pytest.raises(BadFunctionCallOutput):
-        await async_call(
-            contract=async_string_contract,
-            contract_function='constValue')
-
-
-@pytest.mark.asyncio
 async def test_async_call_get_bytes32_array(async_arrays_contract, async_call):
     result = await async_call(contract=async_arrays_contract,
                               contract_function='getBytes32Value')
@@ -1056,23 +1008,23 @@ async def test_async_call_read_address_variable(async_address_contract, async_ca
     assert result == "0xd3CdA913deB6f67967B99D67aCDFa1712C293601"
 
 
-# TODO reenable once ENS is async
-# @pytest.mark.asyncio
-# async def test_async_init_with_ens_name_arg(
-#         async_w3,
-#         AsyncWithConstructorAddressArgumentsContract,
-#         async_call):
-#     with contract_ens_addresses(
-#         AsyncWithConstructorAddressArgumentsContract,
-#         [("arg-name.eth", "0xBB9bc244D798123fDe783fCc1C72d3Bb8C189413")],
-#     ):
-#         address_contract = await async_deploy(async_w3,
-#                                               AsyncWithConstructorAddressArgumentsContract,
-#                                               args=["arg-name.eth",])
+@pytest.mark.xfail
+@pytest.mark.asyncio
+async def test_async_init_with_ens_name_arg(
+        async_w3,
+        AsyncWithConstructorAddressArgumentsContract,
+        async_call):
+    with contract_ens_addresses(
+        AsyncWithConstructorAddressArgumentsContract,
+        [("arg-name.eth", "0xBB9bc244D798123fDe783fCc1C72d3Bb8C189413")],
+    ):
+        address_contract = await async_deploy(async_w3,
+                                              AsyncWithConstructorAddressArgumentsContract,
+                                              args=["arg-name.eth", ])
 
-#     result = await async_call(contract=address_contract,
-#                               contract_function='testAddr')
-#     assert result == "0xBB9bc244D798123fDe783fCc1C72d3Bb8C189413"
+    result = await async_call(contract=address_contract,
+                              contract_function='testAddr')
+    assert result == "0xBB9bc244D798123fDe783fCc1C72d3Bb8C189413"
 
 
 @pytest.mark.asyncio
@@ -1173,53 +1125,53 @@ async def test_async_call_address_list_reflector_with_address(
                                 func_args=[value]) == expected
 
 
-# TODO reenable after ens is asynced
-# @pytest.mark.asyncio
-# async def test_async_call_address_reflector_single_name(
-#         async_address_reflector_contract,
-#         async_call):
-#     with contract_ens_addresses(
-#         async_address_reflector_contract,
-#         [("dennisthepeasant.eth", "0xBB9bc244D798123fDe783fCc1C72d3Bb8C189413")],
-#     ):
-#         result = await async_call(contract=async_address_reflector_contract,
-#                                   contract_function='reflect',
-#                                   func_args=['dennisthepeasant.eth'])
-#         assert result == '0xBB9bc244D798123fDe783fCc1C72d3Bb8C189413'
+@pytest.mark.xfail
+@pytest.mark.asyncio
+async def test_async_call_address_reflector_single_name(
+        async_address_reflector_contract,
+        async_call):
+    with contract_ens_addresses(
+        async_address_reflector_contract,
+        [("dennisthepeasant.eth", "0xBB9bc244D798123fDe783fCc1C72d3Bb8C189413")],
+    ):
+        result = await async_call(contract=async_address_reflector_contract,
+                                  contract_function='reflect',
+                                  func_args=['dennisthepeasant.eth'])
+        assert result == '0xBB9bc244D798123fDe783fCc1C72d3Bb8C189413'
 
 
-# TODO reenable once ENS is asynced
-# @pytest.mark.asyncio
-# async def test_async_call_address_reflector_name_array(
-#         async_address_reflector_contract,
-#         async_call):
-#     names = [
-#         'autonomouscollective.eth',
-#         'wedonthavealord.eth',
-#     ]
-#     addresses = [
-#         '0xBB9bc244D798123fDe783fCc1C72d3Bb8C189413',
-#         '0xFeC2079e80465cc8C687fFF9EE6386ca447aFec4',
-#     ]
+@pytest.mark.xfail
+@pytest.mark.asyncio
+async def test_async_call_address_reflector_name_array(
+        async_address_reflector_contract,
+        async_call):
+    names = [
+        'autonomouscollective.eth',
+        'wedonthavealord.eth',
+    ]
+    addresses = [
+        '0xBB9bc244D798123fDe783fCc1C72d3Bb8C189413',
+        '0xFeC2079e80465cc8C687fFF9EE6386ca447aFec4',
+    ]
 
-#     with contract_ens_addresses(async_address_reflector_contract, zip(names, addresses)):
-#         result = await async_call(contract=async_address_reflector_contract,
-#                       contract_function='reflect',
-#                       func_args=[names])
+    with contract_ens_addresses(async_address_reflector_contract, zip(names, addresses)):
+        result = await async_call(contract=async_address_reflector_contract,
+                                  contract_function='reflect',
+                                  func_args=[names])
 
-#     assert addresses == result
+    assert addresses == result
 
 
-# TODO reenable once ENS is asynced
-# @pytest.mark.asyncio
-# async def test_async_call_reject_invalid_ens_name(
-#         async_address_reflector_contract,
-#         async_call):
-#     with contract_ens_addresses(async_address_reflector_contract, []):
-#         with pytest.raises(ValueError):
-#             await async_call(contract=async_address_reflector_contract,
-#                              contract_function='reflect',
-#                              func_args=['type0.eth'])
+@pytest.mark.xfail
+@pytest.mark.asyncio
+async def test_async_call_reject_invalid_ens_name(
+        async_address_reflector_contract,
+        async_call):
+    with contract_ens_addresses(async_address_reflector_contract, []):
+        with pytest.raises(ValueError):
+            await async_call(contract=async_address_reflector_contract,
+                             contract_function='reflect',
+                             func_args=['type0.eth'])
 
 
 @pytest.mark.asyncio
@@ -1230,13 +1182,12 @@ async def test_async_call_missing_function(async_mismatched_math_contract, async
     assert expected_missing_function_error_message in str(exception_info.value)
 
 
-# TODO bug in use of contract.py, _contract_call_function
-# @pytest.mark.asyncio
-# async def test_async_call_undeployed_contract(async_undeployed_math_contract, async_call):
-#     expected_undeployed_call_error_message = "Could not transact with/call contract function"
-#     with pytest.raises(BadFunctionCallOutput) as exception_info:
-#         await async_call(contract=async_undeployed_math_contract, contract_function='return13')
-#     assert expected_undeployed_call_error_message in str(exception_info.value)
+@pytest.mark.asyncio
+async def test_async_call_undeployed_contract(async_undeployed_math_contract, async_call):
+    expected_undeployed_call_error_message = "Could not transact with/call contract function"
+    with pytest.raises(BadFunctionCallOutput) as exception_info:
+        await async_call(contract=async_undeployed_math_contract, contract_function='return13')
+    assert expected_undeployed_call_error_message in str(exception_info.value)
 
 
 @pytest.mark.asyncio
@@ -1331,23 +1282,6 @@ async def test_async_neg_block_indexes_from_the_end(
     assert output1 == 1
     assert output2 == 2
 
-message_regex = (
-    r"\nCould not identify the intended function with name `.*`, "
-    r"positional argument\(s\) of type `.*` and "
-    r"keyword argument\(s\) of type `.*`."
-    r"\nFound .* function\(s\) with the name `.*`: .*"
-)
-diagnosis_arg_regex = (
-    r"\nFunction invocation failed due to improper number of arguments."
-)
-diagnosis_encoding_regex = (
-    r"\nFunction invocation failed due to no matching argument types."
-)
-diagnosis_ambiguous_encoding = (
-    r"\nAmbiguous argument encoding. "
-    r"Provided arguments can be encoded to multiple functions matching this call."
-)
-
 
 @pytest.mark.asyncio
 async def test_async_no_functions_match_identifier(async_arrays_contract):
@@ -1372,30 +1306,22 @@ async def test_async_function_1_match_identifier_wrong_args_encoding(
 
 
 @pytest.mark.asyncio
-async def test_async_function_multiple_match_identifiers_no_correct_number_of_args(async_w3):
-    MULTIPLE_FUNCTIONS = json.loads('[{"constant":false,"inputs":[],"name":"a","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"","type":"bytes32"}],"name":"a","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"","type":"uint256"}],"name":"a","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"","type":"uint8"}],"name":"a","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"","type":"int8"}],"name":"a","outputs":[],"type":"function"}]')  # noqa: E501
+@pytest.mark.parametrize(
+    'arg1,arg2,diagnosis',
+    (
+        (100, 'dog', diagnosis_arg_regex),
+        ('dog', None, diagnosis_encoding_regex),
+        (100, None, diagnosis_ambiguous_encoding),
+    )
+)
+async def test_async_function_multiple_diagnoses(async_w3, arg1, arg2, diagnosis):
     Contract = async_w3.eth.contract(abi=MULTIPLE_FUNCTIONS)
-    regex = message_regex + diagnosis_arg_regex
+    regex = message_regex + diagnosis
     with pytest.raises(ValidationError, match=regex):
-        await Contract.functions.a(100, 'dog').call()
-
-
-@pytest.mark.asyncio
-async def test_async_function_multiple_match_identifiers_no_correct_encoding_of_args(async_w3):
-    MULTIPLE_FUNCTIONS = json.loads('[{"constant":false,"inputs":[],"name":"a","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"","type":"bytes32"}],"name":"a","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"","type":"uint256"}],"name":"a","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"","type":"uint8"}],"name":"a","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"","type":"int8"}],"name":"a","outputs":[],"type":"function"}]')  # noqa: E501
-    Contract = async_w3.eth.contract(abi=MULTIPLE_FUNCTIONS)
-    regex = message_regex + diagnosis_encoding_regex
-    with pytest.raises(ValidationError, match=regex):
-        await Contract.functions.a('dog').call()
-
-
-@pytest.mark.asyncio
-async def test_async_function_multiple_possible_encodings(async_w3):
-    MULTIPLE_FUNCTIONS = json.loads('[{"constant":false,"inputs":[],"name":"a","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"","type":"bytes32"}],"name":"a","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"","type":"uint256"}],"name":"a","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"","type":"uint8"}],"name":"a","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"","type":"int8"}],"name":"a","outputs":[],"type":"function"}]')  # noqa: E501
-    Contract = async_w3.eth.contract(abi=MULTIPLE_FUNCTIONS)
-    regex = message_regex + diagnosis_ambiguous_encoding
-    with pytest.raises(ValidationError, match=regex):
-        await Contract.functions.a(100).call()
+        if arg2:
+            await Contract.functions.a(arg1, arg2).call()
+        else:
+            await Contract.functions.a(arg1).call()
 
 
 @pytest.mark.asyncio
