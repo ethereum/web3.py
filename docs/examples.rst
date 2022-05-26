@@ -991,8 +991,12 @@ The script can be run with: ``python ./eventscanner.py <your JSON-RPC API URL>``
                     # Get UTC time when this event happened (block mined timestamp)
                     # from our in-memory cache
                     block_when = get_block_when(block_number)
-
-                    logger.debug(f"Processing event {evt["event"]}, block: {evt["blockNumber"]} count: {evt["blockNumber"]}")
+                    
+                    # Get the current event, block number, and count
+                    current_evt = evt["event"]
+                    current_blockNumber = evt["blockNumber"]
+                    current_count = evt["blockNumber"]
+                    logger.debug(f"Processing event {current_evt}, block: {current_blockNumber} count: {current_count}")
                     processed = self.state.process_event(block_when, evt)
                     all_processed.append(processed)
 
