@@ -187,7 +187,7 @@ LOG_ENTRY_FORMATTERS = {
     'logIndex': to_integer_if_hex,
     'address': to_checksum_address,
     'topics': apply_list_to_array_formatter(to_hexbytes(32)),
-    'data': to_ascii_if_bytes,
+    'data': HexBytes,
 }
 
 
@@ -208,6 +208,7 @@ RECEIPT_FORMATTERS = {
     'from': apply_formatter_if(is_not_null, to_checksum_address),
     'to': apply_formatter_if(is_address, to_checksum_address),
     'effectiveGasPrice': to_integer_if_hex,
+    'type': to_integer_if_hex,
 }
 
 
