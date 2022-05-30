@@ -13,7 +13,7 @@ an address from a name, set up your own address, and more.
 Setup
 -----
 
-Create an :class:`~ens.main.ENS` object (named ``ns`` below) in one of three ways:
+Create an :class:`~ens.ENS` object (named ``ns`` below) in one of three ways:
 
 1. Automatic detection
 2. Specify an instance or list of :ref:`providers`
@@ -93,7 +93,7 @@ Set Up Your Name and Address
 Link a Name to an Address
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-You can set up your name so that :meth:`~ens.main.ENS.address` will show the address it points to. In order to do so,
+You can set up your name so that :meth:`~ens.ENS.address` will show the address it points to. In order to do so,
 you must already be the owner of the domain (or its parent).
 
 .. code-block:: python
@@ -123,7 +123,7 @@ You can claim arbitrarily deep subdomains.
 Link an Address to a Name
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-You can set up your address so that :meth:`~ens.main.ENS.name` will show the name that points to it.
+You can set up your address so that :meth:`~ens.ENS.name` will show the name that points to it.
 
 This is like Caller ID. It enables you and others to take an account and determine what name points to it. Sometimes
 this is referred to as "reverse" resolution. The ENS Reverse Resolver is used for this functionality.
@@ -132,15 +132,15 @@ this is referred to as "reverse" resolution. The ENS Reverse Resolver is used fo
 
     ns.setup_name('jasoncarver.eth', '0x5B2063246F2191f18F2675ceDB8b28102e957458')
 
-If you don't supply the address, :meth:`~ens.main.ENS.setup_name` will assume you want the
-address returned by :meth:`~ens.main.ENS.address`.
+If you don't supply the address, :meth:`~ens.ENS.setup_name` will assume you want the
+address returned by :meth:`~ens.ENS.address`.
 
 .. code-block:: python
 
     ns.setup_name('jasoncarver.eth')
 
-If the name doesn't already point to an address, :meth:`~ens.main.ENS.setup_name` will
-call :meth:`~ens.main.ENS.setup_address` for you.
+If the name doesn't already point to an address, :meth:`~ens.ENS.setup_name` will
+call :meth:`~ens.ENS.setup_address` for you.
 
 Wait for the transaction to be mined, then:
 
@@ -195,7 +195,7 @@ Working With Resolvers
 Get the Resolver for an ENS Record
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-You can get the resolver for an ENS name via the :meth:`~ens.main.ENS.resolver` method.
+You can get the resolver for an ENS name via the :meth:`~ens.ENS.resolver` method.
 
 .. code-block:: python
 

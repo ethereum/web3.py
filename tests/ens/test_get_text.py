@@ -86,3 +86,13 @@ def test_get_text_resolver_not_found(ens):
 def test_get_text_for_resolver_with_unsupported_function(ens):
     with pytest.raises(UnsupportedFunction, match="does not support `text` function"):
         ens.get_text("simple-resolver.eth", "any_key")
+
+
+@pytest.mark.asyncio
+async def test_async_get_text(async_ens):
+    acoounts = await async_ens.w3.eth.accounts
+    address = acoounts[2]
+    await async_ens.setup_address("tester.eth", address)
+    await async_ens.set_text("tester.eth", "test", "123")
+    text = await async_ens.get_text("tester.eth", "test")
+    assert text == "123"

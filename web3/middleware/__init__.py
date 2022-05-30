@@ -68,6 +68,7 @@ from .signing import (  # noqa: F401
 )
 from .stalecheck import (  # noqa: F401
     make_stalecheck_middleware,
+    async_make_stalecheck_middleware
 )
 from .validation import (  # noqa: F401
     async_validation_middleware,

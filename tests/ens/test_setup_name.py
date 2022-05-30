@@ -4,7 +4,7 @@ from eth_typing import (
     HexStr,
 )
 
-from ens.main import (
+from ens import (
     AddressMismatch,
     UnauthorizedError,
     UnownedName,
@@ -148,3 +148,30 @@ def test_setup_reverse_dict_unmodified(ens):
 
     # teardown
     ens.setup_name(None, address, transact=transact)
+
+
+@pytest.mark.asyncio
+async def test_async_cannot_set_name(async_ens):
+    addresses = await async_ens.w3.eth.accounts
+    address = addresses[3]
+    await async_ens.setup_name('tester.eth', address)
+
+
+@pytest.mark.asyncio
+async def test_async_setup_name_unowned_exception(async_ens):
+    with pytest.raises(UnownedName):
+        await async_ens.setup_name('unowned-name.tester.eth')
+
+
+@pytest.mark.asyncio
+async def test_async_setup_name_unauthorized(async_ens, TEST_ADDRESS):
+    with pytest.raises(UnauthorizedError):
+        await async_ens.setup_name('root-owned-tld', TEST_ADDRESS)
+
+
+@pytest.mark.asyncio
+async def test_async_cannot_set_name_on_mismatch_address(async_ens, TEST_ADDRESS):
+    await async_ens.setup_address('mismatch-reverse.tester.eth', TEST_ADDRESS)
+    with pytest.raises(AddressMismatch):
+        await async_ens.setup_name('mismatch-reverse.tester.eth',
+                                   '0xBB9bc244D798123fDe783fCc1C72d3Bb8C189413')
