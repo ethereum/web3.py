@@ -1,6 +1,11 @@
 # flake8: noqa
 
-from .main import (
+from .async_ens import (
+    AsyncENS,
+    AsyncENSFactory,  
+)
+
+from .ens import (
     ENS,
 )
 

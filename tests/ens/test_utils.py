@@ -6,8 +6,12 @@ from eth_utils import (
 )
 
 from ens.utils import (
+    async_init_web3,
     ens_encode_name,
     init_web3,
+)
+from web3.eth import (
+    AsyncEth,
 )
 
 
@@ -15,6 +19,19 @@ def test_init_adds_middlewares():
     w3 = init_web3()
     middlewares = map(str, w3.manager.middleware_onion)
     assert "stalecheck_middleware" in next(middlewares)
+
+
+@pytest.mark.asyncio
+async def test_init_adds_async_middlewares():
+    async_w3 = await async_init_web3()
+    middlewares = map(str, async_w3.manager.middleware_onion)
+    assert 'stalecheck_middleware' in next(middlewares)
+
+
+@pytest.mark.asyncio
+async def test_init_adds_async_eth():
+    async_w3 = await async_init_web3()
+    assert isinstance(async_w3.eth, AsyncEth)
 
 
 @pytest.mark.parametrize(

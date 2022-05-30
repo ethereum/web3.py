@@ -11,11 +11,11 @@ from eth_utils import (
     to_bytes,
 )
 
+from ens import (
+    UnauthorizedError,
+)
 from ens.constants import (
     EMPTY_ADDR_HEX,
-)
-from ens.main import (
-    UnauthorizedError,
 )
 from web3 import Web3
 
@@ -164,3 +164,15 @@ def test_set_resolver_leave_default(ens, TEST_ADDRESS):
     # should skip setting the owner and setting the default resolver, and only
     #   set the name in the default resolver to point to the new address
     assert eth.get_transaction_count(owner) == num_transactions + 1
+
+
+@pytest.mark.asyncio
+async def test_async_setup_address(async_ens, TEST_ADDRESS):
+    await async_ens.setup_address("tester.eth", TEST_ADDRESS)
+    assert is_same_address(await async_ens.address("tester.eth"), TEST_ADDRESS)
+
+
+@pytest.mark.asyncio
+async def test_async_set_address_unauthorized(async_ens, TEST_ADDRESS):
+    with pytest.raises(UnauthorizedError):
+        await async_ens.setup_address('eth', TEST_ADDRESS)
