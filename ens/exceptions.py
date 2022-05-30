@@ -35,7 +35,7 @@ class UnownedName(Exception):
     Raised if you are trying to modify a name that no one owns.
 
     If working on a subdomain, make sure the subdomain gets created
-    first with :meth:`~ens.main.ENS.setup_address`.
+    first with :meth:`~ens.ENS.setup_address`.
     """
     pass
 

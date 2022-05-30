@@ -1,12 +1,8 @@
 from copy import (
     deepcopy,
 )
-from functools import (
-    wraps,
-)
 from typing import (
     TYPE_CHECKING,
-    Any,
     Optional,
     Sequence,
     Tuple,
@@ -34,6 +30,9 @@ from hexbytes import (
 )
 
 from ens import abis
+from ens.base_ens import (
+    BaseENS,
+)
 from ens.constants import (
     EMPTY_ADDR_HEX,
     ENS_MAINNET_ADDR,
@@ -53,11 +52,9 @@ from ens.utils import (
     address_to_reverse_domain,
     default,
     ens_encode_name,
-    get_abi_output_types,
     init_web3,
     is_empty_name,
     is_none_or_zero_address,
-    is_valid_name,
     label_to_hash,
     normal_name_to_hash,
     normalize_name,
@@ -67,7 +64,6 @@ from ens.utils import (
 if TYPE_CHECKING:
     from web3 import Web3  # noqa: F401
     from web3.contract import (  # noqa: F401
-        AsyncContract,
         Contract,
     )
     from web3.providers import (  # noqa: F401
@@ -79,7 +75,8 @@ if TYPE_CHECKING:
     )
 
 
-class ENS:
+class ENS(BaseENS):
+
     """
     Quick access to common Ethereum Name Service functions,
     like getting the address for a name.
@@ -88,37 +85,11 @@ class ENS:
     `checksum format <https://github.com/ethereum/EIPs/blob/master/EIPS/eip-155.md>`_,
     like: ``"0x314159265dD8dbb310642f98f50C066173C1259b"``
     """
-
-    @staticmethod
-    @wraps(label_to_hash)
-    def labelhash(label: str) -> HexBytes:
-        return label_to_hash(label)
-
-    @staticmethod
-    @wraps(raw_name_to_hash)
-    def namehash(name: str) -> HexBytes:
-        return raw_name_to_hash(name)
-
-    @staticmethod
-    @wraps(normalize_name)
-    def nameprep(name: str) -> str:
-        return normalize_name(name)
-
-    @staticmethod
-    @wraps(is_valid_name)
-    def is_valid_name(name: str) -> bool:
-        return is_valid_name(name)
-
-    @staticmethod
-    @wraps(address_to_reverse_domain)
-    def reverse_domain(address: ChecksumAddress) -> str:
-        return address_to_reverse_domain(address)
-
     def __init__(
         self,
         provider: 'BaseProvider' = cast('BaseProvider', default),
         addr: ChecksumAddress = None,
-        middlewares: Optional[Sequence[Tuple['Middleware', str]]] = None,
+        middlewares: Optional[Sequence[Tuple['Middleware', str]]] = None
     ) -> None:
         """
         :param provider: a single provider used to connect to Ethereum
@@ -126,6 +97,7 @@ class ENS:
         :param hex-string addr: the address of the ENS registry on-chain. If not provided,
             ENS.py will default to the mainnet ENS registry address.
         """
+        super()
         self.w3 = init_web3(provider, middlewares)
 
         ens_addr = addr if addr else ENS_MAINNET_ADDR
@@ -146,15 +118,6 @@ class ENS:
         middlewares = w3.middleware_onion.middlewares
         return cls(provider, addr=addr, middlewares=middlewares)
 
-    def address(self, name: str) -> Optional[ChecksumAddress]:
-        """
-        Look up the Ethereum address that `name` currently points to.
-
-        :param str name: an ENS name to look up
-        :raises InvalidName: if `name` has invalid syntax
-        """
-        return cast(ChecksumAddress, self._resolve(name, 'addr'))
-
     def name(self, address: ChecksumAddress) -> Optional[str]:
         """
         Look up the name that the address points to, using a
@@ -170,72 +133,6 @@ class ENS:
         # the forward resolution
         return name if to_checksum_address(address) == self.address(name) else None
 
-    @staticmethod
-    def parent(name: str) -> str:
-        """
-        Part of ENSIP-10. Returns the parent of a given ENS name, or the empty string if the ENS
-        name does not have a parent.
-
-        e.g.
-        - parent('1.foo.bar.eth') = 'foo.bar.eth'
-        - parent('foo.bar.eth') = 'bar.eth'
-        - parent('foo.eth') = 'eth'
-        - parent('eth') is defined as the empty string ''
-
-        :param name: an ENS name
-        :return: the parent for the provided ENS name
-        :rtype: str
-        """
-        if not name:
-            return ''
-
-        labels = name.split('.')
-        return '' if len(labels) == 1 else '.'.join(labels[1:])
-
-    def setup_address(
-        self,
-        name: str,
-        address: Union[Address, ChecksumAddress, HexAddress] = cast(ChecksumAddress, default),
-        transact: Optional["TxParams"] = None
-    ) -> Optional[HexBytes]:
-        """
-        Set up the name to point to the supplied address.
-        The sender of the transaction must own the name, or
-        its parent name.
-
-        Example: If the caller owns ``parentname.eth`` with no subdomains
-        and calls this method with ``sub.parentname.eth``,
-        then ``sub`` will be created as part of this call.
-
-        :param str name: ENS name to set up
-        :param str address: name will point to this address, in checksum format. If ``None``,
-            erase the record. If not specified, name will point to the owner's address.
-        :param dict transact: the transaction configuration, like in
-            :meth:`~web3.eth.Eth.send_transaction`
-        :raises InvalidName: if ``name`` has invalid syntax
-        :raises UnauthorizedError: if ``'from'`` in `transact` does not own `name`
-        """
-        if not transact:
-            transact = {}
-        transact = deepcopy(transact)
-        owner = self.setup_owner(name, transact=transact)
-        self._assert_control(owner, name)
-        if is_none_or_zero_address(address):
-            address = None
-        elif address is default:
-            address = owner
-        elif is_binary_address(address):
-            address = to_checksum_address(cast(str, address))
-        elif not is_checksum_address(address):
-            raise ValueError("You must supply the address in checksum format")
-        if self.address(name) == address:
-            return None
-        if address is None:
-            address = EMPTY_ADDR_HEX
-        transact['from'] = owner
-        resolver: Union['Contract', 'AsyncContract'] = self._set_resolver(name, transact=transact)
-        return resolver.functions.setAddr(raw_name_to_hash(name), address).transact(transact)
-
     def setup_name(
         self,
         name: str,
@@ -244,7 +141,7 @@ class ENS:
     ) -> HexBytes:
         """
         Set up the address for reverse lookup, aka "caller ID".
-        After successful setup, the method :meth:`~ens.main.ENS.name` will return
+        After successful setup, the method :meth:`~ens.ENS.name` will return
         `name` when supplied with `address`.
 
         :param str name: ENS name that address will point to
@@ -286,7 +183,32 @@ class ENS:
                 self.setup_address(name, address, transact=transact)
             return self._setup_reverse(name, address, transact=transact)
 
-    def resolver(self, name: str) -> Optional[Union['Contract', 'AsyncContract']]:
+    def reverser(self,
+                 target_address: ChecksumAddress) -> Optional['Contract']:
+        reversed_domain = address_to_reverse_domain(target_address)
+        return self.resolver(reversed_domain)
+
+    def _set_resolver(
+        self,
+        name: str,
+        resolver_addr: Optional[ChecksumAddress] = None,
+        transact: Optional["TxParams"] = None
+    ) -> 'Contract':
+        if not transact:
+            transact = {}
+        transact = deepcopy(transact)
+        if is_none_or_zero_address(resolver_addr):
+            resolver_addr = self.address('resolver.eth')
+        namehash = raw_name_to_hash(name)
+        if self.ens.caller.resolver(namehash) != resolver_addr:
+            self.ens.functions.setResolver(
+                namehash,
+                resolver_addr
+            ).transact(transact)
+        # type ignore becuase this is in base and set to AsyncContract or Contract
+        return self._resolver_contract(address=resolver_addr)  # type: ignore
+
+    def resolver(self, name: str) -> Optional['Contract']:
         """
         Get the resolver for an ENS name.
 
@@ -294,11 +216,6 @@ class ENS:
         """
         normal_name = normalize_name(name)
         return self._get_resolver(normal_name)[0]
-
-    def reverser(self,
-                 target_address: ChecksumAddress) -> Optional[Union['Contract', 'AsyncContract']]:
-        reversed_domain = address_to_reverse_domain(target_address)
-        return self.resolver(reversed_domain)
 
     def owner(self, name: str) -> ChecksumAddress:
         """
@@ -385,6 +302,51 @@ class ENS:
                 "unsupported top level domain (tld)."
             )
 
+    def setup_address(
+        self,
+        name: str,
+        address: Union[Address, ChecksumAddress, HexAddress] = cast(ChecksumAddress, default),
+        transact: Optional["TxParams"] = None
+    ) -> Optional[HexBytes]:
+        """
+        Set up the name to point to the supplied address.
+        The sender of the transaction must own the name, or
+        its parent name.
+
+        Example: If the caller owns ``parentname.eth`` with no subdomains
+        and calls this method with ``sub.parentname.eth``,
+        then ``sub`` will be created as part of this call.
+
+        :param str name: ENS name to set up
+        :param str address: name will point to this address, in checksum format. If ``None``,
+            erase the record. If not specified, name will point to the owner's address.
+        :param dict transact: the transaction configuration, like in
+            :meth:`~web3.eth.Eth.send_transaction`
+        :raises InvalidName: if ``name`` has invalid syntax
+        :raises UnauthorizedError: if ``'from'`` in `transact` does not own `name`
+        """
+        if not transact:
+            transact = {}
+        transact = deepcopy(transact)
+        owner = self.setup_owner(name, transact=transact)
+        self._assert_control(owner, name)
+        if is_none_or_zero_address(address):
+            address = None
+        elif address is default:
+            address = owner
+        elif is_binary_address(address):
+            address = to_checksum_address(cast(str, address))
+        elif not is_checksum_address(address):
+            raise ValueError("You must supply the address in checksum format")
+        if self.address(name) == address:
+            return None
+        if address is None:
+            address = EMPTY_ADDR_HEX
+        transact['from'] = owner
+
+        resolver: 'Contract' = self._set_resolver(name, transact=transact)
+        return resolver.functions.setAddr(raw_name_to_hash(name), address).transact(transact)
+
     def setup_owner(
         self,
         name: str,
@@ -434,6 +396,42 @@ class ENS:
             self._claim_ownership(new_owner, unowned, owned, super_owner, transact=transact)
             return new_owner
 
+    def _get_resolver(
+        self,
+        normal_name: str,
+        fn_name: str = 'addr'
+    ) -> Tuple[Optional['Contract'], str]:
+        current_name = normal_name
+
+        # look for a resolver, starting at the full name and taking the parent each time that no
+        # resolver is found
+        while True:
+            if is_empty_name(current_name):
+                # if no resolver found across all iterations, current_name will eventually be the
+                # empty string '' which returns here
+                return None, current_name
+
+            resolver_addr = self.ens.caller.resolver(normal_name_to_hash(current_name))
+            if not is_none_or_zero_address(resolver_addr):
+                # if resolver found, return it
+
+                # type ignore becuase _type_aware_resolver is in BaseENS
+                # and can return Contract or AsyncContract
+                return self._type_aware_resolver(resolver_addr,  # type: ignore
+                                                 fn_name), current_name
+
+            # set current_name to parent and try again
+            current_name = self.parent(current_name)
+
+    def address(self, name: str) -> Optional[ChecksumAddress]:
+        """
+        Look up the Ethereum address that `name` currently points to.
+
+        :param str name: an ENS name to look up
+        :raises InvalidName: if `name` has invalid syntax
+        """
+        return cast(ChecksumAddress, self._resolve(name, 'addr'))
+
     def _resolve(self, name: str, fn_name: str = 'addr') -> Optional[Union[ChecksumAddress, str]]:
         normal_name = normalize_name(name)
 
@@ -463,6 +461,40 @@ class ENS:
             return to_checksum_address(result) if is_address(result) else result
         return None
 
+    def _claim_ownership(
+        self,
+        owner: ChecksumAddress,
+        unowned: Sequence[str],
+        owned: str,
+        old_owner: Optional[ChecksumAddress] = None,
+        transact: Optional["TxParams"] = None
+    ) -> None:
+        if not transact:
+            transact = {}
+        transact = deepcopy(transact)
+        transact['from'] = old_owner or owner
+        for label in reversed(unowned):
+            self.ens.functions.setSubnodeOwner(
+                raw_name_to_hash(owned),
+                label_to_hash(label),
+                owner
+            ).transact(transact)
+            owned = f"{label}.{owned}"
+
+    def _setup_reverse(
+        self, name: str, address: ChecksumAddress, transact: Optional["TxParams"] = None
+    ) -> HexBytes:
+        name = normalize_name(name) if name else ''
+        if not transact:
+            transact = {}
+        transact = deepcopy(transact)
+        transact['from'] = address
+        return self._reverse_registrar().functions.setName(name).transact(transact)
+
+    def _reverse_registrar(self) -> 'Contract':
+        addr = self.ens.caller.owner(normal_name_to_hash(REVERSE_REGISTRAR_DOMAIN))
+        return self.w3.eth.contract(address=addr, abi=abis.REVERSE_REGISTRAR)
+
     def _assert_control(self, account: ChecksumAddress, name: str,
                         parent_owned: Optional[str] = None) -> None:
         if not address_in(account, self.w3.eth.accounts):
@@ -487,103 +519,8 @@ class ENS:
                 unowned.append(pieces.pop(0))
         return (owner, unowned, name)
 
-    def _claim_ownership(
-        self,
-        owner: ChecksumAddress,
-        unowned: Sequence[str],
-        owned: str,
-        old_owner: Optional[ChecksumAddress] = None,
-        transact: Optional["TxParams"] = None
-    ) -> None:
-        if not transact:
-            transact = {}
-        transact = deepcopy(transact)
-        transact['from'] = old_owner or owner
-        for label in reversed(unowned):
-            self.ens.functions.setSubnodeOwner(
-                raw_name_to_hash(owned),
-                label_to_hash(label),
-                owner
-            ).transact(transact)
-            owned = f"{label}.{owned}"
 
-    def _set_resolver(
-        self,
-        name: str,
-        resolver_addr: Optional[ChecksumAddress] = None,
-        transact: Optional["TxParams"] = None
-    ) -> Union['Contract', 'AsyncContract']:
-        if not transact:
-            transact = {}
-        transact = deepcopy(transact)
-        if is_none_or_zero_address(resolver_addr):
-            resolver_addr = self.address('resolver.eth')
-        namehash = raw_name_to_hash(name)
-        if self.ens.caller.resolver(namehash) != resolver_addr:
-            self.ens.functions.setResolver(
-                namehash,
-                resolver_addr
-            ).transact(transact)
-        return self._resolver_contract(address=resolver_addr)
-
-    def _get_resolver(
-        self,
-        normal_name: str,
-        fn_name: str = 'addr'
-    ) -> Tuple[Optional[Union['Contract', 'AsyncContract']], str]:
-        current_name = normal_name
-
-        # look for a resolver, starting at the full name and taking the parent each time that no
-        # resolver is found
-        while True:
-            if is_empty_name(current_name):
-                # if no resolver found across all iterations, current_name will eventually be the
-                # empty string '' which returns here
-                return None, current_name
-
-            resolver_addr = self.ens.caller.resolver(normal_name_to_hash(current_name))
-            if not is_none_or_zero_address(resolver_addr):
-                # if resolver found, return it
-                return self._type_aware_resolver(resolver_addr, fn_name), current_name
-
-            # set current_name to parent and try again
-            current_name = self.parent(current_name)
-
-    def _decode_ensip10_resolve_data(
-        self, contract_call_result: bytes,
-        extended_resolver: Union['Contract', 'AsyncContract'], fn_name: str,
-    ) -> Any:
-        func = extended_resolver.get_function_by_name(fn_name)
-        output_types = get_abi_output_types(func.abi)
-        decoded = self.w3.codec.decode_abi(output_types, contract_call_result)
-
-        # if decoding a single value, return that value - else, return the tuple
-        return decoded[0] if len(decoded) == 1 else decoded
-
-    def _setup_reverse(
-        self, name: str, address: ChecksumAddress, transact: Optional["TxParams"] = None
-    ) -> HexBytes:
-        name = normalize_name(name) if name else ''
-        if not transact:
-            transact = {}
-        transact = deepcopy(transact)
-        transact['from'] = address
-        return self._reverse_registrar().functions.setName(name).transact(transact)
-
-    def _type_aware_resolver(self,
-                             address: ChecksumAddress,
-                             func: str) -> Union['Contract', 'AsyncContract']:
-        return (
-            self._reverse_resolver_contract(address=address) if func == 'name' else
-            self._resolver_contract(address=address)
-        )
-
-    def _reverse_registrar(self) -> Union['Contract', 'AsyncContract']:
-        addr = self.ens.caller.owner(normal_name_to_hash(REVERSE_REGISTRAR_DOMAIN))
-        return self.w3.eth.contract(address=addr, abi=abis.REVERSE_REGISTRAR)
-
-
-def _resolver_supports_interface(resolver: Union['Contract', 'AsyncContract'],
+def _resolver_supports_interface(resolver: 'Contract',
                                  interface_id: HexStr) -> bool:
     if not any('supportsInterface' in repr(func) for func in resolver.all_functions()):
         return False

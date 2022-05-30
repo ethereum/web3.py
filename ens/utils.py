@@ -70,14 +70,15 @@ def Web3() -> Type['_Web3']:
 
 def init_web3(
     provider: 'BaseProvider' = cast('BaseProvider', default),
-    middlewares: Optional[Sequence[Tuple['Middleware', str]]] = None,
+    middlewares: Optional[Sequence[Tuple['Middleware', str]]] = None
 ) -> '_Web3':
     from web3 import Web3 as Web3Main
+    from web3.eth import Eth as EthMain
 
     if provider is default:
-        w3 = Web3Main(ens=None)
+        w3 = Web3Main(ens=None, modules={"eth": (EthMain)})
     else:
-        w3 = Web3Main(provider, middlewares, ens=None)
+        w3 = Web3Main(provider, middlewares, ens=None, modules={"eth": (EthMain)})
 
     return customize_web3(w3)
 
@@ -93,7 +94,35 @@ def customize_web3(w3: '_Web3') -> '_Web3':
             make_stalecheck_middleware(ACCEPTABLE_STALE_HOURS * 3600),
             name='stalecheck'
         )
+    return w3
 
+
+async def async_init_web3(
+    provider: 'BaseProvider' = cast('BaseProvider', default),
+    middlewares: Optional[Sequence[Tuple['Middleware', str]]] = None
+) -> '_Web3':
+    from web3 import Web3 as Web3Main
+    from web3.eth import AsyncEth as AsyncEthMain
+
+    if provider is default:
+        w3 = Web3Main(ens=None, modules={"eth": (AsyncEthMain)})
+    else:
+        w3 = Web3Main(provider, middlewares, ens=None, modules={"eth": (AsyncEthMain)})
+
+    return await async_customize_web3(w3)
+
+
+async def async_customize_web3(w3: '_Web3') -> '_Web3':
+    from web3.middleware import async_make_stalecheck_middleware
+
+    if w3.middleware_onion.get('name_to_address'):
+        w3.middleware_onion.remove('name_to_address')
+
+    if not w3.middleware_onion.get('stalecheck'):
+        w3.middleware_onion.add(
+            await async_make_stalecheck_middleware(ACCEPTABLE_STALE_HOURS * 3600),
+            name='stalecheck'
+        )
     return w3
 
 
@@ -154,7 +183,7 @@ def is_valid_name(name: str) -> bool:
     <https://github.com/ethereum/EIPs/blob/master/EIPS/eip-137.md#name-syntax>`_
 
     :param str name: the dot-separated ENS name
-    :returns: True if ``name`` is set, and :meth:`~ens.main.ENS.nameprep` will not raise InvalidName
+    :returns: True if ``name`` is set, and :meth:`~ens.ENS.nameprep` will not raise InvalidName
     """
     if not name:
         return False
