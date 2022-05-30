@@ -474,7 +474,12 @@ Contract is fully implemented for the Async provider. The only documented except
 the moment is where :class:`ENS` is needed for address lookup. All addresses that are passed to Async
 contract should not be :class:`ENS` addresses. 
 
+ENS
+^^^^^^^^
+ENS is implemented for the Async provider. Use the :class:`AsyncENSFactory` class to create a :class:`AsyncENS` object.
+
 Supported Middleware
 ^^^^^^^^^^^^^^^^^^^^
 - :meth:`Gas Price Strategy <web3.middleware.gas_price_strategy_middleware>`
 - :meth:`Buffered Gas Estimate Middleware <web3.middleware.buffered_gas_estimate_middleware>`
+- :meth:`Stalecheck Middleware <web3.middleware.make_stalecheck_middleware>`

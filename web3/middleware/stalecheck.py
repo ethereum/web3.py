@@ -72,3 +72,41 @@ def make_stalecheck_middleware(
         return middleware
 
     return stalecheck_middleware
+
+
+async def async_make_stalecheck_middleware(
+    allowable_delay: int,
+    skip_stalecheck_for_methods: Collection[str] = SKIP_STALECHECK_FOR_METHODS
+) -> Middleware:
+    """
+    Use to require that a function will run only of the blockchain is recently updated.
+
+    This middleware takes an argument, so unlike other middleware, you must make the middleware
+    with a method call.
+    For example: `make_stalecheck_middleware(60*5)`
+
+    If the latest block in the chain is older than 5 minutes in this example, then the
+    middleware will raise a StaleBlockchain exception.
+    """
+    if allowable_delay <= 0:
+        raise ValueError("You must set a positive allowable_delay in seconds for this middleware")
+
+    async def stalecheck_middleware(
+        make_request: Callable[[RPCEndpoint, Any], Any], w3: "Web3"
+    ) -> Callable[[RPCEndpoint, Any], RPCResponse]:
+        cache: Dict[str, BlockData] = {'latest': None}
+
+        async def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
+            if method not in skip_stalecheck_for_methods:
+                if _isfresh(cache['latest'], allowable_delay):
+                    pass
+                else:
+                    latest = await w3.eth.get_block('latest')  # type: ignore
+                    if _isfresh(latest, allowable_delay):
+                        cache['latest'] = latest
+                    else:
+                        raise StaleBlockchain(latest, allowable_delay)
+
+            return await make_request(method, params)
+        return middleware  # type: ignore
+    return stalecheck_middleware
