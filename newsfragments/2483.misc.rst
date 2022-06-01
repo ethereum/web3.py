@@ -1,1 +1,0 @@
-Increase the default IPC timeout from 0.1 seconds to 2 seconds.

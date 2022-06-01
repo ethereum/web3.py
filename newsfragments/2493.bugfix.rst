@@ -1,1 +1,0 @@
-Only thread lock methods attempting to access the cache for the caching middleware.

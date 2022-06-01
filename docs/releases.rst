@@ -3,6 +3,22 @@ Release Notes
 
 .. towncrier release notes start
 
+v5.29.2 (2022-06-01)
+--------------------
+
+Bugfixes
+~~~~~~~~
+
+- Only thread lock methods attempting to access the cache for the caching
+  middleware. (`#2493 <https://github.com/ethereum/web3.py/issues/2493>`__)
+
+
+Misc
+~~~~
+
+- `#2483 <https://github.com/ethereum/web3.py/issues/2483>`__
+
+
 v5.29.1 (2022-05-16)
 --------------------
 
