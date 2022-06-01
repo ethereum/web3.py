@@ -109,7 +109,7 @@ def construct_simple_cache_middleware(
     Constructs a middleware which caches responses based on the request
     ``method`` and ``params``
 
-    :param cache: Any dictionary-like object
+    :param cache_class: Any dictionary-like object
     :param rpc_whitelist: A set of RPC methods which may have their responses cached.
     :param should_cache_fn: A callable which accepts ``method`` ``params`` and
         ``response`` and returns a boolean as to whether the response should be
@@ -124,7 +124,7 @@ def construct_simple_cache_middleware(
         def middleware(
             method: RPCEndpoint, params: Any
         ) -> RPCResponse:
-            lock_acquired = lock.acquire(blocking=False)
+            lock_acquired = lock.acquire(blocking=False) if method in rpc_whitelist else False
 
             try:
                 if lock_acquired and method in rpc_whitelist:
@@ -211,7 +211,7 @@ def construct_time_based_cache_middleware(
     Constructs a middleware which caches responses based on the request
     ``method`` and ``params`` for a maximum amount of time as specified
 
-    :param cache: Any dictionary-like object
+    :param cache_class: Any dictionary-like object
     :param cache_expire_seconds: The number of seconds an item may be cached
         before it should expire.
     :param rpc_whitelist: A set of RPC methods which may have their responses cached.
@@ -226,7 +226,7 @@ def construct_time_based_cache_middleware(
         lock = threading.Lock()
 
         def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
-            lock_acquired = lock.acquire(blocking=False)
+            lock_acquired = lock.acquire(blocking=False) if method in rpc_whitelist else False
 
             try:
                 if lock_acquired and method in rpc_whitelist:
@@ -345,9 +345,7 @@ def construct_latest_block_based_cache_middleware(
     Constructs a middleware which caches responses based on the request
     ``method``, ``params``, and the current latest block hash.
 
-    :param cache: Any dictionary-like object
-    :param cache_expire_seconds: The number of seconds an item may be cached
-        before it should expire.
+    :param cache_class: Any dictionary-like object
     :param rpc_whitelist: A set of RPC methods which may have their responses cached.
     :param should_cache_fn: A callable which accepts ``method`` ``params`` and
         ``response`` and returns a boolean as to whether the response should be
@@ -414,7 +412,7 @@ def construct_latest_block_based_cache_middleware(
         lock = threading.Lock()
 
         def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
-            lock_acquired = lock.acquire(blocking=False)
+            lock_acquired = lock.acquire(blocking=False) if method in rpc_whitelist else False
 
             try:
                 should_try_cache = (
