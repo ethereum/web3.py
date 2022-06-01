@@ -1,1 +1,0 @@
-Update integration test fixture to use geth ``v1.10.17``. Add pytest ``xfail`` with ``strict=False`` to flaky eth estimate_gas tests.

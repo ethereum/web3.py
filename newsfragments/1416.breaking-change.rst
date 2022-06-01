@@ -1,1 +1,0 @@
-Removed deprecated methods from eth and geth

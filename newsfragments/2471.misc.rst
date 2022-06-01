@@ -1,1 +1,0 @@
-Increase resource class for circleci runs

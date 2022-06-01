@@ -1,1 +1,0 @@
-Removed version check in `__init__`

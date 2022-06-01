@@ -3,6 +3,62 @@ Release Notes
 
 .. towncrier release notes start
 
+v6.0.0-beta.3 (2022-06-01)
+--------------------------
+
+Breaking Changes
+~~~~~~~~~~~~~~~~
+
+- Removed deprecated methods from eth and geth (`#1416
+  <https://github.com/ethereum/web3.py/issues/1416>`__)
+
+
+Bugfixes
+~~~~~~~~
+
+- Fix bug in _is_latest_block_number_request in cache middleware (`#2185
+  <https://github.com/ethereum/web3.py/issues/2185>`__)
+- Increase cache size to allow for 20 entries. (`#2477
+  <https://github.com/ethereum/web3.py/issues/2477>`__)
+- format receipt.type to int and log.data to HexBytes (`#2482
+  <https://github.com/ethereum/web3.py/issues/2482>`__)
+- Only thread lock for methods attempting to access the cache for caching
+  middleware. (`#2496 <https://github.com/ethereum/web3.py/issues/2496>`__)
+
+
+Documentation Updates
+~~~~~~~~~~~~~~~~~~~~~
+
+- Fix typo in simple_cache_middleware example (`#2449
+  <https://github.com/ethereum/web3.py/issues/2449>`__)
+- Fix dict type hints in EventScanner example (`#2469
+  <https://github.com/ethereum/web3.py/issues/2469>`__)
+- Add clarification around ValueError and Local Signing middleware (`#2474
+  <https://github.com/ethereum/web3.py/issues/2474>`__)
+
+
+Features
+~~~~~~~~
+
+- Add async version of contract functionality (`#2270
+  <https://github.com/ethereum/web3.py/issues/2270>`__)
+- ENSIP-10 / wildcard resolution support for ENS module (`#2411
+  <https://github.com/ethereum/web3.py/issues/2411>`__)
+- CCIP Read support and finalize implementation of and add tests for ENS
+  offchain resolution support (`#2457
+  <https://github.com/ethereum/web3.py/issues/2457>`__)
+
+
+Misc
+~~~~
+
+- `#2054 <https://github.com/ethereum/web3.py/issues/2054>`__, `#2450
+  <https://github.com/ethereum/web3.py/issues/2450>`__, `#2462
+  <https://github.com/ethereum/web3.py/issues/2462>`__, `#2471
+  <https://github.com/ethereum/web3.py/issues/2471>`__, `#2478
+  <https://github.com/ethereum/web3.py/issues/2478>`__
+
+
 v6.0.0-beta.2 (2022-04-27)
 --------------------------
 
