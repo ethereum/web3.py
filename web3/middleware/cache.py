@@ -347,6 +347,9 @@ def construct_latest_block_based_cache_middleware(
 
     :param cache_class: Any dictionary-like object
     :param rpc_whitelist: A set of RPC methods which may have their responses cached.
+    :param average_block_time_sample_size: number of blocks to look back when computing
+        average block time
+    :param default_average_block_time: estimated number of seconds per block
     :param should_cache_fn: A callable which accepts ``method`` ``params`` and
         ``response`` and returns a boolean as to whether the response should be
         cached.
