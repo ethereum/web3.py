@@ -107,6 +107,13 @@ def get_abi_input_types(abi: ABIFunction) -> List[str]:
         return [collapse_if_tuple(cast(Dict[str, Any], arg)) for arg in abi["inputs"]]
 
 
+def get_abi_input_names(abi: Union[ABIFunction, ABIEvent]) -> List[str]:
+    if "inputs" not in abi and abi["type"] == "fallback":
+        return []
+    else:
+        return [arg["name"] for arg in abi["inputs"]]
+
+
 def get_abi_output_types(abi: ABIFunction) -> List[str]:
     if abi["type"] == "fallback":
         return []
@@ -114,11 +121,11 @@ def get_abi_output_types(abi: ABIFunction) -> List[str]:
         return [collapse_if_tuple(cast(Dict[str, Any], arg)) for arg in abi["outputs"]]
 
 
-def get_abi_input_names(abi: Union[ABIFunction, ABIEvent]) -> List[str]:
-    if "inputs" not in abi and abi["type"] == "fallback":
+def get_abi_output_names(abi: Union[ABIFunction, ABIEvent]) -> List[str]:
+    if "outputs" not in abi and abi["type"] == "fallback":
         return []
     else:
-        return [arg["name"] for arg in abi["inputs"]]
+        return [arg["name"] for arg in abi["outputs"]]
 
 
 def get_receive_func_abi(contract_abi: ABI) -> ABIFunction:
