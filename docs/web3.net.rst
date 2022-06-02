@@ -12,11 +12,6 @@ Properties
 
 The following properties are available on the ``web3.net`` namespace.
 
-.. py:method:: chainId
-  :property:
-
-    .. warning:: Deprecated: This property is deprecated as of EIP 1474.
-
 .. py:method:: listening
   :property:
 
@@ -40,12 +35,6 @@ The following properties are available on the ``web3.net`` namespace.
 
         >>> web3.net.peer_count
         1
-
-.. py:method:: peerCount
-  :property:
-
-    .. warning:: Deprecated: This property is deprecated in favor of
-      :attr:`~web3.geth.admin.peer_count`
 
 .. py:method:: version
   :property:
