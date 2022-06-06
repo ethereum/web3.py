@@ -413,10 +413,15 @@ class AsyncEth(BaseEth):
         transaction: TxParams,
         block_identifier: Optional[BlockIdentifier] = None,
         state_override: Optional[CallOverride] = None,
-        ccip_read_enabled: bool = True,
+        ccip_read_enabled: Optional[bool] = None,
     ) -> Union[bytes, bytearray]:
-        if ccip_read_enabled:
-            # if ccip read is enabled, handle OffchainLookup reverts via durin call
+        ccip_read_enabled_on_provider = self.w3.provider.ccip_read_calls_enabled
+        if (
+            # default conditions:
+            ccip_read_enabled_on_provider and ccip_read_enabled is not False
+            # explicit call flag overrides provider flag, enabling ccip read for specific calls:
+            or not ccip_read_enabled_on_provider and ccip_read_enabled is True
+        ):
             return await self._durin_call(transaction, block_identifier, state_override)
 
         return await self._call(transaction, block_identifier, state_override)
@@ -821,11 +826,16 @@ class Eth(BaseEth):
         transaction: TxParams,
         block_identifier: Optional[BlockIdentifier] = None,
         state_override: Optional[CallOverride] = None,
-        ccip_read_enabled: bool = True,
+        ccip_read_enabled: Optional[bool] = None,
     ) -> Union[bytes, bytearray]:
-        if ccip_read_enabled:
-            # if ccip read is enabled, handle OffchainLookup reverts via durin call
-            self._durin_call(transaction, block_identifier, state_override)
+        ccip_read_enabled_on_provider = self.w3.provider.ccip_read_calls_enabled
+        if (
+            # default conditions:
+            ccip_read_enabled_on_provider and ccip_read_enabled is not False
+            # explicit call flag overrides provider flag, enabling ccip read for specific calls:
+            or not ccip_read_enabled_on_provider and ccip_read_enabled is True
+        ):
+            return self._durin_call(transaction, block_identifier, state_override)
 
         return self._call(transaction, block_identifier, state_override)
 

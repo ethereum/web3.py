@@ -1,6 +1,9 @@
 import json
 import math
 import pytest
+from random import (
+    randint,
+)
 from typing import (
     TYPE_CHECKING,
     Callable,
@@ -783,22 +786,61 @@ class AsyncEthModuleTest:
         assert async_w3.codec.decode_abi(['string'], response_function_call)[0] == 'web3py'
 
     @pytest.mark.asyncio
-    async def test_eth_call_offchain_lookup_raises_when_ccip_read_is_disabled_yy(
+    async def test_eth_call_offchain_lookup_raises_when_ccip_read_is_disabled(
         self, async_w3: "Web3", async_offchain_lookup_contract: "Contract",
     ) -> None:
+        # test AsyncContractCaller
         with pytest.raises(OffchainLookup):
-            # test AsyncContractCaller
             await async_offchain_lookup_contract.caller(ccip_read_enabled=False).testOffchainLookup(  # noqa: E501 type: ignore
                 OFFCHAIN_LOOKUP_TEST_DATA
             )
+
+        # test AsyncContractFunction call
         with pytest.raises(OffchainLookup):
-            # test AsyncContractFunction call
             await async_offchain_lookup_contract.functions.testOffchainLookup(
                 OFFCHAIN_LOOKUP_TEST_DATA
             ).call(ccip_read_enabled=False)
 
+        # test global flag on the provider
+        async_w3.provider.ccip_read_calls_enabled = False
+
+        with pytest.raises(OffchainLookup):
+            await async_offchain_lookup_contract.functions.testOffchainLookup(  # noqa: E501 type: ignore
+                OFFCHAIN_LOOKUP_TEST_DATA
+            ).call()
+
+        async_w3.provider.ccip_read_calls_enabled = True  # cleanup
+
     @pytest.mark.asyncio
-    @pytest.mark.parametrize("max_redirects", range(-4, 4))
+    async def test_eth_call_offchain_lookup_call_flag_overrides_provider_flag(
+        self,
+        async_w3: "Web3",
+        async_offchain_lookup_contract: "Contract",
+        unlocked_account: ChecksumAddress,
+        monkeypatch: "MonkeyPatch",
+    ) -> None:
+        normalized_contract_address = to_hex_if_bytes(
+            async_offchain_lookup_contract.address
+        ).lower()
+
+        async_mock_offchain_lookup_request_response(
+            monkeypatch,
+            mocked_request_url=f'https://web3.py/gateway/{normalized_contract_address}/{OFFCHAIN_LOOKUP_TEST_DATA}.json',  # noqa: E501
+            mocked_json_data=WEB3PY_AS_HEXBYTES,
+        )
+
+        async_w3.provider.ccip_read_calls_enabled = False
+
+        response = await async_offchain_lookup_contract.functions.testOffchainLookup(
+            # noqa: E501 type: ignore
+            OFFCHAIN_LOOKUP_TEST_DATA
+        ).call(ccip_read_enabled=True)
+        assert async_w3.codec.decode_abi(['string'], response)[0] == 'web3py'
+
+        async_w3.provider.ccip_read_calls_enabled = True  # cleanup
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("max_redirects", range(-1, 4))
     async def test_eth_call_offchain_lookup_raises_if_max_redirects_is_less_than_4(
         self,
         async_w3: "Web3",
@@ -877,14 +919,12 @@ class AsyncEthModuleTest:
         assert async_w3.codec.decode_abi(['string'], response)[0] == 'web3py'
 
     @pytest.mark.asyncio
-    @pytest.mark.parametrize('status_code_4xx_error', [400, 410, 450, 499])
     async def test_eth_call_offchain_lookup_calls_raise_for_status_for_4xx_status_code(
         self,
         async_w3: "Web3",
         async_offchain_lookup_contract: "Contract",
         unlocked_account: ChecksumAddress,
         monkeypatch: "MonkeyPatch",
-        status_code_4xx_error: int,
     ) -> None:
         normalized_contract_address = to_hex_if_bytes(
             async_offchain_lookup_contract.address
@@ -893,7 +933,7 @@ class AsyncEthModuleTest:
         async_mock_offchain_lookup_request_response(
             monkeypatch,
             mocked_request_url=f'https://web3.py/gateway/{normalized_contract_address}/{OFFCHAIN_LOOKUP_TEST_DATA}.json',  # noqa: E501
-            mocked_status_code=status_code_4xx_error,
+            mocked_status_code=randint(400, 499),
             mocked_json_data=WEB3PY_AS_HEXBYTES,
         )
         with pytest.raises(Exception, match="called raise_for_status\\(\\)"):
@@ -2499,12 +2539,50 @@ class EthModuleTest:
     def test_eth_call_offchain_lookup_raises_when_ccip_read_is_disabled(
         self, w3: "Web3", offchain_lookup_contract: "Contract",
     ) -> None:
+        # test ContractFunction call
         with pytest.raises(OffchainLookup):
             offchain_lookup_contract.functions.testOffchainLookup(
                 OFFCHAIN_LOOKUP_TEST_DATA
             ).call(ccip_read_enabled=False)
 
-    @pytest.mark.parametrize("max_redirects", range(-4, 4))
+        # test ContractCaller call
+        with pytest.raises(OffchainLookup):
+            offchain_lookup_contract.caller(ccip_read_enabled=False).testOffchainLookup(
+                OFFCHAIN_LOOKUP_TEST_DATA
+            )
+
+        # test global flag on the provider
+        w3.provider.ccip_read_calls_enabled = False
+
+        with pytest.raises(OffchainLookup):
+            offchain_lookup_contract.functions.testOffchainLookup(OFFCHAIN_LOOKUP_TEST_DATA).call()
+
+        w3.provider.ccip_read_calls_enabled = True  # cleanup
+
+    def test_eth_call_offchain_lookup_call_flag_overrides_provider_flag(
+        self,
+        w3: "Web3",
+        offchain_lookup_contract: "Contract",
+        unlocked_account: ChecksumAddress,
+        monkeypatch: "MonkeyPatch",
+    ) -> None:
+        normalized_contract_address = to_hex_if_bytes(offchain_lookup_contract.address).lower()
+        mock_offchain_lookup_request_response(
+            monkeypatch,
+            mocked_request_url=f'https://web3.py/gateway/{normalized_contract_address}/{OFFCHAIN_LOOKUP_TEST_DATA}.json',  # noqa: E501
+            mocked_json_data=WEB3PY_AS_HEXBYTES,
+        )
+
+        w3.provider.ccip_read_calls_enabled = False
+
+        response = offchain_lookup_contract.functions.testOffchainLookup(
+            OFFCHAIN_LOOKUP_TEST_DATA
+        ).call(ccip_read_enabled=True)
+        assert w3.codec.decode_abi(['string'], response)[0] == 'web3py'
+
+        w3.provider.ccip_read_calls_enabled = True  # cleanup
+
+    @pytest.mark.parametrize("max_redirects", range(-1, 4))
     def test_eth_call_offchain_lookup_raises_if_max_redirects_is_less_than_4(
         self,
         w3: "Web3",
@@ -2575,20 +2653,18 @@ class EthModuleTest:
         ).call()
         assert w3.codec.decode_abi(['string'], response)[0] == 'web3py'
 
-    @pytest.mark.parametrize('status_code_4xx_error', [400, 410, 450, 499])
     def test_eth_call_offchain_lookup_calls_raise_for_status_for_4xx_status_code(
         self,
         w3: "Web3",
         offchain_lookup_contract: "Contract",
         unlocked_account: ChecksumAddress,
         monkeypatch: "MonkeyPatch",
-        status_code_4xx_error: int,
     ) -> None:
         normalized_contract_address = to_hex_if_bytes(offchain_lookup_contract.address).lower()
         mock_offchain_lookup_request_response(
             monkeypatch,
             mocked_request_url=f'https://web3.py/gateway/{normalized_contract_address}/{OFFCHAIN_LOOKUP_TEST_DATA}.json',  # noqa: E501
-            mocked_status_code=status_code_4xx_error,
+            mocked_status_code=randint(400, 499),
             mocked_json_data=WEB3PY_AS_HEXBYTES,
         )
         with pytest.raises(Exception, match="called raise_for_status\\(\\)"):

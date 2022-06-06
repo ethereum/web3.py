@@ -16,6 +16,7 @@ from web3._utils.type_conversion import (
     to_hex_if_bytes,
 )
 from web3.exceptions import (
+    OffchainLookup as _OffchainLookup,
     TooManyRequests,
     ValidationError,
 )
@@ -63,6 +64,53 @@ def test_offchain_lookup_functionality(
     )
     response = offchain_lookup_contract.caller.testOffchainLookup(OFFCHAIN_LOOKUP_TEST_DATA)
     assert decode_abi(['string'], response)[0] == 'web3py'
+
+
+def test_eth_call_offchain_lookup_raises_when_ccip_read_is_disabled(w3, offchain_lookup_contract):
+    # test ContractFunction call
+    with pytest.raises(_OffchainLookup):
+        offchain_lookup_contract.functions.testOffchainLookup(
+            OFFCHAIN_LOOKUP_TEST_DATA
+        ).call(ccip_read_enabled=False)
+
+    # test ContractCaller call
+    with pytest.raises(_OffchainLookup):
+        offchain_lookup_contract.caller(ccip_read_enabled=False).testOffchainLookup(
+            OFFCHAIN_LOOKUP_TEST_DATA
+        )
+
+    # test global flag on the provider
+    w3.provider.ccip_read_calls_enabled = False
+
+    with pytest.raises(_OffchainLookup):
+        offchain_lookup_contract.caller.testOffchainLookup(OFFCHAIN_LOOKUP_TEST_DATA)
+
+    with pytest.raises(_OffchainLookup):
+        offchain_lookup_contract.caller(ccip_read_enabled=False).testOffchainLookup(
+            OFFCHAIN_LOOKUP_TEST_DATA
+        )
+
+    w3.provider.ccip_read_calls_enabled = True  # cleanup
+
+
+def test_offchain_lookup_call_flag_overrides_provider_flag(
+    w3, offchain_lookup_contract, monkeypatch,
+):
+    normalized_address = to_hex_if_bytes(offchain_lookup_contract.address)
+    mock_offchain_lookup_request_response(
+        monkeypatch,
+        mocked_request_url=f'https://web3.py/gateway/{normalized_address}/{OFFCHAIN_LOOKUP_TEST_DATA}.json',  # noqa: E501
+        mocked_json_data=WEB3PY_AS_HEXBYTES,
+    )
+
+    w3.provider.ccip_read_calls_enabled = False
+
+    response = offchain_lookup_contract.functions.testOffchainLookup(
+        OFFCHAIN_LOOKUP_TEST_DATA
+    ).call(ccip_read_enabled=True)
+    assert decode_abi(['string'], response)[0] == 'web3py'
+
+    w3.provider.ccip_read_calls_enabled = True
 
 
 def test_offchain_lookup_raises_for_improperly_formatted_rest_request_response(

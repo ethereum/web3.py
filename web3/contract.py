@@ -1252,7 +1252,7 @@ class ContractFunction(BaseContractFunction):
         transaction: Optional[TxParams] = None,
         block_identifier: BlockIdentifier = 'latest',
         state_override: Optional[CallOverride] = None,
-        ccip_read_enabled: bool = True,
+        ccip_read_enabled: Optional[bool] = None,
     ) -> Any:
         """
         Execute a contract function call using the `eth_call` interface.
@@ -1364,7 +1364,7 @@ class AsyncContractFunction(BaseContractFunction):
         self, transaction: Optional[TxParams] = None,
         block_identifier: BlockIdentifier = 'latest',
         state_override: Optional[CallOverride] = None,
-        ccip_read_enabled: bool = True,
+        ccip_read_enabled: Optional[bool] = None,
     ) -> Any:
         """
         Execute a contract function call using the `eth_call` interface.
@@ -1814,7 +1814,7 @@ class BaseContractCaller:
         address: ChecksumAddress,
         transaction: Optional[TxParams] = None,
         block_identifier: BlockIdentifier = 'latest',
-        ccip_read_enabled: bool = True,
+        ccip_read_enabled: Optional[bool] = None,
         contract_function_class: Optional[Union[Type[ContractFunction], Type[AsyncContractFunction]]] = ContractFunction,  # noqa: E501
     ) -> None:
         self.w3 = w3
@@ -1879,7 +1879,7 @@ class BaseContractCaller:
         *args: Any,
         transaction: Optional[TxParams] = None,
         block_identifier: BlockIdentifier = 'latest',
-        ccip_read_enabled: bool = True,
+        ccip_read_enabled: Optional[bool] = None,
         **kwargs: Any
     ) -> Any:
         if transaction is None:
@@ -1899,7 +1899,7 @@ class ContractCaller(BaseContractCaller):
         address: ChecksumAddress,
         transaction: Optional[TxParams] = None,
         block_identifier: BlockIdentifier = 'latest',
-        ccip_read_enabled: bool = True,
+        ccip_read_enabled: Optional[bool] = None,
     ) -> None:
         super().__init__(
             abi=abi,
@@ -1916,7 +1916,7 @@ class ContractCaller(BaseContractCaller):
         transaction: Optional[TxParams] = None,
         block_identifier: BlockIdentifier = 'latest',
         state_override: Optional[CallOverride] = None,
-        ccip_read_enabled: bool = True,
+        ccip_read_enabled: Optional[bool] = None,
     ) -> 'ContractCaller':
         if transaction is None:
             transaction = {}
@@ -1939,7 +1939,7 @@ class AsyncContractCaller(BaseContractCaller):
         address: ChecksumAddress,
         transaction: Optional[TxParams] = None,
         block_identifier: BlockIdentifier = 'latest',
-        ccip_read_enabled: bool = True,
+        ccip_read_enabled: Optional[bool] = None,
     ) -> None:
         super().__init__(
             abi=abi,
@@ -1955,7 +1955,7 @@ class AsyncContractCaller(BaseContractCaller):
         self,
         transaction: Optional[TxParams] = None,
         block_identifier: BlockIdentifier = 'latest',
-        ccip_read_enabled: bool = True,
+        ccip_read_enabled: Optional[bool] = None,
     ) -> 'AsyncContractCaller':
         if transaction is None:
             transaction = {}
@@ -1997,7 +1997,7 @@ def call_contract_function(
         contract_abi: Optional[ABI] = None,
         fn_abi: Optional[ABIFunction] = None,
         state_override: Optional[CallOverride] = None,
-        ccip_read_enabled: bool = True,
+        ccip_read_enabled: Optional[bool] = None,
         *args: Any,
         **kwargs: Any) -> Any:
     """
@@ -2069,7 +2069,7 @@ async def async_call_contract_function(
         contract_abi: Optional[ABI] = None,
         fn_abi: Optional[ABIFunction] = None,
         state_override: Optional[CallOverride] = None,
-        ccip_read_enabled: bool = True,
+        ccip_read_enabled: Optional[bool] = None,
         *args: Any,
         **kwargs: Any) -> Any:
     """
