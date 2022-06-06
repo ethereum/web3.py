@@ -51,9 +51,6 @@ from web3._utils.abi import (
     build_strict_registry,
     map_abi_data,
 )
-from web3._utils.decorators import (
-    deprecated_for,
-)
 from web3._utils.empty import (
     empty,
 )
@@ -277,13 +274,6 @@ class Web3:
         return __version__
 
     @staticmethod
-    @deprecated_for("keccak")
-    @apply_to_return_value(HexBytes)
-    def sha3(primitive: Optional[Primitives] = None, text: Optional[str] = None,
-             hexstr: Optional[HexStr] = None) -> bytes:
-        return Web3.keccak(primitive, text, hexstr)
-
-    @staticmethod
     @apply_to_return_value(HexBytes)
     def keccak(primitive: Optional[Primitives] = None, text: Optional[str] = None,
                hexstr: Optional[HexStr] = None) -> bytes:
@@ -297,11 +287,6 @@ class Web3:
             "keccak(text='txt'), keccak(hexstr='0x747874'), keccak(b'\\x74\\x78\\x74'), "
             "or keccak(0x747874)."
         )
-
-    @combomethod
-    @deprecated_for("solidityKeccak")
-    def soliditySha3(cls, abi_types: List[TypeStr], values: List[Any]) -> bytes:
-        return cls.solidityKeccak(abi_types, values)
 
     @combomethod
     def solidityKeccak(cls, abi_types: List[TypeStr], values: List[Any]) -> bytes:
