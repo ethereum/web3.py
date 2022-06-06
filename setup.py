@@ -79,6 +79,7 @@ setup(
         "eth-abi>=2.0.0b6,<3.0.0",
         "eth-account>=0.5.7,<0.6.0",
         "eth-hash[pycryptodome]>=0.2.0,<1.0.0",
+        "eth-rlp<0.3",
         "eth-typing>=2.0.0,<3.0.0",
         "eth-utils>=1.9.5,<2.0.0",
         "hexbytes>=0.1.0,<1.0.0",
