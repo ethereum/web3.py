@@ -1093,11 +1093,15 @@ The following methods are available on the ``web3.eth`` namespace.
     `EIP-3668 <https://eips.ethereum.org/EIPS/eip-3668>`_ introduced support for the ``OffchainLookup`` revert / CCIP
     Read support. In order to properly handle a call to a contract function that reverts with an ``OffchainLookup``
     error for offchain data retrieval, the ``ccip_read_enabled`` flag has been added to the ``eth_call`` method.
-    ``ccip_read_enabled`` is set to ``True`` by default for calls, as recommended in EIP-3668. Therefore, calls to
-    contract functions that revert with an ``OffchainLookup`` will be handled appropriately by default. If the
-    ``ccip_read_enabled`` flag is set to ``False``, the call will raise the ``OffchainLookup`` instead of properly
-    handling the exception according to EIP-3668. This may be useful for "preflighting" a transaction call (see
-    :ref:`ccip-read-example` within the examples section).
+    ``ccip_read_enabled`` is optional, yielding the default value for CCIP Read on calls to a global
+    ``ccip_read_calls_enabled`` flag on the provider which is set to ``True`` by default. This means CCIP Read is
+    enabled by default for calls, as is recommended in EIP-3668. Therefore, calls to contract functions that revert with
+    an ``OffchainLookup`` will be handled appropriately by default.
+
+    The ``ccip_read_enabled`` flag on the call will always override the value of the global flag on the provider for
+    explicit control over specific calls. If the flag on the call is set to ``False``, the call will raise the
+    ``OffchainLookup`` instead of properly handling the exception according to EIP-3668. This may be useful for
+    "preflighting" a transaction with a call (see :ref:`ccip-read-example` within the examples section).
 
 
 .. py:method:: Eth.fee_history(block_count, newest_block, reward_percentiles=None)

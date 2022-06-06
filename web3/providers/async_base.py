@@ -36,6 +36,7 @@ class AsyncBaseProvider:
     # a tuple of (all_middlewares, request_func)
     _request_func_cache: Tuple[Tuple[Middleware, ...], Callable[..., RPCResponse]] = (None, None)
 
+    ccip_read_calls_enabled: bool = True
     ccip_read_max_redirects: int = 4
 
     def __init__(self) -> None:
