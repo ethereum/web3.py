@@ -1,0 +1,1 @@
+Pin eth-rlp to <0.3 so that dependencies will resolve with older versions of pip.
