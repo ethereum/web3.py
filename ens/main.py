@@ -280,15 +280,22 @@ class ENS:
         else:
             return None
 
-    def resolver(self, normal_name: str, name: str = None) -> Optional['Contract']:
+    def resolver(self, normal_name: str = None, name: str = None) -> Optional['Contract']:
         if not name:
             warnings.warn(
                 "The function signature for resolver() will change in v6 to accept `name` as a "
                 "the positional argument, over `normal_name`, and the method will instead "
-                "normalize the name internally. To suppress warnings for now, `name` may be passed "
-                "in as a keyword argument.",
+                "normalize the name internally. You may migrate to using `name` by passing it in "
+                "as a keyword, e.g. resolver(name=\"ensname.eth\").",
                 category=FutureWarning,
             )
+        else:
+            if normal_name:
+                raise TypeError(
+                    "Only supply one positional argument or the `name` keyword, e.g. "
+                    "resolver(\"ensname.eth\") or resolver(name=\"ensname.eth\")."
+                )
+            normal_name = normalize_name(name)
 
         resolver_addr = self.ens.caller.resolver(normal_name_to_hash(normal_name))
         if is_none_or_zero_address(resolver_addr):
