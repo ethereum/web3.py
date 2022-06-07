@@ -1030,7 +1030,7 @@ The script can be run with: ``python ./eventscanner.py <your JSON-RPC API URL>``
                     # from our in-memory cache
                     block_when = get_block_when(block_number)
 
-                    logger.debug(f"Processing event {evt["event"]}, block: {evt["blockNumber"]} count: {evt["blockNumber"]}")
+                    logger.debug(f"Processing event {evt['event']}, block: {evt['blockNumber']} count: {evt['blockNumber']}")
                     processed = self.state.process_event(block_when, evt)
                     all_processed.append(processed)
 
