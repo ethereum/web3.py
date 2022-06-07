@@ -16,7 +16,7 @@ from web3._utils.type_conversion import (
     to_hex_if_bytes,
 )
 from web3.exceptions import (
-    OffchainLookup as _OffchainLookup,
+    OffchainLookup,
     TooManyRequests,
     ValidationError,
 )
@@ -28,7 +28,7 @@ WEB3PY_AS_HEXBYTES = '0x00000000000000000000000000000000000000000000000000000000
 
 
 @pytest.fixture
-def OffchainLookup(w3):
+def offchain_lookup_contract_factory(w3):
     # compiled from `web3/_utils/module_testing/contract_sources/OffchainLookup.sol`
     return w3.eth.contract(
         abi=OFFCHAIN_LOOKUP_ABI,
@@ -39,16 +39,20 @@ def OffchainLookup(w3):
 
 @pytest.fixture
 def offchain_lookup_contract(
-    w3, wait_for_block, OffchainLookup, wait_for_transaction, address_conversion_func,
+    w3,
+    wait_for_block,
+    offchain_lookup_contract_factory,
+    wait_for_transaction,
+    address_conversion_func,
 ):
     wait_for_block(w3)
-    deploy_txn_hash = OffchainLookup.constructor().transact({'gas': 10000000})
+    deploy_txn_hash = offchain_lookup_contract_factory.constructor().transact({'gas': 10000000})
     deploy_receipt = wait_for_transaction(w3, deploy_txn_hash)
     contract_address = address_conversion_func(deploy_receipt['contractAddress'])
 
     bytecode = w3.eth.get_code(contract_address)
-    assert bytecode == OffchainLookup.bytecode_runtime
-    deployed_offchain_lookup = OffchainLookup(address=contract_address)
+    assert bytecode == offchain_lookup_contract_factory.bytecode_runtime
+    deployed_offchain_lookup = offchain_lookup_contract_factory(address=contract_address)
     assert deployed_offchain_lookup.address == contract_address
     return deployed_offchain_lookup
 
@@ -68,13 +72,13 @@ def test_offchain_lookup_functionality(
 
 def test_eth_call_offchain_lookup_raises_when_ccip_read_is_disabled(w3, offchain_lookup_contract):
     # test ContractFunction call
-    with pytest.raises(_OffchainLookup):
+    with pytest.raises(OffchainLookup):
         offchain_lookup_contract.functions.testOffchainLookup(
             OFFCHAIN_LOOKUP_TEST_DATA
         ).call(ccip_read_enabled=False)
 
     # test ContractCaller call
-    with pytest.raises(_OffchainLookup):
+    with pytest.raises(OffchainLookup):
         offchain_lookup_contract.caller(ccip_read_enabled=False).testOffchainLookup(
             OFFCHAIN_LOOKUP_TEST_DATA
         )
@@ -82,10 +86,10 @@ def test_eth_call_offchain_lookup_raises_when_ccip_read_is_disabled(w3, offchain
     # test global flag on the provider
     w3.provider.ccip_read_calls_enabled = False
 
-    with pytest.raises(_OffchainLookup):
+    with pytest.raises(OffchainLookup):
         offchain_lookup_contract.caller.testOffchainLookup(OFFCHAIN_LOOKUP_TEST_DATA)
 
-    with pytest.raises(_OffchainLookup):
+    with pytest.raises(OffchainLookup):
         offchain_lookup_contract.caller(ccip_read_enabled=False).testOffchainLookup(
             OFFCHAIN_LOOKUP_TEST_DATA
         )
