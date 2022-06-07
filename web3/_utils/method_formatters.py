@@ -169,6 +169,8 @@ TRANSACTION_RESULT_FORMATTERS = {
     'hash': to_hexbytes(32),
     'v': apply_formatter_if(is_not_null, to_integer_if_hex),
     'standardV': apply_formatter_if(is_not_null, to_integer_if_hex),
+    'type': apply_formatter_if(is_not_null, to_integer_if_hex),
+    'chainId': apply_formatter_if(is_not_null, to_integer_if_hex),
 }
 
 
