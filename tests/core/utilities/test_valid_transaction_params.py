@@ -55,7 +55,6 @@ def test_assert_valid_transaction_params_invalid_param():
 
 
 FULL_TXN_DICT = {
-    'chainId': 1,
     'type': '0x2',
     'from': '0x0',
     'to': '0x1',
