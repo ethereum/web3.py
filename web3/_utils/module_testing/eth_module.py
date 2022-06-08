@@ -802,14 +802,14 @@ class AsyncEthModuleTest:
             ).call(ccip_read_enabled=False)
 
         # test global flag on the provider
-        async_w3.provider.ccip_read_calls_enabled = False
+        async_w3.provider.global_ccip_read_enabled = False
 
         with pytest.raises(OffchainLookup):
             await async_offchain_lookup_contract.functions.testOffchainLookup(  # noqa: E501 type: ignore
                 OFFCHAIN_LOOKUP_TEST_DATA
             ).call()
 
-        async_w3.provider.ccip_read_calls_enabled = True  # cleanup
+        async_w3.provider.global_ccip_read_enabled = True  # cleanup
 
     @pytest.mark.asyncio
     async def test_eth_call_offchain_lookup_call_flag_overrides_provider_flag(
@@ -829,7 +829,7 @@ class AsyncEthModuleTest:
             mocked_json_data=WEB3PY_AS_HEXBYTES,
         )
 
-        async_w3.provider.ccip_read_calls_enabled = False
+        async_w3.provider.global_ccip_read_enabled = False
 
         response = await async_offchain_lookup_contract.functions.testOffchainLookup(
             # noqa: E501 type: ignore
@@ -837,7 +837,7 @@ class AsyncEthModuleTest:
         ).call(ccip_read_enabled=True)
         assert async_w3.codec.decode_abi(['string'], response)[0] == 'web3py'
 
-        async_w3.provider.ccip_read_calls_enabled = True  # cleanup
+        async_w3.provider.global_ccip_read_enabled = True  # cleanup
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize("max_redirects", range(-1, 4))
@@ -2552,12 +2552,12 @@ class EthModuleTest:
             )
 
         # test global flag on the provider
-        w3.provider.ccip_read_calls_enabled = False
+        w3.provider.global_ccip_read_enabled = False
 
         with pytest.raises(OffchainLookup):
             offchain_lookup_contract.functions.testOffchainLookup(OFFCHAIN_LOOKUP_TEST_DATA).call()
 
-        w3.provider.ccip_read_calls_enabled = True  # cleanup
+        w3.provider.global_ccip_read_enabled = True  # cleanup
 
     def test_eth_call_offchain_lookup_call_flag_overrides_provider_flag(
         self,
@@ -2573,14 +2573,14 @@ class EthModuleTest:
             mocked_json_data=WEB3PY_AS_HEXBYTES,
         )
 
-        w3.provider.ccip_read_calls_enabled = False
+        w3.provider.global_ccip_read_enabled = False
 
         response = offchain_lookup_contract.functions.testOffchainLookup(
             OFFCHAIN_LOOKUP_TEST_DATA
         ).call(ccip_read_enabled=True)
         assert w3.codec.decode_abi(['string'], response)[0] == 'web3py'
 
-        w3.provider.ccip_read_calls_enabled = True  # cleanup
+        w3.provider.global_ccip_read_enabled = True  # cleanup
 
     @pytest.mark.parametrize("max_redirects", range(-1, 4))
     def test_eth_call_offchain_lookup_raises_if_max_redirects_is_less_than_4(

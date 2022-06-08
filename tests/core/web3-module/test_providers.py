@@ -26,5 +26,5 @@ def test_auto_provider_none():
 
 
 def test_provider_default_value_for_ccip_read_redirect(w3):
-    assert w3.provider.ccip_read_calls_enabled
+    assert w3.provider.global_ccip_read_enabled
     assert w3.provider.ccip_read_max_redirects == 4

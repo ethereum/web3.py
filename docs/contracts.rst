@@ -745,7 +745,7 @@ and forwarded to the contract function when applicable.
 
 `EIP-3668 <https://eips.ethereum.org/EIPS/eip-3668>`_ introduced support for the ``OffchainLookup`` revert /
 CCIP Read support. CCIP Read is set to ``True`` for calls by default, as recommended in EIP-3668. This is done via a
-global ``ccip_read_calls_enabled`` flag on the provider. If raising the ``OffchainLookup`` revert is preferred for a
+global ``global_ccip_read_enabled`` flag on the provider. If raising the ``OffchainLookup`` revert is preferred for a
 specific call, the ``ccip_read_enabled`` flag on the call may be set to ``False``.
 
     .. code-block:: python
@@ -758,14 +758,14 @@ Disabling CCIP Read support can be useful if a transaction needs to be sent to t
 "preflighting" with an ``eth_call``, handling the ``OffchainLookup``, and sending the data via a transaction may be
 necessary. See :ref:`ccip-read-example` in the examples section for how to preflight a transaction with a contract call.
 
-Similarly, if CCIP Read is globally set to ``False`` via the ``ccip_read_calls_enabled`` flag on the provider, it may be
+Similarly, if CCIP Read is globally set to ``False`` via the ``global_ccip_read_enabled`` flag on the provider, it may be
 enabled on a per-call basis - overriding the global flag. This ensures only explicitly enabled calls will handle the
 ``OffchainLookup`` revert appropriately.
 
     .. code-block:: python
 
         >>> # global flag set to `False`
-        >>> w3.provider.ccip_read_calls_enabled = False
+        >>> w3.provider.global_ccip_read_enabled = False
 
         >>> # does not raise the revert since explicitly enabled on the call:
         >>> response = myContract.functions.revertsWithOffchainLookup(myData).call(ccip_read_enabled=True)
