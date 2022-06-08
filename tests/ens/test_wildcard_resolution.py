@@ -18,6 +18,9 @@ def test_async_wildcard_resolution_with_extended_resolver_for_parent_ens_domain(
     assert resolved_parent_address == "0x000000000000000000000000000000000000bEEF"
 
 
+# -- async -- #
+
+
 @pytest.mark.asyncio
 @pytest.mark.parametrize('subdomain', ('sub1', 'sub2', 'rändöm', '🌈rainbow', 'faß'))
 async def test_async_wildcard_resolution_with_extended_resolver_for_subdomains(async_ens,

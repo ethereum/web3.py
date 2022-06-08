@@ -21,19 +21,6 @@ def test_init_adds_middlewares():
     assert "stalecheck_middleware" in next(middlewares)
 
 
-@pytest.mark.asyncio
-async def test_init_adds_async_middlewares():
-    async_w3 = await async_init_web3()
-    middlewares = map(str, async_w3.manager.middleware_onion)
-    assert 'stalecheck_middleware' in next(middlewares)
-
-
-@pytest.mark.asyncio
-async def test_init_adds_async_eth():
-    async_w3 = await async_init_web3()
-    assert isinstance(async_w3.eth, AsyncEth)
-
-
 @pytest.mark.parametrize(
     "name,expected",
     (
@@ -132,3 +119,18 @@ def test_ens_encode_name_normalizes_name_before_encoding():
     assert ens_encode_name("TESTER.eth") == ens_encode_name("tester.eth")
     assert ens_encode_name("test\u200btest.com") == ens_encode_name("testtest.com")
     assert ens_encode_name("O\u0308bb.at") == ens_encode_name("öbb.at")
+
+
+# -- async -- #
+
+@pytest.mark.asyncio
+async def test_async_init_adds_async_middlewares():
+    async_w3 = await async_init_web3()
+    middlewares = map(str, async_w3.manager.middleware_onion)
+    assert 'stalecheck_middleware' in next(middlewares)
+
+
+@pytest.mark.asyncio
+async def test_async_init_adds_async_eth():
+    async_w3 = await async_init_web3()
+    assert isinstance(async_w3.eth, AsyncEth)

@@ -76,7 +76,6 @@ if TYPE_CHECKING:
 
 
 class ENS(BaseENS):
-
     """
     Quick access to common Ethereum Name Service functions,
     like getting the address for a name.
@@ -85,11 +84,12 @@ class ENS(BaseENS):
     `checksum format <https://github.com/ethereum/EIPs/blob/master/EIPS/eip-155.md>`_,
     like: ``"0x314159265dD8dbb310642f98f50C066173C1259b"``
     """
+
     def __init__(
         self,
         provider: 'BaseProvider' = cast('BaseProvider', default),
         addr: ChecksumAddress = None,
-        middlewares: Optional[Sequence[Tuple['Middleware', str]]] = None
+        middlewares: Optional[Sequence[Tuple['Middleware', str]]] = None,
     ) -> None:
         """
         :param provider: a single provider used to connect to Ethereum
@@ -118,6 +118,60 @@ class ENS(BaseENS):
         middlewares = w3.middleware_onion.middlewares
         return cls(provider, addr=addr, middlewares=middlewares)
 
+    def address(self, name: str) -> Optional[ChecksumAddress]:
+        """
+        Look up the Ethereum address that `name` currently points to.
+
+        :param str name: an ENS name to look up
+        :raises InvalidName: if `name` has invalid syntax
+        """
+        return cast(ChecksumAddress, self._resolve(name, 'addr'))
+
+    def setup_address(
+        self,
+        name: str,
+        address: Union[Address, ChecksumAddress, HexAddress] = cast(ChecksumAddress, default),
+        transact: Optional["TxParams"] = None,
+    ) -> Optional[HexBytes]:
+        """
+        Set up the name to point to the supplied address.
+        The sender of the transaction must own the name, or
+        its parent name.
+
+        Example: If the caller owns ``parentname.eth`` with no subdomains
+        and calls this method with ``sub.parentname.eth``,
+        then ``sub`` will be created as part of this call.
+
+        :param str name: ENS name to set up
+        :param str address: name will point to this address, in checksum format. If ``None``,
+            erase the record. If not specified, name will point to the owner's address.
+        :param dict transact: the transaction configuration, like in
+            :meth:`~web3.eth.Eth.send_transaction`
+        :raises InvalidName: if ``name`` has invalid syntax
+        :raises UnauthorizedError: if ``'from'`` in `transact` does not own `name`
+        """
+        if not transact:
+            transact = {}
+        transact = deepcopy(transact)
+        owner = self.setup_owner(name, transact=transact)
+        self._assert_control(owner, name)
+        if is_none_or_zero_address(address):
+            address = None
+        elif address is default:
+            address = owner
+        elif is_binary_address(address):
+            address = to_checksum_address(cast(str, address))
+        elif not is_checksum_address(address):
+            raise ValueError("You must supply the address in checksum format")
+        if self.address(name) == address:
+            return None
+        if address is None:
+            address = EMPTY_ADDR_HEX
+        transact['from'] = owner
+
+        resolver: 'Contract' = self._set_resolver(name, transact=transact)
+        return resolver.functions.setAddr(raw_name_to_hash(name), address).transact(transact)
+
     def name(self, address: ChecksumAddress) -> Optional[str]:
         """
         Look up the name that the address points to, using a
@@ -137,7 +191,7 @@ class ENS(BaseENS):
         self,
         name: str,
         address: Optional[ChecksumAddress] = None,
-        transact: Optional["TxParams"] = None
+        transact: Optional["TxParams"] = None,
     ) -> HexBytes:
         """
         Set up the address for reverse lookup, aka "caller ID".
@@ -183,40 +237,6 @@ class ENS(BaseENS):
                 self.setup_address(name, address, transact=transact)
             return self._setup_reverse(name, address, transact=transact)
 
-    def reverser(self,
-                 target_address: ChecksumAddress) -> Optional['Contract']:
-        reversed_domain = address_to_reverse_domain(target_address)
-        return self.resolver(reversed_domain)
-
-    def _set_resolver(
-        self,
-        name: str,
-        resolver_addr: Optional[ChecksumAddress] = None,
-        transact: Optional["TxParams"] = None
-    ) -> 'Contract':
-        if not transact:
-            transact = {}
-        transact = deepcopy(transact)
-        if is_none_or_zero_address(resolver_addr):
-            resolver_addr = self.address('resolver.eth')
-        namehash = raw_name_to_hash(name)
-        if self.ens.caller.resolver(namehash) != resolver_addr:
-            self.ens.functions.setResolver(
-                namehash,
-                resolver_addr
-            ).transact(transact)
-        # type ignore becuase this is in base and set to AsyncContract or Contract
-        return self._resolver_contract(address=resolver_addr)  # type: ignore
-
-    def resolver(self, name: str) -> Optional['Contract']:
-        """
-        Get the resolver for an ENS name.
-
-        :param str name: The ENS name
-        """
-        normal_name = normalize_name(name)
-        return self._get_resolver(normal_name)[0]
-
     def owner(self, name: str) -> ChecksumAddress:
         """
         Get the owner of a name. Note that this may be different from the
@@ -231,127 +251,11 @@ class ENS(BaseENS):
         node = raw_name_to_hash(name)
         return self.ens.caller.owner(node)
 
-    def get_text(self, name: str, key: str) -> str:
-        """
-        Get the value of a text record by key from an ENS name.
-
-        :param str name: ENS name to look up
-        :param str key: ENS name's text record key
-        :return: ENS name's text record value
-        :rtype: str
-        :raises UnsupportedFunction: If the resolver does not support the "0x59d1d43c" interface id
-        :raises ResolverNotFound: If no resolver is found for the provided name
-        """
-        node = raw_name_to_hash(name)
-        normal_name = normalize_name(name)
-
-        r = self.resolver(normal_name)
-        if r:
-            if _resolver_supports_interface(r, GET_TEXT_INTERFACE_ID):
-                return r.caller.text(node, key)
-            else:
-                raise UnsupportedFunction(
-                    f"Resolver for name {name} does not support `text` function."
-                )
-        else:
-            raise ResolverNotFound(
-                f"No resolver found for name `{name}`. It is likely the name contains an "
-                "unsupported top level domain (tld)."
-            )
-
-    def set_text(
-        self,
-        name: str,
-        key: str,
-        value: str,
-        transact: "TxParams" = None
-    ) -> HexBytes:
-        """
-        Set the value of a text record of an ENS name.
-
-        :param str name: ENS name
-        :param str key: Name of the attribute to set
-        :param str value: Value to set the attribute to
-        :param dict transact: The transaction configuration, like in
-            :meth:`~web3.eth.Eth.send_transaction`
-        :return: Transaction hash
-        :rtype: HexBytes
-        :raises UnsupportedFunction: If the resolver does not support the "0x59d1d43c" interface id
-        :raises ResolverNotFound: If no resolver is found for the provided name
-        """
-        if not transact:
-            transact = {}
-
-        owner = self.owner(name)
-        node = raw_name_to_hash(name)
-        normal_name = normalize_name(name)
-
-        transaction_dict = merge({'from': owner}, transact)
-
-        r = self.resolver(normal_name)
-        if r:
-            if _resolver_supports_interface(r, GET_TEXT_INTERFACE_ID):
-                return r.functions.setText(node, key, value).transact(transaction_dict)
-            else:
-                raise UnsupportedFunction(
-                    f"Resolver for name `{name}` does not support `text` function"
-                )
-        else:
-            raise ResolverNotFound(
-                f"No resolver found for name `{name}`. It is likely the name contains an "
-                "unsupported top level domain (tld)."
-            )
-
-    def setup_address(
-        self,
-        name: str,
-        address: Union[Address, ChecksumAddress, HexAddress] = cast(ChecksumAddress, default),
-        transact: Optional["TxParams"] = None
-    ) -> Optional[HexBytes]:
-        """
-        Set up the name to point to the supplied address.
-        The sender of the transaction must own the name, or
-        its parent name.
-
-        Example: If the caller owns ``parentname.eth`` with no subdomains
-        and calls this method with ``sub.parentname.eth``,
-        then ``sub`` will be created as part of this call.
-
-        :param str name: ENS name to set up
-        :param str address: name will point to this address, in checksum format. If ``None``,
-            erase the record. If not specified, name will point to the owner's address.
-        :param dict transact: the transaction configuration, like in
-            :meth:`~web3.eth.Eth.send_transaction`
-        :raises InvalidName: if ``name`` has invalid syntax
-        :raises UnauthorizedError: if ``'from'`` in `transact` does not own `name`
-        """
-        if not transact:
-            transact = {}
-        transact = deepcopy(transact)
-        owner = self.setup_owner(name, transact=transact)
-        self._assert_control(owner, name)
-        if is_none_or_zero_address(address):
-            address = None
-        elif address is default:
-            address = owner
-        elif is_binary_address(address):
-            address = to_checksum_address(cast(str, address))
-        elif not is_checksum_address(address):
-            raise ValueError("You must supply the address in checksum format")
-        if self.address(name) == address:
-            return None
-        if address is None:
-            address = EMPTY_ADDR_HEX
-        transact['from'] = owner
-
-        resolver: 'Contract' = self._set_resolver(name, transact=transact)
-        return resolver.functions.setAddr(raw_name_to_hash(name), address).transact(transact)
-
     def setup_owner(
         self,
         name: str,
         new_owner: ChecksumAddress = cast(ChecksumAddress, default),
-        transact: Optional["TxParams"] = None
+        transact: Optional["TxParams"] = None,
     ) -> Optional[ChecksumAddress]:
         """
         Set the owner of the supplied name to `new_owner`.
@@ -396,10 +300,94 @@ class ENS(BaseENS):
             self._claim_ownership(new_owner, unowned, owned, super_owner, transact=transact)
             return new_owner
 
+    def resolver(self, name: str) -> Optional['Contract']:
+        """
+        Get the resolver for an ENS name.
+
+        :param str name: The ENS name
+        """
+        normal_name = normalize_name(name)
+        return self._get_resolver(normal_name)[0]
+
+    def reverser(self, target_address: ChecksumAddress) -> Optional['Contract']:
+        reversed_domain = address_to_reverse_domain(target_address)
+        return self.resolver(reversed_domain)
+
+    def get_text(self, name: str, key: str) -> str:
+        """
+        Get the value of a text record by key from an ENS name.
+
+        :param str name: ENS name to look up
+        :param str key: ENS name's text record key
+        :return: ENS name's text record value
+        :rtype: str
+        :raises UnsupportedFunction: If the resolver does not support the "0x59d1d43c" interface id
+        :raises ResolverNotFound: If no resolver is found for the provided name
+        """
+        node = raw_name_to_hash(name)
+        normal_name = normalize_name(name)
+
+        r = self.resolver(normal_name)
+        if r:
+            if _resolver_supports_interface(r, GET_TEXT_INTERFACE_ID):
+                return r.caller.text(node, key)
+            else:
+                raise UnsupportedFunction(
+                    f"Resolver for name {name} does not support `text` function."
+                )
+        else:
+            raise ResolverNotFound(
+                f"No resolver found for name `{name}`. It is likely the name contains an "
+                "unsupported top level domain (tld)."
+            )
+
+    def set_text(
+        self,
+        name: str,
+        key: str,
+        value: str,
+        transact: "TxParams" = None,
+    ) -> HexBytes:
+        """
+        Set the value of a text record of an ENS name.
+
+        :param str name: ENS name
+        :param str key: Name of the attribute to set
+        :param str value: Value to set the attribute to
+        :param dict transact: The transaction configuration, like in
+            :meth:`~web3.eth.Eth.send_transaction`
+        :return: Transaction hash
+        :rtype: HexBytes
+        :raises UnsupportedFunction: If the resolver does not support the "0x59d1d43c" interface id
+        :raises ResolverNotFound: If no resolver is found for the provided name
+        """
+        if not transact:
+            transact = {}
+
+        owner = self.owner(name)
+        node = raw_name_to_hash(name)
+        normal_name = normalize_name(name)
+
+        transaction_dict = merge({'from': owner}, transact)
+
+        r = self.resolver(normal_name)
+        if r:
+            if _resolver_supports_interface(r, GET_TEXT_INTERFACE_ID):
+                return r.functions.setText(node, key, value).transact(transaction_dict)
+            else:
+                raise UnsupportedFunction(
+                    f"Resolver for name `{name}` does not support `text` function"
+                )
+        else:
+            raise ResolverNotFound(
+                f"No resolver found for name `{name}`. It is likely the name contains an "
+                "unsupported top level domain (tld)."
+            )
+
     def _get_resolver(
         self,
         normal_name: str,
-        fn_name: str = 'addr'
+        fn_name: str = 'addr',
     ) -> Tuple[Optional['Contract'], str]:
         current_name = normal_name
 
@@ -414,23 +402,30 @@ class ENS(BaseENS):
             resolver_addr = self.ens.caller.resolver(normal_name_to_hash(current_name))
             if not is_none_or_zero_address(resolver_addr):
                 # if resolver found, return it
-
-                # type ignore becuase _type_aware_resolver is in BaseENS
-                # and can return Contract or AsyncContract
-                return self._type_aware_resolver(resolver_addr,  # type: ignore
-                                                 fn_name), current_name
+                resolver = cast('Contract', self._type_aware_resolver(resolver_addr, fn_name))
+                return resolver, current_name
 
             # set current_name to parent and try again
             current_name = self.parent(current_name)
 
-    def address(self, name: str) -> Optional[ChecksumAddress]:
-        """
-        Look up the Ethereum address that `name` currently points to.
-
-        :param str name: an ENS name to look up
-        :raises InvalidName: if `name` has invalid syntax
-        """
-        return cast(ChecksumAddress, self._resolve(name, 'addr'))
+    def _set_resolver(
+        self,
+        name: str,
+        resolver_addr: Optional[ChecksumAddress] = None,
+        transact: Optional["TxParams"] = None,
+    ) -> 'Contract':
+        if not transact:
+            transact = {}
+        transact = deepcopy(transact)
+        if is_none_or_zero_address(resolver_addr):
+            resolver_addr = self.address('resolver.eth')
+        namehash = raw_name_to_hash(name)
+        if self.ens.caller.resolver(namehash) != resolver_addr:
+            self.ens.functions.setResolver(
+                namehash,
+                resolver_addr
+            ).transact(transact)
+        return cast('Contract', self._resolver_contract(address=resolver_addr))
 
     def _resolve(self, name: str, fn_name: str = 'addr') -> Optional[Union[ChecksumAddress, str]]:
         normal_name = normalize_name(name)
@@ -461,42 +456,12 @@ class ENS(BaseENS):
             return to_checksum_address(result) if is_address(result) else result
         return None
 
-    def _claim_ownership(
+    def _assert_control(
         self,
-        owner: ChecksumAddress,
-        unowned: Sequence[str],
-        owned: str,
-        old_owner: Optional[ChecksumAddress] = None,
-        transact: Optional["TxParams"] = None
+        account: ChecksumAddress,
+        name: str,
+        parent_owned: Optional[str] = None,
     ) -> None:
-        if not transact:
-            transact = {}
-        transact = deepcopy(transact)
-        transact['from'] = old_owner or owner
-        for label in reversed(unowned):
-            self.ens.functions.setSubnodeOwner(
-                raw_name_to_hash(owned),
-                label_to_hash(label),
-                owner
-            ).transact(transact)
-            owned = f"{label}.{owned}"
-
-    def _setup_reverse(
-        self, name: str, address: ChecksumAddress, transact: Optional["TxParams"] = None
-    ) -> HexBytes:
-        name = normalize_name(name) if name else ''
-        if not transact:
-            transact = {}
-        transact = deepcopy(transact)
-        transact['from'] = address
-        return self._reverse_registrar().functions.setName(name).transact(transact)
-
-    def _reverse_registrar(self) -> 'Contract':
-        addr = self.ens.caller.owner(normal_name_to_hash(REVERSE_REGISTRAR_DOMAIN))
-        return self.w3.eth.contract(address=addr, abi=abis.REVERSE_REGISTRAR)
-
-    def _assert_control(self, account: ChecksumAddress, name: str,
-                        parent_owned: Optional[str] = None) -> None:
         if not address_in(account, self.w3.eth.accounts):
             raise UnauthorizedError(
                 f"in order to modify {name!r}, you must control account"
@@ -519,9 +484,45 @@ class ENS(BaseENS):
                 unowned.append(pieces.pop(0))
         return (owner, unowned, name)
 
+    def _claim_ownership(
+        self,
+        owner: ChecksumAddress,
+        unowned: Sequence[str],
+        owned: str,
+        old_owner: Optional[ChecksumAddress] = None,
+        transact: Optional["TxParams"] = None,
+    ) -> None:
+        if not transact:
+            transact = {}
+        transact = deepcopy(transact)
+        transact['from'] = old_owner or owner
+        for label in reversed(unowned):
+            self.ens.functions.setSubnodeOwner(
+                raw_name_to_hash(owned),
+                label_to_hash(label),
+                owner
+            ).transact(transact)
+            owned = f"{label}.{owned}"
 
-def _resolver_supports_interface(resolver: 'Contract',
-                                 interface_id: HexStr) -> bool:
+    def _setup_reverse(
+        self,
+        name: Optional[str],
+        address: ChecksumAddress,
+        transact: Optional["TxParams"] = None,
+    ) -> HexBytes:
+        name = normalize_name(name) if name else ''
+        if not transact:
+            transact = {}
+        transact = deepcopy(transact)
+        transact['from'] = address
+        return self._reverse_registrar().functions.setName(name).transact(transact)
+
+    def _reverse_registrar(self) -> 'Contract':
+        addr = self.ens.caller.owner(normal_name_to_hash(REVERSE_REGISTRAR_DOMAIN))
+        return self.w3.eth.contract(address=addr, abi=abis.REVERSE_REGISTRAR)
+
+
+def _resolver_supports_interface(resolver: 'Contract', interface_id: HexStr) -> bool:
     if not any('supportsInterface' in repr(func) for func in resolver.all_functions()):
         return False
     return resolver.caller.supportsInterface(interface_id)
