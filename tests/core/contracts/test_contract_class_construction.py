@@ -53,4 +53,4 @@ def test_error_to_call_non_existent_fallback(web3,
         bytecode_runtime=MATH_RUNTIME,
     )
     with pytest.raises(FallbackNotFound):
-        math_contract.fallback.estimateGas()
+        math_contract.fallback.estimate_gas()

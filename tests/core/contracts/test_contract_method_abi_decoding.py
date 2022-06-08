@@ -88,7 +88,7 @@ def test_contract_abi_decoding(web3, abi, data, method, expected):
     assert params == expected
 
     reinvoke_func = contract.functions[func.fn_name](**params)
-    rebuild_txn = reinvoke_func.buildTransaction({'gas': 0, 'nonce': 0, 'to': '\x00' * 20})
+    rebuild_txn = reinvoke_func.build_transaction({'gas': 0, 'nonce': 0, 'to': '\x00' * 20})
     assert rebuild_txn['data'] == data
 
 
@@ -115,5 +115,5 @@ def test_contract_abi_encoding_kwargs(web3, abi, method, expected, data):
     assert params == expected
 
     reinvoke_func = contract.functions[func.fn_name](**params)
-    rebuild_txn = reinvoke_func.buildTransaction({'gas': 0, 'nonce': 0, 'to': '\x00' * 20})
+    rebuild_txn = reinvoke_func.build_transaction({'gas': 0, 'nonce': 0, 'to': '\x00' * 20})
     assert rebuild_txn['data'] == data

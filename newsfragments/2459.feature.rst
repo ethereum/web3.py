@@ -1,0 +1,2 @@
+Deprecated ``buildTransaction`` and ``estimateGas`` in contract.py v5,
+in favor of ``estimate_gas`` and ``build_transaction``
