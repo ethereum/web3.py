@@ -34,9 +34,9 @@ if TYPE_CHECKING:
 
 class BaseENS:
     w3: 'Web3' = None
+    ens: Union['Contract', 'AsyncContract'] = None
     _resolver_contract: Union[Type['Contract'], Type['AsyncContract']] = None
     _reverse_resolver_contract: Union[Type['Contract'], Type['AsyncContract']] = None
-    ens: Union['Contract', 'AsyncContract'] = None
 
     @staticmethod
     @wraps(label_to_hash)
@@ -86,8 +86,10 @@ class BaseENS:
         return '' if len(labels) == 1 else '.'.join(labels[1:])
 
     def _decode_ensip10_resolve_data(
-        self, contract_call_result: bytes,
-        extended_resolver: Union['Contract', 'AsyncContract'], fn_name: str,
+        self,
+        contract_call_result: bytes,
+        extended_resolver: Union['Contract', 'AsyncContract'],
+        fn_name: str,
     ) -> Any:
         func = extended_resolver.get_function_by_name(fn_name)
         output_types = get_abi_output_types(func.abi)
@@ -96,9 +98,11 @@ class BaseENS:
         # if decoding a single value, return that value - else, return the tuple
         return decoded[0] if len(decoded) == 1 else decoded
 
-    def _type_aware_resolver(self,
-                             address: ChecksumAddress,
-                             func: str) -> Union['Contract', 'AsyncContract']:
+    def _type_aware_resolver(
+        self,
+        address: ChecksumAddress,
+        func: str,
+    ) -> Union['Contract', 'AsyncContract']:
         return (
             self._reverse_resolver_contract(address=address) if func == 'name' else
             self._resolver_contract(address=address)

@@ -177,6 +177,9 @@ def test_offchain_resolver_function_call_raises_with_ccip_read_disabled(
         )
 
 
+# -- async -- #
+
+
 @pytest.mark.asyncio
 async def test_async_offchain_resolution_with_get_request(async_ens, monkeypatch):
     # mock GET response with real return data from 'offchainexample.eth' resolver
