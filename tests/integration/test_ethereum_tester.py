@@ -388,10 +388,6 @@ class TestEthereumTesterEthModule(EthModuleTest):
         super().test_eth_get_storage_at(w3, emitter_contract_address)
 
     @pytest.mark.xfail(reason='json-rpc method is not implemented on eth-tester')
-    def test_eth_getStorageAt_deprecated(self, w3, emitter_contract_address):
-        super().test_eth_getStorageAt_deprecated(w3, emitter_contract_address)
-
-    @pytest.mark.xfail(reason='json-rpc method is not implemented on eth-tester')
     def test_eth_get_storage_at_ens_name(self, w3, emitter_contract_address):
         super().test_eth_get_storage_at_ens_name(w3, emitter_contract_address)
 
@@ -524,10 +520,6 @@ class TestEthereumTesterPersonalModule(GoEthereumPersonalModuleTest):
         GoEthereumPersonalModuleTest.test_personal_sign_and_ecrecover,
         ValueError,
     )
-    test_personal_sign_and_ecrecover_deprecated = not_implemented(
-        GoEthereumPersonalModuleTest.test_personal_sign_and_ecrecover,
-        ValueError,
-    )
 
     # Test overridden here since eth-tester returns False rather than None for failed unlock
     def test_personal_unlock_account_failure(self,
@@ -535,14 +527,6 @@ class TestEthereumTesterPersonalModule(GoEthereumPersonalModuleTest):
                                              unlockable_account_dual_type):
         result = w3.geth.personal.unlock_account(unlockable_account_dual_type, 'bad-password')
         assert result is False
-
-    def test_personal_unlockAccount_failure_deprecated(self,
-                                                       w3,
-                                                       unlockable_account_dual_type):
-        with pytest.warns(DeprecationWarning,
-                          match="unlockAccount is deprecated in favor of unlock_account"):
-            result = w3.geth.personal.unlockAccount(unlockable_account_dual_type, 'bad-password')
-            assert result is False
 
     @pytest.mark.xfail(raises=ValueError, reason="list_wallets not implemented in eth-tester")
     def test_personal_list_wallets(self, w3: "Web3") -> None:

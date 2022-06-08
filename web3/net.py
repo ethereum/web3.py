@@ -1,14 +1,12 @@
 from typing import (
     Awaitable,
     Callable,
-    NoReturn,
 )
 
 from web3._utils.rpc_abi import (
     RPC,
 )
 from web3.method import (
-    DeprecatedMethod,
     Method,
     default_root_munger,
 )
@@ -34,10 +32,6 @@ class Net(Module):
     )
 
     @property
-    def chainId(self) -> NoReturn:
-        raise DeprecationWarning("This method has been deprecated in EIP 1474.")
-
-    @property
     def listening(self) -> bool:
         return self._listening()
 
@@ -48,11 +42,6 @@ class Net(Module):
     @property
     def version(self) -> str:
         return self._version()
-
-    #
-    # Deprecated Methods
-    #
-    peerCount = DeprecatedMethod(peer_count, 'peerCount', 'peer_count')  # type: ignore
 
 
 class AsyncNet(Module):

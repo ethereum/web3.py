@@ -30,16 +30,6 @@ class NetModuleTest:
 
         assert is_integer(peer_count)
 
-    def test_net_peerCount(self, w3: "Web3") -> None:
-        with pytest.warns(DeprecationWarning):
-            peer_count = w3.net.peerCount
-
-        assert is_integer(peer_count)
-
-    def test_net_chainId_deprecation(self, w3: "Web3") -> None:
-        with pytest.raises(DeprecationWarning):
-            w3.net.chainId
-
 
 class AsyncNetModuleTest:
     @pytest.mark.asyncio

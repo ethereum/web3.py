@@ -28,39 +28,25 @@ from web3._utils.admin import (
 )
 from web3._utils.miner import (
     make_dag,
-    makeDag,
     set_etherbase,
     set_extra,
     set_gas_price,
-    setEtherbase,
-    setExtra,
-    setGasPrice,
     start,
     start_auto_dag,
-    startAutoDag,
     stop,
     stop_auto_dag,
-    stopAutoDag,
 )
 from web3._utils.personal import (
     ec_recover,
-    ecRecover,
     import_raw_key,
-    importRawKey,
     list_accounts,
     list_wallets,
-    listAccounts,
     lock_account,
-    lockAccount,
     new_account,
-    newAccount,
     send_transaction,
-    sendTransaction,
     sign,
     sign_typed_data,
-    signTypedData,
     unlock_account,
-    unlockAccount,
 )
 from web3._utils.txpool import (
     content,
@@ -96,15 +82,6 @@ class BaseGethPersonal(Module):
     _sign = sign
     _sign_typed_data = sign_typed_data
     _unlock_account = unlock_account
-    # deprecated
-    _ecRecover = ecRecover
-    _importRawKey = importRawKey
-    _listAccounts = listAccounts
-    _lockAccount = lockAccount
-    _newAccount = newAccount
-    _sendTransaction = sendTransaction
-    _signTypedData = signTypedData
-    _unlockAccount = unlockAccount
 
 
 class GethPersonal(BaseGethPersonal):
@@ -145,36 +122,6 @@ class GethPersonal(BaseGethPersonal):
                        passphrase: str,
                        duration: Optional[int] = None) -> bool:
         return self._unlock_account(account, passphrase, duration)
-
-    def ecRecover(self, message: str, signature: HexStr) -> ChecksumAddress:
-        return self._ecRecover(message, signature)
-
-    def importRawKey(self, private_key: str, passphrase: str) -> ChecksumAddress:
-        return self._importRawKey(private_key, passphrase)
-
-    def listAccounts(self) -> List[ChecksumAddress]:
-        return self._listAccounts()
-
-    def lockAccount(self, account: ChecksumAddress) -> bool:
-        return self._lockAccount(account)
-
-    def newAccount(self, passphrase: str) -> ChecksumAddress:
-        return self._newAccount(passphrase)
-
-    def sendTransaction(self, transaction: TxParams, passphrase: str) -> HexBytes:
-        return self._sendTransaction(transaction, passphrase)
-
-    def signTypedData(self,
-                      message: Dict[str, Any],
-                      account: ChecksumAddress,
-                      password: Optional[str] = None) -> HexStr:
-        return self._signTypedData(message, account, password)
-
-    def unlockAccount(self,
-                      account: ChecksumAddress,
-                      passphrase: str,
-                      duration: Optional[int] = None) -> bool:
-        return self._unlockAccount(account, passphrase, duration)
 
 
 class AsyncGethPersonal(BaseGethPersonal):
@@ -353,13 +300,6 @@ class GethMiner(Module):
     stop = stop
     start_auto_dag = start_auto_dag
     stop_auto_dag = stop_auto_dag
-    # deprecated
-    makeDag = makeDag
-    setExtra = setExtra
-    setEtherbase = setEtherbase
-    setGasPrice = setGasPrice
-    startAutoDag = startAutoDag
-    stopAutoDag = stopAutoDag
 
 
 class Geth(Module):

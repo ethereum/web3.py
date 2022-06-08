@@ -54,12 +54,6 @@ The ``web3.geth.admin`` object exposes methods to interact with the RPC APIs und
         }
 
 
-.. py:method:: nodeInfo()
-
-    .. warning:: Deprecated: This method is deprecated in favor of
-      :meth:`~web3.geth.admin.node_info()`
-
-
 .. py:method:: peers()
 
     * Delegates to ``admin_peers`` RPC Method
@@ -118,10 +112,6 @@ The ``web3.geth.admin`` object exposes methods to interact with the RPC APIs und
         True
 
 
-.. py:method:: addPeer(node_url)
-
-    .. warning:: Deprecated: This method is deprecated in favor of :meth:`~web3.geth.admin.add_peer()`
-
 .. py:method:: start_rpc(host='localhost', port=8545, cors="", apis="eth,net,web3")
 
     * Delegates to ``admin_startRPC`` RPC Method
@@ -135,12 +125,6 @@ The ``web3.geth.admin`` object exposes methods to interact with the RPC APIs und
 
         >>> web3.geth.admin.start_rpc()
         True
-
-
-.. py:method:: startRPC(host='localhost', port=8545, cors="", apis="eth,net,web3")
-
-    .. warning:: Deprecated: This method is deprecated in favor of
-       :meth:`~web3.geth.admin.start_rpc()`
 
 
 .. py:method:: start_ws(host='localhost', port=8546, cors="", apis="eth,net,web3")
@@ -158,12 +142,6 @@ The ``web3.geth.admin`` object exposes methods to interact with the RPC APIs und
         True
 
 
-.. py:method:: startWS(host='localhost', port=8546, cors="", apis="eth,net,web3")
-
-    .. warning:: Deprecated: This method is deprecated in favor of
-       :meth:`~web3.geth.admin.start_ws()`
-
-
 .. py:method:: stop_rpc()
 
     * Delegates to ``admin_stopRPC`` RPC Method
@@ -176,12 +154,6 @@ The ``web3.geth.admin`` object exposes methods to interact with the RPC APIs und
         True
 
 
-.. py:method:: stopRPC()
-
-    .. warning:: Deprecated: This method is deprecated in favor of
-       :meth:`~web3.geth.admin.stop_rpc()`
-
-
 .. py:method:: stop_ws()
 
     * Delegates to ``admin_stopWS`` RPC Method
@@ -192,12 +164,6 @@ The ``web3.geth.admin`` object exposes methods to interact with the RPC APIs und
 
         >>> web3.geth.admin.stop_ws()
         True
-
-
-.. py:method:: stopWS()
-
-    .. warning:: Deprecated: This method is deprecated in favor of
-       :meth:`~web3.geth.admin.stop_ws()`
 
 
 .. py:module:: web3.geth.personal
@@ -217,12 +183,6 @@ The following methods are available on the ``web3.geth.personal`` namespace.
 
         >>> web3.geth.personal.list_accounts()
         ['0xd3CdA913deB6f67967B99D67aCDFa1712C293601']
-
-
-.. py:method:: listAccounts()
-
-    .. warning:: Deprecated: This method is deprecated in favor of
-      :meth:`~web3.geth.personal.list_accounts()`
 
 
 .. py:method:: list_wallets()
@@ -257,12 +217,6 @@ The following methods are available on the ``web3.geth.personal`` namespace.
         '0xd3CdA913deB6f67967B99D67aCDFa1712C293601'
 
 
-.. py:method:: importRawKey()
-
-    .. warning:: Deprecated: This method is deprecated in favor of
-      :meth:`~web3.geth.personal.import_raw_key()`
-
-
 .. py:method:: new_account(self, passphrase)
 
     * Delegates to ``personal_newAccount`` RPC Method
@@ -276,12 +230,6 @@ The following methods are available on the ``web3.geth.personal`` namespace.
         '0xd3CdA913deB6f67967B99D67aCDFa1712C293601'
 
 
-.. py:method:: newAccount()
-
-    .. warning:: Deprecated: This method is deprecated in favor of
-      :meth:`~web3.geth.personal.new_account()`
-
-
 .. py:method:: lock_account(self, account)
 
     * Delegates to ``personal_lockAccount`` RPC Method
@@ -291,12 +239,6 @@ The following methods are available on the ``web3.geth.personal`` namespace.
     .. code-block:: python
 
         >>> web3.geth.personal.lock_account('0xd3CdA913deB6f67967B99D67aCDFa1712C293601')
-
-
-.. py:method:: lockAccount()
-
-    .. warning:: Deprecated: This method is deprecated in favor of
-      :meth:`~web3.geth.personal.lock_account()`
 
 
 .. py:method:: unlock_account(self, account, passphrase, duration=None)
@@ -317,23 +259,11 @@ The following methods are available on the ``web3.geth.personal`` namespace.
         True
 
 
-.. py:method:: unlockAccount()
-
-    .. warning:: Deprecated: This method is deprecated in favor of
-      :meth:`~web3.geth.personal.unlock_account()`
-
-
 .. py:method:: send_transaction(self, transaction, passphrase)
 
     * Delegates to ``personal_sendTransaction`` RPC Method
 
     Sends the transaction.
-
-
-.. py:method:: sendTransaction()
-
-    .. warning:: Deprecated: This method is deprecated in favor of
-      :meth:`~web3.geth.personal.send_transaction()`
 
 
 .. py:module:: web3.geth.txpool

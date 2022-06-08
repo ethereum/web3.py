@@ -22,26 +22,18 @@ from eth_utils.toolz import (
 
 from web3._utils.personal import (
     ec_recover,
-    ecRecover,
     import_raw_key,
-    importRawKey,
     list_accounts,
-    listAccounts,
     new_account,
-    newAccount,
     send_transaction,
-    sendTransaction,
     sign,
     sign_typed_data,
-    signTypedData,
     unlock_account,
-    unlockAccount,
 )
 from web3._utils.rpc_abi import (
     RPC,
 )
 from web3.method import (
-    DeprecatedMethod,
     Method,
     default_root_munger,
 )
@@ -75,14 +67,6 @@ class ParityPersonal(Module):
     sign = sign
     sign_typed_data = sign_typed_data
     unlock_account = unlock_account
-    # deprecated
-    ecRecover = ecRecover
-    importRawKey = importRawKey
-    listAccounts = listAccounts
-    newAccount = newAccount
-    sendTransaction = sendTransaction
-    signTypedData = signTypedData
-    unlockAccount = unlockAccount
 
 
 class Parity(Module):
@@ -219,20 +203,3 @@ class Parity(Module):
         RPC.parity_mode,
         is_property=True
     )
-
-    # Deprecated Methods
-    addReservedPeer = DeprecatedMethod(add_reserved_peer, 'addReservedPeer', 'add_reserved_peer')
-    listStorageKeys = DeprecatedMethod(list_storage_keys, 'listStorageKeys', 'list_storage_keys')
-    netPeers = DeprecatedMethod(net_peers, 'netPeers', 'net_peers')
-    setMode = DeprecatedMethod(set_mode, 'setMode', 'set_mode')
-    traceBlock = DeprecatedMethod(trace_block, 'traceBlock', 'trace_block')
-    traceCall = DeprecatedMethod(trace_call, 'traceCall', 'trace_call')
-    traceFilter = DeprecatedMethod(trace_filter, 'traceFilter', 'trace_filter')
-    traceRawTransaction = DeprecatedMethod(trace_raw_transaction, 'traceRawTransaction',
-                                           'trace_raw_transaction')
-    traceReplayTransaction = DeprecatedMethod(trace_replay_transaction, 'traceReplayTransaction',
-                                              'trace_replay_transaction')
-    traceReplayBlockTransactions = DeprecatedMethod(trace_replay_block_transactions,
-                                                    'traceReplayBlockTransactions',
-                                                    'trace_replay_block_transactions')
-    traceTransaction = DeprecatedMethod(trace_transaction, 'traceTransaction', 'trace_transaction')

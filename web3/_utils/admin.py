@@ -11,7 +11,6 @@ from web3._utils.rpc_abi import (
     RPC,
 )
 from web3.method import (
-    DeprecatedMethod,
     Method,
     default_root_munger,
 )
@@ -85,13 +84,3 @@ stop_ws: Method[Callable[[], bool]] = Method(
     RPC.admin_stopWS,
     is_property=True,
 )
-
-#
-# Deprecated Methods
-#
-addPeer = DeprecatedMethod(add_peer, 'addPeer', 'add_peer')
-nodeInfo = DeprecatedMethod(node_info, 'nodeInfo', 'node_info')
-startRPC = DeprecatedMethod(start_rpc, 'startRPC', 'start_rpc')
-stopRPC = DeprecatedMethod(stop_rpc, 'stopRPC', 'stop_rpc')
-startWS = DeprecatedMethod(start_ws, 'startWS', 'start_ws')
-stopWS = DeprecatedMethod(stop_ws, 'stopWS', 'stop_ws')
