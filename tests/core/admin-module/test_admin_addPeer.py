@@ -1,6 +1,3 @@
-import pytest
-
-
 def test_admin_add_peer(w3, skip_if_testrpc):
     skip_if_testrpc(w3)
 

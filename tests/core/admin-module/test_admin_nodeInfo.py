@@ -1,6 +1,3 @@
-import pytest
-
-
 def test_admin_node_info(w3, skip_if_testrpc):
     skip_if_testrpc(w3)
 

@@ -1,6 +1,3 @@
-import pytest
-
-
 def test_miner_set_etherbase(web3_empty):
     web3 = web3_empty
     assert web3.eth.coinbase == web3.eth.accounts[0]
