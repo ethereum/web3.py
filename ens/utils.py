@@ -97,35 +97,6 @@ def customize_web3(w3: '_Web3') -> '_Web3':
     return w3
 
 
-async def async_init_web3(
-    provider: 'BaseProvider' = cast('BaseProvider', default),
-    middlewares: Optional[Sequence[Tuple['Middleware', str]]] = None
-) -> '_Web3':
-    from web3 import Web3 as Web3Main
-    from web3.eth import AsyncEth as AsyncEthMain
-
-    if provider is default:
-        w3 = Web3Main(ens=None, modules={"eth": (AsyncEthMain)})
-    else:
-        w3 = Web3Main(provider, middlewares, ens=None, modules={"eth": (AsyncEthMain)})
-
-    return await async_customize_web3(w3)
-
-
-async def async_customize_web3(w3: '_Web3') -> '_Web3':
-    from web3.middleware import async_make_stalecheck_middleware
-
-    if w3.middleware_onion.get('name_to_address'):
-        w3.middleware_onion.remove('name_to_address')
-
-    if not w3.middleware_onion.get('stalecheck'):
-        w3.middleware_onion.add(
-            await async_make_stalecheck_middleware(ACCEPTABLE_STALE_HOURS * 3600),
-            name='stalecheck'
-        )
-    return w3
-
-
 def normalize_name(name: str) -> str:
     """
     Clean the fully qualified name, as defined in ENS `EIP-137
@@ -291,3 +262,37 @@ def get_abi_output_types(abi: 'ABIFunction') -> List[str]:
         [] if abi['type'] == 'fallback'
         else [collapse_if_tuple(cast(Dict[str, Any], arg)) for arg in abi['outputs']]
     )
+
+
+# -- async -- #
+
+
+async def async_init_web3(
+    provider: "BaseProvider" = cast("BaseProvider", default),
+    middlewares: Optional[Sequence[Tuple["Middleware", str]]] = None
+) -> "_Web3":
+    from web3 import Web3 as Web3Main
+    from web3.eth import AsyncEth as AsyncEthMain
+
+    if provider is default:
+        async_w3 = Web3Main(ens=None, modules={"eth": (AsyncEthMain)})
+    else:
+        async_w3 = Web3Main(
+            provider, middlewares, ens=None, modules={"eth": (AsyncEthMain)},
+        )
+
+    return await async_customize_web3(async_w3)
+
+
+async def async_customize_web3(async_w3: "_Web3") -> "_Web3":
+    from web3.middleware import async_make_stalecheck_middleware
+
+    if async_w3.middleware_onion.get("name_to_address"):
+        async_w3.middleware_onion.remove("name_to_address")
+
+    if not async_w3.middleware_onion.get("stalecheck"):
+        async_w3.middleware_onion.add(
+            await async_make_stalecheck_middleware(ACCEPTABLE_STALE_HOURS * 3600),
+            name="stalecheck"
+        )
+    return async_w3

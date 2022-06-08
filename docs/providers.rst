@@ -478,6 +478,12 @@ ENS
 ^^^^^^^^
 ENS is implemented for the Async provider. Use the :class:`AsyncENSFactory` class to create a :class:`AsyncENS` object.
 
+.. code-block:: python
+
+    >>> from async_ens import AsyncENSFactory
+    >>> ns = await AsyncENSFactory.fromWeb3(async_w3)
+
+
 Supported Middleware
 ^^^^^^^^^^^^^^^^^^^^
 - :meth:`Gas Price Strategy <web3.middleware.gas_price_strategy_middleware>`
