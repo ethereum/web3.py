@@ -160,6 +160,8 @@ def test_set_resolver_leave_default(ens, TEST_ADDRESS):
     assert eth.get_transaction_count(owner) == num_transactions + 1
 
 
+# -- async -- #
+
 @pytest.mark.asyncio
 async def test_async_setup_address(async_ens, TEST_ADDRESS):
     await async_ens.setup_address("tester.eth", TEST_ADDRESS)

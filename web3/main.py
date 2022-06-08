@@ -235,7 +235,7 @@ class Web3:
         middlewares: Optional[Sequence[Any]] = None,
         modules: Optional[Dict[str, Union[Type[Module], Sequence[Any]]]] = None,
         external_modules: Optional[Dict[str, Union[Type[Module], Sequence[Any]]]] = None,
-        ens: ENS = cast(ENS, empty)
+        ens: Optional[ENS] = cast(ENS, empty)
     ) -> None:
         self.manager = self.RequestManager(self, provider, middlewares)
         # this codec gets used in the module initialization,

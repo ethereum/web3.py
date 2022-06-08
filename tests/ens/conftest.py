@@ -1,4 +1,4 @@
-
+import asyncio
 import json
 import pytest
 
@@ -60,15 +60,6 @@ def bytes32(val):
         return result.rjust(32, b'\0')
     else:
         return result
-
-
-async def async_deploy(async_w3, Factory, from_address, args=None):
-    args = args or []
-    factory = Factory(async_w3)
-    deploy_txn = await factory.constructor(*args).transact({'from': from_address})
-    deploy_receipt = await async_w3.eth.wait_for_transaction_receipt(deploy_txn)
-    assert deploy_receipt is not None
-    return factory(address=deploy_receipt['contractAddress'])
 
 
 def deploy(w3, Factory, from_address, args=None):
@@ -159,8 +150,8 @@ def ens(ens_setup, mocker):
     return ens_setup
 
 
-# session scope for performance
-@pytest.fixture(scope="session")
+# module scope for performance
+@pytest.fixture(scope="module")
 def ens_setup():
     w3 = Web3(EthereumTesterProvider(EthereumTester()))
 
@@ -362,6 +353,29 @@ def ens_setup():
     return ENS.fromWeb3(w3, ens_contract.address)
 
 
+# -- async -- #
+
+
+@pytest_asyncio.fixture(scope="module")
+def async_w3():
+    provider = AsyncEthereumTesterProvider()
+    _async_w3 = Web3(
+        provider,
+        modules={'eth': [AsyncEth]},
+        middlewares=provider.middlewares
+    )
+    return _async_w3
+
+
+async def async_deploy(async_w3, Factory, from_address, args=None):
+    args = args or []
+    factory = Factory(async_w3)
+    deploy_txn = await factory.constructor(*args).transact({'from': from_address})
+    deploy_receipt = await async_w3.eth.wait_for_transaction_receipt(deploy_txn)
+    assert deploy_receipt is not None
+    return factory(address=deploy_receipt['contractAddress'])
+
+
 def async_default_reverse_resolver(async_w3):
     return async_w3.eth.contract(
         bytecode=reverse_resolver_bytecode,
@@ -434,11 +448,14 @@ def async_ENS_registry_factory(async_w3):
     )
 
 
-@pytest_asyncio.fixture
-async def async_ens_setup():
-    provider = AsyncEthereumTesterProvider()
-    async_w3 = Web3(provider, modules={'eth': [AsyncEth]},
-                    middlewares=provider.middlewares)
+@pytest.fixture(scope="module")
+def event_loop():
+    return asyncio.get_event_loop()
+
+
+# add module scope with above module-scoped `event_loop` for better performance
+@pytest_asyncio.fixture(scope="module")
+async def async_ens_setup(async_w3):
     async_w3.eth.default_account = await async_w3.eth.coinbase
 
     # ** Set up ENS contracts **
