@@ -1094,7 +1094,7 @@ The following methods are available on the ``web3.eth`` namespace.
     Read support. In order to properly handle a call to a contract function that reverts with an ``OffchainLookup``
     error for offchain data retrieval, the ``ccip_read_enabled`` flag has been added to the ``eth_call`` method.
     ``ccip_read_enabled`` is optional, yielding the default value for CCIP Read on calls to a global
-    ``ccip_read_calls_enabled`` flag on the provider which is set to ``True`` by default. This means CCIP Read is
+    ``global_ccip_read_enabled`` flag on the provider which is set to ``True`` by default. This means CCIP Read is
     enabled by default for calls, as is recommended in EIP-3668. Therefore, calls to contract functions that revert with
     an ``OffchainLookup`` will be handled appropriately by default.
 

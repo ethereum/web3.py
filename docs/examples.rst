@@ -630,7 +630,7 @@ CCIP Read support for offchain lookup
 -------------------------------------
 
 Contract calls support CCIP Read by default, via a ``ccip_read_enabled`` flag on the call and, more globally, a
-``ccip_read_calls_enabled`` flag on the provider. The following should work by default without raising an
+``global_ccip_read_enabled`` flag on the provider. The following should work by default without raising an
 ``OffchainLookup`` and instead handling it appropriately as per the specification outlined in
 `EIP-3668 <https://eips.ethereum.org/EIPS/eip-3668>`_.
 

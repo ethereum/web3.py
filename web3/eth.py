@@ -415,7 +415,7 @@ class AsyncEth(BaseEth):
         state_override: Optional[CallOverride] = None,
         ccip_read_enabled: Optional[bool] = None,
     ) -> Union[bytes, bytearray]:
-        ccip_read_enabled_on_provider = self.w3.provider.ccip_read_calls_enabled
+        ccip_read_enabled_on_provider = self.w3.provider.global_ccip_read_enabled
         if (
             # default conditions:
             ccip_read_enabled_on_provider and ccip_read_enabled is not False
@@ -828,7 +828,7 @@ class Eth(BaseEth):
         state_override: Optional[CallOverride] = None,
         ccip_read_enabled: Optional[bool] = None,
     ) -> Union[bytes, bytearray]:
-        ccip_read_enabled_on_provider = self.w3.provider.ccip_read_calls_enabled
+        ccip_read_enabled_on_provider = self.w3.provider.global_ccip_read_enabled
         if (
             # default conditions:
             ccip_read_enabled_on_provider and ccip_read_enabled is not False

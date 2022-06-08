@@ -84,7 +84,7 @@ def test_eth_call_offchain_lookup_raises_when_ccip_read_is_disabled(w3, offchain
         )
 
     # test global flag on the provider
-    w3.provider.ccip_read_calls_enabled = False
+    w3.provider.global_ccip_read_enabled = False
 
     with pytest.raises(OffchainLookup):
         offchain_lookup_contract.caller.testOffchainLookup(OFFCHAIN_LOOKUP_TEST_DATA)
@@ -94,7 +94,7 @@ def test_eth_call_offchain_lookup_raises_when_ccip_read_is_disabled(w3, offchain
             OFFCHAIN_LOOKUP_TEST_DATA
         )
 
-    w3.provider.ccip_read_calls_enabled = True  # cleanup
+    w3.provider.global_ccip_read_enabled = True  # cleanup
 
 
 def test_offchain_lookup_call_flag_overrides_provider_flag(
@@ -107,14 +107,14 @@ def test_offchain_lookup_call_flag_overrides_provider_flag(
         mocked_json_data=WEB3PY_AS_HEXBYTES,
     )
 
-    w3.provider.ccip_read_calls_enabled = False
+    w3.provider.global_ccip_read_enabled = False
 
     response = offchain_lookup_contract.functions.testOffchainLookup(
         OFFCHAIN_LOOKUP_TEST_DATA
     ).call(ccip_read_enabled=True)
     assert decode_abi(['string'], response)[0] == 'web3py'
 
-    w3.provider.ccip_read_calls_enabled = True
+    w3.provider.global_ccip_read_enabled = True
 
 
 def test_offchain_lookup_raises_for_improperly_formatted_rest_request_response(
