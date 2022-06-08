@@ -21,10 +21,15 @@ from web3._utils.admin import (
     datadir,
     node_info,
     peers,
+    start_http,
     start_rpc,
     start_ws,
+    stop_http,
     stop_rpc,
     stop_ws,
+)
+from web3._utils.decorators import (
+    deprecated_for,
 )
 from web3._utils.miner import (
     make_dag,
@@ -210,9 +215,12 @@ class BaseGethAdmin(Module):
     _datadir = datadir
     _node_info = node_info
     _peers = peers
-    _start_rpc = start_rpc
+    _start_http = start_http
     _start_ws = start_ws
+    _stop_http = stop_http
     _stop_ws = stop_ws
+    # deprecated
+    _start_rpc = start_rpc
     _stop_rpc = stop_rpc
 
 
@@ -231,25 +239,43 @@ class GethAdmin(BaseGethAdmin):
     def peers(self) -> List[Peer]:
         return self._peers()
 
-    def start_rpc(self,
-                  host: str = "localhost",
-                  port: int = 8546,
-                  cors: str = "",
-                  apis: str = "eth,net,web3") -> bool:
-        return self._start_rpc(host, port, cors, apis)
+    def start_http(
+        self,
+        host: str = "localhost",
+        port: int = 8546,
+        cors: str = "",
+        apis: str = "eth,net,web3"
+    ) -> bool:
+        return self._start_http(host, port, cors, apis)
 
-    def start_ws(self,
-                 host: str = "localhost",
-                 port: int = 8546,
-                 cors: str = "",
-                 apis: str = "eth,net,web3") -> bool:
+    def start_ws(
+        self,
+        host: str = "localhost",
+        port: int = 8546,
+        cors: str = "",
+        apis: str = "eth,net,web3"
+    ) -> bool:
         return self._start_ws(host, port, cors, apis)
 
-    def stop_rpc(self) -> bool:
+    def stop_http(self) -> bool:
         return self._stop_rpc()
 
     def stop_ws(self) -> bool:
         return self._stop_ws()
+
+    @deprecated_for("start_http")
+    def start_rpc(
+        self,
+        host: str = "localhost",
+        port: int = 8546,
+        cors: str = "",
+        apis: str = "eth,net,web3"
+    ) -> bool:
+        return self._start_rpc(host, port, cors, apis)
+
+    @deprecated_for("stop_http")
+    def stop_rpc(self) -> bool:
+        return self._stop_rpc()
 
 
 class AsyncGethAdmin(BaseGethAdmin):
@@ -267,25 +293,43 @@ class AsyncGethAdmin(BaseGethAdmin):
     async def peers(self) -> Awaitable[List[Peer]]:
         return await self._peers()  # type: ignore
 
-    async def start_rpc(self,
-                        host: str = "localhost",
-                        port: int = 8546,
-                        cors: str = "",
-                        apis: str = "eth,net,web3") -> Awaitable[bool]:
-        return await self._start_rpc(host, port, cors, apis)  # type: ignore
+    async def start_http(
+        self,
+        host: str = "localhost",
+        port: int = 8546,
+        cors: str = "",
+        apis: str = "eth,net,web3"
+    ) -> Awaitable[bool]:
+        return await self._start_http(host, port, cors, apis)  # type: ignore
 
-    async def start_ws(self,
-                       host: str = "localhost",
-                       port: int = 8546,
-                       cors: str = "",
-                       apis: str = "eth,net,web3") -> Awaitable[bool]:
+    async def start_ws(
+        self,
+        host: str = "localhost",
+        port: int = 8546,
+        cors: str = "",
+        apis: str = "eth,net,web3"
+    ) -> Awaitable[bool]:
         return await self._start_ws(host, port, cors, apis)  # type: ignore
 
-    async def stop_rpc(self) -> Awaitable[bool]:
-        return await self._stop_rpc()  # type: ignore
+    async def stop_http(self) -> Awaitable[bool]:
+        return await self._stop_http()  # type: ignore
 
     async def stop_ws(self) -> Awaitable[bool]:
         return await self._stop_ws()  # type: ignore
+
+    @deprecated_for("start_http")
+    async def start_rpc(
+        self,
+        host: str = "localhost",
+        port: int = 8546,
+        cors: str = "",
+        apis: str = "eth,net,web3"
+    ) -> Awaitable[bool]:
+        return await self._start_rpc(host, port, cors, apis)
+
+    @deprecated_for("stop_http")
+    async def stop_rpc(self) -> Awaitable[bool]:
+        return await self._stop_rpc()
 
 
 class GethMiner(Module):

@@ -104,15 +104,20 @@ class TestGoEthereumAdminModuleTest(GoEthereumAdminModuleTest):
     def test_admin_peers(self, w3: "Web3") -> None:
         super().test_admin_peers(w3)
 
-    def test_admin_start_stop_rpc(self, w3: "Web3") -> None:
+    def test_admin_start_stop_http(self, w3: "Web3") -> None:
         # This test causes all tests after it to fail on CI if it's allowed to run
-        pytest.xfail(reason='Only one RPC endpoint is allowed to be active at any time')
-        super().test_admin_start_stop_rpc(w3)
+        pytest.xfail(reason='Only one HTTP endpoint is allowed to be active at any time')
+        super().test_admin_start_stop_http(w3)
 
     def test_admin_start_stop_ws(self, w3: "Web3") -> None:
         # This test causes all tests after it to fail on CI if it's allowed to run
         pytest.xfail(reason='Only one WS endpoint is allowed to be active at any time')
         super().test_admin_start_stop_ws(w3)
+
+    def test_admin_start_stop_rpc(self, w3: "Web3") -> None:
+        # This test causes all tests after it to fail on CI if it's allowed to run
+        pytest.xfail(reason='Only one RPC endpoint is allowed to be active at any time')
+        super().test_admin_start_stop_rpc(w3)
 
 
 class TestGoEthereumEthModuleTest(GoEthereumEthModuleTest):
@@ -162,16 +167,22 @@ class TestGoEthereumAsyncAdminModuleTest(GoEthereumAsyncAdminModuleTest):
         await super().test_admin_peers(w3)
 
     @pytest.mark.asyncio
-    async def test_admin_start_stop_rpc(self, w3: "Web3") -> None:
+    async def test_admin_start_stop_http(self, w3: "Web3") -> None:
         # This test causes all tests after it to fail on CI if it's allowed to run
-        pytest.xfail(reason='Only one RPC endpoint is allowed to be active at any time')
-        await super().test_admin_start_stop_rpc(w3)
+        pytest.xfail(reason='Only one HTTP endpoint is allowed to be active at any time')
+        await super().test_admin_start_stop_http(w3)
 
     @pytest.mark.asyncio
     async def test_admin_start_stop_ws(self, w3: "Web3") -> None:
         # This test causes all tests after it to fail on CI if it's allowed to run
         pytest.xfail(reason='Only one WS endpoint is allowed to be active at any time')
         await super().test_admin_start_stop_ws(w3)
+
+    @pytest.mark.asyncio
+    async def test_admin_start_stop_rpc(self, w3: "Web3") -> None:
+        # This test causes all tests after it to fail on CI if it's allowed to run
+        pytest.xfail(reason='Only one RPC endpoint is allowed to be active at any time')
+        await super().test_admin_start_stop_rpc(w3)
 
 
 class TestGoEthereumAsyncNetModuleTest(GoEthereumAsyncNetModuleTest):
