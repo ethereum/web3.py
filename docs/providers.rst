@@ -138,7 +138,7 @@ For example, the following retrieves the client enode endpoint for both geth and
         enode = w3.parity.enode
 
     elif connected and w3.clientVersion.startswith('Geth'):
-        enode = w3.geth.admin.nodeInfo['enode']
+        enode = w3.geth.admin.node_info['enode']
 
     else:
         enode = None
@@ -399,7 +399,7 @@ AsyncHTTPProvider
         ...              'admin' : (AsyncGethAdmin,)})
         ...         },
         ...     middlewares=[]   # See supported middleware section below for middleware options
-        ...     ) 
+        ...     )
         >>> custom_session = ClientSession()  # If you want to pass in your own session
         >>> await w3.provider.cache_async_session(custom_session) # This method is an async method so it needs to be handled accordingly
 
