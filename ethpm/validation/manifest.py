@@ -112,9 +112,7 @@ def validate_manifest_deployments(manifest: Dict[str, Any]) -> None:
         all_contract_types = manifest["contractTypes"].keys()
         all_deployments = manifest["deployments"].values()
         all_deployment_names = extract_contract_types_from_deployments(all_deployments)
-        missing_contract_types = all_deployment_names.difference(
-            all_contract_types
-        )
+        missing_contract_types = all_deployment_names.difference(all_contract_types)
         if missing_contract_types:
             raise EthPMValidationError(
                 f"Manifest missing references to contracts: {missing_contract_types}."

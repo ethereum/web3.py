@@ -59,9 +59,7 @@ class LinkableContract(Contract):
         super().__init__(address=address, **kwargs)  # type: ignore
 
     @classmethod
-    def factory(
-        cls, w3: "Web3", class_name: str = None, **kwargs: Any
-    ) -> Contract:
+    def factory(cls, w3: "Web3", class_name: str = None, **kwargs: Any) -> Contract:
         dep_link_refs = kwargs.get("unlinked_references")
         bytecode = kwargs.get("bytecode")
         needs_bytecode_linking = False
@@ -97,9 +95,7 @@ class LinkableContract(Contract):
         runtime = apply_all_link_refs(
             cls.bytecode_runtime, cls.linked_references, attr_dict
         )
-        linked_class = cls.factory(
-            cls.w3, bytecode_runtime=runtime, bytecode=bytecode
-        )
+        linked_class = cls.factory(cls.w3, bytecode_runtime=runtime, bytecode=bytecode)
         if linked_class.needs_bytecode_linking:
             raise BytecodeLinkingError(
                 "Expected class to be fully linked, but class still needs bytecode linking."

@@ -306,9 +306,7 @@ class Package(object):
         contract_kwargs = generate_contract_factory_kwargs(
             self.manifest["contractTypes"][name]
         )
-        contract_instance = self.w3.eth.contract(
-            address=address, **contract_kwargs
-        )
+        contract_instance = self.w3.eth.contract(address=address, **contract_kwargs)
         # TODO: type ignore may be able to be removed after more of AsyncContract is finished
         return contract_instance  # type: ignore
 
