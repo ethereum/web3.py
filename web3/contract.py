@@ -757,14 +757,6 @@ class AsyncContract(BaseContract):
         )
 
 
-def mk_collision_prop(fn_name: str) -> Callable[[], None]:
-    def collision_fn() -> NoReturn:
-        msg = f"Namespace collision for function name {fn_name} with ConciseContract API."
-        raise AttributeError(msg)
-    collision_fn.__name__ = fn_name
-    return collision_fn
-
-
 class BaseContractConstructor:
     """
     Class for contract constructor API.
@@ -899,34 +891,6 @@ class AsyncContractConstructor(BaseContractConstructor):
         return await self.w3.eth.estimate_gas(  # type: ignore
             transaction, block_identifier=block_identifier
         )
-
-
-class ConciseMethod:
-    ALLOWED_MODIFIERS = {'call', 'estimate_gas', 'transact', 'build_transaction'}
-
-    def __init__(
-        self, function: 'ContractFunction',
-        normalizers: Optional[Tuple[Callable[..., Any], ...]] = None
-    ) -> None:
-        self._function = function
-        self._function._return_data_normalizers = normalizers
-
-    def __call__(self, *args: Any, **kwargs: Any) -> 'ContractFunction':
-        return self.__prepared_function(*args, **kwargs)
-
-    def __prepared_function(self, *args: Any, **kwargs: Any) -> 'ContractFunction':
-        modifier_dict: Dict[Any, Any]
-        if not kwargs:
-            modifier, modifier_dict = 'call', {}
-        elif len(kwargs) == 1:
-            modifier, modifier_dict = kwargs.popitem()
-            if modifier not in self.ALLOWED_MODIFIERS:
-                raise TypeError(
-                    f"The only allowed keyword arguments are: {self.ALLOWED_MODIFIERS}")
-        else:
-            raise TypeError(f"Use up to one keyword argument, one of: {self.ALLOWED_MODIFIERS}")
-
-        return getattr(self._function(*args), modifier)(modifier_dict)
 
 
 class NonExistentFallbackFunction:

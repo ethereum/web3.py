@@ -108,8 +108,7 @@ Contract Factories
 
 These factories are not intended to be initialized directly.
 Instead, create contract objects using the :meth:`w3.eth.contract() <web3.eth.Eth.contract>`
-method. By default, the contract factory is :class:`Contract`. See the
-example in :class:`ConciseContract` for specifying an alternate factory.
+method. By default, the contract factory is :class:`Contract`.
 
 .. py:class:: Contract(address)
 
@@ -117,59 +116,6 @@ example in :class:`ConciseContract` for specifying an alternate factory.
     Ethereum smart contracts.
 
     The address parameter can be a hex address or an ENS name, like ``mycontract.eth``.
-
-.. py:class:: ConciseContract(Contract())
-
-    .. warning:: Deprecated: This method is deprecated in favor of the :class:`~ContractCaller` API
-      or the verbose syntax
-
-    This variation of :class:`Contract` is designed for more succinct read access,
-    without making write access more wordy. This comes at a cost of losing
-    access to features like ``deploy()`` and properties like ``address``. It is
-    recommended to use the classic ``Contract`` for those use cases.
-    Just to be be clear, `ConciseContract` only exposes contract functions and all
-    other `Contract` class methods and properties are not available with the `ConciseContract`
-    API. This includes but is not limited to ``contract.address``, ``contract.abi``, and
-    ``contract.deploy()``.
-
-    Create this type of contract by passing a :py:class:`Contract` instance to
-    :class:`ConciseContract`:
-
-
-    .. code-block:: python
-
-        >>> concise = ConciseContract(myContract)
-
-
-    This variation invokes all methods as a call, so if the classic contract had a method like
-    ``contract.functions.owner().call()``, you could call it with ``concise.owner()`` instead.
-
-    For access to send a transaction or estimate gas, you can add a keyword argument like so:
-
-
-    .. code-block:: python
-
-        >>> concise.withdraw(amount, transact={'from': eth.accounts[1], 'gas': 100000, ...})
-
-        >>>  # which is equivalent to this transaction in the classic contract:
-
-        >>> contract.functions.withdraw(amount).transact({'from': eth.accounts[1], 'gas': 100000, ...})
-
-.. py:class:: ImplicitContract(Contract())
-
-   .. warning:: Deprecated: This method is deprecated in favor of the verbose syntax
-
-   This variation mirrors :py:class:`ConciseContract`, but it invokes all methods as a
-   transaction rather than a call, so if the classic contract had a method like
-   ``contract.functions.owner.transact()``, you could call it with ``implicit.owner()`` instead.
-
-    Create this type of contract by passing a :py:class:`Contract` instance to
-    :class:`ImplicitContract`:
-
-
-    .. code-block:: python
-
-        >>> concise = ImplicitContract(myContract)
 
 
 Properties
