@@ -34,10 +34,13 @@ class RPC:
     admin_datadir = RPCEndpoint("admin_datadir")
     admin_nodeInfo = RPCEndpoint("admin_nodeInfo")
     admin_peers = RPCEndpoint("admin_peers")
-    admin_startRPC = RPCEndpoint("admin_startRPC")
+    admin_startHTTP = RPCEndpoint("admin_startHTTP")
     admin_startWS = RPCEndpoint("admin_startWS")
-    admin_stopRPC = RPCEndpoint("admin_stopRPC")
+    admin_stopHTTP = RPCEndpoint("admin_stopHTTP")
     admin_stopWS = RPCEndpoint("admin_stopWS")
+    # deprecated
+    admin_startRPC = RPCEndpoint("admin_startRPC")
+    admin_stopRPC = RPCEndpoint("admin_stopRPC")
 
     # eth
     eth_accounts = RPCEndpoint("eth_accounts")

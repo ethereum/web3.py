@@ -11,6 +11,7 @@ from web3._utils.rpc_abi import (
     RPC,
 )
 from web3.method import (
+    DeprecatedMethod,
     Method,
     default_root_munger,
 )
@@ -62,8 +63,8 @@ class ServerConnection(Protocol):
         pass
 
 
-start_rpc: Method[ServerConnection] = Method(
-    RPC.admin_startRPC,
+start_http: Method[ServerConnection] = Method(
+    RPC.admin_startHTTP,
     mungers=[admin_start_params_munger],
 )
 
@@ -74,8 +75,8 @@ start_ws: Method[ServerConnection] = Method(
 )
 
 
-stop_rpc: Method[Callable[[], bool]] = Method(
-    RPC.admin_stopRPC,
+stop_http: Method[Callable[[], bool]] = Method(
+    RPC.admin_stopHTTP,
     is_property=True,
 )
 
@@ -84,3 +85,9 @@ stop_ws: Method[Callable[[], bool]] = Method(
     RPC.admin_stopWS,
     is_property=True,
 )
+
+#
+# Deprecated Methods
+#
+start_rpc = DeprecatedMethod(start_http, 'start_rpc', 'start_http')
+stop_rpc = DeprecatedMethod(stop_http, 'stop_rpc', 'stop_http')

@@ -112,9 +112,9 @@ The ``web3.geth.admin`` object exposes methods to interact with the RPC APIs und
         True
 
 
-.. py:method:: start_rpc(host='localhost', port=8545, cors="", apis="eth,net,web3")
+.. py:method:: start_http(host='localhost', port=8545, cors="", apis="eth,net,web3")
 
-    * Delegates to ``admin_startRPC`` RPC Method
+    * Delegates to ``admin_startHTTP`` RPC Method
 
     Starts the HTTP based JSON RPC API webserver on the specified ``host`` and
     ``port``, with the ``rpccorsdomain`` set to the provided ``cors`` value and
@@ -123,8 +123,14 @@ The ``web3.geth.admin`` object exposes methods to interact with the RPC APIs und
 
     .. code-block:: python
 
-        >>> web3.geth.admin.start_rpc()
+        >>> web3.geth.admin.start_http()
         True
+        
+
+.. py:method:: start_rpc()
+
+  .. warning:: Deprecated: This method is deprecated in favor of
+    :meth:`~web3.geth.admin.start_http()`
 
 
 .. py:method:: start_ws(host='localhost', port=8546, cors="", apis="eth,net,web3")
@@ -142,16 +148,22 @@ The ``web3.geth.admin`` object exposes methods to interact with the RPC APIs und
         True
 
 
-.. py:method:: stop_rpc()
+.. py:method:: stop_http()
 
-    * Delegates to ``admin_stopRPC`` RPC Method
+    * Delegates to ``admin_stopHTTP`` RPC Method
 
     Stops the HTTP based JSON RPC server.
 
     .. code-block:: python
 
-        >>> web3.geth.admin.stop_rpc()
+        >>> web3.geth.admin.stop_http()
         True
+
+
+.. py:method:: stop_rpc()
+
+  .. warning:: Deprecated: This method is deprecated in favor of
+    :meth:`~web3.geth.admin.stop_http()`
 
 
 .. py:method:: stop_ws()

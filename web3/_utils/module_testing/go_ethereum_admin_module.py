@@ -45,12 +45,21 @@ class GoEthereumAdminModuleTest:
         result = w3.geth.admin.peers()
         assert len(result) == 1
 
-    def test_admin_start_stop_rpc(self, w3: "Web3") -> None:
-        stop = w3.geth.admin.stop_rpc()
+    def test_admin_start_stop_http(self, w3: "Web3") -> None:
+        stop = w3.geth.admin.stop_http()
         assert stop is True
 
-        start = w3.geth.admin.start_rpc()
+        start = w3.geth.admin.start_http()
         assert start is True
+
+    def test_admin_start_stop_rpc(self, w3: "Web3") -> None:
+        with pytest.warns(DeprecationWarning, match='deprecated in favor of stop_http'):
+            stop = w3.geth.admin.stop_rpc()
+            assert stop is True
+
+        with pytest.warns(DeprecationWarning, match='deprecated in favor of start_http'):
+            start = w3.geth.admin.start_rpc()
+            assert start is True
 
     def test_admin_start_stop_ws(self, w3: "Web3") -> None:
         stop = w3.geth.admin.stop_ws()
@@ -85,12 +94,22 @@ class GoEthereumAsyncAdminModuleTest:
         assert len(result) == 1
 
     @pytest.mark.asyncio
-    async def test_admin_start_stop_rpc(self, w3: "Web3") -> None:
-        stop = await w3.geth.admin.stop_rpc()  # type: ignore
+    async def test_admin_start_stop_http(self, w3: "Web3") -> None:
+        stop = await w3.geth.admin.stop_http()  # type: ignore
         assert stop is True
 
-        start = await w3.geth.admin.start_rpc()  # type: ignore
+        start = await w3.geth.admin.start_http()  # type: ignore
         assert start is True
+
+    @pytest.mark.asyncio
+    async def test_admin_start_stop_rpc(self, w3: "Web3") -> None:
+        with pytest.warns(DeprecationWarning, match='deprecated in favor of stop_http'):
+            stop = await w3.geth.admin.stop_rpc()
+            assert stop is True
+
+        with pytest.warns(DeprecationWarning, match='deprecated in favor of start_http'):
+            start = await w3.geth.admin.start_rpc()
+            assert start is True
 
     @pytest.mark.asyncio
     async def test_admin_start_stop_ws(self, w3: "Web3") -> None:

@@ -451,9 +451,9 @@ Geth
 - :meth:`web3.geth.admin.datadir() <web3.geth.admin.datadir>`
 - :meth:`web3.geth.admin.node_info() <web3.geth.admin.node_info>`
 - :meth:`web3.geth.admin.peers() <web3.geth.admin.peers>`
-- :meth:`web3.geth.admin.start_rpc() <web3.geth.admin.start_rpc>`
+- :meth:`web3.geth.admin.start_http() <web3.geth.admin.start_http>`
 - :meth:`web3.geth.admin.start_ws() <web3.geth.admin.start_ws>`
-- :meth:`web3.geth.admin.stop_rpc() <web3.geth.admin.stop_rpc>`
+- :meth:`web3.geth.admin.stop_http() <web3.geth.admin.stop_http>`
 - :meth:`web3.geth.admin.stop_ws() <web3.geth.admin.stop_ws>`
 - :meth:`web3.geth.personal.ec_recover()`
 - :meth:`web3.geth.personal.import_raw_key() <web3.geth.personal.import_raw_key>`
