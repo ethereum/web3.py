@@ -42,7 +42,6 @@ from eth_utils import (
     to_tuple,
 )
 from eth_utils.toolz import (
-    compose,
     partial,
 )
 from hexbytes import (
@@ -78,9 +77,6 @@ from web3._utils.contracts import (
 )
 from web3._utils.datatypes import (
     PropertyCheckingFactory,
-)
-from web3._utils.decorators import (
-    deprecated_for,
 )
 from web3._utils.empty import (
     empty,
@@ -761,14 +757,6 @@ class AsyncContract(BaseContract):
         )
 
 
-def mk_collision_prop(fn_name: str) -> Callable[[], None]:
-    def collision_fn() -> NoReturn:
-        msg = f"Namespace collision for function name {fn_name} with ConciseContract API."
-        raise AttributeError(msg)
-    collision_fn.__name__ = fn_name
-    return collision_fn
-
-
 class BaseContractConstructor:
     """
     Class for contract constructor API.
@@ -903,138 +891,6 @@ class AsyncContractConstructor(BaseContractConstructor):
         return await self.w3.eth.estimate_gas(  # type: ignore
             transaction, block_identifier=block_identifier
         )
-
-
-class ConciseMethod:
-    ALLOWED_MODIFIERS = {'call', 'estimate_gas', 'transact', 'build_transaction'}
-
-    def __init__(
-        self, function: 'ContractFunction',
-        normalizers: Optional[Tuple[Callable[..., Any], ...]] = None
-    ) -> None:
-        self._function = function
-        self._function._return_data_normalizers = normalizers
-
-    def __call__(self, *args: Any, **kwargs: Any) -> 'ContractFunction':
-        return self.__prepared_function(*args, **kwargs)
-
-    def __prepared_function(self, *args: Any, **kwargs: Any) -> 'ContractFunction':
-        modifier_dict: Dict[Any, Any]
-        if not kwargs:
-            modifier, modifier_dict = 'call', {}
-        elif len(kwargs) == 1:
-            modifier, modifier_dict = kwargs.popitem()
-            if modifier not in self.ALLOWED_MODIFIERS:
-                raise TypeError(
-                    f"The only allowed keyword arguments are: {self.ALLOWED_MODIFIERS}")
-        else:
-            raise TypeError(f"Use up to one keyword argument, one of: {self.ALLOWED_MODIFIERS}")
-
-        return getattr(self._function(*args), modifier)(modifier_dict)
-
-
-class ConciseContract:
-    """
-    An alternative Contract Factory which invokes all methods as `call()`,
-    unless you add a keyword argument. The keyword argument assigns the prep method.
-
-    This call
-
-    > contract.withdraw(amount, transact={'from': eth.accounts[1], 'gas': 100000, ...})
-
-    is equivalent to this call in the classic contract:
-
-    > contract.functions.withdraw(amount).transact({'from': eth.accounts[1], 'gas': 100000, ...})
-    """
-    @deprecated_for(
-        "contract.caller.<method name> or contract.caller({transaction_dict}).<method name>"
-    )
-    def __init__(
-        self,
-        classic_contract: Contract,
-        method_class: Union[Type['ConciseMethod'], Type['ImplicitMethod']] = ConciseMethod
-    ) -> None:
-        classic_contract._return_data_normalizers += CONCISE_NORMALIZERS
-        self._classic_contract = classic_contract
-        self.address = self._classic_contract.address
-
-        protected_fn_names = [fn for fn in dir(self) if not fn.endswith('__')]
-
-        for fn_name in self._classic_contract.functions:
-
-            # Override namespace collisions
-            if fn_name in protected_fn_names:
-                _concise_method = cast('ConciseMethod', mk_collision_prop(fn_name))
-
-            else:
-                _classic_method = getattr(
-                    self._classic_contract.functions,
-                    fn_name)
-
-                _concise_method = method_class(
-                    _classic_method,
-                    self._classic_contract._return_data_normalizers
-                )
-
-            setattr(self, fn_name, _concise_method)
-
-    @classmethod
-    def factory(cls, *args: Any, **kwargs: Any) -> Contract:
-        return compose(cls, Contract.factory(*args, **kwargs))
-
-
-def _none_addr(datatype: str, data: ChecksumAddress) -> Tuple[str, Optional[ChecksumAddress]]:
-    if datatype == 'address' and int(data, base=16) == 0:
-        return (datatype, None)
-    else:
-        return (datatype, data)
-
-
-CONCISE_NORMALIZERS: Tuple[Callable[..., Any]] = (
-    _none_addr,
-)
-
-
-class ImplicitMethod(ConciseMethod):
-    def __call_by_default(self, args: Any) -> bool:
-        function_abi = find_matching_fn_abi(self._function.contract_abi,
-                                            self._function.w3.codec,
-                                            fn_identifier=self._function.function_identifier,
-                                            args=args)
-
-        return function_abi['constant'] if 'constant' in function_abi.keys() else False
-
-    @deprecated_for("classic contract syntax. Ex: contract.functions.withdraw(amount).transact({})")
-    def __call__(self, *args: Any, **kwargs: Any) -> 'ContractFunction':
-        # Modifier is not provided and method is not constant/pure do a transaction instead
-        if not kwargs and not self.__call_by_default(args):
-            return super().__call__(*args, transact={})
-        else:
-            return super().__call__(*args, **kwargs)
-
-
-class ImplicitContract(ConciseContract):
-    """
-    ImplicitContract class is similar to the ConciseContract class
-    however it performs a transaction instead of a call if no modifier
-    is given and the method is not marked 'constant' in the ABI.
-
-    The transaction will use the default account to send the transaction.
-
-    This call
-
-    > contract.withdraw(amount)
-
-    is equivalent to this call in the classic contract:
-
-    > contract.functions.withdraw(amount).transact({})
-    """
-    def __init__(
-        self,
-        classic_contract: Contract,
-        method_class: Union[Type[ImplicitMethod], Type[ConciseMethod]] = ImplicitMethod
-    ) -> None:
-        super().__init__(classic_contract, method_class=method_class)
 
 
 class NonExistentFallbackFunction:

@@ -68,7 +68,6 @@ from web3._utils.transactions import (
 from web3.contract import (
     AsyncContract,
     AsyncContractCaller,
-    ConciseContract,
     Contract,
     ContractCaller,
 )
@@ -335,7 +334,7 @@ class BaseEth(Module):
 
     def set_contract_factory(
         self, contractFactory: Type[Union[Contract, AsyncContract,
-                                    ConciseContract, ContractCaller, AsyncContractCaller]]
+                                    ContractCaller, AsyncContractCaller]]
     ) -> None:
         self.defaultContractFactory = contractFactory
 
@@ -585,7 +584,7 @@ class AsyncEth(BaseEth):
 class Eth(BaseEth):
     account = Account()
     iban = Iban
-    defaultContractFactory: Type[Union[Contract, ConciseContract, ContractCaller]] = Contract
+    defaultContractFactory: Type[Union[Contract, ContractCaller]] = Contract
 
     def namereg(self) -> NoReturn:
         raise NotImplementedError()
