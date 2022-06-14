@@ -1,0 +1,1 @@
+removed `Optional` type hints for `passphrase` arguments that aren't actually optional
