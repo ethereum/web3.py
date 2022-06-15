@@ -43,7 +43,7 @@ ALL_URI_BACKENDS = [
 
 @to_tuple
 def get_translatable_backends_for_uri(
-    uri: URI
+    uri: URI,
 ) -> Generator[Type[BaseURIBackend], None, None]:
     # type ignored because of conflict with instantiating BaseURIBackend
     for backend in ALL_URI_BACKENDS:
@@ -56,7 +56,7 @@ def get_translatable_backends_for_uri(
 
 @to_tuple
 def get_resolvable_backends_for_uri(
-    uri: URI
+    uri: URI,
 ) -> Generator[Type[BaseURIBackend], None, None]:
     # special case the default IPFS backend to the first slot.
     default_ipfs = get_ipfs_backend_class()

@@ -12,7 +12,7 @@ from ethpm import (
 
 def get_ethpm_spec_manifest(use_case: str, filename: str) -> Dict[str, Any]:
     ethpm_spec_dir = get_ethpm_spec_dir()
-    return json.loads((ethpm_spec_dir / 'examples' / use_case / filename).read_text())
+    return json.loads((ethpm_spec_dir / "examples" / use_case / filename).read_text())
 
 
 def get_ethpm_local_manifest(use_case: str, filename: str) -> Dict[str, Any]:

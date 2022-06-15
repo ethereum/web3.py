@@ -408,7 +408,7 @@ def _contract_type(
         contract_type_data = all_type_data
 
     if "compiler" in contract_type_data:
-        compiler_info = contract_type_data.pop('compiler')
+        compiler_info = contract_type_data.pop("compiler")
         contract_type_ref = alias if alias else name
         manifest_with_compilers = add_compilers_to_manifest(
             compiler_info, contract_type_ref, manifest
@@ -422,7 +422,9 @@ def _contract_type(
             ["contractTypes", alias],
             assoc(contract_type_data, "contractType", name),
         )
-    return assoc_in(manifest_with_compilers, ["contractTypes", name], contract_type_data)
+    return assoc_in(
+        manifest_with_compilers, ["contractTypes", name], contract_type_data
+    )
 
 
 def add_compilers_to_manifest(
@@ -432,7 +434,7 @@ def add_compilers_to_manifest(
     Adds a compiler information object to a manifest's top-level `compilers`.
     """
     if "compilers" not in manifest:
-        compiler_info['contractTypes'] = [contract_type]
+        compiler_info["contractTypes"] = [contract_type]
         return assoc_in(manifest, ["compilers"], [compiler_info])
 
     updated_compiler_info = update_compilers_object(
@@ -443,7 +445,9 @@ def add_compilers_to_manifest(
 
 @to_list
 def update_compilers_object(
-    new_compiler: Dict[str, Any], contract_type: str, previous_compilers: List[Dict[str, Any]]
+    new_compiler: Dict[str, Any],
+    contract_type: str,
+    previous_compilers: List[Dict[str, Any]],
 ) -> Iterable[Dict[str, Any]]:
     """
     Updates a manifest's top-level `compilers` with a new compiler information object.
@@ -528,9 +532,9 @@ def normalize_contract_type(
                 contract_type_data["evm"]["deployedBytecode"]
             )
     if "devdoc" in contract_type_data:
-        yield "devdoc", contract_type_data['devdoc']
+        yield "devdoc", contract_type_data["devdoc"]
     if "userdoc" in contract_type_data:
-        yield "userdoc", contract_type_data['userdoc']
+        yield "userdoc", contract_type_data["userdoc"]
     # make sure metadata isn't an empty string in solc output
     if "metadata" in contract_type_data and contract_type_data["metadata"]:
         yield "compiler", normalize_compiler_object(

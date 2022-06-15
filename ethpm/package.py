@@ -195,8 +195,8 @@ class Package(object):
         """
         All contract types included in this package.
         """
-        if 'contractTypes' in self.manifest:
-            return sorted(self.manifest['contractTypes'].keys())
+        if "contractTypes" in self.manifest:
+            return sorted(self.manifest["contractTypes"].keys())
         else:
             raise ValueError("No contract types found in manifest; {self.__repr__()}.")
 
@@ -306,9 +306,7 @@ class Package(object):
         contract_kwargs = generate_contract_factory_kwargs(
             self.manifest["contractTypes"][name]
         )
-        contract_instance = self.w3.eth.contract(
-            address=address, **contract_kwargs
-        )
+        contract_instance = self.w3.eth.contract(address=address, **contract_kwargs)
         # TODO: type ignore may be able to be removed after more of AsyncContract is finished
         return contract_instance  # type: ignore
 
@@ -372,9 +370,7 @@ class Package(object):
         linked_deployments = get_linked_deployments(deployments)
         if linked_deployments:
             for deployment_data in linked_deployments.values():
-                on_chain_bytecode = self.w3.eth.get_code(
-                    deployment_data["address"]
-                )
+                on_chain_bytecode = self.w3.eth.get_code(deployment_data["address"])
                 unresolved_linked_refs = normalize_linked_references(
                     deployment_data["runtimeBytecode"]["linkDependencies"]
                 )
@@ -392,15 +388,15 @@ class Package(object):
         self, deployments: Dict[str, DeploymentData]
     ) -> Iterable[Tuple[str, Contract]]:
         for deployment_name, deployment_data in deployments.items():
-            if deployment_data['contractType'] not in self.contract_types:
+            if deployment_data["contractType"] not in self.contract_types:
                 raise EthPMValidationError(
                     f"Contract type: {deployment_data['contractType']} for alias: "
                     f"{deployment_name} not found. Available contract types include: "
                     f"{self.contract_types}."
                 )
             contract_instance = self.get_contract_instance(
-                ContractName(deployment_data['contractType']),
-                deployment_data['address'],
+                ContractName(deployment_data["contractType"]),
+                deployment_data["address"],
             )
             yield deployment_name, contract_instance
 

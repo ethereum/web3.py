@@ -72,7 +72,9 @@ def validate_registry_uri(uri: str) -> None:
     if pkg_name:
         validate_package_name(pkg_name)
     if not pkg_name and pkg_version:
-        raise EthPMValidationError("Registry URIs cannot provide a version without a package name.")
+        raise EthPMValidationError(
+            "Registry URIs cannot provide a version without a package name."
+        )
     if pkg_version:
         validate_escaped_string(pkg_version)
 
@@ -88,9 +90,9 @@ def validate_registry_uri_authority(auth: str) -> None:
                 f"{auth} is not a valid registry URI authority. "
                 "Please try again with a valid registry URI."
             )
-        address, chain_id = auth.split(':')
+        address, chain_id = auth.split(":")
     else:
-        address, chain_id = auth, '1'
+        address, chain_id = auth, "1"
 
     if is_ens_domain(address) is False and not is_checksum_address(address):
         raise EthPMValidationError(
