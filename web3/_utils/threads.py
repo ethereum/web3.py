@@ -25,36 +25,45 @@ class Timeout(Exception):
     """
     A limited subset of the `gevent.Timeout` context manager.
     """
+
     seconds = None
     exception = None
     begun_at = None
     is_running = None
 
     def __init__(
-        self, seconds: float = None, exception: Type[BaseException] = None, *args: Any,
-        **kwargs: Any
+        self,
+        seconds: float = None,
+        exception: Type[BaseException] = None,
+        *args: Any,
+        **kwargs: Any,
     ) -> None:
         self.seconds = seconds
         self.exception = exception
 
-    def __enter__(self) -> 'Timeout':
+    def __enter__(self) -> "Timeout":
         self.start()
         return self
 
     def __exit__(
-        self, exc_type: Type[BaseException], exc_val: BaseException, exc_tb: TracebackType
+        self,
+        exc_type: Type[BaseException],
+        exc_val: BaseException,
+        exc_tb: TracebackType,
     ) -> Literal[False]:
         return False
 
     def __str__(self) -> str:
         if self.seconds is None:
-            return ''
+            return ""
         return f"{self.seconds} seconds"
 
     @property
     def expire_at(self) -> int:
         if self.seconds is None:
-            raise ValueError("Timeouts with `seconds == None` do not have an expiration time")
+            raise ValueError(
+                "Timeouts with `seconds == None` do not have an expiration time"
+            )
         elif self.begun_at is None:
             raise ValueError("Timeout has not been started")
         return self.begun_at + self.seconds
@@ -91,7 +100,10 @@ class Timeout(Exception):
 
 class ThreadWithReturn(threading.Thread, Generic[TReturn]):
     def __init__(
-        self, target: Callable[..., TReturn] = None, args: Any = None, kwargs: Any = None
+        self,
+        target: Callable[..., TReturn] = None,
+        args: Any = None,
+        kwargs: Any = None,
     ) -> None:
         super().__init__(
             target=target,

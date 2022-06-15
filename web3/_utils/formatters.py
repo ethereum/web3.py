@@ -45,12 +45,15 @@ def hex_to_integer(value: HexStr) -> int:
 integer_to_hex = hex
 
 
-def apply_formatters_to_args(*formatters: Callable[[TValue], TReturn]) -> Callable[..., TReturn]:
-    return compose(*(
-        apply_formatter_at_index(formatter, index)
-        for index, formatter
-        in enumerate(formatters)
-    ))
+def apply_formatters_to_args(
+    *formatters: Callable[[TValue], TReturn]
+) -> Callable[..., TReturn]:
+    return compose(
+        *(
+            apply_formatter_at_index(formatter, index)
+            for index, formatter in enumerate(formatters)
+        )
+    )
 
 
 @curry
@@ -84,8 +87,10 @@ def recursive_map(func: Callable[..., TReturn], data: Any) -> TReturn:
     Apply func to data, and any collection items inside data (using map_collection).
     Define func so that it only applies to the type of value that you want it to apply to.
     """
+
     def recurse(item: Any) -> TReturn:
         return recursive_map(func, item)
+
     items_mapped = map_collection(recurse, data)
     return func(items_mapped)
 
@@ -93,18 +98,22 @@ def recursive_map(func: Callable[..., TReturn], data: Any) -> TReturn:
 def static_return(value: TValue) -> Callable[..., TValue]:
     def inner(*args: Any, **kwargs: Any) -> TValue:
         return value
+
     return inner
 
 
 def static_result(value: TValue) -> Callable[..., Dict[str, TValue]]:
     def inner(*args: Any, **kwargs: Any) -> Dict[str, TValue]:
-        return {'result': value}
+        return {"result": value}
+
     return inner
 
 
 @curry
 @to_dict
-def apply_key_map(key_mappings: Dict[Any, Any], value: Dict[Any, Any]) -> Iterable[Tuple[Any, Any]]:
+def apply_key_map(
+    key_mappings: Dict[Any, Any], value: Dict[Any, Any]
+) -> Iterable[Tuple[Any, Any]]:
     for key, item in value.items():
         if key in key_mappings:
             yield key_mappings[key], item

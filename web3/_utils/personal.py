@@ -66,8 +66,9 @@ lock_account: Method[Callable[[ChecksumAddress], bool]] = Method(
 
 
 class UnlockAccountWrapper(Protocol):
-    def __call__(self, account: ChecksumAddress, passphrase: str,
-                 duration: Optional[int] = None) -> bool:
+    def __call__(
+        self, account: ChecksumAddress, passphrase: str, duration: Optional[int] = None
+    ) -> bool:
         pass
 
 
@@ -83,7 +84,9 @@ sign: Method[Callable[[str, ChecksumAddress, Optional[str]], HexStr]] = Method(
 )
 
 
-sign_typed_data: Method[Callable[[Dict[str, Any], ChecksumAddress, str], HexStr]] = Method(
+sign_typed_data: Method[
+    Callable[[Dict[str, Any], ChecksumAddress, str], HexStr]
+] = Method(
     RPC.personal_signTypedData,
     mungers=[default_root_munger],
 )

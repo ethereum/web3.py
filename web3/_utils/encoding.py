@@ -57,8 +57,9 @@ from web3.datastructures import (
 )
 
 
-def hex_encode_abi_type(abi_type: TypeStr, value: Any,
-                        force_size: Optional[int] = None) -> HexStr:
+def hex_encode_abi_type(
+    abi_type: TypeStr, value: Any, force_size: Optional[int] = None
+) -> HexStr:
     """
     Encodes value into a hex string in format of abi_type
     """
@@ -69,7 +70,9 @@ def hex_encode_abi_type(abi_type: TypeStr, value: Any,
     if is_array_type(abi_type):
         sub_type = sub_type_of_array_type(abi_type)
         return HexStr(
-            "".join([remove_0x_prefix(hex_encode_abi_type(sub_type, v, 256)) for v in value])
+            "".join(
+                [remove_0x_prefix(hex_encode_abi_type(sub_type, v, 256)) for v in value]
+            )
         )
     elif is_bool_type(abi_type):
         return to_hex_with_size(value, data_size)
@@ -87,9 +90,7 @@ def hex_encode_abi_type(abi_type: TypeStr, value: Any,
     elif is_string_type(abi_type):
         return to_hex(text=value)
     else:
-        raise ValueError(
-            f"Unsupported ABI type: {abi_type}"
-        )
+        raise ValueError(f"Unsupported ABI type: {abi_type}")
 
 
 def to_hex_twos_compliment(value: Any, bit_size: int) -> HexStr:
@@ -121,10 +122,10 @@ def pad_hex(value: Any, bit_size: int) -> HexStr:
 
 
 def trim_hex(hexstr: HexStr) -> HexStr:
-    if hexstr.startswith('0x0'):
-        hexstr = HexStr(re.sub('^0x0+', '0x', hexstr))
-        if hexstr == '0x':
-            hexstr = HexStr('0x0')
+    if hexstr.startswith("0x0"):
+        hexstr = HexStr(re.sub("^0x0+", "0x", hexstr))
+        if hexstr == "0x":
+            hexstr = HexStr("0x0")
     return hexstr
 
 
@@ -133,7 +134,7 @@ def pad_bytes(fill_with: bytes, num_bytes: int, unpadded: bytes) -> bytes:
     return unpadded.rjust(num_bytes, fill_with)
 
 
-zpad_bytes = pad_bytes(b'\0')
+zpad_bytes = pad_bytes(b"\0")
 
 
 @curry
@@ -184,6 +185,7 @@ class FriendlyJsonSerde:
     information on which fields failed, to show more
     helpful information in the raised error messages.
     """
+
     def _json_mapping_errors(self, mapping: Dict[Any, Any]) -> Iterable[str]:
         for key, val in mapping.items():
             try:
@@ -198,19 +200,20 @@ class FriendlyJsonSerde:
             except TypeError as exc:
                 yield f"{index}: because ({exc})"
 
-    def _friendly_json_encode(self, obj: Dict[Any, Any],
-                              cls: Optional[Type[json.JSONEncoder]] = None) -> str:
+    def _friendly_json_encode(
+        self, obj: Dict[Any, Any], cls: Optional[Type[json.JSONEncoder]] = None
+    ) -> str:
         try:
             encoded = json.dumps(obj, cls=cls)
             return encoded
         except TypeError as full_exception:
-            if hasattr(obj, 'items'):
-                item_errors = '; '.join(self._json_mapping_errors(obj))
+            if hasattr(obj, "items"):
+                item_errors = "; ".join(self._json_mapping_errors(obj))
                 raise TypeError(
                     f"dict had unencodable value at keys: {{{item_errors}}}"
                 )
             elif is_list_like(obj):
-                element_errors = '; '.join(self._json_list_errors(obj))
+                element_errors = "; ".join(self._json_list_errors(obj))
                 raise TypeError(
                     f"list had unencodable value at index: [{element_errors}]"
                 )
@@ -222,13 +225,14 @@ class FriendlyJsonSerde:
             decoded = json.loads(json_str)
             return decoded
         except json.decoder.JSONDecodeError as exc:
-            err_msg = f'Could not decode {json_str!r} because of {exc}.'
+            err_msg = f"Could not decode {json_str!r} because of {exc}."
             # Calling code may rely on catching JSONDecodeError to recognize bad json
             # so we have to re-raise the same type.
             raise json.decoder.JSONDecodeError(err_msg, exc.doc, exc.pos)
 
-    def json_encode(self, obj: Dict[Any, Any],
-                    cls: Optional[Type[json.JSONEncoder]] = None) -> str:
+    def json_encode(
+        self, obj: Dict[Any, Any], cls: Optional[Type[json.JSONEncoder]] = None
+    ) -> str:
         try:
             return self._friendly_json_encode(obj, cls=cls)
         except TypeError as exc:
@@ -239,9 +243,7 @@ def to_4byte_hex(hex_or_str_or_bytes: Union[HexStr, str, bytes, int]) -> HexStr:
     size_of_4bytes = 4 * 8
     byte_str = hexstr_if_str(to_bytes, hex_or_str_or_bytes)
     if len(byte_str) > 4:
-        raise ValueError(
-            f'expected value of size 4 bytes. Got: {len(byte_str)} bytes'
-        )
+        raise ValueError(f"expected value of size 4 bytes. Got: {len(byte_str)} bytes")
     hex_str = encode_hex(byte_str)
     return pad_hex(hex_str, size_of_4bytes)
 
@@ -263,6 +265,7 @@ def encode_single_packed(_type: TypeStr, value: Any) -> bytes:
         grammar as abi_type_parser,
     )
     from eth_abi.registry import has_arrlist, registry
+
     abi_type = abi_type_parser.parse(_type)
     if has_arrlist(_type):
         item_encoder = registry.get_encoder(abi_type.item_type.to_type_str())
@@ -270,9 +273,10 @@ def encode_single_packed(_type: TypeStr, value: Any) -> bytes:
             return DynamicArrayPackedEncoder(item_encoder=item_encoder).encode(value)
         else:
             raise NotImplementedError(
-                "Fixed arrays are not implemented in this packed encoder prototype")
+                "Fixed arrays are not implemented in this packed encoder prototype"
+            )
     elif abi_type.base == "string":
-        return codecs.encode(value, 'utf8')
+        return codecs.encode(value, "utf8")
     elif abi_type.base == "bytes":
         return value
     return None
@@ -288,7 +292,7 @@ class Web3JsonEncoder(json.JSONEncoder):
 
 
 def to_json(obj: Dict[Any, Any]) -> str:
-    '''
+    """
     Convert a complex object (like a transaction object) to a JSON string
-    '''
+    """
     return FriendlyJsonSerde().json_encode(obj, cls=Web3JsonEncoder)

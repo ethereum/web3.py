@@ -24,13 +24,14 @@ def reject_recursive_repeats(to_wrap: Callable[..., Any]) -> Callable[..., Any]:
         thread_id = threading.get_ident()
         thread_local_args = (thread_id,) + arg_instances
         if thread_local_args in to_wrap.__already_called:  # type: ignore
-            raise ValueError(f'Recursively called {to_wrap} with {args!r}')
+            raise ValueError(f"Recursively called {to_wrap} with {args!r}")
         to_wrap.__already_called[thread_local_args] = True  # type: ignore
         try:
             wrapped_val = to_wrap(*args)
         finally:
             del to_wrap.__already_called[thread_local_args]  # type: ignore
         return wrapped_val
+
     return wrapped
 
 
@@ -42,12 +43,16 @@ def deprecated_for(replace_message: str) -> Callable[..., Any]:
     def toAscii(arg):
         ...
     """
+
     def decorator(to_wrap: TFunc) -> TFunc:
         @functools.wraps(to_wrap)
         def wrapper(*args: Any, **kwargs: Any) -> Callable[..., Any]:
             warnings.warn(
                 f"{to_wrap.__name__} is deprecated in favor of {replace_message}",
-                category=DeprecationWarning)
+                category=DeprecationWarning,
+            )
             return to_wrap(*args, **kwargs)
+
         return cast(TFunc, wrapper)
+
     return decorator

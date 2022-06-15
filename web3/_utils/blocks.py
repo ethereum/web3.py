@@ -27,7 +27,7 @@ def is_predefined_block_number(value: Any) -> bool:
         # one of the words in: {"latest", "pending", "earliest"}
         # We cannot decode the bytes as utf8, because random bytes likely won't be valid.
         # So we speculatively decode as 'latin-1', which cannot fail.
-        value_text = value.decode('latin-1')
+        value_text = value.decode("latin-1")
     elif is_integer(value):
         return False
     else:

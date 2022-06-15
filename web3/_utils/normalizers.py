@@ -80,6 +80,7 @@ def implicitly_identity(
             return type_str, data
         else:
             return modified
+
     return wrapper
 
 
@@ -89,16 +90,18 @@ def implicitly_identity(
 
 
 @implicitly_identity
-def addresses_checksummed(type_str: TypeStr, data: Any) -> Tuple[TypeStr, ChecksumAddress]:
-    if type_str == 'address':
+def addresses_checksummed(
+    type_str: TypeStr, data: Any
+) -> Tuple[TypeStr, ChecksumAddress]:
+    if type_str == "address":
         return type_str, to_checksum_address(data)
     return None
 
 
 @implicitly_identity
 def decode_abi_strings(type_str: TypeStr, data: Any) -> Tuple[TypeStr, str]:
-    if type_str == 'string':
-        return type_str, codecs.decode(data, 'utf8', 'backslashreplace')
+    if type_str == "string":
+        return type_str, codecs.decode(data, "utf8", "backslashreplace")
     return None
 
 
@@ -115,6 +118,7 @@ def parse_basic_type_str(
     that type string does not represent a basic type (i.e. non-tuple type) or is
     not parsable, the normalizer does nothing.
     """
+
     @functools.wraps(old_normalizer)
     def new_normalizer(type_str: TypeStr, data: Any) -> Tuple[TypeStr, Any]:
         try:
@@ -136,7 +140,7 @@ def parse_basic_type_str(
 def abi_bytes_to_hex(
     abi_type: BasicType, type_str: TypeStr, data: Any
 ) -> Optional[Tuple[TypeStr, HexStr]]:
-    if abi_type.base != 'bytes' or abi_type.is_array:
+    if abi_type.base != "bytes" or abi_type.is_array:
         return None
 
     bytes_data = hexstr_if_str(to_bytes, data)
@@ -150,7 +154,7 @@ def abi_bytes_to_hex(
             f"but instead was {len(bytes_data)}: {data!r}"
         )
 
-    padded = bytes_data.ljust(num_bytes, b'\0')
+    padded = bytes_data.ljust(num_bytes, b"\0")
     return type_str, to_hex(padded)
 
 
@@ -159,7 +163,7 @@ def abi_bytes_to_hex(
 def abi_int_to_hex(
     abi_type: BasicType, type_str: TypeStr, data: Any
 ) -> Optional[Tuple[TypeStr, HexStr]]:
-    if abi_type.base == 'uint' and not abi_type.is_array:
+    if abi_type.base == "uint" and not abi_type.is_array:
         # double check?
         return type_str, hexstr_if_str(to_hex, data)
     return None
@@ -167,14 +171,14 @@ def abi_int_to_hex(
 
 @implicitly_identity
 def abi_string_to_hex(type_str: TypeStr, data: Any) -> Optional[Tuple[TypeStr, str]]:
-    if type_str == 'string':
+    if type_str == "string":
         return type_str, text_if_str(to_hex, data)
     return None
 
 
 @implicitly_identity
 def abi_string_to_text(type_str: TypeStr, data: Any) -> Optional[Tuple[TypeStr, str]]:
-    if type_str == 'string':
+    if type_str == "string":
         return type_str, text_if_str(to_text, data)
     return None
 
@@ -184,14 +188,16 @@ def abi_string_to_text(type_str: TypeStr, data: Any) -> Optional[Tuple[TypeStr, 
 def abi_bytes_to_bytes(
     abi_type: BasicType, type_str: TypeStr, data: Any
 ) -> Optional[Tuple[TypeStr, HexStr]]:
-    if abi_type.base == 'bytes' and not abi_type.is_array:
+    if abi_type.base == "bytes" and not abi_type.is_array:
         return type_str, hexstr_if_str(to_bytes, data)
     return None
 
 
 @implicitly_identity
-def abi_address_to_hex(type_str: TypeStr, data: Any) -> Optional[Tuple[TypeStr, ChecksumAddress]]:
-    if type_str == 'address':
+def abi_address_to_hex(
+    type_str: TypeStr, data: Any
+) -> Optional[Tuple[TypeStr, ChecksumAddress]]:
+    if type_str == "address":
         validate_address(data)
         if is_binary_address(data):
             return type_str, to_checksum_address(data)
@@ -200,7 +206,7 @@ def abi_address_to_hex(type_str: TypeStr, data: Any) -> Optional[Tuple[TypeStr, 
 
 @curry
 def abi_ens_resolver(w3: "Web3", type_str: TypeStr, val: Any) -> Tuple[TypeStr, Any]:
-    if type_str == 'address' and is_ens_name(val):
+    if type_str == "address" and is_ens_name(val):
         if w3 is None:
             raise InvalidAddress(
                 f"Could not look up name {val!r} because no web3"
@@ -208,8 +214,7 @@ def abi_ens_resolver(w3: "Web3", type_str: TypeStr, val: Any) -> Tuple[TypeStr, 
             )
         elif w3.ens is None:
             raise InvalidAddress(
-                f"Could not look up name {val!r} because ENS is"
-                " set to None"
+                f"Could not look up name {val!r} because ENS is" " set to None"
             )
         elif int(w3.net.version) != 1 and not isinstance(w3.ens, StaticENS):
             raise InvalidAddress(
