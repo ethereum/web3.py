@@ -259,12 +259,12 @@ def encode_transaction_data(
     elif is_text(fn_identifier):
         fn_abi, fn_selector, fn_arguments = get_function_info(
             # type ignored b/c fn_id here is always str b/c FallbackFn is handled above
-            fn_identifier,
+            fn_identifier,  # type: ignore
             w3.codec,
             contract_abi,
             fn_abi,
             args,
-            kwargs,  # type: ignore
+            kwargs,
         )
     else:
         raise TypeError("Unsupported function identifier")
