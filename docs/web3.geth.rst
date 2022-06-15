@@ -185,6 +185,33 @@ GethPersonal API
 
 The following methods are available on the ``web3.geth.personal`` namespace.
 
+.. py:method:: ec_recover(message, signature)
+
+    * Delegates to ``personal_ecRecover`` RPC Method
+
+    Returns the address associated with a signature created with ``personal.sign``.
+
+    .. code-block:: python
+
+        >>> web3.geth.personal.sign('snakesnax', '0x9ad3c920dce5cea9a31d69467bb8d7c954e5acff', '')
+        '0x8eb502165dec388af1c45c4bc835fd1852eaf358316ae5d248a40af8cd8dd7dc6373a6e606d8b411f788718b8b09a6cf87d980639731f530e4481148f14abfdf1b'
+        >>> web3.geth.personal.ec_recover('snakesnax', '0x8eb502165dec388af1c45c4bc835fd1852eaf358316ae5d248a40af8cd8dd7dc6373a6e606d8b411f788718b8b09a6cf87d980639731f530e4481148f14abfdf1b')
+        '0x9ad3c920dce5cea9a31d69467bb8d7c954e5acff'
+
+
+.. py:method:: import_raw_key(private_key, passphrase)
+
+    * Delegates to ``personal_importRawKey`` RPC Method
+
+    Adds the given ``private_key`` to the node's keychain, encrypted with the
+    given ``passphrase``.  Returns the address of the imported account.
+
+    .. code-block:: python
+
+        >>> web3.geth.personal.import_raw_key(some_private_key, 'the-passphrase')
+        '0xd3CdA913deB6f67967B99D67aCDFa1712C293601'
+
+
 .. py:method:: list_accounts()
 
     * Delegates to ``personal_listAccounts`` RPC Method
@@ -216,20 +243,19 @@ The following methods are available on the ``web3.geth.personal`` namespace.
         }]
 
 
-.. py:method:: import_raw_key(self, private_key, passphrase)
+.. py:method:: lock_account(account)
 
-    * Delegates to ``personal_importRawKey`` RPC Method
+    * Delegates to ``personal_lockAccount`` RPC Method
 
-    Adds the given ``private_key`` to the node's keychain, encrypted with the
-    given ``passphrase``.  Returns the address of the imported account.
+    Locks the given ``account``.
 
     .. code-block:: python
 
-        >>> web3.geth.personal.import_raw_key(some_private_key, 'the-passphrase')
-        '0xd3CdA913deB6f67967B99D67aCDFa1712C293601'
+        >>> web3.geth.personal.lock_account('0xd3CdA913deB6f67967B99D67aCDFa1712C293601')
+        True
 
 
-.. py:method:: new_account(self, passphrase)
+.. py:method:: new_account(passphrase)
 
     * Delegates to ``personal_newAccount`` RPC Method
 
@@ -242,18 +268,26 @@ The following methods are available on the ``web3.geth.personal`` namespace.
         '0xd3CdA913deB6f67967B99D67aCDFa1712C293601'
 
 
-.. py:method:: lock_account(self, account)
+.. py:method:: send_transaction(transaction, passphrase)
 
-    * Delegates to ``personal_lockAccount`` RPC Method
+    * Delegates to ``personal_sendTransaction`` RPC Method
 
-    Locks the given ``account``.
+    Sends the transaction.
 
+
+.. py:method:: sign(message, account, passphrase)
+
+    * Delegates to ``personal_sign`` RPC Method
+
+    Generates an Ethereum-specific signature for ``keccak256("\x19Ethereum Signed Message:\n" + len(message) + message))``
+    
     .. code-block:: python
 
-        >>> web3.geth.personal.lock_account('0xd3CdA913deB6f67967B99D67aCDFa1712C293601')
+        >>> web3.geth.personal.sign('snakesnax', '0x9ad3c920dce5cea9a31d69467bb8d7c954e5acff', '')
+        '0x8eb502165dec388af1c45c4bc835fd1852eaf358316ae5d248a40af8cd8dd7dc6373a6e606d8b411f788718b8b09a6cf87d980639731f530e4481148f14abfdf1b'
 
 
-.. py:method:: unlock_account(self, account, passphrase, duration=None)
+.. py:method:: unlock_account(account, passphrase, duration=None)
 
     * Delegates to ``personal_unlockAccount`` RPC Method
 
@@ -269,13 +303,6 @@ The following methods are available on the ``web3.geth.personal`` namespace.
         False
         >>> web3.geth.personal.unlock_account('0xd3CdA913deB6f67967B99D67aCDFa1712C293601', 'the-passphrase')
         True
-
-
-.. py:method:: send_transaction(self, transaction, passphrase)
-
-    * Delegates to ``personal_sendTransaction`` RPC Method
-
-    Sends the transaction.
 
 
 .. py:module:: web3.geth.txpool

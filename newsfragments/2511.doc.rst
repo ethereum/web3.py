@@ -1,0 +1,1 @@
+added geth personal_sign and personal_ec_recover documentation

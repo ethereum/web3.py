@@ -113,14 +113,14 @@ class GethPersonal(BaseGethPersonal):
     def send_transaction(self, transaction: TxParams, passphrase: str) -> HexBytes:
         return self._send_transaction(transaction, passphrase)
 
-    def sign(self, message: str, account: ChecksumAddress, password: Optional[str]) -> HexStr:
-        return self._sign(message, account, password)
+    def sign(self, message: str, account: ChecksumAddress, passphrase: str) -> HexStr:
+        return self._sign(message, account, passphrase)
 
     def sign_typed_data(self,
                         message: Dict[str, Any],
                         account: ChecksumAddress,
-                        password: Optional[str]) -> HexStr:
-        return self._sign_typed_data(message, account, password)
+                        passphrase: str) -> HexStr:
+        return self._sign_typed_data(message, account, passphrase)
 
     def unlock_account(self,
                        account: ChecksumAddress,
@@ -156,14 +156,14 @@ class AsyncGethPersonal(BaseGethPersonal):
     async def sign(self,
                    message: str,
                    account: ChecksumAddress,
-                   password: Optional[str]) -> Awaitable[HexStr]:
-        return await self._sign(message, account, password)  # type: ignore
+                   passphrase: str) -> Awaitable[HexStr]:
+        return await self._sign(message, account, passphrase)  # type: ignore
 
     async def sign_typed_data(self,
                               message: Dict[str, Any],
                               account: ChecksumAddress,
-                              password: Optional[str]) -> Awaitable[HexStr]:
-        return await self._sign_typed_data(message, account, password)  # type: ignore
+                              passphrase: str) -> Awaitable[HexStr]:
+        return await self._sign_typed_data(message, account, passphrase)  # type: ignore
 
     async def unlock_account(self,
                              account: ChecksumAddress,
