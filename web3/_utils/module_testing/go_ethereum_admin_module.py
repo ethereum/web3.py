@@ -18,7 +18,10 @@ if TYPE_CHECKING:
 class GoEthereumAdminModuleTest:
     def test_add_peer(self, w3: "Web3") -> None:
         result = w3.geth.admin.add_peer(
-            EnodeURI('enode://f1a6b0bdbf014355587c3018454d070ac57801f05d3b39fe85da574f002a32e929f683d72aa5a8318382e4d3c7a05c9b91687b0d997a39619fb8a6e7ad88e512@1.1.1.1:30303'),)  # noqa: E501
+            EnodeURI(
+                "enode://f1a6b0bdbf014355587c3018454d070ac57801f05d3b39fe85da574f002a32e929f683d72aa5a8318382e4d3c7a05c9b91687b0d997a39619fb8a6e7ad88e512@1.1.1.1:30303"  # noqa: E501
+            ),
+        )
         assert result is True
 
     def test_admin_datadir(self, w3: "Web3", datadir: str) -> None:
@@ -27,20 +30,22 @@ class GoEthereumAdminModuleTest:
 
     def test_admin_node_info(self, w3: "Web3") -> None:
         result = w3.geth.admin.node_info()
-        expected = AttributeDict({
-            'id': '',
-            'name': '',
-            'enode': '',
-            'ip': '',
-            'ports': AttributeDict({}),
-            'listenAddr': '',
-            'protocols': AttributeDict({})
-        })
+        expected = AttributeDict(
+            {
+                "id": "",
+                "name": "",
+                "enode": "",
+                "ip": "",
+                "ports": AttributeDict({}),
+                "listenAddr": "",
+                "protocols": AttributeDict({}),
+            }
+        )
         # Test that result gives at least the keys that are listed in `expected`
         assert not set(expected.keys()).difference(result.keys())
 
     def test_admin_peers(self, w3: "Web3") -> None:
-        enode = w3.geth.admin.node_info()['enode']
+        enode = w3.geth.admin.node_info()["enode"]
         w3.geth.admin.add_peer(enode)
         result = w3.geth.admin.peers()
         assert len(result) == 1
@@ -53,11 +58,13 @@ class GoEthereumAdminModuleTest:
         assert start is True
 
     def test_admin_start_stop_rpc(self, w3: "Web3") -> None:
-        with pytest.warns(DeprecationWarning, match='deprecated in favor of stop_http'):
+        with pytest.warns(DeprecationWarning, match="deprecated in favor of stop_http"):
             stop = w3.geth.admin.stop_rpc()
             assert stop is True
 
-        with pytest.warns(DeprecationWarning, match='deprecated in favor of start_http'):
+        with pytest.warns(
+            DeprecationWarning, match="deprecated in favor of start_http"
+        ):
             start = w3.geth.admin.start_rpc()
             assert start is True
 
@@ -70,7 +77,6 @@ class GoEthereumAdminModuleTest:
 
 
 class GoEthereumAsyncAdminModuleTest:
-
     @pytest.mark.asyncio
     async def test_async_datadir(self, async_w3: "Web3") -> None:
         datadir = await async_w3.geth.admin.datadir()  # type: ignore
@@ -88,7 +94,7 @@ class GoEthereumAsyncAdminModuleTest:
 
     @pytest.mark.asyncio
     async def test_admin_peers(self, w3: "Web3") -> None:
-        enode = await w3.geth.admin.node_info()['enode']  # type: ignore
+        enode = await w3.geth.admin.node_info()["enode"]  # type: ignore
         w3.geth.admin.add_peer(enode)
         result = await w3.geth.admin.peers()  # type: ignore
         assert len(result) == 1
@@ -103,11 +109,13 @@ class GoEthereumAsyncAdminModuleTest:
 
     @pytest.mark.asyncio
     async def test_admin_start_stop_rpc(self, w3: "Web3") -> None:
-        with pytest.warns(DeprecationWarning, match='deprecated in favor of stop_http'):
+        with pytest.warns(DeprecationWarning, match="deprecated in favor of stop_http"):
             stop = await w3.geth.admin.stop_rpc()
             assert stop is True
 
-        with pytest.warns(DeprecationWarning, match='deprecated in favor of start_http'):
+        with pytest.warns(
+            DeprecationWarning, match="deprecated in favor of start_http"
+        ):
             start = await w3.geth.admin.start_rpc()
             assert start is True
 

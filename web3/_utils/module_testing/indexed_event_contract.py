@@ -1,4 +1,3 @@
-
 IND_EVENT_CONTRACT_CODE = (
     "6080604052348015600f57600080fd5b506101018061001f6000396000f30060806040526004361"
     "0603f576000357c0100000000000000000000000000000000000000000000000000000000900463"
@@ -25,40 +24,23 @@ IND_EVENT_CONTRACT_RUNTIME = (
 IND_EVENT_CONTRACT_ABI = [
     {
         "constant": False,
-        "inputs": [
-            {
-                "name": "arg0",
-                "type": "uint256"
-            }
-        ],
+        "inputs": [{"name": "arg0", "type": "uint256"}],
         "name": "logTwoEvents",
         "outputs": [],
         "payable": False,
         "stateMutability": "nonpayable",
-        "type": "function"
+        "type": "function",
     },
     {
         "anonymous": False,
-        "inputs": [
-            {
-                "indexed": True,
-                "name": "arg0",
-                "type": "uint256"
-            }
-        ],
+        "inputs": [{"indexed": True, "name": "arg0", "type": "uint256"}],
         "name": "LogSingleWithIndex",
-        "type": "event"
+        "type": "event",
     },
     {
         "anonymous": False,
-        "inputs": [
-            {
-                "indexed": False,
-                "name": "arg0",
-                "type": "uint256"
-            }
-        ],
+        "inputs": [{"indexed": False, "name": "arg0", "type": "uint256"}],
         "name": "LogSingleArg",
-        "type": "event"
-    }
+        "type": "event",
+    },
 ]

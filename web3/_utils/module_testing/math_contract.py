@@ -1,4 +1,3 @@
-
 MATH_BYTECODE = (
     "606060405261022e806100126000396000f360606040523615610074576000357c01000000000000"
     "000000000000000000000000000000000000000000009004806316216f391461007657806361bc22"
@@ -67,7 +66,7 @@ MATH_ABI = [
         "outputs": [
             {"name": "", "type": "uint256"},
         ],
-        "type": "function"
+        "type": "function",
     },
     {
         "constant": False,
@@ -91,7 +90,7 @@ MATH_ABI = [
 ]
 
 # The de-compiled math contract, for reference:
-'''
+"""
 contract Contract {
     function main() {
         memory[0x40:0x60] = 0x60;
@@ -190,4 +189,4 @@ contract Contract {
         return var0;
     }
 }
-'''
+"""

@@ -4,7 +4,6 @@ from web3 import Web3
 
 
 class GoEthereumAsyncTxPoolModuleTest:
-
     @pytest.mark.asyncio
     async def test_async_geth_txpool_inspect(self, async_w3: "Web3") -> None:
         test_data = await async_w3.geth.txpool.inspect()  # type: ignore
@@ -22,7 +21,6 @@ class GoEthereumAsyncTxPoolModuleTest:
 
 
 class GoEthereumTxPoolModuleTest:
-
     def test_geth_txpool_inspect(self, w3: "Web3") -> None:
         test_data = w3.geth.txpool.inspect()  # type: ignore
         assert "pending" in test_data
