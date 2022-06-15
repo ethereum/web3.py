@@ -7,7 +7,7 @@ from .go_ethereum_admin_module import (  # noqa: F401
 )
 from .go_ethereum_txpool_module import (  # noqa: F401
     GoEthereumAsyncTxPoolModuleTest,
-    GoEthereumTxPoolModuleTest
+    GoEthereumTxPoolModuleTest,
 )
 from .net_module import (  # noqa: F401
     AsyncNetModuleTest,

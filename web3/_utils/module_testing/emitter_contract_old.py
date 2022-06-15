@@ -158,517 +158,284 @@ CONTRACT_EMITTER_RUNTIME_OLD = (
 CONTRACT_EMITTER_ABI_OLD = [
     {
         "constant": False,
-        "inputs": [
-            {
-                "name": "v",
-                "type": "string"
-            }
-        ],
+        "inputs": [{"name": "v", "type": "string"}],
         "name": "logString",
         "outputs": [],
         "payable": False,
         "stateMutability": "nonpayable",
-        "type": "function"
+        "type": "function",
     },
     {
         "constant": False,
-        "inputs": [
-            {
-                "name": "which",
-                "type": "uint8"
-            }
-        ],
+        "inputs": [{"name": "which", "type": "uint8"}],
         "name": "logNoArgs",
         "outputs": [],
         "payable": False,
         "stateMutability": "nonpayable",
-        "type": "function"
+        "type": "function",
     },
     {
         "constant": False,
         "inputs": [
-            {
-                "name": "which",
-                "type": "uint8"
-            },
-            {
-                "name": "arg0",
-                "type": "uint256"
-            },
-            {
-                "name": "arg1",
-                "type": "uint256"
-            },
-            {
-                "name": "arg2",
-                "type": "uint256"
-            },
-            {
-                "name": "arg3",
-                "type": "uint256"
-            }
+            {"name": "which", "type": "uint8"},
+            {"name": "arg0", "type": "uint256"},
+            {"name": "arg1", "type": "uint256"},
+            {"name": "arg2", "type": "uint256"},
+            {"name": "arg3", "type": "uint256"},
         ],
         "name": "logQuadruple",
         "outputs": [],
         "payable": False,
         "stateMutability": "nonpayable",
-        "type": "function"
+        "type": "function",
     },
     {
         "constant": False,
         "inputs": [
-            {
-                "name": "which",
-                "type": "uint8"
-            },
-            {
-                "name": "arg0",
-                "type": "uint256"
-            },
-            {
-                "name": "arg1",
-                "type": "uint256"
-            }
+            {"name": "which", "type": "uint8"},
+            {"name": "arg0", "type": "uint256"},
+            {"name": "arg1", "type": "uint256"},
         ],
         "name": "logDouble",
         "outputs": [],
         "payable": False,
         "stateMutability": "nonpayable",
-        "type": "function"
+        "type": "function",
     },
     {
         "constant": False,
         "inputs": [
-            {
-                "name": "arg0",
-                "type": "bytes2[]"
-            },
-            {
-                "name": "arg1",
-                "type": "bytes2[]"
-            }
+            {"name": "arg0", "type": "bytes2[]"},
+            {"name": "arg1", "type": "bytes2[]"},
         ],
         "name": "logListArgs",
         "outputs": [],
         "payable": False,
         "stateMutability": "nonpayable",
-        "type": "function"
+        "type": "function",
     },
     {
         "constant": False,
         "inputs": [
-            {
-                "name": "which",
-                "type": "uint8"
-            },
-            {
-                "name": "arg0",
-                "type": "uint256"
-            },
-            {
-                "name": "arg1",
-                "type": "uint256"
-            },
-            {
-                "name": "arg2",
-                "type": "uint256"
-            }
+            {"name": "which", "type": "uint8"},
+            {"name": "arg0", "type": "uint256"},
+            {"name": "arg1", "type": "uint256"},
+            {"name": "arg2", "type": "uint256"},
         ],
         "name": "logTriple",
         "outputs": [],
         "payable": False,
         "stateMutability": "nonpayable",
-        "type": "function"
+        "type": "function",
     },
     {
         "constant": False,
         "inputs": [
-            {
-                "name": "which",
-                "type": "uint8"
-            },
-            {
-                "name": "arg0",
-                "type": "uint256"
-            }
+            {"name": "which", "type": "uint8"},
+            {"name": "arg0", "type": "uint256"},
         ],
         "name": "logSingle",
         "outputs": [],
         "payable": False,
         "stateMutability": "nonpayable",
-        "type": "function"
+        "type": "function",
     },
     {
         "constant": False,
         "inputs": [
-            {
-                "name": "arg0",
-                "type": "string"
-            },
-            {
-                "name": "arg1",
-                "type": "string"
-            }
+            {"name": "arg0", "type": "string"},
+            {"name": "arg1", "type": "string"},
         ],
         "name": "logDynamicArgs",
         "outputs": [],
         "payable": False,
         "stateMutability": "nonpayable",
-        "type": "function"
+        "type": "function",
     },
     {
         "constant": False,
         "inputs": [
-            {
-                "name": "arg0",
-                "type": "address"
-            },
-            {
-                "name": "arg1",
-                "type": "address"
-            }
+            {"name": "arg0", "type": "address"},
+            {"name": "arg1", "type": "address"},
         ],
         "name": "logAddressIndexedArgs",
         "outputs": [],
         "payable": False,
         "stateMutability": "nonpayable",
-        "type": "function"
+        "type": "function",
     },
     {
         "constant": False,
-        "inputs": [
-            {
-                "name": "v",
-                "type": "bytes"
-            }
-        ],
+        "inputs": [{"name": "v", "type": "bytes"}],
         "name": "logBytes",
         "outputs": [],
         "payable": False,
         "stateMutability": "nonpayable",
-        "type": "function"
+        "type": "function",
     },
     {
         "constant": False,
         "inputs": [
-            {
-                "name": "arg0",
-                "type": "address"
-            },
-            {
-                "name": "arg1",
-                "type": "address"
-            }
+            {"name": "arg0", "type": "address"},
+            {"name": "arg1", "type": "address"},
         ],
         "name": "logAddressNotIndexedArgs",
         "outputs": [],
         "payable": False,
         "stateMutability": "nonpayable",
-        "type": "function"
+        "type": "function",
     },
-    {
-        "anonymous": True,
-        "inputs": [],
-        "name": "LogAnonymous",
-        "type": "event"
-    },
+    {"anonymous": True, "inputs": [], "name": "LogAnonymous", "type": "event"},
+    {"anonymous": False, "inputs": [], "name": "LogNoArguments", "type": "event"},
     {
         "anonymous": False,
-        "inputs": [],
-        "name": "LogNoArguments",
-        "type": "event"
-    },
-    {
-        "anonymous": False,
-        "inputs": [
-            {
-                "indexed": False,
-                "name": "arg0",
-                "type": "uint256"
-            }
-        ],
+        "inputs": [{"indexed": False, "name": "arg0", "type": "uint256"}],
         "name": "LogSingleArg",
-        "type": "event"
+        "type": "event",
     },
     {
         "anonymous": False,
         "inputs": [
-            {
-                "indexed": False,
-                "name": "arg0",
-                "type": "uint256"
-            },
-            {
-                "indexed": False,
-                "name": "arg1",
-                "type": "uint256"
-            }
+            {"indexed": False, "name": "arg0", "type": "uint256"},
+            {"indexed": False, "name": "arg1", "type": "uint256"},
         ],
         "name": "LogDoubleArg",
-        "type": "event"
+        "type": "event",
     },
     {
         "anonymous": False,
         "inputs": [
-            {
-                "indexed": False,
-                "name": "arg0",
-                "type": "uint256"
-            },
-            {
-                "indexed": False,
-                "name": "arg1",
-                "type": "uint256"
-            },
-            {
-                "indexed": False,
-                "name": "arg2",
-                "type": "uint256"
-            }
+            {"indexed": False, "name": "arg0", "type": "uint256"},
+            {"indexed": False, "name": "arg1", "type": "uint256"},
+            {"indexed": False, "name": "arg2", "type": "uint256"},
         ],
         "name": "LogTripleArg",
-        "type": "event"
+        "type": "event",
     },
     {
         "anonymous": False,
         "inputs": [
-            {
-                "indexed": False,
-                "name": "arg0",
-                "type": "uint256"
-            },
-            {
-                "indexed": False,
-                "name": "arg1",
-                "type": "uint256"
-            },
-            {
-                "indexed": False,
-                "name": "arg2",
-                "type": "uint256"
-            },
-            {
-                "indexed": False,
-                "name": "arg3",
-                "type": "uint256"
-            }
+            {"indexed": False, "name": "arg0", "type": "uint256"},
+            {"indexed": False, "name": "arg1", "type": "uint256"},
+            {"indexed": False, "name": "arg2", "type": "uint256"},
+            {"indexed": False, "name": "arg3", "type": "uint256"},
         ],
         "name": "LogQuadrupleArg",
-        "type": "event"
+        "type": "event",
     },
     {
         "anonymous": False,
-        "inputs": [
-            {
-                "indexed": False,
-                "name": "v",
-                "type": "string"
-            }
-        ],
+        "inputs": [{"indexed": False, "name": "v", "type": "string"}],
         "name": "LogString",
-        "type": "event"
+        "type": "event",
     },
     {
         "anonymous": False,
-        "inputs": [
-            {
-                "indexed": False,
-                "name": "v",
-                "type": "bytes"
-            }
-        ],
+        "inputs": [{"indexed": False, "name": "v", "type": "bytes"}],
         "name": "LogBytes",
-        "type": "event"
+        "type": "event",
     },
     {
         "anonymous": False,
-        "inputs": [
-            {
-                "indexed": True,
-                "name": "arg0",
-                "type": "uint256"
-            }
-        ],
+        "inputs": [{"indexed": True, "name": "arg0", "type": "uint256"}],
         "name": "LogSingleWithIndex",
-        "type": "event"
+        "type": "event",
     },
     {
         "anonymous": True,
-        "inputs": [
-            {
-                "indexed": True,
-                "name": "arg0",
-                "type": "uint256"
-            }
-        ],
+        "inputs": [{"indexed": True, "name": "arg0", "type": "uint256"}],
         "name": "LogSingleAnonymous",
-        "type": "event"
+        "type": "event",
     },
     {
         "anonymous": False,
         "inputs": [
-            {
-                "indexed": False,
-                "name": "arg0",
-                "type": "uint256"
-            },
-            {
-                "indexed": True,
-                "name": "arg1",
-                "type": "uint256"
-            }
+            {"indexed": False, "name": "arg0", "type": "uint256"},
+            {"indexed": True, "name": "arg1", "type": "uint256"},
         ],
         "name": "LogDoubleWithIndex",
-        "type": "event"
+        "type": "event",
     },
     {
         "anonymous": True,
         "inputs": [
-            {
-                "indexed": False,
-                "name": "arg0",
-                "type": "uint256"
-            },
-            {
-                "indexed": True,
-                "name": "arg1",
-                "type": "uint256"
-            }
+            {"indexed": False, "name": "arg0", "type": "uint256"},
+            {"indexed": True, "name": "arg1", "type": "uint256"},
         ],
         "name": "LogDoubleAnonymous",
-        "type": "event"
+        "type": "event",
     },
     {
         "anonymous": False,
         "inputs": [
-            {
-                "indexed": False,
-                "name": "arg0",
-                "type": "uint256"
-            },
-            {
-                "indexed": True,
-                "name": "arg1",
-                "type": "uint256"
-            },
-            {
-                "indexed": True,
-                "name": "arg2",
-                "type": "uint256"
-            }
+            {"indexed": False, "name": "arg0", "type": "uint256"},
+            {"indexed": True, "name": "arg1", "type": "uint256"},
+            {"indexed": True, "name": "arg2", "type": "uint256"},
         ],
         "name": "LogTripleWithIndex",
-        "type": "event"
+        "type": "event",
     },
     {
         "anonymous": False,
         "inputs": [
-            {
-                "indexed": False,
-                "name": "arg0",
-                "type": "uint256"
-            },
-            {
-                "indexed": False,
-                "name": "arg1",
-                "type": "uint256"
-            },
-            {
-                "indexed": True,
-                "name": "arg2",
-                "type": "uint256"
-            },
-            {
-                "indexed": True,
-                "name": "arg3",
-                "type": "uint256"
-            }
+            {"indexed": False, "name": "arg0", "type": "uint256"},
+            {"indexed": False, "name": "arg1", "type": "uint256"},
+            {"indexed": True, "name": "arg2", "type": "uint256"},
+            {"indexed": True, "name": "arg3", "type": "uint256"},
         ],
         "name": "LogQuadrupleWithIndex",
-        "type": "event"
+        "type": "event",
     },
     {
         "anonymous": False,
         "inputs": [
-            {
-                "indexed": True,
-                "name": "arg0",
-                "type": "string"
-            },
-            {
-                "indexed": False,
-                "name": "arg1",
-                "type": "string"
-            }
+            {"indexed": True, "name": "arg0", "type": "string"},
+            {"indexed": False, "name": "arg1", "type": "string"},
         ],
         "name": "LogDynamicArgs",
-        "type": "event"
+        "type": "event",
     },
     {
         "anonymous": False,
         "inputs": [
-            {
-                "indexed": True,
-                "name": "arg0",
-                "type": "bytes2[]"
-            },
-            {
-                "indexed": False,
-                "name": "arg1",
-                "type": "bytes2[]"
-            }
+            {"indexed": True, "name": "arg0", "type": "bytes2[]"},
+            {"indexed": False, "name": "arg1", "type": "bytes2[]"},
         ],
         "name": "LogListArgs",
-        "type": "event"
+        "type": "event",
     },
     {
         "anonymous": False,
         "inputs": [
-            {
-                "indexed": True,
-                "name": "arg0",
-                "type": "address"
-            },
-            {
-                "indexed": False,
-                "name": "arg1",
-                "type": "address"
-            }
+            {"indexed": True, "name": "arg0", "type": "address"},
+            {"indexed": False, "name": "arg1", "type": "address"},
         ],
         "name": "LogAddressIndexed",
-        "type": "event"
+        "type": "event",
     },
     {
         "anonymous": False,
         "inputs": [
-            {
-                "indexed": False,
-                "name": "arg0",
-                "type": "address"
-            },
-            {
-                "indexed": False,
-                "name": "arg1",
-                "type": "address"
-            }
+            {"indexed": False, "name": "arg0", "type": "address"},
+            {"indexed": False, "name": "arg1", "type": "address"},
         ],
         "name": "LogAddressNotIndexed",
-        "type": "event"
-    }
+        "type": "event",
+    },
 ]
 
 
 EMITTER_ENUM_OLD = {
-    'LogAnonymous': 0,
-    'LogNoArguments': 1,
-    'LogSingleArg': 2,
-    'LogDoubleArg': 3,
-    'LogTripleArg': 4,
-    'LogQuadrupleArg': 5,
-    'LogSingleAnonymous': 6,
-    'LogSingleWithIndex': 7,
-    'LogDoubleAnonymous': 8,
-    'LogDoubleWithIndex': 9,
-    'LogTripleWithIndex': 10,
-    'LogQuadrupleWithInde': 11,
+    "LogAnonymous": 0,
+    "LogNoArguments": 1,
+    "LogSingleArg": 2,
+    "LogDoubleArg": 3,
+    "LogTripleArg": 4,
+    "LogQuadrupleArg": 5,
+    "LogSingleAnonymous": 6,
+    "LogSingleWithIndex": 7,
+    "LogDoubleAnonymous": 8,
+    "LogDoubleWithIndex": 9,
+    "LogTripleWithIndex": 10,
+    "LogQuadrupleWithInde": 11,
 }
