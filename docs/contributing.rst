@@ -106,6 +106,13 @@ Code Style
 We value code consistency. To ensure your contribution conforms to the style
 being used in this project, we encourage you to read our `style guide`_.
 
+We use Black for linting. To ignore the commits that introduced Black in
+git history, you can configure your git environment like so:
+
+.. code:: sh
+
+   git config blame.ignoreRevsFile .git-blame-ignore-revs
+
 
 Type Hints
 ~~~~~~~~~~

@@ -1,0 +1,1 @@
+Add a .git-blame-ignore-revs file to ignore certain commits when viewing git blame
