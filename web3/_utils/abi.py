@@ -86,44 +86,43 @@ from web3.types import (
 
 
 def filter_by_type(_type: str, contract_abi: ABI) -> List[Union[ABIFunction, ABIEvent]]:
-    return [abi for abi in contract_abi if abi['type'] == _type]
+    return [abi for abi in contract_abi if abi["type"] == _type]
 
 
 def filter_by_name(name: str, contract_abi: ABI) -> List[Union[ABIFunction, ABIEvent]]:
     return [
         abi
-        for abi
-        in contract_abi
+        for abi in contract_abi
         if (
-            abi['type'] not in ('fallback', 'constructor', 'receive')
-            and abi['name'] == name
+            abi["type"] not in ("fallback", "constructor", "receive")
+            and abi["name"] == name
         )
     ]
 
 
 def get_abi_input_types(abi: ABIFunction) -> List[str]:
-    if 'inputs' not in abi and (abi['type'] == 'fallback' or abi['type'] == 'receive'):
+    if "inputs" not in abi and (abi["type"] == "fallback" or abi["type"] == "receive"):
         return []
     else:
-        return [collapse_if_tuple(cast(Dict[str, Any], arg)) for arg in abi['inputs']]
+        return [collapse_if_tuple(cast(Dict[str, Any], arg)) for arg in abi["inputs"]]
 
 
 def get_abi_output_types(abi: ABIFunction) -> List[str]:
-    if abi['type'] == 'fallback':
+    if abi["type"] == "fallback":
         return []
     else:
-        return [collapse_if_tuple(cast(Dict[str, Any], arg)) for arg in abi['outputs']]
+        return [collapse_if_tuple(cast(Dict[str, Any], arg)) for arg in abi["outputs"]]
 
 
 def get_abi_input_names(abi: Union[ABIFunction, ABIEvent]) -> List[str]:
-    if 'inputs' not in abi and abi['type'] == 'fallback':
+    if "inputs" not in abi and abi["type"] == "fallback":
         return []
     else:
-        return [arg['name'] for arg in abi['inputs']]
+        return [arg["name"] for arg in abi["inputs"]]
 
 
 def get_receive_func_abi(contract_abi: ABI) -> ABIFunction:
-    receive_abis = filter_by_type('receive', contract_abi)
+    receive_abis = filter_by_type("receive", contract_abi)
     if receive_abis:
         return cast(ABIFunction, receive_abis[0])
     else:
@@ -131,7 +130,7 @@ def get_receive_func_abi(contract_abi: ABI) -> ABIFunction:
 
 
 def get_fallback_func_abi(contract_abi: ABI) -> ABIFunction:
-    fallback_abis = filter_by_type('fallback', contract_abi)
+    fallback_abis = filter_by_type("fallback", contract_abi)
     if fallback_abis:
         return cast(ABIFunction, fallback_abis[0])
     else:
@@ -139,19 +138,19 @@ def get_fallback_func_abi(contract_abi: ABI) -> ABIFunction:
 
 
 def fallback_func_abi_exists(contract_abi: ABI) -> List[Union[ABIFunction, ABIEvent]]:
-    return filter_by_type('fallback', contract_abi)
+    return filter_by_type("fallback", contract_abi)
 
 
 def receive_func_abi_exists(contract_abi: ABI) -> List[Union[ABIFunction, ABIEvent]]:
-    return filter_by_type('receive', contract_abi)
+    return filter_by_type("receive", contract_abi)
 
 
 def get_indexed_event_inputs(event_abi: ABIEvent) -> List[ABIEventParams]:
-    return [arg for arg in event_abi['inputs'] if arg['indexed'] is True]
+    return [arg for arg in event_abi["inputs"] if arg["indexed"] is True]
 
 
 def exclude_indexed_event_inputs(event_abi: ABIEvent) -> List[ABIEventParams]:
-    return [arg for arg in event_abi['inputs'] if arg['indexed'] is False]
+    return [arg for arg in event_abi["inputs"] if arg["indexed"] is False]
 
 
 def get_normalized_abi_arg_type(abi_arg: ABIEventParams) -> str:
@@ -166,12 +165,7 @@ def get_normalized_abi_arg_type(abi_arg: ABIEventParams) -> str:
 def filter_by_argument_count(
     num_arguments: int, contract_abi: ABI
 ) -> List[Union[ABIFunction, ABIEvent]]:
-    return [
-        abi
-        for abi
-        in contract_abi
-        if len(abi['inputs']) == num_arguments
-    ]
+    return [abi for abi in contract_abi if len(abi["inputs"]) == num_arguments]
 
 
 def filter_by_argument_name(
@@ -180,9 +174,8 @@ def filter_by_argument_name(
     return [
         abi
         for abi in contract_abi
-        if set(argument_names).intersection(
-            get_abi_input_names(abi)
-        ) == set(argument_names)
+        if set(argument_names).intersection(get_abi_input_names(abi))
+        == set(argument_names)
     ]
 
 
@@ -208,16 +201,20 @@ class AcceptsHexStrEncoder(encoding.BaseEncoder):
         return self.subencoder.is_dynamic
 
     @classmethod
-    def from_type_str(cls, abi_type: TypeStr, registry: ABIRegistry) -> "AcceptsHexStrEncoder":
+    def from_type_str(
+        cls, abi_type: TypeStr, registry: ABIRegistry
+    ) -> "AcceptsHexStrEncoder":
         subencoder_cls = cls.get_subencoder_class()
         # cast b/c expects BaseCoder but `from_type_string` restricted to BaseEncoder subclasses
-        subencoder = cast(encoding.BaseEncoder, subencoder_cls.from_type_str(abi_type, registry))
+        subencoder = cast(
+            encoding.BaseEncoder, subencoder_cls.from_type_str(abi_type, registry)
+        )
         return cls(subencoder)
 
     @classmethod
     def get_subencoder_class(cls) -> Type[encoding.BaseEncoder]:
         if cls.subencoder_cls is None:
-            raise AttributeError(f'No subencoder class is set. {cls.__name__}')
+            raise AttributeError(f"No subencoder class is set. {cls.__name__}")
         return cls.subencoder_cls
 
     # type ignored b/c combomethod makes signature conflict w/ defined BaseEncoder.validate_value()
@@ -238,19 +235,18 @@ class AcceptsHexStrEncoder(encoding.BaseEncoder):
             except binascii.Error:
                 self.invalidate_value(
                     value,
-                    msg=f'{value} is an invalid hex string',
+                    msg=f"{value} is an invalid hex string",
                 )
             else:
-                if raw_value[:2] != '0x':
+                if raw_value[:2] != "0x":
                     if self.is_strict:
                         self.invalidate_value(
-                            raw_value,
-                            msg='hex string must be prefixed with 0x'
+                            raw_value, msg="hex string must be prefixed with 0x"
                         )
-                    elif raw_value[:2] != '0x':
+                    elif raw_value[:2] != "0x":
                         warnings.warn(
                             'in v6 it will be invalid to pass a hex string without the "0x" prefix',
-                            category=DeprecationWarning
+                            category=DeprecationWarning,
                         )
         return value
 
@@ -312,13 +308,12 @@ class ExactLengthBytesEncoder(encoding.BaseEncoder):
             except binascii.Error:
                 self.invalidate_value(
                     value,
-                    msg=f'{value} is not a valid hex string',
+                    msg=f"{value} is not a valid hex string",
                 )
             else:
-                if raw_value[:2] != '0x':
+                if raw_value[:2] != "0x":
                     self.invalidate_value(
-                        raw_value,
-                        msg='hex string must be prefixed with 0x'
+                        raw_value, msg="hex string must be prefixed with 0x"
                     )
 
         byte_size = self.value_bit_size // 8
@@ -340,7 +335,7 @@ class ExactLengthBytesEncoder(encoding.BaseEncoder):
     def encode_fn(value: Any) -> bytes:
         return value
 
-    @parse_type_str('bytes')
+    @parse_type_str("bytes")
     def from_type_str(cls, abi_type: BasicType, registry: ABIRegistry) -> bytes:
         # type ignored b/c kwargs are set in superclass init
         # Unexpected keyword argument "value_bit_size" for "__call__" of "BaseEncoder"
@@ -359,7 +354,7 @@ class BytesDecoder(decoding.FixedByteSizeDecoder):
     def decoder_fn(data: bytes) -> bytes:  # type: ignore
         return data
 
-    @parse_type_str('bytes')
+    @parse_type_str("bytes")
     def from_type_str(cls, abi_type: BasicType, registry: ABIRegistry) -> bytes:
         # type ignored b/c kwargs are set in superclass init
         # Unexpected keyword argument "value_bit_size" for "__call__" of "BaseDecoder"
@@ -378,19 +373,21 @@ class TextStringEncoder(encoding.TextStringEncoder):
             except UnicodeDecodeError:
                 cls.invalidate_value(
                     value,
-                    msg='not decodable as unicode string',
+                    msg="not decodable as unicode string",
                 )
 
         super().validate_value(value)
 
 
 def filter_by_encodability(
-    abi_codec: codec.ABIEncoder, args: Sequence[Any], kwargs: Dict[str, Any], contract_abi: ABI
+    abi_codec: codec.ABIEncoder,
+    args: Sequence[Any],
+    kwargs: Dict[str, Any],
+    contract_abi: ABI,
 ) -> List[ABIFunction]:
     return [
         cast(ABIFunction, function_abi)
-        for function_abi
-        in contract_abi
+        for function_abi in contract_abi
         if check_if_arguments_can_be_encoded(
             cast(ABIFunction, function_abi), abi_codec, args, kwargs
         )
@@ -408,7 +405,7 @@ def check_if_arguments_can_be_encoded(
     except TypeError:
         return False
 
-    if len(function_abi.get('inputs', [])) != len(arguments):
+    if len(function_abi.get("inputs", [])) != len(arguments):
         return False
 
     try:
@@ -417,8 +414,7 @@ def check_if_arguments_can_be_encoded(
         return False
 
     return all(
-        abi_codec.is_encodable(_type, arg)
-        for _type, arg in zip(types, aligned_args)
+        abi_codec.is_encodable(_type, arg) for _type, arg in zip(types, aligned_args)
     )
 
 
@@ -434,7 +430,7 @@ def merge_args_and_kwargs(
     defined in ``function_abi``.
     """
     # Ensure the function is being applied to the correct number of args
-    if len(args) + len(kwargs) != len(function_abi.get('inputs', [])):
+    if len(args) + len(kwargs) != len(function_abi.get("inputs", [])):
         raise TypeError(
             f"Incorrect argument count. Expected '{len(function_abi['inputs'])}"
             f". Got '{len(args) + len(kwargs)}'"
@@ -445,7 +441,7 @@ def merge_args_and_kwargs(
         return cast(Tuple[Any, ...], args)
 
     kwarg_names = set(kwargs.keys())
-    sorted_arg_names = tuple(arg_abi['name'] for arg_abi in function_abi['inputs'])
+    sorted_arg_names = tuple(arg_abi["name"] for arg_abi in function_abi["inputs"])
     args_as_kwargs = dict(zip(sorted_arg_names, args))
 
     # Check for duplicate args
@@ -459,7 +455,7 @@ def merge_args_and_kwargs(
     # Check for unknown args
     unknown_args = kwarg_names.difference(sorted_arg_names)
     if unknown_args:
-        if function_abi.get('name'):
+        if function_abi.get("name"):
             raise TypeError(
                 f"{function_abi.get('name')}() got unexpected keyword argument(s)"
                 f" '{', '.join(unknown_args)}'"
@@ -471,12 +467,14 @@ def merge_args_and_kwargs(
 
     # Sort args according to their position in the ABI and unzip them from their
     # names
-    sorted_args = tuple(zip(
-        *sorted(
-            itertools.chain(kwargs.items(), args_as_kwargs.items()),
-            key=lambda kv: sorted_arg_names.index(kv[0]),
+    sorted_args = tuple(
+        zip(
+            *sorted(
+                itertools.chain(kwargs.items(), args_as_kwargs.items()),
+                key=lambda kv: sorted_arg_names.index(kv[0]),
+            )
         )
-    ))
+    )
 
     if sorted_args:
         return sorted_args[1]
@@ -484,7 +482,7 @@ def merge_args_and_kwargs(
         return tuple()
 
 
-TUPLE_TYPE_STR_RE = re.compile(r'^(tuple)(\[([1-9][0-9]*)?\])?$')
+TUPLE_TYPE_STR_RE = re.compile(r"^(tuple)(\[([1-9][0-9]*)?\])?$")
 
 
 def get_tuple_type_str_parts(s: str) -> Optional[Tuple[str, Optional[str]]]:
@@ -508,7 +506,7 @@ def _align_abi_input(arg_abi: ABIFunctionParams, arg: Any) -> Tuple[Any, ...]:
     Aligns the values of any mapping at any level of nesting in ``arg``
     according to the layout of the corresponding abi spec.
     """
-    tuple_parts = get_tuple_type_str_parts(arg_abi['type'])
+    tuple_parts = get_tuple_type_str_parts(arg_abi["type"])
 
     if tuple_parts is None:
         # Arg is non-tuple.  Just return value.
@@ -518,25 +516,25 @@ def _align_abi_input(arg_abi: ABIFunctionParams, arg: Any) -> Tuple[Any, ...]:
     if tuple_dims is None:
         # Arg is non-list tuple.  Each sub arg in `arg` will be aligned
         # according to its corresponding abi.
-        sub_abis = arg_abi['components']
+        sub_abis = arg_abi["components"]
     else:
         # Arg is list tuple.  A non-list version of its abi will be used to
         # align each element in `arg`.
         new_abi = copy.copy(arg_abi)
-        new_abi['type'] = tuple_prefix
+        new_abi["type"] = tuple_prefix
 
         sub_abis = itertools.repeat(new_abi)  # type: ignore
 
     if isinstance(arg, abc.Mapping):
         # Arg is mapping.  Align values according to abi order.
-        aligned_arg = tuple(arg[abi['name']] for abi in sub_abis)
+        aligned_arg = tuple(arg[abi["name"]] for abi in sub_abis)
     else:
         aligned_arg = arg
 
     if not is_list_like(aligned_arg):
         raise TypeError(
             f'Expected non-string sequence for "{arg_abi.get("type")}" '
-            f'component type: got {aligned_arg}'
+            f"component type: got {aligned_arg}"
         )
 
     # convert NamedTuple to regular tuple
@@ -558,27 +556,22 @@ def get_aligned_abi_inputs(
     contained in ``args`` may contain nested mappings or sequences corresponding
     to tuple-encoded values in ``abi``.
     """
-    input_abis = abi.get('inputs', [])
+    input_abis = abi.get("inputs", [])
 
     if isinstance(args, abc.Mapping):
         # `args` is mapping.  Align values according to abi order.
-        args = tuple(args[abi['name']] for abi in input_abis)
+        args = tuple(args[abi["name"]] for abi in input_abis)
 
     return (
         # typed dict cannot be used w/ a normal Dict
         # https://github.com/python/mypy/issues/4976
         tuple(collapse_if_tuple(abi) for abi in input_abis),  # type: ignore
-        type(args)(
-            _align_abi_input(abi, arg)
-            for abi, arg in zip(input_abis, args)
-        ),
+        type(args)(_align_abi_input(abi, arg) for abi, arg in zip(input_abis, args)),
     )
 
 
 def get_constructor_abi(contract_abi: ABI) -> ABIFunction:
-    candidates = [
-        abi for abi in contract_abi if abi['type'] == 'constructor'
-    ]
+    candidates = [abi for abi in contract_abi if abi["type"] == "constructor"]
     if len(candidates) == 1:
         return candidates[0]
     elif len(candidates) == 0:
@@ -588,39 +581,30 @@ def get_constructor_abi(contract_abi: ABI) -> ABIFunction:
     return None
 
 
-DYNAMIC_TYPES = ['bytes', 'string']
+DYNAMIC_TYPES = ["bytes", "string"]
 
 INT_SIZES = range(8, 257, 8)
 BYTES_SIZES = range(1, 33)
-UINT_TYPES = [f'uint{i}' for i in INT_SIZES]
-INT_TYPES = [f'int{i}' for i in INT_SIZES]
-BYTES_TYPES = [f'bytes{i}' for i in BYTES_SIZES] + ['bytes32.byte']
+UINT_TYPES = [f"uint{i}" for i in INT_SIZES]
+INT_TYPES = [f"int{i}" for i in INT_SIZES]
+BYTES_TYPES = [f"bytes{i}" for i in BYTES_SIZES] + ["bytes32.byte"]
 
-STATIC_TYPES = list(itertools.chain(
-    ['address', 'bool'],
-    UINT_TYPES,
-    INT_TYPES,
-    BYTES_TYPES,
-))
-
-BASE_TYPE_REGEX = '|'.join((
-    _type + '(?![a-z0-9])'
-    for _type
-    in itertools.chain(STATIC_TYPES, DYNAMIC_TYPES)
-))
-
-SUB_TYPE_REGEX = (
-    r'\['
-    '[0-9]*'
-    r'\]'
+STATIC_TYPES = list(
+    itertools.chain(
+        ["address", "bool"],
+        UINT_TYPES,
+        INT_TYPES,
+        BYTES_TYPES,
+    )
 )
 
-TYPE_REGEX = (
-    '^'
-    '(?:{base_type})'
-    '(?:(?:{sub_type})*)?'
-    '$'
-).format(
+BASE_TYPE_REGEX = "|".join(
+    (_type + "(?![a-z0-9])" for _type in itertools.chain(STATIC_TYPES, DYNAMIC_TYPES))
+)
+
+SUB_TYPE_REGEX = r"\[" "[0-9]*" r"\]"
+
+TYPE_REGEX = ("^" "(?:{base_type})" "(?:(?:{sub_type})*)?" "$").format(
     base_type=BASE_TYPE_REGEX,
     sub_type=SUB_TYPE_REGEX,
 )
@@ -631,7 +615,7 @@ def is_recognized_type(abi_type: TypeStr) -> bool:
 
 
 def is_bool_type(abi_type: TypeStr) -> bool:
-    return abi_type == 'bool'
+    return abi_type == "bool"
 
 
 def is_uint_type(abi_type: TypeStr) -> bool:
@@ -643,15 +627,15 @@ def is_int_type(abi_type: TypeStr) -> bool:
 
 
 def is_address_type(abi_type: TypeStr) -> bool:
-    return abi_type == 'address'
+    return abi_type == "address"
 
 
 def is_bytes_type(abi_type: TypeStr) -> bool:
-    return abi_type in BYTES_TYPES + ['bytes']
+    return abi_type in BYTES_TYPES + ["bytes"]
 
 
 def is_string_type(abi_type: TypeStr) -> bool:
-    return abi_type == 'string'
+    return abi_type == "string"
 
 
 @curry
@@ -663,15 +647,15 @@ def size_of_type(abi_type: TypeStr) -> int:
     """
     Returns size in bits of abi_type
     """
-    if 'string' in abi_type:
+    if "string" in abi_type:
         return None
-    if 'byte' in abi_type:
+    if "byte" in abi_type:
         return None
-    if '[' in abi_type:
+    if "[" in abi_type:
         return None
-    if abi_type == 'bool':
+    if abi_type == "bool":
         return 8
-    if abi_type == 'address':
+    if abi_type == "address":
         return 160
     return int(re.sub(r"\D", "", abi_type))
 
@@ -681,51 +665,37 @@ END_BRACKETS_OF_ARRAY_TYPE_REGEX = r"\[[^]]*\]$"
 
 def sub_type_of_array_type(abi_type: TypeStr) -> str:
     if not is_array_type(abi_type):
-        raise ValueError(
-            f"Cannot parse subtype of nonarray abi-type: {abi_type}"
-        )
+        raise ValueError(f"Cannot parse subtype of nonarray abi-type: {abi_type}")
 
-    return re.sub(END_BRACKETS_OF_ARRAY_TYPE_REGEX, '', abi_type, 1)
+    return re.sub(END_BRACKETS_OF_ARRAY_TYPE_REGEX, "", abi_type, 1)
 
 
 def length_of_array_type(abi_type: TypeStr) -> int:
     if not is_array_type(abi_type):
-        raise ValueError(
-            f"Cannot parse length of nonarray abi-type: {abi_type}"
-        )
+        raise ValueError(f"Cannot parse length of nonarray abi-type: {abi_type}")
 
-    inner_brackets = re.search(END_BRACKETS_OF_ARRAY_TYPE_REGEX, abi_type).group(0).strip("[]")
+    inner_brackets = (
+        re.search(END_BRACKETS_OF_ARRAY_TYPE_REGEX, abi_type).group(0).strip("[]")
+    )
     if not inner_brackets:
         return None
     else:
         return int(inner_brackets)
 
 
-ARRAY_REGEX = (
-    "^"
-    "[a-zA-Z0-9_]+"
-    "({sub_type})+"
-    "$"
-).format(sub_type=SUB_TYPE_REGEX)
+ARRAY_REGEX = ("^" "[a-zA-Z0-9_]+" "({sub_type})+" "$").format(sub_type=SUB_TYPE_REGEX)
 
 
 def is_array_type(abi_type: TypeStr) -> bool:
     return bool(re.match(ARRAY_REGEX, abi_type))
 
 
-NAME_REGEX = (
-    '[a-zA-Z_]'
-    '[a-zA-Z0-9_]*'
+NAME_REGEX = "[a-zA-Z_]" "[a-zA-Z0-9_]*"
+
+
+ENUM_REGEX = ("^" "{lib_name}" r"\." "{enum_name}" "$").format(
+    lib_name=NAME_REGEX, enum_name=NAME_REGEX
 )
-
-
-ENUM_REGEX = (
-    '^'
-    '{lib_name}'
-    r'\.'
-    '{enum_name}'
-    '$'
-).format(lib_name=NAME_REGEX, enum_name=NAME_REGEX)
 
 
 def is_probably_enum(abi_type: TypeStr) -> bool:
@@ -737,20 +707,20 @@ def normalize_event_input_types(
     abi_args: Collection[Union[ABIFunction, ABIEvent]]
 ) -> Iterable[Union[ABIFunction, ABIEvent, Dict[TypeStr, Any]]]:
     for arg in abi_args:
-        if is_recognized_type(arg['type']):
+        if is_recognized_type(arg["type"]):
             yield arg
-        elif is_probably_enum(arg['type']):
-            yield {k: 'uint8' if k == 'type' else v for k, v in arg.items()}
+        elif is_probably_enum(arg["type"]):
+            yield {k: "uint8" if k == "type" else v for k, v in arg.items()}
         else:
             yield arg
 
 
 def abi_to_signature(abi: Union[ABIFunction, ABIEvent]) -> str:
     function_signature = "{fn_name}({fn_input_types})".format(
-        fn_name=abi['name'],
-        fn_input_types=','.join([
-            arg['type'] for arg in normalize_event_input_types(abi.get('inputs', []))
-        ]),
+        fn_name=abi["name"],
+        fn_input_types=",".join(
+            [arg["type"] for arg in normalize_event_input_types(abi.get("inputs", []))]
+        ),
     )
     return function_signature
 
@@ -812,8 +782,7 @@ def abi_data_tree(types: Sequence[TypeStr], data: Sequence[Any]) -> List[Any]:
     """
     return [
         abi_sub_tree(data_type, data_value)
-        for data_type, data_value
-        in zip(types, data)
+        for data_type, data_value in zip(types, data)
     ]
 
 
@@ -825,15 +794,17 @@ def data_tree_map(
     Map func to every ABITypedData element in the tree. func will
     receive two args: abi_type, and data
     """
+
     def map_to_typed_data(elements: Any) -> "ABITypedData":
         if isinstance(elements, ABITypedData) and elements.abi_type is not None:
             return ABITypedData(func(*elements))
         else:
             return elements
+
     return recursive_map(map_to_typed_data, data_tree)
 
 
-class ABITypedData(namedtuple('ABITypedData', 'abi_type, data')):
+class ABITypedData(namedtuple("ABITypedData", "abi_type, data")):
     """
     This class marks data as having a certain ABI-type.
 
@@ -851,6 +822,7 @@ class ABITypedData(namedtuple('ABITypedData', 'abi_type, data')):
     positional argument that is iterable, to match the init
     interface of all other relevant collections.
     """
+
     def __new__(cls, iterable: Iterable[Any]) -> "ABITypedData":
         return super().__new__(cls, *iterable)
 
@@ -873,8 +845,7 @@ def abi_sub_tree(
         # items in iterable with that type
         item_type_str = abi_type.item_type.to_type_str()
         value_to_annotate = [
-            abi_sub_tree(item_type_str, item_value)
-            for item_value in data_value
+            abi_sub_tree(item_type_str, item_value) for item_value in data_value
         ]
     elif isinstance(abi_type, TupleType):
         # Otherwise, if type is tuple, determine component types and annotate
@@ -886,10 +857,12 @@ def abi_sub_tree(
     else:
         value_to_annotate = data_value
 
-    return ABITypedData([
-        abi_type.to_type_str(),
-        value_to_annotate,
-    ])
+    return ABITypedData(
+        [
+            abi_type.to_type_str(),
+            value_to_annotate,
+        ]
+    )
 
 
 def strip_abi_type(elements: Any) -> Any:
@@ -904,30 +877,34 @@ def build_default_registry() -> ABIRegistry:
     # affected by our custom encoder subclasses
     registry = default_registry.copy()
 
-    registry.unregister('address')
-    registry.unregister('bytes<M>')
-    registry.unregister('bytes')
-    registry.unregister('string')
+    registry.unregister("address")
+    registry.unregister("bytes<M>")
+    registry.unregister("bytes")
+    registry.unregister("string")
 
     registry.register(
-        BaseEquals('address'),
-        AddressEncoder, decoding.AddressDecoder,
-        label='address',
+        BaseEquals("address"),
+        AddressEncoder,
+        decoding.AddressDecoder,
+        label="address",
     )
     registry.register(
-        BaseEquals('bytes', with_sub=True),
-        BytesEncoder, decoding.BytesDecoder,
-        label='bytes<M>',
+        BaseEquals("bytes", with_sub=True),
+        BytesEncoder,
+        decoding.BytesDecoder,
+        label="bytes<M>",
     )
     registry.register(
-        BaseEquals('bytes', with_sub=False),
-        ByteStringEncoder, decoding.ByteStringDecoder,
-        label='bytes',
+        BaseEquals("bytes", with_sub=False),
+        ByteStringEncoder,
+        decoding.ByteStringDecoder,
+        label="bytes",
     )
     registry.register(
-        BaseEquals('string'),
-        TextStringEncoder, decoding.StringDecoder,
-        label='string',
+        BaseEquals("string"),
+        TextStringEncoder,
+        decoding.StringDecoder,
+        label="string",
     )
     return registry
 
@@ -935,29 +912,33 @@ def build_default_registry() -> ABIRegistry:
 def build_strict_registry() -> ABIRegistry:
     registry = default_registry.copy()
 
-    registry.unregister('address')
-    registry.unregister('bytes<M>')
-    registry.unregister('bytes')
-    registry.unregister('string')
+    registry.unregister("address")
+    registry.unregister("bytes<M>")
+    registry.unregister("bytes")
+    registry.unregister("string")
 
     registry.register(
-        BaseEquals('address'),
-        AddressEncoder, decoding.AddressDecoder,
-        label='address',
+        BaseEquals("address"),
+        AddressEncoder,
+        decoding.AddressDecoder,
+        label="address",
     )
     registry.register(
-        BaseEquals('bytes', with_sub=True),
-        ExactLengthBytesEncoder, BytesDecoder,
-        label='bytes<M>',
+        BaseEquals("bytes", with_sub=True),
+        ExactLengthBytesEncoder,
+        BytesDecoder,
+        label="bytes<M>",
     )
     registry.register(
-        BaseEquals('bytes', with_sub=False),
-        StrictByteStringEncoder, decoding.ByteStringDecoder,
-        label='bytes',
+        BaseEquals("bytes", with_sub=False),
+        StrictByteStringEncoder,
+        decoding.ByteStringDecoder,
+        label="bytes",
     )
     registry.register(
-        BaseEquals('string'),
-        TextStringEncoder, decoding.StringDecoder,
-        label='string',
+        BaseEquals("string"),
+        TextStringEncoder,
+        decoding.StringDecoder,
+        label="string",
     )
     return registry

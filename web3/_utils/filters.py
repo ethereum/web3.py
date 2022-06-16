@@ -72,51 +72,54 @@ def construct_event_filter_params(
     topics: Optional[Sequence[HexStr]] = None,
     fromBlock: Optional[BlockIdentifier] = None,
     toBlock: Optional[BlockIdentifier] = None,
-    address: Optional[ChecksumAddress] = None
+    address: Optional[ChecksumAddress] = None,
 ) -> Tuple[List[List[Optional[HexStr]]], FilterParams]:
     filter_params: FilterParams = {}
-    topic_set: Sequence[HexStr] = construct_event_topic_set(event_abi, abi_codec, argument_filters)
+    topic_set: Sequence[HexStr] = construct_event_topic_set(
+        event_abi, abi_codec, argument_filters
+    )
 
     if topics is not None:
         if len(topic_set) > 1:
             raise TypeError(
                 "Merging the topics argument with topics generated "
-                "from argument_filters is not supported.")
+                "from argument_filters is not supported."
+            )
         topic_set = topics
 
     if len(topic_set) == 1 and is_list_like(topic_set[0]):
         # type ignored b/c list-like check on line 88
-        filter_params['topics'] = topic_set[0]  # type: ignore
+        filter_params["topics"] = topic_set[0]  # type: ignore
     else:
-        filter_params['topics'] = topic_set
+        filter_params["topics"] = topic_set
 
     if address and contract_address:
         if is_list_like(address):
-            filter_params['address'] = [address] + [contract_address]
+            filter_params["address"] = [address] + [contract_address]
         elif is_string(address):
-            filter_params['address'] = [address, contract_address]
+            filter_params["address"] = [address, contract_address]
         else:
             raise ValueError(
                 f"Unsupported type for `address` parameter: {type(address)}"
             )
     elif address:
-        filter_params['address'] = address
+        filter_params["address"] = address
     elif contract_address:
-        filter_params['address'] = contract_address
+        filter_params["address"] = contract_address
 
-    if 'address' not in filter_params:
+    if "address" not in filter_params:
         pass
-    elif is_list_like(filter_params['address']):
-        for addr in filter_params['address']:
+    elif is_list_like(filter_params["address"]):
+        for addr in filter_params["address"]:
             validate_address(addr)
     else:
-        validate_address(filter_params['address'])
+        validate_address(filter_params["address"])
 
     if fromBlock is not None:
-        filter_params['fromBlock'] = fromBlock
+        filter_params["fromBlock"] = fromBlock
 
     if toBlock is not None:
-        filter_params['toBlock'] = toBlock
+        filter_params["toBlock"] = toBlock
 
     data_filters_set = construct_event_data_set(event_abi, abi_codec, argument_filters)
 
@@ -129,9 +132,7 @@ class Filter:
     poll_interval = None
     filter_id = None
 
-    def __init__(self,
-                 filter_id: HexStr,
-                 eth_module: "Eth") -> None:
+    def __init__(self, filter_id: HexStr, eth_module: "Eth") -> None:
         self.eth_module = eth_module
         self.filter_id = filter_id
         self.callbacks = []
@@ -153,19 +154,26 @@ class Filter:
         """
         return True
 
-    def _filter_valid_entries(self, entries: Collection[LogReceipt]) -> Iterator[LogReceipt]:
+    def _filter_valid_entries(
+        self, entries: Collection[LogReceipt]
+    ) -> Iterator[LogReceipt]:
         return filter(self.is_valid_entry, entries)
 
     def get_new_entries(self) -> List[LogReceipt]:
-        log_entries = self._filter_valid_entries(self.eth_module.get_filter_changes(self.filter_id))
+        log_entries = self._filter_valid_entries(
+            self.eth_module.get_filter_changes(self.filter_id)
+        )
         return self._format_log_entries(log_entries)
 
     def get_all_entries(self) -> List[LogReceipt]:
-        log_entries = self._filter_valid_entries(self.eth_module.get_filter_logs(self.filter_id))
+        log_entries = self._filter_valid_entries(
+            self.eth_module.get_filter_logs(self.filter_id)
+        )
         return self._format_log_entries(log_entries)
 
-    def _format_log_entries(self,
-                            log_entries: Optional[Iterator[LogReceipt]] = None) -> List[LogReceipt]:
+    def _format_log_entries(
+        self, log_entries: Optional[Iterator[LogReceipt]] = None
+    ) -> List[LogReceipt]:
         if log_entries is None:
             return []
 
@@ -193,11 +201,11 @@ class LogFilter(Filter):
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.log_entry_formatter = kwargs.pop(
-            'log_entry_formatter',
+            "log_entry_formatter",
             self.log_entry_formatter,
         )
-        if 'data_filter_set' in kwargs:
-            self.set_data_filters(kwargs.pop('data_filter_set'))
+        if "data_filter_set" in kwargs:
+            self.set_data_filters(kwargs.pop("data_filter_set"))
         super().__init__(*args, **kwargs)
 
     def format_entry(self, entry: LogReceipt) -> LogReceipt:
@@ -205,7 +213,9 @@ class LogFilter(Filter):
             return self.log_entry_formatter(entry)
         return entry
 
-    def set_data_filters(self, data_filter_set: Collection[Tuple[TypeStr, Any]]) -> None:
+    def set_data_filters(
+        self, data_filter_set: Collection[Tuple[TypeStr, Any]]
+    ) -> None:
         """Sets the data filters (non indexed argument filters)
 
         Expects a set of tuples with the type and value, e.g.:
@@ -213,12 +223,14 @@ class LogFilter(Filter):
         """
         self.data_filter_set = data_filter_set
         if any(data_filter_set):
-            self.data_filter_set_function = match_fn(self.eth_module.codec, data_filter_set)
+            self.data_filter_set_function = match_fn(
+                self.eth_module.codec, data_filter_set
+            )
 
     def is_valid_entry(self, entry: LogReceipt) -> bool:
         if not self.data_filter_set:
             return True
-        return bool(self.data_filter_set_function(entry['data']))
+        return bool(self.data_filter_set_function(entry["data"]))
 
 
 def decode_utf8_bytes(value: bytes) -> str:
@@ -245,7 +257,9 @@ def normalize_data_values(type_string: TypeStr, data_value: Any) -> Any:
 
 
 @curry
-def match_fn(codec: ABICodec, match_values_and_abi: Collection[Tuple[str, Any]], data: Any) -> bool:
+def match_fn(
+    codec: ABICodec, match_values_and_abi: Collection[Tuple[str, Any]], data: Any
+) -> bool:
     """Match function used for filtering non-indexed event arguments.
 
     Values provided through the match_values_and_abi parameter are
@@ -254,7 +268,9 @@ def match_fn(codec: ABICodec, match_values_and_abi: Collection[Tuple[str, Any]],
     abi_types, all_match_values = zip(*match_values_and_abi)
 
     decoded_values = codec.decode_abi(abi_types, HexBytes(data))
-    for data_value, match_values, abi_type in zip(decoded_values, all_match_values, abi_types):
+    for data_value, match_values, abi_type in zip(
+        decoded_values, all_match_values, abi_types
+    ):
         if match_values is None:
             continue
         normalized_data = normalize_data_values(abi_type, data_value)
@@ -276,10 +292,8 @@ class _UseExistingFilter(Exception):
     """
     Internal exception, raised when a filter_id is passed into w3.eth.filter()
     """
-    def __init__(
-        self,
-        filter_id: Union[str, FilterParams, HexStr]
-    ) -> None:
+
+    def __init__(self, filter_id: Union[str, FilterParams, HexStr]) -> None:
         self.filter_id = filter_id
 
 
@@ -299,12 +313,16 @@ def select_filter_method(
         elif is_hex(value):
             raise _UseExistingFilter(value)
         else:
-            raise ValidationError("Filter argument needs to be either 'latest',"
-                                  " 'pending', or a hex-encoded filter_id. Filter argument"
-                                  f" is: {value}")
+            raise ValidationError(
+                "Filter argument needs to be either 'latest',"
+                " 'pending', or a hex-encoded filter_id. Filter argument"
+                f" is: {value}"
+            )
     elif isinstance(value, dict):
         return if_new_filter
     else:
-        raise ValidationError("Filter argument needs to be either the string "
-                              "'pending' or 'latest', a filter_id, "
-                              f"or a filter params dictionary. Filter argument is: {value}")
+        raise ValidationError(
+            "Filter argument needs to be either the string "
+            "'pending' or 'latest', a filter_id, "
+            f"or a filter params dictionary. Filter argument is: {value}"
+        )

@@ -63,9 +63,11 @@ from web3.types import (  # noqa: F401
 
 def _prepare_selector_collision_msg(duplicates: Dict[HexStr, ABIFunction]) -> str:
     dup_sel = valmap(apply_formatter_to_array(abi_to_signature), duplicates)
-    joined_funcs = valmap(lambda funcs: ', '.join(funcs), dup_sel)
-    func_sel_msg_list = [funcs + ' have selector ' + sel for sel, funcs in joined_funcs.items()]
-    return ' and\n'.join(func_sel_msg_list)
+    joined_funcs = valmap(lambda funcs: ", ".join(funcs), dup_sel)
+    func_sel_msg_list = [
+        funcs + " have selector " + sel for sel, funcs in joined_funcs.items()
+    ]
+    return " and\n".join(func_sel_msg_list)
 
 
 def validate_abi(abi: ABI) -> None:
@@ -78,16 +80,13 @@ def validate_abi(abi: ABI) -> None:
     if not all(is_dict(e) for e in abi):
         raise ValueError("'abi' is not a list of dictionaries")
 
-    functions = filter_by_type('function', abi)
-    selectors = groupby(
-        compose(encode_hex, function_abi_to_4byte_selector),
-        functions
-    )
+    functions = filter_by_type("function", abi)
+    selectors = groupby(compose(encode_hex, function_abi_to_4byte_selector), functions)
     duplicates = valfilter(lambda funcs: len(funcs) > 1, selectors)
     if duplicates:
         raise ValueError(
-            'Abi contains functions with colliding selectors. '
-            f'Functions {_prepare_selector_collision_msg(duplicates)}'
+            "Abi contains functions with colliding selectors. "
+            f"Functions {_prepare_selector_collision_msg(duplicates)}"
         )
 
 
@@ -147,14 +146,16 @@ def validate_abi_value(abi_type: TypeStr, value: Any) -> None:
     elif is_string_type(abi_type) and is_string(value):
         return
 
-    raise TypeError(
-        f"The following abi value is not a '{abi_type}': {value}"
-    )
+    raise TypeError(f"The following abi value is not a '{abi_type}': {value}")
 
 
 def is_not_address_string(value: Any) -> bool:
-    return (is_string(value) and not is_bytes(value) and not
-            is_checksum_address(value) and not is_hex_address(value))
+    return (
+        is_string(value)
+        and not is_bytes(value)
+        and not is_checksum_address(value)
+        and not is_hex_address(value)
+    )
 
 
 def validate_address(value: Any) -> None:
@@ -167,13 +168,17 @@ def validate_address(value: Any) -> None:
         return
     if is_bytes(value):
         if not is_binary_address(value):
-            raise InvalidAddress("Address must be 20 bytes when input type is bytes", value)
+            raise InvalidAddress(
+                "Address must be 20 bytes when input type is bytes", value
+            )
         return
 
     if not isinstance(value, str):
-        raise TypeError(f'Address {value} must be provided as a string')
+        raise TypeError(f"Address {value} must be provided as a string")
     if not is_hex_address(value):
-        raise InvalidAddress("Address must be 20 bytes, as a hex string with a 0x prefix", value)
+        raise InvalidAddress(
+            "Address must be 20 bytes, as a hex string with a 0x prefix", value
+        )
     if not is_checksum_address(value):
         if value == value.lower():
             raise InvalidAddress(

@@ -26,8 +26,11 @@ from web3.types import (
 
 
 def admin_start_params_munger(
-    module: Module, host: str = 'localhost', port: int = 8546, cors: str = '',
-    apis: str = 'eth,net,web3'
+    module: Module,
+    host: str = "localhost",
+    port: int = 8546,
+    cors: str = "",
+    apis: str = "eth,net,web3",
 ) -> Tuple[str, int, str, str]:
     return (host, port, cors, apis)
 
@@ -58,7 +61,11 @@ peers: Method[Callable[[], List[Peer]]] = Method(
 
 class ServerConnection(Protocol):
     def __call__(
-        self, host: str = "localhost", port: int = 8546, cors: str = "", apis: str = "eth,net,web3"
+        self,
+        host: str = "localhost",
+        port: int = 8546,
+        cors: str = "",
+        apis: str = "eth,net,web3",
     ) -> bool:
         pass
 
@@ -89,5 +96,5 @@ stop_ws: Method[Callable[[], bool]] = Method(
 #
 # Deprecated Methods
 #
-start_rpc = DeprecatedMethod(start_http, 'start_rpc', 'start_http')
-stop_rpc = DeprecatedMethod(stop_http, 'stop_rpc', 'stop_http')
+start_rpc = DeprecatedMethod(start_http, "start_rpc", "start_http")
+stop_rpc = DeprecatedMethod(stop_http, "stop_rpc", "stop_http")

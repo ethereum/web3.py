@@ -55,8 +55,12 @@ class RPC:
     eth_getBalance = RPCEndpoint("eth_getBalance")
     eth_getBlockByHash = RPCEndpoint("eth_getBlockByHash")
     eth_getBlockByNumber = RPCEndpoint("eth_getBlockByNumber")
-    eth_getBlockTransactionCountByHash = RPCEndpoint("eth_getBlockTransactionCountByHash")
-    eth_getBlockTransactionCountByNumber = RPCEndpoint("eth_getBlockTransactionCountByNumber")
+    eth_getBlockTransactionCountByHash = RPCEndpoint(
+        "eth_getBlockTransactionCountByHash"
+    )
+    eth_getBlockTransactionCountByNumber = RPCEndpoint(
+        "eth_getBlockTransactionCountByNumber"
+    )
     eth_getCode = RPCEndpoint("eth_getCode")
     eth_getFilterChanges = RPCEndpoint("eth_getFilterChanges")
     eth_getFilterLogs = RPCEndpoint("eth_getFilterLogs")
@@ -64,8 +68,12 @@ class RPC:
     eth_getProof = RPCEndpoint("eth_getProof")
     eth_getRawTransactionByHash = RPCEndpoint("eth_getRawTransactionByHash")
     eth_getStorageAt = RPCEndpoint("eth_getStorageAt")
-    eth_getTransactionByBlockHashAndIndex = RPCEndpoint("eth_getTransactionByBlockHashAndIndex")
-    eth_getTransactionByBlockNumberAndIndex = RPCEndpoint("eth_getTransactionByBlockNumberAndIndex")
+    eth_getTransactionByBlockHashAndIndex = RPCEndpoint(
+        "eth_getTransactionByBlockHashAndIndex"
+    )
+    eth_getTransactionByBlockNumberAndIndex = RPCEndpoint(
+        "eth_getTransactionByBlockNumberAndIndex"
+    )
     eth_getRawTransactionByBlockHashAndIndex = RPCEndpoint(
         "eth_getRawTransactionByBlockHashAndIndex"
     )
@@ -159,61 +167,61 @@ class RPC:
 
 
 TRANSACTION_PARAMS_ABIS = {
-    'data': 'bytes',
-    'from': 'address',
-    'gas': 'uint',
-    'gasPrice': 'uint',
-    'nonce': 'uint',
-    'to': 'address',
-    'value': 'uint',
-    'chainId': 'uint',
+    "data": "bytes",
+    "from": "address",
+    "gas": "uint",
+    "gasPrice": "uint",
+    "nonce": "uint",
+    "to": "address",
+    "value": "uint",
+    "chainId": "uint",
 }
 
 FILTER_PARAMS_ABIS = {
-    'to': 'address',
-    'address': 'address[]',
+    "to": "address",
+    "address": "address[]",
 }
 
 TRACE_PARAMS_ABIS = {
-    'to': 'address',
-    'from': 'address',
+    "to": "address",
+    "from": "address",
 }
 
 RPC_ABIS = {
     # eth
-    'eth_call': TRANSACTION_PARAMS_ABIS,
-    'eth_estimateGas': TRANSACTION_PARAMS_ABIS,
-    'eth_getBalance': ['address', None],
-    'eth_getBlockByHash': ['bytes32', 'bool'],
-    'eth_getBlockTransactionCountByHash': ['bytes32'],
-    'eth_getCode': ['address', None],
-    'eth_getLogs': FILTER_PARAMS_ABIS,
-    'eth_getRawTransactionByHash': ['bytes32'],
-    'eth_getStorageAt': ['address', 'uint', None],
-    'eth_getProof': ['address', 'uint[]', None],
-    'eth_getTransactionByBlockHashAndIndex': ['bytes32', 'uint'],
-    'eth_getTransactionByHash': ['bytes32'],
-    'eth_getTransactionCount': ['address', None],
-    'eth_getTransactionReceipt': ['bytes32'],
-    'eth_getRawTransactionByBlockHashAndIndex': ['bytes32', 'uint'],
-    'eth_getUncleCountByBlockHash': ['bytes32'],
-    'eth_newFilter': FILTER_PARAMS_ABIS,
-    'eth_sendRawTransaction': ['bytes'],
-    'eth_sendTransaction': TRANSACTION_PARAMS_ABIS,
-    'eth_signTransaction': TRANSACTION_PARAMS_ABIS,
-    'eth_sign': ['address', 'bytes'],
-    'eth_signTypedData': ['address', None],
-    'eth_submitHashrate': ['uint', 'bytes32'],
-    'eth_submitWork': ['bytes8', 'bytes32', 'bytes32'],
+    "eth_call": TRANSACTION_PARAMS_ABIS,
+    "eth_estimateGas": TRANSACTION_PARAMS_ABIS,
+    "eth_getBalance": ["address", None],
+    "eth_getBlockByHash": ["bytes32", "bool"],
+    "eth_getBlockTransactionCountByHash": ["bytes32"],
+    "eth_getCode": ["address", None],
+    "eth_getLogs": FILTER_PARAMS_ABIS,
+    "eth_getRawTransactionByHash": ["bytes32"],
+    "eth_getStorageAt": ["address", "uint", None],
+    "eth_getProof": ["address", "uint[]", None],
+    "eth_getTransactionByBlockHashAndIndex": ["bytes32", "uint"],
+    "eth_getTransactionByHash": ["bytes32"],
+    "eth_getTransactionCount": ["address", None],
+    "eth_getTransactionReceipt": ["bytes32"],
+    "eth_getRawTransactionByBlockHashAndIndex": ["bytes32", "uint"],
+    "eth_getUncleCountByBlockHash": ["bytes32"],
+    "eth_newFilter": FILTER_PARAMS_ABIS,
+    "eth_sendRawTransaction": ["bytes"],
+    "eth_sendTransaction": TRANSACTION_PARAMS_ABIS,
+    "eth_signTransaction": TRANSACTION_PARAMS_ABIS,
+    "eth_sign": ["address", "bytes"],
+    "eth_signTypedData": ["address", None],
+    "eth_submitHashrate": ["uint", "bytes32"],
+    "eth_submitWork": ["bytes8", "bytes32", "bytes32"],
     # personal
-    'personal_sendTransaction': TRANSACTION_PARAMS_ABIS,
-    'personal_lockAccount': ['address'],
-    'personal_unlockAccount': ['address', None, None],
-    'personal_sign': [None, 'address', None],
-    'personal_signTypedData': [None, 'address', None],
-    'trace_call': TRACE_PARAMS_ABIS,
+    "personal_sendTransaction": TRANSACTION_PARAMS_ABIS,
+    "personal_lockAccount": ["address"],
+    "personal_unlockAccount": ["address", None, None],
+    "personal_sign": [None, "address", None],
+    "personal_signTypedData": [None, "address", None],
+    "trace_call": TRACE_PARAMS_ABIS,
     # parity
-    'parity_listStorageKeys': ['address', None, None, None],
+    "parity_listStorageKeys": ["address", None, None, None],
 }
 
 
@@ -221,7 +229,7 @@ RPC_ABIS = {
 def apply_abi_formatters_to_dict(
     normalizers: Sequence[Callable[[TypeStr, Any], Tuple[TypeStr, Any]]],
     abi_dict: Dict[str, Any],
-    data: Dict[Any, Any]
+    data: Dict[Any, Any],
 ) -> Dict[Any, Any]:
     fields = list(abi_dict.keys() & data.keys())
     formatted_values = map_abi_data(
@@ -245,4 +253,6 @@ def abi_request_formatters(
             single_dict_formatter = apply_abi_formatters_to_dict(normalizers, abi_types)
             yield method, apply_formatter_at_index(single_dict_formatter, 0)
         else:
-            raise TypeError(f"ABI definitions must be a list or dictionary, got {abi_types!r}")
+            raise TypeError(
+                f"ABI definitions must be a list or dictionary, got {abi_types!r}"
+            )

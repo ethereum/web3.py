@@ -26,7 +26,6 @@ from web3._utils.caching import (
 
 
 class SessionCache:
-
     def __init__(self, size: int):
         self._size = size
         self._data: OrderedDict[str, Any] = OrderedDict()
@@ -57,7 +56,7 @@ class SessionCache:
 
 
 def get_default_http_endpoint() -> URI:
-    return URI(os.environ.get('WEB3_HTTP_PROVIDER_URI', 'http://localhost:8545'))
+    return URI(os.environ.get("WEB3_HTTP_PROVIDER_URI", "http://localhost:8545"))
 
 
 def cache_session(endpoint_uri: URI, session: requests.Session) -> None:
@@ -82,7 +81,7 @@ def get_session(endpoint_uri: URI) -> requests.Session:
 def get_response_from_get_request(
     endpoint_uri: URI, *args: Any, **kwargs: Any
 ) -> requests.Response:
-    kwargs.setdefault('timeout', 10)
+    kwargs.setdefault("timeout", 10)
     session = get_session(endpoint_uri)
     response = session.get(endpoint_uri, *args, **kwargs)
     return response
@@ -91,7 +90,7 @@ def get_response_from_get_request(
 def get_response_from_post_request(
     endpoint_uri: URI, *args: Any, **kwargs: Any
 ) -> requests.Response:
-    kwargs.setdefault('timeout', 10)
+    kwargs.setdefault("timeout", 10)
     session = get_session(endpoint_uri)
     response = session.post(endpoint_uri, *args, **kwargs)
     return response
@@ -130,7 +129,7 @@ async def get_async_session(endpoint_uri: URI) -> ClientSession:
 async def async_get_response_from_get_request(
     endpoint_uri: URI, *args: Any, **kwargs: Any
 ) -> ClientResponse:
-    kwargs.setdefault('timeout', ClientTimeout(10))
+    kwargs.setdefault("timeout", ClientTimeout(10))
     session = await get_async_session(endpoint_uri)
     response = await session.get(endpoint_uri, *args, **kwargs)
     return response
@@ -139,7 +138,7 @@ async def async_get_response_from_get_request(
 async def async_get_response_from_post_request(
     endpoint_uri: URI, *args: Any, **kwargs: Any
 ) -> ClientResponse:
-    kwargs.setdefault('timeout', ClientTimeout(10))
+    kwargs.setdefault("timeout", ClientTimeout(10))
     session = await get_async_session(endpoint_uri)
     response = await session.post(endpoint_uri, *args, **kwargs)
     return response
@@ -148,9 +147,13 @@ async def async_get_response_from_post_request(
 async def async_make_post_request(
     endpoint_uri: URI, data: Union[bytes, Dict[str, Any]], *args: Any, **kwargs: Any
 ) -> bytes:
-    response = await async_get_response_from_post_request(endpoint_uri, data=data, *args, **kwargs)
+    response = await async_get_response_from_post_request(
+        endpoint_uri, data=data, *args, **kwargs
+    )
     return await response.read()
 
 
-async def async_get_json_from_client_response(response: ClientResponse) -> Dict[str, Any]:
+async def async_get_json_from_client_response(
+    response: ClientResponse,
+) -> Dict[str, Any]:
     return await response.json()

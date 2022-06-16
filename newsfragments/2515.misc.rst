@@ -1,0 +1,1 @@
+Add black to ``web3/_utils``, excluding ``web3/_utils/module_testing``

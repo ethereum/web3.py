@@ -26,7 +26,7 @@ if TYPE_CHECKING:
 def _validate_init_params_and_return_if_found(module_class: Any) -> List[str]:
     init_params_raw = list(inspect.signature(module_class.__init__).parameters)
     module_init_params = [
-        param for param in init_params_raw if param not in ['self', 'args', 'kwargs']
+        param for param in init_params_raw if param not in ["self", "args", "kwargs"]
     ]
 
     if len(module_init_params) > 1:
@@ -42,7 +42,7 @@ def _validate_init_params_and_return_if_found(module_class: Any) -> List[str]:
 def attach_modules(
     parent_module: Union["Web3", "Module"],
     module_definitions: Dict[str, Any],
-    w3: Optional[Union["Web3", "Module"]] = None
+    w3: Optional[Union["Web3", "Module"]] = None,
 ) -> None:
     for module_name, module_info in module_definitions.items():
         module_info_is_list_like = isinstance(module_info, Sequence)
@@ -56,7 +56,7 @@ def attach_modules(
             )
 
         # The parent module is the ``Web3`` instance on first run of the loop
-        if type(parent_module).__name__ == 'Web3':
+        if type(parent_module).__name__ == "Web3":
             w3 = parent_module
 
         module_init_params = _validate_init_params_and_return_if_found(module_class)
@@ -76,4 +76,6 @@ def attach_modules(
                 module = getattr(parent_module, module_name)
                 attach_modules(module, submodule_definitions, w3)
             elif len(module_info) != 1:
-                raise ValidationError("Module definitions can only have 1 or 2 elements.")
+                raise ValidationError(
+                    "Module definitions can only have 1 or 2 elements."
+                )
