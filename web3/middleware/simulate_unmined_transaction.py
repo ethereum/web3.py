@@ -29,12 +29,13 @@ def unmined_receipt_simulator_middleware(
     )
 
     def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
-        if method == 'eth_getTransactionReceipt':
+        if method == "eth_getTransactionReceipt":
             txn_hash = params[0]
             if next(receipt_counters[txn_hash]) < INVOCATIONS_BEFORE_RESULT:
-                return {'result': None}
+                return {"result": None}
             else:
                 return make_request(method, params)
         else:
             return make_request(method, params)
+
     return middleware

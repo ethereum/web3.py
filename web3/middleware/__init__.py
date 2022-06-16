@@ -80,8 +80,8 @@ if TYPE_CHECKING:
 
 def combine_middlewares(
     middlewares: Sequence[Middleware],
-    w3: 'Web3',
-    provider_request_fn: Callable[[RPCEndpoint, Any], Any]
+    w3: "Web3",
+    provider_request_fn: Callable[[RPCEndpoint, Any], Any],
 ) -> Callable[..., RPCResponse]:
     """
     Returns a callable function which will call the provider.provider_request
@@ -96,8 +96,8 @@ def combine_middlewares(
 
 async def async_combine_middlewares(
     middlewares: Sequence[Middleware],
-    w3: 'Web3',
-    provider_request_fn: Callable[[RPCEndpoint, Any], Any]
+    w3: "Web3",
+    provider_request_fn: Callable[[RPCEndpoint, Any], Any],
 ) -> Callable[..., RPCResponse]:
     """
     Returns a callable function which will call the provider.provider_request
@@ -110,8 +110,6 @@ async def async_combine_middlewares(
 
 
 async def construct_middleware(
-    middleware: Middleware,
-    fn: Callable[..., RPCResponse],
-    w3: 'Web3'
+    middleware: Middleware, fn: Callable[..., RPCResponse], w3: "Web3"
 ) -> Callable[[RPCEndpoint, Any], Any]:
     return await middleware(fn, w3)

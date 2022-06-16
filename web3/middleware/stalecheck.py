@@ -21,12 +21,12 @@ if TYPE_CHECKING:
     from web3 import Web3  # noqa: F401
 
 SKIP_STALECHECK_FOR_METHODS = {
-    'eth_getBlockByNumber',
+    "eth_getBlockByNumber",
 }
 
 
 def _isfresh(block: BlockData, allowable_delay: int) -> bool:
-    if block and (time.time() - block['timestamp'] <= allowable_delay):
+    if block and (time.time() - block["timestamp"] <= allowable_delay):
         return True
     else:
         return False
@@ -34,7 +34,7 @@ def _isfresh(block: BlockData, allowable_delay: int) -> bool:
 
 def make_stalecheck_middleware(
     allowable_delay: int,
-    skip_stalecheck_for_methods: Collection[str] = SKIP_STALECHECK_FOR_METHODS
+    skip_stalecheck_for_methods: Collection[str] = SKIP_STALECHECK_FOR_METHODS,
 ) -> Middleware:
     """
     Use to require that a function will run only of the blockchain is recently updated.
@@ -47,24 +47,28 @@ def make_stalecheck_middleware(
     middleware will raise a StaleBlockchain exception.
     """
     if allowable_delay <= 0:
-        raise ValueError("You must set a positive allowable_delay in seconds for this middleware")
+        raise ValueError(
+            "You must set a positive allowable_delay in seconds for this middleware"
+        )
 
     def stalecheck_middleware(
         make_request: Callable[[RPCEndpoint, Any], Any], w3: "Web3"
     ) -> Callable[[RPCEndpoint, Any], RPCResponse]:
-        cache: Dict[str, BlockData] = {'latest': None}
+        cache: Dict[str, BlockData] = {"latest": None}
 
         def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
             if method not in skip_stalecheck_for_methods:
-                if _isfresh(cache['latest'], allowable_delay):
+                if _isfresh(cache["latest"], allowable_delay):
                     pass
                 else:
-                    latest = w3.eth.get_block('latest')
+                    latest = w3.eth.get_block("latest")
                     if _isfresh(latest, allowable_delay):
-                        cache['latest'] = latest
+                        cache["latest"] = latest
                     else:
                         raise StaleBlockchain(latest, allowable_delay)
 
             return make_request(method, params)
+
         return middleware
+
     return stalecheck_middleware

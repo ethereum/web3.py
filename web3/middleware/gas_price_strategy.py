@@ -39,10 +39,10 @@ def validate_transaction_params(
     # gas price strategy explicitly set:
     if (
         strategy_based_gas_price is not None
-        and 'gasPrice' not in transaction
+        and "gasPrice" not in transaction
         and none_in_dict(DYNAMIC_FEE_TXN_PARAMS, transaction)
     ):
-        transaction = assoc(transaction, 'gasPrice', hex(strategy_based_gas_price))
+        transaction = assoc(transaction, "gasPrice", hex(strategy_based_gas_price))
 
     # legacy and dynamic fee tx variables used:
     if "gasPrice" in transaction and any_in_dict(DYNAMIC_FEE_TXN_PARAMS, transaction):
@@ -54,13 +54,13 @@ def validate_transaction_params(
         ):
             raise InvalidTransaction("maxFeePerGas must be >= maxPriorityFeePerGas")
     # dynamic fee txn - no max fee:
-    elif 'maxFeePerGas' not in transaction and 'maxPriorityFeePerGas' in transaction:
-        base_fee = latest_block['baseFeePerGas']
-        priority_fee = int(str(transaction['maxPriorityFeePerGas']), 16)
+    elif "maxFeePerGas" not in transaction and "maxPriorityFeePerGas" in transaction:
+        base_fee = latest_block["baseFeePerGas"]
+        priority_fee = int(str(transaction["maxPriorityFeePerGas"]), 16)
         max_fee_per_gas = priority_fee + 2 * base_fee
-        transaction = assoc(transaction, 'maxFeePerGas', hex(max_fee_per_gas))
+        transaction = assoc(transaction, "maxFeePerGas", hex(max_fee_per_gas))
     # dynamic fee transaction - no priority fee:
-    elif 'maxFeePerGas' in transaction and 'maxPriorityFeePerGas' not in transaction:
+    elif "maxFeePerGas" in transaction and "maxPriorityFeePerGas" not in transaction:
         raise InvalidTransaction(
             "maxPriorityFeePerGas must be defined in a 1559 transaction."
         )
@@ -78,11 +78,12 @@ def gas_price_strategy_middleware(
 
     - Validates transaction params against legacy and dynamic fee txn values.
     """
+
     def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
-        if method == 'eth_sendTransaction':
+        if method == "eth_sendTransaction":
             transaction = params[0]
             generated_gas_price = w3.eth.generate_gas_price(transaction)
-            latest_block = w3.eth.get_block('latest')
+            latest_block = w3.eth.get_block("latest")
             transaction = validate_transaction_params(
                 transaction, latest_block, generated_gas_price
             )
@@ -101,11 +102,12 @@ async def async_gas_price_strategy_middleware(
 
     - Validates transaction params against legacy and dynamic fee txn values.
     """
+
     async def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
-        if method == 'eth_sendTransaction':
+        if method == "eth_sendTransaction":
             transaction = params[0]
             generated_gas_price = await w3.eth.generate_gas_price(transaction)  # type: ignore
-            latest_block = await w3.eth.get_block('latest')  # type: ignore
+            latest_block = await w3.eth.get_block("latest")  # type: ignore
             transaction = validate_transaction_params(
                 transaction, latest_block, generated_gas_price
             )

@@ -35,13 +35,17 @@ if TYPE_CHECKING:
 
 is_not_null = complement(is_null)
 
-remap_geth_poa_fields = apply_key_map({
-    'extraData': 'proofOfAuthorityData',
-})
+remap_geth_poa_fields = apply_key_map(
+    {
+        "extraData": "proofOfAuthorityData",
+    }
+)
 
-pythonic_geth_poa = apply_formatters_to_dict({
-    'proofOfAuthorityData': HexBytes,
-})
+pythonic_geth_poa = apply_formatters_to_dict(
+    {
+        "proofOfAuthorityData": HexBytes,
+    }
+)
 
 geth_poa_cleanup = compose(pythonic_geth_poa, remap_geth_poa_fields)
 

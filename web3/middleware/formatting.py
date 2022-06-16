@@ -37,10 +37,9 @@ def _apply_response_formatters(
     result_formatters: Formatters,
     error_formatters: Formatters,
 ) -> RPCResponse:
-
     def _format_response(
         response_type: Literal["result", "error"],
-        method_response_formatter: Callable[..., Any]
+        method_response_formatter: Callable[..., Any],
     ) -> RPCResponse:
         appropriate_response = response[response_type]
         return assoc(
@@ -57,13 +56,15 @@ def _apply_response_formatters(
 
 # --- sync -- #
 
+
 def construct_formatting_middleware(
     request_formatters: Optional[Formatters] = None,
     result_formatters: Optional[Formatters] = None,
-    error_formatters: Optional[Formatters] = None
+    error_formatters: Optional[Formatters] = None,
 ) -> Middleware:
     def ignore_web3_in_standard_formatters(
-        _w3: "Web3", _method: RPCEndpoint,
+        _w3: "Web3",
+        _method: RPCEndpoint,
     ) -> FormattersDict:
         return dict(
             request_formatters=request_formatters or {},
@@ -86,40 +87,52 @@ def construct_web3_formatting_middleware(
                 FORMATTER_DEFAULTS,
                 web3_formatters_builder(w3, method),
             )
-            request_formatters = formatters.pop('request_formatters')
+            request_formatters = formatters.pop("request_formatters")
 
             if method in request_formatters:
                 formatter = request_formatters[method]
                 params = formatter(params)
             response = make_request(method, params)
 
-            return _apply_response_formatters(method=method, response=response, **formatters)
+            return _apply_response_formatters(
+                method=method, response=response, **formatters
+            )
+
         return middleware
+
     return formatter_middleware
 
 
 # --- async --- #
 
+
 async def async_construct_formatting_middleware(
     request_formatters: Optional[Formatters] = None,
     result_formatters: Optional[Formatters] = None,
-    error_formatters: Optional[Formatters] = None
+    error_formatters: Optional[Formatters] = None,
 ) -> Middleware:
     async def ignore_web3_in_standard_formatters(
-        _w3: "Web3", _method: RPCEndpoint,
+        _w3: "Web3",
+        _method: RPCEndpoint,
     ) -> FormattersDict:
         return dict(
             request_formatters=request_formatters or {},
             result_formatters=result_formatters or {},
             error_formatters=error_formatters or {},
         )
-    return await async_construct_web3_formatting_middleware(ignore_web3_in_standard_formatters)
+
+    return await async_construct_web3_formatting_middleware(
+        ignore_web3_in_standard_formatters
+    )
 
 
 async def async_construct_web3_formatting_middleware(
-    async_web3_formatters_builder:
-        Callable[["Web3", RPCEndpoint], Coroutine[Any, Any, FormattersDict]]
-) -> Callable[[Callable[[RPCEndpoint, Any], Any], "Web3"], Coroutine[Any, Any, AsyncMiddleware]]:
+    async_web3_formatters_builder: Callable[
+        ["Web3", RPCEndpoint], Coroutine[Any, Any, FormattersDict]
+    ]
+) -> Callable[
+    [Callable[[RPCEndpoint, Any], Any], "Web3"], Coroutine[Any, Any, AsyncMiddleware]
+]:
     async def formatter_middleware(
         make_request: Callable[[RPCEndpoint, Any], Any],
         async_w3: "Web3",
@@ -129,13 +142,17 @@ async def async_construct_web3_formatting_middleware(
                 FORMATTER_DEFAULTS,
                 await async_web3_formatters_builder(async_w3, method),
             )
-            request_formatters = formatters.pop('request_formatters')
+            request_formatters = formatters.pop("request_formatters")
 
             if method in request_formatters:
                 formatter = request_formatters[method]
                 params = formatter(params)
             response = await make_request(method, params)
 
-            return _apply_response_formatters(method=method, response=response, **formatters)
+            return _apply_response_formatters(
+                method=method, response=response, **formatters
+            )
+
         return middleware
+
     return formatter_middleware
