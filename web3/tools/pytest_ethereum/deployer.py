@@ -30,9 +30,7 @@ class Deployer:
         self.package = package
         self.strategies = {}  # type: Dict[str, Callable[[Package], Package]]
 
-    def deploy(
-        self, contract_type: ContractName, *args: Any, **kwargs: Any
-    ) -> Package:
+    def deploy(self, contract_type: ContractName, *args: Any, **kwargs: Any) -> Package:
         factory = self.package.get_contract_factory(contract_type)
         if contract_type in self.strategies:
             strategy = self.strategies[contract_type]
