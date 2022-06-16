@@ -73,25 +73,25 @@ is_not_named_block = complement(is_named_block)
 # --- Request Mapping --- #
 
 TRANSACTION_REQUEST_KEY_MAPPING = {
-    'gasPrice': 'gas_price',
-    'maxFeePerGas': 'max_fee_per_gas',
-    'maxPriorityFeePerGas': 'max_priority_fee_per_gas',
-    'accessList': 'access_list',
-    'chainId': 'chain_id',
+    "gasPrice": "gas_price",
+    "maxFeePerGas": "max_fee_per_gas",
+    "maxPriorityFeePerGas": "max_priority_fee_per_gas",
+    "accessList": "access_list",
+    "chainId": "chain_id",
 }
 transaction_request_remapper = apply_key_map(TRANSACTION_REQUEST_KEY_MAPPING)
 
 
 TRANSACTION_REQUEST_FORMATTERS = {
-    'chainId': to_integer_if_hex,
-    'gas': to_integer_if_hex,
-    'gasPrice': to_integer_if_hex,
-    'value': to_integer_if_hex,
-    'nonce': to_integer_if_hex,
-    'maxFeePerGas': to_integer_if_hex,
-    'maxPriorityFeePerGas': to_integer_if_hex,
-    'accessList': apply_formatter_to_array(
-        apply_key_map({'storageKeys': 'storage_keys'})
+    "chainId": to_integer_if_hex,
+    "gas": to_integer_if_hex,
+    "gasPrice": to_integer_if_hex,
+    "value": to_integer_if_hex,
+    "nonce": to_integer_if_hex,
+    "maxFeePerGas": to_integer_if_hex,
+    "maxPriorityFeePerGas": to_integer_if_hex,
+    "accessList": apply_formatter_to_array(
+        apply_key_map({"storageKeys": "storage_keys"})
     ),
 }
 transaction_request_formatter = apply_formatters_to_dict(TRANSACTION_REQUEST_FORMATTERS)
@@ -103,15 +103,15 @@ transaction_request_transformer = compose(
 
 
 FILTER_REQUEST_KEY_MAPPING = {
-    'fromBlock': 'from_block',
-    'toBlock': 'to_block',
+    "fromBlock": "from_block",
+    "toBlock": "to_block",
 }
 filter_request_remapper = apply_key_map(FILTER_REQUEST_KEY_MAPPING)
 
 
 FILTER_REQUEST_FORMATTERS = {
-    'fromBlock': to_integer_if_hex,
-    'toBlock': to_integer_if_hex,
+    "fromBlock": to_integer_if_hex,
+    "toBlock": to_integer_if_hex,
 }
 filter_request_formatter = apply_formatters_to_dict(FILTER_REQUEST_FORMATTERS)
 
@@ -124,187 +124,186 @@ filter_request_transformer = compose(
 # --- Result Mapping --- #
 
 TRANSACTION_RESULT_KEY_MAPPING = {
-    'access_list': 'accessList',
-    'block_hash': 'blockHash',
-    'block_number': 'blockNumber',
-    'chain_id': 'chainId',
-    'gas_price': 'gasPrice',
-    'max_fee_per_gas': 'maxFeePerGas',
-    'max_priority_fee_per_gas': 'maxPriorityFeePerGas',
-    'transaction_hash': 'transactionHash',
-    'transaction_index': 'transactionIndex',
+    "access_list": "accessList",
+    "block_hash": "blockHash",
+    "block_number": "blockNumber",
+    "chain_id": "chainId",
+    "gas_price": "gasPrice",
+    "max_fee_per_gas": "maxFeePerGas",
+    "max_priority_fee_per_gas": "maxPriorityFeePerGas",
+    "transaction_hash": "transactionHash",
+    "transaction_index": "transactionIndex",
 }
 transaction_result_remapper = apply_key_map(TRANSACTION_RESULT_KEY_MAPPING)
 
 
 TRANSACTION_RESULT_FORMATTERS = {
-    'to': apply_formatter_if(partial(operator.eq, ''), static_return(None)),
-    'access_list': apply_formatter_to_array(
-        apply_key_map({'storage_keys': 'storageKeys'}),
+    "to": apply_formatter_if(partial(operator.eq, ""), static_return(None)),
+    "access_list": apply_formatter_to_array(
+        apply_key_map({"storage_keys": "storageKeys"}),
     ),
 }
 transaction_result_formatter = apply_formatters_to_dict(TRANSACTION_RESULT_FORMATTERS)
 
 
 LOG_RESULT_KEY_MAPPING = {
-    'log_index': 'logIndex',
-    'transaction_index': 'transactionIndex',
-    'transaction_hash': 'transactionHash',
-    'block_hash': 'blockHash',
-    'block_number': 'blockNumber',
+    "log_index": "logIndex",
+    "transaction_index": "transactionIndex",
+    "transaction_hash": "transactionHash",
+    "block_hash": "blockHash",
+    "block_number": "blockNumber",
 }
 log_result_remapper = apply_key_map(LOG_RESULT_KEY_MAPPING)
 
 
 RECEIPT_RESULT_KEY_MAPPING = {
-    'block_hash': 'blockHash',
-    'block_number': 'blockNumber',
-    'contract_address': 'contractAddress',
-    'gas_used': 'gasUsed',
-    'cumulative_gas_used': 'cumulativeGasUsed',
-    'effective_gas_price': 'effectiveGasPrice',
-    'transaction_hash': 'transactionHash',
-    'transaction_index': 'transactionIndex',
+    "block_hash": "blockHash",
+    "block_number": "blockNumber",
+    "contract_address": "contractAddress",
+    "gas_used": "gasUsed",
+    "cumulative_gas_used": "cumulativeGasUsed",
+    "effective_gas_price": "effectiveGasPrice",
+    "transaction_hash": "transactionHash",
+    "transaction_index": "transactionIndex",
 }
 receipt_result_remapper = apply_key_map(RECEIPT_RESULT_KEY_MAPPING)
 
 
 BLOCK_RESULT_KEY_MAPPING = {
-    'gas_limit': 'gasLimit',
-    'sha3_uncles': 'sha3Uncles',
-    'transactions_root': 'transactionsRoot',
-    'parent_hash': 'parentHash',
-    'bloom': 'logsBloom',
-    'state_root': 'stateRoot',
-    'receipt_root': 'receiptsRoot',
-    'total_difficulty': 'totalDifficulty',
-    'extra_data': 'extraData',
-    'gas_used': 'gasUsed',
-    'base_fee_per_gas': 'baseFeePerGas',
+    "gas_limit": "gasLimit",
+    "sha3_uncles": "sha3Uncles",
+    "transactions_root": "transactionsRoot",
+    "parent_hash": "parentHash",
+    "bloom": "logsBloom",
+    "state_root": "stateRoot",
+    "receipt_root": "receiptsRoot",
+    "total_difficulty": "totalDifficulty",
+    "extra_data": "extraData",
+    "gas_used": "gasUsed",
+    "base_fee_per_gas": "baseFeePerGas",
 }
 block_result_remapper = apply_key_map(BLOCK_RESULT_KEY_MAPPING)
 
 
 RECEIPT_RESULT_FORMATTERS = {
-    'logs': apply_formatter_to_array(log_result_remapper),
+    "logs": apply_formatter_to_array(log_result_remapper),
 }
 receipt_result_formatter = apply_formatters_to_dict(RECEIPT_RESULT_FORMATTERS)
 
 request_formatters = {
     # Eth
-    RPCEndpoint('eth_getBlockByNumber'): apply_formatters_to_args(
+    RPCEndpoint("eth_getBlockByNumber"): apply_formatters_to_args(
         apply_formatter_if(is_not_named_block, to_integer_if_hex),
     ),
-    RPCEndpoint('eth_getFilterChanges'): apply_formatters_to_args(hex_to_integer),
-    RPCEndpoint('eth_getFilterLogs'): apply_formatters_to_args(hex_to_integer),
-    RPCEndpoint('eth_getBlockTransactionCountByNumber'): apply_formatters_to_args(
+    RPCEndpoint("eth_getFilterChanges"): apply_formatters_to_args(hex_to_integer),
+    RPCEndpoint("eth_getFilterLogs"): apply_formatters_to_args(hex_to_integer),
+    RPCEndpoint("eth_getBlockTransactionCountByNumber"): apply_formatters_to_args(
         apply_formatter_if(is_not_named_block, to_integer_if_hex),
     ),
-    RPCEndpoint('eth_getUncleCountByBlockNumber'): apply_formatters_to_args(
+    RPCEndpoint("eth_getUncleCountByBlockNumber"): apply_formatters_to_args(
         apply_formatter_if(is_not_named_block, to_integer_if_hex),
     ),
-    RPCEndpoint('eth_getTransactionByBlockHashAndIndex'): apply_formatters_to_args(
+    RPCEndpoint("eth_getTransactionByBlockHashAndIndex"): apply_formatters_to_args(
         identity,
         to_integer_if_hex,
     ),
-    RPCEndpoint('eth_getTransactionByBlockNumberAndIndex'): apply_formatters_to_args(
+    RPCEndpoint("eth_getTransactionByBlockNumberAndIndex"): apply_formatters_to_args(
         apply_formatter_if(is_not_named_block, to_integer_if_hex),
         to_integer_if_hex,
     ),
-    RPCEndpoint('eth_getUncleByBlockNumberAndIndex'): apply_formatters_to_args(
+    RPCEndpoint("eth_getUncleByBlockNumberAndIndex"): apply_formatters_to_args(
         apply_formatter_if(is_not_named_block, to_integer_if_hex),
         to_integer_if_hex,
     ),
-    RPCEndpoint('eth_newFilter'): apply_formatters_to_args(
+    RPCEndpoint("eth_newFilter"): apply_formatters_to_args(
         filter_request_transformer,
     ),
-    RPCEndpoint('eth_getLogs'): apply_formatters_to_args(
+    RPCEndpoint("eth_getLogs"): apply_formatters_to_args(
         filter_request_transformer,
     ),
-    RPCEndpoint('eth_sendTransaction'): apply_formatters_to_args(
+    RPCEndpoint("eth_sendTransaction"): apply_formatters_to_args(
         transaction_request_transformer,
     ),
-    RPCEndpoint('eth_estimateGas'): apply_formatters_to_args(
+    RPCEndpoint("eth_estimateGas"): apply_formatters_to_args(
         transaction_request_transformer,
     ),
-    RPCEndpoint('eth_call'): apply_formatters_to_args(
+    RPCEndpoint("eth_call"): apply_formatters_to_args(
         transaction_request_transformer,
         apply_formatter_if(is_not_named_block, to_integer_if_hex),
     ),
-    RPCEndpoint('eth_uninstallFilter'): apply_formatters_to_args(hex_to_integer),
-    RPCEndpoint('eth_getCode'): apply_formatters_to_args(
+    RPCEndpoint("eth_uninstallFilter"): apply_formatters_to_args(hex_to_integer),
+    RPCEndpoint("eth_getCode"): apply_formatters_to_args(
         identity,
         apply_formatter_if(is_not_named_block, to_integer_if_hex),
     ),
-    RPCEndpoint('eth_getBalance'): apply_formatters_to_args(
+    RPCEndpoint("eth_getBalance"): apply_formatters_to_args(
         identity,
         apply_formatter_if(is_not_named_block, to_integer_if_hex),
     ),
     # EVM
-    RPCEndpoint('evm_revert'): apply_formatters_to_args(hex_to_integer),
+    RPCEndpoint("evm_revert"): apply_formatters_to_args(hex_to_integer),
     # Personal
-    RPCEndpoint('personal_sendTransaction'): apply_formatters_to_args(
+    RPCEndpoint("personal_sendTransaction"): apply_formatters_to_args(
         transaction_request_transformer,
         identity,
     ),
 }
 result_formatters: Optional[Dict[RPCEndpoint, Callable[..., Any]]] = {
-    RPCEndpoint('eth_getBlockByHash'): apply_formatter_if(
+    RPCEndpoint("eth_getBlockByHash"): apply_formatter_if(
         is_dict,
         block_result_remapper,
     ),
-    RPCEndpoint('eth_getBlockByNumber'): apply_formatter_if(
+    RPCEndpoint("eth_getBlockByNumber"): apply_formatter_if(
         is_dict,
         block_result_remapper,
     ),
-    RPCEndpoint('eth_getBlockTransactionCountByHash'): apply_formatter_if(
+    RPCEndpoint("eth_getBlockTransactionCountByHash"): apply_formatter_if(
         is_dict,
         transaction_result_remapper,
     ),
-    RPCEndpoint('eth_getBlockTransactionCountByNumber'): apply_formatter_if(
+    RPCEndpoint("eth_getBlockTransactionCountByNumber"): apply_formatter_if(
         is_dict,
         transaction_result_remapper,
     ),
-    RPCEndpoint('eth_getTransactionByHash'): apply_formatter_if(
+    RPCEndpoint("eth_getTransactionByHash"): apply_formatter_if(
         is_dict,
         compose(transaction_result_remapper, transaction_result_formatter),
     ),
-    RPCEndpoint('eth_getTransactionReceipt'): apply_formatter_if(
+    RPCEndpoint("eth_getTransactionReceipt"): apply_formatter_if(
         is_dict,
         compose(receipt_result_remapper, receipt_result_formatter),
     ),
-    RPCEndpoint('eth_newFilter'): integer_to_hex,
-    RPCEndpoint('eth_newBlockFilter'): integer_to_hex,
-    RPCEndpoint('eth_newPendingTransactionFilter'): integer_to_hex,
-    RPCEndpoint('eth_getLogs'): apply_formatter_if(
+    RPCEndpoint("eth_newFilter"): integer_to_hex,
+    RPCEndpoint("eth_newBlockFilter"): integer_to_hex,
+    RPCEndpoint("eth_newPendingTransactionFilter"): integer_to_hex,
+    RPCEndpoint("eth_getLogs"): apply_formatter_if(
         is_array_of_dicts,
         apply_formatter_to_array(log_result_remapper),
     ),
-    RPCEndpoint('eth_getFilterChanges'): apply_formatter_if(
+    RPCEndpoint("eth_getFilterChanges"): apply_formatter_if(
         is_array_of_dicts,
         apply_formatter_to_array(log_result_remapper),
     ),
-    RPCEndpoint('eth_getFilterLogs'): apply_formatter_if(
+    RPCEndpoint("eth_getFilterLogs"): apply_formatter_if(
         is_array_of_dicts,
         apply_formatter_to_array(log_result_remapper),
     ),
     # EVM
-    RPCEndpoint('evm_snapshot'): integer_to_hex,
+    RPCEndpoint("evm_snapshot"): integer_to_hex,
 }
 
 
-async def async_ethereum_tester_middleware(make_request, web3: "Web3"  # type: ignore
-                                           ) -> Middleware:
+async def async_ethereum_tester_middleware(  # type: ignore
+    make_request, web3: "Web3"
+) -> Middleware:
     middleware = await async_construct_formatting_middleware(
-        request_formatters=request_formatters,
-        result_formatters=result_formatters
+        request_formatters=request_formatters, result_formatters=result_formatters
     )
     return await middleware(make_request, web3)
 
 
 ethereum_tester_middleware = construct_formatting_middleware(
-    request_formatters=request_formatters,
-    result_formatters=result_formatters
+    request_formatters=request_formatters, result_formatters=result_formatters
 )
 
 
@@ -337,13 +336,13 @@ def fill_default(
 def default_transaction_fields_middleware(
     make_request: Callable[[RPCEndpoint, Any], Any], w3: "Web3"
 ) -> Callable[[RPCEndpoint, Any], RPCResponse]:
-    fill_default_from = fill_default('from', guess_from, w3)
+    fill_default_from = fill_default("from", guess_from, w3)
 
     def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
         if method in (
-            'eth_call',
-            'eth_estimateGas',
-            'eth_sendTransaction',
+            "eth_call",
+            "eth_estimateGas",
+            "eth_sendTransaction",
         ):
             filled_transaction = pipe(
                 params[0],
@@ -352,6 +351,7 @@ def default_transaction_fields_middleware(
             return make_request(method, [filled_transaction] + list(params)[1:])
         else:
             return make_request(method, params)
+
     return middleware
 
 
@@ -360,13 +360,13 @@ async def async_default_transaction_fields_middleware(
 ) -> Callable[[RPCEndpoint, Any], RPCResponse]:
     async def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
         if method in (
-            'eth_call',
-            'eth_estimateGas',
-            'eth_sendTransaction',
+            "eth_call",
+            "eth_estimateGas",
+            "eth_sendTransaction",
         ):
-            filled_transaction = fill_default('from', guess_from, web3, params[0])
-            return await make_request(method,
-                                      [filled_transaction] + list(params)[1:])
+            filled_transaction = fill_default("from", guess_from, web3, params[0])
+            return await make_request(method, [filled_transaction] + list(params)[1:])
         else:
             return await make_request(method, params)
+
     return middleware  # type: ignore

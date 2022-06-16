@@ -69,8 +69,10 @@ def not_implemented(*args: Any, **kwargs: Any) -> NoReturn:
 
 @curry
 def call_eth_tester(
-    fn_name: str, eth_tester: "EthereumTester", fn_args: Any,
-    fn_kwargs: Optional[Any] = None
+    fn_name: str,
+    eth_tester: "EthereumTester",
+    fn_args: Any,
+    fn_kwargs: Optional[Any] = None,
 ) -> RPCResponse:
     if fn_kwargs is None:
         fn_kwargs = {}
@@ -79,14 +81,18 @@ def call_eth_tester(
         return getattr(eth_tester, fn_name)(*fn_args, **fn_kwargs)
     except TransactionFailed as e:
         possible_data = e.args[0]
-        if isinstance(possible_data, str) and possible_data[2:10] == 'Uo\\x180\\':
+        if isinstance(possible_data, str) and possible_data[2:10] == "Uo\\x180\\":
             # EIP-3668 | CCIP Read
             # b"Uo\x180" is the first 4 bytes of the keccak hash for:
             # OffchainLookup(address,string[],bytes,bytes4,bytes)
             parsed_data_as_bytes = ast.literal_eval(possible_data)
-            data_payload = parsed_data_as_bytes[4:]  # everything but the function selector
+            data_payload = parsed_data_as_bytes[
+                4:
+            ]  # everything but the function selector
             abi_decoded_data = decode_abi(OFFCHAIN_LOOKUP_FIELDS.values(), data_payload)
-            offchain_lookup_payload = dict(zip(OFFCHAIN_LOOKUP_FIELDS.keys(), abi_decoded_data))
+            offchain_lookup_payload = dict(
+                zip(OFFCHAIN_LOOKUP_FIELDS.keys(), abi_decoded_data)
+            )
             raise OffchainLookup(offchain_lookup_payload)
         raise e
 
@@ -98,6 +104,7 @@ def without_eth_tester(
     # @functools.wraps(fn)
     def inner(eth_tester: "EthereumTester", params: TParams) -> TReturn:
         return fn(params)
+
     return inner
 
 
@@ -108,6 +115,7 @@ def without_params(
     # @functools.wraps(fn)
     def inner(eth_tester: "EthereumTester", params: Any) -> TReturn:
         return fn(eth_tester)
+
     return inner
 
 
@@ -121,12 +129,14 @@ def preprocess_params(
 def static_return(value: TValue) -> Callable[..., TValue]:
     def inner(*args: Any, **kwargs: Any) -> TValue:
         return value
+
     return inner
 
 
 def client_version(eth_tester: "EthereumTester", params: Any) -> str:
     # TODO: account for the backend that is in use.
     from eth_tester import __version__
+
     v = sys.version_info
     return f"EthereumTester/{__version__}/{sys.platform}/python{v.major}.{v.minor}.{v.micro}"
 
@@ -155,7 +165,7 @@ def get_transaction_by_block_hash_and_index(
 ) -> TxReceipt:
     block_hash, transaction_index = params
     block = eth_tester.get_block_by_hash(block_hash, full_transactions=True)
-    transaction = block['transactions'][transaction_index]
+    transaction = block["transactions"][transaction_index]
     return transaction
 
 
@@ -166,7 +176,7 @@ def get_transaction_by_block_number_and_index(
 ) -> TxReceipt:
     block_number, transaction_index = params
     block = eth_tester.get_block_by_number(block_number, full_transactions=True)
-    transaction = block['transactions'][transaction_index]
+    transaction = block["transactions"][transaction_index]
     return transaction
 
 
@@ -187,10 +197,7 @@ def _generate_random_private_key() -> HexStr:
     WARNING: This is not a secure way to generate private keys and should only
     be used for testing purposes.
     """
-    return encode_hex(bytes(bytearray((
-        random.randint(0, 255)
-        for _ in range(32)
-    ))))
+    return encode_hex(bytes(bytearray((random.randint(0, 255) for _ in range(32)))))
 
 
 @without_params
@@ -202,223 +209,243 @@ def personal_send_transaction(eth_tester: "EthereumTester", params: Any) -> HexS
     transaction, password = params
 
     try:
-        eth_tester.unlock_account(transaction['from'], password)
+        eth_tester.unlock_account(transaction["from"], password)
         transaction_hash = eth_tester.send_transaction(transaction)
     finally:
-        eth_tester.lock_account(transaction['from'])
+        eth_tester.lock_account(transaction["from"])
 
     return transaction_hash
 
 
 API_ENDPOINTS = {
-    'web3': {
-        'clientVersion': client_version,
-        'sha3': compose(
+    "web3": {
+        "clientVersion": client_version,
+        "sha3": compose(
             encode_hex,
             keccak,
             decode_hex,
             without_eth_tester(operator.itemgetter(0)),
         ),
     },
-    'net': {
-        'version': static_return('1'),
-        'listening': static_return(False),
-        'peerCount': static_return(0),
+    "net": {
+        "version": static_return("1"),
+        "listening": static_return(False),
+        "peerCount": static_return(0),
     },
-    'eth': {
-        'protocolVersion': static_return(63),
-        'syncing': static_return(False),
-        'coinbase': compose(
+    "eth": {
+        "protocolVersion": static_return(63),
+        "syncing": static_return(False),
+        "coinbase": compose(
             operator.itemgetter(0),
-            call_eth_tester('get_accounts'),
+            call_eth_tester("get_accounts"),
         ),
-        'mining': static_return(False),
-        'hashrate': static_return(0),
-        'chainId': static_return(131277322940537),  # from fixture generation file
-        'feeHistory': not_implemented,
-        'maxPriorityFeePerGas': static_return(10 ** 9),
-        'gasPrice': static_return(10 ** 9),  # must be >= base fee post-London
-        'accounts': call_eth_tester('get_accounts'),
-        'blockNumber': compose(
-            operator.itemgetter('number'),
-            call_eth_tester('get_block_by_number', fn_kwargs={'block_number': 'latest'}),
-        ),
-        'getBalance': call_eth_tester('get_balance'),
-        'getStorageAt': not_implemented,
-        'getProof': not_implemented,
-        'getTransactionCount': call_eth_tester('get_nonce'),
-        'getBlockTransactionCountByHash': null_if_block_not_found(compose(
-            len,
-            operator.itemgetter('transactions'),
-            call_eth_tester('get_block_by_hash'),
-        )),
-        'getBlockTransactionCountByNumber': null_if_block_not_found(compose(
-            len,
-            operator.itemgetter('transactions'),
-            call_eth_tester('get_block_by_number'),
-        )),
-        'getUncleCountByBlockHash': null_if_block_not_found(compose(
-            len,
-            operator.itemgetter('uncles'),
-            call_eth_tester('get_block_by_hash'),
-        )),
-        'getUncleCountByBlockNumber': null_if_block_not_found(compose(
-            len,
-            operator.itemgetter('uncles'),
-            call_eth_tester('get_block_by_number'),
-        )),
-        'getCode': call_eth_tester('get_code'),
-        'sign': not_implemented,
-        'signTransaction': not_implemented,
-        'sendTransaction': call_eth_tester('send_transaction'),
-        'sendRawTransaction': call_eth_tester('send_raw_transaction'),
-        'call': call_eth_tester('call'),  # TODO: untested
-        'estimateGas': call_eth_tester('estimate_gas'),  # TODO: untested
-        'getBlockByHash': null_if_block_not_found(call_eth_tester('get_block_by_hash')),
-        'getBlockByNumber': null_if_block_not_found(call_eth_tester('get_block_by_number')),
-        'getTransactionByHash': null_if_transaction_not_found(
-            call_eth_tester('get_transaction_by_hash')
-        ),
-        'getTransactionByBlockHashAndIndex': get_transaction_by_block_hash_and_index,
-        'getTransactionByBlockNumberAndIndex': get_transaction_by_block_number_and_index,
-        'getTransactionReceipt': null_if_transaction_not_found(compose(
-            apply_formatter_if(
-                compose(is_null, operator.itemgetter('block_number')),
-                static_return(None),
+        "mining": static_return(False),
+        "hashrate": static_return(0),
+        "chainId": static_return(131277322940537),  # from fixture generation file
+        "feeHistory": not_implemented,
+        "maxPriorityFeePerGas": static_return(10**9),
+        "gasPrice": static_return(10**9),  # must be >= base fee post-London
+        "accounts": call_eth_tester("get_accounts"),
+        "blockNumber": compose(
+            operator.itemgetter("number"),
+            call_eth_tester(
+                "get_block_by_number", fn_kwargs={"block_number": "latest"}
             ),
-            call_eth_tester('get_transaction_receipt'),
-        )),
-        'getUncleByBlockHashAndIndex': not_implemented,
-        'getUncleByBlockNumberAndIndex': not_implemented,
-        'getCompilers': not_implemented,
-        'compileLLL': not_implemented,
-        'compileSolidity': not_implemented,
-        'compileSerpent': not_implemented,
-        'newFilter': create_log_filter,
-        'newBlockFilter': call_eth_tester('create_block_filter'),
-        'newPendingTransactionFilter': call_eth_tester('create_pending_transaction_filter'),
-        'uninstallFilter': excepts(
+        ),
+        "getBalance": call_eth_tester("get_balance"),
+        "getStorageAt": not_implemented,
+        "getProof": not_implemented,
+        "getTransactionCount": call_eth_tester("get_nonce"),
+        "getBlockTransactionCountByHash": null_if_block_not_found(
+            compose(
+                len,
+                operator.itemgetter("transactions"),
+                call_eth_tester("get_block_by_hash"),
+            )
+        ),
+        "getBlockTransactionCountByNumber": null_if_block_not_found(
+            compose(
+                len,
+                operator.itemgetter("transactions"),
+                call_eth_tester("get_block_by_number"),
+            )
+        ),
+        "getUncleCountByBlockHash": null_if_block_not_found(
+            compose(
+                len,
+                operator.itemgetter("uncles"),
+                call_eth_tester("get_block_by_hash"),
+            )
+        ),
+        "getUncleCountByBlockNumber": null_if_block_not_found(
+            compose(
+                len,
+                operator.itemgetter("uncles"),
+                call_eth_tester("get_block_by_number"),
+            )
+        ),
+        "getCode": call_eth_tester("get_code"),
+        "sign": not_implemented,
+        "signTransaction": not_implemented,
+        "sendTransaction": call_eth_tester("send_transaction"),
+        "sendRawTransaction": call_eth_tester("send_raw_transaction"),
+        "call": call_eth_tester("call"),  # TODO: untested
+        "estimateGas": call_eth_tester("estimate_gas"),  # TODO: untested
+        "getBlockByHash": null_if_block_not_found(call_eth_tester("get_block_by_hash")),
+        "getBlockByNumber": null_if_block_not_found(
+            call_eth_tester("get_block_by_number")
+        ),
+        "getTransactionByHash": null_if_transaction_not_found(
+            call_eth_tester("get_transaction_by_hash")
+        ),
+        "getTransactionByBlockHashAndIndex": get_transaction_by_block_hash_and_index,
+        "getTransactionByBlockNumberAndIndex": get_transaction_by_block_number_and_index,
+        "getTransactionReceipt": null_if_transaction_not_found(
+            compose(
+                apply_formatter_if(
+                    compose(is_null, operator.itemgetter("block_number")),
+                    static_return(None),
+                ),
+                call_eth_tester("get_transaction_receipt"),
+            )
+        ),
+        "getUncleByBlockHashAndIndex": not_implemented,
+        "getUncleByBlockNumberAndIndex": not_implemented,
+        "getCompilers": not_implemented,
+        "compileLLL": not_implemented,
+        "compileSolidity": not_implemented,
+        "compileSerpent": not_implemented,
+        "newFilter": create_log_filter,
+        "newBlockFilter": call_eth_tester("create_block_filter"),
+        "newPendingTransactionFilter": call_eth_tester(
+            "create_pending_transaction_filter"
+        ),
+        "uninstallFilter": excepts(
             FilterNotFound,
             compose(
                 is_null,
-                call_eth_tester('delete_filter'),
+                call_eth_tester("delete_filter"),
             ),
             static_return(False),
         ),
-        'getFilterChanges': null_if_filter_not_found(call_eth_tester('get_only_filter_changes')),
-        'getFilterLogs': null_if_filter_not_found(call_eth_tester('get_all_filter_logs')),
-        'getLogs': get_logs,
-        'getWork': not_implemented,
-        'submitWork': not_implemented,
-        'submitHashrate': not_implemented,
+        "getFilterChanges": null_if_filter_not_found(
+            call_eth_tester("get_only_filter_changes")
+        ),
+        "getFilterLogs": null_if_filter_not_found(
+            call_eth_tester("get_all_filter_logs")
+        ),
+        "getLogs": get_logs,
+        "getWork": not_implemented,
+        "submitWork": not_implemented,
+        "submitHashrate": not_implemented,
     },
-    'db': {
-        'putString': not_implemented,
-        'getString': not_implemented,
-        'putHex': not_implemented,
-        'getHex': not_implemented,
+    "db": {
+        "putString": not_implemented,
+        "getString": not_implemented,
+        "putHex": not_implemented,
+        "getHex": not_implemented,
     },
-    'admin': {
-        'add_peer': not_implemented,
-        'datadir': not_implemented,
-        'node_info': not_implemented,
-        'peers': not_implemented,
-        'start_http': not_implemented,
-        'start_ws': not_implemented,
-        'stop_http': not_implemented,
-        'stop_ws': not_implemented,
+    "admin": {
+        "add_peer": not_implemented,
+        "datadir": not_implemented,
+        "node_info": not_implemented,
+        "peers": not_implemented,
+        "start_http": not_implemented,
+        "start_ws": not_implemented,
+        "stop_http": not_implemented,
+        "stop_ws": not_implemented,
         # deprecated
-        'start_rpc': not_implemented,
-        'stop_rpc': not_implemented,
+        "start_rpc": not_implemented,
+        "stop_rpc": not_implemented,
     },
-    'debug': {
-        'backtraceAt': not_implemented,
-        'blockProfile': not_implemented,
-        'cpuProfile': not_implemented,
-        'dumpBlock': not_implemented,
-        'gtStats': not_implemented,
-        'getBlockRLP': not_implemented,
-        'goTrace': not_implemented,
-        'memStats': not_implemented,
-        'seedHashSign': not_implemented,
-        'setBlockProfileRate': not_implemented,
-        'setHead': not_implemented,
-        'stacks': not_implemented,
-        'startCPUProfile': not_implemented,
-        'startGoTrace': not_implemented,
-        'stopCPUProfile': not_implemented,
-        'stopGoTrace': not_implemented,
-        'traceBlock': not_implemented,
-        'traceBlockByNumber': not_implemented,
-        'traceBlockByHash': not_implemented,
-        'traceBlockFromFile': not_implemented,
-        'traceTransaction': not_implemented,
-        'verbosity': not_implemented,
-        'vmodule': not_implemented,
-        'writeBlockProfile': not_implemented,
-        'writeMemProfile': not_implemented,
+    "debug": {
+        "backtraceAt": not_implemented,
+        "blockProfile": not_implemented,
+        "cpuProfile": not_implemented,
+        "dumpBlock": not_implemented,
+        "gtStats": not_implemented,
+        "getBlockRLP": not_implemented,
+        "goTrace": not_implemented,
+        "memStats": not_implemented,
+        "seedHashSign": not_implemented,
+        "setBlockProfileRate": not_implemented,
+        "setHead": not_implemented,
+        "stacks": not_implemented,
+        "startCPUProfile": not_implemented,
+        "startGoTrace": not_implemented,
+        "stopCPUProfile": not_implemented,
+        "stopGoTrace": not_implemented,
+        "traceBlock": not_implemented,
+        "traceBlockByNumber": not_implemented,
+        "traceBlockByHash": not_implemented,
+        "traceBlockFromFile": not_implemented,
+        "traceTransaction": not_implemented,
+        "verbosity": not_implemented,
+        "vmodule": not_implemented,
+        "writeBlockProfile": not_implemented,
+        "writeMemProfile": not_implemented,
     },
-    'miner': {
-        'make_dag': not_implemented,
-        'set_extra': not_implemented,
-        'set_gas_price': not_implemented,
-        'start': not_implemented,
-        'stop': not_implemented,
-        'start_auto_dag': not_implemented,
-        'stop_auto_dag': not_implemented,
+    "miner": {
+        "make_dag": not_implemented,
+        "set_extra": not_implemented,
+        "set_gas_price": not_implemented,
+        "start": not_implemented,
+        "stop": not_implemented,
+        "start_auto_dag": not_implemented,
+        "stop_auto_dag": not_implemented,
         # deprecated
-        'makeDAG': not_implemented,
-        'setExtra': not_implemented,
-        'setGasPrice': not_implemented,
-        'startAutoDAG': not_implemented,
-        'stopAutoDAG': not_implemented,
+        "makeDAG": not_implemented,
+        "setExtra": not_implemented,
+        "setGasPrice": not_implemented,
+        "startAutoDAG": not_implemented,
+        "stopAutoDAG": not_implemented,
     },
-    'personal': {
-        'ec_recover': not_implemented,
-        'import_raw_key': call_eth_tester('add_account'),
-        'list_accounts': call_eth_tester('get_accounts'),
-        'list_wallets': not_implemented,
-        'lock_account': excepts(
+    "personal": {
+        "ec_recover": not_implemented,
+        "import_raw_key": call_eth_tester("add_account"),
+        "list_accounts": call_eth_tester("get_accounts"),
+        "list_wallets": not_implemented,
+        "lock_account": excepts(
             ValidationError,
-            compose(static_return(True), call_eth_tester('lock_account')),
+            compose(static_return(True), call_eth_tester("lock_account")),
             static_return(False),
         ),
-        'new_account': create_new_account,
-        'unlock_account': excepts(
+        "new_account": create_new_account,
+        "unlock_account": excepts(
             ValidationError,
-            compose(static_return(True), call_eth_tester('unlock_account')),
+            compose(static_return(True), call_eth_tester("unlock_account")),
             static_return(False),
         ),
-        'send_transaction': personal_send_transaction,
-        'sign': not_implemented,
+        "send_transaction": personal_send_transaction,
+        "sign": not_implemented,
         # deprecated
-        'ecRecover': not_implemented,
-        'importRawKey': call_eth_tester('add_account'),
-        'listAccounts': call_eth_tester('get_accounts'),
-        'lockAccount': excepts(
+        "ecRecover": not_implemented,
+        "importRawKey": call_eth_tester("add_account"),
+        "listAccounts": call_eth_tester("get_accounts"),
+        "lockAccount": excepts(
             ValidationError,
-            compose(static_return(True), call_eth_tester('lock_account')),
+            compose(static_return(True), call_eth_tester("lock_account")),
             static_return(False),
         ),
-        'newAccount': create_new_account,
-        'unlockAccount': excepts(
+        "newAccount": create_new_account,
+        "unlockAccount": excepts(
             ValidationError,
-            compose(static_return(True), call_eth_tester('unlock_account')),
+            compose(static_return(True), call_eth_tester("unlock_account")),
             static_return(False),
         ),
-        'sendTransaction': personal_send_transaction,
+        "sendTransaction": personal_send_transaction,
     },
-    'testing': {
-        'timeTravel': call_eth_tester('time_travel'),
+    "testing": {
+        "timeTravel": call_eth_tester("time_travel"),
     },
-    'txpool': {
-        'content': not_implemented,
-        'inspect': not_implemented,
-        'status': not_implemented,
+    "txpool": {
+        "content": not_implemented,
+        "inspect": not_implemented,
+        "status": not_implemented,
     },
-    'evm': {
-        'mine': call_eth_tester('mine_blocks'),
-        'revert': call_eth_tester('revert_to_snapshot'),
-        'snapshot': call_eth_tester('take_snapshot'),
+    "evm": {
+        "mine": call_eth_tester("mine_blocks"),
+        "revert": call_eth_tester("revert_to_snapshot"),
+        "snapshot": call_eth_tester("take_snapshot"),
     },
 }

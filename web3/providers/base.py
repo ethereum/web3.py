@@ -33,7 +33,10 @@ if TYPE_CHECKING:
 class BaseProvider:
     _middlewares: Tuple[Middleware, ...] = ()
     # a tuple of (all_middlewares, request_func)
-    _request_func_cache: Tuple[Tuple[Middleware, ...], Callable[..., RPCResponse]] = (None, None)
+    _request_func_cache: Tuple[Tuple[Middleware, ...], Callable[..., RPCResponse]] = (
+        None,
+        None,
+    )
 
     global_ccip_read_enabled: bool = True
     ccip_read_max_redirects: int = 4
@@ -43,9 +46,7 @@ class BaseProvider:
         return self._middlewares
 
     @middlewares.setter
-    def middlewares(
-        self, values: MiddlewareOnion
-    ) -> None:
+    def middlewares(self, values: MiddlewareOnion) -> None:
         # tuple(values) converts to MiddlewareOnion -> Tuple[Middleware, ...]
         self._middlewares = tuple(values)  # type: ignore
 
@@ -63,7 +64,7 @@ class BaseProvider:
         if cache_key is None or cache_key != all_middlewares:
             self._request_func_cache = (
                 all_middlewares,
-                self._generate_request_func(w3, all_middlewares)
+                self._generate_request_func(w3, all_middlewares),
             )
         return self._request_func_cache[-1]
 
@@ -103,11 +104,11 @@ class JSONBaseProvider(BaseProvider):
 
     def isConnected(self) -> bool:
         try:
-            response = self.make_request(RPCEndpoint('web3_clientVersion'), [])
+            response = self.make_request(RPCEndpoint("web3_clientVersion"), [])
         except OSError:
             return False
 
-        assert response['jsonrpc'] == '2.0'
-        assert 'error' not in response
+        assert response["jsonrpc"] == "2.0"
+        assert "error" not in response
 
         return True

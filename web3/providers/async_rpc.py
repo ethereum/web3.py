@@ -42,8 +42,9 @@ class AsyncHTTPProvider(AsyncJSONBaseProvider):
     _request_kwargs = None
 
     def __init__(
-        self, endpoint_uri: Optional[Union[URI, str]] = None,
-            request_kwargs: Optional[Any] = None
+        self,
+        endpoint_uri: Optional[Union[URI, str]] = None,
+        request_kwargs: Optional[Any] = None,
     ) -> None:
         if endpoint_uri is None:
             self.endpoint_uri = get_default_http_endpoint()
@@ -62,26 +63,28 @@ class AsyncHTTPProvider(AsyncJSONBaseProvider):
 
     @to_dict
     def get_request_kwargs(self) -> Iterable[Tuple[str, Any]]:
-        if 'headers' not in self._request_kwargs:
-            yield 'headers', self.get_request_headers()
+        if "headers" not in self._request_kwargs:
+            yield "headers", self.get_request_headers()
         for key, value in self._request_kwargs.items():
             yield key, value
 
     def get_request_headers(self) -> Dict[str, str]:
         return {
-            'Content-Type': 'application/json',
-            'User-Agent': construct_user_agent(str(type(self))),
+            "Content-Type": "application/json",
+            "User-Agent": construct_user_agent(str(type(self))),
         }
 
     async def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
-        self.logger.debug(f"Making request HTTP. URI: {self.endpoint_uri}, Method: {method}")
+        self.logger.debug(
+            f"Making request HTTP. URI: {self.endpoint_uri}, Method: {method}"
+        )
         request_data = self.encode_rpc_request(method, params)
         raw_response = await async_make_post_request(
-            self.endpoint_uri,
-            request_data,
-            **self.get_request_kwargs()
+            self.endpoint_uri, request_data, **self.get_request_kwargs()
         )
         response = self.decode_rpc_response(raw_response)
-        self.logger.debug(f"Getting response HTTP. URI: {self.endpoint_uri}, "
-                          f"Method: {method}, Response: {response}")
+        self.logger.debug(
+            f"Getting response HTTP. URI: {self.endpoint_uri}, "
+            f"Method: {method}, Response: {response}"
+        )
         return response
