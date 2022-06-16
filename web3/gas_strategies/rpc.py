@@ -12,8 +12,9 @@ from web3.types import (
 )
 
 
-def rpc_gas_price_strategy(w3: Web3,
-                           transaction_params: Optional[TxParams] = None) -> Wei:
+def rpc_gas_price_strategy(
+    w3: Web3, transaction_params: Optional[TxParams] = None
+) -> Wei:
     """
     A simple gas price strategy deriving it's value from the eth_gasPrice JSON-RPC call.
     """

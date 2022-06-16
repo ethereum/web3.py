@@ -38,38 +38,40 @@ from web3.types import (
 )
 
 MinerData = collections.namedtuple(
-    'MinerData',
-    ['miner', 'num_blocks', 'min_gas_price', 'low_percentile_gas_price'])
-Probability = collections.namedtuple('Probability', ['gas_price', 'prob'])
+    "MinerData", ["miner", "num_blocks", "min_gas_price", "low_percentile_gas_price"]
+)
+Probability = collections.namedtuple("Probability", ["gas_price", "prob"])
 
 
 def _get_avg_block_time(w3: Web3, sample_size: int) -> float:
-    latest = w3.eth.get_block('latest')
+    latest = w3.eth.get_block("latest")
 
-    constrained_sample_size = min(sample_size, latest['number'])
+    constrained_sample_size = min(sample_size, latest["number"])
     if constrained_sample_size == 0:
-        raise ValidationError('Constrained sample size is 0')
+        raise ValidationError("Constrained sample size is 0")
 
-    oldest = w3.eth.get_block(BlockNumber(latest['number'] - constrained_sample_size))
-    return (latest['timestamp'] - oldest['timestamp']) / constrained_sample_size
+    oldest = w3.eth.get_block(BlockNumber(latest["number"] - constrained_sample_size))
+    return (latest["timestamp"] - oldest["timestamp"]) / constrained_sample_size
 
 
 def _get_weighted_avg_block_time(w3: Web3, sample_size: int) -> float:
-    latest_block_number = w3.eth.get_block('latest')['number']
+    latest_block_number = w3.eth.get_block("latest")["number"]
     constrained_sample_size = min(sample_size, latest_block_number)
     if constrained_sample_size == 0:
-        raise ValidationError('Constrained sample size is 0')
+        raise ValidationError("Constrained sample size is 0")
 
-    oldest_block = w3.eth.get_block(BlockNumber(latest_block_number - constrained_sample_size))
-    oldest_block_number = oldest_block['number']
-    prev_timestamp = oldest_block['timestamp']
+    oldest_block = w3.eth.get_block(
+        BlockNumber(latest_block_number - constrained_sample_size)
+    )
+    oldest_block_number = oldest_block["number"]
+    prev_timestamp = oldest_block["timestamp"]
     weighted_sum = 0.0
     sum_of_weights = 0.0
     for i in range(oldest_block_number + 1, latest_block_number + 1):
-        curr_timestamp = w3.eth.get_block(BlockNumber(i))['timestamp']
+        curr_timestamp = w3.eth.get_block(BlockNumber(i))["timestamp"]
         time = curr_timestamp - prev_timestamp
         weight = (i - oldest_block_number) / constrained_sample_size
-        weighted_sum += (time * weight)
+        weighted_sum += time * weight
         sum_of_weights += weight
         prev_timestamp = curr_timestamp
     return weighted_sum / sum_of_weights
@@ -78,24 +80,24 @@ def _get_weighted_avg_block_time(w3: Web3, sample_size: int) -> float:
 def _get_raw_miner_data(
     w3: Web3, sample_size: int
 ) -> Iterable[Tuple[ChecksumAddress, HexBytes, Wei]]:
-    latest = w3.eth.get_block('latest', full_transactions=True)
+    latest = w3.eth.get_block("latest", full_transactions=True)
 
-    for transaction in latest['transactions']:
+    for transaction in latest["transactions"]:
         # type ignored b/c actual transaction is TxData not HexBytes
-        yield (latest['miner'], latest['hash'], transaction['gasPrice'])  # type: ignore
+        yield (latest["miner"], latest["hash"], transaction["gasPrice"])  # type: ignore
 
     block = latest
 
     for _ in range(sample_size - 1):
-        if block['number'] == 0:
+        if block["number"] == 0:
             break
 
         # we intentionally trace backwards using parent hashes rather than
         # block numbers to make caching the data easier to implement.
-        block = w3.eth.get_block(block['parentHash'], full_transactions=True)
-        for transaction in block['transactions']:
+        block = w3.eth.get_block(block["parentHash"], full_transactions=True)
+        for transaction in block["transactions"]:
             # type ignored b/c actual transaction is TxData not HexBytes
-            yield (block['miner'], block['hash'], transaction['gasPrice'])  # type: ignore
+            yield (block["miner"], block["hash"], transaction["gasPrice"])  # type: ignore
 
 
 def _aggregate_miner_data(
@@ -114,7 +116,8 @@ def _aggregate_miner_data(
             miner,
             len(set(block_hashes)),
             min(gas_prices),  # type: ignore
-            price_percentile)
+            price_percentile,
+        )
 
 
 @to_tuple
@@ -125,20 +128,26 @@ def _compute_probabilities(
     Computes the probabilities that a txn will be accepted at each of the gas
     prices accepted by the miners.
     """
-    miner_data_by_price = tuple(sorted(
-        miner_data,
-        key=operator.attrgetter('low_percentile_gas_price'),
-        reverse=True,
-    ))
+    miner_data_by_price = tuple(
+        sorted(
+            miner_data,
+            key=operator.attrgetter("low_percentile_gas_price"),
+            reverse=True,
+        )
+    )
     for idx in range(len(miner_data_by_price)):
         low_percentile_gas_price = miner_data_by_price[idx].low_percentile_gas_price
-        num_blocks_accepting_price = sum(m.num_blocks for m in miner_data_by_price[idx:])
+        num_blocks_accepting_price = sum(
+            m.num_blocks for m in miner_data_by_price[idx:]
+        )
         inv_prob_per_block = (sample_size - num_blocks_accepting_price) / sample_size
-        probability_accepted = 1 - inv_prob_per_block ** wait_blocks
+        probability_accepted = 1 - inv_prob_per_block**wait_blocks
         yield Probability(low_percentile_gas_price, probability_accepted)
 
 
-def _compute_gas_price(probabilities: Sequence[Probability], desired_probability: float) -> Wei:
+def _compute_gas_price(
+    probabilities: Sequence[Probability], desired_probability: float
+) -> Wei:
     """
     Given a sorted range of ``Probability`` named-tuples returns a gas price
     computed based on where the ``desired_probability`` would fall within the
@@ -163,7 +172,7 @@ def _compute_gas_price(probabilities: Sequence[Probability], desired_probability
             # This code block should never be reachable as it would indicate
             # that we already passed by the probability window in which our
             # `desired_probability` is located.
-            raise Exception('Invariant')
+            raise Exception("Invariant")
 
         adj_prob = desired_probability - right.prob
         window_size = left.prob - right.prob
@@ -180,12 +189,15 @@ def _compute_gas_price(probabilities: Sequence[Probability], desired_probability
         # reachable would be if the `probabilities` were not sorted correctly.
         # Otherwise, the `desired_probability` **must** fall between two of the
         # values in the `probabilities``.
-        raise Exception('Invariant')
+        raise Exception("Invariant")
 
 
 @curry
 def construct_time_based_gas_price_strategy(
-    max_wait_seconds: int, sample_size: int = 120, probability: int = 98, weighted: bool = False
+    max_wait_seconds: int,
+    sample_size: int = 120,
+    probability: int = 98,
+    weighted: bool = False,
 ) -> GasPriceStrategy:
     """
     A gas pricing strategy that uses recently mined block data to derive a gas
@@ -219,6 +231,7 @@ def construct_time_based_gas_price_strategy(
 
         gas_price = _compute_gas_price(probabilities, probability / 100)
         return gas_price
+
     return time_based_gas_price_strategy
 
 
