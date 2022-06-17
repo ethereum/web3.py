@@ -92,8 +92,8 @@ def gen_bounded_segments(start: int, stop: int, step: int) -> Iterable[Tuple[int
         yield (start, stop)
         return
     for segment in zip(
-            range(start, stop - step + 1, step),
-            range(start + step, stop + 1, step)):
+        range(start, stop - step + 1, step), range(start + step, stop + 1, step)
+    ):
         yield segment
 
     remainder = (stop - start) % step
@@ -107,18 +107,18 @@ def block_ranges(
 ) -> Iterable[Tuple[BlockNumber, BlockNumber]]:
     """Returns 2-tuple ranges describing ranges of block from start_block to last_block
 
-       Ranges do not overlap to facilitate use as ``toBlock``, ``fromBlock``
-       json-rpc arguments, which are both inclusive.
+    Ranges do not overlap to facilitate use as ``toBlock``, ``fromBlock``
+    json-rpc arguments, which are both inclusive.
     """
     if last_block is not None and start_block > last_block:
         raise TypeError(
             "Incompatible start and stop arguments.",
-            "Start must be less than or equal to stop.")
+            "Start must be less than or equal to stop.",
+        )
 
     return (
         (BlockNumber(from_block), BlockNumber(to_block - 1))
-        for from_block, to_block
-        in segment_count(start_block, last_block + 1, step)
+        for from_block, to_block in segment_count(start_block, last_block + 1, step)
     )
 
 
@@ -143,10 +143,7 @@ def iter_latest_block(
     """
     _last = None
 
-    is_bounded_range = (
-        to_block is not None
-        and to_block != "latest"
-    )
+    is_bounded_range = to_block is not None and to_block != "latest"
 
     while True:
         latest_block = w3.eth.block_number
@@ -200,7 +197,7 @@ def get_logs_multipart(
     stopBlock: BlockNumber,
     address: Union[Address, ChecksumAddress, List[Union[Address, ChecksumAddress]]],
     topics: List[Optional[Union[_Hash32, List[_Hash32]]]],
-    max_blocks: int
+    max_blocks: int,
 ) -> Iterable[List[LogReceipt]]:
     """Used to break up requests to ``eth_getLogs``
 
@@ -213,7 +210,7 @@ def get_logs_multipart(
             "fromBlock": from_block,
             "toBlock": to_block,
             "address": address,
-            "topics": topics
+            "topics": topics,
         }
         yield w3.eth.get_logs(cast(FilterParams, drop_items_with_none_value(params)))
 
@@ -226,10 +223,10 @@ class RequestLogs:
         w3: "Web3",
         from_block: Optional[Union[BlockNumber, LatestBlockParam]] = None,
         to_block: Optional[Union[BlockNumber, LatestBlockParam]] = None,
-        address: Optional[Union[Address,
-                                ChecksumAddress,
-                                List[Union[Address, ChecksumAddress]]]] = None,
-        topics: Optional[List[Optional[Union[_Hash32, List[_Hash32]]]]] = None
+        address: Optional[
+            Union[Address, ChecksumAddress, List[Union[Address, ChecksumAddress]]]
+        ] = None,
+        topics: Optional[List[Optional[Union[_Hash32, List[_Hash32]]]]] = None,
     ) -> None:
         self.address = address
         self.topics = topics
@@ -262,7 +259,9 @@ class RequestLogs:
         return to_block
 
     def _get_filter_changes(self) -> Iterator[List[LogReceipt]]:
-        for start, stop in iter_latest_block_ranges(self.w3, self.from_block, self.to_block):
+        for start, stop in iter_latest_block_ranges(
+            self.w3, self.from_block, self.to_block
+        ):
             if None in (start, stop):
                 yield []
             else:
@@ -274,7 +273,10 @@ class RequestLogs:
                             stop,
                             self.address,
                             self.topics,
-                            max_blocks=MAX_BLOCK_REQUEST)))
+                            max_blocks=MAX_BLOCK_REQUEST,
+                        )
+                    )
+                )
 
     def get_logs(self) -> List[LogReceipt]:
         return list(
@@ -285,13 +287,13 @@ class RequestLogs:
                     self.to_block,
                     self.address,
                     self.topics,
-                    max_blocks=MAX_BLOCK_REQUEST)))
+                    max_blocks=MAX_BLOCK_REQUEST,
+                )
+            )
+        )
 
 
-FILTER_PARAMS_KEY_MAP = {
-    "toBlock": "to_block",
-    "fromBlock": "from_block"
-}
+FILTER_PARAMS_KEY_MAP = {"toBlock": "to_block", "fromBlock": "from_block"}
 
 NEW_FILTER_METHODS = {
     "eth_newBlockFilter",
@@ -314,10 +316,7 @@ class RequestBlocks:
         return self.get_filter_changes()
 
     def get_filter_changes(self) -> Iterator[List[Hash32]]:
-        block_range_iter = iter_latest_block_ranges(
-            self.w3,
-            self.start_block,
-            None)
+        block_range_iter = iter_latest_block_ranges(self.w3, self.start_block, None)
 
         for block_range in block_range_iter:
             yield (block_hashes_in_range(self.w3, block_range))
@@ -347,7 +346,9 @@ def local_filter_middleware(
 
             _filter: Union[RequestLogs, RequestBlocks]
             if method == RPC.eth_newFilter:
-                _filter = RequestLogs(w3, **apply_key_map(FILTER_PARAMS_KEY_MAP, params[0]))
+                _filter = RequestLogs(
+                    w3, **apply_key_map(FILTER_PARAMS_KEY_MAP, params[0])
+                )
 
             elif method == RPC.eth_newBlockFilter:
                 _filter = RequestBlocks(w3)

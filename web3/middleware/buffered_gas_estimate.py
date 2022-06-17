@@ -28,16 +28,17 @@ def buffered_gas_estimate_middleware(
     make_request: Callable[[RPCEndpoint, Any], Any], w3: "Web3"
 ) -> Callable[[RPCEndpoint, Any], RPCResponse]:
     def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
-        if method == 'eth_sendTransaction':
+        if method == "eth_sendTransaction":
             transaction = params[0]
-            if 'gas' not in transaction:
+            if "gas" not in transaction:
                 transaction = assoc(
                     transaction,
-                    'gas',
+                    "gas",
                     hex(get_buffered_gas_estimate(w3, transaction)),
                 )
                 return make_request(method, [transaction])
         return make_request(method, params)
+
     return middleware
 
 
@@ -45,15 +46,12 @@ async def async_buffered_gas_estimate_middleware(
     make_request: Callable[[RPCEndpoint, Any], Any], w3: "Web3"
 ) -> AsyncMiddleware:
     async def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
-        if method == 'eth_sendTransaction':
+        if method == "eth_sendTransaction":
             transaction = params[0]
-            if 'gas' not in transaction:
+            if "gas" not in transaction:
                 gas_estimate = await async_get_buffered_gas_estimate(w3, transaction)
-                transaction = assoc(
-                    transaction,
-                    'gas',
-                    hex(gas_estimate)
-                )
+                transaction = assoc(transaction, "gas", hex(gas_estimate))
                 return await make_request(method, [transaction])
         return await make_request(method, params)
+
     return middleware

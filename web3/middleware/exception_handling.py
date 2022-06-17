@@ -23,8 +23,9 @@ if TYPE_CHECKING:
 
 
 def construct_exception_handler_middleware(
-    method_handlers: Optional[Dict[RPCEndpoint,
-                                   Tuple[Type[BaseException], Callable[..., None]]]] = None
+    method_handlers: Optional[
+        Dict[RPCEndpoint, Tuple[Type[BaseException], Callable[..., None]]]
+    ] = None
 ) -> Middleware:
     if method_handlers is None:
         method_handlers = {}
@@ -42,5 +43,7 @@ def construct_exception_handler_middleware(
                 )(method, params)
             else:
                 return make_request(method, params)
+
         return middleware
+
     return exception_handler_middleware
