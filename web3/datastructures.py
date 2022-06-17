@@ -42,7 +42,9 @@ class ReadableAttributeDict(Mapping[TKey, TValue]):
     The read attributes for the AttributeDict types
     """
 
-    def __init__(self, dictionary: Dict[TKey, TValue], *args: Any, **kwargs: Any) -> None:
+    def __init__(
+        self, dictionary: Dict[TKey, TValue], *args: Any, **kwargs: Any
+    ) -> None:
         # type ignored on 46/50 b/c dict() expects str index type not TKey
         self.__dict__ = dict(dictionary)  # type: ignore
         self.__dict__.update(dict(*args, **kwargs))
@@ -80,12 +82,13 @@ class ReadableAttributeDict(Mapping[TKey, TValue]):
             return value
 
     @classmethod
-    def recursive(cls, value: TValue) -> 'ReadableAttributeDict[TKey, TValue]':
+    def recursive(cls, value: TValue) -> "ReadableAttributeDict[TKey, TValue]":
         return recursive_map(cls._apply_if_mapping, value)
 
 
-class MutableAttributeDict(MutableMapping[TKey, TValue], ReadableAttributeDict[TKey, TValue]):
-
+class MutableAttributeDict(
+    MutableMapping[TKey, TValue], ReadableAttributeDict[TKey, TValue]
+):
     def __setitem__(self, key: Any, val: Any) -> None:
         self.__dict__[key] = val
 
@@ -99,13 +102,15 @@ class AttributeDict(ReadableAttributeDict[TKey, TValue], Hashable):
     """
 
     def __setattr__(self, attr: str, val: TValue) -> None:
-        if attr == '__dict__':
+        if attr == "__dict__":
             super().__setattr__(attr, val)
         else:
-            raise TypeError('This data is immutable -- create a copy instead of modifying')
+            raise TypeError(
+                "This data is immutable -- create a copy instead of modifying"
+            )
 
     def __delattr__(self, key: str) -> None:
-        raise TypeError('This data is immutable -- create a copy instead of modifying')
+        raise TypeError("This data is immutable -- create a copy instead of modifying")
 
     def __hash__(self) -> int:
         return hash(tuple(sorted(self.items())))
@@ -124,9 +129,11 @@ class NamedElementOnion(Mapping[TKey, TValue]):
     """
 
     def __init__(
-        self, init_elements: Sequence[Any], valid_element: Callable[..., bool] = callable
+        self,
+        init_elements: Sequence[Any],
+        valid_element: Callable[..., bool] = callable,
     ) -> None:
-        self._queue: 'OrderedDict[Any, Any]' = OrderedDict()
+        self._queue: "OrderedDict[Any, Any]" = OrderedDict()
         for element in reversed(init_elements):
             if valid_element(element):
                 self.add(element)
@@ -141,12 +148,15 @@ class NamedElementOnion(Mapping[TKey, TValue]):
             if name is element:
                 raise ValueError("You can't add the same un-named instance twice")
             else:
-                raise ValueError("You can't add the same name again, use replace instead")
+                raise ValueError(
+                    "You can't add the same name again, use replace instead"
+                )
 
         self._queue[name] = element
 
-    def inject(self, element: TValue, name: Optional[TKey] = None,
-               layer: Optional[int] = None) -> None:
+    def inject(
+        self, element: TValue, name: Optional[TKey] = None, layer: Optional[int] = None
+    ) -> None:
         """
         Inject a named element to an arbitrary layer in the onion.
 
@@ -171,14 +181,18 @@ class NamedElementOnion(Mapping[TKey, TValue]):
         elif layer == len(self._queue):
             return
         else:
-            raise AssertionError("Impossible to reach: earlier validation raises an error")
+            raise AssertionError(
+                "Impossible to reach: earlier validation raises an error"
+            )
 
     def clear(self) -> None:
         self._queue.clear()
 
     def replace(self, old: TKey, new: TKey) -> TValue:
         if old not in self._queue:
-            raise ValueError("You can't replace unless one already exists, use add instead")
+            raise ValueError(
+                "You can't replace unless one already exists, use add instead"
+            )
         to_be_replaced = self._queue[old]
         if to_be_replaced is old:
             # re-insert with new name in old slot
@@ -219,9 +233,11 @@ class NamedElementOnion(Mapping[TKey, TValue]):
             elements = list(elements)  # type: ignore
         return iter(reversed(elements))
 
-    def __add__(self, other: Any) -> 'NamedElementOnion[TKey, TValue]':
+    def __add__(self, other: Any) -> "NamedElementOnion[TKey, TValue]":
         if not isinstance(other, NamedElementOnion):
-            raise NotImplementedError("You can only combine with another NamedElementOnion")
+            raise NotImplementedError(
+                "You can only combine with another NamedElementOnion"
+            )
         combined = self._queue.copy()
         combined.update(other._queue)
         return NamedElementOnion(cast(List[Any], combined.items()))

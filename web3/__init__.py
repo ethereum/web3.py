@@ -1,12 +1,7 @@
-
 import pkg_resources
 
-from eth_account import (
-    Account  # noqa: E402,
-)
-from web3.main import (
-    Web3  # noqa: E402,
-)
+from eth_account import Account  # noqa: E402,
+from web3.main import Web3  # noqa: E402,
 from web3.providers.eth_tester import (  # noqa: E402
     EthereumTesterProvider,
 )
