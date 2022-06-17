@@ -31,12 +31,12 @@ from web3.types import (
     RPCResponse,
 )
 
-HTTP_SCHEMES = {'http', 'https'}
-WS_SCHEMES = {'ws', 'wss'}
+HTTP_SCHEMES = {"http", "https"}
+WS_SCHEMES = {"ws", "wss"}
 
 
 def load_provider_from_environment() -> BaseProvider:
-    uri_string = URI(os.environ.get('WEB3_PROVIDER_URI', ''))
+    uri_string = URI(os.environ.get("WEB3_PROVIDER_URI", ""))
     if not uri_string:
         return None
 
@@ -47,7 +47,7 @@ def load_provider_from_uri(
     uri_string: URI, headers: Optional[Dict[str, Tuple[str, str]]] = None
 ) -> BaseProvider:
     uri = urlparse(uri_string)
-    if uri.scheme == 'file':
+    if uri.scheme == "file":
         return IPCProvider(uri.path)
     elif uri.scheme in HTTP_SCHEMES:
         return HTTPProvider(uri_string, headers)
@@ -55,7 +55,7 @@ def load_provider_from_uri(
         return WebsocketProvider(uri_string)
     else:
         raise NotImplementedError(
-            f'Web3 does not know how to connect to scheme {uri.scheme!r} in {uri_string!r}'
+            f"Web3 does not know how to connect to scheme {uri.scheme!r} in {uri_string!r}"
         )
 
 
@@ -71,8 +71,9 @@ class AutoProvider(BaseProvider):
 
     def __init__(
         self,
-        potential_providers: Optional[Sequence[Union[Callable[..., BaseProvider],
-                                      Type[BaseProvider]]]] = None
+        potential_providers: Optional[
+            Sequence[Union[Callable[..., BaseProvider], Type[BaseProvider]]]
+        ] = None,
     ) -> None:
         """
         :param iterable potential_providers: ordered series of provider classes to attempt with
@@ -96,8 +97,9 @@ class AutoProvider(BaseProvider):
         provider = self._get_active_provider(use_cache=True)
         return provider is not None and provider.isConnected()
 
-    def _proxy_request(self, method: RPCEndpoint, params: Any,
-                       use_cache: bool = True) -> RPCResponse:
+    def _proxy_request(
+        self, method: RPCEndpoint, params: Any, use_cache: bool = True
+    ) -> RPCResponse:
         provider = self._get_active_provider(use_cache)
         if provider is None:
             raise CannotHandleRequest(

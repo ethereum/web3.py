@@ -32,7 +32,7 @@ from .base import (
 
 
 def get_ipc_socket(ipc_path: str, timeout: float = 2.0) -> socket.socket:
-    if sys.platform == 'win32':
+    if sys.platform == "win32":
         # On Windows named pipe is used. Simulate socket with it.
         from web3._utils.windows import NamedPipe
 
@@ -61,7 +61,10 @@ class PersistantSocket:
         return self.sock
 
     def __exit__(
-        self, exc_type: Type[BaseException], exc_value: BaseException, traceback: TracebackType
+        self,
+        exc_type: Type[BaseException],
+        exc_value: BaseException,
+        traceback: TracebackType,
     ) -> None:
         # only close the socket if there was an error
         if exc_value is not None:
@@ -82,71 +85,52 @@ class PersistantSocket:
 
 # type ignored b/c missing return statement is by design here
 def get_default_ipc_path() -> str:  # type: ignore
-    if sys.platform == 'darwin':
-        ipc_path = os.path.expanduser(os.path.join(
-            "~",
-            "Library",
-            "Ethereum",
-            "geth.ipc"
-        ))
-        if os.path.exists(ipc_path):
-            return ipc_path
-
-        ipc_path = os.path.expanduser(os.path.join(
-            "~",
-            "Library",
-            "Application Support",
-            "io.parity.ethereum",
-            "jsonrpc.ipc"
-        ))
-        if os.path.exists(ipc_path):
-            return ipc_path
-
-        base_trinity_path = Path('~').expanduser() / '.local' / 'share' / 'trinity'
-        ipc_path = str(base_trinity_path / 'mainnet' / 'ipcs-eth1' / 'jsonrpc.ipc')
-        if Path(ipc_path).exists():
-            return str(ipc_path)
-
-    elif sys.platform.startswith('linux') or sys.platform.startswith('freebsd'):
-        ipc_path = os.path.expanduser(os.path.join(
-            "~",
-            ".ethereum",
-            "geth.ipc"
-        ))
-        if os.path.exists(ipc_path):
-            return ipc_path
-
-        ipc_path = os.path.expanduser(os.path.join(
-            "~",
-            ".local",
-            "share",
-            "io.parity.ethereum",
-            "jsonrpc.ipc"
-        ))
-        if os.path.exists(ipc_path):
-            return ipc_path
-
-        base_trinity_path = Path('~').expanduser() / '.local' / 'share' / 'trinity'
-        ipc_path = str(base_trinity_path / 'mainnet' / 'ipcs-eth1' / 'jsonrpc.ipc')
-        if Path(ipc_path).exists():
-            return str(ipc_path)
-
-    elif sys.platform == 'win32':
-        ipc_path = os.path.join(
-            "\\\\",
-            ".",
-            "pipe",
-            "geth.ipc"
+    if sys.platform == "darwin":
+        ipc_path = os.path.expanduser(
+            os.path.join("~", "Library", "Ethereum", "geth.ipc")
         )
         if os.path.exists(ipc_path):
             return ipc_path
 
-        ipc_path = os.path.join(
-            "\\\\",
-            ".",
-            "pipe",
-            "jsonrpc.ipc"
+        ipc_path = os.path.expanduser(
+            os.path.join(
+                "~",
+                "Library",
+                "Application Support",
+                "io.parity.ethereum",
+                "jsonrpc.ipc",
+            )
         )
+        if os.path.exists(ipc_path):
+            return ipc_path
+
+        base_trinity_path = Path("~").expanduser() / ".local" / "share" / "trinity"
+        ipc_path = str(base_trinity_path / "mainnet" / "ipcs-eth1" / "jsonrpc.ipc")
+        if Path(ipc_path).exists():
+            return str(ipc_path)
+
+    elif sys.platform.startswith("linux") or sys.platform.startswith("freebsd"):
+        ipc_path = os.path.expanduser(os.path.join("~", ".ethereum", "geth.ipc"))
+        if os.path.exists(ipc_path):
+            return ipc_path
+
+        ipc_path = os.path.expanduser(
+            os.path.join("~", ".local", "share", "io.parity.ethereum", "jsonrpc.ipc")
+        )
+        if os.path.exists(ipc_path):
+            return ipc_path
+
+        base_trinity_path = Path("~").expanduser() / ".local" / "share" / "trinity"
+        ipc_path = str(base_trinity_path / "mainnet" / "ipcs-eth1" / "jsonrpc.ipc")
+        if Path(ipc_path).exists():
+            return str(ipc_path)
+
+    elif sys.platform == "win32":
+        ipc_path = os.path.join("\\\\", ".", "pipe", "geth.ipc")
+        if os.path.exists(ipc_path):
+            return ipc_path
+
+        ipc_path = os.path.join("\\\\", ".", "pipe", "jsonrpc.ipc")
         if os.path.exists(ipc_path):
             return ipc_path
 
@@ -159,43 +143,27 @@ def get_default_ipc_path() -> str:  # type: ignore
 
 # type ignored b/c missing return statement is by design here
 def get_dev_ipc_path() -> str:  # type: ignore
-    if os.environ.get('WEB3_PROVIDER_URI', ''):
-        ipc_path = os.environ.get('WEB3_PROVIDER_URI')
+    if os.environ.get("WEB3_PROVIDER_URI", ""):
+        ipc_path = os.environ.get("WEB3_PROVIDER_URI")
         if os.path.exists(ipc_path):
             return ipc_path
-    elif sys.platform == 'darwin':
-        tmpdir = os.environ.get('TMPDIR', '')
-        ipc_path = os.path.expanduser(os.path.join(
-            tmpdir,
-            "geth.ipc"
-        ))
+    elif sys.platform == "darwin":
+        tmpdir = os.environ.get("TMPDIR", "")
+        ipc_path = os.path.expanduser(os.path.join(tmpdir, "geth.ipc"))
         if os.path.exists(ipc_path):
             return ipc_path
 
-    elif sys.platform.startswith('linux') or sys.platform.startswith('freebsd'):
-        ipc_path = os.path.expanduser(os.path.join(
-            "/tmp",
-            "geth.ipc"
-        ))
+    elif sys.platform.startswith("linux") or sys.platform.startswith("freebsd"):
+        ipc_path = os.path.expanduser(os.path.join("/tmp", "geth.ipc"))
         if os.path.exists(ipc_path):
             return ipc_path
 
-    elif sys.platform == 'win32':
-        ipc_path = os.path.join(
-            "\\\\",
-            ".",
-            "pipe",
-            "geth.ipc"
-        )
+    elif sys.platform == "win32":
+        ipc_path = os.path.join("\\\\", ".", "pipe", "geth.ipc")
         if os.path.exists(ipc_path):
             return ipc_path
 
-        ipc_path = os.path.join(
-            "\\\\",
-            ".",
-            "pipe",
-            "jsonrpc.ipc"
-        )
+        ipc_path = os.path.join("\\\\", ".", "pipe", "jsonrpc.ipc")
         if os.path.exists(ipc_path):
             return ipc_path
 
@@ -233,7 +201,9 @@ class IPCProvider(JSONBaseProvider):
         return f"<{self.__class__.__name__} {self.ipc_path}>"
 
     def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
-        self.logger.debug(f"Making request IPC. Path: {self.ipc_path}, Method: {method}")
+        self.logger.debug(
+            f"Making request IPC. Path: {self.ipc_path}, Method: {method}"
+        )
         request = self.encode_rpc_request(method, params)
 
         with self._lock, self._socket as sock:

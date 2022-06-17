@@ -36,7 +36,7 @@ from web3.types import (
     RPCResponse,
 )
 
-RESTRICTED_WEBSOCKET_KWARGS = {'uri', 'loop'}
+RESTRICTED_WEBSOCKET_KWARGS = {"uri", "loop"}
 DEFAULT_WEBSOCKET_TIMEOUT = 10
 
 
@@ -54,27 +54,25 @@ def _get_threaded_loop() -> asyncio.AbstractEventLoop:
 
 
 def get_default_endpoint() -> URI:
-    return URI(os.environ.get('WEB3_WS_PROVIDER_URI', 'ws://127.0.0.1:8546'))
+    return URI(os.environ.get("WEB3_WS_PROVIDER_URI", "ws://127.0.0.1:8546"))
 
 
 class PersistentWebSocket:
-
-    def __init__(
-        self, endpoint_uri: URI, websocket_kwargs: Any
-    ) -> None:
+    def __init__(self, endpoint_uri: URI, websocket_kwargs: Any) -> None:
         self.ws: WebSocketClientProtocol = None
         self.endpoint_uri = endpoint_uri
         self.websocket_kwargs = websocket_kwargs
 
     async def __aenter__(self) -> WebSocketClientProtocol:
         if self.ws is None:
-            self.ws = await connect(
-                uri=self.endpoint_uri, **self.websocket_kwargs
-            )
+            self.ws = await connect(uri=self.endpoint_uri, **self.websocket_kwargs)
         return self.ws
 
     async def __aexit__(
-        self, exc_type: Type[BaseException], exc_val: BaseException, exc_tb: TracebackType
+        self,
+        exc_type: Type[BaseException],
+        exc_val: BaseException,
+        exc_tb: TracebackType,
     ) -> None:
         if exc_val is not None:
             try:
@@ -108,12 +106,10 @@ class WebsocketProvider(JSONBaseProvider):
             )
             if found_restricted_keys:
                 raise ValidationError(
-                    f'{RESTRICTED_WEBSOCKET_KWARGS} are not allowed '
-                    f'in websocket_kwargs, found: {found_restricted_keys}'
+                    f"{RESTRICTED_WEBSOCKET_KWARGS} are not allowed "
+                    f"in websocket_kwargs, found: {found_restricted_keys}"
                 )
-        self.conn = PersistentWebSocket(
-            self.endpoint_uri, websocket_kwargs
-        )
+        self.conn = PersistentWebSocket(self.endpoint_uri, websocket_kwargs)
         super().__init__()
 
     def __str__(self) -> str:
@@ -122,22 +118,18 @@ class WebsocketProvider(JSONBaseProvider):
     async def coro_make_request(self, request_data: bytes) -> RPCResponse:
         async with self.conn as conn:
             await asyncio.wait_for(
-                conn.send(request_data),
-                timeout=self.websocket_timeout
+                conn.send(request_data), timeout=self.websocket_timeout
             )
             return json.loads(
-                await asyncio.wait_for(
-                    conn.recv(),
-                    timeout=self.websocket_timeout
-                )
+                await asyncio.wait_for(conn.recv(), timeout=self.websocket_timeout)
             )
 
     def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
-        self.logger.debug(f"Making request WebSocket. URI: {self.endpoint_uri}, "
-                          f"Method: {method}")
+        self.logger.debug(
+            f"Making request WebSocket. URI: {self.endpoint_uri}, " f"Method: {method}"
+        )
         request_data = self.encode_rpc_request(method, params)
         future = asyncio.run_coroutine_threadsafe(
-            self.coro_make_request(request_data),
-            WebsocketProvider._loop
+            self.coro_make_request(request_data), WebsocketProvider._loop
         )
         return future.result()
