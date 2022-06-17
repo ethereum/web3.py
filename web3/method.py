@@ -61,16 +61,21 @@ def _munger_star_apply(fn: Callable[..., TReturn]) -> Callable[..., TReturn]:
     @functools.wraps(fn)
     def inner(args: Any) -> TReturn:
         return fn(*args)
+
     return inner
 
 
-def _set_mungers(mungers: Optional[Sequence[Munger]], is_property: bool) -> Sequence[Any]:
+def _set_mungers(
+    mungers: Optional[Sequence[Munger]], is_property: bool
+) -> Sequence[Any]:
     if is_property and mungers:
         raise ValidationError("Mungers cannot be used with a property.")
 
     return (
-        mungers if mungers
-        else [default_munger] if is_property
+        mungers
+        if mungers
+        else [default_munger]
+        if is_property
         else [default_root_munger]
     )
 
@@ -85,7 +90,7 @@ def default_root_munger(_module: "Module", *args: Any) -> List[Any]:
     return [*args]
 
 
-TFunc = TypeVar('TFunc', bound=Callable[..., Any])
+TFunc = TypeVar("TFunc", bound=Callable[..., Any])
 
 
 class Method(Generic[TFunc]):
@@ -127,6 +132,7 @@ class Method(Generic[TFunc]):
     the calling function returned by the module attribute ``retrieve_caller_fn``
     and the response formatters are applied to the output.
     """
+
     def __init__(
         self,
         json_rpc_method: Optional[RPCEndpoint] = None,
@@ -141,7 +147,9 @@ class Method(Generic[TFunc]):
         self.mungers = _set_mungers(mungers, is_property)
         self.request_formatters = request_formatters or get_request_formatters
         self.result_formatters = result_formatters or get_result_formatters
-        self.null_result_formatters = null_result_formatters or get_null_result_formatters
+        self.null_result_formatters = (
+            null_result_formatters or get_null_result_formatters
+        )
         self.method_choice_depends_on_args = method_choice_depends_on_args
         self.is_property = is_property
 
@@ -152,22 +160,24 @@ class Method(Generic[TFunc]):
             raise TypeError(
                 "Direct calls to methods are not supported. "
                 "Methods must be called from an module instance, "
-                "usually attached to a web3 instance.")
+                "usually attached to a web3 instance."
+            )
         return obj.retrieve_caller_fn(self)
 
     @property
-    def method_selector_fn(self) -> Callable[..., Union[RPCEndpoint, Callable[..., RPCEndpoint]]]:
-        """Gets the method selector from the config.
-        """
+    def method_selector_fn(
+        self,
+    ) -> Callable[..., Union[RPCEndpoint, Callable[..., RPCEndpoint]]]:
+        """Gets the method selector from the config."""
         if callable(self.json_rpc_method):
             return self.json_rpc_method
         elif isinstance(self.json_rpc_method, (str,)):
             return lambda *_: self.json_rpc_method
-        raise ValueError("``json_rpc_method`` config invalid.  May be a string or function")
+        raise ValueError(
+            "``json_rpc_method`` config invalid.  May be a string or function"
+        )
 
-    def input_munger(
-        self, module: "Module", args: Any, kwargs: Any
-    ) -> List[Any]:
+    def input_munger(self, module: "Module", args: Any, kwargs: Any) -> List[Any]:
         # This function takes the "root_munger" - (the first munger in
         # the list of mungers) and then pipes the return value of the
         # previous munger as an argument to the next munger to return
@@ -180,16 +190,22 @@ class Method(Generic[TFunc]):
         root_munger = next(mungers_iter)
         munged_inputs = pipe(
             root_munger(module, *args, **kwargs),
-            *map(lambda m: _munger_star_apply(functools.partial(m, module)), mungers_iter)
+            *map(
+                lambda m: _munger_star_apply(functools.partial(m, module)), mungers_iter
+            ),
         )
         return munged_inputs
 
     def process_params(
         self, module: "Module", *args: Any, **kwargs: Any
-    ) -> Tuple[Tuple[Union[RPCEndpoint, Callable[..., RPCEndpoint]], Tuple[Any, ...]],
-               Tuple[Union[TReturn, Dict[str, Callable[..., Any]]],
-                     Callable[..., Any],
-                     Union[TReturn, Callable[..., Any]]]]:
+    ) -> Tuple[
+        Tuple[Union[RPCEndpoint, Callable[..., RPCEndpoint]], Tuple[Any, ...]],
+        Tuple[
+            Union[TReturn, Dict[str, Callable[..., Any]]],
+            Callable[..., Any],
+            Union[TReturn, Callable[..., Any]],
+        ],
+    ]:
         params = self.input_munger(module, args, kwargs)
 
         if self.method_choice_depends_on_args:
@@ -199,7 +215,7 @@ class Method(Generic[TFunc]):
 
             pending_or_latest_filter_methods = [
                 RPC.eth_newPendingTransactionFilter,
-                RPC.eth_newBlockFilter
+                RPC.eth_newBlockFilter,
             ]
             if self.json_rpc_method in pending_or_latest_filter_methods:
                 # For pending or latest filter methods, use params to determine
@@ -214,19 +230,22 @@ class Method(Generic[TFunc]):
         )
         request = (
             method,
-            _apply_request_formatters(params, self.request_formatters(method))
+            _apply_request_formatters(params, self.request_formatters(method)),
         )
         return request, response_formatters
 
 
 class DeprecatedMethod:
-    def __init__(self, method: Method[Callable[..., Any]], old_name: str, new_name: str) -> None:
+    def __init__(
+        self, method: Method[Callable[..., Any]], old_name: str, new_name: str
+    ) -> None:
         self.method = method
         self.old_name = old_name
         self.new_name = new_name
 
-    def __get__(self, obj: Optional["Module"] = None,
-                obj_type: Optional[Type["Module"]] = None) -> Any:
+    def __get__(
+        self, obj: Optional["Module"] = None, obj_type: Optional[Type["Module"]] = None
+    ) -> Any:
         warnings.warn(
             f"{self.old_name} is deprecated in favor of {self.new_name}",
             category=DeprecationWarning,
