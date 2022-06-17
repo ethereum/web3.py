@@ -77,6 +77,7 @@ class BaseGethPersonal(Module):
     """
     https://github.com/ethereum/go-ethereum/wiki/management-apis#personal
     """
+
     _ec_recover = ec_recover
     _import_raw_key = import_raw_key
     _list_accounts = list_accounts
@@ -116,26 +117,28 @@ class GethPersonal(BaseGethPersonal):
     def sign(self, message: str, account: ChecksumAddress, passphrase: str) -> HexStr:
         return self._sign(message, account, passphrase)
 
-    def sign_typed_data(self,
-                        message: Dict[str, Any],
-                        account: ChecksumAddress,
-                        passphrase: str) -> HexStr:
+    def sign_typed_data(
+        self, message: Dict[str, Any], account: ChecksumAddress, passphrase: str
+    ) -> HexStr:
         return self._sign_typed_data(message, account, passphrase)
 
-    def unlock_account(self,
-                       account: ChecksumAddress,
-                       passphrase: str,
-                       duration: Optional[int] = None) -> bool:
+    def unlock_account(
+        self, account: ChecksumAddress, passphrase: str, duration: Optional[int] = None
+    ) -> bool:
         return self._unlock_account(account, passphrase, duration)
 
 
 class AsyncGethPersonal(BaseGethPersonal):
     is_async = True
 
-    async def ec_recover(self, message: str, signature: HexStr) -> Awaitable[ChecksumAddress]:
+    async def ec_recover(
+        self, message: str, signature: HexStr
+    ) -> Awaitable[ChecksumAddress]:
         return await self._ec_recover(message, signature)  # type: ignore
 
-    async def import_raw_key(self, private_key: str, passphrase: str) -> Awaitable[ChecksumAddress]:
+    async def import_raw_key(
+        self, private_key: str, passphrase: str
+    ) -> Awaitable[ChecksumAddress]:
         return await self._import_raw_key(private_key, passphrase)  # type: ignore
 
     async def list_accounts(self) -> Awaitable[List[ChecksumAddress]]:
@@ -150,25 +153,24 @@ class AsyncGethPersonal(BaseGethPersonal):
     async def new_account(self, passphrase: str) -> Awaitable[ChecksumAddress]:
         return await self._new_account(passphrase)  # type: ignore
 
-    async def send_transaction(self, transaction: TxParams, passphrase: str) -> Awaitable[HexBytes]:
+    async def send_transaction(
+        self, transaction: TxParams, passphrase: str
+    ) -> Awaitable[HexBytes]:
         return await self._send_transaction(transaction, passphrase)  # type: ignore
 
-    async def sign(self,
-                   message: str,
-                   account: ChecksumAddress,
-                   passphrase: str) -> Awaitable[HexStr]:
+    async def sign(
+        self, message: str, account: ChecksumAddress, passphrase: str
+    ) -> Awaitable[HexStr]:
         return await self._sign(message, account, passphrase)  # type: ignore
 
-    async def sign_typed_data(self,
-                              message: Dict[str, Any],
-                              account: ChecksumAddress,
-                              passphrase: str) -> Awaitable[HexStr]:
+    async def sign_typed_data(
+        self, message: Dict[str, Any], account: ChecksumAddress, passphrase: str
+    ) -> Awaitable[HexStr]:
         return await self._sign_typed_data(message, account, passphrase)  # type: ignore
 
-    async def unlock_account(self,
-                             account: ChecksumAddress,
-                             passphrase: str,
-                             duration: Optional[int] = None) -> Awaitable[bool]:
+    async def unlock_account(
+        self, account: ChecksumAddress, passphrase: str, duration: Optional[int] = None
+    ) -> Awaitable[bool]:
         return await self._unlock_account(account, passphrase, duration)  # type: ignore
 
 
@@ -176,6 +178,7 @@ class BaseTxPool(Module):
     """
     https://github.com/ethereum/go-ethereum/wiki/Management-APIs#txpool
     """
+
     _content = content
     _inspect = inspect
     _status = status
@@ -211,6 +214,7 @@ class BaseGethAdmin(Module):
     """
     https://github.com/ethereum/go-ethereum/wiki/Management-APIs#admin
     """
+
     _add_peer = add_peer
     _datadir = datadir
     _node_info = node_info
@@ -244,7 +248,7 @@ class GethAdmin(BaseGethAdmin):
         host: str = "localhost",
         port: int = 8546,
         cors: str = "",
-        apis: str = "eth,net,web3"
+        apis: str = "eth,net,web3",
     ) -> bool:
         return self._start_http(host, port, cors, apis)
 
@@ -253,7 +257,7 @@ class GethAdmin(BaseGethAdmin):
         host: str = "localhost",
         port: int = 8546,
         cors: str = "",
-        apis: str = "eth,net,web3"
+        apis: str = "eth,net,web3",
     ) -> bool:
         return self._start_ws(host, port, cors, apis)
 
@@ -269,7 +273,7 @@ class GethAdmin(BaseGethAdmin):
         host: str = "localhost",
         port: int = 8546,
         cors: str = "",
-        apis: str = "eth,net,web3"
+        apis: str = "eth,net,web3",
     ) -> bool:
         return self._start_rpc(host, port, cors, apis)
 
@@ -298,7 +302,7 @@ class AsyncGethAdmin(BaseGethAdmin):
         host: str = "localhost",
         port: int = 8546,
         cors: str = "",
-        apis: str = "eth,net,web3"
+        apis: str = "eth,net,web3",
     ) -> Awaitable[bool]:
         return await self._start_http(host, port, cors, apis)  # type: ignore
 
@@ -307,7 +311,7 @@ class AsyncGethAdmin(BaseGethAdmin):
         host: str = "localhost",
         port: int = 8546,
         cors: str = "",
-        apis: str = "eth,net,web3"
+        apis: str = "eth,net,web3",
     ) -> Awaitable[bool]:
         return await self._start_ws(host, port, cors, apis)  # type: ignore
 
@@ -323,7 +327,7 @@ class AsyncGethAdmin(BaseGethAdmin):
         host: str = "localhost",
         port: int = 8546,
         cors: str = "",
-        apis: str = "eth,net,web3"
+        apis: str = "eth,net,web3",
     ) -> Awaitable[bool]:
         return await self._start_rpc(host, port, cors, apis)
 
@@ -336,6 +340,7 @@ class GethMiner(Module):
     """
     https://github.com/ethereum/go-ethereum/wiki/Management-APIs#miner
     """
+
     make_dag = make_dag
     set_extra = set_extra
     set_etherbase = set_etherbase
