@@ -42,7 +42,7 @@ def apply_result_formatters(
         return result
 
 
-TReturn = TypeVar('TReturn')
+TReturn = TypeVar("TReturn")
 
 
 @curry
@@ -51,15 +51,21 @@ def retrieve_blocking_method_call_fn(
 ) -> Callable[..., Union[TReturn, LogFilter]]:
     def caller(*args: Any, **kwargs: Any) -> Union[TReturn, LogFilter]:
         try:
-            (method_str, params), response_formatters = method.process_params(module, *args, **kwargs)  # noqa: E501
+            (method_str, params), response_formatters = method.process_params(
+                module, *args, **kwargs
+            )  # noqa: E501
         except _UseExistingFilter as err:
             return LogFilter(eth_module=module, filter_id=err.filter_id)
-        result_formatters, error_formatters, null_result_formatters = response_formatters
-        result = w3.manager.request_blocking(method_str,
-                                             params,
-                                             error_formatters,
-                                             null_result_formatters)
+        (
+            result_formatters,
+            error_formatters,
+            null_result_formatters,
+        ) = response_formatters
+        result = w3.manager.request_blocking(
+            method_str, params, error_formatters, null_result_formatters
+        )
         return apply_result_formatters(result_formatters, result)
+
     return caller
 
 
@@ -68,13 +74,19 @@ def retrieve_async_method_call_fn(
     w3: "Web3", module: "Module", method: Method[Callable[..., Any]]
 ) -> Callable[..., Coroutine[Any, Any, RPCResponse]]:
     async def caller(*args: Any, **kwargs: Any) -> RPCResponse:
-        (method_str, params), response_formatters = method.process_params(module, *args, **kwargs)
-        result_formatters, error_formatters, null_result_formatters = response_formatters
-        result = await w3.manager.coro_request(method_str,
-                                               params,
-                                               error_formatters,
-                                               null_result_formatters)
+        (method_str, params), response_formatters = method.process_params(
+            module, *args, **kwargs
+        )
+        (
+            result_formatters,
+            error_formatters,
+            null_result_formatters,
+        ) = response_formatters
+        result = await w3.manager.coro_request(
+            method_str, params, error_formatters, null_result_formatters
+        )
         return apply_result_formatters(result_formatters, result)
+
     return caller
 
 
@@ -99,7 +111,8 @@ class Module:
     ) -> None:
         for method_name, method_class in methods.items():
             klass = (
-                method_class.__get__(obj=self)() if method_class.is_property else
-                method_class.__get__(obj=self)
+                method_class.__get__(obj=self)()
+                if method_class.is_property
+                else method_class.__get__(obj=self)
             )
             setattr(self, method_name, klass)
