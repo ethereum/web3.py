@@ -59,7 +59,7 @@ if TYPE_CHECKING:
     from web3 import Web3  # noqa: F401
 
 
-NULL_RESPONSES = [None, HexBytes('0x'), '0x']
+NULL_RESPONSES = [None, HexBytes("0x"), "0x"]
 
 
 def apply_error_formatters(
@@ -90,9 +90,9 @@ class RequestManager:
 
     def __init__(
         self,
-        w3: 'Web3',
+        w3: "Web3",
         provider: Optional[BaseProvider] = None,
-        middlewares: Optional[Sequence[Tuple[Middleware, str]]] = None
+        middlewares: Optional[Sequence[Tuple[Middleware, str]]] = None,
     ) -> None:
         self.w3 = w3
         self.pending_requests: Dict[UUID, ThreadWithReturn[RPCResponse]] = {}
@@ -107,7 +107,7 @@ class RequestManager:
         else:
             self.provider = provider
 
-    w3: 'Web3' = None
+    w3: "Web3" = None
     _provider = None
 
     @property
@@ -119,22 +119,20 @@ class RequestManager:
         self._provider = provider
 
     @staticmethod
-    def default_middlewares(
-        w3: 'Web3'
-    ) -> List[Tuple[Middleware, str]]:
+    def default_middlewares(w3: "Web3") -> List[Tuple[Middleware, str]]:
         """
         List the default middlewares for the request manager.
         Leaving ens unspecified will prevent the middleware from resolving names.
         """
         return [
-            (request_parameter_normalizer, 'request_param_normalizer'),  # Delete
-            (gas_price_strategy_middleware, 'gas_price_strategy'),
-            (name_to_address_middleware(w3), 'name_to_address'),  # Add Async
-            (attrdict_middleware, 'attrdict'),  # Delete
-            (pythonic_middleware, 'pythonic'),  # Delete
-            (validation_middleware, 'validation'),
-            (abi_middleware, 'abi'),  # Delete
-            (buffered_gas_estimate_middleware, 'gas_estimate'),
+            (request_parameter_normalizer, "request_param_normalizer"),  # Delete
+            (gas_price_strategy_middleware, "gas_price_strategy"),
+            (name_to_address_middleware(w3), "name_to_address"),  # Add Async
+            (attrdict_middleware, "attrdict"),  # Delete
+            (pythonic_middleware, "pythonic"),  # Delete
+            (validation_middleware, "validation"),
+            (abi_middleware, "abi"),  # Delete
+            (buffered_gas_estimate_middleware, "gas_estimate"),
         ]
 
     #
@@ -143,9 +141,7 @@ class RequestManager:
     def _make_request(
         self, method: Union[RPCEndpoint, Callable[..., RPCEndpoint]], params: Any
     ) -> RPCResponse:
-        request_func = self.provider.request_func(
-            self.w3,
-            self.middleware_onion)
+        request_func = self.provider.request_func(self.w3, self.middleware_onion)
         self.logger.debug(f"Making request. Method: {method}")
         return request_func(method, params)
 
@@ -154,8 +150,8 @@ class RequestManager:
     ) -> RPCResponse:
         # type ignored b/c request_func is an awaitable in async model
         request_func = await self.provider.request_func(  # type: ignore
-            self.w3,
-            self.middleware_onion)
+            self.w3, self.middleware_onion
+        )
         self.logger.debug(f"Making request. Method: {method}")
         return await request_func(method, params)
 
@@ -171,13 +167,13 @@ class RequestManager:
             raise ValueError(response["error"])
         # NULL_RESPONSES includes None, so return False here as the default
         # so we don't apply the null_result_formatters if there is no 'result' key
-        elif response.get('result', False) in NULL_RESPONSES:
+        elif response.get("result", False) in NULL_RESPONSES:
             # null_result_formatters raise either a BlockNotFound
             # or a TransactionNotFound error, depending on the method called
             apply_null_result_formatters(null_result_formatters, response, params)
-            return response['result']
-        elif response.get('result') is not None:
-            return response['result']
+            return response["result"]
+        elif response.get("result") is not None:
+            return response["result"]
         else:
             raise BadResponseFormat(
                 "The response was in an unexpected format and unable to be parsed. "
@@ -195,10 +191,9 @@ class RequestManager:
         Make a synchronous request using the provider
         """
         response = self._make_request(method, params)
-        return self.formatted_response(response,
-                                       params,
-                                       error_formatters,
-                                       null_result_formatters)
+        return self.formatted_response(
+            response, params, error_formatters, null_result_formatters
+        )
 
     async def coro_request(
         self,
@@ -211,10 +206,9 @@ class RequestManager:
         Couroutine for making a request using the provider
         """
         response = await self._coro_make_request(method, params)
-        return self.formatted_response(response,
-                                       params,
-                                       error_formatters,
-                                       null_result_formatters)
+        return self.formatted_response(
+            response, params, error_formatters, null_result_formatters
+        )
 
     @deprecated_for("coro_request")
     def request_async(self, raw_method: str, raw_params: Any) -> UUID:
@@ -226,7 +220,9 @@ class RequestManager:
         )
         return request_id
 
-    def receive_blocking(self, request_id: UUID, timeout: Optional[float] = None) -> Any:
+    def receive_blocking(
+        self, request_id: UUID, timeout: Optional[float] = None
+    ) -> Any:
         try:
             request = self.pending_requests.pop(request_id)
         except KeyError:
@@ -237,7 +233,7 @@ class RequestManager:
         if "error" in response:
             raise ValueError(response["error"])
 
-        return response['result']
+        return response["result"]
 
     def receive_async(self, request_id: UUID, *args: Any, **kwargs: Any) -> NoReturn:
         raise NotImplementedError("Callback pattern not implemented")
