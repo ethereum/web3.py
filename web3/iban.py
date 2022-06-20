@@ -22,14 +22,17 @@ from web3._utils.validation import (
     validate_address,
 )
 
-IbanOptions = TypedDict("IbanOptions", {
-    "institution": str,
-    "identifier": str,
-})
+IbanOptions = TypedDict(
+    "IbanOptions",
+    {
+        "institution": str,
+        "identifier": str,
+    },
+)
 
 
 def pad_left_hex(value: str, num_bytes: int) -> str:
-    return value.rjust(num_bytes * 2, '0')
+    return value.rjust(num_bytes * 2, "0")
 
 
 def iso13616Prepare(iban: str) -> str:
@@ -71,20 +74,23 @@ def mod9710(iban: str) -> int:
 
     while len(remainder) > 2:
         block = remainder[:9]
-        remainder = str(int(block) % 97) + remainder[len(block):]
+        remainder = str(int(block) % 97) + remainder[len(block) :]
 
     return int(remainder) % 97
 
 
-def baseN(num: int, b: int, numerals: str = "0123456789abcdefghijklmnopqrstuvwxyz") -> str:
+def baseN(
+    num: int, b: int, numerals: str = "0123456789abcdefghijklmnopqrstuvwxyz"
+) -> str:
     """
     This prototype should be used to create
     an iban object from iban correct string
 
     @param {String} iban
     """
-    return ((num == 0) and numerals[0]) or \
-        (baseN(num // b, b, numerals).lstrip(numerals[0]) + numerals[num % b])
+    return ((num == 0) and numerals[0]) or (
+        baseN(num // b, b, numerals).lstrip(numerals[0]) + numerals[num % b]
+    )
 
 
 class IsValid:
@@ -97,7 +103,8 @@ class IsValid:
     @method isValid
     @returns {Boolean} true if it is, otherwise false
     """
-    def __get__(self, instance: 'Iban', owner: str) -> Callable[[str], bool]:
+
+    def __get__(self, instance: "Iban", owner: str) -> Callable[[str], bool]:
         if instance is None:
             return self.validate
         return functools.partial(self.validate, instance._iban)
@@ -107,8 +114,10 @@ class IsValid:
         if not is_string(iban_address):
             return False
 
-        if re.match(r"^XE[0-9]{2}(ETH[0-9A-Z]{13}|[0-9A-Z]{30,31})$", iban_address) and \
-                mod9710(iso13616Prepare(iban_address)) == 1:
+        if (
+            re.match(r"^XE[0-9]{2}(ETH[0-9A-Z]{13}|[0-9A-Z]{30,31})$", iban_address)
+            and mod9710(iso13616Prepare(iban_address)) == 1
+        ):
             return True
 
         return False

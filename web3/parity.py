@@ -59,6 +59,7 @@ class ParityPersonal(Module):
     """
     https://wiki.parity.io/JSONRPC-personal-module
     """
+
     ec_recover = ec_recover
     import_raw_key = import_raw_key
     list_accounts = list_accounts
@@ -73,6 +74,7 @@ class Parity(Module):
     """
     https://paritytech.github.io/wiki/JSONRPC-parity-module
     """
+
     _default_block: BlockIdentifier = "latest"
     personal: ParityPersonal
 
@@ -94,7 +96,7 @@ class Parity(Module):
     @property
     def defaultBlock(self) -> BlockIdentifier:
         warnings.warn(
-            'defaultBlock is deprecated in favor of default_block',
+            "defaultBlock is deprecated in favor of default_block",
             category=DeprecationWarning,
         )
         return self._default_block
@@ -102,7 +104,7 @@ class Parity(Module):
     @defaultBlock.setter
     def defaultBlock(self, value: BlockIdentifier) -> None:
         warnings.warn(
-            'defaultBlock is deprecated in favor of default_block',
+            "defaultBlock is deprecated in favor of default_block",
             category=DeprecationWarning,
         )
         self._default_block = value
@@ -113,7 +115,9 @@ class Parity(Module):
         quantity: int,
         hash_: Hash32,
         block_identifier: Optional[BlockIdentifier] = None,
-    ) -> Tuple[Union[Address, ChecksumAddress, ENS, Hash32], int, Hash32, BlockIdentifier]:
+    ) -> Tuple[
+        Union[Address, ChecksumAddress, ENS, Hash32], int, Hash32, BlockIdentifier
+    ]:
         if block_identifier is None:
             block_identifier = self.default_block
         return (address, quantity, hash_, block_identifier)
@@ -124,8 +128,7 @@ class Parity(Module):
     )
 
     net_peers: Method[Callable[[], ParityNetPeers]] = Method(
-        RPC.parity_netPeers,
-        is_property=True
+        RPC.parity_netPeers, is_property=True
     )
 
     add_reserved_peer: Method[Callable[[EnodeURI], bool]] = Method(
@@ -134,7 +137,9 @@ class Parity(Module):
     )
 
     def trace_replay_transaction_munger(
-        self, block_identifier: Union[_Hash32, BlockIdentifier], mode: ParityTraceMode = ['trace']
+        self,
+        block_identifier: Union[_Hash32, BlockIdentifier],
+        mode: ParityTraceMode = ["trace"],
     ) -> Tuple[Union[BlockIdentifier, _Hash32], ParityTraceMode]:
         return (block_identifier, mode)
 
@@ -143,9 +148,10 @@ class Parity(Module):
         mungers=[trace_replay_transaction_munger],
     )
 
-    trace_replay_block_transactions: Method[Callable[..., List[ParityBlockTrace]]] = Method(
-        RPC.trace_replayBlockTransactions,
-        mungers=[trace_replay_transaction_munger]
+    trace_replay_block_transactions: Method[
+        Callable[..., List[ParityBlockTrace]]
+    ] = Method(
+        RPC.trace_replayBlockTransactions, mungers=[trace_replay_transaction_munger]
     )
 
     trace_block: Method[Callable[[BlockIdentifier], List[ParityBlockTrace]]] = Method(
@@ -153,7 +159,9 @@ class Parity(Module):
         mungers=[default_root_munger],
     )
 
-    trace_filter: Method[Callable[[ParityFilterParams], List[ParityFilterTrace]]] = Method(
+    trace_filter: Method[
+        Callable[[ParityFilterParams], List[ParityFilterTrace]]
+    ] = Method(
         RPC.trace_filter,
         mungers=[default_root_munger],
     )
@@ -166,12 +174,14 @@ class Parity(Module):
     def trace_call_munger(
         self,
         transaction: TxParams,
-        mode: ParityTraceMode = ['trace'],
-        block_identifier: Optional[BlockIdentifier] = None
+        mode: ParityTraceMode = ["trace"],
+        block_identifier: Optional[BlockIdentifier] = None,
     ) -> Tuple[TxParams, ParityTraceMode, BlockIdentifier]:
         # TODO: move to middleware
-        if 'from' not in transaction and is_checksum_address(self.w3.eth.default_account):
-            transaction = assoc(transaction, 'from', self.w3.eth.default_account)
+        if "from" not in transaction and is_checksum_address(
+            self.w3.eth.default_account
+        ):
+            transaction = assoc(transaction, "from", self.w3.eth.default_account)
 
         # TODO: move to middleware
         if block_identifier is None:
@@ -185,7 +195,7 @@ class Parity(Module):
     )
 
     def trace_transactions_munger(
-        self, raw_transaction: HexStr, mode: ParityTraceMode = ['trace']
+        self, raw_transaction: HexStr, mode: ParityTraceMode = ["trace"]
     ) -> Tuple[HexStr, ParityTraceMode]:
         return (raw_transaction, mode)
 
@@ -199,7 +209,4 @@ class Parity(Module):
         mungers=[default_root_munger],
     )
 
-    mode: Method[Callable[[], ParityMode]] = Method(
-        RPC.parity_mode,
-        is_property=True
-    )
+    mode: Method[Callable[[], ParityMode]] = Method(RPC.parity_mode, is_property=True)

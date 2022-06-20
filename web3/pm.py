@@ -239,9 +239,7 @@ class SimpleRegistry(ERC1319Registry):
     """
 
     def __init__(self, address: ChecksumAddress, w3: Web3) -> None:
-        abi = get_simple_registry_manifest()["contractTypes"]["PackageRegistry"][
-            "abi"
-        ]
+        abi = get_simple_registry_manifest()["contractTypes"]["PackageRegistry"]["abi"]
         self.registry = w3.eth.contract(address=address, abi=abi)
         self.address = address
         self.w3 = w3
@@ -263,8 +261,7 @@ class SimpleRegistry(ERC1319Registry):
         pointer = 0
         while pointer < num_packages:
             new_ids, new_pointer = self.registry.functions.getAllPackageIds(
-                pointer,
-                (pointer + BATCH_SIZE)
+                pointer, (pointer + BATCH_SIZE)
             ).call()
             if not new_pointer > pointer:
                 break
@@ -280,9 +277,7 @@ class SimpleRegistry(ERC1319Registry):
         pointer = 0
         while pointer < num_releases:
             new_ids, new_pointer = self.registry.functions.getAllReleaseIds(
-                package_name,
-                pointer,
-                (pointer + BATCH_SIZE)
+                package_name, pointer, (pointer + BATCH_SIZE)
             ).call()
             if not new_pointer > pointer:
                 break
@@ -303,10 +298,12 @@ class SimpleRegistry(ERC1319Registry):
         return self.registry.functions.numReleaseIds(package_name).call()
 
     @classmethod
-    def deploy_new_instance(cls, w3: Web3) -> 'SimpleRegistry':
+    def deploy_new_instance(cls, w3: Web3) -> "SimpleRegistry":
         manifest = get_simple_registry_manifest()
         registry_package = Package(manifest, w3)
-        registry_factory = registry_package.get_contract_factory(ContractName("PackageRegistry"))
+        registry_factory = registry_package.get_contract_factory(
+            ContractName("PackageRegistry")
+        )
         tx_hash = registry_factory.constructor().transact()
         tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
         return cls(tx_receipt["contractAddress"], w3)
@@ -351,7 +348,7 @@ class PM(Module):
             * ``ethpm_dir``: Path pointing to the target ethpm directory (optional).
         """
         if not ethpm_dir:
-            ethpm_dir = Path.cwd() / '_ethpm_packages'
+            ethpm_dir = Path.cwd() / "_ethpm_packages"
 
         if not ethpm_dir.name == "_ethpm_packages" or not ethpm_dir.is_dir():
             raise PMError(f"{ethpm_dir} is not a valid ethPM packages directory.")
