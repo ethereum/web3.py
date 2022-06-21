@@ -383,7 +383,7 @@ class PM(Module):
             self.registry = SimpleRegistry(cast(ChecksumAddress, address), self.w3)
         elif is_ens_name(address):
             self._validate_set_ens()
-            addr_lookup = self.w3.ens.address(str(address))
+            addr_lookup = cast(ChecksumAddress, self.w3.ens.address(str(address)))
             if not addr_lookup:
                 raise NameNotFound(
                     f"No address found after ENS lookup for name: {address!r}."

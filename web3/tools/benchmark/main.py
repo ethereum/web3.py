@@ -76,7 +76,7 @@ def build_web3_http(endpoint_uri: str) -> Web3:
 async def build_async_w3_http(endpoint_uri: str) -> Web3:
     await wait_for_aiohttp(endpoint_uri)
     _w3 = Web3(
-        AsyncHTTPProvider(endpoint_uri),  # type: ignore
+        AsyncHTTPProvider(endpoint_uri),
         middlewares=[
             async_gas_price_strategy_middleware,
             async_buffered_gas_estimate_middleware,

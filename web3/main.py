@@ -1,4 +1,9 @@
 import decimal
+
+from ens import (
+    AsyncENS,
+    ENS,
+)
 from eth_abi.codec import (
     ABICodec,
 )
@@ -24,6 +29,7 @@ from hexbytes import (
 )
 from typing import (
     Any,
+    Coroutine,
     Dict,
     List,
     Optional,
@@ -45,7 +51,6 @@ from eth_utils import (
     combomethod,
 )
 
-from ens import ENS
 from web3._utils.abi import (
     build_default_registry,
     build_strict_registry,
@@ -96,6 +101,7 @@ from web3.parity import (
     ParityPersonal,
 )
 from web3.providers import (
+    AsyncBaseProvider,
     BaseProvider,
 )
 from web3.providers.eth_tester import (
@@ -237,13 +243,13 @@ class Web3:
 
     def __init__(
         self,
-        provider: Optional[BaseProvider] = None,
+        provider: Optional[Union[BaseProvider, AsyncBaseProvider]] = None,
         middlewares: Optional[Sequence[Any]] = None,
         modules: Optional[Dict[str, Union[Type[Module], Sequence[Any]]]] = None,
         external_modules: Optional[
             Dict[str, Union[Type[Module], Sequence[Any]]]
         ] = None,
-        ens: Optional[ENS] = cast(ENS, empty),
+        ens: Optional[Union[ENS, AsyncENS]] = None,
     ) -> None:
         self.manager = self.RequestManager(self, provider, middlewares)
         # this codec gets used in the module initialization,
@@ -265,11 +271,11 @@ class Web3:
         return self.manager.middleware_onion
 
     @property
-    def provider(self) -> BaseProvider:
+    def provider(self) -> Union[BaseProvider, AsyncBaseProvider]:
         return self.manager.provider
 
     @provider.setter
-    def provider(self, provider: BaseProvider) -> None:
+    def provider(self, provider: Union[BaseProvider, AsyncBaseProvider]) -> None:
         self.manager.provider = provider
 
     @property
@@ -337,21 +343,23 @@ class Web3:
         """
         _attach_modules(self, modules)
 
-    def isConnected(self) -> bool:
+    def isConnected(self) -> Union[bool, Coroutine[Any, Any, bool]]:
         return self.provider.isConnected()
 
     def is_encodable(self, _type: TypeStr, value: Any) -> bool:
         return self.codec.is_encodable(_type, value)
 
     @property
-    def ens(self) -> ENS:
+    def ens(self) -> Union[ENS, AsyncENS]:
         if self._ens is cast(ENS, empty):
             return ENS.fromWeb3(self)
-        else:
-            return self._ens
+        elif self._ens is cast(AsyncENS, empty) or self.eth.is_async:
+            return AsyncENS.fromWeb3(self)
+
+        return self._ens
 
     @ens.setter
-    def ens(self, new_ens: ENS) -> None:
+    def ens(self, new_ens: Optional[Union[ENS, AsyncENS]]) -> None:
         self._ens = new_ens
 
     @property

@@ -55,7 +55,7 @@ def TEST_ADDRESS(address_conversion_func):
     return address_conversion_func("0x000000000000000000000000000000000000dEaD")
 
 
-@pytest.mark.parametrize('name, normalized_name, namehash_hex', SETUP_NAME_TEST_CASES)
+@pytest.mark.parametrize("name, normalized_name, namehash_hex", SETUP_NAME_TEST_CASES)
 def test_setup_name(ens, name, normalized_name, namehash_hex):
     address = ens.w3.eth.accounts[3]
     assert not ens.name(address)

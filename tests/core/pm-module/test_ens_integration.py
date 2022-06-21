@@ -115,7 +115,7 @@ def ens_setup(deployer):
 
 @pytest.fixture
 def ens(ens_setup, mocker):
-    mocker.patch('web3.middleware.stalecheck._isfresh', return_value=True)
+    mocker.patch('web3.middleware.stalecheck._is_fresh', return_value=True)
     ens_setup.w3.eth.default_account = ens_setup.w3.eth.coinbase
     ens_setup.w3.enable_unstable_package_management_api()
     return ens_setup

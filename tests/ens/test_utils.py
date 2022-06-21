@@ -2,20 +2,24 @@ import pytest
 
 from eth_utils import (
     ValidationError,
+    is_integer,
     to_bytes,
 )
 
 from ens.utils import (
-    async_init_web3,
     ens_encode_name,
+    init_async_web3,
     init_web3,
 )
 from web3.eth import (
     AsyncEth,
 )
+from web3.providers.eth_tester import (
+    AsyncEthereumTesterProvider,
+)
 
 
-def test_init_adds_middlewares():
+def test_init_web3_adds_expected_middlewares():
     w3 = init_web3()
     middlewares = map(str, w3.manager.middleware_onion)
     assert "stalecheck_middleware" in next(middlewares)
@@ -123,14 +127,27 @@ def test_ens_encode_name_normalizes_name_before_encoding():
 
 # -- async -- #
 
+
 @pytest.mark.asyncio
-async def test_async_init_adds_async_middlewares():
-    async_w3 = await async_init_web3()
+async def test_init_async_web3_adds_expected_async_middlewares():
+    async_w3 = init_async_web3()
     middlewares = map(str, async_w3.manager.middleware_onion)
-    assert 'stalecheck_middleware' in next(middlewares)
+    assert "stalecheck_middleware" in next(middlewares)
 
 
 @pytest.mark.asyncio
-async def test_async_init_adds_async_eth():
-    async_w3 = await async_init_web3()
+async def test_init_async_web3_adds_async_eth():
+    async_w3 = init_async_web3()
     assert isinstance(async_w3.eth, AsyncEth)
+
+
+@pytest.mark.asyncio
+async def test_init_async_web3_with_provider_argument_adds_async_eth():
+    async_w3 = init_async_web3(AsyncEthereumTesterProvider())
+
+    assert isinstance(async_w3.provider, AsyncEthereumTesterProvider)
+    assert isinstance(async_w3.eth, AsyncEth)
+
+    latest_block = await async_w3.eth.get_block("latest")
+    assert latest_block
+    assert is_integer(latest_block["number"])

@@ -104,7 +104,11 @@ block_validator = apply_formatter_if(
     is_not_null, apply_formatters_to_dict(BLOCK_VALIDATORS)
 )
 
-METHODS_TO_VALIDATE = [RPC.eth_sendTransaction, RPC.eth_estimateGas, RPC.eth_call]
+METHODS_TO_VALIDATE = [
+    RPC.eth_sendTransaction,
+    RPC.eth_estimateGas,
+    RPC.eth_call,
+]
 
 
 def _chain_id_validator(web3_chain_id: int) -> Callable[..., Any]:

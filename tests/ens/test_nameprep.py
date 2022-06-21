@@ -40,6 +40,7 @@ def test_nameprep_std3_rules(ens, url):
 # note: `nameprep` isn't an async method, but rather test that nameprep is
 # available to AsyncENS and passes all tests
 
+
 def test_async_nameprep_basic_unicode(async_ens):
     assert async_ens.nameprep("öbb.at") == "öbb.at"
     assert async_ens.nameprep("Öbb.at") == "öbb.at"
@@ -57,11 +58,12 @@ def test_async_nameprep_basic_unicode(async_ens):
 
 
 @pytest.mark.parametrize(
-    'url', [
-        ('not=std3'),
-        ('not_std3.eth'),  # underscores not allowed
-    ]
+    "url",
+    [
+        ("not=std3"),
+        ("not_std3.eth"),  # underscores not allowed
+    ],
 )
 def test_async_nameprep_std3_rules(async_ens, url):
-    with pytest.raises(InvalidName, match=f'{url} is an invalid name'):
+    with pytest.raises(InvalidName, match=f"{url} is an invalid name"):
         async_ens.nameprep(url)

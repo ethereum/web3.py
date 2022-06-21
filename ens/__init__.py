@@ -2,9 +2,10 @@
 
 from .async_ens import (
     AsyncENS,
-    AsyncENSFactory,  
 )
-
+from .base_ens import (
+    BaseENS,
+)
 from .ens import (
     ENS,
 )
