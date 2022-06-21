@@ -95,6 +95,7 @@ from web3.exceptions import (
 from web3.types import (
     BlockIdentifier,
     CallOverrideParams,
+    Formatters,
     RPCEndpoint,
     RPCResponse,
     TReturn,
@@ -566,9 +567,12 @@ STANDARD_NORMALIZERS = [
 ]
 
 
-ABI_REQUEST_FORMATTERS = abi_request_formatters(STANDARD_NORMALIZERS, RPC_ABIS)
+ABI_REQUEST_FORMATTERS: Formatters = abi_request_formatters(
+    STANDARD_NORMALIZERS, RPC_ABIS
+)
 
-# the first 4 bytes of keccak hash for: "OffchainLookup(address,string[],bytes,bytes4,bytes)"
+# the first 4 bytes of keccak hash for:
+# "OffchainLookup(address,string[],bytes,bytes4,bytes)"
 OFFCHAIN_LOOKUP_FUNC_SELECTOR = "0x556f1830"
 OFFCHAIN_LOOKUP_FIELDS = {
     "sender": "address",

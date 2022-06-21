@@ -368,7 +368,8 @@ def local_filter_middleware(
             if method == RPC.eth_getFilterChanges:
                 return {"result": next(_filter.filter_changes)}
             elif method == RPC.eth_getFilterLogs:
-                # type ignored b/c logic prevents RequestBlocks which doesn't implement get_logs
+                # type ignored b/c logic prevents RequestBlocks which
+                # doesn't implement get_logs
                 return {"result": _filter.get_logs()}  # type: ignore
             else:
                 raise NotImplementedError(method)

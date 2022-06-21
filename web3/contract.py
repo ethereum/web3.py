@@ -148,6 +148,7 @@ from web3.types import (  # noqa: F401
 )
 
 if TYPE_CHECKING:
+    from ens import ENS  # noqa: F401
     from web3 import Web3  # noqa: F401
 
 ACCEPTABLE_EMPTY_STRINGS = ["0x", b"0x", "", b""]
@@ -630,32 +631,35 @@ class Contract(BaseContract):
         """Create a new smart contract proxy object.
 
         :param address: Contract address as 0x hex string"""
-        if self.w3 is None:
+
+        _w3 = self.w3
+        if _w3 is None:
             raise AttributeError(
                 "The `Contract` class has not been initialized.  Please use the "
                 "`web3.contract` interface to create your contract class."
             )
 
         if address:
-            self.address = normalize_address(self.w3.ens, address)
+            _ens = cast("ENS", _w3.ens)
+            self.address = normalize_address(_ens, address)
 
         if not self.address:
             raise TypeError(
                 "The address argument is required to instantiate a contract."
             )
 
-        self.functions = ContractFunctions(self.abi, self.w3, self.address)
-        self.caller = ContractCaller(self.abi, self.w3, self.address)
-        self.events = ContractEvents(self.abi, self.w3, self.address)
+        self.functions = ContractFunctions(self.abi, _w3, self.address)
+        self.caller = ContractCaller(self.abi, _w3, self.address)
+        self.events = ContractEvents(self.abi, _w3, self.address)
         self.fallback = Contract.get_fallback_function(
             self.abi,
-            self.w3,
+            _w3,
             ContractFunction,
             self.address,
         )
         self.receive = Contract.get_receive_function(
             self.abi,
-            self.w3,
+            _w3,
             ContractFunction,
             self.address,
         )
@@ -738,6 +742,7 @@ class AsyncContract(BaseContract):
         """Create a new smart contract proxy object.
 
         :param address: Contract address as 0x hex string"""
+
         if self.w3 is None:
             raise AttributeError(
                 "The `Contract` class has not been initialized.  Please use the "

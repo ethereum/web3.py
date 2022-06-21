@@ -212,17 +212,19 @@ def abi_ens_resolver(w3: "Web3", type_str: TypeStr, val: Any) -> Tuple[TypeStr, 
                 f"Could not look up name {val!r} because no web3"
                 " connection available"
             )
-        elif w3.ens is None:
+
+        _ens = cast(ENS, w3.ens)
+        if _ens is None:
             raise InvalidAddress(
                 f"Could not look up name {val!r} because ENS is" " set to None"
             )
-        elif int(w3.net.version) != 1 and not isinstance(w3.ens, StaticENS):
+        elif int(w3.net.version) != 1 and not isinstance(_ens, StaticENS):
             raise InvalidAddress(
                 f"Could not look up name {val!r} because web3 is"
                 " not connected to mainnet"
             )
         else:
-            return type_str, validate_name_has_address(w3.ens, val)
+            return type_str, validate_name_has_address(_ens, val)
     else:
         return type_str, val
 

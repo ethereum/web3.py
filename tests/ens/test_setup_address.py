@@ -19,7 +19,6 @@ from ens.constants import (
 )
 from web3 import Web3
 
-
 """
 API at: https://github.com/carver/ens.py/issues/2
 """
@@ -53,8 +52,8 @@ SETUP_ADDRESS_TEST_CASES = (
     ),
 )
 SETUP_ADDRESS_EQUIVALENCE_TEST_CASES = (
-    ('TESTER.eth', 'tester.eth'),
-    ('unicÖde.tester.eth', 'unicöde.tester.eth'),
+    ("TESTER.eth", "tester.eth"),
+    ("unicÖde.tester.eth", "unicöde.tester.eth"),
 )
 SETUP_ADDRESS_NOOP_TEST_CASES = (
     # since the test uses get_transaction_count,
@@ -91,7 +90,8 @@ def test_setup_address(ens, name, namehash_hex, TEST_ADDRESS):
 
 
 @pytest.mark.parametrize(
-    "name, equivalent", SETUP_ADDRESS_EQUIVALENCE_TEST_CASES,
+    "name, equivalent",
+    SETUP_ADDRESS_EQUIVALENCE_TEST_CASES,
 )
 def test_setup_address_equivalence(ens, name, equivalent, TEST_ADDRESS):
     assert ens.address(name) is None
@@ -104,15 +104,18 @@ def test_setup_address_equivalence(ens, name, equivalent, TEST_ADDRESS):
     assert ens.address(name) is None
 
 
-@pytest.mark.parametrize('setup_address', SETUP_ADDRESS_NOOP_TEST_CASES,)
+@pytest.mark.parametrize(
+    "setup_address",
+    SETUP_ADDRESS_NOOP_TEST_CASES,
+)
 def test_setup_address_noop(ens, setup_address):
     eth = ens.w3.eth
-    owner = ens.owner('tester.eth')
-    ens.setup_address('noop.tester.eth', setup_address)
+    owner = ens.owner("tester.eth")
+    ens.setup_address("noop.tester.eth", setup_address)
     starting_transactions = eth.get_transaction_count(owner)
 
     # do not issue transaction if address is already set
-    ens.setup_address('noop.tester.eth', setup_address)
+    ens.setup_address("noop.tester.eth", setup_address)
     assert eth.get_transaction_count(owner) == starting_transactions
 
 

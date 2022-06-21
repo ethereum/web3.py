@@ -50,9 +50,9 @@ from ens.exceptions import (
 from ens.utils import (
     address_in,
     address_to_reverse_domain,
-    async_init_web3,
     default,
     ens_encode_name,
+    init_async_web3,
     is_empty_name,
     is_none_or_zero_address,
     label_to_hash,
@@ -67,45 +67,13 @@ if TYPE_CHECKING:
         AsyncContract,
     )
     from web3.providers import (  # noqa: F401
+        AsyncBaseProvider,
         BaseProvider,
     )
     from web3.types import (  # noqa: F401
         Middleware,
         TxParams,
     )
-
-
-class AsyncENSFactory:
-
-    @classmethod
-    async def factory(
-        cls,
-        provider: 'BaseProvider' = cast('BaseProvider', default),
-        addr: ChecksumAddress = None,
-        middlewares: Optional[Sequence[Tuple['Middleware', str]]] = None,
-    ) -> 'AsyncENS':
-        async_ens: AsyncENS = AsyncENS()
-        async_ens.w3 = await async_init_web3(provider, middlewares)
-
-        ens_addr = addr if addr else ENS_MAINNET_ADDR
-        async_ens.ens = async_ens.w3.eth.contract(abi=abis.ENS, address=ens_addr)
-        async_ens._resolver_contract = async_ens.w3.eth.contract(abi=abis.RESOLVER)
-        async_ens._reverse_resolver_contract = async_ens.w3.eth.contract(abi=abis.REVERSE_RESOLVER)
-
-        return async_ens
-
-    @classmethod
-    async def fromWeb3(cls, w3: 'Web3', addr: ChecksumAddress = None) -> 'AsyncENS':
-        """
-        Generate an ENS instance with web3
-
-        :param `web3.Web3` w3: to infer connection information
-        :param hex-string addr: the address of the ENS registry on-chain. If not provided,
-            ENS.py will default to the mainnet ENS registry address.
-        """
-        provider = w3.manager.provider
-        middlewares = w3.middleware_onion.middlewares
-        return await AsyncENSFactory.factory(provider, addr=addr, middlewares=middlewares)
 
 
 class AsyncENS(BaseENS):
@@ -117,6 +85,42 @@ class AsyncENS(BaseENS):
     `checksum format <https://github.com/ethereum/EIPs/blob/master/EIPS/eip-155.md>`_,
     like: ``"0x314159265dD8dbb310642f98f50C066173C1259b"``
     """
+
+    def __init__(
+        self,
+        provider: "AsyncBaseProvider" = cast("AsyncBaseProvider", default),
+        addr: ChecksumAddress = None,
+        middlewares: Optional[Sequence[Tuple["Middleware", str]]] = None,
+    ) -> None:
+        """
+        :param provider: a single provider used to connect to Ethereum
+        :type provider: instance of `web3.providers.base.BaseProvider`
+        :param hex-string addr: the address of the ENS registry on-chain. If not provided,
+            ENS.py will default to the mainnet ENS registry address.
+        """
+        self.w3 = init_async_web3(provider, middlewares)
+
+        ens_addr = addr if addr else ENS_MAINNET_ADDR
+        self.ens = self.w3.eth.contract(abi=abis.ENS, address=ens_addr)
+        self._resolver_contract = self.w3.eth.contract(abi=abis.RESOLVER)
+        self._reverse_resolver_contract = self.w3.eth.contract(
+            abi=abis.REVERSE_RESOLVER
+        )
+
+    @classmethod
+    def fromWeb3(cls, w3: "Web3", addr: ChecksumAddress = None) -> "AsyncENS":
+        """
+        Generate an AsyncENS instance with web3
+
+        :param `web3.Web3` w3: to infer connection information
+        :param hex-string addr: the address of the ENS registry on-chain. If not
+            provided, defaults to the mainnet ENS registry address.
+        """
+        provider = w3.manager.provider
+        middlewares = w3.middleware_onion.middlewares
+        return cls(
+            cast("AsyncBaseProvider", provider), addr=addr, middlewares=middlewares
+        )
 
     async def address(self, name: str) -> Optional[ChecksumAddress]:
         """

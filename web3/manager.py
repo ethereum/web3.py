@@ -10,6 +10,7 @@ from typing import (  # noqa: F401
     Sequence,
     Tuple,
     Union,
+    cast,
 )
 import uuid
 from uuid import UUID
@@ -46,7 +47,6 @@ from web3.middleware import (
 )
 from web3.providers import (
     AutoProvider,
-    BaseProvider,
 )
 from web3.types import (  # noqa: F401
     Middleware,
@@ -57,6 +57,10 @@ from web3.types import (  # noqa: F401
 
 if TYPE_CHECKING:
     from web3 import Web3  # noqa: F401
+    from web3.providers import (  # noqa: F401
+        AsyncBaseProvider,
+        BaseProvider,
+    )
 
 
 NULL_RESPONSES = [None, HexBytes("0x"), "0x"]
@@ -91,7 +95,7 @@ class RequestManager:
     def __init__(
         self,
         w3: "Web3",
-        provider: Optional[BaseProvider] = None,
+        provider: Optional[Union["BaseProvider", "AsyncBaseProvider"]] = None,
         middlewares: Optional[Sequence[Tuple[Middleware, str]]] = None,
     ) -> None:
         self.w3 = w3
@@ -111,11 +115,11 @@ class RequestManager:
     _provider = None
 
     @property
-    def provider(self) -> BaseProvider:
+    def provider(self) -> Union["BaseProvider", "AsyncBaseProvider"]:
         return self._provider
 
     @provider.setter
-    def provider(self, provider: BaseProvider) -> None:
+    def provider(self, provider: Union["BaseProvider", "AsyncBaseProvider"]) -> None:
         self._provider = provider
 
     @staticmethod
@@ -141,7 +145,8 @@ class RequestManager:
     def _make_request(
         self, method: Union[RPCEndpoint, Callable[..., RPCEndpoint]], params: Any
     ) -> RPCResponse:
-        request_func = self.provider.request_func(self.w3, self.middleware_onion)
+        provider = cast("BaseProvider", self.provider)
+        request_func = provider.request_func(self.w3, self.middleware_onion)
         self.logger.debug(f"Making request. Method: {method}")
         return request_func(method, params)
 

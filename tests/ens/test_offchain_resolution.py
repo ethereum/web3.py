@@ -84,16 +84,18 @@ class AsyncMockHttpSuccessResponse:
 
     def __init__(self, request_type, *args, **_kwargs):
         # validate the expected urls
-        if request_type == 'get':
+        if request_type == "get":
             assert args[1] == EXPECTED_GET_URL
-        elif request_type == 'post':
+        elif request_type == "post":
             assert args[1] == EXPECTED_POST_URL
 
     @staticmethod
-    def raise_for_status(): pass  # noqa: E704
+    def raise_for_status():
+        pass  # noqa: E704
 
     @staticmethod
-    async def json(): return {'data': OFFCHAIN_RESOLVER_DATA}  # noqa: E704
+    async def json():
+        return {"data": OFFCHAIN_RESOLVER_DATA}  # noqa: E704
 
     @property
     def status(self):
@@ -107,10 +109,12 @@ class AsyncMockHttpBadFormatResponse:
         assert args[1] == EXPECTED_GET_URL
 
     @staticmethod
-    def raise_for_status(): pass  # noqa: E704
+    def raise_for_status():
+        pass  # noqa: E704
 
     @staticmethod
-    async def json(): return {'not_data': OFFCHAIN_RESOLVER_DATA}  # noqa: E704'
+    async def json():
+        return {"not_data": OFFCHAIN_RESOLVER_DATA}  # noqa: E704'
 
     @property
     def status(self):
@@ -184,39 +188,43 @@ def test_offchain_resolver_function_call_raises_with_ccip_read_disabled(
 async def test_async_offchain_resolution_with_get_request(async_ens, monkeypatch):
     # mock GET response with real return data from 'offchainexample.eth' resolver
     async def mock_get(*args, **kwargs):
-        return AsyncMockHttpSuccessResponse('get', *args, **kwargs)
+        return AsyncMockHttpSuccessResponse("get", *args, **kwargs)
 
-    monkeypatch.setattr(ClientSession, 'get', mock_get)
+    monkeypatch.setattr(ClientSession, "get", mock_get)
 
-    assert await async_ens.address('offchainexample.eth') == EXPECTED_RESOLVED_ADDRESS
+    assert await async_ens.address("offchainexample.eth") == EXPECTED_RESOLVED_ADDRESS
 
 
 @pytest.mark.asyncio
 async def test_async_offchain_resolution_with_post_request(async_ens, monkeypatch):
     # mock POST response with real return data from 'offchainexample.eth' resolver
     async def mock_post(*args, **kwargs):
-        return AsyncMockHttpSuccessResponse('post', *args, **kwargs)
+        return AsyncMockHttpSuccessResponse("post", *args, **kwargs)
 
-    monkeypatch.setattr(ClientSession, 'post', mock_post)
+    monkeypatch.setattr(ClientSession, "post", mock_post)
 
-    assert await async_ens.address('offchainexample.eth') == EXPECTED_RESOLVED_ADDRESS
+    assert await async_ens.address("offchainexample.eth") == EXPECTED_RESOLVED_ADDRESS
 
 
 @pytest.mark.asyncio
 async def test_async_offchain_resolution_raises_when_all_supplied_urls_fail(async_ens):
     # with no mocked responses, requests to all urls will fail
-    with pytest.raises(Exception, match='Offchain lookup failed for supplied urls.'):
-        await async_ens.address('offchainexample.eth')
+    with pytest.raises(Exception, match="Offchain lookup failed for supplied urls."):
+        await async_ens.address("offchainexample.eth")
 
 
 @pytest.mark.asyncio
-async def test_async_offchain_resolution_with_improperly_formatted_http_response(async_ens,
-                                                                                 monkeypatch):
+async def test_async_offchain_resolution_with_improperly_formatted_http_response(
+    async_ens, monkeypatch
+):
     async def mock_get(*args, **_):
         return AsyncMockHttpBadFormatResponse(*args)
 
-    monkeypatch.setattr(ClientSession, 'get', mock_get)
-    with pytest.raises(ValidationError, match=(
-        "Improperly formatted response for offchain lookup HTTP request - missing 'data' field."
-    )):
-        await async_ens.address('offchainexample.eth')
+    monkeypatch.setattr(ClientSession, "get", mock_get)
+    with pytest.raises(
+        ValidationError,
+        match=(
+            "Improperly formatted response for offchain lookup HTTP request - missing 'data' field."
+        ),
+    ):
+        await async_ens.address("offchainexample.eth")

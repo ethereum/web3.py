@@ -87,7 +87,7 @@ class ENS(BaseENS):
 
     def __init__(
         self,
-        provider: 'BaseProvider' = cast('BaseProvider', default),
+        provider: "BaseProvider" = cast("BaseProvider", default),
         addr: ChecksumAddress = None,
         middlewares: Optional[Sequence[Tuple['Middleware', str]]] = None,
     ) -> None:
@@ -97,7 +97,6 @@ class ENS(BaseENS):
         :param hex-string addr: the address of the ENS registry on-chain. If not provided,
             ENS.py will default to the mainnet ENS registry address.
         """
-        super()
         self.w3 = init_web3(provider, middlewares)
 
         ens_addr = addr if addr else ENS_MAINNET_ADDR
@@ -111,12 +110,14 @@ class ENS(BaseENS):
         Generate an ENS instance with web3
 
         :param `web3.Web3` w3: to infer connection information
-        :param hex-string addr: the address of the ENS registry on-chain. If not provided,
-            ENS.py will default to the mainnet ENS registry address.
+        :param hex-string addr: the address of the ENS registry on-chain. If not
+            provided, defaults to the mainnet ENS registry address.
         """
         provider = w3.manager.provider
         middlewares = w3.middleware_onion.middlewares
-        return cls(provider, addr=addr, middlewares=middlewares)
+        return cls(
+            cast("BaseProvider", provider), addr=addr, middlewares=middlewares
+        )
 
     def address(self, name: str) -> Optional[ChecksumAddress]:
         """
