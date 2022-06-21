@@ -27,3 +27,9 @@ async def test_async_ens_factory_fromWeb3_inherits_web3_middlewares(async_w3):
 
     ns = await AsyncENSFactory.fromWeb3(async_w3)
     assert ns.w3.middleware_onion.get('test_middleware') == test_middleware
+
+
+@pytest.mark.asyncio
+async def test_async_web3_raises_not_implemented_error_on_ens_module(async_w3):
+    with pytest.raises(NotImplementedError, match="AsyncENSFactory"):
+        _ = async_w3.ens

@@ -345,6 +345,13 @@ class Web3:
 
     @property
     def ens(self) -> ENS:
+        if self.eth.is_async:
+            raise NotImplementedError(
+                "The ENS module is currently not implemented for async providers. "
+                "Instead, use the documented AsyncENSFactory to create an AsyncENS "
+                "instance."
+            )
+
         if self._ens is cast(ENS, empty):
             return ENS.fromWeb3(self)
         else:
