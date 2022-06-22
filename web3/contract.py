@@ -2066,8 +2066,8 @@ async def async_call_contract_function(
         # eth-abi-utils
         is_missing_code_error = (
             return_data in ACCEPTABLE_EMPTY_STRINGS
-            and await async_w3.eth.get_code(address) in ACCEPTABLE_EMPTY_STRINGS
-        )  # type: ignore
+            and await async_w3.eth.get_code(address) in ACCEPTABLE_EMPTY_STRINGS  # type: ignore
+        )
         if is_missing_code_error:
             msg = (
                 "Could not transact with/call contract function, is contract "
