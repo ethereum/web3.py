@@ -23,6 +23,7 @@ class BaseVersion(Module):
     @property
     def api(self) -> str:
         from web3 import __version__
+
         return __version__
 
 

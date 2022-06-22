@@ -57,7 +57,7 @@ ENS = NewType("ENS", str)
 Nonce = NewType("Nonce", int)
 RPCEndpoint = NewType("RPCEndpoint", str)
 Timestamp = NewType("Timestamp", int)
-Wei = NewType('Wei', int)
+Wei = NewType("Wei", int)
 Formatters = Dict[RPCEndpoint, Callable[..., Any]]
 
 
@@ -176,57 +176,69 @@ class LogReceipt(TypedDict):
 
 
 # syntax b/c "from" keyword not allowed w/ class construction
-TxData = TypedDict("TxData", {
-    "accessList": AccessList,
-    "blockHash": HexBytes,
-    "blockNumber": BlockNumber,
-    "chainId": int,
-    "data": Union[bytes, HexStr],
-    "from": ChecksumAddress,
-    "gas": int,
-    "gasPrice": Wei,
-    "maxFeePerGas": Wei,
-    "maxPriorityFeePerGas": Wei,
-    "hash": HexBytes,
-    "input": HexStr,
-    "nonce": Nonce,
-    "r": HexBytes,
-    "s": HexBytes,
-    "to": ChecksumAddress,
-    "transactionIndex": int,
-    "type": Union[int, HexStr],
-    "v": int,
-    "value": Wei,
-}, total=False)
+TxData = TypedDict(
+    "TxData",
+    {
+        "accessList": AccessList,
+        "blockHash": HexBytes,
+        "blockNumber": BlockNumber,
+        "chainId": int,
+        "data": Union[bytes, HexStr],
+        "from": ChecksumAddress,
+        "gas": int,
+        "gasPrice": Wei,
+        "maxFeePerGas": Wei,
+        "maxPriorityFeePerGas": Wei,
+        "hash": HexBytes,
+        "input": HexStr,
+        "nonce": Nonce,
+        "r": HexBytes,
+        "s": HexBytes,
+        "to": ChecksumAddress,
+        "transactionIndex": int,
+        "type": Union[int, HexStr],
+        "v": int,
+        "value": Wei,
+    },
+    total=False,
+)
 
 
 # syntax b/c "from" keyword not allowed w/ class construction
-TxParams = TypedDict("TxParams", {
-    "chainId": int,
-    "data": Union[bytes, HexStr],
-    # addr or ens
-    "from": Union[Address, ChecksumAddress, str],
-    "gas": int,
-    # legacy pricing
-    "gasPrice": Wei,
-    # dynamic fee pricing
-    "maxFeePerGas": Union[str, Wei],
-    "maxPriorityFeePerGas": Union[str, Wei],
-    "nonce": Nonce,
-    # addr or ens
-    "to": Union[Address, ChecksumAddress, str],
-    "type": Union[int, HexStr],
-    "value": Wei,
-}, total=False)
+TxParams = TypedDict(
+    "TxParams",
+    {
+        "chainId": int,
+        "data": Union[bytes, HexStr],
+        # addr or ens
+        "from": Union[Address, ChecksumAddress, str],
+        "gas": int,
+        # legacy pricing
+        "gasPrice": Wei,
+        # dynamic fee pricing
+        "maxFeePerGas": Union[str, Wei],
+        "maxPriorityFeePerGas": Union[str, Wei],
+        "nonce": Nonce,
+        # addr or ens
+        "to": Union[Address, ChecksumAddress, str],
+        "type": Union[int, HexStr],
+        "value": Wei,
+    },
+    total=False,
+)
 
 
-CallOverrideParams = TypedDict("CallOverrideParams", {
-    'balance': Optional[Wei],
-    'nonce': Optional[int],
-    'code': Optional[Union[bytes, HexStr]],
-    'state': Optional[Dict[str, Any]],
-    'stateDiff': Optional[Dict[Address, Dict[str, Any]]],
-}, total=False)
+CallOverrideParams = TypedDict(
+    "CallOverrideParams",
+    {
+        "balance": Optional[Wei],
+        "nonce": Optional[int],
+        "code": Optional[Union[bytes, HexStr]],
+        "state": Optional[Dict[str, Any]],
+        "stateDiff": Optional[Dict[Address, Dict[str, Any]]],
+    },
+    total=False,
+)
 
 
 CallOverride = Dict[ChecksumAddress, CallOverrideParams]
@@ -236,22 +248,25 @@ GasPriceStrategy = Callable[["Web3", TxParams], Wei]
 
 
 # syntax b/c "from" keyword not allowed w/ class construction
-TxReceipt = TypedDict("TxReceipt", {
-    "blockHash": HexBytes,
-    "blockNumber": BlockNumber,
-    "contractAddress": Optional[ChecksumAddress],
-    "cumulativeGasUsed": int,
-    "effectiveGasPrice": Wei,
-    "gasUsed": int,
-    "from": ChecksumAddress,
-    "logs": List[LogReceipt],
-    "logsBloom": HexBytes,
-    "root": HexStr,
-    "status": int,
-    "to": ChecksumAddress,
-    "transactionHash": HexBytes,
-    "transactionIndex": int,
-})
+TxReceipt = TypedDict(
+    "TxReceipt",
+    {
+        "blockHash": HexBytes,
+        "blockNumber": BlockNumber,
+        "contractAddress": Optional[ChecksumAddress],
+        "cumulativeGasUsed": int,
+        "effectiveGasPrice": Wei,
+        "gasUsed": int,
+        "from": ChecksumAddress,
+        "logs": List[LogReceipt],
+        "logsBloom": HexBytes,
+        "root": HexStr,
+        "status": int,
+        "to": ChecksumAddress,
+        "transactionHash": HexBytes,
+        "transactionIndex": int,
+    },
+)
 
 
 class SignedTx(TypedDict, total=False):
@@ -363,21 +378,25 @@ class Uncle(TypedDict):
 #
 
 # syntax b/c "from" keyword not allowed w/ class construction
-PendingTx = TypedDict("PendingTx", {
-    "blockHash": HexBytes,
-    "blockNumber": None,
-    "from": ChecksumAddress,
-    "gas": HexBytes,
-    'maxFeePerGas': HexBytes,
-    'maxPriorityFeePerGas': HexBytes,
-    "gasPrice": HexBytes,
-    "hash": HexBytes,
-    "input": HexBytes,
-    "nonce": HexBytes,
-    "to": ChecksumAddress,
-    "transactionIndex": None,
-    "value": HexBytes,
-}, total=False)
+PendingTx = TypedDict(
+    "PendingTx",
+    {
+        "blockHash": HexBytes,
+        "blockNumber": None,
+        "from": ChecksumAddress,
+        "gas": HexBytes,
+        "maxFeePerGas": HexBytes,
+        "maxPriorityFeePerGas": HexBytes,
+        "gasPrice": HexBytes,
+        "hash": HexBytes,
+        "input": HexBytes,
+        "nonce": HexBytes,
+        "to": ChecksumAddress,
+        "transactionIndex": None,
+        "value": HexBytes,
+    },
+    total=False,
+)
 
 
 class TxPoolContent(TypedDict, total=False):
