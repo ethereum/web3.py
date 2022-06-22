@@ -20,7 +20,10 @@ def print_header(logger: Logger, num_calls: int) -> None:
     logger.info("-" * 112)
 
 
-def print_entry(logger: Logger, method_benchmarks: Dict[str, Any],) -> None:
+def print_entry(
+    logger: Logger,
+    method_benchmarks: Dict[str, Any],
+) -> None:
     logger.info(
         "|{:^26}|{:^20.10}|{:^20.10}|{:^20.10}|{:^20.10}|".format(
             method_benchmarks["name"],

@@ -48,11 +48,14 @@ from web3.types import (
     Wei,
 )
 
-KEYFILE_PW = 'web3py-test'
+KEYFILE_PW = "web3py-test"
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
-    "--num-calls", type=int, default=10, help="The number of RPC calls to make",
+    "--num-calls",
+    type=int,
+    default=10,
+    help="The number of RPC calls to make",
 )
 
 # TODO - layers to test:
@@ -65,7 +68,7 @@ def build_web3_http(endpoint_uri: str) -> Web3:
     wait_for_http(endpoint_uri)
     _w3 = Web3(
         HTTPProvider(endpoint_uri),
-        middlewares=[gas_price_strategy_middleware, buffered_gas_estimate_middleware]
+        middlewares=[gas_price_strategy_middleware, buffered_gas_estimate_middleware],
     )
     return _w3
 
@@ -74,7 +77,10 @@ async def build_async_w3_http(endpoint_uri: str) -> Web3:
     await wait_for_aiohttp(endpoint_uri)
     _w3 = Web3(
         AsyncHTTPProvider(endpoint_uri),  # type: ignore
-        middlewares=[async_gas_price_strategy_middleware, async_buffered_gas_estimate_middleware],
+        middlewares=[
+            async_gas_price_strategy_middleware,
+            async_buffered_gas_estimate_middleware,
+        ],
         modules={"eth": AsyncEth},
     )
     return _w3
@@ -121,7 +127,9 @@ def main(logger: logging.Logger, num_calls: int) -> None:
         for process in built_fixture:
             w3_http = build_web3_http(fixture.endpoint_uri)
             loop = asyncio.get_event_loop()
-            async_w3_http = loop.run_until_complete(build_async_w3_http(fixture.endpoint_uri))
+            async_w3_http = loop.run_until_complete(
+                build_async_w3_http(fixture.endpoint_uri)
+            )
             # TODO: swap out w3_http for the async_w3_http once GethPersonal module is async
             async_unlocked_acct = loop.run_until_complete(
                 async_unlocked_account(w3_http, async_w3_http.eth)
@@ -137,16 +145,20 @@ def main(logger: logging.Logger, num_calls: int) -> None:
                 {
                     "name": "eth_sendTransaction",
                     "params": {},
-                    "exec": lambda: w3_http.eth.send_transaction({
-                        'to': '0xd3CdA913deB6f67967B99D67aCDFa1712C293601',
-                        'from': unlocked_account(w3_http),
-                        'value': Wei(12345),
-                    }),
-                    "async_exec": lambda: async_w3_http.eth.send_transaction({
-                        'to': '0xd3CdA913deB6f67967B99D67aCDFa1712C293601',
-                        'from': async_unlocked_acct,
-                        'value': Wei(12345)
-                    }),
+                    "exec": lambda: w3_http.eth.send_transaction(
+                        {
+                            "to": "0xd3CdA913deB6f67967B99D67aCDFa1712C293601",
+                            "from": unlocked_account(w3_http),
+                            "value": Wei(12345),
+                        }
+                    ),
+                    "async_exec": lambda: async_w3_http.eth.send_transaction(
+                        {
+                            "to": "0xd3CdA913deB6f67967B99D67aCDFa1712C293601",
+                            "from": async_unlocked_acct,
+                            "value": Wei(12345),
+                        }
+                    ),
                 },
                 {
                     "name": "eth_blockNumber",
@@ -165,7 +177,10 @@ def main(logger: logging.Logger, num_calls: int) -> None:
             def benchmark(method: Dict[str, Any]) -> None:
                 outcomes: Dict[str, Union[str, float]] = defaultdict(lambda: "N/A")
                 outcomes["name"] = method["name"]
-                outcomes["HTTPProvider"] = sync_benchmark(method["exec"], num_calls,)
+                outcomes["HTTPProvider"] = sync_benchmark(
+                    method["exec"],
+                    num_calls,
+                )
                 outcomes["AsyncHTTPProvider"] = loop.run_until_complete(
                     async_benchmark(method["async_exec"], num_calls)
                 )

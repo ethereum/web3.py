@@ -59,7 +59,10 @@ def deploy(
 
 @curry
 def _deploy(
-    contract_name: ContractName, args: Any, transaction: Dict[str, Any], package: Package
+    contract_name: ContractName,
+    args: Any,
+    transaction: Dict[str, Any],
+    package: Package,
 ) -> Package:
     # Deploy new instance
     factory = package.get_contract_factory(contract_name)

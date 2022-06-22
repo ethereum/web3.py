@@ -101,7 +101,9 @@ class GethBenchmarkFixture:
             str(genesis_file),
         )
         check_output(
-            init_datadir_command, stdin=PIPE, stderr=PIPE,
+            init_datadir_command,
+            stdin=PIPE,
+            stderr=PIPE,
         )
         proc = Popen(
             self._geth_command_arguments(datadir),
