@@ -1,0 +1,1 @@
+Handle json-rpc response errors in the format Revert(0x...)
