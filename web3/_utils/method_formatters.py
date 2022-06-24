@@ -590,24 +590,31 @@ def raise_solidity_error_on_revert(response: RPCResponse) -> RPCResponse:
 
     See also https://solidity.readthedocs.io/en/v0.6.3/control-structures.html#revert
     """
-    if not isinstance(response["error"], dict):
-        raise ValueError("Error expected to be a dict")
-
-    data = response["error"].get("data", "")
+    if isinstance(response["error"], dict):
+        data = response["error"].get("data", "")
+    elif isinstance(response["error"], str):
+        data = response["error"]
+    else:
+        raise ValueError("Error expected to be a dict or string")
 
     # Ganache case:
     if isinstance(data, dict) and response["error"].get("message"):
         raise ContractLogicError(f'execution reverted: {response["error"]["message"]}')
 
     # Parity/OpenEthereum case:
-    if data.startswith("Reverted "):
+    if data.startswith(("Reverted ", "Revert(")):
         # "Reverted", function selector and offset are always the same for revert errors
-        prefix = "Reverted 0x08c379a00000000000000000000000000000000000000000000000000000000000000020"  # noqa: 501
-        if not data.startswith(prefix):
+        prefix = "0x08c379a00000000000000000000000000000000000000000000000000000000000000020"  # noqa: 501
+        if not data.startswith((f"Reverted {prefix}", f"Revert({prefix}")):
             raise ContractLogicError("execution reverted")
 
-        reason_length = int(data[len(prefix) : len(prefix) + 64], 16)
-        reason = data[len(prefix) + 64 : len(prefix) + 64 + reason_length * 2]
+        prelen = len("Reverted ")
+        if data.startswith("Revert("):
+            prelen = len("Revert(")
+
+        prefix_len = prelen + len(prefix)
+        reason_length = int(data[prefix_len : prefix_len + 64], 16)
+        reason = data[prefix_len + 64 : prefix_len + 64 + reason_length * 2]
         raise ContractLogicError(
             f'execution reverted: {bytes.fromhex(reason).decode("utf8")}'
         )

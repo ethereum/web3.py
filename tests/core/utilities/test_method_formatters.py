@@ -31,6 +31,19 @@ REVERT_WITH_MSG = RPCResponse({
     'id': 2987,
 })
 
+ANOTHER_REVERT_WITH_MSG = RPCResponse({
+    'jsonrpc': '2.0',
+    'error': (
+        'Revert('
+        '0x08c379a'
+        '00000000000000000000000000000000000000000000000000000000000000020'
+        '000000000000000000000000000000000000000000000000000000000000000c'
+        '4f7574206f662072616e67650000000000000000000000000000000000000000'
+        ')'
+    ),
+    'id': 20,
+})
+
 REVERT_WITHOUT_MSG = RPCResponse({
     'jsonrpc': '2.0',
     'error': {
@@ -86,12 +99,14 @@ GANACHE_RESPONSE = RPCResponse({
         (REVERT_WITHOUT_MSG, 'execution reverted'),
         (GETH_RESPONSE, 'execution reverted: Function has been reverted.'),
         (GANACHE_RESPONSE, 'execution reverted: VM Exception while processing transaction: revert Custom revert message'),  # noqa: 501
+        (ANOTHER_REVERT_WITH_MSG, 'execution reverted: Out of range'),
     ),
     ids=[
         'test-get-revert-reason-with-msg',
         'test-get-revert-reason-without-msg',
         'test-get-geth-revert-reason',
         'test_get-ganache-revert-reason',
+        'test-get-another-revert-reason-with-msg',
     ])
 def test_get_revert_reason(response, expected) -> None:
     with pytest.raises(ContractLogicError, match=expected):
