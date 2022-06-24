@@ -631,7 +631,7 @@ def raise_solidity_error_on_revert(response: RPCResponse) -> RPCResponse:
         )
         raise OffchainLookup(offchain_lookup_payload)
 
-    if isinstance(data, dict):
+    if isinstance(response["error"], dict):
         # Geth case:
         if "message" in response["error"] and response["error"].get("code", "") == 3:
             raise ContractLogicError(response["error"]["message"])
