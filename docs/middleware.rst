@@ -361,10 +361,19 @@ All of the caching middlewares accept these common arguments.
 
 .. _geth-poa:
 
-Geth-style Proof of Authority
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Proof of authority
+~~~~~~~~~~~~~~~~~~
 
 This middleware is required to connect to ``geth --dev`` or the Rinkeby public network.
+It maybe also needed for other EVM compatible blockchains like Polygon or BNB Chain (Binance Smart Chain).
+
+If the middleware is not installed you may get errors like the example below when interacting
+with your EVM node.
+
+.. code-block::
+
+     web3.exceptions.ExtraDataLengthError: The field extraData is 97 bytes, but should be 32. It is quite likely that you are connected to a POA chain. Refer to http://web3py.readthedocs.io/en/stable/middleware.html#geth-style-proof-of-authority for more details. The full extraData is: HexBytes('...')
+
 
 The easiest way to connect to a default ``geth --dev`` instance which loads the middleware is:
 
@@ -379,7 +388,6 @@ The easiest way to connect to a default ``geth --dev`` instance which loads the 
 
 This example connects to a local ``geth --dev`` instance on Linux with a
 unique IPC location and loads the middleware:
-
 
 .. code-block:: python
 
