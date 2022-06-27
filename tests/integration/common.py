@@ -8,10 +8,11 @@ from web3 import Web3
 
 
 class MiscWebsocketTest:
-
     def test_websocket_max_size_error(self, w3, endpoint_uri):
-        w3 = Web3(Web3.WebsocketProvider(
-            endpoint_uri=endpoint_uri, websocket_kwargs={'max_size': 1})
+        w3 = Web3(
+            Web3.WebsocketProvider(
+                endpoint_uri=endpoint_uri, websocket_kwargs={"max_size": 1}
+            )
         )
         with pytest.raises((OSError, ConnectionClosed)):
             w3.eth.get_block(0)

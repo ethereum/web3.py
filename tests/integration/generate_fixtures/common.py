@@ -19,18 +19,20 @@ from web3.exceptions import (
     TransactionNotFound,
 )
 
-COINBASE = '0xdc544d1aa88ff8bbd2f2aec754b1f1e99e1812fd'
-COINBASE_PK = '0x58d23b55bc9cdce1f18c2500f40ff4ab7245df9a89505e9b1fa4851f623d241d'
+COINBASE = "0xdc544d1aa88ff8bbd2f2aec754b1f1e99e1812fd"
+COINBASE_PK = "0x58d23b55bc9cdce1f18c2500f40ff4ab7245df9a89505e9b1fa4851f623d241d"
 
 KEYFILE_DATA = '{"address":"dc544d1aa88ff8bbd2f2aec754b1f1e99e1812fd","crypto":{"cipher":"aes-128-ctr","ciphertext":"52e06bc9397ea9fa2f0dae8de2b3e8116e92a2ecca9ad5ff0061d1c449704e98","cipherparams":{"iv":"aa5d0a5370ef65395c1a6607af857124"},"kdf":"scrypt","kdfparams":{"dklen":32,"n":262144,"p":1,"r":8,"salt":"9fdf0764eb3645ffc184e166537f6fe70516bf0e34dc7311dea21f100f0c9263"},"mac":"4e0b51f42b865c15c485f4faefdd1f01a38637e5247f8c75ffe6a8c0eba856f6"},"id":"5a6124e0-10f1-4c1c-ae3e-d903eacb740a","version":3}'  # noqa: E501
 
-KEYFILE_PW = 'web3py-test'
-KEYFILE_FILENAME = 'UTC--2017-08-24T19-42-47.517572178Z--dc544d1aa88ff8bbd2f2aec754b1f1e99e1812fd'  # noqa: E501
+KEYFILE_PW = "web3py-test"
+KEYFILE_FILENAME = "UTC--2017-08-24T19-42-47.517572178Z--dc544d1aa88ff8bbd2f2aec754b1f1e99e1812fd"  # noqa: E501
 
-RAW_TXN_ACCOUNT = '0x39EEed73fb1D3855E90Cbd42f348b3D7b340aAA6'
+RAW_TXN_ACCOUNT = "0x39EEed73fb1D3855E90Cbd42f348b3D7b340aAA6"
 
-UNLOCKABLE_PRIVATE_KEY = '0x392f63a79b1ff8774845f3fa69de4a13800a59e7083f5187f1558f0797ad0f01'
-UNLOCKABLE_ACCOUNT = '0x12efdc31b1a8fa1a1e756dfd8a1601055c971e13'
+UNLOCKABLE_PRIVATE_KEY = (
+    "0x392f63a79b1ff8774845f3fa69de4a13800a59e7083f5187f1558f0797ad0f01"
+)
+UNLOCKABLE_ACCOUNT = "0x12efdc31b1a8fa1a1e756dfd8a1601055c971e13"
 UNLOCKABLE_ACCOUNT_PW = KEYFILE_PW
 
 GENESIS_DATA = {
@@ -65,7 +67,7 @@ GENESIS_DATA = {
     "gasLimit": "0x3b9aca00",  # 1,000,000,000
     "difficulty": "0x10000",
     "mixhash": constants.HASH_ZERO,
-    "coinbase": COINBASE
+    "coinbase": COINBASE,
 }
 
 
@@ -94,17 +96,17 @@ def get_geth_binary():
         install_geth,
     )
 
-    if 'GETH_BINARY' in os.environ:
-        return os.environ['GETH_BINARY']
-    elif 'GETH_VERSION' in os.environ:
-        geth_version = os.environ['GETH_VERSION']
+    if "GETH_BINARY" in os.environ:
+        return os.environ["GETH_BINARY"]
+    elif "GETH_VERSION" in os.environ:
+        geth_version = os.environ["GETH_VERSION"]
         _geth_binary = get_executable_path(geth_version)
         if not os.path.exists(_geth_binary):
             install_geth(geth_version)
         assert os.path.exists(_geth_binary)
         return _geth_binary
     else:
-        return 'geth'
+        return "geth"
 
 
 def wait_for_popen(proc, timeout):
@@ -144,21 +146,18 @@ def wait_for_socket(ipc_path, timeout=30):
 
 
 @contextlib.contextmanager
-def get_geth_process(geth_binary,
-                     datadir,
-                     genesis_file_path,
-                     ipc_path,
-                     port,
-                     networkid,
-                     skip_init=False):
+def get_geth_process(
+    geth_binary, datadir, genesis_file_path, ipc_path, port, networkid, skip_init=False
+):
     if not skip_init:
         init_datadir_command = (
             geth_binary,
-            '--datadir', datadir,
-            'init',
+            "--datadir",
+            datadir,
+            "init",
             genesis_file_path,
         )
-        print(' '.join(init_datadir_command))
+        print(" ".join(init_datadir_command))
         subprocess.check_output(
             init_datadir_command,
             stdin=subprocess.PIPE,
@@ -167,14 +166,19 @@ def get_geth_process(geth_binary,
 
     run_geth_command = (
         geth_binary,
-        '--datadir', datadir,
-        '--ipcpath', ipc_path,
-        '--nodiscover',
-        '--port', port,
-        '--networkid', networkid,
-        '--etherbase', COINBASE[2:],
+        "--datadir",
+        datadir,
+        "--ipcpath",
+        ipc_path,
+        "--nodiscover",
+        "--port",
+        port,
+        "--networkid",
+        networkid,
+        "--etherbase",
+        COINBASE[2:],
     )
-    print(' '.join(run_geth_command))
+    print(" ".join(run_geth_command))
     try:
         proc = get_process(run_geth_command)
         yield proc
@@ -228,17 +232,19 @@ def mine_transaction_hash(w3, txn_hash):
         else:
             time.sleep(0.1)
     else:
-        raise ValueError("Math contract deploy transaction not mined during wait period")
+        raise ValueError(
+            "Math contract deploy transaction not mined during wait period"
+        )
 
 
 def deploy_contract(w3, name, factory):
     name = name.upper()
     w3.geth.personal.unlock_account(w3.eth.coinbase, KEYFILE_PW)
-    deploy_txn_hash = factory.constructor().transact({'from': w3.eth.coinbase})
-    print(f'{name}_CONTRACT_DEPLOY_HASH: {deploy_txn_hash}')
+    deploy_txn_hash = factory.constructor().transact({"from": w3.eth.coinbase})
+    print(f"{name}_CONTRACT_DEPLOY_HASH: {deploy_txn_hash}")
     deploy_receipt = mine_transaction_hash(w3, deploy_txn_hash)
-    print(f'{name}_CONTRACT_DEPLOY_TRANSACTION_MINED')
-    contract_address = deploy_receipt['contractAddress']
+    print(f"{name}_CONTRACT_DEPLOY_TRANSACTION_MINED")
+    contract_address = deploy_receipt["contractAddress"]
     assert is_checksum_address(contract_address)
-    print(f'{name}_CONTRACT_ADDRESS: {contract_address}')
+    print(f"{name}_CONTRACT_ADDRESS: {contract_address}")
     return deploy_receipt
