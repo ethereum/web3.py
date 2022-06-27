@@ -17,13 +17,13 @@ from ethpm.validation.package import (
 
 
 def test_validate_raw_manifest_configuration_validates_strict_manifests(
-    all_strict_manifests
+    all_strict_manifests,
 ):
     assert validate_raw_manifest_format(all_strict_manifests) is None
 
 
 def test_validate_raw_manifest_format_invalidates_pretty_manifests(
-    all_pretty_manifests
+    all_pretty_manifests,
 ):
     with pytest.raises(EthPMValidationError):
         validate_raw_manifest_format(all_pretty_manifests)
@@ -61,9 +61,11 @@ def test_validate_manifest_invalidates(invalid_manifest):
 
 
 def test_validate_manifest_deployments_catches_missing_contract_type_references(
-    manifest_with_conflicting_deployments
+    manifest_with_conflicting_deployments,
 ):
-    with pytest.raises(EthPMValidationError, match="Manifest missing references to contracts"):
+    with pytest.raises(
+        EthPMValidationError, match="Manifest missing references to contracts"
+    ):
         validate_manifest_deployments(manifest_with_conflicting_deployments)
 
 
@@ -210,7 +212,7 @@ def test_validate_meta_object_invalidates(meta, extra_fields):
         "wallet_",
         "wallet-",
         "x" * 256,
-    )
+    ),
 )
 def test_validate_package_name_with_valid_package_names(package_name):
     assert validate_package_name(package_name) is None
@@ -226,7 +228,7 @@ def test_validate_package_name_with_valid_package_names(package_name):
         ".invalid",
         "wallet.bad",
         "x" * 257,
-    )
+    ),
 )
 def test_validate_package_name_raises_exception_for_invalid_names(package_name):
     with pytest.raises(EthPMValidationError):

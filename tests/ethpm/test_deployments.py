@@ -85,7 +85,7 @@ def test_deployment_implements_key_lookup(deployment):
 
 
 def test_deployment_implements_key_lookup_with_nonexistent_key_raises_exception(
-    deployment
+    deployment,
 ):
     key = "invalid" in deployment
     assert key is False

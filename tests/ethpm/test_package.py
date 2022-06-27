@@ -41,7 +41,9 @@ def test_update_web3(deployed_safe_math, w3):
     assert new_package.w3 is new_w3
     assert original_package is not new_package
     assert original_package.manifest == new_package.manifest
-    with pytest.raises(EthPMValidationError, match="Package has no matching URIs on chain."):
+    with pytest.raises(
+        EthPMValidationError, match="Package has no matching URIs on chain."
+    ):
         new_package.deployments
 
 
@@ -89,8 +91,9 @@ def test_package_object_properties(safe_math_package):
     assert safe_math_package.contract_types == ["SafeMathLib"]
 
 
-def test_cached_properties(piper_coin_manifest, safe_math_lib_package,
-                           safe_math_lib_package_with_alias, w3):
+def test_cached_properties(
+    piper_coin_manifest, safe_math_lib_package, safe_math_lib_package_with_alias, w3
+):
     package1 = Package(piper_coin_manifest, w3)
     package2 = Package(piper_coin_manifest, w3)
     first_build_dependencies_package1 = package1.build_dependencies.items()

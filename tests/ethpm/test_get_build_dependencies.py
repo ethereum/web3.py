@@ -35,7 +35,9 @@ def test_get_build_dependencies_without_dependencies_raises_exception(
 ):
     piper_coin_manifest.pop("buildDependencies", None)
     pkg = Package(piper_coin_manifest, w3)
-    with pytest.raises(EthPMValidationError, match="Manifest doesn't have any build dependencies"):
+    with pytest.raises(
+        EthPMValidationError, match="Manifest doesn't have any build dependencies"
+    ):
         pkg.build_dependencies
 
 
@@ -44,5 +46,7 @@ def test_get_build_dependencies_with_empty_dependencies_raises_exception(
 ):
     piper_coin_manifest["buildDependencies"] = {}
     pkg = Package(piper_coin_manifest, w3)
-    with pytest.raises(EthPMValidationError, match="Manifest's build dependencies key is empty"):
+    with pytest.raises(
+        EthPMValidationError, match="Manifest's build dependencies key is empty"
+    ):
         pkg.build_dependencies

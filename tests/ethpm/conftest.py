@@ -47,11 +47,7 @@ def ethpm_spec_dir():
 
 @pytest.fixture(params=V3_PACKAGE_NAMES)
 def all_strict_manifests(request):
-    return (
-        (fetch_manifest_path(request.param[0], "v3.json"))
-        .read_text()
-        .rstrip("\n")
-    )
+    return (fetch_manifest_path(request.param[0], "v3.json")).read_text().rstrip("\n")
 
 
 @pytest.fixture(params=V3_PACKAGE_NAMES)
@@ -69,10 +65,12 @@ def fetch_manifest(name, version):
 
 def fetch_manifest_path(name, version):
     ethpm_spec_dir = get_ethpm_spec_dir()
-    return ethpm_spec_dir / 'examples' / name / version
+    return ethpm_spec_dir / "examples" / name / version
 
 
-MANIFESTS_V3 = {name: fetch_manifest(name, version) for name, version in V3_PACKAGE_NAMES}
+MANIFESTS_V3 = {
+    name: fetch_manifest(name, version) for name, version in V3_PACKAGE_NAMES
+}
 
 
 @pytest.fixture
@@ -145,7 +143,9 @@ def get_factory(get_manifest, escrow_manifest, w3):
 
 @pytest.fixture
 def owned_contract(ethpm_spec_dir):
-    return (ethpm_spec_dir / "examples" / "owned" / "contracts" / "Owned.sol").read_text()
+    return (
+        ethpm_spec_dir / "examples" / "owned" / "contracts" / "Owned.sol"
+    ).read_text()
 
 
 @pytest.fixture
@@ -190,7 +190,9 @@ def safe_math_lib_package(deployer, w3):
 
 @pytest.fixture
 def safe_math_lib_package_with_alias(deployer, w3):
-    safe_math_lib_manifest = ASSETS_DIR / "safe-math-lib" / "v3-strict-no-deployments.json"
+    safe_math_lib_manifest = (
+        ASSETS_DIR / "safe-math-lib" / "v3-strict-no-deployments.json"
+    )
     safe_math_deployer = deployer(safe_math_lib_manifest)
     pkg = safe_math_deployer.deploy("SafeMathLib")
     blockchain_uri = list(pkg.manifest["deployments"].keys())[0]
