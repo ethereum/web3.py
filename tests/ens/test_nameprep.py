@@ -1,4 +1,3 @@
-
 import pytest
 
 from ens import (
@@ -25,12 +24,12 @@ def test_nameprep_basic_unicode(ens):
 
 
 @pytest.mark.parametrize(
-    'url', [
-        ('not=std3'),
-        ('not_std3.eth'),  # underscores not allowed
-    ]
+    "url",
+    [
+        ("not=std3"),
+        ("not_std3.eth"),  # underscores not allowed
+    ],
 )
 def test_nameprep_std3_rules(ens, url):
-    with pytest.raises(InvalidName,
-                       match=f'{url} is an invalid name'):
+    with pytest.raises(InvalidName, match=f"{url} is an invalid name"):
         ens.nameprep(url)

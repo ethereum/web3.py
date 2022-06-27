@@ -23,45 +23,45 @@ def TEST_ADDRESS(address_conversion_func):
 
 
 @pytest.mark.parametrize(
-    'name, normalized_name, namehash_hex',
+    "name, normalized_name, namehash_hex",
     [
         (
-            'tester.eth',
-            'tester.eth',
-            '2a7ac1c833d35677c2ff34a908951de142cc1653de6080ad4e38f4c9cc00aafe',
+            "tester.eth",
+            "tester.eth",
+            "2a7ac1c833d35677c2ff34a908951de142cc1653de6080ad4e38f4c9cc00aafe",
         ),
         (
-            'TESTER.eth',
-            'tester.eth',
-            '2a7ac1c833d35677c2ff34a908951de142cc1653de6080ad4e38f4c9cc00aafe',
+            "TESTER.eth",
+            "tester.eth",
+            "2a7ac1c833d35677c2ff34a908951de142cc1653de6080ad4e38f4c9cc00aafe",
         ),
         (
-            'tester．eth',
-            'tester.eth',
-            '2a7ac1c833d35677c2ff34a908951de142cc1653de6080ad4e38f4c9cc00aafe',
+            "tester．eth",
+            "tester.eth",
+            "2a7ac1c833d35677c2ff34a908951de142cc1653de6080ad4e38f4c9cc00aafe",
         ),
         (
-            'tester。eth',
-            'tester.eth',
-            '2a7ac1c833d35677c2ff34a908951de142cc1653de6080ad4e38f4c9cc00aafe',
+            "tester。eth",
+            "tester.eth",
+            "2a7ac1c833d35677c2ff34a908951de142cc1653de6080ad4e38f4c9cc00aafe",
         ),
         (
-            'tester｡eth',
-            'tester.eth',
-            '2a7ac1c833d35677c2ff34a908951de142cc1653de6080ad4e38f4c9cc00aafe',
+            "tester｡eth",
+            "tester.eth",
+            "2a7ac1c833d35677c2ff34a908951de142cc1653de6080ad4e38f4c9cc00aafe",
         ),
         # confirm that set-owner works
         (
-            'lots.of.subdomains.tester.eth',
-            'lots.of.subdomains.tester.eth',
-            '0d62a759aa1f1c9680de8603a12a5eb175cd1bfa79426229868eba99f4dce692',
+            "lots.of.subdomains.tester.eth",
+            "lots.of.subdomains.tester.eth",
+            "0d62a759aa1f1c9680de8603a12a5eb175cd1bfa79426229868eba99f4dce692",
         ),
     ],
 )
 def test_setup_name(ens, name, normalized_name, namehash_hex):
     address = ens.w3.eth.accounts[3]
     assert not ens.name(address)
-    owner = ens.owner('tester.eth')
+    owner = ens.owner("tester.eth")
 
     ens.setup_name(name, address)
     assert ens.name(address) == normalized_name
@@ -91,14 +91,16 @@ def test_setup_name(ens, name, normalized_name, namehash_hex):
 
 
 def test_cannot_set_name_on_mismatch_address(ens, TEST_ADDRESS):
-    ens.setup_address('mismatch-reverse.tester.eth', TEST_ADDRESS)
+    ens.setup_address("mismatch-reverse.tester.eth", TEST_ADDRESS)
     with pytest.raises(AddressMismatch):
-        ens.setup_name('mismatch-reverse.tester.eth', '0xBB9bc244D798123fDe783fCc1C72d3Bb8C189413')
+        ens.setup_name(
+            "mismatch-reverse.tester.eth", "0xBB9bc244D798123fDe783fCc1C72d3Bb8C189413"
+        )
 
 
 def test_setup_name_default_address(ens):
-    name = 'reverse-defaults-to-forward.tester.eth'
-    owner = ens.owner('tester.eth')
+    name = "reverse-defaults-to-forward.tester.eth"
+    owner = ens.owner("tester.eth")
     new_resolution = ens.w3.eth.accounts[-1]
     ens.setup_address(name, new_resolution)
     assert not ens.name(new_resolution)
@@ -110,7 +112,7 @@ def test_setup_name_default_address(ens):
 
 
 def test_setup_name_default_to_owner(ens):
-    name = 'reverse-defaults-to-owner.tester.eth'
+    name = "reverse-defaults-to-owner.tester.eth"
     new_owner = ens.w3.eth.accounts[-1]
     ens.setup_owner(name, new_owner)
     assert not ens.name(new_owner)
@@ -122,23 +124,23 @@ def test_setup_name_default_to_owner(ens):
 
 def test_setup_name_unowned_exception(ens):
     with pytest.raises(UnownedName):
-        ens.setup_name('unowned-name.tester.eth')
+        ens.setup_name("unowned-name.tester.eth")
 
 
 def test_setup_name_unauthorized(ens, TEST_ADDRESS):
     with pytest.raises(UnauthorizedError):
-        ens.setup_name('root-owned-tld', TEST_ADDRESS)
+        ens.setup_name("root-owned-tld", TEST_ADDRESS)
 
 
 def test_setup_reverse_dict_unmodified(ens):
     # setup
-    owner = ens.owner('tester.eth')
+    owner = ens.owner("tester.eth")
     eth = ens.w3.eth
     start_count = eth.get_transaction_count(owner)
 
     address = ens.w3.eth.accounts[3]
     transact = {}
-    ens.setup_name('tester.eth', address, transact=transact)
+    ens.setup_name("tester.eth", address, transact=transact)
 
     # even though a transaction was issued, the dict argument was not modified
     assert eth.get_transaction_count(owner) > start_count
