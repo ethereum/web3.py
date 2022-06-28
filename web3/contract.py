@@ -1219,8 +1219,8 @@ class ContractFunction(BaseContractFunction):
             self.abi,
             state_override,
             ccip_read_enabled,
-            *self.args,
-            **self.kwargs,
+            *(self.args or []),
+            **(self.kwargs or {}),
         )
 
     def transact(self, transaction: Optional[TxParams] = None) -> HexBytes:
