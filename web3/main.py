@@ -133,6 +133,7 @@ from web3.version import (
 
 if TYPE_CHECKING:
     from web3.pm import PM  # noqa: F401
+    from web3._utils.empty import Empty  # noqa: F401
 
 
 def get_default_modules() -> Dict[str, Union[Type[Module], Sequence[Any]]]:
@@ -249,7 +250,7 @@ class Web3:
         external_modules: Optional[
             Dict[str, Union[Type[Module], Sequence[Any]]]
         ] = None,
-        ens: Optional[Union[ENS, AsyncENS]] = None,
+        ens: Union[ENS, AsyncENS, "Empty"] = empty,
     ) -> None:
         self.manager = self.RequestManager(self, provider, middlewares)
         # this codec gets used in the module initialization,
@@ -350,16 +351,14 @@ class Web3:
         return self.codec.is_encodable(_type, value)
 
     @property
-    def ens(self) -> Union[ENS, AsyncENS]:
-        if self._ens is cast(ENS, empty):
-            return ENS.fromWeb3(self)
-        elif self._ens is cast(AsyncENS, empty) or self.eth.is_async:
-            return AsyncENS.fromWeb3(self)
+    def ens(self) -> Union[ENS, AsyncENS, "Empty"]:
+        if self._ens is empty:
+            return AsyncENS.fromWeb3(self) if self.eth.is_async else ENS.fromWeb3(self)
 
         return self._ens
 
     @ens.setter
-    def ens(self, new_ens: Optional[Union[ENS, AsyncENS]]) -> None:
+    def ens(self, new_ens: Union[ENS, AsyncENS, "Empty"]) -> None:
         self._ens = new_ens
 
     @property
