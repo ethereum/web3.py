@@ -89,9 +89,9 @@ def test_check_sources(manifest, expected):
                         "deploymentBytecode": WARNINGS[
                             "deployment_bytecode_missing"
                         ].format("x"),
-                        "runtimeBytecode": WARNINGS[
-                            "bytecode_subfield_missing"
-                        ].format("x", "runtime"),
+                        "runtimeBytecode": WARNINGS["bytecode_subfield_missing"].format(
+                            "x", "runtime"
+                        ),
                         "devdoc": WARNINGS["devdoc_missing"].format("x"),
                         "userdoc": WARNINGS["userdoc_missing"].format("x"),
                     }
@@ -122,9 +122,9 @@ def test_check_sources(manifest, expected):
                         "deploymentBytecode": WARNINGS[
                             "deployment_bytecode_missing"
                         ].format("x"),
-                        "runtimeBytecode": WARNINGS[
-                            "bytecode_subfield_missing"
-                        ].format("x", "runtime"),
+                        "runtimeBytecode": WARNINGS["bytecode_subfield_missing"].format(
+                            "x", "runtime"
+                        ),
                         "devdoc": WARNINGS["devdoc_missing"].format("x"),
                         "userdoc": WARNINGS["userdoc_missing"].format("x"),
                     },

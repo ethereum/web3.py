@@ -42,7 +42,7 @@ def test_validate_empty_bytes_invalidates(offset, length, bytecode):
         "abcd",
         "abcd%40",
         "%20%24%26",
-    )
+    ),
 )
 def test_validate_escaped_strings(string):
     validate_escaped_string(string)
@@ -55,7 +55,7 @@ def test_validate_escaped_strings(string):
         "@bcd%40",
         "!bcd%40",
         "&bcd%40",
-    )
+    ),
 )
 def test_validate_escaped_strings_invalidates(string):
     with pytest.raises(EthPMValidationError):

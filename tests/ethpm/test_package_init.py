@@ -24,9 +24,7 @@ def valid_manifest_from_path(tmpdir):
 
 @pytest.fixture
 def invalid_manifest_from_path(tmpdir):
-    invalid_manifest = (
-        '{"manifest":"xx","name":"foo","version":"1.0.0"}'
-    )
+    invalid_manifest = '{"manifest":"xx","name":"foo","version":"1.0.0"}'
     temp_manifest = tmpdir.mkdir("invalid").join("manifest.json")
     temp_manifest.write(invalid_manifest)
     yield Path(str(temp_manifest))
@@ -64,9 +62,7 @@ def test_package_init_for_all_manifest_use_cases(all_manifests, w3):
     assert isinstance(package, Package)
 
 
-def test_package_init_for_manifest_with_build_dependency(
-    piper_coin_manifest, w3
-):
+def test_package_init_for_manifest_with_build_dependency(piper_coin_manifest, w3):
     pkg = Package(piper_coin_manifest, w3)
     assert isinstance(pkg, Package)
 
@@ -134,7 +130,9 @@ def test_package_from_uri_with_valid_uri(w3):
         "bzz://da6adeeb4589d8652bbe5679aae6b6409ec85a20e92a8823c7c99e25dba9493d",
     ),
 )
-@pytest.mark.skipif('WEB3_INFURA_PROJECT_ID' not in os.environ, reason='Infura API key unavailable')
+@pytest.mark.skipif(
+    "WEB3_INFURA_PROJECT_ID" not in os.environ, reason="Infura API key unavailable"
+)
 def test_package_from_uri_rejects_invalid_ipfs_uri(uri, w3):
     with pytest.raises(CannotHandleURI):
         Package.from_uri(uri, w3)

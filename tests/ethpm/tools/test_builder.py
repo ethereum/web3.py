@@ -64,8 +64,8 @@ BASE_MANIFEST = {"name": "package", "manifest": "ethpm/3", "version": "1.0.0"}
 def owned_package(ethpm_spec_dir):
     manifest = get_ethpm_spec_manifest("owned", "v3.json")
     # source_id missing `./` prefix in ethpm-spec ("Owned.sol"/"./Owned.sol" though both are valid)
-    source_obj = manifest['sources'].pop('Owned.sol')
-    updated_manifest = assoc_in(manifest, ['sources', './Owned.sol'], source_obj)
+    source_obj = manifest["sources"].pop("Owned.sol")
+    updated_manifest = assoc_in(manifest, ["sources", "./Owned.sol"], source_obj)
 
     compiler = get_ethpm_local_manifest("owned", "output_v3.json")["contracts"]
     contracts_dir = ethpm_spec_dir / "examples" / "owned" / "contracts"
@@ -117,9 +117,7 @@ PRETTY_MANIFEST = """{
     "version": "1.0.0"
 }"""
 
-MINIFIED_MANIFEST = (
-    '{"manifest":"ethpm/3","name":"package","version":"1.0.0"}'
-)
+MINIFIED_MANIFEST = '{"manifest":"ethpm/3","name":"package","version":"1.0.0"}'
 
 OWNED_CONTRACT = "// SPDX-License-Identifier: MIT\npragma solidity ^0.6.8;\n\ncontract Owned {\n    address owner;\n    \n    modifier onlyOwner { require(msg.sender == owner); _; }\n\n    constructor() public {\n        owner = msg.sender;\n    }\n}"  # noqa: E501
 
@@ -311,7 +309,7 @@ def test_builder_with_inline_source_with_package_root_dir_arg(owned_package):
         },
     )
     print(manifest)
-    print('-')
+    print("-")
     print(expected)
     assert manifest == expected
 
@@ -387,8 +385,10 @@ def test_builder_with_default_contract_types(owned_package):
 
     manifest = build(BASE_MANIFEST, contract_type("Owned", compiler_output), validate())
 
-    contract_type_data = normalize_contract_type(compiler_output["Owned.sol"]["Owned"], "Owned.sol")
-    compilers_data = contract_type_data.pop('compiler')
+    contract_type_data = normalize_contract_type(
+        compiler_output["Owned.sol"]["Owned"], "Owned.sol"
+    )
+    compilers_data = contract_type_data.pop("compiler")
     compilers_data["contractTypes"] = ["Owned"]
     expected_with_contract_type = assoc(
         BASE_MANIFEST, "contractTypes", {"Owned": contract_type_data}
@@ -406,8 +406,10 @@ def test_builder_with_single_alias_kwarg(owned_package):
         validate(),
     )
 
-    contract_type_data = normalize_contract_type(compiler_output["Owned.sol"]["Owned"], "Owned.sol")
-    compilers_data = contract_type_data.pop('compiler')
+    contract_type_data = normalize_contract_type(
+        compiler_output["Owned.sol"]["Owned"], "Owned.sol"
+    )
+    compilers_data = contract_type_data.pop("compiler")
     compilers_data["contractTypes"] = ["OwnedAlias"]
     expected_with_contract_type = assoc(
         BASE_MANIFEST,
@@ -422,10 +424,14 @@ def test_builder_without_alias_and_with_select_contract_types(owned_package):
     _, _, compiler_output = owned_package
 
     manifest = build(
-        BASE_MANIFEST, contract_type("Owned", compiler_output, abi=True, source_id=True), validate()
+        BASE_MANIFEST,
+        contract_type("Owned", compiler_output, abi=True, source_id=True),
+        validate(),
     )
 
-    contract_type_data = normalize_contract_type(compiler_output["Owned.sol"]["Owned"], "Owned.sol")
+    contract_type_data = normalize_contract_type(
+        compiler_output["Owned.sol"]["Owned"], "Owned.sol"
+    )
     omitted_fields = ("deploymentBytecode", "userdoc", "devdoc", "compiler")
     selected_data = {
         k: v for k, v in contract_type_data.items() if k not in omitted_fields
@@ -454,7 +460,9 @@ def test_builder_with_alias_and_select_contract_types(owned_package):
         validate(),
     )
 
-    contract_type_data = normalize_contract_type(compiler_output["Owned.sol"]["Owned"], "Owned.sol")
+    contract_type_data = normalize_contract_type(
+        compiler_output["Owned.sol"]["Owned"], "Owned.sol"
+    )
     contract_type_data.pop("compiler")
     expected = assoc(
         BASE_MANIFEST,
@@ -486,13 +494,15 @@ def test_builder_manages_duplicate_compilers(owned_package):
         ),
         validate(),
     )
-    contract_type_data = normalize_contract_type(compiler_output["Owned.sol"]["Owned"], "Owned.sol")
+    contract_type_data = normalize_contract_type(
+        compiler_output["Owned.sol"]["Owned"], "Owned.sol"
+    )
     compiler_data = contract_type_data.pop("compiler")
-    contract_type_data.pop('deploymentBytecode')
-    contract_type_data.pop('devdoc')
-    contract_type_data.pop('userdoc')
+    contract_type_data.pop("deploymentBytecode")
+    contract_type_data.pop("devdoc")
+    contract_type_data.pop("userdoc")
     compiler_data_with_contract_types = assoc(
-        compiler_data, 'contractTypes', ['Owned', 'OwnedAlias']
+        compiler_data, "contractTypes", ["Owned", "OwnedAlias"]
     )
     expected_with_contract_types = assoc(
         BASE_MANIFEST,
@@ -502,13 +512,15 @@ def test_builder_manages_duplicate_compilers(owned_package):
             "OwnedAlias": assoc(contract_type_data, "contractType", "Owned"),
         },
     )
-    expected_with_contract_types['contractTypes']['Owned'].pop("contractType")
-    expected = assoc(expected_with_contract_types, 'compilers', [compiler_data_with_contract_types])
+    expected_with_contract_types["contractTypes"]["Owned"].pop("contractType")
+    expected = assoc(
+        expected_with_contract_types, "compilers", [compiler_data_with_contract_types]
+    )
     assert manifest == expected
 
 
 def test_builder_raises_exception_if_selected_contract_type_missing_from_solc(
-    owned_package
+    owned_package,
 ):
     _, _, compiler_output = owned_package
     with pytest.raises(ManifestBuildingError, match="runtimeBytecode not available"):
@@ -532,9 +544,16 @@ def test_builder_with_standard_token_manifest(
         version("1.0.0"),
         pin_source("StandardToken", compiler_output, ipfs_backend),
         pin_source("Token", compiler_output, ipfs_backend),
-        contract_type("StandardToken", compiler_output, abi=True, devdoc=True, source_id=True),
         contract_type(
-            "Token", compiler_output, abi=True, devdoc=True, userdoc=True, source_id=True
+            "StandardToken", compiler_output, abi=True, devdoc=True, source_id=True
+        ),
+        contract_type(
+            "Token",
+            compiler_output,
+            abi=True,
+            devdoc=True,
+            userdoc=True,
+            source_id=True,
         ),
         validate(),
     )

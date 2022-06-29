@@ -25,16 +25,12 @@ from web3.contract import (
         (
             "escrow",
             "Escrow",
-            {
-                "SafeSendLib": "0x4F5B11c860b37b68DE6D14Fb7e7b5f18A9A1bdC0"
-            },
+            {"SafeSendLib": "0x4F5B11c860b37b68DE6D14Fb7e7b5f18A9A1bdC0"},
         ),
         (
             "wallet",
             "Wallet",
-            {
-                "safe-math-lib:SafeMathLib": "0xa66A05D6AB5c1c955F4D2c3FCC166AE6300b452B"
-            },
+            {"safe-math-lib:SafeMathLib": "0xa66A05D6AB5c1c955F4D2c3FCC166AE6300b452B"},
         ),
     ),
 )
@@ -98,8 +94,13 @@ SAFE_MATH_CANON = to_canonical_address(SAFE_MATH_ADDRESS)
                 {"length": 20, "name": "SafeMathLib", "offsets": [25]},
             ],
             {"SafeSendLib": SAFE_SEND_CANON, "SafeMathLib": SAFE_MATH_CANON},
-            b"\00" + SAFE_SEND_CANON + bytearray(4) + SAFE_MATH_CANON
-            + bytearray(5) + SAFE_SEND_CANON + bytearray(10),
+            b"\00"
+            + SAFE_SEND_CANON
+            + bytearray(4)
+            + SAFE_MATH_CANON
+            + bytearray(5)
+            + SAFE_SEND_CANON
+            + bytearray(10),
         ),
     ),
 )

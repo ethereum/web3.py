@@ -83,73 +83,185 @@ def test_create_github_uri():
         ),
         (
             "erc1319://0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729:5/owned",
-            ["0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729", "5", "owned", None, None, None],
+            [
+                "0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729",
+                "5",
+                "owned",
+                None,
+                None,
+                None,
+            ],
         ),
         (
             "erc1319://0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729:1/owned@1.0.0",
-            ["0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729", "1", "owned", "1.0.0", None, None],
+            [
+                "0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729",
+                "1",
+                "owned",
+                "1.0.0",
+                None,
+                None,
+            ],
         ),
         (
             "erc1319://0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729:1/wallet@2.8.0/",
-            ["0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729", "1", "wallet", "2.8.0", None, None],
+            [
+                "0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729",
+                "1",
+                "wallet",
+                "2.8.0",
+                None,
+                None,
+            ],
         ),
         # ethpm scheme
         (
             "ethpm://0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729:1/wallet@2.8.0",
-            ["0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729", "1", "wallet", "2.8.0", None, None],
+            [
+                "0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729",
+                "1",
+                "wallet",
+                "2.8.0",
+                None,
+                None,
+            ],
         ),
         # w/o chain_id
         (
             "erc1319://0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729/owned",
-            ["0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729", "1", "owned", None, None, None],
+            [
+                "0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729",
+                "1",
+                "owned",
+                None,
+                None,
+                None,
+            ],
         ),
         (
             "ethpm://0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729/wallet@2.8.0",
-            ["0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729", "1", "wallet", "2.8.0", None, None],
+            [
+                "0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729",
+                "1",
+                "wallet",
+                "2.8.0",
+                None,
+                None,
+            ],
         ),
         (
             "ethpm://0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729/wallet@8%400",
-            ["0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729", "1", "wallet", "8@0", None, None],
+            [
+                "0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729",
+                "1",
+                "wallet",
+                "8@0",
+                None,
+                None,
+            ],
         ),
         # escaped chars
         (
             "ethpm://0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729:1/wallet@8%400",
-            ["0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729", "1", "wallet", "8@0", None, None],
+            [
+                "0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729",
+                "1",
+                "wallet",
+                "8@0",
+                None,
+                None,
+            ],
         ),
         (
             "ethpm://0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729:1/wallet@%250",
-            ["0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729", "1", "wallet", "%0", None, None],
+            [
+                "0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729",
+                "1",
+                "wallet",
+                "%0",
+                None,
+                None,
+            ],
         ),
         (
             "ethpm://0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729:1/wallet@8%400/",
-            ["0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729", "1", "wallet", "8@0", None, None],
+            [
+                "0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729",
+                "1",
+                "wallet",
+                "8@0",
+                None,
+                None,
+            ],
         ),
         # with namespaced manifest contents
         (
             "ethpm://0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729/wallet@2.8.0/deployments",
-            ["0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729", "1", "wallet", "2.8.0", "deployments", None],  # noqa: E501
+            [
+                "0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729",
+                "1",
+                "wallet",
+                "2.8.0",
+                "deployments",
+                None,
+            ],  # noqa: E501
         ),
         (
             "ethpm://0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729/wallet@2.8.0/deployments/",
-            ["0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729", "1", "wallet", "2.8.0", "deployments", None],  # noqa: E501
+            [
+                "0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729",
+                "1",
+                "wallet",
+                "2.8.0",
+                "deployments",
+                None,
+            ],  # noqa: E501
         ),
         (
             "ethpm://0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729/wallet@2.8.0/deployments/WalletContract",  # noqa: E501
-            ["0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729", "1", "wallet", "2.8.0", "deployments/WalletContract", None],  # noqa: E501
+            [
+                "0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729",
+                "1",
+                "wallet",
+                "2.8.0",
+                "deployments/WalletContract",
+                None,
+            ],  # noqa: E501
         ),
         (
             "ethpm://0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729/wallet@2.8.0/deployments/WalletContract/",  # noqa: E501
-            ["0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729", "1", "wallet", "2.8.0", "deployments/WalletContract", None],  # noqa: E501
+            [
+                "0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729",
+                "1",
+                "wallet",
+                "2.8.0",
+                "deployments/WalletContract",
+                None,
+            ],  # noqa: E501
         ),
         # unescaped chars & namespaced assets
         (
             "ethpm://0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729/wallet@20%26/deployments/WalletContract/",  # noqa: E501
-            ["0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729", "1", "wallet", "20&", "deployments/WalletContract", None],  # noqa: E501
+            [
+                "0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729",
+                "1",
+                "wallet",
+                "20&",
+                "deployments/WalletContract",
+                None,
+            ],  # noqa: E501
         ),
     ),
 )
 def test_parse_registry_uri(uri, expected):
-    address, chain_id, pkg_name, pkg_version, namespaced_asset, ens = parse_registry_uri(uri)
+    (
+        address,
+        chain_id,
+        pkg_name,
+        pkg_version,
+        namespaced_asset,
+        ens,
+    ) = parse_registry_uri(uri)
     assert address == expected[0]
     assert chain_id == expected[1]
     assert pkg_name == expected[2]
@@ -174,7 +286,7 @@ def test_parse_registry_uri(uri, expected):
         # namespaced asset and missing version
         "ethpm://0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729/wallet/deployments/WalletContract",
         "ethpm://0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729/wallet@/deployments/WalletContract",
-    )
+    ),
 )
 def test_invalid_registry_uris(uri):
     with pytest.raises(EthPMValidationError):

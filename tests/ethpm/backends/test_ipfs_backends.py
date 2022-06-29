@@ -110,7 +110,9 @@ def test_get_uri_backend_with_env_variable(dummy_ipfs_backend, monkeypatch):
     assert isinstance(backend, LocalIPFSBackend)
 
 
-def test_pin_assets_to_dummy_backend(dummy_ipfs_backend, ethpm_spec_dir, owned_manifest_path):
+def test_pin_assets_to_dummy_backend(
+    dummy_ipfs_backend, ethpm_spec_dir, owned_manifest_path
+):
     # Test pinning a file
     backend = get_ipfs_backend()
     hashes = backend.pin_assets(owned_manifest_path)
@@ -119,7 +121,9 @@ def test_pin_assets_to_dummy_backend(dummy_ipfs_backend, ethpm_spec_dir, owned_m
     assert asset_data["Hash"] == "QmcxvhkJJVpbxEAa6cgW3B6XwPJb79w9GpNUv2P2THUzZR"
     assert asset_data["Size"] == "478"
     # Test pinning a directory
-    dir_data = backend.pin_assets(ethpm_spec_dir / "examples" / "standard-token" / "contracts")
+    dir_data = backend.pin_assets(
+        ethpm_spec_dir / "examples" / "standard-token" / "contracts"
+    )
     dir_names = [result["Name"] for result in dir_data]
     dir_hashes = [result["Hash"] for result in dir_data]
     dir_sizes = [result["Size"] for result in dir_data]

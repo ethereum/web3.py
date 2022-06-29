@@ -55,7 +55,7 @@ def test_parse_BIP122_uri(value, expected_resource_type):
         ({}, False),
         (None, False),
         (False, False),
-    )
+    ),
 )
 def test_is_supported_chain_id(chain_id, expected):
     actual = is_supported_chain_id(chain_id)
