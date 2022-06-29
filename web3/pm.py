@@ -33,6 +33,7 @@ from eth_utils import (
     to_tuple,
 )
 
+from ens import ENS
 from ethpm import (
     ASSETS_DIR,
     Package,
@@ -61,9 +62,6 @@ from web3.exceptions import (
 )
 from web3.module import (
     Module,
-)
-from web3.types import (
-    ENS,
 )
 
 # Package Management is still in alpha, and its API is likely to change, so it
@@ -383,7 +381,8 @@ class PM(Module):
             self.registry = SimpleRegistry(cast(ChecksumAddress, address), self.w3)
         elif is_ens_name(address):
             self._validate_set_ens()
-            addr_lookup = cast(ChecksumAddress, self.w3.ens.address(str(address)))
+            ens = cast(ENS, self.w3.ens)
+            addr_lookup = ens.address(str(address))
             if not addr_lookup:
                 raise NameNotFound(
                     f"No address found after ENS lookup for name: {address!r}."

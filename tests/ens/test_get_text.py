@@ -10,13 +10,6 @@ from ens.exceptions import (
 )
 from web3 import Web3
 
-SET_TEXT_RESOLVER_NOT_FOUND_CASES = (
-    ("avatar", "tester.jpeg"),
-    ("email", "user@example.com"),
-    ("url", "http://example.com"),
-    ("description", "a test"),
-    ("notice", "this contract is a test contract"),
-)
 GET_TEXT_TEST_CASES = (
     ("avatar", "tester.jpeg"),
     ("email", "user@example.com"),
@@ -26,7 +19,7 @@ GET_TEXT_TEST_CASES = (
 )
 
 
-@pytest.mark.parametrize("key,expected", SET_TEXT_RESOLVER_NOT_FOUND_CASES)
+@pytest.mark.parametrize("key,expected", GET_TEXT_TEST_CASES)
 def test_set_text_resolver_not_found(ens, key, expected):
     with pytest.raises(ResolverNotFound):
         ens.set_text("tld", key, expected)
@@ -92,7 +85,7 @@ def test_get_text_for_resolver_with_unsupported_function(ens):
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("key,expected", SET_TEXT_RESOLVER_NOT_FOUND_CASES)
+@pytest.mark.parametrize("key,expected", GET_TEXT_TEST_CASES)
 async def test_async_set_text_resolver_not_found(async_ens, key, expected):
     with pytest.raises(ResolverNotFound):
         await async_ens.set_text("tld", key, expected)

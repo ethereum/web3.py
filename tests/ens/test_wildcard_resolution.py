@@ -10,7 +10,7 @@ def test_wildcard_resolution_with_extended_resolver_for_subdomains(ens, subdomai
     assert resolved_child_address == "0x000000000000000000000000000000000000dEaD"
 
 
-def test_async_wildcard_resolution_with_extended_resolver_for_parent_ens_domain(ens):
+def test_wildcard_resolution_with_extended_resolver_for_parent_ens_domain(ens):
     # validate `extended-resolver.eth` by asserting it returns the specified hard-coded address from
     # `tests/test_contracts/ExtendedResolver.sol` which requires a specific condition to be
     # met for the parent domain `extended-resolver.eth`
@@ -36,7 +36,7 @@ async def test_async_wildcard_resolution_with_extended_resolver_for_subdomains(
 
 
 @pytest.mark.asyncio
-async def test_wildcard_resolution_with_extended_resolver_for_parent_ens_domain(
+async def test_async_wildcard_resolution_with_extended_resolver_for_parent_ens_domain(
     async_ens,
 ):
     # validate `extended-resolver.eth` by asserting it returns the specified hard-coded address from
