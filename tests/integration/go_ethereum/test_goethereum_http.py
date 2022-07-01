@@ -57,34 +57,30 @@ def rpc_port():
 
 @pytest.fixture(scope="module")
 def endpoint_uri(rpc_port):
-    return f'http://localhost:{rpc_port}'
+    return f"http://localhost:{rpc_port}"
 
 
-def _geth_command_arguments(rpc_port,
-                            base_geth_command_arguments,
-                            geth_version):
+def _geth_command_arguments(rpc_port, base_geth_command_arguments, geth_version):
     yield from base_geth_command_arguments
     if geth_version.major == 1:
         yield from (
-            '--http',
-            '--http.port', rpc_port,
-            '--http.api', 'admin,eth,net,web3,personal,miner,txpool',
-            '--ipcdisable',
-            '--allow-insecure-unlock'
+            "--http",
+            "--http.port",
+            rpc_port,
+            "--http.api",
+            "admin,eth,net,web3,personal,miner,txpool",
+            "--ipcdisable",
+            "--allow-insecure-unlock",
         )
     else:
         raise AssertionError("Unsupported Geth version")
 
 
-@pytest.fixture(scope='module')
-def geth_command_arguments(rpc_port,
-                           base_geth_command_arguments,
-                           get_geth_version):
+@pytest.fixture(scope="module")
+def geth_command_arguments(rpc_port, base_geth_command_arguments, get_geth_version):
 
     return _geth_command_arguments(
-        rpc_port,
-        base_geth_command_arguments,
-        get_geth_version
+        rpc_port, base_geth_command_arguments, get_geth_version
     )
 
 
@@ -100,23 +96,27 @@ class TestGoEthereumTest(GoEthereumTest):
 
 
 class TestGoEthereumAdminModuleTest(GoEthereumAdminModuleTest):
-    @pytest.mark.xfail(reason="running geth with the --nodiscover flag doesn't allow peer addition")
+    @pytest.mark.xfail(
+        reason="running geth with the --nodiscover flag doesn't allow peer addition"
+    )
     def test_admin_peers(self, w3: "Web3") -> None:
         super().test_admin_peers(w3)
 
     def test_admin_start_stop_http(self, w3: "Web3") -> None:
         # This test causes all tests after it to fail on CI if it's allowed to run
-        pytest.xfail(reason='Only one HTTP endpoint is allowed to be active at any time')
+        pytest.xfail(
+            reason="Only one HTTP endpoint is allowed to be active at any time"
+        )
         super().test_admin_start_stop_http(w3)
 
     def test_admin_start_stop_ws(self, w3: "Web3") -> None:
         # This test causes all tests after it to fail on CI if it's allowed to run
-        pytest.xfail(reason='Only one WS endpoint is allowed to be active at any time')
+        pytest.xfail(reason="Only one WS endpoint is allowed to be active at any time")
         super().test_admin_start_stop_ws(w3)
 
     def test_admin_start_stop_rpc(self, w3: "Web3") -> None:
         # This test causes all tests after it to fail on CI if it's allowed to run
-        pytest.xfail(reason='Only one RPC endpoint is allowed to be active at any time')
+        pytest.xfail(reason="Only one RPC endpoint is allowed to be active at any time")
         super().test_admin_start_stop_rpc(w3)
 
 
@@ -138,6 +138,7 @@ class TestGoEthereumTxPoolModuleTest(GoEthereumTxPoolModuleTest):
 
 # -- async -- #
 
+
 @pytest_asyncio.fixture(scope="module")
 async def async_w3(geth_process, endpoint_uri):
     await wait_for_aiohttp(endpoint_uri)
@@ -148,40 +149,48 @@ async def async_w3(geth_process, endpoint_uri):
             async_gas_price_strategy_middleware,
             async_validation_middleware,
         ],
-        modules={'eth': AsyncEth,
-                 'async_net': AsyncNet,
-                 'geth': (Geth,
-                          {'txpool': (AsyncGethTxPool,),
-                           'personal': (AsyncGethPersonal,),
-                           'admin': (AsyncGethAdmin,)}
-                          )
-                 }
+        modules={
+            "eth": AsyncEth,
+            "async_net": AsyncNet,
+            "geth": (
+                Geth,
+                {
+                    "txpool": (AsyncGethTxPool,),
+                    "personal": (AsyncGethPersonal,),
+                    "admin": (AsyncGethAdmin,),
+                },
+            ),
+        },
     )
     return _w3
 
 
 class TestGoEthereumAsyncAdminModuleTest(GoEthereumAsyncAdminModuleTest):
     @pytest.mark.asyncio
-    @pytest.mark.xfail(reason="running geth with the --nodiscover flag doesn't allow peer addition")
+    @pytest.mark.xfail(
+        reason="running geth with the --nodiscover flag doesn't allow peer addition"
+    )
     async def test_admin_peers(self, w3: "Web3") -> None:
         await super().test_admin_peers(w3)
 
     @pytest.mark.asyncio
     async def test_admin_start_stop_http(self, w3: "Web3") -> None:
         # This test causes all tests after it to fail on CI if it's allowed to run
-        pytest.xfail(reason='Only one HTTP endpoint is allowed to be active at any time')
+        pytest.xfail(
+            reason="Only one HTTP endpoint is allowed to be active at any time"
+        )
         await super().test_admin_start_stop_http(w3)
 
     @pytest.mark.asyncio
     async def test_admin_start_stop_ws(self, w3: "Web3") -> None:
         # This test causes all tests after it to fail on CI if it's allowed to run
-        pytest.xfail(reason='Only one WS endpoint is allowed to be active at any time')
+        pytest.xfail(reason="Only one WS endpoint is allowed to be active at any time")
         await super().test_admin_start_stop_ws(w3)
 
     @pytest.mark.asyncio
     async def test_admin_start_stop_rpc(self, w3: "Web3") -> None:
         # This test causes all tests after it to fail on CI if it's allowed to run
-        pytest.xfail(reason='Only one RPC endpoint is allowed to be active at any time')
+        pytest.xfail(reason="Only one RPC endpoint is allowed to be active at any time")
         await super().test_admin_start_stop_rpc(w3)
 
 

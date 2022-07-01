@@ -7,7 +7,7 @@ import websockets
 
 def get_open_port():
     sock = socket.socket()
-    sock.bind(('127.0.0.1', 0))
+    sock.bind(("127.0.0.1", 0))
     port = sock.getsockname()[1]
     sock.close()
     return str(port)

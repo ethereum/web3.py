@@ -19,31 +19,28 @@ from .utils import (
 )
 
 
-def _geth_command_arguments(geth_ipc_path,
-                            base_geth_command_arguments):
+def _geth_command_arguments(geth_ipc_path, base_geth_command_arguments):
 
     geth_port = get_open_port()
     yield from base_geth_command_arguments
     yield from (
-        '--port', geth_port,
-        '--ipcpath', geth_ipc_path,
-    )
-
-
-@pytest.fixture(scope='module')
-def geth_command_arguments(geth_ipc_path,
-                           base_geth_command_arguments):
-
-    return _geth_command_arguments(
+        "--port",
+        geth_port,
+        "--ipcpath",
         geth_ipc_path,
-        base_geth_command_arguments
     )
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope="module")
+def geth_command_arguments(geth_ipc_path, base_geth_command_arguments):
+
+    return _geth_command_arguments(geth_ipc_path, base_geth_command_arguments)
+
+
+@pytest.fixture(scope="module")
 def geth_ipc_path(datadir):
     geth_ipc_dir_path = tempfile.mkdtemp()
-    _geth_ipc_path = os.path.join(geth_ipc_dir_path, 'geth.ipc')
+    _geth_ipc_path = os.path.join(geth_ipc_dir_path, "geth.ipc")
     yield _geth_ipc_path
 
     if os.path.exists(_geth_ipc_path):
@@ -62,23 +59,27 @@ class TestGoEthereumTest(GoEthereumTest):
 
 
 class TestGoEthereumAdminModuleTest(GoEthereumAdminModuleTest):
-    @pytest.mark.xfail(reason="running geth with the --nodiscover flag doesn't allow peer addition")
+    @pytest.mark.xfail(
+        reason="running geth with the --nodiscover flag doesn't allow peer addition"
+    )
     def test_admin_peers(w3):
         super().test_admin_peers(w3)
 
     def test_admin_start_stop_http(self, w3: "Web3") -> None:
         # This test causes all tests after it to fail on CI if it's allowed to run
-        pytest.xfail(reason='Only one HTTP endpoint is allowed to be active at any time')
+        pytest.xfail(
+            reason="Only one HTTP endpoint is allowed to be active at any time"
+        )
         super().test_admin_start_stop_http(w3)
 
     def test_admin_start_stop_ws(self, w3: "Web3") -> None:
         # This test causes all tests after it to fail on CI if it's allowed to run
-        pytest.xfail(reason='Only one WS endpoint is allowed to be active at any time')
+        pytest.xfail(reason="Only one WS endpoint is allowed to be active at any time")
         super().test_admin_start_stop_ws(w3)
 
     def test_admin_start_stop_rpc(self, w3: "Web3") -> None:
         # This test causes all tests after it to fail on CI if it's allowed to run
-        pytest.xfail(reason='Only one RPC endpoint is allowed to be active at any time')
+        pytest.xfail(reason="Only one RPC endpoint is allowed to be active at any time")
         super().test_admin_start_stop_rpc(w3)
 
 
