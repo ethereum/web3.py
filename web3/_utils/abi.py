@@ -724,7 +724,8 @@ def abi_to_signature(abi: Union[ABIFunction, ABIEvent]) -> str:
     function_signature = "{fn_name}({fn_input_types})".format(
         fn_name=abi["name"],
         fn_input_types=",".join(
-            [arg["type"] for arg in normalize_event_input_types(abi.get("inputs", []))]
+            collapse_if_tuple(dict(arg))
+            for arg in normalize_event_input_types(abi.get("inputs", []))
         ),
     )
     return function_signature
