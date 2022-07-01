@@ -14,16 +14,16 @@ from web3.exceptions import (
 
 SINGLE_FN_NO_ARGS = json.loads(
     '[{"constant":false,"inputs":[],"name":"a","outputs":[],"type":"function"}]'
-)  # noqa: E501
+)
 SINGLE_FN_ONE_ARG = json.loads(
-    '[{"constant":false,"inputs":[{"name":"","type":"uint256"}],"name":"a","outputs":[],"type":"function"}]'
-)  # noqa: E501
+    '[{"constant":false,"inputs":[{"name":"","type":"uint256"}],"name":"a","outputs":[],"type":"function"}]'  # noqa: E501
+)
 FALLBACK_FUNCTION = json.loads(
-    '[{"constant": false, "inputs": [], "name": "getData", "outputs": [{"name": "r", "type": "uint256"}], "payable": false, "stateMutability": "nonpayable", "type": "function"}, {"payable": false, "stateMutability": "nonpayable", "type": "fallback"}]'
-)  # noqa: E501
+    '[{"constant": false, "inputs": [], "name": "getData", "outputs": [{"name": "r", "type": "uint256"}], "payable": false, "stateMutability": "nonpayable", "type": "function"}, {"payable": false, "stateMutability": "nonpayable", "type": "fallback"}]'  # noqa: E501
+)
 RECEIVE_FUNCTION = json.loads(
-    '[{"constant": false, "inputs": [], "name": "getData", "outputs": [{"name": "r", "type": "uint256"}], "payable": false, "stateMutability": "nonpayable", "type": "function"}, {"payable": true, "stateMutability": "payable", "type": "receive"}]'
-)  # noqa: E501
+    '[{"constant": false, "inputs": [], "name": "getData", "outputs": [{"name": "r", "type": "uint256"}], "payable": false, "stateMutability": "nonpayable", "type": "function"}, {"payable": true, "stateMutability": "payable", "type": "receive"}]'  # noqa: E501
+)
 MULTIPLE_FUNCTIONS = json.loads(
     """
 [

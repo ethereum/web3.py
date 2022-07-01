@@ -12,14 +12,14 @@ ABI_A = json.loads(
     '[{"constant":false,"inputs":[],"name":"a","outputs":[],"type":"function"}]'
 )
 ABI_B = json.loads(
-    '[{"constant":false,"inputs":[{"name":"","type":"uint256"}],"name":"a","outputs":[],"type":"function"}]'
-)  # noqa: E501
+    '[{"constant":false,"inputs":[{"name":"","type":"uint256"}],"name":"a","outputs":[],"type":"function"}]'  # noqa: E501
+)
 ABI_C = json.loads(
-    '[{"constant":false,"inputs":[],"name":"a","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"","type":"bytes32"}],"name":"a","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"","type":"uint256"}],"name":"a","outputs":[],"type":"function"}]'
-)  # noqa: E501
+    '[{"constant":false,"inputs":[],"name":"a","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"","type":"bytes32"}],"name":"a","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"","type":"uint256"}],"name":"a","outputs":[],"type":"function"}]'  # noqa: E501
+)
 ABI_D = json.loads(
-    '[{ "constant": false, "inputs": [ { "name": "b", "type": "bytes32[]" } ], "name": "byte_array", "outputs": [], "payable": false, "type": "function" }]'
-)  # noqa: E501
+    '[{ "constant": false, "inputs": [ { "name": "b", "type": "bytes32[]" } ], "name": "byte_array", "outputs": [], "payable": false, "type": "function" }]'  # noqa: E501
+)
 
 
 @pytest.mark.parametrize(
@@ -98,8 +98,8 @@ def test_contract_abi_encoding_kwargs(w3):
     actual = contract.encodeABI("byte_array", kwargs=kwargs)
     assert (
         actual
-        == "0xf166d6f8000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000025595c210956e7721f9b692e702708556aa9aabb14ea163e96afa56ffbe9fa8096f8d2fa18448afbfe4f82143c384484ad09a0271f3a3c0eb9f629e703f883125"
-    )  # noqa: E501
+        == "0xf166d6f8000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000025595c210956e7721f9b692e702708556aa9aabb14ea163e96afa56ffbe9fa8096f8d2fa18448afbfe4f82143c384484ad09a0271f3a3c0eb9f629e703f883125"  # noqa: E501
+    )
 
 
 @pytest.mark.parametrize(

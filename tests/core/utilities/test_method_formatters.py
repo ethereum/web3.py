@@ -81,7 +81,7 @@ GANACHE_RESPONSE = RPCResponse(
             "message": "VM Exception while processing transaction: revert Custom revert message",
             "code": -32000,
             "data": {
-                "stack": "o: VM Exception while processing transaction: revert Custom revert message\n",
+                "stack": "o: VM Exception while processing transaction: revert Custom revert message\n",  # noqa: E501
                 "name": "o",
             },
         },
@@ -97,8 +97,8 @@ GANACHE_RESPONSE = RPCResponse(
         (GETH_RESPONSE, "execution reverted: Function has been reverted."),
         (
             GANACHE_RESPONSE,
-            "execution reverted: VM Exception while processing transaction: revert Custom revert message",
-        ),  # noqa: 501
+            "execution reverted: VM Exception while processing transaction: revert Custom revert message",  # noqa: 501
+        ),
     ),
     ids=[
         "test-get-revert-reason-with-msg",

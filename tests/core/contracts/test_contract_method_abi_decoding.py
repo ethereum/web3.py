@@ -5,29 +5,29 @@ import json
 import pytest
 
 ABI_A = json.loads(
-    '[{"constant":false,"inputs":[],"name":"noargfunc","outputs":[],"type":"function"}]'
-)  # noqa: E501
+    '[{"constant":false,"inputs":[],"name":"noargfunc","outputs":[],"type":"function"}]'  # noqa: E501
+)
 ABI_B = json.loads(
-    '[{"constant":false,"inputs":[{"name":"uintarg","type":"uint256"}],"name":"uintfunc","outputs":[],"type":"function"}]'
-)  # noqa: E501
+    '[{"constant":false,"inputs":[{"name":"uintarg","type":"uint256"}],"name":"uintfunc","outputs":[],"type":"function"}]'  # noqa: E501
+)
 ABI_C = json.loads(
-    '[{"constant":false,"inputs":[],"name":"namesakefunc","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"bytesarg","type":"bytes32"}],"name":"namesakefunc","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"uintarg","type":"uint256"}],"name":"namesakefunc","outputs":[],"type":"function"}]'
-)  # noqa: E501
+    '[{"constant":false,"inputs":[],"name":"namesakefunc","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"bytesarg","type":"bytes32"}],"name":"namesakefunc","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"uintarg","type":"uint256"}],"name":"namesakefunc","outputs":[],"type":"function"}]'  # noqa: E501
+)
 ABI_D = json.loads(
-    '[{ "constant": false, "inputs": [ { "name": "b", "type": "bytes32[]" } ], "name": "byte_array", "outputs": [], "payable": false, "type": "function" }]'
-)  # noqa: E501
+    '[{ "constant": false, "inputs": [ { "name": "b", "type": "bytes32[]" } ], "name": "byte_array", "outputs": [], "payable": false, "type": "function" }]'  # noqa: E501
+)
 ABI_BYTES = json.loads(
-    '[{"constant":false,"inputs":[{"name":"bytesarg","type":"bytes"}],"name":"bytesfunc","outputs":[],"type":"function"}]'
-)  # noqa: E501
+    '[{"constant":false,"inputs":[{"name":"bytesarg","type":"bytes"}],"name":"bytesfunc","outputs":[],"type":"function"}]'  # noqa: E501
+)
 ABI_STRING = json.loads(
-    '[{"constant":false,"inputs":[{"name":"stringarg","type":"string"}],"name":"stringfunc","outputs":[],"type":"function"}]'
-)  # noqa: E501
+    '[{"constant":false,"inputs":[{"name":"stringarg","type":"string"}],"name":"stringfunc","outputs":[],"type":"function"}]'  # noqa: E501
+)
 ABI_ADDRESS = json.loads(
-    '[{"constant":false,"inputs":[{"name":"addressarg","type":"address"}],"name":"addressfunc","outputs":[],"type":"function"}]'
-)  # noqa: E501
+    '[{"constant":false,"inputs":[{"name":"addressarg","type":"address"}],"name":"addressfunc","outputs":[],"type":"function"}]'  # noqa: E501
+)
 ABI_TUPLE = json.loads(
-    '[{"constant":false,"inputs":[{"components":[{"name":"owner","type":"address"},{"name":"number","type":"uint256"}],"name":"fromAccount","type":"tuple"},{"components":[{"name":"owner","type":"address"},{"name":"number","type":"uint256"}],"name":"liquidAccount","type":"tuple"},{"components":[{"name":"value","type":"uint256"}],"name":"minLiquidatorRatio","type":"tuple"},{"name":"minValueLiquidated","type":"uint256"},{"name":"owedPreferences","type":"uint256[]"},{"name":"heldPreferences","type":"uint256[]"}],"name":"liquidate","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"}]'
-)  # noqa: E501
+    '[{"constant":false,"inputs":[{"components":[{"name":"owner","type":"address"},{"name":"number","type":"uint256"}],"name":"fromAccount","type":"tuple"},{"components":[{"name":"owner","type":"address"},{"name":"number","type":"uint256"}],"name":"liquidAccount","type":"tuple"},{"components":[{"name":"value","type":"uint256"}],"name":"minLiquidatorRatio","type":"tuple"},{"name":"minValueLiquidated","type":"uint256"},{"name":"owedPreferences","type":"uint256[]"},{"name":"heldPreferences","type":"uint256[]"}],"name":"liquidate","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"}]'  # noqa: E501
+)
 a32bytes = b"a".ljust(32, b"\x00")
 
 

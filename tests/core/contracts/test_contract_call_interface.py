@@ -35,8 +35,8 @@ from web3.exceptions import (
 )
 
 MULTIPLE_FUNCTIONS = json.loads(
-    '[{"constant":false,"inputs":[],"name":"a","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"","type":"bytes32"}],"name":"a","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"","type":"uint256"}],"name":"a","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"","type":"uint8"}],"name":"a","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"","type":"int8"}],"name":"a","outputs":[],"type":"function"}]'
-)  # noqa: E501
+    '[{"constant":false,"inputs":[],"name":"a","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"","type":"bytes32"}],"name":"a","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"","type":"uint256"}],"name":"a","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"","type":"uint8"}],"name":"a","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"","type":"int8"}],"name":"a","outputs":[],"type":"function"}]'  # noqa: E501
+)
 
 
 @pytest.fixture(params=[b"\x04\x06", "0x0406", "0406"])
@@ -364,16 +364,16 @@ def test_call_read_bytes32_variable(bytes32_contract, call):
     result = call(contract=bytes32_contract, contract_function="constValue")
     assert (
         result
-        == b"\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23"
-    )  # noqa
+        == b"\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23"  # noqa: E501
+    )
 
 
 def test_call_get_bytes32_value(bytes32_contract, call):
     result = call(contract=bytes32_contract, contract_function="getValue")
     assert (
         result
-        == b"\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06"
-    )  # noqa
+        == b"\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06"  # noqa: E501
+    )
 
 
 @pytest.mark.parametrize(
@@ -1164,8 +1164,8 @@ async def test_async_call_read_bytes32_variable(async_bytes32_contract, async_ca
     )
     assert (
         result
-        == b"\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23"
-    )  # noqa
+        == b"\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23\x01\x23"  # noqa: E501
+    )
 
 
 @pytest.mark.asyncio
@@ -1175,8 +1175,8 @@ async def test_async_call_get_bytes32_value(async_bytes32_contract, async_call):
     )
     assert (
         result
-        == b"\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06"
-    )  # noqa
+        == b"\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06\x04\x06"  # noqa: E501
+    )
 
 
 @pytest.mark.asyncio

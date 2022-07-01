@@ -56,7 +56,7 @@ FILTER_LOG = [
             "transactionIndex": 1,
         }
     )
-]  # noqa: E501
+]
 
 
 @pytest.fixture(scope="function")
