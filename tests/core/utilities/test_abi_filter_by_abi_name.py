@@ -20,10 +20,7 @@ ABI_FALLBACK = {
     "constant": False,
     "type": "fallback",
 }
-ABI_RECEIVE = {
-    "stateMutability": "payable",
-    "type": "receive"
-}
+ABI_RECEIVE = {"stateMutability": "payable", "type": "receive"}
 ABI_FUNC_2_SIG_A = {
     "constant": False,
     "inputs": [
@@ -63,13 +60,13 @@ ABI = [
 
 
 @pytest.mark.parametrize(
-    'name,expected',
+    "name,expected",
     (
-        ('func_1', [ABI_FUNC_1]),
-        ('func_2', [ABI_FUNC_2_SIG_A, ABI_FUNC_2_SIG_B]),
-        ('func_3', [ABI_FUNC_3]),
-        ('does_not_exist', []),
-    )
+        ("func_1", [ABI_FUNC_1]),
+        ("func_2", [ABI_FUNC_2_SIG_A, ABI_FUNC_2_SIG_B]),
+        ("func_3", [ABI_FUNC_3]),
+        ("does_not_exist", []),
+    ),
 )
 def test_filter_by_arguments(name, expected):
     actual_matches = filter_by_name(name, ABI)

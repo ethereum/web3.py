@@ -42,10 +42,12 @@ def request_middleware(allowable_delay):
 
 
 def stub_block(timestamp):
-    return AttributeDict({
-        'timestamp': timestamp,
-        'number': 123,
-    })
+    return AttributeDict(
+        {
+            "timestamp": timestamp,
+            "number": 123,
+        }
+    )
 
 
 def test_is_not_fresh_with_no_block():
@@ -53,53 +55,55 @@ def test_is_not_fresh_with_no_block():
 
 
 def test_is_not_fresh(now):
-    with patch('time.time', return_value=now):
+    with patch("time.time", return_value=now):
         SECONDS_ALLOWED = 2 * 86400
         stale = stub_block(now - SECONDS_ALLOWED - 1)
         assert not _is_fresh(stale, SECONDS_ALLOWED)
 
 
 def test_is_fresh(now):
-    with patch('time.time', return_value=now):
+    with patch("time.time", return_value=now):
         SECONDS_ALLOWED = 2 * 86400
         stale = stub_block(now - SECONDS_ALLOWED)
         assert _is_fresh(stale, SECONDS_ALLOWED)
 
 
 def test_stalecheck_pass(request_middleware):
-    with patch('web3.middleware.stalecheck._is_fresh', return_value=True):
+    with patch("web3.middleware.stalecheck._is_fresh", return_value=True):
         method, params = object(), object()
         request_middleware(method, params)
         request_middleware.make_request.assert_called_once_with(method, params)
 
 
 def test_stalecheck_fail(request_middleware, now):
-    with patch('web3.middleware.stalecheck._is_fresh', return_value=False):
+    with patch("web3.middleware.stalecheck._is_fresh", return_value=False):
         request_middleware.web3.eth.get_block.return_value = stub_block(now)
         with pytest.raises(StaleBlockchain):
-            request_middleware('', [])
+            request_middleware("", [])
 
 
 @pytest.mark.parametrize(
-    'rpc_method',
+    "rpc_method",
     [
-        'eth_getBlockByNumber',
-    ]
+        "eth_getBlockByNumber",
+    ],
 )
 def test_stalecheck_ignores_get_by_block_methods(request_middleware, rpc_method):
     # This is especially critical for get_block('latest') which would cause infinite recursion
-    with patch('web3.middleware.stalecheck._is_fresh', side_effect=[False, True]):
+    with patch("web3.middleware.stalecheck._is_fresh", side_effect=[False, True]):
         request_middleware(rpc_method, [])
         assert not request_middleware.web3.eth.get_block.called
 
 
-def test_stalecheck_calls_is_fresh_with_empty_cache(request_middleware, allowable_delay):
+def test_stalecheck_calls_is_fresh_with_empty_cache(
+    request_middleware, allowable_delay
+):
     with patch(
-        'web3.middleware.stalecheck._is_fresh', side_effect=[False, True]
+        "web3.middleware.stalecheck._is_fresh", side_effect=[False, True]
     ) as fresh_spy:
         block = object()
         request_middleware.web3.eth.get_block.return_value = block
-        request_middleware('', [])
+        request_middleware("", [])
         cache_call, live_call = fresh_spy.call_args_list
         assert cache_call[0] == (None, allowable_delay)
         assert live_call[0] == (block, allowable_delay)
@@ -107,36 +111,36 @@ def test_stalecheck_calls_is_fresh_with_empty_cache(request_middleware, allowabl
 
 def test_stalecheck_adds_block_to_cache(request_middleware, allowable_delay):
     with patch(
-        'web3.middleware.stalecheck._is_fresh', side_effect=[False, True, True]
+        "web3.middleware.stalecheck._is_fresh", side_effect=[False, True, True]
     ) as fresh_spy:
         block = object()
         request_middleware.web3.eth.get_block.return_value = block
 
         # cache miss
-        request_middleware('', [])
+        request_middleware("", [])
         cache_call, live_call = fresh_spy.call_args_list
         assert fresh_spy.call_count == 2
-        assert cache_call == ((None, allowable_delay), )
-        assert live_call == ((block, allowable_delay), )
+        assert cache_call == ((None, allowable_delay),)
+        assert live_call == ((block, allowable_delay),)
 
         # cache hit
-        request_middleware('', [])
+        request_middleware("", [])
         assert fresh_spy.call_count == 3
-        assert fresh_spy.call_args == ((block, allowable_delay), )
+        assert fresh_spy.call_args == ((block, allowable_delay),)
 
 
 # -- async -- #
 
 
 min_version = pytest.mark.skipif(
-    sys.version_info < (3, 8),
-    reason="AsyncMock requires python3.8 or higher"
+    sys.version_info < (3, 8), reason="AsyncMock requires python3.8 or higher"
 )
 
 
 @pytest_asyncio.fixture
 async def request_async_middleware(allowable_delay):
     from unittest.mock import AsyncMock
+
     middleware = await async_make_stalecheck_middleware(allowable_delay)
     make_request, web3 = AsyncMock(), AsyncMock()
     initialized = await middleware(make_request, web3)
@@ -208,10 +212,10 @@ async def test_async_stalecheck_adds_block_to_cache(
         await request_async_middleware("", [])
         cache_call, live_call = fresh_spy.call_args_list
         assert fresh_spy.call_count == 2
-        assert cache_call == ((None, allowable_delay), )
-        assert live_call == ((block, allowable_delay), )
+        assert cache_call == ((None, allowable_delay),)
+        assert live_call == ((block, allowable_delay),)
 
         # cache hit
         await request_async_middleware("", [])
         assert fresh_spy.call_count == 3
-        assert fresh_spy.call_args == ((block, allowable_delay), )
+        assert fresh_spy.call_args == ((block, allowable_delay),)

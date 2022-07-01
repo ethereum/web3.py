@@ -20,17 +20,24 @@ FUNCTION_ABI = {
 
 def test_error_when_invalid_args_kwargs_combo_provided():
     with pytest.raises(TypeError):
-        merge_args_and_kwargs(GENERATED_FUNCTION_ABI, (1, 2,), {'a': 1, 'b': 2})
+        merge_args_and_kwargs(
+            GENERATED_FUNCTION_ABI,
+            (
+                1,
+                2,
+            ),
+            {"a": 1, "b": 2},
+        )
 
 
 @pytest.mark.parametrize(
-    'args,kwargs,expected_args',
+    "args,kwargs,expected_args",
     (
         ((1, 4, 2, 3), {}, (1, 4, 2, 3)),
-        ((1, 4, 2), {'d': 3}, (1, 4, 2, 3)),
-        ((1, 4), {'d': 3, 'c': 2}, (1, 4, 2, 3)),
-        ((1,), {'d': 3, 'b': 4, 'c': 2}, (1, 4, 2, 3)),
-        (tuple(), {'d': 3, 'b': 4, 'a': 1, 'c': 2}, (1, 4, 2, 3)),
+        ((1, 4, 2), {"d": 3}, (1, 4, 2, 3)),
+        ((1, 4), {"d": 3, "c": 2}, (1, 4, 2, 3)),
+        ((1,), {"d": 3, "b": 4, "c": 2}, (1, 4, 2, 3)),
+        (tuple(), {"d": 3, "b": 4, "a": 1, "c": 2}, (1, 4, 2, 3)),
     ),
 )
 def test_merging_of_args_and_kwargs(args, kwargs, expected_args):
@@ -66,7 +73,7 @@ GENERATED_FUNCTION_ABI = {
 
 def test_kwargs_is_disallowed_when_merging_with_unnamed_inputs():
     with pytest.raises(TypeError):
-        merge_args_and_kwargs(GENERATED_FUNCTION_ABI, tuple(), {'x': 1, 'y': 2})
+        merge_args_and_kwargs(GENERATED_FUNCTION_ABI, tuple(), {"x": 1, "y": 2})
 
 
 def test_args_works_when_merging_with_unnamed_inputs():
@@ -94,9 +101,9 @@ def test_args_allowed_when_duplicate_named_inputs():
 
 def test_kwargs_not_allowed_for_duplicate_input_names():
     with pytest.raises(TypeError):
-        merge_args_and_kwargs(DUPLICATE_NAMES_FUNCTION_ABI, (1,), {'a': 2, 'b': 3})
+        merge_args_and_kwargs(DUPLICATE_NAMES_FUNCTION_ABI, (1,), {"a": 2, "b": 3})
 
 
 def test_kwargs_allowed_if_no_intersections_with_duplicate_input_names():
     with pytest.raises(TypeError):
-        merge_args_and_kwargs(DUPLICATE_NAMES_FUNCTION_ABI, (1,), {'a': 2, 'b': 3})
+        merge_args_and_kwargs(DUPLICATE_NAMES_FUNCTION_ABI, (1,), {"a": 2, "b": 3})

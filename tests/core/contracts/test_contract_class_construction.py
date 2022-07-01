@@ -13,10 +13,7 @@ from web3.exceptions import (
 )
 
 
-def test_class_construction_sets_class_vars(w3,
-                                            MATH_ABI,
-                                            MATH_CODE,
-                                            MATH_RUNTIME):
+def test_class_construction_sets_class_vars(w3, MATH_ABI, MATH_CODE, MATH_RUNTIME):
     MathContract = w3.eth.contract(
         abi=MATH_ABI,
         bytecode=MATH_CODE,
@@ -43,10 +40,7 @@ def test_abi_as_json_string(w3, MATH_ABI, some_address):
     assert math.abi == MATH_ABI
 
 
-def test_error_to_call_non_existent_fallback(w3,
-                                             MATH_ABI,
-                                             MATH_CODE,
-                                             MATH_RUNTIME):
+def test_error_to_call_non_existent_fallback(w3, MATH_ABI, MATH_CODE, MATH_RUNTIME):
     math_contract = w3.eth.contract(
         abi=MATH_ABI,
         bytecode=MATH_CODE,

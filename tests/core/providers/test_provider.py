@@ -39,12 +39,14 @@ def test_autoprovider_detection():
     def must_not_call():
         assert False
 
-    auto = AutoProvider([
-        no_provider,
-        DisconnectedProvider,
-        ConnectedProvider,
-        must_not_call,
-    ])
+    auto = AutoProvider(
+        [
+            no_provider,
+            DisconnectedProvider,
+            ConnectedProvider,
+            must_not_call,
+        ]
+    )
 
     w3 = Web3(auto)
 

@@ -19,11 +19,11 @@ def filter_id(w3):
 
 def test_instantiate_existing_filter(w3, sleep_interval, wait_for_block, filter_id):
     with pytest.raises(TypeError):
-        w3.eth.filter('latest', filter_id)
+        w3.eth.filter("latest", filter_id)
     with pytest.raises(TypeError):
-        w3.eth.filter('latest', filter_id=filter_id)
+        w3.eth.filter("latest", filter_id=filter_id)
     with pytest.raises(TypeError):
-        w3.eth.filter(filter_params='latest', filter_id=filter_id)
+        w3.eth.filter(filter_params="latest", filter_id=filter_id)
 
     block_filter = w3.eth.filter(filter_id=filter_id)
 

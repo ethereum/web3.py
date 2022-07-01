@@ -15,9 +15,9 @@ def test_snapshot_revert_to_latest_snapshot(w3):
 
     block_after_revert = w3.eth.get_block("latest")
 
-    assert block_after_mining['number'] > block_before_snapshot['number']
-    assert block_before_snapshot['hash'] == block_after_snapshot['hash']
-    assert block_after_snapshot['hash'] == block_after_revert['hash']
+    assert block_after_mining["number"] > block_before_snapshot["number"]
+    assert block_before_snapshot["hash"] == block_after_snapshot["hash"]
+    assert block_after_snapshot["hash"] == block_after_revert["hash"]
 
 
 def test_snapshot_revert_to_specific(w3):
@@ -42,6 +42,6 @@ def test_snapshot_revert_to_specific(w3):
 
     block_after_revert = w3.eth.get_block("latest")
 
-    assert block_after_mining['number'] > block_before_snapshot['number']
-    assert block_before_snapshot['hash'] == block_after_snapshot['hash']
-    assert block_after_snapshot['hash'] == block_after_revert['hash']
+    assert block_after_mining["number"] > block_before_snapshot["number"]
+    assert block_before_snapshot["hash"] == block_after_snapshot["hash"]
+    assert block_after_snapshot["hash"] == block_after_revert["hash"]

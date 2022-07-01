@@ -6,13 +6,13 @@ from web3._utils.blocks import (
 
 
 @pytest.mark.parametrize(
-    'block_identifier,expected',
+    "block_identifier,expected",
     (
-        ('earliest', True),
-        ('latest', True),
-        ('pending', True),
+        ("earliest", True),
+        ("latest", True),
+        ("pending", True),
         (1, False),
-        ('0x1', False),
+        ("0x1", False),
     ),
 )
 def test_is_predefined_block_number(block_identifier, expected):

@@ -22,14 +22,14 @@ def w3():
 
 
 @pytest.mark.parametrize(
-    'method,expected',
+    "method,expected",
     (
-        ('test_endpoint', 'value-a'),
-        ('not_implemented', NotImplementedError),
-    )
+        ("test_endpoint", "value-a"),
+        ("not_implemented", NotImplementedError),
+    ),
 )
 def test_fixture_middleware(w3, method, expected):
-    w3.middleware_onion.add(construct_fixture_middleware({'test_endpoint': 'value-a'}))
+    w3.middleware_onion.add(construct_fixture_middleware({"test_endpoint": "value-a"}))
 
     if isinstance(expected, type) and issubclass(expected, Exception):
         with pytest.raises(expected):
@@ -40,19 +40,23 @@ def test_fixture_middleware(w3, method, expected):
 
 
 @pytest.mark.parametrize(
-    'method,expected',
+    "method,expected",
     (
-        ('test_endpoint', 'value-a'),
-        ('not_implemented', NotImplementedError),
-    )
+        ("test_endpoint", "value-a"),
+        ("not_implemented", NotImplementedError),
+    ),
 )
 def test_result_middleware(w3, method, expected):
     def _callback(method, params):
         return params[0]
 
-    w3.middleware_onion.add(construct_result_generator_middleware({
-        'test_endpoint': _callback,
-    }))
+    w3.middleware_onion.add(
+        construct_result_generator_middleware(
+            {
+                "test_endpoint": _callback,
+            }
+        )
+    )
 
     if isinstance(expected, type) and issubclass(expected, Exception):
         with pytest.raises(expected):
@@ -63,19 +67,23 @@ def test_result_middleware(w3, method, expected):
 
 
 @pytest.mark.parametrize(
-    'method,expected',
+    "method,expected",
     (
-        ('test_endpoint', 'value-a'),
-        ('not_implemented', NotImplementedError),
-    )
+        ("test_endpoint", "value-a"),
+        ("not_implemented", NotImplementedError),
+    ),
 )
 def test_error_middleware(w3, method, expected):
     def _callback(method, params):
         return params[0]
 
-    w3.middleware_onion.add(construct_error_generator_middleware({
-        'test_endpoint': _callback,
-    }))
+    w3.middleware_onion.add(
+        construct_error_generator_middleware(
+            {
+                "test_endpoint": _callback,
+            }
+        )
+    )
 
     if isinstance(expected, type) and issubclass(expected, Exception):
         with pytest.raises(expected):

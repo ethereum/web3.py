@@ -1,5 +1,3 @@
-
-
 def test_contract_get_available_events(
     emitter,
 ):
@@ -23,7 +21,7 @@ def test_contract_getLogs_all(
 
     log_entries = list(contract.events.LogNoArguments.getLogs())
     assert len(log_entries) == 1
-    assert log_entries[0]['transactionHash'] == txn_hash
+    assert log_entries[0]["transactionHash"] == txn_hash
 
 
 def test_contract_getLogs_range(
@@ -52,10 +50,8 @@ def test_contract_getLogs_range(
 
 
 def test_contract_getLogs_argument_filter(
-        w3,
-        emitter,
-        wait_for_transaction,
-        emitter_event_ids):
+    w3, emitter, wait_for_transaction, emitter_event_ids
+):
 
     contract = emitter
 
@@ -64,18 +60,10 @@ def test_contract_getLogs_argument_filter(
     # 1 = arg0
     # 4 = arg1
     # 1 = arg2
-    txn_hashes.append(
-        emitter.functions.logTriple(event_id, 1, 4, 1).transact()
-    )
-    txn_hashes.append(
-        emitter.functions.logTriple(event_id, 1, 1, 2).transact()
-    )
-    txn_hashes.append(
-        emitter.functions.logTriple(event_id, 1, 2, 2).transact()
-    )
-    txn_hashes.append(
-        emitter.functions.logTriple(event_id, 1, 3, 1).transact()
-    )
+    txn_hashes.append(emitter.functions.logTriple(event_id, 1, 4, 1).transact())
+    txn_hashes.append(emitter.functions.logTriple(event_id, 1, 1, 2).transact())
+    txn_hashes.append(emitter.functions.logTriple(event_id, 1, 2, 2).transact())
+    txn_hashes.append(emitter.functions.logTriple(event_id, 1, 3, 1).transact())
     for txn_hash in txn_hashes:
         wait_for_transaction(w3, txn_hash)
 
@@ -85,13 +73,13 @@ def test_contract_getLogs_argument_filter(
     # Filter all entries where arg1 in (1, 2)
     partial_logs = contract.events.LogTripleWithIndex.getLogs(
         fromBlock=1,
-        argument_filters={'arg1': [1, 2]},
+        argument_filters={"arg1": [1, 2]},
     )
     assert len(partial_logs) == 2
 
     # Filter all entries where arg0 == 1
     partial_logs = contract.events.LogTripleWithIndex.getLogs(
         fromBlock=1,
-        argument_filters={'arg0': 1},
+        argument_filters={"arg0": 1},
     )
     assert len(partial_logs) == 4

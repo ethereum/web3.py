@@ -7,7 +7,7 @@ def test_testing_mine_single_block(w3):
 
     after_mining_block = w3.eth.get_block("latest")
 
-    assert after_mining_block['number'] - before_mining_block['number'] == 1
+    assert after_mining_block["number"] - before_mining_block["number"] == 1
 
 
 def test_testing_mine_multiple_blocks(w3):
@@ -19,4 +19,4 @@ def test_testing_mine_multiple_blocks(w3):
 
     after_mining_block = w3.eth.get_block("latest")
 
-    assert after_mining_block['number'] - before_mining_block['number'] == 5
+    assert after_mining_block["number"] - before_mining_block["number"] == 5
