@@ -12,6 +12,8 @@ relevant to people working on the code itself.)
 * `bugfix`
 * `doc`
 * `misc`
+* `breaking-change`
+* `deprecation`
 
 So for example: `123.feature.rst`, `456.bugfix.rst`
 
