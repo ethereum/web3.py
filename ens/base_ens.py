@@ -33,10 +33,10 @@ if TYPE_CHECKING:
 
 
 class BaseENS:
-    w3: 'Web3' = None
-    ens: Union['Contract', 'AsyncContract'] = None
-    _resolver_contract: Union[Type['Contract'], Type['AsyncContract']] = None
-    _reverse_resolver_contract: Union[Type['Contract'], Type['AsyncContract']] = None
+    w3: "Web3" = None
+    ens: Union["Contract", "AsyncContract"] = None
+    _resolver_contract: Union[Type["Contract"], Type["AsyncContract"]] = None
+    _reverse_resolver_contract: Union[Type["Contract"], Type["AsyncContract"]] = None
 
     @staticmethod
     @wraps(label_to_hash)
@@ -80,15 +80,15 @@ class BaseENS:
         :rtype: str
         """
         if not name:
-            return ''
+            return ""
 
-        labels = name.split('.')
-        return '' if len(labels) == 1 else '.'.join(labels[1:])
+        labels = name.split(".")
+        return "" if len(labels) == 1 else ".".join(labels[1:])
 
     def _decode_ensip10_resolve_data(
         self,
         contract_call_result: bytes,
-        extended_resolver: Union['Contract', 'AsyncContract'],
+        extended_resolver: Union["Contract", "AsyncContract"],
         fn_name: str,
     ) -> Any:
         func = extended_resolver.get_function_by_name(fn_name)
@@ -102,8 +102,9 @@ class BaseENS:
         self,
         address: ChecksumAddress,
         func: str,
-    ) -> Union['Contract', 'AsyncContract']:
+    ) -> Union["Contract", "AsyncContract"]:
         return (
-            self._reverse_resolver_contract(address=address) if func == 'name' else
-            self._resolver_contract(address=address)
+            self._reverse_resolver_contract(address=address)
+            if func == "name"
+            else self._resolver_contract(address=address)
         )

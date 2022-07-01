@@ -129,12 +129,14 @@ class AsyncENS(BaseENS):
         :param str name: an ENS name to look up
         :raises InvalidName: if `name` has invalid syntax
         """
-        return cast(ChecksumAddress, await self._resolve(name, 'addr'))
+        return cast(ChecksumAddress, await self._resolve(name, "addr"))
 
     async def setup_address(
         self,
         name: str,
-        address: Union[Address, ChecksumAddress, HexAddress] = cast(ChecksumAddress, default),
+        address: Union[Address, ChecksumAddress, HexAddress] = cast(
+            ChecksumAddress, default
+        ),
         transact: Optional["TxParams"] = None,
     ) -> Optional[HexBytes]:
         """
@@ -171,11 +173,9 @@ class AsyncENS(BaseENS):
             return None
         if address is None:
             address = EMPTY_ADDR_HEX
-        transact['from'] = owner
+        transact["from"] = owner
 
-        resolver: 'AsyncContract' = await self._set_resolver(
-            name, transact=transact
-        )
+        resolver: "AsyncContract" = await self._set_resolver(name, transact=transact)
         return await resolver.functions.setAddr(  # type: ignore
             raw_name_to_hash(name), address
         ).transact(transact)
@@ -189,11 +189,13 @@ class AsyncENS(BaseENS):
         :type address: hex-string
         """
         reversed_domain = address_to_reverse_domain(address)
-        name = await self._resolve(reversed_domain, fn_name='name')
+        name = await self._resolve(reversed_domain, fn_name="name")
 
         # To be absolutely certain of the name, via reverse resolution, the address must match in
         # the forward resolution
-        return name if to_checksum_address(address) == await self.address(name) else None
+        return (
+            name if to_checksum_address(address) == await self.address(name) else None
+        )
 
     async def setup_name(
         self,
@@ -219,7 +221,7 @@ class AsyncENS(BaseENS):
             transact = {}
         transact = deepcopy(transact)
         if not name:
-            await self._assert_control(address, 'the reverse record')
+            await self._assert_control(address, "the reverse record")
             return await self._setup_reverse(None, address, transact=transact)
         else:
             resolved = await self.address(name)
@@ -305,10 +307,12 @@ class AsyncENS(BaseENS):
             return current_owner
         else:
             await self._assert_control(super_owner, name, owned)
-            await self._claim_ownership(new_owner, unowned, owned, super_owner, transact=transact)
+            await self._claim_ownership(
+                new_owner, unowned, owned, super_owner, transact=transact
+            )
             return new_owner
 
-    async def resolver(self, name: str) -> Optional['AsyncContract']:
+    async def resolver(self, name: str) -> Optional["AsyncContract"]:
         """
         Get the resolver for an ENS name.
 
@@ -318,7 +322,9 @@ class AsyncENS(BaseENS):
         resolver = await self._get_resolver(normal_name)
         return resolver[0]
 
-    async def reverser(self, target_address: ChecksumAddress) -> Optional['AsyncContract']:
+    async def reverser(
+        self, target_address: ChecksumAddress
+    ) -> Optional["AsyncContract"]:
         reversed_domain = address_to_reverse_domain(target_address)
         return await self.resolver(reversed_domain)
 
@@ -377,7 +383,7 @@ class AsyncENS(BaseENS):
         node = raw_name_to_hash(name)
         normal_name = normalize_name(name)
 
-        transaction_dict = merge({'from': owner}, transact)
+        transaction_dict = merge({"from": owner}, transact)
 
         r = await self.resolver(normal_name)
         if r:
@@ -398,8 +404,8 @@ class AsyncENS(BaseENS):
     async def _get_resolver(
         self,
         normal_name: str,
-        fn_name: str = 'addr',
-    ) -> Tuple[Optional['AsyncContract'], str]:
+        fn_name: str = "addr",
+    ) -> Tuple[Optional["AsyncContract"], str]:
         current_name = normal_name
 
         # look for a resolver, starting at the full name and taking the parent each time that no
@@ -410,10 +416,14 @@ class AsyncENS(BaseENS):
                 # empty string '' which returns here
                 return None, current_name
 
-            resolver_addr = await self.ens.caller.resolver(normal_name_to_hash(current_name))
+            resolver_addr = await self.ens.caller.resolver(
+                normal_name_to_hash(current_name)
+            )
             if not is_none_or_zero_address(resolver_addr):
                 # if resolver found, return it
-                resolver = cast('AsyncContract', self._type_aware_resolver(resolver_addr, fn_name))
+                resolver = cast(
+                    "AsyncContract", self._type_aware_resolver(resolver_addr, fn_name)
+                )
                 return resolver, current_name
 
             # set current_name to parent and try again
@@ -424,23 +434,23 @@ class AsyncENS(BaseENS):
         name: str,
         resolver_addr: Optional[ChecksumAddress] = None,
         transact: Optional["TxParams"] = None,
-    ) -> 'AsyncContract':
+    ) -> "AsyncContract":
         if not transact:
             transact = {}
         transact = deepcopy(transact)
         if is_none_or_zero_address(resolver_addr):
-            resolver_addr = await self.address('resolver.eth')
+            resolver_addr = await self.address("resolver.eth")
         namehash = raw_name_to_hash(name)
         if await self.ens.caller.resolver(namehash) != resolver_addr:
             await self.ens.functions.setResolver(  # type: ignore
-                namehash,
-                resolver_addr
+                namehash, resolver_addr
             ).transact(transact)
-        return cast('AsyncContract', self._resolver_contract(address=resolver_addr))
+        return cast("AsyncContract", self._resolver_contract(address=resolver_addr))
 
     async def _resolve(
-        self, name: str,
-        fn_name: str = 'addr',
+        self,
+        name: str,
+        fn_name: str = "addr",
     ) -> Optional[Union[ChecksumAddress, str]]:
         normal_name = normalize_name(name)
 
@@ -451,7 +461,9 @@ class AsyncENS(BaseENS):
         node = self.namehash(normal_name)
 
         # handle extended resolver case
-        if await _async_resolver_supports_interface(resolver, EXTENDED_RESOLVER_INTERFACE_ID):
+        if await _async_resolver_supports_interface(
+            resolver, EXTENDED_RESOLVER_INTERFACE_ID
+        ):
             contract_func_with_args = (fn_name, [node])
 
             calldata = resolver.encodeABI(*contract_func_with_args)
@@ -482,7 +494,9 @@ class AsyncENS(BaseENS):
                 f" {account!r}, which owns {parent_owned or name!r}"
             )
 
-    async def _first_owner(self, name: str) -> Tuple[Optional[ChecksumAddress], Sequence[str], str]:
+    async def _first_owner(
+        self, name: str
+    ) -> Tuple[Optional[ChecksumAddress], Sequence[str], str]:
         """
         Takes a name, and returns the owner of the deepest subdomain that has an owner
 
@@ -490,9 +504,9 @@ class AsyncENS(BaseENS):
         """
         owner = None
         unowned = []
-        pieces = normalize_name(name).split('.')
+        pieces = normalize_name(name).split(".")
         while pieces and is_none_or_zero_address(owner):
-            name = '.'.join(pieces)
+            name = ".".join(pieces)
             owner = await self.owner(name)
             if is_none_or_zero_address(owner):
                 unowned.append(pieces.pop(0))
@@ -509,12 +523,10 @@ class AsyncENS(BaseENS):
         if not transact:
             transact = {}
         transact = deepcopy(transact)
-        transact['from'] = old_owner or owner
+        transact["from"] = old_owner or owner
         for label in reversed(unowned):
             await self.ens.functions.setSubnodeOwner(  # type: ignore
-                raw_name_to_hash(owned),
-                label_to_hash(label),
-                owner
+                raw_name_to_hash(owned), label_to_hash(label), owner
             ).transact(transact)
             owned = f"{label}.{owned}"
 
@@ -524,23 +536,25 @@ class AsyncENS(BaseENS):
         address: ChecksumAddress,
         transact: Optional["TxParams"] = None,
     ) -> HexBytes:
-        name = normalize_name(name) if name else ''
+        name = normalize_name(name) if name else ""
         if not transact:
             transact = {}
         transact = deepcopy(transact)
-        transact['from'] = address
+        transact["from"] = address
         reverse_registrar = await self._reverse_registrar()
         return await reverse_registrar.functions.setName(name).transact(transact)  # type: ignore
 
-    async def _reverse_registrar(self) -> 'AsyncContract':
-        addr = await self.ens.caller.owner(normal_name_to_hash(REVERSE_REGISTRAR_DOMAIN))
+    async def _reverse_registrar(self) -> "AsyncContract":
+        addr = await self.ens.caller.owner(
+            normal_name_to_hash(REVERSE_REGISTRAR_DOMAIN)
+        )
         return self.w3.eth.contract(address=addr, abi=abis.REVERSE_REGISTRAR)
 
 
 async def _async_resolver_supports_interface(
-    resolver: 'AsyncContract',
+    resolver: "AsyncContract",
     interface_id: HexStr,
 ) -> bool:
-    if not any('supportsInterface' in repr(func) for func in resolver.all_functions()):
+    if not any("supportsInterface" in repr(func) for func in resolver.all_functions()):
         return False
     return await resolver.caller.supportsInterface(interface_id)
