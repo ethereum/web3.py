@@ -620,9 +620,8 @@ def test_returns_data_from_specified_block(w3, math_contract):
 
 
 message_regex = (
-    r"\nCould not identify the intended function with name `.*`, "
-    r"positional argument\(s\) of type `.*` and "
-    r"keyword argument\(s\) of type `.*`."
+    r"\nCould not identify the intended function with name `.*`, positional arguments "
+    r"with type\(s\) `.*` and keyword arguments with type\(s\) `.*`."
     r"\nFound .* function\(s\) with the name `.*`: .*"
 )
 diagnosis_arg_regex = (
@@ -670,6 +669,52 @@ def test_function_multiple_error_diagnoses(w3, arg1, arg2, diagnosis):
             Contract.functions.a(arg1, arg2).call()
         else:
             Contract.functions.a(arg1).call()
+
+
+@pytest.mark.parametrize(
+    "address", (
+        "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",  # checksummed
+        b'\xee\xee\xee\xee\xee\xee\xee\xee\xee\xee\xee\xee\xee\xee\xee\xee\xee\xee\xee\xee',  # noqa: E501
+    )
+)
+def test_function_wrong_args_for_tuple_collapses_args_in_message(
+    address, tuple_contract,
+):
+    with pytest.raises(ValidationError) as e:
+        tuple_contract.functions.method(
+            (1, [2, 3], [(4, [True, [False]], [address])])
+        ).call()
+
+    # assert the user arguments are formatted as expected:
+    # (int,(int,int),((int,(bool,(bool)),(address))))
+    e.match("\\(int,\\(int,int\\),\\(\\(int,\\(bool,\\(bool\\)\\),\\(address\\)\\)\\)\\)")  # noqa: E501
+
+    # assert the found method signature is formatted as expected:
+    # ['method((uint256,uint256[],(int256,bool[2],address[])[]))']
+    e.match("\\['method\\(\\(uint256,uint256\\[\\],\\(int256,bool\\[2\\],address\\[\\]\\)\\[\\]\\)\\)'\\]")  # noqa: E501
+
+
+@pytest.mark.parametrize(
+    "address", (
+        "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",  # checksummed
+        b'\xee\xee\xee\xee\xee\xee\xee\xee\xee\xee\xee\xee\xee\xee\xee\xee\xee\xee\xee\xee',  # noqa: E501
+    )
+)
+def test_function_wrong_args_for_tuple_collapses_kwargs_in_message(
+    address, tuple_contract
+):
+    with pytest.raises(ValidationError) as e:
+        tuple_contract.functions.method(
+            a=(1, [2, 3], [(4, [True, [False]], [address])])  # noqa: E501
+        ).call()
+
+    # assert the user keyword arguments are formatted as expected:
+    # {'a': '(int,(int,int),((int,(bool,(bool)),(address))))'}
+    e.match("{'a': '\\(int,\\(int,int\\),\\(\\(int,\\(bool,\\(bool\\)\\),\\(address\\)\\)\\)\\)'}")  # noqa: E501
+
+    # assert the found method signature is formatted as expected:
+    # ['method((uint256,uint256[],(int256,bool[2],address[])[]))']
+    e.match("\\['method\\(\\(uint256,uint256\\[\\],\\(int256,bool\\[2\\],address\\[\\]\\)\\[\\]\\)\\)'\\]")  # noqa: E501
 
 
 def test_function_no_abi(w3):
