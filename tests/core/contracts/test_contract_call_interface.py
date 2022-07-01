@@ -672,13 +672,15 @@ def test_function_multiple_error_diagnoses(w3, arg1, arg2, diagnosis):
 
 
 @pytest.mark.parametrize(
-    "address", (
+    "address",
+    (
         "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",  # checksummed
-        b'\xee\xee\xee\xee\xee\xee\xee\xee\xee\xee\xee\xee\xee\xee\xee\xee\xee\xee\xee\xee',  # noqa: E501
-    )
+        b"\xee\xee\xee\xee\xee\xee\xee\xee\xee\xee\xee\xee\xee\xee\xee\xee\xee\xee\xee\xee",  # noqa: E501
+    ),
 )
 def test_function_wrong_args_for_tuple_collapses_args_in_message(
-    address, tuple_contract,
+    address,
+    tuple_contract,
 ):
     with pytest.raises(ValidationError) as e:
         tuple_contract.functions.method(
@@ -687,18 +689,23 @@ def test_function_wrong_args_for_tuple_collapses_args_in_message(
 
     # assert the user arguments are formatted as expected:
     # (int,(int,int),((int,(bool,(bool)),(address))))
-    e.match("\\(int,\\(int,int\\),\\(\\(int,\\(bool,\\(bool\\)\\),\\(address\\)\\)\\)\\)")  # noqa: E501
+    e.match(
+        "\\(int,\\(int,int\\),\\(\\(int,\\(bool,\\(bool\\)\\),\\(address\\)\\)\\)\\)"
+    )
 
     # assert the found method signature is formatted as expected:
     # ['method((uint256,uint256[],(int256,bool[2],address[])[]))']
-    e.match("\\['method\\(\\(uint256,uint256\\[\\],\\(int256,bool\\[2\\],address\\[\\]\\)\\[\\]\\)\\)'\\]")  # noqa: E501
+    e.match(
+        "\\['method\\(\\(uint256,uint256\\[\\],\\(int256,bool\\[2\\],address\\[\\]\\)\\[\\]\\)\\)'\\]"  # noqa: E501
+    )
 
 
 @pytest.mark.parametrize(
-    "address", (
+    "address",
+    (
         "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",  # checksummed
-        b'\xee\xee\xee\xee\xee\xee\xee\xee\xee\xee\xee\xee\xee\xee\xee\xee\xee\xee\xee\xee',  # noqa: E501
-    )
+        b"\xee\xee\xee\xee\xee\xee\xee\xee\xee\xee\xee\xee\xee\xee\xee\xee\xee\xee\xee\xee",  # noqa: E501
+    ),
 )
 def test_function_wrong_args_for_tuple_collapses_kwargs_in_message(
     address, tuple_contract
@@ -710,11 +717,15 @@ def test_function_wrong_args_for_tuple_collapses_kwargs_in_message(
 
     # assert the user keyword arguments are formatted as expected:
     # {'a': '(int,(int,int),((int,(bool,(bool)),(address))))'}
-    e.match("{'a': '\\(int,\\(int,int\\),\\(\\(int,\\(bool,\\(bool\\)\\),\\(address\\)\\)\\)\\)'}")  # noqa: E501
+    e.match(
+        "{'a': '\\(int,\\(int,int\\),\\(\\(int,\\(bool,\\(bool\\)\\),\\(address\\)\\)\\)\\)'}"  # noqa: E501
+    )
 
     # assert the found method signature is formatted as expected:
     # ['method((uint256,uint256[],(int256,bool[2],address[])[]))']
-    e.match("\\['method\\(\\(uint256,uint256\\[\\],\\(int256,bool\\[2\\],address\\[\\]\\)\\[\\]\\)\\)'\\]")  # noqa: E501
+    e.match(
+        "\\['method\\(\\(uint256,uint256\\[\\],\\(int256,bool\\[2\\],address\\[\\]\\)\\[\\]\\)\\)'\\]"  # noqa: E501
+    )
 
 
 def test_function_no_abi(w3):
@@ -1471,7 +1482,7 @@ async def test_async_accepts_block_hash_as_identifier(async_w3, async_math_contr
     )
     new = await async_math_contract.functions.counter().call(
         block_identifier=more_blocks["result"][2]
-    )  # noqa: E501
+    )
 
     assert old == 0
     assert new == 1
