@@ -81,7 +81,7 @@ def get_session(
             evicted_items = _session_cache.cache(cache_key, requests.Session())
 
         if evicted_items is not None:
-            for key, session in evicted_items.items():
+            for _key, session in evicted_items.items():
                 session.close()
         return _session_cache.get_cache_entry(cache_key)
 
@@ -136,7 +136,7 @@ async def get_async_session(
             )
 
         if evicted_items is not None:
-            for key, session in evicted_items.items():
+            for _key, session in evicted_items.items():
                 await session.close()
         return _async_session_cache.get_cache_entry(cache_key)
 
