@@ -66,8 +66,8 @@ class BaseENS:
     @staticmethod
     def parent(name: str) -> str:
         """
-        Part of ENSIP-10. Returns the parent of a given ENS name, or the empty string if the ENS
-        name does not have a parent.
+        Part of ENSIP-10. Returns the parent of a given ENS name,
+        or the empty string if the ENS name does not have a parent.
 
         e.g.
         - parent('1.foo.bar.eth') = 'foo.bar.eth'

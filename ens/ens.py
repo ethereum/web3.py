@@ -94,8 +94,9 @@ class ENS(BaseENS):
         """
         :param provider: a single provider used to connect to Ethereum
         :type provider: instance of `web3.providers.base.BaseProvider`
-        :param hex-string addr: the address of the ENS registry on-chain. If not provided,
-            ENS.py will default to the mainnet ENS registry address.
+        :param hex-string addr: the address of the ENS registry on-chain.
+            If not provided, ENS.py will default to the mainnet ENS
+            registry address.
         """
         self.w3 = init_web3(provider, middlewares)
 
@@ -146,8 +147,9 @@ class ENS(BaseENS):
         then ``sub`` will be created as part of this call.
 
         :param str name: ENS name to set up
-        :param str address: name will point to this address, in checksum format. If ``None``,
-            erase the record. If not specified, name will point to the owner's address.
+        :param str address: name will point to this address, in checksum format.
+            If ``None``, erase the record. If not specified, name will point
+            to the owner's address.
         :param dict transact: the transaction configuration, like in
             :meth:`~web3.eth.Eth.send_transaction`
         :raises InvalidName: if ``name`` has invalid syntax
@@ -188,8 +190,8 @@ class ENS(BaseENS):
         reversed_domain = address_to_reverse_domain(address)
         name = self._resolve(reversed_domain, fn_name="name")
 
-        # To be absolutely certain of the name, via reverse resolution, the address must match in
-        # the forward resolution
+        # To be absolutely certain of the name, via reverse resolution,
+        # the address must match in the forward resolution
         return name if to_checksum_address(address) == self.address(name) else None
 
     def setup_name(
@@ -277,8 +279,9 @@ class ENS(BaseENS):
         then ``sub`` will be created as part of this call.
 
         :param str name: ENS name to set up
-        :param new_owner: account that will own `name`. If ``None``, set owner to empty addr.
-            If not specified, name will point to the parent domain owner's address.
+        :param new_owner: account that will own `name`. If ``None``, set owner to
+            empty addr. If not specified, name will point to the parent domain
+            owner's address.
         :param dict transact: the transaction configuration, like in
             :meth:`~web3.eth.Eth.send_transaction`
         :raises InvalidName: if `name` has invalid syntax
@@ -328,7 +331,8 @@ class ENS(BaseENS):
         :param str key: ENS name's text record key
         :return: ENS name's text record value
         :rtype: str
-        :raises UnsupportedFunction: If the resolver does not support the "0x59d1d43c" interface id
+        :raises UnsupportedFunction: If the resolver does not support
+            the "0x59d1d43c" interface id
         :raises ResolverNotFound: If no resolver is found for the provided name
         """
         node = raw_name_to_hash(name)
@@ -344,8 +348,8 @@ class ENS(BaseENS):
                 )
         else:
             raise ResolverNotFound(
-                f"No resolver found for name `{name}`. It is likely the name contains an "
-                "unsupported top level domain (tld)."
+                f"No resolver found for name `{name}`. It is likely the name "
+                "contains an unsupported top level domain (tld)."
             )
 
     def set_text(
@@ -365,7 +369,8 @@ class ENS(BaseENS):
             :meth:`~web3.eth.Eth.send_transaction`
         :return: Transaction hash
         :rtype: HexBytes
-        :raises UnsupportedFunction: If the resolver does not support the "0x59d1d43c" interface id
+        :raises UnsupportedFunction: If the resolver does not support
+            the "0x59d1d43c" interface id
         :raises ResolverNotFound: If no resolver is found for the provided name
         """
         if not transact:
@@ -387,8 +392,8 @@ class ENS(BaseENS):
                 )
         else:
             raise ResolverNotFound(
-                f"No resolver found for name `{name}`. It is likely the name contains an "
-                "unsupported top level domain (tld)."
+                f"No resolver found for name `{name}`. It is likely the name contains "
+                "an unsupported top level domain (tld)."
             )
 
     def _get_resolver(
@@ -398,12 +403,12 @@ class ENS(BaseENS):
     ) -> Tuple[Optional["Contract"], str]:
         current_name = normal_name
 
-        # look for a resolver, starting at the full name and taking the parent each time that no
-        # resolver is found
+        # look for a resolver, starting at the full name and taking the parent
+        # each time that no resolver is found
         while True:
             if is_empty_name(current_name):
-                # if no resolver found across all iterations, current_name will eventually be the
-                # empty string '' which returns here
+                # if no resolver found across all iterations, current_name
+                # will eventually be the empty string '' which returns here
                 return None, current_name
 
             resolver_addr = self.ens.caller.resolver(normal_name_to_hash(current_name))

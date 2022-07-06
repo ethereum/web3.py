@@ -123,11 +123,11 @@ def normalize_name(name: str) -> str:
 
 def ens_encode_name(name: str) -> bytes:
     """
-    Encode a name according to DNS standards specified in section 3.1 of RFC1035 with the
-    following validations:
+    Encode a name according to DNS standards specified in section 3.1
+    of RFC1035 with the following validations:
 
-        - There is no limit on the total length of the encoded name and the limit on labels is the
-        ENS standard of 255.
+        - There is no limit on the total length of the encoded name
+        and the limit on labels is the ENS standard of 255.
 
         - Return a single 0-octet, b'\x00', if empty name.
     """
@@ -157,7 +157,8 @@ def is_valid_name(name: str) -> bool:
     <https://github.com/ethereum/EIPs/blob/master/EIPS/eip-137.md#name-syntax>`_
 
     :param str name: the dot-separated ENS name
-    :returns: True if ``name`` is set, and :meth:`~ens.ENS.nameprep` will not raise InvalidName
+    :returns: True if ``name`` is set, and :meth:`~ens.ENS.nameprep` will not
+              raise InvalidName
     """
     if not name:
         return False
