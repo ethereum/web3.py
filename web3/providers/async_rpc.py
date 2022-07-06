@@ -135,7 +135,7 @@ class BatchedAsyncHTTPProvider(AsyncHTTPProvider):
     async def _build_request_batch(self):
         request_batch = []
         num_requests = min(self.batch_size, self.request_queue.qsize())
-        self.logger.debug(f"{self.request_queue.qsize()} requests in queue.")
+        self.logger.info(f"{self.request_queue.qsize()} requests in queue.")
         for _ in range(num_requests):
             item: QueueItem = await self.request_queue.get()
             request_batch.append(item)
@@ -158,7 +158,7 @@ class BatchedAsyncHTTPProvider(AsyncHTTPProvider):
                 self.response_dict[item.idx] = response
                 item.response_ready_event.set()
         except HTTPError as e:
-            self.logger.exception("Batch request failed. Trying again...")
+            self.logger.info(f"Batch request failed with {e}. Trying again...")
             for item in request_batch:
                 await self.request_queue.put(item)
 
