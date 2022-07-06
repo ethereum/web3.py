@@ -130,7 +130,7 @@ def test_text_if_str_on_text(val):
                 .isoformat(),
             },
             None,
-            '{"date": ["2018-05-10T01:05:10", "2018-05-10T01:05:10"], "other_date": "2018-05-10"}',
+            '{"date": ["2018-05-10T01:05:10", "2018-05-10T01:05:10"], "other_date": "2018-05-10"}',  # noqa: E501
         ),
         (
             {
@@ -156,7 +156,7 @@ def test_friendly_json_encode(py_obj, exc_type, expected):
     "json_str, expected",
     (
         (
-            '{"date": ["2018-05-10T01:05:10", "2018-05-10T01:05:10"],"other_date": "2018-05-10"}',
+            '{"date": ["2018-05-10T01:05:10", "2018-05-10T01:05:10"],"other_date": "2018-05-10"}',  # noqa: E501
             dict,
         ),
     ),

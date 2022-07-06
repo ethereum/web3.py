@@ -144,7 +144,7 @@ def test_offchain_lookup_raises_for_improperly_formatted_rest_request_response(
 
 
 @pytest.mark.parametrize("status_code_non_4xx_error", [100, 300, 500, 600])
-def test_eth_call_offchain_lookup_tries_next_url_for_non_4xx_error_status_and_tests_POST(
+def test_eth_call_offchain_lookup_tries_next_url_for_non_4xx_error_status_and_tests_POST(  # noqa: E501
     offchain_lookup_contract,
     monkeypatch,
     status_code_non_4xx_error,
@@ -153,9 +153,10 @@ def test_eth_call_offchain_lookup_tries_next_url_for_non_4xx_error_status_and_te
         offchain_lookup_contract.address
     ).lower()
 
-    # The next url in our test contract doesn't contain '{data}', triggering the POST request
-    # logic. The idea here is to return a bad status for the first url (GET) and a success
-    # status from the second call (POST) to test both that we move on to the next url with
+    # The next url in our test contract doesn't contain '{data}',
+    # triggering the POST request logic. The idea here is to return
+    # a bad status for the first url (GET) and a success status from the
+    # second call (POST) to test both that we move on to the next url with
     # non 4xx status and that the POST logic is also working as expected.
     mock_offchain_lookup_request_response(
         monkeypatch,
@@ -166,7 +167,7 @@ def test_eth_call_offchain_lookup_tries_next_url_for_non_4xx_error_status_and_te
     mock_offchain_lookup_request_response(
         monkeypatch,
         http_method="POST",
-        mocked_request_url=f"https://web3.py/gateway/{normalized_contract_address}.json",
+        mocked_request_url=f"https://web3.py/gateway/{normalized_contract_address}.json",  # noqa: E501
         mocked_status_code=200,
         mocked_json_data=WEB3PY_AS_HEXBYTES,
         sender=normalized_contract_address,

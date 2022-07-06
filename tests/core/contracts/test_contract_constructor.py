@@ -299,7 +299,7 @@ async def test_async_contract_constructor_gas_estimate_with_block_id(
 
 
 @pytest.mark.asyncio
-async def test_async_contract_constructor_gas_estimate_with_constructor_without_arguments(
+async def test_async_contract_constructor_gas_estimate_with_constructor_without_arguments(  # noqa: E501
     async_w3, AsyncSimpleConstructorContract
 ):
     gas_estimate = await AsyncSimpleConstructorContract.constructor().estimate_gas()
@@ -341,7 +341,7 @@ async def test_async_contract_constructor_gas_estimate_with_constructor_with_arg
 
 
 @pytest.mark.asyncio
-async def test_async_contract_constructor_gas_estimate_with_constructor_with_address_argument(
+async def test_async_contract_constructor_gas_estimate_with_constructor_with_address_argument(  # noqa: E501
     async_w3, AsyncWithConstructorAddressArgumentsContract, address_conversion_func
 ):
     gas_estimate = await AsyncWithConstructorAddressArgumentsContract.constructor(
@@ -439,7 +439,7 @@ async def test_async_contract_constructor_transact_with_constructor_with_argumen
 
 
 @pytest.mark.asyncio
-async def test_async_contract_constructor_transact_with_constructor_with_address_arguments(
+async def test_async_contract_constructor_transact_with_constructor_with_address_arguments(  # noqa: E501
     async_w3,
     AsyncWithConstructorAddressArgumentsContract,
     WITH_CONSTRUCTOR_ADDRESS_RUNTIME,
@@ -493,7 +493,7 @@ async def test_async_contract_constructor_build_transaction_no_constructor(
 
 
 @pytest.mark.asyncio
-async def test_async_contract_constructor_build_transaction_with_constructor_without_argument(
+async def test_async_contract_constructor_build_transaction_with_constructor_without_argument(  # noqa: E501
     async_w3, AsyncMathContract, address_conversion_func
 ):
     async_w3_accounts = await async_w3.eth.accounts
@@ -524,7 +524,7 @@ async def test_async_contract_constructor_build_transaction_with_constructor_wit
         ([], {"b": b"abcd", "a": 1234}),
     ),
 )
-async def test_async_contract_constructor_build_transaction_with_constructor_with_argument(
+async def test_async_contract_constructor_build_transaction_with_constructor_with_argument(  # noqa: E501
     async_w3,
     AsyncWithConstructorArgumentsContract,
     constructor_args,

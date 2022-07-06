@@ -1219,7 +1219,7 @@ contract CallerTester {
     return count;
   }
 
-  function returnMeta() public payable returns (address, bytes memory, uint256, uint, uint) {
+  function returnMeta() public payable returns (address, bytes memory, uint256, uint, uint) {  # noqa: E501
     return (msg.sender, msg.data, gasleft(), msg.value, block.number);
   }
 }

@@ -42,7 +42,7 @@ a32bytes = b"a".ljust(32, b"\x00")
         ),
         (
             ABI_B,
-            "0xcc6820de0000000000000000000000000000000000000000000000000000000000000001",
+            "0xcc6820de0000000000000000000000000000000000000000000000000000000000000001",  # noqa: E501
             "uintfunc",
             {"uintarg": 1},
         ),
@@ -54,13 +54,13 @@ a32bytes = b"a".ljust(32, b"\x00")
         ),
         (
             ABI_C,
-            "0x40c05b2f0000000000000000000000000000000000000000000000000000000000000001",
+            "0x40c05b2f0000000000000000000000000000000000000000000000000000000000000001",  # noqa: E501
             "namesakefunc",
             {"uintarg": 1},
         ),
         (
             ABI_C,
-            "0xf931d77c6100000000000000000000000000000000000000000000000000000000000000",
+            "0xf931d77c6100000000000000000000000000000000000000000000000000000000000000",  # noqa: E501
             "namesakefunc",
             {"bytesarg": a32bytes},
         ),
@@ -78,7 +78,7 @@ a32bytes = b"a".ljust(32, b"\x00")
         ),
         (
             ABI_ADDRESS,
-            "0x4767be6c000000000000000000000000ffffffffffffffffffffffffffffffffffffffff",
+            "0x4767be6c000000000000000000000000ffffffffffffffffffffffffffffffffffffffff",  # noqa: E501
             "addressfunc",
             {"addressarg": "0xFFfFfFffFFfffFFfFFfFFFFFffFFFffffFfFFFfF"},
         ),
@@ -90,7 +90,7 @@ a32bytes = b"a".ljust(32, b"\x00")
                 "fromAccount": ("0xBfae42A79FF045659DD0F84e65534f5c4c810023", 0),
                 "liquidAccount": (
                     "0xdb3d3AF153cB02f0Bc44621Db82289280e93500F",
-                    67238809929330522294664880975001390268660278453875034113630810005818923006342,
+                    67238809929330522294664880975001390268660278453875034113630810005818923006342,  # noqa: E501
                 ),  # noqa: E501
                 "minLiquidatorRatio": (300000000000000000,),
                 "minValueLiquidated": 500000000000000000000000000000000000000,
@@ -122,10 +122,10 @@ def test_contract_abi_decoding(w3, abi, data, method, expected):
             {
                 "b": [
                     unhexlify(
-                        "5595c210956e7721f9b692e702708556aa9aabb14ea163e96afa56ffbe9fa809"
+                        "5595c210956e7721f9b692e702708556aa9aabb14ea163e96afa56ffbe9fa809"  # noqa: E501
                     ),
                     unhexlify(
-                        "6f8d2fa18448afbfe4f82143c384484ad09a0271f3a3c0eb9f629e703f883125"
+                        "6f8d2fa18448afbfe4f82143c384484ad09a0271f3a3c0eb9f629e703f883125"  # noqa: E501
                     ),
                 ],
             },

@@ -25,8 +25,8 @@ RECEIPT_TIMEOUT = 0.2
                 {
                     "address": "0xd3CdA913deB6f67967B99D67aCDFa1712C293601",
                     "storageKeys": (
-                        "0x0000000000000000000000000000000000000000000000000000000000000003",
-                        "0x0000000000000000000000000000000000000000000000000000000000000007",
+                        "0x0000000000000000000000000000000000000000000000000000000000000003",  # noqa: E501
+                        "0x0000000000000000000000000000000000000000000000000000000000000007",  # noqa: E501
                     ),
                 },
                 {
@@ -42,8 +42,8 @@ RECEIPT_TIMEOUT = 0.2
                 {
                     "address": "0xd3CdA913deB6f67967B99D67aCDFa1712C293601",
                     "storageKeys": (
-                        "0x0000000000000000000000000000000000000000000000000000000000000003",
-                        "0x0000000000000000000000000000000000000000000000000000000000000007",
+                        "0x0000000000000000000000000000000000000000000000000000000000000003",  # noqa: E501
+                        "0x0000000000000000000000000000000000000000000000000000000000000007",  # noqa: E501
                     ),
                 },
                 {
@@ -59,8 +59,9 @@ RECEIPT_TIMEOUT = 0.2
     ],
 )
 def test_eth_tester_send_transaction_validation(w3, transaction):
-    # Test that eth-tester transaction param validation does not throw for properly formatted
-    # transactions. This is especially important because we have key mapping differences
+    # Test that eth-tester transaction param validation does not
+    # throw for properly formatted transactions.
+    # This is especially important because we have key mapping differences
     # (camelCase to snake_case) mitigated by providers/eth-tester/middleware.
     txn_hash = w3.eth.send_transaction(transaction)
     receipt = w3.eth.wait_for_transaction_receipt(txn_hash, timeout=RECEIPT_TIMEOUT)

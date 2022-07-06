@@ -44,7 +44,8 @@ def bytes_contract(w3, BytesContract, request, address_conversion_func):
     if is_text(request.param) and request.param[:2] != "0x":
         with pytest.warns(
             DeprecationWarning,
-            match='in v6 it will be invalid to pass a hex string without the "0x" prefix',
+            match="in v6 it will be invalid to pass a hex string without "
+            'the "0x" prefix',
         ):
             return deploy(
                 w3, BytesContract, address_conversion_func, args=[request.param]
@@ -60,7 +61,8 @@ async def async_bytes_contract(
     if is_text(request.param) and request.param[:2] != "0x":
         with pytest.warns(
             DeprecationWarning,
-            match='in v6 it will be invalid to pass a hex string without the "0x" prefix',
+            match="in v6 it will be invalid to pass a hex string without "
+            'the "0x" prefix',
         ):
             return await async_deploy(
                 async_w3,
@@ -276,8 +278,8 @@ def test_call_get_bytes32_const_array(arrays_contract, call):
     result = call(contract=arrays_contract, contract_function="getBytes32ConstValue")
     # expected_bytes32_array = [keccak('A'), keccak('B')]
     expected_bytes32_array = [
-        b"\x03x?\xac.\xfe\xd8\xfb\xc9\xadD>Y.\xe3\x0ea\xd6_G\x11@\xc1\x0c\xa1U\xe97\xb45\xb7`",
-        b"\x1fg[\xff\x07Q_]\xf9g7\x19N\xa9E\xc3lA\xe7\xb4\xfc\xef0{|\xd4\xd0\xe6\x02\xa6\x91\x11",
+        b"\x03x?\xac.\xfe\xd8\xfb\xc9\xadD>Y.\xe3\x0ea\xd6_G\x11@\xc1\x0c\xa1U\xe97\xb45\xb7`",  # noqa: E501
+        b"\x1fg[\xff\x07Q_]\xf9g7\x19N\xa9E\xc3lA\xe7\xb4\xfc\xef0{|\xd4\xd0\xe6\x02\xa6\x91\x11",  # noqa: E501
     ]
     assert result == expected_bytes32_array
 
@@ -1041,8 +1043,8 @@ async def test_async_call_get_bytes32_const_array(async_arrays_contract, async_c
     )
     # expected_bytes32_array = [keccak('A'), keccak('B')]
     expected_bytes32_array = [
-        b"\x03x?\xac.\xfe\xd8\xfb\xc9\xadD>Y.\xe3\x0ea\xd6_G\x11@\xc1\x0c\xa1U\xe97\xb45\xb7`",
-        b"\x1fg[\xff\x07Q_]\xf9g7\x19N\xa9E\xc3lA\xe7\xb4\xfc\xef0{|\xd4\xd0\xe6\x02\xa6\x91\x11",
+        b"\x03x?\xac.\xfe\xd8\xfb\xc9\xadD>Y.\xe3\x0ea\xd6_G\x11@\xc1\x0c\xa1U\xe97\xb45\xb7`",  # noqa: E501
+        b"\x1fg[\xff\x07Q_]\xf9g7\x19N\xa9E\xc3lA\xe7\xb4\xfc\xef0{|\xd4\xd0\xe6\x02\xa6\x91\x11",  # noqa: E501
     ]
     assert result == expected_bytes32_array
 

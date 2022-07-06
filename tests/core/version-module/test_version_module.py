@@ -16,8 +16,9 @@ from web3.version import (
     Version,
 )
 
-# This file is being left in since the Version module is being experimented on for
-# async behavior. But, this file along with web3/version.py should be removed eventually.
+# This file is being left in since the Version module is
+# being experimented on for async behavior. But, this file
+# along with web3/version.py should be removed eventually.
 
 
 @pytest.fixture

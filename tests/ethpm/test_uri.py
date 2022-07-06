@@ -64,7 +64,7 @@ def test_is_valid_content_addressed_github_uri(uri, expected):
 
 
 def test_create_github_uri():
-    api_uri = "https://api.github.com/repos/ethpm/ethpm-spec/contents/examples/owned/1.0.0.json"
+    api_uri = "https://api.github.com/repos/ethpm/ethpm-spec/contents/examples/owned/1.0.0.json"  # noqa: E501
     expected_blob_uri = "https://api.github.com/repos/ethpm/ethpm-spec/git/blobs/8f9dc767d4c8b31fec4a08d9c0858d4f37b83180"  # noqa: E501
     actual_blob_uri = create_content_addressed_github_uri(api_uri)
     assert actual_blob_uri == expected_blob_uri
@@ -196,7 +196,7 @@ def test_create_github_uri():
         ),
         # with namespaced manifest contents
         (
-            "ethpm://0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729/wallet@2.8.0/deployments",
+            "ethpm://0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729/wallet@2.8.0/deployments",  # noqa: E501
             [
                 "0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729",
                 "1",
@@ -204,10 +204,10 @@ def test_create_github_uri():
                 "2.8.0",
                 "deployments",
                 None,
-            ],  # noqa: E501
+            ],
         ),
         (
-            "ethpm://0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729/wallet@2.8.0/deployments/",
+            "ethpm://0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729/wallet@2.8.0/deployments/",  # noqa: E501
             [
                 "0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729",
                 "1",
@@ -215,7 +215,7 @@ def test_create_github_uri():
                 "2.8.0",
                 "deployments",
                 None,
-            ],  # noqa: E501
+            ],
         ),
         (
             "ethpm://0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729/wallet@2.8.0/deployments/WalletContract",  # noqa: E501
@@ -226,7 +226,7 @@ def test_create_github_uri():
                 "2.8.0",
                 "deployments/WalletContract",
                 None,
-            ],  # noqa: E501
+            ],
         ),
         (
             "ethpm://0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729/wallet@2.8.0/deployments/WalletContract/",  # noqa: E501
@@ -237,7 +237,7 @@ def test_create_github_uri():
                 "2.8.0",
                 "deployments/WalletContract",
                 None,
-            ],  # noqa: E501
+            ],
         ),
         # unescaped chars & namespaced assets
         (
@@ -249,7 +249,7 @@ def test_create_github_uri():
                 "20&",
                 "deployments/WalletContract",
                 None,
-            ],  # noqa: E501
+            ],
         ),
     ),
 )
@@ -284,8 +284,8 @@ def test_parse_registry_uri(uri, expected):
         "ethpm://0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729/!bc@1.0.0",
         "ethpm://0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729/!bc@1.0.0/",
         # namespaced asset and missing version
-        "ethpm://0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729/wallet/deployments/WalletContract",
-        "ethpm://0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729/wallet@/deployments/WalletContract",
+        "ethpm://0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729/wallet/deployments/WalletContract",  # noqa: E501
+        "ethpm://0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729/wallet@/deployments/WalletContract",  # noqa: E501
     ),
 )
 def test_invalid_registry_uris(uri):

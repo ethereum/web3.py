@@ -32,7 +32,7 @@ def test_init_web3_adds_expected_middlewares():
         ("tester.eth", b"\x06tester\x03eth\x00"),
         (
             "a.b.c.d.e.f.g.h.i.j.k.l.m.n.o.p",
-            b"\x01a\x01b\x01c\x01d\x01e\x01f\x01g\x01h\x01i\x01j\x01k\x01l\x01m\x01n\x01o\x01p\x00",
+            b"\x01a\x01b\x01c\x01d\x01e\x01f\x01g\x01h\x01i\x01j\x01k\x01l\x01m\x01n\x01o\x01p\x00",  # noqa: E501
         ),
         (
             "1.2.3.4.5.6.7.8.9.10",
@@ -60,12 +60,12 @@ def test_ens_encode_name(name, expected):
     "name,expected",
     (
         (
-            f"{'a' * 63}.{'b' * 63}.{'c' * 63}.{'d' * 63}.{'e' * 63}.{'f' * 63}.{'g' * 63}",
+            f"{'a' * 63}.{'b' * 63}.{'c' * 63}.{'d' * 63}.{'e' * 63}.{'f' * 63}.{'g' * 63}",  # noqa: E501
             b"".join([b"?" + to_bytes(text=label) * 63 for label in "abcdefg"])
             + b"\x00",
         ),
         (
-            f"{'a-1' * 21}.{'b-2' * 21}.{'c-3' * 21}.{'d-4' * 21}.{'e-5' * 21}.{'f-6' * 21}",
+            f"{'a-1' * 21}.{'b-2' * 21}.{'c-3' * 21}.{'d-4' * 21}.{'e-5' * 21}.{'f-6' * 21}",  # noqa: E501
             b"".join(
                 [
                     b"?" + to_bytes(text=label) * 21
@@ -84,9 +84,10 @@ def test_ens_encode_name(name, expected):
     ),
 )
 def test_ens_encode_name_validating_total_encoded_name_size(name, expected):
-    # This test is important because dns validation technically limits the total encoded domain name
-    # size to 255. ENSIP-10 expects the name to be DNS encoded with one of the validation exceptions
-    # being that the total encoded size can be any length.
+    # This test is important because dns validation technically limits the
+    # total encoded domain name size to 255. ENSIP-10 expects the name to be
+    # DNS encoded with one of the validation exceptions being that the
+    # total encoded size can be any length.
     ens_encoded = ens_encode_name(name)
     assert len(ens_encoded) > 255
     assert ens_encoded == expected

@@ -78,7 +78,7 @@ GANACHE_RESPONSE = RPCResponse(
         "id": 24,
         "jsonrpc": "2.0",
         "error": {
-            "message": "VM Exception while processing transaction: revert Custom revert message",
+            "message": "VM Exception while processing transaction: revert Custom revert message",  # noqa: E501
             "code": -32000,
             "data": {
                 "stack": "o: VM Exception while processing transaction: revert Custom revert message\n",  # noqa: E501

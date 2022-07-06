@@ -40,7 +40,7 @@ from ethpm.validation.uri import (
         ("erc1319://0xd3CdA913deB6f67967B99D67aCDFa1712C293601:1/erc20@1.0.0"),
         ("erc1319://0xd3CdA913deB6f67967B99D67aCDFa1712C293601:1/erc20@1.0.0/"),
         (
-            "erc1319://0xd3CdA913deB6f67967B99D67aCDFa1712C293601:1/erc20@1.0.0/deployments/ERC139"
+            "erc1319://0xd3CdA913deB6f67967B99D67aCDFa1712C293601:1/erc20@1.0.0/deployments/ERC139"  # noqa: E501
         ),
     ),
 )

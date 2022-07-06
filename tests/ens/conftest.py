@@ -254,7 +254,8 @@ def ens_setup():
     ens_contract.functions.setSubnodeOwner(
         eth_namehash,
         w3.keccak(text="tester"),
-        second_account,  # note that this does not have to be the default, only in the list
+        # note that this does not have to be the default, only in the list
+        second_account,
     ).transact({"from": ens_key})
 
     # --- setup simple resolver example --- #
@@ -307,8 +308,10 @@ def ens_setup():
         # use a made up url and mock the call to this endpoint in tests
         args=[
             [
-                "https://web3.py/gateway/{sender}/{data}.json",  # for GET request testing
-                "https://web3.py/gateway/{sender}.json",  # for POST request testing
+                # for GET request testing
+                "https://web3.py/gateway/{sender}/{data}.json",
+                # for POST request testing
+                "https://web3.py/gateway/{sender}.json",
             ],
             [to_checksum_address("0x4c40caf7f24a545095299972c381862469b080fb")],
         ],
@@ -551,7 +554,8 @@ async def async_ens_setup(async_w3):
     await ens_contract.functions.setSubnodeOwner(
         eth_namehash,
         async_w3.keccak(text="tester"),
-        second_account,  # note that this does not have to be the default, only in the list
+        # note that this does not have to be the default, only in the list
+        second_account,
     ).transact({"from": ens_key})
 
     # --- setup simple resolver example --- #
@@ -606,8 +610,10 @@ async def async_ens_setup(async_w3):
         # use a made up url and mock the call to this endpoint in tests
         args=[
             [
-                "https://web3.py/gateway/{sender}/{data}.json",  # for GET request testing
-                "https://web3.py/gateway/{sender}.json",  # for POST request testing
+                # for GET request testing
+                "https://web3.py/gateway/{sender}/{data}.json",
+                # for POST request testing
+                "https://web3.py/gateway/{sender}.json",
             ],
             [to_checksum_address("0x4c40caf7f24a545095299972c381862469b080fb")],
         ],
