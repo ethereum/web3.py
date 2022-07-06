@@ -37,14 +37,15 @@ META_FIELDS = {
 
 def validate_meta_object(meta: Dict[str, Any], allow_extra_meta_fields: bool) -> None:
     """
-    Validates that every key is one of `META_FIELDS` and has a value of the expected type.
+    Validates that every key is one of `META_FIELDS`
+    and has a value of the expected type.
     """
     for key, value in meta.items():
         if key in META_FIELDS:
             if cast(ABCMeta, type(value)) is not META_FIELDS[key]:
                 raise EthPMValidationError(
-                    f"Values for {key} are expected to have the type {META_FIELDS[key]}, "
-                    f"instead got {type(value)}."
+                    f"Values for {key} are expected to have the type "
+                    f"{META_FIELDS[key]}, instead got {type(value)}."
                 )
         elif allow_extra_meta_fields:
             if key[:2] != "x-":
@@ -139,7 +140,7 @@ def validate_raw_manifest_format(raw_manifest: str) -> None:
     compact_manifest = json.dumps(manifest_dict, sort_keys=True, separators=(",", ":"))
     if raw_manifest != compact_manifest:
         raise EthPMValidationError(
-            "The manifest appears to be malformed. Please ensure that it conforms to the "
-            "EthPM-Spec for document format. "
+            "The manifest appears to be malformed. Please ensure that it conforms to "
+            "the EthPM-Spec for document format. "
             "http://ethpm.github.io/ethpm-spec/package-spec.html#document-format "
         )

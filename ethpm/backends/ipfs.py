@@ -86,7 +86,8 @@ class IPFSOverHTTPBackend(BaseIPFSBackend):
             validation_hash = generate_file_hash(contents)
             if validation_hash != ipfs_hash:
                 raise EthPMValidationError(
-                    f"Hashed IPFS contents retrieved from uri: {uri} do not match its content hash."
+                    f"Hashed IPFS contents retrieved from uri: {uri} "
+                    "do not match its content hash."
                 )
         return contents
 
@@ -194,7 +195,8 @@ class DummyIPFSBackend(BaseIPFSBackend):
 
 def get_ipfs_backend(import_path: str = None) -> BaseIPFSBackend:
     """
-    Return the `BaseIPFSBackend` class specified by import_path, default, or env variable.
+    Return the `BaseIPFSBackend` class specified by import_path,
+    default, or env variable.
     """
     backend_class = get_ipfs_backend_class(import_path)
     return backend_class()

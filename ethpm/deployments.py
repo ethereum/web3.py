@@ -66,7 +66,8 @@ class Deployments:
         if name not in self.deployment_data:
             raise KeyError(
                 f"Contract deployment: {name} not found in deployment data. "
-                f"Available deployments include: {list(sorted(self.deployment_data.keys()))}."
+                "Available deployments include: "
+                f"{list(sorted(self.deployment_data.keys()))}."
             )
 
 

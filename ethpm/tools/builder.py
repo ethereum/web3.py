@@ -115,7 +115,8 @@ def version(version: str, manifest: Manifest) -> Manifest:
 
 def authors(*author_list: str) -> Manifest:
     """
-    Return a copy of manifest with a list of author posargs set to "meta": {"authors": author_list}
+    Return a copy of manifest with a list of author posargs set
+    to "meta": {"authors": author_list}
     """
     return _authors(author_list)
 
@@ -129,7 +130,8 @@ def _authors(authors: Set[str], manifest: Manifest) -> Manifest:
 @curry
 def license(license: str, manifest: Manifest) -> Manifest:
     """
-    Return a copy of manifest with `license` set to "meta": {"license": `license`}
+    Return a copy of manifest with `license` set to
+    "meta": {"license": `license`}
     """
     return assoc_in(manifest, ("meta", "license"), license)
 
@@ -137,7 +139,8 @@ def license(license: str, manifest: Manifest) -> Manifest:
 @curry
 def description(description: str, manifest: Manifest) -> Manifest:
     """
-    Return a copy of manifest with `description` set to "meta": {"descriptions": `description`}
+    Return a copy of manifest with `description` set to
+    "meta": {"descriptions": `description`}
     """
     return assoc_in(manifest, ("meta", "description"), description)
 
@@ -158,7 +161,8 @@ def _keywords(keywords: Set[str], manifest: Manifest) -> Manifest:
 
 def links(**link_dict: str) -> Manifest:
     """
-    Return a copy of manifest with a dict of link kwargs set to "meta": {"links": link_dict}
+    Return a copy of manifest with a dict of link kwargs set to
+    "meta": {"links": link_dict}
     """
     return _links(link_dict)
 
@@ -192,7 +196,8 @@ def make_path_relative(path: str) -> str:
     if "../" in path:
         raise ManifestBuildingError(
             f"Path: {path} appears to be outside of the virtual source tree. "
-            "Please make sure all sources are within the virtual source tree root directory."
+            "Please make sure all sources are within the virtual source tree "
+            "root directory."
         )
 
     if path[:2] != "./":
@@ -484,9 +489,9 @@ def filter_all_data_by_selected_fields(
             yield field, all_type_data[field]
         else:
             raise ManifestBuildingError(
-                f"Selected field: {field} not available in data collected from solc output: "
-                f"{list(sorted(all_type_data.keys()))}. Please make sure the relevant data "
-                "is present in your solc output."
+                f"Selected field: {field} not available in data collected from "
+                f"solc output: {list(sorted(all_type_data.keys()))}. Please make"
+                "sure the relevant data is present in your solc output."
             )
 
 
@@ -673,9 +678,10 @@ def deployment(
     compiler: Dict[str, Any] = None,
 ) -> Manifest:
     """
-    Returns a manifest, with the newly included deployment. Requires a valid blockchain URI,
-    however no validation is provided that this URI is unique amongst the other deployment
-    URIs, so the user must take care that each blockchain URI represents a unique blockchain.
+    Returns a manifest, with the newly included deployment. Requires a valid
+    blockchain URI, however no validation is provided that this URI is unique
+    amongst the other deployment URIs, so the user must take care that each
+    blockchain URI represents a unique blockchain.
     """
     return _deployment(
         contract_instance,
@@ -889,7 +895,8 @@ def _write_to_disk(
     if manifest_name:
         if not manifest_name.lower().endswith(".json"):
             raise ManifestBuildingError(
-                f"Invalid manifest name: {manifest_name}. All manifest names must end in .json"
+                f"Invalid manifest name: {manifest_name}. "
+                "All manifest names must end in .json"
             )
         disk_manifest_name = manifest_name
     else:
@@ -912,8 +919,8 @@ def pin_to_ipfs(
     """
     Returns the IPFS pin data after pinning the manifest to the provided IPFS Backend.
 
-    `pin_to_ipfs()` Should *always* be the last argument in a builder, as it will return the pin
-    data and not the manifest.
+    `pin_to_ipfs()` Should *always* be the last argument in a builder, as it will
+    return the pin data and not the manifest.
     """
     contents = format_manifest(manifest, prettify=prettify)
 

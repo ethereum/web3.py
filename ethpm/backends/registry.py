@@ -85,7 +85,8 @@ def is_valid_registry_uri(uri: str) -> bool:
 
 def parse_registry_uri(uri: str) -> RegistryURI:
     """
-    Validate and return (authority, chain_id, pkg_name, version) from a valid registry URI.
+    Validate and return (authority, chain_id, pkg_name, version)
+    from a valid registry URI.
     """
     from web3.auto.infura import w3
 

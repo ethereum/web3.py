@@ -30,7 +30,8 @@ if TYPE_CHECKING:
 
 def get_linked_deployments(deployments: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Returns all deployments found in a chain URI's deployment data that contain link dependencies.
+    Returns all deployments found in a chain URI's deployment data that
+    contain link dependencies.
     """
     linked_deployments = {
         dep: data
@@ -91,8 +92,9 @@ def validate_deployments_tx_receipt(
     deployments: Dict[str, Any], w3: "Web3", allow_missing_data: bool = False
 ) -> None:
     """
-    Validate that address and block hash found in deployment data match what is found on-chain.
-    :allow_missing_data: by default, enforces validation of address and blockHash.
+    Validate that address and block hash found in deployment data match
+    what is found on-chain. :allow_missing_data: by default, enforces
+    validation of address and blockHash.
     """
     # todo: provide hook to lazily look up tx receipt via binary search if missing data
     for name, data in deployments.items():
@@ -105,8 +107,9 @@ def validate_deployments_tx_receipt(
             if tx_address is None and allow_missing_data is False:
                 raise EthPMValidationError(
                     "No contract address found in tx receipt. Unable to verify "
-                    "address found in tx receipt matches address in manifest's deployment data. "
-                    "If this validation is not necessary, please enable `allow_missing_data` arg. "
+                    "address found in tx receipt matches address in manifest's "
+                    "deployment data. If this validation is not necessary, "
+                    "please enable `allow_missing_data` arg. "
                 )
 
             if tx_address is not None and not is_same_address(
@@ -122,18 +125,21 @@ def validate_deployments_tx_receipt(
                 if tx_receipt["blockHash"] != to_bytes(hexstr=data["block"]):
                     raise EthPMValidationError(
                         f"Error validating tx_receipt for {name} deployment. "
-                        f"Block found in manifest's deployment data: {data['block']!r} does not "
-                        f"Does not match block found on tx_receipt: {tx_receipt['blockHash']!r}."
+                        f"Block found in manifest's deployment data: {data['block']!r} "
+                        "Does not match block found on "
+                        f"tx_receipt: {tx_receipt['blockHash']!r}."
                     )
             elif allow_missing_data is False:
                 raise EthPMValidationError(
                     "No block hash found in deployment data. "
                     "Unable to verify block hash on tx receipt. "
-                    "If this validation is not necessary, please enable `allow_missing_data` arg."
+                    "If this validation is not necessary, please enable "
+                    "`allow_missing_data` arg."
                 )
         elif allow_missing_data is False:
             raise EthPMValidationError(
                 "No transaction hash found in deployment data. "
                 "Unable to validate tx_receipt. "
-                "If this validation is not necessary, please enable `allow_missing_data` arg."
+                "If this validation is not necessary, please "
+                "enable `allow_missing_data` arg."
             )
