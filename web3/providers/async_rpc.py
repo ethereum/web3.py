@@ -17,7 +17,8 @@ from eth_typing import (
 from eth_utils import (
     to_dict,
 )
-from requests.models import HTTPError
+
+from requests.exceptions import RequestException
 
 from web3._utils.http import (
     construct_user_agent,
@@ -157,7 +158,7 @@ class BatchedAsyncHTTPProvider(AsyncHTTPProvider):
             for item, response in zip(request_batch, response_batch):
                 self.response_dict[item.idx] = response
                 item.response_ready_event.set()
-        except HTTPError as e:
+        except RequestException as e:
             self.logger.info(f"Batch request failed with {e}. Trying again...")
             for item in request_batch:
                 await self.request_queue.put(item)
