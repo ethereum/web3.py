@@ -20,7 +20,7 @@ ADDRESS = constants.ADDRESS_ZERO
 BALANCE = 0
 
 
-class TempENS():
+class TempENS:
     def __init__(self, name_addr_pairs):
         self.registry = dict(name_addr_pairs)
 
@@ -37,21 +37,23 @@ def w3():
 
 
 def test_pass_name_resolver(w3):
-    return_chain_on_mainnet = construct_fixture_middleware({
-        'net_version': '1',
-    })
-    return_balance = construct_fixture_middleware({
-        'eth_getBalance': BALANCE
-    })
+    return_chain_on_mainnet = construct_fixture_middleware(
+        {
+            "net_version": "1",
+        }
+    )
+    return_balance = construct_fixture_middleware({"eth_getBalance": BALANCE})
     w3.middleware_onion.inject(return_chain_on_mainnet, layer=0)
     w3.middleware_onion.inject(return_balance, layer=0)
     assert w3.eth.get_balance(NAME) == BALANCE
 
 
 def test_fail_name_resolver(w3):
-    return_chain_on_mainnet = construct_fixture_middleware({
-        'net_version': '2',
-    })
+    return_chain_on_mainnet = construct_fixture_middleware(
+        {
+            "net_version": "2",
+        }
+    )
     w3.middleware_onion.inject(return_chain_on_mainnet, layer=0)
-    with pytest.raises(InvalidAddress, match=r'.*ethereum\.eth.*'):
+    with pytest.raises(InvalidAddress, match=r".*ethereum\.eth.*"):
         w3.eth.get_balance("ethereum.eth")

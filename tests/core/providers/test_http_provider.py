@@ -23,8 +23,7 @@ def test_no_args():
 
 
 def test_init_kwargs():
-    provider = HTTPProvider(endpoint_uri=URI,
-                            request_kwargs={'timeout': 60})
+    provider = HTTPProvider(endpoint_uri=URI, request_kwargs={"timeout": 60})
     w3 = Web3(provider)
     assert w3.manager.provider == provider
 
@@ -32,8 +31,8 @@ def test_init_kwargs():
 def test_user_provided_session():
     adapter = HTTPAdapter(pool_connections=20, pool_maxsize=20)
     session = Session()
-    session.mount('http://', adapter)
-    session.mount('https://', adapter)
+    session.mount("http://", adapter)
+    session.mount("https://", adapter)
 
     provider = HTTPProvider(endpoint_uri=URI, session=session)
     w3 = Web3(provider)

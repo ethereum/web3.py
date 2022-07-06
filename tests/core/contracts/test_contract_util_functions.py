@@ -12,14 +12,14 @@ from web3.exceptions import (
 
 
 @pytest.mark.parametrize(
-    'block_identifier,expected_output',
+    "block_identifier,expected_output",
     (
         (1, 1),
         (-1, 0),
-        ('latest', 'latest'),
-        ('earliest', 'earliest'),
-        ('pending', 'pending'),
-    )
+        ("latest", "latest"),
+        ("earliest", "earliest"),
+        ("pending", "pending"),
+    ),
 )
 def test_parse_block_identifier_int_and_string(w3, block_identifier, expected_output):
     block_id = parse_block_identifier(w3, block_identifier)
@@ -28,7 +28,7 @@ def test_parse_block_identifier_int_and_string(w3, block_identifier, expected_ou
 
 def test_parse_block_identifier_bytes_and_hex(w3):
     block_0 = w3.eth.get_block(0)
-    block_0_hash = block_0['hash']
+    block_0_hash = block_0["hash"]
     # test retrieve by bytes
     block_id_by_hash = parse_block_identifier(w3, block_0_hash)
     assert block_id_by_hash == 0
@@ -39,10 +39,12 @@ def test_parse_block_identifier_bytes_and_hex(w3):
 
 
 @pytest.mark.parametrize(
-    'block_identifier',
+    "block_identifier",
     (
-        1.5, 'cats', -70,
-    )
+        1.5,
+        "cats",
+        -70,
+    ),
 )
 def test_parse_block_identifier_error(w3, block_identifier):
     with pytest.raises(BlockNumberOutofRange):
@@ -51,19 +53,18 @@ def test_parse_block_identifier_error(w3, block_identifier):
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
-    'block_identifier,expected_output',
+    "block_identifier,expected_output",
     (
         (1, 1),
         (-1, 0),
-        ('latest', 'latest'),
-        ('earliest', 'earliest'),
-        ('pending', 'pending'),
-    )
+        ("latest", "latest"),
+        ("earliest", "earliest"),
+        ("pending", "pending"),
+    ),
 )
 async def test_async_parse_block_identifier_int_and_string(
-        async_w3,
-        block_identifier,
-        expected_output):
+    async_w3, block_identifier, expected_output
+):
     block_id = await async_parse_block_identifier(async_w3, block_identifier)
     assert block_id == expected_output
 
@@ -71,7 +72,7 @@ async def test_async_parse_block_identifier_int_and_string(
 @pytest.mark.asyncio
 async def test_async_parse_block_identifier_bytes_and_hex(async_w3):
     block_0 = await async_w3.eth.get_block(0)
-    block_0_hash = block_0['hash']
+    block_0_hash = block_0["hash"]
     # test retrieve by bytes
     block_id_by_hash = await async_parse_block_identifier(async_w3, block_0_hash)
     assert block_id_by_hash == 0
@@ -83,10 +84,12 @@ async def test_async_parse_block_identifier_bytes_and_hex(async_w3):
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
-    'block_identifier',
+    "block_identifier",
     (
-        1.5, 'cats', -70,
-    )
+        1.5,
+        "cats",
+        -70,
+    ),
 )
 async def test_async_parse_block_identifier_error(async_w3, block_identifier):
     with pytest.raises(BlockNumberOutofRange):
@@ -99,12 +102,12 @@ async def test_async_parse_block_identifier_error(async_w3, block_identifier):
 #  get_block() does not allow negative block identifiers. Support for negative block identifier
 #  will likely be removed in v5.
 def test_parse_block_identifier_int(w3):
-    last_num = w3.eth.get_block('latest').number
+    last_num = w3.eth.get_block("latest").number
     assert 0 == parse_block_identifier_int(w3, -1 - last_num)
 
 
 @pytest.mark.asyncio
 async def test_async_parse_block_identifier_int(async_w3):
-    latest_block = await async_w3.eth.get_block('latest')
+    latest_block = await async_w3.eth.get_block("latest")
     last_num = latest_block.number
     assert 0 == await async_parse_block_identifier_int(async_w3, -1 - last_num)

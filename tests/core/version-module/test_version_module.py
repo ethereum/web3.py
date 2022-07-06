@@ -28,7 +28,8 @@ def blocking_w3():
             "blocking_version": (BlockingVersion,),
             "legacy_version": (Version,),
             "eth": (Eth,),
-        })
+        },
+    )
 
 
 @pytest.fixture
@@ -37,8 +38,9 @@ def async_w3():
         AsyncEthereumTesterProvider(),
         middlewares=[],
         modules={
-            'async_version': (AsyncVersion,),
-        })
+            "async_version": (AsyncVersion,),
+        },
+    )
 
 
 def test_legacy_version_deprecation(blocking_w3):

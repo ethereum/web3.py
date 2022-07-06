@@ -17,6 +17,7 @@ def test_reject_recursive_repeats_multithreaded():
             return True
         except ValueError:
             return False
+
     thd1 = spawn(recurse, 0)
     thd2 = spawn(recurse, 0.02)
     assert thd2.get() and thd1.get()

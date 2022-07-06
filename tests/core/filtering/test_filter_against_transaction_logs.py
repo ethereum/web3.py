@@ -12,18 +12,17 @@ from web3._utils.threads import (
 
 @pytest.mark.skip(reason="fixture 'w3_empty' not found")
 @flaky(max_runs=3)
-def test_sync_filter_against_log_events(w3_empty,
-                                        emitter,
-                                        wait_for_transaction,
-                                        emitter_log_topics,
-                                        emitter_event_ids
-                                        ):
+def test_sync_filter_against_log_events(
+    w3_empty, emitter, wait_for_transaction, emitter_log_topics, emitter_event_ids
+):
     w3 = w3_empty
 
     txn_filter = w3.eth.filter({})
 
     txn_hashes = set()
-    txn_hashes.add(emitter.functions.logNoArgs(emitter_event_ids.LogNoArguments).transact())
+    txn_hashes.add(
+        emitter.functions.logNoArgs(emitter_event_ids.LogNoArguments).transact()
+    )
 
     for txn_hash in txn_hashes:
         wait_for_transaction(w3, txn_hash)
@@ -34,17 +33,14 @@ def test_sync_filter_against_log_events(w3_empty,
 
     seen_logs = txn_filter.get_new_entries()
 
-    assert txn_hashes == {log['transactionHash'] for log in seen_logs}
+    assert txn_hashes == {log["transactionHash"] for log in seen_logs}
 
 
 @pytest.mark.skip(reason="fixture 'w3_empty' not found")
 @flaky(max_runs=3)
-def test_async_filter_against_log_events(w3_empty,
-                                         emitter,
-                                         wait_for_transaction,
-                                         emitter_log_topics,
-                                         emitter_event_ids
-                                         ):
+def test_async_filter_against_log_events(
+    w3_empty, emitter, wait_for_transaction, emitter_log_topics, emitter_event_ids
+):
     w3 = w3_empty
 
     seen_logs = []
@@ -53,7 +49,9 @@ def test_async_filter_against_log_events(w3_empty,
 
     txn_hashes = set()
 
-    txn_hashes.add(emitter.functions.logNoArgs(emitter_event_ids.LogNoArguments).transact())
+    txn_hashes.add(
+        emitter.functions.logNoArgs(emitter_event_ids.LogNoArguments).transact()
+    )
 
     for txn_hash in txn_hashes:
         wait_for_transaction(w3, txn_hash)
@@ -64,4 +62,4 @@ def test_async_filter_against_log_events(w3_empty,
 
     txn_filter.stop_watching(30)
 
-    assert txn_hashes == {log['transactionHash'] for log in seen_logs}
+    assert txn_hashes == {log["transactionHash"] for log in seen_logs}

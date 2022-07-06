@@ -55,7 +55,9 @@ def test_owned_deployer(owned):
 # CONSTRUCTOR ARGS
 @pytest.fixture
 def standard_token(deployer):
-    standard_token_manifest_path = ASSETS_DIR / "standard-token" / "with_bytecode_v3.json"
+    standard_token_manifest_path = (
+        ASSETS_DIR / "standard-token" / "with_bytecode_v3.json"
+    )
     standard_token_deployer = deployer(standard_token_manifest_path)
     return standard_token_deployer.deploy("StandardToken", 100)
 

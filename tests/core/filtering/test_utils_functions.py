@@ -23,9 +23,9 @@ from web3._utils.filters import (
                     ("int", (-12345,)),
                     ("uint32", (444,)),
                     ("int", (565,)),
-                    ("ufixed256x4", (Decimal(1.66660),))
+                    ("ufixed256x4", (Decimal(1.66660),)),
                 ),
-                id='tuple with incorrect numerical return values'
+                id="tuple with incorrect numerical return values",
             )
         ),
         (
@@ -36,9 +36,9 @@ from web3._utils.filters import (
                     ("int", (-12345,)),
                     ("uint32", None),
                     ("int", None),
-                    ("ufixed256x4", None)
+                    ("ufixed256x4", None),
                 ),
-                id='tuple with correct numerical return values'
+                id="tuple with correct numerical return values",
             )
         ),
         (
@@ -49,9 +49,9 @@ from web3._utils.filters import (
                     ("string", ("eee",)),
                     ("string", ("aye",)),
                     ("string", ("sea",)),
-                    ("bytes", (b"\x00",))
+                    ("bytes", (b"\x00",)),
                 ),
-                id='tuple with incorrect string and bytes return values'
+                id="tuple with incorrect string and bytes return values",
             )
         ),
         (
@@ -62,9 +62,9 @@ from web3._utils.filters import (
                     ("string", ("aye",)),
                     ("string", ("bee",)),
                     ("string", ("sea",)),
-                    ("bytes", (b"\x124",))
+                    ("bytes", (b"\x124",)),
                 ),
-                id='tuple with valid string and hex values'
+                id="tuple with valid string and hex values",
             )
         ),
         (
@@ -75,22 +75,17 @@ from web3._utils.filters import (
                     ("string", ("aye",)),
                     ("string", ("bee",)),
                     ("string", ("sea",)),
-                    ("bytes", (b"\xde\xee",))
+                    ("bytes", (b"\xde\xee",)),
                 ),
-                id="tuple with valid string and bytes values"
+                id="tuple with valid string and bytes values",
             )
         ),
         (
             pytest.param(
                 ("aye", "bee", "sea", b"\xde\xee"),
                 True,
-                (
-                    ("string", None),
-                    ("string", None),
-                    ("string", None),
-                    ("bytes", None)
-                ),
-                id="tuple with valid string and bytes values"
+                (("string", None), ("string", None), ("string", None), ("bytes", None)),
+                id="tuple with valid string and bytes values",
             )
         ),
         (
@@ -101,7 +96,7 @@ from web3._utils.filters import (
                     ("bytes3[]", ((b"aye", b"bee"),)),
                     ("string[]", (("sea", "dee"),)),
                 ),
-                id="lists with valud string and bytes values"
+                id="lists with valud string and bytes values",
             )
         ),
         (
@@ -112,7 +107,7 @@ from web3._utils.filters import (
                     ("string[]", (("aye", "bee"),)),
                     ("string[]", (("sea", "dee"),)),
                 ),
-                id="lists with valid string values"
+                id="lists with valid string values",
             )
         ),
         (
@@ -123,10 +118,10 @@ from web3._utils.filters import (
                     ("string[]", (("aye", "bee"),)),
                     ("string[]", (("sea", "dee"),)),
                 ),
-                id="lists with valid string values, incorrect return values"
+                id="lists with valid string values, incorrect return values",
             )
         ),
-    )
+    ),
 )
 def test_match_fn_with_various_data_types(w3, data, expected, match_data_and_abi):
     abi_types, match_data = zip(*match_data_and_abi)
@@ -141,50 +136,40 @@ def test_match_fn_with_various_data_types(w3, data, expected, match_data_and_abi
             pytest.param(
                 ((b"1234",)),
                 True,
-                (
-                    ("bytes4", (b"1234",)),
-                ),
-                id="tuple with valid bytes value"
+                (("bytes4", (b"1234",)),),
+                id="tuple with valid bytes value",
             )
         ),
         (
             pytest.param(
                 (("0x12343434",)),
                 True,
-                (
-                    ("bytes4", (b"\x12444",)),
-                ),
-                id="tuple with valid hex string"
+                (("bytes4", (b"\x12444",)),),
+                id="tuple with valid hex string",
             )
         ),
         (
             pytest.param(
                 ((b"1234",)),
                 False,
-                (
-                    ("bytes4", (b"5678",)),
-                ),
-                id="tuple with invalid return value"
+                (("bytes4", (b"5678",)),),
+                id="tuple with invalid return value",
             )
         ),
         (
             pytest.param(
                 (("0x1212", b"34"),),
                 True,
-                (
-                    ("bytes2[]", ((b"\x12\x12", b"34"),)),
-                ),
-                id="list with valid hexstring and byte values"
+                (("bytes2[]", ((b"\x12\x12", b"34"),)),),
+                id="list with valid hexstring and byte values",
             )
         ),
         (
             pytest.param(
                 (("0x1212", b"34"),),
                 False,
-                (
-                    ("bytes2[]", ((b"12", b"34"),)),
-                ),
-                id="list with incorrect hexstring and byte return values"
+                (("bytes2[]", ((b"12", b"34"),)),),
+                id="list with incorrect hexstring and byte return values",
             )
         ),
         (
@@ -195,15 +180,14 @@ def test_match_fn_with_various_data_types(w3, data, expected, match_data_and_abi
                     ("string[]", (("aye", "bee"),)),
                     ("string[]", (("sea", "dee"),)),
                 ),
-                id="list with valid string values"
+                id="list with valid string values",
             )
         ),
-    )
+    ),
 )
-def test_match_fn_with_various_data_types_strict(w3_strict_abi,
-                                                 data,
-                                                 expected,
-                                                 match_data_and_abi):
+def test_match_fn_with_various_data_types_strict(
+    w3_strict_abi, data, expected, match_data_and_abi
+):
     abi_types, match_data = zip(*match_data_and_abi)
     encoded_data = w3_strict_abi.codec.encode_abi(abi_types, data)
     assert match_fn(w3_strict_abi.codec, match_data_and_abi, encoded_data) == expected
@@ -214,12 +198,12 @@ def test_match_fn_with_various_data_types_strict(w3_strict_abi,
     (
         pytest.param((b"124",), ("bytes4",), id="tuple with invalid bytes input"),
         pytest.param(("0x123434",), ("bytes4",), id="tuple with hex input - too small"),
-        pytest.param(("0x1234343232",), ("bytes4",), id="tuple with hex input - too big"),
-    )
+        pytest.param(
+            ("0x1234343232",), ("bytes4",), id="tuple with hex input - too big"
+        ),
+    ),
 )
-def test_encode_abi_with_wrong_types_strict(w3_strict_abi,
-                                            data,
-                                            abi_type):
+def test_encode_abi_with_wrong_types_strict(w3_strict_abi, data, abi_type):
     with pytest.raises(ValueOutOfBounds):
         w3_strict_abi.codec.encode_abi(abi_type, data)
 

@@ -1,10 +1,6 @@
-
-
 def test_filtering_sequential_blocks_with_bounded_range(
-        w3,
-        emitter,
-        Emitter,
-        wait_for_transaction):
+    w3, emitter, Emitter, wait_for_transaction
+):
     builder = emitter.events.LogNoArguments.build_filter()
     builder.fromBlock = "latest"
 
@@ -18,11 +14,7 @@ def test_filtering_sequential_blocks_with_bounded_range(
     assert len(filter_.get_new_entries()) == 100
 
 
-def test_filtering_starting_block_range(
-        w3,
-        emitter,
-        Emitter,
-        wait_for_transaction):
+def test_filtering_starting_block_range(w3, emitter, Emitter, wait_for_transaction):
     for i in range(10):
         emitter.functions.logNoArgs(which=1).transact()
     builder = emitter.events.LogNoArguments.build_filter()

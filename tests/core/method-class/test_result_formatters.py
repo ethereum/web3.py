@@ -21,7 +21,8 @@ from web3.providers import (
 
 def result_formatter(method, module):
     def formatter(self):
-        return 'OKAY'
+        return "OKAY"
+
     return compose(formatter)
 
 
@@ -30,15 +31,15 @@ class DummyProvider(BaseProvider):
         raise NotImplementedError
 
 
-result_middleware = construct_result_generator_middleware({
-    'method_for_test': lambda m, p: 'ok',
-})
+result_middleware = construct_result_generator_middleware(
+    {
+        "method_for_test": lambda m, p: "ok",
+    }
+)
 
 
 class ModuleForTest(Module):
-    method = Method(
-        'method_for_test',
-        result_formatters=result_formatter)
+    method = Method("method_for_test", result_formatters=result_formatter)
 
 
 @pytest.fixture
@@ -46,9 +47,10 @@ def dummy_w3():
     w3 = Web3(
         DummyProvider(),
         middlewares=[result_middleware],
-        modules={"module": ModuleForTest})
+        modules={"module": ModuleForTest},
+    )
     return w3
 
 
 def test_result_formatter(dummy_w3):
-    assert dummy_w3.module.method() == 'OKAY'
+    assert dummy_w3.module.method() == "OKAY"

@@ -64,9 +64,11 @@ def foo_contract(eth_tester, w3):
     # Create our contract class.
     FooContract = w3.eth.contract(abi=abi, bytecode=bytecode)
     # issue a transaction to deploy the contract.
-    tx_hash = FooContract.constructor().transact({
-        'from': deploy_address,
-    })
+    tx_hash = FooContract.constructor().transact(
+        {
+            "from": deploy_address,
+        }
+    )
     # wait for the transaction to be mined
     tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash, 180)
     # instantiate and return an instance of our contract.
@@ -80,11 +82,11 @@ def test_initial_greeting(foo_contract):
 
 def test_can_update_greeting(w3, foo_contract):
     # send transaction that updates the greeting
-    tx_hash = foo_contract.functions.setBar(
-        "testing contracts is easy",
-    ).transact({
-        'from': w3.eth.accounts[1],
-    })
+    tx_hash = foo_contract.functions.setBar("testing contracts is easy",).transact(
+        {
+            "from": w3.eth.accounts[1],
+        }
+    )
     w3.eth.wait_for_transaction_receipt(tx_hash, 180)
 
     # verify that the contract is now using the updated greeting
@@ -94,11 +96,11 @@ def test_can_update_greeting(w3, foo_contract):
 
 def test_updating_greeting_emits_event(w3, foo_contract):
     # send transaction that updates the greeting
-    tx_hash = foo_contract.functions.setBar(
-        "testing contracts is easy",
-    ).transact({
-        'from': w3.eth.accounts[1],
-    })
+    tx_hash = foo_contract.functions.setBar("testing contracts is easy",).transact(
+        {
+            "from": w3.eth.accounts[1],
+        }
+    )
     receipt = w3.eth.wait_for_transaction_receipt(tx_hash, 180)
 
     # get all of the `barred` logs for the contract
@@ -119,8 +121,7 @@ def async_eth_tester():
 @pytest_asyncio.fixture()
 async def async_w3():
     provider = AsyncEthereumTesterProvider()
-    w3 = Web3(provider, modules={'eth': [AsyncEth]},
-              middlewares=provider.middlewares)
+    w3 = Web3(provider, modules={"eth": [AsyncEth]}, middlewares=provider.middlewares)
     w3.eth.default_account = await w3.eth.coinbase
     return w3
 
@@ -160,9 +161,11 @@ async def async_foo_contract(async_w3):
     # Create our contract class.
     FooContract = async_w3.eth.contract(abi=abi, bytecode=bytecode)
     # issue a transaction to deploy the contract.
-    tx_hash = await FooContract.constructor().transact({
-        'from': deploy_address,
-    })
+    tx_hash = await FooContract.constructor().transact(
+        {
+            "from": deploy_address,
+        }
+    )
     # wait for the transaction to be mined
     tx_receipt = await async_w3.eth.wait_for_transaction_receipt(tx_hash, 180)
     # instantiate and return an instance of our contract.
@@ -181,9 +184,11 @@ async def test_async_can_update_greeting(async_w3, async_foo_contract):
     # send transaction that updates the greeting
     tx_hash = await async_foo_contract.functions.setBar(
         "testing contracts is easy",
-    ).transact({
-        'from': async_eth_tester_accounts[1],
-    })
+    ).transact(
+        {
+            "from": async_eth_tester_accounts[1],
+        }
+    )
     await async_w3.eth.wait_for_transaction_receipt(tx_hash, 180)
 
     # verify that the contract is now using the updated greeting
@@ -197,9 +202,11 @@ async def test_async_updating_greeting_emits_event(async_w3, async_foo_contract)
     # send transaction that updates the greeting
     tx_hash = await async_foo_contract.functions.setBar(
         "testing contracts is easy",
-    ).transact({
-        'from': async_eth_tester_accounts[1],
-    })
+    ).transact(
+        {
+            "from": async_eth_tester_accounts[1],
+        }
+    )
     receipt = await async_w3.eth.wait_for_transaction_receipt(tx_hash, 180)
 
     # get all of the `barred` logs for the contract

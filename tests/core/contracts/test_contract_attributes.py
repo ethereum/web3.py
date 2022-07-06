@@ -8,13 +8,10 @@ from web3.exceptions import (
 
 @pytest.fixture()
 def abi():
-    return '''[{"anonymous":false,"inputs":[{"indexed":false,"name":"value","type":"uint256"}],"name":"Increased","type":"function"}, {"anonymous":false,"inputs":[{"indexed":false,"name":"value","type":"uint256"}],"name":"Increased","type":"event"}]'''  # noqa: E501
+    return """[{"anonymous":false,"inputs":[{"indexed":false,"name":"value","type":"uint256"}],"name":"Increased","type":"function"}, {"anonymous":false,"inputs":[{"indexed":false,"name":"value","type":"uint256"}],"name":"Increased","type":"event"}]"""  # noqa: E501
 
 
-@pytest.mark.parametrize(
-    'attribute',
-    ('functions', 'events', 'caller')
-)
+@pytest.mark.parametrize("attribute", ("functions", "events", "caller"))
 def test_getattr(w3, abi, attribute):
     contract = w3.eth.contract(abi=abi)
     contract_attribute = getattr(contract, attribute)
@@ -22,11 +19,12 @@ def test_getattr(w3, abi, attribute):
 
 
 @pytest.mark.parametrize(
-    'attribute,error', (
-        ('functions', ABIFunctionNotFound),
-        ('events', ABIEventFunctionNotFound),
-        ('caller', ABIFunctionNotFound),
-    )
+    "attribute,error",
+    (
+        ("functions", ABIFunctionNotFound),
+        ("events", ABIEventFunctionNotFound),
+        ("caller", ABIFunctionNotFound),
+    ),
 )
 def test_getattr_raises_error(w3, abi, attribute, error):
     contract = w3.eth.contract(abi=abi)
@@ -36,10 +34,7 @@ def test_getattr_raises_error(w3, abi, attribute, error):
         getattr(contract_attribute, "Decreased")
 
 
-@pytest.mark.parametrize(
-    'attribute',
-    ('functions', 'events', 'caller')
-)
+@pytest.mark.parametrize("attribute", ("functions", "events", "caller"))
 def test_hasattr(w3, abi, attribute):
     contract = w3.eth.contract(abi=abi)
     contract_attribute = getattr(contract, attribute)

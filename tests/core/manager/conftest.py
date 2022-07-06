@@ -13,15 +13,18 @@ def middleware_factory():
 
         class Wrapper:
             def __repr__(self):
-                return 'middleware-' + key
+                return "middleware-" + key
 
             def __call__(self, make_request, w3):
                 def middleware_fn(method, params):
                     params.append(key)
                     method = "|".join((method, key))
                     response = make_request(method, params)
-                    response['result']['middlewares'].append(key)
+                    response["result"]["middlewares"].append(key)
                     return response
+
                 return middleware_fn
+
         return Wrapper()
+
     return factory

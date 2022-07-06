@@ -20,17 +20,14 @@ from web3._utils.events import (
     (
         (
             ("0x1", "0x2", ["0x3"], None, "0x4", None, None, None),
-            ("0x1", "0x2", "0x3", None, "0x4")
+            ("0x1", "0x2", "0x3", None, "0x4"),
         ),
         (
             (None, ["0x2", "0x2a"], "0x3", None, "0x4", None, [None], None),
-            (None, ["0x2", "0x2a"], "0x3", None, "0x4")
+            (None, ["0x2", "0x2a"], "0x3", None, "0x4"),
         ),
-        (
-            (None, None, [None]),
-            tuple()
-        )
-    )
+        ((None, None, [None]), tuple()),
+    ),
 )
 def test_normalize_topic_list(topic_list, expected):
     assert normalize_topic_list(topic_list) == expected

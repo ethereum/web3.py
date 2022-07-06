@@ -14,47 +14,47 @@ class CustomThreadClass(ThreadWithReturn):
 
 def test_spawning_simple_thread():
     container = {
-        'success': None,
+        "success": None,
     }
 
     def target_fn():
-        container['success'] = True
+        container["success"] = True
 
     thread = spawn(target_fn)
     thread.join()
 
-    assert container['success'] is True
+    assert container["success"] is True
 
 
 def test_spawning_specific_thread_class():
     container = {
-        'success': None,
+        "success": None,
     }
 
     def target_fn():
-        container['success'] = True
+        container["success"] = True
 
     thread = spawn(target_fn, thread_class=CustomThreadClass)
     thread.join()
 
     assert isinstance(thread, CustomThreadClass)
 
-    assert container['success'] is True
+    assert container["success"] is True
 
 
 def test_thread_with_return_value():
     container = {
-        'success': None,
+        "success": None,
     }
 
     def target_fn():
-        container['success'] = True
+        container["success"] = True
         return 12345
 
     thread = spawn(target_fn)
     thread.join()
 
-    assert container['success'] is True
+    assert container["success"] is True
 
     assert thread.get() == 12345
 

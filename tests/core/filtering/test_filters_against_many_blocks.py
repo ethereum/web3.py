@@ -11,7 +11,7 @@ def deploy_contracts(w3, contract, wait_for_transaction):
     for i in range(25):
         tx_hash = contract.constructor().transact()
         wait_for_transaction(w3, tx_hash)
-        yield w3.eth.get_transaction_receipt(tx_hash)['contractAddress']
+        yield w3.eth.get_transaction_receipt(tx_hash)["contractAddress"]
 
 
 def pad_with_transactions(w3):
@@ -20,7 +20,7 @@ def pad_with_transactions(w3):
         _from = accounts[random.randint(0, len(accounts) - 1)]
         _to = accounts[random.randint(0, len(accounts) - 1)]
         value = 50 + tx_count
-        w3.eth.send_transaction({'from': _from, 'to': _to, 'value': value})
+        w3.eth.send_transaction({"from": _from, "to": _to, "value": value})
 
 
 def single_transaction(w3):
@@ -28,31 +28,30 @@ def single_transaction(w3):
     _from = accounts[random.randint(0, len(accounts) - 1)]
     _to = accounts[random.randint(0, len(accounts) - 1)]
     value = 50
-    tx_hash = w3.eth.send_transaction({'from': _from, 'to': _to, 'value': value})
+    tx_hash = w3.eth.send_transaction({"from": _from, "to": _to, "value": value})
     return tx_hash
 
 
-@pytest.mark.parametrize('api_style', ('v4', 'build_filter'))
+@pytest.mark.parametrize("api_style", ("v4", "build_filter"))
 def test_event_filter_new_events(
-        w3,
-        emitter,
-        Emitter,
-        wait_for_transaction,
-        emitter_event_ids,
-        api_style,
-        create_filter):
+    w3,
+    emitter,
+    Emitter,
+    wait_for_transaction,
+    emitter_event_ids,
+    api_style,
+    create_filter,
+):
 
-    matching_transact = emitter.functions.logNoArgs(
-        which=1).transact
-    non_matching_transact = emitter.functions.logNoArgs(
-        which=0).transact
+    matching_transact = emitter.functions.logNoArgs(which=1).transact
+    non_matching_transact = emitter.functions.logNoArgs(which=0).transact
 
-    if api_style == 'build_filter':
+    if api_style == "build_filter":
         builder = emitter.events.LogNoArguments.build_filter()
-        builder.fromBlock = 'latest'
+        builder.fromBlock = "latest"
         event_filter = builder.deploy(w3)
     else:
-        event_filter = emitter.events.LogNoArguments().createFilter(fromBlock='latest')
+        event_filter = emitter.events.LogNoArguments().createFilter(fromBlock="latest")
 
     expected_match_counter = 0
 
@@ -93,8 +92,7 @@ def test_transaction_filter_with_mining(w3):
 
 
 @pytest.mark.xfail(reason="Suspected eth-tester bug")
-def test_transaction_filter_without_mining(
-        w3):
+def test_transaction_filter_without_mining(w3):
 
     w3.providers[0].ethereum_tester.auto_mine_transactions = False
     transaction_filter = w3.eth.filter("pending")
@@ -109,36 +107,38 @@ def test_transaction_filter_without_mining(
     assert len(transaction_filter.get_new_entries()) == transaction_counter
 
 
-@pytest.mark.parametrize('api_style', ('v4', 'build_filter'))
+@pytest.mark.parametrize("api_style", ("v4", "build_filter"))
 def test_event_filter_new_events_many_deployed_contracts(
-        w3,
-        emitter,
-        Emitter,
-        wait_for_transaction,
-        emitter_event_ids,
-        api_style,
-        create_filter):
+    w3,
+    emitter,
+    Emitter,
+    wait_for_transaction,
+    emitter_event_ids,
+    api_style,
+    create_filter,
+):
 
-    matching_transact = emitter.functions.logNoArgs(
-        which=1).transact
+    matching_transact = emitter.functions.logNoArgs(which=1).transact
 
     deployed_contract_addresses = deploy_contracts(w3, Emitter, wait_for_transaction)
 
     def gen_non_matching_transact():
         while True:
             contract_address = deployed_contract_addresses[
-                random.randint(0, len(deployed_contract_addresses) - 1)]
+                random.randint(0, len(deployed_contract_addresses) - 1)
+            ]
             yield w3.eth.contract(
-                address=contract_address, abi=Emitter.abi).functions.logNoArgs(which=1).transact
+                address=contract_address, abi=Emitter.abi
+            ).functions.logNoArgs(which=1).transact
 
     non_matching_transact = gen_non_matching_transact()
 
-    if api_style == 'build_filter':
+    if api_style == "build_filter":
         builder = emitter.events.LogNoArguments.build_filter()
         builder.fromBlock = "latest"
         event_filter = builder.deploy(w3)
     else:
-        event_filter = emitter.events.LogNoArguments().createFilter(fromBlock='latest')
+        event_filter = emitter.events.LogNoArguments().createFilter(fromBlock="latest")
 
     expected_match_counter = 0
 

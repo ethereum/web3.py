@@ -5,8 +5,8 @@ from eth_utils import (
 )
 
 
-@pytest.mark.parametrize('call_as_instance', (True, False))
-@pytest.mark.parametrize('api_style', ('v4', 'build_filter'))
+@pytest.mark.parametrize("call_as_instance", (True, False))
+@pytest.mark.parametrize("api_style", ("v4", "build_filter"))
 def test_on_filter_using_get_all_entries_interface(
     w3,
     emitter,
@@ -22,13 +22,14 @@ def test_on_filter_using_get_all_entries_interface(
     else:
         contract = Emitter
 
-    if api_style == 'build_filter':
+    if api_style == "build_filter":
         builder = contract.events.LogNoArguments.build_filter()
         builder.fromBlock = "latest"
         event_filter = builder.deploy(w3)
     else:
         event_filter = create_filter(
-            contract, ["LogNoArguments", {"fromBlock": "latest"}])
+            contract, ["LogNoArguments", {"fromBlock": "latest"}]
+        )
 
     txn_hash = emitter.functions.logNoArgs(emitter_event_ids.LogNoArguments).transact()
     wait_for_transaction(w3, txn_hash)
@@ -36,17 +37,17 @@ def test_on_filter_using_get_all_entries_interface(
     log_entries = event_filter.get_all_entries()
 
     assert len(log_entries) == 1
-    assert log_entries[0]['transactionHash'] == txn_hash
+    assert log_entries[0]["transactionHash"] == txn_hash
 
     # a second call still retrieves all results
     log_entries_2 = event_filter.get_all_entries()
 
     assert len(log_entries_2) == 1
-    assert log_entries_2[0]['transactionHash'] == txn_hash
+    assert log_entries_2[0]["transactionHash"] == txn_hash
 
 
-@pytest.mark.parametrize('call_as_instance', (True, False))
-@pytest.mark.parametrize('api_style', ('v4', 'build_filter'))
+@pytest.mark.parametrize("call_as_instance", (True, False))
+@pytest.mark.parametrize("api_style", ("v4", "build_filter"))
 def test_get_all_entries_returned_block_data(
     w3,
     emitter,
@@ -65,21 +66,22 @@ def test_get_all_entries_returned_block_data(
     else:
         contract = Emitter
 
-    if api_style == 'build_filter':
+    if api_style == "build_filter":
         builder = contract.events.LogNoArguments.build_filter()
         builder.fromBlock = txn_receipt["blockNumber"]
         event_filter = builder.deploy(w3)
     else:
-        event_filter = create_filter(contract, [
-            "LogNoArguments", {"fromBlock": txn_receipt["blockNumber"]}])
+        event_filter = create_filter(
+            contract, ["LogNoArguments", {"fromBlock": txn_receipt["blockNumber"]}]
+        )
 
     log_entries = event_filter.get_all_entries()
 
     assert len(log_entries) == 1
     event_data = log_entries[0]
-    assert event_data['args'] == {}
-    assert event_data['blockHash'] == txn_receipt['blockHash']
-    assert event_data['blockNumber'] == txn_receipt['blockNumber']
-    assert event_data['transactionIndex'] == txn_receipt['transactionIndex']
-    assert is_same_address(event_data['address'], emitter.address)
-    assert event_data['event'] == 'LogNoArguments'
+    assert event_data["args"] == {}
+    assert event_data["blockHash"] == txn_receipt["blockHash"]
+    assert event_data["blockNumber"] == txn_receipt["blockNumber"]
+    assert event_data["transactionIndex"] == txn_receipt["transactionIndex"]
+    assert is_same_address(event_data["address"], emitter.address)
+    assert event_data["event"] == "LogNoArguments"

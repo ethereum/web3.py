@@ -17,20 +17,20 @@ from web3.exceptions import (
 )
 
 ERROR_RESPONSE = {
-    'jsonrpc': '2.0',
-    'error': {
-        'code': -32000,
-        'message': 'Requested block number is in a range that is not available yet, '
-                   'because the ancient block sync is still in progress.'
-    }
+    "jsonrpc": "2.0",
+    "error": {
+        "code": -32000,
+        "message": "Requested block number is in a range that is not available yet, "
+        "because the ancient block sync is still in progress.",
+    },
 }
 NONE_RESPONSE = {"jsonrpc": "2.0", "id": 1, "result": None}
-ZERO_X_RESPONSE = {"jsonrpc": "2.0", "id": 1, "result": '0x'}
+ZERO_X_RESPONSE = {"jsonrpc": "2.0", "id": 1, "result": "0x"}
 UNEXPECTED_RESPONSE_FORMAT = {"jsonrpc": "2.0", "id": 1}
 ANOTHER_UNEXPECTED_RESP_FORMAT = {
-    'name': 'LimitError',
-    'message': 'You cannot query logs for more than 10000 blocks at once.',
-    'method': 'eth_getLogs'
+    "name": "LimitError",
+    "message": "You cannot query logs for more than 10000 blocks at once.",
+    "method": "eth_getLogs",
 }
 
 
@@ -39,7 +39,7 @@ def raise_contract_logic_error(response):
 
 
 @pytest.mark.parametrize(
-    'response,params,error_formatters,null_result_formatters,error',
+    "response,params,error_formatters,null_result_formatters,error",
     [
         (
             # Error response with no result formatters raises a ValueError
@@ -76,7 +76,7 @@ def raise_contract_logic_error(response):
         (
             # Params are handled with a None result
             NONE_RESPONSE,
-            ('0x03',),
+            ("0x03",),
             identity,
             raise_block_not_found,
             BlockNotFound,
@@ -84,7 +84,7 @@ def raise_contract_logic_error(response):
         (
             # Multiple params are handled with a None result
             NONE_RESPONSE,
-            ('0x03', '0x01'),
+            ("0x03", "0x01"),
             identity,
             raise_block_not_found_for_uncle_at_index,
             BlockNotFound,
@@ -92,7 +92,7 @@ def raise_contract_logic_error(response):
         (
             # Raise function handles missing param
             NONE_RESPONSE,
-            ('0x01',),
+            ("0x01",),
             identity,
             raise_block_not_found_for_uncle_at_index,
             BlockNotFound,
@@ -100,32 +100,28 @@ def raise_contract_logic_error(response):
         (
             # 0x response gets handled the same as a None response
             ZERO_X_RESPONSE,
-            ('0x03'),
+            ("0x03"),
             identity,
             raise_transaction_not_found,
             TransactionNotFound,
         ),
     ],
 )
-def test_formatted_response_raises_errors(w3,
-                                          response,
-                                          params,
-                                          error_formatters,
-                                          null_result_formatters,
-                                          error):
+def test_formatted_response_raises_errors(
+    w3, response, params, error_formatters, null_result_formatters, error
+):
     with pytest.raises(error):
-        w3.manager.formatted_response(response,
-                                      params,
-                                      error_formatters,
-                                      null_result_formatters)
+        w3.manager.formatted_response(
+            response, params, error_formatters, null_result_formatters
+        )
 
 
 @pytest.mark.parametrize(
-    'response,params,error_formatters,null_result_formatters,error,error_message',
+    "response,params,error_formatters,null_result_formatters,error,error_message",
     [
         (
             NONE_RESPONSE,
-            ('0x01',),
+            ("0x01",),
             identity,
             raise_block_not_found_for_uncle_at_index,
             BlockNotFound,
@@ -133,19 +129,19 @@ def test_formatted_response_raises_errors(w3,
         ),
         (
             NONE_RESPONSE,
-            ('0x01', '0x00'),
+            ("0x01", "0x00"),
             identity,
             raise_block_not_found_for_uncle_at_index,
             BlockNotFound,
-            "Uncle at index: 0 of block with id: '0x01' not found."
+            "Uncle at index: 0 of block with id: '0x01' not found.",
         ),
         (
             ZERO_X_RESPONSE,
-            ('0x01',),
+            ("0x01",),
             identity,
             raise_transaction_not_found,
             TransactionNotFound,
-            "Transaction with hash: '0x01' not found."
+            "Transaction with hash: '0x01' not found.",
         ),
         (
             UNEXPECTED_RESPONSE_FORMAT,
@@ -165,48 +161,42 @@ def test_formatted_response_raises_errors(w3,
         ),
     ],
 )
-def test_formatted_response_raises_correct_error_message(response,
-                                                         w3,
-                                                         params,
-                                                         error_formatters,
-                                                         null_result_formatters,
-                                                         error,
-                                                         error_message):
+def test_formatted_response_raises_correct_error_message(
+    response, w3, params, error_formatters, null_result_formatters, error, error_message
+):
 
     with pytest.raises(error, match=error_message):
-        w3.manager.formatted_response(response, params, error_formatters, null_result_formatters)
+        w3.manager.formatted_response(
+            response, params, error_formatters, null_result_formatters
+        )
 
 
 @pytest.mark.parametrize(
-    'response,params,error_formatters,null_result_formatters,expected',
+    "response,params,error_formatters,null_result_formatters,expected",
     [
         (
             # Response with a result of None doesn't raise if there is no null result formatter
             NONE_RESPONSE,
-            ('0x03'),
+            ("0x03"),
             identity,
             identity,
-            NONE_RESPONSE['result'],
+            NONE_RESPONSE["result"],
         ),
         (
             # Response with a result of 0x doesn't raise if there is no null result formatter
             ZERO_X_RESPONSE,
-            ('0x03'),
+            ("0x03"),
             identity,
             identity,
-            ZERO_X_RESPONSE['result'],
+            ZERO_X_RESPONSE["result"],
         ),
     ],
 )
-def test_formatted_response(response,
-                            w3,
-                            params,
-                            error_formatters,
-                            null_result_formatters,
-                            expected):
+def test_formatted_response(
+    response, w3, params, error_formatters, null_result_formatters, expected
+):
 
-    formatted_resp = w3.manager.formatted_response(response,
-                                                   params,
-                                                   error_formatters,
-                                                   null_result_formatters)
+    formatted_resp = w3.manager.formatted_response(
+        response, params, error_formatters, null_result_formatters
+    )
     assert formatted_resp == expected

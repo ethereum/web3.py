@@ -5,7 +5,7 @@ from eth_utils import (
 )
 
 
-@pytest.mark.parametrize('call_as_instance', (True, False))
+@pytest.mark.parametrize("call_as_instance", (True, False))
 def test_create_filter_address_parameter(emitter, Emitter, call_as_instance):
     if call_as_instance:
         event_filter = emitter.events.LogNoArguments.createFilter(fromBlock="latest")
@@ -14,190 +14,191 @@ def test_create_filter_address_parameter(emitter, Emitter, call_as_instance):
 
     if call_as_instance:
         # Assert this is a single string value, and not a list of addresses
-        assert is_address(event_filter.filter_params['address'])
+        assert is_address(event_filter.filter_params["address"])
     else:
         #  Undeployed contract shouldnt have address...
-        assert 'address' not in event_filter.filter_params
+        assert "address" not in event_filter.filter_params
 
 
-@pytest.mark.parametrize('call_as_instance', (True, False))
-@pytest.mark.parametrize('api_style', ('v4', 'build_filter'))
+@pytest.mark.parametrize("call_as_instance", (True, False))
+@pytest.mark.parametrize("api_style", ("v4", "build_filter"))
 def test_on_filter_using_get_entries_interface(
-        w3,
-        emitter,
-        Emitter,
-        wait_for_transaction,
-        emitter_event_ids,
-        call_as_instance,
-        api_style,
-        create_filter):
+    w3,
+    emitter,
+    Emitter,
+    wait_for_transaction,
+    emitter_event_ids,
+    call_as_instance,
+    api_style,
+    create_filter,
+):
 
     if call_as_instance:
         contract = emitter
     else:
         contract = Emitter
 
-    if api_style == 'build_filter':
+    if api_style == "build_filter":
         event_filter = contract.events.LogNoArguments.build_filter().deploy(w3)
     else:
-        event_filter = create_filter(emitter, ['LogNoArguments', {}])
+        event_filter = create_filter(emitter, ["LogNoArguments", {}])
 
     txn_hash = emitter.functions.logNoArgs(emitter_event_ids.LogNoArguments).transact()
     wait_for_transaction(w3, txn_hash)
 
     log_entries = event_filter.get_new_entries()
     assert len(log_entries) == 1
-    assert log_entries[0]['transactionHash'] == txn_hash
+    assert log_entries[0]["transactionHash"] == txn_hash
 
     # a second call is empty because all events have been retrieved
     new_entries = event_filter.get_new_entries()
     assert len(new_entries) == 0
 
 
-@pytest.mark.parametrize('call_as_instance', (True, False))
-@pytest.mark.parametrize('api_style', ('v4', 'build_filter'))
+@pytest.mark.parametrize("call_as_instance", (True, False))
+@pytest.mark.parametrize("api_style", ("v4", "build_filter"))
 def test_on_sync_filter_with_event_name_and_single_argument(
-        w3,
-        emitter,
-        Emitter,
-        wait_for_transaction,
-        emitter_event_ids,
-        call_as_instance,
-        api_style,
-        create_filter):
+    w3,
+    emitter,
+    Emitter,
+    wait_for_transaction,
+    emitter_event_ids,
+    call_as_instance,
+    api_style,
+    create_filter,
+):
 
     if call_as_instance:
         contract = emitter
     else:
         contract = Emitter
 
-    if api_style == 'build_filter':
+    if api_style == "build_filter":
         builder = contract.events.LogTripleWithIndex.build_filter()
-        builder.args['arg1'].match_single(2)
+        builder.args["arg1"].match_single(2)
         event_filter = builder.deploy(w3)
     else:
-        event_filter = create_filter(contract, ['LogTripleWithIndex', {'filter': {
-            'arg1': 2,
-        }}])
+        event_filter = create_filter(
+            contract,
+            [
+                "LogTripleWithIndex",
+                {
+                    "filter": {
+                        "arg1": 2,
+                    }
+                },
+            ],
+        )
 
     txn_hashes = []
     event_id = emitter_event_ids.LogTripleWithIndex
-    txn_hashes.append(
-        emitter.functions.logTriple(event_id, 2, 1, 3).transact()
-    )
-    txn_hashes.append(
-        emitter.functions.logTriple(event_id, 1, 2, 3).transact()
-    )
-    txn_hashes.append(
-        emitter.functions.logTriple(event_id, 12345, 2, 54321).transact()
-    )
+    txn_hashes.append(emitter.functions.logTriple(event_id, 2, 1, 3).transact())
+    txn_hashes.append(emitter.functions.logTriple(event_id, 1, 2, 3).transact())
+    txn_hashes.append(emitter.functions.logTriple(event_id, 12345, 2, 54321).transact())
     for txn_hash in txn_hashes:
         wait_for_transaction(w3, txn_hash)
 
     seen_logs = event_filter.get_new_entries()
     assert len(seen_logs) == 2
-    assert {log['transactionHash'] for log in seen_logs} == set(txn_hashes[1:])
+    assert {log["transactionHash"] for log in seen_logs} == set(txn_hashes[1:])
 
 
-@pytest.mark.parametrize('call_as_instance', (True, False))
-@pytest.mark.parametrize('api_style', ('v4', 'build_filter'))
+@pytest.mark.parametrize("call_as_instance", (True, False))
+@pytest.mark.parametrize("api_style", ("v4", "build_filter"))
 def test_on_sync_filter_with_event_name_and_non_indexed_argument(
-        w3,
-        emitter,
-        Emitter,
-        wait_for_transaction,
-        emitter_event_ids,
-        call_as_instance,
-        api_style,
-        create_filter):
+    w3,
+    emitter,
+    Emitter,
+    wait_for_transaction,
+    emitter_event_ids,
+    call_as_instance,
+    api_style,
+    create_filter,
+):
 
     if call_as_instance:
         contract = emitter
     else:
         contract = Emitter
 
-    if api_style == 'build_filter':
+    if api_style == "build_filter":
         builder = contract.events.LogTripleWithIndex.build_filter()
-        builder.args['arg0'].match_single(1)
-        builder.args['arg1'].match_single(2)
+        builder.args["arg0"].match_single(1)
+        builder.args["arg1"].match_single(2)
         event_filter = builder.deploy(w3)
     else:
-        event_filter = create_filter(contract, ['LogTripleWithIndex', {'filter': {
-            'arg0': 1,
-            'arg1': 2,
-        }}])
+        event_filter = create_filter(
+            contract,
+            [
+                "LogTripleWithIndex",
+                {
+                    "filter": {
+                        "arg0": 1,
+                        "arg1": 2,
+                    }
+                },
+            ],
+        )
 
     txn_hashes = []
     event_id = emitter_event_ids.LogTripleWithIndex
-    txn_hashes.append(
-        emitter.functions.logTriple(event_id, 2, 1, 3).transact()
-    )
-    txn_hashes.append(
-        emitter.functions.logTriple(event_id, 1, 2, 3).transact()
-    )
-    txn_hashes.append(
-        emitter.functions.logTriple(event_id, 12345, 2, 54321).transact()
-    )
+    txn_hashes.append(emitter.functions.logTriple(event_id, 2, 1, 3).transact())
+    txn_hashes.append(emitter.functions.logTriple(event_id, 1, 2, 3).transact())
+    txn_hashes.append(emitter.functions.logTriple(event_id, 12345, 2, 54321).transact())
     for txn_hash in txn_hashes:
         wait_for_transaction(w3, txn_hash)
 
     seen_logs = event_filter.get_new_entries()
     assert len(seen_logs) == 1
-    assert seen_logs[0]['transactionHash'] == txn_hashes[1]
+    assert seen_logs[0]["transactionHash"] == txn_hashes[1]
 
     post_event_filter = contract.events.LogTripleWithIndex.createFilter(
-        argument_filters={'arg0': 1, 'arg1': 2},
+        argument_filters={"arg0": 1, "arg1": 2},
         fromBlock=0,
     )
 
     old_logs = post_event_filter.get_all_entries()
     assert len(old_logs) == 1
-    assert old_logs[0]['transactionHash'] == txn_hashes[1]
+    assert old_logs[0]["transactionHash"] == txn_hashes[1]
 
 
-def test_filter_with_contract_address(w3, emitter, emitter_event_ids, wait_for_transaction):
-    event_filter = w3.eth.filter(filter_params={'address': emitter.address})
+def test_filter_with_contract_address(
+    w3, emitter, emitter_event_ids, wait_for_transaction
+):
+    event_filter = w3.eth.filter(filter_params={"address": emitter.address})
     txn_hash = emitter.functions.logNoArgs(emitter_event_ids.LogNoArguments).transact()
     wait_for_transaction(w3, txn_hash)
     seen_logs = event_filter.get_new_entries()
     assert len(seen_logs) == 1
-    assert seen_logs[0]['transactionHash'] == txn_hash
+    assert seen_logs[0]["transactionHash"] == txn_hash
 
 
-@pytest.mark.parametrize('call_as_instance', (True, False))
+@pytest.mark.parametrize("call_as_instance", (True, False))
 def test_on_sync_filter_with_topic_filter_options_on_old_apis(
-        w3,
-        emitter,
-        Emitter,
-        wait_for_transaction,
-        emitter_event_ids,
-        call_as_instance,
-        create_filter):
+    w3,
+    emitter,
+    Emitter,
+    wait_for_transaction,
+    emitter_event_ids,
+    call_as_instance,
+    create_filter,
+):
 
     if call_as_instance:
         contract = emitter
     else:
         contract = Emitter
 
-    event_filter = create_filter(contract, ['LogTripleWithIndex', {'filter': {
-        'arg1': [1, 2],
-        'arg2': [1, 2]
-    }}])
+    event_filter = create_filter(
+        contract, ["LogTripleWithIndex", {"filter": {"arg1": [1, 2], "arg2": [1, 2]}}]
+    )
 
     txn_hashes = []
     event_id = emitter_event_ids.LogTripleWithIndex
-    txn_hashes.append(
-        emitter.functions.logTriple(event_id, 1, 1, 1).transact()
-    )
-    txn_hashes.append(
-        emitter.functions.logTriple(event_id, 1, 1, 2).transact()
-    )
-    txn_hashes.append(
-        emitter.functions.logTriple(event_id, 1, 2, 2).transact()
-    )
-    txn_hashes.append(
-        emitter.functions.logTriple(event_id, 1, 2, 1).transact()
-    )
+    txn_hashes.append(emitter.functions.logTriple(event_id, 1, 1, 1).transact())
+    txn_hashes.append(emitter.functions.logTriple(event_id, 1, 1, 2).transact())
+    txn_hashes.append(emitter.functions.logTriple(event_id, 1, 2, 2).transact())
+    txn_hashes.append(emitter.functions.logTriple(event_id, 1, 2, 1).transact())
     for txn_hash in txn_hashes:
         wait_for_transaction(w3, txn_hash)
 
@@ -205,7 +206,7 @@ def test_on_sync_filter_with_topic_filter_options_on_old_apis(
     assert len(seen_logs) == 4
 
     post_event_filter = contract.events.LogTripleWithIndex.createFilter(
-        argument_filters={'arg1': [1, 2], 'arg2': [1, 2]},
+        argument_filters={"arg1": [1, 2], "arg2": [1, 2]},
         fromBlock=0,
     )
 
