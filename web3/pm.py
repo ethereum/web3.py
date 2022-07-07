@@ -86,29 +86,33 @@ class ReleaseData(NamedTuple):
 
 class ERC1319Registry(ABC):
     """
-    The ERC1319Registry class is a base class for all registry implementations to inherit from. It
-    defines the methods specified in `ERC 1319 <https://github.com/ethereum/EIPs/issues/1319>`__.
-    All of these methods are prefixed with an underscore, since they are not intended to be
-    accessed directly, but rather through the methods on ``web3.pm``. They are unlikely to change,
-    but must be implemented in a `ERC1319Registry` subclass in order to be compatible with the
-    `PM` module. Any custom methods (eg. not definied in ERC1319) in a subclass
-    should *not* be prefixed with an underscore.
+    The ERC1319Registry class is a base class for all registry implementations
+    to inherit from. It defines the methods specified in
+    `ERC 1319 <https://github.com/ethereum/EIPs/issues/1319>`__.  All of these
+    methods are prefixed with an underscore, since they are not intended to be
+    accessed directly, but rather through the methods on ``web3.pm``.
+    They are unlikely to change, but must be implemented in a `ERC1319Registry`
+    subclass in order to be compatible with the `PM` module. Any custom
+    methods (eg. not definied in ERC1319) in a subclass should *not* be
+    prefixed with an underscore.
 
-    All of these methods must be implemented in any subclass in order to work with `web3.pm.PM`.
-    Any implementation specific logic should be handled in a subclass.
+    All of these methods must be implemented in any subclass in order to work
+    with `web3.pm.PM`. Any implementation specific logic should be
+    handled in a subclass.
     """
 
     @abstractmethod
     def __init__(self, address: Address, w3: Web3) -> None:
         """
-        Initializes the class with the on-chain address of the registry, and a web3 instance
-        connected to the chain where the registry can be found.
+        Initializes the class with the on-chain address of the registry, and a web3
+        instance connected to the chain where the registry can be found.
 
         Must set the following properties...
 
         * ``self.registry``: A `web3.contract` instance of the target registry.
         * ``self.address``: The address of the target registry.
-        * ``self.w3``: The *web3* instance connected to the chain where the registry can be found.
+        * ``self.w3``: The *web3* instance connected to the chain where the
+                       registry can be found.
         """
         pass
 
@@ -123,8 +127,10 @@ class ERC1319Registry(ABC):
 
         * Parameters:
             * ``package_name``: Valid package name according the spec.
-            * ``version``: Version identifier string, can conform to any versioning scheme.
-            * ``manifest_uri``: URI location of a manifest which details the release contents
+            * ``version``: Version identifier string, can conform to
+                           any versioning scheme.
+            * ``manifest_uri``: URI location of a manifest which details the
+                                release contents
         """
         pass
 
@@ -146,27 +152,29 @@ class ERC1319Registry(ABC):
     @abstractmethod
     def _get_all_package_ids(self) -> Iterable[bytes]:
         """
-        Returns a tuple containing all of the package ids found on the connected registry.
+        Returns a tuple containing all of the package ids found on the
+        connected registry.
         """
         pass
 
     @abstractmethod
     def _get_release_id(self, package_name: str, version: str) -> bytes:
         """
-        Returns the 32 bytes release id associated with the given package name and version,
-        if the release exists on the connected registry.
+        Returns the 32 bytes release id associated with the given
+        package name and version, if the release exists on the connected registry.
 
         * Parameters:
             * ``package_name``: Valid package name according the spec.
-            * ``version``: Version identifier string, can conform to any versioning scheme.
+            * ``version``: Version identifier string, can conform to
+                           any versioning scheme.
         """
         pass
 
     @abstractmethod
     def _get_all_release_ids(self, package_name: str) -> Iterable[bytes]:
         """
-        Returns a tuple containing all of the release ids belonging to the given package name,
-        if the package has releases on the connected registry.
+        Returns a tuple containing all of the release ids belonging to the
+        given package name, if the package has releases on the connected registry.
 
         * Parameters:
             * ``package_name``: Valid package name according the spec.
@@ -176,8 +184,8 @@ class ERC1319Registry(ABC):
     @abstractmethod
     def _get_release_data(self, release_id: bytes) -> ReleaseData:
         """
-        Returns a tuple containing (package_name, version, manifest_uri) for the given release id,
-        if the release exists on the connected registry.
+        Returns a tuple containing (package_name, version, manifest_uri) for the
+        given release id, if the release exists on the connected registry.
 
         * Parameters:
             * ``release_id``: 32 byte release identifier.
@@ -193,7 +201,8 @@ class ERC1319Registry(ABC):
 
         * Parameters:
             * ``package_name``: Valid package name according the spec.
-            * ``version``: Version identifier string, can conform to any versioning scheme.
+            * ``version``: Version identifier string, can conform to
+                           any versioning scheme.
         """
         pass
 
@@ -309,14 +318,15 @@ class SimpleRegistry(ERC1319Registry):
 
 class PM(Module):
     """
-    The PM module will work with any subclass of ``ERC1319Registry``, tailored to a particular
-    implementation of `ERC1319  <https://github.com/ethereum/EIPs/issues/1319>`__, set as
+    The PM module will work with any subclass of ``ERC1319Registry``,
+    tailored to a particular implementation of
+    `ERC1319  <https://github.com/ethereum/EIPs/issues/1319>`__, set as
     its ``registry`` attribute.
     """
 
     def get_package_from_manifest(self, manifest: Manifest) -> Package:
         """
-        Returns a `Package <https://github.com/ethpm/py-ethpm/blob/master/ethpm/package.py>`__
+        Returns a `Package <https://github.com/ethpm/py-ethpm/blob/master/ethpm/package.py>`__  # noqa: E501
         instance built with the given manifest.
 
         * Parameters:
@@ -326,7 +336,7 @@ class PM(Module):
 
     def get_package_from_uri(self, manifest_uri: URI) -> Package:
         """
-        Returns a `Package <https://github.com/ethpm/py-ethpm/blob/master/ethpm/package.py>`__
+        Returns a `Package <https://github.com/ethpm/py-ethpm/blob/master/ethpm/package.py>`__  # noqa: E501
         instance built with the Manifest stored at the URI.
         If you want to use a specific IPFS backend, set ``ETHPM_IPFS_BACKEND_CLASS``
         to your desired backend. Defaults to Infura IPFS backend.
@@ -338,7 +348,7 @@ class PM(Module):
 
     def get_local_package(self, package_name: str, ethpm_dir: Path = None) -> Package:
         """
-        Returns a `Package <https://github.com/ethpm/py-ethpm/blob/master/ethpm/package.py>`__
+        Returns a `Package <https://github.com/ethpm/py-ethpm/blob/master/ethpm/package.py>`__  # noqa: E501
         instance built with the Manifest found at the package name in your local ethpm_dir.
 
         * Parameters:
@@ -365,11 +375,13 @@ class PM(Module):
 
     def set_registry(self, address: Union[Address, ChecksumAddress, ENS]) -> None:
         """
-        Sets the current registry used in ``web3.pm`` functions that read/write to an on-chain
-        registry. This method accepts checksummed/canonical addresses or ENS names. Addresses
-        must point to an on-chain instance of an ERC1319 registry implementation.
+        Sets the current registry used in ``web3.pm`` functions that read/write
+        to an on-chain registry. This method accepts checksummed/canonical
+        addresses or ENS names. Addresses must point to an on-chain instance
+        of an ERC1319 registry implementation.
 
-        To use an ENS domain as the address, make sure a valid ENS instance set as ``web3.ens``.
+        To use an ENS domain as the address, make sure a valid ENS instance
+        set as ``web3.ens``.
 
         * Parameters:
             * ``address``: Address of on-chain Registry.
@@ -397,7 +409,8 @@ class PM(Module):
     def deploy_and_set_registry(self) -> ChecksumAddress:
         """
         Returns the address of a freshly deployed instance of `SimpleRegistry`
-        and sets the newly deployed registry as the active registry on ``web3.pm.registry``.
+        and sets the newly deployed registry as the active registry on
+        ``web3.pm.registry``.
 
         To tie your registry to an ENS name, use web3's ENS module, ie.
 
@@ -413,14 +426,16 @@ class PM(Module):
     ) -> bytes:
         """
         Returns the release id generated by releasing a package on the current registry.
-        Requires ``web3.PM`` to have a registry set. Requires ``web3.eth.default_account``
-        to be the registry owner.
+        Requires ``web3.PM`` to have a registry set. Requires
+        ``web3.eth.default_account`` to be the registry owner.
 
         * Parameters:
-            * ``package_name``: Must be a valid package name, matching the given manifest.
+            * ``package_name``: Must be a valid package name, matching the
+                                given manifest.
             * ``version``: Must be a valid package version, matching the given manifest.
-            * ``manifest_uri``: Must be a valid content-addressed URI. Currently, only IPFS
-              and Github content-addressed URIs are supported.
+            * ``manifest_uri``: Must be a valid content-addressed URI. Currently,
+                                only IPFS and Github content-addressed URIs are
+                                supported.
 
         """
         validate_is_supported_manifest_uri(manifest_uri)
@@ -430,14 +445,14 @@ class PM(Module):
         validate_manifest_against_schema(manifest)
         if package_name != manifest["name"]:
             raise ManifestValidationError(
-                f"Provided package name: {package_name} does not match the package name "
-                f"found in the manifest: {manifest['name']}."
+                f"Provided package name: {package_name} does not match the package "
+                f"name found in the manifest: {manifest['name']}."
             )
 
         if version != manifest["version"]:
             raise ManifestValidationError(
-                f"Provided package version: {version} does not match the package version "
-                f"found in the manifest: {manifest['version']}."
+                f"Provided package version: {version} does not match the package "
+                f"version found in the manifest: {manifest['version']}."
             )
 
         self._validate_set_registry()
@@ -446,7 +461,8 @@ class PM(Module):
     @to_tuple
     def get_all_package_names(self) -> Iterable[str]:
         """
-        Returns a tuple containing all the package names available on the current registry.
+        Returns a tuple containing all the package names
+        available on the current registry.
         """
         self._validate_set_registry()
         package_ids = self.registry._get_all_package_ids()
@@ -462,7 +478,8 @@ class PM(Module):
 
     def get_release_count(self, package_name: str) -> int:
         """
-        Returns the number of releases of the given package name available on the current registry.
+        Returns the number of releases of the given package name
+        available on the current registry.
         """
         validate_package_name(package_name)
         self._validate_set_registry()
@@ -470,8 +487,8 @@ class PM(Module):
 
     def get_release_id(self, package_name: str, version: str) -> bytes:
         """
-        Returns the 32 byte identifier of a release for the given package name and version,
-        if they are available on the current registry.
+        Returns the 32 byte identifier of a release for the given package
+        name and version, if they are available on the current registry.
         """
         validate_package_name(package_name)
         validate_package_version(version)
@@ -519,8 +536,9 @@ class PM(Module):
 
     def get_package(self, package_name: str, version: str) -> Package:
         """
-        Returns a ``Package`` instance, generated by the ``manifest_uri`` associated with the
-        given package name and version, if they are published to the currently set registry.
+        Returns a ``Package`` instance, generated by the ``manifest_uri``
+        associated with the given package name and version, if they are
+        published to the currently set registry.
 
         * Parameters:
             * ``name``: Must be a valid package name.

@@ -31,9 +31,9 @@ def _validate_init_params_and_return_if_found(module_class: Any) -> List[str]:
 
     if len(module_init_params) > 1:
         raise UnsupportedOperation(
-            "A module class may accept a single `Web3` instance as the first argument of its "
-            f"__init__() method. More than one argument found for {module_class.__name__}: "
-            f"{module_init_params}"
+            "A module class may accept a single `Web3` instance as the first "
+            "argument of its __init__() method. More than one argument found for "
+            f"{module_class.__name__}: {module_init_params}"
         )
 
     return module_init_params
@@ -51,8 +51,8 @@ def attach_modules(
 
         if hasattr(parent_module, module_name):
             raise AttributeError(
-                f"Cannot set {parent_module} module named '{module_name}'.  The web3 object "
-                "already has an attribute with that name"
+                f"Cannot set {parent_module} module named '{module_name}'. "
+                " The web3 object already has an attribute with that name"
             )
 
         # The parent module is the ``Web3`` instance on first run of the loop
@@ -61,13 +61,14 @@ def attach_modules(
 
         module_init_params = _validate_init_params_and_return_if_found(module_class)
         if len(module_init_params) == 1:
-            # Modules that need access to the ``Web3`` instance may accept the instance as the first
-            # arg in their ``__init__()`` method. This is the case for any module that inherits from
-            # ``web3.module.Module``.
+            # Modules that need access to the ``Web3`` instance may accept the
+            # instance as the first arg in their ``__init__()`` method. This is the
+            # case for any module that inherits from ``web3.module.Module``.
             # e.g. def __init__(self, w3):
             setattr(parent_module, module_name, module_class(w3))
         else:
-            # Modules need not take in a ``Web3`` instance in their ``__init__()`` if not needed
+            # Modules need not take in a ``Web3`` instance in
+            # their ``__init__()`` if not needed
             setattr(parent_module, module_name, module_class())
 
         if module_info_is_list_like:

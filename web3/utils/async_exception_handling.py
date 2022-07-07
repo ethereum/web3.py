@@ -37,8 +37,8 @@ async def async_handle_offchain_lookup(
 
     if formatted_sender != to_hex_if_bytes(transaction["to"]).lower():
         raise ValidationError(
-            "Cannot handle OffchainLookup raised inside nested call. Returned `sender` value does "
-            "not equal `to` address in transaction."
+            "Cannot handle OffchainLookup raised inside nested call. Returned "
+            "`sender` value does not equal `to` address in transaction."
         )
 
     for url in offchain_lookup_payload["urls"]:
@@ -72,8 +72,8 @@ async def async_handle_offchain_lookup(
 
         if "data" not in result.keys():
             raise ValidationError(
-                "Improperly formatted response for offchain lookup HTTP request - missing 'data' "
-                "field."
+                "Improperly formatted response for offchain lookup HTTP request"
+                " - missing 'data' field."
             )
 
         encoded_data_with_function_selector = b"".join(

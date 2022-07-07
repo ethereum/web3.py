@@ -25,7 +25,8 @@ def find_wheel(project_path: Path) -> Path:
 
     if len(wheels) != 1:
         raise Exception(
-            f"Expected one wheel. Instead found: {wheels} in project {project_path.absolute()}"
+            f"Expected one wheel. Instead found: {wheels} "
+            f"in project {project_path.absolute()}"
         )
 
     return wheels[0]

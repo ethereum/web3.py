@@ -130,7 +130,8 @@ def main(logger: logging.Logger, num_calls: int) -> None:
             async_w3_http = loop.run_until_complete(
                 build_async_w3_http(fixture.endpoint_uri)
             )
-            # TODO: swap out w3_http for the async_w3_http once GethPersonal module is async
+            # TODO: swap out w3_http for the async_w3_http
+            # once GethPersonal module is async
             async_unlocked_acct = loop.run_until_complete(
                 async_unlocked_account(w3_http, async_w3_http.eth)
             )

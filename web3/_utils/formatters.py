@@ -85,7 +85,8 @@ def map_collection(func: Callable[..., TReturn], collection: Any) -> Any:
 def recursive_map(func: Callable[..., TReturn], data: Any) -> TReturn:
     """
     Apply func to data, and any collection items inside data (using map_collection).
-    Define func so that it only applies to the type of value that you want it to apply to.
+    Define func so that it only applies to the type of value that you
+    want it to apply to.
     """
 
     def recurse(item: Any) -> TReturn:

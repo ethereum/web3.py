@@ -68,9 +68,10 @@ def _deploy(
     factory = package.get_contract_factory(contract_name)
     if not factory.linked_references and factory.unlinked_references:
         raise LinkerError(
-            f"Contract factory: {contract_name} is missing runtime link references, which are "
-            "necessary to populate manifest deployments that have a link reference. If using the "
-            "builder tool, use `contract_type(..., runtime_bytecode=True)`."
+            f"Contract factory: {contract_name} is missing runtime link references, "
+            "which are necessary to populate manifest deployments that have a link "
+            "reference. If using the builder tool, use "
+            "`contract_type(..., runtime_bytecode=True)`."
         )
     tx_hash = factory.constructor(*args).transact(transaction)
     tx_receipt = package.w3.eth.wait_for_transaction_receipt(tx_hash)
@@ -99,8 +100,8 @@ def link(contract: ContractName, linked_type: str, package: Package) -> Package:
     unlinked_factory = package.get_contract_factory(contract)
     if not unlinked_factory.needs_bytecode_linking:
         raise LinkerError(
-            f"Contract factory: {unlinked_factory.__repr__()} does not need bytecode linking, "
-            "so it is not a valid contract type for link()"
+            f"Contract factory: {unlinked_factory.__repr__()} does not need "
+            "bytecode linking, so it is not a valid contract type for link()"
         )
     linked_factory = unlinked_factory.link_bytecode({linked_type: deployment_address})
     # todo replace runtime_bytecode in manifest
@@ -110,7 +111,8 @@ def link(contract: ContractName, linked_type: str, package: Package) -> Package:
         to_hex(linked_factory.bytecode),
     )
     logger.info(
-        f"{contract} linked to {linked_type} at address {to_checksum_address(deployment_address)}."
+        f"{contract} linked to {linked_type} at address "
+        f"{to_checksum_address(deployment_address)}."
     )
     return Package(manifest, package.w3)
 
@@ -118,8 +120,8 @@ def link(contract: ContractName, linked_type: str, package: Package) -> Package:
 @curry
 def run_python(callback_fn: Callable[..., None], package: Package) -> Package:
     """
-    Return the unmodified package, after performing any user-defined callback function on
-    the contracts in the package.
+    Return the unmodified package, after performing any user-defined
+    callback function on the contracts in the package.
     """
     callback_fn(package)
     logger.info(f"{callback_fn.__name__} python function ran.")

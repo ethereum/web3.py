@@ -47,8 +47,8 @@ class TooManyRequests(Exception):
 
 class MultipleFailedRequests(Exception):
     """
-    Raised by a provider to signal that multiple requests to retrieve the same (or similar) data
-    have failed.
+    Raised by a provider to signal that multiple requests to retrieve the same
+    (or similar) data have failed.
     """
 
     pass
@@ -179,7 +179,8 @@ class InsufficientData(Exception):
 
 class TimeExhausted(Exception):
     """
-    Raised when a method has not retrieved the desired result within a specified timeout.
+    Raised when a method has not retrieved the desired
+    result within a specified timeout.
     """
 
     pass
@@ -286,8 +287,8 @@ class InvalidTransaction(Exception):
 
 class TransactionTypeMismatch(InvalidTransaction):
     """
-    Raised when legacy transaction values are used alongside dynamic fee (EIP-1559) transaction
-    values.
+    Raised when legacy transaction values are used alongside dynamic
+    fee (EIP-1559) transaction values.
     """
 
     def __init__(self) -> None:

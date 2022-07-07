@@ -138,7 +138,7 @@ def client_version(eth_tester: "EthereumTester", params: Any) -> str:
     from eth_tester import __version__
 
     v = sys.version_info
-    return f"EthereumTester/{__version__}/{sys.platform}/python{v.major}.{v.minor}.{v.micro}"
+    return f"EthereumTester/{__version__}/{sys.platform}/python{v.major}.{v.minor}.{v.micro}"  # noqa: E501
 
 
 @curry
@@ -299,7 +299,7 @@ API_ENDPOINTS = {
             call_eth_tester("get_transaction_by_hash")
         ),
         "getTransactionByBlockHashAndIndex": get_transaction_by_block_hash_and_index,
-        "getTransactionByBlockNumberAndIndex": get_transaction_by_block_number_and_index,
+        "getTransactionByBlockNumberAndIndex": get_transaction_by_block_number_and_index,  # noqa: E501
         "getTransactionReceipt": null_if_transaction_not_found(
             compose(
                 apply_formatter_if(

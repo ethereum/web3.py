@@ -147,13 +147,15 @@ def find_matching_fn_abi(
         elif encoding_matches > 1:
             diagnosis = (
                 "\nAmbiguous argument encoding. "
-                "Provided arguments can be encoded to multiple functions matching this call."
+                "Provided arguments can be encoded to multiple functions "
+                "matching this call."
             )
         message = (
-            f"\nCould not identify the intended function with name `{fn_identifier}`, positional "
-            f"argument(s) of type `{tuple(map(type, args))}` and keyword argument(s) of type "
-            f"`{valmap(type, kwargs)}`.\nFound {len(matching_identifiers)} function(s) with "
-            f"the name `{fn_identifier}`: {matching_function_signatures}{diagnosis}"
+            f"\nCould not identify the intended function with name `{fn_identifier}`, "
+            f"positional argument(s) of type `{tuple(map(type, args))}` and keyword "
+            f"argument(s) of type `{valmap(type, kwargs)}`.\nFound "
+            f"{len(matching_identifiers)} function(s) with the name "
+            f"`{fn_identifier}`: {matching_function_signatures}{diagnosis}"
         )
 
         raise ValidationError(message)

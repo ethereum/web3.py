@@ -617,7 +617,8 @@ def raise_solidity_error_on_revert(response: RPCResponse) -> RPCResponse:
         )
 
     # --- EIP-3668 | CCIP Read --- #
-    # 0x556f1830 is the function selector for OffchainLookup(address,string[],bytes,bytes4,bytes)
+    # 0x556f1830 is the function selector for:
+    # OffchainLookup(address,string[],bytes,bytes4,bytes)
     if data[:10] == "0x556f1830":
         parsed_data_as_bytes = to_bytes(hexstr=data[10:])
         abi_decoded_data = decode_abi(
@@ -743,8 +744,8 @@ NULL_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     RPC.eth_getTransactionByBlockHashAndIndex: raise_transaction_not_found_with_index,
     RPC.eth_getTransactionByBlockNumberAndIndex: raise_transaction_not_found_with_index,
     RPC.eth_getTransactionReceipt: raise_transaction_not_found,
-    RPC.eth_getRawTransactionByBlockHashAndIndex: raise_transaction_not_found_with_index,
-    RPC.eth_getRawTransactionByBlockNumberAndIndex: raise_transaction_not_found_with_index,
+    RPC.eth_getRawTransactionByBlockHashAndIndex: raise_transaction_not_found_with_index,  # noqa: E501
+    RPC.eth_getRawTransactionByBlockNumberAndIndex: raise_transaction_not_found_with_index,  # noqa: E501
     RPC.eth_getRawTransactionByHash: raise_transaction_not_found,
 }
 

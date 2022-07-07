@@ -144,8 +144,8 @@ def text_if_str(
     """
     Convert to a type, assuming that strings can be only unicode text (not a hexstr)
 
-    @param to_type is a function that takes the arguments (primitive, hexstr=hexstr, text=text),
-        eg~ to_bytes, to_text, to_hex, to_int, etc
+    @param to_type is a function that takes the arguments (primitive, hexstr=hexstr,
+        text=text), eg~ to_bytes, to_text, to_hex, to_int, etc
     @param text_or_primitive in bytes, str, or int.
     """
     if isinstance(text_or_primitive, str):
@@ -162,15 +162,16 @@ def hexstr_if_str(
     """
     Convert to a type, assuming that strings can be only hexstr (not unicode text)
 
-    @param to_type is a function that takes the arguments (primitive, hexstr=hexstr, text=text),
-        eg~ to_bytes, to_text, to_hex, to_int, etc
+    @param to_type is a function that takes the arguments (primitive, hexstr=hexstr,
+        text=text), eg~ to_bytes, to_text, to_hex, to_int, etc
     @param hexstr_or_primitive in bytes, str, or int.
     """
     if isinstance(hexstr_or_primitive, str):
         (primitive, hexstr) = (None, hexstr_or_primitive)
         if remove_0x_prefix(HexStr(hexstr)) and not is_hex(hexstr):
             raise ValueError(
-                f"when sending a str, it must be a hex string. Got: {hexstr_or_primitive!r}"
+                "when sending a str, it must be a hex string. "
+                f"Got: {hexstr_or_primitive!r}"
             )
     else:
         (primitive, hexstr) = (hexstr_or_primitive, None)

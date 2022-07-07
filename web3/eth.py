@@ -385,15 +385,16 @@ class AsyncEth(BaseEth):
     @property
     async def max_priority_fee(self) -> Wei:
         """
-        Try to use eth_maxPriorityFeePerGas but, since this is not part of the spec and is only
-        supported by some clients, fall back to an eth_feeHistory calculation with min and max caps.
+        Try to use eth_maxPriorityFeePerGas but, since this is not part
+        of the spec and is only supported by some clients, fall back to
+        an eth_feeHistory calculation with min and max caps.
         """
         try:
             return await self._max_priority_fee()  # type: ignore
         except ValueError:
             warnings.warn(
-                "There was an issue with the method eth_maxPriorityFeePerGas. Calculating using "
-                "eth_feeHistory."
+                "There was an issue with the method eth_maxPriorityFeePerGas. "
+                "Calculating using eth_feeHistory."
             )
             return await async_fee_history_priority_fee(self)
 
@@ -431,7 +432,8 @@ class AsyncEth(BaseEth):
             # default conditions:
             ccip_read_enabled_on_provider
             and ccip_read_enabled is not False
-            # explicit call flag overrides provider flag, enabling ccip read for specific calls:
+            # explicit call flag overrides provider flag,
+            # enabling ccip read for specific calls:
             or not ccip_read_enabled_on_provider
             and ccip_read_enabled is True
         ):
@@ -484,7 +486,9 @@ class AsyncEth(BaseEth):
         self, block_identifier: BlockIdentifier, index: int
     ) -> HexBytes:
         # types ignored b/c mypy conflict with BlockingEth properties
-        return await self._get_raw_transaction_by_block(block_identifier, index)  # type: ignore
+        return await self._get_raw_transaction_by_block(  # type: ignore
+            block_identifier, index
+        )
 
     async def generate_gas_price(
         self, transaction_params: Optional[TxParams] = None
@@ -501,7 +505,9 @@ class AsyncEth(BaseEth):
         self, block_identifier: BlockIdentifier, full_transactions: bool = False
     ) -> BlockData:
         # types ignored b/c mypy conflict with BlockingEth properties
-        return await self._get_block(block_identifier, full_transactions)  # type: ignore
+        return await self._get_block(  # type: ignore
+            block_identifier, full_transactions
+        )
 
     _get_balance: Method[Callable[..., Awaitable[Wei]]] = Method(
         RPC.eth_getBalance,
@@ -559,7 +565,9 @@ class AsyncEth(BaseEth):
         ) -> TxReceipt:
             while True:
                 try:
-                    tx_receipt = await self._get_transaction_receipt(_tx_hash)  # type: ignore
+                    tx_receipt = await self._get_transaction_receipt(  # type: ignore
+                        _tx_hash
+                    )
                 except TransactionNotFound:
                     tx_receipt = None
                 if tx_receipt is not None:
@@ -643,15 +651,16 @@ class Eth(BaseEth):
     @property
     def max_priority_fee(self) -> Wei:
         """
-        Try to use eth_maxPriorityFeePerGas but, since this is not part of the spec and is only
-        supported by some clients, fall back to an eth_feeHistory calculation with min and max caps.
+        Try to use eth_maxPriorityFeePerGas but, since this is not part
+        of the spec and is only supported by some clients, fall back to
+        an eth_feeHistory calculation with min and max caps.
         """
         try:
             return self._max_priority_fee()
         except ValueError:
             warnings.warn(
-                "There was an issue with the method eth_maxPriorityFeePerGas. Calculating using "
-                "eth_feeHistory."
+                "There was an issue with the method eth_maxPriorityFeePerGas. "
+                "Calculating using eth_feeHistory."
             )
             return fee_history_priority_fee(self)
 
@@ -851,7 +860,8 @@ class Eth(BaseEth):
             # default conditions:
             ccip_read_enabled_on_provider
             and ccip_read_enabled is not False
-            # explicit call flag overrides provider flag, enabling ccip read for specific calls:
+            # explicit call flag overrides provider flag,
+            # enabling ccip read for specific calls:
             or not ccip_read_enabled_on_provider
             and ccip_read_enabled is True
         ):
@@ -903,8 +913,8 @@ class Eth(BaseEth):
     ) -> Union[List[FilterParams], List[HexStr], List[str]]:
         if filter_id and filter_params:
             raise TypeError(
-                "Ambiguous invocation: provide either a `filter_params` or a `filter_id` argument. "
-                "Both were supplied."
+                "Ambiguous invocation: provide either a `filter_params` or a "
+                "`filter_id` argument. Both were supplied."
             )
         if isinstance(filter_params, dict):
             return [filter_params]

@@ -1,7 +1,7 @@
 # Strict bytes checking seems to only be supported with solidity versions below `0.5.0`.
-# This older emitter contract, compiled with solidity `0.4.21`, can still test against the strict
-# bytes check but we can update all other tests using the emitter contract to use the new version
-# compiled with `0.8.11`.
+# This older emitter contract, compiled with solidity `0.4.21`, can still test against
+# the strict bytes check but we can update all other tests using the emitter contract
+# to use the new version compiled with `0.8.11`.
 # See: https://github.com/ethereum/web3.py/issues/2301
 
 # contract source at web3/_utils/contract_sources/Emitter_old.sol

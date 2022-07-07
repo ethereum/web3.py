@@ -55,7 +55,8 @@ def load_provider_from_uri(
         return WebsocketProvider(uri_string)
     else:
         raise NotImplementedError(
-            f"Web3 does not know how to connect to scheme {uri.scheme!r} in {uri_string!r}"
+            "Web3 does not know how to connect to scheme "
+            f"{uri.scheme!r} in {uri_string!r}"
         )
 
 
@@ -76,7 +77,8 @@ class AutoProvider(BaseProvider):
         ] = None,
     ) -> None:
         """
-        :param iterable potential_providers: ordered series of provider classes to attempt with
+        :param iterable potential_providers: ordered series of provider classes
+            to attempt with
 
         AutoProvider will initialize each potential provider (without arguments),
         in an attempt to find an active node. The list will default to

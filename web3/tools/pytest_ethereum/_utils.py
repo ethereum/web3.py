@@ -47,8 +47,8 @@ def pluck_matching_uri(deployment_data: Dict[URI, Dict[str, str]], w3: Web3) -> 
         if check_if_chain_matches_chain_uri(w3, uri):
             return uri
     raise LinkerError(
-        f"No matching blockchain URI found in deployment_data: {list(deployment_data.keys())}, "
-        "for w3 instance: {w3.__repr__()}."
+        "No matching blockchain URI found in deployment_data: "
+        f"{list(deployment_data.keys())}, for w3 instance: {w3.__repr__()}."
     )
 
 
@@ -70,8 +70,9 @@ def insert_deployment(
     latest_block_uri: URI,
 ) -> Manifest:
     """
-    Returns a new manifest. If a matching chain uri is found in the old manifest, it will
-    update the chain uri along with the new deployment data. If no match, it will simply add
+    Returns a new manifest. If a matching chain uri is found
+    in the old manifest, it will update the chain uri along
+    with the new deployment data. If no match, it will simply add
     the new chain uri and deployment data.
     """
     old_deployments_data = package.manifest.get("deployments")

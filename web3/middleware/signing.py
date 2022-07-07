@@ -122,8 +122,9 @@ to_account.register(bytes, private_key_to_account)
 def format_transaction(transaction: TxParams) -> TxParams:
     """Format transaction so that it can be used correctly in the signing middleware.
 
-    Converts bytes to hex strings and other types that can be passed to the underlying layers.
-    Also has the effect of normalizing 'from' for easier comparisons.
+    Converts bytes to hex strings and other types that can be passed to
+    the underlying layers. Also has the effect of normalizing 'from' for
+    easier comparisons.
     """
     return apply_abi_formatters_to_dict(
         STANDARD_NORMALIZERS, TRANSACTION_PARAMS_ABIS, transaction
