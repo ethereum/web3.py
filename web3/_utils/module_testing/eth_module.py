@@ -2820,7 +2820,7 @@ class EthModuleTest:
         ).lower()
         mock_offchain_lookup_request_response(
             monkeypatch,
-            mocked_request_url=f"https://web3.py/gateway/{normalized_contract_address}/0x.json",   # noqa: E501
+            mocked_request_url=f"https://web3.py/gateway/{normalized_contract_address}/0x.json",  # noqa: E501
         )
         with pytest.raises(TooManyRequests, match="Too many CCIP read redirects"):
             offchain_lookup_contract.caller().continuousOffchainLookup()

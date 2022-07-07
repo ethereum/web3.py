@@ -248,7 +248,7 @@ class AcceptsHexStrEncoder(encoding.BaseEncoder):
                         )
                     elif raw_value[:2] != "0x":
                         warnings.warn(
-                            'in v6 it will be invalid to pass a hex '
+                            "in v6 it will be invalid to pass a hex "
                             'string without the "0x" prefix',
                             category=DeprecationWarning,
                         )

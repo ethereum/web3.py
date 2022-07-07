@@ -326,7 +326,7 @@ def test_builder_with_pin_source(owned_package, dummy_ipfs_backend):
         version("1.0.0"),
         authors("Piper Merriam <pipermerriam@gmail.com>"),
         description(
-            "Reusable contracts which implement a privileged 'owner' model for authorization."   # noqa: E501
+            "Reusable contracts which implement a privileged 'owner' model for authorization."  # noqa: E501
         ),
         keywords("authorization"),
         license("MIT"),
