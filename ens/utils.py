@@ -66,14 +66,15 @@ if TYPE_CHECKING:
     )
 
 
-def Web3() -> Type['_Web3']:
+def Web3() -> Type["_Web3"]:
     from web3 import Web3 as Web3Main
+
     return Web3Main
 
 
 def init_web3(
     provider: "BaseProvider" = cast("BaseProvider", default),
-    middlewares: Optional[Sequence[Tuple["Middleware", str]]] = None
+    middlewares: Optional[Sequence[Tuple["Middleware", str]]] = None,
 ) -> "_Web3":
     from web3 import Web3 as Web3Main
     from web3.eth import Eth as EthMain
@@ -89,13 +90,12 @@ def init_web3(
 def customize_web3(w3: "_Web3") -> "_Web3":
     from web3.middleware import make_stalecheck_middleware
 
-    if w3.middleware_onion.get('name_to_address'):
-        w3.middleware_onion.remove('name_to_address')
+    if w3.middleware_onion.get("name_to_address"):
+        w3.middleware_onion.remove("name_to_address")
 
-    if not w3.middleware_onion.get('stalecheck'):
+    if not w3.middleware_onion.get("stalecheck"):
         w3.middleware_onion.add(
-            make_stalecheck_middleware(ACCEPTABLE_STALE_HOURS * 3600),
-            name='stalecheck'
+            make_stalecheck_middleware(ACCEPTABLE_STALE_HOURS * 3600), name="stalecheck"
         )
     return w3
 
@@ -113,7 +113,7 @@ def normalize_name(name: str) -> str:
     if not name:
         return name
     elif isinstance(name, (bytes, bytearray)):
-        name = name.decode('utf-8')
+        name = name.decode("utf-8")
 
     try:
         return idna.uts46_remap(name, std3_rules=True, transitional=False)
@@ -132,11 +132,11 @@ def ens_encode_name(name: str) -> bytes:
         - Return a single 0-octet, b'\x00', if empty name.
     """
     if is_empty_name(name):
-        return b'\x00'
+        return b"\x00"
 
     normalized_name = normalize_name(name)
 
-    labels = normalized_name.split('.')
+    labels = normalized_name.split(".")
     labels_as_bytes = [to_bytes(text=label) for label in labels]
 
     # raises if len(label) > 255:
@@ -148,7 +148,7 @@ def ens_encode_name(name: str) -> bytes:
     dns_prepped_labels = [to_bytes(len(label)) + label for label in labels_as_bytes]
 
     # return the joined prepped labels in order and append the zero byte at the end:
-    return b''.join(dns_prepped_labels) + b'\x00'
+    return b"".join(dns_prepped_labels) + b"\x00"
 
 
 def is_valid_name(name: str) -> bool:
@@ -174,13 +174,13 @@ def to_utc_datetime(timestamp: float) -> Optional[datetime]:
 
 def sha3_text(val: Union[str, bytes]) -> HexBytes:
     if isinstance(val, str):
-        val = val.encode('utf-8')
+        val = val.encode("utf-8")
     return Web3().keccak(val)
 
 
 def label_to_hash(label: str) -> HexBytes:
     label = normalize_name(label)
-    if '.' in label:
+    if "." in label:
         raise ValueError(f"Cannot generate hash for label {label!r} with a '.'")
     return Web3().keccak(text=label)
 
@@ -217,13 +217,15 @@ def raw_name_to_hash(name: str) -> HexBytes:
     return normal_name_to_hash(normalized_name)
 
 
-def address_in(address: ChecksumAddress, addresses: Collection[ChecksumAddress]) -> bool:
+def address_in(
+    address: ChecksumAddress, addresses: Collection[ChecksumAddress]
+) -> bool:
     return any(is_same_address(address, item) for item in addresses)
 
 
 def address_to_reverse_domain(address: ChecksumAddress) -> str:
     lower_unprefixed_address = remove_0x_prefix(HexStr(to_normalized_address(address)))
-    return lower_unprefixed_address + '.' + REVERSE_REGISTRAR_DOMAIN
+    return lower_unprefixed_address + "." + REVERSE_REGISTRAR_DOMAIN
 
 
 def estimate_auction_start_gas(labels: Collection[str]) -> int:
@@ -235,10 +237,10 @@ def assert_signer_in_modifier_kwargs(modifier_kwargs: Any) -> ChecksumAddress:
     assert len(modifier_kwargs) == 1, ERR_MSG
 
     _modifier_type, modifier_dict = dict(modifier_kwargs).popitem()
-    if 'from' not in modifier_dict:
+    if "from" not in modifier_dict:
         raise TypeError(ERR_MSG)
 
-    return modifier_dict['from']
+    return modifier_dict["from"]
 
 
 def is_none_or_zero_address(addr: Union[Address, ChecksumAddress, HexAddress]) -> bool:
@@ -246,11 +248,11 @@ def is_none_or_zero_address(addr: Union[Address, ChecksumAddress, HexAddress]) -
 
 
 def is_empty_name(name: str) -> bool:
-    return name in {None, '.', ''}
+    return name in {None, ".", ""}
 
 
 def is_valid_ens_name(ens_name: str) -> bool:
-    split_domain = ens_name.split('.')
+    split_domain = ens_name.split(".")
     if len(split_domain) == 1:
         return False
     for name in split_domain:
@@ -260,10 +262,11 @@ def is_valid_ens_name(ens_name: str) -> bool:
 
 
 # borrowed from similar method at `web3._utils.abi` due to circular dependency
-def get_abi_output_types(abi: 'ABIFunction') -> List[str]:
+def get_abi_output_types(abi: "ABIFunction") -> List[str]:
     return (
-        [] if abi['type'] == 'fallback'
-        else [collapse_if_tuple(cast(Dict[str, Any], arg)) for arg in abi['outputs']]
+        []
+        if abi["type"] == "fallback"
+        else [collapse_if_tuple(cast(Dict[str, Any], arg)) for arg in abi["outputs"]]
     )
 
 
@@ -272,7 +275,7 @@ def get_abi_output_types(abi: 'ABIFunction') -> List[str]:
 
 def init_async_web3(
     provider: "AsyncBaseProvider" = cast("AsyncBaseProvider", default),
-    middlewares: Optional[Sequence[Tuple["Middleware", str]]] = ()
+    middlewares: Optional[Sequence[Tuple["Middleware", str]]] = (),
 ) -> "_Web3":
     from web3 import Web3 as Web3Main
     from web3.eth import AsyncEth as AsyncEthMain
@@ -291,9 +294,10 @@ def init_async_web3(
         )
     else:
         async_w3 = Web3Main(
-            provider, middlewares=middlewares, ens=None, modules={"eth": (
-                AsyncEthMain
-            )},
+            provider,
+            middlewares=middlewares,
+            ens=None,
+            modules={"eth": (AsyncEthMain)},
         )
 
     return async_w3
@@ -303,5 +307,6 @@ async def _async_ens_stalecheck_middleware(
     make_request: Callable[["RPCEndpoint", Any], Any], w3: "_Web3"
 ) -> "Middleware":
     from web3.middleware import async_make_stalecheck_middleware
+
     middleware = await async_make_stalecheck_middleware(ACCEPTABLE_STALE_HOURS * 3600)
     return await middleware(make_request, w3)
