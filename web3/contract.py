@@ -877,8 +877,8 @@ class BaseContractConstructor:
 
         if self.w3.eth.default_account is not empty:
             # type ignored b/c check prevents an empty default_account
-            estimate_gas_transaction.setdefault(  # type: ignore
-                "from", self.w3.eth.default_account
+            estimate_gas_transaction.setdefault(
+                "from", self.w3.eth.default_account  # type: ignore
             )
 
         estimate_gas_transaction["data"] = self.data_in_transaction
@@ -896,8 +896,8 @@ class BaseContractConstructor:
 
         if self.w3.eth.default_account is not empty:
             # type ignored b/c check prevents an empty default_account
-            transact_transaction.setdefault(  # type: ignore
-                "from", self.w3.eth.default_account
+            transact_transaction.setdefault(
+                "from", self.w3.eth.default_account  # type: ignore
             )
 
         transact_transaction["data"] = self.data_in_transaction
@@ -1049,8 +1049,8 @@ class BaseContractFunction:
             call_transaction.setdefault("to", self.address)
         if self.w3.eth.default_account is not empty:
             # type ignored b/c check prevents an empty default_account
-            call_transaction.setdefault(  # type: ignore
-                "from", self.w3.eth.default_account
+            call_transaction.setdefault(
+                "from", self.w3.eth.default_account  # type: ignore
             )
 
         if "to" not in call_transaction:
@@ -1080,8 +1080,8 @@ class BaseContractFunction:
             transact_transaction.setdefault("to", self.address)
         if self.w3.eth.default_account is not empty:
             # type ignored b/c check prevents an empty default_account
-            transact_transaction.setdefault(  # type: ignore
-                "from", self.w3.eth.default_account
+            transact_transaction.setdefault(
+                "from", self.w3.eth.default_account  # type: ignore
             )
 
         if "to" not in transact_transaction:
@@ -1111,8 +1111,8 @@ class BaseContractFunction:
             estimate_gas_transaction.setdefault("to", self.address)
         if self.w3.eth.default_account is not empty:
             # type ignored b/c check prevents an empty default_account
-            estimate_gas_transaction.setdefault(  # type: ignore
-                "from", self.w3.eth.default_account
+            estimate_gas_transaction.setdefault(
+                "from", self.w3.eth.default_account  # type: ignore
             )
 
         if "to" not in estimate_gas_transaction:

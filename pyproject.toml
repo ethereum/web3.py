@@ -37,3 +37,4 @@ name="Misc"
 showcontent=false
 
 [tool.isort]
+profile="black"

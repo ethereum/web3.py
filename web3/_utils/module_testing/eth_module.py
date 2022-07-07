@@ -665,8 +665,8 @@ class AsyncEthModuleTest:
                 f"{unknown_identifier}"
             ),
         ):
-            await async_w3.eth.get_raw_transaction_by_block(  # type: ignore
-                unknown_identifier, 0
+            await async_w3.eth.get_raw_transaction_by_block(
+                unknown_identifier, 0  # type: ignore
             )
 
     @pytest.mark.asyncio
@@ -1160,7 +1160,7 @@ class AsyncEthModuleTest:
         emitter_contract: "Contract",
         txn_hash_with_log: HexStr,
     ) -> None:
-        receipt = await async_w3.eth.wait_for_transaction_receipt(  # noqa: E501
+        receipt = await async_w3.eth.wait_for_transaction_receipt(  # type: ignore
             txn_hash_with_log
         )
         assert is_dict(receipt)

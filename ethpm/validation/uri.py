@@ -157,5 +157,5 @@ def validate_blob_uri_contents(contents: bytes, blob_uri: str) -> None:
     if hash_object.hexdigest() != blob_hash:
         raise EthPMValidationError(
             f"Hash of contents fetched from {blob_uri} do not "
-            "match its hash: {blob_hash}."
+            f"match its hash: {blob_hash}."
         )

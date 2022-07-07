@@ -171,7 +171,7 @@ class NamedElementOnion(Mapping[TKey, TValue]):
         elif layer != 0 and layer != len(self._queue):
             raise NotImplementedError(
                 f"You can only insert to the beginning or end of a {type(self)}, "
-                "currently. You tried to insert to {layer}, but only 0 and "
+                f"currently. You tried to insert to {layer}, but only 0 and "
                 f"{len(self._queue)} are permitted. "
             )
 
