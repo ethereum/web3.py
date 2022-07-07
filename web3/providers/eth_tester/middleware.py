@@ -66,9 +66,7 @@ def is_hexstr(value: Any) -> bool:
 
 
 to_integer_if_hex = apply_formatter_if(is_hexstr, hex_to_integer)
-
 is_not_named_block = complement(is_named_block)
-
 
 # --- Request Mapping --- #
 
@@ -197,6 +195,10 @@ request_formatters = {
     ),
     RPCEndpoint("eth_getFilterChanges"): apply_formatters_to_args(hex_to_integer),
     RPCEndpoint("eth_getFilterLogs"): apply_formatters_to_args(hex_to_integer),
+    RPCEndpoint("eth_getTransactionCount"): apply_formatters_to_args(
+        identity,
+        apply_formatter_if(is_not_named_block, to_integer_if_hex),
+    ),
     RPCEndpoint("eth_getBlockTransactionCountByNumber"): apply_formatters_to_args(
         apply_formatter_if(is_not_named_block, to_integer_if_hex),
     ),

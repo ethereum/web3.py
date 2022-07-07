@@ -1,0 +1,1 @@
+Properly format ``block_number`` for ``eth_getTransactionCount`` when using ``EthereumTesterProvider``
