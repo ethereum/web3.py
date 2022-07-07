@@ -3,6 +3,24 @@ Release Notes
 
 .. towncrier release notes start
 
+v5.30.0 (2022-07-07)
+--------------------
+
+Features
+~~~~~~~~
+
+- Deprecated ``buildTransaction`` and ``estimateGas`` in contract.py v5, in
+  favor of ``estimate_gas`` and ``build_transaction`` (`#2459
+  <https://github.com/ethereum/web3.py/issues/2459>`__)
+
+
+Misc
+~~~~
+
+- `#2452 <https://github.com/ethereum/web3.py/issues/2452>`__, `#2502
+  <https://github.com/ethereum/web3.py/issues/2502>`__
+
+
 v5.29.2 (2022-06-01)
 --------------------
 
