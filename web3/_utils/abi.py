@@ -155,8 +155,9 @@ def exclude_indexed_event_inputs(event_abi: ABIEvent) -> List[ABIEventParams]:
 
 def get_normalized_abi_arg_type(abi_arg: ABIEventParams) -> str:
     """
-    Return the normalized type for the abi argument provided. In order to account for tuple argument
-    types, this abstraction makes use of `collapse_if_tuple()` to collapse the appropriate component
+    Return the normalized type for the abi argument provided.
+    In order to account for tuple argument types, this abstraction
+    makes use of `collapse_if_tuple()` to collapse the appropriate component
     types within a tuple type, if present.
     """
     return collapse_if_tuple(dict(abi_arg))
@@ -205,7 +206,8 @@ class AcceptsHexStrEncoder(encoding.BaseEncoder):
         cls, abi_type: TypeStr, registry: ABIRegistry
     ) -> "AcceptsHexStrEncoder":
         subencoder_cls = cls.get_subencoder_class()
-        # cast b/c expects BaseCoder but `from_type_string` restricted to BaseEncoder subclasses
+        # cast b/c expects BaseCoder but `from_type_string`
+        # restricted to BaseEncoder subclasses
         subencoder = cast(
             encoding.BaseEncoder, subencoder_cls.from_type_str(abi_type, registry)
         )
@@ -217,7 +219,8 @@ class AcceptsHexStrEncoder(encoding.BaseEncoder):
             raise AttributeError(f"No subencoder class is set. {cls.__name__}")
         return cls.subencoder_cls
 
-    # type ignored b/c combomethod makes signature conflict w/ defined BaseEncoder.validate_value()
+    # type ignored b/c combomethod makes signature conflict
+    # w/ defined BaseEncoder.validate_value()
     @combomethod
     def validate_value(self, value: Any) -> None:  # type: ignore
         normalized_value = self.validate_and_normalize(value)
@@ -245,7 +248,8 @@ class AcceptsHexStrEncoder(encoding.BaseEncoder):
                         )
                     elif raw_value[:2] != "0x":
                         warnings.warn(
-                            'in v6 it will be invalid to pass a hex string without the "0x" prefix',
+                            "in v6 it will be invalid to pass a hex "
+                            'string without the "0x" prefix',
                             category=DeprecationWarning,
                         )
         return value
@@ -286,7 +290,8 @@ class ExactLengthBytesEncoder(encoding.BaseEncoder):
 
         if self.value_bit_size % 8 != 0:
             raise ValueError(
-                f"Invalid value bit size: {self.value_bit_size}. Must be a multiple of 8"
+                f"Invalid value bit size: {self.value_bit_size}. "
+                "Must be a multiple of 8"
             )
 
         if self.value_bit_size > self.data_byte_size * 8:

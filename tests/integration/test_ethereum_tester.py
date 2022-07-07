@@ -580,7 +580,8 @@ class TestEthereumTesterPersonalModule(GoEthereumPersonalModuleTest):
         ValueError,
     )
 
-    # Test overridden here since eth-tester returns False rather than None for failed unlock
+    # Test overridden here since eth-tester returns False
+    # rather than None for failed unlock
     def test_personal_unlock_account_failure(self, w3, unlockable_account_dual_type):
         result = w3.geth.personal.unlock_account(
             unlockable_account_dual_type, "bad-password"

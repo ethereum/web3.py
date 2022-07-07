@@ -136,16 +136,17 @@ def validate_single_matching_uri(all_blockchain_uris: List[str], w3: "Web3") -> 
         raise EthPMValidationError("Package has no matching URIs on chain.")
     elif len(matching_uris) != 1:
         raise EthPMValidationError(
-            f"Package has too many ({len(matching_uris)}) matching URIs: {matching_uris}."
+            f"Package has too many ({len(matching_uris)}) "
+            "matching URIs: {matching_uris}."
         )
     return matching_uris[0]
 
 
 def validate_blob_uri_contents(contents: bytes, blob_uri: str) -> None:
     """
-    Raises an exception if the sha1 hash of the contents does not match the hash found in te
-    blob_uri. Formula for how git calculates the hash found here:
-    http://alblue.bandlem.com/2011/08/git-tip-of-week-objects.html
+    Raises an exception if the sha1 hash of the contents does not match the
+    hash found in the blob_uri. Formula for how git calculates the hash
+    found here: http://alblue.bandlem.com/2011/08/git-tip-of-week-objects.html
     """
     blob_path = parse.urlparse(blob_uri).path
     blob_hash = blob_path.split("/")[-1]
@@ -155,5 +156,6 @@ def validate_blob_uri_contents(contents: bytes, blob_uri: str) -> None:
     hash_object = hashlib.sha1(to_bytes(text=hashable_contents))
     if hash_object.hexdigest() != blob_hash:
         raise EthPMValidationError(
-            f"Hash of contents fetched from {blob_uri} do not match its hash: {blob_hash}."
+            f"Hash of contents fetched from {blob_uri} do not "
+            f"match its hash: {blob_hash}."
         )

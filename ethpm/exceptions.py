@@ -8,7 +8,8 @@ class PyEthPMError(Exception):
 
 class InsufficientAssetsError(PyEthPMError):
     """
-    Raised when a Manifest or Package does not contain the required assets to do something.
+    Raised when a Manifest or Package does not contain the required
+    assets to do something.
     """
 
     pass

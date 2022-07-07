@@ -63,7 +63,8 @@ BASE_MANIFEST = {"name": "package", "manifest": "ethpm/3", "version": "1.0.0"}
 @pytest.fixture
 def owned_package(ethpm_spec_dir):
     manifest = get_ethpm_spec_manifest("owned", "v3.json")
-    # source_id missing `./` prefix in ethpm-spec ("Owned.sol"/"./Owned.sol" though both are valid)
+    # source_id missing `./` prefix in ethpm-spec
+    # ("Owned.sol"/"./Owned.sol" though both are valid)
     source_obj = manifest["sources"].pop("Owned.sol")
     updated_manifest = assoc_in(manifest, ["sources", "./Owned.sol"], source_obj)
 
@@ -325,7 +326,7 @@ def test_builder_with_pin_source(owned_package, dummy_ipfs_backend):
         version("1.0.0"),
         authors("Piper Merriam <pipermerriam@gmail.com>"),
         description(
-            "Reusable contracts which implement a privileged 'owner' model for authorization."
+            "Reusable contracts which implement a privileged 'owner' model for authorization."  # noqa: E501
         ),
         keywords("authorization"),
         license("MIT"),
@@ -348,7 +349,7 @@ def test_builder_with_pinner(owned_package, dummy_ipfs_backend):
         version("1.0.0"),
         authors("Piper Merriam <pipermerriam@gmail.com>"),
         description(
-            "Reusable contracts which implement a privileged 'owner' model for authorization."
+            "Reusable contracts which implement a privileged 'owner' model for authorization."  # noqa: E501
         ),
         keywords("authorization"),
         license("MIT"),
@@ -368,7 +369,7 @@ def test_builder_with_init_manifest(owned_package, dummy_ipfs_backend):
         init_manifest(package_name="owned", version="1.0.0"),
         authors("Piper Merriam <pipermerriam@gmail.com>"),
         description(
-            "Reusable contracts which implement a privileged 'owner' model for authorization."
+            "Reusable contracts which implement a privileged 'owner' model for authorization."  # noqa: E501
         ),
         keywords("authorization"),
         license("MIT"),

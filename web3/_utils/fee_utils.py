@@ -24,8 +24,8 @@ def _fee_history_priority_fee_estimate(fee_history: FeeHistory) -> Wei:
     # grab only non-zero fees and average against only that list
     non_empty_block_fees = [fee[0] for fee in fee_history["reward"] if fee[0] != 0]
 
-    # prevent division by zero in the extremely unlikely case that all fees within the polled fee
-    # history range for the specified percentile are 0
+    # prevent division by zero in the extremely unlikely case that all fees within
+    # the polled fee history range for the specified percentile are 0
     divisor = len(non_empty_block_fees) if len(non_empty_block_fees) != 0 else 1
 
     priority_fee_average_for_percentile = Wei(
@@ -42,14 +42,18 @@ def _fee_history_priority_fee_estimate(fee_history: FeeHistory) -> Wei:
 
 
 def fee_history_priority_fee(eth: "Eth") -> Wei:
-    # This is a tested internal call so no need for type hinting. We can keep better consistency
-    # between the sync and async calls by unpacking PRIORITY_FEE_HISTORY_PARAMS as constants here.
+    # This is a tested internal call so no need for type hinting. We can keep
+    # better consistency between the sync and async calls by unpacking
+    # PRIORITY_FEE_HISTORY_PARAMS as constants here.
     fee_history = eth.fee_history(*PRIORITY_FEE_HISTORY_PARAMS)  # type: ignore
     return _fee_history_priority_fee_estimate(fee_history)
 
 
 async def async_fee_history_priority_fee(async_eth: "AsyncEth") -> Wei:
-    # This is a tested internal call so no need for type hinting. We can keep better consistency
-    # between the sync and async calls by unpacking PRIORITY_FEE_HISTORY_PARAMS as constants here.
-    fee_history = await async_eth.fee_history(*PRIORITY_FEE_HISTORY_PARAMS)  # type: ignore
+    # This is a tested internal call so no need for type hinting. We can keep
+    # better consistency between the sync and async calls by unpacking
+    # PRIORITY_FEE_HISTORY_PARAMS as constants here.
+    fee_history = await async_eth.fee_history(
+        *PRIORITY_FEE_HISTORY_PARAMS  # type: ignore
+    )
     return _fee_history_priority_fee_estimate(fee_history)

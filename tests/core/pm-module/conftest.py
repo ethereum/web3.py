@@ -110,8 +110,9 @@ def release_packages(registry):
 
 
 # Module-level variables used here for efficiency
-# Tests are written against the sample packages released in `release_packages()` above, if more
-# tests are needed, they should take into account the releases that exist on a "loaded registry".
+# Tests are written against the sample packages released
+# in `release_packages()` above, if more tests are needed,
+# they should take into account the releases that exist on a "loaded registry".
 W3 = setup_w3()
 FRESH_SOL_REGISTRY = sol_registry(W3)
 LOADED_SOL_REGISTRY = release_packages(sol_registry(W3))

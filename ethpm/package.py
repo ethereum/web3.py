@@ -246,8 +246,9 @@ class Package(object):
 
     def get_contract_factory(self, name: ContractName) -> LinkableContract:
         """
-        Return the contract factory for a given contract type, generated from the data vailable
-        in ``Package.manifest``. Contract factories are accessible from the package class.
+        Return the contract factory for a given contract type, generated from
+        the data vailable in ``Package.manifest``. Contract factories are
+        accessible from the package class.
 
         .. code:: python
 
@@ -279,8 +280,8 @@ class Package(object):
         except KeyError:
             raise InsufficientAssetsError(
                 "This package does not contain any package data to generate "
-                f"a contract factory for contract type: {name}. Available contract types include: "
-                f"{self.contract_types}."
+                f"a contract factory for contract type: {name}. Available contract"
+                f" types include: {self.contract_types}."
             )
 
         validate_minimal_contract_factory_data(contract_data)
@@ -290,9 +291,10 @@ class Package(object):
 
     def get_contract_instance(self, name: ContractName, address: Address) -> Contract:
         """
-        Will return a ``Web3.contract`` instance generated from the contract type data available
-        in ``Package.manifest`` and the provided ``address``. The provided ``address`` must be
-        valid on the connected chain available through ``Package.w3``.
+        Will return a ``Web3.contract`` instance generated from the contract type
+        data available in ``Package.manifest`` and the provided ``address``.
+        The provided ``address`` must be valid on the connected chain available
+        through ``Package.w3``.
         """
         validate_address(address)
         validate_contract_name(name)
@@ -300,14 +302,15 @@ class Package(object):
             self.manifest["contractTypes"][name]["abi"]
         except KeyError:
             raise InsufficientAssetsError(
-                "Package does not have the ABI required to generate a contract instance "
-                f"for contract: {name} at address: {address!r}."
+                "Package does not have the ABI required to generate a "
+                f"contract instance for contract: {name} at address: {address!r}."
             )
         contract_kwargs = generate_contract_factory_kwargs(
             self.manifest["contractTypes"][name]
         )
         contract_instance = self.w3.eth.contract(address=address, **contract_kwargs)
-        # TODO: type ignore may be able to be removed after more of AsyncContract is finished
+        # TODO: type ignore may be able to be removed after
+        # more of AsyncContract is finished
         return contract_instance  # type: ignore
 
     #
@@ -317,7 +320,9 @@ class Package(object):
     @cached_property
     def build_dependencies(self) -> "Dependencies":
         """
-        Return `Dependencies` instance containing the build dependencies available on this Package.
+        Return `Dependencies` instance containing the build dependencies
+        available on this Package.
+
         The ``Package`` class should provide access to the full dependency tree.
 
         .. code:: python
@@ -413,7 +418,8 @@ class Package(object):
         # No nested deployment, but invalid ref
         elif ":" not in value:
             raise BytecodeLinkingError(
-                f"Contract instance reference: {value} not found in package's deployment data."
+                f"Contract instance reference: {value} not found "
+                "in package's deployment data."
             )
         # Expects child pkg in build_dependencies
         elif value.split(":")[0] not in self.build_dependencies:

@@ -65,7 +65,8 @@ def validate_transaction_params(
             "maxPriorityFeePerGas must be defined in a 1559 transaction."
         )
 
-    # should be a fully formed (legacy or dynamic fee) tx or no fee values were specified
+    # should be a fully formed (legacy or dynamic fee) tx
+    # or no fee values were specified
     return transaction
 
 
@@ -73,8 +74,9 @@ def gas_price_strategy_middleware(
     make_request: Callable[[RPCEndpoint, Any], Any], w3: "Web3"
 ) -> Callable[[RPCEndpoint, Any], RPCResponse]:
     """
-    - Uses a gas price strategy if one is set. This is only supported for legacy transactions.
-      It is recommended to send dynamic fee transactions (EIP-1559) whenever possible.
+    - Uses a gas price strategy if one is set. This is only supported
+      for legacy transactions. It is recommended to send dynamic fee
+      transactions (EIP-1559) whenever possible.
 
     - Validates transaction params against legacy and dynamic fee txn values.
     """
@@ -97,8 +99,9 @@ async def async_gas_price_strategy_middleware(
     make_request: Callable[[RPCEndpoint, Any], Any], w3: "Web3"
 ) -> AsyncMiddleware:
     """
-    - Uses a gas price strategy if one is set. This is only supported for legacy transactions.
-      It is recommended to send dynamic fee transactions (EIP-1559) whenever possible.
+    - Uses a gas price strategy if one is set. This is only supported for
+      legacy transactions. It is recommended to send dynamic fee transactions
+      (EIP-1559) whenever possible.
 
     - Validates transaction params against legacy and dynamic fee txn values.
     """
@@ -106,7 +109,9 @@ async def async_gas_price_strategy_middleware(
     async def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
         if method == "eth_sendTransaction":
             transaction = params[0]
-            generated_gas_price = await w3.eth.generate_gas_price(transaction)  # type: ignore
+            generated_gas_price = await w3.eth.generate_gas_price(  # type: ignore
+                transaction
+            )
             latest_block = await w3.eth.get_block("latest")  # type: ignore
             transaction = validate_transaction_params(
                 transaction, latest_block, generated_gas_price

@@ -89,7 +89,8 @@ def test_stalecheck_fail(request_middleware, now):
     ],
 )
 def test_stalecheck_ignores_get_by_block_methods(request_middleware, rpc_method):
-    # This is especially critical for get_block('latest') which would cause infinite recursion
+    # This is especially critical for get_block('latest')
+    # which would cause infinite recursion
     with patch("web3.middleware.stalecheck._is_fresh", side_effect=[False, True]):
         request_middleware(rpc_method, [])
         assert not request_middleware.web3.eth.get_block.called

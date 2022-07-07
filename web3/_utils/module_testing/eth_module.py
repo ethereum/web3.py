@@ -340,8 +340,9 @@ class AsyncEthModuleTest:
     @pytest.mark.asyncio
     async def test_eth_send_raw_transaction(self, async_w3: "Web3") -> None:
         # private key 0x3c2ab4e8f17a7dea191b8c991522660126d681039509dc3bb31af7c9bdb63518
-        # This is an unfunded account, but the transaction has a 0 gas price, so is valid.
-        # It never needs to be mined, we just want the transaction hash back to confirm.
+        # This is an unfunded account, but the transaction has a 0 gas price, so is
+        # valid. It never needs to be mined, we just want the transaction hash back
+        # to confirm.
         # tx = {'to': '0x0000000000000000000000000000000000000000', 'value': 0,  'nonce': 1, 'gas': 21000, 'gasPrice': 0, 'chainId': 131277322940537}  # noqa: E501
         # NOTE: nonce=1 to make txn unique from the non-async version of this test
         raw_txn = HexBytes(
@@ -470,7 +471,9 @@ class AsyncEthModuleTest:
     async def test_eth_fee_history_with_integer(
         self, async_w3: "Web3", empty_block: BlockData
     ) -> None:
-        fee_history = await async_w3.eth.fee_history(1, empty_block["number"], [50])  # type: ignore
+        fee_history = await async_w3.eth.fee_history(  # type: ignore
+            1, empty_block["number"], [50]
+        )
         assert is_list_like(fee_history["baseFeePerGas"])
         assert is_list_like(fee_history["gasUsedRatio"])
         assert is_integer(fee_history["oldestBlock"])
@@ -506,8 +509,8 @@ class AsyncEthModuleTest:
 
         with pytest.warns(
             UserWarning,
-            match="There was an issue with the method eth_maxPriorityFeePerGas. Calculating using "
-            "eth_feeHistory.",
+            match="There was an issue with the method eth_maxPriorityFeePerGas. "
+            "Calculating using eth_feeHistory.",
         ):
             max_priority_fee = await async_w3.eth.max_priority_fee  # type: ignore
             assert is_integer(max_priority_fee)
@@ -574,7 +577,9 @@ class AsyncEthModuleTest:
     async def test_eth_getBlockByNumber_full_transactions(
         self, async_w3: "Web3", block_with_txn: BlockData
     ) -> None:
-        block = await async_w3.eth.get_block(block_with_txn["number"], True)  # type: ignore
+        block = await async_w3.eth.get_block(  # type: ignore
+            block_with_txn["number"], True
+        )
         transaction = block["transactions"][0]
         assert transaction["hash"] == block_with_txn["transactions"][0]
 
@@ -582,7 +587,9 @@ class AsyncEthModuleTest:
     async def test_eth_get_raw_transaction(
         self, async_w3: "Web3", mined_txn_hash: HexStr
     ) -> None:
-        raw_transaction = await async_w3.eth.get_raw_transaction(mined_txn_hash)  # type: ignore
+        raw_transaction = await async_w3.eth.get_raw_transaction(  # type: ignore
+            mined_txn_hash
+        )
         assert is_bytes(raw_transaction)
 
     @pytest.mark.asyncio
@@ -617,14 +624,14 @@ class AsyncEthModuleTest:
 
         # eth_getRawTransactionByBlockNumberAndIndex: block number
         block_with_txn_number = block_with_txn["number"]
-        raw_transaction = await async_w3.eth.get_raw_transaction_by_block(  # type: ignore
+        raw_transaction = await async_w3.eth.get_raw_transaction_by_block(  # type: ignore  # noqa: E501
             block_with_txn_number, 0
         )
         assert is_bytes(raw_transaction)
 
         # eth_getRawTransactionByBlockHashAndIndex: block hash
         block_with_txn_hash = block_with_txn["hash"]
-        raw_transaction = await async_w3.eth.get_raw_transaction_by_block(  # type: ignore
+        raw_transaction = await async_w3.eth.get_raw_transaction_by_block(  # type: ignore  # noqa: E501
             block_with_txn_hash, 0
         )
         assert is_bytes(raw_transaction)
@@ -654,10 +661,13 @@ class AsyncEthModuleTest:
         with pytest.raises(
             ValueError,
             match=(
-                f"Value did not match any of the recognized block identifiers: {unknown_identifier}"
+                "Value did not match any of the recognized block identifiers: "
+                f"{unknown_identifier}"
             ),
         ):
-            await async_w3.eth.get_raw_transaction_by_block(unknown_identifier, 0)  # type: ignore
+            await async_w3.eth.get_raw_transaction_by_block(
+                unknown_identifier, 0  # type: ignore
+            )
 
     @pytest.mark.asyncio
     async def test_eth_get_balance(self, async_w3: "Web3") -> None:
@@ -695,7 +705,9 @@ class AsyncEthModuleTest:
         self, async_w3: "Web3", emitter_contract: "Contract"
     ) -> None:
         block_id = await async_w3.eth.block_number  # type: ignore
-        code = await async_w3.eth.get_code(emitter_contract.address, block_id)  # type: ignore
+        code = await async_w3.eth.get_code(  # type: ignore
+            emitter_contract.address, block_id
+        )
         assert isinstance(code, HexBytes)
         assert len(code) > 0
 
@@ -899,7 +911,7 @@ class AsyncEthModuleTest:
         async_w3.provider.ccip_read_max_redirects = default_max_redirects  # cleanup
 
     @pytest.mark.asyncio
-    async def test_eth_call_offchain_lookup_raises_for_improperly_formatted_rest_request_response(
+    async def test_eth_call_offchain_lookup_raises_for_improperly_formatted_rest_request_response(  # noqa: E501
         self,
         async_w3: "Web3",
         async_offchain_lookup_contract: "Contract",
@@ -923,7 +935,7 @@ class AsyncEthModuleTest:
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize("status_code_non_4xx_error", [100, 300, 500, 600])
-    async def test_eth_call_offchain_lookup_tries_next_url_for_non_4xx_error_status_and_tests_POST(
+    async def test_eth_call_offchain_lookup_tries_next_url_for_non_4xx_error_status_and_tests_POST(  # noqa: E501
         self,
         async_w3: "Web3",
         async_offchain_lookup_contract: "Contract",
@@ -935,10 +947,11 @@ class AsyncEthModuleTest:
             async_offchain_lookup_contract.address
         ).lower()
 
-        # The next url in our test contract doesn't contain '{data}', triggering the POST request
-        # logic. The idea here is to return a bad status for the first url (GET) and a success
-        # status for the second call (POST) to test both that we move on to the next url with
-        # non-4xx status and that the POST logic is also working as expected.
+        # The next url in our test contract doesn't contain '{data}', triggering
+        # the POST request logic. The idea here is to return a bad status for the
+        # first url (GET) and a success status for the second call (POST) to test
+        # both that we move on to the next url with non-4xx status and that the
+        # POST logic is also working as expected.
         async_mock_offchain_lookup_request_response(
             monkeypatch,
             mocked_request_url=f"https://web3.py/gateway/{normalized_contract_address}/{OFFCHAIN_LOOKUP_TEST_DATA}.json",  # noqa: E501
@@ -948,7 +961,7 @@ class AsyncEthModuleTest:
         async_mock_offchain_lookup_request_response(
             monkeypatch,
             http_method="POST",
-            mocked_request_url=f"https://web3.py/gateway/{normalized_contract_address}.json",
+            mocked_request_url=f"https://web3.py/gateway/{normalized_contract_address}.json",  # noqa: E501
             mocked_status_code=200,
             mocked_json_data=WEB3PY_AS_HEXBYTES,
             sender=normalized_contract_address,
@@ -1010,7 +1023,7 @@ class AsyncEthModuleTest:
 
         async_mock_offchain_lookup_request_response(
             monkeypatch,
-            mocked_request_url=f"https://web3.py/gateway/{normalized_contract_address}/0x.json",
+            mocked_request_url=f"https://web3.py/gateway/{normalized_contract_address}/0x.json",  # noqa: E501
         )
         with pytest.raises(TooManyRequests, match="Too many CCIP read redirects"):
             await async_offchain_lookup_contract.caller().continuousOffchainLookup()  # noqa: E501 type: ignore
@@ -1036,7 +1049,9 @@ class AsyncEthModuleTest:
     async def test_async_eth_get_transaction_receipt_mined(
         self, async_w3: "Web3", block_with_txn: BlockData, mined_txn_hash: HexStr
     ) -> None:
-        receipt = await async_w3.eth.get_transaction_receipt(mined_txn_hash)  # type: ignore
+        receipt = await async_w3.eth.get_transaction_receipt(  # type: ignore
+            mined_txn_hash
+        )
         assert is_dict(receipt)
         assert receipt["blockNumber"] == block_with_txn["number"]
         assert receipt["blockHash"] == block_with_txn["hash"]
@@ -1075,7 +1090,9 @@ class AsyncEthModuleTest:
         emitter_contract: "Contract",
         txn_hash_with_log: HexStr,
     ) -> None:
-        receipt = await async_w3.eth.wait_for_transaction_receipt(txn_hash_with_log)  # type: ignore
+        receipt = await async_w3.eth.wait_for_transaction_receipt(  # type: ignore
+            txn_hash_with_log
+        )
         assert is_dict(receipt)
         assert receipt["blockNumber"] == block_with_txn_with_log["number"]
         assert receipt["blockHash"] == block_with_txn_with_log["hash"]
@@ -1096,7 +1113,9 @@ class AsyncEthModuleTest:
     async def test_async_eth_wait_for_transaction_receipt_mined(
         self, async_w3: "Web3", block_with_txn: BlockData, mined_txn_hash: HexStr
     ) -> None:
-        receipt = await async_w3.eth.wait_for_transaction_receipt(mined_txn_hash)  # type: ignore
+        receipt = await async_w3.eth.wait_for_transaction_receipt(  # type: ignore
+            mined_txn_hash
+        )
         assert is_dict(receipt)
         assert receipt["blockNumber"] == block_with_txn["number"]
         assert receipt["blockHash"] == block_with_txn["hash"]
@@ -1141,7 +1160,9 @@ class AsyncEthModuleTest:
         emitter_contract: "Contract",
         txn_hash_with_log: HexStr,
     ) -> None:
-        receipt = await async_w3.eth.wait_for_transaction_receipt(txn_hash_with_log)  # type: ignore
+        receipt = await async_w3.eth.wait_for_transaction_receipt(  # type: ignore
+            txn_hash_with_log
+        )
         assert is_dict(receipt)
         assert receipt["blockNumber"] == block_with_txn_with_log["number"]
         assert receipt["blockHash"] == block_with_txn_with_log["hash"]
@@ -1325,7 +1346,9 @@ class AsyncEthModuleTest:
     async def test_async_eth_get_storage_at(
         self, async_w3: "Web3", emitter_contract_address: ChecksumAddress
     ) -> None:
-        storage = await async_w3.eth.get_storage_at(emitter_contract_address, 0)  # type: ignore
+        storage = await async_w3.eth.get_storage_at(  # type: ignore
+            emitter_contract_address, 0
+        )
         assert isinstance(storage, HexBytes)
 
     @pytest.mark.asyncio
@@ -1334,7 +1357,9 @@ class AsyncEthModuleTest:
         self, async_w3: "Web3", emitter_contract_address: ChecksumAddress
     ) -> None:
         with ens_addresses(async_w3, {"emitter.eth": emitter_contract_address}):
-            storage = await async_w3.eth.get_storage_at("emitter.eth", 0)  # type: ignore
+            storage = await async_w3.eth.get_storage_at(  # type: ignore
+                "emitter.eth", 0
+            )
             assert isinstance(storage, HexBytes)
 
     @pytest.mark.asyncio
@@ -1465,8 +1490,8 @@ class EthModuleTest:
 
         with pytest.warns(
             UserWarning,
-            match="There was an issue with the method eth_maxPriorityFeePerGas. Calculating using "
-            "eth_feeHistory.",
+            match="There was an issue with the method eth_maxPriorityFeePerGas."
+            " Calculating using eth_feeHistory.",
         ):
             max_priority_fee = w3.eth.max_priority_fee
             assert is_integer(max_priority_fee)
@@ -1665,7 +1690,7 @@ class EthModuleTest:
         hexsign = w3.eth.sign(
             unlocked_account_dual_type,
             hexstr=HexStr(
-                "0x4d6573736167652074c3b6207369676e2e204c6f6e676572207468616e206861736821"
+                "0x4d6573736167652074c3b6207369676e2e204c6f6e676572207468616e206861736821"  # noqa: E501
             ),
         )
         assert hexsign == signature
@@ -2690,7 +2715,7 @@ class EthModuleTest:
 
         w3.provider.ccip_read_max_redirects = default_max_redirects  # cleanup
 
-    def test_eth_call_offchain_lookup_raises_for_improperly_formatted_rest_request_response(
+    def test_eth_call_offchain_lookup_raises_for_improperly_formatted_rest_request_response(  # noqa: E501
         self,
         w3: "Web3",
         offchain_lookup_contract: "Contract",
@@ -2712,7 +2737,7 @@ class EthModuleTest:
             ).call()
 
     @pytest.mark.parametrize("status_code_non_4xx_error", [100, 300, 500, 600])
-    def test_eth_call_offchain_lookup_tries_next_url_for_non_4xx_error_status_and_tests_POST(
+    def test_eth_call_offchain_lookup_tries_next_url_for_non_4xx_error_status_and_tests_POST(  # noqa: E501
         self,
         w3: "Web3",
         offchain_lookup_contract: "Contract",
@@ -2724,10 +2749,11 @@ class EthModuleTest:
             offchain_lookup_contract.address
         ).lower()
 
-        # The next url in our test contract doesn't contain '{data}', triggering the POST request
-        # logic. The idea here is to return a bad status for the first url (GET) and a success
-        # status from the second call (POST) to test both that we move on to the next url with
-        # non 4xx status and that the POST logic is also working as expected.
+        # The next url in our test contract doesn't contain '{data}', triggering
+        # the POST request logic. The idea here is to return a bad status for
+        # the first url (GET) and a success status from the second call (POST)
+        # to test both that we move on to the next url with non 4xx status and
+        # that the POST logic is also working as expected.
         mock_offchain_lookup_request_response(
             monkeypatch,
             mocked_request_url=f"https://web3.py/gateway/{normalized_contract_address}/{OFFCHAIN_LOOKUP_TEST_DATA}.json",  # noqa: E501
@@ -2737,7 +2763,7 @@ class EthModuleTest:
         mock_offchain_lookup_request_response(
             monkeypatch,
             http_method="POST",
-            mocked_request_url=f"https://web3.py/gateway/{normalized_contract_address}.json",
+            mocked_request_url=f"https://web3.py/gateway/{normalized_contract_address}.json",  # noqa: E501
             mocked_status_code=200,
             mocked_json_data=WEB3PY_AS_HEXBYTES,
             sender=normalized_contract_address,
@@ -2794,7 +2820,7 @@ class EthModuleTest:
         ).lower()
         mock_offchain_lookup_request_response(
             monkeypatch,
-            mocked_request_url=f"https://web3.py/gateway/{normalized_contract_address}/0x.json",
+            mocked_request_url=f"https://web3.py/gateway/{normalized_contract_address}/0x.json",  # noqa: E501
         )
         with pytest.raises(TooManyRequests, match="Too many CCIP read redirects"):
             offchain_lookup_contract.caller().continuousOffchainLookup()
@@ -3254,7 +3280,8 @@ class EthModuleTest:
         # we would get the same result. For now, we mostly depend on core tests.
         # Ideas to improve this test:
         #  - Enable on-demand mining in more clients
-        #  - Increment the math contract in all of the fixtures, and check the value in an old block
+        #  - Increment the math contract in all of the fixtures, and check the
+        #    value in an old block
         block_hash_call_result = math_contract.functions.counter().call(
             block_identifier=block_hash
         )
@@ -3371,7 +3398,8 @@ class EthModuleTest:
         with pytest.raises(
             ValueError,
             match=(
-                f"Value did not match any of the recognized block identifiers: {unknown_identifier}"
+                "Value did not match any of the recognized block identifiers: "
+                f"{unknown_identifier}"
             ),
         ):
             w3.eth.get_raw_transaction_by_block(unknown_identifier, 0)  # type: ignore

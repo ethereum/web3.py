@@ -82,7 +82,8 @@ class LinkableContract(Contract):
         """
         Return a cloned contract factory with the deployment / runtime bytecode linked.
 
-        :attr_dict: Dict[`ContractType`: `Address`] for all deployment and runtime link references.
+        :attr_dict: Dict[`ContractType`: `Address`] for all deployment and runtime
+        link references.
         """
         if not cls.unlinked_references and not cls.linked_references:
             raise BytecodeLinkingError("Contract factory has no linkable bytecode.")
@@ -98,20 +99,23 @@ class LinkableContract(Contract):
         linked_class = cls.factory(cls.w3, bytecode_runtime=runtime, bytecode=bytecode)
         if linked_class.needs_bytecode_linking:
             raise BytecodeLinkingError(
-                "Expected class to be fully linked, but class still needs bytecode linking."
+                "Expected class to be fully linked, but class "
+                "still needs bytecode linking."
             )
         return linked_class
 
     @combomethod
     def validate_attr_dict(self, attr_dict: Dict[str, str]) -> None:
         """
-        Validates that ContractType keys in attr_dict reference existing manifest ContractTypes.
+        Validates that ContractType keys in attr_dict reference existing
+        manifest ContractTypes.
         """
         attr_dict_names = attr_dict.keys()
 
         if not self.unlinked_references and not self.linked_references:
             raise BytecodeLinkingError(
-                "Unable to validate attr dict, this contract has no linked/unlinked references."
+                "Unable to validate attr dict, this contract has no "
+                "linked/unlinked references."
             )
 
         unlinked_refs = self.unlinked_references or ({},)
@@ -162,7 +166,8 @@ def apply_all_link_refs(
 @curry
 def apply_link_ref(offset: int, length: int, value: bytes, bytecode: bytes) -> bytes:
     """
-    Returns the new bytecode with `value` put into the location indicated by `offset` and `length`.
+    Returns the new bytecode with `value` put into the location indicated by
+    `offset` and `length`.
     """
     try:
         validate_empty_bytes(offset, length, bytecode)

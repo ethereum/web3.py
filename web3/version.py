@@ -66,5 +66,6 @@ class Version(Module):
     @property
     def ethereum(self) -> NoReturn:
         raise DeprecationWarning(
-            "This method has been deprecated ... Please use web3.eth.protocol_version instead."
+            "This method has been deprecated ... "
+            "Please use web3.eth.protocol_version instead."
         )

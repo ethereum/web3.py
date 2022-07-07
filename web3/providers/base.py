@@ -54,8 +54,10 @@ class BaseProvider:
         self, w3: "Web3", outer_middlewares: MiddlewareOnion
     ) -> Callable[..., RPCResponse]:
         """
-        @param outer_middlewares is an iterable of middlewares, ordered by first to execute
-        @returns a function that calls all the middleware and eventually self.make_request()
+        @param outer_middlewares is an iterable of middlewares,
+            ordered by first to execute
+        @returns a function that calls all the middleware and
+            eventually self.make_request()
         """
         # type ignored b/c tuple(MiddlewareOnion) converts to tuple of middlewares
         all_middlewares: Tuple[Middleware] = tuple(outer_middlewares) + tuple(self.middlewares)  # type: ignore # noqa: E501

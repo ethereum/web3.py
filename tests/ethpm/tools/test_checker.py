@@ -16,14 +16,14 @@ def test_checker_simple():
         "name": "Manifest missing a suggested 'name' field",
         "version": "Manifest missing a suggested 'version' field.",
         "meta": "Manifest missing a suggested 'meta' field.",
-        "sources": """Manifest is missing a sources field, which defines a source tree that """
-        """should comprise the full source tree necessary to recompile the contracts """
-        """contained in this release.""",
-        "contractTypes": """Manifest does not contain any 'contractTypes'. Packages should """
-        """only include contract types that can be found in the source files for this """
-        """package. Packages should not include contract types from dependencies. """
-        """Packages should not include abstract contracts in the contract types section """
-        """of a release.""",
+        "sources": """Manifest is missing a sources field, """
+        """which defines a source tree that should comprise the full source tree """
+        """necessary to recompile the contracts contained in this release.""",
+        "contractTypes": """Manifest does not contain any 'contractTypes'. """
+        """Packages should only include contract types that can be found in the """
+        """source files for this package. Packages should not include contract types """
+        """from dependencies. Packages should not include abstract contracts in the """
+        """contract types section of a release.""",
         "compilers": "Manifest is missing a suggested `compilers` field.",
     }
 

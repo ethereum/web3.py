@@ -24,7 +24,8 @@ from ethpm.tools.builder import (
 
 WARNINGS = {
     "manifest_missing": "Manifest missing a required 'manifest' field.",
-    "manifest_invalid": "'manifest' is invalid. The only supported version is 'ethpm/3'.",
+    "manifest_invalid": """'manifest' is invalid. The only supported"""
+    """ version is 'ethpm/3'.""",
     "name_missing": "Manifest missing a suggested 'name' field",
     "name_invalid": "'name' is invalid. "
     f"Doesn't match the regex: {PACKAGE_NAME_REGEX}",
@@ -35,22 +36,25 @@ WARNINGS = {
     "links_missing": "'meta' field missing suggested 'links' field.",
     "license_missing": "'meta' field missing suggested 'license' field.",
     "keywords_missing": "'meta' field missing suggested 'keywords' field.",
-    "sources_missing": """Manifest is missing a sources field, which defines a source tree """
-    """that should comprise the full source tree necessary to recompile the contracts """
-    """contained in this release.""",
-    "contract_type_missing": """Manifest does not contain any 'contractTypes'. Packages """
-    """should only include contract types that can be found in the source files for this """
-    """package. Packages should not include contract types from dependencies. Packages """
-    """should not include abstract contracts in the contract types section of a release.""",
-    "abi_missing": """Contract type: {0} is missing an abi field, which is essential for using """
-    """this package.""",
-    "deployment_bytecode_missing": """Contract type: {0} is missing a `deploymentBytecode` field,"""
-    """ which is essential for using this package.""",
-    "contract_type_subfield_missing": """Contract type: {0} is missing a `contractType` field, """
-    """which is essential if an alias is being used to namespace this contract type.""",
-    "runtime_bytecode_missing": "Contract type: {0} is missing a `runtimeBytecode` field.",
-    "bytecode_subfield_missing": """Contract type: {0} is missing a required bytecode subfield """
-    """in its {1} bytecode object.""",
+    "sources_missing": """Manifest is missing a sources field, """
+    """which defines a source tree that should comprise the full source tree """
+    """necessary to recompile the contracts contained in this release.""",
+    "contract_type_missing": """Manifest does not contain any 'contractTypes'. """
+    """Packages should only include contract types that can be found in the """
+    """source files for this package. Packages should not include contract types """
+    """from dependencies. Packages should not include abstract contracts in the """
+    """contract types section of a release.""",
+    "abi_missing": """Contract type: {0} is missing an abi field, which is """
+    """essential for using this package.""",
+    "deployment_bytecode_missing": """Contract type: {0} is missing a """
+    """`deploymentBytecode` field, which is essential for using this package.""",
+    "contract_type_subfield_missing": """Contract type: {0} is missing a"""
+    """ `contractType` field, which is essential if an alias is being used """
+    """to namespace this contract type.""",
+    "runtime_bytecode_missing": """Contract type: {0} is missing a """
+    """`runtimeBytecode` field.""",
+    "bytecode_subfield_missing": """Contract type: {0} is missing a required  """
+    """bytecode subfield in its {1} bytecode object.""",
     "devdoc_missing": "Contract type: {0} is missing a devdoc field.",
     "userdoc_missing": "Contract type: {0} is missing a userdoc field.",
     "compilers_missing": "Manifest is missing a suggested `compilers` field.",

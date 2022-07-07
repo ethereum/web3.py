@@ -68,7 +68,7 @@ def test_get_translatable_backends_for_supported_uris(
         "erc1128://packages.zeppelinos.eth:1/erc20/v1.0.0",
         # swarm
         "bzz://da6adeeb4589d8652bbe5679aae6b6409ec85a20e92a8823c7c99e25dba9493d",
-        "bzz-immutable:://da6adeeb4589d8652bbe5679aae6b6409ec85a20e92a8823c7c99e25dba9493d",
+        "bzz-immutable:://da6adeeb4589d8652bbe5679aae6b6409ec85a20e92a8823c7c99e25dba9493d",  # noqa: E501
         "bzz-raw://da6adeeb4589d8652bbe5679aae6b6409ec85a20e92a8823c7c99e25dba9493d",
         # internet
         "http://github.com/ethpm/ethpm-spec/examples/owned/1.0.0.json#content_hash",

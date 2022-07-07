@@ -76,8 +76,8 @@ def test_setup_name(ens, name, normalized_name, namehash_hex):
     ens.setup_address(name, None)
     ens.setup_name(name, new_address)
 
-    # validate that ens.name() only returns a name if the forward resolution also returns the
-    # address
+    # validate that ens.name() only returns a name if the
+    # forward resolution also returns the address
     assert ens.name(new_address) == normalized_name  # reverse resolution
     assert ens.address(name) == new_address  # forward resolution
     assert not ens.name(address)
@@ -178,8 +178,8 @@ async def test_async_setup_name(async_ens, name, normalized_name, namehash_hex):
     await async_ens.setup_address(name, None)
     await async_ens.setup_name(name, new_address)
 
-    # validate that ens.name() only returns a name if the forward resolution also returns the
-    # address
+    # validate that ens.name() only returns a name if the
+    # forward resolution also returns the address
     assert await async_ens.name(new_address) == normalized_name  # reverse resolution
     assert await async_ens.address(name) == new_address  # forward resolution
     assert not await async_ens.name(address)

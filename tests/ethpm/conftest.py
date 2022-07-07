@@ -216,8 +216,8 @@ def manifest_with_no_matching_deployments(w3, tmpdir, safe_math_manifest):
         "SafeMathLib": {
             "contractType": "SafeMathLib",
             "address": "0x8d2c532d7d211816a2807a411f947b211569b68c",
-            "transaction": "0xaceef751507a79c2dee6aa0e9d8f759aa24aab081f6dcf6835d792770541cb2b",
-            "block": "0x420cb2b2bd634ef42f9082e1ee87a8d4aeeaf506ea5cdeddaa8ff7cbf911810c",
+            "transaction": "0xaceef751507a79c2dee6aa0e9d8f759aa24aab081f6dcf6835d792770541cb2b",  # noqa: E501
+            "block": "0x420cb2b2bd634ef42f9082e1ee87a8d4aeeaf506ea5cdeddaa8ff7cbf911810c",  # noqa: E501
         }
     }
     return manifest
@@ -234,16 +234,16 @@ def manifest_with_multiple_matches(w3, tmpdir, safe_math_manifest):
         "SafeMathLib": {
             "contractType": "SafeMathLib",
             "address": "0x8d2c532d7d211816a2807a411f947b211569b68c",
-            "transaction": "0xaceef751507a79c2dee6aa0e9d8f759aa24aab081f6dcf6835d792770541cb2b",
-            "block": "0x420cb2b2bd634ef42f9082e1ee87a8d4aeeaf506ea5cdeddaa8ff7cbf911810c",
+            "transaction": "0xaceef751507a79c2dee6aa0e9d8f759aa24aab081f6dcf6835d792770541cb2b",  # noqa: E501
+            "block": "0x420cb2b2bd634ef42f9082e1ee87a8d4aeeaf506ea5cdeddaa8ff7cbf911810c",  # noqa: E501
         }
     }
     manifest["deployments"][second_block_uri] = {
         "SafeMathLib": {
             "contractType": "SafeMathLib",
             "address": "0x8d2c532d7d211816a2807a411f947b211569b68c",
-            "transaction": "0xaceef751507a79c2dee6aa0e9d8f759aa24aab081f6dcf6835d792770541cb2b",
-            "block": "0x420cb2b2bd634ef42f9082e1ee87a8d4aeeaf506ea5cdeddaa8ff7cbf911810c",
+            "transaction": "0xaceef751507a79c2dee6aa0e9d8f759aa24aab081f6dcf6835d792770541cb2b",  # noqa: E501
+            "block": "0x420cb2b2bd634ef42f9082e1ee87a8d4aeeaf506ea5cdeddaa8ff7cbf911810c",  # noqa: E501
         }
     }
     return manifest
@@ -259,8 +259,8 @@ def manifest_with_conflicting_deployments(tmpdir, safe_math_manifest):
         "WrongNameLib": {
             "contractType": "WrongNameLib",
             "address": "0x8d2c532d7d211816a2807a411f947b211569b68c",
-            "transaction": "0xaceef751507a79c2dee6aa0e9d8f759aa24aab081f6dcf6835d792770541cb2b",
-            "block": "0x420cb2b2bd634ef42f9082e1ee87a8d4aeeaf506ea5cdeddaa8ff7cbf911810c",
+            "transaction": "0xaceef751507a79c2dee6aa0e9d8f759aa24aab081f6dcf6835d792770541cb2b",  # noqa: E501
+            "block": "0x420cb2b2bd634ef42f9082e1ee87a8d4aeeaf506ea5cdeddaa8ff7cbf911810c",  # noqa: E501
         }
     }
     return manifest

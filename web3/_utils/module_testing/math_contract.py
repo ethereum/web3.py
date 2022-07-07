@@ -98,7 +98,7 @@ contract Contract {
         if (!msg.data.length) { stop(); }
 
         var var0 =
-            msg.data[0x00:0x20] / 0x0100000000000000000000000000000000000000000000000000000000;
+            msg.data[0x00:0x20] / 0x0100000000000000000000000000000000000000000000000000000000;  # noqa: E501
 
         if (var0 == 0x16216f39) {
             // Dispatch table entry for return13()

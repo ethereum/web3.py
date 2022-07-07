@@ -301,10 +301,10 @@ class Web3:
             return eth_utils_keccak(input_bytes)
 
         raise TypeError(
-            f"You called keccak with first arg {primitive!r} and keywords {{'text': {text!r}, "
-            f"'hexstr': {hexstr!r}}}. You must call it with one of these approaches: "
-            "keccak(text='txt'), keccak(hexstr='0x747874'), keccak(b'\\x74\\x78\\x74'), "
-            "or keccak(0x747874)."
+            f"You called keccak with first arg {primitive!r} and keywords "
+            f"{{'text': {text!r}, 'hexstr': {hexstr!r}}}. You must call it with "
+            "one of these approaches: keccak(text='txt'), keccak(hexstr='0x747874'), "
+            "keccak(b'\\x74\\x78\\x74'), or keccak(0x747874)."
         )
 
     @combomethod
@@ -364,13 +364,14 @@ class Web3:
     @property
     def pm(self) -> "PM":
         if hasattr(self, "_pm"):
-            # ignored b/c property is dynamically set via enable_unstable_package_management_api
+            # ignored b/c property is dynamically set
+            # via enable_unstable_package_management_api
             return self._pm  # type: ignore
         else:
             raise AttributeError(
                 "The Package Management feature is disabled by default until "
-                "its API stabilizes. To use these features, please enable them by running "
-                "`w3.enable_unstable_package_management_api()` and try again."
+                "its API stabilizes. To use these features, please enable them by "
+                "running `w3.enable_unstable_package_management_api()` and try again."
             )
 
     def enable_unstable_package_management_api(self) -> None:

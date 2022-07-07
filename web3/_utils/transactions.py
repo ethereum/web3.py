@@ -116,7 +116,8 @@ def fill_transaction_defaults(w3: "Web3", transaction: TxParams) -> TxParams:
                 or not is_dynamic_fee_transaction
                 and key in DYNAMIC_FEE_TXN_PARAMS
             ):
-                # do not set default max fees if legacy txn or gas price if dynamic fee txn
+                # do not set default max fees if legacy txn or
+                # gas price if dynamic fee txn
                 continue
 
             if callable(default_getter):
@@ -178,10 +179,12 @@ def extract_valid_transaction_params(transaction_params: TxData) -> TxParams:
             if key in transaction_params
         },
     )
-    # There is always a gasPrice now on eth_getTransaction call for pending transactions, including
-    # dynamic fee transactions. For dynamic fee transactions, we need to pull the gasPrice value
-    # back out of the extracted params if it is equal to the expected value (maxFeePerGas). If
-    # we don't, the modified transaction will include a gasPrice as well as dynamic fee values in
+    # There is always a gasPrice now on eth_getTransaction call for
+    # pending transactions, including dynamic fee transactions.
+    # For dynamic fee transactions, we need to pull the gasPrice value
+    # back out of the extracted params if it is equal to the expected
+    # value (maxFeePerGas). If we don't, the modified transaction will
+    # include a gasPrice as well as dynamic fee values in
     # the eth_sendTransaction call and cause a conflict.
     if all_in_dict(DYNAMIC_FEE_TXN_PARAMS, extracted_params):
         if extracted_params["gasPrice"] == extracted_params["maxFeePerGas"]:
@@ -239,7 +242,8 @@ def prepare_replacement_transaction(
         )
 
     if any_in_dict(DYNAMIC_FEE_TXN_PARAMS, replacement_transaction):
-        # for now, the client decides if a dynamic fee txn can replace the existing txn or not
+        # for now, the client decides if a dynamic fee txn can replace
+        # the existing txn or not
         pass
 
     elif (

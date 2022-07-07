@@ -97,7 +97,7 @@ def _get_raw_miner_data(
         block = w3.eth.get_block(block["parentHash"], full_transactions=True)
         for transaction in block["transactions"]:
             # type ignored b/c actual transaction is TxData not HexBytes
-            yield (block["miner"], block["hash"], transaction["gasPrice"])  # type: ignore
+            yield (block["miner"], block["hash"], transaction["gasPrice"])  # type: ignore  # noqa: E501
 
 
 def _aggregate_miner_data(
@@ -153,7 +153,8 @@ def _compute_gas_price(
     computed based on where the ``desired_probability`` would fall within the
     range.
 
-    :param probabilities: An iterable of `Probability` named-tuples sorted in reverse order.
+    :param probabilities: An iterable of `Probability` named-tuples
+        sorted in reverse order.
     :param desired_probability: An floating point representation of the desired
         probability. (e.g. ``85% -> 0.85``)
     """

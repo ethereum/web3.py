@@ -32,5 +32,6 @@ def validate_escaped_string(string: str) -> None:
     safe = parse.quote(unsafe)
     if string != safe:
         raise EthPMValidationError(
-            f"String: {string} is not properly escaped, and contains url unsafe characters."
+            f"String: {string} is not properly escaped, and contains url "
+            "unsafe characters."
         )

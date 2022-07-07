@@ -86,7 +86,8 @@ class TestGoEthereumAdminModuleTest(GoEthereumAdminModuleTest):
         super().test_admin_start_stop_http(w3)
 
     def test_admin_start_stop_ws(self, w3: "Web3") -> None:
-        # This test inconsistently causes all tests after it to fail on CI if it's allowed to run
+        # This test inconsistently causes all tests after it to
+        # fail on CI if it's allowed to run
         pytest.xfail(
             reason="Only one WebSocket endpoint is allowed to be active at any time"
         )

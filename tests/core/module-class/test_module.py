@@ -90,7 +90,8 @@ def test_attach_methods_with_mungers(web3_with_external_modules):
     assert w3.eth.get_block(1, False)["baseFeePerGas"] == 875000000
 
     # Testing the mungers work:
-    # `method1` also calls 'eth_getBlockByNumber' but subtracts 1 from the user-provided `block_id`
+    # `method1` also calls 'eth_getBlockByNumber' but subtracts 1
+    # from the user-provided `block_id`
     # due to the second munger. So, `0` from above is a `1` here and `1` is `2`.
     assert w3.module1.method1(1, False)["baseFeePerGas"] == 1000000000
     assert w3.module1.method1(2, False)["baseFeePerGas"] == 875000000

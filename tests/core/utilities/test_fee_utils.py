@@ -35,7 +35,8 @@ from web3.types import (
     ),
     ids=["test-max", "test-min", "test-min-all-zero-fees", "test-non-zero-average"],
 )
-# Test fee_utils indirectly by mocking eth_feeHistory results and checking against expected output
+# Test fee_utils indirectly by mocking eth_feeHistory results
+# and checking against expected output
 def test_fee_utils_indirectly(w3, fee_history_rewards, expected_max_prio_calc) -> None:
     fail_max_prio_middleware = construct_error_generator_middleware(
         {RPCEndpoint("eth_maxPriorityFeePerGas"): lambda *_: ""}
@@ -51,8 +52,8 @@ def test_fee_utils_indirectly(w3, fee_history_rewards, expected_max_prio_calc) -
 
     with pytest.warns(
         UserWarning,
-        match="There was an issue with the method eth_maxPriorityFeePerGas. Calculating using "
-        "eth_feeHistory.",
+        match="There was an issue with the method eth_maxPriorityFeePerGas. "
+        "Calculating using eth_feeHistory.",
     ):
         max_priority_fee = w3.eth.max_priority_fee
         assert is_integer(max_priority_fee)

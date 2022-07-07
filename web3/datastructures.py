@@ -29,7 +29,8 @@ from web3._utils.formatters import (
 )
 
 # Hashable must be immutable:
-# "the implementation of hashable collections requires that a key's hash value is immutable"
+# "the implementation of hashable collections requires that a
+# key's hash value is immutable"
 # https://docs.python.org/3/reference/datamodel.html#object.__hash__
 
 T = TypeVar("T")
@@ -64,7 +65,7 @@ class ReadableAttributeDict(Mapping[TKey, TValue]):
     def _repr_pretty_(self, builder: Any, cycle: bool) -> None:
         """
         Custom pretty output for the IPython console
-        https://ipython.readthedocs.io/en/stable/api/generated/IPython.lib.pretty.html#extending
+        https://ipython.readthedocs.io/en/stable/api/generated/IPython.lib.pretty.html#extending  # noqa: E501
         """
         builder.text(self.__class__.__name__ + "(")
         if cycle:
@@ -125,7 +126,8 @@ class AttributeDict(ReadableAttributeDict[TKey, TValue], Hashable):
 class NamedElementOnion(Mapping[TKey, TValue]):
     """
     Add layers to an onion-shaped structure. Optionally, inject to a specific layer.
-    This structure is iterable, where the outermost layer is first, and innermost is last.
+    This structure is iterable, where the outermost layer is first, and innermost
+    is last.
     """
 
     def __init__(
@@ -168,8 +170,9 @@ class NamedElementOnion(Mapping[TKey, TValue]):
             raise TypeError("The layer for insertion must be an int.")
         elif layer != 0 and layer != len(self._queue):
             raise NotImplementedError(
-                f"You can only insert to the beginning or end of a {type(self)}, currently. "
-                f"You tried to insert to {layer}, but only 0 and {len(self._queue)} are permitted. "
+                f"You can only insert to the beginning or end of a {type(self)}, "
+                f"currently. You tried to insert to {layer}, but only 0 and "
+                f"{len(self._queue)} are permitted. "
             )
 
         self.add(element, name=name)
@@ -209,8 +212,8 @@ class NamedElementOnion(Mapping[TKey, TValue]):
     @property
     def middlewares(self) -> Sequence[Any]:
         """
-        Returns middlewares in the appropriate order to be imported into a new Web3 instance
-        (reversed _queue order) as a list of (middleware, name) tuples.
+        Returns middlewares in the appropriate order to be imported into a new Web3
+        instance (reversed _queue order) as a list of (middleware, name) tuples.
         """
         return [(val, key) for key, val in reversed(self._queue.items())]
 

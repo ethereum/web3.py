@@ -16,9 +16,10 @@ from web3.exceptions import (
 # the encoded calldata for the initiating ``addr(namehash(name))`` call
 ENCODED_ADDR_CALLDATA = "0x3b3b57de42041b0018edd29d7c17154b0c671acc0502ea0b3693cafbeadf58e6beaaa16c"  # noqa: E501
 
-# This is one of the actual returned payloads from the GET request that is triggered when
-# resolving ``ns.address('offchainexample.eth')`` on mainnet. Since we got rid of the time
-# expiration constraint for our OffchainResolver.sol, this hash ends up working for our local test
+# This is one of the actual returned payloads from the GET request that
+# is triggered when resolving ``ns.address('offchainexample.eth')``
+# on mainnet. Since we got rid of the time expiration constraint for our
+# OffchainResolver.sol, this hash ends up working for our local test
 # case as well since the signer is able to be recovered.
 OFFCHAIN_RESOLVER_DATA = (
     "0x0000000000000000000000000000000000000000000000000000000000000060"
@@ -32,12 +33,13 @@ OFFCHAIN_RESOLVER_DATA = (
 )
 
 EXPECTED_GET_URL = (
-    "https://web3.py/gateway/0x05ca7c4bc9886f11ae031d5c397a8b4827b4a4fd/0x9061b9230000000000000000"
-    "000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000"
-    "000000000000000008000000000000000000000000000000000000000000000000000000000000000150f6f666663"
-    "6861696e6578616d706c6503657468000000000000000000000000000000000000000000000000000000000000000"
-    "00000000000000000000000243b3b57de42041b0018edd29d7c17154b0c671acc0502ea0b3693cafbeadf58e6beaa"
-    "a16c00000000000000000000000000000000000000000000000000000000.json"
+    "https://web3.py/gateway/0x05ca7c4bc9886f11ae031d5c397a8b4827b4a4fd/0x9061b923000"
+    "00000000000000000000000000000000000000000000000000000000000400000000000000000000"
+    "00000000000000000000000000000000000000000008000000000000000000000000000000000000"
+    "000000000000000000000000000150f6f6666636861696e6578616d706c650365746800000000000"
+    "000000000000000000000000000000000000000000000000000000000000000000000000000243b3"
+    "b57de42041b0018edd29d7c17154b0c671acc0502ea0b3693cafbeadf58e6beaaa16c00000000000"
+    "000000000000000000000000000000000000000000000.json"
 )
 EXPECTED_POST_URL = (
     "https://web3.py/gateway/0x05ca7c4bc9886f11ae031d5c397a8b4827b4a4fd.json"
@@ -155,7 +157,8 @@ def test_offchain_resolution_with_improperly_formatted_http_response(ens, monkey
     with pytest.raises(
         ValidationError,
         match=(
-            "Improperly formatted response for offchain lookup HTTP request - missing 'data' field."
+            "Improperly formatted response for offchain lookup HTTP request "
+            "- missing 'data' field."
         ),
     ):
         ens.address("offchainexample.eth")
@@ -224,7 +227,8 @@ async def test_async_offchain_resolution_with_improperly_formatted_http_response
     with pytest.raises(
         ValidationError,
         match=(
-            "Improperly formatted response for offchain lookup HTTP request - missing 'data' field."
+            "Improperly formatted response for offchain lookup HTTP request "
+            "- missing 'data' field."
         ),
     ):
         await async_ens.address("offchainexample.eth")

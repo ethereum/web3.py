@@ -205,8 +205,8 @@ class BaseContractFunctions:
             )
         elif function_name not in self.__dict__["_functions"]:
             raise ABIFunctionNotFound(
-                f"The function '{function_name}' was not found in this contract's abi. ",
-                "Are you sure you provided the correct contract abi?",
+                f"The function '{function_name}' was not found in this contract's abi.",
+                " Are you sure you provided the correct contract abi?",
             )
         else:
             return super().__getattribute__(function_name)
@@ -563,7 +563,7 @@ class BaseContract:
             )
         else:
             if args is not None or kwargs is not None:
-                msg = "Constructor args were provided, but no constructor function was provided."
+                msg = "Constructor args were provided, but no constructor function was provided."  # noqa: E501
                 raise TypeError(msg)
 
             deploy_data = to_hex(cls.bytecode)
@@ -711,8 +711,8 @@ class Contract(BaseContract):
         """
         if cls.bytecode is None:
             raise ValueError(
-                "Cannot call constructor on a contract that does not have 'bytecode' associated "
-                "with it"
+                "Cannot call constructor on a contract that does not have "
+                "'bytecode' associated with it"
             )
 
         return ContractConstructor(cls.w3, cls.abi, cls.bytecode, *args, **kwargs)
@@ -814,8 +814,8 @@ class AsyncContract(BaseContract):
         """
         if cls.bytecode is None:
             raise ValueError(
-                "Cannot call constructor on a contract that does not have 'bytecode' associated "
-                "with it"
+                "Cannot call constructor on a contract that does not have "
+                "'bytecode' associated with it"
             )
 
         return AsyncContractConstructor(cls.w3, cls.abi, cls.bytecode, *args, **kwargs)
@@ -877,7 +877,9 @@ class BaseContractConstructor:
 
         if self.w3.eth.default_account is not empty:
             # type ignored b/c check prevents an empty default_account
-            estimate_gas_transaction.setdefault("from", self.w3.eth.default_account)  # type: ignore # noqa: E501
+            estimate_gas_transaction.setdefault(
+                "from", self.w3.eth.default_account  # type: ignore
+            )
 
         estimate_gas_transaction["data"] = self.data_in_transaction
 
@@ -894,7 +896,9 @@ class BaseContractConstructor:
 
         if self.w3.eth.default_account is not empty:
             # type ignored b/c check prevents an empty default_account
-            transact_transaction.setdefault("from", self.w3.eth.default_account)  # type: ignore
+            transact_transaction.setdefault(
+                "from", self.w3.eth.default_account  # type: ignore
+            )
 
         transact_transaction["data"] = self.data_in_transaction
 
@@ -1023,7 +1027,9 @@ class BaseContractFunction:
             self.selector = encode_hex(b"")
         elif is_text(self.function_identifier):
             # https://github.com/python/mypy/issues/4976
-            self.selector = encode_hex(function_abi_to_4byte_selector(self.abi))  # type: ignore
+            self.selector = encode_hex(
+                function_abi_to_4byte_selector(self.abi)  # type: ignore
+            )
         else:
             raise TypeError("Unsupported function identifier")
 
@@ -1043,7 +1049,9 @@ class BaseContractFunction:
             call_transaction.setdefault("to", self.address)
         if self.w3.eth.default_account is not empty:
             # type ignored b/c check prevents an empty default_account
-            call_transaction.setdefault("from", self.w3.eth.default_account)  # type: ignore
+            call_transaction.setdefault(
+                "from", self.w3.eth.default_account  # type: ignore
+            )
 
         if "to" not in call_transaction:
             if isinstance(self, type):
@@ -1072,7 +1080,9 @@ class BaseContractFunction:
             transact_transaction.setdefault("to", self.address)
         if self.w3.eth.default_account is not empty:
             # type ignored b/c check prevents an empty default_account
-            transact_transaction.setdefault("from", self.w3.eth.default_account)  # type: ignore
+            transact_transaction.setdefault(
+                "from", self.w3.eth.default_account  # type: ignore
+            )
 
         if "to" not in transact_transaction:
             if isinstance(self, type):
@@ -1101,7 +1111,9 @@ class BaseContractFunction:
             estimate_gas_transaction.setdefault("to", self.address)
         if self.w3.eth.default_account is not empty:
             # type ignored b/c check prevents an empty default_account
-            estimate_gas_transaction.setdefault("from", self.w3.eth.default_account)  # type: ignore # noqa: E501
+            estimate_gas_transaction.setdefault(
+                "from", self.w3.eth.default_account  # type: ignore
+            )
 
         if "to" not in estimate_gas_transaction:
             if isinstance(self, type):
@@ -1126,8 +1138,8 @@ class BaseContractFunction:
 
         if not self.address and "to" not in built_transaction:
             raise ValueError(
-                "When using `ContractFunction.build_transaction` from a contract factory "
-                "you must provide a `to` address with the transaction"
+                "When using `ContractFunction.build_transaction` from a contract "
+                "factory you must provide a `to` address with the transaction"
             )
         if self.address and "to" in built_transaction:
             raise ValueError("Cannot set 'to' field in contract call build transaction")
@@ -1330,7 +1342,8 @@ class AsyncContractFunction(BaseContractFunction):
             self._return_data_normalizers,
             self.function_identifier,
             call_transaction,
-            block_id,  # type: ignore # BlockIdentifier does have an Awaitable type in types.py
+            # BlockIdentifier does have an Awaitable type in types.py
+            block_id,  # type: ignore
             self.contract_abi,
             self.abi,
             state_override,
@@ -1446,9 +1459,10 @@ class BaseContractEvent:
                     raise e
                 else:
                     warnings.warn(
-                        f"The log with transaction hash: {log['transactionHash']!r} and "
-                        f"logIndex: {log['logIndex']} encountered the following error "
-                        f"during processing: {type(e).__name__}({e}). It has been discarded."
+                        f"The log with transaction hash: {log['transactionHash']!r} "
+                        f"and logIndex: {log['logIndex']} encountered the following "
+                        f"error during processing: {type(e).__name__}({e}). It has "
+                        "been discarded."
                     )
                     continue
             yield rich_log
@@ -1566,8 +1580,8 @@ class BaseContractEvent:
                 "blockHash cannot be set at the same time as fromBlock or toBlock"
             )
 
-        # Construct JSON-RPC raw filter presentation based on human readable Python descriptions
-        # Namely, convert event names to their keccak signatures
+        # Construct JSON-RPC raw filter presentation based on human readable
+        # Python descriptions. Namely, convert event names to their keccak signatures
         data_filter_set, event_filter_params = construct_event_filter_params(
             abi,
             self.w3.codec,
@@ -1735,7 +1749,9 @@ class AsyncContractEvent(BaseContractEvent):
         )
 
         # Convert raw binary data to Python proxy objects as described by ABI
-        return tuple(get_event_data(self.w3.codec, abi, entry) for entry in logs)  # type: ignore
+        return tuple(
+            get_event_data(self.w3.codec, abi, entry) for entry in logs  # type: ignore
+        )
 
 
 class BaseContractCaller:
@@ -1758,7 +1774,7 @@ class BaseContractCaller:
 
     or
 
-    > contract.caller(transaction={'from': eth.accounts[1], 'gas': 100000, ...}).add(2, 3)
+    > contract.caller(transaction={'from': eth.accounts[1], 'gas': 100000, ...}).add(2, 3)  # noqa: E501
     """
 
     def __init__(
@@ -1816,8 +1832,8 @@ class BaseContractCaller:
         elif function_name not in {fn["name"] for fn in self._functions}:
             functions_available = ", ".join([fn["name"] for fn in self._functions])
             raise ABIFunctionNotFound(
-                f"The function '{function_name}' was not found in this contract's ABI. ",
-                "Here is a list of all of the function names found: ",
+                f"The function '{function_name}' was not found in this contract's ABI.",
+                " Here is a list of all of the function names found: ",
                 f"{functions_available}. ",
                 "Did you mean to call one of those functions?",
             )
@@ -1939,9 +1955,9 @@ def check_for_forbidden_api_filter_arguments(
             )
         if is_list_like(filter_value) and is_dynamic_sized_type(_input["type"]):
             raise TypeError(
-                "createFilter no longer supports setting filter argument options for dynamic sized "
-                "types. See the build_filter method for setting filters with the match_any "
-                "method."
+                "createFilter no longer supports setting filter argument options for "
+                "dynamic sized types. See the build_filter method for setting "
+                "filters with the match_any method."
             )
 
 
@@ -2004,8 +2020,8 @@ def call_contract_function(
             )
         else:
             msg = (
-                f"Could not decode contract function call to {function_identifier} with "
-                f"return data: {str(return_data)}, output_types: {output_types}"
+                f"Could not decode contract function call to {function_identifier} "
+                f"with return data: {str(return_data)}, output_types: {output_types}"
             )
         raise BadFunctionCallOutput(msg) from e
 
@@ -2071,7 +2087,7 @@ async def async_call_contract_function(
         # eth-abi-utils
         is_missing_code_error = (
             return_data in ACCEPTABLE_EMPTY_STRINGS
-            and await async_w3.eth.get_code(address) in ACCEPTABLE_EMPTY_STRINGS  # type: ignore
+            and await async_w3.eth.get_code(address) in ACCEPTABLE_EMPTY_STRINGS  # type: ignore  # noqa: E501
         )
         if is_missing_code_error:
             msg = (
@@ -2080,8 +2096,8 @@ async def async_call_contract_function(
             )
         else:
             msg = (
-                f"Could not decode contract function call to {function_identifier} with "
-                f"return data: {str(return_data)}, output_types: {output_types}"
+                f"Could not decode contract function call to {function_identifier} "
+                f"with return data: {str(return_data)}, output_types: {output_types}"
             )
         raise BadFunctionCallOutput(msg) from e
 
@@ -2268,7 +2284,9 @@ async def async_estimate_gas_for_function(
         fn_kwargs=kwargs,
     )
 
-    return await w3.eth.estimate_gas(estimate_transaction, block_identifier)  # type: ignore
+    return await w3.eth.estimate_gas(  # type: ignore
+        estimate_transaction, block_identifier
+    )
 
 
 def build_transaction_for_function(

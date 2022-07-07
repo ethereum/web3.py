@@ -1,4 +1,5 @@
-# This file is used by the documentation as an example of how to write unit tests with web3.py
+# This file is used by the documentation as an example
+# of how to write unit tests with web3.py
 import pytest
 
 import pytest_asyncio

@@ -86,7 +86,8 @@ def create_content_addressed_github_uri(uri: URI) -> URI:
     contents = json.loads(response.content)
     if contents["type"] != "file":
         raise CannotHandleURI(
-            f"Expected url to point to a 'file' type, instead received {contents['type']}."
+            "Expected url to point to a 'file' type, "
+            f"instead received {contents['type']}."
         )
     return contents["git_url"]
 

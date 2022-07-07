@@ -99,8 +99,9 @@ def test_attach_modules_for_module_with_more_than_one_init_argument(
     with pytest.raises(
         UnsupportedOperation,
         match=(
-            "A module class may accept a single `Web3` instance as the first argument of its "
-            "__init__\\(\\) method. More than one argument found for ModuleManyArgs: \\['a', 'b']"
+            "A module class may accept a single `Web3` instance as the "
+            "first argument of its __init__\\(\\) method. More than one "
+            "argument found for ModuleManyArgs: \\['a', 'b']"
         ),
     ):
         w3.attach_modules({"module_should_fail": module_many_init_args})

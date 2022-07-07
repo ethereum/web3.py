@@ -175,7 +175,8 @@ def test_formatted_response_raises_correct_error_message(
     "response,params,error_formatters,null_result_formatters,expected",
     [
         (
-            # Response with a result of None doesn't raise if there is no null result formatter
+            # Response with a result of None doesn't raise
+            # if there is no null result formatter
             NONE_RESPONSE,
             ("0x03"),
             identity,
@@ -183,7 +184,8 @@ def test_formatted_response_raises_correct_error_message(
             NONE_RESPONSE["result"],
         ),
         (
-            # Response with a result of 0x doesn't raise if there is no null result formatter
+            # Response with a result of 0x doesn't raise
+            # if there is no null result formatter
             ZERO_X_RESPONSE,
             ("0x03"),
             identity,

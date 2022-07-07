@@ -112,7 +112,9 @@ async def fill_transaction_defaults(w3: "Web3", transaction: TxParams) -> TxPara
     """
     if w3 is None, fill as much as possible while offline
     """
-    strategy_based_gas_price = await w3.eth.generate_gas_price(transaction)  # type: ignore
+    strategy_based_gas_price = await w3.eth.generate_gas_price(  # type: ignore
+        transaction
+    )
     is_dynamic_fee_transaction = not strategy_based_gas_price and (
         "gasPrice" not in transaction  # default to dynamic fee transaction
         or any_in_dict(DYNAMIC_FEE_TXN_PARAMS, transaction)
@@ -127,7 +129,8 @@ async def fill_transaction_defaults(w3: "Web3", transaction: TxParams) -> TxPara
                 or not is_dynamic_fee_transaction
                 and key in DYNAMIC_FEE_TXN_PARAMS
             ):
-                # do not set default max fees if legacy txn or gas price if dynamic fee txn
+                # do not set default max fees if legacy txn or
+                # gas price if dynamic fee txn
                 continue
 
             if callable(default_getter):
@@ -187,8 +190,8 @@ async def async_handle_offchain_lookup(
 
         if "data" not in result.keys():
             raise ValidationError(
-                "Improperly formatted response for offchain lookup HTTP request - missing 'data' "
-                "field."
+                "Improperly formatted response for offchain lookup HTTP request "
+                "- missing 'data' field."
             )
 
         encoded_data_with_function_selector = b"".join(
