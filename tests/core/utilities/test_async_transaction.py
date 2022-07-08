@@ -78,3 +78,21 @@ async def test_fill_transaction_defaults_nondynamic_tranaction_fee(async_w3):
     )
 
     assert none_in_dict(DYNAMIC_FEE_TXN_PARAMS, default_transaction)
+
+
+@pytest.mark.asyncio()
+async def test_fill_transaction_defaults_for_zero_gas_price(async_w3):
+    def gas_price_strategy(_w3, tx):
+        return 0
+
+    async_w3.eth.set_gas_price_strategy(gas_price_strategy)
+
+    default_transaction = await fill_transaction_defaults(async_w3, {})
+
+    assert default_transaction == {
+        "chainId": await async_w3.eth.chain_id,
+        "data": b"",
+        "gas": await async_w3.eth.estimate_gas({}),
+        "value": 0,
+        "gasPrice": 0,
+    }

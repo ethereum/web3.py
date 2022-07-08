@@ -52,7 +52,7 @@ async def _estimate_gas(w3: "Web3", tx: TxParams) -> Awaitable[int]:
 
 
 async def _gas_price(w3: "Web3", tx: TxParams) -> Awaitable[Optional[Wei]]:
-    return await w3.eth.generate_gas_price(tx) or w3.eth.gas_price  # type: ignore
+    return await w3.eth.generate_gas_price(tx)  # type: ignore
 
 
 async def _max_fee_per_gas(w3: "Web3", tx: TxParams) -> Awaitable[Wei]:
@@ -115,7 +115,7 @@ async def fill_transaction_defaults(w3: "Web3", transaction: TxParams) -> TxPara
     strategy_based_gas_price = await w3.eth.generate_gas_price(  # type: ignore
         transaction
     )
-    is_dynamic_fee_transaction = not strategy_based_gas_price and (
+    is_dynamic_fee_transaction = strategy_based_gas_price is None and (
         "gasPrice" not in transaction  # default to dynamic fee transaction
         or any_in_dict(DYNAMIC_FEE_TXN_PARAMS, transaction)
     )
