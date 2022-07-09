@@ -77,9 +77,6 @@ from web3.exceptions import (
     TimeExhausted,
     TransactionNotFound,
 )
-from web3.iban import (
-    Iban,
-)
 from web3.method import (
     DeprecatedMethod,
     Method,
@@ -555,7 +552,6 @@ class AsyncEth(BaseEth):
 class Eth(BaseEth):
     account = Account()
     defaultContractFactory: Type[Union[Contract, ConciseContract, ContractCaller]] = Contract  # noqa: E704,E501
-    iban = Iban
 
     def namereg(self) -> NoReturn:
         raise NotImplementedError()
