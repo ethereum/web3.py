@@ -487,7 +487,7 @@ def merge_args_and_kwargs(
         return tuple()
 
 
-TUPLE_TYPE_STR_RE = re.compile(r"^(tuple)(\[([1-9][0-9]*)?\])?$")
+TUPLE_TYPE_STR_RE = re.compile(r"^(tuple)((\[([1-9]\d*\b)?])*)??$")
 
 
 def get_tuple_type_str_parts(s: str) -> Optional[Tuple[str, Optional[str]]]:
