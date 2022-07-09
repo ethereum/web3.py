@@ -83,9 +83,6 @@ from web3.geth import (
     GethPersonal,
     GethTxPool,
 )
-from web3.iban import (
-    Iban,
-)
 from web3.manager import (
     RequestManager as DefaultRequestManager,
 )
@@ -170,9 +167,6 @@ class Web3:
 
     # Managers
     RequestManager = DefaultRequestManager
-
-    # Iban
-    Iban = Iban
 
     # Encoding and Decoding
     @staticmethod

@@ -77,9 +77,6 @@ from web3.exceptions import (
     TooManyRequests,
     TransactionNotFound,
 )
-from web3.iban import (
-    Iban,
-)
 from web3.method import (
     Method,
     default_root_munger,
@@ -602,7 +599,6 @@ class AsyncEth(BaseEth):
 
 class Eth(BaseEth):
     account = Account()
-    iban = Iban
     defaultContractFactory: Type[Union[Contract, ContractCaller]] = Contract
 
     def namereg(self) -> NoReturn:
