@@ -15,8 +15,9 @@ from web3.exceptions import (
     )
 )
 def test_createIndirect(value, expected, web3):
-    actual = web3.eth.iban.createIndirect(value).toString()
-    assert actual == expected
+    with pytest.warns(DeprecationWarning, match="The IBAN feature has been deprecated in web3.py"):
+        actual = web3.eth.iban.createIndirect(value).toString()
+        assert actual == expected
 
 
 @pytest.mark.parametrize(
@@ -59,12 +60,14 @@ def test_createIndirect(value, expected, web3):
 def test_fromAddress(value, expected, web3):
 
     if isinstance(expected, type) and issubclass(expected, Exception):
-        with pytest.raises(expected):
-            web3.eth.iban.fromAddress(value).toString()
-        return
-
-    actual = web3.eth.iban.fromAddress(value).toString()
-    assert actual == expected
+        with pytest.warns(DeprecationWarning,
+                          match="The IBAN feature has been deprecated in web3.py"):
+            with pytest.raises(expected):
+                web3.eth.iban.fromAddress(value).toString()
+            return
+    with pytest.warns(DeprecationWarning, match="The IBAN feature has been deprecated in web3.py"):
+        actual = web3.eth.iban.fromAddress(value).toString()
+        assert actual == expected
 
 
 @pytest.mark.parametrize(
@@ -141,11 +144,13 @@ def test_fromAddress(value, expected, web3):
     ),
 )
 def test_isValid(value, expected, web3):
-    actual = web3.eth.iban.isValid(value)
-    assert actual is expected
+    with pytest.warns(DeprecationWarning, match="The IBAN feature has been deprecated in web3.py"):
+        actual = web3.eth.iban.isValid(value)
+        assert actual is expected
 
-    iban = web3.eth.iban(value)
-    assert iban.isValid() is expected
+    with pytest.warns(DeprecationWarning, match="The IBAN feature has been deprecated in web3.py"):
+        iban = web3.eth.iban(value)
+        assert iban.isValid() is expected
 
 
 @pytest.mark.parametrize(
@@ -158,5 +163,6 @@ def test_isValid(value, expected, web3):
     )
 )
 def test_toAddress(value, expected, web3):
-    actual = web3.eth.iban(value).address()
-    assert actual == expected
+    with pytest.warns(DeprecationWarning, match="The IBAN feature has been deprecated in web3.py"):
+        actual = web3.eth.iban(value).address()
+        assert actual == expected
