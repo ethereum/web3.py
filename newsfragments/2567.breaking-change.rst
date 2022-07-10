@@ -1,0 +1,1 @@
+Reorganized contract to contract.py, async_contract.py, base_contract.py and utils.py. In this change there was a small breaking change where the constructor of BaseContractCaller contract_function_class was defaulting to a ContractFunction now there is no default. This was done to seperate the base class from the implementation. 
