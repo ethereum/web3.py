@@ -655,7 +655,7 @@ class BaseContractConstructor:
 class BaseContractFunction:
     """Base class for contract functions
 
-    A function accessed via the api contract.functions.myMethod(*args, **kwargs)
+    A function accessed via the api `contract.functions.myMethod(*args, **kwargs)`
     is a subclass of this class.
     """
 
@@ -859,7 +859,7 @@ class BaseContractFunction:
 class BaseContractEvent:
     """Base class for contract events
 
-    An event accessed via the api contract.events.myEvents(*args, **kwargs)
+    An event accessed via the api `contract.events.myEvents(*args, **kwargs)`
     is a subclass of this class.
     """
 

@@ -49,7 +49,7 @@ Table of Contents
     troubleshooting
     web3.eth.account
     filters
-    contracts
+    web3.contract
     abi_types
     middleware
     internals
