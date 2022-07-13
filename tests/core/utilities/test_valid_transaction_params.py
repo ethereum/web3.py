@@ -149,3 +149,20 @@ def test_fill_transaction_defaults_for_all_params(web3):
         'maxPriorityFeePerGas': web3.eth.max_priority_fee,
         'value': 0,
     }
+
+
+def test_fill_transaction_defaults_for_zero_gas_price(web3):
+    def gas_price_strategy(_w3, tx):
+        return 0
+
+    web3.eth.set_gas_price_strategy(gas_price_strategy)
+
+    default_transaction = fill_transaction_defaults(web3, {})
+
+    assert default_transaction == {
+        "chainId": web3.eth.chain_id,
+        "data": b"",
+        "gas": web3.eth.estimate_gas({}),
+        "value": 0,
+        "gasPrice": 0,
+    }
