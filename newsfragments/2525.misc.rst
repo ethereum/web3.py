@@ -1,1 +1,0 @@
-Adds black checks to: web3/__init__.py, web3/constants.py, web3/datastructures.py, web3/exceptions.py, web3/iban.py, web3/logs.py, web3/main.py, web3/net.py, web3/parity.py, and web3/pm.py

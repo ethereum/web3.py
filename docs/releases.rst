@@ -3,6 +3,90 @@ Release Notes
 
 .. towncrier release notes start
 
+v6.0.0-beta.4 (2022-07-13)
+--------------------------
+
+Breaking Changes
+~~~~~~~~~~~~~~~~
+
+- sha3 and soliditySha3 were previously deprecated and now removed (`#2479
+  <https://github.com/ethereum/web3.py/issues/2479>`__)
+- Remove deprecated methods from Geth, Parity and Net modules (`#2480
+  <https://github.com/ethereum/web3.py/issues/2480>`__)
+- Provide better messaging to wrong arguments for contract functions,
+  especially for ``tuple`` argument types. (`#2556
+  <https://github.com/ethereum/web3.py/issues/2556>`__)
+
+
+Bugfixes
+~~~~~~~~
+
+- Properly format ``block_number`` for ``eth_getTransactionCount`` when using
+  ``EthereumTesterProvider`` (`#1801
+  <https://github.com/ethereum/web3.py/issues/1801>`__)
+- removed `Optional` type hints for `passphrase` arguments that aren't actually
+  optional (`#2511 <https://github.com/ethereum/web3.py/issues/2511>`__)
+- Fix `is_dynamic_fee_transaction` and `TRANSACTION_DEFAULTS` when
+  `gas_price_strategy` returns zero (`#2562
+  <https://github.com/ethereum/web3.py/issues/2562>`__)
+
+
+Documentation Updates
+~~~~~~~~~~~~~~~~~~~~~
+
+- Remove deprecated methods from Geth, Parity, and Net modules (`#2480
+  <https://github.com/ethereum/web3.py/issues/2480>`__)
+- replace double- with single-quotes to make f-string valid (`#2504
+  <https://github.com/ethereum/web3.py/issues/2504>`__)
+- added geth personal_sign and personal_ec_recover documentation (`#2511
+  <https://github.com/ethereum/web3.py/issues/2511>`__)
+
+
+Features
+~~~~~~~~
+
+- Add transaction result formatters for `type` and `chainId` to convert values
+  to ``int`` if ``hexadecimal`` if the field is not null (`#2491
+  <https://github.com/ethereum/web3.py/issues/2491>`__)
+- Add a global flag on the provider for enabling / disabling CCIP Read for
+  calls: ``global_ccip_read_enabled`` (defaults to ``True``). (`#2499
+  <https://github.com/ethereum/web3.py/issues/2499>`__)
+- Deprecate Geth Admin StartRPC and StopRPC for StartHTTP and StopHTTP (`#2507
+  <https://github.com/ethereum/web3.py/issues/2507>`__)
+- Added Async support for ENS (`#2547
+  <https://github.com/ethereum/web3.py/issues/2547>`__)
+- support multi-dimensional arrays for ABI tuples types (`#2555
+  <https://github.com/ethereum/web3.py/issues/2555>`__)
+
+
+Misc
+~~~~
+
+- `#2345 <https://github.com/ethereum/web3.py/issues/2345>`__, `#2483
+  <https://github.com/ethereum/web3.py/issues/2483>`__, `#2505
+  <https://github.com/ethereum/web3.py/issues/2505>`__, `#2513
+  <https://github.com/ethereum/web3.py/issues/2513>`__, `#2514
+  <https://github.com/ethereum/web3.py/issues/2514>`__, `#2515
+  <https://github.com/ethereum/web3.py/issues/2515>`__, `#2516
+  <https://github.com/ethereum/web3.py/issues/2516>`__, `#2518
+  <https://github.com/ethereum/web3.py/issues/2518>`__, `#2520
+  <https://github.com/ethereum/web3.py/issues/2520>`__, `#2521
+  <https://github.com/ethereum/web3.py/issues/2521>`__, `#2522
+  <https://github.com/ethereum/web3.py/issues/2522>`__, `#2523
+  <https://github.com/ethereum/web3.py/issues/2523>`__, `#2524
+  <https://github.com/ethereum/web3.py/issues/2524>`__, `#2525
+  <https://github.com/ethereum/web3.py/issues/2525>`__, `#2527
+  <https://github.com/ethereum/web3.py/issues/2527>`__, `#2530
+  <https://github.com/ethereum/web3.py/issues/2530>`__, `#2531
+  <https://github.com/ethereum/web3.py/issues/2531>`__, `#2534
+  <https://github.com/ethereum/web3.py/issues/2534>`__, `#2542
+  <https://github.com/ethereum/web3.py/issues/2542>`__, `#2544
+  <https://github.com/ethereum/web3.py/issues/2544>`__, `#2550
+  <https://github.com/ethereum/web3.py/issues/2550>`__, `#2551
+  <https://github.com/ethereum/web3.py/issues/2551>`__, `#2559
+  <https://github.com/ethereum/web3.py/issues/2559>`__
+
+
 v6.0.0-beta.3 (2022-06-01)
 --------------------------
 

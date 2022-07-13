@@ -1,1 +1,0 @@
-Add black lint checks to web3/testing.py, web3/types.py, web3/version.py, web3/manager.py, web3/method.py, web3/module.py, and web3/geth.py

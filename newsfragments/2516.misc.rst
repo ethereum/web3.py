@@ -1,1 +1,0 @@
-Add Black linting to ``_utils/module_testing``

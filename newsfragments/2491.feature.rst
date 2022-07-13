@@ -1,1 +1,0 @@
-Add transaction result formatters for `type` and `chainId` to convert values to ``int`` if ``hexadecimal`` if the field is not null

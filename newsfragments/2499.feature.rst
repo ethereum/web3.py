@@ -1,1 +1,0 @@
-Add a global flag on the provider for enabling / disabling CCIP Read for calls: ``global_ccip_read_enabled`` (defaults to ``True``).

@@ -1,1 +1,0 @@
-Add Black lint checks to Beacon module, ``web3/gas_strategies``, and ``web3/scripts``

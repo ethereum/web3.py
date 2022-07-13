@@ -1,1 +1,0 @@
-Change flake8 line length limit from 100 -> 88 to be consistent with black defaults

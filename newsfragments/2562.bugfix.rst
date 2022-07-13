@@ -1,1 +1,0 @@
-Fix `is_dynamic_fee_transaction` and `TRANSACTION_DEFAULTS` when `gas_price_strategy` returns zero

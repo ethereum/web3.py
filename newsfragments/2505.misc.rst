@@ -1,1 +1,0 @@
-Removed ConciseContract and ImplicitContract from contract.
