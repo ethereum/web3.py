@@ -1,0 +1,1 @@
+Add some missing supported async middlewares to docs.
