@@ -58,7 +58,7 @@ TRANSACTION_DEFAULTS = {
     'value': 0,
     'data': b'',
     'gas': lambda web3, tx: web3.eth.estimate_gas(tx),
-    'gasPrice': lambda web3, tx: web3.eth.generate_gas_price(tx) or web3.eth.gas_price,
+    'gasPrice': lambda web3, tx: web3.eth.generate_gas_price(tx),
     'maxFeePerGas': (
         lambda web3, tx:
         web3.eth.max_priority_fee + (2 * web3.eth.get_block('latest')['baseFeePerGas'])
@@ -91,7 +91,7 @@ def fill_transaction_defaults(web3: "Web3", transaction: TxParams) -> TxParams:
     """
     strategy_based_gas_price = web3.eth.generate_gas_price(transaction)
     is_dynamic_fee_transaction = (
-        not strategy_based_gas_price
+        strategy_based_gas_price is None
         and (
             'gasPrice' not in transaction  # default to dynamic fee transaction
             or any_in_dict(DYNAMIC_FEE_TXN_PARAMS, transaction)
