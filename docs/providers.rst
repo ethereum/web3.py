@@ -470,9 +470,9 @@ Geth
 
 Contract
 ^^^^^^^^
-Contract is fully implemented for the Async provider. The only documented exception to this at 
+Contract is fully implemented for the Async provider. The only documented exception to this at
 the moment is where :class:`ENS` is needed for address lookup. All addresses that are passed to Async
-contract should not be :class:`ENS` addresses. 
+contract should not be :class:`ENS` addresses.
 
 ENS
 ^^^^^^^^
@@ -483,3 +483,5 @@ Supported Middleware
 - :meth:`Gas Price Strategy <web3.middleware.gas_price_strategy_middleware>`
 - :meth:`Buffered Gas Estimate Middleware <web3.middleware.buffered_gas_estimate_middleware>`
 - :meth:`Stalecheck Middleware <web3.middleware.make_stalecheck_middleware>`
+- :meth:`Validation middleware <web3.middleware.validation>`
+- :ref:`Geth POA Middleware <geth-poa>`
