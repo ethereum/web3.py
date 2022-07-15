@@ -29,12 +29,17 @@ IbanOptions = TypedDict("IbanOptions", {
 })
 
 
-def pad_left_hex(value: str, num_bytes: int) -> str:
+def _issue_deprecation_warning() -> None:
     warnings.warn(
         "The IBAN feature is deprecated and will be removed in v6",
-        category=DeprecationWarning
+        category=DeprecationWarning,
     )
-    return value.rjust(num_bytes * 2, '0')
+
+
+def pad_left_hex(value: str, num_bytes: int) -> str:
+    _issue_deprecation_warning()
+
+    return value.rjust(num_bytes * 2, "0")
 
 
 def iso13616Prepare(iban: str) -> str:
@@ -47,10 +52,8 @@ def iso13616Prepare(iban: str) -> str:
     @param {String} iban the IBAN
     @returns {String} the prepared IBAN
     """
-    warnings.warn(
-        "The IBAN feature is deprecated and will be removed in v6",
-        category=DeprecationWarning
-    )
+    _issue_deprecation_warning()
+
     A = ord("A")
     Z = ord("Z")
 
@@ -75,10 +78,8 @@ def mod9710(iban: str) -> int:
     @param {String} iban
     @returns {Number}
     """
-    warnings.warn(
-        "The IBAN feature is deprecated and will be removed in v6",
-        category=DeprecationWarning
-    )
+    _issue_deprecation_warning()
+
     remainder = iban
     block = None
 
@@ -96,10 +97,8 @@ def baseN(num: int, b: int, numerals: str = "0123456789abcdefghijklmnopqrstuvwxy
 
     @param {String} iban
     """
-    warnings.warn(
-        "The IBAN feature is deprecated and will be removed in v6",
-        category=DeprecationWarning
-    )
+    _issue_deprecation_warning()
+
     return ((num == 0) and numerals[0]) or \
         (baseN(num // b, b, numerals).lstrip(numerals[0]) + numerals[num % b])
 
@@ -115,20 +114,16 @@ class IsValid:
     @returns {Boolean} true if it is, otherwise false
     """
     def __get__(self, instance: 'Iban', owner: str) -> Callable[[str], bool]:
-        warnings.warn(
-            "The IBAN feature is deprecated and will be removed in v6",
-            category=DeprecationWarning
-        )
+        _issue_deprecation_warning()
+
         if instance is None:
             return self.validate
         return functools.partial(self.validate, instance._iban)
 
     @staticmethod
     def validate(iban_address: Any) -> bool:
-        warnings.warn(
-            "The IBAN feature is deprecated and will be removed in v6",
-            category=DeprecationWarning
-        )
+        _issue_deprecation_warning()
+
         if not is_string(iban_address):
             return False
 
@@ -140,12 +135,9 @@ class IsValid:
 
 
 class Iban:
-
     def __init__(self, iban: str) -> None:
-        warnings.warn(
-            "The IBAN feature is deprecated and will be removed in v6",
-            category=DeprecationWarning
-        )
+        _issue_deprecation_warning()
+
         self._iban = iban
 
     @staticmethod
@@ -158,10 +150,8 @@ class Iban:
         @param {String} address
         @return {Iban} the IBAN object
         """
-        warnings.warn(
-            "The IBAN feature is deprecated and will be removed in v6",
-            category=DeprecationWarning
-        )
+        _issue_deprecation_warning()
+
         validate_address(address)
         address_as_integer = int(address, 16)
         address_as_base36 = baseN(address_as_integer, 36)
@@ -181,10 +171,8 @@ class Iban:
         @param {String} bban the BBAN to convert to IBAN
         @returns {Iban} the IBAN object
         """
-        warnings.warn(
-            "The IBAN feature is deprecated and will be removed in v6",
-            category=DeprecationWarning
-        )
+        _issue_deprecation_warning()
+
         countryCode = "XE"
 
         remainder = mod9710(iso13616Prepare(countryCode + "00" + bban))
@@ -201,10 +189,8 @@ class Iban:
         @param {Object} options, required options are "institution" and "identifier"
         @return {Iban} the IBAN object
         """
-        warnings.warn(
-            "The IBAN feature is deprecated and will be removed in v6",
-            category=DeprecationWarning
-        )
+        _issue_deprecation_warning()
+
         return Iban.fromBban("ETH" + options["institution"] + options["identifier"])
 
     isValid = IsValid()
@@ -216,10 +202,8 @@ class Iban:
         @method isDirect
         @returns {Boolean} true if it is, otherwise false
         """
-        warnings.warn(
-            "The IBAN feature is deprecated and will be removed in v6",
-            category=DeprecationWarning
-        )
+        _issue_deprecation_warning()
+
         return len(self._iban) in [34, 35]
 
     def isIndirect(self) -> bool:
@@ -229,10 +213,8 @@ class Iban:
         @method isIndirect
         @returns {Boolean} true if it is, otherwise false
         """
-        warnings.warn(
-            "The IBAN feature is deprecated and will be removed in v6",
-            category=DeprecationWarning
-        )
+        _issue_deprecation_warning()
+
         return len(self._iban) == 20
 
     def checksum(self) -> str:
@@ -243,10 +225,8 @@ class Iban:
         @method checksum
         @returns {String} checksum
         """
-        warnings.warn(
-            "The IBAN feature is deprecated and will be removed in v6",
-            category=DeprecationWarning
-        )
+        _issue_deprecation_warning()
+
         return self._iban[2:4]
 
     def institution(self) -> str:
@@ -257,10 +237,8 @@ class Iban:
         @method institution
         @returns {String} institution identifier
         """
-        warnings.warn(
-            "The IBAN feature is deprecated and will be removed in v6",
-            category=DeprecationWarning
-        )
+        _issue_deprecation_warning()
+
         if self.isIndirect():
             return self._iban[7:11]
         else:
@@ -274,10 +252,8 @@ class Iban:
         @method client
         @returns {String} client identifier
         """
-        warnings.warn(
-            "The IBAN feature is deprecated and will be removed in v6",
-            category=DeprecationWarning
-        )
+        _issue_deprecation_warning()
+
         if self.isIndirect():
             return self._iban[11:]
         else:
@@ -290,10 +266,8 @@ class Iban:
         @method address
         @returns {String} client direct address
         """
-        warnings.warn(
-            "The IBAN feature is deprecated and will be removed in v6",
-            category=DeprecationWarning
-        )
+        _issue_deprecation_warning()
+
         if self.isDirect():
             base36 = self._iban[4:]
             asInt = int(base36, 36)
@@ -302,8 +276,6 @@ class Iban:
         return ""
 
     def toString(self) -> str:
-        warnings.warn(
-            "The IBAN feature is deprecated and will be removed in v6",
-            category=DeprecationWarning
-        )
+        _issue_deprecation_warning()
+
         return self._iban
