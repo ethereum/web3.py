@@ -136,7 +136,7 @@ Features
 Misc
 ~~~~
 
-- `#2054 <https://github.com/ethereum/web3.py/issues/2054>`__, `#2450
+- `#2454 <https://github.com/ethereum/web3.py/issues/2454>`__, `#2450
   <https://github.com/ethereum/web3.py/issues/2450>`__, `#2462
   <https://github.com/ethereum/web3.py/issues/2462>`__, `#2471
   <https://github.com/ethereum/web3.py/issues/2471>`__, `#2478
