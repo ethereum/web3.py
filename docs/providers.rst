@@ -484,5 +484,6 @@ Supported Middleware
 - :meth:`Gas Price Strategy <web3.middleware.gas_price_strategy_middleware>`
 - :meth:`Buffered Gas Estimate Middleware <web3.middleware.buffered_gas_estimate_middleware>`
 - :meth:`Stalecheck Middleware <web3.middleware.make_stalecheck_middleware>`
-- :meth:`Validation middleware <web3.middleware.validation>`
+- :meth:`Validation Middleware <web3.middleware.validation>`
 - :ref:`Geth POA Middleware <geth-poa>`
+- :meth:`Simple Cache Middleware <web3.middleware.simple_cache_middleware>`

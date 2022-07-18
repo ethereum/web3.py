@@ -25,12 +25,10 @@ from web3._utils import (
     request,
 )
 from web3._utils.caching import (
+    SimpleCache,
     generate_cache_key,
 )
 from web3._utils.request import (
-    SessionCache,
-    _async_session_cache_lock,
-    async_lock,
     cache_and_return_async_session,
     cache_and_return_session,
 )
@@ -129,7 +127,7 @@ def test_precached_session(mocker):
 
 
 def test_cache_session_class():
-    cache = SessionCache(2)
+    cache = SimpleCache(2)
     evicted_items = cache.cache("1", "Hello1")
     assert cache.get_cache_entry("1") == "Hello1"
     assert evicted_items is None
@@ -166,7 +164,7 @@ def test_cache_does_not_close_session_before_a_call_when_multithreading():
     timeout_default = request.DEFAULT_TIMEOUT
 
     # set cache size to 1 + set future session close thread time to 0.01s
-    request._session_cache = SessionCache(1)
+    request._session_cache = SimpleCache(1)
     _timeout_for_testing = 0.01
     request.DEFAULT_TIMEOUT = _timeout_for_testing
 
@@ -244,7 +242,7 @@ async def test_async_cache_does_not_close_session_before_a_call_when_multithread
     timeout_default = request.DEFAULT_TIMEOUT
 
     # set cache size to 1 + set future session close thread time to 0.01s
-    request._async_session_cache = SessionCache(1)
+    request._async_session_cache = SimpleCache(1)
     _timeout_for_testing = 0.01
     request.DEFAULT_TIMEOUT = _timeout_for_testing
 
@@ -325,23 +323,3 @@ async def test_async_unique_cache_keys_created_per_thread_with_same_uri():
 
     # clear cache
     request._async_session_cache.clear()
-
-
-@pytest.mark.asyncio
-async def test_async_lock_releases_if_a_task_is_cancelled():
-    # inspired by issue #2693
-    # Note: this test will raise a `TimeoutError` if `request.async_lock` is not
-    # applied correctly
-
-    async def _utilize_async_lock():
-        async with async_lock(_async_session_cache_lock):
-            await asyncio.sleep(0.2)
-
-    asyncio.create_task(_utilize_async_lock())
-
-    inner = asyncio.create_task(_utilize_async_lock())
-    await asyncio.sleep(0.1)
-    inner.cancel()
-
-    outer = asyncio.wait_for(_utilize_async_lock(), 2)
-    await outer

@@ -9,6 +9,7 @@ from typing import (
     Dict,
     Set,
     Type,
+    Union,
     cast,
 )
 
@@ -18,7 +19,10 @@ from eth_utils import (
 import lru
 
 from web3._utils.caching import (
+    SimpleCache,
     generate_cache_key,
+    type_aware_cache_entry,
+    type_aware_get_cache_entry,
 )
 from web3._utils.compat import (
     Literal,
@@ -37,90 +41,53 @@ if TYPE_CHECKING:
 
 SIMPLE_CACHE_RPC_WHITELIST = cast(
     Set[RPCEndpoint],
-    {
+    (
         "web3_clientVersion",
-        "web3_sha3",
         "net_version",
-        # 'net_peerCount',
-        # 'net_listening',
-        "eth_protocolVersion",
-        # 'eth_syncing',
-        # 'eth_coinbase',
-        # 'eth_mining',
-        # 'eth_hashrate',
-        # 'eth_gasPrice',
-        # 'eth_accounts',
-        # 'eth_blockNumber',
-        # 'eth_getBalance',
-        # 'eth_getStorageAt',
-        # 'eth_getTransactionCount',
         "eth_getBlockTransactionCountByHash",
-        # 'eth_getBlockTransactionCountByNumber',
         "eth_getUncleCountByBlockHash",
-        # 'eth_getUncleCountByBlockNumber',
-        # 'eth_getCode',
-        # 'eth_sign',
-        # 'eth_sendTransaction',
-        # 'eth_sendRawTransaction',
-        # 'eth_call',
-        # 'eth_estimateGas',
         "eth_getBlockByHash",
-        # 'eth_getBlockByNumber',
         "eth_getTransactionByHash",
         "eth_getTransactionByBlockHashAndIndex",
-        # 'eth_getTransactionByBlockNumberAndIndex',
-        # 'eth_getTransactionReceipt',
         "eth_getRawTransactionByHash",
         "eth_getUncleByBlockHashAndIndex",
-        # 'eth_getUncleByBlockNumberAndIndex',
-        # 'eth_getCompilers',
-        # 'eth_compileLLL',
-        # 'eth_compileSolidity',
-        # 'eth_compileSerpent',
-        # 'eth_newFilter',
-        # 'eth_newBlockFilter',
-        # 'eth_newPendingTransactionFilter',
-        # 'eth_uninstallFilter',
-        # 'eth_getFilterChanges',
-        # 'eth_getFilterLogs',
-        # 'eth_getLogs',
-        # 'eth_getWork',
-        # 'eth_submitWork',
-        # 'eth_submitHashrate',
         "eth_chainId",
-    },
+    ),
 )
 
 
-def _should_cache(method: RPCEndpoint, params: Any, response: RPCResponse) -> bool:
-    if "error" in response:
-        return False
-    elif "result" not in response:
-        return False
-
-    if response["result"] is None:
-        return False
-    return True
+def _should_cache_response(
+    _method: RPCEndpoint, _params: Any, response: RPCResponse
+) -> bool:
+    return (
+        "error" not in response
+        and "result" in response
+        and response["result"] is not None
+    )
 
 
 def construct_simple_cache_middleware(
-    cache_class: Type[Dict[Any, Any]],
-    rpc_whitelist: Collection[RPCEndpoint] = SIMPLE_CACHE_RPC_WHITELIST,
-    should_cache_fn: Callable[[RPCEndpoint, Any, RPCResponse], bool] = _should_cache,
+    cache_class: Union[Type[Dict[str, Any]], Type[SimpleCache]],
+    rpc_whitelist: Collection[RPCEndpoint] = None,
+    should_cache_fn: Callable[
+        [RPCEndpoint, Any, RPCResponse], bool
+    ] = _should_cache_response,
 ) -> Middleware:
     """
     Constructs a middleware which caches responses based on the request
     ``method`` and ``params``
 
-    :param cache_class: Any dictionary-like object
+    :param cache_class: A ``SimpleCache`` class or any dictionary-like object.
     :param rpc_whitelist: A set of RPC methods which may have their responses cached.
     :param should_cache_fn: A callable which accepts ``method`` ``params`` and
         ``response`` and returns a boolean as to whether the response should be
         cached.
     """
+    if rpc_whitelist is None:
+        rpc_whitelist = SIMPLE_CACHE_RPC_WHITELIST
 
     def simple_cache_middleware(
-        make_request: Callable[[RPCEndpoint, Any], RPCResponse], w3: "Web3"
+        make_request: Callable[[RPCEndpoint, Any], RPCResponse], _w3: "Web3"
     ) -> Callable[[RPCEndpoint, Any], RPCResponse]:
         cache = cache_class()
         lock = threading.Lock()
@@ -132,13 +99,16 @@ def construct_simple_cache_middleware(
 
             try:
                 if lock_acquired and method in rpc_whitelist:
-                    cache_key = generate_cache_key((method, params))
-                    if cache_key not in cache:
+                    cache_key = generate_cache_key(
+                        f"{threading.get_ident()}:{(method, params)}"
+                    )
+
+                    if not type_aware_get_cache_entry(cache, cache_key):
                         response = make_request(method, params)
                         if should_cache_fn(method, params, response):
-                            cache[cache_key] = response
+                            type_aware_cache_entry(cache, cache_key, response)
                         return response
-                    return cache[cache_key]
+                    return type_aware_get_cache_entry(cache, cache_key)
                 else:
                     return make_request(method, params)
             finally:
@@ -151,61 +121,15 @@ def construct_simple_cache_middleware(
 
 
 _simple_cache_middleware = construct_simple_cache_middleware(
-    cache_class=cast(Type[Dict[Any, Any]], functools.partial(lru.LRU, 256)),
+    cache_class=cast(Type[SimpleCache], functools.partial(SimpleCache, 256)),
 )
 
 
 TIME_BASED_CACHE_RPC_WHITELIST = cast(
     Set[RPCEndpoint],
     {
-        # 'web3_clientVersion',
-        # 'web3_sha3',
-        # 'net_version',
-        # 'net_peerCount',
-        # 'net_listening',
-        # 'eth_protocolVersion',
-        # 'eth_syncing',
         "eth_coinbase",
-        # 'eth_mining',
-        # 'eth_hashrate',
-        # 'eth_gasPrice',
         "eth_accounts",
-        # 'eth_blockNumber',
-        # 'eth_getBalance',
-        # 'eth_getStorageAt',
-        # 'eth_getTransactionCount',
-        # 'eth_getBlockTransactionCountByHash',
-        # 'eth_getBlockTransactionCountByNumber',
-        # 'eth_getUncleCountByBlockHash',
-        # 'eth_getUncleCountByBlockNumber',
-        # 'eth_getCode',
-        # 'eth_sign',
-        # 'eth_sendTransaction',
-        # 'eth_sendRawTransaction',
-        # 'eth_call',
-        # 'eth_estimateGas',
-        # 'eth_getBlockByHash',
-        # 'eth_getBlockByNumber',
-        # 'eth_getTransactionByHash',
-        # 'eth_getTransactionByBlockHashAndIndex',
-        # 'eth_getTransactionByBlockNumberAndIndex',
-        # 'eth_getTransactionReceipt',
-        # 'eth_getUncleByBlockHashAndIndex',
-        # 'eth_getUncleByBlockNumberAndIndex',
-        # 'eth_getCompilers',
-        # 'eth_compileLLL',
-        # 'eth_compileSolidity',
-        # 'eth_compileSerpent',
-        # 'eth_newFilter',
-        # 'eth_newBlockFilter',
-        # 'eth_newPendingTransactionFilter',
-        # 'eth_uninstallFilter',
-        # 'eth_getFilterChanges',
-        # 'eth_getFilterLogs',
-        # 'eth_getLogs',
-        # 'eth_getWork',
-        # 'eth_submitWork',
-        # 'eth_submitHashrate',
     },
 )
 
@@ -214,7 +138,9 @@ def construct_time_based_cache_middleware(
     cache_class: Callable[..., Dict[Any, Any]],
     cache_expire_seconds: int = 15,
     rpc_whitelist: Collection[RPCEndpoint] = TIME_BASED_CACHE_RPC_WHITELIST,
-    should_cache_fn: Callable[[RPCEndpoint, Any, RPCResponse], bool] = _should_cache,
+    should_cache_fn: Callable[
+        [RPCEndpoint, Any, RPCResponse], bool
+    ] = _should_cache_response,
 ) -> Middleware:
     """
     Constructs a middleware which caches responses based on the request
@@ -279,54 +205,21 @@ _time_based_cache_middleware = construct_time_based_cache_middleware(
 BLOCK_NUMBER_RPC_WHITELIST = cast(
     Set[RPCEndpoint],
     {
-        # 'web3_clientVersion',
-        # 'web3_sha3',
-        # 'net_version',
-        # 'net_peerCount',
-        # 'net_listening',
-        # 'eth_protocolVersion',
-        # 'eth_syncing',
-        # 'eth_coinbase',
-        # 'eth_mining',
-        # 'eth_hashrate',
         "eth_gasPrice",
-        # 'eth_accounts',
         "eth_blockNumber",
         "eth_getBalance",
         "eth_getStorageAt",
         "eth_getTransactionCount",
-        # 'eth_getBlockTransactionCountByHash',
         "eth_getBlockTransactionCountByNumber",
-        # 'eth_getUncleCountByBlockHash',
         "eth_getUncleCountByBlockNumber",
         "eth_getCode",
-        # 'eth_sign',
-        # 'eth_sendTransaction',
-        # 'eth_sendRawTransaction',
         "eth_call",
         "eth_estimateGas",
-        # 'eth_getBlockByHash',
         "eth_getBlockByNumber",
-        # 'eth_getTransactionByHash',
-        # 'eth_getTransactionByBlockHashAndIndex',
         "eth_getTransactionByBlockNumberAndIndex",
         "eth_getTransactionReceipt",
-        # 'eth_getUncleByBlockHashAndIndex',
         "eth_getUncleByBlockNumberAndIndex",
-        # 'eth_getCompilers',
-        # 'eth_compileLLL',
-        # 'eth_compileSolidity',
-        # 'eth_compileSerpent',
-        # 'eth_newFilter',
-        # 'eth_newBlockFilter',
-        # 'eth_newPendingTransactionFilter',
-        # 'eth_uninstallFilter',
-        # 'eth_getFilterChanges',
-        # 'eth_getFilterLogs',
         "eth_getLogs",
-        # 'eth_getWork',
-        # 'eth_submitWork',
-        # 'eth_submitHashrate',
     },
 )
 
@@ -362,7 +255,9 @@ def construct_latest_block_based_cache_middleware(
     rpc_whitelist: Collection[RPCEndpoint] = BLOCK_NUMBER_RPC_WHITELIST,
     average_block_time_sample_size: int = 240,
     default_average_block_time: int = 15,
-    should_cache_fn: Callable[[RPCEndpoint, Any, RPCResponse], bool] = _should_cache,
+    should_cache_fn: Callable[
+        [RPCEndpoint, Any, RPCResponse], bool
+    ] = _should_cache_response,
 ) -> Middleware:
     """
     Constructs a middleware which caches responses based on the request
