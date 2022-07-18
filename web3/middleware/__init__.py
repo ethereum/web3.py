@@ -14,6 +14,9 @@ from web3.types import (
 from .abi import (  # noqa: F401
     abi_middleware,
 )
+from web3.middleware.async_cache import (  # noqa: F401
+    _async_simple_cache_middleware as async_simple_cache_middleware,
+)
 from .attrdict import (  # noqa: F401
     attrdict_middleware,
 )

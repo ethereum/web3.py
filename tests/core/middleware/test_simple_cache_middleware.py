@@ -1,5 +1,6 @@
 import itertools
 import pytest
+import threading
 import uuid
 
 from web3 import Web3
@@ -11,8 +12,21 @@ from web3.middleware import (
     construct_result_generator_middleware,
     construct_simple_cache_middleware,
 )
+from web3.middleware.async_cache import (
+    async_construct_simple_cache_middleware,
+)
+from web3.middleware.fixture import (
+    async_construct_error_generator_middleware,
+    async_construct_result_generator_middleware,
+)
 from web3.providers.base import (
     BaseProvider,
+)
+from web3.providers.eth_tester import (
+    AsyncEthereumTesterProvider,
+)
+from web3.types import (
+    RPCEndpoint,
 )
 
 
@@ -25,8 +39,8 @@ def w3_base():
 def result_generator_middleware():
     return construct_result_generator_middleware(
         {
-            "fake_endpoint": lambda *_: str(uuid.uuid4()),
-            "not_whitelisted": lambda *_: str(uuid.uuid4()),
+            RPCEndpoint("fake_endpoint"): lambda *_: str(uuid.uuid4()),
+            RPCEndpoint("not_whitelisted"): lambda *_: str(uuid.uuid4()),
         }
     )
 
@@ -40,13 +54,15 @@ def w3(w3_base, result_generator_middleware):
 def test_simple_cache_middleware_pulls_from_cache(w3):
     def cache_class():
         return {
-            generate_cache_key(("fake_endpoint", [1])): {"result": "value-a"},
+            generate_cache_key(f"{threading.get_ident()}:{('fake_endpoint', [1])}"): {
+                "result": "value-a"
+            },
         }
 
     w3.middleware_onion.add(
         construct_simple_cache_middleware(
             cache_class=cache_class,
-            rpc_whitelist={"fake_endpoint"},
+            rpc_whitelist={RPCEndpoint("fake_endpoint")},
         )
     )
 
@@ -57,7 +73,7 @@ def test_simple_cache_middleware_populates_cache(w3):
     w3.middleware_onion.add(
         construct_simple_cache_middleware(
             cache_class=dict,
-            rpc_whitelist={"fake_endpoint"},
+            rpc_whitelist={RPCEndpoint("fake_endpoint")},
         )
     )
 
@@ -71,14 +87,14 @@ def test_simple_cache_middleware_does_not_cache_none_responses(w3_base):
     counter = itertools.count()
     w3 = w3_base
 
-    def result_cb(method, params):
+    def result_cb(_method, _params):
         next(counter)
         return None
 
     w3.middleware_onion.add(
         construct_result_generator_middleware(
             {
-                "fake_endpoint": result_cb,
+                RPCEndpoint("fake_endpoint"): result_cb,
             }
         )
     )
@@ -86,7 +102,7 @@ def test_simple_cache_middleware_does_not_cache_none_responses(w3_base):
     w3.middleware_onion.add(
         construct_simple_cache_middleware(
             cache_class=dict,
-            rpc_whitelist={"fake_endpoint"},
+            rpc_whitelist={RPCEndpoint("fake_endpoint")},
         )
     )
 
@@ -101,7 +117,7 @@ def test_simple_cache_middleware_does_not_cache_error_responses(w3_base):
     w3.middleware_onion.add(
         construct_error_generator_middleware(
             {
-                "fake_endpoint": lambda *_: f"msg-{uuid.uuid4()}",
+                RPCEndpoint("fake_endpoint"): lambda *_: f"msg-{uuid.uuid4()}",
             }
         )
     )
@@ -109,7 +125,7 @@ def test_simple_cache_middleware_does_not_cache_error_responses(w3_base):
     w3.middleware_onion.add(
         construct_simple_cache_middleware(
             cache_class=dict,
-            rpc_whitelist={"fake_endpoint"},
+            rpc_whitelist={RPCEndpoint("fake_endpoint")},
         )
     )
 
@@ -125,7 +141,7 @@ def test_simple_cache_middleware_does_not_cache_endpoints_not_in_whitelist(w3):
     w3.middleware_onion.add(
         construct_simple_cache_middleware(
             cache_class=dict,
-            rpc_whitelist={"fake_endpoint"},
+            rpc_whitelist={RPCEndpoint("fake_endpoint")},
         )
     )
 
@@ -133,3 +149,157 @@ def test_simple_cache_middleware_does_not_cache_endpoints_not_in_whitelist(w3):
     result_b = w3.manager.request_blocking("not_whitelisted", [])
 
     assert result_a != result_b
+
+
+# -- async -- #
+
+
+async def _async_simple_cache_middleware_for_testing(make_request, async_w3):
+    middleware = await async_construct_simple_cache_middleware(
+        cache_class=dict,
+        rpc_whitelist={RPCEndpoint("fake_endpoint")},
+    )
+    return await middleware(make_request, async_w3)
+
+
+@pytest.fixture
+def async_w3():
+    return Web3(
+        provider=AsyncEthereumTesterProvider(),
+        middlewares=[
+            (_async_simple_cache_middleware_for_testing, "simple_cache"),
+        ],
+    )
+
+
+@pytest.mark.asyncio
+async def test_async_simple_cache_middleware_pulls_from_cache(async_w3):
+    # remove the pre-loaded simple cache middleware to replace with test-specific:
+    async_w3.middleware_onion.remove("simple_cache")
+
+    def cache_class():
+        return {
+            generate_cache_key(f"{threading.get_ident()}:{('fake_endpoint', [1])}"): {
+                "result": "value-a"
+            },
+        }
+
+    async def _properly_awaited_middleware(make_request, _async_w3):
+        middleware = await async_construct_simple_cache_middleware(
+            cache_class=cache_class,
+            rpc_whitelist={RPCEndpoint("fake_endpoint")},
+        )
+        return await middleware(make_request, _async_w3)
+
+    async_w3.middleware_onion.inject(
+        _properly_awaited_middleware,
+        "for_this_test_only",
+        layer=0,
+    )
+
+    _result = await async_w3.manager.coro_request("fake_endpoint", [1])
+    assert _result == "value-a"
+
+    # -- teardown -- #
+    async_w3.middleware_onion.remove("for_this_test_only")
+    # add back the pre-loaded simple cache middleware:
+    async_w3.middleware_onion.add(
+        _async_simple_cache_middleware_for_testing, "simple_cache"
+    )
+
+
+@pytest.mark.asyncio
+async def test_async_simple_cache_middleware_populates_cache(async_w3):
+    async_w3.middleware_onion.inject(
+        await async_construct_result_generator_middleware(
+            {
+                RPCEndpoint("fake_endpoint"): lambda *_: str(uuid.uuid4()),
+            }
+        ),
+        "result_generator",
+        layer=0,
+    )
+
+    result = await async_w3.manager.coro_request("fake_endpoint", [])
+
+    _empty_params = await async_w3.manager.coro_request("fake_endpoint", [])
+    _non_empty_params = await async_w3.manager.coro_request("fake_endpoint", [1])
+
+    assert _empty_params == result
+    assert _non_empty_params != result
+
+    # -- teardown -- #
+    async_w3.middleware_onion.remove("result_generator")
+
+
+@pytest.mark.asyncio
+async def test_async_simple_cache_middleware_does_not_cache_none_responses(async_w3):
+    counter = itertools.count()
+
+    def result_cb(_method, _params):
+        next(counter)
+        return None
+
+    async_w3.middleware_onion.inject(
+        await async_construct_result_generator_middleware(
+            {
+                RPCEndpoint("fake_endpoint"): result_cb,
+            },
+        ),
+        "result_generator",
+        layer=0,
+    )
+
+    await async_w3.manager.coro_request("fake_endpoint", [])
+    await async_w3.manager.coro_request("fake_endpoint", [])
+
+    assert next(counter) == 2
+
+    # -- teardown -- #
+    async_w3.middleware_onion.remove("result_generator")
+
+
+@pytest.mark.asyncio
+async def test_async_simple_cache_middleware_does_not_cache_error_responses(async_w3):
+    async_w3.middleware_onion.inject(
+        await async_construct_error_generator_middleware(
+            {
+                RPCEndpoint("fake_endpoint"): lambda *_: f"msg-{uuid.uuid4()}",
+            }
+        ),
+        "error_generator",
+        layer=0,
+    )
+
+    with pytest.raises(ValueError) as err_a:
+        await async_w3.manager.coro_request("fake_endpoint", [])
+    with pytest.raises(ValueError) as err_b:
+        await async_w3.manager.coro_request("fake_endpoint", [])
+
+    assert str(err_a) != str(err_b)
+
+    # -- teardown -- #
+    async_w3.middleware_onion.remove("error_generator")
+
+
+@pytest.mark.asyncio
+async def test_async_simple_cache_middleware_does_not_cache_non_whitelist_endpoints(
+    async_w3,
+):
+    async_w3.middleware_onion.inject(
+        await async_construct_result_generator_middleware(
+            {
+                RPCEndpoint("not_whitelisted"): lambda *_: str(uuid.uuid4()),
+            }
+        ),
+        "result_generator",
+        layer=0,
+    )
+
+    result_a = await async_w3.manager.coro_request("not_whitelisted", [])
+    result_b = await async_w3.manager.coro_request("not_whitelisted", [])
+
+    assert result_a != result_b
+
+    # -- teardown -- #
+    async_w3.middleware_onion.remove("result_generator")

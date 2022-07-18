@@ -1,17 +1,12 @@
 import asyncio
-from collections import (
-    OrderedDict,
-)
 from concurrent.futures import (
     ThreadPoolExecutor,
 )
-import contextlib
 import logging
 import os
 import threading
 from typing import (
     Any,
-    AsyncGenerator,
     Dict,
     List,
     Optional,
@@ -28,7 +23,11 @@ from eth_typing import (
 )
 import requests
 
+from web3._utils.async_caching import (
+    async_lock,
+)
 from web3._utils.caching import (
+    SimpleCache,
     generate_cache_key,
 )
 
@@ -37,44 +36,11 @@ logger = logging.getLogger(__name__)
 DEFAULT_TIMEOUT = 10
 
 
-class SessionCache:
-    def __init__(self, size: int):
-        self._size = size
-        self._data: OrderedDict[str, Any] = OrderedDict()
-
-    def cache(self, key: str, value: Any) -> Dict[str, Any]:
-        evicted_items = None
-        # If the key is already in the OrderedDict just update it
-        # and don't evict any values. Ideally, we could still check to see
-        # if there are too many items in the OrderedDict but that may rearrange
-        # the order it should be unlikely that the size could grow over the limit
-        if key not in self._data:
-            while len(self._data) >= self._size:
-                if evicted_items is None:
-                    evicted_items = {}
-                k, v = self._data.popitem(last=False)
-                evicted_items[k] = v
-        self._data[key] = value
-        return evicted_items
-
-    def get_cache_entry(self, key: str) -> Any:
-        return self._data[key]
-
-    def clear(self) -> None:
-        self._data.clear()
-
-    def __contains__(self, item: str) -> bool:
-        return item in self._data
-
-    def __len__(self) -> int:
-        return len(self._data)
-
-
 def get_default_http_endpoint() -> URI:
     return URI(os.environ.get("WEB3_HTTP_PROVIDER_URI", "http://localhost:8545"))
 
 
-_session_cache = SessionCache(size=100)
+_session_cache = SimpleCache(size=100)
 _session_cache_lock = threading.Lock()
 
 
@@ -145,9 +111,9 @@ def _close_evicted_sessions(evicted_sessions: List[requests.Session]) -> None:
 # --- async --- #
 
 
-_async_session_cache = SessionCache(size=100)
+_async_session_cache = SimpleCache(size=100)
 _async_session_cache_lock = threading.Lock()
-_pool = ThreadPoolExecutor(max_workers=1)
+_async_session_pool = ThreadPoolExecutor(max_workers=1)
 
 
 async def cache_and_return_async_session(
@@ -158,7 +124,7 @@ async def cache_and_return_async_session(
     cache_key = generate_cache_key(f"{threading.get_ident()}:{endpoint_uri}")
 
     evicted_items = None
-    async with async_lock(_async_session_cache_lock):
+    async with async_lock(_async_session_pool, _async_session_cache_lock):
         if cache_key not in _async_session_cache:
             if session is None:
                 session = ClientSession(raise_for_status=True)
@@ -191,16 +157,6 @@ async def cache_and_return_async_session(
         ).start()
 
     return cached_session
-
-
-@contextlib.asynccontextmanager
-async def async_lock(lock: threading.Lock) -> AsyncGenerator[None, None]:
-    loop = asyncio.get_event_loop()
-    try:
-        await loop.run_in_executor(_pool, lock.acquire)
-        yield
-    finally:
-        lock.release()
 
 
 async def async_get_response_from_get_request(
