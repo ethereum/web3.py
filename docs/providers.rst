@@ -411,6 +411,7 @@ Supported Methods
 
 Eth
 ***
+- :class:`web3.eth.account <eth_account.account.Account>`
 - :meth:`web3.eth.accounts <web3.eth.Eth.accounts>`
 - :meth:`web3.eth.block_number <web3.eth.Eth.block_number>`
 - :meth:`web3.eth.chain_id <web3.eth.Eth.chain_id>`

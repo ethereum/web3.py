@@ -1,11 +1,18 @@
 # coding=utf-8
 
 import pytest
+from unittest.mock import (
+    patch,
+)
 
 from eth_account.messages import (
     encode_defunct,
 )
+from eth_account.signers.local import (
+    LocalAccount,
+)
 from eth_utils import (
+    is_bytes,
     is_checksum_address,
     to_bytes,
     to_hex,
@@ -21,8 +28,15 @@ from web3 import (
     Account,
     Web3,
 )
+from web3.eth import (
+    AsyncEth,
+    BaseEth,
+)
 from web3.providers.eth_tester import (
     EthereumTesterProvider,
+)
+from web3.providers.eth_tester.main import (
+    AsyncEthereumTesterProvider,
 )
 
 # from https://github.com/ethereum/tests/blob/3930ca3a9a377107d5792b3e7202f79c688f1a67/BasicTests/txtest.json # noqa: 501
@@ -77,7 +91,7 @@ def web3js_password():
 @pytest.fixture(params=["instance", "class"])
 def acct(request, w3):
     if request.param == "instance":
-        return w3.eth.account
+        return BaseEth(w3).account
     elif request.param == "class":
         return Account
     raise Exception("Unreachable!")
@@ -86,6 +100,21 @@ def acct(request, w3):
 @pytest.fixture()
 def w3():
     return Web3(EthereumTesterProvider())
+
+
+@pytest.fixture()
+def async_w3():
+    return Web3(AsyncEthereumTesterProvider(), modules={"eth": [AsyncEth]})
+
+
+def test_blocking_eth_account(w3):
+    account = w3.eth.account.create()
+    assert account is not None
+
+
+def test_async_eth_account(async_w3):
+    account = async_w3.eth.account.create()
+    assert account is not None
 
 
 def test_eth_account_create_variation(acct):
@@ -536,3 +565,18 @@ def test_eth_account_sign_and_send_EIP155_transaction_to_eth_tester(
     assert actual_txn.r == r
     assert actual_txn.s == s
     assert actual_txn.v == v
+
+
+@patch("web3.eth.BaseEth.account", "wired via BaseEth")
+def test_account_is_wired_via_base_eth_for_sync_and_async(w3, async_w3):
+    # this gives us some comfort that all the `w3` tests would apply for `async_w3` as
+    # well, since `Account` is static and not actually awaited
+    assert w3.eth.account == "wired via BaseEth"
+    assert async_w3.eth.account == "wired via BaseEth"
+
+
+def test_async_eth_account_creates_account(async_w3):
+    account = async_w3.eth.account.create()
+    assert isinstance(account, LocalAccount)
+    assert is_checksum_address(account.address)
+    assert is_bytes(account.privateKey)

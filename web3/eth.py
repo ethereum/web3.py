@@ -115,6 +115,7 @@ class BaseEth(Module):
     _default_account: Union[ChecksumAddress, Empty] = empty
     _default_block: BlockIdentifier = "latest"
     gasPriceStrategy = None
+    account = Account()
     defaultContractFactory: Any = None
 
     _gas_price: Method[Callable[[], Wei]] = Method(
@@ -598,7 +599,6 @@ class AsyncEth(BaseEth):
 
 
 class Eth(BaseEth):
-    account = Account()
     defaultContractFactory: Type[Union[Contract, ContractCaller]] = Contract
 
     def namereg(self) -> NoReturn:
