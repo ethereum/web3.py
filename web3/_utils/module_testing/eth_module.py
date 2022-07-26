@@ -1405,6 +1405,67 @@ class AsyncEthModuleTest:
         # reset to default
         async_w3.eth.default_block = "latest"
 
+    @pytest.mark.asyncio
+    async def test_async_eth_newFilter(self, async_w3: "Web3") -> None:
+        filter = async_w3.eth.filter({})
+
+        changes = await async_w3.eth.get_filter_changes(filter.filter_id)
+        assert is_list_like(changes)
+        assert not changes
+
+        logs = await async_w3.eth.get_filter_logs(filter.filter_id)
+        assert is_list_like(logs)
+        assert not logs
+
+        result = await async_w3.eth.uninstall_filter(filter.filter_id)
+        assert result is True
+
+    @pytest.mark.asyncio
+    async def test_async_eth_newBlockFilter(self, async_w3: "Web3") -> None:
+        filter = async_w3.eth.filter("latest")
+        assert is_string(filter.filter_id)
+
+        changes = await async_w3.eth.get_filter_changes(filter.filter_id)
+        assert is_list_like(changes)
+        assert not changes
+
+        # TODO: figure out why this fails in go-ethereum
+        # logs = async_w3.eth.get_filter_logs(filter.filter_id)
+        # assert is_list_like(logs)
+        # assert not logs
+
+        result = await async_w3.eth.uninstall_filter(filter.filter_id)
+        assert result is True
+
+    @pytest.mark.asyncio
+    async def test_async_eth_newPendingTransactionFilter(self, async_w3: "Web3") -> None:
+        filter = async_w3.eth.filter("pending")
+        assert is_string(filter.filter_id)
+
+        changes = await async_w3.eth.get_filter_changes(filter.filter_id)
+        assert is_list_like(changes)
+        assert not changes
+
+        # TODO: figure out why this fails in go-ethereum
+        # logs = async_w3.eth.get_filter_logs(filter.filter_id)
+        # assert is_list_like(logs)
+        # assert not logs
+
+        result = await async_w3.eth.uninstall_filter(filter.filter_id)
+        assert result is True
+        
+        
+    @pytest.mark.asyncio
+    async def test_async_eth_uninstall_filter(self, async_w3: "Web3") -> None:
+        filter = async_w3.eth.filter({})
+        assert is_string(filter.filter_id)
+
+        success = await async_w3.eth.uninstall_filter(filter.filter_id)
+        assert success is True
+
+        failure = await async_w3.eth.uninstall_filter(filter.filter_id)
+        assert failure is False
+
 
 class EthModuleTest:
     def test_eth_syncing(self, w3: "Web3") -> None:
