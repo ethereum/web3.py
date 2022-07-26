@@ -25,7 +25,8 @@ def test_resolver_future_warning_when_name_is_missing(ens):
 
     # assert no warning when `name` is passed in as a kwarg
     with warnings.catch_warnings():
-        warnings.simplefilter("error")  # turn all warnings to errors
+        # turn all `FutureWarning` warnings to errors:
+        warnings.simplefilter("error", category=FutureWarning)
         assert ens.resolver(name="EtH")
 
     # assert TypeError if both arguments passed in
