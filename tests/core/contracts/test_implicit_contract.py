@@ -70,13 +70,13 @@ def test_implicitcontract_transact_default(web3, math_contract, get_transaction_
     assert is_integer(start_count)  # Verify correct type
     # When a function is called that defaults to transact
     blocknum, starting_txns = get_transaction_count("pending")
-    with pytest.warns(DeprecationWarning,
-                      match='deprecated in favor of classic contract syntax') as warnings:
+    with pytest.warns(
+        DeprecationWarning,
+        match='deprecated in favor of classic contract syntax'
+    ):
         math_contract.increment(transact={})
         # Check that a transaction was made and not a call
         assert math_contract.counter() - start_count == 1
-        # Check that the correct number of warnings are raised
-        assert len(warnings) == 2
     # (Auto-mining is enabled, so query by block number)
     assert get_transaction_count(blocknum) == starting_txns + 1
     # Check that only one block was mined
@@ -102,12 +102,13 @@ def test_implicitcontract_transact_override(math_contract, get_transaction_count
     assert is_integer(start_count)  # Verify correct type
     # When a function is called with call override that defaults to transact
     blocknum, starting_txns = get_transaction_count("pending")
-    with pytest.warns(DeprecationWarning,
-                      match='deprecated in favor of classic contract syntax') as warnings:
+    with pytest.warns(
+        DeprecationWarning,
+        match='deprecated in favor of classic contract syntax'
+    ):
         math_contract.increment(call={})
         # Check that a call was made and not a transact
         assert math_contract.counter() - start_count == 0
-        assert len(warnings) == 2
     # (Auto-mining is enabled, so query by block number)
     assert get_transaction_count(blocknum) == starting_txns
     # Check that no blocks were mined
