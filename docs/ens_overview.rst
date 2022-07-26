@@ -1,14 +1,14 @@
 .. _ens_overview:
 
-Ethereum Name Service
-=====================
+Ethereum Name Service (ENS)
+===========================
 
-The Ethereum Name Service is analogous to the Domain Name Service. It
+The Ethereum Name Service (ENS) is analogous to the Domain Name Service. It
 enables users and developers to use human-friendly names in place of error-prone
 hexadecimal addresses, content hashes, and more.
 
-The :mod:`ens` module is included with web3.py. It provides an interface to look up
-an address from a name, set up your own address, and more.
+The :mod:`ens` module is included with Web3.py. It provides an interface to look up
+domains and addresses, add resolver records, or get and set metadata.
 
 Setup
 -----
@@ -37,7 +37,29 @@ Create an :class:`~ens.ENS` object (named ``ns`` below) in one of three ways:
     w3 = Web3(...)
     ns = ENS.fromWeb3(w3)
 
-....
+
+Asynchronous support is available via the ``AsyncENS`` module:
+
+.. code-block:: python
+
+    from ens import AsyncENS
+
+    ns = AsyncENS(provider)
+
+
+Note that an ``ens`` module instance is also avaliable on the ``w3`` instance.
+The first time it's used, Web3.py will create the  ``ens`` instance using
+``ENS.fromWeb3(w3)`` or ``AsyncENS.fromWeb3(w3)`` as appropriate.
+
+.. code-block:: python
+
+    # instantiate w3 instance
+    from web3 import Web3, IPCProvider
+    w3 = Web3(IPCProvider(...))
+
+    # use the module
+    w3.ens.address('ethereum.eth')
+
 
 Usage
 -----
@@ -163,7 +185,7 @@ You'll need to setup the address first, and then the text can be set:
 
 .. code-block:: python
 
-    ns.setup_address('jasoncarver.eth', 0x5B2063246F2191f18F2675ceDB8b28102e957458)
+    ns.setup_address('jasoncarver.eth', '0x5B2063246F2191f18F2675ceDB8b28102e957458')
     ns.set_text('jasoncarver.eth', 'url', 'https://example.com')
 
 A transaction dictionary can be passed as the last argument if desired:
