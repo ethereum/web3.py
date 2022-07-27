@@ -375,6 +375,7 @@ class BaseEth(Module):
                 "or hex."
             )
 
+
 class AsyncEth(BaseEth):
     is_async = True
     defaultContractFactory: Type[
@@ -625,7 +626,7 @@ class AsyncEth(BaseEth):
     ) -> HexBytes:
         return await self._get_storage_at(account, position, block_identifier)
 
-    filter: Method[Callable[..., Any]] = Method(
+    filter: Method[Callable[..., Awaitable[Any]]] = Method(
         method_choice_depends_on_args=select_filter_method(
             if_new_block_filter=RPC.eth_newBlockFilter,
             if_new_pending_transaction_filter=RPC.eth_newPendingTransactionFilter,
@@ -634,26 +635,26 @@ class AsyncEth(BaseEth):
         mungers=[BaseEth.filter_munger],
     )
 
-    _get_filter_changes: Method[Callable[[HexStr], List[LogReceipt]]] = Method(
-        RPC.eth_getFilterChanges, mungers=[default_root_munger]
-    )
+    _get_filter_changes: Method[
+        Callable[[HexStr], Awaitable[List[LogReceipt]]]
+    ] = Method(RPC.eth_getFilterChanges, mungers=[default_root_munger])
 
-    async def get_filter_changes(self, filter_id: HexStr):
+    async def get_filter_changes(self, filter_id: HexStr) -> List[LogReceipt]:
         return await self._get_filter_changes(filter_id)
 
-    _get_filter_logs: Method[Callable[[HexStr], List[LogReceipt]]] = Method(
+    _get_filter_logs: Method[Callable[[HexStr], Awaitable[List[LogReceipt]]]] = Method(
         RPC.eth_getFilterLogs, mungers=[default_root_munger]
     )
-    
-    async def get_filter_logs(self, filter_id: HexStr):
+
+    async def get_filter_logs(self, filter_id: HexStr) -> List[LogReceipt]:
         return await self._get_filter_logs(filter_id)
 
-    _uninstall_filter: Method[Callable[[HexStr], bool]] = Method(
+    _uninstall_filter: Method[Callable[[HexStr], Awaitable[bool]]] = Method(
         RPC.eth_uninstallFilter,
         mungers=[default_root_munger],
     )
 
-    async def uninstall_filter(self, filter_id: HexStr):
+    async def uninstall_filter(self, filter_id: HexStr) -> bool:
         return await self._uninstall_filter(filter_id)
 
 
@@ -960,7 +961,6 @@ class Eth(BaseEth):
         reward_percentiles: Optional[List[float]] = None,
     ) -> FeeHistory:
         return self._fee_history(block_count, newest_block, reward_percentiles)
-
 
     filter: Method[Callable[..., Any]] = Method(
         method_choice_depends_on_args=select_filter_method(
