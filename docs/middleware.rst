@@ -361,18 +361,24 @@ All of the caching middlewares accept these common arguments.
 
 .. _geth-poa:
 
-Proof of authority
+Proof of Authority
 ~~~~~~~~~~~~~~~~~~
 
-This middleware is required to connect to ``geth --dev`` or the Rinkeby public network.
-It maybe also needed for other EVM compatible blockchains like Polygon or BNB Chain (Binance Smart Chain).
+.. note::
+    It's important to inject the middleware at the 0th layer of the middleware onion:
+    `w3.middleware_onion.inject(geth_poa_middleware, layer=0)`
 
-If the middleware is not installed you may get errors like the example below when interacting
-with your EVM node.
+The ``geth_poa_middleware`` is required to connect to ``geth --dev`` or the Rinkeby
+public network. It may also be needed for other EVM compatible blockchains like Polygon
+or BNB Chain (Binance Smart Chain).
 
-.. code-block::
+If the middleware is not injected at the 0th layer of the middleware onion, you may get
+errors like the example below when interacting with your EVM node.
 
-     web3.exceptions.ExtraDataLengthError: The field extraData is 97 bytes, but should be 32. It is quite likely that you are connected to a POA chain. Refer to http://web3py.readthedocs.io/en/stable/middleware.html#geth-style-proof-of-authority for more details. The full extraData is: HexBytes('...')
+```web3.exceptions.ExtraDataLengthError: The field extraData is 97 bytes, but should be
+32. It is quite likely that you are connected to a POA chain. Refer to
+http://web3py.readthedocs.io/en/stable/middleware.html#proof-of-authority
+for more details. The full extraData is: HexBytes('...')```
 
 
 The easiest way to connect to a default ``geth --dev`` instance which loads the middleware is:
@@ -398,7 +404,7 @@ unique IPC location and loads the middleware:
 
     >>> from web3.middleware import geth_poa_middleware
 
-    # inject the poa compatibility middleware to the innermost layer
+    # inject the poa compatibility middleware to the innermost layer (0th layer)
     >>> w3.middleware_onion.inject(geth_poa_middleware, layer=0)
 
     # confirm that the connection succeeded
