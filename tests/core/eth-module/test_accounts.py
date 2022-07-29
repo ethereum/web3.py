@@ -572,4 +572,4 @@ def test_async_eth_account_creates_account(async_w3):
     account = async_w3.eth.account.create()
     assert isinstance(account, LocalAccount)
     assert is_checksum_address(account.address)
-    assert is_bytes(account.privateKey)
+    assert is_bytes(account.key)

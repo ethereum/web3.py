@@ -1,1 +1,1 @@
-Moved `Eth.account` to `BaseEth.account` so that it could be use in `AsyncEth`
+Support for ``Account`` class access in ``AsyncEth`` via ``async_w3.eth.account``
