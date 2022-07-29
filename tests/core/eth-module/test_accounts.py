@@ -102,21 +102,6 @@ def w3():
     return Web3(EthereumTesterProvider())
 
 
-@pytest.fixture()
-def async_w3():
-    return Web3(AsyncEthereumTesterProvider(), modules={"eth": [AsyncEth]})
-
-
-def test_blocking_eth_account(w3):
-    account = w3.eth.account.create()
-    assert account is not None
-
-
-def test_async_eth_account(async_w3):
-    account = async_w3.eth.account.create()
-    assert account is not None
-
-
 def test_eth_account_create_variation(acct):
     account1 = acct.create()
     account2 = acct.create()
@@ -565,6 +550,14 @@ def test_eth_account_sign_and_send_EIP155_transaction_to_eth_tester(
     assert actual_txn.r == r
     assert actual_txn.s == s
     assert actual_txn.v == v
+
+
+# -- async -- #
+
+
+@pytest.fixture()
+def async_w3():
+    return Web3(AsyncEthereumTesterProvider(), modules={"eth": [AsyncEth]})
 
 
 @patch("web3.eth.BaseEth.account", "wired via BaseEth")
