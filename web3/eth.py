@@ -112,6 +112,7 @@ from web3.types import (
 
 
 class BaseEth(Module):
+    account = Account()
     _default_account: Union[ChecksumAddress, Empty] = empty
     _default_block: BlockIdentifier = "latest"
     gasPriceStrategy = None
@@ -552,7 +553,6 @@ class AsyncEth(BaseEth):
 
 
 class Eth(BaseEth):
-    account = Account()
     defaultContractFactory: Type[Union[Contract, ConciseContract, ContractCaller]] = Contract  # noqa: E704,E501
     iban = Iban
 
