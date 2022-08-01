@@ -55,9 +55,14 @@ def attach_modules(
                 " The web3 object already has an attribute with that name"
             )
 
-        # The parent module is the ``Web3`` instance on first run of the loop
-        if type(parent_module).__name__ == "Web3":
-            w3 = parent_module
+        # The parent module is the ``Web3`` instance on first run of the loop and w3 is
+        # None. Thus, set w3 to the parent_module. The import needs to happen locally
+        # due to circular import issues.
+        if w3 is None:
+            from web3 import Web3
+
+            if isinstance(parent_module, Web3):
+                w3 = parent_module
 
         module_init_params = _validate_init_params_and_return_if_found(module_class)
         if len(module_init_params) == 1:
