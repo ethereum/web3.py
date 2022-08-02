@@ -1,3 +1,4 @@
+import asyncio
 import pytest
 
 from aiohttp import (
@@ -20,6 +21,7 @@ from web3._utils.caching import (
 )
 from web3._utils.request import (
     SessionCache,
+    get_async_session,
 )
 
 
@@ -94,24 +96,7 @@ def test_precached_session(mocker):
     assert adapter._pool_maxsize == 100
 
 
-@pytest.mark.asyncio
-async def test_async_precached_session(mocker):
-    # Add a session
-    session = ClientSession()
-    await request.cache_async_session(URI, session)
-    assert len(request._async_session_cache) == 1
-
-    # Make sure the session isn't duplicated
-    await request.cache_async_session(URI, session)
-    assert len(request._async_session_cache) == 1
-
-    # Make sure a request with a different URI adds another cached session
-    await request.cache_async_session(f"{URI}/test", session)
-    assert len(request._async_session_cache) == 2
-
-
 def test_cache_session_class():
-
     cache = SessionCache(2)
     evicted_items = cache.cache("1", "Hello1")
     assert cache.get_cache_entry("1") == "Hello1"
@@ -130,9 +115,83 @@ def test_cache_session_class():
     evicted_items = cache.cache("3", "Hello3")
     assert "2" in cache
     assert "3" in cache
+
     assert "1" not in cache
+    assert "1" in evicted_items
 
     with pytest.raises(KeyError):
         # This should throw a KeyError since the cache size was 2 and 3 were inserted
         # the first inserted cached item was removed and returned in evicted items
         cache.get_cache_entry("1")
+
+
+# -- async -- #
+
+
+@pytest.mark.asyncio
+async def test_async_precached_session():
+    # Add a session
+    session = ClientSession()
+    await request.cache_async_session(URI, session)
+    assert len(request._async_session_cache) == 1
+
+    # Make sure the session isn't duplicated
+    await request.cache_async_session(URI, session)
+    assert len(request._async_session_cache) == 1
+
+    # Make sure a request with a different URI adds another cached session
+    await request.cache_async_session(f"{URI}/test", session)
+    assert len(request._async_session_cache) == 2
+
+
+@pytest.mark.asyncio
+async def test_async_cache_does_not_close_session_before_a_call():
+    unique_uris = [
+        "https://www.test1.com",
+        "https://www.test2.com",
+        "https://www.test3.com",
+        "https://www.test4.com",
+        "https://www.test5.com",
+    ]
+
+    # save default values
+    session_cache_default = request._async_session_cache
+    timeout_default = request.DEFAULT_TIMEOUT
+
+    # set cache size to 1 + set future session close thread time to 0.02s
+    request._async_session_cache = SessionCache(1)
+    _timeout_for_testing = 0.01
+    request.DEFAULT_TIMEOUT = _timeout_for_testing
+
+    async def cache_uri_and_return_evicted_session(uri):
+        _session = await get_async_session(uri)
+
+        # sort of simulate a call taking 0.1s to return a response
+        await asyncio.sleep(0.01)
+
+        assert not _session.closed
+        return _session
+
+    tasks = [cache_uri_and_return_evicted_session(uri) for uri in unique_uris]
+
+    evicted_sessions = await asyncio.gather(*tasks)
+    assert len(evicted_sessions) == len(unique_uris)
+    assert all(isinstance(s, ClientSession) for s in evicted_sessions)
+
+    # last session remains in cache
+    cache_data = request._async_session_cache._data
+    assert len(cache_data) == 1
+
+    # -- teardown -- #
+
+    # appropriately close the cached session before exiting test
+    _key, cached_session = cache_data.popitem()
+    await cached_session.close()
+
+    # reset to default values
+    request._async_session_cache = session_cache_default
+    request.DEFAULT_TIMEOUT = timeout_default
+
+    # assert all evicted sessions were closed
+    await asyncio.sleep(_timeout_for_testing + 0.1)
+    assert all(session.closed for session in evicted_sessions)

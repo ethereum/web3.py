@@ -1,11 +1,19 @@
+import asyncio
 from collections import (
     OrderedDict,
 )
+from concurrent.futures import (
+    ThreadPoolExecutor,
+)
+import contextlib
+import logging
 import os
 import threading
 from typing import (
     Any,
+    AsyncGenerator,
     Dict,
+    List,
     Union,
 )
 
@@ -22,6 +30,11 @@ import requests
 from web3._utils.caching import (
     generate_cache_key,
 )
+
+logger = logging.Logger(__file__)
+logger.addHandler(logging.StreamHandler())
+
+DEFAULT_TIMEOUT = 10
 
 
 class SessionCache:
@@ -89,7 +102,7 @@ def get_session(
 def get_response_from_get_request(
     endpoint_uri: URI, *args: Any, **kwargs: Any
 ) -> requests.Response:
-    kwargs.setdefault("timeout", 10)
+    kwargs.setdefault("timeout", DEFAULT_TIMEOUT)
     session = get_session(endpoint_uri)
     response = session.get(endpoint_uri, *args, **kwargs)
     return response
@@ -98,7 +111,7 @@ def get_response_from_get_request(
 def get_response_from_post_request(
     endpoint_uri: URI, *args: Any, **kwargs: Any
 ) -> requests.Response:
-    kwargs.setdefault("timeout", 10)
+    kwargs.setdefault("timeout", DEFAULT_TIMEOUT)
     session = get_session(endpoint_uri)
     response = session.post(endpoint_uri, *args, **kwargs)
     return response
@@ -114,19 +127,31 @@ def make_post_request(
 
 # --- async --- #
 
+
 _async_session_cache = SessionCache(size=20)
 _async_session_cache_lock = threading.Lock()
+_pool = ThreadPoolExecutor(max_workers=1)
 
 
 async def cache_async_session(endpoint_uri: URI, session: ClientSession) -> None:
     await get_async_session(endpoint_uri, session)
 
 
+@contextlib.asynccontextmanager
+async def async_lock(lock: threading.Lock) -> AsyncGenerator[None, None]:
+    loop = asyncio.get_event_loop()
+    await loop.run_in_executor(_pool, lock.acquire)
+    try:
+        yield
+    finally:
+        lock.release()
+
+
 async def get_async_session(
     endpoint_uri: URI, session: ClientSession = None
 ) -> ClientSession:
     cache_key = generate_cache_key(endpoint_uri)
-    with _async_session_cache_lock:
+    async with async_lock(_async_session_cache_lock):
         evicted_items = None
         if session is not None:
             evicted_items = _async_session_cache.cache(cache_key, session)
@@ -135,16 +160,45 @@ async def get_async_session(
                 cache_key, ClientSession(raise_for_status=True)
             )
 
-        if evicted_items is not None:
-            for _key, session in evicted_items.items():
-                await session.close()
-        return _async_session_cache.get_cache_entry(cache_key)
+        session = _async_session_cache.get_cache_entry(cache_key)
+        logger.debug(f"Session cached: {endpoint_uri}, {session}")
+
+    if evicted_items is not None:
+        # At this point the evicted sessions (if any) are already popped out of the
+        # cache and just stored in the `evicted_sessions` dict. So we can kick off a
+        # future task to close them and it should be safe to pop out of the lock here.
+        evicted_sessions = [session for _key, session in evicted_items.items()]
+        for session in evicted_sessions:
+            logger.debug(
+                f"Session cache full. Session evicted from cache: {session}",
+            )
+        # Kick off a future task, in a separate thread, to close the evicted
+        # sessions. In the case that the cache filled very quickly and some
+        # sessions have been evicted before their original request has been made,
+        # we set the timer to a bit more than the `DEFAULT_TIMEOUT` for a call. This
+        # should guarantee that any call from an evicted session can still be made
+        # before the session is closed.
+        threading.Timer(
+            DEFAULT_TIMEOUT + 0.1, _close_evicted_sessions, args=[evicted_sessions]
+        ).start()
+
+    return session
+
+
+def _close_evicted_sessions(evicted_sessions: List[ClientSession]) -> None:
+    loop = asyncio.new_event_loop()
+    for i, evicted_session in enumerate(evicted_sessions):
+        loop.run_until_complete(evicted_session.close())
+        logger.debug(f"Closed evicted session: {evicted_session}")
+        evicted_sessions.pop(i)
+    assert len(evicted_sessions) == 0
+    loop.close()
 
 
 async def async_get_response_from_get_request(
     endpoint_uri: URI, *args: Any, **kwargs: Any
 ) -> ClientResponse:
-    kwargs.setdefault("timeout", ClientTimeout(10))
+    kwargs.setdefault("timeout", ClientTimeout(DEFAULT_TIMEOUT))
     session = await get_async_session(endpoint_uri)
     response = await session.get(endpoint_uri, *args, **kwargs)
     return response
@@ -153,7 +207,7 @@ async def async_get_response_from_get_request(
 async def async_get_response_from_post_request(
     endpoint_uri: URI, *args: Any, **kwargs: Any
 ) -> ClientResponse:
-    kwargs.setdefault("timeout", ClientTimeout(10))
+    kwargs.setdefault("timeout", ClientTimeout(DEFAULT_TIMEOUT))
     session = await get_async_session(endpoint_uri)
     response = await session.post(endpoint_uri, *args, **kwargs)
     return response
