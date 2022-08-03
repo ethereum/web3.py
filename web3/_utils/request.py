@@ -94,8 +94,7 @@ def get_session(
             evicted_items = _session_cache.cache(cache_key, requests.Session())
 
         if evicted_items is not None:
-            for _key, session in evicted_items.items():
-                session.close()
+            [session.close() for session in evicted_items.values()]
         return _session_cache.get_cache_entry(cache_key)
 
 
@@ -164,10 +163,10 @@ async def get_async_session(
         logger.debug(f"Session cached: {endpoint_uri}, {session}")
 
     if evicted_items is not None:
-        # At this point the evicted sessions (if any) are already popped out of the
-        # cache and just stored in the `evicted_sessions` dict. So we can kick off a
-        # future task to close them and it should be safe to pop out of the lock here.
-        evicted_sessions = [session for _key, session in evicted_items.items()]
+        # At this point the evicted sessions are already popped out of the cache and
+        # just stored in the `evicted_sessions` dict. So we can kick off a future task
+        # to close them and it should be safe to pop out of the lock here.
+        evicted_sessions = [session for session in evicted_items.values()]
         for session in evicted_sessions:
             logger.debug(
                 f"Session cache full. Session evicted from cache: {session}",
@@ -176,23 +175,15 @@ async def get_async_session(
         # sessions. In the case that the cache filled very quickly and some
         # sessions have been evicted before their original request has been made,
         # we set the timer to a bit more than the `DEFAULT_TIMEOUT` for a call. This
-        # should guarantee that any call from an evicted session can still be made
+        # should make it so that any call from an evicted session can still be made
         # before the session is closed.
         threading.Timer(
-            DEFAULT_TIMEOUT + 0.1, _close_evicted_sessions, args=[evicted_sessions]
+            DEFAULT_TIMEOUT + 0.1,
+            _close_evicted_async_sessions,
+            args=[evicted_sessions],
         ).start()
 
     return session
-
-
-def _close_evicted_sessions(evicted_sessions: List[ClientSession]) -> None:
-    loop = asyncio.new_event_loop()
-    for i, evicted_session in enumerate(evicted_sessions):
-        loop.run_until_complete(evicted_session.close())
-        logger.debug(f"Closed evicted session: {evicted_session}")
-        evicted_sessions.pop(i)
-    assert len(evicted_sessions) == 0
-    loop.close()
 
 
 async def async_get_response_from_get_request(
@@ -226,3 +217,18 @@ async def async_get_json_from_client_response(
     response: ClientResponse,
 ) -> Dict[str, Any]:
     return await response.json()
+
+
+def _close_evicted_async_sessions(evicted_sessions: List[ClientSession]) -> None:
+    loop = asyncio.new_event_loop()
+
+    for evicted_session in evicted_sessions:
+        loop.run_until_complete(evicted_session.close())
+        logger.debug(f"Closed evicted session: {evicted_session}")
+
+    if any(not evicted_session.closed for evicted_session in evicted_sessions):
+        logger.warning(
+            f"Some evicted sessions were not properly closed: {evicted_sessions}"
+        )
+
+    loop.close()
