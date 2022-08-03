@@ -158,7 +158,7 @@ async def test_async_cache_does_not_close_session_before_a_call():
     session_cache_default = request._async_session_cache
     timeout_default = request.DEFAULT_TIMEOUT
 
-    # set cache size to 1 + set future session close thread time to 0.02s
+    # set cache size to 1 + set future session close thread time to 0.01s
     request._async_session_cache = SessionCache(1)
     _timeout_for_testing = 0.01
     request.DEFAULT_TIMEOUT = _timeout_for_testing
@@ -166,7 +166,7 @@ async def test_async_cache_does_not_close_session_before_a_call():
     async def cache_uri_and_return_evicted_session(uri):
         _session = await get_async_session(uri)
 
-        # sort of simulate a call taking 0.1s to return a response
+        # sort of simulate a call taking 0.01s to return a response
         await asyncio.sleep(0.01)
 
         assert not _session.closed
