@@ -23,7 +23,7 @@ from web3._utils.http import (
 )
 from web3._utils.request import (
     async_make_post_request,
-    cache_async_session as _cache_async_session,
+    cache_and_return_async_session as _cache_and_return_async_session,
     get_default_http_endpoint,
 )
 from web3.types import (
@@ -55,8 +55,8 @@ class AsyncHTTPProvider(AsyncJSONBaseProvider):
 
         super().__init__()
 
-    async def cache_async_session(self, session: ClientSession) -> None:
-        await _cache_async_session(self.endpoint_uri, session)
+    async def cache_async_session(self, session: ClientSession) -> ClientSession:
+        return await _cache_and_return_async_session(self.endpoint_uri, session)
 
     def __str__(self) -> str:
         return f"RPC connection {self.endpoint_uri}"

@@ -1,8 +1,15 @@
 import asyncio
+from concurrent.futures import (
+    ThreadPoolExecutor,
+)
 import pytest
+import time
 
 from aiohttp import (
     ClientSession,
+)
+from eth_typing import (
+    URI,
 )
 from requests import (
     Session,
@@ -21,7 +28,8 @@ from web3._utils.caching import (
 )
 from web3._utils.request import (
     SessionCache,
-    get_async_session,
+    cache_and_return_async_session,
+    cache_and_return_session,
 )
 
 
@@ -39,7 +47,14 @@ class MockedResponse:
         pass
 
 
-URI = "http://mynode.local:8545"
+TEST_URI = URI("http://mynode.local:8545")
+UNIQUE_URIS = [
+    "https://www.test1.com",
+    "https://www.test2.com",
+    "https://www.test3.com",
+    "https://www.test4.com",
+    "https://www.test5.com",
+]
 
 
 def check_adapters_mounted(session: Session):
@@ -53,19 +68,22 @@ def test_make_post_request_no_args(mocker):
 
     # Submit a first request to create a session with default parameters
     assert len(request._session_cache) == 0
-    response = request.make_post_request(URI, data=b"request")
+    response = request.make_post_request(TEST_URI, data=b"request")
     assert response == "content"
     assert len(request._session_cache) == 1
-    cache_key = generate_cache_key(URI)
+    cache_key = generate_cache_key(TEST_URI)
     session = request._session_cache.get_cache_entry(cache_key)
-    session.post.assert_called_once_with(URI, data=b"request", timeout=10)
+    session.post.assert_called_once_with(TEST_URI, data=b"request", timeout=10)
 
     # Ensure the adapter was created with default values
     check_adapters_mounted(session)
-    adapter = session.get_adapter(URI)
+    adapter = session.get_adapter(TEST_URI)
     assert isinstance(adapter, HTTPAdapter)
     assert adapter._pool_connections == DEFAULT_POOLSIZE
     assert adapter._pool_maxsize == DEFAULT_POOLSIZE
+
+    # clear cache
+    request._session_cache.clear()
 
 
 def test_precached_session(mocker):
@@ -76,24 +94,27 @@ def test_precached_session(mocker):
     session = Session()
     session.mount("http://", adapter)
     session.mount("https://", adapter)
-    request.cache_session(URI, session)
+    request.cache_and_return_session(TEST_URI, session)
 
     # Submit a second request with different arguments
     assert len(request._session_cache) == 1
-    response = request.make_post_request(URI, data=b"request", timeout=60)
+    response = request.make_post_request(TEST_URI, data=b"request", timeout=60)
     assert response == "content"
     assert len(request._session_cache) == 1
 
     # Ensure the timeout was passed to the request
-    session = request.get_session(URI)
-    session.post.assert_called_once_with(URI, data=b"request", timeout=60)
+    session = request.cache_and_return_session(TEST_URI)
+    session.post.assert_called_once_with(TEST_URI, data=b"request", timeout=60)
 
     # Ensure the adapter parameters match those we specified
     check_adapters_mounted(session)
-    adapter = session.get_adapter(URI)
+    adapter = session.get_adapter(TEST_URI)
     assert isinstance(adapter, HTTPAdapter)
     assert adapter._pool_connections == 100
     assert adapter._pool_maxsize == 100
+
+    # clear cache
+    request._session_cache.clear()
 
 
 def test_cache_session_class():
@@ -124,6 +145,48 @@ def test_cache_session_class():
         # the first inserted cached item was removed and returned in evicted items
         cache.get_cache_entry("1")
 
+    # clear cache
+    request._session_cache.clear()
+
+
+def test_cache_does_not_close_session_before_a_call_when_multithreading():
+    # save default values
+    session_cache_default = request._async_session_cache
+    timeout_default = request.DEFAULT_TIMEOUT
+
+    # set cache size to 1 + set future session close thread time to 0.01s
+    request._session_cache = SessionCache(1)
+    _timeout_for_testing = 0.01
+    request.DEFAULT_TIMEOUT = _timeout_for_testing
+
+    def _simulate_call(uri):
+        _session = cache_and_return_session(uri)
+
+        # simulate a call taking 0.01s to return a response
+        time.sleep(0.01)
+        return _session
+
+    with ThreadPoolExecutor(max_workers=len(UNIQUE_URIS)) as exc:
+        all_sessions = [exc.submit(_simulate_call, uri) for uri in UNIQUE_URIS]
+
+    # assert last session remains in cache, all others evicted
+    cache_data = request._session_cache._data
+    assert len(cache_data) == 1
+    _key, cached_session = cache_data.popitem()
+    assert cached_session == all_sessions[-1].result()  # result of the `Future`
+
+    # -- teardown -- #
+
+    # close the cached session before exiting test
+    cached_session.close()
+
+    # reset default values
+    request._async_session_cache = session_cache_default
+    request.DEFAULT_TIMEOUT = timeout_default
+
+    # clear cache
+    request._session_cache.clear()
+
 
 # -- async -- #
 
@@ -132,28 +195,28 @@ def test_cache_session_class():
 async def test_async_precached_session():
     # Add a session
     session = ClientSession()
-    await request.cache_async_session(URI, session)
+    await request.cache_and_return_async_session(TEST_URI, session)
     assert len(request._async_session_cache) == 1
 
     # Make sure the session isn't duplicated
-    await request.cache_async_session(URI, session)
+    await request.cache_and_return_async_session(TEST_URI, session)
     assert len(request._async_session_cache) == 1
 
     # Make sure a request with a different URI adds another cached session
-    await request.cache_async_session(f"{URI}/test", session)
+    await request.cache_and_return_async_session(URI(f"{TEST_URI}/test"), session)
     assert len(request._async_session_cache) == 2
+
+    # -- teardown -- #
+
+    # appropriately close the cached sessions
+    [await session.close() for session in request._async_session_cache._data.values()]
+
+    # clear cache
+    request._async_session_cache.clear()
 
 
 @pytest.mark.asyncio
-async def test_async_cache_does_not_close_session_before_a_call():
-    unique_uris = [
-        "https://www.test1.com",
-        "https://www.test2.com",
-        "https://www.test3.com",
-        "https://www.test4.com",
-        "https://www.test5.com",
-    ]
-
+async def test_async_cache_does_not_close_session_before_a_call_when_multithreading():
     # save default values
     session_cache_default = request._async_session_cache
     timeout_default = request.DEFAULT_TIMEOUT
@@ -163,35 +226,39 @@ async def test_async_cache_does_not_close_session_before_a_call():
     _timeout_for_testing = 0.01
     request.DEFAULT_TIMEOUT = _timeout_for_testing
 
-    async def cache_uri_and_return_evicted_session(uri):
-        _session = await get_async_session(uri)
+    async def cache_uri_and_return_session(uri):
+        _session = await cache_and_return_async_session(uri)
 
-        # sort of simulate a call taking 0.01s to return a response
+        # simulate a call taking 0.01s to return a response
         await asyncio.sleep(0.01)
 
         assert not _session.closed
         return _session
 
-    tasks = [cache_uri_and_return_evicted_session(uri) for uri in unique_uris]
+    tasks = [cache_uri_and_return_session(uri) for uri in UNIQUE_URIS]
 
-    evicted_sessions = await asyncio.gather(*tasks)
-    assert len(evicted_sessions) == len(unique_uris)
-    assert all(isinstance(s, ClientSession) for s in evicted_sessions)
+    all_sessions = await asyncio.gather(*tasks)
+    assert len(all_sessions) == len(UNIQUE_URIS)
+    assert all(isinstance(s, ClientSession) for s in all_sessions)
 
-    # last session remains in cache
+    # last session remains in cache, all others evicted
     cache_data = request._async_session_cache._data
     assert len(cache_data) == 1
-
-    # -- teardown -- #
-
-    # appropriately close the cached session before exiting test
     _key, cached_session = cache_data.popitem()
-    await cached_session.close()
-
-    # reset to default values
-    request._async_session_cache = session_cache_default
-    request.DEFAULT_TIMEOUT = timeout_default
+    assert cached_session == all_sessions[-1]
 
     # assert all evicted sessions were closed
     await asyncio.sleep(_timeout_for_testing + 0.1)
-    assert all(session.closed for session in evicted_sessions)
+    assert all(session.closed for session in all_sessions[:-1])
+
+    # -- teardown -- #
+
+    # appropriately close the cached session
+    await cached_session.close()
+
+    # reset default values
+    request._async_session_cache = session_cache_default
+    request.DEFAULT_TIMEOUT = timeout_default
+
+    # clear cache
+    request._async_session_cache.clear()
