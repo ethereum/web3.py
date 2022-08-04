@@ -38,7 +38,7 @@ def test_user_provided_session():
     w3 = Web3(provider)
     assert w3.manager.provider == provider
 
-    session = request.get_session(URI)
+    session = request.cache_and_return_session(URI)
     adapter = session.get_adapter(URI)
     assert isinstance(adapter, HTTPAdapter)
     assert adapter._pool_connections == 20
