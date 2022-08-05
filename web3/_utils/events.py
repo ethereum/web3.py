@@ -53,7 +53,6 @@ from eth_utils.toolz import (
 import web3
 from web3._utils.abi import (
     exclude_indexed_event_inputs,
-    get_abi_input_names,
     get_indexed_event_inputs,
     get_normalized_abi_arg_type,
     map_abi_data,
@@ -81,6 +80,9 @@ from web3.types import (
     EventData,
     FilterParams,
     LogReceipt,
+)
+from web3.utils import (
+    get_abi_input_names,
 )
 
 if TYPE_CHECKING:
