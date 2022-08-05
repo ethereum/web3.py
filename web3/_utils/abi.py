@@ -83,6 +83,9 @@ from web3.types import (
     ABIFunction,
     ABIFunctionParams,
 )
+from web3.utils import (  # public utils module
+    get_abi_input_names,
+)
 
 
 def filter_by_type(_type: str, contract_abi: ABI) -> List[Union[ABIFunction, ABIEvent]]:
@@ -107,25 +110,11 @@ def get_abi_input_types(abi: ABIFunction) -> List[str]:
         return [collapse_if_tuple(cast(Dict[str, Any], arg)) for arg in abi["inputs"]]
 
 
-def get_abi_input_names(abi: Union[ABIFunction, ABIEvent]) -> List[str]:
-    if "inputs" not in abi and abi["type"] == "fallback":
-        return []
-    else:
-        return [arg["name"] for arg in abi["inputs"]]
-
-
 def get_abi_output_types(abi: ABIFunction) -> List[str]:
     if abi["type"] == "fallback":
         return []
     else:
         return [collapse_if_tuple(cast(Dict[str, Any], arg)) for arg in abi["outputs"]]
-
-
-def get_abi_output_names(abi: Union[ABIFunction, ABIEvent]) -> List[str]:
-    if "outputs" not in abi and abi["type"] == "fallback":
-        return []
-    else:
-        return [arg["name"] for arg in abi["outputs"]]
 
 
 def get_receive_func_abi(contract_abi: ABI) -> ABIFunction:

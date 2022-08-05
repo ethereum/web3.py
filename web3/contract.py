@@ -53,7 +53,6 @@ from web3._utils.abi import (
     check_if_arguments_can_be_encoded,
     fallback_func_abi_exists,
     filter_by_type,
-    get_abi_input_names,
     get_abi_input_types,
     get_abi_output_types,
     get_constructor_abi,
@@ -145,6 +144,9 @@ from web3.types import (  # noqa: F401
     LogReceipt,
     TxParams,
     TxReceipt,
+)
+from web3.utils import (
+    get_abi_input_names,
 )
 
 if TYPE_CHECKING:
