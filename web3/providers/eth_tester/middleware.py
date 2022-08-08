@@ -315,15 +315,21 @@ ethereum_tester_middleware = construct_formatting_middleware(
 
 
 def guess_from(w3: "Web3", _: TxParams) -> ChecksumAddress:
-    coinbase = w3.eth.coinbase
+    if w3.eth.coinbase:
+        return w3.eth.coinbase
+    elif w3.eth.accounts and len(w3.eth.accounts) > 0:
+        return w3.eth.accounts[0]
+
+    return None
+
+
+async def async_guess_from(async_w3: "Web3", _: TxParams) -> ChecksumAddress:
+    coinbase = await async_w3.eth.coinbase  # type: ignore
+    accounts = await async_w3.eth.accounts  # type: ignore
     if coinbase is not None:
         return coinbase
-
-    try:
-        return w3.eth.accounts[0]
-    except KeyError:
-        # no accounts available to pre-fill, carry on
-        pass
+    elif accounts is not None and len(accounts) > 0:
+        return accounts[0]
 
     return None
 
@@ -337,6 +343,18 @@ def fill_default(
         return transaction
     else:
         guess_val = guess_func(w3, transaction)
+        return assoc(transaction, field, guess_val)
+
+
+@curry
+async def async_fill_default(
+    field: str, guess_func: Callable[..., Any], async_w3: "Web3", transaction: TxParams
+) -> TxParams:
+    # type ignored b/c TxParams keys must be string literal types
+    if field in transaction and transaction[field] is not None:  # type: ignore
+        return transaction
+    else:
+        guess_val = await guess_func(async_w3, transaction)
         return assoc(transaction, field, guess_val)
 
 
@@ -363,7 +381,7 @@ def default_transaction_fields_middleware(
 
 
 async def async_default_transaction_fields_middleware(
-    make_request: Callable[[RPCEndpoint, Any], Any], web3: "Web3"
+    make_request: Callable[[RPCEndpoint, Any], Any], async_w3: "Web3"
 ) -> Callable[[RPCEndpoint, Any], RPCResponse]:
     async def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
         if method in (
@@ -371,7 +389,9 @@ async def async_default_transaction_fields_middleware(
             "eth_estimateGas",
             "eth_sendTransaction",
         ):
-            filled_transaction = fill_default("from", guess_from, web3, params[0])
+            filled_transaction = await async_fill_default(
+                "from", async_guess_from, async_w3, params[0]
+            )
             return await make_request(method, [filled_transaction] + list(params)[1:])
         else:
             return await make_request(method, params)
