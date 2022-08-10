@@ -13,6 +13,11 @@ from ethpm.exceptions import (
     EthPMValidationError,
 )
 
+# TODO: Add proper authentication to IPFS calls
+pytest.skip(
+    "Need to properly add authorization as of 8/10/2022", allow_module_level=True
+)
+
 
 @pytest.fixture
 def valid_manifest_from_path(tmpdir):
