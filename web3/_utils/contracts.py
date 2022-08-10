@@ -352,10 +352,10 @@ def get_function_info(
 
 def validate_payable(transaction: TxParams, abi: ABIFunction) -> None:
     """Raise ValidationError if non-zero ether
-    is sent to a non payable function.
+    is sent to a non-payable function.
     """
     if "value" in transaction:
-        if transaction["value"] != 0:
+        if transaction["value"] not in [0, "0x0"]:
             if "payable" in abi and not abi["payable"]:
                 raise ValidationError(
                     "Sending non-zero ether to a contract function "
