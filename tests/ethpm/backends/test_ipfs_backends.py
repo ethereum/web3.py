@@ -22,6 +22,11 @@ from ethpm.constants import (
     INFURA_GATEWAY_MULTIADDR,
 )
 
+# TODO: Add proper authentication to IPFS calls
+pytest.skip(
+    "Need to properly add authorization as of 8/10/2022", allow_module_level=True
+)
+
 
 @pytest.fixture
 def owned_manifest_path(ethpm_spec_dir):
