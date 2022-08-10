@@ -13,6 +13,11 @@ from ethpm.package import (
 )
 from web3 import Web3
 
+# TODO: Add proper authentication to IPFS calls
+pytest.skip(
+    "Need to properly add authorization as of 8/10/2022", allow_module_level=True
+)
+
 
 @pytest.fixture()
 def safe_math_package(get_manifest, w3):

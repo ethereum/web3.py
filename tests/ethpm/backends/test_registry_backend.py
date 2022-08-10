@@ -9,6 +9,11 @@ from ethpm.exceptions import (
     CannotHandleURI,
 )
 
+# TODO: Add proper authentication to IPFS calls
+pytest.skip(
+    "Need to properly add authorization as of 8/10/2022", allow_module_level=True
+)
+
 
 @pytest.fixture
 def backend():
