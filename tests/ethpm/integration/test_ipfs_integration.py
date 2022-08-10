@@ -16,6 +16,11 @@ from ethpm.tools import (
     builder as b,
 )
 
+# TODO: Add proper authentication to IPFS calls
+pytest.skip(
+    "Need to properly add authorization as of 8/10/2022", allow_module_level=True
+)
+
 OWNED_MANIFEST_PATH = ASSETS_DIR / "owned" / "1.0.0.json"
 
 
