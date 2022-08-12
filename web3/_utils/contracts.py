@@ -53,6 +53,9 @@ from web3._utils.function_identifiers import (
     FallbackFn,
     ReceiveFn,
 )
+from web3._utils.method_formatters import (
+    to_integer_if_hex,
+)
 from web3._utils.normalizers import (
     abi_address_to_hex,
     abi_bytes_to_bytes,
@@ -313,10 +316,10 @@ def get_function_info(
 
 def validate_payable(transaction: TxParams, abi: ABIFunction) -> None:
     """Raise ValidationError if non-zero ether
-    is sent to a non payable function.
+    is sent to a non-payable function.
     """
     if 'value' in transaction:
-        if transaction['value'] != 0:
+        if to_integer_if_hex(transaction['value']) != 0:
             if "payable" in abi and not abi["payable"]:
                 raise ValidationError(
                     "Sending non-zero ether to a contract function "
