@@ -88,6 +88,7 @@ from web3.utils import (
 if TYPE_CHECKING:
     from web3 import Web3  # noqa: F401
     from web3._utils.filters import (  # noqa: F401
+        AsyncLogFilter,
         LogFilter,
     )
 
@@ -310,7 +311,7 @@ def is_indexed(arg: Any) -> bool:
 is_not_indexed = complement(is_indexed)
 
 
-class EventFilterBuilder:
+class BaseEventFilterBuilder:
     formatter = None
     _fromBlock = None
     _toBlock = None
@@ -410,6 +411,8 @@ class EventFilterBuilder:
         }
         return valfilter(lambda x: x is not None, params)
 
+
+class EventFilterBuilder(BaseEventFilterBuilder):
     def deploy(self, w3: "Web3") -> "LogFilter":
         if not isinstance(w3, web3.Web3):
             raise ValueError(f"Invalid web3 argument: got: {w3!r}")
@@ -425,6 +428,24 @@ class EventFilterBuilder:
         if self.formatter is not None:
             log_filter.log_entry_formatter = self.formatter
         return log_filter
+
+
+class AsyncEventFilterBuilder(BaseEventFilterBuilder):
+    async def deploy(self, w3: "Web3") -> "AsyncLogFilter":
+        if not isinstance(w3, web3.Web3):
+            raise ValueError(f"Invalid web3 argument: got: {w3!r}")
+
+        for arg in AttributeDict.values(self.args):
+            arg._immutable = True
+        self._immutable = True
+
+        log_filter = cast("AsyncLogFilter", w3.eth.filter(self.filter_params))
+        log_filter.filter_params = self.filter_params
+        log_filter.set_data_filters(self.data_argument_values)
+        log_filter.builder = self
+        if self.formatter is not None:
+            log_filter.log_entry_formatter = self.formatter
+        return await log_filter
 
 
 def initialize_event_topics(event_abi: ABIEvent) -> Union[bytes, List[Any]]:
