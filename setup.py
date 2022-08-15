@@ -5,11 +5,11 @@ from setuptools import (
 )
 
 extras_require = {
-    'tester': [
+    "tester": [
         "eth-tester[py-evm]==v0.6.0-beta.6",
         "py-geth>=3.8.0,<4",
     ],
-    'linter': [
+    "linter": [
         "flake8==3.8.3",
         "isort>=4.2.15,<4.3.5",
         "mypy==0.910",
@@ -17,7 +17,7 @@ extras_require = {
         "types-requests>=2.26.1,<3",
         "types-protobuf==3.19.13",
     ],
-    'docs': [
+    "docs": [
         "mock",
         "sphinx-better-theme>=0.1.4",
         "click>=5.1",
@@ -32,9 +32,9 @@ extras_require = {
         "towncrier==18.5.0",
         "urllib3",
         "wheel",
-        "Jinja2<=3.0.3", # Jinja v3.1.0 dropped support for python 3.6
+        "Jinja2<=3.0.3",  # Jinja v3.1.0 dropped support for python 3.6
     ],
-    'dev': [
+    "dev": [
         "bumpversion",
         "flaky>=3.7.0,<4",
         "hypothesis>=3.31.2,<6",
@@ -49,35 +49,35 @@ extras_require = {
         "tqdm>4.32,<5",
         "twine>=1.13,<2",
         "pluggy==0.13.1",
-        "when-changed>=0.3.0,<0.4"
-    ]
+        "when-changed>=0.3.0,<0.4",
+    ],
 }
 
-extras_require['dev'] = (
-    extras_require['tester']
-    + extras_require['linter']
-    + extras_require['docs']
-    + extras_require['dev']
+extras_require["dev"] = (
+    extras_require["tester"]
+    + extras_require["linter"]
+    + extras_require["docs"]
+    + extras_require["dev"]
 )
 
-with open('./README.md') as readme:
+with open("./README.md") as readme:
     long_description = readme.read()
 
 setup(
-    name='web3',
+    name="web3",
     # *IMPORTANT*: Don't manually change the version here. Use the 'bumpversion' utility.
-    version='5.30.0',
+    version="5.30.0",
     description="""Web3.py""",
-    long_description_content_type='text/markdown',
+    long_description_content_type="text/markdown",
     long_description=long_description,
-    author='Piper Merriam',
-    author_email='pipermerriam@gmail.com',
-    url='https://github.com/ethereum/web3.py',
+    author="Piper Merriam",
+    author_email="pipermerriam@gmail.com",
+    url="https://github.com/ethereum/web3.py",
     include_package_data=True,
     install_requires=[
         "aiohttp>=3.7.4.post0,<4",
         "eth-abi>=2.0.0b6,<3.0.0",
-        "eth-account>=0.5.7,<0.6.0",
+        "eth-account>=0.5.9,<0.6.0",
         "eth-hash[pycryptodome]>=0.2.0,<1.0.0",
         # eth-account allows too broad of an eth-rlp dependency.
         # This eth-rlp pin can be removed once it gets tightened up in eth-account
@@ -95,24 +95,24 @@ setup(
         "typing-extensions>=3.7.4.1,<5;python_version<'3.8'",
         "websockets>=9.1,<10",
     ],
-    python_requires='>=3.6,<4',
+    python_requires=">=3.6,<4",
     extras_require=extras_require,
-    py_modules=['web3', 'ens', 'ethpm'],
+    py_modules=["web3", "ens", "ethpm"],
     entry_points={"pytest11": ["pytest_ethereum = web3.tools.pytest_ethereum.plugins"]},
     license="MIT",
     zip_safe=False,
-    keywords='ethereum',
+    keywords="ethereum",
     packages=find_packages(exclude=["tests", "tests.*"]),
     package_data={"web3": ["py.typed"]},
     classifiers=[
-        'Development Status :: 5 - Production/Stable',
-        'Intended Audience :: Developers',
-        'License :: OSI Approved :: MIT License',
-        'Natural Language :: English',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3.9',
+        "Development Status :: 5 - Production/Stable",
+        "Intended Audience :: Developers",
+        "License :: OSI Approved :: MIT License",
+        "Natural Language :: English",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
     ],
 )
