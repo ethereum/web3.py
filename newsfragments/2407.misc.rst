@@ -1,1 +1,0 @@
-Moved the requests session cache to the new `SessionCache` class.
