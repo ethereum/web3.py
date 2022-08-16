@@ -1403,6 +1403,64 @@ class AsyncEthModuleTest:
         # reset to default
         async_w3.eth.default_block = "latest"
 
+    @pytest.mark.asyncio
+    async def test_async_eth_new_filter(self, async_w3: "Web3") -> None:
+        filter = await async_w3.eth.filter({})
+
+        changes = await async_w3.eth.get_filter_changes(
+            filter.filter_id
+        )  # type: ignore
+        assert is_list_like(changes)
+        assert not changes
+
+        logs = await async_w3.eth.get_filter_logs(filter.filter_id)  # type: ignore
+        assert is_list_like(logs)
+        assert not logs
+
+        result = await async_w3.eth.uninstall_filter(filter.filter_id)  # type: ignore
+        assert result is True
+
+    @pytest.mark.asyncio
+    async def test_async_eth_new_block_filter(self, async_w3: "Web3") -> None:
+        filter = await async_w3.eth.filter("latest")
+        assert is_string(filter.filter_id)
+
+        changes = await async_w3.eth.get_filter_changes(
+            filter.filter_id
+        )  # type: ignore
+        assert is_list_like(changes)
+        assert not changes
+
+        result = await async_w3.eth.uninstall_filter(filter.filter_id)  # type: ignore
+        assert result is True
+
+    @pytest.mark.asyncio
+    async def test_async_eth_new_pending_transaction_filter(
+        self, async_w3: "Web3"
+    ) -> None:
+        filter = await async_w3.eth.filter("pending")
+        assert is_string(filter.filter_id)
+
+        changes = await async_w3.eth.get_filter_changes(
+            filter.filter_id
+        )  # type: ignore
+        assert is_list_like(changes)
+        assert not changes
+
+        result = await async_w3.eth.uninstall_filter(filter.filter_id)  # type: ignore
+        assert result is True
+
+    @pytest.mark.asyncio
+    async def test_async_eth_uninstall_filter(self, async_w3: "Web3") -> None:
+        filter = await async_w3.eth.filter({})
+        assert is_string(filter.filter_id)
+
+        success = await async_w3.eth.uninstall_filter(filter.filter_id)  # type: ignore
+        assert success is True
+
+        failure = await async_w3.eth.uninstall_filter(filter.filter_id)  # type: ignore
+        assert failure is False
+
 
 class EthModuleTest:
     def test_eth_syncing(self, w3: "Web3") -> None:
@@ -3093,7 +3151,7 @@ class EthModuleTest:
         # TODO: how do we make uncles....
         pass
 
-    def test_eth_newFilter(self, w3: "Web3") -> None:
+    def test_eth_new_filter(self, w3: "Web3") -> None:
         filter = w3.eth.filter({})
 
         changes = w3.eth.get_filter_changes(filter.filter_id)
@@ -3107,7 +3165,7 @@ class EthModuleTest:
         result = w3.eth.uninstall_filter(filter.filter_id)
         assert result is True
 
-    def test_eth_newBlockFilter(self, w3: "Web3") -> None:
+    def test_eth_new_block_filter(self, w3: "Web3") -> None:
         filter = w3.eth.filter("latest")
         assert is_string(filter.filter_id)
 
@@ -3115,26 +3173,16 @@ class EthModuleTest:
         assert is_list_like(changes)
         assert not changes
 
-        # TODO: figure out why this fails in go-ethereum
-        # logs = w3.eth.get_filter_logs(filter.filter_id)
-        # assert is_list_like(logs)
-        # assert not logs
-
         result = w3.eth.uninstall_filter(filter.filter_id)
         assert result is True
 
-    def test_eth_newPendingTransactionFilter(self, w3: "Web3") -> None:
+    def test_eth_new_pending_transaction_filter(self, w3: "Web3") -> None:
         filter = w3.eth.filter("pending")
         assert is_string(filter.filter_id)
 
         changes = w3.eth.get_filter_changes(filter.filter_id)
         assert is_list_like(changes)
         assert not changes
-
-        # TODO: figure out why this fails in go-ethereum
-        # logs = w3.eth.get_filter_logs(filter.filter_id)
-        # assert is_list_like(logs)
-        # assert not logs
 
         result = w3.eth.uninstall_filter(filter.filter_id)
         assert result is True
