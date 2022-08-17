@@ -1081,7 +1081,7 @@ The following methods are available on the ``web3.eth`` namespace.
         >>> myContract.functions.getVar().call()
         1
         # The above call equivalent to the raw call:
-        >>> we3.eth.call({'value': 0, 'gas': 21736, 'maxFeePerGas': 2000000000, 'maxPriorityFeePerGas': 1000000000, 'to': '0xc305c901078781C232A2a521C2aF7980f8385ee9', 'data': '0x477a5c98'})
+        >>> web3.eth.call({'value': 0, 'gas': 21736, 'maxFeePerGas': 2000000000, 'maxPriorityFeePerGas': 1000000000, 'to': '0xc305c901078781C232A2a521C2aF7980f8385ee9', 'data': '0x477a5c98'})
         HexBytes('0x0000000000000000000000000000000000000000000000000000000000000001')
 
     In most cases it is better to make contract function call through the :py:class:`web3.contract.Contract` interface.
