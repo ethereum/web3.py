@@ -8,7 +8,7 @@ common: &common
     - checkout
     - restore_cache:
         keys:
-          - cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
+          - cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum "pyproject.toml" }}-{{ checksum "tox.ini" }}
     - run:
         name: checkout ethpm-spec submodule
         command: git submodule update --init --recursive
@@ -26,7 +26,7 @@ common: &common
           - ./eggs
           - ~/.ethash
           - ~/.py-geth
-        key: cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
+        key: cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum "pyproject.toml" }}-{{ checksum "tox.ini" }}
   resource_class: xlarge
 
 docs_steps: &docs_steps
@@ -35,7 +35,7 @@ docs_steps: &docs_steps
     - checkout
     - restore_cache:
         keys:
-          - cache-docs-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
+          - cache-docs-{{ .Environment.CIRCLE_JOB }}-{{ checksum "pyproject.toml" }}-{{ checksum "tox.ini" }}
     - run:
         name: checkout ethpm-spec submodule
         command: git submodule update --init --recursive
@@ -56,7 +56,7 @@ docs_steps: &docs_steps
           - ./eggs
           - ~/.ethash
           - ~/.py-geth
-        key: cache-docs-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
+        key: cache-docs-{{ .Environment.CIRCLE_JOB }}-{{ checksum "pyproject.toml" }}-{{ checksum "tox.ini" }}
   resource_class: xlarge
 
 geth_steps: &geth_steps
@@ -66,7 +66,7 @@ geth_steps: &geth_steps
     - checkout
     - restore_cache:
         keys:
-          - cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
+          - cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum "pyproject.toml" }}-{{ checksum "tox.ini" }}
     - run:
         name: install dependencies
         command: pip install --user tox
@@ -102,7 +102,7 @@ geth_steps: &geth_steps
           - ./eggs
           - ~/.ethash
           - ~/.py-geth
-        key: cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
+        key: cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum "pyproject.toml" }}-{{ checksum "tox.ini" }}
 
 geth_custom_steps: &geth_custom_steps
   working_directory: ~/repo
@@ -110,7 +110,7 @@ geth_custom_steps: &geth_custom_steps
     - checkout
     - restore_cache:
         keys:
-          - cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
+          - cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum "pyproject.toml" }}-{{ checksum "tox.ini" }}
     - run:
         name: install dependencies
         command: pip install --user tox
@@ -141,7 +141,7 @@ geth_custom_steps: &geth_custom_steps
           - ~/.local
           - ./eggs
           - ~/.ethash
-        key: cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
+        key: cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum "pyproject.toml" }}-{{ checksum "tox.ini" }}
 
 ethpm_steps: &ethpm_steps
   working_directory: ~/repo
@@ -150,7 +150,7 @@ ethpm_steps: &ethpm_steps
     - checkout
     - restore_cache:
         keys:
-          - ethpm-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
+          - ethpm-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum "pyproject.toml" }}-{{ checksum "tox.ini" }}
     - run:
         name: install ipfs
         command:
@@ -176,7 +176,7 @@ ethpm_steps: &ethpm_steps
           - .tox
           - ~/.cache/pip
           - ~/.local
-        key: ethpm-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
+        key: ethpm-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum "pyproject.toml" }}-{{ checksum "tox.ini" }}
 
 orbs:
   win: circleci/windows@2.2.0
@@ -190,7 +190,7 @@ windows_steps: &windows_steps
     - checkout
     - restore_cache:
         keys:
-          - windows-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
+          - windows-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum "pyproject.toml" }}-{{ checksum "tox.ini" }}
     - run:
         name: checkout ethpm-spec submodule
         command: git submodule update --init --recursive
@@ -203,7 +203,7 @@ windows_steps: &windows_steps
     - save_cache:
         paths:
           - .tox
-        key: windows-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
+        key: windows-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum "pyproject.toml" }}-{{ checksum "tox.ini" }}
 
 
 jobs:

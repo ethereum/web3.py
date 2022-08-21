@@ -1,5 +1,3 @@
-import pkg_resources
-
 from eth_account import Account  # noqa: E402,
 from web3.main import Web3  # noqa: E402,
 from web3.providers.eth_tester import (  # noqa: E402
@@ -18,7 +16,7 @@ from web3.providers.websocket import (  # noqa: E402
     WebsocketProvider,
 )
 
-__version__ = pkg_resources.get_distribution("web3").version
+__version__ = "6.0.0-beta.6"
 
 __all__ = [
     "__version__",

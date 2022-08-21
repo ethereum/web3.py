@@ -18,11 +18,11 @@
 
 import os
 
-DIR = os.path.dirname("__file__")
-with open(os.path.join(DIR, "../setup.py"), "r") as f:
+DIR = os.path.dirname(os.path.abspath(__file__))
+with open(os.path.join(DIR, "..", "web3", "__init__.py"), "r") as f:
     for line in f:
-        if "version=" in line:
-            setup_version = line.split('"')[1]
+        if line.startswith("__version__"):
+            setup_version = line.strip().split(" = ")[1].strip('"')
             break
 
 # -- General configuration ------------------------------------------------

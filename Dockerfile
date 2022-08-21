@@ -11,7 +11,7 @@ COPY tests ./tests/
 COPY ens ./ens/
 COPY ethpm ./ethpm/
 
-COPY setup.py .
+COPY pyproject.toml .
 COPY README.md .
 
 RUN pip install -e .[dev]
