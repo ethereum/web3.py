@@ -1,0 +1,1 @@
+remove section for deleted `account.recoverHash` method

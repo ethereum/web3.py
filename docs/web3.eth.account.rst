@@ -168,23 +168,6 @@ With the original message text and a signature:
     >>> w3.eth.account.recover_message(message, signature=signed_message.signature)
     '0x5ce9454909639D2D17A3F753ce7d93fa0b9aB12E'
 
-Verify a Message from message hash
------------------------------------------------------------
-
-Sometimes, for historical reasons, you don't have the original message,
-all you have is the prefixed & hashed message. To verify it, use:
-
-.. CAUTION:: This method is deprecated, only having a hash typically indicates that
-    you're using some old kind of mechanism. Expect this method to go away in the
-    next major version upgrade.
-
-.. doctest::
-
-    >>> message_hash = '0x1476abb745d423bf09273f1afd887d951181d25adc66c4834a70491911b7f750'
-    >>> signature = '0xe6ca9bba58c88611fad66a6ce8f996908195593807c4b38bd528d2cff09d4eb33e5bfbbf4d3e39b1a2fd816a7680c19ebebaf3a141b239934ad43cb33fcec8ce1c'
-    >>> w3.eth.account.recoverHash(message_hash, signature=signature)
-    '0x5ce9454909639D2D17A3F753ce7d93fa0b9aB12E'
-
 Prepare message for ecrecover in Solidity
 --------------------------------------------
 
