@@ -236,8 +236,8 @@ You can look up transactions using the ``web3.eth.get_transaction`` function.
         'value': 31337,
     }
 
-If no transaction for the given hash can be found, then this function will
-instead return ``None``.
+If no transaction for the given hash can be found, this method will
+throw :class:`web3.exceptions.TransactionNotFound`.
 
 
 Looking up receipts
@@ -263,7 +263,8 @@ Transaction receipts can be retrieved using the ``web3.eth.get_transaction_recei
     }
 
 
-If the transaction has not yet been mined then this method will raise a ``TransactionNotFound`` error.
+If no transaction for the given hash can be found, this method will
+throw :class:`web3.exceptions.TransactionNotFound`.
 
 
 Working with Contracts
