@@ -70,7 +70,7 @@ class Beacon(Module):
         return self._make_get_request(endpoint)
 
     def get_block(self, block_id: str) -> Dict[str, Any]:
-        endpoint = f"/eth/v1/beacon/blocks/{block_id}"
+        endpoint = f"/eth/v2/beacon/blocks/{block_id}"
         return self._make_get_request(endpoint)
 
     def get_block_root(self, block_id: str) -> Dict[str, Any]:
