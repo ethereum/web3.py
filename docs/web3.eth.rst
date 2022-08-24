@@ -580,7 +580,7 @@ The following methods are available on the ``web3.eth`` namespace.
 
     * Delegates to ``eth_getTransactionByHash`` RPC Method
 
-    Returns the transaction specified by ``transaction_hash``. If the transaction has not yet been mined throws :class:`web3.exceptions.TransactionNotFound`.
+    Returns the transaction specified by ``transaction_hash``. If the transaction cannot be found throws :class:`web3.exceptions.TransactionNotFound`.
 
     .. code-block:: python
 
@@ -742,7 +742,7 @@ The following methods are available on the ``web3.eth`` namespace.
 
     * Delegates to ``eth_getTransactionReceipt`` RPC Method
 
-    Returns the transaction receipt specified by ``transaction_hash``.  If the transaction has not yet been mined throws :class:`web3.exceptions.TransactionNotFound`.
+    Returns the transaction receipt specified by ``transaction_hash``.  If the transaction cannot be found throws :class:`web3.exceptions.TransactionNotFound`.
 
     If ``status`` in response equals 1 the transaction was successful. If it is equals 0 the transaction was reverted by EVM.
 
