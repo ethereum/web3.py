@@ -337,7 +337,7 @@ def test_argument_extraction_strict_bytes_types(
     event_topic = emitter_log_topics.LogListArgs
     assert event_topic in log_entry["topics"]
 
-    encoded_arg_0 = w3_strict_abi.codec.encode_abi(["bytes2"], arg_0)
+    encoded_arg_0 = w3_strict_abi.codec.encode(["bytes2"], arg_0)
     padded_arg_0 = encoded_arg_0.ljust(32, b"\x00")
     arg_0_topic = w3_strict_abi.keccak(padded_arg_0)
     assert arg_0_topic in log_entry["topics"]

@@ -4,7 +4,7 @@ from typing import (
 )
 
 from eth_abi import (
-    encode_abi,
+    encode,
 )
 from eth_typing import (
     URI,
@@ -83,7 +83,7 @@ def handle_offchain_lookup(
                 # 4-byte callback function selector
                 to_bytes_if_hex(offchain_lookup_payload["callbackFunction"]),
                 # encode the `data` from the result and the `extraData` as bytes
-                encode_abi(
+                encode(
                     ["bytes", "bytes"],
                     [
                         to_bytes_if_hex(result["data"]),
