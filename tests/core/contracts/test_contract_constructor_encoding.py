@@ -67,7 +67,7 @@ def test_contract_constructor_encoding_encoding(
     )
     encoded_args = "0x00000000000000000000000000000000000000000000000000000000000004d26162636400000000000000000000000000000000000000000000000000000000"  # noqa: E501
     expected_ending = encode_hex(
-        w3.codec.encode_abi(["uint256", "bytes32"], [1234, b"abcd"])
+        w3.codec.encode(["uint256", "bytes32"], [1234, b"abcd"])
     )
     assert expected_ending == encoded_args
     assert deploy_data.endswith(remove_0x_prefix(expected_ending))
@@ -86,7 +86,7 @@ def test_contract_constructor_encoding_encoding_warning(
         encoded_args = "0x00000000000000000000000000000000000000000000000000000000000004d26162636400000000000000000000000000000000000000000000000000000000"  # noqa: E501
 
         expected_ending = encode_hex(
-            w3.codec.encode_abi(["uint256", "bytes32"], [1234, b"abcd"])
+            w3.codec.encode(["uint256", "bytes32"], [1234, b"abcd"])
         )
         assert expected_ending == encoded_args
         assert deploy_data.endswith(remove_0x_prefix(expected_ending))
@@ -114,7 +114,7 @@ def test_contract_constructor_encoding_encoding_strict(
     )
 
     expected_ending = encode_hex(
-        w3_strict_abi.codec.encode_abi(["uint256", "bytes32"], [1234, bytes_arg])
+        w3_strict_abi.codec.encode(["uint256", "bytes32"], [1234, bytes_arg])
     )
     assert expected_ending == encoded_args
     assert deploy_data.endswith(remove_0x_prefix(expected_ending))
