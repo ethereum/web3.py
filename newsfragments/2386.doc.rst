@@ -1,0 +1,1 @@
+Change the ``transact`` method in Contract documentation to use ``send_raw_transaction`` or ``construct_and_sign_middleware``
