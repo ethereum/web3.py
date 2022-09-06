@@ -193,7 +193,7 @@ The two most common use cases involving smart contracts are deploying and execut
 functions on a deployed contract.
 
 Deployment requires that the contract already be compiled, with its bytecode and ABI
-available. This compilation step can done within
+available. This compilation step can be done within
 `Remix <http://remix.ethereum.org/>`_ or one of the many contract development
 frameworks, such as `Brownie <https://eth-brownie.readthedocs.io/>`_.
 
