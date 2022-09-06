@@ -293,9 +293,9 @@ The following methods are available on the ``web3.geth.personal`` namespace.
 
     Unlocks the given ``account`` for ``duration`` seconds.
     If ``duration`` is ``None``, then the account will remain unlocked
-    for 300 seconds (which is current default by Geth v1.10.15);
-    if ``duration`` is set to ``0``, the account will remain unlocked indefinitely.
-    Returns boolean as to whether the account was successfully unlocked.
+    for the current default duration set by Geth. If ``duration`` is set to ``0``,
+    the account will remain unlocked indefinitely.
+    Returns a ``boolean`` signifying whether the account was unlocked successfully.
 
     .. code-block:: python
 
