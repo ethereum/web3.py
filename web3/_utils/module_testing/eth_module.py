@@ -829,10 +829,8 @@ class AsyncEthModuleTest:
         response_function_call = await async_offchain_lookup_contract.functions.testOffchainLookup(  # noqa: E501 type: ignore
             OFFCHAIN_LOOKUP_TEST_DATA
         ).call()
-        assert async_w3.codec.decode_abi(["string"], response_caller)[0] == "web3py"
-        assert (
-            async_w3.codec.decode_abi(["string"], response_function_call)[0] == "web3py"
-        )
+        assert async_w3.codec.decode(["string"], response_caller)[0] == "web3py"
+        assert async_w3.codec.decode(["string"], response_function_call)[0] == "web3py"
 
     @pytest.mark.asyncio
     async def test_eth_call_offchain_lookup_raises_when_ccip_read_is_disabled(
@@ -888,7 +886,7 @@ class AsyncEthModuleTest:
             # noqa: E501 type: ignore
             OFFCHAIN_LOOKUP_TEST_DATA
         ).call(ccip_read_enabled=True)
-        assert async_w3.codec.decode_abi(["string"], response)[0] == "web3py"
+        assert async_w3.codec.decode(["string"], response)[0] == "web3py"
 
         async_w3.provider.global_ccip_read_enabled = True  # cleanup
 
@@ -970,7 +968,7 @@ class AsyncEthModuleTest:
         response = await async_offchain_lookup_contract.caller().testOffchainLookup(
             OFFCHAIN_LOOKUP_TEST_DATA
         )
-        assert async_w3.codec.decode_abi(["string"], response)[0] == "web3py"
+        assert async_w3.codec.decode(["string"], response)[0] == "web3py"
 
     @pytest.mark.asyncio
     async def test_eth_call_offchain_lookup_calls_raise_for_status_for_4xx_status_code(
@@ -2644,7 +2642,7 @@ class EthModuleTest:
         response = offchain_lookup_contract.functions.testOffchainLookup(
             OFFCHAIN_LOOKUP_TEST_DATA
         ).call()
-        assert w3.codec.decode_abi(["string"], response)[0] == "web3py"
+        assert w3.codec.decode(["string"], response)[0] == "web3py"
 
     def test_eth_call_offchain_lookup_raises_when_ccip_read_is_disabled(
         self,
@@ -2694,7 +2692,7 @@ class EthModuleTest:
         response = offchain_lookup_contract.functions.testOffchainLookup(
             OFFCHAIN_LOOKUP_TEST_DATA
         ).call(ccip_read_enabled=True)
-        assert w3.codec.decode_abi(["string"], response)[0] == "web3py"
+        assert w3.codec.decode(["string"], response)[0] == "web3py"
 
         w3.provider.global_ccip_read_enabled = True  # cleanup
 
@@ -2772,7 +2770,7 @@ class EthModuleTest:
         response = offchain_lookup_contract.functions.testOffchainLookup(
             OFFCHAIN_LOOKUP_TEST_DATA
         ).call()
-        assert w3.codec.decode_abi(["string"], response)[0] == "web3py"
+        assert w3.codec.decode(["string"], response)[0] == "web3py"
 
     def test_eth_call_offchain_lookup_calls_raise_for_status_for_4xx_status_code(
         self,

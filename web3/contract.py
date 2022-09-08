@@ -476,7 +476,7 @@ class BaseContract:
         names = get_abi_input_names(func.abi)
         types = get_abi_input_types(func.abi)
 
-        decoded = self.w3.codec.decode_abi(types, cast(HexBytes, params))
+        decoded = self.w3.codec.decode(types, cast(HexBytes, params))
         normalized = map_abi_data(BASE_RETURN_NORMALIZERS, types, decoded)
 
         return func, dict(zip(names, normalized))
@@ -2007,7 +2007,7 @@ def call_contract_function(
     output_types = get_abi_output_types(fn_abi)
 
     try:
-        output_data = w3.codec.decode_abi(output_types, return_data)
+        output_data = w3.codec.decode(output_types, return_data)
     except DecodingError as e:
         # Provide a more helpful error message than the one provided by
         # eth-abi-utils
@@ -2083,7 +2083,7 @@ async def async_call_contract_function(
     output_types = get_abi_output_types(fn_abi)
 
     try:
-        output_data = async_w3.codec.decode_abi(output_types, return_data)
+        output_data = async_w3.codec.decode(output_types, return_data)
     except DecodingError as e:
         # Provide a more helpful error message than the one provided by
         # eth-abi-utils
