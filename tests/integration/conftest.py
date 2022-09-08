@@ -18,6 +18,47 @@ from web3._utils.module_testing.revert_contract import (
     REVERT_CONTRACT_BYTECODE,
 )
 
+# --- integration test configurations --- #
+
+
+def pytest_addoption(parser):
+    parser.addoption("--flaky", action="store_true")
+
+
+def pytest_collection_modifyitems(items, config):
+    """
+    It is ideal to keep this configuration as simple as possible so that we don't
+    risk missing some tests.
+    """
+    # TODO: See if there is a better way to address the timeout issues present
+    #  in unlocked account tests.
+
+    flaky_tests = []
+    non_flaky_tests = []
+
+    for item in items:
+        if (
+            # Unlocked account tests are problematic - separate them into their own
+            # test run.
+            any(
+                _ in item.fixturenames
+                for _ in ("unlocked_account", "unlocked_account_dual_type")
+            )
+            # Leave offchain_lookup tests split between eth sync and async tests as
+            # those can conflict with each other as well.
+            and "offchain_lookup" not in item.name
+        ):
+            flaky_tests.append(item)
+        else:
+            non_flaky_tests.append(item)
+
+    if config.option.flaky:
+        items[:] = flaky_tests
+        config.hook.pytest_deselected(items=non_flaky_tests)
+    else:
+        items[:] = non_flaky_tests
+        config.hook.pytest_deselected(items=flaky_tests)
+
 
 @pytest.fixture(scope="module")
 def math_contract_factory(w3):
