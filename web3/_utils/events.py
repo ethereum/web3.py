@@ -246,7 +246,7 @@ def get_event_data(
             f"between event inputs: '{', '.join(duplicate_names)}'"
         )
 
-    decoded_log_data = abi_codec.decode_abi(log_data_types, log_data)
+    decoded_log_data = abi_codec.decode(log_data_types, log_data)
     normalized_log_data = map_abi_data(
         BASE_RETURN_NORMALIZERS, log_data_types, decoded_log_data
     )

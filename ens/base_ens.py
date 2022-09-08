@@ -93,7 +93,7 @@ class BaseENS:
     ) -> Any:
         func = extended_resolver.get_function_by_name(fn_name)
         output_types = get_abi_output_types(func.abi)
-        decoded = self.w3.codec.decode_abi(output_types, contract_call_result)
+        decoded = self.w3.codec.decode(output_types, contract_call_result)
 
         # if decoding a single value, return that value - else, return the tuple
         return decoded[0] if len(decoded) == 1 else decoded
