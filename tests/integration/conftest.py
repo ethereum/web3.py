@@ -19,6 +19,30 @@ from web3._utils.module_testing.revert_contract import (
 )
 
 
+def pytest_addoption(parser):
+    parser.addoption("--flaky")
+
+
+def pytest_collection_modifyitems(items, config):
+    flaky_tests = []
+    non_flaky_tests = []
+
+    for item in items:
+        if any(_ in item.fixturenames for _ in (
+                "unlocked_account", "unlocked_account_dual_type"
+        )) or "offchain_lookup" in item.name:
+            flaky_tests.append(item)
+        else:
+            non_flaky_tests.append(item)
+
+    if config.option.flaky == "True":
+        items[:] = flaky_tests
+        config.hook.pytest_deselected(items=non_flaky_tests)
+    else:
+        items[:] = non_flaky_tests
+        config.hook.pytest_deselected(items=flaky_tests)
+
+
 @pytest.fixture(scope="module")
 def math_contract_factory(w3):
     contract_factory = w3.eth.contract(abi=MATH_ABI, bytecode=MATH_BYTECODE)
