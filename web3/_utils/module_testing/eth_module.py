@@ -830,9 +830,7 @@ class AsyncEthModuleTest:
             OFFCHAIN_LOOKUP_TEST_DATA
         ).call()
         assert async_w3.codec.decode(["string"], response_caller)[0] == "web3py"
-        assert (
-            async_w3.codec.decode(["string"], response_function_call)[0] == "web3py"
-        )
+        assert async_w3.codec.decode(["string"], response_function_call)[0] == "web3py"
 
     @pytest.mark.asyncio
     async def test_eth_call_offchain_lookup_raises_when_ccip_read_is_disabled(
