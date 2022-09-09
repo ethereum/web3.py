@@ -13,7 +13,7 @@ from eth_utils import (
 )
 
 from web3.exceptions import (
-    InfuraKeyNotFound,
+    InfuraProjectIdNotFound,
 )
 
 INFURA_MAINNET_DOMAIN = "mainnet.infura.io"
@@ -29,7 +29,7 @@ HTTP_SCHEME = "https"
 def load_project_id() -> str:
     key = os.environ.get("WEB3_INFURA_PROJECT_ID", "")
     if key == "":
-        raise InfuraKeyNotFound(
+        raise InfuraProjectIdNotFound(
             "No Infura Project ID found. Please ensure "
             "that the environment variable WEB3_INFURA_PROJECT_ID is set."
         )

@@ -7,7 +7,7 @@ from eth_utils import (
 )
 
 from web3.exceptions import (
-    InfuraKeyNotFound,
+    InfuraProjectIdNotFound,
 )
 from web3.providers import (
     HTTPProvider,
@@ -72,7 +72,7 @@ def test_web3_auto_infura_empty_key(monkeypatch):
     monkeypatch.setenv("WEB3_INFURA_SCHEME", "https")
     monkeypatch.setenv("WEB3_INFURA_PROJECT_ID", "")
 
-    with pytest.raises(InfuraKeyNotFound):
+    with pytest.raises(InfuraProjectIdNotFound):
         importlib.reload(infura)
 
 
@@ -81,21 +81,21 @@ def test_web3_auto_infura_deleted_key(monkeypatch):
 
     monkeypatch.delenv("WEB3_INFURA_PROJECT_ID", raising=False)
 
-    with pytest.raises(InfuraKeyNotFound):
+    with pytest.raises(InfuraProjectIdNotFound):
         importlib.reload(infura)
 
 
 def test_web3_auto_infura_websocket_empty_key(monkeypatch):
     monkeypatch.setenv("WEB3_INFURA_PROJECT_ID", "")
 
-    with pytest.raises(InfuraKeyNotFound):
+    with pytest.raises(InfuraProjectIdNotFound):
         importlib.reload(infura)
 
 
 def test_web3_auto_infura_websocket_deleted_key(monkeypatch):
     monkeypatch.delenv("WEB3_INFURA_PROJECT_ID", raising=False)
 
-    with pytest.raises(InfuraKeyNotFound):
+    with pytest.raises(InfuraProjectIdNotFound):
         importlib.reload(infura)
 
 
