@@ -99,8 +99,8 @@ However, spam and mining attacks have happened,
 which is disruptive when you want to test out a contract.
 
 There are some alternative networks that limit the damage of spam attacks, but
-they are not standardized across node software. Geth runs their own (Rinkeby),
-and Parity runs their own (Kovan). See a full comparison in this `Stackexchange Q&A
+they are not standardized across node software. Geth runs their own (Rinkeby).
+See a full comparison in this `Stackexchange Q&A
 <https://ethereum.stackexchange.com/a/30072/1461>`_.
 
 So roughly, choose this way:
