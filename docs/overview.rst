@@ -40,7 +40,7 @@ following built-in providers:
    # WebsocketProvider:
    >>> w3 = Web3(Web3.WebsocketProvider('ws://127.0.0.1:8546'))
 
-   >>> w3.isConnected()
+   >>> w3.is_connected()
    True
 
 For more information, (e.g., connecting to remote nodes, provider auto-detection,

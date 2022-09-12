@@ -85,7 +85,7 @@ class AsyncEthereumTesterProvider(AsyncBaseProvider):
                 "result": response,
             }
 
-    async def isConnected(self) -> Literal[True]:
+    async def is_connected(self) -> Literal[True]:
         return True
 
 
@@ -157,5 +157,5 @@ class EthereumTesterProvider(BaseProvider):
                 "result": response,
             }
 
-    def isConnected(self) -> Literal[True]:
+    def is_connected(self) -> Literal[True]:
         return True

@@ -1,0 +1,1 @@
+Snakecase the `isConnected` method

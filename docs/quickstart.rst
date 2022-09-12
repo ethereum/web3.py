@@ -46,7 +46,7 @@ Web3.py makes this test provider available via ``EthereumTesterProvider``:
 
    >>> from web3 import Web3, EthereumTesterProvider
    >>> w3 = Web3(EthereumTesterProvider())
-   >>> w3.isConnected()
+   >>> w3.is_connected()
    True
 
 
@@ -73,7 +73,7 @@ to this local node can be done as follows:
    # WebsocketProvider:
    >>> w3 = Web3(Web3.WebsocketProvider('wss://127.0.0.1:8546'))
 
-   >>> w3.isConnected()
+   >>> w3.is_connected()
    True
 
 If you stick to the default ports or IPC file locations, you can utilize a
@@ -83,7 +83,7 @@ and save a few keystrokes:
 .. code-block:: python
 
    >>> from web3.auto import w3
-   >>> w3.isConnected()
+   >>> w3.is_connected()
    True
 
 

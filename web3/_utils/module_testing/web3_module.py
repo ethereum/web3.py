@@ -294,4 +294,4 @@ class Web3ModuleTest:
             w3.solidityKeccak(types, values)
 
     def test_is_connected(self, w3: "Web3") -> None:
-        assert w3.isConnected()
+        assert w3.is_connected()

@@ -82,7 +82,7 @@ class AsyncBaseProvider:
     async def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
         raise NotImplementedError("Providers must implement this method")
 
-    async def isConnected(self) -> bool:
+    async def is_connected(self) -> bool:
         raise NotImplementedError("Providers must implement this method")
 
 
@@ -104,7 +104,7 @@ class AsyncJSONBaseProvider(AsyncBaseProvider):
         text_response = to_text(raw_response)
         return cast(RPCResponse, FriendlyJsonSerde().json_decode(text_response))
 
-    async def isConnected(self) -> bool:
+    async def is_connected(self) -> bool:
         try:
             response = await self.make_request(RPCEndpoint("web3_clientVersion"), [])
         except OSError:
