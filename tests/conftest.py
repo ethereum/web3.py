@@ -20,3 +20,7 @@ def address_conversion_func(request):
 @pytest.fixture()
 def open_port():
     return get_open_port()
+
+
+def pytest_addoption(parser):
+    parser.addoption("--flaky", action="store_true")

@@ -21,10 +21,6 @@ from web3._utils.module_testing.revert_contract import (
 # --- integration test configurations --- #
 
 
-def pytest_addoption(parser):
-    parser.addoption("--flaky", action="store_true")
-
-
 def pytest_collection_modifyitems(items, config):
     """
     It is ideal to keep this configuration as simple as possible so that we don't
