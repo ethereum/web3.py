@@ -60,6 +60,9 @@ from web3._utils.encoding import (
     to_hex,
 )
 from web3._utils.filters import (
+    AsyncBlockFilter,
+    AsyncLogFilter,
+    AsyncTransactionFilter,
     BlockFilter,
     LogFilter,
     TransactionFilter,
@@ -107,6 +110,7 @@ if TYPE_CHECKING:
     from web3 import Web3  # noqa: F401
     from web3.module import Module  # noqa: F401
     from web3.eth import Eth  # noqa: F401
+    from web3.eth import AsyncEth  # noqa: F401
 
 
 def bytes_to_ascii(value: bytes) -> str:
@@ -769,10 +773,35 @@ def filter_wrapper(
         )
 
 
+def async_filter_wrapper(
+    module: "AsyncEth",
+    method: RPCEndpoint,
+    filter_id: HexStr,
+) -> Union[AsyncBlockFilter, AsyncTransactionFilter, AsyncLogFilter]:
+    if method == RPC.eth_newBlockFilter:
+        return AsyncBlockFilter(filter_id, eth_module=module)
+    elif method == RPC.eth_newPendingTransactionFilter:
+        return AsyncTransactionFilter(filter_id, eth_module=module)
+    elif method == RPC.eth_newFilter:
+        return AsyncLogFilter(filter_id, eth_module=module)
+    else:
+        raise NotImplementedError(
+            "Filter wrapper needs to be used with either "
+            f"{RPC.eth_newBlockFilter}, {RPC.eth_newPendingTransactionFilter}"
+            f" or {RPC.eth_newFilter}"
+        )
+
+
 FILTER_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     RPC.eth_newPendingTransactionFilter: filter_wrapper,
     RPC.eth_newBlockFilter: filter_wrapper,
     RPC.eth_newFilter: filter_wrapper,
+}
+
+ASYNC_FILTER_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
+    RPC.eth_newPendingTransactionFilter: async_filter_wrapper,
+    RPC.eth_newBlockFilter: async_filter_wrapper,
+    RPC.eth_newFilter: async_filter_wrapper,
 }
 
 
@@ -789,11 +818,18 @@ def apply_module_to_formatters(
 def get_result_formatters(
     method_name: Union[RPCEndpoint, Callable[..., RPCEndpoint]],
     module: "Module",
+    is_async: bool = False,
 ) -> Dict[str, Callable[..., Any]]:
     formatters = combine_formatters((PYTHONIC_RESULT_FORMATTERS,), method_name)
-    formatters_requiring_module = combine_formatters(
-        (FILTER_RESULT_FORMATTERS,), method_name
-    )
+
+    if is_async:
+        formatters_requiring_module = combine_formatters(
+            (ASYNC_FILTER_RESULT_FORMATTERS,), method_name
+        )
+    else:
+        formatters_requiring_module = combine_formatters(
+            (FILTER_RESULT_FORMATTERS,), method_name
+        )
 
     partial_formatters = apply_module_to_formatters(
         formatters_requiring_module, module, method_name

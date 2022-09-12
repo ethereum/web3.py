@@ -626,14 +626,21 @@ class AsyncEth(BaseEth):
     ) -> HexBytes:
         return await self._get_storage_at(account, position, block_identifier)
 
-    filter: Method[Callable[..., Awaitable[Any]]] = Method(
+    _filter: Method[Callable[..., Awaitable[Any]]] = Method(
         method_choice_depends_on_args=select_filter_method(
             if_new_block_filter=RPC.eth_newBlockFilter,
             if_new_pending_transaction_filter=RPC.eth_newPendingTransactionFilter,
             if_new_filter=RPC.eth_newFilter,
         ),
         mungers=[BaseEth.filter_munger],
+        is_async=True,
     )
+
+    async def filter(
+        self,
+        filter_type: Union[str, FilterParams, HexStr],
+    ) -> HexStr:
+        return await self._filter(filter_type)
 
     _get_filter_changes: Method[
         Callable[[HexStr], Awaitable[List[LogReceipt]]]
@@ -969,6 +976,7 @@ class Eth(BaseEth):
             if_new_filter=RPC.eth_newFilter,
         ),
         mungers=[BaseEth.filter_munger],
+        is_async=False,
     )
 
     get_filter_changes: Method[Callable[[HexStr], List[LogReceipt]]] = Method(

@@ -19,7 +19,7 @@ from web3.providers import (
 )
 
 
-def result_formatter(method, module):
+def result_formatter(method, module, is_async):
     def formatter(self):
         return "OKAY"
 
