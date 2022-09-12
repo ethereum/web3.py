@@ -33,10 +33,10 @@ def jsonrpc_ipc_pipe_path():
 
 def test_ipc_no_path():
     """
-    IPCProvider.isConnected() returns False when no path is supplied
+    IPCProvider.is_connected() returns False when no path is supplied
     """
     ipc = IPCProvider(None)
-    assert ipc.isConnected() is False
+    assert ipc.is_connected() is False
 
 
 def test_ipc_tilda_in_path():

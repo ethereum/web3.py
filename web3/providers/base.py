@@ -82,7 +82,7 @@ class BaseProvider:
     def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
         raise NotImplementedError("Providers must implement this method")
 
-    def isConnected(self) -> bool:
+    def is_connected(self) -> bool:
         raise NotImplementedError("Providers must implement this method")
 
 
@@ -104,7 +104,7 @@ class JSONBaseProvider(BaseProvider):
         encoded = FriendlyJsonSerde().json_encode(rpc_dict)
         return to_bytes(text=encoded)
 
-    def isConnected(self) -> bool:
+    def is_connected(self) -> bool:
         try:
             response = self.make_request(RPCEndpoint("web3_clientVersion"), [])
         except OSError:

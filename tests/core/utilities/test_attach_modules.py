@@ -127,7 +127,7 @@ def test_attach_external_modules_multiple_levels_deep(
         },
     )
 
-    assert w3.isConnected()
+    assert w3.is_connected()
 
     # assert instantiated with default modules
     assert hasattr(w3, "geth")

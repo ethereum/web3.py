@@ -338,8 +338,8 @@ class Web3:
         """
         _attach_modules(self, modules)
 
-    def isConnected(self) -> Union[bool, Coroutine[Any, Any, bool]]:
-        return self.provider.isConnected()
+    def is_connected(self) -> Union[bool, Coroutine[Any, Any, bool]]:
+        return self.provider.is_connected()
 
     def is_encodable(self, _type: TypeStr, value: Any) -> bool:
         return self.codec.is_encodable(_type, value)

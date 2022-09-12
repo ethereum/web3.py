@@ -95,9 +95,9 @@ class AutoProvider(BaseProvider):
         except OSError:
             return self._proxy_request(method, params, use_cache=False)
 
-    def isConnected(self) -> bool:
+    def is_connected(self) -> bool:
         provider = self._get_active_provider(use_cache=True)
-        return provider is not None and provider.isConnected()
+        return provider is not None and provider.is_connected()
 
     def _proxy_request(
         self, method: RPCEndpoint, params: Any, use_cache: bool = True
@@ -117,7 +117,7 @@ class AutoProvider(BaseProvider):
 
         for Provider in self._potential_providers:
             provider = Provider()
-            if provider is not None and provider.isConnected():
+            if provider is not None and provider.is_connected():
                 self._active_provider = provider
                 return provider
 

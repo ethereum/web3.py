@@ -8,7 +8,7 @@ from web3.providers.eth_tester.main import (
 @pytest.mark.asyncio
 async def test_async_tester_provider_is_connected() -> None:
     provider = AsyncEthereumTesterProvider()
-    connected = await provider.isConnected()
+    connected = await provider.is_connected()
     assert connected
 
 

@@ -55,7 +55,7 @@ Ethereum network. An example configuration, if you're connecting to a locally ru
     >>> w3 = Web3(Web3.HTTPProvider('http://localhost:8545'))
 
     # now `w3` is available to use:
-    >>> w3.isConnected()
+    >>> w3.is_connected()
     True
     >>> w3.eth.send_transaction(...)
 
@@ -66,11 +66,11 @@ Refer to the :ref:`providers` documentation for further help with configuration.
 
 Why isn't my web3 instance connecting to the network?
 -----------------------------------------------------
-You can check that your instance is connected via the ``isConnected`` method:
+You can check that your instance is connected via the ``is_connected`` method:
 
 .. code-block:: python
 
-    >>> w3.isConnected()
+    >>> w3.is_connected()
     False
 
 There's a variety of explanations for why you may see ``False`` here. If you're
