@@ -13,7 +13,7 @@ from eth_utils import (
 )
 
 from web3.exceptions import (
-    InfuraKeyNotFound,
+    InfuraProjectIdNotFound,
 )
 
 INFURA_MAINNET_DOMAIN = "mainnet.infura.io"
@@ -25,13 +25,10 @@ WEBSOCKET_SCHEME = "wss"
 HTTP_SCHEME = "https"
 
 
-def load_api_key() -> str:
-    # in web3py v6 remove outdated WEB3_INFURA_API_KEY
-    key = os.environ.get(
-        "WEB3_INFURA_PROJECT_ID", os.environ.get("WEB3_INFURA_API_KEY", "")
-    )
+def load_project_id() -> str:
+    key = os.environ.get("WEB3_INFURA_PROJECT_ID", "")
     if key == "":
-        raise InfuraKeyNotFound(
+        raise InfuraProjectIdNotFound(
             "No Infura Project ID found. Please ensure "
             "that the environment variable WEB3_INFURA_PROJECT_ID is set."
         )
@@ -52,7 +49,7 @@ def build_http_headers() -> Optional[Dict[str, Tuple[str, str]]]:
 
 def build_infura_url(domain: str) -> URI:
     scheme = os.environ.get("WEB3_INFURA_SCHEME", WEBSOCKET_SCHEME)
-    key = load_api_key()
+    key = load_project_id()
     secret = load_secret()
 
     if scheme == WEBSOCKET_SCHEME and secret != "":

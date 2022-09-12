@@ -218,7 +218,7 @@ class BlockNotFound(Exception):
     pass
 
 
-class InfuraKeyNotFound(Exception):
+class InfuraProjectIdNotFound(Exception):
     """
     Raised when there is no Infura Project Id set.
     """
