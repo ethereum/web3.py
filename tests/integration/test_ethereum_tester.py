@@ -209,7 +209,7 @@ def unlockable_account(w3, unlockable_account_pw):
         {
             "from": w3.eth.coinbase,
             "to": account,
-            "value": w3.toWei(10, "ether"),
+            "value": w3.to_wei(10, "ether"),
             "gas": 21000,
         }
     )
@@ -242,7 +242,7 @@ def funded_account_for_raw_txn(w3):
         {
             "from": w3.eth.coinbase,
             "to": account,
-            "value": w3.toWei(10, "ether"),
+            "value": w3.to_wei(10, "ether"),
             "gas": 21000,
             "gas_price": 1,
         }

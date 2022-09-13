@@ -850,8 +850,8 @@ The following methods are available on the ``web3.eth`` namespace.
           'from': web3.eth.coinbase,
           'value': 12345,
           'gas': 21000,
-          'maxFeePerGas': web3.toWei(250, 'gwei'),
-          'maxPriorityFeePerGas': web3.toWei(2, 'gwei'),
+          'maxFeePerGas': web3.to_wei(250, 'gwei'),
+          'maxPriorityFeePerGas': web3.to_wei(2, 'gwei'),
         })
         HexBytes('0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331')
 
@@ -862,7 +862,7 @@ The following methods are available on the ``web3.eth`` namespace.
           'from': web3.eth.coinbase,
           'value': 12345,
           'gas': 21000,
-          'gasPrice': web3.toWei(50, 'gwei'),
+          'gasPrice': web3.to_wei(50, 'gwei'),
         })
         HexBytes('0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331')
 

@@ -282,7 +282,7 @@ def test_gen_normalized_accounts_type_error(w3):
 @pytest.fixture()
 def fund_account(w3):
     # fund local account
-    tx_value = w3.toWei(10, "ether")
+    tx_value = w3.to_wei(10, "ether")
     for address in (ADDRESS_1, ADDRESS_2):
         w3.eth.send_transaction(
             {"to": address, "from": w3.eth.accounts[0], "gas": 21000, "value": tx_value}

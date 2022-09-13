@@ -142,15 +142,15 @@ Web3 can help you convert between denominations.  The following denominations ar
 +--------------+---------------------------------+
 
 Picking up from the previous example, the largest account contained
-3841357360894980500000001 wei. You can use the :meth:`~web3.fromWei` method
+3841357360894980500000001 wei. You can use the :meth:`~web3.from_wei` method
 to convert that balance to ether (or another denomination).
 
 .. code-block:: python
 
-    >>> web3.fromWei(3841357360894980500000001, 'ether')
+    >>> web3.from_wei(3841357360894980500000001, 'ether')
     Decimal('3841357.360894980500000001')
 
-To convert back to wei, you can use the inverse function, :meth:`~web3.toWei`.
+To convert back to wei, you can use the inverse function, :meth:`~web3.to_wei`.
 Note that Python's default floating point precision is insufficient for this
 use case, so it's necessary to cast the value to a
 `Decimal <https://docs.python.org/3/library/decimal.html>`_ if it isn't already.
@@ -158,7 +158,7 @@ use case, so it's necessary to cast the value to a
 .. code-block:: python
 
     >>> from decimal import Decimal
-    >>> web3.toWei(Decimal('3841357.360894980500000001'), 'ether')
+    >>> web3.to_wei(Decimal('3841357.360894980500000001'), 'ether')
     3841357360894980500000001
 
 Best practice: If you need to work with multiple currency denominations, default
@@ -167,9 +167,9 @@ wei, then from wei to whatever you need.
 
 .. code-block:: python
 
-    >>> web3.toWei(Decimal('0.000000005'), 'ether')
+    >>> web3.to_wei(Decimal('0.000000005'), 'ether')
     5000000000
-    >>> web3.fromWei(5000000000, 'gwei')
+    >>> web3.from_wei(5000000000, 'gwei')
     Decimal('5')
 
 
@@ -493,7 +493,7 @@ contract which conforms to this standard.
     alice, bob = w3.eth.accounts[0], w3.eth.accounts[1]
     assert alice == '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf', alice
     assert bob == '0x2B5AD5c4795c026514f8317c7a215E218DcCD6cF', bob
-    tx_hash = factory.constructor(1000000).transact({'from': alice, 'gas': 899000, 'gasPrice': Web3.toWei(1, 'gwei')})
+    tx_hash = factory.constructor(1000000).transact({'from': alice, 'gas': 899000, 'gasPrice': Web3.to_wei(1, 'gwei')})
     assert tx_hash == HexBytes('0x49e3da72a95e4074a9eaea7b438c73ca154627d317e58abeae914e3769a15044'), tx_hash
     txn_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
     assert txn_receipt['contractAddress'] == '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b', txn_receipt['contractAddress']
