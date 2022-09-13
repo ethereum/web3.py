@@ -22,6 +22,8 @@ from web3.exceptions import (
         ("latest", "latest"),
         ("earliest", "earliest"),
         ("pending", "pending"),
+        ("safe", "safe"),
+        ("finalized", "finalized"),
     ),
 )
 def test_parse_block_identifier_int_and_string(w3, block_identifier, expected_output):
@@ -83,6 +85,8 @@ def test_validate_payable(value):
         ("latest", "latest"),
         ("earliest", "earliest"),
         ("pending", "pending"),
+        ("safe", "safe"),
+        ("finalized", "finalized"),
     ),
 )
 async def test_async_parse_block_identifier_int_and_string(

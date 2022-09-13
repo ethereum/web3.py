@@ -915,7 +915,7 @@ class Eth(BaseEth):
         if isinstance(filter_params, dict):
             return [filter_params]
         elif is_string(filter_params):
-            if filter_params in ["latest", "pending"]:
+            if filter_params in {"latest", "pending"}:
                 return [filter_params]
             else:
                 raise ValueError(

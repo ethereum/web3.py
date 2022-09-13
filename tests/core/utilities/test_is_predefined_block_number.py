@@ -10,6 +10,8 @@ from web3._utils.blocks import (
     (
         ("earliest", True),
         ("latest", True),
+        ("finalized", True),
+        ("safe", True),
         ("pending", True),
         (1, False),
         ("0x1", False),
