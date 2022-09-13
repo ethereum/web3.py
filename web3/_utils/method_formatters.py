@@ -754,42 +754,87 @@ NULL_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
 }
 
 
+# def filter_wrapper(
+#     module: "Eth",
+#     method: RPCEndpoint,
+#     filter_id: HexStr,
+# ) -> Union[BlockFilter, TransactionFilter, LogFilter]:
+#     if method == RPC.eth_newBlockFilter:
+#         return BlockFilter(filter_id, eth_module=module)
+#     elif method == RPC.eth_newPendingTransactionFilter:
+#         return TransactionFilter(filter_id, eth_module=module)
+#     elif method == RPC.eth_newFilter:
+#         return LogFilter(filter_id, eth_module=module)
+#     else:
+#         raise NotImplementedError(
+#             "Filter wrapper needs to be used with either "
+#             f"{RPC.eth_newBlockFilter}, {RPC.eth_newPendingTransactionFilter}"
+#             f" or {RPC.eth_newFilter}"
+#         )
+
+
 def filter_wrapper(
-    module: "Eth",
+    module: Union["AsyncEth", "Eth"],
     method: RPCEndpoint,
     filter_id: HexStr,
-) -> Union[BlockFilter, TransactionFilter, LogFilter]:
-    if method == RPC.eth_newBlockFilter:
-        return BlockFilter(filter_id, eth_module=module)
-    elif method == RPC.eth_newPendingTransactionFilter:
-        return TransactionFilter(filter_id, eth_module=module)
-    elif method == RPC.eth_newFilter:
-        return LogFilter(filter_id, eth_module=module)
+) -> Union[
+    AsyncBlockFilter,
+    AsyncTransactionFilter,
+    AsyncLogFilter,
+    BlockFilter,
+    TransactionFilter,
+    LogFilter,
+]:
+    
+    if type(module).__name__ == "Eth":
+
+        if method == RPC.eth_newBlockFilter:
+            return BlockFilter(filter_id, eth_module=module)
+        elif method == RPC.eth_newPendingTransactionFilter:
+            return TransactionFilter(filter_id, eth_module=module)
+        elif method == RPC.eth_newFilter:
+            return LogFilter(filter_id, eth_module=module)
+        else:
+            raise NotImplementedError(
+                "Filter wrapper needs to be used with either "
+                f"{RPC.eth_newBlockFilter}, {RPC.eth_newPendingTransactionFilter}"
+                f" or {RPC.eth_newFilter}"
+            )
+    elif type(module).__name__ == "AsyncEth":
+
+        if method == RPC.eth_newBlockFilter:
+            return AsyncBlockFilter(filter_id, eth_module=module)
+        elif method == RPC.eth_newPendingTransactionFilter:
+            return AsyncTransactionFilter(filter_id, eth_module=module)
+        elif method == RPC.eth_newFilter:
+            return AsyncLogFilter(filter_id, eth_module=module)
+        else:
+            raise NotImplementedError(
+                "Filter wrapper needs to be used with either "
+                f"{RPC.eth_newBlockFilter}, {RPC.eth_newPendingTransactionFilter}"
+                f" or {RPC.eth_newFilter}"
+            )
     else:
-        raise NotImplementedError(
-            "Filter wrapper needs to be used with either "
-            f"{RPC.eth_newBlockFilter}, {RPC.eth_newPendingTransactionFilter}"
-            f" or {RPC.eth_newFilter}"
-        )
+        raise NotImplementedError("Module type needs to be either Eth or AsyncEth")
 
 
-def async_filter_wrapper(
-    module: "AsyncEth",
-    method: RPCEndpoint,
-    filter_id: HexStr,
-) -> Union[AsyncBlockFilter, AsyncTransactionFilter, AsyncLogFilter]:
-    if method == RPC.eth_newBlockFilter:
-        return AsyncBlockFilter(filter_id, eth_module=module)
-    elif method == RPC.eth_newPendingTransactionFilter:
-        return AsyncTransactionFilter(filter_id, eth_module=module)
-    elif method == RPC.eth_newFilter:
-        return AsyncLogFilter(filter_id, eth_module=module)
-    else:
-        raise NotImplementedError(
-            "Filter wrapper needs to be used with either "
-            f"{RPC.eth_newBlockFilter}, {RPC.eth_newPendingTransactionFilter}"
-            f" or {RPC.eth_newFilter}"
-        )
+# def async_filter_wrapper(
+#     module: "AsyncEth",
+#     method: RPCEndpoint,
+#     filter_id: HexStr,
+# ) -> Union[AsyncBlockFilter, AsyncTransactionFilter, AsyncLogFilter]:
+#     if method == RPC.eth_newBlockFilter:
+#         return AsyncBlockFilter(filter_id, eth_module=module)
+#     elif method == RPC.eth_newPendingTransactionFilter:
+#         return AsyncTransactionFilter(filter_id, eth_module=module)
+#     elif method == RPC.eth_newFilter:
+#         return AsyncLogFilter(filter_id, eth_module=module)
+#     else:
+#         raise NotImplementedError(
+#             "Filter wrapper needs to be used with either "
+#             f"{RPC.eth_newBlockFilter}, {RPC.eth_newPendingTransactionFilter}"
+#             f" or {RPC.eth_newFilter}"
+#         )
 
 
 FILTER_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
@@ -799,9 +844,9 @@ FILTER_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
 }
 
 ASYNC_FILTER_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
-    RPC.eth_newPendingTransactionFilter: async_filter_wrapper,
-    RPC.eth_newBlockFilter: async_filter_wrapper,
-    RPC.eth_newFilter: async_filter_wrapper,
+    RPC.eth_newPendingTransactionFilter: filter_wrapper,
+    RPC.eth_newBlockFilter: filter_wrapper,
+    RPC.eth_newFilter: filter_wrapper,
 }
 
 
