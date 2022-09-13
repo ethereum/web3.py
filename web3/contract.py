@@ -2120,7 +2120,7 @@ def parse_block_identifier(
 ) -> BlockIdentifier:
     if isinstance(block_identifier, int):
         return parse_block_identifier_int(w3, block_identifier)
-    elif block_identifier in ["latest", "earliest", "pending"]:
+    elif block_identifier in {"latest", "earliest", "pending", "safe", "finalized"}:
         return block_identifier
     elif isinstance(block_identifier, bytes) or is_hex_encoded_block_hash(
         block_identifier
@@ -2135,7 +2135,7 @@ async def async_parse_block_identifier(
 ) -> Awaitable[BlockIdentifier]:
     if isinstance(block_identifier, int):
         return await async_parse_block_identifier_int(w3, block_identifier)
-    elif block_identifier in ["latest", "earliest", "pending"]:
+    elif block_identifier in {"latest", "earliest", "pending", "safe", "finalized"}:
         return block_identifier  # type: ignore
     elif isinstance(block_identifier, bytes) or is_hex_encoded_block_hash(
         block_identifier

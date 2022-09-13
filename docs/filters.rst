@@ -15,7 +15,7 @@ Filtering
 
         from web3.auto import w3
 
-The :meth:`web3.eth.Eth.filter` method can be used to setup filters for:
+The :meth:`web3.eth.Eth.filter` method can be used to set up filters for:
 
 * Pending Transactions: ``web3.eth.filter('pending')``
 

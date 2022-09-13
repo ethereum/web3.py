@@ -432,8 +432,9 @@ The following methods are available on the ``web3.eth`` namespace.
 
     Returns the block specified by ``block_identifier``.  Delegates to
     ``eth_getBlockByNumber`` if ``block_identifier`` is an integer or one of
-    the predefined block parameters ``'latest', 'earliest', 'pending'``,
-    otherwise delegates to ``eth_getBlockByHash``. Throws ``BlockNotFound`` error if the block is not found.
+    the predefined block parameters ``'latest', 'earliest', 'pending',
+    'safe', 'finalized'`` - otherwise delegates to ``eth_getBlockByHash``.
+    Throws ``BlockNotFound`` error if the block is not found.
 
     If ``full_transactions`` is ``True`` then the ``'transactions'`` key will
     contain full transactions objects.  Otherwise it will be an array of
@@ -478,7 +479,9 @@ The following methods are available on the ``web3.eth`` namespace.
     ``block_identifier``.  Delegates to
     ``eth_getBlockTransactionCountByNumber`` if ``block_identifier`` is an
     integer or one of the predefined block parameters ``'latest', 'earliest',
-    'pending'``, otherwise delegates to ``eth_getBlockTransactionCountByHash``. Throws ``BlockNotFoundError`` if transactions are not found.
+    'pending', 'safe', 'finalized'``,
+    otherwise delegates to ``eth_getBlockTransactionCountByHash``.
+    Throws ``BlockNotFoundError`` if transactions are not found.
 
     .. code-block:: python
 
@@ -636,7 +639,7 @@ The following methods are available on the ``web3.eth`` namespace.
     from the block specified by ``block_identifier``.  Delegates to
     ``eth_getTransactionByBlockNumberAndIndex`` if ``block_identifier`` is an
     integer or one of the predefined block parameters ``'latest', 'earliest',
-    'pending'``, otherwise delegates to
+    'pending', 'safe', 'finalized'``, otherwise delegates to
     ``eth_getTransactionByBlockHashAndIndex``.
     If a transaction is not found at specified arguments, throws :class:`web3.exceptions.TransactionNotFound`.
 
@@ -689,7 +692,7 @@ The following methods are available on the ``web3.eth`` namespace.
     from the block specified by ``block_identifier``.  Delegates to
     ``eth_getRawTransactionByBlockNumberAndIndex`` if ``block_identifier`` is an
     integer or one of the predefined block parameters ``'latest', 'earliest',
-    'pending'``, otherwise delegates to
+    'pending', 'safe', 'finalized'``, otherwise delegates to
     ``eth_getRawTransactionByBlockHashAndIndex``.
     If a transaction is not found at specified arguments, throws :class:`web3.exceptions.TransactionNotFound`.
 
@@ -1243,6 +1246,10 @@ with the filtering API.
       This parameter can also be a list of topic lists in which case filtering
       will match any of the provided topic arrays.
 
+    .. note::
+
+        ``"safe"`` and ``"finalized"`` block filters and subscriptions are not
+        currently a part of the specifications.
 
     See :doc:`./filters` for more information about filtering.
 
@@ -1264,8 +1271,8 @@ with the filtering API.
 
     .. code-block:: python
 
-        >>> filt = web3.eth.filter()
-        >>> web3.eth.get_filter_changes(filt.filter_id)
+        >>> filter = web3.eth.filter()
+        >>> web3.eth.get_filter_changes(filter.filter_id)
         [
             {
                 'address': '0xDc3A9Db694BCdd55EBaE4A89B22aC6D12b3F0c24',
@@ -1297,8 +1304,8 @@ with the filtering API.
 
     .. code-block:: python
 
-        >>> filt = web3.eth.filter()
-        >>> web3.eth.get_filter_logs(filt.filter_id)
+        >>> filter = web3.eth.filter()
+        >>> web3.eth.get_filter_logs(filter.filter_id)
         [
             {
                 'address': '0xDc3A9Db694BCdd55EBaE4A89B22aC6D12b3F0c24',
@@ -1331,10 +1338,10 @@ with the filtering API.
 
     .. code-block:: python
 
-        >>> filt = web3.eth.filter()
-        >>> web3.eth.uninstall_filter(filt.filter_id)
+        >>> filter = web3.eth.filter()
+        >>> web3.eth.uninstall_filter(filter.filter_id)
         True
-        >>> web3.eth.uninstall_filter(filt.filter_id)
+        >>> web3.eth.uninstall_filter(filter.filter_id)
         False  # already uninstalled.
 
 .. py:method:: Eth.uninstallFilter(self, filter_id)
