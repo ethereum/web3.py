@@ -142,7 +142,6 @@ class Method(Generic[TFunc]):
         null_result_formatters: Optional[Callable[..., TReturn]] = None,
         method_choice_depends_on_args: Optional[Callable[..., RPCEndpoint]] = None,
         is_property: bool = False,
-        is_async: bool = False,
     ):
         self.json_rpc_method = json_rpc_method
         self.mungers = _set_mungers(mungers, is_property)
@@ -153,7 +152,6 @@ class Method(Generic[TFunc]):
         )
         self.method_choice_depends_on_args = method_choice_depends_on_args
         self.is_property = is_property
-        self.is_async = is_async
 
     def __get__(
         self, obj: Optional["Module"] = None, obj_type: Optional[Type["Module"]] = None
@@ -226,7 +224,7 @@ class Method(Generic[TFunc]):
 
         method = self.method_selector_fn()
         response_formatters = (
-            self.result_formatters(method, module, self.is_async),
+            self.result_formatters(method, module),
             get_error_formatters(method),
             self.null_result_formatters(method),
         )

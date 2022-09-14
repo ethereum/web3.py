@@ -633,7 +633,6 @@ class AsyncEth(BaseEth):
             if_new_filter=RPC.eth_newFilter,
         ),
         mungers=[BaseEth.filter_munger],
-        is_async=True,
     )
 
     async def filter(
@@ -976,7 +975,6 @@ class Eth(BaseEth):
             if_new_filter=RPC.eth_newFilter,
         ),
         mungers=[BaseEth.filter_munger],
-        is_async=False,
     )
 
     get_filter_changes: Method[Callable[[HexStr], List[LogReceipt]]] = Method(

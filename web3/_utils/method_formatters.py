@@ -769,19 +769,21 @@ def filter_wrapper(
 ]:
     if method == RPC.eth_newBlockFilter:
         if module.is_async:
-            return AsyncBlockFilter(filter_id, eth_module=cast(AsyncEth, module))
+            return AsyncBlockFilter(filter_id, eth_module=cast("AsyncEth", module))
         else:
-            return BlockFilter(filter_id, eth_module=cast(Eth, module))
+            return BlockFilter(filter_id, eth_module=cast("Eth", module))
     elif method == RPC.eth_newPendingTransactionFilter:
         if module.is_async:
-            return AsyncTransactionFilter(filter_id, eth_module=cast(AsyncEth, module))
+            return AsyncTransactionFilter(
+                filter_id, eth_module=cast("AsyncEth", module)
+            )
         else:
-            return TransactionFilter(filter_id, eth_module=cast(Eth, module))
+            return TransactionFilter(filter_id, eth_module=cast("Eth", module))
     elif method == RPC.eth_newFilter:
         if module.is_async:
-            return AsyncLogFilter(filter_id, eth_module=cast(AsyncEth, module))
+            return AsyncLogFilter(filter_id, eth_module=cast("AsyncEth", module))
         else:
-            return LogFilter(filter_id, eth_module=cast(Eth, module))
+            return LogFilter(filter_id, eth_module=cast("Eth", module))
     else:
         raise NotImplementedError(
             "Filter wrapper needs to be used with either "
@@ -791,12 +793,6 @@ def filter_wrapper(
 
 
 FILTER_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
-    RPC.eth_newPendingTransactionFilter: filter_wrapper,
-    RPC.eth_newBlockFilter: filter_wrapper,
-    RPC.eth_newFilter: filter_wrapper,
-}
-
-ASYNC_FILTER_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     RPC.eth_newPendingTransactionFilter: filter_wrapper,
     RPC.eth_newBlockFilter: filter_wrapper,
     RPC.eth_newFilter: filter_wrapper,
@@ -816,19 +812,11 @@ def apply_module_to_formatters(
 def get_result_formatters(
     method_name: Union[RPCEndpoint, Callable[..., RPCEndpoint]],
     module: "Module",
-    is_async: bool = False,
 ) -> Dict[str, Callable[..., Any]]:
     formatters = combine_formatters((PYTHONIC_RESULT_FORMATTERS,), method_name)
-
-    if is_async:
-        formatters_requiring_module = combine_formatters(
-            (ASYNC_FILTER_RESULT_FORMATTERS,), method_name
-        )
-    else:
-        formatters_requiring_module = combine_formatters(
-            (FILTER_RESULT_FORMATTERS,), method_name
-        )
-
+    formatters_requiring_module = combine_formatters(
+        (FILTER_RESULT_FORMATTERS,), method_name
+    )
     partial_formatters = apply_module_to_formatters(
         formatters_requiring_module, module, method_name
     )
