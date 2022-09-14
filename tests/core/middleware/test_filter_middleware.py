@@ -9,12 +9,17 @@ from web3.datastructures import (
     AttributeDict,
 )
 from web3.middleware import (
+    async_construct_result_generator_middleware,
+    async_local_filter_middleware,
     construct_result_generator_middleware,
     local_filter_middleware,
 )
 from web3.middleware.filter import (
     block_ranges,
     iter_latest_block_ranges,
+)
+from web3.providers.async_base import (
+    AsyncBaseProvider,
 )
 from web3.providers.base import (
     BaseProvider,
@@ -23,6 +28,11 @@ from web3.providers.base import (
 
 class DummyProvider(BaseProvider):
     def make_request(self, method, params):
+        raise NotImplementedError(f"Cannot make request for {method}:{params}")
+
+
+class AsyncDummyProvider(AsyncBaseProvider):
+    async def make_request(self, method, params):
         raise NotImplementedError(f"Cannot make request for {method}:{params}")
 
 
@@ -86,6 +96,18 @@ def result_generator_middleware(iter_block_number):
 
 
 @pytest.fixture(scope="function")
+async def async_result_generator_middleware(iter_block_number):
+    return await async_construct_result_generator_middleware(
+        {
+            "eth_getLogs": lambda *_: FILTER_LOG,
+            "eth_getBlockByNumber": lambda *_: {"hash": BLOCK_HASH},
+            "net_version": lambda *_: 1,
+            "eth_blockNumber": lambda *_: next(iter_block_number),
+        }
+    )
+
+
+@pytest.fixture(scope="function")
 def w3_base():
     return Web3(provider=DummyProvider(), middlewares=[])
 
@@ -95,6 +117,19 @@ def w3(w3_base, result_generator_middleware):
     w3_base.middleware_onion.add(result_generator_middleware)
     w3_base.middleware_onion.add(local_filter_middleware)
     return w3_base
+
+
+@pytest.fixture(scope="function")
+def async_w3_base():
+    return Web3(provider=AsyncDummyProvider(), middlewares=[])
+
+
+@pytest.fixture(scope="function")
+def async_w3(async_w3_base, async_result_generator_middleware):
+    async_w3_base.eth.is_async = True
+    async_w3_base.middleware_onion.add(async_result_generator_middleware)
+    async_w3_base.middleware_onion.add(async_local_filter_middleware)
+    return async_w3_base
 
 
 @pytest.mark.parametrize(
@@ -216,6 +251,34 @@ def test_local_filter_middleware(w3, iter_block_number):
     assert results == FILTER_LOG
 
     assert w3.eth.get_filter_logs(log_filter.filter_id) == FILTER_LOG
+
+    filter_ids = (block_filter.filter_id, log_filter.filter_id)
+
+    # Test that all ids are str types
+    assert all(isinstance(_filter_id, (str,)) for _filter_id in filter_ids)
+
+    # Test that all ids are unique
+    assert len(filter_ids) == len(set(filter_ids))
+
+
+@pytest.mark.asyncio
+async def test_async_local_filter_middleware(async_w3, iter_block_number):
+    # breakpoint()
+    block_filter = await async_w3.eth.filter("latest")
+    await block_filter.get_new_entries()
+    iter_block_number.send(1)
+
+    log_filter = async_w3.eth.filter(filter_params={"fromBlock": "latest"})
+
+    changes = await async_w3.eth.get_filter_changes(block_filter.filter_id) 
+    assert changes == [HexBytes(BLOCK_HASH)]
+
+    iter_block_number.send(2)
+    results = await async_w3.eth.get_filter_changes(log_filter.filter_id)
+    assert results == FILTER_LOG
+
+    logs = await async_w3.eth.get_filter_logs(log_filter.filter_id) 
+    assert logs == FILTER_LOG
 
     filter_ids = (block_filter.filter_id, log_filter.filter_id)
 
