@@ -6,7 +6,7 @@ from setuptools import (
 
 extras_require = {
     "tester": [
-        "eth-tester[py-evm]==v0.6.0-beta.5",
+        "eth-tester[py-evm]==v0.7.0-beta.1",
         "py-geth>=3.9.1,<4",
     ],
     "linter": [
@@ -77,7 +77,7 @@ setup(
     install_requires=[
         "aiohttp>=3.7.4.post0,<4",
         "eth-abi>=3.0.0,<4.0.0",
-        "eth-account>=0.6.0,<0.7.0",
+        "eth-account>=0.7.0,<0.8.0",
         "eth-hash[pycryptodome]>=0.2.0,<1.0.0",
         "eth-typing>=3.0.0,<4.0.0",
         "eth-utils>=2.0.0,<3.0.0",
