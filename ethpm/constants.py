@@ -15,4 +15,5 @@ SUPPORTED_CHAIN_IDS = {
     3: "ropsten",
     4: "rinkeby",
     5: "goerli",
+    11155111: "sepolia",
 }
