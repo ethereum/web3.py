@@ -49,6 +49,7 @@ def test_parse_BIP122_uri(value, expected_resource_type):
         (3, True),
         (4, True),
         (5, True),
+        (11155111, True),
         (2, False),
         ("1", False),
         ({}, False),
