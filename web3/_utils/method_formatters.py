@@ -10,6 +10,7 @@ from typing import (
     NoReturn,
     Tuple,
     Union,
+    cast,
 )
 
 from eth_abi import (
@@ -60,6 +61,9 @@ from web3._utils.encoding import (
     to_hex,
 )
 from web3._utils.filters import (
+    AsyncBlockFilter,
+    AsyncLogFilter,
+    AsyncTransactionFilter,
     BlockFilter,
     LogFilter,
     TransactionFilter,
@@ -107,6 +111,7 @@ if TYPE_CHECKING:
     from web3 import Web3  # noqa: F401
     from web3.module import Module  # noqa: F401
     from web3.eth import Eth  # noqa: F401
+    from web3.eth import AsyncEth  # noqa: F401
 
 
 def bytes_to_ascii(value: bytes) -> str:
@@ -751,16 +756,34 @@ NULL_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
 
 
 def filter_wrapper(
-    module: "Eth",
+    module: Union["AsyncEth", "Eth"],
     method: RPCEndpoint,
     filter_id: HexStr,
-) -> Union[BlockFilter, TransactionFilter, LogFilter]:
+) -> Union[
+    AsyncBlockFilter,
+    AsyncTransactionFilter,
+    AsyncLogFilter,
+    BlockFilter,
+    TransactionFilter,
+    LogFilter,
+]:
     if method == RPC.eth_newBlockFilter:
-        return BlockFilter(filter_id, eth_module=module)
+        if module.is_async:
+            return AsyncBlockFilter(filter_id, eth_module=cast("AsyncEth", module))
+        else:
+            return BlockFilter(filter_id, eth_module=cast("Eth", module))
     elif method == RPC.eth_newPendingTransactionFilter:
-        return TransactionFilter(filter_id, eth_module=module)
+        if module.is_async:
+            return AsyncTransactionFilter(
+                filter_id, eth_module=cast("AsyncEth", module)
+            )
+        else:
+            return TransactionFilter(filter_id, eth_module=cast("Eth", module))
     elif method == RPC.eth_newFilter:
-        return LogFilter(filter_id, eth_module=module)
+        if module.is_async:
+            return AsyncLogFilter(filter_id, eth_module=cast("AsyncEth", module))
+        else:
+            return LogFilter(filter_id, eth_module=cast("Eth", module))
     else:
         raise NotImplementedError(
             "Filter wrapper needs to be used with either "
@@ -794,7 +817,6 @@ def get_result_formatters(
     formatters_requiring_module = combine_formatters(
         (FILTER_RESULT_FORMATTERS,), method_name
     )
-
     partial_formatters = apply_module_to_formatters(
         formatters_requiring_module, module, method_name
     )
