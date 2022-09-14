@@ -47,8 +47,8 @@ def test_set_text_pass_in_transaction_dict(ens):
         "avatar",
         "example.jpeg",
         transact={
-            "maxFeePerGas": Web3.toWei(100, "gwei"),
-            "maxPriorityFeePerGas": Web3.toWei(100, "gwei"),
+            "maxFeePerGas": Web3.to_wei(100, "gwei"),
+            "maxPriorityFeePerGas": Web3.to_wei(100, "gwei"),
         },
     )
     assert ens.get_text("tester.eth", "url") == "http://example.com"
@@ -120,8 +120,8 @@ async def async_test_set_text_pass_in_transaction_dict(async_ens):
         "avatar",
         "example.jpeg",
         transact={
-            "maxFeePerGas": Web3.toWei(100, "gwei"),
-            "maxPriorityFeePerGas": Web3.toWei(100, "gwei"),
+            "maxFeePerGas": Web3.to_wei(100, "gwei"),
+            "maxPriorityFeePerGas": Web3.to_wei(100, "gwei"),
         },
     )
     assert await async_ens.get_text("tester.eth", "url") == "http://example.com"

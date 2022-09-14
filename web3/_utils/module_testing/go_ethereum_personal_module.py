@@ -113,7 +113,7 @@ class GoEthereumPersonalModuleTest:
             "to": unlockable_account_dual_type,
             "gas": 21000,
             "value": Wei(1),
-            "gasPrice": w3.toWei(1, "gwei"),
+            "gasPrice": w3.to_wei(1, "gwei"),
         }
         txn_hash = w3.geth.personal.send_transaction(txn_params, unlockable_account_pw)
         assert txn_hash

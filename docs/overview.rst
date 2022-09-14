@@ -109,8 +109,8 @@ Address Helpers
 Currency Conversions
 --------------------
 
-- :meth:`Web3.fromWei() <web3.Web3.fromWei>`
-- :meth:`Web3.toWei() <web3.Web3.toWei>`
+- :meth:`Web3.from_wei() <web3.Web3.from_wei>`
+- :meth:`Web3.to_wei() <web3.Web3.to_wei>`
 
 
 Cryptographic Hashing

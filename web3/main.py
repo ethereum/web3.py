@@ -205,12 +205,12 @@ class Web3:
     # Currency Utility
     @staticmethod
     @wraps(to_wei)
-    def toWei(number: Union[int, float, str, decimal.Decimal], unit: str) -> Wei:
+    def to_wei(number: Union[int, float, str, decimal.Decimal], unit: str) -> Wei:
         return cast(Wei, to_wei(number, unit))
 
     @staticmethod
     @wraps(from_wei)
-    def fromWei(number: int, unit: str) -> Union[int, decimal.Decimal]:
+    def from_wei(number: int, unit: str) -> Union[int, decimal.Decimal]:
         return from_wei(number, unit)
 
     # Address Utility

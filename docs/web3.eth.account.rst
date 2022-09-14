@@ -347,8 +347,8 @@ To sign a transaction locally that will invoke a smart contract:
     ... ).build_transaction({
     ...     'chainId': 1,
     ...     'gas': 70000,
-    ...     'maxFeePerGas': w3.toWei('2', 'gwei'),
-    ...     'maxPriorityFeePerGas': w3.toWei('1', 'gwei'),
+    ...     'maxFeePerGas': w3.to_wei('2', 'gwei'),
+    ...     'maxPriorityFeePerGas': w3.to_wei('1', 'gwei'),
     ...     'nonce': nonce,
     ... })
 

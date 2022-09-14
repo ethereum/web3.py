@@ -143,8 +143,8 @@ class AsyncEthModuleTest:
             "to": unlocked_account_dual_type,
             "value": Wei(1),
             "gas": 21000,
-            "maxFeePerGas": async_w3.toWei(3, "gwei"),
-            "maxPriorityFeePerGas": async_w3.toWei(1, "gwei"),
+            "maxFeePerGas": async_w3.to_wei(3, "gwei"),
+            "maxPriorityFeePerGas": async_w3.to_wei(1, "gwei"),
         }
         txn_hash = await async_w3.eth.send_transaction(txn_params)  # type: ignore
         txn = await async_w3.eth.get_transaction(txn_hash)  # type: ignore
@@ -255,7 +255,7 @@ class AsyncEthModuleTest:
     async def test_eth_send_transaction_no_max_fee(
         self, async_w3: "Web3", unlocked_account_dual_type: ChecksumAddress
     ) -> None:
-        maxPriorityFeePerGas = async_w3.toWei(2, "gwei")
+        maxPriorityFeePerGas = async_w3.to_wei(2, "gwei")
         txn_params: TxParams = {
             "from": unlocked_account_dual_type,
             "to": unlocked_account_dual_type,
@@ -303,8 +303,8 @@ class AsyncEthModuleTest:
             "to": unlocked_account_dual_type,
             "value": Wei(1),
             "gas": Wei(21000),
-            "maxFeePerGas": async_w3.toWei(2, "gwei"),
-            "maxPriorityFeePerGas": async_w3.toWei(1, "gwei"),
+            "maxFeePerGas": async_w3.to_wei(2, "gwei"),
+            "maxPriorityFeePerGas": async_w3.to_wei(1, "gwei"),
             "chainId": wrong_chain_id,
         }
         with pytest.raises(
@@ -364,7 +364,7 @@ class AsyncEthModuleTest:
             "value": Wei(1),
             "gas": 21000,
         }
-        two_gwei_in_wei = async_w3.toWei(2, "gwei")
+        two_gwei_in_wei = async_w3.to_wei(2, "gwei")
 
         def gas_price_strategy(w3: "Web3", txn: TxParams) -> Wei:
             return two_gwei_in_wei
@@ -387,7 +387,7 @@ class AsyncEthModuleTest:
         unlocked_account_dual_type: ChecksumAddress,
         max_fee: Wei,
     ) -> None:
-        max_priority_fee = async_w3.toWei(1, "gwei")
+        max_priority_fee = async_w3.to_wei(1, "gwei")
         txn_params: TxParams = {
             "from": unlocked_account_dual_type,
             "to": unlocked_account_dual_type,
@@ -399,7 +399,7 @@ class AsyncEthModuleTest:
             txn_params = assoc(txn_params, "maxFeePerGas", max_fee)
 
         def gas_price_strategy(w3: "Web3", txn: TxParams) -> Wei:
-            return async_w3.toWei(2, "gwei")
+            return async_w3.to_wei(2, "gwei")
 
         async_w3.eth.set_gas_price_strategy(gas_price_strategy)
 
@@ -432,7 +432,7 @@ class AsyncEthModuleTest:
         }
 
         def gas_price_strategy(_w3: "Web3", _txn: TxParams) -> Wei:
-            return async_w3.toWei(2, "gwei")
+            return async_w3.to_wei(2, "gwei")
 
         async_w3.eth.set_gas_price_strategy(gas_price_strategy)
 
@@ -1073,8 +1073,8 @@ class AsyncEthModuleTest:
                 "to": unlocked_account_dual_type,
                 "value": Wei(1),
                 "gas": 21000,
-                "maxFeePerGas": async_w3.toWei(3, "gwei"),
-                "maxPriorityFeePerGas": async_w3.toWei(1, "gwei"),
+                "maxFeePerGas": async_w3.to_wei(3, "gwei"),
+                "maxPriorityFeePerGas": async_w3.to_wei(1, "gwei"),
             }
         )
         with pytest.raises(TransactionNotFound):
@@ -1137,8 +1137,8 @@ class AsyncEthModuleTest:
                 "to": unlocked_account_dual_type,
                 "value": Wei(1),
                 "gas": 21000,
-                "maxFeePerGas": async_w3.toWei(3, "gwei"),
-                "maxPriorityFeePerGas": async_w3.toWei(1, "gwei"),
+                "maxFeePerGas": async_w3.to_wei(3, "gwei"),
+                "maxPriorityFeePerGas": async_w3.to_wei(1, "gwei"),
             }
         )
 
@@ -1854,8 +1854,8 @@ class EthModuleTest:
             "to": unlocked_account,
             "value": Wei(1),
             "gas": 21000,
-            "maxFeePerGas": w3.toWei(2, "gwei"),
-            "maxPriorityFeePerGas": w3.toWei(1, "gwei"),
+            "maxFeePerGas": w3.to_wei(2, "gwei"),
+            "maxPriorityFeePerGas": w3.to_wei(1, "gwei"),
             "nonce": Nonce(0),
         }
         result = w3.eth.sign_transaction(txn_params)
@@ -1878,8 +1878,8 @@ class EthModuleTest:
             "to": unlocked_account,
             "value": Wei(1),
             "gas": 21000,
-            "maxFeePerGas": hex(w3.toWei(2, "gwei")),
-            "maxPriorityFeePerGas": hex(w3.toWei(1, "gwei")),
+            "maxFeePerGas": hex(w3.to_wei(2, "gwei")),
+            "maxPriorityFeePerGas": hex(w3.to_wei(1, "gwei")),
             "nonce": Nonce(0),
         }
         result = w3.eth.sign_transaction(txn_params)
@@ -1903,8 +1903,8 @@ class EthModuleTest:
                 "to": "unlocked-account.eth",
                 "value": Wei(1),
                 "gas": 21000,
-                "maxFeePerGas": w3.toWei(2, "gwei"),
-                "maxPriorityFeePerGas": w3.toWei(1, "gwei"),
+                "maxFeePerGas": w3.to_wei(2, "gwei"),
+                "maxPriorityFeePerGas": w3.to_wei(1, "gwei"),
                 "nonce": Nonce(0),
             }
             result = w3.eth.sign_transaction(txn_params)
@@ -1929,8 +1929,8 @@ class EthModuleTest:
             "to": unlocked_account,
             "value": Wei(1),
             "gas": 21000,
-            "maxFeePerGas": w3.toWei(2, "gwei"),
-            "maxPriorityFeePerGas": w3.toWei(1, "gwei"),
+            "maxFeePerGas": w3.to_wei(2, "gwei"),
+            "maxPriorityFeePerGas": w3.to_wei(1, "gwei"),
         }
 
         with pytest.raises(InvalidAddress):
@@ -1953,7 +1953,7 @@ class EthModuleTest:
             "to": unlocked_account_dual_type,
             "value": Wei(1),
             "gas": 21000,
-            "gasPrice": w3.toWei(
+            "gasPrice": w3.to_wei(
                 1, "gwei"
             ),  # post-london needs to be more than the base fee
         }
@@ -1974,8 +1974,8 @@ class EthModuleTest:
             "to": unlocked_account_dual_type,
             "value": Wei(1),
             "gas": 21000,
-            "maxFeePerGas": w3.toWei(3, "gwei"),
-            "maxPriorityFeePerGas": w3.toWei(1, "gwei"),
+            "maxFeePerGas": w3.to_wei(3, "gwei"),
+            "maxPriorityFeePerGas": w3.to_wei(1, "gwei"),
         }
         txn_hash = w3.eth.send_transaction(txn_params)
         txn = w3.eth.get_transaction(txn_hash)
@@ -1999,8 +1999,8 @@ class EthModuleTest:
             "value": Wei(1),
             "gas": 21000,
             # unique maxFeePerGas to ensure transaction hash different from other tests
-            "maxFeePerGas": w3.toWei(4.321, "gwei"),
-            "maxPriorityFeePerGas": w3.toWei(1, "gwei"),
+            "maxFeePerGas": w3.to_wei(4.321, "gwei"),
+            "maxPriorityFeePerGas": w3.to_wei(1, "gwei"),
             "nonce": w3.eth.get_transaction_count(unlocked_account),
         }
         txn_hash = w3.eth.send_transaction(txn_params)
@@ -2107,7 +2107,7 @@ class EthModuleTest:
     def test_eth_send_transaction_no_max_fee(
         self, w3: "Web3", unlocked_account_dual_type: ChecksumAddress
     ) -> None:
-        maxPriorityFeePerGas = w3.toWei(2, "gwei")
+        maxPriorityFeePerGas = w3.to_wei(2, "gwei")
         txn_params: TxParams = {
             "from": unlocked_account_dual_type,
             "to": unlocked_account_dual_type,
@@ -2153,8 +2153,8 @@ class EthModuleTest:
             "to": unlocked_account_dual_type,
             "value": Wei(1),
             "gas": Wei(21000),
-            "maxFeePerGas": w3.toWei(2, "gwei"),
-            "maxPriorityFeePerGas": w3.toWei(1, "gwei"),
+            "maxFeePerGas": w3.to_wei(2, "gwei"),
+            "maxPriorityFeePerGas": w3.to_wei(1, "gwei"),
             "chainId": wrong_chain_id,
         }
         with pytest.raises(
@@ -2170,7 +2170,7 @@ class EthModuleTest:
     def test_gas_price_from_strategy_bypassed_for_dynamic_fee_txn(
         self, w3: "Web3", unlocked_account_dual_type: ChecksumAddress, max_fee: Wei
     ) -> None:
-        max_priority_fee = w3.toWei(1, "gwei")
+        max_priority_fee = w3.to_wei(1, "gwei")
         txn_params: TxParams = {
             "from": unlocked_account_dual_type,
             "to": unlocked_account_dual_type,
@@ -2182,7 +2182,7 @@ class EthModuleTest:
             txn_params = assoc(txn_params, "maxFeePerGas", max_fee)
 
         def gas_price_strategy(_w3: "Web3", _txn: TxParams) -> Wei:
-            return w3.toWei(2, "gwei")
+            return w3.to_wei(2, "gwei")
 
         w3.eth.set_gas_price_strategy(gas_price_strategy)
 
@@ -2214,7 +2214,7 @@ class EthModuleTest:
         }
 
         def gas_price_strategy(_w3: "Web3", _txn: TxParams) -> Wei:
-            return w3.toWei(2, "gwei")
+            return w3.to_wei(2, "gwei")
 
         w3.eth.set_gas_price_strategy(gas_price_strategy)
 
@@ -2233,13 +2233,13 @@ class EthModuleTest:
             "to": unlocked_account_dual_type,
             "value": Wei(1),
             "gas": 21000,
-            "gasPrice": w3.toWei(
+            "gasPrice": w3.to_wei(
                 1, "gwei"
             ),  # must be greater than base_fee post London
         }
         txn_hash = w3.eth.send_transaction(txn_params)
 
-        txn_params["gasPrice"] = w3.toWei(2, "gwei")
+        txn_params["gasPrice"] = w3.to_wei(2, "gwei")
         replace_txn_hash = w3.eth.replace_transaction(txn_hash, txn_params)
         replace_txn = w3.eth.get_transaction(replace_txn_hash)
 
@@ -2256,8 +2256,8 @@ class EthModuleTest:
     def test_eth_replace_transaction(
         self, w3: "Web3", unlocked_account_dual_type: ChecksumAddress
     ) -> None:
-        two_gwei_in_wei = w3.toWei(2, "gwei")
-        three_gwei_in_wei = w3.toWei(3, "gwei")
+        two_gwei_in_wei = w3.to_wei(2, "gwei")
+        three_gwei_in_wei = w3.to_wei(3, "gwei")
 
         txn_params: TxParams = {
             "from": unlocked_account_dual_type,
@@ -2265,7 +2265,7 @@ class EthModuleTest:
             "value": Wei(1),
             "gas": 21000,
             "maxFeePerGas": two_gwei_in_wei,
-            "maxPriorityFeePerGas": w3.toWei(1, "gwei"),
+            "maxPriorityFeePerGas": w3.to_wei(1, "gwei"),
         }
         txn_hash = w3.eth.send_transaction(txn_params)
 
@@ -2294,12 +2294,12 @@ class EthModuleTest:
             "to": unlocked_account_dual_type,
             "value": Wei(1),
             "gas": 21000,
-            "maxFeePerGas": w3.toWei(3, "gwei"),
-            "maxPriorityFeePerGas": w3.toWei(2, "gwei"),
+            "maxFeePerGas": w3.to_wei(3, "gwei"),
+            "maxPriorityFeePerGas": w3.to_wei(2, "gwei"),
         }
         txn_hash = w3.eth.send_transaction(txn_params)
 
-        one_gwei_in_wei = w3.toWei(1, "gwei")
+        one_gwei_in_wei = w3.to_wei(1, "gwei")
         txn_params["maxFeePerGas"] = one_gwei_in_wei
         txn_params["maxPriorityFeePerGas"] = one_gwei_in_wei
 
@@ -2314,8 +2314,8 @@ class EthModuleTest:
             "to": unlocked_account_dual_type,
             "value": Wei(1),
             "gas": 21000,
-            "maxFeePerGas": w3.toWei(3, "gwei"),
-            "maxPriorityFeePerGas": w3.toWei(1, "gwei"),
+            "maxFeePerGas": w3.to_wei(3, "gwei"),
+            "maxPriorityFeePerGas": w3.to_wei(1, "gwei"),
         }
         with pytest.raises(TransactionNotFound):
             w3.eth.replace_transaction(
@@ -2333,8 +2333,8 @@ class EthModuleTest:
             "to": unlocked_account_dual_type,
             "value": Wei(1),
             "gas": 21000,
-            "maxFeePerGas": w3.toWei(2, "gwei"),
-            "maxPriorityFeePerGas": w3.toWei(1, "gwei"),
+            "maxFeePerGas": w3.to_wei(2, "gwei"),
+            "maxPriorityFeePerGas": w3.to_wei(1, "gwei"),
         }
         txn_hash = w3.eth.send_transaction(txn_params)
         try:
@@ -2343,8 +2343,8 @@ class EthModuleTest:
         finally:
             w3.geth.miner.stop()  # type: ignore
 
-        txn_params["maxFeePerGas"] = w3.toWei(3, "gwei")
-        txn_params["maxPriorityFeePerGas"] = w3.toWei(2, "gwei")
+        txn_params["maxFeePerGas"] = w3.to_wei(3, "gwei")
+        txn_params["maxPriorityFeePerGas"] = w3.to_wei(2, "gwei")
         with pytest.raises(ValueError, match="Supplied transaction with hash"):
             w3.eth.replace_transaction(txn_hash, txn_params)
 
@@ -2356,14 +2356,14 @@ class EthModuleTest:
             "to": unlocked_account,
             "value": Wei(1),
             "gas": 21000,
-            "maxFeePerGas": w3.toWei(2, "gwei"),
-            "maxPriorityFeePerGas": w3.toWei(1, "gwei"),
+            "maxFeePerGas": w3.to_wei(2, "gwei"),
+            "maxPriorityFeePerGas": w3.to_wei(1, "gwei"),
         }
         txn_hash = w3.eth.send_transaction(txn_params)
         txn = w3.eth.get_transaction(txn_hash)
 
-        txn_params["maxFeePerGas"] = w3.toWei(3, "gwei")
-        txn_params["maxPriorityFeePerGas"] = w3.toWei(2, "gwei")
+        txn_params["maxFeePerGas"] = w3.to_wei(3, "gwei")
+        txn_params["maxPriorityFeePerGas"] = w3.to_wei(2, "gwei")
         txn_params["nonce"] = Nonce(txn["nonce"] + 1)
         with pytest.raises(ValueError):
             w3.eth.replace_transaction(txn_hash, txn_params)
@@ -2376,18 +2376,18 @@ class EthModuleTest:
             "to": unlocked_account_dual_type,
             "value": Wei(1),
             "gas": 21000,
-            "gasPrice": w3.toWei(2, "gwei"),
+            "gasPrice": w3.to_wei(2, "gwei"),
         }
         txn_hash = w3.eth.send_transaction(txn_params)
 
-        txn_params["gasPrice"] = w3.toWei(1, "gwei")
+        txn_params["gasPrice"] = w3.to_wei(1, "gwei")
         with pytest.raises(ValueError):
             w3.eth.replace_transaction(txn_hash, txn_params)
 
     def test_eth_replace_transaction_gas_price_defaulting_minimum(
         self, w3: "Web3", unlocked_account: ChecksumAddress
     ) -> None:
-        gas_price = w3.toWei(1, "gwei")
+        gas_price = w3.to_wei(1, "gwei")
 
         txn_params: TxParams = {
             "from": unlocked_account,
@@ -2414,11 +2414,11 @@ class EthModuleTest:
             "to": unlocked_account,
             "value": Wei(1),
             "gas": 21000,
-            "gasPrice": w3.toWei(1, "gwei"),
+            "gasPrice": w3.to_wei(1, "gwei"),
         }
         txn_hash = w3.eth.send_transaction(txn_params)
 
-        two_gwei_in_wei = w3.toWei(2, "gwei")
+        two_gwei_in_wei = w3.to_wei(2, "gwei")
 
         def higher_gas_price_strategy(w3: "Web3", txn: TxParams) -> Wei:
             return two_gwei_in_wei
@@ -2436,7 +2436,7 @@ class EthModuleTest:
     def test_eth_replace_transaction_gas_price_defaulting_strategy_lower(
         self, w3: "Web3", unlocked_account: ChecksumAddress
     ) -> None:
-        gas_price = w3.toWei(2, "gwei")
+        gas_price = w3.to_wei(2, "gwei")
 
         txn_params: TxParams = {
             "from": unlocked_account,
@@ -2448,7 +2448,7 @@ class EthModuleTest:
         txn_hash = w3.eth.send_transaction(txn_params)
 
         def lower_gas_price_strategy(w3: "Web3", txn: TxParams) -> Wei:
-            return w3.toWei(1, "gwei")
+            return w3.to_wei(1, "gwei")
 
         w3.eth.set_gas_price_strategy(lower_gas_price_strategy)
 
@@ -2467,7 +2467,7 @@ class EthModuleTest:
             "to": unlocked_account,
             "value": Wei(1),
             "gas": 21000,
-            "gasPrice": w3.toWei(
+            "gasPrice": w3.to_wei(
                 1, "gwei"
             ),  # must be greater than base_fee post London
         }
@@ -2496,8 +2496,8 @@ class EthModuleTest:
             "to": unlocked_account,
             "value": Wei(1),
             "gas": 21000,
-            "maxPriorityFeePerGas": w3.toWei(1, "gwei"),
-            "maxFeePerGas": w3.toWei(2, "gwei"),
+            "maxPriorityFeePerGas": w3.to_wei(1, "gwei"),
+            "maxFeePerGas": w3.to_wei(2, "gwei"),
         }
         txn_hash = w3.eth.send_transaction(txn_params)
 
@@ -2993,8 +2993,8 @@ class EthModuleTest:
                 "to": unlocked_account_dual_type,
                 "value": Wei(1),
                 "gas": 21000,
-                "maxFeePerGas": w3.toWei(3, "gwei"),
-                "maxPriorityFeePerGas": w3.toWei(1, "gwei"),
+                "maxFeePerGas": w3.to_wei(3, "gwei"),
+                "maxPriorityFeePerGas": w3.to_wei(1, "gwei"),
             }
         )
         with pytest.raises(TransactionNotFound):
@@ -3050,8 +3050,8 @@ class EthModuleTest:
                 "to": unlocked_account_dual_type,
                 "value": Wei(1),
                 "gas": 21000,
-                "maxFeePerGas": w3.toWei(3, "gwei"),
-                "maxPriorityFeePerGas": w3.toWei(1, "gwei"),
+                "maxFeePerGas": w3.to_wei(3, "gwei"),
+                "maxPriorityFeePerGas": w3.to_wei(1, "gwei"),
             }
         )
 
