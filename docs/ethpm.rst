@@ -237,7 +237,6 @@ way through the EIP process)
   - 3: Ropsten
   - 4: Rinkeby
   - 5: Goerli
-  - 42: Kovan
 
 -  ``package-name``: Must conform to the package-name as specified in
    the
