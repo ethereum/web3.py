@@ -8,6 +8,7 @@ from web3 import Web3
 from web3.datastructures import (
     AttributeDict,
 )
+from web3.eth import AsyncEth
 from web3.middleware import (
     async_construct_result_generator_middleware,
     async_local_filter_middleware,
@@ -121,12 +122,14 @@ def w3(w3_base, result_generator_middleware):
 
 @pytest.fixture(scope="function")
 def async_w3_base():
-    return Web3(provider=AsyncDummyProvider(), middlewares=[])
+    # breakpoint()
+    return Web3(provider=AsyncDummyProvider(),modules={'eth': (AsyncEth)}, middlewares=[])
 
 
 @pytest.fixture(scope="function")
 def async_w3(async_w3_base, async_result_generator_middleware):
-    async_w3_base.eth.is_async = True
+    # breakpoint()
+    # async_w3_base.eth.is_async = True
     async_w3_base.middleware_onion.add(async_result_generator_middleware)
     async_w3_base.middleware_onion.add(async_local_filter_middleware)
     return async_w3_base
