@@ -116,5 +116,4 @@ async def async_combine_middlewares(
 async def construct_middleware(
     middleware: Middleware, fn: Callable[..., RPCResponse], w3: "Web3"
 ) -> Callable[[RPCEndpoint, Any], Any]:
-    breakpoint()
     return await middleware(fn, w3)

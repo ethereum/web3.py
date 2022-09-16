@@ -1,4 +1,5 @@
 import pytest
+import pytest_asyncio
 
 from hexbytes import (
     HexBytes,
@@ -96,7 +97,7 @@ def result_generator_middleware(iter_block_number):
     )
 
 
-@pytest.fixture(scope="function")
+@pytest_asyncio.fixture(scope="function")
 async def async_result_generator_middleware(iter_block_number):
     return await async_construct_result_generator_middleware(
         {
@@ -106,7 +107,6 @@ async def async_result_generator_middleware(iter_block_number):
             "eth_blockNumber": lambda *_: next(iter_block_number),
         }
     )
-
 
 @pytest.fixture(scope="function")
 def w3_base():
@@ -122,14 +122,11 @@ def w3(w3_base, result_generator_middleware):
 
 @pytest.fixture(scope="function")
 def async_w3_base():
-    # breakpoint()
     return Web3(provider=AsyncDummyProvider(),modules={'eth': (AsyncEth)}, middlewares=[])
 
 
 @pytest.fixture(scope="function")
 def async_w3(async_w3_base, async_result_generator_middleware):
-    # breakpoint()
-    # async_w3_base.eth.is_async = True
     async_w3_base.middleware_onion.add(async_result_generator_middleware)
     async_w3_base.middleware_onion.add(async_local_filter_middleware)
     return async_w3_base
