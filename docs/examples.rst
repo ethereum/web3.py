@@ -338,7 +338,7 @@ The following example demonstrates a few things:
        with open(file_path, 'r') as f:
           source = f.read()
 
-       return compile_source(source)
+       return compile_source(source,output_values=['abi','bin'])
 
 
     def deploy_contract(w3, contract_interface):
