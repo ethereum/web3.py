@@ -39,21 +39,15 @@ jobs:
   docs:
     <<: *common
     docker:
-      - image: cimg/python:3.6
+      - image: cimg/python:3.7
         environment:
           TOXENV: docs
   lint:
     <<: *common
     docker:
-      - image: cimg/python:3.6
+      - image: cimg/python:3.7
         environment:
           TOXENV: lint
-  py36-core:
-    <<: *common
-    docker:
-      - image: cimg/python:3.6
-        environment:
-          TOXENV: py36-core
   py37-core:
     <<: *common
     docker:
@@ -90,6 +84,8 @@ workflows:
     jobs:
       - docs
       - lint
-      - py36-core
       - py37-core
+      - py38-core
+      - py39-core
+      - py310-core
       - pypy3-core

@@ -32,6 +32,7 @@ lint:
 
 lint-roll:
 	isort --recursive <MODULE_NAME> tests
+	black {toxinidir}/<MODULE_NAME> {toxinidir}/tests setup.py
 	$(MAKE) lint
 
 test:
@@ -48,12 +49,14 @@ build-docs:
 
 validate-docs:
 	python ./newsfragments/validate_files.py
-	towncrier --draft --version preview
+	towncrier build --draft --version preview
 
-docs: build-docs validate-docs
+check-docs: build-docs validate-docs
+
+docs: check-docs
 	open docs/_build/html/index.html
 
-linux-docs: build-docs
+linux-docs: check-docs
 	xdg-open docs/_build/html/index.html
 
 check-bump:
