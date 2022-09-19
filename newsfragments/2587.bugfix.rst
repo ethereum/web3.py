@@ -1,1 +1,0 @@
-Allow classes to inherit from the ``Web3`` class by attaching modules appropriately.

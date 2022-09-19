@@ -1,1 +1,0 @@
-Bump eth-account requirement to >=0.5.9,<0.6.0 to incorporate fix for ReDOS-able regex

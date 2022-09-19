@@ -3,6 +3,55 @@ Release Notes
 
 .. towncrier release notes start
 
+v5.31.0 (2022-09-19)
+--------------------
+
+Features
+~~~~~~~~
+
+- support multi-dimensional arrays for ABI tuples types (`#2555
+  <https://github.com/ethereum/web3.py/issues/2555>`__)
+- Support for ``Account`` class access in ``AsyncEth`` via
+  ``async_w3.eth.account`` (`#2590
+  <https://github.com/ethereum/web3.py/issues/2590>`__)
+- Remove Kovan auto provider (`#2649
+  <https://github.com/ethereum/web3.py/issues/2649>`__)
+- Add Sepolia auto provider (`#2650
+  <https://github.com/ethereum/web3.py/issues/2650>`__)
+
+
+Bugfixes
+~~~~~~~~
+
+- Fix ``is_dynamic_fee_transaction`` and ``TRANSACTION_DEFAULTS`` when
+  ``gas_price_strategy`` returns zero (`#2570
+  <https://github.com/ethereum/web3.py/issues/2570>`__)
+- Allow classes to inherit from the ``Web3`` class by attaching modules
+  appropriately. (`#2587 <https://github.com/ethereum/web3.py/issues/2587>`__)
+- Bump eth-account requirement to >=0.5.9,<0.6.0 to incorporate fix for
+  ReDOS-able regex (`#2607
+  <https://github.com/ethereum/web3.py/issues/2607>`__)
+- Allow hex for ``value`` field when validating via ``validate_payable()``
+  contracts method (`#2609
+  <https://github.com/ethereum/web3.py/issues/2609>`__)
+
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Update Proof of Authority middleware (`geth_poa_middleware`) documentation
+  for better clarity. (`#2589
+  <https://github.com/ethereum/web3.py/issues/2589>`__)
+
+
+Misc
+~~~~
+
+- `#2537 <https://github.com/ethereum/web3.py/issues/2537>`__, `#2605
+  <https://github.com/ethereum/web3.py/issues/2605>`__, `#2631
+  <https://github.com/ethereum/web3.py/issues/2631>`__
+
+
 v5.30.0 (2022-07-07)
 --------------------
 
