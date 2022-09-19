@@ -4,6 +4,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     AsyncIterable,
+    AsyncIterator,
     Callable,
     Dict,
     Iterable,
@@ -160,6 +161,42 @@ def iter_latest_block(
         _last = latest_block
 
 
+async def async_iter_latest_block(
+    w3: "Web3", to_block: Optional[Union[BlockNumber, LatestBlockParam]] = None
+) -> AsyncIterable[BlockNumber]:
+    """Returns a generator that dispenses the latest block, if
+    any new blocks have been mined since last iteration.
+
+    If there are no new blocks or the latest block is greater than
+    the ``to_block`` None is returned.
+
+    >>> new_blocks = iter_latest_block(w3, 0, 10)
+    >>> next(new_blocks)  # Latest block = 0
+    0
+    >>> next(new_blocks)  # No new blocks
+    >>> next(new_blocks)  # Latest block = 1
+    1
+    >>> next(new_blocks)  # Latest block = 10
+    10
+    >>> next(new_blocks)  # latest block > to block
+    """
+    _last = None
+
+    is_bounded_range = to_block is not None and to_block != "latest"
+
+    while True:
+        latest_block = await w3.eth.block_number
+        # type ignored b/c is_bounded_range prevents unsupported comparison
+        if is_bounded_range and latest_block > to_block:  # type: ignore
+            yield None
+        #  No new blocks since last iteration.
+        if _last is not None and _last == latest_block:
+            yield None
+        else:
+            yield latest_block
+        _last = latest_block
+
+
 def iter_latest_block_ranges(
     w3: "Web3",
     from_block: BlockNumber,
@@ -180,6 +217,35 @@ def iter_latest_block_ranges(
     (46, 50)
     """
     for latest_block in iter_latest_block(w3, to_block):
+        if latest_block is None:
+            yield (None, None)
+        elif from_block > latest_block:
+            yield (None, None)
+        else:
+            yield (from_block, latest_block)
+            from_block = BlockNumber(latest_block + 1)
+
+
+async def async_iter_latest_block_ranges(
+    w3: "Web3",
+    from_block: BlockNumber,
+    to_block: Optional[Union[BlockNumber, LatestBlockParam]] = None,
+) -> AsyncIterable[Tuple[Optional[BlockNumber], Optional[BlockNumber]]]:
+    """Returns an iterator unloading ranges of available blocks
+
+    starting from `fromBlock` to the latest mined block,
+    until reaching toBlock. e.g.:
+
+
+    >>> blocks_to_filter = iter_latest_block_ranges(w3, 0, 50)
+    >>> next(blocks_to_filter)  # latest block number = 11
+    (0, 11)
+    >>> next(blocks_to_filter)  # latest block number = 45
+    (12, 45)
+    >>> next(blocks_to_filter)  # latest block number = 50
+    (46, 50)
+    """
+    async for latest_block in async_iter_latest_block(w3, to_block):
         if latest_block is None:
             yield (None, None)
         elif from_block > latest_block:
@@ -430,26 +496,38 @@ class RequestBlocks:
     def get_filter_changes(self) -> Iterator[List[Hash32]]:
         block_range_iter = iter_latest_block_ranges(self.w3, self.start_block, None)
 
+        # breakpoint()
         for block_range in block_range_iter:
             yield (block_hashes_in_range(self.w3, block_range))
 
 
 class AsyncRequestBlocks:
-    async def __init__(self, w3: "Web3") -> None:
+    def __init__(self, w3: "Web3") -> None:
         self.w3 = w3
-        w3_block_number = await w3.eth.block_number
-        self.start_block = BlockNumber(w3_block_number + 1)
+
+
+    def __await__(self):
+        async def closure():
+            self.block_number = await self.w3.eth.block_number
+            self.start_block = BlockNumber(self.block_number + 1)
+            return self
+
+        return closure().__await__()
+
+        
 
     @property
-    async def filter_changes(self) -> Iterator[List[Hash32]]:
-        return await self.get_filter_changes()
+    def filter_changes(self) -> AsyncIterator[List[Hash32]]:
+        return self.get_filter_changes()
 
-    async def get_filter_changes(self) -> Iterator[List[Hash32]]:
-        block_range_iter = iter_latest_block_ranges(self.w3, self.start_block, None)
+    async def get_filter_changes(self) -> AsyncIterator[List[Hash32]]:
+        block_range_iter = async_iter_latest_block_ranges(self.w3, self.start_block, None)
 
-        for block_range in block_range_iter:
-            block_hashes = await async_block_hashes_in_range(self.w3, block_range)
-            yield (block_hashes)
+        
+        breakpoint()
+        async for block_range in block_range_iter:
+
+            yield (async_block_hashes_in_range(self.w3, block_range))
 
 
 @to_list
@@ -466,11 +544,11 @@ def block_hashes_in_range(
 @to_list
 async def async_block_hashes_in_range(
     w3: "Web3", block_range: Tuple[BlockNumber, BlockNumber]
-) -> Iterable[Hash32]:
+) -> AsyncIterable[Hash32]:
     from_block, to_block = block_range
     if from_block is None or to_block is None:
         return
-    for block_number in range(from_block, to_block + 1):
+    async for block_number in range(from_block, to_block + 1):
         w3_get_block = await w3.eth.get_block(BlockNumber(block_number))
         yield getattr(w3_get_block, "hash", None)
 
@@ -509,6 +587,7 @@ def local_filter_middleware(
             _filter = filters[filter_id]
             if method == RPC.eth_getFilterChanges:
                 return {"result": next(_filter.filter_changes)}
+
             elif method == RPC.eth_getFilterLogs:
                 # type ignored b/c logic prevents RequestBlocks which
                 # doesn't implement get_logs
@@ -532,14 +611,14 @@ async def async_local_filter_middleware(
 
             filter_id = next(filter_id_counter)
 
-            _filter: Union[RequestLogs, AsyncRequestBlocks]
+            _filter: Union[AsyncRequestLogs, AsyncRequestBlocks]
             if method == RPC.eth_newFilter:
-                _filter = RequestLogs(
+                _filter = AsyncRequestLogs(
                     w3, **apply_key_map(FILTER_PARAMS_KEY_MAP, params[0])
                 )
 
             elif method == RPC.eth_newBlockFilter:
-                _filter = AsyncRequestBlocks(w3)
+                _filter = await AsyncRequestBlocks(w3)
 
             else:
                 raise NotImplementedError(method)
@@ -553,8 +632,24 @@ async def async_local_filter_middleware(
             if filter_id not in filters:
                 return await make_request(method, params)
             _filter = filters[filter_id]
+            
+
+            # TODO clean this up vvvv
+
+
             if method == RPC.eth_getFilterChanges:
-                return {"result": next(_filter.filter_changes)}
+                bob = _filter.filter_changes
+                
+                
+                
+                res = await _filter.filter_changes.__anext__()
+                breakpoint()
+
+                # res = _filter.filter_changes
+                # bob = yield res
+                return {"result": bob}
+
+
             elif method == RPC.eth_getFilterLogs:
                 # type ignored b/c logic prevents RequestBlocks which
                 # doesn't implement get_logs
