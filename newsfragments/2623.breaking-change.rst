@@ -1,1 +1,0 @@
-Update eth-tester dependency to v0.7.0-beta.1; Update eth-account version to >=0.7.0,<0.8.0

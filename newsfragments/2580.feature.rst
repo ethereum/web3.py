@@ -1,1 +1,0 @@
-Support for ``Account`` class access in ``AsyncEth`` via ``async_w3.eth.account``

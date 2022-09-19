@@ -1,1 +1,0 @@
-minor typo fix in contracts overview

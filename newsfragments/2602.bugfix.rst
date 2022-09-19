@@ -1,1 +1,0 @@
-Allow hex for ``value`` field when validating via ``validate_payable()`` contracts method

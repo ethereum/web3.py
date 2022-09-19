@@ -1,1 +1,0 @@
-Fix typo in eth.call docs

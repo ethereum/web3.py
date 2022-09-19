@@ -1,2 +1,0 @@
-update all references to deprecated `eth_abi.encode_abi` to `eth_abi.encode`
-

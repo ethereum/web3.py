@@ -1,1 +1,0 @@
-Remove ``WEB3_INFURA_API_KEY`` environment variable in favor of ``WEB3_INFURA_PROJECT_ID``. Change ``InfuraKeyNotFound`` exception to ``InfuraProjectIdNotFound``

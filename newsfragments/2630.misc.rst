@@ -1,1 +1,0 @@
-Update integration test fixture to test against geth version ``v1.10.23``

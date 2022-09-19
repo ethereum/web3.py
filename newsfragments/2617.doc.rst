@@ -1,1 +1,0 @@
-examples docs gave incorrect return type for `eth.get_transaction`, fixed

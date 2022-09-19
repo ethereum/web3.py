@@ -1,1 +1,0 @@
-Introduce AsyncENS and availability on w3 instance in ENS guide.

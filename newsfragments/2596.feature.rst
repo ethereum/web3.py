@@ -1,1 +1,0 @@
-Expose public abi utility methods: ``get_abi_output_names()`` and ``get_abi_input_names()``

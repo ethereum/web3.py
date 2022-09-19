@@ -1,1 +1,0 @@
-Added setup.py to the black linting, fixed bumpversion and doc config to look for double quotes instead of single

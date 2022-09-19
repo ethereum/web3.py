@@ -1,1 +1,0 @@
-Move ``flaky`` option to top-level conftest.py

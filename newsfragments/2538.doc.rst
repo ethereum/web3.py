@@ -1,1 +1,0 @@
-Update Proof of Authority middleware (`geth_poa_middleware`) documentation for better clarity.

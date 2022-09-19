@@ -1,1 +1,0 @@
-Improve upon issues with session caching - better support for multithreading and make sure session eviction from cache does not happen prematurely.

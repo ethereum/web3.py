@@ -3,6 +3,97 @@ Release Notes
 
 .. towncrier release notes start
 
+v6.0.0-beta.5 (2022-09-19)
+--------------------------
+
+Breaking Changes
+~~~~~~~~~~~~~~~~
+
+- Removed IBAN since it was an unused feature (`#2537
+  <https://github.com/ethereum/web3.py/issues/2537>`__)
+- Update eth-tester dependency to v0.7.0-beta.1; Update eth-account version to
+  >=0.7.0,<0.8.0 (`#2623 <https://github.com/ethereum/web3.py/issues/2623>`__)
+- Remove ``WEB3_INFURA_API_KEY`` environment variable in favor of
+  ``WEB3_INFURA_PROJECT_ID``. Change ``InfuraKeyNotFound`` exception to
+  ``InfuraProjectIdNotFound`` (`#2634
+  <https://github.com/ethereum/web3.py/issues/2634>`__)
+- Remove Kovan auto provider (`#2635
+  <https://github.com/ethereum/web3.py/issues/2635>`__)
+- Snakecase the `isConnected` method (`#2643
+  <https://github.com/ethereum/web3.py/issues/2643>`__)
+- Snakecase the ``toWei`` and ``fromWei`` methods (`#2647
+  <https://github.com/ethereum/web3.py/issues/2647>`__)
+
+
+Bugfixes
+~~~~~~~~
+
+- Fix ``eth-tester`` key remapping for ``logsBloom`` and ``receiptsRoot``
+  (`#1630 <https://github.com/ethereum/web3.py/issues/1630>`__)
+- Improve upon issues with session caching - better support for multithreading
+  and make sure session eviction from cache does not happen prematurely.
+  (`#2409 <https://github.com/ethereum/web3.py/issues/2409>`__)
+- Allow classes to inherit from the ``Web3`` class by attaching modules
+  appropriately. (`#2592 <https://github.com/ethereum/web3.py/issues/2592>`__)
+- fixed bug in how async_eth_tester_middleware fills default fields (`#2600
+  <https://github.com/ethereum/web3.py/issues/2600>`__)
+- Allow hex for ``value`` field when validating via ``validate_payable()``
+  contracts method (`#2602
+  <https://github.com/ethereum/web3.py/issues/2602>`__)
+- Update Beacon API to v2.3.0 (`#2616
+  <https://github.com/ethereum/web3.py/issues/2616>`__)
+- Move ``flaky`` option to top-level conftest.py (`#2642
+  <https://github.com/ethereum/web3.py/issues/2642>`__)
+
+
+Documentation Updates
+~~~~~~~~~~~~~~~~~~~~~
+
+- Update Proof of Authority middleware (`geth_poa_middleware`) documentation
+  for better clarity. (`#2538
+  <https://github.com/ethereum/web3.py/issues/2538>`__)
+- Add some missing supported async middlewares to docs. (`#2574
+  <https://github.com/ethereum/web3.py/issues/2574>`__)
+- Introduce AsyncENS and availability on w3 instance in ENS guide. (`#2585
+  <https://github.com/ethereum/web3.py/issues/2585>`__)
+- Fix typo in eth.call docs (`#2613
+  <https://github.com/ethereum/web3.py/issues/2613>`__)
+- remove section for deleted `account.recoverHash` method (`#2615
+  <https://github.com/ethereum/web3.py/issues/2615>`__)
+- examples docs gave incorrect return type for `eth.get_transaction`, fixed
+  (`#2617 <https://github.com/ethereum/web3.py/issues/2617>`__)
+- minor typo fix in contracts overview (`#2628
+  <https://github.com/ethereum/web3.py/issues/2628>`__)
+- fix bug in `Deploying new contracts` example (`#2646
+  <https://github.com/ethereum/web3.py/issues/2646>`__)
+
+
+Features
+~~~~~~~~
+
+- Support for ``Account`` class access in ``AsyncEth`` via
+  ``async_w3.eth.account`` (`#2580
+  <https://github.com/ethereum/web3.py/issues/2580>`__)
+- Expose public abi utility methods: ``get_abi_output_names()`` and
+  ``get_abi_input_names()`` (`#2596
+  <https://github.com/ethereum/web3.py/issues/2596>`__)
+- update all references to deprecated `eth_abi.encode_abi` to `eth_abi.encode`
+  (`#2621 <https://github.com/ethereum/web3.py/issues/2621>`__)
+- update all references to deprecated `eth_abi.decode_abi` to `eth_abi.decode`
+  (`#2636 <https://github.com/ethereum/web3.py/issues/2636>`__)
+- Add Sepolia auto provider (`#2639
+  <https://github.com/ethereum/web3.py/issues/2639>`__)
+
+
+Misc
+~~~~
+
+- `#2603 <https://github.com/ethereum/web3.py/issues/2603>`__, `#2622
+  <https://github.com/ethereum/web3.py/issues/2622>`__, `#2630
+  <https://github.com/ethereum/web3.py/issues/2630>`__, `#2638
+  <https://github.com/ethereum/web3.py/issues/2638>`__
+
+
 v6.0.0-beta.4 (2022-07-13)
 --------------------------
 

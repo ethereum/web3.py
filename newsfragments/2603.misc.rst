@@ -1,1 +1,0 @@
-Silence IPFS unauthorized call errors until we can add the proper authorization header
