@@ -4,6 +4,7 @@ from web3._utils.contracts import (
     validate_payable,
 )
 from web3.contract import (
+    parse_block_identifier,
     parse_block_identifier_int,
 )
 
@@ -16,6 +17,23 @@ from web3.contract import (
 def test_parse_block_identifier_int(web3):
     last_num = web3.eth.get_block('latest').number
     assert 0 == parse_block_identifier_int(web3, -1 - last_num)
+
+
+@pytest.mark.parametrize(
+    "block_identifier,expected_output",
+    (
+        (1, 1),
+        (-1, 0),
+        ("latest", "latest"),
+        ("earliest", "earliest"),
+        ("pending", "pending"),
+        ("safe", "safe"),
+        ("finalized", "finalized"),
+    ),
+)
+def test_parse_block_identifier_int_and_string(web3, block_identifier, expected_output):
+    block_id = parse_block_identifier(web3, block_identifier)
+    assert block_id == expected_output
 
 
 @pytest.mark.parametrize("value", (0, "0x0", "0x00"))

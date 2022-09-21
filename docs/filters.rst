@@ -15,7 +15,7 @@ Filtering
 
         from web3.auto import w3
 
-The :meth:`web3.eth.Eth.filter` method can be used to setup filters for:
+The :meth:`web3.eth.Eth.filter` method can be used to set up filters for:
 
 * Pending Transactions: ``web3.eth.filter('pending')``
 
@@ -44,8 +44,9 @@ The :meth:`web3.eth.Eth.filter` method can be used to setup filters for:
 .. note ::
 
     Creating event filters requires that your Ethereum node has an API support enabled for filters.
-    It does not work with Infura nodes. To get event logs on Infura or other
-    stateless nodes please see :class:`web3.contract.ContractEvents`.
+    Note that Infura support for filters does not offer access to `pending` filters.
+    To get event logs on other stateless nodes please see :class:`web3.contract.ContractEvents`.
+
 
 
 Filter Class
@@ -106,6 +107,11 @@ will return a new :class:`BlockFilter` object.
         new_block_filter = w3.eth.filter('latest')
         new_block_filter.get_new_entries()
 
+    .. note::
+
+        ``"safe"`` and ``"finalized"`` block identifiers are not yet supported for
+        ``eth_newBlockFilter``.
+
 .. py:class:: TransactionFilter(...)
 
 ``TransactionFilter`` is a subclass of :class:`Filter`.
@@ -158,7 +164,13 @@ In addition to being order-dependent, there are a few more points to recognize w
     - [A, B] "A in first position AND B in second position (and anything after)"
     - [[A, B], [A, B]] "(A OR B) in first position AND (A OR B) in second position (and anything after)"
 
-See the JSON-RPC documentation for `eth_newFilter <https://github.com/ethereum/wiki/wiki/JSON-RPC#eth_newfilter>`_ more information on the standard filter parameters.
+See the JSON-RPC documentation for `eth_newFilter <https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_newfilter>`_ more information on the standard filter parameters.
+
+    .. note::
+
+        Though ``"latest"`` and ``"safe"`` block identifiers are not yet part of the
+        specifications for ``eth_newFilter``, they are supported by web3.py and may or
+        may not yield expected results depending on the node being accessed.
 
 Creating a log filter by either of the above methods will return a :class:`LogFilter` instance.
 
@@ -179,7 +191,7 @@ Getting events without setting up a filter
 ------------------------------------------
 
 You can query an Ethereum node for direct fetch of events, without creating a filter first.
-This works on all node types, including Infura.
+This works on all node types.
 
 For examples see :meth:`web3.contract.ContractEvents.getLogs`.
 
