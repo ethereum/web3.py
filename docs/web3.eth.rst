@@ -1233,11 +1233,11 @@ with the filtering API.
     dictionary with the following keys.
 
     * ``fromBlock``: ``integer/tag`` - (optional, default: "latest") Integer
-      block number, or "latest" for the last mined block or "pending",
-      "earliest" for not yet mined transactions.
+      block number, or one of predefined block identifiers
+      "latest", "pending", "earliest", "safe", or "finalized".
     * ``toBlock``: ``integer/tag`` - (optional, default: "latest") Integer
-      block number, or "latest" for the last mined block or "pending",
-      "earliest" for not yet mined transactions.
+      block number, or one of predefined block identifiers
+      "latest", "pending", "earliest", "safe", or "finalized".
     * ``address``: ``string`` or list of ``strings``, each 20 Bytes -
       (optional) Contract address or a list of addresses from which logs should
       originate.
@@ -1248,8 +1248,9 @@ with the filtering API.
 
     .. note::
 
-        ``"safe"`` and ``"finalized"`` block filters and subscriptions are not
-        currently a part of the specifications.
+        Though ``"latest"`` and ``"safe"`` block identifiers are not yet part of the
+        specifications for ``eth_newFilter``, they are supported by web3.py and may or
+        may not yield expected results depending on the node being accessed.
 
     See :doc:`./filters` for more information about filtering.
 

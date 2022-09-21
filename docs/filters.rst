@@ -107,6 +107,11 @@ will return a new :class:`BlockFilter` object.
         new_block_filter = w3.eth.filter('latest')
         new_block_filter.get_new_entries()
 
+    .. note::
+
+        ``"safe"`` and ``"finalized"`` block identifiers are not yet supported for
+        ``eth_newBlockFilter``.
+
 .. py:class:: TransactionFilter(...)
 
 ``TransactionFilter`` is a subclass of :class:`Filter`.
@@ -159,7 +164,13 @@ In addition to being order-dependent, there are a few more points to recognize w
     - [A, B] "A in first position AND B in second position (and anything after)"
     - [[A, B], [A, B]] "(A OR B) in first position AND (A OR B) in second position (and anything after)"
 
-See the JSON-RPC documentation for `eth_newFilter <https://github.com/ethereum/wiki/wiki/JSON-RPC#eth_newfilter>`_ more information on the standard filter parameters.
+See the JSON-RPC documentation for `eth_newFilter <https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_newfilter>`_ more information on the standard filter parameters.
+
+    .. note::
+
+        Though ``"latest"`` and ``"safe"`` block identifiers are not yet part of the
+        specifications for ``eth_newFilter``, they are supported by web3.py and may or
+        may not yield expected results depending on the node being accessed.
 
 Creating a log filter by either of the above methods will return a :class:`LogFilter` instance.
 
