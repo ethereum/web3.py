@@ -1568,7 +1568,7 @@ def call_contract_function(
 def parse_block_identifier(web3: 'Web3', block_identifier: BlockIdentifier) -> BlockIdentifier:
     if isinstance(block_identifier, int):
         return parse_block_identifier_int(web3, block_identifier)
-    elif block_identifier in ['latest', 'earliest', 'pending']:
+    elif block_identifier in {"latest", "earliest", "pending", "safe", "finalized"}:
         return block_identifier
     elif isinstance(block_identifier, bytes) or is_hex_encoded_block_hash(block_identifier):
         return web3.eth.get_block(block_identifier)['number']
