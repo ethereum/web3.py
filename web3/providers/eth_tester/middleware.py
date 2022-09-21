@@ -52,7 +52,7 @@ if TYPE_CHECKING:
 
 
 def is_named_block(value: Any) -> bool:
-    return value in {"latest", "earliest", "pending", "safe", "latest"}
+    return value in {"latest", "earliest", "pending"}
 
 
 def is_hexstr(value: Any) -> bool:

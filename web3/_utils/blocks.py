@@ -24,16 +24,16 @@ def is_predefined_block_number(value: Any) -> bool:
         value_text = value
     elif is_bytes(value):
         # `value` could either be random bytes or the utf-8 encoding of
-        # one of the words in: {"latest", "pending", "earliest", "safe", "finalized"}
-        # We cannot decode the bytes as utf8, because random bytes likely won't be
-        # valid. So we speculatively decode as 'latin-1', which cannot fail.
-        value_text = value.decode("latin-1")
+        # one of the words in: {"latest", "pending", "earliest"}
+        # We cannot decode the bytes as utf8, because random bytes likely won't be valid.
+        # So we speculatively decode as 'latin-1', which cannot fail.
+        value_text = value.decode('latin-1')
     elif is_integer(value):
         return False
     else:
         raise TypeError("unrecognized block reference: %r" % value)
 
-    return value_text in {"latest", "pending", "earliest", "safe", "finalized"}
+    return value_text in {"latest", "pending", "earliest"}
 
 
 def is_hex_encoded_block_hash(value: Any) -> bool:

@@ -22,8 +22,6 @@ selector_fn = partial(
         ('latest', 'test_predefined'),
         ('pending', 'test_predefined'),
         ('earliest', 'test_predefined'),
-        ("safe", "test_predefined"),
-        ("finalized", "test_predefined"),
         (-1, ValueError),
         (0, 'test_number'),
         (1, 'test_number'),

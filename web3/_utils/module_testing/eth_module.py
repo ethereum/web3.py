@@ -558,24 +558,6 @@ class AsyncEthModuleTest:
         assert transaction['hash'] == block_with_txn['transactions'][0]
 
     @pytest.mark.asyncio
-    @pytest.mark.xfail(reason="Integration test suite not set up for PoS")
-    async def test_eth_getBlockByNumber_safe(
-        self, async_w3: "Web3", empty_block: BlockData
-    ) -> None:
-        block = await async_w3.eth.get_block("safe")  # type: ignore
-        assert block is not None
-        assert isinstance(block["number"], int)
-
-    @pytest.mark.asyncio
-    @pytest.mark.xfail(reason="Integration test suite not set up for PoS")
-    async def test_eth_getBlockByNumber_finalized(
-        self, async_w3: "Web3", empty_block: BlockData
-    ) -> None:
-        block = await async_w3.eth.get_block("finalized")  # type: ignore
-        assert block is not None
-        assert isinstance(block["number"], int)
-
-    @pytest.mark.asyncio
     async def test_eth_get_raw_transaction(
         self, async_w3: "Web3", mined_txn_hash: HexStr
     ) -> None:
@@ -2735,22 +2717,6 @@ class EthModuleTest:
         block = web3.eth.get_block(block_with_txn['number'], True)
         transaction = block['transactions'][0]
         assert transaction['hash'] == block_with_txn['transactions'][0]  # type: ignore
-
-    @pytest.mark.xfail(reason="Integration test suite not yet set up for PoS")
-    def test_eth_getBlockByNumber_safe(
-        self, w3: "Web3", empty_block: BlockData
-    ) -> None:
-        block = w3.eth.get_block("safe")
-        assert block is not None
-        assert isinstance(block["number"], int)
-
-    @pytest.mark.xfail(reason="Integration test suite not yet set up for PoS")
-    def test_eth_getBlockByNumber_finalized(
-        self, w3: "Web3", empty_block: BlockData
-    ) -> None:
-        block = w3.eth.get_block("finalized")
-        assert block is not None
-        assert isinstance(block["number"], int)
 
     def test_eth_getTransactionByHash(
         self, web3: "Web3", mined_txn_hash: HexStr

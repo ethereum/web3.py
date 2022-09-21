@@ -44,7 +44,7 @@ TReturn = TypeVar("TReturn")
 TParams = TypeVar("TParams")
 TValue = TypeVar("TValue")
 
-BlockParams = Literal["latest", "earliest", "pending", "safe", "finalized"]
+BlockParams = Literal["latest", "earliest", "pending"]
 BlockIdentifier = Union[BlockParams, BlockNumber, Hash32, HexStr, HexBytes, int]
 LatestBlockParam = Literal["latest"]
 
