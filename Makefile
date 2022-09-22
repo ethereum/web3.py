@@ -32,7 +32,7 @@ lint:
 
 lint-roll:
 	isort <MODULE_NAME> tests
-	black {toxinidir}/<MODULE_NAME> {toxinidir}/tests setup.py
+	black <MODULE_NAME> tests setup.py
 	$(MAKE) lint
 
 test:
