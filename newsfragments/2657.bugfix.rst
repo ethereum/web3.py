@@ -1,0 +1,1 @@
+Protobuf dependency breaks at version ``3.20.2`` and above; pin to ``3.20.1`` for now.
