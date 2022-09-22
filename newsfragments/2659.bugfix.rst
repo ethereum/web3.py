@@ -1,0 +1,1 @@
+Protobuf dependency breaks at version ``3.20.2`` and above; pin to ``3.19.4`` for now since that is the last non-breaking version for python 3.6.
