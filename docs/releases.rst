@@ -3,6 +3,23 @@ Release Notes
 
 .. towncrier release notes start
 
+v6.0.0-beta.6 (2022-09-26)
+--------------------------
+
+Bugfixes
+~~~~~~~~
+
+- Protobuf dependency breaks at version ``3.20.2`` and above; pin to ``3.20.1``
+  for now. (`#2657 <https://github.com/ethereum/web3.py/issues/2657>`__)
+
+
+Features
+~~~~~~~~
+
+- Add new predefined block identifiers ``safe`` and ``finalized``. (`#2652
+  <https://github.com/ethereum/web3.py/issues/2652>`__)
+
+
 v6.0.0-beta.5 (2022-09-19)
 --------------------------
 
