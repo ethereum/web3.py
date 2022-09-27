@@ -85,20 +85,6 @@ def iter_block_number(start=0):
     return block_number
 
 
-@pytest_asyncio.fixture(scope="function")
-async def async_iter_block_number(start=0):
-    async def iterator():
-        block_number = start
-        while True:
-            sent_value = yield block_number
-            if sent_value is not None:
-                block_number = sent_value
-
-    block_number = iterator()
-    yield block_number
-    # return block_number
-
-
 @pytest.fixture(scope="function")
 def result_generator_middleware(iter_block_number):
     return construct_result_generator_middleware(
@@ -112,17 +98,16 @@ def result_generator_middleware(iter_block_number):
 
 
 @pytest_asyncio.fixture(scope="function")
-async def async_result_generator_middleware(async_iter_block_number):
-    
-    iter_block = await async_iter_block_number.__anext__()
+async def async_result_generator_middleware(iter_block_number):
     return await async_construct_result_generator_middleware(
         {
             "eth_getLogs": lambda *_: FILTER_LOG,
             "eth_getBlockByNumber": lambda *_: {"hash": BLOCK_HASH},
             "net_version": lambda *_: 1,
-            "eth_blockNumber": lambda *_: iter_block,
+            "eth_blockNumber": lambda *_: next(iter_block_number),
         }
     )
+
 
 @pytest.fixture(scope="function")
 def w3_base():
@@ -138,7 +123,9 @@ def w3(w3_base, result_generator_middleware):
 
 @pytest.fixture(scope="function")
 def async_w3_base():
-    return Web3(provider=AsyncDummyProvider(),modules={'eth': (AsyncEth)}, middlewares=[])
+    return Web3(
+        provider=AsyncDummyProvider(), modules={"eth": (AsyncEth)}, middlewares=[]
+    )
 
 
 @pytest.fixture(scope="function")
@@ -256,7 +243,7 @@ def test_pending_block_filter_middleware(w3):
 def test_local_filter_middleware(w3, iter_block_number):
     block_filter = w3.eth.filter("latest")
     bob = block_filter.get_new_entries()
-    
+
     # breakpoint()
 
     iter_block_number.send(1)
@@ -281,25 +268,20 @@ def test_local_filter_middleware(w3, iter_block_number):
 
 
 @pytest.mark.asyncio
-async def test_async_local_filter_middleware(async_w3, async_iter_block_number):
+async def test_async_local_filter_middleware(async_w3, iter_block_number):
     block_filter = await async_w3.eth.filter("latest")
     await block_filter.get_new_entries()
-    # breakpoint()
-    await async_iter_block_number.asend(1)
-
+    iter_block_number.send(1)
     log_filter = await async_w3.eth.filter(filter_params={"fromBlock": "latest"})
 
-
-    changes = await async_w3.eth.get_filter_changes(block_filter.filter_id) 
-
-    # breakpoint()
+    changes = await async_w3.eth.get_filter_changes(block_filter.filter_id)
     assert changes == [HexBytes(BLOCK_HASH)]
 
-    await async_iter_block_number.asend(2)
+    iter_block_number.send(2)
     results = await async_w3.eth.get_filter_changes(log_filter.filter_id)
     assert results == FILTER_LOG
 
-    logs = await async_w3.eth.get_filter_logs(log_filter.filter_id) 
+    logs = await async_w3.eth.get_filter_logs(log_filter.filter_id)
     assert logs == FILTER_LOG
 
     filter_ids = (block_filter.filter_id, log_filter.filter_id)

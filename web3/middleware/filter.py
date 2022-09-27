@@ -412,7 +412,7 @@ class AsyncRequestLogs:
     
     def __await__(self):
         async def closure():
-            if self._from_block_arg is None or self.from_block_arg == "latest":
+            if self._from_block_arg is None or self._from_block_arg == "latest":
                 self.block_number = await self.w3.eth.block_number
                 self._from_block = BlockNumber(self.block_number + 1)
             elif is_string(self._from_block_arg) and is_hex(self._from_block_arg):
@@ -615,9 +615,11 @@ def local_filter_middleware(
             _filter = filters[filter_id]
             if method == RPC.eth_getFilterChanges:
                 
-                # breakpoint()
 
-                return {"result": next(_filter.filter_changes)}
+                bob = next(_filter.filter_changes)
+                # breakpoint()
+                return {"result": bob}
+                # return {"result": next(_filter.filter_changes)}
 
             elif method == RPC.eth_getFilterLogs:
                 # type ignored b/c logic prevents RequestBlocks which
@@ -652,7 +654,7 @@ async def async_local_filter_middleware(
 
             _filter: Union[AsyncRequestLogs, AsyncRequestBlocks]
             if method == RPC.eth_newFilter:
-                _filter = AsyncRequestLogs(
+                _filter = await AsyncRequestLogs(
                     w3, **apply_key_map(FILTER_PARAMS_KEY_MAP, params[0])
                 )
 
@@ -675,6 +677,9 @@ async def async_local_filter_middleware(
             
             if method == RPC.eth_getFilterChanges:
                 bob = await _filter.filter_changes.__anext__()
+
+                # breakpoint()
+
                 return {"result": bob}
 
 
