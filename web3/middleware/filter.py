@@ -308,7 +308,8 @@ async def async_get_logs_multipart(
         params_with_none_dropped = cast(
             FilterParams, drop_items_with_none_value(params)
         )
-        yield w3.eth.get_logs(params_with_none_dropped)
+        next_logs = await w3.eth.get_logs(params_with_none_dropped)
+        yield next_logs
 
 
 class RequestLogs:
@@ -408,8 +409,7 @@ class AsyncRequestLogs:
         self._from_block_arg = from_block
         self._to_block = to_block
         self.filter_changes = self._get_filter_changes()
-    
-    
+
     def __await__(self):
         async def closure():
             if self._from_block_arg is None or self._from_block_arg == "latest":
@@ -505,7 +505,6 @@ class RequestBlocks:
     def get_filter_changes(self) -> Iterator[List[Hash32]]:
         block_range_iter = iter_latest_block_ranges(self.w3, self.start_block, None)
 
-        # breakpoint()
         for block_range in block_range_iter:
             yield (block_hashes_in_range(self.w3, block_range))
 
@@ -514,37 +513,31 @@ class AsyncRequestBlocks:
     def __init__(self, w3: "Web3") -> None:
         self.w3 = w3
 
-
     def __await__(self):
         async def closure():
             self.block_number = await self.w3.eth.block_number
-            
-
-            # breakpoint()
 
             self.start_block = BlockNumber(self.block_number + 1)
             return self
 
         return closure().__await__()
 
-        
-
     @property
     def filter_changes(self) -> AsyncIterator[List[Hash32]]:
-        
+
         return self.get_filter_changes()
 
     async def get_filter_changes(self) -> AsyncIterator[List[Hash32]]:
         # block_range_iter = [x async for x in async_iter_latest_block_ranges(self.w3, self.start_block, None)]
-        
-        block_range_iter = async_iter_latest_block_ranges(self.w3, self.start_block, None)
 
-        # breakpoint()
+        block_range_iter = async_iter_latest_block_ranges(
+            self.w3, self.start_block, None
+        )
+
         async for block_range in block_range_iter:
 
             hash = await async_block_hashes_in_range(self.w3, block_range)
-            
-            # breakpoint()
+
             yield hash
 
 
@@ -559,7 +552,6 @@ def block_hashes_in_range(
         yield getattr(w3.eth.get_block(BlockNumber(block_number)), "hash", None)
 
 
-# @to_list
 async def async_block_hashes_in_range(
     w3: "Web3", block_range: Tuple[BlockNumber, BlockNumber]
 ) -> AsyncIterable[Hash32]:
@@ -573,12 +565,6 @@ async def async_block_hashes_in_range(
         block_hashes.append(getattr(w3_get_block, "hash", None))
 
     return block_hashes
-    # async def inner():
-    #     async for block_number in range(from_block, to_block + 1):
-    #         w3_get_block = await w3.eth.get_block(BlockNumber(block_number))
-    #         yield getattr(w3_get_block, "hash", None)
-            
-    # return [thing async for thing in inner()]
 
 
 def local_filter_middleware(
@@ -614,12 +600,9 @@ def local_filter_middleware(
                 return make_request(method, params)
             _filter = filters[filter_id]
             if method == RPC.eth_getFilterChanges:
-                
 
                 bob = next(_filter.filter_changes)
-                # breakpoint()
                 return {"result": bob}
-                # return {"result": next(_filter.filter_changes)}
 
             elif method == RPC.eth_getFilterLogs:
                 # type ignored b/c logic prevents RequestBlocks which
@@ -638,14 +621,13 @@ async def async_hex_counter():
     while True:
         yield hex(_last)
         _last += 1
-        
+
 
 async def async_local_filter_middleware(
     make_request: Callable[[RPCEndpoint, Any], Any], w3: "Web3"
 ) -> Callable[[RPCEndpoint, Any], Coroutine[Any, Any, RPCResponse]]:
     filters = {}
     filter_id_counter = async_hex_counter()
-
 
     async def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
         if method in NEW_FILTER_METHODS:
@@ -674,14 +656,11 @@ async def async_local_filter_middleware(
             if filter_id not in filters:
                 return await make_request(method, params)
             _filter = filters[filter_id]
-            
+
             if method == RPC.eth_getFilterChanges:
                 bob = await _filter.filter_changes.__anext__()
 
-                # breakpoint()
-
                 return {"result": bob}
-
 
             elif method == RPC.eth_getFilterLogs:
                 # type ignored b/c logic prevents RequestBlocks which

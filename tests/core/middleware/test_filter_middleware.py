@@ -242,9 +242,7 @@ def test_pending_block_filter_middleware(w3):
 
 def test_local_filter_middleware(w3, iter_block_number):
     block_filter = w3.eth.filter("latest")
-    bob = block_filter.get_new_entries()
-
-    # breakpoint()
+    block_filter.get_new_entries()
 
     iter_block_number.send(1)
 
