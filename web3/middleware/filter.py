@@ -7,6 +7,7 @@ from typing import (
     AsyncIterator,
     Callable,
     Dict,
+    Generator,
     Iterable,
     Iterator,
     List,
@@ -21,6 +22,7 @@ from eth_typing import (
     BlockNumber,
     ChecksumAddress,
     Hash32,
+    HexStr,
 )
 from eth_utils import (
     apply_key_map,
@@ -185,9 +187,9 @@ async def async_iter_latest_block(
     is_bounded_range = to_block is not None and to_block != "latest"
 
     while True:
-        latest_block = await w3.eth.block_number
+        latest_block = await w3.eth.block_number  # type: ignore
         # type ignored b/c is_bounded_range prevents unsupported comparison
-        if is_bounded_range and latest_block > to_block:  # type: ignore
+        if is_bounded_range and latest_block > to_block:
             yield None
         #  No new blocks since last iteration.
         if _last is not None and _last == latest_block:
@@ -308,7 +310,7 @@ async def async_get_logs_multipart(
         params_with_none_dropped = cast(
             FilterParams, drop_items_with_none_value(params)
         )
-        next_logs = await w3.eth.get_logs(params_with_none_dropped)
+        next_logs = await w3.eth.get_logs(params_with_none_dropped)  # type: ignore
         yield next_logs
 
 
@@ -362,7 +364,7 @@ class RequestLogs:
             if None in (start, stop):
                 yield []
             else:
-                bob =  list(
+                yield list(
                     concat(
                         get_logs_multipart(
                             self.w3,
@@ -374,8 +376,6 @@ class RequestLogs:
                         )
                     )
                 )
-                breakpoint()
-                yield bob
 
     def get_logs(self) -> List[LogReceipt]:
         return list(
@@ -412,13 +412,15 @@ class AsyncRequestLogs:
         self._to_block = to_block
         self.filter_changes = self._get_filter_changes()
 
-    def __await__(self):
-        async def closure():
+    def __await__(self) -> Generator[Any, None, "AsyncRequestLogs"]:
+        async def closure() -> "AsyncRequestLogs":
             if self._from_block_arg is None or self._from_block_arg == "latest":
-                self.block_number = await self.w3.eth.block_number
+                self.block_number = await self.w3.eth.block_number  # type: ignore
                 self._from_block = BlockNumber(self.block_number + 1)
             elif is_string(self._from_block_arg) and is_hex(self._from_block_arg):
-                self._from_block = BlockNumber(hex_to_integer(from_block))  # type: ignore
+                self._from_block = BlockNumber(
+                    hex_to_integer(cast(HexStr, self._from_block_arg))
+                )
             else:
                 self._from_block = self._from_block_arg
 
@@ -432,18 +434,16 @@ class AsyncRequestLogs:
 
     @property
     async def to_block(self) -> BlockNumber:
-        if self._to_block is None:
-            to_block = await self.w3.eth.block_number
-        elif self._to_block == "latest":
-            to_block = await self.w3.eth.block_number
+        if self._to_block is None or self._to_block == "latest":
+            to_block = await self.w3.eth.block_number  # type: ignore
         elif is_hex(self._to_block):
-            to_block = BlockNumber(hex_to_integer(self._to_block))  # type: ignore
+            to_block = BlockNumber(hex_to_integer(cast(HexStr, self._to_block)))
         else:
             to_block = self._to_block
 
         return to_block
 
-    async def _get_filter_changes(self) -> Iterator[List[LogReceipt]]:
+    async def _get_filter_changes(self) -> AsyncIterator[List[LogReceipt]]:
         self_from_block = await self.from_block
         self_to_block = await self.to_block
         async for start, stop in async_iter_latest_block_ranges(
@@ -452,34 +452,32 @@ class AsyncRequestLogs:
             if None in (start, stop):
                 yield []
             else:
-                bob = [x async for x in
-                        async_get_logs_multipart(
-                            self.w3,
-                            start,
-                            stop,
-                            self.address,
-                            self.topics,
-                            max_blocks=MAX_BLOCK_REQUEST,
-                        )
-                ]
-                
-                # breakpoint()
-                yield bob[0]
-                    
+                yield [
+                    x
+                    async for x in async_get_logs_multipart(
+                        self.w3,
+                        start,
+                        stop,
+                        self.address,
+                        self.topics,
+                        max_blocks=MAX_BLOCK_REQUEST,
+                    )
+                ][0]
 
     async def get_logs(self) -> List[LogReceipt]:
         self_from_block = await self.from_block
         self_to_block = await self.to_block
-        return [ x async for x in
-                async_get_logs_multipart(
-                    self.w3,
-                    self_from_block,
-                    self_to_block,
-                    self.address,
-                    self.topics,
-                    max_blocks=MAX_BLOCK_REQUEST,
-                )
-            ][0]
+        return [
+            x
+            async for x in async_get_logs_multipart(
+                self.w3,
+                self_from_block,
+                self_to_block,
+                self.address,
+                self.topics,
+                max_blocks=MAX_BLOCK_REQUEST,
+            )
+        ][0]
 
 
 FILTER_PARAMS_KEY_MAP = {"toBlock": "to_block", "fromBlock": "from_block"}
@@ -515,10 +513,9 @@ class AsyncRequestBlocks:
     def __init__(self, w3: "Web3") -> None:
         self.w3 = w3
 
-    def __await__(self):
-        async def closure():
-            self.block_number = await self.w3.eth.block_number
-
+    def __await__(self) -> Generator[Any, None, "AsyncRequestBlocks"]:
+        async def closure() -> "AsyncRequestBlocks":
+            self.block_number = await self.w3.eth.block_number  # type: ignore
             self.start_block = BlockNumber(self.block_number + 1)
             return self
 
@@ -526,20 +523,14 @@ class AsyncRequestBlocks:
 
     @property
     def filter_changes(self) -> AsyncIterator[List[Hash32]]:
-
         return self.get_filter_changes()
 
     async def get_filter_changes(self) -> AsyncIterator[List[Hash32]]:
-        # block_range_iter = [x async for x in async_iter_latest_block_ranges(self.w3, self.start_block, None)]
-
         block_range_iter = async_iter_latest_block_ranges(
             self.w3, self.start_block, None
         )
-
         async for block_range in block_range_iter:
-
             hash = await async_block_hashes_in_range(self.w3, block_range)
-
             yield hash
 
 
@@ -556,14 +547,14 @@ def block_hashes_in_range(
 
 async def async_block_hashes_in_range(
     w3: "Web3", block_range: Tuple[BlockNumber, BlockNumber]
-) -> AsyncIterable[Hash32]:
+) -> List[Union[None, Hash32]]:
     from_block, to_block = block_range
     if from_block is None or to_block is None:
         return []
 
     block_hashes = []
     for block_number in range(from_block, to_block + 1):
-        w3_get_block = await w3.eth.get_block(BlockNumber(block_number))
+        w3_get_block = await w3.eth.get_block(BlockNumber(block_number))  # type: ignore
         block_hashes.append(getattr(w3_get_block, "hash", None))
 
     return block_hashes
@@ -602,9 +593,7 @@ def local_filter_middleware(
                 return make_request(method, params)
             _filter = filters[filter_id]
             if method == RPC.eth_getFilterChanges:
-
-                bob = next(_filter.filter_changes)
-                return {"result": bob}
+                return {"result": next(_filter.filter_changes)}
 
             elif method == RPC.eth_getFilterLogs:
                 # type ignored b/c logic prevents RequestBlocks which
@@ -618,23 +607,16 @@ def local_filter_middleware(
     return middleware
 
 
-async def async_hex_counter():
-    _last = 0
-    while True:
-        yield hex(_last)
-        _last += 1
-
-
 async def async_local_filter_middleware(
     make_request: Callable[[RPCEndpoint, Any], Any], w3: "Web3"
 ) -> Callable[[RPCEndpoint, Any], Coroutine[Any, Any, RPCResponse]]:
     filters = {}
-    filter_id_counter = async_hex_counter()
+    filter_id_counter = map(to_hex, itertools.count())
 
     async def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
         if method in NEW_FILTER_METHODS:
 
-            filter_id = await filter_id_counter.__anext__()
+            filter_id = next(filter_id_counter)
 
             _filter: Union[AsyncRequestLogs, AsyncRequestBlocks]
             if method == RPC.eth_newFilter:
@@ -660,15 +642,14 @@ async def async_local_filter_middleware(
             _filter = filters[filter_id]
 
             if method == RPC.eth_getFilterChanges:
-                bob = await _filter.filter_changes.__anext__()
-
-                return {"result": bob}
+                changes = await _filter.filter_changes.__anext__()
+                return {"result": changes}
 
             elif method == RPC.eth_getFilterLogs:
                 # type ignored b/c logic prevents RequestBlocks which
                 # doesn't implement get_logs
-                logs = await _filter.get_logs()
-                return {"result": logs}  # type: ignore
+                logs = await _filter.get_logs()  # type: ignore
+                return {"result": logs}
             else:
                 raise NotImplementedError(method)
         else:

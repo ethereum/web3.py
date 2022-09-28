@@ -1,15 +1,17 @@
 import pytest
-import pytest_asyncio
 
 from hexbytes import (
     HexBytes,
 )
+import pytest_asyncio
 
 from web3 import Web3
 from web3.datastructures import (
     AttributeDict,
 )
-from web3.eth import AsyncEth
+from web3.eth import (
+    AsyncEth,
+)
 from web3.middleware import (
     async_construct_result_generator_middleware,
     async_local_filter_middleware,
@@ -17,6 +19,7 @@ from web3.middleware import (
     local_filter_middleware,
 )
 from web3.middleware.filter import (
+    async_iter_latest_block_ranges,
     block_ranges,
     iter_latest_block_ranges,
 )
@@ -235,6 +238,73 @@ def test_iter_latest_block_ranges(
         assert actual_tuple == expected_tuple
 
 
+@pytest.mark.parametrize(
+    "from_block,to_block,current_block,expected",
+    [
+        (
+            0,
+            10,
+            [10],
+            [
+                (0, 10),
+            ],
+        ),
+        (
+            0,
+            55,
+            [0, 19, 55],
+            [
+                (0, 0),
+                (1, 19),
+                (20, 55),
+            ],
+        ),
+        (
+            0,
+            None,
+            [10],
+            [
+                (0, 10),
+            ],
+        ),
+        (
+            0,
+            10,
+            [12],
+            [
+                (None, None),
+            ],
+        ),
+        (
+            12,
+            10,
+            [12],
+            [
+                (None, None),
+            ],
+        ),
+        (
+            12,
+            10,
+            [None],
+            [
+                (None, None),
+            ],
+        ),
+    ],
+)
+@pytest.mark.asyncio
+async def test_async_iter_latest_block_ranges(
+    async_w3, iter_block_number, from_block, to_block, current_block, expected
+):
+    latest_block_ranges = async_iter_latest_block_ranges(async_w3, from_block, to_block)
+    for index, block in enumerate(current_block):
+        iter_block_number.send(block)
+        expected_tuple = expected[index]
+        actual_tuple = await latest_block_ranges.__anext__()
+        assert actual_tuple == expected_tuple
+
+
 def test_pending_block_filter_middleware(w3):
     with pytest.raises(NotImplementedError):
         w3.eth.filter("pending")
@@ -243,7 +313,6 @@ def test_pending_block_filter_middleware(w3):
 def test_local_filter_middleware(w3, iter_block_number):
     block_filter = w3.eth.filter("latest")
     block_filter.get_new_entries()
-
     iter_block_number.send(1)
 
     log_filter = w3.eth.filter(filter_params={"fromBlock": "latest"})
@@ -272,12 +341,12 @@ async def test_async_local_filter_middleware(async_w3, iter_block_number):
     iter_block_number.send(1)
     log_filter = await async_w3.eth.filter(filter_params={"fromBlock": "latest"})
 
-    changes = await async_w3.eth.get_filter_changes(block_filter.filter_id)
-    assert changes == [HexBytes(BLOCK_HASH)]
+    block_changes = await async_w3.eth.get_filter_changes(block_filter.filter_id)
+    assert block_changes == [HexBytes(BLOCK_HASH)]
 
     iter_block_number.send(2)
-    results = await async_w3.eth.get_filter_changes(log_filter.filter_id)
-    assert results == FILTER_LOG
+    log_changes = await async_w3.eth.get_filter_changes(log_filter.filter_id)
+    assert log_changes == FILTER_LOG
 
     logs = await async_w3.eth.get_filter_logs(log_filter.filter_id)
     assert logs == FILTER_LOG
