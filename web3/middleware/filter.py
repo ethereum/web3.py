@@ -362,7 +362,7 @@ class RequestLogs:
             if None in (start, stop):
                 yield []
             else:
-                yield list(
+                bob =  list(
                     concat(
                         get_logs_multipart(
                             self.w3,
@@ -374,6 +374,8 @@ class RequestLogs:
                         )
                     )
                 )
+                breakpoint()
+                yield bob
 
     def get_logs(self) -> List[LogReceipt]:
         return list(
@@ -450,9 +452,8 @@ class AsyncRequestLogs:
             if None in (start, stop):
                 yield []
             else:
-                yield list(
-                    concat(
-                        await async_get_logs_multipart(
+                bob = [x async for x in
+                        async_get_logs_multipart(
                             self.w3,
                             start,
                             stop,
@@ -460,15 +461,17 @@ class AsyncRequestLogs:
                             self.topics,
                             max_blocks=MAX_BLOCK_REQUEST,
                         )
-                    )
-                )
+                ]
+                
+                # breakpoint()
+                yield bob[0]
+                    
 
     async def get_logs(self) -> List[LogReceipt]:
         self_from_block = await self.from_block
         self_to_block = await self.to_block
-        return list(
-            concat(
-                await async_get_logs_multipart(
+        return [ x async for x in
+                async_get_logs_multipart(
                     self.w3,
                     self_from_block,
                     self_to_block,
@@ -476,8 +479,7 @@ class AsyncRequestLogs:
                     self.topics,
                     max_blocks=MAX_BLOCK_REQUEST,
                 )
-            )
-        )
+            ][0]
 
 
 FILTER_PARAMS_KEY_MAP = {"toBlock": "to_block", "fromBlock": "from_block"}
