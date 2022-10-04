@@ -31,8 +31,8 @@ lint:
 	tox -elint
 
 lint-roll:
-	isort --recursive <MODULE_NAME> tests
-	black {toxinidir}/<MODULE_NAME> {toxinidir}/tests setup.py
+	isort <MODULE_NAME> tests
+	black <MODULE_NAME> tests setup.py
 	$(MAKE) lint
 
 test:
