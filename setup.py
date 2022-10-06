@@ -38,6 +38,7 @@ extras_require = {
         "bumpversion",
         "flaky>=3.7.0,<4",
         "hypothesis>=3.31.2,<6",
+        "importlib-metadata<5.0",
         "pytest>=4.4.0,<5.0.0",
         "pytest-asyncio>=0.10.0,<0.11",
         "pytest-mock>=1.10,<2",
@@ -88,7 +89,7 @@ setup(
         "ipfshttpclient==0.8.0a2",
         "jsonschema>=3.2.0,<5",
         "lru-dict>=1.1.6,<2.0.0",
-        "protobuf==3.19.4",
+        "protobuf==3.19.5",
         "pywin32>=223;platform_system=='Windows'",
         "requests>=2.16.0,<3.0.0",
         # remove typing_extensions after python_requires>=3.8, see web3._utils.compat
