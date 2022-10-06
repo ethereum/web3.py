@@ -3,6 +3,27 @@ Release Notes
 
 .. towncrier release notes start
 
+v5.31.1 (2022-10-06)
+--------------------
+
+Features
+~~~~~~~~
+
+- Add new predefined block identifiers ``safe`` and ``finalized``. (`#2655
+  <https://github.com/ethereum/web3.py/issues/2655>`__)
+
+
+Bugfixes
+~~~~~~~~
+
+- Protobuf dependency breaks at version ``3.20.2`` and above; pin to ``3.19.4``
+  for now since that is the last non-breaking version for python 3.6. (`#2659
+  <https://github.com/ethereum/web3.py/issues/2659>`__)
+- Protobuf dependency had a DoS-able bug. It was fixed in 3.19.5. See:
+  https://nvd.nist.gov/vuln/detail/CVE-2022-1941 (`#2667
+  <https://github.com/ethereum/web3.py/issues/2667>`__)
+
+
 v5.31.0 (2022-09-19)
 --------------------
 
