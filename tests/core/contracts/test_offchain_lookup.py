@@ -1,7 +1,7 @@
 import pytest
 
 from eth_abi import (
-    decode,
+    abi,
 )
 
 from web3._utils.module_testing.module_testing_utils import (
@@ -74,7 +74,7 @@ def test_offchain_lookup_functionality(
     response = offchain_lookup_contract.caller.testOffchainLookup(
         OFFCHAIN_LOOKUP_TEST_DATA
     )
-    assert decode(["string"], response)[0] == "web3py"
+    assert abi.decode(["string"], response)[0] == "web3py"
 
 
 def test_eth_call_offchain_lookup_raises_when_ccip_read_is_disabled(
@@ -123,7 +123,7 @@ def test_offchain_lookup_call_flag_overrides_provider_flag(
     response = offchain_lookup_contract.functions.testOffchainLookup(
         OFFCHAIN_LOOKUP_TEST_DATA
     ).call(ccip_read_enabled=True)
-    assert decode(["string"], response)[0] == "web3py"
+    assert abi.decode(["string"], response)[0] == "web3py"
 
     w3.provider.global_ccip_read_enabled = True
 
@@ -176,7 +176,7 @@ def test_eth_call_offchain_lookup_tries_next_url_for_non_4xx_error_status_and_te
     response = offchain_lookup_contract.caller.testOffchainLookup(
         OFFCHAIN_LOOKUP_TEST_DATA
     )
-    assert decode(["string"], response)[0] == "web3py"
+    assert abi.decode(["string"], response)[0] == "web3py"
 
 
 @pytest.mark.parametrize("status_code_4xx_error", [400, 410, 450, 499])

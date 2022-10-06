@@ -13,8 +13,8 @@ from typing import (
     Type,
 )
 
-from eth_abi.abi import (
-    decode,
+from eth_abi import (
+    abi,
 )
 from eth_tester.exceptions import (
     BlockNotFound,
@@ -89,7 +89,7 @@ def call_eth_tester(
             data_payload = parsed_data_as_bytes[
                 4:
             ]  # everything but the function selector
-            abi_decoded_data = decode(OFFCHAIN_LOOKUP_FIELDS.values(), data_payload)
+            abi_decoded_data = abi.decode(OFFCHAIN_LOOKUP_FIELDS.values(), data_payload)
             offchain_lookup_payload = dict(
                 zip(OFFCHAIN_LOOKUP_FIELDS.keys(), abi_decoded_data)
             )

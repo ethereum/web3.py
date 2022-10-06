@@ -13,7 +13,7 @@ from typing import (
 )
 
 from eth_abi import (
-    decode,
+    abi,
 )
 from eth_typing import (
     HexStr,
@@ -623,7 +623,9 @@ def raise_solidity_error_on_revert(response: RPCResponse) -> RPCResponse:
     # OffchainLookup(address,string[],bytes,bytes4,bytes)
     if data[:10] == "0x556f1830":
         parsed_data_as_bytes = to_bytes(hexstr=data[10:])
-        abi_decoded_data = decode(OFFCHAIN_LOOKUP_FIELDS.values(), parsed_data_as_bytes)
+        abi_decoded_data = abi.decode(
+            OFFCHAIN_LOOKUP_FIELDS.values(), parsed_data_as_bytes
+        )
         offchain_lookup_payload = dict(
             zip(OFFCHAIN_LOOKUP_FIELDS.keys(), abi_decoded_data)
         )
