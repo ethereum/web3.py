@@ -127,7 +127,7 @@ def construct_event_topic_set(
         [
             None
             if option is None
-            else encode_hex(abi_codec.encode_single(arg["type"], option))
+            else encode_hex(abi_codec.encode([arg["type"]], [option]))
             for option in arg_options
         ]
         for arg, arg_options in zipped_abi_and_args
@@ -169,7 +169,7 @@ def construct_event_data_set(
         [
             None
             if option is None
-            else encode_hex(abi_codec.encode_single(arg["type"], option))
+            else encode_hex(abi_codec.encode([arg["type"]], [option]))
             for option in arg_options
         ]
         for arg, arg_options in zipped_abi_and_args
@@ -252,7 +252,7 @@ def get_event_data(
     )
 
     decoded_topic_data = [
-        abi_codec.decode_single(topic_type, topic_data)
+        abi_codec.decode([topic_type], topic_data)[0]
         for topic_type, topic_data in zip(log_topic_types, log_topics)
     ]
     normalized_topic_data = map_abi_data(
@@ -517,7 +517,7 @@ class TopicArgumentFilter(BaseArgumentFilter):
         if is_dynamic_sized_type(self.arg_type):
             return to_hex(keccak(encode_single_packed(self.arg_type, value)))
         else:
-            return to_hex(self.abi_codec.encode_single(self.arg_type, value))
+            return to_hex(self.abi_codec.encode([self.arg_type], [value]))
 
 
 class EventLogErrorFlags(Enum):
