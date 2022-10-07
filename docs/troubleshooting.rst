@@ -111,10 +111,8 @@ Faucet mechanisms tend to come and go, so if any information here is
 out of date, try the `Ethereum Stackexchange <https://ethereum.stackexchange.com/>`_.
 Here are some links to testnet ether instructions (in no particular order):
 
-- `Kovan <https://github.com/kovan-testnet/faucet>`_
 - `Rinkeby <https://www.rinkeby.io/#faucet>`_
-- `Ropsten <https://www.reddit.com/r/ethdev/comments/72ltwj/the_new_if_you_need_some_ropsten_testnet_ethers/>`_
-
+- `Goerli <https://goerli.net/>`_ (different faucet links on top menu bar)
 
 .. _account_troubleshooting:
 
