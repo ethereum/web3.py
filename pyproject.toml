@@ -7,34 +7,44 @@
     title_format = "v{version} ({project_date})"
 
 [[tool.towncrier.type]]
-directory = "breaking-change"
-name="Breaking Changes"
-showcontent=true
-
-[[tool.towncrier.type]]
-directory = "deprecation"
-name = "Deprecations"
+directory = "feature"
+name = "Features"
 showcontent = true
 
 [[tool.towncrier.type]]
 directory = "bugfix"
-name="Bugfixes"
-showcontent=true
+name = "Bugfixes"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "performance"
+name = "Performance improvements"
+showcontent = true
 
 [[tool.towncrier.type]]
 directory = "doc"
-name="Documentation Updates"
-showcontent=true
+name = "Improved Documentation"
+showcontent = true
 
 [[tool.towncrier.type]]
-directory = "feature"
-name="Features"
-showcontent=true
+directory = "removal"
+name = "Deprecations and Removals"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "internal"
+name = "Internal Changes - for web3.py Contributors"
+showcontent = true
 
 [[tool.towncrier.type]]
 directory = "misc"
-name="Misc"
-showcontent=false
+name = "Miscellaneous changes"
+showcontent = false
+
+[[tool.towncrier.type]]
+directory = "breaking"
+name = "Breaking changes"
+showcontent = true
 
 [tool.isort]
 profile="black"
