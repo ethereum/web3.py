@@ -1,0 +1,17 @@
+{%- if 'singlehtml' not in builder %}
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="{{ pathto('search') }}" method="get">
+    <input type="text" name="q" placeholder="{{ _('Search docs') }}" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+{# Include PyChain banner under the search box #}
+<div class="search-banner-wrapper">
+  <a href="https://www.pychain.org/?utm_source=web3py">
+    <img src="{{ pathto('_static/banner/pychain-2022.png', 1) }}" alt="PyChain 2022 - Python and blockchain developer conference">
+  </a>
+</div>
+
+{%- endif %}
