@@ -3,18 +3,28 @@ import pytest
 from hexbytes import (
     HexBytes,
 )
+import pytest_asyncio
 
 from web3 import Web3
 from web3.datastructures import (
     AttributeDict,
 )
+from web3.eth import (
+    AsyncEth,
+)
 from web3.middleware import (
+    async_construct_result_generator_middleware,
+    async_local_filter_middleware,
     construct_result_generator_middleware,
     local_filter_middleware,
 )
 from web3.middleware.filter import (
+    async_iter_latest_block_ranges,
     block_ranges,
     iter_latest_block_ranges,
+)
+from web3.providers.async_base import (
+    AsyncBaseProvider,
 )
 from web3.providers.base import (
     BaseProvider,
@@ -184,6 +194,15 @@ def test_block_ranges(start, stop, expected):
                 (None, None),
             ],
         ),
+        (
+            10,
+            10,
+            [10, 10],
+            [
+                (10, 10),
+                (None, None),
+            ],
+        ),
     ],
 )
 def test_iter_latest_block_ranges(
@@ -206,18 +225,171 @@ def test_local_filter_middleware(w3, iter_block_number):
     block_filter = w3.eth.filter("latest")
     block_filter.get_new_entries()
     iter_block_number.send(1)
-
-    log_filter = w3.eth.filter(filter_params={"fromBlock": "latest"})
-
     assert w3.eth.get_filter_changes(block_filter.filter_id) == [HexBytes(BLOCK_HASH)]
 
+    log_filter = w3.eth.filter(filter_params={"fromBlock": "latest"})
     iter_block_number.send(2)
-    results = w3.eth.get_filter_changes(log_filter.filter_id)
-    assert results == FILTER_LOG
-
+    log_changes = w3.eth.get_filter_changes(log_filter.filter_id)
+    assert log_changes == FILTER_LOG
     assert w3.eth.get_filter_logs(log_filter.filter_id) == FILTER_LOG
 
-    filter_ids = (block_filter.filter_id, log_filter.filter_id)
+    log_filter_from_hex_string = w3.eth.filter(
+        filter_params={"fromBlock": "0x0", "toBlock": "0x2"}
+    )
+    log_filter_from_int = w3.eth.filter(filter_params={"fromBlock": 1, "toBlock": 3})
+
+    filter_ids = (
+        block_filter.filter_id,
+        log_filter.filter_id,
+        log_filter_from_hex_string.filter_id,
+        log_filter_from_int.filter_id,
+    )
+
+    # Test that all ids are str types
+    assert all(isinstance(_filter_id, (str,)) for _filter_id in filter_ids)
+
+    # Test that all ids are unique
+    assert len(filter_ids) == len(set(filter_ids))
+
+
+# --- async --- #
+
+
+class AsyncDummyProvider(AsyncBaseProvider):
+    async def make_request(self, method, params):
+        raise NotImplementedError(f"Cannot make request for {method}:{params}")
+
+
+@pytest_asyncio.fixture(scope="function")
+async def async_result_generator_middleware(iter_block_number):
+    return await async_construct_result_generator_middleware(
+        {
+            "eth_getLogs": lambda *_: FILTER_LOG,
+            "eth_getBlockByNumber": lambda *_: {"hash": BLOCK_HASH},
+            "net_version": lambda *_: 1,
+            "eth_blockNumber": lambda *_: next(iter_block_number),
+        }
+    )
+
+
+@pytest.fixture(scope="function")
+def async_w3_base():
+    return Web3(
+        provider=AsyncDummyProvider(), modules={"eth": (AsyncEth)}, middlewares=[]
+    )
+
+
+@pytest.fixture(scope="function")
+def async_w3(async_w3_base, async_result_generator_middleware):
+    async_w3_base.middleware_onion.add(async_result_generator_middleware)
+    async_w3_base.middleware_onion.add(async_local_filter_middleware)
+    return async_w3_base
+
+
+@pytest.mark.parametrize(
+    "from_block,to_block,current_block,expected",
+    [
+        (
+            0,
+            10,
+            [10],
+            [
+                (0, 10),
+            ],
+        ),
+        (
+            0,
+            55,
+            [0, 19, 55],
+            [
+                (0, 0),
+                (1, 19),
+                (20, 55),
+            ],
+        ),
+        (
+            0,
+            None,
+            [10],
+            [
+                (0, 10),
+            ],
+        ),
+        (
+            0,
+            10,
+            [12],
+            [
+                (None, None),
+            ],
+        ),
+        (
+            12,
+            10,
+            [12],
+            [
+                (None, None),
+            ],
+        ),
+        (
+            12,
+            10,
+            [None],
+            [
+                (None, None),
+            ],
+        ),
+        (
+            10,
+            10,
+            [10, 10],
+            [
+                (10, 10),
+                (None, None),
+            ],
+        ),
+    ],
+)
+@pytest.mark.asyncio
+async def test_async_iter_latest_block_ranges(
+    async_w3, iter_block_number, from_block, to_block, current_block, expected
+):
+    latest_block_ranges = async_iter_latest_block_ranges(async_w3, from_block, to_block)
+    for index, block in enumerate(current_block):
+        iter_block_number.send(block)
+        expected_tuple = expected[index]
+        actual_tuple = await latest_block_ranges.__anext__()
+        assert actual_tuple == expected_tuple
+
+
+@pytest.mark.asyncio
+async def test_async_local_filter_middleware(async_w3, iter_block_number):
+    block_filter = await async_w3.eth.filter("latest")
+    await block_filter.get_new_entries()
+    iter_block_number.send(1)
+    block_changes = await async_w3.eth.get_filter_changes(block_filter.filter_id)
+    assert block_changes == [HexBytes(BLOCK_HASH)]
+
+    log_filter = await async_w3.eth.filter(filter_params={"fromBlock": "latest"})
+    iter_block_number.send(2)
+    log_changes = await async_w3.eth.get_filter_changes(log_filter.filter_id)
+    assert log_changes == FILTER_LOG
+    logs = await async_w3.eth.get_filter_logs(log_filter.filter_id)
+    assert logs == FILTER_LOG
+
+    log_filter_from_hex_string = await async_w3.eth.filter(
+        filter_params={"fromBlock": "0x0", "toBlock": "0x2"}
+    )
+    log_filter_from_int = await async_w3.eth.filter(
+        filter_params={"fromBlock": 1, "toBlock": 3}
+    )
+
+    filter_ids = (
+        block_filter.filter_id,
+        log_filter.filter_id,
+        log_filter_from_hex_string.filter_id,
+        log_filter_from_int.filter_id,
+    )
 
     # Test that all ids are str types
     assert all(isinstance(_filter_id, (str,)) for _filter_id in filter_ids)
