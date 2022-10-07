@@ -39,9 +39,12 @@ from .exception_retry_request import (  # noqa: F401
     http_retry_request_middleware,
 )
 from .filter import (  # noqa: F401
+    async_local_filter_middleware,
     local_filter_middleware,
 )
 from .fixture import (  # noqa: F401
+    async_construct_error_generator_middleware,
+    async_construct_result_generator_middleware,
     construct_error_generator_middleware,
     construct_fixture_middleware,
     construct_result_generator_middleware,
