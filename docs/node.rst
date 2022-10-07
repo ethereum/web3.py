@@ -94,9 +94,7 @@ then you connect to the main Ethereum network.
 
 If you want to test these things without using real ether, though, then you
 need to connect to a test network. There are several test networks to
-choose from. One test network, Ropsten, is the most similar to the production network.
-However, spam and mining attacks have happened,
-which is disruptive when you want to test out a contract.
+choose from, Rinkeby and Goerli being the longest running.
 
 There are some alternative networks that limit the damage of spam attacks, but
 they are not standardized across node software. Geth runs their own (Rinkeby).

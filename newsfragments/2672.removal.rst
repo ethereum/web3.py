@@ -1,0 +1,1 @@
+Remove Ropsten auto provider and the relevant references to Ropsten across the repo

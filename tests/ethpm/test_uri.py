@@ -78,10 +78,6 @@ def test_create_github_uri():
             ["0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729", "1", None, None, None, None],
         ),
         (
-            "erc1319://0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729:3",
-            ["0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729", "3", None, None, None, None],
-        ),
-        (
             "erc1319://0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729:5/owned",
             [
                 "0x6b5DA3cA4286Baa7fBaf64EEEE1834C7d430B729",

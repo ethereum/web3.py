@@ -233,28 +233,5 @@ Wildcard Resolution Support
 The ``ENS`` module supports Wildcard Resolution for resolvers that implement the ``ExtendedResolver`` interface
 as described in `ENSIP-10 <https://docs.ens.domains/ens-improvement-proposals/ensip-10-wildcard-resolution>`_.
 Resolvers that implement the extended resolver interface should return ``True`` when calling the
-``supportsInterface()`` function with the extended resolver interface id ``0x9061b923`` and should resolve subdomains
+``supportsInterface()`` function with the extended resolver interface id ``"0x9061b923"`` and should resolve subdomains
 to a unique address.
-
-A working example of a resolver that supports wildcard resolution is the resolver for the ``hatch.eth`` record on the
-Ropsten testnet.
-
-.. code-block:: python
-
-    # connect to the Ropsten testnet
-    >>> w3 = Web3(WebsocketProvider("wss://{ropsten_provider}"))
-    >>> ns = ENS.fromWeb3(w3)
-
-    # get the resolver for `hatch.eth`
-    >>> resolver = ns.resolver('hatch.eth')
-    >>> resolver.address
-    '0x8fc4C380c5d539aE631daF3Ca9182b40FB21D1ae'
-
-    # verify extended resolver interface support
-    >>> resolver.caller.supportsInterface('0x9061b923')
-    True
-
-    >>> ns.address('random-subdomain.hatch.eth')
-    '0x49D4c4ff230688e4A357bc057e7E35e64d271939'
-    >>> ns.address('another-random-subdomain.hatch.eth')
-    '0xb35359B6450B0CbC9BE15A4eE6bcb8c5b0d9fC4A'

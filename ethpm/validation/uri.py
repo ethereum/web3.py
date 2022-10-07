@@ -103,7 +103,7 @@ def validate_registry_uri_authority(auth: str) -> None:
     if not is_supported_chain_id(to_int(text=chain_id)):
         raise EthPMValidationError(
             f"Chain ID: {chain_id} is not supported. Supported chain ids include: "
-            "1 (mainnet), 3 (ropsten), 4 (rinkeby), 5 (goerli), and 11155111 (sepolia)."
+            "1 (mainnet), 4 (rinkeby), 5 (goerli), and 11155111 (sepolia)."
             "Please try again with a valid registry URI."
         )
 

@@ -234,7 +234,6 @@ way through the EIP process)
 -  ``chain_id``: Chain ID of the chain on which the registry lives. Defaults to Mainnet. Supported chains include...
 
   - 1: Mainnet
-  - 3: Ropsten
   - 4: Rinkeby
   - 5: Goerli
 
