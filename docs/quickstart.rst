@@ -91,7 +91,7 @@ Remote Providers
 ****************
 
 The quickest way to interact with the Ethereum blockchain is to use a remote node provider,
-like `Infura <https://infura.io/>`_, `Alchemy <https://www.alchemy.com/>`_, or `QuickNode <https://www.quicknode.com/>`_.
+like `Infura <https://infura.io/>`_, `Alchemy <https://www.alchemy.com/>`_, `QuickNode <https://www.quicknode.com/>`_, or `Chainstack <https://www.chainstack.com/>`_.
 You can connect to a remote node by specifying the endpoint, just like the previous local node example:
 
 .. code-block:: python
