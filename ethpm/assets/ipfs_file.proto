@@ -1,0 +1,32 @@
+/* This file will generate ipfs_file_pb2.py when invoked on the command line via: */
+/*     $ protoc -I=$SRC_DIR --python_out=$DST_DIR $SRC_DIR/ipfs_file.proto */
+/* in this case: */
+/*     $ protoc -I=ethpm/assets --python_out=ethpm/_utils/protobuf ethpm/assets/ipfs_file.proto */
+
+syntax = "proto3";
+
+message Data {
+    enum DataType {
+        Raw = 0;
+        Directory = 1;
+        File = 2;
+        Metadata = 3;
+        Symlink = 4;
+    }
+
+    DataType Type = 1;
+    optional bytes Data = 2;
+    optional uint64 filesize = 3;
+    repeated uint64 blocksizes = 4;
+}
+
+message PBLink {
+    optional bytes Hash = 1;
+    optional string Name = 2;
+    optional uint64 Tsize = 3;
+}
+
+message PBNode {
+    repeated PBLink Links = 2;
+    optional bytes Data = 1;
+}

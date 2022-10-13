@@ -19,7 +19,7 @@ from google.protobuf.descriptor import (
     Descriptor,
 )
 
-from ethpm._utils.protobuf.ipfs_file_pb2 import (
+from ethpm._utils.protobuf.ipfs_file_pb2 import (  # type: ignore
     Data,
     PBNode,
 )
@@ -91,8 +91,7 @@ def serialize_bytes(file_bytes: bytes) -> Descriptor:
     file_size = len(file_bytes)
 
     data_protobuf = Data(
-        # type ignored b/c DataType is manually attached in ipfs_file_pb2.py
-        Type=Data.DataType.Value("File"),  # type: ignore
+        Type=Data.DataType.Value("File"),
         Data=file_bytes,
         filesize=file_size,
     )
