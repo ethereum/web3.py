@@ -1,3 +1,6 @@
+.. meta::
+   :description: Python Web3 SDK for Ethereum and EVM blockchains
+
 Introduction
 ============
 
