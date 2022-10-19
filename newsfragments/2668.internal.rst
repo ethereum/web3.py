@@ -1,1 +1,0 @@
-Clean up remaining uses of deprecated ``eth_abi`` methods.

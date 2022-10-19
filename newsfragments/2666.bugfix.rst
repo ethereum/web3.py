@@ -1,1 +1,0 @@
-Protobuf dependency had a DoS-able bug. It was fixed in v4.21.6. See: https://nvd.nist.gov/vuln/detail/CVE-2022-1941

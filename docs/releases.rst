@@ -3,6 +3,45 @@ Release Notes
 
 .. towncrier release notes start
 
+v6.0.0-beta.7 (2022-10-19)
+--------------------------
+
+Bugfixes
+~~~~~~~~
+
+- Protobuf dependency had a DoS-able bug. It was fixed in v4.21.6. See:
+  https://nvd.nist.gov/vuln/detail/CVE-2022-1941 (`#2666
+  <https://github.com/ethereum/web3.py/issues/2666>`__)
+
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Added Chainstack link to quickstart docs. (`#2677
+  <https://github.com/ethereum/web3.py/issues/2677>`__)
+
+
+Deprecations and Removals
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Remove Ropsten auto provider and the relevant references to Ropsten across
+  the repo (`#2672 <https://github.com/ethereum/web3.py/issues/2672>`__)
+
+
+Internal Changes - for web3.py Contributors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Clean up remaining uses of deprecated ``eth_abi`` methods. (`#2668
+  <https://github.com/ethereum/web3.py/issues/2668>`__)
+
+
+Miscellaneous changes
+~~~~~~~~~~~~~~~~~~~~~
+
+- `#2671 <https://github.com/ethereum/web3.py/issues/2671>`__, `#2682
+  <https://github.com/ethereum/web3.py/issues/2682>`__
+
+
 v6.0.0-beta.6 (2022-09-26)
 --------------------------
 

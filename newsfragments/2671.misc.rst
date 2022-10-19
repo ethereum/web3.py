@@ -1,1 +1,0 @@
-Pin importlib-metadata dependency to <5 to allow Python 3.7 builds to run
