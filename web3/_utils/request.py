@@ -87,6 +87,12 @@ def get_response_from_get_request(
     return response
 
 
+def make_get_request(endpoint_uri: URI, *args: Any, **kwargs: Any) -> Dict[str, Any]:
+    response = get_response_from_get_request(endpoint_uri, *args, **kwargs)
+    response.raise_for_status()
+    return response.json()
+
+
 def get_response_from_post_request(
     endpoint_uri: URI, *args: Any, **kwargs: Any
 ) -> requests.Response:
@@ -170,13 +176,20 @@ async def async_get_response_from_get_request(
     return response
 
 
+async def async_make_get_request(
+    endpoint_uri: URI, *args: Any, **kwargs: Any
+) -> Dict[str, Any]:
+    response = await async_get_response_from_get_request(endpoint_uri, *args, **kwargs)
+    response.raise_for_status()
+    return await response.json()
+
+
 async def async_get_response_from_post_request(
     endpoint_uri: URI, *args: Any, **kwargs: Any
 ) -> ClientResponse:
     kwargs.setdefault("timeout", ClientTimeout(DEFAULT_TIMEOUT))
     session = await cache_and_return_async_session(endpoint_uri)
     response = await session.post(endpoint_uri, *args, **kwargs)
-
     return response
 
 
@@ -186,6 +199,7 @@ async def async_make_post_request(
     response = await async_get_response_from_post_request(
         endpoint_uri, data=data, *args, **kwargs
     )
+    response.raise_for_status()
     return await response.read()
 
 

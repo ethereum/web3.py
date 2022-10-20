@@ -3,148 +3,149 @@ from typing import (
     Dict,
 )
 
-import requests
+from eth_typing import (
+    URI,
+)
 
-from web3.module import (
-    Module,
+from web3._utils.request import (
+    get_response_from_get_request,
+    make_get_request,
+)
+from web3.beacon.api_endpoints import (
+    GET_ATTESTATIONS,
+    GET_ATTESTER_SLASHINGS,
+    GET_BEACON_HEADS,
+    GET_BEACON_STATE,
+    GET_BLOCK,
+    GET_BLOCK_ATTESTATIONS,
+    GET_BLOCK_HEADER,
+    GET_BLOCK_HEADERS,
+    GET_BLOCK_ROOT,
+    GET_DEPOSIT_CONTRACT,
+    GET_EPOCH_COMMITTEES,
+    GET_FINALITY_CHECKPOINT,
+    GET_FORK_DATA,
+    GET_FORK_SCHEDULE,
+    GET_GENESIS,
+    GET_HASH_ROOT,
+    GET_HEALTH,
+    GET_NODE_IDENTITY,
+    GET_PEER,
+    GET_PEERS,
+    GET_PROPOSER_SLASHINGS,
+    GET_SPEC,
+    GET_SYNCING,
+    GET_VALIDATOR,
+    GET_VALIDATOR_BALANCES,
+    GET_VALIDATORS,
+    GET_VERSION,
+    GET_VOLUNTARY_EXITS,
 )
 
 
-class Beacon(Module):
+class Beacon:
     def __init__(
         self,
         base_url: str,
-        session: requests.Session = requests.Session(),
     ) -> None:
         self.base_url = base_url
-        self.session = session
 
-    def _make_get_request(self, endpoint: str) -> Dict[str, Any]:
-        url = self.base_url + endpoint
-        response = self.session.get(url)
-        response.raise_for_status()
-        return response.json()
+    def _make_get_request(self, endpoint_url: str) -> Dict[str, Any]:
+        uri = URI(self.base_url + endpoint_url)
+        return make_get_request(uri)
 
     # [ BEACON endpoints ]
 
     def get_genesis(self) -> Dict[str, Any]:
-        endpoint = "/eth/v1/beacon/genesis"
-        return self._make_get_request(endpoint)
+        return self._make_get_request(GET_GENESIS)
 
     def get_hash_root(self, state_id: str = "head") -> Dict[str, Any]:
-        endpoint = f"/eth/v1/beacon/states/{state_id}/root"
-        return self._make_get_request(endpoint)
+        return self._make_get_request(GET_HASH_ROOT.format(state_id))
 
     def get_fork_data(self, state_id: str = "head") -> Dict[str, Any]:
-        endpoint = f"/eth/v1/beacon/states/{state_id}/fork"
-        return self._make_get_request(endpoint)
+        return self._make_get_request(GET_FORK_DATA.format(state_id))
 
     def get_finality_checkpoint(self, state_id: str = "head") -> Dict[str, Any]:
-        endpoint = f"/eth/v1/beacon/states/{state_id}/finality_checkpoints"
-        return self._make_get_request(endpoint)
+        return self._make_get_request(GET_FINALITY_CHECKPOINT.format(state_id))
 
     def get_validators(self, state_id: str = "head") -> Dict[str, Any]:
-        endpoint = f"/eth/v1/beacon/states/{state_id}/validators"
-        return self._make_get_request(endpoint)
+        return self._make_get_request(GET_VALIDATORS.format(state_id))
 
     def get_validator(
         self, validator_id: str, state_id: str = "head"
     ) -> Dict[str, Any]:
-        endpoint = f"/eth/v1/beacon/states/{state_id}/validators/{validator_id}"
-        return self._make_get_request(endpoint)
+        return self._make_get_request(GET_VALIDATOR.format(state_id, validator_id))
 
     def get_validator_balances(self, state_id: str = "head") -> Dict[str, Any]:
-        endpoint = f"/eth/v1/beacon/states/{state_id}/validator_balances"
-        return self._make_get_request(endpoint)
+        return self._make_get_request(GET_VALIDATOR_BALANCES.format(state_id))
 
     def get_epoch_committees(self, state_id: str = "head") -> Dict[str, Any]:
-        endpoint = f"/eth/v1/beacon/states/{state_id}/committees"
-        return self._make_get_request(endpoint)
+        return self._make_get_request(GET_EPOCH_COMMITTEES.format(state_id))
 
     def get_block_headers(self) -> Dict[str, Any]:
-        endpoint = "/eth/v1/beacon/headers"
-        return self._make_get_request(endpoint)
+        return self._make_get_request(GET_BLOCK_HEADERS)
 
     def get_block_header(self, block_id: str) -> Dict[str, Any]:
-        endpoint = f"/eth/v1/beacon/headers/{block_id}"
-        return self._make_get_request(endpoint)
+        return self._make_get_request(GET_BLOCK_HEADER.format(block_id))
 
     def get_block(self, block_id: str) -> Dict[str, Any]:
-        endpoint = f"/eth/v2/beacon/blocks/{block_id}"
-        return self._make_get_request(endpoint)
+        return self._make_get_request(GET_BLOCK.format(block_id))
 
     def get_block_root(self, block_id: str) -> Dict[str, Any]:
-        endpoint = f"/eth/v1/beacon/blocks/{block_id}/root"
-        return self._make_get_request(endpoint)
+        return self._make_get_request(GET_BLOCK_ROOT.format(block_id))
 
     def get_block_attestations(self, block_id: str) -> Dict[str, Any]:
-        endpoint = f"/eth/v1/beacon/blocks/{block_id}/attestations"
-        return self._make_get_request(endpoint)
+        return self._make_get_request(GET_BLOCK_ATTESTATIONS.format(block_id))
 
     def get_attestations(self) -> Dict[str, Any]:
-        endpoint = "/eth/v1/beacon/pool/attestations"
-        return self._make_get_request(endpoint)
+        return self._make_get_request(GET_ATTESTATIONS)
 
     def get_attester_slashings(self) -> Dict[str, Any]:
-        endpoint = "/eth/v1/beacon/pool/attester_slashings"
-        return self._make_get_request(endpoint)
+        return self._make_get_request(GET_ATTESTER_SLASHINGS)
 
     def get_proposer_slashings(self) -> Dict[str, Any]:
-        endpoint = "/eth/v1/beacon/pool/proposer_slashings"
-        return self._make_get_request(endpoint)
+        return self._make_get_request(GET_PROPOSER_SLASHINGS)
 
     def get_voluntary_exits(self) -> Dict[str, Any]:
-        endpoint = "/eth/v1/beacon/pool/voluntary_exits"
-        return self._make_get_request(endpoint)
+        return self._make_get_request(GET_VOLUNTARY_EXITS)
 
     # [ CONFIG endpoints ]
 
     def get_fork_schedule(self) -> Dict[str, Any]:
-        endpoint = "/eth/v1/config/fork_schedule"
-        return self._make_get_request(endpoint)
+        return self._make_get_request(GET_FORK_SCHEDULE)
 
     def get_spec(self) -> Dict[str, Any]:
-        endpoint = "/eth/v1/config/spec"
-        return self._make_get_request(endpoint)
+        return self._make_get_request(GET_SPEC)
 
     def get_deposit_contract(self) -> Dict[str, Any]:
-        endpoint = "/eth/v1/config/deposit_contract"
-        return self._make_get_request(endpoint)
+        return self._make_get_request(GET_DEPOSIT_CONTRACT)
 
     # [ DEBUG endpoints ]
 
     def get_beacon_state(self, state_id: str = "head") -> Dict[str, Any]:
-        endpoint = f"/eth/v1/debug/beacon/states/{state_id}"
-        return self._make_get_request(endpoint)
+        return self._make_get_request(GET_BEACON_STATE.format(state_id))
 
     def get_beacon_heads(self) -> Dict[str, Any]:
-        endpoint = "/eth/v1/debug/beacon/heads"
-        return self._make_get_request(endpoint)
+        return self._make_get_request(GET_BEACON_HEADS)
 
     # [ NODE endpoints ]
 
     def get_node_identity(self) -> Dict[str, Any]:
-        endpoint = "/eth/v1/node/identity"
-        return self._make_get_request(endpoint)
+        return self._make_get_request(GET_NODE_IDENTITY)
 
     def get_peers(self) -> Dict[str, Any]:
-        endpoint = "/eth/v1/node/peers"
-        return self._make_get_request(endpoint)
+        return self._make_get_request(GET_PEERS)
 
     def get_peer(self, peer_id: str) -> Dict[str, Any]:
-        endpoint = f"/eth/v1/node/peers/{peer_id}"
-        return self._make_get_request(endpoint)
+        return self._make_get_request(GET_PEER.format(peer_id))
 
     def get_health(self) -> int:
-        endpoint = "/eth/v1/node/health"
-        url = self.base_url + endpoint
-        response = self.session.get(url)
+        url = URI(self.base_url + GET_HEALTH)
+        response = get_response_from_get_request(url)
         return response.status_code
 
     def get_version(self) -> Dict[str, Any]:
-        endpoint = "/eth/v1/node/version"
-        return self._make_get_request(endpoint)
+        return self._make_get_request(GET_VERSION)
 
     def get_syncing(self) -> Dict[str, Any]:
-        endpoint = "/eth/v1/node/syncing"
-        return self._make_get_request(endpoint)
+        return self._make_get_request(GET_SYNCING)
