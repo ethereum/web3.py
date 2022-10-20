@@ -20,7 +20,6 @@ extras_require = {
     ],
     "docs": [
         "mock",
-        "sphinx-better-theme>=0.1.4",
         "click>=5.1",
         "configparser==3.5.0",
         "contextlib2>=0.5.4",
