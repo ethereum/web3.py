@@ -275,8 +275,13 @@ class Web3:
     def provider(self, provider: BaseProvider) -> None:
         self.manager.provider = provider
 
-    @property
+    @property  # type: ignore
+    @deprecated_for("client_version")
     def clientVersion(self) -> str:
+        return self.client_version
+
+    @property
+    def client_version(self) -> str:
         return self.manager.request_blocking(RPC.web3_clientVersion, [])
 
     @property
