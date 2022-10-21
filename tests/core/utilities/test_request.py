@@ -3,6 +3,7 @@ from concurrent.futures import (
     ThreadPoolExecutor,
 )
 import pytest
+import threading
 import time
 
 from aiohttp import (
@@ -62,6 +63,14 @@ def check_adapters_mounted(session: Session):
     assert len(session.adapters) == 2
 
 
+def _simulate_call(uri):
+    _session = cache_and_return_session(uri)
+
+    # simulate a call taking 0.01s to return a response
+    time.sleep(0.01)
+    return _session
+
+
 def test_make_post_request_no_args(mocker):
     mocker.patch("requests.Session.post", return_value=MockedResponse())
     request._session_cache.clear()
@@ -71,7 +80,7 @@ def test_make_post_request_no_args(mocker):
     response = request.make_post_request(TEST_URI, data=b"request")
     assert response == "content"
     assert len(request._session_cache) == 1
-    cache_key = generate_cache_key(TEST_URI)
+    cache_key = generate_cache_key(f"{threading.get_ident()}:{TEST_URI}")
     session = request._session_cache.get_cache_entry(cache_key)
     session.post.assert_called_once_with(TEST_URI, data=b"request", timeout=10)
 
@@ -151,20 +160,13 @@ def test_cache_session_class():
 
 def test_cache_does_not_close_session_before_a_call_when_multithreading():
     # save default values
-    session_cache_default = request._async_session_cache
+    session_cache_default = request._session_cache
     timeout_default = request.DEFAULT_TIMEOUT
 
     # set cache size to 1 + set future session close thread time to 0.01s
     request._session_cache = SessionCache(1)
     _timeout_for_testing = 0.01
     request.DEFAULT_TIMEOUT = _timeout_for_testing
-
-    def _simulate_call(uri):
-        _session = cache_and_return_session(uri)
-
-        # simulate a call taking 0.01s to return a response
-        time.sleep(0.01)
-        return _session
 
     with ThreadPoolExecutor(max_workers=len(UNIQUE_URIS)) as exc:
         all_sessions = [exc.submit(_simulate_call, uri) for uri in UNIQUE_URIS]
@@ -181,8 +183,26 @@ def test_cache_does_not_close_session_before_a_call_when_multithreading():
     cached_session.close()
 
     # reset default values
-    request._async_session_cache = session_cache_default
+    request._session_cache = session_cache_default
     request.DEFAULT_TIMEOUT = timeout_default
+
+    # clear cache
+    request._session_cache.clear()
+
+
+def test_unique_cache_keys_created_per_thread_with_same_uri():
+    # somewhat inspired by issue #2680
+
+    with ThreadPoolExecutor(max_workers=2) as exc:
+        test_sessions = [exc.submit(_simulate_call, TEST_URI) for _ in range(2)]
+
+    # assert unique keys are generated per thread for the same uri
+    assert len(request._session_cache._data) == 2
+
+    # -- teardown -- #
+
+    # appropriately close the test sessions
+    [session.result().close() for session in test_sessions]
 
     # clear cache
     request._session_cache.clear()
@@ -259,6 +279,47 @@ async def test_async_cache_does_not_close_session_before_a_call_when_multithread
     # reset default values
     request._async_session_cache = session_cache_default
     request.DEFAULT_TIMEOUT = timeout_default
+
+    # clear cache
+    request._async_session_cache.clear()
+
+
+@pytest.mark.asyncio
+async def test_async_unique_cache_keys_created_per_thread_with_same_uri():
+    # inspired by issue #2680
+    # Note: unique event loops for each thread are important here
+
+    # capture the test sessions to appropriately close them in teardown
+    test_sessions = []
+
+    def target_function(endpoint_uri):
+        event_loop = asyncio.new_event_loop()
+        unique_session = event_loop.run_until_complete(
+            cache_and_return_async_session(endpoint_uri)
+        )
+        test_sessions.append(unique_session)
+
+    threads = []
+
+    for _ in range(2):
+        thread = threading.Thread(
+            target=target_function,
+            args=(TEST_URI,),
+            daemon=True,
+        )
+        thread.start()
+        threads.append(thread)
+
+    [thread.join() for thread in threads]
+
+    # assert unique keys are generated per thread, w/ unique event loops,
+    # for the same uri
+    assert len(request._async_session_cache._data) == 2
+
+    # -- teardown -- #
+
+    # appropriately close the test sessions
+    [await session.close() for session in test_sessions]
 
     # clear cache
     request._async_session_cache.clear()

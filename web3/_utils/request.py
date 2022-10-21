@@ -81,7 +81,8 @@ _session_cache_lock = threading.Lock()
 def cache_and_return_session(
     endpoint_uri: URI, session: requests.Session = None
 ) -> requests.Session:
-    cache_key = generate_cache_key(endpoint_uri)
+    # cache key should have a unique thread identifier
+    cache_key = generate_cache_key(f"{threading.get_ident()}:{endpoint_uri}")
 
     evicted_items = None
     with _session_cache_lock:
@@ -153,7 +154,8 @@ async def cache_and_return_async_session(
     endpoint_uri: URI,
     session: Optional[ClientSession] = None,
 ) -> ClientSession:
-    cache_key = generate_cache_key(endpoint_uri)
+    # cache key should have a unique thread identifier
+    cache_key = generate_cache_key(f"{threading.get_ident()}:{endpoint_uri}")
 
     evicted_items = None
     async with async_lock(_async_session_cache_lock):
