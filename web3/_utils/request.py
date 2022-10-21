@@ -74,7 +74,7 @@ def get_default_http_endpoint() -> URI:
     return URI(os.environ.get("WEB3_HTTP_PROVIDER_URI", "http://localhost:8545"))
 
 
-_session_cache = SessionCache(size=20)
+_session_cache = SessionCache(size=100)
 _session_cache_lock = threading.Lock()
 
 
@@ -145,7 +145,7 @@ def _close_evicted_sessions(evicted_sessions: List[requests.Session]) -> None:
 # --- async --- #
 
 
-_async_session_cache = SessionCache(size=20)
+_async_session_cache = SessionCache(size=100)
 _async_session_cache_lock = threading.Lock()
 _pool = ThreadPoolExecutor(max_workers=1)
 
