@@ -8,9 +8,9 @@ from eth_utils import (
 @pytest.mark.parametrize("call_as_instance", (True, False))
 def test_create_filter_address_parameter(emitter, Emitter, call_as_instance):
     if call_as_instance:
-        event_filter = emitter.events.LogNoArguments.createFilter(fromBlock="latest")
+        event_filter = emitter.events.LogNoArguments.create_filter(fromBlock="latest")
     else:
-        event_filter = Emitter.events.LogNoArguments.createFilter(fromBlock="latest")
+        event_filter = Emitter.events.LogNoArguments.create_filter(fromBlock="latest")
 
     if call_as_instance:
         # Assert this is a single string value, and not a list of addresses
@@ -152,7 +152,7 @@ def test_on_sync_filter_with_event_name_and_non_indexed_argument(
     assert len(seen_logs) == 1
     assert seen_logs[0]["transactionHash"] == txn_hashes[1]
 
-    post_event_filter = contract.events.LogTripleWithIndex.createFilter(
+    post_event_filter = contract.events.LogTripleWithIndex.create_filter(
         argument_filters={"arg0": 1, "arg1": 2},
         fromBlock=0,
     )
@@ -205,7 +205,7 @@ def test_on_sync_filter_with_topic_filter_options_on_old_apis(
     seen_logs = event_filter.get_new_entries()
     assert len(seen_logs) == 4
 
-    post_event_filter = contract.events.LogTripleWithIndex.createFilter(
+    post_event_filter = contract.events.LogTripleWithIndex.create_filter(
         argument_filters={"arg1": [1, 2], "arg2": [1, 2]},
         fromBlock=0,
     )

@@ -235,9 +235,9 @@ Each Contract Factory exposes the following methods.
         >>> contract_data = token_contract.constructor(web3.eth.coinbase, 12345).build_transaction(transaction)
         >>> web3.eth.send_transaction(contract_data)
 
-.. _contract_createFilter:
+.. _contract_create_filter:
 
-.. py:classmethod:: Contract.events.your_event_name.createFilter(fromBlock=block, toBlock=block, \
+.. py:classmethod:: Contract.events.your_event_name.create_filter(fromBlock=block, toBlock=block, \
                     argument_filters={"arg1": "value"}, topics=[])
 
     Creates a new event filter, an instance of :py:class:`web3.utils.filters.LogFilter`.
@@ -1041,7 +1041,7 @@ Event Log Object
     * ``blockNumber``: Number - the block number where this log was in. null
       when it's pending.
 
-.. testsetup:: createFilter
+.. testsetup:: create_filter
 
     from web3 import Web3
     from hexbytes import HexBytes
@@ -1064,9 +1064,9 @@ Event Log Object
     tx_hash = contract.functions.transfer(alice, 10).transact({'gas': 899000, 'gasPrice': Web3.to_wei(1, 'gwei')})
     tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
 
-.. doctest:: createFilter
+.. doctest:: create_filter
 
-    >>> transfer_filter = my_token_contract.events.Transfer.createFilter(fromBlock="0x0", argument_filters={'from': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf'})
+    >>> transfer_filter = my_token_contract.events.Transfer.create_filter(fromBlock="0x0", argument_filters={'from': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf'})
     >>> transfer_filter.get_new_entries()
     [AttributeDict({'args': AttributeDict({'from': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf',
      'to': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf',

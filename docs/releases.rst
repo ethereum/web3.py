@@ -2363,7 +2363,7 @@ Released Mar 27, 2018
   until a third-party audit is complete & resolved.
 - New API for contract deployment, which enables gas estimation, local signing, etc.
   See :meth:`~web3.contract.Contract.constructor`.
-- Find contract events with :ref:`contract.events.$my_event.createFilter() <contract_createFilter>`
+- Find contract events with :ref:`contract.events.$my_event.createFilter() <contract_create_filter>`
 - Support auto-complete for contract methods.
 - Upgrade most dependencies to stable
 
