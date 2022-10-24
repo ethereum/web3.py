@@ -1176,7 +1176,7 @@ The script can be run with: ``python ./eventscanner.py <your JSON-RPC API URL>``
 
         This method is detached from any contract instance.
 
-        This is a stateless method, as opposed to createFilter.
+        This is a stateless method, as opposed to create_filter.
         It can be safely called against nodes which do not provide `eth_newFilter` API, like Infura.
         """
 
