@@ -20,7 +20,6 @@ extras_require = {
     ],
     "docs": [
         "mock",
-        "sphinx-better-theme>=0.1.4",
         "click>=5.1",
         "configparser==3.5.0",
         "contextlib2>=0.5.4",
@@ -28,7 +27,7 @@ extras_require = {
         "py-solc>=0.4.0",
         "pytest>=6.2.5,<7",
         "sphinx>=4.2.0,<5",
-        "sphinx_rtd_theme>=0.1.9",
+        "sphinx_rtd_theme>=0.5.2",
         "toposort>=1.4",
         "towncrier==18.5.0",
         "urllib3",

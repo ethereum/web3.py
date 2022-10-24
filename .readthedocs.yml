@@ -1,2 +1,9 @@
+version: 2
+
 build:
   image: latest
+
+python:
+  version: 3.8
+  install:
+  - requirements: requirements-docs.txt
