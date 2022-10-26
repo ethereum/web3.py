@@ -196,8 +196,8 @@ async def cache_and_return_async_session(
 @contextlib.asynccontextmanager
 async def async_lock(lock: threading.Lock) -> AsyncGenerator[None, None]:
     loop = asyncio.get_event_loop()
-    await loop.run_in_executor(_pool, lock.acquire)
     try:
+        await loop.run_in_executor(_pool, lock.acquire)
         yield
     finally:
         lock.release()
