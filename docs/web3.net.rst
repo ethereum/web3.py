@@ -13,7 +13,7 @@ Properties
 The following properties are available on the ``web3.net`` namespace.
 
 .. py:method:: listening
-  :property:
+  ..py:property::
 
     * Delegates to ``net_listening`` RPC method
 
@@ -25,7 +25,7 @@ The following properties are available on the ``web3.net`` namespace.
         True
 
 .. py:method:: peer_count
-  :property:
+  ..py:property::
 
     * Delegates to ``net_peerCount`` RPC method
 
@@ -37,7 +37,7 @@ The following properties are available on the ``web3.net`` namespace.
         1
 
 .. py:method:: version
-  :property:
+  ..py:property::
 
     * Delegates to ``net_version`` RPC Method
 
