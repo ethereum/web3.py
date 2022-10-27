@@ -585,7 +585,7 @@ OFFCHAIN_LOOKUP_FIELDS = {
 }
 
 
-def raise_solidity_error_on_revert(response: RPCResponse) -> RPCResponse:
+def raise_contract_logic_error_on_revert(response: RPCResponse) -> RPCResponse:
     """
     Reverts contain a `data` attribute with the following layout:
         "Reverted "
@@ -649,8 +649,8 @@ def raise_invalid_parity_mode(response: RPCResponse) -> NoReturn:
 
 
 ERROR_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
-    RPC.eth_estimateGas: raise_solidity_error_on_revert,
-    RPC.eth_call: raise_solidity_error_on_revert,
+    RPC.eth_estimateGas: raise_contract_logic_error_on_revert,
+    RPC.eth_call: raise_contract_logic_error_on_revert,
     RPC.parity_setMode: raise_invalid_parity_mode,
 }
 
