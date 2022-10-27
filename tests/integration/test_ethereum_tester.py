@@ -251,7 +251,7 @@ def funded_account_for_raw_txn(w3):
 
 
 class TestEthereumTesterWeb3Module(Web3ModuleTest):
-    def _check_web3_clientVersion(self, client_version):
+    def _check_web3_client_version(self, client_version):
         assert client_version.startswith("EthereumTester/")
 
 

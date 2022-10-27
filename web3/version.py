@@ -60,7 +60,8 @@ class Version(Module):
     @property
     def node(self) -> NoReturn:
         raise DeprecationWarning(
-            "This method has been deprecated ... Please use web3.clientVersion instead."
+            "This method has been deprecated ... "
+            "Please use web3.client_version instead."
         )
 
     @property

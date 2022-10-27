@@ -37,7 +37,7 @@ Attributes
        >>> web3.api
        "4.7.0"
 
-.. py:attribute:: Web3.clientVersion
+.. py:attribute:: Web3.client_version
 
     * Delegates to ``web3_clientVersion`` RPC Method
 
@@ -45,7 +45,7 @@ Attributes
 
     .. code-block:: python
 
-       >>> web3.clientVersion
+       >>> web3.client_version
        'Geth/v1.4.11-stable-fed692f6/darwin/go1.7'
 
 

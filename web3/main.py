@@ -274,7 +274,7 @@ class Web3:
         self.manager.provider = provider
 
     @property
-    def clientVersion(self) -> str:
+    def client_version(self) -> str:
         return self.manager.request_blocking(RPC.web3_clientVersion, [])
 
     @property
