@@ -1,0 +1,1 @@
+Add async ``w3.eth.get_block_transaction_count``
