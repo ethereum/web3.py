@@ -1,0 +1,1 @@
+Remove ``SolidityError`` in favor of ``ContractLogicError``
