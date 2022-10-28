@@ -32,8 +32,9 @@ def test_get_block_formatters(w3):
     latest_block_keys = set(latest_block.keys())
 
     keys_diff = all_block_keys.difference(latest_block_keys)
-    assert len(keys_diff) == 1
-    assert keys_diff.pop() == "mixHash"  # mixHash is not implemented in eth-tester
+    assert len(keys_diff) == 2
+    # mixHash and miner not implemented in eth-tester
+    assert keys_diff == set(["mixHash", "miner"])
 
 
 @pytest.mark.parametrize(

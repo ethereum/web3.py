@@ -6,7 +6,7 @@ from setuptools import (
 
 extras_require = {
     "tester": [
-        "eth-tester[py-evm]==v0.7.0-b.1",
+        "eth-tester[py-evm]==v0.8.0-b.3",
         "py-geth>=3.10.0",
     ],
     "linter": [
@@ -80,11 +80,12 @@ setup(
     include_package_data=True,
     install_requires=[
         "aiohttp>=3.7.4.post0",
-        "eth-abi>=3.0.0",
-        "eth-account>=0.7.0",
-        "eth-hash[pycryptodome]>=0.2.0",
+        "eth-abi>=4.0.0-b.2",
+        "parsimonious==0.9.0",  # TODO - fix in eth-abi
+        "eth-account>=0.8.0",
+        "eth-hash[pycryptodome]>=0.5.1",
         "eth-typing>=3.0.0",
-        "eth-utils>=2.0.0",
+        "eth-utils>=2.1.0",
         "hexbytes>=0.1.0",
         "jsonschema>=4.0.0",
         "lru-dict>=1.1.6",
@@ -114,5 +115,6 @@ setup(
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
     ],
 )

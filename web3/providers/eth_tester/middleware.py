@@ -186,6 +186,10 @@ BLOCK_RESULT_KEY_MAPPING = {
     "extra_data": "extraData",
     "gas_used": "gasUsed",
     "base_fee_per_gas": "baseFeePerGas",
+    # eth-tester changed the miner key to coinbase since
+    # there is no longer any mining happening, but the current
+    # JSON-RPC spec still says miner
+    "coinbase": "miner",
 }
 block_result_remapper = apply_key_map(BLOCK_RESULT_KEY_MAPPING)
 
