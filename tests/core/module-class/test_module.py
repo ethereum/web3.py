@@ -86,6 +86,7 @@ def test_attach_methods_with_mungers(web3_with_external_modules):
         }
     )
 
+    w3.provider.ethereum_tester.mine_block()
     assert w3.eth.get_block(0, False)["baseFeePerGas"] == 1000000000
     assert w3.eth.get_block(1, False)["baseFeePerGas"] == 875000000
 

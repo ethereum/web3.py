@@ -568,6 +568,16 @@ class TestEthereumTesterEthModule(EthModuleTest):
     def test_eth_send_transaction_no_max_fee(self, eth_tester, w3, unlocked_account):
         super().test_eth_send_transaction_no_max_fee(w3, unlocked_account)
 
+    def test_eth_getBlockByNumber_safe(
+        self, w3: "Web3", empty_block: BlockData
+    ) -> None:
+        super().test_eth_getBlockByNumber_safe(w3, empty_block)
+
+    def test_eth_getBlockByNumber_finalized(
+        self, w3: "Web3", empty_block: BlockData
+    ) -> None:
+        super().test_eth_getBlockByNumber_finalized(w3, empty_block)
+
 
 class TestEthereumTesterNetModule(NetModuleTest):
     pass

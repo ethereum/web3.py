@@ -629,7 +629,7 @@ def raise_contract_logic_error_on_revert(response: RPCResponse) -> RPCResponse:
     if data[:10] == "0x556f1830":
         parsed_data_as_bytes = to_bytes(hexstr=data[10:])
         abi_decoded_data = abi.decode(
-            OFFCHAIN_LOOKUP_FIELDS.values(), parsed_data_as_bytes
+            list(OFFCHAIN_LOOKUP_FIELDS.values()), parsed_data_as_bytes
         )
         offchain_lookup_payload = dict(
             zip(OFFCHAIN_LOOKUP_FIELDS.keys(), abi_decoded_data)
