@@ -5,7 +5,6 @@ import uuid
 
 from web3 import Web3
 from web3._utils.caching import (
-    SimpleCache,
     generate_cache_key,
 )
 from web3.middleware import (
@@ -28,6 +27,9 @@ from web3.providers.eth_tester import (
 )
 from web3.types import (
     RPCEndpoint,
+)
+from web3.utils.caching import (
+    SimpleCache,
 )
 
 
@@ -52,17 +54,7 @@ def w3(w3_base, result_generator_middleware):
     return w3_base
 
 
-def dict_cache_class_return_value_a():
-    # test dictionary-based cache
-    return {
-        generate_cache_key(f"{threading.get_ident()}:{('fake_endpoint', [1])}"): {
-            "result": "value-a"
-        },
-    }
-
-
-def simple_cache_class_return_value_a():
-    # test `SimpleCache` class cache
+def simple_cache_return_value_a():
     _cache = SimpleCache()
     _cache.cache(
         generate_cache_key(f"{threading.get_ident()}:{('fake_endpoint', [1])}"),
@@ -71,18 +63,10 @@ def simple_cache_class_return_value_a():
     return _cache
 
 
-@pytest.mark.parametrize(
-    "cache_class",
-    (
-        dict_cache_class_return_value_a,
-        simple_cache_class_return_value_a,
-    ),
-)
-def test_simple_cache_middleware_pulls_from_cache(w3, cache_class):
-
+def test_simple_cache_middleware_pulls_from_cache(w3):
     w3.middleware_onion.add(
         construct_simple_cache_middleware(
-            cache_class=cache_class,
+            cache=simple_cache_return_value_a(),
             rpc_whitelist={RPCEndpoint("fake_endpoint")},
         )
     )
@@ -90,11 +74,9 @@ def test_simple_cache_middleware_pulls_from_cache(w3, cache_class):
     assert w3.manager.request_blocking("fake_endpoint", [1]) == "value-a"
 
 
-@pytest.mark.parametrize("cache_class", (dict, SimpleCache))
-def test_simple_cache_middleware_populates_cache(w3, cache_class):
+def test_simple_cache_middleware_populates_cache(w3):
     w3.middleware_onion.add(
         construct_simple_cache_middleware(
-            cache_class=cache_class,
             rpc_whitelist={RPCEndpoint("fake_endpoint")},
         )
     )
@@ -105,8 +87,7 @@ def test_simple_cache_middleware_populates_cache(w3, cache_class):
     assert w3.manager.request_blocking("fake_endpoint", [1]) != result
 
 
-@pytest.mark.parametrize("cache_class", (dict, SimpleCache))
-def test_simple_cache_middleware_does_not_cache_none_responses(w3_base, cache_class):
+def test_simple_cache_middleware_does_not_cache_none_responses(w3_base):
     counter = itertools.count()
     w3 = w3_base
 
@@ -124,7 +105,6 @@ def test_simple_cache_middleware_does_not_cache_none_responses(w3_base, cache_cl
 
     w3.middleware_onion.add(
         construct_simple_cache_middleware(
-            cache_class=cache_class,
             rpc_whitelist={RPCEndpoint("fake_endpoint")},
         )
     )
@@ -135,8 +115,7 @@ def test_simple_cache_middleware_does_not_cache_none_responses(w3_base, cache_cl
     assert next(counter) == 2
 
 
-@pytest.mark.parametrize("cache_class", (dict, SimpleCache))
-def test_simple_cache_middleware_does_not_cache_error_responses(w3_base, cache_class):
+def test_simple_cache_middleware_does_not_cache_error_responses(w3_base):
     w3 = w3_base
     w3.middleware_onion.add(
         construct_error_generator_middleware(
@@ -148,7 +127,6 @@ def test_simple_cache_middleware_does_not_cache_error_responses(w3_base, cache_c
 
     w3.middleware_onion.add(
         construct_simple_cache_middleware(
-            cache_class=cache_class,
             rpc_whitelist={RPCEndpoint("fake_endpoint")},
         )
     )
@@ -161,14 +139,9 @@ def test_simple_cache_middleware_does_not_cache_error_responses(w3_base, cache_c
     assert str(err_a) != str(err_b)
 
 
-@pytest.mark.parametrize("cache_class", (dict, SimpleCache))
-def test_simple_cache_middleware_does_not_cache_endpoints_not_in_whitelist(
-    w3,
-    cache_class,
-):
+def test_simple_cache_middleware_does_not_cache_endpoints_not_in_whitelist(w3):
     w3.middleware_onion.add(
         construct_simple_cache_middleware(
-            cache_class=cache_class,
             rpc_whitelist={RPCEndpoint("fake_endpoint")},
         )
     )
@@ -184,7 +157,6 @@ def test_simple_cache_middleware_does_not_cache_endpoints_not_in_whitelist(
 
 async def _async_simple_cache_middleware_for_testing(make_request, async_w3):
     middleware = await async_construct_simple_cache_middleware(
-        cache_class=SimpleCache,
         rpc_whitelist={RPCEndpoint("fake_endpoint")},
     )
     return await middleware(make_request, async_w3)
@@ -201,17 +173,10 @@ def async_w3():
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize(
-    "cache_class",
-    (
-        dict_cache_class_return_value_a,
-        simple_cache_class_return_value_a,
-    ),
-)
-async def test_async_simple_cache_middleware_pulls_from_cache(async_w3, cache_class):
+async def test_async_simple_cache_middleware_pulls_from_cache(async_w3):
     async def _properly_awaited_middleware(make_request, _async_w3):
         middleware = await async_construct_simple_cache_middleware(
-            cache_class=cache_class,
+            cache=simple_cache_return_value_a(),
             rpc_whitelist={RPCEndpoint("fake_endpoint")},
         )
         return await middleware(make_request, _async_w3)

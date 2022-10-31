@@ -27,8 +27,10 @@ from web3._utils.async_caching import (
     async_lock,
 )
 from web3._utils.caching import (
-    SimpleCache,
     generate_cache_key,
+)
+from web3.utils.caching import (
+    SimpleCache,
 )
 
 logger = logging.getLogger(__name__)
@@ -40,7 +42,7 @@ def get_default_http_endpoint() -> URI:
     return URI(os.environ.get("WEB3_HTTP_PROVIDER_URI", "http://localhost:8545"))
 
 
-_session_cache = SimpleCache(size=100)
+_session_cache = SimpleCache()
 _session_cache_lock = threading.Lock()
 
 
@@ -111,7 +113,7 @@ def _close_evicted_sessions(evicted_sessions: List[requests.Session]) -> None:
 # --- async --- #
 
 
-_async_session_cache = SimpleCache(size=100)
+_async_session_cache = SimpleCache()
 _async_session_cache_lock = threading.Lock()
 _async_session_pool = ThreadPoolExecutor(max_workers=1)
 

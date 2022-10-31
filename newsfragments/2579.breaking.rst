@@ -1,0 +1,1 @@
+Remove support for dictionary-based caches, for simple-cache-middleware, in favor of the internal ``SimpleCache`` class.
