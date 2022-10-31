@@ -104,7 +104,12 @@ class BaseENS:
         extended_resolver: Union["Contract", "AsyncContract"],
         fn_name: str,
     ) -> Any:
-        func = extended_resolver.get_function_by_name(fn_name)
+        # avoid getting 2 resolver functions named `addr`
+        func = (
+            extended_resolver.get_function_by_signature("addr(bytes32)")
+            if fn_name == "addr"
+            else extended_resolver.get_function_by_name(fn_name)
+        )
         output_types = get_abi_output_types(func.abi)
         decoded = self.w3.codec.decode(output_types, contract_call_result)
 
