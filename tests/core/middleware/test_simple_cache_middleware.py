@@ -209,9 +209,6 @@ def async_w3():
     ),
 )
 async def test_async_simple_cache_middleware_pulls_from_cache(async_w3, cache_class):
-    # remove the pre-loaded simple cache middleware to replace with test-specific:
-    async_w3.middleware_onion.remove("simple_cache")
-
     async def _properly_awaited_middleware(make_request, _async_w3):
         middleware = await async_construct_simple_cache_middleware(
             cache_class=cache_class,
@@ -221,19 +218,11 @@ async def test_async_simple_cache_middleware_pulls_from_cache(async_w3, cache_cl
 
     async_w3.middleware_onion.inject(
         _properly_awaited_middleware,
-        "for_this_test_only",
         layer=0,
     )
 
     _result = await async_w3.manager.coro_request("fake_endpoint", [1])
     assert _result == "value-a"
-
-    # -- teardown -- #
-    async_w3.middleware_onion.remove("for_this_test_only")
-    # add back the pre-loaded simple cache middleware:
-    async_w3.middleware_onion.add(
-        _async_simple_cache_middleware_for_testing, "simple_cache"
-    )
 
 
 @pytest.mark.asyncio
@@ -255,9 +244,6 @@ async def test_async_simple_cache_middleware_populates_cache(async_w3):
 
     assert _empty_params == result
     assert _non_empty_params != result
-
-    # -- teardown -- #
-    async_w3.middleware_onion.remove("result_generator")
 
 
 @pytest.mark.asyncio
@@ -283,9 +269,6 @@ async def test_async_simple_cache_middleware_does_not_cache_none_responses(async
 
     assert next(counter) == 2
 
-    # -- teardown -- #
-    async_w3.middleware_onion.remove("result_generator")
-
 
 @pytest.mark.asyncio
 async def test_async_simple_cache_middleware_does_not_cache_error_responses(async_w3):
@@ -306,9 +289,6 @@ async def test_async_simple_cache_middleware_does_not_cache_error_responses(asyn
 
     assert str(err_a) != str(err_b)
 
-    # -- teardown -- #
-    async_w3.middleware_onion.remove("error_generator")
-
 
 @pytest.mark.asyncio
 async def test_async_simple_cache_middleware_does_not_cache_non_whitelist_endpoints(
@@ -320,7 +300,6 @@ async def test_async_simple_cache_middleware_does_not_cache_non_whitelist_endpoi
                 RPCEndpoint("not_whitelisted"): lambda *_: str(uuid.uuid4()),
             }
         ),
-        "result_generator",
         layer=0,
     )
 
@@ -328,6 +307,3 @@ async def test_async_simple_cache_middleware_does_not_cache_non_whitelist_endpoi
     result_b = await async_w3.manager.coro_request("not_whitelisted", [])
 
     assert result_a != result_b
-
-    # -- teardown -- #
-    async_w3.middleware_onion.remove("result_generator")
