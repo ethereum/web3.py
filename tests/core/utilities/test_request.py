@@ -25,12 +25,14 @@ from web3._utils import (
     request,
 )
 from web3._utils.caching import (
-    SimpleCache,
     generate_cache_key,
 )
 from web3._utils.request import (
     cache_and_return_async_session,
     cache_and_return_session,
+)
+from web3.utils.caching import (
+    SimpleCache,
 )
 
 
@@ -149,10 +151,9 @@ def test_cache_session_class():
     assert "1" not in cache
     assert "1" in evicted_items
 
-    with pytest.raises(KeyError):
-        # This should throw a KeyError since the cache size was 2 and 3 were inserted
-        # the first inserted cached item was removed and returned in evicted items
-        cache.get_cache_entry("1")
+    # Cache size is `3`. We should have "2" and "3" in the cache and "1" should have
+    # been evicted.
+    assert cache.get_cache_entry("1") is None
 
     # clear cache
     request._session_cache.clear()

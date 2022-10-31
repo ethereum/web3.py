@@ -8,8 +8,6 @@ from typing import (
     Collection,
     Dict,
     Set,
-    Type,
-    Union,
     cast,
 )
 
@@ -19,10 +17,7 @@ from eth_utils import (
 import lru
 
 from web3._utils.caching import (
-    SimpleCache,
     generate_cache_key,
-    type_aware_cache_entry,
-    type_aware_get_cache_entry,
 )
 from web3._utils.compat import (
     Literal,
@@ -34,6 +29,9 @@ from web3.types import (  # noqa: F401
     Middleware,
     RPCEndpoint,
     RPCResponse,
+)
+from web3.utils.caching import (
+    SimpleCache,
 )
 
 if TYPE_CHECKING:
@@ -67,7 +65,7 @@ def _should_cache_response(
 
 
 def construct_simple_cache_middleware(
-    cache_class: Union[Type[Dict[str, Any]], Type[SimpleCache]],
+    cache: SimpleCache = None,
     rpc_whitelist: Collection[RPCEndpoint] = None,
     should_cache_fn: Callable[
         [RPCEndpoint, Any, RPCResponse], bool
@@ -77,19 +75,21 @@ def construct_simple_cache_middleware(
     Constructs a middleware which caches responses based on the request
     ``method`` and ``params``
 
-    :param cache_class: A ``SimpleCache`` class or any dictionary-like object.
+    :param cache: A ``SimpleCache`` class.
     :param rpc_whitelist: A set of RPC methods which may have their responses cached.
     :param should_cache_fn: A callable which accepts ``method`` ``params`` and
         ``response`` and returns a boolean as to whether the response should be
         cached.
     """
+    if cache is None:
+        cache = SimpleCache(256)
+
     if rpc_whitelist is None:
         rpc_whitelist = SIMPLE_CACHE_RPC_WHITELIST
 
     def simple_cache_middleware(
         make_request: Callable[[RPCEndpoint, Any], RPCResponse], _w3: "Web3"
     ) -> Callable[[RPCEndpoint, Any], RPCResponse]:
-        cache = cache_class()
         lock = threading.Lock()
 
         def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
@@ -102,13 +102,13 @@ def construct_simple_cache_middleware(
                     cache_key = generate_cache_key(
                         f"{threading.get_ident()}:{(method, params)}"
                     )
+                    if cache.__contains__(cache_key):
+                        return cache.get_cache_entry(cache_key)
 
-                    if not type_aware_get_cache_entry(cache, cache_key):
-                        response = make_request(method, params)
-                        if should_cache_fn(method, params, response):
-                            type_aware_cache_entry(cache, cache_key, response)
-                        return response
-                    return type_aware_get_cache_entry(cache, cache_key)
+                    response = make_request(method, params)
+                    if should_cache_fn(method, params, response):
+                        cache.cache(cache_key, response)
+                    return response
                 else:
                     return make_request(method, params)
             finally:
@@ -120,9 +120,7 @@ def construct_simple_cache_middleware(
     return simple_cache_middleware
 
 
-_simple_cache_middleware = construct_simple_cache_middleware(
-    cache_class=cast(Type[SimpleCache], functools.partial(SimpleCache, 256)),
-)
+_simple_cache_middleware = construct_simple_cache_middleware()
 
 
 TIME_BASED_CACHE_RPC_WHITELIST = cast(

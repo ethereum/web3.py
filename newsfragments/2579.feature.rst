@@ -1,1 +1,1 @@
-Async support for caching certain methods via ``async_simple_cache_middleware`` as well as constructing custom async caching middleware via ``async_construct_simple_cache_middleware``.
+Async support for caching certain methods via ``async_simple_cache_middleware`` as well as constructing custom async caching middleware via ``async_construct_simple_cache_middleware``. ``SimpleCache`` class was also added to the public ``utils`` module.
