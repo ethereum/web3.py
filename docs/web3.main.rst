@@ -268,7 +268,7 @@ Cryptographic Hashing
         >>> Web3.keccak(text='txt')
         HexBytes('0xd7278090a36507640ea6b7a0034b69b0d240766fa3f98e3722be93c613b29d2e')
 
-.. py:classmethod:: Web3.solidityKeccak(abi_types, value)
+.. py:classmethod:: Web3.solidity_keccak(abi_types, value)
 
     Returns the Keccak-256 as it would be computed by the solidity ``keccak``
     function on a *packed* ABI encoding of the ``value`` list contents.  The ``abi_types``
@@ -278,19 +278,19 @@ Cryptographic Hashing
 
     .. code-block:: python
 
-        >>> Web3.solidityKeccak(['bool'], [True])
+        >>> Web3.solidity_keccak(['bool'], [True])
         HexBytes("0x5fe7f977e71dba2ea1a68e21057beebb9be2ac30c6410aa38d4f3fbe41dcffd2")
 
-        >>> Web3.solidityKeccak(['uint8', 'uint8', 'uint8'], [97, 98, 99])
+        >>> Web3.solidity_keccak(['uint8', 'uint8', 'uint8'], [97, 98, 99])
         HexBytes("0x4e03657aea45a94fc7d47ba826c8d667c0d1e6e33a64a036ec44f58fa12d6c45")
 
-        >>> Web3.solidityKeccak(['uint8[]'], [[97, 98, 99]])
+        >>> Web3.solidity_keccak(['uint8[]'], [[97, 98, 99]])
         HexBytes("0x233002c671295529bcc50b76a2ef2b0de2dac2d93945fca745255de1a9e4017e")
 
-        >>> Web3.solidityKeccak(['address'], ["0x49EdDD3769c0712032808D86597B84ac5c2F5614"])
+        >>> Web3.solidity_keccak(['address'], ["0x49EdDD3769c0712032808D86597B84ac5c2F5614"])
         HexBytes("0x2ff37b5607484cd4eecf6d13292e22bd6e5401eaffcc07e279583bc742c68882")
 
-        >>> Web3.solidityKeccak(['address'], ["ethereumfoundation.eth"])
+        >>> Web3.solidity_keccak(['address'], ["ethereumfoundation.eth"])
         HexBytes("0x913c99ea930c78868f1535d34cd705ab85929b2eaaf70fcd09677ecd6e5d75e9")
 
 

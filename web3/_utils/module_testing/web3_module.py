@@ -219,7 +219,7 @@ class Web3ModuleTest:
             ),
         ),
     )
-    def test_solidityKeccak(
+    def test_solidity_keccak(
         self,
         w3: "Web3",
         types: Sequence[TypeStr],
@@ -228,10 +228,10 @@ class Web3ModuleTest:
     ) -> None:
         if isinstance(expected, type) and issubclass(expected, Exception):
             with pytest.raises(expected):  # type: ignore
-                w3.solidityKeccak(types, values)
+                w3.solidity_keccak(types, values)
             return
 
-        actual = w3.solidityKeccak(types, values)
+        actual = w3.solidity_keccak(types, values)
         assert actual == expected
 
     @pytest.mark.parametrize(
@@ -253,7 +253,7 @@ class Web3ModuleTest:
             ),
         ),
     )
-    def test_solidityKeccak_ens(
+    def test_solidity_keccak_ens(
         self,
         w3: "Web3",
         types: Sequence[TypeStr],
@@ -273,10 +273,10 @@ class Web3ModuleTest:
         ):
             # when called as class method, any name lookup attempt will fail
             with pytest.raises(InvalidAddress):
-                Web3.solidityKeccak(types, values)
+                Web3.solidity_keccak(types, values)
 
             # when called as instance method, ens lookups can succeed
-            actual = w3.solidityKeccak(types, values)
+            actual = w3.solidity_keccak(types, values)
             assert actual == expected
 
     @pytest.mark.parametrize(
@@ -287,11 +287,11 @@ class Web3ModuleTest:
             ([], ["0xA6b759bBbf4B59D24acf7E06e79f3a5D104fdCE5"]),
         ),
     )
-    def test_solidityKeccak_same_number_of_types_and_values(
+    def test_solidity_keccak_same_number_of_types_and_values(
         self, w3: "Web3", types: Sequence[TypeStr], values: Sequence[Any]
     ) -> None:
         with pytest.raises(ValueError):
-            w3.solidityKeccak(types, values)
+            w3.solidity_keccak(types, values)
 
     def test_is_connected(self, w3: "Web3") -> None:
         assert w3.is_connected()
