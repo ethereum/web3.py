@@ -108,7 +108,7 @@ class ENS(BaseENS):
         )
 
     @classmethod
-    def fromWeb3(cls, w3: "Web3", addr: ChecksumAddress = None) -> "ENS":
+    def from_web3(cls, w3: "Web3", addr: ChecksumAddress = None) -> "ENS":
         """
         Generate an ENS instance with web3
 

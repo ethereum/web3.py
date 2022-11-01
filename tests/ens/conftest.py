@@ -343,7 +343,7 @@ def ens_setup():
         reverse_tld_namehash, w3.keccak(text="addr"), reverse_registrar.address
     ).transact({"from": ens_key})
 
-    return ENS.fromWeb3(w3, ens_contract.address)
+    return ENS.from_web3(w3, ens_contract.address)
 
 
 @pytest.fixture()
@@ -645,7 +645,7 @@ async def async_ens_setup(async_w3):
         reverse_tld_namehash, async_w3.keccak(text="addr"), reverse_registrar.address
     ).transact({"from": ens_key})
 
-    return AsyncENS.fromWeb3(async_w3, ens_contract.address)
+    return AsyncENS.from_web3(async_w3, ens_contract.address)
 
 
 @pytest_asyncio.fixture
