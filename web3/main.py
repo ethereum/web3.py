@@ -349,7 +349,7 @@ class Web3:
         if self._ens is empty:
             return (
                 AsyncENS.from_web3(self) if self.eth.is_async else ENS.from_web3(self)
-            )  # noqa: E501
+            )
 
         return self._ens
 
