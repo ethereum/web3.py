@@ -242,17 +242,8 @@ class InvalidEventABI(ValueError):
     pass
 
 
-class SolidityError(ValueError):
+class ContractLogicError(ValueError):
     # Inherits from ValueError for backwards compatibility
-    """
-    Raised on a contract revert error
-    """
-    pass
-
-
-class ContractLogicError(SolidityError, ValueError):
-    # Inherits from ValueError for backwards compatibility
-    # TODO: Remove SolidityError inheritance in v6
     """
     Raised on a contract revert error
     """
