@@ -117,7 +117,7 @@ Cryptographic Hashing
 ---------------------
 
 - :meth:`Web3.keccak() <web3.Web3.keccak>`
-- :meth:`Web3.solidityKeccak() <web3.Web3.solidityKeccak>`
+- :meth:`Web3.solidity_keccak() <web3.Web3.solidity_keccak>`
 
 
 web3.eth API

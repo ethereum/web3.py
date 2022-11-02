@@ -302,7 +302,7 @@ class Web3:
         )
 
     @combomethod
-    def solidityKeccak(cls, abi_types: List[TypeStr], values: List[Any]) -> bytes:
+    def solidity_keccak(cls, abi_types: List[TypeStr], values: List[Any]) -> bytes:
         """
         Executes keccak256 exactly as Solidity does.
         Takes list of abi_types as inputs -- `[uint24, int8[], bool]`
