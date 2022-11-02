@@ -9,7 +9,7 @@ from eth_typing import (
 
 from web3._utils.request import (
     async_get_response_from_get_request,
-    async_make_get_request,
+    async_json_make_get_request,
 )
 from web3.beacon.api_endpoints import (
     GET_ATTESTATIONS,
@@ -54,7 +54,7 @@ class AsyncBeacon:
 
     async def _async_make_get_request(self, endpoint_uri: str) -> Dict[str, Any]:
         uri = URI(self.base_url + endpoint_uri)
-        return await async_make_get_request(uri)
+        return await async_json_make_get_request(uri)
 
     # [ BEACON endpoints ]
 

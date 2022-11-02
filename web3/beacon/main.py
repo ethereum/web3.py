@@ -9,7 +9,7 @@ from eth_typing import (
 
 from web3._utils.request import (
     get_response_from_get_request,
-    make_get_request,
+    json_make_get_request,
 )
 from web3.beacon.api_endpoints import (
     GET_ATTESTATIONS,
@@ -52,7 +52,7 @@ class Beacon:
 
     def _make_get_request(self, endpoint_url: str) -> Dict[str, Any]:
         uri = URI(self.base_url + endpoint_url)
-        return make_get_request(uri)
+        return json_make_get_request(uri)
 
     # [ BEACON endpoints ]
 
