@@ -65,86 +65,6 @@ Then you are ready to initialize your Web3 instance, like so:
 
 Finally, you are ready to :ref:`get started with Web3.py<first_w3_use>`.
 
-.. _automatic_provider:
-
-Automatic vs Manual Providers
------------------------------
-
-The ``Web3`` object will look for the Ethereum node in a few
-standard locations if no providers are specified. Auto-detection happens
-when you initialize like so:
-
-.. code-block:: python
-
-    from web3.auto import w3
-
-    # which is equivalent to:
-
-    from web3 import Web3
-    w3 = Web3()
-
-Sometimes, web3 cannot automatically detect where your node is.
-
-- If you are not sure which kind of connection method to use, see
-  :ref:`choosing_provider`.
-- If you know the connection method, but not the other information
-  needed to connect (like the path to the IPC file), you will need to look up
-  that information in your node's configuration.
-- If you're not sure which node you are using, see :ref:`choosing_node`
-
-For a deeper dive into how automated detection works, see:
-
-.. _automatic_provider_detection:
-
-How Automated Detection Works
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Web3 attempts to connect to nodes in the following order, using the first
-successful connection it can make:
-
-1. The connection specified by an environment variable, see :ref:`provider_uri`
-2. :class:`~web3.providers.ipc.IPCProvider`, which looks for several IPC file locations.
-   ``IPCProvider`` will not automatically detect a testnet connection, it is suggested that the
-   user instead uses a ``w3`` instance from ``web3.auto.infura`` (e.g.
-   ``from web3.auto.infura.goerli import w3``) if they want to auto-detect a testnet.
-3. :class:`~web3.providers.rpc.HTTPProvider`, which attempts to connect to "http://localhost:8545"
-4. ``None`` - if no providers are successful, you can still use Web3 APIs
-   that do not require a connection, like:
-
-   - :ref:`overview_type_conversions`
-   - :ref:`overview_currency_conversions`
-   - :ref:`overview_addresses`
-   - :ref:`eth-account`
-   - etc.
-
-.. _automatic_provider_detection_examples:
-
-Examples Using Automated Detection
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Some nodes provide APIs beyond the standards. Sometimes the same information is provided
-in different ways across nodes. If you want to write code that works
-across multiple nodes, you may want to look up the node type you are connected to.
-
-For example, the following retrieves the client enode endpoint for both geth and parity:
-
-.. code-block:: python
-
-    from web3.auto import w3
-
-    connected = w3.is_connected()
-
-    if connected and w3.client_version.startswith('Parity'):
-        enode = w3.parity.enode
-
-    elif connected and w3.client_version.startswith('Geth'):
-        enode = w3.geth.admin.node_info['enode']
-
-    else:
-        enode = None
-
-.. _provider_uri:
-
 Provider via Environment Variable
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -159,35 +79,8 @@ Valid formats for this environment variable are:
 - ``ws://127.0.0.1:8546``
 
 
-.. _custom_auto_providers:
-
 Auto-initialization Provider Shortcuts
 --------------------------------------
-
-There are a couple auto-initialization shortcuts for common providers.
-
-Infura Mainnet
-~~~~~~~~~~~~~~
-
-To easily connect to the Infura Mainnet remote node, first register for a free
-project ID if you don't have one at https://infura.io/register .
-
-Then set the environment variable ``WEB3_INFURA_PROJECT_ID`` with your Project ID::
-
-    $ export WEB3_INFURA_PROJECT_ID=YourProjectID
-
-If you have checked the box in the Infura UI indicating that requests need
-an optional secret key, set the environment variable ``WEB3_INFURA_API_SECRET``::
-
-    $ export WEB3_INFURA_API_SECRET=YourProjectSecret
-
-.. code-block:: python
-
-    >>> from web3.auto.infura import w3
-
-    # confirm that the connection succeeded
-    >>> w3.is_connected()
-    True
 
 Geth dev Proof of Authority
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~

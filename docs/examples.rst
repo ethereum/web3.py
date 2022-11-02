@@ -422,10 +422,10 @@ it as a ``Package`` instance.
 
 .. code-block:: python3
 
-    from web3.auto.infura import w3
-
     # Note. To use the web3.pm module, you will need to instantiate your w3 instance
     # with a web3 provider connected to the chain on which your registry lives.
+    from web3 import Web3, IPCProvider
+    w3 = Web3(IPCProvider(...))
 
     # The ethPM module is still experimental and subject to change,
     # so for now we need to enable it via a temporary flag.
@@ -471,8 +471,7 @@ within an ethPM package.
     # connected to your provider of choice. Now your factories will automatically
     # deploy to this new chain, and the deployments available on a package will
     # be automatically filtered to those located on the new chain.
-    from web3.auto.infura.goerli import w3 as goerli_w3
-    goerli_registrar = ens_package.update_w3(goerli_w3)
+    goerli_registrar = ens_package.update_w3(goerli_w3_instance)
 
 
 Working with an ERC20 Token Contract

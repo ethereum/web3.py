@@ -46,7 +46,9 @@ class RegistryURIBackend(BaseURIBackend):
     """
 
     def __init__(self) -> None:
-        from web3.auto.infura import w3
+        from web3 import Web3, WebsocketProvider
+
+        w3 = Web3(WebsocketProvider())
 
         self.w3 = w3
 
@@ -88,7 +90,9 @@ def parse_registry_uri(uri: str) -> RegistryURI:
     Validate and return (authority, chain_id, pkg_name, version)
     from a valid registry URI.
     """
-    from web3.auto.infura import w3
+    from web3 import Web3, WebsocketProvider
+
+    w3 = Web3(WebsocketProvider())
 
     validate_registry_uri(uri)
     parsed_uri = parse.urlparse(uri)

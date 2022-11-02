@@ -8,18 +8,13 @@ Filtering
 
 .. note ::
 
-    Most one-liners below assume ``w3`` to be a :class:`web3.Web3` instance;
-    obtainable, for example, with:
-
-    .. code-block:: python
-
-        from web3.auto import w3
+    Most one-liners below assume ``w3`` to be a :class:`web3.Web3` instance.
 
 The :meth:`web3.eth.Eth.filter` method can be used to set up filters for:
 
-* Pending Transactions: ``web3.eth.filter('pending')``
+* Pending Transactions: ``w3.eth.filter("pending")``
 
-* New Blocks ``web3.eth.filter('latest')``
+* New Blocks ``w3.eth.filter("latest")``
 
 * Event Logs
 
@@ -27,7 +22,7 @@ The :meth:`web3.eth.Eth.filter` method can be used to set up filters for:
 
     .. code-block:: python
 
-        event_filter = mycontract.events.myEvent.create_filter(fromBlock='latest', argument_filters={'arg1':10})
+        event_filter = mycontract.events.myEvent.create_filter(fromBlock="latest", argument_filters={"arg1":10})
 
     Or built manually by supplying `valid filter params <https://github.com/ethereum/execution-apis/blob/bea0266c42919a2fb3ee524fb91e624a23bc17c5/src/schemas/filter.json#L28>`_:
 
@@ -203,8 +198,11 @@ Synchronous
 
     .. code-block:: python
 
-        from web3.auto import w3
+        from web3 import Web3, IPCProvider
         import time
+
+        # instantiate Web3 instance
+        w3 = Web3(IPCProvider(...))
 
         def handle_event(event):
             print(event)
@@ -242,9 +240,11 @@ entries to a handler.
 
         .. code-block:: python
 
-            from web3.auto import w3
+            from web3 import Web3, IPCProvider
             import asyncio
 
+            # instantiate Web3 instance
+            w3 = Web3(IPCProvider(...))
 
             def handle_event(event):
                 print(event)
@@ -281,10 +281,12 @@ releasing the ``main`` function for other tasks.
 
         .. code-block:: python
 
-            from web3.auto import w3
+            from web3 import Web3, IPCProvider
             from threading import Thread
             import time
 
+            # instantiate Web3 instance
+            w3 = Web3(IPCProvider(...))
 
             def handle_event(event):
                 print(event)

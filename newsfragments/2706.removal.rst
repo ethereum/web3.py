@@ -1,0 +1,1 @@
+Removal of Infura auto provider support.

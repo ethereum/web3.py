@@ -68,7 +68,8 @@ from web3.module import (
 # is not automatically available on a web3 instance. To use the `PM` module,
 # please enable the package management API on an individual web3 instance.
 #
-# >>> from web3.auto import w3
+# >>> from web3 import Web3, IPCProvider
+# >>> w3 = Web3(IPCProvider(...))
 # >>> w3.pm
 # AttributeError: The Package Management feature is disabled by default ...
 # >>> w3.enable_unstable_package_management_api()

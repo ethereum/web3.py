@@ -2272,7 +2272,7 @@ Released June 29, 2018
 
   - :class:`~web3.providers.ipc.IPCProvider` now accepts a :class:`pathlib.Path`
     argument for the IPC path
-  - Docs explaining the :ref:`new custom autoproviders in web3 <custom_auto_providers>`
+  - Docs explaining the new custom autoproviders in web3
 
 v4.4.0
 --------
