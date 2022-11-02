@@ -347,7 +347,9 @@ class Web3:
     @property
     def ens(self) -> Union[ENS, AsyncENS, "Empty"]:
         if self._ens is empty:
-            return AsyncENS.fromWeb3(self) if self.eth.is_async else ENS.fromWeb3(self)
+            return (
+                AsyncENS.from_web3(self) if self.eth.is_async else ENS.from_web3(self)
+            )
 
         return self._ens
 

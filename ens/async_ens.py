@@ -108,7 +108,7 @@ class AsyncENS(BaseENS):
         )
 
     @classmethod
-    def fromWeb3(cls, w3: "Web3", addr: ChecksumAddress = None) -> "AsyncENS":
+    def from_web3(cls, w3: "Web3", addr: ChecksumAddress = None) -> "AsyncENS":
         """
         Generate an AsyncENS instance with web3
 

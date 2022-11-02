@@ -35,7 +35,7 @@ Create an :class:`~ens.ENS` object (named ``ns`` below) in one of three ways:
     # Note: This inherits the w3 middlewares from the w3 instance and adds a stalecheck middleware to the middleware onion
     from ens import ENS
     w3 = Web3(...)
-    ns = ENS.fromWeb3(w3)
+    ns = ENS.from_web3(w3)
 
 
 Asynchronous support is available via the ``AsyncENS`` module:
@@ -49,7 +49,7 @@ Asynchronous support is available via the ``AsyncENS`` module:
 
 Note that an ``ens`` module instance is also avaliable on the ``w3`` instance.
 The first time it's used, Web3.py will create the  ``ens`` instance using
-``ENS.fromWeb3(w3)`` or ``AsyncENS.fromWeb3(w3)`` as appropriate.
+``ENS.from_web3(w3)`` or ``AsyncENS.from_web3(w3)`` as appropriate.
 
 .. code-block:: python
 

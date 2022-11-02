@@ -104,7 +104,7 @@ def ens_setup(deployer):
     ens_contract.functions.setSubnodeOwner(
         b"\0" * 32, eth_labelhash, eth_registrar.address
     ).transact({"from": ens_key})
-    return ENS.fromWeb3(w3, ens_contract.address)
+    return ENS.from_web3(w3, ens_contract.address)
 
 
 @pytest.fixture
@@ -124,7 +124,7 @@ def test_ens_must_be_set_before_ens_methods_can_be_used(ens):
 @pytest.mark.xfail(reason="Need to properly add authorization as of 8/10/2022")
 def test_web3_ens(ens):
     w3 = ens.w3
-    ns = ENS.fromWeb3(w3, ens.ens.address)
+    ns = ENS.from_web3(w3, ens.ens.address)
     w3.ens = ns
     registry = SimpleRegistry.deploy_new_instance(w3)
     w3.ens.setup_address("tester.eth", registry.address)
