@@ -18,7 +18,8 @@ The ``web3.pm`` object exposes methods to interact with Packages as defined by `
 
    .. code-block:: python
 
-      >>> from web3.auto import w3
+      >>> from web3 import Web3, IPCProvider
+      >>> w3 = Web3(IPCProvider(...))
       >>> w3.pm
       ...
       AttributeError: The Package Management feature is disabled by default ...

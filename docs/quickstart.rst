@@ -76,16 +76,6 @@ to this local node can be done as follows:
    >>> w3.is_connected()
    True
 
-If you stick to the default ports or IPC file locations, you can utilize a
-:ref:`convenience method <automatic_provider>` to automatically detect the provider
-and save a few keystrokes:
-
-.. code-block:: python
-
-   >>> from web3.auto import w3
-   >>> w3.is_connected()
-   True
-
 
 Remote Providers
 ****************

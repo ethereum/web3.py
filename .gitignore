@@ -44,7 +44,6 @@ output/*/index.html
 # Sphinx
 docs/_build
 docs/modules.rst
-docs/web3.auto.infura.rst
 docs/web3.auto.rst
 docs/web3.gas_strategies.rst
 docs/web3.middleware.rst

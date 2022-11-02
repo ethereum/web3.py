@@ -78,8 +78,10 @@ Example ``account_test_script.py``
     import os
     from eth_account import Account
     from eth_account.signers.local import LocalAccount
-    from web3.auto import w3
+    from web3 import Web3, EthereumTesterProvider
     from web3.middleware import construct_sign_and_send_raw_middleware
+
+    w3 = Web3(EthereumTesterProvider())
 
     private_key = os.environ.get("PRIVATE_KEY")
     assert private_key is not None, "You must set PRIVATE_KEY environment variable"
@@ -143,9 +145,10 @@ is provided by :meth:`w3.eth.sign() <web3.eth.Eth.sign>`.
 
 .. doctest::
 
-    >>> from web3.auto import w3
+    >>> from web3 import Web3, EthereumTesterProvider
     >>> from eth_account.messages import encode_defunct
 
+    >>> w3 = Web3(EthereumTesterProvider())
     >>> msg = "I♥SF"
     >>> private_key = b"\xb2\\}\xb3\x1f\xee\xd9\x12''\xbf\t9\xdcv\x9a\x96VK-\xe4\xc4rm\x03[6\xec\xf1\xe5\xb3d"
     >>> message = encode_defunct(text=msg)
@@ -334,7 +337,8 @@ To sign a transaction locally that will invoke a smart contract:
     # When running locally, execute the statements found in the file linked below to load the EIP20_ABI variable.
     # See: https://github.com/carver/ethtoken.py/blob/v0.0.1-alpha.4/ethtoken/abi.py
 
-    >>> from web3.auto import w3
+    >>> from web3 import Web3, EthereumTesterProvider
+    >>> w3 = Web3(EthereumTesterProvider())
 
     >>> unicorns = w3.eth.contract(address="0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359", abi=EIP20_ABI)
 

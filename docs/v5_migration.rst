@@ -117,8 +117,7 @@ Testnet Changes
 ~~~~~~~~~~~~~~~
 
 Web3.py will no longer automatically look up a testnet connection
-in IPCProvider. Something like ``from web3.auto.infura.ropsten import w3``
-should be used instead.
+in IPCProvider.
 
 ENS
 ---

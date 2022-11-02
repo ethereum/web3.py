@@ -380,7 +380,8 @@ virtualenv for smoke testing:
     # smoke test the release
     $ pip install ipython
     $ ipython
-    >>> from web3.auto import w3
+    >>> from web3 import Web3, IPCProvider
+    >>> w3 = Web3(IPCProvider(provider_url))
     >>> w3.is_connected()
     >>> ...
 
