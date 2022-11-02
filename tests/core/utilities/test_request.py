@@ -2,12 +2,14 @@ import asyncio
 from concurrent.futures import (
     ThreadPoolExecutor,
 )
+import json
 import pytest
 import threading
 import time
 
 from aiohttp import (
     ClientSession,
+    ClientTimeout,
 )
 from eth_typing import (
     URI,
@@ -46,6 +48,10 @@ class MockedResponse:
         self.reason = None
         self.content = "content"
 
+    @staticmethod
+    def json():
+        return json.dumps({"data": "content"})
+
     def raise_for_status(self):
         pass
 
@@ -73,9 +79,38 @@ def _simulate_call(uri):
     return _session
 
 
+@pytest.fixture(autouse=True)
+def setup_and_teardown():
+    # clear session caches before and after each test
+    request._session_cache.clear()
+    request._async_session_cache.clear()
+    yield
+    request._session_cache.clear()
+    request._async_session_cache.clear()
+
+
+def test_json_make_get_request(mocker):
+    mocker.patch("requests.Session.get", return_value=MockedResponse())
+
+    # Submit a first request to create a session with default parameters
+    assert len(request._session_cache) == 0
+    response = request.json_make_get_request(TEST_URI)
+    assert response == json.dumps({"data": "content"})
+    assert len(request._session_cache) == 1
+    cache_key = generate_cache_key(f"{threading.get_ident()}:{TEST_URI}")
+    session = request._session_cache.get_cache_entry(cache_key)
+    session.get.assert_called_once_with(TEST_URI, timeout=10)
+
+    # Ensure the adapter was created with default values
+    check_adapters_mounted(session)
+    adapter = session.get_adapter(TEST_URI)
+    assert isinstance(adapter, HTTPAdapter)
+    assert adapter._pool_connections == DEFAULT_POOLSIZE
+    assert adapter._pool_maxsize == DEFAULT_POOLSIZE
+
+
 def test_make_post_request_no_args(mocker):
     mocker.patch("requests.Session.post", return_value=MockedResponse())
-    request._session_cache.clear()
 
     # Submit a first request to create a session with default parameters
     assert len(request._session_cache) == 0
@@ -92,9 +127,6 @@ def test_make_post_request_no_args(mocker):
     assert isinstance(adapter, HTTPAdapter)
     assert adapter._pool_connections == DEFAULT_POOLSIZE
     assert adapter._pool_maxsize == DEFAULT_POOLSIZE
-
-    # clear cache
-    request._session_cache.clear()
 
 
 def test_precached_session(mocker):
@@ -124,9 +156,6 @@ def test_precached_session(mocker):
     assert adapter._pool_connections == 100
     assert adapter._pool_maxsize == 100
 
-    # clear cache
-    request._session_cache.clear()
-
 
 def test_cache_session_class():
     cache = SimpleCache(2)
@@ -154,9 +183,6 @@ def test_cache_session_class():
     # Cache size is `3`. We should have "2" and "3" in the cache and "1" should have
     # been evicted.
     assert cache.get_cache_entry("1") is None
-
-    # clear cache
-    request._session_cache.clear()
 
 
 def test_cache_does_not_close_session_before_a_call_when_multithreading():
@@ -187,9 +213,6 @@ def test_cache_does_not_close_session_before_a_call_when_multithreading():
     request._session_cache = session_cache_default
     request.DEFAULT_TIMEOUT = timeout_default
 
-    # clear cache
-    request._session_cache.clear()
-
 
 def test_unique_cache_keys_created_per_thread_with_same_uri():
     # somewhat inspired by issue #2680
@@ -205,11 +228,69 @@ def test_unique_cache_keys_created_per_thread_with_same_uri():
     # appropriately close the test sessions
     [session.result().close() for session in test_sessions]
 
-    # clear cache
-    request._session_cache.clear()
-
 
 # -- async -- #
+
+
+class AsyncMockedResponse:
+    status_code = 200
+
+    def __await__(self):
+        yield
+        return self
+
+    @staticmethod
+    async def read():
+        return "content"
+
+    @staticmethod
+    async def json():
+        return json.dumps({"data": "content"})
+
+    @staticmethod
+    def raise_for_status() -> None:
+        pass
+
+
+@pytest.mark.asyncio
+async def test_async_json_make_get_request(mocker):
+    mocker.patch("aiohttp.ClientSession.get", return_value=AsyncMockedResponse())
+
+    # Submit a first request to create a session with default parameters
+    assert len(request._async_session_cache) == 0
+    response = await request.async_json_make_get_request(TEST_URI)
+    assert response == json.dumps({"data": "content"})
+    assert len(request._async_session_cache) == 1
+    cache_key = generate_cache_key(f"{threading.get_ident()}:{TEST_URI}")
+    session = request._async_session_cache.get_cache_entry(cache_key)
+    assert isinstance(session, ClientSession)
+    session.get.assert_called_once_with(
+        TEST_URI,
+        timeout=ClientTimeout(
+            total=10, connect=None, sock_read=None, sock_connect=None
+        ),
+    )
+
+
+@pytest.mark.asyncio
+async def test_async_make_post_request(mocker):
+    mocker.patch("aiohttp.ClientSession.post", return_value=AsyncMockedResponse())
+
+    # Submit a first request to create a session with default parameters
+    assert len(request._async_session_cache) == 0
+    response = await request.async_make_post_request(TEST_URI, data=b"request")
+    assert response == "content"
+    assert len(request._async_session_cache) == 1
+    cache_key = generate_cache_key(f"{threading.get_ident()}:{TEST_URI}")
+    session = request._async_session_cache.get_cache_entry(cache_key)
+    assert isinstance(session, ClientSession)
+    session.post.assert_called_once_with(
+        TEST_URI,
+        data=b"request",
+        timeout=ClientTimeout(
+            total=10, connect=None, sock_read=None, sock_connect=None
+        ),
+    )
 
 
 @pytest.mark.asyncio
@@ -231,9 +312,6 @@ async def test_async_precached_session():
 
     # appropriately close the cached sessions
     [await session.close() for session in request._async_session_cache._data.values()]
-
-    # clear cache
-    request._async_session_cache.clear()
 
 
 @pytest.mark.asyncio
@@ -281,9 +359,6 @@ async def test_async_cache_does_not_close_session_before_a_call_when_multithread
     request._async_session_cache = session_cache_default
     request.DEFAULT_TIMEOUT = timeout_default
 
-    # clear cache
-    request._async_session_cache.clear()
-
 
 @pytest.mark.asyncio
 async def test_async_unique_cache_keys_created_per_thread_with_same_uri():
@@ -321,6 +396,3 @@ async def test_async_unique_cache_keys_created_per_thread_with_same_uri():
 
     # appropriately close the test sessions
     [await session.close() for session in test_sessions]
-
-    # clear cache
-    request._async_session_cache.clear()
