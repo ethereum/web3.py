@@ -109,7 +109,7 @@ Encoding and Decoding Helpers
         'cowmö'
 
 
-.. py:method:: Web3.toBytes(primitive=None, hexstr=None, text=None)
+.. py:method:: Web3.to_bytes(primitive=None, hexstr=None, text=None)
 
     Takes a variety of inputs and returns its bytes equivalent.
     Text gets encoded as UTF-8.
@@ -117,25 +117,25 @@ Encoding and Decoding Helpers
 
     .. code-block:: python
 
-        >>> Web3.toBytes(0)
+        >>> Web3.to_bytes(0)
         b'\x00'
-        >>> Web3.toBytes(0x000F)
+        >>> Web3.to_bytes(0x000F)
         b'\x0f'
-        >>> Web3.toBytes(b'')
+        >>> Web3.to_bytes(b'')
         b''
-        >>> Web3.toBytes(b'\x00\x0F')
+        >>> Web3.to_bytes(b'\x00\x0F')
         b'\x00\x0f'
-        >>> Web3.toBytes(False)
+        >>> Web3.to_bytes(False)
         b'\x00'
-        >>> Web3.toBytes(True)
+        >>> Web3.to_bytes(True)
         b'\x01'
-        >>> Web3.toBytes(hexstr='0x000F')
+        >>> Web3.to_bytes(hexstr='0x000F')
         b'\x00\x0f'
-        >>> Web3.toBytes(hexstr='000F')
+        >>> Web3.to_bytes(hexstr='000F')
         b'\x00\x0f'
-        >>> Web3.toBytes(text='')
+        >>> Web3.to_bytes(text='')
         b''
-        >>> Web3.toBytes(text='cowmö')
+        >>> Web3.to_bytes(text='cowmö')
         b'cowm\xc3\xb6'
 
 

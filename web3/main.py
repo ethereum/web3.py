@@ -171,7 +171,7 @@ class Web3:
     # Encoding and Decoding
     @staticmethod
     @wraps(to_bytes)
-    def toBytes(
+    def to_bytes(
         primitive: Primitives = None, hexstr: HexStr = None, text: str = None
     ) -> bytes:
         return to_bytes(primitive, hexstr, text)

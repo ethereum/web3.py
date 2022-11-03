@@ -39,7 +39,7 @@ def deprecated_for(replace_message: str) -> Callable[..., Any]:
     """
     Decorate a deprecated function, with info about what to use instead, like:
 
-    @deprecated_for("toBytes()")
+    @deprecated_for("to_bytes()")
     def toAscii(arg):
         ...
     """

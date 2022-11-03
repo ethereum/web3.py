@@ -186,7 +186,7 @@ You might have produced the signed_message locally, as in
     # Remix / web3.js expect r and s to be encoded to hex
     # This convenience method will do the pad & hex for us:
     >>> def to_32byte_hex(val):
-    ...   return Web3.toHex(Web3.toBytes(val).rjust(32, b'\0'))
+    ...   return Web3.toHex(Web3.to_bytes(val).rjust(32, b'\0'))
 
     >>> ec_recover_args = (msghash, v, r, s) = (
     ...   Web3.toHex(signed_message.messageHash),
@@ -225,7 +225,7 @@ this will prepare it for Solidity:
     # ecrecover in Solidity expects the signature to be split into v as a uint8,
     #   and r, s as a bytes32
     # Remix / web3.js expect r and s to be encoded to hex
-    >>> sig = Web3.toBytes(hexstr=hex_signature)
+    >>> sig = Web3.to_bytes(hexstr=hex_signature)
     >>> v, hex_r, hex_s = Web3.toInt(sig[-1]), Web3.toHex(sig[:32]), Web3.toHex(sig[32:64])
 
     # ecrecover in Solidity takes the arguments in order = (msghash, v, r, s)

@@ -352,7 +352,7 @@ class AsyncEthModuleTest:
             "0x52b0ff9cb472f25872fa8ec6a62fa59454fc2ae7901cfcc6cc89d096f49b8fc1"
         )
         txn_hash = await async_w3.eth.send_raw_transaction(raw_txn)  # type: ignore
-        assert txn_hash == async_w3.toBytes(hexstr=expected_hash)
+        assert txn_hash == async_w3.to_bytes(hexstr=expected_hash)
 
     @pytest.mark.asyncio
     async def test_gas_price_strategy_middleware(

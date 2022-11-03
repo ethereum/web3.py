@@ -28,7 +28,7 @@ from web3.datastructures import (
     ),
 )
 def test_to_bytes_primitive(val, expected):
-    assert Web3.toBytes(val) == expected
+    assert Web3.to_bytes(val) == expected
 
 
 @pytest.mark.parametrize(
@@ -46,7 +46,7 @@ def test_to_bytes_primitive(val, expected):
     ),
 )
 def test_to_bytes_hexstr(val, expected):
-    assert Web3.toBytes(hexstr=val) == expected
+    assert Web3.to_bytes(hexstr=val) == expected
 
 
 @pytest.mark.parametrize(
@@ -57,7 +57,7 @@ def test_to_bytes_hexstr(val, expected):
     ),
 )
 def test_to_bytes_text(val, expected):
-    assert Web3.toBytes(text=val) == expected
+    assert Web3.to_bytes(text=val) == expected
 
 
 def test_to_text_identity():
