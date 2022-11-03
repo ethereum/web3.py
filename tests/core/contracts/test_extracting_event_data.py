@@ -594,7 +594,7 @@ def test_event_rich_log(
     event_instance = emitter.events[event_name]()
 
     if process_receipt:
-        processed_logs = event_instance.processReceipt(txn_receipt)
+        processed_logs = event_instance.process_receipt(txn_receipt)
         assert len(processed_logs) == 1
         rich_log = processed_logs[0]
     elif not process_receipt:
@@ -614,7 +614,7 @@ def test_event_rich_log(
 
     quiet_event = emitter.events["LogBytes"]
     with pytest.warns(UserWarning, match=warning_msg):
-        empty_rich_log = quiet_event().processReceipt(txn_receipt)
+        empty_rich_log = quiet_event().process_receipt(txn_receipt)
         assert empty_rich_log == tuple()
 
 
@@ -629,7 +629,7 @@ def test_event_rich_log_with_byte_args(
     event_instance = emitter.events.LogListArgs()
 
     if process_receipt:
-        processed_logs = event_instance.processReceipt(txn_receipt)
+        processed_logs = event_instance.process_receipt(txn_receipt)
         assert len(processed_logs) == 1
         rich_log = processed_logs[0]
     elif not process_receipt:
@@ -658,7 +658,7 @@ def test_receipt_processing_with_discard_flag(
 
     event_instance = indexed_event_contract.events.LogSingleWithIndex()
 
-    returned_logs = event_instance.processReceipt(dup_txn_receipt, errors=DISCARD)
+    returned_logs = event_instance.process_receipt(dup_txn_receipt, errors=DISCARD)
     assert returned_logs == ()
 
 
@@ -667,7 +667,7 @@ def test_receipt_processing_with_ignore_flag(
 ):
 
     event_instance = indexed_event_contract.events.LogSingleWithIndex()
-    returned_logs = event_instance.processReceipt(dup_txn_receipt, errors=IGNORE)
+    returned_logs = event_instance.process_receipt(dup_txn_receipt, errors=IGNORE)
     assert len(returned_logs) == 2
 
     # Check that the correct error is appended to the log
@@ -693,7 +693,7 @@ def test_receipt_processing_with_warn_flag(indexed_event_contract, dup_txn_recei
     event_instance = indexed_event_contract.events.LogSingleWithIndex()
 
     with pytest.warns(UserWarning, match="Expected 1 log topics.  Got 0"):
-        returned_logs = event_instance.processReceipt(dup_txn_receipt, errors=WARN)
+        returned_logs = event_instance.process_receipt(dup_txn_receipt, errors=WARN)
         assert len(returned_logs) == 0
 
 
@@ -702,7 +702,7 @@ def test_receipt_processing_with_strict_flag(indexed_event_contract, dup_txn_rec
     event_instance = indexed_event_contract.events.LogSingleWithIndex()
 
     with pytest.raises(LogTopicError, match="Expected 1 log topics.  Got 0"):
-        event_instance.processReceipt(dup_txn_receipt, errors=STRICT)
+        event_instance.process_receipt(dup_txn_receipt, errors=STRICT)
 
 
 def test_receipt_processing_with_invalid_flag(indexed_event_contract, dup_txn_receipt):
@@ -710,7 +710,7 @@ def test_receipt_processing_with_invalid_flag(indexed_event_contract, dup_txn_re
     event_instance = indexed_event_contract.events.LogSingleWithIndex()
 
     with pytest.raises(AttributeError, match="Error flag must be one of: "):
-        event_instance.processReceipt(dup_txn_receipt, errors="not-a-flag")
+        event_instance.process_receipt(dup_txn_receipt, errors="not-a-flag")
 
 
 def test_receipt_processing_with_no_flag(indexed_event_contract, dup_txn_receipt):
@@ -718,7 +718,7 @@ def test_receipt_processing_with_no_flag(indexed_event_contract, dup_txn_receipt
     event_instance = indexed_event_contract.events.LogSingleWithIndex()
 
     with pytest.warns(UserWarning, match="Expected 1 log topics.  Got 0"):
-        returned_log = event_instance.processReceipt(dup_txn_receipt)
+        returned_log = event_instance.process_receipt(dup_txn_receipt)
         assert len(returned_log) == 0
 
 
