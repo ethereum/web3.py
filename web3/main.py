@@ -178,7 +178,7 @@ class Web3:
 
     @staticmethod
     @wraps(to_int)
-    def toInt(
+    def to_int(
         primitive: Primitives = None, hexstr: HexStr = None, text: str = None
     ) -> int:
         return to_int(primitive, hexstr, text)

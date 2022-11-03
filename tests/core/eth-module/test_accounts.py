@@ -447,7 +447,7 @@ def test_eth_account_sign_transaction_from_eth_test(acct, transaction_info):
     # seem to agree, so far.
     # See ecdsa_raw_sign() in /eth_keys/backends/native/ecdsa.py
     signed = acct.sign_transaction(transaction, key)
-    assert signed.r == Web3.toInt(hexstr=expected_raw_txn[-130:-66])
+    assert signed.r == Web3.to_int(hexstr=expected_raw_txn[-130:-66])
 
     # confirm that signed transaction can be recovered to the sender
     expected_sender = acct.from_key(key).address

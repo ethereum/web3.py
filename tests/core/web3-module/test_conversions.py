@@ -110,9 +110,9 @@ def test_to_text_hexstr(val, expected):
 def test_to_int(val, expected):
     if isinstance(expected, type):
         with pytest.raises(expected):
-            Web3.toInt(val)
+            Web3.to_int(val)
     else:
-        assert Web3.toInt(val) == expected
+        assert Web3.to_int(val) == expected
 
 
 @pytest.mark.parametrize(
@@ -130,9 +130,9 @@ def test_to_int(val, expected):
 def test_to_int_text(val, expected):
     if isinstance(expected, type):
         with pytest.raises(expected):
-            Web3.toInt(text=val)
+            Web3.to_int(text=val)
     else:
-        assert Web3.toInt(text=val) == expected
+        assert Web3.to_int(text=val) == expected
 
 
 @pytest.mark.parametrize(
@@ -149,7 +149,7 @@ def test_to_int_text(val, expected):
     ),
 )
 def test_to_int_hexstr(val, expected):
-    assert Web3.toInt(hexstr=val) == expected
+    assert Web3.to_int(hexstr=val) == expected
 
 
 @pytest.mark.parametrize(
