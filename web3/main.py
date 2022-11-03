@@ -216,7 +216,7 @@ class Web3:
     # Address Utility
     @staticmethod
     @wraps(is_address)
-    def isAddress(value: Any) -> bool:
+    def is_address(value: Any) -> bool:
         return is_address(value)
 
     @staticmethod

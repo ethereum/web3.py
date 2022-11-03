@@ -208,7 +208,7 @@ Currency Conversions
 Addresses
 ~~~~~~~~~
 
-.. py:method:: Web3.isAddress(value)
+.. py:method:: Web3.is_address(value)
 
     Returns ``True`` if the value is one of the recognized address formats.
 
@@ -218,7 +218,7 @@ Addresses
 
     .. code-block:: python
 
-        >>> Web3.isAddress('0xd3CdA913deB6f67967B99D67aCDFa1712C293601')
+        >>> Web3.is_address('0xd3CdA913deB6f67967B99D67aCDFa1712C293601')
         True
 
 
