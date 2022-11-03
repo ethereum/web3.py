@@ -89,7 +89,7 @@ Encoding and Decoding Helpers
 
 .. _JSON-RPC spec: https://github.com/ethereum/wiki/wiki/JSON-RPC#hex-value-encoding
 
-.. py:method:: Web3.toText(primitive=None, hexstr=None, text=None)
+.. py:method:: Web3.to_text(primitive=None, hexstr=None, text=None)
 
     Takes a variety of inputs and returns its string equivalent.
     Text gets decoded as UTF-8.
@@ -97,15 +97,15 @@ Encoding and Decoding Helpers
 
     .. code-block:: python
 
-        >>> Web3.toText(0x636f776dc3b6)
+        >>> Web3.to_text(0x636f776dc3b6)
         'cowmö'
-        >>> Web3.toText(b'cowm\xc3\xb6')
+        >>> Web3.to_text(b'cowm\xc3\xb6')
         'cowmö'
-        >>> Web3.toText(hexstr='0x636f776dc3b6')
+        >>> Web3.to_text(hexstr='0x636f776dc3b6')
         'cowmö'
-        >>> Web3.toText(hexstr='636f776dc3b6')
+        >>> Web3.to_text(hexstr='636f776dc3b6')
         'cowmö'
-        >>> Web3.toText(text='cowmö')
+        >>> Web3.to_text(text='cowmö')
         'cowmö'
 
 
@@ -161,16 +161,16 @@ Encoding and Decoding Helpers
         >>> Web3.to_int(hexstr='000F')
         15
 
-.. py:method:: Web3.toJSON(obj)
+.. py:method:: Web3.to_json(obj)
 
     Takes a variety of inputs and returns its JSON equivalent.
 
 
     .. code-block:: python
 
-        >>> Web3.toJSON(3)
+        >>> Web3.to_json(3)
         '3'
-        >>> Web3.toJSON({'one': 1})
+        >>> Web3.to_json({'one': 1})
         '{"one": 1}'
 
 

@@ -61,7 +61,7 @@ def test_to_bytes_text(val, expected):
 
 
 def test_to_text_identity():
-    assert Web3.toText(text="pass-through") == "pass-through"
+    assert Web3.to_text(text="pass-through") == "pass-through"
 
 
 @pytest.mark.parametrize(
@@ -76,7 +76,7 @@ def test_to_text_identity():
     ),
 )
 def test_to_text(val, expected):
-    assert Web3.toText(val) == expected
+    assert Web3.to_text(val) == expected
 
 
 @pytest.mark.parametrize(
@@ -89,7 +89,7 @@ def test_to_text(val, expected):
     ),
 )
 def test_to_text_hexstr(val, expected):
-    assert Web3.toText(hexstr=val) == expected
+    assert Web3.to_text(hexstr=val) == expected
 
 
 @pytest.mark.parametrize(
@@ -214,7 +214,7 @@ def test_to_hex_cleanup_only(val, expected):
     ),
 )
 def test_to_json(val, expected):
-    assert Web3.toJSON(val) == expected
+    assert Web3.to_json(val) == expected
 
 
 @pytest.mark.parametrize(
@@ -252,4 +252,4 @@ def test_to_json(val, expected):
     ),
 )
 def test_to_json_with_transaction(tx, expected):
-    assert Web3.toJSON(tx) == expected
+    assert Web3.to_json(tx) == expected

@@ -192,14 +192,14 @@ class Web3:
 
     @staticmethod
     @wraps(to_text)
-    def toText(
+    def to_text(
         primitive: Primitives = None, hexstr: HexStr = None, text: str = None
     ) -> str:
         return to_text(primitive, hexstr, text)
 
     @staticmethod
     @wraps(to_json)
-    def toJSON(obj: Dict[Any, Any]) -> str:
+    def to_json(obj: Dict[Any, Any]) -> str:
         return to_json(obj)
 
     # Currency Utility
