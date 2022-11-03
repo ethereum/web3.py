@@ -922,25 +922,25 @@ For example:
         myContract = web3.eth.contract(address=contract_address, abi=contract_abi)
         tx_hash = myContract.functions.myFunction().transact()
         receipt = web3.eth.get_transaction_receipt(tx_hash)
-        myContract.events.myEvent().processReceipt(receipt)
+        myContract.events.myEvent().process_receipt(receipt)
 
 :py:class:`ContractEvent` provides methods to interact with contract events. Positional and keyword arguments supplied to the contract event subclass will be used to find the contract event by signature.
 
-.. _processReceipt:
+.. _process_receipt:
 
-.. py:method:: ContractEvents.myEvent(*args, **kwargs).processReceipt(transaction_receipt, errors=WARN)
+.. py:method:: ContractEvents.myEvent(*args, **kwargs).process_receipt(transaction_receipt, errors=WARN)
    :noindex:
 
    Extracts the pertinent logs from a transaction receipt.
 
-   If there are no errors, ``processReceipt`` returns a tuple of :ref:`Event Log Objects <event-log-object>`, emitted from the event (e.g. ``myEvent``),
+   If there are no errors, ``process_receipt`` returns a tuple of :ref:`Event Log Objects <event-log-object>`, emitted from the event (e.g. ``myEvent``),
    with decoded ouput.
 
    .. code-block:: python
 
        >>> tx_hash = contract.functions.myFunction(12345).transact({'to':contract_address})
        >>> tx_receipt = w3.eth.get_transaction_receipt(tx_hash)
-       >>> rich_logs = contract.events.myEvent().processReceipt(tx_receipt)
+       >>> rich_logs = contract.events.myEvent().process_receipt(tx_receipt)
        >>> rich_logs[0]['args']
        {'myArg': 12345}
 
@@ -957,7 +957,7 @@ For example:
 
        >>> tx_hash = contract.functions.myFunction(12345).transact({'to':contract_address})
        >>> tx_receipt = w3.eth.get_transaction_receipt(tx_hash)
-       >>> processed_logs = contract.events.myEvent().processReceipt(tx_receipt)
+       >>> processed_logs = contract.events.myEvent().process_receipt(tx_receipt)
        >>> processed_logs
        (
           AttributeDict({
@@ -975,7 +975,7 @@ For example:
 
        # Or, if there were errors encountered during processing:
        >>> from web3.logs import STRICT, IGNORE, DISCARD, WARN
-       >>> processed_logs = contract.events.myEvent().processReceipt(tx_receipt, errors=IGNORE)
+       >>> processed_logs = contract.events.myEvent().process_receipt(tx_receipt, errors=IGNORE)
        >>> processed_logs
        (
            AttributeDict({
@@ -993,7 +993,7 @@ For example:
                'errors': LogTopicError('Expected 1 log topics.  Got 0')})
           })
        )
-       >>> processed_logs = contract.events.myEvent().processReceipt(tx_receipt, errors=DISCARD)
+       >>> processed_logs = contract.events.myEvent().process_receipt(tx_receipt, errors=DISCARD)
        >>> assert processed_logs == ()
        True
 

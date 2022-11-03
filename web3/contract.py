@@ -1430,7 +1430,7 @@ class BaseContractEvent:
         return find_matching_event_abi(cls.contract_abi, event_name=cls.event_name)
 
     @combomethod
-    def processReceipt(
+    def process_receipt(
         self, txn_receipt: TxReceipt, errors: EventLogErrorFlags = WARN
     ) -> Iterable[EventData]:
         return self._parse_logs(txn_receipt, errors)
