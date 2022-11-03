@@ -102,7 +102,7 @@ Address Helpers
 ---------------
 
 - :meth:`Web3.is_address() <web3.Web3.is_address>`
-- :meth:`Web3.isChecksumAddress() <web3.Web3.isChecksumAddress>`
+- :meth:`Web3.is_checksum_address() <web3.Web3.is_checksum_address>`
 - :meth:`Web3.toChecksumAddress() <web3.Web3.toChecksumAddress>`
 
 

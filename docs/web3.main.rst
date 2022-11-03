@@ -222,16 +222,16 @@ Addresses
         True
 
 
-.. py:method:: Web3.isChecksumAddress(value)
+.. py:method:: Web3.is_checksum_address(value)
 
     Returns ``True`` if the value is a valid `EIP55`_ checksummed address
 
 
     .. code-block:: python
 
-        >>> Web3.isChecksumAddress('0xd3CdA913deB6f67967B99D67aCDFa1712C293601')
+        >>> Web3.is_checksum_address('0xd3CdA913deB6f67967B99D67aCDFa1712C293601')
         True
-        >>> Web3.isChecksumAddress('0xd3cda913deb6f67967b99d67acdfa1712c293601')
+        >>> Web3.is_checksum_address('0xd3cda913deb6f67967b99d67acdfa1712c293601')
         False
 
 

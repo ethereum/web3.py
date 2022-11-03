@@ -221,7 +221,7 @@ class Web3:
 
     @staticmethod
     @wraps(is_checksum_address)
-    def isChecksumAddress(value: Any) -> bool:
+    def is_checksum_address(value: Any) -> bool:
         return is_checksum_address(value)
 
     @staticmethod
