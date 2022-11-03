@@ -226,7 +226,7 @@ class Web3:
 
     @staticmethod
     @wraps(to_checksum_address)
-    def toChecksumAddress(value: Union[AnyAddress, str, bytes]) -> ChecksumAddress:
+    def to_checksum_address(value: Union[AnyAddress, str, bytes]) -> ChecksumAddress:
         return to_checksum_address(value)
 
     # mypy Types

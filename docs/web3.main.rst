@@ -235,14 +235,14 @@ Addresses
         False
 
 
-.. py:method:: Web3.toChecksumAddress(value)
+.. py:method:: Web3.to_checksum_address(value)
 
     Returns the given address with an `EIP55`_ checksum.
 
 
     .. code-block:: python
 
-        >>> Web3.toChecksumAddress('0xd3cda913deb6f67967b99d67acdfa1712c293601')
+        >>> Web3.to_checksum_address('0xd3cda913deb6f67967b99d67acdfa1712c293601')
         '0xd3CdA913deB6f67967B99D67aCDFa1712C293601'
 
 .. _EIP55: https://github.com/ethereum/EIPs/issues/55
