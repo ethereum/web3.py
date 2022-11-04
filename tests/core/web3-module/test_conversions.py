@@ -28,7 +28,7 @@ from web3.datastructures import (
     ),
 )
 def test_to_bytes_primitive(val, expected):
-    assert Web3.toBytes(val) == expected
+    assert Web3.to_bytes(val) == expected
 
 
 @pytest.mark.parametrize(
@@ -46,7 +46,7 @@ def test_to_bytes_primitive(val, expected):
     ),
 )
 def test_to_bytes_hexstr(val, expected):
-    assert Web3.toBytes(hexstr=val) == expected
+    assert Web3.to_bytes(hexstr=val) == expected
 
 
 @pytest.mark.parametrize(
@@ -57,11 +57,11 @@ def test_to_bytes_hexstr(val, expected):
     ),
 )
 def test_to_bytes_text(val, expected):
-    assert Web3.toBytes(text=val) == expected
+    assert Web3.to_bytes(text=val) == expected
 
 
 def test_to_text_identity():
-    assert Web3.toText(text="pass-through") == "pass-through"
+    assert Web3.to_text(text="pass-through") == "pass-through"
 
 
 @pytest.mark.parametrize(
@@ -76,7 +76,7 @@ def test_to_text_identity():
     ),
 )
 def test_to_text(val, expected):
-    assert Web3.toText(val) == expected
+    assert Web3.to_text(val) == expected
 
 
 @pytest.mark.parametrize(
@@ -89,7 +89,7 @@ def test_to_text(val, expected):
     ),
 )
 def test_to_text_hexstr(val, expected):
-    assert Web3.toText(hexstr=val) == expected
+    assert Web3.to_text(hexstr=val) == expected
 
 
 @pytest.mark.parametrize(
@@ -110,9 +110,9 @@ def test_to_text_hexstr(val, expected):
 def test_to_int(val, expected):
     if isinstance(expected, type):
         with pytest.raises(expected):
-            Web3.toInt(val)
+            Web3.to_int(val)
     else:
-        assert Web3.toInt(val) == expected
+        assert Web3.to_int(val) == expected
 
 
 @pytest.mark.parametrize(
@@ -130,9 +130,9 @@ def test_to_int(val, expected):
 def test_to_int_text(val, expected):
     if isinstance(expected, type):
         with pytest.raises(expected):
-            Web3.toInt(text=val)
+            Web3.to_int(text=val)
     else:
-        assert Web3.toInt(text=val) == expected
+        assert Web3.to_int(text=val) == expected
 
 
 @pytest.mark.parametrize(
@@ -149,7 +149,7 @@ def test_to_int_text(val, expected):
     ),
 )
 def test_to_int_hexstr(val, expected):
-    assert Web3.toInt(hexstr=val) == expected
+    assert Web3.to_int(hexstr=val) == expected
 
 
 @pytest.mark.parametrize(
@@ -172,7 +172,7 @@ def test_to_int_hexstr(val, expected):
     ),
 )
 def test_to_hex(val, expected):
-    assert Web3.toHex(val) == expected
+    assert Web3.to_hex(val) == expected
 
 
 @pytest.mark.parametrize(
@@ -183,7 +183,7 @@ def test_to_hex(val, expected):
     ),
 )
 def test_to_hex_text(val, expected):
-    assert Web3.toHex(text=val) == expected
+    assert Web3.to_hex(text=val) == expected
 
 
 @pytest.mark.parametrize(
@@ -198,7 +198,7 @@ def test_to_hex_text(val, expected):
     ),
 )
 def test_to_hex_cleanup_only(val, expected):
-    assert Web3.toHex(hexstr=val) == expected
+    assert Web3.to_hex(hexstr=val) == expected
 
 
 @pytest.mark.parametrize(
@@ -214,7 +214,7 @@ def test_to_hex_cleanup_only(val, expected):
     ),
 )
 def test_to_json(val, expected):
-    assert Web3.toJSON(val) == expected
+    assert Web3.to_json(val) == expected
 
 
 @pytest.mark.parametrize(
@@ -252,4 +252,4 @@ def test_to_json(val, expected):
     ),
 )
 def test_to_json_with_transaction(tx, expected):
-    assert Web3.toJSON(tx) == expected
+    assert Web3.to_json(tx) == expected

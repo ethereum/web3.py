@@ -38,7 +38,7 @@ def test_parse_block_identifier_bytes_and_hex(w3):
     block_id_by_hash = parse_block_identifier(w3, block_0_hash)
     assert block_id_by_hash == 0
     # test retrieve by hexstring
-    block_0_hexstring = w3.toHex(block_0_hash)
+    block_0_hexstring = w3.to_hex(block_0_hash)
     block_id_by_hex = parse_block_identifier(w3, block_0_hexstring)
     assert block_id_by_hex == 0
 
@@ -104,7 +104,7 @@ async def test_async_parse_block_identifier_bytes_and_hex(async_w3):
     block_id_by_hash = await async_parse_block_identifier(async_w3, block_0_hash)
     assert block_id_by_hash == 0
     # test retrieve by hexstring
-    block_0_hexstring = async_w3.toHex(block_0_hash)
+    block_0_hexstring = async_w3.to_hex(block_0_hash)
     block_id_by_hex = await async_parse_block_identifier(async_w3, block_0_hexstring)
     assert block_id_by_hex == 0
 

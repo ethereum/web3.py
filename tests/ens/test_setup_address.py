@@ -75,7 +75,7 @@ def test_setup_address(ens, name, namehash_hex, TEST_ADDRESS):
     ens.setup_address(name, TEST_ADDRESS)
     assert is_same_address(ens.address(name), TEST_ADDRESS)
 
-    namehash = Web3.toBytes(hexstr=HexStr(namehash_hex))
+    namehash = Web3.to_bytes(hexstr=HexStr(namehash_hex))
     normal_name = ens.nameprep(name)
     # check that the correct namehash is set:
     assert is_same_address(
@@ -178,7 +178,7 @@ async def test_async_setup_address(async_ens, name, namehash_hex, TEST_ADDRESS):
     await async_ens.setup_address(name, TEST_ADDRESS)
     assert is_same_address(await async_ens.address(name), TEST_ADDRESS)
 
-    namehash = Web3.toBytes(hexstr=HexStr(namehash_hex))
+    namehash = Web3.to_bytes(hexstr=HexStr(namehash_hex))
     normal_name = async_ens.nameprep(name)
 
     # check that the correct namehash is set:

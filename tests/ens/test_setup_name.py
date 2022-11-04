@@ -65,7 +65,7 @@ def test_setup_name(ens, name, normalized_name, namehash_hex):
     assert ens.name(address) == normalized_name
 
     # check that the correct namehash is set:
-    node = Web3.toBytes(hexstr=HexStr(namehash_hex))
+    node = Web3.to_bytes(hexstr=HexStr(namehash_hex))
     assert ens.resolver(normalized_name).caller.addr(node) == address
 
     # check that the correct owner is set:
@@ -166,7 +166,7 @@ async def test_async_setup_name(async_ens, name, normalized_name, namehash_hex):
     assert await async_ens.name(address) == normalized_name
 
     # check that the correct namehash is set:
-    node = Web3.toBytes(hexstr=HexStr(namehash_hex))
+    node = Web3.to_bytes(hexstr=HexStr(namehash_hex))
     resolver = await async_ens.resolver(normalized_name)
     assert await resolver.caller.addr(node) == address
 

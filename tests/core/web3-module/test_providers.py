@@ -20,7 +20,7 @@ def test_auto_provider_none():
     w3 = Web3()
 
     # non-node requests succeed
-    w3.toHex(0) == "0x0"
+    w3.to_hex(0) == "0x0"
 
     type(w3.provider) == AutoProvider
 

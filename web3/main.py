@@ -171,35 +171,35 @@ class Web3:
     # Encoding and Decoding
     @staticmethod
     @wraps(to_bytes)
-    def toBytes(
+    def to_bytes(
         primitive: Primitives = None, hexstr: HexStr = None, text: str = None
     ) -> bytes:
         return to_bytes(primitive, hexstr, text)
 
     @staticmethod
     @wraps(to_int)
-    def toInt(
+    def to_int(
         primitive: Primitives = None, hexstr: HexStr = None, text: str = None
     ) -> int:
         return to_int(primitive, hexstr, text)
 
     @staticmethod
     @wraps(to_hex)
-    def toHex(
+    def to_hex(
         primitive: Primitives = None, hexstr: HexStr = None, text: str = None
     ) -> HexStr:
         return to_hex(primitive, hexstr, text)
 
     @staticmethod
     @wraps(to_text)
-    def toText(
+    def to_text(
         primitive: Primitives = None, hexstr: HexStr = None, text: str = None
     ) -> str:
         return to_text(primitive, hexstr, text)
 
     @staticmethod
     @wraps(to_json)
-    def toJSON(obj: Dict[Any, Any]) -> str:
+    def to_json(obj: Dict[Any, Any]) -> str:
         return to_json(obj)
 
     # Currency Utility

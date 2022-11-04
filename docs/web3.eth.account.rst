@@ -75,44 +75,44 @@ Example ``account_test_script.py``
 
 .. code-block:: python
 
-    import os 
+    import os
     from eth_account import Account
     from eth_account.signers.local import LocalAccount
     from web3.auto import w3
     from web3.middleware import construct_sign_and_send_raw_middleware
-    
+
     private_key = os.environ.get("PRIVATE_KEY")
     assert private_key is not None, "You must set PRIVATE_KEY environment variable"
     assert private_key.startswith("0x"), "Private key must start with 0x hex prefix"
-    
+
     account: LocalAccount = Account.from_key(private_key)
     w3.middleware_onion.add(construct_sign_and_send_raw_middleware(account))
-    
+
     print(f"Your hot wallet address is {account.address}")
-    
-    # Now you can use web3.eth.send_transaction(), Contract.functions.xxx.transact() functions 
-    # with your local private key through middleware and you no longer get the error 
+
+    # Now you can use web3.eth.send_transaction(), Contract.functions.xxx.transact() functions
+    # with your local private key through middleware and you no longer get the error
     # "ValueError: The method eth_sendTransaction does not exist/is not available
-    
+
 Example how to run this in UNIX shell:
 
 .. code-block:: shell
- 
+
     # Generate a new 256-bit random integer using openssl UNIX command that acts as a private key.
     # You can also do:
-    # python -c "from web3 import Web3; w3 = Web3(); acc = w3.eth.account.create(); print(f'private key={w3.toHex(acc.key)}, account={acc.address}')"
+    # python -c "from web3 import Web3; w3 = Web3(); acc = w3.eth.account.create(); print(f'private key={w3.to_hex(acc.key)}, account={acc.address}')"
     # Store this in a safe place, like in your password manager.
-    export PRIVATE_KEY=0x`openssl rand -hex 32` 
-    
+    export PRIVATE_KEY=0x`openssl rand -hex 32`
+
     # Run our script
     python account_test_script.py
-    
-    
+
+
 This will print::
 
     Your hot wallet address is 0x27C8F899bb69E1501BBB96d09d7477a2a7518918
 
-  
+
 .. _extract_geth_pk:
 
 Extract private key from geth keyfile
@@ -186,10 +186,10 @@ You might have produced the signed_message locally, as in
     # Remix / web3.js expect r and s to be encoded to hex
     # This convenience method will do the pad & hex for us:
     >>> def to_32byte_hex(val):
-    ...   return Web3.toHex(Web3.toBytes(val).rjust(32, b'\0'))
+    ...   return Web3.to_hex(Web3.to_bytes(val).rjust(32, b'\0'))
 
     >>> ec_recover_args = (msghash, v, r, s) = (
-    ...   Web3.toHex(signed_message.messageHash),
+    ...   Web3.to_hex(signed_message.messageHash),
     ...   signed_message.v,
     ...   to_32byte_hex(signed_message.r),
     ...   to_32byte_hex(signed_message.s),
@@ -220,13 +220,13 @@ this will prepare it for Solidity:
     >>> message_hash = _hash_eip191_message(message)
 
     # Remix / web3.js expect the message hash to be encoded to a hex string
-    >>> hex_message_hash = Web3.toHex(message_hash)
+    >>> hex_message_hash = Web3.to_hex(message_hash)
 
     # ecrecover in Solidity expects the signature to be split into v as a uint8,
     #   and r, s as a bytes32
     # Remix / web3.js expect r and s to be encoded to hex
-    >>> sig = Web3.toBytes(hexstr=hex_signature)
-    >>> v, hex_r, hex_s = Web3.toInt(sig[-1]), Web3.toHex(sig[:32]), Web3.toHex(sig[32:64])
+    >>> sig = Web3.to_bytes(hexstr=hex_signature)
+    >>> v, hex_r, hex_s = Web3.to_int(sig[-1]), Web3.to_hex(sig[:32]), Web3.to_hex(sig[32:64])
 
     # ecrecover in Solidity takes the arguments in order = (msghash, v, r, s)
     >>> ec_recover_args = (hex_message_hash, v, hex_r, hex_s)
@@ -378,5 +378,5 @@ To sign a transaction locally that will invoke a smart contract:
     >>> w3.eth.send_raw_transaction(signed_txn.rawTransaction)  # doctest: +SKIP
 
     # When you run send_raw_transaction, you get the same result as the hash of the transaction:
-    >>> w3.toHex(w3.keccak(signed_txn.rawTransaction))
+    >>> w3.to_hex(w3.keccak(signed_txn.rawTransaction))
     '0x748db062639a45e519dba934fce09c367c92043867409160c9989673439dc817'

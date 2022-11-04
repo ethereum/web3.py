@@ -91,11 +91,11 @@ Encoding and Decoding Helpers
 -----------------------------
 
 - :meth:`Web3.is_encodable() <web3.w3.is_encodable>`
-- :meth:`Web3.toBytes() <web3.Web3.toBytes>`
-- :meth:`Web3.toHex() <web3.Web3.toHex>`
-- :meth:`Web3.toInt() <web3.Web3.toInt>`
-- :meth:`Web3.toJSON() <web3.Web3.toJSON>`
-- :meth:`Web3.toText() <web3.Web3.toText>`
+- :meth:`Web3.to_bytes() <web3.Web3.to_bytes>`
+- :meth:`Web3.to_hex() <web3.Web3.to_hex>`
+- :meth:`Web3.to_int() <web3.Web3.to_int>`
+- :meth:`Web3.to_json() <web3.Web3.to_json>`
+- :meth:`Web3.to_text() <web3.Web3.to_text>`
 
 
 Address Helpers

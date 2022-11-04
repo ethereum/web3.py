@@ -54,7 +54,7 @@ Attributes
 Encoding and Decoding Helpers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. py:method:: Web3.toHex(primitive=None, hexstr=None, text=None)
+.. py:method:: Web3.to_hex(primitive=None, hexstr=None, text=None)
 
     Takes a variety of inputs and returns it in its hexadecimal representation.
     It follows the rules for converting to hex in the
@@ -62,34 +62,34 @@ Encoding and Decoding Helpers
 
     .. code-block:: python
 
-        >>> Web3.toHex(0)
+        >>> Web3.to_hex(0)
         '0x0'
-        >>> Web3.toHex(1)
+        >>> Web3.to_hex(1)
         '0x1'
-        >>> Web3.toHex(0x0)
+        >>> Web3.to_hex(0x0)
         '0x0'
-        >>> Web3.toHex(0x000F)
+        >>> Web3.to_hex(0x000F)
         '0xf'
-        >>> Web3.toHex(b'')
+        >>> Web3.to_hex(b'')
         '0x'
-        >>> Web3.toHex(b'\x00\x0F')
+        >>> Web3.to_hex(b'\x00\x0F')
         '0x000f'
-        >>> Web3.toHex(False)
+        >>> Web3.to_hex(False)
         '0x0'
-        >>> Web3.toHex(True)
+        >>> Web3.to_hex(True)
         '0x1'
-        >>> Web3.toHex(hexstr='0x000F')
+        >>> Web3.to_hex(hexstr='0x000F')
         '0x000f'
-        >>> Web3.toHex(hexstr='000F')
+        >>> Web3.to_hex(hexstr='000F')
         '0x000f'
-        >>> Web3.toHex(text='')
+        >>> Web3.to_hex(text='')
         '0x'
-        >>> Web3.toHex(text='cowmö')
+        >>> Web3.to_hex(text='cowmö')
         '0x636f776dc3b6'
 
 .. _JSON-RPC spec: https://github.com/ethereum/wiki/wiki/JSON-RPC#hex-value-encoding
 
-.. py:method:: Web3.toText(primitive=None, hexstr=None, text=None)
+.. py:method:: Web3.to_text(primitive=None, hexstr=None, text=None)
 
     Takes a variety of inputs and returns its string equivalent.
     Text gets decoded as UTF-8.
@@ -97,19 +97,19 @@ Encoding and Decoding Helpers
 
     .. code-block:: python
 
-        >>> Web3.toText(0x636f776dc3b6)
+        >>> Web3.to_text(0x636f776dc3b6)
         'cowmö'
-        >>> Web3.toText(b'cowm\xc3\xb6')
+        >>> Web3.to_text(b'cowm\xc3\xb6')
         'cowmö'
-        >>> Web3.toText(hexstr='0x636f776dc3b6')
+        >>> Web3.to_text(hexstr='0x636f776dc3b6')
         'cowmö'
-        >>> Web3.toText(hexstr='636f776dc3b6')
+        >>> Web3.to_text(hexstr='636f776dc3b6')
         'cowmö'
-        >>> Web3.toText(text='cowmö')
+        >>> Web3.to_text(text='cowmö')
         'cowmö'
 
 
-.. py:method:: Web3.toBytes(primitive=None, hexstr=None, text=None)
+.. py:method:: Web3.to_bytes(primitive=None, hexstr=None, text=None)
 
     Takes a variety of inputs and returns its bytes equivalent.
     Text gets encoded as UTF-8.
@@ -117,60 +117,60 @@ Encoding and Decoding Helpers
 
     .. code-block:: python
 
-        >>> Web3.toBytes(0)
+        >>> Web3.to_bytes(0)
         b'\x00'
-        >>> Web3.toBytes(0x000F)
+        >>> Web3.to_bytes(0x000F)
         b'\x0f'
-        >>> Web3.toBytes(b'')
+        >>> Web3.to_bytes(b'')
         b''
-        >>> Web3.toBytes(b'\x00\x0F')
+        >>> Web3.to_bytes(b'\x00\x0F')
         b'\x00\x0f'
-        >>> Web3.toBytes(False)
+        >>> Web3.to_bytes(False)
         b'\x00'
-        >>> Web3.toBytes(True)
+        >>> Web3.to_bytes(True)
         b'\x01'
-        >>> Web3.toBytes(hexstr='0x000F')
+        >>> Web3.to_bytes(hexstr='0x000F')
         b'\x00\x0f'
-        >>> Web3.toBytes(hexstr='000F')
+        >>> Web3.to_bytes(hexstr='000F')
         b'\x00\x0f'
-        >>> Web3.toBytes(text='')
+        >>> Web3.to_bytes(text='')
         b''
-        >>> Web3.toBytes(text='cowmö')
+        >>> Web3.to_bytes(text='cowmö')
         b'cowm\xc3\xb6'
 
 
-.. py:method:: Web3.toInt(primitive=None, hexstr=None, text=None)
+.. py:method:: Web3.to_int(primitive=None, hexstr=None, text=None)
 
     Takes a variety of inputs and returns its integer equivalent.
 
 
     .. code-block:: python
 
-        >>> Web3.toInt(0)
+        >>> Web3.to_int(0)
         0
-        >>> Web3.toInt(0x000F)
+        >>> Web3.to_int(0x000F)
         15
-        >>> Web3.toInt(b'\x00\x0F')
+        >>> Web3.to_int(b'\x00\x0F')
         15
-        >>> Web3.toInt(False)
+        >>> Web3.to_int(False)
         0
-        >>> Web3.toInt(True)
+        >>> Web3.to_int(True)
         1
-        >>> Web3.toInt(hexstr='0x000F')
+        >>> Web3.to_int(hexstr='0x000F')
         15
-        >>> Web3.toInt(hexstr='000F')
+        >>> Web3.to_int(hexstr='000F')
         15
 
-.. py:method:: Web3.toJSON(obj)
+.. py:method:: Web3.to_json(obj)
 
     Takes a variety of inputs and returns its JSON equivalent.
 
 
     .. code-block:: python
 
-        >>> Web3.toJSON(3)
+        >>> Web3.to_json(3)
         '3'
-        >>> Web3.toJSON({'one': 1})
+        >>> Web3.to_json({'one': 1})
         '{"one": 1}'
 
 
