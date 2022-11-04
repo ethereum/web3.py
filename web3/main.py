@@ -216,17 +216,17 @@ class Web3:
     # Address Utility
     @staticmethod
     @wraps(is_address)
-    def isAddress(value: Any) -> bool:
+    def is_address(value: Any) -> bool:
         return is_address(value)
 
     @staticmethod
     @wraps(is_checksum_address)
-    def isChecksumAddress(value: Any) -> bool:
+    def is_checksum_address(value: Any) -> bool:
         return is_checksum_address(value)
 
     @staticmethod
     @wraps(to_checksum_address)
-    def toChecksumAddress(value: Union[AnyAddress, str, bytes]) -> ChecksumAddress:
+    def to_checksum_address(value: Union[AnyAddress, str, bytes]) -> ChecksumAddress:
         return to_checksum_address(value)
 
     # mypy Types

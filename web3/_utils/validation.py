@@ -186,7 +186,7 @@ def validate_address(value: Any) -> None:
                 "The software that gave you this non-checksum address should be "
                 "considered unsafe, please file it as a bug on their platform. "
                 "Try using an ENS name instead. Or, if you must accept lower safety, "
-                "use Web3.toChecksumAddress(lower_case_address).",
+                "use Web3.to_checksum_address(lower_case_address).",
                 value,
             )
         else:
