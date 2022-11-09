@@ -142,6 +142,39 @@ async def cache_and_return_async_session(
             evicted_items = _async_session_cache.cache(cache_key, session)
             logger.debug(f"Async session cached: {endpoint_uri}, {session}")
 
+        else:
+            # get the cached session
+            cached_session = _async_session_cache.get_cache_entry(cache_key)
+            session_is_closed = cached_session.closed
+            session_loop_is_closed = cached_session._loop.is_closed()
+
+            warning = (
+                "Async session was closed"
+                if session_is_closed
+                else "Loop was closed for async session"
+                if session_loop_is_closed
+                else None
+            )
+            if warning:
+                logger.debug(
+                    f"{warning}: {endpoint_uri}, {cached_session}. "
+                    f"Creating and caching a new async session for uri."
+                )
+
+                _async_session_cache._data.pop(cache_key)
+                if not session_is_closed:
+                    # if loop was closed but not the session, close the session
+                    await cached_session.close()
+                logger.debug(
+                    f"Async session closed and evicted from cache: {cached_session}"
+                )
+
+                # replace stale session with a new session at the cache key
+                _session = ClientSession(raise_for_status=True)
+                evicted_items = _async_session_cache.cache(cache_key, _session)
+                logger.debug(f"Async session cached: {endpoint_uri}, {_session}")
+
+        # get the cached session
         cached_session = _async_session_cache.get_cache_entry(cache_key)
 
     if evicted_items is not None:
