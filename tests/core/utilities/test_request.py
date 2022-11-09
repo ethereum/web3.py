@@ -396,3 +396,73 @@ async def test_async_unique_cache_keys_created_per_thread_with_same_uri():
 
     # appropriately close the test sessions
     [await session.close() for session in test_sessions]
+
+
+@pytest.mark.asyncio
+async def test_async_use_new_session_if_loop_closed_for_cached_session():
+    # create new loop, cache a session wihin the loop, close the loop
+    loop1 = asyncio.new_event_loop()
+
+    session1 = ClientSession(raise_for_status=True)
+    session1._loop = loop1
+
+    await cache_and_return_async_session(TEST_URI, session=session1)
+
+    # assert session1 was cached
+    cache_key = generate_cache_key(f"{threading.get_ident()}:{TEST_URI}")
+
+    assert len(request._async_session_cache) == 1
+    cached_session = request._async_session_cache.get_cache_entry(cache_key)
+    assert cached_session == session1
+
+    # close loop that was used with session1
+    loop1.close()
+
+    # assert we create a new session when trying to retrieve the session at the
+    # cache key for TEST_URI
+    session2 = await cache_and_return_async_session(TEST_URI)
+    assert not session2._loop.is_closed()
+    assert session2 != session1
+
+    # assert we appropriately closed session1, evicted it from the cache, and cached
+    # the new session2 at the cache key
+    assert session1.closed
+    assert len(request._async_session_cache) == 1
+    cached_session = request._async_session_cache.get_cache_entry(cache_key)
+    assert cached_session == session2
+
+    # -- teardown -- #
+
+    # appropriately close the new session
+    await session2.close()
+
+
+@pytest.mark.asyncio
+async def test_async_use_new_session_if_session_closed_for_cached_session():
+    # create a session, close it, and cache it at the cache key for TEST_URI
+    session1 = ClientSession(raise_for_status=True)
+    await session1.close()
+    await cache_and_return_async_session(TEST_URI, session=session1)
+
+    # assert session1 was cached
+    cache_key = generate_cache_key(f"{threading.get_ident()}:{TEST_URI}")
+
+    assert len(request._async_session_cache) == 1
+    cached_session = request._async_session_cache.get_cache_entry(cache_key)
+    assert cached_session == session1
+
+    # assert we create a new session when trying to retrieve closed session from cache
+    session2 = await cache_and_return_async_session(TEST_URI)
+    assert not session2.closed
+    assert session2 != session1
+
+    # assert we evicted session1 from the cache, and cached the new session2
+    # at the cache key
+    assert len(request._async_session_cache) == 1
+    cached_session = request._async_session_cache.get_cache_entry(cache_key)
+    assert cached_session == session2
+
+    # -- teardown -- #
+
+    # appropriately close the new session
+    await session2.close()
