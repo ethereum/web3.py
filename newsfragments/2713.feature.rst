@@ -1,0 +1,1 @@
+If the loop for a cached async session is closed, or the session itself was closed, create a new session at that cache key and properly close and evict the stale session.
