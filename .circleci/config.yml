@@ -72,6 +72,12 @@ jobs:
       - image: cimg/python:3.10
         environment:
           TOXENV: py310-core
+  py311-core:
+    <<: *common
+    docker:
+      - image: cimg/python:3.11
+        environment:
+          TOXENV: py311-core
   pypy3-core:
     <<: *common
     docker:
@@ -88,4 +94,5 @@ workflows:
       - py38-core
       - py39-core
       - py310-core
+      - py311-core
       - pypy3-core

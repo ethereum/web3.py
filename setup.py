@@ -7,25 +7,25 @@ from setuptools import (
 
 extras_require = {
     "test": [
-        "pytest>=6.2.5,<7",
+        "pytest>=6.2.5",
         "pytest-xdist>=2.4.0,<3",
         "tox==3.14.6",
     ],
     "lint": [
         "flake8==3.7.9",
-        "isort>=5.10.1,<6",
+        "isort>=5.10.1",
         "mypy==0.770",
-        "pydocstyle>=5.0.0,<6",
-        "black>=22,<23",
+        "pydocstyle>=5.0.0",
+        "black>=22",
     ],
     "doc": [
-        "Sphinx>=1.6.5,<2",
-        "sphinx_rtd_theme>=0.1.9,<1",
-        "towncrier>=21,<22",
+        "Sphinx>=1.6.5",
+        "sphinx_rtd_theme>=0.1.9",
+        "towncrier>=21",
     ],
     "dev": [
-        "bumpversion>=0.5.3,<1",
-        "pytest-watch>=4.1.0,<5",
+        "bumpversion>=0.5.3",
+        "pytest-watch>=4.1.0",
         "wheel",
         "twine",
         "ipython",
@@ -56,7 +56,7 @@ setup(
     url="https://github.com/ethereum/<REPO_NAME>",
     include_package_data=True,
     install_requires=[
-        "eth-utils>=2,<3",
+        "eth-utils>=2",
     ],
     python_requires=">=3.7, <4",
     extras_require=extras_require,
@@ -78,6 +78,7 @@ setup(
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: Implementation :: PyPy",
     ],
 )
