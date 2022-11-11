@@ -50,6 +50,7 @@ extras_require = {
         "twine>=1.13",
         "pluggy==0.13.1",
         "when-changed>=0.3.0",
+        "build>=0.9.0",
     ],
     "ipfs": [
         "ipfshttpclient==0.8.0a2",

@@ -72,14 +72,14 @@ release: clean
 	git config commit.gpgSign true
 	bumpversion $(bump)
 	git push upstream && git push upstream --tags
-	python setup.py sdist bdist_wheel
+	python -m build
 	twine upload dist/*
 	git config commit.gpgSign "$(CURRENT_SIGN_SETTING)"
 
 dist: clean
-	python setup.py sdist bdist_wheel
+	python -m build
 	ls -l dist
 
 package: clean
-	python setup.py sdist bdist_wheel
+	python -m build
 	python web3/scripts/release/test_package.py

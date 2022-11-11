@@ -179,7 +179,7 @@ ethpm_steps: &ethpm_steps
         key: ethpm-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
 
 orbs:
-  win: circleci/windows@2.2.0
+  win: circleci/windows@5.0.0
 
 windows_steps: &windows_steps
   executor:
@@ -199,7 +199,7 @@ windows_steps: &windows_steps
         command: pip install --user tox
     - run:
         name: run tox
-        command: 'C:/Users/circleci/AppData/Roaming/Python/Python37/Scripts/tox.exe -r'
+        command: 'C:/Users/circleci.PACKER-633B1A5A/AppData/Roaming/Python/Python310/Scripts/tox.exe -r'
     - save_cache:
         paths:
           - .tox
@@ -311,11 +311,6 @@ jobs:
       - image: cimg/python:3.7
     environment:
       TOXENV: py37-wheel-cli
-
-  py37-wheel-cli-windows:
-    <<: *windows_steps
-    environment:
-      TOXENV: py37-wheel-cli-windows
 
   #
   # Python 3.8
@@ -629,6 +624,11 @@ jobs:
         environment:
           TOXENV: py310-wheel-cli
 
+  py310-wheel-cli-windows:
+    <<: *windows_steps
+    environment:
+      TOXENV: py310-wheel-cli-windows
+
   #
   # Python 3.11
   #
@@ -764,7 +764,6 @@ workflows:
       - py37-integration-goethereum-ws_flaky
       - py37-integration-ethtester-pyevm
       - py37-wheel-cli
-      - py37-wheel-cli-windows
       - py38-lint
       - py38-ens
       - py38-ethpm
@@ -801,6 +800,7 @@ workflows:
       - py310-integration-goethereum-ws_flaky
       - py310-integration-ethtester-pyevm
       - py310-wheel-cli
+      - py310-wheel-cli-windows
       - py311-lint
       - py311-ens
       - py311-ethpm
