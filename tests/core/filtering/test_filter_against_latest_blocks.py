@@ -1,7 +1,8 @@
 import pytest
 
-from tests.core.filtering._utils import async_range
-
+from tests.core.filtering._utils import (
+    async_range,
+)
 from web3._utils.threads import (
     Timeout,
 )

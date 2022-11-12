@@ -160,9 +160,9 @@ async def async_deploy_contracts(async_w3, contract, async_wait_for_transaction)
         tx_hash = await contract.constructor().transact()
         await async_wait_for_transaction(async_w3, tx_hash)
         tx = await async_w3.eth.get_transaction_receipt(tx_hash)
-        
+
         txs.append(tx["contractAddress"])
-        
+
     return tuple(txs)
 
 
@@ -180,7 +180,9 @@ async def async_single_transaction(async_w3):
     _from = accounts[random.randint(0, len(accounts) - 1)]
     _to = accounts[random.randint(0, len(accounts) - 1)]
     value = 50
-    tx_hash = await async_w3.eth.send_transaction({"from": _from, "to": _to, "value": value})
+    tx_hash = await async_w3.eth.send_transaction(
+        {"from": _from, "to": _to, "value": value}
+    )
     return tx_hash
 
 
@@ -201,7 +203,9 @@ async def test_async_event_filter_new_events(
         builder.fromBlock = "latest"
         event_filter = await builder.deploy(async_w3)
     else:
-        event_filter = await async_emitter.events.LogNoArguments().create_filter(fromBlock="latest")
+        event_filter = await async_emitter.events.LogNoArguments().create_filter(
+            fromBlock="latest"
+        )
 
     expected_match_counter = 0
 
@@ -272,7 +276,9 @@ async def test_async_event_filter_new_events_many_deployed_contracts(
 
     matching_transact = async_emitter.functions.logNoArgs(which=1).transact
 
-    deployed_contract_addresses = await async_deploy_contracts(async_w3, AsyncEmitter, async_wait_for_transaction)
+    deployed_contract_addresses = await async_deploy_contracts(
+        async_w3, AsyncEmitter, async_wait_for_transaction
+    )
 
     async def gen_non_matching_transact():
         while True:
@@ -284,15 +290,15 @@ async def test_async_event_filter_new_events_many_deployed_contracts(
             ).functions.logNoArgs(which=1).transact
 
     non_matching_transact = gen_non_matching_transact()
-    
-
 
     if api_style == "build_filter":
         builder = async_emitter.events.LogNoArguments.build_filter()
         builder.fromBlock = "latest"
         event_filter = await builder.deploy(async_w3)
     else:
-        event_filter = await async_emitter.events.LogNoArguments().create_filter(fromBlock="latest")
+        event_filter = await async_emitter.events.LogNoArguments().create_filter(
+            fromBlock="latest"
+        )
 
     expected_match_counter = 0
 
