@@ -9,8 +9,10 @@ import pytest_asyncio
 
 from _utils import (
     async_deploy,
-    async_partial,
     deploy,
+)
+from tests.utils import (
+    async_partial,
 )
 from web3._utils.module_testing.emitter_contract import (
     CONTRACT_EMITTER_ABI,

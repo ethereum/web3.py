@@ -1,6 +1,7 @@
 """
 A minimal implementation of the various gevent APIs used within this codebase.
 """
+import asyncio
 import threading
 import time
 from types import (
@@ -95,6 +96,10 @@ class Timeout(Exception):
 
     def sleep(self, seconds: float) -> None:
         time.sleep(seconds)
+        self.check()
+
+    async def async_sleep(self, seconds: float) -> None:
+        await asyncio.sleep(seconds)
         self.check()
 
 
