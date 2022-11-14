@@ -1,1 +1,0 @@
-move definition of RTD install requirements file from their dashboard into `.readthedocs.yml`, and remove unused `sphinx-better-theme` from requirements

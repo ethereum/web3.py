@@ -1,1 +1,0 @@
-Properly release ``async_lock`` for session requests if an exception is raised during a task.

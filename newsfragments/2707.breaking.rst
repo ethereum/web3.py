@@ -1,1 +1,0 @@
-Snakecase the toBytes, toHex, toInt, toJSON, and toText methods

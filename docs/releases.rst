@@ -3,6 +3,77 @@ Release Notes
 
 .. towncrier release notes start
 
+v6.0.0-beta.8 (2022-11-14)
+--------------------------
+
+Features
+~~~~~~~~
+
+- Async support for caching certain methods via
+  ``async_simple_cache_middleware`` as well as constructing custom async
+  caching middleware via ``async_construct_simple_cache_middleware``.
+  ``SimpleCache`` class was also added to the public ``utils`` module. (`#2579
+  <https://github.com/ethereum/web3.py/issues/2579>`__)
+- Remove upper pins on dependencies (`#2648
+  <https://github.com/ethereum/web3.py/issues/2648>`__)
+- Async support for beacon api. (`#2689
+  <https://github.com/ethereum/web3.py/issues/2689>`__)
+- If the loop for a cached async session is closed, or the session itself was
+  closed, create a new session at that cache key and properly close and evict
+  the stale session. (`#2713
+  <https://github.com/ethereum/web3.py/issues/2713>`__)
+
+
+Bugfixes
+~~~~~~~~
+
+- bump `sphinx_rtd_theme` version to fix missing unordered list bullets (`#2688
+  <https://github.com/ethereum/web3.py/issues/2688>`__)
+- Fix bug to generate unique cache keys when multi-threading & with unique
+  event loops for async. (`#2690
+  <https://github.com/ethereum/web3.py/issues/2690>`__)
+- Properly release ``async_lock`` for session requests if an exception is
+  raised during a task. (`#2695
+  <https://github.com/ethereum/web3.py/issues/2695>`__)
+
+
+Internal Changes - for web3.py Contributors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- move definition of RTD install requirements file from their dashboard into
+  `.readthedocs.yml`, and remove unused `sphinx-better-theme` from requirements
+  (`#2688 <https://github.com/ethereum/web3.py/issues/2688>`__)
+
+
+Miscellaneous changes
+~~~~~~~~~~~~~~~~~~~~~
+
+- `#2690 <https://github.com/ethereum/web3.py/issues/2690>`__, `#2694
+  <https://github.com/ethereum/web3.py/issues/2694>`__
+
+
+Breaking changes
+~~~~~~~~~~~~~~~~
+
+- Remove support for dictionary-based caches, for simple-cache-middleware, in
+  favor of the internal ``SimpleCache`` class. (`#2579
+  <https://github.com/ethereum/web3.py/issues/2579>`__)
+- Snakecase the clientVersion method (`#2686
+  <https://github.com/ethereum/web3.py/issues/2686>`__)
+- change instances of `createFilter` to `create_filter` (`#2692
+  <https://github.com/ethereum/web3.py/issues/2692>`__)
+- Remove ``SolidityError`` in favor of ``ContractLogicError`` (`#2697
+  <https://github.com/ethereum/web3.py/issues/2697>`__)
+- Snakecase the solidityKeccak method (`#2702
+  <https://github.com/ethereum/web3.py/issues/2702>`__)
+- Snakecase the fromWeb3 method (`#2703
+  <https://github.com/ethereum/web3.py/issues/2703>`__)
+- Snakecase the toBytes, toHex, toInt, toJSON, and toText methods (`#2707
+  <https://github.com/ethereum/web3.py/issues/2707>`__)
+- Snakecase the toAddress, isChecksumAddress, and toChecksumAddress methods
+  (`#2708 <https://github.com/ethereum/web3.py/issues/2708>`__)
+
+
 v6.0.0-beta.7 (2022-10-19)
 --------------------------
 
