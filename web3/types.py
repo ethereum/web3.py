@@ -423,29 +423,3 @@ class GethWallet(TypedDict):
     accounts: Sequence[Dict[str, str]]
     status: str
     url: str
-
-
-#
-# web3.parity types
-#
-
-ParityBlockTrace = NewType("ParityBlockTrace", Dict[str, Any])
-ParityFilterTrace = NewType("ParityFilterTrace", Dict[str, Any])
-ParityMode = Literal["active", "passive", "dark", "offline"]
-ParityTraceMode = Sequence[Literal["trace", "vmTrace", "stateDiff"]]
-
-
-class ParityNetPeers(TypedDict):
-    active: int
-    connected: int
-    max: int
-    peers: List[Dict[Any, Any]]
-
-
-class ParityFilterParams(TypedDict, total=False):
-    after: int
-    count: int
-    fromAddress: Sequence[Union[Address, ChecksumAddress, ENS]]
-    fromBlock: BlockIdentifier
-    toAddress: Sequence[Union[Address, ChecksumAddress, ENS]]
-    toBlock: BlockIdentifier

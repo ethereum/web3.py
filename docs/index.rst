@@ -69,7 +69,6 @@ Table of Contents
     web3.net
     web3.miner
     web3.geth
-    web3.parity
     web3.utils
     gas_price
     ens

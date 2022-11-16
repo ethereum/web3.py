@@ -92,45 +92,13 @@ def get_default_ipc_path() -> str:  # type: ignore
         if os.path.exists(ipc_path):
             return ipc_path
 
-        ipc_path = os.path.expanduser(
-            os.path.join(
-                "~",
-                "Library",
-                "Application Support",
-                "io.parity.ethereum",
-                "jsonrpc.ipc",
-            )
-        )
-        if os.path.exists(ipc_path):
-            return ipc_path
-
-        base_trinity_path = Path("~").expanduser() / ".local" / "share" / "trinity"
-        ipc_path = str(base_trinity_path / "mainnet" / "ipcs-eth1" / "jsonrpc.ipc")
-        if Path(ipc_path).exists():
-            return str(ipc_path)
-
     elif sys.platform.startswith("linux") or sys.platform.startswith("freebsd"):
         ipc_path = os.path.expanduser(os.path.join("~", ".ethereum", "geth.ipc"))
         if os.path.exists(ipc_path):
             return ipc_path
 
-        ipc_path = os.path.expanduser(
-            os.path.join("~", ".local", "share", "io.parity.ethereum", "jsonrpc.ipc")
-        )
-        if os.path.exists(ipc_path):
-            return ipc_path
-
-        base_trinity_path = Path("~").expanduser() / ".local" / "share" / "trinity"
-        ipc_path = str(base_trinity_path / "mainnet" / "ipcs-eth1" / "jsonrpc.ipc")
-        if Path(ipc_path).exists():
-            return str(ipc_path)
-
     elif sys.platform == "win32":
         ipc_path = os.path.join("\\\\", ".", "pipe", "geth.ipc")
-        if os.path.exists(ipc_path):
-            return ipc_path
-
-        ipc_path = os.path.join("\\\\", ".", "pipe", "jsonrpc.ipc")
         if os.path.exists(ipc_path):
             return ipc_path
 
