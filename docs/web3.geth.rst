@@ -312,7 +312,7 @@ GethTxPool API
 
 The ``web3.geth.txpool`` object exposes methods to interact with the RPC APIs under
 the ``txpool_`` namespace. These methods are only exposed under the ``geth`` namespace
-since they are not standard nor supported in Parity.
+since they are not standard.
 
 The following methods are available on the ``web3.geth.txpool`` namespace.
 

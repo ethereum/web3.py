@@ -10,7 +10,7 @@ Local vs Hosted Nodes
 
 Local Node
   A local node is started and controlled by you. It is as safe as you keep it.
-  When you run ``geth`` or ``parity`` on your machine, you are running a local node.
+  When you run ``geth`` on your machine, for example, you are running a local node.
 
 Hosted Node
   A hosted node is controlled by someone else. When you connect to Infura, you are

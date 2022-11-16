@@ -359,10 +359,6 @@ Each ``Web3`` instance also exposes these namespaced API modules.
 
     See :doc:`./web3.geth`
 
-.. py:attribute:: Web3.parity
-
-    See :doc:`./web3.parity`
-
 
 These internal modules inherit from the ``web3.module.Module`` class which give them some configurations internal to the
 web3.py library.

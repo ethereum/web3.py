@@ -452,7 +452,5 @@ version explicitly, like ``make release bump="--new-version 4.0.0-alpha.1 devnum
 .. _how to create documentation: https://github.com/ethereum/snake-charmers-tactical-manual/blob/master/documentation.md
 .. _working on pull requests: https://help.github.com/articles/about-pull-requests/
 .. _py-geth: https://github.com/ethereum/py-geth
-.. _Github releases: https://github.com/openethereum/openethereum/releases
-.. _Build the binary: https://github.com/openethereum/openethereum/#3-building-
 .. _pytest documentation: https://docs.pytest.org/en/latest
 .. _pytest documentation on fixtures: https://docs.pytest.org/en/latest/how-to/fixtures.html

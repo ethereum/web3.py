@@ -93,10 +93,6 @@ from web3.net import (
     AsyncNet,
     Net,
 )
-from web3.parity import (
-    Parity,
-    ParityPersonal,
-)
 from web3.providers import (
     AsyncBaseProvider,
     BaseProvider,
@@ -138,12 +134,6 @@ def get_default_modules() -> Dict[str, Union[Type[Module], Sequence[Any]]]:
         "eth": Eth,
         "net": Net,
         "version": Version,
-        "parity": (
-            Parity,
-            {
-                "personal": ParityPersonal,
-            },
-        ),
         "geth": (
             Geth,
             {
@@ -231,7 +221,6 @@ class Web3:
 
     # mypy Types
     eth: Eth
-    parity: Parity
     geth: Geth
     net: Net
     async_net: AsyncNet

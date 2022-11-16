@@ -125,14 +125,6 @@ class RPC:
     net_peerCount = RPCEndpoint("net_peerCount")
     net_version = RPCEndpoint("net_version")
 
-    # parity
-    parity_addReservedPeer = RPCEndpoint("parity_addReservedPeer")
-    parity_enode = RPCEndpoint("parity_enode")
-    parity_listStorageKeys = RPCEndpoint("parity_listStorageKeys")
-    parity_netPeers = RPCEndpoint("parity_netPeers")
-    parity_mode = RPCEndpoint("parity_mode")
-    parity_setMode = RPCEndpoint("parity_setMode")
-
     # personal
     personal_ecRecover = RPCEndpoint("personal_ecRecover")
     personal_importRawKey = RPCEndpoint("personal_importRawKey")
@@ -220,8 +212,6 @@ RPC_ABIS = {
     "personal_sign": [None, "address", None],
     "personal_signTypedData": [None, "address", None],
     "trace_call": TRACE_PARAMS_ABIS,
-    # parity
-    "parity_listStorageKeys": ["address", None, None, None],
 }
 
 

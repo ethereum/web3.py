@@ -104,7 +104,7 @@ Middleware Order
 ~~~~~~~~~~~~~~~~~~
 
 Think of the middleware as being layered in an onion, where you initiate a web3.py request at
-the outermost layer of the onion, and the Ethereum node (like geth or parity) receives and responds
+the outermost layer of the onion, and the Ethereum node (like geth) receives and responds
 to the request inside the innermost layer of the onion. Here is a (simplified) diagram:
 
 .. code-block:: none

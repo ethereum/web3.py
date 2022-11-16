@@ -259,14 +259,6 @@ class OffchainLookup(ContractLogicError):
         super().__init__()
 
 
-class InvalidParityMode(TypeError, ValueError):
-    # Inherits from TypeError for backwards compatibility
-    """
-    Raised when web3.parity.set_mode() is called with no or invalid args
-    """
-    pass
-
-
 class InvalidTransaction(Exception):
     """
     Raised when a transaction includes an invalid combination of arguments.
