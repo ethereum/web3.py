@@ -52,16 +52,20 @@ def cache_and_return_session(
     # cache key should have a unique thread identifier
     cache_key = generate_cache_key(f"{threading.get_ident()}:{endpoint_uri}")
 
-    evicted_items = None
+    cached_session = _session_cache.get_cache_entry(cache_key)
+    if cached_session is not None:
+        # If read from cache yields a session, no need to lock; return the session.
+        # Sync is a bit simpler in this way since a `requests.Session` doesn't really
+        # "close" in the same way that an async `ClientSession` does. When "closed", it
+        # still uses http / https adapters successfully if a request is made.
+        return cached_session
+
+    if session is None:
+        session = requests.Session()
+
     with _session_cache_lock:
-        if cache_key not in _session_cache:
-            if session is None:
-                session = requests.Session()
-
-            evicted_items = _session_cache.cache(cache_key, session)
-            logger.debug(f"Session cached: {endpoint_uri}, {session}")
-
-        cached_session = _session_cache.get_cache_entry(cache_key)
+        cached_session, evicted_items = _session_cache.cache(cache_key, session)
+        logger.debug(f"Session cached: {endpoint_uri}, {cached_session}")
 
     if evicted_items is not None:
         evicted_sessions = evicted_items.values()
@@ -126,7 +130,7 @@ _async_session_cache_lock = threading.Lock()
 _async_session_pool = ThreadPoolExecutor(max_workers=1)
 
 
-async def cache_and_return_async_session(
+async def async_cache_and_return_session(
     endpoint_uri: URI,
     session: Optional[ClientSession] = None,
 ) -> ClientSession:
@@ -139,8 +143,10 @@ async def cache_and_return_async_session(
             if session is None:
                 session = ClientSession(raise_for_status=True)
 
-            evicted_items = _async_session_cache.cache(cache_key, session)
-            logger.debug(f"Async session cached: {endpoint_uri}, {session}")
+            cached_session, evicted_items = _async_session_cache.cache(
+                cache_key, session
+            )
+            logger.debug(f"Async session cached: {endpoint_uri}, {cached_session}")
 
         else:
             # get the cached session
@@ -171,11 +177,10 @@ async def cache_and_return_async_session(
 
                 # replace stale session with a new session at the cache key
                 _session = ClientSession(raise_for_status=True)
-                evicted_items = _async_session_cache.cache(cache_key, _session)
-                logger.debug(f"Async session cached: {endpoint_uri}, {_session}")
-
-        # get the cached session
-        cached_session = _async_session_cache.get_cache_entry(cache_key)
+                cached_session, evicted_items = _async_session_cache.cache(
+                    cache_key, _session
+                )
+                logger.debug(f"Async session cached: {endpoint_uri}, {cached_session}")
 
     if evicted_items is not None:
         # At this point the evicted sessions are already popped out of the cache and
@@ -206,7 +211,7 @@ async def async_get_response_from_get_request(
     endpoint_uri: URI, *args: Any, **kwargs: Any
 ) -> ClientResponse:
     kwargs.setdefault("timeout", ClientTimeout(DEFAULT_TIMEOUT))
-    session = await cache_and_return_async_session(endpoint_uri)
+    session = await async_cache_and_return_session(endpoint_uri)
     response = await session.get(endpoint_uri, *args, **kwargs)
     return response
 
@@ -223,7 +228,7 @@ async def async_get_response_from_post_request(
     endpoint_uri: URI, *args: Any, **kwargs: Any
 ) -> ClientResponse:
     kwargs.setdefault("timeout", ClientTimeout(DEFAULT_TIMEOUT))
-    session = await cache_and_return_async_session(endpoint_uri)
+    session = await async_cache_and_return_session(endpoint_uri)
     response = await session.post(endpoint_uri, *args, **kwargs)
     return response
 
