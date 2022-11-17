@@ -26,7 +26,7 @@ from web3._utils.compat import (
     Literal,
 )
 from web3._utils.request import (
-    cache_and_return_async_session,
+    async_cache_and_return_session,
     cache_and_return_session,
 )
 from web3.types import (
@@ -153,7 +153,7 @@ def async_mock_offchain_lookup_request_response(
             return AsyncMockedResponse()
 
         # else, make a normal request (no mocking)
-        session = await cache_and_return_async_session(url_from_args)
+        session = await async_cache_and_return_session(url_from_args)
         return await session.request(
             method=http_method.upper(), url=url_from_args, **kwargs
         )

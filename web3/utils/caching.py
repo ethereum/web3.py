@@ -5,6 +5,7 @@ from typing import (
     Any,
     Dict,
     Optional,
+    Tuple,
 )
 
 
@@ -13,7 +14,7 @@ class SimpleCache:
         self._size = size
         self._data: OrderedDict[str, Any] = OrderedDict()
 
-    def cache(self, key: str, value: Any) -> Dict[str, Any]:
+    def cache(self, key: str, value: Any) -> Tuple[Any, Dict[str, Any]]:
         evicted_items = None
         # If the key is already in the OrderedDict just update it
         # and don't evict any values. Ideally, we could still check to see
@@ -26,7 +27,10 @@ class SimpleCache:
                 k, v = self._data.popitem(last=False)
                 evicted_items[k] = v
         self._data[key] = value
-        return evicted_items
+
+        # Return the cached value along with the evicted items at the same time. No
+        # need to reach back into the cache to grab the value.
+        return value, evicted_items
 
     def get_cache_entry(self, key: str) -> Optional[Any]:
         return self._data[key] if key in self._data else None

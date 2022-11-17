@@ -30,7 +30,7 @@ from web3._utils.caching import (
     generate_cache_key,
 )
 from web3._utils.request import (
-    cache_and_return_async_session,
+    async_cache_and_return_session,
     cache_and_return_session,
 )
 from web3.utils.caching import (
@@ -159,21 +159,21 @@ def test_precached_session(mocker):
 
 def test_cache_session_class():
     cache = SimpleCache(2)
-    evicted_items = cache.cache("1", "Hello1")
+    _, evicted_items = cache.cache("1", "Hello1")
     assert cache.get_cache_entry("1") == "Hello1"
     assert evicted_items is None
 
-    evicted_items = cache.cache("2", "Hello2")
+    _, evicted_items = cache.cache("2", "Hello2")
     assert cache.get_cache_entry("2") == "Hello2"
     assert evicted_items is None
 
     # Changing what is stored at a given cache key should not cause the
     # anything to be evicted
-    evicted_items = cache.cache("1", "HelloChanged")
+    _, evicted_items = cache.cache("1", "HelloChanged")
     assert cache.get_cache_entry("1") == "HelloChanged"
     assert evicted_items is None
 
-    evicted_items = cache.cache("3", "Hello3")
+    _, evicted_items = cache.cache("3", "Hello3")
     assert "2" in cache
     assert "3" in cache
 
@@ -297,15 +297,15 @@ async def test_async_make_post_request(mocker):
 async def test_async_precached_session():
     # Add a session
     session = ClientSession()
-    await request.cache_and_return_async_session(TEST_URI, session)
+    await request.async_cache_and_return_session(TEST_URI, session)
     assert len(request._async_session_cache) == 1
 
     # Make sure the session isn't duplicated
-    await request.cache_and_return_async_session(TEST_URI, session)
+    await request.async_cache_and_return_session(TEST_URI, session)
     assert len(request._async_session_cache) == 1
 
     # Make sure a request with a different URI adds another cached session
-    await request.cache_and_return_async_session(URI(f"{TEST_URI}/test"), session)
+    await request.async_cache_and_return_session(URI(f"{TEST_URI}/test"), session)
     assert len(request._async_session_cache) == 2
 
     # -- teardown -- #
@@ -326,7 +326,7 @@ async def test_async_cache_does_not_close_session_before_a_call_when_multithread
     request.DEFAULT_TIMEOUT = _timeout_for_testing
 
     async def cache_uri_and_return_session(uri):
-        _session = await cache_and_return_async_session(uri)
+        _session = await async_cache_and_return_session(uri)
 
         # simulate a call taking 0.01s to return a response
         await asyncio.sleep(0.01)
@@ -371,7 +371,7 @@ async def test_async_unique_cache_keys_created_per_thread_with_same_uri():
     def target_function(endpoint_uri):
         event_loop = asyncio.new_event_loop()
         unique_session = event_loop.run_until_complete(
-            cache_and_return_async_session(endpoint_uri)
+            async_cache_and_return_session(endpoint_uri)
         )
         test_sessions.append(unique_session)
 
@@ -406,7 +406,7 @@ async def test_async_use_new_session_if_loop_closed_for_cached_session():
     session1 = ClientSession(raise_for_status=True)
     session1._loop = loop1
 
-    await cache_and_return_async_session(TEST_URI, session=session1)
+    await async_cache_and_return_session(TEST_URI, session=session1)
 
     # assert session1 was cached
     cache_key = generate_cache_key(f"{threading.get_ident()}:{TEST_URI}")
@@ -420,7 +420,7 @@ async def test_async_use_new_session_if_loop_closed_for_cached_session():
 
     # assert we create a new session when trying to retrieve the session at the
     # cache key for TEST_URI
-    session2 = await cache_and_return_async_session(TEST_URI)
+    session2 = await async_cache_and_return_session(TEST_URI)
     assert not session2._loop.is_closed()
     assert session2 != session1
 
@@ -442,7 +442,7 @@ async def test_async_use_new_session_if_session_closed_for_cached_session():
     # create a session, close it, and cache it at the cache key for TEST_URI
     session1 = ClientSession(raise_for_status=True)
     await session1.close()
-    await cache_and_return_async_session(TEST_URI, session=session1)
+    await async_cache_and_return_session(TEST_URI, session=session1)
 
     # assert session1 was cached
     cache_key = generate_cache_key(f"{threading.get_ident()}:{TEST_URI}")
@@ -452,7 +452,7 @@ async def test_async_use_new_session_if_session_closed_for_cached_session():
     assert cached_session == session1
 
     # assert we create a new session when trying to retrieve closed session from cache
-    session2 = await cache_and_return_async_session(TEST_URI)
+    session2 = await async_cache_and_return_session(TEST_URI)
     assert not session2.closed
     assert session2 != session1
 
