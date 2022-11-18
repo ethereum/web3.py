@@ -8,7 +8,7 @@ from eth_utils import (
 )
 import pytest_asyncio
 
-from tests.core.filtering._utils import (
+from tests.core.filtering.utils import (
     _async_emitter,
     _async_w3,
     _emitter,

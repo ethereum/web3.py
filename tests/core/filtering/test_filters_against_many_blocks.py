@@ -5,7 +5,7 @@ from eth_utils import (
     to_tuple,
 )
 
-from tests.core.filtering._utils import (
+from tests.core.filtering.utils import (
     async_range,
 )
 
