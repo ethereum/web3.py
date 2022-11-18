@@ -9,10 +9,10 @@ from eth_utils import (
 import pytest_asyncio
 
 from tests.core.filtering.utils import (
-    _async_emitter,
-    _async_w3,
-    _emitter,
-    _w3,
+    _async_emitter_fixture_logic,
+    _async_w3_fixture_logic,
+    _emitter_fixture_logic,
+    _w3_fixture_logic,
 )
 from tests.utils import (
     async_partial,
@@ -30,7 +30,7 @@ from web3._utils.module_testing.emitter_contract import (
     ids=["local_filter_middleware", "node_based_filter"],
 )
 def w3(request):
-    return _w3(request)
+    return _w3_fixture_logic(request)
 
 
 @pytest.fixture()
@@ -64,7 +64,7 @@ def Emitter(w3, EMITTER):
 
 @pytest.fixture()
 def emitter(w3, Emitter, wait_for_transaction, wait_for_block, address_conversion_func):
-    return _emitter(
+    return _emitter_fixture_logic(
         w3, Emitter, wait_for_transaction, wait_for_block, address_conversion_func
     )
 
@@ -171,7 +171,7 @@ def create_filter(request):
     ids=["async_local_filter_middleware", "node_based_filter"],
 )
 def async_w3(request):
-    return _async_w3(request)
+    return _async_w3_fixture_logic(request)
 
 
 @pytest.fixture()
@@ -187,7 +187,7 @@ async def async_emitter(
     async_wait_for_block,
     address_conversion_func,
 ):
-    return await _async_emitter(
+    return await _async_emitter_fixture_logic(
         async_w3,
         AsyncEmitter,
         async_wait_for_transaction,

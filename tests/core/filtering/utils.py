@@ -14,7 +14,7 @@ from web3.providers.eth_tester import (
 )
 
 
-def _w3(request):
+def _w3_fixture_logic(request):
     use_filter_middleware = request.param
     provider = EthereumTesterProvider()
     w3 = Web3(provider)
@@ -23,7 +23,7 @@ def _w3(request):
     return w3
 
 
-def _emitter(
+def _emitter_fixture_logic(
     w3, Emitter, wait_for_transaction, wait_for_block, address_conversion_func
 ):
     wait_for_block(w3)
@@ -41,7 +41,7 @@ def _emitter(
 # --- async --- #
 
 
-def _async_w3(request):
+def _async_w3_fixture_logic(request):
     use_filter_middleware = request.param
     provider = AsyncEthereumTesterProvider()
     async_w3 = Web3(provider, modules={"eth": [AsyncEth]}, middlewares=[])
@@ -51,7 +51,7 @@ def _async_w3(request):
     return async_w3
 
 
-async def _async_emitter(
+async def _async_emitter_fixture_logic(
     async_w3,
     AsyncEmitter,
     async_wait_for_transaction,

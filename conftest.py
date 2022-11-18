@@ -17,8 +17,8 @@ from web3.providers.eth_tester import (
 
 from tests.utils import (
     PollDelayCounter,
-    _async_wait_for_block,
-    _async_wait_for_transaction
+    _async_wait_for_block_fixture_logic,
+    _async_wait_for_transaction_fixture_logic,
 )
 
 
@@ -119,9 +119,9 @@ def async_skip_if_testrpc():
 
 @pytest_asyncio.fixture()
 async def async_wait_for_block():
-    return _async_wait_for_block
+    return _async_wait_for_block_fixture_logic
 
 
 @pytest_asyncio.fixture()
 async def async_wait_for_transaction():
-    return _async_wait_for_transaction
+    return _async_wait_for_transaction_fixture_logic

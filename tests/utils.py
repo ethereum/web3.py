@@ -51,7 +51,7 @@ async def wait_for_ws(endpoint_uri, timeout=10):
             break
 
 
-async def _async_wait_for_block(async_w3, block_number=1, timeout=None):
+async def _async_wait_for_block_fixture_logic(async_w3, block_number=1, timeout=None):
     if not timeout:
         current_block_number = await async_w3.eth.block_number  # type:ignore
         timeout = (block_number - current_block_number) * 3
@@ -64,7 +64,7 @@ async def _async_wait_for_block(async_w3, block_number=1, timeout=None):
             eth_block_number = await async_w3.eth.block_number
 
 
-async def _async_wait_for_transaction(async_w3, txn_hash, timeout=120):
+async def _async_wait_for_transaction_fixture_logic(async_w3, txn_hash, timeout=120):
     poll_delay_counter = PollDelayCounter()
     with Timeout(timeout) as timeout:
         while True:
