@@ -55,8 +55,55 @@ Using private keys usually involves ``w3.eth.account`` in one way or another. Re
 or see a full list of things you can do in the docs for
 :class:`eth_account.Account <eth_account.account.Account>`.
 
-Read a private key from an environment variable
------------------------------------------------
+Creating a Private Key
+----------------------
+
+Each Ethereum address has a matchign private key. To create a new Ethereum 
+account you can just generate a random number that acts as a private key.
+
+- A private key is just a random unguessable, or cryptograpgically safe, 256-bit integer number
+
+- A valid private key is > 0 and < max private key value (a number above the elliptic curve order FFFFFFFF FFFFFFFF FFFFFFFF FFFFFFFE BAAEDCE6 AF48A03B BFD25E8C D0364141)
+
+- Private keys do not have checksums or anything like that
+
+To create a private key using Web3.py and command line you can do:
+
+```shell
+python -c "from web3 import Web3; w3 = Web3(); acc = w3.eth.account.create(); print(f'private key={w3.toHex(acc.privateKey)}, account={acc.address}')"
+```
+
+Which outputs a new private key and an account pair:
+
+```
+private key=0x480c4aec9fa..., account=0x9202a9d5D2d129CB400a40e00aC822a53ED81167
+```
+
+- *Never store private key with your source*. Use environment variables 
+  to store the key. Read more below.
+  
+- You can also import the raw hex private key to MetaMask and any other
+  wallet - the private key can be shared between your Python code
+  and any number of wallets.
+
+Funding a New Account
+---------------------
+
+If you create a private key it comes with its own Ethereum address.
+By default, the balance of this address is zero.
+Before you can send any transactions with your account,
+you need to top up.
+
+- For a local test environment, any environment is boostrapped with accounts that have ETH on them. Move
+  ETH from default accounts to your newly created account.
+  
+- For public mainnet, you need to buy ETH in a cryptocurrency exchange
+
+- For a testnet, you need to [use a testnet faucet](https://faucet.paradigm.xyz/)
+
+
+Reading a Private Key from an Environment Variable
+--------------------------------------------------
 
 In this example we pass the private key to our Python application in an 
 `environment variable <https://en.wikipedia.org/wiki/Environment_variable>`_.
