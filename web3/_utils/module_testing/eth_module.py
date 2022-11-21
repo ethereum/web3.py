@@ -691,7 +691,7 @@ class AsyncEthModuleTest:
         )
         call_result = await async_w3.eth.call(txn_params)  # type: ignore
         assert is_string(call_result)
-        result = async_w3.codec.decode_single('uint256', call_result)
+        (result, ) = async_w3.codec.decode(['uint256'], call_result)
         assert result == 18
 
     @pytest.mark.asyncio
@@ -704,7 +704,7 @@ class AsyncEthModuleTest:
             transaction={'from': coinbase, 'to': revert_contract.address},
         )
         call_result = await async_w3.eth.call(txn_params)  # type: ignore
-        result = async_w3.codec.decode_single('bool', call_result)
+        (result, ) = async_w3.codec.decode(['bool'], call_result)
         assert result is True
 
         # override runtime bytecode: `normalFunction` returns `false`
@@ -714,7 +714,7 @@ class AsyncEthModuleTest:
             'latest',
             {revert_contract.address: {'code': override_code}}
         )
-        result = async_w3.codec.decode_single('bool', call_result)
+        (result, ) = async_w3.codec.decode(['bool'], call_result)
         assert result is False
 
     @pytest.mark.asyncio
@@ -729,7 +729,7 @@ class AsyncEthModuleTest:
         )
         call_result = await async_w3.eth.call(txn_params)  # type: ignore
         assert is_string(call_result)
-        result = async_w3.codec.decode_single('uint256', call_result)
+        (result, ) = async_w3.codec.decode(['uint256'], call_result)
         assert result == 0
 
     @pytest.mark.asyncio
@@ -2505,7 +2505,7 @@ class EthModuleTest:
         )
         call_result = web3.eth.call(txn_params)
         assert is_string(call_result)
-        result = web3.codec.decode_single('uint256', call_result)
+        (result, ) = web3.codec.decode(['uint256'], call_result)
         assert result == 18
 
     def test_eth_call_with_override(
@@ -2517,7 +2517,7 @@ class EthModuleTest:
             transaction={'from': coinbase, 'to': revert_contract.address},
         )
         call_result = web3.eth.call(txn_params)
-        result = web3.codec.decode_single('bool', call_result)
+        (result, ) = web3.codec.decode(['bool'], call_result)
         assert result is True
 
         # override runtime bytecode: `normalFunction` returns `false`
@@ -2527,7 +2527,7 @@ class EthModuleTest:
             'latest',
             {revert_contract.address: {'code': override_code}}
         )
-        result = web3.codec.decode_single('bool', call_result)
+        (result, ) = web3.codec.decode(['bool'], call_result)
         assert result is False
 
     def test_eth_call_with_0_result(
@@ -2541,7 +2541,7 @@ class EthModuleTest:
         )
         call_result = web3.eth.call(txn_params)
         assert is_string(call_result)
-        result = web3.codec.decode_single('uint256', call_result)
+        (result, ) = web3.codec.decode(['uint256'], call_result)
         assert result == 0
 
     def test_eth_call_revert_with_msg(
