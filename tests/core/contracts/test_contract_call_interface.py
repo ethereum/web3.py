@@ -16,7 +16,7 @@ from hexbytes import (
 )
 import pytest_asyncio
 
-from _utils import (
+from tests.core.contracts.utils import (
     async_deploy,
     deploy,
 )
