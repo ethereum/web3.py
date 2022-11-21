@@ -7,10 +7,13 @@ import pathlib
 import sys
 
 ALLOWED_EXTENSIONS = {
+    '.breaking.rst',
     '.bugfix.rst',
     '.doc.rst',
     '.feature.rst',
+    '.internal.rst',
     '.misc.rst',
+    '.performance.rst',
     '.removal.rst',
 }
 
