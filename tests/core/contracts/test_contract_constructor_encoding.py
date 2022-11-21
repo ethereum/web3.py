@@ -56,7 +56,7 @@ def test_error_if_invalid_arguments_supplied(WithConstructorArgumentsContract, a
 def test_contract_constructor_encoding_encoding(web3, WithConstructorArgumentsContract, bytes_arg):
     deploy_data = WithConstructorArgumentsContract._encode_constructor_data([1234, bytes_arg])
     encoded_args = '0x00000000000000000000000000000000000000000000000000000000000004d26162636400000000000000000000000000000000000000000000000000000000'  # noqa: E501
-    expected_ending = encode_hex(web3.codec.encode_abi(['uint256', 'bytes32'], [1234, b'abcd']))
+    expected_ending = encode_hex(web3.codec.encode(['uint256', 'bytes32'], [1234, b'abcd']))
     assert expected_ending == encoded_args
     assert deploy_data.endswith(remove_0x_prefix(expected_ending))
 
@@ -70,7 +70,7 @@ def test_contract_constructor_encoding_encoding_warning(web3, WithConstructorArg
         encoded_args = '0x00000000000000000000000000000000000000000000000000000000000004d26162636400000000000000000000000000000000000000000000000000000000'  # noqa: E501
 
         expected_ending = encode_hex(
-            web3.codec.encode_abi(['uint256', 'bytes32'], [1234, b'abcd'])
+            web3.codec.encode(['uint256', 'bytes32'], [1234, b'abcd'])
         )
         assert expected_ending == encoded_args
         assert deploy_data.endswith(remove_0x_prefix(expected_ending))
@@ -92,7 +92,7 @@ def test_contract_constructor_encoding_encoding_strict(
     deploy_data = WithConstructorArgumentsContractStrict._encode_constructor_data([1234, bytes_arg])
 
     expected_ending = encode_hex(
-        w3_strict_abi.codec.encode_abi(['uint256', 'bytes32'], [1234, bytes_arg])
+        w3_strict_abi.codec.encode(['uint256', 'bytes32'], [1234, bytes_arg])
     )
     assert expected_ending == encoded_args
     assert deploy_data.endswith(remove_0x_prefix(expected_ending))

@@ -1,0 +1,1 @@
+Remove references to deprecated ``eth-abi`` methods and replace with supported methods.

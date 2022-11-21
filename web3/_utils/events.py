@@ -49,6 +49,9 @@ from eth_utils.toolz import (
     curry,
     valfilter,
 )
+from hexbytes import (
+    HexBytes,
+)
 
 import web3
 from web3._utils.abi import (
@@ -124,7 +127,9 @@ def construct_event_topic_set(
     ]
     encoded_args = [
         [
-            None if option is None else encode_hex(abi_codec.encode_single(arg['type'], option))
+            None
+            if option is None
+            else encode_hex(abi_codec.encode([arg['type']], [option]))
             for option in arg_options]
         for arg, arg_options in zipped_abi_and_args
     ]
@@ -164,7 +169,9 @@ def construct_event_data_set(
     ]
     encoded_args = [
         [
-            None if option is None else encode_hex(abi_codec.encode_single(arg['type'], option))
+            None
+            if option is None
+            else encode_hex(abi_codec.encode([arg['type']], [option]))
             for option in arg_options]
         for arg, arg_options in zipped_abi_and_args
     ]
@@ -239,7 +246,7 @@ def get_event_data(abi_codec: ABICodec, event_abi: ABIEvent, log_entry: LogRecei
             f"between event inputs: '{', '.join(duplicate_names)}'"
         )
 
-    decoded_log_data = abi_codec.decode_abi(log_data_types, log_data)
+    decoded_log_data = abi_codec.decode(log_data_types, HexBytes(log_data))
     normalized_log_data = map_abi_data(
         BASE_RETURN_NORMALIZERS,
         log_data_types,
@@ -247,7 +254,7 @@ def get_event_data(abi_codec: ABICodec, event_abi: ABIEvent, log_entry: LogRecei
     )
 
     decoded_topic_data = [
-        abi_codec.decode_single(topic_type, topic_data)
+        abi_codec.decode([topic_type], topic_data)[0]
         for topic_type, topic_data
         in zip(log_topic_types, log_topics)
     ]
@@ -506,7 +513,7 @@ class TopicArgumentFilter(BaseArgumentFilter):
         if is_dynamic_sized_type(self.arg_type):
             return to_hex(keccak(encode_single_packed(self.arg_type, value)))
         else:
-            return to_hex(self.abi_codec.encode_single(self.arg_type, value))
+            return to_hex(self.abi_codec.encode([self.arg_type], [value]))
 
 
 class EventLogErrorFlags(Enum):

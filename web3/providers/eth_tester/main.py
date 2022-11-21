@@ -8,7 +8,7 @@ from typing import (
 )
 
 from eth_abi import (
-    decode_single,
+    abi,
 )
 from eth_abi.exceptions import (
     InsufficientDataBytes,
@@ -107,7 +107,7 @@ class EthereumTesterProvider(BaseProvider):
             )
         except TransactionFailed as e:
             try:
-                reason = decode_single('(string)', e.args[0].args[0][4:])[0]
+                reason = abi.decode(["string"], e.args[0].args[0][4:])[0]
             except (InsufficientDataBytes, AttributeError):
                 reason = e.args[0]
             raise TransactionFailed(f'execution reverted: {reason}')
