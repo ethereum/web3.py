@@ -57,17 +57,6 @@ class GoEthereumAdminModuleTest:
         start = w3.geth.admin.start_http()
         assert start is True
 
-    def test_admin_start_stop_rpc(self, w3: "Web3") -> None:
-        with pytest.warns(DeprecationWarning, match="deprecated in favor of stop_http"):
-            stop = w3.geth.admin.stop_rpc()
-            assert stop is True
-
-        with pytest.warns(
-            DeprecationWarning, match="deprecated in favor of start_http"
-        ):
-            start = w3.geth.admin.start_rpc()
-            assert start is True
-
     def test_admin_start_stop_ws(self, w3: "Web3") -> None:
         stop = w3.geth.admin.stop_ws()
         assert stop is True
@@ -106,18 +95,6 @@ class GoEthereumAsyncAdminModuleTest:
 
         start = await w3.geth.admin.start_http()  # type: ignore
         assert start is True
-
-    @pytest.mark.asyncio
-    async def test_admin_start_stop_rpc(self, w3: "Web3") -> None:
-        with pytest.warns(DeprecationWarning, match="deprecated in favor of stop_http"):
-            stop = await w3.geth.admin.stop_rpc()
-            assert stop is True
-
-        with pytest.warns(
-            DeprecationWarning, match="deprecated in favor of start_http"
-        ):
-            start = await w3.geth.admin.start_rpc()
-            assert start is True
 
     @pytest.mark.asyncio
     async def test_admin_start_stop_ws(self, w3: "Web3") -> None:

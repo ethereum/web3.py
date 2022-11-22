@@ -354,9 +354,6 @@ API_ENDPOINTS = {
         "start_ws": not_implemented,
         "stop_http": not_implemented,
         "stop_ws": not_implemented,
-        # deprecated
-        "start_rpc": not_implemented,
-        "stop_rpc": not_implemented,
     },
     "debug": {
         "backtraceAt": not_implemented,

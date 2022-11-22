@@ -125,12 +125,6 @@ The ``web3.geth.admin`` object exposes methods to interact with the RPC APIs und
 
         >>> web3.geth.admin.start_http()
         True
-        
-
-.. py:method:: start_rpc()
-
-  .. warning:: Deprecated: This method is deprecated in favor of
-    :meth:`~web3.geth.admin.start_http()`
 
 
 .. py:method:: start_ws(host='localhost', port=8546, cors="", apis="eth,net,web3")
@@ -158,12 +152,6 @@ The ``web3.geth.admin`` object exposes methods to interact with the RPC APIs und
 
         >>> web3.geth.admin.stop_http()
         True
-
-
-.. py:method:: stop_rpc()
-
-  .. warning:: Deprecated: This method is deprecated in favor of
-    :meth:`~web3.geth.admin.stop_http()`
 
 
 .. py:method:: stop_ws()
