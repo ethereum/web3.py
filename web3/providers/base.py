@@ -38,6 +38,7 @@ class BaseProvider:
         None,
     )
 
+    is_async = False
     global_ccip_read_enabled: bool = True
     ccip_read_max_redirects: int = 4
 

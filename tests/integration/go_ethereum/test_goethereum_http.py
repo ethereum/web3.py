@@ -12,23 +12,6 @@ from web3._utils.module_testing.go_ethereum_admin_module import (
 from web3._utils.module_testing.go_ethereum_personal_module import (
     GoEthereumAsyncPersonalModuleTest,
 )
-from web3.eth import (
-    AsyncEth,
-)
-from web3.geth import (
-    AsyncGethAdmin,
-    AsyncGethPersonal,
-    AsyncGethTxPool,
-    Geth,
-)
-from web3.middleware import (
-    async_buffered_gas_estimate_middleware,
-    async_gas_price_strategy_middleware,
-    async_validation_middleware,
-)
-from web3.net import (
-    AsyncNet,
-)
 from web3.providers.async_rpc import (
     AsyncHTTPProvider,
 )
@@ -137,26 +120,7 @@ class TestGoEthereumTxPoolModuleTest(GoEthereumTxPoolModuleTest):
 @pytest_asyncio.fixture(scope="module")
 async def async_w3(geth_process, endpoint_uri):
     await wait_for_aiohttp(endpoint_uri)
-    _w3 = Web3(
-        AsyncHTTPProvider(endpoint_uri),
-        middlewares=[
-            async_buffered_gas_estimate_middleware,
-            async_gas_price_strategy_middleware,
-            async_validation_middleware,
-        ],
-        modules={
-            "eth": AsyncEth,
-            "async_net": AsyncNet,
-            "geth": (
-                Geth,
-                {
-                    "txpool": (AsyncGethTxPool,),
-                    "personal": (AsyncGethPersonal,),
-                    "admin": (AsyncGethAdmin,),
-                },
-            ),
-        },
-    )
+    _w3 = Web3(AsyncHTTPProvider(endpoint_uri))
     return _w3
 
 
