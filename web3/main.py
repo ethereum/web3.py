@@ -120,9 +120,6 @@ from web3.types import (  # noqa: F401
     MiddlewareOnion,
     Wei,
 )
-from web3.version import (
-    Version,
-)
 
 if TYPE_CHECKING:
     from web3.pm import PM  # noqa: F401
@@ -133,7 +130,6 @@ def get_default_modules() -> Dict[str, Union[Type[Module], Sequence[Any]]]:
     return {
         "eth": Eth,
         "net": Net,
-        "version": Version,
         "geth": (
             Geth,
             {
