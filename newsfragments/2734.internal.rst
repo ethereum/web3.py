@@ -1,0 +1,1 @@
+Use regex pattern for ``mypy`` command for ``tox`` / ``make lint`` linting commands.
