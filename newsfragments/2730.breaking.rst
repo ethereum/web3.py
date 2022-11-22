@@ -1,0 +1,1 @@
+Make the ``ipfshttpclient`` library opt-in via a web3 install extra. This only affects the ``ethpm`` ``ipfs`` backends, which rely on the library.

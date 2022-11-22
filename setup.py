@@ -51,12 +51,16 @@ extras_require = {
         "pluggy==0.13.1",
         "when-changed>=0.3.0",
     ],
+    "ipfs": [
+        "ipfshttpclient==0.8.0a2",
+    ],
 }
 
 extras_require["dev"] = (
     extras_require["tester"]
     + extras_require["linter"]
     + extras_require["docs"]
+    + extras_require["ipfs"]
     + extras_require["dev"]
 )
 
@@ -82,7 +86,6 @@ setup(
         "eth-typing>=3.0.0",
         "eth-utils>=2.0.0",
         "hexbytes>=0.1.0",
-        "ipfshttpclient==0.8.0a2",
         "jsonschema>=4.0.0",
         "lru-dict>=1.1.6",
         "protobuf>=4.21.6",

@@ -169,7 +169,16 @@ BaseURIBackend
 IPFS
 ~~~~
 
-``Py-EthPM`` has multiple backends available to fetch/pin files to IPFS. The desired backend can be set via the environment variable: ``ETHPM_IPFS_BACKEND_CLASS``.
+``Py-EthPM`` has multiple backends available to fetch/pin files to IPFS.
+The IPFS backends rely on the now-unmaintained ``ipfshttpclient`` library. Because of
+this, they are opt-in and may be installed via the ``ipfs`` web3 install extra.
+
+.. code-block:: bash
+
+    $ pip install "web3[ipfs]"
+
+
+The desired backend can be set via the environment variable: ``ETHPM_IPFS_BACKEND_CLASS``.
 
 - ``InfuraIPFSBackend`` (default)
     - `https://ipfs.infura.io`
