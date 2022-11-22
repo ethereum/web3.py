@@ -1,0 +1,1 @@
+Remove unnecessary ``await`` for ``generate_gas_price()`` method as it does not need to be awaited. Move this method to ``BaseEth`` to be used directly by both ``Eth`` and ``AsyncEth`` modules.

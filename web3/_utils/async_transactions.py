@@ -51,20 +51,16 @@ async def _estimate_gas(w3: "Web3", tx: TxParams) -> Awaitable[int]:
     return await w3.eth.estimate_gas(tx)  # type: ignore
 
 
-async def _gas_price(w3: "Web3", tx: TxParams) -> Awaitable[Optional[Wei]]:
-    return await w3.eth.generate_gas_price(tx)  # type: ignore
-
-
-async def _max_fee_per_gas(w3: "Web3", tx: TxParams) -> Awaitable[Wei]:
+async def _max_fee_per_gas(w3: "Web3", _tx: TxParams) -> Awaitable[Wei]:
     block = await w3.eth.get_block("latest")  # type: ignore
     return await w3.eth.max_priority_fee + (2 * block["baseFeePerGas"])  # type: ignore
 
 
-async def _max_priority_fee_gas(w3: "Web3", tx: TxParams) -> Awaitable[Wei]:
+async def _max_priority_fee_gas(w3: "Web3", _tx: TxParams) -> Awaitable[Wei]:
     return await w3.eth.max_priority_fee  # type: ignore
 
 
-async def _chain_id(w3: "Web3", tx: TxParams) -> Awaitable[int]:
+async def _chain_id(w3: "Web3", _tx: TxParams) -> Awaitable[int]:
     return await w3.eth.chain_id  # type: ignore
 
 
@@ -72,7 +68,7 @@ TRANSACTION_DEFAULTS = {
     "value": 0,
     "data": b"",
     "gas": _estimate_gas,
-    "gasPrice": _gas_price,
+    "gasPrice": lambda w3, tx: w3.eth.generate_gas_price(tx),
     "maxFeePerGas": _max_fee_per_gas,
     "maxPriorityFeePerGas": _max_priority_fee_gas,
     "chainId": _chain_id,
@@ -112,9 +108,8 @@ async def fill_transaction_defaults(w3: "Web3", transaction: TxParams) -> TxPara
     """
     if w3 is None, fill as much as possible while offline
     """
-    strategy_based_gas_price = await w3.eth.generate_gas_price(  # type: ignore
-        transaction
-    )
+    strategy_based_gas_price = w3.eth.generate_gas_price(transaction)
+
     is_dynamic_fee_transaction = strategy_based_gas_price is None and (
         "gasPrice" not in transaction  # default to dynamic fee transaction
         or any_in_dict(DYNAMIC_FEE_TXN_PARAMS, transaction)
@@ -138,7 +133,12 @@ async def fill_transaction_defaults(w3: "Web3", transaction: TxParams) -> TxPara
                     raise ValueError(
                         f"You must specify a '{key}' value in the transaction"
                     )
-                default_val = await default_getter(w3, transaction)
+                if key == "gasPrice":
+                    # `generate_gas_price()` is on the `BaseEth` class and does not
+                    # need to be awaited
+                    default_val = default_getter(w3, transaction)
+                else:
+                    default_val = await default_getter(w3, transaction)
             else:
                 default_val = default_getter
 

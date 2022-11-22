@@ -177,7 +177,7 @@ class BaseEth(Module):
         mungers=[default_root_munger],
     )
 
-    def _generate_gas_price(
+    def generate_gas_price(
         self, transaction_params: Optional[TxParams] = None
     ) -> Optional[Wei]:
         if self.gasPriceStrategy:
@@ -487,11 +487,6 @@ class AsyncEth(BaseEth):
         return await self._get_raw_transaction_by_block(  # type: ignore
             block_identifier, index
         )
-
-    async def generate_gas_price(
-        self, transaction_params: Optional[TxParams] = None
-    ) -> Optional[Wei]:
-        return self._generate_gas_price(transaction_params)
 
     async def estimate_gas(
         self, transaction: TxParams, block_identifier: Optional[BlockIdentifier] = None
@@ -971,8 +966,3 @@ class Eth(BaseEth):
         RPC.eth_getWork,
         is_property=True,
     )
-
-    def generate_gas_price(
-        self, transaction_params: Optional[TxParams] = None
-    ) -> Optional[Wei]:
-        return self._generate_gas_price(transaction_params)

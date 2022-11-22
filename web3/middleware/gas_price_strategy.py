@@ -109,9 +109,7 @@ async def async_gas_price_strategy_middleware(
     async def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
         if method == "eth_sendTransaction":
             transaction = params[0]
-            generated_gas_price = await w3.eth.generate_gas_price(  # type: ignore
-                transaction
-            )
+            generated_gas_price = w3.eth.generate_gas_price(transaction)
             latest_block = await w3.eth.get_block("latest")  # type: ignore
             transaction = validate_transaction_params(
                 transaction, latest_block, generated_gas_price
