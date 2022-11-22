@@ -28,7 +28,7 @@ clean-pyc:
 	find . -name '__pycache__' -exec rm -rf {} +
 
 lint:
-	tox -elint
+	tox -e lint
 
 lint-roll:
 	isort --recursive <MODULE_NAME> tests
@@ -83,11 +83,11 @@ release: check-bump clean
 	git config commit.gpgSign true
 	bumpversion $(bump)
 	git push upstream && git push upstream --tags
-	python setup.py sdist bdist_wheel
+	python -m build
 	twine upload dist/*
 	git config commit.gpgSign "$(CURRENT_SIGN_SETTING)"
 
 
 dist: clean
-	python setup.py sdist bdist_wheel
+	python -m build
 	ls -l dist
