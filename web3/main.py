@@ -74,9 +74,13 @@ from web3._utils.normalizers import (
     abi_ens_resolver,
 )
 from web3.eth import (
+    AsyncEth,
     Eth,
 )
 from web3.geth import (
+    AsyncGethAdmin,
+    AsyncGethPersonal,
+    AsyncGethTxPool,
     Geth,
     GethAdmin,
     GethMiner,
@@ -124,6 +128,21 @@ from web3.types import (  # noqa: F401
 if TYPE_CHECKING:
     from web3.pm import PM  # noqa: F401
     from web3._utils.empty import Empty  # noqa: F401
+
+
+def get_async_default_modules() -> Dict[str, Union[Type[Module], Sequence[Any]]]:
+    return {
+        "eth": AsyncEth,
+        "async_net": AsyncNet,
+        "geth": (
+            Geth,
+            {
+                "admin": AsyncGethAdmin,
+                "personal": AsyncGethPersonal,
+                "txpool": AsyncGethTxPool,
+            },
+        ),
+    }
 
 
 def get_default_modules() -> Dict[str, Union[Type[Module], Sequence[Any]]]:
@@ -237,7 +256,10 @@ class Web3:
         self.codec = ABICodec(build_default_registry())
 
         if modules is None:
-            modules = get_default_modules()
+            if provider and provider.is_async:
+                modules = get_async_default_modules()
+            else:
+                modules = get_default_modules()
 
         self.attach_modules(modules)
 

@@ -37,6 +37,9 @@ from web3.exceptions import (
 )
 from web3.middleware import (
     abi_middleware,
+    async_buffered_gas_estimate_middleware,
+    async_gas_price_strategy_middleware,
+    async_validation_middleware,
     attrdict_middleware,
     buffered_gas_estimate_middleware,
     gas_price_strategy_middleware,
@@ -49,6 +52,7 @@ from web3.providers import (
     AutoProvider,
 )
 from web3.types import (  # noqa: F401
+    AsyncMiddleware,
     Middleware,
     MiddlewareOnion,
     RPCEndpoint,
@@ -101,15 +105,18 @@ class RequestManager:
         self.w3 = w3
         self.pending_requests: Dict[UUID, ThreadWithReturn[RPCResponse]] = {}
 
-        if middlewares is None:
-            middlewares = self.default_middlewares(w3)
-
-        self.middleware_onion: MiddlewareOnion = NamedElementOnion(middlewares)
-
         if provider is None:
             self.provider = AutoProvider()
         else:
             self.provider = provider
+
+        if middlewares is None:
+            if self.provider.is_async:
+                middlewares = self.async_default_middlewares(w3)
+            else:
+                middlewares = self.default_middlewares(w3)
+
+        self.middleware_onion: MiddlewareOnion = NamedElementOnion(middlewares)
 
     w3: "Web3" = None
     _provider = None
@@ -137,6 +144,18 @@ class RequestManager:
             (validation_middleware, "validation"),
             (abi_middleware, "abi"),  # Delete
             (buffered_gas_estimate_middleware, "gas_estimate"),
+        ]
+
+    @staticmethod
+    def async_default_middlewares(w3: "Web3") -> List[Tuple[Middleware, str]]:
+        """
+        List the default middlewares for the request manager.
+        Leaving ens unspecified will prevent the middleware from resolving names.
+        """
+        return [
+            (async_gas_price_strategy_middleware, "gas_price_strategy"),
+            (async_validation_middleware, "validation"),
+            (async_buffered_gas_estimate_middleware, "gas_estimate"),
         ]
 
     #

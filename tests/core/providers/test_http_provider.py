@@ -20,6 +20,7 @@ def test_no_args():
     provider = HTTPProvider()
     w3 = Web3(provider)
     assert w3.manager.provider == provider
+    assert not w3.manager.provider.is_async
 
 
 def test_init_kwargs():
