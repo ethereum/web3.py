@@ -11,7 +11,6 @@ from web3._utils.rpc_abi import (
     RPC,
 )
 from web3.method import (
-    DeprecatedMethod,
     Method,
     default_root_munger,
 )
@@ -26,7 +25,7 @@ from web3.types import (
 
 
 def admin_start_params_munger(
-    module: Module,
+    _module: Module,
     host: str = "localhost",
     port: int = 8546,
     cors: str = "",
@@ -92,9 +91,3 @@ stop_ws: Method[Callable[[], bool]] = Method(
     RPC.admin_stopWS,
     is_property=True,
 )
-
-#
-# Deprecated Methods
-#
-start_rpc = DeprecatedMethod(start_http, "start_rpc", "start_http")
-stop_rpc = DeprecatedMethod(stop_http, "stop_rpc", "stop_http")

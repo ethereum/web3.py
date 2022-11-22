@@ -22,14 +22,9 @@ from web3._utils.admin import (
     node_info,
     peers,
     start_http,
-    start_rpc,
     start_ws,
     stop_http,
-    stop_rpc,
     stop_ws,
-)
-from web3._utils.decorators import (
-    deprecated_for,
 )
 from web3._utils.miner import (
     make_dag,
@@ -223,9 +218,6 @@ class BaseGethAdmin(Module):
     _start_ws = start_ws
     _stop_http = stop_http
     _stop_ws = stop_ws
-    # deprecated
-    _start_rpc = start_rpc
-    _stop_rpc = stop_rpc
 
 
 class GethAdmin(BaseGethAdmin):
@@ -262,24 +254,10 @@ class GethAdmin(BaseGethAdmin):
         return self._start_ws(host, port, cors, apis)
 
     def stop_http(self) -> bool:
-        return self._stop_rpc()
+        return self._stop_http()
 
     def stop_ws(self) -> bool:
         return self._stop_ws()
-
-    @deprecated_for("start_http")
-    def start_rpc(
-        self,
-        host: str = "localhost",
-        port: int = 8546,
-        cors: str = "",
-        apis: str = "eth,net,web3",
-    ) -> bool:
-        return self._start_rpc(host, port, cors, apis)
-
-    @deprecated_for("stop_http")
-    def stop_rpc(self) -> bool:
-        return self._stop_rpc()
 
 
 class AsyncGethAdmin(BaseGethAdmin):
@@ -320,20 +298,6 @@ class AsyncGethAdmin(BaseGethAdmin):
 
     async def stop_ws(self) -> Awaitable[bool]:
         return await self._stop_ws()  # type: ignore
-
-    @deprecated_for("start_http")
-    async def start_rpc(
-        self,
-        host: str = "localhost",
-        port: int = 8546,
-        cors: str = "",
-        apis: str = "eth,net,web3",
-    ) -> Awaitable[bool]:
-        return await self._start_rpc(host, port, cors, apis)
-
-    @deprecated_for("stop_http")
-    async def stop_rpc(self) -> Awaitable[bool]:
-        return await self._stop_rpc()
 
 
 class GethMiner(Module):

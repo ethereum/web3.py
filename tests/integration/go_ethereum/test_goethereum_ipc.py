@@ -77,11 +77,6 @@ class TestGoEthereumAdminModuleTest(GoEthereumAdminModuleTest):
         pytest.xfail(reason="Only one WS endpoint is allowed to be active at any time")
         super().test_admin_start_stop_ws(w3)
 
-    def test_admin_start_stop_rpc(self, w3: "Web3") -> None:
-        # This test causes all tests after it to fail on CI if it's allowed to run
-        pytest.xfail(reason="Only one RPC endpoint is allowed to be active at any time")
-        super().test_admin_start_stop_rpc(w3)
-
 
 class TestGoEthereumEthModuleTest(GoEthereumEthModuleTest):
     pass

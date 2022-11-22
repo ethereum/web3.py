@@ -1,0 +1,1 @@
+Remove already-deprecated ``start_rpc`` and ``stop_rpc`` from the ``w3.geth.admin`` module.

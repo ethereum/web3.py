@@ -93,12 +93,6 @@ class TestGoEthereumAdminModuleTest(GoEthereumAdminModuleTest):
         )
         super().test_admin_start_stop_ws(w3)
 
-    def test_admin_start_stop_rpc(self, w3: "Web3") -> None:
-        pytest.xfail(
-            reason="This test inconsistently causes all tests after it on CI to fail if it's allowed to run"  # noqa: E501
-        )
-        super().test_admin_start_stop_rpc(w3)
-
 
 class TestGoEthereumEthModuleTest(GoEthereumEthModuleTest):
     pass
