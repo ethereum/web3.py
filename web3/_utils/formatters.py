@@ -6,7 +6,6 @@ from typing import (
     Callable,
     Dict,
     Iterable,
-    Sequence,
     Tuple,
     TypeVar,
 )
@@ -19,7 +18,6 @@ from eth_utils import (
     is_list_like,
     is_string,
     to_dict,
-    to_list,
 )
 from eth_utils.curried import (
     apply_formatter_at_index,
@@ -54,15 +52,6 @@ def apply_formatters_to_args(
             for index, formatter in enumerate(formatters)
         )
     )
-
-
-@curry
-@to_list
-def apply_formatter_to_array(
-    formatter: Callable[[TValue], TReturn], value: Sequence[TValue]
-) -> Iterable[TReturn]:
-    for item in value:
-        yield formatter(item)
 
 
 def map_collection(func: Callable[..., TReturn], collection: Any) -> Any:
