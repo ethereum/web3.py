@@ -605,17 +605,22 @@ def raise_contract_logic_error_on_revert(response: RPCResponse) -> RPCResponse:
         raise ContractLogicError(f'execution reverted: {response["error"]["message"]}')
 
     # Parity/OpenEthereum case:
-    if data.startswith("Reverted "):
+    if data.startswith('Reverted '):
         # "Reverted", function selector and offset are always the same for revert errors
-        prefix = "Reverted 0x08c379a00000000000000000000000000000000000000000000000000000000000000020"  # noqa: 501
+        prefix = 'Reverted 0x08c379a00000000000000000000000000000000000000000000000000000000000000020'  # noqa: 501
         if not data.startswith(prefix):
-            raise ContractLogicError("execution reverted")
+            if data.startswith("Reverted 0x"):
+                # Special case for this form: 'Reverted 0x4f776e6572496420646f6573206e6f7420657869737420696e207265676973747279'
+                receipt = data.split(" ")[1][2:]
+                revert_reason = bytes.fromhex(receipt).decode('utf-8')
+                raise ContractLogicError(f'execution reverted: {revert_reason}')
+            else:       
+                raise ContractLogicError('execution reverted')
 
-        reason_length = int(data[len(prefix) : len(prefix) + 64], 16)
-        reason = data[len(prefix) + 64 : len(prefix) + 64 + reason_length * 2]
-        raise ContractLogicError(
-            f'execution reverted: {bytes.fromhex(reason).decode("utf8")}'
-        )
+        reason_length = int(data[len(prefix):len(prefix) + 64], 16)
+        reason = data[len(prefix) + 64:len(prefix) + 64 + reason_length * 2]
+        raise ContractLogicError(f'execution reverted: {bytes.fromhex(reason).decode("utf8")}')
+
 
     # --- EIP-3668 | CCIP Read --- #
     # 0x556f1830 is the function selector for:
