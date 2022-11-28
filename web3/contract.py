@@ -213,7 +213,7 @@ class BaseContractFunctions:
         else:
             return super().__getattribute__(function_name)
 
-    def __getitem__(self, function_name: str) -> ABIFunction:
+    def __getitem__(self, function_name: str) -> "ContractFunction":
         return getattr(self, function_name)
 
     def __hasattr__(self, event_name: str) -> bool:
