@@ -1,0 +1,1 @@
+Remove internal method ``apply_formatter_to_array`` and use the method with the same name from the ``eth-utils`` library.

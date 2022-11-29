@@ -30,13 +30,15 @@ from eth_utils.toolz import (
 )
 
 from web3._utils.formatters import (
-    apply_formatter_to_array,
     apply_formatters_to_args,
     apply_key_map,
     hex_to_integer,
     integer_to_hex,
     is_array_of_dicts,
     static_return,
+)
+from web3._utils.method_formatters import (
+    apply_list_to_array_formatter,
 )
 from web3.middleware import (
     construct_formatting_middleware,
@@ -88,8 +90,8 @@ TRANSACTION_REQUEST_FORMATTERS = {
     "nonce": to_integer_if_hex,
     "maxFeePerGas": to_integer_if_hex,
     "maxPriorityFeePerGas": to_integer_if_hex,
-    "accessList": apply_formatter_to_array(
-        apply_key_map({"storageKeys": "storage_keys"})
+    "accessList": apply_list_to_array_formatter(
+        (apply_key_map({"storageKeys": "storage_keys"}))
     ),
 }
 transaction_request_formatter = apply_formatters_to_dict(TRANSACTION_REQUEST_FORMATTERS)
@@ -142,7 +144,7 @@ transaction_result_remapper = apply_key_map(TRANSACTION_RESULT_KEY_MAPPING)
 
 TRANSACTION_RESULT_FORMATTERS = {
     "to": apply_formatter_if(partial(operator.eq, ""), static_return(None)),
-    "access_list": apply_formatter_to_array(
+    "access_list": apply_list_to_array_formatter(
         apply_key_map({"storage_keys": "storageKeys"}),
     ),
 }
@@ -189,7 +191,7 @@ block_result_remapper = apply_key_map(BLOCK_RESULT_KEY_MAPPING)
 
 
 RECEIPT_RESULT_FORMATTERS = {
-    "logs": apply_formatter_to_array(log_result_remapper),
+    "logs": apply_list_to_array_formatter(log_result_remapper),
 }
 receipt_result_formatter = apply_formatters_to_dict(RECEIPT_RESULT_FORMATTERS)
 
@@ -285,15 +287,15 @@ result_formatters: Optional[Dict[RPCEndpoint, Callable[..., Any]]] = {
     RPCEndpoint("eth_newPendingTransactionFilter"): integer_to_hex,
     RPCEndpoint("eth_getLogs"): apply_formatter_if(
         is_array_of_dicts,
-        apply_formatter_to_array(log_result_remapper),
+        apply_list_to_array_formatter(log_result_remapper),
     ),
     RPCEndpoint("eth_getFilterChanges"): apply_formatter_if(
         is_array_of_dicts,
-        apply_formatter_to_array(log_result_remapper),
+        apply_list_to_array_formatter(log_result_remapper),
     ),
     RPCEndpoint("eth_getFilterLogs"): apply_formatter_if(
         is_array_of_dicts,
-        apply_formatter_to_array(log_result_remapper),
+        apply_list_to_array_formatter(log_result_remapper),
     ),
     # EVM
     RPCEndpoint("evm_snapshot"): integer_to_hex,
