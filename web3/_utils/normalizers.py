@@ -205,7 +205,11 @@ def abi_address_to_hex(
 
 
 @curry
-def abi_ens_resolver(w3: "Web3", type_str: TypeStr, val: Any) -> Tuple[TypeStr, Any]:
+def abi_ens_resolver(
+    w3: "Web3",
+    type_str: TypeStr,
+    val: Any,
+) -> Tuple[TypeStr, Any]:
     if type_str == "address" and is_ens_name(val):
         if w3 is None:
             raise InvalidAddress(
@@ -214,11 +218,12 @@ def abi_ens_resolver(w3: "Web3", type_str: TypeStr, val: Any) -> Tuple[TypeStr, 
             )
 
         _ens = cast(ENS, w3.ens)
+        net_version = int(cast(str, w3.net.version)) if hasattr(w3, "net") else None
         if _ens is None:
             raise InvalidAddress(
                 f"Could not look up name {val!r} because ENS is" " set to None"
             )
-        elif int(w3.net.version) != 1 and not isinstance(_ens, StaticENS):
+        elif net_version != 1 and not isinstance(_ens, StaticENS):
             raise InvalidAddress(
                 f"Could not look up name {val!r} because web3 is"
                 " not connected to mainnet"

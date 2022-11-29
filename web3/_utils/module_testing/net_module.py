@@ -1,6 +1,7 @@
 import pytest
 from typing import (
     TYPE_CHECKING,
+    cast,
 )
 
 from eth_utils import (
@@ -15,7 +16,7 @@ if TYPE_CHECKING:
 
 class NetModuleTest:
     def test_net_version(self, w3: "Web3") -> None:
-        version = w3.net.version
+        version = cast(str, w3.net.version)
 
         assert is_string(version)
         assert version.isdigit()
@@ -34,19 +35,19 @@ class NetModuleTest:
 class AsyncNetModuleTest:
     @pytest.mark.asyncio
     async def test_net_version(self, async_w3: "Web3") -> None:
-        version = await async_w3.async_net.version
+        version = await async_w3.net.version  # type: ignore
 
         assert is_string(version)
         assert version.isdigit()
 
     @pytest.mark.asyncio
     async def test_net_listening(self, async_w3: "Web3") -> None:
-        listening = await async_w3.async_net.listening
+        listening = await async_w3.net.listening  # type: ignore
 
         assert is_boolean(listening)
 
     @pytest.mark.asyncio
     async def test_net_peer_count(self, async_w3: "Web3") -> None:
-        peer_count = await async_w3.async_net.peer_count
+        peer_count = await async_w3.net.peer_count  # type: ignore
 
         assert is_integer(peer_count)

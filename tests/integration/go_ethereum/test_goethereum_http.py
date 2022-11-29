@@ -129,22 +129,22 @@ class TestGoEthereumAsyncAdminModuleTest(GoEthereumAsyncAdminModuleTest):
     @pytest.mark.xfail(
         reason="running geth with the --nodiscover flag doesn't allow peer addition"
     )
-    async def test_admin_peers(self, w3: "Web3") -> None:
-        await super().test_admin_peers(w3)
+    async def test_admin_peers(self, async_w3: "Web3") -> None:
+        await super().test_admin_peers(async_w3)
 
     @pytest.mark.asyncio
-    async def test_admin_start_stop_http(self, w3: "Web3") -> None:
+    async def test_admin_start_stop_http(self, async_w3: "Web3") -> None:
         # This test causes all tests after it to fail on CI if it's allowed to run
         pytest.xfail(
             reason="Only one HTTP endpoint is allowed to be active at any time"
         )
-        await super().test_admin_start_stop_http(w3)
+        await super().test_admin_start_stop_http(async_w3)
 
     @pytest.mark.asyncio
-    async def test_admin_start_stop_ws(self, w3: "Web3") -> None:
+    async def test_admin_start_stop_ws(self, async_w3: "Web3") -> None:
         # This test causes all tests after it to fail on CI if it's allowed to run
         pytest.xfail(reason="Only one WS endpoint is allowed to be active at any time")
-        await super().test_admin_start_stop_ws(w3)
+        await super().test_admin_start_stop_ws(async_w3)
 
 
 class TestGoEthereumAsyncNetModuleTest(GoEthereumAsyncNetModuleTest):
