@@ -149,8 +149,7 @@ class RequestManager:
     @staticmethod
     def async_default_middlewares(w3: "Web3") -> List[Tuple[Middleware, str]]:
         """
-        List the default middlewares for the request manager.
-        Leaving ens unspecified will prevent the middleware from resolving names.
+        List the default async middlewares for the request manager.
         """
         return [
             (async_gas_price_strategy_middleware, "gas_price_strategy"),

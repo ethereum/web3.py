@@ -282,18 +282,10 @@ AsyncHTTPProvider
         >>> from web3.net import AsyncNet
         >>> from web3.geth import Geth, AsyncGethTxPool
 
-        >>> w3 = Web3(
-        ...     AsyncHTTPProvider(endpoint_uri),
-        ...     modules={'eth': (AsyncEth,),
-        ...         'net': (AsyncNet,),
-        ...         'geth': (Geth,
-        ...             {'txpool': (AsyncGethTxPool,),
-        ...              'personal': (AsyncGethPersonal,),
-        ...              'admin' : (AsyncGethAdmin,)})
-        ...         },
-        ...     middlewares=[]   # See supported middleware section below for middleware options
-        ...     )
-        >>> custom_session = ClientSession()  # If you want to pass in your own session
+        >>> w3 = Web3(AsyncHTTPProvider(endpoint_uri))
+
+        >>> # If you want to pass in your own session:
+        >>> custom_session = ClientSession()
         >>> await w3.provider.cache_async_session(custom_session) # This method is an async method so it needs to be handled accordingly
 
     Under the hood, the ``AsyncHTTPProvider`` uses the python
