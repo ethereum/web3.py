@@ -113,7 +113,10 @@ SPACENETH_RESPONSE = RPCResponse(
             GANACHE_RESPONSE,
             "execution reverted: VM Exception while processing transaction: revert Custom revert message",  # noqa: 501
         ),
-        (SPACENETH_RESPONSE, "execution reverted: Marektplace::cancelMarketItem: INVALID_ITEM")
+        (
+            SPACENETH_RESPONSE,
+            "execution reverted: Marektplace::cancelMarketItem: INVALID_ITEM",
+        ),
     ),
     ids=[
         "test-get-revert-reason-with-msg",
