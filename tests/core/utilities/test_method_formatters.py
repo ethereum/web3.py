@@ -89,6 +89,20 @@ GANACHE_RESPONSE = RPCResponse(
 )
 
 
+SPACENETH_RESPONSE = RPCResponse(
+    {
+        "name": "Error",
+        "message": "Internal JSON-RPC error.",
+        "stack": "Error: Internal JSON-RPC error",
+        "code": -32603,
+        "data": {
+            "code": -32015,
+            "message": "Reverted 0x4d6172656b74706c6163653a3a63616e63656c4d61726b65744974656d3a20494e56414c49445f4954454d",
+        },
+    }
+)
+
+
 @pytest.mark.parametrize(
     "response,expected",
     (
@@ -99,6 +113,7 @@ GANACHE_RESPONSE = RPCResponse(
             GANACHE_RESPONSE,
             "execution reverted: VM Exception while processing transaction: revert Custom revert message",  # noqa: 501
         ),
+        (SPACENETH_RESPONSE, "execution reverted: Marektplace::cancelMarketItem: INVALID_ITEM")
     ),
     ids=[
         "test-get-revert-reason-with-msg",
