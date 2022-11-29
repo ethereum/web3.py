@@ -123,6 +123,7 @@ SPACENETH_RESPONSE = RPCResponse(
         "test-get-revert-reason-without-msg",
         "test-get-geth-revert-reason",
         "test_get-ganache-revert-reason",
+        "test_get-spaceneth-revert-reason",
     ],
 )
 def test_get_revert_reason(response, expected) -> None:
