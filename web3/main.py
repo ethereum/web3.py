@@ -133,7 +133,7 @@ if TYPE_CHECKING:
 def get_async_default_modules() -> Dict[str, Union[Type[Module], Sequence[Any]]]:
     return {
         "eth": AsyncEth,
-        "async_net": AsyncNet,
+        "net": AsyncNet,
         "geth": (
             Geth,
             {
@@ -237,8 +237,7 @@ class Web3:
     # mypy Types
     eth: Eth
     geth: Geth
-    net: Net
-    async_net: AsyncNet
+    net: Union[Net, AsyncNet]
 
     def __init__(
         self,
@@ -256,10 +255,11 @@ class Web3:
         self.codec = ABICodec(build_default_registry())
 
         if modules is None:
-            if provider and provider.is_async:
-                modules = get_async_default_modules()
-            else:
-                modules = get_default_modules()
+            modules = (
+                get_async_default_modules()
+                if provider and provider.is_async
+                else get_default_modules()
+            )
 
         self.attach_modules(modules)
 

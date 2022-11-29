@@ -29,6 +29,7 @@ from web3.exceptions import (
     FallbackNotFound,
     InvalidAddress,
     MismatchedABI,
+    NameNotFound,
     NoABIFound,
     NoABIFunctionsFound,
     ValidationError,
@@ -490,9 +491,9 @@ def test_call_address_reflector_name_array(address_reflector_contract, call):
     assert addresses == result
 
 
-def test_call_reject_invalid_ens_name(address_reflector_contract, call):
+def test_call_rejects_invalid_ens_name(address_reflector_contract, call):
     with contract_ens_addresses(address_reflector_contract, []):
-        with pytest.raises(ValueError):
+        with pytest.raises(NameNotFound):
             call(
                 contract=address_reflector_contract,
                 contract_function="reflect",
@@ -1363,11 +1364,11 @@ async def test_async_call_address_reflector_name_array(
 
 @pytest.mark.xfail
 @pytest.mark.asyncio
-async def test_async_call_reject_invalid_ens_name(
+async def test_async_call_rejects_invalid_ens_name(
     async_address_reflector_contract, async_call
 ):
     with contract_ens_addresses(async_address_reflector_contract, []):
-        with pytest.raises(ValueError):
+        with pytest.raises(NameNotFound):
             await async_call(
                 contract=async_address_reflector_contract,
                 contract_function="reflect",

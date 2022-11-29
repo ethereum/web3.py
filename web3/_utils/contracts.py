@@ -208,11 +208,13 @@ def encode_abi(
         )
 
     normalizers = [
-        abi_ens_resolver(w3),
         abi_address_to_hex,
         abi_bytes_to_bytes,
         abi_string_to_text,
     ]
+    if not w3.eth.is_async:
+        normalizers.append(abi_ens_resolver(w3))
+
     normalized_arguments = map_abi_data(
         normalizers,
         argument_types,
