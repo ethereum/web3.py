@@ -91,14 +91,13 @@ GANACHE_RESPONSE = RPCResponse(
 
 SPACENETH_RESPONSE = RPCResponse(
     {
-        "name": "Error",
-        "message": "Internal JSON-RPC error.",
-        "stack": "Error: Internal JSON-RPC error",
-        "code": -32603,
-        "data": {
+        "jsonrpc": "2.0",
+        "error": {
             "code": -32015,
-            "message": "Reverted 0x4d6172656b74706c6163653a3a63616e63656c4d61726b65744974656d3a20494e56414c49445f4954454d",
+            "message": "VM execution error.",
+            "data": "Reverted 0x4f776e6572496420646f6573206e6f7420657869737420696e207265676973747279",
         },
+        "id": 3,
     }
 )
 
@@ -115,7 +114,7 @@ SPACENETH_RESPONSE = RPCResponse(
         ),
         (
             SPACENETH_RESPONSE,
-            "execution reverted: Marektplace::cancelMarketItem: INVALID_ITEM",
+            "execution reverted: OwnerId does not exist in registry",
         ),
     ),
     ids=[
