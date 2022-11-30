@@ -1,4 +1,3 @@
-import asyncio
 import pytest
 
 from eth_utils import (
@@ -91,18 +90,10 @@ def test_get_all_entries_returned_block_data(
 # --- async --- #
 
 
-@pytest.fixture(scope="module")
-def event_loop():
-    policy = asyncio.get_event_loop_policy()
-    loop = policy.new_event_loop()
-    yield loop
-    loop.close()
-
-
 @pytest.mark.asyncio
 @pytest.mark.parametrize("call_as_instance", (True, False))
 @pytest.mark.parametrize("api_style", ("v4", "build_filter"))
-async def test_async_on_filter_using_get_all_entries_interface(
+async def test_on_async_filter_using_get_all_entries_interface(
     async_w3,
     async_emitter,
     AsyncEmitter,
