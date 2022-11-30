@@ -8,19 +8,19 @@ import pathlib
 import sys
 
 ALLOWED_EXTENSIONS = {
-    '.breaking.rst',
-    '.bugfix.rst',
-    '.doc.rst',
-    '.feature.rst',
-    '.internal.rst',
-    '.misc.rst',
-    '.performance.rst',
-    '.removal.rst',
+    ".breaking.rst",
+    ".bugfix.rst",
+    ".doc.rst",
+    ".feature.rst",
+    ".internal.rst",
+    ".misc.rst",
+    ".performance.rst",
+    ".removal.rst",
 }
 
 ALLOWED_FILES = {
-    'validate_files.py',
-    'README.md',
+    "validate_files.py",
+    "README.md",
 }
 
 THIS_DIR = pathlib.Path(__file__).parent
@@ -28,7 +28,7 @@ THIS_DIR = pathlib.Path(__file__).parent
 num_args = len(sys.argv) - 1
 assert num_args in {0, 1}
 if num_args == 1:
-    assert sys.argv[1] in ('is-empty', )
+    assert sys.argv[1] in ("is-empty",)
 
 for fragment_file in THIS_DIR.iterdir():
 
@@ -38,7 +38,9 @@ for fragment_file in THIS_DIR.iterdir():
         full_extension = "".join(fragment_file.suffixes)
         if full_extension not in ALLOWED_EXTENSIONS:
             raise Exception(f"Unexpected file: {fragment_file}")
-    elif sys.argv[1] == 'is-empty':
+    elif sys.argv[1] == "is-empty":
         raise Exception(f"Unexpected file: {fragment_file}")
     else:
-        raise RuntimeError("Strange: arguments {sys.argv} were validated, but not found")
+        raise RuntimeError(
+            f"Strange: arguments {sys.argv} were validated, but not found"
+        )
