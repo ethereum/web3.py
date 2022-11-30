@@ -204,6 +204,6 @@ async def async_return_filter(contract=None, args=[]):
     return await contract.events[event_name].create_filter(**kwargs)
 
 
-@pytest_asyncio.fixture()
+@pytest_asyncio.fixture(scope="module")
 async def async_create_filter(request):
     return async_partial(async_return_filter)

@@ -1,3 +1,4 @@
+import asyncio
 import pytest
 
 from eth_utils import (
@@ -88,6 +89,14 @@ def test_get_all_entries_returned_block_data(
 
 
 # --- async --- #
+
+
+@pytest.fixture(scope="module")
+def event_loop():
+    policy = asyncio.get_event_loop_policy()
+    loop = policy.new_event_loop()
+    yield loop
+    loop.close()
 
 
 @pytest.mark.asyncio
