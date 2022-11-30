@@ -196,6 +196,14 @@ async def async_emitter(
     )
 
 
-@pytest.fixture(scope="module")
-def async_create_filter(request):
-    return async_partial(return_filter)
+async def async_return_filter(contract=None, args=[]):
+    event_name = args[0]
+    kwargs = apply_key_map({"filter": "argument_filters"}, args[1])
+    if "fromBlock" not in kwargs:
+        kwargs["fromBlock"] = "latest"
+    return await contract.events[event_name].create_filter(**kwargs)
+
+
+@pytest_asyncio.fixture(scope="module")
+async def async_create_filter(request):
+    return async_partial(async_return_filter)
