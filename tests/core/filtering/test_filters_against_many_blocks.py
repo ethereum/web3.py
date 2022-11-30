@@ -5,10 +5,6 @@ from eth_utils import (
     to_tuple,
 )
 
-from tests.core.filtering.utils import (
-    async_range,
-)
-
 
 @to_tuple
 def deploy_contracts(w3, contract, wait_for_transaction):
@@ -156,7 +152,7 @@ def test_event_filter_new_events_many_deployed_contracts(
 
 async def async_deploy_contracts(async_w3, contract, async_wait_for_transaction):
     txs = []
-    async for i in async_range(25):
+    for i in range(25):
         tx_hash = await contract.constructor().transact()
         await async_wait_for_transaction(async_w3, tx_hash)
         tx = await async_w3.eth.get_transaction_receipt(tx_hash)
@@ -168,7 +164,7 @@ async def async_deploy_contracts(async_w3, contract, async_wait_for_transaction)
 
 async def async_pad_with_transactions(async_w3):
     accounts = await async_w3.eth.accounts
-    async for tx_count in async_range(random.randint(0, 10)):
+    for tx_count in range(random.randint(0, 10)):
         _from = accounts[random.randint(0, len(accounts) - 1)]
         _to = accounts[random.randint(0, len(accounts) - 1)]
         value = 50 + tx_count

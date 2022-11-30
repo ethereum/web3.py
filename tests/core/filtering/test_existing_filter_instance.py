@@ -2,9 +2,6 @@ import pytest
 
 import pytest_asyncio
 
-from tests.core.filtering.utils import (
-    async_range,
-)
 from web3._utils.threads import (
     Timeout,
 )
@@ -80,7 +77,7 @@ async def test_async_instantiate_existing_filter(
     assert len(found_block_hashes) == 3
 
     expected_block_hashes = []
-    async for n in async_range(current_block, current_block + 3):
+    for n in range(current_block, current_block + 3):
         next_block = await async_w3.eth.get_block(n + 1)
         expected_block_hashes.append(next_block.hash)
 

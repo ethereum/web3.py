@@ -312,7 +312,7 @@ def async_w3(request):
     return _async_w3_fixture_logic(request)
 
 
-@pytest_asyncio.fixture(scope="module")
+@pytest.fixture(scope="module")
 def AsyncEmitter(async_w3, EMITTER):
     return async_w3.eth.contract(**EMITTER)
 
