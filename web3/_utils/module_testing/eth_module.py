@@ -1421,6 +1421,50 @@ class AsyncEthModuleTest:
         # reset to default
         async_w3.eth.default_block = "latest"
 
+    @pytest.mark.asyncio
+    async def test_eth_getBlockTransactionCountByHash_empty_block(
+        self, async_w3: "Web3", empty_block: BlockData
+    ) -> None:
+        transaction_count = await async_w3.eth.get_block_transaction_count(  # type: ignore  # noqa: E501
+            empty_block["hash"]
+        )
+
+        assert is_integer(transaction_count)
+        assert transaction_count == 0
+
+    @pytest.mark.asyncio
+    async def test_eth_getBlockTransactionCountByNumber_empty_block(
+        self, async_w3: "Web3", empty_block: BlockData
+    ) -> None:
+        transaction_count = await async_w3.eth.get_block_transaction_count(  # type: ignore  # noqa: E501
+            empty_block["number"]
+        )
+
+        assert is_integer(transaction_count)
+        assert transaction_count == 0
+
+    @pytest.mark.asyncio
+    async def test_eth_getBlockTransactionCountByHash_block_with_txn(
+        self, async_w3: "Web3", block_with_txn: BlockData
+    ) -> None:
+        transaction_count = await async_w3.eth.get_block_transaction_count(  # type: ignore  # noqa: E501
+            block_with_txn["hash"]
+        )
+
+        assert is_integer(transaction_count)
+        assert transaction_count >= 1
+
+    @pytest.mark.asyncio
+    async def test_eth_getBlockTransactionCountByNumber_block_with_txn(
+        self, async_w3: "Web3", block_with_txn: BlockData
+    ) -> None:
+        transaction_count = await async_w3.eth.get_block_transaction_count(  # type: ignore  # noqa: E501
+            block_with_txn["number"]
+        )
+
+        assert is_integer(transaction_count)
+        assert transaction_count >= 1
+
 
 class EthModuleTest:
     def test_eth_syncing(self, w3: "Web3") -> None:

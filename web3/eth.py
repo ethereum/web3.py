@@ -310,6 +310,19 @@ class BaseEth(Module):
         RPC.eth_getTransactionReceipt, mungers=[default_root_munger]
     )
 
+    """
+    `eth_getBlockTransactionCountByHash`
+    `eth_getBlockTransactionCountByNumber`
+    """
+    get_block_transaction_count: Method[Callable[[BlockIdentifier], int]] = Method(
+        method_choice_depends_on_args=select_method_for_block_identifier(
+            if_predefined=RPC.eth_getBlockTransactionCountByNumber,
+            if_hash=RPC.eth_getBlockTransactionCountByHash,
+            if_number=RPC.eth_getBlockTransactionCountByNumber,
+        ),
+        mungers=[default_root_munger],
+    )
+
     @overload
     def contract(
         self, address: None = None, **kwargs: Any
@@ -695,19 +708,6 @@ class Eth(BaseEth):
 
     get_code: Method[Callable[..., HexBytes]] = Method(
         RPC.eth_getCode, mungers=[BaseEth.block_id_munger]
-    )
-
-    """
-    `eth_getBlockTransactionCountByHash`
-    `eth_getBlockTransactionCountByNumber`
-    """
-    get_block_transaction_count: Method[Callable[[BlockIdentifier], int]] = Method(
-        method_choice_depends_on_args=select_method_for_block_identifier(
-            if_predefined=RPC.eth_getBlockTransactionCountByNumber,
-            if_hash=RPC.eth_getBlockTransactionCountByHash,
-            if_number=RPC.eth_getBlockTransactionCountByNumber,
-        ),
-        mungers=[default_root_munger],
     )
 
     """
