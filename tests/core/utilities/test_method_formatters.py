@@ -95,7 +95,7 @@ SPACENETH_RESPONSE = RPCResponse(
         "error": {
             "code": -32015,
             "message": "VM execution error.",
-            "data": "Reverted 0x4f776e6572496420646f6573206e6f7420657869737420696e207265676973747279",
+            "data": "Reverted 0x4f776e6572496420646f6573206e6f7420657869737420696e207265676973747279",  # noqa: E501
         },
         "id": 3,
     }
@@ -110,7 +110,7 @@ SPACENETH_RESPONSE = RPCResponse(
         (GETH_RESPONSE, "execution reverted: Function has been reverted."),
         (
             GANACHE_RESPONSE,
-            "execution reverted: VM Exception while processing transaction: revert Custom revert message",  # noqa: 501
+            "execution reverted: VM Exception while processing transaction: revert Custom revert message",  # noqa: E501
         ),
         (
             SPACENETH_RESPONSE,
