@@ -609,7 +609,13 @@ def raise_contract_logic_error_on_revert(response: RPCResponse) -> RPCResponse:
         # "Reverted", function selector and offset are always the same for revert errors
         prefix = "Reverted 0x08c379a00000000000000000000000000000000000000000000000000000000000000020"  # noqa: 501
         if not data.startswith(prefix):
-            raise ContractLogicError("execution reverted")
+            if data.startswith("Reverted 0x"):
+                # Special case for this form: 'Reverted 0x...'
+                receipt = data.split(" ")[1][2:]
+                revert_reason = bytes.fromhex(receipt).decode("utf-8")
+                raise ContractLogicError(f"execution reverted: {revert_reason}")
+            else:
+                raise ContractLogicError("execution reverted")
 
         reason_length = int(data[len(prefix) : len(prefix) + 64], 16)
         reason = data[len(prefix) + 64 : len(prefix) + 64 + reason_length * 2]

@@ -89,6 +89,19 @@ GANACHE_RESPONSE = RPCResponse(
 )
 
 
+SPACENETH_RESPONSE = RPCResponse(
+    {
+        "jsonrpc": "2.0",
+        "error": {
+            "code": -32015,
+            "message": "VM execution error.",
+            "data": "Reverted 0x4f776e6572496420646f6573206e6f7420657869737420696e207265676973747279",  # noqa: E501
+        },
+        "id": 3,
+    }
+)
+
+
 @pytest.mark.parametrize(
     "response,expected",
     (
@@ -97,7 +110,11 @@ GANACHE_RESPONSE = RPCResponse(
         (GETH_RESPONSE, "execution reverted: Function has been reverted."),
         (
             GANACHE_RESPONSE,
-            "execution reverted: VM Exception while processing transaction: revert Custom revert message",  # noqa: 501
+            "execution reverted: VM Exception while processing transaction: revert Custom revert message",  # noqa: E501
+        ),
+        (
+            SPACENETH_RESPONSE,
+            "execution reverted: OwnerId does not exist in registry",
         ),
     ),
     ids=[
@@ -105,6 +122,7 @@ GANACHE_RESPONSE = RPCResponse(
         "test-get-revert-reason-without-msg",
         "test-get-geth-revert-reason",
         "test_get-ganache-revert-reason",
+        "test_get-spaceneth-revert-reason",
     ],
 )
 def test_get_revert_reason(response, expected) -> None:
