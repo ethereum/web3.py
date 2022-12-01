@@ -3,6 +3,38 @@ Release Notes
 
 .. towncrier release notes start
 
+v5.32.0 (2022-12-01)
+--------------------
+
+Bugfixes
+~~~~~~~~
+
+- Improve upon issues with session caching and cache locking, especially for
+  multi-threading. (`#2691
+  <https://github.com/ethereum/web3.py/issues/2691>`__)
+
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Add user survey to v5 docs banner (`#2721
+  <https://github.com/ethereum/web3.py/issues/2721>`__)
+
+
+Internal Changes - for web3.py Contributors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Remove references to deprecated ``eth-abi`` methods and replace with
+  supported methods. (`#2726
+  <https://github.com/ethereum/web3.py/issues/2726>`__)
+
+
+Miscellaneous changes
+~~~~~~~~~~~~~~~~~~~~~
+
+- `#2691 <https://github.com/ethereum/web3.py/issues/2691>`__
+
+
 v5.31.1 (2022-10-06)
 --------------------
 
