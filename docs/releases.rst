@@ -3,7 +3,7 @@ Release Notes
 
 .. towncrier release notes start
 
-v5.32.0 (2022-12-01)
+v5.31.2 (2022-12-01)
 --------------------
 
 Bugfixes
