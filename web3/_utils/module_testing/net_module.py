@@ -1,7 +1,6 @@
 import pytest
 from typing import (
     TYPE_CHECKING,
-    cast,
 )
 
 from eth_utils import (
@@ -16,7 +15,7 @@ if TYPE_CHECKING:
 
 class NetModuleTest:
     def test_net_version(self, w3: "Web3") -> None:
-        version = cast(str, w3.net.version)
+        version = w3.net.version
 
         assert is_string(version)
         assert version.isdigit()

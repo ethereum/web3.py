@@ -111,10 +111,11 @@ class RequestManager:
             self.provider = provider
 
         if middlewares is None:
-            if self.provider.is_async:
-                middlewares = self.async_default_middlewares(w3)
-            else:
-                middlewares = self.default_middlewares(w3)
+            middlewares = (
+                self.async_default_middlewares(w3)
+                if self.provider.is_async
+                else self.default_middlewares(w3)
+            )
 
         self.middleware_onion: MiddlewareOnion = NamedElementOnion(middlewares)
 

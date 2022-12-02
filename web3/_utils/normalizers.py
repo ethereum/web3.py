@@ -218,7 +218,7 @@ def abi_ens_resolver(
             )
 
         _ens = cast(ENS, w3.ens)
-        net_version = int(cast(str, w3.net.version)) if hasattr(w3, "net") else None
+        net_version = int(w3.net.version) if hasattr(w3, "net") else None
         if _ens is None:
             raise InvalidAddress(
                 f"Could not look up name {val!r} because ENS is" " set to None"
