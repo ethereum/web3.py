@@ -46,7 +46,7 @@ def test_init_kwargs():
 
 
 def test_web3_with_async_http_provider_has_default_middlewares_and_modules() -> None:
-    async_w3 = Web3(AsyncHTTPProvider(endpoint_uri="http://mynode.local:8545"))
+    async_w3 = Web3(AsyncHTTPProvider(endpoint_uri=URI))
 
     # assert default modules
 
