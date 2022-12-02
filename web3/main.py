@@ -237,7 +237,7 @@ class Web3:
     # mypy Types
     eth: Eth
     geth: Geth
-    net: Union[Net, AsyncNet]
+    net: Net
 
     def __init__(
         self,
