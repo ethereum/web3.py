@@ -3,6 +3,17 @@ Release Notes
 
 .. towncrier release notes start
 
+v5.31.3 (2022-12-02)
+--------------------
+
+Bugfixes
+~~~~~~~~
+
+- Upgrade ``eth-abi`` lower bound to ``>=2.2.0`` to make sure internal
+  deprecation changes do not break. (`#2743
+  <https://github.com/ethereum/web3.py/issues/2743>`__)
+
+
 v5.31.2 (2022-12-01)
 --------------------
 
