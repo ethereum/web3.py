@@ -1,5 +1,3 @@
-import asyncio
-
 from web3 import Web3
 from web3.eth import (
     AsyncEth,
@@ -68,9 +66,3 @@ async def _async_emitter_fixture_logic(
     _emitter = AsyncEmitter(address=contract_address)
     assert _emitter.address == contract_address
     return _emitter
-
-
-async def async_range(*args):
-    for i in range(*args):
-        yield (i)
-        await asyncio.sleep(0.0)

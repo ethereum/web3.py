@@ -1,8 +1,5 @@
 import pytest
 
-from tests.core.filtering.utils import (
-    async_range,
-)
 from web3._utils.threads import (
     Timeout,
 )
@@ -48,7 +45,7 @@ async def test_async_filter_against_latest_blocks(
     assert len(found_block_hashes) == 3
 
     expected_block_hashes = []
-    async for n in async_range(current_block, current_block + 3):
+    for n in range(current_block, current_block + 3):
         block = await async_w3.eth.get_block(n + 1)
         expected_block_hashes.append(block.hash)
 

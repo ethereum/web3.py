@@ -17,6 +17,7 @@ from eth_utils.toolz import (
 )
 
 from web3._utils.filters import (
+    AsyncLogFilter,
     LogFilter,
     _UseExistingFilter,
 )
@@ -72,11 +73,15 @@ def retrieve_blocking_method_call_fn(
 @curry
 def retrieve_async_method_call_fn(
     w3: "Web3", module: "Module", method: Method[Callable[..., Any]]
-) -> Callable[..., Coroutine[Any, Any, RPCResponse]]:
-    async def caller(*args: Any, **kwargs: Any) -> RPCResponse:
-        (method_str, params), response_formatters = method.process_params(
-            module, *args, **kwargs
-        )
+) -> Callable[..., Coroutine[Any, Any, Union[RPCResponse, AsyncLogFilter]]]:
+    async def caller(*args: Any, **kwargs: Any) -> Union[RPCResponse, AsyncLogFilter]:
+        try:
+            (method_str, params), response_formatters = method.process_params(
+                module, *args, **kwargs
+            )
+
+        except _UseExistingFilter as err:
+            return AsyncLogFilter(eth_module=module, filter_id=err.filter_id)
         (
             result_formatters,
             error_formatters,
