@@ -149,7 +149,7 @@ def emitter_log_topics():
     return LogTopics
 
 
-def return_filter(contract=None, args=[]):
+def return_filter(contract, args):
     event_name = args[0]
     kwargs = apply_key_map({"filter": "argument_filters"}, args[1])
     if "fromBlock" not in kwargs:
@@ -196,7 +196,7 @@ async def async_emitter(
     )
 
 
-async def async_return_filter(contract=None, args=[]):
+async def async_return_filter(contract, args):
     event_name = args[0]
     kwargs = apply_key_map({"filter": "argument_filters"}, args[1])
     if "fromBlock" not in kwargs:
