@@ -1,0 +1,1 @@
+Upgrade ``eth-abi`` lower bound to ``>=2.2.0`` to make sure internal deprecation changes do not break.
