@@ -1488,7 +1488,7 @@ class BaseContractEvent:
         if not self.address:
             raise TypeError(
                 "This method can be only called on "
-                "an instated contract with an address"
+                "an instantiated contract with an address"
             )
 
         if argument_filters is None:
@@ -1669,7 +1669,6 @@ class ContractEvent(BaseContractEvent):
     ) -> LogFilter:
         """
         Create filter object that tracks logs emitted by this contract event.
-        # optional --- update the params descriptions here or remove this line
         """
         filter_builder = EventFilterBuilder(self._get_event_abi(), self.w3.codec)
         self._set_up_filter_builder(
@@ -1787,7 +1786,6 @@ class AsyncContractEvent(BaseContractEvent):
     ) -> AsyncLogFilter:
         """
         Create filter object that tracks logs emitted by this contract event.
-        # optional --- update the params descriptions here or remove this line
         """
         filter_builder = AsyncEventFilterBuilder(self._get_event_abi(), self.w3.codec)
         self._set_up_filter_builder(
