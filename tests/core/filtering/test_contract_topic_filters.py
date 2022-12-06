@@ -278,10 +278,7 @@ async def async_wait_for_transaction():
 
 @pytest.fixture(scope="module")
 def event_loop():
-    policy = asyncio.get_event_loop_policy()
-    loop = policy.new_event_loop()
-    yield loop
-    loop.close()
+    return asyncio.get_event_loop()
 
 
 @pytest.fixture(
