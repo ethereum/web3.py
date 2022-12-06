@@ -95,7 +95,5 @@ def async_offchain_lookup_contract_factory(async_w3):
 
 
 @pytest.fixture(scope="module")
-def event_loop(request):
-    loop = asyncio.get_event_loop_policy().new_event_loop()
-    yield loop
-    loop.close()
+def event_loop():
+    return asyncio.get_event_loop()

@@ -198,8 +198,8 @@ def drop_items_with_none_value(params: Dict[str, Any]) -> Dict[str, Any]:
 
 def get_logs_multipart(
     w3: "Web3",
-    startBlock: BlockNumber,
-    stopBlock: BlockNumber,
+    start_block: BlockNumber,
+    stop_block: BlockNumber,
     address: Union[Address, ChecksumAddress, List[Union[Address, ChecksumAddress]]],
     topics: List[Optional[Union[_Hash32, List[_Hash32]]]],
     max_blocks: int,
@@ -209,7 +209,7 @@ def get_logs_multipart(
     The getLog request is partitioned into multiple calls of the max number of blocks
     ``max_blocks``.
     """
-    _block_ranges = block_ranges(startBlock, stopBlock, max_blocks)
+    _block_ranges = block_ranges(start_block, stop_block, max_blocks)
     for from_block, to_block in _block_ranges:
         params = {
             "fromBlock": from_block,
@@ -431,8 +431,8 @@ async def async_iter_latest_block_ranges(
 ) -> AsyncIterable[Tuple[Optional[BlockNumber], Optional[BlockNumber]]]:
     """Returns an iterator unloading ranges of available blocks
 
-    starting from `fromBlock` to the latest mined block,
-    until reaching toBlock. e.g.:
+    starting from `from_block` to the latest mined block,
+    until reaching to_block. e.g.:
 
 
     >>> blocks_to_filter = iter_latest_block_ranges(w3, 0, 50)
@@ -456,8 +456,8 @@ async def async_iter_latest_block_ranges(
 
 async def async_get_logs_multipart(
     w3: "Web3",
-    startBlock: BlockNumber,
-    stopBlock: BlockNumber,
+    start_block: BlockNumber,
+    stop_block: BlockNumber,
     address: Union[Address, ChecksumAddress, List[Union[Address, ChecksumAddress]]],
     topics: List[Optional[Union[_Hash32, List[_Hash32]]]],
     max_blocks: int,
@@ -467,7 +467,7 @@ async def async_get_logs_multipart(
     The getLog request is partitioned into multiple calls of the max number of blocks
     ``max_blocks``.
     """
-    _block_ranges = block_ranges(startBlock, stopBlock, max_blocks)
+    _block_ranges = block_ranges(start_block, stop_block, max_blocks)
     for from_block, to_block in _block_ranges:
         params = {
             "fromBlock": from_block,

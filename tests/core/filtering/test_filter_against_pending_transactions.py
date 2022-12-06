@@ -2,7 +2,8 @@ import pytest
 
 
 def test_sync_filter_against_pending_transactions(
-    w3, wait_for_transaction, skip_if_testrpc
+    w3,
+    wait_for_transaction,
 ):
     txn_filter = w3.eth.filter("pending")
     txn_1_hash = w3.eth.send_transaction(
