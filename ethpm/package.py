@@ -115,7 +115,7 @@ class Package(object):
         validate_w3_instance(w3)
 
         self.w3 = w3
-        self.w3.eth.defaultContractFactory = cast(Type[Contract], LinkableContract)
+        self.w3.eth._default_contract_factory = cast(Type[Contract], LinkableContract)
         self.manifest = manifest
         self._uri = uri
 

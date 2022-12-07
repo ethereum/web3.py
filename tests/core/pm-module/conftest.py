@@ -57,7 +57,7 @@ def setup_w3():
     t = EthereumTester(backend=pyevm_backend)
     w3 = Web3(Web3.EthereumTesterProvider(ethereum_tester=t))
     w3.eth.default_account = w3.eth.accounts[0]
-    w3.eth.defaultContractFactory = LinkableContract
+    w3.eth._default_contract_factory = LinkableContract
     w3.enable_unstable_package_management_api()
     return w3
 
