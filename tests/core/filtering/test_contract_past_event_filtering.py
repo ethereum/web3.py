@@ -93,7 +93,9 @@ def test_get_all_entries_returned_block_data(
 
 @pytest.fixture(scope="module")
 def event_loop():
-    return asyncio.get_event_loop()
+    loop = asyncio.get_event_loop_policy().new_event_loop()
+    yield loop
+    loop.close()
 
 
 @pytest.mark.asyncio

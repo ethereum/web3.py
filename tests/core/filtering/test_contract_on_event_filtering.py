@@ -220,7 +220,9 @@ def test_on_sync_filter_with_topic_filter_options_on_old_apis(
 
 @pytest.fixture(scope="module")
 def event_loop():
-    return asyncio.get_event_loop()
+    loop = asyncio.get_event_loop_policy().new_event_loop()
+    yield loop
+    loop.close()
 
 
 @pytest.mark.asyncio

@@ -1465,6 +1465,7 @@ class AsyncEthModuleTest:
         assert is_integer(transaction_count)
         assert transaction_count >= 1
 
+    @pytest.mark.asyncio
     async def test_async_eth_new_filter(self, async_w3: "Web3") -> None:
         filter = await async_w3.eth.filter({})
 
