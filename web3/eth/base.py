@@ -93,7 +93,9 @@ class BaseEth(Module):
             return self._gas_price_strategy(self.w3, transaction_params)
         return None
 
-    def set_gas_price_strategy(self, gas_price_strategy: GasPriceStrategy) -> None:
+    def set_gas_price_strategy(
+        self, gas_price_strategy: Optional[GasPriceStrategy]
+    ) -> None:
         self._gas_price_strategy = gas_price_strategy
 
     def estimate_gas_munger(

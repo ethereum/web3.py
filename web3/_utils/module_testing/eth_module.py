@@ -76,6 +76,7 @@ from web3.middleware.fixture import (
 )
 from web3.types import (  # noqa: F401
     BlockData,
+    ENS,
     FilterParams,
     LogReceipt,
     Nonce,
@@ -1374,7 +1375,7 @@ class AsyncEthModuleTest:
     ) -> None:
         with ens_addresses(async_w3, {"emitter.eth": emitter_contract_address}):
             storage = await async_w3.eth.get_storage_at(  # type: ignore
-                "emitter.eth", 0
+                ENS("emitter.eth"), 0
             )
             assert isinstance(storage, HexBytes)
 
@@ -1679,7 +1680,7 @@ class EthModuleTest:
         self, w3: "Web3", emitter_contract_address: ChecksumAddress
     ) -> None:
         with ens_addresses(w3, {"emitter.eth": emitter_contract_address}):
-            storage = w3.eth.get_storage_at("emitter.eth", 0)
+            storage = w3.eth.get_storage_at(ENS("emitter.eth"), 0)
             assert isinstance(storage, HexBytes)
 
     def test_eth_get_storage_at_invalid_address(self, w3: "Web3") -> None:
@@ -1703,7 +1704,7 @@ class EthModuleTest:
             w3, {"unlocked-acct-dual-type.eth": unlocked_account_dual_type}
         ):
             transaction_count = w3.eth.get_transaction_count(
-                "unlocked-acct-dual-type.eth"
+                ENS("unlocked-acct-dual-type.eth")
             )
             assert is_integer(transaction_count)
             assert transaction_count >= 0
@@ -1774,7 +1775,7 @@ class EthModuleTest:
         self, w3: "Web3", math_contract_address: ChecksumAddress
     ) -> None:
         with ens_addresses(w3, {"mathcontract.eth": math_contract_address}):
-            code = w3.eth.get_code("mathcontract.eth")
+            code = w3.eth.get_code(ENS("mathcontract.eth"))
             assert isinstance(code, HexBytes)
             assert len(code) > 0
 

@@ -165,7 +165,7 @@ class Eth(BaseEth):
 
     # eth_maxPriorityFeePerGas
 
-    _max_priority_fee: Method[Callable[..., Wei]] = Method(
+    _max_priority_fee: Method[Callable[[], Wei]] = Method(
         RPC.eth_maxPriorityFeePerGas,
         is_property=True,
     )
@@ -210,9 +210,11 @@ class Eth(BaseEth):
 
     # eth_feeHistory
 
-    _fee_history: Method[Callable[..., FeeHistory]] = Method(
-        RPC.eth_feeHistory, mungers=[default_root_munger]
-    )
+    _fee_history: Method[
+        Callable[
+            [int, Union[BlockParams, BlockNumber], Optional[List[float]]], FeeHistory
+        ]
+    ] = Method(RPC.eth_feeHistory, mungers=[default_root_munger])
 
     def fee_history(
         self,
@@ -224,9 +226,12 @@ class Eth(BaseEth):
 
     # eth_call
 
-    _call: Method[Callable[..., Union[bytes, bytearray]]] = Method(
-        RPC.eth_call, mungers=[BaseEth.call_munger]
-    )
+    _call: Method[
+        Callable[
+            [TxParams, Optional[BlockIdentifier], Optional[CallOverride]],
+            Union[bytes, bytearray],
+        ]
+    ] = Method(RPC.eth_call, mungers=[BaseEth.call_munger])
 
     def call(
         self,
@@ -275,9 +280,9 @@ class Eth(BaseEth):
 
     # eth_estimateGas
 
-    _estimate_gas: Method[Callable[..., int]] = Method(
-        RPC.eth_estimateGas, mungers=[BaseEth.estimate_gas_munger]
-    )
+    _estimate_gas: Method[
+        Callable[[TxParams, Optional[BlockIdentifier]], int]
+    ] = Method(RPC.eth_estimateGas, mungers=[BaseEth.estimate_gas_munger])
 
     def estimate_gas(
         self, transaction: TxParams, block_identifier: Optional[BlockIdentifier] = None
@@ -367,7 +372,7 @@ class Eth(BaseEth):
     # eth_getBlockByHash
     # eth_getBlockByNumber
 
-    _get_block: Method[Callable[..., BlockData]] = Method(
+    _get_block: Method[Callable[[BlockIdentifier, bool], BlockData]] = Method(
         method_choice_depends_on_args=select_method_for_block_identifier(
             if_predefined=RPC.eth_getBlockByNumber,
             if_hash=RPC.eth_getBlockByHash,
@@ -383,7 +388,9 @@ class Eth(BaseEth):
 
     # eth_getBalance
 
-    _get_balance: Method[Callable[..., Wei]] = Method(
+    _get_balance: Method[
+        Callable[[Union[Address, ChecksumAddress, ENS], Optional[BlockIdentifier]], Wei]
+    ] = Method(
         RPC.eth_getBalance,
         mungers=[BaseEth.block_id_munger],
     )
@@ -397,9 +404,11 @@ class Eth(BaseEth):
 
     # eth_getCode
 
-    _get_code: Method[Callable[..., HexBytes]] = Method(
-        RPC.eth_getCode, mungers=[BaseEth.block_id_munger]
-    )
+    _get_code: Method[
+        Callable[
+            [Union[Address, ChecksumAddress, ENS], Optional[BlockIdentifier]], HexBytes
+        ]
+    ] = Method(RPC.eth_getCode, mungers=[BaseEth.block_id_munger])
 
     def get_code(
         self,
@@ -422,7 +431,11 @@ class Eth(BaseEth):
 
     # eth_getTransactionCount
 
-    _get_transaction_count: Method[Callable[..., Nonce]] = Method(
+    _get_transaction_count: Method[
+        Callable[
+            [Union[Address, ChecksumAddress, ENS], Optional[BlockIdentifier]], Nonce
+        ]
+    ] = Method(
         RPC.eth_getTransactionCount,
         mungers=[BaseEth.block_id_munger],
     )
@@ -466,18 +479,12 @@ class Eth(BaseEth):
 
     # eth_getStorageAt
 
-    _get_storage_at: Method[Callable[..., HexBytes]] = Method(
+    get_storage_at: Method[
+        Callable[[Union[Address, ChecksumAddress, ENS], int], HexBytes]
+    ] = Method(
         RPC.eth_getStorageAt,
         mungers=[BaseEth.get_storage_at_munger],
     )
-
-    def get_storage_at(
-        self,
-        account: Union[Address, ChecksumAddress, ENS],
-        position: int,
-        block_identifier: Optional[BlockIdentifier] = None,
-    ) -> HexBytes:
-        return self._get_storage_at(account, position, block_identifier)
 
     # eth_getProof
 
@@ -564,10 +571,7 @@ class Eth(BaseEth):
         message_hex = to_hex(data, hexstr=hexstr, text=text)
         return (account, message_hex)
 
-    sign: Method[Callable[..., HexStr]] = Method(
-        RPC.eth_sign,
-        mungers=[sign_munger],
-    )
+    sign: Method[Callable[..., HexStr]] = Method(RPC.eth_sign, mungers=[sign_munger])
 
     # eth_signTransaction
 
@@ -578,7 +582,9 @@ class Eth(BaseEth):
 
     # eth_signTypedData
 
-    sign_typed_data: Method[Callable[..., HexStr]] = Method(
+    sign_typed_data: Method[
+        Callable[[Union[Address, ChecksumAddress, ENS], str], HexStr]
+    ] = Method(
         RPC.eth_signTypedData,
         mungers=[default_root_munger],
     )

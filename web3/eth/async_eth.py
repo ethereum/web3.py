@@ -144,7 +144,7 @@ class AsyncEth(BaseEth):
 
     # eth_maxPriorityFeePerGas
 
-    _max_priority_fee: Method[Callable[..., Awaitable[Wei]]] = Method(
+    _max_priority_fee: Method[Callable[[], Awaitable[Wei]]] = Method(
         RPC.eth_maxPriorityFeePerGas,
         is_property=True,
     )
@@ -189,9 +189,12 @@ class AsyncEth(BaseEth):
 
     # eth_feeHistory
 
-    _fee_history: Method[Callable[..., Awaitable[FeeHistory]]] = Method(
-        RPC.eth_feeHistory, mungers=[default_root_munger]
-    )
+    _fee_history: Method[
+        Callable[
+            [int, Union[BlockParams, BlockNumber], Optional[List[float]]],
+            Awaitable[FeeHistory],
+        ]
+    ] = Method(RPC.eth_feeHistory, mungers=[default_root_munger])
 
     async def fee_history(
         self,
@@ -201,11 +204,18 @@ class AsyncEth(BaseEth):
     ) -> FeeHistory:
         return await self._fee_history(block_count, newest_block, reward_percentiles)
 
-    _call: Method[Callable[..., Awaitable[Union[bytes, bytearray]]]] = Method(
-        RPC.eth_call, mungers=[BaseEth.call_munger]
-    )
-
     # eth_call
+
+    _call: Method[
+        Callable[
+            [
+                TxParams,
+                Optional[BlockIdentifier],
+                Optional[CallOverride],
+            ],
+            Awaitable[Union[bytes, bytearray]],
+        ]
+    ] = Method(RPC.eth_call, mungers=[BaseEth.call_munger])
 
     async def call(
         self,
@@ -255,9 +265,9 @@ class AsyncEth(BaseEth):
 
     # eth_estimateGas
 
-    _estimate_gas: Method[Callable[..., Awaitable[int]]] = Method(
-        RPC.eth_estimateGas, mungers=[BaseEth.estimate_gas_munger]
-    )
+    _estimate_gas: Method[
+        Callable[[TxParams, Optional[BlockIdentifier]], Awaitable[int]]
+    ] = Method(RPC.eth_estimateGas, mungers=[BaseEth.estimate_gas_munger])
 
     async def estimate_gas(
         self, transaction: TxParams, block_identifier: Optional[BlockIdentifier] = None
@@ -358,7 +368,9 @@ class AsyncEth(BaseEth):
     # eth_getBlockByHash
     # eth_getBlockByNumber
 
-    _get_block: Method[Callable[..., Awaitable[BlockData]]] = Method(
+    _get_block: Method[
+        Callable[[BlockIdentifier, bool], Awaitable[BlockData]]
+    ] = Method(
         method_choice_depends_on_args=select_method_for_block_identifier(
             if_predefined=RPC.eth_getBlockByNumber,
             if_hash=RPC.eth_getBlockByHash,
@@ -374,7 +386,12 @@ class AsyncEth(BaseEth):
 
     # eth_getBalance
 
-    _get_balance: Method[Callable[..., Awaitable[Wei]]] = Method(
+    _get_balance: Method[
+        Callable[
+            [Union[Address, ChecksumAddress, ENS], Optional[BlockIdentifier]],
+            Awaitable[Wei],
+        ]
+    ] = Method(
         RPC.eth_getBalance,
         mungers=[BaseEth.block_id_munger],
     )
@@ -388,9 +405,12 @@ class AsyncEth(BaseEth):
 
     # eth_getCode
 
-    _get_code: Method[Callable[..., Awaitable[HexBytes]]] = Method(
-        RPC.eth_getCode, mungers=[BaseEth.block_id_munger]
-    )
+    _get_code: Method[
+        Callable[
+            [Union[Address, ChecksumAddress, ENS], Optional[BlockIdentifier]],
+            Awaitable[HexBytes],
+        ]
+    ] = Method(RPC.eth_getCode, mungers=[BaseEth.block_id_munger])
 
     async def get_code(
         self,
@@ -413,7 +433,12 @@ class AsyncEth(BaseEth):
 
     # eth_getTransactionCount
 
-    _get_transaction_count: Method[Callable[..., Awaitable[Nonce]]] = Method(
+    _get_transaction_count: Method[
+        Callable[
+            [Union[Address, ChecksumAddress, ENS], Optional[BlockIdentifier]],
+            Awaitable[Nonce],
+        ]
+    ] = Method(
         RPC.eth_getTransactionCount,
         mungers=[BaseEth.block_id_munger],
     )
@@ -463,7 +488,12 @@ class AsyncEth(BaseEth):
 
     # eth_getStorageAt
 
-    _get_storage_at: Method[Callable[..., Awaitable[HexBytes]]] = Method(
+    _get_storage_at: Method[
+        Callable[
+            [Union[Address, ChecksumAddress, ENS], int, Optional[BlockIdentifier]],
+            Awaitable[HexBytes],
+        ]
+    ] = Method(
         RPC.eth_getStorageAt,
         mungers=[BaseEth.get_storage_at_munger],
     )
