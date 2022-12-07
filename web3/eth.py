@@ -51,6 +51,7 @@ from web3._utils.fee_utils import (
     fee_history_priority_fee,
 )
 from web3._utils.filters import (
+    AsyncFilter,
     select_filter_method,
 )
 from web3._utils.rpc_abi import (
@@ -634,7 +635,7 @@ class AsyncEth(BaseEth):
     ) -> HexBytes:
         return await self._get_storage_at(account, position, block_identifier)
 
-    filter: Method[Callable[..., Awaitable[Any]]] = Method(
+    filter: Method[Callable[..., Awaitable[AsyncFilter]]] = Method(
         method_choice_depends_on_args=select_filter_method(
             if_new_block_filter=RPC.eth_newBlockFilter,
             if_new_pending_transaction_filter=RPC.eth_newPendingTransactionFilter,
