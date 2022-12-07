@@ -6,7 +6,7 @@ from setuptools import (
 
 extras_require = {
     "tester": [
-        "eth-tester[py-evm]==v0.7.0-beta.1",
+        "eth-tester[py-evm]==v0.7.0-b.1",
         "py-geth>=3.10.0",
     ],
     "linter": [
@@ -45,7 +45,7 @@ extras_require = {
         "pytest-watch>=4.2",
         "pytest-xdist>=1.29",
         "setuptools>=38.6.0",
-        "tox>=1.8.0",
+        "tox>=3.18.0",
         "tqdm>4.32",
         "twine>=1.13",
         "pluggy==0.13.1",
