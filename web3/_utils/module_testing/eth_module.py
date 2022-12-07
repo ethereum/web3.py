@@ -1467,7 +1467,7 @@ class AsyncEthModuleTest:
 
     @pytest.mark.asyncio
     async def test_async_eth_new_filter(self, async_w3: "Web3") -> None:
-        filter = await async_w3.eth.filter({})
+        filter = await async_w3.eth.filter({})  # type: ignore
 
         changes = await async_w3.eth.get_filter_changes(
             filter.filter_id
@@ -1484,7 +1484,7 @@ class AsyncEthModuleTest:
 
     @pytest.mark.asyncio
     async def test_async_eth_new_block_filter(self, async_w3: "Web3") -> None:
-        filter = await async_w3.eth.filter("latest")
+        filter = await async_w3.eth.filter("latest")  # type: ignore
         assert is_string(filter.filter_id)
 
         changes = await async_w3.eth.get_filter_changes(
@@ -1500,7 +1500,7 @@ class AsyncEthModuleTest:
     async def test_async_eth_new_pending_transaction_filter(
         self, async_w3: "Web3"
     ) -> None:
-        filter = await async_w3.eth.filter("pending")
+        filter = await async_w3.eth.filter("pending")  # type: ignore
         assert is_string(filter.filter_id)
 
         changes = await async_w3.eth.get_filter_changes(
@@ -1514,7 +1514,7 @@ class AsyncEthModuleTest:
 
     @pytest.mark.asyncio
     async def test_async_eth_uninstall_filter(self, async_w3: "Web3") -> None:
-        filter = await async_w3.eth.filter({})
+        filter = await async_w3.eth.filter({})  # type: ignore
         assert is_string(filter.filter_id)
 
         success = await async_w3.eth.uninstall_filter(filter.filter_id)  # type: ignore

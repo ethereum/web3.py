@@ -52,6 +52,7 @@ from web3._utils.fee_utils import (
 )
 from web3._utils.filters import (
     AsyncFilter,
+    Filter,
     select_filter_method,
 )
 from web3._utils.rpc_abi import (
@@ -635,7 +636,9 @@ class AsyncEth(BaseEth):
     ) -> HexBytes:
         return await self._get_storage_at(account, position, block_identifier)
 
-    filter: Method[Callable[..., Awaitable[AsyncFilter]]] = Method(
+    filter: Method[
+        Callable[[Optional[Union[str, FilterParams, HexStr]]], Awaitable[AsyncFilter]]
+    ] = Method(
         method_choice_depends_on_args=select_filter_method(
             if_new_block_filter=RPC.eth_newBlockFilter,
             if_new_pending_transaction_filter=RPC.eth_newPendingTransactionFilter,
@@ -958,7 +961,9 @@ class Eth(BaseEth):
     ) -> FeeHistory:
         return self._fee_history(block_count, newest_block, reward_percentiles)
 
-    filter: Method[Callable[..., Any]] = Method(
+    filter: Method[
+        Callable[[Optional[Union[str, FilterParams, HexStr]]], Filter]
+    ] = Method(
         method_choice_depends_on_args=select_filter_method(
             if_new_block_filter=RPC.eth_newBlockFilter,
             if_new_pending_transaction_filter=RPC.eth_newPendingTransactionFilter,
