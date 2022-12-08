@@ -298,6 +298,7 @@ Deploying new contracts
 Given the following solidity source file stored at ``contract.sol``.
 
 .. code-block:: javascript
+    pragma solidity ^0.8.7;
 
     contract StoreVar {
 
@@ -331,13 +332,16 @@ The following example demonstrates a few things:
     from web3.providers.eth_tester import EthereumTesterProvider
     from web3 import Web3
     from eth_tester import PyEVMBackend
-    from solcx import compile_source
+    import solcx
+
+    solcx.install_solc("0.8.7")
+    solcx.set_solc_version("0.8.7")
 
     def compile_source_file(file_path):
        with open(file_path, 'r') as f:
           source = f.read()
 
-       return compile_source(source)
+       return solcx.compile_source(source)
 
 
     def deploy_contract(w3, contract_interface):
@@ -347,7 +351,6 @@ The following example demonstrates a few things:
 
         address = w3.eth.get_transaction_receipt(tx_hash)['contractAddress']
         return address
-
 
     w3 = Web3(EthereumTesterProvider(PyEVMBackend()))
 
