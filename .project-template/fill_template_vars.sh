@@ -33,7 +33,7 @@ _replace() {
   local find_cmd=(find "$PROJECT_ROOT" ! -perm -u=x ! -path '*/.git/*' ! -path '*/venv*/*' -type f)
 
   if [[ $(uname) == Darwin ]]; then
-    "${find_cmd[@]}" -exec sed -i '' "$1" {} +
+    LC_ALL=C "${find_cmd[@]}" -exec sed -i '' "$1" {} +
   else
     "${find_cmd[@]}" -exec sed -i "$1" {} +
   fi
