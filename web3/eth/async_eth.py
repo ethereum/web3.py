@@ -1,5 +1,4 @@
 import asyncio
-import warnings
 from typing import (
     Awaitable,
     Callable,
@@ -9,17 +8,7 @@ from typing import (
     Type,
     Union,
 )
-
-from hexbytes import (
-    HexBytes,
-)
-from web3._utils.blocks import (
-    select_method_for_block_identifier,
-)
-from web3._utils.filters import AsyncFilter, select_filter_method
-from web3.utils import (
-    async_handle_offchain_lookup,
-)
+import warnings
 
 from eth_typing import (
     Address,
@@ -27,8 +16,19 @@ from eth_typing import (
     ChecksumAddress,
     HexStr,
 )
+from hexbytes import (
+    HexBytes,
+)
+
+from web3._utils.blocks import (
+    select_method_for_block_identifier,
+)
 from web3._utils.fee_utils import (
     async_fee_history_priority_fee,
+)
+from web3._utils.filters import (
+    AsyncFilter,
+    select_filter_method,
 )
 from web3._utils.rpc_abi import (
     RPC,
@@ -51,11 +51,11 @@ from web3.method import (
     default_root_munger,
 )
 from web3.types import (
+    ENS,
     BlockData,
     BlockIdentifier,
     BlockParams,
     CallOverride,
-    ENS,
     FeeHistory,
     FilterParams,
     LogReceipt,
@@ -66,6 +66,9 @@ from web3.types import (
     TxReceipt,
     Wei,
     _Hash32,
+)
+from web3.utils import (
+    async_handle_offchain_lookup,
 )
 
 
@@ -505,6 +508,8 @@ class AsyncEth(BaseEth):
         block_identifier: Optional[BlockIdentifier] = None,
     ) -> HexBytes:
         return await self._get_storage_at(account, position, block_identifier)
+
+    # eth_newFilter, eth_newBlockFilter, eth_newPendingTransactionFilter
 
     filter: Method[
         Callable[[Optional[Union[str, FilterParams, HexStr]]], Awaitable[AsyncFilter]]

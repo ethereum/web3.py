@@ -1,0 +1,1 @@
+Organize the ``eth`` module into separate files for better readability.
