@@ -39,8 +39,13 @@ Test Provider
 
 If you're just learning the ropes or doing some quick prototyping, you can use a test
 provider, `eth-tester <https://github.com/ethereum/eth-tester>`_. This provider includes
-some accounts prepopulated with test ether and automines each transaction into a block.
-Web3.py makes this test provider available via ``EthereumTesterProvider``:
+some accounts prepopulated with test ether and instantly includes each transaction into a block.
+Web3.py makes this test provider available via ``EthereumTesterProvider``.
+
+.. note::
+
+  The ``EthereumTesterProvider`` requires additional dependencies. Install them via
+  ``pip install "web3[tester]"``, then import and instantiate the provider as seen below.
 
 .. code-block:: python
 
