@@ -3,11 +3,11 @@ from typing import (
     List,
     NoReturn,
     Optional,
-    overload,
     Sequence,
     Tuple,
     Type,
     Union,
+    overload,
 )
 
 from eth_account import (
@@ -25,6 +25,7 @@ from eth_utils import (
 from eth_utils.toolz import (
     assoc,
 )
+
 from web3._utils.empty import (
     Empty,
     empty,
@@ -39,9 +40,9 @@ from web3.module import (
     Module,
 )
 from web3.types import (
+    ENS,
     BlockIdentifier,
     CallOverride,
-    ENS,
     FilterParams,
     GasPriceStrategy,
     TxParams,

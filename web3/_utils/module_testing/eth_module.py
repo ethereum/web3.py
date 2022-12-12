@@ -75,8 +75,8 @@ from web3.middleware.fixture import (
     construct_error_generator_middleware,
 )
 from web3.types import (  # noqa: F401
-    BlockData,
     ENS,
+    BlockData,
     FilterParams,
     LogReceipt,
     Nonce,

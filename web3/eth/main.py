@@ -17,9 +17,6 @@ from eth_typing import (
     ChecksumAddress,
     HexStr,
 )
-from eth_utils import (
-    is_string,
-)
 from eth_utils.toolz import (
     merge,
 )
