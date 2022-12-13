@@ -22,7 +22,7 @@ The :meth:`web3.eth.Eth.filter` method can be used to set up filters for:
 
     .. code-block:: python
 
-        event_filter = mycontract.events.myEvent.create_filter(fromBlock="latest", argument_filters={"arg1":10})
+        event_filter = mycontract.events.myEvent.create_filter(fromBlock='latest', argument_filters={'arg1':10})
 
     Or built manually by supplying `valid filter params <https://github.com/ethereum/execution-apis/blob/bea0266c42919a2fb3ee524fb91e624a23bc17c5/src/schemas/filter.json#L28>`_:
 
