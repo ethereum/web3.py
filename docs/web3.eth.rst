@@ -1357,11 +1357,6 @@ with the filtering API.
     filter, running :meth:`~Eth.get_filter_logs`, and then uninstalling the filter. See
     :meth:`~Eth.filter` for details on allowed filter parameters.
 
-.. py:method:: Eth.getLogs(filter_params)
-
-    .. warning:: Deprecated: This property is deprecated in favor of
-      :attr:`~web3.eth.Eth.get_logs()`
-
 .. py:method:: Eth.submit_hashrate(hashrate, nodeid)
 
     * Delegates to ``eth_submitHashrate`` RPC Method

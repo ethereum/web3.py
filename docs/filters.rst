@@ -188,7 +188,7 @@ Getting events without setting up a filter
 You can query an Ethereum node for direct fetch of events, without creating a filter first.
 This works on all node types.
 
-For examples see :meth:`web3.contract.ContractEvents.getLogs`.
+For examples see :meth:`web3.contract.ContractEvents.get_logs`.
 
 Examples: Listening For Events
 ------------------------------

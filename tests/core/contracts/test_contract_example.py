@@ -105,7 +105,7 @@ def test_updating_greeting_emits_event(w3, foo_contract):
     receipt = w3.eth.wait_for_transaction_receipt(tx_hash, 180)
 
     # get all of the `barred` logs for the contract
-    logs = foo_contract.events.barred.getLogs()
+    logs = foo_contract.events.barred.get_logs()
     assert len(logs) == 1
 
     # verify that the log's data matches the expected value
@@ -211,7 +211,7 @@ async def test_async_updating_greeting_emits_event(async_w3, async_foo_contract)
     receipt = await async_w3.eth.wait_for_transaction_receipt(tx_hash, 180)
 
     # get all of the `barred` logs for the contract
-    logs = await async_foo_contract.events.barred.getLogs()
+    logs = await async_foo_contract.events.barred.get_logs()
     assert len(logs) == 1
 
     # verify that the log's data matches the expected value
