@@ -503,7 +503,7 @@ which is available on the web3 instance. A web3 instance which has had this meth
 invoked will enforce a stricter set of rules on which values are accepted.
 
  - A Python string that is not prefixed with ``0x`` will throw an error.
- - A bytestring whose length not exactly the specified byte size
+ - A bytestring whose length is not exactly the specified byte size
    will raise an error.
 
 .. list-table:: Valid byte and hex strings for a strict bytes4 type
@@ -635,6 +635,48 @@ Taking the following contract code as an example:
 .. doctest:: arrayscontract
 
     >>> ArraysContract = w3.eth.contract(abi=abi, bytecode=bytecode)
+
+        >>> tx_hash = ArraysContract.constructor([b'b']).transact()
+        >>> tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
+
+        >>> array_contract = w3.eth.contract(
+        ...     address=tx_receipt.contractAddress,
+        ...     abi=abi
+        ... )
+
+        >>> array_contract.functions.getBytes2Value().call()
+        [b'b\x00']
+        >>> array_contract.functions.setBytes2Value([b'a']).transact({'gas': 420000, 'gasPrice': Web3.to_wei(1, 'gwei')})
+        HexBytes('0xc5377ba25224bd763ceedc0ee455cc14fc57b23dbc6b6409f40a557a009ff5f4')
+        >>> array_contract.functions.getBytes2Value().call()
+        [b'a\x00']
+        >>> w3.disable_strict_bytes_type_checking()
+        >>> array_contract.functions.setBytes2Value([b'a']).transact()
+        Traceback (most recent call last):
+           ...
+        ValidationError:
+        Could not identify the intended function with name
+
+        >>> tx_hash = ArraysContract.constructor([b'b']).transact()
+        >>> tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
+
+        >>> array_contract = w3.eth.contract(
+        ...     address=tx_receipt.contractAddress,
+        ...     abi=abi
+        ... )
+
+        >>> array_contract.functions.getBytes2Value().call()
+        [b'b\x00']
+        >>> array_contract.functions.setBytes2Value([b'a']).transact({'gas': 420000, 'gasPrice': Web3.to_wei(1, 'gwei')})
+        HexBytes('0xc5377ba25224bd763ceedc0ee455cc14fc57b23dbc6b6409f40a557a009ff5f4')
+        >>> array_contract.functions.getBytes2Value().call()
+        [b'a\x00']
+        >>> w3.disable_strict_bytes_type_checking()
+        >>> array_contract.functions.setBytes2Value([b'a']).transact()
+        Traceback (most recent call last):
+           ...
+        ValidationError:
+        Could not identify the intended function with name
 
     >>> tx_hash = ArraysContract.constructor([b'b']).transact()
     >>> tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)

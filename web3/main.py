@@ -252,7 +252,7 @@ class Web3:
         self.manager = self.RequestManager(self, provider, middlewares)
         # this codec gets used in the module initialization,
         # so it needs to come before attach_modules
-        self.codec = ABICodec(build_default_registry())
+        self.codec = ABICodec(build_strict_registry())
 
         if modules is None:
             modules = (
@@ -383,5 +383,5 @@ class Web3:
         if not hasattr(self, "_pm"):
             self.attach_modules({"_pm": PM})
 
-    def enable_strict_bytes_type_checking(self) -> None:
-        self.codec = ABICodec(build_strict_registry())
+    def disable_strict_bytes_type_checking(self) -> None:
+        self.codec = ABICodec(build_default_registry())
