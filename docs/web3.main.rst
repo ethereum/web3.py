@@ -330,6 +330,11 @@ Check Encodability
     .. doctest::
 
         >>> from web3.auto.gethdev import w3
+                >>> w3.disable_strict_bytes_type_checking()
+                >>> w3.is_encodable('bytes2', b'12')
+                True
+                >>> w3.is_encodable('bytes2', b'1')
+                False
         >>> w3.enable_strict_bytes_type_checking()
         >>> w3.is_encodable('bytes2', b'12')
         True
