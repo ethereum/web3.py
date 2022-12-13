@@ -43,13 +43,20 @@ from hexbytes import (
     HexBytes,
 )
 
-from ens import ENS
+from ens import (
+    ENS,
+    AsyncENS,
+)
+from web3._utils.async_functools import (
+    async_curry,
+)
 from web3._utils.encoding import (
     hexstr_if_str,
     text_if_str,
 )
 from web3._utils.ens import (
     StaticENS,
+    async_validate_name_has_address,
     is_ens_name,
     validate_name_has_address,
 )
@@ -275,3 +282,39 @@ def normalize_bytecode(bytecode: bytes) -> HexBytes:
         bytecode = HexBytes(bytecode)
     # type ignored b/c bytecode is converted to HexBytes above
     return bytecode  # type: ignore
+
+
+# --- async -- #
+
+
+@async_curry
+async def async_abi_ens_resolver(
+    async_w3: "Web3",
+    type_str: TypeStr,
+    val: Any,
+) -> Tuple[TypeStr, Any]:
+    if type_str == "address" and is_ens_name(val):
+        if async_w3 is None:
+            raise InvalidAddress(
+                f"Could not look up name {val!r} because no web3"
+                " connection available"
+            )
+
+        net_version = await async_w3.net.version  # type: ignore
+        net_version = int(net_version) if hasattr(async_w3, "net") else None
+
+        _async_ens = cast(AsyncENS, async_w3.ens)
+        if _async_ens is None:
+            raise InvalidAddress(
+                f"Could not look up name {val!r} because ENS is" " set to None"
+            )
+        elif net_version != 1 and not isinstance(_async_ens, StaticENS):
+            raise InvalidAddress(
+                f"Could not look up name {val!r} because web3 is"
+                " not connected to mainnet"
+            )
+        else:
+            address = await async_validate_name_has_address(_async_ens, val)
+            return type_str, address
+    else:
+        return type_str, val

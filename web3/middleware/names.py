@@ -4,6 +4,7 @@ from typing import (
 
 from web3._utils.normalizers import (
     abi_ens_resolver,
+    async_abi_ens_resolver,
 )
 from web3._utils.rpc_abi import (
     RPC_ABIS,
@@ -14,6 +15,7 @@ from web3.types import (
 )
 
 from .formatting import (
+    async_construct_formatting_middleware,
     construct_formatting_middleware,
 )
 
@@ -28,3 +30,15 @@ def name_to_address_middleware(w3: "Web3") -> Middleware:
     return construct_formatting_middleware(
         request_formatters=abi_request_formatters(normalizers, RPC_ABIS)
     )
+
+
+async def async_name_to_address_middleware(async_w3: "Web3") -> Middleware:
+    normalizers = [
+        async_abi_ens_resolver(async_w3),
+    ]
+
+    _construct_name_to_address_middleware = await async_construct_formatting_middleware(
+        request_formatters=abi_request_formatters(normalizers, RPC_ABIS)
+    )
+
+    return _construct_name_to_address_middleware
