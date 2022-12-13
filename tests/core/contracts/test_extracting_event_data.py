@@ -598,7 +598,7 @@ def test_event_rich_log(
         assert len(processed_logs) == 1
         rich_log = processed_logs[0]
     elif not process_receipt:
-        rich_log = event_instance.processLog(txn_receipt["logs"][0])
+        rich_log = event_instance.process_log(txn_receipt["logs"][0])
     else:
         raise Exception("Unreachable!")
 
@@ -633,7 +633,7 @@ def test_event_rich_log_with_byte_args(
         assert len(processed_logs) == 1
         rich_log = processed_logs[0]
     elif not process_receipt:
-        rich_log = event_instance.processLog(txn_receipt["logs"][0])
+        rich_log = event_instance.process_log(txn_receipt["logs"][0])
     else:
         raise Exception("Unreachable!")
 
@@ -726,7 +726,7 @@ def test_single_log_processing_with_errors(indexed_event_contract, dup_txn_recei
     event_instance = indexed_event_contract.events.LogSingleWithIndex()
 
     with pytest.raises(LogTopicError, match="Expected 1 log topics.  Got 0"):
-        event_instance.processLog(dup_txn_receipt["logs"][0])
+        event_instance.process_log(dup_txn_receipt["logs"][0])
 
 
 def test_get_all_entries_with_nested_tuple_event(w3, emitter):
