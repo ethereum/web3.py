@@ -5,6 +5,7 @@ from typing import (
     Iterable,
     Sequence,
     Tuple,
+    Union,
 )
 
 from eth_typing import (
@@ -185,7 +186,7 @@ TRACE_FILTER_PARAM_ABIS = {
     "count": "int",
 }
 
-RPC_ABIS = {
+RPC_ABIS: Dict[str, Union[Sequence[Any], Dict[str, str]]] = {
     # eth
     "eth_call": TRANSACTION_PARAMS_ABIS,
     "eth_estimateGas": TRANSACTION_PARAMS_ABIS,
