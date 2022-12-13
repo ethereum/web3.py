@@ -7,7 +7,7 @@ def test_contract_get_available_events(
     assert len(events) == 19
 
 
-def test_contract_getLogs_all(
+def test_contract_get_logs_all(
     w3,
     emitter,
     wait_for_transaction,
@@ -19,12 +19,12 @@ def test_contract_getLogs_all(
     txn_hash = contract.functions.logNoArgs(event_id).transact()
     wait_for_transaction(w3, txn_hash)
 
-    log_entries = list(contract.events.LogNoArguments.getLogs())
+    log_entries = list(contract.events.LogNoArguments.get_logs())
     assert len(log_entries) == 1
     assert log_entries[0]["transactionHash"] == txn_hash
 
 
-def test_contract_getLogs_range(
+def test_contract_get_logs_range(
     w3,
     emitter,
     wait_for_transaction,
@@ -39,17 +39,21 @@ def test_contract_getLogs_range(
     wait_for_transaction(w3, txn_hash)
     assert w3.eth.block_number == 3
 
-    log_entries = list(contract.events.LogNoArguments.getLogs())
+    log_entries = list(contract.events.LogNoArguments.get_logs())
     assert len(log_entries) == 1
 
-    log_entries = list(contract.events.LogNoArguments.getLogs(fromBlock=2, toBlock=3))
+    log_entries = list(
+        contract.events.LogNoArguments.get_logs(from_block=2, to_block=3)
+    )
     assert len(log_entries) == 1
 
-    log_entries = list(contract.events.LogNoArguments.getLogs(fromBlock=1, toBlock=2))
+    log_entries = list(
+        contract.events.LogNoArguments.get_logs(from_block=1, to_block=2)
+    )
     assert len(log_entries) == 0
 
 
-def test_contract_getLogs_argument_filter(
+def test_contract_get_logs_argument_filter(
     w3, emitter, wait_for_transaction, emitter_event_ids
 ):
 
@@ -67,19 +71,19 @@ def test_contract_getLogs_argument_filter(
     for txn_hash in txn_hashes:
         wait_for_transaction(w3, txn_hash)
 
-    all_logs = contract.events.LogTripleWithIndex.getLogs(fromBlock=1)
+    all_logs = contract.events.LogTripleWithIndex.get_logs(from_block=1)
     assert len(all_logs) == 4
 
     # Filter all entries where arg1 in (1, 2)
-    partial_logs = contract.events.LogTripleWithIndex.getLogs(
-        fromBlock=1,
+    partial_logs = contract.events.LogTripleWithIndex.get_logs(
+        from_block=1,
         argument_filters={"arg1": [1, 2]},
     )
     assert len(partial_logs) == 2
 
     # Filter all entries where arg0 == 1
-    partial_logs = contract.events.LogTripleWithIndex.getLogs(
-        fromBlock=1,
+    partial_logs = contract.events.LogTripleWithIndex.get_logs(
+        from_block=1,
         argument_filters={"arg0": 1},
     )
     assert len(partial_logs) == 4
