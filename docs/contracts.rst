@@ -997,9 +997,9 @@ For example:
        >>> assert processed_logs == ()
        True
 
-.. py:method:: ContractEvents.myEvent(*args, **kwargs).processLog(log)
+.. py:method:: ContractEvents.myEvent(*args, **kwargs).process_log(log)
 
-   Similar to processReceipt_, but only processes one log at a time, instead of a whole transaction receipt.
+   Similar to process_receipt_, but only processes one log at a time, instead of a whole transaction receipt.
    Will return a single :ref:`Event Log Object <event-log-object>` if there are no errors encountered during processing. If an error is encountered during processing, it will be raised.
 
    .. code-block:: python
@@ -1007,7 +1007,7 @@ For example:
        >>> tx_hash = contract.functions.myFunction(12345).transact({'to':contract_address})
        >>> tx_receipt = w3.eth.get_transaction_receipt(tx_hash)
        >>> log_to_process = tx_receipt['logs'][0]
-       >>> processed_log = contract.events.myEvent().processLog(log_to_process)
+       >>> processed_log = contract.events.myEvent().process_log(log_to_process)
        >>> processed_log
        AttributeDict({
            'args': AttributeDict({}),

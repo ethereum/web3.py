@@ -1470,7 +1470,7 @@ class BaseContractEvent:
             yield rich_log
 
     @combomethod
-    def processLog(self, log: HexStr) -> EventData:
+    def process_log(self, log: HexStr) -> EventData:
         return get_event_data(self.w3.codec, self.abi, log)
 
     @combomethod
