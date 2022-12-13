@@ -41,13 +41,14 @@ from hexbytes import (
 
 from ens import (
     ENS,
+    AsyncENS,
 )
 from web3._utils.encoding import (
     hexstr_if_str,
     text_if_str,
 )
 from web3._utils.ens import (
-    StaticENS,
+    async_validate_name_has_address,
     is_ens_name,
     validate_name_has_address,
 )
@@ -63,7 +64,10 @@ from web3.types import (
 )
 
 if TYPE_CHECKING:
-    from web3 import Web3  # noqa: F401
+    from web3 import (  # noqa: F401
+        AsyncWeb3,
+        Web3,
+    )
 
 
 def implicitly_identity(
@@ -267,3 +271,31 @@ def normalize_bytecode(bytecode: bytes) -> HexBytes:
         bytecode = HexBytes(bytecode)
     # type ignored b/c bytecode is converted to HexBytes above
     return bytecode  # type: ignore
+
+
+# --- async -- #
+
+
+async def async_abi_ens_resolver(
+    async_w3: "AsyncWeb3",
+    type_str: TypeStr,
+    val: Any,
+) -> Tuple[TypeStr, Any]:
+    if type_str == "address" and is_ens_name(val):
+        if async_w3 is None:
+            raise InvalidAddress(
+                f"Could not look up name {val!r} because no web3"
+                " connection available"
+            )
+
+        _async_ens = cast(AsyncENS, async_w3.ens)
+        if _async_ens is None:
+            raise InvalidAddress(
+                f"Could not look up name {val!r} because ENS is" " set to None"
+            )
+        else:
+            address = await async_validate_name_has_address(_async_ens, val)
+            return type_str, address
+
+    else:
+        return type_str, val

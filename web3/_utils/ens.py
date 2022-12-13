@@ -90,3 +90,15 @@ def contract_ens_addresses(
     """
     with ens_addresses(contract.w3, name_addr_pairs):
         yield
+
+
+# --- async --- #
+
+
+async def async_validate_name_has_address(
+    async_ens: AsyncENS, name: str
+) -> ChecksumAddress:
+    addr = await async_ens.address(name)
+    if not addr:
+        raise NameNotFound(f"Could not find address for name {name!r}")
+    return addr
