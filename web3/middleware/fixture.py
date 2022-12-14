@@ -90,6 +90,29 @@ def construct_error_generator_middleware(
 # --- async --- #
 
 
+async def async_construct_fixture_middleware(
+    fixtures: Dict[RPCEndpoint, Any]
+) -> Middleware:
+    """
+    Constructs a middleware which returns a static response for any method
+    which is found in the provided fixtures.
+    """
+
+    async def fixture_middleware(
+        make_request: Callable[[RPCEndpoint, Any], Any], _: "Web3"
+    ) -> Callable[[RPCEndpoint, Any], RPCResponse]:
+        async def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
+            if method in fixtures:
+                result = fixtures[method]
+                return {"result": result}
+            else:
+                return await make_request(method, params)
+
+        return middleware
+
+    return fixture_middleware
+
+
 async def async_construct_result_generator_middleware(
     result_generators: Dict[RPCEndpoint, Any]
 ) -> Middleware:

@@ -42,6 +42,7 @@ from .filter import (  # noqa: F401
     local_filter_middleware,
 )
 from .fixture import (  # noqa: F401
+    async_construct_fixture_middleware,
     construct_error_generator_middleware,
     construct_fixture_middleware,
     construct_result_generator_middleware,
@@ -58,6 +59,7 @@ from .geth_poa import (  # noqa: F401
     geth_poa_middleware,
 )
 from .names import (  # noqa: F401
+    async_name_to_address_middleware,
     name_to_address_middleware,
 )
 from .normalize_request_parameters import (  # noqa: F401
