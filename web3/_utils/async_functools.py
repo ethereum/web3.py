@@ -85,7 +85,7 @@ def async_curry(
     evaluator: Callable[..., Any] = None,
     *args: Any,
     **kwargs: Any,
-) -> Union[functools.partial[Coroutine[Any, Any, Any]], Callable[..., Any]]:
+) -> Callable[..., Any]:
     """
     Note: functools.curry is preferred for non-async methods.
 
@@ -175,7 +175,7 @@ def async_curry(
         fn: Callable[..., Any],
         *args: Any,
         **kwargs: Any,
-    ) -> functools.partial[Any]:
+    ) -> Callable[..., Any]:
         """
         Function either continues curring of the arguments
         or executes function if desired arguments have being collected.
@@ -209,7 +209,7 @@ def async_curry(
         fn: Callable[..., Any],
         *args: Any,
         **kwargs: Any,
-    ) -> Union[functools.partial[Any], Callable[..., Any]]:
+    ) -> Callable[..., Any]:
         if not is_func_or_coroutine(fn):
             raise TypeError(
                 "first argument must be a function, coroutine function, or method."

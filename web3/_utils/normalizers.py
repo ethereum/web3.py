@@ -56,6 +56,7 @@ from web3._utils.encoding import (
 )
 from web3._utils.ens import (
     StaticENS,
+    async_validate_name_has_address,
     is_ens_name,
     validate_name_has_address,
 )
@@ -313,7 +314,7 @@ async def async_abi_ens_resolver(
                 " not connected to mainnet"
             )
         else:
-            address = await validate_name_has_address(_async_ens, val)  # type: ignore
+            address = await async_validate_name_has_address(_async_ens, val)
             return type_str, address
     else:
         return type_str, val

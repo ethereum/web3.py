@@ -92,7 +92,7 @@ async def test_async_pass_name_resolver(async_w3):
 
 @pytest.mark.asyncio
 async def test_async_fail_name_resolver(async_w3):
-    return_chain_on_mainnet = async_construct_fixture_middleware(
+    return_chain_on_mainnet = await async_construct_fixture_middleware(
         {
             "net_version": "2",
         }
