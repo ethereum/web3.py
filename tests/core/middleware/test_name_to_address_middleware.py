@@ -1,5 +1,7 @@
 import pytest
 
+import pytest_asyncio
+
 from web3 import (
     Web3,
     constants,
@@ -67,11 +69,12 @@ def test_fail_name_resolver(w3):
 # --- async --- #
 
 
-@pytest.fixture
-def async_w3():
+@pytest_asyncio.fixture
+async def async_w3():
     async_w3 = Web3(provider=AsyncBaseProvider(), middlewares=[])
     async_w3.ens = TempENS({NAME: ADDRESS})
-    async_w3.middleware_onion.add(async_name_to_address_middleware(async_w3))
+    _middleware = await async_name_to_address_middleware(async_w3)
+    async_w3.middleware_onion.add(_middleware, "name_to_address")
     return async_w3
 
 
@@ -87,6 +90,8 @@ async def test_async_pass_name_resolver(async_w3):
     )
     async_w3.middleware_onion.inject(return_chain_on_mainnet, layer=0)
     async_w3.middleware_onion.inject(return_balance, layer=0)
+
+    # breakpoint()
     assert await async_w3.eth.get_balance(NAME) == BALANCE
 
 
