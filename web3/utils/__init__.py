@@ -6,6 +6,7 @@ from .abi import (  # NOQA
     get_abi_input_names,
     get_abi_output_names,
 )
+from .address import get_create_address  # NOQA
 from .async_exception_handling import (  # NOQA
     async_handle_offchain_lookup,
 )
