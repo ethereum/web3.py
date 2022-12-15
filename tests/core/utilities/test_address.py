@@ -1,6 +1,7 @@
 import pytest
 
 from web3.utils.address import (
+    get_create2_address,
     get_create_address,
 )
 
@@ -27,4 +28,44 @@ from web3.utils.address import (
 )
 def test_address_get_create_address(sender, nonce, expected):
     actual = get_create_address(sender, nonce)
+    assert actual == expected
+
+
+@pytest.mark.parametrize(
+    "sender,salt,init_code,expected",
+    (
+        (
+            "0x0000000000000000000000000000000000000000",
+            "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "0x00",
+            "0x4D1A2e2bB4F88F0250f26Ffff098B0b30B26BF38",
+        ),
+        (
+            "0xdeadbeef00000000000000000000000000000000",
+            "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "0x00",
+            "0xB928f69Bb1D91Cd65274e3c79d8986362984fDA3",
+        ),
+        (
+            "0xdeadbeef00000000000000000000000000000000",
+            "0x000000000000000000000000feed000000000000000000000000000000000000",
+            "0x00",
+            "0xD04116cDd17beBE565EB2422F2497E06cC1C9833",
+        ),
+        (
+            "0xDEADBEEF00000000000000000000000000000000",
+            "0x000000000000000000000000feed000000000000000000000000000000000000",
+            "0x00",
+            "0xD04116cDd17beBE565EB2422F2497E06cC1C9833",
+        ),
+        (
+            "0x0000000000000000000000000000000000000000",
+            "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "0xdeadbeef",
+            "0x70f2b2914A2a4b783FaEFb75f459A580616Fcb5e",
+        ),
+    ),
+)
+def test_address_get_create2_address(sender, salt, init_code, expected):
+    actual = get_create2_address(sender, salt, init_code)
     assert actual == expected
