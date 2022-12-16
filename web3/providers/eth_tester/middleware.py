@@ -186,6 +186,7 @@ BLOCK_RESULT_KEY_MAPPING = {
     "extra_data": "extraData",
     "gas_used": "gasUsed",
     "base_fee_per_gas": "baseFeePerGas",
+    "mix_hash": "mixHash",
     # eth-tester changed the miner key to coinbase since
     # there is no longer any mining happening, but the current
     # JSON-RPC spec still says miner
