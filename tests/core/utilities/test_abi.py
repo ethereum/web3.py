@@ -112,6 +112,20 @@ TEST_FUNCTION_ABI_JSON = """
     {
       "name": "a",
       "type": "uint256"
+    },
+    {
+      "components": [
+        {
+          "name": "x",
+          "type": "uint256"
+        },
+        {
+          "name": "y",
+          "type": "uint256"
+        }
+      ],
+      "name": "b",
+      "type": "tuple[][]"
     }
   ],
   "name": "f",
@@ -129,11 +143,13 @@ GET_ABI_INPUTS_OUTPUT = (
         "(uint256,uint256[],(uint256,uint256)[])",  # Type of s
         "(uint256,uint256)",  # Type of t
         "uint256",  # Type of a
+        "(uint256,uint256)[][]",  # Type of b
     ),
     (
         (1, [2, 3, 4], [(5, 6), (7, 8), (9, 10)]),  # Value for s
         (11, 12),  # Value for t
         13,  # Value for a
+        [[(14, 15), (16, 17)], [(18, 19)]],  # Value for b
     ),
 )
 
@@ -148,6 +164,7 @@ GET_ABI_INPUTS_TESTS = (
             },
             "t": {"x": 11, "y": 12},
             "a": 13,
+            "b": [[{"x": 14, "y": 15}, {"x": 16, "y": 17}], [{"x": 18, "y": 19}]],
         },
         GET_ABI_INPUTS_OUTPUT,
     ),
@@ -157,6 +174,7 @@ GET_ABI_INPUTS_TESTS = (
             "s": {"a": 1, "b": [2, 3, 4], "c": [(5, 6), (7, 8), {"x": 9, "y": 10}]},
             "t": {"x": 11, "y": 12},
             "a": 13,
+            "b": [[(14, 15), (16, 17)], [{"x": 18, "y": 19}]],
         },
         GET_ABI_INPUTS_OUTPUT,
     ),
@@ -166,6 +184,7 @@ GET_ABI_INPUTS_TESTS = (
             "s": {"a": 1, "b": [2, 3, 4], "c": [(5, 6), (7, 8), (9, 10)]},
             "t": (11, 12),
             "a": 13,
+            "b": [[(14, 15), (16, 17)], [(18, 19)]],
         },
         GET_ABI_INPUTS_OUTPUT,
     ),
@@ -175,6 +194,7 @@ GET_ABI_INPUTS_TESTS = (
             "s": (1, [2, 3, 4], [(5, 6), (7, 8), (9, 10)]),
             "t": (11, 12),
             "a": 13,
+            "b": [[(14, 15), (16, 17)], [(18, 19)]],
         },
         GET_ABI_INPUTS_OUTPUT,
     ),
@@ -184,6 +204,7 @@ GET_ABI_INPUTS_TESTS = (
             (1, [2, 3, 4], [(5, 6), (7, 8), (9, 10)]),
             (11, 12),
             13,
+            [[(14, 15), (16, 17)], [(18, 19)]],
         ),
         GET_ABI_INPUTS_OUTPUT,
     ),
@@ -193,6 +214,7 @@ GET_ABI_INPUTS_TESTS = (
             "s": {"a": 1, "b": [2, 3, 4], "c": [(5, 6), (7, 8), MyXYTuple(x=9, y=10)]},
             "t": MyXYTuple(x=11, y=12),
             "a": 13,
+            "b": [[MyXYTuple(x=14, y=15), MyXYTuple(x=16, y=17)], [MyXYTuple(x=18, y=19)]],
         },
         GET_ABI_INPUTS_OUTPUT,
     ),
@@ -219,6 +241,7 @@ GET_ABI_INPUTS_RAISING_TESTS = (
             "s": {"a": 1, "b": [2, 3, 4], "c": ["56", (7, 8), (9, 10)]},
             "t": (11, 12),
             "a": 13,
+            "b": [[(14, 15), (16, 17)], [(18, 19)]],
         },
     ),
     (
@@ -227,6 +250,7 @@ GET_ABI_INPUTS_RAISING_TESTS = (
             "s": {"a": 1, "b": [2, 3, 4], "c": {(5, 6), (7, 8), (9, 10)}},
             "t": (11, 12),
             "a": 13,
+            "b": [[(14, 15), (16, 17)], [(18, 19)]],
         },
     ),
 )
