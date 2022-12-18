@@ -519,10 +519,12 @@ def _align_abi_input(arg_abi: ABIFunctionParams, arg: Any) -> Tuple[Any, ...]:
         # according to its corresponding abi.
         sub_abis = arg_abi["components"]
     else:
+        num_dims = tuple_dims.count('[')
+
         # Arg is list tuple.  A non-list version of its abi will be used to
         # align each element in `arg`.
         new_abi = copy.copy(arg_abi)
-        new_abi["type"] = tuple_prefix
+        new_abi['type'] = tuple_prefix + "[]" * (num_dims - 1)
 
         sub_abis = itertools.repeat(new_abi)  # type: ignore
 
