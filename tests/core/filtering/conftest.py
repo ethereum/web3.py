@@ -6,18 +6,21 @@ from eth_utils import (
     encode_hex,
     event_signature_to_log_topic,
 )
+import pytest_asyncio
 
-from web3 import Web3
+from tests.core.filtering.utils import (
+    _async_emitter_fixture_logic,
+    _async_w3_fixture_logic,
+    _emitter_fixture_logic,
+    _w3_fixture_logic,
+)
+from tests.utils import (
+    async_partial,
+)
 from web3._utils.module_testing.emitter_contract import (
     CONTRACT_EMITTER_ABI,
     CONTRACT_EMITTER_CODE,
     CONTRACT_EMITTER_RUNTIME,
-)
-from web3.middleware import (
-    local_filter_middleware,
-)
-from web3.providers.eth_tester import (
-    EthereumTesterProvider,
 )
 
 
@@ -27,17 +30,7 @@ from web3.providers.eth_tester import (
     ids=["local_filter_middleware", "node_based_filter"],
 )
 def w3(request):
-    use_filter_middleware = request.param
-    provider = EthereumTesterProvider()
-    w3 = Web3(provider)
-    if use_filter_middleware:
-        w3.middleware_onion.add(local_filter_middleware)
-    return w3
-
-
-@pytest.fixture(autouse=True)
-def wait_for_mining_start(w3, wait_for_block):
-    wait_for_block(w3)
+    return _w3_fixture_logic(request)
 
 
 @pytest.fixture()
@@ -71,16 +64,9 @@ def Emitter(w3, EMITTER):
 
 @pytest.fixture()
 def emitter(w3, Emitter, wait_for_transaction, wait_for_block, address_conversion_func):
-    wait_for_block(w3)
-    deploy_txn_hash = Emitter.constructor().transact({"gas": 10000000})
-    deploy_receipt = wait_for_transaction(w3, deploy_txn_hash)
-    contract_address = address_conversion_func(deploy_receipt["contractAddress"])
-
-    bytecode = w3.eth.get_code(contract_address)
-    assert bytecode == Emitter.bytecode_runtime
-    _emitter = Emitter(address=contract_address)
-    assert _emitter.address == contract_address
-    return _emitter
+    return _emitter_fixture_logic(
+        w3, Emitter, wait_for_transaction, wait_for_block, address_conversion_func
+    )
 
 
 class LogFunctions:
@@ -163,7 +149,7 @@ def emitter_log_topics():
     return LogTopics
 
 
-def return_filter(contract=None, args=[]):
+def return_filter(contract, args):
     event_name = args[0]
     kwargs = apply_key_map({"filter": "argument_filters"}, args[1])
     if "fromBlock" not in kwargs:
@@ -174,3 +160,50 @@ def return_filter(contract=None, args=[]):
 @pytest.fixture(scope="module")
 def create_filter(request):
     return functools.partial(return_filter)
+
+
+# --- async --- #
+
+
+@pytest.fixture(
+    scope="function",
+    params=[True, False],
+    ids=["async_local_filter_middleware", "node_based_filter"],
+)
+def async_w3(request):
+    return _async_w3_fixture_logic(request)
+
+
+@pytest.fixture()
+def AsyncEmitter(async_w3, EMITTER):
+    return async_w3.eth.contract(**EMITTER)
+
+
+@pytest_asyncio.fixture()
+async def async_emitter(
+    async_w3,
+    AsyncEmitter,
+    async_wait_for_transaction,
+    async_wait_for_block,
+    address_conversion_func,
+):
+    return await _async_emitter_fixture_logic(
+        async_w3,
+        AsyncEmitter,
+        async_wait_for_transaction,
+        async_wait_for_block,
+        address_conversion_func,
+    )
+
+
+async def async_return_filter(contract, args):
+    event_name = args[0]
+    kwargs = apply_key_map({"filter": "argument_filters"}, args[1])
+    if "fromBlock" not in kwargs:
+        kwargs["fromBlock"] = "latest"
+    return await contract.events[event_name].create_filter(**kwargs)
+
+
+@pytest_asyncio.fixture(scope="module")
+async def async_create_filter(request):
+    return async_partial(async_return_filter)

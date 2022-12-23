@@ -41,6 +41,7 @@ from hexbytes import (
 )
 
 from web3._utils.events import (
+    AsyncEventFilterBuilder,
     EventFilterBuilder,
     construct_event_data_set,
     construct_event_topic_set,
@@ -62,6 +63,7 @@ from web3.types import (
 if TYPE_CHECKING:
     from web3 import Web3  # noqa: F401
     from web3.eth import Eth  # noqa: F401
+    from web3.eth import AsyncEth  # noqa: F401
 
 
 def construct_event_filter_params(
@@ -126,14 +128,13 @@ def construct_event_filter_params(
     return data_filters_set, filter_params
 
 
-class Filter:
+class BaseFilter:
     callbacks: List[Callable[..., Any]] = None
     stopped = False
     poll_interval = None
     filter_id = None
 
-    def __init__(self, filter_id: HexStr, eth_module: "Eth") -> None:
-        self.eth_module = eth_module
+    def __init__(self, filter_id: HexStr) -> None:
         self.filter_id = filter_id
         self.callbacks = []
         super().__init__()
@@ -159,18 +160,6 @@ class Filter:
     ) -> Iterator[LogReceipt]:
         return filter(self.is_valid_entry, entries)
 
-    def get_new_entries(self) -> List[LogReceipt]:
-        log_entries = self._filter_valid_entries(
-            self.eth_module.get_filter_changes(self.filter_id)
-        )
-        return self._format_log_entries(log_entries)
-
-    def get_all_entries(self) -> List[LogReceipt]:
-        log_entries = self._filter_valid_entries(
-            self.eth_module.get_filter_logs(self.filter_id)
-        )
-        return self._format_log_entries(log_entries)
-
     def _format_log_entries(
         self, log_entries: Optional[Iterator[LogReceipt]] = None
     ) -> List[LogReceipt]:
@@ -183,11 +172,53 @@ class Filter:
         return formatted_log_entries
 
 
+class Filter(BaseFilter):
+    def __init__(self, filter_id: HexStr, eth_module: "Eth") -> None:
+        self.eth_module = eth_module
+        super(Filter, self).__init__(filter_id)
+
+    def get_new_entries(self) -> List[LogReceipt]:
+        log_entries = self._filter_valid_entries(
+            self.eth_module.get_filter_changes(self.filter_id)
+        )
+        return self._format_log_entries(log_entries)
+
+    def get_all_entries(self) -> List[LogReceipt]:
+        log_entries = self._filter_valid_entries(
+            self.eth_module.get_filter_logs(self.filter_id)
+        )
+        return self._format_log_entries(log_entries)
+
+
+class AsyncFilter(BaseFilter):
+    def __init__(self, filter_id: HexStr, eth_module: "AsyncEth") -> None:
+        self.eth_module = eth_module
+        super(AsyncFilter, self).__init__(filter_id)
+
+    async def get_new_entries(self) -> List[LogReceipt]:
+        filter_changes = await self.eth_module.get_filter_changes(self.filter_id)
+        log_entries = self._filter_valid_entries(filter_changes)
+        return self._format_log_entries(log_entries)
+
+    async def get_all_entries(self) -> List[LogReceipt]:
+        filter_logs = await self.eth_module.get_filter_logs(self.filter_id)
+        log_entries = self._filter_valid_entries(filter_logs)
+        return self._format_log_entries(log_entries)
+
+
 class BlockFilter(Filter):
     pass
 
 
+class AsyncBlockFilter(AsyncFilter):
+    pass
+
+
 class TransactionFilter(Filter):
+    pass
+
+
+class AsyncTransactionFilter(AsyncFilter):
     pass
 
 
@@ -198,6 +229,48 @@ class LogFilter(Filter):
     log_entry_formatter = None
     filter_params: FilterParams = None
     builder: EventFilterBuilder = None
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        self.log_entry_formatter = kwargs.pop(
+            "log_entry_formatter",
+            self.log_entry_formatter,
+        )
+        if "data_filter_set" in kwargs:
+            self.set_data_filters(kwargs.pop("data_filter_set"))
+        super().__init__(*args, **kwargs)
+
+    def format_entry(self, entry: LogReceipt) -> LogReceipt:
+        if self.log_entry_formatter:
+            return self.log_entry_formatter(entry)
+        return entry
+
+    def set_data_filters(
+        self, data_filter_set: Collection[Tuple[TypeStr, Any]]
+    ) -> None:
+        """Sets the data filters (non indexed argument filters)
+
+        Expects a set of tuples with the type and value, e.g.:
+        (('uint256', [12345, 54321]), ('string', ('a-single-string',)))
+        """
+        self.data_filter_set = data_filter_set
+        if any(data_filter_set):
+            self.data_filter_set_function = match_fn(
+                self.eth_module.codec, data_filter_set
+            )
+
+    def is_valid_entry(self, entry: LogReceipt) -> bool:
+        if not self.data_filter_set:
+            return True
+        return bool(self.data_filter_set_function(entry["data"]))
+
+
+class AsyncLogFilter(AsyncFilter):
+    data_filter_set = None
+    data_filter_set_regex = None
+    data_filter_set_function = None
+    log_entry_formatter = None
+    filter_params: FilterParams = None
+    builder: AsyncEventFilterBuilder = None
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.log_entry_formatter = kwargs.pop(

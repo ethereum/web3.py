@@ -85,11 +85,13 @@ from web3._utils.encoding import (
     to_hex,
 )
 from web3._utils.events import (
+    AsyncEventFilterBuilder,
     EventFilterBuilder,
     get_event_data,
     is_dynamic_sized_type,
 )
 from web3._utils.filters import (
+    AsyncLogFilter,
     LogFilter,
     construct_event_filter_params,
 )
@@ -1474,87 +1476,6 @@ class BaseContractEvent:
         return get_event_data(self.w3.codec, self.abi, log)
 
     @combomethod
-    def create_filter(
-        self,
-        *,  # PEP 3102
-        argument_filters: Optional[Dict[str, Any]] = None,
-        fromBlock: Optional[BlockIdentifier] = None,
-        toBlock: BlockIdentifier = "latest",
-        address: Optional[ChecksumAddress] = None,
-        topics: Optional[Sequence[Any]] = None,
-    ) -> LogFilter:
-        """
-        Create filter object that tracks logs emitted by this contract event.
-        :param filter_params: other parameters to limit the events
-        """
-        if fromBlock is None:
-            raise TypeError(
-                "Missing mandatory keyword argument to create_filter: fromBlock"
-            )
-
-        if argument_filters is None:
-            argument_filters = dict()
-
-        _filters = dict(**argument_filters)
-
-        event_abi = self._get_event_abi()
-
-        check_for_forbidden_api_filter_arguments(event_abi, _filters)
-
-        _, event_filter_params = construct_event_filter_params(
-            self._get_event_abi(),
-            self.w3.codec,
-            contract_address=self.address,
-            argument_filters=_filters,
-            fromBlock=fromBlock,
-            toBlock=toBlock,
-            address=address,
-            topics=topics,
-        )
-
-        filter_builder = EventFilterBuilder(event_abi, self.w3.codec)
-        filter_builder.address = cast(
-            ChecksumAddress, event_filter_params.get("address")
-        )
-        filter_builder.fromBlock = event_filter_params.get("fromBlock")
-        filter_builder.toBlock = event_filter_params.get("toBlock")
-        match_any_vals = {
-            arg: value
-            for arg, value in _filters.items()
-            if not is_array_type(filter_builder.args[arg].arg_type)
-            and is_list_like(value)
-        }
-        for arg, value in match_any_vals.items():
-            filter_builder.args[arg].match_any(*value)
-
-        match_single_vals = {
-            arg: value
-            for arg, value in _filters.items()
-            if not is_array_type(filter_builder.args[arg].arg_type)
-            and not is_list_like(value)
-        }
-        for arg, value in match_single_vals.items():
-            filter_builder.args[arg].match_single(value)
-
-        log_filter = filter_builder.deploy(self.w3)
-        log_filter.log_entry_formatter = get_event_data(
-            self.w3.codec, self._get_event_abi()
-        )
-        log_filter.builder = filter_builder
-
-        return log_filter
-
-    @combomethod
-    def build_filter(self) -> EventFilterBuilder:
-        builder = EventFilterBuilder(
-            self._get_event_abi(),
-            self.w3.codec,
-            formatter=get_event_data(self.w3.codec, self._get_event_abi()),
-        )
-        builder.address = self.address
-        return builder
-
-    @combomethod
     def _get_event_filter_params(
         self,
         abi: ABIEvent,
@@ -1567,7 +1488,7 @@ class BaseContractEvent:
         if not self.address:
             raise TypeError(
                 "This method can be only called on "
-                "an instated contract with an address"
+                "an instantiated contract with an address"
             )
 
         if argument_filters is None:
@@ -1602,6 +1523,64 @@ class BaseContractEvent:
     @classmethod
     def factory(cls, class_name: str, **kwargs: Any) -> PropertyCheckingFactory:
         return PropertyCheckingFactory(class_name, (cls,), kwargs)
+
+    @combomethod
+    def _set_up_filter_builder(
+        self,
+        argument_filters: Optional[Dict[str, Any]] = None,
+        fromBlock: Optional[BlockIdentifier] = None,
+        toBlock: BlockIdentifier = "latest",
+        address: Optional[ChecksumAddress] = None,
+        topics: Optional[Sequence[Any]] = None,
+        filter_builder: Union[EventFilterBuilder, AsyncEventFilterBuilder] = None,
+    ) -> None:
+        if fromBlock is None:
+            raise TypeError(
+                "Missing mandatory keyword argument to create_filter: fromBlock"
+            )
+
+        if argument_filters is None:
+            argument_filters = dict()
+
+        _filters = dict(**argument_filters)
+
+        event_abi = self._get_event_abi()
+
+        check_for_forbidden_api_filter_arguments(event_abi, _filters)
+
+        _, event_filter_params = construct_event_filter_params(
+            self._get_event_abi(),
+            self.w3.codec,
+            contract_address=self.address,
+            argument_filters=_filters,
+            fromBlock=fromBlock,
+            toBlock=toBlock,
+            address=address,
+            topics=topics,
+        )
+
+        filter_builder.address = cast(
+            ChecksumAddress, event_filter_params.get("address")
+        )
+        filter_builder.fromBlock = event_filter_params.get("fromBlock")
+        filter_builder.toBlock = event_filter_params.get("toBlock")
+        match_any_vals = {
+            arg: value
+            for arg, value in _filters.items()
+            if not is_array_type(filter_builder.args[arg].arg_type)
+            and is_list_like(value)
+        }
+        for arg, value in match_any_vals.items():
+            filter_builder.args[arg].match_any(*value)
+
+        match_single_vals = {
+            arg: value
+            for arg, value in _filters.items()
+            if not is_array_type(filter_builder.args[arg].arg_type)
+            and not is_list_like(value)
+        }
+        for arg, value in match_single_vals.items():
+            filter_builder.args[arg].match_single(value)
 
 
 class ContractEvent(BaseContractEvent):
@@ -1677,6 +1656,46 @@ class ContractEvent(BaseContractEvent):
 
         # Convert raw binary data to Python proxy objects as described by ABI
         return tuple(get_event_data(self.w3.codec, abi, entry) for entry in logs)
+
+    @combomethod
+    def create_filter(
+        self,
+        *,  # PEP 3102
+        argument_filters: Optional[Dict[str, Any]] = None,
+        fromBlock: Optional[BlockIdentifier] = None,
+        toBlock: BlockIdentifier = "latest",
+        address: Optional[ChecksumAddress] = None,
+        topics: Optional[Sequence[Any]] = None,
+    ) -> LogFilter:
+        """
+        Create filter object that tracks logs emitted by this contract event.
+        """
+        filter_builder = EventFilterBuilder(self._get_event_abi(), self.w3.codec)
+        self._set_up_filter_builder(
+            argument_filters,
+            fromBlock,
+            toBlock,
+            address,
+            topics,
+            filter_builder,
+        )
+        log_filter = filter_builder.deploy(self.w3)
+        log_filter.log_entry_formatter = get_event_data(
+            self.w3.codec, self._get_event_abi()
+        )
+        log_filter.builder = filter_builder
+
+        return log_filter
+
+    @combomethod
+    def build_filter(self) -> EventFilterBuilder:
+        builder = EventFilterBuilder(
+            self._get_event_abi(),
+            self.w3.codec,
+            formatter=get_event_data(self.w3.codec, self._get_event_abi()),
+        )
+        builder.address = self.address
+        return builder
 
 
 class AsyncContractEvent(BaseContractEvent):
@@ -1754,6 +1773,46 @@ class AsyncContractEvent(BaseContractEvent):
         return tuple(
             get_event_data(self.w3.codec, abi, entry) for entry in logs  # type: ignore
         )
+
+    @combomethod
+    async def create_filter(
+        self,
+        *,  # PEP 3102
+        argument_filters: Optional[Dict[str, Any]] = None,
+        fromBlock: Optional[BlockIdentifier] = None,
+        toBlock: BlockIdentifier = "latest",
+        address: Optional[ChecksumAddress] = None,
+        topics: Optional[Sequence[Any]] = None,
+    ) -> AsyncLogFilter:
+        """
+        Create filter object that tracks logs emitted by this contract event.
+        """
+        filter_builder = AsyncEventFilterBuilder(self._get_event_abi(), self.w3.codec)
+        self._set_up_filter_builder(
+            argument_filters,
+            fromBlock,
+            toBlock,
+            address,
+            topics,
+            filter_builder,
+        )
+        log_filter = await filter_builder.deploy(self.w3)
+        log_filter.log_entry_formatter = get_event_data(
+            self.w3.codec, self._get_event_abi()
+        )
+        log_filter.builder = filter_builder
+
+        return log_filter
+
+    @combomethod
+    def build_filter(self) -> AsyncEventFilterBuilder:
+        builder = AsyncEventFilterBuilder(
+            self._get_event_abi(),
+            self.w3.codec,
+            formatter=get_event_data(self.w3.codec, self._get_event_abi()),
+        )
+        builder.address = self.address
+        return builder
 
 
 class BaseContractCaller:

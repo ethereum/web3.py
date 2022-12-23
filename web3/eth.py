@@ -51,6 +51,8 @@ from web3._utils.fee_utils import (
     fee_history_priority_fee,
 )
 from web3._utils.filters import (
+    AsyncFilter,
+    Filter,
     select_filter_method,
 )
 from web3._utils.rpc_abi import (
@@ -359,6 +361,35 @@ class BaseEth(Module):
     ) -> None:
         self.defaultContractFactory = contractFactory
 
+    def filter_munger(
+        self,
+        filter_params: Optional[Union[str, FilterParams]] = None,
+        filter_id: Optional[HexStr] = None,
+    ) -> Union[List[FilterParams], List[HexStr], List[str]]:
+        if filter_id and filter_params:
+            raise TypeError(
+                "Ambiguous invocation: provide either a `filter_params` or a "
+                "`filter_id` argument. Both were supplied."
+            )
+        if isinstance(filter_params, dict):
+            return [filter_params]
+        elif is_string(filter_params):
+            if filter_params in ["latest", "pending"]:
+                return [filter_params]
+            else:
+                raise ValueError(
+                    "The filter API only accepts the values of `pending` or "
+                    "`latest` for string based filters"
+                )
+        elif filter_id and not filter_params:
+            return [filter_id]
+        else:
+            raise TypeError(
+                "Must provide either filter_params as a string or "
+                "a valid filter object, or a filter_id as a string "
+                "or hex."
+            )
+
 
 class AsyncEth(BaseEth):
     is_async = True
@@ -604,6 +635,39 @@ class AsyncEth(BaseEth):
         block_identifier: Optional[BlockIdentifier] = None,
     ) -> HexBytes:
         return await self._get_storage_at(account, position, block_identifier)
+
+    filter: Method[
+        Callable[[Optional[Union[str, FilterParams, HexStr]]], Awaitable[AsyncFilter]]
+    ] = Method(
+        method_choice_depends_on_args=select_filter_method(
+            if_new_block_filter=RPC.eth_newBlockFilter,
+            if_new_pending_transaction_filter=RPC.eth_newPendingTransactionFilter,
+            if_new_filter=RPC.eth_newFilter,
+        ),
+        mungers=[BaseEth.filter_munger],
+    )
+
+    _get_filter_changes: Method[
+        Callable[[HexStr], Awaitable[List[LogReceipt]]]
+    ] = Method(RPC.eth_getFilterChanges, mungers=[default_root_munger])
+
+    async def get_filter_changes(self, filter_id: HexStr) -> List[LogReceipt]:
+        return await self._get_filter_changes(filter_id)
+
+    _get_filter_logs: Method[Callable[[HexStr], Awaitable[List[LogReceipt]]]] = Method(
+        RPC.eth_getFilterLogs, mungers=[default_root_munger]
+    )
+
+    async def get_filter_logs(self, filter_id: HexStr) -> List[LogReceipt]:
+        return await self._get_filter_logs(filter_id)
+
+    _uninstall_filter: Method[Callable[[HexStr], Awaitable[bool]]] = Method(
+        RPC.eth_uninstallFilter,
+        mungers=[default_root_munger],
+    )
+
+    async def uninstall_filter(self, filter_id: HexStr) -> bool:
+        return await self._uninstall_filter(filter_id)
 
 
 class Eth(BaseEth):
@@ -897,42 +961,15 @@ class Eth(BaseEth):
     ) -> FeeHistory:
         return self._fee_history(block_count, newest_block, reward_percentiles)
 
-    def filter_munger(
-        self,
-        filter_params: Optional[Union[str, FilterParams]] = None,
-        filter_id: Optional[HexStr] = None,
-    ) -> Union[List[FilterParams], List[HexStr], List[str]]:
-        if filter_id and filter_params:
-            raise TypeError(
-                "Ambiguous invocation: provide either a `filter_params` or a "
-                "`filter_id` argument. Both were supplied."
-            )
-        if isinstance(filter_params, dict):
-            return [filter_params]
-        elif is_string(filter_params):
-            if filter_params in {"latest", "pending"}:
-                return [filter_params]
-            else:
-                raise ValueError(
-                    "The filter API only accepts the values of `pending` or "
-                    "`latest` for string based filters"
-                )
-        elif filter_id and not filter_params:
-            return [filter_id]
-        else:
-            raise TypeError(
-                "Must provide either filter_params as a string or "
-                "a valid filter object, or a filter_id as a string "
-                "or hex."
-            )
-
-    filter: Method[Callable[..., Any]] = Method(
+    filter: Method[
+        Callable[[Optional[Union[str, FilterParams, HexStr]]], Filter]
+    ] = Method(
         method_choice_depends_on_args=select_filter_method(
             if_new_block_filter=RPC.eth_newBlockFilter,
             if_new_pending_transaction_filter=RPC.eth_newPendingTransactionFilter,
             if_new_filter=RPC.eth_newFilter,
         ),
-        mungers=[filter_munger],
+        mungers=[BaseEth.filter_munger],
     )
 
     get_filter_changes: Method[Callable[[HexStr], List[LogReceipt]]] = Method(
@@ -941,6 +978,11 @@ class Eth(BaseEth):
 
     get_filter_logs: Method[Callable[[HexStr], List[LogReceipt]]] = Method(
         RPC.eth_getFilterLogs, mungers=[default_root_munger]
+    )
+
+    uninstall_filter: Method[Callable[[HexStr], bool]] = Method(
+        RPC.eth_uninstallFilter,
+        mungers=[default_root_munger],
     )
 
     get_logs: Method[Callable[[FilterParams], List[LogReceipt]]] = Method(
@@ -954,11 +996,6 @@ class Eth(BaseEth):
 
     submit_work: Method[Callable[[int, _Hash32, _Hash32], bool]] = Method(
         RPC.eth_submitWork,
-        mungers=[default_root_munger],
-    )
-
-    uninstall_filter: Method[Callable[[HexStr], bool]] = Method(
-        RPC.eth_uninstallFilter,
         mungers=[default_root_munger],
     )
 

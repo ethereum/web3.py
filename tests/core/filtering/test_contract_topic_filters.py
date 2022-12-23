@@ -1,3 +1,4 @@
+import asyncio
 import pytest
 
 from hypothesis import (
@@ -5,38 +6,23 @@ from hypothesis import (
     settings,
     strategies as st,
 )
+import pytest_asyncio
 
-from web3 import Web3
+from tests.core.filtering.utils import (
+    _async_emitter_fixture_logic,
+    _async_w3_fixture_logic,
+    _emitter_fixture_logic,
+    _w3_fixture_logic,
+)
+from tests.utils import (
+    _async_wait_for_block_fixture_logic,
+    _async_wait_for_transaction_fixture_logic,
+)
 from web3._utils.module_testing.emitter_contract import (
     CONTRACT_EMITTER_ABI,
     CONTRACT_EMITTER_CODE,
     CONTRACT_EMITTER_RUNTIME,
 )
-from web3.middleware import (
-    local_filter_middleware,
-)
-from web3.providers.eth_tester import (
-    EthereumTesterProvider,
-)
-
-
-@pytest.fixture(
-    scope="module",
-    params=[True, False],
-    ids=["local_filter_middleware", "node_based_filter"],
-)
-def w3(request):
-    use_filter_middleware = request.param
-    provider = EthereumTesterProvider()
-    w3 = Web3(provider)
-    if use_filter_middleware:
-        w3.middleware_onion.add(local_filter_middleware)
-    return w3
-
-
-@pytest.fixture(autouse=True)
-def wait_for_mining_start(w3, wait_for_block):
-    wait_for_block(w3)
 
 
 @pytest.fixture(scope="module")
@@ -61,25 +47,6 @@ def EMITTER(EMITTER_CODE, EMITTER_RUNTIME, EMITTER_ABI):
         "bytecode_runtime": EMITTER_RUNTIME,
         "abi": EMITTER_ABI,
     }
-
-
-@pytest.fixture(scope="module")
-def Emitter(w3, EMITTER):
-    return w3.eth.contract(**EMITTER)
-
-
-@pytest.fixture(scope="module")
-def emitter(w3, Emitter, wait_for_transaction, wait_for_block, address_conversion_func):
-    wait_for_block(w3)
-    deploy_txn_hash = Emitter.constructor().transact({"gas": 10000000})
-    deploy_receipt = wait_for_transaction(w3, deploy_txn_hash)
-    contract_address = address_conversion_func(deploy_receipt["contractAddress"])
-
-    bytecode = w3.eth.get_code(contract_address)
-    assert bytecode == Emitter.bytecode_runtime
-    _emitter = Emitter(address=contract_address)
-    assert _emitter.address == contract_address
-    return _emitter
 
 
 def not_empty_string(x):
@@ -135,6 +102,30 @@ def array_values(draw):
     return (matching, non_matching)
 
 
+# --- sync --- #
+
+
+@pytest.fixture(
+    scope="module",
+    params=[True, False],
+    ids=["local_filter_middleware", "node_based_filter"],
+)
+def w3(request):
+    return _w3_fixture_logic(request)
+
+
+@pytest.fixture(scope="module")
+def Emitter(w3, EMITTER):
+    return w3.eth.contract(**EMITTER)
+
+
+@pytest.fixture(scope="module")
+def emitter(w3, Emitter, wait_for_transaction, wait_for_block, address_conversion_func):
+    return _emitter_fixture_logic(
+        w3, Emitter, wait_for_transaction, wait_for_block, address_conversion_func
+    )
+
+
 @pytest.mark.parametrize("api_style", ("v4", "build_filter"))
 @given(vals=dynamic_values())
 @settings(max_examples=5, deadline=None)
@@ -171,16 +162,13 @@ def test_topic_filters_with_dynamic_arguments(
     assert log_entries[0]["transactionHash"] == txn_hashes[0]
 
 
-@pytest.mark.parametrize("call_as_instance", (True, False))
 @pytest.mark.parametrize("api_style", ("v4", "build_filter"))
 @given(vals=fixed_values())
 @settings(max_examples=5, deadline=None)
 def test_topic_filters_with_fixed_arguments(
     w3,
     emitter,
-    Emitter,
     wait_for_transaction,
-    call_as_instance,
     create_filter,
     api_style,
     vals,
@@ -240,12 +228,11 @@ def test_topic_filters_with_fixed_arguments(
     assert log_entries[0]["transactionHash"] == txn_hashes[0]
 
 
-@pytest.mark.parametrize("call_as_instance", (True, False))
 @pytest.mark.parametrize("api_style", ("v4", "build_filter"))
 @given(vals=array_values())
 @settings(max_examples=5, deadline=None)
 def test_topic_filters_with_list_arguments(
-    w3, emitter, wait_for_transaction, call_as_instance, create_filter, api_style, vals
+    w3, emitter, wait_for_transaction, create_filter, api_style, vals
 ):
     matching, non_matching = vals
 
@@ -274,3 +261,207 @@ def test_topic_filters_with_list_arguments(
     else:
         with pytest.raises(TypeError):
             create_filter(emitter, ["LogListArgs", {"filter": {"arg0": matching}}])
+
+
+# --- async --- #
+
+
+@pytest_asyncio.fixture(scope="module")
+async def async_wait_for_block():
+    return _async_wait_for_block_fixture_logic
+
+
+@pytest_asyncio.fixture(scope="module")
+async def async_wait_for_transaction():
+    return _async_wait_for_transaction_fixture_logic
+
+
+@pytest.fixture(scope="module")
+def event_loop():
+    loop = asyncio.get_event_loop_policy().new_event_loop()
+    yield loop
+    loop.close()
+
+
+@pytest.fixture(
+    scope="module",
+    params=[True, False],
+    ids=["local_filter_middleware", "node_based_filter"],
+)
+def async_w3(request):
+    return _async_w3_fixture_logic(request)
+
+
+@pytest_asyncio.fixture(scope="module")
+def AsyncEmitter(async_w3, EMITTER):
+    return async_w3.eth.contract(**EMITTER)
+
+
+@pytest_asyncio.fixture(scope="module")
+async def async_emitter(
+    async_w3,
+    AsyncEmitter,
+    async_wait_for_transaction,
+    async_wait_for_block,
+    address_conversion_func,
+):
+    return await _async_emitter_fixture_logic(
+        async_w3,
+        AsyncEmitter,
+        async_wait_for_transaction,
+        async_wait_for_block,
+        address_conversion_func,
+    )
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("api_style", ("v4", "build_filter"))
+@given(vals=dynamic_values())
+@settings(max_examples=5, deadline=None)
+async def test_async_topic_filters_with_dynamic_arguments(
+    async_w3,
+    async_emitter,
+    async_wait_for_transaction,
+    async_create_filter,
+    api_style,
+    vals,
+):
+    if api_style == "build_filter":
+
+        filter_builder = async_emitter.events.LogDynamicArgs.build_filter()
+        filter_builder.args["arg0"].match_single(vals["matching"])
+        event_filter = await filter_builder.deploy(async_w3)
+    else:
+        event_filter = await async_create_filter(
+            async_emitter, ["LogDynamicArgs", {"filter": {"arg0": vals["matching"]}}]
+        )
+
+    txn_hashes = [
+        await async_emitter.functions.logDynamicArgs(
+            arg0=vals["matching"], arg1=vals["matching"]
+        ).transact(
+            {"maxFeePerGas": 10**9, "maxPriorityFeePerGas": 10**9, "gas": 60000}
+        ),
+        await async_emitter.functions.logDynamicArgs(
+            arg0=vals["non_matching"][0], arg1=vals["non_matching"][0]
+        ).transact(
+            {"maxFeePerGas": 10**9, "maxPriorityFeePerGas": 10**9, "gas": 60000}
+        ),
+    ]
+
+    for txn_hash in txn_hashes:
+        await async_wait_for_transaction(async_w3, txn_hash)
+
+    log_entries = await event_filter.get_new_entries()
+    assert len(log_entries) == 1
+    assert log_entries[0]["transactionHash"] == txn_hashes[0]
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("api_style", ("v4", "build_filter"))
+@given(vals=fixed_values())
+@settings(max_examples=5, deadline=None)
+async def test_async_topic_filters_with_fixed_arguments(
+    async_w3,
+    async_emitter,
+    async_wait_for_transaction,
+    async_create_filter,
+    api_style,
+    vals,
+):
+    if api_style == "build_filter":
+        filter_builder = async_emitter.events.LogQuadrupleWithIndex.build_filter()
+        filter_builder.args["arg0"].match_single(vals["matching"][0])
+        filter_builder.args["arg1"].match_single(vals["matching"][1])
+        filter_builder.args["arg2"].match_single(vals["matching"][2])
+        filter_builder.args["arg3"].match_single(vals["matching"][3])
+        event_filter = await filter_builder.deploy(async_w3)
+    else:
+        event_filter = await async_create_filter(
+            async_emitter,
+            [
+                "LogQuadrupleWithIndex",
+                {
+                    "filter": {
+                        "arg0": vals["matching"][0],
+                        "arg1": vals["matching"][1],
+                        "arg2": vals["matching"][2],
+                        "arg3": vals["matching"][3],
+                    }
+                },
+            ],
+        )
+
+    txn_hashes = []
+    txn_hashes.append(
+        await async_emitter.functions.logQuadruple(
+            which=11,
+            arg0=vals["matching"][0],
+            arg1=vals["matching"][1],
+            arg2=vals["matching"][2],
+            arg3=vals["matching"][3],
+        ).transact(
+            {"maxFeePerGas": 10**9, "maxPriorityFeePerGas": 10**9, "gas": 60000}
+        )
+    )
+    txn_hashes.append(
+        await async_emitter.functions.logQuadruple(
+            which=11,
+            arg0=vals["non_matching"][0],
+            arg1=vals["non_matching"][1],
+            arg2=vals["non_matching"][2],
+            arg3=vals["non_matching"][3],
+        ).transact(
+            {"maxFeePerGas": 10**9, "maxPriorityFeePerGas": 10**9, "gas": 60000}
+        )
+    )
+
+    for txn_hash in txn_hashes:
+        await async_wait_for_transaction(async_w3, txn_hash)
+
+    log_entries = await event_filter.get_new_entries()
+    assert len(log_entries) == 1
+    assert log_entries[0]["transactionHash"] == txn_hashes[0]
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("api_style", ("v4", "build_filter"))
+@given(vals=array_values())
+@settings(max_examples=5, deadline=None)
+async def test_async_topic_filters_with_list_arguments(
+    async_w3,
+    async_emitter,
+    async_wait_for_transaction,
+    async_create_filter,
+    api_style,
+    vals,
+):
+    matching, non_matching = vals
+
+    if api_style == "build_filter":
+        filter_builder = async_emitter.events.LogListArgs.build_filter()
+        filter_builder.args["arg0"].match_single(matching)
+        event_filter = await filter_builder.deploy(async_w3)
+        txn_hashes = []
+        txn_hashes.append(
+            await async_emitter.functions.logListArgs(
+                arg0=matching, arg1=matching
+            ).transact({"maxFeePerGas": 10**9, "maxPriorityFeePerGas": 10**9})
+        )
+        txn_hashes.append(
+            await async_emitter.functions.logListArgs(
+                arg0=non_matching, arg1=non_matching
+            ).transact({"maxFeePerGas": 10**9, "maxPriorityFeePerGas": 10**9})
+        )
+
+        for txn_hash in txn_hashes:
+            await async_wait_for_transaction(async_w3, txn_hash)
+
+        log_entries = await event_filter.get_new_entries()
+        assert len(log_entries) == 1
+        assert log_entries[0]["transactionHash"] == txn_hashes[0]
+    else:
+        with pytest.raises(TypeError):
+            await async_create_filter(
+                async_emitter, ["LogListArgs", {"filter": {"arg0": matching}}]
+            )

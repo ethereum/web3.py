@@ -1,5 +1,3 @@
-import asyncio
-
 from eth_utils.toolz import (
     identity,
 )
@@ -27,13 +25,3 @@ async def async_deploy(async_web3, Contract, apply_func=identity, args=None):
     assert contract.address == address
     assert len(await async_web3.eth.get_code(contract.address)) > 0
     return contract
-
-
-def async_partial(f, *args, **kwargs):
-    async def f2(*args2, **kwargs2):
-        result = f(*args, *args2, **kwargs, **kwargs2)
-        if asyncio.iscoroutinefunction(f):
-            result = await result
-        return result
-
-    return f2
