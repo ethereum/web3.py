@@ -94,9 +94,9 @@ setup(
         "requests>=2.16.0,<3.0.0",
         # remove typing_extensions after python_requires>=3.8, see web3._utils.compat
         "typing-extensions>=3.7.4.1,<5;python_version<'3.8'",
-        "websockets>=9.1,<10",
+        "websockets>=10,<11",
     ],
-    python_requires=">=3.6,<4",
+    python_requires=">=3.7,<4",
     extras_require=extras_require,
     py_modules=["web3", "ens", "ethpm"],
     entry_points={"pytest11": ["pytest_ethereum = web3.tools.pytest_ethereum.plugins"]},
