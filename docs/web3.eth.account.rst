@@ -58,14 +58,14 @@ or see a full list of things you can do in the docs for
 Creating a Private Key
 ----------------------
 
-Each Ethereum address has a matchign private key. To create a new Ethereum 
+Each Ethereum address has a matching private key. To create a new Ethereum 
 account you can just generate a random number that acts as a private key.
 
-- A private key is just a random unguessable, or cryptograpgically safe, 256-bit integer number
+- A private key is just a random unguessable, or cryptographically safe, 256-bit integer number
 
 - A valid private key is > 0 and < max private key value (a number above the elliptic curve order FFFFFFFF FFFFFFFF FFFFFFFF FFFFFFFE BAAEDCE6 AF48A03B BFD25E8C D0364141)
 
-- Private keys do not have checksums or anything like that
+- Private keys do not have checksums.
 
 To create a private key using Web3.py and command line you can do:
 
@@ -89,7 +89,7 @@ private key=0x480c4aec9fa..., account=0x9202a9d5D2d129CB400a40e00aC822a53ED81167
 Funding a New Account
 ---------------------
 
-If you create a private key it comes with its own Ethereum address.
+If you create a private key, it comes with its own Ethereum address.
 By default, the balance of this address is zero.
 Before you can send any transactions with your account,
 you need to top up.
