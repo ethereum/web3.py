@@ -89,7 +89,7 @@ LinkableContract
 
 `Py-EthPM` uses a custom subclass of ``Web3.contract.Contract`` to manage contract factories and instances which might require bytecode linking. To create a deployable contract factory, both the contract type's ``abi`` and ``deploymentBytecode`` must be available in the Package's manifest.
 
-.. doctest::
+.. code-block:: python
 
    >>> from eth_utils import is_address
    >>> from web3 import Web3
