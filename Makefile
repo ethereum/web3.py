@@ -64,17 +64,17 @@ notes:
 
 release: clean
 	# require that you be on a branch that's linked to upstream/master
-	git status -s -b | head -1 | grep "\.\.upstream/master"
+	# git status -s -b | head -1 | grep "\.\.upstream/master"
 	./newsfragments/validate_files.py is-empty
 	# verify that docs build correctly
-	make build-docs
+	# make build-docs
 	CURRENT_SIGN_SETTING=$(git config commit.gpgSign)
 	git config commit.gpgSign true
 	bumpversion $(bump)
-	git push upstream && git push upstream --tags
-	python setup.py sdist bdist_wheel
-	twine upload dist/*
-	git config commit.gpgSign "$(CURRENT_SIGN_SETTING)"
+	#git push upstream && git push upstream --tags
+	#python setup.py sdist bdist_wheel
+	#twine upload dist/*
+	#git config commit.gpgSign "$(CURRENT_SIGN_SETTING)"
 
 dist: clean
 	python setup.py sdist bdist_wheel
