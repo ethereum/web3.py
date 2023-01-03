@@ -3,6 +3,99 @@ Release Notes
 
 .. towncrier release notes start
 
+v6.0.0-beta.9 (2023-01-03)
+--------------------------
+
+Features
+~~~~~~~~
+
+- Add async ``w3.eth.get_block_transaction_count`` (`#2687
+  <https://github.com/ethereum/web3.py/issues/2687>`__)
+- Support Python 3.11 (`#2699
+  <https://github.com/ethereum/web3.py/issues/2699>`__)
+- Load the ``AsyncHTTPProvider`` with default async middleware and default
+  async modules, just as the ``HTTPProvider``. (`#2736
+  <https://github.com/ethereum/web3.py/issues/2736>`__)
+- Add support for Nethermind/Gnosis revert reason formatting (`#2739
+  <https://github.com/ethereum/web3.py/issues/2739>`__)
+- Added async functionality to filter (`#2744
+  <https://github.com/ethereum/web3.py/issues/2744>`__)
+- Get contract address from ``CREATE`` and ``CREATE2`` opcodes (`#2762
+  <https://github.com/ethereum/web3.py/issues/2762>`__)
+
+
+Bugfixes
+~~~~~~~~
+
+- Fixing abi encoding for multidimensional arrays. (`#2764
+  <https://github.com/ethereum/web3.py/issues/2764>`__)
+
+
+Performance improvements
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Some minor performance improvements to the ``SimpleCache`` class and simple
+  cache middlewares (sync and async). (`#2719
+  <https://github.com/ethereum/web3.py/issues/2719>`__)
+- Remove unnecessary ``await`` for ``generate_gas_price()`` method as it does
+  not need to be awaited. Move this method to ``BaseEth`` to be used directly
+  by both ``Eth`` and ``AsyncEth`` modules. (`#2735
+  <https://github.com/ethereum/web3.py/issues/2735>`__)
+
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Add user survey to docs banner (`#2720
+  <https://github.com/ethereum/web3.py/issues/2720>`__)
+- Document improvements for private key info and account funding. (`#2722
+  <https://github.com/ethereum/web3.py/issues/2722>`__)
+- Include eth-tester install note in quickstart (`#2755
+  <https://github.com/ethereum/web3.py/issues/2755>`__)
+
+
+Deprecations and Removals
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Removal of Infura auto provider support. (`#2706
+  <https://github.com/ethereum/web3.py/issues/2706>`__)
+- Removal of ``version`` module. (`#2729
+  <https://github.com/ethereum/web3.py/issues/2729>`__)
+- Remove already-deprecated ``start_rpc`` and ``stop_rpc`` from the
+  ``w3.geth.admin`` module. (`#2731
+  <https://github.com/ethereum/web3.py/issues/2731>`__)
+
+
+Internal Changes - for web3.py Contributors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Use regex pattern for ``black`` command for ``tox`` / ``make lint`` linting
+  commands. (`#2727 <https://github.com/ethereum/web3.py/issues/2727>`__)
+- Use regex pattern for ``mypy`` command for ``tox`` / ``make lint`` linting
+  commands. (`#2734 <https://github.com/ethereum/web3.py/issues/2734>`__)
+- Remove internal method ``apply_formatter_to_array`` and use the method with
+  the same name from the ``eth-utils`` library. (`#2737
+  <https://github.com/ethereum/web3.py/issues/2737>`__)
+
+
+Miscellaneous changes
+~~~~~~~~~~~~~~~~~~~~~
+
+- `#2751 <https://github.com/ethereum/web3.py/issues/2751>`__
+
+
+Breaking changes
+~~~~~~~~~~~~~~~~
+
+- Snakecase the processReceipt, processLog, createFilter, and getLogs methods
+  (`#2709 <https://github.com/ethereum/web3.py/issues/2709>`__)
+- Remove Parity module and references. (`#2718
+  <https://github.com/ethereum/web3.py/issues/2718>`__)
+- Make the ``ipfshttpclient`` library opt-in via a web3 install extra. This
+  only affects the ``ethpm`` ``ipfs`` backends, which rely on the library.
+  (`#2730 <https://github.com/ethereum/web3.py/issues/2730>`__)
+
+
 v6.0.0-beta.8 (2022-11-14)
 --------------------------
 

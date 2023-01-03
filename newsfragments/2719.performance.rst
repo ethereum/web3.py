@@ -1,1 +1,0 @@
-Some minor performance improvements to the ``SimpleCache`` class and simple cache middlewares (sync and async).
