@@ -53,7 +53,7 @@ from web3.contract import (
     Contract,
     ContractCaller,
 )
-from web3.eth.base import (
+from web3.eth.base_eth import (
     BaseEth,
 )
 from web3.exceptions import (

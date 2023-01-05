@@ -1,10 +1,10 @@
 from .async_eth import (  # noqa: F401
     AsyncEth,
 )
-from .base import (  # noqa: F401
+from .base_eth import (  # noqa: F401
     BaseEth,
 )
-from .main import (  # noqa: F401
+from .eth import (  # noqa: F401
     Eth,
     Contract,
 )
