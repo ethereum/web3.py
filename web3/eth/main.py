@@ -599,7 +599,7 @@ class Eth(BaseEth):
         mungers=[BaseEth.filter_munger],
     )
 
-    # eth_getFilterChanges, eth_getFilterLogs
+    # eth_getFilterChanges, eth_getFilterLogs, eth_uninstallFilter
 
     get_filter_changes: Method[Callable[[HexStr], List[LogReceipt]]] = Method(
         RPC.eth_getFilterChanges, mungers=[default_root_munger]
@@ -607,6 +607,11 @@ class Eth(BaseEth):
 
     get_filter_logs: Method[Callable[[HexStr], List[LogReceipt]]] = Method(
         RPC.eth_getFilterLogs, mungers=[default_root_munger]
+    )
+
+    uninstall_filter: Method[Callable[[HexStr], bool]] = Method(
+        RPC.eth_uninstallFilter,
+        mungers=[default_root_munger],
     )
 
     # eth_submitHashrate
@@ -625,12 +630,5 @@ class Eth(BaseEth):
 
     submit_work: Method[Callable[[int, _Hash32, _Hash32], bool]] = Method(
         RPC.eth_submitWork,
-        mungers=[default_root_munger],
-    )
-
-    # eth_uninstallFilter
-
-    uninstall_filter: Method[Callable[[HexStr], bool]] = Method(
-        RPC.eth_uninstallFilter,
         mungers=[default_root_munger],
     )
