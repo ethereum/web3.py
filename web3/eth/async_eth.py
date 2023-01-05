@@ -522,6 +522,8 @@ class AsyncEth(BaseEth):
         mungers=[BaseEth.filter_munger],
     )
 
+    # eth_getFilterChanges, eth_getFilterLogs, eth_uninstallFilter
+
     _get_filter_changes: Method[
         Callable[[HexStr], Awaitable[List[LogReceipt]]]
     ] = Method(RPC.eth_getFilterChanges, mungers=[default_root_munger])
