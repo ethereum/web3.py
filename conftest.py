@@ -85,12 +85,11 @@ def wait_for_transaction():
 
 @pytest.fixture()
 def w3():
-    provider = EthereumTesterProvider()
-    return Web3(provider)
+    return Web3(EthereumTesterProvider())
 
 
 @pytest.fixture(scope="module")
-def w3_strict_abi():
+def w3_non_strict_abi():
     w3 = Web3(EthereumTesterProvider())
     w3.disable_strict_bytes_type_checking()
     return w3

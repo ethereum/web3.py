@@ -126,7 +126,7 @@ async def async_w3():
 
 
 @pytest_asyncio.fixture()
-async def async_w3_strict_abi():
+async def async_w3_non_strict_abi():
     provider = AsyncEthereumTesterProvider()
     w3 = Web3(provider, modules={"eth": [AsyncEth]}, middlewares=provider.middlewares)
     w3.disable_strict_bytes_type_checking()

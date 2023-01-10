@@ -73,10 +73,8 @@ def test_contract_constructor_encoding_encoding(
     assert deploy_data.endswith(remove_0x_prefix(expected_ending))
 
 
-def test_contract_constructor_encoding_encoding_warning(
-    w3, WithConstructorArgumentsContract
-):
-    with pytest.warns(
+def test_contract_constructor_encoding_error(w3, WithConstructorArgumentsContract):
+    with pytest.raises(
         DeprecationWarning,
         match='in v6 it will be invalid to pass a hex string without the "0x" prefix',
     ):
@@ -105,16 +103,17 @@ def test_contract_constructor_encoding_encoding_warning(
         ),
     ),
 )
-def test_contract_constructor_encoding_encoding_strict(
-    w3_strict_abi, WithConstructorArgumentsContractStrict, encoded_args, bytes_arg
+def test_contract_constructor_encoding_strict(
+    w3,
+    WithConstructorArgumentsContract,
+    encoded_args,
+    bytes_arg,
 ):
-
-    deploy_data = WithConstructorArgumentsContractStrict._encode_constructor_data(
+    deploy_data = WithConstructorArgumentsContract._encode_constructor_data(
         [1234, bytes_arg]
     )
-
     expected_ending = encode_hex(
-        w3_strict_abi.codec.encode(["uint256", "bytes32"], [1234, bytes_arg])
+        w3.codec.encode(["uint256", "bytes32"], [1234, bytes_arg])
     )
     assert expected_ending == encoded_args
     assert deploy_data.endswith(remove_0x_prefix(expected_ending))
@@ -130,12 +129,10 @@ def test_contract_constructor_encoding_encoding_strict(
     ),
 )
 def test_contract_constructor_encoding_encoding_strict_errors(
-    w3_strict_abi, WithConstructorArgumentsContractStrict, bytes_arg
+    WithConstructorArgumentsContract, bytes_arg
 ):
     with pytest.raises(
         TypeError,
         match="One or more arguments could not be encoded to the necessary ABI type.",
     ):
-        WithConstructorArgumentsContractStrict._encode_constructor_data(
-            [1234, bytes_arg]
-        )
+        WithConstructorArgumentsContract._encode_constructor_data([1234, bytes_arg])
