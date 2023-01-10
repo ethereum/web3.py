@@ -1,0 +1,1 @@
+Fix ``ethpm`` import issues after making ``ipfshttpclient`` optional.

@@ -15,7 +15,6 @@ from eth_utils import (
     import_string,
     to_bytes,
 )
-import ipfshttpclient
 
 from ethpm import (
     get_ethpm_spec_dir,
@@ -38,6 +37,13 @@ from ethpm.exceptions import (
     CannotHandleURI,
     EthPMValidationError,
 )
+
+try:
+    # `ipfshttpclient` backend is optional. This is only imported if the "web3[ipfs]"
+    # install extra is installed
+    import ipfshttpclient
+except ImportError:
+    pass
 
 
 class BaseIPFSBackend(BaseURIBackend):
