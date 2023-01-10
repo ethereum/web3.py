@@ -210,7 +210,7 @@ def encode_abi(
     if not check_if_arguments_can_be_encoded(abi, w3.codec, arguments, {}):
         raise TypeError(
             "One or more arguments could not be encoded to the necessary "
-            f"ABI type.  Expected types are: {', '.join(argument_types)}"
+            f"ABI type. Expected types are: {', '.join(argument_types)}"
         )
 
     normalizers = [

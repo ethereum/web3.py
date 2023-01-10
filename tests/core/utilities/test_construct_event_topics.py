@@ -133,8 +133,8 @@ def test_construct_event_topics(w3, arguments, expected):
         ),
     ),
 )
-def test_construct_event_topics_strict(w3_strict_abi, arguments, expected):
-    actual = construct_event_topic_set(EVENT_1_ABI, w3_strict_abi.codec, arguments)
+def test_construct_event_topics_strict(w3, arguments, expected):
+    actual = construct_event_topic_set(EVENT_1_ABI, w3.codec, arguments)
     assert actual == expected
 
 
@@ -159,6 +159,6 @@ def test_construct_event_topics_strict(w3_strict_abi, arguments, expected):
         ),
     ),
 )
-def test_construct_event_topics_strict_errors(w3_strict_abi, arguments, error):
+def test_construct_event_topics_strict_errors(w3, arguments, error):
     with pytest.raises(error):
-        construct_event_topic_set(EVENT_2_ABI, w3_strict_abi.codec, arguments)
+        construct_event_topic_set(EVENT_2_ABI, w3.codec, arguments)

@@ -60,21 +60,21 @@ def test_match_any_bytes_type_properties(w3, values):
 
 
 @given(st.lists(elements=st.binary(), max_size=10, min_size=1))
-def test_match_any_bytes_type_properties_strict(w3_strict_abi, values):
-    topic_filter = TopicArgumentFilter(arg_type="bytes", abi_codec=w3_strict_abi.codec)
+def test_match_any_bytes_type_properties_strict(w3, values):
+    topic_filter = TopicArgumentFilter(arg_type="bytes", abi_codec=w3.codec)
     topic_filter.match_any(*values)
     assert len(topic_filter.match_values) == len(values)
 
 
-def test_match_hex_type_properties_strict(w3_strict_abi):
-    topic_filter = TopicArgumentFilter(arg_type="bytes2", abi_codec=w3_strict_abi.codec)
+def test_match_hex_type_properties_strict(w3):
+    topic_filter = TopicArgumentFilter(arg_type="bytes2", abi_codec=w3.codec)
     topic_filter.match_any("0x1233")
     assert len(topic_filter.match_values) == 1
 
 
 @pytest.mark.parametrize("values", (b"123", b"1", "0x12", "0x", "0x121212"))
-def test_match_any_bytes_type_properties_strict_errors(w3_strict_abi, values):
-    topic_filter = TopicArgumentFilter(arg_type="bytes2", abi_codec=w3_strict_abi.codec)
+def test_match_any_bytes_type_properties_strict_errors(w3, values):
+    topic_filter = TopicArgumentFilter(arg_type="bytes2", abi_codec=w3.codec)
     topic_filter.match_any(values)
     with pytest.raises(ValueOutOfBounds):
         topic_filter.match_values

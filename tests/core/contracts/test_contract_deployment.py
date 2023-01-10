@@ -40,22 +40,16 @@ def test_contract_deployment_with_constructor_without_args(
 def test_contract_deployment_with_constructor_with_arguments(
     w3, WithConstructorArgumentsContract, WITH_CONSTRUCTOR_ARGUMENTS_RUNTIME
 ):
-    with pytest.warns(
-        DeprecationWarning,
-        match='in v6 it will be invalid to pass a hex string without the "0x" prefix',
-    ):
-        deploy_txn = WithConstructorArgumentsContract.constructor(
-            1234, "abcd"
-        ).transact()
+    deploy_txn = WithConstructorArgumentsContract.constructor(1234, "abcd").transact()
 
-        txn_receipt = w3.eth.wait_for_transaction_receipt(deploy_txn)
-        assert txn_receipt is not None
+    txn_receipt = w3.eth.wait_for_transaction_receipt(deploy_txn)
+    assert txn_receipt is not None
 
-        assert txn_receipt["contractAddress"]
-        contract_address = txn_receipt["contractAddress"]
+    assert txn_receipt["contractAddress"]
+    contract_address = txn_receipt["contractAddress"]
 
-        blockchain_code = w3.eth.get_code(contract_address)
-        assert blockchain_code == decode_hex(WITH_CONSTRUCTOR_ARGUMENTS_RUNTIME)
+    blockchain_code = w3.eth.get_code(contract_address)
+    assert blockchain_code == decode_hex(WITH_CONSTRUCTOR_ARGUMENTS_RUNTIME)
 
 
 @pytest.mark.parametrize(
@@ -66,35 +60,34 @@ def test_contract_deployment_with_constructor_with_arguments(
     ),
 )
 def test_contract_deployment_with_constructor_with_arguments_strict(
-    w3_strict_abi,
-    WithConstructorArgumentsContractStrict,  # noqa: E501
+    w3,
+    WithConstructorArgumentsContract,  # noqa: E501
     WITH_CONSTRUCTOR_ARGUMENTS_RUNTIME,  # noqa: E501
     constructor_arg,
 ):
-    deploy_txn = WithConstructorArgumentsContractStrict.constructor(
+    deploy_txn = WithConstructorArgumentsContract.constructor(
         1234, constructor_arg
     ).transact()
 
-    txn_receipt = w3_strict_abi.eth.wait_for_transaction_receipt(deploy_txn)
+    txn_receipt = w3.eth.wait_for_transaction_receipt(deploy_txn)
     assert txn_receipt is not None
 
     assert txn_receipt["contractAddress"]
     contract_address = txn_receipt["contractAddress"]
 
-    blockchain_code = w3_strict_abi.eth.get_code(contract_address)
+    blockchain_code = w3.eth.get_code(contract_address)
     assert blockchain_code == decode_hex(WITH_CONSTRUCTOR_ARGUMENTS_RUNTIME)
 
 
 def test_contract_deployment_with_constructor_with_arguments_strict_error(
-    w3_strict_abi,
-    WithConstructorArgumentsContractStrict,  # noqa: E501
+    WithConstructorArgumentsContract,  # noqa: E501
     WITH_CONSTRUCTOR_ARGUMENTS_RUNTIME,
 ):  # noqa: E501
     with pytest.raises(
         TypeError,
-        match="One or more arguments could not be encoded to the necessary ABI type.  Expected types are: uint256, bytes32",  # noqa: E501
+        match="One or more arguments could not be encoded to the necessary ABI type. Expected types are: uint256, bytes32",  # noqa: E501
     ):
-        WithConstructorArgumentsContractStrict.constructor(1234, "abcd").transact()
+        WithConstructorArgumentsContract.constructor(1234, "abcd").transact()
 
 
 def test_contract_deployment_with_constructor_with_address_argument(
@@ -152,22 +145,18 @@ async def test_async_contract_deployment_with_constructor_without_args(
 async def test_async_contract_deployment_with_constructor_with_arguments(
     async_w3, AsyncWithConstructorArgumentsContract, WITH_CONSTRUCTOR_ARGUMENTS_RUNTIME
 ):
-    with pytest.warns(
-        DeprecationWarning,
-        match='in v6 it will be invalid to pass a hex string without the "0x" prefix',
-    ):
-        deploy_txn = await AsyncWithConstructorArgumentsContract.constructor(
-            1234, "abcd"
-        ).transact()  # noqa: E501
+    deploy_txn = await AsyncWithConstructorArgumentsContract.constructor(
+        1234, "abcd"
+    ).transact()  # noqa: E501
 
-        txn_receipt = await async_w3.eth.wait_for_transaction_receipt(deploy_txn)
-        assert txn_receipt is not None
+    txn_receipt = await async_w3.eth.wait_for_transaction_receipt(deploy_txn)
+    assert txn_receipt is not None
 
-        assert txn_receipt["contractAddress"]
-        contract_address = txn_receipt["contractAddress"]
+    assert txn_receipt["contractAddress"]
+    contract_address = txn_receipt["contractAddress"]
 
-        blockchain_code = await async_w3.eth.get_code(contract_address)
-        assert blockchain_code == decode_hex(WITH_CONSTRUCTOR_ARGUMENTS_RUNTIME)
+    blockchain_code = await async_w3.eth.get_code(contract_address)
+    assert blockchain_code == decode_hex(WITH_CONSTRUCTOR_ARGUMENTS_RUNTIME)
 
 
 @pytest.mark.asyncio
@@ -179,39 +168,36 @@ async def test_async_contract_deployment_with_constructor_with_arguments(
     ),
 )
 async def test_async_contract_deployment_with_constructor_with_arguments_strict(
-    async_w3_strict_abi,
-    AsyncWithConstructorArgumentsContractStrict,
+    async_w3,
+    AsyncWithConstructorArgumentsContract,
     WITH_CONSTRUCTOR_ARGUMENTS_RUNTIME,
     constructor_arg,
 ):
 
-    deploy_txn = await AsyncWithConstructorArgumentsContractStrict.constructor(
+    deploy_txn = await AsyncWithConstructorArgumentsContract.constructor(
         1234, constructor_arg
     ).transact()
 
-    txn_receipt = await async_w3_strict_abi.eth.wait_for_transaction_receipt(deploy_txn)
+    txn_receipt = await async_w3.eth.wait_for_transaction_receipt(deploy_txn)
     assert txn_receipt is not None
 
     assert txn_receipt["contractAddress"]
     contract_address = txn_receipt["contractAddress"]
 
-    blockchain_code = await async_w3_strict_abi.eth.get_code(contract_address)
+    blockchain_code = await async_w3.eth.get_code(contract_address)
     assert blockchain_code == decode_hex(WITH_CONSTRUCTOR_ARGUMENTS_RUNTIME)
 
 
 @pytest.mark.asyncio
 async def test_async_contract_deployment_with_constructor_with_arguments_strict_error(
-    async_w3_strict_abi,
-    AsyncWithConstructorArgumentsContractStrict,
+    AsyncWithConstructorArgumentsContract,
     WITH_CONSTRUCTOR_ARGUMENTS_RUNTIME,
 ):
     with pytest.raises(
         TypeError,
-        match="One or more arguments could not be encoded to the necessary ABI type.  Expected types are: uint256, bytes32",  # noqa: E501
+        match="One or more arguments could not be encoded to the necessary ABI type. Expected types are: uint256, bytes32",  # noqa: E501
     ):
-        await AsyncWithConstructorArgumentsContractStrict.constructor(
-            1234, "abcd"
-        ).transact()
+        await AsyncWithConstructorArgumentsContract.constructor(1234, "abcd").transact()
 
 
 @pytest.mark.asyncio

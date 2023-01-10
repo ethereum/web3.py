@@ -43,52 +43,14 @@ MULTIPLE_FUNCTIONS = json.loads(
 @pytest.fixture(params=[b"\x04\x06", "0x0406", "0406"])
 def bytes_contract(w3, BytesContract, request, address_conversion_func):
     if is_text(request.param) and request.param[:2] != "0x":
-        with pytest.warns(
-            DeprecationWarning,
-            match="in v6 it will be invalid to pass a hex string without "
-            'the "0x" prefix',
-        ):
-            return deploy(
-                w3, BytesContract, address_conversion_func, args=[request.param]
-            )
+        return deploy(w3, BytesContract, address_conversion_func, args=[request.param])
     else:
         return deploy(w3, BytesContract, address_conversion_func, args=[request.param])
-
-
-@pytest_asyncio.fixture(params=[b"\x04\x06", "0x0406", "0406"])
-async def async_bytes_contract(
-    async_w3, AsyncBytesContract, request, address_conversion_func
-):
-    if is_text(request.param) and request.param[:2] != "0x":
-        with pytest.warns(
-            DeprecationWarning,
-            match="in v6 it will be invalid to pass a hex string without "
-            'the "0x" prefix',
-        ):
-            return await async_deploy(
-                async_w3,
-                AsyncBytesContract,
-                address_conversion_func,
-                args=[request.param],
-            )
-    else:
-        return await async_deploy(
-            async_w3, AsyncBytesContract, address_conversion_func, args=[request.param]
-        )
 
 
 @pytest.fixture()
 def fixed_reflection_contract(w3, FixedReflectionContract, address_conversion_func):
     return deploy(w3, FixedReflectionContract, address_conversion_func)
-
-
-@pytest_asyncio.fixture()
-async def async_fixed_reflection_contract(
-    async_w3, AsyncFixedReflectionContract, address_conversion_func
-):
-    return await async_deploy(
-        async_w3, AsyncFixedReflectionContract, address_conversion_func
-    )
 
 
 @pytest.fixture()
@@ -115,48 +77,12 @@ def bytes32_contract(w3, Bytes32Contract, request, address_conversion_func):
         )
 
 
-@pytest_asyncio.fixture(
-    params=[
-        "0x0406040604060406040604060406040604060406040604060406040604060406",
-        "0406040604060406040604060406040604060406040604060406040604060406",
-        HexBytes("0406040604060406040604060406040604060406040604060406040604060406"),
-    ]
-)
-async def async_bytes32_contract(
-    async_w3, AsyncBytes32Contract, request, address_conversion_func
-):
-    if is_text(request.param) and request.param[:2] != "0x":
-        with pytest.warns(DeprecationWarning):
-            return await async_deploy(
-                async_w3,
-                AsyncBytes32Contract,
-                address_conversion_func,
-                args=[request.param],
-            )
-    else:
-        return await async_deploy(
-            async_w3,
-            AsyncBytes32Contract,
-            address_conversion_func,
-            args=[request.param],
-        )
-
-
 @pytest.fixture()
 def undeployed_math_contract(MathContract, address_conversion_func):
     empty_address = address_conversion_func(
         "0x000000000000000000000000000000000000dEaD"
     )
     _undeployed_math_contract = MathContract(address=empty_address)
-    return _undeployed_math_contract
-
-
-@pytest_asyncio.fixture()
-async def async_undeployed_math_contract(AsyncMathContract, address_conversion_func):
-    empty_address = address_conversion_func(
-        "0x000000000000000000000000000000000000dEaD"
-    )
-    _undeployed_math_contract = AsyncMathContract(address=empty_address)
     return _undeployed_math_contract
 
 
@@ -170,40 +96,14 @@ def mismatched_math_contract(w3, StringContract, MathContract, address_conversio
     return _mismatched_math_contract
 
 
-@pytest_asyncio.fixture()
-async def async_mismatched_math_contract(
-    async_w3, AsyncStringContract, AsyncMathContract, address_conversion_func
-):
-    deploy_txn = await AsyncStringContract.constructor("Caqalai").transact()
-    deploy_receipt = await async_w3.eth.wait_for_transaction_receipt(deploy_txn)
-    assert deploy_receipt is not None
-    address = address_conversion_func(deploy_receipt["contractAddress"])
-    _mismatched_math_contract = AsyncMathContract(address=address)
-    return _mismatched_math_contract
-
-
 @pytest.fixture()
 def tuple_contract(w3, TupleContract, address_conversion_func):
     return deploy(w3, TupleContract, address_conversion_func)
 
 
-@pytest_asyncio.fixture()
-async def async_tuple_contract(async_w3, AsyncTupleContract, address_conversion_func):
-    return await async_deploy(async_w3, AsyncTupleContract, address_conversion_func)
-
-
 @pytest.fixture()
 def nested_tuple_contract(w3, NestedTupleContract, address_conversion_func):
     return deploy(w3, NestedTupleContract, address_conversion_func)
-
-
-@pytest_asyncio.fixture()
-async def async_nested_tuple_contract(
-    async_w3, AsyncNestedTupleContract, address_conversion_func
-):
-    return await async_deploy(
-        async_w3, AsyncNestedTupleContract, address_conversion_func
-    )
 
 
 def test_invalid_address_in_deploy_arg(WithConstructorAddressArgumentsContract):
@@ -287,8 +187,14 @@ def test_call_get_bytes32_const_array(arrays_contract, call):
 
 def test_call_get_byte_array(arrays_contract, call):
     result = call(contract=arrays_contract, contract_function="getByteValue")
-    expected_byte_arr = [b"\xff", b"\xff", b"\xff", b"\xff"]
+    expected_byte_arr = [b"\xff", b"\x00", b"\x00", b"\x00"]
     assert result == expected_byte_arr
+
+
+def test_call_get_byte_array_non_strict(non_strict_arrays_contract, call):
+    result = call(contract=non_strict_arrays_contract, contract_function="getByteValue")
+    expected_non__strict_byte_arr = [b"\xff", b"\xff", b"\xff", b"\xff"]
+    assert result == expected_non__strict_byte_arr
 
 
 @pytest.mark.parametrize("args,expected", [([b""], [b"\x00"]), (["0x"], [b"\x00"])])
@@ -302,24 +208,22 @@ def test_set_byte_array(arrays_contract, call, transact, args, expected):
 
 
 @pytest.mark.parametrize("args,expected", [([b"1"], [b"1"]), (["0xDe"], [b"\xDe"])])
-def test_set_strict_byte_array(strict_arrays_contract, call, transact, args, expected):
+def test_set_strict_byte_array(arrays_contract, call, transact, args, expected):
     transact(
-        contract=strict_arrays_contract,
+        contract=arrays_contract,
         contract_function="setByteValue",
         func_args=[args],
     )
-    result = call(contract=strict_arrays_contract, contract_function="getByteValue")
+    result = call(contract=arrays_contract, contract_function="getByteValue")
 
     assert result == expected
 
 
 @pytest.mark.parametrize("args", ([""], ["s"]))
-def test_set_strict_byte_array_with_invalid_args(
-    strict_arrays_contract, transact, args
-):
+def test_set_strict_byte_array_with_invalid_args(arrays_contract, transact, args):
     with pytest.raises(Web3ValidationError):
         transact(
-            contract=strict_arrays_contract,
+            contract=arrays_contract,
             contract_function="setByteValue",
             func_args=[args],
         )
@@ -1035,6 +939,101 @@ def test_changing_default_block_identifier(w3, math_contract):
     assert math_contract.functions.counter().call(block_identifier=None) == 7
 
 
+# -- async -- #
+
+
+@pytest_asyncio.fixture
+async def async_bytes_contract(async_w3, AsyncBytesContract, address_conversion_func):
+    return await async_deploy(
+        async_w3, AsyncBytesContract, address_conversion_func, args=[b"\x04\x06"]
+    )
+
+
+@pytest_asyncio.fixture()
+async def async_fixed_reflection_contract(
+    async_w3, AsyncFixedReflectionContract, address_conversion_func
+):
+    return await async_deploy(
+        async_w3, AsyncFixedReflectionContract, address_conversion_func
+    )
+
+
+@pytest_asyncio.fixture(
+    params=[
+        "0x0406040604060406040604060406040604060406040604060406040604060406",
+        "0406040604060406040604060406040604060406040604060406040604060406",
+        HexBytes("0406040604060406040604060406040604060406040604060406040604060406"),
+    ]
+)
+async def async_bytes32_contract(
+    async_w3, AsyncBytes32Contract, request, address_conversion_func
+):
+    if is_text(request.param) and request.param[:2] != "0x":
+        with pytest.warns(DeprecationWarning):
+            return await async_deploy(
+                async_w3,
+                AsyncBytes32Contract,
+                address_conversion_func,
+                args=[request.param],
+            )
+    else:
+        return await async_deploy(
+            async_w3,
+            AsyncBytes32Contract,
+            address_conversion_func,
+            args=[request.param],
+        )
+
+
+@pytest_asyncio.fixture()
+async def async_undeployed_math_contract(AsyncMathContract, address_conversion_func):
+    empty_address = address_conversion_func(
+        "0x000000000000000000000000000000000000dEaD"
+    )
+    _undeployed_math_contract = AsyncMathContract(address=empty_address)
+    return _undeployed_math_contract
+
+
+@pytest_asyncio.fixture()
+async def async_mismatched_math_contract(
+    async_w3, AsyncStringContract, AsyncMathContract, address_conversion_func
+):
+    deploy_txn = await AsyncStringContract.constructor("Caqalai").transact()
+    deploy_receipt = await async_w3.eth.wait_for_transaction_receipt(deploy_txn)
+    assert deploy_receipt is not None
+    address = address_conversion_func(deploy_receipt["contractAddress"])
+    _mismatched_math_contract = AsyncMathContract(address=address)
+    return _mismatched_math_contract
+
+
+@pytest_asyncio.fixture()
+async def async_tuple_contract(async_w3, AsyncTupleContract, address_conversion_func):
+    return await async_deploy(async_w3, AsyncTupleContract, address_conversion_func)
+
+
+@pytest_asyncio.fixture()
+async def async_nested_tuple_contract(
+    async_w3, AsyncNestedTupleContract, address_conversion_func
+):
+    return await async_deploy(
+        async_w3, AsyncNestedTupleContract, address_conversion_func
+    )
+
+
+@pytest.mark.asyncio
+async def test_deploy_arg_strict_byte_check_by_default(
+    async_w3, AsyncBytesContract, address_conversion_func
+):
+    with pytest.raises(
+        TypeError,
+        match="One or more arguments could not be encoded to the necessary ABI type. "
+        "Expected types are: bytes",
+    ):
+        await async_deploy(
+            async_w3, AsyncBytesContract, address_conversion_func, args=["\x04\x06"]
+        )
+
+
 @pytest.mark.asyncio
 async def test_async_invalid_address_in_deploy_arg(
     AsyncWithConstructorAddressArgumentsContract,
@@ -1125,8 +1124,19 @@ async def test_async_call_get_byte_array(async_arrays_contract, async_call):
     result = await async_call(
         contract=async_arrays_contract, contract_function="getByteValue"
     )
-    expected_byte_arr = [b"\xff", b"\xff", b"\xff", b"\xff"]
+    expected_byte_arr = [b"\xff", b"\x00", b"\x00", b"\x00"]
     assert result == expected_byte_arr
+
+
+@pytest.mark.asyncio
+async def test_async_call_get_byte_array_non_strict(
+    async_non_strict_arrays_contract, async_call
+):
+    result = await async_call(
+        contract=async_non_strict_arrays_contract, contract_function="getByteValue"
+    )
+    expected_non_strict_byte_arr = [b"\xff", b"\xff", b"\xff", b"\xff"]
+    assert result == expected_non_strict_byte_arr
 
 
 @pytest.mark.asyncio
@@ -1149,15 +1159,15 @@ async def test_async_set_byte_array(
 @pytest.mark.asyncio
 @pytest.mark.parametrize("args,expected", [([b"1"], [b"1"]), (["0xDe"], [b"\xDe"])])
 async def test_async_set_strict_byte_array(
-    async_strict_arrays_contract, async_call, async_transact, args, expected
+    async_arrays_contract, async_call, async_transact, args, expected
 ):
     await async_transact(
-        contract=async_strict_arrays_contract,
+        contract=async_arrays_contract,
         contract_function="setByteValue",
         func_args=[args],
     )
     result = await async_call(
-        contract=async_strict_arrays_contract, contract_function="getByteValue"
+        contract=async_arrays_contract, contract_function="getByteValue"
     )
 
     assert result == expected
@@ -1166,11 +1176,11 @@ async def test_async_set_strict_byte_array(
 @pytest.mark.asyncio
 @pytest.mark.parametrize("args", ([""], ["s"]))
 async def test_async_set_strict_byte_array_with_invalid_args(
-    async_strict_arrays_contract, async_transact, args
+    async_arrays_contract, async_transact, args
 ):
     with pytest.raises(Web3ValidationError):
         await async_transact(
-            contract=async_strict_arrays_contract,
+            contract=async_arrays_contract,
             contract_function="setByteValue",
             func_args=[args],
         )

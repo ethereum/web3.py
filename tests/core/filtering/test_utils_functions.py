@@ -186,11 +186,11 @@ def test_match_fn_with_various_data_types(w3, data, expected, match_data_and_abi
     ),
 )
 def test_match_fn_with_various_data_types_strict(
-    w3_strict_abi, data, expected, match_data_and_abi
+    w3, data, expected, match_data_and_abi
 ):
     abi_types, match_data = zip(*match_data_and_abi)
-    encoded_data = w3_strict_abi.codec.encode(abi_types, data)
-    assert match_fn(w3_strict_abi.codec, match_data_and_abi, encoded_data) == expected
+    encoded_data = w3.codec.encode(abi_types, data)
+    assert match_fn(w3.codec, match_data_and_abi, encoded_data) == expected
 
 
 @pytest.mark.parametrize(
@@ -203,9 +203,9 @@ def test_match_fn_with_various_data_types_strict(
         ),
     ),
 )
-def test_encode_with_wrong_types_strict(w3_strict_abi, data, abi_type):
+def test_encode_with_wrong_types_strict(w3, data, abi_type):
     with pytest.raises(ValueOutOfBounds):
-        w3_strict_abi.codec.encode(abi_type, data)
+        w3.codec.encode(abi_type, data)
 
 
 def test_wrong_type_match_data(w3):

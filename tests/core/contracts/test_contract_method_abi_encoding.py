@@ -110,8 +110,8 @@ def test_contract_abi_encoding_kwargs(w3):
         ["61"],
     ),
 )
-def test_contract_abi_encoding_strict_with_error(w3_strict_abi, arguments):
-    contract = w3_strict_abi.eth.contract(abi=ABI_C)
+def test_contract_abi_encoding_strict_with_error(w3, arguments):
+    contract = w3.eth.contract(abi=ABI_C)
     with pytest.raises(Web3ValidationError):
         contract.encodeABI("a", arguments, data=None)
 
@@ -160,7 +160,7 @@ def test_contract_abi_encoding_strict_with_error(w3_strict_abi, arguments):
         ),
     ),
 )
-def test_contract_abi_encoding_strict(w3_strict_abi, abi, arguments, data, expected):
-    contract = w3_strict_abi.eth.contract(abi=abi)
+def test_contract_abi_encoding_strict(w3, abi, arguments, data, expected):
+    contract = w3.eth.contract(abi=abi)
     actual = contract.encodeABI("a", arguments, data=data)
     assert actual == expected

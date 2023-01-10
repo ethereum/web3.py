@@ -280,8 +280,8 @@ def test_event_data_extraction_bytes_with_warning(
         ([[b"1"], [b"5"]],),
     ),
 )
-def test_event_data_extraction_bytes_strict_with_errors(strict_emitter, call_args):
-    emitter_fn = strict_emitter.functions.logListArgs
+def test_event_data_extraction_bytes_strict_with_errors(emitter, call_args):
+    emitter_fn = emitter.functions.logListArgs
     with pytest.raises(Web3ValidationError):
         emitter_fn(*call_args).transact()
 
@@ -321,28 +321,28 @@ def test_dynamic_length_argument_extraction(
 
 
 def test_argument_extraction_strict_bytes_types(
-    w3_strict_abi, strict_emitter, wait_for_transaction, emitter_log_topics
+    w3, emitter, wait_for_transaction, emitter_log_topics
 ):
     arg_0 = [b"12"]
     arg_1 = [b"12"]
-    txn_hash = strict_emitter.functions.logListArgs(arg_0, arg_1).transact()
-    txn_receipt = wait_for_transaction(w3_strict_abi, txn_hash)
+    txn_hash = emitter.functions.logListArgs(arg_0, arg_1).transact()
+    txn_receipt = wait_for_transaction(w3, txn_hash)
 
     assert len(txn_receipt["logs"]) == 1
     log_entry = txn_receipt["logs"][0]
     assert len(log_entry["topics"]) == 2
 
-    event_abi = strict_emitter._find_matching_event_abi("LogListArgs")
+    event_abi = emitter._find_matching_event_abi("LogListArgs")
 
     event_topic = emitter_log_topics.LogListArgs
     assert event_topic in log_entry["topics"]
 
-    encoded_arg_0 = w3_strict_abi.codec.encode(["bytes2"], arg_0)
+    encoded_arg_0 = w3.codec.encode(["bytes2"], arg_0)
     padded_arg_0 = encoded_arg_0.ljust(32, b"\x00")
-    arg_0_topic = w3_strict_abi.keccak(padded_arg_0)
+    arg_0_topic = w3.keccak(padded_arg_0)
     assert arg_0_topic in log_entry["topics"]
 
-    event_data = get_event_data(w3_strict_abi.codec, event_abi, log_entry)
+    event_data = get_event_data(w3.codec, event_abi, log_entry)
 
     expected_args = {"arg0": arg_0_topic, "arg1": arg_1}
 
@@ -350,7 +350,7 @@ def test_argument_extraction_strict_bytes_types(
     assert event_data["blockHash"] == txn_receipt["blockHash"]
     assert event_data["blockNumber"] == txn_receipt["blockNumber"]
     assert event_data["transactionIndex"] == txn_receipt["transactionIndex"]
-    assert is_same_address(event_data["address"], strict_emitter.address)
+    assert is_same_address(event_data["address"], emitter.address)
     assert event_data["event"] == "LogListArgs"
 
 
