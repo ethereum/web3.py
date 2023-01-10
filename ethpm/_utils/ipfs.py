@@ -9,9 +9,6 @@ from urllib import (
     parse,
 )
 
-from base58 import (
-    b58encode,
-)
 from eth_utils import (
     to_text,
 )
@@ -23,6 +20,15 @@ from ethpm._utils.protobuf.ipfs_file_pb2 import (  # type: ignore
     Data,
     PBNode,
 )
+
+try:
+    # `ipfshttpclient` backend is optional. This is only imported if the "web3[ipfs]"
+    # install extra is installed
+    from base58 import (
+        b58encode,
+    )
+except ImportError:
+    pass
 
 
 def dummy_ipfs_pin(path: Path) -> Dict[str, str]:

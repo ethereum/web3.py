@@ -10,9 +10,6 @@ from eth_typing import (
 from eth_utils import (
     to_tuple,
 )
-from ipfshttpclient.exceptions import (
-    ConnectionError,
-)
 
 from ethpm.backends.base import (
     BaseURIBackend,
@@ -30,7 +27,16 @@ from ethpm.backends.registry import (
     RegistryURIBackend,
 )
 
+try:
+    from ipfshttpclient.exceptions import (
+        ConnectionError as IpfsConnectionError,
+    )
+except ImportError:
+    pass
+
 logger = logging.getLogger("ethpm.utils.backend")
+
+IPFS_NODE_UNAVAILABLE_MSG = "No local IPFS node available on port 5001."
 
 ALL_URI_BACKENDS = [
     InfuraIPFSBackend,
@@ -50,8 +56,8 @@ def get_translatable_backends_for_uri(
         try:
             if backend().can_translate_uri(uri):  # type: ignore
                 yield backend
-        except ConnectionError:
-            logger.debug("No local IPFS node available on port 5001.", exc_info=True)
+        except IpfsConnectionError:
+            logger.debug(IPFS_NODE_UNAVAILABLE_MSG, exc_info=True)
 
 
 @to_tuple
@@ -71,7 +77,5 @@ def get_resolvable_backends_for_uri(
                 try:
                     if backend_class().can_resolve_uri(uri):  # type: ignore
                         yield backend_class
-                except ConnectionError:
-                    logger.debug(
-                        "No local IPFS node available on port 5001.", exc_info=True
-                    )
+                except IpfsConnectionError:
+                    logger.debug(IPFS_NODE_UNAVAILABLE_MSG, exc_info=True)
