@@ -1,4 +1,4 @@
-class PyEthPMError(Exception):
+class PyEthPMException(Exception):
     """
     Base class for all Py-EthPM errors.
     """
@@ -6,7 +6,7 @@ class PyEthPMError(Exception):
     pass
 
 
-class InsufficientAssetsError(PyEthPMError):
+class InsufficientAssetsError(PyEthPMException):
     """
     Raised when a Manifest or Package does not contain the required
     assets to do something.
@@ -15,7 +15,7 @@ class InsufficientAssetsError(PyEthPMError):
     pass
 
 
-class EthPMValidationError(PyEthPMError):
+class EthPMValidationError(PyEthPMException):
     """
     Raised when something does not pass a validation check.
     """
@@ -23,7 +23,7 @@ class EthPMValidationError(PyEthPMError):
     pass
 
 
-class CannotHandleURI(PyEthPMError):
+class CannotHandleURI(PyEthPMException):
     """
     Raised when the given URI cannot be served by any of the available backends.
     """
@@ -31,7 +31,7 @@ class CannotHandleURI(PyEthPMError):
     pass
 
 
-class FailureToFetchIPFSAssetsError(PyEthPMError):
+class FailureToFetchIPFSAssetsError(PyEthPMException):
     """
     Raised when an attempt to fetch a Package's assets via IPFS failed.
     """
@@ -39,7 +39,7 @@ class FailureToFetchIPFSAssetsError(PyEthPMError):
     pass
 
 
-class BytecodeLinkingError(PyEthPMError):
+class BytecodeLinkingError(PyEthPMException):
     """
     Raised when an attempt to link a contract factory's bytecode failed.
     """
@@ -47,7 +47,7 @@ class BytecodeLinkingError(PyEthPMError):
     pass
 
 
-class ManifestBuildingError(PyEthPMError):
+class ManifestBuildingError(PyEthPMException):
     """
     Raised when an attempt to build a manifest failed.
     """
