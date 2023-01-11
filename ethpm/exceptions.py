@@ -53,3 +53,11 @@ class ManifestBuildingError(PyEthPMException):
     """
 
     pass
+
+
+class ManifestValidationError(PyEthPMException):
+    """
+    Raised when a provided manifest cannot be published, since it's invalid.
+    """
+
+    pass

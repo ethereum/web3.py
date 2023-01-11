@@ -6,13 +6,11 @@ from ethpm import (
 )
 from ethpm.exceptions import (
     InsufficientAssetsError,
+    PyEthPMException,
 )
 from ethpm.tools import (
     get_ethpm_local_manifest,
     get_ethpm_spec_manifest,
-)
-from web3.exceptions import (
-    PMError,
 )
 
 
@@ -123,10 +121,10 @@ def test_get_local_package(w3, tmp_ethpmdir):
 def test_get_local_package_with_invalid_ethpmdir(w3, tmp_path):
     invalid_ethpmdir = tmp_path / "invalid"
     invalid_ethpmdir.mkdir()
-    with pytest.raises(PMError, match="not a valid ethPM packages directory."):
+    with pytest.raises(PyEthPMException, match="not a valid ethPM packages directory."):
         w3.pm.get_local_package("owned", invalid_ethpmdir)
 
 
 def test_get_local_package_with_uninstalled_package(w3, tmp_ethpmdir):
-    with pytest.raises(PMError, match="Package: safe-math not found in "):
+    with pytest.raises(PyEthPMException, match="Package: safe-math not found in "):
         w3.pm.get_local_package("safe-math", tmp_ethpmdir)

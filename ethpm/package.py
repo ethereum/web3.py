@@ -56,7 +56,7 @@ from ethpm.exceptions import (
     EthPMValidationError,
     FailureToFetchIPFSAssetsError,
     InsufficientAssetsError,
-    PyEthPMError,
+    PyEthPMException,
 )
 from ethpm.uri import (
     resolve_uri_contents,
@@ -338,7 +338,7 @@ class Package(object):
             try:
                 validate_build_dependency(name, uri)
                 dependency_package = Package.from_uri(uri, self.w3)
-            except PyEthPMError as e:
+            except PyEthPMException as e:
                 raise FailureToFetchIPFSAssetsError(
                     f"Failed to retrieve build dependency: {name} from URI: {uri}.\n"
                     f"Got error: {e}."
