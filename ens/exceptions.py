@@ -1,7 +1,7 @@
 import idna
 
 
-class ENSError(Exception):
+class ENSException(Exception):
     """
     Base class for all ENS Errors
     """
@@ -9,7 +9,7 @@ class ENSError(Exception):
     pass
 
 
-class AddressMismatch(ENSError):
+class AddressMismatch(ENSException):
     """
     In order to set up reverse resolution correctly, the ENS name should first
     point to the address. This exception is raised if the name does
@@ -19,7 +19,7 @@ class AddressMismatch(ENSError):
     pass
 
 
-class InvalidName(idna.IDNAError, ENSError):
+class InvalidName(idna.IDNAError, ENSException):
     """
     This exception is raised if the provided name does not meet
     the syntax standards specified in `EIP 137 name syntax
@@ -31,7 +31,7 @@ class InvalidName(idna.IDNAError, ENSError):
     pass
 
 
-class UnauthorizedError(ENSError):
+class UnauthorizedError(ENSException):
     """
     Raised if the sending account is not the owner of the name
     you are trying to modify. Make sure to set ``from`` in the
@@ -41,7 +41,7 @@ class UnauthorizedError(ENSError):
     pass
 
 
-class UnownedName(ENSError):
+class UnownedName(ENSException):
     """
     Raised if you are trying to modify a name that no one owns.
 
@@ -52,7 +52,7 @@ class UnownedName(ENSError):
     pass
 
 
-class ResolverNotFound(ENSError):
+class ResolverNotFound(ENSException):
     """
     Raised if no resolver was found for the name you are trying to resolve.
     """
@@ -60,7 +60,7 @@ class ResolverNotFound(ENSError):
     pass
 
 
-class UnsupportedFunction(ENSError):
+class UnsupportedFunction(ENSException):
     """
     Raised if a resolver does not support a particular method.
     """
@@ -68,7 +68,7 @@ class UnsupportedFunction(ENSError):
     pass
 
 
-class BidTooLow(ENSError):
+class BidTooLow(ENSException):
     """
     Raised if you bid less than the minimum amount
     """
@@ -76,7 +76,7 @@ class BidTooLow(ENSError):
     pass
 
 
-class InvalidBidHash(ENSError):
+class InvalidBidHash(ENSException):
     """
     Raised if you supply incorrect data to generate the bid hash.
     """
@@ -84,7 +84,7 @@ class InvalidBidHash(ENSError):
     pass
 
 
-class InvalidLabel(ENSError):
+class InvalidLabel(ENSException):
     """
     Raised if you supply an invalid label
     """
@@ -92,7 +92,7 @@ class InvalidLabel(ENSError):
     pass
 
 
-class OversizeTransaction(ENSError):
+class OversizeTransaction(ENSException):
     """
     Raised if a transaction you are trying to create would cost so
     much gas that it could not fit in a block.
@@ -103,7 +103,7 @@ class OversizeTransaction(ENSError):
     pass
 
 
-class UnderfundedBid(ENSError):
+class UnderfundedBid(ENSException):
     """
     Raised if you send less wei with your bid than you declared
     as your intent to bid.
