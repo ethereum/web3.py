@@ -12,7 +12,7 @@ from ethpm.contract import (
     LinkableContract,
 )
 from ethpm.exceptions import (
-    PyEthPMException,
+    EthPMException,
 )
 from web3 import Web3
 from web3.pm import (
@@ -60,25 +60,25 @@ def test_pm_set_custom_registry(empty_sol_registry, fresh_w3):
 
 @pytest.mark.xfail(reason="Need to properly add authorization as of 8/10/2022")
 def test_pm_must_set_registry_before_all_registry_interaction_functions(fresh_w3):
-    with pytest.raises(PyEthPMException):
+    with pytest.raises(EthPMException):
         fresh_w3.pm.release_package(
             "package", "1.0.0", "ipfs://QmcxvhkJJVpbxEAa6cgW3B6XwPJb79w9GpNUv2P2THUzZR"
         )
-    with pytest.raises(PyEthPMException):
+    with pytest.raises(EthPMException):
         fresh_w3.pm.get_release_id_data(b"invalid_release_id")
-    with pytest.raises(PyEthPMException):
+    with pytest.raises(EthPMException):
         fresh_w3.pm.get_release_id("package", "1.0.0")
-    with pytest.raises(PyEthPMException):
+    with pytest.raises(EthPMException):
         fresh_w3.pm.get_release_data("package", "1.0.0")
-    with pytest.raises(PyEthPMException):
+    with pytest.raises(EthPMException):
         fresh_w3.pm.get_package("package", "1.0.0")
-    with pytest.raises(PyEthPMException):
+    with pytest.raises(EthPMException):
         fresh_w3.pm.get_all_package_names()
-    with pytest.raises(PyEthPMException):
+    with pytest.raises(EthPMException):
         fresh_w3.pm.get_all_package_releases("package")
-    with pytest.raises(PyEthPMException):
+    with pytest.raises(EthPMException):
         fresh_w3.pm.get_release_count("package")
-    with pytest.raises(PyEthPMException):
+    with pytest.raises(EthPMException):
         fresh_w3.pm.get_package_count()
 
 

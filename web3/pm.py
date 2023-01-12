@@ -39,8 +39,8 @@ from ethpm import (
     Package,
 )
 from ethpm.exceptions import (
+    EthPMException,
     ManifestValidationError,
-    PyEthPMException,
 )
 from ethpm.uri import (
     is_supported_content_addressed_uri,
@@ -362,13 +362,13 @@ class PM(Module):
             ethpm_dir = Path.cwd() / "_ethpm_packages"
 
         if not ethpm_dir.name == "_ethpm_packages" or not ethpm_dir.is_dir():
-            raise PyEthPMException(
+            raise EthPMException(
                 f"{ethpm_dir} is not a valid ethPM packages directory."
             )
 
         local_packages = [pkg.name for pkg in ethpm_dir.iterdir() if pkg.is_dir()]
         if package_name not in local_packages:
-            raise PyEthPMException(
+            raise EthPMException(
                 f"Package: {package_name} not found in {ethpm_dir}. "
                 f"Available packages include: {local_packages}."
             )
@@ -406,7 +406,7 @@ class PM(Module):
                 )
             self.registry = SimpleRegistry(addr_lookup, self.w3)
         else:
-            raise PyEthPMException(
+            raise EthPMException(
                 "Expected a canonical/checksummed address or ENS name for the address, "
                 f"instead received {type(address)}."
             )
@@ -559,14 +559,14 @@ class PM(Module):
         try:
             self.registry
         except AttributeError:
-            raise PyEthPMException(
+            raise EthPMException(
                 "web3.pm does not have a set registry. "
                 "Please set registry with either: "
                 "web3.pm.set_registry(address) or "
                 "web3.pm.deploy_and_set_registry()"
             )
         if not isinstance(self.registry, ERC1319Registry):
-            raise PyEthPMException(
+            raise EthPMException(
                 "web3.pm requires an instance of a subclass of ERC1319Registry "
                 "to be set as the web3.pm.registry attribute. Instead found: "
                 f"{type(self.registry)}."
