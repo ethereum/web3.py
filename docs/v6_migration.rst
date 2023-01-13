@@ -60,8 +60,19 @@ Web3.py must update to expecting one of the exception listed above, or
 Similarly, exceptions raised in the EthPM and ENS modules inherit from the base
 ``PyEthPMException`` and ``ENSException``, respectively.
 
-Other Changes
--------------
+ValidationError
+---------------
+
+The Python dev tooling ecosystem is moving towards standardizing
+``ValidationError``, so users know that they're catching the correct
+``ValidationError``. The base ``ValidationError`` is imported from
+``eth_utils``. However, we also wanted to empower users to catch all errors emitted
+by a particular module. So we now have a ``Web3ValidationError``, ``EthPMValidationError``,
+and an ``ENSValidationError`` that all inherit from the generic
+``eth_utils.exceptions.ValidationError``.
+
+Other Misc Changes
+------------------
 
 - ``InfuraKeyNotFound`` exception has been changed to ``InfuraProjectIdNotFound``
 - ``SolidityError`` has been removed in favor of ``ContractLogicError``
@@ -79,5 +90,5 @@ Removals
 Other notable changes
 ~~~~~~~~~~~~~~~~~~~~~
 
-- The ipfshttpclient library is now opt-in via a web3 install extra.
+- The ``ipfshttpclient`` library is now opt-in via a web3 install extra.
   This only affects the ethpm ipfs backends, which rely on the library.
