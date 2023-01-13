@@ -28,15 +28,12 @@ from ethpm.backends.registry import (
 )
 
 try:
-    from ipfshttpclient.exceptions import (
-        ConnectionError as IpfsConnectionError,
-    )
+    from ipfshttpclient.exceptions import ConnectionError as IpfsConnectionError
 except ImportError:
     pass
 
-logger = logging.getLogger("ethpm.utils.backend")
 
-IPFS_NODE_UNAVAILABLE_MSG = "No local IPFS node available on port 5001."
+logger = logging.getLogger("ethpm.utils.backend")
 
 ALL_URI_BACKENDS = [
     InfuraIPFSBackend,
@@ -45,6 +42,19 @@ ALL_URI_BACKENDS = [
     GithubOverHTTPSBackend,
     RegistryURIBackend,
 ]
+
+
+def _handle_optional_ipfs_backend_exception(e: Exception) -> None:
+    try:
+        # if optional `ipfshttpclient` module is present, catch and debug if
+        # IpfsConnectionError, else raise original exception.
+        if isinstance(e, IpfsConnectionError):
+            logger.debug("No local IPFS node available on port 5001.", exc_info=True)
+        else:
+            raise e
+    except NameError:
+        # if optional `ipfshttpclient` module is not present, raise original exception
+        raise e
 
 
 @to_tuple
@@ -56,8 +66,8 @@ def get_translatable_backends_for_uri(
         try:
             if backend().can_translate_uri(uri):  # type: ignore
                 yield backend
-        except IpfsConnectionError:
-            logger.debug(IPFS_NODE_UNAVAILABLE_MSG, exc_info=True)
+        except Exception as e:
+            _handle_optional_ipfs_backend_exception(e)
 
 
 @to_tuple
@@ -77,5 +87,5 @@ def get_resolvable_backends_for_uri(
                 try:
                     if backend_class().can_resolve_uri(uri):  # type: ignore
                         yield backend_class
-                except IpfsConnectionError:
-                    logger.debug(IPFS_NODE_UNAVAILABLE_MSG, exc_info=True)
+                except Exception as e:
+                    _handle_optional_ipfs_backend_exception(e)
