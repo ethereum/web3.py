@@ -1,3 +1,8 @@
+from eth_utils import (
+    ValidationError,
+)
+
+
 class EthPMException(Exception):
     """
     Base class for all Py-EthPM errors.
@@ -15,7 +20,7 @@ class InsufficientAssetsError(EthPMException):
     pass
 
 
-class EthPMValidationError(EthPMException):
+class EthPMValidationError(EthPMException, ValidationError):
     """
     Raised when something does not pass a validation check.
     """

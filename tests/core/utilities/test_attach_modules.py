@@ -12,7 +12,7 @@ from web3._utils.module import (
     attach_modules,
 )
 from web3.exceptions import (
-    ValidationError,
+    Web3ValidationError,
 )
 from web3.module import (
     Module,
@@ -90,7 +90,7 @@ def test_attach_modules_with_wrong_module_format():
     mods = {"eth": (MockEth, MockGeth, MockGethPersonal)}
     w3 = Web3(EthereumTesterProvider, modules={})
     with pytest.raises(
-        ValidationError, match="Module definitions can only have 1 or 2 elements"
+        Web3ValidationError, match="Module definitions can only have 1 or 2 elements"
     ):
         attach_modules(w3, mods)
 

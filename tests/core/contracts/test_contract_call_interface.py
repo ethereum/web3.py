@@ -32,7 +32,7 @@ from web3.exceptions import (
     NameNotFound,
     NoABIFound,
     NoABIFunctionsFound,
-    ValidationError,
+    Web3ValidationError,
 )
 
 MULTIPLE_FUNCTIONS = json.loads(
@@ -317,7 +317,7 @@ def test_set_strict_byte_array(strict_arrays_contract, call, transact, args, exp
 def test_set_strict_byte_array_with_invalid_args(
     strict_arrays_contract, transact, args
 ):
-    with pytest.raises(ValidationError):
+    with pytest.raises(Web3ValidationError):
         transact(
             contract=strict_arrays_contract,
             contract_function="setByteValue",
@@ -644,13 +644,13 @@ def test_no_functions_match_identifier(arrays_contract):
 
 def test_function_1_match_identifier_wrong_number_of_args(arrays_contract):
     regex = message_regex + diagnosis_arg_regex
-    with pytest.raises(ValidationError, match=regex):
+    with pytest.raises(Web3ValidationError, match=regex):
         arrays_contract.functions.setBytes32Value().call()
 
 
 def test_function_1_match_identifier_wrong_args_encoding(arrays_contract):
     regex = message_regex + diagnosis_encoding_regex
-    with pytest.raises(ValidationError, match=regex):
+    with pytest.raises(Web3ValidationError, match=regex):
         arrays_contract.functions.setBytes32Value("dog").call()
 
 
@@ -665,7 +665,7 @@ def test_function_1_match_identifier_wrong_args_encoding(arrays_contract):
 def test_function_multiple_error_diagnoses(w3, arg1, arg2, diagnosis):
     Contract = w3.eth.contract(abi=MULTIPLE_FUNCTIONS)
     regex = message_regex + diagnosis
-    with pytest.raises(ValidationError, match=regex):
+    with pytest.raises(Web3ValidationError, match=regex):
         if arg2:
             Contract.functions.a(arg1, arg2).call()
         else:
@@ -683,7 +683,7 @@ def test_function_wrong_args_for_tuple_collapses_args_in_message(
     address,
     tuple_contract,
 ):
-    with pytest.raises(ValidationError) as e:
+    with pytest.raises(Web3ValidationError) as e:
         tuple_contract.functions.method(
             (1, [2, 3], [(4, [True, [False]], [address])])
         ).call()
@@ -711,7 +711,7 @@ def test_function_wrong_args_for_tuple_collapses_args_in_message(
 def test_function_wrong_args_for_tuple_collapses_kwargs_in_message(
     address, tuple_contract
 ):
-    with pytest.raises(ValidationError) as e:
+    with pytest.raises(Web3ValidationError) as e:
         tuple_contract.functions.method(
             a=(1, [2, 3], [(4, [True, [False]], [address])])  # noqa: E501
         ).call()
@@ -747,7 +747,7 @@ def test_call_not_sending_ether_to_nonpayable_function(payable_tester_contract, 
 
 
 def test_call_sending_ether_to_nonpayable_function(payable_tester_contract, call):
-    with pytest.raises(ValidationError):
+    with pytest.raises(Web3ValidationError):
         call(
             contract=payable_tester_contract,
             contract_function="doNoValueCall",
@@ -817,7 +817,7 @@ def test_invalid_fixed_value_reflections(
     fixed_reflection_contract, function, value, error
 ):
     contract_func = fixed_reflection_contract.functions[function]
-    with pytest.raises(ValidationError, match=error):
+    with pytest.raises(Web3ValidationError, match=error):
         contract_func(value).call({"gas": 420000})
 
 
@@ -1168,7 +1168,7 @@ async def test_async_set_strict_byte_array(
 async def test_async_set_strict_byte_array_with_invalid_args(
     async_strict_arrays_contract, async_transact, args
 ):
-    with pytest.raises(ValidationError):
+    with pytest.raises(Web3ValidationError):
         await async_transact(
             contract=async_strict_arrays_contract,
             contract_function="setByteValue",
@@ -1528,7 +1528,7 @@ async def test_async_function_1_match_identifier_wrong_number_of_args(
     async_arrays_contract,
 ):
     regex = message_regex + diagnosis_arg_regex
-    with pytest.raises(ValidationError, match=regex):
+    with pytest.raises(Web3ValidationError, match=regex):
         await async_arrays_contract.functions.setBytes32Value().call()
 
 
@@ -1537,7 +1537,7 @@ async def test_async_function_1_match_identifier_wrong_args_encoding(
     async_arrays_contract,
 ):
     regex = message_regex + diagnosis_encoding_regex
-    with pytest.raises(ValidationError, match=regex):
+    with pytest.raises(Web3ValidationError, match=regex):
         await async_arrays_contract.functions.setBytes32Value("dog").call()
 
 
@@ -1553,7 +1553,7 @@ async def test_async_function_1_match_identifier_wrong_args_encoding(
 async def test_async_function_multiple_diagnoses(async_w3, arg1, arg2, diagnosis):
     Contract = async_w3.eth.contract(abi=MULTIPLE_FUNCTIONS)
     regex = message_regex + diagnosis
-    with pytest.raises(ValidationError, match=regex):
+    with pytest.raises(Web3ValidationError, match=regex):
         if arg2:
             await Contract.functions.a(arg1, arg2).call()
         else:
@@ -1588,7 +1588,7 @@ async def test_async_call_not_sending_ether_to_nonpayable_function(
 async def test_async_call_sending_ether_to_nonpayable_function(
     async_payable_tester_contract, async_call
 ):
-    with pytest.raises(ValidationError):
+    with pytest.raises(Web3ValidationError):
         await async_call(
             contract=async_payable_tester_contract,
             contract_function="doNoValueCall",
@@ -1662,7 +1662,7 @@ async def test_async_invalid_fixed_value_reflections(
     async_fixed_reflection_contract, function, value, error
 ):
     contract_func = async_fixed_reflection_contract.functions[function]
-    with pytest.raises(ValidationError, match=error):
+    with pytest.raises(Web3ValidationError, match=error):
         await contract_func(value).call({"gas": 420000})
 
 

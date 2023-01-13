@@ -7,7 +7,7 @@ from web3.exceptions import (
     NameNotFound,
     TimeExhausted,
     TransactionNotFound,
-    ValidationError,
+    Web3ValidationError,
 )
 from web3.middleware.simulate_unmined_transaction import (
     unmined_receipt_simulator_middleware,
@@ -91,7 +91,7 @@ def test_send_transaction_with_valid_chain_id(w3, make_chain_id, expect_success)
         receipt = w3.eth.wait_for_transaction_receipt(txn_hash, timeout=RECEIPT_TIMEOUT)
         assert receipt.get("blockNumber") is not None
     else:
-        with pytest.raises(ValidationError) as exc_info:
+        with pytest.raises(Web3ValidationError) as exc_info:
             w3.eth.send_transaction(transaction)
 
         assert "chain ID" in str(exc_info.value)

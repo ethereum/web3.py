@@ -1,3 +1,6 @@
+from eth_utils import (
+    ValidationError,
+)
 import idna
 
 
@@ -110,3 +113,9 @@ class UnderfundedBid(ENSException):
     """
 
     pass
+
+
+class ENSValidationError(ENSException, ValidationError):
+    """
+    Raised if there is a validation error
+    """

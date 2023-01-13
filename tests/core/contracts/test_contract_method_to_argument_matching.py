@@ -9,7 +9,7 @@ from web3._utils.function_identifiers import (
     ReceiveFn,
 )
 from web3.exceptions import (
-    ValidationError,
+    Web3ValidationError,
 )
 
 SINGLE_FN_NO_ARGS = json.loads(
@@ -137,7 +137,7 @@ def test_finds_receive_function(w3):
 def test_error_when_no_function_name_match(w3):
     Contract = w3.eth.contract(abi=SINGLE_FN_NO_ARGS)
 
-    with pytest.raises(ValidationError):
+    with pytest.raises(Web3ValidationError):
         Contract._find_matching_fn_abi("no_function_name", [1234])
 
 
@@ -176,7 +176,7 @@ def test_finds_function_with_matching_args_deprecation_warning(w3):
 def test_error_when_duplicate_match(w3):
     Contract = w3.eth.contract(abi=MULTIPLE_FUNCTIONS)
 
-    with pytest.raises(ValidationError):
+    with pytest.raises(Web3ValidationError):
         Contract._find_matching_fn_abi("a", [100])
 
 
@@ -184,7 +184,7 @@ def test_error_when_duplicate_match(w3):
 def test_strict_errors_if_type_is_wrong(w3_strict_abi, arguments):
     Contract = w3_strict_abi.eth.contract(abi=MULTIPLE_FUNCTIONS)
 
-    with pytest.raises(ValidationError):
+    with pytest.raises(Web3ValidationError):
         Contract._find_matching_fn_abi("a", arguments)
 
 

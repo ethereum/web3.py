@@ -125,7 +125,7 @@ from web3.exceptions import (
     NoABIEventsFound,
     NoABIFound,
     NoABIFunctionsFound,
-    ValidationError,
+    Web3ValidationError,
 )
 from web3.logs import (
     DISCARD,
@@ -1498,7 +1498,7 @@ class BaseContractEvent:
         blkhash_set = blockHash is not None
         blknum_set = fromBlock is not None or toBlock is not None
         if blkhash_set and blknum_set:
-            raise ValidationError(
+            raise Web3ValidationError(
                 "blockHash cannot be set at the same time as fromBlock or toBlock"
             )
 

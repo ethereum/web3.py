@@ -1,7 +1,7 @@
 import pytest
 
-from eth_utils.exceptions import (
-    ValidationError,
+from eth_utils import (
+    ValidationError as EthUtilsValidationError,
 )
 
 from ens.exceptions import (
@@ -29,7 +29,7 @@ def test_set_text_fails_with_bad_address(ens):
     address = ens.w3.eth.accounts[2]
     ens.setup_address("tester.eth", address)
     zero_address = "0x" + "00" * 20
-    with pytest.raises(ValidationError):
+    with pytest.raises(EthUtilsValidationError):
         ens.set_text(
             "tester.eth", "url", "http://example.com", transact={"from": zero_address}
         )
@@ -97,7 +97,7 @@ async def test_async_set_text_fails_with_bad_address(async_ens):
     address = accounts[2]
     await async_ens.setup_address("tester.eth", address)
     zero_address = "0x" + "00" * 20
-    with pytest.raises(ValidationError):
+    with pytest.raises(EthUtilsValidationError):
         await async_ens.set_text(
             "tester.eth", "url", "http://example.com", transact={"from": zero_address}
         )

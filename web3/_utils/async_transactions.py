@@ -34,7 +34,7 @@ from web3.constants import (
     DYNAMIC_FEE_TXN_PARAMS,
 )
 from web3.exceptions import (
-    ValidationError,
+    Web3ValidationError,
 )
 from web3.types import (
     BlockIdentifier,
@@ -154,7 +154,7 @@ async def async_handle_offchain_lookup(
     formatted_data = to_hex_if_bytes(offchain_lookup_payload["callData"]).lower()
 
     if formatted_sender != to_hex_if_bytes(transaction["to"]).lower():
-        raise ValidationError(
+        raise Web3ValidationError(
             "Cannot handle OffchainLookup raised inside nested call. Returned `sender` "
             "value does not equal `to` address in transaction."
         )
@@ -175,7 +175,7 @@ async def async_handle_offchain_lookup(
                     data={"data": formatted_data, "sender": formatted_sender},
                 )
             else:
-                raise ValidationError("url not formatted properly.")
+                raise Web3ValidationError("url not formatted properly.")
         except Exception:
             continue  # try next url if timeout or issues making the request
 
@@ -189,7 +189,7 @@ async def async_handle_offchain_lookup(
         result = await async_get_json_from_client_response(response)
 
         if "data" not in result.keys():
-            raise ValidationError(
+            raise Web3ValidationError(
                 "Improperly formatted response for offchain lookup HTTP request "
                 "- missing 'data' field."
             )

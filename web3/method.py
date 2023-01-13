@@ -15,9 +15,6 @@ from typing import (
 )
 import warnings
 
-from eth_utils import (
-    ValidationError,
-)
 from eth_utils.curried import (
     to_tuple,
 )
@@ -33,6 +30,9 @@ from web3._utils.method_formatters import (
 )
 from web3._utils.rpc_abi import (
     RPC,
+)
+from web3.exceptions import (
+    Web3ValidationError,
 )
 from web3.types import (
     RPCEndpoint,
@@ -69,7 +69,7 @@ def _set_mungers(
     mungers: Optional[Sequence[Munger]], is_property: bool
 ) -> Sequence[Any]:
     if is_property and mungers:
-        raise ValidationError("Mungers cannot be used with a property.")
+        raise Web3ValidationError("Mungers cannot be used with a property.")
 
     return (
         mungers
@@ -82,7 +82,7 @@ def _set_mungers(
 
 def default_munger(_module: "Module", *args: Any, **kwargs: Any) -> Tuple[()]:
     if args or kwargs:
-        raise ValidationError("Parameters cannot be passed to a property.")
+        raise Web3ValidationError("Parameters cannot be passed to a property.")
     return ()
 
 

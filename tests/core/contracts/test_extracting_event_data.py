@@ -13,7 +13,7 @@ from web3._utils.events import (
 )
 from web3.exceptions import (
     LogTopicError,
-    ValidationError,
+    Web3ValidationError,
 )
 from web3.logs import (
     DISCARD,
@@ -282,7 +282,7 @@ def test_event_data_extraction_bytes_with_warning(
 )
 def test_event_data_extraction_bytes_strict_with_errors(strict_emitter, call_args):
     emitter_fn = strict_emitter.functions.logListArgs
-    with pytest.raises(ValidationError):
+    with pytest.raises(Web3ValidationError):
         emitter_fn(*call_args).transact()
 
 

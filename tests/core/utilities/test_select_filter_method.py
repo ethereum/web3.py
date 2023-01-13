@@ -5,7 +5,7 @@ from web3._utils.filters import (
     select_filter_method,
 )
 from web3.exceptions import (
-    ValidationError,
+    Web3ValidationError,
 )
 
 
@@ -30,8 +30,8 @@ def test_select_filter_method(value, expected):
     "value, error",
     (
         ("0x0", _UseExistingFilter),
-        ("disallowed string", ValidationError),
-        (1, ValidationError),  # filter id needs to be a hexstr
+        ("disallowed string", Web3ValidationError),
+        (1, Web3ValidationError),  # filter id needs to be a hexstr
     ),
 )
 def test_select_filter_method_raises_error(value, error):

@@ -5,7 +5,7 @@ from web3 import (
     constants,
 )
 from web3.exceptions import (
-    ValidationError,
+    Web3ValidationError,
 )
 from web3.gas_strategies.time_based import (
     construct_time_based_gas_price_strategy,
@@ -231,7 +231,7 @@ def test_time_based_gas_price_strategy(strategy_params, expected):
 def test_time_based_gas_price_strategy_zero_sample(
     strategy_params_zero, expected_exception_message
 ):
-    with pytest.raises(ValidationError) as excinfo:
+    with pytest.raises(Web3ValidationError) as excinfo:
         fixture_middleware = construct_result_generator_middleware(
             {
                 "eth_getBlockByHash": _get_block_by_something,

@@ -8,7 +8,7 @@ from web3._utils.empty import (
     empty,
 )
 from web3.exceptions import (
-    ValidationError,
+    Web3ValidationError,
 )
 
 
@@ -51,7 +51,7 @@ def test_transact_sending_ether_to_nonpayable_function(
     )
 
     assert initial_value is False
-    with pytest.raises(ValidationError):
+    with pytest.raises(Web3ValidationError):
         txn_hash = transact(
             contract=payable_tester_contract,
             contract_function="doNoValueCall",
@@ -314,7 +314,7 @@ async def test_async_transact_sending_ether_to_nonpayable_function(
     )
 
     assert initial_value is False
-    with pytest.raises(ValidationError):
+    with pytest.raises(Web3ValidationError):
         txn_hash = await async_transact(
             contract=async_payable_tester_contract,
             contract_function="doNoValueCall",

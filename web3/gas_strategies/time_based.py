@@ -28,7 +28,7 @@ from web3._utils.math import (
 )
 from web3.exceptions import (
     InsufficientData,
-    ValidationError,
+    Web3ValidationError,
 )
 from web3.types import (
     BlockNumber,
@@ -48,7 +48,7 @@ def _get_avg_block_time(w3: Web3, sample_size: int) -> float:
 
     constrained_sample_size = min(sample_size, latest["number"])
     if constrained_sample_size == 0:
-        raise ValidationError("Constrained sample size is 0")
+        raise Web3ValidationError("Constrained sample size is 0")
 
     oldest = w3.eth.get_block(BlockNumber(latest["number"] - constrained_sample_size))
     return (latest["timestamp"] - oldest["timestamp"]) / constrained_sample_size
@@ -58,8 +58,7 @@ def _get_weighted_avg_block_time(w3: Web3, sample_size: int) -> float:
     latest_block_number = w3.eth.get_block("latest")["number"]
     constrained_sample_size = min(sample_size, latest_block_number)
     if constrained_sample_size == 0:
-        raise ValidationError("Constrained sample size is 0")
-
+        raise Web3ValidationError("Constrained sample size is 0")
     oldest_block = w3.eth.get_block(
         BlockNumber(latest_block_number - constrained_sample_size)
     )

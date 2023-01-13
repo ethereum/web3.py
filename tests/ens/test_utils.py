@@ -1,11 +1,13 @@
 import pytest
 
 from eth_utils import (
-    ValidationError,
     is_integer,
     to_bytes,
 )
 
+from ens.exceptions import (
+    ENSValidationError,
+)
 from ens.utils import (
     ens_encode_name,
     init_async_web3,
@@ -113,7 +115,7 @@ def test_ens_encode_name_raises_ValidationError_on_label_lengths_over_63(
     name, invalid_label_index
 ):
     with pytest.raises(
-        ValidationError, match=f"Label at position {invalid_label_index} too long"
+        ENSValidationError, match=f"Label at position {invalid_label_index} too long"
     ):
         ens_encode_name(name)
 

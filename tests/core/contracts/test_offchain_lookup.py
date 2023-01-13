@@ -18,7 +18,7 @@ from web3._utils.type_conversion import (
 from web3.exceptions import (
     OffchainLookup,
     TooManyRequests,
-    ValidationError,
+    Web3ValidationError,
 )
 
 # "test offchain lookup" as an abi-encoded string
@@ -139,7 +139,7 @@ def test_offchain_lookup_raises_for_improperly_formatted_rest_request_response(
         mocked_json_data=WEB3PY_AS_HEXBYTES,
         json_data_field="not_data",
     )
-    with pytest.raises(ValidationError, match="missing 'data' field"):
+    with pytest.raises(Web3ValidationError, match="missing 'data' field"):
         offchain_lookup_contract.caller.testOffchainLookup(OFFCHAIN_LOOKUP_TEST_DATA)
 
 

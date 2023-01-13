@@ -215,7 +215,7 @@ Each Contract Factory exposes the following methods.
 
 .. py:classmethod:: Contract.constructor(*args, **kwargs).build_transaction(transaction=None)
     :noindex:
-    
+
     Construct the contract deploy transaction bytecode data.
 
     If the contract takes constructor parameters they should be provided as
@@ -435,7 +435,7 @@ and the arguments are ambiguous.
         }
         """
         # fast forward all the steps of compiling and deploying the contract.
-        >>> ambiguous_contract.functions.identity(1, True) # raises ValidationError
+        >>> ambiguous_contract.functions.identity(1, True) # raises Web3ValidationError
 
         >>> identity_func = ambiguous_contract.get_function_by_signature('identity(uint256,bool)')
         >>> identity_func(1, True)
@@ -654,7 +654,7 @@ Taking the following contract code as an example:
     >>> array_contract.functions.setBytes2Value([b'a']).transact()
     Traceback (most recent call last):
        ...
-    ValidationError:
+    Web3ValidationError:
     Could not identify the intended function with name `setBytes2Value`
 
 
