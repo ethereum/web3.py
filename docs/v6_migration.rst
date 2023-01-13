@@ -44,7 +44,7 @@ In v5, some Web3.py exceptions inherited from ``AttributeError``, namely:
 - ``NoABIFound``
 - ``NoABIEventsFound``
 
-Others inherited from ValueError, namely:
+Others inherited from ``ValueError``, namely:
 
 - ``InvalidAddress``
 - ``NameNotFound``
@@ -54,11 +54,11 @@ Others inherited from ValueError, namely:
 Now Web3.py exceptions inherit from the same base ``Web3Exception``.
 
 As such, any code that was expecting a ``ValueError`` or an ``AttributeError`` from
-Web3.py must update to expecting one of the exception listed above, or
+Web3.py must update to expecting one of the exceptions listed above, or
 ``Web3Exception``.
 
 Similarly, exceptions raised in the EthPM and ENS modules inherit from the base
-``PyEthPMException`` and ``ENSException``, respectively.
+``EthPMException`` and ``ENSException``, respectively.
 
 ValidationError
 ---------------
