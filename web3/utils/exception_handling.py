@@ -20,7 +20,7 @@ from web3._utils.type_conversion import (
 )
 from web3.exceptions import (
     MultipleFailedRequests,
-    ValidationError,
+    Web3ValidationError,
 )
 from web3.types import (
     TxParams,
@@ -35,7 +35,7 @@ def handle_offchain_lookup(
     formatted_data = to_hex_if_bytes(offchain_lookup_payload["callData"]).lower()
 
     if formatted_sender != to_hex_if_bytes(transaction["to"]).lower():
-        raise ValidationError(
+        raise Web3ValidationError(
             "Cannot handle OffchainLookup raised inside nested call. "
             "Returned `sender` value does not equal `to` address in transaction."
         )
@@ -59,7 +59,7 @@ def handle_offchain_lookup(
                     },
                 )
             else:
-                raise ValidationError("url not formatted properly.")
+                raise Web3ValidationError("url not formatted properly.")
         except Exception:
             continue  # try next url if timeout or issues making the request
 
@@ -73,7 +73,7 @@ def handle_offchain_lookup(
         result = response.json()
 
         if "data" not in result.keys():
-            raise ValidationError(
+            raise Web3ValidationError(
                 "Improperly formatted response for offchain lookup HTTP request"
                 " - missing 'data' field."
             )

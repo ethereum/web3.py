@@ -30,7 +30,7 @@ from web3._utils.rpc_abi import (
 )
 from web3.exceptions import (
     ExtraDataLengthError,
-    ValidationError,
+    Web3ValidationError,
 )
 from web3.middleware.formatting import (
     async_construct_web3_formatting_middleware,
@@ -59,7 +59,7 @@ def _validate_chain_id(web3_chain_id: int, chain_id: int) -> int:
     if chain_id_int == web3_chain_id:
         return chain_id
     else:
-        raise ValidationError(
+        raise Web3ValidationError(
             f"The transaction declared chain ID {chain_id_int!r}, "
             f"but the connected node is on {web3_chain_id!r}"
         )

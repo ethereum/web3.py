@@ -5,7 +5,7 @@ from eth_utils.toolz import (
 )
 
 from web3.exceptions import (
-    ValidationError,
+    Web3ValidationError,
 )
 
 
@@ -28,7 +28,7 @@ def test_build_transaction_not_paying_to_nonpayable_function(
 def test_build_transaction_paying_to_nonpayable_function(
     w3, payable_tester_contract, build_transaction
 ):
-    with pytest.raises(ValidationError):
+    with pytest.raises(Web3ValidationError):
         build_transaction(
             contract=payable_tester_contract,
             contract_function="doNoValueCall",
@@ -277,7 +277,7 @@ async def test_async_build_transaction_not_paying_to_nonpayable_function(
 async def test_async_build_transaction_paying_to_nonpayable_function(
     async_w3, async_payable_tester_contract, async_build_transaction
 ):
-    with pytest.raises(ValidationError):
+    with pytest.raises(Web3ValidationError):
         await async_build_transaction(
             contract=async_payable_tester_contract,
             contract_function="doNoValueCall",

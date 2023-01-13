@@ -64,7 +64,7 @@ from web3.exceptions import (
     TooManyRequests,
     TransactionNotFound,
     TransactionTypeMismatch,
-    ValidationError,
+    Web3ValidationError,
 )
 from web3.middleware import (
     async_geth_poa_middleware,
@@ -309,7 +309,7 @@ class AsyncEthModuleTest:
             "chainId": wrong_chain_id,
         }
         with pytest.raises(
-            ValidationError,
+            Web3ValidationError,
             match=f"The transaction declared chain ID {wrong_chain_id}, "
             f"but the connected node is on {actual_chain_id}",
         ):
@@ -945,7 +945,7 @@ class AsyncEthModuleTest:
             mocked_json_data=WEB3PY_AS_HEXBYTES,
             json_data_field="not_data",
         )
-        with pytest.raises(ValidationError, match="missing 'data' field"):
+        with pytest.raises(Web3ValidationError, match="missing 'data' field"):
             await async_offchain_lookup_contract.caller().testOffchainLookup(
                 OFFCHAIN_LOOKUP_TEST_DATA
             )
@@ -2279,7 +2279,7 @@ class EthModuleTest:
             "chainId": wrong_chain_id,
         }
         with pytest.raises(
-            ValidationError,
+            Web3ValidationError,
             match=f"The transaction declared chain ID {wrong_chain_id}, "
             f"but the connected node is on {actual_chain_id}",
         ):
@@ -2850,7 +2850,7 @@ class EthModuleTest:
             mocked_json_data=WEB3PY_AS_HEXBYTES,
             json_data_field="not_data",
         )
-        with pytest.raises(ValidationError, match="missing 'data' field"):
+        with pytest.raises(Web3ValidationError, match="missing 'data' field"):
             offchain_lookup_contract.functions.testOffchainLookup(
                 OFFCHAIN_LOOKUP_TEST_DATA
             ).call()

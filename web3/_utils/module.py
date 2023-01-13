@@ -13,7 +13,7 @@ from typing import (
 )
 
 from web3.exceptions import (
-    ValidationError,
+    Web3ValidationError,
 )
 from web3.module import (
     Module,
@@ -82,6 +82,6 @@ def attach_modules(
                 module = getattr(parent_module, module_name)
                 attach_modules(module, submodule_definitions, w3)
             elif len(module_info) != 1:
-                raise ValidationError(
+                raise Web3ValidationError(
                     "Module definitions can only have 1 or 2 elements."
                 )

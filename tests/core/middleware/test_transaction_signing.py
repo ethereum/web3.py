@@ -11,11 +11,9 @@ from eth_tester.exceptions import (
     ValidationError,
 )
 from eth_utils import (
+    ValidationError as EthUtilsValidationError,
     to_bytes,
     to_hex,
-)
-from eth_utils.exceptions import (
-    ValidationError as EthUtilsValidationError,
 )
 from eth_utils.toolz import (
     assoc,

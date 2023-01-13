@@ -1,7 +1,7 @@
 import pytest
 
 from web3.exceptions import (
-    ValidationError,
+    Web3ValidationError,
 )
 
 
@@ -63,7 +63,7 @@ def test_estimate_gas_not_sending_ether_to_nonpayable_function(
 def test_estimate_gas_sending_ether_to_nonpayable_function(
     w3, payable_tester_contract, estimate_gas
 ):
-    with pytest.raises(ValidationError):
+    with pytest.raises(Web3ValidationError):
         estimate_gas(
             contract=payable_tester_contract,
             contract_function="doNoValueCall",
@@ -169,7 +169,7 @@ async def test_async_estimate_gas_not_sending_ether_to_nonpayable_function(
 async def test_async_estimate_gas_sending_ether_to_nonpayable_function(
     async_w3, async_payable_tester_contract, async_estimate_gas
 ):
-    with pytest.raises(ValidationError):
+    with pytest.raises(Web3ValidationError):
         await async_estimate_gas(
             contract=async_payable_tester_contract,
             contract_function="doNoValueCall",

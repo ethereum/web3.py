@@ -24,7 +24,6 @@ from eth_typing import (
     HexStr,
 )
 from eth_utils import (
-    ValidationError,
     is_same_address,
     remove_0x_prefix,
     to_bytes,
@@ -47,6 +46,7 @@ from ens.constants import (
     REVERSE_REGISTRAR_DOMAIN,
 )
 from ens.exceptions import (
+    ENSValidationError,
     InvalidName,
 )
 
@@ -142,7 +142,9 @@ def ens_encode_name(name: str) -> bytes:
     # raises if len(label) > 255:
     for index, label in enumerate(labels):
         if len(label) > 255:
-            raise ValidationError(f"Label at position {index} too long after encoding.")
+            raise ENSValidationError(
+                f"Label at position {index} too long after encoding."
+            )
 
     # concat label size in bytes to each label:
     dns_prepped_labels = [to_bytes(len(label)) + label for label in labels_as_bytes]

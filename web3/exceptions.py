@@ -5,6 +5,10 @@ from typing import (
     Dict,
 )
 
+from eth_utils import (
+    ValidationError,
+)
+
 from web3.types import (
     BlockData,
 )
@@ -143,7 +147,7 @@ class FallbackNotFound(Web3Exception):
     pass
 
 
-class ValidationError(Web3Exception):
+class Web3ValidationError(Web3Exception, ValidationError):
     """
     Raised when a supplied value is invalid.
     """
@@ -151,7 +155,7 @@ class ValidationError(Web3Exception):
     pass
 
 
-class ExtraDataLengthError(ValidationError):
+class ExtraDataLengthError(Web3ValidationError):
     """
     Raised when an RPC call returns >32 bytes of extraData.
     """

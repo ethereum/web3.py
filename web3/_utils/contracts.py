@@ -65,7 +65,7 @@ from web3._utils.normalizers import (
     abi_string_to_text,
 )
 from web3.exceptions import (
-    ValidationError,
+    Web3ValidationError,
 )
 from web3.types import (
     ABI,
@@ -190,7 +190,7 @@ def find_matching_fn_abi(
             f"the name `{fn_identifier}`: {matching_function_signatures}{diagnosis}"
         )
 
-        raise ValidationError(message)
+        raise Web3ValidationError(message)
 
 
 def encode_abi(
@@ -356,13 +356,13 @@ def get_function_info(
 
 
 def validate_payable(transaction: TxParams, abi: ABIFunction) -> None:
-    """Raise ValidationError if non-zero ether
+    """Raise Web3ValidationError if non-zero ether
     is sent to a non-payable function.
     """
     if "value" in transaction:
         if to_integer_if_hex(transaction["value"]) != 0:
             if "payable" in abi and not abi["payable"]:
-                raise ValidationError(
+                raise Web3ValidationError(
                     "Sending non-zero ether to a contract function "
                     "with payable=False. Please ensure that "
                     "transaction's value is 0."

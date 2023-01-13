@@ -5,7 +5,7 @@ from web3 import (
     constants,
 )
 from web3.exceptions import (
-    ValidationError,
+    Web3ValidationError,
 )
 
 ABI_A = json.loads(
@@ -112,7 +112,7 @@ def test_contract_abi_encoding_kwargs(w3):
 )
 def test_contract_abi_encoding_strict_with_error(w3_strict_abi, arguments):
     contract = w3_strict_abi.eth.contract(abi=ABI_C)
-    with pytest.raises(ValidationError):
+    with pytest.raises(Web3ValidationError):
         contract.encodeABI("a", arguments, data=None)
 
 

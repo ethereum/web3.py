@@ -10,7 +10,7 @@ from ens.utils import (
 )
 from web3.exceptions import (
     OffchainLookup,
-    ValidationError,
+    Web3ValidationError,
 )
 
 # the encoded calldata for the initiating ``addr(namehash(name))`` call
@@ -155,7 +155,7 @@ def test_offchain_resolution_with_improperly_formatted_http_response(ens, monkey
 
     monkeypatch.setattr(requests.Session, "get", mock_get)
     with pytest.raises(
-        ValidationError,
+        Web3ValidationError,
         match=(
             "Improperly formatted response for offchain lookup HTTP request "
             "- missing 'data' field."
@@ -225,7 +225,7 @@ async def test_async_offchain_resolution_with_improperly_formatted_http_response
 
     monkeypatch.setattr(ClientSession, "get", mock_get)
     with pytest.raises(
-        ValidationError,
+        Web3ValidationError,
         match=(
             "Improperly formatted response for offchain lookup HTTP request "
             "- missing 'data' field."

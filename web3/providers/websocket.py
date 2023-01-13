@@ -26,7 +26,7 @@ from websockets.legacy.client import (
 )
 
 from web3.exceptions import (
-    ValidationError,
+    Web3ValidationError,
 )
 from web3.providers.base import (
     JSONBaseProvider,
@@ -105,7 +105,7 @@ class WebsocketProvider(JSONBaseProvider):
                 RESTRICTED_WEBSOCKET_KWARGS
             )
             if found_restricted_keys:
-                raise ValidationError(
+                raise Web3ValidationError(
                     f"{RESTRICTED_WEBSOCKET_KWARGS} are not allowed "
                     f"in websocket_kwargs, found: {found_restricted_keys}"
                 )

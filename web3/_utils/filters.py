@@ -50,7 +50,7 @@ from web3._utils.validation import (
     validate_address,
 )
 from web3.exceptions import (
-    ValidationError,
+    Web3ValidationError,
 )
 from web3.types import (
     ABIEvent,
@@ -386,7 +386,7 @@ def select_filter_method(
         elif is_hex(value):
             raise _UseExistingFilter(value)
         else:
-            raise ValidationError(
+            raise Web3ValidationError(
                 "Filter argument needs to be either 'latest',"
                 " 'pending', or a hex-encoded filter_id. Filter argument"
                 f" is: {value}"
@@ -394,7 +394,7 @@ def select_filter_method(
     elif isinstance(value, dict):
         return if_new_filter
     else:
-        raise ValidationError(
+        raise Web3ValidationError(
             "Filter argument needs to be either the string "
             "'pending' or 'latest', a filter_id, "
             f"or a filter params dictionary. Filter argument is: {value}"
