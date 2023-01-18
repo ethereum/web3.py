@@ -1,6 +1,3 @@
-"""Interaction with smart contracts over Web3 connector.
-
-"""
 import copy
 from typing import (
     TYPE_CHECKING,
@@ -10,6 +7,7 @@ from typing import (
     Iterable,
     List,
     Optional,
+    Sequence,
     cast,
 )
 
@@ -30,7 +28,11 @@ from web3._utils.datatypes import (
     PropertyCheckingFactory,
 )
 from web3._utils.events import (
+    EventFilterBuilder,
     get_event_data,
+)
+from web3._utils.filters import (
+    LogFilter,
 )
 from web3._utils.normalizers import (
     normalize_abi,
@@ -87,19 +89,132 @@ class ContractEvents(BaseContractEvents):
         super().__init__(abi, w3, ContractEvent, address)
 
 
+class ContractEvent(BaseContractEvent):
+    @combomethod
+    def get_logs(
+        self,
+        argument_filters: Optional[Dict[str, Any]] = None,
+        from_block: Optional[BlockIdentifier] = None,
+        to_block: Optional[BlockIdentifier] = None,
+        block_hash: Optional[HexBytes] = None,
+    ) -> Iterable[EventData]:
+        """Get events for this contract instance using eth_getLogs API.
+
+        This is a stateless method, as opposed to create_filter.
+        It can be safely called against nodes which do not provide
+        eth_newFilter API, like Infura nodes.
+
+        If there are many events,
+        like ``Transfer`` events for a popular token,
+        the Ethereum node might be overloaded and timeout
+        on the underlying JSON-RPC call.
+
+        Example - how to get all ERC-20 token transactions
+        for the latest 10 blocks:
+
+        .. code-block:: python
+
+            from = max(mycontract.web3.eth.block_number - 10, 1)
+            to = mycontract.web3.eth.block_number
+
+            events = mycontract.events.Transfer.get_logs(from_block=from, to_block=to)
+
+            for e in events:
+                print(e["args"]["from"],
+                    e["args"]["to"],
+                    e["args"]["value"])
+
+        The returned processed log values will look like:
+
+        .. code-block:: python
+
+            (
+                AttributeDict({
+                 'args': AttributeDict({}),
+                 'event': 'LogNoArguments',
+                 'logIndex': 0,
+                 'transactionIndex': 0,
+                 'transactionHash': HexBytes('...'),
+                 'address': '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b',
+                 'blockHash': HexBytes('...'),
+                 'blockNumber': 3
+                }),
+                AttributeDict(...),
+                ...
+            )
+
+        See also: :func:`web3.middleware.filter.local_filter_middleware`.
+
+        :param argument_filters:
+        :param from_block: block number or "latest", defaults to "latest"
+        :param to_block: block number or "latest". Defaults to "latest"
+        :param block_hash: block hash. block_hash cannot be set at the
+          same time as from_block or to_block
+        :yield: Tuple of :class:`AttributeDict` instances
+        """
+        abi = self._get_event_abi()
+        # Call JSON-RPC API
+        logs = self.w3.eth.get_logs(
+            self._get_event_filter_params(
+                abi, argument_filters, from_block, to_block, block_hash
+            )
+        )
+
+        # Convert raw binary data to Python proxy objects as described by ABI
+        return tuple(get_event_data(self.w3.codec, abi, entry) for entry in logs)
+
+    @combomethod
+    def create_filter(
+        self,
+        *,  # PEP 3102
+        argument_filters: Optional[Dict[str, Any]] = None,
+        fromBlock: Optional[BlockIdentifier] = None,
+        toBlock: BlockIdentifier = "latest",
+        address: Optional[ChecksumAddress] = None,
+        topics: Optional[Sequence[Any]] = None,
+    ) -> LogFilter:
+        """
+        Create filter object that tracks logs emitted by this contract event.
+        """
+        filter_builder = EventFilterBuilder(self._get_event_abi(), self.w3.codec)
+        self._set_up_filter_builder(
+            argument_filters,
+            fromBlock,
+            toBlock,
+            address,
+            topics,
+            filter_builder,
+        )
+        log_filter = filter_builder.deploy(self.w3)
+        log_filter.log_entry_formatter = get_event_data(
+            self.w3.codec, self._get_event_abi()
+        )
+        log_filter.builder = filter_builder
+
+        return log_filter
+
+    @combomethod
+    def build_filter(self) -> EventFilterBuilder:
+        builder = EventFilterBuilder(
+            self._get_event_abi(),
+            self.w3.codec,
+            formatter=get_event_data(self.w3.codec, self._get_event_abi()),
+        )
+        builder.address = self.address
+        return builder
+
+
 class Contract(BaseContract):
 
     functions: ContractFunctions = None
     caller: "ContractCaller" = None
 
-    #: Instance of :class:`ContractEvents` presenting available Event ABIs
+    # Instance of :class:`ContractEvents` presenting available Event ABIs
     events: ContractEvents = None
 
     def __init__(self, address: Optional[ChecksumAddress] = None) -> None:
         """Create a new smart contract proxy object.
-
         :param address: Contract address as 0x hex string"""
-
         _w3 = self.w3
         if _w3 is None:
             raise AttributeError(
@@ -331,81 +446,6 @@ class ContractFunction(BaseContractFunction):
             *self.args,
             **self.kwargs,
         )
-
-
-class ContractEvent(BaseContractEvent):
-    @combomethod
-    def getLogs(
-        self,
-        argument_filters: Optional[Dict[str, Any]] = None,
-        fromBlock: Optional[BlockIdentifier] = None,
-        toBlock: Optional[BlockIdentifier] = None,
-        blockHash: Optional[HexBytes] = None,
-    ) -> Iterable[EventData]:
-        """Get events for this contract instance using eth_getLogs API.
-
-        This is a stateless method, as opposed to createFilter.
-        It can be safely called against nodes which do not provide
-        eth_newFilter API, like Infura nodes.
-
-        If there are many events,
-        like ``Transfer`` events for a popular token,
-        the Ethereum node might be overloaded and timeout
-        on the underlying JSON-RPC call.
-
-        Example - how to get all ERC-20 token transactions
-        for the latest 10 blocks:
-
-        .. code-block:: python
-
-            from = max(mycontract.web3.eth.block_number - 10, 1)
-            to = mycontract.web3.eth.block_number
-
-            events = mycontract.events.Transfer.getLogs(fromBlock=from, toBlock=to)
-
-            for e in events:
-                print(e["args"]["from"],
-                    e["args"]["to"],
-                    e["args"]["value"])
-
-        The returned processed log values will look like:
-
-        .. code-block:: python
-
-            (
-                AttributeDict({
-                 'args': AttributeDict({}),
-                 'event': 'LogNoArguments',
-                 'logIndex': 0,
-                 'transactionIndex': 0,
-                 'transactionHash': HexBytes('...'),
-                 'address': '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b',
-                 'blockHash': HexBytes('...'),
-                 'blockNumber': 3
-                }),
-                AttributeDict(...),
-                ...
-            )
-
-        See also: :func:`web3.middleware.filter.local_filter_middleware`.
-
-        :param argument_filters:
-        :param fromBlock: block number or "latest", defaults to "latest"
-        :param toBlock: block number or "latest". Defaults to "latest"
-        :param blockHash: block hash. blockHash cannot be set at the
-          same time as fromBlock or toBlock
-        :yield: Tuple of :class:`AttributeDict` instances
-        """
-        abi = self._get_event_abi()
-        # Call JSON-RPC API
-        logs = self.w3.eth.get_logs(
-            self._get_event_filter_params(
-                abi, argument_filters, fromBlock, toBlock, blockHash
-            )
-        )
-
-        # Convert raw binary data to Python proxy objects as described by ABI
-        return tuple(get_event_data(self.w3.codec, abi, entry) for entry in logs)
 
 
 class ContractCaller(BaseContractCaller):

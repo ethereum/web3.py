@@ -8,6 +8,7 @@ from typing import (
     Iterable,
     List,
     Optional,
+    Sequence,
     cast,
 )
 
@@ -28,7 +29,11 @@ from web3._utils.datatypes import (
     PropertyCheckingFactory,
 )
 from web3._utils.events import (
+    AsyncEventFilterBuilder,
     get_event_data,
+)
+from web3._utils.filters import (
+    AsyncLogFilter,
 )
 from web3._utils.normalizers import (
     normalize_abi,
@@ -271,8 +276,7 @@ class AsyncContractFunction(BaseContractFunction):
             self._return_data_normalizers,
             self.function_identifier,
             call_transaction,
-            # BlockIdentifier does have an Awaitable type in types.py
-            block_id,  # type: ignore
+            block_id,
             self.contract_abi,
             self.abi,
             state_override,
@@ -281,9 +285,7 @@ class AsyncContractFunction(BaseContractFunction):
             **self.kwargs,
         )
 
-    async def transact(  # type: ignore
-        self, transaction: Optional[TxParams] = None
-    ) -> HexBytes:
+    async def transact(self, transaction: Optional[TxParams] = None) -> HexBytes:
         setup_transaction = self._transact(transaction)
         return await async_transact_with_contract_function(
             self.address,
@@ -333,7 +335,7 @@ class AsyncContractFunction(BaseContractFunction):
 
 class AsyncContractEvent(BaseContractEvent):
     @combomethod
-    async def getLogs(
+    async def get_logs(
         self,
         argument_filters: Optional[Dict[str, Any]] = None,
         fromBlock: Optional[BlockIdentifier] = None,
@@ -406,6 +408,46 @@ class AsyncContractEvent(BaseContractEvent):
         return tuple(
             get_event_data(self.w3.codec, abi, entry) for entry in logs  # type: ignore
         )
+
+    @combomethod
+    async def create_filter(
+        self,
+        *,  # PEP 3102
+        argument_filters: Optional[Dict[str, Any]] = None,
+        fromBlock: Optional[BlockIdentifier] = None,
+        toBlock: BlockIdentifier = "latest",
+        address: Optional[ChecksumAddress] = None,
+        topics: Optional[Sequence[Any]] = None,
+    ) -> AsyncLogFilter:
+        """
+        Create filter object that tracks logs emitted by this contract event.
+        """
+        filter_builder = AsyncEventFilterBuilder(self._get_event_abi(), self.w3.codec)
+        self._set_up_filter_builder(
+            argument_filters,
+            fromBlock,
+            toBlock,
+            address,
+            topics,
+            filter_builder,
+        )
+        log_filter = await filter_builder.deploy(self.w3)
+        log_filter.log_entry_formatter = get_event_data(
+            self.w3.codec, self._get_event_abi()
+        )
+        log_filter.builder = filter_builder
+
+        return log_filter
+
+    @combomethod
+    def build_filter(self) -> AsyncEventFilterBuilder:
+        builder = AsyncEventFilterBuilder(
+            self._get_event_abi(),
+            self.w3.codec,
+            formatter=get_event_data(self.w3.codec, self._get_event_abi()),
+        )
+        builder.address = self.address
+        return builder
 
 
 class AsyncContractCaller(BaseContractCaller):
