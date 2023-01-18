@@ -1,7 +1,14 @@
 import pytest
 
+from eth_tester.exceptions import (
+    TransactionFailed,
+)
+
 from web3.providers.eth_tester.main import (
     AsyncEthereumTesterProvider,
+)
+from web3.types import (
+    RPCEndpoint,
 )
 
 
@@ -25,3 +32,34 @@ async def test_async_tester_provider_creates_a_block() -> None:
     assert tx
     current_block = await provider.make_request("eth_blockNumber", [])
     assert current_block["result"] == 1
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "exception_case",
+    (
+        # exception with bytes-encoded reason:
+        TransactionFailed(
+            b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00 \x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x12The error message.\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"  # noqa: E501
+        ),
+        # wrapped exceptions with bytes-encoded reason:
+        TransactionFailed(
+            Exception(
+                b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00 \x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x12The error message.\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"  # noqa: E501
+            )
+        ),
+    ),
+)
+async def test_async_tester_provider_properly_handles_eth_tester_error_messages(
+    mocker,
+    exception_case,
+):
+    mocker.patch(
+        "eth_tester.main.EthereumTester.get_block_by_number", side_effect=exception_case
+    )
+
+    provider = AsyncEthereumTesterProvider()
+    with pytest.raises(
+        TransactionFailed, match="execution reverted: The error message."
+    ):
+        await provider.make_request(RPCEndpoint("eth_blockNumber"), [])
