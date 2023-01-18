@@ -181,10 +181,10 @@ The following methods are available on the ``web3.geth.personal`` namespace.
 
     .. code-block:: python
 
-        >>> web3.geth.personal.sign('snakesnax', '0x9ad3c920dce5cea9a31d69467bb8d7c954e5acff', '')
+        >>> web3.geth.personal.sign('snakesnax', 'account_address', '')
         '0x8eb502165dec388af1c45c4bc835fd1852eaf358316ae5d248a40af8cd8dd7dc6373a6e606d8b411f788718b8b09a6cf87d980639731f530e4481148f14abfdf1b'
         >>> web3.geth.personal.ec_recover('snakesnax', '0x8eb502165dec388af1c45c4bc835fd1852eaf358316ae5d248a40af8cd8dd7dc6373a6e606d8b411f788718b8b09a6cf87d980639731f530e4481148f14abfdf1b')
-        '0x9ad3c920dce5cea9a31d69467bb8d7c954e5acff'
+        'account_address'
 
 
 .. py:method:: import_raw_key(private_key, passphrase)
@@ -197,7 +197,7 @@ The following methods are available on the ``web3.geth.personal`` namespace.
     .. code-block:: python
 
         >>> web3.geth.personal.import_raw_key(some_private_key, 'the-passphrase')
-        '0xd3CdA913deB6f67967B99D67aCDFa1712C293601'
+        'account_address'
 
 
 .. py:method:: list_accounts()
@@ -223,7 +223,7 @@ The following methods are available on the ``web3.geth.personal`` namespace.
         >>> web3.geth.personal.list_wallets()
         [{
             accounts: [{
-                address: "0x44f705f3c31017856777f2931c2f09f240dd800b",
+                address: "account_address",
                 url: "keystore:///path/to/keystore/UTC--2020-03-30T23-24-43.133883000Z--44f705f3c31017856777f2931c2f09f240dd800b"
             }],
             status: "Unlocked",
@@ -239,7 +239,7 @@ The following methods are available on the ``web3.geth.personal`` namespace.
 
     .. code-block:: python
 
-        >>> web3.geth.personal.lock_account('0xd3CdA913deB6f67967B99D67aCDFa1712C293601')
+        >>> web3.geth.personal.lock_account('account_address')
         True
 
 
@@ -253,7 +253,7 @@ The following methods are available on the ``web3.geth.personal`` namespace.
     .. code-block:: python
 
         >>> web3.geth.personal.new_account('the-passphrase')
-        '0xd3CdA913deB6f67967B99D67aCDFa1712C293601'
+        'account_address'
 
 
 .. py:method:: send_transaction(transaction, passphrase)
@@ -271,7 +271,7 @@ The following methods are available on the ``web3.geth.personal`` namespace.
     
     .. code-block:: python
 
-        >>> web3.geth.personal.sign('snakesnax', '0x9ad3c920dce5cea9a31d69467bb8d7c954e5acff', '')
+        >>> web3.geth.personal.sign('snakesnax', 'account_address', '')
         '0x8eb502165dec388af1c45c4bc835fd1852eaf358316ae5d248a40af8cd8dd7dc6373a6e606d8b411f788718b8b09a6cf87d980639731f530e4481148f14abfdf1b'
 
 
@@ -287,9 +287,9 @@ The following methods are available on the ``web3.geth.personal`` namespace.
 
     .. code-block:: python
 
-        >>> web3.geth.personal.unlock_account('0xd3CdA913deB6f67967B99D67aCDFa1712C293601', 'wrong-passphrase')
+        >>> web3.geth.personal.unlock_account('account_address', 'wrong-passphrase')
         False
-        >>> web3.geth.personal.unlock_account('0xd3CdA913deB6f67967B99D67aCDFa1712C293601', 'the-passphrase')
+        >>> web3.geth.personal.unlock_account('account_address', 'the-passphrase')
         True
 
 
@@ -393,11 +393,11 @@ The following methods are available on the ``web3.geth.txpool`` namespace.
         >>> web3.geth.txpool.content()
         {
           'pending': {
-            '0x0216D5032f356960Cd3749C31Ab34eEFF21B3395': {
+            'account_address': {
               806: [{
                 'blockHash': "0x0000000000000000000000000000000000000000000000000000000000000000",
                 'blockNumber': None,
-                'from': "0x0216D5032f356960Cd3749C31Ab34eEFF21B3395",
+                'from': "account_address",
                 'gas': "0x5208",
                 'gasPrice': None,
                 'hash': "0xaf953a2d01f55cfe080c0c94150a60105e8ac3d51153058a1f03dd239dd08586",
@@ -405,16 +405,16 @@ The following methods are available on the ``web3.geth.txpool`` namespace.
                 'maxFeePerGas': '0x77359400',
                 'maxPriorityFeePerGas': '0x3b9aca00',
                 'nonce': "0x326",
-                'to': "0x7f69a91A3CF4bE60020fB58B893b7cbb65376db8",
+                'to': "account_address",
                 'transactionIndex': None,
                 'value': "0x19a99f0cf456000"
               }]
             },
-            '0x24d407e5A0B506E1Cb2fae163100B5DE01F5193C': {
+            'account_address': {
               34: [{
                 'blockHash': "0x0000000000000000000000000000000000000000000000000000000000000000",
                 'blockNumber': None,
-                'from': "0x24d407e5A0B506E1Cb2fae163100B5DE01F5193C",
+                'from': "account_address",
                 'gas': "0x44c72",
                 'gasPrice': None,
                 'hash': "0xb5b8b853af32226755a65ba0602f7ed0e8be2211516153b75e9ed640a7d359fe",
@@ -422,18 +422,18 @@ The following methods are available on the ``web3.geth.txpool`` namespace.
                 'maxFeePerGas': '0x77359400',
                 'maxPriorityFeePerGas': '0x3b9aca00',
                 'nonce': "0x22",
-                'to': "0x7320785200f74861B69C49e4ab32399a71b34f1a",
+                'to': "account_address",
                 'transactionIndex': None,
                 'value': "0x0"
               }]
             }
           },
           'queued': {
-            '0x976A3Fc5d6f7d259EBfb4cc2Ae75115475E9867C': {
+            'account_address': {
               3: [{
                 'blockHash': "0x0000000000000000000000000000000000000000000000000000000000000000",
                 'blockNumber': None,
-                'from': "0x976A3Fc5d6f7d259EBfb4cc2Ae75115475E9867C",
+                'from': "account_address",
                 'gas': "0x15f90",
                 'gasPrice': None,
                 'hash': "0x57b30c59fc39a50e1cba90e3099286dfa5aaf60294a629240b5bbec6e2e66576",
@@ -441,16 +441,16 @@ The following methods are available on the ``web3.geth.txpool`` namespace.
                 'maxFeePerGas': '0x77359400',
                 'maxPriorityFeePerGas': '0x3b9aca00',
                 'nonce': "0x3",
-                'to': "0x346FB27dE7E7370008f5da379f74dd49F5f2F80F",
+                'to': "account_address",
                 'transactionIndex': None,
                 'value': "0x1f161421c8e0000"
               }]
             },
-            '0x9B11bF0459b0c4b2f87f8CEBca4cfc26f294B63A': {
+            'account_address': {
               2: [{
                 'blockHash': "0x0000000000000000000000000000000000000000000000000000000000000000",
                 'blockNumber': None,
-                'from': "0x9B11bF0459b0c4b2f87f8CEBca4cfc26f294B63A",
+                'from': "account_address",
                 'gas': "0x15f90",
                 'gasPrice': None,
                 'hash': "0x3a3c0698552eec2455ed3190eac3996feccc806970a4a056106deaf6ceb1e5e3",
@@ -458,14 +458,14 @@ The following methods are available on the ``web3.geth.txpool`` namespace.
                 'maxFeePerGas': '0x77359400',
                 'maxPriorityFeePerGas': '0x3b9aca00',
                 'nonce': "0x2",
-                'to': "0x24a461f25eE6a318BDef7F33De634A67bb67Ac9D",
+                'to': "account_address",
                 'transactionIndex': None,
                 'value': "0xebec21ee1da40000"
               }],
               6: [{
                 'blockHash': "0x0000000000000000000000000000000000000000000000000000000000000000",
                 'blockNumber': None,
-                'from': "0x9B11bF0459b0c4b2f87f8CEBca4cfc26f294B63A",
+                'from': "account_address",
                 'gas': "0x15f90",
                 'gasPrice': None,
                 'hash': "0xbbcd1e45eae3b859203a04be7d6e1d7b03b222ec1d66dfcc8011dd39794b147e",
@@ -473,13 +473,13 @@ The following methods are available on the ``web3.geth.txpool`` namespace.
                 'maxFeePerGas': '0x77359400',
                 'maxPriorityFeePerGas': '0x3b9aca00',
                 'nonce': "0x6",
-                'to': "0x6368f3f8c2B42435D6C136757382E4A59436a681",
+                'to': "account_address",
                 'transactionIndex': None,
                 'value': "0xf9a951af55470000"
               }, {
                 'blockHash': "0x0000000000000000000000000000000000000000000000000000000000000000",
                 'blockNumber': None,
-                'from': "0x9B11bF0459b0c4b2f87f8CEBca4cfc26f294B63A",
+                'from': "account_address",
                 'gas': "0x15f90",
                 'gasPrice': None,
                 'hash': "0x60803251d43f072904dc3a2d6a084701cd35b4985790baaf8a8f76696041b272",
@@ -487,7 +487,7 @@ The following methods are available on the ``web3.geth.txpool`` namespace.
                 'maxFeePerGas': '0x77359400',
                 'maxPriorityFeePerGas': '0x3b9aca00',
                 'nonce': "0x6",
-                'to': "0x8DB7b4e0ECB095FBD01Dffa62010801296a9ac78",
+                'to': "account_address",
                 'transactionIndex': None,
                 'value': "0xebe866f5f0a06000"
               }],

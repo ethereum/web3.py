@@ -793,7 +793,7 @@ This is the simplest builder function for adding a deployment to a manifest. All
    ...     'blockchain://1234567890123456789012345678901234567890123456789012345678901234/block/1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef': {
    ...       'Owned': {
    ...         'contractType': 'Owned',
-   ...         'address': '0x4F5B11C860B37B68De6d14FB7e7b5f18A9a1BD00',
+   ...         'address': 'account_address',
    ...       }
    ...     }
    ...   }
@@ -804,7 +804,7 @@ This is the simplest builder function for adding a deployment to a manifest. All
    ...         block_uri='blockchain://1234567890123456789012345678901234567890123456789012345678901234/block/1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
    ...         contract_instance='Owned',
    ...         contract_type='Owned',
-   ...         address='0x4F5B11C860B37B68De6d14FB7e7b5f18A9a1BD00',
+   ...         address='account_address',
    ...     ),
    ... )
    >>> assert expected_manifest == built_manifest

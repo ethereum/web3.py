@@ -98,7 +98,7 @@ The following properties are available on the ``web3.eth`` namespace.
     .. code-block:: python
 
         >>> web3.eth.coinbase
-        '0xd3CdA913deB6f67967B99D67aCDFa1712C293601'
+        'coinbase_address'
 
 
 .. py:attribute:: Eth.mining
@@ -164,7 +164,7 @@ The following properties are available on the ``web3.eth`` namespace.
     .. code-block:: python
 
         >>> web3.eth.accounts
-        ['0xd3CdA913deB6f67967B99D67aCDFa1712C293601']
+        ['account_address']
 
 
 .. py:attribute:: Eth.block_number
@@ -253,7 +253,7 @@ The following methods are available on the ``web3.eth`` namespace.
 
     .. code-block:: python
 
-        >>> web3.eth.get_balance('0xd3CdA913deB6f67967B99D67aCDFa1712C293601')
+        >>> web3.eth.get_balance('account_address')
         77320681768999138915
 
 
@@ -286,7 +286,7 @@ The following methods are available on the ``web3.eth`` namespace.
 
     .. code-block:: python
 
-        >>> web3.eth.get_storage_at('0x6C8f2A135f6ed072DE4503Bd7C4999a1a17F824B', 0)
+        >>> web3.eth.get_storage_at('account_address', 0)
         '0x00000000000000000000000000000000000000000000000000120a0b063499d4'
 
 
@@ -307,9 +307,9 @@ The following methods are available on the ``web3.eth`` namespace.
 
     .. code-block:: python
 
-        >>> web3.eth.get_proof('0x6C8f2A135f6ed072DE4503Bd7C4999a1a17F824B', [0], 3391)
+        >>> web3.eth.get_proof('account_address', [0], 3391)
         AttributeDict({
-            'address': '0x4CB06C43fcdABeA22541fcF1F856A6a296448B6c',
+            'address': 'account_address',
             'accountProof': ['0xf90211a03841a7ddd65c70c94b8efa79190d00f0ab134b26f18dcad508f60a7e74559d0ba0464b07429a05039e22931492d6c6251a860c018ea390045d596b1ac11b5c7aa7a011f4b89823a03c9c4b5a8ab079ee1bc0e2a83a508bb7a5dc7d7fb4f2e95d3186a0b5f7c51c3b2d51d97f171d2b38a4df1a7c0acc5eb0de46beeff4d07f5ed20e19a0b591a2ce02367eda31cf2d16eca7c27fd44dbf0864b64ea8259ad36696eb2a04a02b646a7552b8392ae94263757f699a27d6e9176b4c06b9fc0a722f893b964795a02df05d68bceb88eebf68aafde61d10ab942097afc1c58b8435ffd3895358a742a0c2f16143c4d1db03276c433696dddb3e9f3b113bcd854b127962262e98f43147a0828820316cc02bfefd899aba41340659fd06df1e0a0796287ec2a4110239f6d2a050496598670b04df7bbff3718887fa36437d6d8c7afb4eff86f76c5c7097dcc4a0c14e9060c6b3784e35b9e6ae2ad2984142a75910ccc89eb89dc1e2f44b6c58c2a009804db571d0ce07913e1cbacc4f1dc4fb8265c936f5c612e3a47e91c64d8e9fa063d96f38b3cb51b1665c6641e25ffe24803f2941e5df79942f6a53b7169647e4a0899f71abb18c6c956118bf567fac629b75f7e9526873e429d3d8abb6dbb58021a00fd717235298742623c0b3cafb3e4bd86c0b5ab1f71097b4dd19f3d6925d758da0096437146c16097f2ccc1d3e910d65a4132803baee2249e72c8bf0bcaaeb37e580',
                              '0xf90151a097b17a89fd2c03ee98cb6459c08f51b269da5cee46650e84470f62bf83b43efe80a03b269d284a4c3cf8f8deacafb637c6d77f607eec8d75e8548d778e629612310480a01403217a7f1416830c870087c524dabade3985271f6f369a12b010883c71927aa0f592ac54c879817389663be677166f5022943e2fe1b52617a1d15c2f353f27dda0ac8d015a9e668f5877fcc391fae33981c00577096f0455b42df4f8e8089ece24a003ba34a13e2f2fb4bf7096540b42d4955c5269875b9cf0f7b87632585d44c9a580a0b179e3230b07db294473ae57f0170262798f8c551c755b5665ace1215cee10ca80a0552d24252639a6ae775aa1df700ffb92c2411daea7286f158d44081c8172d072a0772a87d08cf38c4c68bfde770968571abd16fd3835cb902486bd2e515d53c12d80a0413774f3d900d2d2be7a3ad999ffa859a471dc03a74fb9a6d8275455f5496a548080',
                              '0xf869a020d13b52a61d3c1325ce3626a51418adebd6323d4840f1bdd93906359d11c933b846f8440180a01ab7c0b0a2a4bbb5a1495da8c142150891fc64e0c321e1feb70bd5f881951f7ea0551332d96d085185ab4019ad8bcf89c45321e136c261eb6271e574a2edf1461f'
@@ -393,7 +393,7 @@ The following methods are available on the ``web3.eth`` namespace.
             return True
 
         block = w3.eth.get_block(3391)
-        proof = w3.eth.get_proof('0x6C8f2A135f6ed072DE4503Bd7C4999a1a17F824B', [0, 1], 3391)
+        proof = w3.eth.get_proof('account_address', [0, 1], 3391)
         assert verify_eth_get_proof(proof, block.stateRoot)
 
 
@@ -414,10 +414,10 @@ The following methods are available on the ``web3.eth`` namespace.
     .. code-block:: python
 
         # For a contract address.
-        >>> web3.eth.get_code('0x6C8f2A135f6ed072DE4503Bd7C4999a1a17F824B')
+        >>> web3.eth.get_code('account_address')
         '0x6060604052361561027c5760e060020a60003504630199.....'
         # For a private key address.
-        >>> web3.eth.get_code('0xd3CdA913deB6f67967B99D67aCDFa1712C293601')
+        >>> web3.eth.get_code('account_address')
         '0x'
 
 
@@ -445,12 +445,12 @@ The following methods are available on the ``web3.eth`` namespace.
         >>> web3.eth.get_block(2000000)
         AttributeDict({
             'difficulty': 49824742724615,
-            'extraData': '0xe4b883e5bda9e7a59ee4bb99e9b1bc',
+            'extraData': 'account_address',
             'gasLimit': 4712388,
             'gasUsed': 21000,
             'hash': '0xc0f4906fea23cf6f3cce98cb44e8e1449e455b28d684dfa9ff65426495584de6',
             'logsBloom': '0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
-            'miner': '0x61c808d82a3ac53231750dadc13c777b59310bd9',
+            'miner': 'miner_value',
             'nonce': '0x3b05c6d5524209f1',
             'number': 2000000,
             'parentHash': '0x57ebf07eb9ed1137d41447020a25e51d30a0c272b5896571499c82c33ecb7288',
@@ -520,7 +520,7 @@ The following methods are available on the ``web3.eth`` namespace.
 
         >>> web3.eth.get_uncle_by_block(56160, 0)
         AttributeDict({
-          'author': '0xbe4532e1b1db5c913cf553be76180c1777055403',
+          'author': 'author_address',
           'difficulty': '0x17dd9ca0afe',
           'extraData': '0x476574682f686261722f76312e302e312f6c696e75782f676f312e342e32',
           'gasLimit': '0x2fefd8',
@@ -591,7 +591,7 @@ The following methods are available on the ``web3.eth`` namespace.
         AttributeDict({
             'blockHash': '0x4e3a3754410177e6937ef1f84bba68ea139e8d1a2258c5f85db9f1cd715a1bdd',
             'blockNumber': 46147,
-            'from': '0xA1E4380A3B1f749673E270229993eE55F35663b4',
+            'from': 'account_address',
             'gas': 21000,
             'gasPrice': None,
             'hash': '0x5c504ed432cb51138bcf09aa5e8a410dd4a1e204ef84bfed1be16dfba1b22060',
@@ -599,7 +599,7 @@ The following methods are available on the ``web3.eth`` namespace.
             'maxFeePerGas': 2000000000,
             'maxPriorityFeePerGas': 1000000000,
             'nonce': 0,
-            'to': '0x5DF9B87991262F6BA471F09758CDE1c0FC1De734',
+            'to': 'account_address',
             'transactionIndex': 0,
             'value': 31337,
         })
@@ -649,7 +649,7 @@ The following methods are available on the ``web3.eth`` namespace.
         AttributeDict({
             'blockHash': '0x4e3a3754410177e6937ef1f84bba68ea139e8d1a2258c5f85db9f1cd715a1bdd',
             'blockNumber': 46147,
-            'from': '0xA1E4380A3B1f749673E270229993eE55F35663b4',
+            'from': 'account_address',
             'gas': 21000,
             'gasPrice': None,
             'hash': '0x5c504ed432cb51138bcf09aa5e8a410dd4a1e204ef84bfed1be16dfba1b22060',
@@ -657,7 +657,7 @@ The following methods are available on the ``web3.eth`` namespace.
             'maxFeePerGas': 2000000000,
             'maxPriorityFeePerGas': 1000000000,
             'nonce': 0,
-            'to': '0x5DF9B87991262F6BA471F09758CDE1c0FC1De734',
+            'to': 'account_address',
             'transactionIndex': 0,
             'value': 31337,
         })
@@ -665,7 +665,7 @@ The following methods are available on the ``web3.eth`` namespace.
         AttributeDict({
             'blockHash': '0x4e3a3754410177e6937ef1f84bba68ea139e8d1a2258c5f85db9f1cd715a1bdd',
             'blockNumber': 46147,
-            'from': '0xA1E4380A3B1f749673E270229993eE55F35663b4',
+            'from': 'account_address',
             'gas': 21000,
             'gasPrice': None,
             'hash': '0x5c504ed432cb51138bcf09aa5e8a410dd4a1e204ef84bfed1be16dfba1b22060',
@@ -673,7 +673,7 @@ The following methods are available on the ``web3.eth`` namespace.
             'maxFeePerGas': 2000000000,
             'maxPriorityFeePerGas': 1000000000,
             'nonce': 0,
-            'to': '0x5DF9B87991262F6BA471F09758CDE1c0FC1De734',
+            'to': 'account_address',
             'transactionIndex': 0,
             'value': 31337,
         })
@@ -725,12 +725,12 @@ The following methods are available on the ``web3.eth`` namespace.
             'blockNumber': 46147,
             'contractAddress': None,
             'cumulativeGasUsed': 21000,
-            'from': '0xA1E4380A3B1f749673E270229993eE55F35663b4',
+            'from': 'account_address',
             'gasUsed': 21000,
             'logs': [],
             'logsBloom': '0x000000000000000000000000000000000000000000000000...0000',
             'status': 1,
-            'to': '0x5DF9B87991262F6BA471F09758CDE1c0FC1De734',
+            'to': 'account_address',
             'transactionHash': '0x5c504ed432cb51138bcf09aa5e8a410dd4a1e204ef84bfed1be16dfba1b22060',
             'transactionIndex': 0,
         })
@@ -762,12 +762,12 @@ The following methods are available on the ``web3.eth`` namespace.
             'blockNumber': 46147,
             'contractAddress': None,
             'cumulativeGasUsed': 21000,
-            'from': '0xA1E4380A3B1f749673E270229993eE55F35663b4',
+            'from': 'account_address',
             'gasUsed': 21000,
             'logs': [],
             'logsBloom': '0x000000000000000000000000000000000000000000000000...0000',
             'status': 1, # 0 or 1
-            'to': '0x5DF9B87991262F6BA471F09758CDE1c0FC1De734',
+            'to': 'account_address',
             'transactionHash': '0x5c504ed432cb51138bcf09aa5e8a410dd4a1e204ef84bfed1be16dfba1b22060',
             'transactionIndex': 0,
         })
@@ -841,7 +841,7 @@ The following methods are available on the ``web3.eth`` namespace.
 
         # simple example (Web3.py and / or client determines gas and fees, typically defaults to a dynamic fee transaction post London fork)
         >>> web3.eth.send_transaction({
-          'to': '0xd3CdA913deB6f67967B99D67aCDFa1712C293601',
+          'to': 'account_address',
           'from': web3.eth.coinbase,
           'value': 12345
         })
@@ -849,7 +849,7 @@ The following methods are available on the ``web3.eth`` namespace.
         # Dynamic fee transaction, introduced by EIP-1559:
         HexBytes('0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331')
         >>> web3.eth.send_transaction({
-          'to': '0xd3CdA913deB6f67967B99D67aCDFa1712C293601',
+          'to': 'account_address',
           'from': web3.eth.coinbase,
           'value': 12345,
           'gas': 21000,
@@ -861,7 +861,7 @@ The following methods are available on the ``web3.eth`` namespace.
         # Legacy transaction (less efficient)
         HexBytes('0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331')
         >>> web3.eth.send_transaction({
-          'to': '0xd3CdA913deB6f67967B99D67aCDFa1712C293601',
+          'to': 'account_address',
           'from': web3.eth.coinbase,
           'value': 12345,
           'gas': 21000,
@@ -888,7 +888,7 @@ The following methods are available on the ``web3.eth`` namespace.
             maxFeePerGas=2000000000,
             maxPriorityFeePerGas=1000000000,
             gas=100000,
-            to='0xd3CdA913deB6f67967B99D67aCDFa1712C293601',
+            to='account_address',
             value=1,
             data=b'',
             )
@@ -914,7 +914,7 @@ The following methods are available on the ``web3.eth`` namespace.
             maxFeePerGas=3000000000,
             maxPriorityFeePerGas=2000000000,
             gas=100000,
-            to='0xd3CdA913deB6f67967B99D67aCDFa1712C293601',
+            to='account_address',
             value=12345,
             data=b'',
             type=2,  # (optional) the type is now implicitly set based on appropriate transaction params
@@ -973,13 +973,13 @@ The following methods are available on the ``web3.eth`` namespace.
     .. code-block:: python
 
         >>> tx = web3.eth.send_transaction({
-                'to': '0xd3CdA913deB6f67967B99D67aCDFa1712C293601',
+                'to': 'account_address',
                 'from': web3.eth.coinbase,
                 'value': 1000
             })
         HexBytes('0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331')
         >>> web3.eth.replace_transaction('0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331', {
-                'to': '0xd3CdA913deB6f67967B99D67aCDFa1712C293601',
+                'to': 'account_address',
                 'from': web3.eth.coinbase,
                 'value': 2000
             })
@@ -1008,7 +1008,7 @@ The following methods are available on the ``web3.eth`` namespace.
     .. code-block:: python
 
         >>> tx = web3.eth.send_transaction({
-                'to': '0xd3CdA913deB6f67967B99D67aCDFa1712C293601',
+                'to': 'account_address',
                 'from': web3.eth.coinbase,
                 'value': 1000
             })
@@ -1035,17 +1035,17 @@ The following methods are available on the ``web3.eth`` namespace.
     .. code-block:: python
 
         >>> web3.eth.sign(
-              '0xd3CdA913deB6f67967B99D67aCDFa1712C293601',
+              'account_address',
               text='some-text-tö-sign')
         '0x1a8bbe6eab8c72a219385681efefe565afd3accee35f516f8edf5ae82208fbd45a58f9f9116d8d88ba40fcd29076d6eada7027a3b412a9db55a0164547810cc401'
 
         >>> web3.eth.sign(
-              '0xd3CdA913deB6f67967B99D67aCDFa1712C293601',
+              'account_address',
               data=b'some-text-t\xc3\xb6-sign')
         '0x1a8bbe6eab8c72a219385681efefe565afd3accee35f516f8edf5ae82208fbd45a58f9f9116d8d88ba40fcd29076d6eada7027a3b412a9db55a0164547810cc401'
 
         >>> web3.eth.sign(
-              '0xd3CdA913deB6f67967B99D67aCDFa1712C293601',
+              'account_address',
               hexstr='0x736f6d652d746578742d74c3b62d7369676e')
         '0x1a8bbe6eab8c72a219385681efefe565afd3accee35f516f8edf5ae82208fbd45a58f9f9116d8d88ba40fcd29076d6eada7027a3b412a9db55a0164547810cc401'
 
@@ -1084,7 +1084,7 @@ The following methods are available on the ``web3.eth`` namespace.
         >>> myContract.functions.getVar().call()
         1
         # The above call equivalent to the raw call:
-        >>> web3.eth.call({'value': 0, 'gas': 21736, 'maxFeePerGas': 2000000000, 'maxPriorityFeePerGas': 1000000000, 'to': '0xc305c901078781C232A2a521C2aF7980f8385ee9', 'data': '0x477a5c98'})
+        >>> web3.eth.call({'value': 0, 'gas': 21736, 'maxFeePerGas': 2000000000, 'maxPriorityFeePerGas': 1000000000, 'to': 'account_address', 'data': '0x477a5c98'})
         HexBytes('0x0000000000000000000000000000000000000000000000000000000000000001')
 
     In most cases it is better to make contract function call through the :py:class:`web3.contract.Contract` interface.
@@ -1158,7 +1158,7 @@ The following methods are available on the ``web3.eth`` namespace.
 
     .. code-block:: python
 
-        >>> web3.eth.estimate_gas({'to': '0xd3CdA913deB6f67967B99D67aCDFa1712C293601', 'from':web3.eth.coinbase, 'value': 12345})
+        >>> web3.eth.estimate_gas({'to': 'account_address', 'from':web3.eth.coinbase, 'value': 12345})
         21000
 
 .. py:method:: Eth.estimateGas(transaction, block_identifier=None)
@@ -1260,7 +1260,7 @@ with the filtering API.
         <BlockFilter at 0x10b72dc28>
         >>> web3.eth.filter('pending')
         <TransactionFilter at 0x10b780340>
-        >>> web3.eth.filter({'fromBlock': 1000000, 'toBlock': 1000100, 'address': '0x6C8f2A135f6ed072DE4503Bd7C4999a1a17F824B'})
+        >>> web3.eth.filter({'fromBlock': 1000000, 'toBlock': 1000100, 'address': 'account_address'})
         <LogFilter at 0x10b7803d8>
 
 .. py:method:: Eth.get_filter_changes(self, filter_id)
@@ -1276,7 +1276,7 @@ with the filtering API.
         >>> web3.eth.get_filter_changes(filter.filter_id)
         [
             {
-                'address': '0xDc3A9Db694BCdd55EBaE4A89B22aC6D12b3F0c24',
+                'address': 'account_address',
                 'blockHash': '0xb72256286ca528e09022ffd408856a73ef90e7216ac560187c6e43b4c4efd2f0',
                 'blockNumber': 2217196,
                 'data': '0x0000000000000000000000000000000000000000000000000000000000000001',
@@ -1309,7 +1309,7 @@ with the filtering API.
         >>> web3.eth.get_filter_logs(filter.filter_id)
         [
             {
-                'address': '0xDc3A9Db694BCdd55EBaE4A89B22aC6D12b3F0c24',
+                'address': 'account_address',
                 'blockHash': '0xb72256286ca528e09022ffd408856a73ef90e7216ac560187c6e43b4c4efd2f0',
                 'blockNumber': 2217196,
                 'data': '0x0000000000000000000000000000000000000000000000000000000000000001',

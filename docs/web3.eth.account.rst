@@ -76,7 +76,7 @@ python -c "from web3 import Web3; w3 = Web3(); acc = w3.eth.account.create(); pr
 Which outputs a new private key and an account pair:
 
 ```
-private key=0x480c4aec9fa..., account=0x9202a9d5D2d129CB400a40e00aC822a53ED81167
+private key=0x480c4aec9fa..., account=account_address
 ```
 
 - *Never store private key with your source*. Use environment variables 
@@ -159,7 +159,7 @@ Example how to run this in UNIX shell:
 
 This will print::
 
-    Your hot wallet address is 0x27C8F899bb69E1501BBB96d09d7477a2a7518918
+    Your hot wallet address is hot_wallet_address
 
 
 .. _extract_geth_pk:
@@ -216,7 +216,7 @@ With the original message text and a signature:
 
     >>> message = encode_defunct(text="I♥SF")
     >>> w3.eth.account.recover_message(message, signature=signed_message.signature)
-    '0x5ce9454909639D2D17A3F753ce7d93fa0b9aB12E'
+    'account_address'
 
 Prepare message for ecrecover in Solidity
 --------------------------------------------
@@ -307,7 +307,7 @@ Then call ecr with these arguments from `Prepare message for ecrecover in Solidi
 ``"0x1476abb745d423bf09273f1afd887d951181d25adc66c4834a70491911b7f750", 28, "0xe6ca9bba58c88611fad66a6ce8f996908195593807c4b38bd528d2cff09d4eb3", "0x3e5bfbbf4d3e39b1a2fd816a7680c19ebebaf3a141b239934ad43cb33fcec8ce"``
 
 The message is verified, because we get the correct sender of
-the message back in response: ``0x5ce9454909639d2d17a3f753ce7d93fa0b9ab12e``.
+the message back in response: ``account_address``.
 
 .. _local-sign-transaction:
 
@@ -330,14 +330,14 @@ with :meth:`~web3.eth.Eth.send_raw_transaction`.
     ...     'type': '0x2',  # the type is optional and, if omitted, will be interpreted based on the provided transaction parameters
     ...     'accessList': (  # accessList is optional for dynamic fee transactions
     ...         {
-    ...             'address': '0xde0b295669a9fd93d5f28d9ec85e40f4cb697bae',
+    ...             'address': 'account_address',
     ...             'storageKeys': (
     ...                 '0x0000000000000000000000000000000000000000000000000000000000000003',
     ...                 '0x0000000000000000000000000000000000000000000000000000000000000007',
     ...             )
     ...         },
     ...         {
-    ...             'address': '0xbb9bc244d798123fde783fcc1c72d3bb8c189413',
+    ...             'address': 'account_address',
     ...             'storageKeys': ()
     ...         },
     ...     )
@@ -387,13 +387,13 @@ To sign a transaction locally that will invoke a smart contract:
     >>> from web3 import Web3, EthereumTesterProvider
     >>> w3 = Web3(EthereumTesterProvider())
 
-    >>> unicorns = w3.eth.contract(address="0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359", abi=EIP20_ABI)
+    >>> unicorns = w3.eth.contract(address="account_address", abi=EIP20_ABI)
 
-    >>> nonce = w3.eth.get_transaction_count('0x5ce9454909639D2D17A3F753ce7d93fa0b9aB12E')  # doctest: +SKIP
+    >>> nonce = w3.eth.get_transaction_count('account_address')  # doctest: +SKIP
 
     # Build a transaction that invokes this contract's function, called transfer
     >>> unicorn_txn = unicorns.functions.transfer(
-    ...     '0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359',
+    ...     'account_address',
     ...     1,
     ... ).build_transaction({
     ...     'chainId': 1,
@@ -410,7 +410,7 @@ To sign a transaction locally that will invoke a smart contract:
      'maxFeePerGas': 2000000000,
      'maxPriorityFeePerGas': 1000000000,
      'nonce': 0,
-     'to': '0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359',
+     'to': 'account_address',
      'data': '0xa9059cbb000000000000000000000000fb6916095ca1df60bb79ce92ce3ea74c37c5d3590000000000000000000000000000000000000000000000000000000000000001'}
 
     >>> private_key = b"\xb2\\}\xb3\x1f\xee\xd9\x12''\xbf\t9\xdcv\x9a\x96VK-\xe4\xc4rm\x03[6\xec\xf1\xe5\xb3d"
