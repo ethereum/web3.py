@@ -13,6 +13,9 @@ from eth_abi import (
 from eth_abi.exceptions import (
     InsufficientDataBytes,
 )
+from eth_utils import (
+    is_bytes,
+)
 
 from web3._utils.compat import (
     Literal,
@@ -61,29 +64,7 @@ class AsyncEthereumTesterProvider(AsyncBaseProvider):
         self.api_endpoints = API_ENDPOINTS
 
     async def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
-        namespace, _, endpoint = method.partition("_")
-        from eth_tester.exceptions import TransactionFailed
-
-        try:
-            delegator = self.api_endpoints[namespace][endpoint]
-        except KeyError:
-            return RPCResponse({"error": f"Unknown RPC Endpoint: {method}"})
-        try:
-            response = delegator(self.ethereum_tester, params)
-        except NotImplementedError:
-            return RPCResponse(
-                {"error": f"RPC Endpoint has not been implemented: {method}"}
-            )
-        except TransactionFailed as e:
-            try:
-                reason = abi.decode(["(string)"], e.args[0].args[0][4:])[0]
-            except (InsufficientDataBytes, AttributeError):
-                reason = e.args[0]
-            raise TransactionFailed(f"execution reverted: {reason}")
-        else:
-            return {
-                "result": response,
-            }
+        return _make_request(method, params, self.api_endpoints, self.ethereum_tester)
 
     async def is_connected(self) -> Literal[True]:
         return True
@@ -133,29 +114,50 @@ class EthereumTesterProvider(BaseProvider):
             self.api_endpoints = api_endpoints
 
     def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
-        namespace, _, endpoint = method.partition("_")
-        from eth_tester.exceptions import TransactionFailed
-
-        try:
-            delegator = self.api_endpoints[namespace][endpoint]
-        except KeyError:
-            return RPCResponse({"error": f"Unknown RPC Endpoint: {method}"})
-        try:
-            response = delegator(self.ethereum_tester, params)
-        except NotImplementedError:
-            return RPCResponse(
-                {"error": f"RPC Endpoint has not been implemented: {method}"}
-            )
-        except TransactionFailed as e:
-            try:
-                reason = abi.decode(["(string)"], e.args[0].args[0][4:])[0]
-            except (InsufficientDataBytes, AttributeError):
-                reason = e.args[0]
-            raise TransactionFailed(f"execution reverted: {reason}")
-        else:
-            return {
-                "result": response,
-            }
+        return _make_request(method, params, self.api_endpoints, self.ethereum_tester)
 
     def is_connected(self) -> Literal[True]:
         return True
+
+
+def _make_request(
+    method: RPCEndpoint,
+    params: Any,
+    api_endpoints: Dict[str, Dict[str, Any]],
+    ethereum_tester_instance: "EthereumTester",
+) -> RPCResponse:
+    # do not import eth_tester derivatives until runtime,
+    # it is not a default dependency
+    from eth_tester.exceptions import TransactionFailed
+
+    namespace, _, endpoint = method.partition("_")
+
+    try:
+        delegator = api_endpoints[namespace][endpoint]
+    except KeyError:
+        return RPCResponse({"error": f"Unknown RPC Endpoint: {method}"})
+    try:
+        response = delegator(ethereum_tester_instance, params)
+    except NotImplementedError:
+        return RPCResponse(
+            {"error": f"RPC Endpoint has not been implemented: {method}"}
+        )
+    except TransactionFailed as e:
+        first_arg = e.args[0]
+        try:
+            # sometimes eth-tester wraps an exception in another exception
+            raw_error_msg = (
+                first_arg if not isinstance(first_arg, Exception) else first_arg.args[0]
+            )
+            reason = (
+                abi.decode(["string"], raw_error_msg[4:])[0]
+                if is_bytes(raw_error_msg)
+                else raw_error_msg
+            )
+        except InsufficientDataBytes:
+            reason = first_arg
+        raise TransactionFailed(f"execution reverted: {reason}")
+    else:
+        return {
+            "result": response,
+        }

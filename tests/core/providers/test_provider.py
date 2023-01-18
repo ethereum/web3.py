@@ -1,7 +1,19 @@
-from web3 import Web3
+import pytest as pytest
+
+from eth_tester.exceptions import (
+    TransactionFailed,
+)
+
+from web3 import (
+    EthereumTesterProvider,
+    Web3,
+)
 from web3.providers import (
     AutoProvider,
     BaseProvider,
+)
+from web3.types import (
+    RPCEndpoint,
 )
 
 
@@ -53,3 +65,33 @@ def test_autoprovider_detection():
     assert w3.is_connected()
 
     assert isinstance(auto._active_provider, ConnectedProvider)
+
+
+@pytest.mark.parametrize(
+    "exception_case",
+    (
+        # exception with bytes-encoded reason:
+        TransactionFailed(
+            b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00 \x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x12The error message.\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"  # noqa: E501
+        ),
+        # wrapped exceptions with bytes-encoded reason:
+        TransactionFailed(
+            Exception(
+                b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00 \x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x12The error message.\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"  # noqa: E501
+            )
+        ),
+    ),
+)
+def test_eth_tester_provider_properly_handles_eth_tester_error_messages(
+    mocker,
+    exception_case,
+):
+    mocker.patch(
+        "eth_tester.main.EthereumTester.get_block_by_number", side_effect=exception_case
+    )
+
+    provider = EthereumTesterProvider()
+    with pytest.raises(
+        TransactionFailed, match="execution reverted: The error message."
+    ):
+        provider.make_request(RPCEndpoint("eth_blockNumber"), [])

@@ -1,0 +1,1 @@
+Fix for recently-broken ``eth-tester`` exception message parsing for some exception cases.
