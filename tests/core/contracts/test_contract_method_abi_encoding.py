@@ -25,6 +25,52 @@ ABI_D = json.loads(
 @pytest.mark.parametrize(
     "abi,arguments,data,expected",
     (
+        pytest.param(
+            ABI_B,
+            [0],
+            None,
+            "0xf0fdf8340000000000000000000000000000000000000000000000000000000000000000",  # noqa: E501
+            id="ABI_B, valid int args, no data",
+        ),
+        pytest.param(
+            ABI_B,
+            [1],
+            None,
+            "0xf0fdf8340000000000000000000000000000000000000000000000000000000000000001",  # noqa: E501
+            id="ABI_B, valid int args, no data",
+        ),
+        pytest.param(
+            ABI_C,
+            [1],
+            None,
+            "0xf0fdf8340000000000000000000000000000000000000000000000000000000000000001",  # noqa: E501
+            id="ABI_B, valid int args, no data",
+        ),
+        pytest.param(
+            ABI_C,
+            [b"a" + (b"\x00" * 31)],
+            None,
+            "0x9f3fab586100000000000000000000000000000000000000000000000000000000000000",  # noqa: E501
+            id="ABI_C, valid byte args, no data",
+        ),
+        pytest.param(
+            ABI_C,
+            [f"0x61{'00' * 31}"],
+            None,
+            "0x9f3fab586100000000000000000000000000000000000000000000000000000000000000",  # noqa: E501
+            id="ABI_C, valid hex args, no data",
+        ),
+    ),
+)
+def test_contract_abi_encoding(w3, abi, arguments, data, expected):
+    contract = w3.eth.contract(abi=abi)
+    actual = contract.encodeABI("a", arguments, data=data)
+    assert actual == expected
+
+
+@pytest.mark.parametrize(
+    "abi,arguments,data,expected",
+    (
         pytest.param(ABI_A, [], None, "0x0dbe671f", id="ABI_A, no args, no data"),
         pytest.param(
             ABI_A, [], "0x12345678", "0x12345678", id="ABI_A, no args, some data"
@@ -66,25 +112,12 @@ ABI_D = json.loads(
         ),
     ),
 )
-def test_contract_abi_encoding(w3, abi, arguments, data, expected):
-    contract = w3.eth.contract(abi=abi)
+def test_contract_abi_encoding_non_strict(
+    w3_non_strict_abi, abi, arguments, data, expected
+):
+    contract = w3_non_strict_abi.eth.contract(abi=abi)
     actual = contract.encodeABI("a", arguments, data=data)
     assert actual == expected
-
-
-def test_contract_abi_encoding_warning(w3):
-    contract = w3.eth.contract(abi=ABI_C)
-
-    with pytest.warns(
-        DeprecationWarning,
-        match='in v6 it will be invalid to pass a hex string without the "0x" prefix',
-    ):
-
-        actual = contract.encodeABI("a", ["61"], data=None)
-        assert (
-            actual
-            == "0x9f3fab586100000000000000000000000000000000000000000000000000000000000000"  # noqa: E501
-        )  # noqa: E501
 
 
 def test_contract_abi_encoding_kwargs(w3):

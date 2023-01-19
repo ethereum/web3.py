@@ -1,9 +1,5 @@
 import pytest
 
-from eth_utils import (
-    to_bytes,
-)
-
 from web3._utils.empty import (
     empty,
 )
@@ -116,17 +112,35 @@ def test_transact_when_default_account_is_set(w3, math_contract, transact):
 def test_transacting_with_contract_with_string_argument(
     w3, string_contract, transact, call
 ):
-    # eth_abi will pass as raw bytes, no encoding
-    # unless we encode ourselves
     txn_hash = transact(
         contract=string_contract,
         contract_function="setValue",
-        func_args=["ÄLÄMÖLÖ".encode("utf8")],
+        func_args=["ÄLÄMÖLÖ"],
     )
     txn_receipt = w3.eth.wait_for_transaction_receipt(txn_hash)
     assert txn_receipt is not None
 
     final_value = call(contract=string_contract, contract_function="getValue")
+
+    assert final_value == "ÄLÄMÖLÖ"
+
+
+def test_transacting_with_contract_with_encoded_string_argument_non_strict(
+    w3_non_strict_abi, non_strict_string_contract, transact, call
+):
+    # eth_abi will pass as raw bytes, no encoding
+    # unless we encode ourselves
+    txn_hash = transact(
+        contract=non_strict_string_contract,
+        contract_function="setValue",
+        func_args=["ÄLÄMÖLÖ".encode("utf8")],
+    )
+    txn_receipt = w3_non_strict_abi.eth.wait_for_transaction_receipt(txn_hash)
+    assert txn_receipt is not None
+
+    final_value = call(
+        contract=non_strict_string_contract, contract_function="getValue"
+    )
 
     assert final_value == "ÄLÄMÖLÖ"
 
@@ -152,7 +166,8 @@ def test_transacting_with_contract_with_bytes32_array_argument(
     assert final_value == new_bytes32_array
 
 
-def test_transacting_with_contract_with_byte_array_argument(
+# TODO: strict by default
+def test_transacting_with_contract_with_byte_array_argument_strict(
     w3, arrays_contract, transact, call
 ):
     new_byte_array = [b"\x03", b"\x03", b"\x03", b"\x03", b"\x03", b"\x03"]
@@ -168,10 +183,27 @@ def test_transacting_with_contract_with_byte_array_argument(
     assert final_value == new_byte_array
 
 
+def test_transacting_with_contract_with_byte_array_argument_non_strict(
+    w3_non_strict_abi, non_strict_arrays_contract, transact, call
+):
+    new_byte_array = [b"\x03", b"\x03", b"\x03", b"\x03", b"\x03", b"\x03"]
+    txn_hash = transact(
+        contract=non_strict_arrays_contract,
+        contract_function="setByteValue",
+        func_args=[new_byte_array],
+    )
+    txn_receipt = w3_non_strict_abi.eth.wait_for_transaction_receipt(txn_hash)
+    assert txn_receipt is not None
+
+    final_value = call(
+        contract=non_strict_arrays_contract, contract_function="getByteValue"
+    )
+    assert final_value == new_byte_array
+
+
 def test_transacting_with_contract_respects_explicit_gas(
     w3, STRING_CONTRACT, wait_for_block, call, transact
 ):
-
     StringContract = w3.eth.contract(**STRING_CONTRACT)
 
     deploy_txn = StringContract.constructor("Caqalai").transact()
@@ -179,19 +211,17 @@ def test_transacting_with_contract_respects_explicit_gas(
     assert deploy_receipt is not None
     string_contract = StringContract(address=deploy_receipt["contractAddress"])
 
-    # eth_abi will pass as raw bytes, no encoding
-    # unless we encode ourselves
     txn_hash = transact(
         contract=string_contract,
         contract_function="setValue",
-        func_args=[to_bytes(text="ÄLÄMÖLÖ")],
+        func_args=["ÄLÄMÖLÖ"],
         tx_params={"gas": 200000},
     )
     txn_receipt = w3.eth.wait_for_transaction_receipt(txn_hash, 30)
     assert txn_receipt is not None
 
     final_value = call(contract=string_contract, contract_function="getValue")
-    assert to_bytes(text=final_value) == to_bytes(text="ÄLÄMÖLÖ")
+    assert final_value == "ÄLÄMÖLÖ"
 
     txn = w3.eth.get_transaction(txn_hash)
     assert txn["gas"] == 200000
@@ -200,7 +230,6 @@ def test_transacting_with_contract_respects_explicit_gas(
 def test_auto_gas_computation_when_transacting(
     w3, STRING_CONTRACT, wait_for_block, call, transact
 ):
-
     StringContract = w3.eth.contract(**STRING_CONTRACT)
 
     deploy_txn = StringContract.constructor("Caqalai").transact()
@@ -208,22 +237,17 @@ def test_auto_gas_computation_when_transacting(
     assert deploy_receipt is not None
     string_contract = StringContract(address=deploy_receipt["contractAddress"])
 
-    gas_estimate = string_contract.functions.setValue(
-        to_bytes(text="ÄLÄMÖLÖ")
-    ).estimate_gas()
-
-    # eth_abi will pass as raw bytes, no encoding
-    # unless we encode ourselves
+    gas_estimate = string_contract.functions.setValue("ÄLÄMÖLÖ").estimate_gas()
     txn_hash = transact(
         contract=string_contract,
         contract_function="setValue",
-        func_args=[to_bytes(text="ÄLÄMÖLÖ")],
+        func_args=["ÄLÄMÖLÖ"],
     )
     txn_receipt = w3.eth.wait_for_transaction_receipt(txn_hash, 30)
     assert txn_receipt is not None
 
     final_value = call(contract=string_contract, contract_function="getValue")
-    assert to_bytes(text=final_value) == to_bytes(text="ÄLÄMÖLÖ")
+    assert final_value == "ÄLÄMÖLÖ"
 
     txn = w3.eth.get_transaction(txn_hash)
     assert txn["gas"] == gas_estimate + 100000
@@ -400,12 +424,10 @@ async def test_async_transact_when_default_account_is_set(
 async def test_async_transacting_with_contract_with_string_argument(
     async_w3, async_string_contract, async_transact, async_call
 ):
-    # eth_abi will pass as raw bytes, no encoding
-    # unless we encode ourselves
     txn_hash = await async_transact(
         contract=async_string_contract,
         contract_function="setValue",
-        func_args=["ÄLÄMÖLÖ".encode("utf8")],
+        func_args=["ÄLÄMÖLÖ"],
     )
     txn_receipt = await async_w3.eth.wait_for_transaction_receipt(txn_hash)
     assert txn_receipt is not None
@@ -413,7 +435,6 @@ async def test_async_transacting_with_contract_with_string_argument(
     final_value = await async_call(
         contract=async_string_contract, contract_function="getValue"
     )
-
     assert final_value == "ÄLÄMÖLÖ"
 
 
@@ -441,9 +462,13 @@ async def test_async_transacting_with_contract_with_bytes32_array_argument(
     assert final_value == new_bytes32_array
 
 
+# TODO: strict by default
 @pytest.mark.asyncio
 async def test_async_transacting_with_contract_with_byte_array_argument(
-    async_w3, async_arrays_contract, async_transact, async_call
+    async_w3,
+    async_arrays_contract,
+    async_transact,
+    async_call,
 ):
     new_byte_array = [b"\x03", b"\x03", b"\x03", b"\x03", b"\x03", b"\x03"]
     txn_hash = await async_transact(
@@ -461,6 +486,30 @@ async def test_async_transacting_with_contract_with_byte_array_argument(
 
 
 @pytest.mark.asyncio
+async def test_async_transacting_with_contract_with_byte_array_argument_non_strict(
+    async_w3_non_strict_abi,
+    async_non_strict_arrays_contract,
+    async_transact,
+    async_call,
+):
+    new_byte_array = [b"\x03", b"\x03", b"\x03", b"\x03", b"\x03", b"\x03"]
+    txn_hash = await async_transact(
+        contract=async_non_strict_arrays_contract,
+        contract_function="setByteValue",
+        func_args=[new_byte_array],
+    )
+    txn_receipt = await async_w3_non_strict_abi.eth.wait_for_transaction_receipt(
+        txn_hash
+    )
+    assert txn_receipt is not None
+
+    final_value = await async_call(
+        contract=async_non_strict_arrays_contract, contract_function="getByteValue"
+    )
+    assert final_value == new_byte_array
+
+
+@pytest.mark.asyncio
 async def test_async_transacting_with_contract_respects_explicit_gas(
     async_w3, STRING_CONTRACT, async_call, async_transact
 ):
@@ -472,12 +521,10 @@ async def test_async_transacting_with_contract_respects_explicit_gas(
     assert deploy_receipt is not None
     string_contract = StringContract(address=deploy_receipt["contractAddress"])
 
-    # eth_abi will pass as raw bytes, no encoding
-    # unless we encode ourselves
     txn_hash = await async_transact(
         contract=string_contract,
         contract_function="setValue",
-        func_args=[to_bytes(text="ÄLÄMÖLÖ")],
+        func_args=["ÄLÄMÖLÖ"],
         tx_params={"gas": 200000},
     )
     txn_receipt = await async_w3.eth.wait_for_transaction_receipt(txn_hash, 30)
@@ -486,7 +533,7 @@ async def test_async_transacting_with_contract_respects_explicit_gas(
     final_value = await async_call(
         contract=string_contract, contract_function="getValue"
     )
-    assert to_bytes(text=final_value) == to_bytes(text="ÄLÄMÖLÖ")
+    assert final_value == "ÄLÄMÖLÖ"
 
     txn = await async_w3.eth.get_transaction(txn_hash)
     assert txn["gas"] == 200000
@@ -504,16 +551,14 @@ async def test_async_auto_gas_computation_when_transacting(
     assert deploy_receipt is not None
     string_contract = StringContract(address=deploy_receipt["contractAddress"])
 
-    gas_estimate = await string_contract.functions.setValue(
-        to_bytes(text="ÄLÄMÖLÖ")
-    ).estimate_gas()
+    gas_estimate = await string_contract.functions.setValue("ÄLÄMÖLÖ").estimate_gas()
 
     # eth_abi will pass as raw bytes, no encoding
     # unless we encode ourselves
     txn_hash = await async_transact(
         contract=string_contract,
         contract_function="setValue",
-        func_args=[to_bytes(text="ÄLÄMÖLÖ")],
+        func_args=["ÄLÄMÖLÖ"],
     )
     txn_receipt = await async_w3.eth.wait_for_transaction_receipt(txn_hash, 30)
     assert txn_receipt is not None
@@ -521,7 +566,7 @@ async def test_async_auto_gas_computation_when_transacting(
     final_value = await async_call(
         contract=string_contract, contract_function="getValue"
     )
-    assert to_bytes(text=final_value) == to_bytes(text="ÄLÄMÖLÖ")
+    assert final_value == "ÄLÄMÖLÖ"
 
     txn = await async_w3.eth.get_transaction(txn_hash)
     assert txn["gas"] == gas_estimate + 100000
