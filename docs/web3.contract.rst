@@ -1066,7 +1066,7 @@ Event Log Object
 
 .. doctest:: create_filter
 
-    >>> transfer_filter = my_token_contract.events.Transfer.create_filter(from_block="0x0", argument_filters={'from': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf'})
+    >>> transfer_filter = my_token_contract.events.Transfer.create_filter(fromBlock="0x0", argument_filters={'from': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf'})
     >>> transfer_filter.get_new_entries()
     [AttributeDict({'args': AttributeDict({'from': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf',
      'to': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf',
