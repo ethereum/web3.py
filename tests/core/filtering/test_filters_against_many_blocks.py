@@ -51,7 +51,9 @@ def test_event_filter_new_events(
         builder.fromBlock = "latest"
         event_filter = builder.deploy(w3)
     else:
-        event_filter = emitter.events.LogNoArguments().create_filter(fromBlock="latest")
+        event_filter = emitter.events.LogNoArguments().create_filter(
+            from_block="latest"
+        )
 
     expected_match_counter = 0
 
@@ -130,7 +132,9 @@ def test_event_filter_new_events_many_deployed_contracts(
         builder.fromBlock = "latest"
         event_filter = builder.deploy(w3)
     else:
-        event_filter = emitter.events.LogNoArguments().create_filter(fromBlock="latest")
+        event_filter = emitter.events.LogNoArguments().create_filter(
+            from_block="latest"
+        )
 
     expected_match_counter = 0
 
@@ -200,7 +204,7 @@ async def test_async_event_filter_new_events(
         event_filter = await builder.deploy(async_w3)
     else:
         event_filter = await async_emitter.events.LogNoArguments().create_filter(
-            fromBlock="latest"
+            from_block="latest"
         )
 
     expected_match_counter = 0
@@ -293,7 +297,7 @@ async def test_async_event_filter_new_events_many_deployed_contracts(
         event_filter = await builder.deploy(async_w3)
     else:
         event_filter = await async_emitter.events.LogNoArguments().create_filter(
-            fromBlock="latest"
+            from_block="latest"
         )
 
     expected_match_counter = 0

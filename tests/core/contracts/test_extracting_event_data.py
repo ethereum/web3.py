@@ -730,7 +730,7 @@ def test_single_log_processing_with_errors(indexed_event_contract, dup_txn_recei
 
 
 def test_get_all_entries_with_nested_tuple_event(w3, emitter):
-    struct_args_filter = emitter.events.LogStructArgs.create_filter(fromBlock=0)
+    struct_args_filter = emitter.events.LogStructArgs.create_filter(from_block=0)
 
     tx_hash = emitter.functions.logStruct(1, (2, 3, (4,))).transact({"gas": 100000})
     w3.eth.wait_for_transaction_receipt(tx_hash)
