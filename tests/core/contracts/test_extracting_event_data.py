@@ -24,8 +24,8 @@ from web3.logs import (
 
 
 @pytest.fixture()
-def Emitter(w3, EMITTER):
-    return w3.eth.contract(**EMITTER)
+def Emitter(w3, emitter_contract_kwargs):
+    return w3.eth.contract(**emitter_contract_kwargs)
 
 
 @pytest.fixture()
@@ -43,8 +43,8 @@ def emitter(w3, Emitter, wait_for_transaction, wait_for_block, address_conversio
 
 
 @pytest.fixture()
-def EventContract(w3, EVENT_CONTRACT):
-    return w3.eth.contract(**EVENT_CONTRACT)
+def EventContract(w3, event_contract_kwargs):
+    return w3.eth.contract(**event_contract_kwargs)
 
 
 @pytest.fixture()

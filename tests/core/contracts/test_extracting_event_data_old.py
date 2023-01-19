@@ -10,8 +10,8 @@ from web3._utils.events import (
 
 
 @pytest.fixture()
-def Emitter(w3, EMITTER):
-    return w3.eth.contract(**EMITTER)
+def Emitter(w3, emitter_contract_kwargs):
+    return w3.eth.contract(**emitter_contract_kwargs)
 
 
 @pytest.fixture()

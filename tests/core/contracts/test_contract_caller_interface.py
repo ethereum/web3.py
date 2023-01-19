@@ -98,8 +98,8 @@ def test_caller_with_block_identifier(w3, math_contract):
     assert math_contract.caller.counter() == 0
 
     w3.provider.make_request(method="evm_mine", params=[5])
-    math_contract.functions.increment().transact()
-    math_contract.functions.increment().transact()
+    math_contract.functions.incrementCounter().transact()
+    math_contract.functions.incrementCounter().transact()
 
     output1 = math_contract.caller(block_identifier=start_num + 6).counter()
     output2 = math_contract.caller(block_identifier=start_num + 7).counter()
@@ -237,8 +237,8 @@ async def test_async_caller_with_block_identifier(async_w3, async_math_contract)
     assert await async_math_contract.caller.counter() == 0
 
     await async_w3.provider.make_request(method="evm_mine", params=[5])
-    await async_math_contract.functions.increment().transact()
-    await async_math_contract.functions.increment().transact()
+    await async_math_contract.functions.incrementCounter().transact()
+    await async_math_contract.functions.incrementCounter().transact()
 
     output1 = await async_math_contract.caller(block_identifier=start_num + 6).counter()
     output2 = await async_math_contract.caller(block_identifier=start_num + 7).counter()

@@ -13,16 +13,18 @@ from web3.exceptions import (
 )
 
 
-def test_class_construction_sets_class_vars(w3, MATH_ABI, MATH_CODE, MATH_RUNTIME):
+def test_class_construction_sets_class_vars(
+    w3, math_contract_abi, math_contract_bytecode, math_contract_runtime
+):
     MathContract = w3.eth.contract(
-        abi=MATH_ABI,
-        bytecode=MATH_CODE,
-        bytecode_runtime=MATH_RUNTIME,
+        abi=math_contract_abi,
+        bytecode=math_contract_bytecode,
+        bytecode_runtime=math_contract_runtime,
     )
 
     assert MathContract.w3 == w3
-    assert MathContract.bytecode == decode_hex(MATH_CODE)
-    assert MathContract.bytecode_runtime == decode_hex(MATH_RUNTIME)
+    assert MathContract.bytecode == decode_hex(math_contract_bytecode)
+    assert MathContract.bytecode_runtime == decode_hex(math_contract_runtime)
 
 
 def test_error_to_instantiate_base_class():
@@ -30,21 +32,23 @@ def test_error_to_instantiate_base_class():
         Contract()
 
 
-def test_abi_as_json_string(w3, MATH_ABI, some_address):
-    abi_str = json.dumps(MATH_ABI)
+def test_abi_as_json_string(w3, math_contract_abi, some_address):
+    abi_str = json.dumps(math_contract_abi)
 
     MathContract = w3.eth.contract(abi=abi_str)
-    assert MathContract.abi == MATH_ABI
+    assert MathContract.abi == math_contract_abi
 
     math = MathContract(some_address)
-    assert math.abi == MATH_ABI
+    assert math.abi == math_contract_abi
 
 
-def test_error_to_call_non_existent_fallback(w3, MATH_ABI, MATH_CODE, MATH_RUNTIME):
+def test_error_to_call_non_existent_fallback(
+    w3, math_contract_abi, math_contract_bytecode, math_contract_runtime
+):
     math_contract = w3.eth.contract(
-        abi=MATH_ABI,
-        bytecode=MATH_CODE,
-        bytecode_runtime=MATH_RUNTIME,
+        abi=math_contract_abi,
+        bytecode=math_contract_bytecode,
+        bytecode_runtime=math_contract_runtime,
     )
     with pytest.raises(FallbackNotFound):
         math_contract.fallback.estimate_gas()

@@ -11,23 +11,25 @@ from web3.exceptions import (
 
 
 @pytest.fixture()
-def math_addr(MathContract, address_conversion_func):
-    w3 = MathContract.w3
-    deploy_txn = MathContract.constructor().transact({"from": w3.eth.coinbase})
+def math_addr(math_contract_instance, address_conversion_func):
+    w3 = math_contract_instance.w3
+    deploy_txn = math_contract_instance.constructor().transact(
+        {"from": w3.eth.coinbase}
+    )
     deploy_receipt = w3.eth.wait_for_transaction_receipt(deploy_txn)
     assert deploy_receipt is not None
     return address_conversion_func(deploy_receipt["contractAddress"])
 
 
-def test_contract_with_unset_address(MathContract):
-    with contract_ens_addresses(MathContract, []):
+def test_contract_with_unset_address(math_contract_instance):
+    with contract_ens_addresses(math_contract_instance, []):
         with pytest.raises(NameNotFound):
-            MathContract(address="unsetname.eth")
+            math_contract_instance(address="unsetname.eth")
 
 
-def test_contract_with_name_address(MathContract, math_addr):
-    with contract_ens_addresses(MathContract, [("thedao.eth", math_addr)]):
-        mc = MathContract(address="thedao.eth")
+def test_contract_with_name_address(math_contract_instance, math_addr):
+    with contract_ens_addresses(math_contract_instance, [("thedao.eth", math_addr)]):
+        mc = math_contract_instance(address="thedao.eth")
         caller = mc.w3.eth.coinbase
         assert mc.address == "thedao.eth"
         assert mc.functions.return13().call({"from": caller}) == 13
@@ -35,17 +37,17 @@ def test_contract_with_name_address(MathContract, math_addr):
 
 def test_contract_with_name_address_from_eth_contract(
     w3,
-    MATH_ABI,
-    MATH_CODE,
-    MATH_RUNTIME,
+    math_contract_abi,
+    math_contract_bytecode,
+    math_contract_runtime,
     math_addr,
 ):
     with ens_addresses(w3, [("thedao.eth", math_addr)]):
         mc = w3.eth.contract(
             address="thedao.eth",
-            abi=MATH_ABI,
-            bytecode=MATH_CODE,
-            bytecode_runtime=MATH_RUNTIME,
+            abi=math_contract_abi,
+            bytecode=math_contract_bytecode,
+            bytecode_runtime=math_contract_runtime,
         )
 
         caller = mc.w3.eth.coinbase
@@ -53,10 +55,10 @@ def test_contract_with_name_address_from_eth_contract(
         assert mc.functions.return13().call({"from": caller}) == 13
 
 
-def test_contract_with_name_address_changing(MathContract, math_addr):
+def test_contract_with_name_address_changing(math_contract_instance, math_addr):
     # Contract address is validated once on creation
-    with contract_ens_addresses(MathContract, [("thedao.eth", math_addr)]):
-        mc = MathContract(address="thedao.eth")
+    with contract_ens_addresses(math_contract_instance, [("thedao.eth", math_addr)]):
+        mc = math_contract_instance(address="thedao.eth")
 
     caller = mc.w3.eth.coinbase
     assert mc.address == "thedao.eth"
