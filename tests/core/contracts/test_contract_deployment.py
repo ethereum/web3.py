@@ -37,21 +37,6 @@ def test_contract_deployment_with_constructor_without_args(
     assert blockchain_code == decode_hex(SIMPLE_CONSTRUCTOR_RUNTIME)
 
 
-def test_contract_deployment_with_constructor_with_arguments(
-    w3, WithConstructorArgumentsContract, WITH_CONSTRUCTOR_ARGUMENTS_RUNTIME
-):
-    deploy_txn = WithConstructorArgumentsContract.constructor(1234, "abcd").transact()
-
-    txn_receipt = w3.eth.wait_for_transaction_receipt(deploy_txn)
-    assert txn_receipt is not None
-
-    assert txn_receipt["contractAddress"]
-    contract_address = txn_receipt["contractAddress"]
-
-    blockchain_code = w3.eth.get_code(contract_address)
-    assert blockchain_code == decode_hex(WITH_CONSTRUCTOR_ARGUMENTS_RUNTIME)
-
-
 @pytest.mark.parametrize(
     "constructor_arg",
     (
@@ -59,10 +44,10 @@ def test_contract_deployment_with_constructor_with_arguments(
         constants.HASH_ZERO,
     ),
 )
-def test_contract_deployment_with_constructor_with_arguments_strict(
+def test_contract_deployment_with_constructor_with_arguments_strict_by_default(
     w3,
-    WithConstructorArgumentsContract,  # noqa: E501
-    WITH_CONSTRUCTOR_ARGUMENTS_RUNTIME,  # noqa: E501
+    WithConstructorArgumentsContract,
+    WITH_CONSTRUCTOR_ARGUMENTS_RUNTIME,
     constructor_arg,
 ):
     deploy_txn = WithConstructorArgumentsContract.constructor(
@@ -79,10 +64,29 @@ def test_contract_deployment_with_constructor_with_arguments_strict(
     assert blockchain_code == decode_hex(WITH_CONSTRUCTOR_ARGUMENTS_RUNTIME)
 
 
-def test_contract_deployment_with_constructor_with_arguments_strict_error(
-    WithConstructorArgumentsContract,  # noqa: E501
+def test_contract_deployment_with_constructor_with_arguments_non_strict(
+    w3_non_strict_abi,
+    NonStrictWithConstructorArgumentsContract,
     WITH_CONSTRUCTOR_ARGUMENTS_RUNTIME,
-):  # noqa: E501
+):
+    deploy_txn = NonStrictWithConstructorArgumentsContract.constructor(
+        1234, "abcd"
+    ).transact()
+
+    txn_receipt = w3_non_strict_abi.eth.wait_for_transaction_receipt(deploy_txn)
+    assert txn_receipt is not None
+
+    assert txn_receipt["contractAddress"]
+    contract_address = txn_receipt["contractAddress"]
+
+    blockchain_code = w3_non_strict_abi.eth.get_code(contract_address)
+    assert blockchain_code == decode_hex(WITH_CONSTRUCTOR_ARGUMENTS_RUNTIME)
+
+
+def test_contract_deployment_with_constructor_with_arguments_strict_error(
+    WithConstructorArgumentsContract,
+    WITH_CONSTRUCTOR_ARGUMENTS_RUNTIME,
+):
     with pytest.raises(
         TypeError,
         match="One or more arguments could not be encoded to the necessary ABI type. Expected types are: uint256, bytes32",  # noqa: E501
@@ -126,7 +130,7 @@ async def test_async_contract_deployment_no_constructor(
 
 
 @pytest.mark.asyncio
-async def test_async_contract_deployment_with_constructor_without_args(
+async def test_async_contract_deployment_with_constructor_no_args(
     async_w3, AsyncSimpleConstructorContract, SIMPLE_CONSTRUCTOR_RUNTIME
 ):
     deploy_txn = await AsyncSimpleConstructorContract.constructor().transact()
@@ -142,24 +146,6 @@ async def test_async_contract_deployment_with_constructor_without_args(
 
 
 @pytest.mark.asyncio
-async def test_async_contract_deployment_with_constructor_with_arguments(
-    async_w3, AsyncWithConstructorArgumentsContract, WITH_CONSTRUCTOR_ARGUMENTS_RUNTIME
-):
-    deploy_txn = await AsyncWithConstructorArgumentsContract.constructor(
-        1234, "abcd"
-    ).transact()  # noqa: E501
-
-    txn_receipt = await async_w3.eth.wait_for_transaction_receipt(deploy_txn)
-    assert txn_receipt is not None
-
-    assert txn_receipt["contractAddress"]
-    contract_address = txn_receipt["contractAddress"]
-
-    blockchain_code = await async_w3.eth.get_code(contract_address)
-    assert blockchain_code == decode_hex(WITH_CONSTRUCTOR_ARGUMENTS_RUNTIME)
-
-
-@pytest.mark.asyncio
 @pytest.mark.parametrize(
     "constructor_arg",
     (
@@ -167,7 +153,7 @@ async def test_async_contract_deployment_with_constructor_with_arguments(
         constants.HASH_ZERO,
     ),
 )
-async def test_async_contract_deployment_with_constructor_with_arguments_strict(
+async def test_async_contract_deployment_with_constructor_arguments(
     async_w3,
     AsyncWithConstructorArgumentsContract,
     WITH_CONSTRUCTOR_ARGUMENTS_RUNTIME,
@@ -189,7 +175,29 @@ async def test_async_contract_deployment_with_constructor_with_arguments_strict(
 
 
 @pytest.mark.asyncio
-async def test_async_contract_deployment_with_constructor_with_arguments_strict_error(
+async def test_async_contract_deployment_with_constructor_with_arguments_non_strict(
+    async_w3_non_strict_abi,
+    AsyncNonStrictWithConstructorArgumentsContract,
+    WITH_CONSTRUCTOR_ARGUMENTS_RUNTIME,
+):
+    deploy_txn = await AsyncNonStrictWithConstructorArgumentsContract.constructor(
+        1234, "abcd"
+    ).transact()  # noqa: E501
+
+    txn_receipt = await async_w3_non_strict_abi.eth.wait_for_transaction_receipt(
+        deploy_txn
+    )
+    assert txn_receipt is not None
+
+    assert txn_receipt["contractAddress"]
+    contract_address = txn_receipt["contractAddress"]
+
+    blockchain_code = await async_w3_non_strict_abi.eth.get_code(contract_address)
+    assert blockchain_code == decode_hex(WITH_CONSTRUCTOR_ARGUMENTS_RUNTIME)
+
+
+@pytest.mark.asyncio
+async def test_async_contract_deployment_with_constructor_arguments_strict_error(
     AsyncWithConstructorArgumentsContract,
     WITH_CONSTRUCTOR_ARGUMENTS_RUNTIME,
 ):

@@ -31,7 +31,7 @@ def Emitter(w3, EMITTER):
 @pytest.fixture()
 def emitter(w3, Emitter, wait_for_transaction, wait_for_block, address_conversion_func):
     wait_for_block(w3)
-    deploy_txn_hash = Emitter.constructor().transact({"gas": 10000000})
+    deploy_txn_hash = Emitter.constructor().transact({"gas": 30029121})
     deploy_receipt = wait_for_transaction(w3, deploy_txn_hash)
     contract_address = address_conversion_func(deploy_receipt["contractAddress"])
 
@@ -204,10 +204,10 @@ def test_event_data_extraction(
             },
         ),
         (
-            [[b"1"], [b"5"]],
+            [[b"22"], [b"37"]],
             {
-                "arg0": b" F=9\n\x03\xb6\xe1\x00\xc5\xb7\xce\xf5\xa5\xac\x08\x08\xb8\xaf\xc4d=\xdb\xda\xf1\x05|a\x0f.\xa1!",  # noqa: E501
-                "arg1": [b"5\x00"],
+                "arg0": b"\x14]\x84k|\x82\xa2%\x14\xf9R\xf9\xd2\xf2\x9a\x97N(IU\x10h\x11\xf2\xfb\xccY9\xff^Y\x96",  # noqa: E501
+                "arg1": [b"37"],
             },
         ),
     ),
@@ -239,38 +239,55 @@ def test_event_data_extraction_bytes(
     assert event_data["event"] == event_name
 
 
-def test_event_data_extraction_bytes_with_warning(
-    w3, emitter, wait_for_transaction, emitter_log_topics
+@pytest.mark.parametrize(
+    "call_args,expected_args",
+    (
+        (
+            [[b""], [b"54"]],
+            {
+                "arg0": b")\r\xec\xd9T\x8bb\xa8\xd6\x03E\xa9\x888o\xc8K\xa6\xbc\x95H@\x08\xf66/\x93\x16\x0e\xf3\xe5c",  # noqa: E501
+                "arg1": [b"54"],
+            },
+        ),
+        (
+            [[b"1"], [b"5"]],
+            {
+                "arg0": b" F=9\n\x03\xb6\xe1\x00\xc5\xb7\xce\xf5\xa5\xac\x08\x08\xb8\xaf\xc4d=\xdb\xda\xf1\x05|a\x0f.\xa1!",  # noqa: E501
+                "arg1": [b"5\x00"],
+            },
+        ),
+    ),
+)
+def test_event_data_extraction_bytes_non_strict(
+    w3_non_strict_abi,
+    non_strict_emitter,
+    wait_for_transaction,
+    emitter_log_topics,
+    call_args,
+    expected_args,
 ):
-    with pytest.warns(
-        DeprecationWarning,
-        match='in v6 it will be invalid to pass a hex string without the "0x" prefix',
-    ):
-        txn_hash = emitter.functions.logListArgs(["13"], ["54"]).transact()
-        txn_receipt = wait_for_transaction(w3, txn_hash)
+    emitter_fn = non_strict_emitter.functions.logListArgs
+    txn_hash = emitter_fn(*call_args).transact()
+    txn_receipt = wait_for_transaction(w3_non_strict_abi, txn_hash)
 
-        assert len(txn_receipt["logs"]) == 1
-        log_entry = txn_receipt["logs"][0]
+    assert len(txn_receipt["logs"]) == 1
+    log_entry = txn_receipt["logs"][0]
 
-        event_name = "LogListArgs"
-        event_abi = emitter._find_matching_event_abi(event_name)
+    event_name = "LogListArgs"
+    event_abi = non_strict_emitter._find_matching_event_abi(event_name)
 
-        event_topic = getattr(emitter_log_topics, event_name)
+    event_topic = getattr(emitter_log_topics, event_name)
 
-        assert event_topic in log_entry["topics"]
+    assert event_topic in log_entry["topics"]
 
-        event_data = get_event_data(w3.codec, event_abi, log_entry)
-        expected_args = {
-            "arg0": b"]\x0b\xf6sp\xbe\xa2L\xa9is\xe4\xab\xb7\xfa+nVJpgt\xa7\x8f:\xa4\x9f\xdb\x93\xf0\x8f\xae",  # noqa: E501
-            "arg1": [b"T\x00"],
-        }
+    event_data = get_event_data(w3_non_strict_abi.codec, event_abi, log_entry)
 
-        assert event_data["args"] == expected_args
-        assert event_data["blockHash"] == txn_receipt["blockHash"]
-        assert event_data["blockNumber"] == txn_receipt["blockNumber"]
-        assert event_data["transactionIndex"] == txn_receipt["transactionIndex"]
-        assert is_same_address(event_data["address"], emitter.address)
-        assert event_data["event"] == event_name
+    assert event_data["args"] == expected_args
+    assert event_data["blockHash"] == txn_receipt["blockHash"]
+    assert event_data["blockNumber"] == txn_receipt["blockNumber"]
+    assert event_data["transactionIndex"] == txn_receipt["transactionIndex"]
+    assert is_same_address(event_data["address"], non_strict_emitter.address)
+    assert event_data["event"] == event_name
 
 
 @pytest.mark.parametrize(
@@ -278,6 +295,7 @@ def test_event_data_extraction_bytes_with_warning(
     (
         ([[b"1312"], [b"4354"]],),
         ([[b"1"], [b"5"]],),
+        ([["13"], ["54"]],),
     ),
 )
 def test_event_data_extraction_bytes_strict_with_errors(emitter, call_args):
@@ -618,11 +636,274 @@ def test_event_rich_log(
         assert empty_rich_log == tuple()
 
 
+@pytest.mark.parametrize(
+    "contract_fn,event_name,call_args,expected_args,warning_msg,process_receipt",
+    (
+        (
+            "logNoArgs",
+            "LogAnonymous",
+            [],
+            {},
+            "Expected non-anonymous event to have 1 or more topics",
+            True,
+        ),
+        (
+            "logNoArgs",
+            "LogAnonymous",
+            [],
+            {},
+            "Expected non-anonymous event to have 1 or more topics",
+            False,
+        ),
+        (
+            "logNoArgs",
+            "LogNoArguments",
+            [],
+            {},
+            "The event signature did not match the provided ABI",
+            True,
+        ),
+        (
+            "logNoArgs",
+            "LogNoArguments",
+            [],
+            {},
+            "The event signature did not match the provided ABI",
+            False,
+        ),
+        (
+            "logSingle",
+            "LogSingleArg",
+            [12345],
+            {"arg0": 12345},
+            "The event signature did not match the provided ABI",
+            True,
+        ),
+        (
+            "logSingle",
+            "LogSingleArg",
+            [12345],
+            {"arg0": 12345},
+            "The event signature did not match the provided ABI",
+            False,
+        ),
+        (
+            "logSingle",
+            "LogSingleWithIndex",
+            [12345],
+            {"arg0": 12345},
+            "The event signature did not match the provided ABI",
+            True,
+        ),
+        (
+            "logSingle",
+            "LogSingleWithIndex",
+            [12345],
+            {"arg0": 12345},
+            "The event signature did not match the provided ABI",
+            False,
+        ),
+        (
+            "logSingle",
+            "LogSingleAnonymous",
+            [12345],
+            {"arg0": 12345},
+            "The event signature did not match the provided ABI",
+            True,
+        ),
+        (
+            "logSingle",
+            "LogSingleAnonymous",
+            [12345],
+            {"arg0": 12345},
+            "The event signature did not match the provided ABI",
+            False,
+        ),
+        (
+            "logDouble",
+            "LogDoubleArg",
+            [12345, 54321],
+            {"arg0": 12345, "arg1": 54321},
+            "The event signature did not match the provided ABI",
+            True,
+        ),
+        (
+            "logDouble",
+            "LogDoubleArg",
+            [12345, 54321],
+            {"arg0": 12345, "arg1": 54321},
+            "The event signature did not match the provided ABI",
+            False,
+        ),
+        (
+            "logDouble",
+            "LogDoubleAnonymous",
+            [12345, 54321],
+            {"arg0": 12345, "arg1": 54321},
+            "The event signature did not match the provided ABI",
+            True,
+        ),
+        (
+            "logDouble",
+            "LogDoubleAnonymous",
+            [12345, 54321],
+            {"arg0": 12345, "arg1": 54321},
+            "The event signature did not match the provided ABI",
+            False,
+        ),
+        (
+            "logDouble",
+            "LogDoubleWithIndex",
+            [12345, 54321],
+            {"arg0": 12345, "arg1": 54321},
+            "The event signature did not match the provided ABI",
+            True,
+        ),
+        (
+            "logDouble",
+            "LogDoubleWithIndex",
+            [12345, 54321],
+            {"arg0": 12345, "arg1": 54321},
+            "The event signature did not match the provided ABI",
+            False,
+        ),
+        (
+            "logTriple",
+            "LogTripleArg",
+            [12345, 54321, 98765],
+            {"arg0": 12345, "arg1": 54321, "arg2": 98765},
+            "The event signature did not match the provided ABI",
+            True,
+        ),
+        (
+            "logTriple",
+            "LogTripleArg",
+            [12345, 54321, 98765],
+            {"arg0": 12345, "arg1": 54321, "arg2": 98765},
+            "The event signature did not match the provided ABI",
+            False,
+        ),
+        (
+            "logTriple",
+            "LogTripleWithIndex",
+            [12345, 54321, 98765],
+            {"arg0": 12345, "arg1": 54321, "arg2": 98765},
+            "The event signature did not match the provided ABI",
+            True,
+        ),
+        (
+            "logTriple",
+            "LogTripleWithIndex",
+            [12345, 54321, 98765],
+            {"arg0": 12345, "arg1": 54321, "arg2": 98765},
+            "The event signature did not match the provided ABI",
+            False,
+        ),
+        (
+            "logQuadruple",
+            "LogQuadrupleArg",
+            [12345, 54321, 98765, 56789],
+            {"arg0": 12345, "arg1": 54321, "arg2": 98765, "arg3": 56789},
+            "The event signature did not match the provided ABI",
+            True,
+        ),
+        (
+            "logQuadruple",
+            "LogQuadrupleArg",
+            [12345, 54321, 98765, 56789],
+            {"arg0": 12345, "arg1": 54321, "arg2": 98765, "arg3": 56789},
+            "The event signature did not match the provided ABI",
+            False,
+        ),
+        (
+            "logQuadruple",
+            "LogQuadrupleWithIndex",
+            [12345, 54321, 98765, 56789],
+            {"arg0": 12345, "arg1": 54321, "arg2": 98765, "arg3": 56789},
+            "The event signature did not match the provided ABI",
+            True,
+        ),
+        (
+            "logQuadruple",
+            "LogQuadrupleWithIndex",
+            [12345, 54321, 98765, 56789],
+            {"arg0": 12345, "arg1": 54321, "arg2": 98765, "arg3": 56789},
+            "The event signature did not match the provided ABI",
+            False,
+        ),
+        (  # nested tuples
+            "logStruct",
+            "LogStructArgs",
+            [1, (2, 3, (4,))],
+            {"arg0": 1, "arg1": (2, 3, (4,))},
+            "The event signature did not match the provided ABI",
+            True,
+        ),
+        (  # nested tuples
+            "logStruct",
+            "LogStructArgs",
+            [1, (2, 3, (4,))],
+            {"arg0": 1, "arg1": (2, 3, (4,))},
+            "The event signature did not match the provided ABI",
+            False,
+        ),
+    ),
+)
+def test_event_rich_log_non_strict(
+    w3_non_strict_abi,
+    non_strict_emitter,
+    emitter_event_ids,
+    wait_for_transaction,
+    contract_fn,
+    event_name,
+    warning_msg,
+    call_args,
+    process_receipt,
+    expected_args,
+):
+
+    emitter_fn = non_strict_emitter.functions[contract_fn]
+    if hasattr(emitter_event_ids, event_name):
+        event_id = getattr(emitter_event_ids, event_name)
+        txn_hash = emitter_fn(event_id, *call_args).transact()
+    else:
+        # Some tests do not rely on the event_id. Rather than
+        # changing this test too much,bypass this here and just
+        # call the function with the provided args.
+        txn_hash = emitter_fn(*call_args).transact()
+    txn_receipt = wait_for_transaction(w3_non_strict_abi, txn_hash)
+
+    event_instance = non_strict_emitter.events[event_name]()
+
+    if process_receipt:
+        processed_logs = event_instance.process_receipt(txn_receipt)
+        assert len(processed_logs) == 1
+        rich_log = processed_logs[0]
+    elif not process_receipt:
+        rich_log = event_instance.process_log(txn_receipt["logs"][0])
+    else:
+        raise Exception("Unreachable!")
+
+    assert rich_log["args"] == expected_args
+    assert rich_log.args == expected_args
+    for arg in expected_args:
+        assert getattr(rich_log.args, arg) == expected_args[arg]
+    assert rich_log["blockHash"] == txn_receipt["blockHash"]
+    assert rich_log["blockNumber"] == txn_receipt["blockNumber"]
+    assert rich_log["transactionIndex"] == txn_receipt["transactionIndex"]
+    assert is_same_address(rich_log["address"], non_strict_emitter.address)
+    assert rich_log["event"] == event_name
+
+    quiet_event = non_strict_emitter.events["LogBytes"]
+    with pytest.warns(UserWarning, match=warning_msg):
+        empty_rich_log = quiet_event().process_receipt(txn_receipt)
+        assert empty_rich_log == tuple()
+
+
 @pytest.mark.parametrize("process_receipt", (True, False))
 def test_event_rich_log_with_byte_args(
     w3, emitter, emitter_event_ids, wait_for_transaction, process_receipt
 ):
-
     txn_hash = emitter.functions.logListArgs([b"13"], [b"54"]).transact()
     txn_receipt = wait_for_transaction(w3, txn_hash)
 
@@ -732,7 +1013,7 @@ def test_single_log_processing_with_errors(indexed_event_contract, dup_txn_recei
 def test_get_all_entries_with_nested_tuple_event(w3, emitter):
     struct_args_filter = emitter.events.LogStructArgs.create_filter(fromBlock=0)
 
-    tx_hash = emitter.functions.logStruct(1, (2, 3, (4,))).transact({"gas": 100000})
+    tx_hash = emitter.functions.logStruct(1, (2, 3, (4,))).transact()
     w3.eth.wait_for_transaction_receipt(tx_hash)
     txn_receipt = w3.eth.get_transaction_receipt(tx_hash)
 
@@ -749,3 +1030,29 @@ def test_get_all_entries_with_nested_tuple_event(w3, emitter):
     assert log_entry.blockNumber == txn_receipt["blockNumber"]
     assert log_entry.transactionIndex == txn_receipt["transactionIndex"]
     assert is_same_address(log_entry.address, emitter.address)
+
+
+def test_get_all_entries_with_nested_tuple_event_non_strict(
+    w3_non_strict_abi, non_strict_emitter
+):
+    struct_args_filter = non_strict_emitter.events.LogStructArgs.create_filter(
+        fromBlock=0
+    )
+
+    tx_hash = non_strict_emitter.functions.logStruct(1, (2, 3, (4,))).transact()
+    w3_non_strict_abi.eth.wait_for_transaction_receipt(tx_hash)
+    txn_receipt = w3_non_strict_abi.eth.get_transaction_receipt(tx_hash)
+
+    entries = struct_args_filter.get_all_entries()
+
+    assert entries != []
+    assert len(entries) == 1
+
+    log_entry = entries[0]
+
+    assert log_entry.args == {"arg0": 1, "arg1": (2, 3, (4,))}
+    assert log_entry.event == "LogStructArgs"
+    assert log_entry.blockHash == txn_receipt["blockHash"]
+    assert log_entry.blockNumber == txn_receipt["blockNumber"]
+    assert log_entry.transactionIndex == txn_receipt["transactionIndex"]
+    assert is_same_address(log_entry.address, non_strict_emitter.address)

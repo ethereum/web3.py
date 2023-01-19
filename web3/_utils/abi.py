@@ -21,7 +21,6 @@ from typing import (
     Union,
     cast,
 )
-import warnings
 
 from eth_abi import (
     codec,
@@ -188,8 +187,15 @@ class AddressEncoder(encoding.AddressEncoder):
 class AcceptsHexStrEncoder(encoding.BaseEncoder):
     subencoder_cls: Type[encoding.BaseEncoder] = None
     is_strict: bool = None
+    is_big_endian: bool = False
+    data_byte_size: int = None
 
-    def __init__(self, subencoder: encoding.BaseEncoder) -> None:
+    def __init__(
+        self,
+        subencoder: encoding.BaseEncoder,
+        **kwargs: Dict[str, Any],
+    ) -> None:
+        super().__init__(**kwargs)
         self.subencoder = subencoder
 
     # type ignored b/c conflict w/ defined BaseEncoder.is_dynamic = False
@@ -227,78 +233,6 @@ class AcceptsHexStrEncoder(encoding.BaseEncoder):
         return self.subencoder.encode(normalized_value)
 
     def validate_and_normalize(self, value: Any) -> HexStr:
-        raw_value = value
-        if is_text(value):
-            try:
-                value = decode_hex(value)
-            except binascii.Error:
-                self.invalidate_value(
-                    value,
-                    msg=f"{value} is an invalid hex string",
-                )
-            else:
-                if raw_value[:2] != "0x":
-                    if self.is_strict:
-                        self.invalidate_value(
-                            raw_value, msg="hex string must be prefixed with 0x"
-                        )
-                    elif raw_value[:2] != "0x":
-                        warnings.warn(
-                            "in v6 it will be invalid to pass a hex "
-                            'string without the "0x" prefix',
-                            category=DeprecationWarning,
-                        )
-        return value
-
-
-class BytesEncoder(AcceptsHexStrEncoder):
-    subencoder_cls = encoding.BytesEncoder
-    is_strict = False
-
-
-class ByteStringEncoder(AcceptsHexStrEncoder):
-    subencoder_cls = encoding.ByteStringEncoder
-    is_strict = False
-
-
-class StrictByteStringEncoder(AcceptsHexStrEncoder):
-    subencoder_cls = encoding.ByteStringEncoder
-    is_strict = True
-
-
-class ExactLengthBytesEncoder(encoding.BaseEncoder):
-    # TODO: move this to eth-abi once the api is stabilized
-    is_big_endian = False
-    value_bit_size = None
-    data_byte_size = None
-
-    def validate(self) -> None:
-        super().validate()
-
-        if self.value_bit_size is None:
-            raise ValueError("`value_bit_size` may not be none")
-        if self.data_byte_size is None:
-            raise ValueError("`data_byte_size` may not be none")
-        if self.encode_fn is None:
-            raise ValueError("`encode_fn` may not be none")
-        if self.is_big_endian is None:
-            raise ValueError("`is_big_endian` may not be none")
-
-        if self.value_bit_size % 8 != 0:
-            raise ValueError(
-                f"Invalid value bit size: {self.value_bit_size}. "
-                "Must be a multiple of 8"
-            )
-
-        if self.value_bit_size > self.data_byte_size * 8:
-            raise ValueError("Value byte size exceeds data size")
-
-    def encode(self, value: Any) -> bytes:
-        normalized_value = self.validate_value(value)
-        return self.encode_fn(normalized_value)
-
-    # type ignored b/c conflict with defined BaseEncoder.validate_value() -> None
-    def validate_value(self, value: Any) -> bytes:  # type: ignore
         if not is_bytes(value) and not is_text(value):
             self.invalidate_value(value)
 
@@ -309,60 +243,73 @@ class ExactLengthBytesEncoder(encoding.BaseEncoder):
             except binascii.Error:
                 self.invalidate_value(
                     value,
-                    msg=f"{value} is not a valid hex string",
+                    msg=f"{value} is an invalid hex string",
                 )
             else:
-                if raw_value[:2] != "0x":
+                if raw_value[:2] != "0x" and self.is_strict:
                     self.invalidate_value(
                         raw_value, msg="hex string must be prefixed with 0x"
                     )
 
-        byte_size = self.value_bit_size // 8
-        if len(value) > byte_size:
-            self.invalidate_value(
-                value,
-                exc=ValueOutOfBounds,
-                msg=f"exceeds total byte size for bytes{byte_size} encoding",
-            )
-        elif len(value) < byte_size:
-            self.invalidate_value(
-                value,
-                exc=ValueOutOfBounds,
-                msg=f"less than total byte size for bytes{byte_size} encoding",
-            )
+        if self.is_strict and self.data_byte_size is not None:
+            if len(value) > self.data_byte_size:
+                self.invalidate_value(
+                    value,
+                    exc=ValueOutOfBounds,
+                    msg=f"exceeds total byte size for bytes{self.data_byte_size} "
+                    "encoding",
+                )
+            elif len(value) < self.data_byte_size:
+                self.invalidate_value(
+                    value,
+                    exc=ValueOutOfBounds,
+                    msg=f"less than total byte size for bytes{self.data_byte_size} "
+                    "encoding",
+                )
+
         return value
 
-    @staticmethod
-    def encode_fn(value: Any) -> bytes:
-        return value
+
+class BytesEncoder(AcceptsHexStrEncoder):
+    subencoder_cls = encoding.BytesEncoder
+    is_strict = False
+
+
+class ExactLengthBytesEncoder(BytesEncoder):
+    is_strict = True
+
+    def validate(self) -> None:
+        super().validate()
+        if self.data_byte_size is None:
+            raise ValueError("`data_byte_size` may not be none")
+        if self.is_big_endian is None:
+            raise ValueError("`is_big_endian` may not be none")
 
     @parse_type_str("bytes")
     def from_type_str(cls, abi_type: BasicType, registry: ABIRegistry) -> bytes:
+        subencoder_cls = cls.get_subencoder_class()
+        # cast b/c expects BaseCoder but `from_type_string`
+        # restricted to BaseEncoder subclasses
+        subencoder = cast(
+            encoding.BaseEncoder,
+            subencoder_cls.from_type_str(abi_type.to_type_str(), registry),
+        )
         # type ignored b/c kwargs are set in superclass init
         # Unexpected keyword argument "value_bit_size" for "__call__" of "BaseEncoder"
         return cls(  # type: ignore
-            value_bit_size=abi_type.sub * 8,
+            subencoder,
             data_byte_size=abi_type.sub,
         )
 
 
-class BytesDecoder(decoding.FixedByteSizeDecoder):
-    # FixedByteSizeDecoder.is_big_endian is defined as None
-    is_big_endian = False  # type: ignore
+class ByteStringEncoder(AcceptsHexStrEncoder):
+    subencoder_cls = encoding.ByteStringEncoder
+    is_strict = False
 
-    # FixedByteSizeDecoder.decoder_fn is defined as None
-    @staticmethod
-    def decoder_fn(data: bytes) -> bytes:  # type: ignore
-        return data
 
-    @parse_type_str("bytes")
-    def from_type_str(cls, abi_type: BasicType, registry: ABIRegistry) -> bytes:
-        # type ignored b/c kwargs are set in superclass init
-        # Unexpected keyword argument "value_bit_size" for "__call__" of "BaseDecoder"
-        return cls(  # type: ignore
-            value_bit_size=abi_type.sub * 8,
-            data_byte_size=abi_type.sub,
-        )
+class StrictByteStringEncoder(AcceptsHexStrEncoder):
+    subencoder_cls = encoding.ByteStringEncoder
+    is_strict = True
 
 
 class TextStringEncoder(encoding.TextStringEncoder):
@@ -930,7 +877,7 @@ def build_strict_registry() -> ABIRegistry:
     registry.register(
         BaseEquals("bytes", with_sub=True),
         ExactLengthBytesEncoder,
-        BytesDecoder,
+        decoding.BytesDecoder,
         label="bytes<M>",
     )
     registry.register(
@@ -941,7 +888,7 @@ def build_strict_registry() -> ABIRegistry:
     )
     registry.register(
         BaseEquals("string"),
-        TextStringEncoder,
+        encoding.TextStringEncoder,
         decoding.StringDecoder,
         label="string",
     )

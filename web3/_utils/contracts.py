@@ -230,7 +230,6 @@ def encode_abi(
         argument_types,
         normalized_arguments,
     )
-
     if data:
         return to_hex(HexBytes(data) + encoded_arguments)
     else:

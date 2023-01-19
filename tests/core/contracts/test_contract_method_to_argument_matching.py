@@ -154,23 +154,21 @@ def test_error_when_no_function_name_match(w3):
         ([[(-1, True), (2, False)]], ["(int256,bool)[]"]),
     ),
 )
-def test_finds_function_with_matching_args(w3, arguments, expected_types):
-    Contract = w3.eth.contract(abi=MULTIPLE_FUNCTIONS)
+def test_finds_function_with_matching_args_non_strict(
+    w3_non_strict_abi, arguments, expected_types
+):
+    contract = w3_non_strict_abi.eth.contract(abi=MULTIPLE_FUNCTIONS)
 
-    abi = Contract._find_matching_fn_abi("a", arguments)
+    abi = contract._find_matching_fn_abi("a", arguments)
     assert abi["name"] == "a"
     assert len(abi["inputs"]) == len(expected_types)
     assert get_abi_input_types(abi) == expected_types
 
 
-def test_finds_function_with_matching_args_deprecation_warning(w3):
-    Contract = w3.eth.contract(abi=MULTIPLE_FUNCTIONS)
-
-    with pytest.warns(DeprecationWarning):
-        abi = Contract._find_matching_fn_abi("a", [""])
-        assert abi["name"] == "a"
-        assert len(abi["inputs"]) == len(["bytes32"])
-        assert get_abi_input_types(abi) == ["bytes32"]
+def test_finds_function_with_matching_args_strict_type_checking_by_default(w3):
+    contract = w3.eth.contract(abi=MULTIPLE_FUNCTIONS)
+    with pytest.raises(Web3ValidationError):
+        contract._find_matching_fn_abi("a", [""])
 
 
 def test_error_when_duplicate_match(w3):
