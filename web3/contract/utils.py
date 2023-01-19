@@ -13,7 +13,6 @@ from eth_abi.exceptions import (
     DecodingError,
 )
 from eth_typing import (
-    BlockNumber,
     ChecksumAddress,
 )
 from hexbytes import (
@@ -27,9 +26,6 @@ from web3._utils.abi import (
 )
 from web3._utils.async_transactions import (
     fill_transaction_defaults as async_fill_transaction_defaults,
-)
-from web3._utils.blocks import (
-    is_hex_encoded_block_hash,
 )
 from web3._utils.contracts import (
     find_matching_fn_abi,
@@ -46,7 +42,6 @@ from web3.contract.base_contract import (
 )
 from web3.exceptions import (
     BadFunctionCallOutput,
-    BlockNumberOutofRange,
 )
 from web3.types import (  # noqa: F401
     ABI,
@@ -213,38 +208,6 @@ async def async_call_contract_function(
         return normalized_data[0]
     else:
         return normalized_data
-
-
-async def async_parse_block_identifier(
-    w3: "Web3", block_identifier: BlockIdentifier
-) -> BlockIdentifier:
-    if block_identifier is None:
-        return w3.eth.default_block
-    if isinstance(block_identifier, int):
-        return await async_parse_block_identifier_int(w3, block_identifier)
-    elif block_identifier in ["latest", "earliest", "pending", "safe", "finalized"]:
-        return block_identifier
-    elif isinstance(block_identifier, bytes) or is_hex_encoded_block_hash(
-        block_identifier
-    ):
-        requested_block = await w3.eth.get_block(block_identifier)  # type: ignore
-        return requested_block["number"]
-    else:
-        raise BlockNumberOutofRange
-
-
-async def async_parse_block_identifier_int(
-    w3: "Web3", block_identifier_int: int
-) -> BlockNumber:
-    if block_identifier_int >= 0:
-        block_num = block_identifier_int
-    else:
-        last_block = await w3.eth.get_block("latest")  # type: ignore
-        last_block_num = last_block.number
-        block_num = last_block_num + block_identifier_int + 1
-        if block_num < 0:
-            raise BlockNumberOutofRange
-    return BlockNumber(block_num)
 
 
 def transact_with_contract_function(

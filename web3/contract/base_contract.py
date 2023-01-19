@@ -19,7 +19,6 @@ import warnings
 
 from eth_typing import (
     Address,
-    BlockNumber,
     ChecksumAddress,
     HexStr,
 )
@@ -52,14 +51,12 @@ from web3._utils.abi import (
     merge_args_and_kwargs,
     receive_func_abi_exists,
 )
-from web3._utils.blocks import (
-    is_hex_encoded_block_hash,
-)
 from web3._utils.contracts import (
     encode_abi,
     find_matching_event_abi,
     find_matching_fn_abi,
     get_function_info,
+    parse_block_identifier,
     prepare_transaction,
 )
 from web3._utils.datatypes import (
@@ -95,7 +92,6 @@ from web3.datastructures import (
 from web3.exceptions import (
     ABIEventFunctionNotFound,
     ABIFunctionNotFound,
-    BlockNumberOutofRange,
     FallbackNotFound,
     InvalidEventABI,
     LogTopicError,
@@ -481,9 +477,9 @@ class BaseContractFunctions:
     def __getitem__(self, function_name: str) -> ABIFunction:
         return getattr(self, function_name)
 
-    def __hasattr__(self, event_name: str) -> bool:
+    def __hasattr__(self, function_name: str) -> bool:
         try:
-            return event_name in self.__dict__["_events"]
+            return function_name in self.__dict__["_functions"]
         except ABIFunctionNotFound:
             return False
 
@@ -1163,23 +1159,6 @@ def check_for_forbidden_api_filter_arguments(
             )
 
 
-def parse_block_identifier(
-    w3: "Web3", block_identifier: BlockIdentifier
-) -> BlockIdentifier:
-    if block_identifier is None:
-        return w3.eth.default_block
-    if isinstance(block_identifier, int):
-        return parse_block_identifier_int(w3, block_identifier)
-    elif block_identifier in ["latest", "earliest", "pending", "safe", "finalized"]:
-        return block_identifier
-    elif isinstance(block_identifier, bytes) or is_hex_encoded_block_hash(
-        block_identifier
-    ):
-        return w3.eth.get_block(block_identifier)["number"]
-    else:
-        raise BlockNumberOutofRange
-
-
 def get_function_by_identifier(
     fns: Sequence[BaseContractFunction], identifier: str
 ) -> BaseContractFunction:
@@ -1190,14 +1169,3 @@ def get_function_by_identifier(
     elif len(fns) == 0:
         raise ValueError(f"Could not find any function with matching {identifier}")
     return fns[0]
-
-
-def parse_block_identifier_int(w3: "Web3", block_identifier_int: int) -> BlockNumber:
-    if block_identifier_int >= 0:
-        block_num = block_identifier_int
-    else:
-        last_block = w3.eth.get_block("latest")["number"]
-        block_num = last_block + block_identifier_int + 1
-        if block_num < 0:
-            raise BlockNumberOutofRange
-    return BlockNumber(block_num)

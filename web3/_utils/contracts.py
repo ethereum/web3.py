@@ -48,6 +48,9 @@ from web3._utils.abi import (
     map_abi_data,
     merge_args_and_kwargs,
 )
+from web3._utils.blocks import (
+    is_hex_encoded_block_hash,
+)
 from web3._utils.encoding import (
     to_hex,
 )
@@ -65,12 +68,15 @@ from web3._utils.normalizers import (
     abi_string_to_text,
 )
 from web3.exceptions import (
+    BlockNumberOutofRange,
     Web3ValidationError,
 )
 from web3.types import (
     ABI,
     ABIEvent,
     ABIFunction,
+    BlockIdentifier,
+    BlockNumber,
     TxParams,
 )
 
@@ -374,3 +380,63 @@ def _get_argument_readable_type(arg: Any) -> str:
         return "address"
 
     return arg.__class__.__name__
+
+
+def parse_block_identifier(
+    w3: "Web3", block_identifier: BlockIdentifier
+) -> BlockIdentifier:
+    if block_identifier is None:
+        return w3.eth.default_block
+    if isinstance(block_identifier, int):
+        return parse_block_identifier_int(w3, block_identifier)
+    elif block_identifier in ["latest", "earliest", "pending", "safe", "finalized"]:
+        return block_identifier
+    elif isinstance(block_identifier, bytes) or is_hex_encoded_block_hash(
+        block_identifier
+    ):
+        return w3.eth.get_block(block_identifier)["number"]
+    else:
+        raise BlockNumberOutofRange
+
+
+def parse_block_identifier_int(w3: "Web3", block_identifier_int: int) -> BlockNumber:
+    if block_identifier_int >= 0:
+        block_num = block_identifier_int
+    else:
+        last_block = w3.eth.get_block("latest")["number"]
+        block_num = last_block + block_identifier_int + 1
+        if block_num < 0:
+            raise BlockNumberOutofRange
+    return BlockNumber(block_num)
+
+
+async def async_parse_block_identifier(
+    w3: "Web3", block_identifier: BlockIdentifier
+) -> BlockIdentifier:
+    if block_identifier is None:
+        return w3.eth.default_block
+    if isinstance(block_identifier, int):
+        return await async_parse_block_identifier_int(w3, block_identifier)
+    elif block_identifier in ["latest", "earliest", "pending", "safe", "finalized"]:
+        return block_identifier
+    elif isinstance(block_identifier, bytes) or is_hex_encoded_block_hash(
+        block_identifier
+    ):
+        requested_block = await w3.eth.get_block(block_identifier)  # type: ignore
+        return requested_block["number"]
+    else:
+        raise BlockNumberOutofRange
+
+
+async def async_parse_block_identifier_int(
+    w3: "Web3", block_identifier_int: int
+) -> BlockNumber:
+    if block_identifier_int >= 0:
+        block_num = block_identifier_int
+    else:
+        last_block = await w3.eth.get_block("latest")  # type: ignore
+        last_block_num = last_block.number
+        block_num = last_block_num + block_identifier_int + 1
+        if block_num < 0:
+            raise BlockNumberOutofRange
+    return BlockNumber(block_num)

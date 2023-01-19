@@ -25,6 +25,9 @@ from hexbytes import (
 from web3._utils.async_transactions import (
     fill_transaction_defaults as async_fill_transaction_defaults,
 )
+from web3._utils.contracts import (
+    async_parse_block_identifier,
+)
 from web3._utils.datatypes import (
     PropertyCheckingFactory,
 )
@@ -53,7 +56,6 @@ from web3.contract.utils import (
     async_build_transaction_for_function,
     async_call_contract_function,
     async_estimate_gas_for_function,
-    async_parse_block_identifier,
     async_transact_with_contract_function,
     find_functions_by_identifier,
 )
