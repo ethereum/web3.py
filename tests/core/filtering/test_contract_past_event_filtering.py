@@ -29,7 +29,7 @@ def test_on_filter_using_get_all_entries_interface(
         event_filter = builder.deploy(w3)
     else:
         event_filter = create_filter(
-            contract, ["LogNoArguments", {"from_block": "latest"}]
+            contract, ["LogNoArguments", {"fromBlock": "latest"}]
         )
 
     txn_hash = emitter.functions.logNoArgs(emitter_event_ids.LogNoArguments).transact()
@@ -73,7 +73,7 @@ def test_get_all_entries_returned_block_data(
         event_filter = builder.deploy(w3)
     else:
         event_filter = create_filter(
-            contract, ["LogNoArguments", {"from_block": txn_receipt["blockNumber"]}]
+            contract, ["LogNoArguments", {"fromBlock": txn_receipt["blockNumber"]}]
         )
 
     log_entries = event_filter.get_all_entries()
@@ -122,7 +122,7 @@ async def test_on_async_filter_using_get_all_entries_interface(
         event_filter = await builder.deploy(async_w3)
     else:
         event_filter = await async_create_filter(
-            contract, ["LogNoArguments", {"from_block": "latest"}]
+            contract, ["LogNoArguments", {"fromBlock": "latest"}]
         )
 
     txn_hash = await async_emitter.functions.logNoArgs(
@@ -171,7 +171,7 @@ async def test_async_get_all_entries_returned_block_data(
         event_filter = await builder.deploy(async_w3)
     else:
         event_filter = await async_create_filter(
-            contract, ["LogNoArguments", {"from_block": txn_receipt["blockNumber"]}]
+            contract, ["LogNoArguments", {"fromBlock": txn_receipt["blockNumber"]}]
         )
 
     log_entries = await event_filter.get_all_entries()

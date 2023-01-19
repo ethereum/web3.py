@@ -45,14 +45,10 @@ def test_contract_get_logs_range(
     log_entries = list(contract.events.LogNoArguments.get_logs())
     assert len(log_entries) == 1
 
-    log_entries = list(
-        contract.events.LogNoArguments.get_logs(from_block=2, to_block=3)
-    )
+    log_entries = list(contract.events.LogNoArguments.get_logs(fromBlock=2, toBlock=3))
     assert len(log_entries) == 1
 
-    log_entries = list(
-        contract.events.LogNoArguments.get_logs(from_block=1, to_block=2)
-    )
+    log_entries = list(contract.events.LogNoArguments.get_logs(fromBlock=1, toBlock=2))
     assert len(log_entries) == 0
 
 
@@ -74,19 +70,19 @@ def test_contract_get_logs_argument_filter(
     for txn_hash in txn_hashes:
         wait_for_transaction(w3, txn_hash)
 
-    all_logs = contract.events.LogTripleWithIndex.get_logs(from_block=1)
+    all_logs = contract.events.LogTripleWithIndex.get_logs(fromBlock=1)
     assert len(all_logs) == 4
 
     # Filter all entries where arg1 in (1, 2)
     partial_logs = contract.events.LogTripleWithIndex.get_logs(
-        from_block=1,
+        fromBlock=1,
         argument_filters={"arg1": [1, 2]},
     )
     assert len(partial_logs) == 2
 
     # Filter all entries where arg0 == 1
     partial_logs = contract.events.LogTripleWithIndex.get_logs(
-        from_block=1,
+        fromBlock=1,
         argument_filters={"arg0": 1},
     )
     assert len(partial_logs) == 4
@@ -146,13 +142,13 @@ async def test_async_contract_get_logs_range(
     assert len(log_entries) == 1
 
     contract_logs = await contract.events.LogNoArguments.get_logs(
-        from_block=2, to_block=3
+        fromBlock=2, toBlock=3
     )
     log_entries = list(contract_logs)
     assert len(log_entries) == 1
 
     contract_logs = await contract.events.LogNoArguments.get_logs(
-        from_block=1, to_block=2
+        fromBlock=1, toBlock=2
     )
     log_entries = list(contract_logs)
     assert len(log_entries) == 0
@@ -185,19 +181,19 @@ async def test_async_contract_get_logs_argument_filter(
     for txn_hash in txn_hashes:
         await async_wait_for_transaction(async_w3, txn_hash)
 
-    all_logs = await contract.events.LogTripleWithIndex.get_logs(from_block=1)
+    all_logs = await contract.events.LogTripleWithIndex.get_logs(fromBlock=1)
     assert len(all_logs) == 4
 
     # Filter all entries where arg1 in (1, 2)
     partial_logs = await contract.events.LogTripleWithIndex.get_logs(
-        from_block=1,
+        fromBlock=1,
         argument_filters={"arg1": [1, 2]},
     )
     assert len(partial_logs) == 2
 
     # Filter all entries where arg0 == 1
     partial_logs = await contract.events.LogTripleWithIndex.get_logs(
-        from_block=1,
+        fromBlock=1,
         argument_filters={"arg0": 1},
     )
     assert len(partial_logs) == 4

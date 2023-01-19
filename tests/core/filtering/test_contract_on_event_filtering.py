@@ -9,9 +9,9 @@ from eth_utils import (
 @pytest.mark.parametrize("call_as_instance", (True, False))
 def test_create_filter_address_parameter(emitter, Emitter, call_as_instance):
     if call_as_instance:
-        event_filter = emitter.events.LogNoArguments.create_filter(from_block="latest")
+        event_filter = emitter.events.LogNoArguments.create_filter(fromBlock="latest")
     else:
-        event_filter = Emitter.events.LogNoArguments.create_filter(from_block="latest")
+        event_filter = Emitter.events.LogNoArguments.create_filter(fromBlock="latest")
 
     if call_as_instance:
         # Assert this is a single string value, and not a list of addresses
@@ -155,7 +155,7 @@ def test_on_sync_filter_with_event_name_and_non_indexed_argument(
 
     post_event_filter = contract.events.LogTripleWithIndex.create_filter(
         argument_filters={"arg0": 1, "arg1": 2},
-        from_block=0,
+        fromBlock=0,
     )
 
     old_logs = post_event_filter.get_all_entries()
@@ -208,7 +208,7 @@ def test_on_sync_filter_with_topic_filter_options_on_old_apis(
 
     post_event_filter = contract.events.LogTripleWithIndex.create_filter(
         argument_filters={"arg1": [1, 2], "arg2": [1, 2]},
-        from_block=0,
+        fromBlock=0,
     )
 
     old_logs = post_event_filter.get_all_entries()
@@ -232,11 +232,11 @@ async def test_async_create_filter_address_parameter(
 ):
     if call_as_instance:
         event_filter = await async_emitter.events.LogNoArguments.create_filter(
-            from_block="latest"
+            fromBlock="latest"
         )
     else:
         event_filter = await AsyncEmitter.events.LogNoArguments.create_filter(
-            from_block="latest"
+            fromBlock="latest"
         )
 
     if call_as_instance:
@@ -400,7 +400,7 @@ async def test_on_async_filter_with_event_name_and_non_indexed_argument(
 
     post_event_filter = await contract.events.LogTripleWithIndex.create_filter(
         argument_filters={"arg0": 1, "arg1": 2},
-        from_block=0,
+        fromBlock=0,
     )
 
     old_logs = await post_event_filter.get_all_entries()
@@ -467,7 +467,7 @@ async def test_on_async_filter_with_topic_filter_options_on_old_apis(
 
     post_event_filter = await contract.events.LogTripleWithIndex.create_filter(
         argument_filters={"arg1": [1, 2], "arg2": [1, 2]},
-        from_block=0,
+        fromBlock=0,
     )
 
     old_logs = await post_event_filter.get_all_entries()
