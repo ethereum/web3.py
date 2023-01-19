@@ -7,17 +7,17 @@ from eth_utils import (
 
 
 def test_contract_constructor_abi_encoding_with_no_constructor_fn(
-    MathContract, MATH_CODE
+    math_contract_instance, math_contract_bytecode
 ):
-    deploy_data = MathContract._encode_constructor_data()
-    assert deploy_data == MATH_CODE
+    deploy_data = math_contract_instance._encode_constructor_data()
+    assert deploy_data == math_contract_bytecode
 
 
 def test_contract_constructor_abi_encoding_with_constructor_with_no_args(
-    SimpleConstructorContract, SIMPLE_CONSTRUCTOR_CODE
+    simple_constructor_contract_instance, simple_constructor_contract_bytecode
 ):
-    deploy_data = SimpleConstructorContract._encode_constructor_data()
-    assert deploy_data == SIMPLE_CONSTRUCTOR_CODE
+    deploy_data = simple_constructor_contract_instance._encode_constructor_data()
+    assert deploy_data == simple_constructor_contract_bytecode
 
 
 @pytest.mark.parametrize(
@@ -28,10 +28,10 @@ def test_contract_constructor_abi_encoding_with_constructor_with_no_args(
     ),
 )
 def test_contract_error_if_additional_args_are_supplied_with_no_constructor_fn(
-    MathContract, args, kwargs
+    math_contract_instance, args, kwargs
 ):
     with pytest.raises(TypeError, match="Constructor args"):
-        MathContract._encode_constructor_data(args, kwargs)
+        math_contract_instance._encode_constructor_data(args, kwargs)
 
 
 @pytest.mark.parametrize(
@@ -46,10 +46,10 @@ def test_contract_error_if_additional_args_are_supplied_with_no_constructor_fn(
     ),
 )
 def test_error_if_invalid_arguments_supplied(
-    WithConstructorArgumentsContract, arguments
+    contract_with_constructor_args_instance, arguments
 ):
     with pytest.raises(TypeError):
-        WithConstructorArgumentsContract._encode_constructor_data(arguments)
+        contract_with_constructor_args_instance._encode_constructor_data(arguments)
 
 
 @pytest.mark.parametrize(
@@ -67,11 +67,11 @@ def test_error_if_invalid_arguments_supplied(
 )
 def test_contract_constructor_encoding(
     w3,
-    WithConstructorArgumentsContract,
+    contract_with_constructor_args_instance,
     encoded_args,
     bytes_arg,
 ):
-    deploy_data = WithConstructorArgumentsContract._encode_constructor_data(
+    deploy_data = contract_with_constructor_args_instance._encode_constructor_data(
         [1234, bytes_arg]
     )
     expected_ending = encode_hex(
@@ -90,10 +90,12 @@ def test_contract_constructor_encoding(
     ),
 )
 def test_contract_constructor_encoding_non_strict(
-    w3_non_strict_abi, NonStrictWithConstructorArgumentsContract, bytes_arg
+    w3_non_strict_abi, non_strict_contract_with_constructor_args_instance, bytes_arg
 ):
-    deploy_data = NonStrictWithConstructorArgumentsContract._encode_constructor_data(
-        [1234, bytes_arg]
+    deploy_data = (
+        non_strict_contract_with_constructor_args_instance._encode_constructor_data(
+            [1234, bytes_arg]
+        )
     )
     encoded_args = "0x00000000000000000000000000000000000000000000000000000000000004d26162636400000000000000000000000000000000000000000000000000000000"  # noqa: E501
     expected_ending = encode_hex(
@@ -113,10 +115,12 @@ def test_contract_constructor_encoding_non_strict(
     ),
 )
 def test_contract_constructor_encoding_strict_errors(
-    WithConstructorArgumentsContract, bytes_arg
+    contract_with_constructor_args_instance, bytes_arg
 ):
     with pytest.raises(
         TypeError,
         match="One or more arguments could not be encoded to the necessary ABI type.",
     ):
-        WithConstructorArgumentsContract._encode_constructor_data([1234, bytes_arg])
+        contract_with_constructor_args_instance._encode_constructor_data(
+            [1234, bytes_arg]
+        )

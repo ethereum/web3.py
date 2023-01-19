@@ -41,17 +41,17 @@ MULTIPLE_FUNCTIONS = json.loads(
 
 
 @pytest.fixture(params=[b"\x04\x06", "0x0406"])
-def bytes_contract(w3, BytesContract, request, address_conversion_func):
-    return deploy(w3, BytesContract, address_conversion_func, args=[request.param])
+def bytes_contract(w3, bytes_contract, request, address_conversion_func):
+    return deploy(w3, bytes_contract, address_conversion_func, args=[request.param])
 
 
 @pytest.fixture(params=[b"\x04\x06", "0x0406"])
 def non_strict_bytes_contract(
-    w3_non_strict_abi, NonStrictBytesContract, request, address_conversion_func
+    w3_non_strict_abi, non_strict_bytes_contract, request, address_conversion_func
 ):
     return deploy(
         w3_non_strict_abi,
-        NonStrictBytesContract,
+        non_strict_bytes_contract,
         address_conversion_func,
         args=[request.param],
     )
@@ -73,26 +73,28 @@ def call_transaction():
         HexBytes("0406040604060406040604060406040604060406040604060406040604060406"),
     ]
 )
-def bytes32_contract(w3, Bytes32Contract, request, address_conversion_func):
-    return deploy(w3, Bytes32Contract, address_conversion_func, args=[request.param])
+def bytes32_contract(w3, bytes32_contract, request, address_conversion_func):
+    return deploy(w3, bytes32_contract, address_conversion_func, args=[request.param])
 
 
 @pytest.fixture()
-def undeployed_math_contract(MathContract, address_conversion_func):
+def undeployed_math_contract(math_contract_instance, address_conversion_func):
     empty_address = address_conversion_func(
         "0x000000000000000000000000000000000000dEaD"
     )
-    _undeployed_math_contract = MathContract(address=empty_address)
+    _undeployed_math_contract = math_contract_instance(address=empty_address)
     return _undeployed_math_contract
 
 
 @pytest.fixture()
-def mismatched_math_contract(w3, StringContract, MathContract, address_conversion_func):
-    deploy_txn = StringContract.constructor("Caqalai").transact()
+def mismatched_math_contract(
+    w3, string_contract_instance, math_contract_instance, address_conversion_func
+):
+    deploy_txn = string_contract_instance.constructor("Caqalai").transact()
     deploy_receipt = w3.eth.wait_for_transaction_receipt(deploy_txn)
     assert deploy_receipt is not None
     address = address_conversion_func(deploy_receipt["contractAddress"])
-    _mismatched_math_contract = MathContract(address=address)
+    _mismatched_math_contract = math_contract_instance(address=address)
     return _mismatched_math_contract
 
 
@@ -107,20 +109,20 @@ def nested_tuple_contract(w3, NestedTupleContract, address_conversion_func):
 
 
 def test_deploy_raises_due_to_strict_byte_checking_by_default(
-    w3, Bytes32Contract, address_conversion_func
+    w3, bytes32_contract, address_conversion_func
 ):
     with pytest.raises(TypeError):
         deploy(
             w3,
-            Bytes32Contract,
+            bytes32_contract,
             address_conversion_func,
             args=["0406040604060406040604060406040604060406040604060406040604060406"],
         )
 
 
-def test_invalid_address_in_deploy_arg(WithConstructorAddressArgumentsContract):
+def test_invalid_address_in_deploy_arg(contract_with_constructor_address_instance):
     with pytest.raises(InvalidAddress):
-        WithConstructorAddressArgumentsContract.constructor(
+        contract_with_constructor_address_instance.constructor(
             "0xd3cda913deb6f67967b99d67acdfa1712c293601",
         ).transact()
 
@@ -275,19 +277,21 @@ def test_call_get_byte_const_array_non_strict(non_strict_arrays_contract, call):
     assert result == expected_byte_arr
 
 
-def test_call_read_address_variable(address_contract, call):
-    result = call(contract=address_contract, contract_function="testAddr")
+def test_call_read_address_variable(contract_with_constructor_address, call):
+    result = call(
+        contract=contract_with_constructor_address, contract_function="testAddr"
+    )
     assert result == "0xd3CdA913deB6f67967B99D67aCDFa1712C293601"
 
 
-def test_init_with_ens_name_arg(w3, WithConstructorAddressArgumentsContract, call):
+def test_init_with_ens_name_arg(w3, contract_with_constructor_address_instance, call):
     with contract_ens_addresses(
-        WithConstructorAddressArgumentsContract,
+        contract_with_constructor_address_instance,
         [("arg-name.eth", "0xBB9bc244D798123fDe783fCc1C72d3Bb8C189413")],
     ):
         address_contract = deploy(
             w3,
-            WithConstructorAddressArgumentsContract,
+            contract_with_constructor_address_instance,
             args=[
                 "arg-name.eth",
             ],
@@ -520,7 +524,7 @@ def test_throws_error_if_block_out_of_range(w3, math_contract):
 
 def test_accepts_latest_block(w3, math_contract):
     w3.provider.make_request(method="evm_mine", params=[5])
-    math_contract.functions.increment().transact()
+    math_contract.functions.incrementCounter().transact()
 
     late = math_contract.functions.counter().call(block_identifier="latest")
     pend = math_contract.functions.counter().call(block_identifier="pending")
@@ -531,7 +535,7 @@ def test_accepts_latest_block(w3, math_contract):
 
 def test_accepts_block_hash_as_identifier(w3, math_contract):
     blocks = w3.provider.make_request(method="evm_mine", params=[5])
-    math_contract.functions.increment().transact()
+    math_contract.functions.incrementCounter().transact()
     more_blocks = w3.provider.make_request(method="evm_mine", params=[5])
 
     old = math_contract.functions.counter().call(block_identifier=blocks["result"][2])
@@ -545,8 +549,8 @@ def test_accepts_block_hash_as_identifier(w3, math_contract):
 
 def test_neg_block_indexes_from_the_end(w3, math_contract):
     w3.provider.make_request(method="evm_mine", params=[5])
-    math_contract.functions.increment().transact()
-    math_contract.functions.increment().transact()
+    math_contract.functions.incrementCounter().transact()
+    math_contract.functions.incrementCounter().transact()
     w3.provider.make_request(method="evm_mine", params=[5])
 
     output1 = math_contract.functions.counter().call(block_identifier=-7)
@@ -559,8 +563,8 @@ def test_neg_block_indexes_from_the_end(w3, math_contract):
 def test_returns_data_from_specified_block(w3, math_contract):
     start_num = w3.eth.get_block("latest").number
     w3.provider.make_request(method="evm_mine", params=[5])
-    math_contract.functions.increment().transact()
-    math_contract.functions.increment().transact()
+    math_contract.functions.incrementCounter().transact()
+    math_contract.functions.incrementCounter().transact()
 
     output1 = math_contract.functions.counter().call(block_identifier=start_num + 6)
     output2 = math_contract.functions.counter().call(block_identifier=start_num + 7)
@@ -974,7 +978,7 @@ def test_changing_default_block_identifier(w3, math_contract):
     assert math_contract.caller.counter() == 0
     assert w3.eth.default_block == "latest"
 
-    math_contract.functions.increment(7).transact()
+    math_contract.functions.incrementCounter(7).transact()
     assert math_contract.caller.counter() == 7
 
     assert math_contract.functions.counter().call(block_identifier=1) == 0
@@ -1540,7 +1544,7 @@ async def test_async_throws_error_if_block_out_of_range(async_w3, async_math_con
 @pytest.mark.asyncio
 async def test_async_accepts_latest_block(async_w3, async_math_contract):
     await async_w3.provider.make_request(method="evm_mine", params=[5])
-    await async_math_contract.functions.increment().transact()
+    await async_math_contract.functions.incrementCounter().transact()
 
     late = await async_math_contract.functions.counter().call(block_identifier="latest")
     pend = await async_math_contract.functions.counter().call(
@@ -1554,7 +1558,7 @@ async def test_async_accepts_latest_block(async_w3, async_math_contract):
 @pytest.mark.asyncio
 async def test_async_accepts_block_hash_as_identifier(async_w3, async_math_contract):
     blocks = await async_w3.provider.make_request(method="evm_mine", params=[5])
-    await async_math_contract.functions.increment().transact()
+    await async_math_contract.functions.incrementCounter().transact()
     more_blocks = await async_w3.provider.make_request(method="evm_mine", params=[5])
 
     old = await async_math_contract.functions.counter().call(
@@ -1571,8 +1575,8 @@ async def test_async_accepts_block_hash_as_identifier(async_w3, async_math_contr
 @pytest.mark.asyncio
 async def test_async_neg_block_indexes_from_the_end(async_w3, async_math_contract):
     await async_w3.provider.make_request(method="evm_mine", params=[5])
-    await async_math_contract.functions.increment().transact()
-    await async_math_contract.functions.increment().transact()
+    await async_math_contract.functions.incrementCounter().transact()
+    await async_math_contract.functions.incrementCounter().transact()
     await async_w3.provider.make_request(method="evm_mine", params=[5])
 
     output1 = await async_math_contract.functions.counter().call(block_identifier=-7)
@@ -1952,8 +1956,8 @@ async def test_async_call_with_one_argument(async_math_contract, call):
 async def test_async_returns_data_from_specified_block(async_w3, async_math_contract):
     start_num = await async_w3.eth.get_block("latest")
     await async_w3.provider.make_request(method="evm_mine", params=[5])
-    await async_math_contract.functions.increment().transact()
-    await async_math_contract.functions.increment().transact()
+    await async_math_contract.functions.incrementCounter().transact()
+    await async_math_contract.functions.incrementCounter().transact()
 
     output1 = await async_math_contract.functions.counter().call(
         block_identifier=start_num.number + 6
@@ -1971,7 +1975,7 @@ async def test_async_changing_default_block_identifier(async_w3, async_math_cont
     assert await async_math_contract.caller.counter() == 0
     assert async_w3.eth.default_block == "latest"
 
-    await async_math_contract.functions.increment(7).transact()
+    await async_math_contract.functions.incrementCounter(7).transact()
     assert await async_math_contract.caller.counter() == 7
 
     assert await async_math_contract.functions.counter().call(block_identifier=1) == 0

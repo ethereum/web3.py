@@ -19,33 +19,33 @@ from tests.utils import (
     _async_wait_for_transaction_fixture_logic,
 )
 from web3._utils.module_testing.emitter_contract import (
-    CONTRACT_EMITTER_ABI,
-    CONTRACT_EMITTER_CODE,
-    CONTRACT_EMITTER_RUNTIME,
+    EMITTER_CONTRACT_ABI,
+    EMITTER_CONTRACT_BYTECODE,
+    EMITTER_CONTRACT_RUNTIME,
 )
 
 
 @pytest.fixture(scope="module")
 def EMITTER_CODE():
-    return CONTRACT_EMITTER_CODE
+    return EMITTER_CONTRACT_BYTECODE
 
 
 @pytest.fixture(scope="module")
 def EMITTER_RUNTIME():
-    return CONTRACT_EMITTER_RUNTIME
+    return EMITTER_CONTRACT_RUNTIME
 
 
 @pytest.fixture(scope="module")
 def EMITTER_ABI():
-    return CONTRACT_EMITTER_ABI
+    return EMITTER_CONTRACT_ABI
 
 
 @pytest.fixture(scope="module")
-def EMITTER(EMITTER_CODE, EMITTER_RUNTIME, EMITTER_ABI):
+def EMITTER(emitter_contract_bytecode, emitter_contract_runtime, emitter_contract_abi):
     return {
-        "bytecode": EMITTER_CODE,
-        "bytecode_runtime": EMITTER_RUNTIME,
-        "abi": EMITTER_ABI,
+        "bytecode": emitter_contract_bytecode,
+        "bytecode_runtime": emitter_contract_runtime,
+        "abi": emitter_contract_abi,
     }
 
 
@@ -115,8 +115,8 @@ def w3(request):
 
 
 @pytest.fixture(scope="module")
-def Emitter(w3, EMITTER):
-    return w3.eth.contract(**EMITTER)
+def Emitter(w3, emitter_contract_kwargs):
+    return w3.eth.contract(**emitter_contract_kwargs)
 
 
 @pytest.fixture(scope="module")
@@ -312,8 +312,8 @@ def async_w3(request):
 
 
 @pytest.fixture(scope="module")
-def AsyncEmitter(async_w3, EMITTER):
-    return async_w3.eth.contract(**EMITTER)
+def AsyncEmitter(async_w3, emitter_contract_kwargs):
+    return async_w3.eth.contract(**emitter_contract_kwargs)
 
 
 @pytest_asyncio.fixture(scope="module")

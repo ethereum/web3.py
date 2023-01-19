@@ -11,7 +11,7 @@ from web3.exceptions import (
 def test_transacting_with_contract_no_arguments(w3, math_contract, transact, call):
     initial_value = call(contract=math_contract, contract_function="counter")
 
-    txn_hash = transact(contract=math_contract, contract_function="increment")
+    txn_hash = transact(contract=math_contract, contract_function="incrementCounter")
     txn_receipt = w3.eth.wait_for_transaction_receipt(txn_hash)
     assert txn_receipt is not None
 
@@ -65,7 +65,7 @@ def test_transact_sending_ether_to_nonpayable_function(
     "transact_args,transact_kwargs",
     (
         ((5,), {}),
-        (tuple(), {"amt": 5}),
+        (tuple(), {"amount": 5}),
     ),
 )
 def test_transacting_with_contract_with_arguments(
@@ -75,7 +75,7 @@ def test_transacting_with_contract_with_arguments(
 
     txn_hash = transact(
         contract=math_contract,
-        contract_function="increment",
+        contract_function="incrementCounter",
         func_args=transact_args,
         func_kwargs=transact_kwargs,
     )
@@ -88,11 +88,11 @@ def test_transacting_with_contract_with_arguments(
     assert final_value - initial_value == 5
 
 
-def test_deploy_when_default_account_is_set(w3, STRING_CONTRACT):
+def test_deploy_when_default_account_is_set(w3, string_contract_kwargs):
     w3.eth.default_account = w3.eth.accounts[1]
     assert w3.eth.default_account is not empty
 
-    StringContract = w3.eth.contract(**STRING_CONTRACT)
+    StringContract = w3.eth.contract(**string_contract_kwargs)
 
     deploy_txn = StringContract.constructor("Caqalai").transact()
     w3.eth.wait_for_transaction_receipt(deploy_txn)
@@ -104,7 +104,7 @@ def test_transact_when_default_account_is_set(w3, math_contract, transact):
     w3.eth.default_account = w3.eth.accounts[1]
     assert w3.eth.default_account is not empty
 
-    txn_hash = transact(contract=math_contract, contract_function="increment")
+    txn_hash = transact(contract=math_contract, contract_function="incrementCounter")
     txn_after = w3.eth.get_transaction(txn_hash)
     assert txn_after["from"] == w3.eth.default_account
 
@@ -166,7 +166,8 @@ def test_transacting_with_contract_with_bytes32_array_argument(
     assert final_value == new_bytes32_array
 
 
-def test_transacting_with_contract_with_byte_array_argument(
+# TODO: strict by default
+def test_transacting_with_contract_with_byte_array_argument_strict(
     w3, arrays_contract, transact, call
 ):
     new_byte_array = [b"\x03", b"\x03", b"\x03", b"\x03", b"\x03", b"\x03"]
@@ -201,9 +202,9 @@ def test_transacting_with_contract_with_byte_array_argument_non_strict(
 
 
 def test_transacting_with_contract_respects_explicit_gas(
-    w3, STRING_CONTRACT, wait_for_block, call, transact
+    w3, string_contract_kwargs, wait_for_block, call, transact
 ):
-    StringContract = w3.eth.contract(**STRING_CONTRACT)
+    StringContract = w3.eth.contract(**string_contract_kwargs)
 
     deploy_txn = StringContract.constructor("Caqalai").transact()
     deploy_receipt = w3.eth.wait_for_transaction_receipt(deploy_txn, 30)
@@ -227,9 +228,9 @@ def test_transacting_with_contract_respects_explicit_gas(
 
 
 def test_auto_gas_computation_when_transacting(
-    w3, STRING_CONTRACT, wait_for_block, call, transact
+    w3, string_contract_kwargs, wait_for_block, call, transact
 ):
-    StringContract = w3.eth.contract(**STRING_CONTRACT)
+    StringContract = w3.eth.contract(**string_contract_kwargs)
 
     deploy_txn = StringContract.constructor("Caqalai").transact()
     deploy_receipt = w3.eth.wait_for_transaction_receipt(deploy_txn, 30)
@@ -294,7 +295,7 @@ async def test_async_transacting_with_contract_no_arguments(
     )
 
     txn_hash = await async_transact(
-        contract=async_math_contract, contract_function="increment"
+        contract=async_math_contract, contract_function="incrementCounter"
     )
     txn_receipt = await async_w3.eth.wait_for_transaction_receipt(txn_hash)
     assert txn_receipt is not None
@@ -358,7 +359,7 @@ async def test_async_transact_sending_ether_to_nonpayable_function(
     "transact_args,transact_kwargs",
     (
         ((5,), {}),
-        (tuple(), {"amt": 5}),
+        (tuple(), {"amount": 5}),
     ),
 )
 async def test_async_transacting_with_contract_with_arguments(
@@ -375,7 +376,7 @@ async def test_async_transacting_with_contract_with_arguments(
 
     txn_hash = await async_transact(
         contract=async_math_contract,
-        contract_function="increment",
+        contract_function="incrementCounter",
         func_args=transact_args,
         func_kwargs=transact_kwargs,
     )
@@ -391,12 +392,14 @@ async def test_async_transacting_with_contract_with_arguments(
 
 
 @pytest.mark.asyncio
-async def test_async_deploy_when_default_account_is_set(async_w3, STRING_CONTRACT):
+async def test_async_deploy_when_default_account_is_set(
+    async_w3, string_contract_kwargs
+):
     async_w3_accounts = await async_w3.eth.accounts
     async_w3.eth.default_account = async_w3_accounts[1]
     assert async_w3.eth.default_account is not empty
 
-    StringContract = async_w3.eth.contract(**STRING_CONTRACT)
+    StringContract = async_w3.eth.contract(**string_contract_kwargs)
 
     deploy_txn = await StringContract.constructor("Caqalai").transact()
     await async_w3.eth.wait_for_transaction_receipt(deploy_txn)
@@ -413,7 +416,7 @@ async def test_async_transact_when_default_account_is_set(
     assert async_w3.eth.default_account is not empty
 
     txn_hash = await async_transact(
-        contract=async_math_contract, contract_function="increment"
+        contract=async_math_contract, contract_function="incrementCounter"
     )
     txn_after = await async_w3.eth.get_transaction(txn_hash)
     assert txn_after["from"] == async_w3.eth.default_account
@@ -461,6 +464,7 @@ async def test_async_transacting_with_contract_with_bytes32_array_argument(
     assert final_value == new_bytes32_array
 
 
+# TODO: strict by default
 @pytest.mark.asyncio
 async def test_async_transacting_with_contract_with_byte_array_argument(
     async_w3,
@@ -509,10 +513,10 @@ async def test_async_transacting_with_contract_with_byte_array_argument_non_stri
 
 @pytest.mark.asyncio
 async def test_async_transacting_with_contract_respects_explicit_gas(
-    async_w3, STRING_CONTRACT, async_call, async_transact
+    async_w3, string_contract_kwargs, async_call, async_transact
 ):
 
-    StringContract = async_w3.eth.contract(**STRING_CONTRACT)
+    StringContract = async_w3.eth.contract(**string_contract_kwargs)
 
     deploy_txn = await StringContract.constructor("Caqalai").transact()
     deploy_receipt = await async_w3.eth.wait_for_transaction_receipt(deploy_txn, 30)
@@ -539,10 +543,10 @@ async def test_async_transacting_with_contract_respects_explicit_gas(
 
 @pytest.mark.asyncio
 async def test_async_auto_gas_computation_when_transacting(
-    async_w3, STRING_CONTRACT, async_call, async_transact
+    async_w3, string_contract_kwargs, async_call, async_transact
 ):
 
-    StringContract = async_w3.eth.contract(**STRING_CONTRACT)
+    StringContract = async_w3.eth.contract(**string_contract_kwargs)
 
     deploy_txn = await StringContract.constructor("Caqalai").transact()
     deploy_receipt = await async_w3.eth.wait_for_transaction_receipt(deploy_txn, 30)

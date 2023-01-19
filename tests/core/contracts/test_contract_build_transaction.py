@@ -39,10 +39,12 @@ def test_build_transaction_paying_to_nonpayable_function(
 def test_build_transaction_with_contract_no_arguments(
     w3, math_contract, build_transaction
 ):
-    txn = build_transaction(contract=math_contract, contract_function="increment")
+    txn = build_transaction(
+        contract=math_contract, contract_function="incrementCounter"
+    )
     assert dissoc(txn, "gas") == {
         "to": math_contract.address,
-        "data": "0xd09de08a",
+        "data": "0x5b34b966",
         "value": 0,
         "maxFeePerGas": 2750000000,
         "maxPriorityFeePerGas": 10**9,
@@ -65,16 +67,16 @@ def test_build_transaction_with_contract_fallback_function(
 
 
 def test_build_transaction_with_contract_class_method(
-    w3, MathContract, math_contract, build_transaction
+    w3, math_contract_instance, math_contract, build_transaction
 ):
     txn = build_transaction(
-        contract=MathContract,
-        contract_function="increment",
+        contract=math_contract_instance,
+        contract_function="incrementCounter",
         tx_params={"to": math_contract.address},
     )
     assert dissoc(txn, "gas") == {
         "to": math_contract.address,
-        "data": "0xd09de08a",
+        "data": "0x5b34b966",
         "value": 0,
         "maxFeePerGas": 2750000000,
         "maxPriorityFeePerGas": 10**9,
@@ -85,10 +87,12 @@ def test_build_transaction_with_contract_class_method(
 def test_build_transaction_with_contract_default_account_is_set(
     w3, math_contract, build_transaction
 ):
-    txn = build_transaction(contract=math_contract, contract_function="increment")
+    txn = build_transaction(
+        contract=math_contract, contract_function="incrementCounter"
+    )
     assert dissoc(txn, "gas") == {
         "to": math_contract.address,
-        "data": "0xd09de08a",
+        "data": "0x5b34b966",
         "value": 0,
         "maxFeePerGas": 2750000000,
         "maxPriorityFeePerGas": 10**9,
@@ -103,10 +107,12 @@ def test_build_transaction_with_gas_price_strategy_set(
         return 5
 
     w3.eth.set_gas_price_strategy(my_gas_price_strategy)
-    txn = build_transaction(contract=math_contract, contract_function="increment")
+    txn = build_transaction(
+        contract=math_contract, contract_function="incrementCounter"
+    )
     assert dissoc(txn, "gas") == {
         "to": math_contract.address,
-        "data": "0xd09de08a",
+        "data": "0x5b34b966",
         "value": 0,
         "gasPrice": 5,
         "chainId": 131277322940537,
@@ -119,7 +125,7 @@ def test_build_transaction_with_contract_data_supplied_errors(
     with pytest.raises(ValueError):
         build_transaction(
             contract=math_contract,
-            contract_function="increment",
+            contract_function="incrementCounter",
             tx_params={"data": "0x000"},
         )
 
@@ -130,7 +136,7 @@ def test_build_transaction_with_contract_to_address_supplied_errors(
     with pytest.raises(ValueError):
         build_transaction(
             contract=math_contract,
-            contract_function="increment",
+            contract_function="incrementCounter",
             tx_params={"to": "0xb2930B35844a230f00E51431aCAe96Fe543a0347"},
         )
 
@@ -143,7 +149,7 @@ def test_build_transaction_with_contract_to_address_supplied_errors(
             (5,),
             {},
             {
-                "data": "0x7cf5dab00000000000000000000000000000000000000000000000000000000000000005",  # noqa: E501
+                "data": "0x6abbb3b40000000000000000000000000000000000000000000000000000000000000005",  # noqa: E501
                 "value": 0,
                 "maxFeePerGas": 2750000000,
                 "maxPriorityFeePerGas": 1000000000,
@@ -156,7 +162,7 @@ def test_build_transaction_with_contract_to_address_supplied_errors(
             (5,),
             {},
             {
-                "data": "0x7cf5dab00000000000000000000000000000000000000000000000000000000000000005",  # noqa: E501
+                "data": "0x6abbb3b40000000000000000000000000000000000000000000000000000000000000005",  # noqa: E501
                 "value": 0,
                 "maxFeePerGas": 2750000000,
                 "maxPriorityFeePerGas": 1000000000,
@@ -169,7 +175,7 @@ def test_build_transaction_with_contract_to_address_supplied_errors(
             (5,),
             {},
             {
-                "data": "0x7cf5dab00000000000000000000000000000000000000000000000000000000000000005",  # noqa: E501
+                "data": "0x6abbb3b40000000000000000000000000000000000000000000000000000000000000005",  # noqa: E501
                 "value": 0,
                 "gasPrice": 22**8,
                 "chainId": 131277322940537,
@@ -181,7 +187,7 @@ def test_build_transaction_with_contract_to_address_supplied_errors(
             (5,),
             {},
             {
-                "data": "0x7cf5dab00000000000000000000000000000000000000000000000000000000000000005",  # noqa: E501
+                "data": "0x6abbb3b40000000000000000000000000000000000000000000000000000000000000005",  # noqa: E501
                 "value": 0,
                 "maxFeePerGas": 22**8,
                 "maxPriorityFeePerGas": 22**8,
@@ -194,7 +200,7 @@ def test_build_transaction_with_contract_to_address_supplied_errors(
             (5,),
             {},
             {
-                "data": "0x7cf5dab00000000000000000000000000000000000000000000000000000000000000005",  # noqa: E501
+                "data": "0x6abbb3b40000000000000000000000000000000000000000000000000000000000000005",  # noqa: E501
                 "value": 0,
                 "maxFeePerGas": 2750000000,
                 "maxPriorityFeePerGas": 1000000000,
@@ -208,7 +214,7 @@ def test_build_transaction_with_contract_to_address_supplied_errors(
             (5,),
             {},
             {
-                "data": "0x7cf5dab00000000000000000000000000000000000000000000000000000000000000005",  # noqa: E501
+                "data": "0x6abbb3b40000000000000000000000000000000000000000000000000000000000000005",  # noqa: E501
                 "value": 20000,
                 "maxFeePerGas": 2750000000,
                 "maxPriorityFeePerGas": 1000000000,
@@ -226,7 +232,7 @@ def test_build_transaction_with_contract_to_address_supplied_errors(
         "With Value",
     ],
 )
-def test_build_transaction_with_contract_with_arguments(
+def test_build_transaction_with_contract_arguments(
     w3,
     skip_if_testrpc,
     math_contract,
@@ -242,7 +248,7 @@ def test_build_transaction_with_contract_with_arguments(
 
     txn = build_transaction(
         contract=math_contract,
-        contract_function="increment",
+        contract_function="incrementCounter",
         func_args=method_args,
         func_kwargs=method_kwargs,
         tx_params=transaction_args,
@@ -290,11 +296,11 @@ async def test_async_build_transaction_with_contract_no_arguments(
     async_w3, async_math_contract, async_build_transaction
 ):
     txn = await async_build_transaction(
-        contract=async_math_contract, contract_function="increment"
+        contract=async_math_contract, contract_function="incrementCounter"
     )
     assert dissoc(txn, "gas") == {
         "to": async_math_contract.address,
-        "data": "0xd09de08a",
+        "data": "0x5b34b966",
         "value": 0,
         "maxFeePerGas": 2750000000,
         "maxPriorityFeePerGas": 10**9,
@@ -323,12 +329,12 @@ async def test_async_build_transaction_with_contract_class_method(
 ):
     txn = await async_build_transaction(
         contract=AsyncMathContract,
-        contract_function="increment",
+        contract_function="incrementCounter",
         tx_params={"to": async_math_contract.address},
     )
     assert dissoc(txn, "gas") == {
         "to": async_math_contract.address,
-        "data": "0xd09de08a",
+        "data": "0x5b34b966",
         "value": 0,
         "maxFeePerGas": 2750000000,
         "maxPriorityFeePerGas": 10**9,
@@ -341,11 +347,11 @@ async def test_async_build_transaction_with_contract_default_account_is_set(
     async_w3, async_math_contract, async_build_transaction
 ):
     txn = await async_build_transaction(
-        contract=async_math_contract, contract_function="increment"
+        contract=async_math_contract, contract_function="incrementCounter"
     )
     assert dissoc(txn, "gas") == {
         "to": async_math_contract.address,
-        "data": "0xd09de08a",
+        "data": "0x5b34b966",
         "value": 0,
         "maxFeePerGas": 2750000000,
         "maxPriorityFeePerGas": 10**9,
@@ -362,11 +368,11 @@ async def test_async_build_transaction_with_gas_price_strategy_set(
 
     async_w3.eth.set_gas_price_strategy(my_gas_price_strategy)
     txn = await async_build_transaction(
-        contract=async_math_contract, contract_function="increment"
+        contract=async_math_contract, contract_function="incrementCounter"
     )
     assert dissoc(txn, "gas") == {
         "to": async_math_contract.address,
-        "data": "0xd09de08a",
+        "data": "0x5b34b966",
         "value": 0,
         "gasPrice": 5,
         "chainId": 131277322940537,
@@ -380,7 +386,7 @@ async def test_async_build_transaction_with_contract_data_supplied_errors(
     with pytest.raises(ValueError):
         await async_build_transaction(
             contract=async_math_contract,
-            contract_function="increment",
+            contract_function="incrementCounter",
             tx_params={"data": "0x000"},
         )
 
@@ -392,7 +398,7 @@ async def test_async_build_transaction_with_contract_to_address_supplied_errors(
     with pytest.raises(ValueError):
         await async_build_transaction(
             contract=async_math_contract,
-            contract_function="increment",
+            contract_function="incrementCounter",
             tx_params={"to": "0xb2930B35844a230f00E51431aCAe96Fe543a0347"},
         )  # noqa: E501
 
@@ -406,7 +412,7 @@ async def test_async_build_transaction_with_contract_to_address_supplied_errors(
             (5,),
             {},
             {
-                "data": "0x7cf5dab00000000000000000000000000000000000000000000000000000000000000005",  # noqa: E501
+                "data": "0x6abbb3b40000000000000000000000000000000000000000000000000000000000000005",  # noqa: E501
                 "value": 0,
                 "maxFeePerGas": 2750000000,
                 "maxPriorityFeePerGas": 1000000000,
@@ -419,7 +425,7 @@ async def test_async_build_transaction_with_contract_to_address_supplied_errors(
             (5,),
             {},
             {
-                "data": "0x7cf5dab00000000000000000000000000000000000000000000000000000000000000005",  # noqa: E501
+                "data": "0x6abbb3b40000000000000000000000000000000000000000000000000000000000000005",  # noqa: E501
                 "value": 0,
                 "maxFeePerGas": 2750000000,
                 "maxPriorityFeePerGas": 1000000000,
@@ -432,7 +438,7 @@ async def test_async_build_transaction_with_contract_to_address_supplied_errors(
             (5,),
             {},
             {
-                "data": "0x7cf5dab00000000000000000000000000000000000000000000000000000000000000005",  # noqa: E501
+                "data": "0x6abbb3b40000000000000000000000000000000000000000000000000000000000000005",  # noqa: E501
                 "value": 0,
                 "gasPrice": 22**8,
                 "chainId": 131277322940537,
@@ -444,7 +450,7 @@ async def test_async_build_transaction_with_contract_to_address_supplied_errors(
             (5,),
             {},
             {
-                "data": "0x7cf5dab00000000000000000000000000000000000000000000000000000000000000005",  # noqa: E501
+                "data": "0x6abbb3b40000000000000000000000000000000000000000000000000000000000000005",  # noqa: E501
                 "value": 0,
                 "maxFeePerGas": 22**8,
                 "maxPriorityFeePerGas": 22**8,
@@ -457,7 +463,7 @@ async def test_async_build_transaction_with_contract_to_address_supplied_errors(
             (5,),
             {},
             {
-                "data": "0x7cf5dab00000000000000000000000000000000000000000000000000000000000000005",  # noqa: E501
+                "data": "0x6abbb3b40000000000000000000000000000000000000000000000000000000000000005",  # noqa: E501
                 "value": 0,
                 "maxFeePerGas": 2750000000,
                 "maxPriorityFeePerGas": 1000000000,
@@ -471,7 +477,7 @@ async def test_async_build_transaction_with_contract_to_address_supplied_errors(
             (5,),
             {},
             {
-                "data": "0x7cf5dab00000000000000000000000000000000000000000000000000000000000000005",  # noqa: E501
+                "data": "0x6abbb3b40000000000000000000000000000000000000000000000000000000000000005",  # noqa: E501
                 "value": 20000,
                 "maxFeePerGas": 2750000000,
                 "maxPriorityFeePerGas": 1000000000,
@@ -505,7 +511,7 @@ async def test_async_build_transaction_with_contract_with_arguments(
 
     txn = await async_build_transaction(
         contract=async_math_contract,
-        contract_function="increment",
+        contract_function="incrementCounter",
         func_args=method_args,
         func_kwargs=method_kwargs,
         tx_params=transaction_args,

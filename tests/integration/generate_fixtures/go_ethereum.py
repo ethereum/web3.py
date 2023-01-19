@@ -24,8 +24,8 @@ from eth_utils.toolz import (
 import common
 from web3 import Web3
 from web3._utils.module_testing.emitter_contract import (
-    CONTRACT_EMITTER_ABI,
-    CONTRACT_EMITTER_CODE,
+    EMITTER_CONTRACT_ABI,
+    EMITTER_CONTRACT_BYTECODE,
     EMITTER_ENUM,
 )
 from web3._utils.module_testing.math_contract import (
@@ -227,8 +227,8 @@ def setup_chain_state(w3):
     # Emitter Contract
     #
     emitter_contract_factory = w3.eth.contract(
-        abi=CONTRACT_EMITTER_ABI,
-        bytecode=CONTRACT_EMITTER_CODE,
+        abi=EMITTER_CONTRACT_ABI,
+        bytecode=EMITTER_CONTRACT_BYTECODE,
     )
     emitter_deploy_receipt = common.deploy_contract(
         w3, "emitter", emitter_contract_factory
