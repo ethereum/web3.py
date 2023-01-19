@@ -152,8 +152,8 @@ def emitter_log_topics():
 def return_filter(contract, args):
     event_name = args[0]
     kwargs = apply_key_map({"filter": "argument_filters"}, args[1])
-    if "fromBlock" not in kwargs:
-        kwargs["fromBlock"] = "latest"
+    if "from_block" not in kwargs:
+        kwargs["from_block"] = "latest"
     return contract.events[event_name].create_filter(**kwargs)
 
 
@@ -199,8 +199,8 @@ async def async_emitter(
 async def async_return_filter(contract, args):
     event_name = args[0]
     kwargs = apply_key_map({"filter": "argument_filters"}, args[1])
-    if "fromBlock" not in kwargs:
-        kwargs["fromBlock"] = "latest"
+    if "from_block" not in kwargs:
+        kwargs["from_block"] = "latest"
     return await contract.events[event_name].create_filter(**kwargs)
 
 

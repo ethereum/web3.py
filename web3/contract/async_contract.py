@@ -285,7 +285,9 @@ class AsyncContractFunction(BaseContractFunction):
             **self.kwargs,
         )
 
-    async def transact(self, transaction: Optional[TxParams] = None) -> HexBytes:
+    async def transact(  # type: ignore
+        self, transaction: Optional[TxParams] = None
+    ) -> HexBytes:
         setup_transaction = self._transact(transaction)
         return await async_transact_with_contract_function(
             self.address,
@@ -338,9 +340,9 @@ class AsyncContractEvent(BaseContractEvent):
     async def get_logs(
         self,
         argument_filters: Optional[Dict[str, Any]] = None,
-        fromBlock: Optional[BlockIdentifier] = None,
-        toBlock: Optional[BlockIdentifier] = None,
-        blockHash: Optional[HexBytes] = None,
+        from_block: Optional[BlockIdentifier] = None,
+        to_block: Optional[BlockIdentifier] = None,
+        block_hash: Optional[HexBytes] = None,
     ) -> Awaitable[Iterable[EventData]]:
         """Get events for this contract instance using eth_getLogs API.
 
@@ -361,7 +363,7 @@ class AsyncContractEvent(BaseContractEvent):
             from = max(mycontract.web3.eth.block_number - 10, 1)
             to = mycontract.web3.eth.block_number
 
-            events = mycontract.events.Transfer.getLogs(fromBlock=from, toBlock=to)
+            events = mycontract.events.Transfer.getLogs(from_block=from, to_block=to)
 
             for e in events:
                 print(e["args"]["from"],
@@ -390,17 +392,17 @@ class AsyncContractEvent(BaseContractEvent):
         See also: :func:`web3.middleware.filter.local_filter_middleware`.
 
         :param argument_filters:
-        :param fromBlock: block number or "latest", defaults to "latest"
-        :param toBlock: block number or "latest". Defaults to "latest"
+        :param from_block: block number or "latest", defaults to "latest"
+        :param to_block: block number or "latest". Defaults to "latest"
         :param blockHash: block hash. blockHash cannot be set at the
-          same time as fromBlock or toBlock
+          same time as from_block or to_block
         :yield: Tuple of :class:`AttributeDict` instances
         """
         abi = self._get_event_abi()
         # Call JSON-RPC API
         logs = await self.w3.eth.get_logs(
             self._get_event_filter_params(
-                abi, argument_filters, fromBlock, toBlock, blockHash  # type: ignore
+                abi, argument_filters, from_block, to_block, block_hash  # type: ignore
             )
         )
 
@@ -414,8 +416,8 @@ class AsyncContractEvent(BaseContractEvent):
         self,
         *,  # PEP 3102
         argument_filters: Optional[Dict[str, Any]] = None,
-        fromBlock: Optional[BlockIdentifier] = None,
-        toBlock: BlockIdentifier = "latest",
+        from_block: Optional[BlockIdentifier] = None,
+        to_block: BlockIdentifier = "latest",
         address: Optional[ChecksumAddress] = None,
         topics: Optional[Sequence[Any]] = None,
     ) -> AsyncLogFilter:
@@ -425,8 +427,8 @@ class AsyncContractEvent(BaseContractEvent):
         filter_builder = AsyncEventFilterBuilder(self._get_event_abi(), self.w3.codec)
         self._set_up_filter_builder(
             argument_filters,
-            fromBlock,
-            toBlock,
+            from_block,
+            to_block,
             address,
             topics,
             filter_builder,

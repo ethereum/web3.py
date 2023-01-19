@@ -168,8 +168,8 @@ class ContractEvent(BaseContractEvent):
         self,
         *,  # PEP 3102
         argument_filters: Optional[Dict[str, Any]] = None,
-        fromBlock: Optional[BlockIdentifier] = None,
-        toBlock: BlockIdentifier = "latest",
+        from_block: Optional[BlockIdentifier] = None,
+        to_block: BlockIdentifier = "latest",
         address: Optional[ChecksumAddress] = None,
         topics: Optional[Sequence[Any]] = None,
     ) -> LogFilter:
@@ -179,8 +179,8 @@ class ContractEvent(BaseContractEvent):
         filter_builder = EventFilterBuilder(self._get_event_abi(), self.w3.codec)
         self._set_up_filter_builder(
             argument_filters,
-            fromBlock,
-            toBlock,
+            from_block,
+            to_block,
             address,
             topics,
             filter_builder,
