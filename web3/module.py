@@ -108,7 +108,11 @@ class Module:
         else:
             self.retrieve_caller_fn = retrieve_blocking_method_call_fn(w3, self)
         self.w3 = w3
-        self.codec: ABICodec = w3.codec
+
+    @property
+    def codec(self) -> ABICodec:
+        # use codec set on the Web3 instance
+        return self.w3.codec
 
     def attach_methods(
         self,

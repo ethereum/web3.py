@@ -575,11 +575,11 @@ class PM(Module):
     def _validate_set_ens(self) -> None:
         if not self.w3:
             raise InvalidAddress(
-                "Could not look up ENS address because no web3 " "connection available"
+                "Could not look up ENS address because no web3 connection available"
             )
         elif not self.w3.ens:
             raise InvalidAddress(
-                "Could not look up ENS address because web3.ens is " "set to None"
+                "Could not look up ENS address because web3.ens is not set up"
             )
 
 
