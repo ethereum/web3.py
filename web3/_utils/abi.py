@@ -823,7 +823,7 @@ def strip_abi_type(elements: Any) -> Any:
         return elements
 
 
-def build_default_registry() -> ABIRegistry:
+def build_non_strict_registry() -> ABIRegistry:
     # We make a copy here just to make sure that eth-abi's default registry is not
     # affected by our custom encoder subclasses
     registry = default_registry.copy()

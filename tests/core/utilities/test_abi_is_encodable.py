@@ -97,6 +97,6 @@ def test_is_encodable(w3, value, _type, expected):
     ),
 )
 def test_is_encodable_non_strict(w3, value, _type, expected):
-    w3.disable_strict_bytes_type_checking()
+    w3.strict_bytes_type_checking = False
     actual = w3.is_encodable(_type, value)
     assert actual is expected

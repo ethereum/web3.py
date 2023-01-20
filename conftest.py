@@ -91,7 +91,7 @@ def w3():
 @pytest.fixture(scope="module")
 def w3_non_strict_abi():
     w3 = Web3(EthereumTesterProvider())
-    w3.disable_strict_bytes_type_checking()
+    w3.strict_bytes_type_checking = False
     return w3
 
 

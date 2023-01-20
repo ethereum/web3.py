@@ -444,19 +444,54 @@ and the arguments are ambiguous.
         1
 
 
-.. _enable-strict-byte-check:
+.. _disable-strict-byte-check:
 
-Enabling Strict Checks for Bytes Types
---------------------------------------
+Disabling Strict Checks for Bytes Types
+---------------------------------------
 
-By default, web3 is not very strict when it comes to hex and bytes values.
-A bytes type will take a hex string, a bytestring, or a regular python
-string that can be decoded as a hex.
-Additionally, if an abi specifies a byte size, but the value that gets
-passed in is less than the specified size, web3 will automatically pad the value.
-For example, if an abi specifies a type of ``bytes4``, web3 will handle all of the following values:
+By default, web3 is strict when it comes to hex and bytes values, as of ``v6``.
+If an abi specifies a byte size, but the value that gets passed in is not the specified
+size, web3 will invalidate the value. For example, if an abi specifies a type of
+``bytes4``, web3 will invalidate the following values:
 
-.. list-table:: Valid byte and hex strings for a bytes4 type
+.. list-table:: Invalid byte and hex strings with strict (default) bytes4 type checking
+   :widths: 25 75
+   :header-rows: 1
+
+   * - Input
+     - Reason
+   * - ``''``
+     - Needs to be prefixed with a "0x" to be interpreted as an empty hex string
+   * - ``2``
+     - Wrong type
+   * - ``'ah'``
+     - String is not valid hex
+   * - ``'1234'``
+     - Needs to either be a bytestring (b'1234') or be a hex value of the right size, prefixed with 0x (in this case: '0x31323334')
+   * - ``b''``
+     - Needs to have exactly 4 bytes
+   * - ``b'ab'``
+     - Needs to have exactly 4 bytes
+   * - ``'0xab'``
+     - Needs to have exactly 4 bytes
+   * - ``'0x6162636464'``
+     - Needs to have exactly 4 bytes
+
+
+However, you may want to be less strict with acceptable values for bytes types.
+This may prove useful if you trust that values coming through are what they are
+meant to be with respects to the respective ABI. In this case, the automatic padding
+might be convenient for inferred types. For this, you can set the
+:meth:`w3.strict_bytes_type_checking` flag to ``False``, which is available on the
+Web3 instance. A Web3 instance which has this flag set to ``False`` will have a less
+strict set of rules on which values are accepted. A ``bytes`` type will allow values as
+a hex string, a bytestring, or a regular Python string that can be decoded as a hex.
+0x-prefixed hex strings are also not required.
+
+ - A Python string that is not prefixed with ``0x`` is valid.
+ - A bytestring whose length is less than the specified byte size is valid.
+
+.. list-table:: Valid byte and hex strings for a non-strict bytes4 type
    :widths: 25 75
    :header-rows: 1
 
@@ -478,65 +513,6 @@ For example, if an abi specifies a type of ``bytes4``, web3 will handle all of t
      - ``b'abcd'``
    * - ``'1234'``
      - ``b'1234'``
-
-
-The following values will raise an error by default:
-
-.. list-table:: Invalid byte and hex strings for a bytes4 type
-   :widths: 25 75
-   :header-rows: 1
-
-   * - Input
-     - Reason
-   * - ``b'abcde'``
-     - Bytestring with more than 4 bytes
-   * - ``'0x6162636423'``
-     - Hex string with more than 4 bytes
-   * - ``2``
-     - Wrong type
-   * - ``'ah'``
-     - String is not valid hex
-
-However, you may want to be stricter with acceptable values for bytes types.
-For this you can use the :meth:`w3.enable_strict_bytes_type_checking()` method,
-which is available on the web3 instance. A web3 instance which has had this method
-invoked will enforce a stricter set of rules on which values are accepted.
-
- - A Python string that is not prefixed with ``0x`` will throw an error.
- - A bytestring whose length is not exactly the specified byte size
-   will raise an error.
-
-.. list-table:: Valid byte and hex strings for a strict bytes4 type
-   :widths: 25 75
-   :header-rows: 1
-
-   * - Input
-     - Normalizes to
-   * - ``'0x'``
-     - ``b'\x00\x00\x00\x00'``
-   * - ``'0x61626364'``
-     - ``b'abcd'``
-   * - ``'1234'``
-     - ``b'1234'``
-
-.. list-table:: Invalid byte and hex strings with strict bytes4 type checking
-   :widths: 25 75
-   :header-rows: 1
-
-   * - Input
-     - Reason
-   * - ``''``
-     - Needs to be prefixed with a "0x" to be interpreted as an empty hex string
-   * - ``'1234'``
-     - Needs to either be a bytestring (b'1234') or be a hex value of the right size, prefixed with 0x (in this case: '0x31323334')
-   * - ``b''``
-     - Needs to have exactly 4 bytes
-   * - ``b'ab'``
-     - Needs to have exactly 4 bytes
-   * - ``'0xab'``
-     - Needs to have exactly 4 bytes
-   * - ``'0x6162636464'``
-     - Needs to have exactly 4 bytes
 
 
 Taking the following contract code as an example:
@@ -636,69 +612,53 @@ Taking the following contract code as an example:
 
     >>> ArraysContract = w3.eth.contract(abi=abi, bytecode=bytecode)
 
-        >>> tx_hash = ArraysContract.constructor([b'b']).transact()
-        >>> tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
-
-        >>> array_contract = w3.eth.contract(
-        ...     address=tx_receipt.contractAddress,
-        ...     abi=abi
-        ... )
-
-        >>> array_contract.functions.getBytes2Value().call()
-        [b'b\x00']
-        >>> array_contract.functions.setBytes2Value([b'a']).transact({'gas': 420000, 'gasPrice': Web3.to_wei(1, 'gwei')})
-        HexBytes('0xc5377ba25224bd763ceedc0ee455cc14fc57b23dbc6b6409f40a557a009ff5f4')
-        >>> array_contract.functions.getBytes2Value().call()
-        [b'a\x00']
-        >>> w3.disable_strict_bytes_type_checking()
-        >>> array_contract.functions.setBytes2Value([b'a']).transact()
-        Traceback (most recent call last):
-           ...
-        ValidationError:
-        Could not identify the intended function with name
-
-        >>> tx_hash = ArraysContract.constructor([b'b']).transact()
-        >>> tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
-
-        >>> array_contract = w3.eth.contract(
-        ...     address=tx_receipt.contractAddress,
-        ...     abi=abi
-        ... )
-
-        >>> array_contract.functions.getBytes2Value().call()
-        [b'b\x00']
-        >>> array_contract.functions.setBytes2Value([b'a']).transact({'gas': 420000, 'gasPrice': Web3.to_wei(1, 'gwei')})
-        HexBytes('0xc5377ba25224bd763ceedc0ee455cc14fc57b23dbc6b6409f40a557a009ff5f4')
-        >>> array_contract.functions.getBytes2Value().call()
-        [b'a\x00']
-        >>> w3.disable_strict_bytes_type_checking()
-        >>> array_contract.functions.setBytes2Value([b'a']).transact()
-        Traceback (most recent call last):
-           ...
-        ValidationError:
-        Could not identify the intended function with name
-
-    >>> tx_hash = ArraysContract.constructor([b'b']).transact()
+    >>> tx_hash = ArraysContract.constructor([b'bb']).transact()
     >>> tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
-
     >>> array_contract = w3.eth.contract(
     ...     address=tx_receipt.contractAddress,
     ...     abi=abi
     ... )
+    >>> array_contract.functions.getBytes2Value().call()
+    [b'bb']
 
+    >>> # set value with appropriate byte size
+    >>> array_contract.functions.setBytes2Value([b'aa']).transact({'gas': 420000, "maxPriorityFeePerGas": 10 ** 9, "maxFeePerGas": 10 ** 9})
+    HexBytes('0xcb95151142ea56dbf2753d70388aef202a7bb5a1e323d448bc19f1d2e1fe3dc9')
+    >>> # check value
+    >>> array_contract.functions.getBytes2Value().call()
+    [b'aa']
+
+    >>> # trying to set value without appropriate size (bytes2) is not valid
+    >>> array_contract.functions.setBytes2Value([b'b']).transact()
+    Traceback (most recent call last):
+       ...
+    web3.exceptions.Web3ValidationError:
+    Could not identify the intended function with name
+    >>> # check value is still b'aa'
+    >>> array_contract.functions.getBytes2Value().call()
+    [b'aa']
+
+    >>> # disabling strict byte checking...
+    >>> w3.strict_bytes_type_checking = False
+
+    >>> tx_hash = ArraysContract.constructor([b'b']).transact()
+    >>> tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
+    >>> array_contract = w3.eth.contract(
+    ...     address=tx_receipt.contractAddress,
+    ...     abi=abi
+    ... )
+    >>> # check value is zero-padded... i.e. b'b\x00'
     >>> array_contract.functions.getBytes2Value().call()
     [b'b\x00']
-    >>> array_contract.functions.setBytes2Value([b'a']).transact({'gas': 420000, 'gasPrice': Web3.to_wei(1, 'gwei')})
-    HexBytes('0xc5377ba25224bd763ceedc0ee455cc14fc57b23dbc6b6409f40a557a009ff5f4')
-    >>> array_contract.functions.getBytes2Value().call()
-    [b'a\x00']
-    >>> w3.enable_strict_bytes_type_checking()
+
+    >>> # set the flag back to True
+    >>> w3.strict_bytes_type_checking = True
+
     >>> array_contract.functions.setBytes2Value([b'a']).transact()
     Traceback (most recent call last):
        ...
-    Web3ValidationError:
-    Could not identify the intended function with name `setBytes2Value`
-
+    web3.exceptions.Web3ValidationError:
+    Could not identify the intended function with name
 
 .. _contract-functions:
 
