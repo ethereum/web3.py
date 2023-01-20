@@ -316,28 +316,39 @@ Check Encodability
         >>> from web3.auto.gethdev import w3
         >>> w3.is_encodable('bytes2', b'12')
         True
-        >>> w3.is_encodable('bytes2', b'1')
-        True
         >>> w3.is_encodable('bytes2', '0x1234')
         True
-        >>> w3.is_encodable('bytes2', b'123')
+        >>> w3.is_encodable('bytes2', '1234')  # not 0x-prefixed, no assumptions will be made
+        False
+        >>> w3.is_encodable('bytes2', b'1')  # does not match specified bytes size
+        False
+        >>> w3.is_encodable('bytes2', b'123')  # does not match specified bytes size
         False
 
-.. py:method:: w3.enable_strict_bytes_type_checking()
+.. py:attribute:: w3.strict_bytes_type_checking
 
-   Enables stricter bytes type checking. For more examples see :ref:`enable-strict-byte-check`
+    Disable the stricter bytes type checking that is loaded by default. For more
+    examples, see :ref:`disable-strict-byte-check`
 
     .. doctest::
 
         >>> from web3.auto.gethdev import w3
-                >>> w3.disable_strict_bytes_type_checking()
-                >>> w3.is_encodable('bytes2', b'12')
-                True
-                >>> w3.is_encodable('bytes2', b'1')
-                False
-        >>> w3.enable_strict_bytes_type_checking()
+
         >>> w3.is_encodable('bytes2', b'12')
         True
+
+        >>>  # not of exact size bytes2
+        >>> w3.is_encodable('bytes2', b'1')
+        False
+
+        >>> w3.strict_bytes_type_checking = False
+
+        >>> # zero-padded, so encoded to: b'1\x00'
+        >>> w3.is_encodable('bytes2', b'1')
+        True
+
+        >>> # re-enable it
+        >>> w3.strict_bytes_type_checking = True
         >>> w3.is_encodable('bytes2', b'1')
         False
 
@@ -345,7 +356,7 @@ Check Encodability
 RPC API Modules
 ~~~~~~~~~~~~~~~
 
-Each ``Web3`` instance also exposes these namespaced API modules.
+Each ``Web3`` instance also exposes these name-spaced API modules.
 
 
 .. py:attribute:: Web3.eth

@@ -1,0 +1,1 @@
+Strict bytes type checking is now default for ``web3.py``. This change also adds a boolean flag for turning this feature on and off.

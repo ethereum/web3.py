@@ -25,22 +25,17 @@ All addresses must be supplied in one of three ways:
   <https://github.com/ethereum/EIPs/blob/master/EIPS/eip-55.md>`_ spec.
 * A 20-byte binary address.
 
-Strict Bytes Type Checking
---------------------------
+Disabling Strict Bytes Type Checking
+------------------------------------
 
-.. note ::
-
-  In version 6, this will be the default behavior
-
-There is a method on web3 that will enable stricter bytes type checking.
-The default is to allow Python strings, and to allow bytestrings less
-than the specified byte size. To enable stricter checks, use
-``w3.enable_strict_bytes_type_checking()``. This method will cause the web3
+There is a method on web3 that will disable strict bytes type checking.
+This allows bytes values of Python strings and allows bytestrings less
+than the specified byte size. To disable stricter checks, set the
+``w3.strict_bytes_type_checking`` flag to ``False``. This will no longer cause the web3
 instance to raise an error if a Python string is passed in without a "0x"
-prefix. It will also raise an error if the byte string or hex string is not
+prefix. It will also render valid byte strings or hex strings that are below
 the exact number of bytes specified by the ABI type. See the
-:ref:`enable-strict-byte-check` section
-for an example and more details.
+:ref:`disable-strict-byte-check` section for an example and more details.
 
 Types by Example
 ----------------

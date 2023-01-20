@@ -52,7 +52,7 @@ from eth_utils import (
 )
 
 from web3._utils.abi import (
-    build_default_registry,
+    build_non_strict_registry,
     build_strict_registry,
     map_abi_data,
 )
@@ -163,6 +163,8 @@ def get_default_modules() -> Dict[str, Union[Type[Module], Sequence[Any]]]:
 
 
 class Web3:
+    _strict_bytes_type_checking = True
+
     # Providers
     HTTPProvider = HTTPProvider
     IPCProvider = IPCProvider
@@ -290,6 +292,19 @@ class Web3:
 
         return __version__
 
+    @property
+    def strict_bytes_type_checking(self) -> bool:
+        return self._strict_bytes_type_checking
+
+    @strict_bytes_type_checking.setter
+    def strict_bytes_type_checking(self, strict_bytes_type_check: bool) -> None:
+        self.codec = (
+            ABICodec(build_strict_registry())
+            if strict_bytes_type_check
+            else ABICodec(build_non_strict_registry())
+        )
+        self._strict_bytes_type_checking = strict_bytes_type_check
+
     @staticmethod
     @apply_to_return_value(HexBytes)
     def keccak(
@@ -382,6 +397,3 @@ class Web3:
 
         if not hasattr(self, "_pm"):
             self.attach_modules({"_pm": PM})
-
-    def disable_strict_bytes_type_checking(self) -> None:
-        self.codec = ABICodec(build_default_registry())
