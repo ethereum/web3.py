@@ -252,8 +252,6 @@ class Web3:
         ens: Union[ENS, AsyncENS, "Empty"] = empty,
     ) -> None:
         self.manager = self.RequestManager(self, provider, middlewares)
-        # this codec gets used in the module initialization,
-        # so it needs to come before attach_modules
         self.codec = ABICodec(build_strict_registry())
 
         if modules is None:
@@ -369,14 +367,20 @@ class Web3:
     @property
     def ens(self) -> Union[ENS, AsyncENS, "Empty"]:
         if self._ens is empty:
-            return (
-                AsyncENS.from_web3(self) if self.eth.is_async else ENS.from_web3(self)
+            ns = (
+                AsyncENS.from_web3(self)
+                if self.provider.is_async
+                else ENS.from_web3(self)
             )
+            ns.w3 = self  # set self object reference for ``ENS.w3``
+            return cast(AsyncENS, ns) if self.provider.is_async else cast(ENS, ns)
 
         return self._ens
 
     @ens.setter
     def ens(self, new_ens: Union[ENS, AsyncENS, "Empty"]) -> None:
+        if new_ens:
+            new_ens.w3 = self  # set self object reference for ``ENS.w3``
         self._ens = new_ens
 
     @property
