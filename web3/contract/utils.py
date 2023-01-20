@@ -134,6 +134,121 @@ def call_contract_function(
         return normalized_data
 
 
+def transact_with_contract_function(
+    address: ChecksumAddress,
+    w3: "Web3",
+    function_name: Optional[FunctionIdentifier] = None,
+    transaction: Optional[TxParams] = None,
+    contract_abi: Optional[ABI] = None,
+    fn_abi: Optional[ABIFunction] = None,
+    *args: Any,
+    **kwargs: Any,
+) -> HexBytes:
+    """
+    Helper function for interacting with a contract function by sending a
+    transaction.
+    """
+    transact_transaction = prepare_transaction(
+        address,
+        w3,
+        fn_identifier=function_name,
+        contract_abi=contract_abi,
+        transaction=transaction,
+        fn_abi=fn_abi,
+        fn_args=args,
+        fn_kwargs=kwargs,
+    )
+
+    txn_hash = w3.eth.send_transaction(transact_transaction)
+    return txn_hash
+
+
+def estimate_gas_for_function(
+    address: ChecksumAddress,
+    w3: "Web3",
+    fn_identifier: Optional[FunctionIdentifier] = None,
+    transaction: Optional[TxParams] = None,
+    contract_abi: Optional[ABI] = None,
+    fn_abi: Optional[ABIFunction] = None,
+    block_identifier: Optional[BlockIdentifier] = None,
+    *args: Any,
+    **kwargs: Any,
+) -> int:
+    """Estimates gas cost a function call would take.
+
+    Don't call this directly, instead use :meth:`Contract.estimate_gas`
+    on your contract instance.
+    """
+    estimate_transaction = prepare_transaction(
+        address,
+        w3,
+        fn_identifier=fn_identifier,
+        contract_abi=contract_abi,
+        fn_abi=fn_abi,
+        transaction=transaction,
+        fn_args=args,
+        fn_kwargs=kwargs,
+    )
+
+    return w3.eth.estimate_gas(estimate_transaction, block_identifier)
+
+
+def build_transaction_for_function(
+    address: ChecksumAddress,
+    w3: "Web3",
+    function_name: Optional[FunctionIdentifier] = None,
+    transaction: Optional[TxParams] = None,
+    contract_abi: Optional[ABI] = None,
+    fn_abi: Optional[ABIFunction] = None,
+    *args: Any,
+    **kwargs: Any,
+) -> TxParams:
+    """Builds a dictionary with the fields required to make the given transaction
+
+    Don't call this directly, instead use :meth:`Contract.build_transaction`
+    on your contract instance.
+    """
+    prepared_transaction = prepare_transaction(
+        address,
+        w3,
+        fn_identifier=function_name,
+        contract_abi=contract_abi,
+        fn_abi=fn_abi,
+        transaction=transaction,
+        fn_args=args,
+        fn_kwargs=kwargs,
+    )
+
+    prepared_transaction = fill_transaction_defaults(w3, prepared_transaction)
+
+    return prepared_transaction
+
+
+def find_functions_by_identifier(
+    contract_abi: ABI,
+    w3: "Web3",
+    address: ChecksumAddress,
+    callable_check: Callable[..., Any],
+    function_type: Type[BaseContractFunction],
+) -> List[BaseContractFunction]:
+    fns_abi = filter_by_type("function", contract_abi)
+    return [
+        function_type.factory(
+            fn_abi["name"],
+            w3=w3,
+            contract_abi=contract_abi,
+            address=address,
+            function_identifier=fn_abi["name"],
+            abi=fn_abi,
+        )
+        for fn_abi in fns_abi
+        if callable_check(fn_abi)
+    ]
+
+
+# --- async --- #
+
+
 async def async_call_contract_function(
     async_w3: "Web3",
     address: ChecksumAddress,
@@ -210,35 +325,6 @@ async def async_call_contract_function(
         return normalized_data
 
 
-def transact_with_contract_function(
-    address: ChecksumAddress,
-    w3: "Web3",
-    function_name: Optional[FunctionIdentifier] = None,
-    transaction: Optional[TxParams] = None,
-    contract_abi: Optional[ABI] = None,
-    fn_abi: Optional[ABIFunction] = None,
-    *args: Any,
-    **kwargs: Any,
-) -> HexBytes:
-    """
-    Helper function for interacting with a contract function by sending a
-    transaction.
-    """
-    transact_transaction = prepare_transaction(
-        address,
-        w3,
-        fn_identifier=function_name,
-        contract_abi=contract_abi,
-        transaction=transaction,
-        fn_abi=fn_abi,
-        fn_args=args,
-        fn_kwargs=kwargs,
-    )
-
-    txn_hash = w3.eth.send_transaction(transact_transaction)
-    return txn_hash
-
-
 async def async_transact_with_contract_function(
     address: ChecksumAddress,
     w3: "Web3",
@@ -266,36 +352,6 @@ async def async_transact_with_contract_function(
 
     txn_hash = await w3.eth.send_transaction(transact_transaction)  # type: ignore
     return txn_hash
-
-
-def estimate_gas_for_function(
-    address: ChecksumAddress,
-    w3: "Web3",
-    fn_identifier: Optional[FunctionIdentifier] = None,
-    transaction: Optional[TxParams] = None,
-    contract_abi: Optional[ABI] = None,
-    fn_abi: Optional[ABIFunction] = None,
-    block_identifier: Optional[BlockIdentifier] = None,
-    *args: Any,
-    **kwargs: Any,
-) -> int:
-    """Estimates gas cost a function call would take.
-
-    Don't call this directly, instead use :meth:`Contract.estimate_gas`
-    on your contract instance.
-    """
-    estimate_transaction = prepare_transaction(
-        address,
-        w3,
-        fn_identifier=fn_identifier,
-        contract_abi=contract_abi,
-        fn_abi=fn_abi,
-        transaction=transaction,
-        fn_args=args,
-        fn_kwargs=kwargs,
-    )
-
-    return w3.eth.estimate_gas(estimate_transaction, block_identifier)
 
 
 async def async_estimate_gas_for_function(
@@ -330,37 +386,6 @@ async def async_estimate_gas_for_function(
     )
 
 
-def build_transaction_for_function(
-    address: ChecksumAddress,
-    w3: "Web3",
-    function_name: Optional[FunctionIdentifier] = None,
-    transaction: Optional[TxParams] = None,
-    contract_abi: Optional[ABI] = None,
-    fn_abi: Optional[ABIFunction] = None,
-    *args: Any,
-    **kwargs: Any,
-) -> TxParams:
-    """Builds a dictionary with the fields required to make the given transaction
-
-    Don't call this directly, instead use :meth:`Contract.build_transaction`
-    on your contract instance.
-    """
-    prepared_transaction = prepare_transaction(
-        address,
-        w3,
-        fn_identifier=function_name,
-        contract_abi=contract_abi,
-        fn_abi=fn_abi,
-        transaction=transaction,
-        fn_args=args,
-        fn_kwargs=kwargs,
-    )
-
-    prepared_transaction = fill_transaction_defaults(w3, prepared_transaction)
-
-    return prepared_transaction
-
-
 async def async_build_transaction_for_function(
     address: ChecksumAddress,
     w3: "Web3",
@@ -388,25 +413,3 @@ async def async_build_transaction_for_function(
     )
 
     return await async_fill_transaction_defaults(w3, prepared_transaction)
-
-
-def find_functions_by_identifier(
-    contract_abi: ABI,
-    w3: "Web3",
-    address: ChecksumAddress,
-    callable_check: Callable[..., Any],
-    function_type: Type[BaseContractFunction],
-) -> List[BaseContractFunction]:
-    fns_abi = filter_by_type("function", contract_abi)
-    return [
-        function_type.factory(
-            fn_abi["name"],
-            w3=w3,
-            contract_abi=contract_abi,
-            address=address,
-            function_identifier=fn_abi["name"],
-            abi=fn_abi,
-        )
-        for fn_abi in fns_abi
-        if callable_check(fn_abi)
-    ]
