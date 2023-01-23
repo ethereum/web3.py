@@ -5,6 +5,7 @@ from typing import (
     Callable,
     List,
     Optional,
+    Sequence,
     Tuple,
     Type,
 )
@@ -244,6 +245,18 @@ def find_functions_by_identifier(
         for fn_abi in fns_abi
         if callable_check(fn_abi)
     ]
+
+
+def get_function_by_identifier(
+    fns: Sequence[BaseContractFunction], identifier: str
+) -> BaseContractFunction:
+    if len(fns) > 1:
+        raise ValueError(
+            f"Found multiple functions with matching {identifier}. " f"Found: {fns!r}"
+        )
+    elif len(fns) == 0:
+        raise ValueError(f"Could not find any function with matching {identifier}")
+    return fns[0]
 
 
 # --- async --- #

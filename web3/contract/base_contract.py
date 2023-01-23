@@ -99,7 +99,7 @@ from web3.exceptions import (
     NoABIEventsFound,
     NoABIFound,
     NoABIFunctionsFound,
-    ValidationError,
+    Web3ValidationError,
 )
 from web3.logs import (
     DISCARD,
@@ -218,7 +218,7 @@ class BaseContract:
         fns = self.find_functions_by_identifier(
             self.abi, self.w3, self.address, callable_check
         )
-        return get_function_by_identifier(fns, "signature")
+        return self.get_function_by_identifier(fns, "signature")
 
     @combomethod
     def find_functions_by_name(self, fn_name: str) -> "BaseContractFunction":
@@ -232,7 +232,7 @@ class BaseContract:
     @combomethod
     def get_function_by_name(self, fn_name: str) -> "BaseContractFunction":
         fns = self.find_functions_by_name(fn_name)
-        return get_function_by_identifier(fns, "name")
+        return self.get_function_by_identifier(fns, "name")
 
     @combomethod
     def get_function_by_selector(
@@ -246,7 +246,7 @@ class BaseContract:
         fns = self.find_functions_by_identifier(
             self.abi, self.w3, self.address, callable_check
         )
-        return get_function_by_identifier(fns, "selector")
+        return self.get_function_by_identifier(fns, "selector")
 
     @combomethod
     def decode_function_input(
@@ -279,7 +279,7 @@ class BaseContract:
     @combomethod
     def get_function_by_args(self, *args: Any) -> "BaseContractFunction":
         fns = self.find_functions_by_args(*args)
-        return get_function_by_identifier(fns, "args")
+        return self.get_function_by_identifier(fns, "args")
 
     #
     # Private Helpers
@@ -360,6 +360,14 @@ class BaseContract:
         address: ChecksumAddress,
         callable_check: Callable[..., Any],
     ) -> List[Any]:
+        raise NotImplementedError(
+            "This method should be implemented in the inherited class"
+        )
+
+    @combomethod
+    def get_function_by_identifier(
+        cls, fns: Sequence["BaseContractFunction"], identifier: str
+    ) -> "BaseContractFunction":
         raise NotImplementedError(
             "This method should be implemented in the inherited class"
         )
@@ -947,7 +955,7 @@ class BaseContractEvent:
         blkhash_set = blockHash is not None
         blknum_set = fromBlock is not None or toBlock is not None
         if blkhash_set and blknum_set:
-            raise ValidationError(
+            raise Web3ValidationError(
                 "blockHash cannot be set at the same time as fromBlock or toBlock"
             )
 
@@ -972,6 +980,26 @@ class BaseContractEvent:
     def factory(cls, class_name: str, **kwargs: Any) -> PropertyCheckingFactory:
         return PropertyCheckingFactory(class_name, (cls,), kwargs)
 
+    @staticmethod
+    def check_for_forbidden_api_filter_arguments(
+        event_abi: ABIEvent, _filters: Dict[str, Any]
+    ) -> None:
+        name_indexed_inputs = {_input["name"]: _input for _input in event_abi["inputs"]}
+
+        for filter_name, filter_value in _filters.items():
+            _input = name_indexed_inputs[filter_name]
+            if is_array_type(_input["type"]):
+                raise TypeError(
+                    "createFilter no longer supports array type filter arguments. "
+                    "see the build_filter method for filtering array type filters."
+                )
+            if is_list_like(filter_value) and is_dynamic_sized_type(_input["type"]):
+                raise TypeError(
+                    "createFilter no longer supports setting filter argument options "
+                    "for dynamic sized types. See the build_filter method for setting "
+                    "filters with the match_any method."
+                )
+
     @combomethod
     def _set_up_filter_builder(
         self,
@@ -994,7 +1022,7 @@ class BaseContractEvent:
 
         event_abi = self._get_event_abi()
 
-        check_for_forbidden_api_filter_arguments(event_abi, _filters)
+        self.check_for_forbidden_api_filter_arguments(event_abi, _filters)
 
         _, event_filter_params = construct_event_filter_params(
             self._get_event_abi(),
@@ -1137,35 +1165,3 @@ class BaseContractCaller:
             block_identifier=block_identifier,
             ccip_read_enabled=ccip_read_enabled,
         )
-
-
-def check_for_forbidden_api_filter_arguments(
-    event_abi: ABIEvent, _filters: Dict[str, Any]
-) -> None:
-    name_indexed_inputs = {_input["name"]: _input for _input in event_abi["inputs"]}
-
-    for filter_name, filter_value in _filters.items():
-        _input = name_indexed_inputs[filter_name]
-        if is_array_type(_input["type"]):
-            raise TypeError(
-                "createFilter no longer supports array type filter arguments. "
-                "see the build_filter method for filtering array type filters."
-            )
-        if is_list_like(filter_value) and is_dynamic_sized_type(_input["type"]):
-            raise TypeError(
-                "createFilter no longer supports setting filter argument options for "
-                "dynamic sized types. See the build_filter method for setting "
-                "filters with the match_any method."
-            )
-
-
-def get_function_by_identifier(
-    fns: Sequence[BaseContractFunction], identifier: str
-) -> BaseContractFunction:
-    if len(fns) > 1:
-        raise ValueError(
-            f"Found multiple functions with matching {identifier}. " f"Found: {fns!r}"
-        )
-    elif len(fns) == 0:
-        raise ValueError(f"Could not find any function with matching {identifier}")
-    return fns[0]
