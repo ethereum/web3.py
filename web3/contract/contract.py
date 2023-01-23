@@ -57,6 +57,7 @@ from web3.contract.utils import (
     call_contract_function,
     estimate_gas_for_function,
     find_functions_by_identifier,
+    get_function_by_identifier,
     transact_with_contract_function,
 )
 from web3.types import (  # noqa: F401
@@ -311,6 +312,12 @@ class Contract(BaseContract):
         return find_functions_by_identifier(  # type: ignore
             contract_abi, w3, address, callable_check, ContractFunction
         )
+
+    @combomethod
+    def get_function_by_identifier(
+        cls, fns: Sequence[BaseContractFunction], identifier: str
+    ) -> BaseContractFunction:
+        return get_function_by_identifier(fns, identifier)
 
 
 class ContractConstructor(BaseContractConstructor):

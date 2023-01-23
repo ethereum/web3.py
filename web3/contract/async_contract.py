@@ -58,6 +58,7 @@ from web3.contract.utils import (
     async_estimate_gas_for_function,
     async_transact_with_contract_function,
     find_functions_by_identifier,
+    get_function_by_identifier,
 )
 from web3.types import (  # noqa: F401
     ABI,
@@ -190,6 +191,12 @@ class AsyncContract(BaseContract):
         return find_functions_by_identifier(  # type: ignore
             contract_abi, w3, address, callable_check, AsyncContractFunction
         )
+
+    @combomethod
+    def get_function_by_identifier(
+        cls, fns: Sequence[BaseContractFunction], identifier: str
+    ) -> BaseContractFunction:
+        return get_function_by_identifier(fns, identifier)
 
 
 class AsyncContractConstructor(BaseContractConstructor):
