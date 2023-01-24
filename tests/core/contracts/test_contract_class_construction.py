@@ -16,15 +16,15 @@ from web3.exceptions import (
 def test_class_construction_sets_class_vars(
     w3, math_contract_abi, math_contract_bytecode, math_contract_runtime
 ):
-    MathContract = w3.eth.contract(
+    math_contract_instance = w3.eth.contract(
         abi=math_contract_abi,
         bytecode=math_contract_bytecode,
         bytecode_runtime=math_contract_runtime,
     )
 
-    assert MathContract.w3 == w3
-    assert MathContract.bytecode == decode_hex(math_contract_bytecode)
-    assert MathContract.bytecode_runtime == decode_hex(math_contract_runtime)
+    assert math_contract_instance.w3 == w3
+    assert math_contract_instance.bytecode == decode_hex(math_contract_bytecode)
+    assert math_contract_instance.bytecode_runtime == decode_hex(math_contract_runtime)
 
 
 def test_error_to_instantiate_base_class():
@@ -35,10 +35,10 @@ def test_error_to_instantiate_base_class():
 def test_abi_as_json_string(w3, math_contract_abi, some_address):
     abi_str = json.dumps(math_contract_abi)
 
-    MathContract = w3.eth.contract(abi=abi_str)
-    assert MathContract.abi == math_contract_abi
+    math_contract_instance = w3.eth.contract(abi=abi_str)
+    assert math_contract_instance.abi == math_contract_abi
 
-    math = MathContract(some_address)
+    math = math_contract_instance(some_address)
     assert math.abi == math_contract_abi
 
 

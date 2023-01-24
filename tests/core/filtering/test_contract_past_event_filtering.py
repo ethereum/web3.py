@@ -6,22 +6,22 @@ from eth_utils import (
 )
 
 
-@pytest.mark.parametrize("call_as_instance", (True, False))
+@pytest.mark.parametrize("call_deployed_contract", (True, False))
 @pytest.mark.parametrize("api_style", ("v4", "build_filter"))
 def test_on_filter_using_get_all_entries_interface(
     w3,
     emitter,
-    Emitter,
+    emitter_contract_instance,
     wait_for_transaction,
-    emitter_event_ids,
-    call_as_instance,
+    emitter_contract_event_ids,
+    call_deployed_contract,
     api_style,
     create_filter,
 ):
-    if call_as_instance:
+    if call_deployed_contract:
         contract = emitter
     else:
-        contract = Emitter
+        contract = emitter_contract_instance
 
     if api_style == "build_filter":
         builder = contract.events.LogNoArguments.build_filter()
@@ -32,7 +32,9 @@ def test_on_filter_using_get_all_entries_interface(
             contract, ["LogNoArguments", {"fromBlock": "latest"}]
         )
 
-    txn_hash = emitter.functions.logNoArgs(emitter_event_ids.LogNoArguments).transact()
+    txn_hash = emitter.functions.logNoArgs(
+        emitter_contract_event_ids.LogNoArguments
+    ).transact()
     wait_for_transaction(w3, txn_hash)
 
     log_entries = event_filter.get_all_entries()
@@ -47,25 +49,27 @@ def test_on_filter_using_get_all_entries_interface(
     assert log_entries_2[0]["transactionHash"] == txn_hash
 
 
-@pytest.mark.parametrize("call_as_instance", (True, False))
+@pytest.mark.parametrize("call_deployed_contract", (True, False))
 @pytest.mark.parametrize("api_style", ("v4", "build_filter"))
 def test_get_all_entries_returned_block_data(
     w3,
     emitter,
-    Emitter,
+    emitter_contract_instance,
     wait_for_transaction,
-    emitter_event_ids,
-    call_as_instance,
+    emitter_contract_event_ids,
+    call_deployed_contract,
     api_style,
     create_filter,
 ):
-    txn_hash = emitter.functions.logNoArgs(emitter_event_ids.LogNoArguments).transact()
+    txn_hash = emitter.functions.logNoArgs(
+        emitter_contract_event_ids.LogNoArguments
+    ).transact()
     txn_receipt = wait_for_transaction(w3, txn_hash)
 
-    if call_as_instance:
+    if call_deployed_contract:
         contract = emitter
     else:
-        contract = Emitter
+        contract = emitter_contract_instance
 
     if api_style == "build_filter":
         builder = contract.events.LogNoArguments.build_filter()
@@ -99,22 +103,22 @@ def event_loop():
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("call_as_instance", (True, False))
+@pytest.mark.parametrize("call_deployed_contract", (True, False))
 @pytest.mark.parametrize("api_style", ("v4", "build_filter"))
 async def test_on_async_filter_using_get_all_entries_interface(
     async_w3,
     async_emitter,
-    AsyncEmitter,
+    async_emitter_contract_instance,
     async_wait_for_transaction,
-    emitter_event_ids,
-    call_as_instance,
+    emitter_contract_event_ids,
+    call_deployed_contract,
     api_style,
     async_create_filter,
 ):
-    if call_as_instance:
+    if call_deployed_contract:
         contract = async_emitter
     else:
-        contract = AsyncEmitter
+        contract = async_emitter_contract_instance
 
     if api_style == "build_filter":
         builder = contract.events.LogNoArguments.build_filter()
@@ -126,7 +130,7 @@ async def test_on_async_filter_using_get_all_entries_interface(
         )
 
     txn_hash = await async_emitter.functions.logNoArgs(
-        emitter_event_ids.LogNoArguments
+        emitter_contract_event_ids.LogNoArguments
     ).transact()
     await async_wait_for_transaction(async_w3, txn_hash)
 
@@ -143,27 +147,27 @@ async def test_on_async_filter_using_get_all_entries_interface(
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("call_as_instance", (True, False))
+@pytest.mark.parametrize("call_deployed_contract", (True, False))
 @pytest.mark.parametrize("api_style", ("v4", "build_filter"))
 async def test_async_get_all_entries_returned_block_data(
     async_w3,
     async_emitter,
-    AsyncEmitter,
+    async_emitter_contract_instance,
     async_wait_for_transaction,
-    emitter_event_ids,
-    call_as_instance,
+    emitter_contract_event_ids,
+    call_deployed_contract,
     api_style,
     async_create_filter,
 ):
     txn_hash = await async_emitter.functions.logNoArgs(
-        emitter_event_ids.LogNoArguments
+        emitter_contract_event_ids.LogNoArguments
     ).transact()
     txn_receipt = await async_wait_for_transaction(async_w3, txn_hash)
 
-    if call_as_instance:
+    if call_deployed_contract:
         contract = async_emitter
     else:
-        contract = AsyncEmitter
+        contract = async_emitter_contract_instance
 
     if api_style == "build_filter":
         builder = contract.events.LogNoArguments.build_filter()

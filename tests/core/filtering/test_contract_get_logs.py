@@ -14,10 +14,10 @@ def test_contract_get_logs_all(
     w3,
     emitter,
     wait_for_transaction,
-    emitter_event_ids,
+    emitter_contract_event_ids,
 ):
     contract = emitter
-    event_id = emitter_event_ids.LogNoArguments
+    event_id = emitter_contract_event_ids.LogNoArguments
 
     txn_hash = contract.functions.logNoArgs(event_id).transact()
     wait_for_transaction(w3, txn_hash)
@@ -31,10 +31,10 @@ def test_contract_get_logs_range(
     w3,
     emitter,
     wait_for_transaction,
-    emitter_event_ids,
+    emitter_contract_event_ids,
 ):
     contract = emitter
-    event_id = emitter_event_ids.LogNoArguments
+    event_id = emitter_contract_event_ids.LogNoArguments
 
     assert w3.eth.block_number == 2
     txn_hash = contract.functions.logNoArgs(event_id).transact()
@@ -53,13 +53,13 @@ def test_contract_get_logs_range(
 
 
 def test_contract_get_logs_argument_filter(
-    w3, emitter, wait_for_transaction, emitter_event_ids
+    w3, emitter, wait_for_transaction, emitter_contract_event_ids
 ):
 
     contract = emitter
 
     txn_hashes = []
-    event_id = emitter_event_ids.LogTripleWithIndex
+    event_id = emitter_contract_event_ids.LogTripleWithIndex
     # 1 = arg0
     # 4 = arg1
     # 1 = arg2
@@ -105,10 +105,10 @@ async def test_async_contract_get_logs_all(
     async_w3,
     async_emitter,
     async_wait_for_transaction,
-    emitter_event_ids,
+    emitter_contract_event_ids,
 ):
     contract = async_emitter
-    event_id = emitter_event_ids.LogNoArguments
+    event_id = emitter_contract_event_ids.LogNoArguments
 
     txn_hash = await contract.functions.logNoArgs(event_id).transact()
     await async_wait_for_transaction(async_w3, txn_hash)
@@ -124,10 +124,10 @@ async def test_async_contract_get_logs_range(
     async_w3,
     async_emitter,
     async_wait_for_transaction,
-    emitter_event_ids,
+    emitter_contract_event_ids,
 ):
     contract = async_emitter
-    event_id = emitter_event_ids.LogNoArguments
+    event_id = emitter_contract_event_ids.LogNoArguments
 
     eth_block_number = await async_w3.eth.block_number
     assert eth_block_number == 2
@@ -156,13 +156,13 @@ async def test_async_contract_get_logs_range(
 
 @pytest.mark.asyncio
 async def test_async_contract_get_logs_argument_filter(
-    async_w3, async_emitter, async_wait_for_transaction, emitter_event_ids
+    async_w3, async_emitter, async_wait_for_transaction, emitter_contract_event_ids
 ):
 
     contract = async_emitter
 
     txn_hashes = []
-    event_id = emitter_event_ids.LogTripleWithIndex
+    event_id = emitter_contract_event_ids.LogTripleWithIndex
     # 1 = arg0
     # 4 = arg1
     # 1 = arg2

@@ -712,7 +712,9 @@ class AsyncEthModuleTest:
 
     @pytest.mark.asyncio
     async def test_eth_get_code_invalid_address(
-        self, async_w3: "Web3", math_contract
+        self,
+        async_w3: "Web3",
+        math_contract: "Contract",
     ) -> None:
         with pytest.raises(InvalidAddress):
             await async_w3.eth.get_code(  # type: ignore
@@ -739,7 +741,7 @@ class AsyncEthModuleTest:
         assert transaction_count >= 0
 
     @pytest.mark.asyncio
-    async def test_eth_call(self, async_w3: "Web3", math_contract) -> None:
+    async def test_eth_call(self, async_w3: "Web3", math_contract: "Contract") -> None:
         coinbase = await async_w3.eth.coinbase  # type: ignore
         txn_params = math_contract._prepare_transaction(
             fn_name="add",
@@ -776,7 +778,7 @@ class AsyncEthModuleTest:
 
     @pytest.mark.asyncio
     async def test_eth_call_with_0_result(
-        self, async_w3: "Web3", math_contract
+        self, async_w3: "Web3", math_contract: "Contract"
     ) -> None:
         coinbase = await async_w3.eth.coinbase  # type: ignore
         txn_params = math_contract._prepare_transaction(
@@ -1779,7 +1781,9 @@ class EthModuleTest:
             assert isinstance(code, HexBytes)
             assert len(code) > 0
 
-    def test_eth_get_code_invalid_address(self, w3: "Web3", math_contract) -> None:
+    def test_eth_get_code_invalid_address(
+        self, w3: "Web3", math_contract: "Contract"
+    ) -> None:
         with pytest.raises(InvalidAddress):
             w3.eth.get_code(
                 ChecksumAddress(HexAddress(HexStr(math_contract.address.lower())))
@@ -2661,7 +2665,7 @@ class EthModuleTest:
         txn_hash = w3.eth.send_raw_transaction(signed_tx.rawTransaction)
         assert txn_hash == signed_tx.hash
 
-    def test_eth_call(self, w3: "Web3", math_contract) -> None:
+    def test_eth_call(self, w3: "Web3", math_contract: "Contract") -> None:
         coinbase = w3.eth.coinbase
         txn_params = math_contract._prepare_transaction(
             fn_name="add",
@@ -2695,7 +2699,9 @@ class EthModuleTest:
         (result,) = w3.codec.decode(["bool"], call_result)
         assert result is False
 
-    def test_eth_call_with_0_result(self, w3: "Web3", math_contract) -> None:
+    def test_eth_call_with_0_result(
+        self, w3: "Web3", math_contract: "Contract"
+    ) -> None:
         coinbase = w3.eth.coinbase
         txn_params = math_contract._prepare_transaction(
             fn_name="add",
@@ -3390,13 +3396,13 @@ class EthModuleTest:
         assert len(result) == 0
 
     def test_eth_call_old_contract_state(
-        self, w3: "Web3", math_contract, unlocked_account: ChecksumAddress
+        self, w3: "Web3", math_contract: "Contract", unlocked_account: ChecksumAddress
     ) -> None:
         start_block = w3.eth.get_block("latest")
         block_num = start_block["number"]
         block_hash = start_block["hash"]
 
-        math_contract.functions.increment().transact({"from": unlocked_account})
+        math_contract.functions.incrementCounter().transact({"from": unlocked_account})
 
         # This isn't an incredibly convincing test since we can't mine, and
         # the default resolved block is latest, So if block_identifier was ignored

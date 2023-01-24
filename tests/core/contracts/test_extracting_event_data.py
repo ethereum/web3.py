@@ -24,77 +24,6 @@ from web3.logs import (
 
 
 @pytest.fixture()
-def Emitter(w3, emitter_contract_kwargs):
-    return w3.eth.contract(**emitter_contract_kwargs)
-
-
-@pytest.fixture()
-def emitter(w3, Emitter, wait_for_transaction, wait_for_block, address_conversion_func):
-    wait_for_block(w3)
-    deploy_txn_hash = Emitter.constructor().transact({"gas": 30029121})
-    deploy_receipt = wait_for_transaction(w3, deploy_txn_hash)
-    contract_address = address_conversion_func(deploy_receipt["contractAddress"])
-
-    bytecode = w3.eth.get_code(contract_address)
-    assert bytecode == Emitter.bytecode_runtime
-    _emitter = Emitter(address=contract_address)
-    assert _emitter.address == contract_address
-    return _emitter
-
-
-@pytest.fixture()
-def EventContract(w3, event_contract_kwargs):
-    return w3.eth.contract(**event_contract_kwargs)
-
-
-@pytest.fixture()
-def event_contract(
-    w3, EventContract, wait_for_transaction, wait_for_block, address_conversion_func
-):
-
-    wait_for_block(w3)
-    deploy_txn_hash = EventContract.constructor().transact(
-        {"from": w3.eth.coinbase, "gas": 1000000}
-    )
-    deploy_receipt = wait_for_transaction(w3, deploy_txn_hash)
-    contract_address = address_conversion_func(deploy_receipt["contractAddress"])
-
-    bytecode = w3.eth.get_code(contract_address)
-    assert bytecode == EventContract.bytecode_runtime
-    event_contract = EventContract(address=contract_address)
-    assert event_contract.address == contract_address
-    return event_contract
-
-
-@pytest.fixture()
-def IndexedEventContract(w3, INDEXED_EVENT_CONTRACT):
-    return w3.eth.contract(**INDEXED_EVENT_CONTRACT)
-
-
-@pytest.fixture()
-def indexed_event_contract(
-    w3,
-    IndexedEventContract,
-    wait_for_transaction,
-    wait_for_block,
-    address_conversion_func,
-):
-
-    wait_for_block(w3)
-    deploy_txn_hash = IndexedEventContract.constructor().transact(
-        {"from": w3.eth.coinbase, "gas": 1000000}
-    )
-    deploy_receipt = wait_for_transaction(w3, deploy_txn_hash)
-    contract_address = address_conversion_func(deploy_receipt["contractAddress"])
-
-    bytecode = w3.eth.get_code(contract_address)
-    assert bytecode == IndexedEventContract.bytecode_runtime
-    indexed_event_contract = IndexedEventContract(address=contract_address)
-    assert indexed_event_contract.address == contract_address
-    return indexed_event_contract
-
-
-@pytest.fixture()
 def dup_txn_receipt(w3, indexed_event_contract, wait_for_transaction, event_contract):
 
     emitter_fn = indexed_event_contract.functions.logTwoEvents
@@ -105,6 +34,30 @@ def dup_txn_receipt(w3, indexed_event_contract, wait_for_transaction, event_cont
     event_contract_fn = event_contract.functions.logTwoEvents
     dup_txn_hash = event_contract_fn(12345).transact()
     return wait_for_transaction(w3, dup_txn_hash)
+
+
+@pytest.fixture
+def emitter(
+    w3,
+    emitter_contract_data,
+    wait_for_transaction,
+    wait_for_block,
+    address_conversion_func,
+):
+    emitter_contract_instance = w3.eth.contract(**emitter_contract_data)
+
+    wait_for_block(w3)
+    deploy_txn_hash = emitter_contract_instance.constructor().transact(
+        {"gas": 30029121}
+    )
+    deploy_receipt = wait_for_transaction(w3, deploy_txn_hash)
+    contract_address = address_conversion_func(deploy_receipt["contractAddress"])
+
+    bytecode = w3.eth.get_code(contract_address)
+    assert bytecode == emitter_contract_instance.bytecode_runtime
+    _emitter = emitter_contract_instance(address=contract_address)
+    assert _emitter.address == contract_address
+    return _emitter
 
 
 @pytest.mark.parametrize(
@@ -158,15 +111,15 @@ def test_event_data_extraction(
     w3,
     emitter,
     wait_for_transaction,
-    emitter_log_topics,
-    emitter_event_ids,
+    emitter_contract_log_topics,
+    emitter_contract_event_ids,
     contract_fn,
     event_name,
     call_args,
     expected_args,
 ):
     emitter_fn = emitter.functions[contract_fn]
-    event_id = getattr(emitter_event_ids, event_name)
+    event_id = getattr(emitter_contract_event_ids, event_name)
     txn_hash = emitter_fn(event_id, *call_args).transact()
     txn_receipt = wait_for_transaction(w3, txn_hash)
 
@@ -175,7 +128,7 @@ def test_event_data_extraction(
 
     event_abi = emitter._find_matching_event_abi(event_name)
 
-    event_topic = getattr(emitter_log_topics, event_name)
+    event_topic = getattr(emitter_contract_log_topics, event_name)
     is_anonymous = event_abi["anonymous"]
 
     if is_anonymous:
@@ -213,7 +166,12 @@ def test_event_data_extraction(
     ),
 )
 def test_event_data_extraction_bytes(
-    w3, emitter, wait_for_transaction, emitter_log_topics, call_args, expected_args
+    w3,
+    emitter,
+    wait_for_transaction,
+    emitter_contract_log_topics,
+    call_args,
+    expected_args,
 ):
     emitter_fn = emitter.functions.logListArgs
     txn_hash = emitter_fn(*call_args).transact()
@@ -225,7 +183,7 @@ def test_event_data_extraction_bytes(
     event_name = "LogListArgs"
     event_abi = emitter._find_matching_event_abi(event_name)
 
-    event_topic = getattr(emitter_log_topics, event_name)
+    event_topic = getattr(emitter_contract_log_topics, event_name)
 
     assert event_topic in log_entry["topics"]
 
@@ -262,7 +220,7 @@ def test_event_data_extraction_bytes_non_strict(
     w3_non_strict_abi,
     non_strict_emitter,
     wait_for_transaction,
-    emitter_log_topics,
+    emitter_contract_log_topics,
     call_args,
     expected_args,
 ):
@@ -276,7 +234,7 @@ def test_event_data_extraction_bytes_non_strict(
     event_name = "LogListArgs"
     event_abi = non_strict_emitter._find_matching_event_abi(event_name)
 
-    event_topic = getattr(emitter_log_topics, event_name)
+    event_topic = getattr(emitter_contract_log_topics, event_name)
 
     assert event_topic in log_entry["topics"]
 
@@ -305,7 +263,11 @@ def test_event_data_extraction_bytes_strict_with_errors(emitter, call_args):
 
 
 def test_dynamic_length_argument_extraction(
-    w3, emitter, wait_for_transaction, emitter_log_topics, emitter_event_ids
+    w3,
+    emitter,
+    wait_for_transaction,
+    emitter_contract_log_topics,
+    emitter_contract_event_ids,
 ):
     string_0 = "this-is-the-first-string-which-exceeds-32-bytes-in-length"
     string_1 = "this-is-the-second-string-which-exceeds-32-bytes-in-length"
@@ -317,7 +279,7 @@ def test_dynamic_length_argument_extraction(
 
     event_abi = emitter._find_matching_event_abi("LogDynamicArgs")
 
-    event_topic = emitter_log_topics.LogDynamicArgs
+    event_topic = emitter_contract_log_topics.LogDynamicArgs
     assert event_topic in log_entry["topics"]
 
     string_0_topic = w3.keccak(text=string_0)
@@ -339,7 +301,7 @@ def test_dynamic_length_argument_extraction(
 
 
 def test_argument_extraction_strict_bytes_types(
-    w3, emitter, wait_for_transaction, emitter_log_topics
+    w3, emitter, wait_for_transaction, emitter_contract_log_topics
 ):
     arg_0 = [b"12"]
     arg_1 = [b"12"]
@@ -352,7 +314,7 @@ def test_argument_extraction_strict_bytes_types(
 
     event_abi = emitter._find_matching_event_abi("LogListArgs")
 
-    event_topic = emitter_log_topics.LogListArgs
+    event_topic = emitter_contract_log_topics.LogListArgs
     assert event_topic in log_entry["topics"]
 
     encoded_arg_0 = w3.codec.encode(["bytes2"], arg_0)
@@ -588,7 +550,7 @@ def test_argument_extraction_strict_bytes_types(
 def test_event_rich_log(
     w3,
     emitter,
-    emitter_event_ids,
+    emitter_contract_event_ids,
     wait_for_transaction,
     contract_fn,
     event_name,
@@ -599,8 +561,8 @@ def test_event_rich_log(
 ):
 
     emitter_fn = emitter.functions[contract_fn]
-    if hasattr(emitter_event_ids, event_name):
-        event_id = getattr(emitter_event_ids, event_name)
+    if hasattr(emitter_contract_event_ids, event_name):
+        event_id = getattr(emitter_contract_event_ids, event_name)
         txn_hash = emitter_fn(event_id, *call_args).transact()
     else:
         # Some tests do not rely on the event_id. Rather than
@@ -852,7 +814,7 @@ def test_event_rich_log(
 def test_event_rich_log_non_strict(
     w3_non_strict_abi,
     non_strict_emitter,
-    emitter_event_ids,
+    emitter_contract_event_ids,
     wait_for_transaction,
     contract_fn,
     event_name,
@@ -863,8 +825,8 @@ def test_event_rich_log_non_strict(
 ):
 
     emitter_fn = non_strict_emitter.functions[contract_fn]
-    if hasattr(emitter_event_ids, event_name):
-        event_id = getattr(emitter_event_ids, event_name)
+    if hasattr(emitter_contract_event_ids, event_name):
+        event_id = getattr(emitter_contract_event_ids, event_name)
         txn_hash = emitter_fn(event_id, *call_args).transact()
     else:
         # Some tests do not rely on the event_id. Rather than
@@ -902,7 +864,7 @@ def test_event_rich_log_non_strict(
 
 @pytest.mark.parametrize("process_receipt", (True, False))
 def test_event_rich_log_with_byte_args(
-    w3, emitter, emitter_event_ids, wait_for_transaction, process_receipt
+    w3, emitter, emitter_contract_event_ids, wait_for_transaction, process_receipt
 ):
     txn_hash = emitter.functions.logListArgs([b"13"], [b"54"]).transact()
     txn_receipt = wait_for_transaction(w3, txn_hash)
@@ -936,7 +898,6 @@ def test_event_rich_log_with_byte_args(
 def test_receipt_processing_with_discard_flag(
     event_contract, indexed_event_contract, dup_txn_receipt, wait_for_transaction
 ):
-
     event_instance = indexed_event_contract.events.LogSingleWithIndex()
 
     returned_logs = event_instance.process_receipt(dup_txn_receipt, errors=DISCARD)
@@ -946,20 +907,20 @@ def test_receipt_processing_with_discard_flag(
 def test_receipt_processing_with_ignore_flag(
     event_contract, indexed_event_contract, dup_txn_receipt, wait_for_transaction
 ):
-
     event_instance = indexed_event_contract.events.LogSingleWithIndex()
+
     returned_logs = event_instance.process_receipt(dup_txn_receipt, errors=IGNORE)
     assert len(returned_logs) == 2
-
-    # Check that the correct error is appended to the log
-    first_log = returned_logs[0]
-    log_error = re.compile("Expected 1 log topics.  Got 0")
-    assert log_error.search(str(first_log.errors)) is not None
 
     # Then, do the same with the other log:
     second_log = returned_logs[1]
     abi_error = re.compile("The event signature did not match the provided ABI")
     assert abi_error.search(str(second_log.errors)) is not None
+
+    # Check that the correct error is appended to the log
+    first_log = returned_logs[0]
+    log_error = re.compile("Expected 1 log topics.  Got 0")
+    assert log_error.search(str(first_log.errors)) is not None
 
     for log in returned_logs:
         # Check that the returned log is the same as what got sent in,

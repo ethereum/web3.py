@@ -39,7 +39,7 @@ A block as returned by `web3.eth.get_block` that has a single transaction.
 #### `math_contract`
 
 An deployed Contract instance of the *Math* contract found in
-`web3._utils.module_testing.math_contract`.
+`web3._utils.contract_sources.MathContract.sol`.
 
 
 #### `unlocked_account`
@@ -65,8 +65,8 @@ The transaction hash of a transaction which has been mined.
 
 #### `emitter_contract`
 
-An deployed Contract instance of the *Emitter* contract found in
-`web3._utils.module_testing.emitter_contract`.
+A deployed Contract instance of the *EmitterContract* contract found in
+`web3._utils.contract_sources.EmitterContract.sol`.
 
 
 #### `block_with_txn_with_log`

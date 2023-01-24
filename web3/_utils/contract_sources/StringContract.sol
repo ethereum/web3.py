@@ -1,22 +1,22 @@
-pragma solidity >=0.7.0;
+pragma solidity >=0.6.0;
 
 contract StringContract {
-    string const = "never used";
-    string value;
+    string public value;
 
     constructor (string memory _value) {
         value = _value;
     }
 
-    function constValue() public payable returns(string memory) {
-        return const;
-    }
-
-    function getValue() public payable returns(string memory) {
+    function getValue() external payable returns(string memory) {
         return value;
     }
 
-    function setValue(string memory _value) public {
+    function setValue(string memory _value) external {
         value = _value;
+    }
+
+    // for testing contract call to unknown function selector
+    fallback(bytes calldata _calldata) external returns(bytes memory) {
+        return _calldata;
     }
 }

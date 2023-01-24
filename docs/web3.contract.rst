@@ -610,51 +610,51 @@ Taking the following contract code as an example:
 
 .. doctest:: arrayscontract
 
-    >>> ArraysContract = w3.eth.contract(abi=abi, bytecode=bytecode)
+    >>> arrays_contract_instance = w3.eth.contract(abi=abi, bytecode=bytecode)
 
-    >>> tx_hash = ArraysContract.constructor([b'bb']).transact()
+    >>> tx_hash = arrays_contract_instance.constructor([b'bb']).transact()
     >>> tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
-    >>> array_contract = w3.eth.contract(
+    >>> arrays_contract = w3.eth.contract(
     ...     address=tx_receipt.contractAddress,
     ...     abi=abi
     ... )
-    >>> array_contract.functions.getBytes2Value().call()
+    >>> arrays_contract.functions.getBytes2Value().call()
     [b'bb']
 
     >>> # set value with appropriate byte size
-    >>> array_contract.functions.setBytes2Value([b'aa']).transact({'gas': 420000, "maxPriorityFeePerGas": 10 ** 9, "maxFeePerGas": 10 ** 9})
+    >>> arrays_contract.functions.setBytes2Value([b'aa']).transact({'gas': 420000, "maxPriorityFeePerGas": 10 ** 9, "maxFeePerGas": 10 ** 9})
     HexBytes('0xcb95151142ea56dbf2753d70388aef202a7bb5a1e323d448bc19f1d2e1fe3dc9')
     >>> # check value
-    >>> array_contract.functions.getBytes2Value().call()
+    >>> arrays_contract.functions.getBytes2Value().call()
     [b'aa']
 
     >>> # trying to set value without appropriate size (bytes2) is not valid
-    >>> array_contract.functions.setBytes2Value([b'b']).transact()
+    >>> arrays_contract.functions.setBytes2Value([b'b']).transact()
     Traceback (most recent call last):
        ...
     web3.exceptions.Web3ValidationError:
     Could not identify the intended function with name
     >>> # check value is still b'aa'
-    >>> array_contract.functions.getBytes2Value().call()
+    >>> arrays_contract.functions.getBytes2Value().call()
     [b'aa']
 
     >>> # disabling strict byte checking...
     >>> w3.strict_bytes_type_checking = False
 
-    >>> tx_hash = ArraysContract.constructor([b'b']).transact()
+    >>> tx_hash = arrays_contract_instance.constructor([b'b']).transact()
     >>> tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
-    >>> array_contract = w3.eth.contract(
+    >>> arrays_contract = w3.eth.contract(
     ...     address=tx_receipt.contractAddress,
     ...     abi=abi
     ... )
     >>> # check value is zero-padded... i.e. b'b\x00'
-    >>> array_contract.functions.getBytes2Value().call()
+    >>> arrays_contract.functions.getBytes2Value().call()
     [b'b\x00']
 
     >>> # set the flag back to True
     >>> w3.strict_bytes_type_checking = True
 
-    >>> array_contract.functions.setBytes2Value([b'a']).transact()
+    >>> arrays_contract.functions.setBytes2Value([b'a']).transact()
     Traceback (most recent call last):
        ...
     web3.exceptions.Web3ValidationError:

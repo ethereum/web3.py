@@ -18,35 +18,6 @@ from tests.utils import (
     _async_wait_for_block_fixture_logic,
     _async_wait_for_transaction_fixture_logic,
 )
-from web3._utils.module_testing.emitter_contract import (
-    EMITTER_CONTRACT_ABI,
-    EMITTER_CONTRACT_BYTECODE,
-    EMITTER_CONTRACT_RUNTIME,
-)
-
-
-@pytest.fixture(scope="module")
-def EMITTER_CODE():
-    return EMITTER_CONTRACT_BYTECODE
-
-
-@pytest.fixture(scope="module")
-def EMITTER_RUNTIME():
-    return EMITTER_CONTRACT_RUNTIME
-
-
-@pytest.fixture(scope="module")
-def EMITTER_ABI():
-    return EMITTER_CONTRACT_ABI
-
-
-@pytest.fixture(scope="module")
-def EMITTER(emitter_contract_bytecode, emitter_contract_runtime, emitter_contract_abi):
-    return {
-        "bytecode": emitter_contract_bytecode,
-        "bytecode_runtime": emitter_contract_runtime,
-        "abi": emitter_contract_abi,
-    }
 
 
 def not_empty_string(x):
@@ -115,14 +86,20 @@ def w3(request):
 
 
 @pytest.fixture(scope="module")
-def Emitter(w3, emitter_contract_kwargs):
-    return w3.eth.contract(**emitter_contract_kwargs)
-
-
-@pytest.fixture(scope="module")
-def emitter(w3, Emitter, wait_for_transaction, wait_for_block, address_conversion_func):
+def emitter(
+    w3,
+    emitter_contract_data,
+    wait_for_transaction,
+    wait_for_block,
+    address_conversion_func,
+):
+    emitter_contract_instance = w3.eth.contract(**emitter_contract_data)
     return _emitter_fixture_logic(
-        w3, Emitter, wait_for_transaction, wait_for_block, address_conversion_func
+        w3,
+        emitter_contract_instance,
+        wait_for_transaction,
+        wait_for_block,
+        address_conversion_func,
     )
 
 
@@ -293,21 +270,18 @@ def async_w3(request):
 
 
 @pytest_asyncio.fixture(scope="module")
-def AsyncEmitter(async_w3, EMITTER):
-    return async_w3.eth.contract(**EMITTER)
-
-
-@pytest_asyncio.fixture(scope="module")
 async def async_emitter(
     async_w3,
-    AsyncEmitter,
+    emitter_contract_data,
     async_wait_for_transaction,
     async_wait_for_block,
     address_conversion_func,
 ):
+    async_emitter_contract_instance = async_w3.eth.contract(**emitter_contract_data)
+
     return await _async_emitter_fixture_logic(
         async_w3,
-        AsyncEmitter,
+        async_emitter_contract_instance,
         async_wait_for_transaction,
         async_wait_for_block,
         address_conversion_func,
@@ -327,7 +301,6 @@ async def test_async_topic_filters_with_dynamic_arguments(
     vals,
 ):
     if api_style == "build_filter":
-
         filter_builder = async_emitter.events.LogDynamicArgs.build_filter()
         filter_builder.args["arg0"].match_single(vals["matching"])
         event_filter = await filter_builder.deploy(async_w3)

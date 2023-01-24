@@ -366,7 +366,12 @@ def validate_payable(transaction: TxParams, abi: ABIFunction) -> None:
     """
     if "value" in transaction:
         if to_integer_if_hex(transaction["value"]) != 0:
-            if "payable" in abi and not abi["payable"]:
+            if (
+                "payable" in abi
+                and not abi["payable"]
+                or "stateMutability" in abi
+                and abi["stateMutability"] == "nonpayable"
+            ):
                 raise Web3ValidationError(
                     "Sending non-zero ether to a contract function "
                     "with payable=False. Please ensure that "

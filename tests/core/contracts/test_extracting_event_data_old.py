@@ -10,20 +10,25 @@ from web3._utils.events import (
 
 
 @pytest.fixture()
-def Emitter(w3, emitter_contract_kwargs):
-    return w3.eth.contract(**emitter_contract_kwargs)
+def emitter(
+    w3,
+    emitter_contract_data,
+    wait_for_transaction,
+    wait_for_block,
+    address_conversion_func,
+):
+    emitter_contract_instance = w3.eth.contract(**emitter_contract_data)
 
-
-@pytest.fixture()
-def emitter(w3, Emitter, wait_for_transaction, wait_for_block, address_conversion_func):
     wait_for_block(w3)
-    deploy_txn_hash = Emitter.constructor().transact({"gas": 10000000})
+    deploy_txn_hash = emitter_contract_instance.constructor().transact(
+        {"gas": 10000000}
+    )
     deploy_receipt = wait_for_transaction(w3, deploy_txn_hash)
     contract_address = address_conversion_func(deploy_receipt["contractAddress"])
 
     bytecode = w3.eth.get_code(contract_address)
-    assert bytecode == Emitter.bytecode_runtime
-    _emitter = Emitter(address=contract_address)
+    assert bytecode == emitter_contract_instance.bytecode_runtime
+    _emitter = emitter_contract_instance(address=contract_address)
     assert _emitter.address == contract_address
     return _emitter
 
@@ -79,15 +84,15 @@ def test_event_data_extraction(
     w3,
     emitter,
     wait_for_transaction,
-    emitter_log_topics,
-    emitter_event_ids,
+    emitter_contract_log_topics,
+    emitter_contract_event_ids,
     contract_fn,
     event_name,
     call_args,
     expected_args,
 ):
     function = getattr(emitter.functions, contract_fn)
-    event_id = getattr(emitter_event_ids, event_name)
+    event_id = getattr(emitter_contract_event_ids, event_name)
     txn_hash = function(event_id, *call_args).transact()
     txn_receipt = wait_for_transaction(w3, txn_hash)
 
@@ -96,7 +101,7 @@ def test_event_data_extraction(
 
     event_abi = emitter._find_matching_event_abi(event_name)
 
-    event_topic = getattr(emitter_log_topics, event_name)
+    event_topic = getattr(emitter_contract_log_topics, event_name)
     is_anonymous = event_abi["anonymous"]
 
     if is_anonymous:
@@ -115,7 +120,11 @@ def test_event_data_extraction(
 
 
 def test_dynamic_length_argument_extraction(
-    w3, emitter, wait_for_transaction, emitter_log_topics, emitter_event_ids
+    w3,
+    emitter,
+    wait_for_transaction,
+    emitter_contract_log_topics,
+    emitter_contract_event_ids,
 ):
     string_0 = "this-is-the-first-string-which-exceeds-32-bytes-in-length"
     string_1 = "this-is-the-second-string-which-exceeds-32-bytes-in-length"
@@ -127,7 +136,7 @@ def test_dynamic_length_argument_extraction(
 
     event_abi = emitter._find_matching_event_abi("LogDynamicArgs")
 
-    event_topic = emitter_log_topics.LogDynamicArgs
+    event_topic = emitter_contract_log_topics.LogDynamicArgs
     assert event_topic in log_entry["topics"]
 
     string_0_topic = w3.keccak(text=string_0)
