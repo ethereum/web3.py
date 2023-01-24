@@ -45,7 +45,7 @@ AMBIGUOUS_CONTRACT_ABI = [
 ]
 
 
-@pytest.fixture()
+@pytest.fixture
 def string_contract(w3, string_contract_instance, address_conversion_func):
     deploy_txn = string_contract_instance.constructor("Caqalai").transact()
     deploy_receipt = w3.eth.wait_for_transaction_receipt(deploy_txn)

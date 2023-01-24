@@ -1,7 +1,7 @@
 pragma solidity >=0.8.0;
 
 
-contract Emitter {
+contract EmitterContract {
     event LogAnonymous() anonymous;
     event LogNoArguments();
     event LogSingleArg(uint arg0);
@@ -10,7 +10,6 @@ contract Emitter {
     event LogQuadrupleArg(uint arg0, uint arg1, uint arg2, uint arg3);
     event LogString(string v);
     event LogBytes(bytes v);
-
     event LogSingleWithIndex(uint indexed arg0);
     event LogSingleAnonymous(uint indexed arg0) anonymous;
     event LogDoubleWithIndex(uint arg0, uint indexed arg1);

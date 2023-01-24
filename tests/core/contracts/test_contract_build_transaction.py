@@ -325,10 +325,13 @@ async def test_async_build_transaction_with_contract_fallback_function(
 
 @pytest.mark.asyncio
 async def test_async_build_transaction_with_contract_class_method(
-    async_w3, AsyncMathContract, async_math_contract, async_build_transaction
+    async_w3,
+    async_math_contract_instance,
+    async_math_contract,
+    async_build_transaction,
 ):
     txn = await async_build_transaction(
-        contract=AsyncMathContract,
+        contract=async_math_contract_instance,
         contract_function="incrementCounter",
         tx_params={"to": async_math_contract.address},
     )

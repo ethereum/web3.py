@@ -24,7 +24,7 @@ extras_require = {
         "configparser==3.5.0",
         "contextlib2>=0.5.4",
         "py-geth>=3.9.1",
-        "py-solc>=0.4.0",
+        "py-solc-x>=1.1.1",
         "pytest>=6.2.5",
         "sphinx>=4.2.0",
         "sphinx_rtd_theme>=0.5.2",

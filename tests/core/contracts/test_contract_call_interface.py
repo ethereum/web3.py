@@ -20,6 +20,14 @@ from tests.core.contracts.utils import (
     async_deploy,
     deploy,
 )
+from web3._utils.contract_sources.contract_data.bytes_contracts import (
+    BYTES32_CONTRACT_DATA,
+    BYTES_CONTRACT_DATA,
+)
+from web3._utils.contract_sources.contract_data.tuple_contracts import (
+    NESTED_TUPLE_CONTRACT_DATA,
+    TUPLE_CONTRACT_DATA,
+)
 from web3._utils.ens import (
     contract_ens_addresses,
 )
@@ -40,31 +48,51 @@ MULTIPLE_FUNCTIONS = json.loads(
 )
 
 
+@pytest.fixture
+def tuple_contract(w3, address_conversion_func):
+    tuple_contract_instance = w3.eth.contract(**TUPLE_CONTRACT_DATA)
+    return deploy(w3, tuple_contract_instance, address_conversion_func)
+
+
+@pytest.fixture
+def nested_tuple_contract(w3, address_conversion_func):
+    nested_tuple_contract_instance = w3.eth.contract(**NESTED_TUPLE_CONTRACT_DATA)
+    return deploy(w3, nested_tuple_contract_instance, address_conversion_func)
+
+
 @pytest.fixture(params=[b"\x04\x06", "0x0406"])
-def bytes_contract(w3, bytes_contract, request, address_conversion_func):
-    return deploy(w3, bytes_contract, address_conversion_func, args=[request.param])
+def bytes_contract(w3, request, address_conversion_func):
+    bytes_contract_instance = w3.eth.contract(**BYTES_CONTRACT_DATA)
+    return deploy(
+        w3, bytes_contract_instance, address_conversion_func, args=[request.param]
+    )
 
 
 @pytest.fixture(params=[b"\x04\x06", "0x0406"])
 def non_strict_bytes_contract(
-    w3_non_strict_abi, non_strict_bytes_contract, request, address_conversion_func
+    w3_non_strict_abi,
+    request,
+    address_conversion_func,
 ):
+    non_strict_bytes_contract_instance = w3_non_strict_abi.eth.contract(
+        **BYTES_CONTRACT_DATA
+    )
     return deploy(
         w3_non_strict_abi,
-        non_strict_bytes_contract,
+        non_strict_bytes_contract_instance,
         address_conversion_func,
         args=[request.param],
     )
 
 
-@pytest.fixture()
-def fixed_reflection_contract(w3, FixedReflectionContract, address_conversion_func):
-    return deploy(w3, FixedReflectionContract, address_conversion_func)
-
-
-@pytest.fixture()
+@pytest.fixture
 def call_transaction():
     return {"data": "0x61bc221a", "to": "0xc305c901078781C232A2a521C2aF7980f8385ee9"}
+
+
+@pytest.fixture
+def bytes32_contract_instance(w3):
+    return w3.eth.contract(**BYTES32_CONTRACT_DATA)
 
 
 @pytest.fixture(
@@ -73,11 +101,13 @@ def call_transaction():
         HexBytes("0406040604060406040604060406040604060406040604060406040604060406"),
     ]
 )
-def bytes32_contract(w3, bytes32_contract, request, address_conversion_func):
-    return deploy(w3, bytes32_contract, address_conversion_func, args=[request.param])
+def bytes32_contract(w3, bytes32_contract_instance, request, address_conversion_func):
+    return deploy(
+        w3, bytes32_contract_instance, address_conversion_func, args=[request.param]
+    )
 
 
-@pytest.fixture()
+@pytest.fixture
 def undeployed_math_contract(math_contract_instance, address_conversion_func):
     empty_address = address_conversion_func(
         "0x000000000000000000000000000000000000dEaD"
@@ -86,7 +116,7 @@ def undeployed_math_contract(math_contract_instance, address_conversion_func):
     return _undeployed_math_contract
 
 
-@pytest.fixture()
+@pytest.fixture
 def mismatched_math_contract(
     w3, string_contract_instance, math_contract_instance, address_conversion_func
 ):
@@ -98,23 +128,13 @@ def mismatched_math_contract(
     return _mismatched_math_contract
 
 
-@pytest.fixture()
-def tuple_contract(w3, TupleContract, address_conversion_func):
-    return deploy(w3, TupleContract, address_conversion_func)
-
-
-@pytest.fixture()
-def nested_tuple_contract(w3, NestedTupleContract, address_conversion_func):
-    return deploy(w3, NestedTupleContract, address_conversion_func)
-
-
 def test_deploy_raises_due_to_strict_byte_checking_by_default(
-    w3, bytes32_contract, address_conversion_func
+    w3, bytes32_contract_instance, address_conversion_func
 ):
     with pytest.raises(TypeError):
         deploy(
             w3,
-            bytes32_contract,
+            bytes32_contract_instance,
             address_conversion_func,
             args=["0406040604060406040604060406040604060406040604060406040604060406"],
         )
@@ -455,6 +475,8 @@ def test_call_rejects_invalid_ens_name(address_reflector_contract, call):
 
 
 def test_call_missing_function(mismatched_math_contract, call):
+    # note: contract being called needs to have a fallback function
+    # (StringContract in this case)
     expected_missing_function_error_message = "Could not decode contract function call"
     with pytest.raises(BadFunctionCallOutput) as exception_info:
         call(contract=mismatched_math_contract, contract_function="return13")
@@ -728,8 +750,8 @@ def test_call_sending_ether_to_nonpayable_function(payable_tester_contract, call
         ("reflect_short_u", Decimal("25.5")),
     ),
 )
-def test_reflect_fixed_value(fixed_reflection_contract, function, value):
-    contract_func = fixed_reflection_contract.functions[function]
+def test_reflect_fixed_value(fixed_reflector_contract, function, value):
+    contract_func = fixed_reflector_contract.functions[function]
     reflected = contract_func(value).call({"gas": 420000})
     assert reflected == value
 
@@ -767,9 +789,9 @@ DEFAULT_DECIMALS = getcontext().prec
     ),
 )
 def test_invalid_fixed_value_reflections(
-    fixed_reflection_contract, function, value, error
+    fixed_reflector_contract, function, value, error
 ):
-    contract_func = fixed_reflection_contract.functions[function]
+    contract_func = fixed_reflector_contract.functions[function]
     with pytest.raises(Web3ValidationError, match=error):
         contract_func(value).call({"gas": 420000})
 
@@ -992,18 +1014,40 @@ def test_changing_default_block_identifier(w3, math_contract):
 
 
 @pytest_asyncio.fixture
-async def async_bytes_contract(async_w3, AsyncBytesContract, address_conversion_func):
+async def async_tuple_contract(async_w3, address_conversion_func):
+    async_tuple_contract_instance = async_w3.eth.contract(**TUPLE_CONTRACT_DATA)
     return await async_deploy(
-        async_w3, AsyncBytesContract, address_conversion_func, args=[b"\x04\x06"]
+        async_w3, async_tuple_contract_instance, address_conversion_func
     )
 
 
-@pytest_asyncio.fixture()
-async def async_fixed_reflection_contract(
-    async_w3, AsyncFixedReflectionContract, address_conversion_func
+@pytest_asyncio.fixture
+async def async_nested_tuple_contract(async_w3, address_conversion_func):
+    async_nested_tuple_contract_instance = async_w3.eth.contract(
+        **NESTED_TUPLE_CONTRACT_DATA
+    )
+    return await async_deploy(
+        async_w3, async_nested_tuple_contract_instance, address_conversion_func
+    )
+
+
+@pytest.fixture
+def async_bytes_contract_instance(async_w3):
+    return async_w3.eth.contract(**BYTES_CONTRACT_DATA)
+
+
+@pytest_asyncio.fixture(params=[b"\x04\x06", "0x0406"])
+async def async_bytes_contract(
+    async_w3,
+    request,
+    async_bytes_contract_instance,
+    address_conversion_func,
 ):
     return await async_deploy(
-        async_w3, AsyncFixedReflectionContract, address_conversion_func
+        async_w3,
+        async_bytes_contract_instance,
+        address_conversion_func,
+        args=[request.param],
     )
 
 
@@ -1011,57 +1055,48 @@ async def async_fixed_reflection_contract(
     params=[
         "0x0406040604060406040604060406040604060406040604060406040604060406",
         HexBytes("0406040604060406040604060406040604060406040604060406040604060406"),
-    ]
+    ],
 )
-async def async_bytes32_contract(
-    async_w3, AsyncBytes32Contract, request, address_conversion_func
-):
+async def async_bytes32_contract(async_w3, request, address_conversion_func):
+    async_bytes32_contract_instance = async_w3.eth.contract(**BYTES32_CONTRACT_DATA)
     return await async_deploy(
         async_w3,
-        AsyncBytes32Contract,
+        async_bytes32_contract_instance,
         address_conversion_func,
         args=[request.param],
     )
 
 
-@pytest_asyncio.fixture()
-async def async_undeployed_math_contract(AsyncMathContract, address_conversion_func):
+@pytest_asyncio.fixture
+async def async_undeployed_math_contract(
+    async_math_contract_instance, address_conversion_func
+):
     empty_address = address_conversion_func(
         "0x000000000000000000000000000000000000dEaD"
     )
-    _undeployed_math_contract = AsyncMathContract(address=empty_address)
+    _undeployed_math_contract = async_math_contract_instance(address=empty_address)
     return _undeployed_math_contract
 
 
-@pytest_asyncio.fixture()
+@pytest_asyncio.fixture
 async def async_mismatched_math_contract(
-    async_w3, AsyncStringContract, AsyncMathContract, address_conversion_func
+    async_w3,
+    async_string_contract_instance,
+    async_math_contract_instance,
+    address_conversion_func,
 ):
-    deploy_txn = await AsyncStringContract.constructor("Caqalai").transact()
+    deploy_txn = await async_string_contract_instance.constructor("Caqalai").transact()
     deploy_receipt = await async_w3.eth.wait_for_transaction_receipt(deploy_txn)
     assert deploy_receipt is not None
     address = address_conversion_func(deploy_receipt["contractAddress"])
-    _mismatched_math_contract = AsyncMathContract(address=address)
+    _mismatched_math_contract = async_math_contract_instance(address=address)
     return _mismatched_math_contract
 
 
-@pytest_asyncio.fixture()
-async def async_tuple_contract(async_w3, AsyncTupleContract, address_conversion_func):
-    return await async_deploy(async_w3, AsyncTupleContract, address_conversion_func)
-
-
-@pytest_asyncio.fixture()
-async def async_nested_tuple_contract(
-    async_w3, AsyncNestedTupleContract, address_conversion_func
-):
-    return await async_deploy(
-        async_w3, AsyncNestedTupleContract, address_conversion_func
-    )
-
-
+@pytest.fixture
 @pytest.mark.asyncio
 async def test_async_deploy_raises_due_to_strict_byte_checking_by_default(
-    async_w3, AsyncBytesContract, address_conversion_func
+    async_w3, async_bytes_contract_instance, address_conversion_func
 ):
     with pytest.raises(
         TypeError,
@@ -1069,7 +1104,10 @@ async def test_async_deploy_raises_due_to_strict_byte_checking_by_default(
         "Expected types are: bytes",
     ):
         await async_deploy(
-            async_w3, AsyncBytesContract, address_conversion_func, args=["0406"]
+            async_w3,
+            async_bytes_contract_instance,
+            address_conversion_func,
+            args=["0406"],
         )
 
 
@@ -1077,13 +1115,15 @@ async def test_async_deploy_raises_due_to_strict_byte_checking_by_default(
 @pytest.mark.parametrize("args", ("0x0406", "0406", HexBytes("0406"), b"\x04\x06"))
 async def test_async_deploy_with_non_strict_abi_check(
     async_w3_non_strict_abi,
-    AsyncNonStrictBytesContract,
     address_conversion_func,
     args,
 ):
+    async_non_strict_bytes_contract_instance = async_w3_non_strict_abi.eth.contract(
+        **BYTES_CONTRACT_DATA
+    )
     deployed_contract = await async_deploy(
         async_w3_non_strict_abi,
-        AsyncNonStrictBytesContract,
+        async_non_strict_bytes_contract_instance,
         address_conversion_func,
         args=[args],
     )
@@ -1093,10 +1133,10 @@ async def test_async_deploy_with_non_strict_abi_check(
 
 @pytest.mark.asyncio
 async def test_async_invalid_address_in_deploy_arg(
-    AsyncWithConstructorAddressArgumentsContract,
+    async_constructor_with_address_arg_contract_instance,
 ):
     with pytest.raises(InvalidAddress):
-        await AsyncWithConstructorAddressArgumentsContract.constructor(
+        await async_constructor_with_address_arg_contract_instance.constructor(
             "0xd3cda913deb6f67967b99d67acdfa1712c293601",
         ).transact()
 
@@ -1255,9 +1295,12 @@ async def test_async_call_get_byte_const_array_non_strict(
 
 
 @pytest.mark.asyncio
-async def test_async_call_read_address_variable(async_address_contract, async_call):
+async def test_async_call_read_address_variable(
+    async_constructor_with_address_argument_contract, async_call
+):
     result = await async_call(
-        contract=async_address_contract, contract_function="testAddr"
+        contract=async_constructor_with_address_argument_contract,
+        contract_function="testAddr",
     )
     assert result == "0xd3CdA913deB6f67967B99D67aCDFa1712C293601"
 
@@ -1265,15 +1308,15 @@ async def test_async_call_read_address_variable(async_address_contract, async_ca
 @pytest.mark.xfail
 @pytest.mark.asyncio
 async def test_async_init_with_ens_name_arg(
-    async_w3, AsyncWithConstructorAddressArgumentsContract, async_call
+    async_w3, async_constructor_with_address_arg_contract_instance, async_call
 ):
     with contract_ens_addresses(
-        AsyncWithConstructorAddressArgumentsContract,
+        async_constructor_with_address_arg_contract_instance,
         [("arg-name.eth", "0xBB9bc244D798123fDe783fCc1C72d3Bb8C189413")],
     ):
         address_contract = await async_deploy(
             async_w3,
-            AsyncWithConstructorAddressArgumentsContract,
+            async_constructor_with_address_arg_contract_instance,
             args=[
                 "arg-name.eth",
             ],
@@ -1461,6 +1504,8 @@ async def test_async_call_rejects_invalid_ens_name(
 
 @pytest.mark.asyncio
 async def test_async_call_missing_function(async_mismatched_math_contract, async_call):
+    # note: contract being called needs to have a fallback function
+    # (StringContract in this case)
     expected_missing_function_error_message = "Could not decode contract function call"
     with pytest.raises(BadFunctionCallOutput) as exception_info:
         await async_call(
@@ -1687,9 +1732,9 @@ async def test_async_call_sending_ether_to_nonpayable_function(
     ),
 )
 async def test_async_reflect_fixed_value(
-    async_fixed_reflection_contract, function, value
+    async_fixed_reflector_contract, function, value
 ):
-    contract_func = async_fixed_reflection_contract.functions[function]
+    contract_func = async_fixed_reflector_contract.functions[function]
     reflected = await contract_func(value).call({"gas": 420000})
     assert reflected == value
 
@@ -1728,9 +1773,9 @@ DEFAULT_DECIMALS = getcontext().prec
     ),
 )
 async def test_async_invalid_fixed_value_reflections(
-    async_fixed_reflection_contract, function, value, error
+    async_fixed_reflector_contract, function, value, error
 ):
-    contract_func = async_fixed_reflection_contract.functions[function]
+    contract_func = async_fixed_reflector_contract.functions[function]
     with pytest.raises(Web3ValidationError, match=error):
         await contract_func(value).call({"gas": 420000})
 

@@ -5,6 +5,10 @@ from eth_utils import (
     remove_0x_prefix,
 )
 
+from web3._utils.contract_sources.contract_data.constructor_contracts import (
+    SIMPLE_CONSTRUCTOR_CONTRACT_BYTECODE,
+)
+
 
 def test_contract_constructor_abi_encoding_with_no_constructor_fn(
     math_contract_instance, math_contract_bytecode
@@ -14,10 +18,10 @@ def test_contract_constructor_abi_encoding_with_no_constructor_fn(
 
 
 def test_contract_constructor_abi_encoding_with_constructor_with_no_args(
-    simple_constructor_contract_instance, simple_constructor_contract_bytecode
+    simple_constructor_contract_instance,
 ):
     deploy_data = simple_constructor_contract_instance._encode_constructor_data()
-    assert deploy_data == simple_constructor_contract_bytecode
+    assert deploy_data == SIMPLE_CONSTRUCTOR_CONTRACT_BYTECODE
 
 
 @pytest.mark.parametrize(

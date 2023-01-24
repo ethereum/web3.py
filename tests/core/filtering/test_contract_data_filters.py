@@ -18,35 +18,6 @@ from tests.utils import (
     _async_wait_for_block_fixture_logic,
     _async_wait_for_transaction_fixture_logic,
 )
-from web3._utils.module_testing.emitter_contract import (
-    EMITTER_CONTRACT_ABI,
-    EMITTER_CONTRACT_BYTECODE,
-    EMITTER_CONTRACT_RUNTIME,
-)
-
-
-@pytest.fixture(scope="module")
-def EMITTER_CODE():
-    return EMITTER_CONTRACT_BYTECODE
-
-
-@pytest.fixture(scope="module")
-def EMITTER_RUNTIME():
-    return EMITTER_CONTRACT_RUNTIME
-
-
-@pytest.fixture(scope="module")
-def EMITTER_ABI():
-    return EMITTER_CONTRACT_ABI
-
-
-@pytest.fixture(scope="module")
-def EMITTER(emitter_contract_bytecode, emitter_contract_runtime, emitter_contract_abi):
-    return {
-        "bytecode": emitter_contract_bytecode,
-        "bytecode_runtime": emitter_contract_runtime,
-        "abi": emitter_contract_abi,
-    }
 
 
 def not_empty_string(x):
@@ -115,14 +86,20 @@ def w3(request):
 
 
 @pytest.fixture(scope="module")
-def Emitter(w3, emitter_contract_kwargs):
-    return w3.eth.contract(**emitter_contract_kwargs)
-
-
-@pytest.fixture(scope="module")
-def emitter(w3, Emitter, wait_for_transaction, wait_for_block, address_conversion_func):
+def emitter(
+    w3,
+    emitter_contract_data,
+    wait_for_transaction,
+    wait_for_block,
+    address_conversion_func,
+):
+    emitter_contract_instance = w3.eth.contract(**emitter_contract_data)
     return _emitter_fixture_logic(
-        w3, Emitter, wait_for_transaction, wait_for_block, address_conversion_func
+        w3,
+        emitter_contract_instance,
+        wait_for_transaction,
+        wait_for_block,
+        address_conversion_func,
     )
 
 
@@ -228,7 +205,7 @@ def test_data_filters_with_fixed_arguments(
     assert log_entries[0]["transactionHash"] == txn_hashes[0]
 
 
-@pytest.mark.parametrize("call_as_instance", (True, False))
+@pytest.mark.parametrize("call_deployed_contract", (True, False))
 @pytest.mark.parametrize("api_style", ("v4", "build_filter"))
 @given(vals=array_values())
 @settings(max_examples=5, deadline=None)
@@ -236,7 +213,7 @@ def test_data_filters_with_list_arguments(
     w3,
     emitter,
     wait_for_transaction,
-    call_as_instance,
+    call_deployed_contract,
     create_filter,
     api_style,
     vals,
@@ -312,21 +289,22 @@ def async_w3(request):
 
 
 @pytest.fixture(scope="module")
-def AsyncEmitter(async_w3, emitter_contract_kwargs):
-    return async_w3.eth.contract(**emitter_contract_kwargs)
+def async_emitter_contract_instance(async_w3, emitter_contract_data):
+    async_w3.eth.contract(**emitter_contract_data)
 
 
 @pytest_asyncio.fixture(scope="module")
 async def async_emitter(
     async_w3,
-    AsyncEmitter,
+    emitter_contract_data,
     async_wait_for_transaction,
     async_wait_for_block,
     address_conversion_func,
 ):
+    async_emitter_contract_instance = async_w3.eth.contract(**emitter_contract_data)
     return await _async_emitter_fixture_logic(
         async_w3,
-        AsyncEmitter,
+        async_emitter_contract_instance,
         async_wait_for_transaction,
         async_wait_for_block,
         address_conversion_func,

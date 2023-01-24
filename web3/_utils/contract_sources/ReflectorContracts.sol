@@ -1,6 +1,6 @@
 pragma solidity >=0.4.0;
 
-contract AddressReflector {
+contract AddressReflectorContract {
     function reflect(address arg) public pure returns(address) {
         return arg;
     }

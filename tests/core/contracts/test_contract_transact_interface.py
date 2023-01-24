@@ -88,11 +88,11 @@ def test_transacting_with_contract_with_arguments(
     assert final_value - initial_value == 5
 
 
-def test_deploy_when_default_account_is_set(w3, string_contract_kwargs):
+def test_deploy_when_default_account_is_set(w3, string_contract_data):
     w3.eth.default_account = w3.eth.accounts[1]
     assert w3.eth.default_account is not empty
 
-    StringContract = w3.eth.contract(**string_contract_kwargs)
+    StringContract = w3.eth.contract(**string_contract_data)
 
     deploy_txn = StringContract.constructor("Caqalai").transact()
     w3.eth.wait_for_transaction_receipt(deploy_txn)
@@ -202,9 +202,9 @@ def test_transacting_with_contract_with_byte_array_argument_non_strict(
 
 
 def test_transacting_with_contract_respects_explicit_gas(
-    w3, string_contract_kwargs, wait_for_block, call, transact
+    w3, string_contract_data, wait_for_block, call, transact
 ):
-    StringContract = w3.eth.contract(**string_contract_kwargs)
+    StringContract = w3.eth.contract(**string_contract_data)
 
     deploy_txn = StringContract.constructor("Caqalai").transact()
     deploy_receipt = w3.eth.wait_for_transaction_receipt(deploy_txn, 30)
@@ -228,9 +228,9 @@ def test_transacting_with_contract_respects_explicit_gas(
 
 
 def test_auto_gas_computation_when_transacting(
-    w3, string_contract_kwargs, wait_for_block, call, transact
+    w3, string_contract_data, wait_for_block, call, transact
 ):
-    StringContract = w3.eth.contract(**string_contract_kwargs)
+    StringContract = w3.eth.contract(**string_contract_data)
 
     deploy_txn = StringContract.constructor("Caqalai").transact()
     deploy_receipt = w3.eth.wait_for_transaction_receipt(deploy_txn, 30)
@@ -392,14 +392,12 @@ async def test_async_transacting_with_contract_with_arguments(
 
 
 @pytest.mark.asyncio
-async def test_async_deploy_when_default_account_is_set(
-    async_w3, string_contract_kwargs
-):
+async def test_async_deploy_when_default_account_is_set(async_w3, string_contract_data):
     async_w3_accounts = await async_w3.eth.accounts
     async_w3.eth.default_account = async_w3_accounts[1]
     assert async_w3.eth.default_account is not empty
 
-    StringContract = async_w3.eth.contract(**string_contract_kwargs)
+    StringContract = async_w3.eth.contract(**string_contract_data)
 
     deploy_txn = await StringContract.constructor("Caqalai").transact()
     await async_w3.eth.wait_for_transaction_receipt(deploy_txn)
@@ -513,10 +511,10 @@ async def test_async_transacting_with_contract_with_byte_array_argument_non_stri
 
 @pytest.mark.asyncio
 async def test_async_transacting_with_contract_respects_explicit_gas(
-    async_w3, string_contract_kwargs, async_call, async_transact
+    async_w3, string_contract_data, async_call, async_transact
 ):
 
-    StringContract = async_w3.eth.contract(**string_contract_kwargs)
+    StringContract = async_w3.eth.contract(**string_contract_data)
 
     deploy_txn = await StringContract.constructor("Caqalai").transact()
     deploy_receipt = await async_w3.eth.wait_for_transaction_receipt(deploy_txn, 30)
@@ -543,10 +541,10 @@ async def test_async_transacting_with_contract_respects_explicit_gas(
 
 @pytest.mark.asyncio
 async def test_async_auto_gas_computation_when_transacting(
-    async_w3, string_contract_kwargs, async_call, async_transact
+    async_w3, string_contract_data, async_call, async_transact
 ):
 
-    StringContract = async_w3.eth.contract(**string_contract_kwargs)
+    StringContract = async_w3.eth.contract(**string_contract_data)
 
     deploy_txn = await StringContract.constructor("Caqalai").transact()
     deploy_receipt = await async_w3.eth.wait_for_transaction_receipt(deploy_txn, 30)

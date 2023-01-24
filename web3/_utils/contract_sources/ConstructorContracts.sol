@@ -1,10 +1,10 @@
 pragma solidity >=0.7.0;
 
-contract SimpleConstructor {
+contract SimpleConstructorContract {
     constructor() {}
 }
 
-contract ConstructorWithArguments {
+contract ConstructorWithArgumentsContract {
     uint256 public data_a;
     bytes32 public data_b;
 
@@ -14,7 +14,7 @@ contract ConstructorWithArguments {
     }
 }
 
-contract ConstructorWithAddressArgument {
+contract ConstructorWithAddressArgumentContract {
     address public testAddr;
 
     constructor(address _testAddr) {

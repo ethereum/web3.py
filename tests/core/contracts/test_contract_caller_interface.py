@@ -1,11 +1,5 @@
 import pytest
 
-import pytest_asyncio
-
-from tests.core.contracts.utils import (
-    async_deploy,
-    deploy,
-)
 from web3.exceptions import (
     MismatchedABI,
     NoABIFound,
@@ -16,20 +10,6 @@ from web3.exceptions import (
 @pytest.fixture()
 def address(w3):
     return w3.eth.accounts[1]
-
-
-@pytest.fixture()
-def caller_tester_contract(w3, CallerTesterContract, address_conversion_func):
-    return deploy(w3, CallerTesterContract, address_conversion_func)
-
-
-@pytest_asyncio.fixture()
-async def async_caller_tester_contract(
-    async_w3, AsyncCallerTesterContract, address_conversion_func
-):
-    return await async_deploy(
-        async_w3, AsyncCallerTesterContract, address_conversion_func
-    )
 
 
 @pytest.fixture()
@@ -109,16 +89,16 @@ def test_caller_with_block_identifier(w3, math_contract):
 
 
 def test_caller_with_block_identifier_and_transaction_dict(
-    w3, caller_tester_contract, transaction_dict, address
+    w3, contract_caller_tester_contract, transaction_dict, address
 ):
     start_num = w3.eth.get_block("latest").number
-    assert caller_tester_contract.caller.counter() == 0
+    assert contract_caller_tester_contract.caller.counter() == 0
 
     w3.provider.make_request(method="evm_mine", params=[5])
-    caller_tester_contract.functions.increment().transact()
+    contract_caller_tester_contract.functions.increment().transact()
 
     block_id = start_num + 6
-    contract = caller_tester_contract.caller(
+    contract = contract_caller_tester_contract.caller(
         transaction=transaction_dict, block_identifier=block_id
     )
 
@@ -133,9 +113,9 @@ def test_caller_with_block_identifier_and_transaction_dict(
 
 
 def test_caller_with_transaction_keyword(
-    w3, caller_tester_contract, transaction_dict, address
+    w3, contract_caller_tester_contract, transaction_dict, address
 ):
-    contract = caller_tester_contract.caller(transaction=transaction_dict)
+    contract = contract_caller_tester_contract.caller(transaction=transaction_dict)
 
     sender, _, gasLeft, value, _ = contract.returnMeta()
 
@@ -145,9 +125,9 @@ def test_caller_with_transaction_keyword(
 
 
 def test_caller_with_dict_but_no_transaction_keyword(
-    w3, caller_tester_contract, transaction_dict, address
+    w3, contract_caller_tester_contract, transaction_dict, address
 ):
-    contract = caller_tester_contract.caller(transaction_dict)
+    contract = contract_caller_tester_contract.caller(transaction_dict)
 
     sender, _, gasLeft, value, _ = contract.returnMeta()
 
@@ -157,9 +137,9 @@ def test_caller_with_dict_but_no_transaction_keyword(
 
 
 def test_caller_with_args_and_no_transaction_keyword(
-    w3, caller_tester_contract, transaction_dict, address
+    w3, contract_caller_tester_contract, transaction_dict, address
 ):
-    contract = caller_tester_contract.caller(transaction_dict)
+    contract = contract_caller_tester_contract.caller(transaction_dict)
 
     sender, _, gasLeft, value, _ = contract.returnMeta()
 
@@ -249,17 +229,17 @@ async def test_async_caller_with_block_identifier(async_w3, async_math_contract)
 
 @pytest.mark.asyncio
 async def test_async_caller_with_block_identifier_and_transaction_dict(
-    async_w3, async_caller_tester_contract, transaction_dict, address
+    async_w3, async_contract_caller_tester_contract, transaction_dict, address
 ):
     start = await async_w3.eth.get_block("latest")
     start_num = start.number
-    assert await async_caller_tester_contract.caller.counter() == 0
+    assert await async_contract_caller_tester_contract.caller.counter() == 0
 
     await async_w3.provider.make_request(method="evm_mine", params=[5])
-    await async_caller_tester_contract.functions.increment().transact()
+    await async_contract_caller_tester_contract.functions.increment().transact()
 
     block_id = start_num + 6
-    contract = async_caller_tester_contract.caller(
+    contract = async_contract_caller_tester_contract.caller(
         transaction=transaction_dict, block_identifier=block_id
     )
 
@@ -275,9 +255,11 @@ async def test_async_caller_with_block_identifier_and_transaction_dict(
 
 @pytest.mark.asyncio
 async def test_async_caller_with_transaction_keyword(
-    async_w3, async_caller_tester_contract, transaction_dict, address
+    async_w3, async_contract_caller_tester_contract, transaction_dict, address
 ):
-    contract = async_caller_tester_contract.caller(transaction=transaction_dict)
+    contract = async_contract_caller_tester_contract.caller(
+        transaction=transaction_dict
+    )
 
     sender, _, gasLeft, value, _ = await contract.returnMeta()
 
@@ -288,9 +270,9 @@ async def test_async_caller_with_transaction_keyword(
 
 @pytest.mark.asyncio
 async def test_async_caller_with_dict_but_no_transaction_keyword(
-    async_w3, async_caller_tester_contract, transaction_dict, address
+    async_w3, async_contract_caller_tester_contract, transaction_dict, address
 ):
-    contract = async_caller_tester_contract.caller(transaction_dict)
+    contract = async_contract_caller_tester_contract.caller(transaction_dict)
 
     sender, _, gasLeft, value, _ = await contract.returnMeta()
 
@@ -301,9 +283,9 @@ async def test_async_caller_with_dict_but_no_transaction_keyword(
 
 @pytest.mark.asyncio
 async def test_async_caller_with_args_and_no_transaction_keyword(
-    async_w3, async_caller_tester_contract, transaction_dict, address
+    async_w3, async_contract_caller_tester_contract, transaction_dict, address
 ):
-    contract = async_caller_tester_contract.caller(transaction_dict)
+    contract = async_contract_caller_tester_contract.caller(transaction_dict)
 
     sender, _, gasLeft, value, _ = await contract.returnMeta()
 

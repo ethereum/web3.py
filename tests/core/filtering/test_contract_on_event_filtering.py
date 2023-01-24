@@ -6,14 +6,18 @@ from eth_utils import (
 )
 
 
-@pytest.mark.parametrize("call_as_instance", (True, False))
-def test_create_filter_address_parameter(emitter, Emitter, call_as_instance):
-    if call_as_instance:
+@pytest.mark.parametrize("call_deployed_contract", (True, False))
+def test_create_filter_address_parameter(
+    emitter, emitter_contract_instance, call_deployed_contract
+):
+    if call_deployed_contract:
         event_filter = emitter.events.LogNoArguments.create_filter(fromBlock="latest")
     else:
-        event_filter = Emitter.events.LogNoArguments.create_filter(fromBlock="latest")
+        event_filter = emitter_contract_instance.events.LogNoArguments.create_filter(
+            fromBlock="latest"
+        )
 
-    if call_as_instance:
+    if call_deployed_contract:
         # Assert this is a single string value, and not a list of addresses
         assert is_address(event_filter.filter_params["address"])
     else:
@@ -21,30 +25,32 @@ def test_create_filter_address_parameter(emitter, Emitter, call_as_instance):
         assert "address" not in event_filter.filter_params
 
 
-@pytest.mark.parametrize("call_as_instance", (True, False))
+@pytest.mark.parametrize("call_deployed_contract", (True, False))
 @pytest.mark.parametrize("api_style", ("v4", "build_filter"))
 def test_on_filter_using_get_entries_interface(
     w3,
     emitter,
-    Emitter,
+    emitter_contract_instance,
     wait_for_transaction,
-    emitter_event_ids,
-    call_as_instance,
+    emitter_contract_event_ids,
+    call_deployed_contract,
     api_style,
     create_filter,
 ):
 
-    if call_as_instance:
+    if call_deployed_contract:
         contract = emitter
     else:
-        contract = Emitter
+        contract = emitter_contract_instance
 
     if api_style == "build_filter":
         event_filter = contract.events.LogNoArguments.build_filter().deploy(w3)
     else:
         event_filter = create_filter(emitter, ["LogNoArguments", {}])
 
-    txn_hash = emitter.functions.logNoArgs(emitter_event_ids.LogNoArguments).transact()
+    txn_hash = emitter.functions.logNoArgs(
+        emitter_contract_event_ids.LogNoArguments
+    ).transact()
     wait_for_transaction(w3, txn_hash)
 
     log_entries = event_filter.get_new_entries()
@@ -56,23 +62,23 @@ def test_on_filter_using_get_entries_interface(
     assert len(new_entries) == 0
 
 
-@pytest.mark.parametrize("call_as_instance", (True, False))
+@pytest.mark.parametrize("call_deployed_contract", (True, False))
 @pytest.mark.parametrize("api_style", ("v4", "build_filter"))
 def test_on_sync_filter_with_event_name_and_single_argument(
     w3,
     emitter,
-    Emitter,
+    emitter_contract_instance,
     wait_for_transaction,
-    emitter_event_ids,
-    call_as_instance,
+    emitter_contract_event_ids,
+    call_deployed_contract,
     api_style,
     create_filter,
 ):
 
-    if call_as_instance:
+    if call_deployed_contract:
         contract = emitter
     else:
-        contract = Emitter
+        contract = emitter_contract_instance
 
     if api_style == "build_filter":
         builder = contract.events.LogTripleWithIndex.build_filter()
@@ -92,7 +98,7 @@ def test_on_sync_filter_with_event_name_and_single_argument(
         )
 
     txn_hashes = []
-    event_id = emitter_event_ids.LogTripleWithIndex
+    event_id = emitter_contract_event_ids.LogTripleWithIndex
     txn_hashes.append(emitter.functions.logTriple(event_id, 2, 1, 3).transact())
     txn_hashes.append(emitter.functions.logTriple(event_id, 1, 2, 3).transact())
     txn_hashes.append(emitter.functions.logTriple(event_id, 12345, 2, 54321).transact())
@@ -104,23 +110,23 @@ def test_on_sync_filter_with_event_name_and_single_argument(
     assert {log["transactionHash"] for log in seen_logs} == set(txn_hashes[1:])
 
 
-@pytest.mark.parametrize("call_as_instance", (True, False))
+@pytest.mark.parametrize("call_deployed_contract", (True, False))
 @pytest.mark.parametrize("api_style", ("v4", "build_filter"))
 def test_on_sync_filter_with_event_name_and_non_indexed_argument(
     w3,
     emitter,
-    Emitter,
+    emitter_contract_instance,
     wait_for_transaction,
-    emitter_event_ids,
-    call_as_instance,
+    emitter_contract_event_ids,
+    call_deployed_contract,
     api_style,
     create_filter,
 ):
 
-    if call_as_instance:
+    if call_deployed_contract:
         contract = emitter
     else:
-        contract = Emitter
+        contract = emitter_contract_instance
 
     if api_style == "build_filter":
         builder = contract.events.LogTripleWithIndex.build_filter()
@@ -142,7 +148,7 @@ def test_on_sync_filter_with_event_name_and_non_indexed_argument(
         )
 
     txn_hashes = []
-    event_id = emitter_event_ids.LogTripleWithIndex
+    event_id = emitter_contract_event_ids.LogTripleWithIndex
     txn_hashes.append(emitter.functions.logTriple(event_id, 2, 1, 3).transact())
     txn_hashes.append(emitter.functions.logTriple(event_id, 1, 2, 3).transact())
     txn_hashes.append(emitter.functions.logTriple(event_id, 12345, 2, 54321).transact())
@@ -164,38 +170,40 @@ def test_on_sync_filter_with_event_name_and_non_indexed_argument(
 
 
 def test_filter_with_contract_address(
-    w3, emitter, emitter_event_ids, wait_for_transaction
+    w3, emitter, emitter_contract_event_ids, wait_for_transaction
 ):
     event_filter = w3.eth.filter(filter_params={"address": emitter.address})
-    txn_hash = emitter.functions.logNoArgs(emitter_event_ids.LogNoArguments).transact()
+    txn_hash = emitter.functions.logNoArgs(
+        emitter_contract_event_ids.LogNoArguments
+    ).transact()
     wait_for_transaction(w3, txn_hash)
     seen_logs = event_filter.get_new_entries()
     assert len(seen_logs) == 1
     assert seen_logs[0]["transactionHash"] == txn_hash
 
 
-@pytest.mark.parametrize("call_as_instance", (True, False))
+@pytest.mark.parametrize("call_deployed_contract", (True, False))
 def test_on_sync_filter_with_topic_filter_options_on_old_apis(
     w3,
     emitter,
-    Emitter,
+    emitter_contract_instance,
     wait_for_transaction,
-    emitter_event_ids,
-    call_as_instance,
+    emitter_contract_event_ids,
+    call_deployed_contract,
     create_filter,
 ):
 
-    if call_as_instance:
+    if call_deployed_contract:
         contract = emitter
     else:
-        contract = Emitter
+        contract = emitter_contract_instance
 
     event_filter = create_filter(
         contract, ["LogTripleWithIndex", {"filter": {"arg1": [1, 2], "arg2": [1, 2]}}]
     )
 
     txn_hashes = []
-    event_id = emitter_event_ids.LogTripleWithIndex
+    event_id = emitter_contract_event_ids.LogTripleWithIndex
     txn_hashes.append(emitter.functions.logTriple(event_id, 1, 1, 1).transact())
     txn_hashes.append(emitter.functions.logTriple(event_id, 1, 1, 2).transact())
     txn_hashes.append(emitter.functions.logTriple(event_id, 1, 2, 2).transact())
@@ -226,20 +234,22 @@ def event_loop():
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("call_as_instance", (True, False))
+@pytest.mark.parametrize("call_deployed_contract", (True, False))
 async def test_async_create_filter_address_parameter(
-    async_emitter, AsyncEmitter, call_as_instance
+    async_emitter, async_emitter_contract_instance, call_deployed_contract
 ):
-    if call_as_instance:
+    if call_deployed_contract:
         event_filter = await async_emitter.events.LogNoArguments.create_filter(
             fromBlock="latest"
         )
     else:
-        event_filter = await AsyncEmitter.events.LogNoArguments.create_filter(
-            fromBlock="latest"
+        event_filter = (
+            await async_emitter_contract_instance.events.LogNoArguments.create_filter(
+                fromBlock="latest"
+            )
         )
 
-    if call_as_instance:
+    if call_deployed_contract:
         # Assert this is a single string value, and not a list of addresses
         assert is_address(event_filter.filter_params["address"])
     else:
@@ -248,23 +258,23 @@ async def test_async_create_filter_address_parameter(
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("call_as_instance", (True, False))
+@pytest.mark.parametrize("call_deployed_contract", (True, False))
 @pytest.mark.parametrize("api_style", ("v4", "build_filter"))
 async def test_on_async_filter_using_get_entries_interface(
     async_w3,
     async_emitter,
-    AsyncEmitter,
+    async_emitter_contract_instance,
     async_wait_for_transaction,
-    emitter_event_ids,
-    call_as_instance,
+    emitter_contract_event_ids,
+    call_deployed_contract,
     api_style,
     async_create_filter,
 ):
 
-    if call_as_instance:
+    if call_deployed_contract:
         contract = async_emitter
     else:
-        contract = AsyncEmitter
+        contract = async_emitter_contract_instance
 
     if api_style == "build_filter":
         event_filter = await contract.events.LogNoArguments.build_filter().deploy(
@@ -274,7 +284,7 @@ async def test_on_async_filter_using_get_entries_interface(
         event_filter = await async_create_filter(async_emitter, ["LogNoArguments", {}])
 
     txn_hash = await async_emitter.functions.logNoArgs(
-        emitter_event_ids.LogNoArguments
+        emitter_contract_event_ids.LogNoArguments
     ).transact()
     await async_wait_for_transaction(async_w3, txn_hash)
 
@@ -288,23 +298,23 @@ async def test_on_async_filter_using_get_entries_interface(
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("call_as_instance", (True, False))
+@pytest.mark.parametrize("call_deployed_contract", (True, False))
 @pytest.mark.parametrize("api_style", ("v4", "build_filter"))
 async def test_on_async_filter_with_event_name_and_single_argument(
     async_w3,
     async_emitter,
-    AsyncEmitter,
+    async_emitter_contract_instance,
     async_wait_for_transaction,
-    emitter_event_ids,
-    call_as_instance,
+    emitter_contract_event_ids,
+    call_deployed_contract,
     api_style,
     async_create_filter,
 ):
 
-    if call_as_instance:
+    if call_deployed_contract:
         contract = async_emitter
     else:
-        contract = AsyncEmitter
+        contract = async_emitter_contract_instance
 
     if api_style == "build_filter":
         builder = contract.events.LogTripleWithIndex.build_filter()
@@ -324,7 +334,7 @@ async def test_on_async_filter_with_event_name_and_single_argument(
         )
 
     txn_hashes = []
-    event_id = emitter_event_ids.LogTripleWithIndex
+    event_id = emitter_contract_event_ids.LogTripleWithIndex
     txn_hashes.append(
         await async_emitter.functions.logTriple(event_id, 2, 1, 3).transact()
     )
@@ -343,23 +353,23 @@ async def test_on_async_filter_with_event_name_and_single_argument(
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("call_as_instance", (True, False))
+@pytest.mark.parametrize("call_deployed_contract", (True, False))
 @pytest.mark.parametrize("api_style", ("v4", "build_filter"))
 async def test_on_async_filter_with_event_name_and_non_indexed_argument(
     async_w3,
     async_emitter,
-    AsyncEmitter,
+    async_emitter_contract_instance,
     async_wait_for_transaction,
-    emitter_event_ids,
-    call_as_instance,
+    emitter_contract_event_ids,
+    call_deployed_contract,
     api_style,
     async_create_filter,
 ):
 
-    if call_as_instance:
+    if call_deployed_contract:
         contract = async_emitter
     else:
-        contract = AsyncEmitter
+        contract = async_emitter_contract_instance
 
     if api_style == "build_filter":
         builder = contract.events.LogTripleWithIndex.build_filter()
@@ -381,7 +391,7 @@ async def test_on_async_filter_with_event_name_and_non_indexed_argument(
         )
 
     txn_hashes = []
-    event_id = emitter_event_ids.LogTripleWithIndex
+    event_id = emitter_contract_event_ids.LogTripleWithIndex
     txn_hashes.append(
         await async_emitter.functions.logTriple(event_id, 2, 1, 3).transact()
     )
@@ -410,13 +420,13 @@ async def test_on_async_filter_with_event_name_and_non_indexed_argument(
 
 @pytest.mark.asyncio
 async def test_async_filter_with_contract_address(
-    async_w3, async_emitter, emitter_event_ids, async_wait_for_transaction
+    async_w3, async_emitter, emitter_contract_event_ids, async_wait_for_transaction
 ):
     event_filter = await async_w3.eth.filter(
         filter_params={"address": async_emitter.address}
     )
     txn_hash = await async_emitter.functions.logNoArgs(
-        emitter_event_ids.LogNoArguments
+        emitter_contract_event_ids.LogNoArguments
     ).transact()
     await async_wait_for_transaction(async_w3, txn_hash)
     seen_logs = await event_filter.get_new_entries()
@@ -425,28 +435,28 @@ async def test_async_filter_with_contract_address(
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("call_as_instance", (True, False))
+@pytest.mark.parametrize("call_deployed_contract", (True, False))
 async def test_on_async_filter_with_topic_filter_options_on_old_apis(
     async_w3,
     async_emitter,
-    AsyncEmitter,
+    async_emitter_contract_instance,
     async_wait_for_transaction,
-    emitter_event_ids,
-    call_as_instance,
+    emitter_contract_event_ids,
+    call_deployed_contract,
     async_create_filter,
 ):
 
-    if call_as_instance:
+    if call_deployed_contract:
         contract = async_emitter
     else:
-        contract = AsyncEmitter
+        contract = async_emitter_contract_instance
 
     event_filter = await async_create_filter(
         contract, ["LogTripleWithIndex", {"filter": {"arg1": [1, 2], "arg2": [1, 2]}}]
     )
 
     txn_hashes = []
-    event_id = emitter_event_ids.LogTripleWithIndex
+    event_id = emitter_contract_event_ids.LogTripleWithIndex
     txn_hashes.append(
         await async_emitter.functions.logTriple(event_id, 1, 1, 1).transact()
     )
