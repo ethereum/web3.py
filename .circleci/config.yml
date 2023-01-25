@@ -14,7 +14,7 @@ common: &common
         command: git submodule update --init --recursive
     - run:
         name: install dependencies
-        command: pip install --user "tox<4.4.0"
+        command: pip install --user tox
     - run:
         name: run tox
         command: python -m tox -r
@@ -41,7 +41,7 @@ docs_steps: &docs_steps
         command: git submodule update --init --recursive
     - run:
         name: install dependencies
-        command: pip install --user "tox<4.4.0"
+        command: pip install --user tox
     - run:
         name: install web3
         command: pip install -U web3
@@ -69,7 +69,7 @@ geth_steps: &geth_steps
           - cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
     - run:
         name: install dependencies
-        command: pip install --user "tox<4.4.0"
+        command: pip install --user tox
     - run:
         name: build geth if missing
         command: |
@@ -113,7 +113,7 @@ geth_custom_steps: &geth_custom_steps
           - cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
     - run:
         name: install dependencies
-        command: pip install --user "tox<4.4.0"
+        command: pip install --user tox
     - run:
         name: use a pre-built geth binary
         command: |
@@ -167,7 +167,7 @@ ethpm_steps: &ethpm_steps
         command: git submodule update --init --recursive
     - run:
         name: install dependencies
-        command: pip install --user "tox<4.4.0"
+        command: pip install --user tox
     - run:
         name: run tox
         command: python -m tox -r
@@ -196,7 +196,7 @@ windows_steps: &windows_steps
         command: git submodule update --init --recursive
     - run:
         name: install dependencies
-        command: pip install --user "tox<4.4.0"
+        command: pip install --user tox
     - run:
         name: run tox
         command: 'C:/Users/circleci/AppData/Roaming/Python/Python37/Scripts/tox.exe -r'
