@@ -45,7 +45,7 @@ extras_require = {
         "pytest-watch>=4.2",
         "pytest-xdist>=1.29",
         "setuptools>=38.6.0",
-        "tox>=3.18.0",
+        "tox>=3.18.0,<4.4.0",
         "tqdm>4.32",
         "twine>=1.13",
         "pluggy==0.13.1",
