@@ -185,12 +185,14 @@ def test_match_fn_with_various_data_types(w3, data, expected, match_data_and_abi
         ),
     ),
 )
-def test_match_fn_with_various_data_types_strict(
-    w3, data, expected, match_data_and_abi
+def test_match_fn_with_various_data_types_non_strict(
+    w3_non_strict_abi, data, expected, match_data_and_abi
 ):
     abi_types, match_data = zip(*match_data_and_abi)
-    encoded_data = w3.codec.encode(abi_types, data)
-    assert match_fn(w3.codec, match_data_and_abi, encoded_data) == expected
+    encoded_data = w3_non_strict_abi.codec.encode(abi_types, data)
+    assert (
+        match_fn(w3_non_strict_abi.codec, match_data_and_abi, encoded_data) == expected
+    )
 
 
 @pytest.mark.parametrize(

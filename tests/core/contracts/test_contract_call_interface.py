@@ -109,7 +109,7 @@ def nested_tuple_contract(w3, NestedTupleContract, address_conversion_func):
 def test_deploy_raises_due_to_strict_byte_checking_by_default(
     w3, Bytes32Contract, address_conversion_func
 ):
-    with pytest.raises(TypeError, match=""):
+    with pytest.raises(TypeError):
         deploy(
             w3,
             Bytes32Contract,
