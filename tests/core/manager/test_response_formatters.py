@@ -41,6 +41,9 @@ METHOD_NOT_FOUND_RESP_FORMAT = {
         "available",
     },
 }
+ETH_TESTER_METHOD_NOT_FOUND_RESP_FORMAT = {
+    "error": "the method eth_getTransactionByHash does not exist/is not available",
+}
 
 
 def raise_contract_logic_error(response):
@@ -120,6 +123,13 @@ def raise_contract_logic_error(response):
             identity,
             identity,
             MethodUnavailable,
+        ),
+        (
+            ETH_TESTER_METHOD_NOT_FOUND_RESP_FORMAT,
+            (),
+            identity,
+            identity,
+            ValueError,
         ),
     ],
 )
