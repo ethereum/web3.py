@@ -287,3 +287,11 @@ class BadResponseFormat(Web3Exception):
     """
 
     pass
+
+
+class MethodUnavailable(Web3Exception):
+    """
+    Raised when the method is not available on the node
+    """
+
+    pass
