@@ -356,7 +356,7 @@ Check Encodability
 RPC API Modules
 ~~~~~~~~~~~~~~~
 
-Each ``Web3`` instance also exposes these name-spaced API modules.
+Each ``Web3`` instance also exposes these namespaced API modules.
 
 
 .. py:attribute:: Web3.eth

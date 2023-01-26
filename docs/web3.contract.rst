@@ -480,8 +480,8 @@ size, web3 will invalidate the value. For example, if an abi specifies a type of
 
 However, you may want to be less strict with acceptable values for bytes types.
 This may prove useful if you trust that values coming through are what they are
-meant to be with respects to the respective ABI. In this case, the automatic padding
-might be convenient for inferred types. For this, you can set the
+meant to be with respect to the ABI. In this case, the automatic padding might be
+convenient for inferred types. For this, you can set the
 :meth:`w3.strict_bytes_type_checking` flag to ``False``, which is available on the
 Web3 instance. A Web3 instance which has this flag set to ``False`` will have a less
 strict set of rules on which values are accepted. A ``bytes`` type will allow values as

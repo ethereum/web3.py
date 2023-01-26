@@ -110,7 +110,7 @@ class ENS(BaseENS):
     @classmethod
     def from_web3(cls, w3: "Web3", addr: ChecksumAddress = None) -> "ENS":
         """
-        Generate an ENS instance with web3
+        Generate an ENS instance from a Web3 instance
 
         :param `web3.Web3` w3: to infer connection, middleware, and codec information
         :param hex-string addr: the address of the ENS registry on-chain. If not
@@ -120,9 +120,8 @@ class ENS(BaseENS):
         middlewares = w3.middleware_onion.middlewares
         ns = cls(cast("BaseProvider", provider), addr=addr, middlewares=middlewares)
 
-        # set codec and strict bytes type check flag from w3
-        ns.w3.strict_bytes_type_checking = w3.strict_bytes_type_checking
-        ns.w3.codec = w3.codec
+        # inherit strict bytes checking from w3 instance
+        ns.strict_bytes_type_checking = w3.strict_bytes_type_checking
 
         return ns
 

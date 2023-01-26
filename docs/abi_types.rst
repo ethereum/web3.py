@@ -28,14 +28,17 @@ All addresses must be supplied in one of three ways:
 Disabling Strict Bytes Type Checking
 ------------------------------------
 
-There is a method on web3 that will disable strict bytes type checking.
-This allows bytes values of Python strings and allows bytestrings less
-than the specified byte size. To disable stricter checks, set the
-``w3.strict_bytes_type_checking`` flag to ``False``. This will no longer cause the web3
-instance to raise an error if a Python string is passed in without a "0x"
-prefix. It will also render valid byte strings or hex strings that are below
-the exact number of bytes specified by the ABI type. See the
-:ref:`disable-strict-byte-check` section for an example and more details.
+There is a boolean flag on the web3 instance that will disable strict bytes type checking.
+This allows bytes values of Python strings and allows byte strings less
+than the specified byte size, appropriately padding values that need padding. To
+disable stricter checks, set the ``w3.strict_bytes_type_checking`` flag to ``False``.
+This will no longer cause the web3 instance to raise an error if a Python string is
+passed in without a "0x" prefix. It will also render valid byte strings or hex strings
+that are below the exact number of bytes specified by the ABI type by padding the value
+appropriately, according to the ABI type. See the :ref:`disable-strict-byte-check`
+section for an example on using the flag and more details. For more details on the ABI
+specification, refer to the
+`Solidity ABI Spec <https://docs.soliditylang.org/en/latest/abi-spec.html>`_.
 
 Types by Example
 ----------------

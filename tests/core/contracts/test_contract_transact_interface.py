@@ -166,8 +166,7 @@ def test_transacting_with_contract_with_bytes32_array_argument(
     assert final_value == new_bytes32_array
 
 
-# TODO: strict by default
-def test_transacting_with_contract_with_byte_array_argument_strict(
+def test_transacting_with_contract_with_byte_array_argument(
     w3, arrays_contract, transact, call
 ):
     new_byte_array = [b"\x03", b"\x03", b"\x03", b"\x03", b"\x03", b"\x03"]
@@ -462,7 +461,6 @@ async def test_async_transacting_with_contract_with_bytes32_array_argument(
     assert final_value == new_bytes32_array
 
 
-# TODO: strict by default
 @pytest.mark.asyncio
 async def test_async_transacting_with_contract_with_byte_array_argument(
     async_w3,

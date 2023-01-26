@@ -133,8 +133,8 @@ def test_construct_event_topics(w3, arguments, expected):
         ),
     ),
 )
-def test_construct_event_topics_strict(w3, arguments, expected):
-    actual = construct_event_topic_set(EVENT_1_ABI, w3.codec, arguments)
+def test_construct_event_topics_non_strict(w3_non_strict_abi, arguments, expected):
+    actual = construct_event_topic_set(EVENT_1_ABI, w3_non_strict_abi.codec, arguments)
     assert actual == expected
 
 
