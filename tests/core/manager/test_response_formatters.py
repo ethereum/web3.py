@@ -13,6 +13,7 @@ from web3.exceptions import (
     BadResponseFormat,
     BlockNotFound,
     ContractLogicError,
+    MethodUnavailable,
     TransactionNotFound,
 )
 
@@ -31,6 +32,17 @@ ANOTHER_UNEXPECTED_RESP_FORMAT = {
     "name": "LimitError",
     "message": "You cannot query logs for more than 10000 blocks at once.",
     "method": "eth_getLogs",
+}
+METHOD_NOT_FOUND_RESP_FORMAT = {
+    "jsonrpc": "2.0",
+    "error": {
+        "code": -32601,
+        "message": "the method eth_getTransactionByHash does not exist/is not "
+        "available",
+    },
+}
+ETH_TESTER_METHOD_NOT_FOUND_RESP_FORMAT = {
+    "error": "the method eth_getTransactionByHash does not exist/is not available",
 }
 
 
@@ -104,6 +116,20 @@ def raise_contract_logic_error(response):
             identity,
             raise_transaction_not_found,
             TransactionNotFound,
+        ),
+        (
+            METHOD_NOT_FOUND_RESP_FORMAT,
+            (),
+            identity,
+            identity,
+            MethodUnavailable,
+        ),
+        (
+            ETH_TESTER_METHOD_NOT_FOUND_RESP_FORMAT,
+            (),
+            identity,
+            identity,
+            ValueError,
         ),
     ],
 )

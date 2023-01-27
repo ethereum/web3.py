@@ -34,6 +34,7 @@ from web3.datastructures import (
 )
 from web3.exceptions import (
     BadResponseFormat,
+    MethodUnavailable,
 )
 from web3.middleware import (
     abi_middleware,
@@ -188,6 +189,13 @@ class RequestManager:
     ) -> Any:
         if "error" in response:
             apply_error_formatters(error_formatters, response)
+
+            # guard against eth-tester case - eth-tester returns a string
+            # with no code, so can't parse what the error is.
+            if isinstance(response["error"], dict):
+                resp_code = response["error"].get("code")
+                if resp_code == -32601:
+                    raise MethodUnavailable(response["error"])
             raise ValueError(response["error"])
         # NULL_RESPONSES includes None, so return False here as the default
         # so we don't apply the null_result_formatters if there is no 'result' key

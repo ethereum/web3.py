@@ -92,6 +92,9 @@ Other Misc Changes
 
 - ``InfuraKeyNotFound`` exception has been changed to ``InfuraProjectIdNotFound``
 - ``SolidityError`` has been removed in favor of ``ContractLogicError``
+- When a method is unavailable from a node provider (i.e. a response error
+  code of -32601 is returned), a ``MethodUnavailable`` error is
+  now raised instead of ``ValueError``
 
 Removals
 ~~~~~~~~
