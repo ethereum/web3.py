@@ -922,7 +922,7 @@ def named_tree(abi: List[Dict[str, Any]], data: Tuple[Any, ...]) -> Dict[str, An
 
 def named_subtree(
     abi: Dict[str, Any], data: Tuple[Any, ...]
-) -> Union[TupleType, Dict[str, Any], Tuple[Any, ...]]:
+) -> Union[Dict[str, Any], Tuple[Any, ...], Any]:
     abi_type = parse(collapse_if_tuple(abi))
 
     if abi_type.is_array:
@@ -939,32 +939,33 @@ def named_subtree(
     return data
 
 
-def dict_to_namedtuple(data: Dict[str, Any]) -> TupleType:
-    def to_tuple(item):
+def dict_to_namedtuple(data: Dict[str, Any]) -> Tuple[Any, ...]:
+    def to_tuple(
+        item: Union[Dict[str, Any], List[Any]]
+    ) -> Union[Tuple[Any, ...], List[Any]]:
         if isinstance(item, dict):
             return generate_namedtuple_from_dict(**item)
         return item
 
-    breakpoint()
     return recursive_map(to_tuple, data)
 
 
-def foldable_namedtuple(fields):
+def foldable_namedtuple(fields: Tuple[Any, ...]) -> Tuple[Any, ...]:
     """
     Customized namedtuple such that `type(x)(x) == x`.
     """
 
-    class ABIDecodedNamedTuple(namedtuple("ABIDecodedNamedTuple", fields, rename=True)):
-        def __new__(self, args):
+    class ABIDecodedNamedTuple(namedtuple("ABIDecodedNamedTuple", fields, rename=True)):  # type: ignore # noqa: E501
+        def __new__(self, args: Any) -> "ABIDecodedNamedTuple":
             return super().__new__(self, *args)
 
-        def _asdict(self):
+        def _asdict(self) -> Dict[str, Any]:
             return dict(super()._asdict())
 
-    return ABIDecodedNamedTuple
+    return ABIDecodedNamedTuple  # type: ignore
 
 
-def generate_namedtuple_from_dict(**kwargs):
+def generate_namedtuple_from_dict(**kwargs: Dict[str, Any]) -> Tuple[Any, ...]:
     """
     Literal namedtuple constructor such that:
     `generate_namedtuple_from_dict(x=1, y=2)`
@@ -972,4 +973,4 @@ def generate_namedtuple_from_dict(**kwargs):
     """
     keys, values = zip(*kwargs.items())
 
-    return foldable_namedtuple(keys)(values)
+    return foldable_namedtuple(keys)(values)  # type: ignore
