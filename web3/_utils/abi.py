@@ -906,3 +906,70 @@ def build_strict_registry() -> ABIRegistry:
         label="string",
     )
     return registry
+
+
+def named_tree(abi: List[Dict[str, Any]], data: Tuple[Any, ...]) -> Dict[str, Any]:
+    """
+    Convert function inputs/outputs or event data tuple to dict with names from ABI.
+    """
+    names = [item["name"] for item in abi]
+    items = [named_subtree(*item) for item in zip(abi, data)]
+
+    # TODO how to handle if names and items end up different len
+    # return dict(zip(names, items)) if all(names) else items
+    return dict(zip(names, items))
+
+
+def named_subtree(
+    abi: Dict[str, Any], data: Tuple[Any, ...]
+) -> Union[TupleType, Dict[str, Any], Tuple[Any, ...]]:
+    abi_type = parse(collapse_if_tuple(abi))
+
+    if abi_type.is_array:
+        item_type = abi_type.item_type.to_type_str()
+        item_abi = {**abi, "type": item_type, "name": ""}
+        items = [named_subtree(item_abi, item) for item in data]
+        return items
+
+    if isinstance(abi_type, TupleType):
+        names = [item["name"] for item in abi["components"]]
+        items = [named_subtree(*item) for item in zip(abi["components"], data)]
+        return dict(zip(names, items))
+
+    return data
+
+
+def dict_to_namedtuple(data: Dict[str, Any]) -> TupleType:
+    def to_tuple(item):
+        if isinstance(item, dict):
+            return generate_namedtuple_from_dict(**item)
+        return item
+
+    breakpoint()
+    return recursive_map(to_tuple, data)
+
+
+def foldable_namedtuple(fields):
+    """
+    Customized namedtuple such that `type(x)(x) == x`.
+    """
+
+    class ABIDecodedNamedTuple(namedtuple("ABIDecodedNamedTuple", fields, rename=True)):
+        def __new__(self, args):
+            return super().__new__(self, *args)
+
+        def _asdict(self):
+            return dict(super()._asdict())
+
+    return ABIDecodedNamedTuple
+
+
+def generate_namedtuple_from_dict(**kwargs):
+    """
+    Literal namedtuple constructor such that:
+    `generate_namedtuple_from_dict(x=1, y=2)`
+    returns `generate_namedtuple_from_dict(x=1, y=2)`.
+    """
+    keys, values = zip(*kwargs.items())
+
+    return foldable_namedtuple(keys)(values)
