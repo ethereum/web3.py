@@ -10,9 +10,6 @@ from typing import (
     cast,
 )
 
-from eth_abi import (
-    decode,
-)
 from eth_abi.codec import (
     ABICodec,
 )
@@ -50,7 +47,6 @@ from web3._utils.abi import (
     get_receive_func_abi,
     map_abi_data,
     merge_args_and_kwargs,
-    named_tree,
 )
 from web3._utils.blocks import (
     is_hex_encoded_block_hash,
@@ -314,15 +310,6 @@ def encode_transaction_data(
         raise TypeError("Unsupported function identifier")
 
     return add_0x_prefix(encode_abi(w3, fn_abi, fn_arguments, fn_selector))
-
-
-def decode_transaction_data(fn_abi, data, normalizers=None):
-    data = HexBytes(data)
-    types = get_abi_input_types(fn_abi)
-    decoded = decode(types, data[4:])
-    if normalizers:
-        decoded = map_abi_data(normalizers, types, decoded)
-    return named_tree(fn_abi["inputs"], decoded)
 
 
 def get_fallback_function_info(

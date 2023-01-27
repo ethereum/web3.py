@@ -924,13 +924,17 @@ def named_tree(
 
 
 def named_subtree(
-    abi: Dict[str, Any], data: Tuple[Any, ...]
+    # TODO make this a better type
+    abi: Any,
+    data: Tuple[Any, ...],
 ) -> Union[Dict[str, Any], Tuple[Any, ...], Any]:
-    abi_type = parse(collapse_if_tuple(abi))
+    abi_type = parse(collapse_if_tuple(dict(abi)))
 
     if abi_type.is_array:
         item_type = abi_type.item_type.to_type_str()
         item_abi = {**abi, "type": item_type, "name": ""}
+        # cast(ABIFunctionParams, item_abi)
+        # breakpoint()
         items = [named_subtree(item_abi, item) for item in data]
         return items
 
