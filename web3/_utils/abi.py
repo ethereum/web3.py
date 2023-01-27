@@ -189,6 +189,7 @@ class AcceptsHexStrEncoder(encoding.BaseEncoder):
     is_strict: bool = None
     is_big_endian: bool = False
     data_byte_size: int = None
+    value_bit_size: int = None
 
     def __init__(
         self,
@@ -280,10 +281,21 @@ class ExactLengthBytesEncoder(BytesEncoder):
 
     def validate(self) -> None:
         super().validate()
+        if self.value_bit_size is None:
+            raise ValueError("`value_bit_size` may not be none")
         if self.data_byte_size is None:
             raise ValueError("`data_byte_size` may not be none")
         if self.is_big_endian is None:
             raise ValueError("`is_big_endian` may not be none")
+
+        if self.value_bit_size % 8 != 0:
+            raise ValueError(
+                f"Invalid value bit size: {self.value_bit_size}. "
+                "Must be a multiple of 8"
+            )
+
+        if self.value_bit_size > self.data_byte_size * 8:
+            raise ValueError("Value byte size exceeds data size")
 
     @parse_type_str("bytes")
     def from_type_str(cls, abi_type: BasicType, registry: ABIRegistry) -> bytes:
@@ -298,6 +310,7 @@ class ExactLengthBytesEncoder(BytesEncoder):
         # Unexpected keyword argument "value_bit_size" for "__call__" of "BaseEncoder"
         return cls(  # type: ignore
             subencoder,
+            value_bit_size=abi_type.sub * 8,
             data_byte_size=abi_type.sub,
         )
 
