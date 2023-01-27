@@ -79,8 +79,9 @@ class AsyncContractFunctions(BaseContractFunctions):
         abi: ABI,
         w3: "Web3",
         address: Optional[ChecksumAddress] = None,
+        decode_tuples: Optional[bool] = None,
     ) -> None:
-        super().__init__(abi, w3, AsyncContractFunction, address)
+        super().__init__(abi, w3, AsyncContractFunction, address, decode_tuples)
 
 
 class AsyncContractEvents(BaseContractEvents):
@@ -115,7 +116,9 @@ class AsyncContract(BaseContract):
             raise TypeError(
                 "The address argument is required to instantiate a contract."
             )
-        self.functions = AsyncContractFunctions(self.abi, self.w3, self.address)
+        self.functions = AsyncContractFunctions(
+            self.abi, self.w3, self.address, self.decode_tuples
+        )
         self.caller = AsyncContractCaller(self.abi, self.w3, self.address)
         self.events = AsyncContractEvents(self.abi, self.w3, self.address)
         self.fallback = AsyncContract.get_fallback_function(
@@ -147,7 +150,9 @@ class AsyncContract(BaseContract):
                 normalizers=normalizers,
             ),
         )
-        contract.functions = AsyncContractFunctions(contract.abi, contract.w3)
+        contract.functions = AsyncContractFunctions(
+            contract.abi, contract.w3, contract.decode_tuples
+        )
         contract.caller = AsyncContractCaller(
             contract.abi, contract.w3, contract.address
         )
@@ -289,6 +294,7 @@ class AsyncContractFunction(BaseContractFunction):
             self.abi,
             state_override,
             ccip_read_enabled,
+            self.decode_tuples,
             *self.args,
             **self.kwargs,
         )
@@ -468,6 +474,7 @@ class AsyncContractCaller(BaseContractCaller):
         transaction: Optional[TxParams] = None,
         block_identifier: BlockIdentifier = "latest",
         ccip_read_enabled: Optional[bool] = None,
+        decode_tuples: Optional[bool] = None,
     ) -> None:
         super().__init__(
             abi=abi,
@@ -477,6 +484,7 @@ class AsyncContractCaller(BaseContractCaller):
             block_identifier=block_identifier,
             ccip_read_enabled=ccip_read_enabled,
             contract_function_class=AsyncContractFunction,
+            decode_tuples=decode_tuples,
         )
 
     def __call__(

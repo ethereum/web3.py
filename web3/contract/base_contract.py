@@ -43,11 +43,8 @@ from web3._utils.abi import (
     check_if_arguments_can_be_encoded,
     fallback_func_abi_exists,
     filter_by_type,
-    get_abi_input_names,
-    get_abi_input_types,
     get_constructor_abi,
     is_array_type,
-    map_abi_data,
     merge_args_and_kwargs,
     receive_func_abi_exists,
 )
@@ -261,7 +258,6 @@ class BaseContract:
             func.abi, data, normalizers=BASE_RETURN_NORMALIZERS
         )
         return func, arguments
-
 
     @combomethod
     def find_functions_by_args(self, *args: Any) -> "BaseContractFunction":

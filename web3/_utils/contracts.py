@@ -13,7 +13,6 @@ from typing import (
 from eth_abi import (
     decode,
 )
-
 from eth_abi.codec import (
     ABICodec,
 )
