@@ -195,18 +195,16 @@ Within the ``pytest`` scope, :file:`conftest.py` files are used for common code
 shared between modules that exist within the same directory as that particular
 :file:`conftest.py` file.
 
-Unit Testing
-^^^^^^^^^^^^
+Unit Testing and eth-tester Tests
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Unit tests are meant to test the logic of smaller chunks (or units) of the
-codebase without having to be wired up to a client. Most of the time this
-means testing selected methods on their own. They are meant to test the logic
-of your code and make sure that you get expected outputs out of selected inputs.
+Our unit tests are grouped together with tests against the ``eth-tester`` library,
+using the ``py-evm`` library as a backend, via the ``EthereumTesterProvider``.
 
-Our unit tests live under appropriately named child directories within the
-``/tests`` directory. The core of the unit tests live under ``/tests/core``.
-Do your best to follow the existing structure when choosing where to add
-your unit test.
+These tests live under appropriately named child directories within the
+``/tests`` directory. The core of these tests live under ``/tests/core``.
+Do your best to follow the existing structure when adding a test and make sure
+that its location makes sense.
 
 Integration Testing
 ^^^^^^^^^^^^^^^^^^^
@@ -217,25 +215,80 @@ confused with pytest fixtures). These zip file fixtures, which also live in the
 ``/tests/integration`` directory, are configured to run the specific client we are
 testing against along with a genesis configuration that gives our tests some
 pre-determined useful objects (like unlocked, pre-loaded accounts) to be able to
-interact with the client and run our tests.
+interact with the client when we run our tests.
 
-Though the setup lives in ``/tests/integration``, our integration module tests are
-written across different files within ``/web3/_utils/module_testing``. The tests
-are written there but run configurations exist across the different files within
-``/tests/integration/``. The parent ``/integration`` directory houses some common
-configuration shared across all client tests, whereas the ``/go_ethereum`` directory
-houses common code to be shared among respective client tests.
+The parent ``/integration`` directory houses some common configuration shared across
+all client tests, whereas the ``/go_ethereum`` directory houses common code to be
+shared across geth-specific provider tests. Though the setup run configurations exist
+across the different files within ``/tests/integration``, our integration module tests
+are written across different files within ``/web3/_utils/module_testing``.
 
 * :file:`common.py` files within the client directories contain code that is shared across
   all provider tests (http, ipc, and ws). This is mostly used to override tests that span
   across all providers.
-* :file:`conftest.py` files within each of these directories contain mostly code that can
-  be *used* by all test files that exist within the same directory as the :file:`conftest.py`
-  file. This is mostly used to house pytest fixtures to be shared among our tests. Refer to
-  the `pytest documentation on fixtures`_ for more information.
-* :file:`test_{client}_{provider}.py` (e.g. :file:`test_goethereum_http.py`) files are where
-  client-and-provider-specific test configurations exist. This is mostly used to override tests
-  specific to the provider type for the respective client.
+* :file:`conftest.py` files within each of these directories contain mostly code that
+  can be *used* by all test files that exist within the same directory or subdirectories
+  of the :file:`conftest.py` file. This is mostly used to house pytest fixtures to be
+  shared among our tests. Refer to the `pytest documentation on fixtures`_ for more
+  information.
+* ``test_{client}_{provider}.py`` files (e.g. :file:`test_goethereum_http.py`) are where
+  client-and-provider-specific test configurations exist. This is mostly used to
+  override tests specific to the provider type for the respective client.
+
+
+Working With Test Contracts
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Contracts used for testing exist under ``web3/_utils/contract_sources``. These contracts
+get compiled via the ``compile_contracts.py`` script in the same directory. To use
+this script, simply pass the Solidity version to be used to compile the contracts as an
+argument at the command line.
+
+Arguments for the script are:
+    -v or --version         Solidity version to be used to compile the contracts. If
+                            blank, the script uses the latest hard-coded version
+                            specified within the script.
+
+    -f or --filename        If left blank, all .sol files will be compiled and the
+                            respective contract data will be generated. Pass in a
+                            specific ``.sol`` filename here to compile just one file.
+
+
+To run the script, you will need the ``py-solc-x`` library for compiling the files
+as well as ``black`` for linting. You can install those independently or install the
+full ``[dev]`` package extra as shown below.
+
+.. code:: sh
+
+    $ pip install "web3[dev]"
+
+The following example compiles all the contracts and generates their respective
+contract data that is used across our test files for the test suites. This data gets
+generated within the ``contract_data`` subdirectory within the ``contract_sources``
+folder.
+
+.. code-block:: bash
+
+    $ cd ../web3.py/web3/_utils/contract_sources
+    $ python compile_contracts.py -v 0.8.17
+    Compiling OffchainLookup
+    ...
+    ...
+    reformatted ...
+
+To compile and generate contract data for only one ``.sol`` file, specify using the
+filename with the ``-f`` (or ``--filename``) argument flag.
+
+.. code-block:: bash
+
+    $ cd ../web3.py/web3/_utils/contract_sources
+    $ python compile_contracts.py -v 0.8.17 -f OffchainLookup.sol
+    Compiling OffchainLookup.sol
+    reformatted ...
+
+If there is any contract data that not generated via the script but is is important to
+pass on to the test suites, the ``_custom_data.py`` can be used to store that
+information.
 
 
 Manual Testing
@@ -246,7 +299,7 @@ you can install it from your development directory:
 
 .. code:: sh
 
-   $ pip install -e ../path/to/web3py
+   $ pip install -e ../path/to/web3py
 
 
 Documentation
