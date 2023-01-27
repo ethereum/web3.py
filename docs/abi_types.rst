@@ -28,17 +28,33 @@ All addresses must be supplied in one of three ways:
 Disabling Strict Bytes Type Checking
 ------------------------------------
 
-There is a boolean flag on the web3 instance that will disable strict bytes type checking.
-This allows bytes values of Python strings and allows byte strings less
-than the specified byte size, appropriately padding values that need padding. To
-disable stricter checks, set the ``w3.strict_bytes_type_checking`` flag to ``False``.
-This will no longer cause the web3 instance to raise an error if a Python string is
-passed in without a "0x" prefix. It will also render valid byte strings or hex strings
+There is a boolean flag on the ``Web3`` class and the ``ENS`` class that will disable
+strict bytes type checking. This allows bytes values of Python strings and allows byte
+strings less than the specified byte size, appropriately padding values that need
+padding. To disable stricter checks, set the ``w3.strict_bytes_type_checking``
+(or ``ns.strict_bytes_type_checking``) flag to ``False``. This will no longer cause
+the ``Web3`` / ``ENS`` instance to raise an error if a Python string is passed in
+without a "0x" prefix. It will also render valid byte strings or hex strings
 that are below the exact number of bytes specified by the ABI type by padding the value
 appropriately, according to the ABI type. See the :ref:`disable-strict-byte-check`
-section for an example on using the flag and more details. For more details on the ABI
+section for an example on using the flag and more details.
+
+.. note::
+    If a standalone ``ENS`` instance is instantiated from a ``Web3`` instance, i.e.
+    ``ns = ENS.from_web3(w3)``, it will inherit the value of the
+    ``w3.strict_bytes_type_checking`` flag from the ``Web3`` instance at the time of
+    instantiation.
+
+    Also of note, all modules on the ``Web3`` class will inherit the value of this flag,
+    since all modules use the parent ``w3`` object reference under the hood. This means
+    that ``w3.eth.w3.strict_bytes_type_checking`` will always have the same value as
+    ``w3.strict_bytes_type_checking``.
+
+
+For more details on the ABI
 specification, refer to the
 `Solidity ABI Spec <https://docs.soliditylang.org/en/latest/abi-spec.html>`_.
+
 
 Types by Example
 ----------------
