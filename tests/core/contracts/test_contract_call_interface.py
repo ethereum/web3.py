@@ -60,6 +60,32 @@ def nested_tuple_contract(w3, address_conversion_func):
     return deploy(w3, nested_tuple_contract_factory, address_conversion_func)
 
 
+TUPLE_CONTRACT_DATA_DECODE_TUPLES = {
+    **TUPLE_CONTRACT_DATA,
+    "decode_tuples": True,
+}
+
+
+NESTED_TUPLE_CONTRACT_DATA_DECODE_TUPLES = {
+    **NESTED_TUPLE_CONTRACT_DATA,
+    "decode_tuples": True,
+}
+
+
+@pytest.fixture
+def tuple_contract_with_decode_tuples(w3, address_conversion_func):
+    tuple_contract_factory = w3.eth.contract(**TUPLE_CONTRACT_DATA_DECODE_TUPLES)
+    return deploy(w3, tuple_contract_factory, address_conversion_func)
+
+
+@pytest.fixture
+def nested_tuple_contract_with_decode_tuples(w3, address_conversion_func):
+    nested_tuple_contract_factory = w3.eth.contract(
+        **NESTED_TUPLE_CONTRACT_DATA_DECODE_TUPLES
+    )
+    return deploy(w3, nested_tuple_contract_factory, address_conversion_func)
+
+
 @pytest.fixture(params=[b"\x04\x06", "0x0406"])
 def bytes_contract(w3, request, address_conversion_func):
     bytes_contract_factory = w3.eth.contract(**BYTES_CONTRACT_DATA)
@@ -907,6 +933,115 @@ def test_call_tuple_contract(tuple_contract, method_input, expected):
     (
         (
             {
+                "a": 123,
+                "b": [1, 2],
+                "c": [
+                    {
+                        "x": 234,
+                        "y": [True, False],
+                        "z": [
+                            "0x4AD7E79d88650B01EEA2B1f069f01EE9db343d5c",
+                            "0xfdF1946A9b40245224488F1a36f4A9ed4844a523",
+                            "0xfdF1946A9b40245224488F1a36f4A9ed4844a523",
+                        ],
+                    },
+                    {
+                        "x": 345,
+                        "y": [False, False],
+                        "z": [
+                            "0xefd1FF70c185A1C0b125939815225199079096Ee",
+                            "0xf35C0784794F3Cd935F5754d3a0EbcE95bEf851e",
+                        ],
+                    },
+                ],
+            },
+            (
+                123,
+                [1, 2],
+                [
+                    (
+                        234,
+                        [True, False],
+                        [
+                            "0x4AD7E79d88650B01EEA2B1f069f01EE9db343d5c",
+                            "0xfdF1946A9b40245224488F1a36f4A9ed4844a523",
+                            "0xfdF1946A9b40245224488F1a36f4A9ed4844a523",
+                        ],
+                    ),
+                    (
+                        345,
+                        [False, False],
+                        [
+                            "0xefd1FF70c185A1C0b125939815225199079096Ee",
+                            "0xf35C0784794F3Cd935F5754d3a0EbcE95bEf851e",
+                        ],
+                    ),
+                ],
+            ),
+        ),
+        (
+            (
+                123,
+                [1, 2],
+                [
+                    (
+                        234,
+                        [True, False],
+                        [
+                            "0x4AD7E79d88650B01EEA2B1f069f01EE9db343d5c",
+                            "0xfdF1946A9b40245224488F1a36f4A9ed4844a523",
+                            "0xfdF1946A9b40245224488F1a36f4A9ed4844a523",
+                        ],
+                    ),
+                    (
+                        345,
+                        [False, False],
+                        [
+                            "0xefd1FF70c185A1C0b125939815225199079096Ee",
+                            "0xf35C0784794F3Cd935F5754d3a0EbcE95bEf851e",
+                        ],
+                    ),
+                ],
+            ),
+            (
+                123,
+                [1, 2],
+                [
+                    (
+                        234,
+                        [True, False],
+                        [
+                            "0x4AD7E79d88650B01EEA2B1f069f01EE9db343d5c",
+                            "0xfdF1946A9b40245224488F1a36f4A9ed4844a523",
+                            "0xfdF1946A9b40245224488F1a36f4A9ed4844a523",
+                        ],
+                    ),
+                    (
+                        345,
+                        [False, False],
+                        [
+                            "0xefd1FF70c185A1C0b125939815225199079096Ee",
+                            "0xf35C0784794F3Cd935F5754d3a0EbcE95bEf851e",
+                        ],
+                    ),
+                ],
+            ),
+        ),
+    ),
+)
+def test_call_tuple_contract_with_decode_tuples_set(
+    tuple_contract_with_decode_tuples, method_input, expected
+):
+    result = tuple_contract_with_decode_tuples.functions.method(method_input).call()
+    assert result == expected
+    assert result._fields == ("a", "b", "c")
+
+
+@pytest.mark.parametrize(
+    "method_input, expected",
+    (
+        (
+            {
                 "t": [
                     {
                         "u": [
@@ -988,6 +1123,97 @@ def test_call_nested_tuple_contract(nested_tuple_contract, method_input, expecte
     assert result == expected
 
 
+@pytest.mark.parametrize(
+    "method_input, expected",
+    (
+        (
+            {
+                "t": [
+                    {
+                        "u": [
+                            {"x": 1, "y": 2},
+                            {"x": 3, "y": 4},
+                            {"x": 5, "y": 6},
+                        ]
+                    },
+                    {
+                        "u": [
+                            {"x": 7, "y": 8},
+                            {"x": 9, "y": 10},
+                            {"x": 11, "y": 12},
+                        ]
+                    },
+                ]
+            },
+            (
+                [
+                    (
+                        [
+                            (1, 2),
+                            (3, 4),
+                            (5, 6),
+                        ],
+                    ),
+                    (
+                        [
+                            (7, 8),
+                            (9, 10),
+                            (11, 12),
+                        ],
+                    ),
+                ],
+            ),
+        ),
+        (
+            (
+                [
+                    (
+                        [
+                            (1, 2),
+                            (3, 4),
+                            (5, 6),
+                        ],
+                    ),
+                    (
+                        [
+                            (7, 8),
+                            (9, 10),
+                            (11, 12),
+                        ],
+                    ),
+                ],
+            ),
+            (
+                [
+                    (
+                        [
+                            (1, 2),
+                            (3, 4),
+                            (5, 6),
+                        ],
+                    ),
+                    (
+                        [
+                            (7, 8),
+                            (9, 10),
+                            (11, 12),
+                        ],
+                    ),
+                ],
+            ),
+        ),
+    ),
+)
+def test_call_nested_tuple_contract_with_decode_tuples_set(
+    nested_tuple_contract_with_decode_tuples, method_input, expected
+):
+    result = nested_tuple_contract_with_decode_tuples.functions.method(
+        method_input
+    ).call()
+    assert result == expected
+    assert result._fields == ("t",)
+
+
 def test_call_revert_contract(revert_contract):
     with pytest.raises(TransactionFailed, match="Function has been reverted."):
         # eth-tester will do a gas estimation if we don't submit a gas value,
@@ -1025,6 +1251,28 @@ async def async_tuple_contract(async_w3, address_conversion_func):
 async def async_nested_tuple_contract(async_w3, address_conversion_func):
     async_nested_tuple_contract_factory = async_w3.eth.contract(
         **NESTED_TUPLE_CONTRACT_DATA
+    )
+    return await async_deploy(
+        async_w3, async_nested_tuple_contract_factory, address_conversion_func
+    )
+
+
+@pytest_asyncio.fixture
+async def async_tuple_contract_with_decode_tuples(async_w3, address_conversion_func):
+    async_tuple_contract_factory = async_w3.eth.contract(
+        **TUPLE_CONTRACT_DATA_DECODE_TUPLES
+    )
+    return await async_deploy(
+        async_w3, async_tuple_contract_factory, address_conversion_func
+    )
+
+
+@pytest_asyncio.fixture
+async def async_nested_tuple_contract_with_decode_tuples(
+    async_w3, address_conversion_func
+):
+    async_nested_tuple_contract_factory = async_w3.eth.contract(
+        **NESTED_TUPLE_CONTRACT_DATA_DECODE_TUPLES
     )
     return await async_deploy(
         async_w3, async_nested_tuple_contract_factory, address_conversion_func
@@ -1893,6 +2141,118 @@ async def test_async_call_tuple_contract(async_tuple_contract, method_input, exp
     (
         (
             {
+                "a": 123,
+                "b": [1, 2],
+                "c": [
+                    {
+                        "x": 234,
+                        "y": [True, False],
+                        "z": [
+                            "0x4AD7E79d88650B01EEA2B1f069f01EE9db343d5c",
+                            "0xfdF1946A9b40245224488F1a36f4A9ed4844a523",
+                            "0xfdF1946A9b40245224488F1a36f4A9ed4844a523",
+                        ],
+                    },
+                    {
+                        "x": 345,
+                        "y": [False, False],
+                        "z": [
+                            "0xefd1FF70c185A1C0b125939815225199079096Ee",
+                            "0xf35C0784794F3Cd935F5754d3a0EbcE95bEf851e",
+                        ],
+                    },
+                ],
+            },
+            (
+                123,
+                [1, 2],
+                [
+                    (
+                        234,
+                        [True, False],
+                        [
+                            "0x4AD7E79d88650B01EEA2B1f069f01EE9db343d5c",
+                            "0xfdF1946A9b40245224488F1a36f4A9ed4844a523",
+                            "0xfdF1946A9b40245224488F1a36f4A9ed4844a523",
+                        ],
+                    ),
+                    (
+                        345,
+                        [False, False],
+                        [
+                            "0xefd1FF70c185A1C0b125939815225199079096Ee",
+                            "0xf35C0784794F3Cd935F5754d3a0EbcE95bEf851e",
+                        ],
+                    ),
+                ],
+            ),
+        ),
+        (
+            (
+                123,
+                [1, 2],
+                [
+                    (
+                        234,
+                        [True, False],
+                        [
+                            "0x4AD7E79d88650B01EEA2B1f069f01EE9db343d5c",
+                            "0xfdF1946A9b40245224488F1a36f4A9ed4844a523",
+                            "0xfdF1946A9b40245224488F1a36f4A9ed4844a523",
+                        ],
+                    ),
+                    (
+                        345,
+                        [False, False],
+                        [
+                            "0xefd1FF70c185A1C0b125939815225199079096Ee",
+                            "0xf35C0784794F3Cd935F5754d3a0EbcE95bEf851e",
+                        ],
+                    ),
+                ],
+            ),
+            (
+                123,
+                [1, 2],
+                [
+                    (
+                        234,
+                        [True, False],
+                        [
+                            "0x4AD7E79d88650B01EEA2B1f069f01EE9db343d5c",
+                            "0xfdF1946A9b40245224488F1a36f4A9ed4844a523",
+                            "0xfdF1946A9b40245224488F1a36f4A9ed4844a523",
+                        ],
+                    ),
+                    (
+                        345,
+                        [False, False],
+                        [
+                            "0xefd1FF70c185A1C0b125939815225199079096Ee",
+                            "0xf35C0784794F3Cd935F5754d3a0EbcE95bEf851e",
+                        ],
+                    ),
+                ],
+            ),
+        ),
+    ),
+)
+async def test_async_call_tuple_contract_with_decode_tuples_set(
+    async_tuple_contract_with_decode_tuples, method_input, expected
+):
+    result = await async_tuple_contract_with_decode_tuples.functions.method(
+        method_input
+    ).call()
+    assert result == expected
+    assert result._fields == ("a", "b", "c")
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "method_input, expected",
+    (
+        (
+            {
                 "t": [
                     {
                         "u": [
@@ -1974,6 +2334,98 @@ async def test_async_call_nested_tuple_contract(
 ):
     result = await async_nested_tuple_contract.functions.method(method_input).call()
     assert result == expected
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "method_input, expected",
+    (
+        (
+            {
+                "t": [
+                    {
+                        "u": [
+                            {"x": 1, "y": 2},
+                            {"x": 3, "y": 4},
+                            {"x": 5, "y": 6},
+                        ]
+                    },
+                    {
+                        "u": [
+                            {"x": 7, "y": 8},
+                            {"x": 9, "y": 10},
+                            {"x": 11, "y": 12},
+                        ]
+                    },
+                ]
+            },
+            (
+                [
+                    (
+                        [
+                            (1, 2),
+                            (3, 4),
+                            (5, 6),
+                        ],
+                    ),
+                    (
+                        [
+                            (7, 8),
+                            (9, 10),
+                            (11, 12),
+                        ],
+                    ),
+                ],
+            ),
+        ),
+        (
+            (
+                [
+                    (
+                        [
+                            (1, 2),
+                            (3, 4),
+                            (5, 6),
+                        ],
+                    ),
+                    (
+                        [
+                            (7, 8),
+                            (9, 10),
+                            (11, 12),
+                        ],
+                    ),
+                ],
+            ),
+            (
+                [
+                    (
+                        [
+                            (1, 2),
+                            (3, 4),
+                            (5, 6),
+                        ],
+                    ),
+                    (
+                        [
+                            (7, 8),
+                            (9, 10),
+                            (11, 12),
+                        ],
+                    ),
+                ],
+            ),
+        ),
+    ),
+)
+async def test_async_call_nested_tuple_contract_with_decode_tuples_set(
+    async_nested_tuple_contract_with_decode_tuples, method_input, expected
+):
+    result = await async_nested_tuple_contract_with_decode_tuples.functions.method(
+        method_input
+    ).call()
+    assert result == expected
+    assert result._fields == ("t",)
 
 
 @pytest.mark.asyncio
