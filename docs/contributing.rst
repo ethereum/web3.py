@@ -219,9 +219,9 @@ interact with the client when we run our tests.
 
 The parent ``/integration`` directory houses some common configuration shared across
 all client tests, whereas the ``/go_ethereum`` directory houses common code to be
-shared across geth-specific provider tests. Though the setup run configurations exist
-across the different files within ``/tests/integration``, our integration module tests
-are written across different files within ``/web3/_utils/module_testing``.
+shared across geth-specific provider tests. Though the setup and run configurations
+exist across the different files within ``/tests/integration``, our integration module
+tests are written across different files within ``/web3/_utils/module_testing``.
 
 * :file:`common.py` files within the client directories contain code that is shared across
   all provider tests (http, ipc, and ws). This is mostly used to override tests that span
@@ -255,8 +255,8 @@ Arguments for the script are:
 
 
 To run the script, you will need the ``py-solc-x`` library for compiling the files
-as well as ``black`` for linting. You can install those independently or install the
-full ``[dev]`` package extra as shown below.
+as well as ``black`` for code formatting. You can install those independently or
+install the full ``[dev]`` package extra as shown below.
 
 .. code:: sh
 
@@ -286,8 +286,8 @@ filename with the ``-f`` (or ``--filename``) argument flag.
     Compiling OffchainLookup.sol
     reformatted ...
 
-If there is any contract data that not generated via the script but is is important to
-pass on to the test suites, the ``_custom_data.py`` can be used to store that
+If there is any contract data that is not generated via the script but is is important
+to pass on to the test suites, the ``_custom_data.py`` can be used to store that
 information.
 
 
