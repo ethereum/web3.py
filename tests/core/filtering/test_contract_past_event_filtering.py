@@ -11,7 +11,7 @@ from eth_utils import (
 def test_on_filter_using_get_all_entries_interface(
     w3,
     emitter,
-    emitter_contract_instance,
+    emitter_contract_factory,
     wait_for_transaction,
     emitter_contract_event_ids,
     call_deployed_contract,
@@ -21,7 +21,7 @@ def test_on_filter_using_get_all_entries_interface(
     if call_deployed_contract:
         contract = emitter
     else:
-        contract = emitter_contract_instance
+        contract = emitter_contract_factory
 
     if api_style == "build_filter":
         builder = contract.events.LogNoArguments.build_filter()
@@ -54,7 +54,7 @@ def test_on_filter_using_get_all_entries_interface(
 def test_get_all_entries_returned_block_data(
     w3,
     emitter,
-    emitter_contract_instance,
+    emitter_contract_factory,
     wait_for_transaction,
     emitter_contract_event_ids,
     call_deployed_contract,
@@ -69,7 +69,7 @@ def test_get_all_entries_returned_block_data(
     if call_deployed_contract:
         contract = emitter
     else:
-        contract = emitter_contract_instance
+        contract = emitter_contract_factory
 
     if api_style == "build_filter":
         builder = contract.events.LogNoArguments.build_filter()
@@ -108,7 +108,7 @@ def event_loop():
 async def test_on_async_filter_using_get_all_entries_interface(
     async_w3,
     async_emitter,
-    async_emitter_contract_instance,
+    async_emitter_contract_factory,
     async_wait_for_transaction,
     emitter_contract_event_ids,
     call_deployed_contract,
@@ -118,7 +118,7 @@ async def test_on_async_filter_using_get_all_entries_interface(
     if call_deployed_contract:
         contract = async_emitter
     else:
-        contract = async_emitter_contract_instance
+        contract = async_emitter_contract_factory
 
     if api_style == "build_filter":
         builder = contract.events.LogNoArguments.build_filter()
@@ -152,7 +152,7 @@ async def test_on_async_filter_using_get_all_entries_interface(
 async def test_async_get_all_entries_returned_block_data(
     async_w3,
     async_emitter,
-    async_emitter_contract_instance,
+    async_emitter_contract_factory,
     async_wait_for_transaction,
     emitter_contract_event_ids,
     call_deployed_contract,
@@ -167,7 +167,7 @@ async def test_async_get_all_entries_returned_block_data(
     if call_deployed_contract:
         contract = async_emitter
     else:
-        contract = async_emitter_contract_instance
+        contract = async_emitter_contract_factory
 
     if api_style == "build_filter":
         builder = contract.events.LogNoArguments.build_filter()

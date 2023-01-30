@@ -36,7 +36,7 @@ def single_transaction(w3):
 def test_event_filter_new_events(
     w3,
     emitter,
-    emitter_contract_instance,
+    emitter_contract_factory,
     wait_for_transaction,
     emitter_contract_event_ids,
     api_style,
@@ -103,7 +103,7 @@ def test_transaction_filter_without_mining(w3):
 def test_event_filter_new_events_many_deployed_contracts(
     w3,
     emitter,
-    emitter_contract_instance,
+    emitter_contract_factory,
     wait_for_transaction,
     emitter_contract_event_ids,
     api_style,
@@ -113,7 +113,7 @@ def test_event_filter_new_events_many_deployed_contracts(
     matching_transact = emitter.functions.logNoArgs(which=1).transact
 
     deployed_contract_addresses = deploy_contracts(
-        w3, emitter_contract_instance, wait_for_transaction
+        w3, emitter_contract_factory, wait_for_transaction
     )
 
     def gen_non_matching_transact():
@@ -122,7 +122,7 @@ def test_event_filter_new_events_many_deployed_contracts(
                 random.randint(0, len(deployed_contract_addresses) - 1)
             ]
             yield w3.eth.contract(
-                address=contract_address, abi=emitter_contract_instance.abi
+                address=contract_address, abi=emitter_contract_factory.abi
             ).functions.logNoArgs(which=1).transact
 
     non_matching_transact = gen_non_matching_transact()
@@ -267,7 +267,7 @@ async def test_async_transaction_filter_without_mining(async_w3):
 async def test_async_event_filter_new_events_many_deployed_contracts(
     async_w3,
     async_emitter,
-    async_emitter_contract_instance,
+    async_emitter_contract_factory,
     async_wait_for_transaction,
     api_style,
 ):
@@ -275,7 +275,7 @@ async def test_async_event_filter_new_events_many_deployed_contracts(
     matching_transact = async_emitter.functions.logNoArgs(which=1).transact
 
     deployed_contract_addresses = await async_deploy_contracts(
-        async_w3, async_emitter_contract_instance, async_wait_for_transaction
+        async_w3, async_emitter_contract_factory, async_wait_for_transaction
     )
 
     async def gen_non_matching_transact():
@@ -284,7 +284,7 @@ async def test_async_event_filter_new_events_many_deployed_contracts(
                 random.randint(0, len(deployed_contract_addresses) - 1)
             ]
             yield async_w3.eth.contract(
-                address=contract_address, abi=async_emitter_contract_instance.abi
+                address=contract_address, abi=async_emitter_contract_factory.abi
             ).functions.logNoArgs(which=1).transact
 
     non_matching_transact = gen_non_matching_transact()

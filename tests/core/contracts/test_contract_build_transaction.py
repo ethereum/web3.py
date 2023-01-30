@@ -67,10 +67,10 @@ def test_build_transaction_with_contract_fallback_function(
 
 
 def test_build_transaction_with_contract_class_method(
-    w3, math_contract_instance, math_contract, build_transaction
+    w3, math_contract_factory, math_contract, build_transaction
 ):
     txn = build_transaction(
-        contract=math_contract_instance,
+        contract=math_contract_factory,
         contract_function="incrementCounter",
         tx_params={"to": math_contract.address},
     )
@@ -326,12 +326,12 @@ async def test_async_build_transaction_with_contract_fallback_function(
 @pytest.mark.asyncio
 async def test_async_build_transaction_with_contract_class_method(
     async_w3,
-    async_math_contract_instance,
+    async_math_contract_factory,
     async_math_contract,
     async_build_transaction,
 ):
     txn = await async_build_transaction(
-        contract=async_math_contract_instance,
+        contract=async_math_contract_factory,
         contract_function="incrementCounter",
         tx_params={"to": async_math_contract.address},
     )
@@ -403,7 +403,7 @@ async def test_async_build_transaction_with_contract_to_address_supplied_errors(
             contract=async_math_contract,
             contract_function="incrementCounter",
             tx_params={"to": "0xb2930B35844a230f00E51431aCAe96Fe543a0347"},
-        )  # noqa: E501
+        )
 
 
 @pytest.mark.asyncio

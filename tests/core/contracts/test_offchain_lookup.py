@@ -26,7 +26,7 @@ WEB3PY_AS_HEXBYTES = "0x00000000000000000000000000000000000000000000000000000000
 
 
 @pytest.fixture
-def offchain_lookup_contract_instance(w3):
+def offchain_lookup_contract_factory(w3):
     return w3.eth.contract(**OFFCHAIN_LOOKUP_DATA)
 
 
@@ -34,20 +34,20 @@ def offchain_lookup_contract_instance(w3):
 def offchain_lookup_contract(
     w3,
     wait_for_block,
-    offchain_lookup_contract_instance,
+    offchain_lookup_contract_factory,
     wait_for_transaction,
     address_conversion_func,
 ):
     wait_for_block(w3)
-    deploy_txn_hash = offchain_lookup_contract_instance.constructor().transact(
+    deploy_txn_hash = offchain_lookup_contract_factory.constructor().transact(
         {"gas": 10000000}
     )
     deploy_receipt = wait_for_transaction(w3, deploy_txn_hash)
     contract_address = address_conversion_func(deploy_receipt["contractAddress"])
 
     bytecode = w3.eth.get_code(contract_address)
-    assert bytecode == offchain_lookup_contract_instance.bytecode_runtime
-    deployed_offchain_lookup = offchain_lookup_contract_instance(
+    assert bytecode == offchain_lookup_contract_factory.bytecode_runtime
+    deployed_offchain_lookup = offchain_lookup_contract_factory(
         address=contract_address
     )
     assert deployed_offchain_lookup.address == contract_address
