@@ -173,7 +173,7 @@ def ens_setup():
     )
     reverse_tld_namehash = bytes32(
         0xA097F6721CE401E757D1223A763FEF49B8B5F90BB18567DDB86FD205DFF71D34
-    )  # noqa: E501
+    )
     reverser_namehash = bytes32(
         0x91D1777781884D03A6757A803996E38DE2A42967FB37EEACA72729271025A9E2
     )

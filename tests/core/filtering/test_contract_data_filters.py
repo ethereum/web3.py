@@ -93,10 +93,10 @@ def emitter(
     wait_for_block,
     address_conversion_func,
 ):
-    emitter_contract_instance = w3.eth.contract(**emitter_contract_data)
+    emitter_contract_factory = w3.eth.contract(**emitter_contract_data)
     return _emitter_fixture_logic(
         w3,
-        emitter_contract_instance,
+        emitter_contract_factory,
         wait_for_transaction,
         wait_for_block,
         address_conversion_func,
@@ -289,7 +289,7 @@ def async_w3(request):
 
 
 @pytest.fixture(scope="module")
-def async_emitter_contract_instance(async_w3, emitter_contract_data):
+def async_emitter_contract_factory(async_w3, emitter_contract_data):
     async_w3.eth.contract(**emitter_contract_data)
 
 
@@ -301,10 +301,10 @@ async def async_emitter(
     async_wait_for_block,
     address_conversion_func,
 ):
-    async_emitter_contract_instance = async_w3.eth.contract(**emitter_contract_data)
+    async_emitter_contract_factory = async_w3.eth.contract(**emitter_contract_data)
     return await _async_emitter_fixture_logic(
         async_w3,
-        async_emitter_contract_instance,
+        async_emitter_contract_factory,
         async_wait_for_transaction,
         async_wait_for_block,
         address_conversion_func,

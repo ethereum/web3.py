@@ -23,21 +23,19 @@ def _w3_fixture_logic(request):
 
 def _emitter_fixture_logic(
     w3,
-    emitter_contract_instance,
+    emitter_contract_factory,
     wait_for_transaction,
     wait_for_block,
     address_conversion_func,
 ):
     wait_for_block(w3)
-    deploy_txn_hash = emitter_contract_instance.constructor().transact(
-        {"gas": 10000000}
-    )
+    deploy_txn_hash = emitter_contract_factory.constructor().transact({"gas": 10000000})
     deploy_receipt = wait_for_transaction(w3, deploy_txn_hash)
     contract_address = address_conversion_func(deploy_receipt["contractAddress"])
 
     bytecode = w3.eth.get_code(contract_address)
-    assert bytecode == emitter_contract_instance.bytecode_runtime
-    _emitter = emitter_contract_instance(address=contract_address)
+    assert bytecode == emitter_contract_factory.bytecode_runtime
+    _emitter = emitter_contract_factory(address=contract_address)
     assert _emitter.address == contract_address
     return _emitter
 
@@ -57,20 +55,20 @@ def _async_w3_fixture_logic(request):
 
 async def _async_emitter_fixture_logic(
     async_w3,
-    async_emitter_contract_instance,
+    async_emitter_contract_factory,
     async_wait_for_transaction,
     async_wait_for_block,
     address_conversion_func,
 ):
     await async_wait_for_block(async_w3)
-    deploy_txn_hash = await async_emitter_contract_instance.constructor().transact(
+    deploy_txn_hash = await async_emitter_contract_factory.constructor().transact(
         {"gas": 10000000}
     )
     deploy_receipt = await async_wait_for_transaction(async_w3, deploy_txn_hash)
     contract_address = address_conversion_func(deploy_receipt["contractAddress"])
 
     bytecode = await async_w3.eth.get_code(contract_address)
-    assert bytecode == async_emitter_contract_instance.bytecode_runtime
-    _emitter = async_emitter_contract_instance(address=contract_address)
+    assert bytecode == async_emitter_contract_factory.bytecode_runtime
+    _emitter = async_emitter_contract_factory(address=contract_address)
     assert _emitter.address == contract_address
     return _emitter

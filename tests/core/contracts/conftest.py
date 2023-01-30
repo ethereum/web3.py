@@ -68,42 +68,42 @@ def math_contract_abi():
 
 
 @pytest.fixture
-def math_contract_instance(w3):
+def math_contract_factory(w3):
     return w3.eth.contract(**MATH_CONTRACT_DATA)
 
 
 @pytest.fixture
-def math_contract(w3, math_contract_instance, address_conversion_func):
-    return deploy(w3, math_contract_instance, address_conversion_func)
+def math_contract(w3, math_contract_factory, address_conversion_func):
+    return deploy(w3, math_contract_factory, address_conversion_func)
 
 
 @pytest.fixture
-def simple_constructor_contract_instance(w3):
+def simple_constructor_contract_factory(w3):
     return w3.eth.contract(**SIMPLE_CONSTRUCTOR_CONTRACT_DATA)
 
 
 @pytest.fixture
-def contract_with_constructor_args_instance(w3):
+def contract_with_constructor_args_factory(w3):
     return w3.eth.contract(**CONSTRUCTOR_WITH_ARGUMENTS_CONTRACT_DATA)
 
 
 @pytest.fixture
-def non_strict_contract_with_constructor_args_instance(w3_non_strict_abi):
+def non_strict_contract_with_constructor_args_factory(w3_non_strict_abi):
     return w3_non_strict_abi.eth.contract(**CONSTRUCTOR_WITH_ARGUMENTS_CONTRACT_DATA)
 
 
 @pytest.fixture
-def contract_with_constructor_address_instance(w3):
+def contract_with_constructor_address_factory(w3):
     return w3.eth.contract(**CONSTRUCTOR_WITH_ADDRESS_ARGUMENT_CONTRACT_DATA)
 
 
 @pytest.fixture
 def contract_with_constructor_address(
-    w3, contract_with_constructor_address_instance, address_conversion_func
+    w3, contract_with_constructor_address_factory, address_conversion_func
 ):
     return deploy(
         w3,
-        contract_with_constructor_address_instance,
+        contract_with_constructor_address_factory,
         address_conversion_func,
         args=["0xd3CdA913deB6f67967B99D67aCDFa1712C293601"],
     )
@@ -111,10 +111,10 @@ def contract_with_constructor_address(
 
 @pytest.fixture
 def address_reflector_contract(w3, address_conversion_func):
-    address_reflector_contract_instance = w3.eth.contract(
+    address_reflector_contract_factory = w3.eth.contract(
         **ADDRESS_REFLECTOR_CONTRACT_DATA
     )
-    return deploy(w3, address_reflector_contract_instance, address_conversion_func)
+    return deploy(w3, address_reflector_contract_factory, address_conversion_func)
 
 
 @pytest.fixture(scope="session")
@@ -123,14 +123,14 @@ def string_contract_data():
 
 
 @pytest.fixture
-def string_contract_instance(w3, string_contract_data):
+def string_contract_factory(w3, string_contract_data):
     return w3.eth.contract(**STRING_CONTRACT_DATA)
 
 
 @pytest.fixture
-def string_contract(w3, string_contract_instance, address_conversion_func):
+def string_contract(w3, string_contract_factory, address_conversion_func):
     return deploy(
-        w3, string_contract_instance, address_conversion_func, args=["Caqalai"]
+        w3, string_contract_factory, address_conversion_func, args=["Caqalai"]
     )
 
 
@@ -138,12 +138,12 @@ def string_contract(w3, string_contract_instance, address_conversion_func):
 def non_strict_string_contract(
     w3_non_strict_abi, string_contract_data, address_conversion_func
 ):
-    _non_strict_string_contract_instance = w3_non_strict_abi.eth.contract(
+    _non_strict_string_contract_factory = w3_non_strict_abi.eth.contract(
         **string_contract_data
     )
     return deploy(
         w3_non_strict_abi,
-        _non_strict_string_contract_instance,
+        _non_strict_string_contract_factory,
         address_conversion_func,
         args=["Caqalai"],
     )
@@ -157,21 +157,21 @@ def non_strict_emitter(
     wait_for_block,
     address_conversion_func,
 ):
-    non_strict_emitter_contract_instance = w3_non_strict_abi.eth.contract(
+    non_strict_emitter_contract_factory = w3_non_strict_abi.eth.contract(
         **emitter_contract_data
     )
     w3 = w3_non_strict_abi
 
     wait_for_block(w3)
-    deploy_txn_hash = non_strict_emitter_contract_instance.constructor().transact(
+    deploy_txn_hash = non_strict_emitter_contract_factory.constructor().transact(
         {"gas": 10000000}
     )
     deploy_receipt = wait_for_transaction(w3, deploy_txn_hash)
     contract_address = address_conversion_func(deploy_receipt["contractAddress"])
 
     bytecode = w3.eth.get_code(contract_address)
-    assert bytecode == non_strict_emitter_contract_instance.bytecode_runtime
-    emitter_contract = non_strict_emitter_contract_instance(address=contract_address)
+    assert bytecode == non_strict_emitter_contract_factory.bytecode_runtime
+    emitter_contract = non_strict_emitter_contract_factory(address=contract_address)
     assert emitter_contract.address == contract_address
     return emitter_contract
 
@@ -185,16 +185,16 @@ def event_contract(
 ):
     wait_for_block(w3)
 
-    event_contract_instance = w3.eth.contract(**EVENT_CONTRACT_DATA)
-    deploy_txn_hash = event_contract_instance.constructor().transact(
+    event_contract_factory = w3.eth.contract(**EVENT_CONTRACT_DATA)
+    deploy_txn_hash = event_contract_factory.constructor().transact(
         {"from": w3.eth.coinbase, "gas": 1000000}
     )
     deploy_receipt = wait_for_transaction(w3, deploy_txn_hash)
     contract_address = address_conversion_func(deploy_receipt["contractAddress"])
 
     bytecode = w3.eth.get_code(contract_address)
-    assert bytecode == event_contract_instance.bytecode_runtime
-    event_contract = event_contract_instance(address=contract_address)
+    assert bytecode == event_contract_factory.bytecode_runtime
+    event_contract = event_contract_factory(address=contract_address)
     assert event_contract.address == contract_address
     return event_contract
 
@@ -205,16 +205,16 @@ def indexed_event_contract(
 ):
     wait_for_block(w3)
 
-    indexed_event_contract_instance = w3.eth.contract(**INDEXED_EVENT_CONTRACT_DATA)
-    deploy_txn_hash = indexed_event_contract_instance.constructor().transact(
+    indexed_event_contract_factory = w3.eth.contract(**INDEXED_EVENT_CONTRACT_DATA)
+    deploy_txn_hash = indexed_event_contract_factory.constructor().transact(
         {"from": w3.eth.coinbase, "gas": 1000000}
     )
     deploy_receipt = wait_for_transaction(w3, deploy_txn_hash)
     contract_address = address_conversion_func(deploy_receipt["contractAddress"])
 
     bytecode = w3.eth.get_code(contract_address)
-    assert bytecode == indexed_event_contract_instance.bytecode_runtime
-    indexed_event_contract = indexed_event_contract_instance(address=contract_address)
+    assert bytecode == indexed_event_contract_factory.bytecode_runtime
+    indexed_event_contract = indexed_event_contract_factory(address=contract_address)
     assert indexed_event_contract.address == contract_address
     return indexed_event_contract
 
@@ -229,10 +229,10 @@ BYTES1_ARRAY = [b"\xff", b"\xff", b"\xff", b"\xff"]
 
 @pytest.fixture
 def arrays_contract(w3, address_conversion_func):
-    arrays_contract_instance = w3.eth.contract(**ARRAYS_CONTRACT_DATA)
+    arrays_contract_factory = w3.eth.contract(**ARRAYS_CONTRACT_DATA)
     return deploy(
         w3,
-        arrays_contract_instance,
+        arrays_contract_factory,
         address_conversion_func,
         args=[BYTES32_ARRAY, BYTES1_ARRAY],
     )
@@ -240,12 +240,12 @@ def arrays_contract(w3, address_conversion_func):
 
 @pytest.fixture
 def non_strict_arrays_contract(w3_non_strict_abi, address_conversion_func):
-    non_strict_arrays_contract_instance = w3_non_strict_abi.eth.contract(
+    non_strict_arrays_contract_factory = w3_non_strict_abi.eth.contract(
         **ARRAYS_CONTRACT_DATA
     )
     return deploy(
         w3_non_strict_abi,
-        non_strict_arrays_contract_instance,
+        non_strict_arrays_contract_factory,
         address_conversion_func,
         args=[BYTES32_ARRAY, BYTES1_ARRAY],
     )
@@ -253,8 +253,8 @@ def non_strict_arrays_contract(w3_non_strict_abi, address_conversion_func):
 
 @pytest.fixture
 def payable_tester_contract(w3, address_conversion_func):
-    payable_tester_contract_instance = w3.eth.contract(**PAYABLE_TESTER_CONTRACT_DATA)
-    return deploy(w3, payable_tester_contract_instance, address_conversion_func)
+    payable_tester_contract_factory = w3.eth.contract(**PAYABLE_TESTER_CONTRACT_DATA)
+    return deploy(w3, payable_tester_contract_factory, address_conversion_func)
 
 
 # no matter the function selector, this will return back the 32 bytes of data supplied
@@ -296,48 +296,48 @@ FIXED_REFLECTOR_CONTRACT_ABI = [
 
 @pytest.fixture
 def fixed_reflector_contract(w3, address_conversion_func):
-    fixed_reflector_contract_instance = w3.eth.contract(
+    fixed_reflector_contract_factory = w3.eth.contract(
         abi=FIXED_REFLECTOR_CONTRACT_ABI, bytecode=FIXED_REFLECTOR_CONTRACT_BYTECODE
     )
-    return deploy(w3, fixed_reflector_contract_instance, address_conversion_func)
+    return deploy(w3, fixed_reflector_contract_factory, address_conversion_func)
 
 
 @pytest.fixture
 def fallback_function_contract(w3, address_conversion_func):
-    fallback_function_contract_instance = w3.eth.contract(
+    fallback_function_contract_factory = w3.eth.contract(
         **FALLBACK_FUNCTION_CONTRACT_DATA
     )
-    return deploy(w3, fallback_function_contract_instance, address_conversion_func)
+    return deploy(w3, fallback_function_contract_factory, address_conversion_func)
 
 
 @pytest.fixture
 def receive_function_contract(w3, address_conversion_func):
-    receive_function_contract_instance = w3.eth.contract(
+    receive_function_contract_factory = w3.eth.contract(
         **RECEIVE_FUNCTION_CONTRACT_DATA
     )
-    return deploy(w3, receive_function_contract_instance, address_conversion_func)
+    return deploy(w3, receive_function_contract_factory, address_conversion_func)
 
 
 @pytest.fixture
 def no_receive_function_contract(w3, address_conversion_func):
-    no_receive_function_contract_instance = w3.eth.contract(
+    no_receive_function_contract_factory = w3.eth.contract(
         **NO_RECEIVE_FUNCTION_CONTRACT_DATA
     )
-    return deploy(w3, no_receive_function_contract_instance, address_conversion_func)
+    return deploy(w3, no_receive_function_contract_factory, address_conversion_func)
 
 
 @pytest.fixture
 def contract_caller_tester_contract(w3, address_conversion_func):
-    contract_caller_tester_contract_instance = w3.eth.contract(
+    contract_caller_tester_contract_factory = w3.eth.contract(
         **CONTRACT_CALLER_TESTER_DATA
     )
-    return deploy(w3, contract_caller_tester_contract_instance, address_conversion_func)
+    return deploy(w3, contract_caller_tester_contract_factory, address_conversion_func)
 
 
 @pytest.fixture
 def revert_contract(w3, address_conversion_func):
-    revert_contract_instance = w3.eth.contract(**REVERT_CONTRACT_DATA)
-    return deploy(w3, revert_contract_instance, address_conversion_func)
+    revert_contract_factory = w3.eth.contract(**REVERT_CONTRACT_DATA)
+    return deploy(w3, revert_contract_factory, address_conversion_func)
 
 
 @pytest.fixture
@@ -389,38 +389,38 @@ def estimate_gas(request):
 
 
 @pytest.fixture
-def async_math_contract_instance(async_w3):
+def async_math_contract_factory(async_w3):
     return async_w3.eth.contract(**MATH_CONTRACT_DATA)
 
 
 @pytest_asyncio.fixture
 async def async_math_contract(
-    async_w3, async_math_contract_instance, address_conversion_func
+    async_w3, async_math_contract_factory, address_conversion_func
 ):
     return await async_deploy(
-        async_w3, async_math_contract_instance, address_conversion_func
+        async_w3, async_math_contract_factory, address_conversion_func
     )
 
 
 @pytest.fixture
-def async_simple_constructor_contract_instance(async_w3):
+def async_simple_constructor_contract_factory(async_w3):
     return async_w3.eth.contract(**SIMPLE_CONSTRUCTOR_CONTRACT_DATA)
 
 
 @pytest.fixture
-def async_constructor_with_args_contract_instance(async_w3):
+def async_constructor_with_args_contract_factory(async_w3):
     return async_w3.eth.contract(**CONSTRUCTOR_WITH_ARGUMENTS_CONTRACT_DATA)
 
 
 @pytest.fixture
-def async_non_strict_constructor_with_args_contract_instance(async_w3_non_strict_abi):
+def async_non_strict_constructor_with_args_contract_factory(async_w3_non_strict_abi):
     return async_w3_non_strict_abi.eth.contract(
         **CONSTRUCTOR_WITH_ARGUMENTS_CONTRACT_DATA
     )
 
 
 @pytest.fixture
-def async_constructor_with_address_arg_contract_instance(async_w3):
+def async_constructor_with_address_arg_contract_factory(async_w3):
     return async_w3.eth.contract(**CONSTRUCTOR_WITH_ADDRESS_ARGUMENT_CONTRACT_DATA)
 
 
@@ -429,12 +429,12 @@ async def async_constructor_with_address_argument_contract(
     async_w3,
     address_conversion_func,
 ):
-    async_constructor_with_address_arg_instance = async_w3.eth.contract(
+    async_constructor_with_address_arg_factory = async_w3.eth.contract(
         **CONSTRUCTOR_WITH_ADDRESS_ARGUMENT_CONTRACT_DATA
     )
     return await async_deploy(
         async_w3,
-        async_constructor_with_address_arg_instance,
+        async_constructor_with_address_arg_factory,
         address_conversion_func,
         args=["0xd3CdA913deB6f67967B99D67aCDFa1712C293601"],
     )
@@ -442,26 +442,26 @@ async def async_constructor_with_address_argument_contract(
 
 @pytest_asyncio.fixture
 async def async_address_reflector_contract(async_w3, address_conversion_func):
-    async_address_reflector_contract_instance = async_w3.eth.contract(
+    async_address_reflector_contract_factory = async_w3.eth.contract(
         **ADDRESS_REFLECTOR_CONTRACT_DATA,
     )
     return await async_deploy(
-        async_w3, async_address_reflector_contract_instance, address_conversion_func
+        async_w3, async_address_reflector_contract_factory, address_conversion_func
     )
 
 
 @pytest.fixture
-def async_string_contract_instance(async_w3):
+def async_string_contract_factory(async_w3):
     return async_w3.eth.contract(**STRING_CONTRACT_DATA)
 
 
 @pytest_asyncio.fixture
 async def async_string_contract(
-    async_w3, async_string_contract_instance, address_conversion_func
+    async_w3, async_string_contract_factory, address_conversion_func
 ):
     return await async_deploy(
         async_w3,
-        async_string_contract_instance,
+        async_string_contract_factory,
         address_conversion_func,
         args=["Caqalai"],
     )
@@ -469,10 +469,10 @@ async def async_string_contract(
 
 @pytest_asyncio.fixture
 async def async_arrays_contract(async_w3, address_conversion_func):
-    async_arrays_contract_instance = async_w3.eth.contract(**ARRAYS_CONTRACT_DATA)
+    async_arrays_contract_factory = async_w3.eth.contract(**ARRAYS_CONTRACT_DATA)
     return await async_deploy(
         async_w3,
-        async_arrays_contract_instance,
+        async_arrays_contract_factory,
         address_conversion_func,
         args=[BYTES32_ARRAY, BYTES1_ARRAY],
     )
@@ -482,12 +482,12 @@ async def async_arrays_contract(async_w3, address_conversion_func):
 async def async_non_strict_arrays_contract(
     async_w3_non_strict_abi, address_conversion_func
 ):
-    async_non_strict_arrays_contract_instance = async_w3_non_strict_abi.eth.contract(
+    async_non_strict_arrays_contract_factory = async_w3_non_strict_abi.eth.contract(
         **ARRAYS_CONTRACT_DATA,
     )
     return await async_deploy(
         async_w3_non_strict_abi,
-        async_non_strict_arrays_contract_instance,
+        async_non_strict_arrays_contract_factory,
         address_conversion_func,
         args=[BYTES32_ARRAY, BYTES1_ARRAY],
     )
@@ -495,71 +495,71 @@ async def async_non_strict_arrays_contract(
 
 @pytest_asyncio.fixture
 async def async_payable_tester_contract(async_w3, address_conversion_func):
-    async_payable_tester_contract_instance = async_w3.eth.contract(
+    async_payable_tester_contract_factory = async_w3.eth.contract(
         **PAYABLE_TESTER_CONTRACT_DATA
     )
     return await async_deploy(
-        async_w3, async_payable_tester_contract_instance, address_conversion_func
+        async_w3, async_payable_tester_contract_factory, address_conversion_func
     )
 
 
 @pytest_asyncio.fixture
 async def async_fixed_reflector_contract(async_w3, address_conversion_func):
-    async_fixed_reflector_contract_instance = async_w3.eth.contract(
+    async_fixed_reflector_contract_factory = async_w3.eth.contract(
         abi=FIXED_REFLECTOR_CONTRACT_ABI, bytecode=FIXED_REFLECTOR_CONTRACT_BYTECODE
     )
     return await async_deploy(
-        async_w3, async_fixed_reflector_contract_instance, address_conversion_func
+        async_w3, async_fixed_reflector_contract_factory, address_conversion_func
     )
 
 
 @pytest_asyncio.fixture
 async def async_fallback_function_contract(async_w3, address_conversion_func):
-    async_fallback_function_contract_instance = async_w3.eth.contract(
+    async_fallback_function_contract_factory = async_w3.eth.contract(
         **FALLBACK_FUNCTION_CONTRACT_DATA
     )
     return await async_deploy(
-        async_w3, async_fallback_function_contract_instance, address_conversion_func
+        async_w3, async_fallback_function_contract_factory, address_conversion_func
     )
 
 
 @pytest_asyncio.fixture
 async def async_no_receive_function_contract(async_w3, address_conversion_func):
-    async_no_receive_function_contract_instance = async_w3.eth.contract(
+    async_no_receive_function_contract_factory = async_w3.eth.contract(
         **NO_RECEIVE_FUNCTION_CONTRACT_DATA
     )
     return await async_deploy(
-        async_w3, async_no_receive_function_contract_instance, address_conversion_func
+        async_w3, async_no_receive_function_contract_factory, address_conversion_func
     )
 
 
 @pytest_asyncio.fixture
 async def async_receive_function_contract(async_w3, address_conversion_func):
-    async_receive_function_contract_instance = async_w3.eth.contract(
+    async_receive_function_contract_factory = async_w3.eth.contract(
         **RECEIVE_FUNCTION_CONTRACT_DATA
     )
     return await async_deploy(
-        async_w3, async_receive_function_contract_instance, address_conversion_func
+        async_w3, async_receive_function_contract_factory, address_conversion_func
     )
 
 
 @pytest_asyncio.fixture
 async def async_contract_caller_tester_contract(async_w3, address_conversion_func):
-    async_contract_caller_tester_contract_instance = async_w3.eth.contract(
+    async_contract_caller_tester_contract_factory = async_w3.eth.contract(
         **CONTRACT_CALLER_TESTER_DATA
     )
     return await async_deploy(
         async_w3,
-        async_contract_caller_tester_contract_instance,
+        async_contract_caller_tester_contract_factory,
         address_conversion_func,
     )
 
 
 @pytest_asyncio.fixture
 async def async_revert_contract(async_w3, address_conversion_func):
-    async_revert_contract_instance = async_w3.eth.contract(**REVERT_CONTRACT_DATA)
+    async_revert_contract_factory = async_w3.eth.contract(**REVERT_CONTRACT_DATA)
     return await async_deploy(
-        async_w3, async_revert_contract_instance, address_conversion_func
+        async_w3, async_revert_contract_factory, address_conversion_func
     )
 
 

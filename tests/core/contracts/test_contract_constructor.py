@@ -19,28 +19,28 @@ EXPECTED_DATA_B = (
 
 
 def test_contract_constructor_abi_encoding_with_no_constructor_fn(
-    math_contract_instance, math_contract_bytecode
+    math_contract_factory, math_contract_bytecode
 ):
-    deploy_data = math_contract_instance.constructor()._encode_data_in_transaction()
+    deploy_data = math_contract_factory.constructor()._encode_data_in_transaction()
     assert deploy_data == math_contract_bytecode
 
 
-def test_contract_constructor_gas_estimate_no_constructor(w3, math_contract_instance):
-    gas_estimate = math_contract_instance.constructor().estimate_gas()
+def test_contract_constructor_gas_estimate_no_constructor(w3, math_contract_factory):
+    gas_estimate = math_contract_factory.constructor().estimate_gas()
 
-    deploy_txn = math_contract_instance.constructor().transact()
+    deploy_txn = math_contract_factory.constructor().transact()
     txn_receipt = w3.eth.wait_for_transaction_receipt(deploy_txn)
     gas_used = txn_receipt.get("gasUsed")
 
     assert abs(gas_estimate - gas_used) < 21000
 
 
-def test_contract_constructor_gas_estimate_with_block_id(w3, math_contract_instance):
+def test_contract_constructor_gas_estimate_with_block_id(w3, math_contract_factory):
     block_identifier = None
-    gas_estimate = math_contract_instance.constructor().estimate_gas(
+    gas_estimate = math_contract_factory.constructor().estimate_gas(
         block_identifier=block_identifier
     )
-    deploy_txn = math_contract_instance.constructor().transact()
+    deploy_txn = math_contract_factory.constructor().transact()
     txn_receipt = w3.eth.wait_for_transaction_receipt(deploy_txn)
     gas_used = txn_receipt.get("gasUsed")
 
@@ -48,11 +48,11 @@ def test_contract_constructor_gas_estimate_with_block_id(w3, math_contract_insta
 
 
 def test_contract_constructor_gas_estimate_without_arguments(
-    w3, simple_constructor_contract_instance
+    w3, simple_constructor_contract_factory
 ):
-    gas_estimate = simple_constructor_contract_instance.constructor().estimate_gas()
+    gas_estimate = simple_constructor_contract_factory.constructor().estimate_gas()
 
-    deploy_txn = simple_constructor_contract_instance.constructor().transact()
+    deploy_txn = simple_constructor_contract_factory.constructor().transact()
     txn_receipt = w3.eth.wait_for_transaction_receipt(deploy_txn)
     gas_used = txn_receipt.get("gasUsed")
 
@@ -70,15 +70,15 @@ def test_contract_constructor_gas_estimate_without_arguments(
 )
 def test_contract_constructor_gas_estimate_with_arguments_non_strict(
     w3_non_strict_abi,
-    non_strict_contract_with_constructor_args_instance,
+    non_strict_contract_with_constructor_args_factory,
     constructor_args,
     constructor_kwargs,
 ):
-    gas_estimate = non_strict_contract_with_constructor_args_instance.constructor(
+    gas_estimate = non_strict_contract_with_constructor_args_factory.constructor(
         *constructor_args, **constructor_kwargs
     ).estimate_gas()
 
-    deploy_txn = non_strict_contract_with_constructor_args_instance.constructor(
+    deploy_txn = non_strict_contract_with_constructor_args_factory.constructor(
         *constructor_args, **constructor_kwargs
     ).transact()
     txn_receipt = w3_non_strict_abi.eth.wait_for_transaction_receipt(deploy_txn)
@@ -88,13 +88,13 @@ def test_contract_constructor_gas_estimate_with_arguments_non_strict(
 
 
 def test_contract_constructor_gas_estimate_with_address_argument(
-    w3, contract_with_constructor_address_instance, address_conversion_func
+    w3, contract_with_constructor_address_factory, address_conversion_func
 ):
-    gas_estimate = contract_with_constructor_address_instance.constructor(
+    gas_estimate = contract_with_constructor_address_factory.constructor(
         address_conversion_func("0x16D9983245De15E7A9A73bC586E01FF6E08dE737")
     ).estimate_gas()
 
-    deploy_txn = contract_with_constructor_address_instance.constructor(
+    deploy_txn = contract_with_constructor_address_factory.constructor(
         address_conversion_func("0x16D9983245De15E7A9A73bC586E01FF6E08dE737")
     ).transact()
     txn_receipt = w3.eth.wait_for_transaction_receipt(deploy_txn)
@@ -104,9 +104,9 @@ def test_contract_constructor_gas_estimate_with_address_argument(
 
 
 def test_contract_constructor_transact_no_constructor(
-    w3, math_contract_instance, math_contract_runtime, address_conversion_func
+    w3, math_contract_factory, math_contract_runtime, address_conversion_func
 ):
-    deploy_txn = math_contract_instance.constructor().transact()
+    deploy_txn = math_contract_factory.constructor().transact()
 
     txn_receipt = w3.eth.wait_for_transaction_receipt(deploy_txn)
     assert txn_receipt is not None
@@ -120,10 +120,10 @@ def test_contract_constructor_transact_no_constructor(
 
 def test_contract_constructor_transact_without_arguments(
     w3,
-    simple_constructor_contract_instance,
+    simple_constructor_contract_factory,
     address_conversion_func,
 ):
-    deploy_txn = simple_constructor_contract_instance.constructor().transact()
+    deploy_txn = simple_constructor_contract_factory.constructor().transact()
 
     txn_receipt = w3.eth.wait_for_transaction_receipt(deploy_txn)
     assert txn_receipt is not None
@@ -146,14 +146,14 @@ def test_contract_constructor_transact_without_arguments(
 )
 def test_contract_constructor_transact_with_arguments_non_strict(
     w3_non_strict_abi,
-    non_strict_contract_with_constructor_args_instance,
+    non_strict_contract_with_constructor_args_factory,
     constructor_args,
     constructor_kwargs,
     expected_a,
     expected_b,
     address_conversion_func,
 ):
-    deploy_txn = non_strict_contract_with_constructor_args_instance.constructor(
+    deploy_txn = non_strict_contract_with_constructor_args_factory.constructor(
         *constructor_args, **constructor_kwargs
     ).transact()
 
@@ -167,13 +167,13 @@ def test_contract_constructor_transact_with_arguments_non_strict(
     assert blockchain_code == decode_hex(CONSTRUCTOR_WITH_ARGUMENTS_CONTRACT_RUNTIME)
     assert (
         expected_a
-        == non_strict_contract_with_constructor_args_instance(address=contract_address)
+        == non_strict_contract_with_constructor_args_factory(address=contract_address)
         .functions.data_a()
         .call()
     )
     assert (
         expected_b
-        == non_strict_contract_with_constructor_args_instance(address=contract_address)
+        == non_strict_contract_with_constructor_args_factory(address=contract_address)
         .functions.data_b()
         .call()
     )
@@ -181,10 +181,10 @@ def test_contract_constructor_transact_with_arguments_non_strict(
 
 def test_contract_constructor_transact_with_address_argument(
     w3,
-    contract_with_constructor_address_instance,
+    contract_with_constructor_address_factory,
     address_conversion_func,
 ):
-    deploy_txn = contract_with_constructor_address_instance.constructor(
+    deploy_txn = contract_with_constructor_address_factory.constructor(
         TEST_ADDRESS
     ).transact()
     txn_receipt = w3.eth.wait_for_transaction_receipt(deploy_txn)
@@ -197,28 +197,26 @@ def test_contract_constructor_transact_with_address_argument(
     )
     assert (
         TEST_ADDRESS
-        == contract_with_constructor_address_instance(address=contract_address)
+        == contract_with_constructor_address_factory(address=contract_address)
         .functions.testAddr()
         .call()
     )
 
 
-def test_contract_constructor_build_transaction_to_field_error(math_contract_instance):
+def test_contract_constructor_build_transaction_to_field_error(math_contract_factory):
     with pytest.raises(ValueError):
-        math_contract_instance.constructor().build_transaction({"to": "123"})
+        math_contract_factory.constructor().build_transaction({"to": "123"})
 
 
 def test_contract_constructor_build_transaction_no_constructor(
-    w3, math_contract_instance, address_conversion_func
+    w3, math_contract_factory, address_conversion_func
 ):
-    txn_hash = math_contract_instance.constructor().transact(
+    txn_hash = math_contract_factory.constructor().transact(
         {"from": address_conversion_func(w3.eth.accounts[0])}
     )
     txn = w3.eth.get_transaction(txn_hash)
     nonce = w3.eth.get_transaction_count(w3.eth.coinbase)
-    unsent_txn = math_contract_instance.constructor().build_transaction(
-        {"nonce": nonce}
-    )
+    unsent_txn = math_contract_factory.constructor().build_transaction({"nonce": nonce})
     assert txn["data"] == unsent_txn["data"]
 
     new_txn_hash = w3.eth.send_transaction(unsent_txn)
@@ -228,16 +226,14 @@ def test_contract_constructor_build_transaction_no_constructor(
 
 
 def test_contract_constructor_build_transaction_without_arguments(
-    w3, math_contract_instance, address_conversion_func
+    w3, math_contract_factory, address_conversion_func
 ):
-    txn_hash = math_contract_instance.constructor().transact(
+    txn_hash = math_contract_factory.constructor().transact(
         {"from": address_conversion_func(w3.eth.accounts[0])}
     )
     txn = w3.eth.get_transaction(txn_hash)
     nonce = w3.eth.get_transaction_count(w3.eth.coinbase)
-    unsent_txn = math_contract_instance.constructor().build_transaction(
-        {"nonce": nonce}
-    )
+    unsent_txn = math_contract_factory.constructor().build_transaction({"nonce": nonce})
     assert txn["data"] == unsent_txn["data"]
 
     new_txn_hash = w3.eth.send_transaction(unsent_txn)
@@ -257,17 +253,17 @@ def test_contract_constructor_build_transaction_without_arguments(
 )
 def test_contract_constructor_build_transaction_with_arguments(
     w3_non_strict_abi,
-    non_strict_contract_with_constructor_args_instance,
+    non_strict_contract_with_constructor_args_factory,
     constructor_args,
     constructor_kwargs,
     address_conversion_func,
 ):
-    txn_hash = non_strict_contract_with_constructor_args_instance.constructor(
+    txn_hash = non_strict_contract_with_constructor_args_factory.constructor(
         *constructor_args, **constructor_kwargs
     ).transact({"from": address_conversion_func(w3_non_strict_abi.eth.accounts[0])})
     txn = w3_non_strict_abi.eth.get_transaction(txn_hash)
     nonce = w3_non_strict_abi.eth.get_transaction_count(w3_non_strict_abi.eth.coinbase)
-    unsent_txn = non_strict_contract_with_constructor_args_instance.constructor(
+    unsent_txn = non_strict_contract_with_constructor_args_factory.constructor(
         *constructor_args, **constructor_kwargs
     ).build_transaction({"nonce": nonce})
     assert txn["data"] == unsent_txn["data"]
@@ -279,21 +275,21 @@ def test_contract_constructor_build_transaction_with_arguments(
 
 
 def test_async_contract_constructor_abi_encoding_with_no_constructor_fn(
-    async_math_contract_instance, math_contract_bytecode
+    async_math_contract_factory, math_contract_bytecode
 ):
     deploy_data = (
-        async_math_contract_instance.constructor()._encode_data_in_transaction()
+        async_math_contract_factory.constructor()._encode_data_in_transaction()
     )
     assert deploy_data == math_contract_bytecode
 
 
 @pytest.mark.asyncio
 async def test_async_contract_constructor_gas_estimate_no_constructor(
-    async_w3, async_math_contract_instance
+    async_w3, async_math_contract_factory
 ):
-    gas_estimate = await async_math_contract_instance.constructor().estimate_gas()
+    gas_estimate = await async_math_contract_factory.constructor().estimate_gas()
 
-    deploy_txn = await async_math_contract_instance.constructor().transact()
+    deploy_txn = await async_math_contract_factory.constructor().transact()
     txn_receipt = await async_w3.eth.wait_for_transaction_receipt(deploy_txn)
     gas_used = txn_receipt.get("gasUsed")
 
@@ -302,13 +298,13 @@ async def test_async_contract_constructor_gas_estimate_no_constructor(
 
 @pytest.mark.asyncio
 async def test_async_contract_constructor_gas_estimate_with_block_id(
-    async_w3, async_math_contract_instance
+    async_w3, async_math_contract_factory
 ):
     block_identifier = None
-    gas_estimate = await async_math_contract_instance.constructor().estimate_gas(
+    gas_estimate = await async_math_contract_factory.constructor().estimate_gas(
         block_identifier=block_identifier
     )
-    deploy_txn = await async_math_contract_instance.constructor().transact()
+    deploy_txn = await async_math_contract_factory.constructor().transact()
     txn_receipt = await async_w3.eth.wait_for_transaction_receipt(deploy_txn)
     gas_used = txn_receipt.get("gasUsed")
 
@@ -317,14 +313,14 @@ async def test_async_contract_constructor_gas_estimate_with_block_id(
 
 @pytest.mark.asyncio
 async def test_async_contract_constructor_gas_estimate_without_arguments(
-    async_w3, async_simple_constructor_contract_instance
+    async_w3, async_simple_constructor_contract_factory
 ):
     gas_estimate = (
-        await async_simple_constructor_contract_instance.constructor().estimate_gas()
+        await async_simple_constructor_contract_factory.constructor().estimate_gas()
     )
 
     deploy_txn = (
-        await async_simple_constructor_contract_instance.constructor().transact()
+        await async_simple_constructor_contract_factory.constructor().transact()
     )
     txn_receipt = await async_w3.eth.wait_for_transaction_receipt(deploy_txn)
     gas_used = txn_receipt.get("gasUsed")
@@ -344,18 +340,18 @@ async def test_async_contract_constructor_gas_estimate_without_arguments(
 )
 async def test_async_contract_constructor_gas_estimate_with_arguments_non_strict(
     async_w3_non_strict_abi,
-    async_non_strict_constructor_with_args_contract_instance,
+    async_non_strict_constructor_with_args_contract_factory,
     constructor_args,
     constructor_kwargs,
 ):
     gas_estimate = (
-        await async_non_strict_constructor_with_args_contract_instance.constructor(
+        await async_non_strict_constructor_with_args_contract_factory.constructor(
             *constructor_args, **constructor_kwargs
         ).estimate_gas()
     )
 
     deploy_txn = (
-        await async_non_strict_constructor_with_args_contract_instance.constructor(
+        await async_non_strict_constructor_with_args_contract_factory.constructor(
             *constructor_args, **constructor_kwargs
         ).transact()
     )
@@ -370,16 +366,16 @@ async def test_async_contract_constructor_gas_estimate_with_arguments_non_strict
 @pytest.mark.asyncio
 async def test_async_contract_constructor_with_address_argument_gas_estimate(
     async_w3,
-    async_constructor_with_address_arg_contract_instance,
+    async_constructor_with_address_arg_contract_factory,
     address_conversion_func,
 ):
     gas_estimate = (
-        await async_constructor_with_address_arg_contract_instance.constructor(
+        await async_constructor_with_address_arg_contract_factory.constructor(
             address_conversion_func("0x16D9983245De15E7A9A73bC586E01FF6E08dE737")
         ).estimate_gas()
     )
 
-    deploy_txn = await async_constructor_with_address_arg_contract_instance.constructor(
+    deploy_txn = await async_constructor_with_address_arg_contract_factory.constructor(
         address_conversion_func("0x16D9983245De15E7A9A73bC586E01FF6E08dE737")
     ).transact()
     txn_receipt = await async_w3.eth.wait_for_transaction_receipt(deploy_txn)
@@ -391,11 +387,11 @@ async def test_async_contract_constructor_with_address_argument_gas_estimate(
 @pytest.mark.asyncio
 async def test_async_contract_constructor_transact_no_constructor(
     async_w3,
-    async_math_contract_instance,
+    async_math_contract_factory,
     math_contract_runtime,
     address_conversion_func,
 ):
-    deploy_txn = await async_math_contract_instance.constructor().transact()
+    deploy_txn = await async_math_contract_factory.constructor().transact()
 
     txn_receipt = await async_w3.eth.wait_for_transaction_receipt(deploy_txn)
     assert txn_receipt is not None
@@ -410,11 +406,11 @@ async def test_async_contract_constructor_transact_no_constructor(
 @pytest.mark.asyncio
 async def test_async_contract_constructor_transact_without_arguments(
     async_w3,
-    async_simple_constructor_contract_instance,
+    async_simple_constructor_contract_factory,
     address_conversion_func,
 ):
     deploy_txn = (
-        await async_simple_constructor_contract_instance.constructor().transact()
+        await async_simple_constructor_contract_factory.constructor().transact()
     )
 
     txn_receipt = await async_w3.eth.wait_for_transaction_receipt(deploy_txn)
@@ -439,7 +435,7 @@ async def test_async_contract_constructor_transact_without_arguments(
 )
 async def test_async_contract_constructor_transact_with_arguments_non_strict(
     async_w3_non_strict_abi,
-    async_non_strict_constructor_with_args_contract_instance,
+    async_non_strict_constructor_with_args_contract_factory,
     constructor_args,
     constructor_kwargs,
     expected_a,
@@ -447,7 +443,7 @@ async def test_async_contract_constructor_transact_with_arguments_non_strict(
     address_conversion_func,
 ):
     deploy_txn = (
-        await async_non_strict_constructor_with_args_contract_instance.constructor(
+        await async_non_strict_constructor_with_args_contract_factory.constructor(
             *constructor_args, **constructor_kwargs
         ).transact()
     )
@@ -464,7 +460,7 @@ async def test_async_contract_constructor_transact_with_arguments_non_strict(
     assert blockchain_code == decode_hex(CONSTRUCTOR_WITH_ARGUMENTS_CONTRACT_RUNTIME)
     assert (
         expected_a
-        == await async_non_strict_constructor_with_args_contract_instance(
+        == await async_non_strict_constructor_with_args_contract_factory(
             address=contract_address
         )
         .functions.data_a()
@@ -472,7 +468,7 @@ async def test_async_contract_constructor_transact_with_arguments_non_strict(
     )
     assert (
         expected_b
-        == await async_non_strict_constructor_with_args_contract_instance(
+        == await async_non_strict_constructor_with_args_contract_factory(
             address=contract_address
         )
         .functions.data_b()
@@ -483,10 +479,10 @@ async def test_async_contract_constructor_transact_with_arguments_non_strict(
 @pytest.mark.asyncio
 async def test_async_contract_constructor_transact_with_address_arguments(
     async_w3,
-    async_constructor_with_address_arg_contract_instance,
+    async_constructor_with_address_arg_contract_factory,
     address_conversion_func,
 ):
-    deploy_txn = await async_constructor_with_address_arg_contract_instance.constructor(
+    deploy_txn = await async_constructor_with_address_arg_contract_factory.constructor(
         TEST_ADDRESS
     ).transact()
     txn_receipt = await async_w3.eth.wait_for_transaction_receipt(deploy_txn)
@@ -499,7 +495,7 @@ async def test_async_contract_constructor_transact_with_address_arguments(
     )
     assert (
         TEST_ADDRESS
-        == await async_constructor_with_address_arg_contract_instance(
+        == await async_constructor_with_address_arg_contract_factory(
             address=contract_address
         )
         .functions.testAddr()
@@ -509,26 +505,24 @@ async def test_async_contract_constructor_transact_with_address_arguments(
 
 @pytest.mark.asyncio
 async def test_async_contract_constructor_build_transaction_to_field_error(
-    async_math_contract_instance,
+    async_math_contract_factory,
 ):
     with pytest.raises(ValueError):
-        await async_math_contract_instance.constructor().build_transaction(
-            {"to": "123"}
-        )
+        await async_math_contract_factory.constructor().build_transaction({"to": "123"})
 
 
 @pytest.mark.asyncio
 async def test_async_contract_constructor_build_transaction_no_constructor(
-    async_w3, async_math_contract_instance, address_conversion_func
+    async_w3, async_math_contract_factory, address_conversion_func
 ):
     async_w3_accounts = await async_w3.eth.accounts
-    txn_hash = await async_math_contract_instance.constructor().transact(
+    txn_hash = await async_math_contract_factory.constructor().transact(
         {"from": address_conversion_func(async_w3_accounts[0])}
     )
     txn = await async_w3.eth.get_transaction(txn_hash)
     async_w3_coinbase = await async_w3.eth.coinbase
     nonce = await async_w3.eth.get_transaction_count(async_w3_coinbase)
-    unsent_txn = await async_math_contract_instance.constructor().build_transaction(
+    unsent_txn = await async_math_contract_factory.constructor().build_transaction(
         {"nonce": nonce}
     )
     assert txn["data"] == unsent_txn["data"]
@@ -541,16 +535,16 @@ async def test_async_contract_constructor_build_transaction_no_constructor(
 
 @pytest.mark.asyncio
 async def test_async_contract_constructor_build_transaction_without_arguments(
-    async_w3, async_math_contract_instance, address_conversion_func
+    async_w3, async_math_contract_factory, address_conversion_func
 ):
     async_w3_accounts = await async_w3.eth.accounts
-    txn_hash = await async_math_contract_instance.constructor().transact(
+    txn_hash = await async_math_contract_factory.constructor().transact(
         {"from": address_conversion_func(async_w3_accounts[0])}
     )
     txn = await async_w3.eth.get_transaction(txn_hash)
     async_w3_coinbase = await async_w3.eth.coinbase
     nonce = await async_w3.eth.get_transaction_count(async_w3_coinbase)
-    unsent_txn = await async_math_contract_instance.constructor().build_transaction(
+    unsent_txn = await async_math_contract_factory.constructor().build_transaction(
         {"nonce": nonce}
     )
     assert txn["data"] == unsent_txn["data"]
@@ -573,14 +567,14 @@ async def test_async_contract_constructor_build_transaction_without_arguments(
 )
 async def test_async_contract_constructor_build_transaction_with_arguments(
     async_w3_non_strict_abi,
-    async_non_strict_constructor_with_args_contract_instance,
+    async_non_strict_constructor_with_args_contract_factory,
     constructor_args,
     constructor_kwargs,
     address_conversion_func,
 ):
     async_w3_accounts = await async_w3_non_strict_abi.eth.accounts
     txn_hash = (
-        await async_non_strict_constructor_with_args_contract_instance.constructor(
+        await async_non_strict_constructor_with_args_contract_factory.constructor(
             *constructor_args, **constructor_kwargs
         ).transact({"from": address_conversion_func(async_w3_accounts[0])})
     )
@@ -588,7 +582,7 @@ async def test_async_contract_constructor_build_transaction_with_arguments(
     async_w3_coinbase = await async_w3_non_strict_abi.eth.coinbase
     nonce = await async_w3_non_strict_abi.eth.get_transaction_count(async_w3_coinbase)
     unsent_txn = (
-        await async_non_strict_constructor_with_args_contract_instance.constructor(
+        await async_non_strict_constructor_with_args_contract_factory.constructor(
             *constructor_args, **constructor_kwargs
         ).build_transaction({"nonce": nonce})
     )

@@ -27,21 +27,21 @@ def w3(request):
 
 
 @pytest.fixture
-def emitter_contract_instance(w3, emitter_contract_data):
+def emitter_contract_factory(w3, emitter_contract_data):
     return w3.eth.contract(**emitter_contract_data)
 
 
 @pytest.fixture
 def emitter(
     w3,
-    emitter_contract_instance,
+    emitter_contract_factory,
     wait_for_transaction,
     wait_for_block,
     address_conversion_func,
 ):
     return _emitter_fixture_logic(
         w3,
-        emitter_contract_instance,
+        emitter_contract_factory,
         wait_for_transaction,
         wait_for_block,
         address_conversion_func,
@@ -74,21 +74,21 @@ def async_w3(request):
 
 
 @pytest.fixture
-def async_emitter_contract_instance(async_w3, emitter_contract_data):
+def async_emitter_contract_factory(async_w3, emitter_contract_data):
     return async_w3.eth.contract(**emitter_contract_data)
 
 
 @pytest_asyncio.fixture
 async def async_emitter(
     async_w3,
-    async_emitter_contract_instance,
+    async_emitter_contract_factory,
     async_wait_for_transaction,
     async_wait_for_block,
     address_conversion_func,
 ):
     return await _async_emitter_fixture_logic(
         async_w3,
-        async_emitter_contract_instance,
+        async_emitter_contract_factory,
         async_wait_for_transaction,
         async_wait_for_block,
         address_conversion_func,

@@ -8,12 +8,12 @@ from eth_utils import (
 
 @pytest.mark.parametrize("call_deployed_contract", (True, False))
 def test_create_filter_address_parameter(
-    emitter, emitter_contract_instance, call_deployed_contract
+    emitter, emitter_contract_factory, call_deployed_contract
 ):
     if call_deployed_contract:
         event_filter = emitter.events.LogNoArguments.create_filter(fromBlock="latest")
     else:
-        event_filter = emitter_contract_instance.events.LogNoArguments.create_filter(
+        event_filter = emitter_contract_factory.events.LogNoArguments.create_filter(
             fromBlock="latest"
         )
 
@@ -30,7 +30,7 @@ def test_create_filter_address_parameter(
 def test_on_filter_using_get_entries_interface(
     w3,
     emitter,
-    emitter_contract_instance,
+    emitter_contract_factory,
     wait_for_transaction,
     emitter_contract_event_ids,
     call_deployed_contract,
@@ -41,7 +41,7 @@ def test_on_filter_using_get_entries_interface(
     if call_deployed_contract:
         contract = emitter
     else:
-        contract = emitter_contract_instance
+        contract = emitter_contract_factory
 
     if api_style == "build_filter":
         event_filter = contract.events.LogNoArguments.build_filter().deploy(w3)
@@ -67,7 +67,7 @@ def test_on_filter_using_get_entries_interface(
 def test_on_sync_filter_with_event_name_and_single_argument(
     w3,
     emitter,
-    emitter_contract_instance,
+    emitter_contract_factory,
     wait_for_transaction,
     emitter_contract_event_ids,
     call_deployed_contract,
@@ -78,7 +78,7 @@ def test_on_sync_filter_with_event_name_and_single_argument(
     if call_deployed_contract:
         contract = emitter
     else:
-        contract = emitter_contract_instance
+        contract = emitter_contract_factory
 
     if api_style == "build_filter":
         builder = contract.events.LogTripleWithIndex.build_filter()
@@ -115,7 +115,7 @@ def test_on_sync_filter_with_event_name_and_single_argument(
 def test_on_sync_filter_with_event_name_and_non_indexed_argument(
     w3,
     emitter,
-    emitter_contract_instance,
+    emitter_contract_factory,
     wait_for_transaction,
     emitter_contract_event_ids,
     call_deployed_contract,
@@ -126,7 +126,7 @@ def test_on_sync_filter_with_event_name_and_non_indexed_argument(
     if call_deployed_contract:
         contract = emitter
     else:
-        contract = emitter_contract_instance
+        contract = emitter_contract_factory
 
     if api_style == "build_filter":
         builder = contract.events.LogTripleWithIndex.build_filter()
@@ -186,7 +186,7 @@ def test_filter_with_contract_address(
 def test_on_sync_filter_with_topic_filter_options_on_old_apis(
     w3,
     emitter,
-    emitter_contract_instance,
+    emitter_contract_factory,
     wait_for_transaction,
     emitter_contract_event_ids,
     call_deployed_contract,
@@ -196,7 +196,7 @@ def test_on_sync_filter_with_topic_filter_options_on_old_apis(
     if call_deployed_contract:
         contract = emitter
     else:
-        contract = emitter_contract_instance
+        contract = emitter_contract_factory
 
     event_filter = create_filter(
         contract, ["LogTripleWithIndex", {"filter": {"arg1": [1, 2], "arg2": [1, 2]}}]
@@ -236,7 +236,7 @@ def event_loop():
 @pytest.mark.asyncio
 @pytest.mark.parametrize("call_deployed_contract", (True, False))
 async def test_async_create_filter_address_parameter(
-    async_emitter, async_emitter_contract_instance, call_deployed_contract
+    async_emitter, async_emitter_contract_factory, call_deployed_contract
 ):
     if call_deployed_contract:
         event_filter = await async_emitter.events.LogNoArguments.create_filter(
@@ -244,7 +244,7 @@ async def test_async_create_filter_address_parameter(
         )
     else:
         event_filter = (
-            await async_emitter_contract_instance.events.LogNoArguments.create_filter(
+            await async_emitter_contract_factory.events.LogNoArguments.create_filter(
                 fromBlock="latest"
             )
         )
@@ -263,7 +263,7 @@ async def test_async_create_filter_address_parameter(
 async def test_on_async_filter_using_get_entries_interface(
     async_w3,
     async_emitter,
-    async_emitter_contract_instance,
+    async_emitter_contract_factory,
     async_wait_for_transaction,
     emitter_contract_event_ids,
     call_deployed_contract,
@@ -274,7 +274,7 @@ async def test_on_async_filter_using_get_entries_interface(
     if call_deployed_contract:
         contract = async_emitter
     else:
-        contract = async_emitter_contract_instance
+        contract = async_emitter_contract_factory
 
     if api_style == "build_filter":
         event_filter = await contract.events.LogNoArguments.build_filter().deploy(
@@ -303,7 +303,7 @@ async def test_on_async_filter_using_get_entries_interface(
 async def test_on_async_filter_with_event_name_and_single_argument(
     async_w3,
     async_emitter,
-    async_emitter_contract_instance,
+    async_emitter_contract_factory,
     async_wait_for_transaction,
     emitter_contract_event_ids,
     call_deployed_contract,
@@ -314,7 +314,7 @@ async def test_on_async_filter_with_event_name_and_single_argument(
     if call_deployed_contract:
         contract = async_emitter
     else:
-        contract = async_emitter_contract_instance
+        contract = async_emitter_contract_factory
 
     if api_style == "build_filter":
         builder = contract.events.LogTripleWithIndex.build_filter()
@@ -358,7 +358,7 @@ async def test_on_async_filter_with_event_name_and_single_argument(
 async def test_on_async_filter_with_event_name_and_non_indexed_argument(
     async_w3,
     async_emitter,
-    async_emitter_contract_instance,
+    async_emitter_contract_factory,
     async_wait_for_transaction,
     emitter_contract_event_ids,
     call_deployed_contract,
@@ -369,7 +369,7 @@ async def test_on_async_filter_with_event_name_and_non_indexed_argument(
     if call_deployed_contract:
         contract = async_emitter
     else:
-        contract = async_emitter_contract_instance
+        contract = async_emitter_contract_factory
 
     if api_style == "build_filter":
         builder = contract.events.LogTripleWithIndex.build_filter()
@@ -439,7 +439,7 @@ async def test_async_filter_with_contract_address(
 async def test_on_async_filter_with_topic_filter_options_on_old_apis(
     async_w3,
     async_emitter,
-    async_emitter_contract_instance,
+    async_emitter_contract_factory,
     async_wait_for_transaction,
     emitter_contract_event_ids,
     call_deployed_contract,
@@ -449,7 +449,7 @@ async def test_on_async_filter_with_topic_filter_options_on_old_apis(
     if call_deployed_contract:
         contract = async_emitter
     else:
-        contract = async_emitter_contract_instance
+        contract = async_emitter_contract_factory
 
     event_filter = await async_create_filter(
         contract, ["LogTripleWithIndex", {"filter": {"arg1": [1, 2], "arg2": [1, 2]}}]

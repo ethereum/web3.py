@@ -15,9 +15,9 @@ from web3._utils.contract_sources.contract_data.constructor_contracts import (
 
 
 def test_contract_deployment_no_constructor(
-    w3, math_contract_instance, math_contract_runtime
+    w3, math_contract_factory, math_contract_runtime
 ):
-    deploy_txn = math_contract_instance.constructor().transact()
+    deploy_txn = math_contract_factory.constructor().transact()
 
     txn_receipt = w3.eth.wait_for_transaction_receipt(deploy_txn)
     assert txn_receipt is not None
@@ -31,9 +31,9 @@ def test_contract_deployment_no_constructor(
 
 def test_contract_deployment_with_constructor_without_args(
     w3,
-    simple_constructor_contract_instance,
+    simple_constructor_contract_factory,
 ):
-    deploy_txn = simple_constructor_contract_instance.constructor().transact()
+    deploy_txn = simple_constructor_contract_factory.constructor().transact()
 
     txn_receipt = w3.eth.wait_for_transaction_receipt(deploy_txn)
     assert txn_receipt is not None
@@ -54,10 +54,10 @@ def test_contract_deployment_with_constructor_without_args(
 )
 def test_contract_deployment_with_constructor_with_arguments_strict_by_default(
     w3,
-    contract_with_constructor_args_instance,
+    contract_with_constructor_args_factory,
     constructor_arg,
 ):
-    deploy_txn = contract_with_constructor_args_instance.constructor(
+    deploy_txn = contract_with_constructor_args_factory.constructor(
         1234, constructor_arg
     ).transact()
 
@@ -73,9 +73,9 @@ def test_contract_deployment_with_constructor_with_arguments_strict_by_default(
 
 def test_contract_deployment_with_constructor_with_arguments_non_strict(
     w3_non_strict_abi,
-    non_strict_contract_with_constructor_args_instance,
+    non_strict_contract_with_constructor_args_factory,
 ):
-    deploy_txn = non_strict_contract_with_constructor_args_instance.constructor(
+    deploy_txn = non_strict_contract_with_constructor_args_factory.constructor(
         1234, "abcd"
     ).transact()
 
@@ -90,20 +90,20 @@ def test_contract_deployment_with_constructor_with_arguments_non_strict(
 
 
 def test_contract_deployment_with_constructor_with_arguments_strict_error(
-    contract_with_constructor_args_instance,
+    contract_with_constructor_args_factory,
 ):
     with pytest.raises(
         TypeError,
         match="One or more arguments could not be encoded to the necessary ABI type. Expected types are: uint256, bytes32",  # noqa: E501
     ):
-        contract_with_constructor_args_instance.constructor(1234, "abcd").transact()
+        contract_with_constructor_args_factory.constructor(1234, "abcd").transact()
 
 
 def test_contract_deployment_with_constructor_with_address_argument(
     w3,
-    contract_with_constructor_address_instance,
+    contract_with_constructor_address_factory,
 ):
-    deploy_txn = contract_with_constructor_address_instance.constructor(
+    deploy_txn = contract_with_constructor_address_factory.constructor(
         "0x16D9983245De15E7A9A73bC586E01FF6E08dE737",
     ).transact()
 
@@ -121,9 +121,9 @@ def test_contract_deployment_with_constructor_with_address_argument(
 
 @pytest.mark.asyncio
 async def test_async_contract_deployment_no_constructor(
-    async_w3, async_math_contract_instance, math_contract_runtime
+    async_w3, async_math_contract_factory, math_contract_runtime
 ):
-    deploy_txn = await async_math_contract_instance.constructor().transact()
+    deploy_txn = await async_math_contract_factory.constructor().transact()
 
     txn_receipt = await async_w3.eth.wait_for_transaction_receipt(deploy_txn)
     assert txn_receipt is not None
@@ -138,10 +138,10 @@ async def test_async_contract_deployment_no_constructor(
 @pytest.mark.asyncio
 async def test_async_contract_deployment_with_constructor_no_args(
     async_w3,
-    async_simple_constructor_contract_instance,
+    async_simple_constructor_contract_factory,
 ):
     deploy_txn = (
-        await async_simple_constructor_contract_instance.constructor().transact()
+        await async_simple_constructor_contract_factory.constructor().transact()
     )
 
     txn_receipt = await async_w3.eth.wait_for_transaction_receipt(deploy_txn)
@@ -164,11 +164,11 @@ async def test_async_contract_deployment_with_constructor_no_args(
 )
 async def test_async_contract_deployment_with_constructor_arguments(
     async_w3,
-    async_constructor_with_args_contract_instance,
+    async_constructor_with_args_contract_factory,
     constructor_arg,
 ):
 
-    deploy_txn = await async_constructor_with_args_contract_instance.constructor(
+    deploy_txn = await async_constructor_with_args_contract_factory.constructor(
         1234, constructor_arg
     ).transact()
 
@@ -185,13 +185,13 @@ async def test_async_contract_deployment_with_constructor_arguments(
 @pytest.mark.asyncio
 async def test_async_contract_deployment_with_constructor_with_arguments_non_strict(
     async_w3_non_strict_abi,
-    async_non_strict_constructor_with_args_contract_instance,
+    async_non_strict_constructor_with_args_contract_factory,
 ):
     deploy_txn = (
-        await async_non_strict_constructor_with_args_contract_instance.constructor(
+        await async_non_strict_constructor_with_args_contract_factory.constructor(
             1234, "abcd"
         ).transact()
-    )  # noqa: E501
+    )
 
     txn_receipt = await async_w3_non_strict_abi.eth.wait_for_transaction_receipt(
         deploy_txn
@@ -207,13 +207,13 @@ async def test_async_contract_deployment_with_constructor_with_arguments_non_str
 
 @pytest.mark.asyncio
 async def test_async_contract_deployment_with_constructor_arguments_strict_error(
-    async_constructor_with_args_contract_instance,
+    async_constructor_with_args_contract_factory,
 ):
     with pytest.raises(
         TypeError,
         match="One or more arguments could not be encoded to the necessary ABI type. Expected types are: uint256, bytes32",  # noqa: E501
     ):
-        await async_constructor_with_args_contract_instance.constructor(
+        await async_constructor_with_args_contract_factory.constructor(
             1234, "abcd"
         ).transact()
 
@@ -221,9 +221,9 @@ async def test_async_contract_deployment_with_constructor_arguments_strict_error
 @pytest.mark.asyncio
 async def test_async_contract_deployment_with_constructor_with_address_argument(
     async_w3,
-    async_constructor_with_address_arg_contract_instance,
-):  # noqa: E501
-    deploy_txn = await async_constructor_with_address_arg_contract_instance.constructor(
+    async_constructor_with_address_arg_contract_factory,
+):
+    deploy_txn = await async_constructor_with_address_arg_contract_factory.constructor(
         "0x16D9983245De15E7A9A73bC586E01FF6E08dE737",
     ).transact()
 
