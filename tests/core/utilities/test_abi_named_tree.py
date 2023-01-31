@@ -24,6 +24,43 @@ inputs = (
     [[(14, 15), (16, 17)], [(18, 19)]],  # Value for b
 )
 
+sample_abi_inputs = {
+    "inputs": [
+        {
+            "components": [
+                {"name": "a", "type": "uint256"},
+                {"name": "b", "type": "uint256[]"},
+                {
+                    "components": [
+                        {"name": "x", "type": "uint256"},
+                        {"name": "y", "type": "uint256"},
+                    ],
+                    "name": "c",
+                    "type": "tuple[]",
+                },
+            ],
+            "name": "s",
+            "type": "tuple",
+        },
+        {
+            "components": [
+                {"name": "x", "type": "uint256"},
+                {"name": "y", "type": "uint256"},
+            ],
+            "name": "t",
+            "type": "tuple",
+        },
+        {"name": "a", "type": "uint256"},
+        {
+            "components": [
+                {"name": "x", "type": "uint256"},
+                {"name": "y", "type": "uint256"},
+            ],
+            "name": "b",
+            "type": "tuple[][]",
+        },
+    ]
+}
 
 def test_named_arguments_decode():
     decoded = named_tree(abi, inputs)
