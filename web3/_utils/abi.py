@@ -909,7 +909,6 @@ def build_strict_registry() -> ABIRegistry:
     return registry
 
 
-# def named_tree(abi: List[Dict[str, Any]], data: Tuple[Any, ...]) -> Dict[str, Any]:
 def named_tree(
     abi: Sequence[ABIFunctionParams], data: Tuple[Any, ...]
 ) -> Dict[str, Any]:
@@ -918,9 +917,6 @@ def named_tree(
     """
     names = [item["name"] for item in abi]
     items = [named_subtree(*item) for item in zip(abi, data)]
-
-    # TODO how to handle if names and items end up different len
-    # return dict(zip(names, items)) if all(names) else items
 
     return dict(zip(names, items))
 
