@@ -74,6 +74,7 @@ from web3._utils.formatters import (
 )
 from web3.exceptions import (
     FallbackNotFound,
+    MismatchedABI,
 )
 from web3.types import (
     ABI,
@@ -920,6 +921,7 @@ def named_tree(
 
     # TODO how to handle if names and items end up different len
     # return dict(zip(names, items)) if all(names) else items
+
     return dict(zip(names, items))
 
 
@@ -933,15 +935,20 @@ def named_subtree(
     if abi_type.is_array:
         item_type = abi_type.item_type.to_type_str()
         item_abi = {**abi, "type": item_type, "name": ""}
-        # cast(ABIFunctionParams, item_abi)
-        # breakpoint()
         items = [named_subtree(item_abi, item) for item in data]
         return items
 
     if isinstance(abi_type, TupleType):
         names = [item["name"] for item in abi["components"]]
         items = [named_subtree(*item) for item in zip(abi["components"], data)]
-        return dict(zip(names, items))
+
+        if len(names) == len(data):
+            return dict(zip(names, items))
+        else:
+            raise MismatchedABI(
+                f"ABI fields {names} has length {len(names)} but received "
+                f"data {data} with length {len(data)}"
+            )
 
     return data
 
