@@ -207,13 +207,6 @@ windows_steps: &windows_steps
 
 
 jobs:
-  lint:
-    <<: *common
-    docker:
-      - image: cimg/python:3.9
-    environment:
-      TOXENV: lint
-
   docs:
     <<: *docs_steps
     docker:
@@ -327,6 +320,13 @@ jobs:
   #
   # Python 3.8
   #
+  py38-lint:
+    <<: *common
+    docker:
+      - image: cimg/python:3.8
+    environment:
+      TOXENV: py38-lint
+
   py38-core:
     <<: *common
     docker:
@@ -424,6 +424,13 @@ jobs:
   #
   # Python 3.9
   #
+  py39-lint:
+    <<: *common
+    docker:
+      - image: cimg/python:3.9
+    environment:
+      TOXENV: py39-lint
+
   py39-core:
     <<: *common
     docker:
@@ -521,6 +528,13 @@ jobs:
   #
   # Python 3.10
   #
+  py310-lint:
+    <<: *common
+    docker:
+      - image: cimg/python:3.10
+    environment:
+      TOXENV: py310-lint
+
   py310-core:
     <<: *common
     docker:
@@ -618,6 +632,13 @@ jobs:
   #
   # Python 3.11
   #
+  py311-lint:
+    <<: *common
+    docker:
+      - image: cimg/python:3.11
+    environment:
+      TOXENV: py311-lint
+
   py311-core:
     <<: *common
     docker:
@@ -730,7 +751,6 @@ workflows:
       - py39-core
       - py310-core
       - py311-core
-      - lint
       - docs
       - benchmark
       - py37-ens
@@ -745,6 +765,7 @@ workflows:
       - py37-integration-ethtester-pyevm
       - py37-wheel-cli
       - py37-wheel-cli-windows
+      - py38-lint
       - py38-ens
       - py38-ethpm
       - py38-integration-goethereum-ipc
@@ -756,6 +777,7 @@ workflows:
       - py38-integration-goethereum-ws_flaky
       - py38-integration-ethtester-pyevm
       - py38-wheel-cli
+      - py39-lint
       - py39-ens
       - py39-ethpm
       - py39-integration-goethereum-ipc
@@ -767,6 +789,7 @@ workflows:
       - py39-integration-goethereum-ws_flaky
       - py39-integration-ethtester-pyevm
       - py39-wheel-cli
+      - py310-lint
       - py310-ens
       - py310-ethpm
       - py310-integration-goethereum-ipc
@@ -778,6 +801,7 @@ workflows:
       - py310-integration-goethereum-ws_flaky
       - py310-integration-ethtester-pyevm
       - py310-wheel-cli
+      - py311-lint
       - py311-ens
       - py311-ethpm
       - py311-integration-goethereum-ipc
