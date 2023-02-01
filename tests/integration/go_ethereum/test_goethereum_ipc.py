@@ -22,7 +22,6 @@ from .utils import (
 
 
 def _geth_command_arguments(geth_ipc_path, base_geth_command_arguments):
-
     geth_port = get_open_port()
     yield from base_geth_command_arguments
     yield from (
@@ -35,7 +34,6 @@ def _geth_command_arguments(geth_ipc_path, base_geth_command_arguments):
 
 @pytest.fixture(scope="module")
 def geth_command_arguments(geth_ipc_path, base_geth_command_arguments):
-
     return _geth_command_arguments(geth_ipc_path, base_geth_command_arguments)
 
 

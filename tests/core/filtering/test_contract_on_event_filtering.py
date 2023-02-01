@@ -37,7 +37,6 @@ def test_on_filter_using_get_entries_interface(
     api_style,
     create_filter,
 ):
-
     if call_deployed_contract:
         contract = emitter
     else:
@@ -74,7 +73,6 @@ def test_on_sync_filter_with_event_name_and_single_argument(
     api_style,
     create_filter,
 ):
-
     if call_deployed_contract:
         contract = emitter
     else:
@@ -122,7 +120,6 @@ def test_on_sync_filter_with_event_name_and_non_indexed_argument(
     api_style,
     create_filter,
 ):
-
     if call_deployed_contract:
         contract = emitter
     else:
@@ -192,7 +189,6 @@ def test_on_sync_filter_with_topic_filter_options_on_old_apis(
     call_deployed_contract,
     create_filter,
 ):
-
     if call_deployed_contract:
         contract = emitter
     else:
@@ -270,7 +266,6 @@ async def test_on_async_filter_using_get_entries_interface(
     api_style,
     async_create_filter,
 ):
-
     if call_deployed_contract:
         contract = async_emitter
     else:
@@ -310,7 +305,6 @@ async def test_on_async_filter_with_event_name_and_single_argument(
     api_style,
     async_create_filter,
 ):
-
     if call_deployed_contract:
         contract = async_emitter
     else:
@@ -365,7 +359,6 @@ async def test_on_async_filter_with_event_name_and_non_indexed_argument(
     api_style,
     async_create_filter,
 ):
-
     if call_deployed_contract:
         contract = async_emitter
     else:
@@ -445,7 +438,6 @@ async def test_on_async_filter_with_topic_filter_options_on_old_apis(
     call_deployed_contract,
     async_create_filter,
 ):
-
     if call_deployed_contract:
         contract = async_emitter
     else:

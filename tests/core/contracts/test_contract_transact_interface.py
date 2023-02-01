@@ -511,7 +511,6 @@ async def test_async_transacting_with_contract_with_byte_array_argument_non_stri
 async def test_async_transacting_with_contract_respects_explicit_gas(
     async_w3, string_contract_data, async_call, async_transact
 ):
-
     StringContract = async_w3.eth.contract(**string_contract_data)
 
     deploy_txn = await StringContract.constructor("Caqalai").transact()
@@ -541,7 +540,6 @@ async def test_async_transacting_with_contract_respects_explicit_gas(
 async def test_async_auto_gas_computation_when_transacting(
     async_w3, string_contract_data, async_call, async_transact
 ):
-
     StringContract = async_w3.eth.contract(**string_contract_data)
 
     deploy_txn = await StringContract.constructor("Caqalai").transact()

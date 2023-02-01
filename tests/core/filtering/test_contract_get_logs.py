@@ -55,7 +55,6 @@ def test_contract_get_logs_range(
 def test_contract_get_logs_argument_filter(
     w3, emitter, wait_for_transaction, emitter_contract_event_ids
 ):
-
     contract = emitter
 
     txn_hashes = []
@@ -158,7 +157,6 @@ async def test_async_contract_get_logs_range(
 async def test_async_contract_get_logs_argument_filter(
     async_w3, async_emitter, async_wait_for_transaction, emitter_contract_event_ids
 ):
-
     contract = async_emitter
 
     txn_hashes = []

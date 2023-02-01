@@ -63,7 +63,6 @@ def _geth_command_arguments(rpc_port, base_geth_command_arguments, geth_version)
 
 @pytest.fixture(scope="module")
 def geth_command_arguments(rpc_port, base_geth_command_arguments, get_geth_version):
-
     return _geth_command_arguments(
         rpc_port, base_geth_command_arguments, get_geth_version
     )

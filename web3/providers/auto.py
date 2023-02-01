@@ -61,7 +61,6 @@ def load_provider_from_uri(
 
 
 class AutoProvider(BaseProvider):
-
     default_providers = (
         load_provider_from_environment,
         IPCProvider,

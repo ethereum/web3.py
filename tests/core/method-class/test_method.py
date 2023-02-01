@@ -325,7 +325,6 @@ def test_process_params(
     kwargs,
     expected_request_result,
 ):
-
     if isclass(expected_request_result) and issubclass(
         expected_request_result, Exception
     ):

@@ -42,7 +42,6 @@ async def async_w3():
 
 @pytest.mark.asyncio
 async def test_AsyncEth_filter_creates_correct_filter_type(async_w3):
-
     filter1 = await async_w3.eth.filter("latest")
     assert isinstance(filter1, AsyncBlockFilter)
     filter2 = await async_w3.eth.filter("pending")

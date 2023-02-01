@@ -25,7 +25,6 @@ from web3.logs import (
 
 @pytest.fixture()
 def dup_txn_receipt(w3, indexed_event_contract, wait_for_transaction, event_contract):
-
     emitter_fn = indexed_event_contract.functions.logTwoEvents
 
     txn_hash = emitter_fn(12345).transact()
@@ -557,7 +556,6 @@ def test_event_rich_log(
     process_receipt,
     expected_args,
 ):
-
     emitter_fn = emitter.functions[contract_fn]
     if hasattr(emitter_contract_event_ids, event_name):
         event_id = getattr(emitter_contract_event_ids, event_name)
@@ -821,7 +819,6 @@ def test_event_rich_log_non_strict(
     process_receipt,
     expected_args,
 ):
-
     emitter_fn = non_strict_emitter.functions[contract_fn]
     if hasattr(emitter_contract_event_ids, event_name):
         event_id = getattr(emitter_contract_event_ids, event_name)
@@ -929,7 +926,6 @@ def test_receipt_processing_with_ignore_flag(
 
 
 def test_receipt_processing_with_warn_flag(indexed_event_contract, dup_txn_receipt):
-
     event_instance = indexed_event_contract.events.LogSingleWithIndex()
 
     with pytest.warns(UserWarning, match="Expected 1 log topics.  Got 0"):
@@ -938,7 +934,6 @@ def test_receipt_processing_with_warn_flag(indexed_event_contract, dup_txn_recei
 
 
 def test_receipt_processing_with_strict_flag(indexed_event_contract, dup_txn_receipt):
-
     event_instance = indexed_event_contract.events.LogSingleWithIndex()
 
     with pytest.raises(LogTopicError, match="Expected 1 log topics.  Got 0"):
@@ -946,7 +941,6 @@ def test_receipt_processing_with_strict_flag(indexed_event_contract, dup_txn_rec
 
 
 def test_receipt_processing_with_invalid_flag(indexed_event_contract, dup_txn_receipt):
-
     event_instance = indexed_event_contract.events.LogSingleWithIndex()
 
     with pytest.raises(AttributeError, match="Error flag must be one of: "):
@@ -954,7 +948,6 @@ def test_receipt_processing_with_invalid_flag(indexed_event_contract, dup_txn_re
 
 
 def test_receipt_processing_with_no_flag(indexed_event_contract, dup_txn_receipt):
-
     event_instance = indexed_event_contract.events.LogSingleWithIndex()
 
     with pytest.warns(UserWarning, match="Expected 1 log topics.  Got 0"):

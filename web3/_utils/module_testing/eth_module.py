@@ -1256,7 +1256,6 @@ class AsyncEthModuleTest:
         emitter_contract_address: ChecksumAddress,
         txn_hash_with_log: HexStr,
     ) -> None:
-
         # Test with block range
 
         # the range includes the block where the log resides in
@@ -1298,7 +1297,6 @@ class AsyncEthModuleTest:
         emitter_contract_address: ChecksumAddress,
         txn_hash_with_log: HexStr,
     ) -> None:
-
         # Test with None event sig
 
         filter_params: FilterParams = {
@@ -1395,7 +1393,6 @@ class AsyncEthModuleTest:
     def test_async_provider_default_account(
         self, async_w3: "Web3", unlocked_account_dual_type: ChecksumAddress
     ) -> None:
-
         # check defaults to empty
         default_account = async_w3.eth.default_account
         assert default_account is empty
@@ -1412,7 +1409,6 @@ class AsyncEthModuleTest:
         self,
         async_w3: "Web3",
     ) -> None:
-
         # check defaults to 'latest'
         default_block = async_w3.eth.default_block
         assert default_block == "latest"
@@ -3316,7 +3312,6 @@ class EthModuleTest:
         emitter_contract_address: ChecksumAddress,
         txn_hash_with_log: HexStr,
     ) -> None:
-
         # Test with block range
 
         # the range includes the block where the log resides in
@@ -3353,7 +3348,6 @@ class EthModuleTest:
         emitter_contract_address: ChecksumAddress,
         txn_hash_with_log: HexStr,
     ) -> None:
-
         # Test with None event sig
 
         filter_params: FilterParams = {
@@ -3537,7 +3531,6 @@ class EthModuleTest:
     def test_default_account(
         self, w3: "Web3", unlocked_account_dual_type: ChecksumAddress
     ) -> None:
-
         # check defaults to empty
         default_account = w3.eth.default_account
         assert default_account is empty
@@ -3554,7 +3547,6 @@ class EthModuleTest:
         self,
         w3: "Web3",
     ) -> None:
-
         # check defaults to 'latest'
         default_block = w3.eth.default_block
         assert default_block == "latest"

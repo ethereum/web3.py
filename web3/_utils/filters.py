@@ -377,7 +377,6 @@ def select_filter_method(
     if_new_pending_transaction_filter: RPCEndpoint,
     if_new_filter: RPCEndpoint,
 ) -> Optional[RPCEndpoint]:
-
     if is_string(value):
         if value == "latest":
             return if_new_block_filter
