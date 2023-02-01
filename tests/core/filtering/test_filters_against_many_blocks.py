@@ -42,7 +42,6 @@ def test_event_filter_new_events(
     api_style,
     create_filter,
 ):
-
     matching_transact = emitter.functions.logNoArgs(which=1).transact
     non_matching_transact = emitter.functions.logNoArgs(which=0).transact
 
@@ -77,7 +76,6 @@ def test_block_filter(w3):
 
 
 def test_transaction_filter_with_mining(w3):
-
     transaction_filter = w3.eth.filter("pending")
 
     transaction_counter = 0
@@ -109,7 +107,6 @@ def test_event_filter_new_events_many_deployed_contracts(
     api_style,
     create_filter,
 ):
-
     matching_transact = emitter.functions.logNoArgs(which=1).transact
 
     deployed_contract_addresses = deploy_contracts(
@@ -192,7 +189,6 @@ async def test_async_event_filter_new_events(
     async_wait_for_transaction,
     api_style,
 ):
-
     matching_transact = async_emitter.functions.logNoArgs(which=1).transact
     non_matching_transact = async_emitter.functions.logNoArgs(which=0).transact
 
@@ -271,7 +267,6 @@ async def test_async_event_filter_new_events_many_deployed_contracts(
     async_wait_for_transaction,
     api_style,
 ):
-
     matching_transact = async_emitter.functions.logNoArgs(which=1).transact
 
     deployed_contract_addresses = await async_deploy_contracts(

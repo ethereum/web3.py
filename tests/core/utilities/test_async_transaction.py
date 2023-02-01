@@ -38,7 +38,6 @@ async def test_get_block_gas_limit_without_block_number(async_w3):
 
 @pytest.mark.asyncio()
 async def test_get_buffered_gas_estimate(async_w3):
-
     txn_params = {
         "data": b"0x1",
     }

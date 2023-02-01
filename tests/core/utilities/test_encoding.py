@@ -56,7 +56,6 @@ from web3.providers import (
     ],
 )
 def test_hex_encode_abi_type(abi_type, value, expected):
-
     if isinstance(expected, type) and issubclass(expected, Exception):
         with pytest.raises(expected):
             hex_encode_abi_type(abi_type, value)

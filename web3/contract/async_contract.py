@@ -91,7 +91,6 @@ class AsyncContractEvents(BaseContractEvents):
 
 
 class AsyncContract(BaseContract):
-
     functions: AsyncContractFunctions = None
     caller: "AsyncContractCaller" = None
 
@@ -330,7 +329,6 @@ class AsyncContractFunction(BaseContractFunction):
     async def build_transaction(
         self, transaction: Optional[TxParams] = None
     ) -> TxParams:
-
         built_transaction = self._build_transaction(transaction)
         return await async_build_transaction_for_function(
             self.address,

@@ -181,6 +181,7 @@ def check_sources(manifest: Manifest, warnings: Dict[str, str]) -> Dict[str, str
 # Contract Types
 #
 
+
 # todo: validate a contract type matches source
 @curry
 def check_contract_types(

@@ -55,7 +55,6 @@ def _geth_command_arguments(ws_port, base_geth_command_arguments, geth_version):
 def geth_command_arguments(
     geth_binary, get_geth_version, datadir, ws_port, base_geth_command_arguments
 ):
-
     return _geth_command_arguments(
         ws_port, base_geth_command_arguments, get_geth_version
     )

@@ -101,7 +101,6 @@ BYTES_ADDRESS_LEN_GT_20 = bytes(1) * 21
     ),
 )
 def test_validation(param, validation, expected):
-
     if isinstance(expected, type) and issubclass(expected, Exception):
         with pytest.raises(expected):
             validation(param)
@@ -138,7 +137,6 @@ def test_validation(param, validation, expected):
     ),
 )
 def test_validate_abi_value(abi_type, value, expected):
-
     if isinstance(expected, type) and issubclass(expected, Exception):
         with pytest.raises(expected):
             validate_abi_value(abi_type, value)

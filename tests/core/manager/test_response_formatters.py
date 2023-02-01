@@ -190,7 +190,6 @@ def test_formatted_response_raises_errors(
 def test_formatted_response_raises_correct_error_message(
     response, w3, params, error_formatters, null_result_formatters, error, error_message
 ):
-
     with pytest.raises(error, match=error_message):
         w3.manager.formatted_response(
             response, params, error_formatters, null_result_formatters
@@ -223,7 +222,6 @@ def test_formatted_response_raises_correct_error_message(
 def test_formatted_response(
     response, w3, params, error_formatters, null_result_formatters, expected
 ):
-
     formatted_resp = w3.manager.formatted_response(
         response, params, error_formatters, null_result_formatters
     )

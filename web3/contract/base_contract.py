@@ -294,7 +294,6 @@ class BaseContract:
         fn_kwargs: Optional[Any] = None,
         transaction: Optional[TxParams] = None,
     ) -> TxParams:
-
         return prepare_transaction(
             cls.address,
             cls.w3,
@@ -437,7 +436,6 @@ class BaseContractFunctions:
         contract_function_class: Type["BaseContractFunction"],
         address: Optional[ChecksumAddress] = None,
     ) -> None:
-
         self.abi = abi
         self.w3 = w3
         self.address = address
@@ -723,7 +721,6 @@ class BaseContractFunction:
         self.arguments = merge_args_and_kwargs(self.abi, self.args, self.kwargs)
 
     def _get_call_txparams(self, transaction: Optional[TxParams] = None) -> TxParams:
-
         if transaction is None:
             call_transaction: TxParams = {}
         else:
@@ -874,7 +871,6 @@ class BaseContractEvent:
     abi: ABIEvent = None
 
     def __init__(self, *argument_names: Tuple[str]) -> None:
-
         if argument_names is None:
             # https://github.com/python/mypy/issues/6283
             self.argument_names = tuple()  # type: ignore
@@ -940,7 +936,6 @@ class BaseContractEvent:
         toBlock: Optional[BlockIdentifier] = None,
         blockHash: Optional[HexBytes] = None,
     ) -> FilterParams:
-
         if not self.address:
             raise TypeError(
                 "This method can be only called on "

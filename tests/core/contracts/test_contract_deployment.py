@@ -167,7 +167,6 @@ async def test_async_contract_deployment_with_constructor_arguments(
     async_constructor_with_args_contract_factory,
     constructor_arg,
 ):
-
     deploy_txn = await async_constructor_with_args_contract_factory.constructor(
         1234, constructor_arg
     ).transact()

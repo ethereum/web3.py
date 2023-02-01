@@ -346,7 +346,6 @@ def local_filter_middleware(
 
     def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
         if method in NEW_FILTER_METHODS:
-
             filter_id = next(filter_id_counter)
 
             _filter: Union[RequestLogs, RequestBlocks]
@@ -620,7 +619,6 @@ async def async_local_filter_middleware(
 
     async def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
         if method in NEW_FILTER_METHODS:
-
             filter_id = next(filter_id_counter)
 
             _filter: Union[AsyncRequestLogs, AsyncRequestBlocks]
@@ -639,7 +637,6 @@ async def async_local_filter_middleware(
             return {"result": filter_id}
 
         elif method in FILTER_CHANGES_METHODS:
-
             filter_id = params[0]
             #  Pass through to filters not created by middleware
             if filter_id not in filters:

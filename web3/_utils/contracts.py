@@ -111,7 +111,6 @@ def find_matching_event_abi(
     event_name: Optional[str] = None,
     argument_names: Optional[Sequence[str]] = None,
 ) -> ABIEvent:
-
     filters = [
         functools.partial(filter_by_type, "event"),
     ]
