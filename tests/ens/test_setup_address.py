@@ -17,7 +17,9 @@ from ens import (
 from ens.constants import (
     EMPTY_ADDR_HEX,
 )
-from web3 import Web3
+from web3 import (
+    Web3,
+)
 
 """
 API at: https://github.com/carver/ens.py/issues/2

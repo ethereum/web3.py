@@ -7,7 +7,9 @@ from eth_utils import (
     is_integer,
 )
 
-from web3 import Web3
+from web3 import (
+    Web3,
+)
 from web3._utils.module import (
     attach_modules,
 )

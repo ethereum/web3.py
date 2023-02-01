@@ -33,7 +33,9 @@ from eth_utils import (
     to_tuple,
 )
 
-from ens import ENS
+from ens import (
+    ENS,
+)
 from ethpm import (
     ASSETS_DIR,
     Package,
@@ -54,7 +56,9 @@ from ethpm.validation.package import (
     validate_package_name,
     validate_package_version,
 )
-from web3 import Web3
+from web3 import (
+    Web3,
+)
 from web3._utils.ens import (
     is_ens_name,
 )

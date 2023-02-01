@@ -12,7 +12,7 @@ extras_require = {
     "linter": [
         "black>=22.1.0",
         "flake8==3.8.3",
-        "isort>=4.2.15,<4.3.5",
+        "isort>=5.11.0",
         "mypy==0.910",
         "types-setuptools>=57.4.4",
         "types-requests>=2.26.1",

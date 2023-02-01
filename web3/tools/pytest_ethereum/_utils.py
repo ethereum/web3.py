@@ -29,7 +29,9 @@ from ethpm import (
 from ethpm.uri import (
     check_if_chain_matches_chain_uri,
 )
-from web3 import Web3
+from web3 import (
+    Web3,
+)
 from web3.tools.pytest_ethereum.exceptions import (
     LinkerError,
 )

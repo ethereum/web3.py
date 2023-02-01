@@ -4,7 +4,9 @@ from eth_utils.toolz import (
     compose,
 )
 
-from web3 import Web3
+from web3 import (
+    Web3,
+)
 from web3.method import (
     Method,
 )

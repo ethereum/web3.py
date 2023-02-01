@@ -28,7 +28,9 @@ from ethpm.backends.registry import (
 )
 
 try:
-    from ipfshttpclient.exceptions import ConnectionError as IpfsConnectionError
+    from ipfshttpclient.exceptions import (
+        ConnectionError as IpfsConnectionError,
+    )
 except ImportError:
     pass
 

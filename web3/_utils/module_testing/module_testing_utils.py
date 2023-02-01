@@ -35,10 +35,11 @@ from web3.types import (
 )
 
 if TYPE_CHECKING:
-    from web3 import Web3  # noqa: F401
     from _pytest.monkeypatch import MonkeyPatch  # noqa: F401
-    from requests import Response  # noqa: F401
     from aiohttp import ClientResponse  # noqa: F401
+    from requests import Response  # noqa: F401
+
+    from web3 import Web3  # noqa: F401
 
 
 def mine_pending_block(w3: "Web3") -> None:

@@ -1,3 +1,5 @@
-from ens import ENS
+from ens import (
+    ENS,
+)
 
 ns = ENS()

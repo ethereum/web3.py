@@ -4,7 +4,9 @@ from ens import (
     ENS,
     AsyncENS,
 )
-from web3 import Web3
+from web3 import (
+    Web3,
+)
 from web3.middleware import (
     async_validation_middleware,
     pythonic_middleware,

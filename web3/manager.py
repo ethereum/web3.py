@@ -13,7 +13,9 @@ from typing import (  # noqa: F401
     cast,
 )
 import uuid
-from uuid import UUID
+from uuid import (
+    UUID,
+)
 
 from eth_utils.toolz import (
     pipe,

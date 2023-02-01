@@ -57,8 +57,13 @@ class AsyncEthereumTesterProvider(AsyncBaseProvider):
         super().__init__()
 
         # do not import eth_tester until runtime, it is not a default dependency
-        from eth_tester import EthereumTester
-        from web3.providers.eth_tester.defaults import API_ENDPOINTS
+        from eth_tester import (
+            EthereumTester,
+        )
+
+        from web3.providers.eth_tester.defaults import (
+            API_ENDPOINTS,
+        )
 
         self.ethereum_tester = EthereumTester()
         self.api_endpoints = API_ENDPOINTS
@@ -87,7 +92,9 @@ class EthereumTesterProvider(BaseProvider):
     ) -> None:
         # do not import eth_tester until runtime, it is not a default dependency
         from eth_tester import EthereumTester  # noqa: F811
-        from eth_tester.backends.base import BaseChainBackend
+        from eth_tester.backends.base import (
+            BaseChainBackend,
+        )
 
         if ethereum_tester is None:
             self.ethereum_tester = EthereumTester()
@@ -107,7 +114,9 @@ class EthereumTesterProvider(BaseProvider):
         if api_endpoints is None:
             # do not import eth_tester derivatives until runtime,
             # it is not a default dependency
-            from .defaults import API_ENDPOINTS
+            from .defaults import (
+                API_ENDPOINTS,
+            )
 
             self.api_endpoints = API_ENDPOINTS
         else:
@@ -128,7 +137,9 @@ def _make_request(
 ) -> RPCResponse:
     # do not import eth_tester derivatives until runtime,
     # it is not a default dependency
-    from eth_tester.exceptions import TransactionFailed
+    from eth_tester.exceptions import (
+        TransactionFailed,
+    )
 
     namespace, _, endpoint = method.partition("_")
 

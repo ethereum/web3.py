@@ -140,7 +140,9 @@ min_version = pytest.mark.skipif(
 
 @pytest_asyncio.fixture
 async def request_async_middleware(allowable_delay):
-    from unittest.mock import AsyncMock
+    from unittest.mock import (
+        AsyncMock,
+    )
 
     middleware = await async_make_stalecheck_middleware(allowable_delay)
     make_request, web3 = AsyncMock(), AsyncMock()

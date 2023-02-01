@@ -4,7 +4,9 @@ from aiohttp import (
     ClientSession,
 )
 
-from web3 import Web3
+from web3 import (
+    Web3,
+)
 from web3._utils import (
     request,
 )

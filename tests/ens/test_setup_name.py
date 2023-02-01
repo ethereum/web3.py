@@ -9,7 +9,9 @@ from ens import (
     UnauthorizedError,
     UnownedName,
 )
-from web3 import Web3
+from web3 import (
+    Web3,
+)
 
 """
 API at: https://github.com/carver/ens.py/issues/2

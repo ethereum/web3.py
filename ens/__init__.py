@@ -9,7 +9,6 @@ from .base_ens import (
 from .ens import (
     ENS,
 )
-
 from .exceptions import (
     AddressMismatch,
     BidTooLow,

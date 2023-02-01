@@ -262,10 +262,14 @@ class DynamicArrayPackedEncoder(BaseArrayEncoder):
 #  TODO: Replace with eth-abi packed encoder once web3 requires eth-abi>=2
 def encode_single_packed(_type: TypeStr, value: Any) -> bytes:
     import codecs
+
     from eth_abi import (
         grammar as abi_type_parser,
     )
-    from eth_abi.registry import has_arrlist, registry
+    from eth_abi.registry import (
+        has_arrlist,
+        registry,
+    )
 
     abi_type = abi_type_parser.parse(_type)
     if has_arrlist(_type):

@@ -37,7 +37,9 @@ from ens.contract_data import (
     simple_resolver_bytecode,
     simple_resolver_bytecode_runtime,
 )
-from web3 import Web3
+from web3 import (
+    Web3,
+)
 from web3.contract import (
     AsyncContract,
     Contract,

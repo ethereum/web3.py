@@ -19,7 +19,9 @@ from ethpm.tools import (
 from ethpm.uri import (
     create_latest_block_uri,
 )
-from web3 import Web3
+from web3 import (
+    Web3,
+)
 from web3.tools import (
     linker,
 )

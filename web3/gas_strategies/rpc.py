@@ -2,7 +2,9 @@ from typing import (
     Optional,
 )
 
-from web3 import Web3
+from web3 import (
+    Web3,
+)
 from web3._utils.rpc_abi import (
     RPC,
 )

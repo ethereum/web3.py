@@ -8,6 +8,7 @@ import subprocess
 import sys
 import time
 
+import common
 from eth_utils.curried import (
     apply_formatter_if,
     is_bytes,
@@ -21,8 +22,9 @@ from eth_utils.toolz import (
     valmap,
 )
 
-import common
-from web3 import Web3
+from web3 import (
+    Web3,
+)
 from web3._utils.contract_sources.contract_data._custom_contract_data import (
     EMITTER_ENUM,
 )

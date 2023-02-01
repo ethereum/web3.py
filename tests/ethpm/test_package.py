@@ -11,7 +11,9 @@ from ethpm.exceptions import (
 from ethpm.package import (
     Package,
 )
-from web3 import Web3
+from web3 import (
+    Web3,
+)
 
 # TODO: Add proper authentication to IPFS calls
 pytest.skip(
