@@ -14,7 +14,9 @@ from ethpm.contract import (
 from ethpm.exceptions import (
     EthPMException,
 )
-from web3 import Web3
+from web3 import (
+    Web3,
+)
 from web3.pm import (
     SimpleRegistry,
     get_simple_registry_manifest,

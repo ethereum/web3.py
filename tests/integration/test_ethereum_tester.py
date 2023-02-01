@@ -13,7 +13,9 @@ from eth_utils import (
     is_integer,
 )
 
-from web3 import Web3
+from web3 import (
+    Web3,
+)
 from web3._utils.contract_sources.contract_data._custom_contract_data import (
     EMITTER_ENUM,
 )

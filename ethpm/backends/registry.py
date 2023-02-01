@@ -16,7 +16,9 @@ from eth_utils import (
     is_address,
 )
 
-from ens import ENS
+from ens import (
+    ENS,
+)
 from ethpm._utils.registry import (
     fetch_standard_registry_abi,
 )
@@ -46,7 +48,10 @@ class RegistryURIBackend(BaseURIBackend):
     """
 
     def __init__(self) -> None:
-        from web3 import Web3, WebsocketProvider
+        from web3 import (
+            Web3,
+            WebsocketProvider,
+        )
 
         w3 = Web3(WebsocketProvider())
 
@@ -90,7 +95,10 @@ def parse_registry_uri(uri: str) -> RegistryURI:
     Validate and return (authority, chain_id, pkg_name, version)
     from a valid registry URI.
     """
-    from web3 import Web3, WebsocketProvider
+    from web3 import (
+        Web3,
+        WebsocketProvider,
+    )
 
     w3 = Web3(WebsocketProvider())
 

@@ -5,6 +5,6 @@ from .base_eth import (  # noqa: F401
     BaseEth,
 )
 from .eth import (  # noqa: F401
-    Eth,
     Contract,
+    Eth,
 )

@@ -62,8 +62,8 @@ from web3.types import (
 
 if TYPE_CHECKING:
     from web3 import Web3  # noqa: F401
-    from web3.eth import Eth  # noqa: F401
     from web3.eth import AsyncEth  # noqa: F401
+    from web3.eth import Eth  # noqa: F401
 
 
 def construct_event_filter_params(

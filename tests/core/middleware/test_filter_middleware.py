@@ -5,7 +5,9 @@ from hexbytes import (
 )
 import pytest_asyncio
 
-from web3 import Web3
+from web3 import (
+    Web3,
+)
 from web3.datastructures import (
     AttributeDict,
 )

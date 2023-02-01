@@ -17,7 +17,9 @@ from ethpm.contract import (
 from ethpm.tools import (
     get_ethpm_local_manifest,
 )
-from web3 import Web3
+from web3 import (
+    Web3,
+)
 from web3.pm import (
     SimpleRegistry,
 )

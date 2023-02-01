@@ -29,7 +29,9 @@ from hexbytes import (
     HexBytes,
 )
 
-from ens import abis
+from ens import (
+    abis,
+)
 from ens.base_ens import (
     BaseENS,
 )

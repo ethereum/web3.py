@@ -54,7 +54,9 @@ def absolute_datadir(directory_name):
 
 @pytest.fixture(scope="module")
 def get_geth_version(geth_binary):
-    from geth import get_geth_version
+    from geth import (
+        get_geth_version,
+    )
 
     return get_geth_version(geth_executable=os.path.expanduser(geth_binary))
 

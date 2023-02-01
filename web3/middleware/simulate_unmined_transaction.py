@@ -9,7 +9,9 @@ from eth_typing import (
     Hash32,
 )
 
-from web3 import Web3
+from web3 import (
+    Web3,
+)
 from web3.types import (
     RPCEndpoint,
     RPCResponse,

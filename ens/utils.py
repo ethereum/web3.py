@@ -54,7 +54,9 @@ default = object()
 
 
 if TYPE_CHECKING:
-    from web3 import Web3 as _Web3  # noqa: F401
+    from web3 import (  # noqa: F401
+        Web3 as _Web3,
+    )
     from web3.providers import (  # noqa: F401
         AsyncBaseProvider,
         BaseProvider,
@@ -67,7 +69,9 @@ if TYPE_CHECKING:
 
 
 def Web3() -> Type["_Web3"]:
-    from web3 import Web3 as Web3Main
+    from web3 import (
+        Web3 as Web3Main,
+    )
 
     return Web3Main
 
@@ -76,8 +80,12 @@ def init_web3(
     provider: "BaseProvider" = cast("BaseProvider", default),
     middlewares: Optional[Sequence[Tuple["Middleware", str]]] = None,
 ) -> "_Web3":
-    from web3 import Web3 as Web3Main
-    from web3.eth import Eth as EthMain
+    from web3 import (
+        Web3 as Web3Main,
+    )
+    from web3.eth import (
+        Eth as EthMain,
+    )
 
     if provider is default:
         w3 = Web3Main(ens=None, modules={"eth": (EthMain)})
@@ -88,7 +96,9 @@ def init_web3(
 
 
 def customize_web3(w3: "_Web3") -> "_Web3":
-    from web3.middleware import make_stalecheck_middleware
+    from web3.middleware import (
+        make_stalecheck_middleware,
+    )
 
     if w3.middleware_onion.get("name_to_address"):
         w3.middleware_onion.remove("name_to_address")
@@ -280,8 +290,12 @@ def init_async_web3(
     provider: "AsyncBaseProvider" = cast("AsyncBaseProvider", default),
     middlewares: Optional[Sequence[Tuple["Middleware", str]]] = (),
 ) -> "_Web3":
-    from web3 import Web3 as Web3Main
-    from web3.eth import AsyncEth as AsyncEthMain
+    from web3 import (
+        Web3 as Web3Main,
+    )
+    from web3.eth import (
+        AsyncEth as AsyncEthMain,
+    )
 
     middlewares = list(middlewares)
     for i, (middleware, name) in enumerate(middlewares):
@@ -309,7 +323,9 @@ def init_async_web3(
 async def _async_ens_stalecheck_middleware(
     make_request: Callable[["RPCEndpoint", Any], Any], w3: "_Web3"
 ) -> "Middleware":
-    from web3.middleware import async_make_stalecheck_middleware
+    from web3.middleware import (
+        async_make_stalecheck_middleware,
+    )
 
     middleware = await async_make_stalecheck_middleware(ACCEPTABLE_STALE_HOURS * 3600)
     return await middleware(make_request, w3)

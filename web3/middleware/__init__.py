@@ -6,16 +6,17 @@ from typing import (
     Sequence,
 )
 
-from web3.types import (
-    RPCEndpoint,
-    RPCResponse,
-    Middleware,
-)
-from .abi import (  # noqa: F401
-    abi_middleware,
-)
 from web3.middleware.async_cache import (  # noqa: F401
     _async_simple_cache_middleware as async_simple_cache_middleware,
+)
+from web3.types import (
+    Middleware,
+    RPCEndpoint,
+    RPCResponse,
+)
+
+from .abi import (  # noqa: F401
+    abi_middleware,
 )
 from .attrdict import (  # noqa: F401
     attrdict_middleware,
@@ -73,8 +74,8 @@ from .signing import (  # noqa: F401
     construct_sign_and_send_raw_middleware,
 )
 from .stalecheck import (  # noqa: F401
-    make_stalecheck_middleware,
     async_make_stalecheck_middleware,
+    make_stalecheck_middleware,
 )
 from .validation import (  # noqa: F401
     async_validation_middleware,

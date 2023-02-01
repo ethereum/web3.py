@@ -5,7 +5,9 @@ from urllib import (
 from ethpm.exceptions import (
     EthPMValidationError,
 )
-from web3 import Web3
+from web3 import (
+    Web3,
+)
 
 
 def validate_w3_instance(w3: "Web3") -> None:

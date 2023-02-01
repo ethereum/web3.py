@@ -45,6 +45,3 @@ showcontent = false
 directory = "breaking"
 name = "Breaking changes"
 showcontent = true
-
-[tool.isort]
-profile="black"

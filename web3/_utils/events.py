@@ -2,7 +2,9 @@ from abc import (
     ABC,
     abstractmethod,
 )
-from enum import Enum
+from enum import (
+    Enum,
+)
 import itertools
 from typing import (
     TYPE_CHECKING,
