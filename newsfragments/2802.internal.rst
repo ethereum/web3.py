@@ -1,0 +1,1 @@
+Updates to ``isort`` and ``black`` required some formatting changes and isort config refactoring.
