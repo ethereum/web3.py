@@ -146,11 +146,28 @@ Each Contract Factory exposes the following properties.
     The runtime part of the contract bytecode string.  May be ``None`` if not
     provided during factory creation.
 
+
+.. py:attribute:: Contract.decode_tuples
+
+    If a Tuple/Struct is returned by a contract function, this flag defines whether
+    to apply the field names from the ABI to the returned data.
+    If False, the returned value will be a normal Python `Tuple`. If True, the returned
+    value will be a Python `NamedTuple` of the name `ABIDecodedNamedTuple`.
+    
+    NamedTuples have some restrictions regarding field names.
+    Web3.py sets `NamedTuple`'s `rename=True`, so disallowed field names my be 
+    different than expected. See the [Python docs](https://docs.python.org/3/library/collections.html#collections.namedtuple)
+    for more information.
+    
+    May be ``None`` if not provided during factory creation.
+
+
 .. py:attribute:: Contract.functions
 
     This provides access to contract functions as attributes.  For example:
     ``myContract.functions.MyMethod()``.  The exposed contract functions are classes of the
     type :py:class:`ContractFunction`.
+
 
 .. py:attribute:: Contract.events
 

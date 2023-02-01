@@ -1454,6 +1454,7 @@ Contracts
     - ``bytecode_runtime``
     - ``clone_bin``
     - ``dev_doc``
+    - ``decode_tuples``
     - ``interface``
     - ``metadata``
     - ``opcodes``
