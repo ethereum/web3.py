@@ -79,7 +79,7 @@ class AsyncContractFunctions(BaseContractFunctions):
         abi: ABI,
         w3: "Web3",
         address: Optional[ChecksumAddress] = None,
-        decode_tuples: Optional[bool] = None,
+        decode_tuples: Optional[bool] = False,
     ) -> None:
         super().__init__(abi, w3, AsyncContractFunction, address, decode_tuples)
 
@@ -474,7 +474,7 @@ class AsyncContractCaller(BaseContractCaller):
         transaction: Optional[TxParams] = None,
         block_identifier: BlockIdentifier = "latest",
         ccip_read_enabled: Optional[bool] = None,
-        decode_tuples: Optional[bool] = None,
+        decode_tuples: Optional[bool] = False,
     ) -> None:
         super().__init__(
             abi=abi,

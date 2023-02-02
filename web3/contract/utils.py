@@ -72,7 +72,7 @@ def call_contract_function(
     fn_abi: Optional[ABIFunction] = None,
     state_override: Optional[CallOverride] = None,
     ccip_read_enabled: Optional[bool] = None,
-    decode_tuples: Optional[bool] = None,
+    decode_tuples: Optional[bool] = False,
     *args: Any,
     **kwargs: Any,
 ) -> Any:
@@ -280,7 +280,7 @@ async def async_call_contract_function(
     fn_abi: Optional[ABIFunction] = None,
     state_override: Optional[CallOverride] = None,
     ccip_read_enabled: Optional[bool] = None,
-    decode_tuples: Optional[bool] = None,
+    decode_tuples: Optional[bool] = False,
     *args: Any,
     **kwargs: Any,
 ) -> Any:

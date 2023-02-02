@@ -436,7 +436,7 @@ class BaseContractFunctions:
         w3: "Web3",
         contract_function_class: Type["BaseContractFunction"],
         address: Optional[ChecksumAddress] = None,
-        decode_tuples: Optional[bool] = None,
+        decode_tuples: Optional[bool] = False,
     ) -> None:
         self.abi = abi
         self.w3 = w3
@@ -671,7 +671,7 @@ class BaseContractFunction:
     abi: ABIFunction = None
     transaction: TxParams = None
     arguments: Tuple[Any, ...] = None
-    decode_tuples: Optional[bool] = None
+    decode_tuples: Optional[bool] = False
     args: Any = None
     kwargs: Any = None
 
@@ -1090,7 +1090,7 @@ class BaseContractCaller:
         transaction: Optional[TxParams] = None,
         block_identifier: BlockIdentifier = "latest",
         ccip_read_enabled: Optional[bool] = None,
-        decode_tuples: Optional[bool] = None,
+        decode_tuples: Optional[bool] = False,
     ) -> None:
         self.w3 = w3
         self.address = address
