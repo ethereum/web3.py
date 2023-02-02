@@ -14,10 +14,10 @@ def test_contract_get_logs_all(
     w3,
     emitter,
     wait_for_transaction,
-    emitter_event_ids,
+    emitter_contract_event_ids,
 ):
     contract = emitter
-    event_id = emitter_event_ids.LogNoArguments
+    event_id = emitter_contract_event_ids.LogNoArguments
 
     txn_hash = contract.functions.logNoArgs(event_id).transact()
     wait_for_transaction(w3, txn_hash)
@@ -31,10 +31,10 @@ def test_contract_get_logs_range(
     w3,
     emitter,
     wait_for_transaction,
-    emitter_event_ids,
+    emitter_contract_event_ids,
 ):
     contract = emitter
-    event_id = emitter_event_ids.LogNoArguments
+    event_id = emitter_contract_event_ids.LogNoArguments
 
     assert w3.eth.block_number == 2
     txn_hash = contract.functions.logNoArgs(event_id).transact()
@@ -45,25 +45,21 @@ def test_contract_get_logs_range(
     log_entries = list(contract.events.LogNoArguments.get_logs())
     assert len(log_entries) == 1
 
-    log_entries = list(
-        contract.events.LogNoArguments.get_logs(from_block=2, to_block=3)
-    )
+    log_entries = list(contract.events.LogNoArguments.get_logs(fromBlock=2, toBlock=3))
     assert len(log_entries) == 1
 
-    log_entries = list(
-        contract.events.LogNoArguments.get_logs(from_block=1, to_block=2)
-    )
+    log_entries = list(contract.events.LogNoArguments.get_logs(fromBlock=1, toBlock=2))
     assert len(log_entries) == 0
 
 
 def test_contract_get_logs_argument_filter(
-    w3, emitter, wait_for_transaction, emitter_event_ids
+    w3, emitter, wait_for_transaction, emitter_contract_event_ids
 ):
 
     contract = emitter
 
     txn_hashes = []
-    event_id = emitter_event_ids.LogTripleWithIndex
+    event_id = emitter_contract_event_ids.LogTripleWithIndex
     # 1 = arg0
     # 4 = arg1
     # 1 = arg2
@@ -74,19 +70,19 @@ def test_contract_get_logs_argument_filter(
     for txn_hash in txn_hashes:
         wait_for_transaction(w3, txn_hash)
 
-    all_logs = contract.events.LogTripleWithIndex.get_logs(from_block=1)
+    all_logs = contract.events.LogTripleWithIndex.get_logs(fromBlock=1)
     assert len(all_logs) == 4
 
     # Filter all entries where arg1 in (1, 2)
     partial_logs = contract.events.LogTripleWithIndex.get_logs(
-        from_block=1,
+        fromBlock=1,
         argument_filters={"arg1": [1, 2]},
     )
     assert len(partial_logs) == 2
 
     # Filter all entries where arg0 == 1
     partial_logs = contract.events.LogTripleWithIndex.get_logs(
-        from_block=1,
+        fromBlock=1,
         argument_filters={"arg0": 1},
     )
     assert len(partial_logs) == 4
@@ -109,10 +105,10 @@ async def test_async_contract_get_logs_all(
     async_w3,
     async_emitter,
     async_wait_for_transaction,
-    emitter_event_ids,
+    emitter_contract_event_ids,
 ):
     contract = async_emitter
-    event_id = emitter_event_ids.LogNoArguments
+    event_id = emitter_contract_event_ids.LogNoArguments
 
     txn_hash = await contract.functions.logNoArgs(event_id).transact()
     await async_wait_for_transaction(async_w3, txn_hash)
@@ -128,10 +124,10 @@ async def test_async_contract_get_logs_range(
     async_w3,
     async_emitter,
     async_wait_for_transaction,
-    emitter_event_ids,
+    emitter_contract_event_ids,
 ):
     contract = async_emitter
-    event_id = emitter_event_ids.LogNoArguments
+    event_id = emitter_contract_event_ids.LogNoArguments
 
     eth_block_number = await async_w3.eth.block_number
     assert eth_block_number == 2
@@ -146,13 +142,13 @@ async def test_async_contract_get_logs_range(
     assert len(log_entries) == 1
 
     contract_logs = await contract.events.LogNoArguments.get_logs(
-        from_block=2, to_block=3
+        fromBlock=2, toBlock=3
     )
     log_entries = list(contract_logs)
     assert len(log_entries) == 1
 
     contract_logs = await contract.events.LogNoArguments.get_logs(
-        from_block=1, to_block=2
+        fromBlock=1, toBlock=2
     )
     log_entries = list(contract_logs)
     assert len(log_entries) == 0
@@ -160,13 +156,13 @@ async def test_async_contract_get_logs_range(
 
 @pytest.mark.asyncio
 async def test_async_contract_get_logs_argument_filter(
-    async_w3, async_emitter, async_wait_for_transaction, emitter_event_ids
+    async_w3, async_emitter, async_wait_for_transaction, emitter_contract_event_ids
 ):
 
     contract = async_emitter
 
     txn_hashes = []
-    event_id = emitter_event_ids.LogTripleWithIndex
+    event_id = emitter_contract_event_ids.LogTripleWithIndex
     # 1 = arg0
     # 4 = arg1
     # 1 = arg2
@@ -185,19 +181,19 @@ async def test_async_contract_get_logs_argument_filter(
     for txn_hash in txn_hashes:
         await async_wait_for_transaction(async_w3, txn_hash)
 
-    all_logs = await contract.events.LogTripleWithIndex.get_logs(from_block=1)
+    all_logs = await contract.events.LogTripleWithIndex.get_logs(fromBlock=1)
     assert len(all_logs) == 4
 
     # Filter all entries where arg1 in (1, 2)
     partial_logs = await contract.events.LogTripleWithIndex.get_logs(
-        from_block=1,
+        fromBlock=1,
         argument_filters={"arg1": [1, 2]},
     )
     assert len(partial_logs) == 2
 
     # Filter all entries where arg0 == 1
     partial_logs = await contract.events.LogTripleWithIndex.get_logs(
-        from_block=1,
+        fromBlock=1,
         argument_filters={"arg0": 1},
     )
     assert len(partial_logs) == 4

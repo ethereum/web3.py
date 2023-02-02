@@ -52,7 +52,7 @@ from eth_utils import (
 )
 
 from web3._utils.abi import (
-    build_default_registry,
+    build_non_strict_registry,
     build_strict_registry,
     map_abi_data,
 )
@@ -163,6 +163,8 @@ def get_default_modules() -> Dict[str, Union[Type[Module], Sequence[Any]]]:
 
 
 class Web3:
+    _strict_bytes_type_checking = True
+
     # Providers
     HTTPProvider = HTTPProvider
     IPCProvider = IPCProvider
@@ -250,9 +252,7 @@ class Web3:
         ens: Union[ENS, AsyncENS, "Empty"] = empty,
     ) -> None:
         self.manager = self.RequestManager(self, provider, middlewares)
-        # this codec gets used in the module initialization,
-        # so it needs to come before attach_modules
-        self.codec = ABICodec(build_default_registry())
+        self.codec = ABICodec(build_strict_registry())
 
         if modules is None:
             modules = (
@@ -289,6 +289,19 @@ class Web3:
         from web3 import __version__
 
         return __version__
+
+    @property
+    def strict_bytes_type_checking(self) -> bool:
+        return self._strict_bytes_type_checking
+
+    @strict_bytes_type_checking.setter
+    def strict_bytes_type_checking(self, strict_bytes_type_check: bool) -> None:
+        self.codec = (
+            ABICodec(build_strict_registry())
+            if strict_bytes_type_check
+            else ABICodec(build_non_strict_registry())
+        )
+        self._strict_bytes_type_checking = strict_bytes_type_check
 
     @staticmethod
     @apply_to_return_value(HexBytes)
@@ -354,14 +367,20 @@ class Web3:
     @property
     def ens(self) -> Union[ENS, AsyncENS, "Empty"]:
         if self._ens is empty:
-            return (
-                AsyncENS.from_web3(self) if self.eth.is_async else ENS.from_web3(self)
+            ns = (
+                AsyncENS.from_web3(self)
+                if self.provider.is_async
+                else ENS.from_web3(self)
             )
+            ns.w3 = self  # set self object reference for ``ENS.w3``
+            return cast(AsyncENS, ns) if self.provider.is_async else cast(ENS, ns)
 
         return self._ens
 
     @ens.setter
     def ens(self, new_ens: Union[ENS, AsyncENS, "Empty"]) -> None:
+        if new_ens:
+            new_ens.w3 = self  # set self object reference for ``ENS.w3``
         self._ens = new_ens
 
     @property
@@ -382,6 +401,3 @@ class Web3:
 
         if not hasattr(self, "_pm"):
             self.attach_modules({"_pm": PM})
-
-    def enable_strict_bytes_type_checking(self) -> None:
-        self.codec = ABICodec(build_strict_registry())

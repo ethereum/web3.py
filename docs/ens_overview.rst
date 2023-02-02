@@ -32,7 +32,8 @@ Create an :class:`~ens.ENS` object (named ``ns`` below) in one of three ways:
     ns = ENS(provider)
 
     # or, with a w3 instance
-    # Note: This inherits the w3 middlewares from the w3 instance and adds a stalecheck middleware to the middleware onion
+    # Note: This inherits the w3 middlewares from the w3 instance and adds a stalecheck middleware to the middleware onion.
+    # It also inherits the provider and codec from the w3 instance, as well as the ``strict_bytes_type_checking`` flag value.
     from ens import ENS
     w3 = Web3(...)
     ns = ENS.from_web3(w3)
@@ -47,7 +48,7 @@ Asynchronous support is available via the ``AsyncENS`` module:
     ns = AsyncENS(provider)
 
 
-Note that an ``ens`` module instance is also avaliable on the ``w3`` instance.
+Note that an ``ens`` module instance is also available on the ``w3`` instance.
 The first time it's used, Web3.py will create the  ``ens`` instance using
 ``ENS.from_web3(w3)`` or ``AsyncENS.from_web3(w3)`` as appropriate.
 
@@ -59,6 +60,77 @@ The first time it's used, Web3.py will create the  ``ens`` instance using
 
     # use the module
     w3.ens.address('ethereum.eth')
+
+
+.. py:attribute:: ens.strict_bytes_type_checking
+
+    The ``ENS`` instance has a ``strict_bytes_type_checking`` flag that toggles the flag
+    with the same name on the ``Web3`` instance attached to the ``ENS`` instance.
+    You may disable the stricter bytes type checking that is loaded by default using
+    this flag. For more examples, see :ref:`disable-strict-byte-check`
+
+    If instantiating a standalone ENS instance using ``ENS.from_web3()``, the ENS
+    instance will inherit the value of the flag on the Web3 instance at time of
+    instantiation.
+
+    .. doctest::
+
+        >>> from web3 import Web3, EthereumTesterProvider
+        >>> from ens import ENS
+        >>> w3 = Web3(EthereumTesterProvider())
+
+        >>> assert w3.strict_bytes_type_checking  # assert strict by default
+        >>> w3.is_encodable('bytes2', b'1')
+        False
+
+        >>> w3.strict_bytes_type_checking = False
+        >>> w3.is_encodable('bytes2', b'1')  # zero-padded, so encoded to: b'1\x00'
+        True
+
+        >>> ns = ENS.from_web3(w3)
+        >>> # assert inherited from w3 at time of instantiation via ENS.from_web3()
+        >>> assert ns.strict_bytes_type_checking is False
+        >>> ns.w3.is_encodable('bytes2', b'1')
+        True
+
+        >>> # assert these are now separate instances
+        >>> ns.strict_bytes_type_checking = True
+        >>> ns.w3.is_encodable('bytes2', b'1')
+        False
+
+        >>> # assert w3 flag value remains
+        >>> assert w3.strict_bytes_type_checking is False
+        >>> w3.is_encodable('bytes2', b'1')
+        True
+
+    However, if accessing the ``ENS`` class via the ``Web3`` instance as a module
+    (``w3.ens``), since all modules use the same ``Web3`` object reference
+    under the the hood (the parent ``w3`` object), changing the
+    ``strict_bytes_type_checking`` flag value on ``w3`` also changes the flag state
+    for ``w3.ens.w3`` and all modules.
+
+    .. doctest::
+
+        >>> from web3 import Web3, EthereumTesterProvider
+        >>> w3 = Web3(EthereumTesterProvider())
+
+        >>> assert w3.strict_bytes_type_checking  # assert strict by default
+        >>> w3.is_encodable('bytes2', b'1')
+        False
+
+        >>> w3.strict_bytes_type_checking = False
+        >>> w3.is_encodable('bytes2', b'1')  # zero-padded, so encoded to: b'1\x00'
+        True
+
+        >>> assert w3 == w3.ens.w3  # assert same object
+        >>> assert not w3.ens.w3.strict_bytes_type_checking
+        >>> w3.ens.w3.is_encodable('bytes2', b'1')
+        True
+
+        >>> # sanity check on eth module as well
+        >>> assert not w3.eth.w3.strict_bytes_type_checking
+        >>> w3.eth.w3.is_encodable('bytes2', b'1')
+        True
 
 
 Usage

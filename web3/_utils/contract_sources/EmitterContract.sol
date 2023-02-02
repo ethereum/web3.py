@@ -1,11 +1,7 @@
-// This older version of the Emitter contract can be use to keep the strict bytes test against it while we work on
-// updating the strict bytes checking to be compatible with newer solidity versions.
-// # See: https://github.com/ethereum/web3.py/issues/2301
-
-pragma solidity ^0.4.21;
+pragma solidity >=0.8.0;
 
 
-contract Emitter {
+contract EmitterContract {
     event LogAnonymous() anonymous;
     event LogNoArguments();
     event LogSingleArg(uint arg0);
@@ -14,8 +10,6 @@ contract Emitter {
     event LogQuadrupleArg(uint arg0, uint arg1, uint arg2, uint arg3);
     event LogString(string v);
     event LogBytes(bytes v);
-
-    // Indexed
     event LogSingleWithIndex(uint indexed arg0);
     event LogSingleAnonymous(uint indexed arg0) anonymous;
     event LogDoubleWithIndex(uint arg0, uint indexed arg1);
@@ -26,6 +20,16 @@ contract Emitter {
     event LogListArgs(bytes2[] indexed arg0, bytes2[] arg1);
     event LogAddressIndexed(address indexed arg0, address arg1);
     event LogAddressNotIndexed(address arg0, address arg1);
+
+    struct NestedTestTuple {
+        uint c;
+    }
+    struct TestTuple {
+        uint a;
+        uint b;
+        NestedTestTuple nested;
+    }
+    event LogStructArgs(uint arg0, TestTuple arg1);
 
     enum WhichEvent {
         LogAnonymous,
@@ -45,7 +49,8 @@ contract Emitter {
         LogDynamicArgs,
         LogListArgs,
         LogAddressIndexed,
-        LogAddressNotIndexed
+        LogAddressNotIndexed,
+        LogStructArgs
     }
 
     function logNoArgs(WhichEvent which) public {
@@ -80,11 +85,11 @@ contract Emitter {
         else revert("Didn't match any allowable event index");
     }
 
-    function logDynamicArgs(string arg0, string arg1) public {
+    function logDynamicArgs(string memory arg0, string memory arg1) public {
         emit LogDynamicArgs(arg0, arg1);
     }
 
-    function logListArgs(bytes2[] arg0, bytes2[] arg1) public {
+    function logListArgs(bytes2[] memory arg0, bytes2[] memory arg1) public {
         emit LogListArgs(arg0, arg1);
     }
 
@@ -96,11 +101,16 @@ contract Emitter {
         emit LogAddressNotIndexed(arg0, arg1);
     }
 
-    function logBytes(bytes v) public {
+    function logBytes(bytes memory v) public {
         emit LogBytes(v);
     }
 
-    function logString(string v) public {
+    function logString(string memory v) public {
         emit LogString(v);
     }
+
+    function logStruct(uint arg0, TestTuple memory arg1) public {
+        emit LogStructArgs(arg0, arg1);
+    }
 }
+

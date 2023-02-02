@@ -5,6 +5,7 @@ from typing import (
 )
 
 from web3._utils.abi import (
+    ExactLengthBytesEncoder,
     abi_data_tree,
     get_aligned_abi_inputs,
     get_tuple_type_str_parts,
@@ -350,3 +351,9 @@ def test_abi_data_tree(types, data, expected):
 )
 def test_map_abi_data(types, data, funcs, expected):
     assert map_abi_data(funcs, types, data) == expected
+
+
+@pytest.mark.parametrize("arg", (6, 7, 9, 12, 20, 30))
+def test_exact_length_bytes_encoder_raises_on_non_multiples_of_8_bit_size(arg):
+    with pytest.raises(ValueError, match="multiple of 8"):
+        _ = ExactLengthBytesEncoder(None, data_byte_size=2, value_bit_size=arg)

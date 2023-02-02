@@ -1,20 +1,20 @@
 import asyncio
 import pytest
 
-from web3._utils.module_testing.emitter_contract import (
-    CONTRACT_EMITTER_ABI,
-    CONTRACT_EMITTER_CODE,
+from web3._utils.contract_sources.contract_data.emitter_contract import (
+    EMITTER_CONTRACT_ABI,
+    EMITTER_CONTRACT_BYTECODE,
 )
-from web3._utils.module_testing.math_contract import (
-    MATH_ABI,
-    MATH_BYTECODE,
+from web3._utils.contract_sources.contract_data.math_contract import (
+    MATH_CONTRACT_ABI,
+    MATH_CONTRACT_BYTECODE,
 )
-from web3._utils.module_testing.offchain_lookup_contract import (
+from web3._utils.contract_sources.contract_data.offchain_lookup import (
     OFFCHAIN_LOOKUP_ABI,
     OFFCHAIN_LOOKUP_BYTECODE,
 )
-from web3._utils.module_testing.revert_contract import (
-    _REVERT_CONTRACT_ABI,
+from web3._utils.contract_sources.contract_data.revert_contract import (
+    REVERT_CONTRACT_ABI,
     REVERT_CONTRACT_BYTECODE,
 )
 
@@ -58,14 +58,16 @@ def pytest_collection_modifyitems(items, config):
 
 @pytest.fixture(scope="module")
 def math_contract_factory(w3):
-    contract_factory = w3.eth.contract(abi=MATH_ABI, bytecode=MATH_BYTECODE)
+    contract_factory = w3.eth.contract(
+        abi=MATH_CONTRACT_ABI, bytecode=MATH_CONTRACT_BYTECODE
+    )
     return contract_factory
 
 
 @pytest.fixture(scope="module")
 def emitter_contract_factory(w3):
     contract_factory = w3.eth.contract(
-        abi=CONTRACT_EMITTER_ABI, bytecode=CONTRACT_EMITTER_CODE
+        abi=EMITTER_CONTRACT_ABI, bytecode=EMITTER_CONTRACT_BYTECODE
     )
     return contract_factory
 
@@ -73,7 +75,7 @@ def emitter_contract_factory(w3):
 @pytest.fixture(scope="module")
 def revert_contract_factory(w3):
     contract_factory = w3.eth.contract(
-        abi=_REVERT_CONTRACT_ABI, bytecode=REVERT_CONTRACT_BYTECODE
+        abi=REVERT_CONTRACT_ABI, bytecode=REVERT_CONTRACT_BYTECODE
     )
     return contract_factory
 

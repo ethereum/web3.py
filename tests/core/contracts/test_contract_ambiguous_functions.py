@@ -45,13 +45,13 @@ AMBIGUOUS_CONTRACT_ABI = [
 ]
 
 
-@pytest.fixture()
-def string_contract(w3, StringContract, address_conversion_func):
-    deploy_txn = StringContract.constructor("Caqalai").transact()
+@pytest.fixture
+def string_contract(w3, string_contract_factory, address_conversion_func):
+    deploy_txn = string_contract_factory.constructor("Caqalai").transact()
     deploy_receipt = w3.eth.wait_for_transaction_receipt(deploy_txn)
     assert deploy_receipt is not None
     contract_address = address_conversion_func(deploy_receipt["contractAddress"])
-    contract = StringContract(address=contract_address)
+    contract = string_contract_factory(address=contract_address)
     assert contract.address == contract_address
     assert len(w3.eth.get_code(contract.address)) > 0
     return contract

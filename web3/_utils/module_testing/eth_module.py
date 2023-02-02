@@ -712,7 +712,9 @@ class AsyncEthModuleTest:
 
     @pytest.mark.asyncio
     async def test_eth_get_code_invalid_address(
-        self, async_w3: "Web3", math_contract: "Contract"
+        self,
+        async_w3: "Web3",
+        math_contract: "Contract",
     ) -> None:
         with pytest.raises(InvalidAddress):
             await async_w3.eth.get_code(  # type: ignore
@@ -3400,7 +3402,7 @@ class EthModuleTest:
         block_num = start_block["number"]
         block_hash = start_block["hash"]
 
-        math_contract.functions.increment().transact({"from": unlocked_account})
+        math_contract.functions.incrementCounter().transact({"from": unlocked_account})
 
         # This isn't an incredibly convincing test since we can't mine, and
         # the default resolved block is latest, So if block_identifier was ignored

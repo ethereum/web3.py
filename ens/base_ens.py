@@ -38,6 +38,14 @@ class BaseENS:
     _resolver_contract: Union[Type["Contract"], Type["AsyncContract"]] = None
     _reverse_resolver_contract: Union[Type["Contract"], Type["AsyncContract"]] = None
 
+    @property
+    def strict_bytes_type_checking(self) -> bool:
+        return self.w3.strict_bytes_type_checking
+
+    @strict_bytes_type_checking.setter
+    def strict_bytes_type_checking(self, strict_bytes_type_check: bool) -> None:
+        self.w3.strict_bytes_type_checking = strict_bytes_type_check
+
     @staticmethod
     @wraps(label_to_hash)
     def labelhash(label: str) -> HexBytes:

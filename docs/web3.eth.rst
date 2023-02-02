@@ -1453,7 +1453,7 @@ Contracts
     - ``src_map_runtime``
     - ``user_doc``
 
-    See :doc:`./contracts` for more information about how to use contracts.
+    See :doc:`web3.contract` for more information about how to use contracts.
 
 .. py:method:: Eth.set_contract_factory(contractFactoryClass)
 
