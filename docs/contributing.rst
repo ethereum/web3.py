@@ -286,9 +286,13 @@ filename with the ``-f`` (or ``--filename``) argument flag.
     Compiling OffchainLookup.sol
     reformatted ...
 
-If there is any contract data that is not generated via the script but is is important
-to pass on to the test suites, the ``_custom_data.py`` can be used to store that
-information.
+If there is any contract data that is not generated via the script but is important
+to pass on to the integration tests, the ``_custom_contract_data.py`` file within the
+``contract_data`` subdirectory can be used to store that information when appropriate.
+
+Be sure to re-generate the integration test fixture after running the script to update
+the contract bytecodes for the integration test suite - see the
+:ref:`generating_fixtures` section below.
 
 
 Manual Testing
@@ -334,6 +338,7 @@ notes, please add a **newsfragment** file as explained
 If possible, the change to the release notes file should be included in the
 commit that introduces the feature or bugfix.
 
+.. _generating_fixtures:
 
 Generating New Fixtures
 ~~~~~~~~~~~~~~~~~~~~~~~
