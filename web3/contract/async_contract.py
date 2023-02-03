@@ -414,8 +414,8 @@ class AsyncContractEvent(BaseContractEvent):
         )
 
         # Convert raw binary data to Python proxy objects as described by ABI
-        return tuple(
-            get_event_data(self.w3.codec, abi, entry) for entry in logs  # type: ignore
+        return tuple(  # type: ignore
+            get_event_data(self.w3.codec, abi, entry) for entry in logs
         )
 
     @combomethod

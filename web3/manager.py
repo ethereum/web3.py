@@ -40,6 +40,7 @@ from web3.exceptions import (
 )
 from web3.middleware import (
     abi_middleware,
+    async_attrdict_middleware,
     async_buffered_gas_estimate_middleware,
     async_gas_price_strategy_middleware,
     async_validation_middleware,
@@ -115,7 +116,7 @@ class RequestManager:
 
         if middlewares is None:
             middlewares = (
-                self.async_default_middlewares(w3)
+                self.async_default_middlewares()
                 if self.provider.is_async
                 else self.default_middlewares(w3)
             )
@@ -143,7 +144,7 @@ class RequestManager:
             (request_parameter_normalizer, "request_param_normalizer"),  # Delete
             (gas_price_strategy_middleware, "gas_price_strategy"),
             (name_to_address_middleware(w3), "name_to_address"),  # Add Async
-            (attrdict_middleware, "attrdict"),  # Delete
+            (attrdict_middleware, "attrdict"),
             (pythonic_middleware, "pythonic"),  # Delete
             (validation_middleware, "validation"),
             (abi_middleware, "abi"),  # Delete
@@ -151,12 +152,13 @@ class RequestManager:
         ]
 
     @staticmethod
-    def async_default_middlewares(w3: "Web3") -> List[Tuple[Middleware, str]]:
+    def async_default_middlewares() -> List[Tuple[Middleware, str]]:
         """
         List the default async middlewares for the request manager.
         """
         return [
             (async_gas_price_strategy_middleware, "gas_price_strategy"),
+            (async_attrdict_middleware, "attrdict"),
             (async_validation_middleware, "validation"),
             (async_buffered_gas_estimate_middleware, "gas_estimate"),
         ]

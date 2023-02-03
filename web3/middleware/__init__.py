@@ -6,9 +6,6 @@ from typing import (
     Sequence,
 )
 
-from web3.middleware.async_cache import (  # noqa: F401
-    _async_simple_cache_middleware as async_simple_cache_middleware,
-)
 from web3.types import (
     Middleware,
     RPCEndpoint,
@@ -18,7 +15,11 @@ from web3.types import (
 from .abi import (  # noqa: F401
     abi_middleware,
 )
+from .async_cache import (  # noqa: F401
+    _async_simple_cache_middleware as async_simple_cache_middleware,
+)
 from .attrdict import (  # noqa: F401
+    async_attrdict_middleware,
     attrdict_middleware,
 )
 from .buffered_gas_estimate import (  # noqa: F401

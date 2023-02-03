@@ -1,0 +1,1 @@
+``dict`` to ``AttributeDict`` conversion is no longer a default result formatter. This conversion is now done via a default middleware that may be removed.
