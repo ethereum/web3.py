@@ -758,6 +758,10 @@ def raise_contract_logic_error_on_revert(response: RPCResponse) -> RPCResponse:
         raise OffchainLookup(offchain_lookup_payload)
 
     # Geth case:
+    if len(data) >= 10 and not data[:10] == "0x08c379a0":  # custom error processing
+        # raising along with the data value to allow processing in user code
+        raise ContractCustomError(data)
+
     if "message" in response["error"] and response["error"].get("code", "") == 3:
         raise ContractLogicError(response["error"]["message"])
 
