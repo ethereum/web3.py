@@ -32,7 +32,6 @@ from eth_utils.curried import (
     is_0x_prefixed,
     is_address,
     is_bytes,
-    is_dict,
     is_integer,
     is_null,
     is_string,
@@ -88,6 +87,7 @@ from web3._utils.rpc_abi import (
 )
 from web3.datastructures import (
     AttributeDict,
+    ReadableAttributeDict,
 )
 from web3.exceptions import (
     BlockNotFound,
@@ -155,6 +155,19 @@ def is_attrdict(val: Any) -> bool:
 not_attrdict = complement(is_attrdict)
 
 
+@curry
+def type_aware_apply_formatters_to_dict(
+    formatters: Formatters,
+    value: Union[AttributeDict[str, Any], Dict[str, Any]],
+) -> Union[ReadableAttributeDict[str, Any], Dict[str, Any]]:
+    formatted_dict: Dict[str, Any] = apply_formatters_to_dict(formatters, dict(value))
+    return (
+        AttributeDict.recursive(formatted_dict)
+        if is_attrdict(value)
+        else formatted_dict
+    )
+
+
 TRANSACTION_RESULT_FORMATTERS = {
     "blockHash": apply_formatter_if(is_not_null, to_hexbytes(32)),
     "blockNumber": apply_formatter_if(is_not_null, to_integer_if_hex),
@@ -179,7 +192,9 @@ TRANSACTION_RESULT_FORMATTERS = {
 }
 
 
-transaction_result_formatter = apply_formatters_to_dict(TRANSACTION_RESULT_FORMATTERS)
+transaction_result_formatter = type_aware_apply_formatters_to_dict(
+    TRANSACTION_RESULT_FORMATTERS
+)
 
 
 def apply_list_to_array_formatter(formatter: Any) -> Callable[..., Any]:
@@ -198,7 +213,7 @@ LOG_ENTRY_FORMATTERS = {
 }
 
 
-log_entry_formatter = apply_formatters_to_dict(LOG_ENTRY_FORMATTERS)
+log_entry_formatter = type_aware_apply_formatters_to_dict(LOG_ENTRY_FORMATTERS)
 
 
 RECEIPT_FORMATTERS = {
@@ -219,7 +234,7 @@ RECEIPT_FORMATTERS = {
 }
 
 
-receipt_formatter = apply_formatters_to_dict(RECEIPT_FORMATTERS)
+receipt_formatter = type_aware_apply_formatters_to_dict(RECEIPT_FORMATTERS)
 
 BLOCK_FORMATTERS = {
     "baseFeePerGas": to_integer_if_hex,
@@ -256,7 +271,7 @@ BLOCK_FORMATTERS = {
 }
 
 
-block_formatter = apply_formatters_to_dict(BLOCK_FORMATTERS)
+block_formatter = type_aware_apply_formatters_to_dict(BLOCK_FORMATTERS)
 
 
 SYNCING_FORMATTERS = {
@@ -268,7 +283,7 @@ SYNCING_FORMATTERS = {
 }
 
 
-syncing_formatter = apply_formatters_to_dict(SYNCING_FORMATTERS)
+syncing_formatter = type_aware_apply_formatters_to_dict(SYNCING_FORMATTERS)
 
 
 TRANSACTION_POOL_CONTENT_FORMATTERS = {
@@ -283,7 +298,7 @@ TRANSACTION_POOL_CONTENT_FORMATTERS = {
 }
 
 
-transaction_pool_content_formatter = apply_formatters_to_dict(
+transaction_pool_content_formatter = type_aware_apply_formatters_to_dict(
     TRANSACTION_POOL_CONTENT_FORMATTERS
 )
 
@@ -294,7 +309,7 @@ TRANSACTION_POOL_INSPECT_FORMATTERS = {
 }
 
 
-transaction_pool_inspect_formatter = apply_formatters_to_dict(
+transaction_pool_inspect_formatter = type_aware_apply_formatters_to_dict(
     TRANSACTION_POOL_INSPECT_FORMATTERS
 )
 
@@ -308,7 +323,7 @@ FEE_HISTORY_FORMATTERS = {
     ),
 }
 
-fee_history_formatter = apply_formatters_to_dict(FEE_HISTORY_FORMATTERS)
+fee_history_formatter = type_aware_apply_formatters_to_dict(FEE_HISTORY_FORMATTERS)
 
 STORAGE_PROOF_FORMATTERS = {
     "key": HexBytes,
@@ -324,11 +339,11 @@ ACCOUNT_PROOF_FORMATTERS = {
     "nonce": to_integer_if_hex,
     "storageHash": to_hexbytes(32),
     "storageProof": apply_list_to_array_formatter(
-        apply_formatters_to_dict(STORAGE_PROOF_FORMATTERS)
+        type_aware_apply_formatters_to_dict(STORAGE_PROOF_FORMATTERS)
     ),
 }
 
-proof_formatter = apply_formatters_to_dict(ACCOUNT_PROOF_FORMATTERS)
+proof_formatter = type_aware_apply_formatters_to_dict(ACCOUNT_PROOF_FORMATTERS)
 
 FILTER_PARAMS_FORMATTERS = {
     "fromBlock": apply_formatter_if(is_integer, integer_to_hex),
@@ -336,7 +351,7 @@ FILTER_PARAMS_FORMATTERS = {
 }
 
 
-filter_params_formatter = apply_formatters_to_dict(FILTER_PARAMS_FORMATTERS)
+filter_params_formatter = type_aware_apply_formatters_to_dict(FILTER_PARAMS_FORMATTERS)
 
 
 filter_result_formatter = apply_one_of_formatters(
@@ -351,7 +366,9 @@ TRANSACTION_REQUEST_FORMATTERS = {
     "maxPriorityFeePerGas": to_hex_if_integer,
 }
 
-transaction_request_formatter = apply_formatters_to_dict(TRANSACTION_REQUEST_FORMATTERS)
+transaction_request_formatter = type_aware_apply_formatters_to_dict(
+    TRANSACTION_REQUEST_FORMATTERS
+)
 transaction_param_formatter = compose(
     remove_key_if("to", lambda txn: txn["to"] in {"", b"", None}),
     remove_key_if("gasPrice", lambda txn: txn["gasPrice"] in {"", b"", None}),
@@ -398,22 +415,22 @@ SIGNED_TX_FORMATTER = {
     "tx": transaction_result_formatter,
 }
 
-signed_tx_formatter = apply_formatters_to_dict(SIGNED_TX_FORMATTER)
+signed_tx_formatter = type_aware_apply_formatters_to_dict(SIGNED_TX_FORMATTER)
 
-FILTER_PARAM_NORMALIZERS = apply_formatters_to_dict(
+FILTER_PARAM_NORMALIZERS = type_aware_apply_formatters_to_dict(
     {"address": apply_formatter_if(is_string, lambda x: [x])}
 )
 
 
 GETH_WALLET_FORMATTER = {"address": to_checksum_address}
 
-geth_wallet_formatter = apply_formatters_to_dict(GETH_WALLET_FORMATTER)
+geth_wallet_formatter = type_aware_apply_formatters_to_dict(GETH_WALLET_FORMATTER)
 
 GETH_WALLETS_FORMATTER = {
     "accounts": apply_list_to_array_formatter(geth_wallet_formatter),
 }
 
-geth_wallets_formatter = apply_formatters_to_dict(GETH_WALLETS_FORMATTER)
+geth_wallets_formatter = type_aware_apply_formatters_to_dict(GETH_WALLETS_FORMATTER)
 
 
 PYTHONIC_REQUEST_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
@@ -554,10 +571,6 @@ PYTHONIC_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     RPC.evm_snapshot: hex_to_integer,
     # Net
     RPC.net_peerCount: to_integer_if_hex,
-}
-
-ATTRDICT_FORMATTER = {
-    "*": apply_formatter_if(is_dict and not_attrdict, AttributeDict.recursive)
 }
 
 METHOD_NORMALIZERS: Dict[RPCEndpoint, Callable[..., Any]] = {
@@ -820,10 +833,7 @@ def get_result_formatters(
     partial_formatters = apply_module_to_formatters(
         formatters_requiring_module, module, method_name
     )
-    attrdict_formatter = apply_formatter_if(
-        is_dict and not_attrdict, AttributeDict.recursive
-    )
-    return compose(*partial_formatters, attrdict_formatter, *formatters)
+    return compose(*partial_formatters, *formatters)
 
 
 def get_error_formatters(

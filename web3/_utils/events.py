@@ -208,7 +208,9 @@ def get_event_abi_types_for_decoding(
 
 @curry
 def get_event_data(
-    abi_codec: ABICodec, event_abi: ABIEvent, log_entry: LogReceipt
+    abi_codec: ABICodec,
+    event_abi: ABIEvent,
+    log_entry: LogReceipt,
 ) -> EventData:
     """
     Given an event ABI and a log entry for that event, return the decoded
@@ -269,18 +271,21 @@ def get_event_data(
         )
     )
 
-    event_data = {
-        "args": event_args,
-        "event": event_abi["name"],
-        "logIndex": log_entry["logIndex"],
-        "transactionIndex": log_entry["transactionIndex"],
-        "transactionHash": log_entry["transactionHash"],
-        "address": log_entry["address"],
-        "blockHash": log_entry["blockHash"],
-        "blockNumber": log_entry["blockNumber"],
-    }
+    event_data = EventData(
+        args=event_args,
+        event=event_abi["name"],
+        logIndex=log_entry["logIndex"],
+        transactionIndex=log_entry["transactionIndex"],
+        transactionHash=log_entry["transactionHash"],
+        address=log_entry["address"],
+        blockHash=log_entry["blockHash"],
+        blockNumber=log_entry["blockNumber"],
+    )
 
-    return cast(EventData, AttributeDict.recursive(event_data))
+    if isinstance(log_entry, AttributeDict):
+        return cast(EventData, AttributeDict.recursive(event_data))
+
+    return event_data
 
 
 @to_tuple
