@@ -1,4 +1,4 @@
-# Web3.py on FreeBSD (11.2)
+# web3.py on FreeBSD (11.2)
 
 ## Developer Setup
 

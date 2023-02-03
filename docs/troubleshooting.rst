@@ -42,11 +42,11 @@ Often, the best way to guarantee a correct environment is with ``virtualenv``, l
 Why can't I use a particular function?
 --------------------------------------
 
-Note that a Web3.py instance must be configured before you can use most of its capabilities.
+Note that a web3.py instance must be configured before you can use most of its capabilities.
 One symptom of not configuring the instance first is an error that looks something like this:
 ``AttributeError: type object 'Web3' has no attribute 'eth'``.
 
-To properly configure your Web3.py instance, specify which provider you're using to connect to the
+To properly configure your web3.py instance, specify which provider you're using to connect to the
 Ethereum network. An example configuration, if you're connecting to a locally run node, might be:
 
 .. code-block:: python
@@ -82,13 +82,13 @@ If that does not address your issue, it's probable that you still have a
 Provider configuration issue. There are several options for configuring
 a Provider, detailed :ref:`here<providers>`.
 
-How do I use my MetaMask accounts from Web3.py?
+How do I use my MetaMask accounts from web3.py?
 -----------------------------------------------
-Often you don't need to do this, just make a new account in Web3.py,
+Often you don't need to do this, just make a new account in web3.py,
 and transfer funds from your MetaMask account into it. But if you must...
 
 Export your private key from MetaMask, and use
-the local private key tools in Web3.py to sign and send transactions.
+the local private key tools in web3.py to sign and send transactions.
 
 See `how to export your private key
 <https://ethereum.stackexchange.com/questions/33053/what-is-a-private-key-in-an-ethereum-wallet-like-metamask-and-how-do-i-find-it>`_
@@ -148,7 +148,7 @@ Your Ethereum node JSON-RPC API might be slow when fetching multiple and large r
 
 - Use IPC communication instead of HTTP/WebSockets. See :ref:`choosing_provider`.
 
-- Use an optimised JSON decoder. A future iteration of Web3.py may change the default decoder or provide an API to configure one, but for now, you may patch the provider class to use `ujson <https://pypi.org/project/ujson/>`_.
+- Use an optimised JSON decoder. A future iteration of web3.py may change the default decoder or provide an API to configure one, but for now, you may patch the provider class to use `ujson <https://pypi.org/project/ujson/>`_.
 
 .. code-block:: python
 
@@ -181,7 +181,7 @@ Why am I getting Visual C++ or Cython not installed error?
 ----------------------------------------------------------
 
 Some Windows users that do not have Microsoft Visual C++ version 14.0 or greater installed may see an error message
-when installing Web3.py as shown below:
+when installing web3.py as shown below:
 
 .. code-block:: shell
 

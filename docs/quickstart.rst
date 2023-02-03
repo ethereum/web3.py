@@ -12,7 +12,7 @@ Quickstart
 Installation
 ------------
 
-Web3.py can be installed (preferably in a :ref:`virtualenv <setup_environment>`)
+web3.py can be installed (preferably in a :ref:`virtualenv <setup_environment>`)
 using ``pip`` as follows:
 
 .. code-block:: shell
@@ -40,7 +40,7 @@ Test Provider
 If you're just learning the ropes or doing some quick prototyping, you can use a test
 provider, `eth-tester <https://github.com/ethereum/eth-tester>`_. This provider includes
 some accounts prepopulated with test ether and instantly includes each transaction into a block.
-Web3.py makes this test provider available via ``EthereumTesterProvider``.
+web3.py makes this test provider available via ``EthereumTesterProvider``.
 
 .. note::
 
@@ -105,7 +105,7 @@ This endpoint is provided by the remote node service after you create an account
 Getting Blockchain Info
 -----------------------
 
-It's time to start using Web3.py! Once properly configured, the ``w3`` instance will allow you
+It's time to start using web3.py! Once properly configured, the ``w3`` instance will allow you
 to interact with the Ethereum blockchain. Try getting all the information about the latest block:
 
 .. code-block:: python
@@ -132,7 +132,7 @@ to interact with the Ethereum blockchain. Try getting all the information about 
      'transactionsRoot': HexBytes('0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421'),
      'uncles': []}
 
-Web3.py can help you read block data, sign and send transactions, deploy and interact with contracts,
+web3.py can help you read block data, sign and send transactions, deploy and interact with contracts,
 and a number of other features.
 
 Many of the typical things you'll want to do will be in the :class:`w3.eth <web3.eth.Eth>` API,

@@ -67,7 +67,7 @@ account you can just generate a random number that acts as a private key.
 
 - Private keys do not have checksums.
 
-To create a private key using Web3.py and command line you can do:
+To create a private key using web3.py and command line you can do:
 
 ```shell
 python -c "from web3 import Web3; w3 = Web3(); acc = w3.eth.account.create(); print(f'private key={w3.toHex(acc.privateKey)}, account={acc.address}')"

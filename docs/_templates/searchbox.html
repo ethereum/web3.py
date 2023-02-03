@@ -1,6 +1,11 @@
 {%- if 'singlehtml' not in builder %}
 <div role="search">
-  <form id="rtd-search-form" class="wy-form" action="{{ pathto('search') }}" method="get">
+  <form
+    id="rtd-search-form"
+    class="wy-form"
+    action="{{ pathto('search') }}"
+    method="get"
+  >
     <input type="text" name="q" placeholder="{{ _('Search docs') }}" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
@@ -10,7 +15,10 @@
 {# Include user survey banner under the search box #}
 <div class="search-banner-wrapper">
   <a href="https://forms.gle/Nt56JVeWgpXtJi5F6">
-    <img src="{{ pathto('_static/banner/user-survey.png', 1) }}" alt="Web3.py User Survey">
+    <img
+      src="{{ pathto('_static/banner/user-survey.png', 1) }}"
+      alt="web3.py User Survey"
+    />
   </a>
 </div>
 

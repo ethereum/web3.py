@@ -7,7 +7,7 @@ The Ethereum Name Service (ENS) is analogous to the Domain Name Service. It
 enables users and developers to use human-friendly names in place of error-prone
 hexadecimal addresses, content hashes, and more.
 
-The :mod:`ens` module is included with Web3.py. It provides an interface to look up
+The :mod:`ens` module is included with web3.py. It provides an interface to look up
 domains and addresses, add resolver records, or get and set metadata.
 
 Setup
@@ -49,7 +49,7 @@ Asynchronous support is available via the ``AsyncENS`` module:
 
 
 Note that an ``ens`` module instance is also available on the ``w3`` instance.
-The first time it's used, Web3.py will create the  ``ens`` instance using
+The first time it's used, web3.py will create the  ``ens`` instance using
 ``ENS.from_web3(w3)`` or ``AsyncENS.from_web3(w3)`` as appropriate.
 
 .. code-block:: python

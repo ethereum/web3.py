@@ -3,16 +3,16 @@
 Migrating your code from v5 to v6
 =================================
 
-Web3.py follows `Semantic Versioning <http://semver.org>`_, which means
+web3.py follows `Semantic Versioning <http://semver.org>`_, which means
 that version 6 introduced backwards-incompatible changes. If your
-project depends on Web3.py v6, then you'll probably need to make some changes.
+project depends on web3.py v6, then you'll probably need to make some changes.
 
 Breaking Changes:
 
 Strict Bytes Checking by Default
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Web3.py v6 moved to requiring strict bytes checking by default. This means that if an
+web3.py v6 moved to requiring strict bytes checking by default. This means that if an
 ABI specifies a ``bytes4`` argument, web3.py will invalidate any entry that is not
 encodable as a bytes type with length of 4. This means only 0x-prefixed hex strings with
 a length of 4 and bytes types with a length of 4 will be considered valid. This removes
@@ -28,7 +28,7 @@ method. This is now, however, a toggleable flag on the ``Web3`` instance via the
 Snake Case
 ~~~~~~~~~~
 
-Web3.py v6 moved to the more Pythonic convention of snake_casing wherever
+web3.py v6 moved to the more Pythonic convention of snake_casing wherever
 possible. There are some exceptions to this pattern:
 
 - Contract methods and events use whatever is listed in the ABI. If the smart contract
@@ -54,7 +54,7 @@ Exceptions
 Exceptions inherit from a base class
 ------------------------------------
 
-In v5, some Web3.py exceptions inherited from ``AttributeError``, namely:
+In v5, some web3.py exceptions inherited from ``AttributeError``, namely:
 
 - ``NoABIFunctionsFound``
 - ``NoABIFound``
@@ -67,10 +67,10 @@ Others inherited from ``ValueError``, namely:
 - ``LogTopicError``
 - ``InvalidEventABI``
 
-Now Web3.py exceptions inherit from the same base ``Web3Exception``.
+Now web3.py exceptions inherit from the same base ``Web3Exception``.
 
 As such, any code that was expecting a ``ValueError`` or an ``AttributeError`` from
-Web3.py must update to expecting one of the exceptions listed above, or
+web3.py must update to expecting one of the exceptions listed above, or
 ``Web3Exception``.
 
 Similarly, exceptions raised in the EthPM and ENS modules inherit from the base

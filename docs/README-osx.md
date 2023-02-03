@@ -1,4 +1,4 @@
-# Web3.py on OSX
+# web3.py on OSX
 
 ## Developer Setup
 

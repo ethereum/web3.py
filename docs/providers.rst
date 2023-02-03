@@ -9,7 +9,7 @@ request to an HTTP or IPC socket based server.
 
 .. note::
 
-   Web3.py supports one provider per instance. If you have an advanced use case
+   web3.py supports one provider per instance. If you have an advanced use case
    that requires multiple providers, create and configure a new web3 instance
    per connection.
 
@@ -32,7 +32,7 @@ The most common ways to connect to your node are:
 
 If you're not sure how to decide, choose this way:
 
-- If you have the option of running Web3.py on the same machine as the node, choose IPC.
+- If you have the option of running web3.py on the same machine as the node, choose IPC.
 - If you must connect to a node on a different computer, use Websockets.
 - If your node does not support Websockets, use HTTP.
 
@@ -42,7 +42,7 @@ This provides a safer setup: it reduces the
 number of ways that malicious hackers can try to steal your ether.
 
 Once you have decided how to connect, you specify the details using a Provider.
-Providers are Web3.py classes that are configured for the kind of connection you want.
+Providers are web3.py classes that are configured for the kind of connection you want.
 
 See:
 
@@ -63,7 +63,7 @@ Then you are ready to initialize your Web3 instance, like so:
 
     w3 = Web3(my_provider)
 
-Finally, you are ready to :ref:`get started with Web3.py<first_w3_use>`.
+Finally, you are ready to :ref:`get started with web3.py<first_w3_use>`.
 
 Provider via Environment Variable
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -193,7 +193,7 @@ There are a few options for making transactions:
 - :ref:`contract-functions`
 
   Use these methods if:
-    - you want to interact with a contract. Web3.py parses the contract ABI and makes those functions available via the ``functions`` property.
+    - you want to interact with a contract. web3.py parses the contract ABI and makes those functions available via the ``functions`` property.
 
 - :meth:`~web3.middleware.construct_sign_and_send_raw_middleware`
 
@@ -665,7 +665,7 @@ appropriately in the following way:
 Contract Unit Tests in Python
 -----------------------------
 
-Here is an example of how one can use the `pytest`_ framework in python, Web3.py,
+Here is an example of how one can use the `pytest`_ framework in python, web3.py,
 eth-tester, and PyEVM to perform unit tests entirely in python without any
 additional need for a full featured ethereum node/client. To install needed
 dependencies you can use the pinned extra for eth_tester in web3 and pytest:
@@ -734,7 +734,7 @@ Tip : afterwards you can use the value stored in ``txn_hash``, in an explorer li
 Adjusting log levels
 --------------------
 
-Web3.py internally uses `Python logging subsystem <https://docs.python.org/3/library/logging.html>`_.
+web3.py internally uses `Python logging subsystem <https://docs.python.org/3/library/logging.html>`_.
 
 If you want to run your application logging in debug mode, below is an example of how to make some JSON-RPC traffic quieter.
 
@@ -818,7 +818,7 @@ The script can be run with: ``python ./eventscanner.py <your JSON-RPC API URL>``
 
 .. code-block:: python
 
-    """A stateful event scanner for Ethereum-based blockchains using Web3.py.
+    """A stateful event scanner for Ethereum-based blockchains using web3.py.
 
     With the stateful mechanism, you can do one batch scan or incremental scans,
     where events are added wherever the scanner left off.
@@ -1182,7 +1182,7 @@ The script can be run with: ``python ./eventscanner.py <your JSON-RPC API URL>``
         if from_block is None:
             raise TypeError("Missing mandatory keyword argument to get_logs: from_block")
 
-        # Currently no way to poke this using a public Web3.py API.
+        # Currently no way to poke this using a public web3.py API.
         # This will return raw underlying ABI JSON object for the event
         abi = event._get_event_abi()
 

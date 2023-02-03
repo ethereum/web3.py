@@ -1,0 +1,1 @@
+Rebrand the library to lowercase "web3.py"

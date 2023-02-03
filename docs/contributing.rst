@@ -3,7 +3,7 @@
 Contributing
 ------------
 
-Thanks for your interest in contributing to Web3.py! Read on to learn what
+Thanks for your interest in contributing to web3.py! Read on to learn what
 would be helpful and how to go about it. If you get stuck along the way, reach
 for help in the `Python Discord server`_.
 
@@ -41,7 +41,7 @@ Your Development Environment
   for usage patterns.
 
 All pull requests are made from a fork of the repository; use the GitHub UI to create a fork.
-Web3.py depends on `submodules <https://gist.github.com/gitaarik/8735255>`_, so when you clone
+web3.py depends on `submodules <https://gist.github.com/gitaarik/8735255>`_, so when you clone
 your fork to your local machine, include the ``--recursive`` flag:
 
 .. code:: sh
@@ -298,7 +298,7 @@ the contract bytecodes for the integration test suite - see the
 Manual Testing
 ~~~~~~~~~~~~~~
 
-To import and test an unreleased version of Web3.py in another context,
+To import and test an unreleased version of web3.py in another context,
 you can install it from your development directory:
 
 .. code:: sh
@@ -357,7 +357,7 @@ Before generating new fixtures, make sure you have the test dependencies install
 
     A "fixture" is a pre-synced network. It's the result of configuring and running
     a client, deploying the test contracts, and saving the resulting state for
-    testing Web3.py functionality against.
+    testing web3.py functionality against.
 
 
 Geth Fixtures
@@ -407,7 +407,7 @@ an unstable client.
 
 4. Our CI runs on Ubuntu, so download the corresponding 64-bit Linux
    `develop build <https://geth.ethereum.org/downloads/>`_, then
-   add it to the root of your Web3.py directory. Rename the binary ``custom_geth``.
+   add it to the root of your web3.py directory. Rename the binary ``custom_geth``.
 
 5. In ``.circleci/config.yml``, update jobs relying on ``geth_steps``, to instead use ``custom_geth_steps``.
 

@@ -59,7 +59,7 @@ specification, refer to the
 Types by Example
 ----------------
 
-Let's use a contrived contract to demonstrate input types in Web3.py:
+Let's use a contrived contract to demonstrate input types in web3.py:
 
 .. code-block:: none
 

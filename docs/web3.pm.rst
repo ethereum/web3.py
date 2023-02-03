@@ -14,7 +14,7 @@ The ``web3.pm`` object exposes methods to interact with Packages as defined by `
    Now is a great time to get familiar with the API, and test out writing
    code that uses some of the great upcoming features.
 
-   By default, access to this module has been turned off in the stable version of Web3.py:
+   By default, access to this module has been turned off in the stable version of web3.py:
 
    .. code-block:: python
 
