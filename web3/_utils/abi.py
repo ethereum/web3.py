@@ -960,7 +960,7 @@ def dict_to_namedtuple(data: Dict[str, Any]) -> Tuple[Any, ...]:
     return recursive_map(to_tuple, data)
 
 
-def foldable_namedtuple(fields: Tuple[Any, ...]) -> Tuple[Any, ...]:
+def foldable_namedtuple(fields: Tuple[Any, ...]) -> Callable[..., Tuple[Any, ...]]:
     """
     Customized namedtuple such that `type(x)(x) == x`.
     """
@@ -972,7 +972,7 @@ def foldable_namedtuple(fields: Tuple[Any, ...]) -> Tuple[Any, ...]:
         def _asdict(self) -> Dict[str, Any]:
             return dict(super()._asdict())
 
-    return ABIDecodedNamedTuple  # type: ignore
+    return ABIDecodedNamedTuple
 
 
 def generate_namedtuple_from_dict(**kwargs: Dict[str, Any]) -> Tuple[Any, ...]:
@@ -983,4 +983,4 @@ def generate_namedtuple_from_dict(**kwargs: Dict[str, Any]) -> Tuple[Any, ...]:
     """
     keys, values = zip(*kwargs.items())
 
-    return foldable_namedtuple(keys)(values)  # type: ignore
+    return foldable_namedtuple(keys)(values)
