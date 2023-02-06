@@ -307,15 +307,6 @@ result_formatters: Optional[Dict[RPCEndpoint, Callable[..., Any]]] = {
 }
 
 
-async def async_ethereum_tester_middleware(  # type: ignore
-    make_request, web3: "Web3"
-) -> Middleware:
-    middleware = await async_construct_formatting_middleware(
-        request_formatters=request_formatters, result_formatters=result_formatters
-    )
-    return await middleware(make_request, web3)
-
-
 ethereum_tester_middleware = construct_formatting_middleware(
     request_formatters=request_formatters, result_formatters=result_formatters
 )
@@ -330,17 +321,6 @@ def guess_from(w3: "Web3", _: TxParams) -> ChecksumAddress:
     return None
 
 
-async def async_guess_from(async_w3: "Web3", _: TxParams) -> ChecksumAddress:
-    coinbase = await async_w3.eth.coinbase  # type: ignore
-    accounts = await async_w3.eth.accounts  # type: ignore
-    if coinbase is not None:
-        return coinbase
-    elif accounts is not None and len(accounts) > 0:
-        return accounts[0]
-
-    return None
-
-
 @curry
 def fill_default(
     field: str, guess_func: Callable[..., Any], w3: "Web3", transaction: TxParams
@@ -351,6 +331,28 @@ def fill_default(
     else:
         guess_val = guess_func(w3, transaction)
         return assoc(transaction, field, guess_val)
+
+
+# --- async --- #
+
+
+async def async_ethereum_tester_middleware(  # type: ignore
+    make_request, web3: "Web3"
+) -> Middleware:
+    middleware = await async_construct_formatting_middleware(
+        request_formatters=request_formatters, result_formatters=result_formatters
+    )
+    return await middleware(make_request, web3)
+
+
+async def async_guess_from(async_w3: "Web3", _: TxParams) -> Optional[ChecksumAddress]:
+    coinbase = await async_w3.eth.coinbase  # type: ignore
+    accounts = await async_w3.eth.accounts  # type: ignore
+    if coinbase is not None:
+        return coinbase
+    elif accounts is not None and len(accounts) > 0:
+        return accounts[0]
+    return None
 
 
 @curry
@@ -368,14 +370,13 @@ async def async_fill_default(
 def default_transaction_fields_middleware(
     make_request: Callable[[RPCEndpoint, Any], Any], w3: "Web3"
 ) -> Callable[[RPCEndpoint, Any], RPCResponse]:
-    fill_default_from = fill_default("from", guess_from, w3)
-
     def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
         if method in (
             "eth_call",
             "eth_estimateGas",
             "eth_sendTransaction",
         ):
+            fill_default_from = fill_default("from", guess_from, w3)
             filled_transaction = pipe(
                 params[0],
                 fill_default_from,
