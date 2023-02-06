@@ -15,8 +15,10 @@ from web3.eth import (
     AsyncEth,
 )
 from web3.middleware import (
+    async_attrdict_middleware,
     async_construct_result_generator_middleware,
     async_local_filter_middleware,
+    attrdict_middleware,
     construct_result_generator_middleware,
     local_filter_middleware,
 )
@@ -105,6 +107,7 @@ def w3_base():
 @pytest.fixture(scope="function")
 def w3(w3_base, result_generator_middleware):
     w3_base.middleware_onion.add(result_generator_middleware)
+    w3_base.middleware_onion.add(attrdict_middleware)
     w3_base.middleware_onion.add(local_filter_middleware)
     return w3_base
 
@@ -284,6 +287,7 @@ def async_w3_base():
 @pytest.fixture(scope="function")
 def async_w3(async_w3_base, async_result_generator_middleware):
     async_w3_base.middleware_onion.add(async_result_generator_middleware)
+    async_w3_base.middleware_onion.add(async_attrdict_middleware)
     async_w3_base.middleware_onion.add(async_local_filter_middleware)
     return async_w3_base
 

@@ -20,6 +20,7 @@ from web3.geth import (
     Geth,
 )
 from web3.middleware import (
+    async_attrdict_middleware,
     async_buffered_gas_estimate_middleware,
     async_gas_price_strategy_middleware,
     async_validation_middleware,
@@ -63,12 +64,13 @@ def test_web3_with_async_http_provider_has_default_middlewares_and_modules() -> 
 
     # the following length check should fail and will need to be added to once more
     # async middlewares are added to the defaults
-    assert len(async_w3.middleware_onion.middlewares) == 3
+    assert len(async_w3.middleware_onion.middlewares) == 4
 
     assert (
         async_w3.middleware_onion.get("gas_price_strategy")
         == async_gas_price_strategy_middleware
     )
+    assert async_w3.middleware_onion.get("attrdict") == async_attrdict_middleware
     assert async_w3.middleware_onion.get("validation") == async_validation_middleware
     assert (
         async_w3.middleware_onion.get("gas_estimate")

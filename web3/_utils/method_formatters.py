@@ -152,14 +152,14 @@ def is_attrdict(val: Any) -> bool:
     return isinstance(val, AttributeDict)
 
 
-not_attrdict = complement(is_attrdict)
-
-
 @curry
 def type_aware_apply_formatters_to_dict(
     formatters: Formatters,
     value: Union[AttributeDict[str, Any], Dict[str, Any]],
 ) -> Union[ReadableAttributeDict[str, Any], Dict[str, Any]]:
+    """
+    Preserve ``AttributeDict`` types if original ``value`` was an ``AttributeDict``.
+    """
     formatted_dict: Dict[str, Any] = apply_formatters_to_dict(formatters, dict(value))
     return (
         AttributeDict.recursive(formatted_dict)
