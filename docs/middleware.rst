@@ -29,9 +29,14 @@ AttributeDict
 
 .. py:method:: web3.middleware.attrdict_middleware
 
-    This middleware converts the output of a function from a dictionary to an ``AttributeDict``
-    which enables dot-syntax access, like ``eth.get_block('latest').number``
-    in addition to ``eth.get_block('latest')['number']``.
+    This middleware recursively converts any dictionary type in the result of a call
+    to an ``AttributeDict``. This enables dot-syntax access, like
+    ``eth.get_block('latest').number`` in addition to
+    ``eth.get_block('latest')['number']``.
+
+    .. note::
+        Accessing a property via attribute breaks type hinting. For this reason, this
+        feature is available as a middleware, which may be removed if desired.
 
 .eth Name Resolution
 ~~~~~~~~~~~~~~~~~~~~~
@@ -42,10 +47,10 @@ AttributeDict
     address that the name points to. For example :meth:`w3.eth.send_transaction <web3.eth.Eth.send_transaction>` will
     accept .eth names in the 'from' and 'to' fields.
 
-.. note::
-    This middleware only converts ENS names if invoked with the mainnet
-    (where the ENS contract is deployed), for all other cases will result in an
-    ``InvalidAddress`` error
+    .. note::
+        This middleware only converts ENS names if invoked with the mainnet
+        (where the ENS contract is deployed), for all other cases will result in an
+        ``InvalidAddress`` error
 
 Pythonic
 ~~~~~~~~~~~~

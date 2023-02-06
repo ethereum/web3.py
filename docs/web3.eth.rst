@@ -16,7 +16,7 @@ web3.eth API
 The ``web3.eth`` object exposes the following properties and methods to
 interact with the RPC APIs under the ``eth_`` namespace.
 
-Often, when a property or method returns a mapping of keys to values, it
+By default, when a property or method returns a mapping of keys to values, it
 will return an ``AttributeDict`` which acts like a ``dict`` but you can
 access the keys as attributes and cannot modify its fields. For example,
 you can find the latest block number in these two ways:
@@ -38,6 +38,11 @@ you can find the latest block number in these two ways:
         >>> block.number = 4022282
         Traceback # ... etc ...
         TypeError: This data is immutable -- create a copy instead of modifying
+
+This feature is available via the ``attrdict_middleware`` which is a default middleware.
+Of note, accessing a property via attribute will break type hinting. If typing is
+crucial for your application, accessing via key / value, as well as removing the
+``attrdict_middleware`` altogether, may be desired.
 
 
 Properties
@@ -332,7 +337,8 @@ The following methods are available on the ``web3.eth`` namespace.
 
     * Merkle proof verification using py-trie.
 
-    The following example verifies that the values returned in the AttributeDict are included in the state of given trie ``root``.
+    The following example verifies that the values returned in the ``AttributeDict``
+    are included in the state of given trie ``root``.
 
     .. code-block:: python
 

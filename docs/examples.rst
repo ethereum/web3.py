@@ -881,7 +881,7 @@ The script can be run with: ``python ./eventscanner.py <your JSON-RPC API URL>``
 
             :param event: Symbolic dictionary of the event data
 
-            :return: Internal state structure that is the result of event tranformation.
+            :return: Internal state structure that is the result of event transformation.
             """
 
         @abstractmethod
