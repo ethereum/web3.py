@@ -337,11 +337,11 @@ def test_process_params(
             object(), *args, **kwargs
         )
         assert request_params == expected_request_result
-        first_formatter = (output_formatter[0].first,)
-        all_other_formatters = output_formatter[0].funcs
 
-        # the expected result formatters length is 2
-        assert len(first_formatter + all_other_formatters) == 2
+        first_formatter = (output_formatter[0],)
+
+        # the expected result formatters length is 1
+        assert len(first_formatter) == 1
 
 
 def keywords(module, keyword_one, keyword_two):
