@@ -8,10 +8,10 @@ from eth_abi.registry import (
 )
 
 from web3._utils.abi import (
+    abi_decoded_namedtuple_factory,
     check_if_arguments_can_be_encoded,
-    dict_to_namedtuple,
-    foldable_namedtuple,
     named_tree,
+    recursive_dict_to_namedtuple,
 )
 from web3.exceptions import (
     MismatchedABI,
@@ -32,7 +32,7 @@ full_values = (
 
 def test_named_arguments_decode():
     decoded = named_tree(full_abi_inputs, full_values)
-    data = dict_to_namedtuple(decoded)
+    data = abi_decoded_namedtuple_factory(decoded)
     assert data == full_values
     assert data.s.c[2].y == 10
     assert data.t.x == 11
@@ -63,7 +63,7 @@ short_values = ((1, [2, 3, 4], [(5, 6), (7, 8), (9, 10)]),)
 
 def test_named_arguments_decode_rename():
     decoded = named_tree(short_abi_inputs_with_disallowed_names, short_values)
-    data = dict_to_namedtuple(decoded)
+    data = recursive_dict_to_namedtuple(decoded)
     assert data == short_values
     assert data._fields == ("s",)
 
@@ -93,12 +93,15 @@ def test_namedtuples_encodable():
     registry = default_registry.copy()
     codec = ABICodec(registry)
     kwargs = named_tree(full_abi_inputs, full_values)
-    args = dict_to_namedtuple(kwargs)
+    args = recursive_dict_to_namedtuple(kwargs)
     assert check_if_arguments_can_be_encoded(TEST_FUNCTION_ABI, codec, (), kwargs)
     assert check_if_arguments_can_be_encoded(TEST_FUNCTION_ABI, codec, args, {})
 
 
 def test_foldable_namedtuple():
-    item = foldable_namedtuple(["a", "b", "c"])([1, 2, 3])
+    item = abi_decoded_namedtuple_factory(["a", "b", "c"])([1, 2, 3])
     assert type(item)(item) == item == (1, 2, 3)
     assert item.c == 3
+
+    expected_asdict = {"a": 1, "b": 2, "c": 3}
+    assert item._asdict() == expected_asdict

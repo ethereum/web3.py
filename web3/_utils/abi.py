@@ -949,38 +949,24 @@ def named_subtree(
     return data
 
 
-def dict_to_namedtuple(data: Dict[str, Any]) -> Tuple[Any, ...]:
-    def to_tuple(
-        item: Union[Dict[str, Any], List[Any]]
+def recursive_dict_to_namedtuple(data: Dict[str, Any]) -> Tuple[Any, ...]:
+    def _dict_to_namedtuple(
+        value: Union[Dict[str, Any], List[Any]]
     ) -> Union[Tuple[Any, ...], List[Any]]:
-        if isinstance(item, dict):
-            return generate_namedtuple_from_dict(**item)
-        return item
+        if not isinstance(value, dict):
+            return value
 
-    return recursive_map(to_tuple, data)
+        keys, values = zip(*value.items())
+        return abi_decoded_namedtuple_factory(keys)(values)
+
+    return recursive_map(_dict_to_namedtuple, data)
 
 
-def foldable_namedtuple(fields: Tuple[Any, ...]) -> Callable[..., Tuple[Any, ...]]:
-    """
-    Customized namedtuple such that `type(x)(x) == x`.
-    """
-
+def abi_decoded_namedtuple_factory(
+    fields: Tuple[Any, ...]
+) -> Callable[..., Tuple[Any, ...]]:
     class ABIDecodedNamedTuple(namedtuple("ABIDecodedNamedTuple", fields, rename=True)):  # type: ignore # noqa: E501
         def __new__(self, args: Any) -> "ABIDecodedNamedTuple":
             return super().__new__(self, *args)
 
-        def _asdict(self) -> Dict[str, Any]:
-            return dict(super()._asdict())
-
     return ABIDecodedNamedTuple
-
-
-def generate_namedtuple_from_dict(**kwargs: Dict[str, Any]) -> Tuple[Any, ...]:
-    """
-    Literal namedtuple constructor such that:
-    `generate_namedtuple_from_dict(x=1, y=2)`
-    returns `generate_namedtuple_from_dict(x=1, y=2)`.
-    """
-    keys, values = zip(*kwargs.items())
-
-    return foldable_namedtuple(keys)(values)

@@ -21,11 +21,11 @@ from hexbytes import (
 )
 
 from web3._utils.abi import (
-    dict_to_namedtuple,
     filter_by_type,
     get_abi_output_types,
     map_abi_data,
     named_tree,
+    recursive_dict_to_namedtuple,
 )
 from web3._utils.async_transactions import (
     fill_transaction_defaults as async_fill_transaction_defaults,
@@ -134,7 +134,7 @@ def call_contract_function(
 
     if decode_tuples:
         decoded = named_tree(fn_abi["outputs"], normalized_data)
-        normalized_data = dict_to_namedtuple(decoded)
+        normalized_data = recursive_dict_to_namedtuple(decoded)
 
     if len(normalized_data) == 1:
         return normalized_data[0]
@@ -342,7 +342,7 @@ async def async_call_contract_function(
 
     if decode_tuples:
         decoded = named_tree(fn_abi["outputs"], normalized_data)
-        normalized_data = dict_to_namedtuple(decoded)
+        normalized_data = recursive_dict_to_namedtuple(decoded)
 
     if len(normalized_data) == 1:
         return normalized_data[0]
