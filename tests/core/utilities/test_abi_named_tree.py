@@ -32,7 +32,7 @@ full_values = (
 
 def test_named_arguments_decode():
     decoded = named_tree(full_abi_inputs, full_values)
-    data = abi_decoded_namedtuple_factory(decoded)
+    data = recursive_dict_to_namedtuple(decoded)
     assert data == full_values
     assert data.s.c[2].y == 10
     assert data.t.x == 11
@@ -98,7 +98,7 @@ def test_namedtuples_encodable():
     assert check_if_arguments_can_be_encoded(TEST_FUNCTION_ABI, codec, args, {})
 
 
-def test_foldable_namedtuple():
+def test_ABIDecodedNamedTuple():
     item = abi_decoded_namedtuple_factory(["a", "b", "c"])([1, 2, 3])
     assert type(item)(item) == item == (1, 2, 3)
     assert item.c == 3
