@@ -27,10 +27,6 @@ from web3._utils.contract_sources.contract_data.bytes_contracts import (
     BYTES32_CONTRACT_DATA,
     BYTES_CONTRACT_DATA,
 )
-from web3._utils.contract_sources.contract_data.tuple_contracts import (
-    NESTED_TUPLE_CONTRACT_DATA,
-    TUPLE_CONTRACT_DATA,
-)
 from web3._utils.ens import (
     contract_ens_addresses,
 )
@@ -49,44 +45,6 @@ from web3.exceptions import (
 MULTIPLE_FUNCTIONS = json.loads(
     '[{"constant":false,"inputs":[],"name":"a","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"","type":"bytes32"}],"name":"a","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"","type":"uint256"}],"name":"a","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"","type":"uint8"}],"name":"a","outputs":[],"type":"function"},{"constant":false,"inputs":[{"name":"","type":"int8"}],"name":"a","outputs":[],"type":"function"}]'  # noqa: E501
 )
-
-
-@pytest.fixture
-def tuple_contract(w3, address_conversion_func):
-    tuple_contract_factory = w3.eth.contract(**TUPLE_CONTRACT_DATA)
-    return deploy(w3, tuple_contract_factory, address_conversion_func)
-
-
-@pytest.fixture
-def nested_tuple_contract(w3, address_conversion_func):
-    nested_tuple_contract_factory = w3.eth.contract(**NESTED_TUPLE_CONTRACT_DATA)
-    return deploy(w3, nested_tuple_contract_factory, address_conversion_func)
-
-
-TUPLE_CONTRACT_DATA_DECODE_TUPLES = {
-    **TUPLE_CONTRACT_DATA,
-    "decode_tuples": True,
-}
-
-
-NESTED_TUPLE_CONTRACT_DATA_DECODE_TUPLES = {
-    **NESTED_TUPLE_CONTRACT_DATA,
-    "decode_tuples": True,
-}
-
-
-@pytest.fixture
-def tuple_contract_with_decode_tuples(w3, address_conversion_func):
-    tuple_contract_factory = w3.eth.contract(**TUPLE_CONTRACT_DATA_DECODE_TUPLES)
-    return deploy(w3, tuple_contract_factory, address_conversion_func)
-
-
-@pytest.fixture
-def nested_tuple_contract_with_decode_tuples(w3, address_conversion_func):
-    nested_tuple_contract_factory = w3.eth.contract(
-        **NESTED_TUPLE_CONTRACT_DATA_DECODE_TUPLES
-    )
-    return deploy(w3, nested_tuple_contract_factory, address_conversion_func)
 
 
 @pytest.fixture(params=[b"\x04\x06", "0x0406"])
@@ -1187,46 +1145,6 @@ def test_changing_default_block_identifier(w3, math_contract):
 
 
 # -- async -- #
-
-
-@pytest_asyncio.fixture
-async def async_tuple_contract(async_w3, address_conversion_func):
-    async_tuple_contract_factory = async_w3.eth.contract(**TUPLE_CONTRACT_DATA)
-    return await async_deploy(
-        async_w3, async_tuple_contract_factory, address_conversion_func
-    )
-
-
-@pytest_asyncio.fixture
-async def async_nested_tuple_contract(async_w3, address_conversion_func):
-    async_nested_tuple_contract_factory = async_w3.eth.contract(
-        **NESTED_TUPLE_CONTRACT_DATA
-    )
-    return await async_deploy(
-        async_w3, async_nested_tuple_contract_factory, address_conversion_func
-    )
-
-
-@pytest_asyncio.fixture
-async def async_tuple_contract_with_decode_tuples(async_w3, address_conversion_func):
-    async_tuple_contract_factory = async_w3.eth.contract(
-        **TUPLE_CONTRACT_DATA_DECODE_TUPLES
-    )
-    return await async_deploy(
-        async_w3, async_tuple_contract_factory, address_conversion_func
-    )
-
-
-@pytest_asyncio.fixture
-async def async_nested_tuple_contract_with_decode_tuples(
-    async_w3, address_conversion_func
-):
-    async_nested_tuple_contract_factory = async_w3.eth.contract(
-        **NESTED_TUPLE_CONTRACT_DATA_DECODE_TUPLES
-    )
-    return await async_deploy(
-        async_w3, async_nested_tuple_contract_factory, address_conversion_func
-    )
 
 
 @pytest.fixture
