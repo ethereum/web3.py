@@ -40,9 +40,11 @@ you can find the latest block number in these two ways:
         TypeError: This data is immutable -- create a copy instead of modifying
 
 This feature is available via the ``attrdict_middleware`` which is a default middleware.
-Of note, accessing a property via attribute will break type hinting. If typing is
-crucial for your application, accessing via key / value, as well as removing the
-``attrdict_middleware`` altogether, may be desired.
+
+.. note::
+    Accessing an ``AttributeDict`` property via attribute will break type hinting. If
+    typing is crucial for your application, accessing via key / value, as well as
+    removing the ``attrdict_middleware`` altogether, may be desired.
 
 
 Properties
