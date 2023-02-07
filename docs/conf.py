@@ -1,5 +1,5 @@
 #
-# Web3.py documentation build configuration file, created by
+# web3.py documentation build configuration file, created by
 # sphinx-quickstart on Thu Oct 16 20:43:24 2014.
 #
 # This file is execfile()d with the current directory set to its
@@ -52,8 +52,8 @@ source_suffix = ".rst"
 master_doc = "index"
 
 # General information about the project.
-project = "Web3.py"
-copyright = "2018, Piper Merriam, Jason Carver"
+project = "web3.py"
+copyright = "2023, Ethereum Foundation"
 
 __version__ = setup_version
 # The version info for the project you're documenting, acts as replacement for
@@ -250,7 +250,7 @@ latex_documents = [
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-man_pages = [("index", "web3", "Web3.py Documentation", ["Piper Merriam"], 1)]
+man_pages = [("index", "web3", "web3.py Documentation", ["Piper Merriam"], 1)]
 
 # If true, show URL addresses after external links.
 # man_show_urls = False
@@ -264,10 +264,10 @@ man_pages = [("index", "web3", "Web3.py Documentation", ["Piper Merriam"], 1)]
 texinfo_documents = [
     (
         "index",
-        "Web3.py",
-        "Web3.py Documentation",
+        "web3.py",
+        "web3.py Documentation",
         "Piper Merriam",
-        "Web3.py",
+        "web3.py",
         "Backend agnostic Ethereum client interactions.",
         "Miscellaneous",
     ),

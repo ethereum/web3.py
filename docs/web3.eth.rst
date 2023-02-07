@@ -3,7 +3,7 @@ web3.eth API
 
 .. py:module:: web3.eth
 
-.. warning:: Whoa there, Binance Smart Chain user! Web3.py is an Ethereum-specific library,
+.. warning:: Whoa there, Binance Smart Chain user! web3.py is an Ethereum-specific library,
   which now defaults to "type 2" transactions as of the London network upgrade. BSC apparently
   does not support these newer transaction types.
 
@@ -847,7 +847,7 @@ The following methods are available on the ``web3.eth`` namespace.
 
     .. code-block:: python
 
-        # simple example (Web3.py and / or client determines gas and fees, typically defaults to a dynamic fee transaction post London fork)
+        # simple example (web3.py and / or client determines gas and fees, typically defaults to a dynamic fee transaction post London fork)
         >>> web3.eth.send_transaction({
           'to': '0xd3CdA913deB6f67967B99D67aCDFa1712C293601',
           'from': web3.eth.coinbase,

@@ -1496,7 +1496,7 @@ Features
 
 - ENS had to release a new registry to push a bugfix. See
   `this article <https://medium.com/the-ethereum-name-service/ens-registry-migration-bug-fix-new-features-64379193a5a>`_
-  for background information. Web3.py uses the new registry for all default ENS interactions, now. (`#1573 <https://github.com/ethereum/web3.py/issues/1573>`__)
+  for background information. web3.py uses the new registry for all default ENS interactions, now. (`#1573 <https://github.com/ethereum/web3.py/issues/1573>`__)
 
 
 Bugfixes

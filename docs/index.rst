@@ -4,7 +4,7 @@
 Introduction
 ============
 
-Web3.py is a Python library for interacting with Ethereum.
+web3.py is a Python library for interacting with Ethereum.
 
 It's commonly found in `decentralized apps (dapps)`_ to help with
 sending transactions, interacting with smart contracts, reading

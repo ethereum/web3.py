@@ -162,7 +162,7 @@ to the request inside the innermost layer of the onion. Here is a (simplified) d
                                                      |
                                                      v
 
-                                          Returned value in Web3.py
+                                          Returned value in web3.py
 
 
 The middlewares are maintained in ``Web3.middleware_onion``. See

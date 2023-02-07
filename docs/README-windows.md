@@ -1,4 +1,4 @@
-# Web3.py on Windows
+# web3.py on Windows
 
 ## Developer Setup
 

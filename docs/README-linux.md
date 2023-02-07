@@ -1,4 +1,4 @@
-# Web3.py on Linux
+# web3.py on Linux
 
 ## Developer Setup
 
@@ -16,7 +16,6 @@ sudo dnf install openssl-devel libffi-devel autoconf automake libtool
 ```
 
 2. Install `leveldb` (TODO)
-
 
 ## Examples for specific operating systems
 
@@ -46,4 +45,3 @@ pip install --upgrade pip
 pip install -e .[dev]
 
 ```
-
