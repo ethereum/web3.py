@@ -376,7 +376,6 @@ class ContractFunction(BaseContractFunction):
         block_identifier: BlockIdentifier = "latest",
         state_override: Optional[CallOverride] = None,
         ccip_read_enabled: Optional[bool] = None,
-        decode_tuples: Optional[bool] = False,
     ) -> Any:
         """
         Execute a contract function call using the `eth_call` interface.
@@ -417,7 +416,7 @@ class ContractFunction(BaseContractFunction):
             self.abi,
             state_override,
             ccip_read_enabled,
-            decode_tuples,
+            self.decode_tuples,
             *self.args,
             **self.kwargs,
         )
