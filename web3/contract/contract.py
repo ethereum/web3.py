@@ -235,7 +235,7 @@ class Contract(BaseContract):
         self.functions = ContractFunctions(
             self.abi, _w3, self.address, self.decode_tuples
         )
-        self.caller = ContractCaller(self.abi, _w3, self.address)
+        self.caller = ContractCaller(self.abi, _w3, self.address, self.decode_tuples)
         self.events = ContractEvents(self.abi, _w3, self.address)
         self.fallback = Contract.get_fallback_function(
             self.abi,
@@ -272,10 +272,17 @@ class Contract(BaseContract):
                 normalizers=normalizers,
             ),
         )
+        # if contract.decode_tuples:
+        #     breakpoint()
+        # else:
+        #     print("passsing!", contract.all_functions())     
+        
         contract.functions = ContractFunctions(
             contract.abi, contract.w3, contract.decode_tuples
         )
-        contract.caller = ContractCaller(contract.abi, contract.w3, contract.address)
+        contract.caller = ContractCaller(contract.abi, contract.w3, contract.address, contract.decode_tuples)
+        # if contract.decode_tuples:
+            # breakpoint()
         contract.events = ContractEvents(contract.abi, contract.w3)
         contract.fallback = Contract.get_fallback_function(
             contract.abi,
@@ -470,6 +477,7 @@ class ContractCaller(BaseContractCaller):
         ccip_read_enabled: Optional[bool] = None,
         decode_tuples: Optional[bool] = False,
     ) -> None:
+        # breakpoint()
         super().__init__(
             abi=abi,
             w3=w3,
@@ -487,6 +495,7 @@ class ContractCaller(BaseContractCaller):
         block_identifier: BlockIdentifier = "latest",
         state_override: Optional[CallOverride] = None,
         ccip_read_enabled: Optional[bool] = None,
+        decode_tuples: Optional[bool] = False,
     ) -> "ContractCaller":
         if transaction is None:
             transaction = {}
@@ -497,4 +506,5 @@ class ContractCaller(BaseContractCaller):
             transaction=transaction,
             block_identifier=block_identifier,
             ccip_read_enabled=ccip_read_enabled,
+            decode_tuples=decode_tuples,
         )

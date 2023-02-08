@@ -1092,6 +1092,7 @@ class BaseContractCaller:
         ccip_read_enabled: Optional[bool] = None,
         decode_tuples: Optional[bool] = False,
     ) -> None:
+        print(decode_tuples)
         self.w3 = w3
         self.address = address
         self.abi = abi
@@ -1109,7 +1110,6 @@ class BaseContractCaller:
                     w3=self.w3,
                     contract_abi=self.abi,
                     address=self.address,
-                    decode_tuples=self.decode_tuples,
                     function_identifier=func["name"],
                 )
 
