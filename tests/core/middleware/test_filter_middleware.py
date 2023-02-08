@@ -279,9 +279,7 @@ async def async_result_generator_middleware(iter_block_number):
 
 @pytest.fixture(scope="function")
 def async_w3_base():
-    return Web3(
-        provider=AsyncDummyProvider(), modules={"eth": (AsyncEth)}, middlewares=[]
-    )
+    return Web3(provider=AsyncDummyProvider(), middlewares=[])
 
 
 @pytest.fixture(scope="function")

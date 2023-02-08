@@ -16,9 +16,6 @@ def async_w3():
     return Web3(
         AsyncEthereumTesterProvider(),
         middlewares=[],
-        modules={
-            "eth": (AsyncEth,),
-        },
     )
 
 

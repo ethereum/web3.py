@@ -83,9 +83,7 @@ def test_initial_greeting(foo_contract):
 
 def test_can_update_greeting(w3, foo_contract):
     # send transaction that updates the greeting
-    tx_hash = foo_contract.functions.setBar(
-        "testing contracts is easy",
-    ).transact(
+    tx_hash = foo_contract.functions.setBar("testing contracts is easy",).transact(
         {
             "from": w3.eth.accounts[1],
         }
@@ -99,9 +97,7 @@ def test_can_update_greeting(w3, foo_contract):
 
 def test_updating_greeting_emits_event(w3, foo_contract):
     # send transaction that updates the greeting
-    tx_hash = foo_contract.functions.setBar(
-        "testing contracts is easy",
-    ).transact(
+    tx_hash = foo_contract.functions.setBar("testing contracts is easy",).transact(
         {
             "from": w3.eth.accounts[1],
         }
@@ -126,7 +122,7 @@ def async_eth_tester():
 @pytest_asyncio.fixture()
 async def async_w3():
     provider = AsyncEthereumTesterProvider()
-    w3 = Web3(provider, modules={"eth": [AsyncEth]}, middlewares=provider.middlewares)
+    w3 = Web3(provider, middlewares=provider.middlewares)
     w3.eth.default_account = await w3.eth.coinbase
     return w3
 

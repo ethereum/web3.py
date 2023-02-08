@@ -557,7 +557,7 @@ def test_eth_account_sign_and_send_EIP155_transaction_to_eth_tester(
 
 @pytest.fixture()
 def async_w3():
-    return Web3(AsyncEthereumTesterProvider(), modules={"eth": [AsyncEth]})
+    return Web3(AsyncEthereumTesterProvider())
 
 
 @patch("web3.eth.BaseEth.account", "wired via BaseEth")

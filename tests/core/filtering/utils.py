@@ -48,7 +48,7 @@ def _emitter_fixture_logic(
 def _async_w3_fixture_logic(request):
     use_filter_middleware = request.param
     provider = AsyncEthereumTesterProvider()
-    async_w3 = Web3(provider, modules={"eth": [AsyncEth]}, middlewares=[])
+    async_w3 = Web3(provider, middlewares=[])
 
     if use_filter_middleware:
         async_w3.middleware_onion.add(async_local_filter_middleware)

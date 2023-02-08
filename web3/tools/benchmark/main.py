@@ -81,7 +81,6 @@ async def build_async_w3_http(endpoint_uri: str) -> Web3:
             async_gas_price_strategy_middleware,
             async_buffered_gas_estimate_middleware,
         ],
-        modules={"eth": AsyncEth},
     )
     return _w3
 
