@@ -204,7 +204,7 @@ class AsyncEth(BaseEth):
         block_count: int,
         newest_block: Union[BlockParams, BlockNumber],
         reward_percentiles: Optional[List[float]] = None,
-    ) -> FeeHistory:
+    ) -> Awaitable[FeeHistory]:
         return await self._fee_history(block_count, newest_block, reward_percentiles)
 
     # eth_call

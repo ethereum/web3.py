@@ -487,7 +487,7 @@ class AsyncEthModuleTest:
     async def test_eth_fee_history_no_reward_percentiles(
         self, async_w3: "Web3"
     ) -> None:
-        fee_history = await async_w3.eth.fee_history(1, "latest")  # type: ignore
+        fee_history = await async_w3.eth.fee_history(1, "latest")
         assert is_list_like(fee_history["baseFeePerGas"])
         assert is_list_like(fee_history["gasUsedRatio"])
         assert is_integer(fee_history["oldestBlock"])
