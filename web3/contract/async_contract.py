@@ -117,9 +117,11 @@ class AsyncContract(BaseContract):
                 "The address argument is required to instantiate a contract."
             )
         self.functions = AsyncContractFunctions(
-            self.abi, self.w3, self.address, self.decode_tuples
+            self.abi, self.w3, self.address, decode_tuples=self.decode_tuples
         )
-        self.caller = AsyncContractCaller(self.abi, self.w3, self.address)
+        self.caller = AsyncContractCaller(
+            self.abi, self.w3, self.address, decode_tuples=self.decode_tuples
+        )
         self.events = AsyncContractEvents(self.abi, self.w3, self.address)
         self.fallback = AsyncContract.get_fallback_function(
             self.abi, self.w3, AsyncContractFunction, self.address
@@ -151,10 +153,13 @@ class AsyncContract(BaseContract):
             ),
         )
         contract.functions = AsyncContractFunctions(
-            contract.abi, contract.w3, contract.decode_tuples
+            contract.abi, contract.w3, decode_tuples=contract.decode_tuples
         )
         contract.caller = AsyncContractCaller(
-            contract.abi, contract.w3, contract.address
+            contract.abi,
+            contract.w3,
+            contract.address,
+            decode_tuples=contract.decode_tuples,
         )
         contract.events = AsyncContractEvents(contract.abi, contract.w3)
         contract.fallback = AsyncContract.get_fallback_function(
@@ -254,6 +259,7 @@ class AsyncContractFunction(BaseContractFunction):
         block_identifier: BlockIdentifier = "latest",
         state_override: Optional[CallOverride] = None,
         ccip_read_enabled: Optional[bool] = None,
+        decode_tuples: Optional[bool] = None,
     ) -> Any:
         """
         Execute a contract function call using the `eth_call` interface.
@@ -294,7 +300,7 @@ class AsyncContractFunction(BaseContractFunction):
             self.abi,
             state_override,
             ccip_read_enabled,
-            self.decode_tuples,
+            decode_tuples,
             *self.args,
             **self.kwargs,
         )
@@ -502,4 +508,5 @@ class AsyncContractCaller(BaseContractCaller):
             transaction=transaction,
             block_identifier=block_identifier,
             ccip_read_enabled=ccip_read_enabled,
+            decode_tuples=self.decode_tuples,
         )
