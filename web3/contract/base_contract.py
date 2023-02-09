@@ -691,7 +691,6 @@ class BaseContractFunction:
         block_identifier: BlockIdentifier = "latest",
         state_override: Optional[CallOverride] = None,
         ccip_read_enabled: Optional[bool] = None,
-        decode_tuples: Optional[bool] = False,
     ) -> Any:
         #  This was needed for typing
         raise NotImplementedError(
@@ -1121,7 +1120,6 @@ class BaseContractCaller:
                     transaction=transaction,
                     block_identifier=block_id,
                     ccip_read_enabled=ccip_read_enabled,
-                    decode_tuples=decode_tuples,
                 )
 
                 setattr(self, func["name"], caller_method)
@@ -1160,7 +1158,6 @@ class BaseContractCaller:
         transaction: Optional[TxParams] = None,
         block_identifier: BlockIdentifier = "latest",
         ccip_read_enabled: Optional[bool] = None,
-        decode_tuples: bool,
         **kwargs: Any,
     ) -> Any:
         if transaction is None:
@@ -1169,5 +1166,4 @@ class BaseContractCaller:
             transaction=transaction,
             block_identifier=block_identifier,
             ccip_read_enabled=ccip_read_enabled,
-            decode_tuples=decode_tuples,
         )
