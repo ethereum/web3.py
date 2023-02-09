@@ -1,5 +1,6 @@
 from typing import (
     Any,
+    Awaitable,
     Callable,
     List,
     Optional,
@@ -209,7 +210,8 @@ class Eth(BaseEth):
 
     _fee_history: Method[
         Callable[
-            [int, Union[BlockParams, BlockNumber], Optional[List[float]]], FeeHistory
+            [int, Union[BlockParams, BlockNumber], Optional[List[float]]],
+            FeeHistory,
         ]
     ] = Method(RPC.eth_feeHistory, mungers=[default_root_munger])
 
