@@ -12,10 +12,6 @@ from typing import (  # noqa: F401
     Union,
     cast,
 )
-import uuid
-from uuid import (
-    UUID,
-)
 
 from eth_utils.toolz import (
     pipe,
@@ -24,12 +20,8 @@ from hexbytes import (
     HexBytes,
 )
 
-from web3._utils.decorators import (
-    deprecated_for,
-)
 from web3._utils.threads import (  # noqa: F401
     ThreadWithReturn,
-    spawn,
 )
 from web3.datastructures import (
     NamedElementOnion,
@@ -107,7 +99,6 @@ class RequestManager:
         middlewares: Optional[Sequence[Tuple[Middleware, str]]] = None,
     ) -> None:
         self.w3 = w3
-        self.pending_requests: Dict[UUID, ThreadWithReturn[RPCResponse]] = {}
 
         if provider is None:
             self.provider = AutoProvider()
@@ -245,31 +236,3 @@ class RequestManager:
         return self.formatted_response(
             response, params, error_formatters, null_result_formatters
         )
-
-    @deprecated_for("coro_request")
-    def request_async(self, raw_method: str, raw_params: Any) -> UUID:
-        request_id = uuid.uuid4()
-        self.pending_requests[request_id] = spawn(
-            self.request_blocking,
-            raw_method=raw_method,
-            raw_params=raw_params,
-        )
-        return request_id
-
-    def receive_blocking(
-        self, request_id: UUID, timeout: Optional[float] = None
-    ) -> Any:
-        try:
-            request = self.pending_requests.pop(request_id)
-        except KeyError:
-            raise KeyError(f"Request for id:{request_id} not found")
-        else:
-            response = request.get(timeout=timeout)
-
-        if "error" in response:
-            raise ValueError(response["error"])
-
-        return response["result"]
-
-    def receive_async(self, request_id: UUID, *args: Any, **kwargs: Any) -> NoReturn:
-        raise NotImplementedError("Callback pattern not implemented")
