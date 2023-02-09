@@ -1,0 +1,1 @@
+add decode_tuples option to contract instantiation
