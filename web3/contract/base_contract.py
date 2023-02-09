@@ -1160,7 +1160,7 @@ class BaseContractCaller:
         transaction: Optional[TxParams] = None,
         block_identifier: BlockIdentifier = "latest",
         ccip_read_enabled: Optional[bool] = None,
-        decode_tuples: Optional[bool] = False,
+        decode_tuples: bool,
         **kwargs: Any,
     ) -> Any:
         if transaction is None:

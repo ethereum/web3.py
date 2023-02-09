@@ -259,6 +259,7 @@ class AsyncContractFunction(BaseContractFunction):
         block_identifier: BlockIdentifier = "latest",
         state_override: Optional[CallOverride] = None,
         ccip_read_enabled: Optional[bool] = None,
+        decode_tuples: Optional[bool] = False,
     ) -> Any:
         """
         Execute a contract function call using the `eth_call` interface.
