@@ -617,11 +617,7 @@ class AsyncEthModuleTest:
         self, async_eth: "AsyncEth", block_with_txn: BlockData
     ) -> None:
         block = await async_eth.get_block(block_with_txn["number"], True)
-        transaction = block["transactions"][0]
-        # print("transaction[hash] type", type(transaction["hash"]))
-        # print("block_with_txn[transactions] type", type(block_with_txn["transactions"][0])
-        reveal_type(transaction["hash"])
-        reveal_type(block_with_txn["transactions"][0])
+        transaction = cast(BlockData, block["transactions"][0])
         assert transaction["hash"] == block_with_txn["transactions"][0]
 
     @pytest.mark.asyncio
@@ -696,7 +692,7 @@ class AsyncEthModuleTest:
     async def test_eth_get_raw_transaction_by_block_raises_error_block_identifier(
         self, async_eth: "AsyncEth"
     ) -> None:
-        unknown_identifier = HexBytes("0xDEADbeeF")
+        unknown_identifier = "unknown"
         with pytest.raises(
             ValueError,
             match=(
@@ -704,7 +700,11 @@ class AsyncEthModuleTest:
                 f"{unknown_identifier!r}"
             ),
         ):
-            await async_eth.get_raw_transaction_by_block(unknown_identifier, 0)
+            await async_eth.get_raw_transaction_by_block(
+                # ignore type because the string 'unknown' doesn't pass type checks
+                unknown_identifier,  # type: ignore
+                0,
+            )
 
     @pytest.mark.asyncio
     async def test_eth_get_balance(self, async_eth: "AsyncEth") -> None:
