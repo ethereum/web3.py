@@ -64,7 +64,7 @@ arg_parser.add_argument(
 )
 user_args = arg_parser.parse_args()
 
-CONFIGURED_SOLIDITY_VERSION = "0.8.17"
+CONFIGURED_SOLIDITY_VERSION = "0.8.18"
 # establish Solidity version from user-provided arg or use hard-coded version
 user_sol_version = user_args.version
 
