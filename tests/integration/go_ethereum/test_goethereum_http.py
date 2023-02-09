@@ -125,6 +125,11 @@ async def async_w3(geth_process, endpoint_uri):
     return _w3
 
 
+@pytest.fixture
+def async_eth(async_w3: "Web3") -> "AsyncEth":
+    return async_w3.eth
+
+
 class TestGoEthereumAsyncAdminModuleTest(GoEthereumAsyncAdminModuleTest):
     @pytest.mark.asyncio
     @pytest.mark.xfail(
