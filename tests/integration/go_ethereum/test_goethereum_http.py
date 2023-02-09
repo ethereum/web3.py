@@ -14,6 +14,9 @@ from web3._utils.module_testing.go_ethereum_admin_module import (
 from web3._utils.module_testing.go_ethereum_personal_module import (
     GoEthereumAsyncPersonalModuleTest,
 )
+from web3.eth import (
+    AsyncEth,
+)
 from web3.providers.async_rpc import (
     AsyncHTTPProvider,
 )

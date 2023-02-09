@@ -13,9 +13,6 @@ from web3._utils.filters import (
     LogFilter,
     TransactionFilter,
 )
-from web3.eth import (
-    AsyncEth,
-)
 from web3.providers.eth_tester.main import (
     AsyncEthereumTesterProvider,
 )

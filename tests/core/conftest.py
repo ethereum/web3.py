@@ -5,9 +5,6 @@ import pytest_asyncio
 from web3 import (
     Web3,
 )
-from web3.eth import (
-    AsyncEth,
-)
 from web3.module import (
     Module,
 )

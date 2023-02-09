@@ -1,9 +1,6 @@
 from web3 import (
     Web3,
 )
-from web3.eth import (
-    AsyncEth,
-)
 from web3.middleware import (
     async_local_filter_middleware,
     local_filter_middleware,

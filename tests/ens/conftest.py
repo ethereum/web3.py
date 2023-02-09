@@ -44,9 +44,6 @@ from web3.contract import (
     AsyncContract,
     Contract,
 )
-from web3.eth import (
-    AsyncEth,
-)
 from web3.providers.eth_tester import (
     AsyncEthereumTesterProvider,
     EthereumTesterProvider,

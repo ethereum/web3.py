@@ -99,11 +99,19 @@ OFFCHAIN_LOOKUP_TEST_DATA = "0x0000000000000000000000000000000000000000000000000
 WEB3PY_AS_HEXBYTES = "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000067765623370790000000000000000000000000000000000000000000000000000"  # noqa: E501
 
 if TYPE_CHECKING:
-    from _pytest.monkeypatch import MonkeyPatch  # noqa: F401
+    from _pytest.monkeypatch import (
+        MonkeyPatch,
+    )
 
-    from web3 import Web3  # noqa: F401
-    from web3.contract import Contract  # noqa: F401
-    from web3.eth import AsyncEth
+    from web3 import (
+        Web3,
+    )
+    from web3.contract import (
+        Contract,
+    )
+    from web3.eth import (
+        AsyncEth,
+    )
 
 
 class AsyncEthModuleTest:
@@ -697,7 +705,7 @@ class AsyncEthModuleTest:
             ValueError,
             match=(
                 "Value did not match any of the recognized block identifiers: "
-                f"{unknown_identifier!r}"
+                f"{unknown_identifier}"
             ),
         ):
             await async_eth.get_raw_transaction_by_block(
