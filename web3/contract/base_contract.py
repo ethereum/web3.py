@@ -43,15 +43,13 @@ from web3._utils.abi import (
     check_if_arguments_can_be_encoded,
     fallback_func_abi_exists,
     filter_by_type,
-    get_abi_input_names,
-    get_abi_input_types,
     get_constructor_abi,
     is_array_type,
-    map_abi_data,
     merge_args_and_kwargs,
     receive_func_abi_exists,
 )
 from web3._utils.contracts import (
+    decode_transaction_data,
     encode_abi,
     find_matching_event_abi,
     find_matching_fn_abi,
@@ -253,18 +251,11 @@ class BaseContract:
     def decode_function_input(
         self, data: HexStr
     ) -> Tuple["BaseContractFunction", Dict[str, Any]]:
-        # type ignored b/c expects data arg to be HexBytes
-        data = HexBytes(data)  # type: ignore
-        selector, params = data[:4], data[4:]
-        func = self.get_function_by_selector(selector)
-
-        names = get_abi_input_names(func.abi)
-        types = get_abi_input_types(func.abi)
-
-        decoded = self.w3.codec.decode(types, cast(HexBytes, params))
-        normalized = map_abi_data(BASE_RETURN_NORMALIZERS, types, decoded)
-
-        return func, dict(zip(names, normalized))
+        func = self.get_function_by_selector(data[:4])
+        arguments = decode_transaction_data(
+            func.abi, data, normalizers=BASE_RETURN_NORMALIZERS
+        )
+        return func, arguments
 
     @combomethod
     def find_functions_by_args(self, *args: Any) -> "BaseContractFunction":
