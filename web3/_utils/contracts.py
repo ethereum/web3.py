@@ -324,7 +324,7 @@ def decode_transaction_data(
     data: HexStr,
     normalizers: Sequence[Callable[[TypeStr, Any], Tuple[TypeStr, Any]]] = None,
 ) -> Dict[str, Any]:
-    # TODO figure out typing
+    # type ignored b/c expects data arg to be HexBytes
     data = HexBytes(data)  # type: ignore
     types = get_abi_input_types(fn_abi)
     abi_codec = ABICodec(default_registry)
