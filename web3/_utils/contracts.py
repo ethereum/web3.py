@@ -313,12 +313,15 @@ def encode_transaction_data(
 
     return add_0x_prefix(encode_abi(w3, fn_abi, fn_arguments, fn_selector))
 
+from eth_abi.registry import (
+    registry as default_registry,
+)
 
 def decode_transaction_data(fn_abi: ABIFunction, data, normalizers=None) -> Dict[str, Any]:
-    breakpoint()
     data = HexBytes(data)
     types = get_abi_input_types(fn_abi)
-    decoded = ABICodec.decode(types, data[4:])
+    abi_codec = ABICodec(default_registry)
+    decoded = abi_codec.decode(types=types, data=data[4:])
     if normalizers:
         decoded = map_abi_data(normalizers, types, decoded)
     return named_tree(fn_abi["inputs"], decoded)
