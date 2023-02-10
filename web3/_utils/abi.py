@@ -910,7 +910,11 @@ def build_strict_registry() -> ABIRegistry:
 
 
 def named_tree(
-    abi: Sequence[ABIFunctionParams], data: Tuple[Any, ...]
+    abi: Union[
+        Sequence[ABIFunctionParams],
+        Iterable[Union[ABIFunction, ABIEvent, Dict[TypeStr, Any]]],
+    ],
+    data: Tuple[Any, ...],
 ) -> Dict[str, Any]:
     """
     Convert function inputs/outputs or event data tuple to dict with names from ABI.

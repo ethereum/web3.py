@@ -251,7 +251,8 @@ class BaseContract:
     def decode_function_input(
         self, data: HexStr
     ) -> Tuple["BaseContractFunction", Dict[str, Any]]:
-        data = HexBytes(data)
+        # TODO figure out typing
+        data = HexBytes(data)  # type: ignore
         func = self.get_function_by_selector(data[:4])
         arguments = decode_transaction_data(
             func.abi, data, normalizers=BASE_RETURN_NORMALIZERS

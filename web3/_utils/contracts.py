@@ -2,6 +2,7 @@ import functools
 from typing import (
     TYPE_CHECKING,
     Any,
+    Callable,
     Dict,
     Optional,
     Sequence,
@@ -14,9 +15,13 @@ from typing import (
 from eth_abi.codec import (
     ABICodec,
 )
+from eth_abi.registry import (
+    registry as default_registry,
+)
 from eth_typing import (
     ChecksumAddress,
     HexStr,
+    TypeStr,
 )
 from eth_utils import (
     add_0x_prefix,
@@ -313,15 +318,17 @@ def encode_transaction_data(
 
     return add_0x_prefix(encode_abi(w3, fn_abi, fn_arguments, fn_selector))
 
-from eth_abi.registry import (
-    registry as default_registry,
-)
 
-def decode_transaction_data(fn_abi: ABIFunction, data, normalizers=None) -> Dict[str, Any]:
-    data = HexBytes(data)
+def decode_transaction_data(
+    fn_abi: ABIFunction,
+    data: HexStr,
+    normalizers: Sequence[Callable[[TypeStr, Any], Tuple[TypeStr, Any]]] = None,
+) -> Dict[str, Any]:
+    # TODO figure out typing
+    data = HexBytes(data)  # type: ignore
     types = get_abi_input_types(fn_abi)
     abi_codec = ABICodec(default_registry)
-    decoded = abi_codec.decode(types=types, data=data[4:])
+    decoded = abi_codec.decode(types, HexBytes(data[4:]))
     if normalizers:
         decoded = map_abi_data(normalizers, types, decoded)
     return named_tree(fn_abi["inputs"], decoded)

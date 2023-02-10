@@ -107,8 +107,6 @@ def test_contract_abi_decoding(w3, abi, data, method, expected):
     contract = w3.eth.contract(abi=abi)
     func, params = contract.decode_function_input(data)
     assert func.fn_name == method
-    # if method == "liquidate":
-    #     breakpoint()
     assert params == expected
 
     reinvoke_func = contract.functions[func.fn_name](**params)
