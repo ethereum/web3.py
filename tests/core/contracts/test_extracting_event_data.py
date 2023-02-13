@@ -530,7 +530,7 @@ def test_argument_extraction_strict_bytes_types(
             "logStruct",
             "LogStructArgs",
             [1, (2, 3, (4,))],
-            {"arg0": 1, "arg1": (2, 3, (4,))},
+            {"arg0": 1, "arg1": {"a": 2, "b": 3, "nested": {"c": 4}}},
             "The event signature did not match the provided ABI",
             True,
         ),
@@ -538,7 +538,7 @@ def test_argument_extraction_strict_bytes_types(
             "logStruct",
             "LogStructArgs",
             [1, (2, 3, (4,))],
-            {"arg0": 1, "arg1": (2, 3, (4,))},
+            {"arg0": 1, "arg1": {"a": 2, "b": 3, "nested": {"c": 4}}},
             "The event signature did not match the provided ABI",
             False,
         ),
@@ -793,7 +793,7 @@ def test_event_rich_log(
             "logStruct",
             "LogStructArgs",
             [1, (2, 3, (4,))],
-            {"arg0": 1, "arg1": (2, 3, (4,))},
+            {"arg0": 1, "arg1": {"a": 2, "b": 3, "nested": {"c": 4}}},
             "The event signature did not match the provided ABI",
             True,
         ),
@@ -801,7 +801,7 @@ def test_event_rich_log(
             "logStruct",
             "LogStructArgs",
             [1, (2, 3, (4,))],
-            {"arg0": 1, "arg1": (2, 3, (4,))},
+            {"arg0": 1, "arg1": {"a": 2, "b": 3, "nested": {"c": 4}}},
             "The event signature did not match the provided ABI",
             False,
         ),
@@ -976,7 +976,7 @@ def test_get_all_entries_with_nested_tuple_event(w3, emitter):
 
     log_entry = entries[0]
 
-    assert log_entry.args == {"arg0": 1, "arg1": (2, 3, (4,))}
+    assert log_entry.args == {"arg0": 1, "arg1": {"a": 2, "b": 3, "nested": {"c": 4}}}
     assert log_entry.event == "LogStructArgs"
     assert log_entry.blockHash == txn_receipt["blockHash"]
     assert log_entry.blockNumber == txn_receipt["blockNumber"]
@@ -1002,7 +1002,7 @@ def test_get_all_entries_with_nested_tuple_event_non_strict(
 
     log_entry = entries[0]
 
-    assert log_entry.args == {"arg0": 1, "arg1": (2, 3, (4,))}
+    assert log_entry.args == {"arg0": 1, "arg1": {"a": 2, "b": 3, "nested": {"c": 4}}}
     assert log_entry.event == "LogStructArgs"
     assert log_entry.blockHash == txn_receipt["blockHash"]
     assert log_entry.blockNumber == txn_receipt["blockNumber"]

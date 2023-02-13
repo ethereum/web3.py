@@ -43,15 +43,13 @@ from web3._utils.abi import (
     check_if_arguments_can_be_encoded,
     fallback_func_abi_exists,
     filter_by_type,
-    get_abi_input_names,
-    get_abi_input_types,
     get_constructor_abi,
     is_array_type,
-    map_abi_data,
     merge_args_and_kwargs,
     receive_func_abi_exists,
 )
 from web3._utils.contracts import (
+    decode_transaction_data,
     encode_abi,
     find_matching_event_abi,
     find_matching_fn_abi,
@@ -159,6 +157,7 @@ class BaseContract:
     bytecode_runtime = None
     clone_bin = None
 
+    decode_tuples = None
     dev_doc = None
     interface = None
     metadata = None
@@ -254,16 +253,11 @@ class BaseContract:
     ) -> Tuple["BaseContractFunction", Dict[str, Any]]:
         # type ignored b/c expects data arg to be HexBytes
         data = HexBytes(data)  # type: ignore
-        selector, params = data[:4], data[4:]
-        func = self.get_function_by_selector(selector)
-
-        names = get_abi_input_names(func.abi)
-        types = get_abi_input_types(func.abi)
-
-        decoded = self.w3.codec.decode(types, cast(HexBytes, params))
-        normalized = map_abi_data(BASE_RETURN_NORMALIZERS, types, decoded)
-
-        return func, dict(zip(names, normalized))
+        func = self.get_function_by_selector(data[:4])
+        arguments = decode_transaction_data(
+            func.abi, data, normalizers=BASE_RETURN_NORMALIZERS
+        )
+        return func, arguments
 
     @combomethod
     def find_functions_by_args(self, *args: Any) -> "BaseContractFunction":
@@ -435,6 +429,7 @@ class BaseContractFunctions:
         w3: "Web3",
         contract_function_class: Type["BaseContractFunction"],
         address: Optional[ChecksumAddress] = None,
+        decode_tuples: Optional[bool] = False,
     ) -> None:
         self.abi = abi
         self.w3 = w3
@@ -451,6 +446,7 @@ class BaseContractFunctions:
                         w3=self.w3,
                         contract_abi=self.abi,
                         address=self.address,
+                        decode_tuples=decode_tuples,
                         function_identifier=func["name"],
                     ),
                 )
@@ -668,6 +664,7 @@ class BaseContractFunction:
     abi: ABIFunction = None
     transaction: TxParams = None
     arguments: Tuple[Any, ...] = None
+    decode_tuples: Optional[bool] = False
     args: Any = None
     kwargs: Any = None
 
@@ -1086,11 +1083,13 @@ class BaseContractCaller:
         transaction: Optional[TxParams] = None,
         block_identifier: BlockIdentifier = "latest",
         ccip_read_enabled: Optional[bool] = None,
+        decode_tuples: Optional[bool] = False,
     ) -> None:
         self.w3 = w3
         self.address = address
         self.abi = abi
         self._functions = None
+        self.decode_tuples = decode_tuples
 
         if self.abi:
             if transaction is None:
@@ -1104,6 +1103,7 @@ class BaseContractCaller:
                     contract_abi=self.abi,
                     address=self.address,
                     function_identifier=func["name"],
+                    decode_tuples=decode_tuples,
                 )
 
                 block_id = parse_block_identifier(self.w3, block_identifier)

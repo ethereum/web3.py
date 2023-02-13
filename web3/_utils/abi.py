@@ -74,6 +74,7 @@ from web3._utils.formatters import (
 )
 from web3.exceptions import (
     FallbackNotFound,
+    MismatchedABI,
 )
 from web3.types import (
     ABI,
@@ -906,3 +907,67 @@ def build_strict_registry() -> ABIRegistry:
         label="string",
     )
     return registry
+
+
+def named_tree(
+    abi: Iterable[Union[ABIFunctionParams, ABIFunction, ABIEvent, Dict[TypeStr, Any]]],
+    data: Iterable[Tuple[Any, ...]],
+) -> Dict[str, Any]:
+    """
+    Convert function inputs/outputs or event data tuple to dict with names from ABI.
+    """
+    names = [item["name"] for item in abi]
+    items = [_named_subtree(*item) for item in zip(abi, data)]
+
+    return dict(zip(names, items))
+
+
+def _named_subtree(
+    abi: Union[ABIFunctionParams, ABIFunction, ABIEvent, Dict[TypeStr, Any]],
+    data: Tuple[Any, ...],
+) -> Union[Dict[str, Any], Tuple[Any, ...], List[Any]]:
+    abi_type = parse(collapse_if_tuple(dict(abi)))
+
+    if abi_type.is_array:
+        item_type = abi_type.item_type.to_type_str()
+        item_abi = {**abi, "type": item_type, "name": ""}
+        items = [_named_subtree(item_abi, item) for item in data]
+        return items
+
+    elif isinstance(abi_type, TupleType):
+        abi = cast(ABIFunctionParams, abi)
+        names = [item["name"] for item in abi["components"]]
+        items = [_named_subtree(*item) for item in zip(abi["components"], data)]
+
+        if len(names) == len(data):
+            return dict(zip(names, items))
+        else:
+            raise MismatchedABI(
+                f"ABI fields {names} has length {len(names)} but received "
+                f"data {data} with length {len(data)}"
+            )
+
+    return data
+
+
+def recursive_dict_to_namedtuple(data: Dict[str, Any]) -> Tuple[Any, ...]:
+    def _dict_to_namedtuple(
+        value: Union[Dict[str, Any], List[Any]]
+    ) -> Union[Tuple[Any, ...], List[Any]]:
+        if not isinstance(value, dict):
+            return value
+
+        keys, values = zip(*value.items())
+        return abi_decoded_namedtuple_factory(keys)(values)
+
+    return recursive_map(_dict_to_namedtuple, data)
+
+
+def abi_decoded_namedtuple_factory(
+    fields: Tuple[Any, ...]
+) -> Callable[..., Tuple[Any, ...]]:
+    class ABIDecodedNamedTuple(namedtuple("ABIDecodedNamedTuple", fields, rename=True)):  # type: ignore # noqa: E501
+        def __new__(self, args: Any) -> "ABIDecodedNamedTuple":
+            return super().__new__(self, *args)
+
+    return ABIDecodedNamedTuple

@@ -58,6 +58,7 @@ from web3._utils.abi import (
     get_indexed_event_inputs,
     get_normalized_abi_arg_type,
     map_abi_data,
+    named_tree,
     normalize_event_input_types,
 )
 from web3._utils.encoding import (
@@ -255,6 +256,10 @@ def get_event_data(
     normalized_log_data = map_abi_data(
         BASE_RETURN_NORMALIZERS, log_data_types, decoded_log_data
     )
+    named_log_data = named_tree(
+        log_data_normalized_inputs,
+        normalized_log_data,
+    )
 
     decoded_topic_data = [
         abi_codec.decode([topic_type], topic_data)[0]
@@ -267,7 +272,7 @@ def get_event_data(
     event_args = dict(
         itertools.chain(
             zip(log_topic_names, normalized_topic_data),
-            zip(log_data_names, normalized_log_data),
+            named_log_data.items(),
         )
     )
 

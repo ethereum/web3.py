@@ -23,6 +23,63 @@ def transaction_dict(w3, address):
     }
 
 
+decode_tuples_args = (
+    "method_input, tuple_output, type_str, namedtuple_repr",
+    (
+        (
+            {
+                "a": 123,
+                "b": [1, 2],
+                "c": [
+                    {
+                        "x": 234,
+                        "y": [True, False],
+                        "z": [
+                            "0x4AD7E79d88650B01EEA2B1f069f01EE9db343d5c",
+                            "0xfdF1946A9b40245224488F1a36f4A9ed4844a523",
+                            "0xfdF1946A9b40245224488F1a36f4A9ed4844a523",
+                        ],
+                    },
+                    {
+                        "x": 345,
+                        "y": [False, False],
+                        "z": [
+                            "0xefd1FF70c185A1C0b125939815225199079096Ee",
+                            "0xf35C0784794F3Cd935F5754d3a0EbcE95bEf851e",
+                        ],
+                    },
+                ],
+            },
+            (
+                123,
+                [1, 2],
+                [
+                    (
+                        234,
+                        [True, False],
+                        [
+                            "0x4AD7E79d88650B01EEA2B1f069f01EE9db343d5c",
+                            "0xfdF1946A9b40245224488F1a36f4A9ed4844a523",
+                            "0xfdF1946A9b40245224488F1a36f4A9ed4844a523",
+                        ],
+                    ),
+                    (
+                        345,
+                        [False, False],
+                        [
+                            "0xefd1FF70c185A1C0b125939815225199079096Ee",
+                            "0xf35C0784794F3Cd935F5754d3a0EbcE95bEf851e",
+                        ],
+                    ),
+                ],
+            ),
+            "<class 'web3._utils.abi.abi_decoded_namedtuple_factory.<locals>.ABIDecodedNamedTuple'>",  # noqa: E501
+            "ABIDecodedNamedTuple(a=123, b=[1, 2], c=[ABIDecodedNamedTuple(x=234, y=[True, False], z=['0x4AD7E79d88650B01EEA2B1f069f01EE9db343d5c', '0xfdF1946A9b40245224488F1a36f4A9ed4844a523', '0xfdF1946A9b40245224488F1a36f4A9ed4844a523']), ABIDecodedNamedTuple(x=345, y=[False, False], z=['0xefd1FF70c185A1C0b125939815225199079096Ee', '0xf35C0784794F3Cd935F5754d3a0EbcE95bEf851e'])])",  # noqa: E501
+        ),
+    ),
+)
+
+
 def test_caller_default(math_contract):
     result = math_contract.caller.add(3, 5)
     assert result == 8
@@ -149,6 +206,37 @@ def test_caller_with_args_and_no_transaction_keyword(
 
     add_result = contract.add(3, 5)
     assert add_result == 8
+
+
+@pytest.mark.parametrize(*decode_tuples_args)
+def test_tuple_contract_caller_default_with_decode_tuples(
+    tuple_contract_with_decode_tuples,
+    method_input,
+    tuple_output,
+    type_str,
+    namedtuple_repr,
+):
+    result = tuple_contract_with_decode_tuples.caller.method(method_input)
+    assert result == tuple_output
+    assert str(type(result)) == type_str
+    assert result.__repr__() == namedtuple_repr
+
+
+@pytest.mark.parametrize(*decode_tuples_args)
+def test_tuple_contract_caller_with_parens_with_decode_tuples(
+    tuple_contract_with_decode_tuples,
+    method_input,
+    tuple_output,
+    type_str,
+    namedtuple_repr,
+):
+    result = tuple_contract_with_decode_tuples.caller().method(method_input)
+    assert result == tuple_output
+    assert str(type(result)) == type_str
+    assert result.__repr__() == namedtuple_repr
+
+
+# --- async --- #
 
 
 @pytest.mark.asyncio
@@ -295,3 +383,33 @@ async def test_async_caller_with_args_and_no_transaction_keyword(
 
     add_result = await contract.add(3, 5)
     assert add_result == 8
+
+
+@pytest.mark.parametrize(*decode_tuples_args)
+@pytest.mark.asyncio
+async def test_async_tuple_contract_caller_default_with_decode_tuples(
+    async_tuple_contract_with_decode_tuples,
+    method_input,
+    tuple_output,
+    type_str,
+    namedtuple_repr,
+):
+    result = await async_tuple_contract_with_decode_tuples.caller.method(method_input)
+    assert result == tuple_output
+    assert str(type(result)) == type_str
+    assert result.__repr__() == namedtuple_repr
+
+
+@pytest.mark.parametrize(*decode_tuples_args)
+@pytest.mark.asyncio
+async def test_async_tuple_contract_caller_with_parens_with_decode_tuples(
+    async_tuple_contract_with_decode_tuples,
+    method_input,
+    tuple_output,
+    type_str,
+    namedtuple_repr,
+):
+    result = await async_tuple_contract_with_decode_tuples.caller().method(method_input)
+    assert result == tuple_output
+    assert str(type(result)) == type_str
+    assert result.__repr__() == namedtuple_repr

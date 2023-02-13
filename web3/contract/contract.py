@@ -79,8 +79,9 @@ class ContractFunctions(BaseContractFunctions):
         abi: ABI,
         w3: "Web3",
         address: Optional[ChecksumAddress] = None,
+        decode_tuples: Optional[bool] = False,
     ) -> None:
-        super().__init__(abi, w3, ContractFunction, address)
+        super().__init__(abi, w3, ContractFunction, address, decode_tuples)
 
 
 class ContractEvents(BaseContractEvents):
@@ -231,8 +232,12 @@ class Contract(BaseContract):
                 "The address argument is required to instantiate a contract."
             )
 
-        self.functions = ContractFunctions(self.abi, _w3, self.address)
-        self.caller = ContractCaller(self.abi, _w3, self.address)
+        self.functions = ContractFunctions(
+            self.abi, _w3, self.address, decode_tuples=self.decode_tuples
+        )
+        self.caller = ContractCaller(
+            self.abi, _w3, self.address, decode_tuples=self.decode_tuples
+        )
         self.events = ContractEvents(self.abi, _w3, self.address)
         self.fallback = Contract.get_fallback_function(
             self.abi,
@@ -269,8 +274,15 @@ class Contract(BaseContract):
                 normalizers=normalizers,
             ),
         )
-        contract.functions = ContractFunctions(contract.abi, contract.w3)
-        contract.caller = ContractCaller(contract.abi, contract.w3, contract.address)
+        contract.functions = ContractFunctions(
+            contract.abi, contract.w3, decode_tuples=contract.decode_tuples
+        )
+        contract.caller = ContractCaller(
+            contract.abi,
+            contract.w3,
+            contract.address,
+            decode_tuples=contract.decode_tuples,
+        )
         contract.events = ContractEvents(contract.abi, contract.w3)
         contract.fallback = Contract.get_fallback_function(
             contract.abi,
@@ -404,6 +416,7 @@ class ContractFunction(BaseContractFunction):
             self.abi,
             state_override,
             ccip_read_enabled,
+            self.decode_tuples,
             *self.args,
             **self.kwargs,
         )
@@ -462,6 +475,7 @@ class ContractCaller(BaseContractCaller):
         transaction: Optional[TxParams] = None,
         block_identifier: BlockIdentifier = "latest",
         ccip_read_enabled: Optional[bool] = None,
+        decode_tuples: Optional[bool] = False,
     ) -> None:
         super().__init__(
             abi=abi,
@@ -471,17 +485,18 @@ class ContractCaller(BaseContractCaller):
             block_identifier=block_identifier,
             ccip_read_enabled=ccip_read_enabled,
             contract_function_class=ContractFunction,
+            decode_tuples=decode_tuples,
         )
 
     def __call__(
         self,
         transaction: Optional[TxParams] = None,
         block_identifier: BlockIdentifier = "latest",
-        state_override: Optional[CallOverride] = None,
         ccip_read_enabled: Optional[bool] = None,
     ) -> "ContractCaller":
         if transaction is None:
             transaction = {}
+
         return type(self)(
             self.abi,
             self.w3,
@@ -489,4 +504,5 @@ class ContractCaller(BaseContractCaller):
             transaction=transaction,
             block_identifier=block_identifier,
             ccip_read_enabled=ccip_read_enabled,
+            decode_tuples=self.decode_tuples,
         )

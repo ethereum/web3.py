@@ -24,6 +24,8 @@ from web3._utils.abi import (
     filter_by_type,
     get_abi_output_types,
     map_abi_data,
+    named_tree,
+    recursive_dict_to_namedtuple,
 )
 from web3._utils.async_transactions import (
     fill_transaction_defaults as async_fill_transaction_defaults,
@@ -70,6 +72,7 @@ def call_contract_function(
     fn_abi: Optional[ABIFunction] = None,
     state_override: Optional[CallOverride] = None,
     ccip_read_enabled: Optional[bool] = None,
+    decode_tuples: Optional[bool] = False,
     *args: Any,
     **kwargs: Any,
 ) -> Any:
@@ -128,6 +131,10 @@ def call_contract_function(
         normalizers,
     )
     normalized_data = map_abi_data(_normalizers, output_types, output_data)
+
+    if decode_tuples:
+        decoded = named_tree(fn_abi["outputs"], normalized_data)
+        normalized_data = recursive_dict_to_namedtuple(decoded)
 
     if len(normalized_data) == 1:
         return normalized_data[0]
@@ -273,6 +280,7 @@ async def async_call_contract_function(
     fn_abi: Optional[ABIFunction] = None,
     state_override: Optional[CallOverride] = None,
     ccip_read_enabled: Optional[bool] = None,
+    decode_tuples: Optional[bool] = False,
     *args: Any,
     **kwargs: Any,
 ) -> Any:
@@ -331,6 +339,10 @@ async def async_call_contract_function(
         normalizers,
     )
     normalized_data = map_abi_data(_normalizers, output_types, output_data)
+
+    if decode_tuples:
+        decoded = named_tree(fn_abi["outputs"], normalized_data)
+        normalized_data = recursive_dict_to_namedtuple(decoded)
 
     if len(normalized_data) == 1:
         return normalized_data[0]
