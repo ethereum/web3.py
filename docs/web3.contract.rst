@@ -155,7 +155,7 @@ Each Contract Factory exposes the following properties.
     value will be a Python `NamedTuple` of the class `ABIDecodedNamedTuple`.
     
     NamedTuples have some restrictions regarding field names.
-    Web3.py sets `NamedTuple`'s `rename=True`, so disallowed field names may be 
+    web3.py sets `NamedTuple`'s `rename=True`, so disallowed field names may be 
     different than expected. See the [Python docs](https://docs.python.org/3/library/collections.html#collections.namedtuple)
     for more information.
     
