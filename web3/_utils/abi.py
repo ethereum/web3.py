@@ -909,7 +909,6 @@ def build_strict_registry() -> ABIRegistry:
     return registry
 
 
-# Sequence[ABIFunctionParams],
 def named_tree(
     abi: Iterable[Union[ABIFunctionParams, ABIFunction, ABIEvent, Dict[TypeStr, Any]]],
     data: Iterable[Tuple[Any, ...]],
@@ -918,27 +917,27 @@ def named_tree(
     Convert function inputs/outputs or event data tuple to dict with names from ABI.
     """
     names = [item["name"] for item in abi]
-    items = [named_subtree(*item) for item in zip(abi, data)]
+    items = [_named_subtree(*item) for item in zip(abi, data)]
 
     return dict(zip(names, items))
 
 
-def named_subtree(
+def _named_subtree(
     abi: Union[ABIFunctionParams, ABIFunction, ABIEvent, Dict[TypeStr, Any]],
     data: Tuple[Any, ...],
-) -> Union[Dict[str, Any], Tuple[Any, ...], Any]:
+) -> Union[Dict[str, Any], Tuple[Any, ...], List[Any]]:
     abi_type = parse(collapse_if_tuple(dict(abi)))
 
     if abi_type.is_array:
         item_type = abi_type.item_type.to_type_str()
         item_abi = {**abi, "type": item_type, "name": ""}
-        items = [named_subtree(item_abi, item) for item in data]
+        items = [_named_subtree(item_abi, item) for item in data]
         return items
 
     elif isinstance(abi_type, TupleType):
         abi = cast(ABIFunctionParams, abi)
         names = [item["name"] for item in abi["components"]]
-        items = [named_subtree(*item) for item in zip(abi["components"], data)]
+        items = [_named_subtree(*item) for item in zip(abi["components"], data)]
 
         if len(names) == len(data):
             return dict(zip(names, items))
