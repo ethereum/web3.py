@@ -1,0 +1,1 @@
+remove references to Rinkeby or replace with Goerli

@@ -683,7 +683,7 @@ like so:
     :code: python
     :start-line: 1
 
-Using Infura Rinkeby Node
+Using Infura Goerli Node
 -------------------------
 Import your required libraries
 
@@ -695,7 +695,7 @@ Initialize a web3 instance with an Infura node
 
 .. code-block:: python
 
-    w3 = Web3(Web3.HTTPProvider("https://rinkeby.infura.io/v3/YOUR_INFURA_KEY"))
+    w3 = Web3(Web3.HTTPProvider("https://goerli.infura.io/v3/YOUR_INFURA_KEY"))
 
 
 Inject the middleware into the middleware onion
@@ -728,7 +728,7 @@ And finally, send the transaction
 
 Tip : afterwards you can use the value stored in ``txn_hash``, in an explorer like `etherscan`_ to view the transaction's details
 
-.. _etherscan: https://rinkeby.etherscan.io
+.. _etherscan: https://goerli.etherscan.io
 
 
 Adjusting log levels

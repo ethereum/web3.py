@@ -373,7 +373,7 @@ Proof of Authority
     It's important to inject the middleware at the 0th layer of the middleware onion:
     `w3.middleware_onion.inject(geth_poa_middleware, layer=0)`
 
-The ``geth_poa_middleware`` is required to connect to ``geth --dev`` or the Rinkeby
+The ``geth_poa_middleware`` is required to connect to ``geth --dev`` or the Goerli 
 public network. It may also be needed for other EVM compatible blockchains like Polygon
 or BNB Chain (Binance Smart Chain).
 
@@ -421,7 +421,7 @@ Why is ``geth_poa_middleware`` necessary?
 
 There is no strong community consensus on a single Proof-of-Authority (PoA) standard yet.
 Some nodes have successful experiments running, though. One is go-ethereum (geth),
-which uses a prototype PoA for it's development mode and the Rinkeby test network.
+which uses a prototype PoA for it's development mode and the Goerli test network.
 
 Unfortunately, it does deviate from the yellow paper specification, which constrains the
 ``extraData`` field in each block to a maximum of 32-bytes. Geth's PoA uses more than

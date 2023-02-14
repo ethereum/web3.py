@@ -1,0 +1,1 @@
+removed Rinkeby from list of allowed chains in EthPM
