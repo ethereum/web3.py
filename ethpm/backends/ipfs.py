@@ -2,6 +2,7 @@ from abc import (
     abstractmethod,
 )
 import os
+import aiohttp
 from pathlib import (
     Path,
 )
@@ -120,21 +121,30 @@ class IPFSGatewayBackend(IPFSOverHTTPBackend):
     Backend class for all IPFS URIs served over the IPFS gateway.
     """
 
-    # todo update this gateway to work r&w
-    # https://discuss.ipfs.io/t/writeable-http-gateways/210
     @property
     def base_uri(self) -> str:
         return IPFS_GATEWAY_PREFIX
 
-    def pin_assets(self, file_or_dir_path: Path) -> List[Dict[str, str]]:
-        raise CannotHandleURI(
-            "IPFS gateway is currently disabled, please use a different IPFS backend."
-        )
+    async def upload_file(self, file_or_dir_path: Path) -> str:
+        async with aiohttp.ClientSession() as session:
+            async with session.post(f"{self.base_uri}/ipfs/", data=file_or_dir_path.open('rb')) as response:
+                if response.status != 200:
+                    raise Exception(f"Failed to upload file: {response.status} {response.reason}")
+                return response.headers.get('ipfs-hash')
 
-    def fetch_uri_contents(self, uri: str) -> bytes:
-        raise CannotHandleURI(
-            "IPFS gateway is currently disabled, please use a different IPFS backend."
-        )
+    async def delete_file(self, ipfs_path: str) -> str:
+        async with aiohttp.ClientSession() as session:
+            async with session.delete(f"{self.base_uri}/ipfs/{ipfs_path}") as response:
+                if response.status != 200:
+                    raise Exception(f"Failed to delete file: {response.status} {response.reason}")
+                return response.headers.get('ipfs-hash')
+
+    async def fetch_uri_contents(self, uri: str) -> bytes:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(f"{self.base_uri}/{uri}") as response:
+                if response.status != 200:
+                    raise Exception(f"Failed to fetch contents of {uri}: {response.status} {response.reason}")
+                return await response.read()
 
 
 class InfuraIPFSBackend(IPFSOverHTTPBackend):
