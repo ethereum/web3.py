@@ -255,7 +255,7 @@ class AsyncENS(BaseENS):
         Get the owner of a name. Note that this may be different from the
         deed holder in the '.eth' registrar. Learn more about the difference
         between deed and name ownership in the ENS `Managing Ownership docs
-        <http://docs.ens.domains/en/latest/userguide.html#managing-ownership>`_
+        <https://docs.ens.domains/en/latest/userguide.html#managing-ownership>`_
 
         :param str name: ENS name to look up
         :return: owner address
@@ -516,7 +516,7 @@ class AsyncENS(BaseENS):
             owner = await self.owner(name)
             if is_none_or_zero_address(owner):
                 unowned.append(pieces.pop(0))
-        return (owner, unowned, name)
+        return owner, unowned, name
 
     async def _claim_ownership(
         self,
