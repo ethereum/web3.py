@@ -47,6 +47,7 @@ from web3.middleware.formatting import (
     async_construct_formatting_middleware,
 )
 from web3.types import (
+    AsyncMiddlewareCoroutine,
     Middleware,
     RPCEndpoint,
     RPCResponse,
@@ -55,6 +56,7 @@ from web3.types import (
 
 if TYPE_CHECKING:
     from web3 import (  # noqa: F401
+        AsyncWeb3,
         Web3,
     )
 
@@ -333,40 +335,6 @@ def fill_default(
         return assoc(transaction, field, guess_val)
 
 
-# --- async --- #
-
-
-async def async_ethereum_tester_middleware(  # type: ignore
-    make_request, web3: "Web3"
-) -> Middleware:
-    middleware = await async_construct_formatting_middleware(
-        request_formatters=request_formatters, result_formatters=result_formatters
-    )
-    return await middleware(make_request, web3)
-
-
-async def async_guess_from(async_w3: "Web3", _: TxParams) -> Optional[ChecksumAddress]:
-    coinbase = await async_w3.eth.coinbase  # type: ignore
-    accounts = await async_w3.eth.accounts  # type: ignore
-    if coinbase is not None:
-        return coinbase
-    elif accounts is not None and len(accounts) > 0:
-        return accounts[0]
-    return None
-
-
-@curry
-async def async_fill_default(
-    field: str, guess_func: Callable[..., Any], async_w3: "Web3", transaction: TxParams
-) -> TxParams:
-    # type ignored b/c TxParams keys must be string literal types
-    if field in transaction and transaction[field] is not None:  # type: ignore
-        return transaction
-    else:
-        guess_val = await guess_func(async_w3, transaction)
-        return assoc(transaction, field, guess_val)
-
-
 def default_transaction_fields_middleware(
     make_request: Callable[[RPCEndpoint, Any], Any], w3: "Web3"
 ) -> Callable[[RPCEndpoint, Any], RPCResponse]:
@@ -388,9 +356,48 @@ def default_transaction_fields_middleware(
     return middleware
 
 
+# --- async --- #
+
+
+async def async_ethereum_tester_middleware(  # type: ignore
+    make_request, web3: "AsyncWeb3"
+) -> Middleware:
+    middleware = await async_construct_formatting_middleware(
+        request_formatters=request_formatters, result_formatters=result_formatters
+    )
+    return await middleware(make_request, web3)
+
+
+async def async_guess_from(
+    async_w3: "AsyncWeb3", _: TxParams
+) -> Optional[ChecksumAddress]:
+    coinbase = await async_w3.eth.coinbase  # type: ignore
+    accounts = await async_w3.eth.accounts  # type: ignore
+    if coinbase is not None:
+        return coinbase
+    elif accounts is not None and len(accounts) > 0:
+        return accounts[0]
+    return None
+
+
+@curry
+async def async_fill_default(
+    field: str,
+    guess_func: Callable[..., Any],
+    async_w3: "AsyncWeb3",
+    transaction: TxParams,
+) -> TxParams:
+    # type ignored b/c TxParams keys must be string literal types
+    if field in transaction and transaction[field] is not None:  # type: ignore
+        return transaction
+    else:
+        guess_val = await guess_func(async_w3, transaction)
+        return assoc(transaction, field, guess_val)
+
+
 async def async_default_transaction_fields_middleware(
-    make_request: Callable[[RPCEndpoint, Any], Any], async_w3: "Web3"
-) -> Callable[[RPCEndpoint, Any], RPCResponse]:
+    make_request: Callable[[RPCEndpoint, Any], Any], async_w3: "AsyncWeb3"
+) -> AsyncMiddlewareCoroutine:
     async def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
         if method in (
             "eth_call",
@@ -404,4 +411,4 @@ async def async_default_transaction_fields_middleware(
         else:
             return await make_request(method, params)
 
-    return middleware  # type: ignore
+    return middleware

@@ -26,12 +26,14 @@ def test_get_transaction_count_formatters(w3, block_number):
 
 
 def test_get_block_formatters(w3):
+    all_block_keys = BlockData.__annotations__.keys()
+    all_non_poa_block_keys = set(
+        [k for k in all_block_keys if k != "proofOfAuthorityData"]
+    )
+
     latest_block = w3.eth.get_block("latest")
-
-    all_block_keys = set(BlockData.__annotations__.keys())
     latest_block_keys = set(latest_block.keys())
-
-    assert all_block_keys == latest_block_keys
+    assert all_non_poa_block_keys == latest_block_keys
 
 
 @pytest.mark.parametrize(

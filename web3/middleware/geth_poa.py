@@ -26,12 +26,15 @@ from web3.middleware.formatting import (
     construct_formatting_middleware,
 )
 from web3.types import (
-    AsyncMiddleware,
+    AsyncMiddlewareCoroutine,
     RPCEndpoint,
 )
 
 if TYPE_CHECKING:
-    from web3 import Web3  # noqa: F401
+    from web3 import (  # noqa: F401
+        AsyncWeb3,
+        Web3,
+    )
 
 is_not_null = complement(is_null)
 
@@ -59,8 +62,8 @@ geth_poa_middleware = construct_formatting_middleware(
 
 
 async def async_geth_poa_middleware(
-    make_request: Callable[[RPCEndpoint, Any], Any], w3: "Web3"
-) -> AsyncMiddleware:
+    make_request: Callable[[RPCEndpoint, Any], Any], w3: "AsyncWeb3"
+) -> AsyncMiddlewareCoroutine:
     middleware = await async_construct_formatting_middleware(
         result_formatters={
             RPC.eth_getBlockByHash: apply_formatter_if(is_not_null, geth_poa_cleanup),

@@ -5,9 +5,7 @@ from typing import (
     Optional,
     Sequence,
     Tuple,
-    Type,
     Union,
-    overload,
 )
 
 from eth_account import (
@@ -29,12 +27,6 @@ from eth_utils.toolz import (
 from web3._utils.empty import (
     Empty,
     empty,
-)
-from web3.contract import (
-    AsyncContract,
-    AsyncContractCaller,
-    Contract,
-    ContractCaller,
 )
 from web3.module import (
     Module,
@@ -185,39 +177,3 @@ class BaseEth(Module):
                 "a valid filter object, or a filter_id as a string "
                 "or hex."
             )
-
-    @overload
-    def contract(
-        self, address: None = None, **kwargs: Any
-    ) -> Union[Type[Contract], Type[AsyncContract]]:
-        ...  # noqa: E704,E501
-
-    @overload  # noqa: F811
-    def contract(
-        self, address: Union[Address, ChecksumAddress, ENS], **kwargs: Any
-    ) -> Union[Contract, AsyncContract]:
-        ...  # noqa: E704,E501
-
-    def contract(  # noqa: F811
-        self,
-        address: Optional[Union[Address, ChecksumAddress, ENS]] = None,
-        **kwargs: Any,
-    ) -> Union[Type[Contract], Contract, Type[AsyncContract], AsyncContract]:
-        ContractFactoryClass = kwargs.pop(
-            "ContractFactoryClass", self._default_contract_factory
-        )
-
-        ContractFactory = ContractFactoryClass.factory(self.w3, **kwargs)
-
-        if address:
-            return ContractFactory(address)
-        else:
-            return ContractFactory
-
-    def set_contract_factory(
-        self,
-        contract_factory: Type[
-            Union[Contract, AsyncContract, ContractCaller, AsyncContractCaller]
-        ],
-    ) -> None:
-        self._default_contract_factory = contract_factory

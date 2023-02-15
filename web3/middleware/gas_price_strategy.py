@@ -21,7 +21,7 @@ from web3.exceptions import (
     TransactionTypeMismatch,
 )
 from web3.types import (
-    AsyncMiddleware,
+    AsyncMiddlewareCoroutine,
     BlockData,
     RPCEndpoint,
     RPCResponse,
@@ -30,7 +30,10 @@ from web3.types import (
 )
 
 if TYPE_CHECKING:
-    from web3 import Web3  # noqa: F401
+    from web3 import (  # noqa: F401
+        AsyncWeb3,
+        Web3,
+    )
 
 
 def validate_transaction_params(
@@ -96,8 +99,8 @@ def gas_price_strategy_middleware(
 
 
 async def async_gas_price_strategy_middleware(
-    make_request: Callable[[RPCEndpoint, Any], Any], w3: "Web3"
-) -> AsyncMiddleware:
+    make_request: Callable[[RPCEndpoint, Any], Any], async_w3: "AsyncWeb3"
+) -> AsyncMiddlewareCoroutine:
     """
     - Uses a gas price strategy if one is set. This is only supported for
       legacy transactions. It is recommended to send dynamic fee transactions
@@ -109,8 +112,8 @@ async def async_gas_price_strategy_middleware(
     async def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
         if method == "eth_sendTransaction":
             transaction = params[0]
-            generated_gas_price = w3.eth.generate_gas_price(transaction)
-            latest_block = await w3.eth.get_block("latest")  # type: ignore
+            generated_gas_price = async_w3.eth.generate_gas_price(transaction)
+            latest_block = await async_w3.eth.get_block("latest")
             transaction = validate_transaction_params(
                 transaction, latest_block, generated_gas_price
             )

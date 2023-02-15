@@ -7,13 +7,17 @@ from typing import (
 
 from web3.types import (
     AsyncMiddleware,
+    AsyncMiddlewareCoroutine,
     Middleware,
     RPCEndpoint,
     RPCResponse,
 )
 
 if TYPE_CHECKING:
-    from web3 import Web3  # noqa: F401
+    from web3.main import (  # noqa: F401
+        AsyncWeb3,
+        Web3,
+    )
 
 
 def construct_fixture_middleware(fixtures: Dict[RPCEndpoint, Any]) -> Middleware:
@@ -92,15 +96,15 @@ def construct_error_generator_middleware(
 
 async def async_construct_result_generator_middleware(
     result_generators: Dict[RPCEndpoint, Any]
-) -> Middleware:
+) -> AsyncMiddleware:
     """
     Constructs a middleware which returns a static response for any method
     which is found in the provided fixtures.
     """
 
     async def result_generator_middleware(
-        make_request: Callable[[RPCEndpoint, Any], Any], _: "Web3"
-    ) -> AsyncMiddleware:
+        make_request: Callable[[RPCEndpoint, Any], Any], _: "AsyncWeb3"
+    ) -> AsyncMiddlewareCoroutine:
         async def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
             if method in result_generators:
                 result = result_generators[method](method, params)
@@ -115,7 +119,7 @@ async def async_construct_result_generator_middleware(
 
 async def async_construct_error_generator_middleware(
     error_generators: Dict[RPCEndpoint, Any]
-) -> Middleware:
+) -> AsyncMiddleware:
     """
     Constructs a middleware which intercepts requests for any method found in
     the provided mapping of endpoints to generator functions, returning
@@ -124,8 +128,8 @@ async def async_construct_error_generator_middleware(
     """
 
     async def error_generator_middleware(
-        make_request: Callable[[RPCEndpoint, Any], Any], _: "Web3"
-    ) -> AsyncMiddleware:
+        make_request: Callable[[RPCEndpoint, Any], Any], _: "AsyncWeb3"
+    ) -> AsyncMiddlewareCoroutine:
         async def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
             if method in error_generators:
                 error_msg = error_generators[method](method, params)

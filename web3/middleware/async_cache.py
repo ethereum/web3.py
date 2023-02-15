@@ -21,6 +21,7 @@ from web3.middleware.cache import (
 )
 from web3.types import (
     AsyncMiddleware,
+    AsyncMiddlewareCoroutine,
     Middleware,
     RPCEndpoint,
     RPCResponse,
@@ -30,7 +31,10 @@ from web3.utils.caching import (
 )
 
 if TYPE_CHECKING:
-    from web3 import Web3  # noqa: F401
+    from web3 import (  # noqa: F401
+        AsyncWeb3,
+        Web3,
+    )
 
 _async_request_thread_pool = ThreadPoolExecutor()
 
@@ -41,7 +45,7 @@ async def async_construct_simple_cache_middleware(
     should_cache_fn: Callable[
         [RPCEndpoint, Any, RPCResponse], bool
     ] = _should_cache_response,
-) -> Middleware:
+) -> AsyncMiddleware:
     """
     Constructs a middleware which caches responses based on the request
     ``method`` and ``params``
@@ -56,8 +60,8 @@ async def async_construct_simple_cache_middleware(
         cache = SimpleCache(256)
 
     async def async_simple_cache_middleware(
-        make_request: Callable[[RPCEndpoint, Any], Any], _async_w3: "Web3"
-    ) -> AsyncMiddleware:
+        make_request: Callable[[RPCEndpoint, Any], Any], _async_w3: "AsyncWeb3"
+    ) -> AsyncMiddlewareCoroutine:
         lock = threading.Lock()
 
         async def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
@@ -83,7 +87,7 @@ async def async_construct_simple_cache_middleware(
 
 
 async def _async_simple_cache_middleware(
-    make_request: Callable[[RPCEndpoint, Any], Any], async_w3: "Web3"
+    make_request: Callable[[RPCEndpoint, Any], Any], async_w3: "AsyncWeb3"
 ) -> Middleware:
     middleware = await async_construct_simple_cache_middleware()
     return await middleware(make_request, async_w3)

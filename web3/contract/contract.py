@@ -24,6 +24,14 @@ from hexbytes import (
     HexBytes,
 )
 
+from web3._utils.abi import (
+    fallback_func_abi_exists,
+    filter_by_type,
+    receive_func_abi_exists,
+)
+from web3._utils.contracts import (
+    parse_block_identifier,
+)
 from web3._utils.datatypes import (
     PropertyCheckingFactory,
 )
@@ -33,6 +41,10 @@ from web3._utils.events import (
 )
 from web3._utils.filters import (
     LogFilter,
+)
+from web3._utils.function_identifiers import (
+    FallbackFn,
+    ReceiveFn,
 )
 from web3._utils.normalizers import (
     normalize_abi,
@@ -50,7 +62,8 @@ from web3.contract.base_contract import (
     BaseContractEvents,
     BaseContractFunction,
     BaseContractFunctions,
-    parse_block_identifier,
+    NonExistentFallbackFunction,
+    NonExistentReceiveFunction,
 )
 from web3.contract.utils import (
     build_transaction_for_function,
@@ -59,6 +72,11 @@ from web3.contract.utils import (
     find_functions_by_identifier,
     get_function_by_identifier,
     transact_with_contract_function,
+)
+from web3.exceptions import (
+    ABIFunctionNotFound,
+    NoABIFound,
+    NoABIFunctionsFound,
 )
 from web3.types import (
     ABI,
@@ -83,6 +101,24 @@ class ContractFunctions(BaseContractFunctions):
     ) -> None:
         super().__init__(abi, w3, ContractFunction, address, decode_tuples)
 
+    def __getattr__(self, function_name: str) -> "ContractFunction":
+        if self.abi is None:
+            raise NoABIFound(
+                "There is no ABI found for this contract.",
+            )
+        if "_functions" not in self.__dict__:
+            raise NoABIFunctionsFound(
+                "The abi for this contract contains no function definitions. ",
+                "Are you sure you provided the correct contract abi?",
+            )
+        elif function_name not in self.__dict__["_functions"]:
+            raise ABIFunctionNotFound(
+                f"The function '{function_name}' was not found in this contract's abi.",
+                " Are you sure you provided the correct contract abi?",
+            )
+        else:
+            return super().__getattribute__(function_name)
+
 
 class ContractEvents(BaseContractEvents):
     def __init__(
@@ -92,6 +128,9 @@ class ContractEvents(BaseContractEvents):
 
 
 class ContractEvent(BaseContractEvent):
+    # mypy types
+    w3: "Web3"
+
     @combomethod
     def get_logs(
         self,
@@ -207,6 +246,8 @@ class ContractEvent(BaseContractEvent):
 
 
 class Contract(BaseContract):
+    # mypy types
+    w3: "Web3"
     functions: ContractFunctions = None
     caller: "ContractCaller" = None
 
@@ -224,8 +265,7 @@ class Contract(BaseContract):
             )
 
         if address:
-            _ens = cast("ENS", _w3.ens)
-            self.address = normalize_address(_ens, address)
+            self.address = normalize_address(cast("ENS", _w3.ens), address)
 
         if not self.address:
             raise TypeError(
@@ -260,7 +300,7 @@ class Contract(BaseContract):
 
         normalizers = {
             "abi": normalize_abi,
-            "address": partial(normalize_address, kwargs["w3"].ens),
+            "address": partial(normalize_address, w3.ens),
             "bytecode": normalize_bytecode,
             "bytecode_runtime": normalize_bytecode,
         }
@@ -320,18 +360,24 @@ class Contract(BaseContract):
         address: ChecksumAddress,
         callable_check: Callable[..., Any],
     ) -> List["ContractFunction"]:
-        return find_functions_by_identifier(  # type: ignore
-            contract_abi, w3, address, callable_check, ContractFunction
+        return cast(
+            List["ContractFunction"],
+            find_functions_by_identifier(
+                contract_abi, w3, address, callable_check, ContractFunction
+            ),
         )
 
     @combomethod
     def get_function_by_identifier(
-        cls, fns: Sequence[BaseContractFunction], identifier: str
-    ) -> BaseContractFunction:
-        return get_function_by_identifier(fns, identifier)
+        cls, fns: Sequence["ContractFunction"], identifier: str
+    ) -> "ContractFunction":
+        return cast("ContractFunction", get_function_by_identifier(fns, identifier))
 
 
 class ContractConstructor(BaseContractConstructor):
+    # mypy types
+    w3: "Web3"
+
     @combomethod
     def transact(self, transaction: Optional[TxParams] = None) -> HexBytes:
         return self.w3.eth.send_transaction(self._get_transaction(transaction))
@@ -356,6 +402,9 @@ class ContractConstructor(BaseContractConstructor):
 
 
 class ContractFunction(BaseContractFunction):
+    # mypy types
+    w3: "Web3"
+
     def __call__(self, *args: Any, **kwargs: Any) -> "ContractFunction":
         clone = copy.copy(self)
         if args is None:
@@ -369,6 +418,10 @@ class ContractFunction(BaseContractFunction):
             clone.kwargs = kwargs
         clone._set_function_info()
         return clone
+
+    @classmethod
+    def factory(cls, class_name: str, **kwargs: Any) -> "ContractFunction":
+        return PropertyCheckingFactory(class_name, (cls,), kwargs)(kwargs.get("abi"))
 
     def call(
         self,
@@ -465,8 +518,43 @@ class ContractFunction(BaseContractFunction):
             **self.kwargs,
         )
 
+    @staticmethod
+    def get_fallback_function(
+        abi: ABI,
+        w3: "Web3",
+        address: Optional[ChecksumAddress] = None,
+    ) -> "ContractFunction":
+        if abi and fallback_func_abi_exists(abi):
+            return ContractFunction.factory(
+                "fallback",
+                w3=w3,
+                contract_abi=abi,
+                address=address,
+                function_identifier=FallbackFn,
+            )()
+        return cast(ContractFunction, NonExistentFallbackFunction())
+
+    @staticmethod
+    def get_receive_function(
+        abi: ABI,
+        w3: "Web3",
+        address: Optional[ChecksumAddress] = None,
+    ) -> "ContractFunction":
+        if abi and receive_func_abi_exists(abi):
+            return ContractFunction.factory(
+                "receive",
+                w3=w3,
+                contract_abi=abi,
+                address=address,
+                function_identifier=ReceiveFn,
+            )()
+        return cast(ContractFunction, NonExistentReceiveFunction())
+
 
 class ContractCaller(BaseContractCaller):
+    # mypy types
+    w3: "Web3"
+
     def __init__(
         self,
         abi: ABI,
@@ -477,16 +565,34 @@ class ContractCaller(BaseContractCaller):
         ccip_read_enabled: Optional[bool] = None,
         decode_tuples: Optional[bool] = False,
     ) -> None:
-        super().__init__(
-            abi=abi,
-            w3=w3,
-            address=address,
-            transaction=transaction,
-            block_identifier=block_identifier,
-            ccip_read_enabled=ccip_read_enabled,
-            contract_function_class=ContractFunction,
-            decode_tuples=decode_tuples,
-        )
+        super().__init__(abi, w3, address)
+
+        if self.abi:
+            if transaction is None:
+                transaction = {}
+
+            self._functions = filter_by_type("function", self.abi)
+            for func in self._functions:
+                fn: ContractFunction = ContractFunction.factory(
+                    func["name"],
+                    w3=self.w3,
+                    contract_abi=self.abi,
+                    address=self.address,
+                    function_identifier=func["name"],
+                    decode_tuples=decode_tuples,
+                )
+
+                block_id = parse_block_identifier(self.w3, block_identifier)
+                caller_method = partial(
+                    self.call_function,
+                    fn,
+                    transaction=transaction,
+                    block_identifier=block_id,
+                    ccip_read_enabled=ccip_read_enabled,
+                    decode_tuples=decode_tuples,
+                )
+
+                setattr(self, func["name"], caller_method)
 
     def __call__(
         self,

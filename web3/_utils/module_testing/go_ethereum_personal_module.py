@@ -30,7 +30,10 @@ from web3.types import (
 )
 
 if TYPE_CHECKING:
-    from web3 import Web3  # noqa: F401
+    from web3 import (  # noqa: F401
+        AsyncWeb3,
+        Web3,
+    )
 
 PRIVATE_KEY_HEX = "0x56ebb41875ceedd42e395f730e03b5c44989393c9f0484ee6bc05f933673458f"
 SECOND_PRIVATE_KEY_HEX = (
@@ -211,7 +214,7 @@ class GoEthereumAsyncPersonalModuleTest:
     @pytest.mark.asyncio
     async def test_async_sign_and_ec_recover(
         self,
-        async_w3: "Web3",
+        async_w3: "AsyncWeb3",
         unlockable_account_dual_type: ChecksumAddress,
         unlockable_account_pw: str,
     ) -> None:
@@ -225,24 +228,24 @@ class GoEthereumAsyncPersonalModuleTest:
         assert is_same_address(unlockable_account_dual_type, address)
 
     @pytest.mark.asyncio
-    async def test_async_import_key(self, async_w3: "Web3") -> None:
+    async def test_async_import_key(self, async_w3: "AsyncWeb3") -> None:
         address = await async_w3.geth.personal.import_raw_key(
             THIRD_PRIVATE_KEY_HEX, "Testing"  # type: ignore
         )
         assert address is not None
 
     @pytest.mark.asyncio
-    async def test_async_list_accounts(self, async_w3: "Web3") -> None:
+    async def test_async_list_accounts(self, async_w3: "AsyncWeb3") -> None:
         accounts = await async_w3.geth.personal.list_accounts()  # type: ignore
         assert len(accounts) > 0
 
     @pytest.mark.asyncio
-    async def test_async_list_wallets(self, async_w3: "Web3") -> None:
+    async def test_async_list_wallets(self, async_w3: "AsyncWeb3") -> None:
         wallets = await async_w3.geth.personal.list_wallets()  # type: ignore
         assert isinstance(wallets[0], AttributeDict)
 
     @pytest.mark.asyncio
-    async def test_async_new_account(self, async_w3: "Web3") -> None:
+    async def test_async_new_account(self, async_w3: "AsyncWeb3") -> None:
         passphrase = "Create New Account"
         account = await async_w3.geth.personal.new_account(passphrase)  # type: ignore
         assert is_checksum_address(account)
@@ -250,7 +253,7 @@ class GoEthereumAsyncPersonalModuleTest:
     @pytest.mark.asyncio
     async def test_async_unlock_lock_account(
         self,
-        async_w3: "Web3",
+        async_w3: "AsyncWeb3",
         unlockable_account_dual_type: ChecksumAddress,
         unlockable_account_pw: str,
     ) -> None:
@@ -266,7 +269,7 @@ class GoEthereumAsyncPersonalModuleTest:
     @pytest.mark.asyncio
     async def test_async_send_transaction(
         self,
-        async_w3: "Web3",
+        async_w3: "AsyncWeb3",
         unlockable_account_dual_type: ChecksumAddress,
         unlockable_account_pw: str,
     ) -> None:
@@ -285,7 +288,7 @@ class GoEthereumAsyncPersonalModuleTest:
     @pytest.mark.asyncio
     async def test_async_sign_typed_data(
         self,
-        async_w3: "Web3",
+        async_w3: "AsyncWeb3",
         unlockable_account_dual_type: ChecksumAddress,
         unlockable_account_pw: str,
     ) -> None:

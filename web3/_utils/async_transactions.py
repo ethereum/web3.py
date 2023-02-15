@@ -1,7 +1,6 @@
 from typing import (
     TYPE_CHECKING,
     Any,
-    Awaitable,
     Dict,
     Optional,
     cast,
@@ -43,25 +42,28 @@ from web3.types import (
 )
 
 if TYPE_CHECKING:
-    from web3 import Web3  # noqa: F401
     from web3.eth import AsyncEth  # noqa: F401
+    from web3.main import (  # noqa: F401
+        AsyncWeb3,
+    )
 
 
-async def _estimate_gas(w3: "Web3", tx: TxParams) -> Awaitable[int]:
-    return await w3.eth.estimate_gas(tx)  # type: ignore
+async def _estimate_gas(async_w3: "AsyncWeb3", tx: TxParams) -> int:
+    return await async_w3.eth.estimate_gas(tx)
 
 
-async def _max_fee_per_gas(w3: "Web3", _tx: TxParams) -> Awaitable[Wei]:
-    block = await w3.eth.get_block("latest")  # type: ignore
-    return await w3.eth.max_priority_fee + (2 * block["baseFeePerGas"])  # type: ignore
+async def _max_fee_per_gas(async_w3: "AsyncWeb3", _tx: TxParams) -> Wei:
+    block = await async_w3.eth.get_block("latest")
+    max_priority_fee = await async_w3.eth.max_priority_fee
+    return Wei(max_priority_fee + (2 * block["baseFeePerGas"]))
 
 
-async def _max_priority_fee_gas(w3: "Web3", _tx: TxParams) -> Awaitable[Wei]:
-    return await w3.eth.max_priority_fee  # type: ignore
+async def _max_priority_fee_gas(async_w3: "AsyncWeb3", _tx: TxParams) -> Wei:
+    return await async_w3.eth.max_priority_fee
 
 
-async def _chain_id(w3: "Web3", _tx: TxParams) -> Awaitable[int]:
-    return await w3.eth.chain_id  # type: ignore
+async def _chain_id(async_w3: "AsyncWeb3", _tx: TxParams) -> int:
+    return await async_w3.eth.chain_id
 
 
 TRANSACTION_DEFAULTS = {
@@ -85,13 +87,13 @@ async def get_block_gas_limit(
 
 
 async def get_buffered_gas_estimate(
-    w3: "Web3", transaction: TxParams, gas_buffer: int = 100000
+    async_w3: "AsyncWeb3", transaction: TxParams, gas_buffer: int = 100000
 ) -> int:
     gas_estimate_transaction = cast(TxParams, dict(**transaction))
 
-    gas_estimate = await w3.eth.estimate_gas(gas_estimate_transaction)  # type: ignore
+    gas_estimate = await async_w3.eth.estimate_gas(gas_estimate_transaction)
 
-    gas_limit = await get_block_gas_limit(w3.eth)  # type: ignore
+    gas_limit = await get_block_gas_limit(async_w3.eth)
 
     if gas_estimate > gas_limit:
         raise ValueError(
@@ -104,11 +106,13 @@ async def get_buffered_gas_estimate(
 
 
 @curry
-async def fill_transaction_defaults(w3: "Web3", transaction: TxParams) -> TxParams:
+async def fill_transaction_defaults(
+    async_w3: "AsyncWeb3", transaction: TxParams
+) -> TxParams:
     """
     if w3 is None, fill as much as possible while offline
     """
-    strategy_based_gas_price = w3.eth.generate_gas_price(transaction)
+    strategy_based_gas_price = async_w3.eth.generate_gas_price(transaction)
 
     is_dynamic_fee_transaction = strategy_based_gas_price is None and (
         "gasPrice" not in transaction  # default to dynamic fee transaction
@@ -129,16 +133,16 @@ async def fill_transaction_defaults(w3: "Web3", transaction: TxParams) -> TxPara
                 continue
 
             if callable(default_getter):
-                if w3 is None:
+                if async_w3 is None:
                     raise ValueError(
                         f"You must specify a '{key}' value in the transaction"
                     )
                 if key == "gasPrice":
                     # `generate_gas_price()` is on the `BaseEth` class and does not
                     # need to be awaited
-                    default_val = default_getter(w3, transaction)
+                    default_val = default_getter(async_w3, transaction)
                 else:
-                    default_val = await default_getter(w3, transaction)
+                    default_val = await default_getter(async_w3, transaction)
             else:
                 default_val = default_getter
 

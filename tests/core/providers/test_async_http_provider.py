@@ -5,7 +5,7 @@ from aiohttp import (
 )
 
 from web3 import (
-    Web3,
+    AsyncWeb3,
 )
 from web3._utils import (
     request,
@@ -14,10 +14,10 @@ from web3.eth import (
     AsyncEth,
 )
 from web3.geth import (
+    AsyncGeth,
     AsyncGethAdmin,
     AsyncGethPersonal,
     AsyncGethTxPool,
-    Geth,
 )
 from web3.middleware import (
     async_attrdict_middleware,
@@ -37,25 +37,25 @@ URI = "http://mynode.local:8545"
 
 def test_no_args():
     provider = AsyncHTTPProvider()
-    w3 = Web3(provider)
+    w3 = AsyncWeb3(provider)
     assert w3.manager.provider == provider
     assert w3.manager.provider.is_async
 
 
 def test_init_kwargs():
     provider = AsyncHTTPProvider(endpoint_uri=URI, request_kwargs={"timeout": 60})
-    w3 = Web3(provider)
+    w3 = AsyncWeb3(provider)
     assert w3.manager.provider == provider
 
 
 def test_web3_with_async_http_provider_has_default_middlewares_and_modules() -> None:
-    async_w3 = Web3(AsyncHTTPProvider(endpoint_uri=URI))
+    async_w3 = AsyncWeb3(AsyncHTTPProvider(endpoint_uri=URI))
 
     # assert default modules
 
     assert isinstance(async_w3.eth, AsyncEth)
     assert isinstance(async_w3.net, AsyncNet)
-    assert isinstance(async_w3.geth, Geth)
+    assert isinstance(async_w3.geth, AsyncGeth)
     assert isinstance(async_w3.geth.admin, AsyncGethAdmin)
     assert isinstance(async_w3.geth.personal, AsyncGethPersonal)
     assert isinstance(async_w3.geth.txpool, AsyncGethTxPool)

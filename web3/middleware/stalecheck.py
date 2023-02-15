@@ -13,6 +13,7 @@ from web3.exceptions import (
 )
 from web3.types import (
     AsyncMiddleware,
+    AsyncMiddlewareCoroutine,
     BlockData,
     Middleware,
     RPCEndpoint,
@@ -20,7 +21,10 @@ from web3.types import (
 )
 
 if TYPE_CHECKING:
-    from web3 import Web3  # noqa: F401
+    from web3 import (  # noqa: F401
+        AsyncWeb3,
+        Web3,
+    )
 
 SKIP_STALECHECK_FOR_METHODS = ("eth_getBlockByNumber",)
 
@@ -78,7 +82,7 @@ def make_stalecheck_middleware(
 async def async_make_stalecheck_middleware(
     allowable_delay: int,
     skip_stalecheck_for_methods: Collection[str] = SKIP_STALECHECK_FOR_METHODS,
-) -> Middleware:
+) -> AsyncMiddleware:
     """
     Use to require that a function will run only of the blockchain is recently updated.
 
@@ -96,14 +100,14 @@ async def async_make_stalecheck_middleware(
         )
 
     async def stalecheck_middleware(
-        make_request: Callable[[RPCEndpoint, Any], Any], w3: "Web3"
-    ) -> AsyncMiddleware:
+        make_request: Callable[[RPCEndpoint, Any], Any], w3: "AsyncWeb3"
+    ) -> AsyncMiddlewareCoroutine:
         cache: Dict[str, Optional[BlockData]] = {"latest": None}
 
         async def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
             if method not in skip_stalecheck_for_methods:
                 if not _is_fresh(cache["latest"], allowable_delay):
-                    latest = await w3.eth.get_block("latest")  # type: ignore
+                    latest = await w3.eth.get_block("latest")
                     if _is_fresh(latest, allowable_delay):
                         cache["latest"] = latest
                     else:

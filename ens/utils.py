@@ -55,6 +55,7 @@ default = object()
 
 if TYPE_CHECKING:
     from web3 import (  # noqa: F401
+        AsyncWeb3,
         Web3 as _Web3,
     )
     from web3.providers import (  # noqa: F401
@@ -63,6 +64,7 @@ if TYPE_CHECKING:
     )
     from web3.types import (  # noqa: F401
         ABIFunction,
+        AsyncMiddleware,
         Middleware,
         RPCEndpoint,
     )
@@ -288,10 +290,10 @@ def get_abi_output_types(abi: "ABIFunction") -> List[str]:
 
 def init_async_web3(
     provider: "AsyncBaseProvider" = cast("AsyncBaseProvider", default),
-    middlewares: Optional[Sequence[Tuple["Middleware", str]]] = (),
-) -> "_Web3":
+    middlewares: Optional[Sequence[Tuple["AsyncMiddleware", str]]] = (),
+) -> "AsyncWeb3":
     from web3 import (
-        Web3 as Web3Main,
+        AsyncWeb3 as AsyncWeb3Main,
     )
     from web3.eth import (
         AsyncEth as AsyncEthMain,
@@ -306,11 +308,11 @@ def init_async_web3(
         middlewares.append((_async_ens_stalecheck_middleware, "stalecheck"))
 
     if provider is default:
-        async_w3 = Web3Main(
+        async_w3 = AsyncWeb3Main(
             middlewares=middlewares, ens=None, modules={"eth": (AsyncEthMain)}
         )
     else:
-        async_w3 = Web3Main(
+        async_w3 = AsyncWeb3Main(
             provider,
             middlewares=middlewares,
             ens=None,
@@ -321,7 +323,7 @@ def init_async_web3(
 
 
 async def _async_ens_stalecheck_middleware(
-    make_request: Callable[["RPCEndpoint", Any], Any], w3: "_Web3"
+    make_request: Callable[["RPCEndpoint", Any], Any], w3: "AsyncWeb3"
 ) -> "Middleware":
     from web3.middleware import (
         async_make_stalecheck_middleware,

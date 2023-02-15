@@ -19,12 +19,9 @@ from eth_typing import (
 
 from web3 import (
     AsyncHTTPProvider,
+    AsyncWeb3,
     HTTPProvider,
     Web3,
-)
-from web3.eth import (
-    AsyncEth,
-    Eth,
 )
 from web3.middleware import (
     async_buffered_gas_estimate_middleware,
@@ -73,15 +70,14 @@ def build_web3_http(endpoint_uri: str) -> Web3:
     return _w3
 
 
-async def build_async_w3_http(endpoint_uri: str) -> Web3:
+async def build_async_w3_http(endpoint_uri: str) -> AsyncWeb3:
     await wait_for_aiohttp(endpoint_uri)
-    _w3 = Web3(
+    _w3 = AsyncWeb3(
         AsyncHTTPProvider(endpoint_uri),
         middlewares=[
             async_gas_price_strategy_middleware,
             async_buffered_gas_estimate_middleware,
         ],
-        modules={"eth": AsyncEth},
     )
     return _w3
 
@@ -109,33 +105,29 @@ async def async_benchmark(func: Callable[..., Any], n: int) -> Union[float, str]
         return "N/A"
 
 
-def unlocked_account(w3: "Web3") -> ChecksumAddress:
+def unlocked_account(w3: Web3) -> ChecksumAddress:
     w3.geth.personal.unlock_account(w3.eth.coinbase, KEYFILE_PW)
     return w3.eth.coinbase
 
 
-async def async_unlocked_account(w3: Web3, w3_eth: Eth) -> ChecksumAddress:
-    # change w3_eth type to w3_eth: AsyncEth once AsyncEth reflects Eth
-    coinbase = await w3_eth.coinbase  # type: ignore
-    w3.geth.personal.unlock_account(coinbase, KEYFILE_PW)
+async def async_unlocked_account(async_w3: AsyncWeb3) -> ChecksumAddress:
+    coinbase = await async_w3.eth.coinbase
+    await async_w3.geth.personal.unlock_account(coinbase, KEYFILE_PW)
     return coinbase
 
 
 def main(logger: logging.Logger, num_calls: int) -> None:
     fixture = GethBenchmarkFixture()
     for built_fixture in fixture.build():
-        for process in built_fixture:
+        for _ in built_fixture:
             w3_http = build_web3_http(fixture.endpoint_uri)
             loop = asyncio.get_event_loop()
             async_w3_http = loop.run_until_complete(
                 build_async_w3_http(fixture.endpoint_uri)
             )
-            # TODO: swap out w3_http for the async_w3_http
-            # once GethPersonal module is async
             async_unlocked_acct = loop.run_until_complete(
-                async_unlocked_account(w3_http, async_w3_http.eth)
+                async_unlocked_account(async_w3_http)
             )
-
             methods = [
                 {
                     "name": "eth_gasPrice",

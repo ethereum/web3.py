@@ -20,7 +20,7 @@ from web3.module import (
 )
 
 if TYPE_CHECKING:
-    from web3 import Web3  # noqa: F401
+    from web3.main import BaseWeb3  # noqa: F401
 
 
 def _validate_init_params_and_return_if_found(module_class: Any) -> List[str]:
@@ -40,9 +40,9 @@ def _validate_init_params_and_return_if_found(module_class: Any) -> List[str]:
 
 
 def attach_modules(
-    parent_module: Union["Web3", "Module"],
+    parent_module: Union["BaseWeb3", "Module"],
     module_definitions: Dict[str, Any],
-    w3: Optional[Union["Web3", "Module"]] = None,
+    w3: Optional[Union["BaseWeb3", "Module"]] = None,
 ) -> None:
     for module_name, module_info in module_definitions.items():
         module_info_is_list_like = isinstance(module_info, Sequence)
@@ -60,10 +60,11 @@ def attach_modules(
         # due to circular import issues.
         if w3 is None:
             from web3 import (
+                AsyncWeb3,
                 Web3,
             )
 
-            if isinstance(parent_module, Web3):
+            if isinstance(parent_module, Web3) or isinstance(parent_module, AsyncWeb3):
                 w3 = parent_module
 
         module_init_params = _validate_init_params_and_return_if_found(module_class)

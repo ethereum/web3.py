@@ -43,6 +43,8 @@ from web3.providers import (
     AutoProvider,
 )
 from web3.types import (
+    AsyncMiddleware,
+    AsyncMiddlewareOnion,
     Middleware,
     MiddlewareOnion,
     RPCEndpoint,
@@ -50,7 +52,10 @@ from web3.types import (
 )
 
 if TYPE_CHECKING:
-    from web3 import Web3  # noqa: F401
+    from web3 import (  # noqa: F401
+        AsyncWeb3,
+        Web3,
+    )
     from web3.providers import (  # noqa: F401
         AsyncBaseProvider,
         BaseProvider,
@@ -86,11 +91,19 @@ def apply_null_result_formatters(
 class RequestManager:
     logger = logging.getLogger("web3.RequestManager")
 
+    middleware_onion: Union[
+        MiddlewareOnion, AsyncMiddlewareOnion, NamedElementOnion[None, None]
+    ]
+
     def __init__(
         self,
-        w3: "Web3",
+        w3: Union["AsyncWeb3", "Web3"],
         provider: Optional[Union["BaseProvider", "AsyncBaseProvider"]] = None,
-        middlewares: Optional[Sequence[Tuple[Middleware, str]]] = None,
+        middlewares: Optional[
+            Union[
+                Sequence[Tuple[Middleware, str]], Sequence[Tuple[AsyncMiddleware, str]]
+            ]
+        ] = None,
     ) -> None:
         self.w3 = w3
 
@@ -103,12 +116,12 @@ class RequestManager:
             middlewares = (
                 self.async_default_middlewares()
                 if self.provider.is_async
-                else self.default_middlewares(w3)
+                else self.default_middlewares(cast("Web3", w3))
             )
 
-        self.middleware_onion: MiddlewareOnion = NamedElementOnion(middlewares)
+        self.middleware_onion = NamedElementOnion(middlewares)
 
-    w3: "Web3" = None
+    w3: Union["AsyncWeb3", "Web3"] = None
     _provider = None
 
     @property
@@ -137,7 +150,7 @@ class RequestManager:
         ]
 
     @staticmethod
-    def async_default_middlewares() -> List[Tuple[Middleware, str]]:
+    def async_default_middlewares() -> List[Tuple[AsyncMiddleware, str]]:
         """
         List the default async middlewares for the request manager.
         """
@@ -155,18 +168,22 @@ class RequestManager:
         self, method: Union[RPCEndpoint, Callable[..., RPCEndpoint]], params: Any
     ) -> RPCResponse:
         provider = cast("BaseProvider", self.provider)
-        request_func = provider.request_func(self.w3, self.middleware_onion)
+        request_func = provider.request_func(
+            cast("Web3", self.w3), cast(MiddlewareOnion, self.middleware_onion)
+        )
         self.logger.debug(f"Making request. Method: {method}")
         return request_func(method, params)
 
     async def _coro_make_request(
         self, method: Union[RPCEndpoint, Callable[..., RPCEndpoint]], params: Any
     ) -> RPCResponse:
-        # type ignored b/c request_func is an awaitable in async model
-        request_func = await self.provider.request_func(  # type: ignore
-            self.w3, self.middleware_onion
+        provider = cast("AsyncBaseProvider", self.provider)
+        request_func = await provider.request_func(
+            cast("AsyncWeb3", self.w3),
+            cast(AsyncMiddlewareOnion, self.middleware_onion),
         )
         self.logger.debug(f"Making request. Method: {method}")
+
         return await request_func(method, params)
 
     @staticmethod

@@ -12,13 +12,16 @@ from web3.datastructures import (
     AttributeDict,
 )
 from web3.types import (
-    AsyncMiddleware,
+    AsyncMiddlewareCoroutine,
     RPCEndpoint,
     RPCResponse,
 )
 
 if TYPE_CHECKING:
-    from web3 import Web3  # noqa: F401
+    from web3 import (  # noqa: F401
+        AsyncWeb3,
+        Web3,
+    )
 
 
 def attrdict_middleware(
@@ -48,8 +51,8 @@ def attrdict_middleware(
 
 
 async def async_attrdict_middleware(
-    make_request: Callable[[RPCEndpoint, Any], Any], _async_w3: "Web3"
-) -> AsyncMiddleware:
+    make_request: Callable[[RPCEndpoint, Any], Any], _async_w3: "AsyncWeb3"
+) -> AsyncMiddlewareCoroutine:
     """
     Converts any result which is a dictionary into an `AttributeDict`.
 

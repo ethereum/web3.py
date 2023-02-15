@@ -37,7 +37,10 @@ from web3.datastructures import (
 )
 
 if TYPE_CHECKING:
-    from web3 import Web3  # noqa: F401
+    from web3.main import (  # noqa: F401
+        AsyncWeb3,
+        Web3,
+    )
 
 
 TReturn = TypeVar("TReturn")
@@ -136,8 +139,14 @@ class RPCResponse(TypedDict, total=False):
 
 
 Middleware = Callable[[Callable[[RPCEndpoint, Any], RPCResponse], "Web3"], Any]
-AsyncMiddleware = Callable[[RPCEndpoint, Any], Coroutine[Any, Any, RPCResponse]]
+AsyncMiddlewareCoroutine = Callable[
+    [RPCEndpoint, Any], Coroutine[Any, Any, RPCResponse]
+]
+AsyncMiddleware = Callable[
+    [Callable[[RPCEndpoint, Any], RPCResponse], "AsyncWeb3"], Any
+]
 MiddlewareOnion = NamedElementOnion[str, Middleware]
+AsyncMiddlewareOnion = NamedElementOnion[str, AsyncMiddleware]
 
 
 class FormattersDict(TypedDict, total=False):
@@ -346,6 +355,8 @@ class BlockData(TypedDict, total=False):
     transactions: Union[Sequence[HexBytes], Sequence[TxData]]
     transactionsRoot: HexBytes
     uncles: Sequence[HexBytes]
+    # geth_poa_middleware replaces extraData w/ proofOfAuthorityData
+    proofOfAuthorityData: HexBytes
 
 
 class Uncle(TypedDict):

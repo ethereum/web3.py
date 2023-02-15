@@ -6,6 +6,7 @@ from typing import (
     Any,
     Dict,
     Iterator,
+    Union,
     cast,
 )
 
@@ -20,13 +21,17 @@ from eth_utils import (
 
 from ens import (
     ENS,
+    AsyncENS,
 )
 from web3.exceptions import (
     NameNotFound,
 )
 
 if TYPE_CHECKING:
-    from web3 import Web3  # noqa: F401
+    from web3 import (  # noqa: F401
+        AsyncWeb3,
+        Web3,
+    )
     from web3.contract import (  # noqa: F401
         Contract,
     )
@@ -61,10 +66,13 @@ class StaticENS:
 
 @contextmanager
 def ens_addresses(
-    w3: "Web3", name_addr_pairs: Dict[str, ChecksumAddress]
+    w3: Union["Web3", "AsyncWeb3"], name_addr_pairs: Dict[str, ChecksumAddress]
 ) -> Iterator[None]:
     original_ens = w3.ens
-    w3.ens = cast(ENS, StaticENS(name_addr_pairs))
+    if w3.provider.is_async:
+        w3.ens = cast(AsyncENS, StaticENS(name_addr_pairs))
+    else:
+        w3.ens = cast(ENS, StaticENS(name_addr_pairs))
     yield
     w3.ens = original_ens
 

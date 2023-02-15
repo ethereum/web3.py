@@ -4,6 +4,7 @@ import threading
 import uuid
 
 from web3 import (
+    AsyncWeb3,
     Web3,
 )
 from web3._utils.caching import (
@@ -166,7 +167,7 @@ async def _async_simple_cache_middleware_for_testing(make_request, async_w3):
 
 @pytest.fixture
 def async_w3():
-    return Web3(
+    return AsyncWeb3(
         provider=AsyncEthereumTesterProvider(),
         middlewares=[
             (_async_simple_cache_middleware_for_testing, "simple_cache"),
