@@ -38,14 +38,12 @@ from ens.contract_data import (
     simple_resolver_bytecode_runtime,
 )
 from web3 import (
+    AsyncWeb3,
     Web3,
 )
 from web3.contract import (
     AsyncContract,
     Contract,
-)
-from web3.eth import (
-    AsyncEth,
 )
 from web3.providers.eth_tester import (
     AsyncEthereumTesterProvider,
@@ -359,9 +357,7 @@ def TEST_ADDRESS(address_conversion_func):
 @pytest_asyncio.fixture(scope="session")
 def async_w3():
     provider = AsyncEthereumTesterProvider()
-    _async_w3 = Web3(
-        provider, modules={"eth": [AsyncEth]}, middlewares=provider.middlewares
-    )
+    _async_w3 = AsyncWeb3(provider, middlewares=provider.middlewares)
     return _async_w3
 
 

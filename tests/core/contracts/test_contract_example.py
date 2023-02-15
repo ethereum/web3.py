@@ -83,9 +83,7 @@ def test_initial_greeting(foo_contract):
 
 def test_can_update_greeting(w3, foo_contract):
     # send transaction that updates the greeting
-    tx_hash = foo_contract.functions.setBar(
-        "testing contracts is easy",
-    ).transact(
+    tx_hash = foo_contract.functions.setBar("testing contracts is easy").transact(
         {
             "from": w3.eth.accounts[1],
         }
@@ -99,9 +97,7 @@ def test_can_update_greeting(w3, foo_contract):
 
 def test_updating_greeting_emits_event(w3, foo_contract):
     # send transaction that updates the greeting
-    tx_hash = foo_contract.functions.setBar(
-        "testing contracts is easy",
-    ).transact(
+    tx_hash = foo_contract.functions.setBar("testing contracts is easy").transact(
         {
             "from": w3.eth.accounts[1],
         }

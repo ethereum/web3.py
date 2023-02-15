@@ -13,6 +13,7 @@ from eth_utils.toolz import (
 
 from web3.types import (
     AsyncMiddleware,
+    AsyncMiddlewareCoroutine,
     Formatters,
     FormattersDict,
     Literal,
@@ -22,7 +23,10 @@ from web3.types import (
 )
 
 if TYPE_CHECKING:
-    from web3 import Web3  # noqa: F401
+    from web3 import (  # noqa: F401
+        AsyncWeb3,
+        Web3,
+    )
 
 FORMATTER_DEFAULTS: FormattersDict = {
     "request_formatters": {},
@@ -110,9 +114,9 @@ async def async_construct_formatting_middleware(
     request_formatters: Optional[Formatters] = None,
     result_formatters: Optional[Formatters] = None,
     error_formatters: Optional[Formatters] = None,
-) -> Middleware:
+) -> AsyncMiddleware:
     async def ignore_web3_in_standard_formatters(
-        _w3: "Web3",
+        _async_w3: "AsyncWeb3",
         _method: RPCEndpoint,
     ) -> FormattersDict:
         return dict(
@@ -128,19 +132,20 @@ async def async_construct_formatting_middleware(
 
 async def async_construct_web3_formatting_middleware(
     async_web3_formatters_builder: Callable[
-        ["Web3", RPCEndpoint], Coroutine[Any, Any, FormattersDict]
+        ["AsyncWeb3", RPCEndpoint], Coroutine[Any, Any, FormattersDict]
     ]
 ) -> Callable[
-    [Callable[[RPCEndpoint, Any], Any], "Web3"], Coroutine[Any, Any, AsyncMiddleware]
+    [Callable[[RPCEndpoint, Any], Any], "AsyncWeb3"],
+    Coroutine[Any, Any, AsyncMiddlewareCoroutine],
 ]:
     async def formatter_middleware(
         make_request: Callable[[RPCEndpoint, Any], Any],
-        async_w3: "Web3",
-    ) -> AsyncMiddleware:
+        w3: "AsyncWeb3",
+    ) -> AsyncMiddlewareCoroutine:
         async def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
             formatters = merge(
                 FORMATTER_DEFAULTS,
-                await async_web3_formatters_builder(async_w3, method),
+                await async_web3_formatters_builder(w3, method),
             )
             request_formatters = formatters.pop("request_formatters")
 

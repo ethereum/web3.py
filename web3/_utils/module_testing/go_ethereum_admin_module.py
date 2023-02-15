@@ -12,7 +12,10 @@ from web3.types import (
 )
 
 if TYPE_CHECKING:
-    from web3 import Web3  # noqa: F401
+    from web3 import (  # noqa: F401
+        AsyncWeb3,
+        Web3,
+    )
 
 
 class GoEthereumAdminModuleTest:
@@ -67,39 +70,39 @@ class GoEthereumAdminModuleTest:
 
 class GoEthereumAsyncAdminModuleTest:
     @pytest.mark.asyncio
-    async def test_async_datadir(self, async_w3: "Web3") -> None:
-        datadir = await async_w3.geth.admin.datadir()  # type: ignore
+    async def test_async_datadir(self, async_w3: "AsyncWeb3") -> None:
+        datadir = await async_w3.geth.admin.datadir()
         assert isinstance(datadir, str)
 
     @pytest.mark.asyncio
-    async def test_async_nodeinfo(self, async_w3: "Web3") -> None:
-        node_info = await async_w3.geth.admin.node_info()  # type: ignore
+    async def test_async_node_info(self, async_w3: "AsyncWeb3") -> None:
+        node_info = await async_w3.geth.admin.node_info()
         assert "Geth" in node_info["name"]
 
     @pytest.mark.asyncio
-    async def test_async_nodes(self, async_w3: "Web3") -> None:
-        nodes = await async_w3.geth.admin.peers()  # type: ignore
+    async def test_async_nodes(self, async_w3: "AsyncWeb3") -> None:
+        nodes = await async_w3.geth.admin.peers()
         assert isinstance(nodes, List)
 
     @pytest.mark.asyncio
-    async def test_admin_peers(self, w3: "Web3") -> None:
-        enode = await w3.geth.admin.node_info()["enode"]  # type: ignore
-        w3.geth.admin.add_peer(enode)
-        result = await w3.geth.admin.peers()  # type: ignore
+    async def test_admin_peers(self, async_w3: "AsyncWeb3") -> None:
+        node_info = await async_w3.geth.admin.node_info()
+        await async_w3.geth.admin.add_peer(node_info["enode"])
+        result = await async_w3.geth.admin.peers()
         assert len(result) == 1
 
     @pytest.mark.asyncio
-    async def test_admin_start_stop_http(self, w3: "Web3") -> None:
-        stop = await w3.geth.admin.stop_http()  # type: ignore
+    async def test_admin_start_stop_http(self, async_w3: "AsyncWeb3") -> None:
+        stop = await async_w3.geth.admin.stop_http()
         assert stop is True
 
-        start = await w3.geth.admin.start_http()  # type: ignore
+        start = await async_w3.geth.admin.start_http()
         assert start is True
 
     @pytest.mark.asyncio
-    async def test_admin_start_stop_ws(self, w3: "Web3") -> None:
-        stop = await w3.geth.admin.stop_ws()  # type: ignore
+    async def test_admin_start_stop_ws(self, async_w3: "AsyncWeb3") -> None:
+        stop = await async_w3.geth.admin.stop_ws()
         assert stop is True
 
-        start = await w3.geth.admin.start_ws()  # type: ignore
+        start = await async_w3.geth.admin.start_ws()
         assert start is True

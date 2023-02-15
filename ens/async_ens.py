@@ -64,16 +64,16 @@ from ens.utils import (
 )
 
 if TYPE_CHECKING:
-    from web3 import Web3  # noqa: F401
     from web3.contract import (  # noqa: F401
         AsyncContract,
     )
+    from web3.main import AsyncWeb3  # noqa: F401
     from web3.providers import (  # noqa: F401
         AsyncBaseProvider,
         BaseProvider,
     )
     from web3.types import (  # noqa: F401
-        Middleware,
+        AsyncMiddleware,
         TxParams,
     )
 
@@ -88,11 +88,14 @@ class AsyncENS(BaseENS):
     like: ``"0x314159265dD8dbb310642f98f50C066173C1259b"``
     """
 
+    # mypy types
+    w3: "AsyncWeb3"
+
     def __init__(
         self,
         provider: "AsyncBaseProvider" = cast("AsyncBaseProvider", default),
         addr: ChecksumAddress = None,
-        middlewares: Optional[Sequence[Tuple["Middleware", str]]] = None,
+        middlewares: Optional[Sequence[Tuple["AsyncMiddleware", str]]] = None,
     ) -> None:
         """
         :param provider: a single provider used to connect to Ethereum
@@ -110,7 +113,7 @@ class AsyncENS(BaseENS):
         )
 
     @classmethod
-    def from_web3(cls, w3: "Web3", addr: ChecksumAddress = None) -> "AsyncENS":
+    def from_web3(cls, w3: "AsyncWeb3", addr: ChecksumAddress = None) -> "AsyncENS":
         """
         Generate an AsyncENS instance with web3
 
@@ -120,9 +123,14 @@ class AsyncENS(BaseENS):
         """
         provider = w3.manager.provider
         middlewares = w3.middleware_onion.middlewares
-        return cls(
+        ns = cls(
             cast("AsyncBaseProvider", provider), addr=addr, middlewares=middlewares
         )
+
+        # inherit strict bytes checking from w3 instance
+        ns.strict_bytes_type_checking = w3.strict_bytes_type_checking
+
+        return ns
 
     async def address(self, name: str) -> Optional[ChecksumAddress]:
         """
@@ -494,7 +502,7 @@ class AsyncENS(BaseENS):
         name: str,
         parent_owned: Optional[str] = None,
     ) -> None:
-        if not address_in(account, await self.w3.eth.accounts):  # type: ignore
+        if not address_in(account, await self.w3.eth.accounts):
             raise UnauthorizedError(
                 f"in order to modify {name!r}, you must control account"
                 f" {account!r}, which owns {parent_owned or name!r}"

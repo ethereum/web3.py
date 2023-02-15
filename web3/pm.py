@@ -331,6 +331,9 @@ class PM(Module):
     its ``registry`` attribute.
     """
 
+    # mypy types
+    w3: "Web3"
+
     def get_package_from_manifest(self, manifest: Manifest) -> Package:
         """
         Returns a `Package <https://github.com/ethpm/py-ethpm/blob/master/ethpm/package.py>`__  # noqa: E501

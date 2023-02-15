@@ -1,5 +1,6 @@
 import functools
 from typing import (
+    Coroutine,
     TYPE_CHECKING,
     Any,
     Callable,
@@ -7,6 +8,7 @@ from typing import (
 )
 
 from web3.types import (
+    AsyncMiddleware,
     Middleware,
     RPCEndpoint,
     RPCResponse,
@@ -84,7 +86,7 @@ from .validation import (  # noqa: F401
 )
 
 if TYPE_CHECKING:
-    from web3 import Web3  # noqa: F401
+    from web3 import AsyncWeb3, Web3  # noqa: F401
 
 
 def combine_middlewares(
@@ -104,21 +106,25 @@ def combine_middlewares(
 
 
 async def async_combine_middlewares(
-    middlewares: Sequence[Middleware],
-    w3: "Web3",
+    middlewares: Sequence[AsyncMiddleware],
+    async_w3: "AsyncWeb3",
     provider_request_fn: Callable[[RPCEndpoint, Any], Any],
-) -> Callable[..., RPCResponse]:
+) -> Callable[..., Coroutine[Any, Any, RPCResponse]]:
     """
     Returns a callable function which will call the provider.provider_request
     function wrapped with all of the middlewares.
     """
     accumulator_fn = provider_request_fn
     for middleware in reversed(middlewares):
-        accumulator_fn = await construct_middleware(middleware, accumulator_fn, w3)
+        accumulator_fn = await construct_middleware(
+            middleware, accumulator_fn, async_w3
+        )
     return accumulator_fn
 
 
 async def construct_middleware(
-    middleware: Middleware, fn: Callable[..., RPCResponse], w3: "Web3"
-) -> Callable[[RPCEndpoint, Any], Any]:
-    return await middleware(fn, w3)
+    async_middleware: AsyncMiddleware,
+    fn: Callable[..., RPCResponse],
+    async_w3: "AsyncWeb3",
+) -> Callable[[RPCEndpoint, Any], RPCResponse]:
+    return await async_middleware(fn, async_w3)

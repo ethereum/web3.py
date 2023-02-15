@@ -1,5 +1,7 @@
 import asyncio
 from typing import (
+    TYPE_CHECKING,
+    Any,
     Awaitable,
     Callable,
     List,
@@ -7,6 +9,7 @@ from typing import (
     Tuple,
     Type,
     Union,
+    overload,
 )
 import warnings
 
@@ -71,8 +74,14 @@ from web3.utils import (
     async_handle_offchain_lookup,
 )
 
+if TYPE_CHECKING:
+    from web3 import AsyncWeb3  # noqa: F401
+
 
 class AsyncEth(BaseEth):
+    # mypy types
+    w3: "AsyncWeb3"
+
     is_async = True
 
     _default_contract_factory: Type[
@@ -545,3 +554,35 @@ class AsyncEth(BaseEth):
 
     async def uninstall_filter(self, filter_id: HexStr) -> bool:
         return await self._uninstall_filter(filter_id)
+
+    @overload
+    def contract(self, address: None = None, **kwargs: Any) -> Type[AsyncContract]:
+        ...  # noqa: E704,E501
+
+    @overload  # noqa: F811
+    def contract(
+        self, address: Union[Address, ChecksumAddress, ENS], **kwargs: Any
+    ) -> AsyncContract:
+        ...  # noqa: E704,E501
+
+    def contract(  # noqa: F811
+        self,
+        address: Optional[Union[Address, ChecksumAddress, ENS]] = None,
+        **kwargs: Any,
+    ) -> Union[Type[AsyncContract], AsyncContract]:
+        ContractFactoryClass = kwargs.pop(
+            "ContractFactoryClass", self._default_contract_factory
+        )
+
+        ContractFactory = ContractFactoryClass.factory(self.w3, **kwargs)
+
+        if address:
+            return ContractFactory(address)
+        else:
+            return ContractFactory
+
+    def set_contract_factory(
+        self,
+        contract_factory: Type[Union[AsyncContract, AsyncContractCaller]],
+    ) -> None:
+        self._default_contract_factory = contract_factory

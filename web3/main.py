@@ -78,6 +78,7 @@ from web3.eth import (
     Eth,
 )
 from web3.geth import (
+    AsyncGeth,
     AsyncGethAdmin,
     AsyncGethPersonal,
     AsyncGethTxPool,
@@ -120,6 +121,7 @@ from web3.testing import (
     Testing,
 )
 from web3.types import (
+    AsyncMiddlewareOnion,
     MiddlewareOnion,
     Wei,
 )
@@ -134,7 +136,7 @@ def get_async_default_modules() -> Dict[str, Union[Type[Module], Sequence[Any]]]
         "eth": AsyncEth,
         "net": AsyncNet,
         "geth": (
-            Geth,
+            AsyncGeth,
             {
                 "admin": AsyncGethAdmin,
                 "personal": AsyncGethPersonal,
@@ -161,7 +163,7 @@ def get_default_modules() -> Dict[str, Union[Type[Module], Sequence[Any]]]:
     }
 
 
-class Web3:
+class BaseWeb3:
     _strict_bytes_type_checking = True
 
     # Providers
@@ -173,6 +175,11 @@ class Web3:
 
     # Managers
     RequestManager = DefaultRequestManager
+
+    # mypy types
+    eth: Union[Eth, AsyncEth]
+    net: Union[Net, AsyncNet]
+    geth: Union[Geth, AsyncGeth]
 
     # Encoding and Decoding
     @staticmethod
@@ -235,54 +242,6 @@ class Web3:
     def to_checksum_address(value: Union[AnyAddress, str, bytes]) -> ChecksumAddress:
         return to_checksum_address(value)
 
-    # mypy Types
-    eth: Eth
-    geth: Geth
-    net: Net
-
-    def __init__(
-        self,
-        provider: Optional[Union[BaseProvider, AsyncBaseProvider]] = None,
-        middlewares: Optional[Sequence[Any]] = None,
-        modules: Optional[Dict[str, Union[Type[Module], Sequence[Any]]]] = None,
-        external_modules: Optional[
-            Dict[str, Union[Type[Module], Sequence[Any]]]
-        ] = None,
-        ens: Union[ENS, AsyncENS, "Empty"] = empty,
-    ) -> None:
-        self.manager = self.RequestManager(self, provider, middlewares)
-        self.codec = ABICodec(build_strict_registry())
-
-        if modules is None:
-            modules = (
-                get_async_default_modules()
-                if provider and provider.is_async
-                else get_default_modules()
-            )
-
-        self.attach_modules(modules)
-
-        if external_modules is not None:
-            self.attach_modules(external_modules)
-
-        self.ens = ens
-
-    @property
-    def middleware_onion(self) -> MiddlewareOnion:
-        return self.manager.middleware_onion
-
-    @property
-    def provider(self) -> Union[BaseProvider, AsyncBaseProvider]:
-        return self.manager.provider
-
-    @provider.setter
-    def provider(self, provider: Union[BaseProvider, AsyncBaseProvider]) -> None:
-        self.manager.provider = provider
-
-    @property
-    def client_version(self) -> str:
-        return self.manager.request_blocking(RPC.web3_clientVersion, [])
-
     @property
     def api(self) -> str:
         from web3 import __version__
@@ -320,6 +279,12 @@ class Web3:
             "keccak(b'\\x74\\x78\\x74'), or keccak(0x747874)."
         )
 
+    @classmethod
+    def normalize_values(
+        cls, w3: "BaseWeb3", abi_types: List[TypeStr], values: List[Any]
+    ) -> List[Any]:
+        return map_abi_data(zip(abi_types, values))
+
     @combomethod
     def solidity_keccak(cls, abi_types: List[TypeStr], values: List[Any]) -> bytes:
         """
@@ -337,7 +302,7 @@ class Web3:
             w3 = None
         else:
             w3 = cls
-        normalized_values = map_abi_data([abi_ens_resolver(w3)], abi_types, values)
+        normalized_values = cls.normalize_values(w3, abi_types, values)
 
         hex_string = add_0x_prefix(
             HexStr(
@@ -357,30 +322,8 @@ class Web3:
         """
         _attach_modules(self, modules)
 
-    def is_connected(self) -> Union[bool, Coroutine[Any, Any, bool]]:
-        return self.provider.is_connected()
-
     def is_encodable(self, _type: TypeStr, value: Any) -> bool:
         return self.codec.is_encodable(_type, value)
-
-    @property
-    def ens(self) -> Union[ENS, AsyncENS, "Empty"]:
-        if self._ens is empty:
-            ns = (
-                AsyncENS.from_web3(self)
-                if self.provider.is_async
-                else ENS.from_web3(self)
-            )
-            ns.w3 = self  # set self object reference for ``ENS.w3``
-            return cast(AsyncENS, ns) if self.provider.is_async else cast(ENS, ns)
-
-        return self._ens
-
-    @ens.setter
-    def ens(self, new_ens: Union[ENS, AsyncENS, "Empty"]) -> None:
-        if new_ens:
-            new_ens.w3 = self  # set self object reference for ``ENS.w3``
-        self._ens = new_ens
 
     @property
     def pm(self) -> "PM":
@@ -400,3 +343,136 @@ class Web3:
 
         if not hasattr(self, "_pm"):
             self.attach_modules({"_pm": PM})
+
+
+class AsyncWeb3(BaseWeb3):
+    # mypy Types
+    eth: AsyncEth
+    net: AsyncNet
+    geth: AsyncGeth
+
+    def __init__(
+        self,
+        provider: Optional[AsyncBaseProvider] = None,
+        middlewares: Optional[Sequence[Any]] = None,
+        modules: Optional[Dict[str, Union[Type[Module], Sequence[Any]]]] = None,
+        external_modules: Optional[
+            Dict[str, Union[Type[Module], Sequence[Any]]]
+        ] = None,
+        ens: Union[AsyncENS, "Empty"] = empty,
+    ) -> None:
+        self.manager = self.RequestManager(self, provider, middlewares)
+        self.codec = ABICodec(build_strict_registry())
+
+        if modules is None:
+            modules = get_async_default_modules()
+
+        self.attach_modules(modules)
+
+        if external_modules is not None:
+            self.attach_modules(external_modules)
+
+        self.ens = ens
+
+    def is_connected(self) -> Coroutine[Any, Any, bool]:
+        return self.provider.is_connected()
+
+    @property
+    def middleware_onion(self) -> AsyncMiddlewareOnion:
+        return cast(AsyncMiddlewareOnion, self.manager.middleware_onion)
+
+    @property
+    def provider(self) -> AsyncBaseProvider:
+        return cast(AsyncBaseProvider, self.manager.provider)
+
+    @provider.setter
+    def provider(self, provider: AsyncBaseProvider) -> None:
+        self.manager.provider = provider
+
+    @property
+    async def client_version(self) -> str:
+        return await self.manager.coro_request(RPC.web3_clientVersion, [])
+
+    @property
+    def ens(self) -> Union[AsyncENS, "Empty"]:
+        if self._ens is empty:
+            ns = AsyncENS.from_web3(self)
+            ns.w3 = self
+            return ns
+        return self._ens
+
+    @ens.setter
+    def ens(self, new_ens: Union[AsyncENS, "Empty"]) -> None:
+        if new_ens:
+            new_ens.w3 = self  # set self object reference for ``AsyncENS.w3``
+        self._ens = new_ens
+
+
+class Web3(BaseWeb3):
+    # mypy types
+    eth: Eth
+    net: Net
+    geth: Geth
+
+    def __init__(
+        self,
+        provider: Optional[BaseProvider] = None,
+        middlewares: Optional[Sequence[Any]] = None,
+        modules: Optional[Dict[str, Union[Type[Module], Sequence[Any]]]] = None,
+        external_modules: Optional[
+            Dict[str, Union[Type[Module], Sequence[Any]]]
+        ] = None,
+        ens: Union[ENS, "Empty"] = empty,
+    ) -> None:
+        self.manager = self.RequestManager(self, provider, middlewares)
+        self.codec = ABICodec(build_strict_registry())
+
+        if modules is None:
+            modules = get_default_modules()
+
+        self.attach_modules(modules)
+
+        if external_modules is not None:
+            self.attach_modules(external_modules)
+
+        self.ens = ens
+
+    def is_connected(self) -> bool:
+        return self.provider.is_connected()
+
+    @classmethod
+    def normalize_values(
+        cls, w3: "BaseWeb3", abi_types: List[TypeStr], values: List[Any]
+    ) -> List[Any]:
+        return map_abi_data([abi_ens_resolver(w3)], abi_types, values)
+
+    @property
+    def middleware_onion(self) -> MiddlewareOnion:
+        return cast(MiddlewareOnion, self.manager.middleware_onion)
+
+    @property
+    def provider(self) -> BaseProvider:
+        return cast(BaseProvider, self.manager.provider)
+
+    @provider.setter
+    def provider(self, provider: BaseProvider) -> None:
+        self.manager.provider = provider
+
+    @property
+    def client_version(self) -> str:
+        return self.manager.request_blocking(RPC.web3_clientVersion, [])
+
+    @property
+    def ens(self) -> Union[ENS, "Empty"]:
+        if self._ens is empty:
+            ns = ENS.from_web3(self)
+            ns.w3 = self
+            return ns
+
+        return self._ens
+
+    @ens.setter
+    def ens(self, new_ens: Union[ENS, "Empty"]) -> None:
+        if new_ens:
+            new_ens.w3 = self  # set self object reference for ``ENS.w3``
+        self._ens = new_ens

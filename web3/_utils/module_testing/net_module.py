@@ -10,7 +10,10 @@ from eth_utils import (
 )
 
 if TYPE_CHECKING:
-    from web3 import Web3  # noqa: F401
+    from web3 import (  # noqa: F401
+        AsyncWeb3,
+        Web3,
+    )
 
 
 class NetModuleTest:
@@ -33,20 +36,20 @@ class NetModuleTest:
 
 class AsyncNetModuleTest:
     @pytest.mark.asyncio
-    async def test_net_version(self, async_w3: "Web3") -> None:
+    async def test_net_version(self, async_w3: "AsyncWeb3") -> None:
         version = await async_w3.net.version  # type: ignore
 
         assert is_string(version)
         assert version.isdigit()
 
     @pytest.mark.asyncio
-    async def test_net_listening(self, async_w3: "Web3") -> None:
+    async def test_net_listening(self, async_w3: "AsyncWeb3") -> None:
         listening = await async_w3.net.listening  # type: ignore
 
         assert is_boolean(listening)
 
     @pytest.mark.asyncio
-    async def test_net_peer_count(self, async_w3: "Web3") -> None:
+    async def test_net_peer_count(self, async_w3: "AsyncWeb3") -> None:
         peer_count = await async_w3.net.peer_count  # type: ignore
 
         assert is_integer(peer_count)

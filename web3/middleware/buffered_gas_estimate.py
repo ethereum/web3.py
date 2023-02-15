@@ -15,13 +15,16 @@ from web3._utils.transactions import (
     get_buffered_gas_estimate,
 )
 from web3.types import (
-    AsyncMiddleware,
+    AsyncMiddlewareCoroutine,
     RPCEndpoint,
     RPCResponse,
 )
 
 if TYPE_CHECKING:
-    from web3 import Web3  # noqa: F401
+    from web3.main import (  # noqa: F401
+        AsyncWeb3,
+        Web3,
+    )
 
 
 def buffered_gas_estimate_middleware(
@@ -43,8 +46,8 @@ def buffered_gas_estimate_middleware(
 
 
 async def async_buffered_gas_estimate_middleware(
-    make_request: Callable[[RPCEndpoint, Any], Any], w3: "Web3"
-) -> AsyncMiddleware:
+    make_request: Callable[[RPCEndpoint, Any], Any], w3: "AsyncWeb3"
+) -> AsyncMiddlewareCoroutine:
     async def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
         if method == "eth_sendTransaction":
             transaction = params[0]

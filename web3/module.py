@@ -29,7 +29,10 @@ from web3.types import (
 )
 
 if TYPE_CHECKING:
-    from web3 import Web3  # noqa: F401
+    from web3.main import (  # noqa: F401
+        AsyncWeb3,
+        Web3,
+    )
 
 
 @curry
@@ -54,7 +57,7 @@ def retrieve_blocking_method_call_fn(
         try:
             (method_str, params), response_formatters = method.process_params(
                 module, *args, **kwargs
-            )  # noqa: E501
+            )
         except _UseExistingFilter as err:
             return LogFilter(eth_module=module, filter_id=err.filter_id)
         (
@@ -72,7 +75,7 @@ def retrieve_blocking_method_call_fn(
 
 @curry
 def retrieve_async_method_call_fn(
-    w3: "Web3", module: "Module", method: Method[Callable[..., Any]]
+    async_w3: "AsyncWeb3", module: "Module", method: Method[Callable[..., Any]]
 ) -> Callable[..., Coroutine[Any, Any, Union[RPCResponse, AsyncLogFilter]]]:
     async def caller(*args: Any, **kwargs: Any) -> Union[RPCResponse, AsyncLogFilter]:
         try:
@@ -87,7 +90,7 @@ def retrieve_async_method_call_fn(
             error_formatters,
             null_result_formatters,
         ) = response_formatters
-        result = await w3.manager.coro_request(
+        result = await async_w3.manager.coro_request(
             method_str, params, error_formatters, null_result_formatters
         )
         return apply_result_formatters(result_formatters, result)
@@ -102,7 +105,7 @@ def retrieve_async_method_call_fn(
 class Module:
     is_async = False
 
-    def __init__(self, w3: "Web3") -> None:
+    def __init__(self, w3: Union["AsyncWeb3", "Web3"]) -> None:
         if self.is_async:
             self.retrieve_caller_fn = retrieve_async_method_call_fn(w3, self)
         else:

@@ -18,10 +18,18 @@ from eth_typing import (
 from eth_utils import (
     combomethod,
 )
+from eth_utils.toolz import (
+    partial,
+)
 from hexbytes import (
     HexBytes,
 )
 
+from web3._utils.abi import (
+    fallback_func_abi_exists,
+    filter_by_type,
+    receive_func_abi_exists,
+)
 from web3._utils.async_transactions import (
     fill_transaction_defaults as async_fill_transaction_defaults,
 )
@@ -38,6 +46,10 @@ from web3._utils.events import (
 from web3._utils.filters import (
     AsyncLogFilter,
 )
+from web3._utils.function_identifiers import (
+    FallbackFn,
+    ReceiveFn,
+)
 from web3._utils.normalizers import (
     normalize_abi,
     normalize_address_no_ens,
@@ -51,6 +63,8 @@ from web3.contract.base_contract import (
     BaseContractEvents,
     BaseContractFunction,
     BaseContractFunctions,
+    NonExistentFallbackFunction,
+    NonExistentReceiveFunction,
 )
 from web3.contract.utils import (
     async_build_transaction_for_function,
@@ -59,6 +73,11 @@ from web3.contract.utils import (
     async_transact_with_contract_function,
     find_functions_by_identifier,
     get_function_by_identifier,
+)
+from web3.exceptions import (
+    ABIFunctionNotFound,
+    NoABIFound,
+    NoABIFunctionsFound,
 )
 from web3.types import (
     ABI,
@@ -69,24 +88,42 @@ from web3.types import (
 )
 
 if TYPE_CHECKING:
-    from ens import ENS  # noqa: F401
-    from web3 import Web3  # noqa: F401
+    from ens import AsyncENS  # noqa: F401
+    from web3 import AsyncWeb3  # noqa: F401
 
 
 class AsyncContractFunctions(BaseContractFunctions):
     def __init__(
         self,
         abi: ABI,
-        w3: "Web3",
+        w3: "AsyncWeb3",
         address: Optional[ChecksumAddress] = None,
         decode_tuples: Optional[bool] = False,
     ) -> None:
         super().__init__(abi, w3, AsyncContractFunction, address, decode_tuples)
 
+    def __getattr__(self, function_name: str) -> "AsyncContractFunction":
+        if self.abi is None:
+            raise NoABIFound(
+                "There is no ABI found for this contract.",
+            )
+        if "_functions" not in self.__dict__:
+            raise NoABIFunctionsFound(
+                "The abi for this contract contains no function definitions. ",
+                "Are you sure you provided the correct contract abi?",
+            )
+        elif function_name not in self.__dict__["_functions"]:
+            raise ABIFunctionNotFound(
+                f"The function '{function_name}' was not found in this contract's abi.",
+                " Are you sure you provided the correct contract abi?",
+            )
+        else:
+            return super().__getattribute__(function_name)
+
 
 class AsyncContractEvents(BaseContractEvents):
     def __init__(
-        self, abi: ABI, w3: "Web3", address: Optional[ChecksumAddress] = None
+        self, abi: ABI, w3: "AsyncWeb3", address: Optional[ChecksumAddress] = None
     ) -> None:
         super().__init__(abi, w3, AsyncContractEvent, address)
 
@@ -94,6 +131,9 @@ class AsyncContractEvents(BaseContractEvents):
 class AsyncContract(BaseContract):
     functions: AsyncContractFunctions = None
     caller: "AsyncContractCaller" = None
+
+    # mypy types
+    w3: "AsyncWeb3"
 
     #: Instance of :class:`ContractEvents` presenting available Event ABIs
     events: AsyncContractEvents = None
@@ -132,7 +172,7 @@ class AsyncContract(BaseContract):
 
     @classmethod
     def factory(
-        cls, w3: "Web3", class_name: Optional[str] = None, **kwargs: Any
+        cls, w3: "AsyncWeb3", class_name: Optional[str] = None, **kwargs: Any
     ) -> "AsyncContract":
         kwargs["w3"] = w3
 
@@ -193,27 +233,33 @@ class AsyncContract(BaseContract):
     def find_functions_by_identifier(
         cls,
         contract_abi: ABI,
-        w3: "Web3",
+        w3: "AsyncWeb3",
         address: ChecksumAddress,
         callable_check: Callable[..., Any],
     ) -> List["AsyncContractFunction"]:
-        return find_functions_by_identifier(  # type: ignore
-            contract_abi, w3, address, callable_check, AsyncContractFunction
+        return cast(
+            List[AsyncContractFunction],
+            find_functions_by_identifier(
+                contract_abi, w3, address, callable_check, AsyncContractFunction
+            ),
         )
 
     @combomethod
     def get_function_by_identifier(
-        cls, fns: Sequence[BaseContractFunction], identifier: str
-    ) -> BaseContractFunction:
-        return get_function_by_identifier(fns, identifier)
+        cls, fns: Sequence["AsyncContractFunction"], identifier: str
+    ) -> "AsyncContractFunction":
+        return cast(
+            "AsyncContractFunction", get_function_by_identifier(fns, identifier)
+        )
 
 
 class AsyncContractConstructor(BaseContractConstructor):
+    # mypy types
+    w3: "AsyncWeb3"
+
     @combomethod
     async def transact(self, transaction: Optional[TxParams] = None) -> HexBytes:
-        return await self.w3.eth.send_transaction(  # type: ignore
-            self._get_transaction(transaction)
-        )
+        return await self.w3.eth.send_transaction(self._get_transaction(transaction))
 
     @combomethod
     async def build_transaction(
@@ -239,6 +285,9 @@ class AsyncContractConstructor(BaseContractConstructor):
 
 
 class AsyncContractFunction(BaseContractFunction):
+    # mypy types
+    w3: "AsyncWeb3"
+
     def __call__(self, *args: Any, **kwargs: Any) -> "AsyncContractFunction":
         clone = copy.copy(self)
         if args is None:
@@ -252,6 +301,10 @@ class AsyncContractFunction(BaseContractFunction):
             clone.kwargs = kwargs
         clone._set_function_info()
         return clone
+
+    @classmethod
+    def factory(cls, class_name: str, **kwargs: Any) -> "AsyncContractFunction":
+        return PropertyCheckingFactory(class_name, (cls,), kwargs)(kwargs.get("abi"))
 
     async def call(
         self,
@@ -286,7 +339,7 @@ class AsyncContractFunction(BaseContractFunction):
         """
         call_transaction = self._get_call_txparams(transaction)
 
-        block_id = await async_parse_block_identifier(self.w3, block_identifier)
+        block_id = async_parse_block_identifier(self.w3, block_identifier)
 
         return await async_call_contract_function(
             self.w3,
@@ -304,9 +357,7 @@ class AsyncContractFunction(BaseContractFunction):
             **self.kwargs,
         )
 
-    async def transact(  # type: ignore
-        self, transaction: Optional[TxParams] = None
-    ) -> HexBytes:
+    async def transact(self, transaction: Optional[TxParams] = None) -> HexBytes:
         setup_transaction = self._transact(transaction)
         return await async_transact_with_contract_function(
             self.address,
@@ -352,8 +403,43 @@ class AsyncContractFunction(BaseContractFunction):
             **self.kwargs,
         )
 
+    @staticmethod
+    def get_fallback_function(
+        abi: ABI,
+        async_w3: "AsyncWeb3",
+        address: Optional[ChecksumAddress] = None,
+    ) -> "AsyncContractFunction":
+        if abi and fallback_func_abi_exists(abi):
+            return AsyncContractFunction.factory(
+                "fallback",
+                w3=async_w3,
+                contract_abi=abi,
+                address=address,
+                function_identifier=FallbackFn,
+            )()
+        return cast(AsyncContractFunction, NonExistentFallbackFunction())
+
+    @staticmethod
+    def get_receive_function(
+        abi: ABI,
+        async_w3: "AsyncWeb3",
+        address: Optional[ChecksumAddress] = None,
+    ) -> "AsyncContractFunction":
+        if abi and receive_func_abi_exists(abi):
+            return AsyncContractFunction.factory(
+                "receive",
+                w3=async_w3,
+                contract_abi=abi,
+                address=address,
+                function_identifier=ReceiveFn,
+            )()
+        return cast(AsyncContractFunction, NonExistentReceiveFunction())
+
 
 class AsyncContractEvent(BaseContractEvent):
+    # mypy types
+    w3: "AsyncWeb3"
+
     @combomethod
     async def get_logs(
         self,
@@ -471,26 +557,46 @@ class AsyncContractEvent(BaseContractEvent):
 
 
 class AsyncContractCaller(BaseContractCaller):
+    # mypy types
+    w3: "AsyncWeb3"
+
     def __init__(
         self,
         abi: ABI,
-        w3: "Web3",
+        w3: "AsyncWeb3",
         address: ChecksumAddress,
         transaction: Optional[TxParams] = None,
         block_identifier: BlockIdentifier = "latest",
         ccip_read_enabled: Optional[bool] = None,
         decode_tuples: Optional[bool] = False,
     ) -> None:
-        super().__init__(
-            abi=abi,
-            w3=w3,
-            address=address,
-            transaction=transaction,
-            block_identifier=block_identifier,
-            ccip_read_enabled=ccip_read_enabled,
-            contract_function_class=AsyncContractFunction,
-            decode_tuples=decode_tuples,
-        )
+        super().__init__(abi, w3, address)
+        if self.abi:
+            if transaction is None:
+                transaction = {}
+
+            self._functions = filter_by_type("function", self.abi)
+            for func in self._functions:
+                fn: AsyncContractFunction = AsyncContractFunction.factory(
+                    func["name"],
+                    w3=self.w3,
+                    contract_abi=self.abi,
+                    address=self.address,
+                    function_identifier=func["name"],
+                    decode_tuples=decode_tuples,
+                )
+
+                block_id = async_parse_block_identifier(self.w3, block_identifier)
+                caller_method = partial(
+                    self.call_function,
+                    fn,
+                    transaction=transaction,
+                    block_identifier=block_id,
+                    ccip_read_enabled=ccip_read_enabled,
+                    decode_tuples=decode_tuples,
+                )
+
+                setattr(self, func["name"], caller_method)
 
     def __call__(
         self,

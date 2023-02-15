@@ -1,7 +1,10 @@
 from eth_account import Account  # noqa: E402,
 import pkg_resources
 
-from web3.main import Web3  # noqa: E402,
+from web3.main import (
+    AsyncWeb3,
+    Web3,
+)
 from web3.providers.async_rpc import (  # noqa: E402
     AsyncHTTPProvider,
 )
@@ -22,6 +25,7 @@ __version__ = pkg_resources.get_distribution("web3").version
 
 __all__ = [
     "__version__",
+    "AsyncWeb3",
     "Web3",
     "HTTPProvider",
     "IPCProvider",

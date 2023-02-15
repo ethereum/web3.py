@@ -89,7 +89,10 @@ from web3.utils import (
 )
 
 if TYPE_CHECKING:
-    from web3 import Web3  # noqa: F401
+    from web3 import (  # noqa: F401
+        AsyncWeb3,
+        Web3,
+    )
     from web3._utils.filters import (  # noqa: F401
         AsyncLogFilter,
         LogFilter,
@@ -443,7 +446,7 @@ class EventFilterBuilder(BaseEventFilterBuilder):
 
 
 class AsyncEventFilterBuilder(BaseEventFilterBuilder):
-    async def deploy(self, async_w3: "Web3") -> "AsyncLogFilter":
+    async def deploy(self, async_w3: "AsyncWeb3") -> "AsyncLogFilter":
         if not isinstance(async_w3, web3.Web3):
             raise ValueError(f"Invalid web3 argument: got: {async_w3!r}")
 

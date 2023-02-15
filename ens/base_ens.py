@@ -25,7 +25,10 @@ from ens.utils import (
 )
 
 if TYPE_CHECKING:
-    from web3 import Web3  # noqa: F401
+    from web3 import (  # noqa: F401
+        AsyncWeb3,
+        Web3,
+    )
     from web3.contract import (  # noqa: F401
         AsyncContract,
         Contract,
@@ -33,7 +36,7 @@ if TYPE_CHECKING:
 
 
 class BaseENS:
-    w3: "Web3" = None
+    w3: Union["AsyncWeb3", "Web3"] = None
     ens: Union["Contract", "AsyncContract"] = None
     _resolver_contract: Union[Type["Contract"], Type["AsyncContract"]] = None
     _reverse_resolver_contract: Union[Type["Contract"], Type["AsyncContract"]] = None

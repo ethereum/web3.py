@@ -8,6 +8,7 @@ from typing import (
     Sequence,
     Tuple,
     Type,
+    Union,
 )
 
 from eth_abi.exceptions import (
@@ -40,9 +41,6 @@ from web3._utils.normalizers import (
 from web3._utils.transactions import (
     fill_transaction_defaults,
 )
-from web3.contract.base_contract import (
-    BaseContractFunction,
-)
 from web3.exceptions import (
     BadFunctionCallOutput,
 )
@@ -56,7 +54,12 @@ from web3.types import (
 )
 
 if TYPE_CHECKING:
-    from web3 import Web3  # noqa: F401
+    from web3 import (  # noqa: F401
+        AsyncWeb3,
+        Web3,
+    )
+    from web3.contract.async_contract import AsyncContractFunction  # noqa: F401
+    from web3.contract.contract import ContractFunction  # noqa: F401
 
 ACCEPTABLE_EMPTY_STRINGS = ["0x", b"0x", "", b""]
 
@@ -234,11 +237,11 @@ def build_transaction_for_function(
 
 def find_functions_by_identifier(
     contract_abi: ABI,
-    w3: "Web3",
+    w3: Union["Web3", "AsyncWeb3"],
     address: ChecksumAddress,
     callable_check: Callable[..., Any],
-    function_type: Type[BaseContractFunction],
-) -> List[BaseContractFunction]:
+    function_type: Type[Union["ContractFunction", "AsyncContractFunction"]],
+) -> List[Union["ContractFunction", "AsyncContractFunction"]]:
     fns_abi = filter_by_type("function", contract_abi)
     return [
         function_type.factory(
@@ -255,8 +258,8 @@ def find_functions_by_identifier(
 
 
 def get_function_by_identifier(
-    fns: Sequence[BaseContractFunction], identifier: str
-) -> BaseContractFunction:
+    fns: Sequence[Union["ContractFunction", "AsyncContractFunction"]], identifier: str
+) -> Union["ContractFunction", "AsyncContractFunction"]:
     if len(fns) > 1:
         raise ValueError(
             f"Found multiple functions with matching {identifier}. " f"Found: {fns!r}"
@@ -270,7 +273,7 @@ def get_function_by_identifier(
 
 
 async def async_call_contract_function(
-    async_w3: "Web3",
+    async_w3: "AsyncWeb3",
     address: ChecksumAddress,
     normalizers: Tuple[Callable[..., Any], ...],
     function_identifier: FunctionIdentifier,
@@ -352,7 +355,7 @@ async def async_call_contract_function(
 
 async def async_transact_with_contract_function(
     address: ChecksumAddress,
-    w3: "Web3",
+    async_w3: "AsyncWeb3",
     function_name: Optional[FunctionIdentifier] = None,
     transaction: Optional[TxParams] = None,
     contract_abi: Optional[ABI] = None,
@@ -366,7 +369,7 @@ async def async_transact_with_contract_function(
     """
     transact_transaction = prepare_transaction(
         address,
-        w3,
+        async_w3,
         fn_identifier=function_name,
         contract_abi=contract_abi,
         transaction=transaction,
@@ -375,13 +378,13 @@ async def async_transact_with_contract_function(
         fn_kwargs=kwargs,
     )
 
-    txn_hash = await w3.eth.send_transaction(transact_transaction)  # type: ignore
+    txn_hash = await async_w3.eth.send_transaction(transact_transaction)
     return txn_hash
 
 
 async def async_estimate_gas_for_function(
     address: ChecksumAddress,
-    w3: "Web3",
+    async_w3: "AsyncWeb3",
     fn_identifier: Optional[FunctionIdentifier] = None,
     transaction: Optional[TxParams] = None,
     contract_abi: Optional[ABI] = None,
@@ -397,7 +400,7 @@ async def async_estimate_gas_for_function(
     """
     estimate_transaction = prepare_transaction(
         address,
-        w3,
+        async_w3,
         fn_identifier=fn_identifier,
         contract_abi=contract_abi,
         fn_abi=fn_abi,
@@ -406,14 +409,12 @@ async def async_estimate_gas_for_function(
         fn_kwargs=kwargs,
     )
 
-    return await w3.eth.estimate_gas(  # type: ignore
-        estimate_transaction, block_identifier
-    )
+    return await async_w3.eth.estimate_gas(estimate_transaction, block_identifier)
 
 
 async def async_build_transaction_for_function(
     address: ChecksumAddress,
-    w3: "Web3",
+    async_w3: "AsyncWeb3",
     function_name: Optional[FunctionIdentifier] = None,
     transaction: Optional[TxParams] = None,
     contract_abi: Optional[ABI] = None,
@@ -428,7 +429,7 @@ async def async_build_transaction_for_function(
     """
     prepared_transaction = prepare_transaction(
         address,
-        w3,
+        async_w3,
         fn_identifier=function_name,
         contract_abi=contract_abi,
         fn_abi=fn_abi,
@@ -437,4 +438,4 @@ async def async_build_transaction_for_function(
         fn_kwargs=kwargs,
     )
 
-    return await async_fill_transaction_defaults(w3, prepared_transaction)
+    return await async_fill_transaction_defaults(async_w3, prepared_transaction)

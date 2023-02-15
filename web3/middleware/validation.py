@@ -37,7 +37,7 @@ from web3.middleware.formatting import (
     construct_web3_formatting_middleware,
 )
 from web3.types import (
-    AsyncMiddleware,
+    AsyncMiddlewareCoroutine,
     Formatters,
     FormattersDict,
     RPCEndpoint,
@@ -45,7 +45,10 @@ from web3.types import (
 )
 
 if TYPE_CHECKING:
-    from web3 import Web3  # noqa: F401
+    from web3 import (  # noqa: F401
+        AsyncWeb3,
+        Web3,
+    )
 
 MAX_EXTRADATA_LENGTH = 32
 
@@ -150,11 +153,11 @@ validation_middleware = construct_web3_formatting_middleware(build_method_valida
 
 
 async def async_build_method_validators(
-    async_w3: "Web3", method: RPCEndpoint
+    async_w3: "AsyncWeb3", method: RPCEndpoint
 ) -> FormattersDict:
     request_formatters: Formatters = {}
     if RPCEndpoint(method) in METHODS_TO_VALIDATE:
-        w3_chain_id = await async_w3.eth.chain_id  # type: ignore
+        w3_chain_id = await async_w3.eth.chain_id
         for method in METHODS_TO_VALIDATE:
             request_formatters[method] = _chain_id_validator(w3_chain_id)
 
@@ -162,8 +165,8 @@ async def async_build_method_validators(
 
 
 async def async_validation_middleware(
-    make_request: Callable[[RPCEndpoint, Any], Any], w3: "Web3"
-) -> AsyncMiddleware:
+    make_request: Callable[[RPCEndpoint, Any], Any], w3: "AsyncWeb3"
+) -> AsyncMiddlewareCoroutine:
     middleware = await async_construct_web3_formatting_middleware(
         async_build_method_validators
     )
