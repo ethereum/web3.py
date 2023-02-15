@@ -1,1 +1,0 @@
-Strict bytes type checking is now default for ``web3.py``. This change also adds a boolean flag on the ``Web3`` class for turning this feature on and off, as well as a flag on the ``ENS`` class for control over a standalone ``ENS`` instance.

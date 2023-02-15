@@ -1,2 +1,0 @@
-Re-compile all test contracts with latest Solidity version. Refactor test fixtures. Adds a script that compiles all test contracts to the same directory with selected Solidity version.
-

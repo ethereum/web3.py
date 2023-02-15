@@ -1,1 +1,0 @@
-Compile test contracts using newly-released Solidity version ``0.8.18``.
