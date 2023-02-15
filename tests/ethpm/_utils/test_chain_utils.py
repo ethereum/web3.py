@@ -46,10 +46,10 @@ def test_parse_BIP122_uri(value, expected_resource_type):
     "chain_id,expected",
     (
         (1, True),
-        (4, True),
         (5, True),
         (11155111, True),
         (2, False),
+        (4, False),
         ("1", False),
         ({}, False),
         (None, False),

@@ -243,8 +243,8 @@ way through the EIP process)
 -  ``chain_id``: Chain ID of the chain on which the registry lives. Defaults to Mainnet. Supported chains include...
 
   - 1: Mainnet
-  - 4: Rinkeby
   - 5: Goerli
+  - 11155111: Sepolia
 
 -  ``package-name``: Must conform to the package-name as specified in
    the
