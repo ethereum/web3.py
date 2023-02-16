@@ -35,6 +35,7 @@ from web3._utils.async_transactions import (
 )
 from web3._utils.contracts import (
     async_parse_block_identifier,
+    parse_block_identifier_no_extra_call,
 )
 from web3._utils.datatypes import (
     PropertyCheckingFactory,
@@ -339,7 +340,7 @@ class AsyncContractFunction(BaseContractFunction):
         """
         call_transaction = self._get_call_txparams(transaction)
 
-        block_id = async_parse_block_identifier(self.w3, block_identifier)
+        block_id = await async_parse_block_identifier(self.w3, block_identifier)
 
         return await async_call_contract_function(
             self.w3,
@@ -586,7 +587,12 @@ class AsyncContractCaller(BaseContractCaller):
                     decode_tuples=decode_tuples,
                 )
 
-                block_id = async_parse_block_identifier(self.w3, block_identifier)
+                # TODO: This is a hack to get around the fact that we can't call the
+                #  full async method from within a class's __init__ method. We'll need
+                #  to see if there's a way to account for all desired elif cases.
+                block_id = parse_block_identifier_no_extra_call(
+                    self.w3, block_identifier
+                )
                 caller_method = partial(
                     self.call_function,
                     fn,

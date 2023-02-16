@@ -422,7 +422,7 @@ def parse_block_identifier(
     elif isinstance(block_identifier, bytes) or is_hex_encoded_block_hash(
         block_identifier
     ):
-        return w3.eth.get_block(HexBytes(block_identifier))["number"]
+        return w3.eth.get_block(block_identifier)["number"]
     else:
         raise BlockNumberOutofRange
 
@@ -438,23 +438,50 @@ def parse_block_identifier_int(w3: "Web3", block_identifier_int: int) -> BlockNu
     return BlockNumber(block_num)
 
 
-def async_parse_block_identifier(
+def parse_block_identifier_no_extra_call(
+    async_w3: Union["Web3", "AsyncWeb3"], block_identifier: BlockIdentifier
+) -> BlockIdentifier:
+    if block_identifier is None:
+        return async_w3.eth.default_block
+    elif isinstance(block_identifier, int) and block_identifier >= 0:
+        return block_identifier
+    elif block_identifier in ["latest", "earliest", "pending", "safe", "finalized"]:
+        return block_identifier
+    elif isinstance(block_identifier, bytes):
+        return HexBytes(block_identifier)
+    elif is_hex_encoded_block_hash(block_identifier):
+        return HexStr(str(block_identifier))
+    else:
+        raise BlockNumberOutofRange
+
+
+async def async_parse_block_identifier(
     async_w3: "AsyncWeb3", block_identifier: BlockIdentifier
 ) -> BlockIdentifier:
     if block_identifier is None:
         return async_w3.eth.default_block
     if isinstance(block_identifier, int):
-        return async_parse_block_identifier_int(block_identifier)
+        return await async_parse_block_identifier_int(async_w3, block_identifier)
     elif block_identifier in ["latest", "earliest", "pending", "safe", "finalized"]:
         return block_identifier
     elif isinstance(block_identifier, bytes) or is_hex_encoded_block_hash(
         block_identifier
     ):
-        return HexBytes(block_identifier)
+        requested_block = await async_w3.eth.get_block(block_identifier)
+        return requested_block["number"]
     else:
         raise BlockNumberOutofRange
 
 
-def async_parse_block_identifier_int(block_identifier_int: int) -> BlockNumber:
-    assert block_identifier_int >= 0
-    return BlockNumber(block_identifier_int)
+async def async_parse_block_identifier_int(
+    async_w3: "AsyncWeb3", block_identifier_int: int
+) -> BlockNumber:
+    if block_identifier_int >= 0:
+        block_num = block_identifier_int
+    else:
+        last_block = await async_w3.eth.get_block("latest")
+        last_block_num = last_block["number"]
+        block_num = last_block_num + block_identifier_int + 1
+        if block_num < 0:
+            raise BlockNumberOutofRange
+    return BlockNumber(block_num)
