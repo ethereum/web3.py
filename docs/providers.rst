@@ -255,6 +255,7 @@ AutoProvider
 explicitly.
 
 
+.. _AsyncHTTPProvider:
 
 AsyncHTTPProvider
 ~~~~~~~~~~~~~~~~~
@@ -277,9 +278,9 @@ AsyncHTTPProvider
     .. code-block:: python
 
         >>> from aiohttp import ClientSession
-        >>> from web3 import Web3, AsyncHTTPProvider
+        >>> from web3 import AsyncWeb3, AsyncHTTPProvider
 
-        >>> w3 = Web3(AsyncHTTPProvider(endpoint_uri))
+        >>> w3 = AsyncWeb3(AsyncHTTPProvider(endpoint_uri))
 
         >>> # If you want to pass in your own session:
         >>> custom_session = ClientSession()

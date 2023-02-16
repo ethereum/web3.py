@@ -13,12 +13,13 @@ greater detail.
 Configuration
 ~~~~~~~~~~~~~
 
-After installing web3.py (via ``pip install web3``), you'll need to specify the
-provider and any middleware you want to use beyond the defaults.
+After installing web3.py (via ``pip install web3``), you'll need to specify
+async or sync web3, the provider, and any middleware you want to use
+beyond the defaults.
 
 
-Providers
----------
+Sync Providers
+--------------
 
 Providers are how web3.py connects to the blockchain. The library comes with the
 following built-in providers:
@@ -39,6 +40,31 @@ following built-in providers:
 
    # WebsocketProvider:
    >>> w3 = Web3(Web3.WebsocketProvider('ws://127.0.0.1:8546'))
+
+   >>> w3.is_connected()
+   True
+
+For more information, (e.g., connecting to remote nodes, provider auto-detection,
+using a test provider) see the :ref:`Providers <providers>` documentation.
+
+
+AsyncProvider
+-------------
+
+- ``AsyncWeb3.AsyncHTTPProvider`` for connecting to http and https based JSON-RPC servers.
+
+.. note::
+
+   The AsyncHTTPProvider is still under active development. Not all JSON-RPC
+   methods and middleware are available yet. The list of available methods and
+   middleware can be seen on the :ref:`AsyncHTTPProvider` docs
+
+.. code-block:: python
+
+   >>> from web3 import AsyncWeb3
+
+   # AsyncHTTPProvider:
+   >>> w3 = AsyncWeb3(AsyncWeb3.AsyncHTTPProvider('http://127.0.0.1:8545'))
 
    >>> w3.is_connected()
    True
