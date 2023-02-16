@@ -1,0 +1,1 @@
+Remove unused module lines to instantiate the AsyncHTTPProvider
