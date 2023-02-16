@@ -84,6 +84,11 @@ to this local node can be done as follows:
    >>> w3.is_connected()
    True
 
+.. note::
+
+   The AsyncHTTPProvider is still under active development. Not all JSON-RPC
+   methods and middleware are available yet. The list of available methods and
+   middleware can be seen on the :ref:`AsyncHTTPProvider` docs
 
 Remote Providers
 ****************
@@ -103,6 +108,12 @@ You can connect to a remote node by specifying the endpoint, just like the previ
    >>> w3 = Web3(Web3.WebsocketProvider('wss://<your-provider-url>'))
 
 This endpoint is provided by the remote node service after you create an account.
+
+.. note::
+
+   The AsyncHTTPProvider is still under active development. Not all JSON-RPC
+   methods and middleware are available yet. The list of available methods and
+   middleware can be seen on the :ref:`AsyncHTTPProvider` docs
 
 .. _first_w3_use:
 
