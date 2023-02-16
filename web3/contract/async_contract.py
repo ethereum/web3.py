@@ -571,7 +571,8 @@ class AsyncContractCaller(BaseContractCaller):
         ccip_read_enabled: Optional[bool] = None,
         decode_tuples: Optional[bool] = False,
     ) -> None:
-        super().__init__(abi, w3, address)
+        super().__init__(abi, w3, address, decode_tuples=decode_tuples)
+
         if self.abi:
             if transaction is None:
                 transaction = {}
@@ -587,8 +588,8 @@ class AsyncContractCaller(BaseContractCaller):
                     decode_tuples=decode_tuples,
                 )
 
-                # TODO: This is a hack to get around the fact that we can't call the
-                #  full async method from within a class's __init__ method. We'll need
+                # TODO: The no_extra_call method gets around the fact that we can't call
+                #  the full async method from within a class's __init__ method. We need
                 #  to see if there's a way to account for all desired elif cases.
                 block_id = parse_block_identifier_no_extra_call(
                     self.w3, block_identifier
@@ -599,7 +600,6 @@ class AsyncContractCaller(BaseContractCaller):
                     transaction=transaction,
                     block_identifier=block_id,
                     ccip_read_enabled=ccip_read_enabled,
-                    decode_tuples=decode_tuples,
                 )
 
                 setattr(self, func["name"], caller_method)

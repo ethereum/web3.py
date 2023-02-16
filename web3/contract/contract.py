@@ -565,7 +565,7 @@ class ContractCaller(BaseContractCaller):
         ccip_read_enabled: Optional[bool] = None,
         decode_tuples: Optional[bool] = False,
     ) -> None:
-        super().__init__(abi, w3, address)
+        super().__init__(abi, w3, address, decode_tuples=decode_tuples)
 
         if self.abi:
             if transaction is None:
@@ -589,7 +589,6 @@ class ContractCaller(BaseContractCaller):
                     transaction=transaction,
                     block_identifier=block_id,
                     ccip_read_enabled=ccip_read_enabled,
-                    decode_tuples=decode_tuples,
                 )
 
                 setattr(self, func["name"], caller_method)

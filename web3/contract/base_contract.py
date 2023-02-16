@@ -1050,10 +1050,12 @@ class BaseContractCaller:
         abi: ABI,
         w3: Union["Web3", "AsyncWeb3"],
         address: ChecksumAddress,
+        decode_tuples: Optional[bool] = False,
     ) -> None:
         self.w3 = w3
         self.address = address
         self.abi = abi
+        self.decode_tuples = decode_tuples
         self._functions = []
 
     def __getattr__(self, function_name: str) -> Any:
