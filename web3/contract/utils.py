@@ -302,7 +302,7 @@ async def async_call_contract_function(
         fn_kwargs=kwargs,
     )
 
-    return_data = await async_w3.eth.call(  # type: ignore
+    return_data = await async_w3.eth.call(
         call_transaction,
         block_identifier=block_id,
         state_override=state_override,
@@ -323,7 +323,7 @@ async def async_call_contract_function(
         # eth-abi-utils
         is_missing_code_error = (
             return_data in ACCEPTABLE_EMPTY_STRINGS
-            and await async_w3.eth.get_code(address) in ACCEPTABLE_EMPTY_STRINGS  # type: ignore  # noqa: E501
+            and await async_w3.eth.get_code(address) in ACCEPTABLE_EMPTY_STRINGS
         )
         if is_missing_code_error:
             msg = (

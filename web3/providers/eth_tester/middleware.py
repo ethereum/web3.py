@@ -371,8 +371,8 @@ async def async_ethereum_tester_middleware(  # type: ignore
 async def async_guess_from(
     async_w3: "AsyncWeb3", _: TxParams
 ) -> Optional[ChecksumAddress]:
-    coinbase = await async_w3.eth.coinbase  # type: ignore
-    accounts = await async_w3.eth.accounts  # type: ignore
+    coinbase = await async_w3.eth.coinbase
+    accounts = await async_w3.eth.accounts
     if coinbase is not None:
         return coinbase
     elif accounts is not None and len(accounts) > 0:
