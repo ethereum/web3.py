@@ -454,7 +454,7 @@ class AsyncEventFilterBuilder(BaseEventFilterBuilder):
             arg._immutable = True
         self._immutable = True
 
-        log_filter = await async_w3.eth.filter(self.filter_params)  # type: ignore
+        log_filter = await async_w3.eth.filter(self.filter_params)
         log_filter.filter_params = self.filter_params
         log_filter.set_data_filters(self.data_argument_values)
         log_filter.builder = self

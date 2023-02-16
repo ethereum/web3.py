@@ -279,7 +279,7 @@ class AsyncContractConstructor(BaseContractConstructor):
     ) -> int:
         transaction = self._estimate_gas(transaction)
 
-        return await self.w3.eth.estimate_gas(  # type: ignore
+        return await self.w3.eth.estimate_gas(
             transaction, block_identifier=block_identifier
         )
 
@@ -506,7 +506,7 @@ class AsyncContractEvent(BaseContractEvent):
         # Call JSON-RPC API
         logs = await self.w3.eth.get_logs(
             self._get_event_filter_params(
-                abi, argument_filters, fromBlock, toBlock, block_hash  # type: ignore
+                abi, argument_filters, fromBlock, toBlock, block_hash
             )
         )
 

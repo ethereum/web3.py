@@ -187,7 +187,7 @@ class AsyncENS(BaseENS):
         transact["from"] = owner
 
         resolver: "AsyncContract" = await self._set_resolver(name, transact=transact)
-        return await resolver.functions.setAddr(  # type: ignore
+        return await resolver.functions.setAddr(
             raw_name_to_hash(name), address
         ).transact(transact)
 
@@ -402,9 +402,9 @@ class AsyncENS(BaseENS):
         r = await self.resolver(normal_name)
         if r:
             if await _async_resolver_supports_interface(r, GET_TEXT_INTERFACE_ID):
-                return await r.functions.setText(  # type: ignore
-                    node, key, value
-                ).transact(transaction_dict)
+                return await r.functions.setText(node, key, value).transact(
+                    transaction_dict
+                )
             else:
                 raise UnsupportedFunction(
                     f"Resolver for name `{name}` does not support `text` function"
@@ -556,7 +556,7 @@ class AsyncENS(BaseENS):
         transact = deepcopy(transact)
         transact["from"] = address
         reverse_registrar = await self._reverse_registrar()
-        return await reverse_registrar.functions.setName(name).transact(transact)  # type: ignore  # noqa: E501
+        return await reverse_registrar.functions.setName(name).transact(transact)
 
     async def _reverse_registrar(self) -> "AsyncContract":
         addr = await self.ens.caller.owner(
