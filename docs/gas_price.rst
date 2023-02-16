@@ -90,7 +90,7 @@ Available gas price strategies
     mined blocks. If ``weighted=True``, the block time will be weighted towards
     more recently mined blocks.
 
-    * ``max_wait_seconds`` The desired maxiumum number of seconds the
+    * ``max_wait_seconds`` The desired maximum number of seconds the
       transaction should take to mine.
     * ``sample_size`` The number of recent blocks to sample
     * ``probability`` An integer representation of the desired probability that

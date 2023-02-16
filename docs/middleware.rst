@@ -421,7 +421,7 @@ Why is ``geth_poa_middleware`` necessary?
 
 There is no strong community consensus on a single Proof-of-Authority (PoA) standard yet.
 Some nodes have successful experiments running, though. One is go-ethereum (geth),
-which uses a prototype PoA for it's development mode and the Goerli test network.
+which uses a prototype PoA for its development mode and the Goerli test network.
 
 Unfortunately, it does deviate from the yellow paper specification, which constrains the
 ``extraData`` field in each block to a maximum of 32-bytes. Geth's PoA uses more than

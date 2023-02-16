@@ -747,7 +747,7 @@ If you want to run your application logging in debug mode, below is an example o
         """Setup root logger and quiet some levels."""
         logger = logging.getLogger()
 
-        # Set log format to dislay the logger name to hunt down verbose logging modules
+        # Set log format to display the logger name to hunt down verbose logging modules
         fmt = "%(name)-25s %(levelname)-8s %(message)s"
 
         # Use colored logging output for console with the coloredlogs package
@@ -786,7 +786,7 @@ eth_getLogs limitations
 
 Ethereum JSON-RPC API servers, like Geth, do not provide easy to paginate over events, only over blocks. There's no request that can find the first block with an event or how many events occur within a range of blocks. The only feedback the JSON-RPC service will give you is whether the `eth_getLogs` call failed.
 
-In this example script, we provide two kinds of heurestics to deal with this issue. The script scans events in a chunk of blocks (start block number - end block number). Then it uses two methods to find how many events there are likely to be in a block window:
+In this example script, we provide two kinds of heuristics to deal with this issue. The script scans events in a chunk of blocks (start block number - end block number). Then it uses two methods to find how many events there are likely to be in a block window:
 
 * Dynamically set the block range window size, while never exceeding a threshold (e.g., 10,000 blocks).
 
@@ -931,7 +931,7 @@ The script can be run with: ``python ./eventscanner.py <your JSON-RPC API URL>``
             # # (slow down scan after starting to get hits)
             self.chunk_size_decrease = 0.5
 
-            # Factor how was we increase chunk size if no results found
+            # Factor how fast we increase chunk size if no results found
             self.chunk_size_increase = 2.0
 
         @property
@@ -955,8 +955,8 @@ The script can be run with: ``python ./eventscanner.py <your JSON-RPC API URL>``
             If there are no prior scans, start from block 1.
             Otherwise, start from the last end block minus ten blocks.
             We rescan the last ten scanned blocks in the case there were forks to avoid
-            misaccounting due to minor single block works (happens once in a hour in Ethereum).
-            These heurestics could be made more robust, but this is for the sake of simple reference implementation.
+            misaccounting due to minor single block works (happens once in an hour in Ethereum).
+            These heuristics could be made more robust, but this is for the sake of simple reference implementation.
             """
 
             end_block = self.get_last_scanned_block()
@@ -1051,7 +1051,7 @@ The script can be run with: ``python ./eventscanner.py <your JSON-RPC API URL>``
             Currently Ethereum JSON-API does not have an API to tell when a first event occurred in a blockchain
             and our heuristics try to accelerate block fetching (chunk size) until we see the first event.
 
-            These heurestics exponentially increase the scan chunk size depending on if we are seeing events or not.
+            These heuristics exponentially increase the scan chunk size depending on if we are seeing events or not.
             When any transfers are encountered, we are back to scanning only a few blocks at a time.
             It does not make sense to do a full chain scan starting from block 1, doing one JSON-RPC call per 20 blocks.
             """
@@ -1415,7 +1415,7 @@ The script can be run with: ``python ./eventscanner.py <your JSON-RPC API URL>``
 
             # Assume we might have scanned the blocks all the way to the last Ethereum block
             # that mined a few seconds before the previous scan run ended.
-            # Because there might have been a minor Etherueum chain reorganisations
+            # Because there might have been a minor Ethereum chain reorganisations
             # since the last scan ended, we need to discard
             # the last few blocks from the previous scan results.
             chain_reorg_safety_blocks = 10

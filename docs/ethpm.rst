@@ -229,7 +229,7 @@ Registry URIs
 ~~~~~~~~~~~~~
 
 The URI to lookup a package from a registry should follow the following
-format. (subject to change as the Registry Contract Standard makes it’s
+format. (subject to change as the Registry Contract Standard makes its
 way through the EIP process)
 
 ::
@@ -450,7 +450,7 @@ To pin a manifest to IPFS
        ),
    )
 
-Pins the active manfiest to disk. Must be the concluding function in a builder set since it returns the IPFS pin data rather than returning the manifest for further processing.
+Pins the active manifest to disk. Must be the concluding function in a builder set since it returns the IPFS pin data rather than returning the manifest for further processing.
 
 
 To add meta fields
@@ -731,7 +731,7 @@ To select only certain contract type data to be included in your manifest, provi
    ... )
    >>> assert expected_manifest == built_manifest
 
-If you would like to alias your contract type, provide the desired alias as a kwarg. This will automatically include the original contract type in a ``contractType`` field. Unless specific contract type fields are provided as kwargs, ``contractType`` will stil default to including all available contract type data found in the compiler output.
+If you would like to alias your contract type, provide the desired alias as a kwarg. This will automatically include the original contract type in a ``contractType`` field. Unless specific contract type fields are provided as kwargs, ``contractType`` will still default to including all available contract type data found in the compiler output.
 
 .. doctest::
 

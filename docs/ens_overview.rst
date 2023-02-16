@@ -105,7 +105,7 @@ The first time it's used, web3.py will create the  ``ens`` instance using
 
     However, if accessing the ``ENS`` class via the ``Web3`` instance as a module
     (``w3.ens``), since all modules use the same ``Web3`` object reference
-    under the the hood (the parent ``w3`` object), changing the
+    under the hood (the parent ``w3`` object), changing the
     ``strict_bytes_type_checking`` flag value on ``w3`` also changes the flag state
     for ``w3.ens.w3`` and all modules.
 
