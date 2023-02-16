@@ -76,14 +76,14 @@ Filter Class
 .. py:method:: Filter.format_entry(entry)
 
     Hook for subclasses to modify the format of the log entries this filter
-    returns, or passes to it's callback functions.
+    returns, or passes to its callback functions.
 
     By default this returns the ``entry`` parameter umodified.
 
 
 .. py:method:: Filter.is_valid_entry(entry)
 
-    Hook for subclasses to add additional programatic filtering.  The default
+    Hook for subclasses to add additional programmatic filtering.  The default
     implementation always returns ``True``.
 
 
