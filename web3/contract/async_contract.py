@@ -249,9 +249,7 @@ class AsyncContract(BaseContract):
     def get_function_by_identifier(
         cls, fns: Sequence["AsyncContractFunction"], identifier: str
     ) -> "AsyncContractFunction":
-        return cast(
-            "AsyncContractFunction", get_function_by_identifier(fns, identifier)
-        )
+        return get_function_by_identifier(fns, identifier)
 
 
 class AsyncContractConstructor(BaseContractConstructor):

@@ -557,15 +557,15 @@ class AsyncEth(BaseEth):
 
     @overload
     def contract(self, address: None = None, **kwargs: Any) -> Type[AsyncContract]:
-        ...  # noqa: E704,E501
+        ...
 
-    @overload  # noqa: F811
+    @overload
     def contract(
         self, address: Union[Address, ChecksumAddress, ENS], **kwargs: Any
     ) -> AsyncContract:
-        ...  # noqa: E704,E501
+        ...
 
-    def contract(  # noqa: F811
+    def contract(
         self,
         address: Optional[Union[Address, ChecksumAddress, ENS]] = None,
         **kwargs: Any,

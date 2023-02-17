@@ -50,6 +50,7 @@ from web3.types import (
     BlockIdentifier,
     CallOverride,
     FunctionIdentifier,
+    TContractFn,
     TxParams,
 )
 
@@ -58,8 +59,6 @@ if TYPE_CHECKING:
         AsyncWeb3,
         Web3,
     )
-    from web3.contract.async_contract import AsyncContractFunction  # noqa: F401
-    from web3.contract.contract import ContractFunction  # noqa: F401
 
 ACCEPTABLE_EMPTY_STRINGS = ["0x", b"0x", "", b""]
 
@@ -240,8 +239,8 @@ def find_functions_by_identifier(
     w3: Union["Web3", "AsyncWeb3"],
     address: ChecksumAddress,
     callable_check: Callable[..., Any],
-    function_type: Type[Union["ContractFunction", "AsyncContractFunction"]],
-) -> List[Union["ContractFunction", "AsyncContractFunction"]]:
+    function_type: Type[TContractFn],
+) -> List[TContractFn]:
     fns_abi = filter_by_type("function", contract_abi)
     return [
         function_type.factory(
@@ -258,8 +257,8 @@ def find_functions_by_identifier(
 
 
 def get_function_by_identifier(
-    fns: Sequence[Union["ContractFunction", "AsyncContractFunction"]], identifier: str
-) -> Union["ContractFunction", "AsyncContractFunction"]:
+    fns: Sequence[TContractFn], identifier: str
+) -> TContractFn:
     if len(fns) > 1:
         raise ValueError(
             f"Found multiple functions with matching {identifier}. " f"Found: {fns!r}"

@@ -371,7 +371,7 @@ class Contract(BaseContract):
     def get_function_by_identifier(
         cls, fns: Sequence["ContractFunction"], identifier: str
     ) -> "ContractFunction":
-        return cast("ContractFunction", get_function_by_identifier(fns, identifier))
+        return get_function_by_identifier(fns, identifier)
 
 
 class ContractConstructor(BaseContractConstructor):

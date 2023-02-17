@@ -64,6 +64,10 @@ class UnlockAccountWrapper(Protocol):
 
 
 class GethPersonal(Module):
+    """
+    https://geth.ethereum.org/docs/interacting-with-geth/rpc/ns-personal
+    """
+
     is_async = False
 
     ec_recover: Method[Callable[[str, HexStr], ChecksumAddress]] = Method(
@@ -120,6 +124,10 @@ class GethPersonal(Module):
 
 
 class GethTxPool(Module):
+    """
+    https://geth.ethereum.org/docs/interacting-with-geth/rpc/ns-txpool
+    """
+
     is_async = False
 
     content: Method[Callable[[], TxPoolContent]] = Method(
@@ -160,6 +168,10 @@ def admin_start_params_munger(
 
 
 class GethAdmin(Module):
+    """
+    https://geth.ethereum.org/docs/interacting-with-geth/rpc/ns-admin
+    """
+
     is_async = False
 
     add_peer: Method[Callable[[EnodeURI], bool]] = Method(
@@ -205,7 +217,7 @@ class GethAdmin(Module):
 
 class GethMiner(Module):
     """
-    https://github.com/ethereum/go-ethereum/wiki/Management-APIs#miner
+    https://geth.ethereum.org/docs/interacting-with-geth/rpc/ns-miner
     """
 
     make_dag = make_dag
@@ -228,6 +240,10 @@ class Geth(Module):
 
 
 class AsyncGethTxPool(Module):
+    """
+    https://geth.ethereum.org/docs/interacting-with-geth/rpc/ns-txpool
+    """
+
     is_async = True
 
     _content: Method[Callable[[], Awaitable[TxPoolContent]]] = Method(
@@ -256,6 +272,10 @@ class AsyncGethTxPool(Module):
 
 
 class AsyncGethAdmin(Module):
+    """
+    https://geth.ethereum.org/docs/interacting-with-geth/rpc/ns-admin
+    """
+
     is_async = True
 
     _add_peer: Method[Callable[[EnodeURI], Awaitable[bool]]] = Method(
@@ -340,6 +360,10 @@ class AsyncGethAdmin(Module):
 
 
 class AsyncGethPersonal(Module):
+    """
+    https://geth.ethereum.org/docs/interacting-with-geth/rpc/ns-personal
+    """
+
     is_async = True
 
     # ec_recover

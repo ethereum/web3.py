@@ -107,10 +107,10 @@ from web3.types import (
     ABIEvent,
     ABIFunction,
     BlockIdentifier,
-    CallOverride,
     EventData,
     FilterParams,
     FunctionIdentifier,
+    TContractFn,
     TxParams,
     TxReceipt,
 )
@@ -1087,7 +1087,7 @@ class BaseContractCaller:
 
     @staticmethod
     def call_function(
-        fn: Union["ContractFunction", "AsyncContractFunction"],
+        fn: TContractFn,
         *args: Any,
         transaction: Optional[TxParams] = None,
         block_identifier: BlockIdentifier = "latest",
