@@ -281,7 +281,7 @@ class BaseWeb3:
 
     @classmethod
     def normalize_values(
-        cls, w3: "BaseWeb3", abi_types: List[TypeStr], values: List[Any]
+        cls, _w3: "BaseWeb3", abi_types: List[TypeStr], values: List[Any]
     ) -> List[Any]:
         return map_abi_data(zip(abi_types, values))
 

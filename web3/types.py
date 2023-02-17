@@ -37,6 +37,8 @@ from web3.datastructures import (
 )
 
 if TYPE_CHECKING:
+    from web3.contract.async_contract import AsyncContractFunction  # noqa: F401
+    from web3.contract.contract import ContractFunction  # noqa: F401
     from web3.main import (  # noqa: F401
         AsyncWeb3,
         Web3,
@@ -434,3 +436,8 @@ class GethWallet(TypedDict):
     accounts: Sequence[Dict[str, str]]
     status: str
     url: str
+
+
+# Contract types
+
+TContractFn = TypeVar("TContractFn", "ContractFunction", "AsyncContractFunction")
