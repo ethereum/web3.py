@@ -273,6 +273,7 @@ AsyncHTTPProvider
     * ``request_kwargs`` should be a dictionary of keyword arguments which
       will be passed onto each http/https POST request made to your node.
     * the ``cache_async_session()`` method allows you to use your own ``aiohttp.ClientSession`` object. This is an async method and not part of the constructor
+    * ``async def sign_typed_data(self, account, message, typed_data=None):`` - Sign a message using the provided account and the typed data message format. Returns the raw bytes of the signed message. If typed_data is not provided, the latest version of the EIP-712 typed data format is used.
 
     .. code-block:: python
 
