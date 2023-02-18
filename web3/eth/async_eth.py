@@ -522,6 +522,20 @@ class AsyncEth(BaseEth):
         mungers=[BaseEth.filter_munger],
     )
 
+    # eth_sign_typed_data
+    async def sign_typed_data(self, account, message, domain):
+        payload = {
+            'from': account,
+            'data': {
+                'types': message['types'],
+                'primaryType': message['primaryType'],
+                'domain': domain,
+                'message': message['message'],
+            },
+        }
+        return await self._execute_request('eth_signTypedData_v4', [account, payload])
+
+
     # eth_getFilterChanges, eth_getFilterLogs, eth_uninstallFilter
 
     _get_filter_changes: Method[
