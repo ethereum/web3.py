@@ -1,1 +1,0 @@
-When calling a contract, use ``w3.eth.default_block`` if no block_identifier is specified instead of ``latest``.

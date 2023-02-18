@@ -1,1 +1,0 @@
-When a method is not supported by a node provider, raise a MethodUnavailable error instead of the generic ValueError.

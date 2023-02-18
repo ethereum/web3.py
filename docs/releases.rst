@@ -6,6 +6,88 @@ v6 Breaking Changes Summary
 
 .. towncrier release notes start
 
+v6.0.0-beta.10 (2023-02-15)
+---------------------------
+
+Features
+~~~~~~~~
+
+- add decode_tuples option to contract instantiation (`#2799
+  <https://github.com/ethereum/web3.py/issues/2799>`__)
+
+
+Bugfixes
+~~~~~~~~
+
+- Fix ``ethpm`` import issues after making ``ipfshttpclient`` optional. (`#2775
+  <https://github.com/ethereum/web3.py/issues/2775>`__)
+- Fix for recently-broken ``eth-tester`` exception message parsing for some
+  exception cases. (`#2783
+  <https://github.com/ethereum/web3.py/issues/2783>`__)
+
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Added a v6 Migraion Guide (`#2778
+  <https://github.com/ethereum/web3.py/issues/2778>`__)
+- Rebrand the library to lowercase "web3.py" (`#2804
+  <https://github.com/ethereum/web3.py/issues/2804>`__)
+- remove references to Rinkeby or replace with Goerli (`#2815
+  <https://github.com/ethereum/web3.py/issues/2815>`__)
+
+
+Internal Changes - for web3.py Contributors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Organize the ``eth`` module into separate files for better readability.
+  (`#2753 <https://github.com/ethereum/web3.py/issues/2753>`__)
+- Rename the newly-split ``eth`` module files to match convention. (`#2772
+  <https://github.com/ethereum/web3.py/issues/2772>`__)
+- Re-compile all test contracts with latest Solidity version. Refactor test
+  fixtures. Adds a script that compiles all test contracts to the same
+  directory with selected Solidity version. (`#2797
+  <https://github.com/ethereum/web3.py/issues/2797>`__)
+- Updates to ``isort`` and ``black`` required some formatting changes and isort
+  config refactoring. (`#2802
+  <https://github.com/ethereum/web3.py/issues/2802>`__)
+- Compile test contracts using newly-released Solidity version ``0.8.18``.
+  (`#2803 <https://github.com/ethereum/web3.py/issues/2803>`__)
+
+
+Breaking changes
+~~~~~~~~~~~~~~~~
+
+- All exceptions inherit from a custom class. EthPM exceptions inherit from
+  EthPMException, ENS exceptions inherit from ENSException, and all other
+  web3.py exceptions inherit from Web3Exception (`#1478
+  <https://github.com/ethereum/web3.py/issues/1478>`__)
+- Reorganized contract to contract.py, async_contract.py, base_contract.py and
+  utils.py. In this change there was a small breaking change where the
+  constructor of BaseContractCaller contract_function_class was defaulting to a
+  ContractFunction now there is no default. This was done to seperate the base
+  class from the implementation. (`#2567
+  <https://github.com/ethereum/web3.py/issues/2567>`__)
+- When calling a contract, use ``w3.eth.default_block`` if no block_identifier
+  is specified instead of ``latest``. (`#2777
+  <https://github.com/ethereum/web3.py/issues/2777>`__)
+- Strict bytes type checking is now default for ``web3.py``. This change also
+  adds a boolean flag on the ``Web3`` class for turning this feature on and
+  off, as well as a flag on the ``ENS`` class for control over a standalone
+  ``ENS`` instance. (`#2788
+  <https://github.com/ethereum/web3.py/issues/2788>`__)
+- When a method is not supported by a node provider, raise a MethodUnavailable
+  error instead of the generic ValueError. (`#2796
+  <https://github.com/ethereum/web3.py/issues/2796>`__)
+- ``dict`` to ``AttributeDict`` conversion is no longer a default result
+  formatter. This conversion is now done via a default middleware that may be
+  removed. (`#2805 <https://github.com/ethereum/web3.py/issues/2805>`__)
+- Removed deprecated ``manager.request_async`` and associated methods. (`#2810
+  <https://github.com/ethereum/web3.py/issues/2810>`__)
+- removed Rinkeby from list of allowed chains in EthPM (`#2815
+  <https://github.com/ethereum/web3.py/issues/2815>`__)
+
+
 v6.0.0-beta.9 (2023-01-03)
 --------------------------
 

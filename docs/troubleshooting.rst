@@ -111,7 +111,6 @@ Faucet mechanisms tend to come and go, so if any information here is
 out of date, try the `Ethereum Stackexchange <https://ethereum.stackexchange.com/>`_.
 Here are some links to testnet ether instructions (in no particular order):
 
-- `Rinkeby <https://www.rinkeby.io/#faucet>`_
 - `Goerli <https://goerli.net>`_ (different faucet links on top menu bar)
 - `Sepolia <https://faucet.sepolia.dev>`_
 
