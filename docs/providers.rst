@@ -49,6 +49,7 @@ See:
 - :class:`~web3.providers.ipc.IPCProvider`
 - :class:`~web3.providers.websocket.WebsocketProvider`
 - :class:`~web3.providers.rpc.HTTPProvider`
+- :class:`~web3.providers.async_rpc.AsyncHTTPProvider`
 
 Once you have configured your provider, for example:
 
@@ -220,40 +221,12 @@ WebsocketProvider
         >>> from web3 import Web3
         >>> w3 = Web3(Web3.WebsocketProvider("ws://127.0.0.1:8546", websocket_timeout=60))
 
-.. py:currentmodule:: web3.providers.eth_tester
-
-EthereumTesterProvider
-~~~~~~~~~~~~~~~~~~~~~~
-
-.. warning:: Experimental:  This provider is experimental. There are still significant gaps in
-    functionality. However it is being actively developed and supported.
-
-.. py:class:: EthereumTesterProvider(eth_tester=None)
-
-    This provider integrates with the ``eth-tester`` library.  The ``eth_tester`` constructor
-    argument should be an instance of the :class:`~eth_tester.EthereumTester` or a subclass of
-    :class:`~eth_tester.backends.base.BaseChainBackend` class provided by the ``eth-tester`` library.
-    If you would like a custom eth-tester instance to test with, see the
-    ``eth-tester`` library `documentation <https://github.com/ethereum/eth-tester>`_ for details.
-
-    .. code-block:: python
-
-        >>> from web3 import Web3, EthereumTesterProvider
-        >>> w3 = Web3(EthereumTesterProvider())
-
-.. NOTE:: To install the needed dependencies to use EthereumTesterProvider, you can install the
-    pip extras package that has the correct interoperable versions of the ``eth-tester``
-    and ``py-evm`` dependencies needed to do testing: e.g. ``pip install web3[tester]``
-
-
-
 AutoProvider
 ~~~~~~~~~~~~
 
 :class:`~web3.providers.auto.AutoProvider` is the default used when initializing
 :class:`web3.Web3` without any providers. There's rarely a reason to use it
 explicitly.
-
 
 
 AsyncHTTPProvider
@@ -277,9 +250,9 @@ AsyncHTTPProvider
     .. code-block:: python
 
         >>> from aiohttp import ClientSession
-        >>> from web3 import Web3, AsyncHTTPProvider
+        >>> from web3 import AsyncWeb3, AsyncHTTPProvider
 
-        >>> w3 = Web3(AsyncHTTPProvider(endpoint_uri))
+        >>> w3 = AsyncWeb3(AsyncHTTPProvider(endpoint_uri))
 
         >>> # If you want to pass in your own session:
         >>> custom_session = ClientSession()
@@ -370,3 +343,29 @@ Supported Middleware
 - :meth:`Validation Middleware <web3.middleware.validation>`
 - :ref:`Geth POA Middleware <geth-poa>`
 - :meth:`Simple Cache Middleware <web3.middleware.simple_cache_middleware>`
+
+
+.. py:currentmodule:: web3.providers.eth_tester
+
+EthereumTesterProvider
+~~~~~~~~~~~~~~~~~~~~~~
+
+.. warning:: Experimental:  This provider is experimental. There are still significant gaps in
+    functionality. However it is being actively developed and supported.
+
+.. py:class:: EthereumTesterProvider(eth_tester=None)
+
+    This provider integrates with the ``eth-tester`` library.  The ``eth_tester`` constructor
+    argument should be an instance of the :class:`~eth_tester.EthereumTester` or a subclass of
+    :class:`~eth_tester.backends.base.BaseChainBackend` class provided by the ``eth-tester`` library.
+    If you would like a custom eth-tester instance to test with, see the
+    ``eth-tester`` library `documentation <https://github.com/ethereum/eth-tester>`_ for details.
+
+    .. code-block:: python
+
+        >>> from web3 import Web3, EthereumTesterProvider
+        >>> w3 = Web3(EthereumTesterProvider())
+
+.. NOTE:: To install the needed dependencies to use EthereumTesterProvider, you can install the
+    pip extras package that has the correct interoperable versions of the ``eth-tester``
+    and ``py-evm`` dependencies needed to do testing: e.g. ``pip install web3[tester]``

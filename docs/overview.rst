@@ -13,8 +13,9 @@ greater detail.
 Configuration
 ~~~~~~~~~~~~~
 
-After installing web3.py (via ``pip install web3``), you'll need to specify the
-provider and any middleware you want to use beyond the defaults.
+After installing web3.py (via ``pip install web3``), you'll need to specify
+async or sync web3, the provider, and any middleware you want to use
+beyond the defaults.
 
 
 Providers
@@ -26,7 +27,11 @@ following built-in providers:
 - ``Web3.IPCProvider`` for connecting to ipc socket based JSON-RPC servers.
 - ``Web3.HTTPProvider`` for connecting to http and https based JSON-RPC servers.
 - ``Web3.WebsocketProvider`` for connecting to ws and wss websocket based JSON-RPC servers.
+- ``AsyncWeb3.AsyncHTTPProvider`` for connecting to http and https based JSON-RPC servers.
 
+
+Synchronous Provider Examples:
+------------------------------
 .. code-block:: python
 
    >>> from web3 import Web3
@@ -41,6 +46,25 @@ following built-in providers:
    >>> w3 = Web3(Web3.WebsocketProvider('ws://127.0.0.1:8546'))
 
    >>> w3.is_connected()
+   True
+
+
+Asynchronous Provider Example:
+------------------------------
+
+.. note::
+
+   The AsyncHTTPProvider is still under active development. Not all JSON-RPC
+   methods and middleware are available yet. The list of available methods and
+   middleware can be seen on the :class:`~web3.providers.async_rpc.AsyncHTTPProvider` docs
+
+.. code-block:: python
+
+   >>> from web3 import AsyncWeb3
+
+   >>> w3 = AsyncWeb3(AsyncWeb3.AsyncHTTPProvider('http://127.0.0.1:8545'))
+
+   >>> await w3.is_connected()
    True
 
 For more information, (e.g., connecting to remote nodes, provider auto-detection,

@@ -59,7 +59,7 @@ Local Providers
 ***************
 
 The hardware requirements are `steep <https://ethereum.org/en/developers/docs/nodes-and-clients/run-a-node/#top>`_,
-but the safest way to interact with Ethereum is to run an Ethereum client on your own hardware. 
+but the safest way to interact with Ethereum is to run an Ethereum client on your own hardware.
 For locally run nodes, an IPC connection is the most secure option, but HTTP and
 websocket configurations are also available. By default, the popular `Geth client <https://geth.ethereum.org/>`_
 exposes port ``8545`` to serve HTTP requests and ``8546`` for websocket requests. Connecting
@@ -67,7 +67,7 @@ to this local node can be done as follows:
 
 .. code-block:: python
 
-   >>> from web3 import Web3
+   >>> from web3 import Web3, AsyncWeb3
 
    # IPCProvider:
    >>> w3 = Web3(Web3.IPCProvider('./path/to/geth.ipc'))
@@ -81,6 +81,17 @@ to this local node can be done as follows:
    >>> w3.is_connected()
    True
 
+   # AsyncHTTPProvider:
+   >>> w3 = AsyncWeb3(AsyncWeb3.AsyncHTTPProvider('http://127.0.0.1:8545'))
+
+   >>> await w3.is_connected()
+   True
+
+.. note::
+
+   The AsyncHTTPProvider is still under active development. Not all JSON-RPC
+   methods and middleware are available yet. The list of available methods and
+   middleware can be seen on the :class:`~web3.providers.async_rpc.AsyncHTTPProvider` docs
 
 Remote Providers
 ****************
@@ -91,13 +102,21 @@ You can connect to a remote node by specifying the endpoint, just like the previ
 
 .. code-block:: python
 
-   >>> from web3 import Web3
+   >>> from web3 import Web3, AsyncWeb3
 
    >>> w3 = Web3(Web3.HTTPProvider('https://<your-provider-url>'))
+
+   >>> w3 = AsyncWeb3(AsyncWeb3.AsyncHTTPProvider('https://<your-provider-url>'))
 
    >>> w3 = Web3(Web3.WebsocketProvider('wss://<your-provider-url>'))
 
 This endpoint is provided by the remote node service after you create an account.
+
+.. note::
+
+   The AsyncHTTPProvider is still under active development. Not all JSON-RPC
+   methods and middleware are available yet. The list of available methods and
+   middleware can be seen on the :class:`~web3.providers.async_rpc.AsyncHTTPProvider` docs
 
 .. _first_w3_use:
 
