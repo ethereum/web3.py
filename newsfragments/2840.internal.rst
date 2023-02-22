@@ -1,0 +1,1 @@
+Recompile test contracts with the new Solidity version ``0.8.19``.
