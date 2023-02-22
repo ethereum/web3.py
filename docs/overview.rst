@@ -56,7 +56,7 @@ Asynchronous Provider Example:
 
    The AsyncHTTPProvider is still under active development. Not all JSON-RPC
    methods and middleware are available yet. The list of available methods and
-   middleware can be seen on the :ref:`AsyncHTTPProvider` docs
+   middleware can be seen on the :class:`~web3.providers.async_rpc.AsyncHTTPProvider` docs
 
 .. code-block:: python
 

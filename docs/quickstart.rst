@@ -91,7 +91,7 @@ to this local node can be done as follows:
 
    The AsyncHTTPProvider is still under active development. Not all JSON-RPC
    methods and middleware are available yet. The list of available methods and
-   middleware can be seen on the :ref:`AsyncHTTPProvider` docs
+   middleware can be seen on the :class:`~web3.providers.async_rpc.AsyncHTTPProvider` docs
 
 Remote Providers
 ****************
@@ -116,7 +116,7 @@ This endpoint is provided by the remote node service after you create an account
 
    The AsyncHTTPProvider is still under active development. Not all JSON-RPC
    methods and middleware are available yet. The list of available methods and
-   middleware can be seen on the :ref:`AsyncHTTPProvider` docs
+   middleware can be seen on the :class:`~web3.providers.async_rpc.AsyncHTTPProvider` docs
 
 .. _first_w3_use:
 

@@ -229,8 +229,6 @@ AutoProvider
 explicitly.
 
 
-.. _AsyncHTTPProvider:
-
 AsyncHTTPProvider
 ~~~~~~~~~~~~~~~~~
 
