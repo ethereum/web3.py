@@ -19,7 +19,7 @@ from web3._utils.caching import (
 from web3._utils.formatters import (
     hex_to_integer,
 )
-from web3.middleware import (  # noqa: F401
+from web3.middleware import (
     construct_error_generator_middleware,
     construct_latest_block_based_cache_middleware,
     construct_result_generator_middleware,

@@ -46,7 +46,7 @@ from web3.contract.base_contract import (
 from web3.exceptions import (
     BadFunctionCallOutput,
 )
-from web3.types import (  # noqa: F401
+from web3.types import (
     ABI,
     ABIFunction,
     BlockIdentifier,

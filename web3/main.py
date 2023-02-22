@@ -119,8 +119,7 @@ from web3.providers.websocket import (
 from web3.testing import (
     Testing,
 )
-from web3.types import (  # noqa: F401
-    Middleware,
+from web3.types import (
     MiddlewareOnion,
     Wei,
 )

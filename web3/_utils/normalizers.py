@@ -62,10 +62,8 @@ from web3._utils.validation import (
 from web3.exceptions import (
     InvalidAddress,
 )
-from web3.types import (  # noqa: F401
+from web3.types import (
     ABI,
-    ABIEvent,
-    ABIFunction,
 )
 
 if TYPE_CHECKING:

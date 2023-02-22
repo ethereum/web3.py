@@ -1,8 +1,7 @@
-from typing import (  # noqa: F401
+from typing import (
     Any,
     Callable,
     Dict,
-    Tuple,
 )
 
 from eth_typing import (

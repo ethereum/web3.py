@@ -43,7 +43,7 @@ from web3._utils.formatters import (
 from web3._utils.rpc_abi import (
     RPC,
 )
-from web3.types import (  # noqa: F401
+from web3.types import (
     Coroutine,
     FilterParams,
     LatestBlockParam,

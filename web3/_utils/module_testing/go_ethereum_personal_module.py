@@ -24,7 +24,7 @@ from web3 import (
 from web3.datastructures import (
     AttributeDict,
 )
-from web3.types import (  # noqa: F401
+from web3.types import (
     TxParams,
     Wei,
 )

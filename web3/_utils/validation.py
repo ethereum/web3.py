@@ -54,9 +54,8 @@ from web3._utils.abi import (
 from web3.exceptions import (
     InvalidAddress,
 )
-from web3.types import (  # noqa: F401
+from web3.types import (
     ABI,
-    ABIEvent,
     ABIFunction,
 )
 

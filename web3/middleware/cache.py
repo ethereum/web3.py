@@ -23,7 +23,7 @@ from web3._utils.compat import (
     Literal,
     TypedDict,
 )
-from web3.types import (  # noqa: F401
+from web3.types import (
     BlockData,
     BlockNumber,
     Middleware,
