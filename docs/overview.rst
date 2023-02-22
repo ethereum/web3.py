@@ -18,8 +18,8 @@ async or sync web3, the provider, and any middleware you want to use
 beyond the defaults.
 
 
-Sync Providers
---------------
+Providers
+---------
 
 Providers are how web3.py connects to the blockchain. The library comes with the
 following built-in providers:
@@ -27,7 +27,11 @@ following built-in providers:
 - ``Web3.IPCProvider`` for connecting to ipc socket based JSON-RPC servers.
 - ``Web3.HTTPProvider`` for connecting to http and https based JSON-RPC servers.
 - ``Web3.WebsocketProvider`` for connecting to ws and wss websocket based JSON-RPC servers.
+- ``AsyncWeb3.AsyncHTTPProvider`` for connecting to http and https based JSON-RPC servers.
 
+
+Synchronous Provider Examples:
+------------------------------
 .. code-block:: python
 
    >>> from web3 import Web3
@@ -44,14 +48,9 @@ following built-in providers:
    >>> w3.is_connected()
    True
 
-For more information, (e.g., connecting to remote nodes, provider auto-detection,
-using a test provider) see the :ref:`Providers <providers>` documentation.
 
-
-AsyncProvider
--------------
-
-- ``AsyncWeb3.AsyncHTTPProvider`` for connecting to http and https based JSON-RPC servers.
+Asynchronous Provider Example:
+------------------------------
 
 .. note::
 
@@ -63,10 +62,9 @@ AsyncProvider
 
    >>> from web3 import AsyncWeb3
 
-   # AsyncHTTPProvider:
    >>> w3 = AsyncWeb3(AsyncWeb3.AsyncHTTPProvider('http://127.0.0.1:8545'))
 
-   >>> w3.is_connected()
+   >>> await w3.is_connected()
    True
 
 For more information, (e.g., connecting to remote nodes, provider auto-detection,
