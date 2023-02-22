@@ -106,7 +106,7 @@ from web3.logs import (
     WARN,
     EventLogErrorFlags,
 )
-from web3.types import (  # noqa: F401
+from web3.types import (
     ABI,
     ABIEvent,
     ABIFunction,

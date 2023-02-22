@@ -60,7 +60,7 @@ from web3.contract.utils import (
     find_functions_by_identifier,
     get_function_by_identifier,
 )
-from web3.types import (  # noqa: F401
+from web3.types import (
     ABI,
     BlockIdentifier,
     CallOverride,
