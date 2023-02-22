@@ -1,11 +1,9 @@
 import logging
-from typing import (  # noqa: F401
+from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    Dict,
     List,
-    NoReturn,
     Optional,
     Sequence,
     Tuple,
@@ -20,9 +18,6 @@ from hexbytes import (
     HexBytes,
 )
 
-from web3._utils.threads import (  # noqa: F401
-    ThreadWithReturn,
-)
 from web3.datastructures import (
     NamedElementOnion,
 )
@@ -47,8 +42,7 @@ from web3.middleware import (
 from web3.providers import (
     AutoProvider,
 )
-from web3.types import (  # noqa: F401
-    AsyncMiddleware,
+from web3.types import (
     Middleware,
     MiddlewareOnion,
     RPCEndpoint,
