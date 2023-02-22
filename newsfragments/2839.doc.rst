@@ -1,0 +1,1 @@
+Remove survey banner image from docs after close of survey
