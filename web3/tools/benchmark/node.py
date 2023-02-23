@@ -26,6 +26,9 @@ from web3.tools.benchmark.utils import (
 
 GETH_FIXTURE_ZIP = "geth-1.11.2-fixture.zip"
 
+# use same coinbase value as in `web3.py/tests/integration/generate_fixtures/common.py`
+COINBASE = "0xdc544d1aa88ff8bbd2f2aec754b1f1e99e1812fd"
+
 
 class GethBenchmarkFixture:
     def __init__(self) -> None:
@@ -88,6 +91,9 @@ class GethBenchmarkFixture:
             "admin,eth,net,web3,personal,miner",
             "--ipcdisable",
             "--allow-insecure-unlock",
+            "--miner.etherbase",
+            COINBASE[2:],
+            "--rpc.enabledeprecatedpersonal",
         )
 
     def _geth_process(

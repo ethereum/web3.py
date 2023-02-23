@@ -34,6 +34,7 @@ def _geth_command_arguments(geth_ipc_path, base_geth_command_arguments):
         geth_ipc_path,
         "--miner.etherbase",
         COINBASE[2:],
+        "--rpc.enabledeprecatedpersonal",
     )
 
 

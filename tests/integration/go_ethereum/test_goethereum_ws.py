@@ -36,6 +36,8 @@ def _geth_command_arguments(ws_port, base_geth_command_arguments, geth_version):
     yield from base_geth_command_arguments
     if geth_version.major == 1:
         yield from (
+            "--miner.etherbase",
+            COINBASE[2:],
             "--ws",
             "--ws.port",
             ws_port,
@@ -45,8 +47,6 @@ def _geth_command_arguments(ws_port, base_geth_command_arguments, geth_version):
             "*",
             "--ipcdisable",
             "--allow-insecure-unlock",
-            "--miner.etherbase",
-            COINBASE[2:],
         )
         if geth_version.minor not in [10, 11]:
             raise AssertionError("Unsupported Geth version")
