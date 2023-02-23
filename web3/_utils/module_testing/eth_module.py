@@ -26,6 +26,7 @@ from eth_utils import (
     is_list_like,
     is_same_address,
     is_string,
+    to_bytes,
 )
 from eth_utils.toolz import (
     assoc,
@@ -74,11 +75,11 @@ from web3.middleware.fixture import (
     async_construct_result_generator_middleware,
     construct_error_generator_middleware,
 )
-from web3.types import (  # noqa: F401
+from web3.types import (
     ENS,
     BlockData,
+    CallOverrideParams,
     FilterParams,
-    LogReceipt,
     Nonce,
     RPCEndpoint,
     SyncStatus,
@@ -758,8 +759,10 @@ class AsyncEthModuleTest:
         assert result == 18
 
     @pytest.mark.asyncio
-    async def test_eth_call_with_override(
-        self, async_w3: "AsyncWeb3", revert_contract: "Contract"
+    async def test_eth_call_with_override_code(
+        self,
+        async_w3: "AsyncWeb3",
+        revert_contract: "Contract",
     ) -> None:
         coinbase = await async_w3.eth.coinbase
         txn_params = revert_contract._prepare_transaction(
@@ -779,6 +782,48 @@ class AsyncEthModuleTest:
         )
         (result,) = async_w3.codec.decode(["bool"], call_result)
         assert result is False
+
+        # test bytes
+
+        bytes_call_result = await async_w3.eth.call(
+            txn_params,
+            "latest",
+            {revert_contract.address: {"code": to_bytes(hexstr=override_code)}},
+        )
+        (bytes_result,) = async_w3.codec.decode(["bool"], bytes_call_result)
+        assert bytes_result is False
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        "params",
+        (
+            {
+                "nonce": 1,  # int
+                "balance": 1,  # int
+                "code": HexStr("0x"),  # HexStr
+                # with state
+                "state": {HexStr(f"0x{'00' * 32}"): HexStr(f"0x{'00' * 32}")},
+            },
+            {
+                "nonce": HexStr("0x1"),  # HexStr
+                "balance": HexStr("0x1"),  # HexStr
+                "code": b"\x00",  # bytes
+                # with stateDiff
+                "stateDiff": {HexStr(f"0x{'00' * 32}"): HexStr(f"0x{'00' * 32}")},
+            },
+        ),
+    )
+    async def test_eth_call_with_override_param_type_check(
+        self,
+        async_w3: "AsyncWeb3",
+        math_contract: "Contract",
+        params: CallOverrideParams,
+    ) -> None:
+        coinbase = await async_w3.eth.coinbase
+        txn_params: TxParams = {"from": coinbase}
+
+        # assert does not raise
+        await async_w3.eth.call(txn_params, "latest", {math_contract.address: params})
 
     @pytest.mark.asyncio
     async def test_eth_call_with_0_result(
@@ -2657,7 +2702,7 @@ class EthModuleTest:
         (result,) = w3.codec.decode(["uint256"], call_result)
         assert result == 18
 
-    def test_eth_call_with_override(
+    def test_eth_call_with_override_code(
         self, w3: "Web3", revert_contract: "Contract"
     ) -> None:
         coinbase = w3.eth.coinbase
@@ -2678,6 +2723,46 @@ class EthModuleTest:
         )
         (result,) = w3.codec.decode(["bool"], call_result)
         assert result is False
+
+        # test bytes
+
+        bytes_call_result = w3.eth.call(
+            txn_params,
+            "latest",
+            {revert_contract.address: {"code": to_bytes(hexstr=override_code)}},
+        )
+        (bytes_result,) = w3.codec.decode(["bool"], bytes_call_result)
+        assert bytes_result is False
+
+    @pytest.mark.parametrize(
+        "params",
+        (
+            {
+                "nonce": 1,  # int
+                "balance": 1,  # int
+                "code": HexStr("0x"),  # HexStr
+                # with state
+                "state": {HexStr(f"0x{'00' * 32}"): HexStr(f"0x{'00' * 32}")},
+            },
+            {
+                "nonce": HexStr("0x1"),  # HexStr
+                "balance": HexStr("0x1"),  # HexStr
+                "code": b"\x00",  # bytes
+                # with stateDiff
+                "stateDiff": {HexStr(f"0x{'00' * 32}"): HexStr(f"0x{'00' * 32}")},
+            },
+        ),
+    )
+    def test_eth_call_with_override_param_type_check(
+        self,
+        w3: "Web3",
+        math_contract: "Contract",
+        params: CallOverrideParams,
+    ) -> None:
+        txn_params: TxParams = {"from": w3.eth.coinbase}
+
+        # assert does not raise
+        w3.eth.call(txn_params, "latest", {math_contract.address: params})
 
     def test_eth_call_with_0_result(
         self, w3: "Web3", math_contract: "Contract"
