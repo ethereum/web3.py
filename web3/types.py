@@ -245,8 +245,8 @@ CallOverrideParams = TypedDict(
         "balance": Optional[Wei],
         "nonce": Optional[int],
         "code": Optional[Union[bytes, HexStr]],
-        "state": Optional[Dict[str, Any]],
-        "stateDiff": Optional[Dict[Address, Dict[str, Any]]],
+        "state": Optional[Dict[HexStr, HexStr]],
+        "stateDiff": Optional[Dict[HexStr, HexStr]],
     },
     total=False,
 )

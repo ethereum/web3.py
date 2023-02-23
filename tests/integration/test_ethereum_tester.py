@@ -457,8 +457,14 @@ class TestEthereumTesterEthModule(EthModuleTest):
     @pytest.mark.xfail(
         raises=TypeError, reason="call override param not implemented on eth-tester"
     )
-    def test_eth_call_with_override(self, w3, revert_contract):
-        super().test_eth_call_with_override(w3, revert_contract)
+    def test_eth_call_with_override_code(self, w3, revert_contract):
+        super().test_eth_call_with_override_code(w3, revert_contract)
+
+    @pytest.mark.xfail(
+        raises=TypeError, reason="call override param not implemented on eth-tester"
+    )
+    def test_eth_call_with_override_param_type_check(self, w3, math_contract):
+        super().test_eth_call_with_override_param_type_check(w3, math_contract)
 
     def test_eth_call_revert_with_msg(self, w3, revert_contract, unlocked_account):
         with pytest.raises(

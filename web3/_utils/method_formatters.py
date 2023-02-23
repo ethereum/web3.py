@@ -85,6 +85,9 @@ from web3._utils.rpc_abi import (
     RPC_ABIS,
     abi_request_formatters,
 )
+from web3._utils.type_conversion import (
+    to_hex_if_bytes,
+)
 from web3.datastructures import (
     AttributeDict,
     ReadableAttributeDict,
@@ -120,9 +123,7 @@ to_ascii_if_bytes = apply_formatter_if(is_bytes, bytes_to_ascii)
 to_integer_if_hex = apply_formatter_if(is_string, hex_to_integer)
 to_hex_if_integer = apply_formatter_if(is_integer, integer_to_hex)
 
-
 is_false = partial(operator.is_, False)
-
 is_not_false = complement(is_false)
 is_not_null = complement(is_null)
 
@@ -163,6 +164,24 @@ def type_aware_apply_formatters_to_dict(
     return (
         AttributeDict.recursive(formatted_dict)
         if is_attrdict(value)
+        else formatted_dict
+    )
+
+
+def type_aware_apply_formatters_to_dict_keys_and_values(
+    key_formatters: Callable[[Any], Any],
+    value_formatters: Callable[[Any], Any],
+    dict_like_object: Union[AttributeDict[str, Any], Dict[str, Any]],
+) -> Union[ReadableAttributeDict[str, Any], Dict[str, Any]]:
+    """
+    Preserve ``AttributeDict`` types if original ``value`` was an ``AttributeDict``.
+    """
+    formatted_dict = dict(
+        (key_formatters(k), value_formatters(v)) for k, v in dict_like_object.items()
+    )
+    return (
+        AttributeDict.recursive(formatted_dict)
+        if is_attrdict(dict_like_object)
         else formatted_dict
     )
 
@@ -377,22 +396,30 @@ transaction_param_formatter = compose(
 
 call_without_override: Callable[
     [Tuple[TxParams, BlockIdentifier]], Tuple[Dict[str, Any], int]
-]
-call_without_override = apply_formatters_to_sequence(
+] = apply_formatters_to_sequence(
     [
         transaction_param_formatter,
         to_hex_if_integer,
     ]
 )
+
+CALL_OVERRIDE_FORMATTERS = {
+    "balance": to_hex_if_integer,
+    "nonce": to_hex_if_integer,
+    "code": to_hex_if_bytes,
+}
 call_with_override: Callable[
     [Tuple[TxParams, BlockIdentifier, CallOverrideParams]],
     Tuple[Dict[str, Any], int, Dict[str, Any]],
-]
-call_with_override = apply_formatters_to_sequence(
+] = apply_formatters_to_sequence(
     [
         transaction_param_formatter,
         to_hex_if_integer,
-        lambda x: x,
+        lambda val: type_aware_apply_formatters_to_dict_keys_and_values(
+            to_checksum_address,
+            type_aware_apply_formatters_to_dict(CALL_OVERRIDE_FORMATTERS),
+            val,
+        ),
     ]
 )
 
