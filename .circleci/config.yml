@@ -79,8 +79,8 @@ geth_steps: &geth_steps
           echo $GETH_VERSION
           export GETH_BINARY="$HOME/.py-geth/geth-$GETH_VERSION/bin/geth"
           if [ ! -e "$GETH_BINARY" ]; then
-            curl -O https://storage.googleapis.com/golang/go1.18.1.linux-amd64.tar.gz
-            tar xvf go1.18.1.linux-amd64.tar.gz
+            curl -O https://storage.googleapis.com/golang/go1.20.1.linux-amd64.tar.gz
+            tar xvf go1.20.1.linux-amd64.tar.gz
             sudo chown -R root:root ./go
             sudo mv go /usr/local
             sudo ln -s /usr/local/go/bin/go /usr/local/bin/go
@@ -122,8 +122,8 @@ geth_custom_steps: &geth_custom_steps
           echo $GETH_VERSION
           export GETH_BINARY="./custom_geth"
           echo 'export GETH_BINARY="./custom_geth"' >> $BASH_ENV
-          curl -O https://storage.googleapis.com/golang/go1.18.1.linux-amd64.tar.gz
-          tar xvf go1.18.1.linux-amd64.tar.gz
+          curl -O https://storage.googleapis.com/golang/go1.20.1.linux-amd64.tar.gz
+          tar xvf go1.20.1.linux-amd64.tar.gz
           sudo chown -R root:root ./go
           sudo mv go /usr/local
           sudo ln -s /usr/local/go/bin/go /usr/local/bin/go
