@@ -92,6 +92,7 @@ def get_geth_process(geth_binary, datadir, genesis_file_path, geth_ipc_path, get
         geth_port,
         "--miner.etherbase",
         common.COINBASE[2:],
+        "--rpc.enabledeprecatedpersonal",
     )
 
     popen_proc = subprocess.Popen(

@@ -2,6 +2,9 @@ import os
 import pytest
 import tempfile
 
+from tests.integration.common import (
+    COINBASE,
+)
 from tests.utils import (
     get_open_port,
 )
@@ -29,6 +32,8 @@ def _geth_command_arguments(geth_ipc_path, base_geth_command_arguments):
         geth_port,
         "--ipcpath",
         geth_ipc_path,
+        "--miner.etherbase",
+        COINBASE[2:],
     )
 
 

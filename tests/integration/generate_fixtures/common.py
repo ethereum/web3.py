@@ -19,6 +19,7 @@ from web3.exceptions import (
     TransactionNotFound,
 )
 
+# use same coinbase value as in `web3.py/tests/integration/common.py`
 COINBASE = "0xdc544d1aa88ff8bbd2f2aec754b1f1e99e1812fd"
 COINBASE_PK = "0x58d23b55bc9cdce1f18c2500f40ff4ab7245df9a89505e9b1fa4851f623d241d"
 

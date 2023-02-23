@@ -2,6 +2,9 @@ import pytest
 
 import pytest_asyncio
 
+from tests.integration.common import (
+    COINBASE,
+)
 from tests.utils import (
     get_open_port,
 )
@@ -57,6 +60,8 @@ def _geth_command_arguments(rpc_port, base_geth_command_arguments, geth_version)
             "admin,eth,net,web3,personal,miner,txpool",
             "--ipcdisable",
             "--allow-insecure-unlock",
+            "--miner.etherbase",
+            COINBASE[2:],
         )
     else:
         raise AssertionError("Unsupported Geth version")
