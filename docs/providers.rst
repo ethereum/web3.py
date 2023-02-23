@@ -232,9 +232,6 @@ explicitly.
 AsyncHTTPProvider
 ~~~~~~~~~~~~~~~~~
 
-.. warning:: This provider is unstable and there are still gaps in
-    functionality. However, it is being actively developed.
-
 .. py:class:: web3.providers.async_rpc.AsyncHTTPProvider(endpoint_uri[, request_kwargs])
 
     This provider handles interactions with an HTTP or HTTPS based JSON-RPC server asynchronously.
