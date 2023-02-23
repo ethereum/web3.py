@@ -234,7 +234,7 @@ class Eth(BaseEth):
     _call: Method[
         Callable[
             [TxParams, Optional[BlockIdentifier], Optional[CallOverride]],
-            Union[bytes, bytearray],
+            HexBytes,
         ]
     ] = Method(RPC.eth_call, mungers=[BaseEth.call_munger])
 
@@ -244,7 +244,7 @@ class Eth(BaseEth):
         block_identifier: Optional[BlockIdentifier] = None,
         state_override: Optional[CallOverride] = None,
         ccip_read_enabled: Optional[bool] = None,
-    ) -> Union[bytes, bytearray]:
+    ) -> HexBytes:
         ccip_read_enabled_on_provider = self.w3.provider.global_ccip_read_enabled
         if (
             # default conditions:
@@ -264,7 +264,7 @@ class Eth(BaseEth):
         transaction: TxParams,
         block_identifier: Optional[BlockIdentifier] = None,
         state_override: Optional[CallOverride] = None,
-    ) -> Union[bytes, bytearray]:
+    ) -> HexBytes:
         max_redirects = self.w3.provider.ccip_read_max_redirects
 
         if not max_redirects or max_redirects < 4:
