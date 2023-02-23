@@ -121,7 +121,12 @@ def main(logger: logging.Logger, num_calls: int) -> None:
     for built_fixture in fixture.build():
         for _ in built_fixture:
             w3_http = build_web3_http(fixture.endpoint_uri)
-            loop = asyncio.get_event_loop()
+            try:
+                loop = asyncio.get_running_loop()
+            except RuntimeError:
+                loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
+
             async_w3_http = loop.run_until_complete(
                 build_async_w3_http(fixture.endpoint_uri)
             )
