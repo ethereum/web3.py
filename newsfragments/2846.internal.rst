@@ -1,0 +1,2 @@
+Set default block_identifier in ContractFunction.call() to None
+
