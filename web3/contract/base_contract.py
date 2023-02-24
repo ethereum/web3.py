@@ -1090,7 +1090,7 @@ class BaseContractCaller:
         fn: TContractFn,
         *args: Any,
         transaction: Optional[TxParams] = None,
-        block_identifier: BlockIdentifier = "latest",
+        block_identifier: BlockIdentifier = None,
         ccip_read_enabled: Optional[bool] = None,
         **kwargs: Any,
     ) -> Any:

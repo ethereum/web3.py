@@ -308,7 +308,7 @@ class AsyncContractFunction(BaseContractFunction):
     async def call(
         self,
         transaction: Optional[TxParams] = None,
-        block_identifier: BlockIdentifier = "latest",
+        block_identifier: BlockIdentifier = None,
         state_override: Optional[CallOverride] = None,
         ccip_read_enabled: Optional[bool] = None,
     ) -> Any:
@@ -565,7 +565,7 @@ class AsyncContractCaller(BaseContractCaller):
         w3: "AsyncWeb3",
         address: ChecksumAddress,
         transaction: Optional[TxParams] = None,
-        block_identifier: BlockIdentifier = "latest",
+        block_identifier: BlockIdentifier = None,
         ccip_read_enabled: Optional[bool] = None,
         decode_tuples: Optional[bool] = False,
     ) -> None:
@@ -605,7 +605,7 @@ class AsyncContractCaller(BaseContractCaller):
     def __call__(
         self,
         transaction: Optional[TxParams] = None,
-        block_identifier: BlockIdentifier = "latest",
+        block_identifier: BlockIdentifier = None,
         ccip_read_enabled: Optional[bool] = None,
     ) -> "AsyncContractCaller":
         if transaction is None:

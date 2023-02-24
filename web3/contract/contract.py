@@ -561,7 +561,7 @@ class ContractCaller(BaseContractCaller):
         w3: "Web3",
         address: ChecksumAddress,
         transaction: Optional[TxParams] = None,
-        block_identifier: BlockIdentifier = "latest",
+        block_identifier: BlockIdentifier = None,
         ccip_read_enabled: Optional[bool] = None,
         decode_tuples: Optional[bool] = False,
     ) -> None:
@@ -596,7 +596,7 @@ class ContractCaller(BaseContractCaller):
     def __call__(
         self,
         transaction: Optional[TxParams] = None,
-        block_identifier: BlockIdentifier = "latest",
+        block_identifier: BlockIdentifier = None,
         ccip_read_enabled: Optional[bool] = None,
     ) -> "ContractCaller":
         if transaction is None:
