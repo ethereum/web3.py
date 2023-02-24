@@ -67,6 +67,7 @@ from web3.types import (
     FilterParams,
     LogReceipt,
     Nonce,
+    SignedTx,
     SyncStatus,
     TxData,
     TxParams,
@@ -546,6 +547,16 @@ class AsyncEth(BaseEth):
         text: str = None,
     ) -> HexStr:
         return await self._sign(account, data, hexstr, text)
+
+    # eth_signTransaction
+
+    _sign_transaction: Method[Callable[[TxParams], Awaitable[SignedTx]]] = Method(
+        RPC.eth_signTransaction,
+        mungers=[default_root_munger],
+    )
+
+    async def sign_transaction(self, transaction: TxParams) -> SignedTx:
+        return await self._sign_transaction(transaction)
 
     # eth_newFilter, eth_newBlockFilter, eth_newPendingTransactionFilter
 

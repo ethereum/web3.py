@@ -143,6 +143,107 @@ class AsyncEthModuleTest:
         assert txn["gasPrice"] == txn_params["gasPrice"]
 
     @pytest.mark.asyncio
+    async def test_async_eth_sign_transaction(
+        self, async_w3: "AsyncWeb3", unlocked_account: ChecksumAddress
+    ) -> None:
+        txn_params: TxParams = {
+            "from": unlocked_account,
+            "to": unlocked_account,
+            "value": Wei(1),
+            "gas": 21000,
+            "maxFeePerGas": async_w3.to_wei(2, "gwei"),
+            "maxPriorityFeePerGas": async_w3.to_wei(1, "gwei"),
+            "nonce": Nonce(0),
+        }
+        result = await async_w3.eth.sign_transaction(txn_params)
+        signatory_account = async_w3.eth.account.recover_transaction(result["raw"])
+        assert unlocked_account == signatory_account
+        assert result["tx"]["to"] == txn_params["to"]
+        assert result["tx"]["value"] == txn_params["value"]
+        assert result["tx"]["gas"] == txn_params["gas"]
+        assert result["tx"]["maxFeePerGas"] == txn_params["maxFeePerGas"]
+        assert (
+            result["tx"]["maxPriorityFeePerGas"] == txn_params["maxPriorityFeePerGas"]
+        )
+        assert result["tx"]["nonce"] == txn_params["nonce"]
+
+    @pytest.mark.asyncio
+    async def test_async_eth_sign_transaction_legacy(
+        self, async_w3: "AsyncWeb3", unlocked_account: ChecksumAddress
+    ) -> None:
+        txn_params: TxParams = {
+            "from": unlocked_account,
+            "to": unlocked_account,
+            "value": Wei(1),
+            "gas": 21000,
+            "gasPrice": await async_w3.eth.gas_price,
+            "nonce": Nonce(0),
+        }
+        result = await async_w3.eth.sign_transaction(txn_params)
+        signatory_account = async_w3.eth.account.recover_transaction(result["raw"])
+        assert unlocked_account == signatory_account
+        assert result["tx"]["to"] == txn_params["to"]
+        assert result["tx"]["value"] == txn_params["value"]
+        assert result["tx"]["gas"] == txn_params["gas"]
+        assert result["tx"]["gasPrice"] == txn_params["gasPrice"]
+        assert result["tx"]["nonce"] == txn_params["nonce"]
+
+    @pytest.mark.asyncio
+    async def test_async_eth_sign_transaction_hex_fees(
+        self, async_w3: "AsyncWeb3", unlocked_account: ChecksumAddress
+    ) -> None:
+        txn_params: TxParams = {
+            "from": unlocked_account,
+            "to": unlocked_account,
+            "value": Wei(1),
+            "gas": 21000,
+            "maxFeePerGas": hex(async_w3.to_wei(2, "gwei")),
+            "maxPriorityFeePerGas": hex(async_w3.to_wei(1, "gwei")),
+            "nonce": Nonce(0),
+        }
+        result = await async_w3.eth.sign_transaction(txn_params)
+        signatory_account = async_w3.eth.account.recover_transaction(result["raw"])
+        assert unlocked_account == signatory_account
+        assert result["tx"]["to"] == txn_params["to"]
+        assert result["tx"]["value"] == txn_params["value"]
+        assert result["tx"]["gas"] == txn_params["gas"]
+        assert result["tx"]["maxFeePerGas"] == int(str(txn_params["maxFeePerGas"]), 16)
+        assert result["tx"]["maxPriorityFeePerGas"] == int(
+            str(txn_params["maxPriorityFeePerGas"]), 16
+        )
+        assert result["tx"]["nonce"] == txn_params["nonce"]
+
+    @pytest.mark.asyncio
+    @pytest.mark.xfail(
+        reason="async name_to_address_middleware has not been implemented yet"
+    )
+    async def test_async_eth_sign_transaction_ens_names(
+        self, async_w3: "AsyncWeb3", unlocked_account: ChecksumAddress
+    ) -> None:
+        with ens_addresses(async_w3, {"unlocked-account.eth": unlocked_account}):
+            txn_params: TxParams = {
+                "from": "unlocked-account.eth",
+                "to": "unlocked-account.eth",
+                "value": Wei(1),
+                "gas": 21000,
+                "maxFeePerGas": async_w3.to_wei(2, "gwei"),
+                "maxPriorityFeePerGas": async_w3.to_wei(1, "gwei"),
+                "nonce": Nonce(0),
+            }
+            result = await async_w3.eth.sign_transaction(txn_params)
+            signatory_account = async_w3.eth.account.recover_transaction(result["raw"])
+            assert unlocked_account == signatory_account
+            assert result["tx"]["to"] == unlocked_account
+            assert result["tx"]["value"] == txn_params["value"]
+            assert result["tx"]["gas"] == txn_params["gas"]
+            assert result["tx"]["maxFeePerGas"] == txn_params["maxFeePerGas"]
+            assert (
+                result["tx"]["maxPriorityFeePerGas"]
+                == txn_params["maxPriorityFeePerGas"]
+            )
+            assert result["tx"]["nonce"] == txn_params["nonce"]
+
+    @pytest.mark.asyncio
     async def test_eth_send_transaction(
         self, async_w3: "AsyncWeb3", unlocked_account_dual_type: ChecksumAddress
     ) -> None:
