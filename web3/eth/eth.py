@@ -29,9 +29,6 @@ from hexbytes import (
 from web3._utils.blocks import (
     select_method_for_block_identifier,
 )
-from web3._utils.encoding import (
-    to_hex,
-)
 from web3._utils.fee_utils import (
     fee_history_priority_fee,
 )
@@ -566,17 +563,9 @@ class Eth(BaseEth):
 
     # eth_sign
 
-    def sign_munger(
-        self,
-        account: Union[Address, ChecksumAddress, ENS],
-        data: Union[int, bytes] = None,
-        hexstr: HexStr = None,
-        text: str = None,
-    ) -> Tuple[Union[Address, ChecksumAddress, ENS], HexStr]:
-        message_hex = to_hex(data, hexstr=hexstr, text=text)
-        return (account, message_hex)
-
-    sign: Method[Callable[..., HexStr]] = Method(RPC.eth_sign, mungers=[sign_munger])
+    sign: Method[Callable[..., HexStr]] = Method(
+        RPC.eth_sign, mungers=[BaseEth.sign_munger]
+    )
 
     # eth_signTransaction
 

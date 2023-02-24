@@ -28,6 +28,9 @@ from web3._utils.empty import (
     Empty,
     empty,
 )
+from web3._utils.encoding import (
+    to_hex,
+)
 from web3.module import (
     Module,
 )
@@ -148,6 +151,16 @@ class BaseEth(Module):
             return (transaction, block_identifier)
         else:
             return (transaction, block_identifier, state_override)
+
+    def sign_munger(
+        self,
+        account: Union[Address, ChecksumAddress, ENS],
+        data: Union[int, bytes] = None,
+        hexstr: HexStr = None,
+        text: str = None,
+    ) -> Tuple[Union[Address, ChecksumAddress, ENS], HexStr]:
+        message_hex = to_hex(data, hexstr=hexstr, text=text)
+        return (account, message_hex)
 
     def filter_munger(
         self,

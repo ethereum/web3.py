@@ -1499,6 +1499,54 @@ class AsyncEthModuleTest:
         assert is_integer(transaction_count)
         assert transaction_count >= 1
 
+    async def test_async_eth_sign(
+        self, async_w3: "AsyncWeb3", unlocked_account_dual_type: ChecksumAddress
+    ) -> None:
+        signature = await async_w3.eth.sign(
+            unlocked_account_dual_type, text="Message tö sign. Longer than hash!"
+        )
+        assert is_bytes(signature)
+        assert len(signature) == 32 + 32 + 1
+
+        # test other formats
+        hexsign = await async_w3.eth.sign(
+            unlocked_account_dual_type,
+            hexstr=HexStr(
+                "0x4d6573736167652074c3b6207369676e2e204c6f6e676572207468616e206861736821"  # noqa: E501
+            ),
+        )
+        assert hexsign == signature
+
+        intsign = await async_w3.eth.sign(
+            unlocked_account_dual_type,
+            0x4D6573736167652074C3B6207369676E2E204C6F6E676572207468616E206861736821,
+        )
+        assert intsign == signature
+
+        bytessign = await async_w3.eth.sign(
+            unlocked_account_dual_type, b"Message t\xc3\xb6 sign. Longer than hash!"
+        )
+        assert bytessign == signature
+
+        new_signature = await async_w3.eth.sign(
+            unlocked_account_dual_type, text="different message is different"
+        )
+        assert new_signature != signature
+
+    @pytest.mark.asyncio
+    @pytest.mark.xfail(
+        reason="Async middleware to convert ENS names to addresses is missing"
+    )
+    async def test_async_eth_sign_ens_names(
+        self, async_w3: "AsyncWeb3", unlocked_account_dual_type: ChecksumAddress
+    ) -> None:
+        with ens_addresses(async_w3, {"unlocked-acct.eth": unlocked_account_dual_type}):
+            signature = await async_w3.eth.sign(
+                ENS("unlocked-acct.eth"), text="Message tö sign. Longer than hash!"
+            )
+            assert is_bytes(signature)
+            assert len(signature) == 32 + 32 + 1
+
     @pytest.mark.asyncio
     async def test_async_eth_new_filter(self, async_w3: "AsyncWeb3") -> None:
         filter = await async_w3.eth.filter({})

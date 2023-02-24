@@ -518,6 +518,21 @@ class AsyncEth(BaseEth):
     ) -> HexBytes:
         return await self._get_storage_at(account, position, block_identifier)
 
+    # eth_sign
+
+    _sign: Method[Callable[..., Awaitable[HexStr]]] = Method(
+        RPC.eth_sign, mungers=[BaseEth.sign_munger]
+    )
+
+    async def sign(
+        self,
+        account: Union[Address, ChecksumAddress, ENS],
+        data: Union[int, bytes] = None,
+        hexstr: HexStr = None,
+        text: str = None,
+    ) -> HexStr:
+        return await self._sign(account, data, hexstr, text)
+
     # eth_newFilter, eth_newBlockFilter, eth_newPendingTransactionFilter
 
     filter: Method[
