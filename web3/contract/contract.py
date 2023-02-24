@@ -426,7 +426,7 @@ class ContractFunction(BaseContractFunction):
     def call(
         self,
         transaction: Optional[TxParams] = None,
-        block_identifier: BlockIdentifier = "latest",
+        block_identifier: BlockIdentifier = None,
         state_override: Optional[CallOverride] = None,
         ccip_read_enabled: Optional[bool] = None,
     ) -> Any:
