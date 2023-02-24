@@ -3,6 +3,7 @@ from typing import (
     TYPE_CHECKING,
     List,
     Optional,
+    Union,
     cast,
 )
 
@@ -79,7 +80,10 @@ TRANSACTION_DEFAULTS = {
 }
 
 if TYPE_CHECKING:
-    from web3 import Web3  # noqa: F401
+    from web3 import (  # noqa: F401
+        AsyncWeb3,
+        Web3,
+    )
 
 
 @curry
@@ -219,7 +223,7 @@ def assert_valid_transaction_params(transaction_params: TxParams) -> None:
 
 
 def prepare_replacement_transaction(
-    w3: "Web3",
+    w3: Union["Web3", "AsyncWeb3"],
     original_transaction: TxData,
     replacement_transaction: TxParams,
     gas_multiplier: float = 1.125,

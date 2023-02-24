@@ -16,11 +16,17 @@ from eth_utils.toolz import (
     curry,
     merge,
 )
+from hexbytes import (
+    HexBytes,
+)
 
 from web3._utils.request import (
     async_get_json_from_client_response,
     async_get_response_from_get_request,
     async_get_response_from_post_request,
+)
+from web3._utils.transactions import (
+    prepare_replacement_transaction,
 )
 from web3._utils.type_conversion import (
     to_bytes_if_hex,
@@ -37,8 +43,10 @@ from web3.exceptions import (
 )
 from web3.types import (
     BlockIdentifier,
+    TxData,
     TxParams,
     Wei,
+    _Hash32,
 )
 
 if TYPE_CHECKING:
@@ -215,3 +223,23 @@ async def async_handle_offchain_lookup(
 
         return encoded_data_with_function_selector
     raise Exception("Offchain lookup failed for supplied urls.")
+
+
+async def async_get_required_transaction(
+    async_w3: "AsyncWeb3", transaction_hash: _Hash32
+) -> TxData:
+    current_transaction = await async_w3.eth.get_transaction(transaction_hash)
+    if not current_transaction:
+        raise ValueError(
+            f"Supplied transaction with hash {transaction_hash!r} does not exist"
+        )
+    return current_transaction
+
+
+async def async_replace_transaction(
+    async_w3: "AsyncWeb3", current_transaction: TxData, new_transaction: TxParams
+) -> HexBytes:
+    new_transaction = prepare_replacement_transaction(
+        async_w3, current_transaction, new_transaction
+    )
+    return await async_w3.eth.send_transaction(new_transaction)

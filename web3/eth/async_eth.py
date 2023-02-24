@@ -23,6 +23,10 @@ from hexbytes import (
     HexBytes,
 )
 
+from web3._utils.async_transactions import (
+    async_get_required_transaction,
+    async_replace_transaction,
+)
 from web3._utils.blocks import (
     select_method_for_block_identifier,
 )
@@ -517,6 +521,16 @@ class AsyncEth(BaseEth):
         block_identifier: Optional[BlockIdentifier] = None,
     ) -> HexBytes:
         return await self._get_storage_at(account, position, block_identifier)
+
+    async def replace_transaction(
+        self, transaction_hash: _Hash32, new_transaction: TxParams
+    ) -> HexBytes:
+        current_transaction = await async_get_required_transaction(
+            self.w3, transaction_hash
+        )
+        return await async_replace_transaction(
+            self.w3, current_transaction, new_transaction
+        )
 
     # eth_sign
 
