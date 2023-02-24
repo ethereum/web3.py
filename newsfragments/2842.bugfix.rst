@@ -1,1 +1,0 @@
-More accurately define the ``eth_call`` return type as ``HexBytes`` since the response is converted to ``HexBytes`` in the pythonic formatters and there are differences between ``HexBytes`` and ``bytes`` types.

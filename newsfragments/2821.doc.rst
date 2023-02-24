@@ -1,1 +1,0 @@
-Add/cleanup docs for the ``AsyncHTTPProvider`` in light of the new ``AsyncWeb3`` class

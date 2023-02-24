@@ -1,1 +1,0 @@
-Update ``py-geth`` version and re-generate integration test fixture with geth ``v1.11.2``.

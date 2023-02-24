@@ -1,1 +1,0 @@
-Do not invoke ``setup.py`` directly; use ``python -m build`` where appropriate.

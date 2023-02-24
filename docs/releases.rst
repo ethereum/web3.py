@@ -6,6 +6,66 @@ v6 Breaking Changes Summary
 
 .. towncrier release notes start
 
+v6.0.0-beta.11 (2023-02-24)
+---------------------------
+
+Features
+~~~~~~~~
+
+- Add the ``sign`` method to the ``AsyncEth`` class (`#2833
+  <https://github.com/ethereum/web3.py/issues/2833>`__)
+
+
+Bugfixes
+~~~~~~~~
+
+- More accurately define the ``eth_call`` return type as ``HexBytes`` since the
+  response is converted to ``HexBytes`` in the pythonic formatters and there
+  are differences between ``HexBytes`` and ``bytes`` types. (`#2842
+  <https://github.com/ethereum/web3.py/issues/2842>`__)
+- Set default block_identifier in ContractFunction.call() to None (`#2846
+  <https://github.com/ethereum/web3.py/issues/2846>`__)
+
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Remove unused module lines to instantiate the AsyncHTTPProvider (`#2789
+  <https://github.com/ethereum/web3.py/issues/2789>`__)
+- Typos fix in docs (`#2817
+  <https://github.com/ethereum/web3.py/issues/2817>`__)
+- Add/cleanup docs for the ``AsyncHTTPProvider`` in light of the new
+  ``AsyncWeb3`` class (`#2821
+  <https://github.com/ethereum/web3.py/issues/2821>`__)
+- Remove user survey banner following close of survey (`#2831
+  <https://github.com/ethereum/web3.py/issues/2831>`__)
+
+
+Internal Changes - for web3.py Contributors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Do not invoke ``setup.py`` directly; use ``python -m build`` where
+  appropriate. (`#2714 <https://github.com/ethereum/web3.py/issues/2714>`__)
+- clean up ignored unused imports (`#2838
+  <https://github.com/ethereum/web3.py/issues/2838>`__)
+- Recompile test contracts with the new Solidity version ``0.8.19``. (`#2840
+  <https://github.com/ethereum/web3.py/issues/2840>`__)
+- Update ``py-geth`` version and re-generate integration test fixture with geth
+  ``v1.11.2``. (`#2841 <https://github.com/ethereum/web3.py/issues/2841>`__)
+
+
+Breaking changes
+~~~~~~~~~~~~~~~~
+
+- Use ``AsyncWeb3`` class and preserve typing for the async api calls. (`#2819
+  <https://github.com/ethereum/web3.py/issues/2819>`__)
+- Fix typing for ``CallOverrideParams`` and add proper request formatters for
+  call state overrides. (`#2843
+  <https://github.com/ethereum/web3.py/issues/2843>`__)
+- Remove python warning and doc notes related to unstable async providers.
+  (`#2845 <https://github.com/ethereum/web3.py/issues/2845>`__)
+
+
 v6.0.0-beta.10 (2023-02-15)
 ---------------------------
 

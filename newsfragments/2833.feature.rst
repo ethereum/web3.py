@@ -1,1 +1,0 @@
-Add the ``sign`` method to the ``AsyncEth`` class
