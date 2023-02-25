@@ -30,6 +30,9 @@ from hexbytes import (
 from web3._utils.blocks import (
     select_method_for_block_identifier,
 )
+from web3._utils.compat import (
+    Unpack,
+)
 from web3._utils.fee_utils import (
     fee_history_priority_fee,
 )
@@ -596,10 +599,8 @@ class Eth(BaseEth):
         current_transaction = get_required_transaction(self.w3, transaction_hash)
         return replace_transaction(self.w3, current_transaction, new_transaction)
 
-    # todo: Update Any to stricter kwarg checking with TxParams
-    # https://github.com/python/mypy/issues/4441
     def modify_transaction(
-        self, transaction_hash: _Hash32, **transaction_params: Any
+        self, transaction_hash: _Hash32, **transaction_params: Unpack[TxParams]
     ) -> HexBytes:
         assert_valid_transaction_params(cast(TxParams, transaction_params))
         current_transaction = get_required_transaction(self.w3, transaction_hash)
