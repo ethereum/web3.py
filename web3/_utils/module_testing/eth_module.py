@@ -1590,6 +1590,24 @@ class AsyncEthModuleTest:
         assert transaction_count >= 1
 
     @pytest.mark.asyncio
+    async def test_eth_getUncleCountByBlockHash(
+        self, async_w3: "AsyncWeb3", empty_block: BlockData
+    ) -> None:
+        uncle_count = await async_w3.eth.get_uncle_count(empty_block["hash"])
+
+        assert is_integer(uncle_count)
+        assert uncle_count == 0
+
+    @pytest.mark.asyncio
+    async def test_eth_getUncleCountByBlockNumber(
+        self, async_w3: "AsyncWeb3", empty_block: BlockData
+    ) -> None:
+        uncle_count = await async_w3.eth.get_uncle_count(empty_block["number"])
+
+        assert is_integer(uncle_count)
+        assert uncle_count == 0
+
+    @pytest.mark.asyncio
     async def test_eth_getBlockTransactionCountByNumber_block_with_txn(
         self, async_w3: "AsyncWeb3", block_with_txn: BlockData
     ) -> None:

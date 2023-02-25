@@ -295,6 +295,7 @@ Eth
 - :meth:`web3.eth.sign() <web3.eth.Eth.sign>`
 - :meth:`web3.eth.sign_transaction() <web3.eth.Eth.sign_transaction>`
 - :meth:`web3.eth.replace_transaction() <web3.eth.Eth.replace_transaction>`
+- :meth:`web3.eth.get_uncle_count() <web3.eth.Eth.get_uncle_count>`
 
 Net
 ***
