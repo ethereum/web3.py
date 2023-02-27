@@ -441,3 +441,18 @@ class GethWallet(TypedDict):
 # Contract types
 
 TContractFn = TypeVar("TContractFn", "ContractFunction", "AsyncContractFunction")
+
+
+# Tracing types
+BlockTrace = NewType("ParityBlockTrace", Dict[str, Any])
+FilterTrace = NewType("ParityFilterTrace", Dict[str, Any])
+TraceMode = Sequence[Literal["trace", "vmTrace", "stateDiff"]]
+
+
+class TraceFilterParams(TypedDict, total=False):
+    after: int
+    count: int
+    fromAddress: Sequence[Union[Address, ChecksumAddress, ENS]]
+    fromBlock: BlockIdentifier
+    toAddress: Sequence[Union[Address, ChecksumAddress, ENS]]
+    toBlock: BlockIdentifier
