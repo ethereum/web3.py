@@ -3657,7 +3657,7 @@ class EthModuleTest:
         txn_hash = w3.eth.send_transaction(txn_params)
 
         modified_txn_hash = w3.eth.modify_transaction(
-            txn_hash, gasPrice=(cast(int, txn_params["gasPrice"]) * 2), value=2
+            txn_hash, gasPrice=(cast(Wei, txn_params["gasPrice"] * 2)), value=Wei(2)
         )
         modified_txn = w3.eth.get_transaction(modified_txn_hash)
 
@@ -3686,9 +3686,9 @@ class EthModuleTest:
 
         modified_txn_hash = w3.eth.modify_transaction(
             txn_hash,
-            value=2,
-            maxPriorityFeePerGas=(cast(Wei, txn_params["maxPriorityFeePerGas"]) * 2),
-            maxFeePerGas=(cast(Wei, txn_params["maxFeePerGas"]) * 2),
+            value=Wei(2),
+            maxPriorityFeePerGas=(cast(Wei, txn_params["maxPriorityFeePerGas"] * 2)),
+            maxFeePerGas=(cast(Wei, txn_params["maxFeePerGas"] * 2)),
         )
         modified_txn = w3.eth.get_transaction(modified_txn_hash)
 

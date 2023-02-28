@@ -444,8 +444,8 @@ class EventFilterBuilder(BaseEventFilterBuilder):
         if not isinstance(w3, web3.Web3):
             raise Web3ValueError(f"Invalid web3 argument: got: {w3!r}")
 
-        for arg in AttributeDict.values(self.args):
-            arg._immutable = True  # type: ignore[attr-defined]
+        for arg in self.args.values():
+            arg._immutable = True
         self._immutable = True
 
         log_filter = cast("LogFilter", w3.eth.filter(self.filter_params))
