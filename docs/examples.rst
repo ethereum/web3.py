@@ -656,7 +656,7 @@ appropriately in the following way:
         myContract.functions.revertsWithOffchainLookup(myData).call(ccip_read_enabled=False)
     except OffchainLookup as ocl:
         tx = {'to': myContract.address, 'from': my_account}
-        data_for_callback_function = handle_offchain_lookup(ocl.payload)
+        data_for_callback_function = handle_offchain_lookup(ocl.payload, provider_id=w3.provider.id)
         tx['data'] = data_for_callback_function
 
         # send the built transaction with `eth_sendTransaction` or sign and send with `eth_sendRawTransaction`
