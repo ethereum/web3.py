@@ -71,12 +71,17 @@ def check_adapters_mounted(session: Session):
     assert len(session.adapters) == 2
 
 
-def _simulate_call(uri):
-    _session = cache_and_return_session(uri)
+def _simulate_call(uri, provider_id):
+    _session = cache_and_return_session(uri, provider_id)
 
     # simulate a call taking 0.01s to return a response
     time.sleep(0.01)
     return _session
+
+
+@pytest.fixture
+def provider_id(w3):
+    return w3.provider.id
 
 
 @pytest.fixture(autouse=True)
@@ -89,17 +94,17 @@ def setup_and_teardown():
     request._async_session_cache.clear()
 
 
-def test_json_make_get_request(mocker):
+def test_json_make_get_request(mocker, provider_id):
     mocker.patch("requests.Session.get", return_value=MockedResponse())
 
     # Submit a first request to create a session with default parameters
     assert len(request._session_cache) == 0
-    response = request.json_make_get_request(TEST_URI)
+    response = request.json_make_get_request(TEST_URI, provider_id=provider_id)
     assert response == json.dumps({"data": "content"})
     assert len(request._session_cache) == 1
-    cache_key = generate_cache_key(f"{threading.get_ident()}:{TEST_URI}")
+    cache_key = generate_cache_key(f"{threading.get_ident()}:{provider_id}:{TEST_URI}")
     session = request._session_cache.get_cache_entry(cache_key)
-    session.get.assert_called_once_with(TEST_URI, timeout=10)
+    session.get.assert_called_once_with(TEST_URI, timeout=10, provider_id=provider_id)
 
     # Ensure the adapter was created with default values
     check_adapters_mounted(session)
@@ -109,17 +114,21 @@ def test_json_make_get_request(mocker):
     assert adapter._pool_maxsize == DEFAULT_POOLSIZE
 
 
-def test_make_post_request_no_args(mocker):
+def test_make_post_request_no_args(mocker, provider_id):
     mocker.patch("requests.Session.post", return_value=MockedResponse())
 
     # Submit a first request to create a session with default parameters
     assert len(request._session_cache) == 0
-    response = request.make_post_request(TEST_URI, data=b"request")
+    response = request.make_post_request(
+        TEST_URI, data=b"request", provider_id=provider_id
+    )
     assert response == "content"
     assert len(request._session_cache) == 1
-    cache_key = generate_cache_key(f"{threading.get_ident()}:{TEST_URI}")
+    cache_key = generate_cache_key(f"{threading.get_ident()}:{provider_id}:{TEST_URI}")
     session = request._session_cache.get_cache_entry(cache_key)
-    session.post.assert_called_once_with(TEST_URI, data=b"request", timeout=10)
+    session.post.assert_called_once_with(
+        TEST_URI, data=b"request", timeout=10, provider_id=provider_id
+    )
 
     # Ensure the adapter was created with default values
     check_adapters_mounted(session)
@@ -129,7 +138,7 @@ def test_make_post_request_no_args(mocker):
     assert adapter._pool_maxsize == DEFAULT_POOLSIZE
 
 
-def test_precached_session(mocker):
+def test_precached_session(mocker, provider_id):
     mocker.patch("requests.Session.post", return_value=MockedResponse())
 
     # Update the cache with a handcrafted session
@@ -137,17 +146,21 @@ def test_precached_session(mocker):
     session = Session()
     session.mount("http://", adapter)
     session.mount("https://", adapter)
-    request.cache_and_return_session(TEST_URI, session)
+    request.cache_and_return_session(TEST_URI, provider_id, session)
 
     # Submit a second request with different arguments
     assert len(request._session_cache) == 1
-    response = request.make_post_request(TEST_URI, data=b"request", timeout=60)
+    response = request.make_post_request(
+        TEST_URI, data=b"request", timeout=60, provider_id=provider_id
+    )
     assert response == "content"
     assert len(request._session_cache) == 1
 
     # Ensure the timeout was passed to the request
-    session = request.cache_and_return_session(TEST_URI)
-    session.post.assert_called_once_with(TEST_URI, data=b"request", timeout=60)
+    session = request.cache_and_return_session(TEST_URI, provider_id)
+    session.post.assert_called_once_with(
+        TEST_URI, data=b"request", timeout=60, provider_id=provider_id
+    )
 
     # Ensure the adapter parameters match those we specified
     check_adapters_mounted(session)
@@ -185,7 +198,7 @@ def test_cache_session_class():
     assert cache.get_cache_entry("1") is None
 
 
-def test_cache_does_not_close_session_before_a_call_when_multithreading():
+def test_cache_does_not_close_session_before_a_call_when_multithreading(provider_id):
     # save default values
     session_cache_default = request._session_cache
     timeout_default = request.DEFAULT_TIMEOUT
@@ -196,7 +209,9 @@ def test_cache_does_not_close_session_before_a_call_when_multithreading():
     request.DEFAULT_TIMEOUT = _timeout_for_testing
 
     with ThreadPoolExecutor(max_workers=len(UNIQUE_URIS)) as exc:
-        all_sessions = [exc.submit(_simulate_call, uri) for uri in UNIQUE_URIS]
+        all_sessions = [
+            exc.submit(_simulate_call, uri, provider_id) for uri in UNIQUE_URIS
+        ]
 
     # assert last session remains in cache, all others evicted
     cache_data = request._session_cache._data
@@ -214,11 +229,13 @@ def test_cache_does_not_close_session_before_a_call_when_multithreading():
     request.DEFAULT_TIMEOUT = timeout_default
 
 
-def test_unique_cache_keys_created_per_thread_with_same_uri():
+def test_unique_cache_keys_created_per_thread_with_same_uri(provider_id):
     # somewhat inspired by issue #2680
 
     with ThreadPoolExecutor(max_workers=2) as exc:
-        test_sessions = [exc.submit(_simulate_call, TEST_URI) for _ in range(2)]
+        test_sessions = [
+            exc.submit(_simulate_call, TEST_URI, provider_id) for _ in range(2)
+        ]
 
     # assert unique keys are generated per thread for the same uri
     assert len(request._session_cache._data) == 2
@@ -294,7 +311,7 @@ async def test_async_make_post_request(mocker):
 
 
 @pytest.mark.asyncio
-async def test_async_precached_session():
+async def test_async_precached_session(w3):
     # Add a session
     session = ClientSession()
     await request.async_cache_and_return_session(TEST_URI, session)

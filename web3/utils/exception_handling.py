@@ -30,6 +30,7 @@ from web3.types import (
 def handle_offchain_lookup(
     offchain_lookup_payload: Dict[str, Any],
     transaction: TxParams,
+    provider_id,
 ) -> bytes:
     formatted_sender = to_hex_if_bytes(offchain_lookup_payload["sender"]).lower()
     formatted_data = to_hex_if_bytes(offchain_lookup_payload["callData"]).lower()
@@ -49,7 +50,9 @@ def handle_offchain_lookup(
 
         try:
             if "{data}" in url and "{sender}" in url:
-                response = get_response_from_get_request(formatted_url)
+                response = get_response_from_get_request(
+                    formatted_url, provider_id=provider_id
+                )
             elif "{sender}" in url:
                 response = get_response_from_post_request(
                     formatted_url,
@@ -57,6 +60,7 @@ def handle_offchain_lookup(
                         "data": formatted_data,
                         "sender": formatted_sender,
                     },
+                    provider_id=provider_id,
                 )
             else:
                 raise Web3ValidationError("url not formatted properly.")

@@ -49,8 +49,10 @@ _session_cache_lock = threading.Lock()
 def cache_and_return_session(
     endpoint_uri: URI, provider_id, session: requests.Session = None
 ) -> requests.Session:
-    # cache key should have a unique thread identifier
-    cache_key = generate_cache_key(f"{provider_id}:{endpoint_uri}")
+    # cache key should have a unique thread identifier, and provider id
+    cache_key = generate_cache_key(
+        f"{threading.get_ident()}:{provider_id}:{endpoint_uri}"
+    )
 
     cached_session = _session_cache.get_cache_entry(cache_key)
     if cached_session is not None:
@@ -86,7 +88,8 @@ def get_response_from_get_request(
     endpoint_uri: URI, *args: Any, **kwargs: Any
 ) -> requests.Response:
     kwargs.setdefault("timeout", DEFAULT_TIMEOUT)
-    session = cache_and_return_session(endpoint_uri)
+    provider_id = kwargs.get("provider_id")
+    session = cache_and_return_session(endpoint_uri, provider_id)
     response = session.get(endpoint_uri, *args, **kwargs)
     return response
 
