@@ -47,10 +47,10 @@ _session_cache_lock = threading.Lock()
 
 
 def cache_and_return_session(
-    endpoint_uri: URI, session: requests.Session = None
+    endpoint_uri: URI, provider_id, session: requests.Session = None
 ) -> requests.Session:
     # cache key should have a unique thread identifier
-    cache_key = generate_cache_key(f"{threading.get_ident()}:{endpoint_uri}")
+    cache_key = generate_cache_key(f"{provider_id}:{endpoint_uri}")
 
     cached_session = _session_cache.get_cache_entry(cache_key)
     if cached_session is not None:
@@ -100,16 +100,22 @@ def json_make_get_request(
 
 
 def get_response_from_post_request(
-    endpoint_uri: URI, *args: Any, **kwargs: Any
+    endpoint_uri: URI,
+    *args: Any,
+    **kwargs: Any,
 ) -> requests.Response:
     kwargs.setdefault("timeout", DEFAULT_TIMEOUT)
-    session = cache_and_return_session(endpoint_uri)
+    provider_id = kwargs.get("provider_id")
+    session = cache_and_return_session(endpoint_uri, provider_id)
     response = session.post(endpoint_uri, *args, **kwargs)
     return response
 
 
 def make_post_request(
-    endpoint_uri: URI, data: Union[bytes, Dict[str, Any]], *args: Any, **kwargs: Any
+    endpoint_uri: URI,
+    data: Union[bytes, Dict[str, Any]],
+    *args: Any,
+    **kwargs: Any,
 ) -> bytes:
     response = get_response_from_post_request(endpoint_uri, data=data, *args, **kwargs)
     response.raise_for_status()

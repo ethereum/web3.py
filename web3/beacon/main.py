@@ -48,6 +48,7 @@ class Beacon:
         self,
         base_url: str,
     ) -> None:
+        self.id = id(self)
         self.base_url = base_url
 
     def _make_get_request(self, endpoint_url: str) -> Dict[str, Any]:
@@ -141,7 +142,7 @@ class Beacon:
 
     def get_health(self) -> int:
         url = URI(self.base_url + GET_HEALTH)
-        response = get_response_from_get_request(url)
+        response = get_response_from_get_request(url, self.id)
         return response.status_code
 
     def get_version(self) -> Dict[str, Any]:

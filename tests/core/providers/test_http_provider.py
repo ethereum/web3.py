@@ -41,8 +41,20 @@ def test_user_provided_session():
     w3 = Web3(provider)
     assert w3.manager.provider == provider
 
-    session = request.cache_and_return_session(URI)
+    session = request.cache_and_return_session(URI, provider.id)
     adapter = session.get_adapter(URI)
     assert isinstance(adapter, HTTPAdapter)
     assert adapter._pool_connections == 20
     assert adapter._pool_maxsize == 20
+
+
+def test_user_sessions_are_different():
+    uri = "http://localhost:8545"
+
+    provider_1 = HTTPProvider(uri)
+    provider_2 = HTTPProvider(uri)
+    assert provider_1.id is not provider_2.id
+
+    session_1 = request.cache_and_return_session(uri, provider_1.id)
+    session_2 = request.cache_and_return_session(uri, provider_2.id)
+    assert session_1 is not session_2

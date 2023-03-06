@@ -59,10 +59,12 @@ class HTTPProvider(JSONBaseProvider):
         else:
             self.endpoint_uri = URI(endpoint_uri)
 
-        self._request_kwargs = request_kwargs or {}
+        self.id = id(self)
+        self._request_kwargs = request_kwargs or {"provider_id": self.id}
+        self.session = session
 
-        if session:
-            cache_and_return_session(self.endpoint_uri, session)
+        if self.session:
+            cache_and_return_session(self.endpoint_uri, self.id, session)
 
         super().__init__()
 
@@ -88,7 +90,9 @@ class HTTPProvider(JSONBaseProvider):
         )
         request_data = self.encode_rpc_request(method, params)
         raw_response = make_post_request(
-            self.endpoint_uri, request_data, **self.get_request_kwargs()
+            self.endpoint_uri,
+            request_data,
+            **self.get_request_kwargs(),
         )
         response = self.decode_rpc_response(raw_response)
         self.logger.debug(
