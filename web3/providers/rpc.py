@@ -61,9 +61,8 @@ class HTTPProvider(JSONBaseProvider):
 
         self.id = id(self)
         self._request_kwargs = request_kwargs or {}
-        self.session = session
 
-        if self.session:
+        if session:
             cache_and_return_session(self.endpoint_uri, self.id, session)
 
         super().__init__()
