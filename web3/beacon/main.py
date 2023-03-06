@@ -53,7 +53,7 @@ class Beacon:
 
     def _make_get_request(self, endpoint_url: str) -> Dict[str, Any]:
         uri = URI(self.base_url + endpoint_url)
-        return json_make_get_request(uri)
+        return json_make_get_request(uri, provider_id=self.id)
 
     # [ BEACON endpoints ]
 

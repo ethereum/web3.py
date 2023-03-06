@@ -312,7 +312,7 @@ async def test_async_make_post_request(mocker):
 
 
 @pytest.mark.asyncio
-async def test_async_precached_session(w3):
+async def test_async_precached_session():
     # Add a session
     session = ClientSession()
     await request.async_cache_and_return_session(TEST_URI, session)

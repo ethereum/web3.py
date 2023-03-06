@@ -101,7 +101,6 @@ def mock_offchain_lookup_request_response(
             assert kwargs["timeout"] == 10
             if http_method.upper() == "POST":
                 assert kwargs["data"] == {"data": calldata, "sender": sender}
-
             return MockedResponse()
 
         # else, make a normal request (no mocking)

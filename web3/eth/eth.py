@@ -55,9 +55,6 @@ from web3.contract import (
 from web3.eth.base_eth import (
     BaseEth,
 )
-from web3.providers.rpc import (
-    HTTPProvider,
-)
 from web3.exceptions import (
     OffchainLookup,
     TimeExhausted,
@@ -67,6 +64,9 @@ from web3.exceptions import (
 from web3.method import (
     Method,
     default_root_munger,
+)
+from web3.providers.rpc import (
+    HTTPProvider,
 )
 from web3.types import (
     ENS,
