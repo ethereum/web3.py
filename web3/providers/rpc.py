@@ -60,7 +60,7 @@ class HTTPProvider(JSONBaseProvider):
             self.endpoint_uri = URI(endpoint_uri)
 
         self.id = id(self)
-        self._request_kwargs = request_kwargs or {"provider_id": self.id}
+        self._request_kwargs = request_kwargs or {}
         self.session = session
 
         if self.session:

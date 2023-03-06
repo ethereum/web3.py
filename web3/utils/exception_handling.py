@@ -30,7 +30,7 @@ from web3.types import (
 def handle_offchain_lookup(
     offchain_lookup_payload: Dict[str, Any],
     transaction: TxParams,
-    provider_id,
+    provider_id: int,
 ) -> bytes:
     formatted_sender = to_hex_if_bytes(offchain_lookup_payload["sender"]).lower()
     formatted_data = to_hex_if_bytes(offchain_lookup_payload["callData"]).lower()

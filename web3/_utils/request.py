@@ -47,7 +47,7 @@ _session_cache_lock = threading.Lock()
 
 
 def cache_and_return_session(
-    endpoint_uri: URI, provider_id, session: requests.Session = None
+    endpoint_uri: URI, provider_id: int, session: requests.Session = None
 ) -> requests.Session:
     # cache key should have a unique thread identifier, and provider id
     cache_key = generate_cache_key(
