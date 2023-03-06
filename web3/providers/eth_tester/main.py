@@ -118,7 +118,6 @@ class EthereumTesterProvider(BaseProvider):
             )
 
         self.id = id(self)
-
         if api_endpoints is None:
             # do not import eth_tester derivatives until runtime,
             # it is not a default dependency

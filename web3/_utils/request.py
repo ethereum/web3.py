@@ -47,12 +47,18 @@ _session_cache_lock = threading.Lock()
 
 
 def cache_and_return_session(
-    endpoint_uri: URI, provider_id: int, session: requests.Session = None
+    endpoint_uri: URI, provider_id: int = None, session: requests.Session = None
 ) -> requests.Session:
-    # cache key should have a unique thread identifier, and provider id
-    cache_key = generate_cache_key(
-        f"{threading.get_ident()}:{provider_id}:{endpoint_uri}"
-    )
+    # cache key should have a unique thread identifier
+    if provider_id:
+        # the HTTPProvider needs a unique session_id in order to not re-use
+        # underlying TCP/IP connections. This is managed by making the cache key
+        # unique to each instance of an HTTPProvider
+        cache_key = generate_cache_key(
+            f"{threading.get_ident()}:{provider_id}:{endpoint_uri}"
+        )
+    else:
+        cache_key = generate_cache_key(f"{threading.get_ident()}:{endpoint_uri}")
 
     cached_session = _session_cache.get_cache_entry(cache_key)
     if cached_session is not None:

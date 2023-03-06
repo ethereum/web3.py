@@ -41,7 +41,6 @@ class BaseProvider:
     is_async = False
     global_ccip_read_enabled: bool = True
     ccip_read_max_redirects: int = 4
-    id: int
 
     @property
     def middlewares(self) -> Tuple[Middleware, ...]:

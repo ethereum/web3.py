@@ -81,7 +81,8 @@ def _simulate_call(uri, provider_id):
 
 @pytest.fixture
 def provider_id(w3):
-    return w3.provider.id
+    if hasattr(w3.provider, "id"):
+        return w3.provider.id
 
 
 @pytest.fixture(autouse=True)

@@ -110,7 +110,6 @@ class WebsocketProvider(JSONBaseProvider):
                     f"in websocket_kwargs, found: {found_restricted_keys}"
                 )
         self.conn = PersistentWebSocket(self.endpoint_uri, websocket_kwargs)
-        self.id = id(self)
         super().__init__()
 
     def __str__(self) -> str:
