@@ -165,6 +165,7 @@ class IPCProvider(JSONBaseProvider):
         self.timeout = timeout
         self._lock = threading.Lock()
         self._socket = PersistantSocket(self.ipc_path)
+        self.id = id(self)
         super().__init__()
 
     def __str__(self) -> str:
