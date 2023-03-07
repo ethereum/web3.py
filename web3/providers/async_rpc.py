@@ -51,12 +51,15 @@ class AsyncHTTPProvider(AsyncJSONBaseProvider):
         else:
             self.endpoint_uri = URI(endpoint_uri)
 
+        self.id = id(self)
         self._request_kwargs = request_kwargs or {}
 
         super().__init__()
 
     async def cache_async_session(self, session: ClientSession) -> ClientSession:
-        return await _async_cache_and_return_session(self.endpoint_uri, session)
+        return await _async_cache_and_return_session(
+            self.endpoint_uri, self.id, session
+        )
 
     def __str__(self) -> str:
         return f"RPC connection {self.endpoint_uri}"

@@ -85,3 +85,18 @@ async def test_user_provided_session() -> None:
     cached_session = await provider.cache_async_session(session)
     assert len(request._async_session_cache) == 1
     assert cached_session == session
+    request._async_session_cache.clear()
+    assert len(request._async_session_cache) == 0
+    await session.close()
+
+
+@pytest.mark.asyncio
+async def test_session_is_different_with_different_provider_instance() -> None:
+    session = ClientSession()
+    session_2 = ClientSession()
+    provider_1 = AsyncHTTPProvider(endpoint_uri=URI)
+    provider_2 = AsyncHTTPProvider(endpoint_uri=URI)
+    cached_session_1 = await provider_1.cache_async_session(session)
+    cached_session_2 = await provider_2.cache_async_session(session_2)
+    assert len(request._async_session_cache) == 2
+    assert cached_session_1 is not cached_session_2

@@ -147,10 +147,16 @@ _async_session_pool = ThreadPoolExecutor(max_workers=1)
 
 async def async_cache_and_return_session(
     endpoint_uri: URI,
+    provider_id: Optional[int] = None,
     session: Optional[ClientSession] = None,
 ) -> ClientSession:
     # cache key should have a unique thread identifier
-    cache_key = generate_cache_key(f"{threading.get_ident()}:{endpoint_uri}")
+    if provider_id:
+        cache_key = generate_cache_key(
+            f"{threading.get_ident()}:{provider_id}:{endpoint_uri}"
+        )
+    else:
+        cache_key = generate_cache_key(f"{threading.get_ident()}:{endpoint_uri}")
 
     evicted_items = None
     async with async_lock(_async_session_pool, _async_session_cache_lock):
