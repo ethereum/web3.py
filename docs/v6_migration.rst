@@ -87,6 +87,19 @@ by a particular module. So we now have a ``Web3ValidationError``, ``EthPMValidat
 and an ``ENSValidationError`` that all inherit from the generic
 ``eth_utils.exceptions.ValidationError``.
 
+Web3 class split into Web3 and AsyncWeb3
+-----------------------------------------
+
+The `Web3` class previously contained both sync and async methods. We've separated
+`Web3` and `AsyncWeb3` functionality to tighten up typing. For example:
+
+.. code-block:: python
+
+    from web3 import Web3, AsyncWeb3
+
+    w3 = Web3(Web3.HTTPProvider(<provider.url>))
+    async_w3 = AsyncWeb3(AsyncWeb3.AsyncHTTPProvider(<provider.url>))
+
 Other Misc Changes
 ------------------
 
