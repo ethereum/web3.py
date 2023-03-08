@@ -99,6 +99,14 @@ The `Web3` class previously contained both sync and async methods. We've separat
 
     w3 = Web3(Web3.HTTPProvider(<provider.url>))
     async_w3 = AsyncWeb3(AsyncWeb3.AsyncHTTPProvider(<provider.url>))
+    
+`dict` to `AttributeDict` conversion moved to middleware
+--------------------------------------------------------
+
+`Eth` module data returned as key-value pairs was previously automatically converted to
+an `AttributeDict` by result formatters, which could cause problems with typing. This
+conversion has been moved to a default `attrdict_middleware` where it can be easily
+removed if necessary.
 
 Other Misc Changes
 ------------------
