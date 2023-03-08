@@ -106,7 +106,7 @@ The `Web3` class previously contained both sync and async methods. We've separat
 `Eth` module data returned as key-value pairs was previously automatically converted to
 an `AttributeDict` by result formatters, which could cause problems with typing. This
 conversion has been moved to a default `attrdict_middleware` where it can be easily
-removed if necessary.
+removed if necessary. See the `Eth module <web3.eth.html#web3.eth.Eth>`_ docs for more detail.
 
 Other Misc Changes
 ------------------
