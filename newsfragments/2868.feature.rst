@@ -1,0 +1,1 @@
+Add result formatters for ``withdrawals_root`` and ``withdrawals`` as part of ``Shanghai`` hard fork support.
