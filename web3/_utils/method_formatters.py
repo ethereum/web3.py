@@ -214,6 +214,16 @@ transaction_result_formatter = type_aware_apply_formatters_to_dict(
     TRANSACTION_RESULT_FORMATTERS
 )
 
+WITHDRAWAL_RESULT_FORMATTERS = {
+    "index": to_integer_if_hex,
+    "validatorIndex": to_integer_if_hex,
+    "address": to_checksum_address,
+    "amount": to_integer_if_hex,
+}
+withdrawal_result_formatter = type_aware_apply_formatters_to_dict(
+    WITHDRAWAL_RESULT_FORMATTERS
+)
+
 
 def apply_list_to_array_formatter(formatter: Any) -> Callable[..., Any]:
     return to_list(apply_formatter_to_array(formatter))
@@ -286,6 +296,8 @@ BLOCK_FORMATTERS = {
         )
     ),
     "transactionsRoot": apply_formatter_if(is_not_null, to_hexbytes(32)),
+    "withdrawals": apply_formatter_to_array(withdrawal_result_formatter),
+    "withdrawalsRoot": apply_formatter_if(is_not_null, to_hexbytes(32)),
 }
 
 
