@@ -17,6 +17,9 @@ from eth_typing import (
     URI,
 )
 
+from web3._utils.decorators import (
+    deprecated_for,
+)
 from web3.exceptions import (
     CannotHandleRequest,
 )
@@ -31,12 +34,12 @@ from web3.types import (
     RPCResponse,
 )
 
-HTTP_SCHEMES = {'http', 'https'}
-WS_SCHEMES = {'ws', 'wss'}
+HTTP_SCHEMES = {"http", "https"}
+WS_SCHEMES = {"ws", "wss"}
 
 
 def load_provider_from_environment() -> BaseProvider:
-    uri_string = URI(os.environ.get('WEB3_PROVIDER_URI', ''))
+    uri_string = URI(os.environ.get("WEB3_PROVIDER_URI", ""))
     if not uri_string:
         return None
 
@@ -47,7 +50,7 @@ def load_provider_from_uri(
     uri_string: URI, headers: Optional[Dict[str, Tuple[str, str]]] = None
 ) -> BaseProvider:
     uri = urlparse(uri_string)
-    if uri.scheme == 'file':
+    if uri.scheme == "file":
         return IPCProvider(uri.path)
     elif uri.scheme in HTTP_SCHEMES:
         return HTTPProvider(uri_string, headers)
@@ -55,7 +58,8 @@ def load_provider_from_uri(
         return WebsocketProvider(uri_string)
     else:
         raise NotImplementedError(
-            'Web3 does not know how to connect to scheme %r in %r' % (
+            "Web3 does not know how to connect to scheme %r in %r"
+            % (
                 uri.scheme,
                 uri_string,
             )
@@ -74,8 +78,9 @@ class AutoProvider(BaseProvider):
 
     def __init__(
         self,
-        potential_providers: Optional[Sequence[Union[Callable[..., BaseProvider],
-                                      Type[BaseProvider]]]] = None
+        potential_providers: Optional[
+            Sequence[Union[Callable[..., BaseProvider], Type[BaseProvider]]]
+        ] = None,
     ) -> None:
         """
         :param iterable potential_providers: ordered series of provider classes to attempt with
@@ -95,20 +100,24 @@ class AutoProvider(BaseProvider):
         except IOError:
             return self._proxy_request(method, params, use_cache=False)
 
+    @deprecated_for("is_connected")
     def isConnected(self) -> bool:
-        provider = self._get_active_provider(use_cache=True)
-        return provider is not None and provider.isConnected()
+        return self.is_connected()
 
-    def _proxy_request(self, method: RPCEndpoint, params: Any,
-                       use_cache: bool = True) -> RPCResponse:
+    def is_connected(self) -> bool:
+        provider = self._get_active_provider(use_cache=True)
+        return provider is not None and provider.is_connected()
+
+    def _proxy_request(
+        self, method: RPCEndpoint, params: Any, use_cache: bool = True
+    ) -> RPCResponse:
         provider = self._get_active_provider(use_cache)
         if provider is None:
             raise CannotHandleRequest(
                 "Could not discover provider while making request: "
                 "method:{0}\n"
-                "params:{1}\n".format(
-                    method,
-                    params))
+                "params:{1}\n".format(method, params)
+            )
 
         return provider.make_request(method, params)
 
@@ -118,7 +127,7 @@ class AutoProvider(BaseProvider):
 
         for Provider in self._potential_providers:
             provider = Provider()
-            if provider is not None and provider.isConnected():
+            if provider is not None and provider.is_connected():
                 self._active_provider = provider
                 return provider
 

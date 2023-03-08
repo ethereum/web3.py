@@ -101,7 +101,7 @@ setting the middlewares the provider should use.
       the JSON-RPC method being called.
 
 
-.. py:method:: BaseProvider.isConnected()
+.. py:method:: BaseProvider.is_connected()
 
     This function should return ``True`` or ``False`` depending on whether the
     provider should be considered *connected*.  For example, an IPC socket

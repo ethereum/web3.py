@@ -55,7 +55,7 @@ Ethereum network. An example configuration, if you're connecting to a locally ru
     >>> w3 = Web3(Web3.HTTPProvider('http://localhost:8545'))
 
     # now `w3` is available to use:
-    >>> w3.isConnected()
+    >>> w3.is_connected()
     True
     >>> w3.eth.send_transaction(...)
 
@@ -66,11 +66,11 @@ Refer to the :ref:`providers` documentation for further help with configuration.
 
 Why isn't my web3 instance connecting to the network?
 -----------------------------------------------------
-You can check that your instance is connected via the ``isConnected`` method:
+You can check that your instance is connected via the ``is_connected`` method:
 
 .. code-block:: python
 
-    >>> w3.isConnected()
+    >>> w3.is_connected()
     False
 
 There's a variety of explanations for why you may see ``False`` here. If you're
@@ -177,7 +177,7 @@ Your Ethereum node JSON-RPC API might be slow when fetching multiple and large r
         multiple and large responses.
         """
         provider.decode_rpc_response = _fast_decode_rpc_response
-        
+
 Why am I getting Visual C++ or Cython not installed error?
 ----------------------------------------------------------
 
@@ -187,13 +187,13 @@ when installing Web3.py as shown below:
 .. code-block:: shell
 
     error: Microsoft Visual C++ 14.0 or greater is required. Get it with "Microsoft C++ Build Tools": https://visualstudio.microsoft.com/visual-cpp-build-tools/
-    
 
-To fix this error, download and install Microsoft Visual C++ from here : 
+
+To fix this error, download and install Microsoft Visual C++ from here :
 
 `Microsoft Visual C++ Redistributable for Visual Studio <https://visualstudio.microsoft.com/downloads/#microsoft-visual-c-redistributable-for-visual-studio-2019>`_
 
-- `x64 Visual C++ <https://aka.ms/vs/16/release/VC_redist.x64.exe>`_  
+- `x64 Visual C++ <https://aka.ms/vs/16/release/VC_redist.x64.exe>`_
 
 - `x86 Visual C++ <https://aka.ms/vs/16/release/VC_redist.x86.exe>`_
 

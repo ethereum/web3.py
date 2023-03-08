@@ -114,8 +114,8 @@ class AsyncEthModuleTest:
         assert gas_price > 0
 
     @pytest.mark.asyncio
-    async def test_isConnected(self, async_w3: "Web3") -> None:
-        is_connected = await async_w3.isConnected()  # type: ignore
+    async def test_is_connected(self, async_w3: "Web3") -> None:
+        is_connected = await async_w3.is_connected()  # type: ignore
         assert is_connected is True
 
     @pytest.mark.asyncio
@@ -1152,6 +1152,18 @@ class AsyncEthModuleTest:
 
         # reset to default
         async_w3.eth.default_block = 'latest'
+
+    #
+    # Deprecated Methods
+    #
+    @pytest.mark.asyncio
+    async def test_isConnected(self, async_w3: "Web3") -> None:
+        with pytest.warns(
+            DeprecationWarning,
+            match="isConnected is deprecated in favor of is_connected",
+        ):
+            is_connected = await async_w3.isConnected()
+        assert is_connected is True
 
 
 class EthModuleTest:

@@ -17,6 +17,9 @@ from eth_abi.exceptions import (
 from web3._utils.compat import (
     Literal,
 )
+from web3._utils.decorators import (
+    deprecated_for,
+)
 from web3.providers import (
     BaseProvider,
 )
@@ -34,21 +37,15 @@ from .middleware import (
 )
 
 if TYPE_CHECKING:
-    from eth_tester import (  # noqa: F401
-        EthereumTester
-    )
-    from eth_tester.backends.base import (  # noqa: F401
-        BaseChainBackend
-    )
+    from eth_tester import EthereumTester  # noqa: F401
+    from eth_tester.backends.base import BaseChainBackend  # noqa: F401
 
 
 class AsyncEthereumTesterProvider(AsyncBaseProvider):
     def __init__(self) -> None:
         self.eth_tester = EthereumTesterProvider()
 
-    async def make_request(
-        self, method: RPCEndpoint, params: Any
-    ) -> RPCResponse:
+    async def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
         return self.eth_tester.make_request(method, params)
 
 
@@ -63,11 +60,14 @@ class EthereumTesterProvider(BaseProvider):
     def __init__(
         self,
         ethereum_tester: Optional[Union["EthereumTester", "BaseChainBackend"]] = None,
-        api_endpoints: Optional[Dict[str, Dict[str, Callable[..., RPCResponse]]]] = None
+        api_endpoints: Optional[
+            Dict[str, Dict[str, Callable[..., RPCResponse]]]
+        ] = None,
     ) -> None:
         # do not import eth_tester until runtime, it is not a default dependency
         from eth_tester import EthereumTester  # noqa: F811
         from eth_tester.backends.base import BaseChainBackend
+
         if ethereum_tester is None:
             self.ethereum_tester = EthereumTester()
         elif isinstance(ethereum_tester, EthereumTester):
@@ -86,19 +86,19 @@ class EthereumTesterProvider(BaseProvider):
         if api_endpoints is None:
             # do not import eth_tester derivatives until runtime, it is not a default dependency
             from .defaults import API_ENDPOINTS
+
             self.api_endpoints = API_ENDPOINTS
         else:
             self.api_endpoints = api_endpoints
 
     def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
-        namespace, _, endpoint = method.partition('_')
+        namespace, _, endpoint = method.partition("_")
         from eth_tester.exceptions import TransactionFailed
+
         try:
             delegator = self.api_endpoints[namespace][endpoint]
         except KeyError:
-            return RPCResponse(
-                {"error": f"Unknown RPC Endpoint: {method}"}
-            )
+            return RPCResponse({"error": f"Unknown RPC Endpoint: {method}"})
         try:
             response = delegator(self.ethereum_tester, params)
         except NotImplementedError:
@@ -110,11 +110,15 @@ class EthereumTesterProvider(BaseProvider):
                 reason = abi.decode(["string"], e.args[0].args[0][4:])[0]
             except (InsufficientDataBytes, AttributeError):
                 reason = e.args[0]
-            raise TransactionFailed(f'execution reverted: {reason}')
+            raise TransactionFailed(f"execution reverted: {reason}")
         else:
             return {
-                'result': response,
+                "result": response,
             }
 
+    @deprecated_for("is_connected")
     def isConnected(self) -> Literal[True]:
+        return True
+
+    def is_connected(self) -> Literal[True]:
         return True
