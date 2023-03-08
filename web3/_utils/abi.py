@@ -957,7 +957,7 @@ def recursive_dict_to_namedtuple(data: Dict[str, Any]) -> Tuple[Any, ...]:
         if not isinstance(value, dict):
             return value
 
-        keys, values = zip(*value.items())
+        keys, values = zip(*value.items()) if value else ((), ())
         return abi_decoded_namedtuple_factory(keys)(values)
 
     return recursive_map(_dict_to_namedtuple, data)
