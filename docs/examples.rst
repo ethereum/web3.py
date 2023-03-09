@@ -870,7 +870,7 @@ The script can be run with: ``python ./eventscanner.py <your JSON-RPC API URL>``
             """
             :param contract: Contract
             :param events: List of web3 Event we scan
-            :param filters: Filters passed to getLogs
+            :param filters: Filters passed to get_logs
             :param max_chunk_scan_size: JSON-RPC API limit in the number of blocks we query. (Recommendation: 10,000 for mainnet, 500,000 for testnets)
             :param max_request_retries: How many times we try to reattempt a failed JSON-RPC call
             :param request_retry_seconds: Delay between failed requests to let JSON-RPC server to recover
