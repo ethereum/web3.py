@@ -1196,7 +1196,12 @@ class ContractEvent:
             yield rich_log
 
     @combomethod
+    @deprecated_for('process_log')
     def processLog(self, log: HexStr) -> EventData:
+        return self.process_log(log)
+
+    @combomethod
+    def process_log(self, log: HexStr) -> EventData:
         return get_event_data(self.web3.codec, self.abi, log)
 
     @combomethod
