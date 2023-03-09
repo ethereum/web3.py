@@ -96,7 +96,7 @@ Encoding and Decoding Helpers
 .. py:method:: Web3.toHex(primitive=None, hexstr=None, text=None)
    
     .. warning:: Deprecated: This method is deprecated in favor of
-       :meth:`~Web3.to_text`
+       :meth:`~Web3.to_hex`
    
 .. py:method:: Web3.to_text(primitive=None, hexstr=None, text=None)
 
@@ -152,27 +152,34 @@ Encoding and Decoding Helpers
         b'cowm\xc3\xb6'
 
 
-.. py:method:: Web3.toInt(primitive=None, hexstr=None, text=None)
+.. py:method:: Web3.to_int(primitive=None, hexstr=None, text=None)
 
     Takes a variety of inputs and returns its integer equivalent.
 
 
     .. code-block:: python
 
-        >>> Web3.toInt(0)
+        >>> Web3.to_int(0)
         0
-        >>> Web3.toInt(0x000F)
+        >>> Web3.to_int(0x000F)
         15
-        >>> Web3.toInt(b'\x00\x0F')
+        >>> Web3.to_int(b'\x00\x0F')
         15
-        >>> Web3.toInt(False)
+        >>> Web3.to_int(False)
         0
-        >>> Web3.toInt(True)
+        >>> Web3.to_int(True)
         1
-        >>> Web3.toInt(hexstr='0x000F')
+        >>> Web3.to_int(hexstr='0x000F')
         15
-        >>> Web3.toInt(hexstr='000F')
+        >>> Web3.to_int(hexstr='000F')
         15
+
+
+.. py:method:: Web3.toInt(primitive=None, hexstr=None, text=None)
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+       :meth:`~Web3.to_int`
+
 
 .. py:method:: Web3.to_json(obj)
 

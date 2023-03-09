@@ -180,6 +180,14 @@ class Web3:
 
     @staticmethod
     @wraps(to_int)
+    def to_int(
+        primitive: Primitives = None, hexstr: HexStr = None, text: str = None
+    ) -> int:
+        return to_int(primitive, hexstr, text)
+
+    @staticmethod
+    @deprecated_for("to_int")
+    @wraps(to_int)
     def toInt(
         primitive: Primitives = None, hexstr: HexStr = None, text: str = None
     ) -> int:

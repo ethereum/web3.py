@@ -100,6 +100,14 @@ def test_to_text_hexstr(val, expected):
     assert Web3.to_text(hexstr=val) == expected
 
 
+def test_toInt_is_deprecated():
+    with pytest.warns(
+        DeprecationWarning,
+        match="toInt is deprecated in favor of to_int"
+    ):
+        Web3.toInt(True)
+
+
 @pytest.mark.parametrize(
     'val, expected',
     (
@@ -118,9 +126,9 @@ def test_to_text_hexstr(val, expected):
 def test_to_int(val, expected):
     if isinstance(expected, type):
         with pytest.raises(expected):
-            Web3.toInt(val)
+            Web3.to_int(val)
     else:
-        assert Web3.toInt(val) == expected
+        assert Web3.to_int(val) == expected
 
 
 @pytest.mark.parametrize(
@@ -138,9 +146,9 @@ def test_to_int(val, expected):
 def test_to_int_text(val, expected):
     if isinstance(expected, type):
         with pytest.raises(expected):
-            Web3.toInt(text=val)
+            Web3.to_int(text=val)
     else:
-        assert Web3.toInt(text=val) == expected
+        assert Web3.to_int(text=val) == expected
 
 
 @pytest.mark.parametrize(
@@ -157,7 +165,7 @@ def test_to_int_text(val, expected):
     ),
 )
 def test_to_int_hexstr(val, expected):
-    assert Web3.toInt(hexstr=val) == expected
+    assert Web3.to_int(hexstr=val) == expected
 
 
 def test_toHex_is_deprecated():

@@ -185,7 +185,7 @@ this will prepare it for Solidity:
     #   and r, s as a bytes32
     # Remix / web3.js expect r and s to be encoded to hex
     >>> sig = Web3.toBytes(hexstr=hex_signature)
-    >>> v, hex_r, hex_s = Web3.toInt(sig[-1]), Web3.to_hex(sig[:32]), Web3.to_hex(sig[32:64])
+    >>> v, hex_r, hex_s = Web3.to_int(sig[-1]), Web3.to_hex(sig[:32]), Web3.to_hex(sig[32:64])
 
     # ecrecover in Solidity takes the arguments in order = (msghash, v, r, s)
     >>> ec_recover_args = (hex_message_hash, v, hex_r, hex_s)
