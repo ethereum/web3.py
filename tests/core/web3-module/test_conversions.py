@@ -215,7 +215,7 @@ def test_to_hex_cleanup_only(val, expected):
     ),
 )
 def test_to_json(val, expected):
-    assert Web3.toJSON(val) == expected
+    assert Web3.to_json(val) == expected
 
 
 @pytest.mark.parametrize(
@@ -247,4 +247,12 @@ def test_to_json(val, expected):
     ),
 )
 def test_to_json_with_transaction(tx, expected):
-    assert Web3.toJSON(tx) == expected
+    assert Web3.to_json(tx) == expected
+
+
+def test_toJSON_is_deprecated():
+    with pytest.warns(
+        DeprecationWarning,
+        match="toJSON is deprecated in favor of to_json"
+    ):
+        Web3.toJSON(AttributeDict({"a": 1}))

@@ -165,17 +165,22 @@ Encoding and Decoding Helpers
         >>> Web3.toInt(hexstr='000F')
         15
 
-.. py:method:: Web3.toJSON(obj)
+.. py:method:: Web3.to_json(obj)
 
     Takes a variety of inputs and returns its JSON equivalent.
 
 
     .. code-block:: python
 
-        >>> Web3.toJSON(3)
+        >>> Web3.to_json(3)
         '3'
-        >>> Web3.toJSON({'one': 1})
+        >>> Web3.to_json({'one': 1})
         '{"one": 1}'
+    
+.. py:method:: Web3.toJSON(obj)
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+       :meth:`~Web3.to_json`
 
 
 .. _overview_currency_conversions:

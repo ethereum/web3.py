@@ -201,6 +201,12 @@ class Web3:
 
     @staticmethod
     @wraps(to_json)
+    def to_json(obj: Dict[Any, Any]) -> str:
+        return to_json(obj)
+
+    @staticmethod
+    @deprecated_for("to_json")
+    @wraps(to_json)
     def toJSON(obj: Dict[Any, Any]) -> str:
         return to_json(obj)
 
