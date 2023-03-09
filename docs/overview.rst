@@ -98,7 +98,7 @@ Encoding and Decoding Helpers
 - :meth:`Web3.toHex() <web3.Web3.toHex>`
 - :meth:`Web3.toInt() <web3.Web3.toInt>`
 - :meth:`Web3.to_json() <web3.Web3.to_json>`
-- :meth:`Web3.toText() <web3.Web3.toText>`
+- :meth:`Web3.to_text() <web3.Web3.to_text>`
 
 
 Address Helpers

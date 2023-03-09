@@ -194,6 +194,14 @@ class Web3:
 
     @staticmethod
     @wraps(to_text)
+    def to_text(
+        primitive: Primitives = None, hexstr: HexStr = None, text: str = None
+    ) -> str:
+        return to_text(primitive, hexstr, text)
+
+    @staticmethod
+    @deprecated_for("to_text")
+    @wraps(to_text)
     def toText(
         primitive: Primitives = None, hexstr: HexStr = None, text: str = None
     ) -> str:

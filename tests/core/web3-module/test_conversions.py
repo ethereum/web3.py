@@ -60,8 +60,16 @@ def test_to_bytes_text(val, expected):
     assert Web3.toBytes(text=val) == expected
 
 
+def test_toText_is_deprecated():
+    with pytest.warns(
+        DeprecationWarning,
+        match="toText is deprecated in favor of to_text"
+    ):
+        Web3.toText(text='pass-through')
+
+
 def test_to_text_identity():
-    assert Web3.toText(text='pass-through') == 'pass-through'
+    assert Web3.to_text(text='pass-through') == 'pass-through'
 
 
 @pytest.mark.parametrize(
@@ -76,7 +84,7 @@ def test_to_text_identity():
     ),
 )
 def test_to_text(val, expected):
-    assert Web3.toText(val) == expected
+    assert Web3.to_text(val) == expected
 
 
 @pytest.mark.parametrize(
@@ -89,7 +97,7 @@ def test_to_text(val, expected):
     ),
 )
 def test_to_text_hexstr(val, expected):
-    assert Web3.toText(hexstr=val) == expected
+    assert Web3.to_text(hexstr=val) == expected
 
 
 @pytest.mark.parametrize(
