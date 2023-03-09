@@ -10,6 +10,7 @@ from web3._utils.abi import (
     get_aligned_abi_inputs,
     get_tuple_type_str_parts,
     map_abi_data,
+    recursive_dict_to_namedtuple,
 )
 from web3._utils.normalizers import (
     BASE_RETURN_NORMALIZERS,
@@ -357,3 +358,27 @@ def test_map_abi_data(types, data, funcs, expected):
 def test_exact_length_bytes_encoder_raises_on_non_multiples_of_8_bit_size(arg):
     with pytest.raises(ValueError, match="multiple of 8"):
         _ = ExactLengthBytesEncoder(None, data_byte_size=2, value_bit_size=arg)
+
+
+@pytest.mark.parametrize(
+    "input, expected_output",
+    [
+        ({"a": 1, "b": 2}, "ABIDecodedNamedTuple(a=1, b=2)"),
+        ({"a": 0}, "ABIDecodedNamedTuple(a=0)"),
+        ({"a": None}, "ABIDecodedNamedTuple(a=None)"),
+        ({"a": False}, "ABIDecodedNamedTuple(a=False)"),
+        ({}, "ABIDecodedNamedTuple()"),
+        ({"a": {}}, "ABIDecodedNamedTuple(a=ABIDecodedNamedTuple())"),
+        ({"a": []}, "ABIDecodedNamedTuple(a=[])"),
+        ({"a": [0]}, "ABIDecodedNamedTuple(a=[0])"),
+        ({"a": [{}]}, "ABIDecodedNamedTuple(a=[ABIDecodedNamedTuple()])"),
+        (
+            {"a": {"b": {}}},
+            "ABIDecodedNamedTuple(a=ABIDecodedNamedTuple(b=ABIDecodedNamedTuple()))",
+        ),
+    ],
+)
+def test_recursive_dict_to_namedtuple(input, expected_output):
+    named_tuple_output = recursive_dict_to_namedtuple(input)
+    output_repr = named_tuple_output.__repr__()
+    assert output_repr == expected_output
