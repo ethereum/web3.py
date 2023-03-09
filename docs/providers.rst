@@ -132,7 +132,7 @@ For example, the following retrieves the client enode endpoint for both geth and
 
     from web3.auto import w3
 
-    connected = w3.isConnected()
+    connected = w3.is_connected()
 
     if connected and w3.clientVersion.startswith('Parity'):
         enode = w3.parity.enode
@@ -186,7 +186,7 @@ an optional secret key, set the environment variable ``WEB3_INFURA_API_SECRET``:
     >>> from web3.auto.infura import w3
 
     # confirm that the connection succeeded
-    >>> w3.isConnected()
+    >>> w3.is_connected()
     True
 
 Geth dev Proof of Authority
@@ -199,7 +199,7 @@ To connect to a ``geth --dev`` Proof of Authority instance with defaults:
     >>> from web3.auto.gethdev import w3
 
     # confirm that the connection succeeded
-    >>> w3.isConnected()
+    >>> w3.is_connected()
     True
 
 Built In Providers
@@ -399,7 +399,7 @@ AsyncHTTPProvider
         ...              'admin' : (AsyncGethAdmin,)})
         ...         },
         ...     middlewares=[]   # See supported middleware section below for middleware options
-        ...     ) 
+        ...     )
         >>> custom_session = ClientSession()  # If you want to pass in your own session
         >>> await w3.provider.cache_async_session(custom_session) # This method is an async method so it needs to be handled accordingly
 

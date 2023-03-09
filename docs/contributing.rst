@@ -374,7 +374,7 @@ virtualenv for smoke testing:
     $ pip install ipython
     $ ipython
     >>> from web3.auto import w3
-    >>> w3.isConnected()
+    >>> w3.is_connected()
     >>> ...
 
 

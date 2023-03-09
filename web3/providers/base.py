@@ -13,6 +13,9 @@ from eth_utils import (
     to_text,
 )
 
+from web3._utils.decorators import (
+    deprecated_for,
+)
 from web3._utils.encoding import (
     FriendlyJsonSerde,
 )
@@ -33,16 +36,17 @@ if TYPE_CHECKING:
 class BaseProvider:
     _middlewares: Tuple[Middleware, ...] = ()
     # a tuple of (all_middlewares, request_func)
-    _request_func_cache: Tuple[Tuple[Middleware, ...], Callable[..., RPCResponse]] = (None, None)
+    _request_func_cache: Tuple[Tuple[Middleware, ...], Callable[..., RPCResponse]] = (
+        None,
+        None,
+    )
 
     @property
     def middlewares(self) -> Tuple[Middleware, ...]:
         return self._middlewares
 
     @middlewares.setter
-    def middlewares(
-        self, values: MiddlewareOnion
-    ) -> None:
+    def middlewares(self, values: MiddlewareOnion) -> None:
         # tuple(values) converts to MiddlewareOnion -> Tuple[Middleware, ...]
         self._middlewares = tuple(values)  # type: ignore
 
@@ -60,7 +64,7 @@ class BaseProvider:
         if cache_key is None or cache_key != all_middlewares:
             self._request_func_cache = (
                 all_middlewares,
-                self._generate_request_func(web3, all_middlewares)
+                self._generate_request_func(web3, all_middlewares),
             )
         return self._request_func_cache[-1]
 
@@ -76,7 +80,11 @@ class BaseProvider:
     def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
         raise NotImplementedError("Providers must implement this method")
 
+    @deprecated_for("is_connected")
     def isConnected(self) -> bool:
+        raise NotImplementedError("Providers must implement this method")
+
+    def is_connected(self) -> bool:
         raise NotImplementedError("Providers must implement this method")
 
 
@@ -98,13 +106,17 @@ class JSONBaseProvider(BaseProvider):
         encoded = FriendlyJsonSerde().json_encode(rpc_dict)
         return to_bytes(text=encoded)
 
+    @deprecated_for("is_connected")
     def isConnected(self) -> bool:
+        return self.is_connected()
+
+    def is_connected(self) -> bool:
         try:
-            response = self.make_request(RPCEndpoint('web3_clientVersion'), [])
+            response = self.make_request(RPCEndpoint("web3_clientVersion"), [])
         except IOError:
             return False
 
-        assert response['jsonrpc'] == '2.0'
-        assert 'error' not in response
+        assert response["jsonrpc"] == "2.0"
+        assert "error" not in response
 
         return True
