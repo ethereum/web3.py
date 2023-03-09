@@ -145,10 +145,10 @@ You might have produced the signed_message locally, as in
     # Remix / web3.js expect r and s to be encoded to hex
     # This convenience method will do the pad & hex for us:
     >>> def to_32byte_hex(val):
-    ...   return Web3.toHex(Web3.toBytes(val).rjust(32, b'\0'))
+    ...   return Web3.to_hex(Web3.toBytes(val).rjust(32, b'\0'))
 
     >>> ec_recover_args = (msghash, v, r, s) = (
-    ...   Web3.toHex(signed_message.messageHash),
+    ...   Web3.to_hex(signed_message.messageHash),
     ...   signed_message.v,
     ...   to_32byte_hex(signed_message.r),
     ...   to_32byte_hex(signed_message.s),
@@ -179,13 +179,13 @@ this will prepare it for Solidity:
     >>> message_hash = _hash_eip191_message(message)
 
     # Remix / web3.js expect the message hash to be encoded to a hex string
-    >>> hex_message_hash = Web3.toHex(message_hash)
+    >>> hex_message_hash = Web3.to_hex(message_hash)
 
     # ecrecover in Solidity expects the signature to be split into v as a uint8,
     #   and r, s as a bytes32
     # Remix / web3.js expect r and s to be encoded to hex
     >>> sig = Web3.toBytes(hexstr=hex_signature)
-    >>> v, hex_r, hex_s = Web3.toInt(sig[-1]), Web3.toHex(sig[:32]), Web3.toHex(sig[32:64])
+    >>> v, hex_r, hex_s = Web3.toInt(sig[-1]), Web3.to_hex(sig[:32]), Web3.to_hex(sig[32:64])
 
     # ecrecover in Solidity takes the arguments in order = (msghash, v, r, s)
     >>> ec_recover_args = (hex_message_hash, v, hex_r, hex_s)
@@ -337,5 +337,5 @@ To sign a transaction locally that will invoke a smart contract:
     >>> w3.eth.send_raw_transaction(signed_txn.rawTransaction)  # doctest: +SKIP
 
     # When you run send_raw_transaction, you get the same result as the hash of the transaction:
-    >>> w3.toHex(w3.keccak(signed_txn.rawTransaction))
+    >>> w3.to_hex(w3.keccak(signed_txn.rawTransaction))
     '0x748db062639a45e519dba934fce09c367c92043867409160c9989673439dc817'

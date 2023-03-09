@@ -187,6 +187,14 @@ class Web3:
 
     @staticmethod
     @wraps(to_hex)
+    def to_hex(
+        primitive: Primitives = None, hexstr: HexStr = None, text: str = None
+    ) -> HexStr:
+        return to_hex(primitive, hexstr, text)
+
+    @staticmethod
+    @deprecated_for("to_hex")
+    @wraps(to_hex)
     def toHex(
         primitive: Primitives = None, hexstr: HexStr = None, text: str = None
     ) -> HexStr:

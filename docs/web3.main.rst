@@ -58,7 +58,7 @@ Attributes
 Encoding and Decoding Helpers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. py:method:: Web3.toHex(primitive=None, hexstr=None, text=None)
+.. py:method:: Web3.to_hex(primitive=None, hexstr=None, text=None)
 
     Takes a variety of inputs and returns it in its hexadecimal representation.
     It follows the rules for converting to hex in the
@@ -66,33 +66,38 @@ Encoding and Decoding Helpers
 
     .. code-block:: python
 
-        >>> Web3.toHex(0)
+        >>> Web3.to_hex(0)
         '0x0'
-        >>> Web3.toHex(1)
+        >>> Web3.to_hex(1)
         '0x1'
-        >>> Web3.toHex(0x0)
+        >>> Web3.to_hex(0x0)
         '0x0'
-        >>> Web3.toHex(0x000F)
+        >>> Web3.to_hex(0x000F)
         '0xf'
-        >>> Web3.toHex(b'')
+        >>> Web3.to_hex(b'')
         '0x'
-        >>> Web3.toHex(b'\x00\x0F')
+        >>> Web3.to_hex(b'\x00\x0F')
         '0x000f'
-        >>> Web3.toHex(False)
+        >>> Web3.to_hex(False)
         '0x0'
-        >>> Web3.toHex(True)
+        >>> Web3.to_hex(True)
         '0x1'
-        >>> Web3.toHex(hexstr='0x000F')
+        >>> Web3.to_hex(hexstr='0x000F')
         '0x000f'
-        >>> Web3.toHex(hexstr='000F')
+        >>> Web3.to_hex(hexstr='000F')
         '0x000f'
-        >>> Web3.toHex(text='')
+        >>> Web3.to_hex(text='')
         '0x'
-        >>> Web3.toHex(text='cowmö')
+        >>> Web3.to_hex(text='cowmö')
         '0x636f776dc3b6'
 
 .. _JSON-RPC spec: https://github.com/ethereum/wiki/wiki/JSON-RPC#hex-value-encoding
 
+.. py:method:: Web3.toHex(primitive=None, hexstr=None, text=None)
+   
+    .. warning:: Deprecated: This method is deprecated in favor of
+       :meth:`~Web3.to_text`
+   
 .. py:method:: Web3.to_text(primitive=None, hexstr=None, text=None)
 
     Takes a variety of inputs and returns its string equivalent.
