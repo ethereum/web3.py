@@ -233,7 +233,7 @@ Currency Conversions
 Addresses
 ~~~~~~~~~
 
-.. py:method:: Web3.isAddress(value)
+.. py:method:: Web3.is_address(value)
 
     Returns ``True`` if the value is one of the recognized address formats.
 
@@ -243,32 +243,51 @@ Addresses
 
     .. code-block:: python
 
-        >>> Web3.isAddress('0xd3CdA913deB6f67967B99D67aCDFa1712C293601')
+        >>> Web3.is_address('0xd3CdA913deB6f67967B99D67aCDFa1712C293601')
         True
 
 
-.. py:method:: Web3.isChecksumAddress(value)
+.. py:method:: Web3.isAddress(value)
+   
+    .. warning:: Deprecated: This method is deprecated in favor of
+       :meth:`~Web3.is_address`
+   
+
+.. py:method:: Web3.is_checksum_address(value)
 
     Returns ``True`` if the value is a valid `EIP55`_ checksummed address
 
 
     .. code-block:: python
 
-        >>> Web3.isChecksumAddress('0xd3CdA913deB6f67967B99D67aCDFa1712C293601')
+        >>> Web3.is_checksum_address('0xd3CdA913deB6f67967B99D67aCDFa1712C293601')
         True
-        >>> Web3.isChecksumAddress('0xd3cda913deb6f67967b99d67acdfa1712c293601')
+        >>> Web3.is_checksum_address('0xd3cda913deb6f67967b99d67acdfa1712c293601')
         False
 
 
-.. py:method:: Web3.toChecksumAddress(value)
+.. py:method:: Web3.isChecksumAddress(value)
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+       :meth:`~Web3.is_checksum_address`
+
+
+.. py:method:: Web3.to_checksum_address(value)
 
     Returns the given address with an `EIP55`_ checksum.
 
 
     .. code-block:: python
 
-        >>> Web3.toChecksumAddress('0xd3cda913deb6f67967b99d67acdfa1712c293601')
+        >>> Web3.to_checksum_address('0xd3cda913deb6f67967b99d67acdfa1712c293601')
         '0xd3CdA913deB6f67967B99D67aCDFa1712C293601'
+
+
+.. py:method:: Web3.toChecksumAddress(value)
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+       :meth:`~Web3.to_checksum_address`
+
 
 .. _EIP55: https://github.com/ethereum/EIPs/issues/55
 

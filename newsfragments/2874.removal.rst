@@ -1,0 +1,1 @@
+deprecate and snakecase isAddress, isChecksumAddress, toChecksumAddress

@@ -280,3 +280,27 @@ def test_toJSON_is_deprecated():
         match="toJSON is deprecated in favor of to_json"
     ):
         Web3.toJSON(AttributeDict({"a": 1}))
+
+
+def test_isAddress_is_deprecated():
+    with pytest.warns(
+        DeprecationWarning,
+        match="isAddress is deprecated in favor of is_address"
+    ):
+        Web3.isAddress("snek")
+
+
+def test_isChecksumAddress_is_deprecated():
+    with pytest.warns(
+        DeprecationWarning,
+        match="isChecksumAddress is deprecated in favor of is_checksum_address"
+    ):
+        Web3.isChecksumAddress("snek")
+
+
+def test_toChecksumAddress_is_deprecated():
+    with pytest.warns(
+        DeprecationWarning,
+        match="toChecksumAddress is deprecated in favor of to_checksum_address"
+    ):
+        Web3.toChecksumAddress("0xffffffffffffffffffffffffffffffffffffffff")
