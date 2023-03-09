@@ -4,6 +4,9 @@ from typing import (
     NoReturn,
     Sequence,
 )
+from unittest.mock import (
+    patch,
+)
 
 from eth_typing import (
     ChecksumAddress,
@@ -219,7 +222,7 @@ class Web3ModuleTest:
             ),
         ),
     )
-    def test_solidityKeccak(
+    def test_solidity_keccak(
         self,
         web3: "Web3",
         types: Sequence[TypeStr],
@@ -228,10 +231,10 @@ class Web3ModuleTest:
     ) -> None:
         if isinstance(expected, type) and issubclass(expected, Exception):
             with pytest.raises(expected):
-                web3.solidityKeccak(types, values)
+                web3.solidity_keccak(types, values)
             return
 
-        actual = web3.solidityKeccak(types, values)
+        actual = web3.solidity_keccak(types, values)
         assert actual == expected
 
     @pytest.mark.parametrize(
@@ -253,7 +256,7 @@ class Web3ModuleTest:
             ),
         ),
     )
-    def test_solidityKeccak_ens(
+    def test_solidity_keccak_ens(
         self,
         web3: "Web3",
         types: Sequence[TypeStr],
@@ -273,10 +276,10 @@ class Web3ModuleTest:
         ):
             # when called as class method, any name lookup attempt will fail
             with pytest.raises(InvalidAddress):
-                Web3.solidityKeccak(types, values)
+                Web3.solidity_keccak(types, values)
 
             # when called as instance method, ens lookups can succeed
-            actual = web3.solidityKeccak(types, values)
+            actual = web3.solidity_keccak(types, values)
             assert actual == expected
 
     @pytest.mark.parametrize(
@@ -287,11 +290,35 @@ class Web3ModuleTest:
             ([], ["0xA6b759bBbf4B59D24acf7E06e79f3a5D104fdCE5"]),
         ),
     )
-    def test_solidityKeccak_same_number_of_types_and_values(
+    def test_solidity_keccak_same_number_of_types_and_values(
         self, web3: "Web3", types: Sequence[TypeStr], values: Sequence[Any]
     ) -> None:
         with pytest.raises(ValueError):
-            web3.solidityKeccak(types, values)
+            web3.solidity_keccak(types, values)
+
+    @patch("web3.main.Web3.solidity_keccak", lambda w3, *args, **kwargs: (args, kwargs))
+    def test_solidityKeccak_calls_solidity_keccak_with_deprecation_warning(
+        self,
+        web3: "Web3",
+    ) -> None:
+        # This should test that the arguments are correctly passed on to
+        # Web3.solidity_keccak and, in turn, should pass all tests related to
+        # solidity_keccak.
+        with pytest.warns(DeprecationWarning):
+            passed_on_args, _ = web3.solidityKeccak(["bool"], [True])
+            assert passed_on_args == (["bool"], [True])
+
+    @patch("web3.main.Web3.solidity_keccak", lambda w3, *args, **kwargs: (args, kwargs))
+    def test_soliditySha3_calls_solidity_keccak_with_deprecation_warning(
+        self,
+        web3: "Web3",
+    ) -> None:
+        # This should test that the arguments are correctly passed on to
+        # Web3.solidity_keccak and, in turn, should pass all tests related to
+        # solidity_keccak.
+        with pytest.warns(DeprecationWarning):
+            passed_on_args, _ = web3.soliditySha3(["bool"], [True])
+            assert passed_on_args == (["bool"], [True])
 
     def test_is_connected(self, web3: "Web3") -> None:
         assert web3.is_connected()

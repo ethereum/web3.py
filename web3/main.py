@@ -367,12 +367,17 @@ class Web3:
         )
 
     @combomethod
-    @deprecated_for("solidityKeccak")
+    @deprecated_for("solidity_keccak")
     def soliditySha3(cls, abi_types: List[TypeStr], values: List[Any]) -> bytes:
-        return cls.solidityKeccak(abi_types, values)
+        return cls.solidity_keccak(abi_types, values)
 
     @combomethod
+    @deprecated_for("solidity_keccak")
     def solidityKeccak(cls, abi_types: List[TypeStr], values: List[Any]) -> bytes:
+        return cls.solidity_keccak(abi_types, values)
+
+    @combomethod
+    def solidity_keccak(cls, abi_types: List[TypeStr], values: List[Any]) -> bytes:
         """
         Executes keccak256 exactly as Solidity does.
         Takes list of abi_types as inputs -- `[uint24, int8[], bool]`
