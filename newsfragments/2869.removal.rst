@@ -1,0 +1,1 @@
+Deprecate ``clientVersion`` in favor of ``client_version``

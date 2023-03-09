@@ -52,6 +52,12 @@ def test_legacy_version_deprecation(blocking_w3):
 async def test_async_blocking_version(async_w3, blocking_w3):
     assert async_w3.async_version.api == blocking_w3.api
 
-    assert await async_w3.async_version.node == blocking_w3.clientVersion
+    assert await async_w3.async_version.node == blocking_w3.client_version
     with pytest.warns(DeprecationWarning):
         assert await async_w3.async_version.ethereum == blocking_w3.eth.protocol_version
+
+
+@pytest.mark.asyncio
+async def test_deprecated_async_clientVersion(async_w3, blocking_w3):
+    with pytest.warns(DeprecationWarning):
+        assert await async_w3.async_version.node == blocking_w3.clientVersion
