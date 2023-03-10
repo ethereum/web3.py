@@ -123,7 +123,7 @@ class ENS:
         self._resolverContract = self.web3.eth.contract(abi=abis.RESOLVER)
 
     @classmethod
-    def fromWeb3(cls, web3: 'Web3', addr: ChecksumAddress = None) -> 'ENS':
+    def from_web3(cls, web3: 'Web3', addr: ChecksumAddress = None) -> 'ENS':
         """
         Generate an ENS instance with web3
 
@@ -134,6 +134,14 @@ class ENS:
         provider = web3.manager.provider
         middlewares = web3.middleware_onion.middlewares
         return cls(provider, addr=addr, middlewares=middlewares)
+
+    @classmethod
+    def fromWeb3(cls, web3: 'Web3', addr: ChecksumAddress = None) -> 'ENS':
+        warnings.warn(
+            category=DeprecationWarning,
+            message="ENS.fromWeb3 is deprecated in favor of ENS.from_web3",
+        )
+        return cls.from_web3(web3, addr=addr)
 
     def address(self, name: str) -> Optional[ChecksumAddress]:
         """

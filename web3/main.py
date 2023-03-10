@@ -426,7 +426,7 @@ class Web3:
     @property
     def ens(self) -> ENS:
         if self._ens is cast(ENS, empty):
-            return ENS.fromWeb3(self)
+            return ENS.from_web3(self)
         else:
             return self._ens
 
