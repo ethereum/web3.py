@@ -17,9 +17,9 @@ Create an :class:`~ens.main.ENS` object (named ``ns`` below) in one of three way
 
 1. Automatic detection
 2. Specify an instance or list of :ref:`providers`
-3. From an existing :class:`web3.Web3` object
+3. From an existing :class:`web3.Web3` object via :meth:`ens.main.ENS.from_web3`
 
-::
+.. code-block:: python
 
     # automatic detection
     from ens.auto import ns
@@ -38,7 +38,7 @@ Create an :class:`~ens.main.ENS` object (named ``ns`` below) in one of three way
     from ens import ENS
 
     w3 = Web3(...)
-    ns = ENS.fromWeb3(w3)
+    ns = ENS.from_web3(w3)
 
 
 Usage
@@ -52,7 +52,7 @@ Name info
 Look up the address for an ENS name
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-::
+.. code-block:: python
 
     from ens.auto import ns
 
@@ -71,24 +71,21 @@ but will not infer a TLD if it is not provided with the name.
 Get name from address
 ^^^^^^^^^^^^^^^^^^^^^
 
-::
+.. code-block:: python
 
     domain = ns.name('0x5B2063246F2191f18F2675ceDB8b28102e957458')
 
-
     # name() also accepts the bytes version of the address
-
     assert ns.name(b'[ c$o!\x91\xf1\x8f&u\xce\xdb\x8b(\x10.\x95tX') == domain
 
 
     # confirm that the name resolves back to the address that you looked up:
-
     assert ns.address(domain) == '0x5B2063246F2191f18F2675ceDB8b28102e957458'
 
 Get owner of name
 ^^^^^^^^^^^^^^^^^
 
-::
+.. code-block:: python
 
     eth_address = ns.owner('exchange.eth')
 
@@ -101,7 +98,7 @@ Point your name to your address
 Do you want to set up your name so that :meth:`~ens.main.ENS.address` will show the
 address it points to?
 
-::
+.. code-block:: python
 
     ns.setup_address('jasoncarver.eth', '0x5B2063246F2191f18F2675ceDB8b28102e957458')
 
@@ -110,20 +107,20 @@ You must already be the owner of the domain (or its parent).
 In the common case where you want to point the name to the owning
 address, you can skip the address
 
-::
+.. code-block:: python
 
     ns.setup_address('jasoncarver.eth')
 
 You can claim arbitrarily deep subdomains. *Gas costs scale up with the
 number of subdomains!*
 
-::
+.. code-block:: python
 
     ns.setup_address('supreme.executive.power.derives.from.a.mandate.from.the.masses.jasoncarver.eth')
 
 Wait for the transaction to be mined, then:
 
-::
+.. code-block:: python
 
     assert ns.address('supreme.executive.power.derives.from.a.mandate.from.the.masses.jasoncarver.eth') == \
         '0x5B2063246F2191f18F2675ceDB8b28102e957458'
@@ -138,7 +135,7 @@ This is like Caller ID. It enables you and others to take an account and
 determine what name points to it. Sometimes this is referred to as
 "reverse" resolution.
 
-::
+.. code-block:: python
 
     ns.setup_name('jasoncarver.eth', '0x5B2063246F2191f18F2675ceDB8b28102e957458')
 
@@ -150,7 +147,7 @@ determine what name points to it. Sometimes this is referred to as
 If you don't supply the address, :meth:`~ens.main.ENS.setup_name` will assume you want the
 address returned by :meth:`~ens.main.ENS.address`.
 
-::
+.. code-block:: python
 
     ns.setup_name('jasoncarver.eth')
 
@@ -159,7 +156,7 @@ call :meth:`~ens.main.ENS.setup_address` for you.
 
 Wait for the transaction to be mined, then:
 
-::
+.. code-block:: python
 
     assert ns.name('0x5B2063246F2191f18F2675ceDB8b28102e957458') == 'jasoncarver.eth'
 
@@ -171,14 +168,14 @@ A list of supported fields can be found in the
 `ENS documentation <https://docs.ens.domains/contract-api-reference/publicresolver#get-text-data>`_.
 You'll need to setup the address first, and then the text can be set:
 
-::
+.. code-block:: python
 
     ns.setup_address('jasoncarver.eth', 0x5B2063246F2191f18F2675ceDB8b28102e957458)
     ns.set_text('jasoncarver.eth', 'url', 'https://example.com')
 
 A transaction dictionary can be passed as the last argument if desired:
 
-::
+.. code-block:: python
 
     transaction_dict = {'from': '0x123...'}
     ns.set_text('jasoncarver.eth', 'url', 'https://example.com', transaction_dict)
@@ -192,7 +189,7 @@ Read Text Metadata for an ENS Record
 
 Anyone can read the data from an ENS Record:
 
-::
+.. code-block:: python
 
     url = ns.get_text('jasoncarver.eth', 'url')
     assert url == 'https://example.com'

@@ -214,7 +214,7 @@ def ens_setup():
         reverse_registrar.address
     ).transact({'from': ens_key})
 
-    return ENS.fromWeb3(w3, ens_contract.address)
+    return ENS.from_web3(w3, ens_contract.address)
 
 
 @pytest.fixture

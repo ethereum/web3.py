@@ -96,7 +96,7 @@ def parse_registry_uri(uri: str) -> RegistryURI:
         address_or_ens, chain_id = parsed_uri.netloc.split(":")
     else:
         address_or_ens, chain_id = parsed_uri.netloc, "1"
-    ns = ENS.fromWeb3(w3)
+    ns = ENS.from_web3(w3)
     if is_address(address_or_ens):
         address = address_or_ens
         ens = None
