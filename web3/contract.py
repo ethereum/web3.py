@@ -1159,7 +1159,14 @@ class ContractEvent:
             event_name=cls.event_name)
 
     @combomethod
+    @deprecated_for('process_receipt')
     def processReceipt(
+        self, txn_receipt: TxReceipt, errors: EventLogErrorFlags = WARN
+    ) -> Iterable[EventData]:
+        return self.process_receipt(txn_receipt, errors)
+
+    @combomethod
+    def process_receipt(
         self, txn_receipt: TxReceipt, errors: EventLogErrorFlags = WARN
     ) -> Iterable[EventData]:
         return self._parse_logs(txn_receipt, errors)
