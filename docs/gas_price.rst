@@ -48,10 +48,10 @@ returns a higher gas price when the value of the transaction is higher than
     from web3 import Web3
 
     def value_based_gas_price_strategy(web3, transaction_params):
-        if transaction_params['value'] > Web3.toWei(1, 'ether'):
-            return Web3.toWei(20, 'gwei')
+        if transaction_params['value'] > Web3.to_wei(1, 'ether'):
+            return Web3.to_wei(20, 'gwei')
         else:
-            return Web3.toWei(5, 'gwei')
+            return Web3.to_wei(5, 'gwei')
 
 Selecting the gas price strategy
 --------------------------------

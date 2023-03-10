@@ -173,7 +173,7 @@ def unlockable_account(web3, unlockable_account_pw):
     web3.eth.send_transaction({
         'from': web3.eth.coinbase,
         'to': account,
-        'value': web3.toWei(10, 'ether'),
+        'value': web3.to_wei(10, 'ether'),
         'gas': 21000,
     })
     yield account
@@ -204,7 +204,7 @@ def funded_account_for_raw_txn(web3):
     web3.eth.send_transaction({
         'from': web3.eth.coinbase,
         'to': account,
-        'value': web3.toWei(10, 'ether'),
+        'value': web3.to_wei(10, 'ether'),
         'gas': 21000,
         'gas_price': 1,
     })

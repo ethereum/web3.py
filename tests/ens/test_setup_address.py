@@ -66,7 +66,7 @@ def test_set_address(ens, name, full_name, namehash_hex, TEST_ADDRESS):
     ens.setup_address(name, TEST_ADDRESS)
     assert is_same_address(ens.address(name), TEST_ADDRESS)
 
-    namehash = Web3.toBytes(hexstr=namehash_hex)
+    namehash = Web3.to_bytes(hexstr=namehash_hex)
     normal_name = ens.nameprep(full_name)
     assert is_same_address(ens.address(name), TEST_ADDRESS)
 

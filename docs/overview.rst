@@ -94,7 +94,7 @@ Encoding and Decoding Helpers
 -----------------------------
 
 - :meth:`Web3.is_encodable() <web3.w3.is_encodable>`
-- :meth:`Web3.toBytes() <web3.Web3.toBytes>`
+- :meth:`Web3.to_bytes() <web3.Web3.to_bytes>`
 - :meth:`Web3.to_hex() <web3.Web3.to_hex>`
 - :meth:`Web3.to_int() <web3.Web3.to_int>`
 - :meth:`Web3.to_json() <web3.Web3.to_json>`
@@ -112,8 +112,8 @@ Address Helpers
 Currency Conversions
 --------------------
 
-- :meth:`Web3.fromWei() <web3.Web3.fromWei>`
-- :meth:`Web3.toWei() <web3.Web3.toWei>`
+- :meth:`Web3.from_wei() <web3.Web3.from_wei>`
+- :meth:`Web3.to_wei() <web3.Web3.to_wei>`
 
 
 Cryptographic Hashing
