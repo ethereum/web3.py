@@ -27,7 +27,7 @@ The :meth:`web3.eth.Eth.filter` method can be used to set up filters for:
 
     .. code-block:: python
 
-        event_filter = mycontract.events.myEvent.createFilter(fromBlock='latest', argument_filters={'arg1':10})
+        event_filter = mycontract.events.myEvent.create_filter(fromBlock='latest', argument_filters={'arg1':10})
 
     Or built manually by supplying `valid filter params <https://github.com/ethereum/execution-apis/blob/bea0266c42919a2fb3ee524fb91e624a23bc17c5/src/schemas/filter.json#L28>`_:
 
@@ -129,15 +129,15 @@ Event Log Filters
 -----------------
 
 You can set up a filter for event logs using the web3.py contract api:
-:meth:`web3.contract.Contract.events.your_event_name.createFilter`, which provides some conveniences for
+:meth:`web3.contract.Contract.events.your_event_name.create_filter`, which provides some conveniences for
 creating event log filters. Refer to the following example:
 
     .. code-block:: python
 
-        event_filter = myContract.events.<event_name>.createFilter(fromBlock="latest", argument_filters={'arg1':10})
+        event_filter = myContract.events.<event_name>.create_filter(fromBlock="latest", argument_filters={'arg1':10})
         event_filter.get_new_entries()
 
-See :meth:`web3.contract.Contract.events.your_event_name.createFilter()` documentation for more information.
+See :meth:`web3.contract.Contract.events.your_event_name.create_filter()` documentation for more information.
 
 You can set up an event log filter like the one above with ``web3.eth.filter`` by supplying a
 dictionary containing the standard filter parameters. Assuming that ``arg1`` is indexed, the

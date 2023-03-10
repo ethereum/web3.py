@@ -1212,7 +1212,24 @@ class ContractEvent:
         return get_event_data(self.web3.codec, self.abi, log)
 
     @combomethod
+    @deprecated_for('create_filter')
     def createFilter(
+            self, *,  # PEP 3102
+            argument_filters: Optional[Dict[str, Any]] = None,
+            fromBlock: Optional[BlockIdentifier] = None,
+            toBlock: BlockIdentifier = "latest",
+            address: Optional[ChecksumAddress] = None,
+            topics: Optional[Sequence[Any]] = None) -> LogFilter:
+
+        return self.create_filter(
+            argument_filters=argument_filters,
+            fromBlock=fromBlock,
+            toBlock=toBlock,
+            address=address,
+            topics=topics)
+
+    @combomethod
+    def create_filter(
             self, *,  # PEP 3102
             argument_filters: Optional[Dict[str, Any]] = None,
             fromBlock: Optional[BlockIdentifier] = None,
@@ -1224,7 +1241,7 @@ class ContractEvent:
         :param filter_params: other parameters to limit the events
         """
         if fromBlock is None:
-            raise TypeError("Missing mandatory keyword argument to createFilter: fromBlock")
+            raise TypeError("Missing mandatory keyword argument to create_filter: fromBlock")
 
         if argument_filters is None:
             argument_filters = dict()
@@ -1288,7 +1305,7 @@ class ContractEvent:
                  ) -> Iterable[EventData]:
         """Get events for this contract instance using eth_getLogs API.
 
-        This is a stateless method, as opposed to createFilter.
+        This is a stateless method, as opposed to create_filter.
         It can be safely called against nodes which do not provide
         eth_newFilter API, like Infura nodes.
 
@@ -1508,13 +1525,13 @@ def check_for_forbidden_api_filter_arguments(
         _input = name_indexed_inputs[filter_name]
         if is_array_type(_input['type']):
             raise TypeError(
-                "createFilter no longer supports array type filter arguments. "
+                "create_filter no longer supports array type filter arguments. "
                 "see the build_filter method for filtering array type filters.")
         if is_list_like(filter_value) and is_dynamic_sized_type(_input['type']):
             raise TypeError(
-                "createFilter no longer supports setting filter argument options for dynamic sized "
-                "types. See the build_filter method for setting filters with the match_any "
-                "method.")
+                "create_filter no longer supports setting filter argument options for "
+                "dynamic sized types. See the build_filter method for setting filters "
+                "with the match_any method.")
 
 
 def call_contract_function(
