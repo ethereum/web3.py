@@ -604,7 +604,7 @@ def test_event_rich_log(
         assert len(processed_logs) == 1
         rich_log = processed_logs[0]
     elif not process_receipt:
-        rich_log = event_instance.processLog(txn_receipt['logs'][0])
+        rich_log = event_instance.process_log(txn_receipt['logs'][0])
     else:
         raise Exception('Unreachable!')
 
@@ -642,7 +642,7 @@ def test_event_rich_log_with_byte_args(
         assert len(processed_logs) == 1
         rich_log = processed_logs[0]
     elif not process_receipt:
-        rich_log = event_instance.processLog(txn_receipt['logs'][0])
+        rich_log = event_instance.process_log(txn_receipt['logs'][0])
     else:
         raise Exception('Unreachable!')
 
@@ -756,7 +756,7 @@ def test_single_log_processing_with_errors(
     event_instance = indexed_event_contract.events.LogSingleWithIndex()
 
     with pytest.raises(LogTopicError, match="Expected 1 log topics.  Got 0"):
-        event_instance.processLog(dup_txn_receipt['logs'][0])
+        event_instance.process_log(dup_txn_receipt['logs'][0])
 
 
 def test_get_all_entries_with_nested_tuple_event(web3, emitter):
@@ -779,3 +779,38 @@ def test_get_all_entries_with_nested_tuple_event(web3, emitter):
     assert log_entry.blockNumber == txn_receipt['blockNumber']
     assert log_entry.transactionIndex == txn_receipt['transactionIndex']
     assert is_same_address(log_entry.address, emitter.address)
+
+
+#
+# Deprecated
+#
+def test_processLog_is_deprecated(
+        web3,
+        emitter,
+        emitter_event_ids,
+        wait_for_transaction):
+
+    txn_hash = emitter.functions.logListArgs([b'13'], [b'54']).transact()
+    txn_receipt = wait_for_transaction(web3, txn_hash)
+
+    event_instance = emitter.events.LogListArgs()
+
+    with pytest.warns(
+        DeprecationWarning,
+        match="processLog is deprecated in favor of process_log"
+    ):
+        rich_log = event_instance.processLog(txn_receipt['logs'][0])
+
+    expected_args = {
+        'arg0': b'H\x7f\xad\xb3\x16zAS7\xa5\x0c\xfe\xe2%T\xb7\x17\x81p\xf04~\x8d(\x93\x8e\x19\x97k\xd9"1',  # noqa: E501
+        'arg1': [b'54']
+    }
+    assert rich_log['args'] == expected_args
+    assert rich_log.args == expected_args
+    for arg in expected_args:
+        assert getattr(rich_log.args, arg) == expected_args[arg]
+    assert rich_log['blockHash'] == txn_receipt['blockHash']
+    assert rich_log['blockNumber'] == txn_receipt['blockNumber']
+    assert rich_log['transactionIndex'] == txn_receipt['transactionIndex']
+    assert is_same_address(rich_log['address'], emitter.address)
+    assert rich_log['event'] == 'LogListArgs'

@@ -1196,7 +1196,12 @@ class ContractEvent:
             yield rich_log
 
     @combomethod
+    @deprecated_for('process_log')
     def processLog(self, log: HexStr) -> EventData:
+        return self.process_log(log)
+
+    @combomethod
+    def process_log(self, log: HexStr) -> EventData:
         return get_event_data(self.web3.codec, self.abi, log)
 
     @combomethod
@@ -1268,11 +1273,12 @@ class ContractEvent:
         return builder
 
     @combomethod
-    def getLogs(self,
-                argument_filters: Optional[Dict[str, Any]] = None,
-                fromBlock: Optional[BlockIdentifier] = None,
-                toBlock: Optional[BlockIdentifier] = None,
-                blockHash: Optional[HexBytes] = None) -> Iterable[EventData]:
+    def get_logs(self,
+                 argument_filters: Optional[Dict[str, Any]] = None,
+                 fromBlock: Optional[BlockIdentifier] = None,
+                 toBlock: Optional[BlockIdentifier] = None,
+                 blockHash: Optional[HexBytes] = None
+                 ) -> Iterable[EventData]:
         """Get events for this contract instance using eth_getLogs API.
 
         This is a stateless method, as opposed to createFilter.
@@ -1292,7 +1298,7 @@ class ContractEvent:
             from = max(mycontract.web3.eth.block_number - 10, 1)
             to = mycontract.web3.eth.block_number
 
-            events = mycontract.events.Transfer.getLogs(fromBlock=from, toBlock=to)
+            events = mycontract.events.Transfer.get_logs(fromBlock=from, toBlock=to)
 
             for e in events:
                 print(e["args"]["from"],
@@ -1366,6 +1372,15 @@ class ContractEvent:
 
         # Convert raw binary data to Python proxy objects as described by ABI
         return tuple(get_event_data(self.web3.codec, abi, entry) for entry in logs)
+
+    @combomethod
+    @deprecated_for('get_logs')
+    def getLogs(self,
+                argument_filters: Optional[Dict[str, Any]] = None,
+                fromBlock: Optional[BlockIdentifier] = None,
+                toBlock: Optional[BlockIdentifier] = None,
+                blockHash: Optional[HexBytes] = None) -> Iterable[EventData]:
+        return self.get_logs(argument_filters, fromBlock, toBlock, blockHash)
 
     @classmethod
     def factory(cls, class_name: str, **kwargs: Any) -> PropertyCheckingFactory:

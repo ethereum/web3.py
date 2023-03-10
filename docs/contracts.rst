@@ -877,7 +877,7 @@ Methods
         nodes would result in an error like:  ``ValueError: {'code': -32602, 'message': 'too many arguments, want at most 1'}``
 
 .. py:method:: ContractFunction.buildTransaction(transaction)
-  
+
     .. warning:: Deprecated: This method is deprecated in favor of :class:`~build_transaction`
 
 .. py:method:: ContractFunction.build_transaction(transaction)
@@ -1043,7 +1043,9 @@ For example:
        >>> assert processed_logs == ()
        True
 
-.. py:method:: ContractEvents.myEvent(*args, **kwargs).processLog(log)
+.. _process_log:
+
+.. py:method:: ContractEvents.myEvent(*args, **kwargs).process_log(log)
 
    Similar to processReceipt_, but only processes one log at a time, instead of a whole transaction receipt.
    Will return a single :ref:`Event Log Object <event-log-object>` if there are no errors encountered during processing. If an error is encountered during processing, it will be raised.
@@ -1053,7 +1055,7 @@ For example:
        >>> tx_hash = contract.functions.myFunction(12345).transact({'to':contract_address})
        >>> tx_receipt = w3.eth.get_transaction_receipt(tx_hash)
        >>> log_to_process = tx_receipt['logs'][0]
-       >>> processed_log = contract.events.myEvent().processLog(log_to_process)
+       >>> processed_log = contract.events.myEvent().process_log(log_to_process)
        >>> processed_log
        AttributeDict({
            'args': AttributeDict({}),
@@ -1065,6 +1067,14 @@ For example:
            'blockHash': HexBytes('0xd74c3e8bdb19337987b987aee0fa48ed43f8f2318edfc84e3a8643e009592a68'),
            'blockNumber': 3
        })
+
+
+.. py:method:: ContractEvents.myEvent(*args, **kwargs).processLog(log)
+   :noindex:
+
+   .. warning::
+     processLog has been deprecated in favor of
+     :ref:`ContractEvents.myEvent.process_log<process_log>`. It will be removed in v6.
 
 
 .. _event-log-object:
