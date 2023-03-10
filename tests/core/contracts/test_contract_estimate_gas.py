@@ -27,7 +27,7 @@ def math_contract(web3,
 
     assert deploy_receipt is not None
     contract_address = address_conversion_func(deploy_receipt['contractAddress'])
-    web3.isAddress(contract_address)
+    web3.is_address(contract_address)
 
     _math_contract = MathContract(address=contract_address)
     assert _math_contract.address == contract_address
@@ -51,7 +51,7 @@ def fallback_function_contract(web3,
 
     assert deploy_receipt is not None
     contract_address = address_conversion_func(deploy_receipt['contractAddress'])
-    web3.isAddress(contract_address)
+    web3.is_address(contract_address)
 
     _fallback_function_contract = fallback_contract(address=contract_address)
     assert _fallback_function_contract.address == contract_address
