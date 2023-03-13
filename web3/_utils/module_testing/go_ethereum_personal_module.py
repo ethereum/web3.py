@@ -156,7 +156,7 @@ class GoEthereumPersonalModuleTest:
             'to': unlockable_account_dual_type,
             'gas': Wei(21000),
             'value': Wei(1),
-            'gasPrice': web3.toWei(1, 'gwei'),
+            'gasPrice': web3.to_wei(1, 'gwei'),
         }
         txn_hash = web3.geth.personal.send_transaction(txn_params, unlockable_account_pw)
         assert txn_hash
@@ -180,7 +180,7 @@ class GoEthereumPersonalModuleTest:
             'to': unlockable_account_dual_type,
             'gas': Wei(21000),
             'value': Wei(1),
-            'gasPrice': web3.toWei(1, 'gwei'),
+            'gasPrice': web3.to_wei(1, 'gwei'),
         }
         with pytest.warns(DeprecationWarning):
             txn_hash = web3.geth.personal.sendTransaction(txn_params, unlockable_account_pw)

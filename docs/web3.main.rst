@@ -122,7 +122,7 @@ Encoding and Decoding Helpers
     .. warning:: Deprecated: This method is deprecated in favor of
        :meth:`~Web3.to_text`
 
-.. py:method:: Web3.toBytes(primitive=None, hexstr=None, text=None)
+.. py:method:: Web3.to_bytes(primitive=None, hexstr=None, text=None)
 
     Takes a variety of inputs and returns its bytes equivalent.
     Text gets encoded as UTF-8.
@@ -130,26 +130,32 @@ Encoding and Decoding Helpers
 
     .. code-block:: python
 
-        >>> Web3.toBytes(0)
+        >>> Web3.to_bytes(0)
         b'\x00'
-        >>> Web3.toBytes(0x000F)
+        >>> Web3.to_bytes(0x000F)
         b'\x0f'
-        >>> Web3.toBytes(b'')
+        >>> Web3.to_bytes(b'')
         b''
-        >>> Web3.toBytes(b'\x00\x0F')
+        >>> Web3.to_bytes(b'\x00\x0F')
         b'\x00\x0f'
-        >>> Web3.toBytes(False)
+        >>> Web3.to_bytes(False)
         b'\x00'
-        >>> Web3.toBytes(True)
+        >>> Web3.to_bytes(True)
         b'\x01'
-        >>> Web3.toBytes(hexstr='0x000F')
+        >>> Web3.to_bytes(hexstr='0x000F')
         b'\x00\x0f'
-        >>> Web3.toBytes(hexstr='000F')
+        >>> Web3.to_bytes(hexstr='000F')
         b'\x00\x0f'
-        >>> Web3.toBytes(text='')
+        >>> Web3.to_bytes(text='')
         b''
-        >>> Web3.toBytes(text='cowmö')
+        >>> Web3.to_bytes(text='cowmö')
         b'cowm\xc3\xb6'
+
+
+.. py:method:: Web3.toBytes(primitive=None, hexstr=None, text=None)
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+       :meth:`~Web3.to_bytes`
 
 
 .. py:method:: Web3.to_int(primitive=None, hexstr=None, text=None)
@@ -204,7 +210,7 @@ Encoding and Decoding Helpers
 Currency Conversions
 ~~~~~~~~~~~~~~~~~~~~~
 
-.. py:method:: Web3.toWei(value, currency)
+.. py:method:: Web3.to_wei(value, currency)
 
     Returns the value in the denomination specified by the ``currency`` argument
     converted to wei.
@@ -212,11 +218,17 @@ Currency Conversions
 
     .. code-block:: python
 
-        >>> Web3.toWei(1, 'ether')
+        >>> Web3.to_wei(1, 'ether')
         1000000000000000000
 
 
-.. py:method:: Web3.fromWei(value, currency)
+.. py:method:: Web3.toWei(value, currency)
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+       :meth:`~Web3.to_wei`
+
+
+.. py:method:: Web3.from_wei(value, currency)
 
     Returns the value in wei converted to the given currency. The value is returned
     as a ``Decimal`` to ensure precision down to the wei.
@@ -224,8 +236,14 @@ Currency Conversions
 
     .. code-block:: python
 
-        >>> Web3.fromWei(1000000000000000000, 'ether')
+        >>> Web3.from_wei(1000000000000000000, 'ether')
         Decimal('1')
+
+
+.. py:method:: Web3.fromWei(value, currency)
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+       :meth:`~Web3.from_wei`
 
 
 .. _overview_addresses:

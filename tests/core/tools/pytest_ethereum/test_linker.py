@@ -70,13 +70,13 @@ def test_linker_with_callback(escrow_deployer, w3):
         deploy(
             "Escrow",
             recipient,
-            transaction={"from": sender, "value": w3.toWei("1", "ether")},
+            transaction={"from": sender, "value": w3.to_wei("1", "ether")},
         ),
         run_python(callback_fn),
     )
     escrow_deployer.register_strategy("Escrow", escrow_strategy)
-    assert w3.eth.get_balance(recipient) == w3.toWei("1000000", "ether")
+    assert w3.eth.get_balance(recipient) == w3.to_wei("1000000", "ether")
     linked_escrow_package = escrow_deployer.deploy("Escrow")
     escrow_instance = linked_escrow_package.deployments.get_instance("Escrow")
     assert escrow_instance.functions.sender().call() == sender
-    assert w3.eth.get_balance(recipient) == w3.toWei("1000001", "ether")
+    assert w3.eth.get_balance(recipient) == w3.to_wei("1000001", "ether")

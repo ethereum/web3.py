@@ -145,7 +145,7 @@ You might have produced the signed_message locally, as in
     # Remix / web3.js expect r and s to be encoded to hex
     # This convenience method will do the pad & hex for us:
     >>> def to_32byte_hex(val):
-    ...   return Web3.to_hex(Web3.toBytes(val).rjust(32, b'\0'))
+    ...   return Web3.to_hex(Web3.to_bytes(val).rjust(32, b'\0'))
 
     >>> ec_recover_args = (msghash, v, r, s) = (
     ...   Web3.to_hex(signed_message.messageHash),
@@ -184,7 +184,7 @@ this will prepare it for Solidity:
     # ecrecover in Solidity expects the signature to be split into v as a uint8,
     #   and r, s as a bytes32
     # Remix / web3.js expect r and s to be encoded to hex
-    >>> sig = Web3.toBytes(hexstr=hex_signature)
+    >>> sig = Web3.to_bytes(hexstr=hex_signature)
     >>> v, hex_r, hex_s = Web3.to_int(sig[-1]), Web3.to_hex(sig[:32]), Web3.to_hex(sig[32:64])
 
     # ecrecover in Solidity takes the arguments in order = (msghash, v, r, s)
@@ -306,8 +306,8 @@ To sign a transaction locally that will invoke a smart contract:
     ... ).build_transaction({
     ...     'chainId': 1,
     ...     'gas': 70000,
-    ...     'maxFeePerGas': w3.toWei('2', 'gwei'),
-    ...     'maxPriorityFeePerGas': w3.toWei('1', 'gwei'),
+    ...     'maxFeePerGas': w3.to_wei('2', 'gwei'),
+    ...     'maxPriorityFeePerGas': w3.to_wei('1', 'gwei'),
     ...     'nonce': nonce,
     ... })
 

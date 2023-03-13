@@ -57,7 +57,7 @@ def test_set_text_pass_in_transaction_dict(ens):
         'tester.eth',
         'avatar',
         'example.jpeg',
-        transact={'gasPrice': Web3.toWei(100, 'gwei')}
+        transact={'gasPrice': Web3.to_wei(100, 'gwei')}
     )
     assert ens.get_text('tester.eth', 'url') == 'http://example.com'
     assert ens.get_text('tester.eth', 'avatar') == 'example.jpeg'

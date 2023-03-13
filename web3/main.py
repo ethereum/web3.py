@@ -173,6 +173,14 @@ class Web3:
     # Encoding and Decoding
     @staticmethod
     @wraps(to_bytes)
+    def to_bytes(
+        primitive: Primitives = None, hexstr: HexStr = None, text: str = None
+    ) -> bytes:
+        return to_bytes(primitive, hexstr, text)
+
+    @staticmethod
+    @deprecated_for("to_bytes")
+    @wraps(to_bytes)
     def toBytes(
         primitive: Primitives = None, hexstr: HexStr = None, text: str = None
     ) -> bytes:
@@ -237,10 +245,22 @@ class Web3:
     # Currency Utility
     @staticmethod
     @wraps(to_wei)
+    def to_wei(number: Union[int, float, str, decimal.Decimal], unit: str) -> Wei:
+        return cast(Wei, to_wei(number, unit))
+
+    @staticmethod
+    @wraps(from_wei)
+    def from_wei(number: int, unit: str) -> Union[int, decimal.Decimal]:
+        return from_wei(number, unit)
+
+    @staticmethod
+    @deprecated_for("to_wei")
+    @wraps(to_wei)
     def toWei(number: Union[int, float, str, decimal.Decimal], unit: str) -> Wei:
         return cast(Wei, to_wei(number, unit))
 
     @staticmethod
+    @deprecated_for("from_wei")
     @wraps(from_wei)
     def fromWei(number: int, unit: str) -> Union[int, decimal.Decimal]:
         return from_wei(number, unit)

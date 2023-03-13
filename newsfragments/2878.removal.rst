@@ -1,0 +1,1 @@
+snakecase and deprecate toBytes, toWei, fromWei

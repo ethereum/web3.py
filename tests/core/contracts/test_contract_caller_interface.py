@@ -43,8 +43,8 @@ def transaction_dict(web3, address):
     return {
         'from': address,
         'gas': 210000,
-        'maxFeePerGas': web3.toWei(1, 'gwei'),
-        'maxPriorityFeePerGas': web3.toWei(1, 'gwei'),
+        'maxFeePerGas': web3.to_wei(1, 'gwei'),
+        'maxPriorityFeePerGas': web3.to_wei(1, 'gwei'),
         'value': 12345,
     }
 
