@@ -1,1 +1,0 @@
-Deprecate ``isConnected`` in favor of ``is_connected``.

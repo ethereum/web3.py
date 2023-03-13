@@ -3,6 +3,53 @@ Release Notes
 
 .. towncrier release notes start
 
+v5.31.4 (2023-03-13)
+--------------------
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Include eth-tester installation note in quickstart (`#2754
+  <https://github.com/ethereum/web3.py/issues/2754>`__)
+- Remove survey banner image from docs after close of survey (`#2839
+  <https://github.com/ethereum/web3.py/issues/2839>`__)
+
+
+Deprecations and Removals
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Deprecate ``isConnected`` in favor of ``is_connected``. (`#2866
+  <https://github.com/ethereum/web3.py/issues/2866>`__)
+- Deprecate ``clientVersion`` in favor of ``client_version`` (`#2869
+  <https://github.com/ethereum/web3.py/issues/2869>`__)
+- deprecate and snakecase toJSON (`#2870
+  <https://github.com/ethereum/web3.py/issues/2870>`__)
+- deprecate and snakecase toText (`#2871
+  <https://github.com/ethereum/web3.py/issues/2871>`__)
+- Deprecate and snake_case ``processLog`` and ``getLogs`` (`#2872
+  <https://github.com/ethereum/web3.py/issues/2872>`__)
+- deprecate and snakecase toHex and toInt (`#2873
+  <https://github.com/ethereum/web3.py/issues/2873>`__)
+- deprecate and snakecase isAddress, isChecksumAddress, toChecksumAddress
+  (`#2874 <https://github.com/ethereum/web3.py/issues/2874>`__)
+- Deprecate ``Web3.solidityKeccak()`` in favor of the snaked_cased
+  ``Web3.solidity_keccak()``. Update the deprecation for
+  ``Web3.soliditySha3()`` to this snake_cased version as well. (`#2875
+  <https://github.com/ethereum/web3.py/issues/2875>`__)
+- Deprecate createFilter and processReceipt, in favor of create_filter and
+  process_receipt (`#2876 <https://github.com/ethereum/web3.py/issues/2876>`__)
+- Snake case and deprecate ``ENS.fromWeb3()`` method. (`#2877
+  <https://github.com/ethereum/web3.py/issues/2877>`__)
+- snakecase and deprecate toBytes, toWei, fromWei (`#2878
+  <https://github.com/ethereum/web3.py/issues/2878>`__)
+
+
+Miscellaneous changes
+~~~~~~~~~~~~~~~~~~~~~
+
+- `#2756 <https://github.com/ethereum/web3.py/issues/2756>`__
+
+
 v5.31.3 (2022-12-02)
 --------------------
 

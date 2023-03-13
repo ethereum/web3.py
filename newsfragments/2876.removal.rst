@@ -1,1 +1,0 @@
-Deprecate createFilter and processReceipt, in favor of create_filter and process_receipt

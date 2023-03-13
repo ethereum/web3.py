@@ -1,1 +1,0 @@
-Deprecate ``Web3.solidityKeccak()`` in favor of the snaked_cased ``Web3.solidity_keccak()``. Update the deprecation for ``Web3.soliditySha3()`` to this snake_cased version as well.
