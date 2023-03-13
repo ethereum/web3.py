@@ -6,6 +6,8 @@ Miner API
 The ``web3.geth.miner`` object exposes methods to interact with the RPC APIs under
 the ``miner_`` namespace that are supported by the Geth client.
 
+.. warning:: Deprecated: The Geth client deprecated the miner namespace because
+    mining was switched off during the proof-of-stake transition.
 
 Methods
 -------
