@@ -1,3 +1,4 @@
+import pytest
 import random
 
 from web3._utils.threads import (
@@ -8,7 +9,8 @@ from web3._utils.threads import (
 def test_txpool_inspect(web3_empty):
     web3 = web3_empty
 
-    web3.geth.miner.stop()
+    with pytest.warns(DeprecationWarning):
+        web3.geth.miner.stop()
 
     with Timeout(60) as timeout:
         while web3.eth.hashrate or web3.eth.mining:

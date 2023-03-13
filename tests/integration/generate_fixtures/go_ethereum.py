@@ -2,6 +2,7 @@ import contextlib
 import json
 import os
 import pprint
+import pytest
 import shutil
 import socket
 import subprocess
@@ -189,7 +190,8 @@ def verify_chain_state(w3, chain_data):
 
 
 def mine_block(w3):
-    origin_block_number = w3.eth.block_number
+    with pytest.warns(DeprecationWarning):
+        origin_block_number = w3.eth.block_number
 
     start_time = time.time()
     while time.time() < start_time + 120:

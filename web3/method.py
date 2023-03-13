@@ -214,17 +214,25 @@ class Method(Generic[TFunc]):
 
 class DeprecatedMethod:
     def __init__(
-        self, method: Method[Callable[..., Any]], old_name: str, new_name: str
+        self,
+        method: Method[Callable[..., Any]],
+        old_name: str,
+        new_name: Optional[str] = None,
+        msg: Optional[str] = None,
     ) -> None:
         self.method = method
         self.old_name = old_name
         self.new_name = new_name
+        self.msg = msg
 
     def __get__(
         self, obj: Optional["Module"] = None, obj_type: Optional[Type["Module"]] = None
     ) -> Any:
-        warnings.warn(
-            f"{self.old_name} is deprecated in favor of {self.new_name}",
-            category=DeprecationWarning,
-        )
+        if self.msg is not None:
+            warnings.warn(self.msg)
+        else:
+            warnings.warn(
+                f"{self.old_name} is deprecated in favor of {self.new_name}",
+                category=DeprecationWarning,
+            )
         return self.method.__get__(obj, obj_type)

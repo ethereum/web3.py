@@ -1,5 +1,6 @@
 import contextlib
 import os
+import pytest
 import shutil
 import signal
 import socket
@@ -210,7 +211,8 @@ def get_process(run_command):
 
 
 def mine_block(w3):
-    origin_block_number = w3.eth.block_number
+    with pytest.warns(DeprecationWarning):
+        origin_block_number = w3.eth.block_number
 
     start_time = time.time()
     while time.time() < start_time + 120:
