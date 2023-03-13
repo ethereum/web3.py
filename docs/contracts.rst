@@ -300,9 +300,9 @@ Each Contract Factory exposes the following methods.
         >>> contract_data = token_contract.constructor(web3.eth.coinbase, 12345).build_transaction(transaction)
         >>> web3.eth.send_transaction(contract_data)
 
-.. _contract_createFilter:
+.. _contract_create_filter:
 
-.. py:classmethod:: Contract.events.your_event_name.createFilter(fromBlock=block, toBlock=block, \
+.. py:classmethod:: Contract.events.your_event_name.create_filter(fromBlock=block, toBlock=block, \
                     argument_filters={"arg1": "value"}, topics=[])
 
     Creates a new event filter, an instance of :py:class:`web3.utils.filters.LogFilter`.
@@ -312,6 +312,12 @@ Each Contract Factory exposes the following methods.
     - ``address`` optional. Defaults to the contract address. The filter matches the event logs emanating from ``address``.
     - ``argument_filters``, optional. Expects a dictionary of argument names and values. When provided event logs are filtered for the event argument values. Event arguments can be both indexed or unindexed. Indexed values with be translated to their corresponding topic arguments. Unindexed arguments will be filtered using a regular expression.
     - ``topics`` optional, accepts the standard JSON-RPC topics argument.  See the JSON-RPC documentation for `eth_newFilter <https://github.com/ethereum/wiki/wiki/JSON-RPC#eth_newfilter>`_ more information on the ``topics`` parameters.
+
+.. py:classmethod:: Contract.events.your_event_name.createFilter(fromBlock=block, toBlock=block, \
+                    argument_filters={"arg1": "value"}, topics=[])
+
+   .. warning:: Deprecated: ``createFilter`` has been deprecated in favor of
+      :ref:`Contract.events.your_event_name.create_filter<contract_create_filter>`
 
 .. py:classmethod:: Contract.events.your_event_name.build_filter()
 
@@ -339,7 +345,6 @@ Each Contract Factory exposes the following methods.
         filter_builder = myContract.events.myEvent.build_filter()
         filter_builder.fromBlock = "latest"
         filter_builder.fromBlock = 0  # raises a ValueError
-
 
 .. py:classmethod:: Contract.deploy(transaction=None, args=None)
 
@@ -968,25 +973,25 @@ For example:
         myContract = web3.eth.contract(address=contract_address, abi=contract_abi)
         tx_hash = myContract.functions.myFunction().transact()
         receipt = web3.eth.get_transaction_receipt(tx_hash)
-        myContract.events.myEvent().processReceipt(receipt)
+        myContract.events.myEvent().process_receipt(receipt)
 
 :py:class:`ContractEvent` provides methods to interact with contract events. Positional and keyword arguments supplied to the contract event subclass will be used to find the contract event by signature.
 
-.. _processReceipt:
+.. _process_receipt:
 
-.. py:method:: ContractEvents.myEvent(*args, **kwargs).processReceipt(transaction_receipt, errors=WARN)
+.. py:method:: ContractEvents.myEvent(*args, **kwargs).process_receipt(transaction_receipt, errors=WARN)
    :noindex:
 
    Extracts the pertinent logs from a transaction receipt.
 
-   If there are no errors, ``processReceipt`` returns a tuple of :ref:`Event Log Objects <event-log-object>`, emitted from the event (e.g. ``myEvent``),
+   If there are no errors, ``process_receipt`` returns a tuple of :ref:`Event Log Objects <event-log-object>`, emitted from the event (e.g. ``myEvent``),
    with decoded ouput.
 
    .. code-block:: python
 
        >>> tx_hash = contract.functions.myFunction(12345).transact({'to':contract_address})
        >>> tx_receipt = w3.eth.get_transaction_receipt(tx_hash)
-       >>> rich_logs = contract.events.myEvent().processReceipt(tx_receipt)
+       >>> rich_logs = contract.events.myEvent().process_receipt(tx_receipt)
        >>> rich_logs[0]['args']
        {'myArg': 12345}
 
@@ -1003,7 +1008,7 @@ For example:
 
        >>> tx_hash = contract.functions.myFunction(12345).transact({'to':contract_address})
        >>> tx_receipt = w3.eth.get_transaction_receipt(tx_hash)
-       >>> processed_logs = contract.events.myEvent().processReceipt(tx_receipt)
+       >>> processed_logs = contract.events.myEvent().process_receipt(tx_receipt)
        >>> processed_logs
        (
           AttributeDict({
@@ -1021,7 +1026,7 @@ For example:
 
        # Or, if there were errors encountered during processing:
        >>> from web3.logs import STRICT, IGNORE, DISCARD, WARN
-       >>> processed_logs = contract.events.myEvent().processReceipt(tx_receipt, errors=IGNORE)
+       >>> processed_logs = contract.events.myEvent().process_receipt(tx_receipt, errors=IGNORE)
        >>> processed_logs
        (
            AttributeDict({
@@ -1039,15 +1044,21 @@ For example:
                'errors': LogTopicError('Expected 1 log topics.  Got 0')})
           })
        )
-       >>> processed_logs = contract.events.myEvent().processReceipt(tx_receipt, errors=DISCARD)
+       >>> processed_logs = contract.events.myEvent().process_receipt(tx_receipt, errors=DISCARD)
        >>> assert processed_logs == ()
        True
+
+.. py:method:: ContractEvents.myEvent(*args, **kwargs).processReceipt(transaction_receipt, errors=WARN)
+   :noindex:
+
+   .. warning:: Deprecation: processReceipt is deprecated in favor of
+      :ref:`ContractEvents.myEvent.process_receipt<process_receipt>`
 
 .. _process_log:
 
 .. py:method:: ContractEvents.myEvent(*args, **kwargs).process_log(log)
 
-   Similar to processReceipt_, but only processes one log at a time, instead of a whole transaction receipt.
+   Similar to process_receipt_, but only processes one log at a time, instead of a whole transaction receipt.
    Will return a single :ref:`Event Log Object <event-log-object>` if there are no errors encountered during processing. If an error is encountered during processing, it will be raised.
 
    .. code-block:: python
@@ -1097,7 +1108,7 @@ Event Log Object
     * ``blockNumber``: Number - the block number where this log was in. null
       when it's pending.
 
-.. testsetup:: createFilter
+.. testsetup:: create_filter
 
     from web3 import Web3
     from hexbytes import HexBytes
@@ -1120,9 +1131,9 @@ Event Log Object
     tx_hash = contract.functions.transfer(alice, 10).transact({'gas': 899000, 'gasPrice': Web3.toWei(1, 'gwei')})
     tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
 
-.. doctest:: createFilter
+.. doctest:: create_filter
 
-    >>> transfer_filter = my_token_contract.events.Transfer.createFilter(fromBlock="0x0", argument_filters={'from': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf'})
+    >>> transfer_filter = my_token_contract.events.Transfer.create_filter(fromBlock="0x0", argument_filters={'from': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf'})
     >>> transfer_filter.get_new_entries()
     [AttributeDict({'args': AttributeDict({'from': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf',
      'to': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf',

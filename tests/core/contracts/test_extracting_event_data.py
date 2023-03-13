@@ -600,7 +600,7 @@ def test_event_rich_log(
     event_instance = emitter.events[event_name]()
 
     if process_receipt:
-        processed_logs = event_instance.processReceipt(txn_receipt)
+        processed_logs = event_instance.process_receipt(txn_receipt)
         assert len(processed_logs) == 1
         rich_log = processed_logs[0]
     elif not process_receipt:
@@ -620,7 +620,7 @@ def test_event_rich_log(
 
     quiet_event = emitter.events['LogBytes']
     with pytest.warns(UserWarning, match=warning_msg):
-        empty_rich_log = quiet_event().processReceipt(txn_receipt)
+        empty_rich_log = quiet_event().process_receipt(txn_receipt)
         assert empty_rich_log == tuple()
 
 
@@ -638,7 +638,7 @@ def test_event_rich_log_with_byte_args(
     event_instance = emitter.events.LogListArgs()
 
     if process_receipt:
-        processed_logs = event_instance.processReceipt(txn_receipt)
+        processed_logs = event_instance.process_receipt(txn_receipt)
         assert len(processed_logs) == 1
         rich_log = processed_logs[0]
     elif not process_receipt:
@@ -670,7 +670,7 @@ def test_receipt_processing_with_discard_flag(
 
     event_instance = indexed_event_contract.events.LogSingleWithIndex()
 
-    returned_logs = event_instance.processReceipt(dup_txn_receipt, errors=DISCARD)
+    returned_logs = event_instance.process_receipt(dup_txn_receipt, errors=DISCARD)
     assert returned_logs == ()
 
 
@@ -682,7 +682,7 @@ def test_receipt_processing_with_ignore_flag(
         wait_for_transaction):
 
     event_instance = indexed_event_contract.events.LogSingleWithIndex()
-    returned_logs = event_instance.processReceipt(dup_txn_receipt, errors=IGNORE)
+    returned_logs = event_instance.process_receipt(dup_txn_receipt, errors=IGNORE)
     assert len(returned_logs) == 2
 
     # Check that the correct error is appended to the log
@@ -711,7 +711,7 @@ def test_receipt_processing_with_warn_flag(
     event_instance = indexed_event_contract.events.LogSingleWithIndex()
 
     with pytest.warns(UserWarning, match='Expected 1 log topics.  Got 0'):
-        returned_logs = event_instance.processReceipt(dup_txn_receipt, errors=WARN)
+        returned_logs = event_instance.process_receipt(dup_txn_receipt, errors=WARN)
         assert len(returned_logs) == 0
 
 
@@ -723,7 +723,7 @@ def test_receipt_processing_with_strict_flag(
     event_instance = indexed_event_contract.events.LogSingleWithIndex()
 
     with pytest.raises(LogTopicError, match="Expected 1 log topics.  Got 0"):
-        event_instance.processReceipt(dup_txn_receipt, errors=STRICT)
+        event_instance.process_receipt(dup_txn_receipt, errors=STRICT)
 
 
 def test_receipt_processing_with_invalid_flag(
@@ -734,7 +734,7 @@ def test_receipt_processing_with_invalid_flag(
     event_instance = indexed_event_contract.events.LogSingleWithIndex()
 
     with pytest.raises(AttributeError, match="Error flag must be one of: "):
-        event_instance.processReceipt(dup_txn_receipt, errors='not-a-flag')
+        event_instance.process_receipt(dup_txn_receipt, errors='not-a-flag')
 
 
 def test_receipt_processing_with_no_flag(
@@ -745,7 +745,7 @@ def test_receipt_processing_with_no_flag(
     event_instance = indexed_event_contract.events.LogSingleWithIndex()
 
     with pytest.warns(UserWarning, match='Expected 1 log topics.  Got 0'):
-        returned_log = event_instance.processReceipt(dup_txn_receipt)
+        returned_log = event_instance.process_receipt(dup_txn_receipt)
         assert len(returned_log) == 0
 
 
@@ -760,7 +760,7 @@ def test_single_log_processing_with_errors(
 
 
 def test_get_all_entries_with_nested_tuple_event(web3, emitter):
-    struct_args_filter = emitter.events.LogStructArgs.createFilter(fromBlock=0)
+    struct_args_filter = emitter.events.LogStructArgs.create_filter(fromBlock=0)
 
     tx_hash = emitter.functions.logStruct(1, (2, 3, (4, ))).transact({'gas': 100000})
     web3.eth.wait_for_transaction_receipt(tx_hash)
@@ -801,6 +801,38 @@ def test_processLog_is_deprecated(
     ):
         rich_log = event_instance.processLog(txn_receipt['logs'][0])
 
+    expected_args = {
+        'arg0': b'H\x7f\xad\xb3\x16zAS7\xa5\x0c\xfe\xe2%T\xb7\x17\x81p\xf04~\x8d(\x93\x8e\x19\x97k\xd9"1',  # noqa: E501
+        'arg1': [b'54']
+    }
+    assert rich_log['args'] == expected_args
+    assert rich_log.args == expected_args
+    for arg in expected_args:
+        assert getattr(rich_log.args, arg) == expected_args[arg]
+    assert rich_log['blockHash'] == txn_receipt['blockHash']
+    assert rich_log['blockNumber'] == txn_receipt['blockNumber']
+    assert rich_log['transactionIndex'] == txn_receipt['transactionIndex']
+    assert is_same_address(rich_log['address'], emitter.address)
+    assert rich_log['event'] == 'LogListArgs'
+
+
+def test_processReceipt_emits_deprecation_warning(
+        web3,
+        emitter,
+        wait_for_transaction):
+
+    txn_hash = emitter.functions.logListArgs([b'13'], [b'54']).transact()
+    txn_receipt = wait_for_transaction(web3, txn_hash)
+
+    event_instance = emitter.events.LogListArgs()
+
+    with pytest.warns(
+        DeprecationWarning,
+        match='processReceipt is deprecated in favor of process_receipt'
+    ):
+        processed_logs = event_instance.processReceipt(txn_receipt)
+    assert len(processed_logs) == 1
+    rich_log = processed_logs[0]
     expected_args = {
         'arg0': b'H\x7f\xad\xb3\x16zAS7\xa5\x0c\xfe\xe2%T\xb7\x17\x81p\xf04~\x8d(\x93\x8e\x19\x97k\xd9"1',  # noqa: E501
         'arg1': [b'54']

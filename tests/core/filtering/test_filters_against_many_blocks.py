@@ -52,7 +52,7 @@ def test_event_filter_new_events(
         builder.fromBlock = 'latest'
         event_filter = builder.deploy(web3)
     else:
-        event_filter = emitter.events.LogNoArguments().createFilter(fromBlock='latest')
+        event_filter = emitter.events.LogNoArguments().create_filter(fromBlock='latest')
 
     expected_match_counter = 0
 
@@ -138,7 +138,7 @@ def test_event_filter_new_events_many_deployed_contracts(
         builder.fromBlock = "latest"
         event_filter = builder.deploy(web3)
     else:
-        event_filter = emitter.events.LogNoArguments().createFilter(fromBlock='latest')
+        event_filter = emitter.events.LogNoArguments().create_filter(fromBlock='latest')
 
     expected_match_counter = 0
 
