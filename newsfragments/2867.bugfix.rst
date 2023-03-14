@@ -1,1 +1,0 @@
-fix dict_to_namedtuple unable to handle empty dict as input

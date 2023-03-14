@@ -6,6 +6,16 @@ v6 Breaking Changes Summary
 
 .. towncrier release notes start
 
+v6.0.0 (2023-03-14)
+-------------------
+
+Bugfixes
+~~~~~~~~
+
+- fix dict_to_namedtuple unable to handle empty dict as input (`#2867
+  <https://github.com/ethereum/web3.py/issues/2867>`__)
+
+
 v6.0.0-beta.11 (2023-02-24)
 ---------------------------
 
