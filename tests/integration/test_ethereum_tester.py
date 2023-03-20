@@ -586,6 +586,16 @@ class TestEthereumTesterEthModule(EthModuleTest):
     ) -> None:
         super().test_eth_getBlockByNumber_finalized(w3, empty_block)
 
+    def test_eth_get_balance_with_block_identifier(self, w3: "Web3") -> None:
+        w3.testing.mine()
+        miner_address = w3.eth.get_block(1)["miner"]
+        genesis_balance = w3.eth.get_balance(miner_address, 0)
+        later_balance = w3.eth.get_balance(miner_address, 1)
+
+        assert is_integer(genesis_balance)
+        assert is_integer(later_balance)
+        assert later_balance > genesis_balance
+
 
 class TestEthereumTesterNetModule(NetModuleTest):
     pass
