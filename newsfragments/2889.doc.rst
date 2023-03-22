@@ -1,0 +1,1 @@
+Add doc blurb about multiple HTTPProviders with the same URL
