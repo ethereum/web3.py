@@ -21,12 +21,9 @@ extras_require = {
     "docs": [
         "py-geth>=3.11.0",
         "py-solc-x>=1.1.1",
-        "pytest>=6.2.5",
         "sphinx>=5.0.0",
         "sphinx_rtd_theme>=1.0.0",
         "towncrier>=21,<22",
-        "urllib3",
-        "wheel",
     ],
     "dev": [
         "bumpversion",
