@@ -469,7 +469,9 @@ PYTHONIC_REQUEST_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
         to_hex_if_integer,
         0,
     ),
-    RPC.eth_getCode: apply_formatter_at_index(to_hex_if_integer, 1),
+    RPC.eth_getCode: compose(
+        apply_formatter_at_index(to_hex_if_integer, 1)
+    ),
     RPC.eth_getStorageAt: apply_formatter_at_index(to_hex_if_integer, 2),
     RPC.eth_getTransactionByBlockNumberAndIndex: compose(
         apply_formatter_at_index(to_hex_if_integer, 0),
@@ -672,6 +674,8 @@ PYTHONIC_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
         common_tracing_result_formatter
     ),
     RPC.trace_filter: trace_list_result_formatter,
+    # Subscriptions (websockets)
+    RPC.eth_subscribe: apply_formatter_if(is_not_null, block_formatter),
 }
 
 METHOD_NORMALIZERS: Dict[RPCEndpoint, Callable[..., Any]] = {

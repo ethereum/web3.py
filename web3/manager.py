@@ -1,3 +1,4 @@
+import asyncio
 import logging
 from typing import (
     TYPE_CHECKING,
@@ -11,12 +12,16 @@ from typing import (
     cast,
 )
 
+from websockets.exceptions import ConnectionClosedOK
+from websockets.legacy.client import WebSocketClientProtocol
+
 from eth_utils.toolz import (
     pipe,
 )
 from hexbytes import (
     HexBytes,
 )
+from web3._utils.caching import generate_cache_key
 
 from web3.datastructures import (
     NamedElementOnion,
@@ -38,6 +43,7 @@ from web3.middleware import (
     name_to_address_middleware,
     validation_middleware,
 )
+from web3.module import apply_result_formatters
 from web3.providers import (
     AutoProvider,
 )
@@ -58,6 +64,7 @@ if TYPE_CHECKING:
     from web3.providers import (  # noqa: F401
         AsyncBaseProvider,
         BaseProvider,
+        PersistentConnectionProvider,
     )
 
 
@@ -85,6 +92,57 @@ def apply_null_result_formatters(
         return formatted_resp
     else:
         return response
+
+
+class AsyncPersistentRecvStream:
+    def __init__(self, provider: "PersistentConnectionProvider", *args, **kwargs):
+        self.provider = provider
+        super().__init__(*args, **kwargs)
+
+    async def __aiter__(self):
+        provider = self.provider
+        try:
+            while True:
+                response = await self.provider.ws.recv()
+                response = provider.decode_rpc_response(response)
+                if "method" in response and response["method"] == "eth_subscription":
+                    assert "params" in response
+                    assert "subscription" in response["params"]
+                    cache_key = generate_cache_key(response["params"]["subscription"])
+                    request_info = provider._request_info_transient_cache.get(cache_key)
+                else:
+                    cache_key = generate_cache_key(int(response["id"]))
+                    request_info = provider._request_info_transient_cache.pop(cache_key)
+
+                if cache_key is None:
+                    yield response
+
+                import pdb
+
+                pdb.set_trace()
+                if (
+                    request_info["method"].json_rpc_method == "eth_subscribe"
+                    and "result" in response.keys()
+                ):
+                    cache_key = generate_cache_key(response["result"])
+                    if cache_key not in provider._request_info_transient_cache:
+                        provider._request_info_transient_cache[cache_key] = request_info
+
+                result_formatters, error_formatters, null_formatters = request_info[
+                    "response_formatters"
+                ]
+                formatter_response = RequestManager.formatted_response(
+                    response,
+                    request_info["params"],
+                    error_formatters,
+                    null_formatters,
+                )
+                try:
+                    yield apply_result_formatters(result_formatters, formatter_response)
+                except Exception:
+                    yield response
+        except ConnectionClosedOK:
+            return
 
 
 class RequestManager:
@@ -183,7 +241,6 @@ class RequestManager:
             cast(AsyncMiddlewareOnion, self.middleware_onion),
         )
         self.logger.debug(f"Making request. Method: {method}")
-
         return await request_func(method, params)
 
     @staticmethod
@@ -212,6 +269,9 @@ class RequestManager:
             return response["result"]
         elif response.get("result") is not None:
             return response["result"]
+        elif response.get("params") is not None:
+            assert response["params"].get("result") is not None
+            return response["params"]["result"]
         else:
             raise BadResponseFormat(
                 "The response was in an unexpected format and unable to be parsed. "
@@ -247,3 +307,61 @@ class RequestManager:
         return self.formatted_response(
             response, params, error_formatters, null_result_formatters
         )
+
+    # persistent connection
+    async def ws_send(
+        self,
+        method: Union[RPCEndpoint, Callable[..., RPCEndpoint]],
+        params: Any,
+    ) -> None:
+        provider = cast("PersistentConnectionProvider", self._provider)
+        request_func = await provider.request_func(
+            cast("AsyncWeb3", self.w3),
+            cast(AsyncMiddlewareOnion, self.middleware_onion),
+        )
+        self.logger.debug(
+            "Making request to open websocket connection - "
+            f"uri: {provider.endpoint_uri}, method: {method}"
+        )
+        await request_func(method, params)
+
+    async def ws_recv(self) -> Any:
+        provider = cast("PersistentConnectionProvider", self._provider)
+        response = await asyncio.wait_for(
+            provider.ws.recv(),
+            timeout=provider.websocket_timeout,
+        )
+        response = provider.decode_rpc_response(response)
+
+        if "method" in response and response["method"] == "eth_subscribe":
+            assert "params" in response
+            assert "subscription" in response["params"]
+            cache_key = generate_cache_key(response["params"]["subscription"])
+            request_info = provider._request_info_transient_cache.get(cache_key)
+        else:
+            cache_key = generate_cache_key(int(response["id"]))
+            request_info = provider._request_info_transient_cache.pop(cache_key)
+
+        if cache_key is None:
+            self.logger.debug("No cache key found for response")
+            return response
+
+        if request_info["method"] == "eth_subscribe":
+            cache_key = generate_cache_key(response["result"])
+            if cache_key not in provider._request_info_transient_cache:
+                provider._request_info_transient_cache[cache_key] = request_info
+
+        result_formatters, error_formatters, null_formatters = request_info[
+            "response_formatters"
+        ]
+        formatter_response = self.formatted_response(
+            response,
+            request_info["params"],
+            error_formatters,
+            null_formatters,
+        )
+        return apply_result_formatters(result_formatters, formatter_response)
+
+    def persistent_recv_stream(self) -> "AsyncPersistentRecvStream":
+        provider = cast("PersistentConnectionProvider", self._provider)
+        return AsyncPersistentRecvStream(provider)

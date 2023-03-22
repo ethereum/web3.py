@@ -140,6 +140,10 @@ class RPCResponse(TypedDict, total=False):
     jsonrpc: Literal["2.0"]
     result: Any
 
+    # eth_subscribe
+    method: str
+    params: Dict[str, Any]
+
 
 Middleware = Callable[[Callable[[RPCEndpoint, Any], RPCResponse], "Web3"], Any]
 AsyncMiddlewareCoroutine = Callable[

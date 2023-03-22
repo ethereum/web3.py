@@ -62,12 +62,25 @@ async def async_attrdict_middleware(
 
     async def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
         response = await make_request(method, params)
-
-        if "result" in response:
-            return assoc(
-                response, "result", AttributeDict.recursive(response["result"])
-            )
-        else:
-            return response
+        if response:
+            return handle_response(response)
 
     return middleware
+
+
+def handle_response(response):
+    if "result" in response:
+        return assoc(response, "result", AttributeDict.recursive(response["result"]))
+    elif "params" in response and "result" in response["params"]:
+        # this is a subscription response
+        return assoc(
+            response,
+            "params",
+            assoc(
+                response["params"],
+                "result",
+                AttributeDict.recursive(response["params"]["result"]),
+            ),
+        )
+    else:
+        return response
