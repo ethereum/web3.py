@@ -19,8 +19,6 @@ extras_require = {
         "types-protobuf==3.19.13",
     ],
     "docs": [
-        "py-geth>=3.11.0",
-        "py-solc-x>=1.1.1",
         "sphinx>=5.0.0",
         "sphinx_rtd_theme>=1.0.0",
         "towncrier>=21,<22",
