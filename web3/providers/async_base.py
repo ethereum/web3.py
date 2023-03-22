@@ -10,6 +10,7 @@ from typing import (
 )
 
 from eth_utils import (
+    is_text,
     to_bytes,
     to_text,
 )
@@ -94,17 +95,35 @@ class AsyncJSONBaseProvider(AsyncBaseProvider):
         self.request_counter = itertools.count()
 
     def encode_rpc_request(self, method: RPCEndpoint, params: Any) -> bytes:
+        request_id = next(self.request_counter)
         rpc_dict = {
             "jsonrpc": "2.0",
             "method": method,
             "params": params or [],
-            "id": next(self.request_counter),
+            "id": request_id,
         }
         encoded = FriendlyJsonSerde().json_encode(rpc_dict)
         return to_bytes(text=encoded)
 
+    def encode_rpc_request_with_id(
+        self,
+        method: RPCEndpoint,
+        params: Any,
+    ) -> Tuple[int, bytes]:
+        request_id = next(self.request_counter)
+        rpc_dict = {
+            "jsonrpc": "2.0",
+            "method": method,
+            "params": params or [],
+            "id": request_id,
+        }
+        encoded = FriendlyJsonSerde().json_encode(rpc_dict)
+        return request_id, to_bytes(text=encoded)
+
     def decode_rpc_response(self, raw_response: bytes) -> RPCResponse:
-        text_response = to_text(raw_response)
+        text_response = (
+            to_text(raw_response) if not is_text(raw_response) else raw_response
+        )
         return cast(RPCResponse, FriendlyJsonSerde().json_decode(text_response))
 
     async def is_connected(self, show_traceback: bool = False) -> bool:

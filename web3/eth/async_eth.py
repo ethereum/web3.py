@@ -651,6 +651,16 @@ class AsyncEth(BaseEth):
     async def uninstall_filter(self, filter_id: HexStr) -> bool:
         return await self._uninstall_filter(filter_id)
 
+    # eth_subscribe
+
+    _subscribe: Method[Callable[..., str]] = Method(
+        RPC.eth_subscribe,
+        mungers=[default_root_munger],
+    )
+
+    async def subscribe(self, subscription_type: str) -> Any:
+        return await self._subscribe(subscription_type)
+
     @overload
     def contract(self, address: None = None, **kwargs: Any) -> Type[AsyncContract]:
         ...

@@ -134,6 +134,17 @@ async def async_construct_formatting_middleware(
     )
 
 
+def handle_response(
+    response: RPCResponse,
+    method: RPCEndpoint,
+    **formatters: FormattersDict,
+) -> RPCResponse:
+    if response:
+        return _apply_response_formatters(
+            method=method, response=response, **formatters
+        )
+
+
 async def async_construct_web3_formatting_middleware(
     async_web3_formatters_builder: Callable[
         ["AsyncWeb3", RPCEndpoint], Coroutine[Any, Any, FormattersDict]
@@ -157,10 +168,6 @@ async def async_construct_web3_formatting_middleware(
                 formatter = request_formatters[method]
                 params = formatter(params)
             response = await make_request(method, params)
-
-            return _apply_response_formatters(
-                method=method, response=response, **formatters
-            )
 
         return middleware
 

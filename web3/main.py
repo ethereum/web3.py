@@ -1,5 +1,9 @@
+import asyncio
 import decimal
 import warnings
+
+import websockets
+from websockets.legacy.client import Connect, WebSocketClientProtocol
 
 from ens import (
     AsyncENS,
@@ -32,7 +36,7 @@ from typing import (
     Any,
     Coroutine,
     Dict,
-    List,
+    Generator, List,
     Optional,
     Sequence,
     Type,
@@ -118,6 +122,7 @@ from web3.providers.rpc import (
 from web3.providers.websocket import (
     WebsocketProvider,
 )
+from web3.providers.websocket_v2 import WebsocketProviderV2
 from web3.testing import (
     Testing,
 )
@@ -355,69 +360,6 @@ class BaseWeb3:
             self.attach_modules({"_pm": PM})
 
 
-class AsyncWeb3(BaseWeb3):
-    # mypy Types
-    eth: AsyncEth
-    net: AsyncNet
-    geth: AsyncGeth
-
-    def __init__(
-        self,
-        provider: Optional[AsyncBaseProvider] = None,
-        middlewares: Optional[Sequence[Any]] = None,
-        modules: Optional[Dict[str, Union[Type[Module], Sequence[Any]]]] = None,
-        external_modules: Optional[
-            Dict[str, Union[Type[Module], Sequence[Any]]]
-        ] = None,
-        ens: Union[AsyncENS, "Empty"] = empty,
-    ) -> None:
-        self.manager = self.RequestManager(self, provider, middlewares)
-        self.codec = ABICodec(build_strict_registry())
-
-        if modules is None:
-            modules = get_async_default_modules()
-
-        self.attach_modules(modules)
-
-        if external_modules is not None:
-            self.attach_modules(external_modules)
-
-        self.ens = ens
-
-    def is_connected(self, show_traceback: bool = False) -> Coroutine[Any, Any, bool]:
-        return self.provider.is_connected(show_traceback)
-
-    @property
-    def middleware_onion(self) -> AsyncMiddlewareOnion:
-        return cast(AsyncMiddlewareOnion, self.manager.middleware_onion)
-
-    @property
-    def provider(self) -> AsyncBaseProvider:
-        return cast(AsyncBaseProvider, self.manager.provider)
-
-    @provider.setter
-    def provider(self, provider: AsyncBaseProvider) -> None:
-        self.manager.provider = provider
-
-    @property
-    async def client_version(self) -> str:
-        return await self.manager.coro_request(RPC.web3_clientVersion, [])
-
-    @property
-    def ens(self) -> Union[AsyncENS, "Empty"]:
-        if self._ens is empty:
-            ns = AsyncENS.from_web3(self)
-            ns.w3 = self
-            return ns
-        return self._ens
-
-    @ens.setter
-    def ens(self, new_ens: Union[AsyncENS, "Empty"]) -> None:
-        if new_ens:
-            new_ens.w3 = self  # set self object reference for ``AsyncENS.w3``
-        self._ens = new_ens
-
-
 class Web3(BaseWeb3):
     # mypy types
     eth: Eth
@@ -447,7 +389,7 @@ class Web3(BaseWeb3):
 
         self.ens = ens
 
-    def is_connected(self, show_traceback: bool = False) -> bool:
+    def is_connected(self, show_traceback: bool = False) -> Coroutine[Any, Any, bool]:
         return self.provider.is_connected(show_traceback)
 
     @property
@@ -480,3 +422,109 @@ class Web3(BaseWeb3):
         if new_ens:
             new_ens.w3 = self  # set self object reference for ``ENS.w3``
         self._ens = new_ens
+
+
+class AsyncWeb3(BaseWeb3):
+    # mypy Types
+    eth: AsyncEth
+    net: AsyncNet
+    geth: AsyncGeth
+
+    def __init__(
+        self,
+        provider: Optional[AsyncBaseProvider] = None,
+        middlewares: Optional[Sequence[Any]] = None,
+        modules: Optional[Dict[str, Union[Type[Module], Sequence[Any]]]] = None,
+        external_modules: Optional[
+            Dict[str, Union[Type[Module], Sequence[Any]]]
+        ] = None,
+        ens: Union[AsyncENS, "Empty"] = empty,
+        **kwargs: Any,
+    ) -> None:
+        self.manager = self.RequestManager(self, provider, middlewares)
+        self.codec = ABICodec(build_strict_registry())
+
+        if modules is None:
+            modules = get_async_default_modules()
+
+        self.attach_modules(modules)
+
+        if external_modules is not None:
+            self.attach_modules(external_modules)
+
+        self.ens = ens
+
+    def is_connected(self, show_traceback: bool = False) -> bool:
+        return self.provider.is_connected(show_traceback)
+
+    @property
+    def middleware_onion(self) -> AsyncMiddlewareOnion:
+        return cast(AsyncMiddlewareOnion, self.manager.middleware_onion)
+
+    @property
+    def provider(self) -> AsyncBaseProvider:
+        return cast(AsyncBaseProvider, self.manager.provider)
+
+    @provider.setter
+    def provider(self, provider: AsyncBaseProvider) -> None:
+        self.manager.provider = provider
+
+    @property
+    async def client_version(self) -> str:
+        return await self.manager.coro_request(RPC.web3_clientVersion, [])
+
+    @property
+    def ens(self) -> Union[AsyncENS, "Empty"]:
+        if self._ens is empty:
+            ns = AsyncENS.from_web3(self)
+            ns.w3 = self
+            return ns
+        return self._ens
+
+    @ens.setter
+    def ens(self, new_ens: Union[AsyncENS, "Empty"]) -> None:
+        if new_ens:
+            new_ens.w3 = self  # set self object reference for ``AsyncENS.w3``
+        self._ens = new_ens
+
+    @staticmethod
+    def websocket_connection(
+        provider: WebsocketProviderV2,
+        middlewares: Optional[Sequence[Any]] = None,
+        modules: Optional[Dict[str, Union[Type[Module], Sequence[Any]]]] = None,
+        external_modules: Optional[
+            Dict[str, Union[Type[Module], Sequence[Any]]]
+        ] = None,
+        ens: Union[AsyncENS, "Empty"] = empty,
+    ) -> "_PersistentWeb3":
+        """
+        Establish a  persistent connection via websockets by using a websocket provider.
+        """
+        return _PersistentWeb3(
+            provider,
+            middlewares,
+            modules,
+            external_modules,
+            ens,
+        )
+
+
+class _PersistentWeb3(AsyncWeb3):
+    def __init__(
+        self,
+        provider: WebsocketProviderV2 = None,
+        middlewares: Optional[Sequence[Any]] = None,
+        modules: Optional[Dict[str, Union[Type[Module], Sequence[Any]]]] = None,
+        external_modules: Optional[
+            Dict[str, Union[Type[Module], Sequence[Any]]]
+        ] = None,
+        ens: Union[AsyncENS, "Empty"] = empty,
+    ) -> None:
+        AsyncWeb3.__init__(self, provider, middlewares, modules, external_modules, ens)
+
+    async def __aenter__(self):
+        await self.provider.connect()  # type: ignore
+        return self
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        await self.provider.disconnect()   # type: ignore

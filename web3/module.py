@@ -1,11 +1,13 @@
+from copy import copy
 from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
     Coroutine,
     Dict,
+    Optional,
     TypeVar,
-    Union,
+    Union, cast,
 )
 
 from eth_abi.codec import (
@@ -24,6 +26,7 @@ from web3._utils.filters import (
 from web3.method import (
     Method,
 )
+from web3.providers.persistent import PersistentConnectionProvider
 from web3.types import (
     RPCResponse,
 )
@@ -76,7 +79,7 @@ def retrieve_blocking_method_call_fn(
 @curry
 def retrieve_async_method_call_fn(
     async_w3: "AsyncWeb3", module: "Module", method: Method[Callable[..., Any]]
-) -> Callable[..., Coroutine[Any, Any, Union[RPCResponse, AsyncLogFilter]]]:
+) -> Callable[..., Coroutine[Any, Any, Optional[Union[RPCResponse, AsyncLogFilter]]]]:
     async def caller(*args: Any, **kwargs: Any) -> Union[RPCResponse, AsyncLogFilter]:
         try:
             (method_str, params), response_formatters = method.process_params(
@@ -90,10 +93,16 @@ def retrieve_async_method_call_fn(
             error_formatters,
             null_result_formatters,
         ) = response_formatters
-        result = await async_w3.manager.coro_request(
-            method_str, params, error_formatters, null_result_formatters
-        )
-        return apply_result_formatters(result_formatters, result)
+
+        if isinstance(async_w3.provider, PersistentConnectionProvider):
+            provider = cast(PersistentConnectionProvider, async_w3.provider)
+            provider.cache_request_information(method, params, response_formatters)
+            await async_w3.manager.ws_send(method_str, params)
+        else:
+            result = await async_w3.manager.coro_request(
+                method_str, params, error_formatters, null_result_formatters
+            )
+            return apply_result_formatters(result_formatters, result)
 
     return caller
 
