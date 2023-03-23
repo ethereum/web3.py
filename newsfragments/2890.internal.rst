@@ -1,0 +1,1 @@
+remove unused docs dependencies and bump version of remaining
