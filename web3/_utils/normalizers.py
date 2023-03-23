@@ -1,7 +1,4 @@
 import codecs
-from distutils.version import (
-    LooseVersion,
-)
 import functools
 import json
 from typing import (
@@ -14,7 +11,6 @@ from typing import (
     cast,
 )
 
-import eth_abi
 from eth_abi.exceptions import (
     ParseError,
 )
@@ -237,10 +233,6 @@ def abi_ens_resolver(
 BASE_RETURN_NORMALIZERS = [
     addresses_checksummed,
 ]
-
-
-if LooseVersion(eth_abi.__version__) < LooseVersion("2"):
-    BASE_RETURN_NORMALIZERS.append(decode_abi_strings)
 
 
 #
