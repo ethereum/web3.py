@@ -44,8 +44,6 @@ class Tracing(Module):
 
     _default_block: BlockIdentifier = "latest"
 
-    """ property default_block """
-
     @property
     def default_block(self) -> BlockIdentifier:
         return self._default_block
