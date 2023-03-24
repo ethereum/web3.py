@@ -391,18 +391,9 @@ filter_result_formatter = apply_one_of_formatters(
     )
 )
 
-TRANSACTION_REQUEST_FORMATTERS = {
-    "maxFeePerGas": to_hex_if_integer,
-    "maxPriorityFeePerGas": to_hex_if_integer,
-}
-
-transaction_request_formatter = type_aware_apply_formatters_to_dict(
-    TRANSACTION_REQUEST_FORMATTERS
-)
 transaction_param_formatter = compose(
     remove_key_if("to", lambda txn: txn["to"] in {"", b"", None}),
     remove_key_if("gasPrice", lambda txn: txn["gasPrice"] in {"", b"", None}),
-    transaction_request_formatter,
 )
 
 
