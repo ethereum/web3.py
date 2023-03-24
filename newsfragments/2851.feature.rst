@@ -1,0 +1,1 @@
+Add tracing functionality back in via the ``tracing`` module, add formatters for human-readable input and output, and attach this module to ``Web3`` on init / make it a default module.
