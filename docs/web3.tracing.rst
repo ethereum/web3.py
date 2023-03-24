@@ -1,5 +1,5 @@
 Tracing API
-==========
+===========
 
 .. py:module:: web3.tracing
 
