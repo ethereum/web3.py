@@ -64,9 +64,7 @@ class Tracing(Module):
         mungers=[trace_replay_transaction_munger],
     )
 
-    trace_replay_block_transactions: Method[
-        Callable[..., List[BlockTrace]]
-    ] = Method(
+    trace_replay_block_transactions: Method[Callable[..., List[BlockTrace]]] = Method(
         RPC.trace_replayBlockTransactions, mungers=[trace_replay_transaction_munger]
     )
 
@@ -75,9 +73,7 @@ class Tracing(Module):
         mungers=[default_root_munger],
     )
 
-    trace_filter: Method[
-        Callable[[FilterParams], List[FilterTrace]]
-    ] = Method(
+    trace_filter: Method[Callable[[FilterParams], List[FilterTrace]]] = Method(
         RPC.trace_filter,
         mungers=[default_root_munger],
     )
@@ -93,13 +89,11 @@ class Tracing(Module):
         mode: TraceMode = ["trace"],
         block_identifier: Optional[BlockIdentifier] = None,
     ) -> Tuple[TxParams, TraceMode, BlockIdentifier]:
-        # TODO: move to middleware
         if "from" not in transaction and is_checksum_address(
             self.w3.eth.default_account
         ):
             transaction = assoc(transaction, "from", self.w3.eth.default_account)
 
-        # TODO: move to middleware
         if block_identifier is None:
             block_identifier = self.default_block
 
