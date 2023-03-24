@@ -1499,6 +1499,7 @@ class AsyncEthModuleTest:
         assert is_integer(transaction_count)
         assert transaction_count >= 1
 
+    @pytest.mark.asyncio
     async def test_async_eth_sign(
         self, async_w3: "AsyncWeb3", unlocked_account_dual_type: ChecksumAddress
     ) -> None:
