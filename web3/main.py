@@ -120,6 +120,9 @@ from web3.providers.websocket import (
 from web3.testing import (
     Testing,
 )
+from web3.tracing import (
+    Tracing,
+)
 from web3.types import (
     AsyncMiddlewareOnion,
     MiddlewareOnion,
@@ -159,6 +162,7 @@ def get_default_modules() -> Dict[str, Union[Type[Module], Sequence[Any]]]:
                 "txpool": GethTxPool,
             },
         ),
+        "tracing": Tracing,
         "testing": Testing,
     }
 

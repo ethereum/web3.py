@@ -470,7 +470,6 @@ GETH_WALLETS_FORMATTER = {
 
 geth_wallets_formatter = type_aware_apply_formatters_to_dict(GETH_WALLETS_FORMATTER)
 
-
 PYTHONIC_REQUEST_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     # Eth
     RPC.eth_feeHistory: compose(
@@ -532,6 +531,7 @@ PYTHONIC_REQUEST_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     ),
     # Snapshot and Revert
     RPC.evm_revert: apply_formatter_at_index(integer_to_hex, 0),
+    # tracing
     RPC.trace_replayBlockTransactions: apply_formatter_at_index(to_hex_if_integer, 0),
     RPC.trace_block: apply_formatter_at_index(to_hex_if_integer, 0),
     RPC.trace_call: compose(
@@ -540,6 +540,70 @@ PYTHONIC_REQUEST_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     ),
 }
 
+# --- Result Formatters --- #
+
+# -- tracing -- #
+
+# result formatters for the trace field "action"
+TRACE_ACTION_FORMATTERS = apply_formatter_if(
+    is_not_null,
+    type_aware_apply_formatters_to_dict(
+        {
+            # call and create types
+            "from": to_checksum_address,
+            "to": to_checksum_address,
+            "input": HexBytes,
+            "value": to_integer_if_hex,
+            "gas": to_integer_if_hex,
+            # create type
+            "init": HexBytes,
+            # suicide type
+            "address": to_checksum_address,
+            "refundAddress": to_checksum_address,
+        }
+    ),
+)
+
+# result formatters for the trace field "result"
+TRACE_RESULT_FORMATTERS = apply_formatter_if(
+    is_not_null,
+    type_aware_apply_formatters_to_dict(
+        {
+            "address": to_checksum_address,
+            "code": HexBytes,
+            "output": HexBytes,
+            "gasUsed": to_integer_if_hex,
+        }
+    ),
+)
+
+# result formatters for the trace field
+TRACE_FORMATTERS = apply_formatter_if(
+    is_not_null,
+    type_aware_apply_formatters_to_dict(
+        {
+            "action": TRACE_ACTION_FORMATTERS,
+            "result": TRACE_RESULT_FORMATTERS,
+            "blockHash": HexBytes,
+            "blockNumber": to_integer_if_hex,
+            "transactionHash": HexBytes,
+        }
+    ),
+)
+
+# trace formatter for a list of traces
+trace_list_result_formatter: Callable[[Formatters], Any] = apply_formatter_to_array(
+    TRACE_FORMATTERS,
+)
+
+# shared formatter for common `tracing` module rpc responses
+common_tracing_result_formatter = type_aware_apply_formatters_to_dict(
+    {
+        "trace": apply_formatter_if(is_not_null, trace_list_result_formatter),
+        "output": HexBytes,
+        "transactionHash": HexBytes,  # trace_replayBlockTransactions
+    }
+)
 
 PYTHONIC_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     # Eth
@@ -609,6 +673,15 @@ PYTHONIC_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     RPC.evm_snapshot: hex_to_integer,
     # Net
     RPC.net_peerCount: to_integer_if_hex,
+    # tracing
+    RPC.trace_call: common_tracing_result_formatter,
+    RPC.trace_block: trace_list_result_formatter,
+    RPC.trace_transaction: trace_list_result_formatter,
+    RPC.trace_rawTransaction: common_tracing_result_formatter,
+    RPC.trace_replayTransaction: common_tracing_result_formatter,
+    RPC.trace_replayBlockTransactions: apply_formatter_to_array(
+        common_tracing_result_formatter
+    ),
 }
 
 METHOD_NORMALIZERS: Dict[RPCEndpoint, Callable[..., Any]] = {
