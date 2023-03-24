@@ -1,4 +1,4 @@
-import random
+from secrets import SystemRandom
 
 from eth_utils import (
     to_dict,
@@ -16,7 +16,7 @@ from web3._utils.caching import (
 @to_dict
 def shuffle_dict(_dict):
     keys = list(_dict.keys())
-    random.shuffle(keys)
+    SystemRandom().shuffle(keys)
     for key in keys:
         yield key, _dict[key]
 

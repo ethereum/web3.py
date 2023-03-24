@@ -1,4 +1,4 @@
-import random
+from secrets import SystemRandom
 
 from flaky import (
     flaky,
@@ -22,7 +22,7 @@ def test_miner_set_gas_price(web3_empty, wait_for_block):
 
     with Timeout(60) as timeout:
         while web3.eth.gas_price == initial_gas_price:
-            timeout.sleep(random.random())
+            timeout.sleep(SystemRandom().random())
 
     after_gas_price = web3.eth.gas_price
     assert after_gas_price < initial_gas_price

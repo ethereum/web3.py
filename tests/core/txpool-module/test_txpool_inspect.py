@@ -1,4 +1,4 @@
-import random
+from secrets import SystemRandom
 
 from web3._utils.threads import (
     Timeout,
@@ -12,7 +12,7 @@ def test_txpool_inspect(web3_empty):
 
     with Timeout(60) as timeout:
         while web3.eth.hashrate or web3.eth.mining:
-            timeout.sleep(random.random())
+            timeout.sleep(SystemRandom().random())
 
     txn_1_hash = web3.eth.send_transaction(
         {

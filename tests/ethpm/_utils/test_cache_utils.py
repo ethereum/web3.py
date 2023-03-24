@@ -1,4 +1,4 @@
-import random
+from secrets import SystemRandom
 
 from ethpm._utils.cache import (
     cached_property,
@@ -12,7 +12,7 @@ def test_cached_property():
 
         @cached_property
         def generate_number(self):
-            return random.random()
+            return SystemRandom().random()
 
     foo = FOO()
     foo_number = foo.generate_number

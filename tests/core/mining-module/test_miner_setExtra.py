@@ -1,4 +1,4 @@
-import random
+from secrets import SystemRandom
 
 from eth_utils import (
     decode_hex,
@@ -32,7 +32,7 @@ def test_miner_set_extra(web3_empty, wait_for_block):
             )
             if extra_data == new_extra_data:
                 break
-            timeout.sleep(random.random())
+            timeout.sleep(SystemRandom().random())
 
     after_extra = decode_hex(web3.eth.get_block(web3.eth.block_number)["extraData"])
 

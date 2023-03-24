@@ -1,4 +1,4 @@
-import random
+from secrets import SystemRandom
 
 from flaky import (
     flaky,
@@ -21,7 +21,7 @@ def test_miner_start(w3_empty, wait_for_miner_start):
 
     with Timeout(60) as timeout:
         while w3.eth.mining or w3.eth.hashrate:
-            timeout.sleep(random.random())
+            timeout.sleep(SystemRandom().random())
 
     assert not w3.eth.mining
     assert not w3.eth.hashrate
