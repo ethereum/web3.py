@@ -163,6 +163,8 @@ TRANSACTION_PARAMS_ABIS = {
     "from": "address",
     "gas": "uint",
     "gasPrice": "uint",
+    "maxFeePerGas": "uint",
+    "maxPriorityFeePerGas": "uint",
     "nonce": "uint",
     "to": "address",
     "value": "uint",
@@ -172,11 +174,6 @@ TRANSACTION_PARAMS_ABIS = {
 FILTER_PARAMS_ABIS = {
     "to": "address",
     "address": "address[]",
-}
-
-TRACE_PARAMS_ABIS = {
-    "to": "address",
-    "from": "address",
 }
 
 RPC_ABIS = {
@@ -211,7 +208,7 @@ RPC_ABIS = {
     "personal_unlockAccount": ["address", None, None],
     "personal_sign": [None, "address", None],
     "personal_signTypedData": [None, "address", None],
-    "trace_call": TRACE_PARAMS_ABIS,
+    "trace_call": TRANSACTION_PARAMS_ABIS,
 }
 
 
