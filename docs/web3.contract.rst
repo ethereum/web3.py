@@ -151,12 +151,12 @@ Each Contract Factory exposes the following properties.
 
     If a Tuple/Struct is returned by a contract function, this flag defines whether
     to apply the field names from the ABI to the returned data.
-    If False, the returned value will be a normal Python `Tuple`. If True, the returned
-    value will be a Python `NamedTuple` of the class `ABIDecodedNamedTuple`.
+    If False, the returned value will be a normal Python ``Tuple``. If True, the returned
+    value will be a Python ``NamedTuple`` of the class ``ABIDecodedNamedTuple``.
     
     NamedTuples have some restrictions regarding field names.
-    web3.py sets `NamedTuple`'s `rename=True`, so disallowed field names may be 
-    different than expected. See the [Python docs](https://docs.python.org/3/library/collections.html#collections.namedtuple)
+    web3.py sets ``NamedTuple``'s ``rename=True``, so disallowed field names may be 
+    different than expected. See the `Python docs <https://docs.python.org/3/library/collections.html#collections.namedtuple>`_
     for more information.
     
     Defaults to ``False`` if not provided during factory creation.
