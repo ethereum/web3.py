@@ -382,10 +382,16 @@ Geth Fixtures
        $ GETH_BINARY=~/.py-geth/geth-v1.11.5/bin/geth python ./tests/integration/generate_fixtures/go_ethereum.py ./tests/integration/geth-1.11.5-fixture
 
 3. The output of this script is your fixture, a zip file, which is now stored in ``/tests/integration/``.
-   Update the ``/tests/integration/go_ethereum/conftest.py`` file to point to this new fixture. Delete the old fixture.
+   Update the ``/tests/integration/go_ethereum/conftest.py`` and
+   ``/web3/tools/benchmark/node.py`` files to point to this new fixture. Delete the old
+   fixture.
 
 4. Run the tests. To ensure that the tests run with the correct Geth version locally,
    you may again include the ``GETH_BINARY`` environment variable.
+
+5. Update the ``geth_version`` and ``pygeth_version`` parameter defaults in
+   ``/.circleci/config.yml`` to match the ``go-ethereum`` version used to generate the
+   test fixture and the ``py-geth`` version that supports installing it.
 
 
 CI Testing With a Nightly Geth Build

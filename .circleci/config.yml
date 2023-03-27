@@ -1,6 +1,13 @@
 version: 2.1
 
-# heavily inspired by https://raw.githubusercontent.com/pinax/pinax-wiki/6bd2a99ab6f702e300d708532a6d1d9aa638b9f8/.circleci/config.yml
+parameters:
+  # Note: update these defaults when updating the geth integration test fixture
+  geth_version:
+    default: "v1.11.5"
+    type: string
+  pygeth_version:
+    default: "3.12.0"
+    type: string
 
 common: &common
   working_directory: ~/repo
@@ -74,10 +81,10 @@ geth_steps: &geth_steps
         name: build geth if missing
         command: |
           mkdir -p $HOME/.ethash
-          pip install --user py-geth>=3.12.0
+          pip install --user py-geth>=<< pipeline.parameters.pygeth_version >>
           export GOROOT=/usr/local/go
-          echo $GETH_VERSION
-          export GETH_BINARY="$HOME/.py-geth/geth-$GETH_VERSION/bin/geth"
+          echo << pipeline.parameters.geth_version >>
+          export GETH_BINARY="$HOME/.py-geth/geth-<< pipeline.parameters.geth_version >>/bin/geth"
           if [ ! -e "$GETH_BINARY" ]; then
             curl -O https://storage.googleapis.com/golang/go1.20.1.linux-amd64.tar.gz
             tar xvf go1.20.1.linux-amd64.tar.gz
@@ -86,9 +93,9 @@ geth_steps: &geth_steps
             sudo ln -s /usr/local/go/bin/go /usr/local/bin/go
             sudo apt-get update;
             sudo apt-get install -y build-essential;
-            python -m geth.install $GETH_VERSION;
+            python -m geth.install << pipeline.parameters.geth_version >>;
           fi
-          sudo ln -s /home/circleci/.py-geth/geth-$GETH_VERSION/bin/geth /usr/local/bin/geth
+          sudo ln -s /home/circleci/.py-geth/geth-<< pipeline.parameters.geth_version >>/bin/geth /usr/local/bin/geth
           geth version
           geth makedag 0 $HOME/.ethash
     - run:
@@ -119,7 +126,6 @@ geth_custom_steps: &geth_custom_steps
         command: |
           mkdir -p $HOME/.ethash
           export GOROOT=/usr/local/go
-          echo $GETH_VERSION
           export GETH_BINARY="./custom_geth"
           echo 'export GETH_BINARY="./custom_geth"' >> $BASH_ENV
           curl -O https://storage.googleapis.com/golang/go1.20.1.linux-amd64.tar.gz
@@ -247,7 +253,6 @@ jobs:
       - image: cimg/python:3.7
     environment:
       TOXENV: py37-integration-goethereum-ipc
-      GETH_VERSION: v1.11.5
 
   py37-integration-goethereum-ipc_flaky:
     <<: *geth_steps
@@ -255,7 +260,6 @@ jobs:
       - image: cimg/python:3.7
     environment:
       TOXENV: py37-integration-goethereum-ipc_flaky
-      GETH_VERSION: v1.11.5
 
   py37-integration-goethereum-http:
     <<: *geth_steps
@@ -263,7 +267,6 @@ jobs:
       - image: cimg/python:3.7
     environment:
       TOXENV: py37-integration-goethereum-http
-      GETH_VERSION: v1.11.5
 
   py37-integration-goethereum-http_async:
     <<: *geth_steps
@@ -271,7 +274,6 @@ jobs:
       - image: cimg/python:3.7
     environment:
       TOXENV: py37-integration-goethereum-http_async
-      GETH_VERSION: v1.11.5
 
   py37-integration-goethereum-http_flaky:
     <<: *geth_steps
@@ -279,7 +281,6 @@ jobs:
       - image: cimg/python:3.7
     environment:
       TOXENV: py37-integration-goethereum-http_flaky
-      GETH_VERSION: v1.11.5
 
   py37-integration-goethereum-ws:
     <<: *geth_steps
@@ -287,7 +288,6 @@ jobs:
       - image: cimg/python:3.7
     environment:
       TOXENV: py37-integration-goethereum-ws
-      GETH_VERSION: v1.11.5
 
   py37-integration-goethereum-ws_flaky:
     <<: *geth_steps
@@ -295,7 +295,6 @@ jobs:
       - image: cimg/python:3.7
     environment:
       TOXENV: py37-integration-goethereum-ws_flaky
-      GETH_VERSION: v1.11.5
 
   py37-integration-ethtester-pyevm:
     <<: *common
@@ -351,7 +350,6 @@ jobs:
       - image: cimg/python:3.8
     environment:
       TOXENV: py38-integration-goethereum-ipc
-      GETH_VERSION: v1.11.5
 
   py38-integration-goethereum-ipc_flaky:
     <<: *geth_steps
@@ -359,7 +357,6 @@ jobs:
       - image: cimg/python:3.8
     environment:
       TOXENV: py38-integration-goethereum-ipc_flaky
-      GETH_VERSION: v1.11.5
 
   py38-integration-goethereum-http:
     <<: *geth_steps
@@ -367,7 +364,6 @@ jobs:
       - image: cimg/python:3.8
     environment:
       TOXENV: py38-integration-goethereum-http
-      GETH_VERSION: v1.11.5
 
   py38-integration-goethereum-http_async:
     <<: *geth_steps
@@ -375,7 +371,6 @@ jobs:
       - image: cimg/python:3.8
     environment:
       TOXENV: py38-integration-goethereum-http_async
-      GETH_VERSION: v1.11.5
 
   py38-integration-goethereum-http_flaky:
     <<: *geth_steps
@@ -383,7 +378,6 @@ jobs:
       - image: cimg/python:3.8
     environment:
       TOXENV: py38-integration-goethereum-http_flaky
-      GETH_VERSION: v1.11.5
 
   py38-integration-goethereum-ws:
     <<: *geth_steps
@@ -391,7 +385,6 @@ jobs:
       - image: cimg/python:3.8
     environment:
       TOXENV: py38-integration-goethereum-ws
-      GETH_VERSION: v1.11.5
 
   py38-integration-goethereum-ws_flaky:
     <<: *geth_steps
@@ -399,7 +392,6 @@ jobs:
       - image: cimg/python:3.8
     environment:
       TOXENV: py38-integration-goethereum-ws_flaky
-      GETH_VERSION: v1.11.5
 
   py38-integration-ethtester-pyevm:
     <<: *common
@@ -455,7 +447,6 @@ jobs:
       - image: cimg/python:3.9
     environment:
       TOXENV: py39-integration-goethereum-ipc
-      GETH_VERSION: v1.11.5
 
   py39-integration-goethereum-ipc_flaky:
     <<: *geth_steps
@@ -463,7 +454,6 @@ jobs:
       - image: cimg/python:3.9
     environment:
       TOXENV: py39-integration-goethereum-ipc_flaky
-      GETH_VERSION: v1.11.5
 
   py39-integration-goethereum-http:
     <<: *geth_steps
@@ -471,7 +461,6 @@ jobs:
       - image: cimg/python:3.9
     environment:
       TOXENV: py39-integration-goethereum-http
-      GETH_VERSION: v1.11.5
 
   py39-integration-goethereum-http_async:
     <<: *geth_steps
@@ -479,7 +468,6 @@ jobs:
       - image: cimg/python:3.9
     environment:
       TOXENV: py39-integration-goethereum-http_async
-      GETH_VERSION: v1.11.5
 
   py39-integration-goethereum-http_flaky:
     <<: *geth_steps
@@ -487,7 +475,6 @@ jobs:
       - image: cimg/python:3.9
     environment:
       TOXENV: py39-integration-goethereum-http_flaky
-      GETH_VERSION: v1.11.5
 
   py39-integration-goethereum-ws:
     <<: *geth_steps
@@ -495,7 +482,6 @@ jobs:
       - image: cimg/python:3.9
     environment:
       TOXENV: py39-integration-goethereum-ws
-      GETH_VERSION: v1.11.5
 
   py39-integration-goethereum-ws_flaky:
     <<: *geth_steps
@@ -503,7 +489,6 @@ jobs:
       - image: cimg/python:3.9
     environment:
       TOXENV: py39-integration-goethereum-ws_flaky
-      GETH_VERSION: v1.11.5
 
   py39-integration-ethtester-pyevm:
     <<: *common
@@ -559,7 +544,6 @@ jobs:
       - image: cimg/python:3.10
     environment:
       TOXENV: py310-integration-goethereum-ipc
-      GETH_VERSION: v1.11.5
 
   py310-integration-goethereum-ipc_flaky:
     <<: *geth_steps
@@ -567,7 +551,6 @@ jobs:
       - image: cimg/python:3.10
     environment:
       TOXENV: py310-integration-goethereum-ipc_flaky
-      GETH_VERSION: v1.11.5
 
   py310-integration-goethereum-http:
     <<: *geth_steps
@@ -575,7 +558,6 @@ jobs:
       - image: cimg/python:3.10
     environment:
       TOXENV: py310-integration-goethereum-http
-      GETH_VERSION: v1.11.5
 
   py310-integration-goethereum-http_async:
     <<: *geth_steps
@@ -583,7 +565,6 @@ jobs:
       - image: cimg/python:3.10
     environment:
       TOXENV: py310-integration-goethereum-http_async
-      GETH_VERSION: v1.11.5
 
   py310-integration-goethereum-http_flaky:
     <<: *geth_steps
@@ -591,7 +572,6 @@ jobs:
       - image: cimg/python:3.10
     environment:
       TOXENV: py310-integration-goethereum-http_flaky
-      GETH_VERSION: v1.11.5
 
   py310-integration-goethereum-ws:
     <<: *geth_steps
@@ -599,7 +579,6 @@ jobs:
       - image: cimg/python:3.10
     environment:
       TOXENV: py310-integration-goethereum-ws
-      GETH_VERSION: v1.11.5
 
   py310-integration-goethereum-ws_flaky:
     <<: *geth_steps
@@ -607,7 +586,6 @@ jobs:
       - image: cimg/python:3.10
     environment:
       TOXENV: py310-integration-goethereum-ws_flaky
-      GETH_VERSION: v1.11.5
 
   py310-integration-ethtester-pyevm:
     <<: *common
@@ -668,7 +646,6 @@ jobs:
       - image: cimg/python:3.11
     environment:
       TOXENV: py311-integration-goethereum-ipc
-      GETH_VERSION: v1.11.5
 
   py311-integration-goethereum-ipc_flaky:
     <<: *geth_steps
@@ -676,7 +653,6 @@ jobs:
       - image: cimg/python:3.11
     environment:
       TOXENV: py311-integration-goethereum-ipc_flaky
-      GETH_VERSION: v1.11.5
 
   py311-integration-goethereum-http:
     <<: *geth_steps
@@ -684,7 +660,6 @@ jobs:
       - image: cimg/python:3.11
     environment:
       TOXENV: py311-integration-goethereum-http
-      GETH_VERSION: v1.11.5
 
   py311-integration-goethereum-http_async:
     <<: *geth_steps
@@ -692,7 +667,6 @@ jobs:
       - image: cimg/python:3.11
     environment:
       TOXENV: py311-integration-goethereum-http_async
-      GETH_VERSION: v1.11.5
 
   py311-integration-goethereum-http_flaky:
     <<: *geth_steps
@@ -700,7 +674,6 @@ jobs:
       - image: cimg/python:3.11
     environment:
       TOXENV: py311-integration-goethereum-http_flaky
-      GETH_VERSION: v1.11.5
 
   py311-integration-goethereum-ws:
     <<: *geth_steps
@@ -708,7 +681,6 @@ jobs:
       - image: cimg/python:3.11
     environment:
       TOXENV: py311-integration-goethereum-ws
-      GETH_VERSION: v1.11.5
 
   py311-integration-goethereum-ws_flaky:
     <<: *geth_steps
@@ -716,7 +688,6 @@ jobs:
       - image: cimg/python:3.11
     environment:
       TOXENV: py311-integration-goethereum-ws_flaky
-      GETH_VERSION: v1.11.5
 
   py311-integration-ethtester-pyevm:
     <<: *common
@@ -739,7 +710,6 @@ jobs:
       - image: cimg/python:3.10
     environment:
       TOXENV: benchmark
-      GETH_VERSION: v1.11.5
 
 workflows:
   version: 2.1
