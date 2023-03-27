@@ -1,0 +1,1 @@
+Update go-ethereum integration test fixture to use the latest version of geth - ``v1.11.5``.
