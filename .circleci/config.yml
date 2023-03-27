@@ -74,7 +74,7 @@ geth_steps: &geth_steps
         name: build geth if missing
         command: |
           mkdir -p $HOME/.ethash
-          pip install --user py-geth>=3.11.0
+          pip install --user py-geth>=3.12.0
           export GOROOT=/usr/local/go
           echo $GETH_VERSION
           export GETH_BINARY="$HOME/.py-geth/geth-$GETH_VERSION/bin/geth"
