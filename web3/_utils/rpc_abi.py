@@ -176,6 +176,15 @@ FILTER_PARAMS_ABIS = {
     "address": "address[]",
 }
 
+TRACE_FILTER_PARAM_ABIS = {
+    "fromBlock": "uint",
+    "toBlock": "uint",
+    "fromAddress": "address[]",
+    "toAddress": "address[]",
+    "after": "int",
+    "count": "int",
+}
+
 RPC_ABIS = {
     # eth
     "eth_call": TRANSACTION_PARAMS_ABIS,
@@ -209,6 +218,7 @@ RPC_ABIS = {
     "personal_sign": [None, "address", None],
     "personal_signTypedData": [None, "address", None],
     "trace_call": TRANSACTION_PARAMS_ABIS,
+    "trace_filter": TRACE_FILTER_PARAM_ABIS,
 }
 
 

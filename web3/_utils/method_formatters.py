@@ -665,14 +665,15 @@ PYTHONIC_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     # Net
     RPC.net_peerCount: to_integer_if_hex,
     # tracing
-    RPC.trace_call: common_tracing_result_formatter,
     RPC.trace_block: trace_list_result_formatter,
+    RPC.trace_call: common_tracing_result_formatter,
     RPC.trace_transaction: trace_list_result_formatter,
     RPC.trace_rawTransaction: common_tracing_result_formatter,
     RPC.trace_replayTransaction: common_tracing_result_formatter,
     RPC.trace_replayBlockTransactions: apply_formatter_to_array(
         common_tracing_result_formatter
     ),
+    RPC.trace_filter: trace_list_result_formatter,
 }
 
 METHOD_NORMALIZERS: Dict[RPCEndpoint, Callable[..., Any]] = {
