@@ -207,7 +207,7 @@ windows_steps: &windows_steps
         command: pip install --user tox
     - run:
         name: run tox
-        command: 'C:/Users/circleci.PACKER-633B1A5A/AppData/Roaming/Python/Python310/Scripts/tox.exe -r'
+        command: 'C:/Users/circleci.PACKER-6400C91A/AppData/Roaming/Python/Python311/Scripts/tox.exe -r'
     - save_cache:
         paths:
           - .tox
@@ -604,10 +604,10 @@ jobs:
         environment:
           TOXENV: py310-wheel-cli
 
-  py310-wheel-cli-windows:
+  py311-wheel-cli-windows:
     <<: *windows_steps
     environment:
-      TOXENV: py310-wheel-cli-windows
+      TOXENV: py311-wheel-cli-windows
 
   #
   # Python 3.11
@@ -772,7 +772,6 @@ workflows:
       - py310-integration-goethereum-ws_flaky
       - py310-integration-ethtester-pyevm
       - py310-wheel-cli
-      - py310-wheel-cli-windows
       - py311-lint
       - py311-ens
       - py311-ethpm
@@ -785,3 +784,4 @@ workflows:
       - py311-integration-goethereum-ws_flaky
       - py311-integration-ethtester-pyevm
       - py311-wheel-cli
+      - py311-wheel-cli-windows
