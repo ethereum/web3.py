@@ -1,12 +1,16 @@
 version: 2.1
 
 parameters:
-  # Note: update these defaults when updating the geth integration test fixture
   geth_version:
+    # update default when updating geth integration test fixture
     default: "v1.11.5"
     type: string
   pygeth_version:
+    # update default when updating geth integration test fixture
     default: "3.12.0"
+    type: string
+  go_version:
+    default: "1.20.2"
     type: string
 
 common: &common
@@ -88,8 +92,8 @@ geth_steps: &geth_steps
           echo << pipeline.parameters.geth_version >>
           export GETH_BINARY="$HOME/.py-geth/geth-<< pipeline.parameters.geth_version >>/bin/geth"
           if [ ! -e "$GETH_BINARY" ]; then
-            curl -O https://storage.googleapis.com/golang/go1.20.1.linux-amd64.tar.gz
-            tar xvf go1.20.1.linux-amd64.tar.gz
+            curl -O https://storage.googleapis.com/golang/go<< pipeline.parameters.go_version >>.linux-amd64.tar.gz
+            tar xvf go<< pipeline.parameters.go_version >>.linux-amd64.tar.gz
             sudo chown -R root:root ./go
             sudo mv go /usr/local
             sudo ln -s /usr/local/go/bin/go /usr/local/bin/go
@@ -130,8 +134,8 @@ geth_custom_steps: &geth_custom_steps
           export GOROOT=/usr/local/go
           export GETH_BINARY="./custom_geth"
           echo 'export GETH_BINARY="./custom_geth"' >> $BASH_ENV
-          curl -O https://storage.googleapis.com/golang/go1.20.1.linux-amd64.tar.gz
-          tar xvf go1.20.1.linux-amd64.tar.gz
+          curl -O https://storage.googleapis.com/golang/go<< pipeline.parameters.go_version >>.linux-amd64.tar.gz
+          tar xvf go<< pipeline.parameters.go_version >>.linux-amd64.tar.gz
           sudo chown -R root:root ./go
           sudo mv go /usr/local
           sudo ln -s /usr/local/go/bin/go /usr/local/bin/go
