@@ -33,6 +33,7 @@ whitelist = [
     "eth_coinbase",
     "eth_mining",
     "eth_hashrate",
+    "eth_chainId",
     "eth_gasPrice",
     "eth_accounts",
     "eth_blockNumber",
