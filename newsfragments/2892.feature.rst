@@ -1,0 +1,1 @@
+add eth_chainId to exception_retry_middleware whitelist
