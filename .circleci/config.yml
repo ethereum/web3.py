@@ -76,12 +76,14 @@ geth_steps: &geth_steps
           - cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
     - run:
         name: install dependencies
-        command: pip install --user tox
+        command: |
+          pip install --upgrade pip
+          pip install --user tox
     - run:
         name: build geth if missing
         command: |
           mkdir -p $HOME/.ethash
-          pip install --user py-geth>=<< pipeline.parameters.pygeth_version >>
+          pip install --user "py-geth>=<< pipeline.parameters.pygeth_version >>"
           export GOROOT=/usr/local/go
           echo << pipeline.parameters.geth_version >>
           export GETH_BINARY="$HOME/.py-geth/geth-<< pipeline.parameters.geth_version >>/bin/geth"
