@@ -1,15 +1,17 @@
+from copy import copy
 from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
     Coroutine,
-    Optional,
+    Optional, cast,
 )
 
 from eth_utils.toolz import (
     assoc,
     merge,
 )
+from web3._utils.caching import generate_cache_key
 
 from web3.types import (
     AsyncMiddleware,
@@ -27,6 +29,7 @@ if TYPE_CHECKING:
         AsyncWeb3,
         Web3,
     )
+    from web3.providers import PersistentConnectionProvider  # noqa: F401
 
 FORMATTER_DEFAULTS: FormattersDict = {
     "request_formatters": {},
@@ -134,15 +137,14 @@ async def async_construct_formatting_middleware(
     )
 
 
-def handle_response(
+def handle_async_response(
     response: RPCResponse,
     method: RPCEndpoint,
     **formatters: FormattersDict,
-) -> RPCResponse:
-    if response:
-        return _apply_response_formatters(
-            method=method, response=response, **formatters
-        )
+) -> Optional[RPCResponse]:
+    return _apply_response_formatters(
+        method=method, response=response, **formatters
+    )
 
 
 async def async_construct_web3_formatting_middleware(
@@ -168,6 +170,19 @@ async def async_construct_web3_formatting_middleware(
                 formatter = request_formatters[method]
                 params = formatter(params)
             response = await make_request(method, params)
+            if response:
+                return handle_async_response(response, method, **formatters)
+            else:
+                provider = cast("PersistentConnectionProvider", w3.provider)
+                request_info_cache_key = generate_cache_key(
+                    next(copy(provider.request_counter)) - 1
+                )
+                current_request_info = provider.async_response_processing_cache.get(
+                    request_info_cache_key
+                )
+                current_request_info["middleware_processing"].append(
+                    lambda response: handle_async_response(response, method, **formatters)
+                )
 
         return middleware
 

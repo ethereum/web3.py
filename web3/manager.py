@@ -13,7 +13,6 @@ from typing import (
 )
 
 from websockets.exceptions import ConnectionClosedOK
-from websockets.legacy.client import WebSocketClientProtocol
 
 from eth_utils.toolz import (
     pipe,
@@ -31,7 +30,6 @@ from web3.exceptions import (
     MethodUnavailable,
 )
 from web3.middleware import (
-    abi_middleware,
     async_attrdict_middleware,
     async_buffered_gas_estimate_middleware,
     async_gas_price_strategy_middleware,
@@ -109,36 +107,38 @@ class AsyncPersistentRecvStream:
                     assert "params" in response
                     assert "subscription" in response["params"]
                     cache_key = generate_cache_key(response["params"]["subscription"])
-                    request_info = provider._request_info_transient_cache.get(cache_key)
+                    request_info = provider.async_response_processing_cache.get(cache_key)
                 else:
-                    cache_key = generate_cache_key(int(response["id"]))
-                    request_info = provider._request_info_transient_cache.pop(cache_key)
+                    cache_key = generate_cache_key(response["id"])
+                    request_info = provider.async_response_processing_cache.pop(cache_key)
 
                 if cache_key is None:
                     yield response
 
-                import pdb
-
-                pdb.set_trace()
                 if (
                     request_info["method"].json_rpc_method == "eth_subscribe"
                     and "result" in response.keys()
                 ):
                     cache_key = generate_cache_key(response["result"])
-                    if cache_key not in provider._request_info_transient_cache:
-                        provider._request_info_transient_cache[cache_key] = request_info
+                    if cache_key not in provider.async_response_processing_cache:
+                        provider.async_response_processing_cache[cache_key] = request_info
+
+                # pipe response back through middleware
+                handle_response_methods = request_info["middleware_processing"]
+                if len(handle_response_methods) > 0:
+                    response = pipe(response, *handle_response_methods)
 
                 result_formatters, error_formatters, null_formatters = request_info[
                     "response_formatters"
                 ]
-                formatter_response = RequestManager.formatted_response(
+                formatted_response = RequestManager.formatted_response(
                     response,
                     request_info["params"],
                     error_formatters,
                     null_formatters,
                 )
                 try:
-                    yield apply_result_formatters(result_formatters, formatter_response)
+                    yield apply_result_formatters(result_formatters, formatted_response)
                 except Exception:
                     yield response
         except ConnectionClosedOK:
@@ -333,23 +333,17 @@ class RequestManager:
         )
         response = provider.decode_rpc_response(response)
 
-        if "method" in response and response["method"] == "eth_subscribe":
-            assert "params" in response
-            assert "subscription" in response["params"]
-            cache_key = generate_cache_key(response["params"]["subscription"])
-            request_info = provider._request_info_transient_cache.get(cache_key)
-        else:
-            cache_key = generate_cache_key(int(response["id"]))
-            request_info = provider._request_info_transient_cache.pop(cache_key)
+        cache_key = generate_cache_key(response["id"])
+        request_info = provider.async_response_processing_cache.pop(cache_key)
 
         if cache_key is None:
-            self.logger.debug("No cache key found for response")
+            self.logger.debug("No cache key found for response, returning raw response")
             return response
 
-        if request_info["method"] == "eth_subscribe":
-            cache_key = generate_cache_key(response["result"])
-            if cache_key not in provider._request_info_transient_cache:
-                provider._request_info_transient_cache[cache_key] = request_info
+        # pipe response back through middleware
+        handle_response_methods = request_info["middleware_processing"]
+        if len(handle_response_methods) > 0:
+            response = pipe(response, *handle_response_methods)
 
         result_formatters, error_formatters, null_formatters = request_info[
             "response_formatters"

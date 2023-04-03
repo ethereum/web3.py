@@ -1,12 +1,15 @@
+from copy import copy
 from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
+    cast,
 )
 
 from eth_utils.toolz import (
     assoc,
 )
+from web3._utils.caching import generate_cache_key
 
 from web3.datastructures import (
     AttributeDict,
@@ -51,7 +54,7 @@ def attrdict_middleware(
 
 
 async def async_attrdict_middleware(
-    make_request: Callable[[RPCEndpoint, Any], Any], _async_w3: "AsyncWeb3"
+    make_request: Callable[[RPCEndpoint, Any], Any], async_w3: "AsyncWeb3"
 ) -> AsyncMiddlewareCoroutine:
     """
     Converts any result which is a dictionary into an `AttributeDict`.
@@ -63,12 +66,23 @@ async def async_attrdict_middleware(
     async def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
         response = await make_request(method, params)
         if response:
-            return handle_response(response)
+            return handle_async_response(response)
+        else:
+            provider = cast("PersistentConnectionProvider", async_w3.provider)
+            request_info_cache_key = generate_cache_key(
+                next(copy(provider.request_counter)) - 1
+            )
+            current_request_info = provider.async_response_processing_cache.get(
+                request_info_cache_key
+            )
+            current_request_info["middleware_processing"].append(
+                lambda response: handle_async_response(response)
+            )
 
     return middleware
 
 
-def handle_response(response):
+def handle_async_response(response):
     if "result" in response:
         return assoc(response, "result", AttributeDict.recursive(response["result"]))
     elif "params" in response and "result" in response["params"]:
