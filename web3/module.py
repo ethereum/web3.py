@@ -97,7 +97,7 @@ def retrieve_async_method_call_fn(
         if isinstance(async_w3.provider, PersistentConnectionProvider):
             provider = cast(PersistentConnectionProvider, async_w3.provider)
             provider.cache_request_information(method, params, response_formatters)
-            await async_w3.manager.ws_send(method_str, params)
+            return await async_w3.manager.ws_send(method_str, params)
         else:
             result = await async_w3.manager.coro_request(
                 method_str, params, error_formatters, null_result_formatters
