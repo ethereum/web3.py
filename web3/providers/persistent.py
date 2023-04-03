@@ -12,8 +12,9 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
     ws: Optional[WebSocketClientProtocol] = None
     websocket_timeout: Optional[int] = 20
 
-    # request id to response formatter
-    _request_info_transient_cache: Dict[Any, Dict[str, Any]] = {}
+    # process request responses asynchronously by storing formatters and
+    # result processing fxns
+    async_response_processing_cache: Dict[Any, Dict[str, Any]] = {}
 
     def cache_request_information(
         self,
@@ -21,10 +22,13 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
         params: Any,
         response_formatters: Tuple[Any, Any, Any],
     ) -> None:
+        # copy the request counter and find the next request id without incrementing
+        # since this is done when / if the request is successfully sent
         request_id = next(copy(self.request_counter))
         cache_key = generate_cache_key(request_id)
-        self._request_info_transient_cache[cache_key] = {
+        self.async_response_processing_cache[cache_key] = {
             "method": method,
             "params": params,
             "response_formatters": response_formatters,
+            "middleware_processing": [],  # handled in each middleware
         }
