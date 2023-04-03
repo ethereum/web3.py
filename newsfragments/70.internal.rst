@@ -1,1 +1,0 @@
-Do not invoke ``setup.py`` directly. Minor cleanup and refactors in newsfragment ``README.md`` and newsfragment validation. Minot cleanup in ``Makefile``.
