@@ -16,6 +16,9 @@ from typing import (
 from eth_typing import (
     HexStr,
 )
+from eth_utils import (
+    is_dict,
+)
 from eth_utils.curried import (
     apply_formatter_at_index,
     apply_formatter_if,
@@ -35,6 +38,7 @@ from eth_utils.curried import (
     to_list,
     to_tuple,
 )
+from eth_utils.functional import identity
 from eth_utils.toolz import (
     complement,
     compose,
@@ -469,9 +473,7 @@ PYTHONIC_REQUEST_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
         to_hex_if_integer,
         0,
     ),
-    RPC.eth_getCode: compose(
-        apply_formatter_at_index(to_hex_if_integer, 1)
-    ),
+    RPC.eth_getCode: compose(apply_formatter_at_index(to_hex_if_integer, 1)),
     RPC.eth_getStorageAt: apply_formatter_at_index(to_hex_if_integer, 2),
     RPC.eth_getTransactionByBlockNumberAndIndex: compose(
         apply_formatter_at_index(to_hex_if_integer, 0),
@@ -675,7 +677,15 @@ PYTHONIC_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     ),
     RPC.trace_filter: trace_list_result_formatter,
     # Subscriptions (websockets)
-    RPC.eth_subscribe: apply_formatter_if(is_not_null, block_formatter),
+    RPC.eth_subscribe: apply_formatter_if(
+        is_not_null,
+        apply_one_of_formatters(
+            (
+                (is_string, identity),
+                (is_dict, block_formatter),
+            )
+        ),
+    ),
 }
 
 METHOD_NORMALIZERS: Dict[RPCEndpoint, Callable[..., Any]] = {

@@ -107,21 +107,28 @@ class AsyncPersistentRecvStream:
                     assert "params" in response
                     assert "subscription" in response["params"]
                     cache_key = generate_cache_key(response["params"]["subscription"])
-                    request_info = provider.async_response_processing_cache.get(cache_key)
+                    request_info = provider.async_response_processing_cache.get(
+                        cache_key
+                    )
                 else:
                     cache_key = generate_cache_key(response["id"])
-                    request_info = provider.async_response_processing_cache.pop(cache_key)
+                    request_info = provider.async_response_processing_cache.pop(
+                        cache_key
+                    )
 
                 if cache_key is None:
                     yield response
 
                 if (
-                    request_info["method"].json_rpc_method == "eth_subscribe"
+                    request_info["method"]
+                    and request_info["method"].json_rpc_method == "eth_subscribe"
                     and "result" in response.keys()
                 ):
                     cache_key = generate_cache_key(response["result"])
                     if cache_key not in provider.async_response_processing_cache:
-                        provider.async_response_processing_cache[cache_key] = request_info
+                        provider.async_response_processing_cache[
+                            cache_key
+                        ] = request_info
 
                 # pipe response back through middleware
                 handle_response_methods = request_info["middleware_processing"]
@@ -313,7 +320,7 @@ class RequestManager:
         self,
         method: Union[RPCEndpoint, Callable[..., RPCEndpoint]],
         params: Any,
-    ) -> None:
+    ) -> RPCResponse:
         provider = cast("PersistentConnectionProvider", self._provider)
         request_func = await provider.request_func(
             cast("AsyncWeb3", self.w3),
@@ -324,6 +331,7 @@ class RequestManager:
             f"uri: {provider.endpoint_uri}, method: {method}"
         )
         await request_func(method, params)
+        return await self.ws_recv()
 
     async def ws_recv(self) -> Any:
         provider = cast("PersistentConnectionProvider", self._provider)
@@ -333,12 +341,27 @@ class RequestManager:
         )
         response = provider.decode_rpc_response(response)
 
-        cache_key = generate_cache_key(response["id"])
-        request_info = provider.async_response_processing_cache.pop(cache_key)
+        if "method" in response and response["method"] == "eth_subscription":
+            assert "params" in response
+            assert "subscription" in response["params"]
+            cache_key = generate_cache_key(response["params"]["subscription"])
+            request_info = provider.async_response_processing_cache.get(cache_key)
+        else:
+            cache_key = generate_cache_key(response["id"])
+            request_info = provider.async_response_processing_cache.pop(cache_key)
 
         if cache_key is None:
             self.logger.debug("No cache key found for response, returning raw response")
             return response
+
+        if (
+            request_info["method"]
+            and request_info["method"].json_rpc_method == "eth_subscribe"
+            and "result" in response.keys()
+        ):
+            cache_key = generate_cache_key(response["result"])
+            if cache_key not in provider.async_response_processing_cache:
+                provider.async_response_processing_cache[cache_key] = request_info
 
         # pipe response back through middleware
         handle_response_methods = request_info["middleware_processing"]
