@@ -6,6 +6,50 @@ v6 Breaking Changes Summary
 
 .. towncrier release notes start
 
+v6.1.0 (2023-04-05)
+-------------------
+
+Features
+~~~~~~~~
+
+- Add tracing functionality back in via the ``tracing`` module, add formatters for human-readable input and output, and attach this module to ``Web3`` on init / make it a default module. (`#2851 <https://github.com/ethereum/web3.py/issues/2851>`__)
+- Add result formatters for ``withdrawals_root`` and ``withdrawals`` as part of ``Shanghai`` hard fork support. (`#2868 <https://github.com/ethereum/web3.py/issues/2868>`__)
+- add eth_chainId to exception_retry_middleware whitelist (`#2892 <https://github.com/ethereum/web3.py/issues/2892>`__)
+
+
+Bugfixes
+~~~~~~~~
+
+- Mark `test_async_eth_sign` with `@pytest.mark.asyncio` (`#2858 <https://github.com/ethereum/web3.py/issues/2858>`__)
+- fix readthedocs broken version selector (`#2883 <https://github.com/ethereum/web3.py/issues/2883>`__)
+
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- remove camelCased method deprecation notices from web3.eth docs (`#2882 <https://github.com/ethereum/web3.py/issues/2882>`__)
+- Add doc blurb about multiple HTTPProviders with the same URL (`#2889 <https://github.com/ethereum/web3.py/issues/2889>`__)
+- fix styling and external link formatting (`#2897 <https://github.com/ethereum/web3.py/issues/2897>`__)
+
+
+Internal Changes - for web3.py Contributors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Bump pytest from 6.2.5 to 7+ because of CI ``DeprecationWarning`` (`#2863 <https://github.com/ethereum/web3.py/issues/2863>`__)
+- Require eth-abi v4 stable (`#2886 <https://github.com/ethereum/web3.py/issues/2886>`__)
+- remove unused docs dependencies and bump version of remaining (`#2890 <https://github.com/ethereum/web3.py/issues/2890>`__)
+- Update go-ethereum integration test fixture to use the latest version of geth - ``v1.11.5``. (`#2896 <https://github.com/ethereum/web3.py/issues/2896>`__)
+- Update ``geth_steps`` in CircleCI builds to pip install the proper version of ``py-geth``. (`#2898 <https://github.com/ethereum/web3.py/issues/2898>`__)
+- Update CircleCI windows orb path since it now uses python 3.11. (`#2899 <https://github.com/ethereum/web3.py/issues/2899>`__)
+- Bump go version used in CI jobs that install and run go-ethereum and parameterize the version in circleci config file for ease of configuration. (`#2900 <https://github.com/ethereum/web3.py/issues/2900>`__)
+
+
+Miscellaneous changes
+~~~~~~~~~~~~~~~~~~~~~
+
+- `#2887 <https://github.com/ethereum/web3.py/issues/2887>`__
+
+
 v6.0.0 (2023-03-14)
 -------------------
 

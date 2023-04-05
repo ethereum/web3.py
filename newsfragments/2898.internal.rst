@@ -1,1 +1,0 @@
-Update ``geth_steps`` in CircleCI builds to pip install the proper version of ``py-geth``.

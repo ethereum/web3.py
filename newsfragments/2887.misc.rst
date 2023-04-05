@@ -1,1 +1,0 @@
-Fix failing tests from eth-tester, and deprecated ``python_paths`` config option

@@ -1,1 +1,0 @@
-Bump go version used in CI jobs that install and run go-ethereum and parameterize the version in circleci config file for ease of configuration.
