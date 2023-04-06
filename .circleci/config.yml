@@ -251,7 +251,7 @@ jobs:
     environment:
       TOXENV: py37-ethpm
       # Please don't use this key for any shenanigans
-      WEB3_INFURA_PROJECT_ID: 7707850c2fb7465ebe6f150d67182e22
+      WEB3_INFURA_PROJECT_ID: $WEB3_INFURA_PROJECT_ID
 
   py37-integration-goethereum-ipc:
     <<: *geth_steps
@@ -348,7 +348,7 @@ jobs:
     environment:
       TOXENV: py38-ethpm
       # Please don't use this key for any shenanigans
-      WEB3_INFURA_PROJECT_ID: 7707850c2fb7465ebe6f150d67182e22
+      WEB3_INFURA_PROJECT_ID: $WEB3_INFURA_PROJECT_ID
 
   py38-integration-goethereum-ipc:
     <<: *geth_steps
@@ -444,8 +444,7 @@ jobs:
       - image: cimg/python:3.9
     environment:
       TOXENV: py39-ethpm
-      # Please don't use this key for any shenanigans
-      WEB3_INFURA_PROJECT_ID: 7707850c2fb7465ebe6f150d67182e22
+      WEB3_INFURA_PROJECT_ID: $WEB3_INFURA_PROJECT_ID
 
   py39-integration-goethereum-ipc:
     <<: *geth_steps
@@ -541,8 +540,7 @@ jobs:
       - image: cimg/python:3.10
     environment:
       TOXENV: py310-ethpm
-      # Please don't use this key for any shenanigans
-      WEB3_INFURA_PROJECT_ID: 7707850c2fb7465ebe6f150d67182e22
+      WEB3_INFURA_PROJECT_ID: $WEB3_INFURA_PROJECT_ID
 
   py310-integration-goethereum-ipc:
     <<: *geth_steps
@@ -644,7 +642,7 @@ jobs:
     environment:
       TOXENV: py311-ethpm
       # Please don't use this key for any shenanigans
-      WEB3_INFURA_PROJECT_ID: 7707850c2fb7465ebe6f150d67182e22
+      WEB3_INFURA_PROJECT_ID: $WEB3_INFURA_PROJECT_ID
 
   py311-integration-goethereum-ipc:
     <<: *geth_steps
