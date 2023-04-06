@@ -1549,6 +1549,251 @@ class AsyncEthModuleTest:
             assert len(signature) == 32 + 32 + 1
 
     @pytest.mark.asyncio
+    async def test_async_eth_replace_transaction_legacy(
+        self, async_w3: "AsyncWeb3", unlocked_account_dual_type: ChecksumAddress
+    ) -> None:
+        txn_params: TxParams = {
+            "from": unlocked_account_dual_type,
+            "to": unlocked_account_dual_type,
+            "value": Wei(1),
+            "gas": 21000,
+            "gasPrice": async_w3.to_wei(
+                1, "gwei"
+            ),  # must be greater than base_fee post London
+        }
+        txn_hash = await async_w3.eth.send_transaction(txn_params)
+
+        txn_params["gasPrice"] = async_w3.to_wei(2, "gwei")
+        replace_txn_hash = await async_w3.eth.replace_transaction(txn_hash, txn_params)
+        replace_txn = await async_w3.eth.get_transaction(replace_txn_hash)
+
+        assert is_same_address(
+            replace_txn["from"], cast(ChecksumAddress, txn_params["from"])
+        )
+        assert is_same_address(
+            replace_txn["to"], cast(ChecksumAddress, txn_params["to"])
+        )
+        assert replace_txn["value"] == 1
+        assert replace_txn["gas"] == 21000
+        assert replace_txn["gasPrice"] == txn_params["gasPrice"]
+
+    @pytest.mark.asyncio
+    async def test_async_eth_replace_transaction(
+        self, async_w3: "AsyncWeb3", unlocked_account_dual_type: ChecksumAddress
+    ) -> None:
+        two_gwei_in_wei = async_w3.to_wei(2, "gwei")
+        three_gwei_in_wei = async_w3.to_wei(3, "gwei")
+
+        txn_params: TxParams = {
+            "from": unlocked_account_dual_type,
+            "to": unlocked_account_dual_type,
+            "value": Wei(1),
+            "gas": 21000,
+            "maxFeePerGas": two_gwei_in_wei,
+            "maxPriorityFeePerGas": async_w3.to_wei(1, "gwei"),
+        }
+        txn_hash = await async_w3.eth.send_transaction(txn_params)
+
+        txn_params["maxFeePerGas"] = three_gwei_in_wei
+        txn_params["maxPriorityFeePerGas"] = two_gwei_in_wei
+
+        replace_txn_hash = await async_w3.eth.replace_transaction(txn_hash, txn_params)
+        replace_txn = await async_w3.eth.get_transaction(replace_txn_hash)
+
+        assert is_same_address(
+            replace_txn["from"], cast(ChecksumAddress, txn_params["from"])
+        )
+        assert is_same_address(
+            replace_txn["to"], cast(ChecksumAddress, txn_params["to"])
+        )
+        assert replace_txn["value"] == 1
+        assert replace_txn["gas"] == 21000
+        assert replace_txn["maxFeePerGas"] == three_gwei_in_wei
+        assert replace_txn["maxPriorityFeePerGas"] == two_gwei_in_wei
+
+    @pytest.mark.asyncio
+    async def test_async_eth_replace_transaction_underpriced(
+        self, async_w3: "AsyncWeb3", unlocked_account_dual_type: ChecksumAddress
+    ) -> None:
+        txn_params: TxParams = {
+            "from": unlocked_account_dual_type,
+            "to": unlocked_account_dual_type,
+            "value": Wei(1),
+            "gas": 21000,
+            "maxFeePerGas": async_w3.to_wei(3, "gwei"),
+            "maxPriorityFeePerGas": async_w3.to_wei(2, "gwei"),
+        }
+        txn_hash = await async_w3.eth.send_transaction(txn_params)
+
+        one_gwei_in_wei = async_w3.to_wei(1, "gwei")
+        txn_params["maxFeePerGas"] = one_gwei_in_wei
+        txn_params["maxPriorityFeePerGas"] = one_gwei_in_wei
+
+        with pytest.raises(ValueError, match="replacement transaction underpriced"):
+            await async_w3.eth.replace_transaction(txn_hash, txn_params)
+
+    @pytest.mark.asyncio
+    async def test_async_eth_replace_transaction_non_existing_transaction(
+        self, async_w3: "AsyncWeb3", unlocked_account_dual_type: ChecksumAddress
+    ) -> None:
+        txn_params: TxParams = {
+            "from": unlocked_account_dual_type,
+            "to": unlocked_account_dual_type,
+            "value": Wei(1),
+            "gas": 21000,
+            "maxFeePerGas": async_w3.to_wei(3, "gwei"),
+            "maxPriorityFeePerGas": async_w3.to_wei(1, "gwei"),
+        }
+        with pytest.raises(TransactionNotFound):
+            await async_w3.eth.replace_transaction(
+                HexStr(
+                    "0x98e8cc09b311583c5079fa600f6c2a3bea8611af168c52e4b60b5b243a441997"
+                ),
+                txn_params,
+            )
+
+    @pytest.mark.asyncio
+    @pytest.mark.xfail(reason="AsyncGethMiner is missing.")
+    async def test_async_eth_replace_transaction_already_mined(
+        self, async_w3: "AsyncWeb3", unlocked_account_dual_type: ChecksumAddress
+    ) -> None:
+        txn_params: TxParams = {
+            "from": unlocked_account_dual_type,
+            "to": unlocked_account_dual_type,
+            "value": Wei(1),
+            "gas": 21000,
+            "maxFeePerGas": async_w3.to_wei(2, "gwei"),
+            "maxPriorityFeePerGas": async_w3.to_wei(1, "gwei"),
+        }
+        txn_hash = await async_w3.eth.send_transaction(txn_params)
+        try:
+            async_w3.geth.miner.start()  # type: ignore
+            await async_w3.eth.wait_for_transaction_receipt(txn_hash, timeout=10)
+        finally:
+            async_w3.geth.miner.stop()  # type: ignore
+
+        txn_params["maxFeePerGas"] = async_w3.to_wei(3, "gwei")
+        txn_params["maxPriorityFeePerGas"] = async_w3.to_wei(2, "gwei")
+        with pytest.raises(ValueError, match="Supplied transaction with hash"):
+            await async_w3.eth.replace_transaction(txn_hash, txn_params)
+
+    @pytest.mark.asyncio
+    async def test_async_eth_replace_transaction_incorrect_nonce(
+        self, async_w3: "AsyncWeb3", unlocked_account: ChecksumAddress
+    ) -> None:
+        txn_params: TxParams = {
+            "from": unlocked_account,
+            "to": unlocked_account,
+            "value": Wei(1),
+            "gas": 21000,
+            "maxFeePerGas": async_w3.to_wei(2, "gwei"),
+            "maxPriorityFeePerGas": async_w3.to_wei(1, "gwei"),
+        }
+        txn_hash = await async_w3.eth.send_transaction(txn_params)
+        txn = await async_w3.eth.get_transaction(txn_hash)
+
+        txn_params["maxFeePerGas"] = async_w3.to_wei(3, "gwei")
+        txn_params["maxPriorityFeePerGas"] = async_w3.to_wei(2, "gwei")
+        txn_params["nonce"] = Nonce(txn["nonce"] + 1)
+        with pytest.raises(ValueError):
+            await async_w3.eth.replace_transaction(txn_hash, txn_params)
+
+    @pytest.mark.asyncio
+    async def test_async_eth_replace_transaction_gas_price_too_low(
+        self, async_w3: "AsyncWeb3", unlocked_account_dual_type: ChecksumAddress
+    ) -> None:
+        txn_params: TxParams = {
+            "from": unlocked_account_dual_type,
+            "to": unlocked_account_dual_type,
+            "value": Wei(1),
+            "gas": 21000,
+            "gasPrice": async_w3.to_wei(2, "gwei"),
+        }
+        txn_hash = await async_w3.eth.send_transaction(txn_params)
+
+        txn_params["gasPrice"] = async_w3.to_wei(1, "gwei")
+        with pytest.raises(ValueError):
+            await async_w3.eth.replace_transaction(txn_hash, txn_params)
+
+    @pytest.mark.asyncio
+    async def test_async_eth_replace_transaction_gas_price_defaulting_minimum(
+        self, async_w3: "AsyncWeb3", unlocked_account: ChecksumAddress
+    ) -> None:
+        gas_price = async_w3.to_wei(1, "gwei")
+
+        txn_params: TxParams = {
+            "from": unlocked_account,
+            "to": unlocked_account,
+            "value": Wei(1),
+            "gas": 21000,
+            "gasPrice": gas_price,
+        }
+        txn_hash = await async_w3.eth.send_transaction(txn_params)
+
+        txn_params.pop("gasPrice")
+        replace_txn_hash = await async_w3.eth.replace_transaction(txn_hash, txn_params)
+        replace_txn = await async_w3.eth.get_transaction(replace_txn_hash)
+
+        assert replace_txn["gasPrice"] == math.ceil(
+            gas_price * 1.125
+        )  # minimum gas price
+
+    @pytest.mark.asyncio
+    async def test_async_eth_replace_transaction_gas_price_defaulting_strategy_higher(
+        self, async_w3: "AsyncWeb3", unlocked_account: ChecksumAddress
+    ) -> None:
+        txn_params: TxParams = {
+            "from": unlocked_account,
+            "to": unlocked_account,
+            "value": Wei(1),
+            "gas": 21000,
+            "gasPrice": async_w3.to_wei(1, "gwei"),
+        }
+        txn_hash = await async_w3.eth.send_transaction(txn_params)
+
+        two_gwei_in_wei = async_w3.to_wei(2, "gwei")
+
+        def higher_gas_price_strategy(async_w3: "AsyncWeb3", txn: TxParams) -> Wei:
+            return two_gwei_in_wei
+
+        async_w3.eth.set_gas_price_strategy(higher_gas_price_strategy)
+
+        txn_params.pop("gasPrice")
+        replace_txn_hash = await async_w3.eth.replace_transaction(txn_hash, txn_params)
+        replace_txn = await async_w3.eth.get_transaction(replace_txn_hash)
+        assert (
+            replace_txn["gasPrice"] == two_gwei_in_wei
+        )  # Strategy provides higher gas price
+        async_w3.eth.set_gas_price_strategy(None)  # reset strategy
+
+    @pytest.mark.asyncio
+    async def test_async_eth_replace_transaction_gas_price_defaulting_strategy_lower(
+        self, async_w3: "AsyncWeb3", unlocked_account: ChecksumAddress
+    ) -> None:
+        gas_price = async_w3.to_wei(2, "gwei")
+
+        txn_params: TxParams = {
+            "from": unlocked_account,
+            "to": unlocked_account,
+            "value": Wei(1),
+            "gas": 21000,
+            "gasPrice": gas_price,
+        }
+        txn_hash = await async_w3.eth.send_transaction(txn_params)
+
+        def lower_gas_price_strategy(async_w3: "AsyncWeb3", txn: TxParams) -> Wei:
+            return async_w3.to_wei(1, "gwei")
+
+        async_w3.eth.set_gas_price_strategy(lower_gas_price_strategy)
+
+        txn_params.pop("gasPrice")
+        replace_txn_hash = await async_w3.eth.replace_transaction(txn_hash, txn_params)
+        replace_txn = await async_w3.eth.get_transaction(replace_txn_hash)
+        # Strategy provides lower gas price - minimum preferred
+        assert replace_txn["gasPrice"] == math.ceil(gas_price * 1.125)
+        async_w3.eth.set_gas_price_strategy(None)  # reset strategy
+
+    @pytest.mark.asyncio
     async def test_async_eth_new_filter(self, async_w3: "AsyncWeb3") -> None:
         filter = await async_w3.eth.filter({})
 

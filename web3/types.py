@@ -255,7 +255,9 @@ CallOverrideParams = TypedDict(
 CallOverride = Dict[ChecksumAddress, CallOverrideParams]
 
 
-GasPriceStrategy = Callable[["Web3", TxParams], Wei]
+GasPriceStrategy = Union[
+    Callable[["Web3", TxParams], Wei], Callable[["AsyncWeb3", TxParams], Wei]
+]
 
 
 # syntax b/c "from" keyword not allowed w/ class construction
