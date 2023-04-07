@@ -1,5 +1,5 @@
 web3.eth API
-=============
+============
 
 .. py:module:: web3.eth
 
