@@ -116,6 +116,8 @@ Other Misc Changes
 - When a method is unavailable from a node provider (i.e. a response error
   code of -32601 is returned), a ``MethodUnavailable`` error is
   now raised instead of ``ValueError``
+- Logs' `data` field was previously formatted with `to_ascii_if_bytes`, now formatted to `HexBytes`
+- Receipts' `type` field was previously not formatted, now formatted with `to_integer_if_hex`
 
 Removals
 ~~~~~~~~
