@@ -7,14 +7,14 @@ from setuptools import (
 
 extras_require = {
     "test": [
-        "pytest>=6.2.5",
-        "pytest-xdist>=2.4.0,<3",
-        "tox==3.14.6",
+        "pytest>=7.0.0",
+        "pytest-xdist>=2.4.0",
     ],
     "lint": [
-        "flake8==3.7.9",
+        "flake8>=5.0.0",
+        "flake8-bugbear>=22.0.0",
         "isort>=5.10.1",
-        "mypy==0.770",
+        "mypy==0.971",
         "pydocstyle>=5.0.0",
         "black>=22",
     ],
@@ -26,6 +26,7 @@ extras_require = {
     "dev": [
         "bumpversion>=0.5.3",
         "pytest-watch>=4.1.0",
+        "tox>=3.18.0",
         "wheel",
         "twine",
         "ipython",
@@ -79,6 +80,5 @@ setup(
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
-        "Programming Language :: Python :: Implementation :: PyPy",
     ],
 )
