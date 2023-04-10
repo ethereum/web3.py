@@ -102,6 +102,7 @@ jobs:
       - image: cimg/python:3.11
         environment:
           TOXENV: py311-core
+
 workflows:
   version: 2
   test:

@@ -1,6 +1,5 @@
 include LICENSE
 include README.md
-include requirements-docs.txt
 
 global-include *.pyi
 

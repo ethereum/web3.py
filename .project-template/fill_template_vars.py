@@ -7,7 +7,7 @@ from pathlib import Path
 
 
 def _find_files(project_root):
-    path_exclude_pattern = r"\.git($|\/)|venv|_build"
+    path_exclude_pattern = r"\.git($|\/)|venv|_build|\.tox"
     file_exclude_pattern = r"fill_template_vars\.py|\.swp$"
     filepaths = []
     for dir_path, _dir_names, file_names in os.walk(project_root):
