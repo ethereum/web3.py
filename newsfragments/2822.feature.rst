@@ -1,0 +1,1 @@
+Adds async version of `eth_getUncleCount` methods
