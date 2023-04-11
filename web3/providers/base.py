@@ -16,6 +16,9 @@ from eth_utils import (
 from web3._utils.encoding import (
     FriendlyJsonSerde,
 )
+from web3.exceptions import (
+    Web3Exception,
+)
 from web3.middleware import (
     combine_middlewares,
 )
@@ -83,7 +86,7 @@ class BaseProvider:
     def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
         raise NotImplementedError("Providers must implement this method")
 
-    def is_connected(self) -> bool:
+    def is_connected(self, raise_if_false: bool = False) -> bool:
         raise NotImplementedError("Providers must implement this method")
 
 
@@ -105,13 +108,22 @@ class JSONBaseProvider(BaseProvider):
         encoded = FriendlyJsonSerde().json_encode(rpc_dict)
         return to_bytes(text=encoded)
 
-    def is_connected(self) -> bool:
+    def is_connected(self, raise_if_false: bool = False) -> bool:
         try:
             response = self.make_request(RPCEndpoint("web3_clientVersion"), [])
-        except OSError:
+        except OSError as e:
+            if raise_if_false:
+                raise e
             return False
 
-        assert response["jsonrpc"] == "2.0"
-        assert "error" not in response
+        if "error" in response:
+            if raise_if_false:
+                raise Web3Exception(f"Error received from provider: {response}")
+            return False
 
-        return True
+        if response["jsonrpc"] == "2.0":
+            return True
+        else:
+            if raise_if_false:
+                raise Web3Exception(f"Bad jsonrpc version: {response}")
+            return False

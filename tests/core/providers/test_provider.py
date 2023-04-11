@@ -18,12 +18,12 @@ from web3.types import (
 
 
 class ConnectedProvider(BaseProvider):
-    def is_connected(self):
+    def is_connected(self, raise_if_false: bool = False):
         return True
 
 
 class DisconnectedProvider(BaseProvider):
-    def is_connected(self):
+    def is_connected(self, raise_if_false: bool = False):
         return False
 
 

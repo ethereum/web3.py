@@ -378,7 +378,7 @@ class AsyncWeb3(BaseWeb3):
 
         self.ens = ens
 
-    def is_connected(self) -> Coroutine[Any, Any, bool]:
+    def is_connected(self, raise_if_false: bool = False) -> Coroutine[Any, Any, bool]:
         return self.provider.is_connected()
 
     @property
@@ -441,8 +441,8 @@ class Web3(BaseWeb3):
 
         self.ens = ens
 
-    def is_connected(self) -> bool:
-        return self.provider.is_connected()
+    def is_connected(self, raise_if_false: bool = False) -> bool:
+        return self.provider.is_connected(raise_if_false)
 
     @classmethod
     def normalize_values(
