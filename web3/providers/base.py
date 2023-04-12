@@ -17,7 +17,7 @@ from web3._utils.encoding import (
     FriendlyJsonSerde,
 )
 from web3.exceptions import (
-    Web3Exception,
+    ProviderConnectionError,
 )
 from web3.middleware import (
     combine_middlewares,
@@ -111,19 +111,21 @@ class JSONBaseProvider(BaseProvider):
     def is_connected(self, raise_if_false: bool = False) -> bool:
         try:
             response = self.make_request(RPCEndpoint("web3_clientVersion"), [])
-        except OSError as e:
+        except ProviderConnectionError as e:
             if raise_if_false:
                 raise e
             return False
 
         if "error" in response:
             if raise_if_false:
-                raise Web3Exception(f"Error received from provider: {response}")
+                raise ProviderConnectionError(
+                    f"Error received from provider: {response}"
+                )
             return False
 
         if response["jsonrpc"] == "2.0":
             return True
         else:
             if raise_if_false:
-                raise Web3Exception(f"Bad jsonrpc version: {response}")
+                raise ProviderConnectionError(f"Bad jsonrpc version: {response}")
             return False

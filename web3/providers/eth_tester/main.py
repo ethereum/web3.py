@@ -76,7 +76,7 @@ class AsyncEthereumTesterProvider(AsyncBaseProvider):
     async def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
         return _make_request(method, params, self.api_endpoints, self.ethereum_tester)
 
-    async def is_connected(self) -> Literal[True]:
+    async def is_connected(self, raise_if_false: bool = False) -> Literal[True]:
         return True
 
 
