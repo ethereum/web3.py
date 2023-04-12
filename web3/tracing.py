@@ -29,8 +29,8 @@ from web3.module import (
 from web3.types import (
     BlockIdentifier,
     BlockTrace,
-    TraceFilterParams,
     FilterTrace,
+    TraceFilterParams,
     TraceMode,
     TxParams,
     _Hash32,
