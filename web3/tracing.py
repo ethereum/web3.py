@@ -29,8 +29,8 @@ from web3.module import (
 from web3.types import (
     BlockIdentifier,
     BlockTrace,
-    FilterParams,
     FilterTrace,
+    TraceFilterParams,
     TraceMode,
     TxParams,
     _Hash32,
@@ -73,7 +73,7 @@ class Tracing(Module):
         mungers=[default_root_munger],
     )
 
-    trace_filter: Method[Callable[[FilterParams], List[FilterTrace]]] = Method(
+    trace_filter: Method[Callable[[TraceFilterParams], List[FilterTrace]]] = Method(
         RPC.trace_filter,
         mungers=[default_root_munger],
     )
