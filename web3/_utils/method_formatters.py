@@ -94,10 +94,7 @@ from web3.datastructures import (
 )
 from web3.exceptions import (
     BlockNotFound,
-<<<<<<< HEAD
-=======
     ContractCustomError,
->>>>>>> a3ac3a0d (Add tests around custom error revert)
     ContractLogicError,
     OffchainLookup,
     TransactionNotFound,
