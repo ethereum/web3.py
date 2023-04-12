@@ -1,1 +1,0 @@
-Added breaking changes from pr2448 to v6 migration guide

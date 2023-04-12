@@ -6,6 +6,30 @@ v6 Breaking Changes Summary
 
 .. towncrier release notes start
 
+v6.2.0 (2023-04-12)
+-------------------
+
+Features
+~~~~~~~~
+
+- Adds async version of `eth_getUncleCount` methods (`#2822 <https://github.com/ethereum/web3.py/issues/2822>`__)
+- Add the ``sign_transaction`` method to the ``AsyncEth`` class (`#2827 <https://github.com/ethereum/web3.py/issues/2827>`__)
+- Add the ``replace_transaction`` method to the ``AsyncEth`` class (`#2847 <https://github.com/ethereum/web3.py/issues/2847>`__)
+
+
+Bugfixes
+~~~~~~~~
+
+- Use ``TraceFilterParams`` instead of ``FilterParams`` for ``trace_filter`` typing (`#2913 <https://github.com/ethereum/web3.py/issues/2913>`__)
+
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Add welcome banner for Ethereum newcomers (`#2905 <https://github.com/ethereum/web3.py/issues/2905>`__)
+- Added breaking changes from pr2448 to v6 migration guide (`#2907 <https://github.com/ethereum/web3.py/issues/2907>`__)
+
+
 v6.1.0 (2023-04-05)
 -------------------
 

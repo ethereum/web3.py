@@ -1,1 +1,0 @@
-Use ``TraceFilterParams`` instead of ``FilterParams`` for ``trace_filter`` typing
