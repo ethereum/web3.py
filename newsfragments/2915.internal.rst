@@ -1,0 +1,1 @@
+Added ``build`` to towncrier commands in Makefile

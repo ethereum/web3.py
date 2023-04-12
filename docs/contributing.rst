@@ -465,7 +465,7 @@ Preview The Release Notes
 
 .. code:: sh
 
-   $ towncrier --draft
+   $ towncrier build --draft
 
 
 Compile The Release Notes
