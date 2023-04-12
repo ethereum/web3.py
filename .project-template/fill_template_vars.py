@@ -7,7 +7,7 @@ from pathlib import Path
 
 
 def _find_files(project_root):
-    path_exclude_pattern = r"\.git($|\/)|venv|_build|\.tox"
+    path_exclude_pattern = r"\.git($|\/)|venv|_build"
     file_exclude_pattern = r"fill_template_vars\.py|\.swp$"
     filepaths = []
     for dir_path, _dir_names, file_names in os.walk(project_root):
@@ -22,11 +22,14 @@ def _find_files(project_root):
 def _replace(pattern, replacement, project_root):
     print(f"Replacing values: {pattern}")
     for file in _find_files(project_root):
-        with open(file) as f:
-            content = f.read()
-        content = re.sub(pattern, replacement, content)
-        with open(file, "w") as f:
-            f.write(content)
+        try:
+            with open(file) as f:
+                content = f.read()
+            content = re.sub(pattern, replacement, content)
+            with open(file, "w") as f:
+                f.write(content)
+        except UnicodeDecodeError:
+            pass
 
 
 def main():
