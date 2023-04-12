@@ -47,7 +47,7 @@ class BlockNumberOutofRange(Web3Exception):
     pass
 
 
-class ProviderConnectionError(Web3Exception):
+class ProviderConnectionError(Web3Exception, OSError):
     """
     Raised when unable to connect to a provider
     """
