@@ -250,10 +250,12 @@ class ContractLogicError(Web3Exception):
     Raised on a contract revert error
     """
 
+
 class ContractCustomError(ContractLogicError):
     """
     Raised on a contract revert custom error
     """
+
 
 class OffchainLookup(ContractLogicError):
     """
