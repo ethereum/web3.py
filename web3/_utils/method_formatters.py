@@ -758,6 +758,13 @@ def raise_contract_logic_error_on_revert(response: RPCResponse) -> RPCResponse:
         )
         raise OffchainLookup(offchain_lookup_payload)
 
+    # Solidity 0.8.4 introduced custom error messages that allow args to
+    # be passed in (or not). See:
+    # https://blog.soliditylang.org/2021/04/21/custom-errors/
+    if len(data) >= 10 and not data[:10] == "0x08c379a0":
+        # raising along with the data value to allow processing in user code
+        raise ContractCustomError(data)
+
     # Geth case:
     if "message" in response["error"] and response["error"].get("code", "") == 3:
         raise ContractLogicError(response["error"]["message"])
@@ -765,13 +772,6 @@ def raise_contract_logic_error_on_revert(response: RPCResponse) -> RPCResponse:
     # Geth Revert without error message case:
     if "execution reverted" in response["error"].get("message"):
         raise ContractLogicError("execution reverted")
-
-    # Solidity 0.8.4 introduced custom error messages that allow args to
-    # be passed in (or not). See:
-    # https://blog.soliditylang.org/2021/04/21/custom-errors/
-    if len(data) >= 10 and not data[:10] == "0x08c379a0":
-        # raising along with the data value to allow processing in user code
-        raise ContractCustomError(data)
 
     return response
 

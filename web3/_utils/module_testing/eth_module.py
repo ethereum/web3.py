@@ -3533,6 +3533,42 @@ class EthModuleTest:
             )
             w3.eth.estimate_gas(txn_params)
 
+    def test_eth_estimate_gas_custom_error_revert_with_msg(
+        self,
+        w3: "Web3",
+        revert_contract: "Contract",
+        unlocked_account: ChecksumAddress,
+    ) -> None:
+        data = revert_contract.encodeABI(
+            fn_name="UnauthorizedWithMessage", args=["You are not authorized"]
+        )
+        txn_params = revert_contract._prepare_transaction(
+            fn_name="customErrorWithMessage",
+            transaction={
+                "from": unlocked_account,
+                "to": revert_contract.address,
+            },
+        )
+        with pytest.raises(ContractCustomError, match=data):
+            w3.eth.estimate_gas(txn_params)
+
+    def test_eth_estimate_gas_custom_error_revert_without_msg(
+        self,
+        w3: "Web3",
+        revert_contract: "Contract",
+        unlocked_account: ChecksumAddress,
+    ) -> None:
+        data = revert_contract.encodeABI(fn_name="Unauthorized")
+        txn_params = revert_contract._prepare_transaction(
+            fn_name="customErrorWithoutMessage",
+            transaction={
+                "from": unlocked_account,
+                "to": revert_contract.address,
+            },
+        )
+        with pytest.raises(ContractCustomError, match=data):
+            w3.eth.estimate_gas(txn_params)
+
     def test_eth_estimate_gas(
         self, w3: "Web3", unlocked_account_dual_type: ChecksumAddress
     ) -> None:
