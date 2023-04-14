@@ -173,34 +173,17 @@ wei, then from wei to whatever you need.
     Decimal('5')
 
 
-Making transactions
--------------------
+Sending transactions
+--------------------
 
-There are a few options for making transactions:
+There are a few options for sending transactions:
 
 - :meth:`~web3.eth.Eth.send_transaction`
-
-  Use this method if:
-    - you want to send ether from one account to another.
-
 - :meth:`~web3.eth.Eth.send_raw_transaction`
+- Calling :meth:`~web3.contract.ContractFunction.transact` on a contract function
+- Utilizing :meth:`~web3.middleware.construct_sign_and_send_raw_middleware`
 
-  Use this method if:
-    - you want to sign the transaction elsewhere, e.g., a hardware wallet.
-    - you want to broadcast a transaction through another provider, e.g., Infura.
-    - you have some other advanced use case that requires more flexibility.
-
-- :ref:`contract-functions`
-
-  Use these methods if:
-    - you want to interact with a contract. web3.py parses the contract ABI and makes those functions available via the ``functions`` property.
-
-- :meth:`~web3.middleware.construct_sign_and_send_raw_middleware`
-
-  Use this middleware if:
-    - you want to automate signing when using ``w3.eth.send_transaction`` or ``ContractFunctions``.
-
-.. NOTE:: The location of your keys (e.g., local or hosted) will have implications on these methods. Read about the differences :ref:`here <eth-account>`.
+For more context, see the :doc:`transactions` Guide.
 
 
 Looking up transactions
