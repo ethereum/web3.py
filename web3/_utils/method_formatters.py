@@ -94,6 +94,7 @@ from web3.datastructures import (
 )
 from web3.exceptions import (
     BlockNotFound,
+    ContractCustomError,
     ContractLogicError,
     OffchainLookup,
     TransactionNotFound,
@@ -756,6 +757,13 @@ def raise_contract_logic_error_on_revert(response: RPCResponse) -> RPCResponse:
             zip(OFFCHAIN_LOOKUP_FIELDS.keys(), abi_decoded_data)
         )
         raise OffchainLookup(offchain_lookup_payload)
+
+    # Solidity 0.8.4 introduced custom error messages that allow args to
+    # be passed in (or not). See:
+    # https://blog.soliditylang.org/2021/04/21/custom-errors/
+    if len(data) >= 10 and not data[:10] == "0x08c379a0":
+        # raising along with the data value to allow processing in user code
+        raise ContractCustomError(data)
 
     # Geth case:
     if "message" in response["error"] and response["error"].get("code", "") == 3:

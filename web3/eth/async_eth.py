@@ -9,7 +9,7 @@ from typing import (
     Tuple,
     Type,
     Union,
-    overload,
+    overload, cast,
 )
 import warnings
 
@@ -22,10 +22,13 @@ from eth_typing import (
 from hexbytes import (
     HexBytes,
 )
+from eth_utils.toolz import (
+    merge,
+)
 
 from web3._utils.async_transactions import (
     async_get_required_transaction,
-    async_replace_transaction,
+    async_replace_transaction, async_extract_valid_transaction_params,
 )
 from web3._utils.blocks import (
     select_method_for_block_identifier,
@@ -40,6 +43,7 @@ from web3._utils.filters import (
 from web3._utils.rpc_abi import (
     RPC,
 )
+from web3._utils.transactions import assert_valid_transaction_params
 from web3.contract import (
     AsyncContract,
     AsyncContractCaller,
@@ -560,6 +564,17 @@ class AsyncEth(BaseEth):
 
     # eth_getUncleCountByBlockHash
     # eth_getUncleCountByBlockNumber
+
+    async def modify_transaction(
+            self, transaction_hash: _Hash32, **transaction_params: Any
+    ) -> HexBytes:
+        assert_valid_transaction_params(cast(TxParams, transaction_params))
+
+        current_transaction = await async_get_required_transaction(self.w3, transaction_hash)
+        current_transaction_params = await async_extract_valid_transaction_params(current_transaction)
+        new_transaction = merge(current_transaction_params, transaction_params)
+
+        return await self.replace_transaction(current_transaction, new_transaction)
 
     _get_uncle_count: Method[Callable[[BlockIdentifier], Awaitable[int]]] = Method(
         method_choice_depends_on_args=select_method_for_block_identifier(

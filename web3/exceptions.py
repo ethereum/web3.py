@@ -251,6 +251,12 @@ class ContractLogicError(Web3Exception):
     """
 
 
+class ContractCustomError(ContractLogicError):
+    """
+    Raised on a contract revert custom error
+    """
+
+
 class OffchainLookup(ContractLogicError):
     """
     Raised when a contract reverts with OffchainLookup as described in EIP-3668
