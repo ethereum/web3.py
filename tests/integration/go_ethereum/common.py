@@ -97,4 +97,18 @@ class GoEthereumPersonalModuleTest(GoEthereumPersonalModuleTest):
 
 
 class GoEthereumAsyncEthModuleTest(AsyncEthModuleTest):
-    pass
+    @pytest.mark.xfail(reason="eth_signTypedData has not been released in geth")
+    async def test_eth_sign_typed_data(
+        self, async_w3, unlocked_account_dual_type, async_skip_if_testrpc
+    ):
+        await super().test_eth_sign_typed_data(
+            async_w3, unlocked_account_dual_type, async_skip_if_testrpc
+        )
+
+    @pytest.mark.xfail(reason="eth_signTypedData has not been released in geth")
+    async def test_invalid_eth_sign_typed_data(
+        self, async_w3, unlocked_account_dual_type, async_skip_if_testrpc
+    ):
+        await super().test_invalid_eth_sign_typed_data(
+            async_w3, unlocked_account_dual_type, async_skip_if_testrpc
+        )
