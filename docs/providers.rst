@@ -297,6 +297,7 @@ Eth
 - :meth:`web3.eth.modify_transaction() <web3.eth.Eth.modify_transaction>`
 - :meth:`web3.eth.replace_transaction() <web3.eth.Eth.replace_transaction>`
 - :meth:`web3.eth.get_uncle_count() <web3.eth.Eth.get_uncle_count>`
+- :meth:`web3.eth.sign_typed_data() <web3.eth.Eth.sign_typed_data>`
 
 Net
 ***

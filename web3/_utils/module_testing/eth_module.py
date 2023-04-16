@@ -254,6 +254,115 @@ class AsyncEthModuleTest:
         assert result["tx"]["nonce"] == txn_params["nonce"]
 
     @pytest.mark.asyncio
+    async def test_eth_sign_typed_data(
+        self,
+        async_w3: "AsyncWeb3",
+        unlocked_account_dual_type: ChecksumAddress,
+        async_skip_if_testrpc: Callable[["AsyncWeb3"], None],
+    ) -> None:
+        validJSONMessage = """
+            {
+                "types": {
+                    "EIP712Domain": [
+                        {"name": "name", "type": "string"},
+                        {"name": "version", "type": "string"},
+                        {"name": "chainId", "type": "uint256"},
+                        {"name": "verifyingContract", "type": "address"}
+                    ],
+                    "Person": [
+                        {"name": "name", "type": "string"},
+                        {"name": "wallet", "type": "address"}
+                    ],
+                    "Mail": [
+                        {"name": "from", "type": "Person"},
+                        {"name": "to", "type": "Person"},
+                        {"name": "contents", "type": "string"}
+                    ]
+                },
+                "primaryType": "Mail",
+                "domain": {
+                    "name": "Ether Mail",
+                    "version": "1",
+                    "chainId": "0x01",
+                    "verifyingContract": "0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC"
+                },
+                "message": {
+                    "from": {
+                        "name": "Cow",
+                        "wallet": "0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826"
+                    },
+                    "to": {
+                        "name": "Bob",
+                        "wallet": "0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB"
+                    },
+                    "contents": "Hello, Bob!"
+                }
+            }
+        """
+        async_skip_if_testrpc(async_w3)
+        signature = HexBytes(
+            await async_w3.eth.sign_typed_data(
+                unlocked_account_dual_type, json.loads(validJSONMessage)
+            )
+        )
+        assert len(signature) == 32 + 32 + 1
+
+    @pytest.mark.asyncio
+    async def test_invalid_eth_sign_typed_data(
+        self,
+        async_w3: "AsyncWeb3",
+        unlocked_account_dual_type: ChecksumAddress,
+        async_skip_if_testrpc: Callable[["AsyncWeb3"], None],
+    ) -> None:
+        async_skip_if_testrpc(async_w3)
+        invalid_typed_message = """
+            {
+                "types": {
+                    "EIP712Domain": [
+                        {"name": "name", "type": "string"},
+                        {"name": "version", "type": "string"},
+                        {"name": "chainId", "type": "uint256"},
+                        {"name": "verifyingContract", "type": "address"}
+                    ],
+                    "Person": [
+                        {"name": "name", "type": "string"},
+                        {"name": "wallet", "type": "address"}
+                    ],
+                    "Mail": [
+                        {"name": "from", "type": "Person"},
+                        {"name": "to", "type": "Person[2]"},
+                        {"name": "contents", "type": "string"}
+                    ]
+                },
+                "primaryType": "Mail",
+                "domain": {
+                    "name": "Ether Mail",
+                    "version": "1",
+                    "chainId": "0x01",
+                    "verifyingContract": "0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC"
+                },
+                "message": {
+                    "from": {
+                        "name": "Cow",
+                        "wallet": "0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826"
+                    },
+                    "to": [{
+                        "name": "Bob",
+                        "wallet": "0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB"
+                    }],
+                    "contents": "Hello, Bob!"
+                }
+            }
+        """
+        with pytest.raises(
+            ValueError,
+            match=r".*Expected 2 items for array type Person\[2\], got 1 items.*",
+        ):
+            await async_w3.eth.sign_typed_data(
+                unlocked_account_dual_type, json.loads(invalid_typed_message)
+            )
+
+    @pytest.mark.asyncio
     async def test_async_eth_sign_transaction_legacy(
         self, async_w3: "AsyncWeb3", unlocked_account: ChecksumAddress
     ) -> None:
