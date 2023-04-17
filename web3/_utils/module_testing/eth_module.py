@@ -144,6 +144,33 @@ class AsyncEthModuleTest:
         assert txn["gasPrice"] == txn_params["gasPrice"]
 
     @pytest.mark.asyncio
+    async def test_modify_transaction(self, async_w3: "AsyncWeb3", unlocked_account: ChecksumAddress) -> None:
+        txn_params: TxParams = {
+            "to": unlocked_account,
+            "value": Wei(1),
+            "maxFeePerGas": async_w3.to_wei(3, "gwei"),
+            "maxPriorityFeePerGas": async_w3.to_wei(1, "gwei"),
+        }
+
+        result = await async_w3.eth.modify_transaction(txn_params)
+
+        assert "from" in result
+        assert "gas" in result
+        assert "gasPrice" in result
+        assert "nonce" in result
+
+        assert is_checksum_address(result["from"])
+        assert isinstance(result["gas"], int)
+        assert isinstance(result["gasPrice"], int)
+        assert isinstance(result["nonce"], int)
+
+        assert result["to"] == unlocked_account
+        assert result["value"] == 1
+        assert result["maxFeePerGas"] == async_w3.to_wei(3, "gwei")
+        assert result["maxPriorityFeePerGas"] == async_w3.to_wei(1, "gwei")
+        assert result["gas"] >= 21000
+
+    @pytest.mark.asyncio
     async def test_async_eth_sign_transaction(
         self, async_w3: "AsyncWeb3", unlocked_account: ChecksumAddress
     ) -> None:

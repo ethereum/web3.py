@@ -561,6 +561,14 @@ class AsyncEth(BaseEth):
     # eth_getUncleCountByBlockHash
     # eth_getUncleCountByBlockNumber
 
+    _modify_transaction: Method[Callable[[TxParams], Awaitable[TxParams]]] = Method(
+        RPC.eth_sendTransaction,
+        mungers=[default_root_munger],
+    )
+
+    async def modify_transaction(self, transaction: TxParams) -> TxParams:
+        return await self._modify_transaction(transaction)
+
     _get_uncle_count: Method[Callable[[BlockIdentifier], Awaitable[int]]] = Method(
         method_choice_depends_on_args=select_method_for_block_identifier(
             if_predefined=RPC.eth_getUncleCountByBlockNumber,
