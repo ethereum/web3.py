@@ -949,16 +949,16 @@ class AsyncEthModuleTest:
         revert_contract: "Contract",
         unlocked_account: ChecksumAddress,
     ) -> None:
+        txn_params = revert_contract._prepare_transaction(
+            fn_name="revertWithMessage",
+            transaction={
+                "from": unlocked_account,
+                "to": revert_contract.address,
+            },
+        )
         with pytest.raises(
             ContractLogicError, match="execution reverted: Function has been reverted"
         ):
-            txn_params = revert_contract._prepare_transaction(
-                fn_name="revertWithMessage",
-                transaction={
-                    "from": unlocked_account,
-                    "to": revert_contract.address,
-                },
-            )
             await async_w3.eth.call(txn_params)
 
     @pytest.mark.asyncio
@@ -3236,17 +3236,19 @@ class EthModuleTest:
         revert_contract: "Contract",
         unlocked_account: ChecksumAddress,
     ) -> None:
+        txn_params = revert_contract._prepare_transaction(
+            fn_name="revertWithMessage",
+            transaction={
+                "from": unlocked_account,
+                "to": revert_contract.address,
+            },
+        )
+        data = "0x08c379a00000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000001b46756e6374696f6e20686173206265656e2072657665727465642e0000000000"  # noqa: E501
         with pytest.raises(
             ContractLogicError, match="execution reverted: Function has been reverted"
-        ):
-            txn_params = revert_contract._prepare_transaction(
-                fn_name="revertWithMessage",
-                transaction={
-                    "from": unlocked_account,
-                    "to": revert_contract.address,
-                },
-            )
+        ) as excinfo:
             w3.eth.call(txn_params)
+        assert excinfo.value.data == data
 
     def test_eth_call_revert_without_msg(
         self,
@@ -3280,8 +3282,9 @@ class EthModuleTest:
                 "to": revert_contract.address,
             },
         )
-        with pytest.raises(ContractCustomError, match=data):
+        with pytest.raises(ContractCustomError, match=data) as excinfo:
             w3.eth.call(txn_params)
+        assert excinfo.value.data == data
 
     def test_eth_call_custom_error_revert_without_msg(
         self,
@@ -3297,8 +3300,9 @@ class EthModuleTest:
                 "to": revert_contract.address,
             },
         )
-        with pytest.raises(ContractCustomError, match=data):
+        with pytest.raises(ContractCustomError, match=data) as excinfo:
             w3.eth.call(txn_params)
+        assert excinfo.value.data == data
 
     def test_eth_call_offchain_lookup(
         self,
@@ -3549,8 +3553,9 @@ class EthModuleTest:
                 "to": revert_contract.address,
             },
         )
-        with pytest.raises(ContractCustomError, match=data):
+        with pytest.raises(ContractCustomError, match=data) as excinfo:
             w3.eth.estimate_gas(txn_params)
+        assert excinfo.value.data == data
 
     def test_eth_estimate_gas_custom_error_revert_without_msg(
         self,
@@ -3566,8 +3571,9 @@ class EthModuleTest:
                 "to": revert_contract.address,
             },
         )
-        with pytest.raises(ContractCustomError, match=data):
+        with pytest.raises(ContractCustomError, match=data) as excinfo:
             w3.eth.estimate_gas(txn_params)
+        assert excinfo.value.data == data
 
     def test_eth_estimate_gas(
         self, w3: "Web3", unlocked_account_dual_type: ChecksumAddress
