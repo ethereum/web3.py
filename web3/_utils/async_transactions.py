@@ -6,6 +6,10 @@ from typing import (
     cast,
 )
 
+from eth_utils.toolz import (
+    assoc,
+)
+
 from eth_abi import (
     abi,
 )
@@ -26,14 +30,14 @@ from web3._utils.request import (
     async_get_response_from_post_request,
 )
 from web3._utils.transactions import (
-    prepare_replacement_transaction,
+    prepare_replacement_transaction, VALID_TRANSACTION_PARAMS,
 )
 from web3._utils.type_conversion import (
     to_bytes_if_hex,
     to_hex_if_bytes,
 )
 from web3._utils.utility_methods import (
-    any_in_dict,
+    any_in_dict, all_in_dict,
 )
 from web3.constants import (
     DYNAMIC_FEE_TXN_PARAMS,
@@ -243,3 +247,39 @@ async def async_replace_transaction(
         async_w3, current_transaction, new_transaction
     )
     return await async_w3.eth.send_transaction(new_transaction)
+
+
+async def async_extract_valid_transaction_params(transaction_params: TxData) -> TxParams:
+    extracted_params = cast(
+        TxParams,
+        {
+            key: transaction_params[key]
+            for key in VALID_TRANSACTION_PARAMS
+            if key in transaction_params
+        },
+    )
+
+    if all_in_dict(DYNAMIC_FEE_TXN_PARAMS, extracted_params):
+        if extracted_params["gasPrice"] == extracted_params["maxFeePerGas"]:
+            extracted_params.pop("gasPrice")
+
+    if extracted_params.get("data") is not None:
+        if transaction_params.get("input") is not None:
+            if extracted_params["data"] != transaction_params["input"]:
+                msg = 'failure to handle this transaction due to both "input: {}" and'
+                msg += ' "data: {}" are populated. You need to resolve this conflict.'
+                err_vals = (transaction_params["input"], extracted_params["data"])
+                raise AttributeError(msg.format(*err_vals))
+            else:
+                return extracted_params
+        else:
+            return extracted_params
+    elif extracted_params.get("data") is None:
+        if transaction_params.get("input") is not None:
+            return assoc(extracted_params, "data", transaction_params["input"])
+        else:
+            return extracted_params
+    else:
+        raise Exception(
+            "Unreachable path: transaction's 'data' is either set or not set"
+        )

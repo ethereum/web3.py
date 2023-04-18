@@ -144,31 +144,70 @@ class AsyncEthModuleTest:
         assert txn["gasPrice"] == txn_params["gasPrice"]
 
     @pytest.mark.asyncio
-    async def test_modify_transaction(self, async_w3: "AsyncWeb3", unlocked_account: ChecksumAddress) -> None:
+    async def test_eth_modify_transaction_legacy(
+        self, async_w3: "AsyncWeb3", unlocked_account: ChecksumAddress
+    ) -> None:
         txn_params: TxParams = {
+            "from": unlocked_account,
             "to": unlocked_account,
             "value": Wei(1),
-            "maxFeePerGas": async_w3.to_wei(3, "gwei"),
-            "maxPriorityFeePerGas": async_w3.to_wei(1, "gwei"),
+            "gas": 21000,
+            "gasPrice": async_w3.to_wei(
+                1, "gwei"
+            ),  # must be greater than base_fee post London
         }
+        txn_hash = await async_w3.eth.send_transaction(txn_params)
 
-        result = await async_w3.eth.modify_transaction(txn_params)
+        modified_txn_hash = await async_w3.eth.modify_transaction(
+            txn_hash, gasPrice=(cast(int, txn_params["gasPrice"]) * 2), value=2
+        )
+        modified_txn = await async_w3.eth.get_transaction(modified_txn_hash)
 
-        assert "from" in result
-        assert "gas" in result
-        assert "gasPrice" in result
-        assert "nonce" in result
+        assert is_same_address(
+            modified_txn["from"], cast(ChecksumAddress, txn_params["from"])
+        )
+        assert is_same_address(
+            modified_txn["to"], cast(ChecksumAddress, txn_params["to"])
+        )
+        assert modified_txn["value"] == 2
+        assert modified_txn["gas"] == 21000
+        assert modified_txn["gasPrice"] == cast(int, txn_params["gasPrice"]) * 2
 
-        assert is_checksum_address(result["from"])
-        assert isinstance(result["gas"], int)
-        assert isinstance(result["gasPrice"], int)
-        assert isinstance(result["nonce"], int)
+    @pytest.mark.asyncio
+    async def test_eth_modify_transaction(
+        self, async_w3: "AsyncWeb3", unlocked_account: ChecksumAddress
+    ) -> None:
+        txn_params: TxParams = {
+            "from": unlocked_account,
+            "to": unlocked_account,
+            "value": Wei(1),
+            "gas": 21000,
+            "maxPriorityFeePerGas": async_w3.to_wei(1, "gwei"),
+            "maxFeePerGas": async_w3.to_wei(2, "gwei"),
+        }
+        txn_hash = await async_w3.eth.send_transaction(txn_params)
 
-        assert result["to"] == unlocked_account
-        assert result["value"] == 1
-        assert result["maxFeePerGas"] == async_w3.to_wei(3, "gwei")
-        assert result["maxPriorityFeePerGas"] == async_w3.to_wei(1, "gwei")
-        assert result["gas"] >= 21000
+        modified_txn_hash = await async_w3.eth.modify_transaction(
+            txn_hash,
+            value=2,
+            maxPriorityFeePerGas=(cast(Wei, txn_params["maxPriorityFeePerGas"]) * 2),
+            maxFeePerGas=(cast(Wei, txn_params["maxFeePerGas"]) * 2),
+        )
+        modified_txn = await async_w3.eth.get_transaction(modified_txn_hash)
+
+        assert is_same_address(
+            modified_txn["from"], cast(ChecksumAddress, txn_params["from"])
+        )
+        assert is_same_address(
+            modified_txn["to"], cast(ChecksumAddress, txn_params["to"])
+        )
+        assert modified_txn["value"] == 2
+        assert modified_txn["gas"] == 21000
+        assert (
+            modified_txn["maxPriorityFeePerGas"]
+            == cast(Wei, txn_params["maxPriorityFeePerGas"]) * 2
+        )
+        assert modified_txn["maxFeePerGas"] == cast(Wei, txn_params["maxFeePerGas"]) * 2
 
     @pytest.mark.asyncio
     async def test_async_eth_sign_transaction(
