@@ -1,0 +1,1 @@
+Update win wheel CI builds to use ``python -m tox -r`` instead of specifying the ``tox`` executable directly.
