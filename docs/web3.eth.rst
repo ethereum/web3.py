@@ -976,6 +976,11 @@ The following methods are available on the ``web3.eth`` namespace.
     ``OffchainLookup`` instead of properly handling the exception according to EIP-3668. This may be useful for
     "preflighting" a transaction with a call (see :ref:`ccip-read-example` within the examples section).
 
+    If the function called results in a ``revert`` error, a ``ContractLogicError`` will be raised.
+    If there is an error message with the error, web3.py attempts to parse the
+    message that comes back and return it to the user as the error string.
+    As of v6.3.0, the raw data is also returned and
+    can be accessed via the ``data`` attribute on ``ContractLogicError``.
 
 .. py:method:: Eth.fee_history(block_count, newest_block, reward_percentiles=None)
 
