@@ -16,7 +16,7 @@ extras_require = {
         "isort>=5.10.1",
         "mypy==0.971",  # mypy does not follow semver, leave it pinned.
         "pydocstyle>=6.0.0",
-        "black>=22",
+        "black>=23",
     ],
     "doc": [
         "sphinx>=5.0.0",
@@ -60,7 +60,7 @@ setup(
     install_requires=[
         "eth-utils>=2",
     ],
-    python_requires=">=3.7.2, <4",
+    python_requires=">=3.7, <4",
     extras_require=extras_require,
     py_modules=["<MODULE_NAME>"],
     license="MIT",

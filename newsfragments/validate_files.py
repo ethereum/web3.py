@@ -9,6 +9,7 @@ import sys
 ALLOWED_EXTENSIONS = {
     ".breaking.rst",
     ".bugfix.rst",
+    ".deprecation.rst",
     ".doc.rst",
     ".feature.rst",
     ".internal.rst",
