@@ -111,9 +111,11 @@ class JSONBaseProvider(BaseProvider):
     def is_connected(self, raise_if_false: bool = False) -> bool:
         try:
             response = self.make_request(RPCEndpoint("web3_clientVersion"), [])
-        except ProviderConnectionError as e:
+        except OSError as e:
             if raise_if_false:
-                raise e
+                raise ProviderConnectionError(
+                    f"Problem connecting to provider with error: {e}"
+                )
             return False
 
         if "error" in response:
