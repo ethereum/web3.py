@@ -22,9 +22,6 @@ from typing import (
 from web3._utils.threads import (
     Timeout,
 )
-from web3.exceptions import (
-    ProviderConnectionError,
-)
 from web3.types import (
     RPCEndpoint,
     RPCResponse,
@@ -185,38 +182,35 @@ class IPCProvider(JSONBaseProvider):
         )
         request = self.encode_rpc_request(method, params)
 
-        try:
-            with self._lock, self._socket as sock:
-                try:
-                    sock.sendall(request)
-                except BrokenPipeError:
-                    # one extra attempt, then give up
-                    sock = self._socket.reset()
-                    sock.sendall(request)
+        with self._lock, self._socket as sock:
+            try:
+                sock.sendall(request)
+            except BrokenPipeError:
+                # one extra attempt, then give up
+                sock = self._socket.reset()
+                sock.sendall(request)
 
-                raw_response = b""
-                with Timeout(self.timeout) as timeout:
-                    while True:
+            raw_response = b""
+            with Timeout(self.timeout) as timeout:
+                while True:
+                    try:
+                        raw_response += sock.recv(4096)
+                    except socket.timeout:
+                        timeout.sleep(0)
+                        continue
+                    if raw_response == b"":
+                        timeout.sleep(0)
+                    elif has_valid_json_rpc_ending(raw_response):
                         try:
-                            raw_response += sock.recv(4096)
-                        except socket.timeout:
+                            response = self.decode_rpc_response(raw_response)
+                        except JSONDecodeError:
                             timeout.sleep(0)
                             continue
-                        if raw_response == b"":
-                            timeout.sleep(0)
-                        elif has_valid_json_rpc_ending(raw_response):
-                            try:
-                                response = self.decode_rpc_response(raw_response)
-                            except JSONDecodeError:
-                                timeout.sleep(0)
-                                continue
-                            else:
-                                return response
                         else:
-                            timeout.sleep(0)
-                            continue
-        except OSError as e:
-            raise ProviderConnectionError(f"Cannot connect to provider with error: {e}")
+                            return response
+                    else:
+                        timeout.sleep(0)
+                        continue
 
 
 # A valid JSON RPC response can only end in } or ] http://www.jsonrpc.org/specification
