@@ -761,7 +761,7 @@ def raise_contract_logic_error_on_revert(response: RPCResponse) -> RPCResponse:
         offchain_lookup_payload = dict(
             zip(OFFCHAIN_LOOKUP_FIELDS.keys(), abi_decoded_data)
         )
-        raise OffchainLookup(offchain_lookup_payload)
+        raise OffchainLookup(offchain_lookup_payload, data=data)
 
     # Solidity 0.8.4 introduced custom error messages that allow args to
     # be passed in (or not). See:

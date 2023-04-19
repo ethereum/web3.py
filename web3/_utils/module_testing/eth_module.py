@@ -98,6 +98,7 @@ UNKNOWN_HASH = HexStr(
 )
 # "test offchain lookup" as an abi-encoded string
 OFFCHAIN_LOOKUP_TEST_DATA = "0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000001474657374206f6666636861696e206c6f6f6b7570000000000000000000000000"  # noqa: E501
+OFFCHAIN_LOOKUP_RETURN_DATA = "0x556f1830000000000000000000000000f29d81c1ac8d4d95a6b29226f80fef2bc7b59d7b00000000000000000000000000000000000000000000000000000000000000a000000000000000000000000000000000000000000000000000000000000001c0da96d05a0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002400000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000000000000000000000000000000000000000002c68747470733a2f2f776562332e70792f676174657761792f7b73656e6465727d2f7b646174617d2e6a736f6e0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002568747470733a2f2f776562332e70792f676174657761792f7b73656e6465727d2e6a736f6e00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000001474657374206f6666636861696e206c6f6f6b757000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000001474657374206f6666636861696e206c6f6f6b7570000000000000000000000000"
 # "web3py" as an abi-encoded string
 WEB3PY_AS_HEXBYTES = "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000067765623370790000000000000000000000000000000000000000000000000000"  # noqa: E501
 
@@ -1049,26 +1050,31 @@ class AsyncEthModuleTest:
         async_offchain_lookup_contract: "Contract",
     ) -> None:
         # test AsyncContractCaller
-        with pytest.raises(OffchainLookup):
+        with pytest.raises(OffchainLookup) as e:
             await async_offchain_lookup_contract.caller(
                 ccip_read_enabled=False
-            ).testOffchainLookup(  # noqa: E501 type: ignore
+            ).testOffchainLookup(  # type: ignore
                 OFFCHAIN_LOOKUP_TEST_DATA
             )
+        assert e.value.data == OFFCHAIN_LOOKUP_RETURN_DATA
 
         # test AsyncContractFunction call
-        with pytest.raises(OffchainLookup):
-            await async_offchain_lookup_contract.functions.testOffchainLookup(
+        with pytest.raises(OffchainLookup) as excinfo:
+            await async_offchain_lookup_contract.functions.testOffchainLookup(  # noqa: E501 type: ignore
                 OFFCHAIN_LOOKUP_TEST_DATA
-            ).call(ccip_read_enabled=False)
+            ).call(
+                ccip_read_enabled=False
+            )
+        assert excinfo.value.data == OFFCHAIN_LOOKUP_RETURN_DATA
 
         # test global flag on the provider
         async_w3.provider.global_ccip_read_enabled = False
 
-        with pytest.raises(OffchainLookup):
+        with pytest.raises(OffchainLookup) as exc_info:
             await async_offchain_lookup_contract.functions.testOffchainLookup(  # noqa: E501 type: ignore
                 OFFCHAIN_LOOKUP_TEST_DATA
             ).call()
+        assert exc_info.value.data == OFFCHAIN_LOOKUP_RETURN_DATA
 
         async_w3.provider.global_ccip_read_enabled = True  # cleanup
 
@@ -1093,7 +1099,6 @@ class AsyncEthModuleTest:
         async_w3.provider.global_ccip_read_enabled = False
 
         response = await async_offchain_lookup_contract.functions.testOffchainLookup(
-            # noqa: E501 type: ignore
             OFFCHAIN_LOOKUP_TEST_DATA
         ).call(ccip_read_enabled=True)
         assert async_w3.codec.decode(["string"], response)[0] == "web3py"
@@ -3330,24 +3335,27 @@ class EthModuleTest:
         offchain_lookup_contract: "Contract",
     ) -> None:
         # test ContractFunction call
-        with pytest.raises(OffchainLookup):
+        with pytest.raises(OffchainLookup) as e:
             offchain_lookup_contract.functions.testOffchainLookup(
                 OFFCHAIN_LOOKUP_TEST_DATA
             ).call(ccip_read_enabled=False)
+        assert e.value.data == OFFCHAIN_LOOKUP_RETURN_DATA
 
         # test ContractCaller call
-        with pytest.raises(OffchainLookup):
+        with pytest.raises(OffchainLookup) as excinfo:
             offchain_lookup_contract.caller(ccip_read_enabled=False).testOffchainLookup(
                 OFFCHAIN_LOOKUP_TEST_DATA
             )
+        assert excinfo.value.data == OFFCHAIN_LOOKUP_RETURN_DATA
 
         # test global flag on the provider
         w3.provider.global_ccip_read_enabled = False
 
-        with pytest.raises(OffchainLookup):
+        with pytest.raises(OffchainLookup) as exc_info:
             offchain_lookup_contract.functions.testOffchainLookup(
                 OFFCHAIN_LOOKUP_TEST_DATA
             ).call()
+        assert exc_info.value.data == OFFCHAIN_LOOKUP_RETURN_DATA
 
         w3.provider.global_ccip_read_enabled = True  # cleanup
 
