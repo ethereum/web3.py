@@ -12,13 +12,13 @@ from web3.types import (
 )
 
 
-def test_async_tester_provider_is_connected() -> None:
+def test_tester_provider_is_connected() -> None:
     provider = EthereumTesterProvider()
     connected = provider.is_connected()
     assert connected
 
 
-def test_async_tester_provider_creates_a_block() -> None:
+def test_tester_provider_creates_a_block() -> None:
     provider = EthereumTesterProvider()
     accounts = provider.make_request("eth_accounts", [])
     a, b = accounts["result"][:2]

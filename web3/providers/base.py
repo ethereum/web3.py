@@ -114,7 +114,7 @@ class JSONBaseProvider(BaseProvider):
         except OSError as e:
             if raise_if_false:
                 raise ProviderConnectionError(
-                    f"Problem connecting to provider with error: {e}"
+                    f"Problem connecting to provider with error: {type(e)}: {e}"
                 )
             return False
 

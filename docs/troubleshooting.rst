@@ -78,11 +78,11 @@ diagnose the problem, ``is_connected`` has an optional ``raise_if_false`` argume
 
 .. code-block:: python
 
-    >>> w3.is_connected()
+    >>> w3.is_connected(raise_if_false=True)
     # this is an example, your error may differ
     
     # <long stack trace ouput>
-    ProviderConnectionError: Cannot connect to provider with error: [Errno 2] No such file or directory
+    ProviderConnectionError: Problem connecting to provider with error: <class 'FileNotFoundError'>: cannot connect to IPC socket at path: None
 
 If you're running a local node, such as Geth, double-check that you've indeed started 
 the binary and that you've started it from the intended directory - particularly if
