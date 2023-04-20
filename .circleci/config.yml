@@ -211,7 +211,7 @@ windows_steps: &windows_steps
         command: pip install --user tox
     - run:
         name: run tox
-        command: 'C:/Users/circleci.PACKER-6400C91A/AppData/Roaming/Python/Python311/Scripts/tox.exe -r'
+        command: python -m tox -r
     - save_cache:
         paths:
           - .tox
