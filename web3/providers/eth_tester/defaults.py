@@ -42,6 +42,9 @@ from eth_utils.toolz import (
     excepts,
 )
 
+from web3 import (
+    Web3,
+)
 from web3._utils.method_formatters import (
     OFFCHAIN_LOOKUP_FIELDS,
 )
@@ -95,7 +98,9 @@ def call_eth_tester(
             offchain_lookup_payload = dict(
                 zip(OFFCHAIN_LOOKUP_FIELDS.keys(), abi_decoded_data)
             )
-            raise OffchainLookup(offchain_lookup_payload)
+            raise OffchainLookup(
+                offchain_lookup_payload, data=Web3.to_hex(parsed_data_as_bytes)
+            )
         raise e
 
 
