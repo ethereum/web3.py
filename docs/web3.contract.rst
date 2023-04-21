@@ -736,7 +736,7 @@ enabled on a per-call basis - overriding the global flag. This ensures only expl
         >>> response = myContract.functions.revertsWithOffchainLookup(myData).call(ccip_read_enabled=True)
 
 Methods
-~~~~~~~~~~
+~~~~~~~
 
 .. py:method:: ContractFunction.transact(transaction)
 
