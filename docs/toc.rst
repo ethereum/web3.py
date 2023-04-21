@@ -15,6 +15,7 @@ Table of Contents
 
     node
     providers
+    transactions
     examples
     troubleshooting
     web3.eth.account
