@@ -14,6 +14,7 @@ from types import (
 )
 from typing import (
     Any,
+    Optional,
     Type,
     Union,
 )
@@ -85,24 +86,26 @@ class PersistantSocket:
         return self.sock
 
 
-# type ignored b/c missing return statement is by design here
-def get_default_ipc_path() -> str:  # type: ignore
+def get_default_ipc_path() -> Optional[str]:
     if sys.platform == "darwin":
         ipc_path = os.path.expanduser(
             os.path.join("~", "Library", "Ethereum", "geth.ipc")
         )
         if os.path.exists(ipc_path):
             return ipc_path
+        return None
 
     elif sys.platform.startswith("linux") or sys.platform.startswith("freebsd"):
         ipc_path = os.path.expanduser(os.path.join("~", ".ethereum", "geth.ipc"))
         if os.path.exists(ipc_path):
             return ipc_path
+        return None
 
     elif sys.platform == "win32":
         ipc_path = os.path.join("\\\\", ".", "pipe", "geth.ipc")
         if os.path.exists(ipc_path):
             return ipc_path
+        return None
 
     else:
         raise ValueError(
@@ -111,22 +114,25 @@ def get_default_ipc_path() -> str:  # type: ignore
         )
 
 
-# type ignored b/c missing return statement is by design here
-def get_dev_ipc_path() -> str:  # type: ignore
+def get_dev_ipc_path() -> Optional[str]:
     if os.environ.get("WEB3_PROVIDER_URI", ""):
         ipc_path = os.environ.get("WEB3_PROVIDER_URI")
         if os.path.exists(ipc_path):
             return ipc_path
+        return None
+
     elif sys.platform == "darwin":
         tmpdir = os.environ.get("TMPDIR", "")
         ipc_path = os.path.expanduser(os.path.join(tmpdir, "geth.ipc"))
         if os.path.exists(ipc_path):
             return ipc_path
+        return None
 
     elif sys.platform.startswith("linux") or sys.platform.startswith("freebsd"):
         ipc_path = os.path.expanduser(os.path.join("/tmp", "geth.ipc"))
         if os.path.exists(ipc_path):
             return ipc_path
+        return None
 
     elif sys.platform == "win32":
         ipc_path = os.path.join("\\\\", ".", "pipe", "geth.ipc")
