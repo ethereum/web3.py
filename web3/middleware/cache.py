@@ -14,7 +14,6 @@ from typing import (
 from eth_utils import (
     is_list_like,
 )
-import lru
 
 from web3._utils.caching import (
     generate_cache_key,
@@ -193,7 +192,7 @@ def construct_time_based_cache_middleware(
 
 
 _time_based_cache_middleware = construct_time_based_cache_middleware(
-    cache_class=functools.partial(lru.LRU, 256),
+    cache_class=functools.partial(SimpleCache, 256),
 )
 
 
@@ -366,6 +365,6 @@ def construct_latest_block_based_cache_middleware(
 
 
 _latest_block_based_cache_middleware = construct_latest_block_based_cache_middleware(
-    cache_class=functools.partial(lru.LRU, 256),
+    cache_class=functools.partial(SimpleCache, 256),
     rpc_whitelist=BLOCK_NUMBER_RPC_WHITELIST,
 )
