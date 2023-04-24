@@ -216,7 +216,9 @@ windows_steps: &windows_steps
         command: git submodule update --init --recursive
     - run:
         name: install dependencies
-        command: pip install --user tox
+        command: |
+          python -m pip install --upgrade pip
+          python -m pip install tox
     - run:
         name: run tox
         command: python -m tox -r
