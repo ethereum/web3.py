@@ -25,7 +25,9 @@ common: &common
         command: git submodule update --init --recursive
     - run:
         name: install dependencies
-        command: pip install --user tox
+        command: |
+          python -m pip install --upgrade pip
+          python -m pip install tox
     - run:
         name: run tox
         command: python -m tox -r
@@ -52,7 +54,9 @@ docs_steps: &docs_steps
         command: git submodule update --init --recursive
     - run:
         name: install dependencies
-        command: pip install --user tox
+        command: |
+          python -m pip install --upgrade pip
+          python -m pip install tox
     - run:
         name: install web3
         command: pip install -U web3
@@ -81,8 +85,8 @@ geth_steps: &geth_steps
     - run:
         name: install dependencies
         command: |
-          pip install --upgrade pip
-          pip install --user tox
+          python -m pip install --upgrade pip
+          python -m pip install tox
     - run:
         name: build geth if missing
         command: |
@@ -126,7 +130,9 @@ geth_custom_steps: &geth_custom_steps
           - cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
     - run:
         name: install dependencies
-        command: pip install --user tox
+        command: |
+          python -m pip install --upgrade pip
+          python -m pip install tox
     - run:
         name: use a pre-built geth binary
         command: |
@@ -179,7 +185,9 @@ ethpm_steps: &ethpm_steps
         command: git submodule update --init --recursive
     - run:
         name: install dependencies
-        command: pip install --user tox
+        command: |
+          python -m pip install --upgrade pip
+          python -m pip install tox
     - run:
         name: run tox
         command: python -m tox -r
@@ -208,7 +216,9 @@ windows_steps: &windows_steps
         command: git submodule update --init --recursive
     - run:
         name: install dependencies
-        command: pip install --user tox
+        command: |
+          python -m pip install --upgrade pip
+          python -m pip install tox
     - run:
         name: run tox
         command: python -m tox -r
