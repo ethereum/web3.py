@@ -552,6 +552,8 @@ TRACE_ACTION_FORMATTERS = apply_formatter_if(
             # suicide type
             "address": to_checksum_address,
             "refundAddress": to_checksum_address,
+            # reward type
+            "author": to_checksum_address,
         }
     ),
 )
