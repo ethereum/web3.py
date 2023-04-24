@@ -47,6 +47,14 @@ class BlockNumberOutofRange(Web3Exception):
     pass
 
 
+class ProviderConnectionError(Web3Exception):
+    """
+    Raised when unable to connect to a provider
+    """
+
+    pass
+
+
 class CannotHandleRequest(Web3Exception):
     """
     Raised by a provider to signal that it cannot handle an RPC request and

@@ -12,6 +12,9 @@ import uuid
 from web3.auto.gethdev import (
     w3,
 )
+from web3.exceptions import (
+    ProviderConnectionError,
+)
 from web3.middleware import (
     construct_fixture_middleware,
 )
@@ -37,6 +40,8 @@ def test_ipc_no_path():
     """
     ipc = IPCProvider(None)
     assert ipc.is_connected() is False
+    with pytest.raises(ProviderConnectionError):
+        ipc.is_connected(show_traceback=True)
 
 
 def test_ipc_tilda_in_path():
