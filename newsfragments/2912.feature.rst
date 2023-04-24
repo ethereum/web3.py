@@ -1,1 +1,1 @@
-add raise_if_false flag to is_connected to allow user to see connection error reason
+add show_traceback flag to is_connected to allow user to see connection error reason

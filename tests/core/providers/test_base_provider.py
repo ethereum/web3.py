@@ -8,12 +8,12 @@ from web3.providers import (
 
 
 class ConnectedProvider(BaseProvider):
-    def is_connected(self, raise_if_false: bool = False):
+    def is_connected(self, show_traceback: bool = False):
         return True
 
 
 class DisconnectedProvider(BaseProvider):
-    def is_connected(self, raise_if_false: bool = False):
+    def is_connected(self, show_traceback: bool = False):
         return False
 
 

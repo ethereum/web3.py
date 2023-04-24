@@ -378,8 +378,8 @@ class AsyncWeb3(BaseWeb3):
 
         self.ens = ens
 
-    def is_connected(self, raise_if_false: bool = False) -> Coroutine[Any, Any, bool]:
-        return self.provider.is_connected(raise_if_false)
+    def is_connected(self, show_traceback: bool = False) -> Coroutine[Any, Any, bool]:
+        return self.provider.is_connected(show_traceback)
 
     @property
     def middleware_onion(self) -> AsyncMiddlewareOnion:
@@ -441,8 +441,8 @@ class Web3(BaseWeb3):
 
         self.ens = ens
 
-    def is_connected(self, raise_if_false: bool = False) -> bool:
-        return self.provider.is_connected(raise_if_false)
+    def is_connected(self, show_traceback: bool = False) -> bool:
+        return self.provider.is_connected(show_traceback)
 
     @classmethod
     def normalize_values(

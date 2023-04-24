@@ -41,7 +41,7 @@ def test_ipc_no_path():
     ipc = IPCProvider(None)
     assert ipc.is_connected() is False
     with pytest.raises(ProviderConnectionError):
-        ipc.is_connected(raise_if_false=True)
+        ipc.is_connected(show_traceback=True)
 
 
 def test_ipc_tilda_in_path():

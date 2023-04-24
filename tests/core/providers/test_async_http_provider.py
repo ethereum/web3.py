@@ -38,15 +38,25 @@ from web3.providers.async_rpc import (
 URI = "http://mynode.local:8545"
 
 
+async def clean_async_session_cache():
+    cache_data = request._async_session_cache._data
+    while len(cache_data) > 0:
+        _key, cached_session = cache_data.popitem()
+        await cached_session.close()
+
+
 @pytest.mark.asyncio
-async def test_no_args():
+async def test_no_args() -> None:
     provider = AsyncHTTPProvider()
     w3 = AsyncWeb3(provider)
     assert w3.manager.provider == provider
     assert w3.manager.provider.is_async
     assert not await w3.is_connected()
     with pytest.raises(ProviderConnectionError):
-        await w3.is_connected(raise_if_false=True)
+        await w3.is_connected(show_traceback=True)
+
+    await clean_async_session_cache()
+    assert len(request._async_session_cache) == 0
 
 
 def test_init_kwargs():
@@ -90,5 +100,5 @@ async def test_user_provided_session() -> None:
     session = ClientSession()
     provider = AsyncHTTPProvider(endpoint_uri=URI)
     cached_session = await provider.cache_async_session(session)
-    assert len(request._async_session_cache) == 2
+    assert len(request._async_session_cache) == 1
     assert cached_session == session

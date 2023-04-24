@@ -86,7 +86,7 @@ class BaseProvider:
     def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
         raise NotImplementedError("Providers must implement this method")
 
-    def is_connected(self, raise_if_false: bool = False) -> bool:
+    def is_connected(self, show_traceback: bool = False) -> bool:
         raise NotImplementedError("Providers must implement this method")
 
 
@@ -108,18 +108,18 @@ class JSONBaseProvider(BaseProvider):
         encoded = FriendlyJsonSerde().json_encode(rpc_dict)
         return to_bytes(text=encoded)
 
-    def is_connected(self, raise_if_false: bool = False) -> bool:
+    def is_connected(self, show_traceback: bool = False) -> bool:
         try:
             response = self.make_request(RPCEndpoint("web3_clientVersion"), [])
         except OSError as e:
-            if raise_if_false:
+            if show_traceback:
                 raise ProviderConnectionError(
                     f"Problem connecting to provider with error: {type(e)}: {e}"
                 )
             return False
 
         if "error" in response:
-            if raise_if_false:
+            if show_traceback:
                 raise ProviderConnectionError(
                     f"Error received from provider: {response}"
                 )
@@ -128,6 +128,6 @@ class JSONBaseProvider(BaseProvider):
         if response["jsonrpc"] == "2.0":
             return True
         else:
-            if raise_if_false:
+            if show_traceback:
                 raise ProviderConnectionError(f"Bad jsonrpc version: {response}")
             return False

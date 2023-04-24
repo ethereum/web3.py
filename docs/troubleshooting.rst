@@ -74,11 +74,11 @@ You can check that your instance is connected via the ``is_connected`` method:
     False
 
 There are a variety of explanations for why you may see ``False`` here. To help you
-diagnose the problem, ``is_connected`` has an optional ``raise_if_false`` argument:
+diagnose the problem, ``is_connected`` has an optional ``show_traceback`` argument:
 
 .. code-block:: python
 
-    >>> w3.is_connected(raise_if_false=True)
+    >>> w3.is_connected(show_traceback=True)
     # this is an example, your error may differ
     
     # <long stack trace ouput>

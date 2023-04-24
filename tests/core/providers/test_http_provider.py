@@ -30,7 +30,7 @@ def test_no_args():
     assert not w3.manager.provider.is_async
     assert not w3.is_connected()
     with pytest.raises(ProviderConnectionError):
-        w3.is_connected(raise_if_false=True)
+        w3.is_connected(show_traceback=True)
 
 
 def test_init_kwargs():
