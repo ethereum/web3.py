@@ -6,65 +6,30 @@ from eth_tester.exceptions import (
 
 from web3 import (
     EthereumTesterProvider,
-    Web3,
-)
-from web3.providers import (
-    AutoProvider,
-    BaseProvider,
 )
 from web3.types import (
     RPCEndpoint,
 )
 
 
-class ConnectedProvider(BaseProvider):
-    def is_connected(self):
-        return True
+def test_tester_provider_is_connected() -> None:
+    provider = EthereumTesterProvider()
+    connected = provider.is_connected()
+    assert connected
 
 
-class DisconnectedProvider(BaseProvider):
-    def is_connected(self):
-        return False
-
-
-def test_is_connected_connected():
-    """
-    Web3.is_connected() returns True when connected to a node.
-    """
-    w3 = Web3(ConnectedProvider())
-    assert w3.is_connected() is True
-
-
-def test_is_connected_disconnected():
-    """
-    Web3.is_connected() returns False when configured with a provider
-    that's not connected to a node.
-    """
-    w3 = Web3(DisconnectedProvider())
-    assert w3.is_connected() is False
-
-
-def test_autoprovider_detection():
-    def no_provider():
-        return None
-
-    def must_not_call():
-        assert False
-
-    auto = AutoProvider(
-        [
-            no_provider,
-            DisconnectedProvider,
-            ConnectedProvider,
-            must_not_call,
-        ]
+def test_tester_provider_creates_a_block() -> None:
+    provider = EthereumTesterProvider()
+    accounts = provider.make_request("eth_accounts", [])
+    a, b = accounts["result"][:2]
+    current_block = provider.make_request("eth_blockNumber", [])
+    assert current_block["result"] == 0
+    tx = provider.make_request(
+        "eth_sendTransaction", [{"from": a, "to": b, "gas": 21000}]
     )
-
-    w3 = Web3(auto)
-
-    assert w3.is_connected()
-
-    assert isinstance(auto._active_provider, ConnectedProvider)
+    assert tx
+    current_block = provider.make_request("eth_blockNumber", [])
+    assert current_block["result"] == 1
 
 
 @pytest.mark.parametrize(
