@@ -27,7 +27,7 @@ common: &common
           python -m pip install tox
     - run:
         name: run tox
-        command: python -m tox -r
+        command: python -m tox run -r
     - save_cache:
         paths:
           - .hypothesis
@@ -57,7 +57,7 @@ windows_steps: &windows_steps
           python -m pip install tox
     - run:
         name: run tox
-        command: python -m tox -r
+        command: python -m tox run -r
     - save_cache:
         paths:
           - .tox

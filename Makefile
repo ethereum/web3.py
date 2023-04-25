@@ -28,7 +28,7 @@ clean-pyc:
 	find . -name '__pycache__' -exec rm -rf {} +
 
 lint:
-	tox -e lint
+	tox run -e lint
 
 lint-roll:
 	isort <MODULE_NAME> tests
@@ -39,7 +39,7 @@ test:
 	pytest tests
 
 test-all:
-	tox
+	tox run
 
 build-docs:
 	sphinx-apidoc -o docs/ . setup.py "*conftest*"

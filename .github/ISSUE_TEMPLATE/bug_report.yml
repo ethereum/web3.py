@@ -65,6 +65,8 @@ body:
   - type: textarea
     id: pip-freeze
     attributes:
-      label: Output from pip-freeze
-      description: Run `pip-freeze` and paste the output below
+      label: Output from `pip freeze`
+      description: Run `python -m pip freeze` and paste the output below
       render: shell
+    validations:
+      required: false

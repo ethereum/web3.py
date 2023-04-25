@@ -13,7 +13,7 @@ Read more in the [documentation on ReadTheDocs](https://<RTD_NAME>.readthedocs.i
 ## Quickstart
 
 ```sh
-pip install <PYPI_NAME>
+python -m pip install <PYPI_NAME>
 ```
 
 ## Developer Setup
@@ -36,7 +36,7 @@ git clone git@github.com:ethereum/<REPO_NAME>.git
 cd <REPO_NAME>
 virtualenv -p python3 venv
 . venv/bin/activate
-pip install -e ".[dev]"
+python -m pip install -e ".[dev]"
 ```
 
 ### Release setup
