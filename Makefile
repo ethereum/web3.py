@@ -74,8 +74,8 @@ notes: check-bump
 	git commit -m "Compile release notes"
 
 release: check-bump clean
-	# require that you be on a branch that's linked to upstream/master
-	git status -s -b | head -1 | grep "\.\.upstream/master"
+	# require that you be on a branch that's linked to upstream/main
+	git status -s -b | head -1 | grep "\.\.upstream/main"
 	# verify that docs build correctly
 	./newsfragments/validate_files.py is-empty
 	make build-docs
