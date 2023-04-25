@@ -333,7 +333,7 @@ requested.
 
 If the pull request introduces changes that should be reflected in the release
 notes, please add a **newsfragment** file as explained
-`here <https://github.com/ethereum/web3.py/blob/master/newsfragments/README.md>`_.
+`here <https://github.com/ethereum/web3.py/blob/main/newsfragments/README.md>`_.
 
 If possible, the change to the release notes file should be included in the
 commit that introduces the feature or bugfix.
@@ -399,7 +399,7 @@ CI Testing With a Nightly Geth Build
 
 Occasionally you'll want to have CI run the test suite against an unreleased version of Geth,
 for example, to test upcoming hard fork changes. The workflow described below is for testing only,
-i.e., open a PR, let CI run the tests, but the changes should only be merged into master once the
+i.e., open a PR, let CI run the tests, but the changes should only be merged into main once the
 Geth release is published or you have some workaround that doesn't require test fixtures built from
 an unstable client.
 
@@ -432,7 +432,7 @@ virtualenv for smoke testing:
 
 .. code:: sh
 
-    $ git checkout master && git pull
+    $ git checkout main && git pull
 
     $ make package
 
@@ -485,7 +485,7 @@ running ``make build-docs`` until it passes, then commit and carry on.
 Push The Release to GitHub & PyPI
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-After committing the compiled release notes and pushing them to the master
+After committing the compiled release notes and pushing them to the main
 branch, release a new version:
 
 .. code:: sh
@@ -512,7 +512,7 @@ version explicitly, like ``make release bump="--new-version 4.0.0-alpha.1 devnum
 
 
 .. _Python Discord server: https://discord.gg/GHryRvPB84
-.. _style guide: https://github.com/pipermerriam/ethereum-dev-tactical-manual/blob/master/style-guide.md
+.. _style guide: https://github.com/ethereum/ethereum-dev-tactical-manual/blob/master/style-guide.md
 .. _type hints: https://www.python.org/dev/peps/pep-0484/
 .. _how to create documentation: https://github.com/ethereum/snake-charmers-tactical-manual/blob/master/documentation.md
 .. _working on pull requests: https://help.github.com/articles/about-pull-requests/
