@@ -41,7 +41,7 @@ def ens_setup(deployer):
 
     # create ENS contract
     # values borrowed from:
-    # https://github.com/ethereum/web3.py/blob/master/tests/ens/conftest.py#L109
+    # https://github.com/ethereum/web3.py/blob/main/tests/ens/conftest.py#L109
     eth_labelhash = w3.keccak(text="eth")
     eth_namehash = bytes32(
         0x93CDEB708B7545DC668EB9280176169D1C33CFD8ED6F04690A0BCC88A93FC4AE
