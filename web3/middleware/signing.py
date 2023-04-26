@@ -168,7 +168,7 @@ def construct_sign_and_send_raw_middleware(
             account = accounts[transaction["from"]]
             raw_tx = account.sign_transaction(transaction).rawTransaction
 
-            return make_request(RPCEndpoint("eth_sendRawTransaction"), [raw_tx])
+            return make_request(RPCEndpoint("eth_sendRawTransaction"), [raw_tx.hex()])
 
         return middleware
 
