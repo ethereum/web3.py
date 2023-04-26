@@ -87,17 +87,11 @@ to this local node can be done as follows:
    >>> await w3.is_connected()
    True
 
-.. note::
-
-   The AsyncHTTPProvider is still under active development. Not all JSON-RPC
-   methods and middleware are available yet. The list of available methods and
-   middleware can be seen on the :class:`~web3.providers.async_rpc.AsyncHTTPProvider` docs
 
 Remote Providers
 ****************
 
-The quickest way to interact with the Ethereum blockchain is to use a remote node provider,
-like `Infura <https://infura.io/>`_, `Alchemy <https://www.alchemy.com/>`_, `QuickNode <https://www.quicknode.com/>`_, or `Chainstack <https://www.chainstack.com/>`_.
+The quickest way to interact with the Ethereum blockchain is to use a `remote node provider <https://ethereum.org/en/developers/docs/nodes-and-clients/nodes-as-a-service/#popular-node-services>`_.
 You can connect to a remote node by specifying the endpoint, just like the previous local node example:
 
 .. code-block:: python
@@ -110,13 +104,7 @@ You can connect to a remote node by specifying the endpoint, just like the previ
 
    >>> w3 = Web3(Web3.WebsocketProvider('wss://<your-provider-url>'))
 
-This endpoint is provided by the remote node service after you create an account.
-
-.. note::
-
-   The AsyncHTTPProvider is still under active development. Not all JSON-RPC
-   methods and middleware are available yet. The list of available methods and
-   middleware can be seen on the :class:`~web3.providers.async_rpc.AsyncHTTPProvider` docs
+This endpoint is provided by the remote node service, typically after you create an account.
 
 .. _first_w3_use:
 
@@ -154,12 +142,13 @@ to interact with the Ethereum blockchain. Try getting all the information about 
 web3.py can help you read block data, sign and send transactions, deploy and interact with contracts,
 and a number of other features.
 
-Many of the typical things you'll want to do will be in the :class:`w3.eth <web3.eth.Eth>` API,
-so that is a good place to start.
+A few suggestions from here:
 
-If you want to dive straight into contracts, check out the section on :ref:`contracts`,
-including a :ref:`contract_example`, and how to create a contract instance using
-:meth:`w3.eth.contract() <web3.eth.Eth.contract>`.
+- The :doc:`overview` page provides a summary of web3.py's features.
+- The :class:`w3.eth <web3.eth.Eth>` API contains the most frequently used methods.
+- A guide to :ref:`contracts` includes deployment and usage examples.
+- The nuances of :doc:`transactions` are explained in another guide.
+- For other inspiration, see the :doc:`examples`.
 
 .. NOTE:: It is recommended that your development environment have the ``PYTHONWARNINGS=default``
     environment variable set. Some deprecation warnings will not show up
