@@ -1,8 +1,5 @@
 import functools
 import pytest
-from typing import (
-    TYPE_CHECKING,
-)
 
 from eth_tester import (
     EthereumTester,
@@ -28,23 +25,12 @@ from web3._utils.module_testing import (
     NetModuleTest,
     Web3ModuleTest,
 )
-from web3.exceptions import (
-    OffchainLookup,
-)
 from web3.providers.eth_tester import (
     EthereumTesterProvider,
 )
 from web3.types import (  # noqa: F401
     BlockData,
 )
-
-if TYPE_CHECKING:
-    from web3.contract import Contract  # noqa: F401
-
-# "test offchain lookup" as an abi-encoded string
-OFFCHAIN_LOOKUP_TEST_DATA = "0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000001474657374206f6666636861696e206c6f6f6b7570000000000000000000000000"  # noqa: E501
-OFFCHAIN_LOOKUP_4BYTE_DATA = "0x556f1830"
-OFFCHAIN_LOOKUP_RETURN_DATA = "00000000000000000000000000000000000000000000000000000000000000a000000000000000000000000000000000000000000000000000000000000001c0da96d05a0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002400000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000000000000000000000000000000000000000002c68747470733a2f2f776562332e70792f676174657761792f7b73656e6465727d2f7b646174617d2e6a736f6e0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002568747470733a2f2f776562332e70792f676174657761792f7b73656e6465727d2e6a736f6e00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000001474657374206f6666636861696e206c6f6f6b757000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000001474657374206f6666636861696e206c6f6f6b7570000000000000000000000000"  # noqa: E501
 
 
 @pytest.fixture(scope="module")
@@ -609,40 +595,6 @@ class TestEthereumTesterEthModule(EthModuleTest):
         assert is_integer(genesis_balance)
         assert is_integer(later_balance)
         assert later_balance > genesis_balance
-
-    def test_eth_call_offchain_lookup_raises_when_ccip_read_is_disabled(
-        self,
-        w3: "Web3",
-        offchain_lookup_contract: "Contract",
-    ) -> None:
-        # test ContractFunction call
-        with pytest.raises(OffchainLookup) as e:
-            offchain_lookup_contract.functions.testOffchainLookup(
-                OFFCHAIN_LOOKUP_TEST_DATA
-            ).call(ccip_read_enabled=False)
-
-        assert e.value.data[:10] == OFFCHAIN_LOOKUP_4BYTE_DATA
-        assert e.value.data[74:] == OFFCHAIN_LOOKUP_RETURN_DATA
-
-        # test ContractCaller call
-        with pytest.raises(OffchainLookup) as excinfo:
-            offchain_lookup_contract.caller(ccip_read_enabled=False).testOffchainLookup(
-                OFFCHAIN_LOOKUP_TEST_DATA
-            )
-        assert excinfo.value.data[:10] == OFFCHAIN_LOOKUP_4BYTE_DATA
-        assert excinfo.value.data[74:] == OFFCHAIN_LOOKUP_RETURN_DATA
-
-        # test global flag on the provider
-        w3.provider.global_ccip_read_enabled = False
-
-        with pytest.raises(OffchainLookup) as exc_info:
-            offchain_lookup_contract.functions.testOffchainLookup(
-                OFFCHAIN_LOOKUP_TEST_DATA
-            ).call()
-        assert exc_info.value.data[:10] == OFFCHAIN_LOOKUP_4BYTE_DATA
-        assert exc_info.value.data[74:] == OFFCHAIN_LOOKUP_RETURN_DATA
-
-        w3.provider.global_ccip_read_enabled = True  # cleanup
 
 
 class TestEthereumTesterNetModule(NetModuleTest):
