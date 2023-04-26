@@ -73,9 +73,19 @@ You can check that your instance is connected via the ``is_connected`` method:
     >>> w3.is_connected()
     False
 
-There's a variety of explanations for why you may see ``False`` here. If you're
-running a local node, such as Geth, double-check that you've indeed started the
-binary and that you've started it from the intended directory - particularly if
+There are a variety of explanations for why you may see ``False`` here. To help you
+diagnose the problem, ``is_connected`` has an optional ``show_traceback`` argument:
+
+.. code-block:: python
+
+    >>> w3.is_connected(show_traceback=True)
+    # this is an example, your error may differ
+    
+    # <long stack trace ouput>
+    ProviderConnectionError: Problem connecting to provider with error: <class 'FileNotFoundError'>: cannot connect to IPC socket at path: None
+
+If you're running a local node, such as Geth, double-check that you've indeed started 
+the binary and that you've started it from the intended directory - particularly if
 you've specified a relative path to its ipc file.
 
 If that does not address your issue, it's probable that you still have a

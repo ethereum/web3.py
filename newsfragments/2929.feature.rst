@@ -1,0 +1,1 @@
+Add support via result formatters for ``reward`` type trace actions on tracing calls.
