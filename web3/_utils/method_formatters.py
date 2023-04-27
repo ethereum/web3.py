@@ -726,7 +726,9 @@ def raise_contract_logic_error_on_revert(response: RPCResponse) -> RPCResponse:
 
     # Ganache case:
     if isinstance(data, dict) and response["error"].get("message"):
-        raise ContractLogicError(f'execution reverted: {response["error"]["message"]}')
+        raise ContractLogicError(
+            f'execution reverted: {response["error"]["message"]}', data=data
+        )
 
     # Parity/OpenEthereum case:
     if data.startswith("Reverted "):
@@ -737,14 +739,17 @@ def raise_contract_logic_error_on_revert(response: RPCResponse) -> RPCResponse:
                 # Special case for this form: 'Reverted 0x...'
                 receipt = data.split(" ")[1][2:]
                 revert_reason = bytes.fromhex(receipt).decode("utf-8")
-                raise ContractLogicError(f"execution reverted: {revert_reason}")
+                raise ContractLogicError(
+                    f"execution reverted: {revert_reason}", data=data
+                )
             else:
-                raise ContractLogicError("execution reverted")
+                raise ContractLogicError("execution reverted", data=data)
 
         reason_length = int(data[len(prefix) : len(prefix) + 64], 16)
         reason = data[len(prefix) + 64 : len(prefix) + 64 + reason_length * 2]
         raise ContractLogicError(
-            f'execution reverted: {bytes.fromhex(reason).decode("utf8")}'
+            f'execution reverted: {bytes.fromhex(reason).decode("utf8")}',
+            data=data,
         )
 
     # --- EIP-3668 | CCIP Read --- #
@@ -758,22 +763,25 @@ def raise_contract_logic_error_on_revert(response: RPCResponse) -> RPCResponse:
         offchain_lookup_payload = dict(
             zip(OFFCHAIN_LOOKUP_FIELDS.keys(), abi_decoded_data)
         )
-        raise OffchainLookup(offchain_lookup_payload)
+        raise OffchainLookup(offchain_lookup_payload, data=data)
 
     # Solidity 0.8.4 introduced custom error messages that allow args to
     # be passed in (or not). See:
     # https://blog.soliditylang.org/2021/04/21/custom-errors/
     if len(data) >= 10 and not data[:10] == "0x08c379a0":
-        # raising along with the data value to allow processing in user code
-        raise ContractCustomError(data)
+        # Raise with data as both the message and the data for backwards
+        # compatibility and so that data can be accessed via 'data' attribute
+        # on the ContractCustomError exception
+        raise ContractCustomError(data, data=data)
 
     # Geth case:
     if "message" in response["error"] and response["error"].get("code", "") == 3:
-        raise ContractLogicError(response["error"]["message"])
+        message = response["error"]["message"]
+        raise ContractLogicError(message, data=data)
 
     # Geth Revert without error message case:
     if "execution reverted" in response["error"].get("message"):
-        raise ContractLogicError("execution reverted")
+        raise ContractLogicError("execution reverted", data=data)
 
     return response
 
