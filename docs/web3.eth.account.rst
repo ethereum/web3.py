@@ -1,12 +1,12 @@
 .. _eth-account:
 
 Working with Local Private Keys
-==========================================
+===============================
 
 .. _local_vs_hosted:
 
 Local vs Hosted Nodes
----------------------------------
+---------------------
 
 Local Node
   A local node is started and controlled by you. It is as safe as you keep it.
@@ -17,7 +17,7 @@ Hosted Node
   connected to a hosted node.
 
 Local vs Hosted Keys
----------------------------------
+--------------------
 
 Local Private Key
   A key is 32 :class:`bytes` of data that you can use to sign transactions and messages,
@@ -165,7 +165,7 @@ This will print::
 .. _extract_geth_pk:
 
 Extract private key from geth keyfile
----------------------------------------------
+-------------------------------------
 
 .. NOTE::
   The amount of available ram should be greater than 1GB.
@@ -178,7 +178,7 @@ Extract private key from geth keyfile
         # tip: do not save the key or password anywhere, especially into a shared source file
 
 Sign a Message
----------------
+--------------
 
 .. WARNING:: There is no single message format that is broadly adopted
     with community consensus. Keep an eye on several options,
@@ -208,7 +208,7 @@ is provided by :meth:`w3.eth.sign() <web3.eth.Eth.sign>`.
      signature=HexBytes('0xe6ca9bba58c88611fad66a6ce8f996908195593807c4b38bd528d2cff09d4eb33e5bfbbf4d3e39b1a2fd816a7680c19ebebaf3a141b239934ad43cb33fcec8ce1c'))
 
 Verify a Message
-------------------------------------------------
+----------------
 
 With the original message text and a signature:
 
@@ -219,7 +219,7 @@ With the original message text and a signature:
     '0x5ce9454909639D2D17A3F753ce7d93fa0b9aB12E'
 
 Prepare message for ecrecover in Solidity
---------------------------------------------
+-----------------------------------------
 
 Let's say you want a contract to validate a signed message,
 like if you're making payment channels, and you want to
@@ -288,7 +288,7 @@ this will prepare it for Solidity:
 
 
 Verify a message with ecrecover in Solidity
----------------------------------------------
+-------------------------------------------
 
 Create a simple ecrecover contract in `Remix <https://remix.ethereum.org/>`_:
 
@@ -312,7 +312,7 @@ the message back in response: ``0x5ce9454909639d2d17a3f753ce7d93fa0b9ab12e``.
 .. _local-sign-transaction:
 
 Sign a Transaction
-------------------------
+------------------
 
 Create a transaction, sign it locally, and then send it to your node for broadcasting,
 with :meth:`~web3.eth.Eth.send_raw_transaction`.
@@ -360,7 +360,7 @@ with :meth:`~web3.eth.Eth.send_raw_transaction`.
     '0xe85ce7efa52c16cb5c469c7bde54fbd4911639fdfde08003f65525a85076d915'
 
 Sign a Contract Transaction
------------------------------------
+---------------------------
 
 To sign a transaction locally that will invoke a smart contract:
 
