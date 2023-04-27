@@ -11,6 +11,7 @@ from typing import (
     cast,
 )
 
+import eth_abi as abi
 from eth_typing import (
     BlockNumber,
     ChecksumAddress,
@@ -26,6 +27,7 @@ from eth_utils import (
     is_list_like,
     is_same_address,
     is_string,
+    remove_0x_prefix,
     to_bytes,
 )
 from eth_utils.toolz import (
@@ -98,6 +100,8 @@ UNKNOWN_HASH = HexStr(
 )
 # "test offchain lookup" as an abi-encoded string
 OFFCHAIN_LOOKUP_TEST_DATA = "0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000001474657374206f6666636861696e206c6f6f6b7570000000000000000000000000"  # noqa: E501
+OFFCHAIN_LOOKUP_4BYTE_DATA = "0x556f1830"
+OFFCHAIN_LOOKUP_RETURN_DATA = "00000000000000000000000000000000000000000000000000000000000000a000000000000000000000000000000000000000000000000000000000000001c0da96d05a0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002400000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000000000000000000000000000000000000000002c68747470733a2f2f776562332e70792f676174657761792f7b73656e6465727d2f7b646174617d2e6a736f6e0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002568747470733a2f2f776562332e70792f676174657761792f7b73656e6465727d2e6a736f6e00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000001474657374206f6666636861696e206c6f6f6b757000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000001474657374206f6666636861696e206c6f6f6b7570000000000000000000000000"  # noqa: E501
 # "web3py" as an abi-encoded string
 WEB3PY_AS_HEXBYTES = "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000067765623370790000000000000000000000000000000000000000000000000000"  # noqa: E501
 
@@ -108,6 +112,21 @@ if TYPE_CHECKING:
     from web3.main import (  # noqa: F401
         AsyncWeb3,
         Web3,
+    )
+
+
+def abi_encoded_offchain_lookup_contract_address(
+    w3: Union["Web3", "AsyncWeb3"], offchain_lookup_contract: "Contract"
+) -> HexAddress:
+    return HexAddress(
+        remove_0x_prefix(
+            w3.to_hex(
+                abi.encode(
+                    ["address"],
+                    [to_bytes(hexstr=offchain_lookup_contract.address)],
+                )
+            )
+        )
     )
 
 
@@ -949,16 +968,16 @@ class AsyncEthModuleTest:
         revert_contract: "Contract",
         unlocked_account: ChecksumAddress,
     ) -> None:
+        txn_params = revert_contract._prepare_transaction(
+            fn_name="revertWithMessage",
+            transaction={
+                "from": unlocked_account,
+                "to": revert_contract.address,
+            },
+        )
         with pytest.raises(
             ContractLogicError, match="execution reverted: Function has been reverted"
         ):
-            txn_params = revert_contract._prepare_transaction(
-                fn_name="revertWithMessage",
-                transaction={
-                    "from": unlocked_account,
-                    "to": revert_contract.address,
-                },
-            )
             await async_w3.eth.call(txn_params)
 
     @pytest.mark.asyncio
@@ -1048,27 +1067,35 @@ class AsyncEthModuleTest:
         async_w3: "AsyncWeb3",
         async_offchain_lookup_contract: "Contract",
     ) -> None:
+        return_data = (
+            OFFCHAIN_LOOKUP_4BYTE_DATA
+            + abi_encoded_offchain_lookup_contract_address(
+                async_w3, async_offchain_lookup_contract
+            )
+            + OFFCHAIN_LOOKUP_RETURN_DATA
+        )
         # test AsyncContractCaller
-        with pytest.raises(OffchainLookup):
+        with pytest.raises(OffchainLookup) as e:
             await async_offchain_lookup_contract.caller(
                 ccip_read_enabled=False
-            ).testOffchainLookup(  # noqa: E501 type: ignore
-                OFFCHAIN_LOOKUP_TEST_DATA
-            )
+            ).testOffchainLookup(OFFCHAIN_LOOKUP_TEST_DATA)
+        assert e.value.data == return_data
 
         # test AsyncContractFunction call
-        with pytest.raises(OffchainLookup):
+        with pytest.raises(OffchainLookup) as excinfo:
             await async_offchain_lookup_contract.functions.testOffchainLookup(
                 OFFCHAIN_LOOKUP_TEST_DATA
             ).call(ccip_read_enabled=False)
+        assert excinfo.value.data == return_data
 
         # test global flag on the provider
         async_w3.provider.global_ccip_read_enabled = False
 
-        with pytest.raises(OffchainLookup):
+        with pytest.raises(OffchainLookup) as exc_info:
             await async_offchain_lookup_contract.functions.testOffchainLookup(  # noqa: E501 type: ignore
                 OFFCHAIN_LOOKUP_TEST_DATA
             ).call()
+        assert exc_info.value.data == return_data
 
         async_w3.provider.global_ccip_read_enabled = True  # cleanup
 
@@ -1093,7 +1120,6 @@ class AsyncEthModuleTest:
         async_w3.provider.global_ccip_read_enabled = False
 
         response = await async_offchain_lookup_contract.functions.testOffchainLookup(
-            # noqa: E501 type: ignore
             OFFCHAIN_LOOKUP_TEST_DATA
         ).call(ccip_read_enabled=True)
         assert async_w3.codec.decode(["string"], response)[0] == "web3py"
@@ -3236,17 +3262,19 @@ class EthModuleTest:
         revert_contract: "Contract",
         unlocked_account: ChecksumAddress,
     ) -> None:
+        txn_params = revert_contract._prepare_transaction(
+            fn_name="revertWithMessage",
+            transaction={
+                "from": unlocked_account,
+                "to": revert_contract.address,
+            },
+        )
+        data = "0x08c379a00000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000001b46756e6374696f6e20686173206265656e2072657665727465642e0000000000"  # noqa: E501
         with pytest.raises(
             ContractLogicError, match="execution reverted: Function has been reverted"
-        ):
-            txn_params = revert_contract._prepare_transaction(
-                fn_name="revertWithMessage",
-                transaction={
-                    "from": unlocked_account,
-                    "to": revert_contract.address,
-                },
-            )
+        ) as excinfo:
             w3.eth.call(txn_params)
+        assert excinfo.value.data == data
 
     def test_eth_call_revert_without_msg(
         self,
@@ -3280,8 +3308,9 @@ class EthModuleTest:
                 "to": revert_contract.address,
             },
         )
-        with pytest.raises(ContractCustomError, match=data):
+        with pytest.raises(ContractCustomError, match=data) as excinfo:
             w3.eth.call(txn_params)
+        assert excinfo.value.data == data
 
     def test_eth_call_custom_error_revert_without_msg(
         self,
@@ -3297,8 +3326,9 @@ class EthModuleTest:
                 "to": revert_contract.address,
             },
         )
-        with pytest.raises(ContractCustomError, match=data):
+        with pytest.raises(ContractCustomError, match=data) as excinfo:
             w3.eth.call(txn_params)
+        assert excinfo.value.data == data
 
     def test_eth_call_offchain_lookup(
         self,
@@ -3325,25 +3355,33 @@ class EthModuleTest:
         w3: "Web3",
         offchain_lookup_contract: "Contract",
     ) -> None:
+        return_data = (
+            OFFCHAIN_LOOKUP_4BYTE_DATA
+            + abi_encoded_offchain_lookup_contract_address(w3, offchain_lookup_contract)
+            + OFFCHAIN_LOOKUP_RETURN_DATA
+        )
         # test ContractFunction call
-        with pytest.raises(OffchainLookup):
+        with pytest.raises(OffchainLookup) as e:
             offchain_lookup_contract.functions.testOffchainLookup(
                 OFFCHAIN_LOOKUP_TEST_DATA
             ).call(ccip_read_enabled=False)
+        assert e.value.data == return_data
 
         # test ContractCaller call
-        with pytest.raises(OffchainLookup):
+        with pytest.raises(OffchainLookup) as excinfo:
             offchain_lookup_contract.caller(ccip_read_enabled=False).testOffchainLookup(
                 OFFCHAIN_LOOKUP_TEST_DATA
             )
+        assert excinfo.value.data == return_data
 
         # test global flag on the provider
         w3.provider.global_ccip_read_enabled = False
 
-        with pytest.raises(OffchainLookup):
+        with pytest.raises(OffchainLookup) as exc_info:
             offchain_lookup_contract.functions.testOffchainLookup(
                 OFFCHAIN_LOOKUP_TEST_DATA
             ).call()
+        assert exc_info.value.data == return_data
 
         w3.provider.global_ccip_read_enabled = True  # cleanup
 
@@ -3549,8 +3587,9 @@ class EthModuleTest:
                 "to": revert_contract.address,
             },
         )
-        with pytest.raises(ContractCustomError, match=data):
+        with pytest.raises(ContractCustomError, match=data) as excinfo:
             w3.eth.estimate_gas(txn_params)
+        assert excinfo.value.data == data
 
     def test_eth_estimate_gas_custom_error_revert_without_msg(
         self,
@@ -3566,8 +3605,9 @@ class EthModuleTest:
                 "to": revert_contract.address,
             },
         )
-        with pytest.raises(ContractCustomError, match=data):
+        with pytest.raises(ContractCustomError, match=data) as excinfo:
             w3.eth.estimate_gas(txn_params)
+        assert excinfo.value.data == data
 
     def test_eth_estimate_gas(
         self, w3: "Web3", unlocked_account_dual_type: ChecksumAddress

@@ -153,12 +153,12 @@ Each Contract Factory exposes the following properties.
     to apply the field names from the ABI to the returned data.
     If False, the returned value will be a normal Python ``Tuple``. If True, the returned
     value will be a Python ``NamedTuple`` of the class ``ABIDecodedNamedTuple``.
-    
+
     NamedTuples have some restrictions regarding field names.
-    web3.py sets ``NamedTuple``'s ``rename=True``, so disallowed field names may be 
+    web3.py sets ``NamedTuple``'s ``rename=True``, so disallowed field names may be
     different than expected. See the `Python docs <https://docs.python.org/3/library/collections.html#collections.namedtuple>`_
     for more information.
-    
+
     Defaults to ``False`` if not provided during factory creation.
 
 
@@ -734,6 +734,13 @@ enabled on a per-call basis - overriding the global flag. This ensures only expl
 
         >>> # does not raise the revert since explicitly enabled on the call:
         >>> response = myContract.functions.revertsWithOffchainLookup(myData).call(ccip_read_enabled=True)
+
+If the function called results in a ``revert`` error, a ``ContractLogicError`` will be raised.
+If there is an error message with the error, web3.py attempts to parse the
+message that comes back and return it to the user as the error string.
+As of v6.3.0, the raw data is also returned and
+can be accessed via the ``data`` attribute on ``ContractLogicError``.
+
 
 Methods
 ~~~~~~~

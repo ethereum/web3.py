@@ -3,6 +3,7 @@ import time
 from typing import (
     Any,
     Dict,
+    Optional,
 )
 
 from eth_utils import (
@@ -258,11 +259,17 @@ class ContractLogicError(Web3Exception):
     Raised on a contract revert error
     """
 
+    def __init__(self, message: Optional[str] = None, data: Optional[str] = None):
+        self.message = message
+        self.data = data
+
 
 class ContractCustomError(ContractLogicError):
     """
     Raised on a contract revert custom error
     """
+
+    pass
 
 
 class OffchainLookup(ContractLogicError):
@@ -270,9 +277,10 @@ class OffchainLookup(ContractLogicError):
     Raised when a contract reverts with OffchainLookup as described in EIP-3668
     """
 
-    def __init__(self, payload: Dict[str, Any]) -> None:
+    def __init__(self, payload: Dict[str, Any], data: Optional[str] = None) -> None:
         self.payload = payload
-        super().__init__()
+        self.data = data
+        super().__init__(data=data)
 
 
 class InvalidTransaction(Web3Exception):
