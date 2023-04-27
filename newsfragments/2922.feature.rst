@@ -1,0 +1,1 @@
+Add a ``data`` attribute on the ``ContractLogicError`` class that returns raw data returned by the node.
