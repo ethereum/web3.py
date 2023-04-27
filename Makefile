@@ -8,7 +8,6 @@ help:
 	@echo "lint - check style with flake8"
 	@echo "lint-roll - automatically fix problems with isort, flake8, etc"
 	@echo "test - run tests quickly with the default Python"
-	@echo "testall - run tests on every Python version with tox"
 	@echo "docs - generate docs and open in browser (linux-docs for version on linux)"
 	@echo "notes - consume towncrier newsfragments/ and update release notes in docs/"
 	@echo "release - package and upload a release (does not run notes target)"
@@ -37,9 +36,6 @@ lint-roll:
 
 test:
 	pytest tests
-
-test-all:
-	tox run
 
 build-docs:
 	sphinx-apidoc -o docs/ . setup.py "*conftest*"

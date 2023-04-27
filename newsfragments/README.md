@@ -26,4 +26,4 @@ then open up the PR first and use the PR number for the newsfragment.
 Note that the `towncrier` tool will automatically
 reflow your text, so don't try to do any fancy formatting. Run
 `towncrier build --draft` to get a preview of what the release notes entry
- will look like in the final release notes.
+will look like in the final release notes.
