@@ -9,24 +9,22 @@ from typing import (
     Tuple,
     Type,
     Union,
-    overload, cast,
+    cast,
+    overload,
 )
 import warnings
 
-from web3._utils.transactions import (
-    extract_valid_transaction_params,
-)
 from eth_typing import (
     Address,
     BlockNumber,
     ChecksumAddress,
     HexStr,
 )
-from hexbytes import (
-    HexBytes,
-)
 from eth_utils.toolz import (
     merge,
+)
+from hexbytes import (
+    HexBytes,
 )
 
 from web3._utils.async_transactions import (
@@ -46,7 +44,10 @@ from web3._utils.filters import (
 from web3._utils.rpc_abi import (
     RPC,
 )
-from web3._utils.transactions import assert_valid_transaction_params
+from web3._utils.transactions import (
+    assert_valid_transaction_params,
+    extract_valid_transaction_params,
+)
 from web3.contract import (
     AsyncContract,
     AsyncContractCaller,
@@ -540,6 +541,25 @@ class AsyncEth(BaseEth):
             self.w3, current_transaction, new_transaction
         )
 
+    # todo: Update Any to stricter kwarg checking with TxParams
+    # https://github.com/python/mypy/issues/4441
+    async def modify_transaction(
+        self, transaction_hash: _Hash32, **transaction_params: Any
+    ) -> HexBytes:
+        assert_valid_transaction_params(cast(TxParams, transaction_params))
+
+        current_transaction = await async_get_required_transaction(
+            self.w3, transaction_hash
+        )
+        current_transaction_params = extract_valid_transaction_params(
+            current_transaction
+        )
+        new_transaction = merge(current_transaction_params, transaction_params)
+
+        return await async_replace_transaction(
+            self.w3, current_transaction, new_transaction
+        )
+
     # eth_sign
 
     _sign: Method[Callable[..., Awaitable[HexStr]]] = Method(
@@ -567,17 +587,6 @@ class AsyncEth(BaseEth):
 
     # eth_getUncleCountByBlockHash
     # eth_getUncleCountByBlockNumber
-
-    async def modify_transaction(
-            self, transaction_hash: _Hash32, **transaction_params: Any
-    ) -> HexBytes:
-        assert_valid_transaction_params(cast(TxParams, transaction_params))
-
-        current_transaction = await async_get_required_transaction(self.w3, transaction_hash)
-        current_transaction_params = extract_valid_transaction_params(current_transaction)
-        new_transaction = merge(current_transaction_params, transaction_params)
-
-        return await self.replace_transaction(current_transaction, new_transaction)
 
     _get_uncle_count: Method[Callable[[BlockIdentifier], Awaitable[int]]] = Method(
         method_choice_depends_on_args=select_method_for_block_identifier(

@@ -6,10 +6,6 @@ from typing import (
     cast,
 )
 
-from eth_utils.toolz import (
-    assoc,
-)
-
 from eth_abi import (
     abi,
 )
@@ -30,14 +26,14 @@ from web3._utils.request import (
     async_get_response_from_post_request,
 )
 from web3._utils.transactions import (
-    prepare_replacement_transaction, VALID_TRANSACTION_PARAMS,
+    prepare_replacement_transaction,
 )
 from web3._utils.type_conversion import (
     to_bytes_if_hex,
     to_hex_if_bytes,
 )
 from web3._utils.utility_methods import (
-    any_in_dict, all_in_dict,
+    any_in_dict,
 )
 from web3.constants import (
     DYNAMIC_FEE_TXN_PARAMS,
