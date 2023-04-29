@@ -114,13 +114,33 @@ class AttributeDict(ReadableAttributeDict[TKey, TValue], Hashable):
         raise TypeError("This data is immutable -- create a copy instead of modifying")
 
     def __hash__(self) -> int:
-        return hash(tuple(sorted(self.items())))
+        return hash(tuple(sorted(tupleize_lists_nested(self).items())))
 
     def __eq__(self, other: Any) -> bool:
         if isinstance(other, Mapping):
             return self.__dict__ == dict(other)
         else:
             return False
+
+
+def tupleize_lists_nested(d: Mapping[TKey, TValue]) -> AttributeDict[TKey, TValue]:
+    """
+    Lists inside dicts will throw an error if attempted to be hashed.
+    This method converts them to tuples, rendering them hashable.
+    """
+
+    def _to_tuple(lst: list) -> tuple:
+        return tuple(_to_tuple(i) if isinstance(i, list) else i for i in lst)
+
+    ret = dict()
+    for k, v in d.items():
+        if isinstance(v, list):
+            ret[k] = _to_tuple(v)
+        elif isinstance(v, dict) or isinstance(v, ReadableAttributeDict):
+            ret[k] = tupleize_lists_nested(v)
+        else:
+            ret[k] = v
+    return AttributeDict(ret)
 
 
 class NamedElementOnion(Mapping[TKey, TValue]):
