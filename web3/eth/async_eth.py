@@ -9,6 +9,7 @@ from typing import (
     Tuple,
     Type,
     Union,
+    cast,
     overload,
 )
 import warnings
@@ -18,6 +19,9 @@ from eth_typing import (
     BlockNumber,
     ChecksumAddress,
     HexStr,
+)
+from eth_utils.toolz import (
+    merge,
 )
 from hexbytes import (
     HexBytes,
@@ -39,6 +43,10 @@ from web3._utils.filters import (
 )
 from web3._utils.rpc_abi import (
     RPC,
+)
+from web3._utils.transactions import (
+    assert_valid_transaction_params,
+    extract_valid_transaction_params,
 )
 from web3.contract import (
     AsyncContract,
@@ -529,6 +537,25 @@ class AsyncEth(BaseEth):
         current_transaction = await async_get_required_transaction(
             self.w3, transaction_hash
         )
+        return await async_replace_transaction(
+            self.w3, current_transaction, new_transaction
+        )
+
+    # todo: Update Any to stricter kwarg checking with TxParams
+    # https://github.com/python/mypy/issues/4441
+    async def modify_transaction(
+        self, transaction_hash: _Hash32, **transaction_params: Any
+    ) -> HexBytes:
+        assert_valid_transaction_params(cast(TxParams, transaction_params))
+
+        current_transaction = await async_get_required_transaction(
+            self.w3, transaction_hash
+        )
+        current_transaction_params = extract_valid_transaction_params(
+            current_transaction
+        )
+        new_transaction = merge(current_transaction_params, transaction_params)
+
         return await async_replace_transaction(
             self.w3, current_transaction, new_transaction
         )
