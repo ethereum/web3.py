@@ -3,6 +3,7 @@ import time
 from typing import (
     Any,
     Dict,
+    Optional,
 )
 
 from eth_utils import (
@@ -42,6 +43,14 @@ class BadFunctionCallOutput(Web3Exception):
 class BlockNumberOutofRange(Web3Exception):
     """
     block_identifier passed does not match known block.
+    """
+
+    pass
+
+
+class ProviderConnectionError(Web3Exception):
+    """
+    Raised when unable to connect to a provider
     """
 
     pass
@@ -250,11 +259,17 @@ class ContractLogicError(Web3Exception):
     Raised on a contract revert error
     """
 
+    def __init__(self, message: Optional[str] = None, data: Optional[str] = None):
+        self.message = message
+        self.data = data
+
 
 class ContractCustomError(ContractLogicError):
     """
     Raised on a contract revert custom error
     """
+
+    pass
 
 
 class OffchainLookup(ContractLogicError):
@@ -262,9 +277,10 @@ class OffchainLookup(ContractLogicError):
     Raised when a contract reverts with OffchainLookup as described in EIP-3668
     """
 
-    def __init__(self, payload: Dict[str, Any]) -> None:
+    def __init__(self, payload: Dict[str, Any], data: Optional[str] = None) -> None:
         self.payload = payload
-        super().__init__()
+        self.data = data
+        super().__init__(data=data)
 
 
 class InvalidTransaction(Web3Exception):

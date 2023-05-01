@@ -101,12 +101,16 @@ setting the middlewares the provider should use.
       the JSON-RPC method being called.
 
 
-.. py:method:: BaseProvider.is_connected()
+.. py:method:: BaseProvider.is_connected(show_traceback=False)
 
     This function should return ``True`` or ``False`` depending on whether the
     provider should be considered *connected*.  For example, an IPC socket
     based provider should return ``True`` if the socket is open and ``False``
     if the socket is closed.
+
+    If set to ``True``, the optional ``show_traceback`` boolean will raise a
+    ``ProviderConnectionError`` and provide information on why the provider should
+    not be considered *connected*.
 
 
 .. py:attribute:: BaseProvider.middlewares

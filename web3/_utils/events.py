@@ -447,7 +447,7 @@ class EventFilterBuilder(BaseEventFilterBuilder):
 
 class AsyncEventFilterBuilder(BaseEventFilterBuilder):
     async def deploy(self, async_w3: "AsyncWeb3") -> "AsyncLogFilter":
-        if not isinstance(async_w3, web3.Web3):
+        if not isinstance(async_w3, web3.AsyncWeb3):
             raise ValueError(f"Invalid web3 argument: got: {async_w3!r}")
 
         for arg in AttributeDict.values(self.args):
@@ -455,6 +455,7 @@ class AsyncEventFilterBuilder(BaseEventFilterBuilder):
         self._immutable = True
 
         log_filter = await async_w3.eth.filter(self.filter_params)
+        log_filter = cast("AsyncLogFilter", log_filter)
         log_filter.filter_params = self.filter_params
         log_filter.set_data_filters(self.data_argument_values)
         log_filter.builder = self

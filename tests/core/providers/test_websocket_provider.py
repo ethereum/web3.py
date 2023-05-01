@@ -14,6 +14,7 @@ from web3 import (
     Web3,
 )
 from web3.exceptions import (
+    ProviderConnectionError,
     Web3ValidationError,
 )
 from web3.providers.websocket import (
@@ -61,6 +62,16 @@ def w3(open_port, start_websocket_server):
     event_loop.run_until_complete(wait_for_ws(endpoint_uri))
     provider = WebsocketProvider(endpoint_uri, websocket_timeout=0.01)
     return Web3(provider)
+
+
+def test_no_args():
+    provider = WebsocketProvider()
+    w3 = Web3(provider)
+    assert w3.manager.provider == provider
+    assert not w3.manager.provider.is_async
+    assert not w3.is_connected()
+    with pytest.raises(ProviderConnectionError):
+        w3.is_connected(show_traceback=True)
 
 
 def test_websocket_provider_timeout(w3):
