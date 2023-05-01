@@ -22,10 +22,10 @@ If you would like to hack on <REPO_NAME>, please check out the [Snake Charmers
 Tactical Manual](https://github.com/ethereum/snake-charmers-tactical-manual)
 for information on how we do:
 
--   Testing
--   Pull Requests
--   Code Style
--   Documentation
+- Testing
+- Pull Requests
+- Code Style
+- Documentation
 
 ### Development Environment Setup
 
