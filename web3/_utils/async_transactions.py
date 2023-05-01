@@ -247,39 +247,3 @@ async def async_replace_transaction(
         async_w3, current_transaction, new_transaction
     )
     return await async_w3.eth.send_transaction(new_transaction)
-
-
-async def async_extract_valid_transaction_params(transaction_params: TxData) -> TxParams:
-    extracted_params = cast(
-        TxParams,
-        {
-            key: transaction_params[key]
-            for key in VALID_TRANSACTION_PARAMS
-            if key in transaction_params
-        },
-    )
-
-    if all_in_dict(DYNAMIC_FEE_TXN_PARAMS, extracted_params):
-        if extracted_params["gasPrice"] == extracted_params["maxFeePerGas"]:
-            extracted_params.pop("gasPrice")
-
-    if extracted_params.get("data") is not None:
-        if transaction_params.get("input") is not None:
-            if extracted_params["data"] != transaction_params["input"]:
-                msg = 'failure to handle this transaction due to both "input: {}" and'
-                msg += ' "data: {}" are populated. You need to resolve this conflict.'
-                err_vals = (transaction_params["input"], extracted_params["data"])
-                raise AttributeError(msg.format(*err_vals))
-            else:
-                return extracted_params
-        else:
-            return extracted_params
-    elif extracted_params.get("data") is None:
-        if transaction_params.get("input") is not None:
-            return assoc(extracted_params, "data", transaction_params["input"])
-        else:
-            return extracted_params
-    else:
-        raise Exception(
-            "Unreachable path: transaction's 'data' is either set or not set"
-        )
