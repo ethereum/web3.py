@@ -81,24 +81,26 @@ def _get_weighted_avg_block_time(w3: Web3, sample_size: int) -> float:
 def _get_raw_miner_data(
     w3: Web3, sample_size: int
 ) -> Iterable[Tuple[ChecksumAddress, HexBytes, Wei]]:
-    latest = w3.eth.get_block("latest", full_transactions=True)
+    latest_block = w3.eth.get_block("latest", full_transactions=True)
 
-    for transaction in latest["transactions"]:
-        # type ignored b/c actual transaction is TxData not HexBytes
-        yield (latest["miner"], latest["hash"], transaction["gasPrice"])  # type: ignore
+    for transaction in latest_block["transactions"]:
+        miner = latest_block["miner"]
+        block_hash = latest_block["hash"]
+        gas_price = transaction["gasPrice"]
+        yield miner, block_hash, gas_price
 
-    block = latest
+    block = latest_block
 
     for _ in range(sample_size - 1):
         if block["number"] == 0:
             break
 
-        # we intentionally trace backwards using parent hashes rather than
-        # block numbers to make caching the data easier to implement.
         block = w3.eth.get_block(block["parentHash"], full_transactions=True)
         for transaction in block["transactions"]:
-            # type ignored b/c actual transaction is TxData not HexBytes
-            yield (block["miner"], block["hash"], transaction["gasPrice"])  # type: ignore  # noqa: E501
+            miner = block["miner"]
+            block_hash = block["hash"]
+            gas_price = transaction["gasPrice"]
+            yield miner, block_hash, gas_price
 
 
 def _aggregate_miner_data(
