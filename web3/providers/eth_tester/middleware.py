@@ -193,6 +193,7 @@ BLOCK_RESULT_KEY_MAPPING = {
     # there is no longer any mining happening, but the current
     # JSON-RPC spec still says miner
     "coinbase": "miner",
+    "withdrawals_root": "withdrawalsRoot",
 }
 block_result_remapper = apply_key_map(BLOCK_RESULT_KEY_MAPPING)
 
