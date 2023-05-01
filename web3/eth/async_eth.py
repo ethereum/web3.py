@@ -13,6 +13,9 @@ from typing import (
 )
 import warnings
 
+from web3._utils.transactions import (
+    extract_valid_transaction_params,
+)
 from eth_typing import (
     Address,
     BlockNumber,
@@ -28,7 +31,7 @@ from eth_utils.toolz import (
 
 from web3._utils.async_transactions import (
     async_get_required_transaction,
-    async_replace_transaction, async_extract_valid_transaction_params,
+    async_replace_transaction,
 )
 from web3._utils.blocks import (
     select_method_for_block_identifier,
@@ -571,7 +574,7 @@ class AsyncEth(BaseEth):
         assert_valid_transaction_params(cast(TxParams, transaction_params))
 
         current_transaction = await async_get_required_transaction(self.w3, transaction_hash)
-        current_transaction_params = await async_extract_valid_transaction_params(current_transaction)
+        current_transaction_params = extract_valid_transaction_params(current_transaction)
         new_transaction = merge(current_transaction_params, transaction_params)
 
         return await self.replace_transaction(current_transaction, new_transaction)
