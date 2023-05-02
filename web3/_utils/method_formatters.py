@@ -297,7 +297,9 @@ BLOCK_FORMATTERS = {
         )
     ),
     "transactionsRoot": apply_formatter_if(is_not_null, to_hexbytes(32)),
-    "withdrawals": apply_formatter_to_array(withdrawal_result_formatter),
+    "withdrawals": apply_formatter_if(
+        is_not_null, apply_list_to_array_formatter(withdrawal_result_formatter)
+    ),
     "withdrawalsRoot": apply_formatter_if(is_not_null, to_hexbytes(32)),
 }
 

@@ -1,0 +1,1 @@
+Add the ``modify_transaction`` method to the ``AsyncEth`` class
