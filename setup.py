@@ -19,7 +19,7 @@ extras_require = {
         "types-protobuf==3.19.13",
     ],
     "docs": [
-        "sphinx>=5.0.0",
+        "sphinx>=5.3.0",
         "sphinx_rtd_theme>=1.0.0",
         "towncrier>=21,<22",
     ],
