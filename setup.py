@@ -19,7 +19,7 @@ extras_require = {
         "black>=23",
     ],
     "doc": [
-        "sphinx>=5.0.0",
+        "sphinx>=6.0.0",
         "sphinx_rtd_theme>=1.0.0",
         "towncrier>=21,<22",
     ],
