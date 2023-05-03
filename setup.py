@@ -18,7 +18,7 @@ extras_require = {
         "pydocstyle>=6.0.0",
         "black>=23",
     ],
-    "doc": [
+    "docs": [
         "sphinx>=6.0.0",
         "sphinx_rtd_theme>=1.0.0",
         "towncrier>=21,<22",
@@ -38,7 +38,7 @@ extras_require["dev"] = (
     extras_require["dev"]
     + extras_require["test"]
     + extras_require["lint"]
-    + extras_require["doc"]
+    + extras_require["docs"]
 )
 
 
