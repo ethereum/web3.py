@@ -1,1 +1,0 @@
-Typing was being ignored for the ``get_ipc_path`` and ``get_dev_ipc_path`` functions because of a missing ``None`` return. Those two methods now explicitly return ``None`` and have an ``Optional`` in their type definition.
