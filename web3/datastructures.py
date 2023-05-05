@@ -129,7 +129,7 @@ def tupleize_lists_nested(d: Mapping[TKey, TValue]) -> AttributeDict[TKey, TValu
     This method converts them to tuples, rendering them hashable.
     """
 
-    def _to_tuple(lst: list) -> tuple:
+    def _to_tuple(lst: List[Any]) -> Any:
         return tuple(_to_tuple(i) if isinstance(i, list) else i for i in lst)
 
     ret = dict()
