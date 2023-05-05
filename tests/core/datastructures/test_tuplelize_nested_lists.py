@@ -1,37 +1,85 @@
-from web3.datastructures import AttributeDict, tupleize_lists_nested
+import pytest
 
-DICT_1 = {
-    "mylst": [1, 2, 3, [4, 5, [6, 7], 8], 9, 10],
-    "nested": {"mylst": [1, 2, 3, [1], [2, 3]]},
-}
-EXPECTED_1 = AttributeDict(
-    {
-        "mylst": (1, 2, 3, (4, 5, (6, 7), 8), 9, 10),
-        "nested": AttributeDict({"mylst": (1, 2, 3, (1,), (2, 3))}),
-    }
-)
-
-DICT_2 = AttributeDict(
-    {
-        "mylst": [1, 2, 3, [4, 5, [6, 7], 8], 9, 10],
-        "nested": AttributeDict({"mylst": [1, 2, 3, [1], [2, 3]]}),
-    }
-)
-EXPECTED_2 = AttributeDict(
-    {
-        "mylst": (1, 2, 3, (4, 5, (6, 7), 8), 9, 10),
-        "nested": AttributeDict({"mylst": (1, 2, 3, (1,), (2, 3))}),
-    }
+from web3.datastructures import (
+    AttributeDict,
+    tupleize_lists_nested,
 )
 
 
-def test_dict_tupleization():
-    assert tupleize_lists_nested(DICT_1) == EXPECTED_1
-    assert tupleize_lists_nested(DICT_2) == EXPECTED_2
+@pytest.mark.parametrize(
+    "input,expected",
+    (
+        (
+            {
+                "mylst": [1, 2, 3, [4, 5, [6, 7], 8], 9, 10],
+                "nested": {"mylst": [1, 2, 3, [1], [2, 3]]},
+            },
+            AttributeDict(
+                {
+                    "mylst": (1, 2, 3, (4, 5, (6, 7), 8), 9, 10),
+                    "nested": AttributeDict({"mylst": (1, 2, 3, (1,), (2, 3))}),
+                }
+            ),
+        ),
+        (
+            {
+                "mylst": [1, 2, 3, [5, 4, [6, 7], 8], 9, 10],
+                "nested": {"mylst": [1, 2, 3, [1], [2, 3]]},
+            },
+            AttributeDict(
+                {
+                    "nested": AttributeDict({"mylst": (1, 2, 3, (1,), (2, 3))}),
+                    "mylst": (1, 2, 3, (5, 4, (6, 7), 8), 9, 10),
+                }
+            ),
+        ),
+        (
+            AttributeDict(
+                {
+                    "mylst": [1, 2, 3, [4, 5, [6, 7], 8], 9, 10],
+                    "nested": AttributeDict({"mylst": [1, 2, 3, [1], [2, 3]]}),
+                }
+            ),
+            AttributeDict(
+                {
+                    "mylst": (1, 2, 3, (4, 5, (6, 7), 8), 9, 10),
+                    "nested": AttributeDict({"mylst": (1, 2, 3, (1,), (2, 3))}),
+                }
+            ),
+        ),
+    ),
+)
+def test_tupleization_and_hashing(input, expected):
+    assert tupleize_lists_nested(input) == expected
+    assert hash(AttributeDict(input)) == hash(expected)
 
 
-def test_hashing_success():
-    try:
-        hash(DICT_2)
-    except TypeError:
-        assert False
+@pytest.mark.parametrize(
+    "input, error",
+    (
+        (
+            AttributeDict(
+                {
+                    "mylst": (1, 2, 3, (4, 5, (6, 7), 8), 9, 10),
+                    "nested": AttributeDict({"mylst": (1, 2, 3, (1,), (2, 3))}),
+                }
+            ),
+            None,
+        ),
+        (
+            AttributeDict(
+                {
+                    "mylst": [1, 2, 3, [4, 5, [6, 7], 8], 9, 10],
+                    "nested": AttributeDict({"mylst": [1, 2, 3, [1], [2, 3]]}),
+                }
+            ),
+            {"expected_exception": TypeError, "match": "unhashable type: 'list'"},
+        ),
+    ),
+)
+def test_AttributeDict_hashing_backwards_compatibility(input, error):
+    if error:
+        with pytest.raises(**error):
+            assert hash(tuple(sorted(input.items()))) == hash(input)
+    else:
+        assert hash(tuple(sorted(input.items()))) == hash(input)
