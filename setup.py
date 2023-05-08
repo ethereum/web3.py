@@ -19,7 +19,7 @@ extras_require = {
         "types-protobuf==3.19.13",
     ],
     "docs": [
-        "sphinx>=5.0.0",
+        "sphinx>=5.3.0",
         "sphinx_rtd_theme>=1.0.0",
         "towncrier>=21,<22",
     ],
@@ -60,7 +60,7 @@ with open("./README.md") as readme:
 setup(
     name="web3",
     # *IMPORTANT*: Don't manually change the version here. Use the 'bumpversion' utility.
-    version="6.2.0",
+    version="6.3.0",
     description="""web3.py""",
     long_description_content_type="text/markdown",
     long_description=long_description,

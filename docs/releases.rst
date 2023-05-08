@@ -6,6 +6,44 @@ v6 Breaking Changes Summary
 
 .. towncrier release notes start
 
+v6.3.0 (2023-05-03)
+-------------------
+
+Features
+~~~~~~~~
+
+- Add support for custom revert errors (`#2795 <https://github.com/ethereum/web3.py/issues/2795>`__)
+- Add the ``modify_transaction`` method to the ``AsyncEth`` class (`#2825 <https://github.com/ethereum/web3.py/issues/2825>`__)
+- add show_traceback flag to is_connected to allow user to see connection error reason (`#2912 <https://github.com/ethereum/web3.py/issues/2912>`__)
+- Add a ``data`` attribute on the ``ContractLogicError`` class that returns raw data returned by the node. (`#2922 <https://github.com/ethereum/web3.py/issues/2922>`__)
+- Add support via result formatters for ``reward`` type trace actions on tracing calls. (`#2929 <https://github.com/ethereum/web3.py/issues/2929>`__)
+
+
+Bugfixes
+~~~~~~~~
+
+- Typing was being ignored for the ``get_ipc_path`` and ``get_dev_ipc_path`` functions because of a missing ``None`` return. Those two methods now explicitly return ``None`` and have an ``Optional`` in their type definition. (`#2917 <https://github.com/ethereum/web3.py/issues/2917>`__)
+- fix AsyncEventFilterBuilder looking for Web3 instead of AsyncWeb3 (`#2931 <https://github.com/ethereum/web3.py/issues/2931>`__)
+- Add check for null withdrawal field on get_block response (`#2941 <https://github.com/ethereum/web3.py/issues/2941>`__)
+
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Add a decision tree guide for sending transactions (`#2919 <https://github.com/ethereum/web3.py/issues/2919>`__)
+- Update references to master branch (`#2933 <https://github.com/ethereum/web3.py/issues/2933>`__)
+- Cleanup Quickstart guide and next steps (`#2935 <https://github.com/ethereum/web3.py/issues/2935>`__)
+- Cleanup Overview page links and context (`#2938 <https://github.com/ethereum/web3.py/issues/2938>`__)
+
+
+Internal Changes - for web3.py Contributors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Added ``build`` to towncrier commands in Makefile (`#2915 <https://github.com/ethereum/web3.py/issues/2915>`__)
+- Update win wheel CI builds to use ``python -m tox -r`` instead of specifying the ``tox`` executable directly. (`#2923 <https://github.com/ethereum/web3.py/issues/2923>`__)
+- update pip and tox install on CI containers (`#2927 <https://github.com/ethereum/web3.py/issues/2927>`__)
+
+
 v6.2.0 (2023-04-12)
 -------------------
 
