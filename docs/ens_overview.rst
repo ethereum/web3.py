@@ -16,7 +16,7 @@ Setup
 Create an :class:`~ens.ENS` object (named ``ns`` below) in one of three ways:
 
 1. Automatic detection
-2. Specify an instance or list of :ref:`providers`
+2. Specify an instance of a :ref:`provider <providers>`
 3. From an existing :class:`web3.Web3` object
 
 .. code-block:: python
