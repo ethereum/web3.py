@@ -1,0 +1,1 @@
+remove reference to the ability to specify a list of providers - you can't anymore
