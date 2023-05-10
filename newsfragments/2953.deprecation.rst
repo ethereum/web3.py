@@ -1,1 +1,1 @@
-add deprecation notice for `ethPM` module
+add deprecation notice for the `ethPM` module
