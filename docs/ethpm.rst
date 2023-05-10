@@ -3,6 +3,9 @@
 ethPM
 =====
 
+.. warning::
+   The ``ethPM`` module is no longer being maintained and will be deprecated with ``web3.py`` version 7.
+
 Overview
 --------
 

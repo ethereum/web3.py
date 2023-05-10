@@ -1,0 +1,1 @@
+add deprecation notice for `ethPM` module
