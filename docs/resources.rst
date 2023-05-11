@@ -16,7 +16,7 @@ Frameworks and tooling
 ----------------------
 
 - `ApeWorX - The Ethereum development framework for Python Developers, Data Scientists, and Security Professionals <https://www.apeworx.io/>`__
-- `Brownie - A Python-based development and testing framework for smart contracts targeting the Ethereum Virtual Machine. <https://github.com/eth-brownie/brownie>`__
+- `Brownie - A Python-based development and testing framework for smart contracts targeting EVM. <https://github.com/eth-brownie/brownie>`__
 
 .. warning ::
 
@@ -28,12 +28,12 @@ Frameworks and tooling
 Libraries
 ---------
 
-- `web3-ethereum-defi - Library for DeFi trading and protocols (Uniswap, PancakeSwap, Sushi, Aave, Chainlink) <https://github.com/tradingstrategy-ai/web3-ethereum-defi>`__
-- `lighter-v1-python - Lighter.xyz client for Python - <https://github.com/elliottech/lighter-v1-python>`__
-- `uniswap-python - a library lets you easily retrieve prices and make trades on all Uniswap versions. <https://uniswap-python.com/>`__
-- `pyWalletConnect - A WalletConnect implementation for wallets in Python <https://github.com/bitlogik/pyWalletConnect>`__
+- `Web3 Ethereum DeFi - Library for DeFi trading and protocols (Uniswap, PancakeSwap, Sushi, Aave, Chainlink) <https://github.com/tradingstrategy-ai/web3-ethereum-defi>`__
+- `lighter-v1-python - Lighter.xyz DEX client for Python <https://github.com/elliottech/lighter-v1-python>`__
+- `uniswap-python - Library lets you easily retrieve prices and make trades on all Uniswap versions. <https://uniswap-python.com/>`__
+- `pyWalletConnect - WalletConnect implementation for wallets in Python <https://github.com/bitlogik/pyWalletConnect>`__
 - `dydx-v3-python - Python client for dYdX v3 <https://github.com/dydxprotocol/dydx-v3-python>`__
-- `Lido Python SDK - A library with which you can get all Lido validator's signatures and check their validity <https://github.com/lidofinance/lido-python-sdk>`__
+- `Lido Python SDK - Library with which you can get all Lido validator's signatures and check their validity <https://github.com/lidofinance/lido-python-sdk>`__
 
 Conference presentations and videos
 -----------------------------------
