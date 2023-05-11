@@ -577,14 +577,14 @@ class ContractCaller(BaseContractCaller):
             for func in self._functions:
                 fn = ContractFunction.factory(
                     func["name"],
-                    w3=self.w3,
+                    w3=w3,
                     contract_abi=self.abi,
                     address=self.address,
                     function_identifier=func["name"],
                     decode_tuples=decode_tuples,
                 )
 
-                block_id = parse_block_identifier(self.w3, block_identifier)
+                block_id = parse_block_identifier(w3, block_identifier)
                 caller_method = partial(
                     self.call_function,
                     fn,
