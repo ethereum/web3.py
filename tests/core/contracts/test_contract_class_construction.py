@@ -1,5 +1,6 @@
 import json
 import pytest
+import copy
 
 from eth_utils import (
     decode_hex,
@@ -40,6 +41,30 @@ def test_abi_as_json_string(w3, math_contract_abi, some_address):
 
     math = math_contract_factory(some_address)
     assert math.abi == math_contract_abi
+
+
+def test_abi_as_json_string_with_alternative_name(w3, math_contract_abi, some_address):
+    abi = copy.deepcopy(math_contract_abi)
+    abi[1]["name"] = "something_else"
+    abi_str = json.dumps(abi)
+
+    math_contract_factory = w3.eth.contract(abi=abi_str)
+    assert math_contract_factory.abi == abi
+
+    math = math_contract_factory(some_address)
+    assert math.abi == abi
+
+
+def test_abi_as_json_string_with_w3_name(w3, math_contract_abi, some_address):
+    abi = copy.deepcopy(math_contract_abi)
+    abi[1]["name"] = "w3"
+    abi_str = json.dumps(abi)
+
+    math_contract_factory = w3.eth.contract(abi=abi_str)
+    assert math_contract_factory.abi == abi
+
+    math = math_contract_factory(some_address)
+    assert math.abi == abi
 
 
 def test_error_to_call_non_existent_fallback(
