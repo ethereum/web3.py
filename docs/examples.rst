@@ -391,6 +391,9 @@ Output:
 Working with Contracts via ethPM
 --------------------------------
 
+.. warning::
+   The ``ethPM`` module is no longer being maintained and will be deprecated with ``web3.py`` version 7.
+
 `ethPM <http://www.ethpm.com/>`__ packages contain configured contracts ready for use. Web3's ``ethpm`` module (``web3.pm``)
 extends Web3's native ``Contract`` module, with a few modifications for how you instantiate ``Contract`` factories and instances.
 
