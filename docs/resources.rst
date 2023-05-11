@@ -23,7 +23,10 @@ Frameworks and tooling
     Brownie lacks active maintenance. 
     `See migration guide to ApeWorX <https://academy.apeworx.io/articles/porting-brownie-to-ape>`__
 
-    
+Smart contracts programming languages
+-------------------------------------
+
+- `Vyper - Contract-oriented, pythonic programming language that targets EVM <https://docs.vyperlang.org/en/stable/>`__
 
 Libraries
 ---------
