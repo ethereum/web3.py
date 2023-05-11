@@ -10,7 +10,7 @@ ALLOWED_EXTENSIONS = {
     ".breaking.rst",
     ".bugfix.rst",
     ".deprecation.rst",
-    ".doc.rst",
+    ".docs.rst",
     ".feature.rst",
     ".internal.rst",
     ".misc.rst",
