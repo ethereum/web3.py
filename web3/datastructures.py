@@ -125,8 +125,9 @@ class AttributeDict(ReadableAttributeDict[TKey, TValue], Hashable):
 
 def tupleize_lists_nested(d: Mapping[TKey, TValue]) -> AttributeDict[TKey, TValue]:
     """
-    Lists inside dicts will throw an error if attempted to be hashed.
-    This method converts them to tuples, rendering them hashable.
+    Unhashable types inside dicts will throw an error if attempted to be hashed.
+    This method converts lists to tuples, rendering them hashable.
+    Other unhashable types found will raise a TypeError
     """
 
     def _to_tuple(lst: List[Any]) -> Any:
@@ -134,10 +135,12 @@ def tupleize_lists_nested(d: Mapping[TKey, TValue]) -> AttributeDict[TKey, TValu
 
     ret = dict()
     for k, v in d.items():
-        if isinstance(v, list):
+        if isinstance(v, List):
             ret[k] = _to_tuple(v)
-        elif isinstance(v, dict) or isinstance(v, ReadableAttributeDict):
+        elif isinstance(v, Mapping):
             ret[k] = tupleize_lists_nested(v)
+        elif not isinstance(v, Hashable):
+            raise TypeError(f"Found unhashable type '{type(v).__name__}': {v}")
         else:
             ret[k] = v
     return AttributeDict(ret)
