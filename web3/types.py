@@ -63,6 +63,7 @@ Nonce = NewType("Nonce", int)
 RPCEndpoint = NewType("RPCEndpoint", str)
 Timestamp = NewType("Timestamp", int)
 Wei = NewType("Wei", int)
+Gwei = NewType("Gwei", int)
 Formatters = Dict[RPCEndpoint, Callable[..., Any]]
 
 
@@ -239,6 +240,17 @@ TxParams = TypedDict(
 )
 
 
+WithdrawalData = TypedDict(
+    "WithdrawalData",
+    {
+        "index": int,
+        "validator_index": int,
+        "address": ChecksumAddress,
+        "amount": Gwei,
+    },
+)
+
+
 CallOverrideParams = TypedDict(
     "CallOverrideParams",
     {
@@ -355,10 +367,12 @@ class BlockData(TypedDict, total=False):
     stateRoot: HexBytes
     timestamp: Timestamp
     totalDifficulty: int
-    # list of tx hashes or of txdatas
     transactions: Union[Sequence[HexBytes], Sequence[TxData]]
     transactionsRoot: HexBytes
     uncles: Sequence[HexBytes]
+    withdrawals: Sequence[WithdrawalData]
+    withdrawalsRoot: HexBytes
+
     # geth_poa_middleware replaces extraData w/ proofOfAuthorityData
     proofOfAuthorityData: HexBytes
 
