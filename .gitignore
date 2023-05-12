@@ -51,7 +51,7 @@ docs/*._utils.*
 # Blockchain
 chains
 
-# Hypothese Property base testing
+# Hypothesis Property base testing
 .hypothesis
 
 # tox/pytest cache
