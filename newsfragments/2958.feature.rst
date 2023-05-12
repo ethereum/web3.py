@@ -1,0 +1,1 @@
+Update ``eth-tester`` to pull in Shanghai changes and make additional changes to fully support Shanghai with ``eth-tester``.
