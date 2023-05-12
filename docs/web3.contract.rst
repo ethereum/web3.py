@@ -1106,7 +1106,7 @@ Event Log Object
      'blockNumber': 2})]
     >>> transfer_filter.get_new_entries()
     []
-    >>> tx_hash = contract.functions.transfer(alice, 10).transact({'gas': 899000, 'gasPrice': 674302241})
+    >>> tx_hash = contract.functions.transfer(alice, 10).transact({'gas': 899000, 'gasPrice': 1000000000})
     >>> tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
     >>> transfer_filter.get_new_entries()
     [AttributeDict({'args': AttributeDict({'from': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf',
@@ -1115,7 +1115,7 @@ Event Log Object
      'event': 'Transfer',
      'logIndex': 0,
      'transactionIndex': 0,
-     'transactionHash': HexBytes('0xa23e7ef4d2692c5cf34ee99123c9c73099e9c3b68c7850f91c1cbcb91ac327e0'),
+     'transactionHash': HexBytes('...'),
      'address': '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b',
      'blockHash': HexBytes('...'),
      'blockNumber': 3})]
@@ -1126,7 +1126,7 @@ Event Log Object
      'event': 'Transfer',
      'logIndex': 0,
      'transactionIndex': 0,
-     'transactionHash': HexBytes('0x9da859237e7259832b913d51cb128c8d73d1866056f7a41b52003c953e749678'),
+     'transactionHash': HexBytes('...'),
      'address': '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b',
      'blockHash': HexBytes('...'),
      'blockNumber': 2}),
@@ -1136,7 +1136,7 @@ Event Log Object
      'event': 'Transfer',
      'logIndex': 0,
      'transactionIndex': 0,
-     'transactionHash': HexBytes('0xa23e7ef4d2692c5cf34ee99123c9c73099e9c3b68c7850f91c1cbcb91ac327e0'),
+     'transactionHash': HexBytes('...'),
      'address': '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b',
      'blockHash': HexBytes('...'),
      'blockNumber': 3})]
