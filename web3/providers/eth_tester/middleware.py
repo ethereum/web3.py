@@ -103,12 +103,6 @@ transaction_request_transformer = compose(
     transaction_request_formatter,
 )
 
-BLOCK_FORMATTERS = {
-    "logsBloom": integer_to_hex,
-}
-block_formatter = apply_formatters_to_dict(BLOCK_FORMATTERS)
-
-
 FILTER_REQUEST_KEY_MAPPING = {
     "fromBlock": "from_block",
     "toBlock": "to_block",
@@ -196,6 +190,14 @@ BLOCK_RESULT_KEY_MAPPING = {
     "withdrawals_root": "withdrawalsRoot",
 }
 block_result_remapper = apply_key_map(BLOCK_RESULT_KEY_MAPPING)
+
+BLOCK_FORMATTERS = {
+    "logsBloom": integer_to_hex,
+    "withdrawals": apply_list_to_array_formatter(
+        apply_key_map({"validator_index": "validatorIndex"}),
+    ),
+}
+block_formatter = apply_formatters_to_dict(BLOCK_FORMATTERS)
 
 
 RECEIPT_RESULT_FORMATTERS = {
