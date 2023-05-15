@@ -1,1 +1,0 @@
-Set towncrier settings in `pyproject.toml` to match the python project template and change newfragment type "doc" to "docs"
