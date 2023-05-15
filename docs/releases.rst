@@ -6,6 +6,42 @@ v6 Breaking Changes Summary
 
 .. towncrier release notes start
 
+web3.py v6.4.0 (2023-05-15)
+---------------------------
+
+Bugfixes
+~~~~~~~~
+
+- fix AttributeDicts unhashable if they contain lists recursively tupleizing them (`#2908 <https://github.com/ethereum/web3.py/issues/2908>`__)
+
+
+Deprecations
+~~~~~~~~~~~~
+
+- add deprecation notice for the `ethPM` module (`#2953 <https://github.com/ethereum/web3.py/issues/2953>`__)
+
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- remove reference to the ability to specify a list of providers - you can't anymore (`#2949 <https://github.com/ethereum/web3.py/issues/2949>`__)
+- add deprecation notice for the `ethPM` module (`#2953 <https://github.com/ethereum/web3.py/issues/2953>`__)
+
+
+Features
+~~~~~~~~
+
+- Update ``eth-tester`` to pull in Shanghai changes and make additional changes to fully support Shanghai with ``eth-tester``. (`#2958 <https://github.com/ethereum/web3.py/issues/2958>`__)
+
+
+Internal Changes - for web3.py Contributors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- bump sphinx and readthedocs py versions (`#2945 <https://github.com/ethereum/web3.py/issues/2945>`__)
+- re-compile test contracts with Solidity ``v0.8.20`` (`#2951 <https://github.com/ethereum/web3.py/issues/2951>`__)
+- Set towncrier settings in `pyproject.toml` to match the python project template and change newfragment type "doc" to "docs" (`#2959 <https://github.com/ethereum/web3.py/issues/2959>`__)
+
+
 v6.3.0 (2023-05-03)
 -------------------
 

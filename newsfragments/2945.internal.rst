@@ -1,1 +1,0 @@
-bump sphinx and readthedocs py versions
