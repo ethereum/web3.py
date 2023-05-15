@@ -12,7 +12,7 @@ Each file should be named like `<ISSUE>.<TYPE>.rst`, where
 * `bugfix`
 * `performance`
 * `deprecation`
-* `doc`
+* `docs`
 * `internal`
 * `removal`
 * `misc`
