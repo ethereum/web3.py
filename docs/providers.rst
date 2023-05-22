@@ -264,16 +264,17 @@ AsyncHTTPProvider
     The only documented exceptions to this are:
 
 
-    - **ENS Address Lookup** -All addresses that are passed to an Async contract should not be :class:`ENS` addresses.
-    - **Available Middleware** - Only these middlewares have async versions available:
+    - **ENS Address Lookup** - It can't resolve :class:`ENS` addresses yet. 
+    - **Available Middleware** - These middlewares have async versions available:
 
-        - :meth:`Gas Price Strategy <web3.middleware.gas_price_strategy_middleware>`
-        - :meth:`Buffered Gas Estimate Middleware <web3.middleware.buffered_gas_estimate_middleware>`
-        - :meth:`Stalecheck Middleware <web3.middleware.make_stalecheck_middleware>`
-        - :meth:`Attribute Dict Middleware <web3.middleware.attrdict_middleware>`
-        - :meth:`Validation Middleware <web3.middleware.validation>`
-        - :ref:`Geth POA Middleware <geth-poa>`
-        - :meth:`Simple Cache Middleware <web3.middleware.simple_cache_middleware>`
+        - :meth:`Attribute Dict Middleware <web3.middleware.async_attrdict_middleware>`
+        - :meth:`Buffered Gas Estimate Middleware <web3.middleware.async_buffered_gas_estimate_middleware>`
+        - :meth:`Gas Price Strategy Middleware <web3.middleware.async_gas_price_strategy_middleware>`
+        - :meth:`Geth POA Middleware <web3.middleware.async_geth_poa_middleware>`
+        - :meth:`Local Filter Middleware <web3.middleware.async_local_filter_middleware>`
+        - :meth:`Simple Cache Middleware <web3.middleware.async_construct_simple_cache_middleware>`
+        - :meth:`Stalecheck Middleware <web3.middleware.async_make_stalecheck_middleware>`
+        - :meth:`Validation Middleware <web3.middleware.async_validation>`
 
 
 .. py:currentmodule:: web3.providers.eth_tester
