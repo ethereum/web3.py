@@ -12,6 +12,12 @@ possible for a middleware to return early from a
 call without the request ever getting to the provider (or even reaching the middlewares
 that are in deeper layers).
 
+When integrating middleware with your provider, please ensure you're choosing the right
+version. For ``AsyncWeb3`` users, select the version prefixed with ``async``, such as
+``async_attrdict_middleware``. On the other hand, ``Web3`` users should opt for versions
+lacking the ``async`` prefix. If an async version isn't listed, it implies it hasn't
+been made available yet.
+
 More information is available in the "Internals: :ref:`internals__middlewares`" section.
 
 
@@ -28,6 +34,7 @@ AttributeDict
 ~~~~~~~~~~~~~~~~~~
 
 .. py:method:: web3.middleware.attrdict_middleware
+               web3.middleware.async_attrdict_middleware
 
     This middleware recursively converts any dictionary type in the result of a call
     to an ``AttributeDict``. This enables dot-syntax access, like
@@ -65,6 +72,7 @@ Gas Price Strategy
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. py:method:: web3.middleware.gas_price_strategy_middleware
+               web3.middleware.async_gas_price_strategy_middleware
 
   .. warning::
 
@@ -72,13 +80,14 @@ Gas Price Strategy
       introduced ``maxFeePerGas`` and ``maxPriorityFeePerGas`` transaction parameters
       which should be used over ``gasPrice`` whenever possible.
 
-  This adds a gasPrice to transactions if applicable and when a gas price strategy has
+  This adds a ``gasPrice`` to transactions if applicable and when a gas price strategy has
   been set. See :ref:`Gas_Price` for information about how gas price is derived.
 
 Buffered Gas Estimate
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. py:method:: web3.middleware.buffered_gas_estimate_middleware
+               web3.middleware.async_buffered_gas_estimate_middleware
 
     This adds a gas estimate to transactions if ``gas`` is not present in the transaction
     parameters. Sets gas to:
@@ -288,12 +297,13 @@ Web3 ships with non-default middleware, for your custom use. In addition to the 
   either use ``middleware_onion.add()`` from above, or add the default middlewares to your list of
   new middlewares.
 
-Below is a list of built-in middleware, which is not enabled by default.
+Below is a list of available middlewares which are not enabled by default.
 
 Stalecheck
 ~~~~~~~~~~~~
 
 .. py:method:: web3.middleware.make_stalecheck_middleware(allowable_delay)
+               web3.middleware.async_make_stalecheck_middleware(allowable_delay)
 
     This middleware checks how stale the blockchain is, and interrupts calls with a failure
     if the blockchain is too old.
@@ -325,12 +335,13 @@ All of the caching middlewares accept these common arguments.
 
 
 .. py:method:: web3.middleware.construct_simple_cache_middleware(cache_class, rpc_whitelist, should_cache_fn)
+               web3.middleware.async_construct_simple_cache_middleware(cache_class, rpc_whitelist, should_cache_fn)
 
     Constructs a middleware which will cache the return values for any RPC
     method in the ``rpc_whitelist``.
 
-    A ready to use version of this middleware can be found at
-    ``web3.middlewares.simple_cache_middleware``.
+    Ready to use versions of this middleware can be found at
+    ``web3.middleware.simple_cache_middleware`` and ``web3.middleware.async_simple_cache_middleware``.
 
 
 .. py:method:: web3.middleware.construct_time_based_cache_middleware(cache_class, cache_expire_seconds, rpc_whitelist, should_cache_fn)
@@ -343,7 +354,7 @@ All of the caching middlewares accept these common arguments.
       remain in the cache before being evicted.
 
     A ready to use version of this middleware can be found at
-    ``web3.middlewares.time_based_cache_middleware``.
+    ``web3.middleware.time_based_cache_middleware``.
 
 
 .. py:method:: web3.middleware.construct_latest_block_based_cache_middleware(cache_class, average_block_time_sample_size, default_average_block_time, rpc_whitelist, should_cache_fn)
@@ -362,16 +373,19 @@ All of the caching middlewares accept these common arguments.
       average block time.
 
     A ready to use version of this middleware can be found at
-    ``web3.middlewares.latest_block_based_cache_middleware``.
+    ``web3.middleware.latest_block_based_cache_middleware``.
 
 .. _geth-poa:
 
 Proof of Authority
 ~~~~~~~~~~~~~~~~~~
 
+.. py:method:: web3.middleware.geth_poa_middleware
+               web3.middleware.async_geth_poa_middleware
+
 .. note::
     It's important to inject the middleware at the 0th layer of the middleware onion:
-    `w3.middleware_onion.inject(geth_poa_middleware, layer=0)`
+    ``w3.middleware_onion.inject(geth_poa_middleware, layer=0)``
 
 The ``geth_poa_middleware`` is required to connect to ``geth --dev`` or the Goerli 
 public network. It may also be needed for other EVM compatible blockchains like Polygon
@@ -380,10 +394,12 @@ or BNB Chain (Binance Smart Chain).
 If the middleware is not injected at the 0th layer of the middleware onion, you may get
 errors like the example below when interacting with your EVM node.
 
-```web3.exceptions.ExtraDataLengthError: The field extraData is 97 bytes, but should be
-32. It is quite likely that you are connected to a POA chain. Refer to
-http://web3py.readthedocs.io/en/stable/middleware.html#proof-of-authority
-for more details. The full extraData is: HexBytes('...')```
+.. code-block:: shell
+
+    web3.exceptions.ExtraDataLengthError: The field extraData is 97 bytes, but should be
+    32. It is quite likely that you are connected to a POA chain. Refer to
+    http://web3py.readthedocs.io/en/stable/middleware.html#proof-of-authority
+    for more details. The full extraData is: HexBytes('...')
 
 
 The easiest way to connect to a default ``geth --dev`` instance which loads the middleware is:
@@ -417,10 +433,10 @@ unique IPC location and loads the middleware:
     'Geth/v1.7.3-stable-4bb3c89d/linux-amd64/go1.9'
 
 Why is ``geth_poa_middleware`` necessary?
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'''''''''''''''''''''''''''''''''''''''''
 
 There is no strong community consensus on a single Proof-of-Authority (PoA) standard yet.
-Some nodes have successful experiments running, though. One is go-ethereum (geth),
+Some nodes have successful experiments running though. One is go-ethereum (geth),
 which uses a prototype PoA for its development mode and the Goerli test network.
 
 Unfortunately, it does deviate from the yellow paper specification, which constrains the
@@ -431,6 +447,9 @@ Unfortunately, it does deviate from the yellow paper specification, which constr
 
 Locally Managed Log and Block Filters
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. py:method:: web3.middleware.local_filter_middleware
+               web3.middleware.async_local_filter_middleware
 
 This middleware provides an alternative to ethereum node managed filters. When used, Log and
 Block filter logic are handled locally while using the same web3 filter api. Filter results are
