@@ -259,94 +259,21 @@ AsyncHTTPProvider
     Under the hood, the ``AsyncHTTPProvider`` uses the python
     `aiohttp <https://docs.aiohttp.org/en/stable/>`_ library for making requests.
 
-Supported Methods
-^^^^^^^^^^^^^^^^^
 
-Eth
-***
-- :class:`web3.eth.account <eth_account.account.Account>`
-- :meth:`web3.eth.accounts <web3.eth.Eth.accounts>`
-- :meth:`web3.eth.block_number <web3.eth.Eth.block_number>`
-- :meth:`web3.eth.chain_id <web3.eth.Eth.chain_id>`
-- :meth:`web3.eth.coinbase <web3.eth.Eth.coinbase>`
-- :meth:`web3.eth.default_account <web3.eth.Eth.default_account>`
-- :meth:`web3.eth.default_block <web3.eth.Eth.default_block>`
-- :meth:`web3.eth.gas_price <web3.eth.Eth.gas_price>`
-- :meth:`web3.eth.hashrate <web3.eth.Eth.hashrate>`
-- :meth:`web3.eth.max_priority_fee <web3.eth.Eth.max_priority_fee>`
-- :meth:`web3.eth.mining <web3.eth.Eth.mining>`
-- :meth:`web3.eth.syncing <web3.eth.Eth.syncing>`
-- :meth:`web3.eth.call() <web3.eth.Eth.call>`
-- :meth:`web3.eth.estimate_gas() <web3.eth.Eth.estimate_gas>`
-- :meth:`web3.eth.generate_gas_price() <web3.eth.Eth.generate_gas_price>`
-- :meth:`web3.eth.get_balance() <web3.eth.Eth.get_balance>`
-- :meth:`web3.eth.get_block() <web3.eth.Eth.get_block>`
-- :meth:`web3.eth.get_code() <web3.eth.Eth.get_code>`
-- :meth:`web3.eth.get_logs() <web3.eth.Eth.get_logs>`
-- :meth:`web3.eth.get_raw_transaction() <web3.eth.Eth.get_raw_transaction>`
-- :meth:`web3.eth.get_raw_transaction_by_block() <web3.eth.Eth.get_raw_transaction_by_block>`
-- :meth:`web3.eth.get_transaction() <web3.eth.Eth.get_transaction>`
-- :meth:`web3.eth.get_transaction_count() <web3.eth.Eth.get_transaction_count>`
-- :meth:`web3.eth.get_transaction_receipt() <web3.eth.Eth.get_transaction_receipt>`
-- :meth:`web3.eth.get_storage_at() <web3.eth.Eth.get_storage_at>`
-- :meth:`web3.eth.send_transaction() <web3.eth.Eth.send_transaction>`
-- :meth:`web3.eth.send_raw_transaction() <web3.eth.Eth.send_raw_transaction>`
-- :meth:`web3.eth.wait_for_transaction_receipt() <web3.eth.Eth.wait_for_transaction_receipt>`
-- :meth:`web3.eth.sign() <web3.eth.Eth.sign>`
-- :meth:`web3.eth.sign_transaction() <web3.eth.Eth.sign_transaction>`
-- :meth:`web3.eth.modify_transaction() <web3.eth.Eth.modify_transaction>`
-- :meth:`web3.eth.replace_transaction() <web3.eth.Eth.replace_transaction>`
-- :meth:`web3.eth.get_uncle_count() <web3.eth.Eth.get_uncle_count>`
-- :meth:`web3.eth.sign_typed_data() <web3.eth.Eth.sign_typed_data>`
+    The ``AsyncHTTPProvider`` has almost all the same functionality available as the ``HTTPProvider``.
+    The only documented exceptions to this are:
 
-Net
-***
-- :meth:`web3.net.listening() <web3.net.listening>`
-- :meth:`web3.net.peer_count() <web3.net.peer_count>`
-- :meth:`web3.net.version() <web3.net.version>`
 
-Geth
-****
-- :meth:`web3.geth.admin.add_peer() <web3.geth.admin.add_peer>`
-- :meth:`web3.geth.admin.datadir() <web3.geth.admin.datadir>`
-- :meth:`web3.geth.admin.node_info() <web3.geth.admin.node_info>`
-- :meth:`web3.geth.admin.peers() <web3.geth.admin.peers>`
-- :meth:`web3.geth.admin.start_http() <web3.geth.admin.start_http>`
-- :meth:`web3.geth.admin.start_ws() <web3.geth.admin.start_ws>`
-- :meth:`web3.geth.admin.stop_http() <web3.geth.admin.stop_http>`
-- :meth:`web3.geth.admin.stop_ws() <web3.geth.admin.stop_ws>`
-- :meth:`web3.geth.personal.ec_recover()`
-- :meth:`web3.geth.personal.import_raw_key() <web3.geth.personal.import_raw_key>`
-- :meth:`web3.geth.personal.list_accounts() <web3.geth.personal.list_accounts>`
-- :meth:`web3.geth.personal.list_wallets() <web3.geth.personal.list_wallets()>`
-- :meth:`web3.geth.personal.lock_account() <web3.geth.personal.lock_account>`
-- :meth:`web3.geth.personal.new_account() <web3.geth.personal.new_account>`
-- :meth:`web3.geth.personal.send_transaction() <web3.geth.personal.send_transaction>`
-- :meth:`web3.geth.personal.sign()`
-- :meth:`web3.geth.personal.unlock_account() <web3.geth.personal.unlock_account>`
-- :meth:`web3.geth.txpool.inspect() <web3.geth.txpool.TxPool.inspect()>`
-- :meth:`web3.geth.txpool.content() <web3.geth.txpool.TxPool.content()>`
-- :meth:`web3.geth.txpool.status() <web3.geth.txpool.TxPool.status()>`
+    - **ENS Address Lookup** -All addresses that are passed to an Async contract should not be :class:`ENS` addresses.
+    - **Available Middleware** - Only these middlewares have async versions available:
 
-Contract
-^^^^^^^^
-Contract is fully implemented for the Async provider. The only documented exception to this at
-the moment is where :class:`ENS` is needed for address lookup. All addresses that are passed to Async
-contract should not be :class:`ENS` addresses.
-
-ENS
-^^^^^^^^
-ENS is fully implemented for the Async provider.
-
-Supported Middleware
-^^^^^^^^^^^^^^^^^^^^
-- :meth:`Gas Price Strategy <web3.middleware.gas_price_strategy_middleware>`
-- :meth:`Buffered Gas Estimate Middleware <web3.middleware.buffered_gas_estimate_middleware>`
-- :meth:`Stalecheck Middleware <web3.middleware.make_stalecheck_middleware>`
-- :meth:`Attribute Dict Middleware <web3.middleware.attrdict_middleware>`
-- :meth:`Validation Middleware <web3.middleware.validation>`
-- :ref:`Geth POA Middleware <geth-poa>`
-- :meth:`Simple Cache Middleware <web3.middleware.simple_cache_middleware>`
+        - :meth:`Gas Price Strategy <web3.middleware.gas_price_strategy_middleware>`
+        - :meth:`Buffered Gas Estimate Middleware <web3.middleware.buffered_gas_estimate_middleware>`
+        - :meth:`Stalecheck Middleware <web3.middleware.make_stalecheck_middleware>`
+        - :meth:`Attribute Dict Middleware <web3.middleware.attrdict_middleware>`
+        - :meth:`Validation Middleware <web3.middleware.validation>`
+        - :ref:`Geth POA Middleware <geth-poa>`
+        - :meth:`Simple Cache Middleware <web3.middleware.simple_cache_middleware>`
 
 
 .. py:currentmodule:: web3.providers.eth_tester
