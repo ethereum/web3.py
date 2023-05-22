@@ -1,0 +1,1 @@
+`lint-roll` - dropped `isort` `--recursive` flag, not needed as of their `v5`, added black

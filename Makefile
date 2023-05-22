@@ -25,7 +25,8 @@ lint:
 	tox -e lint
 
 lint-roll:
-	isort --recursive web3 ens tests
+	isort web3 ens tests
+	black web3 ens tests setup.py
 	$(MAKE) lint
 
 test:
