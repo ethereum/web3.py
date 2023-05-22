@@ -66,10 +66,6 @@ center.  The Provider then handles the request, producing a response which will
 then pass back out from the center of the onion, through each layer until it is
 finally returned by the Manager.
 
-In the situation where web3 is operating with multiple providers the same
-lifecycle applies.  The manager will iterate over each provider, returning the
-response from the first provider that returns a response.
-
 
 Providers
 ---------

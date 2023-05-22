@@ -103,12 +103,6 @@ transaction_request_transformer = compose(
     transaction_request_formatter,
 )
 
-BLOCK_FORMATTERS = {
-    "logsBloom": integer_to_hex,
-}
-block_formatter = apply_formatters_to_dict(BLOCK_FORMATTERS)
-
-
 FILTER_REQUEST_KEY_MAPPING = {
     "fromBlock": "from_block",
     "toBlock": "to_block",
@@ -193,8 +187,17 @@ BLOCK_RESULT_KEY_MAPPING = {
     # there is no longer any mining happening, but the current
     # JSON-RPC spec still says miner
     "coinbase": "miner",
+    "withdrawals_root": "withdrawalsRoot",
 }
 block_result_remapper = apply_key_map(BLOCK_RESULT_KEY_MAPPING)
+
+BLOCK_RESULT_FORMATTERS = {
+    "logsBloom": integer_to_hex,
+    "withdrawals": apply_list_to_array_formatter(
+        apply_key_map({"validator_index": "validatorIndex"}),
+    ),
+}
+block_result_formatter = apply_formatters_to_dict(BLOCK_RESULT_FORMATTERS)
 
 
 RECEIPT_RESULT_FORMATTERS = {
@@ -267,11 +270,11 @@ request_formatters = {
 result_formatters: Optional[Dict[RPCEndpoint, Callable[..., Any]]] = {
     RPCEndpoint("eth_getBlockByHash"): apply_formatter_if(
         is_dict,
-        compose(block_result_remapper, block_formatter),
+        compose(block_result_remapper, block_result_formatter),
     ),
     RPCEndpoint("eth_getBlockByNumber"): apply_formatter_if(
         is_dict,
-        compose(block_result_remapper, block_formatter),
+        compose(block_result_remapper, block_result_formatter),
     ),
     RPCEndpoint("eth_getBlockTransactionCountByHash"): apply_formatter_if(
         is_dict,

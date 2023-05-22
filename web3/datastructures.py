@@ -114,13 +114,36 @@ class AttributeDict(ReadableAttributeDict[TKey, TValue], Hashable):
         raise TypeError("This data is immutable -- create a copy instead of modifying")
 
     def __hash__(self) -> int:
-        return hash(tuple(sorted(self.items())))
+        return hash(tuple(sorted(tupleize_lists_nested(self).items())))
 
     def __eq__(self, other: Any) -> bool:
         if isinstance(other, Mapping):
             return self.__dict__ == dict(other)
         else:
             return False
+
+
+def tupleize_lists_nested(d: Mapping[TKey, TValue]) -> AttributeDict[TKey, TValue]:
+    """
+    Unhashable types inside dicts will throw an error if attempted to be hashed.
+    This method converts lists to tuples, rendering them hashable.
+    Other unhashable types found will raise a TypeError
+    """
+
+    def _to_tuple(lst: List[Any]) -> Any:
+        return tuple(_to_tuple(i) if isinstance(i, list) else i for i in lst)
+
+    ret = dict()
+    for k, v in d.items():
+        if isinstance(v, List):
+            ret[k] = _to_tuple(v)
+        elif isinstance(v, Mapping):
+            ret[k] = tupleize_lists_nested(v)
+        elif not isinstance(v, Hashable):
+            raise TypeError(f"Found unhashable type '{type(v).__name__}': {v}")
+        else:
+            ret[k] = v
+    return AttributeDict(ret)
 
 
 class NamedElementOnion(Mapping[TKey, TValue]):
