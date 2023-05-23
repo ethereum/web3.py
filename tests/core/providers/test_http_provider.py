@@ -103,3 +103,20 @@ def test_user_provided_session():
     assert isinstance(adapter, HTTPAdapter)
     assert adapter._pool_connections == 20
     assert adapter._pool_maxsize == 20
+
+
+def test_construct_user_agent():
+    """
+    The User-Agent used to include a stringiffied class name like:
+
+        "web3.py/6.4.0/<class 'web3.providers.rpc.HTTPProvider'>"
+
+    This test does minimal checks to ensure it is more like:
+
+        "web3.py/6.4.0/web3.providers.rpc.HTTPProvider"
+
+    """
+    provider = HTTPProvider()
+    headers = provider.get_request_headers()
+    assert "<" not in headers["User-Agent"]
+    assert " " not in headers["User-Agent"]

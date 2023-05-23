@@ -84,7 +84,7 @@ class AsyncHTTPProvider(AsyncJSONBaseProvider):
     def get_request_headers(self) -> Dict[str, str]:
         return {
             "Content-Type": "application/json",
-            "User-Agent": construct_user_agent(str(type(self))),
+            "User-Agent": construct_user_agent(type(self)),
         }
 
     async def _make_request(self, method: RPCEndpoint, request_data: bytes) -> bytes:
