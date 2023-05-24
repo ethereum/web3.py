@@ -1,0 +1,1 @@
+Check for null value on TRACE_FORMATTERS.transactionHash
