@@ -14,7 +14,7 @@ common: &common
         command: ./.circleci/merge_pr.sh
         when: on_fail
     - run:
-        name: merge pull request base (3nd try)
+        name: merge pull request base (3rd try)
         command: ./.circleci/merge_pr.sh
         when: on_fail
     - restore_cache:

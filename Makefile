@@ -5,8 +5,8 @@ CURRENT_SIGN_SETTING := $(shell git config commit.gpgSign)
 help:
 	@echo "clean-build - remove build artifacts"
 	@echo "clean-pyc - remove Python file artifacts"
-	@echo "lint - check style with flake8"
-	@echo "lint-roll - automatically fix problems with isort, flake8, etc"
+	@echo "lint - check style with mypy, flake8, isort, pydocstyle, and black"
+	@echo "lint-roll - automatically fix problems with flake8 and black"
 	@echo "test - run tests quickly with the default Python"
 	@echo "docs - generate docs and open in browser (linux-docs for version on linux)"
 	@echo "notes - consume towncrier newsfragments/ and update release notes in docs/"
