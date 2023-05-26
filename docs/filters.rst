@@ -1,14 +1,55 @@
 .. _filtering:
 
-Filtering
-=========
+Monitoring Events
+=================
 
+If you're on this page, you're likely looking for an answer to this question:
+**How do I know when a specific contract is used?** You have at least three options:
+
+1. Query blocks for transactions that include the contract address in the ``"to"`` field.
+   This contrived example is searching the latest block for any transactions sent to the
+   WETH_ contract.
+
+.. code-block:: python
+
+   WETH_ADDRESS = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2'
+
+   block = w3.eth.get_block('latest')
+   for tx_hash in block.transactions:
+       tx = w3.eth.get_transaction(tx_hash)
+       if tx['to'] == WETH_ADDRESS:
+           print(f'Found interaction with WETH contract! {tx}')
+
+2. Query for logs emitted by a contract. After instantiating a web3.py Contract object,
+   you can :ref:`fetch logs <contract_get_logs>` for any event listed in the ABI.  In this
+   example, we query for ``Transfer`` events in the latest block and log out the results.
+
+.. code-block:: python
+
+   WETH_ADDRESS = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2'
+   WETH_ABI = '[{"constant":true,"inputs":[],"name":"name","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"guy","type":"address"},{"name":"wad","type":"uint256"}],"name":"approve","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"src","type":"address"},{"name":"dst","type":"address"},{"name":"wad","type":"uint256"}],"name":"transferFrom","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"wad","type":"uint256"}],"name":"withdraw","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"","type":"address"}],"name":"balanceOf","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"symbol","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"dst","type":"address"},{"name":"wad","type":"uint256"}],"name":"transfer","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[],"name":"deposit","outputs":[],"payable":true,"stateMutability":"payable","type":"function"},{"constant":true,"inputs":[{"name":"","type":"address"},{"name":"","type":"address"}],"name":"allowance","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"payable":true,"stateMutability":"payable","type":"fallback"},{"anonymous":false,"inputs":[{"indexed":true,"name":"src","type":"address"},{"indexed":true,"name":"guy","type":"address"},{"indexed":false,"name":"wad","type":"uint256"}],"name":"Approval","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"src","type":"address"},{"indexed":true,"name":"dst","type":"address"},{"indexed":false,"name":"wad","type":"uint256"}],"name":"Transfer","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"dst","type":"address"},{"indexed":false,"name":"wad","type":"uint256"}],"name":"Deposit","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"src","type":"address"},{"indexed":false,"name":"wad","type":"uint256"}],"name":"Withdrawal","type":"event"}]'
+
+   weth_contract = w3.eth.contract(address=WETH_ADDRESS, abi=WETH_ABI)
+
+   # fetch transfer events in the last block
+   params = {"fromBlock": w3.eth.block_number}
+   logs = weth_contract.events.Transfer().get_logs(params)
+
+   for log in logs:
+      print(f"Transfer of {w3.from_wei(log.args.wad, 'ether')} WETH from {log.args.src} to {log.args.dst}")
+
+See an advanced example of fetching log history :ref:`here <advanced_token_fetch>`.
+
+3. Use a filter.
+
+.. warning ::
+
+  While filters can be a very convenient way to monitor for blocks, transactions, or
+  events, they are notoriously unreliable. Both remote and locally hosted nodes have
+  a reputation for occasionally dropping filters, and some remote node providers don't
+  support filter-related RPC calls at all.
 
 .. py:module:: web3.utils.filters
-
-.. note ::
-
-    Most one-liners below assume ``w3`` to be a :class:`web3.Web3` instance.
 
 The :meth:`web3.eth.Eth.filter` method can be used to set up filters for:
 
@@ -163,7 +204,7 @@ See the JSON-RPC documentation for `eth_newFilter <https://ethereum.org/en/devel
 
     .. note::
 
-        Though ``"latest"`` and ``"safe"`` block identifiers are not yet part of the
+        Though ``"finalized"`` and ``"safe"`` block identifiers are not yet part of the
         specifications for ``eth_newFilter``, they are supported by web3.py and may or
         may not yield expected results depending on the node being accessed.
 
@@ -181,14 +222,6 @@ methods:
 
 Provides a means to filter on the log data, in other words the ability to filter on values from
 un-indexed event arguments. The parameter ``data_filter_set`` should be a list or set of 32-byte hex encoded values.
-
-Getting events without setting up a filter
-------------------------------------------
-
-You can query an Ethereum node for direct fetch of events, without creating a filter first.
-This works on all node types.
-
-For examples see :meth:`web3.contract.ContractEvents.get_logs`.
 
 Examples: Listening For Events
 ------------------------------
@@ -223,7 +256,7 @@ Synchronous
 .. _asynchronous_filters:
 
 Asynchronous Filter Polling
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Starting with web3 version 4, the ``watch`` method was taken out of the web3 filter objects.
 There are many decisions to be made when designing a system regarding threading and concurrency.
@@ -315,6 +348,7 @@ Here are some other libraries that provide frameworks for writing asynchronous p
     * twisted_
     * celery_
 
+.. _WETH: https://etherscan.io/token/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2#code
 .. _asyncio: https://docs.python.org/3/library/asyncio.html
 .. _gevent: https://www.gevent.org/
 .. _twisted: https://twistedmatrix.com/

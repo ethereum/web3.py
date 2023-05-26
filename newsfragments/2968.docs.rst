@@ -1,0 +1,1 @@
+Modernize the filtering guide, emphasizing ``get_logs``
