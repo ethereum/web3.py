@@ -952,6 +952,20 @@ For example:
 
 :py:class:`ContractEvent` provides methods to interact with contract events. Positional and keyword arguments supplied to the contract event subclass will be used to find the contract event by signature.
 
+.. _contract_get_logs:
+
+.. py:method:: ContractEvents.myEvent(*args, **kwargs).get_logs(filter_params, errors=WARN)
+   :noindex:
+
+   Fetches all logs for a given event within a set of
+   `filter params <https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_newfilter>`_.
+
+    .. code-block:: python
+
+        myContract = web3.eth.contract(address=contract_address, abi=contract_abi)
+        filter_params = {"fromBlock": "latest"}
+        myContract.events.myEvent().get_logs(filter_params)
+
 .. _process_receipt:
 
 .. py:method:: ContractEvents.myEvent(*args, **kwargs).process_receipt(transaction_receipt, errors=WARN)

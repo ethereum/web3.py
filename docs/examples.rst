@@ -752,6 +752,7 @@ If you want to run your application logging in debug mode, below is an example o
 
         return logger
 
+.. _advanced_token_fetch:
 
 Advanced example: Fetching all token transfer events
 ----------------------------------------------------
