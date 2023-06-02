@@ -139,10 +139,6 @@ def get_dev_ipc_path() -> Optional[str]:
         if os.path.exists(ipc_path):
             return ipc_path
 
-        ipc_path = os.path.join("\\\\", ".", "pipe", "jsonrpc.ipc")
-        if os.path.exists(ipc_path):
-            return ipc_path
-
     else:
         raise ValueError(
             f"Unsupported platform '{sys.platform}'.  Only darwin/linux/win32/"

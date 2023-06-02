@@ -168,23 +168,12 @@ IPCProvider
         >>> from web3 import Web3
         >>> w3 = Web3(Web3.IPCProvider("~/Library/Ethereum/geth.ipc"))
 
-    If no ``ipc_path`` is specified, it will use the first IPC file
-    it can find from this list:
+    If no ``ipc_path`` is specified, it will use a default depending on your operating
+    system.
 
-    - On Linux and FreeBSD:
-
-      - ``~/.ethereum/geth.ipc``
-      - ``~/.local/share/io.parity.ethereum/jsonrpc.ipc``
-      - ``~/.local/share/trinity/mainnet/ipcs-eth1/jsonrpc.ipc``
-    - On Mac OS:
-
-      - ``~/Library/Ethereum/geth.ipc``
-      - ``~/Library/Application Support/io.parity.ethereum/jsonrpc.ipc``
-      - ``~/.local/share/trinity/mainnet/ipcs-eth1/jsonrpc.ipc``
-    - On Windows:
-
-      - ``\\\.\pipe\geth.ipc``
-      - ``\\\.\pipe\jsonrpc.ipc``
+    - On Linux and FreeBSD: ``~/.ethereum/geth.ipc``
+    - On Mac OS: ``~/Library/Ethereum/geth.ipc``
+    - On Windows: ``\\\.\pipe\geth.ipc``
 
 
 WebsocketProvider
