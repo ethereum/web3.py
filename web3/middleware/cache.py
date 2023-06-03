@@ -103,11 +103,11 @@ def construct_simple_cache_middleware(
 
                 response = make_request(method, params)
                 if should_cache_fn(method, params, response):
-                    lock.acquire(blocking=False)
-                    try:
-                        cache.cache(cache_key, response)
-                    finally:
-                        lock.release()
+                    if lock.acquire(blocking=False):
+                        try:
+                            cache.cache(cache_key, response)
+                        finally:
+                            lock.release()
                 return response
             else:
                 return make_request(method, params)
