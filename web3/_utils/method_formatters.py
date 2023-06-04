@@ -582,7 +582,7 @@ TRACE_FORMATTERS = apply_formatter_if(
             "result": TRACE_RESULT_FORMATTERS,
             "blockHash": HexBytes,
             "blockNumber": to_integer_if_hex,
-            "transactionHash": HexBytes,
+            "transactionHash": apply_formatter_if(is_not_null, to_hexbytes(32)),
         }
     ),
 )

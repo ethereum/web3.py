@@ -1,1 +1,0 @@
-fix AsyncEventFilterBuilder looking for Web3 instead of AsyncWeb3

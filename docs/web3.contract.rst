@@ -952,6 +952,20 @@ For example:
 
 :py:class:`ContractEvent` provides methods to interact with contract events. Positional and keyword arguments supplied to the contract event subclass will be used to find the contract event by signature.
 
+.. _contract_get_logs:
+
+.. py:method:: ContractEvents.myEvent(*args, **kwargs).get_logs(filter_params, errors=WARN)
+   :noindex:
+
+   Fetches all logs for a given event within a set of
+   `filter params <https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_newfilter>`_.
+
+    .. code-block:: python
+
+        myContract = web3.eth.contract(address=contract_address, abi=contract_abi)
+        filter_params = {"fromBlock": "latest"}
+        myContract.events.myEvent().get_logs(filter_params)
+
 .. _process_receipt:
 
 .. py:method:: ContractEvents.myEvent(*args, **kwargs).process_receipt(transaction_receipt, errors=WARN)
@@ -1106,7 +1120,7 @@ Event Log Object
      'blockNumber': 2})]
     >>> transfer_filter.get_new_entries()
     []
-    >>> tx_hash = contract.functions.transfer(alice, 10).transact({'gas': 899000, 'gasPrice': 674302241})
+    >>> tx_hash = contract.functions.transfer(alice, 10).transact({'gas': 899000, 'gasPrice': 1000000000})
     >>> tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
     >>> transfer_filter.get_new_entries()
     [AttributeDict({'args': AttributeDict({'from': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf',
@@ -1115,7 +1129,7 @@ Event Log Object
      'event': 'Transfer',
      'logIndex': 0,
      'transactionIndex': 0,
-     'transactionHash': HexBytes('0xa23e7ef4d2692c5cf34ee99123c9c73099e9c3b68c7850f91c1cbcb91ac327e0'),
+     'transactionHash': HexBytes('...'),
      'address': '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b',
      'blockHash': HexBytes('...'),
      'blockNumber': 3})]
@@ -1126,7 +1140,7 @@ Event Log Object
      'event': 'Transfer',
      'logIndex': 0,
      'transactionIndex': 0,
-     'transactionHash': HexBytes('0x9da859237e7259832b913d51cb128c8d73d1866056f7a41b52003c953e749678'),
+     'transactionHash': HexBytes('...'),
      'address': '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b',
      'blockHash': HexBytes('...'),
      'blockNumber': 2}),
@@ -1136,7 +1150,7 @@ Event Log Object
      'event': 'Transfer',
      'logIndex': 0,
      'transactionIndex': 0,
-     'transactionHash': HexBytes('0xa23e7ef4d2692c5cf34ee99123c9c73099e9c3b68c7850f91c1cbcb91ac327e0'),
+     'transactionHash': HexBytes('...'),
      'address': '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b',
      'blockHash': HexBytes('...'),
      'blockNumber': 3})]
