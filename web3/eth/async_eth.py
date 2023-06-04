@@ -585,6 +585,20 @@ class AsyncEth(BaseEth):
     async def sign_transaction(self, transaction: TxParams) -> SignedTx:
         return await self._sign_transaction(transaction)
 
+    # eth_signTypedData
+
+    _sign_typed_data: Method[
+        Callable[[Union[Address, ChecksumAddress, ENS], str], Awaitable[HexStr]]
+    ] = Method(
+        RPC.eth_signTypedData,
+        mungers=[default_root_munger],
+    )
+
+    async def sign_typed_data(
+        self, account: Union[Address, ChecksumAddress, ENS], data: str
+    ) -> HexStr:
+        return await self._sign_typed_data(account, data)
+
     # eth_getUncleCountByBlockHash
     # eth_getUncleCountByBlockNumber
 

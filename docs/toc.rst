@@ -15,10 +15,8 @@ Table of Contents
 
     node
     providers
-    transactions
-    examples
-    troubleshooting
     web3.eth.account
+    transactions
     filters
     web3.contract
     abi_types
@@ -26,6 +24,8 @@ Table of Contents
     internals
     ethpm
     ens_overview
+    examples
+    troubleshooting
     v6_migration
     v5_migration
     v4_migration

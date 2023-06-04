@@ -19,6 +19,7 @@ from .abi import (  # noqa: F401
 )
 from .async_cache import (  # noqa: F401
     _async_simple_cache_middleware as async_simple_cache_middleware,
+    async_construct_simple_cache_middleware,
 )
 from .attrdict import (  # noqa: F401
     async_attrdict_middleware,
