@@ -11,9 +11,11 @@ from web3._utils.caching import (
     generate_cache_key,
 )
 from web3.middleware import (
+    async_simple_cache_middleware,
     construct_error_generator_middleware,
     construct_result_generator_middleware,
     construct_simple_cache_middleware,
+    simple_cache_middleware,
 )
 from web3.middleware.async_cache import (
     async_construct_simple_cache_middleware,
@@ -155,6 +157,40 @@ def test_simple_cache_middleware_does_not_cache_endpoints_not_in_whitelist(w3):
     assert result_a != result_b
 
 
+def test_simple_cache_middleware_does_not_share_state_between_providers():
+    result_generator_a = construct_result_generator_middleware(
+        {RPCEndpoint("eth_chainId"): lambda *_: 11111}
+    )
+    result_generator_b = construct_result_generator_middleware(
+        {RPCEndpoint("eth_chainId"): lambda *_: 22222}
+    )
+    result_generator_c = construct_result_generator_middleware(
+        {RPCEndpoint("eth_chainId"): lambda *_: 33333}
+    )
+
+    w3_a = Web3(provider=BaseProvider(), middlewares=[result_generator_a])
+    w3_b = Web3(provider=BaseProvider(), middlewares=[result_generator_b])
+    w3_c = Web3(  # instantiate the Web3 instance with the cache middleware
+        provider=BaseProvider(),
+        middlewares=[
+            result_generator_c,
+            simple_cache_middleware,
+        ],
+    )
+
+    w3_a.middleware_onion.add(simple_cache_middleware)
+    w3_b.middleware_onion.add(simple_cache_middleware)
+
+    result_a = w3_a.manager.request_blocking("eth_chainId", [])
+    result_b = w3_b.manager.request_blocking("eth_chainId", [])
+    result_c = w3_c.manager.request_blocking("eth_chainId", [])
+
+    assert result_a != result_b != result_c
+    assert result_a == 11111
+    assert result_b == 22222
+    assert result_c == 33333
+
+
 # -- async -- #
 
 
@@ -275,3 +311,42 @@ async def test_async_simple_cache_middleware_does_not_cache_non_whitelist_endpoi
     result_b = await async_w3.manager.coro_request("not_whitelisted", [])
 
     assert result_a != result_b
+
+
+@pytest.mark.asyncio
+async def test_async_simple_cache_middleware_does_not_share_state_between_providers():
+    result_generator_a = await async_construct_result_generator_middleware(
+        {RPCEndpoint("eth_chainId"): lambda *_: 11111}
+    )
+    result_generator_b = await async_construct_result_generator_middleware(
+        {RPCEndpoint("eth_chainId"): lambda *_: 22222}
+    )
+    result_generator_c = await async_construct_result_generator_middleware(
+        {RPCEndpoint("eth_chainId"): lambda *_: 33333}
+    )
+
+    w3_a = AsyncWeb3(
+        provider=AsyncEthereumTesterProvider(), middlewares=[result_generator_a]
+    )
+    w3_b = AsyncWeb3(
+        provider=AsyncEthereumTesterProvider(), middlewares=[result_generator_b]
+    )
+    w3_c = AsyncWeb3(  # instantiate the Web3 instance with the cache middleware
+        provider=AsyncEthereumTesterProvider(),
+        middlewares=[
+            result_generator_c,
+            async_simple_cache_middleware,
+        ],
+    )
+
+    w3_a.middleware_onion.add(async_simple_cache_middleware)
+    w3_b.middleware_onion.add(async_simple_cache_middleware)
+
+    result_a = await w3_a.eth.chain_id
+    result_b = await w3_b.eth.chain_id
+    result_c = await w3_c.eth.chain_id
+
+    assert result_a != result_b != result_c
+    assert result_a == 11111
+    assert result_b == 22222
+    assert result_c == 33333
