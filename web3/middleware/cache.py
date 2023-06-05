@@ -81,9 +81,6 @@ def construct_simple_cache_middleware(
         ``response`` and returns a boolean as to whether the response should be
         cached.
     """
-    if cache is None:
-        cache = SimpleCache(256)
-
     if rpc_whitelist is None:
         rpc_whitelist = SIMPLE_CACHE_RPC_WHITELIST
 
@@ -92,12 +89,17 @@ def construct_simple_cache_middleware(
     ) -> Callable[[RPCEndpoint, Any], RPCResponse]:
         lock = threading.Lock()
 
+        # Setting the cache here, rather than in ``construct_simple_cache_middleware``,
+        # ensures that each instance of the middleware has its own cache. This is
+        # important for compatibility with multiple ``Web3`` instances.
+        _cache = cache if cache else SimpleCache(256)
+
         def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
             if method in rpc_whitelist:
                 cache_key = generate_cache_key(
                     f"{threading.get_ident()}:{(method, params)}"
                 )
-                cached_request = cache.get_cache_entry(cache_key)
+                cached_request = _cache.get_cache_entry(cache_key)
                 if cached_request is not None:
                     return cached_request
 
@@ -105,7 +107,7 @@ def construct_simple_cache_middleware(
                 if should_cache_fn(method, params, response):
                     if lock.acquire(blocking=False):
                         try:
-                            cache.cache(cache_key, response)
+                            _cache.cache(cache_key, response)
                         finally:
                             lock.release()
                 return response
