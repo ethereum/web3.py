@@ -1,1 +1,1 @@
-Removed references to defunct providers in `IPCProvider` docs
+Removed references to defunct providers in ``IPCProvider`` docs

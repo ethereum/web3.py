@@ -1,1 +1,1 @@
-Completed docstrings for `ContractFunction` and `AsyncContractFunction` classes
+Completed docstrings for ``ContractFunction`` and ``AsyncContractFunction`` classes

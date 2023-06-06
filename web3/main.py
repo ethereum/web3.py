@@ -1,4 +1,5 @@
 import decimal
+import warnings
 
 from ens import (
     AsyncENS,
@@ -343,9 +344,14 @@ class BaseWeb3:
             )
 
     def enable_unstable_package_management_api(self) -> None:
-        from web3.pm import PM  # noqa: F811
-
         if not hasattr(self, "_pm"):
+            warnings.warn(
+                "The ``ethPM`` module is no longer being maintained and will be "
+                "deprecated with ``web3.py`` version 7",
+                UserWarning,
+            )
+            from web3.pm import PM  # noqa: F811
+
             self.attach_modules({"_pm": PM})
 
 
