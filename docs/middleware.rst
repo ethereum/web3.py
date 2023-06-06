@@ -325,24 +325,44 @@ Stalecheck
 
 
 Cache
-~~~~~~~~~~~
-
-All of the caching middlewares accept these common arguments.
-
-* ``cache_class`` must be a callable which returns an object which implements the dictionary API.
-* ``rpc_whitelist`` must be an iterable, preferably a set, of the RPC methods that may be cached.
-* ``should_cache_fn`` must be a callable with the signature ``fn(method, params, response)`` which returns whether the response should be cached.
-
+~~~~~
 
 .. py:method:: web3.middleware.construct_simple_cache_middleware(cache_class, rpc_whitelist, should_cache_fn)
                web3.middleware.async_construct_simple_cache_middleware(cache_class, rpc_whitelist, should_cache_fn)
+
+    These simple cache constructor methods accept the following arguments:
+
+    * ``cache`` must be an instance of the ``web3.utils.caching.SimpleCache`` class.
+        If a cache instance is not provided, a new instance will be created.
+    * ``rpc_whitelist`` must be an iterable, preferably a set, of the RPC methods that
+        may be cached. A default list is used if none is provided.
+    * ``should_cache_fn`` must be a callable with the signature
+        ``fn(method, params, response)`` which returns whether the response should
+        be cached.
 
     Constructs a middleware which will cache the return values for any RPC
     method in the ``rpc_whitelist``.
 
     Ready to use versions of this middleware can be found at
-    ``web3.middleware.simple_cache_middleware`` and ``web3.middleware.async_simple_cache_middleware``.
+    ``web3.middleware.simple_cache_middleware`` and
+    ``web3.middleware.async_simple_cache_middleware``.
 
+The time-based and latest-block-based cache constructor methods accept the
+following arguments:
+
+    .. note::
+            These ``cache_class`` argument is likely to change to the ``cache``
+            argument with ``web3.utils.caching.SimpleCache`` instance in the future,
+            as is the current state of the simple cache middleware above.
+
+
+* ``cache_class`` must be a callable which returns an object which implements the
+    dictionary API.
+* ``rpc_whitelist`` must be an iterable, preferably a set, of the RPC methods that
+    may be cached. A default list is used if none is provided.
+* ``should_cache_fn`` must be a callable with the signature
+    ``fn(method, params, response)`` which returns whether the response should
+    be cached.
 
 .. py:method:: web3.middleware.construct_time_based_cache_middleware(cache_class, cache_expire_seconds, rpc_whitelist, should_cache_fn)
 
