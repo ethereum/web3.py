@@ -1,1 +1,1 @@
-Removed list of `AsyncHTTPProvider`-supported methods, it supports them all now
+Removed list of ``AsyncHTTPProvider``-supported methods, it supports them all now

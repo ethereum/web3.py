@@ -1,12 +1,5 @@
-import warnings
 from pathlib import Path
 
-
-warnings.warn(
-    "The ``ethPM`` module is no longer being maintained and will be "
-    "deprecated with ``web3.py`` version 7",
-    UserWarning,
-)
 
 ETHPM_DIR = Path(__file__).parent
 ASSETS_DIR = ETHPM_DIR / "assets"

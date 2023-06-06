@@ -1,1 +1,1 @@
-Added 'unsupported by any current clients' note to the `Eth.sign_typed_data` docs
+Added 'unsupported by any current clients' note to the ``Eth.sign_typed_data`` docs
