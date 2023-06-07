@@ -47,8 +47,10 @@ from web3 import (
 )
 from web3._utils.contract_error_handling import (
     OFFCHAIN_LOOKUP_FIELDS,
+    PANIC_ERROR_CODES,
 )
 from web3.exceptions import (
+    ContractPanicError,
     OffchainLookup,
 )
 from web3.types import (
@@ -84,23 +86,33 @@ def call_eth_tester(
         return getattr(eth_tester, fn_name)(*fn_args, **fn_kwargs)
     except TransactionFailed as e:
         possible_data = e.args[0]
-        if isinstance(possible_data, str) and possible_data[2:10] == "Uo\\x180\\":
-            # EIP-3668 | CCIP Read
-            # b"Uo\x180" is the first 4 bytes of the keccak hash for:
-            # OffchainLookup(address,string[],bytes,bytes4,bytes)
-            parsed_data_as_bytes = ast.literal_eval(possible_data)
-            data_payload = parsed_data_as_bytes[
-                4:
-            ]  # everything but the function selector
-            abi_decoded_data = abi.decode(
-                list(OFFCHAIN_LOOKUP_FIELDS.values()), data_payload
-            )
-            offchain_lookup_payload = dict(
-                zip(OFFCHAIN_LOOKUP_FIELDS.keys(), abi_decoded_data)
-            )
-            raise OffchainLookup(
-                offchain_lookup_payload, data=Web3.to_hex(parsed_data_as_bytes)
-            )
+        if isinstance(possible_data, str):
+            if possible_data[2:10] == "Uo\\x180\\":
+                # EIP-3668 | CCIP Read
+                # b"Uo\x180" is the first 4 bytes of the keccak hash for:
+                # OffchainLookup(address,string[],bytes,bytes4,bytes)
+                parsed_data_as_bytes = ast.literal_eval(possible_data)
+                data_payload = parsed_data_as_bytes[
+                    4:
+                ]  # everything but the function selector
+                abi_decoded_data = abi.decode(
+                    list(OFFCHAIN_LOOKUP_FIELDS.values()), data_payload
+                )
+                offchain_lookup_payload = dict(
+                    zip(OFFCHAIN_LOOKUP_FIELDS.keys(), abi_decoded_data)
+                )
+                raise OffchainLookup(
+                    offchain_lookup_payload, data=Web3.to_hex(parsed_data_as_bytes)
+                )
+            elif possible_data[2:6] == "NH{q":
+                # Solidity >= 0.8.0 Panic Error
+                parsed_data_as_bytes = ast.literal_eval(possible_data)
+                panic_error_code = parsed_data_as_bytes[-1:].hex()
+                raise ContractPanicError(
+                    PANIC_ERROR_CODES[panic_error_code],
+                    data=Web3.to_hex(parsed_data_as_bytes),
+                )
+
         raise e
 
 
