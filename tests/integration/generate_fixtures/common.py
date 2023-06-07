@@ -49,6 +49,9 @@ GENESIS_DATA = {
         "petersburgBlock": 0,
         "berlinBlock": 0,
         "londonBlock": 0,
+        "arrowGlacierBlock": 0,
+        "grayGlacierBlock": 0,
+        "shanghaiTime": 0,
     },
     "nonce": "0x0000000000000042",
     "alloc": {

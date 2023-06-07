@@ -40,6 +40,9 @@ from web3._utils.contract_sources.contract_data.offchain_lookup import (
     OFFCHAIN_LOOKUP_ABI,
     OFFCHAIN_LOOKUP_BYTECODE,
 )
+from web3._utils.contract_sources.contract_data.panic_errors_contract import (
+    PANIC_ERRORS_CONTRACT_DATA,
+)
 from web3._utils.contract_sources.contract_data.revert_contract import (
     REVERT_CONTRACT_ABI,
     REVERT_CONTRACT_BYTECODE,
@@ -309,6 +312,15 @@ def setup_chain_state(w3):
     assert is_dict(offchain_lookup_deploy_receipt)
 
     #
+    # Panic Errors Contract
+    #
+    panic_errors_contract_factory = w3.eth.contract(**PANIC_ERRORS_CONTRACT_DATA)
+    panic_errors_deploy_receipt = common.deploy_contract(
+        w3, "panic_errors", panic_errors_contract_factory
+    )
+    assert is_dict(panic_errors_deploy_receipt)
+
+    #
     # Empty Block
     #
     empty_block_number = mine_block(w3)
@@ -343,6 +355,7 @@ def setup_chain_state(w3):
         "emitter_deploy_txn_hash": emitter_deploy_receipt["transactionHash"],
         "emitter_address": emitter_deploy_receipt["contractAddress"],
         "offchain_lookup_address": offchain_lookup_deploy_receipt["contractAddress"],
+        "panic_errors_contract_address": panic_errors_deploy_receipt["contractAddress"],
         "txn_hash_with_log": txn_hash_with_log,
         "block_hash_with_log": block_with_log["hash"],
         "empty_block_hash": empty_block["hash"],

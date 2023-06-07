@@ -4,9 +4,12 @@ import pytest
 from random import (
     randint,
 )
+import re
 from typing import (
     TYPE_CHECKING,
+    Any,
     Callable,
+    List,
     Union,
     cast,
 )
@@ -37,6 +40,9 @@ from hexbytes import (
     HexBytes,
 )
 
+from web3._utils.contract_error_handling import (
+    PANIC_ERROR_CODES,
+)
 from web3._utils.empty import (
     empty,
 )
@@ -59,6 +65,7 @@ from web3.exceptions import (
     BlockNotFound,
     ContractCustomError,
     ContractLogicError,
+    ContractPanicError,
     InvalidAddress,
     InvalidTransaction,
     MultipleFailedRequests,
@@ -1209,6 +1216,37 @@ class AsyncEthModuleTest:
         )
         with pytest.raises(ContractCustomError, match=data):
             await async_w3.eth.call(txn_params)
+
+    @pytest.mark.parametrize(
+        "panic_error,params",
+        (
+            ("01", []),
+            ("11", []),
+            ("12", [0]),
+            ("21", [-1]),
+            ("22", []),
+            ("31", []),
+            ("32", []),
+            ("41", []),
+            ("51", []),
+        ),
+    )
+    @pytest.mark.asyncio
+    async def test_contract_panic_errors(
+        self,
+        async_w3: "AsyncWeb3",
+        async_panic_errors_contract: "Contract",
+        panic_error: str,
+        params: List[Any],
+    ) -> None:
+        method = getattr(
+            async_panic_errors_contract.functions,
+            f"errorCode{panic_error}",
+        )
+        error_msg = PANIC_ERROR_CODES[panic_error]
+
+        with pytest.raises(ContractPanicError, match=re.escape(error_msg)):
+            await method(*params).call()
 
     @pytest.mark.asyncio
     async def test_eth_call_offchain_lookup(
@@ -3504,6 +3542,36 @@ class EthModuleTest:
         with pytest.raises(ContractCustomError, match=data) as excinfo:
             w3.eth.call(txn_params)
         assert excinfo.value.data == data
+
+    @pytest.mark.parametrize(
+        "panic_error,params",
+        (
+            ("01", []),
+            ("11", []),
+            ("12", [0]),
+            ("21", [-1]),
+            ("22", []),
+            ("31", []),
+            ("32", []),
+            ("41", []),
+            ("51", []),
+        ),
+    )
+    def test_contract_panic_errors(
+        self,
+        w3: "Web3",
+        panic_errors_contract: "Contract",
+        panic_error: str,
+        params: List[Any],
+    ) -> None:
+        method = getattr(
+            panic_errors_contract.functions,
+            f"errorCode{panic_error}",
+        )
+        error_msg = PANIC_ERROR_CODES[panic_error]
+
+        with pytest.raises(ContractPanicError, match=re.escape(error_msg)):
+            method(*params).call()
 
     def test_eth_call_offchain_lookup(
         self,
