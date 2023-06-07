@@ -1,0 +1,1 @@
+Add support for Solidity ``Panic`` errors, available since Solidity 0.8.0. Raises ``ContractPanicError`` with appropriate messaging based on the known panic error codes.
