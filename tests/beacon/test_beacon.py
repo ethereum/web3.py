@@ -1,7 +1,5 @@
 import pytest
-from random import (
-    randint,
-)
+from secrets import randbelow
 
 from web3._utils.request import (
     _session_cache,
@@ -62,7 +60,7 @@ def test_cl_beacon_get_validator(beacon):
     _assert_valid_response(validators_response)
 
     validators = validators_response["data"]
-    random_validator = validators[randint(0, len(validators))]
+    random_validator = validators[randbelow(len(validators))]
     random_validator_pubkey = random_validator["validator"]["pubkey"]
 
     response = beacon.get_validator(random_validator_pubkey)

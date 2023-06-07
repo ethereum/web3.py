@@ -1,5 +1,5 @@
 import pytest
-import random
+from secrets import randbelow
 
 from eth_utils import (
     to_tuple,
@@ -16,17 +16,17 @@ def deploy_contracts(w3, contract, wait_for_transaction):
 
 def pad_with_transactions(w3):
     accounts = w3.eth.accounts
-    for tx_count in range(random.randint(0, 10)):
-        _from = accounts[random.randint(0, len(accounts) - 1)]
-        _to = accounts[random.randint(0, len(accounts) - 1)]
+    for tx_count in range(randbelow(10)):
+        _from = accounts[randbelow(len(accounts) - 1)]
+        _to = accounts[randbelow(len(accounts) - 1)]
         value = 50 + tx_count
         w3.eth.send_transaction({"from": _from, "to": _to, "value": value})
 
 
 def single_transaction(w3):
     accounts = w3.eth.accounts
-    _from = accounts[random.randint(0, len(accounts) - 1)]
-    _to = accounts[random.randint(0, len(accounts) - 1)]
+    _from = accounts[randbelow(len(accounts) - 1)]
+    _to = accounts[randbelow(len(accounts) - 1)]
     value = 50
     tx_hash = w3.eth.send_transaction({"from": _from, "to": _to, "value": value})
     return tx_hash
@@ -55,7 +55,7 @@ def test_event_filter_new_events(
     expected_match_counter = 0
 
     while w3.eth.block_number < 50:
-        is_match = bool(random.randint(0, 1))
+        is_match = bool(randbelow(1))
         if is_match:
             expected_match_counter += 1
             wait_for_transaction(w3, matching_transact())
@@ -116,7 +116,7 @@ def test_event_filter_new_events_many_deployed_contracts(
     def gen_non_matching_transact():
         while True:
             contract_address = deployed_contract_addresses[
-                random.randint(0, len(deployed_contract_addresses) - 1)
+                randbelow(len(deployed_contract_addresses) - 1)
             ]
             yield w3.eth.contract(
                 address=contract_address, abi=emitter_contract_factory.abi
@@ -134,7 +134,7 @@ def test_event_filter_new_events_many_deployed_contracts(
     expected_match_counter = 0
 
     while w3.eth.block_number < 50:
-        is_match = bool(random.randint(0, 1))
+        is_match = bool(randbelow(1))
         if is_match:
             expected_match_counter += 1
             matching_transact()
@@ -163,17 +163,17 @@ async def async_deploy_contracts(async_w3, contract, async_wait_for_transaction)
 
 async def async_pad_with_transactions(async_w3):
     accounts = await async_w3.eth.accounts
-    for tx_count in range(random.randint(0, 10)):
-        _from = accounts[random.randint(0, len(accounts) - 1)]
-        _to = accounts[random.randint(0, len(accounts) - 1)]
+    for tx_count in range(randbelow(10)):
+        _from = accounts[randbelow(len(accounts) - 1)]
+        _to = accounts[randbelow(len(accounts) - 1)]
         value = 50 + tx_count
         await async_w3.eth.send_transaction({"from": _from, "to": _to, "value": value})
 
 
 async def async_single_transaction(async_w3):
     accounts = await async_w3.eth.accounts
-    _from = accounts[random.randint(0, len(accounts) - 1)]
-    _to = accounts[random.randint(0, len(accounts) - 1)]
+    _from = accounts[randbelow(len(accounts) - 1)]
+    _to = accounts[randbelow(len(accounts) - 1)]
     value = 50
     tx_hash = await async_w3.eth.send_transaction(
         {"from": _from, "to": _to, "value": value}
@@ -205,7 +205,7 @@ async def test_async_event_filter_new_events(
 
     eth_block_number = await async_w3.eth.block_number
     while eth_block_number < 50:
-        is_match = bool(random.randint(0, 1))
+        is_match = bool(randbelow(1))
         if is_match:
             expected_match_counter += 1
             awaited_matching_transact = await matching_transact()
@@ -276,7 +276,7 @@ async def test_async_event_filter_new_events_many_deployed_contracts(
     async def gen_non_matching_transact():
         while True:
             contract_address = deployed_contract_addresses[
-                random.randint(0, len(deployed_contract_addresses) - 1)
+                randbelow(len(deployed_contract_addresses) - 1)
             ]
             yield async_w3.eth.contract(
                 address=contract_address, abi=async_emitter_contract_factory.abi
@@ -297,7 +297,7 @@ async def test_async_event_filter_new_events_many_deployed_contracts(
 
     eth_block_number = await async_w3.eth.block_number
     while eth_block_number < 50:
-        is_match = bool(random.randint(0, 1))
+        is_match = bool(randbelow(1))
         if is_match:
             expected_match_counter += 1
             await matching_transact()

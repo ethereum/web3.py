@@ -1,9 +1,7 @@
 import json
 import math
 import pytest
-from random import (
-    randint,
-)
+from secrets import SystemRandom
 from typing import (
     TYPE_CHECKING,
     Callable,
@@ -1396,7 +1394,7 @@ class AsyncEthModuleTest:
         async_mock_offchain_lookup_request_response(
             monkeypatch,
             mocked_request_url=f"https://web3.py/gateway/{normalized_contract_address}/{OFFCHAIN_LOOKUP_TEST_DATA}.json",  # noqa: E501
-            mocked_status_code=randint(400, 499),
+            mocked_status_code=SystemRandom().randint(400, 499),
             mocked_json_data=WEB3PY_AS_HEXBYTES,
         )
         with pytest.raises(Exception, match="called raise_for_status\\(\\)"):
@@ -3674,7 +3672,7 @@ class EthModuleTest:
         mock_offchain_lookup_request_response(
             monkeypatch,
             mocked_request_url=f"https://web3.py/gateway/{normalized_contract_address}/{OFFCHAIN_LOOKUP_TEST_DATA}.json",  # noqa: E501
-            mocked_status_code=randint(400, 499),
+            mocked_status_code=SystemRandom().randint(400, 499),
             mocked_json_data=WEB3PY_AS_HEXBYTES,
         )
         with pytest.raises(Exception, match="called raise_for_status\\(\\)"):
