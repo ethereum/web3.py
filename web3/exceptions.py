@@ -259,7 +259,7 @@ class ContractLogicError(Web3Exception):
     Raised on a contract revert error
     """
 
-    def __init__(self, message: Optional[str] = None, data: Optional[str] = None):
+    def __init__(self, message: Optional[str] = None, data: Optional[Any] = None):
         self.message = message
         self.data = data
 
@@ -267,6 +267,14 @@ class ContractLogicError(Web3Exception):
 class ContractCustomError(ContractLogicError):
     """
     Raised on a contract revert custom error
+    """
+
+    pass
+
+
+class ContractPanicError(ContractLogicError):
+    """
+    Raised when a contract reverts with Panic, as of Solidity 0.8.0
     """
 
     pass
