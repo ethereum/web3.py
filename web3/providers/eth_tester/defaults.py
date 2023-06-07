@@ -45,7 +45,7 @@ from eth_utils.toolz import (
 from web3 import (
     Web3,
 )
-from web3._utils.method_formatters import (
+from web3._utils.contract_error_handling import (
     OFFCHAIN_LOOKUP_FIELDS,
 )
 from web3.exceptions import (
