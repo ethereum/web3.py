@@ -19,6 +19,9 @@ from web3 import (
 from web3._utils.contract_sources.contract_data._custom_contract_data import (
     EMITTER_ENUM,
 )
+from web3._utils.contract_sources.contract_data.panic_errors_contract import (
+    PANIC_ERRORS_CONTRACT_DATA,
+)
 from web3._utils.module_testing import (
     EthModuleTest,
     GoEthereumPersonalModuleTest,
@@ -190,6 +193,19 @@ def offchain_lookup_contract(w3, offchain_lookup_contract_factory):
     contract_address = deploy_receipt["contractAddress"]
     assert is_checksum_address(contract_address)
     return offchain_lookup_contract_factory(contract_address)
+
+
+@pytest.fixture(scope="module")
+def panic_errors_contract(w3):
+    panic_errors_contract_factory = w3.eth.contract(**PANIC_ERRORS_CONTRACT_DATA)
+    deploy_txn_hash = panic_errors_contract_factory.constructor().transact(
+        {"from": w3.eth.coinbase}
+    )
+    deploy_receipt = w3.eth.wait_for_transaction_receipt(deploy_txn_hash)
+    assert is_dict(deploy_receipt)
+    contract_address = deploy_receipt["contractAddress"]
+    assert is_checksum_address(contract_address)
+    return panic_errors_contract_factory(contract_address)
 
 
 UNLOCKABLE_PRIVATE_KEY = (
