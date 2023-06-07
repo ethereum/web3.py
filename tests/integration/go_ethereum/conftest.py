@@ -13,13 +13,17 @@ from eth_utils import (
     to_text,
 )
 
+from web3._utils.contract_sources.contract_data.panic_errors_contract import (
+    PANIC_ERRORS_CONTRACT_DATA,
+)
+
 from .utils import (
     kill_proc_gracefully,
 )
 
 KEYFILE_PW = "web3py-test"
 
-GETH_FIXTURE_ZIP = "geth-1.11.5-fixture.zip"
+GETH_FIXTURE_ZIP = "geth-1.11.6-fixture.zip"
 
 
 @pytest.fixture(scope="module")
@@ -253,9 +257,30 @@ def offchain_lookup_contract(offchain_lookup_contract_factory, geth_fixture_data
 
 
 @pytest.fixture(scope="module")
+def panic_errors_contract(
+    w3,
+    geth_fixture_data,
+):
+    contract_factory = w3.eth.contract(**PANIC_ERRORS_CONTRACT_DATA)
+    return contract_factory(address=geth_fixture_data["panic_errors_contract_address"])
+
+
+# --- async --- #
+
+
+@pytest.fixture(scope="module")
 def async_offchain_lookup_contract(
     async_offchain_lookup_contract_factory, geth_fixture_data
 ):
     return async_offchain_lookup_contract_factory(
         address=geth_fixture_data["offchain_lookup_address"]
     )
+
+
+@pytest.fixture(scope="module")
+def async_panic_errors_contract(
+    async_w3,
+    geth_fixture_data,
+):
+    contract_factory = async_w3.eth.contract(**PANIC_ERRORS_CONTRACT_DATA)
+    return contract_factory(address=geth_fixture_data["panic_errors_contract_address"])
