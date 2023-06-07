@@ -3,11 +3,11 @@ version: 2.1
 parameters:
   geth_version:
     # update default value when updating geth integration test fixture
-    default: "v1.11.5"
+    default: "v1.11.6"
     type: string
   pygeth_version:
     # update default value when updating geth integration test fixture
-    default: "3.12.0"
+    default: "3.13.0"
     type: string
   go_version:
     default: "1.20.2"
