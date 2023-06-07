@@ -35,8 +35,6 @@ from web3.middleware import (
     buffered_gas_estimate_middleware,
     gas_price_strategy_middleware,
     name_to_address_middleware,
-    pythonic_middleware,
-    request_parameter_normalizer,
     validation_middleware,
 )
 from web3.providers import (
@@ -139,13 +137,11 @@ class RequestManager:
         Leaving ens unspecified will prevent the middleware from resolving names.
         """
         return [
-            (request_parameter_normalizer, "request_param_normalizer"),  # Delete
             (gas_price_strategy_middleware, "gas_price_strategy"),
             (name_to_address_middleware(w3), "name_to_address"),  # Add Async
             (attrdict_middleware, "attrdict"),
-            (pythonic_middleware, "pythonic"),  # Delete
             (validation_middleware, "validation"),
-            (abi_middleware, "abi"),  # Delete
+            (abi_middleware, "abi"),
             (buffered_gas_estimate_middleware, "gas_estimate"),
         ]
 

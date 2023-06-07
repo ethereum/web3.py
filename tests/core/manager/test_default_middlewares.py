@@ -11,19 +11,15 @@ from web3.middleware import (
     buffered_gas_estimate_middleware,
     gas_price_strategy_middleware,
     name_to_address_middleware,
-    pythonic_middleware,
-    request_parameter_normalizer,
     validation_middleware,
 )
 
 
 def test_default_sync_middlwares(w3):
     expected_middlewares = [
-        (request_parameter_normalizer, "request_param_normalizer"),
         (gas_price_strategy_middleware, "gas_price_strategy"),
         (name_to_address_middleware(w3), "name_to_address"),
         (attrdict_middleware, "attrdict"),
-        (pythonic_middleware, "pythonic"),
         (validation_middleware, "validation"),
         (abi_middleware, "abi"),
         (buffered_gas_estimate_middleware, "gas_estimate"),
