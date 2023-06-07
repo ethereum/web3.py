@@ -13,14 +13,8 @@ from typing import (
     cast,
 )
 
-from eth_abi import (
-    abi,
-)
 from eth_typing import (
     HexStr,
-)
-from eth_utils import (
-    to_bytes,
 )
 from eth_utils.curried import (
     apply_formatter_at_index,
@@ -54,6 +48,9 @@ from hexbytes import (
 
 from web3._utils.abi import (
     is_length,
+)
+from web3._utils.contract_error_handling import (
+    raise_contract_logic_error_on_revert,
 )
 from web3._utils.encoding import (
     hexstr_if_str,
@@ -94,9 +91,6 @@ from web3.datastructures import (
 )
 from web3.exceptions import (
     BlockNotFound,
-    ContractCustomError,
-    ContractLogicError,
-    OffchainLookup,
     TransactionNotFound,
 )
 from web3.types import (
@@ -104,7 +98,6 @@ from web3.types import (
     CallOverrideParams,
     Formatters,
     RPCEndpoint,
-    RPCResponse,
     TReturn,
     TxParams,
     _Hash32,
@@ -697,95 +690,6 @@ STANDARD_NORMALIZERS = [
 ABI_REQUEST_FORMATTERS: Formatters = abi_request_formatters(
     STANDARD_NORMALIZERS, RPC_ABIS
 )
-
-# the first 4 bytes of keccak hash for:
-# "OffchainLookup(address,string[],bytes,bytes4,bytes)"
-OFFCHAIN_LOOKUP_FUNC_SELECTOR = "0x556f1830"
-OFFCHAIN_LOOKUP_FIELDS = {
-    "sender": "address",
-    "urls": "string[]",
-    "callData": "bytes",
-    "callbackFunction": "bytes4",
-    "extraData": "bytes",
-}
-
-
-def raise_contract_logic_error_on_revert(response: RPCResponse) -> RPCResponse:
-    """
-    Reverts contain a `data` attribute with the following layout:
-        "Reverted "
-        Function selector for Error(string): 08c379a (4 bytes)
-        Data offset: 32 (32 bytes)
-        String length (32 bytes)
-        Reason string (padded, use string length from above to get meaningful part)
-
-    See also https://solidity.readthedocs.io/en/v0.6.3/control-structures.html#revert
-    """
-    if not isinstance(response["error"], dict):
-        raise ValueError("Error expected to be a dict")
-
-    data = response["error"].get("data", "")
-
-    # Ganache case:
-    if isinstance(data, dict) and response["error"].get("message"):
-        raise ContractLogicError(
-            f'execution reverted: {response["error"]["message"]}', data=data
-        )
-
-    # Parity/OpenEthereum case:
-    if data.startswith("Reverted "):
-        # "Reverted", function selector and offset are always the same for revert errors
-        prefix = "Reverted 0x08c379a00000000000000000000000000000000000000000000000000000000000000020"  # noqa: 501
-        if not data.startswith(prefix):
-            if data.startswith("Reverted 0x"):
-                # Special case for this form: 'Reverted 0x...'
-                receipt = data.split(" ")[1][2:]
-                revert_reason = bytes.fromhex(receipt).decode("utf-8")
-                raise ContractLogicError(
-                    f"execution reverted: {revert_reason}", data=data
-                )
-            else:
-                raise ContractLogicError("execution reverted", data=data)
-
-        reason_length = int(data[len(prefix) : len(prefix) + 64], 16)
-        reason = data[len(prefix) + 64 : len(prefix) + 64 + reason_length * 2]
-        raise ContractLogicError(
-            f'execution reverted: {bytes.fromhex(reason).decode("utf8")}',
-            data=data,
-        )
-
-    # --- EIP-3668 | CCIP Read --- #
-    # 0x556f1830 is the function selector for:
-    # OffchainLookup(address,string[],bytes,bytes4,bytes)
-    if data[:10] == "0x556f1830":
-        parsed_data_as_bytes = to_bytes(hexstr=data[10:])
-        abi_decoded_data = abi.decode(
-            list(OFFCHAIN_LOOKUP_FIELDS.values()), parsed_data_as_bytes
-        )
-        offchain_lookup_payload = dict(
-            zip(OFFCHAIN_LOOKUP_FIELDS.keys(), abi_decoded_data)
-        )
-        raise OffchainLookup(offchain_lookup_payload, data=data)
-
-    # Solidity 0.8.4 introduced custom error messages that allow args to
-    # be passed in (or not). See:
-    # https://blog.soliditylang.org/2021/04/21/custom-errors/
-    if len(data) >= 10 and not data[:10] == "0x08c379a0":
-        # Raise with data as both the message and the data for backwards
-        # compatibility and so that data can be accessed via 'data' attribute
-        # on the ContractCustomError exception
-        raise ContractCustomError(data, data=data)
-
-    # Geth case:
-    if "message" in response["error"] and response["error"].get("code", "") == 3:
-        message = response["error"]["message"]
-        raise ContractLogicError(message, data=data)
-
-    # Geth Revert without error message case:
-    if "execution reverted" in response["error"].get("message"):
-        raise ContractLogicError("execution reverted", data=data)
-
-    return response
 
 
 ERROR_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
