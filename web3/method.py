@@ -179,7 +179,8 @@ class Method(Generic[TFunc]):
                 args = munger(module, *args, **kwargs)
             except TypeError:
                 raise TypeError(
-                    f"Munger {munger.__name__} failed to process args {args} and kwargs {kwargs}."
+                    f"Munger {munger.__name__} failed to process parameters."
+                    "Args: {args} and kwargs: {kwargs}."
                     "Please check the parameters you are passing to the method."
                 )
         return args
