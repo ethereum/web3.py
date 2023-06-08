@@ -51,6 +51,7 @@ Table of Contents
     :maxdepth: 1
     :caption: Community
 
+    resources
     contributing
     code_of_conduct
 
