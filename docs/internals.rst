@@ -174,13 +174,6 @@ function be called.  For example, if you were writing a middleware which cached
 responses for certain methods your middleware would likely not call the
 ``make_request`` method, but instead get the response from some local cache.
 
-By default, Web3 will use the ``web3.middleware.pythonic_middleware``.  This
-middleware performs the following translations for requests and responses.
-
-* Numeric request parameters will be converted to their hexadecimal representation
-* Numeric responses will be converted from their hexadecimal representations to
-  their integer representations.
-
 The ``RequestManager`` object exposes the ``middleware_onion`` object to manage middlewares. It
 is also exposed on the ``Web3`` object for convenience. That API is detailed in
 :ref:`Modifying_Middleware`.
