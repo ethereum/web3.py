@@ -1,3 +1,5 @@
+import warnings
+
 from eth_abi import (
     abi,
 )
@@ -91,8 +93,12 @@ def raise_contract_logic_error_on_revert(response: RPCResponse) -> RPCResponse:
         else:
             raise ContractLogicError("execution reverted", data=data)
 
-        reason_string = bytes.fromhex(reason_as_hex).decode("utf8")
-        raise ContractLogicError(f"execution reverted: {reason_string}", data=data)
+        try:
+            reason_string = bytes.fromhex(reason_as_hex).decode("utf8")
+            raise ContractLogicError(f"execution reverted: {reason_string}", data=data)
+        except UnicodeDecodeError:
+            warnings.warn("Could not decode revert reason as UTF-8", RuntimeWarning)
+            raise ContractLogicError("execution reverted", data=data)
 
     # --- EIP-3668 | CCIP Read --- #
     if data[:10] == OFFCHAIN_LOOKUP_FUNC_SELECTOR:
