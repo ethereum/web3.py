@@ -68,12 +68,6 @@ from .geth_poa import (  # noqa: F401
 from .names import (  # noqa: F401
     name_to_address_middleware,
 )
-from .normalize_request_parameters import (  # noqa: F401
-    request_parameter_normalizer,
-)
-from .pythonic import (  # noqa: F401
-    pythonic_middleware,
-)
 from .signing import (  # noqa: F401
     construct_sign_and_send_raw_middleware,
 )

@@ -134,7 +134,8 @@ class RequestManager:
     def default_middlewares(w3: "Web3") -> List[Tuple[Middleware, str]]:
         """
         List the default middlewares for the request manager.
-        Leaving ens unspecified will prevent the middleware from resolving names.
+        Leaving w3 unspecified will prevent the middleware from resolving names.
+        Documentation should remain in sync with these defaults.
         """
         return [
             (gas_price_strategy_middleware, "gas_price_strategy"),
@@ -149,6 +150,7 @@ class RequestManager:
     def async_default_middlewares() -> List[Tuple[AsyncMiddleware, str]]:
         """
         List the default async middlewares for the request manager.
+        Documentation should remain in sync with these defaults.
         """
         return [
             (async_gas_price_strategy_middleware, "gas_price_strategy"),
