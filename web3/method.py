@@ -57,14 +57,6 @@ def _apply_request_formatters(
     return params
 
 
-def _munger_star_apply(fn: Callable[..., TReturn]) -> Callable[..., TReturn]:
-    @functools.wraps(fn)
-    def inner(args: Any) -> TReturn:
-        return fn(*args)
-
-    return inner
-
-
 def _set_mungers(
     mungers: Optional[Sequence[Munger]], is_property: bool
 ) -> Sequence[Any]:
@@ -178,23 +170,19 @@ class Method(Generic[TFunc]):
         )
 
     def input_munger(self, module: "Module", args: Any, kwargs: Any) -> List[Any]:
-        # This function takes the "root_munger" - (the first munger in
-        # the list of mungers) and then pipes the return value of the
-        # previous munger as an argument to the next munger to return
-        # an array of arguments that have been formatted.
+        # This function takes the input parameters and munges them.
         # See the test_process_params test
         # in tests/core/method-class/test_method.py for an example
         # with multiple mungers.
-        # TODO: Create friendly error output.
-        mungers_iter = iter(self.mungers)
-        root_munger = next(mungers_iter)
-        munged_inputs = pipe(
-            root_munger(module, *args, **kwargs),
-            *map(
-                lambda m: _munger_star_apply(functools.partial(m, module)), mungers_iter
-            ),
-        )
-        return munged_inputs
+        for munger in self.mungers:
+            try:
+                args = munger(module, *args, **kwargs)
+            except TypeError:
+                raise TypeError(
+                    f"Munger {munger.__name__} failed to process args {args} and kwargs {kwargs}."
+                    "Please check the parameters you are passing to the method."
+                )
+        return args
 
     def process_params(
         self, module: "Module", *args: Any, **kwargs: Any
