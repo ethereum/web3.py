@@ -79,7 +79,7 @@ def test_web3_with_http_provider_has_default_middlewares_and_modules() -> None:
     # assert default middleware
 
     # the following length check should fail and will need to be added to once more
-    # async middlewares are added to the defaults
+    # middlewares are added to the defaults
     assert len(w3.middleware_onion.middlewares) == 6
 
     assert (
