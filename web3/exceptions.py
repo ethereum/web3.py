@@ -4,6 +4,7 @@ from typing import (
     Any,
     Dict,
     Optional,
+    Union,
 )
 
 from eth_utils import (
@@ -259,7 +260,11 @@ class ContractLogicError(Web3Exception):
     Raised on a contract revert error
     """
 
-    def __init__(self, message: Optional[str] = None, data: Optional[Any] = None):
+    def __init__(
+        self,
+        message: Optional[str] = None,
+        data: Optional[Union[str, Dict[str, str]]] = None,
+    ):
         self.message = message
         self.data = data
 
