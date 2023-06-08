@@ -64,8 +64,8 @@ notes:
 	git commit -m "Compile release notes"
 
 release: clean
-	# require that you be on a branch that's linked to upstream/main
-	git status -s -b | head -1 | grep "\.\.upstream/main"
+	# require that upstream is configured for ethereum/web3.py
+	git remote -v | grep "upstream\tgit@github.com:ethereum/web3.py.git (push)"
 	./newsfragments/validate_files.py is-empty
 	# verify that docs build correctly
 	make build-docs
