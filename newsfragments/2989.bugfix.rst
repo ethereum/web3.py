@@ -1,0 +1,1 @@
+Catch ``UnicodeDecodeError`` for contract revert messages that cannot be decoded and issue a warning instead, raising a ``ContractLogicError`` with the raw ``data`` from the response.
