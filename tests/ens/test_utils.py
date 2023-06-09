@@ -12,6 +12,7 @@ from ens.utils import (
     ens_encode_name,
     init_async_web3,
     init_web3,
+    normal_name_to_hash,
 )
 from web3.eth import (
     AsyncEth,
@@ -126,6 +127,22 @@ def test_ens_encode_name_normalizes_name_before_encoding():
     assert ens_encode_name("TESTER.eth") == ens_encode_name("tester.eth")
     assert ens_encode_name("test\u200btest.com") == ens_encode_name("testtest.com")
     assert ens_encode_name("O\u0308bb.at") == ens_encode_name("öbb.at")
+
+
+@pytest.mark.parametrize(
+    "name,hashed",
+    (
+        (None, "0x" + ("00" * 32)),
+        ("", "0x" + ("00" * 32)),
+        ("eth", "0x93cdeb708b7545dc668eb9280176169d1c33cfd8ed6f04690a0bcc88a93fc4ae"),
+        (
+            "foo.eth",
+            "0xde9b09fd7c5f901e23a3f19fecc54828e9c848539801e86591bd9801b019f84f",
+        ),
+    ),
+)
+def test_normal_name_to_hash(name, hashed):
+    assert normal_name_to_hash(name).hex() == hashed
 
 
 # -- async -- #
