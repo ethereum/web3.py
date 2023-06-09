@@ -95,7 +95,7 @@ def test_ens_encode_name_validating_total_encoded_name_size(name, expected):
     assert ens_encoded == expected
 
 
-@pytest.mark.parametrize("empty_name", ("", "."))
+@pytest.mark.parametrize("empty_name", ("", ".", None, " ", "  "))
 def test_ens_encode_name_returns_single_zero_byte_for_empty_name(empty_name):
     assert ens_encode_name(empty_name) == b"\00"
 
