@@ -133,23 +133,23 @@ class AsyncIPCProvider(JSONBaseProvider):
                 sock.sendall(request)
 
             raw_response = b""
-            with Timeout(self.timeout) as timeout:
+            async with Timeout(self.timeout) as timeout:
                 while True:
                     try:
                         raw_response += await sock.sock_recv(sock, 4096)
                     except socket.timeout:
-                        timeout.sleep(0)
+                        await timeout.async_sleep(0)
                         continue
                     if raw_response == b"":
-                        timeout.sleep(0)
+                        await timeout.async_sleep(0)
                     elif has_valid_json_rpc_ending(raw_response):
                         try:
                             response = self.decode_rpc_response(raw_response)
                         except JSONDecodeError:
-                            timeout.sleep(0)
+                            await timeout.async_sleep(0)
                             continue
                         else:
                             return response
                     else:
-                        timeout.sleep(0)
+                        await timeout.async_sleep(0)
                         continue

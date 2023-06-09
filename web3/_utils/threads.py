@@ -13,6 +13,7 @@ from typing import (
     Callable,
     Generic,
     Type,
+    Union,
 )
 
 from web3._utils.compat import (
@@ -55,13 +56,26 @@ class Timeout(Exception):
     ) -> Literal[False]:
         return False
 
+    async def __aenter__(self) -> "Timeout":
+        self.start()
+        return self
+
+    async def __aexit__(
+        self,
+        exc_type: Type[BaseException],
+        exc_val: BaseException,
+        exc_tb: TracebackType
+    ) -> Literal[False]:
+        return False
+
+
     def __str__(self) -> str:
         if self.seconds is None:
             return ""
         return f"{self.seconds} seconds"
 
     @property
-    def expire_at(self) -> int:
+    def expire_at(self) -> Union[int, float]:
         if self.seconds is None:
             raise ValueError(
                 "Timeouts with `seconds == None` do not have an expiration time"
@@ -100,7 +114,7 @@ class Timeout(Exception):
         self.check()
 
     async def async_sleep(self, seconds: float) -> None:
-        await asyncio.sleep(seconds)
+        await asyncio.wait_for(asyncio.sleep(seconds), timeout=self.seconds)
         self.check()
 
 
