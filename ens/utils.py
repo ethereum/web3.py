@@ -127,10 +127,12 @@ def normalize_name(name: str) -> str:
     elif isinstance(name, (bytes, bytearray)):
         name = name.decode("utf-8")
 
+    clean_name = name.strip()
+
     try:
-        return idna.uts46_remap(name, std3_rules=True, transitional=False)
+        return idna.uts46_remap(clean_name, std3_rules=True, transitional=False)
     except idna.IDNAError as exc:
-        raise InvalidName(f"{name} is an invalid name, because {exc}") from exc
+        raise InvalidName(f"{clean_name} is an invalid name, because {exc}") from exc
 
 
 def ens_encode_name(name: str) -> bytes:
@@ -263,7 +265,7 @@ def is_none_or_zero_address(addr: Union[Address, ChecksumAddress, HexAddress]) -
 
 
 def is_empty_name(name: str) -> bool:
-    return name in {None, ".", ""}
+    return name is None or name.strip() in ("", ".")
 
 
 def is_valid_ens_name(ens_name: str) -> bool:
