@@ -270,6 +270,7 @@ async def test_async_json_make_get_request(mocker):
             total=10, connect=None, sock_read=None, sock_connect=None
         ),
     )
+    await session.close()
 
 
 @pytest.mark.asyncio
@@ -291,6 +292,7 @@ async def test_async_make_post_request(mocker):
             total=10, connect=None, sock_read=None, sock_connect=None
         ),
     )
+    await session.close()
 
 
 @pytest.mark.asyncio
