@@ -1,65 +1,66 @@
 import asyncio
-import logging
-import socket
-import sys
-import threading
-
+from concurrent.futures import (
+    ThreadPoolExecutor,
+)
+import errno
 from json import (
     JSONDecodeError,
 )
-
+import logging
 from pathlib import (
     Path,
 )
+import sys
+import threading
 from types import (
     TracebackType,
 )
-
 from typing import (
-    Union,
-    Type,
     Any,
+    Optional,
+    Tuple,
+    Type,
+    Union,
 )
-from web3._utils.windows import (
-    NamedPipe,
-)
-from .base import (
-    JSONBaseProvider,
-)
-from .ipc import (
-    get_default_ipc_path,
-    has_valid_json_rpc_ending,
+
+from web3._utils.async_caching import (
+    async_lock,
 )
 from web3.types import (
     RPCEndpoint,
     RPCResponse,
 )
 
-from web3._utils.threads import (
-    Timeout,
+from .async_base import (
+    AsyncJSONBaseProvider,
+)
+from .ipc import (
+    get_default_ipc_path,
+    has_valid_json_rpc_ending,
 )
 
 
 async def async_get_ipc_socket(
-        ipc_path: str, timeout: float = 2.0
-) -> Union[socket.socket, NamedPipe]:
+    ipc_path: str, timeout: float = 2.0
+) -> Tuple[asyncio.StreamReader, asyncio.StreamWriter]:
     if sys.platform == "win32":
+        # On Windows named pipe is used. Simulate socket with it.
+        from web3._utils.windows import (
+            NamedPipe,
+        )
+
         return NamedPipe(ipc_path)
     else:
-        reader, writer = await asyncio.open_unix_connection(ipc_path)
-        writer.write_eof()
-        sock = writer.get_extra_info('socket')
-        sock.settimeout(timeout)
-        return sock
+        return await asyncio.open_unix_connection(ipc_path)
 
 
 class PersistantSocket:
-    sock = None
+    sock: Optional[Tuple[asyncio.StreamReader, asyncio.StreamWriter]] = None
 
     def __init__(self, ipc_path: str) -> None:
         self.ipc_path = ipc_path
 
-    async def __aenter__(self) -> socket.socket:
+    async def __aenter__(self) -> Tuple[asyncio.StreamReader, asyncio.StreamWriter]:
         if not self.ipc_path:
             raise FileNotFoundError(
                 f"cannot connect to IPC socket at path: {self.ipc_path!r}"
@@ -70,38 +71,46 @@ class PersistantSocket:
         return self.sock
 
     async def __aexit__(
-            self,
-            exc_type: Type[BaseException],
-            exc_value: BaseException,
-            traceback: TracebackType,
+        self,
+        exc_type: Type[BaseException],
+        exc_value: BaseException,
+        traceback: TracebackType,
     ) -> None:
         # only close the socket if there was an error
         if exc_value is not None:
             try:
-                self.sock.close()
+                reader, writer = self.sock
+                writer.close()
+                await writer.wait_closed()
             except Exception:
                 pass
             self.sock = None
 
-    async def _open(self) -> socket.socket:
+    async def _open(self) -> Tuple[asyncio.StreamReader, asyncio.StreamWriter]:
         return await async_get_ipc_socket(self.ipc_path)
 
-    async def reset(self) -> socket.socket:
-        self.sock.close()
+    async def reset(self) -> Tuple[asyncio.StreamReader, asyncio.StreamWriter]:
+        reader, writer = self.sock
+        writer.close()
+        await writer.wait_closed()
         self.sock = await self._open()
         return self.sock
 
 
-class AsyncIPCProvider(JSONBaseProvider):
+_async_session_cache_lock = threading.Lock()
+_async_session_pool = ThreadPoolExecutor(max_workers=1)
+
+
+class AsyncIPCProvider(AsyncJSONBaseProvider):
     logger = logging.getLogger("web3.providers.AsyncIPCProvider")
     _socket = None
 
     def __init__(
-            self,
-            ipc_path: Union[str, Path] = None,
-            timeout: int = 10,
-            *args: Any,
-            **kwargs: Any,
+        self,
+        ipc_path: Union[str, Path] = None,
+        timeout: int = 10,
+        *args: Any,
+        **kwargs: Any,
     ) -> None:
         if ipc_path is None:
             self.ipc_path = get_default_ipc_path()
@@ -111,7 +120,6 @@ class AsyncIPCProvider(JSONBaseProvider):
             raise TypeError("ipc_path must be of type string or pathlib.Path")
 
         self.timeout = timeout
-        self._lock = threading.Lock()
         self._socket = PersistantSocket(self.ipc_path)
         super().__init__()
 
@@ -120,36 +128,41 @@ class AsyncIPCProvider(JSONBaseProvider):
 
     async def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
         self.logger.debug(
-            f"Making request IPC. Path: {self.ipc_path}, Method: {method}"
+            f"Making async request IPC. Path: {self.ipc_path}, Method: {method}"
         )
         request = self.encode_rpc_request(method, params)
 
-        with self._lock, self._socket as sock:
+        async with self._socket as sock:
+            reader, writer = sock
             try:
-                sock.sendall(request)
-            except BrokenPipeError:
-                # one extra attempt, then give up
-                sock = self._socket.reset()
-                sock.sendall(request)
+                writer.write(request)
+                await writer.drain()
+            except OSError as e:
+                # Broken pipe
+                if e.errno == errno.EPIPE:
+                    # one extra attempt, then give up
+                    new_sock = await self._socket.reset()
+                    reader, writer = new_sock
+                    writer.write(request)
+                    await writer.drain()
 
-            raw_response = b""
-            async with Timeout(self.timeout) as timeout:
+            async def decode_response() -> RPCResponse:
+                raw_response = b""
                 while True:
-                    try:
-                        raw_response += await sock.sock_recv(sock, 4096)
-                    except socket.timeout:
-                        await timeout.async_sleep(0)
-                        continue
+                    async with async_lock(
+                        _async_session_pool, _async_session_cache_lock
+                    ):
+                        raw_response += await reader.readline()
                     if raw_response == b"":
-                        await timeout.async_sleep(0)
+                        await asyncio.sleep(0)
                     elif has_valid_json_rpc_ending(raw_response):
                         try:
                             response = self.decode_rpc_response(raw_response)
                         except JSONDecodeError:
-                            await timeout.async_sleep(0)
-                            continue
+                            await asyncio.sleep(0)
                         else:
                             return response
                     else:
-                        await timeout.async_sleep(0)
-                        continue
+                        await asyncio.sleep(0)
+
+            return await asyncio.wait_for(decode_response(), self.timeout)

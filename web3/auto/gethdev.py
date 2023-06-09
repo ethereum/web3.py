@@ -1,4 +1,6 @@
 from web3 import (
+    AsyncIPCProvider,
+    AsyncWeb3,
     IPCProvider,
     Web3,
 )

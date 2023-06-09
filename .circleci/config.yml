@@ -288,6 +288,13 @@ jobs:
     environment:
       TOXENV: py38-integration-goethereum-ipc
 
+  py38-integration-goethereum-ipc_async:
+    <<: *geth_steps
+    docker:
+      - image: cimg/python:3.8
+    environment:
+      TOXENV: py38-integration-goethereum-ipc_async
+
   py38-integration-goethereum-ipc_flaky:
     <<: *geth_steps
     docker:
@@ -427,6 +434,13 @@ jobs:
     environment:
       TOXENV: py39-integration-goethereum-ipc
 
+  py39-integration-goethereum-ipc_async:
+    <<: *geth_steps
+    docker:
+      - image: cimg/python:3.9
+    environment:
+      TOXENV: py39-integration-goethereum-ipc_async
+
   py39-integration-goethereum-ipc_flaky:
     <<: *geth_steps
     docker:
@@ -565,6 +579,13 @@ jobs:
       - image: cimg/python:3.10
     environment:
       TOXENV: py310-integration-goethereum-ipc
+
+  py310-integration-goethereum-ipc_async:
+    <<: *geth_steps
+    docker:
+      - image: cimg/python:3.10
+    environment:
+      TOXENV: py310-integration-goethereum-ipc_async
 
   py310-integration-goethereum-ipc_flaky:
     <<: *geth_steps
@@ -711,6 +732,13 @@ jobs:
     environment:
       TOXENV: py311-integration-goethereum-ipc
 
+  py311-integration-goethereum-ipc_async:
+    <<: *geth_steps
+    docker:
+      - image: cimg/python:3.11
+    environment:
+      TOXENV: py311-integration-goethereum-ipc_async
+
   py311-integration-goethereum-ipc_flaky:
     <<: *geth_steps
     docker:
@@ -824,6 +852,7 @@ workflows:
       - py38-ensip15
       - py38-ethpm
       - py38-integration-goethereum-ipc
+      - py38-integration-goethereum-ipc_async
       - py38-integration-goethereum-ipc_flaky
       - py38-integration-goethereum-http
       - py38-integration-goethereum-http_async
@@ -841,6 +870,7 @@ workflows:
       - py39-ensip15
       - py39-ethpm
       - py39-integration-goethereum-ipc
+      - py39-integration-goethereum-ipc_async
       - py39-integration-goethereum-ipc_flaky
       - py39-integration-goethereum-http
       - py39-integration-goethereum-http_async
@@ -858,6 +888,7 @@ workflows:
       - py310-ensip15
       - py310-ethpm
       - py310-integration-goethereum-ipc
+      - py310-integration-goethereum-ipc_async
       - py310-integration-goethereum-ipc_flaky
       - py310-integration-goethereum-http
       - py310-integration-goethereum-http_async
@@ -875,6 +906,7 @@ workflows:
       - py311-ensip15
       - py311-ethpm
       - py311-integration-goethereum-ipc
+      - py311-integration-goethereum-ipc_async
       - py311-integration-goethereum-ipc_flaky
       - py311-integration-goethereum-http
       - py311-integration-goethereum-http_async
