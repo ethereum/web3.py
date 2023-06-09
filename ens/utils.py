@@ -127,12 +127,12 @@ def normalize_name(name: str) -> str:
     elif isinstance(name, (bytes, bytearray)):
         name = name.decode("utf-8")
 
-    clean_name = name.strip()
+    stripped_name = name.strip()
 
     try:
-        return idna.uts46_remap(clean_name, std3_rules=True, transitional=False)
+        return idna.uts46_remap(stripped_name, std3_rules=True, transitional=False)
     except idna.IDNAError as exc:
-        raise InvalidName(f"{clean_name} is an invalid name, because {exc}") from exc
+        raise InvalidName(f"{stripped_name} is an invalid name, because {exc}") from exc
 
 
 def ens_encode_name(name: str) -> bytes:
@@ -176,7 +176,7 @@ def is_valid_name(name: str) -> bool:
     :returns: True if ``name`` is set, and :meth:`~ens.ENS.nameprep` will not
               raise InvalidName
     """
-    if not name:
+    if is_empty_name(name):
         return False
     try:
         normalize_name(name)
@@ -204,7 +204,7 @@ def label_to_hash(label: str) -> HexBytes:
 
 def normal_name_to_hash(name: str) -> HexBytes:
     node = EMPTY_SHA3_BYTES
-    if name:
+    if not is_empty_name(name):
         labels = name.split(".")
         for label in reversed(labels):
             labelhash = label_to_hash(label)
