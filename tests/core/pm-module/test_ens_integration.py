@@ -113,7 +113,10 @@ def ens_setup(deployer):
 def ens(ens_setup, mocker):
     mocker.patch("web3.middleware.stalecheck._is_fresh", return_value=True)
     ens_setup.w3.eth.default_account = ens_setup.w3.eth.coinbase
-    ens_setup.w3.enable_unstable_package_management_api()
+    with pytest.warns(
+        UserWarning, match="The ``ethPM`` module is no longer being maintained"
+    ):
+        ens_setup.w3.enable_unstable_package_management_api()
     return ens_setup
 
 
