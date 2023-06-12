@@ -17,6 +17,9 @@ from typing import (
     cast,
 )
 
+from ens.normalization import (
+    normalize_name_ensip15,
+)
 from eth_typing import (
     Address,
     ChecksumAddress,
@@ -35,7 +38,6 @@ from eth_utils.abi import (
 from hexbytes import (
     HexBytes,
 )
-import idna
 
 from ens.constants import (
     ACCEPTABLE_STALE_HOURS,
@@ -114,25 +116,13 @@ def customize_web3(w3: "_Web3") -> "_Web3":
 
 def normalize_name(name: str) -> str:
     """
-    Clean the fully qualified name, as defined in ENS `EIP-137
-    <https://github.com/ethereum/EIPs/blob/master/EIPS/eip-137.md#name-syntax>`_
-
-    This does *not* enforce whether ``name`` is a label or fully qualified domain.
+    Normalize a name according to ENS standards specified in EIP-137, in conjunction
+    with ENSIP-15.
 
     :param str name: the dot-separated ENS name
     :raises InvalidName: if ``name`` has invalid syntax
     """
-    if not name:
-        return name
-    elif isinstance(name, (bytes, bytearray)):
-        name = name.decode("utf-8")
-
-    stripped_name = name.strip()
-
-    try:
-        return idna.uts46_remap(stripped_name, std3_rules=True, transitional=False)
-    except idna.IDNAError as exc:
-        raise InvalidName(f"{stripped_name} is an invalid name, because {exc}") from exc
+    return normalize_name_ensip15(name)
 
 
 def ens_encode_name(name: str) -> bytes:
