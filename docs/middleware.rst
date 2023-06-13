@@ -26,10 +26,24 @@ More information is available in the "Internals: :ref:`internals__middlewares`" 
 Default Middleware
 ------------------
 
-Some middlewares are added by default if you do not supply any. The defaults
-are likely to change regularly, so this list may not include the latest version's defaults.
-Async middlewares exist for many of the sync middlewares. You can find the latest defaults
-within the ``default_middlewares`` and ``async_default_middlewares`` methods in ``web3/manager.py``
+Middlewares are added by default if you don't add any.
+
+Sync middlewares include:
+* ``gas_price_strategy``
+* ``name_to_address``
+* ``attrdict``
+* ``validation``
+* ``abi``
+* ``gas_estimate``
+
+Async middlewares include:
+* ``gas_price_strategy``
+* ``attrdict``
+* ``validation``
+* ``gas_estimate``
+
+The defaults are found in ``default_middlewares`` and ``async_default_middlewares``
+methods in ``web3/manager.py``.
 
 AttributeDict
 ~~~~~~~~~~~~~
