@@ -116,13 +116,12 @@ def customize_web3(w3: "_Web3") -> "_Web3":
 
 def normalize_name(name: str) -> str:
     """
-    Normalize a name according to ENS standards specified in EIP-137, in conjunction
-    with ENSIP-15.
+    Normalize a name according to ENS standards specified in ENSIP-15.
 
     :param str name: the dot-separated ENS name
     :raises InvalidName: if ``name`` has invalid syntax
     """
-    return normalize_name_ensip15(name)
+    return normalize_name_ensip15(name).as_text
 
 
 def ens_encode_name(name: str) -> bytes:
