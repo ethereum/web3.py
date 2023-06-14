@@ -217,7 +217,8 @@ To add or remove items in different layers, use the following API:
         # or
         >>> w3.middleware_onion.add(web3.middleware.gas_price_strategy_middleware, 'gas_price_strategy')
         # or
-        >>> w3.middleware_onion.add(web3.middleware.async_gas_price_strategy_middleware, 'gas_price_strategy')
+        >>> async_w3 = AsyncWeb3(...)
+        >>> async_w3.middleware_onion.add(web3.middleware.async_gas_price_strategy_middleware, 'gas_price_strategy')
 
 .. py:method:: Web3.middleware_onion.inject(middleware, name=None, layer=None)
 
@@ -235,7 +236,8 @@ To add or remove items in different layers, use the following API:
         # or
         >>> w3.middleware_onion.inject(web3.middleware.gas_price_strategy_middleware, 'gas_price_strategy', layer=0)
         # or
-        >>> w3.middleware_onion.inject(web3.middleware.async_gas_price_strategy_middleware, 'gas_price_strategy', layer=0)
+        >>> async_w3 = AsyncWeb3(...)
+        >>> async_w3.middleware_onion.inject(web3.middleware.async_gas_price_strategy_middleware, 'gas_price_strategy', layer=0)
 
 .. py:method:: Web3.middleware_onion.remove(middleware)
 
