@@ -69,9 +69,9 @@ notes: check-bump
 	make build-docs
 	git commit -m "Compile release notes"
 
-release: check-bump test clean
-	# require that you be on a branch that's linked to upstream/main
-	git status -s -b | head -1 | grep "\.\.upstream/main"
+release: check-bump clean
+	# require that upstream is configured for ethereum/<REPO_NAME>
+	git remote -v | grep "upstream\tgit@github.com:ethereum/<REPO_NAME>.git (push)\|upstream\thttps://github.com/ethereum/<REPO_NAME> (push)"
 	# verify that docs build correctly
 	./newsfragments/validate_files.py is-empty
 	make build-docs
