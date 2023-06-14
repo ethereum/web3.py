@@ -371,10 +371,13 @@ async def test_async_unique_cache_keys_created_per_thread_with_same_uri():
     test_sessions = []
 
     def target_function(endpoint_uri):
-        event_loop = asyncio.new_event_loop()
-        unique_session = event_loop.run_until_complete(
-            async_cache_and_return_session(endpoint_uri)
-        )
+        try:
+            event_loop = asyncio.new_event_loop()
+        finally:
+            unique_session = event_loop.run_until_complete(
+                async_cache_and_return_session(endpoint_uri)
+            )
+            event_loop.close()
         test_sessions.append(unique_session)
 
     threads = []
