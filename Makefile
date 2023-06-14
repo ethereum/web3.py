@@ -69,7 +69,7 @@ notes: check-bump
 	make build-docs
 	git commit -m "Compile release notes"
 
-release: check-bump clean
+release: check-bump test clean
 	# require that you be on a branch that's linked to upstream/main
 	git status -s -b | head -1 | grep "\.\.upstream/main"
 	# verify that docs build correctly
