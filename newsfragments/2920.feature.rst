@@ -1,1 +1,0 @@
-Add the ``sign_typed_data`` method to the ``AsyncEth`` class

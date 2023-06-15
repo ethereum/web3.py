@@ -1,1 +1,0 @@
-Moved ``ethpm`` deprecation warning to only show when the module is explicitly enabled

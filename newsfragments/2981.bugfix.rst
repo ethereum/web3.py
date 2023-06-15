@@ -1,1 +1,0 @@
-Fix potential race condition when writing cache entries in ``simple_cache_middleware``

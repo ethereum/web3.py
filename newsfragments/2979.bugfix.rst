@@ -1,1 +1,0 @@
-Properly create a fresh cache for each instance of ``simple_cache_middleware`` if no cache is provided. Fixes a bug when using this middleware with multiple instances of ``Web3``.

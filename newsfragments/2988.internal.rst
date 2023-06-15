@@ -1,1 +1,0 @@
-Update make release to check remote upstream is pointing to ethereum/web3.py.

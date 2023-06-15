@@ -6,6 +6,51 @@ v6 Breaking Changes Summary
 
 .. towncrier release notes start
 
+web3.py v6.5.0 (2023-06-15)
+---------------------------
+
+Bugfixes
+~~~~~~~~
+
+- Properly create a fresh cache for each instance of ``simple_cache_middleware`` if no cache is provided. Fixes a bug when using this middleware with multiple instances of ``Web3``. (`#2979 <https://github.com/ethereum/web3.py/issues/2979>`__)
+- Fix potential race condition when writing cache entries in ``simple_cache_middleware`` (`#2981 <https://github.com/ethereum/web3.py/issues/2981>`__)
+- Catch ``UnicodeDecodeError`` for contract revert messages that cannot be decoded and issue a warning instead, raising a ``ContractLogicError`` with the raw ``data`` from the response. (`#2989 <https://github.com/ethereum/web3.py/issues/2989>`__)
+
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Introduces resources page to documentation (`#2957 <https://github.com/ethereum/web3.py/issues/2957>`__)
+- Completed docstrings for ``ContractFunction`` and ``AsyncContractFunction`` classes (`#2960 <https://github.com/ethereum/web3.py/issues/2960>`__)
+- Added 'unsupported by any current clients' note to the ``Eth.sign_typed_data`` docs (`#2961 <https://github.com/ethereum/web3.py/issues/2961>`__)
+- Removed list of ``AsyncHTTPProvider``-supported methods, it supports them all now (`#2962 <https://github.com/ethereum/web3.py/issues/2962>`__)
+- Modernize the filtering guide, emphasizing ``get_logs`` (`#2968 <https://github.com/ethereum/web3.py/issues/2968>`__)
+- Removed references to defunct providers in ``IPCProvider`` docs (`#2971 <https://github.com/ethereum/web3.py/issues/2971>`__)
+- Update Matomo analytics script to move to cloud services (`#2978 <https://github.com/ethereum/web3.py/issues/2978>`__)
+
+
+Features
+~~~~~~~~
+
+- Add the ``sign_typed_data`` method to the ``AsyncEth`` class (`#2920 <https://github.com/ethereum/web3.py/issues/2920>`__)
+- Add support for Solidity ``Panic`` errors, available since Solidity 0.8.0. Raises ``ContractPanicError`` with appropriate messaging based on the known panic error codes. (`#2986 <https://github.com/ethereum/web3.py/issues/2986>`__)
+
+
+Internal Changes - for web3.py Contributors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- ``lint-roll`` - dropped ``isort`` ``--recursive`` flag, not needed as of their ``v5``, added black (`#2930 <https://github.com/ethereum/web3.py/issues/2930>`__)
+- Moved ``ethpm`` deprecation warning to only show when the module is explicitly enabled (`#2983 <https://github.com/ethereum/web3.py/issues/2983>`__)
+- Update make release to check remote upstream is pointing to ethereum/web3.py. (`#2988 <https://github.com/ethereum/web3.py/issues/2988>`__)
+- Removed `pluggy` from dev requirements (`#2992 <https://github.com/ethereum/web3.py/issues/2992>`__)
+
+
+Miscellaneous Changes
+~~~~~~~~~~~~~~~~~~~~~
+
+- `#2960 <https://github.com/ethereum/web3.py/issues/2960>`__, `#2965 <https://github.com/ethereum/web3.py/issues/2965>`__
+
+
 web3.py v6.4.0 (2023-05-15)
 ---------------------------
 
