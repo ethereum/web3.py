@@ -26,9 +26,26 @@ More information is available in the "Internals: :ref:`internals__middlewares`" 
 Default Middleware
 ------------------
 
-Some middlewares are added by default if you do not supply any. The defaults
-are likely to change regularly, so this list may not include the latest version's defaults.
-You can find the latest defaults in the constructor in ``web3/manager.py``
+Middlewares are added by default if you don't add any.
+
+Sync middlewares include:
+
+* ``gas_price_strategy``
+* ``name_to_address``
+* ``attrdict``
+* ``validation``
+* ``abi``
+* ``gas_estimate``
+
+Async middlewares include:
+
+* ``gas_price_strategy``
+* ``attrdict``
+* ``validation``
+* ``gas_estimate``
+
+The defaults are found in ``default_middlewares`` and ``async_default_middlewares``
+methods in ``web3/manager.py``.
 
 AttributeDict
 ~~~~~~~~~~~~~
@@ -58,15 +75,6 @@ AttributeDict
         This middleware only converts ENS names if invoked with the mainnet
         (where the ENS contract is deployed), for all other cases will result in an
         ``InvalidAddress`` error
-
-Pythonic
-~~~~~~~~~~~~
-
-.. py:method:: web3.middleware.pythonic_middleware
-
-    This converts arguments and returned values to python primitives,
-    where appropriate. For example, it converts the raw hex string returned by the RPC call
-    ``eth_blockNumber`` into an ``int``.
 
 Gas Price Strategy
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -104,6 +112,15 @@ HTTPRequestRetry
     ``TooManyRedirects``. Additionally there is a whitelist that only allows certain
     methods to be retried in order to not resend transactions, excluded methods are:
     ``eth_sendTransaction``, ``personal_signAndSendTransaction``, ``personal_sendTransaction``.
+
+Validation
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. py:method:: web3.middleware.validation_middleware
+               web3.middleware.async_validation_middleware
+
+    This middleware includes block and transaction validators which perform validations
+    for transaction parameters.
 
 .. _Modifying_Middleware:
 
@@ -198,9 +215,12 @@ To add or remove items in different layers, use the following API:
     .. code-block:: python
 
         >>> w3 = Web3(...)
-        >>> w3.middleware_onion.add(web3.middleware.pythonic_middleware)
+        >>> w3.middleware_onion.add(web3.middleware.gas_price_strategy_middleware)
         # or
-        >>> w3.middleware_onion.add(web3.middleware.pythonic_middleware, 'pythonic')
+        >>> w3.middleware_onion.add(web3.middleware.gas_price_strategy_middleware, 'gas_price_strategy')
+        # or
+        >>> async_w3 = AsyncWeb3(...)
+        >>> async_w3.middleware_onion.add(web3.middleware.async_gas_price_strategy_middleware, 'gas_price_strategy')
 
 .. py:method:: Web3.middleware_onion.inject(middleware, name=None, layer=None)
 
@@ -212,11 +232,14 @@ To add or remove items in different layers, use the following API:
 
     .. code-block:: python
 
-        # Either of these will put the pythonic middleware at the innermost layer
+        # Either of these will put the gas_price_strategy middleware at the innermost layer
         >>> w3 = Web3(...)
-        >>> w3.middleware_onion.inject(web3.middleware.pythonic_middleware, layer=0)
+        >>> w3.middleware_onion.inject(web3.middleware.gas_price_strategy_middleware, layer=0)
         # or
-        >>> w3.middleware_onion.inject(web3.middleware.pythonic_middleware, 'pythonic', layer=0)
+        >>> w3.middleware_onion.inject(web3.middleware.gas_price_strategy_middleware, 'gas_price_strategy', layer=0)
+        # or
+        >>> async_w3 = AsyncWeb3(...)
+        >>> async_w3.middleware_onion.inject(web3.middleware.async_gas_price_strategy_middleware, 'gas_price_strategy', layer=0)
 
 .. py:method:: Web3.middleware_onion.remove(middleware)
 
@@ -227,9 +250,9 @@ To add or remove items in different layers, use the following API:
     .. code-block:: python
 
         >>> w3 = Web3(...)
-        >>> w3.middleware_onion.remove(web3.middleware.pythonic_middleware)
+        >>> w3.middleware_onion.remove(web3.middleware.gas_price_strategy_middleware)
         # or
-        >>> w3.middleware_onion.remove('pythonic')
+        >>> w3.middleware_onion.remove('gas_price_strategy')
 
 .. py:method:: Web3.middleware_onion.replace(old_middleware, new_middleware)
 
@@ -239,18 +262,18 @@ To add or remove items in different layers, use the following API:
 
     .. code-block:: python
 
-        >>> from web3.middleware import pythonic_middleware, attrdict_middleware
+        >>> from web3.middleware import gas_price_strategy_middleware, attrdict_middleware
         >>> w3 = Web3(...)
 
-        >>> w3.middleware_onion.replace(pythonic_middleware, attrdict_middleware)
+        >>> w3.middleware_onion.replace(gas_price_strategy_middleware, attrdict_middleware)
         # this is now referenced by the new middleware object, so to remove it:
         >>> w3.middleware_onion.remove(attrdict_middleware)
 
         # or, if it was named
 
-        >>> w3.middleware_onion.replace('pythonic', attrdict_middleware)
+        >>> w3.middleware_onion.replace('gas_price_strategy', attrdict_middleware)
         # this is still referenced by the original name, so to remove it:
-        >>> w3.middleware_onion.remove('pythonic')
+        >>> w3.middleware_onion.remove('gas_price_strategy')
 
 .. py:method:: Web3.middleware_onion.clear()
 
@@ -271,7 +294,7 @@ To add or remove items in different layers, use the following API:
 
         >>> w3_1 = Web3(...)
         # add uniquely named middleware:
-        >>> w3_1.middleware_onion.add(web3.middleware.pythonic_middleware, 'test_middleware')
+        >>> w3_1.middleware_onion.add(web3.middleware.gas_price_strategy_middleware, 'test_middleware')
         # export middlewares from first w3 instance
         >>> middlewares = w3_1.middleware_onion.middlewares
 
@@ -437,7 +460,7 @@ errors like the example below when interacting with your EVM node.
 .. code-block:: shell
 
     web3.exceptions.ExtraDataLengthError: The field extraData is 97 bytes, but should be
-    32. It is quite likely that you are connected to a POA chain. Refer to
+    1.  It is quite likely that you are connected to a POA chain. Refer to
     http://web3py.readthedocs.io/en/stable/middleware.html#proof-of-authority
     for more details. The full extraData is: HexBytes('...')
 

@@ -9,7 +9,7 @@ from web3 import (
 )
 from web3.middleware import (
     async_validation_middleware,
-    pythonic_middleware,
+    gas_price_strategy_middleware,
 )
 from web3.providers.eth_tester import (
     AsyncEthereumTesterProvider,
@@ -17,7 +17,7 @@ from web3.providers.eth_tester import (
 
 
 def test_from_web3_inherits_web3_middlewares(w3):
-    test_middleware = pythonic_middleware
+    test_middleware = gas_price_strategy_middleware
     w3.middleware_onion.add(test_middleware, "test_middleware")
 
     ns = ENS.from_web3(w3)

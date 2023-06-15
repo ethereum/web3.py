@@ -1,0 +1,1 @@
+Removed references to deprecated middlewares with new tests to check default middlewares
