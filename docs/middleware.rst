@@ -29,6 +29,7 @@ Default Middleware
 Middlewares are added by default if you don't add any.
 
 Sync middlewares include:
+
 * ``gas_price_strategy``
 * ``name_to_address``
 * ``attrdict``
@@ -37,6 +38,7 @@ Sync middlewares include:
 * ``gas_estimate``
 
 Async middlewares include:
+
 * ``gas_price_strategy``
 * ``attrdict``
 * ``validation``
@@ -458,7 +460,7 @@ errors like the example below when interacting with your EVM node.
 .. code-block:: shell
 
     web3.exceptions.ExtraDataLengthError: The field extraData is 97 bytes, but should be
-    32. It is quite likely that you are connected to a POA chain. Refer to
+    1.  It is quite likely that you are connected to a POA chain. Refer to
     http://web3py.readthedocs.io/en/stable/middleware.html#proof-of-authority
     for more details. The full extraData is: HexBytes('...')
 
