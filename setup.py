@@ -80,8 +80,7 @@ setup(
         "protobuf>=4.21.6",
         "pywin32>=223;platform_system=='Windows'",
         "requests>=2.16.0",
-        # remove typing_extensions after python_requires>=3.8, see web3._utils.compat
-        "typing-extensions>=3.7.4.1,<5;python_version<'3.8'",
+        "typing-extensions>=4.0.1,<5",
         "websockets>=10.0.0",
         "pyunormalize>=15.0.0",
     ],
