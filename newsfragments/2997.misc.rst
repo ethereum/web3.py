@@ -1,0 +1,1 @@
+ Uses `Self` Type in contract factory methods
