@@ -8,6 +8,7 @@ from typing import (
     List,
     Optional,
     Sequence,
+    Type,
     cast,
 )
 
@@ -28,6 +29,9 @@ from web3._utils.abi import (
     fallback_func_abi_exists,
     filter_by_type,
     receive_func_abi_exists,
+)
+from web3._utils.compat import (
+    Self,
 )
 from web3._utils.contracts import (
     parse_block_identifier,
@@ -235,7 +239,7 @@ class ContractFunction(BaseContractFunction):
         return clone
 
     @classmethod
-    def factory(cls, class_name: str, **kwargs: Any) -> "ContractFunction":
+    def factory(cls, class_name: str, **kwargs: Any) -> Self:
         return PropertyCheckingFactory(class_name, (cls,), kwargs)(kwargs.get("abi"))
 
     def call(
@@ -448,7 +452,7 @@ class Contract(BaseContract):
     @classmethod
     def factory(
         cls, w3: "Web3", class_name: Optional[str] = None, **kwargs: Any
-    ) -> "Contract":
+    ) -> Type[Self]:
         kwargs["w3"] = w3
 
         normalizers = {
@@ -459,7 +463,7 @@ class Contract(BaseContract):
         }
 
         contract = cast(
-            Contract,
+            Type[Self],
             PropertyCheckingFactory(
                 class_name or cls.__name__,
                 (cls,),
@@ -549,7 +553,7 @@ class ContractCaller(BaseContractCaller):
 
             self._functions = filter_by_type("function", self.abi)
             for func in self._functions:
-                fn: ContractFunction = ContractFunction.factory(
+                fn = ContractFunction.factory(
                     func["name"],
                     w3=self.w3,
                     contract_abi=self.abi,

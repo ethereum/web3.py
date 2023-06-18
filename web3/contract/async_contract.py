@@ -9,6 +9,7 @@ from typing import (
     List,
     Optional,
     Sequence,
+    Type,
     cast,
 )
 
@@ -32,6 +33,9 @@ from web3._utils.abi import (
 )
 from web3._utils.async_transactions import (
     fill_transaction_defaults as async_fill_transaction_defaults,
+)
+from web3._utils.compat import (
+    Self,
 )
 from web3._utils.contracts import (
     async_parse_block_identifier,
@@ -239,7 +243,7 @@ class AsyncContractFunction(BaseContractFunction):
         return clone
 
     @classmethod
-    def factory(cls, class_name: str, **kwargs: Any) -> "AsyncContractFunction":
+    def factory(cls, class_name: str, **kwargs: Any) -> Self:
         return PropertyCheckingFactory(class_name, (cls,), kwargs)(kwargs.get("abi"))
 
     async def call(
@@ -449,7 +453,7 @@ class AsyncContract(BaseContract):
     @classmethod
     def factory(
         cls, w3: "AsyncWeb3", class_name: Optional[str] = None, **kwargs: Any
-    ) -> "AsyncContract":
+    ) -> Type[Self]:
         kwargs["w3"] = w3
 
         normalizers = {
@@ -460,7 +464,7 @@ class AsyncContract(BaseContract):
         }
 
         contract = cast(
-            AsyncContract,
+            Type[Self],
             PropertyCheckingFactory(
                 class_name or cls.__name__,
                 (cls,),
@@ -491,7 +495,7 @@ class AsyncContract(BaseContract):
         return contract
 
     @classmethod
-    def constructor(cls, *args: Any, **kwargs: Any) -> "AsyncContractConstructor":
+    def constructor(cls, *args: Any, **kwargs: Any) -> Self:
         """
         :param args: The contract constructor arguments as positional arguments
         :param kwargs: The contract constructor arguments as keyword arguments
@@ -549,7 +553,7 @@ class AsyncContractCaller(BaseContractCaller):
 
             self._functions = filter_by_type("function", self.abi)
             for func in self._functions:
-                fn: AsyncContractFunction = AsyncContractFunction.factory(
+                fn = AsyncContractFunction.factory(
                     func["name"],
                     w3=self.w3,
                     contract_abi=self.abi,
