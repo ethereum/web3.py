@@ -27,6 +27,9 @@ from ethpm.exceptions import (
 from ethpm.validation.misc import (
     validate_empty_bytes,
 )
+from web3._utils.compat import (
+    Self,
+)
 from web3._utils.validation import (
     validate_address,
 )
@@ -59,7 +62,7 @@ class LinkableContract(Contract):
         super().__init__(address=address, **kwargs)  # type: ignore
 
     @classmethod
-    def factory(cls, w3: "Web3", class_name: str = None, **kwargs: Any) -> Contract:
+    def factory(cls, w3: "Web3", class_name: str = None, **kwargs: Any) -> Type[Self]:
         dep_link_refs = kwargs.get("unlinked_references")
         bytecode = kwargs.get("bytecode")
         needs_bytecode_linking = False
