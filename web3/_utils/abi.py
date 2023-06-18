@@ -394,7 +394,7 @@ def merge_args_and_kwargs(
     # Ensure the function is being applied to the correct number of args
     if len(args) + len(kwargs) != len(function_abi.get("inputs", [])):
         raise TypeError(
-            f"Incorrect argument count. Expected '{len(function_abi['inputs'])}"
+            f"Incorrect argument count. Expected '{len(function_abi['inputs'])}'"
             f". Got '{len(args) + len(kwargs)}'"
         )
 
