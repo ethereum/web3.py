@@ -91,6 +91,23 @@ def test_formatting_middleware_result_formatters(w3):
     assert actual == expected
 
 
+def test_formatting_middleware_result_formatters_for_none(w3):
+    w3.middleware_onion.add(
+        construct_result_generator_middleware(
+            {RPCEndpoint("test_endpoint"): lambda method, params: None}
+        )
+    )
+    w3.middleware_onion.add(
+        construct_formatting_middleware(
+            result_formatters={RPCEndpoint("test_endpoint"): lambda x: hex(x)}
+        )
+    )
+
+    expected = None
+    actual = w3.manager.request_blocking("test_endpoint", [])
+    assert actual == expected
+
+
 def test_formatting_middleware_error_formatters(w3):
     w3.middleware_onion.add(
         construct_error_generator_middleware(
