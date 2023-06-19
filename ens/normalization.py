@@ -341,10 +341,15 @@ def validate_tokens_and_get_label_type(tokens: List[Token]) -> str:
 
     if len(confused_chars) > 0:
         for retained_group_name in retained_groups:
-            if any(c in VALID_BY_GROUPS[retained_group_name] for c in buffer):
+            if all(cp in VALID_BY_GROUPS[retained_group_name] for cp in buffer):
+                # Though the spec doesn't mention this explicitly, if the buffer is
+                # empty, the label is confusable. This allows for using ``all()`` here
+                # since that yields ``True`` on empty sets.
+                # e.g. ``all(cp in group_cps for cp in set())`` is ``True``
+                # for any ``group_cps``.
                 raise InvalidName(
                     f"Label is confusable: {concat_text_tokens_as_str} "
-                    f"[{chars_group_name} / {retained_group_name}]"
+                    f"({chars_group_name} / {retained_group_name})"
                 )
 
     return chars_group_name
