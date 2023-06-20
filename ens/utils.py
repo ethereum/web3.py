@@ -17,9 +17,6 @@ from typing import (
     cast,
 )
 
-from ens.normalization import (
-    normalize_name_ensip15,
-)
 from eth_typing import (
     Address,
     ChecksumAddress,
@@ -50,6 +47,9 @@ from ens.constants import (
 from ens.exceptions import (
     ENSValidationError,
     InvalidName,
+)
+from ens.normalization import (
+    normalize_name_ensip15,
 )
 
 default = object()
