@@ -250,12 +250,12 @@ def _validate_tokens_and_get_label_type(tokens: List[Token]) -> str:
             if "_" in concat_text_tokens_as_str[concat_text_tokens_as_str.count("_") :]:
                 raise InvalidName(
                     "Underscores '_' may only occur at the start of a label: "
-                    f"{label_text}"
+                    f"'{label_text}'"
                 )
             elif concat_text_tokens_as_str[2:4] == "--":
                 raise InvalidName(
                     "A label's third and fourth characters cannot be hyphens '-': "
-                    f"{label_text}"
+                    f"'{label_text}'"
                 )
             return "ascii"
         except UnicodeDecodeError:
@@ -263,12 +263,12 @@ def _validate_tokens_and_get_label_type(tokens: List[Token]) -> str:
 
     if 95 in all_token_cps[all_token_cps.count(95) :]:
         raise InvalidName(
-            f"Underscores '_' may only occur at the start of a label: {label_text}"
+            f"Underscores '_' may only occur at the start of a label: '{label_text}'"
         )
 
     if _is_fenced(all_token_cps[0]) or _is_fenced(all_token_cps[-1]):
         raise InvalidName(
-            f"Label cannot start or end with a fenced codepoint: {label_text}"
+            f"Label cannot start or end with a fenced codepoint: '{label_text}'"
         )
 
     for cp_index, cp in enumerate(all_token_cps):
@@ -277,7 +277,7 @@ def _validate_tokens_and_get_label_type(tokens: List[Token]) -> str:
         next_cp = all_token_cps[cp_index + 1]
         if _is_fenced(cp) and _is_fenced(next_cp):
             raise InvalidName(
-                f"Label cannot contain two fenced codepoints in a row: {label_text}"
+                f"Label cannot contain two fenced codepoints in a row: '{label_text}'"
             )
 
     if any(
@@ -287,7 +287,7 @@ def _validate_tokens_and_get_label_type(tokens: List[Token]) -> str:
     ):
         raise InvalidName(
             "At least one text token in label starts with a "
-            f"combining mark: {label_text}"
+            f"combining mark: '{label_text}'"
         )
 
     # find first group that contains all chars in label
@@ -305,7 +305,7 @@ def _validate_tokens_and_get_label_type(tokens: List[Token]) -> str:
 
     if not chars_group_name:
         raise InvalidName(
-            f"Label contains codepoints from multiple groups - label: {label_text}"
+            f"Label contains codepoints from multiple groups: '{label_text}'"
         )
 
     # apply NFD and check contiguous NSM sequences
@@ -331,8 +331,8 @@ def _validate_tokens_and_get_label_type(tokens: List[Token]) -> str:
                         contiguous_nsm_cps.append(next_cp)
                         if len(contiguous_nsm_cps) > NSM_MAX:
                             raise InvalidName(
-                                "Contiguous NSM sequence for label is beyond nsm "
-                                f"max of {NSM_MAX}: {label_text}"
+                                "Contiguous NSM sequence for label greater than NSM "
+                                f"max of {NSM_MAX}: '{label_text}'"
                             )
                         next_index += 1
                         if next_index == len(nfd_cps):
@@ -342,7 +342,7 @@ def _validate_tokens_and_get_label_type(tokens: List[Token]) -> str:
                     if not len(contiguous_nsm_cps) == len(set(contiguous_nsm_cps)):
                         raise InvalidName(
                             "Contiguous NSM sequence for label contains duplicate "
-                            f"codepoints: {label_text}"
+                            f"codepoints: '{label_text}'"
                         )
 
     # check wholes
@@ -375,10 +375,22 @@ def _validate_tokens_and_get_label_type(tokens: List[Token]) -> str:
                 # since that yields ``True`` on empty sets.
                 # e.g. ``all(cp in group_cps for cp in set())`` is ``True``
                 # for any ``group_cps``.
-                raise InvalidName(
-                    f"Label is confusable: {concat_text_tokens_as_str} "
-                    f"({chars_group_name} / {retained_group_name})"
-                )
+                if len(buffer) == 0:
+                    msg = (
+                        f"All characters in label are confusable: "
+                        f"'{label_text}' ({chars_group_name} / "
+                    )
+                    msg += (
+                        f"{[rgn for rgn in retained_groups]})"
+                        if len(retained_groups) > 1
+                        else f"{retained_group_name})"
+                    )
+                else:
+                    msg = (
+                        f"Label is confusable: '{label_text}' "
+                        f"({chars_group_name} / {retained_group_name})"
+                    )
+                raise InvalidName(msg)
 
     return chars_group_name
 
