@@ -1,11 +1,13 @@
 import json
 import os
-
 import pytest
 
-from ens import InvalidName
-from ens.utils import normalize_name
-
+from ens import (
+    InvalidName,
+)
+from ens.utils import (
+    normalize_name,
+)
 
 NORMALIZATION_TESTS_PATH = os.path.join(
     os.path.dirname(__file__), "normalization_tests.json"

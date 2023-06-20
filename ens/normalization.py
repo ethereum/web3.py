@@ -1,12 +1,15 @@
-import json
-import os
 from enum import (
     Enum,
 )
+import json
+import os
 from typing import (
+    Any,
+    Dict,
     List,
     Optional,
     Set,
+    Tuple,
     Union,
 )
 
@@ -15,15 +18,22 @@ from pyunormalize import (
     NFD,
 )
 
-from ens.exceptions import InvalidName
+from ens.exceptions import (
+    InvalidName,
+)
+from web3._utils.compat import (
+    Literal,
+)
 
 
-def _json_list_mapping_to_dict(json_file, list_mapped_key: str):
+def _json_list_mapping_to_dict(
+    f: Dict[str, Any],
+    list_mapped_key: str,
+) -> Dict[str, Any]:
     """
     Takes a `[key, [value]]` mapping from the original ENS spec json files and turns it
     into a `{key: value}` mapping.
     """
-    f = json.load(json_file)
     f[list_mapped_key] = {k: v for k, v in f[list_mapped_key]}
     return f
 
@@ -32,7 +42,9 @@ def _json_list_mapping_to_dict(json_file, list_mapped_key: str):
 # https://docs.ens.domains/ens-improvement-proposals/ensip-15-normalization-standard
 specs_dir_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "specs"))
 with open(os.path.join(specs_dir_path, "normalization_spec.json")) as spec:
-    NORMALIZATION_SPEC = _json_list_mapping_to_dict(spec, "mapped")
+    f = json.load(spec)
+
+    NORMALIZATION_SPEC = _json_list_mapping_to_dict(f, "mapped")
     # clean `FE0F` (65039) from entries since it's optional
     for e in NORMALIZATION_SPEC["emoji"]:
         if 65039 in e:
@@ -40,14 +52,20 @@ with open(os.path.join(specs_dir_path, "normalization_spec.json")) as spec:
                 e.remove(65039)
 
 with open(os.path.join(specs_dir_path, "nf.json")) as nf:
-    NF = _json_list_mapping_to_dict(nf, "decomp")
+    f = json.load(nf)
+    NF = _json_list_mapping_to_dict(f, "decomp")
 
 
 # --- Classes -- #
 
 
+class TokenType(Enum):
+    EMOJI = "emoji"
+    TEXT = "text"
+
+
 class Token:
-    type: str
+    type: Literal[TokenType.TEXT, TokenType.EMOJI]
     _original_text: str
     _original_codepoints: List[int]
     _normalized_codepoints: Optional[List[int]] = None
@@ -71,27 +89,22 @@ class Token:
         return _cps_to_text(self.codepoints)
 
 
-class TokenType(Enum):
-    EMOJI = "emoji"
-    TEXT = "text"
-
-
 class EmojiToken(Token):
-    type: TokenType.EMOJI = TokenType.EMOJI
+    type: Literal[TokenType.EMOJI] = TokenType.EMOJI
 
 
 class TextToken(Token):
-    type: TokenType.TEXT = TokenType.TEXT
+    type: Literal[TokenType.TEXT] = TokenType.TEXT
 
 
 class Label:
     type: str
-    tokens: List[Union[TextToken, EmojiToken]]
+    tokens: List[Token]
 
     def __init__(
         self,
         type: str = None,
-        tokens: List[Union[TextToken, EmojiToken]] = None,
+        tokens: List[Token] = None,
     ) -> None:
         self.type = type
         self.tokens = tokens
@@ -135,35 +148,40 @@ def _extract_valid_codepoints() -> Set[int]:
     return all_valid
 
 
-def _construct_whole_confusable_map():
-    whole_map = {}
+def _construct_whole_confusable_map() -> Dict[int, Set[str]]:
+    """
+    Create a mapping, per confusable, that contains all the groups in the cp's whole
+    confusable excluding the confusable extent of the cp itself - as per the spec at
+    https://docs.ens.domains/ens-improvement-proposals/ensip-15-normalization-standard
+    """
+    whole_map: Dict[int, Set[str]] = {}
     for whole in NORMALIZATION_SPEC["wholes"]:
-        whole_confusables = set(whole["valid"] + whole["confused"])
-        confusable_extents = []
+        whole_confusables: Set[int] = set(whole["valid"] + whole["confused"])
+        confusable_extents: List[Tuple[Set[int], Set[str]]] = []
 
         for confusable_cp in whole_confusables:
             # create confusable extents for all whole confusables
-            groups = set()
+            groups: Set[str] = set()
             for gn, gv in VALID_BY_GROUPS.items():
                 if confusable_cp in gv:
                     groups.add(gn)
 
             if len(confusable_extents) == 0:
-                confusable_extents.append([[confusable_cp], groups])
+                confusable_extents.append(({confusable_cp}, groups))
             else:
                 extent_exists = False
                 for entry in confusable_extents:
                     if any(g in entry[1] for g in groups):
                         extent_exists = True
-                        entry[0].append(confusable_cp)
+                        entry[0].update({confusable_cp})
                         entry[1].update(groups)
                         break
 
                 if not extent_exists:
-                    confusable_extents.append([[confusable_cp], groups])
+                    confusable_extents.append(({confusable_cp}, groups))
 
         for confusable_cp in whole_confusables:
-            confusable_cp_extent_groups = set()
+            confusable_cp_extent_groups: Set[str] = set()
 
             if confusable_cp in whole["confused"]:
                 whole_map[confusable_cp] = set()
@@ -192,7 +210,7 @@ def _is_fenced(cp: int) -> bool:
     return cp in [fenced[0] for fenced in NORMALIZATION_SPEC["fenced"]]
 
 
-def _cps_to_text(cps: List[Union[int, List[int]]]) -> str:
+def _cps_to_text(cps: Union[List[List[int]], List[int]]) -> str:
     return "".join(chr(cp) if isinstance(cp, int) else _cps_to_text(cp) for cp in cps)
 
 
@@ -396,8 +414,8 @@ def normalize_name_ensip15(name: str) -> ENSNormalizedName:
         # _input takes the label and breaks it into a list of unicode code points
         # e.g. "xyz👨🏻" -> [120, 121, 122, 128104, 127995]
         _input = [ord(c) for c in label_str]
-        buffer = []
-        tokens = []
+        buffer: List[int] = []
+        tokens: List[Token] = []
 
         while len(_input) > 0:
             emoji_codepoint = None
@@ -465,7 +483,7 @@ def normalize_name_ensip15(name: str) -> ENSNormalizedName:
     return ENSNormalizedName(normalized_labels)
 
 
-def _buffer_codepoints_to_chars(buffer):
+def _buffer_codepoints_to_chars(buffer: Union[List[int], List[List[int]]]) -> str:
     return "".join(
         "".join(chr(c) for c in char) if isinstance(char, list) else chr(char)
         for char in buffer
