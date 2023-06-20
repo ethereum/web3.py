@@ -18,6 +18,10 @@ with open(NORMALIZATION_TESTS_PATH) as f:
 POSITIVE_TEST_CASES = [test for test in normalization_tests if "error" not in test]
 NEGATIVE_TEST_CASES = [test for test in normalization_tests if "error" in test]
 
+# gut check that we have all the tests
+if not len(POSITIVE_TEST_CASES) + len(NEGATIVE_TEST_CASES) == len(normalization_tests):
+    raise AssertionError("Not all normalization tests are accounted for.")
+
 
 @pytest.mark.parametrize(
     "positive_test_case",
