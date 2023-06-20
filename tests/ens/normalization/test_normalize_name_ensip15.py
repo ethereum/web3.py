@@ -5,8 +5,8 @@ import pytest
 from ens import (
     InvalidName,
 )
-from ens.utils import (
-    normalize_name,
+from ens._normalization import (
+    normalize_name_ensip15,
 )
 
 NORMALIZATION_TESTS_PATH = os.path.join(
@@ -28,7 +28,7 @@ def test_normalize_name_ensip15_positive_test_cases(positive_test_case):
     name = positive_test_case["name"]
 
     expected = positive_test_case.get("norm", positive_test_case.get("name"))
-    assert normalize_name(name) == expected
+    assert normalize_name_ensip15(name).as_text == expected
 
 
 @pytest.mark.parametrize(
@@ -40,4 +40,4 @@ def test_normalize_name_ensip15_negative_test_cases(negative_test_case):
     name = negative_test_case["name"]
 
     with pytest.raises(InvalidName):
-        normalize_name(name)
+        normalize_name_ensip15(name)

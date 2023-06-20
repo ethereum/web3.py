@@ -15,7 +15,7 @@ from hexbytes import (
     HexBytes,
 )
 
-from ens.utils import (
+from .utils import (
     address_to_reverse_domain,
     get_abi_output_types,
     is_valid_name,
@@ -41,6 +41,8 @@ class BaseENS:
     _resolver_contract: Union[Type["Contract"], Type["AsyncContract"]] = None
     _reverse_resolver_contract: Union[Type["Contract"], Type["AsyncContract"]] = None
 
+    ensip15_normalization: bool = False
+
     @property
     def strict_bytes_type_checking(self) -> bool:
         return self.w3.strict_bytes_type_checking
@@ -56,18 +58,18 @@ class BaseENS:
 
     @staticmethod
     @wraps(raw_name_to_hash)
-    def namehash(name: str) -> HexBytes:
-        return raw_name_to_hash(name)
+    def namehash(name: str, ensip15: bool = False) -> HexBytes:
+        return raw_name_to_hash(name, ensip15=ensip15)
 
     @staticmethod
     @wraps(normalize_name)
-    def nameprep(name: str) -> str:
-        return normalize_name(name)
+    def nameprep(name: str, ensip15: bool = False) -> str:
+        return normalize_name(name, ensip15=ensip15)
 
     @staticmethod
     @wraps(is_valid_name)
-    def is_valid_name(name: str) -> bool:
-        return is_valid_name(name)
+    def is_valid_name(name: str, ensip15: bool = False) -> bool:
+        return is_valid_name(name, ensip15=ensip15)
 
     @staticmethod
     @wraps(address_to_reverse_domain)

@@ -16,6 +16,7 @@ from typing import (
     Union,
     cast,
 )
+import warnings
 
 from eth_typing import (
     Address,
@@ -35,8 +36,12 @@ from eth_utils.abi import (
 from hexbytes import (
     HexBytes,
 )
+import idna
 
-from ens.constants import (
+from ._normalization import (
+    normalize_name_ensip15,
+)
+from .constants import (
     ACCEPTABLE_STALE_HOURS,
     AUCTION_START_GAS_CONSTANT,
     AUCTION_START_GAS_MARGINAL,
@@ -44,12 +49,9 @@ from ens.constants import (
     EMPTY_SHA3_BYTES,
     REVERSE_REGISTRAR_DOMAIN,
 )
-from ens.exceptions import (
+from .exceptions import (
     ENSValidationError,
     InvalidName,
-)
-from ens.normalization import (
-    normalize_name_ensip15,
 )
 
 default = object()
@@ -114,17 +116,39 @@ def customize_web3(w3: "_Web3") -> "_Web3":
     return w3
 
 
-def normalize_name(name: str) -> str:
+def normalize_name(name: str, ensip15: bool = False) -> str:
     """
-    Normalize a name according to ENS standards specified in ENSIP-15.
+    Clean the fully qualified name, as defined in ENS `EIP-137
+    <https://github.com/ethereum/EIPs/blob/master/EIPS/eip-137.md#name-syntax>`_
+
+    This does *not* enforce whether ``name`` is a label or fully qualified domain.
 
     :param str name: the dot-separated ENS name
+    :param bool ensip15: if True, normalize as per ENSIP-15
     :raises InvalidName: if ``name`` has invalid syntax
     """
-    return normalize_name_ensip15(name).as_text
+    if ensip15:
+        return normalize_name_ensip15(name).as_text
+
+    warnings.warn(
+        "It is recommended to `normalize_name()` with `ensip15==True` as ENSIP-15 "
+        "will be the default normalization in web3.py v7 and the `ensip15` flag "
+        "will be removed.",
+        FutureWarning,
+    )
+
+    if not name:
+        return name
+    elif isinstance(name, (bytes, bytearray)):
+        name = name.decode("utf-8")
+
+    try:
+        return idna.uts46_remap(name, std3_rules=True, transitional=False)
+    except idna.IDNAError as exc:
+        raise InvalidName(f"{name} is an invalid name, because {exc}") from exc
 
 
-def ens_encode_name(name: str) -> bytes:
+def ens_encode_name(name: str, ensip15: bool = False) -> bytes:
     """
     Encode a name according to DNS standards specified in section 3.1
     of RFC1035 with the following validations:
@@ -133,11 +157,14 @@ def ens_encode_name(name: str) -> bytes:
         and the limit on labels is the ENS standard of 255.
 
         - Return a single 0-octet, b'\x00', if empty name.
+
+    :param str name: the dot-separated ENS name
+    :param bool ensip15: whether to normalize the name as per ENSIP-15
     """
     if is_empty_name(name):
         return b"\x00"
 
-    normalized_name = normalize_name(name)
+    normalized_name = normalize_name(name, ensip15=ensip15)
 
     labels = normalized_name.split(".")
     labels_as_bytes = [to_bytes(text=label) for label in labels]
@@ -156,19 +183,20 @@ def ens_encode_name(name: str) -> bytes:
     return b"".join(dns_prepped_labels) + b"\x00"
 
 
-def is_valid_name(name: str) -> bool:
+def is_valid_name(name: str, ensip15: bool = False) -> bool:
     """
     Validate whether the fully qualified name is valid, as defined in ENS `EIP-137
     <https://github.com/ethereum/EIPs/blob/master/EIPS/eip-137.md#name-syntax>`_
 
     :param str name: the dot-separated ENS name
+    :param bool ensip15: if True, normalize as per ENSIP-15
     :returns: True if ``name`` is set, and :meth:`~ens.ENS.nameprep` will not
               raise InvalidName
     """
     if is_empty_name(name):
         return False
     try:
-        normalize_name(name)
+        normalize_name(name, ensip15=ensip15)
         return True
     except InvalidName:
         return False
@@ -184,8 +212,8 @@ def sha3_text(val: Union[str, bytes]) -> HexBytes:
     return Web3().keccak(val)
 
 
-def label_to_hash(label: str) -> HexBytes:
-    label = normalize_name(label)
+def label_to_hash(label: str, ensip15: bool = False) -> HexBytes:
+    label = normalize_name(label, ensip15=ensip15)
     if "." in label:
         raise ValueError(f"Cannot generate hash for label {label!r} with a '.'")
     return Web3().keccak(text=label)
@@ -203,7 +231,7 @@ def normal_name_to_hash(name: str) -> HexBytes:
     return node
 
 
-def raw_name_to_hash(name: str) -> HexBytes:
+def raw_name_to_hash(name: str, ensip15: bool = False) -> HexBytes:
     """
     Generate the namehash. This is also known as the ``node`` in ENS contracts.
 
@@ -215,11 +243,12 @@ def raw_name_to_hash(name: str) -> HexBytes:
     before hashing.
 
     :param str name: ENS name to hash
+    :param bool ensip15: if True, normalize as per ENSIP-15
     :return: the namehash
     :rtype: bytes
     :raises InvalidName: if ``name`` has invalid syntax
     """
-    normalized_name = normalize_name(name)
+    normalized_name = normalize_name(name, ensip15=ensip15)
     return normal_name_to_hash(normalized_name)
 
 
@@ -254,7 +283,7 @@ def is_none_or_zero_address(addr: Union[Address, ChecksumAddress, HexAddress]) -
 
 
 def is_empty_name(name: str) -> bool:
-    return name is None or name.strip() in ("", ".")
+    return name is None or name.strip() in {"", "."}
 
 
 def is_valid_ens_name(ens_name: str) -> bool:

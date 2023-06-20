@@ -254,12 +254,12 @@ jobs:
     environment:
       TOXENV: py37-ens
 
-  py37-ens-ensip15:
+  py37-ensip15:
     <<: *common
     docker:
       - image: cimg/python:3.7
     environment:
-      TOXENV: py37-ens-ensip15
+      TOXENV: py37-ensip15
 
   py37-ethpm:
     <<: *ethpm_steps
@@ -358,12 +358,12 @@ jobs:
     environment:
       TOXENV: py38-ens
 
-  py38-ens-ensip15:
+  py38-ensip15:
     <<: *common
     docker:
       - image: cimg/python:3.8
     environment:
-      TOXENV: py38-ens-ensip15
+      TOXENV: py38-ensip15
 
   py38-ethpm:
     <<: *ethpm_steps
@@ -462,12 +462,12 @@ jobs:
     environment:
       TOXENV: py39-ens
 
-  py39-ens-ensip15:
+  py39-ensip15:
     <<: *common
     docker:
       - image: cimg/python:3.9
     environment:
-      TOXENV: py39-ens-ensip15
+      TOXENV: py39-ensip15
 
   py39-ethpm:
     <<: *ethpm_steps
@@ -565,12 +565,12 @@ jobs:
     environment:
       TOXENV: py310-ens
 
-  py310-ens-ensip15:
+  py310-ensip15:
     <<: *common
     docker:
       - image: cimg/python:3.10
     environment:
-      TOXENV: py310-ens-ensip15
+      TOXENV: py310-ensip15
 
   py310-ethpm:
     <<: *ethpm_steps
@@ -673,12 +673,12 @@ jobs:
     environment:
       TOXENV: py311-ens
 
-  py311-ens-ensip15:
+  py311-ensip15:
     <<: *common
     docker:
       - image: cimg/python:3.11
     environment:
-      TOXENV: py311-ens-ensip15
+      TOXENV: py311-ensip15
 
   py311-ethpm:
     <<: *ethpm_steps

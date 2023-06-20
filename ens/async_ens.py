@@ -330,7 +330,7 @@ class AsyncENS(BaseENS):
 
         :param str name: The ENS name
         """
-        normal_name = normalize_name(name)
+        normal_name = normalize_name(name, ensip15=self.ensip15_normalization)
         resolver = await self._get_resolver(normal_name)
         return resolver[0]
 
@@ -353,7 +353,7 @@ class AsyncENS(BaseENS):
         :raises ResolverNotFound: If no resolver is found for the provided name
         """
         node = raw_name_to_hash(name)
-        normal_name = normalize_name(name)
+        normal_name = normalize_name(name, ensip15=self.ensip15_normalization)
 
         r = await self.resolver(normal_name)
         if r:
@@ -395,7 +395,7 @@ class AsyncENS(BaseENS):
 
         owner = await self.owner(name)
         node = raw_name_to_hash(name)
-        normal_name = normalize_name(name)
+        normal_name = normalize_name(name, ensip15=self.ensip15_normalization)
 
         transaction_dict = merge({"from": owner}, transact)
 
@@ -466,7 +466,7 @@ class AsyncENS(BaseENS):
         name: str,
         fn_name: str = "addr",
     ) -> Optional[Union[ChecksumAddress, str]]:
-        normal_name = normalize_name(name)
+        normal_name = normalize_name(name, ensip15=self.ensip15_normalization)
 
         resolver, current_name = await self._get_resolver(normal_name, fn_name)
         if not resolver:
@@ -518,7 +518,7 @@ class AsyncENS(BaseENS):
         """
         owner = None
         unowned = []
-        pieces = normalize_name(name).split(".")
+        pieces = normalize_name(name, ensip15=self.ensip15_normalization).split(".")
         while pieces and is_none_or_zero_address(owner):
             name = ".".join(pieces)
             owner = await self.owner(name)
@@ -550,7 +550,7 @@ class AsyncENS(BaseENS):
         address: ChecksumAddress,
         transact: Optional["TxParams"] = None,
     ) -> HexBytes:
-        name = normalize_name(name) if name else ""
+        name = normalize_name(name, ensip15=self.ensip15_normalization) if name else ""
         if not transact:
             transact = {}
         transact = deepcopy(transact)
