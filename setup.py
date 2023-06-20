@@ -83,6 +83,7 @@ setup(
         # remove typing_extensions after python_requires>=3.8, see web3._utils.compat
         "typing-extensions>=3.7.4.1,<5;python_version<'3.8'",
         "websockets>=10.0.0",
+        "pyunormalize>=15.0.0",
     ],
     python_requires=">=3.7.2",
     extras_require=extras_require,
