@@ -254,6 +254,13 @@ jobs:
     environment:
       TOXENV: py37-ens
 
+  py37-ens-ensip15:
+    <<: *common
+    docker:
+      - image: cimg/python:3.7
+    environment:
+      TOXENV: py37-ens-ensip15
+
   py37-ethpm:
     <<: *ethpm_steps
     docker:
@@ -350,6 +357,13 @@ jobs:
       - image: cimg/python:3.8
     environment:
       TOXENV: py38-ens
+
+  py38-ens-ensip15:
+    <<: *common
+    docker:
+      - image: cimg/python:3.8
+    environment:
+      TOXENV: py38-ens-ensip15
 
   py38-ethpm:
     <<: *ethpm_steps
@@ -448,6 +462,13 @@ jobs:
     environment:
       TOXENV: py39-ens
 
+  py39-ens-ensip15:
+    <<: *common
+    docker:
+      - image: cimg/python:3.9
+    environment:
+      TOXENV: py39-ens-ensip15
+
   py39-ethpm:
     <<: *ethpm_steps
     docker:
@@ -543,6 +564,13 @@ jobs:
       - image: cimg/python:3.10
     environment:
       TOXENV: py310-ens
+
+  py310-ens-ensip15:
+    <<: *common
+    docker:
+      - image: cimg/python:3.10
+    environment:
+      TOXENV: py310-ens-ensip15
 
   py310-ethpm:
     <<: *ethpm_steps
@@ -645,6 +673,13 @@ jobs:
     environment:
       TOXENV: py311-ens
 
+  py311-ens-ensip15:
+    <<: *common
+    docker:
+      - image: cimg/python:3.11
+    environment:
+      TOXENV: py311-ens-ensip15
+
   py311-ethpm:
     <<: *ethpm_steps
     docker:
@@ -738,6 +773,7 @@ workflows:
       - docs
       - benchmark
       - py37-ens
+      - py37-ensip15
       - py37-ethpm
       - py37-integration-goethereum-ipc
       - py37-integration-goethereum-ipc_flaky
@@ -750,6 +786,7 @@ workflows:
       - py37-wheel-cli
       - py38-lint
       - py38-ens
+      - py38-ensip15
       - py38-ethpm
       - py38-integration-goethereum-ipc
       - py38-integration-goethereum-ipc_flaky
@@ -762,6 +799,7 @@ workflows:
       - py38-wheel-cli
       - py39-lint
       - py39-ens
+      - py39-ensip15
       - py39-ethpm
       - py39-integration-goethereum-ipc
       - py39-integration-goethereum-ipc_flaky
@@ -774,6 +812,7 @@ workflows:
       - py39-wheel-cli
       - py310-lint
       - py310-ens
+      - py310-ensip15
       - py310-ethpm
       - py310-integration-goethereum-ipc
       - py310-integration-goethereum-ipc_flaky
@@ -786,6 +825,7 @@ workflows:
       - py310-wheel-cli
       - py311-lint
       - py311-ens
+      - py311-ensip15
       - py311-ethpm
       - py311-integration-goethereum-ipc
       - py311-integration-goethereum-ipc_flaky
