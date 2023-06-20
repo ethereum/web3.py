@@ -1,0 +1,1 @@
+Add support for ENSIP-15, either directly via ``normalize_name_ensip15()`` or via ``ensip15=True`` flag on appropriate ENS utils methods. Add ``ensip15_normalization`` flag to ``ENS`` class to turn on ENSIP-15 for internal class methods.
