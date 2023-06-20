@@ -24,7 +24,7 @@ NEGATIVE_TEST_CASES = [test for test in normalization_tests if "error" in test]
     POSITIVE_TEST_CASES,
     ids=lambda t: t["name"],
 )
-def test_normalize_name_positive_test_cases(positive_test_case):
+def test_normalize_name_ensip15_positive_test_cases(positive_test_case):
     name = positive_test_case["name"]
 
     expected = positive_test_case.get("norm", positive_test_case.get("name"))
@@ -36,7 +36,7 @@ def test_normalize_name_positive_test_cases(positive_test_case):
     NEGATIVE_TEST_CASES,
     ids=lambda t: t["name"],
 )
-def test_normalize_name_negative_test_cases(negative_test_case):
+def test_normalize_name_ensip15_negative_test_cases(negative_test_case):
     name = negative_test_case["name"]
 
     with pytest.raises(InvalidName):
