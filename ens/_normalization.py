@@ -3,6 +3,9 @@ from enum import (
 )
 import json
 import os
+from sys import (
+    version_info,
+)
 from typing import (
     Any,
     Dict,
@@ -18,12 +21,19 @@ from pyunormalize import (
     NFD,
 )
 
-from ens.exceptions import (
+from .exceptions import (
     InvalidName,
 )
-from web3._utils.compat import (
-    Literal,
-)
+
+# TODO: remove once web3 supports python>=3.8
+if version_info >= (3, 8):
+    from typing import (
+        Literal,
+    )
+else:
+    from typing_extensions import (  # type: ignore
+        Literal,
+    )
 
 
 def _json_list_mapping_to_dict(
@@ -214,7 +224,7 @@ def _cps_to_text(cps: Union[List[List[int]], List[int]]) -> str:
     return "".join(chr(cp) if isinstance(cp, int) else _cps_to_text(cp) for cp in cps)
 
 
-def validate_tokens_and_get_label_type(tokens: List[Token]) -> str:
+def _validate_tokens_and_get_label_type(tokens: List[Token]) -> str:
     """
     Validate tokens and return the label type.
 
@@ -381,7 +391,7 @@ def _build_and_validate_label_from_tokens(tokens: List[Token]) -> Label:
             nfc = NFC(chars)
             token._normalized_codepoints = [ord(c) for c in nfc]
 
-    label_type = validate_tokens_and_get_label_type(tokens)
+    label_type = _validate_tokens_and_get_label_type(tokens)
 
     label = Label()
     label.type = label_type
@@ -465,8 +475,8 @@ def normalize_name_ensip15(name: str) -> ENSNormalizedName:
                         buffer.append(leading_codepoint)
                     else:
                         raise InvalidName(
-                            f"Invalid codepoint: {leading_codepoint} "
-                            f"({hex(leading_codepoint)})"
+                            f"Invalid character: '{chr(leading_codepoint)}' | "
+                            f"codepoint {leading_codepoint} ({hex(leading_codepoint)})"
                         )
 
             if len(buffer) > 0 and len(_input) == 0:

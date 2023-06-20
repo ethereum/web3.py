@@ -29,27 +29,27 @@ from hexbytes import (
     HexBytes,
 )
 
-from ens import (
+from . import (
     abis,
 )
-from ens.base_ens import (
+from .base_ens import (
     BaseENS,
 )
-from ens.constants import (
+from .constants import (
     EMPTY_ADDR_HEX,
     ENS_MAINNET_ADDR,
     EXTENDED_RESOLVER_INTERFACE_ID,
     GET_TEXT_INTERFACE_ID,
     REVERSE_REGISTRAR_DOMAIN,
 )
-from ens.exceptions import (
+from .exceptions import (
     AddressMismatch,
     ResolverNotFound,
     UnauthorizedError,
     UnownedName,
     UnsupportedFunction,
 )
-from ens.utils import (
+from .utils import (
     address_in,
     address_to_reverse_domain,
     default,
@@ -326,7 +326,7 @@ class ENS(BaseENS):
 
         :param str name: The ENS name
         """
-        normal_name = normalize_name(name)
+        normal_name = normalize_name(name, ensip15=self.ensip15_normalization)
         return self._get_resolver(normal_name)[0]
 
     def reverser(self, target_address: ChecksumAddress) -> Optional["Contract"]:
@@ -346,7 +346,7 @@ class ENS(BaseENS):
         :raises ResolverNotFound: If no resolver is found for the provided name
         """
         node = raw_name_to_hash(name)
-        normal_name = normalize_name(name)
+        normal_name = normalize_name(name, ensip15=self.ensip15_normalization)
 
         r = self.resolver(normal_name)
         if r:
@@ -388,7 +388,7 @@ class ENS(BaseENS):
 
         owner = self.owner(name)
         node = raw_name_to_hash(name)
-        normal_name = normalize_name(name)
+        normal_name = normalize_name(name, ensip15=self.ensip15_normalization)
 
         transaction_dict = merge({"from": owner}, transact)
 
@@ -451,7 +451,7 @@ class ENS(BaseENS):
     def _resolve(
         self, name: str, fn_name: str = "addr"
     ) -> Optional[Union[ChecksumAddress, str]]:
-        normal_name = normalize_name(name)
+        normal_name = normalize_name(name, ensip15=self.ensip15_normalization)
 
         resolver, current_name = self._get_resolver(normal_name, fn_name)
         if not resolver:
@@ -501,7 +501,7 @@ class ENS(BaseENS):
         """
         owner = None
         unowned = []
-        pieces = normalize_name(name).split(".")
+        pieces = normalize_name(name, ensip15=self.ensip15_normalization).split(".")
         while pieces and is_none_or_zero_address(owner):
             name = ".".join(pieces)
             owner = self.owner(name)
@@ -533,7 +533,7 @@ class ENS(BaseENS):
         address: ChecksumAddress,
         transact: Optional["TxParams"] = None,
     ) -> HexBytes:
-        name = normalize_name(name) if name else ""
+        name = normalize_name(name, ensip15=self.ensip15_normalization) if name else ""
         if not transact:
             transact = {}
         transact = deepcopy(transact)
