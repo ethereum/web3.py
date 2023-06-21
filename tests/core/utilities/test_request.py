@@ -270,6 +270,7 @@ async def test_async_json_make_get_request(mocker):
             total=10, connect=None, sock_read=None, sock_connect=None
         ),
     )
+    await session.close()
 
 
 @pytest.mark.asyncio
@@ -291,6 +292,7 @@ async def test_async_make_post_request(mocker):
             total=10, connect=None, sock_read=None, sock_connect=None
         ),
     )
+    await session.close()
 
 
 @pytest.mark.asyncio
@@ -373,6 +375,7 @@ async def test_async_unique_cache_keys_created_per_thread_with_same_uri():
         unique_session = event_loop.run_until_complete(
             async_cache_and_return_session(endpoint_uri)
         )
+        event_loop.close()
         test_sessions.append(unique_session)
 
     threads = []
