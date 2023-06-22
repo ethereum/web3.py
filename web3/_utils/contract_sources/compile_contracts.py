@@ -48,6 +48,8 @@ import os
 import re
 from typing import (
     Any,
+    Dict,
+    List,
 )
 
 import solcx
@@ -81,7 +83,7 @@ user_filename = user_args.filename
 files_to_compile = [user_filename] if user_filename else all_dot_sol_files
 
 
-def _compile_dot_sol_files(dot_sol_filename: str) -> dict[str, Any]:
+def _compile_dot_sol_files(dot_sol_filename: str) -> Dict[str, Any]:
     compiled = solcx.compile_files(
         [f"./{dot_sol_filename}"],
         output_values=["abi", "bin", "bin-runtime"],
@@ -90,10 +92,10 @@ def _compile_dot_sol_files(dot_sol_filename: str) -> dict[str, Any]:
 
 
 def _get_compiled_contract_data(
-    sol_file_output: dict[str, dict[str, str]],
+    sol_file_output: Dict[str, Dict[str, str]],
     dot_sol_filename: str,
     contract_name: str = None,
-) -> dict[str, str]:
+) -> Dict[str, str]:
     if not contract_name:
         contract_name = dot_sol_filename.replace(".sol", "")
 
@@ -113,7 +115,7 @@ def _get_compiled_contract_data(
 contracts_in_file = {}
 
 
-def compile_files(file_list: list[str]) -> None:
+def compile_files(file_list: List[str]) -> None:
     for filename in file_list:
         with open(os.path.join(os.getcwd(), filename), "r") as f:
             dot_sol_file = f.readlines()

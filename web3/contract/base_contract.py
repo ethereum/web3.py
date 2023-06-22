@@ -454,8 +454,9 @@ class BaseContractFunction:
             call_transaction.setdefault("to", self.address)
         if self.w3.eth.default_account is not empty:
             # type ignored b/c check prevents an empty default_account
-            call_transaction.setdefault(
-                "from", self.w3.eth.default_account  # type: ignore
+            call_transaction.setdefault(  # type: ignore
+                "from",
+                self.w3.eth.default_account,  # type: ignore
             )
 
         if "to" not in call_transaction:
@@ -485,7 +486,7 @@ class BaseContractFunction:
             transact_transaction.setdefault("to", self.address)
         if self.w3.eth.default_account is not empty:
             # type ignored b/c check prevents an empty default_account
-            transact_transaction.setdefault(
+            transact_transaction.setdefault(  # type: ignore
                 "from", self.w3.eth.default_account  # type: ignore
             )
 
@@ -516,7 +517,7 @@ class BaseContractFunction:
             estimate_gas_transaction.setdefault("to", self.address)
         if self.w3.eth.default_account is not empty:
             # type ignored b/c check prevents an empty default_account
-            estimate_gas_transaction.setdefault(
+            estimate_gas_transaction.setdefault(  # type: ignore
                 "from", self.w3.eth.default_account  # type: ignore
             )
 
@@ -1041,7 +1042,7 @@ class BaseContractConstructor:
 
         if self.w3.eth.default_account is not empty:
             # type ignored b/c check prevents an empty default_account
-            estimate_gas_transaction.setdefault(
+            estimate_gas_transaction.setdefault(  # type: ignore
                 "from", self.w3.eth.default_account  # type: ignore
             )
 
@@ -1060,7 +1061,7 @@ class BaseContractConstructor:
 
         if self.w3.eth.default_account is not empty:
             # type ignored b/c check prevents an empty default_account
-            transact_transaction.setdefault(
+            transact_transaction.setdefault(  # type: ignore
                 "from", self.w3.eth.default_account  # type: ignore
             )
 
