@@ -185,9 +185,9 @@ class ENS(BaseENS):
         transact["from"] = owner
 
         resolver: "Contract" = self._set_resolver(name, transact=transact)
-        return resolver.functions.setAddr(raw_name_to_hash(name), address).transact(
-            transact
-        )
+        return resolver.functions.setAddr(
+            raw_name_to_hash(name, ensip15=self.ensip15_normalization), address
+        ).transact(transact)
 
     def name(self, address: ChecksumAddress) -> Optional[str]:
         """
@@ -265,7 +265,7 @@ class ENS(BaseENS):
         :return: owner address
         :rtype: str
         """
-        node = raw_name_to_hash(name)
+        node = raw_name_to_hash(name, ensip15=self.ensip15_normalization)
         return self.ens.caller.owner(node)
 
     def setup_owner(
@@ -345,10 +345,9 @@ class ENS(BaseENS):
             the "0x59d1d43c" interface id
         :raises ResolverNotFound: If no resolver is found for the provided name
         """
-        node = raw_name_to_hash(name)
-        normal_name = normalize_name(name, ensip15=self.ensip15_normalization)
+        node = raw_name_to_hash(name, ensip15=self.ensip15_normalization)
 
-        r = self.resolver(normal_name)
+        r = self.resolver(name)
         if r:
             if _resolver_supports_interface(r, GET_TEXT_INTERFACE_ID):
                 return r.caller.text(node, key)
@@ -387,12 +386,11 @@ class ENS(BaseENS):
             transact = {}
 
         owner = self.owner(name)
-        node = raw_name_to_hash(name)
-        normal_name = normalize_name(name, ensip15=self.ensip15_normalization)
+        node = raw_name_to_hash(name, ensip15=self.ensip15_normalization)
 
         transaction_dict = merge({"from": owner}, transact)
 
-        r = self.resolver(normal_name)
+        r = self.resolver(name)
         if r:
             if _resolver_supports_interface(r, GET_TEXT_INTERFACE_ID):
                 return r.functions.setText(node, key, value).transact(transaction_dict)
@@ -443,7 +441,7 @@ class ENS(BaseENS):
         transact = deepcopy(transact)
         if is_none_or_zero_address(resolver_addr):
             resolver_addr = self.address("resolver.eth")
-        namehash = raw_name_to_hash(name)
+        namehash = raw_name_to_hash(name, ensip15=self.ensip15_normalization)
         if self.ens.caller.resolver(namehash) != resolver_addr:
             self.ens.functions.setResolver(namehash, resolver_addr).transact(transact)
         return cast("Contract", self._resolver_contract(address=resolver_addr))
@@ -457,7 +455,7 @@ class ENS(BaseENS):
         if not resolver:
             return None
 
-        node = self.namehash(normal_name)
+        node = self.namehash(normal_name, ensip15=self.ensip15_normalization)
 
         # handle extended resolver case
         if _resolver_supports_interface(resolver, EXTENDED_RESOLVER_INTERFACE_ID):
@@ -465,7 +463,8 @@ class ENS(BaseENS):
 
             calldata = resolver.encodeABI(*contract_func_with_args)
             contract_call_result = resolver.caller.resolve(
-                ens_encode_name(normal_name), calldata
+                ens_encode_name(normal_name, ensip15=self.ensip15_normalization),
+                calldata,
             )
             result = self._decode_ensip10_resolve_data(
                 contract_call_result, resolver, fn_name
@@ -523,7 +522,9 @@ class ENS(BaseENS):
         transact["from"] = old_owner or owner
         for label in reversed(unowned):
             self.ens.functions.setSubnodeOwner(
-                raw_name_to_hash(owned), label_to_hash(label), owner
+                raw_name_to_hash(owned, ensip15=self.ensip15_normalization),
+                label_to_hash(label, ensip15=self.ensip15_normalization),
+                owner,
             ).transact(transact)
             owned = f"{label}.{owned}"
 

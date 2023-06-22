@@ -53,8 +53,8 @@ class BaseENS:
 
     @staticmethod
     @wraps(label_to_hash)
-    def labelhash(label: str) -> HexBytes:
-        return label_to_hash(label)
+    def labelhash(label: str, ensip15: bool = False) -> HexBytes:
+        return label_to_hash(label, ensip15=ensip15)
 
     @staticmethod
     @wraps(raw_name_to_hash)

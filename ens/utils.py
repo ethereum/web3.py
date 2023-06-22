@@ -224,6 +224,7 @@ def normal_name_to_hash(name: str) -> HexBytes:
     if not is_empty_name(name):
         labels = name.split(".")
         for label in reversed(labels):
+            # name is already normalized, ensip15 flag not needed
             labelhash = label_to_hash(label)
             assert isinstance(labelhash, bytes)
             assert isinstance(node, bytes)
