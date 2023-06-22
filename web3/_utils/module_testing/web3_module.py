@@ -229,7 +229,7 @@ class Web3ModuleTest:
         expected: HexBytes,
     ) -> None:
         if isinstance(expected, type) and issubclass(expected, Exception):
-            with pytest.raises(expected):  # type: ignore
+            with pytest.raises(expected):
                 w3.solidity_keccak(types, values)
             return
 

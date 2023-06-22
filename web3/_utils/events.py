@@ -140,7 +140,7 @@ def construct_event_topic_set(
         for arg, arg_options in zipped_abi_and_args
     ]
 
-    topics = list(normalize_topic_list([event_topic] + encoded_args))  # type: ignore
+    topics = list(normalize_topic_list([event_topic] + encoded_args))
     return topics
 
 
@@ -394,12 +394,12 @@ class BaseEventFilterBuilder:
     def ordered_args(self) -> Tuple[Any, ...]:
         return tuple(map(self.args.__getitem__, self._ordered_arg_names))
 
-    @property  # type: ignore
+    @property
     @to_tuple
     def indexed_args(self) -> Tuple[Any, ...]:
         return tuple(filter(is_indexed, self.ordered_args))
 
-    @property  # type: ignore
+    @property
     @to_tuple
     def data_args(self) -> Tuple[Any, ...]:
         return tuple(filter(is_not_indexed, self.ordered_args))
@@ -432,8 +432,8 @@ class EventFilterBuilder(BaseEventFilterBuilder):
         if not isinstance(w3, web3.Web3):
             raise ValueError(f"Invalid web3 argument: got: {w3!r}")
 
-        for arg in AttributeDict.values(self.args):
-            arg._immutable = True
+        for arg in AttributeDict.values(self.args):  # type: ignore[arg-type]
+            arg._immutable = True  # type: ignore[attr-defined]
         self._immutable = True
 
         log_filter = cast("LogFilter", w3.eth.filter(self.filter_params))
@@ -450,8 +450,8 @@ class AsyncEventFilterBuilder(BaseEventFilterBuilder):
         if not isinstance(async_w3, web3.AsyncWeb3):
             raise ValueError(f"Invalid web3 argument: got: {async_w3!r}")
 
-        for arg in AttributeDict.values(self.args):
-            arg._immutable = True
+        for arg in AttributeDict.values(self.args):  # type: ignore[arg-type]
+            arg._immutable = True  # type: ignore[attr-defined]
         self._immutable = True
 
         log_filter = await async_w3.eth.filter(self.filter_params)
