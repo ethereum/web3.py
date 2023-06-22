@@ -36,6 +36,9 @@ else:
     )
 
 
+# -- setup -- #
+
+
 def _json_list_mapping_to_dict(
     f: Dict[str, Any],
     list_mapped_key: str,
@@ -82,9 +85,9 @@ class Token:
 
     restricted: bool = False
 
-    def __init__(self, original_text: str, original_codepoints: List[int]) -> None:
-        self._raw_text = original_text
-        self._original_codepoints = original_codepoints
+    def __init__(self, codepoints: List[int]) -> None:
+        self._original_codepoints = codepoints
+        self._original_text = "".join(chr(cp) for cp in codepoints)
 
     @property
     def codepoints(self) -> List[int]:
@@ -96,7 +99,7 @@ class Token:
 
     @property
     def text(self) -> str:
-        return _cps_to_text(self.codepoints)
+        return _codepoints_to_text(self.codepoints)
 
 
 class EmojiToken(Token):
@@ -220,8 +223,10 @@ def _is_fenced(cp: int) -> bool:
     return cp in [fenced[0] for fenced in NORMALIZATION_SPEC["fenced"]]
 
 
-def _cps_to_text(cps: Union[List[List[int]], List[int]]) -> str:
-    return "".join(chr(cp) if isinstance(cp, int) else _cps_to_text(cp) for cp in cps)
+def _codepoints_to_text(cps: Union[List[List[int]], List[int]]) -> str:
+    return "".join(
+        chr(cp) if isinstance(cp, int) else _codepoints_to_text(cp) for cp in cps
+    )
 
 
 def _validate_tokens_and_get_label_type(tokens: List[Token]) -> str:
@@ -229,7 +234,7 @@ def _validate_tokens_and_get_label_type(tokens: List[Token]) -> str:
     Validate tokens and return the label type.
 
     :param List[Token] tokens: the tokens to validate
-    :raises InvalidName: if the tokens are invalid
+    :raises InvalidName: if any of the tokens are invalid
     """
 
     if all(token.type == TokenType.EMOJI for token in tokens):
@@ -297,6 +302,7 @@ def _validate_tokens_and_get_label_type(tokens: List[Token]) -> str:
         if token.type == TokenType.TEXT
         for cp in token.codepoints
     }
+
     chars_group_name = None
     for group_name, group_cps in VALID_BY_GROUPS.items():
         if text_token_cps_set.issubset(group_cps):
@@ -310,40 +316,42 @@ def _validate_tokens_and_get_label_type(tokens: List[Token]) -> str:
 
     # apply NFD and check contiguous NSM sequences
     for group in NORMALIZATION_SPEC["groups"]:
-        if group["name"] == chars_group_name and "cm" not in group:
-            nfd_cps = [
-                ord(nfd_c) for c in concat_text_tokens_as_str for nfd_c in NFD(c)
-            ]
+        if group["name"] == chars_group_name:
+            if "cm" not in group:
+                nfd_cps = [
+                    ord(nfd_c) for c in concat_text_tokens_as_str for nfd_c in NFD(c)
+                ]
 
-            next_index = -1
-            for cp_i, cp in enumerate(nfd_cps):
-                if cp_i <= next_index:
-                    continue
+                next_index = -1
+                for cp_i, cp in enumerate(nfd_cps):
+                    if cp_i <= next_index:
+                        continue
 
-                if cp in NORMALIZATION_SPEC["nsm"]:
-                    if cp_i == len(nfd_cps) - 1:
-                        break
-
-                    contiguous_nsm_cps = [cp]
-                    next_index = cp_i + 1
-                    next_cp = nfd_cps[next_index]
-                    while next_cp in NORMALIZATION_SPEC["nsm"]:
-                        contiguous_nsm_cps.append(next_cp)
-                        if len(contiguous_nsm_cps) > NSM_MAX:
-                            raise InvalidName(
-                                "Contiguous NSM sequence for label greater than NSM "
-                                f"max of {NSM_MAX}: '{label_text}'"
-                            )
-                        next_index += 1
-                        if next_index == len(nfd_cps):
+                    if cp in NORMALIZATION_SPEC["nsm"]:
+                        if cp_i == len(nfd_cps) - 1:
                             break
-                        next_cp = nfd_cps[next_index]
 
-                    if not len(contiguous_nsm_cps) == len(set(contiguous_nsm_cps)):
-                        raise InvalidName(
-                            "Contiguous NSM sequence for label contains duplicate "
-                            f"codepoints: '{label_text}'"
-                        )
+                        contiguous_nsm_cps = [cp]
+                        next_index = cp_i + 1
+                        next_cp = nfd_cps[next_index]
+                        while next_cp in NORMALIZATION_SPEC["nsm"]:
+                            contiguous_nsm_cps.append(next_cp)
+                            if len(contiguous_nsm_cps) > NSM_MAX:
+                                raise InvalidName(
+                                    "Contiguous NSM sequence for label greater than NSM"
+                                    f" max of {NSM_MAX}: '{label_text}'"
+                                )
+                            next_index += 1
+                            if next_index == len(nfd_cps):
+                                break
+                            next_cp = nfd_cps[next_index]
+
+                        if not len(contiguous_nsm_cps) == len(set(contiguous_nsm_cps)):
+                            raise InvalidName(
+                                "Contiguous NSM sequence for label contains duplicate "
+                                f"codepoints: '{label_text}'"
+                            )
+            break
 
     # check wholes
     # start with set of all groups with confusables
@@ -411,6 +419,16 @@ def _build_and_validate_label_from_tokens(tokens: List[Token]) -> Label:
     return label
 
 
+def _buffer_codepoints_to_chars(buffer: Union[List[int], List[List[int]]]) -> str:
+    return "".join(
+        "".join(chr(c) for c in char) if isinstance(char, list) else chr(char)
+        for char in buffer
+    )
+
+
+# -----
+
+
 def normalize_name_ensip15(name: str) -> ENSNormalizedName:
     """
     Normalize an ENS name according to ENSIP-15
@@ -462,13 +480,11 @@ def normalize_name_ensip15(name: str) -> ENSNormalizedName:
             if emoji_codepoint:
                 if len(buffer) > 0:
                     # emit `Text` token with values in buffer
-                    chars = _buffer_codepoints_to_chars(buffer)
-                    tokens.append(TextToken(chars, buffer))
+                    tokens.append(TextToken(buffer))
                     buffer = []  # clear the buffer
 
                 # emit `Emoji` token with values in emoji_codepoint
-                emoji_text = "".join([chr(codepoint) for codepoint in emoji_codepoint])
-                tokens.append(EmojiToken(emoji_text, emoji_codepoint))
+                tokens.append(EmojiToken(emoji_codepoint))
                 _input = _input[len(emoji_codepoint) :]
 
             else:
@@ -492,8 +508,7 @@ def normalize_name_ensip15(name: str) -> ENSNormalizedName:
                         )
 
             if len(buffer) > 0 and len(_input) == 0:
-                chars = _buffer_codepoints_to_chars(buffer)
-                tokens.append(TextToken(chars, buffer))
+                tokens.append(TextToken(buffer))
 
         # create a `Label` instance from tokens
         # - Apply NFC to each `Text` token
@@ -501,12 +516,5 @@ def normalize_name_ensip15(name: str) -> ENSNormalizedName:
         normalized_label = _build_and_validate_label_from_tokens(tokens)
         normalized_labels.append(normalized_label)
 
-    # - Join raw_labels back together
+    # - join labels back together after normalization
     return ENSNormalizedName(normalized_labels)
-
-
-def _buffer_codepoints_to_chars(buffer: Union[List[int], List[List[int]]]) -> str:
-    return "".join(
-        "".join(chr(c) for c in char) if isinstance(char, list) else chr(char)
-        for char in buffer
-    )
