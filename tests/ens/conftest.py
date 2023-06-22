@@ -14,6 +14,11 @@ from ens import (
     ENS,
     AsyncENS,
 )
+from ens._normalization import (
+    ENSNormalizedName,
+    Label,
+    TextToken,
+)
 from ens.contract_data import (
     extended_resolver_abi,
     extended_resolver_bytecode,
@@ -48,6 +53,14 @@ from web3.contract import (
 from web3.providers.eth_tester import (
     AsyncEthereumTesterProvider,
     EthereumTesterProvider,
+)
+
+ENSIP15_NORMALIZED_TESTER_DOT_ETH = ENSNormalizedName(
+    # "tester.eth"
+    [
+        Label("ascii", [TextToken([ord(c) for c in "tester"])]),
+        Label("ascii", [TextToken([ord(c) for c in "eth"])]),
+    ]
 )
 
 

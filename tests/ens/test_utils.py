@@ -1,10 +1,19 @@
 import pytest
+from unittest.mock import (
+    patch,
+)
 
 from eth_utils import (
     is_integer,
     to_bytes,
 )
 
+from ens import (
+    BaseENS,
+)
+from ens._normalization import (
+    ENSNormalizedName,
+)
 from ens.exceptions import (
     ENSValidationError,
 )
@@ -12,7 +21,14 @@ from ens.utils import (
     ens_encode_name,
     init_async_web3,
     init_web3,
+    is_valid_name,
+    label_to_hash,
     normal_name_to_hash,
+    normalize_name,
+    raw_name_to_hash,
+)
+from tests.ens.conftest import (
+    ENSIP15_NORMALIZED_TESTER_DOT_ETH,
 )
 from web3.eth import (
     AsyncEth,
@@ -143,6 +159,54 @@ def test_ens_encode_name_normalizes_name_before_encoding():
 )
 def test_normal_name_to_hash(name, hashed):
     assert normal_name_to_hash(name).hex() == hashed
+
+
+@pytest.mark.parametrize(
+    "utility_method",
+    (
+        normalize_name,
+        is_valid_name,
+        BaseENS.namehash,
+        BaseENS.nameprep,
+        ens_encode_name,
+        raw_name_to_hash,
+    ),
+)
+def test_name_utility_methods_with_ensip15_flag(utility_method):
+    # we already have tests for `normalize_name_ensip15` so we just need to make sure
+    # that the flag is passed through to that function
+    name = ENSIP15_NORMALIZED_TESTER_DOT_ETH.as_text
+
+    with patch("ens.utils.normalize_name_ensip15") as normalize_name_ensip15_mock:
+        with pytest.warns(FutureWarning, match="ENSIP-15"):
+            # also asserts ensip15 flag is False by default
+            utility_method(name)
+            normalize_name_ensip15_mock.assert_not_called()
+
+    with patch("ens.utils.normalize_name_ensip15") as normalize_name_ensip15_mock:
+        normalize_name_ensip15_mock.return_value = ENSIP15_NORMALIZED_TESTER_DOT_ETH
+
+        utility_method(name, ensip15=True)
+        normalize_name_ensip15_mock.assert_called_once_with(name)
+
+
+def test_label_to_hash_with_ensip15_flag():
+    # we already have tests for `normalize_name_ensip15` so we just need to make sure
+    # that the flag is passed through to that function
+    for label in ENSIP15_NORMALIZED_TESTER_DOT_ETH.labels:
+        normalized_label = ENSNormalizedName([label])
+
+        with patch("ens.utils.normalize_name_ensip15") as normalize_name_ensip15_mock:
+            with pytest.warns(FutureWarning, match="ENSIP-15"):
+                # also asserts ensip15 flag is False by default
+                label_to_hash(label.text)
+                normalize_name_ensip15_mock.assert_not_called()
+
+        with patch("ens.utils.normalize_name_ensip15") as normalize_name_ensip15_mock:
+            normalize_name_ensip15_mock.return_value = normalized_label
+
+            label_to_hash(label.text, ensip15=True)
+            normalize_name_ensip15_mock.assert_called_once_with(label.text)
 
 
 # -- async -- #
