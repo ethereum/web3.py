@@ -13,7 +13,7 @@ extras_require = {
         "black>=22.1.0",
         "flake8==3.8.3",
         "isort>=5.11.0",
-        "mypy==0.910",
+        "mypy>=0.981",
         "types-setuptools>=57.4.4",
         "types-requests>=2.26.1",
         "types-protobuf==3.19.13",
@@ -80,8 +80,8 @@ setup(
         "protobuf>=4.21.6",
         "pywin32>=223;platform_system=='Windows'",
         "requests>=2.16.0",
-        # remove typing_extensions after python_requires>=3.8, see web3._utils.compat
-        "typing-extensions>=3.7.4.1,<5;python_version<'3.8'",
+        # remove typing_extensions after python_requires>=3.11, see web3._utils.compat
+        "typing-extensions>=3.7.4.1,<5;python_version<'3.11'",
         "websockets>=10.0.0",
     ],
     python_requires=">=3.7.2",

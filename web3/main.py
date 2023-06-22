@@ -333,9 +333,7 @@ class BaseWeb3:
     @property
     def pm(self) -> "PM":
         if hasattr(self, "_pm"):
-            # ignored b/c property is dynamically set
-            # via enable_unstable_package_management_api
-            return self._pm  # type: ignore
+            return self._pm
         else:
             raise AttributeError(
                 "The Package Management feature is disabled by default until "
