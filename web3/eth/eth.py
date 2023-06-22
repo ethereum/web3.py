@@ -56,6 +56,7 @@ from web3.eth.base_eth import (
     BaseEth,
 )
 from web3.exceptions import (
+    MethodUnavailable,
     OffchainLookup,
     TimeExhausted,
     TooManyRequests,
@@ -181,7 +182,7 @@ class Eth(BaseEth):
         """
         try:
             return self._max_priority_fee()
-        except ValueError:
+        except (ValueError, MethodUnavailable):
             warnings.warn(
                 "There was an issue with the method eth_maxPriorityFeePerGas. "
                 "Calculating using eth_feeHistory."
