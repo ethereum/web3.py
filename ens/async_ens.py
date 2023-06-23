@@ -353,9 +353,8 @@ class AsyncENS(BaseENS):
         :raises ResolverNotFound: If no resolver is found for the provided name
         """
         node = raw_name_to_hash(name, ensip15=self.ensip15_normalization)
-        normal_name = normalize_name(name, ensip15=self.ensip15_normalization)
 
-        r = await self.resolver(normal_name)
+        r = await self.resolver(name)
         if r:
             if await _async_resolver_supports_interface(r, GET_TEXT_INTERFACE_ID):
                 return await r.caller.text(node, key)
