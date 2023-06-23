@@ -64,11 +64,13 @@ arg_parser.add_argument(
 )
 user_args = arg_parser.parse_args()
 
-CONFIGURED_SOLIDITY_VERSION = "0.8.18"
-# establish Solidity version from user-provided arg or use hard-coded version
+LATEST_AVAILABLE_SOLIDITY_VERSION = sorted(solcx.get_compilable_solc_versions())[-1]
+# establish Solidity version from user-provided arg or use latest available version
 user_sol_version = user_args.version
 
-solidity_version = user_sol_version if user_sol_version else CONFIGURED_SOLIDITY_VERSION
+solidity_version = (
+    user_sol_version if user_sol_version else LATEST_AVAILABLE_SOLIDITY_VERSION
+)
 solcx.install_solc(solidity_version)
 solcx.set_solc_version(solidity_version)
 
