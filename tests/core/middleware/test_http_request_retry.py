@@ -4,6 +4,7 @@ from unittest.mock import (
     patch,
 )
 
+import aiohttp
 from requests.exceptions import (
     ConnectionError,
     HTTPError,
@@ -12,7 +13,13 @@ from requests.exceptions import (
 )
 
 import web3
+from web3 import (
+    AsyncHTTPProvider,
+    AsyncWeb3,
+)
 from web3.middleware.exception_retry_request import (
+    async_exception_retry_middleware,
+    async_http_retry_request_middleware,
     check_if_retry_on_failure,
     exception_retry_middleware,
 )
@@ -90,3 +97,56 @@ def test_check_with_all_middlewares(make_post_request_mock):
     with pytest.raises(ConnectionError):
         w3.eth.block_number
     assert make_post_request_mock.call_count == 5
+
+
+# -- async -- #
+
+
+@pytest.fixture
+async def async_exception_retry_request_setup():
+    w3 = Mock()
+    provider = AsyncHTTPProvider()
+    setup = await async_exception_retry_middleware(
+        provider.make_request,
+        w3,
+        (
+            TimeoutError,
+            aiohttp.ClientConnectionError,
+            aiohttp.ClientConnectorError,
+            aiohttp.ClientHttpProxyError,
+            aiohttp.ClientTimeout,
+        ),
+        5,
+    )
+    setup.w3 = w3
+    return setup
+
+
+@pytest.mark.asyncio
+async def test_check_retry_middleware():
+    with patch(
+        "web3.providers.async_rpc.async_make_post_request"
+    ) as make_post_request_mock:
+        make_post_request_mock.side_effect = TimeoutError
+
+        provider = AsyncHTTPProvider()
+        w3 = AsyncWeb3(provider)
+        w3.middleware_onion.add(async_http_retry_request_middleware)
+
+        with pytest.raises(TimeoutError):
+            await w3.eth.block_number
+        assert make_post_request_mock.call_count == 5
+
+
+@pytest.mark.asyncio
+async def test_check_without_retry_middleware():
+    with patch(
+        "web3.providers.async_rpc.async_make_post_request"
+    ) as make_post_request_mock:
+        make_post_request_mock.side_effect = TimeoutError
+        provider = AsyncHTTPProvider()
+        w3 = AsyncWeb3(provider)
+
+        with pytest.raises(TimeoutError):
+            await w3.eth.block_number
+        assert make_post_request_mock.call_count == 1
