@@ -18,7 +18,7 @@ from requests.exceptions import (
 
 from web3.types import (
     RPCEndpoint,
-    RPCResponse,
+    RPCResponse, AsyncMiddlewareCoroutine,
 )
 
 if TYPE_CHECKING:
@@ -138,12 +138,12 @@ async def async_exception_retry_middleware(
     errors: Collection[Type[BaseException]],
     retries: int = 5,
     backoff_factor: float = 0.3,
-) -> Callable[[RPCEndpoint, Any], Coroutine[RPCResponse]]:
+) -> AsyncMiddlewareCoroutine:
     """
     Creates middleware that retries failed HTTP requests.
     Is a middleware for AsyncHTTPProvider.
     """
-    async def middleware(method: RPCEndpoint, params: Any) -> Coroutine[RPCResponse]:
+    async def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
         if check_if_retry_on_failure(method):
             for i in range(retries):
                 try:
