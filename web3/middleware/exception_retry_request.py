@@ -4,8 +4,8 @@ from typing import (
     Any,
     Callable,
     Collection,
-    Type,
     Coroutine,
+    Type,
 )
 
 import aiohttp
