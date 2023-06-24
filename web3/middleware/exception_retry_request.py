@@ -16,8 +16,9 @@ from requests.exceptions import (
 )
 
 from web3.types import (
+    AsyncMiddlewareCoroutine,
     RPCEndpoint,
-    RPCResponse, AsyncMiddlewareCoroutine,
+    RPCResponse,
 )
 
 if TYPE_CHECKING:
