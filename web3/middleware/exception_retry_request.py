@@ -138,13 +138,12 @@ async def async_exception_retry_middleware(
     errors: Collection[Type[BaseException]],
     retries: int = 5,
     backoff_factor: float = 0.3,
-) -> Callable[[RPCEndpoint, Any], Coroutine[Any, Any, RPCResponse]]:
+) -> Callable[[RPCEndpoint, Any], Coroutine[RPCResponse]]:
     """
     Creates middleware that retries failed HTTP requests.
     Is a middleware for AsyncHTTPProvider.
     """
-
-    async def middleware(method, params):
+    async def middleware(method: RPCEndpoint, params: Any) -> Coroutine[RPCResponse]:
         if check_if_retry_on_failure(method):
             for i in range(retries):
                 try:
