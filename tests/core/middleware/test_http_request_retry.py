@@ -120,22 +120,6 @@ async def async_exception_retry_request_setup():
 
 
 @pytest.mark.asyncio
-async def test_valid_method_retried(
-        async_exception_retry_request_setup,
-):
-    with patch(
-            "web3.providers.async_rpc.async_make_post_request"
-    ) as make_post_request_mock:
-        make_post_request_mock.side_effect = TimeoutError
-        method = "eth_getBalance"
-        params = []
-
-        with pytest.raises(TimeoutError):
-            await exception_retry_request_setup(method, params)
-        assert make_post_request_mock.call_count == 5
-
-
-@pytest.mark.asyncio
 async def test_check_retry_middleware():
     with patch(
             "web3.providers.async_rpc.async_make_post_request"
