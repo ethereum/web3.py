@@ -1,3 +1,4 @@
+import asyncio
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -6,6 +7,7 @@ from typing import (
     Type,
 )
 
+import aiohttp
 from requests.exceptions import (
     ConnectionError,
     HTTPError,
@@ -14,12 +16,16 @@ from requests.exceptions import (
 )
 
 from web3.types import (
+    AsyncMiddlewareCoroutine,
     RPCEndpoint,
     RPCResponse,
 )
 
 if TYPE_CHECKING:
-    from web3 import Web3  # noqa: F401
+    from web3 import (  # noqa: F401
+        AsyncWeb3,
+        Web3,
+    )
 
 whitelist = [
     "admin",
@@ -123,4 +129,54 @@ def http_retry_request_middleware(
 ) -> Callable[[RPCEndpoint, Any], Any]:
     return exception_retry_middleware(
         make_request, w3, (ConnectionError, HTTPError, Timeout, TooManyRedirects)
+    )
+
+
+async def async_exception_retry_middleware(
+    make_request: Callable[[RPCEndpoint, Any], Any],
+    w3: "AsyncWeb3",
+    errors: Collection[Type[BaseException]],
+    retries: int = 5,
+    backoff_factor: float = 0.3,
+) -> AsyncMiddlewareCoroutine:
+    """
+    Creates middleware that retries failed HTTP requests.
+    Is a middleware for AsyncHTTPProvider.
+    """
+
+    async def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
+        if check_if_retry_on_failure(method):
+            for i in range(retries):
+                try:
+                    return await make_request(method, params)
+                except Exception as e:
+                    is_exc_valid = any([isinstance(e, exc) for exc in errors])
+                    if not is_exc_valid:
+                        raise e
+
+                    if i < retries - 1:
+                        await asyncio.sleep(backoff_factor)
+                        continue
+                    else:
+                        raise
+            return None
+        else:
+            return await make_request(method, params)
+
+    return middleware
+
+
+async def async_http_retry_request_middleware(
+    make_request: Callable[[RPCEndpoint, Any], Any], w3: "AsyncWeb3"
+) -> Callable[[RPCEndpoint, Any], Any]:
+    return await async_exception_retry_middleware(
+        make_request,
+        w3,
+        (
+            TimeoutError,
+            aiohttp.ClientConnectionError,
+            aiohttp.ClientConnectorError,
+            aiohttp.ClientHttpProxyError,
+            aiohttp.ClientTimeout,
+        ),
     )
