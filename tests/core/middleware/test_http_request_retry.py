@@ -54,7 +54,7 @@ def test_check_if_retry_on_failure_true():
 
 @patch("web3.providers.rpc.make_post_request", side_effect=ConnectionError)
 def test_check_send_transaction_called_once(
-        make_post_request_mock, exception_retry_request_setup
+    make_post_request_mock, exception_retry_request_setup
 ):
     method = "eth_sendTransaction"
     params = [
@@ -122,7 +122,7 @@ async def async_exception_retry_request_setup():
 @pytest.mark.asyncio
 async def test_check_retry_middleware():
     with patch(
-            "web3.providers.async_rpc.async_make_post_request"
+        "web3.providers.async_rpc.async_make_post_request"
     ) as make_post_request_mock:
         make_post_request_mock.side_effect = TimeoutError
 
@@ -138,7 +138,7 @@ async def test_check_retry_middleware():
 @pytest.mark.asyncio
 async def test_check_without_retry_middleware():
     with patch(
-            "web3.providers.async_rpc.async_make_post_request"
+        "web3.providers.async_rpc.async_make_post_request"
     ) as make_post_request_mock:
         make_post_request_mock.side_effect = TimeoutError
         provider = AsyncHTTPProvider()

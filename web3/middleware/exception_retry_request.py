@@ -4,7 +4,8 @@ from typing import (
     Any,
     Callable,
     Collection,
-    Type, Coroutine,
+    Type,
+    Coroutine,
 )
 
 import aiohttp
@@ -95,10 +96,10 @@ def check_if_retry_on_failure(method: RPCEndpoint) -> bool:
 
 
 def exception_retry_middleware(
-        make_request: Callable[[RPCEndpoint, Any], RPCResponse],
-        w3: "Web3",
-        errors: Collection[Type[BaseException]],
-        retries: int = 5,
+    make_request: Callable[[RPCEndpoint, Any], RPCResponse],
+    w3: "Web3",
+    errors: Collection[Type[BaseException]],
+    retries: int = 5,
 ) -> Callable[[RPCEndpoint, Any], RPCResponse]:
     """
     Creates middleware that retries failed HTTP requests. Is a default
@@ -124,7 +125,7 @@ def exception_retry_middleware(
 
 
 def http_retry_request_middleware(
-        make_request: Callable[[RPCEndpoint, Any], Any], w3: "Web3"
+    make_request: Callable[[RPCEndpoint, Any], Any], w3: "Web3"
 ) -> Callable[[RPCEndpoint, Any], Any]:
     return exception_retry_middleware(
         make_request, w3, (ConnectionError, HTTPError, Timeout, TooManyRedirects)
@@ -132,11 +133,11 @@ def http_retry_request_middleware(
 
 
 async def async_exception_retry_middleware(
-        make_request: Callable[[RPCEndpoint, Any], Any],
-        w3: "AsyncWeb3",
-        errors: Collection[Type[BaseException]],
-        retries: int = 5,
-        backoff_factor: float = 0.3,
+    make_request: Callable[[RPCEndpoint, Any], Any],
+    w3: "AsyncWeb3",
+    errors: Collection[Type[BaseException]],
+    retries: int = 5,
+    backoff_factor: float = 0.3,
 ) -> Callable[[RPCEndpoint, Any], Coroutine[Any, Any, RPCResponse]]:
     """
     Creates middleware that retries failed HTTP requests.
@@ -166,7 +167,7 @@ async def async_exception_retry_middleware(
 
 
 async def async_http_retry_request_middleware(
-        make_request: Callable[[RPCEndpoint, Any], Any], w3: "AsyncWeb3"
+    make_request: Callable[[RPCEndpoint, Any], Any], w3: "AsyncWeb3"
 ) -> Callable[[RPCEndpoint, Any], Any]:
     return await async_exception_retry_middleware(
         make_request,
