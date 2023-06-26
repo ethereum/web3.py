@@ -81,8 +81,17 @@ def construct_error_generator_middleware(
     ) -> Callable[[RPCEndpoint, Any], RPCResponse]:
         def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
             if method in error_generators:
-                error_msg = error_generators[method](method, params)
-                return {"error": error_msg}
+                error = error_generators[method](method, params)
+                if isinstance(error, dict) and error.get("error", False):
+                    return {
+                        "error": {
+                            "code": error.get("code", -32000),
+                            "message": error["error"].get("message", ""),
+                            "data": error.get("data", ""),
+                        }
+                    }
+                else:
+                    return {"error": error}
             else:
                 return make_request(method, params)
 
@@ -132,8 +141,17 @@ async def async_construct_error_generator_middleware(
     ) -> AsyncMiddlewareCoroutine:
         async def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
             if method in error_generators:
-                error_msg = error_generators[method](method, params)
-                return {"error": error_msg}
+                error = error_generators[method](method, params)
+                if isinstance(error, dict) and error.get("error", False):
+                    return {
+                        "error": {
+                            "code": error.get("code", -32000),
+                            "message": error["error"].get("message", ""),
+                            "data": error.get("data", ""),
+                        }
+                    }
+                else:
+                    return {"error": error}
             else:
                 return await make_request(method, params)
 
