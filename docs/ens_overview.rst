@@ -10,6 +10,13 @@ hexadecimal addresses, content hashes, and more.
 The :mod:`ens` module is included with web3.py. It provides an interface to look up
 domains and addresses, add resolver records, or get and set metadata.
 
+
+.. note:: ENSIP-15 introduced a new standard for ENS name normalization. This standard
+    is implemented in web3.py via the `ensip15_normalization` flag on the `ENS` /
+    `AsyncENS` class. It is also available as a flag on relevant `ens.utils.py` utility
+    methods. For more information, see :ref:`ensip15_normalization`.
+
+
 Setup
 -----
 
@@ -135,6 +142,39 @@ The first time it's used, web3.py will create the  ``ens`` instance using
 
 Usage
 -----
+
+.. _ensip15_normalization:
+
+ENSIP-15 Normalization
+~~~~~~~~~~~~~~~~~~~~~~
+
+The ENSIP-15 normalization algorithm is implemented in web3.py. It will be the default
+name normalization algorithm in web3.py ``v7`` and is available in web3.py ``v6`` via
+the ``ensip15_normalization`` flag on the ``ENS`` & ``AsyncENS`` classes. It is also
+available via the ``ensip15`` flag on relevant ``ens.utils`` utility methods:
+
+- :meth:`~ens.utils.normalize_name`
+- :meth:`~ens.utils.is_valid_name`
+- :meth:`~ens.utils.ens_encode_name`
+- :meth:`~ens.utils.label_to_hash`
+- :meth:`~ens.utils.raw_name_to_hash`
+
+and via the ``ensip15`` flag on static methods on the ``ENS`` & ``AsyncENS`` classes:
+
+- :meth:`~ens.BaseENS.namehash`
+- :meth:`~ens.BaseENS.labelhash`
+- :meth:`~ens.BaseENS.nameprep`
+- :meth:`~ens.BaseENS.is_valid_name`
+
+The ``ensip15_normalization`` flag is ``False`` by default on the ``ENS`` & ``AsyncENS``
+classes. Set this value to ``True`` to use the ENSIP-15 name normalization standard
+for all calls to ENS contracts via the ``ENS`` & ``AsyncENS`` classes.
+
+.. code-block:: python
+
+    from ens.auto import ns
+    ns.ensip15_normalization = True
+
 
 Name Info
 ~~~~~~~~~
