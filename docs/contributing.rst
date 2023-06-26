@@ -246,8 +246,8 @@ argument at the command line.
 
 Arguments for the script are:
     -v or --version         Solidity version to be used to compile the contracts. If
-                            blank, the script uses the latest hard-coded version
-                            specified within the script.
+                            blank, the script uses the latest available version from
+                            solcx.
 
     -f or --filename        If left blank, all .sol files will be compiled and the
                             respective contract data will be generated. Pass in a
