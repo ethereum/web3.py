@@ -454,7 +454,7 @@ class BaseContractFunction:
             call_transaction.setdefault("to", self.address)
         if self.w3.eth.default_account is not empty:
             # type ignored b/c check prevents an empty default_account
-            call_transaction.setdefault(  # type: ignore
+            call_transaction.setdefault(
                 "from",
                 self.w3.eth.default_account,  # type: ignore
             )
@@ -486,7 +486,7 @@ class BaseContractFunction:
             transact_transaction.setdefault("to", self.address)
         if self.w3.eth.default_account is not empty:
             # type ignored b/c check prevents an empty default_account
-            transact_transaction.setdefault(  # type: ignore
+            transact_transaction.setdefault(
                 "from", self.w3.eth.default_account  # type: ignore
             )
 
@@ -517,7 +517,7 @@ class BaseContractFunction:
             estimate_gas_transaction.setdefault("to", self.address)
         if self.w3.eth.default_account is not empty:
             # type ignored b/c check prevents an empty default_account
-            estimate_gas_transaction.setdefault(  # type: ignore
+            estimate_gas_transaction.setdefault(
                 "from", self.w3.eth.default_account  # type: ignore
             )
 
@@ -1042,7 +1042,7 @@ class BaseContractConstructor:
 
         if self.w3.eth.default_account is not empty:
             # type ignored b/c check prevents an empty default_account
-            estimate_gas_transaction.setdefault(  # type: ignore
+            estimate_gas_transaction.setdefault(
                 "from", self.w3.eth.default_account  # type: ignore
             )
 
@@ -1061,7 +1061,7 @@ class BaseContractConstructor:
 
         if self.w3.eth.default_account is not empty:
             # type ignored b/c check prevents an empty default_account
-            transact_transaction.setdefault(  # type: ignore
+            transact_transaction.setdefault(
                 "from", self.w3.eth.default_account  # type: ignore
             )
 
