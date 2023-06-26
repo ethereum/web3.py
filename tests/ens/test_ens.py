@@ -103,6 +103,7 @@ def test_ens_strict_bytes_type_checking_is_distinct_from_w3_instance(w3):
         ("get_text", ("tester.eth", "url")),
     ),
 )
+@pytest.mark.ensip15  # remove once ENSIP-15 is default
 def test_ens_methods_with_ensip15_normalization_flag(
     ens,
     method_str,
@@ -234,6 +235,7 @@ def test_async_ens_strict_bytes_type_checking_is_distinct_from_w3_instance(
     ),
 )
 @pytest.mark.asyncio
+@pytest.mark.ensip15  # remove once ENSIP-15 is default
 async def test_async_ens_methods_with_ensip15_normalization_flag(
     async_ens,
     method_str,
