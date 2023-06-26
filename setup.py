@@ -80,7 +80,7 @@ setup(
         "protobuf>=4.21.6",
         "pywin32>=223;platform_system=='Windows'",
         "requests>=2.16.0",
-        "typing-extensions>=4.0.1,<5",
+        "typing-extensions>=4.0.1",
         "websockets>=10.0.0",
         "pyunormalize>=15.0.0",
     ],
