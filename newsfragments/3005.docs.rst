@@ -1,0 +1,1 @@
+Document ENSIP-15 normalization standard usage for web3.py ``v6`` and document that this will be the default normalization in web3.py ``v7``.
