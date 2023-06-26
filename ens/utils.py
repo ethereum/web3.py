@@ -220,13 +220,22 @@ def label_to_hash(label: str, ensip15: bool = False) -> HexBytes:
 
 
 def normal_name_to_hash(name: str) -> HexBytes:
+    """
+    This method will not normalize the name. 'normal' name here means the name
+    should already be normalized before calling this method.
+
+    :param name:            the name to hash - should already be normalized
+    :return: namehash       the hash of the name
+    :rtype: HexBytes
+    """
     node = EMPTY_SHA3_BYTES
     if not is_empty_name(name):
         labels = name.split(".")
         for label in reversed(labels):
             with warnings.catch_warnings():
                 # name is already normalized, ensip15 flag not needed here
-                # ignore FutureWarning from label_to_hash
+                # ignore FutureWarning from label_to_hash.
+                #  TODO: remove this when ENSIP-15 is default
                 warnings.simplefilter("ignore", FutureWarning)
                 labelhash = label_to_hash(label)
 
