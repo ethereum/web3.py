@@ -172,6 +172,7 @@ def test_normal_name_to_hash(name, hashed):
         raw_name_to_hash,
     ),
 )
+@pytest.mark.ensip15  # remove once ENSIP-15 is default
 def test_name_utility_methods_with_ensip15_flag(utility_method):
     # we already have tests for `normalize_name_ensip15` so we just need to make sure
     # that the flag is passed through to that function
@@ -190,6 +191,7 @@ def test_name_utility_methods_with_ensip15_flag(utility_method):
         normalize_name_ensip15_mock.assert_called_once_with(name)
 
 
+@pytest.mark.ensip15  # remove once ENSIP-15 is default
 def test_label_to_hash_with_ensip15_flag():
     # we already have tests for `normalize_name_ensip15` so we just need to make sure
     # that the flag is passed through to that function

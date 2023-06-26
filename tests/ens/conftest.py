@@ -1,6 +1,7 @@
 import asyncio
 import json
 import pytest
+import warnings
 
 from eth_tester import (
     EthereumTester,
@@ -62,6 +63,23 @@ ENSIP15_NORMALIZED_TESTER_DOT_ETH = ENSNormalizedName(
         Label("ascii", [TextToken([ord(c) for c in "eth"])]),
     ]
 )
+
+
+@pytest.fixture(autouse=True)
+def silence_ensip15_warnings(request):
+    # TODO: remove once ENSIP-15 is default
+    if "ensip15" in request.keywords:
+        yield
+    else:
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                "ignore",
+                message=(
+                    "It is recommended to `normalize_name\\(\\)` with `ensip15==True`"
+                ),
+                category=FutureWarning,
+            )
+            yield
 
 
 def bytes32(val):
