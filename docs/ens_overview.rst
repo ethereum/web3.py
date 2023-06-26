@@ -12,9 +12,10 @@ domains and addresses, add resolver records, or get and set metadata.
 
 
 .. note:: ENSIP-15 introduced a new standard for ENS name normalization. This standard
-    is implemented in web3.py via the `ensip15_normalization` flag on the `ENS` /
-    `AsyncENS` class. It is also available as a flag on relevant `ens.utils.py` utility
-    methods. For more information, see :ref:`ensip15_normalization`.
+    is implemented in web3.py via the ``ensip15_normalization`` flag on the ``ENS`` /
+    ``AsyncENS`` class. It is also available as a flag on relevant ``ens.utils.py``
+    utility methods. For more information, refer to the :ref:`ensip15_normalization`
+    section.
 
 
 Setup
