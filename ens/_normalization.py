@@ -215,7 +215,6 @@ def _construct_whole_confusable_map() -> Dict[int, Set[str]]:
 WHOLE_CONFUSABLE_MAP = _construct_whole_confusable_map()
 VALID_CODEPOINTS = _extract_valid_codepoints()
 MAX_LEN_EMOJI_PATTERN = max(len(e) for e in NORMALIZATION_SPEC["emoji"])
-WHOLE_CONFUSABLES = NORMALIZATION_SPEC["wholes"]
 NSM_MAX = NORMALIZATION_SPEC["nsm_max"]
 
 
