@@ -22,6 +22,9 @@ from web3._utils.contract_sources.contract_data._custom_contract_data import (
 from web3._utils.contract_sources.contract_data.panic_errors_contract import (
     PANIC_ERRORS_CONTRACT_DATA,
 )
+from web3._utils.contract_sources.contract_data.storage_contract import (
+    STORAGE_CONTRACT_DATA,
+)
 from web3._utils.module_testing import (
     EthModuleTest,
     GoEthereumPersonalModuleTest,
@@ -34,6 +37,15 @@ from web3.providers.eth_tester import (
 from web3.types import (  # noqa: F401
     BlockData,
 )
+
+
+def _deploy_contract(w3, contract_factory):
+    deploy_txn_hash = contract_factory.constructor().transact({"from": w3.eth.coinbase})
+    deploy_receipt = w3.eth.wait_for_transaction_receipt(deploy_txn_hash)
+    assert is_dict(deploy_receipt)
+    contract_address = deploy_receipt["contractAddress"]
+    assert is_checksum_address(contract_address)
+    return contract_factory(contract_address)
 
 
 @pytest.fixture(scope="module")
@@ -54,9 +66,6 @@ def w3(eth_tester_provider):
     return _w3
 
 
-#
-# Math Contract Setup
-#
 @pytest.fixture(scope="module")
 def math_contract_deploy_txn_hash(w3, math_contract_factory):
     deploy_txn_hash = math_contract_factory.constructor().transact(
@@ -79,28 +88,15 @@ def math_contract_address(math_contract, address_conversion_func):
     return address_conversion_func(math_contract.address)
 
 
-#
-# Emitter Contract Setup
-#
+@pytest.fixture(scope="module")
+def storage_contract(w3):
+    contract_factory = w3.eth.contract(**STORAGE_CONTRACT_DATA)
+    return _deploy_contract(w3, contract_factory)
 
 
 @pytest.fixture(scope="module")
-def emitter_contract_deploy_txn_hash(w3, emitter_contract_factory):
-    deploy_txn_hash = emitter_contract_factory.constructor().transact(
-        {"from": w3.eth.coinbase}
-    )
-    return deploy_txn_hash
-
-
-@pytest.fixture(scope="module")
-def emitter_contract(w3, emitter_contract_factory, emitter_contract_deploy_txn_hash):
-    deploy_receipt = w3.eth.wait_for_transaction_receipt(
-        emitter_contract_deploy_txn_hash
-    )
-    assert is_dict(deploy_receipt)
-    contract_address = deploy_receipt["contractAddress"]
-    assert is_checksum_address(contract_address)
-    return emitter_contract_factory(contract_address)
+def emitter_contract(w3, emitter_contract_factory):
+    return _deploy_contract(w3, emitter_contract_factory)
 
 
 @pytest.fixture(scope="module")
@@ -158,26 +154,9 @@ def txn_hash_with_log(block_with_txn_with_log):
     return block_with_txn_with_log["transactions"][0]
 
 
-#
-# Revert Contract Setup
-#
 @pytest.fixture(scope="module")
-def revert_contract_deploy_txn_hash(w3, revert_contract_factory):
-    deploy_txn_hash = revert_contract_factory.constructor().transact(
-        {"from": w3.eth.coinbase}
-    )
-    return deploy_txn_hash
-
-
-@pytest.fixture(scope="module")
-def revert_contract(w3, revert_contract_factory, revert_contract_deploy_txn_hash):
-    deploy_receipt = w3.eth.wait_for_transaction_receipt(
-        revert_contract_deploy_txn_hash
-    )
-    assert is_dict(deploy_receipt)
-    contract_address = deploy_receipt["contractAddress"]
-    assert is_checksum_address(contract_address)
-    return revert_contract_factory(contract_address)
+def revert_contract(w3, revert_contract_factory):
+    return _deploy_contract(w3, revert_contract_factory)
 
 
 #
@@ -185,27 +164,13 @@ def revert_contract(w3, revert_contract_factory, revert_contract_deploy_txn_hash
 #
 @pytest.fixture(scope="module")
 def offchain_lookup_contract(w3, offchain_lookup_contract_factory):
-    deploy_txn_hash = offchain_lookup_contract_factory.constructor().transact(
-        {"from": w3.eth.coinbase}
-    )
-    deploy_receipt = w3.eth.wait_for_transaction_receipt(deploy_txn_hash)
-    assert is_dict(deploy_receipt)
-    contract_address = deploy_receipt["contractAddress"]
-    assert is_checksum_address(contract_address)
-    return offchain_lookup_contract_factory(contract_address)
+    return _deploy_contract(w3, offchain_lookup_contract_factory)
 
 
 @pytest.fixture(scope="module")
 def panic_errors_contract(w3):
     panic_errors_contract_factory = w3.eth.contract(**PANIC_ERRORS_CONTRACT_DATA)
-    deploy_txn_hash = panic_errors_contract_factory.constructor().transact(
-        {"from": w3.eth.coinbase}
-    )
-    deploy_receipt = w3.eth.wait_for_transaction_receipt(deploy_txn_hash)
-    assert is_dict(deploy_receipt)
-    contract_address = deploy_receipt["contractAddress"]
-    assert is_checksum_address(contract_address)
-    return panic_errors_contract_factory(contract_address)
+    return _deploy_contract(w3, panic_errors_contract_factory)
 
 
 UNLOCKABLE_PRIVATE_KEY = (
@@ -446,13 +411,11 @@ class TestEthereumTesterEthModule(EthModuleTest):
                 "eth-tester was unexpectedly able to give the pending call result"
             )
 
-    @pytest.mark.xfail(reason="json-rpc method is not implemented on eth-tester")
-    def test_eth_get_storage_at(self, w3, emitter_contract_address):
-        super().test_eth_get_storage_at(w3, emitter_contract_address)
+    def test_eth_get_storage_at(self, w3, storage_contract):
+        super().test_eth_get_storage_at(w3, storage_contract)
 
-    @pytest.mark.xfail(reason="json-rpc method is not implemented on eth-tester")
-    def test_eth_get_storage_at_ens_name(self, w3, emitter_contract_address):
-        super().test_eth_get_storage_at_ens_name(w3, emitter_contract_address)
+    def test_eth_get_storage_at_ens_name(self, w3, storage_contract):
+        super().test_eth_get_storage_at_ens_name(w3, storage_contract)
 
     def test_eth_estimate_gas_with_block(self, w3, unlocked_account_dual_type):
         super().test_eth_estimate_gas_with_block(w3, unlocked_account_dual_type)
