@@ -47,6 +47,9 @@ from web3._utils.contract_sources.contract_data.revert_contract import (
     REVERT_CONTRACT_ABI,
     REVERT_CONTRACT_BYTECODE,
 )
+from web3._utils.contract_sources.contract_data.storage_contract import (
+    STORAGE_CONTRACT_DATA,
+)
 
 
 def get_open_port():
@@ -321,6 +324,15 @@ def setup_chain_state(w3):
     assert is_dict(panic_errors_deploy_receipt)
 
     #
+    # Storage Contract
+    #
+    storage_contract_factory = w3.eth.contract(**STORAGE_CONTRACT_DATA)
+    storage_contract_deploy_receipt = common.deploy_contract(
+        w3, "storage_contract", storage_contract_factory
+    )
+    assert is_dict(storage_contract_deploy_receipt)
+
+    #
     # Empty Block
     #
     empty_block_number = mine_block(w3)
@@ -356,6 +368,7 @@ def setup_chain_state(w3):
         "emitter_address": emitter_deploy_receipt["contractAddress"],
         "offchain_lookup_address": offchain_lookup_deploy_receipt["contractAddress"],
         "panic_errors_contract_address": panic_errors_deploy_receipt["contractAddress"],
+        "storage_contract_address": storage_contract_deploy_receipt["contractAddress"],
         "txn_hash_with_log": txn_hash_with_log,
         "block_hash_with_log": block_with_log["hash"],
         "empty_block_hash": empty_block["hash"],

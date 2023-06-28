@@ -16,6 +16,9 @@ from eth_utils import (
 from web3._utils.contract_sources.contract_data.panic_errors_contract import (
     PANIC_ERRORS_CONTRACT_DATA,
 )
+from web3._utils.contract_sources.contract_data.storage_contract import (
+    STORAGE_CONTRACT_DATA,
+)
 
 from .utils import (
     kill_proc_gracefully,
@@ -265,6 +268,15 @@ def panic_errors_contract(
     return contract_factory(address=geth_fixture_data["panic_errors_contract_address"])
 
 
+@pytest.fixture(scope="module")
+def storage_contract(
+    w3,
+    geth_fixture_data,
+):
+    contract_factory = w3.eth.contract(**STORAGE_CONTRACT_DATA)
+    return contract_factory(address=geth_fixture_data["storage_contract_address"])
+
+
 # --- async --- #
 
 
@@ -284,3 +296,12 @@ def async_panic_errors_contract(
 ):
     contract_factory = async_w3.eth.contract(**PANIC_ERRORS_CONTRACT_DATA)
     return contract_factory(address=geth_fixture_data["panic_errors_contract_address"])
+
+
+@pytest.fixture(scope="module")
+def async_storage_contract(
+    async_w3,
+    geth_fixture_data,
+):
+    contract_factory = async_w3.eth.contract(**STORAGE_CONTRACT_DATA)
+    return contract_factory(address=geth_fixture_data["storage_contract_address"])

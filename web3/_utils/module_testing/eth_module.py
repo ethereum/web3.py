@@ -1779,19 +1779,39 @@ class AsyncEthModuleTest:
 
     @pytest.mark.asyncio
     async def test_async_eth_get_storage_at(
-        self, async_w3: "AsyncWeb3", emitter_contract_address: ChecksumAddress
+        self, async_w3: "AsyncWeb3", storage_contract: "Contract"
     ) -> None:
-        storage = await async_w3.eth.get_storage_at(emitter_contract_address, 0)
-        assert isinstance(storage, HexBytes)
+        storage_contract_address = storage_contract.address
+
+        slot_0 = await async_w3.eth.get_storage_at(storage_contract_address, 0)
+        assert slot_0 == HexBytes(f"0x{'00' * 32}")
+
+        slot_1 = await async_w3.eth.get_storage_at(storage_contract_address, 1)
+        assert slot_1 == HexBytes(f"0x{'00' * 31}01")
+
+        slot_2 = await async_w3.eth.get_storage_at(storage_contract_address, 2)
+        assert slot_2 == HexBytes(f"0x{'00' * 31}02")
+
+        slot_3 = await async_w3.eth.get_storage_at(storage_contract_address, 3)
+        assert slot_3 == HexBytes(
+            "0x746872656500000000000000000000000000000000000000000000000000000a"
+        )
+        assert bytes(slot_3[:5]) == b"three"
+
+        slot_4 = await async_w3.eth.get_storage_at(storage_contract_address, 4)
+        assert slot_4 == HexBytes(
+            "0x666f757200000000000000000000000000000000000000000000000000000008"
+        )
+        assert bytes(slot_4[:4]) == b"four"
 
     @pytest.mark.asyncio
     @pytest.mark.xfail
     async def test_async_eth_get_storage_at_ens_name(
-        self, async_w3: "AsyncWeb3", emitter_contract_address: ChecksumAddress
+        self, async_w3: "AsyncWeb3", storage_contract: "Contract"
     ) -> None:
-        with ens_addresses(async_w3, {"emitter.eth": emitter_contract_address}):
-            storage = await async_w3.eth.get_storage_at(ENS("emitter.eth"), 0)
-            assert isinstance(storage, HexBytes)
+        with ens_addresses(async_w3, {"storage.eth": storage_contract.address}):
+            storage = await async_w3.eth.get_storage_at(ENS("storage.eth"), 1)
+            assert storage == HexBytes(f"0x{'00' * 31}01")
 
     @pytest.mark.asyncio
     async def test_async_eth_get_storage_at_invalid_address(
@@ -2388,18 +2408,36 @@ class EthModuleTest:
                 with pytest.raises(NameNotFound):
                     w3.eth.get_balance(address)
 
-    def test_eth_get_storage_at(
-        self, w3: "Web3", emitter_contract_address: ChecksumAddress
-    ) -> None:
-        storage = w3.eth.get_storage_at(emitter_contract_address, 0)
-        assert isinstance(storage, HexBytes)
+    def test_eth_get_storage_at(self, w3: "Web3", storage_contract: "Contract") -> None:
+        storage_contract_address = storage_contract.address
+
+        slot_0 = w3.eth.get_storage_at(storage_contract_address, 0)
+        assert slot_0 == HexBytes(f"0x{'00' * 32}")
+
+        slot_1 = w3.eth.get_storage_at(storage_contract_address, 1)
+        assert slot_1 == HexBytes(f"0x{'00' * 31}01")
+
+        slot_2 = w3.eth.get_storage_at(storage_contract_address, 2)
+        assert slot_2 == HexBytes(f"0x{'00' * 31}02")
+
+        slot_3 = w3.eth.get_storage_at(storage_contract_address, 3)
+        assert slot_3 == HexBytes(
+            "0x746872656500000000000000000000000000000000000000000000000000000a"
+        )
+        assert bytes(slot_3[:5]) == b"three"
+
+        slot_4 = w3.eth.get_storage_at(storage_contract_address, 4)
+        assert slot_4 == HexBytes(
+            "0x666f757200000000000000000000000000000000000000000000000000000008"
+        )
+        assert bytes(slot_4[:4]) == b"four"
 
     def test_eth_get_storage_at_ens_name(
-        self, w3: "Web3", emitter_contract_address: ChecksumAddress
+        self, w3: "Web3", storage_contract: "Contract"
     ) -> None:
-        with ens_addresses(w3, {"emitter.eth": emitter_contract_address}):
-            storage = w3.eth.get_storage_at(ENS("emitter.eth"), 0)
-            assert isinstance(storage, HexBytes)
+        with ens_addresses(w3, {"storage.eth": storage_contract.address}):
+            storage = w3.eth.get_storage_at(ENS("storage.eth"), 1)
+            assert storage == HexBytes(f"0x{'00' * 31}01")
 
     def test_eth_get_storage_at_invalid_address(self, w3: "Web3") -> None:
         coinbase = w3.eth.coinbase
