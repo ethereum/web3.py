@@ -7,13 +7,14 @@ from web3 import (
     Web3,
 )
 from web3.exceptions import (
-    InvalidAddress,
+    NameNotFound,
 )
-from web3.middleware import (  # noqa: F401
-    construct_fixture_middleware,
+from web3.middleware import (
     name_to_address_middleware,
 )
-from web3.middleware.names import async_name_to_address_middleware
+from web3.middleware.names import (
+    async_name_to_address_middleware,
+)
 from web3.providers.eth_tester import (
     AsyncEthereumTesterProvider,
     EthereumTesterProvider,
@@ -49,24 +50,12 @@ def w3(_w3_setup, ens_mapped_address):
 
 
 def test_pass_name_resolver(w3, ens_mapped_address):
-    return_chain_on_mainnet = construct_fixture_middleware(
-        {
-            "net_version": "1",
-        }
-    )
     known_account_balance = w3.eth.get_balance(ens_mapped_address)
-    w3.middleware_onion.inject(return_chain_on_mainnet, layer=0)
     assert w3.eth.get_balance(NAME) == known_account_balance
 
 
 def test_fail_name_resolver(w3):
-    return_chain_on_mainnet = construct_fixture_middleware(
-        {
-            "net_version": "2",
-        }
-    )
-    w3.middleware_onion.inject(return_chain_on_mainnet, layer=0)
-    with pytest.raises(InvalidAddress, match=r".*ethereum\.eth.*"):
+    with pytest.raises(NameNotFound, match=r".*ethereum\.eth.*"):
         w3.eth.get_balance("ethereum.eth")
 
 
@@ -104,5 +93,5 @@ async def test_async_pass_name_resolver(async_w3, async_ens_mapped_address):
 
 @pytest.mark.asyncio
 async def test_async_fail_name_resolver(async_w3):
-    with pytest.raises(InvalidAddress, match=r".*ethereum\.eth.*"):
+    with pytest.raises(NameNotFound, match=r".*ethereum\.eth.*"):
         await async_w3.eth.get_balance("ethereum.eth")
