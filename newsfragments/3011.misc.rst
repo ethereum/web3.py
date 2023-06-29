@@ -1,0 +1,1 @@
+Bump `eth-tester` version to latest ``v0.9.0-beta.2``.
