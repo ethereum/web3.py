@@ -146,28 +146,11 @@ Each Contract Factory exposes the following properties.
     The runtime part of the contract bytecode string.  May be ``None`` if not
     provided during factory creation.
 
-
-.. py:attribute:: Contract.decode_tuples
-
-    If a Tuple/Struct is returned by a contract function, this flag defines whether
-    to apply the field names from the ABI to the returned data.
-    If False, the returned value will be a normal Python ``Tuple``. If True, the returned
-    value will be a Python ``NamedTuple`` of the class ``ABIDecodedNamedTuple``.
-
-    NamedTuples have some restrictions regarding field names.
-    web3.py sets ``NamedTuple``'s ``rename=True``, so disallowed field names may be
-    different than expected. See the `Python docs <https://docs.python.org/3/library/collections.html#collections.namedtuple>`_
-    for more information.
-
-    Defaults to ``False`` if not provided during factory creation.
-
-
 .. py:attribute:: Contract.functions
 
     This provides access to contract functions as attributes.  For example:
     ``myContract.functions.MyMethod()``.  The exposed contract functions are classes of the
     type :py:class:`ContractFunction`.
-
 
 .. py:attribute:: Contract.events
 
@@ -232,7 +215,7 @@ Each Contract Factory exposes the following methods.
 
 .. py:classmethod:: Contract.constructor(*args, **kwargs).build_transaction(transaction=None)
     :noindex:
-
+    
     Construct the contract deploy transaction bytecode data.
 
     If the contract takes constructor parameters they should be provided as
@@ -252,9 +235,9 @@ Each Contract Factory exposes the following methods.
         >>> contract_data = token_contract.constructor(web3.eth.coinbase, 12345).build_transaction(transaction)
         >>> web3.eth.send_transaction(contract_data)
 
-.. _contract_create_filter:
+.. _contract_createFilter:
 
-.. py:classmethod:: Contract.events.your_event_name.create_filter(fromBlock=block, toBlock=block, \
+.. py:classmethod:: Contract.events.your_event_name.createFilter(fromBlock=block, toBlock=block, \
                     argument_filters={"arg1": "value"}, topics=[])
 
     Creates a new event filter, an instance of :py:class:`web3.utils.filters.LogFilter`.
@@ -423,7 +406,7 @@ Each Contract Factory exposes the following methods.
 
 
 .. note::
-    web3.py rejects the initialization of contracts that have more than one function
+    Web3.py rejects the initialization of contracts that have more than one function
     with the same selector or signature.
     eg. ``blockHashAddendsInexpansible(uint256)`` and ``blockHashAskewLimitary(uint256)`` have the
     same selector value equal to ``0x00000000``. A contract containing both of these functions
@@ -452,7 +435,7 @@ and the arguments are ambiguous.
         }
         """
         # fast forward all the steps of compiling and deploying the contract.
-        >>> ambiguous_contract.functions.identity(1, True) # raises Web3ValidationError
+        >>> ambiguous_contract.functions.identity(1, True) # raises ValidationError
 
         >>> identity_func = ambiguous_contract.get_function_by_signature('identity(uint256,bool)')
         >>> identity_func(1, True)
@@ -461,54 +444,19 @@ and the arguments are ambiguous.
         1
 
 
-.. _disable-strict-byte-check:
+.. _enable-strict-byte-check:
 
-Disabling Strict Checks for Bytes Types
----------------------------------------
+Enabling Strict Checks for Bytes Types
+--------------------------------------
 
-By default, web3 is strict when it comes to hex and bytes values, as of ``v6``.
-If an abi specifies a byte size, but the value that gets passed in is not the specified
-size, web3 will invalidate the value. For example, if an abi specifies a type of
-``bytes4``, web3 will invalidate the following values:
+By default, web3 is not very strict when it comes to hex and bytes values.
+A bytes type will take a hex string, a bytestring, or a regular python
+string that can be decoded as a hex.
+Additionally, if an abi specifies a byte size, but the value that gets
+passed in is less than the specified size, web3 will automatically pad the value.
+For example, if an abi specifies a type of ``bytes4``, web3 will handle all of the following values:
 
-.. list-table:: Invalid byte and hex strings with strict (default) bytes4 type checking
-   :widths: 25 75
-   :header-rows: 1
-
-   * - Input
-     - Reason
-   * - ``''``
-     - Needs to be prefixed with a "0x" to be interpreted as an empty hex string
-   * - ``2``
-     - Wrong type
-   * - ``'ah'``
-     - String is not valid hex
-   * - ``'1234'``
-     - Needs to either be a bytestring (b'1234') or be a hex value of the right size, prefixed with 0x (in this case: '0x31323334')
-   * - ``b''``
-     - Needs to have exactly 4 bytes
-   * - ``b'ab'``
-     - Needs to have exactly 4 bytes
-   * - ``'0xab'``
-     - Needs to have exactly 4 bytes
-   * - ``'0x6162636464'``
-     - Needs to have exactly 4 bytes
-
-
-However, you may want to be less strict with acceptable values for bytes types.
-This may prove useful if you trust that values coming through are what they are
-meant to be with respect to the ABI. In this case, the automatic padding might be
-convenient for inferred types. For this, you can set the
-:meth:`w3.strict_bytes_type_checking` flag to ``False``, which is available on the
-Web3 instance. A Web3 instance which has this flag set to ``False`` will have a less
-strict set of rules on which values are accepted. A ``bytes`` type will allow values as
-a hex string, a bytestring, or a regular Python string that can be decoded as a hex.
-0x-prefixed hex strings are also not required.
-
- - A Python string that is not prefixed with ``0x`` is valid.
- - A bytestring whose length is less than the specified byte size is valid.
-
-.. list-table:: Valid byte and hex strings for a non-strict bytes4 type
+.. list-table:: Valid byte and hex strings for a bytes4 type
    :widths: 25 75
    :header-rows: 1
 
@@ -530,6 +478,65 @@ a hex string, a bytestring, or a regular Python string that can be decoded as a 
      - ``b'abcd'``
    * - ``'1234'``
      - ``b'1234'``
+
+
+The following values will raise an error by default:
+
+.. list-table:: Invalid byte and hex strings for a bytes4 type
+   :widths: 25 75
+   :header-rows: 1
+
+   * - Input
+     - Reason
+   * - ``b'abcde'``
+     - Bytestring with more than 4 bytes
+   * - ``'0x6162636423'``
+     - Hex string with more than 4 bytes
+   * - ``2``
+     - Wrong type
+   * - ``'ah'``
+     - String is not valid hex
+
+However, you may want to be stricter with acceptable values for bytes types.
+For this you can use the :meth:`w3.enable_strict_bytes_type_checking()` method,
+which is available on the web3 instance. A web3 instance which has had this method
+invoked will enforce a stricter set of rules on which values are accepted.
+
+ - A Python string that is not prefixed with ``0x`` will throw an error.
+ - A bytestring whose length not exactly the specified byte size
+   will raise an error.
+
+.. list-table:: Valid byte and hex strings for a strict bytes4 type
+   :widths: 25 75
+   :header-rows: 1
+
+   * - Input
+     - Normalizes to
+   * - ``'0x'``
+     - ``b'\x00\x00\x00\x00'``
+   * - ``'0x61626364'``
+     - ``b'abcd'``
+   * - ``'1234'``
+     - ``b'1234'``
+
+.. list-table:: Invalid byte and hex strings with strict bytes4 type checking
+   :widths: 25 75
+   :header-rows: 1
+
+   * - Input
+     - Reason
+   * - ``''``
+     - Needs to be prefixed with a "0x" to be interpreted as an empty hex string
+   * - ``'1234'``
+     - Needs to either be a bytestring (b'1234') or be a hex value of the right size, prefixed with 0x (in this case: '0x31323334')
+   * - ``b''``
+     - Needs to have exactly 4 bytes
+   * - ``b'ab'``
+     - Needs to have exactly 4 bytes
+   * - ``'0xab'``
+     - Needs to have exactly 4 bytes
+   * - ``'0x6162636464'``
+     - Needs to have exactly 4 bytes
 
 
 Taking the following contract code as an example:
@@ -627,55 +634,29 @@ Taking the following contract code as an example:
 
 .. doctest:: arrayscontract
 
-    >>> arrays_contract_instance = w3.eth.contract(abi=abi, bytecode=bytecode)
+    >>> ArraysContract = w3.eth.contract(abi=abi, bytecode=bytecode)
 
-    >>> tx_hash = arrays_contract_instance.constructor([b'bb']).transact()
+    >>> tx_hash = ArraysContract.constructor([b'b']).transact()
     >>> tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
-    >>> arrays_contract = w3.eth.contract(
+
+    >>> array_contract = w3.eth.contract(
     ...     address=tx_receipt.contractAddress,
     ...     abi=abi
     ... )
-    >>> arrays_contract.functions.getBytes2Value().call()
-    [b'bb']
 
-    >>> # set value with appropriate byte size
-    >>> arrays_contract.functions.setBytes2Value([b'aa']).transact({'gas': 420000, "maxPriorityFeePerGas": 10 ** 9, "maxFeePerGas": 10 ** 9})
-    HexBytes('0xcb95151142ea56dbf2753d70388aef202a7bb5a1e323d448bc19f1d2e1fe3dc9')
-    >>> # check value
-    >>> arrays_contract.functions.getBytes2Value().call()
-    [b'aa']
-
-    >>> # trying to set value without appropriate size (bytes2) is not valid
-    >>> arrays_contract.functions.setBytes2Value([b'b']).transact()
-    Traceback (most recent call last):
-       ...
-    web3.exceptions.Web3ValidationError:
-    Could not identify the intended function with name
-    >>> # check value is still b'aa'
-    >>> arrays_contract.functions.getBytes2Value().call()
-    [b'aa']
-
-    >>> # disabling strict byte checking...
-    >>> w3.strict_bytes_type_checking = False
-
-    >>> tx_hash = arrays_contract_instance.constructor([b'b']).transact()
-    >>> tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
-    >>> arrays_contract = w3.eth.contract(
-    ...     address=tx_receipt.contractAddress,
-    ...     abi=abi
-    ... )
-    >>> # check value is zero-padded... i.e. b'b\x00'
-    >>> arrays_contract.functions.getBytes2Value().call()
+    >>> array_contract.functions.getBytes2Value().call()
     [b'b\x00']
-
-    >>> # set the flag back to True
-    >>> w3.strict_bytes_type_checking = True
-
-    >>> arrays_contract.functions.setBytes2Value([b'a']).transact()
+    >>> array_contract.functions.setBytes2Value([b'a']).transact({'gas': 420000, 'gasPrice': Web3.toWei(1, 'gwei')})
+    HexBytes('0xc5377ba25224bd763ceedc0ee455cc14fc57b23dbc6b6409f40a557a009ff5f4')
+    >>> array_contract.functions.getBytes2Value().call()
+    [b'a\x00']
+    >>> w3.enable_strict_bytes_type_checking()
+    >>> array_contract.functions.setBytes2Value([b'a']).transact()
     Traceback (most recent call last):
        ...
-    web3.exceptions.Web3ValidationError:
-    Could not identify the intended function with name
+    ValidationError:
+    Could not identify the intended function with name `setBytes2Value`
+
 
 .. _contract-functions:
 
@@ -735,15 +716,8 @@ enabled on a per-call basis - overriding the global flag. This ensures only expl
         >>> # does not raise the revert since explicitly enabled on the call:
         >>> response = myContract.functions.revertsWithOffchainLookup(myData).call(ccip_read_enabled=True)
 
-If the function called results in a ``revert`` error, a ``ContractLogicError`` will be raised.
-If there is an error message with the error, web3.py attempts to parse the
-message that comes back and return it to the user as the error string.
-As of v6.3.0, the raw data is also returned and
-can be accessed via the ``data`` attribute on ``ContractLogicError``.
-
-
 Methods
-~~~~~~~
+~~~~~~~~~~
 
 .. py:method:: ContractFunction.transact(transaction)
 
@@ -948,39 +922,25 @@ For example:
         myContract = web3.eth.contract(address=contract_address, abi=contract_abi)
         tx_hash = myContract.functions.myFunction().transact()
         receipt = web3.eth.get_transaction_receipt(tx_hash)
-        myContract.events.myEvent().process_receipt(receipt)
+        myContract.events.myEvent().processReceipt(receipt)
 
 :py:class:`ContractEvent` provides methods to interact with contract events. Positional and keyword arguments supplied to the contract event subclass will be used to find the contract event by signature.
 
-.. _contract_get_logs:
+.. _processReceipt:
 
-.. py:method:: ContractEvents.myEvent(*args, **kwargs).get_logs(filter_params, errors=WARN)
-   :noindex:
-
-   Fetches all logs for a given event within a set of
-   `filter params <https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_newfilter>`_.
-
-    .. code-block:: python
-
-        myContract = web3.eth.contract(address=contract_address, abi=contract_abi)
-        filter_params = {"fromBlock": "latest"}
-        myContract.events.myEvent().get_logs(filter_params)
-
-.. _process_receipt:
-
-.. py:method:: ContractEvents.myEvent(*args, **kwargs).process_receipt(transaction_receipt, errors=WARN)
+.. py:method:: ContractEvents.myEvent(*args, **kwargs).processReceipt(transaction_receipt, errors=WARN)
    :noindex:
 
    Extracts the pertinent logs from a transaction receipt.
 
-   If there are no errors, ``process_receipt`` returns a tuple of :ref:`Event Log Objects <event-log-object>`, emitted from the event (e.g. ``myEvent``),
+   If there are no errors, ``processReceipt`` returns a tuple of :ref:`Event Log Objects <event-log-object>`, emitted from the event (e.g. ``myEvent``),
    with decoded ouput.
 
    .. code-block:: python
 
        >>> tx_hash = contract.functions.myFunction(12345).transact({'to':contract_address})
        >>> tx_receipt = w3.eth.get_transaction_receipt(tx_hash)
-       >>> rich_logs = contract.events.myEvent().process_receipt(tx_receipt)
+       >>> rich_logs = contract.events.myEvent().processReceipt(tx_receipt)
        >>> rich_logs[0]['args']
        {'myArg': 12345}
 
@@ -997,7 +957,7 @@ For example:
 
        >>> tx_hash = contract.functions.myFunction(12345).transact({'to':contract_address})
        >>> tx_receipt = w3.eth.get_transaction_receipt(tx_hash)
-       >>> processed_logs = contract.events.myEvent().process_receipt(tx_receipt)
+       >>> processed_logs = contract.events.myEvent().processReceipt(tx_receipt)
        >>> processed_logs
        (
           AttributeDict({
@@ -1015,7 +975,7 @@ For example:
 
        # Or, if there were errors encountered during processing:
        >>> from web3.logs import STRICT, IGNORE, DISCARD, WARN
-       >>> processed_logs = contract.events.myEvent().process_receipt(tx_receipt, errors=IGNORE)
+       >>> processed_logs = contract.events.myEvent().processReceipt(tx_receipt, errors=IGNORE)
        >>> processed_logs
        (
            AttributeDict({
@@ -1033,13 +993,13 @@ For example:
                'errors': LogTopicError('Expected 1 log topics.  Got 0')})
           })
        )
-       >>> processed_logs = contract.events.myEvent().process_receipt(tx_receipt, errors=DISCARD)
+       >>> processed_logs = contract.events.myEvent().processReceipt(tx_receipt, errors=DISCARD)
        >>> assert processed_logs == ()
        True
 
-.. py:method:: ContractEvents.myEvent(*args, **kwargs).process_log(log)
+.. py:method:: ContractEvents.myEvent(*args, **kwargs).processLog(log)
 
-   Similar to process_receipt_, but only processes one log at a time, instead of a whole transaction receipt.
+   Similar to processReceipt_, but only processes one log at a time, instead of a whole transaction receipt.
    Will return a single :ref:`Event Log Object <event-log-object>` if there are no errors encountered during processing. If an error is encountered during processing, it will be raised.
 
    .. code-block:: python
@@ -1047,7 +1007,7 @@ For example:
        >>> tx_hash = contract.functions.myFunction(12345).transact({'to':contract_address})
        >>> tx_receipt = w3.eth.get_transaction_receipt(tx_hash)
        >>> log_to_process = tx_receipt['logs'][0]
-       >>> processed_log = contract.events.myEvent().process_log(log_to_process)
+       >>> processed_log = contract.events.myEvent().processLog(log_to_process)
        >>> processed_log
        AttributeDict({
            'args': AttributeDict({}),
@@ -1081,7 +1041,7 @@ Event Log Object
     * ``blockNumber``: Number - the block number where this log was in. null
       when it's pending.
 
-.. testsetup:: create_filter
+.. testsetup:: createFilter
 
     from web3 import Web3
     from hexbytes import HexBytes
@@ -1092,7 +1052,7 @@ Event Log Object
     alice, bob = w3.eth.accounts[0], w3.eth.accounts[1]
     assert alice == 'alice_public_address', alice
     assert bob == 'bob_public_address', bob
-    tx_hash = my_token_contract.constructor(1000000).transact({'from': alice, 'gas': 899000, 'gasPrice': Web3.to_wei(1, 'gwei')})
+    tx_hash = my_token_contract.constructor(1000000).transact({'from': alice, 'gas': 899000, 'gasPrice': Web3.toWei(1, 'gwei')})
     assert tx_hash == HexBytes('0x49e3da72a95e4074a9eaea7b438c73ca154627d317e58abeae914e3769a15044'), tx_hash
     txn_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
     assert txn_receipt['contractAddress'] == 'contract_address', txn_receipt['contractAddress']
@@ -1101,12 +1061,12 @@ Event Log Object
     total_supply = contract.functions.totalSupply().call()
     decimals = 10 ** 18
     assert total_supply == 1000000 * decimals, total_supply
-    tx_hash = contract.functions.transfer(alice, 10).transact({'gas': 899000, 'gasPrice': Web3.to_wei(1, 'gwei')})
+    tx_hash = contract.functions.transfer(alice, 10).transact({'gas': 899000, 'gasPrice': Web3.toWei(1, 'gwei')})
     tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
 
-.. doctest:: create_filter
+.. doctest:: createFilter
 
-    >>> transfer_filter = my_token_contract.events.Transfer.create_filter(fromBlock="0x0", argument_filters={'from': 'from_address'})
+    >>> transfer_filter = my_token_contract.events.Transfer.createFilter(fromBlock="0x0", argument_filters={'from': 'from_address'})
     >>> transfer_filter.get_new_entries()
     [AttributeDict({'args': AttributeDict({'from': 'from_address',
      'to': 'to_address',
@@ -1120,7 +1080,7 @@ Event Log Object
      'blockNumber': 2})]
     >>> transfer_filter.get_new_entries()
     []
-    >>> tx_hash = contract.functions.transfer(alice, 10).transact({'gas': 899000, 'gasPrice': 1000000000})
+    >>> tx_hash = contract.functions.transfer(alice, 10).transact({'gas': 899000, 'gasPrice': 674302241})
     >>> tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
     >>> transfer_filter.get_new_entries()
     [AttributeDict({'args': AttributeDict({'from': 'from_address',
@@ -1129,7 +1089,7 @@ Event Log Object
      'event': 'Transfer',
      'logIndex': 0,
      'transactionIndex': 0,
-     'transactionHash': HexBytes('...'),
+     'transactionHash': HexBytes('0xa23e7ef4d2692c5cf34ee99123c9c73099e9c3b68c7850f91c1cbcb91ac327e0'),
      'address': 'public_address',
      'blockHash': HexBytes('...'),
      'blockNumber': 3})]
@@ -1140,7 +1100,7 @@ Event Log Object
      'event': 'Transfer',
      'logIndex': 0,
      'transactionIndex': 0,
-     'transactionHash': HexBytes('...'),
+     'transactionHash': HexBytes('0x9da859237e7259832b913d51cb128c8d73d1866056f7a41b52003c953e749678'),
      'address': 'public_address',
      'blockHash': HexBytes('...'),
      'blockNumber': 2}),
@@ -1150,7 +1110,7 @@ Event Log Object
      'event': 'Transfer',
      'logIndex': 0,
      'transactionIndex': 0,
-     'transactionHash': HexBytes('...'),
+     'transactionHash': HexBytes('0xa23e7ef4d2692c5cf34ee99123c9c73099e9c3b68c7850f91c1cbcb91ac327e0'),
      'address': 'public_address',
      'blockHash': HexBytes('...'),
      'blockNumber': 3})]
@@ -1245,7 +1205,7 @@ Contract FAQs
 How do I pass in a struct as a function argument?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-web3.py accepts struct arguments as dictionaries. This format also supports nested structs.
+Web3.py accepts struct arguments as dictionaries. This format also supports nested structs.
 Let's take a look at a quick example. Given the following Solidity contract:
 
 .. code-block:: none
@@ -1278,7 +1238,7 @@ Let's take a look at a quick example. Given the following Solidity contract:
      }
    }
 
-You can interact with web3.py contract API as follows:
+You can interact with Web3.py contract API as follows:
 
 .. code-block:: python
 
