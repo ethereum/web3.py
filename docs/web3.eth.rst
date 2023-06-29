@@ -1,9 +1,9 @@
 web3.eth API
-============
+=============
 
 .. py:module:: web3.eth
 
-.. warning:: Whoa there, Binance Smart Chain user! web3.py is an Ethereum-specific library,
+.. warning:: Whoa there, Binance Smart Chain user! Web3.py is an Ethereum-specific library,
   which now defaults to "type 2" transactions as of the London network upgrade. BSC apparently
   does not support these newer transaction types.
 
@@ -16,7 +16,7 @@ web3.eth API
 The ``web3.eth`` object exposes the following properties and methods to
 interact with the RPC APIs under the ``eth_`` namespace.
 
-By default, when a property or method returns a mapping of keys to values, it
+Often, when a property or method returns a mapping of keys to values, it
 will return an ``AttributeDict`` which acts like a ``dict`` but you can
 access the keys as attributes and cannot modify its fields. For example,
 you can find the latest block number in these two ways:
@@ -39,13 +39,6 @@ you can find the latest block number in these two ways:
         Traceback # ... etc ...
         TypeError: This data is immutable -- create a copy instead of modifying
 
-This feature is available via the ``attrdict_middleware`` which is a default middleware.
-
-.. note::
-    Accessing an ``AttributeDict`` property via attribute will break type hinting. If
-    typing is crucial for your application, accessing via key / value, as well as
-    removing the ``attrdict_middleware`` altogether, may be desired.
-
 
 Properties
 ----------
@@ -59,10 +52,22 @@ The following properties are available on the ``web3.eth`` namespace.
     all transactions. Defaults to empty.
 
 
+.. py:attribute:: Eth.defaultAccount
+
+    .. warning:: Deprecated: This property is deprecated in favor of
+      :attr:`~web3.eth.Eth.default_account`
+
+
 .. py:attribute:: Eth.default_block
 
     The default block number that will be used for any RPC methods that accept
     a block identifier. Defaults to ``'latest'``.
+
+
+.. py:attribute:: Eth.defaultBlock
+
+    .. warning:: Deprecated: This property is deprecated in favor of
+      :attr:`~web3.eth.Eth.default_block`
 
 
 .. py:attribute:: Eth.syncing
@@ -93,7 +98,7 @@ The following properties are available on the ``web3.eth`` namespace.
     .. code-block:: python
 
         >>> web3.eth.coinbase
-        '0xd3CdA913deB6f67967B99D67aCDFa1712C293601'
+        'account_address'
 
 
 .. py:attribute:: Eth.mining
@@ -144,6 +149,12 @@ The following properties are available on the ``web3.eth`` namespace.
         20000000000
 
 
+.. py:attribute:: Eth.gasPrice
+
+    .. warning:: Deprecated: This property is deprecated in favor of
+      :attr:`~web3.eth.Eth.gas_price`
+
+
 .. py:attribute:: Eth.accounts
 
     * Delegates to ``eth_accounts`` RPC Method
@@ -153,7 +164,7 @@ The following properties are available on the ``web3.eth`` namespace.
     .. code-block:: python
 
         >>> web3.eth.accounts
-        ['0xd3CdA913deB6f67967B99D67aCDFa1712C293601']
+        ['account_address']
 
 
 .. py:attribute:: Eth.block_number
@@ -170,6 +181,12 @@ The following properties are available on the ``web3.eth`` namespace.
         2206939
 
 
+.. py:attribute:: Eth.blockNumber
+
+    .. warning:: Deprecated: This property is deprecated in favor of
+      :attr:`~web3.eth.Eth.block_number`
+
+
 .. py:attribute:: Eth.protocol_version
 
     * Delegates to ``eth_protocolVersion`` RPC Method
@@ -180,6 +197,12 @@ The following properties are available on the ``web3.eth`` namespace.
 
        >>> web3.eth.protocol_version
        '63'
+
+
+.. py:attribute:: Eth.protocolVersion
+
+    .. warning:: Deprecated: This property is deprecated in favor of
+      :attr:`~web3.eth.Eth.protocol_version`
 
 
 .. py:attribute:: Eth.chain_id
@@ -206,6 +229,12 @@ The following properties are available on the ``web3.eth`` namespace.
           >>> w3.middleware_onion.add(simple_cache_middleware)
 
 
+.. py:attribute:: Eth.chainId
+
+    .. warning:: Deprecated: This property is deprecated in favor of
+      :attr:`~web3.eth.chain_id`
+
+
 
 Methods
 -------
@@ -224,8 +253,14 @@ The following methods are available on the ``web3.eth`` namespace.
 
     .. code-block:: python
 
-        >>> web3.eth.get_balance('0xd3CdA913deB6f67967B99D67aCDFa1712C293601')
+        >>> web3.eth.get_balance('account_address')
         77320681768999138915
+
+
+.. py:method:: Eth.getBalance(account, block_identifier=eth.default_block)
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.eth.get_balance()`
 
 
 .. py:method:: Eth.get_block_number()
@@ -251,8 +286,14 @@ The following methods are available on the ``web3.eth`` namespace.
 
     .. code-block:: python
 
-        >>> web3.eth.get_storage_at('0x6C8f2A135f6ed072DE4503Bd7C4999a1a17F824B', 0)
+        >>> web3.eth.get_storage_at('account_address', 0)
         '0x00000000000000000000000000000000000000000000000000120a0b063499d4'
+
+
+.. py:method:: Eth.getStorageAt(account, position, block_identifier=eth.default_block)
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.eth.Eth.get_storage_at`
 
 
 .. py:method:: Eth.get_proof(account, positions, block_identifier=eth.default_block)
@@ -266,9 +307,9 @@ The following methods are available on the ``web3.eth`` namespace.
 
     .. code-block:: python
 
-        >>> web3.eth.get_proof('0x6C8f2A135f6ed072DE4503Bd7C4999a1a17F824B', [0], 3391)
+        >>> web3.eth.get_proof('account_address', [0], 3391)
         AttributeDict({
-            'address': '0x4CB06C43fcdABeA22541fcF1F856A6a296448B6c',
+            'address': 'storage_address',
             'accountProof': ['0xf90211a03841a7ddd65c70c94b8efa79190d00f0ab134b26f18dcad508f60a7e74559d0ba0464b07429a05039e22931492d6c6251a860c018ea390045d596b1ac11b5c7aa7a011f4b89823a03c9c4b5a8ab079ee1bc0e2a83a508bb7a5dc7d7fb4f2e95d3186a0b5f7c51c3b2d51d97f171d2b38a4df1a7c0acc5eb0de46beeff4d07f5ed20e19a0b591a2ce02367eda31cf2d16eca7c27fd44dbf0864b64ea8259ad36696eb2a04a02b646a7552b8392ae94263757f699a27d6e9176b4c06b9fc0a722f893b964795a02df05d68bceb88eebf68aafde61d10ab942097afc1c58b8435ffd3895358a742a0c2f16143c4d1db03276c433696dddb3e9f3b113bcd854b127962262e98f43147a0828820316cc02bfefd899aba41340659fd06df1e0a0796287ec2a4110239f6d2a050496598670b04df7bbff3718887fa36437d6d8c7afb4eff86f76c5c7097dcc4a0c14e9060c6b3784e35b9e6ae2ad2984142a75910ccc89eb89dc1e2f44b6c58c2a009804db571d0ce07913e1cbacc4f1dc4fb8265c936f5c612e3a47e91c64d8e9fa063d96f38b3cb51b1665c6641e25ffe24803f2941e5df79942f6a53b7169647e4a0899f71abb18c6c956118bf567fac629b75f7e9526873e429d3d8abb6dbb58021a00fd717235298742623c0b3cafb3e4bd86c0b5ab1f71097b4dd19f3d6925d758da0096437146c16097f2ccc1d3e910d65a4132803baee2249e72c8bf0bcaaeb37e580',
                              '0xf90151a097b17a89fd2c03ee98cb6459c08f51b269da5cee46650e84470f62bf83b43efe80a03b269d284a4c3cf8f8deacafb637c6d77f607eec8d75e8548d778e629612310480a01403217a7f1416830c870087c524dabade3985271f6f369a12b010883c71927aa0f592ac54c879817389663be677166f5022943e2fe1b52617a1d15c2f353f27dda0ac8d015a9e668f5877fcc391fae33981c00577096f0455b42df4f8e8089ece24a003ba34a13e2f2fb4bf7096540b42d4955c5269875b9cf0f7b87632585d44c9a580a0b179e3230b07db294473ae57f0170262798f8c551c755b5665ace1215cee10ca80a0552d24252639a6ae775aa1df700ffb92c2411daea7286f158d44081c8172d072a0772a87d08cf38c4c68bfde770968571abd16fd3835cb902486bd2e515d53c12d80a0413774f3d900d2d2be7a3ad999ffa859a471dc03a74fb9a6d8275455f5496a548080',
                              '0xf869a020d13b52a61d3c1325ce3626a51418adebd6323d4840f1bdd93906359d11c933b846f8440180a01ab7c0b0a2a4bbb5a1495da8c142150891fc64e0c321e1feb70bd5f881951f7ea0551332d96d085185ab4019ad8bcf89c45321e136c261eb6271e574a2edf1461f'
@@ -291,8 +332,7 @@ The following methods are available on the ``web3.eth`` namespace.
 
     * Merkle proof verification using py-trie.
 
-    The following example verifies that the values returned in the ``AttributeDict``
-    are included in the state of given trie ``root``.
+    The following example verifies that the values returned in the AttributeDict are included in the state of given trie ``root``.
 
     .. code-block:: python
 
@@ -353,9 +393,14 @@ The following methods are available on the ``web3.eth`` namespace.
             return True
 
         block = w3.eth.get_block(3391)
-        proof = w3.eth.get_proof('0x6C8f2A135f6ed072DE4503Bd7C4999a1a17F824B', [0, 1], 3391)
+        proof = w3.eth.get_proof('account_address', [0, 1], 3391)
         assert verify_eth_get_proof(proof, block.stateRoot)
 
+
+.. py:method:: Eth.getProof(account, positions, block_identifier=eth.default_block)
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.eth.Eth.get_proof`
 
 .. py:method:: Eth.get_code(account, block_identifier=eth.default_block)
 
@@ -369,12 +414,17 @@ The following methods are available on the ``web3.eth`` namespace.
     .. code-block:: python
 
         # For a contract address.
-        >>> web3.eth.get_code('0x6C8f2A135f6ed072DE4503Bd7C4999a1a17F824B')
+        >>> web3.eth.get_code('contract_address')
         '0x6060604052361561027c5760e060020a60003504630199.....'
         # For a private key address.
-        >>> web3.eth.get_code('0xd3CdA913deB6f67967B99D67aCDFa1712C293601')
+        >>> web3.eth.get_code('account_address')
         '0x'
 
+
+.. py:method:: Eth.getCode(account, block_identifier=eth.default_block)
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.eth.Eth.get_code`
 
 .. py:method:: Eth.get_block(block_identifier=eth.default_block, full_transactions=False)
 
@@ -382,9 +432,8 @@ The following methods are available on the ``web3.eth`` namespace.
 
     Returns the block specified by ``block_identifier``.  Delegates to
     ``eth_getBlockByNumber`` if ``block_identifier`` is an integer or one of
-    the predefined block parameters ``'latest', 'earliest', 'pending',
-    'safe', 'finalized'`` - otherwise delegates to ``eth_getBlockByHash``.
-    Throws ``BlockNotFound`` error if the block is not found.
+    the predefined block parameters ``'latest', 'earliest', 'pending'``,
+    otherwise delegates to ``eth_getBlockByHash``. Throws ``BlockNotFound`` error if the block is not found.
 
     If ``full_transactions`` is ``True`` then the ``'transactions'`` key will
     contain full transactions objects.  Otherwise it will be an array of
@@ -400,7 +449,7 @@ The following methods are available on the ``web3.eth`` namespace.
             'gasUsed': 21000,
             'hash': '0xc0f4906fea23cf6f3cce98cb44e8e1449e455b28d684dfa9ff65426495584de6',
             'logsBloom': '0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
-            'miner': '0x61c808d82a3ac53231750dadc13c777b59310bd9',
+            'miner': 'miner_address',
             'nonce': '0x3b05c6d5524209f1',
             'number': 2000000,
             'parentHash': '0x57ebf07eb9ed1137d41447020a25e51d30a0c272b5896571499c82c33ecb7288',
@@ -415,6 +464,10 @@ The following methods are available on the ``web3.eth`` namespace.
             'uncles': [],
         })
 
+.. py:method:: Eth.getBlock(block_identifier=eth.default_block, full_transactions=False)
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.eth.Eth.get_block`
 
 .. py:method:: Eth.get_block_transaction_count(block_identifier)
 
@@ -425,9 +478,7 @@ The following methods are available on the ``web3.eth`` namespace.
     ``block_identifier``.  Delegates to
     ``eth_getBlockTransactionCountByNumber`` if ``block_identifier`` is an
     integer or one of the predefined block parameters ``'latest', 'earliest',
-    'pending', 'safe', 'finalized'``,
-    otherwise delegates to ``eth_getBlockTransactionCountByHash``.
-    Throws ``BlockNotFoundError`` if transactions are not found.
+    'pending'``, otherwise delegates to ``eth_getBlockTransactionCountByHash``. Throws ``BlockNotFoundError`` if transactions are not found.
 
     .. code-block:: python
 
@@ -435,6 +486,19 @@ The following methods are available on the ``web3.eth`` namespace.
         1
         >>> web3.eth.get_block_transaction_count('0x4e3a3754410177e6937ef1f84bba68ea139e8d1a2258c5f85db9f1cd715a1bdd')  # block 46147
         1
+
+
+.. py:method:: Eth.getBlockTransactionCount(block_identifier)
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.eth.Eth.get_block_transaction_count`
+
+
+
+.. py:method:: Eth.getUncle(block_identifier)
+
+    .. note:: Method to get an Uncle from its hash is not available through
+      RPC, a possible substitute is the method ``Eth.get_uncle_by_block``
 
 
 .. py:method:: Eth.get_uncle_by_block(block_identifier, uncle_index)
@@ -453,14 +517,14 @@ The following methods are available on the ``web3.eth`` namespace.
 
         >>> web3.eth.get_uncle_by_block(56160, 0)
         AttributeDict({
-          'author': '0xbe4532e1b1db5c913cf553be76180c1777055403',
+          'author': 'author_address',
           'difficulty': '0x17dd9ca0afe',
           'extraData': '0x476574682f686261722f76312e302e312f6c696e75782f676f312e342e32',
           'gasLimit': '0x2fefd8',
           'gasUsed': '0x0',
           'hash': '0xc78c35720d930f9ef34b4e6fb9d02ffec936f9b02a8f0fa858456e4afd4d5614',
           'logsBloom':'0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
-          'miner': '0xbe4532e1b1db5c913cf553be76180c1777055403',
+          'miner': 'miner_address',
           'mixHash': '0x041e14603f35a82f6023802fec96ef760433292434a39787514f140950597e5e',
           'nonce': '0x5d2b7e3f1af09995',
           'number': '0xdb5e',
@@ -482,6 +546,10 @@ The following methods are available on the ``web3.eth`` namespace.
             ...
         })
 
+.. py:method:: Eth.getUncleByBlock(block_identifier, uncle_index)
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.eth.Eth.get_uncle_by_block()`
 
 .. py:method:: Eth.get_uncle_count(block_identifier)
 
@@ -503,12 +571,16 @@ The following methods are available on the ``web3.eth`` namespace.
         >>> web3.eth.get_uncle_count('0x685b2226cbf6e1f890211010aa192bf16f0a0cba9534264a033b023d7367b845')
         1
 
+.. py:method:: Eth.getUncleCount(block_identifier)
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :attr:`~web3.eth.Eth.get_uncle_count()`
 
 .. py:method:: Eth.get_transaction(transaction_hash)
 
     * Delegates to ``eth_getTransactionByHash`` RPC Method
 
-    Returns the transaction specified by ``transaction_hash``. If the transaction cannot be found throws :class:`web3.exceptions.TransactionNotFound`.
+    Returns the transaction specified by ``transaction_hash``. If the transaction has not yet been mined throws :class:`web3.exceptions.TransactionNotFound`.
 
     .. code-block:: python
 
@@ -516,7 +588,7 @@ The following methods are available on the ``web3.eth`` namespace.
         AttributeDict({
             'blockHash': '0x4e3a3754410177e6937ef1f84bba68ea139e8d1a2258c5f85db9f1cd715a1bdd',
             'blockNumber': 46147,
-            'from': '0xA1E4380A3B1f749673E270229993eE55F35663b4',
+            'from': 'from_address',
             'gas': 21000,
             'gasPrice': None,
             'hash': '0x5c504ed432cb51138bcf09aa5e8a410dd4a1e204ef84bfed1be16dfba1b22060',
@@ -524,10 +596,16 @@ The following methods are available on the ``web3.eth`` namespace.
             'maxFeePerGas': 2000000000,
             'maxPriorityFeePerGas': 1000000000,
             'nonce': 0,
-            'to': '0x5DF9B87991262F6BA471F09758CDE1c0FC1De734',
+            'to': 'to_address',
             'transactionIndex': 0,
             'value': 31337,
         })
+
+
+.. py:method:: Eth.getTransaction(transaction_hash)
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :attr:`~web3.eth.Eth.get_transaction`
 
 
 .. py:method:: Eth.get_raw_transaction(transaction_hash)
@@ -544,6 +622,11 @@ The following methods are available on the ``web3.eth`` namespace.
         HexBytes('0xf86907843b9aca0082520894dc544d1aa88ff8bbd2f2aec754b1f1e99e1812fd018086eecac466e115a0f9db4e25484b28f486b247a372708d4cd0643fc63e604133afac577f4cc1eab8a044841d84e799d4dc18ba146816a937e8a0be8bc296bd8bb8aea126de5e627e06')
 
 
+.. py:method:: Eth.getTransactionFromBlock(block_identifier, transaction_index)
+
+   .. note:: This method is deprecated in EIP 1474.
+
+
 .. py:method:: Eth.get_transaction_by_block(block_identifier, transaction_index)
 
     * Delegates to ``eth_getTransactionByBlockNumberAndIndex`` or
@@ -553,7 +636,7 @@ The following methods are available on the ``web3.eth`` namespace.
     from the block specified by ``block_identifier``.  Delegates to
     ``eth_getTransactionByBlockNumberAndIndex`` if ``block_identifier`` is an
     integer or one of the predefined block parameters ``'latest', 'earliest',
-    'pending', 'safe', 'finalized'``, otherwise delegates to
+    'pending'``, otherwise delegates to
     ``eth_getTransactionByBlockHashAndIndex``.
     If a transaction is not found at specified arguments, throws :class:`web3.exceptions.TransactionNotFound`.
 
@@ -563,7 +646,7 @@ The following methods are available on the ``web3.eth`` namespace.
         AttributeDict({
             'blockHash': '0x4e3a3754410177e6937ef1f84bba68ea139e8d1a2258c5f85db9f1cd715a1bdd',
             'blockNumber': 46147,
-            'from': '0xA1E4380A3B1f749673E270229993eE55F35663b4',
+            'from': 'from_address',
             'gas': 21000,
             'gasPrice': None,
             'hash': '0x5c504ed432cb51138bcf09aa5e8a410dd4a1e204ef84bfed1be16dfba1b22060',
@@ -571,7 +654,7 @@ The following methods are available on the ``web3.eth`` namespace.
             'maxFeePerGas': 2000000000,
             'maxPriorityFeePerGas': 1000000000,
             'nonce': 0,
-            'to': '0x5DF9B87991262F6BA471F09758CDE1c0FC1De734',
+            'to': 'to_address',
             'transactionIndex': 0,
             'value': 31337,
         })
@@ -579,7 +662,7 @@ The following methods are available on the ``web3.eth`` namespace.
         AttributeDict({
             'blockHash': '0x4e3a3754410177e6937ef1f84bba68ea139e8d1a2258c5f85db9f1cd715a1bdd',
             'blockNumber': 46147,
-            'from': '0xA1E4380A3B1f749673E270229993eE55F35663b4',
+            'from': 'from_address',
             'gas': 21000,
             'gasPrice': None,
             'hash': '0x5c504ed432cb51138bcf09aa5e8a410dd4a1e204ef84bfed1be16dfba1b22060',
@@ -587,11 +670,15 @@ The following methods are available on the ``web3.eth`` namespace.
             'maxFeePerGas': 2000000000,
             'maxPriorityFeePerGas': 1000000000,
             'nonce': 0,
-            'to': '0x5DF9B87991262F6BA471F09758CDE1c0FC1De734',
+            'to': 'to_address',
             'transactionIndex': 0,
             'value': 31337,
         })
 
+.. py:method:: Eth.getTransactionByBlock(block_identifier, transaction_index)
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :attr:`~web3.eth.Eth.get_transaction_by_block`
 
 .. py:method:: Eth.get_raw_transaction_by_block(block_identifier, transaction_index)
 
@@ -602,7 +689,7 @@ The following methods are available on the ``web3.eth`` namespace.
     from the block specified by ``block_identifier``.  Delegates to
     ``eth_getRawTransactionByBlockNumberAndIndex`` if ``block_identifier`` is an
     integer or one of the predefined block parameters ``'latest', 'earliest',
-    'pending', 'safe', 'finalized'``, otherwise delegates to
+    'pending'``, otherwise delegates to
     ``eth_getRawTransactionByBlockHashAndIndex``.
     If a transaction is not found at specified arguments, throws :class:`web3.exceptions.TransactionNotFound`.
 
@@ -635,22 +722,27 @@ The following methods are available on the ``web3.eth`` namespace.
             'blockNumber': 46147,
             'contractAddress': None,
             'cumulativeGasUsed': 21000,
-            'from': '0xA1E4380A3B1f749673E270229993eE55F35663b4',
+            'from': 'from_address',
             'gasUsed': 21000,
             'logs': [],
             'logsBloom': '0x000000000000000000000000000000000000000000000000...0000',
             'status': 1,
-            'to': '0x5DF9B87991262F6BA471F09758CDE1c0FC1De734',
+            'to': 'to_address',
             'transactionHash': '0x5c504ed432cb51138bcf09aa5e8a410dd4a1e204ef84bfed1be16dfba1b22060',
             'transactionIndex': 0,
         })
 
 
+.. py:method:: Eth.waitForTransactionReceipt(transaction_hash, timeout=120, poll_latency=0.1)
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.eth.Eth.wait_for_transaction_receipt()`
+
 .. py:method:: Eth.get_transaction_receipt(transaction_hash)
 
     * Delegates to ``eth_getTransactionReceipt`` RPC Method
 
-    Returns the transaction receipt specified by ``transaction_hash``.  If the transaction cannot be found throws :class:`web3.exceptions.TransactionNotFound`.
+    Returns the transaction receipt specified by ``transaction_hash``.  If the transaction has not yet been mined throws :class:`web3.exceptions.TransactionNotFound`.
 
     If ``status`` in response equals 1 the transaction was successful. If it is equals 0 the transaction was reverted by EVM.
 
@@ -667,16 +759,20 @@ The following methods are available on the ``web3.eth`` namespace.
             'blockNumber': 46147,
             'contractAddress': None,
             'cumulativeGasUsed': 21000,
-            'from': '0xA1E4380A3B1f749673E270229993eE55F35663b4',
+            'from': 'from_address',
             'gasUsed': 21000,
             'logs': [],
             'logsBloom': '0x000000000000000000000000000000000000000000000000...0000',
             'status': 1, # 0 or 1
-            'to': '0x5DF9B87991262F6BA471F09758CDE1c0FC1De734',
+            'to': 'to_address',
             'transactionHash': '0x5c504ed432cb51138bcf09aa5e8a410dd4a1e204ef84bfed1be16dfba1b22060',
             'transactionIndex': 0,
         })
 
+.. py:method:: Eth.getTransactionReceipt(transaction_hash)
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.eth.Eth.get_transaction_receipt()`
 
 .. py:method:: Eth.get_transaction_count(account, block_identifier=web3.eth.default_block)
 
@@ -689,8 +785,14 @@ The following methods are available on the ``web3.eth`` namespace.
 
     .. code-block:: python
 
-        >>> web3.eth.get_transaction_count('0xd3CdA913deB6f67967B99D67aCDFa1712C293601')
+        >>> web3.eth.get_transaction_count('account_address')
         340
+
+
+.. py:method:: Eth.getTransactionCount(account, block_identifier=web3.eth.default_block)
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.eth.Eth.get_transaction_count()`
 
 
 .. py:method:: Eth.send_transaction(transaction)
@@ -734,9 +836,9 @@ The following methods are available on the ``web3.eth`` namespace.
 
     .. code-block:: python
 
-        # simple example (web3.py and / or client determines gas and fees, typically defaults to a dynamic fee transaction post London fork)
+        # simple example (Web3.py and / or client determines gas and fees, typically defaults to a dynamic fee transaction post London fork)
         >>> web3.eth.send_transaction({
-          'to': '0xd3CdA913deB6f67967B99D67aCDFa1712C293601',
+          'to': 'to_address',
           'from': web3.eth.coinbase,
           'value': 12345
         })
@@ -744,26 +846,30 @@ The following methods are available on the ``web3.eth`` namespace.
         # Dynamic fee transaction, introduced by EIP-1559:
         HexBytes('0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331')
         >>> web3.eth.send_transaction({
-          'to': '0xd3CdA913deB6f67967B99D67aCDFa1712C293601',
+          'to': 'to_address',
           'from': web3.eth.coinbase,
           'value': 12345,
           'gas': 21000,
-          'maxFeePerGas': web3.to_wei(250, 'gwei'),
-          'maxPriorityFeePerGas': web3.to_wei(2, 'gwei'),
+          'maxFeePerGas': web3.toWei(250, 'gwei'),
+          'maxPriorityFeePerGas': web3.toWei(2, 'gwei'),
         })
         HexBytes('0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331')
 
         # Legacy transaction (less efficient)
         HexBytes('0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331')
         >>> web3.eth.send_transaction({
-          'to': '0xd3CdA913deB6f67967B99D67aCDFa1712C293601',
+          'to': 'to_address',
           'from': web3.eth.coinbase,
           'value': 12345,
           'gas': 21000,
-          'gasPrice': web3.to_wei(50, 'gwei'),
+          'gasPrice': web3.toWei(50, 'gwei'),
         })
         HexBytes('0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331')
 
+.. py:method:: Eth.sendTransaction(transaction)
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :attr:`~web3.eth.Eth.send_transaction()`
 
 .. py:method:: Eth.sign_transaction(transaction)
 
@@ -779,13 +885,18 @@ The following methods are available on the ``web3.eth`` namespace.
             maxFeePerGas=2000000000,
             maxPriorityFeePerGas=1000000000,
             gas=100000,
-            to='0xd3CdA913deB6f67967B99D67aCDFa1712C293601',
+            to='account_address',
             value=1,
             data=b'',
             )
         )
         b"\xf8d\x80\x85\x040\xe24\x00\x82R\x08\x94\xdcTM\x1a\xa8\x8f\xf8\xbb\xd2\xf2\xae\xc7T\xb1\xf1\xe9\x9e\x18\x12\xfd\x01\x80\x1b\xa0\x11\r\x8f\xee\x1d\xe5=\xf0\x87\x0en\xb5\x99\xed;\xf6\x8f\xb3\xf1\xe6,\x82\xdf\xe5\x97lF|\x97%;\x15\xa04P\xb7=*\xef \t\xf0&\xbc\xbf\tz%z\xe7\xa3~\xb5\xd3\xb7=\xc0v\n\xef\xad+\x98\xe3'"  # noqa: E501
 
+
+.. py:method:: Eth.signTransaction(transaction)
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :attr:`~web3.eth.Eth.sign_transaction()`
 
 .. py:method:: Eth.send_raw_transaction(raw_transaction)
 
@@ -800,7 +911,7 @@ The following methods are available on the ``web3.eth`` namespace.
             maxFeePerGas=3000000000,
             maxPriorityFeePerGas=2000000000,
             gas=100000,
-            to='0xd3CdA913deB6f67967B99D67aCDFa1712C293601',
+            to='to_address',
             value=12345,
             data=b'',
             type=2,  # (optional) the type is now implicitly set based on appropriate transaction params
@@ -811,6 +922,10 @@ The following methods are available on the ``web3.eth`` namespace.
         >>> w3.eth.send_raw_transaction(signed_txn.rawTransaction)
         HexBytes('0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331')
 
+.. py:method:: Eth.sendRawTransaction(raw_transaction)
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.eth.Eth.send_raw_transaction()`
 
 .. py:method:: Eth.replace_transaction(transaction_hash, new_transaction)
 
@@ -855,18 +970,22 @@ The following methods are available on the ``web3.eth`` namespace.
     .. code-block:: python
 
         >>> tx = web3.eth.send_transaction({
-                'to': '0xd3CdA913deB6f67967B99D67aCDFa1712C293601',
+                'to': 'to_address',
                 'from': web3.eth.coinbase,
                 'value': 1000
             })
         HexBytes('0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331')
         >>> web3.eth.replace_transaction('0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331', {
-                'to': '0xd3CdA913deB6f67967B99D67aCDFa1712C293601',
+                'to': 'to_address',
                 'from': web3.eth.coinbase,
                 'value': 2000
             })
         HexBytes('0x4177e670ec6431606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1528989')
 
+.. py:method:: Eth.replaceTransaction(transaction_hash, new_transaction)
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.eth.Eth.replace_transaction()`
 
 .. py:method:: Eth.modify_transaction(transaction_hash, **transaction_params)
 
@@ -886,7 +1005,7 @@ The following methods are available on the ``web3.eth`` namespace.
     .. code-block:: python
 
         >>> tx = web3.eth.send_transaction({
-                'to': '0xd3CdA913deB6f67967B99D67aCDFa1712C293601',
+                'to': 'to_address',
                 'from': web3.eth.coinbase,
                 'value': 1000
             })
@@ -894,6 +1013,10 @@ The following methods are available on the ``web3.eth`` namespace.
         >>> web3.eth.modify_transaction('0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331', value=2000)
         HexBytes('0xec6434e6701771606e55d6b4ca35a1a6b75ee3d73315145a921026d15299d05')
 
+.. py:method:: Eth.modifyTransaction(transaction_hash, **transaction_params)
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.eth.Eth.modify_transaction()`
 
 .. py:method:: Eth.sign(account, data=None, hexstr=None, text=None)
 
@@ -909,17 +1032,17 @@ The following methods are available on the ``web3.eth`` namespace.
     .. code-block:: python
 
         >>> web3.eth.sign(
-              '0xd3CdA913deB6f67967B99D67aCDFa1712C293601',
+              'account_address',
               text='some-text-tö-sign')
         '0x1a8bbe6eab8c72a219385681efefe565afd3accee35f516f8edf5ae82208fbd45a58f9f9116d8d88ba40fcd29076d6eada7027a3b412a9db55a0164547810cc401'
 
         >>> web3.eth.sign(
-              '0xd3CdA913deB6f67967B99D67aCDFa1712C293601',
+              'account_address',
               data=b'some-text-t\xc3\xb6-sign')
         '0x1a8bbe6eab8c72a219385681efefe565afd3accee35f516f8edf5ae82208fbd45a58f9f9116d8d88ba40fcd29076d6eada7027a3b412a9db55a0164547810cc401'
 
         >>> web3.eth.sign(
-              '0xd3CdA913deB6f67967B99D67aCDFa1712C293601',
+              'account_address',
               hexstr='0x736f6d652d746578742d74c3b62d7369676e')
         '0x1a8bbe6eab8c72a219385681efefe565afd3accee35f516f8edf5ae82208fbd45a58f9f9116d8d88ba40fcd29076d6eada7027a3b412a9db55a0164547810cc401'
 
@@ -927,11 +1050,7 @@ The following methods are available on the ``web3.eth`` namespace.
 .. py:method:: Eth.sign_typed_data(account, jsonMessage)
 
     * Delegates to ``eth_signTypedData`` RPC Method
-      
-    .. note::
-    
-        ``eth_signTypedData`` is not currently supported by any major client (Besu, Erigon, Geth, or Nethermind)
-        
+
     Please note that the ``jsonMessage`` argument is the loaded JSON Object
     and **NOT** the JSON String itself.
 
@@ -940,6 +1059,10 @@ The following methods are available on the ``web3.eth`` namespace.
 
     ``account`` may be a checksum address or an ENS name
 
+.. py:method:: Eth.signTypedData(account, jsonMessage)
+
+    .. warning:: Deprecated: This property is deprecated in favor of
+      :meth:`~web3.eth.Eth.sign_typed_data()`
 
 .. py:method:: Eth.call(transaction, block_identifier=web3.eth.default_block, state_override=None, ccip_read_enabled=True)
 
@@ -958,7 +1081,7 @@ The following methods are available on the ``web3.eth`` namespace.
         >>> myContract.functions.getVar().call()
         1
         # The above call equivalent to the raw call:
-        >>> web3.eth.call({'value': 0, 'gas': 21736, 'maxFeePerGas': 2000000000, 'maxPriorityFeePerGas': 1000000000, 'to': '0xc305c901078781C232A2a521C2aF7980f8385ee9', 'data': '0x477a5c98'})
+        >>> we3.eth.call({'value': 0, 'gas': 21736, 'maxFeePerGas': 2000000000, 'maxPriorityFeePerGas': 1000000000, 'to': 'to_address', 'data': '0x477a5c98'})
         HexBytes('0x0000000000000000000000000000000000000000000000000000000000000001')
 
     In most cases it is better to make contract function call through the :py:class:`web3.contract.Contract` interface.
@@ -980,11 +1103,6 @@ The following methods are available on the ``web3.eth`` namespace.
     ``OffchainLookup`` instead of properly handling the exception according to EIP-3668. This may be useful for
     "preflighting" a transaction with a call (see :ref:`ccip-read-example` within the examples section).
 
-    If the function called results in a ``revert`` error, a ``ContractLogicError`` will be raised.
-    If there is an error message with the error, web3.py attempts to parse the
-    message that comes back and return it to the user as the error string.
-    As of v6.3.0, the raw data is also returned and
-    can be accessed via the ``data`` attribute on ``ContractLogicError``.
 
 .. py:method:: Eth.fee_history(block_count, newest_block, reward_percentiles=None)
 
@@ -1037,9 +1155,13 @@ The following methods are available on the ``web3.eth`` namespace.
 
     .. code-block:: python
 
-        >>> web3.eth.estimate_gas({'to': '0xd3CdA913deB6f67967B99D67aCDFa1712C293601', 'from':web3.eth.coinbase, 'value': 12345})
+        >>> web3.eth.estimate_gas({'to': 'to_address', 'from':web3.eth.coinbase, 'value': 12345})
         21000
 
+.. py:method:: Eth.estimateGas(transaction, block_identifier=None)
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.eth.Eth.estimate_gas()`
 
 .. py:method:: Eth.generate_gas_price(transaction_params=None)
 
@@ -1058,12 +1180,20 @@ The following methods are available on the ``web3.eth`` namespace.
         For information about how gas price can be customized in web3 see
         :ref:`Gas_Price`.
 
+.. py:method:: Eth.generateGasPrice(transaction_params=None)
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.eth.Eth.generate_gas_price()`
 
 .. py:method:: Eth.set_gas_price_strategy(gas_price_strategy)
 
     Set the selected gas price strategy. It must be a method of the signature
     ``(web3, transaction_params)`` and return a gas price denominated in wei.
 
+.. py:method:: Eth.setGasPriceStrategy(gas_price_strategy)
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.eth.Eth.set_gas_price_strategy()`
 
 Filters
 -------
@@ -1100,11 +1230,11 @@ with the filtering API.
     dictionary with the following keys.
 
     * ``fromBlock``: ``integer/tag`` - (optional, default: "latest") Integer
-      block number, or one of predefined block identifiers
-      "latest", "pending", "earliest", "safe", or "finalized".
+      block number, or "latest" for the last mined block or "pending",
+      "earliest" for not yet mined transactions.
     * ``toBlock``: ``integer/tag`` - (optional, default: "latest") Integer
-      block number, or one of predefined block identifiers
-      "latest", "pending", "earliest", "safe", or "finalized".
+      block number, or "latest" for the last mined block or "pending",
+      "earliest" for not yet mined transactions.
     * ``address``: ``string`` or list of ``strings``, each 20 Bytes -
       (optional) Contract address or a list of addresses from which logs should
       originate.
@@ -1113,11 +1243,6 @@ with the filtering API.
       This parameter can also be a list of topic lists in which case filtering
       will match any of the provided topic arrays.
 
-    .. note::
-
-        Though ``"latest"`` and ``"safe"`` block identifiers are not yet part of the
-        specifications for ``eth_newFilter``, they are supported by web3.py and may or
-        may not yield expected results depending on the node being accessed.
 
     See :doc:`./filters` for more information about filtering.
 
@@ -1127,7 +1252,7 @@ with the filtering API.
         <BlockFilter at 0x10b72dc28>
         >>> web3.eth.filter('pending')
         <TransactionFilter at 0x10b780340>
-        >>> web3.eth.filter({'fromBlock': 1000000, 'toBlock': 1000100, 'address': '0x6C8f2A135f6ed072DE4503Bd7C4999a1a17F824B'})
+        >>> web3.eth.filter({'fromBlock': 1000000, 'toBlock': 1000100, 'address': 'account_address'})
         <LogFilter at 0x10b7803d8>
 
 .. py:method:: Eth.get_filter_changes(self, filter_id)
@@ -1139,11 +1264,11 @@ with the filtering API.
 
     .. code-block:: python
 
-        >>> filter = web3.eth.filter()
-        >>> web3.eth.get_filter_changes(filter.filter_id)
+        >>> filt = web3.eth.filter()
+        >>> web3.eth.get_filter_changes(filt.filter_id)
         [
             {
-                'address': '0xDc3A9Db694BCdd55EBaE4A89B22aC6D12b3F0c24',
+                'address': 'account_address',
                 'blockHash': '0xb72256286ca528e09022ffd408856a73ef90e7216ac560187c6e43b4c4efd2f0',
                 'blockNumber': 2217196,
                 'data': '0x0000000000000000000000000000000000000000000000000000000000000001',
@@ -1156,6 +1281,12 @@ with the filtering API.
             },
             ...
         ]
+
+
+.. py:method:: Eth.getFilterChanges(self, filter_id)
+
+    .. warning:: Deprecated: This property is deprecated in favor of
+      :meth:`~web3.eth.Eth.get_filter_changes()`
 
 
 .. py:method:: Eth.get_filter_logs(self, filter_id)
@@ -1166,11 +1297,11 @@ with the filtering API.
 
     .. code-block:: python
 
-        >>> filter = web3.eth.filter()
-        >>> web3.eth.get_filter_logs(filter.filter_id)
+        >>> filt = web3.eth.filter()
+        >>> web3.eth.get_filter_logs(filt.filter_id)
         [
             {
-                'address': '0xDc3A9Db694BCdd55EBaE4A89B22aC6D12b3F0c24',
+                'address': 'account_address',
                 'blockHash': '0xb72256286ca528e09022ffd408856a73ef90e7216ac560187c6e43b4c4efd2f0',
                 'blockNumber': 2217196,
                 'data': '0x0000000000000000000000000000000000000000000000000000000000000001',
@@ -1183,6 +1314,12 @@ with the filtering API.
             },
             ...
         ]
+
+
+.. py:method:: Eth.getFilterLogs(self, filter_id)
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.eth.Eth.get_filter_logs`
 
 
 .. py:method:: Eth.uninstall_filter(self, filter_id)
@@ -1194,11 +1331,16 @@ with the filtering API.
 
     .. code-block:: python
 
-        >>> filter = web3.eth.filter()
-        >>> web3.eth.uninstall_filter(filter.filter_id)
+        >>> filt = web3.eth.filter()
+        >>> web3.eth.uninstall_filter(filt.filter_id)
         True
-        >>> web3.eth.uninstall_filter(filter.filter_id)
+        >>> web3.eth.uninstall_filter(filt.filter_id)
         False  # already uninstalled.
+
+.. py:method:: Eth.uninstallFilter(self, filter_id)
+
+    .. warning:: Deprecated: This method is deprecated in favor of
+      :meth:`~web3.eth.Eth.uninstall_filter`
 
 
 .. py:method:: Eth.get_logs(filter_params)
@@ -1206,6 +1348,11 @@ with the filtering API.
     This is the equivalent of: creating a new
     filter, running :meth:`~Eth.get_filter_logs`, and then uninstalling the filter. See
     :meth:`~Eth.filter` for details on allowed filter parameters.
+
+.. py:method:: Eth.getLogs(filter_params)
+
+    .. warning:: Deprecated: This property is deprecated in favor of
+      :attr:`~web3.eth.Eth.get_logs()`
 
 .. py:method:: Eth.submit_hashrate(hashrate, nodeid)
 
@@ -1217,6 +1364,10 @@ with the filtering API.
        >>> web3.eth.submit_hashrate(5000, node_id)
        True
 
+.. py:method:: Eth.submitHashrate(hashrate, nodeid)
+
+    .. warning:: Deprecated: This property is deprecated in favor of
+      :attr:`~web3.eth.Eth.submit_hashrate()`
 
 .. py:method:: Eth.submit_work(nonce, pow_hash, mix_digest)
 
@@ -1231,6 +1382,10 @@ with the filtering API.
            )
        True
 
+.. py:method:: Eth.submitWork(nonce, pow_hash, mix_digest)
+
+    .. warning:: Deprecated: This property is deprecated in favor of
+      :attr:`~web3.eth.Eth.submit_work()`
 
 Contracts
 ---------
@@ -1288,7 +1443,6 @@ Contracts
     - ``bytecode_runtime``
     - ``clone_bin``
     - ``dev_doc``
-    - ``decode_tuples``
     - ``interface``
     - ``metadata``
     - ``opcodes``
@@ -1296,7 +1450,7 @@ Contracts
     - ``src_map_runtime``
     - ``user_doc``
 
-    See :doc:`web3.contract` for more information about how to use contracts.
+    See :doc:`./contracts` for more information about how to use contracts.
 
 .. py:method:: Eth.set_contract_factory(contractFactoryClass)
 

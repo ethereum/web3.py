@@ -7,16 +7,8 @@ The Ethereum Name Service (ENS) is analogous to the Domain Name Service. It
 enables users and developers to use human-friendly names in place of error-prone
 hexadecimal addresses, content hashes, and more.
 
-The :mod:`ens` module is included with web3.py. It provides an interface to look up
+The :mod:`ens` module is included with Web3.py. It provides an interface to look up
 domains and addresses, add resolver records, or get and set metadata.
-
-
-.. note:: ENSIP-15 introduced a new standard for ENS name normalization. This standard
-    is implemented in web3.py via the ``ensip15_normalization`` flag on the ``ENS`` /
-    ``AsyncENS`` class. It is also available as a flag on relevant ``ens.utils.py``
-    utility methods. For more information, refer to the :ref:`ensip15_normalization`
-    section.
-
 
 Setup
 -----
@@ -24,7 +16,7 @@ Setup
 Create an :class:`~ens.ENS` object (named ``ns`` below) in one of three ways:
 
 1. Automatic detection
-2. Specify an instance of a :ref:`provider <providers>`
+2. Specify an instance or list of :ref:`providers`
 3. From an existing :class:`web3.Web3` object
 
 .. code-block:: python
@@ -40,11 +32,10 @@ Create an :class:`~ens.ENS` object (named ``ns`` below) in one of three ways:
     ns = ENS(provider)
 
     # or, with a w3 instance
-    # Note: This inherits the w3 middlewares from the w3 instance and adds a stalecheck middleware to the middleware onion.
-    # It also inherits the provider and codec from the w3 instance, as well as the ``strict_bytes_type_checking`` flag value.
+    # Note: This inherits the w3 middlewares from the w3 instance and adds a stalecheck middleware to the middleware onion
     from ens import ENS
     w3 = Web3(...)
-    ns = ENS.from_web3(w3)
+    ns = ENS.fromWeb3(w3)
 
 
 Asynchronous support is available via the ``AsyncENS`` module:
@@ -56,9 +47,9 @@ Asynchronous support is available via the ``AsyncENS`` module:
     ns = AsyncENS(provider)
 
 
-Note that an ``ens`` module instance is also available on the ``w3`` instance.
-The first time it's used, web3.py will create the  ``ens`` instance using
-``ENS.from_web3(w3)`` or ``AsyncENS.from_web3(w3)`` as appropriate.
+Note that an ``ens`` module instance is also avaliable on the ``w3`` instance.
+The first time it's used, Web3.py will create the  ``ens`` instance using
+``ENS.fromWeb3(w3)`` or ``AsyncENS.fromWeb3(w3)`` as appropriate.
 
 .. code-block:: python
 
@@ -70,112 +61,8 @@ The first time it's used, web3.py will create the  ``ens`` instance using
     w3.ens.address('ethereum.eth')
 
 
-.. py:attribute:: ens.strict_bytes_type_checking
-
-    The ``ENS`` instance has a ``strict_bytes_type_checking`` flag that toggles the flag
-    with the same name on the ``Web3`` instance attached to the ``ENS`` instance.
-    You may disable the stricter bytes type checking that is loaded by default using
-    this flag. For more examples, see :ref:`disable-strict-byte-check`
-
-    If instantiating a standalone ENS instance using ``ENS.from_web3()``, the ENS
-    instance will inherit the value of the flag on the Web3 instance at time of
-    instantiation.
-
-    .. doctest::
-
-        >>> from web3 import Web3, EthereumTesterProvider
-        >>> from ens import ENS
-        >>> w3 = Web3(EthereumTesterProvider())
-
-        >>> assert w3.strict_bytes_type_checking  # assert strict by default
-        >>> w3.is_encodable('bytes2', b'1')
-        False
-
-        >>> w3.strict_bytes_type_checking = False
-        >>> w3.is_encodable('bytes2', b'1')  # zero-padded, so encoded to: b'1\x00'
-        True
-
-        >>> ns = ENS.from_web3(w3)
-        >>> # assert inherited from w3 at time of instantiation via ENS.from_web3()
-        >>> assert ns.strict_bytes_type_checking is False
-        >>> ns.w3.is_encodable('bytes2', b'1')
-        True
-
-        >>> # assert these are now separate instances
-        >>> ns.strict_bytes_type_checking = True
-        >>> ns.w3.is_encodable('bytes2', b'1')
-        False
-
-        >>> # assert w3 flag value remains
-        >>> assert w3.strict_bytes_type_checking is False
-        >>> w3.is_encodable('bytes2', b'1')
-        True
-
-    However, if accessing the ``ENS`` class via the ``Web3`` instance as a module
-    (``w3.ens``), since all modules use the same ``Web3`` object reference
-    under the hood (the parent ``w3`` object), changing the
-    ``strict_bytes_type_checking`` flag value on ``w3`` also changes the flag state
-    for ``w3.ens.w3`` and all modules.
-
-    .. doctest::
-
-        >>> from web3 import Web3, EthereumTesterProvider
-        >>> w3 = Web3(EthereumTesterProvider())
-
-        >>> assert w3.strict_bytes_type_checking  # assert strict by default
-        >>> w3.is_encodable('bytes2', b'1')
-        False
-
-        >>> w3.strict_bytes_type_checking = False
-        >>> w3.is_encodable('bytes2', b'1')  # zero-padded, so encoded to: b'1\x00'
-        True
-
-        >>> assert w3 == w3.ens.w3  # assert same object
-        >>> assert not w3.ens.w3.strict_bytes_type_checking
-        >>> w3.ens.w3.is_encodable('bytes2', b'1')
-        True
-
-        >>> # sanity check on eth module as well
-        >>> assert not w3.eth.w3.strict_bytes_type_checking
-        >>> w3.eth.w3.is_encodable('bytes2', b'1')
-        True
-
-
 Usage
 -----
-
-.. _ensip15_normalization:
-
-ENSIP-15 Normalization
-~~~~~~~~~~~~~~~~~~~~~~
-
-The ENSIP-15 normalization algorithm is implemented in web3.py. It will be the default
-name normalization algorithm in web3.py ``v7`` and is available in web3.py ``v6`` via
-the ``ensip15_normalization`` flag on the ``ENS`` & ``AsyncENS`` classes. It is also
-available via the ``ensip15`` flag on relevant ``ens.utils`` utility methods:
-
-- :meth:`~ens.utils.normalize_name`
-- :meth:`~ens.utils.is_valid_name`
-- :meth:`~ens.utils.ens_encode_name`
-- :meth:`~ens.utils.label_to_hash`
-- :meth:`~ens.utils.raw_name_to_hash`
-
-and via the ``ensip15`` flag on static methods on the ``ENS`` & ``AsyncENS`` classes:
-
-- :meth:`~ens.BaseENS.namehash`
-- :meth:`~ens.BaseENS.labelhash`
-- :meth:`~ens.BaseENS.nameprep`
-- :meth:`~ens.BaseENS.is_valid_name`
-
-The ``ensip15_normalization`` flag is ``False`` by default on the ``ENS`` & ``AsyncENS``
-classes. Set this value to ``True`` to use the ENSIP-15 name normalization standard
-for all calls to ENS contracts via the ``ENS`` & ``AsyncENS`` classes.
-
-.. code-block:: python
-
-    from ens.auto import ns
-    ns.ensip15_normalization = True
-
 
 Name Info
 ~~~~~~~~~
@@ -189,7 +76,7 @@ Get the Address for an ENS Name
 
     from ens.auto import ns
     eth_address = ns.address('jasoncarver.eth')
-    assert eth_address == '0x5B2063246F2191f18F2675ceDB8b28102e957458'
+    assert eth_address == 'public_address'
 
 The ``ENS`` module has no opinion as to which TLD you can use,
 but will not infer a TLD if it is not provided with the name.
@@ -199,13 +86,13 @@ Get the ENS Name for an Address
 
 .. code-block:: python
 
-    domain = ns.name('0x5B2063246F2191f18F2675ceDB8b28102e957458')
+    domain = ns.name('public_address')
 
     # name() also accepts the bytes version of the address
     assert ns.name(b'[ c$o!\x91\xf1\x8f&u\xce\xdb\x8b(\x10.\x95tX') == domain
 
     # confirm that the name resolves back to the address that you looked up:
-    assert ns.address(domain) == '0x5B2063246F2191f18F2675ceDB8b28102e957458'
+    assert ns.address(domain) == 'public_address'
 
 .. note:: For accuracy, and as a recommendation from the ENS documentation on
     `reverse resolution <https://docs.ens.domains/dapp-developer-guide/resolving-names#reverse-resolution>`_,
@@ -233,7 +120,7 @@ you must already be the owner of the domain (or its parent).
 
 .. code-block:: python
 
-    ns.setup_address('jasoncarver.eth', '0x5B2063246F2191f18F2675ceDB8b28102e957458')
+    ns.setup_address('jasoncarver.eth', 'public_address')
 
 In the common case where you want to point the name to the owning address, you can skip the address.
 
@@ -250,7 +137,7 @@ You can claim arbitrarily deep subdomains.
     # wait for the transaction to be mined, then:
     assert (
         ns.address('supreme.executive.power.derives.from.a.mandate.from.the.masses.jasoncarver.eth')
-        == '0x5B2063246F2191f18F2675ceDB8b28102e957458'
+        == 'public_address'
     )
 
 .. warning:: Gas costs scale up with the number of subdomains!
@@ -265,7 +152,7 @@ this is referred to as "reverse" resolution. The ENS Reverse Resolver is used fo
 
 .. code-block:: python
 
-    ns.setup_name('jasoncarver.eth', '0x5B2063246F2191f18F2675ceDB8b28102e957458')
+    ns.setup_name('jasoncarver.eth', 'public_address')
 
 If you don't supply the address, :meth:`~ens.ENS.setup_name` will assume you want the
 address returned by :meth:`~ens.ENS.address`.
@@ -281,7 +168,7 @@ Wait for the transaction to be mined, then:
 
 .. code-block:: python
 
-    assert ns.name('0x5B2063246F2191f18F2675ceDB8b28102e957458') == 'jasoncarver.eth'
+    assert ns.name('public_address') == 'jasoncarver.eth'
 
 ....
 
@@ -298,7 +185,7 @@ You'll need to setup the address first, and then the text can be set:
 
 .. code-block:: python
 
-    ns.setup_address('jasoncarver.eth', '0x5B2063246F2191f18F2675ceDB8b28102e957458')
+    ns.setup_address('jasoncarver.eth', 'public_address')
     ns.set_text('jasoncarver.eth', 'url', 'https://example.com')
 
 A transaction dictionary can be passed as the last argument if desired:
@@ -336,7 +223,7 @@ You can get the resolver for an ENS name via the :meth:`~ens.ENS.resolver` metho
 
     >>> resolver = ns.resolver('jasoncarver.eth')
     >>> resolver.address
-    '0x5FfC014343cd971B7eb70732021E26C35B744cc4'
+    'public_address'
 
 ....
 
@@ -346,5 +233,28 @@ Wildcard Resolution Support
 The ``ENS`` module supports Wildcard Resolution for resolvers that implement the ``ExtendedResolver`` interface
 as described in `ENSIP-10 <https://docs.ens.domains/ens-improvement-proposals/ensip-10-wildcard-resolution>`_.
 Resolvers that implement the extended resolver interface should return ``True`` when calling the
-``supportsInterface()`` function with the extended resolver interface id ``"0x9061b923"`` and should resolve subdomains
+``supportsInterface()`` function with the extended resolver interface id ``0x9061b923`` and should resolve subdomains
 to a unique address.
+
+A working example of a resolver that supports wildcard resolution is the resolver for the ``hatch.eth`` record on the
+Ropsten testnet.
+
+.. code-block:: python
+
+    # connect to the Ropsten testnet
+    >>> w3 = Web3(WebsocketProvider("wss://{ropsten_provider}"))
+    >>> ns = ENS.fromWeb3(w3)
+
+    # get the resolver for `hatch.eth`
+    >>> resolver = ns.resolver('hatch.eth')
+    >>> resolver.address
+    'public_address_for_hatch'
+
+    # verify extended resolver interface support
+    >>> resolver.caller.supportsInterface('0x9061b923')
+    True
+
+    >>> ns.address('random-subdomain.hatch.eth')
+    'public_address_for_hatch_subdomain'
+    >>> ns.address('another-random-subdomain.hatch.eth')
+    'another_public_address_for_hatch_subdomain'

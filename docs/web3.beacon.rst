@@ -1,5 +1,5 @@
-Beacon API
-==========
+Eth 2.0 Beacon API
+=======================
 
 .. warning:: This API Is experimental. Client support is incomplete and the API itself is still evolving.
 
@@ -340,7 +340,7 @@ Methods
         >>> beacon.get_spec()
         {
           'data': {
-            'DEPOSIT_CONTRACT_ADDRESS': '0x8c5fecdC472E27Bc447696F431E425D02dd46a8c',
+            'DEPOSIT_CONTRACT_ADDRESS': 'contract_address',
             'MIN_ATTESTATION_INCLUSION_DELAY': '1',
             'SLOTS_PER_EPOCH': '32',
             'SHUFFLE_ROUND_COUNT': '90',
@@ -360,7 +360,7 @@ Methods
         {
           'data': {
             'chain_id': '5',
-            'address': '0x8c5fecdc472e27bc447696f431e425d02dd46a8c'
+            'address': 'contract_address'
           }
         }
 

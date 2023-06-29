@@ -19,14 +19,14 @@ representation.  Block numbers
     # get a block by number
     >>> web3.eth.get_block(12345)
     {
-        'author': '0xad5C1768e5974C231b2148169da064e61910f31a',
+        'author': 'author_address',
         'difficulty': 735512610763,
         'extraData': '0x476574682f76312e302e302f6c696e75782f676f312e342e32',
         'gasLimit': 5000,
         'gasUsed': 0,
         'hash': '0x767c2bfb3bdee3f78676c1285cd757bcd5d8c272cef2eb30d9733800a78c0b6d',
         'logsBloom': '0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
-        'miner': '0xad5c1768e5974c231b2148169da064e61910f31a',
+        'miner': 'miner_address',
         'mixHash': '0x31d9ec7e3855aeba37fd92aa1639845e70b360a60f77f12eff530429ef8cfcba',
         'nonce': '0x549f882c5f356f85',
         'number': 12345,
@@ -74,12 +74,10 @@ Checking the balance of an account
 ----------------------------------
 
 To find the amount of ether owned by an account, use the :meth:`~web3.eth.Eth.get_balance` method.
-At the time of writing, the account with the `most ether <https://etherscan.io/accounts/1>`_
-has a public address of 0x742d35Cc6634C0532925a3b844Bc454e4438f44e.
 
 .. code-block:: python
 
-   >>> web3.eth.get_balance('0x742d35Cc6634C0532925a3b844Bc454e4438f44e')
+   >>> web3.eth.get_balance('public_address')
    3841357360894980500000001
 
 Note that this number is not denominated in ether, but instead in the smallest unit of value in
@@ -142,15 +140,15 @@ Web3 can help you convert between denominations.  The following denominations ar
 +--------------+---------------------------------+
 
 Picking up from the previous example, the largest account contained
-3841357360894980500000001 wei. You can use the :meth:`~web3.from_wei` method
+3841357360894980500000001 wei. You can use the :meth:`~web3.fromWei` method
 to convert that balance to ether (or another denomination).
 
 .. code-block:: python
 
-    >>> web3.from_wei(3841357360894980500000001, 'ether')
+    >>> web3.fromWei(3841357360894980500000001, 'ether')
     Decimal('3841357.360894980500000001')
 
-To convert back to wei, you can use the inverse function, :meth:`~web3.to_wei`.
+To convert back to wei, you can use the inverse function, :meth:`~web3.toWei`.
 Note that Python's default floating point precision is insufficient for this
 use case, so it's necessary to cast the value to a
 `Decimal <https://docs.python.org/3/library/decimal.html>`_ if it isn't already.
@@ -158,7 +156,7 @@ use case, so it's necessary to cast the value to a
 .. code-block:: python
 
     >>> from decimal import Decimal
-    >>> web3.to_wei(Decimal('3841357.360894980500000001'), 'ether')
+    >>> web3.toWei(Decimal('3841357.360894980500000001'), 'ether')
     3841357360894980500000001
 
 Best practice: If you need to work with multiple currency denominations, default
@@ -167,23 +165,40 @@ wei, then from wei to whatever you need.
 
 .. code-block:: python
 
-    >>> web3.to_wei(Decimal('0.000000005'), 'ether')
+    >>> web3.toWei(Decimal('0.000000005'), 'ether')
     5000000000
-    >>> web3.from_wei(5000000000, 'gwei')
+    >>> web3.fromWei(5000000000, 'gwei')
     Decimal('5')
 
 
-Sending transactions
---------------------
+Making transactions
+-------------------
 
-There are a few options for sending transactions:
+There are a few options for making transactions:
 
 - :meth:`~web3.eth.Eth.send_transaction`
-- :meth:`~web3.eth.Eth.send_raw_transaction`
-- Calling :meth:`~web3.contract.ContractFunction.transact` on a contract function
-- Utilizing :meth:`~web3.middleware.construct_sign_and_send_raw_middleware`
 
-For more context, see the :doc:`transactions` Guide.
+  Use this method if:
+    - you want to send ether from one account to another.
+
+- :meth:`~web3.eth.Eth.send_raw_transaction`
+
+  Use this method if:
+    - you want to sign the transaction elsewhere, e.g., a hardware wallet.
+    - you want to broadcast a transaction through another provider, e.g., Infura.
+    - you have some other advanced use case that requires more flexibility.
+
+- :ref:`contract-functions`
+
+  Use these methods if:
+    - you want to interact with a contract. Web3.py parses the contract ABI and makes those functions available via the ``functions`` property.
+
+- :meth:`~web3.middleware.construct_sign_and_send_raw_middleware`
+
+  Use this middleware if:
+    - you want to automate signing when using ``w3.eth.send_transaction`` or ``ContractFunctions``.
+
+.. NOTE:: The location of your keys (e.g., local or hosted) will have implications on these methods. Read about the differences :ref:`here <eth-account>`.
 
 
 Looking up transactions
@@ -199,7 +214,7 @@ You can look up transactions using the ``web3.eth.get_transaction`` function.
         'blockNumber': 46147,
         'condition': None,
         'creates': None,
-        'from': '0xA1E4380A3B1f749673E270229993eE55F35663b4',
+        'from': 'from_address',
         'gas': 21000,
         'gasPrice': None,
         'hash': '0x5c504ed432cb51138bcf09aa5e8a410dd4a1e204ef84bfed1be16dfba1b22060',
@@ -213,14 +228,14 @@ You can look up transactions using the ``web3.eth.get_transaction`` function.
         'raw': '0xf86780862d79883d2000825208945df9b87991262f6ba471f09758cde1c0fc1de734827a69801ca088ff6cf0fefd94db46111149ae4bfc179e9b94721fffd821d38d16464b3f71d0a045e0aff800961cfce805daef7016b9b675c137a6a41a548f7b60a3484c06a33a',
         's': '0x45e0aff800961cfce805daef7016b9b675c137a6a41a548f7b60a3484c06a33a',
         'standardV': '0x1',
-        'to': '0x5DF9B87991262F6BA471F09758CDE1c0FC1De734',
+        'to': 'to_address',
         'transactionIndex': 0,
         'v': '0x1c',
         'value': 31337,
     }
 
-If no transaction for the given hash can be found, this method will
-throw :class:`web3.exceptions.TransactionNotFound`.
+If no transaction for the given hash can be found, then this function will
+instead return ``None``.
 
 
 Looking up receipts
@@ -246,8 +261,7 @@ Transaction receipts can be retrieved using the ``web3.eth.get_transaction_recei
     }
 
 
-If no transaction for the given hash can be found, this method will
-throw :class:`web3.exceptions.TransactionNotFound`.
+If the transaction has not yet been mined then this method will raise a ``TransactionNotFound`` error.
 
 
 Working with Contracts
@@ -264,7 +278,7 @@ instance, you can read data and execute transactions.
 .. code-block:: python
 
     # Configure w3, e.g., w3 = Web3(...)
-    address = '0x1f9840a85d5aF5bf1D1762F925BDADdC4201F988'
+    address = 'public_address'
     abi = '[{"inputs":[{"internalType":"address","name":"account","type":"address"},{"internalType":"address","name":"minter_","type":"address"},...'
     contract_instance = w3.eth.contract(address=address, abi=abi)
 
@@ -321,7 +335,7 @@ The following example demonstrates a few things:
        with open(file_path, 'r') as f:
           source = f.read()
 
-       return compile_source(source,output_values=['abi','bin'])
+       return compile_source(source)
 
 
     def deploy_contract(w3, contract_interface):
@@ -365,7 +379,7 @@ Output:
 
 .. code-block:: none
 
-    Deployed <stdin>:StoreVar to: 0xF2E246BB76DF876Cef8b38ae84130F4F55De395b
+    Deployed <stdin>:StoreVar to: public_address
 
     Gas estimate to transact with setVar: 45535
 
@@ -377,7 +391,7 @@ Output:
      'contractAddress': None,
      'cumulativeGasUsed': 43488,
      'gasUsed': 43488,
-     'logs': [AttributeDict({'type': 'mined', 'logIndex': 0, 'transactionIndex': 0, 'transactionHash': HexBytes('0x50aa3ba0673243f1e60f546a12ab364fc2f6603b1654052ebec2b83d4524c6d0'), 'blockHash': HexBytes('0x837609ad0a404718c131ac5157373662944b778250a507783349d4e78bd8ac84'), 'blockNumber': 2, 'address': '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b', 'data': '0x', 'topics': [HexBytes('0x6c2b4666ba8da5a95717621d879a77de725f3d816709b9cbe9f059b8f875e284'), HexBytes('0x00000000000000000000000000000000000000000000000000000000000000ff')]})],
+     'logs': [AttributeDict({'type': 'mined', 'logIndex': 0, 'transactionIndex': 0, 'transactionHash': HexBytes('0x50aa3ba0673243f1e60f546a12ab364fc2f6603b1654052ebec2b83d4524c6d0'), 'blockHash': HexBytes('0x837609ad0a404718c131ac5157373662944b778250a507783349d4e78bd8ac84'), 'blockNumber': 2, 'address': 'public_address', 'data': '0x', 'topics': [HexBytes('0x6c2b4666ba8da5a95717621d879a77de725f3d816709b9cbe9f059b8f875e284'), HexBytes('0x00000000000000000000000000000000000000000000000000000000000000ff')]})],
      'status': 1,
      'transactionHash': HexBytes('0x50aa3ba0673243f1e60f546a12ab364fc2f6603b1654052ebec2b83d4524c6d0'),
      'transactionIndex': 0}
@@ -390,9 +404,6 @@ Output:
 
 Working with Contracts via ethPM
 --------------------------------
-
-.. warning::
-   The ``ethPM`` module is no longer being maintained and will be deprecated with ``web3.py`` version 7.
 
 `ethPM <http://www.ethpm.com/>`__ packages contain configured contracts ready for use. Web3's ``ethpm`` module (``web3.pm``)
 extends Web3's native ``Contract`` module, with a few modifications for how you instantiate ``Contract`` factories and instances.
@@ -408,10 +419,10 @@ it as a ``Package`` instance.
 
 .. code-block:: python3
 
+    from web3.auto.infura import w3
+
     # Note. To use the web3.pm module, you will need to instantiate your w3 instance
     # with a web3 provider connected to the chain on which your registry lives.
-    from web3 import Web3, IPCProvider
-    w3 = Web3(IPCProvider(...))
 
     # The ethPM module is still experimental and subject to change,
     # so for now we need to enable it via a temporary flag.
@@ -457,7 +468,8 @@ within an ethPM package.
     # connected to your provider of choice. Now your factories will automatically
     # deploy to this new chain, and the deployments available on a package will
     # be automatically filtered to those located on the new chain.
-    goerli_registrar = ens_package.update_w3(goerli_w3_instance)
+    from web3.auto.infura.goerli import w3 as goerli_w3
+    goerli_registrar = ens_package.update_w3(goerli_w3)
 
 
 Working with an ERC20 Token Contract
@@ -476,12 +488,12 @@ contract which conforms to this standard.
     ABI = '[{"constant":true,"inputs":[],"name":"name","outputs":[{"name":"","type":"string"}],"payable":false,"type":"function","stateMutability":"view"},{"constant":false,"inputs":[{"name":"_spender","type":"address"},{"name":"_value","type":"uint256"}],"name":"approve","outputs":[{"name":"","type":"bool"}],"payable":false,"type":"function","stateMutability":"nonpayable"},{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"type":"function","stateMutability":"view"},{"constant":false,"inputs":[{"name":"_from","type":"address"},{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transferFrom","outputs":[{"name":"","type":"bool"}],"payable":false,"type":"function","stateMutability":"nonpayable"},{"constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"","type":"uint8"}],"payable":false,"type":"function","stateMutability":"view"},{"constant":true,"inputs":[{"name":"_owner","type":"address"}],"name":"balanceOf","outputs":[{"name":"","type":"uint256"}],"payable":false,"type":"function","stateMutability":"view"},{"constant":true,"inputs":[],"name":"symbol","outputs":[{"name":"","type":"string"}],"payable":false,"type":"function","stateMutability":"view"},{"constant":false,"inputs":[{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transfer","outputs":[{"name":"","type":"bool"}],"payable":false,"type":"function","stateMutability":"nonpayable"},{"constant":true,"inputs":[{"name":"_owner","type":"address"},{"name":"_spender","type":"address"}],"name":"allowance","outputs":[{"name":"","type":"uint256"}],"payable":false,"type":"function","stateMutability":"view"},{"inputs":[{"name":"_totalSupply","type":"uint256"}],"payable":false,"type":"constructor","stateMutability":"nonpayable"},{"anonymous":false,"inputs":[{"indexed":true,"name":"from","type":"address"},{"indexed":true,"name":"to","type":"address"},{"indexed":false,"name":"value","type":"uint256"}],"name":"Transfer","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"owner","type":"address"},{"indexed":true,"name":"spender","type":"address"},{"indexed":false,"name":"value","type":"uint256"}],"name":"Approval","type":"event"}]'
     factory = w3.eth.contract(abi=ABI, bytecode=bytecode)
     alice, bob = w3.eth.accounts[0], w3.eth.accounts[1]
-    assert alice == '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf', alice
-    assert bob == '0x2B5AD5c4795c026514f8317c7a215E218DcCD6cF', bob
-    tx_hash = factory.constructor(1000000).transact({'from': alice, 'gas': 899000, 'gasPrice': Web3.to_wei(1, 'gwei')})
+    assert alice == 'alice_public_address', alice
+    assert bob == 'bob_public_address', bob
+    tx_hash = factory.constructor(1000000).transact({'from': alice, 'gas': 899000, 'gasPrice': Web3.toWei(1, 'gwei')})
     assert tx_hash == HexBytes('0x49e3da72a95e4074a9eaea7b438c73ca154627d317e58abeae914e3769a15044'), tx_hash
     txn_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
-    assert txn_receipt['contractAddress'] == '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b', txn_receipt['contractAddress']
+    assert txn_receipt['contractAddress'] == 'contract_address', txn_receipt['contractAddress']
     contract_address = txn_receipt['contractAddress']
     contract = w3.eth.contract(contract_address, abi=ABI)
     total_supply = contract.functions.totalSupply().call()
@@ -507,7 +519,7 @@ contract and the ``ERC20`` ABI.
 
     >>> contract = w3.eth.contract(contract_address, abi=ABI)
     >>> contract.address
-    '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b'
+    'contract_address'
 
 
 Querying token metadata
@@ -542,8 +554,8 @@ we'll refer to as ``alice`` holding all of the tokens.
 
 .. doctest::
 
-    >>> alice = '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf'
-    >>> bob = '0x2B5AD5c4795c026514f8317c7a215E218DcCD6cF'
+    >>> alice = 'alice_public_address'
+    >>> bob = 'bob_public_address'
     >>> raw_balance = contract.functions.balanceOf(alice).call()
     >>> raw_balance
     1000000000000000000000000
@@ -651,7 +663,7 @@ appropriately in the following way:
 Contract Unit Tests in Python
 -----------------------------
 
-Here is an example of how one can use the `pytest`_ framework in python, web3.py,
+Here is an example of how one can use the `pytest`_ framework in python, Web3.py,
 eth-tester, and PyEVM to perform unit tests entirely in python without any
 additional need for a full featured ethereum node/client. To install needed
 dependencies you can use the pinned extra for eth_tester in web3 and pytest:
@@ -669,7 +681,7 @@ like so:
     :code: python
     :start-line: 1
 
-Using Infura Goerli Node
+Using Infura Rinkeby Node
 -------------------------
 Import your required libraries
 
@@ -681,7 +693,7 @@ Initialize a web3 instance with an Infura node
 
 .. code-block:: python
 
-    w3 = Web3(Web3.HTTPProvider("https://goerli.infura.io/v3/YOUR_INFURA_KEY"))
+    w3 = Web3(Web3.HTTPProvider("https://rinkeby.infura.io/v3/YOUR_INFURA_KEY"))
 
 
 Inject the middleware into the middleware onion
@@ -714,13 +726,13 @@ And finally, send the transaction
 
 Tip : afterwards you can use the value stored in ``txn_hash``, in an explorer like `etherscan`_ to view the transaction's details
 
-.. _etherscan: https://goerli.etherscan.io
+.. _etherscan: https://rinkeby.etherscan.io
 
 
 Adjusting log levels
 --------------------
 
-web3.py internally uses `Python logging subsystem <https://docs.python.org/3/library/logging.html>`_.
+Web3.py internally uses `Python logging subsystem <https://docs.python.org/3/library/logging.html>`_.
 
 If you want to run your application logging in debug mode, below is an example of how to make some JSON-RPC traffic quieter.
 
@@ -733,7 +745,7 @@ If you want to run your application logging in debug mode, below is an example o
         """Setup root logger and quiet some levels."""
         logger = logging.getLogger()
 
-        # Set log format to display the logger name to hunt down verbose logging modules
+        # Set log format to dislay the logger name to hunt down verbose logging modules
         fmt = "%(name)-25s %(levelname)-8s %(message)s"
 
         # Use colored logging output for console with the coloredlogs package
@@ -752,7 +764,6 @@ If you want to run your application logging in debug mode, below is an example o
 
         return logger
 
-.. _advanced_token_fetch:
 
 Advanced example: Fetching all token transfer events
 ----------------------------------------------------
@@ -773,7 +784,7 @@ eth_getLogs limitations
 
 Ethereum JSON-RPC API servers, like Geth, do not provide easy to paginate over events, only over blocks. There's no request that can find the first block with an event or how many events occur within a range of blocks. The only feedback the JSON-RPC service will give you is whether the `eth_getLogs` call failed.
 
-In this example script, we provide two kinds of heuristics to deal with this issue. The script scans events in a chunk of blocks (start block number - end block number). Then it uses two methods to find how many events there are likely to be in a block window:
+In this example script, we provide two kinds of heurestics to deal with this issue. The script scans events in a chunk of blocks (start block number - end block number). Then it uses two methods to find how many events there are likely to be in a block window:
 
 * Dynamically set the block range window size, while never exceeding a threshold (e.g., 10,000 blocks).
 
@@ -785,7 +796,7 @@ Example code
 
 The following example code is divided into a reusable ``EventScanner`` class and then a demo script that:
 
-* fetches all transfer events for `RCC token <https://etherscan.io/token/0x9b6443b0fb9c241a7fdac375595cea13e6b7807a>`_,
+* fetches all transfer events for `RCC token <https://etherscan.io/token/token_public_address>`_,
 
 * can incrementally run again to check if there are new events,
 
@@ -805,7 +816,7 @@ The script can be run with: ``python ./eventscanner.py <your JSON-RPC API URL>``
 
 .. code-block:: python
 
-    """A stateful event scanner for Ethereum-based blockchains using web3.py.
+    """A stateful event scanner for Ethereum-based blockchains using Web3.py.
 
     With the stateful mechanism, you can do one batch scan or incremental scans,
     where events are added wherever the scanner left off.
@@ -868,7 +879,7 @@ The script can be run with: ``python ./eventscanner.py <your JSON-RPC API URL>``
 
             :param event: Symbolic dictionary of the event data
 
-            :return: Internal state structure that is the result of event transformation.
+            :return: Internal state structure that is the result of event tranformation.
             """
 
         @abstractmethod
@@ -895,7 +906,7 @@ The script can be run with: ``python ./eventscanner.py <your JSON-RPC API URL>``
             """
             :param contract: Contract
             :param events: List of web3 Event we scan
-            :param filters: Filters passed to get_logs
+            :param filters: Filters passed to getLogs
             :param max_chunk_scan_size: JSON-RPC API limit in the number of blocks we query. (Recommendation: 10,000 for mainnet, 500,000 for testnets)
             :param max_request_retries: How many times we try to reattempt a failed JSON-RPC call
             :param request_retry_seconds: Delay between failed requests to let JSON-RPC server to recover
@@ -918,7 +929,7 @@ The script can be run with: ``python ./eventscanner.py <your JSON-RPC API URL>``
             # # (slow down scan after starting to get hits)
             self.chunk_size_decrease = 0.5
 
-            # Factor how fast we increase chunk size if no results found
+            # Factor how was we increase chunk size if no results found
             self.chunk_size_increase = 2.0
 
         @property
@@ -942,8 +953,8 @@ The script can be run with: ``python ./eventscanner.py <your JSON-RPC API URL>``
             If there are no prior scans, start from block 1.
             Otherwise, start from the last end block minus ten blocks.
             We rescan the last ten scanned blocks in the case there were forks to avoid
-            misaccounting due to minor single block works (happens once in an hour in Ethereum).
-            These heuristics could be made more robust, but this is for the sake of simple reference implementation.
+            misaccounting due to minor single block works (happens once in a hour in Ethereum).
+            These heurestics could be made more robust, but this is for the sake of simple reference implementation.
             """
 
             end_block = self.get_last_scanned_block()
@@ -1038,7 +1049,7 @@ The script can be run with: ``python ./eventscanner.py <your JSON-RPC API URL>``
             Currently Ethereum JSON-API does not have an API to tell when a first event occurred in a blockchain
             and our heuristics try to accelerate block fetching (chunk size) until we see the first event.
 
-            These heuristics exponentially increase the scan chunk size depending on if we are seeing events or not.
+            These heurestics exponentially increase the scan chunk size depending on if we are seeing events or not.
             When any transfers are encountered, we are back to scanning only a few blocks at a time.
             It does not make sense to do a full chain scan starting from block 1, doing one JSON-RPC call per 20 blocks.
             """
@@ -1162,14 +1173,14 @@ The script can be run with: ``python ./eventscanner.py <your JSON-RPC API URL>``
 
         This method is detached from any contract instance.
 
-        This is a stateless method, as opposed to create_filter.
+        This is a stateless method, as opposed to createFilter.
         It can be safely called against nodes which do not provide `eth_newFilter` API, like Infura.
         """
 
         if from_block is None:
-            raise TypeError("Missing mandatory keyword argument to get_logs: from_block")
+            raise TypeError("Missing mandatory keyword argument to getLogs: fromBlock")
 
-        # Currently no way to poke this using a public web3.py API.
+        # Currently no way to poke this using a public Web3.py API.
         # This will return raw underlying ABI JSON object for the event
         abi = event._get_event_abi()
 
@@ -1205,7 +1216,7 @@ The script can be run with: ``python ./eventscanner.py <your JSON-RPC API URL>``
         all_events = []
         for log in logs:
             # Convert raw JSON-RPC log result to human readable event by using ABI data
-            # More information how process_log works here
+            # More information how processLog works here
             # https://github.com/ethereum/web3.py/blob/fbaf1ad11b0c7fac09ba34baff2c256cffe0a148/web3/_utils/events.py#L200
             evt = get_event_data(codec, abi, log)
             # Note: This was originally yield,
@@ -1230,8 +1241,8 @@ The script can be run with: ``python ./eventscanner.py <your JSON-RPC API URL>``
         from tqdm import tqdm
 
         # RCC has around 11k Transfer events
-        # https://etherscan.io/token/0x9b6443b0fb9c241a7fdac375595cea13e6b7807a
-        RCC_ADDRESS = "0x9b6443b0fB9C241A7fdAC375595cEa13e6B7807A"
+        # https://etherscan.io/token/token_public_address
+        RCC_ADDRESS = "RCC_public_address"
 
         # Reduced ERC-20 ABI, only Transfer event
         ABI = """[
@@ -1402,7 +1413,7 @@ The script can be run with: ``python ./eventscanner.py <your JSON-RPC API URL>``
 
             # Assume we might have scanned the blocks all the way to the last Ethereum block
             # that mined a few seconds before the previous scan run ended.
-            # Because there might have been a minor Ethereum chain reorganisations
+            # Because there might have been a minor Etherueum chain reorganisations
             # since the last scan ended, we need to discard
             # the last few blocks from the previous scan results.
             chain_reorg_safety_blocks = 10

@@ -37,7 +37,7 @@ Attributes
        >>> web3.api
        "4.7.0"
 
-.. py:attribute:: Web3.client_version
+.. py:attribute:: Web3.clientVersion
 
     * Delegates to ``web3_clientVersion`` RPC Method
 
@@ -45,7 +45,7 @@ Attributes
 
     .. code-block:: python
 
-       >>> web3.client_version
+       >>> web3.clientVersion
        'Geth/v1.4.11-stable-fed692f6/darwin/go1.7'
 
 
@@ -54,7 +54,7 @@ Attributes
 Encoding and Decoding Helpers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. py:method:: Web3.to_hex(primitive=None, hexstr=None, text=None)
+.. py:method:: Web3.toHex(primitive=None, hexstr=None, text=None)
 
     Takes a variety of inputs and returns it in its hexadecimal representation.
     It follows the rules for converting to hex in the
@@ -62,34 +62,34 @@ Encoding and Decoding Helpers
 
     .. code-block:: python
 
-        >>> Web3.to_hex(0)
+        >>> Web3.toHex(0)
         '0x0'
-        >>> Web3.to_hex(1)
+        >>> Web3.toHex(1)
         '0x1'
-        >>> Web3.to_hex(0x0)
+        >>> Web3.toHex(0x0)
         '0x0'
-        >>> Web3.to_hex(0x000F)
+        >>> Web3.toHex(0x000F)
         '0xf'
-        >>> Web3.to_hex(b'')
+        >>> Web3.toHex(b'')
         '0x'
-        >>> Web3.to_hex(b'\x00\x0F')
+        >>> Web3.toHex(b'\x00\x0F')
         '0x000f'
-        >>> Web3.to_hex(False)
+        >>> Web3.toHex(False)
         '0x0'
-        >>> Web3.to_hex(True)
+        >>> Web3.toHex(True)
         '0x1'
-        >>> Web3.to_hex(hexstr='0x000F')
+        >>> Web3.toHex(hexstr='0x000F')
         '0x000f'
-        >>> Web3.to_hex(hexstr='000F')
+        >>> Web3.toHex(hexstr='000F')
         '0x000f'
-        >>> Web3.to_hex(text='')
+        >>> Web3.toHex(text='')
         '0x'
-        >>> Web3.to_hex(text='cowmö')
+        >>> Web3.toHex(text='cowmö')
         '0x636f776dc3b6'
 
 .. _JSON-RPC spec: https://github.com/ethereum/wiki/wiki/JSON-RPC#hex-value-encoding
 
-.. py:method:: Web3.to_text(primitive=None, hexstr=None, text=None)
+.. py:method:: Web3.toText(primitive=None, hexstr=None, text=None)
 
     Takes a variety of inputs and returns its string equivalent.
     Text gets decoded as UTF-8.
@@ -97,19 +97,19 @@ Encoding and Decoding Helpers
 
     .. code-block:: python
 
-        >>> Web3.to_text(0x636f776dc3b6)
+        >>> Web3.toText(0x636f776dc3b6)
         'cowmö'
-        >>> Web3.to_text(b'cowm\xc3\xb6')
+        >>> Web3.toText(b'cowm\xc3\xb6')
         'cowmö'
-        >>> Web3.to_text(hexstr='0x636f776dc3b6')
+        >>> Web3.toText(hexstr='0x636f776dc3b6')
         'cowmö'
-        >>> Web3.to_text(hexstr='636f776dc3b6')
+        >>> Web3.toText(hexstr='636f776dc3b6')
         'cowmö'
-        >>> Web3.to_text(text='cowmö')
+        >>> Web3.toText(text='cowmö')
         'cowmö'
 
 
-.. py:method:: Web3.to_bytes(primitive=None, hexstr=None, text=None)
+.. py:method:: Web3.toBytes(primitive=None, hexstr=None, text=None)
 
     Takes a variety of inputs and returns its bytes equivalent.
     Text gets encoded as UTF-8.
@@ -117,60 +117,60 @@ Encoding and Decoding Helpers
 
     .. code-block:: python
 
-        >>> Web3.to_bytes(0)
+        >>> Web3.toBytes(0)
         b'\x00'
-        >>> Web3.to_bytes(0x000F)
+        >>> Web3.toBytes(0x000F)
         b'\x0f'
-        >>> Web3.to_bytes(b'')
+        >>> Web3.toBytes(b'')
         b''
-        >>> Web3.to_bytes(b'\x00\x0F')
+        >>> Web3.toBytes(b'\x00\x0F')
         b'\x00\x0f'
-        >>> Web3.to_bytes(False)
+        >>> Web3.toBytes(False)
         b'\x00'
-        >>> Web3.to_bytes(True)
+        >>> Web3.toBytes(True)
         b'\x01'
-        >>> Web3.to_bytes(hexstr='0x000F')
+        >>> Web3.toBytes(hexstr='0x000F')
         b'\x00\x0f'
-        >>> Web3.to_bytes(hexstr='000F')
+        >>> Web3.toBytes(hexstr='000F')
         b'\x00\x0f'
-        >>> Web3.to_bytes(text='')
+        >>> Web3.toBytes(text='')
         b''
-        >>> Web3.to_bytes(text='cowmö')
+        >>> Web3.toBytes(text='cowmö')
         b'cowm\xc3\xb6'
 
 
-.. py:method:: Web3.to_int(primitive=None, hexstr=None, text=None)
+.. py:method:: Web3.toInt(primitive=None, hexstr=None, text=None)
 
     Takes a variety of inputs and returns its integer equivalent.
 
 
     .. code-block:: python
 
-        >>> Web3.to_int(0)
+        >>> Web3.toInt(0)
         0
-        >>> Web3.to_int(0x000F)
+        >>> Web3.toInt(0x000F)
         15
-        >>> Web3.to_int(b'\x00\x0F')
+        >>> Web3.toInt(b'\x00\x0F')
         15
-        >>> Web3.to_int(False)
+        >>> Web3.toInt(False)
         0
-        >>> Web3.to_int(True)
+        >>> Web3.toInt(True)
         1
-        >>> Web3.to_int(hexstr='0x000F')
+        >>> Web3.toInt(hexstr='0x000F')
         15
-        >>> Web3.to_int(hexstr='000F')
+        >>> Web3.toInt(hexstr='000F')
         15
 
-.. py:method:: Web3.to_json(obj)
+.. py:method:: Web3.toJSON(obj)
 
     Takes a variety of inputs and returns its JSON equivalent.
 
 
     .. code-block:: python
 
-        >>> Web3.to_json(3)
+        >>> Web3.toJSON(3)
         '3'
-        >>> Web3.to_json({'one': 1})
+        >>> Web3.toJSON({'one': 1})
         '{"one": 1}'
 
 
@@ -179,7 +179,7 @@ Encoding and Decoding Helpers
 Currency Conversions
 ~~~~~~~~~~~~~~~~~~~~~
 
-.. py:method:: Web3.to_wei(value, currency)
+.. py:method:: Web3.toWei(value, currency)
 
     Returns the value in the denomination specified by the ``currency`` argument
     converted to wei.
@@ -187,11 +187,11 @@ Currency Conversions
 
     .. code-block:: python
 
-        >>> Web3.to_wei(1, 'ether')
+        >>> Web3.toWei(1, 'ether')
         1000000000000000000
 
 
-.. py:method:: Web3.from_wei(value, currency)
+.. py:method:: Web3.fromWei(value, currency)
 
     Returns the value in wei converted to the given currency. The value is returned
     as a ``Decimal`` to ensure precision down to the wei.
@@ -199,7 +199,7 @@ Currency Conversions
 
     .. code-block:: python
 
-        >>> Web3.from_wei(1000000000000000000, 'ether')
+        >>> Web3.fromWei(1000000000000000000, 'ether')
         Decimal('1')
 
 
@@ -208,7 +208,7 @@ Currency Conversions
 Addresses
 ~~~~~~~~~
 
-.. py:method:: Web3.is_address(value)
+.. py:method:: Web3.isAddress(value)
 
     Returns ``True`` if the value is one of the recognized address formats.
 
@@ -218,32 +218,32 @@ Addresses
 
     .. code-block:: python
 
-        >>> Web3.is_address('0xd3CdA913deB6f67967B99D67aCDFa1712C293601')
+        >>> Web3.isAddress('public_address')
         True
 
 
-.. py:method:: Web3.is_checksum_address(value)
+.. py:method:: Web3.isChecksumAddress(value)
 
     Returns ``True`` if the value is a valid `EIP55`_ checksummed address
 
 
     .. code-block:: python
 
-        >>> Web3.is_checksum_address('0xd3CdA913deB6f67967B99D67aCDFa1712C293601')
+        >>> Web3.isChecksumAddress('public_address')
         True
-        >>> Web3.is_checksum_address('0xd3cda913deb6f67967b99d67acdfa1712c293601')
+        >>> Web3.isChecksumAddress('public_address')
         False
 
 
-.. py:method:: Web3.to_checksum_address(value)
+.. py:method:: Web3.toChecksumAddress(value)
 
     Returns the given address with an `EIP55`_ checksum.
 
 
     .. code-block:: python
 
-        >>> Web3.to_checksum_address('0xd3cda913deb6f67967b99d67acdfa1712c293601')
-        '0xd3CdA913deB6f67967B99D67aCDFa1712C293601'
+        >>> Web3.toChecksumAddress('public_address')
+        'public_address'
 
 .. _EIP55: https://github.com/ethereum/EIPs/issues/55
 
@@ -268,7 +268,7 @@ Cryptographic Hashing
         >>> Web3.keccak(text='txt')
         HexBytes('0xd7278090a36507640ea6b7a0034b69b0d240766fa3f98e3722be93c613b29d2e')
 
-.. py:classmethod:: Web3.solidity_keccak(abi_types, value)
+.. py:classmethod:: Web3.solidityKeccak(abi_types, value)
 
     Returns the Keccak-256 as it would be computed by the solidity ``keccak``
     function on a *packed* ABI encoding of the ``value`` list contents.  The ``abi_types``
@@ -278,19 +278,19 @@ Cryptographic Hashing
 
     .. code-block:: python
 
-        >>> Web3.solidity_keccak(['bool'], [True])
+        >>> Web3.solidityKeccak(['bool'], [True])
         HexBytes("0x5fe7f977e71dba2ea1a68e21057beebb9be2ac30c6410aa38d4f3fbe41dcffd2")
 
-        >>> Web3.solidity_keccak(['uint8', 'uint8', 'uint8'], [97, 98, 99])
+        >>> Web3.solidityKeccak(['uint8', 'uint8', 'uint8'], [97, 98, 99])
         HexBytes("0x4e03657aea45a94fc7d47ba826c8d667c0d1e6e33a64a036ec44f58fa12d6c45")
 
-        >>> Web3.solidity_keccak(['uint8[]'], [[97, 98, 99]])
+        >>> Web3.solidityKeccak(['uint8[]'], [[97, 98, 99]])
         HexBytes("0x233002c671295529bcc50b76a2ef2b0de2dac2d93945fca745255de1a9e4017e")
 
-        >>> Web3.solidity_keccak(['address'], ["0x49EdDD3769c0712032808D86597B84ac5c2F5614"])
+        >>> Web3.solidityKeccak(['address'], ["0x49EdDD3769c0712032808D86597B84ac5c2F5614"])
         HexBytes("0x2ff37b5607484cd4eecf6d13292e22bd6e5401eaffcc07e279583bc742c68882")
 
-        >>> Web3.solidity_keccak(['address'], ["ethereumfoundation.eth"])
+        >>> Web3.solidityKeccak(['address'], ["ethereumfoundation.eth"])
         HexBytes("0x913c99ea930c78868f1535d34cd705ab85929b2eaaf70fcd09677ecd6e5d75e9")
 
 
@@ -316,39 +316,23 @@ Check Encodability
         >>> from web3.auto.gethdev import w3
         >>> w3.is_encodable('bytes2', b'12')
         True
+        >>> w3.is_encodable('bytes2', b'1')
+        True
         >>> w3.is_encodable('bytes2', '0x1234')
         True
-        >>> w3.is_encodable('bytes2', '1234')  # not 0x-prefixed, no assumptions will be made
-        False
-        >>> w3.is_encodable('bytes2', b'1')  # does not match specified bytes size
-        False
-        >>> w3.is_encodable('bytes2', b'123')  # does not match specified bytes size
+        >>> w3.is_encodable('bytes2', b'123')
         False
 
-.. py:attribute:: w3.strict_bytes_type_checking
+.. py:method:: w3.enable_strict_bytes_type_checking()
 
-    Disable the stricter bytes type checking that is loaded by default. For more
-    examples, see :ref:`disable-strict-byte-check`
+   Enables stricter bytes type checking. For more examples see :ref:`enable-strict-byte-check`
 
     .. doctest::
 
         >>> from web3.auto.gethdev import w3
-
+        >>> w3.enable_strict_bytes_type_checking()
         >>> w3.is_encodable('bytes2', b'12')
         True
-
-        >>>  # not of exact size bytes2
-        >>> w3.is_encodable('bytes2', b'1')
-        False
-
-        >>> w3.strict_bytes_type_checking = False
-
-        >>> # zero-padded, so encoded to: b'1\x00'
-        >>> w3.is_encodable('bytes2', b'1')
-        True
-
-        >>> # re-enable it
-        >>> w3.strict_bytes_type_checking = True
         >>> w3.is_encodable('bytes2', b'1')
         False
 
@@ -374,6 +358,10 @@ Each ``Web3`` instance also exposes these namespaced API modules.
 .. py:attribute:: Web3.geth
 
     See :doc:`./web3.geth`
+
+.. py:attribute:: Web3.parity
+
+    See :doc:`./web3.parity`
 
 
 These internal modules inherit from the ``web3.module.Module`` class which give them some configurations internal to the
