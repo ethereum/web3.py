@@ -47,6 +47,34 @@ def name_to_address_middleware(w3: "Web3") -> Middleware:
 # -- async -- #
 
 
+async def async_format_all_ens_names_to_address(
+    async_web3: "AsyncWeb3",
+    abi_types_for_method: Sequence[Any],
+    data: Sequence[Any],
+) -> Sequence[Any]:
+    abi_typed_params = abi_data_tree(abi_types_for_method, data)
+
+    formatted_params = []
+    for param in abi_typed_params:
+        if param.abi_type == "address[]":
+            # handle name conversion in an address list
+            # Note: only supports single list atm, as is true the sync middleware
+            # TODO: handle address[][], etc...
+            formatted_data = await async_format_all_ens_names_to_address(
+                async_web3,
+                [param.abi_type[:-2]] * len(param.data),
+                [subparam.data for subparam in param.data],
+            )
+        else:
+            _abi_type, formatted_data = await async_abi_ens_resolver(
+                async_web3,
+                param.abi_type,
+                param.data,
+            )
+        formatted_params.append(formatted_data)
+    return formatted_params
+
+
 async def async_apply_ens_to_address_conversion(
     async_web3: "AsyncWeb3",
     params: Any,
@@ -73,23 +101,6 @@ async def async_apply_ens_to_address_conversion(
             f"ABI definitions must be a list or dictionary, "
             f"got {abi_types_for_method!r}"
         )
-
-
-async def async_format_all_ens_names_to_address(
-    async_web3: "AsyncWeb3",
-    abi_types_for_method: Sequence[Any],
-    abi_typed_data: Sequence[Any],
-) -> Sequence[Any]:
-    formatted_params = []
-    abi_typed_params = abi_data_tree(abi_types_for_method, abi_typed_data)
-    for param in abi_typed_params:
-        _abi_type, formatted_data = await async_abi_ens_resolver(
-            async_web3,
-            param.abi_type,
-            param.data,
-        )
-        formatted_params.append(formatted_data)
-    return formatted_params
 
 
 async def async_name_to_address_middleware(
