@@ -20,10 +20,11 @@ Ethereum Addresses
 
 All addresses must be supplied in one of three ways:
 
-* While connected to mainnet, an Ethereum Name Service name (often in the form ``myname.eth``)
 * A 20-byte hexadecimal that is checksummed using the `EIP-55
   <https://github.com/ethereum/EIPs/blob/master/EIPS/eip-55.md>`_ spec.
-* A 20-byte binary address.
+* A 20-byte binary address (python bytes type).
+* While connected to an Ethereum Name Service (ENS) supported chain, an ENS name
+  (often in the form ``myname.eth``).
 
 Disabling Strict Bytes Type Checking
 ------------------------------------

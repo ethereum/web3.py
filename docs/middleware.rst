@@ -72,9 +72,9 @@ AttributeDict
     accept .eth names in the 'from' and 'to' fields.
 
     .. note::
-        This middleware only converts ENS names if invoked with the mainnet
-        (where the ENS contract is deployed), for all other cases will result in an
-        ``InvalidAddress`` error
+        This middleware only converts ENS names on chains where the proper ENS
+        contracts are deployed to support this functionality. All other cases will
+        result in a ``NameNotFound`` error.
 
 Gas Price Strategy
 ~~~~~~~~~~~~~~~~~~~~~~~~
