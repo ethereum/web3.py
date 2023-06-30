@@ -7,9 +7,11 @@ import copy
 import itertools
 import re
 from typing import (
+    TYPE_CHECKING,
     Any,
     Callable,
     Collection,
+    Coroutine,
     Dict,
     Iterable,
     List,
@@ -53,6 +55,7 @@ from eth_utils import (
     decode_hex,
     is_bytes,
     is_list_like,
+    is_string,
     is_text,
     to_text,
     to_tuple,
@@ -66,6 +69,9 @@ from eth_utils.toolz import (
     pipe,
 )
 
+from web3._utils.decorators import (
+    reject_recursive_repeats,
+)
 from web3._utils.ens import (
     is_ens_name,
 )
@@ -82,10 +88,16 @@ from web3.types import (
     ABIEventParams,
     ABIFunction,
     ABIFunctionParams,
+    TReturn,
 )
 from web3.utils import (  # public utils module
     get_abi_input_names,
 )
+
+if TYPE_CHECKING:
+    from web3 import (  # noqa: F401
+        AsyncWeb3,
+    )
 
 
 def filter_by_type(_type: str, contract_abi: ABI) -> List[Union[ABIFunction, ABIEvent]]:
@@ -971,3 +983,70 @@ def abi_decoded_namedtuple_factory(
             return super().__new__(self, *args)
 
     return ABIDecodedNamedTuple
+
+
+# -- async -- #
+
+
+async def async_data_tree_map(
+    async_w3: "AsyncWeb3",
+    func: Callable[
+        ["AsyncWeb3", TypeStr, Any], Coroutine[Any, Any, Tuple[TypeStr, Any]]
+    ],
+    data_tree: Any,
+) -> "ABITypedData":
+    """
+    Map an awaitable method to every ABITypedData element in the tree.
+
+    The awaitable method should receive three positional args:
+        async_w3, abi_type, and data
+    """
+
+    async def async_map_to_typed_data(elements: Any) -> "ABITypedData":
+        if isinstance(elements, ABITypedData) and elements.abi_type is not None:
+            formatted = await func(async_w3, *elements)
+            return ABITypedData(formatted)
+        else:
+            return elements
+
+    return await async_recursive_map(async_w3, async_map_to_typed_data, data_tree)
+
+
+@reject_recursive_repeats
+async def async_recursive_map(
+    async_w3: "AsyncWeb3",
+    func: Callable[[Any], Coroutine[Any, Any, TReturn]],
+    data: Any,
+) -> TReturn:
+    """
+    Apply an awaitable method to data and any collection items inside data
+    (using async_map_collection).
+
+    Define the awaitable method so that it only applies to the type of value that you
+    want it to apply to.
+    """
+
+    async def async_recurse(item: Any) -> TReturn:
+        return await async_recursive_map(async_w3, func, item)
+
+    items_mapped = await async_map_if_collection(async_recurse, data)
+    return await func(items_mapped)
+
+
+async def async_map_if_collection(
+    func: Callable[[Any], Coroutine[Any, Any, Any]], value: Any
+) -> Any:
+    """
+    Apply an awaitable method to each element of a collection or value of a dictionary.
+    If the value is not a collection, return it unmodified.
+    """
+
+    datatype = type(value)
+    if isinstance(value, Mapping):
+        return datatype({key: await func(val) for key, val in value.values()})
+    if is_string(value):
+        return value
+    elif isinstance(value, Iterable):
+        return datatype([await func(item) for item in value])
+    else:
+        return value

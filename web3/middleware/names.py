@@ -23,6 +23,11 @@ from web3.types import (
 
 from .._utils.abi import (
     abi_data_tree,
+    async_data_tree_map,
+    strip_abi_type,
+)
+from .._utils.formatters import (
+    recursive_map,
 )
 from .formatting import (
     construct_formatting_middleware,
@@ -52,26 +57,14 @@ async def async_format_all_ens_names_to_address(
     abi_types_for_method: Sequence[Any],
     data: Sequence[Any],
 ) -> Sequence[Any]:
+    # provide a stepwise version of what the curried formatters do
     abi_typed_params = abi_data_tree(abi_types_for_method, data)
-
-    formatted_params = []
-    for param in abi_typed_params:
-        if param.abi_type == "address[]":
-            # handle name conversion in an address list
-            # Note: only supports single list atm, as is true the sync middleware
-            # TODO: handle address[][], etc...
-            formatted_data = await async_format_all_ens_names_to_address(
-                async_web3,
-                [param.abi_type[:-2]] * len(param.data),
-                [subparam.data for subparam in param.data],
-            )
-        else:
-            _abi_type, formatted_data = await async_abi_ens_resolver(
-                async_web3,
-                param.abi_type,
-                param.data,
-            )
-        formatted_params.append(formatted_data)
+    formatted_data_tree = await async_data_tree_map(
+        async_web3,
+        async_abi_ens_resolver,
+        abi_typed_params,
+    )
+    formatted_params = recursive_map(strip_abi_type, formatted_data_tree)
     return formatted_params
 
 
@@ -96,6 +89,7 @@ async def async_apply_ens_to_address_conversion(
         )
         formatted_dict = dict(zip(fields, formatted_params))
         return (formatted_dict,)
+
     else:
         raise TypeError(
             f"ABI definitions must be a list or dictionary, "
