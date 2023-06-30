@@ -3,7 +3,7 @@
 Overview
 ========
 
-The purpose of this page is to give you a sense of everything Web3.py can do
+The purpose of this page is to give you a sense of everything web3.py can do
 and to serve as a quick reference guide. You'll find a summary of each feature
 with links to learn more. You may also be interested in the
 :ref:`Examples <examples>` page, which demonstrates some of these features in
@@ -13,23 +13,28 @@ greater detail.
 Configuration
 ~~~~~~~~~~~~~
 
-After installing Web3.py (via ``pip install web3``), you'll need to specify the
-provider and any middleware you want to use beyond the defaults.
+After installing web3.py (via ``pip install web3``), you'll need to configure
+a provider endpoint and any middleware you want to use beyond the defaults.
 
 
 Providers
 ---------
 
-Providers are how Web3.py connects to the blockchain. The library comes with the
+:doc:`providers` are how web3.py connects to a blockchain. The library comes with the
 following built-in providers:
 
-- ``Web3.IPCProvider`` for connecting to ipc socket based JSON-RPC servers.
-- ``Web3.HTTPProvider`` for connecting to http and https based JSON-RPC servers.
-- ``Web3.WebsocketProvider`` for connecting to ws and wss websocket based JSON-RPC servers.
+- :class:`~web3.providers.ipc.IPCProvider` for connecting to ipc socket based JSON-RPC servers.
+- :class:`~web3.providers.rpc.HTTPProvider` for connecting to http and https based JSON-RPC servers.
+- :class:`~web3.providers.websocket.WebsocketProvider` for connecting to ws and wss websocket based JSON-RPC servers.
+- :class:`~web3.providers.async_rpc.AsyncHTTPProvider` for connecting to http and https based JSON-RPC servers.
+
+
+Examples
+^^^^^^^^
 
 .. code-block:: python
 
-   >>> from web3 import Web3
+   >>> from web3 import Web3, AsyncWeb3
 
    # IPCProvider:
    >>> w3 = Web3(Web3.IPCProvider('./path/to/geth.ipc'))
@@ -40,19 +45,24 @@ following built-in providers:
    # WebsocketProvider:
    >>> w3 = Web3(Web3.WebsocketProvider('ws://127.0.0.1:8546'))
 
-   >>> w3.isConnected()
+   >>> w3.is_connected()
    True
 
-For more information, (e.g., connecting to remote nodes, provider auto-detection,
-using a test provider) see the :ref:`Providers <providers>` documentation.
+   # AsyncHTTPProvider:
+   >>> w3 = AsyncWeb3(AsyncWeb3.AsyncHTTPProvider('http://127.0.0.1:8545'))
+
+   >>> await w3.is_connected()
+   True
+
+For more context, see the :doc:`providers` documentation.
 
 
 Middleware
 ----------
 
-Your Web3.py instance may be further configured via middleware.
+Your web3.py instance may be further configured via :doc:`middleware`.
 
-Web3.py middleware is described using an onion metaphor, where each layer of
+web3.py middleware is described using an onion metaphor, where each layer of
 middleware may affect both the incoming request and outgoing response from your
 provider. The documentation includes a :ref:`visualization <Modifying_Middleware>`
 of this idea.
@@ -64,11 +74,11 @@ Several middleware are :ref:`included by default <default_middleware>`. You may 
 :meth:`clear <Web3.middleware_onion.clear>`) any of these middleware.
 
 
-Your Keys
-~~~~~~~~~
+Accounts and Private Keys
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Private keys are required to approve any transaction made on your behalf. The manner in
-which your key is secured will determine how you create and send transactions in Web3.py.
+which your key is secured will determine how you create and send transactions in web3.py.
 
 A local node, like `Geth <https://geth.ethereum.org/>`_, may manage your keys for you.
 You can reference those keys using the :attr:`web3.eth.accounts <web3.eth.Eth.accounts>`
@@ -79,6 +89,7 @@ In this case, you'll need to have your private key available locally for signing
 transactions.
 
 Full documentation on the distinction between keys can be found :ref:`here <eth-account>`.
+The separate guide to :doc:`transactions` may also help clarify how to manage keys.
 
 
 Base API
@@ -91,41 +102,41 @@ Encoding and Decoding Helpers
 -----------------------------
 
 - :meth:`Web3.is_encodable() <web3.w3.is_encodable>`
-- :meth:`Web3.toBytes() <web3.Web3.toBytes>`
-- :meth:`Web3.toHex() <web3.Web3.toHex>`
-- :meth:`Web3.toInt() <web3.Web3.toInt>`
-- :meth:`Web3.toJSON() <web3.Web3.toJSON>`
-- :meth:`Web3.toText() <web3.Web3.toText>`
+- :meth:`Web3.to_bytes() <web3.Web3.to_bytes>`
+- :meth:`Web3.to_hex() <web3.Web3.to_hex>`
+- :meth:`Web3.to_int() <web3.Web3.to_int>`
+- :meth:`Web3.to_json() <web3.Web3.to_json>`
+- :meth:`Web3.to_text() <web3.Web3.to_text>`
 
 
 Address Helpers
 ---------------
 
-- :meth:`Web3.isAddress() <web3.Web3.isAddress>`
-- :meth:`Web3.isChecksumAddress() <web3.Web3.isChecksumAddress>`
-- :meth:`Web3.toChecksumAddress() <web3.Web3.toChecksumAddress>`
+- :meth:`Web3.is_address() <web3.Web3.is_address>`
+- :meth:`Web3.is_checksum_address() <web3.Web3.is_checksum_address>`
+- :meth:`Web3.to_checksum_address() <web3.Web3.to_checksum_address>`
 
 
 Currency Conversions
 --------------------
 
-- :meth:`Web3.fromWei() <web3.Web3.fromWei>`
-- :meth:`Web3.toWei() <web3.Web3.toWei>`
+- :meth:`Web3.from_wei() <web3.Web3.from_wei>`
+- :meth:`Web3.to_wei() <web3.Web3.to_wei>`
 
 
 Cryptographic Hashing
 ---------------------
 
 - :meth:`Web3.keccak() <web3.Web3.keccak>`
-- :meth:`Web3.solidityKeccak() <web3.Web3.solidityKeccak>`
+- :meth:`Web3.solidity_keccak() <web3.Web3.solidity_keccak>`
 
 
 web3.eth API
 ~~~~~~~~~~~~
 
 The most commonly used APIs for interacting with Ethereum can be found under the
-``web3.eth`` namespace.  As a reminder, the :ref:`Examples <examples>` page will
-demonstrate how to use several of these methods.
+``web3.eth`` namespace.  As a reminder, the :doc:`examples` page will demonstrate
+how to use several of these methods.
 
 
 Fetching Data
@@ -134,7 +145,7 @@ Fetching Data
 Viewing account balances (:meth:`get_balance <web3.eth.Eth.get_balance>`), transactions
 (:meth:`get_transaction <web3.eth.Eth.get_transaction>`), and block data
 (:meth:`get_block <web3.eth.Eth.get_block>`) are some of the most common starting
-points in Web3.py.
+points in web3.py.
 
 
 API
@@ -153,13 +164,14 @@ API
 - :meth:`web3.eth.get_uncle_count() <web3.eth.Eth.get_uncle_count>`
 
 
-Making Transactions
--------------------
+Sending Transactions
+--------------------
 
 The most common use cases will be satisfied with
 :meth:`send_transaction <web3.eth.Eth.send_transaction>` or the combination of
 :meth:`sign_transaction <web3.eth.Eth.sign_transaction>` and
-:meth:`send_raw_transaction <web3.eth.Eth.send_raw_transaction>`.
+:meth:`send_raw_transaction <web3.eth.Eth.send_raw_transaction>`. For more context,
+see the full guide to :doc:`transactions`.
 
 .. note::
 
@@ -189,13 +201,12 @@ API
 Contracts
 ---------
 
-The two most common use cases involving smart contracts are deploying and executing
-functions on a deployed contract.
+web3.py can help you deploy, read from, or execute functions on a deployed contract.
 
 Deployment requires that the contract already be compiled, with its bytecode and ABI
-available. This compilation step can done within
+available. This compilation step can be done within
 `Remix <http://remix.ethereum.org/>`_ or one of the many contract development
-frameworks, such as `Brownie <https://eth-brownie.readthedocs.io/>`_.
+frameworks, such as `Ape <https://docs.apeworx.io/ape/stable/index.html/>`_.
 
 Once the contract object is instantiated, calling ``transact`` on the
 :meth:`constructor <web3.contract.Contract.constructor>` method will deploy an
@@ -209,8 +220,8 @@ instance of the contract:
    >>> tx_receipt.contractAddress
    'contract_address'
 
-Once loaded into a Contract object, the functions of a deployed contract are available
-on the ``functions`` namespace:
+Once a deployed contract is loaded into a Contract object, the functions of that
+contract are available on the ``functions`` namespace:
 
 .. code-block:: python
 
@@ -256,7 +267,7 @@ Logs and Filters
 ----------------
 
 If you want to react to new blocks being mined or specific events being emitted by
-a contract, you can leverage Web3.py filters.
+a contract, you can leverage web3.py filters.
 
 .. code-block:: python
 
@@ -264,14 +275,14 @@ a contract, you can leverage Web3.py filters.
    >>> new_filter = web3.eth.filter('latest')
 
    # Use case: filter for contract event "MyEvent"
-   >>> new_filter = deployed_contract.events.MyEvent.createFilter(fromBlock='latest')
+   >>> new_filter = deployed_contract.events.MyEvent.create_filter(fromBlock='latest')
 
    # retrieve filter results:
    >>> new_filter.get_all_entries()
    >>> new_filter.get_new_entries()
 
 More complex patterns for creating filters and polling for logs can be found in the
-:ref:`Filtering <filtering>` documentation.
+:doc:`filters` documentation.
 
 
 API
@@ -282,7 +293,7 @@ API
 - :meth:`web3.eth.get_filter_logs() <web3.eth.Eth.get_filter_logs>`
 - :meth:`web3.eth.uninstall_filter() <web3.eth.Eth.uninstall_filter>`
 - :meth:`web3.eth.get_logs() <web3.eth.Eth.get_logs>`
-- :meth:`Contract.events.your_event_name.createFilter() <web3.contract.Contract.events.your_event_name.createFilter>`
+- :meth:`Contract.events.your_event_name.create_filter() <web3.contract.Contract.events.your_event_name.create_filter>`
 - :meth:`Contract.events.your_event_name.build_filter() <web3.contract.Contract.events.your_event_name.build_filter>`
 - :meth:`Filter.get_new_entries() <web3.utils.filters.Filter.get_new_entries>`
 - :meth:`Filter.get_all_entries() <web3.utils.filters.Filter.get_all_entries>`
@@ -313,5 +324,5 @@ ENS
 `Ethereum Name Service (ENS) <https://ens.domains/>`_ provides the infrastructure
 for human-readable addresses. As an example, instead of
 ``public_address``, you can send funds to
-``ethereumfoundation.eth``. Web3.py has support for ENS, documented
+``ethereumfoundation.eth``. web3.py has support for ENS, documented
 :ref:`here <ens_overview>`.

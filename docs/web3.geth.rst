@@ -125,12 +125,6 @@ The ``web3.geth.admin`` object exposes methods to interact with the RPC APIs und
 
         >>> web3.geth.admin.start_http()
         True
-        
-
-.. py:method:: start_rpc()
-
-  .. warning:: Deprecated: This method is deprecated in favor of
-    :meth:`~web3.geth.admin.start_http()`
 
 
 .. py:method:: start_ws(host='localhost', port=8546, cors="", apis="eth,net,web3")
@@ -160,12 +154,6 @@ The ``web3.geth.admin`` object exposes methods to interact with the RPC APIs und
         True
 
 
-.. py:method:: stop_rpc()
-
-  .. warning:: Deprecated: This method is deprecated in favor of
-    :meth:`~web3.geth.admin.stop_http()`
-
-
 .. py:method:: stop_ws()
 
     * Delegates to ``admin_stopWS`` RPC Method
@@ -193,10 +181,10 @@ The following methods are available on the ``web3.geth.personal`` namespace.
 
     .. code-block:: python
 
-        >>> web3.geth.personal.sign('snakesnax', 'signer_address', '')
+        >>> web3.geth.personal.sign('snakesnax', 'signer_public_address', '')
         '0x8eb502165dec388af1c45c4bc835fd1852eaf358316ae5d248a40af8cd8dd7dc6373a6e606d8b411f788718b8b09a6cf87d980639731f530e4481148f14abfdf1b'
         >>> web3.geth.personal.ec_recover('snakesnax', '0x8eb502165dec388af1c45c4bc835fd1852eaf358316ae5d248a40af8cd8dd7dc6373a6e606d8b411f788718b8b09a6cf87d980639731f530e4481148f14abfdf1b')
-        'signer_address'
+        'signer_public_address'
 
 
 .. py:method:: import_raw_key(private_key, passphrase)
@@ -209,7 +197,7 @@ The following methods are available on the ``web3.geth.personal`` namespace.
     .. code-block:: python
 
         >>> web3.geth.personal.import_raw_key(some_private_key, 'the-passphrase')
-        'public_address'
+        '0xd3CdA913deB6f67967B99D67aCDFa1712C293601'
 
 
 .. py:method:: list_accounts()
@@ -283,7 +271,7 @@ The following methods are available on the ``web3.geth.personal`` namespace.
     
     .. code-block:: python
 
-        >>> web3.geth.personal.sign('snakesnax', 'signer_address', '')
+        >>> web3.geth.personal.sign('snakesnax', 'signer_public_address', '')
         '0x8eb502165dec388af1c45c4bc835fd1852eaf358316ae5d248a40af8cd8dd7dc6373a6e606d8b411f788718b8b09a6cf87d980639731f530e4481148f14abfdf1b'
 
 
@@ -293,9 +281,9 @@ The following methods are available on the ``web3.geth.personal`` namespace.
 
     Unlocks the given ``account`` for ``duration`` seconds.
     If ``duration`` is ``None``, then the account will remain unlocked
-    for 300 seconds (which is current default by Geth v1.10.15);
-    if ``duration`` is set to ``0``, the account will remain unlocked indefinitely.
-    Returns boolean as to whether the account was successfully unlocked.
+    for the current default duration set by Geth. If ``duration`` is set to ``0``,
+    the account will remain unlocked indefinitely.
+    Returns a ``boolean`` signifying whether the account was unlocked successfully.
 
     .. code-block:: python
 
@@ -312,7 +300,7 @@ GethTxPool API
 
 The ``web3.geth.txpool`` object exposes methods to interact with the RPC APIs under
 the ``txpool_`` namespace. These methods are only exposed under the ``geth`` namespace
-since they are not standard nor supported in Parity.
+since they are not standard.
 
 The following methods are available on the ``web3.geth.txpool`` namespace.
 
@@ -330,9 +318,9 @@ The following methods are available on the ``web3.geth.txpool`` namespace.
         {
             'pending': {
                 'public_address': {
-                  31813: ["0x3375Ee30428b2A71c428afa5E89e427905F95F7e: 0 wei + 500000 × 20000000000 gas"]
+                  31813: ["public_address: 0 wei + 500000 × 20000000000 gas"]
                 },
-                'public_address_two': {
+                'public_address': {
                   563662: ["public_address: 1051546810000000000 wei + 90000 × 20000000000 gas"],
                   563663: ["public_address: 1051190740000000000 wei + 90000 × 20000000000 gas"],
                   563664: ["public_address: 1050828950000000000 wei + 90000 × 20000000000 gas"],
@@ -343,33 +331,33 @@ The following methods are available on the ``web3.geth.txpool`` namespace.
                   563669: ["public_address: 1047965690000000000 wei + 90000 × 20000000000 gas"],
                   563670: ["public_address: 1047859050000000000 wei + 90000 × 20000000000 gas"]
                 },
-                'public_address_three': {
+                'public_address': {
                   3: ["public_address: 30000000000000000000 wei + 85000 × 21000000000 gas"]
                 },
-                'public_address_four': {
+                'public_address': {
                   777: ["public_address: 0 wei + 1000000 × 20000000000 gas"]
                 },
-                'public_address_five': {
+                'public_address': {
                   2: ["public_address: 26000000000000000000 wei + 90000 × 20000000000 gas"]
                 },
-                'public_address_six': {
+                'public_address': {
                   0: ["public_address: 1000000000000000000 wei + 50000 × 1171602790622 gas"]
                 },
-                'public_address_seven': {
+                'public_address': {
                   70148: ["public_address: 1000767667434026200 wei + 90000 × 20000000000 gas"]
                 }
               },
               'queued': {
-                'public_address_eight': {
+                'public_address': {
                   6: ["public_address: 9000000000000000000 wei + 21000 × 20000000000 gas"]
                 },
-                'public_address_nine': {
+                'public_address': {
                   6: ["public_address: 50000000000000000000 wei + 90000 × 50000000000 gas"]
                 },
-                'public_address_ten': {
+                'public_address': {
                   3: ["public_address: 140000000000000000 wei + 90000 × 20000000000 gas"]
                 },
-                'public_address_eleven': {
+                'public_address': {
                   2: ["public_address: 17000000000000000000 wei + 90000 × 50000000000 gas"],
                   6: ["public_address: 17990000000000000000 wei + 90000 × 20000000000 gas", "0x8db7b4e0ecb095fbd01dffa62010801296a9ac78: 16998950000000000000 wei + 90000 × 20000000000 gas"],
                   7: ["public_address: 17900000000000000000 wei + 90000 × 20000000000 gas"]
@@ -405,7 +393,7 @@ The following methods are available on the ``web3.geth.txpool`` namespace.
         >>> web3.geth.txpool.content()
         {
           'pending': {
-            'public_address': {
+            '0x0216D5032f356960Cd3749C31Ab34eEFF21B3395': {
               806: [{
                 'blockHash': "0x0000000000000000000000000000000000000000000000000000000000000000",
                 'blockNumber': None,
@@ -417,7 +405,7 @@ The following methods are available on the ``web3.geth.txpool`` namespace.
                 'maxFeePerGas': '0x77359400',
                 'maxPriorityFeePerGas': '0x3b9aca00',
                 'nonce': "0x326",
-                'to': "to_address",
+                'to': "public_address",
                 'transactionIndex': None,
                 'value': "0x19a99f0cf456000"
               }]
@@ -434,7 +422,7 @@ The following methods are available on the ``web3.geth.txpool`` namespace.
                 'maxFeePerGas': '0x77359400',
                 'maxPriorityFeePerGas': '0x3b9aca00',
                 'nonce': "0x22",
-                'to': "to_address",
+                'to': "public_address",
                 'transactionIndex': None,
                 'value': "0x0"
               }]

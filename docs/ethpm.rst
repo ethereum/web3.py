@@ -3,6 +3,9 @@
 ethPM
 =====
 
+.. warning::
+   The ``ethPM`` module is no longer being maintained and will be deprecated with ``web3.py`` version 7.
+
 Overview
 --------
 
@@ -169,7 +172,16 @@ BaseURIBackend
 IPFS
 ~~~~
 
-``Py-EthPM`` has multiple backends available to fetch/pin files to IPFS. The desired backend can be set via the environment variable: ``ETHPM_IPFS_BACKEND_CLASS``.
+``Py-EthPM`` has multiple backends available to fetch/pin files to IPFS.
+The IPFS backends rely on the now-unmaintained ``ipfshttpclient`` library. Because of
+this, they are opt-in and may be installed via the ``ipfs`` web3 install extra.
+
+.. code-block:: bash
+
+    $ pip install "web3[ipfs]"
+
+
+The desired backend can be set via the environment variable: ``ETHPM_IPFS_BACKEND_CLASS``.
 
 - ``InfuraIPFSBackend`` (default)
     - `https://ipfs.infura.io`
@@ -220,7 +232,7 @@ Registry URIs
 ~~~~~~~~~~~~~
 
 The URI to lookup a package from a registry should follow the following
-format. (subject to change as the Registry Contract Standard makes it’s
+format. (subject to change as the Registry Contract Standard makes its
 way through the EIP process)
 
 ::
@@ -234,10 +246,8 @@ way through the EIP process)
 -  ``chain_id``: Chain ID of the chain on which the registry lives. Defaults to Mainnet. Supported chains include...
 
   - 1: Mainnet
-  - 3: Ropsten
-  - 4: Rinkeby
   - 5: Goerli
-  - 42: Kovan
+  - 11155111: Sepolia
 
 -  ``package-name``: Must conform to the package-name as specified in
    the
@@ -443,7 +453,7 @@ To pin a manifest to IPFS
        ),
    )
 
-Pins the active manfiest to disk. Must be the concluding function in a builder set since it returns the IPFS pin data rather than returning the manifest for further processing.
+Pins the active manifest to disk. Must be the concluding function in a builder set since it returns the IPFS pin data rather than returning the manifest for further processing.
 
 
 To add meta fields
@@ -606,7 +616,7 @@ To inline the source code directly in the manifest, use ``inline_source()`` or `
 
 To include the source as a content-addressed URI, ``Py-EthPM`` can pin your source via the Infura IPFS API. As well as the contract name and compiler output, this function requires that you provide the desired IPFS backend to pin the contract sources.
 
-.. doctest::
+.. code:: python
 
    >>> import json
    >>> from ethpm import ASSETS_DIR, get_ethpm_spec_dir
@@ -724,7 +734,7 @@ To select only certain contract type data to be included in your manifest, provi
    ... )
    >>> assert expected_manifest == built_manifest
 
-If you would like to alias your contract type, provide the desired alias as a kwarg. This will automatically include the original contract type in a ``contractType`` field. Unless specific contract type fields are provided as kwargs, ``contractType`` will stil default to including all available contract type data found in the compiler output.
+If you would like to alias your contract type, provide the desired alias as a kwarg. This will automatically include the original contract type in a ``contractType`` field. Unless specific contract type fields are provided as kwargs, ``contractType`` will still default to including all available contract type data found in the compiler output.
 
 .. doctest::
 

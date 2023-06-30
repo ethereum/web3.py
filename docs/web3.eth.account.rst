@@ -1,23 +1,23 @@
 .. _eth-account:
 
 Working with Local Private Keys
-==========================================
+===============================
 
 .. _local_vs_hosted:
 
 Local vs Hosted Nodes
----------------------------------
+---------------------
 
 Local Node
   A local node is started and controlled by you. It is as safe as you keep it.
-  When you run ``geth`` or ``parity`` on your machine, you are running a local node.
+  When you run ``geth`` on your machine, for example, you are running a local node.
 
 Hosted Node
   A hosted node is controlled by someone else. When you connect to Infura, you are
   connected to a hosted node.
 
 Local vs Hosted Keys
----------------------------------
+--------------------
 
 Local Private Key
   A key is 32 :class:`bytes` of data that you can use to sign transactions and messages,
@@ -55,8 +55,55 @@ Using private keys usually involves ``w3.eth.account`` in one way or another. Re
 or see a full list of things you can do in the docs for
 :class:`eth_account.Account <eth_account.account.Account>`.
 
-Read a private key from an environment variable
------------------------------------------------
+Creating a Private Key
+----------------------
+
+Each Ethereum address has a matching private key. To create a new Ethereum 
+account you can just generate a random number that acts as a private key.
+
+- A private key is just a random unguessable, or cryptographically safe, 256-bit integer number
+
+- A valid private key is > 0 and < max private key value (a number above the elliptic curve order FFFFFFFF FFFFFFFF FFFFFFFF FFFFFFFE BAAEDCE6 AF48A03B BFD25E8C D0364141)
+
+- Private keys do not have checksums.
+
+To create a private key using web3.py and command line you can do:
+
+```shell
+python -c "from web3 import Web3; w3 = Web3(); acc = w3.eth.account.create(); print(f'private key={w3.toHex(acc.privateKey)}, account={acc.address}')"
+```
+
+Which outputs a new private key and an account pair:
+
+```
+private key=private_key, account=public_address
+```
+
+- *Never store private key with your source*. Use environment variables 
+  to store the key. Read more below.
+  
+- You can also import the raw hex private key to MetaMask and any other
+  wallet - the private key can be shared between your Python code
+  and any number of wallets.
+
+Funding a New Account
+---------------------
+
+If you create a private key, it comes with its own Ethereum address.
+By default, the balance of this address is zero.
+Before you can send any transactions with your account,
+you need to top up.
+
+- For a local test environment, any environment is boostrapped with accounts that have ETH on them. Move
+  ETH from default accounts to your newly created account.
+  
+- For public mainnet, you need to buy ETH in a cryptocurrency exchange
+
+- For a testnet, you need to [use a testnet faucet](https://faucet.paradigm.xyz/)
+
+
+Reading a Private Key from an Environment Variable
+--------------------------------------------------
 
 In this example we pass the private key to our Python application in an 
 `environment variable <https://en.wikipedia.org/wiki/Environment_variable>`_.
@@ -75,48 +122,50 @@ Example ``account_test_script.py``
 
 .. code-block:: python
 
-    import os 
+    import os
     from eth_account import Account
     from eth_account.signers.local import LocalAccount
-    from web3.auto import w3
+    from web3 import Web3, EthereumTesterProvider
     from web3.middleware import construct_sign_and_send_raw_middleware
-    
+
+    w3 = Web3(EthereumTesterProvider())
+
     private_key = os.environ.get("PRIVATE_KEY")
     assert private_key is not None, "You must set PRIVATE_KEY environment variable"
     assert private_key.startswith("0x"), "Private key must start with 0x hex prefix"
-    
+
     account: LocalAccount = Account.from_key(private_key)
     w3.middleware_onion.add(construct_sign_and_send_raw_middleware(account))
-    
+
     print(f"Your hot wallet address is {account.address}")
-    
-    # Now you can use web3.eth.send_transaction(), Contract.functions.xxx.transact() functions 
-    # with your local private key through middleware and you no longer get the error 
+
+    # Now you can use web3.eth.send_transaction(), Contract.functions.xxx.transact() functions
+    # with your local private key through middleware and you no longer get the error
     # "ValueError: The method eth_sendTransaction does not exist/is not available
-    
+
 Example how to run this in UNIX shell:
 
 .. code-block:: shell
- 
+
     # Generate a new 256-bit random integer using openssl UNIX command that acts as a private key.
     # You can also do:
-    # python -c "from web3 import Web3; w3 = Web3(); acc = w3.eth.account.create(); print(f'private key={w3.toHex(acc.key)}, account={acc.address}')"
+    # python -c "from web3 import Web3; w3 = Web3(); acc = w3.eth.account.create(); print(f'private key={w3.to_hex(acc.key)}, account={acc.address}')"
     # Store this in a safe place, like in your password manager.
-    export PRIVATE_KEY=0x`openssl rand -hex 32` 
-    
+    export PRIVATE_KEY=0x`openssl rand -hex 32`
+
     # Run our script
     python account_test_script.py
-    
-    
+
+
 This will print::
 
-    Your hot wallet address is your_public_address
+    Your hot wallet address is public_address
 
-  
+
 .. _extract_geth_pk:
 
 Extract private key from geth keyfile
----------------------------------------------
+-------------------------------------
 
 .. NOTE::
   The amount of available ram should be greater than 1GB.
@@ -129,7 +178,7 @@ Extract private key from geth keyfile
         # tip: do not save the key or password anywhere, especially into a shared source file
 
 Sign a Message
----------------
+--------------
 
 .. WARNING:: There is no single message format that is broadly adopted
     with community consensus. Keep an eye on several options,
@@ -143,9 +192,10 @@ is provided by :meth:`w3.eth.sign() <web3.eth.Eth.sign>`.
 
 .. doctest::
 
-    >>> from web3.auto import w3
+    >>> from web3 import Web3, EthereumTesterProvider
     >>> from eth_account.messages import encode_defunct
 
+    >>> w3 = Web3(EthereumTesterProvider())
     >>> msg = "I♥SF"
     >>> private_key = b"\xb2\\}\xb3\x1f\xee\xd9\x12''\xbf\t9\xdcv\x9a\x96VK-\xe4\xc4rm\x03[6\xec\xf1\xe5\xb3d"
     >>> message = encode_defunct(text=msg)
@@ -158,7 +208,7 @@ is provided by :meth:`w3.eth.sign() <web3.eth.Eth.sign>`.
      signature=HexBytes('0xe6ca9bba58c88611fad66a6ce8f996908195593807c4b38bd528d2cff09d4eb33e5bfbbf4d3e39b1a2fd816a7680c19ebebaf3a141b239934ad43cb33fcec8ce1c'))
 
 Verify a Message
-------------------------------------------------
+----------------
 
 With the original message text and a signature:
 
@@ -168,25 +218,8 @@ With the original message text and a signature:
     >>> w3.eth.account.recover_message(message, signature=signed_message.signature)
     'sender_address'
 
-Verify a Message from message hash
------------------------------------------------------------
-
-Sometimes, for historical reasons, you don't have the original message,
-all you have is the prefixed & hashed message. To verify it, use:
-
-.. CAUTION:: This method is deprecated, only having a hash typically indicates that
-    you're using some old kind of mechanism. Expect this method to go away in the
-    next major version upgrade.
-
-.. doctest::
-
-    >>> message_hash = '0x1476abb745d423bf09273f1afd887d951181d25adc66c4834a70491911b7f750'
-    >>> signature = '0xe6ca9bba58c88611fad66a6ce8f996908195593807c4b38bd528d2cff09d4eb33e5bfbbf4d3e39b1a2fd816a7680c19ebebaf3a141b239934ad43cb33fcec8ce1c'
-    >>> w3.eth.account.recoverHash(message_hash, signature=signature)
-    'sender_address'
-
 Prepare message for ecrecover in Solidity
---------------------------------------------
+-----------------------------------------
 
 Let's say you want a contract to validate a signed message,
 like if you're making payment channels, and you want to
@@ -203,10 +236,10 @@ You might have produced the signed_message locally, as in
     # Remix / web3.js expect r and s to be encoded to hex
     # This convenience method will do the pad & hex for us:
     >>> def to_32byte_hex(val):
-    ...   return Web3.toHex(Web3.toBytes(val).rjust(32, b'\0'))
+    ...   return Web3.to_hex(Web3.to_bytes(val).rjust(32, b'\0'))
 
     >>> ec_recover_args = (msghash, v, r, s) = (
-    ...   Web3.toHex(signed_message.messageHash),
+    ...   Web3.to_hex(signed_message.messageHash),
     ...   signed_message.v,
     ...   to_32byte_hex(signed_message.r),
     ...   to_32byte_hex(signed_message.s),
@@ -237,13 +270,13 @@ this will prepare it for Solidity:
     >>> message_hash = _hash_eip191_message(message)
 
     # Remix / web3.js expect the message hash to be encoded to a hex string
-    >>> hex_message_hash = Web3.toHex(message_hash)
+    >>> hex_message_hash = Web3.to_hex(message_hash)
 
     # ecrecover in Solidity expects the signature to be split into v as a uint8,
     #   and r, s as a bytes32
     # Remix / web3.js expect r and s to be encoded to hex
-    >>> sig = Web3.toBytes(hexstr=hex_signature)
-    >>> v, hex_r, hex_s = Web3.toInt(sig[-1]), Web3.toHex(sig[:32]), Web3.toHex(sig[32:64])
+    >>> sig = Web3.to_bytes(hexstr=hex_signature)
+    >>> v, hex_r, hex_s = Web3.to_int(sig[-1]), Web3.to_hex(sig[:32]), Web3.to_hex(sig[32:64])
 
     # ecrecover in Solidity takes the arguments in order = (msghash, v, r, s)
     >>> ec_recover_args = (hex_message_hash, v, hex_r, hex_s)
@@ -255,7 +288,7 @@ this will prepare it for Solidity:
 
 
 Verify a message with ecrecover in Solidity
----------------------------------------------
+-------------------------------------------
 
 Create a simple ecrecover contract in `Remix <https://remix.ethereum.org/>`_:
 
@@ -279,7 +312,7 @@ the message back in response: ``sender_address``.
 .. _local-sign-transaction:
 
 Sign a Transaction
-------------------------
+------------------
 
 Create a transaction, sign it locally, and then send it to your node for broadcasting,
 with :meth:`~web3.eth.Eth.send_raw_transaction`.
@@ -297,14 +330,14 @@ with :meth:`~web3.eth.Eth.send_raw_transaction`.
     ...     'type': '0x2',  # the type is optional and, if omitted, will be interpreted based on the provided transaction parameters
     ...     'accessList': (  # accessList is optional for dynamic fee transactions
     ...         {
-    ...             'address': 'allowed_address',
+    ...             'address': 'allowed_public_address',
     ...             'storageKeys': (
     ...                 '0x0000000000000000000000000000000000000000000000000000000000000003',
     ...                 '0x0000000000000000000000000000000000000000000000000000000000000007',
     ...             )
     ...         },
     ...         {
-    ...             'address': 'allowed_address_two',
+    ...             'address': 'allowed_public_address_two',
     ...             'storageKeys': ()
     ...         },
     ...     )
@@ -327,7 +360,7 @@ with :meth:`~web3.eth.Eth.send_raw_transaction`.
     '0xe85ce7efa52c16cb5c469c7bde54fbd4911639fdfde08003f65525a85076d915'
 
 Sign a Contract Transaction
------------------------------------
+---------------------------
 
 To sign a transaction locally that will invoke a smart contract:
 
@@ -351,11 +384,12 @@ To sign a transaction locally that will invoke a smart contract:
     # When running locally, execute the statements found in the file linked below to load the EIP20_ABI variable.
     # See: https://github.com/carver/ethtoken.py/blob/v0.0.1-alpha.4/ethtoken/abi.py
 
-    >>> from web3.auto import w3
+    >>> from web3 import Web3, EthereumTesterProvider
+    >>> w3 = Web3(EthereumTesterProvider())
 
-    >>> unicorns = w3.eth.contract(address="unicorn_contract_address", abi=EIP20_ABI)
+    >>> unicorns = w3.eth.contract(address="token_address", abi=EIP20_ABI)
 
-    >>> nonce = w3.eth.get_transaction_count('public_address')  # doctest: +SKIP
+    >>> nonce = w3.eth.get_transaction_count('token_address')  # doctest: +SKIP
 
     # Build a transaction that invokes this contract's function, called transfer
     >>> unicorn_txn = unicorns.functions.transfer(
@@ -364,8 +398,8 @@ To sign a transaction locally that will invoke a smart contract:
     ... ).build_transaction({
     ...     'chainId': 1,
     ...     'gas': 70000,
-    ...     'maxFeePerGas': w3.toWei('2', 'gwei'),
-    ...     'maxPriorityFeePerGas': w3.toWei('1', 'gwei'),
+    ...     'maxFeePerGas': w3.to_wei('2', 'gwei'),
+    ...     'maxPriorityFeePerGas': w3.to_wei('1', 'gwei'),
     ...     'nonce': nonce,
     ... })
 
@@ -395,5 +429,5 @@ To sign a transaction locally that will invoke a smart contract:
     >>> w3.eth.send_raw_transaction(signed_txn.rawTransaction)  # doctest: +SKIP
 
     # When you run send_raw_transaction, you get the same result as the hash of the transaction:
-    >>> w3.toHex(w3.keccak(signed_txn.rawTransaction))
+    >>> w3.to_hex(w3.keccak(signed_txn.rawTransaction))
     '0x748db062639a45e519dba934fce09c367c92043867409160c9989673439dc817'

@@ -1,5 +1,5 @@
-Eth 2.0 Beacon API
-=======================
+Beacon API
+==========
 
 .. warning:: This API Is experimental. Client support is incomplete and the API itself is still evolving.
 
