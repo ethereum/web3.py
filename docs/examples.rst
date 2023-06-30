@@ -19,14 +19,14 @@ representation.  Block numbers
     # get a block by number
     >>> web3.eth.get_block(12345)
     {
-        'author': 'author_address',
+        'author': '0xad5C1768e5974C231b2148169da064e61910f31a',
         'difficulty': 735512610763,
         'extraData': '0x476574682f76312e302e302f6c696e75782f676f312e342e32',
         'gasLimit': 5000,
         'gasUsed': 0,
         'hash': '0x767c2bfb3bdee3f78676c1285cd757bcd5d8c272cef2eb30d9733800a78c0b6d',
         'logsBloom': '0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
-        'miner': 'miner_address',
+        'miner': '0xad5C1768e5974C231b2148169da064e61910f31a',
         'mixHash': '0x31d9ec7e3855aeba37fd92aa1639845e70b360a60f77f12eff530429ef8cfcba',
         'nonce': '0x549f882c5f356f85',
         'number': 12345,
@@ -75,11 +75,11 @@ Checking the balance of an account
 
 To find the amount of ether owned by an account, use the :meth:`~web3.eth.Eth.get_balance` method.
 At the time of writing, the account with the `most ether <https://etherscan.io/accounts/1>`_
-has a public address of public_address.
+has a public address of `0x742d35Cc6634C0532925a3b844Bc454e4438f44e`.
 
 .. code-block:: python
 
-   >>> web3.eth.get_balance('public_address')
+   >>> web3.eth.get_balance('0x742d35Cc6634C0532925a3b844Bc454e4438f44e')
    3841357360894980500000001
 
 Note that this number is not denominated in ether, but instead in the smallest unit of value in
@@ -199,7 +199,7 @@ You can look up transactions using the ``web3.eth.get_transaction`` function.
         'blockNumber': 46147,
         'condition': None,
         'creates': None,
-        'from': 'from_address',
+        'from': '0xA1E4380A3B1f749673E270229993eE55F35663b4',
         'gas': 21000,
         'gasPrice': None,
         'hash': '0x5c504ed432cb51138bcf09aa5e8a410dd4a1e204ef84bfed1be16dfba1b22060',
@@ -213,7 +213,7 @@ You can look up transactions using the ``web3.eth.get_transaction`` function.
         'raw': '0xf86780862d79883d2000825208945df9b87991262f6ba471f09758cde1c0fc1de734827a69801ca088ff6cf0fefd94db46111149ae4bfc179e9b94721fffd821d38d16464b3f71d0a045e0aff800961cfce805daef7016b9b675c137a6a41a548f7b60a3484c06a33a',
         's': '0x45e0aff800961cfce805daef7016b9b675c137a6a41a548f7b60a3484c06a33a',
         'standardV': '0x1',
-        'to': 'to_address',
+        'to': '0x5DF9B87991262F6BA471F09758CDE1c0FC1De734',
         'transactionIndex': 0,
         'v': '0x1c',
         'value': 31337,
@@ -264,7 +264,7 @@ instance, you can read data and execute transactions.
 .. code-block:: python
 
     # Configure w3, e.g., w3 = Web3(...)
-    address = 'public_address'
+    address = '0x1f9840a85d5aF5bf1D1762F925BDADdC4201F988'
     abi = '[{"inputs":[{"internalType":"address","name":"account","type":"address"},{"internalType":"address","name":"minter_","type":"address"},...'
     contract_instance = w3.eth.contract(address=address, abi=abi)
 
@@ -365,7 +365,7 @@ Output:
 
 .. code-block:: none
 
-    Deployed <stdin>:StoreVar to: public_address
+    Deployed <stdin>:StoreVar to: 0xF2E246BB76DF876Cef8b38ae84130F4F55De395b
 
     Gas estimate to transact with setVar: 45535
 
@@ -377,7 +377,7 @@ Output:
      'contractAddress': None,
      'cumulativeGasUsed': 43488,
      'gasUsed': 43488,
-     'logs': [AttributeDict({'type': 'mined', 'logIndex': 0, 'transactionIndex': 0, 'transactionHash': HexBytes('0x50aa3ba0673243f1e60f546a12ab364fc2f6603b1654052ebec2b83d4524c6d0'), 'blockHash': HexBytes('0x837609ad0a404718c131ac5157373662944b778250a507783349d4e78bd8ac84'), 'blockNumber': 2, 'address': 'public_address', 'data': '0x', 'topics': [HexBytes('0x6c2b4666ba8da5a95717621d879a77de725f3d816709b9cbe9f059b8f875e284'), HexBytes('0x00000000000000000000000000000000000000000000000000000000000000ff')]})],
+     'logs': [AttributeDict({'type': 'mined', 'logIndex': 0, 'transactionIndex': 0, 'transactionHash': HexBytes('0x50aa3ba0673243f1e60f546a12ab364fc2f6603b1654052ebec2b83d4524c6d0'), 'blockHash': HexBytes('0x837609ad0a404718c131ac5157373662944b778250a507783349d4e78bd8ac84'), 'blockNumber': 2, 'address': '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b', 'data': '0x', 'topics': [HexBytes('0x6c2b4666ba8da5a95717621d879a77de725f3d816709b9cbe9f059b8f875e284'), HexBytes('0x00000000000000000000000000000000000000000000000000000000000000ff')]})],
      'status': 1,
      'transactionHash': HexBytes('0x50aa3ba0673243f1e60f546a12ab364fc2f6603b1654052ebec2b83d4524c6d0'),
      'transactionIndex': 0}
@@ -476,12 +476,12 @@ contract which conforms to this standard.
     ABI = '[{"constant":true,"inputs":[],"name":"name","outputs":[{"name":"","type":"string"}],"payable":false,"type":"function","stateMutability":"view"},{"constant":false,"inputs":[{"name":"_spender","type":"address"},{"name":"_value","type":"uint256"}],"name":"approve","outputs":[{"name":"","type":"bool"}],"payable":false,"type":"function","stateMutability":"nonpayable"},{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"type":"function","stateMutability":"view"},{"constant":false,"inputs":[{"name":"_from","type":"address"},{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transferFrom","outputs":[{"name":"","type":"bool"}],"payable":false,"type":"function","stateMutability":"nonpayable"},{"constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"","type":"uint8"}],"payable":false,"type":"function","stateMutability":"view"},{"constant":true,"inputs":[{"name":"_owner","type":"address"}],"name":"balanceOf","outputs":[{"name":"","type":"uint256"}],"payable":false,"type":"function","stateMutability":"view"},{"constant":true,"inputs":[],"name":"symbol","outputs":[{"name":"","type":"string"}],"payable":false,"type":"function","stateMutability":"view"},{"constant":false,"inputs":[{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transfer","outputs":[{"name":"","type":"bool"}],"payable":false,"type":"function","stateMutability":"nonpayable"},{"constant":true,"inputs":[{"name":"_owner","type":"address"},{"name":"_spender","type":"address"}],"name":"allowance","outputs":[{"name":"","type":"uint256"}],"payable":false,"type":"function","stateMutability":"view"},{"inputs":[{"name":"_totalSupply","type":"uint256"}],"payable":false,"type":"constructor","stateMutability":"nonpayable"},{"anonymous":false,"inputs":[{"indexed":true,"name":"from","type":"address"},{"indexed":true,"name":"to","type":"address"},{"indexed":false,"name":"value","type":"uint256"}],"name":"Transfer","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"owner","type":"address"},{"indexed":true,"name":"spender","type":"address"},{"indexed":false,"name":"value","type":"uint256"}],"name":"Approval","type":"event"}]'
     factory = w3.eth.contract(abi=ABI, bytecode=bytecode)
     alice, bob = w3.eth.accounts[0], w3.eth.accounts[1]
-    assert alice == 'alice_public_address', alice
-    assert bob == 'bob_public_address', bob
+    assert alice == '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf', alice
+    assert bob == '0x2B5AD5c4795c026514f8317c7a215E218DcCD6cF', bob
     tx_hash = factory.constructor(1000000).transact({'from': alice, 'gas': 899000, 'gasPrice': Web3.to_wei(1, 'gwei')})
     assert tx_hash == HexBytes('0x49e3da72a95e4074a9eaea7b438c73ca154627d317e58abeae914e3769a15044'), tx_hash
     txn_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
-    assert txn_receipt['contractAddress'] == 'contract_address', txn_receipt['contractAddress']
+    assert txn_receipt['contractAddress'] == '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b', txn_receipt['contractAddress']
     contract_address = txn_receipt['contractAddress']
     contract = w3.eth.contract(contract_address, abi=ABI)
     total_supply = contract.functions.totalSupply().call()
@@ -507,7 +507,7 @@ contract and the ``ERC20`` ABI.
 
     >>> contract = w3.eth.contract(contract_address, abi=ABI)
     >>> contract.address
-    'contract_address'
+    '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b'
 
 
 Querying token metadata
@@ -542,8 +542,8 @@ we'll refer to as ``alice`` holding all of the tokens.
 
 .. doctest::
 
-    >>> alice = 'alice_public_address'
-    >>> bob = 'bob_public_address'
+    >>> alice = '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf'
+    >>> bob = '0x2B5AD5c4795c026514f8317c7a215E218DcCD6cF'
     >>> raw_balance = contract.functions.balanceOf(alice).call()
     >>> raw_balance
     1000000000000000000000000
@@ -785,7 +785,7 @@ Example code
 
 The following example code is divided into a reusable ``EventScanner`` class and then a demo script that:
 
-* fetches all transfer events for `RCC token <https://etherscan.io/token/token_public_address>`_,
+* fetches all transfer events for `RCC token <https://etherscan.io/token/0x9b6443b0fb9c241a7fdac375595cea13e6b7807a>`_,
 
 * can incrementally run again to check if there are new events,
 
@@ -1230,8 +1230,8 @@ The script can be run with: ``python ./eventscanner.py <your JSON-RPC API URL>``
         from tqdm import tqdm
 
         # RCC has around 11k Transfer events
-        # https://etherscan.io/token/token_public_address
-        RCC_ADDRESS = "token_public_address"
+        # https://etherscan.io/token/0x9b6443b0fb9c241a7fdac375595cea13e6b7807a
+        RCC_ADDRESS = "0x9b6443b0fb9c241a7fdac375595cea13e6b7807a"
 
         # Reduced ERC-20 ABI, only Transfer event
         ABI = """[

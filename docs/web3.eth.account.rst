@@ -76,7 +76,7 @@ python -c "from web3 import Web3; w3 = Web3(); acc = w3.eth.account.create(); pr
 Which outputs a new private key and an account pair:
 
 ```
-private key=private_key, account=public_address
+private key=0x480c4aec9fa..., account=0x9202a9d5D2d129CB400a40e00aC822a53ED81167
 ```
 
 - *Never store private key with your source*. Use environment variables 
@@ -159,7 +159,7 @@ Example how to run this in UNIX shell:
 
 This will print::
 
-    Your hot wallet address is public_address
+    Your hot wallet address is 0x27C8F899bb69E1501BBB96d09d7477a2a7518918
 
 
 .. _extract_geth_pk:
@@ -216,7 +216,7 @@ With the original message text and a signature:
 
     >>> message = encode_defunct(text="I♥SF")
     >>> w3.eth.account.recover_message(message, signature=signed_message.signature)
-    'sender_address'
+    '0x5ce9454909639D2D17A3F753ce7d93fa0b9aB12E'
 
 Prepare message for ecrecover in Solidity
 -----------------------------------------
@@ -307,7 +307,7 @@ Then call ecr with these arguments from `Prepare message for ecrecover in Solidi
 ``"0x1476abb745d423bf09273f1afd887d951181d25adc66c4834a70491911b7f750", 28, "0xe6ca9bba58c88611fad66a6ce8f996908195593807c4b38bd528d2cff09d4eb3", "0x3e5bfbbf4d3e39b1a2fd816a7680c19ebebaf3a141b239934ad43cb33fcec8ce"``
 
 The message is verified, because we get the correct sender of
-the message back in response: ``sender_address``.
+the message back in response: ``0x5ce9454909639d2d17a3f753ce7d93fa0b9ab12e``.
 
 .. _local-sign-transaction:
 
@@ -320,7 +320,7 @@ with :meth:`~web3.eth.Eth.send_raw_transaction`.
 .. doctest::
 
     >>> transaction = {
-    ...     'to': 'to_address',
+    ...     'to': '0xF0109fC8DF283027b6285cc889F5aA624EaC1F55',
     ...     'value': 1000000000,
     ...     'gas': 2000000,
     ...     'maxFeePerGas': 2000000000,
@@ -330,19 +330,19 @@ with :meth:`~web3.eth.Eth.send_raw_transaction`.
     ...     'type': '0x2',  # the type is optional and, if omitted, will be interpreted based on the provided transaction parameters
     ...     'accessList': (  # accessList is optional for dynamic fee transactions
     ...         {
-    ...             'address': 'allowed_public_address',
+    ...             'address': '0xde0b295669a9fd93d5f28d9ec85e40f4cb697bae',
     ...             'storageKeys': (
     ...                 '0x0000000000000000000000000000000000000000000000000000000000000003',
     ...                 '0x0000000000000000000000000000000000000000000000000000000000000007',
     ...             )
     ...         },
     ...         {
-    ...             'address': 'allowed_public_address_two',
+    ...             'address': '0xbb9bc244d798123fde783fcc1c72d3bb8c189413',
     ...             'storageKeys': ()
     ...         },
     ...     )
     ... }
-    >>> key = 'private_key'
+    >>> key = '0x4c0883a69102937d6231471b5dbb6204fe5129617082792ae468d01a3f362318'
     >>> signed = w3.eth.account.sign_transaction(transaction, key)
     >>> signed.rawTransaction
     HexBytes('0x02f8e20180843b9aca008477359400831e848094f0109fc8df283027b6285cc889f5aa624eac1f55843b9aca0080f872f85994de0b295669a9fd93d5f28d9ec85e40f4cb697baef842a00000000000000000000000000000000000000000000000000000000000000003a00000000000000000000000000000000000000000000000000000000000000007d694bb9bc244d798123fde783fcc1c72d3bb8c189413c001a0b9ec671ccee417ff79e06e9e52bfa82b37cf1145affde486006072ca7a11cf8da0484a9beea46ff6a90ac76e7bbf3718db16a8b4b09cef477fb86cf4e123d98fde')
@@ -387,13 +387,13 @@ To sign a transaction locally that will invoke a smart contract:
     >>> from web3 import Web3, EthereumTesterProvider
     >>> w3 = Web3(EthereumTesterProvider())
 
-    >>> unicorns = w3.eth.contract(address="token_address", abi=EIP20_ABI)
+    >>> unicorns = w3.eth.contract(address="0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359", abi=EIP20_ABI)
 
-    >>> nonce = w3.eth.get_transaction_count('token_address')  # doctest: +SKIP
+    >>> nonce = w3.eth.get_transaction_count('0x5ce9454909639D2D17A3F753ce7d93fa0b9aB12E')  # doctest: +SKIP
 
     # Build a transaction that invokes this contract's function, called transfer
     >>> unicorn_txn = unicorns.functions.transfer(
-    ...     'to_address',
+    ...     '0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359',
     ...     1,
     ... ).build_transaction({
     ...     'chainId': 1,
@@ -410,7 +410,7 @@ To sign a transaction locally that will invoke a smart contract:
      'maxFeePerGas': 2000000000,
      'maxPriorityFeePerGas': 1000000000,
      'nonce': 0,
-     'to': 'to_address',
+     'to': '0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359',
      'data': '0xa9059cbb000000000000000000000000fb6916095ca1df60bb79ce92ce3ea74c37c5d3590000000000000000000000000000000000000000000000000000000000000001'}
 
     >>> private_key = b"\xb2\\}\xb3\x1f\xee\xd9\x12''\xbf\t9\xdcv\x9a\x96VK-\xe4\xc4rm\x03[6\xec\xf1\xe5\xb3d"

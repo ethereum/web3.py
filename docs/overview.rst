@@ -218,7 +218,7 @@ instance of the contract:
    >>> tx_hash = ExampleContract.constructor().transact()
    >>> tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
    >>> tx_receipt.contractAddress
-   'contract_address'
+   '0x8a22225eD7eD460D7ee3842bce2402B9deaD23D3'
 
 Once a deployed contract is loaded into a Contract object, the functions of that
 contract are available on the ``functions`` namespace:
@@ -322,7 +322,8 @@ ENS
 ~~~
 
 `Ethereum Name Service (ENS) <https://ens.domains/>`_ provides the infrastructure
-for human-readable addresses. As an example, instead of
-``public_address``, you can send funds to
-``ethereumfoundation.eth``. web3.py has support for ENS, documented
+for human-readable addresses. If an address is registered with the ENS registry,
+the domain name can be used in place of the address itself. For example, the registered domain 
+name ``ethereum.eth`` will resolve to the address
+``0xde0B295669a9FD93d5F28D9Ec85E40f4cb697BAe``. web3.py has support for ENS, documented
 :ref:`here <ens_overview>`.

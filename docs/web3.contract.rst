@@ -900,7 +900,7 @@ Methods
 
         >>> math_contract.functions.increment(5).build_transaction({'maxFeePerGas': 2000000000, 'maxPriorityFeePerGas': 1000000000})
         {
-            'to': 'to_address',
+            'to': '0x582AC4D8929f58c217d4a52aDD361AE470a8a4cD',
             'data': '0x7cf5dab00000000000000000000000000000000000000000000000000000000000000005',
             'value': 0,
             'gas': 43242,
@@ -1006,7 +1006,7 @@ For example:
               'logIndex': 0,
               'transactionIndex': 0,
               'transactionHash': HexBytes('0xfb95ccb6ab39e19821fb339dee33e7afe2545527725b61c64490a5613f8d11fa'),
-              'address': 'public_address',
+              'address': '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b',
               'blockHash': HexBytes('0xd74c3e8bdb19337987b987aee0fa48ed43f8f2318edfc84e3a8643e009592a68'),
               'blockNumber': 3
           })
@@ -1025,7 +1025,7 @@ For example:
                'transactionHash': HexBytes('0x01682095d5abb0270d11a31139b9a1f410b363c84add467004e728ec831bd529'),
                'blockHash': HexBytes('0x92abf9325a3959a911a2581e9ea36cba3060d8b293b50e5738ff959feb95258a'),
                'blockNumber': 5,
-               'address': 'public_address',
+               'address': '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b',
                'data': '0x0000000000000000000000000000000000000000000000000000000000003039',
                'topics': [
                    HexBytes('0xf70fe689e290d8ce2b2a388ac28db36fbb0e16a6d89c6804c461f65a1b40bb15')
@@ -1055,7 +1055,7 @@ For example:
            'logIndex': 0,
            'transactionIndex': 0,
            'transactionHash': HexBytes('0xfb95ccb6ab39e19821fb339dee33e7afe2545527725b61c64490a5613f8d11fa'),
-           'address': 'public_address',
+           'address': '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b',
            'blockHash': HexBytes('0xd74c3e8bdb19337987b987aee0fa48ed43f8f2318edfc84e3a8643e009592a68'),
            'blockNumber': 3
        })
@@ -1090,12 +1090,12 @@ Event Log Object
     ABI = '[{"constant":true,"inputs":[],"name":"name","outputs":[{"name":"","type":"string"}],"payable":false,"type":"function","stateMutability":"view"},{"constant":false,"inputs":[{"name":"_spender","type":"address"},{"name":"_value","type":"uint256"}],"name":"approve","outputs":[{"name":"","type":"bool"}],"payable":false,"type":"function","stateMutability":"nonpayable"},{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"type":"function","stateMutability":"view"},{"constant":false,"inputs":[{"name":"_from","type":"address"},{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transferFrom","outputs":[{"name":"","type":"bool"}],"payable":false,"type":"function","stateMutability":"nonpayable"},{"constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"","type":"uint8"}],"payable":false,"type":"function","stateMutability":"view"},{"constant":true,"inputs":[{"name":"_owner","type":"address"}],"name":"balanceOf","outputs":[{"name":"","type":"uint256"}],"payable":false,"type":"function","stateMutability":"view"},{"constant":true,"inputs":[],"name":"symbol","outputs":[{"name":"","type":"string"}],"payable":false,"type":"function","stateMutability":"view"},{"constant":false,"inputs":[{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transfer","outputs":[{"name":"","type":"bool"}],"payable":false,"type":"function","stateMutability":"nonpayable"},{"constant":true,"inputs":[{"name":"_owner","type":"address"},{"name":"_spender","type":"address"}],"name":"allowance","outputs":[{"name":"","type":"uint256"}],"payable":false,"type":"function","stateMutability":"view"},{"inputs":[{"name":"_totalSupply","type":"uint256"}],"payable":false,"type":"constructor","stateMutability":"nonpayable"},{"anonymous":false,"inputs":[{"indexed":true,"name":"from","type":"address"},{"indexed":true,"name":"to","type":"address"},{"indexed":false,"name":"value","type":"uint256"}],"name":"Transfer","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"owner","type":"address"},{"indexed":true,"name":"spender","type":"address"},{"indexed":false,"name":"value","type":"uint256"}],"name":"Approval","type":"event"}]'
     my_token_contract = w3.eth.contract(abi=ABI, bytecode=bytecode)
     alice, bob = w3.eth.accounts[0], w3.eth.accounts[1]
-    assert alice == 'alice_public_address', alice
-    assert bob == 'bob_public_address', bob
+    assert alice == '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf', alice
+    assert bob == '0x2B5AD5c4795c026514f8317c7a215E218DcCD6cF', bob
     tx_hash = my_token_contract.constructor(1000000).transact({'from': alice, 'gas': 899000, 'gasPrice': Web3.to_wei(1, 'gwei')})
     assert tx_hash == HexBytes('0x49e3da72a95e4074a9eaea7b438c73ca154627d317e58abeae914e3769a15044'), tx_hash
     txn_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
-    assert txn_receipt['contractAddress'] == 'contract_address', txn_receipt['contractAddress']
+    assert txn_receipt['contractAddress'] == '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b', txn_receipt['contractAddress']
     contract_address = txn_receipt['contractAddress']
     contract = w3.eth.contract(contract_address, abi=ABI)
     total_supply = contract.functions.totalSupply().call()
@@ -1106,16 +1106,16 @@ Event Log Object
 
 .. doctest:: create_filter
 
-    >>> transfer_filter = my_token_contract.events.Transfer.create_filter(fromBlock="0x0", argument_filters={'from': 'from_address'})
+    >>> transfer_filter = my_token_contract.events.Transfer.create_filter(fromBlock="0x0", argument_filters={'from': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf'})
     >>> transfer_filter.get_new_entries()
-    [AttributeDict({'args': AttributeDict({'from': 'from_address',
-     'to': 'to_address',
+    [AttributeDict({'args': AttributeDict({'from': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf',
+     'to': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf',
      'value': 10}),
      'event': 'Transfer',
      'logIndex': 0,
      'transactionIndex': 0,
      'transactionHash': HexBytes('0x9da859237e7259832b913d51cb128c8d73d1866056f7a41b52003c953e749678'),
-     'address': 'public_address',
+     'address': '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b',
      'blockHash': HexBytes('...'),
      'blockNumber': 2})]
     >>> transfer_filter.get_new_entries()
@@ -1123,35 +1123,35 @@ Event Log Object
     >>> tx_hash = contract.functions.transfer(alice, 10).transact({'gas': 899000, 'gasPrice': 1000000000})
     >>> tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
     >>> transfer_filter.get_new_entries()
-    [AttributeDict({'args': AttributeDict({'from': 'from_address',
-     'to': 'to_address',
+    [AttributeDict({'args': AttributeDict({'from': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf',
+     'to': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf',
      'value': 10}),
      'event': 'Transfer',
      'logIndex': 0,
      'transactionIndex': 0,
      'transactionHash': HexBytes('...'),
-     'address': 'public_address',
+     'address': '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b',
      'blockHash': HexBytes('...'),
      'blockNumber': 3})]
     >>> transfer_filter.get_all_entries()
-    [AttributeDict({'args': AttributeDict({'from': 'from_address',
-     'to': 'to_address',
+    [AttributeDict({'args': AttributeDict({'from': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf',
+     'to': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf',
      'value': 10}),
      'event': 'Transfer',
      'logIndex': 0,
      'transactionIndex': 0,
      'transactionHash': HexBytes('...'),
-     'address': 'public_address',
+     'address': '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b',
      'blockHash': HexBytes('...'),
      'blockNumber': 2}),
-     AttributeDict({'args': AttributeDict({'from': 'from_address',
-     'to': 'to_address',
+     AttributeDict({'args': AttributeDict({'from': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf',
+     'to': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf',
      'value': 10}),
      'event': 'Transfer',
      'logIndex': 0,
      'transactionIndex': 0,
      'transactionHash': HexBytes('...'),
-     'address': 'public_address',
+     'address': '0xF2E246BB76DF876Cef8b38ae84130F4F55De395b',
      'blockHash': HexBytes('...'),
      'blockNumber': 3})]
 
@@ -1170,7 +1170,7 @@ Utils
         '0x612e45a3000000000000000000000000b656b2a9c3b2416437a811e07466ca712f5a5b5a000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000c000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000093a80000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000116c6f6e656c792c20736f206c6f6e656c7900000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000'
         >>> contract.decode_function_input(transaction.input)
         (<Function newProposal(address,uint256,string,bytes,uint256,bool)>,
-         {'_recipient': 'recipient_address',
+         {'_recipient': '0xB656b2a9c3b2416437A811e07466cA712F5a5b5a',
           '_amount': 0,
           '_description': b'lonely, so lonely',
           '_transactionData': b'',

@@ -340,7 +340,7 @@ Methods
         >>> beacon.get_spec()
         {
           'data': {
-            'DEPOSIT_CONTRACT_ADDRESS': 'contract_address',
+            'DEPOSIT_CONTRACT_ADDRESS': '0x8c5fecdC472E27Bc447696F431E425D02dd46a8c',
             'MIN_ATTESTATION_INCLUSION_DELAY': '1',
             'SLOTS_PER_EPOCH': '32',
             'SHUFFLE_ROUND_COUNT': '90',
@@ -360,7 +360,7 @@ Methods
         {
           'data': {
             'chain_id': '5',
-            'address': 'contract_address'
+            'address': '0x8c5fecdC472E27Bc447696F431E425D02dd46a8c'
           }
         }
 
