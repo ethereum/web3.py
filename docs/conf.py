@@ -223,7 +223,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    ("index", "Populus.tex", "Populus Documentation", "Piper Merriam", "manual"),
+    ("index", "Populus.tex", "Populus Documentation", "The Ethereum Foundation", "manual"),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -251,7 +251,7 @@ latex_documents = [
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-man_pages = [("index", "web3", "web3.py Documentation", ["Piper Merriam"], 1)]
+man_pages = [("index", "web3", "web3.py Documentation", ["The Ethereum Foundation"], 1)]
 
 # If true, show URL addresses after external links.
 # man_show_urls = False
@@ -267,7 +267,7 @@ texinfo_documents = [
         "index",
         "web3.py",
         "web3.py Documentation",
-        "Piper Merriam",
+        "The Ethereum Foundation",
         "web3.py",
         "Backend agnostic Ethereum client interactions.",
         "Miscellaneous",
