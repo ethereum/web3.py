@@ -63,8 +63,8 @@ setup(
     description="""web3.py""",
     long_description_content_type="text/markdown",
     long_description=long_description,
-    author="Piper Merriam",
-    author_email="pipermerriam@gmail.com",
+    author="The Ethereum Foundation",
+    author_email="snakecharmers@ethereum.org",
     url="https://github.com/ethereum/web3.py",
     include_package_data=True,
     install_requires=[

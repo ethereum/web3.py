@@ -24,7 +24,7 @@ The ``web3.geth.admin`` object exposes methods to interact with the RPC APIs und
     .. code-block:: python
 
         >>> web3.geth.admin.datadir()
-        '/Users/piper/Library/Ethereum'
+        '/Users/snakecharmers/Library/Ethereum'
 
 
 .. py:method:: node_info()
