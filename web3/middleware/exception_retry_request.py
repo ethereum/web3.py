@@ -4,6 +4,7 @@ from typing import (
     Any,
     Callable,
     Collection,
+    Optional,
     Type,
 )
 
@@ -97,7 +98,7 @@ def check_if_retry_on_failure(method: RPCEndpoint) -> bool:
 
 def exception_retry_middleware(
     make_request: Callable[[RPCEndpoint, Any], RPCResponse],
-    w3: "Web3",
+    _w3: "Web3",
     errors: Collection[Type[BaseException]],
     retries: int = 5,
 ) -> Callable[[RPCEndpoint, Any], RPCResponse]:
@@ -106,13 +107,12 @@ def exception_retry_middleware(
     middleware for HTTPProvider.
     """
 
-    def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
+    def middleware(method: RPCEndpoint, params: Any) -> Optional[RPCResponse]:
         if check_if_retry_on_failure(method):
             for i in range(retries):
                 try:
                     return make_request(method, params)
-                # https://github.com/python/mypy/issues/5349
-                except errors:  # type: ignore
+                except tuple(errors):
                     if i < retries - 1:
                         continue
                     else:
@@ -134,7 +134,7 @@ def http_retry_request_middleware(
 
 async def async_exception_retry_middleware(
     make_request: Callable[[RPCEndpoint, Any], Any],
-    w3: "AsyncWeb3",
+    _async_w3: "AsyncWeb3",
     errors: Collection[Type[BaseException]],
     retries: int = 5,
     backoff_factor: float = 0.3,
@@ -144,16 +144,12 @@ async def async_exception_retry_middleware(
     Is a middleware for AsyncHTTPProvider.
     """
 
-    async def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
+    async def middleware(method: RPCEndpoint, params: Any) -> Optional[RPCResponse]:
         if check_if_retry_on_failure(method):
             for i in range(retries):
                 try:
                     return await make_request(method, params)
-                except Exception as e:
-                    is_exc_valid = any([isinstance(e, exc) for exc in errors])
-                    if not is_exc_valid:
-                        raise e
-
+                except tuple(errors):
                     if i < retries - 1:
                         await asyncio.sleep(backoff_factor)
                         continue
@@ -167,16 +163,10 @@ async def async_exception_retry_middleware(
 
 
 async def async_http_retry_request_middleware(
-    make_request: Callable[[RPCEndpoint, Any], Any], w3: "AsyncWeb3"
+    make_request: Callable[[RPCEndpoint, Any], Any], async_w3: "AsyncWeb3"
 ) -> Callable[[RPCEndpoint, Any], Any]:
     return await async_exception_retry_middleware(
         make_request,
-        w3,
-        (
-            TimeoutError,
-            aiohttp.ClientConnectionError,
-            aiohttp.ClientConnectorError,
-            aiohttp.ClientHttpProxyError,
-            aiohttp.ClientTimeout,
-        ),
+        async_w3,
+        (TimeoutError, aiohttp.ClientError),
     )
