@@ -259,7 +259,7 @@ Examples...
 
 - ``ethpm://packages.zeppelinos.eth/owned@1.0.0``
 
-- ``ethpm://0xFe89cc7aBB2C4183683ab71653C4cdc9B02D44b7:1/ethregistrar@1.0.0``
+- ``ethpm://0x582AC4D8929f58c217d4a52aDD361AE470a8a4cD:1/ethregistrar@1.0.0``
 
 To specify a specific asset within a package, you can namespace the target asset.
 
@@ -796,7 +796,7 @@ This is the simplest builder function for adding a deployment to a manifest. All
    ...     'blockchain://1234567890123456789012345678901234567890123456789012345678901234/block/1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef': {
    ...       'Owned': {
    ...         'contractType': 'Owned',
-   ...         'address': '0xFe89cc7aBB2C4183683ab71653C4cdc9B02D44b7',
+   ...         'address': '0x582AC4D8929f58c217d4a52aDD361AE470a8a4cD',
    ...       }
    ...     }
    ...   }
@@ -807,7 +807,7 @@ This is the simplest builder function for adding a deployment to a manifest. All
    ...         block_uri='blockchain://1234567890123456789012345678901234567890123456789012345678901234/block/1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
    ...         contract_instance='Owned',
    ...         contract_type='Owned',
-   ...         address='0xFe89cc7aBB2C4183683ab71653C4cdc9B02D44b7',
+   ...         address='0x582AC4D8929f58c217d4a52aDD361AE470a8a4cD',
    ...     ),
    ... )
    >>> assert expected_manifest == built_manifest
