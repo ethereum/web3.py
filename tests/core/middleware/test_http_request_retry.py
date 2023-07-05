@@ -1,6 +1,5 @@
 import pytest
 from unittest.mock import (
-    AsyncMock,
     Mock,
     patch,
 )
@@ -108,7 +107,7 @@ ASYNC_TEST_RETRY_COUNT = 3
 
 @pytest_asyncio.fixture
 async def async_exception_retry_request_setup():
-    w3 = AsyncMock()
+    w3 = Mock()
     provider = AsyncHTTPProvider()
     setup = await async_exception_retry_middleware(
         provider.make_request,
@@ -152,6 +151,7 @@ async def test_check_without_retry_middleware():
         make_post_request_mock.side_effect = TimeoutError
         provider = AsyncHTTPProvider()
         w3 = AsyncWeb3(provider)
+        w3.provider._middlewares = ()
 
         with pytest.raises(TimeoutError):
             await w3.eth.block_number
