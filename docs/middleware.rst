@@ -106,6 +106,7 @@ HTTPRequestRetry
 ~~~~~~~~~~~~~~~~~~
 
 .. py:method:: web3.middleware.http_retry_request_middleware
+               web3.middleware.async_http_retry_request_middleware
 
     This middleware is a default specifically for HTTPProvider that retries failed
     requests that return the following errors: ``ConnectionError``, ``HTTPError``, ``Timeout``,
