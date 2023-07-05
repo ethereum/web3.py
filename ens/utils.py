@@ -127,6 +127,9 @@ def normalize_name(name: str, ensip15: bool = False) -> str:
     :param bool ensip15: if True, normalize as per ENSIP-15
     :raises InvalidName: if ``name`` has invalid syntax
     """
+    if is_empty_name(name):
+        return ""
+
     if ensip15:
         return normalize_name_ensip15(name).as_text
 
@@ -137,9 +140,7 @@ def normalize_name(name: str, ensip15: bool = False) -> str:
         FutureWarning,
     )
 
-    if not name:
-        return name
-    elif isinstance(name, (bytes, bytearray)):
+    if isinstance(name, (bytes, bytearray)):
         name = name.decode("utf-8")
 
     try:
