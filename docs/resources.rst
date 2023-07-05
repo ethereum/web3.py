@@ -4,13 +4,23 @@
 Resources and Learning Material
 ===============================
 
-Web3.py has an active community of developers and educators. Here you'll find find third-party
-libraries, tutorials, examples, courses and other learning material.
+web3.py and the Ethereum Python ecosystem have an active community of developers and educators.
+Here you'll find libraries, tutorials, examples, courses and other learning material.
 
 .. warning ::
 
   Links on this page are community submissions and are not vetted by the team that maintains
   web3.py. As always, DYOR (Do Your Own Research).
+
+
+First Steps
+-----------
+
+Resources for those brand new to Ethereum:
+
+- `A Developer's Guide to Ethereum, Pt. 1 <https://snakecharmers.ethereum.org/a-developers-guide-to-ethereum-pt-1/>`__
+- `Ethereum Python Ecosystem Tour <https://snakecharmers.ethereum.org/python-ecosystem/>`__
+
 
 Courses
 -------
@@ -22,8 +32,9 @@ Courses
 Frameworks and Tooling
 ----------------------
 
-- `ApeWorX - The Ethereum development framework for Python Developers, Data Scientists, and Security Professionals <https://www.apeworx.io/>`__
-- `Brownie - A Python-based development and testing framework for smart contracts targeting EVM. <https://github.com/eth-brownie/brownie>`__
+- `ApeWorX <https://www.apeworx.io/>`__ - The Ethereum development framework for Python Developers, Data Scientists, and Security Professionals
+- `Woke <https://github.com/Ackee-Blockchain/woke>`__ - A Python-based development and testing framework for Solidity
+- `Brownie <https://github.com/eth-brownie/brownie>`__- A Python-based development and testing framework for smart contracts targeting EVM
 
 .. warning ::
 
@@ -34,18 +45,18 @@ Frameworks and Tooling
 Smart Contract Programming Languages
 ------------------------------------
 
-- `Vyper - Contract-oriented, pythonic programming language that targets EVM <https://docs.vyperlang.org/en/stable/>`__
+- `Vyper <https://docs.vyperlang.org/en/stable/>`__ - Contract-oriented, pythonic programming language that targets EVM
 
 
 Libraries
 ---------
 
-- `Web3 Ethereum DeFi - Library for DeFi trading and protocols (Uniswap, PancakeSwap, Sushi, Aave, Chainlink) <https://github.com/tradingstrategy-ai/web3-ethereum-defi>`__
-- `lighter-v1-python - Lighter.xyz DEX client for Python <https://github.com/elliottech/lighter-v1-python>`__
-- `uniswap-python - Library lets you easily retrieve prices and make trades on all Uniswap versions. <https://uniswap-python.com/>`__
-- `pyWalletConnect - WalletConnect implementation for wallets in Python <https://github.com/bitlogik/pyWalletConnect>`__
-- `dydx-v3-python - Python client for dYdX v3 <https://github.com/dydxprotocol/dydx-v3-python>`__
-- `Lido Python SDK - Library with which you can get all Lido validator's signatures and check their validity <https://github.com/lidofinance/lido-python-sdk>`__
+- `Web3 Ethereum DeFi <https://github.com/tradingstrategy-ai/web3-ethereum-defi>`__ - Library for DeFi trading and protocols (Uniswap, PancakeSwap, Sushi, Aave, Chainlink)
+- `lighter-v1-python <https://github.com/elliottech/lighter-v1-python>`__ - Lighter.xyz DEX client for Python
+- `uniswap-python <https://uniswap-python.com/>`__ - Library lets you easily retrieve prices and make trades on all Uniswap versions.
+- `pyWalletConnect <https://github.com/bitlogik/pyWalletConnect>`__ - WalletConnect implementation for wallets in Python
+- `dydx-v3-python <https://github.com/dydxprotocol/dydx-v3-python>`__ - Python client for dYdX v3
+- `Lido Python SDK <https://github.com/lidofinance/lido-python-sdk>`__ - Library with which you can get all Lido validator's signatures and check their validity
 
 
 Conference Presentations and Videos
