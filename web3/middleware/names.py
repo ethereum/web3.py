@@ -7,6 +7,10 @@ from typing import (
     Union,
 )
 
+from toolz import (
+    merge,
+)
+
 from web3._utils.normalizers import (
     abi_ens_resolver,
     async_abi_ens_resolver,
@@ -80,6 +84,9 @@ async def async_apply_ens_to_address_conversion(
         return formatted_params
 
     elif isinstance(abi_types_for_method, dict):
+        # first arg is a dict but other args may be preset
+        # e.g. eth_call({...}, "latest")
+        # this is similar to applying a dict formatter at index 0 of the args
         param_dict = params[0]
         fields = list(abi_types_for_method.keys() & param_dict.keys())
         formatted_params = await async_format_all_ens_names_to_address(
@@ -88,7 +95,8 @@ async def async_apply_ens_to_address_conversion(
             [param_dict[field] for field in fields],
         )
         formatted_dict = dict(zip(fields, formatted_params))
-        return (formatted_dict,)
+        formatted_params_dict = merge(param_dict, formatted_dict)
+        return (formatted_params_dict, *params[1:])
 
     else:
         raise TypeError(
