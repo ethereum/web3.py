@@ -188,7 +188,7 @@ Get the Address for an ENS Name
 .. code-block:: python
 
     from ens.auto import ns
-    eth_address = ns.address('jasoncarver.eth')
+    eth_address = ns.address('ens.eth')
     assert eth_address == '0x582AC4D8929f58c217d4a52aDD361AE470a8a4cD'
 
 The ``ENS`` module has no opinion as to which TLD you can use,
@@ -233,23 +233,23 @@ you must already be the owner of the domain (or its parent).
 
 .. code-block:: python
 
-    ns.setup_address('jasoncarver.eth', '0x582AC4D8929f58c217d4a52aDD361AE470a8a4cD')
+    ns.setup_address('ens.eth', '0x582AC4D8929f58c217d4a52aDD361AE470a8a4cD')
 
 In the common case where you want to point the name to the owning address, you can skip the address.
 
 .. code-block:: python
 
-    ns.setup_address('jasoncarver.eth')
+    ns.setup_address('ens.eth')
 
 You can claim arbitrarily deep subdomains.
 
 .. code-block:: python
 
-    ns.setup_address('supreme.executive.power.derives.from.a.mandate.from.the.masses.jasoncarver.eth')
+    ns.setup_address('supreme.executive.power.derives.from.a.mandate.from.the.masses.ens.eth')
 
     # wait for the transaction to be mined, then:
     assert (
-        ns.address('supreme.executive.power.derives.from.a.mandate.from.the.masses.jasoncarver.eth')
+        ns.address('supreme.executive.power.derives.from.a.mandate.from.the.masses.ens.eth')
         == '0x582AC4D8929f58c217d4a52aDD361AE470a8a4cD'
     )
 
@@ -265,14 +265,14 @@ this is referred to as "reverse" resolution. The ENS Reverse Resolver is used fo
 
 .. code-block:: python
 
-    ns.setup_name('jasoncarver.eth', '0x582AC4D8929f58c217d4a52aDD361AE470a8a4cD')
+    ns.setup_name('ens.eth', '0x582AC4D8929f58c217d4a52aDD361AE470a8a4cD')
 
 If you don't supply the address, :meth:`~ens.ENS.setup_name` will assume you want the
 address returned by :meth:`~ens.ENS.address`.
 
 .. code-block:: python
 
-    ns.setup_name('jasoncarver.eth')
+    ns.setup_name('ens.eth')
 
 If the name doesn't already point to an address, :meth:`~ens.ENS.setup_name` will
 call :meth:`~ens.ENS.setup_address` for you.
@@ -281,7 +281,7 @@ Wait for the transaction to be mined, then:
 
 .. code-block:: python
 
-    assert ns.name('0x582AC4D8929f58c217d4a52aDD361AE470a8a4cD') == 'jasoncarver.eth'
+    assert ns.name('0x582AC4D8929f58c217d4a52aDD361AE470a8a4cD') == 'ens.eth'
 
 ....
 
@@ -298,15 +298,15 @@ You'll need to setup the address first, and then the text can be set:
 
 .. code-block:: python
 
-    ns.setup_address('jasoncarver.eth', '0x582AC4D8929f58c217d4a52aDD361AE470a8a4cD')
-    ns.set_text('jasoncarver.eth', 'url', 'https://example.com')
+    ns.setup_address('ens.eth', '0x582AC4D8929f58c217d4a52aDD361AE470a8a4cD')
+    ns.set_text('ens.eth', 'url', 'https://example.com')
 
 A transaction dictionary can be passed as the last argument if desired:
 
 .. code-block:: python
 
     transaction_dict = {'from': '0x123...'}
-    ns.set_text('jasoncarver.eth', 'url', 'https://example.com', transaction_dict)
+    ns.set_text('ens.eth', 'url', 'https://example.com', transaction_dict)
 
 If the transaction dictionary is not passed, sensible defaults will be used, and if
 a transaction dictionary is passed but does not have a ``from`` value,
@@ -319,7 +319,7 @@ Anyone can read the data from an ENS Record:
 
 .. code-block:: python
 
-    url = ns.get_text('jasoncarver.eth', 'url')
+    url = ns.get_text('ens.eth', 'url')
     assert url == 'https://example.com'
 
 ....
@@ -334,7 +334,7 @@ You can get the resolver for an ENS name via the :meth:`~ens.ENS.resolver` metho
 
 .. code-block:: python
 
-    >>> resolver = ns.resolver('jasoncarver.eth')
+    >>> resolver = ns.resolver('ens.eth')
     >>> resolver.address
     '0x5B2063246F2191f18F2675ceDB8b28102e957458'
 
