@@ -41,6 +41,7 @@ from .exception_handling import (  # noqa: F401
     construct_exception_handler_middleware,
 )
 from .exception_retry_request import (  # noqa: F401
+    async_http_retry_request_middleware,
     http_retry_request_middleware,
 )
 from .filter import (  # noqa: F401
