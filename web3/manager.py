@@ -30,6 +30,7 @@ from web3.middleware import (
     async_attrdict_middleware,
     async_buffered_gas_estimate_middleware,
     async_gas_price_strategy_middleware,
+    async_name_to_address_middleware,
     async_validation_middleware,
     attrdict_middleware,
     buffered_gas_estimate_middleware,
@@ -139,7 +140,7 @@ class RequestManager:
         """
         return [
             (gas_price_strategy_middleware, "gas_price_strategy"),
-            (name_to_address_middleware(w3), "name_to_address"),  # Add Async
+            (name_to_address_middleware(w3), "name_to_address"),
             (attrdict_middleware, "attrdict"),
             (validation_middleware, "validation"),
             (abi_middleware, "abi"),
@@ -154,6 +155,7 @@ class RequestManager:
         """
         return [
             (async_gas_price_strategy_middleware, "gas_price_strategy"),
+            (async_name_to_address_middleware, "name_to_address"),
             (async_attrdict_middleware, "attrdict"),
             (async_validation_middleware, "validation"),
             (async_buffered_gas_estimate_middleware, "gas_estimate"),
