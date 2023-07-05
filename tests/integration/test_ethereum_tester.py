@@ -266,6 +266,10 @@ class TestEthereumTesterEthModule(EthModuleTest):
     test_eth_max_priority_fee_with_fee_history_calculation = not_implemented(
         EthModuleTest.test_eth_max_priority_fee_with_fee_history_calculation, ValueError
     )
+    test_eth_max_priority_fee_with_fee_history_calculation_error_dict = not_implemented(
+        EthModuleTest.test_eth_max_priority_fee_with_fee_history_calculation_error_dict,
+        ValueError,
+    )
     test_eth_sign = not_implemented(EthModuleTest.test_eth_sign, ValueError)
     test_eth_sign_ens_names = not_implemented(
         EthModuleTest.test_eth_sign_ens_names, ValueError

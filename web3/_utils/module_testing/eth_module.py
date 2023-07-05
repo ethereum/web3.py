@@ -806,6 +806,38 @@ class AsyncEthModuleTest:
         assert is_integer(max_priority_fee)
 
     @pytest.mark.asyncio
+    async def test_eth_max_priority_fee_with_fee_history_calculation_error_dict(
+        self, w3: "Web3"
+    ) -> None:
+        fail_max_prio_middleware = construct_error_generator_middleware(
+            {
+                RPCEndpoint("eth_maxPriorityFeePerGas"): lambda *_: {
+                    "error": {
+                        "code": -32601,
+                        "message": (
+                            "The method eth_maxPriorityFeePerGas does "
+                            "not exist/is not available"
+                        ),
+                    }
+                }
+            }
+        )
+        w3.middleware_onion.add(
+            fail_max_prio_middleware, name="fail_max_prio_middleware"
+        )
+
+        with pytest.warns(
+            UserWarning,
+            match=(
+                "There was an issue with the method eth_maxPriorityFeePerGas."
+                " Calculating using eth_feeHistory."
+            ),
+        ):
+            w3.eth.max_priority_fee
+
+        w3.middleware_onion.remove("fail_max_prio_middleware")  # clean up
+
+    @pytest.mark.asyncio
     async def test_eth_max_priority_fee_with_fee_history_calculation(
         self, async_w3: "AsyncWeb3"
     ) -> None:
@@ -818,8 +850,10 @@ class AsyncEthModuleTest:
 
         with pytest.warns(
             UserWarning,
-            match="There was an issue with the method eth_maxPriorityFeePerGas. "
-            "Calculating using eth_feeHistory.",
+            match=(
+                "There was an issue with the method eth_maxPriorityFeePerGas. "
+                "Calculating using eth_feeHistory."
+            ),
         ):
             max_priority_fee = await async_w3.eth.max_priority_fee
             assert is_integer(max_priority_fee)
@@ -2335,6 +2369,37 @@ class EthModuleTest:
         max_priority_fee = w3.eth.max_priority_fee
         assert is_integer(max_priority_fee)
 
+    def test_eth_max_priority_fee_with_fee_history_calculation_error_dict(
+        self, w3: "Web3"
+    ) -> None:
+        fail_max_prio_middleware = construct_error_generator_middleware(
+            {
+                RPCEndpoint("eth_maxPriorityFeePerGas"): lambda *_: {
+                    "error": {
+                        "code": -32601,
+                        "message": (
+                            "The method eth_maxPriorityFeePerGas does "
+                            "not exist/is not available"
+                        ),
+                    }
+                }
+            }
+        )
+        w3.middleware_onion.add(
+            fail_max_prio_middleware, name="fail_max_prio_middleware"
+        )
+
+        with pytest.warns(
+            UserWarning,
+            match=(
+                "There was an issue with the method eth_maxPriorityFeePerGas."
+                " Calculating using eth_feeHistory."
+            ),
+        ):
+            w3.eth.max_priority_fee
+
+        w3.middleware_onion.remove("fail_max_prio_middleware")  # clean up
+
     def test_eth_max_priority_fee_with_fee_history_calculation(
         self, w3: "Web3"
     ) -> None:
@@ -2347,8 +2412,10 @@ class EthModuleTest:
 
         with pytest.warns(
             UserWarning,
-            match="There was an issue with the method eth_maxPriorityFeePerGas."
-            " Calculating using eth_feeHistory.",
+            match=(
+                "There was an issue with the method eth_maxPriorityFeePerGas."
+                " Calculating using eth_feeHistory."
+            ),
         ):
             max_priority_fee = w3.eth.max_priority_fee
             assert is_integer(max_priority_fee)
