@@ -153,7 +153,7 @@ The following properties are available on the ``web3.eth`` namespace.
     .. code-block:: python
 
         >>> web3.eth.accounts
-        ['public_address']
+        ['0x582AC4D8929f58c217d4a52aDD361AE470a8a4cD']
 
 
 .. py:attribute:: Eth.block_number
