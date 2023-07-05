@@ -141,7 +141,7 @@ async def async_exception_retry_middleware(
 ) -> AsyncMiddlewareCoroutine:
     """
     Creates middleware that retries failed HTTP requests.
-    Is a middleware for AsyncHTTPProvider.
+    Is a default middleware for AsyncHTTPProvider.
     """
 
     async def middleware(method: RPCEndpoint, params: Any) -> Optional[RPCResponse]:
