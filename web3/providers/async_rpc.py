@@ -27,10 +27,17 @@ from web3._utils.request import (
     get_default_http_endpoint,
 )
 from web3.types import (
+    AsyncMiddleware,
     RPCEndpoint,
     RPCResponse,
 )
 
+from ..datastructures import (
+    NamedElementOnion,
+)
+from ..middleware.exception_retry_request import (
+    async_http_retry_request_middleware,
+)
 from .async_base import (
     AsyncJSONBaseProvider,
 )
@@ -40,6 +47,8 @@ class AsyncHTTPProvider(AsyncJSONBaseProvider):
     logger = logging.getLogger("web3.providers.HTTPProvider")
     endpoint_uri = None
     _request_kwargs = None
+    # type ignored b/c conflict with _middlewares attr on AsyncBaseProvider
+    _middlewares: Tuple[AsyncMiddleware, ...] = NamedElementOnion([(async_http_retry_request_middleware, "http_retry_request")])  # type: ignore # noqa: E501
 
     def __init__(
         self,
