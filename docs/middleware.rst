@@ -40,6 +40,7 @@ Sync middlewares include:
 Async middlewares include:
 
 * ``gas_price_strategy``
+* ``name_to_address``
 * ``attrdict``
 * ``validation``
 * ``gas_estimate``
@@ -66,6 +67,7 @@ AttributeDict
 ~~~~~~~~~~~~~~~~~~~~~
 
 .. py:method:: web3.middleware.name_to_address_middleware
+               web3.middleware.async_name_to_address_middleware
 
     This middleware converts Ethereum Name Service (ENS) names into the
     address that the name points to. For example :meth:`w3.eth.send_transaction <web3.eth.Eth.send_transaction>` will

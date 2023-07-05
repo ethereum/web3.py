@@ -67,6 +67,7 @@ from .geth_poa import (  # noqa: F401
     geth_poa_middleware,
 )
 from .names import (  # noqa: F401
+    async_name_to_address_middleware,
     name_to_address_middleware,
 )
 from .normalize_request_parameters import (  # noqa: F401
