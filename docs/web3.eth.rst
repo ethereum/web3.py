@@ -93,7 +93,7 @@ The following properties are available on the ``web3.eth`` namespace.
     .. code-block:: python
 
         >>> web3.eth.coinbase
-        '0xd3CdA913deB6f67967B99D67aCDFa1712C293601'
+        '0xC014BA5EC014ba5ec014Ba5EC014ba5Ec014bA5E'
 
 
 .. py:attribute:: Eth.mining
@@ -153,7 +153,7 @@ The following properties are available on the ``web3.eth`` namespace.
     .. code-block:: python
 
         >>> web3.eth.accounts
-        ['0xd3CdA913deB6f67967B99D67aCDFa1712C293601']
+        ['0x582AC4D8929f58c217d4a52aDD361AE470a8a4cD']
 
 
 .. py:attribute:: Eth.block_number
@@ -736,7 +736,7 @@ The following methods are available on the ``web3.eth`` namespace.
 
         # simple example (web3.py and / or client determines gas and fees, typically defaults to a dynamic fee transaction post London fork)
         >>> web3.eth.send_transaction({
-          'to': '0xd3CdA913deB6f67967B99D67aCDFa1712C293601',
+          'to': '0x582AC4D8929f58c217d4a52aDD361AE470a8a4cD',
           'from': web3.eth.coinbase,
           'value': 12345
         })
@@ -744,7 +744,7 @@ The following methods are available on the ``web3.eth`` namespace.
         # Dynamic fee transaction, introduced by EIP-1559:
         HexBytes('0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331')
         >>> web3.eth.send_transaction({
-          'to': '0xd3CdA913deB6f67967B99D67aCDFa1712C293601',
+          'to': '0x582AC4D8929f58c217d4a52aDD361AE470a8a4cD',
           'from': web3.eth.coinbase,
           'value': 12345,
           'gas': 21000,
@@ -756,7 +756,7 @@ The following methods are available on the ``web3.eth`` namespace.
         # Legacy transaction (less efficient)
         HexBytes('0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331')
         >>> web3.eth.send_transaction({
-          'to': '0xd3CdA913deB6f67967B99D67aCDFa1712C293601',
+          'to': '0x582AC4D8929f58c217d4a52aDD361AE470a8a4cD',
           'from': web3.eth.coinbase,
           'value': 12345,
           'gas': 21000,
@@ -800,7 +800,7 @@ The following methods are available on the ``web3.eth`` namespace.
             maxFeePerGas=3000000000,
             maxPriorityFeePerGas=2000000000,
             gas=100000,
-            to='0xd3CdA913deB6f67967B99D67aCDFa1712C293601',
+            to='0x582AC4D8929f58c217d4a52aDD361AE470a8a4cD',
             value=12345,
             data=b'',
             type=2,  # (optional) the type is now implicitly set based on appropriate transaction params
@@ -855,13 +855,13 @@ The following methods are available on the ``web3.eth`` namespace.
     .. code-block:: python
 
         >>> tx = web3.eth.send_transaction({
-                'to': '0xd3CdA913deB6f67967B99D67aCDFa1712C293601',
+                'to': '0x582AC4D8929f58c217d4a52aDD361AE470a8a4cD',
                 'from': web3.eth.coinbase,
                 'value': 1000
             })
         HexBytes('0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331')
         >>> web3.eth.replace_transaction('0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331', {
-                'to': '0xd3CdA913deB6f67967B99D67aCDFa1712C293601',
+                'to': '0x582AC4D8929f58c217d4a52aDD361AE470a8a4cD',
                 'from': web3.eth.coinbase,
                 'value': 2000
             })
@@ -886,7 +886,7 @@ The following methods are available on the ``web3.eth`` namespace.
     .. code-block:: python
 
         >>> tx = web3.eth.send_transaction({
-                'to': '0xd3CdA913deB6f67967B99D67aCDFa1712C293601',
+                'to': '0x582AC4D8929f58c217d4a52aDD361AE470a8a4cD',
                 'from': web3.eth.coinbase,
                 'value': 1000
             })
@@ -909,12 +909,12 @@ The following methods are available on the ``web3.eth`` namespace.
     .. code-block:: python
 
         >>> web3.eth.sign(
-              '0xd3CdA913deB6f67967B99D67aCDFa1712C293601',
+              '0x582AC4D8929f58c217d4a52aDD361AE470a8a4cD',
               text='some-text-tö-sign')
         '0x1a8bbe6eab8c72a219385681efefe565afd3accee35f516f8edf5ae82208fbd45a58f9f9116d8d88ba40fcd29076d6eada7027a3b412a9db55a0164547810cc401'
 
         >>> web3.eth.sign(
-              '0xd3CdA913deB6f67967B99D67aCDFa1712C293601',
+              '0x582AC4D8929f58c217d4a52aDD361AE470a8a4cD',
               data=b'some-text-t\xc3\xb6-sign')
         '0x1a8bbe6eab8c72a219385681efefe565afd3accee35f516f8edf5ae82208fbd45a58f9f9116d8d88ba40fcd29076d6eada7027a3b412a9db55a0164547810cc401'
 

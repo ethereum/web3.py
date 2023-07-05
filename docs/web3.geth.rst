@@ -209,7 +209,7 @@ The following methods are available on the ``web3.geth.personal`` namespace.
     .. code-block:: python
 
         >>> web3.geth.personal.list_accounts()
-        ['0xd3CdA913deB6f67967B99D67aCDFa1712C293601']
+        ['0x582AC4D8929f58c217d4a52aDD361AE470a8a4cD']
 
 
 .. py:method:: list_wallets()
@@ -239,7 +239,7 @@ The following methods are available on the ``web3.geth.personal`` namespace.
 
     .. code-block:: python
 
-        >>> web3.geth.personal.lock_account('0xd3CdA913deB6f67967B99D67aCDFa1712C293601')
+        >>> web3.geth.personal.lock_account('0x582AC4D8929f58c217d4a52aDD361AE470a8a4cD')
         True
 
 
@@ -253,7 +253,7 @@ The following methods are available on the ``web3.geth.personal`` namespace.
     .. code-block:: python
 
         >>> web3.geth.personal.new_account('the-passphrase')
-        '0xd3CdA913deB6f67967B99D67aCDFa1712C293601'
+        '0x582AC4D8929f58c217d4a52aDD361AE470a8a4cD'
 
 
 .. py:method:: send_transaction(transaction, passphrase)
@@ -287,9 +287,9 @@ The following methods are available on the ``web3.geth.personal`` namespace.
 
     .. code-block:: python
 
-        >>> web3.geth.personal.unlock_account('0xd3CdA913deB6f67967B99D67aCDFa1712C293601', 'wrong-passphrase')
+        >>> web3.geth.personal.unlock_account('0x582AC4D8929f58c217d4a52aDD361AE470a8a4cD', 'wrong-passphrase')
         False
-        >>> web3.geth.personal.unlock_account('0xd3CdA913deB6f67967B99D67aCDFa1712C293601', 'the-passphrase')
+        >>> web3.geth.personal.unlock_account('0x582AC4D8929f58c217d4a52aDD361AE470a8a4cD', 'the-passphrase')
         True
 
 

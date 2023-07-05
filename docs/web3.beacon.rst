@@ -360,7 +360,7 @@ Methods
         {
           'data': {
             'chain_id': '5',
-            'address': '0x8c5fecdc472e27bc447696f431e425d02dd46a8c'
+            'address': '0x8c5fecdC472E27Bc447696F431E425D02dd46a8c'
           }
         }
 

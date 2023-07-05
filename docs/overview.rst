@@ -322,7 +322,8 @@ ENS
 ~~~
 
 `Ethereum Name Service (ENS) <https://ens.domains/>`_ provides the infrastructure
-for human-readable addresses. As an example, instead of
-``0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359``, you can send funds to
-``ethereumfoundation.eth``. web3.py has support for ENS, documented
+for human-readable addresses. If an address is registered with the ENS registry,
+the domain name can be used in place of the address itself. For example, the registered domain 
+name ``ethereum.eth`` will resolve to the address
+``0xde0B295669a9FD93d5F28D9Ec85E40f4cb697BAe``. web3.py has support for ENS, documented
 :ref:`here <ens_overview>`.

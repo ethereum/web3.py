@@ -900,7 +900,7 @@ Methods
 
         >>> math_contract.functions.increment(5).build_transaction({'maxFeePerGas': 2000000000, 'maxPriorityFeePerGas': 1000000000})
         {
-            'to': '0x6Bc272FCFcf89C14cebFC57B8f1543F5137F97dE',
+            'to': '0x582AC4D8929f58c217d4a52aDD361AE470a8a4cD',
             'data': '0x7cf5dab00000000000000000000000000000000000000000000000000000000000000005',
             'value': 0,
             'gas': 43242,
