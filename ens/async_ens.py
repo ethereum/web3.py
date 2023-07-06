@@ -37,9 +37,9 @@ from ens.base_ens import (
 )
 from ens.constants import (
     EMPTY_ADDR_HEX,
+    ENS_EXTENDED_RESOLVER_INTERFACE_ID,
     ENS_MAINNET_ADDR,
-    EXTENDED_RESOLVER_INTERFACE_ID,
-    GET_TEXT_INTERFACE_ID,
+    ENS_TEXT_INTERFACE_ID,
     REVERSE_REGISTRAR_DOMAIN,
 )
 from ens.exceptions import (
@@ -222,7 +222,7 @@ class AsyncENS(BaseENS):
         `name` when supplied with `address`.
 
         :param str name: ENS name that address will point to
-        :param str address: to set up, in checksum format
+        :param str address: address to set up, in checksum format
         :param dict transact: the transaction configuration, like in
             :meth:`~web3.eth.send_transaction`
         :raises AddressMismatch: if the name does not already point to the address
@@ -358,7 +358,7 @@ class AsyncENS(BaseENS):
 
         r = await self.resolver(name)
         if r:
-            if await _async_resolver_supports_interface(r, GET_TEXT_INTERFACE_ID):
+            if await _async_resolver_supports_interface(r, ENS_TEXT_INTERFACE_ID):
                 return await r.caller.text(node, key)
             else:
                 raise UnsupportedFunction(
@@ -381,7 +381,7 @@ class AsyncENS(BaseENS):
         Set the value of a text record of an ENS name.
 
         :param str name: ENS name
-        :param str key: Name of the attribute to set
+        :param str key: The name of the attribute to set
         :param str value: Value to set the attribute to
         :param dict transact: The transaction configuration, like in
             :meth:`~web3.eth.Eth.send_transaction`
@@ -402,7 +402,7 @@ class AsyncENS(BaseENS):
 
         r = await self.resolver(normal_name)
         if r:
-            if await _async_resolver_supports_interface(r, GET_TEXT_INTERFACE_ID):
+            if await _async_resolver_supports_interface(r, ENS_TEXT_INTERFACE_ID):
                 return await r.functions.setText(node, key, value).transact(
                     transaction_dict
                 )
@@ -477,7 +477,7 @@ class AsyncENS(BaseENS):
 
         # handle extended resolver case
         if await _async_resolver_supports_interface(
-            resolver, EXTENDED_RESOLVER_INTERFACE_ID
+            resolver, ENS_EXTENDED_RESOLVER_INTERFACE_ID
         ):
             contract_func_with_args = (fn_name, [node])
 
