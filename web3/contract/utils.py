@@ -29,7 +29,7 @@ from web3._utils.abi import (
     recursive_dict_to_namedtuple,
 )
 from web3._utils.async_transactions import (
-    fill_transaction_defaults as async_fill_transaction_defaults,
+    async_fill_transaction_defaults,
 )
 from web3._utils.contracts import (
     find_matching_fn_abi,

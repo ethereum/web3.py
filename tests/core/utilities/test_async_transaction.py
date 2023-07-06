@@ -5,7 +5,7 @@ from eth_typing import (
 )
 
 from web3._utils.async_transactions import (
-    fill_transaction_defaults,
+    async_fill_transaction_defaults,
     get_block_gas_limit,
     get_buffered_gas_estimate,
 )
@@ -52,7 +52,7 @@ async def test_get_buffered_gas_estimate(async_w3):
 
 @pytest.mark.asyncio()
 async def test_fill_transaction_defaults_for_all_params(async_w3):
-    default_transaction = await fill_transaction_defaults(async_w3, {})
+    default_transaction = await async_fill_transaction_defaults(async_w3, {})
 
     block = await async_w3.eth.get_block("latest")
     assert default_transaction == {
@@ -72,7 +72,7 @@ async def test_fill_transaction_defaults_nondynamic_tranaction_fee(async_w3):
     gasPrice_transaction = {
         "gasPrice": 10,
     }
-    default_transaction = await fill_transaction_defaults(
+    default_transaction = await async_fill_transaction_defaults(
         async_w3, gasPrice_transaction
     )
 
@@ -86,7 +86,7 @@ async def test_fill_transaction_defaults_for_zero_gas_price(async_w3):
 
     async_w3.eth.set_gas_price_strategy(gas_price_strategy)
 
-    default_transaction = await fill_transaction_defaults(async_w3, {})
+    default_transaction = await async_fill_transaction_defaults(async_w3, {})
 
     assert default_transaction == {
         "chainId": await async_w3.eth.chain_id,
