@@ -202,7 +202,7 @@ Get the ENS Name for an Address
     domain = ns.name('0xFe89cc7aBB2C4183683ab71653C4cdc9B02D44b7')
 
     # name() also accepts the bytes version of the address
-    assert ns.name(b'[ c$o!\x91\xf1\x8f&u\xce\xdb\x8b(\x10.\x95tX') == domain
+    assert ns.name(b'\xfe\x89\xccz\xbb,A\x83h:\xb7\x16S\xc4\xcd\xc9\xb0-D\xb7') == domain
 
     # confirm that the name resolves back to the address that you looked up:
     assert ns.address(domain) == '0xFe89cc7aBB2C4183683ab71653C4cdc9B02D44b7'
