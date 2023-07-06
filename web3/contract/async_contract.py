@@ -32,7 +32,7 @@ from web3._utils.abi import (
     receive_func_abi_exists,
 )
 from web3._utils.async_transactions import (
-    fill_transaction_defaults as async_fill_transaction_defaults,
+    async_fill_transaction_defaults,
 )
 from web3._utils.compat import (
     Self,

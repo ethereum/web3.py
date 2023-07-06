@@ -11,9 +11,10 @@ from eth_abi import (
 )
 from eth_typing import (
     URI,
+    ChecksumAddress,
 )
 from eth_utils.toolz import (
-    curry,
+    assoc,
     merge,
 )
 from hexbytes import (
@@ -78,7 +79,7 @@ TRANSACTION_DEFAULTS = {
     "value": 0,
     "data": b"",
     "gas": _estimate_gas,
-    "gasPrice": lambda w3, tx: w3.eth.generate_gas_price(tx),
+    "gasPrice": lambda async_w3, tx: async_w3.eth.generate_gas_price(tx),
     "maxFeePerGas": _max_fee_per_gas,
     "maxPriorityFeePerGas": _max_priority_fee_gas,
     "chainId": _chain_id,
@@ -113,12 +114,21 @@ async def get_buffered_gas_estimate(
     return min(gas_limit, gas_estimate + gas_buffer)
 
 
-@curry
-async def fill_transaction_defaults(
+async def async_fill_nonce(async_w3: "AsyncWeb3", transaction: TxParams) -> TxParams:
+    if "from" in transaction and "nonce" not in transaction:
+        tx_count = await async_w3.eth.get_transaction_count(
+            cast(ChecksumAddress, transaction["from"]),
+            block_identifier="pending",
+        )
+        return assoc(transaction, "nonce", tx_count)
+    return transaction
+
+
+async def async_fill_transaction_defaults(
     async_w3: "AsyncWeb3", transaction: TxParams
 ) -> TxParams:
     """
-    if w3 is None, fill as much as possible while offline
+    if async_w3 is None, fill as much as possible while offline
     """
     strategy_based_gas_price = async_w3.eth.generate_gas_price(transaction)
 

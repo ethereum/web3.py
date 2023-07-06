@@ -27,6 +27,7 @@ from eth_typing import (
     HexStr,
 )
 from eth_utils import (
+    to_checksum_address,
     to_dict,
 )
 from eth_utils.curried import (
@@ -36,6 +37,10 @@ from eth_utils.toolz import (
     compose,
 )
 
+from web3._utils.async_transactions import (
+    async_fill_nonce,
+    async_fill_transaction_defaults,
+)
 from web3._utils.method_formatters import (
     STANDARD_NORMALIZERS,
 )
@@ -48,6 +53,8 @@ from web3._utils.transactions import (
     fill_transaction_defaults,
 )
 from web3.types import (
+    AsyncMiddleware,
+    AsyncMiddlewareCoroutine,
     Middleware,
     RPCEndpoint,
     RPCResponse,
@@ -55,7 +62,10 @@ from web3.types import (
 )
 
 if TYPE_CHECKING:
-    from web3 import Web3  # noqa: F401
+    from web3 import (  # noqa: F401
+        AsyncWeb3,
+        Web3,
+    )
 
 T = TypeVar("T")
 
@@ -173,3 +183,54 @@ def construct_sign_and_send_raw_middleware(
         return middleware
 
     return sign_and_send_raw_middleware
+
+
+# -- async -- #
+
+
+async def async_construct_sign_and_send_raw_middleware(
+    private_key_or_account: Union[_PrivateKey, Collection[_PrivateKey]]
+) -> AsyncMiddleware:
+    """
+    Capture transactions & sign and send as raw transactions
+
+    Keyword arguments:
+    private_key_or_account -- A single private key or a tuple,
+    list or set of private keys. Keys can be any of the following formats:
+      - An eth_account.LocalAccount object
+      - An eth_keys.PrivateKey object
+      - A raw private key as a hex string or byte string
+    """
+    accounts = gen_normalized_accounts(private_key_or_account)
+
+    async def async_sign_and_send_raw_middleware(
+        make_request: Callable[[RPCEndpoint, Any], Any], async_w3: "AsyncWeb3"
+    ) -> AsyncMiddlewareCoroutine:
+        async def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
+            if method != "eth_sendTransaction":
+                # quick exit if not `eth_sendTransaction`
+                return await make_request(method, params)
+
+            formatted_transaction = format_transaction(params[0])
+            filled_transaction = await async_fill_transaction_defaults(
+                async_w3,
+                formatted_transaction,
+            )
+            filled_transaction = await async_fill_nonce(
+                async_w3,
+                filled_transaction,
+            )
+
+            tx_from = filled_transaction.get("from", None)
+
+            if tx_from is None or (tx_from is not None and tx_from not in accounts):
+                return await make_request(method, params)
+
+            account = accounts[to_checksum_address(tx_from)]
+            raw_tx = account.sign_transaction(filled_transaction).rawTransaction
+
+            return await make_request(RPCEndpoint("eth_sendRawTransaction"), [raw_tx])
+
+        return middleware
+
+    return async_sign_and_send_raw_middleware

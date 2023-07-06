@@ -25,24 +25,30 @@ from eth_utils.toolz import (
 from hexbytes import (
     HexBytes,
 )
+import pytest_asyncio
 
 from web3 import (
+    AsyncWeb3,
     Web3,
 )
 from web3.exceptions import (
     InvalidAddress,
 )
 from web3.middleware import (
+    async_construct_result_generator_middleware,
     construct_result_generator_middleware,
     construct_sign_and_send_raw_middleware,
 )
 from web3.middleware.signing import (
+    async_construct_sign_and_send_raw_middleware,
     gen_normalized_accounts,
 )
 from web3.providers import (
+    AsyncBaseProvider,
     BaseProvider,
 )
 from web3.providers.eth_tester import (
+    AsyncEthereumTesterProvider,
     EthereumTesterProvider,
 )
 
@@ -89,7 +95,7 @@ class DummyProvider(BaseProvider):
         raise NotImplementedError(f"Cannot make request for {method}:{params}")
 
 
-@pytest.fixture()
+@pytest.fixture
 def result_generator_middleware():
     return construct_result_generator_middleware(
         {
@@ -100,12 +106,12 @@ def result_generator_middleware():
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def w3_base():
     return Web3(provider=DummyProvider(), middlewares=[])
 
 
-@pytest.fixture()
+@pytest.fixture
 def w3_dummy(w3_base, result_generator_middleware):
     w3_base.middleware_onion.add(result_generator_middleware)
     return w3_base
@@ -115,90 +121,147 @@ def hex_to_bytes(s):
     return to_bytes(hexstr=s)
 
 
+TEST_SIGN_AND_SEND_RAW_MIDDLEWARE_PARAMS = (
+    ("eth_sendTransaction", SAME_KEY_MIXED_TYPE, ADDRESS_2, NotImplementedError),
+    (
+        "eth_sendTransaction",
+        SAME_KEY_MIXED_TYPE,
+        ADDRESS_1,
+        "eth_sendRawTransaction",
+    ),
+    (
+        "eth_sendTransaction",
+        MIXED_KEY_MIXED_TYPE,
+        ADDRESS_2,
+        "eth_sendRawTransaction",
+    ),
+    (
+        "eth_sendTransaction",
+        MIXED_KEY_MIXED_TYPE,
+        ADDRESS_1,
+        "eth_sendRawTransaction",
+    ),
+    ("eth_sendTransaction", SAME_KEY_SAME_TYPE, ADDRESS_2, NotImplementedError),
+    (
+        "eth_sendTransaction",
+        SAME_KEY_SAME_TYPE,
+        ADDRESS_1,
+        "eth_sendRawTransaction",
+    ),
+    (
+        "eth_sendTransaction",
+        MIXED_KEY_SAME_TYPE,
+        ADDRESS_2,
+        "eth_sendRawTransaction",
+    ),
+    (
+        "eth_sendTransaction",
+        MIXED_KEY_SAME_TYPE,
+        ADDRESS_1,
+        "eth_sendRawTransaction",
+    ),
+    (
+        "eth_sendTransaction",
+        SAME_KEY_MIXED_TYPE[0],
+        ADDRESS_1,
+        "eth_sendRawTransaction",
+    ),
+    (
+        "eth_sendTransaction",
+        SAME_KEY_MIXED_TYPE[1],
+        ADDRESS_1,
+        "eth_sendRawTransaction",
+    ),
+    (
+        "eth_sendTransaction",
+        SAME_KEY_MIXED_TYPE[2],
+        ADDRESS_1,
+        "eth_sendRawTransaction",
+    ),
+    (
+        "eth_sendTransaction",
+        SAME_KEY_MIXED_TYPE[3],
+        ADDRESS_1,
+        "eth_sendRawTransaction",
+    ),
+    (
+        "eth_sendTransaction",
+        SAME_KEY_MIXED_TYPE[4],
+        ADDRESS_1,
+        "eth_sendRawTransaction",
+    ),
+    ("eth_sendTransaction", SAME_KEY_MIXED_TYPE[0], ADDRESS_2, NotImplementedError),
+    ("eth_sendTransaction", SAME_KEY_MIXED_TYPE[1], ADDRESS_2, NotImplementedError),
+    ("eth_sendTransaction", SAME_KEY_MIXED_TYPE[2], ADDRESS_2, NotImplementedError),
+    ("eth_sendTransaction", SAME_KEY_MIXED_TYPE[3], ADDRESS_2, NotImplementedError),
+    ("eth_sendTransaction", SAME_KEY_MIXED_TYPE[4], ADDRESS_2, NotImplementedError),
+    ("eth_call", MIXED_KEY_MIXED_TYPE, ADDRESS_1, NotImplementedError),
+    (
+        "eth_sendTransaction",
+        SAME_KEY_SAME_TYPE,
+        hex_to_bytes(ADDRESS_1),
+        "eth_sendRawTransaction",
+    ),
+)
+TEST_SIGNED_TRANSACTION_PARAMS = (
+    (
+        {"gas": 21000, "gasPrice": 10**9, "value": 1},
+        -1,
+        MIXED_KEY_MIXED_TYPE,
+        ADDRESS_1,
+    ),
+    (
+        {"value": 1},
+        -1,
+        MIXED_KEY_MIXED_TYPE,
+        ADDRESS_1,
+    ),
+    # expect validation error + unmanaged account
+    (
+        {"gas": 21000, "value": 10},
+        ValidationError,
+        SAME_KEY_MIXED_TYPE,
+        ADDRESS_2,
+    ),
+    (
+        {"gas": 21000, "value": 10},
+        InvalidAddress,
+        SAME_KEY_MIXED_TYPE,
+        "0x0000",
+    ),
+    (
+        {"gas": 21000, "gasPrice": 0, "value": 1},
+        EthUtilsValidationError,
+        MIXED_KEY_MIXED_TYPE,
+        ADDRESS_1,
+    ),
+    (
+        {
+            "type": "0x2",
+            "value": 22,
+            "maxFeePerGas": 2000000000,
+            "maxPriorityFeePerGas": 10**9,
+        },
+        -1,
+        SAME_KEY_MIXED_TYPE,
+        ADDRESS_1,
+    ),
+    (
+        {
+            "value": 22,
+            "maxFeePerGas": 20**9,
+            "maxPriorityFeePerGas": 10**9,
+        },
+        -1,
+        SAME_KEY_MIXED_TYPE,
+        ADDRESS_1,
+    ),
+)
+
+
 @pytest.mark.parametrize(
     "method,key_object,from_,expected",
-    (
-        ("eth_sendTransaction", SAME_KEY_MIXED_TYPE, ADDRESS_2, NotImplementedError),
-        (
-            "eth_sendTransaction",
-            SAME_KEY_MIXED_TYPE,
-            ADDRESS_1,
-            "eth_sendRawTransaction",
-        ),
-        (
-            "eth_sendTransaction",
-            MIXED_KEY_MIXED_TYPE,
-            ADDRESS_2,
-            "eth_sendRawTransaction",
-        ),
-        (
-            "eth_sendTransaction",
-            MIXED_KEY_MIXED_TYPE,
-            ADDRESS_1,
-            "eth_sendRawTransaction",
-        ),
-        ("eth_sendTransaction", SAME_KEY_SAME_TYPE, ADDRESS_2, NotImplementedError),
-        (
-            "eth_sendTransaction",
-            SAME_KEY_SAME_TYPE,
-            ADDRESS_1,
-            "eth_sendRawTransaction",
-        ),
-        (
-            "eth_sendTransaction",
-            MIXED_KEY_SAME_TYPE,
-            ADDRESS_2,
-            "eth_sendRawTransaction",
-        ),
-        (
-            "eth_sendTransaction",
-            MIXED_KEY_SAME_TYPE,
-            ADDRESS_1,
-            "eth_sendRawTransaction",
-        ),
-        (
-            "eth_sendTransaction",
-            SAME_KEY_MIXED_TYPE[0],
-            ADDRESS_1,
-            "eth_sendRawTransaction",
-        ),
-        (
-            "eth_sendTransaction",
-            SAME_KEY_MIXED_TYPE[1],
-            ADDRESS_1,
-            "eth_sendRawTransaction",
-        ),
-        (
-            "eth_sendTransaction",
-            SAME_KEY_MIXED_TYPE[2],
-            ADDRESS_1,
-            "eth_sendRawTransaction",
-        ),
-        (
-            "eth_sendTransaction",
-            SAME_KEY_MIXED_TYPE[3],
-            ADDRESS_1,
-            "eth_sendRawTransaction",
-        ),
-        (
-            "eth_sendTransaction",
-            SAME_KEY_MIXED_TYPE[4],
-            ADDRESS_1,
-            "eth_sendRawTransaction",
-        ),
-        ("eth_sendTransaction", SAME_KEY_MIXED_TYPE[0], ADDRESS_2, NotImplementedError),
-        ("eth_sendTransaction", SAME_KEY_MIXED_TYPE[1], ADDRESS_2, NotImplementedError),
-        ("eth_sendTransaction", SAME_KEY_MIXED_TYPE[2], ADDRESS_2, NotImplementedError),
-        ("eth_sendTransaction", SAME_KEY_MIXED_TYPE[3], ADDRESS_2, NotImplementedError),
-        ("eth_sendTransaction", SAME_KEY_MIXED_TYPE[4], ADDRESS_2, NotImplementedError),
-        ("eth_call", MIXED_KEY_MIXED_TYPE, ADDRESS_1, NotImplementedError),
-        (
-            "eth_sendTransaction",
-            SAME_KEY_SAME_TYPE,
-            hex_to_bytes(ADDRESS_1),
-            "eth_sendRawTransaction",
-        ),
-    ),
+    TEST_SIGN_AND_SEND_RAW_MIDDLEWARE_PARAMS,
 )
 def test_sign_and_send_raw_middleware(w3_dummy, method, from_, expected, key_object):
     w3_dummy.middleware_onion.add(construct_sign_and_send_raw_middleware(key_object))
@@ -279,7 +342,7 @@ def test_gen_normalized_accounts_type_error(w3):
         gen_normalized_accounts(1234567890)
 
 
-@pytest.fixture()
+@pytest.fixture
 def fund_account(w3):
     # fund local account
     tx_value = w3.to_wei(10, "ether")
@@ -292,60 +355,7 @@ def fund_account(w3):
 
 @pytest.mark.parametrize(
     "transaction,expected,key_object,from_",
-    (
-        (
-            {"gas": 21000, "gasPrice": 10**9, "value": 1},
-            -1,
-            MIXED_KEY_MIXED_TYPE,
-            ADDRESS_1,
-        ),
-        (
-            {"value": 1},
-            -1,
-            MIXED_KEY_MIXED_TYPE,
-            ADDRESS_1,
-        ),
-        # expect validation error + unmanaged account
-        (
-            {"gas": 21000, "value": 10},
-            ValidationError,
-            SAME_KEY_MIXED_TYPE,
-            ADDRESS_2,
-        ),
-        (
-            {"gas": 21000, "value": 10},
-            InvalidAddress,
-            SAME_KEY_MIXED_TYPE,
-            "0x0000",
-        ),
-        (
-            {"gas": 21000, "gasPrice": 0, "value": 1},
-            EthUtilsValidationError,
-            MIXED_KEY_MIXED_TYPE,
-            ADDRESS_1,
-        ),
-        (
-            {
-                "type": "0x2",
-                "value": 22,
-                "maxFeePerGas": 2000000000,
-                "maxPriorityFeePerGas": 10**9,
-            },
-            -1,
-            SAME_KEY_MIXED_TYPE,
-            ADDRESS_1,
-        ),
-        (
-            {
-                "value": 22,
-                "maxFeePerGas": 20**9,
-                "maxPriorityFeePerGas": 10**9,
-            },
-            -1,
-            SAME_KEY_MIXED_TYPE,
-            ADDRESS_1,
-        ),
-    ),
+    TEST_SIGNED_TRANSACTION_PARAMS,
     ids=[
         "with set gas",
         "with no set gas",
@@ -392,6 +402,202 @@ def test_sign_and_send_raw_middleware_with_byte_addresses(
     w3_dummy.middleware_onion.add(construct_sign_and_send_raw_middleware(private_key))
 
     actual = w3_dummy.manager.request_blocking(
+        "eth_sendTransaction",
+        [
+            {
+                "to": to_,
+                "from": from_,
+                "gas": 21000,
+                "gasPrice": 0,
+                "value": 1,
+                "nonce": 0,
+            }
+        ],
+    )
+    raw_txn = actual[1][0]
+    actual_method = actual[0]
+    assert actual_method == "eth_sendRawTransaction"
+    assert isinstance(raw_txn, bytes)
+
+
+# -- async -- #
+
+
+@pytest_asyncio.fixture
+async def async_result_generator_middleware():
+    return await async_construct_result_generator_middleware(
+        {
+            "eth_sendRawTransaction": lambda *args: args,
+            "net_version": lambda *_: 1,
+            "eth_chainId": lambda *_: "0x02",
+        }
+    )
+
+
+class AsyncDummyProvider(AsyncBaseProvider):
+    async def coro_request(self, method, params):
+        raise NotImplementedError(f"Cannot make request for {method}:{params}")
+
+
+@pytest.fixture
+def async_w3_base():
+    return AsyncWeb3(provider=AsyncDummyProvider(), middlewares=[])
+
+
+@pytest.fixture
+def async_w3_dummy(async_w3_base, async_result_generator_middleware):
+    async_w3_base.middleware_onion.add(async_result_generator_middleware)
+    return async_w3_base
+
+
+@pytest.fixture
+def async_w3():
+    return AsyncWeb3(AsyncEthereumTesterProvider())
+
+
+@pytest_asyncio.fixture
+async def async_fund_account(async_w3):
+    # fund local account
+    accounts = await async_w3.eth.accounts
+    tx_value = async_w3.to_wei(10, "ether")
+    for address in (ADDRESS_1, ADDRESS_2):
+        await async_w3.eth.send_transaction(
+            {"to": address, "from": accounts[0], "gas": 21000, "value": tx_value}
+        )
+        acct_bal = await async_w3.eth.get_balance(address)
+        assert acct_bal == tx_value
+
+
+@pytest.mark.parametrize(
+    "method,key_object,from_,expected",
+    TEST_SIGN_AND_SEND_RAW_MIDDLEWARE_PARAMS,
+)
+@pytest.mark.asyncio
+async def test_async_sign_and_send_raw_middleware(
+    async_w3_dummy,
+    method,
+    from_,
+    expected,
+    key_object,
+):
+    async_w3_dummy.middleware_onion.add(
+        await async_construct_sign_and_send_raw_middleware(key_object)
+    )
+
+    legacy_transaction = {
+        "to": "0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf",
+        "from": from_,
+        "gas": 21000,
+        "gasPrice": 10**9,
+        "value": 1,
+        "nonce": 0,
+    }
+    if isinstance(expected, type) and issubclass(expected, Exception):
+        with pytest.raises(expected):
+            await async_w3_dummy.manager.coro_request(
+                method,
+                [legacy_transaction],
+            )
+    else:
+        # assert with legacy txn params
+        actual = await async_w3_dummy.manager.coro_request(
+            method,
+            [legacy_transaction],
+        )
+        assert_method_and_txn_signed(actual, expected)
+
+        # assert with dynamic fee transaction params and explicit type
+        dynamic_fee_transaction = dissoc(legacy_transaction, "gasPrice")
+        dynamic_fee_transaction = assoc(
+            dynamic_fee_transaction, "maxFeePerGas", 2000000000
+        )
+        dynamic_fee_transaction = assoc(
+            dynamic_fee_transaction, "maxPriorityFeePerGas", 1000000000
+        )
+        dynamic_fee_transaction = assoc(dynamic_fee_transaction, "type", "0x2")
+
+        actual_dynamic_fee_call = await async_w3_dummy.manager.coro_request(
+            method, [dynamic_fee_transaction]
+        )
+        assert_method_and_txn_signed(actual_dynamic_fee_call, expected)
+
+        # assert with dynamic fee transaction params and no explicit type
+        dynamic_fee_transaction_no_type = dissoc(dynamic_fee_transaction, "type")
+
+        actual_dynamic_fee_call_no_type = await async_w3_dummy.manager.coro_request(
+            method, [dynamic_fee_transaction_no_type]
+        )
+        assert_method_and_txn_signed(actual_dynamic_fee_call_no_type, expected)
+
+
+@pytest.mark.parametrize(
+    "transaction,expected,key_object,from_",
+    TEST_SIGNED_TRANSACTION_PARAMS,
+    ids=[
+        "with set gas",
+        "with no set gas",
+        "with mismatched sender",
+        "with invalid sender",
+        "with gasPrice lower than base fee",
+        "with txn type and dynamic fee txn params",
+        "with dynamic fee txn params and no type",
+    ],
+)
+@pytest.mark.asyncio
+async def test_async_signed_transaction(
+    async_w3,
+    async_fund_account,
+    transaction,
+    expected,
+    key_object,
+    from_,
+):
+    async_w3.middleware_onion.add(
+        await async_construct_sign_and_send_raw_middleware(key_object)
+    )
+
+    # Drop any falsy addresses
+    accounts = await async_w3.eth.accounts
+    to_from = valfilter(bool, {"to": accounts[0], "from": from_})
+
+    _transaction = merge(transaction, to_from)
+
+    if isinstance(expected, type) and issubclass(expected, Exception):
+        with pytest.raises(expected):
+            await async_w3.eth.send_transaction(_transaction)
+    else:
+        start_balance = await async_w3.eth.get_balance(
+            _transaction.get("from", accounts[0])
+        )
+        await async_w3.eth.send_transaction(_transaction)
+        assert (
+            await async_w3.eth.get_balance(_transaction.get("from"))
+            <= start_balance + expected
+        )
+
+
+@pytest.mark.parametrize(
+    "from_converter,to_converter",
+    (
+        (identity, identity),
+        (hex_to_bytes, identity),
+        (identity, hex_to_bytes),
+        (hex_to_bytes, hex_to_bytes),
+    ),
+)
+@pytest.mark.asyncio
+async def test_async_sign_and_send_raw_middleware_with_byte_addresses(
+    async_w3_dummy, from_converter, to_converter
+):
+    private_key = PRIVATE_KEY_1
+    from_ = from_converter(ADDRESS_1)
+    to_ = to_converter(ADDRESS_2)
+
+    async_w3_dummy.middleware_onion.add(
+        await async_construct_sign_and_send_raw_middleware(private_key)
+    )
+
+    actual = await async_w3_dummy.manager.coro_request(
         "eth_sendTransaction",
         [
             {
