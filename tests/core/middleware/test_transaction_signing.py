@@ -12,6 +12,7 @@ from eth_tester.exceptions import (
 )
 from eth_utils import (
     ValidationError as EthUtilsValidationError,
+    is_hexstr,
     to_bytes,
     to_hex,
 )
@@ -310,7 +311,7 @@ def assert_method_and_txn_signed(actual, expected):
     raw_txn = actual[1][0]
     actual_method = actual[0]
     assert actual_method == expected
-    assert isinstance(raw_txn, bytes)
+    assert is_hexstr(raw_txn)
 
 
 @pytest.fixture()
@@ -417,7 +418,7 @@ def test_sign_and_send_raw_middleware_with_byte_addresses(
     raw_txn = actual[1][0]
     actual_method = actual[0]
     assert actual_method == "eth_sendRawTransaction"
-    assert isinstance(raw_txn, bytes)
+    assert is_hexstr(raw_txn)
 
 
 # -- async -- #
@@ -613,4 +614,4 @@ async def test_async_sign_and_send_raw_middleware_with_byte_addresses(
     raw_txn = actual[1][0]
     actual_method = actual[0]
     assert actual_method == "eth_sendRawTransaction"
-    assert isinstance(raw_txn, bytes)
+    assert is_hexstr(raw_txn)
