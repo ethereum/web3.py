@@ -1084,6 +1084,31 @@ PUBLIC_RESOLVER_2 = [
     },
 ]
 
+PUBLIC_RESOLVER_2_EXTENDED = PUBLIC_RESOLVER_2 + [
+    {
+        "constant": False,
+        "inputs": [
+            {"internalType": "bytes", "name": "name", "type": "bytes"},
+            {"internalType": "bytes", "name": "data", "type": "bytes"},
+        ],
+        "name": "resolve",
+        "outputs": [{"internalType": "bytes", "name": "", "type": "bytes"}],
+        "stateMutability": "view",
+        "type": "function",
+    },
+    {
+        "constant": False,
+        "inputs": [
+            {"internalType": "bytes", "name": "response", "type": "bytes"},
+            {"internalType": "bytes", "name": "extraData", "type": "bytes"},
+        ],
+        "name": "resolveWithProof",
+        "outputs": [{"internalType": "bytes", "name": "", "type": "bytes"}],
+        "stateMutability": "view",
+        "type": "function",
+    },
+]
+
 REVERSE_RESOLVER = [
     {
         "constant": True,

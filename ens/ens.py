@@ -107,7 +107,9 @@ class ENS(BaseENS):
 
         ens_addr = addr if addr else ENS_MAINNET_ADDR
         self.ens = self.w3.eth.contract(abi=abis.ENS, address=ens_addr)
-        self._resolver_contract = self.w3.eth.contract(abi=abis.PUBLIC_RESOLVER_2)
+        self._resolver_contract = self.w3.eth.contract(
+            abi=abis.PUBLIC_RESOLVER_2_EXTENDED
+        )
         self._reverse_resolver_contract = self.w3.eth.contract(
             abi=abis.REVERSE_RESOLVER
         )
