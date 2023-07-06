@@ -1,0 +1,1 @@
+Fix for a possible bug in ``construct_sign_and_send_raw_middleware`` where the signed transaction was sent as bytes and expected to be converted to hex by formatting later on. It is now explicitly sent as the hex string hash within the middleware.
