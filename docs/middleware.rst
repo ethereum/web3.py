@@ -537,6 +537,7 @@ Signing
 ~~~~~~~
 
 .. py:method:: web3.middleware.construct_sign_and_send_raw_middleware(private_key_or_account)
+               web3.middleware.async_construct_sign_and_send_raw_middleware(private_key_or_account)
 
 This middleware automatically captures transactions, signs them, and sends them as raw transactions.
 The ``from`` field on the transaction, or ``w3.eth.default_account`` must be set to the address of the private key for
@@ -572,6 +573,27 @@ this middleware to have any effect.
     >>> acct = w3.eth.account.from_key(os.environ.get('PRIVATE_KEY'))
     >>> w3.middleware_onion.add(construct_sign_and_send_raw_middleware(acct))
     >>> w3.eth.default_account = acct.address
+
+    >>> # use `eth_sendTransaction` to automatically sign and send the raw transaction
+    >>> w3.eth.send_transaction(tx_dict)
+    HexBytes('0x09511acf75918fd03de58141d2fd409af4fd6d3dce48eb3aa1656c8f3c2c5c21')
+
+Similarly, with AsyncWeb3:
+
+.. code-block:: python
+
+    >>> from web3 import AsyncWeb3
+    >>> async_w3 = AsyncWeb3(AsyncHTTPProvider('HTTP_ENDPOINT'))
+    >>> from web3.middleware import async_construct_sign_and_send_raw_middleware
+    >>> from eth_account import Account
+    >>> import os
+    >>> acct = async_w3.eth.account.from_key(os.environ.get('PRIVATE_KEY'))
+    >>> async_w3.middleware_onion.add(await async_construct_sign_and_send_raw_middleware(acct))
+    >>> async_w3.eth.default_account = acct.address
+
+    >>> # use `eth_sendTransaction` to automatically sign and send the raw transaction
+    >>> await async_w3.eth.send_transaction(tx_dict)
+    HexBytes('0x09511acf75918fd03de58141d2fd409af4fd6d3dce48eb3aa1656c8f3c2c5c21')
 
 Now you can send a transaction from acct.address without having to build and sign each raw transaction.
 
