@@ -178,7 +178,7 @@ def construct_sign_and_send_raw_middleware(
             account = accounts[transaction["from"]]
             raw_tx = account.sign_transaction(transaction).rawTransaction
 
-            return make_request(RPCEndpoint("eth_sendRawTransaction"), [raw_tx])
+            return make_request(RPCEndpoint("eth_sendRawTransaction"), [raw_tx.hex()])
 
         return middleware
 
@@ -229,7 +229,10 @@ async def async_construct_sign_and_send_raw_middleware(
             account = accounts[to_checksum_address(tx_from)]
             raw_tx = account.sign_transaction(filled_transaction).rawTransaction
 
-            return await make_request(RPCEndpoint("eth_sendRawTransaction"), [raw_tx])
+            return await make_request(
+                RPCEndpoint("eth_sendRawTransaction"),
+                [raw_tx.hex()],
+            )
 
         return middleware
 
