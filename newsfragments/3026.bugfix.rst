@@ -1,0 +1,1 @@
+Properly initialize logger in ``AsyncHTTPProvider``.
