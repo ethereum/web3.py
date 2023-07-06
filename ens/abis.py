@@ -518,7 +518,7 @@ FIFS_REGISTRAR = [
     },
 ]
 
-RESOLVER = [
+PUBLIC_RESOLVER_2 = [
     {
         "inputs": [{"internalType": "contract ENS", "name": "_ens", "type": "address"}],
         "payable": False,
