@@ -12,10 +12,8 @@ domains and addresses, add resolver records, or get and set metadata.
 
 
 .. note:: ENSIP-15 introduced a new standard for ENS name normalization. This standard
-    is implemented in web3.py via the ``ensip15_normalization`` flag on the ``ENS`` /
-    ``AsyncENS`` class. It is also available as a flag on relevant ``ens.utils.py``
-    utility methods. For more information, refer to the :ref:`ensip15_normalization`
-    section.
+    is implemented in web3.py by default since any name that does not pass this
+    validation is considered invalid.
 
 
 Setup
@@ -149,33 +147,8 @@ Usage
 ENSIP-15 Normalization
 ~~~~~~~~~~~~~~~~~~~~~~
 
-The ENSIP-15 normalization algorithm is implemented in web3.py. It will be the default
-name normalization algorithm in web3.py ``v7`` and is available in web3.py ``v6`` via
-the ``ensip15_normalization`` flag on the ``ENS`` & ``AsyncENS`` classes. It is also
-available via the ``ensip15`` flag on relevant ``ens.utils`` utility methods:
-
-- :meth:`~ens.utils.normalize_name`
-- :meth:`~ens.utils.is_valid_name`
-- :meth:`~ens.utils.ens_encode_name`
-- :meth:`~ens.utils.label_to_hash`
-- :meth:`~ens.utils.raw_name_to_hash`
-
-and via the ``ensip15`` flag on static methods on the ``ENS`` & ``AsyncENS`` classes:
-
-- :meth:`~ens.BaseENS.namehash`
-- :meth:`~ens.BaseENS.labelhash`
-- :meth:`~ens.BaseENS.nameprep`
-- :meth:`~ens.BaseENS.is_valid_name`
-
-The ``ensip15_normalization`` flag is ``False`` by default on the ``ENS`` & ``AsyncENS``
-classes. Set this value to ``True`` to use the ENSIP-15 name normalization standard
-for all calls to ENS contracts via the ``ENS`` & ``AsyncENS`` classes.
-
-.. code-block:: python
-
-    from ens.auto import ns
-    ns.ensip15_normalization = True
-
+The ENSIP-15 normalization algorithm is implemented in web3.py and is the default
+name normalization algorithm in web3.py as of ``v6.0.6``.
 
 Name Info
 ~~~~~~~~~

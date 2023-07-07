@@ -1,15 +1,8 @@
 import pytest
-from unittest.mock import (
-    patch,
-)
-import warnings
 
 from ens import (
     ENS,
     AsyncENS,
-)
-from tests.ens.conftest import (
-    ENSIP15_NORMALIZED_TESTER_DOT_ETH,
 )
 from web3 import (
     AsyncWeb3,
@@ -95,57 +88,6 @@ def test_ens_strict_bytes_type_checking_is_distinct_from_w3_instance(w3):
     assert not ns._resolver_contract.w3.strict_bytes_type_checking
 
 
-@pytest.mark.parametrize(
-    "method_str,args",
-    (
-        ("owner", ("tester.eth",)),
-        ("set_text", ("tester.eth", "url", "https://www.ethereum.org")),
-        ("get_text", ("tester.eth", "url")),
-    ),
-)
-@pytest.mark.ensip15  # remove once ENSIP-15 is default
-def test_ens_methods_with_ensip15_normalization_flag(
-    ens,
-    method_str,
-    args,
-):
-    address = ens.w3.eth.accounts[2]
-    method = ens.__getattribute__(method_str)
-
-    # -- ensip15_normalization is False by default -- #
-    with pytest.warns(FutureWarning, match="ENSIP-15"):
-        ens.setup_address("tester.eth", address)  # test setup_address
-
-    with pytest.warns(FutureWarning, match="ENSIP-15"):
-        ens.resolver("tester.eth")  # test resolver
-
-    with patch("ens.utils.normalize_name_ensip15") as mock_normalize_name_ensip15:
-        assert ens.ensip15_normalization is False
-
-        with pytest.warns(FutureWarning, match="ENSIP-15"):
-            method(*args)  # test parametrized method
-            mock_normalize_name_ensip15.assert_not_called()
-
-    # -- with ensip15_normalization enabled -- #
-    ens.ensip15_normalization = True
-    with warnings.catch_warnings():
-        # raise if FutureWarning is issued
-        warnings.simplefilter("error", category=FutureWarning)
-
-        ens.setup_address("tester.eth", address)  # test setup_address
-        ens.resolver("tester.eth")  # test resolver
-
-        with patch("ens.utils.normalize_name_ensip15") as mock_normalize_name_ensip15:
-            mock_normalize_name_ensip15.return_value = ENSIP15_NORMALIZED_TESTER_DOT_ETH
-
-            method(*args)  # test parametrized method
-            mock_normalize_name_ensip15.assert_called_with("tester.eth")
-
-    # cleanup
-    ens.setup_address("tester.eth", None)
-    ens.ensip15_normalization = False
-
-
 # -- async -- #
 
 
@@ -224,56 +166,3 @@ def test_async_ens_strict_bytes_type_checking_is_distinct_from_w3_instance(
     assert not ns.strict_bytes_type_checking
     assert not ns.w3.strict_bytes_type_checking
     assert not ns._resolver_contract.w3.strict_bytes_type_checking
-
-
-@pytest.mark.parametrize(
-    "method_str,args",
-    (
-        ("owner", ("tester.eth",)),
-        ("set_text", ("tester.eth", "url", "https://www.ethereum.org")),
-        ("get_text", ("tester.eth", "url")),
-    ),
-)
-@pytest.mark.asyncio
-@pytest.mark.ensip15  # remove once ENSIP-15 is default
-async def test_async_ens_methods_with_ensip15_normalization_flag(
-    async_ens,
-    method_str,
-    args,
-):
-    accounts = await async_ens.w3.eth.accounts
-    address = accounts[2]
-    method = async_ens.__getattribute__(method_str)
-
-    # -- ensip15_normalization is False by default -- #
-    with pytest.warns(FutureWarning, match="ENSIP-15"):
-        await async_ens.setup_address("tester.eth", address)  # test setup_address
-
-    with pytest.warns(FutureWarning, match="ENSIP-15"):
-        await async_ens.resolver("tester.eth")  # test resolver
-
-    with patch("ens.utils.normalize_name_ensip15") as mock_normalize_name_ensip15:
-        assert async_ens.ensip15_normalization is False
-
-        with pytest.warns(FutureWarning, match="ENSIP-15"):
-            await method(*args)  # test parametrized method
-            mock_normalize_name_ensip15.assert_not_called()
-
-    # -- with ensip15_normalization enabled -- #
-    async_ens.ensip15_normalization = True
-    with warnings.catch_warnings():
-        # raise if FutureWarning is issued
-        warnings.simplefilter("error", category=FutureWarning)
-
-        await async_ens.setup_address("tester.eth", address)  # test setup_address
-        await async_ens.resolver("tester.eth")  # test resolver
-
-        with patch("ens.utils.normalize_name_ensip15") as mock_normalize_name_ensip15:
-            mock_normalize_name_ensip15.return_value = ENSIP15_NORMALIZED_TESTER_DOT_ETH
-
-            await method(*args)  # test parametrized method
-            mock_normalize_name_ensip15.assert_called_with("tester.eth")
-
-    # cleanup
-    await async_ens.setup_address("tester.eth", None)
-    async_ens.ensip15_normalization = False

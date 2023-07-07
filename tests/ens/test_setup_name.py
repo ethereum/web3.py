@@ -28,21 +28,6 @@ SETUP_NAME_TEST_CASES = (
         "tester.eth",
         "2a7ac1c833d35677c2ff34a908951de142cc1653de6080ad4e38f4c9cc00aafe",
     ),
-    (
-        "tester．eth",
-        "tester.eth",
-        "2a7ac1c833d35677c2ff34a908951de142cc1653de6080ad4e38f4c9cc00aafe",
-    ),
-    (
-        "tester。eth",
-        "tester.eth",
-        "2a7ac1c833d35677c2ff34a908951de142cc1653de6080ad4e38f4c9cc00aafe",
-    ),
-    (
-        "tester｡eth",
-        "tester.eth",
-        "2a7ac1c833d35677c2ff34a908951de142cc1653de6080ad4e38f4c9cc00aafe",
-    ),
     # confirm that set-owner works
     (
         "lots.of.subdomains.tester.eth",
