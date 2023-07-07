@@ -3,6 +3,7 @@ from copy import (
 )
 from typing import (
     TYPE_CHECKING,
+    Any,
     Optional,
     Sequence,
     Tuple,
@@ -39,6 +40,7 @@ from ens.constants import (
     EMPTY_ADDR_HEX,
     ENS_EXTENDED_RESOLVER_INTERFACE_ID,
     ENS_MAINNET_ADDR,
+    ENS_MULTICHAIN_ADDRESS_INTERFACE_ID,
     ENS_TEXT_INTERFACE_ID,
     REVERSE_REGISTRAR_DOMAIN,
 )
@@ -64,8 +66,9 @@ from ens.utils import (
 )
 
 if TYPE_CHECKING:
-    from web3.contract import (  # noqa: F401
+    from web3.contract.async_contract import (  # noqa: F401
         AsyncContract,
+        AsyncContractFunction,
     )
     from web3.main import AsyncWeb3  # noqa: F401
     from web3.providers import (  # noqa: F401
@@ -134,14 +137,32 @@ class AsyncENS(BaseENS):
 
         return ns
 
-    async def address(self, name: str) -> Optional[ChecksumAddress]:
+    async def address(
+        self,
+        name: str,
+        coin_type: int = None,
+    ) -> Optional[ChecksumAddress]:
         """
         Look up the Ethereum address that `name` currently points to.
 
         :param str name: an ENS name to look up
+        :param int coin_type: if provided, look up the address for this coin type
         :raises InvalidName: if `name` has invalid syntax
         """
-        return cast(ChecksumAddress, await self._resolve(name, "addr"))
+        r = await self.resolver(name)
+        if coin_type is None:
+            # don't validate `addr(bytes32)` interface id since extended resolvers
+            # can implement a "resolve" function as of ENSIP-10
+            return cast(ChecksumAddress, await self._resolve(name, "addr"))
+        else:
+            await _async_validate_resolver_and_interface_id(
+                name, r, ENS_MULTICHAIN_ADDRESS_INTERFACE_ID, "addr(bytes32,uint256)"
+            )
+            node = raw_name_to_hash(name)
+            address_as_bytes = await r.caller.addr(node, coin_type)
+            if is_none_or_zero_address(address_as_bytes):
+                return None
+            return to_checksum_address(address_as_bytes)
 
     async def setup_address(
         self,
@@ -149,6 +170,7 @@ class AsyncENS(BaseENS):
         address: Union[Address, ChecksumAddress, HexAddress] = cast(
             ChecksumAddress, default
         ),
+        coin_type: int = None,
         transact: Optional["TxParams"] = None,
     ) -> Optional[HexBytes]:
         """
@@ -189,9 +211,14 @@ class AsyncENS(BaseENS):
         transact["from"] = owner
 
         resolver: "AsyncContract" = await self._set_resolver(name, transact=transact)
-        return await resolver.functions.setAddr(
-            raw_name_to_hash(name), address
-        ).transact(transact)
+        node = raw_name_to_hash(name)
+
+        if coin_type is None:
+            return await resolver.functions.setAddr(node, address).transact(transact)
+        else:
+            return await resolver.functions.setAddr(node, coin_type, address).transact(
+                transact
+            )
 
     async def name(self, address: ChecksumAddress) -> Optional[str]:
         """
@@ -342,6 +369,8 @@ class AsyncENS(BaseENS):
         reversed_domain = address_to_reverse_domain(target_address)
         return await self.resolver(reversed_domain)
 
+    # -- text records -- #
+
     async def get_text(self, name: str, key: str) -> str:
         """
         Get the value of a text record by key from an ENS name.
@@ -357,18 +386,10 @@ class AsyncENS(BaseENS):
         node = raw_name_to_hash(name)
 
         r = await self.resolver(name)
-        if r:
-            if await _async_resolver_supports_interface(r, ENS_TEXT_INTERFACE_ID):
-                return await r.caller.text(node, key)
-            else:
-                raise UnsupportedFunction(
-                    f"Resolver for name {name} does not support `text` function."
-                )
-        else:
-            raise ResolverNotFound(
-                f"No resolver found for name `{name}`. It is likely the name "
-                "contains an unsupported top level domain (tld)."
-            )
+        await _async_validate_resolver_and_interface_id(
+            name, r, ENS_TEXT_INTERFACE_ID, "text"
+        )
+        return await r.caller.text(node, key)
 
     async def set_text(
         self,
@@ -391,30 +412,17 @@ class AsyncENS(BaseENS):
             the "0x59d1d43c" interface id
         :raises ResolverNotFound: If no resolver is found for the provided name
         """
-        if not transact:
-            transact = {}
-
-        owner = await self.owner(name)
+        r = await self.resolver(name)
+        await _async_validate_resolver_and_interface_id(
+            name, r, ENS_TEXT_INTERFACE_ID, "setText"
+        )
         node = raw_name_to_hash(name)
-        normal_name = normalize_name(name)
 
-        transaction_dict = merge({"from": owner}, transact)
+        return await self._set_property(
+            name, r.functions.setText, (node, key, value), transact
+        )
 
-        r = await self.resolver(normal_name)
-        if r:
-            if await _async_resolver_supports_interface(r, ENS_TEXT_INTERFACE_ID):
-                return await r.functions.setText(node, key, value).transact(
-                    transaction_dict
-                )
-            else:
-                raise UnsupportedFunction(
-                    f"Resolver for name `{name}` does not support `text` function"
-                )
-        else:
-            raise ResolverNotFound(
-                f"No resolver found for name `{name}`. It is likely the name contains "
-                "an unsupported top level domain (tld)."
-            )
+    # -- private methods -- #
 
     async def _get_resolver(
         self,
@@ -568,11 +576,44 @@ class AsyncENS(BaseENS):
         )
         return self.w3.eth.contract(address=addr, abi=abis.REVERSE_REGISTRAR)
 
+    async def _set_property(
+        self,
+        name: str,
+        func: "AsyncContractFunction",
+        args: Sequence[Any],
+        transact: "TxParams" = None,
+    ) -> HexBytes:
+        if not transact:
+            transact = {}
+
+        owner = await self.owner(name)
+        transact_from_owner = merge({"from": owner}, transact)
+
+        return await func(*args).transact(transact_from_owner)
+
 
 async def _async_resolver_supports_interface(
     resolver: "AsyncContract",
     interface_id: HexStr,
 ) -> bool:
-    if not any("supportsInterface" in repr(func) for func in resolver.all_functions()):
-        return False
-    return await resolver.caller.supportsInterface(interface_id)
+    return any(
+        "supportsInterface" in repr(func) for func in resolver.all_functions()
+    ) and await resolver.caller.supportsInterface(interface_id)
+
+
+async def _async_validate_resolver_and_interface_id(
+    ens_name: str,
+    resolver: "AsyncContract",
+    ens_interface_id: HexStr,
+    interface_name: str,
+) -> None:
+    if not resolver:
+        raise ResolverNotFound(
+            f"No resolver found for name `{ens_name}`. It is likely the name "
+            "contains an unsupported top level domain (tld)."
+        )
+    elif not await _async_resolver_supports_interface(resolver, ens_interface_id):
+        raise UnsupportedFunction(
+            f"Resolver for name `{ens_name}` does not support the `{interface_name}` "
+            f"interface."
+        )
