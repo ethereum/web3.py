@@ -293,30 +293,6 @@ Each Contract Factory exposes the following methods.
         filter_builder.fromBlock = 0  # raises a ValueError
 
 
-.. py:classmethod:: Contract.deploy(transaction=None, args=None)
-
-    .. warning:: Deprecated: this method is deprecated in favor of
-      :meth:`~Contract.constructor`, which provides more flexibility.
-
-    Construct and send a transaction to deploy the contract.
-
-    If provided ``transaction`` should be a dictionary conforming to the
-    ``web3.eth.send_transaction(transaction)`` method.  This value may not
-    contain the keys ``data`` or ``to``.
-
-    If the contract takes constructor arguments they should be provided as a
-    list via the ``args`` parameter.
-
-    If any of the ``args`` specified in the ABI are an ``address`` type, they
-    will accept ENS names.
-
-    If a ``gas`` value is not provided, then the ``gas`` value for the
-    deployment transaction will be created using the ``web3.eth.estimate_gas()``
-    method.
-
-    Returns the transaction hash for the deploy transaction.
-
-
 .. py:classmethod:: Contract.encodeABI(fn_name, args=None, kwargs=None, data=None)
 
    Encodes the arguments using the Ethereum ABI for the contract function that

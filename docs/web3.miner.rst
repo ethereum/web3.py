@@ -89,4 +89,3 @@ The following methods are available on the ``web3.geth.miner`` namespace.
     .. code-block:: python
 
         >>> web3.geth.miner.stop_auto_dag()
-
