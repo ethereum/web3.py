@@ -48,6 +48,7 @@ from web3._utils.encoding import (
     text_if_str,
 )
 from web3._utils.ens import (
+    StaticENS,
     async_validate_name_has_address,
     is_ens_name,
     validate_name_has_address,
@@ -58,6 +59,7 @@ from web3._utils.validation import (
 )
 from web3.exceptions import (
     InvalidAddress,
+    NameNotFound,
 )
 from web3.types import (
     ABI,
@@ -220,10 +222,18 @@ def abi_ens_resolver(
         _ens = cast(ENS, w3.ens)
         if _ens is None:
             raise InvalidAddress(
-                f"Could not look up name {val!r} because ENS is" " set to None"
+                f"Could not look up name {val!r} because ENS is set to None"
             )
         else:
-            return type_str, validate_name_has_address(_ens, val)
+            try:
+                return type_str, validate_name_has_address(_ens, val)
+            except NameNotFound as e:
+                # TODO: This try/except is to keep backwards compatibility when we
+                #  removed the mainnet requirement. Remove this in web3.py v7 and allow
+                #  NameNotFound to raise.
+                if not isinstance(_ens, StaticENS):
+                    raise InvalidAddress(f"{e}")
+                raise e
     else:
         return type_str, val
 
@@ -285,7 +295,7 @@ async def async_abi_ens_resolver(
         _async_ens = cast(AsyncENS, async_w3.ens)
         if _async_ens is None:
             raise InvalidAddress(
-                f"Could not look up name {val!r} because ENS is" " set to None"
+                f"Could not look up name {val!r} because ENS is set to None"
             )
         else:
             address = await async_validate_name_has_address(_async_ens, val)
