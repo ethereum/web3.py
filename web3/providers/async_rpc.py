@@ -44,7 +44,7 @@ from .async_base import (
 
 
 class AsyncHTTPProvider(AsyncJSONBaseProvider):
-    logger = logging.getLogger("web3.providers.HTTPProvider")
+    logger = logging.getLogger("web3.providers.AsyncHTTPProvider")
     endpoint_uri = None
     _request_kwargs = None
     # type ignored b/c conflict with _middlewares attr on AsyncBaseProvider
