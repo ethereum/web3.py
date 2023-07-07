@@ -15,12 +15,6 @@ from ens import (
     AsyncENS,
 )
 from ens.contract_data import (
-    extended_resolver_abi,
-    extended_resolver_bytecode,
-    extended_resolver_bytecode_runtime,
-    offchain_resolver_abi,
-    offchain_resolver_bytecode,
-    offchain_resolver_bytecode_runtime,
     registrar_abi,
     registrar_bytecode,
     registrar_bytecode_runtime,
@@ -33,13 +27,25 @@ from ens.contract_data import (
     reverse_resolver_abi,
     reverse_resolver_bytecode,
     reverse_resolver_bytecode_runtime,
-    simple_resolver_abi,
-    simple_resolver_bytecode,
-    simple_resolver_bytecode_runtime,
 )
 from web3 import (
     AsyncWeb3,
     Web3,
+)
+from web3._utils.contract_sources.contract_data.extended_resolver import (
+    EXTENDED_RESOLVER_ABI,
+    EXTENDED_RESOLVER_BYTECODE,
+    EXTENDED_RESOLVER_RUNTIME,
+)
+from web3._utils.contract_sources.contract_data.offchain_resolver import (
+    OFFCHAIN_RESOLVER_ABI,
+    OFFCHAIN_RESOLVER_BYTECODE,
+    OFFCHAIN_RESOLVER_RUNTIME,
+)
+from web3._utils.contract_sources.contract_data.simple_resolver import (
+    SIMPLE_RESOLVER_ABI,
+    SIMPLE_RESOLVER_BYTECODE,
+    SIMPLE_RESOLVER_RUNTIME,
 )
 from web3.contract import (
     AsyncContract,
@@ -100,27 +106,27 @@ def PublicResolverFactory(w3):
 
 def SimpleResolver(w3):
     return w3.eth.contract(
-        bytecode=simple_resolver_bytecode,
-        bytecode_runtime=simple_resolver_bytecode_runtime,
-        abi=simple_resolver_abi,
+        abi=SIMPLE_RESOLVER_ABI,
+        bytecode=SIMPLE_RESOLVER_BYTECODE,
+        bytecode_runtime=SIMPLE_RESOLVER_RUNTIME,
         ContractFactoryClass=Contract,
     )
 
 
 def ExtendedResolver(w3):
     return w3.eth.contract(
-        bytecode=extended_resolver_bytecode,
-        bytecode_runtime=extended_resolver_bytecode_runtime,
-        abi=extended_resolver_abi,
+        abi=EXTENDED_RESOLVER_ABI,
+        bytecode=EXTENDED_RESOLVER_BYTECODE,
+        bytecode_runtime=EXTENDED_RESOLVER_RUNTIME,
         ContractFactoryClass=Contract,
     )
 
 
 def OffchainResolver(w3):
     return w3.eth.contract(
-        bytecode=offchain_resolver_bytecode,
-        bytecode_runtime=offchain_resolver_bytecode_runtime,
-        abi=offchain_resolver_abi,
+        abi=OFFCHAIN_RESOLVER_ABI,
+        bytecode=OFFCHAIN_RESOLVER_BYTECODE,
+        bytecode_runtime=OFFCHAIN_RESOLVER_RUNTIME,
         ContractFactoryClass=Contract,
     )
 
@@ -399,27 +405,27 @@ def async_public_resolver_factory(async_w3):
 
 def async_simple_resolver(async_w3):
     return async_w3.eth.contract(
-        bytecode=simple_resolver_bytecode,
-        bytecode_runtime=simple_resolver_bytecode_runtime,
-        abi=simple_resolver_abi,
+        abi=SIMPLE_RESOLVER_ABI,
+        bytecode=SIMPLE_RESOLVER_BYTECODE,
+        bytecode_runtime=SIMPLE_RESOLVER_RUNTIME,
         ContractFactoryClass=AsyncContract,
     )
 
 
 def async_extended_resolver(async_w3):
     return async_w3.eth.contract(
-        bytecode=extended_resolver_bytecode,
-        bytecode_runtime=extended_resolver_bytecode_runtime,
-        abi=extended_resolver_abi,
+        abi=EXTENDED_RESOLVER_ABI,
+        bytecode=EXTENDED_RESOLVER_BYTECODE,
+        bytecode_runtime=EXTENDED_RESOLVER_RUNTIME,
         ContractFactoryClass=AsyncContract,
     )
 
 
 def async_offchain_resolver(async_w3):
     return async_w3.eth.contract(
-        bytecode=offchain_resolver_bytecode,
-        bytecode_runtime=offchain_resolver_bytecode_runtime,
-        abi=offchain_resolver_abi,
+        abi=OFFCHAIN_RESOLVER_ABI,
+        bytecode=OFFCHAIN_RESOLVER_BYTECODE,
+        bytecode_runtime=OFFCHAIN_RESOLVER_RUNTIME,
         ContractFactoryClass=AsyncContract,
     )
 
