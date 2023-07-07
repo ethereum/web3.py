@@ -190,7 +190,7 @@ class AsyncENS(BaseENS):
 
         resolver: "AsyncContract" = await self._set_resolver(name, transact=transact)
         return await resolver.functions.setAddr(
-            raw_name_to_hash(name, ensip15=self.ensip15_normalization), address
+            raw_name_to_hash(name), address
         ).transact(transact)
 
     async def name(self, address: ChecksumAddress) -> Optional[str]:
@@ -271,7 +271,7 @@ class AsyncENS(BaseENS):
         :return: owner address
         :rtype: str
         """
-        node = raw_name_to_hash(name, ensip15=self.ensip15_normalization)
+        node = raw_name_to_hash(name)
         return await self.ens.caller.owner(node)
 
     async def setup_owner(
@@ -332,7 +332,7 @@ class AsyncENS(BaseENS):
 
         :param str name: The ENS name
         """
-        normal_name = normalize_name(name, ensip15=self.ensip15_normalization)
+        normal_name = normalize_name(name)
         resolver = await self._get_resolver(normal_name)
         return resolver[0]
 
@@ -354,7 +354,7 @@ class AsyncENS(BaseENS):
             the "0x59d1d43c" interface id
         :raises ResolverNotFound: If no resolver is found for the provided name
         """
-        node = raw_name_to_hash(name, ensip15=self.ensip15_normalization)
+        node = raw_name_to_hash(name)
 
         r = await self.resolver(name)
         if r:
@@ -395,8 +395,8 @@ class AsyncENS(BaseENS):
             transact = {}
 
         owner = await self.owner(name)
-        node = raw_name_to_hash(name, ensip15=self.ensip15_normalization)
-        normal_name = normalize_name(name, ensip15=self.ensip15_normalization)
+        node = raw_name_to_hash(name)
+        normal_name = normalize_name(name)
 
         transaction_dict = merge({"from": owner}, transact)
 
@@ -455,7 +455,7 @@ class AsyncENS(BaseENS):
         transact = deepcopy(transact)
         if is_none_or_zero_address(resolver_addr):
             resolver_addr = await self.address("resolver.eth")
-        namehash = raw_name_to_hash(name, ensip15=self.ensip15_normalization)
+        namehash = raw_name_to_hash(name)
         if await self.ens.caller.resolver(namehash) != resolver_addr:
             await self.ens.functions.setResolver(  # type: ignore
                 namehash, resolver_addr
@@ -467,13 +467,13 @@ class AsyncENS(BaseENS):
         name: str,
         fn_name: str = "addr",
     ) -> Optional[Union[ChecksumAddress, str]]:
-        normal_name = normalize_name(name, ensip15=self.ensip15_normalization)
+        normal_name = normalize_name(name)
 
         resolver, current_name = await self._get_resolver(normal_name, fn_name)
         if not resolver:
             return None
 
-        node = self.namehash(normal_name, ensip15=self.ensip15_normalization)
+        node = self.namehash(normal_name)
 
         # handle extended resolver case
         if await _async_resolver_supports_interface(
@@ -483,7 +483,7 @@ class AsyncENS(BaseENS):
 
             calldata = resolver.encodeABI(*contract_func_with_args)
             contract_call_result = await resolver.caller.resolve(
-                ens_encode_name(normal_name, ensip15=self.ensip15_normalization),
+                ens_encode_name(normal_name),
                 calldata,
             )
             result = self._decode_ensip10_resolve_data(
@@ -520,7 +520,7 @@ class AsyncENS(BaseENS):
         """
         owner = None
         unowned = []
-        pieces = normalize_name(name, ensip15=self.ensip15_normalization).split(".")
+        pieces = normalize_name(name).split(".")
         while pieces and is_none_or_zero_address(owner):
             name = ".".join(pieces)
             owner = await self.owner(name)
@@ -542,8 +542,8 @@ class AsyncENS(BaseENS):
         transact["from"] = old_owner or owner
         for label in reversed(unowned):
             await self.ens.functions.setSubnodeOwner(  # type: ignore
-                raw_name_to_hash(owned, ensip15=self.ensip15_normalization),
-                label_to_hash(label, ensip15=self.ensip15_normalization),
+                raw_name_to_hash(owned),
+                label_to_hash(label),
                 owner,
             ).transact(transact)
             owned = f"{label}.{owned}"
@@ -554,7 +554,7 @@ class AsyncENS(BaseENS):
         address: ChecksumAddress,
         transact: Optional["TxParams"] = None,
     ) -> HexBytes:
-        name = normalize_name(name, ensip15=self.ensip15_normalization) if name else ""
+        name = normalize_name(name) if name else ""
         if not transact:
             transact = {}
         transact = deepcopy(transact)

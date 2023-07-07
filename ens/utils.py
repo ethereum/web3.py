@@ -16,7 +16,6 @@ from typing import (
     Union,
     cast,
 )
-import warnings
 
 from eth_typing import (
     Address,
@@ -36,7 +35,6 @@ from eth_utils.abi import (
 from hexbytes import (
     HexBytes,
 )
-import idna
 
 from ._normalization import (
     normalize_name_ensip15,
@@ -116,7 +114,7 @@ def customize_web3(w3: "_Web3") -> "_Web3":
     return w3
 
 
-def normalize_name(name: str, ensip15: bool = False) -> str:
+def normalize_name(name: str) -> str:
     """
     Clean the fully qualified name, as defined in ENS `EIP-137
     <https://github.com/ethereum/EIPs/blob/master/EIPS/eip-137.md#name-syntax>`_
@@ -124,32 +122,17 @@ def normalize_name(name: str, ensip15: bool = False) -> str:
     This does *not* enforce whether ``name`` is a label or fully qualified domain.
 
     :param str name: the dot-separated ENS name
-    :param bool ensip15: if True, normalize as per ENSIP-15
     :raises InvalidName: if ``name`` has invalid syntax
     """
     if is_empty_name(name):
         return ""
-
-    if ensip15:
-        return normalize_name_ensip15(name).as_text
-
-    warnings.warn(
-        "It is recommended to `normalize_name()` with `ensip15==True` as ENSIP-15 "
-        "will be the default normalization in web3.py v7 and the `ensip15` flag "
-        "will be removed.",
-        FutureWarning,
-    )
-
-    if isinstance(name, (bytes, bytearray)):
+    elif isinstance(name, (bytes, bytearray)):
         name = name.decode("utf-8")
 
-    try:
-        return idna.uts46_remap(name, std3_rules=True, transitional=False)
-    except idna.IDNAError as exc:
-        raise InvalidName(f"{name} is an invalid name, because {exc}") from exc
+    return normalize_name_ensip15(name).as_text
 
 
-def ens_encode_name(name: str, ensip15: bool = False) -> bytes:
+def ens_encode_name(name: str) -> bytes:
     """
     Encode a name according to DNS standards specified in section 3.1
     of RFC1035 with the following validations:
@@ -160,12 +143,11 @@ def ens_encode_name(name: str, ensip15: bool = False) -> bytes:
         - Return a single 0-octet, b'\x00', if empty name.
 
     :param str name: the dot-separated ENS name
-    :param bool ensip15: whether to normalize the name as per ENSIP-15
     """
     if is_empty_name(name):
         return b"\x00"
 
-    normalized_name = normalize_name(name, ensip15=ensip15)
+    normalized_name = normalize_name(name)
 
     labels = normalized_name.split(".")
     labels_as_bytes = [to_bytes(text=label) for label in labels]
@@ -184,20 +166,19 @@ def ens_encode_name(name: str, ensip15: bool = False) -> bytes:
     return b"".join(dns_prepped_labels) + b"\x00"
 
 
-def is_valid_name(name: str, ensip15: bool = False) -> bool:
+def is_valid_name(name: str) -> bool:
     """
     Validate whether the fully qualified name is valid, as defined in ENS `EIP-137
     <https://github.com/ethereum/EIPs/blob/master/EIPS/eip-137.md#name-syntax>`_
 
     :param str name: the dot-separated ENS name
-    :param bool ensip15: if True, normalize as per ENSIP-15
     :returns: True if ``name`` is set, and :meth:`~ens.ENS.nameprep` will not
               raise InvalidName
     """
     if is_empty_name(name):
         return False
     try:
-        normalize_name(name, ensip15=ensip15)
+        normalize_name(name)
         return True
     except InvalidName:
         return False
@@ -213,8 +194,8 @@ def sha3_text(val: Union[str, bytes]) -> HexBytes:
     return Web3().keccak(val)
 
 
-def label_to_hash(label: str, ensip15: bool = False) -> HexBytes:
-    label = normalize_name(label, ensip15=ensip15)
+def label_to_hash(label: str) -> HexBytes:
+    label = normalize_name(label)
     if "." in label:
         raise ValueError(f"Cannot generate hash for label {label!r} with a '.'")
     return Web3().keccak(text=label)
@@ -233,20 +214,14 @@ def normal_name_to_hash(name: str) -> HexBytes:
     if not is_empty_name(name):
         labels = name.split(".")
         for label in reversed(labels):
-            with warnings.catch_warnings():
-                # name is already normalized, ensip15 flag not needed here
-                # ignore FutureWarning from label_to_hash.
-                #  TODO: remove this when ENSIP-15 is default
-                warnings.simplefilter("ignore", FutureWarning)
-                labelhash = label_to_hash(label)
-
+            labelhash = label_to_hash(label)
             assert isinstance(labelhash, bytes)
             assert isinstance(node, bytes)
             node = Web3().keccak(node + labelhash)
     return node
 
 
-def raw_name_to_hash(name: str, ensip15: bool = False) -> HexBytes:
+def raw_name_to_hash(name: str) -> HexBytes:
     """
     Generate the namehash. This is also known as the ``node`` in ENS contracts.
 
@@ -258,12 +233,11 @@ def raw_name_to_hash(name: str, ensip15: bool = False) -> HexBytes:
     before hashing.
 
     :param str name: ENS name to hash
-    :param bool ensip15: if True, normalize as per ENSIP-15
     :return: the namehash
     :rtype: bytes
     :raises InvalidName: if ``name`` has invalid syntax
     """
-    normalized_name = normalize_name(name, ensip15=ensip15)
+    normalized_name = normalize_name(name)
     return normal_name_to_hash(normalized_name)
 
 
