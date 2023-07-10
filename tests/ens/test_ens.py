@@ -1,8 +1,15 @@
 import pytest
+import sys
+from unittest.mock import (
+    patch,
+)
 
 from ens import (
     ENS,
     AsyncENS,
+)
+from ens._normalization import (
+    normalize_name_ensip15,
 )
 from web3 import (
     AsyncWeb3,
@@ -14,6 +21,10 @@ from web3.middleware import (
 from web3.providers.eth_tester import (
     AsyncEthereumTesterProvider,
 )
+
+
+def _args_list_to_set(call_args_list):
+    return set(call_arg.args[0] for call_arg in call_args_list)
 
 
 def test_from_web3_inherits_web3_middlewares(w3):
@@ -86,6 +97,55 @@ def test_ens_strict_bytes_type_checking_is_distinct_from_w3_instance(w3):
     assert not ns.strict_bytes_type_checking
     assert not ns.w3.strict_bytes_type_checking
     assert not ns._resolver_contract.w3.strict_bytes_type_checking
+
+
+@pytest.mark.parametrize(
+    "method_str,args",
+    (
+        ("owner", ("tester.eth",)),
+        ("resolver", ("tester.eth",)),
+        ("set_text", ("tester.eth", "url", "https://www.ethereum.org")),
+        ("get_text", ("tester.eth", "url")),
+    ),
+)
+@pytest.mark.skipif(
+    # TODO: remove when python 3.7 is no longer supported in web3.py
+    #  python 3.7 is already sunset so this feel like a reasonable tradeoff
+    sys.version_info < (3, 8),
+    reason="Mock args behave differently in python 3.7 but test should still pass.",
+)
+def test_ens_methods_normalize_name(
+    ens,
+    method_str,
+    args,
+):
+    address = ens.w3.eth.accounts[2]
+    method = ens.__getattribute__(method_str)
+
+    # normalizes the full name and each label
+    expected_call_args = {"tester.eth", "tester", "eth"}
+
+    with patch("ens.utils.normalize_name_ensip15") as mock_normalize_name_ensip15:
+        mock_normalize_name_ensip15.side_effect = normalize_name_ensip15
+
+        # test setup address while appropriately setting up the test
+        ens.setup_address("tester.eth", address)
+        assert expected_call_args.issubset(
+            _args_list_to_set(mock_normalize_name_ensip15.call_args_list)
+        )
+
+        # reset the mock
+        mock_normalize_name_ensip15.reset_mock()
+        assert len(mock_normalize_name_ensip15.call_args_list) == 0
+
+        # test parametrized method
+        method(*args)
+        assert expected_call_args.issubset(
+            _args_list_to_set(mock_normalize_name_ensip15.call_args_list)
+        )
+
+    # cleanup
+    ens.setup_address("tester.eth", None)
 
 
 # -- async -- #
@@ -166,3 +226,54 @@ def test_async_ens_strict_bytes_type_checking_is_distinct_from_w3_instance(
     assert not ns.strict_bytes_type_checking
     assert not ns.w3.strict_bytes_type_checking
     assert not ns._resolver_contract.w3.strict_bytes_type_checking
+
+
+@pytest.mark.parametrize(
+    "method_str,args",
+    (
+        ("owner", ("tester.eth",)),
+        ("resolver", ("tester.eth",)),
+        ("set_text", ("tester.eth", "url", "https://www.ethereum.org")),
+        ("get_text", ("tester.eth", "url")),
+    ),
+)
+@pytest.mark.asyncio
+@pytest.mark.skipif(
+    # TODO: remove when python 3.7 is no longer supported in web3.py
+    #  python 3.7 is already sunset so this feel like a reasonable tradeoff
+    sys.version_info < (3, 8),
+    reason="Mock args behave differently in python 3.7 but test should still pass.",
+)
+async def test_async_ens_methods_normalize_name_with_ensip15(
+    async_ens,
+    method_str,
+    args,
+):
+    accounts = await async_ens.w3.eth.accounts
+    address = accounts[2]
+    method = async_ens.__getattribute__(method_str)
+
+    # normalizes the full name and each label
+    expected_call_args = {"tester.eth", "tester", "eth"}
+
+    with patch("ens.utils.normalize_name_ensip15") as mock_normalize_name_ensip15:
+        mock_normalize_name_ensip15.side_effect = normalize_name_ensip15
+
+        # test setup address while appropriately setting up the test
+        await async_ens.setup_address("tester.eth", address)
+        assert expected_call_args.issubset(
+            _args_list_to_set(mock_normalize_name_ensip15.call_args_list)
+        )
+
+        # reset the mock
+        mock_normalize_name_ensip15.reset_mock()
+        assert len(mock_normalize_name_ensip15.call_args_list) == 0
+
+        # test parametrized method
+        await method(*args)
+        assert expected_call_args.issubset(
+            _args_list_to_set(mock_normalize_name_ensip15.call_args_list)
+        )
+
+    # cleanup
+    await async_ens.setup_address("tester.eth", None)
