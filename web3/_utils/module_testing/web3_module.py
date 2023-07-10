@@ -16,6 +16,7 @@ from hexbytes import (
 )
 
 from web3 import (
+    AsyncWeb3,
     Web3,
 )
 from web3._utils.ens import (
@@ -219,6 +220,13 @@ class Web3ModuleTest:
                 ],
                 InvalidAddress,
             ),
+        ),
+    )
+    @pytest.mark.parametrize(
+        "w3",
+        (
+            Web3,
+            AsyncWeb3,
         ),
     )
     def test_solidity_keccak(

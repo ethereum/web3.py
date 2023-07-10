@@ -286,9 +286,9 @@ class BaseWeb3:
 
     @classmethod
     def normalize_values(
-        cls, _w3: "BaseWeb3", abi_types: List[TypeStr], values: List[Any]
+        cls, w3: "BaseWeb3", abi_types: List[TypeStr], values: List[Any]
     ) -> List[Any]:
-        return map_abi_data(zip(abi_types, values))
+        return map_abi_data([abi_ens_resolver(w3)], abi_types, values)
 
     @combomethod
     def solidity_keccak(cls, abi_types: List[TypeStr], values: List[Any]) -> bytes:
@@ -449,12 +449,6 @@ class Web3(BaseWeb3):
 
     def is_connected(self, show_traceback: bool = False) -> bool:
         return self.provider.is_connected(show_traceback)
-
-    @classmethod
-    def normalize_values(
-        cls, w3: "BaseWeb3", abi_types: List[TypeStr], values: List[Any]
-    ) -> List[Any]:
-        return map_abi_data([abi_ens_resolver(w3)], abi_types, values)
 
     @property
     def middleware_onion(self) -> MiddlewareOnion:
