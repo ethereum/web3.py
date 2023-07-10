@@ -13,9 +13,9 @@ domains and addresses, add resolver records, or get and set metadata.
 
 .. note::
 
-    web3.py ``v6.1.0`` introduced ENS name normalization standard
-    `ENSIP-15 <https://docs.ens.domains/ens-improvement-proposals/ensip-15-normalization-standard>`_
-    by default. This update to ENS name validation and normalization won't affect ~99%
+    web3.py ``v6.6.0`` introduced ENS name normalization standard
+    `ENSIP-15 <https://docs.ens.domains/ens-improvement-proposals/ensip-15-normalization-standard>`_.
+    This update to ENS name validation and normalization won't affect ~99%
     of names but may prevent invalid names from being created and from interacting with
     the ENS contracts via web3.py. We feel strongly that this change, though breaking,
     is in the best interest of our users as it ensures compatibility with the latest ENS
