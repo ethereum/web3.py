@@ -1,0 +1,1 @@
+ENS name normalization now uses ENSIP-15 by default. This is technically a breaking change introduced by ENS but, according to ENSIP-15, 99% of existing names should be unaffected.
