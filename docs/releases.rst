@@ -322,7 +322,7 @@ Breaking changes
 - Reorganized contract to contract.py, async_contract.py, base_contract.py and
   utils.py. In this change there was a small breaking change where the
   constructor of BaseContractCaller contract_function_class was defaulting to a
-  ContractFunction now there is no default. This was done to seperate the base
+  ContractFunction now there is no default. This was done to separate the base
   class from the implementation. (`#2567
   <https://github.com/ethereum/web3.py/issues/2567>`__)
 - When calling a contract, use ``w3.eth.default_block`` if no block_identifier
