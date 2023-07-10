@@ -411,12 +411,6 @@ API_ENDPOINTS = {
         "stop": not_implemented,
         "start_auto_dag": not_implemented,
         "stop_auto_dag": not_implemented,
-        # deprecated
-        "makeDAG": not_implemented,
-        "setExtra": not_implemented,
-        "setGasPrice": not_implemented,
-        "startAutoDAG": not_implemented,
-        "stopAutoDAG": not_implemented,
     },
     "personal": {
         "ec_recover": not_implemented,
