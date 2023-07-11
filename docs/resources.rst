@@ -71,3 +71,10 @@ Applications
 ------------
 
 - `StakeWise Oracle <https://github.com/stakewise/oracle/>`__
+
+
+Hackathon Helpers
+-----------------
+
+- `eth-flogger <https://github.com/wolovim/eth-flogger>`__ - Sample web app utilizing async web3.py, Flask, SQLite, Sourcify
+- `Temo <https://github.com/wolovim/temo>`__ - Sample terminal app utilizing async web3py, Textual, Anvil
