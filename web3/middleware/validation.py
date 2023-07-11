@@ -77,7 +77,7 @@ def _check_extradata_length(val: Any) -> Any:
             f"The field extraData is {len(result)} bytes, but should be "
             f"{MAX_EXTRADATA_LENGTH}. It is quite likely that you are "
             "connected to a POA chain. Refer to "
-            "http://web3py.readthedocs.io/en/stable/middleware.html#geth-style-proof-of-authority "  # noqa: E501
+            "http://web3py.readthedocs.io/en/stable/middleware.html#proof-of-authority "
             f"for more details. The full extraData is: {result!r}"
         )
     return val
