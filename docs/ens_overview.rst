@@ -162,8 +162,25 @@ Get the Address for an ENS Name
     eth_address = ns.address('ens.eth')
     assert eth_address == '0xFe89cc7aBB2C4183683ab71653C4cdc9B02D44b7'
 
-The ``ENS`` module has no opinion as to which TLD you can use,
+The ``ENS`` module has no opinion as to which **TLD (Top Level Domain)** you can use,
 but will not infer a TLD if it is not provided with the name.
+
+Multichain Address Resolution
++++++++++++++++++++++++++++++
+
+`ENSIP-9 <https://docs.ens.domains/ens-improvement-proposals/ensip-9-multichain-address-resolution>`_
+introduced multichain address resolution, allowing users to resolve addresses from
+different chains, specified by the coin type index from
+`SLIP44 <https://github.com/satoshilabs/slips/blob/master/slip-0044.md>`_. The
+``address()`` method on the ``ENS`` class supports multichain address resolution via
+the ``coin_type`` keyword argument.
+
+.. code-block:: python
+
+    from ens.auto import ns
+    eth_address = ns.address('ens.eth', coin_type=60)  # ETH is coin_type 60
+    assert eth_address == '0xFe89cc7aBB2C4183683ab71653C4cdc9B02D44b7'
+
 
 Get the ENS Name for an Address
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -225,6 +242,22 @@ You can claim arbitrarily deep subdomains.
     )
 
 .. warning:: Gas costs scale up with the number of subdomains!
+
+Multichain Address Support
+++++++++++++++++++++++++++
+
+`ENSIP-9 <https://docs.ens.domains/ens-improvement-proposals/ensip-9-multichain-address-resolution>`_
+introduced multichain address resolution, allowing users to resolve addresses from
+different chains, specified by the coin type index from
+`SLIP44 <https://github.com/satoshilabs/slips/blob/master/slip-0044.md>`_. The
+``setup_address()`` method on the ``ENS`` class supports multichain address setup
+via the ``coin_type`` keyword argument.
+
+.. code-block:: python
+
+    from ens.auto import ns
+    ns.setup_address('ens.eth', coin_type=60)  # ETH is coin_type 60
+    assert ns.address('ens.eth', coin_type=60) == '0xFe89cc7aBB2C4183683ab71653C4cdc9B02D44b7'
 
 Link an Address to a Name
 ^^^^^^^^^^^^^^^^^^^^^^^^^
