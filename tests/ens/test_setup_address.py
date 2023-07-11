@@ -121,6 +121,17 @@ def test_setup_address_default_address_to_owner(ens):
     assert ens.address("default.tester.eth") == owner
 
 
+def test_setup_address_default_to_owner_for_multichain_address_resolution(ens):
+    ens.setup_address("leet.tester.eth", coin_type=1337)
+
+    # was never set up for ETH, so no address resolution expected
+    assert ens.address("leet.tester.eth") is None
+
+    # assert resolves for ``coin_type == 1337``
+    owner = ens.owner("tester.eth")
+    assert ens.address("leet.tester.eth", coin_type=1337) == owner
+
+
 def test_first_owner_upchain_identify(ens):
     # _first_owner should auto-select the name owner to send the transaction from
     addr = "0x5B2063246F2191f18F2675ceDB8b28102e957458"
@@ -227,6 +238,20 @@ async def test_async_setup_address_default_address_to_owner(async_ens):
 
     await async_ens.setup_address("default.tester.eth")
     assert await async_ens.address("default.tester.eth") == owner
+
+
+@pytest.mark.asyncio
+async def test_async_setup_address_default_to_owner_for_multichain_address_resolution(
+    async_ens,
+):
+    await async_ens.setup_address("leet.tester.eth", coin_type=1337)
+
+    # was never set up for ETH, so no address resolution expected
+    assert await async_ens.address("leet.tester.eth") is None
+
+    # assert resolves for ``coin_type == 1337``
+    owner = await async_ens.owner("tester.eth")
+    assert await async_ens.address("leet.tester.eth", coin_type=1337) == owner
 
 
 @pytest.mark.asyncio
