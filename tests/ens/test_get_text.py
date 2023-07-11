@@ -79,7 +79,10 @@ def test_get_text_resolver_not_found(ens):
 
 
 def test_get_text_for_resolver_with_unsupported_function(ens):
-    with pytest.raises(UnsupportedFunction, match="does not support `text` function"):
+    with pytest.raises(
+        UnsupportedFunction,
+        match="does not support the `text` interface",
+    ):
         ens.get_text("simple-resolver.eth", "any_key")
 
 
@@ -156,5 +159,8 @@ async def test_async_get_text_resolver_not_found(async_ens):
 
 @pytest.mark.asyncio
 async def test_async_get_text_for_resolver_with_unsupported_function(async_ens):
-    with pytest.raises(UnsupportedFunction, match="does not support `text` function"):
+    with pytest.raises(
+        UnsupportedFunction,
+        match="does not support the `text` interface",
+    ):
         await async_ens.get_text("simple-resolver.eth", "any_key")
