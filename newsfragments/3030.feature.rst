@@ -1,0 +1,1 @@
+Add ENSIP-9 (Multichain Address Resolution) support for ``address()`` and ``setup_address()`` for ``ENS`` and ``AsyncENS`` classes.
