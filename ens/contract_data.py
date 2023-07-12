@@ -2,9 +2,11 @@
 import json
 
 """
-This contract data is taken form the actual ENS contracts deployed on mainnet.
+This contract data is taken from the actual ENS contracts deployed on mainnet.
 The information was taken from etherscan.io and may need to be updated as the ENS 
 contracts are updated. 
+
+https://etherscan.io/accounts/label/ens
 """
 
 # ENS Default Registrar

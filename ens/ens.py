@@ -187,7 +187,7 @@ class ENS(BaseENS):
         :param str address: name will point to this address, in checksum format.
             If ``None``, erase the record. If not specified, name will point
             to the owner's address.
-        :param int coin_type: if provided, set the address for this coin type
+        :param int coin_type: if provided, set up the address for this coin type
         :param dict transact: the transaction configuration, like in
             :meth:`~web3.eth.Eth.send_transaction`
         :raises InvalidName: if ``name`` has invalid syntax
