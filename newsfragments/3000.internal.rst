@@ -1,1 +1,0 @@
-Introduced the logic for ENSIP-15 ENS name normalization. Originally this was done via a flag in this PR but changed to the default behavior in #3024 before release.

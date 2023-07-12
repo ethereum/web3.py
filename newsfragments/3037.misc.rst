@@ -1,1 +1,0 @@
-Update link to Proof of Authority section of the middleware documentation for the message in the ``ExtraDataLengthError`` raised within the validation middleware.

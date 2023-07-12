@@ -1,1 +1,0 @@
-Add `eth_getStorageAt()` support for ``EthereumTesterProvider``.

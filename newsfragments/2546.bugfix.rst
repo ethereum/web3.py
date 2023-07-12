@@ -1,1 +1,0 @@
-Handle `None` in the formatting middleware

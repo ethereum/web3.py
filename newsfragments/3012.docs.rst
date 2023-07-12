@@ -1,1 +1,0 @@
-Update documentation relating to ENS only being available on mainnet. ENS is available on all networks where the ENS contracts are deployed.

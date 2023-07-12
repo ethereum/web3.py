@@ -1,1 +1,0 @@
-Add async support for the sign-and-send raw transaction middleware via ``construct_async_sign_and_send_raw_middleware()``.

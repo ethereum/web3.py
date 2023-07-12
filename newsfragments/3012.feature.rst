@@ -1,1 +1,0 @@
-Add async support for ENS name-to-address resolution via ``async_name_to_address_middleware``.
