@@ -11,14 +11,14 @@ from .base import (  # noqa: F401
 from .ipc import (  # noqa: F401
     IPCProvider,
 )
-from .persistent import (  # noqa: F401
-    PersistentConnectionProvider,
-)
 from .rpc import (  # noqa: F401
     HTTPProvider,
 )
 from .websocket import (  # noqa: F401
     WebsocketProvider,
+)
+from .websocket_v2 import (  # noqa: F401
+    WebsocketProviderV2,
 )
 from .auto import (  # noqa: F401
     AutoProvider,
