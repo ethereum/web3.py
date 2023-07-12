@@ -3,6 +3,7 @@ from typing import (
     Any,
     NoReturn,
     Sequence,
+    Union,
 )
 
 from eth_typing import (
@@ -231,7 +232,7 @@ class Web3ModuleTest:
     )
     def test_solidity_keccak(
         self,
-        w3: "Web3",
+        w3: Union["Web3", "AsyncWeb3"],
         types: Sequence[TypeStr],
         values: Sequence[Any],
         expected: HexBytes,
@@ -263,9 +264,16 @@ class Web3ModuleTest:
             ),
         ),
     )
+    @pytest.mark.parametrize(
+        "w3",
+        (
+            Web3(),
+            AsyncWeb3(),
+        ),
+    )
     def test_solidity_keccak_ens(
         self,
-        w3: "Web3",
+        w3: Union["Web3", "AsyncWeb3"],
         types: Sequence[TypeStr],
         values: Sequence[str],
         expected: HexBytes,
