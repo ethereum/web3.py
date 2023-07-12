@@ -488,7 +488,7 @@ class AsyncWeb3(BaseWeb3):
         self._ens = new_ens
 
     @staticmethod
-    def websocket_connection(
+    def ws_connect(
         provider: WebsocketProviderV2,
         middlewares: Optional[Sequence[Any]] = None,
         modules: Optional[Dict[str, Union[Type[Module], Sequence[Any]]]] = None,
@@ -498,7 +498,8 @@ class AsyncWeb3(BaseWeb3):
         ens: Union[AsyncENS, "Empty"] = empty,
     ) -> "_PersistentWeb3":
         """
-        Establish a  persistent connection via websockets by using a websocket provider.
+        Establish a persistent connection via websockets to a websocket provider using
+        a WebsocketProviderV2 instance.
         """
         return _PersistentWeb3(
             provider,
@@ -520,6 +521,11 @@ class _PersistentWeb3(AsyncWeb3):
         ] = None,
         ens: Union[AsyncENS, "Empty"] = empty,
     ) -> None:
+        if not isinstance(provider, WebsocketProviderV2):
+            raise TypeError(
+                "Only WebsocketProviderV2 is supported for persistent connections"
+            )
+
         AsyncWeb3.__init__(self, provider, middlewares, modules, external_modules, ens)
 
     async def __aenter__(self):

@@ -1,9 +1,6 @@
 import asyncio
 import logging
 import os
-from threading import (
-    Thread,
-)
 from typing import (
     Any,
     AsyncIterator,
@@ -34,7 +31,9 @@ def get_default_endpoint() -> URI:
 
 
 class PersistentWebsocketConnection(WebSocketClientProtocol):
-    logger = logging.getLogger("web3.providers.PersistentWebSocket")
+    logger = logging.getLogger(
+        "web3.providers.websocket_v2.PersistentWebsocketConnection"
+    )
 
     def __init__(self, endpoint_uri: URI, websocket_kwargs: Any) -> None:
         super().__init__(**websocket_kwargs)
@@ -49,7 +48,7 @@ class PersistentWebsocketConnection(WebSocketClientProtocol):
 
 
 class WebsocketProviderV2(PersistentConnectionProvider):
-    logger = logging.getLogger("web3.providers.WebsocketProvider")
+    logger = logging.getLogger("web3.providers.WebsocketProviderV2")
     is_async = True
     ws: Optional[WebSocketClientProtocol] = None
 
