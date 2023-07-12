@@ -6,6 +6,8 @@ include requirements.txt
 recursive-exclude * __pycache__
 recursive-exclude * *.py[co]
 
+recursive-include ens/specs *
+
 recursive-include ethpm/assets/ *
 recursive-include ethpm/ethpm-spec/examples *
 recursive-include ethpm/ethpm-spec/spec *
