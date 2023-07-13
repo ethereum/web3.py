@@ -66,23 +66,14 @@ async def async_attrdict_middleware(
     async def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
         response = await make_request(method, params)
         if response:
-            return handle_async_response(response)
+            return _handle_async_response(response)
         else:
             provider = cast("PersistentConnectionProvider", async_w3.provider)
-            request_info_cache_key = generate_cache_key(
-                next(copy(provider.request_counter)) - 1
-            )
-            current_request_info = provider.async_response_processing_cache.get(
-                request_info_cache_key
-            )
-            current_request_info["middleware_processing"].append(
-                lambda response: handle_async_response(response)
-            )
-
+            provider._append_middleware_response_formatter(_handle_async_response)
     return middleware
 
 
-def handle_async_response(response):
+def _handle_async_response(response):
     if "result" in response:
         return assoc(response, "result", AttributeDict.recursive(response["result"]))
     elif "params" in response and "result" in response["params"]:

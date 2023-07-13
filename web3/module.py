@@ -7,7 +7,8 @@ from typing import (
     Dict,
     Optional,
     TypeVar,
-    Union, cast,
+    Union,
+    cast,
 )
 
 from eth_abi.codec import (
@@ -63,6 +64,7 @@ def retrieve_blocking_method_call_fn(
             )
         except _UseExistingFilter as err:
             return LogFilter(eth_module=module, filter_id=err.filter_id)
+
         (
             result_formatters,
             error_formatters,
@@ -88,17 +90,20 @@ def retrieve_async_method_call_fn(
 
         except _UseExistingFilter as err:
             return AsyncLogFilter(eth_module=module, filter_id=err.filter_id)
-        (
-            result_formatters,
-            error_formatters,
-            null_result_formatters,
-        ) = response_formatters
 
         if isinstance(async_w3.provider, PersistentConnectionProvider):
             provider = cast(PersistentConnectionProvider, async_w3.provider)
-            provider.cache_request_information(method, params, response_formatters)
+            # TODO: if the ws.send fails, we should somehow clear this request
+            #  information from the cache
+            provider.cache_request_information(method_str, params, response_formatters)
             return await async_w3.manager.ws_send(method_str, params)
         else:
+            (
+                result_formatters,
+                error_formatters,
+                null_result_formatters,
+            ) = response_formatters
+
             result = await async_w3.manager.coro_request(
                 method_str, params, error_formatters, null_result_formatters
             )

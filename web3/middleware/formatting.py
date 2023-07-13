@@ -4,8 +4,11 @@ from typing import (
     Any,
     Callable,
     Coroutine,
-    Optional, cast,
+    Optional,
+    cast,
 )
+
+from toolz import curry
 
 from eth_utils.toolz import (
     assoc,
@@ -137,14 +140,13 @@ async def async_construct_formatting_middleware(
     )
 
 
-def handle_async_response(
-    response: RPCResponse,
+@curry
+def _handle_async_response(
     method: RPCEndpoint,
-    **formatters: FormattersDict,
+    formatters: FormattersDict,
+    response: RPCResponse,
 ) -> Optional[RPCResponse]:
-    return _apply_response_formatters(
-        method=method, response=response, **formatters
-    )
+    return _apply_response_formatters(method=method, response=response, **formatters)
 
 
 async def async_construct_web3_formatting_middleware(
@@ -171,17 +173,11 @@ async def async_construct_web3_formatting_middleware(
                 params = formatter(params)
             response = await make_request(method, params)
             if response:
-                return handle_async_response(response, method, **formatters)
+                return _handle_async_response(response, method, **formatters)
             else:
                 provider = cast("PersistentConnectionProvider", w3.provider)
-                request_info_cache_key = generate_cache_key(
-                    next(copy(provider.request_counter)) - 1
-                )
-                current_request_info = provider.async_response_processing_cache.get(
-                    request_info_cache_key
-                )
-                current_request_info["middleware_processing"].append(
-                    lambda response: handle_async_response(response, method, **formatters)
+                provider._append_middleware_response_formatter(
+                    _handle_async_response(method, formatters)
                 )
 
         return middleware

@@ -107,8 +107,10 @@ class AsyncPersistentRecvStream:
                     assert "params" in response
                     assert "subscription" in response["params"]
                     cache_key = generate_cache_key(response["params"]["subscription"])
-                    request_info = provider.async_response_processing_cache.get(
-                        cache_key
+                    request_info = (
+                        provider.async_response_processing_cache.get_cache_entry(
+                            cache_key
+                        )
                     )
                 else:
                     cache_key = generate_cache_key(response["id"])
@@ -120,27 +122,29 @@ class AsyncPersistentRecvStream:
                     yield response
 
                 if (
-                    request_info["method"]
-                    and request_info["method"].json_rpc_method == "eth_subscribe"
+                    request_info.method == "eth_subscribe"
                     and "result" in response.keys()
                 ):
                     cache_key = generate_cache_key(response["result"])
                     if cache_key not in provider.async_response_processing_cache:
-                        provider.async_response_processing_cache[
-                            cache_key
-                        ] = request_info
+                        provider.async_response_processing_cache.cache(
+                            cache_key, request_info
+                        )
 
                 # pipe response back through middleware
-                handle_response_methods = request_info["middleware_processing"]
-                if len(handle_response_methods) > 0:
-                    response = pipe(response, *handle_response_methods)
+                if len(request_info.middleware_response_processors) > 0:
+                    response = pipe(
+                        response, *request_info.middleware_response_processors
+                    )
 
-                result_formatters, error_formatters, null_formatters = request_info[
-                    "response_formatters"
-                ]
+                (
+                    result_formatters,
+                    error_formatters,
+                    null_formatters,
+                ) = request_info.response_formatters
                 formatted_response = RequestManager.formatted_response(
                     response,
-                    request_info["params"],
+                    request_info.params,
                     error_formatters,
                     null_formatters,
                 )
@@ -148,6 +152,7 @@ class AsyncPersistentRecvStream:
                     yield apply_result_formatters(result_formatters, formatted_response)
                 except Exception:
                     yield response
+
         except ConnectionClosedOK:
             return
 
@@ -345,7 +350,9 @@ class RequestManager:
             assert "params" in response
             assert "subscription" in response["params"]
             cache_key = generate_cache_key(response["params"]["subscription"])
-            request_info = provider.async_response_processing_cache.get(cache_key)
+            request_info = provider.async_response_processing_cache.get_cache_entry(
+                cache_key
+            )
         else:
             cache_key = generate_cache_key(response["id"])
             request_info = provider.async_response_processing_cache.pop(cache_key)
@@ -354,26 +361,23 @@ class RequestManager:
             self.logger.debug("No cache key found for response, returning raw response")
             return response
 
-        if (
-            request_info["method"]
-            and request_info["method"].json_rpc_method == "eth_subscribe"
-            and "result" in response.keys()
-        ):
+        if request_info.method == "eth_subscribe" and "result" in response.keys():
             cache_key = generate_cache_key(response["result"])
             if cache_key not in provider.async_response_processing_cache:
-                provider.async_response_processing_cache[cache_key] = request_info
+                provider.async_response_processing_cache.cache(cache_key, request_info)
 
         # pipe response back through middleware
-        handle_response_methods = request_info["middleware_processing"]
-        if len(handle_response_methods) > 0:
-            response = pipe(response, *handle_response_methods)
+        if len(request_info.middleware_response_processors) > 0:
+            response = pipe(response, *request_info.middleware_response_processors)
 
-        result_formatters, error_formatters, null_formatters = request_info[
-            "response_formatters"
-        ]
+        (
+            result_formatters,
+            error_formatters,
+            null_formatters,
+        ) = request_info.response_formatters
         formatter_response = self.formatted_response(
             response,
-            request_info["params"],
+            request_info.params,
             error_formatters,
             null_formatters,
         )

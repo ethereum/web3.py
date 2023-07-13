@@ -1,7 +1,10 @@
 import collections
 import hashlib
 from typing import (
+    List, TYPE_CHECKING,
     Any,
+    Callable,
+    Tuple,
 )
 
 from eth_utils import (
@@ -14,6 +17,9 @@ from eth_utils import (
     is_text,
     to_bytes,
 )
+
+if TYPE_CHECKING:
+    from web3.types import RPCEndpoint  # noqa: F401
 
 
 def generate_cache_key(value: Any) -> str:
@@ -34,3 +40,17 @@ def generate_cache_key(value: Any) -> str:
         raise TypeError(
             f"Cannot generate cache key for value {value} of type {type(value)}"
         )
+
+
+class PersistentConnectionResponseProcessor:
+    middleware_response_processors: List[Callable[..., Any]] = []
+
+    def __init__(
+        self,
+        method: "RPCEndpoint",
+        params: Any,
+        response_formatters: Tuple[Callable[..., Any]],
+    ):
+        self.method = method
+        self.params = params
+        self.response_formatters = response_formatters
