@@ -63,4 +63,3 @@ def test_parseEther(value, expected):
 )
 def test_formatEther(value, expected):
     assert formatEther(value) == expected
-    
