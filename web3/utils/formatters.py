@@ -1,8 +1,9 @@
 def _trim_trailing_zeros(value: str) -> str:
     if value[-1] != '0':
         return value
-    else: 
+    else:
         return _trim_trailing_zeros(value[:-1])
+
 
 def parseUnits(value: str, decimals: int) -> int:
     """
@@ -19,7 +20,10 @@ def parseUnits(value: str, decimals: int) -> int:
     if decimals_pos == -1:
         return int(value+"0"*decimals)
     else:
-        return int(value[0:decimals_pos]+value[decimals_pos+1:]+"0"*(decimals - len(value[decimals_pos+1:])))
+        return int(value[0:decimals_pos]\
+            +value[decimals_pos+1:]\
+            +"0"*(decimals - len(value[decimals_pos+1:])))
+
 
 def formatUnits(value: int, decimals: int) -> str:
     """
@@ -34,15 +38,18 @@ def formatUnits(value: int, decimals: int) -> str:
     """
     value = str(value)
     if len(value) > decimals:
-        return _trim_trailing_zeros(value[0:len(value)-decimals]+"."+value[len(value)-decimals:])
+        return _trim_trailing_zeros(value[0:len(value)-decimals]\
+            +"."+value[len(value)-decimals:])
     else:
         return _trim_trailing_zeros("0."+"0"*(decimals-len(value))+value)
     
+
 def formatEther(value: int) -> str:
     """
     Convert a value in wei to a formatted string in ETH.
     """
     return formatUnits(value, 18)
+
 
 def parseEther(value: str) -> int:
     """
