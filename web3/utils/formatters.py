@@ -21,8 +21,8 @@ def parseUnits(value: str, decimals: int) -> int:
         return int(value+"0"*decimals)
     else:
         return int(value[0:decimals_pos]
-        + value[decimals_pos+1:]
-        + "0"*(decimals - len(value[decimals_pos+1:])))
+                    + value[decimals_pos+1:]
+                    + "0"*(decimals - len(value[decimals_pos+1:])))
 
 
 def formatUnits(value: int, decimals: int) -> str:
@@ -39,7 +39,7 @@ def formatUnits(value: int, decimals: int) -> str:
     value = str(value)
     if len(value) > decimals:
         return _trim_trailing_zeros(value[0:len(value)-decimals]
-        + "." + value[len(value)-decimals:])
+                                    + "." + value[len(value)-decimals:])
     else:
         return _trim_trailing_zeros("0." + "0"*(decimals-len(value))+value)
 
