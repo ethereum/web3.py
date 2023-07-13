@@ -1,6 +1,6 @@
 import pytest
 
-from web3.utils.address import (
+from web3.utils import (
     parseUnits,
     formatUnits,
     formatEther,
