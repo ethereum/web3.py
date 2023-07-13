@@ -7,6 +7,7 @@ from web3.utils import (
     parseEther
 )
 
+
 @pytest.mark.parametrize(
     "value, decimals, expected",
     [
@@ -21,6 +22,7 @@ from web3.utils import (
 )
 def test_parseUnits(value, decimals, expected):
     assert parseUnits(value, decimals) == expected
+
 
 @pytest.mark.parametrize(
     "value, decimals, expected",
@@ -37,6 +39,7 @@ def test_parseUnits(value, decimals, expected):
 def test_formatUnits(value, decimals, expected):
     assert formatUnits(value, decimals) == expected
 
+
 @pytest.mark.parametrize(
     "value, expected",
     [
@@ -47,6 +50,7 @@ def test_formatUnits(value, decimals, expected):
 )
 def test_parseEther(value, expected):
     assert parseEther(value) == expected
+
 
 @pytest.mark.parametrize(
     "value, expected",
@@ -59,3 +63,4 @@ def test_parseEther(value, expected):
 )
 def test_formatEther(value, expected):
     assert formatEther(value) == expected
+    
