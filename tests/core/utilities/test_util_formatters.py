@@ -1,6 +1,11 @@
 import pytest
 
-from web3.utils import parseUnits, formatUnits, formatEther, parseEther
+from web3.utils import (
+    formatEther,
+    formatUnits,
+    parseEther,
+    parseUnits
+)
 
 
 @pytest.mark.parametrize(
