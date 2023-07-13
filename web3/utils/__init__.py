@@ -17,9 +17,4 @@ from .exception_handling import (  # NOQA
     handle_offchain_lookup,
 )
 
-from .formatters import (   # NOQA
-    parseUnits,
-    formatUnits,
-    formatEther,
-    parseEther
-)
+from .formatters import parseUnits, formatUnits, formatEther, parseEther  # NOQA

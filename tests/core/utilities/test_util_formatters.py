@@ -1,11 +1,6 @@
 import pytest
 
-from web3.utils import (
-    parseUnits,
-    formatUnits,
-    formatEther,
-    parseEther
-)
+from web3.utils import parseUnits, formatUnits, formatEther, parseEther
 
 
 @pytest.mark.parametrize(
@@ -17,8 +12,8 @@ from web3.utils import (
         ("0.110000222200", 18, 110000222200000000),
         ("42.11", 6, 42110000),
         ("42", 6, 42000000),
-        ("0.42004", 6, 420040)
-    ]
+        ("0.42004", 6, 420040),
+    ],
 )
 def test_parseUnits(value, decimals, expected):
     assert parseUnits(value, decimals) == expected
@@ -33,8 +28,8 @@ def test_parseUnits(value, decimals, expected):
         (110000222200000000, 18, "0.1100002222"),
         (42110000, 6, "42.11"),
         (42000000, 6, "42"),
-        (420040, 6, "0.42004")
-    ]
+        (420040, 6, "0.42004"),
+    ],
 )
 def test_formatUnits(value, decimals, expected):
     assert formatUnits(value, decimals) == expected
@@ -45,8 +40,8 @@ def test_formatUnits(value, decimals, expected):
     [
         ("1.0", 1000000000000000000),
         ("10", 10000000000000000000),
-        ("0.11", 110000000000000000)
-    ]
+        ("0.11", 110000000000000000),
+    ],
 )
 def test_parseEther(value, expected):
     assert parseEther(value) == expected
@@ -59,7 +54,7 @@ def test_parseEther(value, expected):
         (10000000000000000000, "10"),
         (110000000000000000, "0.11"),
         (110000222200000000, "0.1100002222"),
-    ]
+    ],
 )
 def test_formatEther(value, expected):
     assert formatEther(value) == expected
