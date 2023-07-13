@@ -1,0 +1,1 @@
+Add note to Release Notes about v5 end-of-life and v6.6.0 yank
