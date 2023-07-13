@@ -374,6 +374,7 @@ TxReceipt = TypedDict(
         "to": ChecksumAddress,
         "transactionHash": HexBytes,
         "transactionIndex": int,
+        "type": int,
     },
 )
 
