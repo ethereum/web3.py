@@ -15,14 +15,14 @@ def parseUnits(value: str, decimals: int) -> int:
     parseUnits("1.5", 18) -> 1500000000000000000
     ```
     """
-    value = _trim_trailing_zeros(value)
     decimals_pos = value.find('.')
     if decimals_pos == -1:
         return int(value+"0"*decimals)
     else:
+        value = _trim_trailing_zeros(value)
         return int(value[0:decimals_pos]
-                    + value[decimals_pos+1:]
-                    + "0"*(decimals - len(value[decimals_pos+1:])))
+                  + value[decimals_pos+1:]
+                  + "0"*(decimals - len(value[decimals_pos+1:])))
 
 
 def formatUnits(value: int, decimals: int) -> str:
@@ -37,12 +37,18 @@ def formatUnits(value: int, decimals: int) -> str:
     ```
     """
     value = str(value)
+    result = ""
     if len(value) > decimals:
-        return _trim_trailing_zeros(value[0:len(value)-decimals]
-                                    + "." + value[len(value)-decimals:])
+        result = _trim_trailing_zeros(value[0:len(value)-decimals]
+                                     + "." + value[len(value)-decimals:])
     else:
-        return _trim_trailing_zeros("0." + "0"*(decimals-len(value))+value)
+        result = _trim_trailing_zeros("0." + "0"*(decimals-len(value))+value)
 
+    # trim '.' in case we have a "round" number
+    if(result[-1] == "."):
+        return result[:-1]
+    else:
+        return result
 
 def formatEther(value: int) -> str:
     """
