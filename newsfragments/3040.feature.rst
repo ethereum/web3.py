@@ -1,0 +1,5 @@
+========================================
+Denomination Formatter Utility Functions
+========================================
+New functions to convert values from a higher denomination to a smaller one and vice versa.
+These functions are inspired by the <a href="https://docs.ethers.org/v5/api/utils/display-logic/#display-logic--functions">formatting functions from ethers.js</a>.
