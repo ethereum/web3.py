@@ -4,6 +4,10 @@ Release Notes
 v6 Breaking Changes Summary
    See the :ref:`v6 Migration Guide<migrating_v5_to_v6>`
 
+.. note::
+   web3.py v5 support will end on August 31, 2023.
+   See issue `#3044 <https://github.com/ethereum/web3.py/issues/3044>`__
+
 .. towncrier release notes start
 
 web3.py v6.6.1 (2023-07-12)
@@ -18,6 +22,9 @@ Bugfixes
 web3.py v6.6.0 (2023-07-12)
 ---------------------------
 
+**Note: This release was missing the required ``ens/specs`` directory, so it was yanked
+from Pypi in favor of v6.6.1**
+
 Breaking Changes
 ~~~~~~~~~~~~~~~~
 
@@ -27,7 +34,7 @@ Breaking Changes
 Bugfixes
 ~~~~~~~~
 
-- Handle `None` in the formatting middleware (`#2546 <https://github.com/ethereum/web3.py/issues/2546>`__)
+- Handle ``None`` in the formatting middleware (`#2546 <https://github.com/ethereum/web3.py/issues/2546>`__)
 - Fix for a possible bug in ``construct_sign_and_send_raw_middleware`` where the signed transaction was sent as bytes and expected to be converted to hex by formatting later on. It is now explicitly sent as the hex string hash within the middleware. (`#2936 <https://github.com/ethereum/web3.py/issues/2936>`__)
 - Fixes ``max_priority_fee_per_gas``. It wasn't falling back to ``eth_feeHistory`` since the ``MethodUnavailable`` error was introduced. (`#3002 <https://github.com/ethereum/web3.py/issues/3002>`__)
 - Properly initialize logger in ``AsyncHTTPProvider``. (`#3026 <https://github.com/ethereum/web3.py/issues/3026>`__)
@@ -50,7 +57,7 @@ Features
 
 - Update ENS Resolver ABI (`#1839 <https://github.com/ethereum/web3.py/issues/1839>`__)
 - ``async_http_retry_request_middleware``, an async http request retry middleware for ``AsyncHTTPProvider``. (`#3009 <https://github.com/ethereum/web3.py/issues/3009>`__)
-- Add `eth_getStorageAt()` support for ``EthereumTesterProvider``. (`#3011 <https://github.com/ethereum/web3.py/issues/3011>`__)
+- Add ``eth_getStorageAt()`` support for ``EthereumTesterProvider``. (`#3011 <https://github.com/ethereum/web3.py/issues/3011>`__)
 - Add async support for ENS name-to-address resolution via ``async_name_to_address_middleware``. (`#3012 <https://github.com/ethereum/web3.py/issues/3012>`__)
 - Add async support for the sign-and-send raw transaction middleware via ``construct_async_sign_and_send_raw_middleware()``. (`#3025 <https://github.com/ethereum/web3.py/issues/3025>`__)
 
