@@ -1,9 +1,5 @@
-import asyncio
 import decimal
 import warnings
-
-import websockets
-from websockets.legacy.client import Connect, WebSocketClientProtocol
 
 from ens import (
     AsyncENS,
@@ -36,7 +32,7 @@ from typing import (
     Any,
     Coroutine,
     Dict,
-    Generator, List,
+    List,
     Optional,
     Sequence,
     Type,
@@ -82,6 +78,9 @@ from web3.eth import (
     AsyncEth,
     Eth,
 )
+from web3.exceptions import (
+    Web3ValidationError,
+)
 from web3.geth import (
     AsyncGeth,
     AsyncGethAdmin,
@@ -116,13 +115,15 @@ from web3.providers.ipc import (
 from web3.providers.async_rpc import (
     AsyncHTTPProvider,
 )
+from web3.providers.persistent import (
+    PersistentConnectionProvider,
+)
 from web3.providers.rpc import (
     HTTPProvider,
 )
 from web3.providers.websocket import (
     WebsocketProvider,
 )
-from web3.providers.websocket_v2 import WebsocketProviderV2
 from web3.testing import (
     Testing,
 )
@@ -454,8 +455,8 @@ class AsyncWeb3(BaseWeb3):
 
         self.ens = ens
 
-    def is_connected(self, show_traceback: bool = False) -> bool:
-        return self.provider.is_connected(show_traceback)
+    async def is_connected(self, show_traceback: bool = False) -> bool:
+        return await self.provider.is_connected(show_traceback)
 
     @property
     def middleware_onion(self) -> AsyncMiddlewareOnion:
@@ -488,20 +489,20 @@ class AsyncWeb3(BaseWeb3):
         self._ens = new_ens
 
     @staticmethod
-    def ws_connect(
-        provider: WebsocketProviderV2,
+    def persistent_websocket(
+        provider: PersistentConnectionProvider,
         middlewares: Optional[Sequence[Any]] = None,
         modules: Optional[Dict[str, Union[Type[Module], Sequence[Any]]]] = None,
         external_modules: Optional[
             Dict[str, Union[Type[Module], Sequence[Any]]]
         ] = None,
         ens: Union[AsyncENS, "Empty"] = empty,
-    ) -> "_PersistentWeb3":
+    ) -> "_PersistentConnectionWeb3":
         """
         Establish a persistent connection via websockets to a websocket provider using
         a WebsocketProviderV2 instance.
         """
-        return _PersistentWeb3(
+        return _PersistentConnectionWeb3(
             provider,
             middlewares,
             modules,
@@ -510,10 +511,12 @@ class AsyncWeb3(BaseWeb3):
         )
 
 
-class _PersistentWeb3(AsyncWeb3):
+class _PersistentConnectionWeb3(AsyncWeb3):
+    provider: PersistentConnectionProvider
+
     def __init__(
         self,
-        provider: WebsocketProviderV2 = None,
+        provider: PersistentConnectionProvider = None,
         middlewares: Optional[Sequence[Any]] = None,
         modules: Optional[Dict[str, Union[Type[Module], Sequence[Any]]]] = None,
         external_modules: Optional[
@@ -521,16 +524,18 @@ class _PersistentWeb3(AsyncWeb3):
         ] = None,
         ens: Union[AsyncENS, "Empty"] = empty,
     ) -> None:
-        if not isinstance(provider, WebsocketProviderV2):
-            raise TypeError(
-                "Only WebsocketProviderV2 is supported for persistent connections"
+        if not isinstance(provider, PersistentConnectionProvider):
+            raise Web3ValidationError(
+                "Provider must inherit from PersistentConnectionProvider class."
             )
-
         AsyncWeb3.__init__(self, provider, middlewares, modules, external_modules, ens)
 
     async def __aenter__(self):
-        await self.provider.connect()  # type: ignore
+        await self.provider.connect()
         return self
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
-        await self.provider.disconnect()   # type: ignore
+        await self.provider.disconnect()
+
+    def listen_to_websocket(self):
+        return self.manager.persistent_recv_stream()

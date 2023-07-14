@@ -1,10 +1,10 @@
 import collections
 import hashlib
 from typing import (
-    List, TYPE_CHECKING,
+    TYPE_CHECKING,
     Any,
     Callable,
-    Tuple,
+    List,
 )
 
 from eth_utils import (
@@ -19,7 +19,10 @@ from eth_utils import (
 )
 
 if TYPE_CHECKING:
-    from web3.types import RPCEndpoint  # noqa: F401
+    from web3.types import (
+        FormattersDict,
+        RPCEndpoint,
+    )
 
 
 def generate_cache_key(value: Any) -> str:
@@ -42,14 +45,14 @@ def generate_cache_key(value: Any) -> str:
         )
 
 
-class PersistentConnectionResponseProcessor:
+class RequestInformation:
     middleware_response_processors: List[Callable[..., Any]] = []
 
     def __init__(
         self,
         method: "RPCEndpoint",
         params: Any,
-        response_formatters: Tuple[Callable[..., Any]],
+        response_formatters: "FormattersDict",
     ):
         self.method = method
         self.params = params

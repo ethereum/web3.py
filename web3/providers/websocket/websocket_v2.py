@@ -3,72 +3,57 @@ import logging
 import os
 from typing import (
     Any,
-    AsyncIterator,
     Optional,
     Union,
 )
-
 
 from eth_typing import (
     URI,
 )
 from websockets import (
     connect as websockets_connect,
-    ConnectionClosedOK,
-)
-from websockets.legacy.client import (
-    WebSocketClientProtocol,
+    ConnectionClosed,
 )
 
 from web3.exceptions import (
     Web3ValidationError,
 )
-from web3.providers.persistent import PersistentConnectionProvider
+from web3.providers.persistent import (
+    PersistentConnectionProvider,
+)
+
+DEFAULT_PING_TIMEOUT = 300  # 5 minutes
+DEFAULT_PING_INTERVAL = 60  # 1 minute
 
 RESTRICTED_WEBSOCKET_KWARGS = {"uri", "loop"}
-DEFAULT_WEBSOCKET_TIMEOUT = None
+DEFAULT_WEBSOCKET_KWARGS = {
+    # set how long to wait between pings from the server
+    "ping_interval": DEFAULT_PING_INTERVAL,
+    # set how long to wait without a pong response before closing the connection
+    "ping_timeout": DEFAULT_PING_TIMEOUT,
+}
 
 
 def get_default_endpoint() -> URI:
     return URI(os.environ.get("WEB3_WS_PROVIDER_URI", "ws://127.0.0.1:8546"))
 
 
-class PersistentWebsocketConnection(WebSocketClientProtocol):
-    logger = logging.getLogger(
-        "web3.providers.websocket_v2.PersistentWebsocketConnection"
-    )
-
-    def __init__(self, endpoint_uri: URI, websocket_kwargs: Any) -> None:
-        super().__init__(**websocket_kwargs)
-        self.endpoint_uri = endpoint_uri
-
-    async def __aiter__(self) -> AsyncIterator["PersistentWebsocketConnection"]:
-        try:
-            while True:
-                yield await self.recv()
-        except ConnectionClosedOK:
-            return
-
-
 class WebsocketProviderV2(PersistentConnectionProvider):
     logger = logging.getLogger("web3.providers.WebsocketProviderV2")
-    is_async = True
-    ws: Optional[WebSocketClientProtocol] = None
+    is_async: bool = True
 
     def __init__(
         self,
         endpoint_uri: Optional[Union[URI, str]] = None,
         websocket_kwargs: Optional[Any] = None,
-        websocket_timeout: Optional[int] = DEFAULT_WEBSOCKET_TIMEOUT,
+        call_timeout: Optional[int] = None,
     ) -> None:
         self.endpoint_uri = URI(endpoint_uri)
         if self.endpoint_uri is None:
             self.endpoint_uri = get_default_endpoint()
 
-        self.websocket_timeout = websocket_timeout
-
         if websocket_kwargs is None:
-            websocket_kwargs = {}
+            websocket_kwargs = DEFAULT_WEBSOCKET_KWARGS
         else:
             found_restricted_keys = set(websocket_kwargs).intersection(
                 RESTRICTED_WEBSOCKET_KWARGS
@@ -80,20 +65,29 @@ class WebsocketProviderV2(PersistentConnectionProvider):
                 )
 
         self.websocket_kwargs = websocket_kwargs
-        super().__init__()
+        super().__init__(call_timeout=call_timeout)
+
+    def __str__(self) -> str:
+        return f"Websocket connection: {self.endpoint_uri}"
 
     async def is_connected(self, **kwargs) -> bool:
-        return await self.ws.ping() is not None
+        try:
+            return await self.ws.ping() if self.ws else False
+        except ConnectionClosed:
+            return False
 
-    async def connect(self) -> WebSocketClientProtocol:
+    async def connect(self) -> None:
         self.ws = await websockets_connect(self.endpoint_uri, **self.websocket_kwargs)
-        return self.ws
 
     async def disconnect(self) -> None:
         await self.ws.close()
 
     async def make_request(self, method, params) -> None:
         request_data = self.encode_rpc_request(method, params)
+
+        if self.ws is None:
+            await self.connect()
+
         await asyncio.wait_for(
-            self.ws.send(request_data), timeout=self.websocket_timeout
+            self.ws.send(request_data), timeout=self.call_timeout
         )

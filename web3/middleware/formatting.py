@@ -173,7 +173,7 @@ async def async_construct_web3_formatting_middleware(
                 params = formatter(params)
             response = await make_request(method, params)
             if response:
-                return _handle_async_response(response, method, **formatters)
+                return _handle_async_response(method, formatters, response)
             else:
                 provider = cast("PersistentConnectionProvider", w3.provider)
                 provider._append_middleware_response_formatter(

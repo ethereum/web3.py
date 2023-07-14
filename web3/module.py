@@ -93,10 +93,14 @@ def retrieve_async_method_call_fn(
 
         if isinstance(async_w3.provider, PersistentConnectionProvider):
             provider = cast(PersistentConnectionProvider, async_w3.provider)
-            # TODO: if the ws.send fails, we should somehow clear this request
-            #  information from the cache
-            provider.cache_request_information(method_str, params, response_formatters)
-            return await async_w3.manager.ws_send(method_str, params)
+            cache_key = provider._cache_request_information(
+                method_str, params, response_formatters
+            )
+            try:
+                return await async_w3.manager.ws_send(method_str, params)
+            except Exception as e:
+                provider._pop_cached_request_information(cache_key)
+                raise e
         else:
             (
                 result_formatters,

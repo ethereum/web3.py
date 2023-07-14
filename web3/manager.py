@@ -25,6 +25,7 @@ from hexbytes import (
 )
 
 from web3._utils.caching import (
+    RequestInformation,
     generate_cache_key,
 )
 from web3.datastructures import (
@@ -50,6 +51,7 @@ from web3.middleware import (
 from web3.module import apply_result_formatters
 from web3.providers import (
     AutoProvider,
+    PersistentConnectionProvider,
 )
 from web3.types import (
     AsyncMiddleware,
@@ -68,9 +70,6 @@ if TYPE_CHECKING:
     from web3.providers import (  # noqa: F401
         AsyncBaseProvider,
         BaseProvider,
-    )
-    from web3.providers.persistent import (  # noqa: F401
-        PersistentConnectionProvider,
     )
 
 
@@ -256,7 +255,7 @@ class RequestManager:
         null_result_formatters: Optional[Callable[..., Any]] = None,
     ) -> Any:
         """
-        Couroutine for making a request using the provider
+        Coroutine for making a request using the provider
         """
         response = await self._coro_make_request(method, params)
         return self.formatted_response(
@@ -269,7 +268,7 @@ class RequestManager:
         method: Union[RPCEndpoint, Callable[..., RPCEndpoint]],
         params: Any,
     ) -> RPCResponse:
-        provider = cast("PersistentConnectionProvider", self._provider)
+        provider = cast(PersistentConnectionProvider, self._provider)
         request_func = await provider.request_func(
             cast("AsyncWeb3", self.w3),
             cast(AsyncMiddlewareOnion, self.middleware_onion),
@@ -279,44 +278,54 @@ class RequestManager:
             f"uri: {provider.endpoint_uri}, method: {method}"
         )
         await request_func(method, params)
-        return await self.ws_recv()
+        return await asyncio.wait_for(
+            self.ws_recv(),
+            timeout=provider.call_timeout,
+        )
 
-    async def _recv_stream(self) -> AsyncGenerator[RPCResponse, None]:
-        provider = cast("PersistentConnectionProvider", self._provider)
-        if provider.websocket_timeout:
-            response = await asyncio.wait_for(
-                provider.ws.recv(),
-                timeout=provider.websocket_timeout,
+    async def ws_recv(self) -> Any:
+        return await self._ws_recv_stream().__anext__()
+
+    def persistent_recv_stream(self) -> "_AsyncPersistentRecvStream":
+        return _AsyncPersistentRecvStream(self)
+
+    async def _ws_recv_stream(self) -> AsyncGenerator[RPCResponse, None]:
+        if not isinstance(self._provider, PersistentConnectionProvider):
+            raise TypeError(
+                "Only websocket providers that maintain an open, persistent connection "
+                "can listen to websocket recv streams."
             )
-        else:
-            response = await provider.ws.recv()
-        response = provider.decode_rpc_response(response)
 
-        if "method" in response and response["method"] == "eth_subscription":
-            assert "params" in response
-            assert "subscription" in response["params"]
-            cache_key = generate_cache_key(response["params"]["subscription"])
-            request_info = provider.async_response_processing_cache.get_cache_entry(
-                cache_key
-            )
-        else:
-            cache_key = generate_cache_key(response["id"])
-            request_info = provider.async_response_processing_cache.pop(cache_key)
+        response = await asyncio.wait_for(
+            self._provider.ws.recv(),
+            timeout=self._provider.call_timeout,
+        )
+        response = self._provider.decode_rpc_response(response)
+        request_info = self._provider._get_request_information_for_response(response)
 
-        if cache_key is None:
+        if request_info is None:
             self.logger.debug("No cache key found for response, returning raw response")
             yield response
 
         if request_info.method == "eth_subscribe" and "result" in response.keys():
-            cache_key = generate_cache_key(response["result"])
-            if cache_key not in provider.async_response_processing_cache:
-                provider.async_response_processing_cache.cache(cache_key, request_info)
+            # if response for the initial eth_subscribe request, which returns the
+            # subscription id
+            subscription_id = response["result"]
+            cache_key = generate_cache_key(subscription_id)
+            if cache_key not in self._provider._async_response_processing_cache:
+                # cache by subscription id in order to process each response for the
+                # subscription as it comes in
+                self._provider.logger.debug(
+                    f"Caching eth_subscription info:\n    cache_key={cache_key},\n    "
+                    f"request_info={request_info.__dict__}"
+                )
+                self._provider._async_response_processing_cache.cache(
+                    cache_key, request_info
+                )
 
-        # pipe response back through middleware
+        # pipe response back through middleware response processors
         if len(request_info.middleware_response_processors) > 0:
-            response = pipe(
-                response, *request_info.middleware_response_processors
-            )
+            response = pipe(response, *request_info.middleware_response_processors)
 
         (
             result_formatters,
@@ -334,12 +343,6 @@ class RequestManager:
         except Exception:
             yield partly_formatted_response
 
-    async def ws_recv(self) -> Any:
-        return await self._recv_stream().__anext__()
-
-    def persistent_recv_stream(self) -> "_AsyncPersistentRecvStream":
-        return _AsyncPersistentRecvStream(self)
-
 
 class _AsyncPersistentRecvStream:
     """
@@ -355,6 +358,6 @@ class _AsyncPersistentRecvStream:
     def __aiter__(self):
         try:
             while True:
-                return self.manager._recv_stream()
+                return self.manager._ws_recv_stream()
         except ConnectionClosedOK:
             return
