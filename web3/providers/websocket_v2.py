@@ -12,7 +12,10 @@ from typing import (
 from eth_typing import (
     URI,
 )
-import websockets
+from websockets import (
+    connect as websockets_connect,
+    ConnectionClosedOK,
+)
 from websockets.legacy.client import (
     WebSocketClientProtocol,
 )
@@ -23,7 +26,7 @@ from web3.exceptions import (
 from web3.providers.persistent import PersistentConnectionProvider
 
 RESTRICTED_WEBSOCKET_KWARGS = {"uri", "loop"}
-DEFAULT_WEBSOCKET_TIMEOUT = 10
+DEFAULT_WEBSOCKET_TIMEOUT = None
 
 
 def get_default_endpoint() -> URI:
@@ -43,7 +46,7 @@ class PersistentWebsocketConnection(WebSocketClientProtocol):
         try:
             while True:
                 yield await self.recv()
-        except websockets.ConnectionClosedOK:
+        except ConnectionClosedOK:
             return
 
 
@@ -56,7 +59,7 @@ class WebsocketProviderV2(PersistentConnectionProvider):
         self,
         endpoint_uri: Optional[Union[URI, str]] = None,
         websocket_kwargs: Optional[Any] = None,
-        websocket_timeout: int = DEFAULT_WEBSOCKET_TIMEOUT,
+        websocket_timeout: Optional[int] = DEFAULT_WEBSOCKET_TIMEOUT,
     ) -> None:
         self.endpoint_uri = URI(endpoint_uri)
         if self.endpoint_uri is None:
@@ -75,6 +78,7 @@ class WebsocketProviderV2(PersistentConnectionProvider):
                     f"{RESTRICTED_WEBSOCKET_KWARGS} are not allowed "
                     f"in websocket_kwargs, found: {found_restricted_keys}"
                 )
+
         self.websocket_kwargs = websocket_kwargs
         super().__init__()
 
@@ -82,7 +86,7 @@ class WebsocketProviderV2(PersistentConnectionProvider):
         return await self.ws.ping() is not None
 
     async def connect(self) -> WebSocketClientProtocol:
-        self.ws = await websockets.connect(self.endpoint_uri, **self.websocket_kwargs)
+        self.ws = await websockets_connect(self.endpoint_uri, **self.websocket_kwargs)
         return self.ws
 
     async def disconnect(self) -> None:

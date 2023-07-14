@@ -658,8 +658,9 @@ class AsyncEth(BaseEth):
         mungers=[default_root_munger],
     )
 
-    async def subscribe(self, subscription_type: str) -> Any:
-        return await self._subscribe(subscription_type)
+    async def subscribe(self, subscription_type: str, params: Any = None) -> Any:
+        # TODO: Create a web3 Type for subscription types and use that here
+        return await self._subscribe(subscription_type, params)
 
     @overload
     def contract(self, address: None = None, **kwargs: Any) -> Type[AsyncContract]:
