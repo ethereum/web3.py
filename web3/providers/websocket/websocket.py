@@ -59,7 +59,7 @@ def get_default_endpoint() -> URI:
 
 class PersistentWebSocket:
     def __init__(self, endpoint_uri: URI, websocket_kwargs: Any) -> None:
-        self.ws: WebSocketClientProtocol = None
+        self.ws: Optional[WebSocketClientProtocol] = None
         self.endpoint_uri = endpoint_uri
         self.websocket_kwargs = websocket_kwargs
 

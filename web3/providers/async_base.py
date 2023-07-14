@@ -33,7 +33,7 @@ from web3.types import (
 )
 
 if TYPE_CHECKING:
-    from web3 import AsyncWeb3  # noqa: F401
+    from web3 import AsyncWeb3, WebsocketProviderV2  # noqa: F401
 
 
 class AsyncBaseProvider:
