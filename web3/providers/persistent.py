@@ -1,8 +1,10 @@
 from abc import ABC
 from copy import copy
-from typing import Any, Callable, Dict, Optional, Tuple
-
-from websockets.legacy.client import WebSocketClientProtocol
+from typing import (
+    Any,
+    Callable,
+    Tuple,
+)
 
 from web3._utils.caching import (
     PersistentConnectionResponseProcessor,
@@ -13,13 +15,10 @@ from web3.utils import SimpleCache
 
 
 class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
-    ws: Optional[WebSocketClientProtocol] = None
-    websocket_timeout: Optional[int] = 20
-
-    # process request responses asynchronously by storing formatters and
-    # result processing fxns
-
-    def __init__(self, request_cache_size=1000) -> None:
+    def __init__(
+        self,
+        request_cache_size=1000,
+    ) -> None:
         super().__init__()
         self.async_response_processing_cache: SimpleCache = SimpleCache(
             request_cache_size
