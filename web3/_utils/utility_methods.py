@@ -2,7 +2,7 @@ from typing import (
     Any,
     Dict,
     Iterable,
-    Union,
+    Set, Union,
 )
 
 from web3.types import (
@@ -54,3 +54,17 @@ def none_in_dict(
                    False if ANY value exists in keys
     """
     return not any_in_dict(values, d)
+
+
+def either_set_is_a_subset(set1: Set[Any], set2: set[Any]) -> bool:
+    """
+    Returns a bool based on whether two sets might have some differences but are mostly
+    the same. This can be useful when comparing formatters to an actual response for
+    formatting.
+
+    :param set1: A set of values
+    :param set2: A second set of values
+    :return:     True if the intersection of the two sets is equal to the first set;
+                 False if the intersection of the two sets is NOT equal to the first set
+    """
+    return set1.intersection(set2) == set1 or set2.intersection(set1) == set2

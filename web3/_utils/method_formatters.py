@@ -38,7 +38,6 @@ from eth_utils.curried import (
     to_list,
     to_tuple,
 )
-from eth_utils.functional import identity
 from eth_utils.toolz import (
     complement,
     compose,
@@ -88,6 +87,9 @@ from web3._utils.rpc_abi import (
 )
 from web3._utils.type_conversion import (
     to_hex_if_bytes,
+)
+from web3._utils.utility_methods import (
+    either_set_is_a_subset,
 )
 from web3.datastructures import (
     AttributeDict,
@@ -598,6 +600,28 @@ common_tracing_result_formatter = type_aware_apply_formatters_to_dict(
     }
 )
 
+
+# -- eth_subscribe -- #
+def subscription_formatter(value):
+    if is_string(value):
+        # subscription id, from original `eth_subscribe` call
+        return value
+
+    # handle dict subscription responses
+    response_key_set = set(value.keys())
+    if either_set_is_a_subset(response_key_set, set(BLOCK_FORMATTERS.keys())):
+        # block format, newHeads
+        return block_formatter(value)
+    elif either_set_is_a_subset(response_key_set, set(LOG_ENTRY_FORMATTERS.keys())):
+        # logs
+        return log_entry_formatter(value)
+    elif either_set_is_a_subset(
+        response_key_set, set(TRANSACTION_RESULT_FORMATTERS.keys())
+    ):
+        # newPendingTransactions
+        return transaction_result_formatter(value)
+
+
 PYTHONIC_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     # Eth
     RPC.eth_accounts: apply_list_to_array_formatter(to_checksum_address),
@@ -679,12 +703,7 @@ PYTHONIC_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     # Subscriptions (websockets)
     RPC.eth_subscribe: apply_formatter_if(
         is_not_null,
-        apply_one_of_formatters(
-            (
-                (is_string, identity),
-                (is_dict, block_formatter),
-            )
-        ),
+        subscription_formatter,
     ),
 }
 
