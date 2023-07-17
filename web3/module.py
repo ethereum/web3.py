@@ -1,4 +1,3 @@
-from copy import copy
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -27,8 +26,11 @@ from web3._utils.filters import (
 from web3.method import (
     Method,
 )
-from web3.providers.persistent import PersistentConnectionProvider
+from web3.providers.persistent import (
+    PersistentConnectionProvider,
+)
 from web3.types import (
+    FormattersDict,
     RPCResponse,
 )
 
@@ -87,6 +89,7 @@ def retrieve_async_method_call_fn(
             (method_str, params), response_formatters = method.process_params(
                 module, *args, **kwargs
             )
+            response_formatters = cast(FormattersDict, response_formatters)
 
         except _UseExistingFilter as err:
             return AsyncLogFilter(eth_module=module, filter_id=err.filter_id)
@@ -99,7 +102,8 @@ def retrieve_async_method_call_fn(
             try:
                 return await async_w3.manager.ws_send(method_str, params)
             except Exception as e:
-                provider._pop_cached_request_information(cache_key)
+                if provider._async_response_processing_cache.get_cache_entry(cache_key):
+                    provider._pop_cached_request_information(cache_key)
                 raise e
         else:
             (

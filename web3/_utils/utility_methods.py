@@ -2,7 +2,8 @@ from typing import (
     Any,
     Dict,
     Iterable,
-    Set, Union,
+    Set,
+    Union,
 )
 
 from web3.types import (

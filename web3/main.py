@@ -30,7 +30,6 @@ from hexbytes import (
 )
 from typing import (
     Any,
-    Coroutine,
     Dict,
     List,
     Optional,
@@ -390,7 +389,7 @@ class Web3(BaseWeb3):
 
         self.ens = ens
 
-    def is_connected(self, show_traceback: bool = False) -> Coroutine[Any, Any, bool]:
+    def is_connected(self, show_traceback: bool = False) -> bool:
         return self.provider.is_connected(show_traceback)
 
     @property
@@ -530,7 +529,10 @@ class _PersistentConnectionWeb3(AsyncWeb3):
             )
         AsyncWeb3.__init__(self, provider, middlewares, modules, external_modules, ens)
 
-    async def __aenter__(self):
+    async def __aenter__(self) -> "_PersistentConnectionWeb3":
+        # Set timeout to None to prevent the provider from timing out
+        self.provider.call_timeout = None
+
         await self.provider.connect()
         return self
 

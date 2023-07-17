@@ -134,63 +134,6 @@ class RPCError(TypedDict):
     data: Optional[str]
 
 
-class RPCResponse(TypedDict, total=False):
-    error: Union[RPCError, str]
-    id: int
-    jsonrpc: Literal["2.0"]
-    result: Any
-
-    # eth_subscribe
-    method: str
-    params: Dict[str, Any]
-
-
-Middleware = Callable[[Callable[[RPCEndpoint, Any], RPCResponse], "Web3"], Any]
-AsyncMiddlewareCoroutine = Callable[
-    [RPCEndpoint, Any], Coroutine[Any, Any, RPCResponse]
-]
-AsyncMiddleware = Callable[
-    [Callable[[RPCEndpoint, Any], RPCResponse], "AsyncWeb3"], Any
-]
-MiddlewareOnion = NamedElementOnion[str, Middleware]
-AsyncMiddlewareOnion = NamedElementOnion[str, AsyncMiddleware]
-
-
-class FormattersDict(TypedDict, total=False):
-    error_formatters: Optional[Formatters]
-    request_formatters: Optional[Formatters]
-    result_formatters: Optional[Formatters]
-
-
-class FilterParams(TypedDict, total=False):
-    address: Union[Address, ChecksumAddress, List[Address], List[ChecksumAddress]]
-    blockHash: HexBytes
-    fromBlock: BlockIdentifier
-    toBlock: BlockIdentifier
-    topics: Sequence[Optional[Union[_Hash32, Sequence[_Hash32]]]]
-
-
-class FeeHistory(TypedDict):
-    baseFeePerGas: List[Wei]
-    gasUsedRatio: List[float]
-    oldestBlock: BlockNumber
-    reward: List[List[Wei]]
-
-
-class LogReceipt(TypedDict):
-    address: ChecksumAddress
-    blockHash: HexBytes
-    blockNumber: BlockNumber
-    data: HexStr
-    logIndex: int
-    payload: HexBytes
-    removed: bool
-    topic: HexBytes
-    topics: Sequence[HexBytes]
-    transactionHash: HexBytes
-    transactionIndex: int
-
-
 # syntax b/c "from" keyword not allowed w/ class construction
 TxData = TypedDict(
     "TxData",
@@ -218,7 +161,6 @@ TxData = TypedDict(
     },
     total=False,
 )
-
 
 # syntax b/c "from" keyword not allowed w/ class construction
 TxParams = TypedDict(
@@ -253,6 +195,145 @@ WithdrawalData = TypedDict(
         "amount": Gwei,
     },
 )
+
+
+class BlockData(TypedDict, total=False):
+    baseFeePerGas: Wei
+    difficulty: int
+    extraData: HexBytes
+    gasLimit: int
+    gasUsed: int
+    hash: HexBytes
+    logsBloom: HexBytes
+    miner: ChecksumAddress
+    mixHash: HexBytes
+    nonce: HexBytes
+    number: BlockNumber
+    parentHash: HexBytes
+    receiptsRoot: HexBytes
+    sha3Uncles: HexBytes
+    size: int
+    stateRoot: HexBytes
+    timestamp: Timestamp
+    totalDifficulty: int
+    transactions: Union[Sequence[HexBytes], Sequence[TxData]]
+    transactionsRoot: HexBytes
+    uncles: Sequence[HexBytes]
+    withdrawals: Sequence[WithdrawalData]
+    withdrawalsRoot: HexBytes
+
+    # geth_poa_middleware replaces extraData w/ proofOfAuthorityData
+    proofOfAuthorityData: HexBytes
+
+
+class LogEntry(TypedDict):
+    address: ChecksumAddress
+    blockHash: HexBytes
+    blockNumber: BlockNumber
+    data: HexStr
+    logIndex: int
+    topics: Sequence[HexBytes]
+    transactionHash: HexBytes
+    transactionIndex: int
+    removed: bool
+
+
+class LogReceipt(LogEntry):
+    payload: HexBytes
+    topic: HexBytes
+
+
+class SubscriptionResponse(TypedDict):
+    subscription: HexBytes
+
+
+class BlockTypeSubscriptionResponse(SubscriptionResponse):
+    result: BlockData
+
+
+class TransactionTypeSubscriptionResponse(SubscriptionResponse):
+    result: Union[HexBytes, TxData]
+
+
+class LogsSubscriptionResponse(SubscriptionResponse):
+    result: LogEntry
+
+
+class SyncProgress(TypedDict):
+    isSyncing: bool
+    startingBlock: int
+    currentBlock: int
+    highestBlock: int
+
+
+class SyncingSubscriptionResponse(SubscriptionResponse):
+    result: Union[Literal[False], SyncProgress]
+
+
+class GethSyncingStatus(TypedDict):
+    currentBlock: int
+    highestBlock: int
+    knownStates: int
+    pulledStates: int
+    startingBlock: int
+
+
+class GethSyncingSubscriptionResult(TypedDict):
+    syncing: bool
+    status: GethSyncingStatus
+
+
+class GethSyncingSubscriptionResponse(SubscriptionResponse):
+    result: GethSyncingSubscriptionResult
+
+
+class RPCResponse(TypedDict, total=False):
+    error: Union[RPCError, str]
+    id: int
+    jsonrpc: Literal["2.0"]
+    result: Any
+
+    # eth_subscribe
+    method: Literal["eth_subscription"]
+    params: Union[
+        BlockTypeSubscriptionResponse,
+        TransactionTypeSubscriptionResponse,
+        LogsSubscriptionResponse,
+        SyncingSubscriptionResponse,
+        GethSyncingSubscriptionResponse,
+    ]
+
+
+Middleware = Callable[[Callable[[RPCEndpoint, Any], RPCResponse], "Web3"], Any]
+AsyncMiddlewareCoroutine = Callable[
+    [RPCEndpoint, Any], Coroutine[Any, Any, RPCResponse]
+]
+AsyncMiddleware = Callable[
+    [Callable[[RPCEndpoint, Any], RPCResponse], "AsyncWeb3"], Any
+]
+MiddlewareOnion = NamedElementOnion[str, Middleware]
+AsyncMiddlewareOnion = NamedElementOnion[str, AsyncMiddleware]
+
+
+class FormattersDict(TypedDict, total=False):
+    error_formatters: Optional[Formatters]
+    request_formatters: Optional[Formatters]
+    result_formatters: Optional[Formatters]
+
+
+class FilterParams(TypedDict, total=False):
+    address: Union[Address, ChecksumAddress, List[Address], List[ChecksumAddress]]
+    blockHash: HexBytes
+    fromBlock: BlockIdentifier
+    toBlock: BlockIdentifier
+    topics: Sequence[Optional[Union[_Hash32, Sequence[_Hash32]]]]
+
+
+class FeeHistory(TypedDict):
+    baseFeePerGas: List[Wei]
+    gasUsedRatio: List[float]
+    oldestBlock: BlockNumber
+    reward: List[List[Wei]]
 
 
 CallOverrideParams = TypedDict(
@@ -352,35 +433,6 @@ class SyncStatus(TypedDict):
     startingBlock: int
 
 
-class BlockData(TypedDict, total=False):
-    baseFeePerGas: Wei
-    difficulty: int
-    extraData: HexBytes
-    gasLimit: int
-    gasUsed: int
-    hash: HexBytes
-    logsBloom: HexBytes
-    miner: ChecksumAddress
-    mixHash: HexBytes
-    nonce: HexBytes
-    number: BlockNumber
-    parentHash: HexBytes
-    receiptsRoot: HexBytes
-    sha3Uncles: HexBytes
-    size: int
-    stateRoot: HexBytes
-    timestamp: Timestamp
-    totalDifficulty: int
-    transactions: Union[Sequence[HexBytes], Sequence[TxData]]
-    transactionsRoot: HexBytes
-    uncles: Sequence[HexBytes]
-    withdrawals: Sequence[WithdrawalData]
-    withdrawalsRoot: HexBytes
-
-    # geth_poa_middleware replaces extraData w/ proofOfAuthorityData
-    proofOfAuthorityData: HexBytes
-
-
 class Uncle(TypedDict):
     author: ChecksumAddress
     difficulty: HexStr
@@ -476,3 +528,27 @@ class TraceFilterParams(TypedDict, total=False):
     fromBlock: BlockIdentifier
     toAddress: Sequence[Union[Address, ChecksumAddress, ENS]]
     toBlock: BlockIdentifier
+
+
+# Subscriptions
+
+SubscriptionType = Literal[
+    "newHeads",
+    "logs",
+    "newPendingTransactions",
+    "syncing",
+]
+
+
+class LogsSubscriptionArg(TypedDict, total=False):
+    address: Union[
+        Address,
+        ChecksumAddress,
+        ENS,
+        Sequence[Union[Address, ChecksumAddress, ENS]],
+    ]
+    topics: Sequence[Union[HexStr, Sequence[HexStr]]]
+
+
+class TxTypeSubscriptionArg(TypedDict, total=False):
+    full_transactions: bool

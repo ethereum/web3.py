@@ -1,15 +1,14 @@
-from copy import copy
 from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
+    Optional,
     cast,
 )
 
 from eth_utils.toolz import (
     assoc,
 )
-from web3._utils.caching import generate_cache_key
 
 from web3.datastructures import (
     AttributeDict,
@@ -24,6 +23,9 @@ if TYPE_CHECKING:
     from web3 import (  # noqa: F401
         AsyncWeb3,
         Web3,
+    )
+    from web3.providers import (  # noqa: F401
+        PersistentConnectionProvider,
     )
 
 
@@ -63,17 +65,20 @@ async def async_attrdict_middleware(
         (e.g. my_attribute_dict.property1) will not preserve typing.
     """
 
-    async def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
+    async def middleware(method: RPCEndpoint, params: Any) -> Optional[RPCResponse]:
         response = await make_request(method, params)
         if response:
             return _handle_async_response(response)
         else:
+            # asynchronous response processing
             provider = cast("PersistentConnectionProvider", async_w3.provider)
             provider._append_middleware_response_formatter(_handle_async_response)
+            return None
+
     return middleware
 
 
-def _handle_async_response(response):
+def _handle_async_response(response: RPCResponse) -> RPCResponse:
     if "result" in response:
         return assoc(response, "result", AttributeDict.recursive(response["result"]))
     elif "params" in response and "result" in response["params"]:
