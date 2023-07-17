@@ -112,6 +112,15 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
                 # this keeps the cache size bounded
                 self._pop_cached_request_information(cache_key)
             )
+            if (
+                request_info.method == "eth_unsubscribe"
+                and response.get("result") is True
+            ):
+                # if successful unsubscribe request, remove the subscription request
+                # information from the cache since it is no longer needed
+                subscription_id = request_info.params[0]
+                subscribe_cache_key = generate_cache_key(subscription_id)
+                self._pop_cached_request_information(subscribe_cache_key)
 
         return request_info
 
