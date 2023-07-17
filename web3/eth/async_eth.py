@@ -710,7 +710,7 @@ class AsyncEth(BaseEth):
         return await self._subscribe(subscription_type, subscription_arg)
 
     _unsubscribe: Method[Callable[[HexStr], bool]] = Method(
-        RPC.eth_subscribe,
+        RPC.eth_unsubscribe,
         mungers=[default_root_munger],
     )
 
