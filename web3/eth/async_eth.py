@@ -5,6 +5,7 @@ from typing import (
     Awaitable,
     Callable,
     List,
+    Literal,
     Optional,
     Tuple,
     Type,
@@ -65,6 +66,9 @@ from web3.method import (
     Method,
     default_root_munger,
 )
+from web3.providers import (
+    PersistentConnectionProvider,
+)
 from web3.types import (
     ENS,
     BlockData,
@@ -73,13 +77,19 @@ from web3.types import (
     CallOverride,
     FeeHistory,
     FilterParams,
+    GethSyncingSubscriptionResult,
+    LogEntry,
     LogReceipt,
+    LogsSubscriptionArg,
     Nonce,
     SignedTx,
+    SubscriptionType,
+    SyncProgress,
     SyncStatus,
     TxData,
     TxParams,
     TxReceipt,
+    TxTypeSubscriptionArg,
     Wei,
     _Hash32,
 )
@@ -651,16 +661,67 @@ class AsyncEth(BaseEth):
     async def uninstall_filter(self, filter_id: HexStr) -> bool:
         return await self._uninstall_filter(filter_id)
 
-    # eth_subscribe
+    # eth_subscribe / eth_unsubscribe
 
-    _subscribe: Method[Callable[..., str]] = Method(
+    _subscribe: Method[
+        Callable[
+            [
+                SubscriptionType,
+                Optional[
+                    Union[
+                        LogsSubscriptionArg,
+                        TxTypeSubscriptionArg,
+                    ]
+                ],
+            ],
+            HexStr,
+        ]
+    ] = Method(
         RPC.eth_subscribe,
         mungers=[default_root_munger],
     )
 
-    async def subscribe(self, subscription_type: str, params: Any = None) -> Any:
-        # TODO: Create a web3 Type for subscription types and use that here
-        return await self._subscribe(subscription_type, params)
+    async def subscribe(
+        self,
+        subscription_type: SubscriptionType,
+        subscription_arg: Optional[
+            Union[LogsSubscriptionArg, TxTypeSubscriptionArg]
+        ] = None,
+    ) -> Awaitable[
+        Union[
+            HexStr,  # subscription_id
+            HexBytes,  # transaction hash
+            LogEntry,  # log entry
+            BlockData,  # new headers
+            TxData,  # pending transactions w/ full txs
+            Union[Literal[False], SyncProgress],  # sync progress
+            GethSyncingSubscriptionResult,  # geth syncing result
+        ]
+    ]:
+        if not isinstance(self.w3.provider, PersistentConnectionProvider):
+            raise TypeError(
+                "Subscriptions are only supported with providers that support "
+                "persistent connections."
+            )
+
+        if subscription_arg is None:
+            return await self._subscribe(subscription_type)
+
+        return await self._subscribe(subscription_type, subscription_arg)
+
+    _unsubscribe: Method[Callable[[HexStr], bool]] = Method(
+        RPC.eth_subscribe,
+        mungers=[default_root_munger],
+    )
+
+    async def unsubscribe(self, subscription_id: HexStr) -> Awaitable[bool]:
+        if not isinstance(self.w3.provider, PersistentConnectionProvider):
+            raise TypeError(
+                "Subscriptions are only supported with providers that support "
+                "persistent connections."
+            )
+
+        return await self._unsubscribe(subscription_id)
 
     @overload
     def contract(self, address: None = None, **kwargs: Any) -> Type[AsyncContract]:

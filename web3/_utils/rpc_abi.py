@@ -105,6 +105,7 @@ class RPC:
     eth_syncing = RPCEndpoint("eth_syncing")
     eth_uninstallFilter = RPCEndpoint("eth_uninstallFilter")
     eth_subscribe = RPCEndpoint("eth_subscribe")
+    eth_unsubscribe = RPCEndpoint("eth_unsubscribe")
 
     # evm
     evm_mine = RPCEndpoint("evm_mine")

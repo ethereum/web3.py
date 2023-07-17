@@ -1,11 +1,14 @@
+from abc import (
+    ABC,
+)
+from copy import (
+    copy,
+)
 import logging
-from abc import ABC
-from copy import copy
 from typing import (
     Any,
     Callable,
     Optional,
-    Tuple,
 )
 
 from websockets.legacy.client import (
@@ -19,11 +22,13 @@ from web3._utils.caching import (
 from web3.providers.async_base import (
     AsyncJSONBaseProvider,
 )
-from web3.types import Formatters, FormattersDict, RPCResponse
+from web3.types import (
+    FormattersDict,
+    RPCResponse,
+)
 from web3.utils import (
     SimpleCache,
 )
-
 
 DEFAULT_PERSISTENT_CONNECTION_TIMEOUT = 20
 
@@ -70,7 +75,7 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
         )
         return cache_key
 
-    def _pop_cached_request_information(self, cache_key):
+    def _pop_cached_request_information(self, cache_key) -> RequestInformation:
         request_info = self._async_response_processing_cache.pop(cache_key)
         self.logger.debug(
             f"Request info popped from cache:\n"
@@ -78,12 +83,13 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
         )
         return request_info
 
-    def _get_request_information_for_response(self, response: RPCResponse):
+    def _get_request_information_for_response(
+        self,
+        response: RPCResponse,
+    ) -> RequestInformation:
         if "method" in response and response["method"] == "eth_subscription":
             if "params" not in response:
-                raise ValueError(
-                    "Subscription response must have params field"
-                )
+                raise ValueError("Subscription response must have params field")
             if "subscription" not in response["params"]:
                 raise ValueError(
                     "Subscription response params must have subscription field"
@@ -95,9 +101,7 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
                 # don't pop the request info from the cache, since we need to keep it
                 # to process future subscription responses
                 # i.e. subscription request information remains in the cache
-                self._async_response_processing_cache.get_cache_entry(
-                    cache_key
-                )
+                self._async_response_processing_cache.get_cache_entry(cache_key)
             )
 
         else:
@@ -114,7 +118,7 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
     def _append_middleware_response_formatter(
         self,
         middleware_response_handler: Callable[..., Any],
-    ):
+    ) -> None:
         request_id = next(copy(self.request_counter)) - 1
         cache_key = generate_cache_key(request_id)
         current_request_cached_info: RequestInformation = (

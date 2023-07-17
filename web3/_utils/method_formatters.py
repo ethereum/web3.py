@@ -16,9 +16,6 @@ from typing import (
 from eth_typing import (
     HexStr,
 )
-from eth_utils import (
-    is_dict,
-)
 from eth_utils.curried import (
     apply_formatter_at_index,
     apply_formatter_if,
@@ -207,6 +204,17 @@ TRANSACTION_RESULT_FORMATTERS = {
     "standardV": apply_formatter_if(is_not_null, to_integer_if_hex),
     "type": apply_formatter_if(is_not_null, to_integer_if_hex),
     "chainId": apply_formatter_if(is_not_null, to_integer_if_hex),
+    "accessList": apply_formatter_if(
+        is_not_null,
+        apply_formatter_to_array(
+            type_aware_apply_formatters_to_dict(
+                {
+                    "address": to_checksum_address,
+                }
+            )
+        ),
+    ),
+    "input": HexBytes,
 }
 
 
@@ -313,10 +321,11 @@ SYNCING_FORMATTERS = {
     "knownStates": to_integer_if_hex,
     "pulledStates": to_integer_if_hex,
 }
-
-
 syncing_formatter = type_aware_apply_formatters_to_dict(SYNCING_FORMATTERS)
 
+GETH_SYNCING_SUBSCRIPTION_FORMATTERS = {
+    "status": SYNCING_FORMATTERS,
+}
 
 TRANSACTION_POOL_CONTENT_FORMATTERS = {
     "pending": compose(
@@ -602,24 +611,39 @@ common_tracing_result_formatter = type_aware_apply_formatters_to_dict(
 
 
 # -- eth_subscribe -- #
-def subscription_formatter(value):
+def subscription_formatter(value) -> Any:
     if is_string(value):
-        # subscription id, from original `eth_subscribe` call
-        return value
+        if len(value.replace("0x", "")) == 64:
+            # transaction hash, from `newPendingTransactions` subscription w/o full_txs
+            return HexBytes(value)
+
+        # subscription id from the original subscription request
+        return HexStr(value)
+
+    response_key_set = set(value.keys())
 
     # handle dict subscription responses
-    response_key_set = set(value.keys())
     if either_set_is_a_subset(response_key_set, set(BLOCK_FORMATTERS.keys())):
         # block format, newHeads
         return block_formatter(value)
+
     elif either_set_is_a_subset(response_key_set, set(LOG_ENTRY_FORMATTERS.keys())):
         # logs
         return log_entry_formatter(value)
+
     elif either_set_is_a_subset(
         response_key_set, set(TRANSACTION_RESULT_FORMATTERS.keys())
     ):
-        # newPendingTransactions
+        # transaction subscription type (newPendingTransactions), full transactions
         return transaction_result_formatter(value)
+
+    elif any(_ in response_key_set for _ in {"syncing", "status"}):
+        # geth syncing response
+        return type_aware_apply_formatters_to_dict(GETH_SYNCING_SUBSCRIPTION_FORMATTERS)
+
+    elif either_set_is_a_subset(response_key_set, set(SYNCING_FORMATTERS.keys())):
+        # syncing response object
+        return syncing_formatter
 
 
 PYTHONIC_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
@@ -702,6 +726,10 @@ PYTHONIC_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     RPC.trace_filter: trace_list_result_formatter,
     # Subscriptions (websockets)
     RPC.eth_subscribe: apply_formatter_if(
+        is_not_null,
+        subscription_formatter,
+    ),
+    RPC.eth_subscription: apply_formatter_if(
         is_not_null,
         subscription_formatter,
     ),

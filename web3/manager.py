@@ -2,8 +2,8 @@ import asyncio
 import logging
 from typing import (
     TYPE_CHECKING,
-    AsyncGenerator,
     Any,
+    AsyncGenerator,
     Callable,
     List,
     Optional,
@@ -13,19 +13,17 @@ from typing import (
     cast,
 )
 
-from websockets.exceptions import (
-    ConnectionClosedOK,
-)
-
 from eth_utils.toolz import (
     pipe,
 )
 from hexbytes import (
     HexBytes,
 )
+from websockets.exceptions import (
+    ConnectionClosedOK,
+)
 
 from web3._utils.caching import (
-    RequestInformation,
     generate_cache_key,
 )
 from web3.datastructures import (
@@ -48,7 +46,9 @@ from web3.middleware import (
     name_to_address_middleware,
     validation_middleware,
 )
-from web3.module import apply_result_formatters
+from web3.module import (
+    apply_result_formatters,
+)
 from web3.providers import (
     AutoProvider,
     PersistentConnectionProvider,
@@ -223,8 +223,11 @@ class RequestManager:
             return response["result"]
         elif response.get("result") is not None:
             return response["result"]
-        elif response.get("params") is not None:
-            assert response["params"].get("result") is not None
+        elif (
+            # eth_subscribe case
+            response.get("params") is not None
+            and response["params"].get("result") is not None
+        ):
             return response["params"]["result"]
         else:
             raise BadResponseFormat(

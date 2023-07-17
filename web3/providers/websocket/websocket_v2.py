@@ -10,20 +10,24 @@ from typing import (
 from eth_typing import (
     URI,
 )
-from websockets import (
-    connect as websockets_connect,
-    ConnectionClosed,
+import websockets
+from websockets.exceptions import (
+    WebSocketException,
 )
 
 from web3.exceptions import (
+    ProviderConnectionError,
     Web3ValidationError,
 )
 from web3.providers.persistent import (
     PersistentConnectionProvider,
 )
+from web3.types import (
+    RPCEndpoint,
+)
 
+DEFAULT_PING_INTERVAL = 30  # 30 seconds
 DEFAULT_PING_TIMEOUT = 300  # 5 minutes
-DEFAULT_PING_INTERVAL = 60  # 1 minute
 
 RESTRICTED_WEBSOCKET_KWARGS = {"uri", "loop"}
 DEFAULT_WEBSOCKET_KWARGS = {
@@ -70,24 +74,35 @@ class WebsocketProviderV2(PersistentConnectionProvider):
     def __str__(self) -> str:
         return f"Websocket connection: {self.endpoint_uri}"
 
-    async def is_connected(self, **kwargs) -> bool:
+    async def is_connected(self, show_traceback: bool = False) -> bool:
+        if not self.ws:
+            return False
+
         try:
-            return await self.ws.ping() if self.ws else False
-        except ConnectionClosed:
+            pong_waiter = await self.ws.ping()
+            await asyncio.wait_for(pong_waiter, timeout=self.call_timeout)
+            return True
+
+        except (WebSocketException, asyncio.TimeoutError) as e:
+            if show_traceback:
+                raise ProviderConnectionError(
+                    f"Error connecting to endpoint: '{self.endpoint_uri}'"
+                ) from e
             return False
 
     async def connect(self) -> None:
-        self.ws = await websockets_connect(self.endpoint_uri, **self.websocket_kwargs)
+        self.ws = await websockets.connect(self.endpoint_uri, **self.websocket_kwargs)
 
     async def disconnect(self) -> None:
         await self.ws.close()
 
-    async def make_request(self, method, params) -> None:
+        # clear the provider request cache after disconnecting
+        self._async_response_processing_cache.clear()
+
+    async def make_request(self, method: RPCEndpoint, params: Any) -> None:
         request_data = self.encode_rpc_request(method, params)
 
         if self.ws is None:
             await self.connect()
 
-        await asyncio.wait_for(
-            self.ws.send(request_data), timeout=self.call_timeout
-        )
+        await asyncio.wait_for(self.ws.send(request_data), timeout=self.call_timeout)

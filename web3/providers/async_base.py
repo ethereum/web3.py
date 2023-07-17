@@ -33,7 +33,10 @@ from web3.types import (
 )
 
 if TYPE_CHECKING:
-    from web3 import AsyncWeb3, WebsocketProviderV2  # noqa: F401
+    from web3 import (  # noqa: F401
+        AsyncWeb3,
+        WebsocketProviderV2,
+    )
 
 
 class AsyncBaseProvider:
@@ -121,7 +124,7 @@ class AsyncJSONBaseProvider(AsyncBaseProvider):
         return request_id, to_bytes(text=encoded)
 
     def decode_rpc_response(self, raw_response: bytes) -> RPCResponse:
-        text_response = (
+        text_response = str(
             to_text(raw_response) if not is_text(raw_response) else raw_response
         )
         return cast(RPCResponse, FriendlyJsonSerde().json_decode(text_response))
