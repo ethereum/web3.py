@@ -1,5 +1,8 @@
 import decimal
 import warnings
+from types import (
+    TracebackType,
+)
 
 from ens import (
     AsyncENS,
@@ -138,6 +141,9 @@ from web3.types import (
 if TYPE_CHECKING:
     from web3.pm import PM  # noqa: F401
     from web3._utils.empty import Empty  # noqa: F401
+    from web3.manager import (  # noqa: F401
+        _AsyncPersistentRecvStream,
+    )
 
 
 def get_async_default_modules() -> Dict[str, Union[Type[Module], Sequence[Any]]]:
@@ -536,8 +542,13 @@ class _PersistentConnectionWeb3(AsyncWeb3):
         await self.provider.connect()
         return self
 
-    async def __aexit__(self, exc_type, exc_val, exc_tb):
+    async def __aexit__(
+        self,
+        exc_type: Type[BaseException],
+        exc_val: BaseException,
+        exc_tb: TracebackType,
+    ) -> None:
         await self.provider.disconnect()
 
-    def listen_to_websocket(self):
+    def listen_to_websocket(self) -> "_AsyncPersistentRecvStream":
         return self.manager.persistent_recv_stream()

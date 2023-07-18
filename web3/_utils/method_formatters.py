@@ -611,7 +611,7 @@ common_tracing_result_formatter = type_aware_apply_formatters_to_dict(
 
 
 # -- eth_subscribe -- #
-def subscription_formatter(value) -> Any:
+def subscription_formatter(value: Any) -> Union[HexBytes, HexStr, Dict[str, Any]]:
     if is_string(value):
         if len(value.replace("0x", "")) == 64:
             # transaction hash, from `newPendingTransactions` subscription w/o full_txs
@@ -644,6 +644,9 @@ def subscription_formatter(value) -> Any:
     elif either_set_is_a_subset(response_key_set, set(SYNCING_FORMATTERS.keys())):
         # syncing response object
         return syncing_formatter
+
+    # fallback to returning the value as-is
+    return value
 
 
 PYTHONIC_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
@@ -726,10 +729,6 @@ PYTHONIC_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     RPC.trace_filter: trace_list_result_formatter,
     # Subscriptions (websockets)
     RPC.eth_subscribe: apply_formatter_if(
-        is_not_null,
-        subscription_formatter,
-    ),
-    RPC.eth_subscription: apply_formatter_if(
         is_not_null,
         subscription_formatter,
     ),

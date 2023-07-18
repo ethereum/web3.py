@@ -1,4 +1,5 @@
 import asyncio
+import json
 import logging
 from typing import (
     TYPE_CHECKING,
@@ -299,11 +300,12 @@ class RequestManager:
                 "can listen to websocket recv streams."
             )
 
-        response = await asyncio.wait_for(
-            self._provider.ws.recv(),
-            timeout=self._provider.call_timeout,
+        response = json.loads(
+            await asyncio.wait_for(
+                self._provider.ws.recv(),
+                timeout=self._provider.call_timeout,
+            )
         )
-        response = self._provider.decode_rpc_response(response)
         request_info = self._provider._get_request_information_for_response(response)
 
         if request_info is None:
@@ -354,13 +356,13 @@ class _AsyncPersistentRecvStream:
     use with "async for" loops.
     """
 
-    def __init__(self, manager: RequestManager, *args, **kwargs):
+    def __init__(self, manager: RequestManager, *args: Any, **kwargs: Any) -> None:
         self.manager = manager
         super().__init__(*args, **kwargs)
 
-    def __aiter__(self):
-        try:
-            while True:
+    def __aiter__(self) -> AsyncGenerator[RPCResponse, None]:
+        while True:
+            try:
                 return self.manager._ws_recv_stream()
-        except ConnectionClosedOK:
-            return
+            except ConnectionClosedOK:
+                pass
