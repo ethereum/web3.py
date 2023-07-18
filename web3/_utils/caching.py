@@ -5,6 +5,7 @@ from typing import (
     Any,
     Callable,
     List,
+    Tuple,
 )
 
 from eth_utils import (
@@ -20,7 +21,6 @@ from eth_utils import (
 
 if TYPE_CHECKING:
     from web3.types import (
-        FormattersDict,
         RPCEndpoint,
     )
 
@@ -52,7 +52,7 @@ class RequestInformation:
         self,
         method: "RPCEndpoint",
         params: Any,
-        response_formatters: "FormattersDict",
+        response_formatters: Tuple[Callable[..., Any], ...],
     ):
         self.method = method
         self.params = params

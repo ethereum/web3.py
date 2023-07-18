@@ -5,7 +5,6 @@ from typing import (
     Awaitable,
     Callable,
     List,
-    Literal,
     Optional,
     Tuple,
     Type,
@@ -57,6 +56,7 @@ from web3.eth.base_eth import (
     BaseEth,
 )
 from web3.exceptions import (
+    MethodUnavailable,
     OffchainLookup,
     TimeExhausted,
     TooManyRequests,
@@ -77,14 +77,11 @@ from web3.types import (
     CallOverride,
     FeeHistory,
     FilterParams,
-    GethSyncingSubscriptionResult,
-    LogEntry,
     LogReceipt,
     LogsSubscriptionArg,
     Nonce,
     SignedTx,
     SubscriptionType,
-    SyncProgress,
     SyncStatus,
     TxData,
     TxParams,
@@ -663,18 +660,18 @@ class AsyncEth(BaseEth):
 
     # eth_subscribe / eth_unsubscribe
 
-    _subscribe: Method[
+    _subscribe: Method[Callable[[SubscriptionType], Awaitable[HexStr]]] = Method(
+        RPC.eth_subscribe,
+        mungers=[default_root_munger],
+    )
+
+    _subscribe_with_args: Method[
         Callable[
             [
                 SubscriptionType,
-                Optional[
-                    Union[
-                        LogsSubscriptionArg,
-                        TxTypeSubscriptionArg,
-                    ]
-                ],
+                Optional[Union[LogsSubscriptionArg, TxTypeSubscriptionArg]],
             ],
-            HexStr,
+            Awaitable[HexStr],
         ]
     ] = Method(
         RPC.eth_subscribe,
@@ -687,41 +684,33 @@ class AsyncEth(BaseEth):
         subscription_arg: Optional[
             Union[LogsSubscriptionArg, TxTypeSubscriptionArg]
         ] = None,
-    ) -> Awaitable[
-        Union[
-            HexStr,  # subscription_id
-            HexBytes,  # transaction hash
-            LogEntry,  # log entry
-            BlockData,  # new headers
-            TxData,  # pending transactions w/ full txs
-            Union[Literal[False], SyncProgress],  # sync progress
-            GethSyncingSubscriptionResult,  # geth syncing result
-        ]
-    ]:
+    ) -> HexStr:
         if not isinstance(self.w3.provider, PersistentConnectionProvider):
-            raise TypeError(
-                "Subscriptions are only supported with providers that support "
+            raise MethodUnavailable(
+                "eth_subscribe is only supported with providers that support "
                 "persistent connections."
             )
 
         if subscription_arg is None:
             return await self._subscribe(subscription_type)
 
-        return await self._subscribe(subscription_type, subscription_arg)
+        return await self._subscribe_with_args(subscription_type, subscription_arg)
 
-    _unsubscribe: Method[Callable[[HexStr], bool]] = Method(
+    _unsubscribe: Method[Callable[[HexStr], Awaitable[bool]]] = Method(
         RPC.eth_unsubscribe,
         mungers=[default_root_munger],
     )
 
-    async def unsubscribe(self, subscription_id: HexStr) -> Awaitable[bool]:
+    async def unsubscribe(self, subscription_id: HexStr) -> bool:
         if not isinstance(self.w3.provider, PersistentConnectionProvider):
-            raise TypeError(
-                "Subscriptions are only supported with providers that support "
+            raise MethodUnavailable(
+                "eth_unsubscribe is only supported with providers that support "
                 "persistent connections."
             )
 
         return await self._unsubscribe(subscription_id)
+
+    # -- contract methods -- #
 
     @overload
     def contract(self, address: None = None, **kwargs: Any) -> Type[AsyncContract]:

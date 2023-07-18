@@ -10,7 +10,9 @@ from typing import (
 from eth_typing import (
     URI,
 )
-import websockets
+from websockets.client import (
+    connect,
+)
 from websockets.exceptions import (
     WebSocketException,
 )
@@ -69,7 +71,7 @@ class WebsocketProviderV2(PersistentConnectionProvider):
                 )
 
         self.websocket_kwargs = websocket_kwargs
-        super().__init__(call_timeout=call_timeout)
+        super().__init__(endpoint_uri, call_timeout=call_timeout)
 
     def __str__(self) -> str:
         return f"Websocket connection: {self.endpoint_uri}"
@@ -91,7 +93,7 @@ class WebsocketProviderV2(PersistentConnectionProvider):
             return False
 
     async def connect(self) -> None:
-        self.ws = await websockets.connect(self.endpoint_uri, **self.websocket_kwargs)
+        self.ws = await connect(self.endpoint_uri, **self.websocket_kwargs)
 
     async def disconnect(self) -> None:
         await self.ws.close()

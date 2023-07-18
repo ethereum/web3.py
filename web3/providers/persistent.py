@@ -9,6 +9,7 @@ from typing import (
     Any,
     Callable,
     Optional,
+    Tuple,
 )
 
 from websockets.legacy.client import (
@@ -23,7 +24,6 @@ from web3.providers.async_base import (
     AsyncJSONBaseProvider,
 )
 from web3.types import (
-    FormattersDict,
     RPCResponse,
 )
 from web3.utils import (
@@ -39,10 +39,12 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
 
     def __init__(
         self,
+        endpoint_uri: str,
         request_cache_size: int = 100,
         call_timeout: int = DEFAULT_PERSISTENT_CONNECTION_TIMEOUT,
     ) -> None:
         super().__init__()
+        self.endpoint_uri = endpoint_uri
         self._async_response_processing_cache: SimpleCache = SimpleCache(
             request_cache_size
         )
@@ -58,7 +60,7 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
         self,
         method: Any,
         params: Any,
-        response_formatters: FormattersDict,
+        response_formatters: Tuple[Callable[..., Any], ...],
     ) -> str:
         # copy the request counter and find the next request id without incrementing
         # since this is done when / if the request is successfully sent
@@ -75,7 +77,7 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
         )
         return cache_key
 
-    def _pop_cached_request_information(self, cache_key) -> RequestInformation:
+    def _pop_cached_request_information(self, cache_key: str) -> RequestInformation:
         request_info = self._async_response_processing_cache.pop(cache_key)
         self.logger.debug(
             f"Request info popped from cache:\n"
