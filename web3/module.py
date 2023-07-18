@@ -91,7 +91,7 @@ def retrieve_async_method_call_fn(
             return AsyncLogFilter(eth_module=module, filter_id=err.filter_id)
 
         if isinstance(async_w3.provider, PersistentConnectionProvider):
-            # TODO: The typing seems to not be correct for response_formatters.
+            # TODO: The typing does not seem to be correct for response_formatters.
             #   For now, keep the expected typing but ignore it here.
             cache_key = async_w3.provider._cache_request_information(
                 method_str, params, response_formatters  # type: ignore

@@ -41,7 +41,10 @@ class SimpleCache:
     def items(self) -> Dict[str, Any]:
         return self._data
 
-    def pop(self, key: str) -> Any:
+    def pop(self, key: str) -> Optional[Any]:
+        if key not in self._data:
+            return None
+
         return self._data.pop(key)
 
     def __contains__(self, key: str) -> bool:

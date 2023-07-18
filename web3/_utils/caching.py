@@ -46,8 +46,6 @@ def generate_cache_key(value: Any) -> str:
 
 
 class RequestInformation:
-    middleware_response_processors: List[Callable[..., Any]] = []
-
     def __init__(
         self,
         method: "RPCEndpoint",
@@ -57,3 +55,4 @@ class RequestInformation:
         self.method = method
         self.params = params
         self.response_formatters = response_formatters
+        self.middleware_response_processors: List[Callable[..., Any]] = []

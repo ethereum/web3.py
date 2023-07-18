@@ -536,9 +536,6 @@ class _PersistentConnectionWeb3(AsyncWeb3):
         AsyncWeb3.__init__(self, provider, middlewares, modules, external_modules, ens)
 
     async def __aenter__(self) -> "_PersistentConnectionWeb3":
-        # Set timeout to None to prevent the provider from timing out
-        self.provider.call_timeout = None
-
         await self.provider.connect()
         return self
 

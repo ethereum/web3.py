@@ -50,6 +50,7 @@ class AsyncBaseProvider:
     )
 
     is_async = True
+    has_persistent_connection = False
     global_ccip_read_enabled: bool = True
     ccip_read_max_redirects: int = 4
 
@@ -107,21 +108,6 @@ class AsyncJSONBaseProvider(AsyncBaseProvider):
         }
         encoded = FriendlyJsonSerde().json_encode(rpc_dict)
         return to_bytes(text=encoded)
-
-    def encode_rpc_request_with_id(
-        self,
-        method: RPCEndpoint,
-        params: Any,
-    ) -> Tuple[int, bytes]:
-        request_id = next(self.request_counter)
-        rpc_dict = {
-            "jsonrpc": "2.0",
-            "method": method,
-            "params": params or [],
-            "id": request_id,
-        }
-        encoded = FriendlyJsonSerde().json_encode(rpc_dict)
-        return request_id, to_bytes(text=encoded)
 
     def decode_rpc_response(self, raw_response: bytes) -> RPCResponse:
         text_response = str(

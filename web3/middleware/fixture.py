@@ -3,6 +3,8 @@ from typing import (
     Any,
     Callable,
     Dict,
+    Optional,
+    cast,
 )
 
 from web3.types import (
@@ -17,6 +19,9 @@ if TYPE_CHECKING:
     from web3.main import (  # noqa: F401
         AsyncWeb3,
         Web3,
+    )
+    from web3.providers import (  # noqa: F401
+        PersistentConnectionProvider,
     )
 
 
@@ -112,12 +117,21 @@ async def async_construct_result_generator_middleware(
     """
 
     async def result_generator_middleware(
-        make_request: Callable[[RPCEndpoint, Any], Any], _: "AsyncWeb3"
+        make_request: Callable[[RPCEndpoint, Any], Any], async_w3: "AsyncWeb3"
     ) -> AsyncMiddlewareCoroutine:
-        async def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
+        async def middleware(method: RPCEndpoint, params: Any) -> Optional[RPCResponse]:
             if method in result_generators:
                 result = result_generators[method](method, params)
-                return {"result": result}
+
+                if async_w3.provider.has_persistent_connection:
+                    provider = cast("PersistentConnectionProvider", async_w3.provider)
+                    await make_request(method, params)
+                    provider._append_middleware_response_processor(
+                        lambda _: {"result": result}
+                    )
+                    return None
+                else:
+                    return {"result": result}
             else:
                 return await make_request(method, params)
 
@@ -137,13 +151,13 @@ async def async_construct_error_generator_middleware(
     """
 
     async def error_generator_middleware(
-        make_request: Callable[[RPCEndpoint, Any], Any], _: "AsyncWeb3"
+        make_request: Callable[[RPCEndpoint, Any], Any], async_w3: "AsyncWeb3"
     ) -> AsyncMiddlewareCoroutine:
-        async def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
+        async def middleware(method: RPCEndpoint, params: Any) -> Optional[RPCResponse]:
             if method in error_generators:
                 error = error_generators[method](method, params)
                 if isinstance(error, dict) and error.get("error", False):
-                    return {
+                    error_response = {
                         "error": {
                             "code": error.get("code", -32000),
                             "message": error["error"].get("message", ""),
@@ -151,7 +165,17 @@ async def async_construct_error_generator_middleware(
                         }
                     }
                 else:
-                    return {"error": error}
+                    error_response = {"error": error}
+
+                if async_w3.provider.has_persistent_connection:
+                    provider = cast("PersistentConnectionProvider", async_w3.provider)
+                    await make_request(method, params)
+                    provider._append_middleware_response_processor(
+                        lambda _: error_response
+                    )
+                    return None
+                else:
+                    return cast(RPCResponse, error_response)
             else:
                 return await make_request(method, params)
 
