@@ -319,6 +319,20 @@ jobs:
     environment:
       TOXENV: py37-integration-goethereum-ws_flaky
 
+  py37-integration-goethereum-ws-v2:
+    <<: *geth_steps
+    docker:
+      - image: cimg/python:3.7
+    environment:
+      TOXENV: py37-integration-goethereum-ws-v2
+
+  py37-integration-goethereum-ws-v2_flaky:
+    <<: *geth_steps
+    docker:
+      - image: cimg/python:3.7
+    environment:
+      TOXENV: py37-integration-goethereum-ws-v2_flaky
+
   py37-integration-ethtester-pyevm:
     <<: *common
     docker:
@@ -423,6 +437,20 @@ jobs:
     environment:
       TOXENV: py38-integration-goethereum-ws_flaky
 
+  py38-integration-goethereum-ws-v2:
+    <<: *geth_steps
+    docker:
+      - image: cimg/python:3.8
+    environment:
+      TOXENV: py38-integration-goethereum-ws-v2
+
+  py38-integration-goethereum-ws-v2_flaky:
+    <<: *geth_steps
+    docker:
+      - image: cimg/python:3.8
+    environment:
+      TOXENV: py38-integration-goethereum-ws-v2_flaky
+
   py38-integration-ethtester-pyevm:
     <<: *common
     docker:
@@ -526,6 +554,20 @@ jobs:
     environment:
       TOXENV: py39-integration-goethereum-ws_flaky
 
+  py39-integration-goethereum-ws-v2:
+    <<: *geth_steps
+    docker:
+      - image: cimg/python:3.9
+    environment:
+      TOXENV: py39-integration-goethereum-ws-v2
+
+  py39-integration-goethereum-ws-v2_flaky:
+    <<: *geth_steps
+    docker:
+      - image: cimg/python:3.9
+    environment:
+      TOXENV: py39-integration-goethereum-ws-v2_flaky
+
   py39-integration-ethtester-pyevm:
     <<: *common
     docker:
@@ -628,6 +670,20 @@ jobs:
       - image: cimg/python:3.10
     environment:
       TOXENV: py310-integration-goethereum-ws_flaky
+
+  py310-integration-goethereum-ws-v2:
+    <<: *geth_steps
+    docker:
+      - image: cimg/python:3.10
+    environment:
+      TOXENV: py310-integration-goethereum-ws-v2
+
+  py310-integration-goethereum-ws-v2_flaky:
+    <<: *geth_steps
+    docker:
+      - image: cimg/python:3.10
+    environment:
+      TOXENV: py310-integration-goethereum-ws-v2_flaky
 
   py310-integration-ethtester-pyevm:
     <<: *common
@@ -738,6 +794,20 @@ jobs:
     environment:
       TOXENV: py311-integration-goethereum-ws_flaky
 
+  py311-integration-goethereum-ws-v2:
+    <<: *geth_steps
+    docker:
+      - image: cimg/python:3.11
+    environment:
+      TOXENV: py311-integration-goethereum-ws-v2
+
+  py311-integration-goethereum-ws-v2_flaky:
+    <<: *geth_steps
+    docker:
+      - image: cimg/python:3.11
+    environment:
+      TOXENV: py311-integration-goethereum-ws-v2_flaky
+
   py311-integration-ethtester-pyevm:
     <<: *common
     docker:
@@ -782,6 +852,8 @@ workflows:
       - py37-integration-goethereum-http_flaky
       - py37-integration-goethereum-ws
       - py37-integration-goethereum-ws_flaky
+      - py37-integration-goethereum-ws-v2
+      - py37-integration-goethereum-ws-v2_flaky
       - py37-integration-ethtester-pyevm
       - py37-wheel-cli
       - py38-lint
@@ -795,6 +867,8 @@ workflows:
       - py38-integration-goethereum-http_flaky
       - py38-integration-goethereum-ws
       - py38-integration-goethereum-ws_flaky
+      - py38-integration-goethereum-ws-v2
+      - py38-integration-goethereum-ws-v2_flaky
       - py38-integration-ethtester-pyevm
       - py38-wheel-cli
       - py39-lint
@@ -808,6 +882,8 @@ workflows:
       - py39-integration-goethereum-http_flaky
       - py39-integration-goethereum-ws
       - py39-integration-goethereum-ws_flaky
+      - py39-integration-goethereum-ws-v2
+      - py39-integration-goethereum-ws-v2_flaky
       - py39-integration-ethtester-pyevm
       - py39-wheel-cli
       - py310-lint
@@ -821,6 +897,8 @@ workflows:
       - py310-integration-goethereum-http_flaky
       - py310-integration-goethereum-ws
       - py310-integration-goethereum-ws_flaky
+      - py310-integration-goethereum-ws-v2
+      - py310-integration-goethereum-ws-v2_flaky
       - py310-integration-ethtester-pyevm
       - py310-wheel-cli
       - py311-lint
@@ -834,6 +912,8 @@ workflows:
       - py311-integration-goethereum-http_flaky
       - py311-integration-goethereum-ws
       - py311-integration-goethereum-ws_flaky
+      - py311-integration-goethereum-ws-v2
+      - py311-integration-goethereum-ws-v2_flaky
       - py311-integration-ethtester-pyevm
       - py311-wheel-cli
       - py311-wheel-cli-windows

@@ -38,7 +38,12 @@ def pytest_collection_modifyitems(items, config):
             # test run.
             any(
                 _ in item.fixturenames
-                for _ in ("unlocked_account", "unlocked_account_dual_type")
+                for _ in (
+                    "async_unlocked_account",
+                    "async_unlocked_account_dual_type",
+                    "unlocked_account",
+                    "unlocked_account_dual_type",
+                )
             )
             # Leave offchain_lookup tests split between eth sync and async tests as
             # those can conflict with each other as well.
