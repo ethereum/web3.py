@@ -343,10 +343,7 @@ class RequestManager:
             error_formatters,
             null_formatters,
         )
-        try:
-            yield apply_result_formatters(result_formatters, partly_formatted_response)
-        except Exception:
-            yield partly_formatted_response
+        yield apply_result_formatters(result_formatters, partly_formatted_response)
 
 
 class _AsyncPersistentRecvStream:

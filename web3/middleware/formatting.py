@@ -29,7 +29,9 @@ if TYPE_CHECKING:
         AsyncWeb3,
         Web3,
     )
-    from web3.providers import PersistentConnectionProvider  # noqa: F401
+    from web3.providers import (  # noqa: F401
+        PersistentConnectionProvider,
+    )
 
 FORMATTER_DEFAULTS: FormattersDict = {
     "request_formatters": {},
@@ -148,12 +150,12 @@ async def async_construct_web3_formatting_middleware(
 ]:
     async def formatter_middleware(
         make_request: Callable[[RPCEndpoint, Any], Any],
-        w3: "AsyncWeb3",
+        async_w3: "AsyncWeb3",
     ) -> AsyncMiddlewareCoroutine:
         async def middleware(method: RPCEndpoint, params: Any) -> Optional[RPCResponse]:
             formatters = merge(
                 FORMATTER_DEFAULTS,
-                await async_web3_formatters_builder(w3, method),
+                await async_web3_formatters_builder(async_w3, method),
             )
             request_formatters = formatters.pop("request_formatters")
 
@@ -161,17 +163,11 @@ async def async_construct_web3_formatting_middleware(
                 formatter = request_formatters[method]
                 params = formatter(params)
             response = await make_request(method, params)
-            if response is not None:
-                return _apply_response_formatters(
-                    method,
-                    formatters["result_formatters"],
-                    formatters["error_formatters"],
-                    response,
-                )
-            else:
+
+            if async_w3.provider.has_persistent_connection:
                 # asynchronous response processing
-                provider = cast("PersistentConnectionProvider", w3.provider)
-                provider._append_middleware_response_formatter(
+                provider = cast("PersistentConnectionProvider", async_w3.provider)
+                provider._append_middleware_response_processor(
                     _apply_response_formatters(
                         method,
                         formatters["result_formatters"],
@@ -179,6 +175,13 @@ async def async_construct_web3_formatting_middleware(
                     )
                 )
                 return None
+            else:
+                return _apply_response_formatters(
+                    method,
+                    formatters["result_formatters"],
+                    formatters["error_formatters"],
+                    response,
+                )
 
         return middleware
 

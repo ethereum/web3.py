@@ -67,13 +67,13 @@ async def async_attrdict_middleware(
 
     async def middleware(method: RPCEndpoint, params: Any) -> Optional[RPCResponse]:
         response = await make_request(method, params)
-        if response:
-            return _handle_async_response(response)
-        else:
+        if async_w3.provider.has_persistent_connection:
             # asynchronous response processing
             provider = cast("PersistentConnectionProvider", async_w3.provider)
-            provider._append_middleware_response_formatter(_handle_async_response)
+            provider._append_middleware_response_processor(_handle_async_response)
             return None
+        else:
+            return _handle_async_response(response)
 
     return middleware
 
