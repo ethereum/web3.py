@@ -12,9 +12,19 @@ from eth_utils import (
     is_dict,
     to_text,
 )
+import pytest_asyncio
 
+from web3._utils.contract_sources.contract_data.emitter_contract import (
+    EMITTER_CONTRACT_DATA,
+)
+from web3._utils.contract_sources.contract_data.math_contract import (
+    MATH_CONTRACT_DATA,
+)
 from web3._utils.contract_sources.contract_data.panic_errors_contract import (
     PANIC_ERRORS_CONTRACT_DATA,
+)
+from web3._utils.contract_sources.contract_data.revert_contract import (
+    REVERT_CONTRACT_DATA,
 )
 from web3._utils.contract_sources.contract_data.storage_contract import (
     STORAGE_CONTRACT_DATA,
@@ -187,12 +197,12 @@ def unlockable_account(coinbase):
     yield coinbase
 
 
-@pytest.fixture()
+@pytest.fixture(scope="module")
 def unlockable_account_dual_type(unlockable_account, address_conversion_func):
     return address_conversion_func(unlockable_account)
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def unlocked_account_dual_type(w3, unlockable_account_dual_type, unlockable_account_pw):
     w3.geth.personal.unlock_account(unlockable_account_dual_type, unlockable_account_pw)
     yield unlockable_account_dual_type
@@ -280,6 +290,50 @@ def storage_contract(
 # --- async --- #
 
 
+@pytest_asyncio.fixture(scope="module")
+async def async_coinbase(async_w3):
+    return await async_w3.eth.coinbase
+
+
+@pytest_asyncio.fixture(scope="module")
+async def async_unlockable_account(async_coinbase):
+    yield async_coinbase
+
+
+@pytest_asyncio.fixture(scope="module")
+def async_unlockable_account_dual_type(
+    async_unlockable_account,
+    address_conversion_func,
+):
+    return address_conversion_func(async_unlockable_account)
+
+
+@pytest_asyncio.fixture(scope="module")
+async def async_unlocked_account(
+    async_w3,
+    async_unlockable_account,
+    unlockable_account_pw,
+):
+    await async_w3.geth.personal.unlock_account(
+        async_unlockable_account, unlockable_account_pw
+    )
+    yield async_unlockable_account
+    await async_w3.geth.personal.lock_account(async_unlockable_account)
+
+
+@pytest_asyncio.fixture(scope="module")
+async def async_unlocked_account_dual_type(
+    async_w3,
+    async_unlockable_account_dual_type,
+    unlockable_account_pw,
+):
+    await async_w3.geth.personal.unlock_account(
+        async_unlockable_account_dual_type, unlockable_account_pw
+    )
+    yield async_unlockable_account_dual_type
+    await async_w3.geth.personal.lock_account(async_unlockable_account_dual_type)
+
+
 @pytest.fixture(scope="module")
 def async_offchain_lookup_contract(
     async_offchain_lookup_contract_factory, geth_fixture_data
@@ -299,9 +353,58 @@ def async_panic_errors_contract(
 
 
 @pytest.fixture(scope="module")
+def async_emitter_contract(async_w3, geth_fixture_data):
+    contract_factory = async_w3.eth.contract(**EMITTER_CONTRACT_DATA)
+    return contract_factory(address=geth_fixture_data["emitter_address"])
+
+
+@pytest.fixture(scope="module")
+def async_emitter_contract_address(async_emitter_contract, address_conversion_func):
+    return address_conversion_func(async_emitter_contract.address)
+
+
+@pytest.fixture(scope="module")
+def async_math_contract(async_w3, geth_fixture_data):
+    contract_factory = async_w3.eth.contract(**MATH_CONTRACT_DATA)
+    return contract_factory(address=geth_fixture_data["math_address"])
+
+
+@pytest.fixture(scope="module")
+def async_math_contract_address(async_math_contract, address_conversion_func):
+    return address_conversion_func(async_math_contract.address)
+
+
+@pytest.fixture(scope="module")
+def async_revert_contract(async_w3, geth_fixture_data):
+    contract_factory = async_w3.eth.contract(**REVERT_CONTRACT_DATA)
+    return contract_factory(address=geth_fixture_data["revert_address"])
+
+
+@pytest.fixture(scope="module")
 def async_storage_contract(
     async_w3,
     geth_fixture_data,
 ):
     contract_factory = async_w3.eth.contract(**STORAGE_CONTRACT_DATA)
     return contract_factory(address=geth_fixture_data["storage_contract_address"])
+
+
+@pytest_asyncio.fixture(scope="module")
+async def async_empty_block(async_w3, geth_fixture_data):
+    block = await async_w3.eth.get_block(geth_fixture_data["empty_block_hash"])
+    assert is_dict(block)
+    return block
+
+
+@pytest_asyncio.fixture(scope="module")
+async def async_block_with_txn(async_w3, geth_fixture_data):
+    block = await async_w3.eth.get_block(geth_fixture_data["block_with_txn_hash"])
+    assert is_dict(block)
+    return block
+
+
+@pytest_asyncio.fixture(scope="module")
+async def async_block_with_txn_with_log(async_w3, geth_fixture_data):
+    block = await async_w3.eth.get_block(geth_fixture_data["block_hash_with_log"])
+    assert is_dict(block)
+    return block

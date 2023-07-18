@@ -1979,17 +1979,17 @@ class AsyncEthModuleTest:
 
     @pytest.mark.asyncio
     async def test_async_eth_sign(
-        self, async_w3: "AsyncWeb3", unlocked_account_dual_type: ChecksumAddress
+        self, async_w3: "AsyncWeb3", async_unlocked_account_dual_type: ChecksumAddress
     ) -> None:
         signature = await async_w3.eth.sign(
-            unlocked_account_dual_type, text="Message tö sign. Longer than hash!"
+            async_unlocked_account_dual_type, text="Message tö sign. Longer than hash!"
         )
         assert is_bytes(signature)
         assert len(signature) == 32 + 32 + 1
 
         # test other formats
         hexsign = await async_w3.eth.sign(
-            unlocked_account_dual_type,
+            async_unlocked_account_dual_type,
             hexstr=HexStr(
                 "0x4d6573736167652074c3b6207369676e2e204c6f6e676572207468616e206861736821"  # noqa: E501
             ),
@@ -1997,18 +1997,19 @@ class AsyncEthModuleTest:
         assert hexsign == signature
 
         intsign = await async_w3.eth.sign(
-            unlocked_account_dual_type,
+            async_unlocked_account_dual_type,
             0x4D6573736167652074C3B6207369676E2E204C6F6E676572207468616E206861736821,
         )
         assert intsign == signature
 
         bytessign = await async_w3.eth.sign(
-            unlocked_account_dual_type, b"Message t\xc3\xb6 sign. Longer than hash!"
+            async_unlocked_account_dual_type,
+            b"Message t\xc3\xb6 sign. Longer than hash!",
         )
         assert bytessign == signature
 
         new_signature = await async_w3.eth.sign(
-            unlocked_account_dual_type, text="different message is different"
+            async_unlocked_account_dual_type, text="different message is different"
         )
         assert new_signature != signature
 
@@ -2017,9 +2018,11 @@ class AsyncEthModuleTest:
         reason="Async middleware to convert ENS names to addresses is missing"
     )
     async def test_async_eth_sign_ens_names(
-        self, async_w3: "AsyncWeb3", unlocked_account_dual_type: ChecksumAddress
+        self, async_w3: "AsyncWeb3", async_unlocked_account_dual_type: ChecksumAddress
     ) -> None:
-        with ens_addresses(async_w3, {"unlocked-acct.eth": unlocked_account_dual_type}):
+        with ens_addresses(
+            async_w3, {"unlocked-acct.eth": async_unlocked_account_dual_type}
+        ):
             signature = await async_w3.eth.sign(
                 ENS("unlocked-acct.eth"), text="Message tö sign. Longer than hash!"
             )
@@ -2028,11 +2031,11 @@ class AsyncEthModuleTest:
 
     @pytest.mark.asyncio
     async def test_async_eth_replace_transaction_legacy(
-        self, async_w3: "AsyncWeb3", unlocked_account_dual_type: ChecksumAddress
+        self, async_w3: "AsyncWeb3", async_unlocked_account_dual_type: ChecksumAddress
     ) -> None:
         txn_params: TxParams = {
-            "from": unlocked_account_dual_type,
-            "to": unlocked_account_dual_type,
+            "from": async_unlocked_account_dual_type,
+            "to": async_unlocked_account_dual_type,
             "value": Wei(1),
             "gas": 21000,
             "gasPrice": async_w3.to_wei(
@@ -2057,14 +2060,14 @@ class AsyncEthModuleTest:
 
     @pytest.mark.asyncio
     async def test_async_eth_replace_transaction(
-        self, async_w3: "AsyncWeb3", unlocked_account_dual_type: ChecksumAddress
+        self, async_w3: "AsyncWeb3", async_unlocked_account_dual_type: ChecksumAddress
     ) -> None:
         two_gwei_in_wei = async_w3.to_wei(2, "gwei")
         three_gwei_in_wei = async_w3.to_wei(3, "gwei")
 
         txn_params: TxParams = {
-            "from": unlocked_account_dual_type,
-            "to": unlocked_account_dual_type,
+            "from": async_unlocked_account_dual_type,
+            "to": async_unlocked_account_dual_type,
             "value": Wei(1),
             "gas": 21000,
             "maxFeePerGas": two_gwei_in_wei,
@@ -2091,11 +2094,11 @@ class AsyncEthModuleTest:
 
     @pytest.mark.asyncio
     async def test_async_eth_replace_transaction_underpriced(
-        self, async_w3: "AsyncWeb3", unlocked_account_dual_type: ChecksumAddress
+        self, async_w3: "AsyncWeb3", async_unlocked_account_dual_type: ChecksumAddress
     ) -> None:
         txn_params: TxParams = {
-            "from": unlocked_account_dual_type,
-            "to": unlocked_account_dual_type,
+            "from": async_unlocked_account_dual_type,
+            "to": async_unlocked_account_dual_type,
             "value": Wei(1),
             "gas": 21000,
             "maxFeePerGas": async_w3.to_wei(3, "gwei"),
@@ -2112,11 +2115,11 @@ class AsyncEthModuleTest:
 
     @pytest.mark.asyncio
     async def test_async_eth_replace_transaction_non_existing_transaction(
-        self, async_w3: "AsyncWeb3", unlocked_account_dual_type: ChecksumAddress
+        self, async_w3: "AsyncWeb3", async_unlocked_account_dual_type: ChecksumAddress
     ) -> None:
         txn_params: TxParams = {
-            "from": unlocked_account_dual_type,
-            "to": unlocked_account_dual_type,
+            "from": async_unlocked_account_dual_type,
+            "to": async_unlocked_account_dual_type,
             "value": Wei(1),
             "gas": 21000,
             "maxFeePerGas": async_w3.to_wei(3, "gwei"),
@@ -2133,11 +2136,11 @@ class AsyncEthModuleTest:
     @pytest.mark.asyncio
     @pytest.mark.xfail(reason="AsyncGethMiner is missing.")
     async def test_async_eth_replace_transaction_already_mined(
-        self, async_w3: "AsyncWeb3", unlocked_account_dual_type: ChecksumAddress
+        self, async_w3: "AsyncWeb3", async_unlocked_account_dual_type: ChecksumAddress
     ) -> None:
         txn_params: TxParams = {
-            "from": unlocked_account_dual_type,
-            "to": unlocked_account_dual_type,
+            "from": async_unlocked_account_dual_type,
+            "to": async_unlocked_account_dual_type,
             "value": Wei(1),
             "gas": 21000,
             "maxFeePerGas": async_w3.to_wei(2, "gwei"),
@@ -2157,11 +2160,11 @@ class AsyncEthModuleTest:
 
     @pytest.mark.asyncio
     async def test_async_eth_replace_transaction_incorrect_nonce(
-        self, async_w3: "AsyncWeb3", unlocked_account: ChecksumAddress
+        self, async_w3: "AsyncWeb3", async_unlocked_account: ChecksumAddress
     ) -> None:
         txn_params: TxParams = {
-            "from": unlocked_account,
-            "to": unlocked_account,
+            "from": async_unlocked_account,
+            "to": async_unlocked_account,
             "value": Wei(1),
             "gas": 21000,
             "maxFeePerGas": async_w3.to_wei(2, "gwei"),
@@ -2178,11 +2181,11 @@ class AsyncEthModuleTest:
 
     @pytest.mark.asyncio
     async def test_async_eth_replace_transaction_gas_price_too_low(
-        self, async_w3: "AsyncWeb3", unlocked_account_dual_type: ChecksumAddress
+        self, async_w3: "AsyncWeb3", async_unlocked_account_dual_type: ChecksumAddress
     ) -> None:
         txn_params: TxParams = {
-            "from": unlocked_account_dual_type,
-            "to": unlocked_account_dual_type,
+            "from": async_unlocked_account_dual_type,
+            "to": async_unlocked_account_dual_type,
             "value": Wei(1),
             "gas": 21000,
             "gasPrice": async_w3.to_wei(2, "gwei"),
@@ -2195,13 +2198,13 @@ class AsyncEthModuleTest:
 
     @pytest.mark.asyncio
     async def test_async_eth_replace_transaction_gas_price_defaulting_minimum(
-        self, async_w3: "AsyncWeb3", unlocked_account: ChecksumAddress
+        self, async_w3: "AsyncWeb3", async_unlocked_account: ChecksumAddress
     ) -> None:
         gas_price = async_w3.to_wei(1, "gwei")
 
         txn_params: TxParams = {
-            "from": unlocked_account,
-            "to": unlocked_account,
+            "from": async_unlocked_account,
+            "to": async_unlocked_account,
             "value": Wei(1),
             "gas": 21000,
             "gasPrice": gas_price,
@@ -2218,11 +2221,11 @@ class AsyncEthModuleTest:
 
     @pytest.mark.asyncio
     async def test_async_eth_replace_transaction_gas_price_defaulting_strategy_higher(
-        self, async_w3: "AsyncWeb3", unlocked_account: ChecksumAddress
+        self, async_w3: "AsyncWeb3", async_unlocked_account: ChecksumAddress
     ) -> None:
         txn_params: TxParams = {
-            "from": unlocked_account,
-            "to": unlocked_account,
+            "from": async_unlocked_account,
+            "to": async_unlocked_account,
             "value": Wei(1),
             "gas": 21000,
             "gasPrice": async_w3.to_wei(1, "gwei"),
@@ -2246,13 +2249,13 @@ class AsyncEthModuleTest:
 
     @pytest.mark.asyncio
     async def test_async_eth_replace_transaction_gas_price_defaulting_strategy_lower(
-        self, async_w3: "AsyncWeb3", unlocked_account: ChecksumAddress
+        self, async_w3: "AsyncWeb3", async_unlocked_account: ChecksumAddress
     ) -> None:
         gas_price = async_w3.to_wei(2, "gwei")
 
         txn_params: TxParams = {
-            "from": unlocked_account,
-            "to": unlocked_account,
+            "from": async_unlocked_account,
+            "to": async_unlocked_account,
             "value": Wei(1),
             "gas": 21000,
             "gasPrice": gas_price,

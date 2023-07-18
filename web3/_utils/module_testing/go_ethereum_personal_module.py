@@ -215,15 +215,15 @@ class GoEthereumAsyncPersonalModuleTest:
     async def test_async_sign_and_ec_recover(
         self,
         async_w3: "AsyncWeb3",
-        unlockable_account_dual_type: ChecksumAddress,
+        async_unlockable_account_dual_type: ChecksumAddress,
         unlockable_account_pw: str,
     ) -> None:
         message = "This is a test"
         signature = await async_w3.geth.personal.sign(
-            message, unlockable_account_dual_type, unlockable_account_pw
+            message, async_unlockable_account_dual_type, unlockable_account_pw
         )
         address = await async_w3.geth.personal.ec_recover(message, signature)
-        assert is_same_address(unlockable_account_dual_type, address)
+        assert is_same_address(async_unlockable_account_dual_type, address)
 
     @pytest.mark.asyncio
     async def test_async_import_key(self, async_w3: "AsyncWeb3") -> None:
@@ -252,26 +252,28 @@ class GoEthereumAsyncPersonalModuleTest:
     async def test_async_unlock_lock_account(
         self,
         async_w3: "AsyncWeb3",
-        unlockable_account_dual_type: ChecksumAddress,
+        async_unlockable_account_dual_type: ChecksumAddress,
         unlockable_account_pw: str,
     ) -> None:
         unlocked = await async_w3.geth.personal.unlock_account(
-            unlockable_account_dual_type, unlockable_account_pw
+            async_unlockable_account_dual_type, unlockable_account_pw
         )
         assert unlocked is True
-        locked = await async_w3.geth.personal.lock_account(unlockable_account_dual_type)
+        locked = await async_w3.geth.personal.lock_account(
+            async_unlockable_account_dual_type
+        )
         assert locked is True
 
     @pytest.mark.asyncio
     async def test_async_send_transaction(
         self,
         async_w3: "AsyncWeb3",
-        unlockable_account_dual_type: ChecksumAddress,
+        async_unlockable_account_dual_type: ChecksumAddress,
         unlockable_account_pw: str,
     ) -> None:
         tx_params = TxParams()
-        tx_params["to"] = unlockable_account_dual_type
-        tx_params["from"] = unlockable_account_dual_type
+        tx_params["to"] = async_unlockable_account_dual_type
+        tx_params["from"] = async_unlockable_account_dual_type
         tx_params["value"] = Wei(123)
         response = await async_w3.geth.personal.send_transaction(
             tx_params, unlockable_account_pw
@@ -285,14 +287,14 @@ class GoEthereumAsyncPersonalModuleTest:
     async def test_async_sign_typed_data(
         self,
         async_w3: "AsyncWeb3",
-        unlockable_account_dual_type: ChecksumAddress,
+        async_unlockable_account_dual_type: ChecksumAddress,
         unlockable_account_pw: str,
     ) -> None:
         message = {"message": "This is a test"}
         signature = await async_w3.geth.personal.sign_typed_data(
-            message, unlockable_account_dual_type, unlockable_account_pw
+            message, async_unlockable_account_dual_type, unlockable_account_pw
         )
         address = await async_w3.geth.personal.ec_recover(
             json.dumps(message), signature
         )
-        assert is_same_address(unlockable_account_dual_type, address)
+        assert is_same_address(async_unlockable_account_dual_type, address)
