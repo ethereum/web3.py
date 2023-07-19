@@ -86,6 +86,7 @@ exclude_patterns = [
     "web3.gas_strategies.rst",
     "web3.middleware.rst",
     "web3.providers.rst",
+    "web3.providers.websocket.rst",
     "web3.providers.eth_tester.rst",
     "web3.scripts.*",
     "web3.testing.rst",
