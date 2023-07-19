@@ -1,3 +1,6 @@
+#!/bin/bash
+
+bash.exe -c "set -e"
 bash.exe -c "rm -rf build dist"
 python -m build
 bash.exe -c "export temp_dir=$(mktemp -d)"

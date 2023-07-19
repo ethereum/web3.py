@@ -1,3 +1,6 @@
+#!/bin/bash
+
+set -e
 rm -rf build dist
 python -m build
 cd $(mktemp -d)
