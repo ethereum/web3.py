@@ -48,6 +48,7 @@ See:
 
 - :class:`~web3.providers.ipc.IPCProvider`
 - :class:`~web3.providers.websocket.WebsocketProvider`
+- :class:`~web3.providers.websocket.WebsocketProviderV2`
 - :class:`~web3.providers.rpc.HTTPProvider`
 - :class:`~web3.providers.async_rpc.AsyncHTTPProvider`
 
@@ -179,6 +180,12 @@ IPCProvider
 WebsocketProvider
 ~~~~~~~~~~~~~~~~~
 
+.. note::
+
+        ``WebsocketProviderV2`` is currently in beta and our goal is to fully replace
+        ``WebsocketProvider`` with ``WebsocketProviderV2`` in the next major release
+        of web3.py.
+
 .. py:class:: web3.providers.websocket.WebsocketProvider(endpoint_uri[, websocket_timeout, websocket_kwargs])
 
     This provider handles interactions with an WS or WSS based JSON-RPC server.
@@ -200,7 +207,7 @@ WebsocketProvider
     use the ``websocket_kwargs`` to do so.  See the `websockets documentation`_ for
     available arguments.
 
-    .. _`websockets documentation`: https://websockets.readthedocs.io/en/stable/reference/client.html#websockets.client.WebSocketClientProtocol
+    .. _`websockets documentation`: https://websockets.readthedocs.io/en/stable/reference/asyncio/client.html#websockets.client.WebSocketClientProtocol
 
     Unlike HTTP connections, the timeout for WS connections is controlled by a
     separate ``websocket_timeout`` argument, as shown below.
@@ -210,6 +217,72 @@ WebsocketProvider
 
         >>> from web3 import Web3
         >>> w3 = Web3(Web3.WebsocketProvider("ws://127.0.0.1:8546", websocket_timeout=60))
+
+
+WebsocketProviderV2 (beta)
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. py:class:: web3.providers.websocket.WebsocketProviderV2(endpoint_uri, websocket_kwargs, call_timeout)
+
+    This provider handles interactions with an WS or WSS based JSON-RPC server.
+
+    * ``endpoint_uri`` should be the full URI to the RPC endpoint such as
+      ``'ws://localhost:8546'``.
+    * ``websocket_kwargs`` this should be a dictionary of keyword arguments which
+      will be passed onto the ws/wss websocket connection.
+    * ``call_timeout`` is the timeout in seconds, used when receiving or sending data
+      over the connection. Defaults to ``None`` (no timeout).
+
+    .. code-block:: python
+
+        >>> import asyncio
+        >>> from web3 import Web3
+        >>> from web3.providers import WebsocketProviderV2
+
+        >>> LOG = True  # toggle debug logging
+        >>> if LOG:
+        >>>     import logging
+        >>>     logger = logging.getLogger("web3.providers.WebsocketProviderV2")
+        >>>     logger.setLevel(logging.DEBUG)
+        >>>     logger.addHandler(logging.StreamHandler())
+
+        >>> async def ws_v2_subscription_example():
+        ...     async with AsyncWeb3.persistent_websocket(
+        ...         WebsocketProviderV2(f"ws://127.0.0.1:8546")
+        ...     ) as w3:
+        ...         # subscribe to new block headers
+        ...         subscription_id = await w3.eth.subscribe("newHeads")
+        ...
+        ...         unsubscribed = False
+        ...         while not unsubscribed:
+        ...             async for response in w3.listen_to_websocket():
+        ...                 print(f"{response}\n")
+        ...                 # handle responses here
+        ...
+        ...                 if some_condition:
+        ...                     # unsubscribe from new block headers
+        ...                     unsubscribed = await w3.eth.unsubscribe(subscription_id)
+        ...                     break
+        ...
+        ...         # still an open connection, make any other requests and get
+        ...         # responses via send / receive
+        ...         latest_block = await w3.eth.get_block("latest")
+        ...         print(f"Latest block: {latest_block}")
+        ...
+        ...         # the connection closes automatically when exiting the context
+        ...         # manager (the `async with` block)
+
+        >>> asyncio.run(ws_v2_subscription_example())
+
+
+    Under the hood, the ``WebsocketProviderV2`` uses the python websockets library for
+    making requests.  If you would like to modify how requests are made, you can
+    use the ``websocket_kwargs`` to do so.  See the `websockets documentation`_ for
+    available arguments.
+
+    The timeout for each call to send or receive is controlled by a ``call_timeout``
+    argument. This is set to ``None`` by default, which means no timeout.
+
 
 AutoProvider
 ~~~~~~~~~~~~
