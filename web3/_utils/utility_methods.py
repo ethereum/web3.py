@@ -57,7 +57,7 @@ def none_in_dict(
     return not any_in_dict(values, d)
 
 
-def either_set_is_a_subset(set1: Set[Any], set2: set[Any]) -> bool:
+def either_set_is_a_subset(set1: Set[Any], set2: Set[Any]) -> bool:
     """
     Returns a bool based on whether two sets might have some differences but are mostly
     the same. This can be useful when comparing formatters to an actual response for
