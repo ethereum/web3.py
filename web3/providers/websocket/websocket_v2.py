@@ -3,12 +3,16 @@ import logging
 import os
 from typing import (
     Any,
+    Dict,
     Optional,
     Union,
 )
 
 from eth_typing import (
     URI,
+)
+from toolz import (
+    merge,
 )
 from websockets.client import (
     connect,
@@ -31,6 +35,7 @@ from web3.types import (
 DEFAULT_PING_INTERVAL = 30  # 30 seconds
 DEFAULT_PING_TIMEOUT = 300  # 5 minutes
 
+VALID_WEBSOCKET_URI_PREFIXES = {"ws://", "wss://"}
 RESTRICTED_WEBSOCKET_KWARGS = {"uri", "loop"}
 DEFAULT_WEBSOCKET_KWARGS = {
     # set how long to wait between pings from the server
@@ -51,26 +56,34 @@ class WebsocketProviderV2(PersistentConnectionProvider):
     def __init__(
         self,
         endpoint_uri: Optional[Union[URI, str]] = None,
-        websocket_kwargs: Optional[Any] = None,
+        websocket_kwargs: Optional[Dict[str, Any]] = None,
         call_timeout: Optional[int] = None,
     ) -> None:
         self.endpoint_uri = URI(endpoint_uri)
         if self.endpoint_uri is None:
             self.endpoint_uri = get_default_endpoint()
 
-        if websocket_kwargs is None:
-            websocket_kwargs = DEFAULT_WEBSOCKET_KWARGS
-        else:
+        if not any(
+            self.endpoint_uri.startswith(prefix)
+            for prefix in VALID_WEBSOCKET_URI_PREFIXES
+        ):
+            raise Web3ValidationError(
+                f"Websocket endpoint uri must begin with 'ws://' or 'wss://': "
+                f"{self.endpoint_uri}"
+            )
+
+        if websocket_kwargs is not None:
             found_restricted_keys = set(websocket_kwargs).intersection(
                 RESTRICTED_WEBSOCKET_KWARGS
             )
             if found_restricted_keys:
                 raise Web3ValidationError(
-                    f"{RESTRICTED_WEBSOCKET_KWARGS} are not allowed "
-                    f"in websocket_kwargs, found: {found_restricted_keys}"
+                    f"Found restricted keys for websocket_kwargs: "
+                    f"{found_restricted_keys}."
                 )
 
-        self.websocket_kwargs = websocket_kwargs
+        self.websocket_kwargs = merge(DEFAULT_WEBSOCKET_KWARGS, websocket_kwargs or {})
+
         super().__init__(endpoint_uri, call_timeout=call_timeout)
 
     def __str__(self) -> str:
@@ -93,7 +106,12 @@ class WebsocketProviderV2(PersistentConnectionProvider):
             return False
 
     async def connect(self) -> None:
-        self.ws = await connect(self.endpoint_uri, **self.websocket_kwargs)
+        try:
+            self.ws = await connect(self.endpoint_uri, **self.websocket_kwargs)
+        except Exception as e:
+            raise ProviderConnectionError(
+                f"Could not connect to endpoint: {self.endpoint_uri}"
+            ) from e
 
     async def disconnect(self) -> None:
         await self.ws.close()

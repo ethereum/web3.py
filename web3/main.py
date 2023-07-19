@@ -430,6 +430,9 @@ class Web3(BaseWeb3):
         self._ens = new_ens
 
 
+# -- async -- #
+
+
 class AsyncWeb3(BaseWeb3):
     # mypy Types
     eth: AsyncEth
@@ -505,7 +508,7 @@ class AsyncWeb3(BaseWeb3):
     ) -> "_PersistentConnectionWeb3":
         """
         Establish a persistent connection via websockets to a websocket provider using
-        a WebsocketProviderV2 instance.
+        a ``PersistentConnectionProvider`` instance.
         """
         return _PersistentConnectionWeb3(
             provider,

@@ -484,7 +484,7 @@ PYTHONIC_REQUEST_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
         to_hex_if_integer,
         0,
     ),
-    RPC.eth_getCode: compose(apply_formatter_at_index(to_hex_if_integer, 1)),
+    RPC.eth_getCode: apply_formatter_at_index(to_hex_if_integer, 1),
     RPC.eth_getStorageAt: apply_formatter_at_index(to_hex_if_integer, 2),
     RPC.eth_getTransactionByBlockNumberAndIndex: compose(
         apply_formatter_at_index(to_hex_if_integer, 0),
