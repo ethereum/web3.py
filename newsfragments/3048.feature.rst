@@ -1,0 +1,1 @@
+Support for ``eth_subscribe`` and ``eth_unsubscribe`` methods has been added with the introduction of a new websocket provider, ``WebsocketProviderV2``.
