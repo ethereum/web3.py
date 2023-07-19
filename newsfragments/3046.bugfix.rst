@@ -1,0 +1,1 @@
+Test wheel build in separate directory and virtualenv
