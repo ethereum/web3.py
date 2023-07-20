@@ -1,0 +1,1 @@
+Handle case where data gets returned as ``None`` in a JSON-RPC error response
