@@ -1,0 +1,1 @@
+Fixed default windows IPC provider path to work with python 3.11
