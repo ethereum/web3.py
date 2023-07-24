@@ -42,6 +42,7 @@ class BaseProvider:
     )
 
     is_async = False
+    has_persistent_connection = False
     global_ccip_read_enabled: bool = True
     ccip_read_max_redirects: int = 4
 
