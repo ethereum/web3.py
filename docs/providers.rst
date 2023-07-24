@@ -236,15 +236,15 @@ WebsocketProviderV2 (beta)
     .. code-block:: python
 
         >>> import asyncio
-        >>> from web3 import Web3
+        >>> from web3 import AsyncWeb3
         >>> from web3.providers import WebsocketProviderV2
 
         >>> LOG = True  # toggle debug logging
         >>> if LOG:
-        >>>     import logging
-        >>>     logger = logging.getLogger("web3.providers.WebsocketProviderV2")
-        >>>     logger.setLevel(logging.DEBUG)
-        >>>     logger.addHandler(logging.StreamHandler())
+        ...     import logging
+        ...     logger = logging.getLogger("web3.providers.WebsocketProviderV2")
+        ...     logger.setLevel(logging.DEBUG)
+        ...     logger.addHandler(logging.StreamHandler())
 
         >>> async def ws_v2_subscription_example():
         ...     async with AsyncWeb3.persistent_websocket(
