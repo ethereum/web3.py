@@ -101,6 +101,42 @@ SPACENETH_RESPONSE = RPCResponse(
     }
 )
 
+NONE_DATA_RESPONSE = RPCResponse(
+    {
+        "id": 24,
+        "jsonrpc": "2.0",
+        "error": {
+            "message": "execution reverted",
+            "code": -32000,
+            "data": None,
+        },
+    }
+)
+
+NONE_MESSAGE_RESPONSE = RPCResponse(
+    {
+        "id": 24,
+        "jsonrpc": "2.0",
+        "error": {
+            "message": None,
+            "code": -32000,
+            "data": "execution reverted",
+        },
+    }
+)
+
+NO_DATA_NO_MESSAGE_RESPONSE = RPCResponse(
+    {
+        "id": 24,
+        "jsonrpc": "2.0",
+        "error": {
+            "message": None,
+            "code": -32000,
+            "data": None,
+        },
+    }
+)
+
 
 @pytest.mark.parametrize(
     "response,expected",
@@ -116,6 +152,18 @@ SPACENETH_RESPONSE = RPCResponse(
             SPACENETH_RESPONSE,
             "execution reverted: OwnerId does not exist in registry",
         ),
+        (
+            NONE_DATA_RESPONSE,
+            "execution reverted",
+        ),
+        (
+            NONE_MESSAGE_RESPONSE,
+            "execution reverted",
+        ),
+        (
+            NO_DATA_NO_MESSAGE_RESPONSE,
+            "execution reverted",
+        ),
     ),
     ids=[
         "test-get-revert-reason-with-msg",
@@ -123,6 +171,9 @@ SPACENETH_RESPONSE = RPCResponse(
         "test-get-geth-revert-reason",
         "test_get-ganache-revert-reason",
         "test_get-spaceneth-revert-reason",
+        "test_none-data-response",
+        "test_none-message-response",
+        "test_no-data-no-message-response",
     ],
 )
 def test_get_revert_reason(response, expected) -> None:

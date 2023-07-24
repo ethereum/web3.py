@@ -65,12 +65,21 @@ def raise_contract_logic_error_on_revert(response: RPCResponse) -> RPCResponse:
         raise ValueError("Error expected to be a dict")
 
     data = response["error"].get("data", "")
+    message = response["error"].get("message", "")
+
+    message_present = message is not None and message != ""
+
+    if data is None:
+        if message_present:
+            raise ContractLogicError(message)
+        elif not message_present:
+            raise ContractLogicError("execution reverted")
+        else:
+            raise Exception("Unreachable")
 
     # Ganache case:
-    if isinstance(data, dict) and response["error"].get("message"):
-        raise ContractLogicError(
-            f'execution reverted: {response["error"]["message"]}', data=data
-        )
+    if isinstance(data, dict) and message_present:
+        raise ContractLogicError(f"execution reverted: {message}", data=data)
 
     # Parity/OpenEthereum case:
     if data.startswith("Reverted "):
@@ -126,12 +135,10 @@ def raise_contract_logic_error_on_revert(response: RPCResponse) -> RPCResponse:
         raise ContractCustomError(data, data=data)
 
     # Geth case:
-    if "message" in response["error"] and response["error"].get("code", "") == 3:
-        message = response["error"]["message"]
+    if message_present and response["error"].get("code", "") == 3:
         raise ContractLogicError(message, data=data)
-
     # Geth Revert without error message case:
-    if "execution reverted" in response["error"].get("message"):
+    if message_present and "execution reverted" in message:
         raise ContractLogicError("execution reverted", data=data)
 
     return response
