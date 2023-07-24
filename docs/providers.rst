@@ -174,7 +174,7 @@ IPCProvider
 
     - On Linux and FreeBSD: ``~/.ethereum/geth.ipc``
     - On Mac OS: ``~/Library/Ethereum/geth.ipc``
-    - On Windows: ``\\\.\pipe\geth.ipc``
+    - On Windows: ``\\.\pipe\geth.ipc``
 
 
 WebsocketProvider

@@ -102,7 +102,7 @@ def get_default_ipc_path() -> Optional[str]:
         return None
 
     elif sys.platform == "win32":
-        ipc_path = os.path.join("\\\\", ".", "pipe", "geth.ipc")
+        ipc_path = r"\\.\pipe\geth.ipc"
         if os.path.exists(ipc_path):
             return ipc_path
         return None
