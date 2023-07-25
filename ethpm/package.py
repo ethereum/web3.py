@@ -247,7 +247,7 @@ class Package(object):
     def get_contract_factory(self, name: ContractName) -> LinkableContract:
         """
         Return the contract factory for a given contract type, generated from
-        the data vailable in ``Package.manifest``. Contract factories are
+        the data available in ``Package.manifest``. Contract factories are
         accessible from the package class.
 
         .. code:: python

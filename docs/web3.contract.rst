@@ -950,7 +950,7 @@ For example:
    Extracts the pertinent logs from a transaction receipt.
 
    If there are no errors, ``process_receipt`` returns a tuple of :ref:`Event Log Objects <event-log-object>`, emitted from the event (e.g. ``myEvent``),
-   with decoded ouput.
+   with decoded output.
 
    .. code-block:: python
 

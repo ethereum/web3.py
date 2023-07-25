@@ -94,7 +94,7 @@ By default, the balance of this address is zero.
 Before you can send any transactions with your account,
 you need to top up.
 
-- For a local test environment, any environment is boostrapped with accounts that have ETH on them. Move
+- For a local test environment, any environment is bootstrapped with accounts that have ETH on them. Move
   ETH from default accounts to your newly created account.
   
 - For public mainnet, you need to buy ETH in a cryptocurrency exchange

@@ -825,7 +825,7 @@ def init_manifest(
     package_name: str, version: str, manifest_version: Optional[str] = "ethpm/3"
 ) -> Dict[str, Any]:
     """
-    Returns an initial dict with the minimal requried fields for a valid manifest.
+    Returns an initial dict with the minimal required fields for a valid manifest.
     Should only be used as the first fn to be piped into a `build()` pipeline.
     """
     return {
