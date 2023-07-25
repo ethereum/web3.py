@@ -135,6 +135,19 @@ class EthereumTesterProvider(BaseProvider):
         return True
 
 
+def _make_response(result: Any, message: str = "") -> RPCResponse:
+    def _error_response(error: str) -> RPCResponse:
+        return RPCResponse({"error": error})
+
+    def _result_response(result: Any) -> RPCResponse:
+        return RPCResponse({"result": result})
+
+    if isinstance(result, Exception):
+        return _error_response(message)
+    else:
+        return _result_response(result)
+
+
 def _make_request(
     method: RPCEndpoint,
     params: Any,
@@ -151,14 +164,12 @@ def _make_request(
 
     try:
         delegator = api_endpoints[namespace][endpoint]
-    except KeyError:
-        return RPCResponse({"error": f"Unknown RPC Endpoint: {method}"})
+    except KeyError as e:
+        return _make_response(e, f"Unknown RPC Endpoint: {method}")
     try:
         response = delegator(ethereum_tester_instance, params)
-    except NotImplementedError:
-        return RPCResponse(
-            {"error": f"RPC Endpoint has not been implemented: {method}"}
-        )
+    except NotImplementedError as e:
+        return _make_response(e, f"RPC Endpoint has not been implemented: {method}")
     except TransactionFailed as e:
         first_arg = e.args[0]
         try:
@@ -175,6 +186,4 @@ def _make_request(
             reason = first_arg
         raise TransactionFailed(f"execution reverted: {reason}")
     else:
-        return {
-            "result": response,
-        }
+        return _make_response(response)
