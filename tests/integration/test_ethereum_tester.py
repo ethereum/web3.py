@@ -264,7 +264,8 @@ def disable_auto_mine(func):
 
 class TestEthereumTesterEthModule(EthModuleTest):
     test_eth_max_priority_fee_with_fee_history_calculation = not_implemented(
-        EthModuleTest.test_eth_max_priority_fee_with_fee_history_calculation, ValueError
+        EthModuleTest.test_eth_max_priority_fee_with_fee_history_calculation,
+        NotImplementedError,
     )
     test_eth_max_priority_fee_with_fee_history_calculation_error_dict = not_implemented(
         EthModuleTest.test_eth_max_priority_fee_with_fee_history_calculation_error_dict,
@@ -290,16 +291,16 @@ class TestEthereumTesterEthModule(EthModuleTest):
         EthModuleTest.test_eth_sign_transaction_ens_names, ValueError
     )
     test_eth_submit_hashrate = not_implemented(
-        EthModuleTest.test_eth_submit_hashrate, ValueError
+        EthModuleTest.test_eth_submit_hashrate, NotImplementedError
     )
     test_eth_submit_work = not_implemented(
-        EthModuleTest.test_eth_submit_work, ValueError
+        EthModuleTest.test_eth_submit_work, NotImplementedError
     )
     test_eth_get_raw_transaction = not_implemented(
-        EthModuleTest.test_eth_get_raw_transaction, ValueError
+        EthModuleTest.test_eth_get_raw_transaction, KeyError
     )
     test_eth_get_raw_transaction_raises_error = not_implemented(
-        EthModuleTest.test_eth_get_raw_transaction, ValueError
+        EthModuleTest.test_eth_get_raw_transaction, KeyError
     )
     test_eth_get_raw_transaction_by_block = not_implemented(
         EthModuleTest.test_eth_get_raw_transaction_by_block, ValueError
@@ -588,7 +589,12 @@ class TestEthereumTesterNetModule(NetModuleTest):
 class TestEthereumTesterPersonalModule(GoEthereumPersonalModuleTest):
     test_personal_sign_and_ecrecover = not_implemented(
         GoEthereumPersonalModuleTest.test_personal_sign_and_ecrecover,
-        ValueError,
+        NotImplementedError,
+    )
+
+    test_personal_list_wallets = not_implemented(
+        GoEthereumPersonalModuleTest.test_personal_list_wallets,
+        KeyError,
     )
 
     # Test overridden here since eth-tester returns False
@@ -598,9 +604,3 @@ class TestEthereumTesterPersonalModule(GoEthereumPersonalModuleTest):
             unlockable_account_dual_type, "bad-password"
         )
         assert result is False
-
-    @pytest.mark.xfail(
-        raises=ValueError, reason="list_wallets not implemented in eth-tester"
-    )
-    def test_personal_list_wallets(self, w3: "Web3") -> None:
-        super().test_personal_list_wallets(w3)
