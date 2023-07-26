@@ -90,9 +90,7 @@ class ABIEvent(TypedDict, total=False):
 
 
 class ABIFunctionComponents(TypedDict, total=False):
-    # better typed as Sequence['ABIFunctionComponents'], but recursion not possible yet
-    # https://github.com/python/mypy/issues/731
-    components: Sequence[Any]
+    components: Sequence["ABIFunctionComponents"]
     name: str
     type: str
 
