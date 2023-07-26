@@ -1,0 +1,1 @@
+Fix return type for ``rpc_gas_price_strategy`` to ``int`` but also only convert the ``strategy_based_gas_price`` to ``hex`` if it is an ``int`` in the ``gas_price_strategy_middleware``.
