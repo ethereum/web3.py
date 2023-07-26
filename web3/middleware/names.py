@@ -56,6 +56,10 @@ def name_to_address_middleware(w3: "Web3") -> Middleware:
 # -- async -- #
 
 
+def _is_logs_subscription_with_optional_args(method: RPCEndpoint, params: Any) -> bool:
+    return method == "eth_subscribe" and len(params) == 2 and params[0] == "logs"
+
+
 async def async_format_all_ens_names_to_address(
     async_web3: "AsyncWeb3",
     abi_types_for_method: Sequence[Any],
@@ -111,12 +115,27 @@ async def async_name_to_address_middleware(
 ) -> AsyncMiddlewareCoroutine:
     async def middleware(method: RPCEndpoint, params: Any) -> Any:
         abi_types_for_method = RPC_ABIS.get(method, None)
+
         if abi_types_for_method is not None:
-            params = await async_apply_ens_to_address_conversion(
-                async_w3,
-                params,
-                abi_types_for_method,
-            )
+            if _is_logs_subscription_with_optional_args(method, params):
+                # eth_subscribe optional logs params are unique.
+                # Handle them separately here.
+                (formatted_dict,) = await async_apply_ens_to_address_conversion(
+                    async_w3,
+                    (params[1],),
+                    {
+                        "address": "address",
+                        "topics": "bytes32[]",
+                    },
+                )
+                params = (params[0], formatted_dict)
+
+            else:
+                params = await async_apply_ens_to_address_conversion(
+                    async_w3,
+                    params,
+                    abi_types_for_method,
+                )
         return await make_request(method, params)
 
     return middleware
