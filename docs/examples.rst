@@ -1216,7 +1216,7 @@ The script can be run with: ``python ./eventscanner.py <your JSON-RPC API URL>``
 
     if __name__ == "__main__":
         # Simple demo that scans all the token transfers of RCC token (11k).
-        # The demo supports persistant state by using a JSON file.
+        # The demo supports persistent state by using a JSON file.
         # You will need an Ethereum node for this.
         # Running this script will consume around 20k JSON-RPC calls.
         # With locally running Geth, the script takes 10 minutes.

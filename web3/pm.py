@@ -100,7 +100,7 @@ class ERC1319Registry(ABC):
     accessed directly, but rather through the methods on ``web3.pm``.
     They are unlikely to change, but must be implemented in a `ERC1319Registry`
     subclass in order to be compatible with the `PM` module. Any custom
-    methods (eg. not definied in ERC1319) in a subclass should *not* be
+    methods (eg. not defined in ERC1319) in a subclass should *not* be
     prefixed with an underscore.
 
     All of these methods must be implemented in any subclass in order to work

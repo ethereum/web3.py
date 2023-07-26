@@ -81,7 +81,7 @@ diagnose the problem, ``is_connected`` has an optional ``show_traceback`` argume
     >>> w3.is_connected(show_traceback=True)
     # this is an example, your error may differ
     
-    # <long stack trace ouput>
+    # <long stack trace output>
     ProviderConnectionError: Problem connecting to provider with error: <class 'FileNotFoundError'>: cannot connect to IPC socket at path: None
 
 If you're running a local node, such as Geth, double-check that you've indeed started 
