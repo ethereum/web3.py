@@ -689,6 +689,29 @@ class AsyncEthModuleTest:
         async_w3.eth.set_gas_price_strategy(None)  # reset strategy
 
     @pytest.mark.asyncio
+    async def test_gas_price_strategy_middleware_hex_value(
+        self, async_w3: "AsyncWeb3", async_unlocked_account_dual_type: ChecksumAddress
+    ) -> None:
+        txn_params: TxParams = {
+            "from": async_unlocked_account_dual_type,
+            "to": async_unlocked_account_dual_type,
+            "value": Wei(1),
+            "gas": 21000,
+        }
+        two_gwei_in_wei = async_w3.to_wei(2, "gwei")
+
+        def gas_price_strategy(_w3: "Web3", _txn: TxParams) -> str:
+            return hex(two_gwei_in_wei)
+
+        async_w3.eth.set_gas_price_strategy(gas_price_strategy)  # type: ignore
+
+        txn_hash = await async_w3.eth.send_transaction(txn_params)
+        txn = await async_w3.eth.get_transaction(txn_hash)
+
+        assert txn["gasPrice"] == two_gwei_in_wei
+        async_w3.eth.set_gas_price_strategy(None)  # reset strategy
+
+    @pytest.mark.asyncio
     @pytest.mark.parametrize(
         "max_fee", (1000000000, None), ids=["with_max_fee", "without_max_fee"]
     )
@@ -3197,6 +3220,28 @@ class EthModuleTest:
         ):
             w3.eth.send_transaction(txn_params)
 
+        w3.eth.set_gas_price_strategy(None)  # reset strategy
+
+    def test_gas_price_strategy_middleware_hex_value(
+        self, w3: "Web3", unlocked_account_dual_type: ChecksumAddress
+    ) -> None:
+        txn_params: TxParams = {
+            "from": unlocked_account_dual_type,
+            "to": unlocked_account_dual_type,
+            "value": Wei(1),
+            "gas": 21000,
+        }
+        two_gwei_in_wei = w3.to_wei(2, "gwei")
+
+        def gas_price_strategy(_w3: "Web3", _txn: TxParams) -> str:
+            return hex(two_gwei_in_wei)
+
+        w3.eth.set_gas_price_strategy(gas_price_strategy)  # type: ignore
+
+        txn_hash = w3.eth.send_transaction(txn_params)
+        txn = w3.eth.get_transaction(txn_hash)
+
+        assert txn["gasPrice"] == two_gwei_in_wei
         w3.eth.set_gas_price_strategy(None)  # reset strategy
 
     def test_eth_replace_transaction_legacy(
