@@ -7,10 +7,10 @@ from typing import (
 from eth_utils.toolz import (
     assoc,
 )
-from web3._utils.method_formatters import (
-    to_integer_if_hex,
-)
 
+from web3._utils.method_formatters import (
+    to_hex_if_integer,
+)
 from web3._utils.utility_methods import (
     all_in_dict,
     any_in_dict,
@@ -49,7 +49,7 @@ def validate_transaction_params(
         and none_in_dict(DYNAMIC_FEE_TXN_PARAMS, transaction)
     ):
         transaction = assoc(
-            transaction, "gasPrice", to_integer_if_hex(strategy_based_gas_price)
+            transaction, "gasPrice", to_hex_if_integer(strategy_based_gas_price)
         )
 
     # legacy and dynamic fee tx variables used:
