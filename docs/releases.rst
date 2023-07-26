@@ -10,6 +10,39 @@ v6 Breaking Changes Summary
 
 .. towncrier release notes start
 
+web3.py v6.7.0 (2023-07-26)
+---------------------------
+
+Bugfixes
+~~~~~~~~
+
+- Test wheel build in separate directory and virtualenv (`#3046 <https://github.com/ethereum/web3.py/issues/3046>`__)
+- Handle case where data gets returned as ``None`` in a JSON-RPC error response (`#3054 <https://github.com/ethereum/web3.py/issues/3054>`__)
+- Fixed default windows IPC provider path to work with python 3.11 (`#3058 <https://github.com/ethereum/web3.py/issues/3058>`__)
+- Fix return type for ``rpc_gas_price_strategy`` to ``int`` but also only convert the ``strategy_based_gas_price`` to ``hex`` if it is an ``int`` in the ``gas_price_strategy_middleware``. (`#3065 <https://github.com/ethereum/web3.py/issues/3065>`__)
+
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Add note to Release Notes about v5 end-of-life and v6.6.0 yank (`#3045 <https://github.com/ethereum/web3.py/issues/3045>`__)
+- Add documentation for ``WebsocketProviderV2`` (beta). (`#3048 <https://github.com/ethereum/web3.py/issues/3048>`__)
+
+
+Features
+~~~~~~~~
+
+- Add ENSIP-9 (Multichain Address Resolution) support for ``address()`` and ``setup_address()`` for ``ENS`` and ``AsyncENS`` classes. (`#3030 <https://github.com/ethereum/web3.py/issues/3030>`__)
+- Support for ``eth_subscribe`` and ``eth_unsubscribe`` methods has been added with the introduction of a new websocket provider, ``WebsocketProviderV2``. (`#3048 <https://github.com/ethereum/web3.py/issues/3048>`__)
+
+
+Internal Changes - for web3.py Contributors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Added recursive typing to ``ABIFunctionComponents`` type (`#3063 <https://github.com/ethereum/web3.py/issues/3063>`__)
+- Upgrade eth-tester requirement to v0.9.0-b.1 (`#3064 <https://github.com/ethereum/web3.py/issues/3064>`__)
+
+
 web3.py v6.6.1 (2023-07-12)
 ---------------------------
 
