@@ -136,6 +136,7 @@ class WebsocketProviderV2(PersistentConnectionProvider):
 
     async def disconnect(self) -> None:
         await self.ws.close()
+        self.ws = None
 
         # clear the provider request cache after disconnecting
         self._async_response_processing_cache.clear()
