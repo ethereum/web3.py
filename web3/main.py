@@ -1,3 +1,4 @@
+import asyncio
 import decimal
 import warnings
 from types import (
@@ -33,6 +34,7 @@ from hexbytes import (
 )
 from typing import (
     Any,
+    AsyncIterator,
     Dict,
     List,
     Optional,
@@ -538,6 +540,16 @@ class _PersistentConnectionWeb3(AsyncWeb3):
             )
         AsyncWeb3.__init__(self, provider, middlewares, modules, external_modules, ens)
 
+    # async for w3 in w3.persistent_websocket(provider)
+    async def __aiter__(self) -> AsyncIterator["_PersistentConnectionWeb3"]:
+        while True:
+            try:
+                yield self
+            except Exception:
+                # provider should handle connection / reconnection
+                continue
+
+    # async with w3.persistent_websocket(provider) as w3
     async def __aenter__(self) -> "_PersistentConnectionWeb3":
         await self.provider.connect()
         return self
