@@ -1,4 +1,3 @@
-import asyncio
 import decimal
 import warnings
 from types import (
