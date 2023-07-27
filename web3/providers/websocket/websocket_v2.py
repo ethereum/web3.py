@@ -58,10 +58,13 @@ class WebsocketProviderV2(PersistentConnectionProvider):
         endpoint_uri: Optional[Union[URI, str]] = None,
         websocket_kwargs: Optional[Dict[str, Any]] = None,
         call_timeout: Optional[int] = None,
+        max_connection_retries: Optional[int] = 5,
     ) -> None:
         self.endpoint_uri = URI(endpoint_uri)
         if self.endpoint_uri is None:
             self.endpoint_uri = get_default_endpoint()
+
+        self.max_connection_retries = max_connection_retries
 
         if not any(
             self.endpoint_uri.startswith(prefix)
@@ -94,11 +97,10 @@ class WebsocketProviderV2(PersistentConnectionProvider):
             return False
 
         try:
-            pong_waiter = await self.ws.ping()
-            await asyncio.wait_for(pong_waiter, timeout=self.call_timeout)
+            await self.ws.pong()
             return True
 
-        except (WebSocketException, asyncio.TimeoutError) as e:
+        except WebSocketException as e:
             if show_traceback:
                 raise ProviderConnectionError(
                     f"Error connecting to endpoint: '{self.endpoint_uri}'"
@@ -106,12 +108,31 @@ class WebsocketProviderV2(PersistentConnectionProvider):
             return False
 
     async def connect(self) -> None:
-        try:
-            self.ws = await connect(self.endpoint_uri, **self.websocket_kwargs)
-        except Exception as e:
-            raise ProviderConnectionError(
-                f"Could not connect to endpoint: {self.endpoint_uri}"
-            ) from e
+        _connection_attempts = 0
+        _backoff_rate_change = 1.75
+        _backoff_time = 1.75
+
+        while True:
+            try:
+                _connection_attempts += 1
+                self.ws = await connect(self.endpoint_uri, **self.websocket_kwargs)
+                break
+            except WebSocketException as e:
+                if (
+                    self.max_connection_retries
+                    and _connection_attempts > self.max_connection_retries
+                ):
+                    raise ProviderConnectionError(
+                        f"Could not connect to endpoint: {self.endpoint_uri}. "
+                        f"Retries exceeded max of {self.max_connection_retries}."
+                    ) from e
+                self.logger.info(
+                    f"Could not connect to endpoint: {self.endpoint_uri}. Retrying in "
+                    f"{round(_backoff_time, 1)} seconds.",
+                    exc_info=True,
+                )
+                await asyncio.sleep(_backoff_time)
+                _backoff_time *= _backoff_rate_change
 
     async def disconnect(self) -> None:
         await self.ws.close()
