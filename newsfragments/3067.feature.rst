@@ -1,0 +1,1 @@
+Asynchronous iterator support for ``AsyncWeb3`` with ``WebsocketProviderV2`` using ``async for`` syntax.
