@@ -233,7 +233,24 @@ WebsocketProviderV2 (beta)
     * ``call_timeout`` is the timeout in seconds, used when receiving or sending data
       over the connection. Defaults to ``None`` (no timeout).
 
-    .. code-block:: python
+    Under the hood, the ``WebsocketProviderV2`` uses the python websockets library for
+    making requests.  If you would like to modify how requests are made, you can
+    use the ``websocket_kwargs`` to do so.  See the `websockets documentation`_ for
+    available arguments.
+
+    The timeout for each call to send or receive is controlled by a ``call_timeout``
+    argument. This is set to ``None`` by default, which means no timeout.
+
+Usage
+~~~~~
+
+The ``AsyncWeb3`` class may be used as a context manager, utilizing the ``async with``
+syntax, when connecting via ``persistent_connection()`` using the
+``WebsocketProviderV2``. This will automatically close the connection when the context
+manager exits. A similar example, using the ``websockets`` connection as an
+asynchronous context manager, can be found in the `websockets connection`_ docs.
+
+.. code-block:: python
 
         >>> import asyncio
         >>> from web3 import AsyncWeb3
@@ -246,7 +263,7 @@ WebsocketProviderV2 (beta)
         ...     logger.setLevel(logging.DEBUG)
         ...     logger.addHandler(logging.StreamHandler())
 
-        >>> async def ws_v2_subscription_example():
+        >>> async def ws_v2_subscription_context_manager_example():
         ...     async with AsyncWeb3.persistent_websocket(
         ...         WebsocketProviderV2(f"ws://127.0.0.1:8546")
         ...     ) as w3:
@@ -272,16 +289,36 @@ WebsocketProviderV2 (beta)
         ...         # the connection closes automatically when exiting the context
         ...         # manager (the `async with` block)
 
-        >>> asyncio.run(ws_v2_subscription_example())
+        >>> asyncio.run(ws_v2_subscription_context_manager_example())
 
 
-    Under the hood, the ``WebsocketProviderV2`` uses the python websockets library for
-    making requests.  If you would like to modify how requests are made, you can
-    use the ``websocket_kwargs`` to do so.  See the `websockets documentation`_ for
-    available arguments.
+The ``AsyncWeb3`` class may also be used as an asynchronous iterator, utilizing the
+``async for`` syntax, when connecting via ``persistent_connection()`` using the
+``WebsocketProviderV2``. This may be used to set up an indefinite websocket connection
+and reconnect automatically if the connection is lost. A similar example, using the
+``websockets`` connection as an asynchronous iterator, can be found in the
+`websockets connection`_ docs.
 
-    The timeout for each call to send or receive is controlled by a ``call_timeout``
-    argument. This is set to ``None`` by default, which means no timeout.
+.. _`websockets connection`: https://websockets.readthedocs.io/en/stable/reference/asyncio/client.html#websockets.client.connect
+
+.. code-block:: python
+
+    >>> import asyncio
+    >>> from web3 import AsyncWeb3
+    >>> from web3.providers import WebsocketProviderV2
+    >>> import websockets
+
+    >>> async def ws_v2_subscription_iterator_example():
+    ...     async for w3 in AsyncWeb3.persistent_websocket(
+    ...         WebsocketProviderV2(f"ws://127.0.0.1:8546")
+    ...     ):
+    ...         try:
+    ...             ...
+    ...         except websockets.ConnectionClosed:
+    ...             continue
+
+    >>> asyncio.run(ws_v2_subscription_iterator_example())
+
 
 
 AutoProvider
