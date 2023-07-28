@@ -52,19 +52,17 @@ def get_default_endpoint() -> URI:
 class WebsocketProviderV2(PersistentConnectionProvider):
     logger = logging.getLogger("web3.providers.WebsocketProviderV2")
     is_async: bool = True
+    _max_connection_retries: int = 5
 
     def __init__(
         self,
         endpoint_uri: Optional[Union[URI, str]] = None,
         websocket_kwargs: Optional[Dict[str, Any]] = None,
         call_timeout: Optional[int] = None,
-        max_connection_retries: Optional[int] = 5,
     ) -> None:
         self.endpoint_uri = URI(endpoint_uri)
         if self.endpoint_uri is None:
             self.endpoint_uri = get_default_endpoint()
-
-        self.max_connection_retries = max_connection_retries
 
         if not any(
             self.endpoint_uri.startswith(prefix)
@@ -112,19 +110,16 @@ class WebsocketProviderV2(PersistentConnectionProvider):
         _backoff_rate_change = 1.75
         _backoff_time = 1.75
 
-        while True:
+        while _connection_attempts != self._max_connection_retries:
             try:
                 _connection_attempts += 1
                 self.ws = await connect(self.endpoint_uri, **self.websocket_kwargs)
                 break
             except WebSocketException as e:
-                if (
-                    self.max_connection_retries
-                    and _connection_attempts > self.max_connection_retries
-                ):
+                if _connection_attempts == self._max_connection_retries:
                     raise ProviderConnectionError(
                         f"Could not connect to endpoint: {self.endpoint_uri}. "
-                        f"Retries exceeded max of {self.max_connection_retries}."
+                        f"Retries exceeded max of {self._max_connection_retries}."
                     ) from e
                 self.logger.info(
                     f"Could not connect to endpoint: {self.endpoint_uri}. Retrying in "
