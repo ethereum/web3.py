@@ -546,7 +546,3 @@ class LogsSubscriptionArg(TypedDict, total=False):
         Sequence[Union[Address, ChecksumAddress, ENS]],
     ]
     topics: Sequence[Union[HexStr, Sequence[HexStr]]]
-
-
-class TxTypeSubscriptionArg(TypedDict, total=False):
-    full_transactions: bool

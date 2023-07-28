@@ -86,7 +86,6 @@ from web3.types import (
     TxData,
     TxParams,
     TxReceipt,
-    TxTypeSubscriptionArg,
     Wei,
     _Hash32,
 )
@@ -669,7 +668,7 @@ class AsyncEth(BaseEth):
         Callable[
             [
                 SubscriptionType,
-                Optional[Union[LogsSubscriptionArg, TxTypeSubscriptionArg]],
+                Optional[Union[LogsSubscriptionArg, bool]],
             ],
             Awaitable[HexStr],
         ]
@@ -682,7 +681,10 @@ class AsyncEth(BaseEth):
         self,
         subscription_type: SubscriptionType,
         subscription_arg: Optional[
-            Union[LogsSubscriptionArg, TxTypeSubscriptionArg]
+            Union[
+                LogsSubscriptionArg,  # logs, optional filter params
+                bool,  # newPendingTransactions, full_transactions
+            ]
         ] = None,
     ) -> HexStr:
         if not isinstance(self.w3.provider, PersistentConnectionProvider):
