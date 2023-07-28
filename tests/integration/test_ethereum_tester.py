@@ -31,6 +31,9 @@ from web3._utils.module_testing import (
     NetModuleTest,
     Web3ModuleTest,
 )
+from web3.exceptions import (
+    MethodUnavailable,
+)
 from web3.providers.eth_tester import (
     EthereumTesterProvider,
 )
@@ -265,7 +268,7 @@ def disable_auto_mine(func):
 class TestEthereumTesterEthModule(EthModuleTest):
     test_eth_max_priority_fee_with_fee_history_calculation = not_implemented(
         EthModuleTest.test_eth_max_priority_fee_with_fee_history_calculation,
-        NotImplementedError,
+        MethodUnavailable,
     )
     test_eth_max_priority_fee_with_fee_history_calculation_error_dict = not_implemented(
         EthModuleTest.test_eth_max_priority_fee_with_fee_history_calculation_error_dict,
@@ -291,16 +294,16 @@ class TestEthereumTesterEthModule(EthModuleTest):
         EthModuleTest.test_eth_sign_transaction_ens_names, ValueError
     )
     test_eth_submit_hashrate = not_implemented(
-        EthModuleTest.test_eth_submit_hashrate, NotImplementedError
+        EthModuleTest.test_eth_submit_hashrate, MethodUnavailable
     )
     test_eth_submit_work = not_implemented(
-        EthModuleTest.test_eth_submit_work, NotImplementedError
+        EthModuleTest.test_eth_submit_work, MethodUnavailable
     )
     test_eth_get_raw_transaction = not_implemented(
-        EthModuleTest.test_eth_get_raw_transaction, KeyError
+        EthModuleTest.test_eth_get_raw_transaction, MethodUnavailable
     )
     test_eth_get_raw_transaction_raises_error = not_implemented(
-        EthModuleTest.test_eth_get_raw_transaction, KeyError
+        EthModuleTest.test_eth_get_raw_transaction, MethodUnavailable
     )
     test_eth_get_raw_transaction_by_block = not_implemented(
         EthModuleTest.test_eth_get_raw_transaction_by_block, ValueError
@@ -589,12 +592,12 @@ class TestEthereumTesterNetModule(NetModuleTest):
 class TestEthereumTesterPersonalModule(GoEthereumPersonalModuleTest):
     test_personal_sign_and_ecrecover = not_implemented(
         GoEthereumPersonalModuleTest.test_personal_sign_and_ecrecover,
-        NotImplementedError,
+        MethodUnavailable,
     )
 
     test_personal_list_wallets = not_implemented(
         GoEthereumPersonalModuleTest.test_personal_list_wallets,
-        KeyError,
+        MethodUnavailable,
     )
 
     # Test overridden here since eth-tester returns False

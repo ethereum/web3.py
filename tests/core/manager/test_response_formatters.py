@@ -39,7 +39,6 @@ METHOD_NOT_FOUND_RESP_FORMAT = {
         "code": -32601,
         "message": "the method eth_getTransactionByHash does not exist/is not "
         "available",
-        "data": MethodUnavailable("method not found"),
     },
 }
 ETH_TESTER_METHOD_NOT_FOUND_RESP_FORMAT = {

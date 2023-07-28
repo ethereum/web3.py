@@ -35,6 +35,7 @@ from web3.providers.async_base import (
 )
 from web3.types import (
     RPCEndpoint,
+    RPCError,
     RPCResponse,
 )
 
@@ -141,11 +142,7 @@ def _make_response(result: Any, message: str = "") -> RPCResponse:
             {
                 "id": 1,
                 "jsonrpc": "2.0",
-                "error": {
-                    "code": -32601,
-                    "message": error,
-                    "data": result,
-                },
+                "error": RPCError({"code": -32601, "message": error, "data": None}),
             }
         )
 

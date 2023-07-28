@@ -69,7 +69,6 @@ def test_eth_tester_provider_properly_handles_eth_tester_key_error_messages():
     response = provider.make_request(RPCEndpoint("eth_blockNumber"), [])
 
     assert response["error"]["code"] == -32601
-    assert isinstance(response["error"]["data"], KeyError)
     assert response["error"]["message"] == "Unknown RPC Endpoint: eth_blockNumber"
 
 
@@ -85,7 +84,6 @@ def test_eth_tester_provider_properly_handles_eth_tester_not_implmented_error_me
     response = provider.make_request(RPCEndpoint("eth_blockNumber"), [])
 
     assert response["error"]["code"] == -32601
-    assert isinstance(response["error"]["data"], NotImplementedError)
     assert (
         response["error"]["message"]
         == "RPC Endpoint has not been implemented: eth_blockNumber"
