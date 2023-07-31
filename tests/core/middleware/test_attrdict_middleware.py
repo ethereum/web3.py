@@ -1,6 +1,7 @@
 import pytest
 
 from web3 import (
+    AsyncWeb3,
     EthereumTesterProvider,
     Web3,
 )
@@ -98,7 +99,7 @@ def test_no_attrdict_middleware_does_not_convert_dicts_to_attrdict():
 
 @pytest.mark.asyncio
 async def test_async_attrdict_middleware_default_for_async_ethereum_tester_provider():
-    async_w3 = Web3(AsyncEthereumTesterProvider())
+    async_w3 = AsyncWeb3(AsyncEthereumTesterProvider())
     assert async_w3.middleware_onion.get("attrdict") == async_attrdict_middleware
 
 
@@ -132,7 +133,7 @@ async def test_async_attrdict_middleware_is_recursive(async_w3):
 
 @pytest.mark.asyncio
 async def test_no_async_attrdict_middleware_does_not_convert_dicts_to_attrdict():
-    async_w3 = Web3(AsyncEthereumTesterProvider())
+    async_w3 = AsyncWeb3(AsyncEthereumTesterProvider())
 
     async_w3.middleware_onion.inject(
         await async_construct_result_generator_middleware(
