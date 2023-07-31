@@ -137,22 +137,16 @@ class EthereumTesterProvider(BaseProvider):
 
 
 def _make_response(result: Any, message: str = "") -> RPCResponse:
-    def _error_response(error: str) -> RPCResponse:
+    if isinstance(result, Exception):
         return RPCResponse(
             {
                 "id": 1,
                 "jsonrpc": "2.0",
-                "error": RPCError({"code": -32601, "message": error, "data": None}),
+                "error": RPCError({"code": -32601, "message": message, "data": None}),
             }
         )
 
-    def _result_response(result: Any) -> RPCResponse:
-        return RPCResponse({"id": 1, "jsonrpc": "2.0", "result": result})
-
-    if isinstance(result, Exception):
-        return _error_response(message)
-    else:
-        return _result_response(result)
+    return RPCResponse({"id": 1, "jsonrpc": "2.0", "result": result})
 
 
 def _make_request(
