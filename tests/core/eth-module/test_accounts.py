@@ -26,10 +26,10 @@ from hexbytes import (
 
 from web3 import (
     Account,
+    AsyncWeb3,
     Web3,
 )
 from web3.eth import (
-    AsyncEth,
     BaseEth,
 )
 from web3.providers.eth_tester import (
@@ -557,7 +557,7 @@ def test_eth_account_sign_and_send_EIP155_transaction_to_eth_tester(
 
 @pytest.fixture()
 def async_w3():
-    return Web3(AsyncEthereumTesterProvider(), modules={"eth": [AsyncEth]})
+    return AsyncWeb3(AsyncEthereumTesterProvider())
 
 
 @patch("web3.eth.BaseEth.account", "wired via BaseEth")
