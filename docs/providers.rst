@@ -245,7 +245,7 @@ Usage
 ~~~~~
 
 The ``AsyncWeb3`` class may be used as a context manager, utilizing the ``async with``
-syntax, when connecting via ``persistent_connection()`` using the
+syntax, when connecting via ``persistent_websocket()`` using the
 ``WebsocketProviderV2``. This will automatically close the connection when the context
 manager exits. A similar example, using the ``websockets`` connection as an
 asynchronous context manager, can be found in the `websockets connection`_ docs.
@@ -293,7 +293,7 @@ asynchronous context manager, can be found in the `websockets connection`_ docs.
 
 
 The ``AsyncWeb3`` class may also be used as an asynchronous iterator, utilizing the
-``async for`` syntax, when connecting via ``persistent_connection()`` using the
+``async for`` syntax, when connecting via ``persistent_websocket()`` using the
 ``WebsocketProviderV2``. This may be used to set up an indefinite websocket connection
 and reconnect automatically if the connection is lost. A similar example, using the
 ``websockets`` connection as an asynchronous iterator, can be found in the
