@@ -35,6 +35,7 @@ from web3.providers.async_base import (
 )
 from web3.types import (
     RPCEndpoint,
+    RPCError,
     RPCResponse,
 )
 
@@ -135,6 +136,19 @@ class EthereumTesterProvider(BaseProvider):
         return True
 
 
+def _make_response(result: Any, message: str = "") -> RPCResponse:
+    if isinstance(result, Exception):
+        return RPCResponse(
+            {
+                "id": 1,
+                "jsonrpc": "2.0",
+                "error": RPCError({"code": -32601, "message": message, "data": None}),
+            }
+        )
+
+    return RPCResponse({"id": 1, "jsonrpc": "2.0", "result": result})
+
+
 def _make_request(
     method: RPCEndpoint,
     params: Any,
@@ -151,14 +165,12 @@ def _make_request(
 
     try:
         delegator = api_endpoints[namespace][endpoint]
-    except KeyError:
-        return RPCResponse({"error": f"Unknown RPC Endpoint: {method}"})
+    except KeyError as e:
+        return _make_response(e, f"Unknown RPC Endpoint: {method}")
     try:
         response = delegator(ethereum_tester_instance, params)
-    except NotImplementedError:
-        return RPCResponse(
-            {"error": f"RPC Endpoint has not been implemented: {method}"}
-        )
+    except NotImplementedError as e:
+        return _make_response(e, f"RPC Endpoint has not been implemented: {method}")
     except TransactionFailed as e:
         first_arg = e.args[0]
         try:
@@ -175,6 +187,4 @@ def _make_request(
             reason = first_arg
         raise TransactionFailed(f"execution reverted: {reason}")
     else:
-        return {
-            "result": response,
-        }
+        return _make_response(response)

@@ -62,3 +62,29 @@ def test_eth_tester_provider_properly_handles_eth_tester_error_messages(
         TransactionFailed, match="execution reverted: The error message."
     ):
         provider.make_request(RPCEndpoint("eth_blockNumber"), [])
+
+
+def test_eth_tester_provider_properly_handles_eth_tester_key_error_messages():
+    provider = EthereumTesterProvider(api_endpoints={})
+    response = provider.make_request(RPCEndpoint("eth_blockNumber"), [])
+
+    assert response["error"]["code"] == -32601
+    assert response["error"]["message"] == "Unknown RPC Endpoint: eth_blockNumber"
+
+
+def test_eth_tester_provider_properly_handles_eth_tester_not_implmented_error_messages(
+    mocker,
+):
+    mocker.patch(
+        "eth_tester.main.EthereumTester.get_block_by_number",
+        side_effect=NotImplementedError("The error message."),
+    )
+
+    provider = EthereumTesterProvider()
+    response = provider.make_request(RPCEndpoint("eth_blockNumber"), [])
+
+    assert response["error"]["code"] == -32601
+    assert (
+        response["error"]["message"]
+        == "RPC Endpoint has not been implemented: eth_blockNumber"
+    )
