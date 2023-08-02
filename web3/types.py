@@ -26,6 +26,7 @@ from hexbytes import (
 
 from web3._utils.compat import (
     Literal,
+    NotRequired,
     TypedDict,
 )
 from web3._utils.function_identifiers import (
@@ -129,7 +130,7 @@ class EventData(TypedDict):
 class RPCError(TypedDict):
     code: int
     message: str
-    data: Optional[str]
+    data: NotRequired[str]
 
 
 # syntax b/c "from" keyword not allowed w/ class construction
