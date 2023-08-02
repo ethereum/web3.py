@@ -1,1 +1,0 @@
-Return structured JSON-RPC errors for missing or unimplemented eth-tester methods.

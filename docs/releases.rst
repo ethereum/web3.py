@@ -10,6 +10,35 @@ v6 Breaking Changes Summary
 
 .. towncrier release notes start
 
+web3.py v6.8.0 (2023-08-02)
+---------------------------
+
+Bugfixes
+~~~~~~~~
+
+- Fix the type for the optional param asking for "full transactions" when subscribing to ``newPendingTransactions`` via ``eth_subscribe`` to ``bool``. (`#3067 <https://github.com/ethereum/web3.py/issues/3067>`__)
+
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Change docs to reflect AsyncHTTPProvider does accept ENS names now (`#3070 <https://github.com/ethereum/web3.py/issues/3070>`__)
+
+
+Features
+~~~~~~~~
+
+- Return structured JSON-RPC errors for missing or unimplemented eth-tester methods. (`#3061 <https://github.com/ethereum/web3.py/issues/3061>`__)
+- ENS name-to-address support for ``eth_subscribe``. (`#3066 <https://github.com/ethereum/web3.py/issues/3066>`__)
+- Asynchronous iterator support for ``AsyncWeb3`` with ``WebsocketProviderV2`` using ``async for`` syntax. (`#3067 <https://github.com/ethereum/web3.py/issues/3067>`__)
+
+
+Internal Changes - for web3.py Contributors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Minor fixes to type hinting in the core tests setup fixtures. (`#3069 <https://github.com/ethereum/web3.py/issues/3069>`__)
+
+
 web3.py v6.7.0 (2023-07-26)
 ---------------------------
 

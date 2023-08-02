@@ -1,1 +1,0 @@
-Fix the type for the optional param asking for "full transactions" when subscribing to ``newPendingTransactions`` via ``eth_subscribe`` to ``bool``.

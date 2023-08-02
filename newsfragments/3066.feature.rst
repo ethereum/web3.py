@@ -1,1 +1,0 @@
-ENS name-to-address support for ``eth_subscribe``.
