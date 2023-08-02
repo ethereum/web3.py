@@ -10,6 +10,7 @@
 
 from typing_extensions import (  # noqa: F401
     Literal,  # py38
+    NotRequired,  # py311
     Protocol,  # py38
     TypedDict,  # py38
     Self,  # py311

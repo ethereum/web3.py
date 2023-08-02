@@ -1,0 +1,1 @@
+Change docs to reflect AsyncHTTPProvider does accept ENS names now
