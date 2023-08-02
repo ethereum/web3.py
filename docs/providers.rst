@@ -359,11 +359,6 @@ AsyncHTTPProvider
     `aiohttp <https://docs.aiohttp.org/en/stable/>`_ library for making requests.
 
 
-    The ``AsyncHTTPProvider`` has almost all the same functionality available as the ``HTTPProvider``.
-    The only documented exceptions to this are:
-
-
-    - **ENS Address Lookup** - It can't resolve :class:`ENS` addresses yet. 
     - **Available Middleware** - These middlewares have async versions available:
 
         - :meth:`Attribute Dict Middleware <web3.middleware.async_attrdict_middleware>`
@@ -373,7 +368,9 @@ AsyncHTTPProvider
         - :meth:`Local Filter Middleware <web3.middleware.async_local_filter_middleware>`
         - :meth:`Simple Cache Middleware <web3.middleware.async_construct_simple_cache_middleware>`
         - :meth:`Stalecheck Middleware <web3.middleware.async_make_stalecheck_middleware>`
-        - :meth:`Validation Middleware <web3.middleware.async_validation>`
+        - :meth:`Validation Middleware <web3.middleware.async_validation_middleware>`
+        - :meth:`Name to Address Middleware <web3.middleware.async_name_to_address_middleware>`
+
 
 
 .. py:currentmodule:: web3.providers.eth_tester
