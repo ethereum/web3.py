@@ -142,7 +142,7 @@ def _make_response(result: Any, message: str = "") -> RPCResponse:
             {
                 "id": 1,
                 "jsonrpc": "2.0",
-                "error": RPCError({"code": -32601, "message": message, "data": None}),
+                "error": RPCError({"code": -32601, "message": message}),
             }
         )
 
