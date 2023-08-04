@@ -41,6 +41,10 @@ Frameworks and Tooling
   Brownie lacks active maintenance. 
   `See migration guide to ApeWorX <https://academy.apeworx.io/articles/porting-brownie-to-ape>`__.
 
+Tutorials
+---------
+
+- `Configuring Web3 for JSON-RPC fallback and MEV blocker providers <https://web3-ethereum-defi.readthedocs.io/tutorials/multi-rpc-configuration.html>`__
 
 Smart Contract Programming Languages
 ------------------------------------
