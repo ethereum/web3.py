@@ -32,8 +32,7 @@ If you're on this page, you're likely looking for an answer to this question:
    weth_contract = w3.eth.contract(address=WETH_ADDRESS, abi=WETH_ABI)
 
    # fetch transfer events in the last block
-   params = {"fromBlock": w3.eth.block_number}
-   logs = weth_contract.events.Transfer().get_logs(params)
+   logs = weth_contract.events.Transfer().get_logs(fromBlock=w3.eth.block_number)
 
    for log in logs:
       print(f"Transfer of {w3.from_wei(log.args.wad, 'ether')} WETH from {log.args.src} to {log.args.dst}")
