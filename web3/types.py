@@ -148,7 +148,7 @@ TxData = TypedDict(
         "maxFeePerGas": Wei,
         "maxPriorityFeePerGas": Wei,
         "hash": HexBytes,
-        "input": HexStr,
+        "input": HexBytes,
         "nonce": Nonce,
         "r": HexBytes,
         "s": HexBytes,
