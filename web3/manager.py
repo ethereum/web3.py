@@ -312,38 +312,40 @@ class RequestManager:
             self.logger.debug("No cache key found for response, returning raw response")
             yield response
 
-        if request_info.method == "eth_subscribe" and "result" in response.keys():
-            # if response for the initial eth_subscribe request, which returns the
-            # subscription id
-            subscription_id = response["result"]
-            cache_key = generate_cache_key(subscription_id)
-            if cache_key not in self._provider._async_response_processing_cache:
-                # cache by subscription id in order to process each response for the
-                # subscription as it comes in
-                self._provider.logger.debug(
-                    f"Caching eth_subscription info:\n    cache_key={cache_key},\n    "
-                    f"request_info={request_info.__dict__}"
-                )
-                self._provider._async_response_processing_cache.cache(
-                    cache_key, request_info
-                )
+        else:
+            if request_info.method == "eth_subscribe" and "result" in response.keys():
+                # if response for the initial eth_subscribe request, which returns the
+                # subscription id
+                subscription_id = response["result"]
+                cache_key = generate_cache_key(subscription_id)
+                if cache_key not in self._provider._async_response_processing_cache:
+                    # cache by subscription id in order to process each response for the
+                    # subscription as it comes in
+                    self._provider.logger.debug(
+                        f"Caching eth_subscription info:\n    "
+                        f"cache_key={cache_key},\n    "
+                        f"request_info={request_info.__dict__}"
+                    )
+                    self._provider._async_response_processing_cache.cache(
+                        cache_key, request_info
+                    )
 
-        # pipe response back through middleware response processors
-        if len(request_info.middleware_response_processors) > 0:
-            response = pipe(response, *request_info.middleware_response_processors)
+            # pipe response back through middleware response processors
+            if len(request_info.middleware_response_processors) > 0:
+                response = pipe(response, *request_info.middleware_response_processors)
 
-        (
-            result_formatters,
-            error_formatters,
-            null_formatters,
-        ) = request_info.response_formatters
-        partly_formatted_response = self.formatted_response(
-            response,
-            request_info.params,
-            error_formatters,
-            null_formatters,
-        )
-        yield apply_result_formatters(result_formatters, partly_formatted_response)
+            (
+                result_formatters,
+                error_formatters,
+                null_formatters,
+            ) = request_info.response_formatters
+            partly_formatted_response = self.formatted_response(
+                response,
+                request_info.params,
+                error_formatters,
+                null_formatters,
+            )
+            yield apply_result_formatters(result_formatters, partly_formatted_response)
 
 
 class _AsyncPersistentRecvStream:
