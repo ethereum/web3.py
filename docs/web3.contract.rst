@@ -261,7 +261,7 @@ Each Contract Factory exposes the following methods.
     - ``fromBlock`` is a mandatory field. Defines the starting block (exclusive) filter block range. It can be either the starting block number, or 'latest' for the last mined block, or 'pending' for unmined transactions. In the case of ``fromBlock``, 'latest' and 'pending' set the 'latest' or 'pending' block as a static value for the starting filter block.
     - ``toBlock`` optional. Defaults to 'latest'. Defines the ending block (inclusive) in the filter block range.  Special values 'latest' and 'pending' set a dynamic range that always includes the 'latest' or 'pending' blocks for the filter's upper block range.
     - ``address`` optional. Defaults to the contract address. The filter matches the event logs emanating from ``address``.
-    - ``argument_filters``, optional. Expects a dictionary of argument names and values. When provided event logs are filtered for the event argument values. Event arguments can be both indexed or unindexed. Indexed values with be translated to their corresponding topic arguments. Unindexed arguments will be filtered using a regular expression.
+    - ``argument_filters``, optional. Expects a dictionary of argument names and values. When provided event logs are filtered for the event argument values. Event arguments can be both indexed or unindexed. Indexed values will be translated to their corresponding topic arguments. Unindexed arguments will be filtered using a regular expression.
     - ``topics`` optional, accepts the standard JSON-RPC topics argument.  See the JSON-RPC documentation for `eth_newFilter <https://github.com/ethereum/wiki/wiki/JSON-RPC#eth_newfilter>`_ more information on the ``topics`` parameters.
 
 .. py:classmethod:: Contract.events.your_event_name.build_filter()
@@ -933,12 +933,15 @@ For example:
    :noindex:
 
    Fetches all logs for a given event within the specified block range or block hash.
+
     ``argument_filters`` is an optional dictionary argument that can be used to filter
     for logs where the event's argument values match the values provided in the
     dictionary. The keys must match the event argument names as they exist in the ABI.
     The values can either be a single value or a list of values to match against. If a
     list is provided, the logs will be filtered for any logs that match any of the
-    values in the list.
+    values in the list. Indexed arguments are filtered pre-call by building specific
+    ``topics`` to filter for. Non-indexed arguments are filtered by the library after
+    the logs are fetched from the node.
 
     .. code-block:: python
 

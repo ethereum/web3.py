@@ -224,7 +224,7 @@ class BaseContractEvent:
 
         # Construct JSON-RPC raw filter presentation based on human readable
         # Python descriptions. Namely, convert event names to their keccak signatures
-        data_filter_set, event_filter_params = construct_event_filter_params(
+        _, event_filter_params = construct_event_filter_params(
             abi,
             self.w3.codec,
             contract_address=self.address,
@@ -262,6 +262,53 @@ class BaseContractEvent:
                     "for dynamic sized types. See the build_filter method for setting "
                     "filters with the match_any method."
                 )
+
+    @staticmethod
+    def _process_get_logs_argument_filters(
+        event_abi: ABIEvent,
+        event_logs: Sequence[EventData],
+        argument_filters: Optional[Dict[str, Any]],
+    ) -> Iterable[EventData]:
+        if (
+            argument_filters is None
+            or len(event_logs) == 0
+            or
+            # If all args in ``argument_filters`` are indexed, then the logs are
+            # already filtered by the node in the ``eth_getLogs`` call.
+            all(
+                input_arg["indexed"]
+                for input_arg in event_abi["inputs"]
+                if input_arg["name"] in argument_filters.keys()
+            )
+        ):
+            return event_logs
+
+        filtered_logs_by_non_indexed_args = []
+
+        for log in event_logs:
+            match = False
+            for arg, match_values in argument_filters.items():
+                if not is_list_like(match_values):
+                    match_values = [match_values]
+
+                for abi_arg in event_abi["inputs"]:
+                    if abi_arg["name"] == arg:
+                        if (
+                            # isolate ``string`` values to support substrings
+                            abi_arg["type"] == "string"
+                            and any(val in log["args"][arg] for val in match_values)
+                            or (
+                                # otherwise, do direct value comparison
+                                abi_arg["type"] != "string"
+                                and log["args"][arg] in match_values
+                            )
+                        ):
+                            filtered_logs_by_non_indexed_args.append(log)
+                            match = True
+                            break
+                if match:
+                    break
+        return filtered_logs_by_non_indexed_args
 
     @combomethod
     def _set_up_filter_builder(

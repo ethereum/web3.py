@@ -98,7 +98,11 @@ def construct_event_filter_params(
         if is_list_like(address):
             filter_params["address"] = [address] + [contract_address]
         elif is_string(address):
-            filter_params["address"] = [address, contract_address]
+            filter_params["address"] = (
+                [address, contract_address]
+                if address != contract_address
+                else [address]
+            )
         else:
             raise ValueError(
                 f"Unsupported type for `address` parameter: {type(address)}"
