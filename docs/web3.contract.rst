@@ -254,8 +254,7 @@ Each Contract Factory exposes the following methods.
 
 .. _contract_create_filter:
 
-.. py:classmethod:: Contract.events.your_event_name.create_filter(fromBlock=block, toBlock=block, \
-                    argument_filters={"arg1": "value"}, topics=[])
+.. py:classmethod:: Contract.events.your_event_name.create_filter(fromBlock=None, toBlock="latest", argument_filters={}, topics=[])
 
     Creates a new event filter, an instance of :py:class:`web3.utils.filters.LogFilter`.
 
@@ -930,17 +929,28 @@ For example:
 
 .. _contract_get_logs:
 
-.. py:method:: ContractEvents.myEvent(*args, **kwargs).get_logs(filter_params, errors=WARN)
+.. py:method:: ContractEvents.myEvent(*args, **kwargs).get_logs(fromBlock=None, toBlock="latest", block_hash=None, argument_filters={})
    :noindex:
 
-   Fetches all logs for a given event within a set of
-   `filter params <https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_newfilter>`_.
+   Fetches all logs for a given event within the specified block range or block hash.
+    ``argument_filters`` is an optional dictionary argument that can be used to filter
+    for logs where the event's argument values match the values provided in the
+    dictionary. The keys must match the event argument names as they exist in the ABI.
+    The values can either be a single value or a list of values to match against. If a
+    list is provided, the logs will be filtered for any logs that match any of the
+    values in the list.
 
     .. code-block:: python
 
         myContract = web3.eth.contract(address=contract_address, abi=contract_abi)
-        filter_params = {"fromBlock": "latest"}
-        myContract.events.myEvent().get_logs(filter_params)
+
+        # get ``myEvent`` logs from block 1337 to block 2337 where the value for the
+        # event argument "eventArg1" is either 1, 2, or 3
+        myContract.events.myEvent().get_logs(
+            argument_filters={"eventArg1": [1, 2, 3]},
+            fromBlock=1337,
+            toBlock=2337,
+        )
 
 .. _process_receipt:
 
