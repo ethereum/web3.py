@@ -182,7 +182,7 @@ class ContractEvent(BaseContractEvent):
             event_abi, argument_filters, fromBlock, toBlock, block_hash
         )
 
-        logs = cast(Sequence[EventData], self.w3.eth.get_logs(_filter_params))
+        logs = self.w3.eth.get_logs(_filter_params)
         # convert raw binary data to Python proxy objects as described by ABI:
         all_event_logs = tuple(
             get_event_data(self.w3.codec, event_abi, entry) for entry in logs

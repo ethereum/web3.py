@@ -18,4 +18,5 @@ EMITTER_ENUM = {
     "LogAddressIndexed": 16,
     "LogAddressNotIndexed": 17,
     "LogStructArgs": 18,
+    "LogIndexedAndNotIndexed": 19,
 }

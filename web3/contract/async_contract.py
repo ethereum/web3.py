@@ -83,7 +83,6 @@ from web3.exceptions import (
     ABIFunctionNotFound,
     NoABIFound,
     NoABIFunctionsFound,
-    Web3ValidationError,
 )
 from web3.types import (
     ABI,
@@ -91,9 +90,6 @@ from web3.types import (
     CallOverride,
     EventData,
     TxParams,
-)
-from web3.utils import (
-    get_abi_input_names,
 )
 
 if TYPE_CHECKING:
@@ -160,8 +156,7 @@ class AsyncContractEvent(BaseContractEvent):
 
         See also: :func:`web3.middleware.filter.local_filter_middleware`.
 
-        :param argument_filters: Filter by argument values. Indexed arguments are
-          filtered by the node while non-indexed arguments are filtered by the library.
+        :param argument_filters:
         :param fromBlock: block number or "latest", defaults to "latest"
         :param toBlock: block number or "latest". Defaults to "latest"
         :param block_hash: block hash. blockHash cannot be set at the
@@ -169,15 +164,6 @@ class AsyncContractEvent(BaseContractEvent):
         :yield: Tuple of :class:`AttributeDict` instances
         """
         event_abi = self._get_event_abi()
-
-        # validate ``argument_filters`` if present
-        if argument_filters is not None:
-            event_arg_names = get_abi_input_names(event_abi)
-            if not all(arg in event_arg_names for arg in argument_filters.keys()):
-                raise Web3ValidationError(
-                    "When filtering by argument names, all argument names must be "
-                    "present in the contract's event ABI."
-                )
 
         # Call JSON-RPC API
         _filter_params = self._get_event_filter_params(
