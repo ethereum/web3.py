@@ -3,6 +3,9 @@ import pytest
 from web3._utils.contract_sources.contract_data._custom_contract_data import (
     EMITTER_ENUM,
 )
+from web3.exceptions import (
+    Web3ValidationError,
+)
 
 
 def test_contract_get_available_events(
@@ -164,6 +167,18 @@ def test_get_logs_argument_filters_indexed_and_non_indexed_args(emitter):
     )
     assert len(logs_filter_non_indexed_uint256_and_string) == 1
     assert logs_filter_non_indexed_uint256_and_string[0] == logs_no_filter[0]
+
+
+def test_get_logs_argument_filters_key_validation(
+    emitter,
+):
+    with pytest.raises(
+        Web3ValidationError,
+        match="all argument names must be present in the contract's event ABI",
+    ):
+        emitter.events.LogIndexedAndNotIndexed.get_logs(
+            argument_filters={"nonExistentKey": "Value shouldn't matter"},
+        )
 
 
 # --- async --- #
@@ -364,3 +379,16 @@ async def test_async_get_logs_argument_filters_indexed_and_non_indexed_args(
     )
     assert len(logs_filter_non_indexed_uint256_and_string) == 1
     assert logs_filter_non_indexed_uint256_and_string[0] == logs_no_filter[0]
+
+
+@pytest.mark.asyncio
+async def test_async_get_logs_argument_filters_key_validation(
+    async_emitter,
+):
+    with pytest.raises(
+        Web3ValidationError,
+        match="all argument names must be present in the contract's event ABI",
+    ):
+        await async_emitter.events.LogIndexedAndNotIndexed.get_logs(
+            argument_filters={"nonExistentKey": "Value shouldn't matter"},
+        )
