@@ -177,12 +177,12 @@ class ContractEvent(BaseContractEvent):
                     "present in the contract's event ABI."
                 )
 
-        # Call JSON-RPC API
         _filter_params = self._get_event_filter_params(
             event_abi, argument_filters, fromBlock, toBlock, block_hash
         )
-
+        # call JSON-RPC API
         logs = self.w3.eth.get_logs(_filter_params)
+
         # convert raw binary data to Python proxy objects as described by ABI:
         all_event_logs = tuple(
             get_event_data(self.w3.codec, event_abi, entry) for entry in logs

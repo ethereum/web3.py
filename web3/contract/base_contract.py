@@ -115,10 +115,6 @@ from web3.types import (
     TxReceipt,
 )
 
-from ..utils import (
-    get_abi_input_names,
-)
-
 if TYPE_CHECKING:
     from web3 import (  # noqa: F401
         AsyncWeb3,
@@ -273,25 +269,18 @@ class BaseContractEvent:
         event_logs: Sequence[EventData],
         argument_filters: Optional[Dict[str, Any]],
     ) -> Iterable[EventData]:
-        if argument_filters is None or len(event_logs) == 0:
-            return event_logs
-
-        # handle argument filtering for un-indexed args
-        event_arg_names = get_abi_input_names(event_abi)
-        if not all(arg in event_arg_names for arg in argument_filters.keys()):
-            raise TypeError(
-                "When filtering by argument names, all argument names must be "
-                "present in the contract's event ABI."
+        if (
+            argument_filters is None
+            or len(event_logs) == 0
+            or
+            # if no non-indexed args in argument filters, since indexed args are
+            # filtered pre-call to ``eth_getLogs`` by building specific ``topics``.
+            not any(
+                not arg["indexed"]
+                for arg in event_abi["inputs"]
+                if arg["name"] in argument_filters
             )
-
-        if all(
-            input_arg["indexed"]
-            for input_arg in event_abi["inputs"]
-            if input_arg["name"] in argument_filters.keys()
         ):
-            # After validating args, if all args in ``argument_filters`` are indexed,
-            # then the logs are already filtered by the node in the ``eth_getLogs``
-            # call.
             return event_logs
 
         filtered_logs_by_non_indexed_args = []
@@ -319,6 +308,7 @@ class BaseContractEvent:
                             break
                 if match:
                     break
+
         return filtered_logs_by_non_indexed_args
 
     @combomethod
