@@ -40,6 +40,8 @@ def emitter_contract_data():
 
 
 class LogFunctions:
+    # These appear to be for a very specific test and this doesn't need to be updated
+    # for every event in the emitter contract. That ends up breaking that test.
     LogAnonymous = 0
     LogNoArguments = 1
     LogSingleArg = 2
@@ -99,6 +101,7 @@ class LogTopics:
         "LogAddressNotIndexed(address,address)"
     )
     LogStructArgs = event_signature_to_log_topic("LogStructArgs(uint256,tuple)")
+    LogIndexedAndNotIndexed = event_signature_to_log_topic("LogIndexedAndNotIndexed()")
 
 
 @pytest.fixture(scope="session")
