@@ -1,0 +1,1 @@
+Enable filtering by non-indexed arguments for contract event ``get_logs()``.
