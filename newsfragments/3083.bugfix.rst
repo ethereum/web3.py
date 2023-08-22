@@ -1,0 +1,1 @@
+Only release ``async_lock`` if it's locked to begin with.

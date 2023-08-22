@@ -18,4 +18,5 @@ async def async_lock(
         await loop.run_in_executor(thread_pool, lock.acquire)
         yield
     finally:
-        lock.release()
+        if lock.locked():
+            lock.release()
