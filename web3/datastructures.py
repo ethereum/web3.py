@@ -261,9 +261,8 @@ class NamedElementOnion(Mapping[TKey, TValue]):
 
     def __add__(self, other: Any) -> "NamedElementOnion[TKey, TValue]":
         if not isinstance(other, NamedElementOnion):
-            raise NotImplementedError(
-                "You can only combine with another NamedElementOnion"
-            )
+            # you can only combine with another ``NamedElementOnion``
+            return NotImplemented
         combined = self._queue.copy()
         combined.update(other._queue)
         return NamedElementOnion(cast(List[Any], combined.items()))
