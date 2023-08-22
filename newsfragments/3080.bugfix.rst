@@ -1,0 +1,1 @@
+Return ``NotImplemented`` constant, rather than raising ``NotImplementedError`` for ``NamedElementOnion.__add__()``, based on Python standards.
