@@ -164,7 +164,7 @@ class AsyncContractEvent(BaseContractEvent):
           filtered by the node while non-indexed arguments are filtered by the library.
         :param fromBlock: block number or "latest", defaults to "latest"
         :param toBlock: block number or "latest". Defaults to "latest"
-        :param block_hash: block hash. blockHash cannot be set at the
+        :param block_hash: block hash. Cannot be set at the
           same time as fromBlock or toBlock
         :yield: Tuple of :class:`AttributeDict` instances
         """
