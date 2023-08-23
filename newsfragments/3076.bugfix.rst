@@ -1,1 +1,0 @@
-Re-expose some websockets constants found in ``web3.providers.websocket.websocket`` via ``web3.providers.websocket``.

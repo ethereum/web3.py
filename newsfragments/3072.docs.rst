@@ -1,1 +1,0 @@
-Add MEV blocking tutorial to Resources docs page

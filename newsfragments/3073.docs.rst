@@ -1,1 +1,0 @@
-Fix documentation around current state of ``get_logs()`` usage and arguments.

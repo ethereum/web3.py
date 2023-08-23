@@ -1,1 +1,0 @@
-Fix an issue with ``WebsocketProviderV2`` when responses to a request aren't found in the cache (``None`` values).

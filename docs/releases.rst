@@ -10,6 +10,27 @@ v6 Breaking Changes Summary
 
 .. towncrier release notes start
 
+web3.py v6.9.0 (2023-08-23)
+---------------------------
+
+Bugfixes
+~~~~~~~~
+
+- Fix the type for ``input`` in ``TxData`` from ``HexStr`` -> ``HexBytes``. (`#3074 <https://github.com/ethereum/web3.py/issues/3074>`__)
+- Fix an issue with ``WebsocketProviderV2`` when responses to a request aren't found in the cache (``None`` values). (`#3075 <https://github.com/ethereum/web3.py/issues/3075>`__)
+- Re-expose some websockets constants found in ``web3.providers.websocket.websocket`` via ``web3.providers.websocket``. (`#3076 <https://github.com/ethereum/web3.py/issues/3076>`__)
+- Return ``NotImplemented`` constant, rather than raising ``NotImplementedError`` for ``NamedElementOnion.__add__()``, based on Python standards. (`#3080 <https://github.com/ethereum/web3.py/issues/3080>`__)
+- Only release ``async_lock`` if it's locked to begin with. (`#3083 <https://github.com/ethereum/web3.py/issues/3083>`__)
+
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Add MEV blocking tutorial to Resources docs page (`#3072 <https://github.com/ethereum/web3.py/issues/3072>`__)
+- Fix documentation around current state of ``get_logs()`` usage and arguments. (`#3073 <https://github.com/ethereum/web3.py/issues/3073>`__)
+- Add an Ape hackathon kit to Resources documenation page (`#3082 <https://github.com/ethereum/web3.py/issues/3082>`__)
+
+
 web3.py v6.8.0 (2023-08-02)
 ---------------------------
 
