@@ -189,7 +189,7 @@ class AsyncEth(BaseEth):
         """
         try:
             return await self._max_priority_fee()
-        except ValueError:
+        except (ValueError, MethodUnavailable):
             warnings.warn(
                 "There was an issue with the method eth_maxPriorityFeePerGas. "
                 "Calculating using eth_feeHistory."
