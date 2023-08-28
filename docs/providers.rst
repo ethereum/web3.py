@@ -313,6 +313,7 @@ and reconnect automatically if the connection is lost. A similar example, using 
     ...         WebsocketProviderV2(f"ws://127.0.0.1:8546")
     ...     ):
     ...         try:
+    ...             await w3.provider.connect()
     ...             ...
     ...         except websockets.ConnectionClosed:
     ...             continue
