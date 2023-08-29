@@ -6,6 +6,10 @@ from eth_abi import (
 from eth_utils import (
     to_bytes,
 )
+from jsonschema import (
+    ValidationError,
+    validate,
+)
 
 from web3.exceptions import (
     ContractCustomError,
@@ -16,6 +20,61 @@ from web3.exceptions import (
 from web3.types import (
     RPCResponse,
 )
+
+# https://www.jsonrpc.org/specification#response_object
+JSON_RPC_RESPONSE_SCHEMA = {
+    "title": "JSON-RPC 2.0 Response Schema",
+    "description": "A JSON-RPC 2.0 response message",
+    "allOf": [
+        {
+            "type": "object",
+            "properties": {
+                "jsonrpc": {"type": "string", "enum": ["2.0"]},
+                "id": {
+                    "oneOf": [{"type": "string"}, {"type": "integer"}, {"type": "null"}]
+                },
+            },
+            "required": ["jsonrpc", "id"],
+        },
+        {
+            "oneOf": [
+                {
+                    "type": "object",
+                    "properties": {"result": {}, "jsonrpc": {}, "id": {}},
+                    "required": ["result"],
+                    "additionalProperties": False,
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "error": {
+                            "type": "object",
+                            "properties": {
+                                "code": {"type": "integer"},
+                                "message": {"type": ["string", "null"]},
+                                "data": {
+                                    "anyOf": [
+                                        {"type": "string"},
+                                        {"type": "number"},
+                                        {"type": "boolean"},
+                                        {"type": "null"},
+                                        {"type": "object"},
+                                        {"type": "array"},
+                                    ]
+                                },
+                            },
+                            "required": ["code", "message"],
+                        },
+                        "jsonrpc": {},
+                        "id": {},
+                    },
+                    "required": ["error"],
+                    "additionalProperties": False,
+                },
+            ]
+        },
+    ],
+}
 
 # func selector for "Error(string)"
 SOLIDITY_ERROR_FUNC_SELECTOR = "0x08c379a0"
@@ -49,67 +108,46 @@ PANIC_ERROR_CODES = {
     "function type.",
 }
 
+MISSING_DATA = "no data"
 
-def raise_contract_logic_error_on_revert(response: RPCResponse) -> RPCResponse:
+
+def _parse_openethereum_hex_error(data: str) -> str:
     """
-    Reverts contain a `data` attribute with the following layout:
-        "Reverted "
-        Function selector for Error(string): 08c379a (4 bytes)
-        Data offset: 32 (32 bytes)
-        String length (32 bytes)
-        Reason string (padded, use string length from above to get meaningful part)
-
-    See also https://solidity.readthedocs.io/en/v0.6.3/control-structures.html#revert
+    Parse Parity/OpenEthereum error from the data.
+    "Reverted", function selector and offset are always the same for revert errors
     """
-    if not isinstance(response["error"], dict):
-        raise ValueError("Error expected to be a dict")
+    prefix = f"Reverted {SOLIDITY_ERROR_FUNC_SELECTOR}"
+    data_offset = ("00" * 31) + "20"  # 0x0000...0020 (32 bytes)
+    revert_pattern = prefix + data_offset
 
-    data = response["error"].get("data", "")
-    message = response["error"].get("message", "")
+    if data.startswith(revert_pattern):
+        # if common revert pattern
+        string_length = int(data[len(revert_pattern) : len(revert_pattern) + 64], 16)
+        error = data[
+            len(revert_pattern) + 64 : len(revert_pattern) + 64 + string_length * 2
+        ]
+    elif data.startswith("Reverted 0x"):
+        # Special case for this form: 'Reverted 0x...'
+        error = data.split(" ")[1][2:]
 
-    message_present = message is not None and message != ""
+    return error
 
-    if data is None:
-        if message_present:
-            raise ContractLogicError(message)
-        elif not message_present:
-            raise ContractLogicError("execution reverted")
-        else:
-            raise Exception("Unreachable")
 
-    # Ganache case:
-    if isinstance(data, dict) and message_present:
-        raise ContractLogicError(f"execution reverted: {message}", data=data)
-
-    # Parity/OpenEthereum case:
+def _raise_error_from_decoded_revert_data(data: str) -> None:
+    """
+    Decode response error data and raise appropriate exception.
+    """
     if data.startswith("Reverted "):
-        # "Reverted", function selector and offset are always the same for revert errors
-        prefix = f"Reverted {SOLIDITY_ERROR_FUNC_SELECTOR}"
-        data_offset = ("00" * 31) + "20"  # 0x0000...0020 (32 bytes)
-        revert_pattern = prefix + data_offset
-
-        if data.startswith(revert_pattern):
-            # if common revert pattern
-            string_length = int(
-                data[len(revert_pattern) : len(revert_pattern) + 64], 16
-            )
-            reason_as_hex = data[
-                len(revert_pattern) + 64 : len(revert_pattern) + 64 + string_length * 2
-            ]
-        elif data.startswith("Reverted 0x"):
-            # Special case for this form: 'Reverted 0x...'
-            reason_as_hex = data.split(" ")[1][2:]
-        else:
-            raise ContractLogicError("execution reverted", data=data)
-
         try:
-            reason_string = bytes.fromhex(reason_as_hex).decode("utf8")
-            raise ContractLogicError(f"execution reverted: {reason_string}", data=data)
+            reason_string = bytes.fromhex(_parse_openethereum_hex_error(data)).decode(
+                "utf8"
+            )
         except UnicodeDecodeError:
             warnings.warn("Could not decode revert reason as UTF-8", RuntimeWarning)
             raise ContractLogicError("execution reverted", data=data)
 
-    # --- EIP-3668 | CCIP Read --- #
+        raise ContractLogicError(f"execution reverted: {reason_string}", data=data)
+
     if data[:10] == OFFCHAIN_LOOKUP_FUNC_SELECTOR:
         parsed_data_as_bytes = to_bytes(hexstr=data[10:])
         abi_decoded_data = abi.decode(
@@ -120,7 +158,6 @@ def raise_contract_logic_error_on_revert(response: RPCResponse) -> RPCResponse:
         )
         raise OffchainLookup(offchain_lookup_payload, data=data)
 
-    # --- Solidity Panic Error --- #
     if data[:10] == PANIC_ERROR_FUNC_SELECTOR:
         panic_error_code = data[-2:]
         raise ContractPanicError(PANIC_ERROR_CODES[panic_error_code], data=data)
@@ -134,11 +171,50 @@ def raise_contract_logic_error_on_revert(response: RPCResponse) -> RPCResponse:
         # on the ContractCustomError exception
         raise ContractCustomError(data, data=data)
 
-    # Geth case:
-    if message_present and response["error"].get("code", "") == 3:
-        raise ContractLogicError(message, data=data)
-    # Geth Revert without error message case:
-    if message_present and "execution reverted" in message:
-        raise ContractLogicError("execution reverted", data=data)
+
+def raise_contract_logic_error_on_revert(response: RPCResponse) -> RPCResponse:
+    """
+    Reverts contain a `data` attribute with the following layout:
+        "Reverted "
+        Function selector for Error(string): 08c379a (4 bytes)
+        Data offset: 32 (32 bytes)
+        String length (32 bytes)
+        Reason string (padded, use string length from above to get meaningful part)
+
+    See also https://solidity.readthedocs.io/en/v0.6.3/control-structures.html#revert
+    """
+    try:
+        validate(response, JSON_RPC_RESPONSE_SCHEMA)
+    except ValidationError as e:
+        raise ValueError(e.message)
+
+    error = response["error"]
+    if isinstance(error, dict):
+        code = error.get("code")
+        message = error.get("message")
+        message_present = message is not None and message != ""
+        data = error.get("data", MISSING_DATA)
+
+        # noop and return response if error data cannot be parsed
+        if data == MISSING_DATA:
+            return response
+
+        if data is None and message_present:
+            raise ContractLogicError(message, data=data)
+
+        if data is None and not message_present:
+            raise ContractLogicError("execution reverted", data=data)
+
+        if isinstance(data, dict) and message_present:
+            raise ContractLogicError(f"execution reverted: {message}", data=data)
+
+        _raise_error_from_decoded_revert_data(data)
+
+        # Geth Revert with error message and code 3 case:
+        if message_present and code == 3:
+            raise ContractLogicError(message, data=data)
+        # Geth Revert without error message case:
+        if message_present and "execution reverted" in message:
+            raise ContractLogicError("execution reverted", data=data)
 
     return response
