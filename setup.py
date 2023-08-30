@@ -68,7 +68,8 @@ setup(
     url="https://github.com/ethereum/web3.py",
     include_package_data=True,
     install_requires=[
-        "aiohttp>=3.7.4.post0",
+        "aiohttp>=3.7.4.post0;sys_platform!='emscripten'",
+        "micropip;sys_platform=='emscripten'",
         "eth-abi>=4.0.0",
         "eth-account>=0.8.0",
         "eth-hash[pycryptodome]>=0.5.1",
@@ -81,7 +82,7 @@ setup(
         "pywin32>=223;platform_system=='Windows'",
         "requests>=2.16.0",
         "typing-extensions>=4.0.1",
-        "websockets>=10.0.0",
+        "websockets>=10.0.0;sys_platform!='emscripten'",
         "pyunormalize>=15.0.0",
     ],
     python_requires=">=3.7.2",
