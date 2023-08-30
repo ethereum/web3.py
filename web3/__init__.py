@@ -1,7 +1,11 @@
 from eth_account import Account  # noqa: E402,
 import pkg_resources
+import sys
 
 if sys.platform=="emscripten":
+    # pyodide has a built in patcher which makes the requests module work 
+    import pyodide_http
+    pyodide_http.patch_all()
     # asynchronous connections and websockets aren't supported on
     # emscripten yet. 
     # We mock the aiohttp and websockets module so that things import okay

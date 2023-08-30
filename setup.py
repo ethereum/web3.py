@@ -69,7 +69,6 @@ setup(
     include_package_data=True,
     install_requires=[
         "aiohttp>=3.7.4.post0;sys_platform!='emscripten'",
-        "micropip;sys_platform=='emscripten'",
         "eth-abi>=4.0.0",
         "eth-account>=0.8.0",
         "eth-hash[pycryptodome]>=0.5.1",
@@ -84,6 +83,9 @@ setup(
         "typing-extensions>=4.0.1",
         "websockets>=10.0.0;sys_platform!='emscripten'",
         "pyunormalize>=15.0.0",
+        # pyodide includes - unversioned to use the one from pyodide distribution
+        "micropip;sys_platform=='emscripten'",
+        "pyodide-http;sys_platform=='emscripten'"
     ],
     python_requires=">=3.7.2",
     extras_require=extras_require,
