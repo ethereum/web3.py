@@ -242,11 +242,7 @@ class RequestManager:
 
             apply_error_formatters(error_formatters, response)
 
-            # Error dicts can include a message
-            if isinstance(error, dict) and not error.get("message"):
-                raise ValueError(error.get("message"))
-
-            # Error dicts without a message may still include a code
+            # Errors may include a code
             # https://docs.alchemy.com/reference/error-reference#json-rpc-error-codes
             if error.get("code") == METHOD_NOT_FOUND:
                 raise MethodUnavailable(error)

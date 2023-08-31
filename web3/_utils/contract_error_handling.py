@@ -133,9 +133,6 @@ def raise_contract_logic_error_on_revert(response: RPCResponse) -> None:
     message_present = message is not None and message != ""
     data = error.get("data", MISSING_DATA)
 
-    if data == MISSING_DATA:
-        raise ValueError(error)
-
     if data is None and message_present:
         raise ContractLogicError(message, data=data)
 
@@ -153,3 +150,6 @@ def raise_contract_logic_error_on_revert(response: RPCResponse) -> None:
     # Geth Revert without error message case:
     if message_present and "execution reverted" in message:
         raise ContractLogicError("execution reverted", data=data)
+
+    if data == MISSING_DATA:
+        raise ValueError(error)
