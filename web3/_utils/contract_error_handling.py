@@ -6,10 +6,6 @@ from eth_abi import (
 from eth_utils import (
     to_bytes,
 )
-from jsonschema import (
-    ValidationError,
-    validate,
-)
 
 from web3.exceptions import (
     ContractCustomError,
@@ -20,61 +16,6 @@ from web3.exceptions import (
 from web3.types import (
     RPCResponse,
 )
-
-# https://www.jsonrpc.org/specification#response_object
-JSON_RPC_RESPONSE_SCHEMA = {
-    "title": "JSON-RPC 2.0 Response Schema",
-    "description": "A JSON-RPC 2.0 response message",
-    "allOf": [
-        {
-            "type": "object",
-            "properties": {
-                "jsonrpc": {"type": "string", "enum": ["2.0"]},
-                "id": {
-                    "oneOf": [{"type": "string"}, {"type": "integer"}, {"type": "null"}]
-                },
-            },
-            "required": ["jsonrpc", "id"],
-        },
-        {
-            "oneOf": [
-                {
-                    "type": "object",
-                    "properties": {"result": {}, "jsonrpc": {}, "id": {}},
-                    "required": ["result"],
-                    "additionalProperties": False,
-                },
-                {
-                    "type": "object",
-                    "properties": {
-                        "error": {
-                            "type": "object",
-                            "properties": {
-                                "code": {"type": "integer"},
-                                "message": {"type": ["string", "null"]},
-                                "data": {
-                                    "anyOf": [
-                                        {"type": "string"},
-                                        {"type": "number"},
-                                        {"type": "boolean"},
-                                        {"type": "null"},
-                                        {"type": "object"},
-                                        {"type": "array"},
-                                    ]
-                                },
-                            },
-                            "required": ["code", "message"],
-                        },
-                        "jsonrpc": {},
-                        "id": {},
-                    },
-                    "required": ["error"],
-                    "additionalProperties": False,
-                },
-            ]
-        },
-    ],
-}
 
 # func selector for "Error(string)"
 SOLIDITY_ERROR_FUNC_SELECTOR = "0x08c379a0"
@@ -172,7 +113,7 @@ def _raise_error_from_decoded_revert_data(data: str) -> None:
         raise ContractCustomError(data, data=data)
 
 
-def raise_contract_logic_error_on_revert(response: RPCResponse) -> RPCResponse:
+def raise_contract_logic_error_on_revert(response: RPCResponse) -> None:
     """
     Reverts contain a `data` attribute with the following layout:
         "Reverted "
@@ -183,38 +124,32 @@ def raise_contract_logic_error_on_revert(response: RPCResponse) -> RPCResponse:
 
     See also https://solidity.readthedocs.io/en/v0.6.3/control-structures.html#revert
     """
-    try:
-        validate(response, JSON_RPC_RESPONSE_SCHEMA)
-    except ValidationError as e:
-        raise ValueError(e.message)
+    error = response.get("error")
+    if error is None or isinstance(error, str):
+        raise ValueError(error)
 
-    error = response["error"]
-    if isinstance(error, dict):
-        code = error.get("code")
-        message = error.get("message")
-        message_present = message is not None and message != ""
-        data = error.get("data", MISSING_DATA)
+    code = error.get("code")
+    message = error.get("message")
+    message_present = message is not None and message != ""
+    data = error.get("data", MISSING_DATA)
 
-        # noop and return response if error data cannot be parsed
-        if data == MISSING_DATA:
-            return response
+    if data == MISSING_DATA:
+        raise ValueError(error)
 
-        if data is None and message_present:
-            raise ContractLogicError(message, data=data)
+    if data is None and message_present:
+        raise ContractLogicError(message, data=data)
 
-        if data is None and not message_present:
-            raise ContractLogicError("execution reverted", data=data)
+    if data is None and not message_present:
+        raise ContractLogicError("execution reverted", data=data)
 
-        if isinstance(data, dict) and message_present:
-            raise ContractLogicError(f"execution reverted: {message}", data=data)
+    if isinstance(data, dict) and message_present:
+        raise ContractLogicError(f"execution reverted: {message}", data=data)
 
-        _raise_error_from_decoded_revert_data(data)
+    _raise_error_from_decoded_revert_data(data)
 
-        # Geth Revert with error message and code 3 case:
-        if message_present and code == 3:
-            raise ContractLogicError(message, data=data)
-        # Geth Revert without error message case:
-        if message_present and "execution reverted" in message:
-            raise ContractLogicError("execution reverted", data=data)
-
-    return response
+    # Geth Revert with error message and code 3 case:
+    if message_present and code == 3:
+        raise ContractLogicError(message, data=data)
+    # Geth Revert without error message case:
+    if message_present and "execution reverted" in message:
+        raise ContractLogicError("execution reverted", data=data)

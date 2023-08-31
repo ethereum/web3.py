@@ -20,12 +20,19 @@ from eth_utils.toolz import (
 from hexbytes import (
     HexBytes,
 )
+from jsonschema import (
+    ValidationError,
+    validate,
+)
 from websockets.exceptions import (
     ConnectionClosedOK,
 )
 
 from web3._utils.caching import (
     generate_cache_key,
+)
+from web3.constants import (
+    JSON_RPC_RESPONSE_SCHEMA,
 )
 from web3.datastructures import (
     NamedElementOnion,
@@ -75,6 +82,7 @@ if TYPE_CHECKING:
 
 
 NULL_RESPONSES = [None, HexBytes("0x"), "0x"]
+METHOD_NOT_FOUND = -32601
 
 
 def apply_error_formatters(
@@ -205,36 +213,58 @@ class RequestManager:
         error_formatters: Optional[Callable[..., Any]] = None,
         null_result_formatters: Optional[Callable[..., Any]] = None,
     ) -> Any:
+        try:
+            validate(response, JSON_RPC_RESPONSE_SCHEMA)
+        except ValidationError as e:
+            # Required JSON-RPC fields may be missing but response is still parseable
+            # Any other validations that fail should raise BadResponseFormat
+            # Skip raising when the failure is due to the "required" validator
+            if e.validator != "required":
+                raise BadResponseFormat(
+                    "The response was in an unexpected format and unable to be parsed. "
+                    f"The error is: {e.message}. "
+                    f"The raw response is: {response}"
+                )
+
+        if "params" in response:
+            params = response.get("params")
+            result = response["params"].get("result")
+            if params is None or result is None:
+                raise BadResponseFormat(
+                    "The response was in an unexpected format and unable to be parsed. "
+                    f"The raw response is: {response}"
+                )
+
         if "error" in response:
+            error = response.get("error")
+            if error is None or isinstance(error, str):
+                raise ValueError(error)
+
             apply_error_formatters(error_formatters, response)
 
-            # guard against eth-tester case - eth-tester returns a string
-            # with no code, so can't parse what the error is.
-            if isinstance(response["error"], dict):
-                resp_code = response["error"].get("code")
-                if resp_code == -32601:
-                    raise MethodUnavailable(response["error"])
-            raise ValueError(response["error"])
-        # NULL_RESPONSES includes None, so return False here as the default
-        # so we don't apply the null_result_formatters if there is no 'result' key
-        elif response.get("result", False) in NULL_RESPONSES:
-            # null_result_formatters raise either a BlockNotFound
-            # or a TransactionNotFound error, depending on the method called
-            apply_null_result_formatters(null_result_formatters, response, params)
-            return response["result"]
-        elif response.get("result") is not None:
-            return response["result"]
-        elif (
-            # eth_subscribe case
-            response.get("params") is not None
-            and response["params"].get("result") is not None
-        ):
-            return response["params"]["result"]
-        else:
-            raise BadResponseFormat(
-                "The response was in an unexpected format and unable to be parsed. "
-                f"The raw response is: {response}"
-            )
+            # Error dicts can include a message
+            if isinstance(error, dict) and not error.get("message"):
+                raise ValueError(error.get("message"))
+
+            # Error dicts without a message may still include a code
+            # https://docs.alchemy.com/reference/error-reference#json-rpc-error-codes
+            if error.get("code") == METHOD_NOT_FOUND:
+                raise MethodUnavailable(error)
+
+            raise ValueError(error)
+
+        # If response includes an empty value from NULL_RESPONSES,
+        # apply null_result_formatters
+        is_null_result = response.get("result", False) in NULL_RESPONSES
+        if "result" in response:
+            if is_null_result:
+                apply_null_result_formatters(null_result_formatters, response, params)
+            return response.get("result")
+
+        raise BadResponseFormat(
+            "The response was in an unexpected format and unable to be parsed. "
+            f"The raw response is: {response}"
+        )
 
     def request_blocking(
         self,

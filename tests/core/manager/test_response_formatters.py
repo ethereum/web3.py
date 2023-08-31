@@ -175,7 +175,7 @@ def test_formatted_response_raises_errors(
             identity,
             identity,
             BadResponseFormat,
-            f"The response was in an unexpected format and unable to be parsed. The raw response is: {UNEXPECTED_RESPONSE_FORMAT}",  # noqa: E501
+            f"The response was in an unexpected format and unable to be parsed. The error is: {UNEXPECTED_RESPONSE_FORMAT} is not valid under any of the given schemas. The raw response is: {UNEXPECTED_RESPONSE_FORMAT}",  # noqa: E501
         ),
         (
             ANOTHER_UNEXPECTED_RESP_FORMAT,
