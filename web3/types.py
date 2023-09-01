@@ -225,21 +225,16 @@ class BlockData(TypedDict, total=False):
     proofOfAuthorityData: HexBytes
 
 
-class LogEntry(TypedDict):
+class LogReceipt(TypedDict):
     address: ChecksumAddress
     blockHash: HexBytes
     blockNumber: BlockNumber
-    data: HexStr
+    data: HexBytes
     logIndex: int
     topics: Sequence[HexBytes]
     transactionHash: HexBytes
     transactionIndex: int
     removed: bool
-
-
-class LogReceipt(LogEntry):
-    payload: HexBytes
-    topic: HexBytes
 
 
 class SubscriptionResponse(TypedDict):
@@ -255,7 +250,7 @@ class TransactionTypeSubscriptionResponse(SubscriptionResponse):
 
 
 class LogsSubscriptionResponse(SubscriptionResponse):
-    result: LogEntry
+    result: LogReceipt
 
 
 class SyncProgress(TypedDict):
