@@ -4,60 +4,70 @@ import sys
 
 if sys.platform == "emscripten":
     # pyodide has a built in patcher which makes the requests module work
-    import pyodide_http
+    from pyodide_http import patch_all
 
-    pyodide_http.patch_all()
+    patch_all()
     # asynchronous connections and websockets aren't supported on
     # emscripten yet.
     # We mock the aiohttp and websockets module so that things import okay
-    import micropip
+    from micropip import add_mock_package
 
-    micropip.add_mock_package(
+    add_mock_package(
         "aiohttp",
         "1.0.0",
         modules={
             "aiohttp": """
-class ClientSession:
+class __NotImplemented:
     def __init__(self,*args,**argv):
-        raise NotImplementedError("Async web3 functions aren't supported on pyodide yet")
-class ClientResponse:
-    def __init__(self,*args,**argv):
-        raise NotImplementedError("Async web3 functions aren't supported on pyodide yet")
-class ClientTimeout:
-    def __init__(self,*args,**argv):
-        raise NotImplementedError("Async web3 functions aren't supported on pyodide yet")
+        raise NotImplementedError(
+            "Async web3 functions aren't supported on pyodide yet"
+        )
+class ClientSession(__NotImplemented):
+    pass
+class ClientResponse(__NotImplemented):
+    pass
+class ClientTimeout(__NotImplemented):
+    pass
 """
         },
     )
     # mock websockets
-    micropip.add_mock_package(
+    add_mock_package(
         "websockets",
         "1.0.0",
         modules={
             "websockets": "",
             "websockets.legacy": "",
             "websockets.legacy.client": """
-class WebSocketClientProtocol:
+class WebSocketClientProtocol
     def __init__(self,*args,**argv):
-        raise NotImplementedError("Websockets aren't supported on pyodide yet")
+        raise NotImplementedError(
+            "Websockets aren't supported on pyodide yet"
+        )
 """,
             "websockets.client": """
 def connect(*args,**argv):
-        raise NotImplementedError("Websockets aren't supported on pyodide yet")
+        raise NotImplementedError(
+            "Websockets aren't supported on pyodide yet"
+        )
 """,
             "websockets.exceptions": """
 class WebSocketException:
     def __init__(self,*args,**argv):
-        raise NotImplementedError("Websockets aren't supported on pyodide yet")
+        raise NotImplementedError(
+            "Websockets aren't supported on pyodide yet"
+        )
 class ConnectionClosedOK:
     def __init__(self,*args,**argv):
-        raise NotImplementedError("Websockets aren't supported on pyodide yet")
+        raise NotImplementedError(
+            "Websockets aren't supported on pyodide yet"
+        )
 """,
         },
     )
 
 
-from web3.main import (
+from web3.main import (  # noqa: E402
     AsyncWeb3,
     Web3,
 )
