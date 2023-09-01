@@ -113,7 +113,7 @@ def _raise_error_from_decoded_revert_data(data: str) -> None:
         raise ContractCustomError(data, data=data)
 
 
-def raise_contract_logic_error_on_revert(response: RPCResponse) -> None:
+def raise_contract_logic_error_on_revert(response: RPCResponse) -> RPCResponse:
     """
     Reverts contain a `data` attribute with the following layout:
         "Reverted "
@@ -151,5 +151,4 @@ def raise_contract_logic_error_on_revert(response: RPCResponse) -> None:
     if message_present and "execution reverted" in message:
         raise ContractLogicError("execution reverted", data=data)
 
-    if data == MISSING_DATA:
-        raise ValueError(error)
+    return response
