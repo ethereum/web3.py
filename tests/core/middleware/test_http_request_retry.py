@@ -43,7 +43,7 @@ def test_check_if_retry_on_failure_false():
     methods = [
         "eth_sendTransaction",
         "personal_signAndSendTransaction",
-        "personal_sendTRansaction",
+        "personal_sendTransaction",
     ]
 
     for method in methods:

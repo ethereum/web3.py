@@ -62,6 +62,7 @@ whitelist = [
     "eth_getRawTransactionByHash",
     "eth_call",
     "eth_estimateGas",
+    "eth_maxPriorityFeePerGas",
     "eth_newBlockFilter",
     "eth_newPendingTransactionFilter",
     "eth_newFilter",
