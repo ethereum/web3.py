@@ -78,6 +78,15 @@ NULL_RESPONSES = [None, HexBytes("0x"), "0x"]
 METHOD_NOT_FOUND = -32601
 
 
+def _raise_bad_response_format(response: RPCResponse, error: str = "") -> None:
+    error_message = f"The error is: {error}. " if error else ""
+    raise BadResponseFormat(
+        "The response was in an unexpected format and unable to be parsed. "
+        f"{error_message}"
+        f"The raw response is: {response}"
+    )
+
+
 def apply_error_formatters(
     error_formatters: Callable[..., Any],
     response: RPCResponse,
@@ -212,17 +221,11 @@ class RequestManager:
         null_result_formatters: Optional[Callable[..., Any]] = None,
     ) -> Any:
         if "jsonrpc" in response and response["jsonrpc"] != "2.0":
-            raise BadResponseFormat(
-                "The response was in an unexpected format and unable to be parsed. "
-                f'The error is: "jsonrpc" must equal "2.0". '
-                f"The raw response is: {response}"
-            )
+            _raise_bad_response_format(response, '"jsonrpc" must equal "2.0"')
 
         if "id" in response and not isinstance(response["id"], (str, int, None)):
-            raise BadResponseFormat(
-                "The response was in an unexpected format and unable to be parsed. "
-                f'The error is: "id" must be a string, integer or null. '
-                f"The raw response is: {response}"
+            _raise_bad_response_format(
+                response, '"id" must be a string, integer or null'
             )
 
         # Format and validate errors
@@ -235,19 +238,13 @@ class RequestManager:
             # https://docs.alchemy.com/reference/error-reference#json-rpc-error-codes
             code = error.get("code")
             if not isinstance(code, int):
-                raise BadResponseFormat(
-                    "The response was in an unexpected format and unable to be parsed. "
-                    f"The error is: error['code'] must be an integer. "
-                    f"The raw response is: {response}"
-                )
+                _raise_bad_response_format(response, "error['code'] must be an integer")
             elif code == METHOD_NOT_FOUND:
                 raise MethodUnavailable(error)
 
             if not type(error.get("message")) in (str, int, None):
-                raise BadResponseFormat(
-                    "The response was in an unexpected format and unable to be parsed. "
-                    f"The error is: error['message'] must be a string, integer "
-                    f"or null. The raw response is: {response}"
+                _raise_bad_response_format(
+                    response, "error['message'] must be a string, integer or null"
                 )
 
             apply_error_formatters(error_formatters, response)
@@ -270,10 +267,7 @@ class RequestManager:
             return response["params"]["result"]
 
         else:
-            raise BadResponseFormat(
-                "The response was in an unexpected format and unable to be parsed. "
-                f"The raw response is: {response}"
-            )
+            _raise_bad_response_format(response)
 
     def request_blocking(
         self,
