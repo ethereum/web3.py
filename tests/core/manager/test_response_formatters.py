@@ -1,4 +1,5 @@
 import pytest
+import re
 
 from eth_utils.toolz import (
     identity,
@@ -39,6 +40,21 @@ METHOD_NOT_FOUND_RESP_FORMAT = {
         "code": -32601,
         "message": "the method eth_getTransactionByHash does not exist/is not "
         "available",
+    },
+}
+INVALID_CODE_RESP_FORMAT = {
+    "jsonrpc": "2.0",
+    "error": {
+        "code": "-32601",
+        "message": "the method eth_getTransactionByHash does not exist/is not "
+        "available",
+    },
+}
+INVALID_MESSAGE_RESP_FORMAT = {
+    "jsonrpc": "2.0",
+    "error": {
+        "code": -32000,
+        "message": {},
     },
 }
 ETH_TESTER_METHOD_NOT_FOUND_RESP_FORMAT = {
@@ -175,7 +191,7 @@ def test_formatted_response_raises_errors(
             identity,
             identity,
             BadResponseFormat,
-            f"The response was in an unexpected format and unable to be parsed. The error is: {UNEXPECTED_RESPONSE_FORMAT} is not valid under any of the given schemas. The raw response is: {UNEXPECTED_RESPONSE_FORMAT}",  # noqa: E501
+            f"The response was in an unexpected format and unable to be parsed. The raw response is: {UNEXPECTED_RESPONSE_FORMAT}",  # noqa: E501
         ),
         (
             ANOTHER_UNEXPECTED_RESP_FORMAT,
@@ -184,6 +200,30 @@ def test_formatted_response_raises_errors(
             identity,
             BadResponseFormat,
             f"The response was in an unexpected format and unable to be parsed. The raw response is: {ANOTHER_UNEXPECTED_RESP_FORMAT}",  # noqa: E501
+        ),
+        (
+            INVALID_CODE_RESP_FORMAT,
+            (),
+            identity,
+            identity,
+            BadResponseFormat,
+            re.escape(
+                f"The response was in an unexpected format and unable to be parsed. "
+                f"The error is: error['code'] must be an integer. "
+                f"The raw response is: {INVALID_CODE_RESP_FORMAT}"
+            ),  # noqa: E501
+        ),
+        (
+            INVALID_MESSAGE_RESP_FORMAT,
+            (),
+            identity,
+            identity,
+            BadResponseFormat,
+            re.escape(
+                f"The response was in an unexpected format and unable to be parsed. "
+                f"The error is: error['message'] must be a string, integer or null. "
+                f"The raw response is: {INVALID_MESSAGE_RESP_FORMAT}"
+            ),  # noqa: E501
         ),
     ],
 )

@@ -237,17 +237,17 @@ class RequestManager:
             if not isinstance(code, int):
                 raise BadResponseFormat(
                     "The response was in an unexpected format and unable to be parsed. "
-                    f'The error is: error["code"] must be an integer. '
+                    f"The error is: error['code'] must be an integer. "
                     f"The raw response is: {response}"
                 )
             elif code == METHOD_NOT_FOUND:
                 raise MethodUnavailable(error)
 
-            if not isinstance(error.get("message"), (str, int, None)):
+            if not type(error.get("message")) in (str, int, None):
                 raise BadResponseFormat(
                     "The response was in an unexpected format and unable to be parsed. "
-                    f'The error is: error["code"] must be an integer. '
-                    f"The raw response is: {response}"
+                    f"The error is: error['message'] must be a string, integer "
+                    f"or null. The raw response is: {response}"
                 )
 
             apply_error_formatters(error_formatters, response)
@@ -264,7 +264,8 @@ class RequestManager:
 
         # Response from eth_subscribe includes response["params"]["result"]
         elif (
-            response.get("params") is None and response["params"].get("result") is None
+            response.get("params") is not None
+            and response["params"].get("result") is not None
         ):
             return response["params"]["result"]
 
