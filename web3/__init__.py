@@ -36,14 +36,18 @@ class ClientTimeout(__NotImplemented):
         "websockets",
         "1.0.0",
         modules={
-            "websockets": "",
-            "websockets.legacy": "",
-            "websockets.legacy.client": """
-class WebSocketClientProtocol
+            "websockets": """
+class __NotImplemented:
     def __init__(self,*args,**argv):
         raise NotImplementedError(
-            "Websockets aren't supported on pyodide yet"
+            "Async web3 functions aren't supported on pyodide yet"
         )
+""",
+            "websockets.legacy": "",
+            "websockets.legacy.client": """
+from websockets import __NotImplemented
+class WebSocketClientProtocol(__NotImplemented):
+    pass
 """,
             "websockets.client": """
 def connect(*args,**argv):
@@ -52,37 +56,21 @@ def connect(*args,**argv):
         )
 """,
             "websockets.exceptions": """
-class WebSocketException:
-    def __init__(self,*args,**argv):
-        raise NotImplementedError(
-            "Websockets aren't supported on pyodide yet"
-        )
-class ConnectionClosedOK:
-    def __init__(self,*args,**argv):
-        raise NotImplementedError(
-            "Websockets aren't supported on pyodide yet"
-        )
+from websockets import __NotImplemented
+class WebSocketException(__NotImplemented):
+    pass
+class ConnectionClosedOK(__NotImplemented):
+    pass
 """,
         },
     )
 
 
-from web3.main import (  # noqa: E402
-    AsyncWeb3,
-    Web3,
-)
-from web3.providers.async_rpc import (  # noqa: E402
-    AsyncHTTPProvider,
-)
-from web3.providers.eth_tester import (  # noqa: E402
-    EthereumTesterProvider,
-)
-from web3.providers.ipc import (  # noqa: E402
-    IPCProvider,
-)
-from web3.providers.rpc import (  # noqa: E402
-    HTTPProvider,
-)
+from web3.main import AsyncWeb3, Web3  # noqa: E402
+from web3.providers.async_rpc import AsyncHTTPProvider  # noqa: E402
+from web3.providers.eth_tester import EthereumTesterProvider  # noqa: E402
+from web3.providers.ipc import IPCProvider  # noqa: E402
+from web3.providers.rpc import HTTPProvider  # noqa: E402
 from web3.providers.websocket import (  # noqa: E402
     WebsocketProvider,
     WebsocketProviderV2,

@@ -1,14 +1,8 @@
 #!/usr/bin/env python
-from setuptools import (
-    find_packages,
-    setup,
-)
+from setuptools import find_packages, setup
 
 extras_require = {
-    "tester": [
-        "eth-tester[py-evm]==v0.9.1-b.1",
-        "py-geth>=3.11.0",
-    ],
+    "tester": ["eth-tester[py-evm]==v0.9.1-b.1", "py-geth>=3.11.0"],
     "linter": [
         "black>=22.1.0",
         "flake8==3.8.3",
@@ -18,11 +12,7 @@ extras_require = {
         "types-requests>=2.26.1",
         "types-protobuf==3.19.13",
     ],
-    "docs": [
-        "sphinx>=5.3.0",
-        "sphinx_rtd_theme>=1.0.0",
-        "towncrier>=21,<22",
-    ],
+    "docs": ["sphinx>=5.3.0", "sphinx_rtd_theme>=1.0.0", "towncrier>=21,<22"],
     "dev": [
         "bumpversion",
         "flaky>=3.7.0",
@@ -40,9 +30,7 @@ extras_require = {
         "when-changed>=0.3.0",
         "build>=0.9.0",
     ],
-    "ipfs": [
-        "ipfshttpclient==0.8.0a2",
-    ],
+    "ipfs": ["ipfshttpclient==0.8.0a2"],
 }
 
 extras_require["dev"] = (
@@ -85,7 +73,7 @@ setup(
         "pyunormalize>=15.0.0",
         # pyodide includes - unversioned to use the one from pyodide distribution
         "micropip;sys_platform=='emscripten'",
-        "pyodide-http;sys_platform=='emscripten'"
+        "pyodide-http;sys_platform=='emscripten'",
     ],
     python_requires=">=3.7.2",
     extras_require=extras_require,
