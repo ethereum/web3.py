@@ -211,7 +211,7 @@ def test_formatted_response_raises_errors(
                 f"The response was in an unexpected format and unable to be parsed. "
                 f"The error is: error['code'] must be an integer. "
                 f"The raw response is: {INVALID_CODE_RESP_FORMAT}"
-            ),  # noqa: E501
+            ),
         ),
         (
             INVALID_MESSAGE_RESP_FORMAT,
@@ -223,7 +223,7 @@ def test_formatted_response_raises_errors(
                 f"The response was in an unexpected format and unable to be parsed. "
                 f"The error is: error['message'] must be a string, integer or null. "
                 f"The raw response is: {INVALID_MESSAGE_RESP_FORMAT}"
-            ),  # noqa: E501
+            ),
         ),
     ],
 )
