@@ -283,7 +283,7 @@ class GethSyncingSubscriptionResponse(SubscriptionResponse):
 
 class RPCResponse(TypedDict, total=False):
     error: Union[RPCError, str]
-    id: int
+    id: Optional[Union[int, str]]
     jsonrpc: Literal["2.0"]
     result: Any
 

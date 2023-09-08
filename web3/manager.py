@@ -79,12 +79,15 @@ METHOD_NOT_FOUND = -32601
 
 
 def _raise_bad_response_format(response: RPCResponse, error: str = "") -> None:
-    error_message = f"The error is: {error}. " if error else ""
-    raise BadResponseFormat(
-        "The response was in an unexpected format and unable to be parsed. "
-        f"{error_message}"
-        f"The raw response is: {response}"
-    )
+    message = "The response was in an unexpected format and unable to be parsed."
+    raw_response = f"The raw response is: {response}"
+
+    if error is not None and error != "":
+        message = f"{message} {error}. {raw_response}"
+    else:
+        message = f"{message} {raw_response}"
+
+    raise BadResponseFormat(message)
 
 
 def apply_error_formatters(
@@ -209,9 +212,13 @@ class RequestManager:
         return await request_func(method, params)
 
     #
-    # formatted_response parses and validates JSON-RPC responses
-    # for expected properties (result or an error) with the expected types.
-    # Responses are inconsistent so allow for missing required JSON-RPC properties
+    # formatted_response parses and validates JSON-RPC responses for expected
+    # properties (result or an error) with the expected types.
+    #
+    # Required properties are not strictly enforced to further determine which
+    # exception to raise for specific cases.
+    #
+    # See also: https://www.jsonrpc.org/specification
     #
     @staticmethod
     def formatted_response(
@@ -220,31 +227,51 @@ class RequestManager:
         error_formatters: Optional[Callable[..., Any]] = None,
         null_result_formatters: Optional[Callable[..., Any]] = None,
     ) -> Any:
+        # jsonrpc is not enforced (as per the spec) but if present, it must be 2.0
         if "jsonrpc" in response and response["jsonrpc"] != "2.0":
-            _raise_bad_response_format(response, '"jsonrpc" must equal "2.0"')
-
-        if "id" in response and not isinstance(response["id"], (str, int, None)):
             _raise_bad_response_format(
-                response, '"id" must be a string, integer or null'
+                response, 'The "jsonrpc" field must be present with a value of "2.0"'
+            )
+
+        # id is not enforced (as per the spec) but if present, it must be a
+        # string or integer
+        # TODO: v7 - enforce id per the spec
+        if "id" in response:
+            response_id = response["id"]
+            # id is always None for errors
+            if (response_id is None and "error" not in response) or (
+                response_id is not None and "error" in response
+            ):
+                _raise_bad_response_format(
+                    response, '"id" must be None when an error is present'
+                )
+            elif not isinstance(response_id, (str, int, type(None))):
+                _raise_bad_response_format(response, '"id" must be a string or integer')
+
+        # Response may not include both "error" and "result"
+        if "error" in response and "result" in response:
+            _raise_bad_response_format(
+                response, 'Response cannot include both "error" and "result"'
             )
 
         # Format and validate errors
-        if "error" in response:
+        elif "error" in response:
             error = response.get("error")
+            # Raise the error when the value is a string
             if error is None or isinstance(error, str):
                 raise ValueError(error)
 
-            # Errors may include a code
-            # https://docs.alchemy.com/reference/error-reference#json-rpc-error-codes
+            # Errors must include an integer code
             code = error.get("code")
             if not isinstance(code, int):
                 _raise_bad_response_format(response, "error['code'] must be an integer")
             elif code == METHOD_NOT_FOUND:
                 raise MethodUnavailable(error)
 
-            if not type(error.get("message")) in (str, int, None):
+            # Errors must include a message
+            if not isinstance(error.get("message"), str):
                 _raise_bad_response_format(
-                    response, "error['message'] must be a string, integer or null"
+                    response, "error['message'] must be a string"
                 )
 
             apply_error_formatters(error_formatters, response)
@@ -266,6 +293,7 @@ class RequestManager:
         ):
             return response["params"]["result"]
 
+        # Any other response type raises BadResponseFormat
         else:
             _raise_bad_response_format(response)
 
