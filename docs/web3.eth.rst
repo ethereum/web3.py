@@ -513,20 +513,21 @@ The following methods are available on the ``web3.eth`` namespace.
     .. code-block:: python
 
         >>> web3.eth.get_transaction('0x5c504ed432cb51138bcf09aa5e8a410dd4a1e204ef84bfed1be16dfba1b22060')
-        AttributeDict({
-            'blockHash': '0x4e3a3754410177e6937ef1f84bba68ea139e8d1a2258c5f85db9f1cd715a1bdd',
+        AttributeDict({'blockHash': HexBytes('0x4e3a3754410177e6937ef1f84bba68ea139e8d1a2258c5f85db9f1cd715a1bdd'),
             'blockNumber': 46147,
             'from': '0xA1E4380A3B1f749673E270229993eE55F35663b4',
             'gas': 21000,
-            'gasPrice': None,
-            'hash': '0x5c504ed432cb51138bcf09aa5e8a410dd4a1e204ef84bfed1be16dfba1b22060',
-            'input': '0x',
-            'maxFeePerGas': 2000000000,
-            'maxPriorityFeePerGas': 1000000000,
+            'gasPrice': 50000000000000,
+            'hash': HexBytes('0x5c504ed432cb51138bcf09aa5e8a410dd4a1e204ef84bfed1be16dfba1b22060'),
+            'input': HexBytes('0x'),
             'nonce': 0,
-            'to': '0x5DF9B87991262F6BA471F09758CDE1c0FC1De734',
-            'transactionIndex': 0,
-            'value': 31337,
+             'r': HexBytes('0x88ff6cf0fefd94db46111149ae4bfc179e9b94721fffd821d38d16464b3f71d0'),
+             's': HexBytes('0x45e0aff800961cfce805daef7016b9b675c137a6a41a548f7b60a3484c06a33a'),
+             'to': '0x5DF9B87991262F6BA471F09758CDE1c0FC1De734',
+             'transactionIndex': 0,
+             'type': 0,
+             'v': 28,
+             'value': 31337
         })
 
 
