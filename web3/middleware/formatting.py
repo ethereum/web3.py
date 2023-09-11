@@ -167,7 +167,7 @@ async def async_construct_web3_formatting_middleware(
             if async_w3.provider.has_persistent_connection:
                 # asynchronous response processing
                 provider = cast("PersistentConnectionProvider", async_w3.provider)
-                provider._append_middleware_response_processor(
+                provider._request_processor.append_middleware_response_processor(
                     _apply_response_formatters(
                         method,
                         formatters["result_formatters"],

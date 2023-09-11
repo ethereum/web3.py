@@ -1,4 +1,5 @@
 import asyncio
+import json
 import logging
 import os
 from typing import (
@@ -133,13 +134,18 @@ class WebsocketProviderV2(PersistentConnectionProvider):
         await self.ws.close()
         self.ws = None
 
-        # clear the provider request cache after disconnecting
-        self._async_response_processing_cache.clear()
+        # clear the request information cache after disconnecting
+        self._request_processor._request_information_cache.clear()
 
-    async def make_request(self, method: RPCEndpoint, params: Any) -> None:
+    async def make_ws_request(
+        self, method: RPCEndpoint, params: Any
+    ) -> Union[int, str]:
         request_data = self.encode_rpc_request(method, params)
 
         if self.ws is None:
             await self.connect()
 
         await asyncio.wait_for(self.ws.send(request_data), timeout=self.call_timeout)
+
+        current_request_id = json.loads(request_data)["id"]
+        return current_request_id
