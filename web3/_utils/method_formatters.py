@@ -201,6 +201,7 @@ TRANSACTION_RESULT_FORMATTERS = {
     "to": apply_formatter_if(is_address, to_checksum_address),
     "hash": to_hexbytes(32),
     "v": apply_formatter_if(is_not_null, to_integer_if_hex),
+    "yParity": apply_formatter_if(is_not_null, to_integer_if_hex),
     "standardV": apply_formatter_if(is_not_null, to_integer_if_hex),
     "type": apply_formatter_if(is_not_null, to_integer_if_hex),
     "chainId": apply_formatter_if(is_not_null, to_integer_if_hex),

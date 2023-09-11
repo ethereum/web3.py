@@ -1,5 +1,7 @@
 import decimal
+import threading
 import warnings
+from concurrent.futures import ThreadPoolExecutor
 from types import (
     TracebackType,
 )
@@ -522,6 +524,9 @@ class AsyncWeb3(BaseWeb3):
 
 class _PersistentConnectionWeb3(AsyncWeb3):
     provider: PersistentConnectionProvider
+
+    _thread_pool: ThreadPoolExecutor = ThreadPoolExecutor()
+    _lock: threading.Lock = threading.Lock()
 
     def __init__(
         self,

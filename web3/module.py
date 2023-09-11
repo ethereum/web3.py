@@ -7,6 +7,7 @@ from typing import (
     Optional,
     TypeVar,
     Union,
+    cast,
 )
 
 from eth_abi.codec import (
@@ -29,6 +30,7 @@ from web3.providers.persistent import (
     PersistentConnectionProvider,
 )
 from web3.types import (
+    RPCEndpoint,
     RPCResponse,
 )
 
@@ -93,16 +95,18 @@ def retrieve_async_method_call_fn(
         if isinstance(async_w3.provider, PersistentConnectionProvider):
             # TODO: The typing does not seem to be correct for response_formatters.
             #   For now, keep the expected typing but ignore it here.
-            cache_key = async_w3.provider._cache_request_information(
+            provider = async_w3.provider
+            cache_key = provider._request_processor.cache_request_information(
                 method_str, params, response_formatters  # type: ignore
             )
             try:
+                method_str = cast(RPCEndpoint, method_str)
                 return await async_w3.manager.ws_send(method_str, params)
             except Exception as e:
-                if async_w3.provider._async_response_processing_cache.get_cache_entry(
-                    cache_key
-                ):
-                    async_w3.provider._pop_cached_request_information(cache_key)
+                if cache_key in provider._request_processor._request_information_cache:
+                    provider._request_processor.pop_cached_request_information(
+                        cache_key
+                    )
                 raise e
         else:
             (

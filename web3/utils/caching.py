@@ -4,6 +4,7 @@ from collections import (
 from typing import (
     Any,
     Dict,
+    List,
     Optional,
     Tuple,
 )
@@ -38,8 +39,8 @@ class SimpleCache:
     def clear(self) -> None:
         self._data.clear()
 
-    def items(self) -> Dict[str, Any]:
-        return self._data
+    def items(self) -> List[Tuple[str, Any]]:
+        return list(self._data.items())
 
     def pop(self, key: str) -> Optional[Any]:
         if key not in self._data:
