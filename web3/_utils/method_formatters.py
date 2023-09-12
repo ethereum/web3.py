@@ -624,16 +624,22 @@ def subscription_formatter(value: Any) -> Union[HexBytes, HexStr, Dict[str, Any]
     response_key_set = set(value.keys())
 
     # handle dict subscription responses
-    if either_set_is_a_subset(response_key_set, set(BLOCK_FORMATTERS.keys())):
+    if either_set_is_a_subset(
+        response_key_set,
+        set(BLOCK_FORMATTERS.keys()),
+        percentage=90,
+    ):
         # block format, newHeads
         return block_formatter(value)
 
-    elif either_set_is_a_subset(response_key_set, set(LOG_ENTRY_FORMATTERS.keys())):
+    elif either_set_is_a_subset(
+        response_key_set, set(LOG_ENTRY_FORMATTERS.keys()), percentage=90
+    ):
         # logs
         return log_entry_formatter(value)
 
     elif either_set_is_a_subset(
-        response_key_set, set(TRANSACTION_RESULT_FORMATTERS.keys())
+        response_key_set, set(TRANSACTION_RESULT_FORMATTERS.keys()), percentage=90
     ):
         # transaction subscription type (newPendingTransactions), full transactions
         return transaction_result_formatter(value)
@@ -642,7 +648,11 @@ def subscription_formatter(value: Any) -> Union[HexBytes, HexStr, Dict[str, Any]
         # geth syncing response
         return type_aware_apply_formatters_to_dict(GETH_SYNCING_SUBSCRIPTION_FORMATTERS)
 
-    elif either_set_is_a_subset(response_key_set, set(SYNCING_FORMATTERS.keys())):
+    elif either_set_is_a_subset(
+        response_key_set,
+        set(SYNCING_FORMATTERS.keys()),
+        percentage=90,
+    ):
         # syncing response object
         return syncing_formatter
 
