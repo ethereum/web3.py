@@ -176,7 +176,7 @@ class RequestProcessor:
 
     # request processor class methods
 
-    def clear(self) -> None:
+    def clear_caches(self) -> None:
         """
         Clear the request information and raw response caches.
         """

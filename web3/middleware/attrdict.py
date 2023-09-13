@@ -73,7 +73,7 @@ async def async_attrdict_middleware(
             provider._request_processor.append_middleware_response_processor(
                 _handle_async_response
             )
-            return None
+            return response
         else:
             return _handle_async_response(response)
 

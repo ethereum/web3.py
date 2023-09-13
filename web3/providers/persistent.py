@@ -3,9 +3,7 @@ from abc import (
 )
 import logging
 from typing import (
-    Any,
     Optional,
-    Union,
 )
 
 from websockets.legacy.client import (
@@ -17,9 +15,6 @@ from web3.providers.async_base import (
 )
 from web3.providers.websocket.request_processor import (
     RequestProcessor,
-)
-from web3.types import (
-    RPCEndpoint,
 )
 
 DEFAULT_PERSISTENT_CONNECTION_TIMEOUT = 20
@@ -50,11 +45,4 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
         raise NotImplementedError("Must be implemented by subclasses")
 
     async def disconnect(self) -> None:
-        raise NotImplementedError("Must be implemented by subclasses")
-
-    async def make_ws_request(
-        self, method: RPCEndpoint, params: Any
-    ) -> Union[int, str]:
-        # PersistentConnectionProvider returns the request id to be able to retrieve
-        # the relevant response from the cache
         raise NotImplementedError("Must be implemented by subclasses")
