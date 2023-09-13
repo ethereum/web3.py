@@ -339,11 +339,16 @@ class RequestManager:
     # persistent connection
     async def ws_send(self, method: RPCEndpoint, params: Any) -> RPCResponse:
         provider = cast(PersistentConnectionProvider, self._provider)
+        request_func = await provider.request_func(
+            cast("AsyncWeb3", self.w3),
+            cast(AsyncMiddlewareOnion, self.middleware_onion),
+        )
         self.logger.debug(
             "Making request to open websocket connection - "
             f"uri: {provider.endpoint_uri}, method: {method}"
         )
-        request_id = await provider.make_ws_request(method, params)
+        request_id_object = await request_func(method, params)
+        request_id = request_id_object.get("id")
         return await asyncio.wait_for(
             self.ws_recv(request_id=request_id),
             timeout=provider.call_timeout,

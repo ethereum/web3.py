@@ -129,7 +129,7 @@ async def async_construct_result_generator_middleware(
                     provider._request_processor.append_middleware_response_processor(
                         lambda _: {"result": result}
                     )
-                    return None
+                    return result
                 else:
                     return {"result": result}
             else:
@@ -169,11 +169,11 @@ async def async_construct_error_generator_middleware(
 
                 if async_w3.provider.has_persistent_connection:
                     provider = cast("PersistentConnectionProvider", async_w3.provider)
-                    await make_request(method, params)
+                    response = await make_request(method, params)
                     provider._request_processor.append_middleware_response_processor(
                         lambda _: error_response
                     )
-                    return None
+                    return cast(RPCResponse, response)
                 else:
                     return cast(RPCResponse, error_response)
             else:

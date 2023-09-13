@@ -174,7 +174,7 @@ async def async_construct_web3_formatting_middleware(
                         formatters["error_formatters"],
                     )
                 )
-                return None
+                return response
             else:
                 return _apply_response_formatters(
                     method,

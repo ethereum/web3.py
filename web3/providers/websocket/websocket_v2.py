@@ -7,6 +7,7 @@ from typing import (
     Dict,
     Optional,
     Union,
+    cast,
 )
 
 from eth_typing import (
@@ -31,6 +32,7 @@ from web3.providers.persistent import (
 )
 from web3.types import (
     RPCEndpoint,
+    RPCResponse,
 )
 
 DEFAULT_PING_INTERVAL = 30  # 30 seconds
@@ -135,11 +137,13 @@ class WebsocketProviderV2(PersistentConnectionProvider):
         self.ws = None
 
         # clear the request information cache after disconnecting
-        self._request_processor._request_information_cache.clear()
+        self._request_processor.clear_caches()
+        self.logger.debug(
+            f'Successfully disconnected from endpoint: "{self.endpoint_uri}" '
+            "the request processor transient caches were cleared."
+        )
 
-    async def make_ws_request(
-        self, method: RPCEndpoint, params: Any
-    ) -> Union[int, str]:
+    async def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
         request_data = self.encode_rpc_request(method, params)
 
         if self.ws is None:
@@ -148,4 +152,9 @@ class WebsocketProviderV2(PersistentConnectionProvider):
         await asyncio.wait_for(self.ws.send(request_data), timeout=self.call_timeout)
 
         current_request_id = json.loads(request_data)["id"]
-        return current_request_id
+
+        # We don't return the response here because we need to wait for the
+        # response processor to handle the response asynchronously. Instead, we return
+        # the request id, wrapped as an RPCResponse, so that the request processor can
+        # match the response to the request and we keep the type checker happy.
+        return cast(RPCResponse, {"id": current_request_id})
