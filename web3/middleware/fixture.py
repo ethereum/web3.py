@@ -125,11 +125,13 @@ async def async_construct_result_generator_middleware(
 
                 if async_w3.provider.has_persistent_connection:
                     provider = cast("PersistentConnectionProvider", async_w3.provider)
-                    await make_request(method, params)
+                    response = await make_request(method, params)
                     provider._request_processor.append_middleware_response_processor(
+                        # processed asynchronously later but need to pass the actual
+                        # response to the next middleware
                         lambda _: {"result": result}
                     )
-                    return result
+                    return response
                 else:
                     return {"result": result}
             else:
@@ -171,9 +173,11 @@ async def async_construct_error_generator_middleware(
                     provider = cast("PersistentConnectionProvider", async_w3.provider)
                     response = await make_request(method, params)
                     provider._request_processor.append_middleware_response_processor(
+                        # processed asynchronously later but need to pass the actual
+                        # response to the next middleware
                         lambda _: error_response
                     )
-                    return cast(RPCResponse, response)
+                    return response
                 else:
                     return cast(RPCResponse, error_response)
             else:

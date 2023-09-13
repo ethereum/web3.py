@@ -1,7 +1,11 @@
 from abc import (
     ABC,
 )
+from concurrent.futures import (
+    ThreadPoolExecutor,
+)
 import logging
+import threading
 from typing import (
     Optional,
 )
@@ -16,6 +20,9 @@ from web3.providers.async_base import (
 from web3.providers.websocket.request_processor import (
     RequestProcessor,
 )
+from web3.types import (
+    RPCResponse,
+)
 
 DEFAULT_PERSISTENT_CONNECTION_TIMEOUT = 20
 
@@ -26,6 +33,8 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
     ws: Optional[WebSocketClientProtocol] = None
 
     _request_processor: RequestProcessor
+    _thread_pool: ThreadPoolExecutor = ThreadPoolExecutor()
+    _lock: threading.Lock = threading.Lock()
 
     def __init__(
         self,
@@ -37,7 +46,7 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
         self.endpoint_uri = endpoint_uri
         self._request_processor = RequestProcessor(
             self,
-            request_cache_size=request_cache_size,
+            request_info_cache_size=request_cache_size,
         )
         self.call_timeout = call_timeout
 
@@ -45,4 +54,7 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
         raise NotImplementedError("Must be implemented by subclasses")
 
     async def disconnect(self) -> None:
+        raise NotImplementedError("Must be implemented by subclasses")
+
+    async def _ws_recv(self) -> RPCResponse:
         raise NotImplementedError("Must be implemented by subclasses")

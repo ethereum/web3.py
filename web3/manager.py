@@ -1,5 +1,3 @@
-import asyncio
-import json
 import logging
 from typing import (
     TYPE_CHECKING,
@@ -28,7 +26,6 @@ from web3._utils.async_caching import (
     async_lock,
 )
 from web3._utils.caching import (
-    RequestInformation,
     generate_cache_key,
 )
 from web3.datastructures import (
@@ -71,7 +68,6 @@ if TYPE_CHECKING:
     from web3.main import (  # noqa: F401
         AsyncWeb3,
         Web3,
-        _PersistentConnectionWeb3,
     )
     from web3.providers import (  # noqa: F401
         AsyncBaseProvider,
@@ -347,101 +343,49 @@ class RequestManager:
             "Making request to open websocket connection - "
             f"uri: {provider.endpoint_uri}, method: {method}"
         )
-        request_id_object = await request_func(method, params)
-        request_id = request_id_object.get("id")
-        return await asyncio.wait_for(
-            self.ws_recv(request_id=request_id),
-            timeout=provider.call_timeout,
-        )
+        response = await request_func(method, params)
+        return await self._process_ws_response(response)
 
-    async def ws_recv(self, request_id: Optional[Union[int, str]] = None) -> Any:
-        return await self._ws_recv_stream(request_id=request_id).__anext__()
+    async def ws_recv(self) -> Any:
+        return await self._ws_recv_stream().__anext__()
 
     def persistent_recv_stream(self) -> "_AsyncPersistentRecvStream":
         return _AsyncPersistentRecvStream(self)
 
-    async def _ws_recv_stream(
-        self,
-        request_id: Optional[Union[int, str]] = None,
-    ) -> AsyncGenerator[RPCResponse, None]:
+    async def _ws_recv_stream(self) -> AsyncGenerator[RPCResponse, None]:
         if not isinstance(self._provider, PersistentConnectionProvider):
             raise TypeError(
                 "Only websocket providers that maintain an open, persistent connection "
                 "can listen to websocket recv streams."
             )
 
-        w3 = cast("_PersistentConnectionWeb3", self.w3)
-
-        response = json.loads(
-            await asyncio.wait_for(
-                self._provider.ws.recv(),
-                timeout=self._provider.call_timeout,
-            )
-        )
-        response_id = response.get("id")
-
-        if request_id is None:
-            cached_responses = len(self._request_processor._raw_response_cache.items())
-            if cached_responses > 0:
-                async with async_lock(w3._thread_pool, w3._lock):
-                    self._provider.logger.debug(
-                        f"Processing {cached_responses} cached responses from raw "
-                        f"response cache as FIFO ahead of new responses from open "
-                        f"socket connection."
-                    )
-                    for (
-                        _,
-                        cached_response,
-                    ) in self._request_processor._raw_response_cache.items():
-                        request_info = self._request_processor.get_request_information_for_response(  # noqa: E501
-                            cached_response
-                        )
-                        yield await self._process_ws_response(
-                            request_info, cached_response
-                        )
-                    self._request_processor._raw_response_cache.clear()
-
-            request_info = self._request_processor.get_request_information_for_response(
-                response
-            )
-            yield await self._process_ws_response(request_info, response)
-
+        cached_responses = len(self._request_processor._raw_response_cache.items())
+        if cached_responses > 0:
+            async with async_lock(
+                self._provider._thread_pool,
+                self._provider._lock,
+            ):
+                self._provider.logger.debug(
+                    f"{cached_responses} cached response(s) in raw response cache. "
+                    f"Processing as FIFO ahead of any new responses from open "
+                    f"socket connection."
+                )
+                for (
+                    cache_key,
+                    cached_response,
+                ) in self._request_processor._raw_response_cache.items():
+                    self._request_processor.pop_raw_response(cache_key)
+                    yield await self._process_ws_response(cached_response)
         else:
-            if response_id != request_id:
-                request_cache_key = generate_cache_key(request_id)
-                if request_cache_key in self._request_processor._raw_response_cache:
-                    async with async_lock(w3._thread_pool, w3._lock):
-                        # if response is already cached, pop it from the cache
-                        response = self._request_processor._raw_response_cache.pop(
-                            request_cache_key
-                        )
-                else:
-                    async with async_lock(w3._thread_pool, w3._lock):
-                        # cache response
-                        self._request_processor.cache_raw_response(response)
-                        async with asyncio.timeout(self._provider.call_timeout):
-                            while response_id != request_id:
-                                response = json.loads(
-                                    await asyncio.wait_for(
-                                        self._provider.ws.recv(),
-                                        timeout=self._provider.call_timeout,
-                                    )
-                                )
-                                response_id = response.get("id")
-                                if response_id != request_id:
-                                    self._request_processor.cache_raw_response(
-                                        response,
-                                    )
+            response = await self._provider._ws_recv()
+            yield await self._process_ws_response(response)
 
-            request_info = self._request_processor.get_request_information_for_response(
-                response
-            )
-            yield await self._process_ws_response(request_info, response)
-
-    async def _process_ws_response(
-        self, request_info: RequestInformation, response: RPCResponse
-    ) -> RPCResponse:
+    async def _process_ws_response(self, response: RPCResponse) -> RPCResponse:
         provider = cast(PersistentConnectionProvider, self._provider)
+        request_info = self._request_processor.get_request_information_for_response(
+            response
+        )
+
         if request_info is None:
             self.logger.debug("No cache key found for response, returning raw response")
             return response
