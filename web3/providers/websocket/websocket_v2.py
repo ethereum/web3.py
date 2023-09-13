@@ -7,7 +7,6 @@ from typing import (
     Dict,
     Optional,
     Union,
-    cast,
 )
 
 from eth_typing import (
@@ -23,6 +22,12 @@ from websockets.exceptions import (
     WebSocketException,
 )
 
+from web3._utils.async_caching import (
+    async_lock,
+)
+from web3._utils.caching import (
+    generate_cache_key,
+)
 from web3.exceptions import (
     ProviderConnectionError,
     Web3ValidationError,
@@ -32,6 +37,7 @@ from web3.providers.persistent import (
 )
 from web3.types import (
     RPCEndpoint,
+    RPCId,
     RPCResponse,
 )
 
@@ -153,8 +159,40 @@ class WebsocketProviderV2(PersistentConnectionProvider):
 
         current_request_id = json.loads(request_data)["id"]
 
-        # We don't return the response here because we need to wait for the
-        # response processor to handle the response asynchronously. Instead, we return
-        # the request id, wrapped as an RPCResponse, so that the request processor can
-        # match the response to the request and we keep the type checker happy.
-        return cast(RPCResponse, {"id": current_request_id})
+        response = await self._ws_recv()
+        response_id = response.get("id")
+
+        if response_id != current_request_id:
+            request_cache_key = generate_cache_key(current_request_id)
+            if request_cache_key in self._request_processor._raw_response_cache:
+                async with async_lock(self._thread_pool, self._lock):
+                    # if response is already cached, pop it from the cache
+                    response = self._request_processor.pop_raw_response(
+                        request_cache_key
+                    )
+            else:
+                async with async_lock(self._thread_pool, self._lock):
+                    # cache response
+                    self._request_processor.cache_raw_response(response)
+                    response = await asyncio.wait_for(
+                        self._get_response_for_request_id(current_request_id),
+                        self.call_timeout,
+                    )
+        return response
+
+    async def _get_response_for_request_id(self, request_id: RPCId) -> RPCResponse:
+        response = await self._ws_recv()
+        response_id = response.get("id")
+
+        while response_id != request_id:
+            response_id = response.get("id")
+            if response_id != request_id:
+                self._request_processor.cache_raw_response(
+                    response,
+                )
+        return response
+
+    async def _ws_recv(self) -> RPCResponse:
+        return json.loads(
+            await asyncio.wait_for(self.ws.recv(), timeout=self.call_timeout)
+        )

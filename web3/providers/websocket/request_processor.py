@@ -31,16 +31,16 @@ if TYPE_CHECKING:
 
 
 class RequestProcessor:
-    _request_information_cache = SimpleCache(100)
+    _request_information_cache: SimpleCache
 
     def __init__(
         self,
         provider: "PersistentConnectionProvider",
-        request_cache_size: int = 100,
+        request_info_cache_size: int = 500,
     ) -> None:
         self._provider = provider
 
-        self._request_information_cache = SimpleCache(request_cache_size)
+        self._request_information_cache = SimpleCache(request_info_cache_size)
         self._raw_response_cache = SimpleCache(500)
 
     # request information cache
@@ -169,10 +169,20 @@ class RequestProcessor:
     def cache_raw_response(self, raw_response: Any) -> None:
         # get id or generate a uuid if not present (i.e. subscription response)
         response_id = raw_response.get("id", f"sub-{uuid4()}")
-        self._raw_response_cache.cache(response_id, raw_response)
+        cache_key = generate_cache_key(response_id)
+        self._provider.logger.debug(
+            f"Caching raw response:\n    response_id={response_id},\n"
+            f"    cache_key={cache_key},\n    raw_response={raw_response}"
+        )
+        self._raw_response_cache.cache(cache_key, raw_response)
 
-    def get_raw_response(self, cache_key: str) -> Any:
-        return self._raw_response_cache.get_cache_entry(cache_key)
+    def pop_raw_response(self, cache_key: str) -> Any:
+        raw_response = self._raw_response_cache.pop(cache_key)
+        self._provider.logger.debug(
+            f"Cached response processed and popped from cache:\n"
+            f"    cache_key={cache_key},\n"
+            f"    raw_response={raw_response}"
+        )
 
     # request processor class methods
 
