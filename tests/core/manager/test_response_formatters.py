@@ -1,4 +1,5 @@
 import pytest
+import re
 
 from eth_utils.toolz import (
     identity,
@@ -25,9 +26,36 @@ ERROR_RESPONSE = {
         "because the ancient block sync is still in progress.",
     },
 }
+ERROR_RESPONSE_WITH_NONE_ID = {
+    "id": None,
+    "jsonrpc": "2.0",
+    "error": {
+        "code": -32000,
+        "message": "Requested block number is in a range that is not available yet, "
+        "because the ancient block sync is still in progress.",
+    },
+}
+ERROR_RESPONSE_WITH_VALID_ID = {
+    "id": 1,
+    "jsonrpc": "2.0",
+    "error": {
+        "code": -32000,
+        "message": "Requested block number is in a range that is not available yet, "
+        "because the ancient block sync is still in progress.",
+    },
+}
 NONE_RESPONSE = {"jsonrpc": "2.0", "id": 1, "result": None}
 ZERO_X_RESPONSE = {"jsonrpc": "2.0", "id": 1, "result": "0x"}
+INVALID_JSONRPC_RESP_FORMAT = {
+    "jsonrpc": "999",
+    "error": {
+        "code": -32000,
+        "message": "Requested block number is in a range that is not available yet, "
+        "because the ancient block sync is still in progress.",
+    },
+}
 UNEXPECTED_RESPONSE_FORMAT = {"jsonrpc": "2.0", "id": 1}
+UNEXPECTED_RESPONSE_FORMAT_NONE_ID = {"jsonrpc": "2.0", "id": None}
 ANOTHER_UNEXPECTED_RESP_FORMAT = {
     "name": "LimitError",
     "message": "You cannot query logs for more than 10000 blocks at once.",
@@ -39,6 +67,28 @@ METHOD_NOT_FOUND_RESP_FORMAT = {
         "code": -32601,
         "message": "the method eth_getTransactionByHash does not exist/is not "
         "available",
+    },
+}
+INVALID_CODE_RESP_FORMAT = {
+    "jsonrpc": "2.0",
+    "error": {
+        "code": "-32601",
+        "message": "the method eth_getTransactionByHash does not exist/is not "
+        "available",
+    },
+}
+MISSING_CODE_RESP_FORMAT = {
+    "jsonrpc": "2.0",
+    "error": {
+        "message": "the method eth_getTransactionByHash does not exist/is not "
+        "available",
+    },
+}
+INVALID_MESSAGE_RESP_FORMAT = {
+    "jsonrpc": "2.0",
+    "error": {
+        "code": -32000,
+        "message": {},
     },
 }
 ETH_TESTER_METHOD_NOT_FOUND_RESP_FORMAT = {
@@ -72,6 +122,22 @@ def raise_contract_logic_error(response):
         (
             # Error response with no error formatters raises ValueError
             ERROR_RESPONSE,
+            (),
+            identity,
+            raise_block_not_found,
+            ValueError,
+        ),
+        (
+            # Error response with no result formatters raises a ValueError
+            ERROR_RESPONSE_WITH_NONE_ID,
+            (),
+            identity,
+            raise_block_not_found,
+            ValueError,
+        ),
+        (
+            # Error response with no result formatters raises a ValueError
+            ERROR_RESPONSE_WITH_VALID_ID,
             (),
             identity,
             raise_block_not_found,
@@ -170,12 +236,23 @@ def test_formatted_response_raises_errors(
             "Transaction with hash: '0x01' not found.",
         ),
         (
+            INVALID_JSONRPC_RESP_FORMAT,
+            (),
+            identity,
+            identity,
+            BadResponseFormat,
+            f"The response was in an unexpected format and unable to be parsed. "
+            f'The "jsonrpc" field must be present with a value of "2.0". '
+            f"The raw response is: {INVALID_JSONRPC_RESP_FORMAT}",
+        ),
+        (
             UNEXPECTED_RESPONSE_FORMAT,
             (),
             identity,
             identity,
             BadResponseFormat,
-            f"The response was in an unexpected format and unable to be parsed. The raw response is: {UNEXPECTED_RESPONSE_FORMAT}",  # noqa: E501
+            f"The response was in an unexpected format and unable to be parsed. "
+            f"The raw response is: {UNEXPECTED_RESPONSE_FORMAT}",
         ),
         (
             ANOTHER_UNEXPECTED_RESP_FORMAT,
@@ -183,7 +260,44 @@ def test_formatted_response_raises_errors(
             identity,
             identity,
             BadResponseFormat,
-            f"The response was in an unexpected format and unable to be parsed. The raw response is: {ANOTHER_UNEXPECTED_RESP_FORMAT}",  # noqa: E501
+            f"The response was in an unexpected format and unable to be parsed. "
+            f"The raw response is: {ANOTHER_UNEXPECTED_RESP_FORMAT}",
+        ),
+        (
+            INVALID_CODE_RESP_FORMAT,
+            (),
+            identity,
+            identity,
+            BadResponseFormat,
+            re.escape(
+                f"The response was in an unexpected format and unable to be parsed. "
+                f"error['code'] must be an integer. "
+                f"The raw response is: {INVALID_CODE_RESP_FORMAT}"
+            ),
+        ),
+        (
+            MISSING_CODE_RESP_FORMAT,
+            (),
+            identity,
+            identity,
+            BadResponseFormat,
+            re.escape(
+                f"The response was in an unexpected format and unable to be parsed. "
+                f"error['code'] must be an integer. "
+                f"The raw response is: {MISSING_CODE_RESP_FORMAT}"
+            ),
+        ),
+        (
+            INVALID_MESSAGE_RESP_FORMAT,
+            (),
+            identity,
+            identity,
+            BadResponseFormat,
+            re.escape(
+                f"The response was in an unexpected format and unable to be parsed. "
+                f"error['message'] must be a string. "
+                f"The raw response is: {INVALID_MESSAGE_RESP_FORMAT}"
+            ),
         ),
     ],
 )

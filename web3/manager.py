@@ -75,6 +75,19 @@ if TYPE_CHECKING:
 
 
 NULL_RESPONSES = [None, HexBytes("0x"), "0x"]
+METHOD_NOT_FOUND = -32601
+
+
+def _raise_bad_response_format(response: RPCResponse, error: str = "") -> None:
+    message = "The response was in an unexpected format and unable to be parsed."
+    raw_response = f"The raw response is: {response}"
+
+    if error is not None and error != "":
+        message = f"{message} {error}. {raw_response}"
+    else:
+        message = f"{message} {raw_response}"
+
+    raise BadResponseFormat(message)
 
 
 def apply_error_formatters(
@@ -198,6 +211,15 @@ class RequestManager:
         self.logger.debug(f"Making request. Method: {method}")
         return await request_func(method, params)
 
+    #
+    # formatted_response parses and validates JSON-RPC responses for expected
+    # properties (result or an error) with the expected types.
+    #
+    # Required properties are not strictly enforced to further determine which
+    # exception to raise for specific cases.
+    #
+    # See also: https://www.jsonrpc.org/specification
+    #
     @staticmethod
     def formatted_response(
         response: RPCResponse,
@@ -205,36 +227,73 @@ class RequestManager:
         error_formatters: Optional[Callable[..., Any]] = None,
         null_result_formatters: Optional[Callable[..., Any]] = None,
     ) -> Any:
-        if "error" in response:
+        # jsonrpc is not enforced (as per the spec) but if present, it must be 2.0
+        if "jsonrpc" in response and response["jsonrpc"] != "2.0":
+            _raise_bad_response_format(
+                response, 'The "jsonrpc" field must be present with a value of "2.0"'
+            )
+
+        # id is not enforced (as per the spec) but if present, it must be a
+        # string or integer
+        # TODO: v7 - enforce id per the spec
+        if "id" in response:
+            response_id = response["id"]
+            # id is always None for errors
+            if response_id is None and "error" not in response:
+                _raise_bad_response_format(
+                    response, '"id" must be None when an error is present'
+                )
+            elif not isinstance(response_id, (str, int, type(None))):
+                _raise_bad_response_format(response, '"id" must be a string or integer')
+
+        # Response may not include both "error" and "result"
+        if "error" in response and "result" in response:
+            _raise_bad_response_format(
+                response, 'Response cannot include both "error" and "result"'
+            )
+
+        # Format and validate errors
+        elif "error" in response:
+            error = response.get("error")
+            # Raise the error when the value is a string
+            if error is None or isinstance(error, str):
+                raise ValueError(error)
+
+            # Errors must include an integer code
+            code = error.get("code")
+            if not isinstance(code, int):
+                _raise_bad_response_format(response, "error['code'] must be an integer")
+            elif code == METHOD_NOT_FOUND:
+                raise MethodUnavailable(error)
+
+            # Errors must include a message
+            if not isinstance(error.get("message"), str):
+                _raise_bad_response_format(
+                    response, "error['message'] must be a string"
+                )
+
             apply_error_formatters(error_formatters, response)
 
-            # guard against eth-tester case - eth-tester returns a string
-            # with no code, so can't parse what the error is.
-            if isinstance(response["error"], dict):
-                resp_code = response["error"].get("code")
-                if resp_code == -32601:
-                    raise MethodUnavailable(response["error"])
-            raise ValueError(response["error"])
-        # NULL_RESPONSES includes None, so return False here as the default
-        # so we don't apply the null_result_formatters if there is no 'result' key
-        elif response.get("result", False) in NULL_RESPONSES:
-            # null_result_formatters raise either a BlockNotFound
-            # or a TransactionNotFound error, depending on the method called
-            apply_null_result_formatters(null_result_formatters, response, params)
-            return response["result"]
-        elif response.get("result") is not None:
-            return response["result"]
+            raise ValueError(error)
+
+        # Format and validate results
+        elif "result" in response:
+            # Null values for result should apply null_result_formatters
+            # Skip when result not present in the response (fallback to False)
+            if response.get("result", False) in NULL_RESPONSES:
+                apply_null_result_formatters(null_result_formatters, response, params)
+            return response.get("result")
+
+        # Response from eth_subscribe includes response["params"]["result"]
         elif (
-            # eth_subscribe case
             response.get("params") is not None
             and response["params"].get("result") is not None
         ):
             return response["params"]["result"]
+
+        # Any other response type raises BadResponseFormat
         else:
-            raise BadResponseFormat(
-                "The response was in an unexpected format and unable to be parsed. "
-                f"The raw response is: {response}"
-            )
+            _raise_bad_response_format(response)
 
     def request_blocking(
         self,
