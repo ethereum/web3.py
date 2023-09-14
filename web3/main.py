@@ -127,6 +127,7 @@ from web3.providers.rpc import (
 from web3.providers.websocket import (
     WebsocketProvider,
 )
+from web3.providers.websocket.websocket_connection import WebsocketConnection
 from web3.testing import (
     Testing,
 )
@@ -142,9 +143,6 @@ from web3.types import (
 if TYPE_CHECKING:
     from web3.pm import PM  # noqa: F401
     from web3._utils.empty import Empty  # noqa: F401
-    from web3.manager import (  # noqa: F401
-        _AsyncPersistentRecvStream,
-    )
 
 
 def get_async_default_modules() -> Dict[str, Union[Type[Module], Sequence[Any]]]:
@@ -538,6 +536,7 @@ class _PersistentConnectionWeb3(AsyncWeb3):
                 "Provider must inherit from PersistentConnectionProvider class."
             )
         AsyncWeb3.__init__(self, provider, middlewares, modules, external_modules, ens)
+        self.ws = WebsocketConnection(self)
 
     # async for w3 in w3.persistent_websocket(provider)
     async def __aiter__(self) -> AsyncIterator["_PersistentConnectionWeb3"]:
@@ -560,6 +559,3 @@ class _PersistentConnectionWeb3(AsyncWeb3):
         exc_tb: TracebackType,
     ) -> None:
         await self.provider.disconnect()
-
-    def listen_to_websocket(self) -> "_AsyncPersistentRecvStream":
-        return self.manager.persistent_recv_stream()
