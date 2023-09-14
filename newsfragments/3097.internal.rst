@@ -1,0 +1,1 @@
+Ignore flake8 rule F401 (unused import) in all ``__init__.py`` files
