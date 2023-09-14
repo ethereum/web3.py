@@ -100,11 +100,11 @@ class WebsocketProviderV2(PersistentConnectionProvider):
         return f"Websocket connection: {self.endpoint_uri}"
 
     async def is_connected(self, show_traceback: bool = False) -> bool:
-        if not self.ws:
+        if not self._ws:
             return False
 
         try:
-            await self.ws.pong()
+            await self._ws.pong()
             return True
 
         except WebSocketException as e:
@@ -122,7 +122,7 @@ class WebsocketProviderV2(PersistentConnectionProvider):
         while _connection_attempts != self._max_connection_retries:
             try:
                 _connection_attempts += 1
-                self.ws = await connect(self.endpoint_uri, **self.websocket_kwargs)
+                self._ws = await connect(self.endpoint_uri, **self.websocket_kwargs)
                 break
             except WebSocketException as e:
                 if _connection_attempts == self._max_connection_retries:
@@ -139,8 +139,8 @@ class WebsocketProviderV2(PersistentConnectionProvider):
                 _backoff_time *= _backoff_rate_change
 
     async def disconnect(self) -> None:
-        await self.ws.close()
-        self.ws = None
+        await self._ws.close()
+        self._ws = None
 
         # clear the request information cache after disconnecting
         self._request_processor.clear_caches()
@@ -152,10 +152,10 @@ class WebsocketProviderV2(PersistentConnectionProvider):
     async def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
         request_data = self.encode_rpc_request(method, params)
 
-        if self.ws is None:
+        if self._ws is None:
             await self.connect()
 
-        await asyncio.wait_for(self.ws.send(request_data), timeout=self.call_timeout)
+        await asyncio.wait_for(self._ws.send(request_data), timeout=self.call_timeout)
 
         current_request_id = json.loads(request_data)["id"]
 
@@ -185,6 +185,7 @@ class WebsocketProviderV2(PersistentConnectionProvider):
         response_id = response.get("id")
 
         while response_id != request_id:
+            response = await self._ws_recv()
             response_id = response.get("id")
             if response_id != request_id:
                 self._request_processor.cache_raw_response(
@@ -194,5 +195,5 @@ class WebsocketProviderV2(PersistentConnectionProvider):
 
     async def _ws_recv(self) -> RPCResponse:
         return json.loads(
-            await asyncio.wait_for(self.ws.recv(), timeout=self.call_timeout)
+            await asyncio.wait_for(self._ws.recv(), timeout=self.call_timeout)
         )

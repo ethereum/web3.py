@@ -30,8 +30,8 @@ DEFAULT_PERSISTENT_CONNECTION_TIMEOUT = 20
 class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
     logger = logging.getLogger("web3.providers.PersistentConnectionProvider")
     has_persistent_connection = True
-    ws: Optional[WebSocketClientProtocol] = None
 
+    _ws: Optional[WebSocketClientProtocol] = None
     _request_processor: RequestProcessor
     _thread_pool: ThreadPoolExecutor = ThreadPoolExecutor()
     _lock: threading.Lock = threading.Lock()
