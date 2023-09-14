@@ -16,6 +16,9 @@ from typing import (
 from eth_typing import (
     HexStr,
 )
+from eth_utils import (
+    is_hexstr,
+)
 from eth_utils.curried import (
     apply_formatter_at_index,
     apply_formatter_if,
@@ -613,50 +616,61 @@ common_tracing_result_formatter = type_aware_apply_formatters_to_dict(
 
 # -- eth_subscribe -- #
 def subscription_formatter(value: Any) -> Union[HexBytes, HexStr, Dict[str, Any]]:
-    if is_string(value):
-        if len(value.replace("0x", "")) == 64:
-            # transaction hash, from `newPendingTransactions` subscription w/o full_txs
-            return HexBytes(value)
-
+    if is_hexstr(value):
         # subscription id from the original subscription request
         return HexStr(value)
 
-    response_key_set = set(value.keys())
+    elif isinstance(value, dict):
+        # subscription messages
 
-    # handle dict subscription responses
-    if either_set_is_a_subset(
-        response_key_set,
-        set(BLOCK_FORMATTERS.keys()),
-        percentage=90,
-    ):
-        # block format, newHeads
-        return block_formatter(value)
+        result = value.get("result")
+        result_formatter = None
 
-    elif either_set_is_a_subset(
-        response_key_set, set(LOG_ENTRY_FORMATTERS.keys()), percentage=90
-    ):
-        # logs
-        return log_entry_formatter(value)
+        if isinstance(result, str) and len(result.replace("0x", "")) == 64:
+            # transaction hash, from `newPendingTransactions` subscription w/o full_txs
+            result_formatter = HexBytes
 
-    elif either_set_is_a_subset(
-        response_key_set, set(TRANSACTION_RESULT_FORMATTERS.keys()), percentage=90
-    ):
-        # transaction subscription type (newPendingTransactions), full transactions
-        return transaction_result_formatter(value)
+        elif isinstance(result, (dict, AttributeDict)):
+            result_key_set = set(result.keys())
 
-    elif any(_ in response_key_set for _ in {"syncing", "status"}):
-        # geth syncing response
-        return type_aware_apply_formatters_to_dict(GETH_SYNCING_SUBSCRIPTION_FORMATTERS)
+            # handle dict subscription responses
+            if either_set_is_a_subset(
+                result_key_set,
+                set(BLOCK_FORMATTERS.keys()),
+                percentage=90,
+            ):
+                # block format, newHeads
+                result_formatter = block_formatter
 
-    elif either_set_is_a_subset(
-        response_key_set,
-        set(SYNCING_FORMATTERS.keys()),
-        percentage=90,
-    ):
-        # syncing response object
-        return syncing_formatter
+            elif either_set_is_a_subset(
+                result_key_set, set(LOG_ENTRY_FORMATTERS.keys()), percentage=90
+            ):
+                # logs
+                result_formatter = log_entry_formatter
 
-    # fallback to returning the value as-is
+            elif either_set_is_a_subset(
+                result_key_set, set(TRANSACTION_RESULT_FORMATTERS.keys()), percentage=90
+            ):
+                # newPendingTransactions, full transactions
+                result_formatter = transaction_result_formatter
+
+            elif any(_ in result_key_set for _ in {"syncing", "status"}):
+                # geth syncing response
+                result_formatter = type_aware_apply_formatters_to_dict(
+                    GETH_SYNCING_SUBSCRIPTION_FORMATTERS
+                )
+
+            elif either_set_is_a_subset(
+                result_key_set,
+                set(SYNCING_FORMATTERS.keys()),
+                percentage=90,
+            ):
+                # syncing response object
+                result_formatter = syncing_formatter
+
+        if result_formatter is not None:
+            value["result"] = result_formatter(result)
+
     return value
 
 

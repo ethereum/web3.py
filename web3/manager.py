@@ -291,12 +291,17 @@ class RequestManager:
                 apply_null_result_formatters(null_result_formatters, response, params)
             return response.get("result")
 
-        # Response from eth_subscribe includes response["params"]["result"]
+        # Response from eth_subscription includes response["params"]["result"]
         elif (
-            response.get("params") is not None
+            response.get("method") == "eth_subscription"
+            and response.get("params") is not None
+            and response["params"].get("subscription") is not None
             and response["params"].get("result") is not None
         ):
-            return response["params"]["result"]
+            return {
+                "subscription": response["params"]["subscription"],
+                "result": response["params"]["result"],
+            }
 
         # Any other response type raises BadResponseFormat
         else:
