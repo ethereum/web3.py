@@ -11,15 +11,15 @@ from .base import (
 from .ipc import (
     IPCProvider,
 )
-from .persistent import (
-    PersistentConnectionProvider,
-)
 from .rpc import (
     HTTPProvider,
 )
 from .websocket import (
     WebsocketProvider,
     WebsocketProviderV2,
+)
+from .persistent import (
+    PersistentConnectionProvider,
 )
 from .auto import (
     AutoProvider,
