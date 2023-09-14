@@ -1,4 +1,4 @@
-from .pytest_ethereum import (  # noqa: F401
+from .pytest_ethereum import (
     deployer,
     linker,
 )

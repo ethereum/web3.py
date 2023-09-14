@@ -1,8 +1,8 @@
-from .websocket import (  # noqa: F401
+from .websocket import (
     DEFAULT_WEBSOCKET_TIMEOUT,
     RESTRICTED_WEBSOCKET_KWARGS,
     WebsocketProvider,
 )
-from .websocket_v2 import (  # noqa: F401
+from .websocket_v2 import (
     WebsocketProviderV2,
 )
