@@ -35,7 +35,7 @@ ERROR_RESPONSE_WITH_NONE_ID = {
         "because the ancient block sync is still in progress.",
     },
 }
-ERROR_RESPONSE_WITH_INVALID_ID = {
+ERROR_RESPONSE_WITH_VALID_ID = {
     "id": 1,
     "jsonrpc": "2.0",
     "error": {
@@ -130,6 +130,14 @@ def raise_contract_logic_error(response):
         (
             # Error response with no result formatters raises a ValueError
             ERROR_RESPONSE_WITH_NONE_ID,
+            (),
+            identity,
+            raise_block_not_found,
+            ValueError,
+        ),
+        (
+            # Error response with no result formatters raises a ValueError
+            ERROR_RESPONSE_WITH_VALID_ID,
             (),
             identity,
             raise_block_not_found,
@@ -289,18 +297,6 @@ def test_formatted_response_raises_errors(
                 f"The response was in an unexpected format and unable to be parsed. "
                 f"error['message'] must be a string. "
                 f"The raw response is: {INVALID_MESSAGE_RESP_FORMAT}"
-            ),
-        ),
-        (
-            ERROR_RESPONSE_WITH_INVALID_ID,
-            (),
-            identity,
-            identity,
-            BadResponseFormat,
-            re.escape(
-                f"The response was in an unexpected format and unable to be parsed. "
-                f'"id" must be None when an error is present. '
-                f"The raw response is: {ERROR_RESPONSE_WITH_INVALID_ID}"
             ),
         ),
     ],

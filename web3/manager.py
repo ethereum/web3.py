@@ -239,9 +239,7 @@ class RequestManager:
         if "id" in response:
             response_id = response["id"]
             # id is always None for errors
-            if (response_id is None and "error" not in response) or (
-                response_id is not None and "error" in response
-            ):
+            if response_id is None and "error" not in response:
                 _raise_bad_response_format(
                     response, '"id" must be None when an error is present'
                 )
