@@ -146,7 +146,7 @@ class WebsocketProviderV2(PersistentConnectionProvider):
         self._request_processor.clear_caches()
         self.logger.debug(
             f'Successfully disconnected from endpoint: "{self.endpoint_uri}" '
-            "the request processor transient caches were cleared."
+            "and the request processor transient caches were cleared."
         )
 
     async def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:

@@ -60,6 +60,9 @@ from web3._utils.abi import (
     build_strict_registry,
     map_abi_data,
 )
+from web3._utils.compat import (
+    Self,
+)
 from web3._utils.empty import (
     empty,
 )
@@ -539,7 +542,7 @@ class _PersistentConnectionWeb3(AsyncWeb3):
         self.ws = WebsocketConnection(self)
 
     # async for w3 in w3.persistent_websocket(provider)
-    async def __aiter__(self) -> AsyncIterator["_PersistentConnectionWeb3"]:
+    async def __aiter__(self) -> AsyncIterator[Self]:
         while True:
             try:
                 yield self
@@ -548,7 +551,7 @@ class _PersistentConnectionWeb3(AsyncWeb3):
                 continue
 
     # async with w3.persistent_websocket(provider) as w3
-    async def __aenter__(self) -> "_PersistentConnectionWeb3":
+    async def __aenter__(self) -> Self:
         await self.provider.connect()
         return self
 
