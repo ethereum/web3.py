@@ -14,6 +14,7 @@ from typing import (
     MutableMapping,
     Optional,
     Sequence,
+    Tuple,
     Type,
     TypeVar,
     Union,
@@ -117,7 +118,9 @@ class AttributeDict(ReadableAttributeDict[TKey, TValue], Hashable):
         return hash(tuple(sorted(tupleize_lists_nested(self).items())))
 
     def __eq__(self, other: Any) -> bool:
-        if isinstance(other, Mapping):
+        if isinstance(other, AttributeDict):
+            return hash(self) == hash(other)
+        elif isinstance(other, Mapping):
             return self.__dict__ == dict(other)
         else:
             return False
@@ -130,12 +133,12 @@ def tupleize_lists_nested(d: Mapping[TKey, TValue]) -> AttributeDict[TKey, TValu
     Other unhashable types found will raise a TypeError
     """
 
-    def _to_tuple(lst: List[Any]) -> Any:
-        return tuple(_to_tuple(i) if isinstance(i, list) else i for i in lst)
+    def _to_tuple(value: Union[List[Any], Tuple[Any, ...]]) -> Any:
+        return tuple(_to_tuple(i) if isinstance(i, (list, tuple)) else i for i in value)
 
     ret = dict()
     for k, v in d.items():
-        if isinstance(v, List):
+        if isinstance(v, (list, tuple)):
             ret[k] = _to_tuple(v)
         elif isinstance(v, Mapping):
             ret[k] = tupleize_lists_nested(v)
