@@ -5,6 +5,7 @@ from typing import (
 
 from eth_typing import (
     URI,
+    HexStr,
 )
 
 from web3._utils.request import (
@@ -16,23 +17,32 @@ from web3.beacon.api_endpoints import (
     GET_ATTESTER_SLASHINGS,
     GET_BEACON_HEADS,
     GET_BEACON_STATE,
+    GET_BLINDED_BLOCKS,
     GET_BLOCK,
     GET_BLOCK_ATTESTATIONS,
     GET_BLOCK_HEADER,
     GET_BLOCK_HEADERS,
     GET_BLOCK_ROOT,
+    GET_BLS_TO_EXECUTION_CHANGES,
     GET_DEPOSIT_CONTRACT,
     GET_EPOCH_COMMITTEES,
+    GET_EPOCH_RANDAO,
+    GET_EPOCH_SYNC_COMMITTEES,
     GET_FINALITY_CHECKPOINT,
     GET_FORK_DATA,
     GET_FORK_SCHEDULE,
     GET_GENESIS,
     GET_HASH_ROOT,
     GET_HEALTH,
+    GET_LIGHT_CLIENT_BOOTSTRAP_STRUCTURE,
+    GET_LIGHT_CLIENT_FINALITY_UPDATE,
+    GET_LIGHT_CLIENT_UPDATES,
     GET_NODE_IDENTITY,
+    GET_LIGHT_CLIENT_OPTIMISTIC_UPDATE,
     GET_PEER,
     GET_PEERS,
     GET_PROPOSER_SLASHINGS,
+    GET_REWARDS,
     GET_SPEC,
     GET_SYNCING,
     GET_VALIDATOR,
@@ -57,6 +67,8 @@ class AsyncBeacon:
         return await async_json_make_get_request(uri)
 
     # [ BEACON endpoints ]
+
+    # states
 
     async def get_genesis(self) -> Dict[str, Any]:
         return await self._async_make_get_request(GET_GENESIS)
@@ -90,11 +102,23 @@ class AsyncBeacon:
     async def get_epoch_committees(self, state_id: str = "head") -> Dict[str, Any]:
         return await self._async_make_get_request(GET_EPOCH_COMMITTEES.format(state_id))
 
+    async def get_epoch_sync_committees(self, state_id: str = "head") -> Dict[str, Any]:
+        return await self._async_make_get_request(
+            GET_EPOCH_SYNC_COMMITTEES.format(state_id)
+        )
+
+    async def get_epoch_randao(self, state_id: str = "head") -> Dict[str, Any]:
+        return await self._async_make_get_request(GET_EPOCH_RANDAO.format(state_id))
+
+    # headers
+
     async def get_block_headers(self) -> Dict[str, Any]:
         return await self._async_make_get_request(GET_BLOCK_HEADERS)
 
     async def get_block_header(self, block_id: str) -> Dict[str, Any]:
         return await self._async_make_get_request(GET_BLOCK_HEADER.format(block_id))
+
+    # block
 
     async def get_block(self, block_id: str) -> Dict[str, Any]:
         return await self._async_make_get_request(GET_BLOCK.format(block_id))
@@ -107,6 +131,34 @@ class AsyncBeacon:
             GET_BLOCK_ATTESTATIONS.format(block_id)
         )
 
+    async def get_blinded_blocks(self, block_id: str) -> Dict[str, Any]:
+        return await self._async_make_get_request(GET_BLINDED_BLOCKS.format(block_id))
+
+    # rewards
+
+    async def get_rewards(self, block_id: str) -> Dict[str, Any]:
+        return await self._async_make_get_request(GET_REWARDS.format(block_id))
+
+    # light client
+
+    async def get_light_client_bootstrap_structure(
+        self, block_root: HexStr
+    ) -> Dict[str, Any]:
+        return await self._async_make_get_request(
+            GET_LIGHT_CLIENT_BOOTSTRAP_STRUCTURE.format(block_root)
+        )
+
+    async def get_light_client_updates(self) -> Dict[str, Any]:
+        return await self._async_make_get_request(GET_LIGHT_CLIENT_UPDATES)
+
+    async def get_light_client_finality_update(self) -> Dict[str, Any]:
+        return await self._async_make_get_request(GET_LIGHT_CLIENT_FINALITY_UPDATE)
+
+    async def get_light_client_optimistic_update(self) -> Dict[str, Any]:
+        return await self._async_make_get_request(GET_LIGHT_CLIENT_OPTIMISTIC_UPDATE)
+
+    # pool
+
     async def get_attestations(self) -> Dict[str, Any]:
         return await self._async_make_get_request(GET_ATTESTATIONS)
 
@@ -118,6 +170,9 @@ class AsyncBeacon:
 
     async def get_voluntary_exits(self) -> Dict[str, Any]:
         return await self._async_make_get_request(GET_VOLUNTARY_EXITS)
+
+    async def get_bls_to_execution_changes(self) -> Dict[str, Any]:
+        return await self._async_make_get_request(GET_BLS_TO_EXECUTION_CHANGES)
 
     # [ CONFIG endpoints ]
 
