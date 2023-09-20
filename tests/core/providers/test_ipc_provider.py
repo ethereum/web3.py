@@ -7,7 +7,6 @@ from threading import (
     Thread,
 )
 import time
-import uuid
 
 from web3.auto.gethdev import (
     w3,
@@ -26,7 +25,7 @@ from web3.providers.ipc import (
 @pytest.fixture
 def jsonrpc_ipc_pipe_path():
     with tempfile.TemporaryDirectory() as temp_dir:
-        ipc_path = os.path.join(temp_dir, f"{uuid.uuid4()}.ipc")
+        ipc_path = os.path.join(temp_dir, "temp.ipc")
         try:
             yield ipc_path
         finally:
