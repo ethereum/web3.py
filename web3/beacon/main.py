@@ -1,7 +1,6 @@
 from typing import (
     Any,
     Dict,
-    List,
 )
 
 from eth_typing import (
@@ -11,11 +10,9 @@ from eth_typing import (
 
 from web3._utils.request import (
     get_response_from_get_request,
-    get_response_from_post_request,
     json_make_get_request,
 )
 from web3.beacon.api_endpoints import (
-    # ATTESTATIONS_REWARDS,
     GET_ATTESTATIONS,
     GET_ATTESTER_SLASHINGS,
     GET_BEACON_HEADS,
@@ -39,9 +36,9 @@ from web3.beacon.api_endpoints import (
     GET_HEALTH,
     GET_LIGHT_CLIENT_BOOTSTRAP_STRUCTURE,
     GET_LIGHT_CLIENT_FINALITY_UPDATE,
+    GET_LIGHT_CLIENT_OPTIMISTIC_UPDATE,
     GET_LIGHT_CLIENT_UPDATES,
     GET_NODE_IDENTITY,
-    GET_LIGHT_CLIENT_OPTIMISTIC_UPDATE,
     GET_PEER,
     GET_PEERS,
     GET_PROPOSER_SLASHINGS,
@@ -60,18 +57,14 @@ class Beacon:
     def __init__(
         self,
         base_url: str,
+        request_timeout: float = 10.0,
     ) -> None:
         self.base_url = base_url
+        self.request_timeout = request_timeout
 
     def _make_get_request(self, endpoint_url: str) -> Dict[str, Any]:
         uri = URI(self.base_url + endpoint_url)
-        return json_make_get_request(uri)
-
-    def _make_post_request(
-        self, endpoint_url: str, payload: List[str]
-    ) -> Dict[str, Any]:
-        uri = URI(self.base_url + endpoint_url)
-        return get_response_from_post_request(uri, data={"array": payload}).json()
+        return json_make_get_request(uri, timeout=self.request_timeout)
 
     # [ BEACON endpoints ]
 

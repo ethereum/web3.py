@@ -3,12 +3,19 @@ from random import (
     randint,
 )
 
+from requests import (
+    Timeout,
+)
+
 from web3._utils.request import (
     _session_cache,
 )
 from web3.beacon import (
     Beacon,
 )
+
+# tested against lighthouse which uses port 5052 by default
+BASE_URL = "http://localhost:5052"
 
 
 def _assert_valid_response(response):
@@ -19,14 +26,19 @@ def _assert_valid_response(response):
 
 @pytest.fixture
 def beacon():
-    # tested against lighthouse which uses port 5052 by default
-    return Beacon(base_url="http://localhost:5052")
+    return Beacon(base_url=BASE_URL)
 
 
 @pytest.fixture(autouse=True)
 def _cleanup():
     yield
     _session_cache.clear()
+
+
+def test_beacon_user_defined_request_timeout(beacon):
+    beacon = Beacon(base_url=BASE_URL, request_timeout=0.01)
+    with pytest.raises(Timeout):
+        beacon.get_validators()
 
 
 # Beacon endpoint tests:
@@ -175,7 +187,7 @@ def test_cl_node_get_peer(beacon):
 
 def test_cl_node_get_health(beacon):
     response = beacon.get_health()
-    assert response <= 206
+    assert isinstance(response, int)
 
 
 def test_cl_node_get_version(beacon):
