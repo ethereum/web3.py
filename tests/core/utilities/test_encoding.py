@@ -157,38 +157,44 @@ def test_text_if_str_on_text(val):
         (
             AttributeDict(
                 {
-                    "hash": HexBytes(
-                        "0x142ab034696c09dcfb2a8b086b494f3f4c419e67b6c04d95882f87156a3b6f35"  # noqa: E501
-                    ),
-                    "nonce": 3,
-                    "blockHash": HexBytes(
-                        "0xe14a0029f8ae6f41ab2287871d7f2f0658696ce0a842883147629cc1b300fc89"  # noqa: E501
-                    ),
-                    "blockNumber": 4322026,
-                    "transactionIndex": 2,
-                    "from": "0xb17473E95Cc2c37f88C56593Ff8767e10c972359",
-                    "to": "0x8daF62dF221D11b470Ca4531305470DaE4A65784",
-                    "value": 0,
-                    "gasPrice": 3459216019,
-                    "maxPriorityFeePerGas": 2500000000,
-                    "maxFeePerGas": 4421310622,
-                    "gas": 26856,
-                    "input": HexBytes("0x3857"),
-                    "chainId": 1337,
-                    "type": 2,
-                    "accessList": [],
-                    "v": 1,
-                    "s": HexBytes(
-                        "0x6f5216fc207221a11efe2e4c3e3a881a0b5ca286ede538fc9dbc403b2009ea76"  # noqa: E501
-                    ),
-                    "r": HexBytes(
-                        "0xd148ae70c8cbef3a038e70e6d1639f0951e60a2965820f33bad19d0a6c2b8116"  # noqa: E501
-                    ),
-                    "yParity": 1,
+                    "transactions": [
+                        AttributeDict(
+                            {
+                                "hash": HexBytes(
+                                    "0x142ab034696c09dcfb2a8b086b494f3f4c419e67b6c04d95882f87156a3b6f35"  # noqa: E501
+                                ),
+                                "nonce": 3,
+                                "blockHash": HexBytes(
+                                    "0xe14a0029f8ae6f41ab2287871d7f2f0658696ce0a842883147629cc1b300fc89"  # noqa: E501
+                                ),
+                                "blockNumber": 4322026,
+                                "transactionIndex": 2,
+                                "from": "0xb17473E95Cc2c37f88C56593Ff8767e10c972359",
+                                "to": "0x8daF62dF221D11b470Ca4531305470DaE4A65784",
+                                "value": 0,
+                                "gasPrice": 3459216019,
+                                "maxPriorityFeePerGas": 2500000000,
+                                "maxFeePerGas": 4421310622,
+                                "gas": 26856,
+                                "input": HexBytes("0x3857"),
+                                "chainId": 1337,
+                                "type": 2,
+                                "accessList": [],
+                                "v": 1,
+                                "s": HexBytes(
+                                    "0x6f5216fc207221a11efe2e4c3e3a881a0b5ca286ede538fc9dbc403b2009ea76"  # noqa: E501
+                                ),
+                                "r": HexBytes(
+                                    "0xd148ae70c8cbef3a038e70e6d1639f0951e60a2965820f33bad19d0a6c2b8116"  # noqa: E501
+                                ),
+                                "yParity": 1,
+                            },
+                        )
+                    ]
                 }
             ),
             None,
-            """{
+            """{"transactions": [{
                 "hash": "0x142ab034696c09dcfb2a8b086b494f3f4c419e67b6c04d95882f87156a3b6f35",  # noqa: E501
                 "nonce": 3,
                 "blockHash": "0xe14a0029f8ae6f41ab2287871d7f2f0658696ce0a842883147629cc1b300fc89",  # noqa: E501
@@ -209,10 +215,10 @@ def test_text_if_str_on_text(val):
                 "s": "0x6f5216fc207221a11efe2e4c3e3a881a0b5ca286ede538fc9dbc403b2009ea76",  # noqa: E501
                 "r": "0xd148ae70c8cbef3a038e70e6d1639f0951e60a2965820f33bad19d0a6c2b8116",  # noqa: E501
                 "yParity": 1,
-            }""",
+            }]}""",
         ),
     ),
-    ids=("datetime", "datetime_error", "bytes types", "attrdict with hexbytes"),
+    ids=("datetime", "datetime_error", "bytes types", "nested attrdict with hexbytes"),
 )
 def test_friendly_json_encode_with_web3_json_encoder(py_obj, exc_type, expected):
     if exc_type is None:
