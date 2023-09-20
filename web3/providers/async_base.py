@@ -17,6 +17,7 @@ from eth_utils import (
 
 from web3._utils.encoding import (
     FriendlyJsonSerde,
+    Web3JsonEncoder,
 )
 from web3.exceptions import (
     ProviderConnectionError,
@@ -106,7 +107,7 @@ class AsyncJSONBaseProvider(AsyncBaseProvider):
             "params": params or [],
             "id": request_id,
         }
-        encoded = FriendlyJsonSerde().json_encode(rpc_dict)
+        encoded = FriendlyJsonSerde().json_encode(rpc_dict, cls=Web3JsonEncoder)
         return to_bytes(text=encoded)
 
     def decode_rpc_response(self, raw_response: bytes) -> RPCResponse:
