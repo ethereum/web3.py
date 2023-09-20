@@ -36,9 +36,9 @@ from web3.beacon.api_endpoints import (
     GET_HEALTH,
     GET_LIGHT_CLIENT_BOOTSTRAP_STRUCTURE,
     GET_LIGHT_CLIENT_FINALITY_UPDATE,
+    GET_LIGHT_CLIENT_OPTIMISTIC_UPDATE,
     GET_LIGHT_CLIENT_UPDATES,
     GET_NODE_IDENTITY,
-    GET_LIGHT_CLIENT_OPTIMISTIC_UPDATE,
     GET_PEER,
     GET_PEERS,
     GET_PROPOSER_SLASHINGS,
@@ -59,12 +59,14 @@ class AsyncBeacon:
     def __init__(
         self,
         base_url: str,
+        request_timeout: float = 10.0,
     ) -> None:
         self.base_url = base_url
+        self.request_timeout = request_timeout
 
     async def _async_make_get_request(self, endpoint_uri: str) -> Dict[str, Any]:
         uri = URI(self.base_url + endpoint_uri)
-        return await async_json_make_get_request(uri)
+        return await async_json_make_get_request(uri, timeout=self.request_timeout)
 
     # [ BEACON endpoints ]
 
