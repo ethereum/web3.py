@@ -15,6 +15,7 @@ from eth_utils import (
 
 from web3._utils.encoding import (
     FriendlyJsonSerde,
+    Web3JsonEncoder,
 )
 from web3.exceptions import (
     ProviderConnectionError,
@@ -106,7 +107,7 @@ class JSONBaseProvider(BaseProvider):
             "params": params or [],
             "id": next(self.request_counter),
         }
-        encoded = FriendlyJsonSerde().json_encode(rpc_dict)
+        encoded = FriendlyJsonSerde().json_encode(rpc_dict, Web3JsonEncoder)
         return to_bytes(text=encoded)
 
     def is_connected(self, show_traceback: bool = False) -> bool:

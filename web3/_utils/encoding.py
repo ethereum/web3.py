@@ -290,9 +290,11 @@ def encode_single_packed(_type: TypeStr, value: Any) -> bytes:
 class Web3JsonEncoder(json.JSONEncoder):
     def default(self, obj: Any) -> Union[Dict[Any, Any], HexStr]:
         if isinstance(obj, AttributeDict):
-            return {k: v for k, v in obj.items()}
-        if isinstance(obj, HexBytes):
+            return obj.__dict__
+        elif isinstance(obj, HexBytes):
             return HexStr(obj.hex())
+        elif isinstance(obj, bytes):
+            return to_hex(obj)
         return json.JSONEncoder.default(self, obj)
 
 
