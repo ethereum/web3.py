@@ -1,10 +1,12 @@
 import asyncio
 import itertools
+import json
 from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
     Coroutine,
+    Iterable,
     Optional,
     Set,
     Tuple,
@@ -113,6 +115,11 @@ class AsyncBaseProvider:
     async def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
         raise NotImplementedError("Providers must implement this method")
 
+    async def make_batch_request(
+        self, requests: Iterable[tuple[RPCEndpoint, Any]]
+    ) -> list[RPCResponse]:
+        raise NotImplementedError("Only AsyncHTTPProvider supports this method")
+
     async def is_connected(self, show_traceback: bool = False) -> bool:
         raise NotImplementedError("Providers must implement this method")
 
@@ -156,11 +163,28 @@ class AsyncJSONBaseProvider(AsyncBaseProvider):
         encoded = FriendlyJsonSerde().json_encode(rpc_dict, cls=Web3JsonEncoder)
         return to_bytes(text=encoded)
 
+    def encode_batch_rpc_request(
+        self, requests: Iterable[tuple[RPCEndpoint, Any]]
+    ) -> bytes:
+        return (
+            b"["
+            + b", ".join(
+                self.encode_rpc_request(method, params) for method, params in requests
+            )
+            + b"]"
+        )
+
     def decode_rpc_response(self, raw_response: bytes) -> RPCResponse:
         text_response = str(
             to_text(raw_response) if not is_text(raw_response) else raw_response
         )
         return cast(RPCResponse, FriendlyJsonSerde().json_decode(text_response))
+
+    def decode_batch_rpc_response(self, raw_response: bytes) -> list[RPCResponse]:
+        text_response = str(
+            to_text(raw_response) if not is_text(raw_response) else raw_response
+        )
+        return json.loads(text_response)
 
     async def is_connected(self, show_traceback: bool = False) -> bool:
         try:
