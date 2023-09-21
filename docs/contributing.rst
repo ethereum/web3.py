@@ -67,7 +67,7 @@ To start up the test environment, run:
 
 .. code:: sh
 
-    $ docker-compose up -d
+    $ docker compose up -d
 
 
 This will build a Docker container set up with an environment to run the
@@ -82,7 +82,7 @@ To run the Python tests from your local machine:
 
 .. code:: sh
 
-    $ docker-compose exec sandbox bash -c 'pytest -n 4 -f -k "not goethereum"'
+    $ docker compose exec sandbox bash -c 'pytest -n 4 -f -k "not goethereum"'
 
 
 You can run arbitrary commands inside the Docker container by using the
@@ -90,14 +90,14 @@ You can run arbitrary commands inside the Docker container by using the
 
 .. code:: sh
 
-    $ docker-compose exec sandbox bash -c ''
+    $ docker compose exec sandbox bash -c ''
 
 
 Or, if you would like to open a session to the container, run:
 
 .. code:: sh
 
-    $ docker-compose exec sandbox bash
+    $ docker compose exec sandbox bash
 
 
 Code Style
