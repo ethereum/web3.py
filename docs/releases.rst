@@ -4,10 +4,6 @@ Release Notes
 v6 Breaking Changes Summary
    See the :ref:`v6 Migration Guide<migrating_v5_to_v6>`
 
-.. note::
-   web3.py v5 support will end on August 31, 2023.
-   See issue `#3044 <https://github.com/ethereum/web3.py/issues/3044>`__
-
 .. towncrier release notes start
 
 web3.py v6.10.0 (2023-09-21)
