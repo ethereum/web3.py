@@ -1,0 +1,1 @@
+Change ``docker-compose`` to ``docker compose`` in the Contributing docs examples.
