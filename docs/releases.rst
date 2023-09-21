@@ -13,8 +13,8 @@ v6 Breaking Changes Summary
 web3.py v6.10.0 (2023-09-21)
 ----------------------------
 
-Breaking Changes
-~~~~~~~~~~~~~~~~
+Breaking Changes (to Beta APIs)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 - Breaking change to the API for interacting with a persistent websocket connection via ``AsyncWeb3`` and ``WebsocketProviderV2``. This change internalizes the ``provider.ws`` property and opts for a ``w3.ws`` API achieved via a new ``WebsocketConnection`` class. With these changes, ``eth_subscription`` messages now return the subscription id as the ``subscription`` param and the formatted message as the ``result`` param. (`#3096 <https://github.com/ethereum/web3.py/issues/3096>`__)
 
