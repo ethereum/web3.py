@@ -141,7 +141,7 @@ class AsyncBeacon:
     async def get_rewards(self, block_id: str) -> Dict[str, Any]:
         return await self._async_make_get_request(GET_REWARDS.format(block_id))
 
-    # light client
+    # light client (untested but follows spec)
 
     async def get_light_client_bootstrap_structure(
         self, block_root: HexStr

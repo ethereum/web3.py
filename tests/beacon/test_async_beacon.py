@@ -34,9 +34,18 @@ async def _cleanup():
     _async_session_cache.clear()
 
 
+# sanity check to make sure the positive test cases are valid
+@pytest.mark.asyncio
+async def test_async_cl_beacon_raises_exception_on_invalid_url(async_beacon):
+    with pytest.raises(ValueError):
+        await async_beacon._async_make_get_request(
+            BASE_URL + "/eth/v1/beacon/nonexistent"
+        )
+
+
 @pytest.mark.asyncio
 async def test_async_beacon_user_request_timeout():
-    beacon = AsyncBeacon(base_url=BASE_URL, request_timeout=0.01)
+    beacon = AsyncBeacon(base_url=BASE_URL, request_timeout=0.001)
     with pytest.raises(TimeoutError):
         await beacon.get_validators()
 
@@ -100,6 +109,18 @@ async def test_async_cl_beacon_get_epoch_committees(async_beacon):
 
 
 @pytest.mark.asyncio
+async def test_async_cl_beacon_get_epoch_sync_committees(async_beacon):
+    response = await async_beacon.get_epoch_sync_committees()
+    _assert_valid_response(response)
+
+
+@pytest.mark.asyncio
+async def test_async_cl_beacon_get_epoch_randao(async_beacon):
+    response = await async_beacon.get_epoch_randao()
+    _assert_valid_response(response)
+
+
+@pytest.mark.asyncio
 async def test_async_cl_beacon_get_block_headers(async_beacon):
     response = await async_beacon.get_block_headers()
     _assert_valid_response(response)
@@ -120,6 +141,18 @@ async def test_async_cl_beacon_get_block(async_beacon):
 @pytest.mark.asyncio
 async def test_async_cl_beacon_get_block_root(async_beacon):
     response = await async_beacon.get_block_root("head")
+    _assert_valid_response(response)
+
+
+@pytest.mark.asyncio
+async def test_async_cl_beacon_get_blinded_blocks(async_beacon):
+    response = await async_beacon.get_blinded_blocks("head")
+    _assert_valid_response(response)
+
+
+@pytest.mark.asyncio
+async def test_async_cl_beacon_get_rewards(async_beacon):
+    response = await async_beacon.get_rewards("head")
     _assert_valid_response(response)
 
 
@@ -150,6 +183,12 @@ async def test_async_cl_beacon_get_proposer_slashings(async_beacon):
 @pytest.mark.asyncio
 async def test_async_cl_beacon_get_voluntary_exits(async_beacon):
     response = await async_beacon.get_voluntary_exits()
+    _assert_valid_response(response)
+
+
+@pytest.mark.asyncio
+async def test_async_cl_beacon_get_bls_to_execution_changes(async_beacon):
+    response = await async_beacon.get_bls_to_execution_changes()
     _assert_valid_response(response)
 
 
