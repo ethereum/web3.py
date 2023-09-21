@@ -1,1 +1,0 @@
-Add ``eth_maxPriorityFeePerGas`` to ``exception_retry_middleware`` whitelist

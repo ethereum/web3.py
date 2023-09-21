@@ -1,1 +1,0 @@
-Return `w3.eth.gas_price` when calculating time based gas price strategy for an empty chain.

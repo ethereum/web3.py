@@ -1,1 +1,0 @@
-Fixes ``AsyncEth.max_priority_fee_per_gas``. It wasn't falling back to ``eth_feeHistory`` since the ``MethodUnavailable`` error was introduced.

@@ -1,1 +1,0 @@
-Properly JSON encode ``AttributeDict``, ``bytes``, and ``HexBytes`` when sending a JSON-RPC request by utilizing the in-house ``Web3JsonEncoder`` class.

@@ -1,1 +1,0 @@
-Fix an issue with an IPC test present only on MacOSX.

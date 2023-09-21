@@ -10,6 +10,46 @@ v6 Breaking Changes Summary
 
 .. towncrier release notes start
 
+web3.py v6.10.0 (2023-09-21)
+----------------------------
+
+Breaking Changes
+~~~~~~~~~~~~~~~~
+
+- Breaking change to the API for interacting with a persistent websocket connection via ``AsyncWeb3`` and ``WebsocketProviderV2``. This change internalizes the ``provider.ws`` property and opts for a ``w3.ws`` API achieved via a new ``WebsocketConnection`` class. With these changes, ``eth_subscription`` messages now return the subscription id as the ``subscription`` param and the formatted message as the ``result`` param. (`#3096 <https://github.com/ethereum/web3.py/issues/3096>`__)
+
+
+Bugfixes
+~~~~~~~~
+
+- Return `w3.eth.gas_price` when calculating time based gas price strategy for an empty chain. (`#1149 <https://github.com/ethereum/web3.py/issues/1149>`__)
+- Update `LogReceipt` and `TxReceipt` declarations. Remove `LogReceipt`'s `payload` and `topic` attributes. Refactor `LogEntry` to `LogReceipt`. (`#3043 <https://github.com/ethereum/web3.py/issues/3043>`__)
+- Fixes ``AsyncEth.max_priority_fee_per_gas``. It wasn't falling back to ``eth_feeHistory`` since the ``MethodUnavailable`` error was introduced. (`#3084 <https://github.com/ethereum/web3.py/issues/3084>`__)
+
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Update ``WebsocketProviderV2`` documentation to reflect the new public websocket API via the ``WebsocketConnection`` class. (`#3096 <https://github.com/ethereum/web3.py/issues/3096>`__)
+
+
+Features
+~~~~~~~~
+
+- Improved error messaging for exceptions from malformed JSON-RPC responses. (`#3053 <https://github.com/ethereum/web3.py/issues/3053>`__)
+- Enable filtering by non-indexed arguments for contract event ``get_logs()``. (`#3078 <https://github.com/ethereum/web3.py/issues/3078>`__)
+- Add ``eth_maxPriorityFeePerGas`` to ``exception_retry_middleware`` whitelist (`#3090 <https://github.com/ethereum/web3.py/issues/3090>`__)
+- Sync responses for ``WebsocketProviderV2`` open connections with requests via matching RPC ``id`` values. (`#3096 <https://github.com/ethereum/web3.py/issues/3096>`__)
+- Properly JSON encode ``AttributeDict``, ``bytes``, and ``HexBytes`` when sending a JSON-RPC request by utilizing the in-house ``Web3JsonEncoder`` class. (`#3101 <https://github.com/ethereum/web3.py/issues/3101>`__)
+
+
+Internal Changes - for web3.py Contributors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Fix an issue with an IPC test present only on MacOSX. (`#929 <https://github.com/ethereum/web3.py/issues/929>`__)
+- Ignore flake8 rule F401 (unused import) in all ``__init__.py`` files (`#3097 <https://github.com/ethereum/web3.py/issues/3097>`__)
+
+
 web3.py v6.9.0 (2023-08-23)
 ---------------------------
 

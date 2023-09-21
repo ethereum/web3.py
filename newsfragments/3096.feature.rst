@@ -1,1 +1,0 @@
-Sync responses for ``WebsocketProviderV2`` open connections with requests via matching RPC ``id`` values.

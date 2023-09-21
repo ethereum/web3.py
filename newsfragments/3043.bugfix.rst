@@ -1,1 +1,0 @@
-Update `LogReceipt` and `TxReceipt` declarations. Remove `LogReceipt`'s `payload` and `topic` attributes. Refactor `LogEntry` to `LogReceipt`.

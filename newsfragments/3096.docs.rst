@@ -1,1 +1,0 @@
-Update ``WebsocketProviderV2`` documentation to reflect the new public websocket API via the ``WebsocketConnection`` class.
