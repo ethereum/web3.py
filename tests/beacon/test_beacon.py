@@ -35,8 +35,14 @@ def _cleanup():
     _session_cache.clear()
 
 
-def test_beacon_user_defined_request_timeout(beacon):
-    beacon = Beacon(base_url=BASE_URL, request_timeout=0.01)
+# sanity check to make sure the positive test cases are valid
+def test_cl_beacon_raises_exception_on_invalid_url(beacon):
+    with pytest.raises(ValueError):
+        beacon._make_get_request(BASE_URL + "/eth/v1/beacon/nonexistent")
+
+
+def test_beacon_user_defined_request_timeout():
+    beacon = Beacon(base_url=BASE_URL, request_timeout=0.001)
     with pytest.raises(Timeout):
         beacon.get_validators()
 
@@ -91,6 +97,16 @@ def test_cl_beacon_get_epoch_committees(beacon):
     _assert_valid_response(response)
 
 
+def test_cl_beacon_get_epoch_sync_committees(beacon):
+    response = beacon.get_epoch_sync_committees()
+    _assert_valid_response(response)
+
+
+def test_cl_beacon_get_epoch_randao(beacon):
+    response = beacon.get_epoch_randao()
+    _assert_valid_response(response)
+
+
 def test_cl_beacon_get_block_headers(beacon):
     response = beacon.get_block_headers()
     _assert_valid_response(response)
@@ -108,6 +124,16 @@ def test_cl_beacon_get_block(beacon):
 
 def test_cl_beacon_get_block_root(beacon):
     response = beacon.get_block_root("head")
+    _assert_valid_response(response)
+
+
+def test_cl_beacon_get_blinded_blocks(beacon):
+    response = beacon.get_blinded_blocks("head")
+    _assert_valid_response(response)
+
+
+def test_cl_beacon_get_rewards(beacon):
+    response = beacon.get_rewards("head")
     _assert_valid_response(response)
 
 
@@ -133,6 +159,11 @@ def test_cl_beacon_get_proposer_slashings(beacon):
 
 def test_cl_beacon_get_voluntary_exits(beacon):
     response = beacon.get_voluntary_exits()
+    _assert_valid_response(response)
+
+
+def test_cl_beacon_get_bls_to_execution_changes(beacon):
+    response = beacon.get_bls_to_execution_changes()
     _assert_valid_response(response)
 
 
