@@ -171,6 +171,46 @@ def test_time_based_gas_price_strategy(strategy_params, expected):
     assert actual == expected
 
 
+def _get_initial_block(method, params):
+    return {
+        "hash": constants.HASH_ZERO,
+        "number": 0,
+        "parentHash": None,
+        "transactions": [],
+        "miner": "0x" + "Aa" * 20,
+        "timestamp": 0,
+    }
+
+
+def _get_gas_price(method, params):
+    return 4321
+
+
+def test_time_based_gas_price_strategy_without_transactions():
+    fixture_middleware = construct_result_generator_middleware(
+        {
+            "eth_getBlockByHash": _get_initial_block,
+            "eth_getBlockByNumber": _get_initial_block,
+            "eth_gasPrice": _get_gas_price,
+        }
+    )
+
+    w3 = Web3(
+        provider=BaseProvider(),
+        middlewares=[fixture_middleware],
+    )
+
+    time_based_gas_price_strategy = construct_time_based_gas_price_strategy(
+        max_wait_seconds=80,
+        sample_size=5,
+        probability=50,
+        weighted=True,
+    )
+    w3.eth.set_gas_price_strategy(time_based_gas_price_strategy)
+    actual = w3.eth.generate_gas_price()
+    assert actual == w3.eth.gas_price
+
+
 @pytest.mark.parametrize(
     "strategy_params_zero,expected_exception_message",
     (

@@ -216,6 +216,10 @@ def construct_time_based_gas_price_strategy(
     """
 
     def time_based_gas_price_strategy(w3: Web3, transaction_params: TxParams) -> Wei:
+        # return gas price when no transactions available to sample
+        if w3.eth.get_block("latest")["number"] == 0:
+            return w3.eth.gas_price
+
         if weighted:
             avg_block_time = _get_weighted_avg_block_time(w3, sample_size=sample_size)
         else:
