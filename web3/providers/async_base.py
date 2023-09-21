@@ -7,6 +7,7 @@ from typing import (
     Callable,
     Coroutine,
     Iterable,
+    List,
     Optional,
     Set,
     Tuple,
@@ -116,8 +117,8 @@ class AsyncBaseProvider:
         raise NotImplementedError("Providers must implement this method")
 
     async def make_batch_request(
-        self, requests: Iterable[tuple[RPCEndpoint, Any]]
-    ) -> list[RPCResponse]:
+        self, requests: Iterable[Tuple[RPCEndpoint, Any]]
+    ) -> List[RPCResponse]:
         raise NotImplementedError("Only AsyncHTTPProvider supports this method")
 
     async def is_connected(self, show_traceback: bool = False) -> bool:
@@ -164,7 +165,7 @@ class AsyncJSONBaseProvider(AsyncBaseProvider):
         return to_bytes(text=encoded)
 
     def encode_batch_rpc_request(
-        self, requests: Iterable[tuple[RPCEndpoint, Any]]
+        self, requests: Iterable[Tuple[RPCEndpoint, Any]]
     ) -> bytes:
         return (
             b"["
@@ -180,7 +181,7 @@ class AsyncJSONBaseProvider(AsyncBaseProvider):
         )
         return cast(RPCResponse, FriendlyJsonSerde().json_decode(text_response))
 
-    def decode_batch_rpc_response(self, raw_response: bytes) -> list[RPCResponse]:
+    def decode_batch_rpc_response(self, raw_response: bytes) -> List[RPCResponse]:
         text_response = str(
             to_text(raw_response) if not is_text(raw_response) else raw_response
         )
