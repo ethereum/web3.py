@@ -1,3 +1,4 @@
+import functools
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -173,16 +174,9 @@ class Method(Generic[TFunc]):
         # See the test_process_params test
         # in tests/core/method-class/test_method.py for an example
         # with multiple mungers.
-        for munger in self.mungers:
-            try:
-                args = munger(module, *args, **kwargs)
-            except TypeError:
-                raise TypeError(
-                    f"Munger {munger.__name__} failed to process parameters."
-                    "Args: {args} and kwargs: {kwargs}."
-                    "Please check the parameters you are passing to the method."
-                )
-        return args
+        return functools.reduce(
+            lambda args, munger: munger(module, *args, **kwargs), self.mungers, args
+        )
 
     def process_params(
         self, module: "Module", *args: Any, **kwargs: Any
