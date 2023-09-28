@@ -171,9 +171,8 @@ class Method(Generic[TFunc]):
 
     def input_munger(self, module: "Module", args: Any, kwargs: Any) -> List[Any]:
         # This function takes the input parameters and munges them.
-        # See the test_process_params test
-        # in tests/core/method-class/test_method.py for an example
-        # with multiple mungers.
+        # See the test_process_params test in ``tests/core/method-class/test_method.py``
+        # for an example with multiple mungers.
         return functools.reduce(
             lambda args, munger: munger(module, *args, **kwargs), self.mungers, args
         )
