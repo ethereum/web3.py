@@ -247,6 +247,13 @@ jobs:
     environment:
       TOXENV: py37-core
 
+  py37-core_async:
+    <<: *common
+    docker:
+      - image: cimg/python:3.7
+    environment:
+      TOXENV: py37-core_async
+
   py37-ens:
     <<: *common
     docker:
@@ -364,6 +371,13 @@ jobs:
       - image: cimg/python:3.8
     environment:
       TOXENV: py38-core
+
+  py38-core_async:
+    <<: *common
+    docker:
+      - image: cimg/python:3.8
+    environment:
+        TOXENV: py38-core_async
 
   py38-ens:
     <<: *common
@@ -483,6 +497,13 @@ jobs:
     environment:
       TOXENV: py39-core
 
+  py39-core_async:
+    <<: *common
+    docker:
+      - image: cimg/python:3.9
+    environment:
+        TOXENV: py39-core_async
+
   py39-ens:
     <<: *common
     docker:
@@ -599,6 +620,13 @@ jobs:
       - image: cimg/python:3.10
     environment:
       TOXENV: py310-core
+
+  py310-core_async:
+    <<: *common
+    docker:
+      - image: cimg/python:3.10
+    environment:
+      TOXENV: py310-core_async
 
   py310-ens:
     <<: *common
@@ -722,6 +750,13 @@ jobs:
     environment:
       TOXENV: py311-core
 
+  py311-core_async:
+    <<: *common
+    docker:
+      - image: cimg/python:3.11
+    environment:
+      TOXENV: py311-core_async
+
   py311-ens:
     <<: *common
     docker:
@@ -840,6 +875,11 @@ workflows:
       - py39-core
       - py310-core
       - py311-core
+      - py37-core_async
+      - py38-core_async
+      - py39-core_async
+      - py310-core_async
+      - py311-core_async
       - docs
       - benchmark
       - py37-ens
