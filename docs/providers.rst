@@ -270,16 +270,15 @@ asynchronous context manager, can be found in the `websockets connection`_ docs.
         ...         # subscribe to new block headers
         ...         subscription_id = await w3.eth.subscribe("newHeads")
         ...
-        ...         unsubscribed = False
-        ...         while not unsubscribed:
-        ...             async for response in w3.ws.listen_to_websocket():
-        ...                 print(f"{response}\n")
-        ...                 # handle responses here
+        ...         async for response in w3.ws.listen_to_websocket():
+        ...             print(f"{response}\n")
+        ...             # handle responses here
         ...
-        ...                 if some_condition:
-        ...                     # unsubscribe from new block headers
-        ...                     unsubscribed = await w3.eth.unsubscribe(subscription_id)
-        ...                     break
+        ...             if some_condition:
+        ...                 # unsubscribe from new block headers and break out of
+        ...                 # iterator
+        ...                 unsubscribed = await w3.eth.unsubscribe(subscription_id)
+        ...                 break
         ...
         ...         # still an open connection, make any other requests and get
         ...         # responses via send / receive

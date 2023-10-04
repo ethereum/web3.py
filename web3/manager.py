@@ -1,5 +1,6 @@
 import logging
 from typing import (
+    AsyncIterator,
     TYPE_CHECKING,
     Any,
     AsyncGenerator,
@@ -354,7 +355,7 @@ class RequestManager:
     async def ws_recv(self) -> Any:
         return await self._ws_recv_stream().__anext__()
 
-    def persistent_recv_stream(self) -> "_AsyncPersistentRecvStream":
+    def _persistent_recv_stream(self) -> "_AsyncPersistentRecvStream":
         return _AsyncPersistentRecvStream(self)
 
     async def _ws_recv_stream(self) -> AsyncGenerator[RPCResponse, None]:
@@ -440,10 +441,11 @@ class _AsyncPersistentRecvStream:
         self.manager = manager
         super().__init__(*args, **kwargs)
 
-    def __aiter__(self) -> AsyncGenerator[RPCResponse, None]:
-        while True:
-            try:
-                # solely listen to the stream, no request id necessary
-                return self.manager._ws_recv_stream()
-            except ConnectionClosedOK:
-                pass
+    def __aiter__(self) -> AsyncIterator[RPCResponse]:
+        return self
+
+    async def __anext__(self) -> RPCResponse:
+        try:
+            return await self.manager.ws_recv()
+        except ConnectionClosedOK:
+            raise StopAsyncIteration
