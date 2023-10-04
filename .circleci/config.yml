@@ -74,12 +74,6 @@ jobs:
         environment:
           TOXENV: docs
 
-  py37-core:
-    <<: *common
-    docker:
-      - image: cimg/python:3.7
-        environment:
-          TOXENV: py37-core
   py38-core:
     <<: *common
     docker:
@@ -130,12 +124,6 @@ jobs:
         environment:
           TOXENV: py311-lint
 
-  py37-wheel:
-    <<: *common
-    docker:
-      - image: cimg/python:3.7
-        environment:
-          TOXENV: py37-wheel
   py38-wheel:
     <<: *common
     docker:
@@ -171,17 +159,14 @@ workflows:
   test:
     jobs:
       - docs
-      - py37-core
       - py38-core
       - py39-core
       - py310-core
       - py311-core
-      - py37-lint
       - py38-lint
       - py39-lint
       - py310-lint
       - py311-lint
-      - py37-wheel
       - py38-wheel
       - py39-wheel
       - py310-wheel
