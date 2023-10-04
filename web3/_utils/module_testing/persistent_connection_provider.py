@@ -21,6 +21,9 @@ from web3._utils.encoding import (
 from web3.datastructures import (
     AttributeDict,
 )
+from web3.middleware import (
+    async_geth_poa_middleware,
+)
 from web3.types import (
     FormattedEthSubscriptionResponse,
 )
@@ -29,6 +32,14 @@ if TYPE_CHECKING:
     from web3.main import (
         _PersistentConnectionWeb3,
     )
+
+
+def _mocked_recv(sub_id: str, ws_subscription_response: Dict[str, Any]) -> bytes:
+    # Must be same subscription id so we can know how to parse the message.
+    # We don't have this information when mocking the response.
+    ws_subscription_response["params"]["subscription"] = sub_id
+    encoded = FriendlyJsonSerde().json_encode(ws_subscription_response)
+    return to_bytes(text=encoded)
 
 
 class PersistentConnectionProviderTest:
@@ -249,16 +260,14 @@ class PersistentConnectionProviderTest:
         assert sub_id is not None
         assert is_hexstr(sub_id)
 
-        # return a coroutine that returns the response
-        async def _mocked_recv() -> bytes:
-            # Must be same subscription id so we can know how to parse the message.
-            # We don't have this information when mocking the response.
-            ws_subscription_response["params"]["subscription"] = sub_id
-            encoded = FriendlyJsonSerde().json_encode(ws_subscription_response)
-            return to_bytes(text=encoded)
+        async def _mocked_recv_coro() -> bytes:
+            return _mocked_recv(sub_id, ws_subscription_response)
 
         actual_recv_fxn = async_w3.provider._ws.recv
-        async_w3.provider._ws.__setattr__("recv", _mocked_recv)
+        async_w3.provider._ws.__setattr__(
+            "recv",
+            _mocked_recv_coro,
+        )
 
         async for msg in async_w3.ws.listen_to_websocket():
             response = cast(FormattedEthSubscriptionResponse, msg)
@@ -270,3 +279,50 @@ class PersistentConnectionProviderTest:
 
         # reset the mocked recv
         async_w3.provider._ws.__setattr__("recv", actual_recv_fxn)
+
+    @pytest.mark.asyncio
+    async def test_async_geth_poa_middleware_on_eth_subscription(
+        self,
+        async_w3: "_PersistentConnectionWeb3",
+    ) -> None:
+        async_w3.middleware_onion.inject(
+            async_geth_poa_middleware, "poa_middleware", layer=0
+        )
+
+        sub_id = await async_w3.eth.subscribe("newHeads")
+        assert is_hexstr(sub_id)
+
+        async def _mocked_recv_coro() -> bytes:
+            return _mocked_recv(
+                sub_id,
+                {
+                    "jsonrpc": "2.0",
+                    "method": "eth_subscription",
+                    "params": {
+                        "subscription": sub_id,
+                        "result": {
+                            "extraData": f"0x{'00' * 100}",
+                        },
+                    },
+                },
+            )
+
+        actual_recv_fxn = async_w3.provider._ws.recv
+        async_w3.provider._ws.__setattr__(
+            "recv",
+            _mocked_recv_coro,
+        )
+
+        async for msg in async_w3.ws.listen_to_websocket():
+            response = cast(FormattedEthSubscriptionResponse, msg)
+            assert response.keys() == {"subscription", "result"}
+            assert response["subscription"] == sub_id
+            assert response["result"]["proofOfAuthorityData"] == HexBytes(  # type: ignore  # noqa: E501
+                f"0x{'00' * 100}"
+            )
+
+            break
+
+        # reset the mocked recv
+        async_w3.provider._ws.__setattr__("recv", actual_recv_fxn)
+        async_w3.middleware_onion.remove("poa_middleware")
