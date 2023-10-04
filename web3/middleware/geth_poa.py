@@ -4,7 +4,9 @@ from typing import (
     Callable,
 )
 
-from eth_utils import is_dict
+from eth_utils import (
+    is_dict,
+)
 from eth_utils.curried import (
     apply_formatter_if,
     apply_formatters_to_dict,

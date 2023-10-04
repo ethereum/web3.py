@@ -281,6 +281,14 @@ class GethSyncingSubscriptionResponse(SubscriptionResponse):
     result: GethSyncingSubscriptionResult
 
 
+EthSubscriptionParams = Union[
+    BlockTypeSubscriptionResponse,
+    TransactionTypeSubscriptionResponse,
+    LogsSubscriptionResponse,
+    SyncingSubscriptionResponse,
+    GethSyncingSubscriptionResponse,
+]
+
 RPCId = Optional[Union[int, str]]
 
 
@@ -292,12 +300,13 @@ class RPCResponse(TypedDict, total=False):
 
     # eth_subscribe
     method: Literal["eth_subscription"]
-    params: Union[
-        BlockTypeSubscriptionResponse,
-        TransactionTypeSubscriptionResponse,
-        LogsSubscriptionResponse,
-        SyncingSubscriptionResponse,
-        GethSyncingSubscriptionResponse,
+    params: EthSubscriptionParams
+
+
+class FormattedEthSubscriptionResponse(TypedDict):
+    subscription: HexStr
+    result: Union[
+        BlockData, TxData, LogReceipt, SyncProgress, GethSyncingSubscriptionResult
     ]
 
 

@@ -16,6 +16,7 @@ from eth_utils.toolz import (
 from web3.types import (
     AsyncMiddleware,
     AsyncMiddlewareCoroutine,
+    EthSubscriptionParams,
     Formatters,
     FormattersDict,
     Literal,
@@ -52,7 +53,9 @@ def _apply_response_formatters(
         method_response_formatter: Callable[..., Any],
     ) -> RPCResponse:
         appropriate_response = response[response_type]
+
         if response_type == "params":
+            appropriate_response = cast(EthSubscriptionParams, response[response_type])
             return assoc(
                 response,
                 response_type,

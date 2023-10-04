@@ -1,6 +1,5 @@
 import logging
 from typing import (
-    AsyncIterator,
     TYPE_CHECKING,
     Any,
     AsyncGenerator,
@@ -28,6 +27,9 @@ from web3._utils.async_caching import (
 )
 from web3._utils.caching import (
     generate_cache_key,
+)
+from web3._utils.compat import (
+    Self,
 )
 from web3.datastructures import (
     NamedElementOnion,
@@ -441,7 +443,7 @@ class _AsyncPersistentRecvStream:
         self.manager = manager
         super().__init__(*args, **kwargs)
 
-    def __aiter__(self) -> AsyncIterator[RPCResponse]:
+    def __aiter__(self) -> Self:
         return self
 
     async def __anext__(self) -> RPCResponse:
