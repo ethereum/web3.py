@@ -48,17 +48,34 @@ def _apply_response_formatters(
     response: RPCResponse,
 ) -> RPCResponse:
     def _format_response(
-        response_type: Literal["result", "error"],
+        response_type: Literal["result", "error", "params"],
         method_response_formatter: Callable[..., Any],
     ) -> RPCResponse:
         appropriate_response = response[response_type]
-
-        return assoc(
-            response, response_type, method_response_formatter(appropriate_response)
-        )
+        if response_type == "params":
+            return assoc(
+                response,
+                response_type,
+                assoc(
+                    response["params"],
+                    "result",
+                    method_response_formatter(appropriate_response["result"]),
+                ),
+            )
+        else:
+            return assoc(
+                response, response_type, method_response_formatter(appropriate_response)
+            )
 
     if response.get("result") is not None and method in result_formatters:
         return _format_response("result", result_formatters[method])
+    elif (
+        # eth_subscription responses
+        response.get("params") is not None
+        and response["params"].get("result") is not None
+        and method in result_formatters
+    ):
+        return _format_response("params", result_formatters[method])
     elif "error" in response and method in error_formatters:
         return _format_response("error", error_formatters[method])
     else:
