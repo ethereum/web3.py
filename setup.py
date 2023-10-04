@@ -1,44 +1,34 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from setuptools import (
-    setup,
     find_packages,
+    setup,
 )
 
 extras_require = {
-    "test": [
-        "pytest>=7.0.0",
-        "pytest-xdist>=2.4.0",
-    ],
-    "lint": [
-        "flake8==6.0.0",  # flake8 claims semver but adds new warnings at minor releases, leave it pinned.
-        "flake8-bugbear==23.3.23",  # flake8-bugbear does not follow semver, leave it pinned.
-        "isort>=5.10.1",
-        "mypy==0.971",  # mypy does not follow semver, leave it pinned.
-        "pydocstyle>=6.0.0",
-        "black>=23",
+    "dev": [
+        "build>=0.9.0",
+        "bumpversion>=0.5.3",
+        "ipython",
+        "pre-commit>=3.4.0",
+        "pytest-watch>=4.1.0",
+        "tox>=4.0.0",
+        "twine",
+        "wheel",
     ],
     "docs": [
         "sphinx>=6.0.0",
         "sphinx_rtd_theme>=1.0.0",
         "towncrier>=21,<22",
     ],
-    "dev": [
-        "bumpversion>=0.5.3",
-        "pytest-watch>=4.1.0",
-        "tox>=4.0.0",
-        "build>=0.9.0",
-        "wheel",
-        "twine",
-        "ipython",
+    "test": [
+        "pytest>=7.0.0",
+        "pytest-xdist>=2.4.0",
     ],
 }
 
 extras_require["dev"] = (
-    extras_require["dev"]
-    + extras_require["test"]
-    + extras_require["lint"]
-    + extras_require["docs"]
+    extras_require["dev"] + extras_require["docs"] + extras_require["test"]
 )
 
 

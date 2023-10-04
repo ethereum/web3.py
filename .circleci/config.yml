@@ -26,6 +26,9 @@ common: &common
           python -m pip install --upgrade pip
           python -m pip install tox
     - run:
+        name: install pre-commit
+        command: python -m pip install --progress-bar=off pre-commit
+    - run:
         name: run tox
         command: python -m tox run -r
     - save_cache:
@@ -102,12 +105,6 @@ jobs:
         environment:
           TOXENV: py311-core
 
-  py37-lint:
-    <<: *common
-    docker:
-      - image: cimg/python:3.7
-        environment:
-          TOXENV: py37-lint
   py38-lint:
     <<: *common
     docker:

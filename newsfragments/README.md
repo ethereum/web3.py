@@ -8,15 +8,15 @@ relevant to people working on the code itself.)
 Each file should be named like `<ISSUE>.<TYPE>.rst`, where
 `<ISSUE>` is an issue number, and `<TYPE>` is one of:
 
-* `breaking`
-* `bugfix`
-* `deprecation`
-* `docs`
-* `feature`
-* `internal`
-* `misc`
-* `performance`
-* `removal`
+- `breaking`
+- `bugfix`
+- `deprecation`
+- `docs`
+- `feature`
+- `internal`
+- `misc`
+- `performance`
+- `removal`
 
 So for example: `123.feature.rst`, `456.bugfix.rst`
 

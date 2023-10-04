@@ -11,7 +11,7 @@ Contents
 
     <MODULE_NAME>
     release_notes
- 
+
 
 Indices and tables
 ------------------
