@@ -33,4 +33,4 @@ class WebsocketConnection:
         return await self._w3.manager.ws_recv()
 
     def listen_to_websocket(self) -> "_AsyncPersistentRecvStream":
-        return self._w3.manager.persistent_recv_stream()
+        return self._w3.manager._persistent_recv_stream()
