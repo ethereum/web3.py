@@ -1,0 +1,1 @@
+Refactor the async iterator pattern for message streams from the websocket connection for ``WebsocketProviderV2`` to a proper async iterator. This allows for a more natural usage of the iterator pattern and mimics the behavior of the underlying ``websockets`` library.

@@ -1,0 +1,1 @@
+Fix issues with formatting middleware, such as ``async_geth_poa_middleware`` and subscription responses for ``WebsocketProviderV2``.
