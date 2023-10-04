@@ -12,6 +12,9 @@ from web3._utils.module_testing.go_ethereum_admin_module import (
 from web3._utils.module_testing.go_ethereum_personal_module import (
     GoEthereumAsyncPersonalModuleTest,
 )
+from web3._utils.module_testing.persistent_connection_provider import (
+    PersistentConnectionProviderTest,
+)
 
 from ..common import (
     GoEthereumAsyncEthModuleTest,
@@ -25,6 +28,8 @@ from ..utils import (
 @pytest_asyncio.fixture(scope="module")
 async def async_w3(geth_process, endpoint_uri):
     await wait_for_aiohttp(endpoint_uri)
+
+    # async context manager pattern
     async with AsyncWeb3.persistent_websocket(
         WebsocketProviderV2(endpoint_uri, call_timeout=30)
     ) as w3:
@@ -55,6 +60,10 @@ class TestGoEthereumAsyncAdminModuleTest(GoEthereumAsyncAdminModuleTest):
             reason="Only one WebSocket endpoint is allowed to be active at any time"
         )
         await super().test_admin_start_stop_ws(async_w3)
+
+
+class TestPersistentConnectionProviderTest(PersistentConnectionProviderTest):
+    pass
 
 
 class TestGoEthereumAsyncEthModuleTest(GoEthereumAsyncEthModuleTest):
