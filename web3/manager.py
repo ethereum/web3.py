@@ -22,9 +22,6 @@ from websockets.exceptions import (
     ConnectionClosedOK,
 )
 
-from web3._utils.async_caching import (
-    async_lock,
-)
 from web3._utils.caching import (
     generate_cache_key,
 )
@@ -369,21 +366,17 @@ class RequestManager:
 
         cached_responses = len(self._request_processor._raw_response_cache.items())
         if cached_responses > 0:
-            async with async_lock(
-                self._provider._thread_pool,
-                self._provider._lock,
-            ):
-                self._provider.logger.debug(
-                    f"{cached_responses} cached response(s) in raw response cache. "
-                    f"Processing as FIFO ahead of any new responses from open "
-                    f"socket connection."
-                )
-                for (
-                    cache_key,
-                    cached_response,
-                ) in self._request_processor._raw_response_cache.items():
-                    self._request_processor.pop_raw_response(cache_key)
-                    yield await self._process_ws_response(cached_response)
+            self._provider.logger.debug(
+                f"{cached_responses} cached response(s) in raw response cache. "
+                f"Processing as FIFO ahead of any new responses from open "
+                f"socket connection."
+            )
+            for (
+                cache_key,
+                cached_response,
+            ) in self._request_processor._raw_response_cache.items():
+                await self._request_processor.pop_raw_response(cache_key)
+                yield await self._process_ws_response(cached_response)
         else:
             response = await self._provider._ws_recv()
             yield await self._process_ws_response(response)
