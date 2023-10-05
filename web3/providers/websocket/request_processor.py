@@ -183,11 +183,12 @@ class RequestProcessor:
     async def pop_raw_response(self, cache_key: str) -> Any:
         async with self._raw_response_cache_lock:
             raw_response = self._raw_response_cache.pop(cache_key)
-            self._provider.logger.debug(
-                f"Cached response processed and popped from cache:\n"
-                f"    cache_key={cache_key},\n"
-                f"    raw_response={raw_response}"
-            )
+        self._provider.logger.debug(
+            f"Cached response processed and popped from cache:\n"
+            f"    cache_key={cache_key},\n"
+            f"    raw_response={raw_response}"
+        )
+        return raw_response
 
     # request processor class methods
 

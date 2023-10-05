@@ -155,37 +155,32 @@ class WebsocketProviderV2(PersistentConnectionProvider):
         await asyncio.wait_for(self._ws.send(request_data), timeout=self.call_timeout)
 
         current_request_id = json.loads(request_data)["id"]
+        request_cache_key = generate_cache_key(current_request_id)
 
-        response = await self._ws_recv()
-        response_id = response.get("id")
+        if request_cache_key in self._request_processor._raw_response_cache:
+            # if response is already cached, pop it from cache
+            response = await self._request_processor.pop_raw_response(request_cache_key)
+        else:
+            # else, wait for the desired response, caching all others along the way
+            response = await self._get_response_for_request_id(current_request_id)
 
-        if response_id != current_request_id:
-            request_cache_key = generate_cache_key(current_request_id)
-            if request_cache_key in self._request_processor._raw_response_cache:
-                # if response is already cached, pop it from the cache
-                response = await self._request_processor.pop_raw_response(
-                    request_cache_key
-                )
-            else:
-                # cache response
-                await self._request_processor.cache_raw_response(response)
-                response = await asyncio.wait_for(
-                    self._get_response_for_request_id(current_request_id),
-                    self.call_timeout,
-                )
         return response
 
     async def _get_response_for_request_id(self, request_id: RPCId) -> RPCResponse:
-        response = await self._ws_recv()
-        response_id = response.get("id")
-
+        response_id = None
+        response = None
         while response_id != request_id:
             response = await self._ws_recv()
             response_id = response.get("id")
-            if response_id != request_id:
+
+            if response_id == request_id:
+                break
+            else:
+                # cache all responses that are not the desired response
                 await self._request_processor.cache_raw_response(
                     response,
                 )
+
         return response
 
     async def _ws_recv(self) -> RPCResponse:
