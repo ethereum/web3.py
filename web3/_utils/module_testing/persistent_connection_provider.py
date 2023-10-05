@@ -238,12 +238,50 @@ class PersistentConnectionProviderTest:
                     }
                 ),
             ),
+            (
+                ("syncing",),
+                {
+                    "jsonrpc": "2.0",
+                    "method": "eth_subscription",
+                    "params": {
+                        "subscription": "THIS_WILL_BE_REPLACED_IN_THE_TEST",
+                        "result": False,
+                    },
+                },
+                False,
+            ),
+            (
+                ("syncing",),
+                {
+                    "jsonrpc": "2.0",
+                    "method": "eth_subscription",
+                    "params": {
+                        "subscription": "THIS_WILL_BE_REPLACED_IN_THE_TEST",
+                        "result": {
+                            "isSyncing": True,
+                            "startingBlock": "0x0",
+                            "currentBlock": "0x4346fe",
+                            "highestBlock": "0x434806",
+                        },
+                    },
+                },
+                AttributeDict(
+                    {
+                        "isSyncing": True,
+                        "startingBlock": 0,
+                        "currentBlock": 4409086,
+                        "highestBlock": 4409350,
+                    }
+                ),
+            ),
         ),
         ids=[
             "newHeads",
             "newPendingTransactions-FullTxs",
             "newPendingTransactions-TxHashes",
             "logs",
+            "syncing-False",
+            "syncing-True",
         ],
     )
     async def test_async_eth_subscribe_mocked(
