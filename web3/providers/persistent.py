@@ -34,7 +34,7 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
         self,
         endpoint_uri: str,
         request_cache_size: int = 100,
-        call_timeout: int = DEFAULT_PERSISTENT_CONNECTION_TIMEOUT,
+        call_timeout: float = DEFAULT_PERSISTENT_CONNECTION_TIMEOUT,
     ) -> None:
         super().__init__()
         self.endpoint_uri = endpoint_uri

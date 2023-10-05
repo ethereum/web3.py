@@ -27,9 +27,11 @@ from web3._utils.caching import (
 )
 from web3.exceptions import (
     ProviderConnectionError,
+    TimeExhausted,
     Web3ValidationError,
 )
 from web3.providers.persistent import (
+    DEFAULT_PERSISTENT_CONNECTION_TIMEOUT,
     PersistentConnectionProvider,
 )
 from web3.types import (
@@ -64,7 +66,7 @@ class WebsocketProviderV2(PersistentConnectionProvider):
         self,
         endpoint_uri: Optional[Union[URI, str]] = None,
         websocket_kwargs: Optional[Dict[str, Any]] = None,
-        call_timeout: Optional[int] = None,
+        call_timeout: Optional[float] = DEFAULT_PERSISTENT_CONNECTION_TIMEOUT,
     ) -> None:
         self.endpoint_uri = URI(endpoint_uri)
         if self.endpoint_uri is None:
@@ -167,21 +169,43 @@ class WebsocketProviderV2(PersistentConnectionProvider):
         return response
 
     async def _get_response_for_request_id(self, request_id: RPCId) -> RPCResponse:
-        response_id = None
-        response = None
-        while response_id != request_id:
-            response = await self._ws_recv()
-            response_id = response.get("id")
+        async def _match_response_id_to_request_id() -> RPCResponse:
+            response_id = None
+            response = None
+            while response_id != request_id:
+                response = await self._ws_recv()
+                response_id = response.get("id")
 
-            if response_id == request_id:
-                break
-            else:
-                # cache all responses that are not the desired response
-                await self._request_processor.cache_raw_response(
-                    response,
-                )
+                if response_id == request_id:
+                    break
+                else:
+                    # cache all responses that are not the desired response
+                    await self._request_processor.cache_raw_response(
+                        response,
+                    )
+                    await asyncio.sleep(0.1)
 
-        return response
+            return response
+
+        try:
+            # Enters a while loop, looking for a response id match to the request id.
+            # If the provider does not give responses with matching ids, this will
+            # hang forever. The JSON-RPC spec requires that providers respond with
+            # the same id that was sent in the request, but we need to handle these
+            # "bad" cases somewhat gracefully.
+            timeout = (
+                self.call_timeout
+                if self.call_timeout and self.call_timeout <= 20
+                else 20
+            )
+            return await asyncio.wait_for(_match_response_id_to_request_id(), timeout)
+        except asyncio.TimeoutError:
+            raise TimeExhausted(
+                f"Timed out waiting for response with request id `{request_id}` after "
+                f"{self.call_timeout} seconds. This is likely due to the provider not "
+                "returning a response with the same id that was sent in the request, "
+                "which is required by the JSON-RPC spec."
+            )
 
     async def _ws_recv(self) -> RPCResponse:
         return json.loads(

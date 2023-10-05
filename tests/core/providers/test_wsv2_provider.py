@@ -6,6 +6,9 @@ from eth_utils import (
     to_bytes,
 )
 
+from web3.exceptions import (
+    TimeExhausted,
+)
 from web3.providers.websocket import (
     WebsocketProviderV2,
 )
@@ -14,24 +17,28 @@ from web3.types import (
 )
 
 
-@pytest.mark.asyncio
-@pytest.mark.skipif(
-    # TODO: remove when python 3.7 is no longer supported in web3.py
-    #  python 3.7 is already sunset so this feels like a reasonable tradeoff
-    sys.version_info < (3, 8),
-    reason="Mock args behave differently in python 3.7 but test should still pass.",
-)
-async def test_async_make_request_caches_all_undesired_responses_and_returns_desired():
+def _mock_ws(provider):
     # move to top of file when python 3.7 is no longer supported in web3.py
     from unittest.mock import (
         AsyncMock,
     )
 
+    provider._ws = AsyncMock()
+
+
+@pytest.mark.asyncio
+@pytest.mark.skipif(
+    # TODO: remove when python 3.7 is no longer supported in web3.py
+    #  python 3.7 is already sunset so this feels like a reasonable tradeoff
+    sys.version_info < (3, 8),
+    reason="Uses AsyncMock, not supported by python 3.7",
+)
+async def test_async_make_request_caches_all_undesired_responses_and_returns_desired():
     provider = WebsocketProviderV2("ws://mocked")
 
     method_under_test = provider.make_request
 
-    provider._ws = AsyncMock()
+    _mock_ws(provider)
     undesired_responses_count = 10
     ws_recv_responses = [
         to_bytes(
@@ -90,3 +97,25 @@ async def test_async_make_request_returns_cached_response_with_no_recv_if_cached
 
     assert len(provider._request_processor._raw_response_cache) == 0
     assert not provider._ws.recv.called  # type: ignore
+
+
+@pytest.mark.asyncio
+@pytest.mark.skipif(
+    # TODO: remove when python 3.7 is no longer supported in web3.py
+    #  python 3.7 is already sunset so this feels like a reasonable tradeoff
+    sys.version_info < (3, 8),
+    reason="Uses AsyncMock, not supported by python 3.7",
+)
+async def test_async_make_request_times_out_of_while_loop_looking_for_response():
+    provider = WebsocketProviderV2("ws://mocked", call_timeout=0.1)
+
+    method_under_test = provider.make_request
+
+    _mock_ws(provider)
+    provider._ws.recv.side_effect = lambda *args, **kwargs: b'{"jsonrpc": "2.0"}'
+
+    with pytest.raises(
+        TimeExhausted,
+        match="Timed out waiting for response with request id `0` after 0.1 seconds.",
+    ):
+        await method_under_test(RPCEndpoint("some_method"), ["desired_params"])
