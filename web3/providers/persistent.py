@@ -1,11 +1,7 @@
 from abc import (
     ABC,
 )
-from concurrent.futures import (
-    ThreadPoolExecutor,
-)
 import logging
-import threading
 from typing import (
     Optional,
 )
@@ -33,8 +29,6 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
 
     _ws: Optional[WebSocketClientProtocol] = None
     _request_processor: RequestProcessor
-    _thread_pool: ThreadPoolExecutor = ThreadPoolExecutor()
-    _lock: threading.Lock = threading.Lock()
 
     def __init__(
         self,

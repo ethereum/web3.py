@@ -22,9 +22,6 @@ from websockets.exceptions import (
     WebSocketException,
 )
 
-from web3._utils.async_caching import (
-    async_lock,
-)
 from web3._utils.caching import (
     generate_cache_key,
 )
@@ -165,19 +162,17 @@ class WebsocketProviderV2(PersistentConnectionProvider):
         if response_id != current_request_id:
             request_cache_key = generate_cache_key(current_request_id)
             if request_cache_key in self._request_processor._raw_response_cache:
-                async with async_lock(self._thread_pool, self._lock):
-                    # if response is already cached, pop it from the cache
-                    response = self._request_processor.pop_raw_response(
-                        request_cache_key
-                    )
+                # if response is already cached, pop it from the cache
+                response = await self._request_processor.pop_raw_response(
+                    request_cache_key
+                )
             else:
-                async with async_lock(self._thread_pool, self._lock):
-                    # cache response
-                    self._request_processor.cache_raw_response(response)
-                    response = await asyncio.wait_for(
-                        self._get_response_for_request_id(current_request_id),
-                        self.call_timeout,
-                    )
+                # cache response
+                await self._request_processor.cache_raw_response(response)
+                response = await asyncio.wait_for(
+                    self._get_response_for_request_id(current_request_id),
+                    self.call_timeout,
+                )
         return response
 
     async def _get_response_for_request_id(self, request_id: RPCId) -> RPCResponse:
@@ -188,7 +183,7 @@ class WebsocketProviderV2(PersistentConnectionProvider):
             response = await self._ws_recv()
             response_id = response.get("id")
             if response_id != request_id:
-                self._request_processor.cache_raw_response(
+                await self._request_processor.cache_raw_response(
                     response,
                 )
         return response
