@@ -643,13 +643,13 @@ def subscription_formatter(value: Any) -> Union[HexBytes, HexStr, Dict[str, Any]
                 result_formatter = block_formatter
 
             elif either_set_is_a_subset(
-                result_key_set, set(LOG_ENTRY_FORMATTERS.keys()), percentage=90
+                result_key_set, set(LOG_ENTRY_FORMATTERS.keys()), percentage=75
             ):
                 # logs
                 result_formatter = log_entry_formatter
 
             elif either_set_is_a_subset(
-                result_key_set, set(TRANSACTION_RESULT_FORMATTERS.keys()), percentage=90
+                result_key_set, set(TRANSACTION_RESULT_FORMATTERS.keys()), percentage=75
             ):
                 # newPendingTransactions, full transactions
                 result_formatter = transaction_result_formatter
@@ -663,7 +663,7 @@ def subscription_formatter(value: Any) -> Union[HexBytes, HexStr, Dict[str, Any]
             elif either_set_is_a_subset(
                 result_key_set,
                 set(SYNCING_FORMATTERS.keys()),
-                percentage=90,
+                percentage=75,
             ):
                 # syncing response object
                 result_formatter = syncing_formatter
