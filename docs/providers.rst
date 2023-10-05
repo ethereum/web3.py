@@ -277,7 +277,7 @@ asynchronous context manager, can be found in the `websockets connection`_ docs.
         ...             if some_condition:
         ...                 # unsubscribe from new block headers and break out of
         ...                 # iterator
-        ...                 unsubscribed = await w3.eth.unsubscribe(subscription_id)
+        ...                 await w3.eth.unsubscribe(subscription_id)
         ...                 break
         ...
         ...         # still an open connection, make any other requests and get

@@ -292,7 +292,6 @@ class PersistentConnectionProviderTest:
         expected_formatted_result: Any,
     ) -> None:
         sub_id = await async_w3.eth.subscribe(*subscription_params)
-        assert sub_id is not None
         assert is_hexstr(sub_id)
 
         async def _mocked_recv_coro() -> bytes:
