@@ -1,3 +1,4 @@
+import json
 import pytest
 from typing import (
     TYPE_CHECKING,
@@ -15,9 +16,6 @@ from hexbytes import (
     HexBytes,
 )
 
-from web3._utils.encoding import (
-    FriendlyJsonSerde,
-)
 from web3.datastructures import (
     AttributeDict,
 )
@@ -38,8 +36,7 @@ def _mocked_recv(sub_id: str, ws_subscription_response: Dict[str, Any]) -> bytes
     # Must be same subscription id so we can know how to parse the message.
     # We don't have this information when mocking the response.
     ws_subscription_response["params"]["subscription"] = sub_id
-    encoded = FriendlyJsonSerde().json_encode(ws_subscription_response)
-    return to_bytes(text=encoded)
+    return to_bytes(text=json.dumps(ws_subscription_response))
 
 
 class PersistentConnectionProviderTest:

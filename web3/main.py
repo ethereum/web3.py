@@ -543,6 +543,9 @@ class _PersistentConnectionWeb3(AsyncWeb3):
 
     # async for w3 in w3.persistent_websocket(provider)
     async def __aiter__(self) -> AsyncIterator[Self]:
+        if not await self.provider.is_connected():
+            await self.provider.connect()
+
         while True:
             try:
                 yield self
