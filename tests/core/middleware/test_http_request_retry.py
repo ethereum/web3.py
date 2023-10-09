@@ -99,6 +99,27 @@ def test_check_with_all_middlewares(make_post_request_mock):
     assert make_post_request_mock.call_count == 5
 
 
+@patch("web3.providers.rpc.make_post_request", side_effect=ConnectionError)
+def test_exception_retry_middleware_with_allow_list_kwarg(
+    make_post_request_mock, exception_retry_request_setup
+):
+    w3 = Mock()
+    provider = HTTPProvider()
+    errors = (ConnectionError, HTTPError, Timeout, TooManyRedirects)
+    setup = exception_retry_middleware(
+        provider.make_request, w3, errors, 5, allow_list=["test_userProvidedMethod"]
+    )
+    setup.w3 = w3
+    with pytest.raises(ConnectionError):
+        setup("test_userProvidedMethod", [])
+        assert make_post_request_mock.call_count == 5
+
+    make_post_request_mock.reset_mock()
+    with pytest.raises(ConnectionError):
+        setup("eth_getBalance", [])
+        assert make_post_request_mock.call_count == 1
+
+
 # -- async -- #
 
 
@@ -132,27 +153,56 @@ async def async_exception_retry_request_setup():
         aiohttp.ClientOSError,
     ),
 )
-async def test_check_retry_middleware(error, async_exception_retry_request_setup):
+async def test_async_check_retry_middleware(error, async_exception_retry_request_setup):
     with patch(
         "web3.providers.async_rpc.async_make_post_request"
-    ) as make_post_request_mock:
-        make_post_request_mock.side_effect = error
+    ) as async_make_post_request_mock:
+        async_make_post_request_mock.side_effect = error
 
         with pytest.raises(error):
             await async_exception_retry_request_setup("eth_getBalance", [])
-        assert make_post_request_mock.call_count == ASYNC_TEST_RETRY_COUNT
+        assert async_make_post_request_mock.call_count == ASYNC_TEST_RETRY_COUNT
 
 
 @pytest.mark.asyncio
-async def test_check_without_retry_middleware():
+async def test_async_check_without_retry_middleware():
     with patch(
         "web3.providers.async_rpc.async_make_post_request"
-    ) as make_post_request_mock:
-        make_post_request_mock.side_effect = TimeoutError
+    ) as async_make_post_request_mock:
+        async_make_post_request_mock.side_effect = TimeoutError
         provider = AsyncHTTPProvider()
         w3 = AsyncWeb3(provider)
         w3.provider._middlewares = ()
 
         with pytest.raises(TimeoutError):
             await w3.eth.block_number
-        assert make_post_request_mock.call_count == 1
+        assert async_make_post_request_mock.call_count == 1
+
+
+@pytest.mark.asyncio
+async def test_async_exception_retry_middleware_with_allow_list_kwarg():
+    w3 = Mock()
+    provider = AsyncHTTPProvider()
+    setup = await async_exception_retry_middleware(
+        provider.make_request,
+        w3,
+        (TimeoutError, aiohttp.ClientError),
+        retries=ASYNC_TEST_RETRY_COUNT,
+        backoff_factor=0.1,
+        allow_list=["test_userProvidedMethod"],
+    )
+    setup.w3 = w3
+
+    with patch(
+        "web3.providers.async_rpc.async_make_post_request"
+    ) as async_make_post_request_mock:
+        async_make_post_request_mock.side_effect = TimeoutError
+
+        with pytest.raises(TimeoutError):
+            await setup("test_userProvidedMethod", [])
+        assert async_make_post_request_mock.call_count == ASYNC_TEST_RETRY_COUNT
+
+        async_make_post_request_mock.reset_mock()
+        with pytest.raises(TimeoutError):
+            await setup("eth_getBalance", [])
+        assert async_make_post_request_mock.call_count == 1

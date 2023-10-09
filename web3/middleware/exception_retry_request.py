@@ -1,9 +1,11 @@
 import asyncio
+import time
 from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
     Collection,
+    List,
     Optional,
     Type,
 )
@@ -28,7 +30,7 @@ if TYPE_CHECKING:
         Web3,
     )
 
-whitelist = [
+DEFAULT_ALLOWLIST = [
     "admin",
     "miner",
     "net",
@@ -87,11 +89,16 @@ whitelist = [
 ]
 
 
-def check_if_retry_on_failure(method: RPCEndpoint) -> bool:
+def check_if_retry_on_failure(
+    method: str, allow_list: Optional[List[str]] = None
+) -> bool:
+    if allow_list is None:
+        allow_list = DEFAULT_ALLOWLIST
+
     root = method.split("_")[0]
-    if root in whitelist:
+    if root in allow_list:
         return True
-    elif method in whitelist:
+    elif method in allow_list:
         return True
     else:
         return False
@@ -102,6 +109,8 @@ def exception_retry_middleware(
     _w3: "Web3",
     errors: Collection[Type[BaseException]],
     retries: int = 5,
+    backoff_factor: float = 0.3,
+    allow_list: Optional[List[str]] = None,
 ) -> Callable[[RPCEndpoint, Any], RPCResponse]:
     """
     Creates middleware that retries failed HTTP requests. Is a default
@@ -109,12 +118,13 @@ def exception_retry_middleware(
     """
 
     def middleware(method: RPCEndpoint, params: Any) -> Optional[RPCResponse]:
-        if check_if_retry_on_failure(method):
+        if check_if_retry_on_failure(method, allow_list):
             for i in range(retries):
                 try:
                     return make_request(method, params)
                 except tuple(errors):
                     if i < retries - 1:
+                        time.sleep(backoff_factor)
                         continue
                     else:
                         raise
@@ -133,12 +143,16 @@ def http_retry_request_middleware(
     )
 
 
+# -- async -- #
+
+
 async def async_exception_retry_middleware(
     make_request: Callable[[RPCEndpoint, Any], Any],
     _async_w3: "AsyncWeb3",
     errors: Collection[Type[BaseException]],
     retries: int = 5,
     backoff_factor: float = 0.3,
+    allow_list: Optional[List[str]] = None,
 ) -> AsyncMiddlewareCoroutine:
     """
     Creates middleware that retries failed HTTP requests.
@@ -146,7 +160,7 @@ async def async_exception_retry_middleware(
     """
 
     async def middleware(method: RPCEndpoint, params: Any) -> Optional[RPCResponse]:
-        if check_if_retry_on_failure(method):
+        if check_if_retry_on_failure(method, allow_list):
             for i in range(retries):
                 try:
                     return await make_request(method, params)
