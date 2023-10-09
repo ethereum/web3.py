@@ -1,0 +1,1 @@
+Add ``allow_list`` kwarg for ``exception_retry_middleware`` to allow for a custom list of RPC endpoints. Add a sleep between retries and a customizable ``backoff_factor`` to control the sleep time between retry attempts.
