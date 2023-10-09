@@ -160,6 +160,25 @@ class RPC:
     # web3
     web3_clientVersion = RPCEndpoint("web3_clientVersion")
 
+    # clique
+    clique_getSigners = RPCEndpoint("clique_getSigners")
+    cliqueP_getProposals = RPCEndpoint("cliqueP_getProposals")
+    clique_getSignersAtHash = RPCEndpoint("clique_getSignersAtHash")
+    clique_hasOwnProperty = RPCEndpoint("clique_hasOwnProperty")
+    clique_proposals = RPCEndpoint("clique_proposals")
+    clique_toLocaleString = RPCEndpoint("clique_toLocaleString")
+    clique_getSigner = RPCEndpoint("clique_getSigner")
+    clique_constructor = RPCEndpoint("clique_constructor")
+    clique_getSnapshot = RPCEndpoint("clique_getSnapshot")
+    clique_isPrototypeOf = RPCEndpoint("clique_isPrototypeOf")
+    clique_propose = RPCEndpoint("clique_propose")
+    clique_toString = RPCEndpoint("clique_toString")
+    clique_discard = RPCEndpoint("clique_discard")
+    clique_getSnapshotAtHash = RPCEndpoint("clique_getSnapshotAtHash")
+    clique_propertyIsEnumerable = RPCEndpoint("clique_propertyIsEnumerable")
+    clique_status = RPCEndpoint("clique_status")
+    clique_valueOf = RPCEndpoint("clique_valueOf")   
+
 
 TRANSACTION_PARAMS_ABIS = {
     "data": "bytes",

@@ -87,6 +87,10 @@ from web3.eth import (
 from web3.exceptions import (
     Web3ValidationError,
 )
+
+from web3.clique import(
+    Clique
+)
 from web3.geth import (
     AsyncGeth,
     AsyncGethAdmin,
@@ -177,6 +181,7 @@ def get_default_modules() -> Dict[str, Union[Type[Module], Sequence[Any]]]:
             },
         ),
         "tracing": Tracing,
+        "clique": Clique,
         "testing": Testing,
     }
 
@@ -198,6 +203,7 @@ class BaseWeb3:
     eth: Union[Eth, AsyncEth]
     net: Union[Net, AsyncNet]
     geth: Union[Geth, AsyncGeth]
+    clique: Clique
 
     # Encoding and Decoding
     @staticmethod

@@ -555,3 +555,14 @@ class LogsSubscriptionArg(TypedDict, total=False):
         Sequence[Union[Address, ChecksumAddress, ENS]],
     ]
     topics: Sequence[Union[HexStr, Sequence[HexStr]]]
+#
+# web3.clique types
+#
+
+class Snapshot(TypedDict):
+    hash: Hash32
+    number: int
+    recents: Dict[int, Hash32]
+    signers: Dict[Address, object]
+    tally: object
+    votes: List
