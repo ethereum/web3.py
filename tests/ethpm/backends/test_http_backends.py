@@ -31,7 +31,7 @@ pytest.skip(
     "WEB3_INFURA_PROJECT_ID" not in os.environ, reason="Infura API key unavailable"
 )
 def test_github_over_https_backend_fetch_uri_contents(uri, owned_contract, w3):
-    # these tests may occassionally fail CI as a result of their network requests
+    # these tests may occasionally fail CI as a result of their network requests
     backend = GithubOverHTTPSBackend()
     assert backend.base_uri == GITHUB_API_AUTHORITY
     # integration with Package.from_uri

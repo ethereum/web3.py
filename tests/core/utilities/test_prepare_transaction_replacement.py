@@ -93,7 +93,7 @@ def test_prepare_transaction_replacement_gas_price_defaulting(w3):
     assert replacement_transaction["gasPrice"] == 12
 
 
-def test_prepare_transaction_replacement_gas_price_defaulting_when_strategy_higer(w3):
+def test_prepare_transaction_replacement_gas_price_defaulting_when_strategy_higher(w3):
     def higher_gas_price_strategy(w3, txn):
         return 20
 

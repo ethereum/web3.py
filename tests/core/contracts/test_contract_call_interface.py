@@ -1114,7 +1114,7 @@ def test_call_nested_tuple_contract_with_decode_tuples_set(
     assert str(type(result)) == type_str
     assert result.__repr__() == namedtuple_repr
 
-    # check that the namedtuple ouput is still a tuple
+    # check that the namedtuple output is still a tuple
     assert result == plain_tuple_output
 
     # check that fields are correct
@@ -2076,7 +2076,7 @@ async def test_async_call_tuple_contract_with_decode_tuples_set(
     assert str(type(result)) == type_str
     assert result.__repr__() == namedtuple_repr
 
-    # check that the namedtuple ouput is still a tuple
+    # check that the namedtuple output is still a tuple
     assert result == plain_tuple_output
 
     # check that fields are correct
@@ -2236,7 +2236,7 @@ async def test_async_call_nested_tuple_contract_with_decode_tuples_set(
     assert str(type(result)) == type_str
     assert result.__repr__() == namedtuple_repr
 
-    # check that the namedtuple ouput is still a tuple
+    # check that the namedtuple output is still a tuple
     assert result == plain_tuple_output
 
     # check that fields are correct
