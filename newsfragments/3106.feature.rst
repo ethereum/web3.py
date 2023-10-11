@@ -1,1 +1,0 @@
-Allow passing in a ``float`` for a ``request_timeout`` for requests for the ``Beacon`` class. Update some Beacon API endpoints (sync and async).

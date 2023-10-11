@@ -1,1 +1,0 @@
-Refactor logic for the ``input_munger()`` method on the ``Method`` class.

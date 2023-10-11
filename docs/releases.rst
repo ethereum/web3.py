@@ -6,6 +6,44 @@ v6 Breaking Changes Summary
 
 .. towncrier release notes start
 
+web3.py v6.11.0 (2023-10-11)
+----------------------------
+
+Breaking Changes
+~~~~~~~~~~~~~~~~
+
+- Refactor the async iterator pattern for message streams from the websocket connection for ``WebsocketProviderV2`` to a proper async iterator. This allows for a more natural usage of the iterator pattern and mimics the behavior of the underlying ``websockets`` library. (`#3116 <https://github.com/ethereum/web3.py/issues/3116>`__)
+
+
+Bugfixes
+~~~~~~~~
+
+- Use hashes to compare equality of two ``AttributeDict`` classes (`#3104 <https://github.com/ethereum/web3.py/issues/3104>`__)
+- Fix issues with formatting middleware, such as ``async_geth_poa_middleware`` and subscription responses for ``WebsocketProviderV2``. (`#3116 <https://github.com/ethereum/web3.py/issues/3116>`__)
+
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Change ``docker-compose`` to ``docker compose`` in the Contributing docs examples. (`#3107 <https://github.com/ethereum/web3.py/issues/3107>`__)
+- Updates to the ``WebsocketProviderV2`` documentation async iterator example for iterating over a persistent stream of messages from the websocket connection via ``async for``. (`#3116 <https://github.com/ethereum/web3.py/issues/3116>`__)
+- Update outdated node and private key management verbiage. (`#3117 <https://github.com/ethereum/web3.py/issues/3117>`__)
+
+
+Features
+~~~~~~~~
+
+- Allow passing in a ``float`` for a ``request_timeout`` for requests for the ``Beacon`` class. Update some Beacon API endpoints (sync and async). (`#3106 <https://github.com/ethereum/web3.py/issues/3106>`__)
+- Add ``allow_list`` kwarg for ``exception_retry_middleware`` to allow for a custom list of RPC endpoints. Add a sleep between retries and a customizable ``backoff_factor`` to control the sleep time between retry attempts. (`#3120 <https://github.com/ethereum/web3.py/issues/3120>`__)
+
+
+Internal Changes - for web3.py Contributors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Refactor logic for the ``input_munger()`` method on the ``Method`` class. (`#2987 <https://github.com/ethereum/web3.py/issues/2987>`__)
+- Pin mypy to v1.4.1, the last to support py37 (`#3122 <https://github.com/ethereum/web3.py/issues/3122>`__)
+
+
 web3.py v6.10.0 (2023-09-21)
 ----------------------------
 

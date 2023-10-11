@@ -1,1 +1,0 @@
-Pin mypy to v1.4.1, the last to support py37
