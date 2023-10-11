@@ -8,35 +8,49 @@ Working with Local Private Keys
 Local vs Hosted Nodes
 ---------------------
 
-Local Node
-  A local node is started and controlled by you. It is as safe as you keep it.
-  When you run ``geth`` on your machine, for example, you are running a local node.
-
 Hosted Node
   A hosted node is controlled by someone else. When you connect to Infura, you are
-  connected to a hosted node.
+  connected to a hosted node. See `ethereumnodes.com <https://ethereumnodes.com>`__
+  for the list of free and commercial node providers.
+
+Local Node
+  A local node is started and controlled by you on your computer. For several reasons
+  (e.g., privacy, security), this is the recommended path, but it requires more resources
+  and work to set up and maintain.
 
 Local vs Hosted Keys
 --------------------
 
+An Ethereum private key is a 256-bit (32 bytes) random integer.
+For each private key, you get one Ethereum address,
+also known as an Externally Owned Account (EOA).
+
+In Python, the private key is expressed as a 32-byte long Python ``bytes`` object.
+When a private key is presented to users in a hexadecimal format, it may or may
+not contain a starting ``0x`` hexadecimal prefix.
+
 Local Private Key
-  A key is 32 :class:`bytes` of data that you can use to sign transactions and messages,
-  before sending them to your node.
-  You must use :meth:`~web3.eth.Eth.send_raw_transaction`
-  when working with local keys, instead of
-  :meth:`~web3.eth.Eth.send_transaction` .
+  A local private key is a locally stored secret you import to your Python application.
+  Please read below how you can create and import a local private key
+  and use it to sign transactions.
 
 Hosted Private Key
-  This is a common way to use accounts with local nodes.
-  Each account returned by :attr:`w3.eth.accounts <web3.eth.Eth.accounts>`
-  has a hosted private key stored in your node.
-  This allows you to use :meth:`~web3.eth.Eth.send_transaction`.
+  This is a legacy way to use accounts when working with unit test backends like
+  :py:class:`web3.providers.eth_tester.main.EthereumTesterProvider`
+  or Anvil. Calling ``web3.eth.accounts`` gives you a predefined
+  list of accounts that have been funded with test ETH.
+  You can use any of these accounts with use :meth:`~web3.eth.Eth.send_transaction`
+  without further configuration.
 
+  In the past, around 2015, this was also a way to use private keys
+  in a locally hosted node, but this practice is now discouraged.
 
-.. WARNING::
-  It is unacceptable for a hosted node to offer hosted private keys. It
-  gives other people complete control over your account. "Not your keys,
-  not your Ether" in the wise words of Andreas Antonopoulos.
+.. note::
+
+  Methods like `web3.eth.send_transaction`` do not work with modern
+  node providers, because they relied on a node state and all modern nodes
+  are stateless. You must always use local private keys when working
+  with nodes hosted by someone else.
 
 Some Common Uses for Local Private Keys
 ---------------------------------------
