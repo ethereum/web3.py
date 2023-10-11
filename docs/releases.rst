@@ -9,8 +9,8 @@ v6 Breaking Changes Summary
 web3.py v6.11.0 (2023-10-11)
 ----------------------------
 
-Breaking Changes
-~~~~~~~~~~~~~~~~
+Breaking Changes (to Beta APIs)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 - Refactor the async iterator pattern for message streams from the websocket connection for ``WebsocketProviderV2`` to a proper async iterator. This allows for a more natural usage of the iterator pattern and mimics the behavior of the underlying ``websockets`` library. (`#3116 <https://github.com/ethereum/web3.py/issues/3116>`__)
 
