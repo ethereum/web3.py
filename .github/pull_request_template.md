@@ -7,11 +7,11 @@ Closes #
 
 ### Todo:
 
-- \[ \] Clean up commit history
+- [ ] Clean up commit history
 
-- \[ \] Add or update documentation related to these changes
+- [ ] Add or update documentation related to these changes
 
-- \[ \] Add entry to the [release notes](https://github.com/ethereum/<REPO_NAME>/blob/main/newsfragments/README.md)
+- [ ] Add entry to the [release notes](https://github.com/ethereum/<REPO_NAME>/blob/main/newsfragments/README.md)
 
 #### Cute Animal Picture
 
