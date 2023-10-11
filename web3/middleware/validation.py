@@ -111,7 +111,7 @@ METHODS_TO_VALIDATE = [
     RPC.eth_sendTransaction,
     RPC.eth_estimateGas,
     RPC.eth_call,
-    RPC.eth_create_access_list
+    RPC.eth_createAccessList,
 ]
 
 

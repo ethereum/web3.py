@@ -462,15 +462,19 @@ SIGNED_TX_FORMATTER = {
 
 signed_tx_formatter = type_aware_apply_formatters_to_dict(SIGNED_TX_FORMATTER)
 
-ACCESS_LIST_FORMATTER = type_aware_apply_formatters_to_dict({
-    'address': to_checksum_address,
-    'storageKeys': apply_list_to_array_formatter(to_hexbytes(64))
-})
+ACCESS_LIST_FORMATTER = type_aware_apply_formatters_to_dict(
+    {
+        "address": to_checksum_address,
+        "storageKeys": apply_list_to_array_formatter(to_hexbytes(64)),
+    }
+)
 
-ACCESS_LIST_RESPONCE_FORMATTER = type_aware_apply_formatters_to_dict({
-    "accessList": ACCESS_LIST_FORMATTER,
-    "gasUsed": to_integer_if_hex,
-})
+ACCESS_LIST_RESPONCE_FORMATTER = type_aware_apply_formatters_to_dict(
+    {
+        "accessList": ACCESS_LIST_FORMATTER,
+        "gasUsed": to_integer_if_hex,
+    }
+)
 FILTER_PARAM_NORMALIZERS = type_aware_apply_formatters_to_dict(
     {"address": apply_formatter_if(is_string, lambda x: [x])}
 )
@@ -692,7 +696,7 @@ PYTHONIC_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     RPC.eth_chainId: to_integer_if_hex,
     RPC.eth_coinbase: to_checksum_address,
     RPC.eth_call: HexBytes,
-    RPC.eth_create_access_list: ACCESS_LIST_RESPONCE_FORMATTER,
+    RPC.eth_createAccessList: ACCESS_LIST_RESPONCE_FORMATTER,
     RPC.eth_estimateGas: to_integer_if_hex,
     RPC.eth_feeHistory: fee_history_formatter,
     RPC.eth_maxPriorityFeePerGas: to_integer_if_hex,

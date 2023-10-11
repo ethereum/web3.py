@@ -250,7 +250,7 @@ request_formatters = {
         transaction_request_transformer,
         apply_formatter_if(is_not_named_block, to_integer_if_hex),
     ),
-    RPCEndpoint('eth_createAccessList'): apply_formatters_to_args(
+    RPCEndpoint("eth_createAccessList"): apply_formatters_to_args(
         transaction_request_transformer,
         apply_formatter_if(is_not_named_block, to_integer_if_hex),
     ),
@@ -347,10 +347,10 @@ def default_transaction_fields_middleware(
 ) -> Callable[[RPCEndpoint, Any], RPCResponse]:
     def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
         if method in (
-            'eth_call',
-            'eth_estimateGas',
-            'eth_sendTransaction',
-            'eth_create_access_list',
+            "eth_call",
+            "eth_estimateGas",
+            "eth_sendTransaction",
+            "eth_createAccessList",
         ):
             fill_default_from = fill_default("from", guess_from, w3)
             filled_transaction = pipe(

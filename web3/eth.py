@@ -133,7 +133,7 @@ class BaseEth(Module):
     @property
     def defaultBlock(self) -> BlockIdentifier:
         warnings.warn(
-            'defaultBlock is deprecated in favor of default_block',
+            "defaultBlock is deprecated in favor of default_block",
             category=DeprecationWarning,
         )
         return self._default_block
@@ -141,7 +141,7 @@ class BaseEth(Module):
     @defaultBlock.setter
     def defaultBlock(self, value: BlockIdentifier) -> None:
         warnings.warn(
-            'defaultBlock is deprecated in favor of default_block',
+            "defaultBlock is deprecated in favor of default_block",
             category=DeprecationWarning,
         )
         self._default_block = value
@@ -157,7 +157,7 @@ class BaseEth(Module):
     @property
     def defaultAccount(self) -> Union[ChecksumAddress, Empty]:
         warnings.warn(
-            'defaultAccount is deprecated in favor of default_account',
+            "defaultAccount is deprecated in favor of default_account",
             category=DeprecationWarning,
         )
         return self._default_account
@@ -165,20 +165,19 @@ class BaseEth(Module):
     @defaultAccount.setter
     def defaultAccount(self, account: Union[ChecksumAddress, Empty]) -> None:
         warnings.warn(
-            'defaultAccount is deprecated in favor of default_account',
+            "defaultAccount is deprecated in favor of default_account",
             category=DeprecationWarning,
         )
         self._default_account = account
 
     def send_transaction_munger(self, transaction: TxParams) -> Tuple[TxParams]:
-        if 'from' not in transaction and is_checksum_address(self.default_account):
-            transaction = assoc(transaction, 'from', self.default_account)
+        if "from" not in transaction and is_checksum_address(self.default_account):
+            transaction = assoc(transaction, "from", self.default_account)
 
         return (transaction,)
 
     _send_transaction: Method[Callable[[TxParams], HexBytes]] = Method(
-        RPC.eth_sendTransaction,
-        mungers=[send_transaction_munger]
+        RPC.eth_sendTransaction, mungers=[send_transaction_munger]
     )
 
     _send_raw_transaction: Method[Callable[[Union[HexStr, bytes]], HexBytes]] = Method(
@@ -187,29 +186,31 @@ class BaseEth(Module):
     )
 
     _get_transaction: Method[Callable[[_Hash32], TxData]] = Method(
-        RPC.eth_getTransactionByHash,
-        mungers=[default_root_munger]
+        RPC.eth_getTransactionByHash, mungers=[default_root_munger]
     )
 
     _get_raw_transaction: Method[Callable[[_Hash32], HexBytes]] = Method(
-        RPC.eth_getRawTransactionByHash,
-        mungers=[default_root_munger]
+        RPC.eth_getRawTransactionByHash, mungers=[default_root_munger]
     )
 
     """
     `eth_getRawTransactionByBlockHashAndIndex`
     `eth_getRawTransactionByBlockNumberAndIndex`
     """
-    _get_raw_transaction_by_block: Method[Callable[[BlockIdentifier, int], HexBytes]] = Method(
+    _get_raw_transaction_by_block: Method[
+        Callable[[BlockIdentifier, int], HexBytes]
+    ] = Method(
         method_choice_depends_on_args=select_method_for_block_identifier(
             if_predefined=RPC.eth_getRawTransactionByBlockNumberAndIndex,
             if_hash=RPC.eth_getRawTransactionByBlockHashAndIndex,
             if_number=RPC.eth_getRawTransactionByBlockNumberAndIndex,
         ),
-        mungers=[default_root_munger]
+        mungers=[default_root_munger],
     )
 
-    def _generate_gas_price(self, transaction_params: Optional[TxParams] = None) -> Optional[Wei]:
+    def _generate_gas_price(
+        self, transaction_params: Optional[TxParams] = None
+    ) -> Optional[Wei]:
         if self.gasPriceStrategy:
             return self.gasPriceStrategy(self.w3, transaction_params)
         return None
@@ -218,12 +219,10 @@ class BaseEth(Module):
         self.gasPriceStrategy = gas_price_strategy
 
     def estimate_gas_munger(
-        self,
-        transaction: TxParams,
-        block_identifier: Optional[BlockIdentifier] = None
+        self, transaction: TxParams, block_identifier: Optional[BlockIdentifier] = None
     ) -> Sequence[Union[TxParams, BlockIdentifier]]:
-        if 'from' not in transaction and is_checksum_address(self.default_account):
-            transaction = assoc(transaction, 'from', self.default_account)
+        if "from" not in transaction and is_checksum_address(self.default_account):
+            transaction = assoc(transaction, "from", self.default_account)
 
         if block_identifier is None:
             params: Sequence[Union[TxParams, BlockIdentifier]] = [transaction]
@@ -233,13 +232,11 @@ class BaseEth(Module):
         return params
 
     _estimate_gas: Method[Callable[..., int]] = Method(
-        RPC.eth_estimateGas,
-        mungers=[estimate_gas_munger]
+        RPC.eth_estimateGas, mungers=[estimate_gas_munger]
     )
 
     _fee_history: Method[Callable[..., FeeHistory]] = Method(
-        RPC.eth_feeHistory,
-        mungers=[default_root_munger]
+        RPC.eth_feeHistory, mungers=[default_root_munger]
     )
 
     _max_priority_fee: Method[Callable[..., Wei]] = Method(
@@ -278,7 +275,7 @@ class BaseEth(Module):
     def block_id_munger(
         self,
         account: Union[Address, ChecksumAddress, ENS],
-        block_identifier: Optional[BlockIdentifier] = None
+        block_identifier: Optional[BlockIdentifier] = None,
     ) -> Tuple[Union[Address, ChecksumAddress, ENS], BlockIdentifier]:
         if block_identifier is None:
             block_identifier = self.default_block
@@ -288,7 +285,7 @@ class BaseEth(Module):
         self,
         account: Union[Address, ChecksumAddress, ENS],
         position: int,
-        block_identifier: Optional[BlockIdentifier] = None
+        block_identifier: Optional[BlockIdentifier] = None,
     ) -> Tuple[Union[Address, ChecksumAddress, ENS], int, BlockIdentifier]:
         if block_identifier is None:
             block_identifier = self.default_block
@@ -299,10 +296,13 @@ class BaseEth(Module):
         transaction: TxParams,
         block_identifier: Optional[BlockIdentifier] = None,
         state_override: Optional[CallOverrideParams] = None,
-    ) -> Union[Tuple[TxParams, BlockIdentifier], Tuple[TxParams, BlockIdentifier, CallOverrideParams]]:  # noqa-E501
+    ) -> Union[
+        Tuple[TxParams, BlockIdentifier],
+        Tuple[TxParams, BlockIdentifier, CallOverrideParams],
+    ]:  # noqa-E501
         # TODO: move to middleware
-        if 'from' not in transaction and is_checksum_address(self.default_account):
-            transaction = assoc(transaction, 'from', self.default_account)
+        if "from" not in transaction and is_checksum_address(self.default_account):
+            transaction = assoc(transaction, "from", self.default_account)
 
         # TODO: move to middleware
         if block_identifier is None:
@@ -314,13 +314,11 @@ class BaseEth(Module):
             return (transaction, block_identifier, state_override)
 
     def create_access_list_munger(
-        self,
-        transaction: TxParams,
-        block_identifier: Optional[BlockIdentifier] = None
+        self, transaction: TxParams, block_identifier: Optional[BlockIdentifier] = None
     ) -> Tuple[TxParams, BlockIdentifier]:
         # TODO: move to middleware
-        if 'from' not in transaction and is_checksum_address(self.default_account):
-            transaction = assoc(transaction, 'from', self.default_account)
+        if "from" not in transaction and is_checksum_address(self.default_account):
+            transaction = assoc(transaction, "from", self.default_account)
 
         # TODO: move to middleware
         if block_identifier is None:
@@ -354,8 +352,7 @@ class BaseEth(Module):
     )
 
     _get_transaction_receipt: Method[Callable[[_Hash32], TxReceipt]] = Method(
-        RPC.eth_getTransactionReceipt,
-        mungers=[default_root_munger]
+        RPC.eth_getTransactionReceipt, mungers=[default_root_munger]
     )
 
 
@@ -392,15 +389,16 @@ class AsyncEth(BaseEth):
     @property
     async def max_priority_fee(self) -> Wei:
         """
-        Try to use eth_maxPriorityFeePerGas but, since this is not part of the spec and is only
-        supported by some clients, fall back to an eth_feeHistory calculation with min and max caps.
+        Try to use eth_maxPriorityFeePerGas but, since this is not part of the spec and
+        is only supported by some clients, fall back to an eth_feeHistory calculation
+        with min and max caps.
         """
         try:
             return await self._max_priority_fee()  # type: ignore
         except ValueError:
             warnings.warn(
-                "There was an issue with the method eth_maxPriorityFeePerGas. Calculating using "
-                "eth_feeHistory."
+                "There was an issue with the method eth_maxPriorityFeePerGas. "
+                "Calculating using eth_feeHistory."
             )
             return await async_fee_history_priority_fee(self)
 
@@ -413,13 +411,14 @@ class AsyncEth(BaseEth):
         return await self._is_syncing()  # type: ignore
 
     async def fee_history(
-            self,
-            block_count: int,
-            newest_block: Union[BlockParams, BlockNumber],
-            reward_percentiles: Optional[List[float]] = None
+        self,
+        block_count: int,
+        newest_block: Union[BlockParams, BlockNumber],
+        reward_percentiles: Optional[List[float]] = None,
     ) -> FeeHistory:
         return await self._fee_history(  # type: ignore
-            block_count, newest_block, reward_percentiles)
+            block_count, newest_block, reward_percentiles
+        )
 
     async def send_transaction(self, transaction: TxParams) -> HexBytes:
         # types ignored b/c mypy conflict with BlockingEth properties
@@ -441,7 +440,9 @@ class AsyncEth(BaseEth):
         self, block_identifier: BlockIdentifier, index: int
     ) -> HexBytes:
         # types ignored b/c mypy conflict with BlockingEth properties
-        return await self._get_raw_transaction_by_block(block_identifier, index)  # type: ignore
+        return await self._get_raw_transaction_by_block(
+            block_identifier, index
+        )  # type: ignore
 
     async def generate_gas_price(
         self, transaction_params: Optional[TxParams] = None
@@ -449,9 +450,7 @@ class AsyncEth(BaseEth):
         return self._generate_gas_price(transaction_params)
 
     async def estimate_gas(
-        self,
-        transaction: TxParams,
-        block_identifier: Optional[BlockIdentifier] = None
+        self, transaction: TxParams, block_identifier: Optional[BlockIdentifier] = None
     ) -> int:
         # types ignored b/c mypy conflict with BlockingEth properties
         return await self._estimate_gas(transaction, block_identifier)  # type: ignore
@@ -460,7 +459,9 @@ class AsyncEth(BaseEth):
         self, block_identifier: BlockIdentifier, full_transactions: bool = False
     ) -> BlockData:
         # types ignored b/c mypy conflict with BlockingEth properties
-        return await self._get_block(block_identifier, full_transactions)  # type: ignore
+        return await self._get_block(
+            block_identifier, full_transactions
+        )  # type: ignore
 
     _get_balance: Method[Callable[..., Awaitable[Wei]]] = Method(
         RPC.eth_getBalance,
@@ -470,25 +471,23 @@ class AsyncEth(BaseEth):
     async def get_balance(
         self,
         account: Union[Address, ChecksumAddress, ENS],
-        block_identifier: Optional[BlockIdentifier] = None
+        block_identifier: Optional[BlockIdentifier] = None,
     ) -> Wei:
         return await self._get_balance(account, block_identifier)
 
     _get_code: Method[Callable[..., Awaitable[HexBytes]]] = Method(
-        RPC.eth_getCode,
-        mungers=[BaseEth.block_id_munger]
+        RPC.eth_getCode, mungers=[BaseEth.block_id_munger]
     )
 
     async def get_code(
         self,
         account: Union[Address, ChecksumAddress, ENS],
-        block_identifier: Optional[BlockIdentifier] = None
+        block_identifier: Optional[BlockIdentifier] = None,
     ) -> HexBytes:
         return await self._get_code(account, block_identifier)
 
     _get_logs: Method[Callable[[FilterParams], Awaitable[List[LogReceipt]]]] = Method(
-        RPC.eth_getLogs,
-        mungers=[default_root_munger]
+        RPC.eth_getLogs, mungers=[default_root_munger]
     )
 
     async def get_logs(
@@ -505,18 +504,15 @@ class AsyncEth(BaseEth):
     async def get_transaction_count(
         self,
         account: Union[Address, ChecksumAddress, ENS],
-        block_identifier: Optional[BlockIdentifier] = None
+        block_identifier: Optional[BlockIdentifier] = None,
     ) -> Nonce:
         return await self._get_transaction_count(account, block_identifier)
 
     _call: Method[Callable[..., Awaitable[Union[bytes, bytearray]]]] = Method(
-        RPC.eth_call,
-        mungers=[BaseEth.call_munger]
+        RPC.eth_call, mungers=[BaseEth.call_munger]
     )
 
-    async def get_transaction_receipt(
-        self, transaction_hash: _Hash32
-    ) -> TxReceipt:
+    async def get_transaction_receipt(self, transaction_hash: _Hash32) -> TxReceipt:
         return await self._get_transaction_receipt(transaction_hash)  # type: ignore
 
     async def wait_for_transaction_receipt(
@@ -527,13 +523,16 @@ class AsyncEth(BaseEth):
         ) -> TxReceipt:
             while True:
                 try:
-                    tx_receipt = await self._get_transaction_receipt(_tx_hash)  # type: ignore
+                    tx_receipt = await self._get_transaction_receipt(
+                        _tx_hash
+                    )  # type: ignore
                 except TransactionNotFound:
                     tx_receipt = None
                 if tx_receipt is not None:
                     break
                 await asyncio.sleep(poll_latency)
             return tx_receipt
+
         try:
             return await asyncio.wait_for(
                 _wait_for_tx_receipt_with_timeout(transaction_hash, poll_latency),
@@ -554,7 +553,7 @@ class AsyncEth(BaseEth):
         self,
         account: Union[Address, ChecksumAddress, ENS],
         position: int,
-        block_identifier: Optional[BlockIdentifier] = None
+        block_identifier: Optional[BlockIdentifier] = None,
     ) -> HexBytes:
         return await self._get_storage_at(account, position, block_identifier)
 
@@ -569,7 +568,9 @@ class AsyncEth(BaseEth):
 
 class Eth(BaseEth):
     account = Account()
-    defaultContractFactory: Type[Union[Contract, ConciseContract, ContractCaller]] = Contract  # noqa: E704,E501
+    defaultContractFactory: Type[
+        Union[Contract, ConciseContract, ContractCaller]
+    ] = Contract  # noqa: E704,E501
     iban = Iban
 
     def namereg(self) -> NoReturn:
@@ -594,7 +595,7 @@ class Eth(BaseEth):
     @property
     def protocolVersion(self) -> str:
         warnings.warn(
-            'protocolVersion is deprecated in favor of protocol_version',
+            "protocolVersion is deprecated in favor of protocol_version",
             category=DeprecationWarning,
         )
         return self.protocol_version
@@ -622,7 +623,7 @@ class Eth(BaseEth):
     @property
     def gasPrice(self) -> Wei:
         warnings.warn(
-            'gasPrice is deprecated in favor of gas_price',
+            "gasPrice is deprecated in favor of gas_price",
             category=DeprecationWarning,
         )
         return self.gas_price
@@ -638,7 +639,7 @@ class Eth(BaseEth):
     @property
     def blockNumber(self) -> BlockNumber:
         warnings.warn(
-            'blockNumber is deprecated in favor of block_number',
+            "blockNumber is deprecated in favor of block_number",
             category=DeprecationWarning,
         )
         return self.block_number
@@ -657,7 +658,7 @@ class Eth(BaseEth):
     @property
     def chainId(self) -> int:
         warnings.warn(
-            'chainId is deprecated in favor of chain_id',
+            "chainId is deprecated in favor of chain_id",
             category=DeprecationWarning,
         )
         return self.chain_id
@@ -670,15 +671,16 @@ class Eth(BaseEth):
     @property
     def max_priority_fee(self) -> Wei:
         """
-        Try to use eth_maxPriorityFeePerGas but, since this is not part of the spec and is only
-        supported by some clients, fall back to an eth_feeHistory calculation with min and max caps.
+        Try to use eth_maxPriorityFeePerGas but, since this is not part of the spec and
+        is only supported by some clients, fall back to an eth_feeHistory calculation
+        with min and max caps.
         """
         try:
             return self._max_priority_fee()
         except ValueError:
             warnings.warn(
-                "There was an issue with the method eth_maxPriorityFeePerGas. Calculating using "
-                "eth_feeHistory."
+                "There was an issue with the method eth_maxPriorityFeePerGas."
+                "Calculating using eth_feeHistory."
             )
             return fee_history_priority_fee(self)
 
@@ -691,16 +693,24 @@ class Eth(BaseEth):
         self,
         account: Union[Address, ChecksumAddress, ENS],
         positions: Sequence[int],
-        block_identifier: Optional[BlockIdentifier] = None
-    ) -> Tuple[Union[Address, ChecksumAddress, ENS], Sequence[int], Optional[BlockIdentifier]]:
+        block_identifier: Optional[BlockIdentifier] = None,
+    ) -> Tuple[
+        Union[Address, ChecksumAddress, ENS], Sequence[int], Optional[BlockIdentifier]
+    ]:
         if block_identifier is None:
             block_identifier = self.default_block
         return (account, positions, block_identifier)
 
     get_proof: Method[
         Callable[
-            [Tuple[Union[Address, ChecksumAddress, ENS], Sequence[int], Optional[BlockIdentifier]]],
-            MerkleProof
+            [
+                Tuple[
+                    Union[Address, ChecksumAddress, ENS],
+                    Sequence[int],
+                    Optional[BlockIdentifier],
+                ]
+            ],
+            MerkleProof,
         ]
     ] = Method(
         RPC.eth_getProof,
@@ -713,8 +723,7 @@ class Eth(BaseEth):
         return self._get_block(block_identifier, full_transactions)
 
     get_code: Method[Callable[..., HexBytes]] = Method(
-        RPC.eth_getCode,
-        mungers=[BaseEth.block_id_munger]
+        RPC.eth_getCode, mungers=[BaseEth.block_id_munger]
     )
 
     """
@@ -727,7 +736,7 @@ class Eth(BaseEth):
             if_hash=RPC.eth_getBlockTransactionCountByHash,
             if_number=RPC.eth_getBlockTransactionCountByNumber,
         ),
-        mungers=[default_root_munger]
+        mungers=[default_root_munger],
     )
 
     """
@@ -740,7 +749,7 @@ class Eth(BaseEth):
             if_hash=RPC.eth_getUncleCountByBlockHash,
             if_number=RPC.eth_getUncleCountByBlockNumber,
         ),
-        mungers=[default_root_munger]
+        mungers=[default_root_munger],
     )
 
     """
@@ -753,7 +762,7 @@ class Eth(BaseEth):
             if_hash=RPC.eth_getUncleByBlockHashAndIndex,
             if_number=RPC.eth_getUncleByBlockNumberAndIndex,
         ),
-        mungers=[default_root_munger]
+        mungers=[default_root_munger],
     )
 
     def get_transaction(self, transaction_hash: _Hash32) -> TxData:
@@ -782,14 +791,16 @@ class Eth(BaseEth):
             if_hash=RPC.eth_getTransactionByBlockHashAndIndex,
             if_number=RPC.eth_getTransactionByBlockNumberAndIndex,
         ),
-        mungers=[default_root_munger]
+        mungers=[default_root_munger],
     )
 
     @deprecated_for("wait_for_transaction_receipt")
     def waitForTransactionReceipt(
         self, transaction_hash: _Hash32, timeout: int = 120, poll_latency: float = 0.1
     ) -> TxReceipt:
-        return self.wait_for_transaction_receipt(transaction_hash, timeout, poll_latency)
+        return self.wait_for_transaction_receipt(
+            transaction_hash, timeout, poll_latency
+        )
 
     def wait_for_transaction_receipt(
         self, transaction_hash: _Hash32, timeout: float = 120, poll_latency: float = 0.1
@@ -812,9 +823,7 @@ class Eth(BaseEth):
                 f"after {timeout} seconds"
             )
 
-    def get_transaction_receipt(
-        self, transaction_hash: _Hash32
-    ) -> TxReceipt:
+    def get_transaction_receipt(self, transaction_hash: _Hash32) -> TxReceipt:
         return self._get_transaction_receipt(transaction_hash)
 
     get_transaction_count: Method[Callable[..., Nonce]] = Method(
@@ -823,10 +832,14 @@ class Eth(BaseEth):
     )
 
     @deprecated_for("replace_transaction")
-    def replaceTransaction(self, transaction_hash: _Hash32, new_transaction: TxParams) -> HexBytes:
+    def replaceTransaction(
+        self, transaction_hash: _Hash32, new_transaction: TxParams
+    ) -> HexBytes:
         return self.replace_transaction(transaction_hash, new_transaction)
 
-    def replace_transaction(self, transaction_hash: _Hash32, new_transaction: TxParams) -> HexBytes:
+    def replace_transaction(
+        self, transaction_hash: _Hash32, new_transaction: TxParams
+    ) -> HexBytes:
         current_transaction = get_required_transaction(self.w3, transaction_hash)
         return replace_transaction(self.w3, current_transaction, new_transaction)
 
@@ -843,7 +856,9 @@ class Eth(BaseEth):
     ) -> HexBytes:
         assert_valid_transaction_params(cast(TxParams, transaction_params))
         current_transaction = get_required_transaction(self.w3, transaction_hash)
-        current_transaction_params = extract_valid_transaction_params(current_transaction)
+        current_transaction_params = extract_valid_transaction_params(
+            current_transaction
+        )
         new_transaction = merge(current_transaction_params, transaction_params)
         return replace_transaction(self.w3, current_transaction, new_transaction)
 
@@ -858,7 +873,7 @@ class Eth(BaseEth):
         account: Union[Address, ChecksumAddress, ENS],
         data: Union[int, bytes] = None,
         hexstr: HexStr = None,
-        text: str = None
+        text: str = None,
     ) -> Tuple[Union[Address, ChecksumAddress, ENS], HexStr]:
         message_hex = to_hex(data, hexstr=hexstr, text=text)
         return (account, message_hex)
@@ -879,19 +894,15 @@ class Eth(BaseEth):
     )
 
     call: Method[Callable[..., Union[bytes, bytearray]]] = Method(
-        RPC.eth_call,
-        mungers=[BaseEth.call_munger]
+        RPC.eth_call, mungers=[BaseEth.call_munger]
     )
 
     create_access_list: Method[Callable[..., Union[bytes, bytearray]]] = Method(
-        RPC.eth_create_access_list,
-        mungers=[BaseEth.create_access_list_munger]
+        RPC.eth_createAccessList, mungers=[BaseEth.create_access_list_munger]
     )
 
     def estimate_gas(
-        self,
-        transaction: TxParams,
-        block_identifier: Optional[BlockIdentifier] = None
+        self, transaction: TxParams, block_identifier: Optional[BlockIdentifier] = None
     ) -> int:
         return self._estimate_gas(transaction, block_identifier)
 
@@ -899,24 +910,24 @@ class Eth(BaseEth):
         self,
         block_count: int,
         newest_block: Union[BlockParams, BlockNumber],
-        reward_percentiles: Optional[List[float]] = None
+        reward_percentiles: Optional[List[float]] = None,
     ) -> FeeHistory:
         return self._fee_history(block_count, newest_block, reward_percentiles)
 
     def filter_munger(
         self,
         filter_params: Optional[Union[str, FilterParams]] = None,
-        filter_id: Optional[HexStr] = None
+        filter_id: Optional[HexStr] = None,
     ) -> Union[List[FilterParams], List[HexStr], List[str]]:
         if filter_id and filter_params:
             raise TypeError(
-                "Ambiguous invocation: provide either a `filter_params` or a `filter_id` argument. "
-                "Both were supplied."
+                "Ambiguous invocation: provide either a `filter_params` or a "
+                "`filter_id` argument. Both were supplied."
             )
         if isinstance(filter_params, dict):
             return [filter_params]
         elif is_string(filter_params):
-            if filter_params in ['latest', 'pending']:
+            if filter_params in ["latest", "pending"]:
                 return [filter_params]
             else:
                 raise ValueError(
@@ -926,9 +937,11 @@ class Eth(BaseEth):
         elif filter_id and not filter_params:
             return [filter_id]
         else:
-            raise TypeError("Must provide either filter_params as a string or "
-                            "a valid filter object, or a filter_id as a string "
-                            "or hex.")
+            raise TypeError(
+                "Must provide either filter_params as a string or "
+                "a valid filter object, or a filter_id as a string "
+                "or hex."
+            )
 
     filter: Method[Callable[..., Any]] = Method(
         method_choice_depends_on_args=select_filter_method(
@@ -940,18 +953,15 @@ class Eth(BaseEth):
     )
 
     get_filter_changes: Method[Callable[[HexStr], List[LogReceipt]]] = Method(
-        RPC.eth_getFilterChanges,
-        mungers=[default_root_munger]
+        RPC.eth_getFilterChanges, mungers=[default_root_munger]
     )
 
     get_filter_logs: Method[Callable[[HexStr], List[LogReceipt]]] = Method(
-        RPC.eth_getFilterLogs,
-        mungers=[default_root_munger]
+        RPC.eth_getFilterLogs, mungers=[default_root_munger]
     )
 
     get_logs: Method[Callable[[FilterParams], List[LogReceipt]]] = Method(
-        RPC.eth_getLogs,
-        mungers=[default_root_munger]
+        RPC.eth_getLogs, mungers=[default_root_munger]
     )
 
     submit_hashrate: Method[Callable[[int, _Hash32], bool]] = Method(
@@ -970,15 +980,23 @@ class Eth(BaseEth):
     )
 
     @overload
-    def contract(self, address: None = None, **kwargs: Any) -> Type[Contract]: ...  # noqa: E704,E501
+    def contract(self, address: None = None, **kwargs: Any) -> Type[Contract]:
+        ...  # noqa: E704,E501
 
     @overload  # noqa: F811
-    def contract(self, address: Union[Address, ChecksumAddress, ENS], **kwargs: Any) -> Contract: ...  # noqa: E704,E501
+    def contract(
+        self, address: Union[Address, ChecksumAddress, ENS], **kwargs: Any
+    ) -> Contract:
+        ...  # noqa: E704,E501
 
     def contract(  # noqa: F811
-        self, address: Optional[Union[Address, ChecksumAddress, ENS]] = None, **kwargs: Any
+        self,
+        address: Optional[Union[Address, ChecksumAddress, ENS]] = None,
+        **kwargs: Any,
     ) -> Union[Type[Contract], Contract]:
-        ContractFactoryClass = kwargs.pop('ContractFactoryClass', self.defaultContractFactory)
+        ContractFactoryClass = kwargs.pop(
+            "ContractFactoryClass", self.defaultContractFactory
+        )
 
         ContractFactory = ContractFactoryClass.factory(self.w3, **kwargs)
 
@@ -1007,10 +1025,14 @@ class Eth(BaseEth):
     )
 
     @deprecated_for("generate_gas_price")
-    def generateGasPrice(self, transaction_params: Optional[TxParams] = None) -> Optional[Wei]:
+    def generateGasPrice(
+        self, transaction_params: Optional[TxParams] = None
+    ) -> Optional[Wei]:
         return self._generate_gas_price(transaction_params)
 
-    def generate_gas_price(self, transaction_params: Optional[TxParams] = None) -> Optional[Wei]:
+    def generate_gas_price(
+        self, transaction_params: Optional[TxParams] = None
+    ) -> Optional[Wei]:
         return self._generate_gas_price(transaction_params)
 
     @deprecated_for("set_gas_price_strategy")
@@ -1018,43 +1040,65 @@ class Eth(BaseEth):
         return self.set_gas_price_strategy(gas_price_strategy)
 
     # Deprecated Methods
-    getBalance = DeprecatedMethod(get_balance, 'getBalance', 'get_balance')
-    getStorageAt = DeprecatedMethod(get_storage_at, 'getStorageAt', 'get_storage_at')
-    getBlock = DeprecatedMethod(get_block, 'getBlock', 'get_block')  # type: ignore
-    getBlockTransactionCount = DeprecatedMethod(get_block_transaction_count,
-                                                'getBlockTransactionCount',
-                                                'get_block_transaction_count')
-    getCode = DeprecatedMethod(get_code, 'getCode', 'get_code')
-    getProof = DeprecatedMethod(get_proof, 'getProof', 'get_proof')
-    getTransaction = DeprecatedMethod(get_transaction,   # type: ignore
-                                      'getTransaction',
-                                      'get_transaction')
-    getTransactionByBlock = DeprecatedMethod(get_transaction_by_block,
-                                             'getTransactionByBlock',
-                                             'get_transaction_by_block')
-    getTransactionCount = DeprecatedMethod(get_transaction_count,
-                                           'getTransactionCount',
-                                           'get_transaction_count')
-    getUncleByBlock = DeprecatedMethod(get_uncle_by_block, 'getUncleByBlock', 'get_uncle_by_block')
-    getUncleCount = DeprecatedMethod(get_uncle_count, 'getUncleCount', 'get_uncle_count')
-    sendTransaction = DeprecatedMethod(send_transaction,  # type: ignore
-                                       'sendTransaction',
-                                       'send_transaction')
-    signTransaction = DeprecatedMethod(sign_transaction, 'signTransaction', 'sign_transaction')
-    signTypedData = DeprecatedMethod(sign_typed_data, 'signTypedData', 'sign_typed_data')
-    submitHashrate = DeprecatedMethod(submit_hashrate, 'submitHashrate', 'submit_hashrate')
-    submitWork = DeprecatedMethod(submit_work, 'submitWork', 'submit_work')
-    getLogs = DeprecatedMethod(get_logs, 'getLogs', 'get_logs')
-    estimateGas = DeprecatedMethod(estimate_gas, 'estimateGas', 'estimate_gas')  # type: ignore
-    sendRawTransaction = DeprecatedMethod(send_raw_transaction,  # type: ignore
-                                          'sendRawTransaction',
-                                          'send_raw_transaction')
-    getTransactionReceipt = DeprecatedMethod(get_transaction_receipt,  # type: ignore
-                                             'getTransactionReceipt',
-                                             'get_transaction_receipt')
-    uninstallFilter = DeprecatedMethod(uninstall_filter, 'uninstallFilter', 'uninstall_filter')
-    getFilterLogs = DeprecatedMethod(get_filter_logs, 'getFilterLogs', 'get_filter_logs')
-    getFilterChanges = DeprecatedMethod(get_filter_changes,
-                                        'getFilterChanges',
-                                        'get_filter_changes')
-    getWork = DeprecatedMethod(get_work, 'getWork', 'get_work')
+    getBalance = DeprecatedMethod(get_balance, "getBalance", "get_balance")
+    getStorageAt = DeprecatedMethod(get_storage_at, "getStorageAt", "get_storage_at")
+    getBlock = DeprecatedMethod(get_block, "getBlock", "get_block")  # type: ignore
+    getBlockTransactionCount = DeprecatedMethod(
+        get_block_transaction_count,
+        "getBlockTransactionCount",
+        "get_block_transaction_count",
+    )
+    getCode = DeprecatedMethod(get_code, "getCode", "get_code")
+    getProof = DeprecatedMethod(get_proof, "getProof", "get_proof")
+    getTransaction = DeprecatedMethod(
+        get_transaction, "getTransaction", "get_transaction"  # type: ignore
+    )
+    getTransactionByBlock = DeprecatedMethod(
+        get_transaction_by_block, "getTransactionByBlock", "get_transaction_by_block"
+    )
+    getTransactionCount = DeprecatedMethod(
+        get_transaction_count, "getTransactionCount", "get_transaction_count"
+    )
+    getUncleByBlock = DeprecatedMethod(
+        get_uncle_by_block, "getUncleByBlock", "get_uncle_by_block"
+    )
+    getUncleCount = DeprecatedMethod(
+        get_uncle_count, "getUncleCount", "get_uncle_count"
+    )
+    sendTransaction = DeprecatedMethod(
+        send_transaction, "sendTransaction", "send_transaction"  # type: ignore
+    )
+    signTransaction = DeprecatedMethod(
+        sign_transaction, "signTransaction", "sign_transaction"
+    )
+    signTypedData = DeprecatedMethod(
+        sign_typed_data, "signTypedData", "sign_typed_data"
+    )
+    submitHashrate = DeprecatedMethod(
+        submit_hashrate, "submitHashrate", "submit_hashrate"
+    )
+    submitWork = DeprecatedMethod(submit_work, "submitWork", "submit_work")
+    getLogs = DeprecatedMethod(get_logs, "getLogs", "get_logs")
+    estimateGas = DeprecatedMethod(
+        estimate_gas, "estimateGas", "estimate_gas"  # type: ignore
+    )
+    sendRawTransaction = DeprecatedMethod(
+        send_raw_transaction,  # type: ignore
+        "sendRawTransaction",
+        "send_raw_transaction",
+    )
+    getTransactionReceipt = DeprecatedMethod(
+        get_transaction_receipt,  # type: ignore
+        "getTransactionReceipt",
+        "get_transaction_receipt",
+    )
+    uninstallFilter = DeprecatedMethod(
+        uninstall_filter, "uninstallFilter", "uninstall_filter"
+    )
+    getFilterLogs = DeprecatedMethod(
+        get_filter_logs, "getFilterLogs", "get_filter_logs"
+    )
+    getFilterChanges = DeprecatedMethod(
+        get_filter_changes, "getFilterChanges", "get_filter_changes"
+    )
+    getWork = DeprecatedMethod(get_work, "getWork", "get_work")
