@@ -482,12 +482,23 @@ class Eth(BaseEth):
 
     # eth_getStorageAt
 
-    get_storage_at: Method[
-        Callable[[Union[Address, ChecksumAddress, ENS], int], HexBytes]
+    _get_storage_at: Method[
+        Callable[
+            [Union[Address, ChecksumAddress, ENS], int, Optional[BlockIdentifier]],
+            HexBytes,
+        ]
     ] = Method(
         RPC.eth_getStorageAt,
         mungers=[BaseEth.get_storage_at_munger],
     )
+
+    def get_storage_at(
+        self,
+        account: Union[Address, ChecksumAddress, ENS],
+        position: int,
+        block_identifier: Optional[BlockIdentifier] = None,
+    ) -> HexBytes:
+        return self._get_storage_at(account, position, block_identifier)
 
     # eth_getProof
 
