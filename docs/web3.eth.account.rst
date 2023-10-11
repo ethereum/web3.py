@@ -10,41 +10,40 @@ Local vs Hosted Nodes
 
 Hosted Node
   A hosted node is controlled by someone else. When you connect to Infura, you are
-  connected to a hosted node. See `ethereumnodes.com <https://ethereumnodes.com>`__ 
+  connected to a hosted node. See `ethereumnodes.com <https://ethereumnodes.com>`__
   for the list of free and commercial node providers.
 
 Local Node
-  A local node is started and controlled by you on your computer. 
-  Most developers and users do not do this anymore.
+  A local node is started and controlled by you on your computer. For several reasons
+  (e.g., privacy, security), this is the recommended path, but it requires more resources
+  and work to set up and maintain.
 
 Local vs Hosted Keys
 --------------------
 
-Ethereum private key is a 256-bit (32 bytes) random integer.
-For each private key, you get one Ethereum address, 
+An Ethereum private key is a 256-bit (32 bytes) random integer.
+For each private key, you get one Ethereum address,
 also known as an Externally Owned Account (EOA).
 
 In Python, the private key is expressed as a 32-byte long Python ``bytes`` object.
 When a private key is presented to users in a hexadecimal format, it may or may
 not contain a starting ``0x`` hexadecimal prefix.
 
-
 Local Private Key
-  A local private key is a locally stored secret you import to your Python application. 
+  A local private key is a locally stored secret you import to your Python application.
   Please read below how you can create and import a local private key
-  and use it to sign transactions. 
+  and use it to sign transactions.
 
 Hosted Private Key
-  This is a legacy way to use accounts when working with unit test backends like 
+  This is a legacy way to use accounts when working with unit test backends like
   :py:class:`web3.providers.eth_tester.main.EthereumTesterProvider`
-  or Anvil. Calling ``web3.eth.accounts` gives you a predefined
+  or Anvil. Calling ``web3.eth.accounts`` gives you a predefined
   list of accounts that have been funded with test ETH.
   You can use any of these accounts with use :meth:`~web3.eth.Eth.send_transaction`
   without further configuration.
 
   In the past, around 2015, this was also a way to use private keys
-  in a locally hosted node, but this practice has died off 
-  a long time ago.
+  in a locally hosted node, but this practice is now discouraged.
 
 .. note::
 
