@@ -61,7 +61,7 @@ async def test_async_make_request_caches_all_undesired_responses_and_returns_des
     assert response == json.loads(ws_recv_responses.pop())  # pop the expected response
 
     assert (
-        len(provider._request_processor._raw_response_cache)
+        len(provider._request_processor._request_response_cache)
         == len(ws_recv_responses)
         == undesired_responses_count
     )
@@ -69,7 +69,7 @@ async def test_async_make_request_caches_all_undesired_responses_and_returns_des
     for (
         _cache_key,
         cached_response,
-    ) in provider._request_processor._raw_response_cache.items():
+    ) in provider._request_processor._request_response_cache.items():
         # assert all cached responses are in the list of responses we received
         assert to_bytes(text=json.dumps(cached_response)) in ws_recv_responses
 
@@ -95,7 +95,7 @@ async def test_async_make_request_returns_cached_response_with_no_recv_if_cached
     response = await method_under_test(RPCEndpoint("some_method"), ["desired_params"])
     assert response == desired_response
 
-    assert len(provider._request_processor._raw_response_cache) == 0
+    assert len(provider._request_processor._request_response_cache) == 0
     assert not provider._ws.recv.called  # type: ignore
 
 

@@ -138,15 +138,14 @@ class WebsocketProviderV2(PersistentConnectionProvider):
                 _backoff_time *= _backoff_rate_change
 
     async def disconnect(self) -> None:
-        await self._ws.close()
-        self._ws = None
+        if self._ws is not None and not self._ws.closed:
+            await self._ws.close()
+            self._ws = None
+            self.logger.debug(
+                f'Successfully disconnected from endpoint: "{self.endpoint_uri}'
+            )
 
-        # clear the request information cache after disconnecting
         self._request_processor.clear_caches()
-        self.logger.debug(
-            f'Successfully disconnected from endpoint: "{self.endpoint_uri}" '
-            "and the request processor transient caches were cleared."
-        )
 
     async def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
         request_data = self.encode_rpc_request(method, params)
@@ -157,35 +156,52 @@ class WebsocketProviderV2(PersistentConnectionProvider):
         await asyncio.wait_for(self._ws.send(request_data), timeout=self.call_timeout)
 
         current_request_id = json.loads(request_data)["id"]
-        request_cache_key = generate_cache_key(current_request_id)
-
-        if request_cache_key in self._request_processor._raw_response_cache:
-            # if response is already cached, pop it from cache
-            response = await self._request_processor.pop_raw_response(request_cache_key)
-        else:
-            # else, wait for the desired response, caching all others along the way
-            response = await self._get_response_for_request_id(current_request_id)
+        response = await self._get_response_for_request_id(current_request_id)
 
         return response
 
     async def _get_response_for_request_id(self, request_id: RPCId) -> RPCResponse:
         async def _match_response_id_to_request_id() -> RPCResponse:
-            response_id = None
-            response = None
-            while response_id != request_id:
-                response = await self._ws_recv()
-                response_id = response.get("id")
+            request_cache_key = generate_cache_key(request_id)
 
-                if response_id == request_id:
-                    break
-                else:
-                    # cache all responses that are not the desired response
-                    await self._request_processor.cache_raw_response(
-                        response,
+            while True:
+                if request_cache_key in self._request_processor._request_response_cache:
+                    # if response is already cached, pop it from cache
+                    self.logger.debug(
+                        f"Response for id {request_id} is already cached, pop it "
+                        "from the cache."
                     )
-                    await asyncio.sleep(0.1)
+                    return await self._request_processor.pop_raw_response(
+                        cache_key=request_cache_key,
+                    )
 
-            return response
+                else:
+                    if not self._ws_lock.locked():
+                        async with self._ws_lock:
+                            self.logger.debug(
+                                f"Response for id {request_id} is not cached, "
+                                "calling `recv()` on websocket."
+                            )
+                            response = await self._ws_recv()
+
+                        response_id = response.get("id")
+
+                        if response_id == request_id:
+                            self.logger.debug(
+                                f"Received and returning response for id {request_id}."
+                            )
+                            return response
+                        else:
+                            # cache all responses that are not the desired response
+                            self.logger.debug("Undesired response received, caching.")
+                            is_subscription = (
+                                response.get("method") == "eth_subscription"
+                            )
+                            await self._request_processor.cache_raw_response(
+                                response, subscription=is_subscription
+                            )
+
+                    await asyncio.sleep(0.01)
 
         try:
             # Enters a while loop, looking for a response id match to the request id.
