@@ -8,6 +8,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
+    Dict,
     Optional,
     Tuple,
 )
@@ -47,6 +48,14 @@ class RequestProcessor:
         self._subscription_response_deque = deque(
             maxlen=subscription_response_deque_size
         )
+
+    @property
+    def active_subscriptions(self) -> Dict[str, Any]:
+        return {
+            value.subscription_id: {"params": value.params}
+            for key, value in self._request_information_cache.items()
+            if value.method == "eth_subscribe"
+        }
 
     # request information cache
 
@@ -153,10 +162,15 @@ class RequestProcessor:
                 subscribe_cache_key = generate_cache_key(subscription_id)
                 self.pop_cached_request_information(subscribe_cache_key)
 
-                # clean out subscription response cache for this subscription id
-                for response in self._subscription_response_deque:
-                    if response["params"]["subscription"] == subscription_id:
-                        self._subscription_response_deque.remove(response)
+                # rebuild the deque without the unsubscribed subscription responses
+                self._subscription_response_deque = deque(
+                    filter(
+                        lambda sub_response: sub_response["params"]["subscription"]
+                        != subscription_id,
+                        self._subscription_response_deque,
+                    ),
+                    maxlen=self._subscription_response_deque.maxlen,
+                )
 
         return request_info
 
