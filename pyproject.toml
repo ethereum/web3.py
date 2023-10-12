@@ -52,6 +52,7 @@ select = "D2,D3,D4"
 # D400 - First line should end with a period
 # D401 - First line should be in imperative mood
 # D412 - No blank lines allowed between a section header and its content
+# D415 - First line should end with a period, question mark, or exclamation point
 add-ignore = "D200,D203,D204,D205,D212,D302,D400,D401,D412,D415"
 
 # Explanation:
