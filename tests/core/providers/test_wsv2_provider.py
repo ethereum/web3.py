@@ -61,15 +61,12 @@ async def test_async_make_request_caches_all_undesired_responses_and_returns_des
     assert response == json.loads(ws_recv_responses.pop())  # pop the expected response
 
     assert (
-        len(provider._request_processor._request_response_cache)
+        len(provider._request_processor._subscription_response_deque)
         == len(ws_recv_responses)
         == undesired_responses_count
     )
 
-    for (
-        _cache_key,
-        cached_response,
-    ) in provider._request_processor._request_response_cache.items():
+    for cached_response in provider._request_processor._subscription_response_deque:
         # assert all cached responses are in the list of responses we received
         assert to_bytes(text=json.dumps(cached_response)) in ws_recv_responses
 
@@ -107,7 +104,7 @@ async def test_async_make_request_returns_cached_response_with_no_recv_if_cached
     reason="Uses AsyncMock, not supported by python 3.7",
 )
 async def test_async_make_request_times_out_of_while_loop_looking_for_response():
-    provider = WebsocketProviderV2("ws://mocked", call_timeout=0.1)
+    provider = WebsocketProviderV2("ws://mocked", request_timeout=0.1)
 
     method_under_test = provider.make_request
 
@@ -116,6 +113,6 @@ async def test_async_make_request_times_out_of_while_loop_looking_for_response()
 
     with pytest.raises(
         TimeExhausted,
-        match="Timed out waiting for response with request id `0` after 0.1 seconds.",
+        match=r"Timed out waiting for response with request id `0` after 0.1 second",
     ):
         await method_under_test(RPCEndpoint("some_method"), ["desired_params"])
