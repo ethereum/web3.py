@@ -8,6 +8,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
+    Deque,
     Dict,
     Optional,
     Tuple,
@@ -34,7 +35,7 @@ if TYPE_CHECKING:
 class RequestProcessor:
     _request_information_cache: SimpleCache
     _request_response_cache: SimpleCache
-    _subscription_response_deque: deque[RPCResponse]
+    _subscription_response_deque: Deque[RPCResponse]
 
     def __init__(
         self,
@@ -104,7 +105,7 @@ class RequestProcessor:
             self._bump_cache_if_key_present(bump, request_id + 1)
 
             self._provider.logger.debug(
-                f"Caching internal request. Bumping original request in cache:\n"
+                "Caching internal request. Bumping original request in cache:\n"
                 f"    request_id=[{request_id}] -> [{request_id + 1}],\n"
                 f"    cache_key=[{cache_key}] -> [{bump}],\n"
                 f"    request_info={original_request_info.__dict__}"
@@ -117,7 +118,7 @@ class RequestProcessor:
         request_info = self._request_information_cache.pop(cache_key)
         if request_info is not None:
             self._provider.logger.debug(
-                f"Request info popped from cache:\n"
+                "Request info popped from cache:\n"
                 f"    cache_key={cache_key},\n    request_info={request_info.__dict__}"
             )
         return request_info
@@ -217,11 +218,11 @@ class RequestProcessor:
 
             raw_response = self._subscription_response_deque.popleft()
             self._provider.logger.debug(
-                f"Subscription response cache is not empty. Processing {deque_length} "
+                f"Subscription response deque is not empty. Processing {deque_length} "
                 "subscription(s) as FIFO before receiving new response."
             )
             self._provider.logger.debug(
-                f"Cached subscription response popped from cache to be processed:\n"
+                "Cached subscription response popped from deque to be processed:\n"
                 f"    raw_response={raw_response}"
             )
         else:
@@ -233,7 +234,7 @@ class RequestProcessor:
             raw_response = self._request_response_cache.pop(cache_key)
             if raw_response is not None:
                 self._provider.logger.debug(
-                    f"Cached response popped from cache to be processed:\n"
+                    "Cached response popped from cache to be processed:\n"
                     f"    cache_key={cache_key},\n"
                     f"    raw_response={raw_response}"
                 )

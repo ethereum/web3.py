@@ -369,17 +369,19 @@ class RequestManager:
             )
 
         while True:
-            cached_subscription_response = (
-                await self._request_processor.pop_raw_response(subscription=True)
-            )
-            if cached_subscription_response is not None:
-                response = cached_subscription_response
+            response = await self._request_processor.pop_raw_response(subscription=True)
+            if response is not None:
                 break
-
             else:
                 if not self._provider._ws_lock.locked():
                     async with self._provider._ws_lock:
-                        response = await self._provider._ws_recv()
+                        try:
+                            # keep timeout low but reasonable to check both the cache
+                            # and the websocket connection for new responses
+                            response = await self._provider._ws_recv(timeout=2)
+                        except asyncio.TimeoutError:
+                            # if no response received, continue to next iteration
+                            continue
 
                     if response.get("method") == "eth_subscription":
                         break
@@ -389,7 +391,6 @@ class RequestManager:
                         )
 
                 await asyncio.sleep(0.01)
-                continue
 
         yield await self._process_ws_response(response)
 

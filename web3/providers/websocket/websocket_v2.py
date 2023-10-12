@@ -66,7 +66,7 @@ class WebsocketProviderV2(PersistentConnectionProvider):
         self,
         endpoint_uri: Optional[Union[URI, str]] = None,
         websocket_kwargs: Optional[Dict[str, Any]] = None,
-        call_timeout: Optional[float] = DEFAULT_PERSISTENT_CONNECTION_TIMEOUT,
+        request_timeout: Optional[float] = DEFAULT_PERSISTENT_CONNECTION_TIMEOUT,
     ) -> None:
         self.endpoint_uri = URI(endpoint_uri)
         if self.endpoint_uri is None:
@@ -93,7 +93,7 @@ class WebsocketProviderV2(PersistentConnectionProvider):
 
         self.websocket_kwargs = merge(DEFAULT_WEBSOCKET_KWARGS, websocket_kwargs or {})
 
-        super().__init__(endpoint_uri, call_timeout=call_timeout)
+        super().__init__(endpoint_uri, request_timeout=request_timeout)
 
     def __str__(self) -> str:
         return f"Websocket connection: {self.endpoint_uri}"
@@ -153,7 +153,9 @@ class WebsocketProviderV2(PersistentConnectionProvider):
         if self._ws is None:
             await self.connect()
 
-        await asyncio.wait_for(self._ws.send(request_data), timeout=self.call_timeout)
+        await asyncio.wait_for(
+            self._ws.send(request_data), timeout=self.request_timeout
+        )
 
         current_request_id = json.loads(request_data)["id"]
         response = await self._get_response_for_request_id(current_request_id)
@@ -179,10 +181,10 @@ class WebsocketProviderV2(PersistentConnectionProvider):
                     if not self._ws_lock.locked():
                         async with self._ws_lock:
                             self.logger.debug(
-                                f"Response for id {request_id} is not cached, "
-                                "calling `recv()` on websocket."
+                                f"Response for id {request_id} is not cached, calling "
+                                "`recv()` on websocket."
                             )
-                            response = await self._ws_recv()
+                            response = await self._ws_recv(timeout=self.request_timeout)
 
                         response_id = response.get("id")
 
@@ -201,7 +203,8 @@ class WebsocketProviderV2(PersistentConnectionProvider):
                                 response, subscription=is_subscription
                             )
 
-                    await asyncio.sleep(0.01)
+                    # this is important to let asyncio run other tasks
+                    await asyncio.sleep(0.1)
 
         try:
             # Enters a while loop, looking for a response id match to the request id.
@@ -210,20 +213,18 @@ class WebsocketProviderV2(PersistentConnectionProvider):
             # the same id that was sent in the request, but we need to handle these
             # "bad" cases somewhat gracefully.
             timeout = (
-                self.call_timeout
-                if self.call_timeout and self.call_timeout <= 20
+                self.request_timeout
+                if self.request_timeout and self.request_timeout <= 20
                 else 20
             )
             return await asyncio.wait_for(_match_response_id_to_request_id(), timeout)
         except asyncio.TimeoutError:
             raise TimeExhausted(
                 f"Timed out waiting for response with request id `{request_id}` after "
-                f"{self.call_timeout} seconds. This is likely due to the provider not "
-                "returning a response with the same id that was sent in the request, "
-                "which is required by the JSON-RPC spec."
+                f"{self.request_timeout} second(s). This is likely due to the provider "
+                f"not returning a response with the same id that was sent in the "
+                f"request, which is required by the JSON-RPC spec."
             )
 
-    async def _ws_recv(self) -> RPCResponse:
-        return json.loads(
-            await asyncio.wait_for(self._ws.recv(), timeout=self.call_timeout)
-        )
+    async def _ws_recv(self, timeout: float = None) -> RPCResponse:
+        return json.loads(await asyncio.wait_for(self._ws.recv(), timeout=timeout))
