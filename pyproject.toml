@@ -1,3 +1,71 @@
+[tool.autoflake]
+remove_all_unused_imports = "True"
+exclude = "__init__.py"
+
+[tool.isort]
+combine_as_imports = "True"
+extra_standard_library = "pytest"
+force_grid_wrap = 1
+force_sort_within_sections = "True"
+known_third_party = "hypothesis,pytest"
+known_first_party = "<MODULE_NAME>"
+multi_line_output = 3
+profile = "black"
+
+[tool.mypy]
+check_untyped_defs = "True"
+disallow_incomplete_defs = "True"
+disallow_untyped_defs = "True"
+disallow_any_generics = "True"
+disallow_untyped_calls = "True"
+disallow_untyped_decorators = "True"
+disallow_subclassing_any = "True"
+ignore_missing_imports = "True"
+strict_optional = "True"
+strict_equality = "True"
+warn_redundant_casts = "True"
+warn_return_any = "True"
+warn_unused_configs = "True"
+warn_unused_ignores = "True"
+
+
+[tool.pydocstyle]
+# All error codes found here:
+# http://www.pydocstyle.org/en/3.0.0/error_codes.html
+#
+# Ignored:
+# D1 - Missing docstring error codes
+#
+# Selected:
+# D2 - Whitespace error codes
+# D3 - Quote error codes
+# D4 - Content related error codes
+select = "D2,D3,D4"
+
+# Extra ignores:
+# D200 - One-line docstring should fit on one line with quotes
+# D203 - 1 blank line required before class docstring
+# D204 - 1 blank line required after class docstring
+# D205 - 1 blank line required between summary line and description
+# D212 - Multi-line docstring summary should start at the first line
+# D302 - Use u""" for Unicode docstrings
+# D400 - First line should end with a period
+# D401 - First line should be in imperative mood
+# D412 - No blank lines allowed between a section header and its content
+add-ignore = "D200,D203,D204,D205,D212,D302,D400,D401,D412,D415"
+
+# Explanation:
+# D400 - Enabling this error code seems to make it a requirement that the first
+# sentence in a docstring is not split across two lines.  It also makes it a
+# requirement that no docstring can have a multi-sentence description without a
+# summary line.  Neither one of those requirements seem appropriate.
+
+[tool.pytest.ini_options]
+addopts = "-v --showlocals --durations 10"
+xfail_strict = "True"
+log_format = "%(levelname)8s  %(asctime)s  %(filename)20s  %(message)s"
+log_date_format = "%m-%d %H:%M:%S"
+
 [tool.towncrier]
 # Read https://github.com/ethereum/<REPO_NAME>/blob/main/newsfragments/README.md for instructions
 package = "<MODULE_NAME>"

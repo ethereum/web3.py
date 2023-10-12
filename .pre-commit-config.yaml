@@ -18,6 +18,10 @@ repos:
         additional_dependencies:
         -   flake8-bugbear==23.9.16
         exclude: setup.py
+-   repo: https://github.com/PyCQA/autoflake
+    rev: v2.2.1
+    hooks:
+    -   id: autoflake
 -   repo: https://github.com/pycqa/isort
     rev: 5.12.0
     hooks:
@@ -26,6 +30,8 @@ repos:
     rev: 6.3.0
     hooks:
     -   id: pydocstyle
+        additional_dependencies:
+        -   tomli  # required until >= python311
 -   repo: https://github.com/executablebooks/mdformat
     rev: 0.7.17
     hooks:
