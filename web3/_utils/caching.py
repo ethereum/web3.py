@@ -51,8 +51,10 @@ class RequestInformation:
         method: "RPCEndpoint",
         params: Any,
         response_formatters: Tuple[Callable[..., Any], ...],
+        subscription_id: str = None,
     ):
         self.method = method
         self.params = params
         self.response_formatters = response_formatters
+        self.subscription_id = subscription_id
         self.middleware_response_processors: List[Callable[..., Any]] = []

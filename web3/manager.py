@@ -74,6 +74,9 @@ if TYPE_CHECKING:
         AsyncBaseProvider,
         BaseProvider,
     )
+    from web3.providers.websocket.request_processor import (  # noqa: F401
+        RequestProcessor,
+    )
 
 
 NULL_RESPONSES = [None, HexBytes("0x"), "0x"]
@@ -152,7 +155,7 @@ class RequestManager:
             # set up the request processor to be able to properly process ordered
             # responses from the persistent connection as FIFO
             provider = cast(PersistentConnectionProvider, self.provider)
-            self._request_processor = provider._request_processor
+            self._request_processor: RequestProcessor = provider._request_processor
 
     w3: Union["AsyncWeb3", "Web3"] = None
     _provider = None
@@ -408,6 +411,7 @@ class RequestManager:
                 if cache_key not in self._request_processor._request_information_cache:
                     # cache by subscription id in order to process each response for the
                     # subscription as it comes in
+                    request_info.subscription_id = subscription_id
                     provider.logger.debug(
                         f"Caching eth_subscription info:\n    "
                         f"cache_key={cache_key},\n    "
