@@ -152,6 +152,19 @@ class BaseEth(Module):
         else:
             return (transaction, block_identifier, state_override)
 
+    def create_access_list_munger(
+        self, transaction: TxParams, block_identifier: Optional[BlockIdentifier] = None
+    ) -> Tuple[TxParams, BlockIdentifier]:
+        # TODO: move to middleware
+        if "from" not in transaction and is_checksum_address(self.default_account):
+            transaction = assoc(transaction, "from", self.default_account)
+
+        # TODO: move to middleware
+        if block_identifier is None:
+            block_identifier = self.default_block
+
+        return (transaction, block_identifier)
+
     def sign_munger(
         self,
         account: Union[Address, ChecksumAddress, ENS],

@@ -68,6 +68,7 @@ from web3.method import (
 )
 from web3.types import (
     ENS,
+    AccessList,
     BlockData,
     BlockIdentifier,
     BlockParams,
@@ -280,6 +281,22 @@ class Eth(BaseEth):
                 transaction["data"] = durin_calldata
 
         raise TooManyRequests("Too many CCIP read redirects")
+
+    # eth_createAccessList
+
+    _create_access_list: Method[
+        Callable[
+            [TxParams, Optional[BlockIdentifier]],
+            AccessList,
+        ]
+    ] = Method(RPC.eth_createAccessList, mungers=[BaseEth.create_access_list_munger])
+
+    def create_access_list(
+        self,
+        transaction: TxParams,
+        block_identifier: Optional[BlockIdentifier] = None,
+    ) -> AccessList:
+        return self._create_access_list(transaction, block_identifier)
 
     # eth_estimateGas
 
