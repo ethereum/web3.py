@@ -1,6 +1,7 @@
 from abc import (
     ABC,
 )
+import asyncio
 import logging
 from typing import (
     Optional,
@@ -28,19 +29,20 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
     has_persistent_connection = True
 
     _ws: Optional[WebSocketClientProtocol] = None
+    _ws_lock: asyncio.Lock = asyncio.Lock()
     _request_processor: RequestProcessor
 
     def __init__(
         self,
         endpoint_uri: str,
-        request_cache_size: int = 100,
         call_timeout: float = DEFAULT_PERSISTENT_CONNECTION_TIMEOUT,
+        subscription_response_deque_size: int = 500,
     ) -> None:
         super().__init__()
         self.endpoint_uri = endpoint_uri
         self._request_processor = RequestProcessor(
             self,
-            request_info_cache_size=request_cache_size,
+            subscription_response_deque_size=subscription_response_deque_size,
         )
         self.call_timeout = call_timeout
 

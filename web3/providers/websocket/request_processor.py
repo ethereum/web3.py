@@ -1,4 +1,6 @@
-import asyncio
+from collections import (
+    deque,
+)
 from copy import (
     copy,
 )
@@ -8,9 +10,6 @@ from typing import (
     Callable,
     Optional,
     Tuple,
-)
-from uuid import (
-    uuid4,
 )
 
 from web3._utils.caching import (
@@ -33,18 +32,21 @@ if TYPE_CHECKING:
 
 class RequestProcessor:
     _request_information_cache: SimpleCache
-    _raw_response_cache: SimpleCache
-    _raw_response_cache_lock: asyncio.Lock = asyncio.Lock()
+    _request_response_cache: SimpleCache
+    _subscription_response_deque: deque[RPCResponse]
 
     def __init__(
         self,
         provider: "PersistentConnectionProvider",
-        request_info_cache_size: int = 500,
+        subscription_response_deque_size: int = 500,
     ) -> None:
         self._provider = provider
 
-        self._request_information_cache = SimpleCache(request_info_cache_size)
-        self._raw_response_cache = SimpleCache(500)
+        self._request_information_cache = SimpleCache(500)
+        self._request_response_cache = SimpleCache(500)
+        self._subscription_response_deque = deque(
+            maxlen=subscription_response_deque_size
+        )
 
     # request information cache
 
@@ -151,6 +153,11 @@ class RequestProcessor:
                 subscribe_cache_key = generate_cache_key(subscription_id)
                 self.pop_cached_request_information(subscribe_cache_key)
 
+                # clean out subscription response cache for this subscription id
+                for response in self._subscription_response_deque:
+                    if response["params"]["subscription"] == subscription_id:
+                        self._subscription_response_deque.remove(response)
+
         return request_info
 
     def append_middleware_response_processor(
@@ -169,33 +176,63 @@ class RequestProcessor:
 
     # raw response cache
 
-    async def cache_raw_response(self, raw_response: Any) -> None:
-        # get id or generate a uuid if not present (i.e. subscription response)
-        response_id = raw_response.get("id", f"sub-{uuid4()}")
-        cache_key = generate_cache_key(response_id)
-        self._provider.logger.debug(
-            f"Caching raw response:\n    response_id={response_id},\n"
-            f"    cache_key={cache_key},\n    raw_response={raw_response}"
-        )
-        async with self._raw_response_cache_lock:
-            self._raw_response_cache.cache(cache_key, raw_response)
+    async def cache_raw_response(
+        self, raw_response: Any, subscription: bool = False
+    ) -> None:
+        if subscription:
+            self._provider.logger.debug(
+                f"Caching subscription response:\n    response={raw_response}"
+            )
+            self._subscription_response_deque.append(raw_response)
+        else:
+            response_id = raw_response.get("id")
+            cache_key = generate_cache_key(response_id)
+            self._provider.logger.debug(
+                f"Caching response:\n    response_id={response_id},\n"
+                f"    cache_key={cache_key},\n    response={raw_response}"
+            )
+            self._request_response_cache.cache(cache_key, raw_response)
 
-    async def pop_raw_response(self, cache_key: str) -> Any:
-        async with self._raw_response_cache_lock:
-            raw_response = self._raw_response_cache.pop(cache_key)
-        self._provider.logger.debug(
-            f"Cached response processed and popped from cache:\n"
-            f"    cache_key={cache_key},\n"
-            f"    raw_response={raw_response}"
-        )
+    async def pop_raw_response(
+        self, cache_key: str = None, subscription: bool = False
+    ) -> Any:
+        if subscription:
+            deque_length = len(self._subscription_response_deque)
+            if deque_length == 0:
+                return None
+
+            raw_response = self._subscription_response_deque.popleft()
+            self._provider.logger.debug(
+                f"Subscription response cache is not empty. Processing {deque_length} "
+                "subscription(s) as FIFO before receiving new response."
+            )
+            self._provider.logger.debug(
+                f"Cached subscription response popped from cache to be processed:\n"
+                f"    raw_response={raw_response}"
+            )
+        else:
+            if not cache_key:
+                raise ValueError(
+                    "Must provide cache key when popping a non-subscription response."
+                )
+
+            raw_response = self._request_response_cache.pop(cache_key)
+            if raw_response is not None:
+                self._provider.logger.debug(
+                    f"Cached response popped from cache to be processed:\n"
+                    f"    cache_key={cache_key},\n"
+                    f"    raw_response={raw_response}"
+                )
+
         return raw_response
 
     # request processor class methods
 
     def clear_caches(self) -> None:
         """
-        Clear the request information and raw response caches.
+        Clear the request processor caches.
         """
 
         self._request_information_cache.clear()
-        self._raw_response_cache.clear()
+        self._request_response_cache.clear()
+        self._subscription_response_deque.clear()

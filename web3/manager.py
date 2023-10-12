@@ -1,3 +1,4 @@
+import asyncio
 import logging
 from typing import (
     TYPE_CHECKING,
@@ -364,22 +365,30 @@ class RequestManager:
                 "can listen to websocket recv streams."
             )
 
-        cached_responses = len(self._request_processor._raw_response_cache.items())
-        if cached_responses > 0:
-            self._provider.logger.debug(
-                f"{cached_responses} cached response(s) in raw response cache. "
-                f"Processing as FIFO ahead of any new responses from open "
-                f"socket connection."
+        while True:
+            cached_subscription_response = (
+                await self._request_processor.pop_raw_response(subscription=True)
             )
-            for (
-                cache_key,
-                cached_response,
-            ) in self._request_processor._raw_response_cache.items():
-                await self._request_processor.pop_raw_response(cache_key)
-                yield await self._process_ws_response(cached_response)
-        else:
-            response = await self._provider._ws_recv()
-            yield await self._process_ws_response(response)
+            if cached_subscription_response is not None:
+                response = cached_subscription_response
+                break
+
+            else:
+                if not self._provider._ws_lock.locked():
+                    async with self._provider._ws_lock:
+                        response = await self._provider._ws_recv()
+
+                    if response.get("method") == "eth_subscription":
+                        break
+                    else:
+                        await self._provider._request_processor.cache_raw_response(
+                            response
+                        )
+
+                await asyncio.sleep(0.01)
+                continue
+
+        yield await self._process_ws_response(response)
 
     async def _process_ws_response(self, response: RPCResponse) -> RPCResponse:
         provider = cast(PersistentConnectionProvider, self._provider)
@@ -407,6 +416,7 @@ class RequestManager:
                     self._request_processor._request_information_cache.cache(
                         cache_key, request_info
                     )
+
             # pipe response back through middleware response processors
             if len(request_info.middleware_response_processors) > 0:
                 response = pipe(response, *request_info.middleware_response_processors)
