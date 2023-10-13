@@ -469,7 +469,7 @@ ACCESS_LIST_FORMATTER = type_aware_apply_formatters_to_dict(
     }
 )
 
-ACCESS_LIST_RESPONCE_FORMATTER = type_aware_apply_formatters_to_dict(
+ACCESS_LIST_RESPONSE_FORMATTER = type_aware_apply_formatters_to_dict(
     {
         "accessList": ACCESS_LIST_FORMATTER,
         "gasUsed": to_integer_if_hex,
@@ -696,7 +696,7 @@ PYTHONIC_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     RPC.eth_chainId: to_integer_if_hex,
     RPC.eth_coinbase: to_checksum_address,
     RPC.eth_call: HexBytes,
-    RPC.eth_createAccessList: ACCESS_LIST_RESPONCE_FORMATTER,
+    RPC.eth_createAccessList: ACCESS_LIST_RESPONSE_FORMATTER,
     RPC.eth_estimateGas: to_integer_if_hex,
     RPC.eth_feeHistory: fee_history_formatter,
     RPC.eth_maxPriorityFeePerGas: to_integer_if_hex,
