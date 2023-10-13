@@ -415,7 +415,7 @@ class RequestManager:
                     # subscription as it comes in
                     request_info.subscription_id = subscription_id
                     provider.logger.debug(
-                        f"Caching eth_subscription info:\n    "
+                        "Caching eth_subscription info:\n    "
                         f"cache_key={cache_key},\n    "
                         f"request_info={request_info.__dict__}"
                     )

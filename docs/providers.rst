@@ -230,16 +230,14 @@ WebsocketProviderV2 (beta)
       ``'ws://localhost:8546'``.
     * ``websocket_kwargs`` this should be a dictionary of keyword arguments which
       will be passed onto the ws/wss websocket connection.
-    * ``call_timeout`` is the timeout in seconds, used when receiving or sending data
-      over the connection. Defaults to ``None`` (no timeout).
+    * ``request_timeout`` is the timeout in seconds, as a float. Used when receiving or
+      sending data over the connection. This value defaults to 20 seconds.
 
     Under the hood, the ``WebsocketProviderV2`` uses the python websockets library for
     making requests.  If you would like to modify how requests are made, you can
     use the ``websocket_kwargs`` to do so.  See the `websockets documentation`_ for
     available arguments.
 
-    The timeout for each call to send or receive is controlled by a ``call_timeout``
-    argument. This is set to ``None`` by default, which means no timeout.
 
 Usage
 ~~~~~
@@ -247,7 +245,8 @@ Usage
 The ``AsyncWeb3`` class may be used as a context manager, utilizing the ``async with``
 syntax, when connecting via ``persistent_websocket()`` using the
 ``WebsocketProviderV2``. This will automatically close the connection when the context
-manager exits. A similar example, using the ``websockets`` connection as an
+manager exits and is the recommended way to initiate a persistent connection to the
+websocket provider. A similar example, using the ``websockets`` connection as an
 asynchronous context manager, can be found in the `websockets connection`_ docs.
 
 .. code-block:: python
@@ -319,6 +318,36 @@ and reconnect automatically if the connection is lost. A similar example, using 
     >>> asyncio.run(ws_v2_subscription_iterator_example())
 
 
+If neither of the two init patterns above work for your application, the ``__await__()``
+method is defined on the ``persistent_websocket()`` connection in a manner that awaits
+connecting to the websocket. You may also choose to instantiate and connect via the
+provider in separate lines. Both of these examples are shown below.
+
+.. code-block:: python
+
+    >>> async def ws_v2_alternate_init_example_1():
+    ...     # awaiting the persistent connection itself will connect to the websocket
+    ...     w3 = await AsyncWeb3.persistent_websocket(WebsocketProviderV2(f"ws://127.0.0.1:8546"))
+    ...
+    ...     # some code here
+    ...
+    ...     # manual cleanup
+    ...     await w3.provider.disconnect()
+
+    >>> async def ws_v2_alternate_init_example_2():
+    ...     # instantiation and connection via the provider as separate lines
+    ...     w3 = AsyncWeb3.persistent_websocket(WebsocketProviderV2(f"ws://127.0.0.1:8546"))
+    ...     await w3.provider.connect()
+    ...
+    ...     # some code here
+    ...
+    ...     # manual cleanup
+    ...     await w3.provider.disconnect()
+
+    >>> # run the examples:
+    >>> asyncio.run(ws_v2_alternate_init_example_1)
+    >>> asyncio.run(ws_v2_alternate_init_example_2)
+
 _PersistentConnectionWeb3 via AsyncWeb3.persistent_websocket()
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -338,14 +367,25 @@ attributes that are not available on the ``AsyncWeb3`` class.
 
         This class handles interactions with a websocket connection. It is available
         via the ``ws`` attribute of the ``_PersistentConnectionWeb3`` class. The
-        ``WebsocketConnection`` class has the following methods:
+        ``WebsocketConnection`` class has the following methods and attributes:
+
+        .. py:attribute:: subscriptions
+
+            This attribute returns the current active subscriptions as a dict mapping
+            the subscription ``id`` to a dict of metadata about the subscription
+            request.
 
         .. py:method:: listen_to_websocket()
 
             This method is available for listening to websocket responses indefinitely.
-            It is an asynchronous generator that yields responses from the websocket
-            connection. The responses from this method are formatted by web3.py
-            formatters and run through the middlewares before being yielded.
+            It is an asynchronous iterator that yields strictly one-to-many
+            (e.g. eth_subscription responses) request-to-response responses from the
+            websocket connection. To receive responses for 1-to-1 request-to-response
+            calls, use the standard API for making requests via the appropriate module
+            (e.g. ``block_num = await w3.eth.block_number``)
+
+            The responses from this method are formatted by web3.py formatters and run
+            through the middlewares that were present at the time of subscription.
             An example of its use can be seen above in the `Usage`_ section.
 
         .. py:method:: recv()
