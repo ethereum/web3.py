@@ -35,6 +35,7 @@ from typing import (
     Any,
     AsyncIterator,
     Dict,
+    Generator,
     List,
     Optional,
     Sequence,
@@ -130,7 +131,9 @@ from web3.providers.rpc import (
 from web3.providers.websocket import (
     WebsocketProvider,
 )
-from web3.providers.websocket.websocket_connection import WebsocketConnection
+from web3.providers.websocket.websocket_connection import (
+    WebsocketConnection,
+)
 from web3.testing import (
     Testing,
 )
@@ -524,6 +527,8 @@ class AsyncWeb3(BaseWeb3):
 class _PersistentConnectionWeb3(AsyncWeb3):
     provider: PersistentConnectionProvider
 
+    # w3 = AsyncWeb3(provider)
+    # await w3.provider.connect()
     def __init__(
         self,
         provider: PersistentConnectionProvider = None,
@@ -541,17 +546,17 @@ class _PersistentConnectionWeb3(AsyncWeb3):
         AsyncWeb3.__init__(self, provider, middlewares, modules, external_modules, ens)
         self.ws = WebsocketConnection(self)
 
-    # async for w3 in w3.persistent_websocket(provider)
-    async def __aiter__(self) -> AsyncIterator[Self]:
-        if not await self.provider.is_connected():
-            await self.provider.connect()
+    # w3 = await AsyncWeb3.persistent_websocket(provider)
+    def __await__(
+        self,
+    ) -> Generator[Any, None, Self]:
+        async def __async_init__() -> Self:
+            if self.provider._ws is None:
+                await self.provider.connect()
 
-        while True:
-            try:
-                yield self
-            except Exception:
-                # provider should handle connection / reconnection
-                continue
+            return self
+
+        return __async_init__().__await__()
 
     # async with w3.persistent_websocket(provider) as w3
     async def __aenter__(self) -> Self:
@@ -565,3 +570,15 @@ class _PersistentConnectionWeb3(AsyncWeb3):
         exc_tb: TracebackType,
     ) -> None:
         await self.provider.disconnect()
+
+    # async for w3 in w3.persistent_websocket(provider)
+    async def __aiter__(self) -> AsyncIterator[Self]:
+        if not await self.provider.is_connected():
+            await self.provider.connect()
+
+        while True:
+            try:
+                yield self
+            except Exception:
+                # provider should handle connection / reconnection
+                continue
