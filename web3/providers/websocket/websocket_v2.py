@@ -203,8 +203,8 @@ class WebsocketProviderV2(PersistentConnectionProvider):
                                 response, subscription=is_subscription
                             )
 
-                    # this is important to let asyncio run other tasks
-                    await asyncio.sleep(0.1)
+                    # this is important to let asyncio run other tasksx
+                    await asyncio.sleep(0.05)
 
         try:
             # Enters a while loop, looking for a response id match to the request id.

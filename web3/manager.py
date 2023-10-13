@@ -390,7 +390,8 @@ class RequestManager:
                             response
                         )
 
-                await asyncio.sleep(0.01)
+                # this is important to let asyncio run other tasks
+                await asyncio.sleep(0.05)
 
         yield await self._process_ws_response(response)
 
