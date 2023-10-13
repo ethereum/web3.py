@@ -151,7 +151,9 @@ class WebsocketProviderV2(PersistentConnectionProvider):
         request_data = self.encode_rpc_request(method, params)
 
         if self._ws is None:
-            await self.connect()
+            raise ProviderConnectionError(
+                "Connection to websocket has not been initiated for the provider."
+            )
 
         await asyncio.wait_for(
             self._ws.send(request_data), timeout=self.request_timeout

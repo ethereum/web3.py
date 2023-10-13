@@ -32,6 +32,7 @@ from hexbytes import (
     HexBytes,
 )
 from typing import (
+    TYPE_CHECKING,
     Any,
     AsyncIterator,
     Dict,
@@ -40,7 +41,6 @@ from typing import (
     Optional,
     Sequence,
     Type,
-    TYPE_CHECKING,
     Union,
     cast,
 )
@@ -527,7 +527,7 @@ class AsyncWeb3(BaseWeb3):
 class _PersistentConnectionWeb3(AsyncWeb3):
     provider: PersistentConnectionProvider
 
-    # w3 = AsyncWeb3(provider)
+    # w3 = AsyncWeb3.persistent_websocket(provider)
     # await w3.provider.connect()
     def __init__(
         self,
