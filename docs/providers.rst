@@ -222,6 +222,10 @@ WebsocketProvider
 WebsocketProviderV2 (beta)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+.. warning:: This provider is still in beta. However, it is being actively developed
+    and supported and is expected to be stable in the next major version of *web3.py*
+    (v7).
+
 .. py:class:: web3.providers.websocket.WebsocketProviderV2(endpoint_uri, websocket_kwargs, call_timeout)
 
     This provider handles interactions with an WS or WSS based JSON-RPC server.
@@ -348,6 +352,13 @@ provider in separate lines. Both of these examples are shown below.
     >>> asyncio.run(ws_v2_alternate_init_example_1)
     >>> asyncio.run(ws_v2_alternate_init_example_2)
 
+The ``WebsocketProviderV2`` class uses the
+:class:`~web3.providers.websocket.request_processor.RequestProcessor` class under the
+hood to sync up the receiving of responses and response processing for one-to-one and
+one-to-many request-to-response requests. Refer to the
+:class:`~web3.providers.websocket.request_processor.RequestProcessor`
+documentation for details.
+
 _PersistentConnectionWeb3 via AsyncWeb3.persistent_websocket()
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -356,54 +367,61 @@ When an ``AsyncWeb3`` class is connected to a persistent websocket connection, v
 ``_PersistentConnectionWeb3`` class. This class has a few additional methods and
 attributes that are not available on the ``AsyncWeb3`` class.
 
-.. py:attribute:: _PersistentConnectionWeb3.ws
+.. py:class:: web3.main._PersistentConnectionWeb3
 
-    Listening to websocket responses, and sending raw requests, can be done using the
-    ``ws`` attribute of the ``_PersistentConnectionWeb3`` class. The ``ws`` attribute
-    houses a public API, a :class:`~web3.providers.websocket.WebsocketConnection` class,
-    for sending and receiving websocket messages.
+    .. py:attribute:: ws
 
-    .. py:class:: web3.providers.websocket.WebsocketConnection()
+        The public API for interacting with the websocket connection is available via
+        the ``ws`` attribute of the ``_PersistentConnectionWeb3`` class. This attribute
+        is an instance of the
+        :class:`~web3.providers.websocket.WebsocketConnection` class and is the main
+        interface for interacting with the websocket connection.
 
-        This class handles interactions with a websocket connection. It is available
-        via the ``ws`` attribute of the ``_PersistentConnectionWeb3`` class. The
-        ``WebsocketConnection`` class has the following methods and attributes:
 
-        .. py:attribute:: subscriptions
+Interacting with the Websocket Connection
++++++++++++++++++++++++++++++++++++++++++
 
-            This attribute returns the current active subscriptions as a dict mapping
-            the subscription ``id`` to a dict of metadata about the subscription
-            request.
+.. py:class:: web3.providers.websocket.WebsocketConnection
 
-        .. py:method:: listen_to_websocket()
+    This class handles interactions with a websocket connection. It is available
+    via the ``ws`` attribute of the ``_PersistentConnectionWeb3`` class. The
+    ``WebsocketConnection`` class has the following methods and attributes:
 
-            This method is available for listening to websocket responses indefinitely.
-            It is an asynchronous iterator that yields strictly one-to-many
-            (e.g. eth_subscription responses) request-to-response responses from the
-            websocket connection. To receive responses for 1-to-1 request-to-response
-            calls, use the standard API for making requests via the appropriate module
-            (e.g. ``block_num = await w3.eth.block_number``)
+    .. py:attribute:: subscriptions
 
-            The responses from this method are formatted by web3.py formatters and run
-            through the middlewares that were present at the time of subscription.
-            An example of its use can be seen above in the `Usage`_ section.
+        This attribute returns the current active subscriptions as a dict mapping
+        the subscription ``id`` to a dict of metadata about the subscription
+        request.
 
-        .. py:method:: recv()
+    .. py:method:: listen_to_websocket()
 
-            The ``recv()`` method can be used to receive the next message from the
-            websocket. The response from this method is formatted by web3.py formatters
-            and run through the middlewares before being returned. This is useful for
-            receiving singled responses for one-to-many requests such receiving the
-            next ``eth_subscribe`` subscription response.
+        This method is available for listening to websocket responses indefinitely.
+        It is an asynchronous iterator that yields strictly one-to-many
+        (e.g. eth_subscription responses) request-to-response responses from the
+        websocket connection. To receive responses for 1-to-1 request-to-response
+        calls, use the standard API for making requests via the appropriate module
+        (e.g. ``block_num = await w3.eth.block_number``)
 
-        .. py:method:: send(method: RPCEndpoint, params: Sequence[Any])
+        The responses from this method are formatted by web3.py formatters and run
+        through the middlewares that were present at the time of subscription.
+        An example of its use can be seen above in the `Usage`_ section.
 
-            This method is available strictly for sending raw requests to the websocket,
-            if desired. It is not recommended to use this method directly, as the
-            responses will not be formatted by web3.py formatters or run through the
-            middlewares. Instead, use the methods available on the respective web3
-            module. For example, use ``w3.eth.get_block("latest")`` instead of
-            ``w3.ws.send("eth_getBlockByNumber", ["latest", True])``.
+    .. py:method:: recv()
+
+        The ``recv()`` method can be used to receive the next message from the
+        websocket. The response from this method is formatted by web3.py formatters
+        and run through the middlewares before being returned. This is useful for
+        receiving singled responses for one-to-many requests such receiving the
+        next ``eth_subscribe`` subscription response.
+
+    .. py:method:: send(method: RPCEndpoint, params: Sequence[Any])
+
+        This method is available strictly for sending raw requests to the websocket,
+        if desired. It is not recommended to use this method directly, as the
+        responses will not be formatted by web3.py formatters or run through the
+        middlewares. Instead, use the methods available on the respective web3
+        module. For example, use ``w3.eth.get_block("latest")`` instead of
+        ``w3.ws.send("eth_getBlockByNumber", ["latest", True])``.
 
 
 AutoProvider
