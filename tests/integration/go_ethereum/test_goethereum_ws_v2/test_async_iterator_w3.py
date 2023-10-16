@@ -30,9 +30,7 @@ async def async_w3(geth_process, endpoint_uri):
     await wait_for_aiohttp(endpoint_uri)
 
     # async iterator pattern
-    async for w3 in AsyncWeb3.persistent_websocket(
-        WebsocketProviderV2(endpoint_uri, request_timeout=30)
-    ):
+    async for w3 in AsyncWeb3.persistent_websocket(WebsocketProviderV2(endpoint_uri)):
         return w3
 
 
