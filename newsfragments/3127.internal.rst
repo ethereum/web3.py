@@ -1,0 +1,1 @@
+Add upper pin to ``hexbytes`` dependency to due incoming breaking change
