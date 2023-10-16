@@ -1,0 +1,1 @@
+Update ``WebsocketProviderV2`` documentation. Document a general overview of the ``RequestProcessor`` class and its internal caches.

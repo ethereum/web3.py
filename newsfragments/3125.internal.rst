@@ -1,0 +1,1 @@
+Updates and refactoring for the ``WebsocketProviderV2`` class and its internal supporting classes and logic. Separation of one-to-one and one-to-many request responses. Storing of one-to-many responses in a ``deque`` and one-to-one responses in a ``SimpleCache`` class. Provide an async lock around the websocket ``recv()``.
