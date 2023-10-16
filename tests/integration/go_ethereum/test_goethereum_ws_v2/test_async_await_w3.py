@@ -29,9 +29,8 @@ from ..utils import (
 async def async_w3(geth_process, endpoint_uri):
     await wait_for_aiohttp(endpoint_uri)
 
-    # async context manager pattern
-    async with AsyncWeb3.persistent_websocket(WebsocketProviderV2(endpoint_uri)) as w3:
-        yield w3
+    # await the persistent connection itself
+    return await AsyncWeb3.persistent_websocket(WebsocketProviderV2(endpoint_uri))
 
 
 class TestGoEthereumAsyncAdminModuleTest(GoEthereumAsyncAdminModuleTest):
