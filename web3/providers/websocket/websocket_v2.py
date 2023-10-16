@@ -87,7 +87,7 @@ class WebsocketProviderV2(PersistentConnectionProvider):
             )
             if found_restricted_keys:
                 raise Web3ValidationError(
-                    f"Found restricted keys for websocket_kwargs: "
+                    "Found restricted keys for websocket_kwargs: "
                     f"{found_restricted_keys}."
                 )
 
@@ -186,7 +186,15 @@ class WebsocketProviderV2(PersistentConnectionProvider):
                                 f"Response for id {request_id} is not cached, calling "
                                 "`recv()` on websocket."
                             )
-                            response = await self._ws_recv(timeout=self.request_timeout)
+                            try:
+                                # keep timeout low but reasonable to check both the
+                                # cache and the websocket connection for new responses
+                                response = await self._ws_recv(timeout=2)
+                            except asyncio.TimeoutError:
+                                # keep the request timeout around the whole of this
+                                # while loop in case the response sneaks into the cache
+                                # from another call.
+                                continue
 
                         response_id = response.get("id")
 
@@ -209,23 +217,19 @@ class WebsocketProviderV2(PersistentConnectionProvider):
                     await asyncio.sleep(0.05)
 
         try:
-            # Enters a while loop, looking for a response id match to the request id.
-            # If the provider does not give responses with matching ids, this will
-            # hang forever. The JSON-RPC spec requires that providers respond with
-            # the same id that was sent in the request, but we need to handle these
-            # "bad" cases somewhat gracefully.
-            timeout = (
-                self.request_timeout
-                if self.request_timeout and self.request_timeout <= 20
-                else 20
+            # Add the request timeout around the while loop that checks the request
+            # cache and tried to recv(). If the request is neither in the cache, nor
+            # received within the request_timeout, raise ``TimeExhausted``.
+            return await asyncio.wait_for(
+                _match_response_id_to_request_id(), self.request_timeout
             )
-            return await asyncio.wait_for(_match_response_id_to_request_id(), timeout)
         except asyncio.TimeoutError:
             raise TimeExhausted(
                 f"Timed out waiting for response with request id `{request_id}` after "
-                f"{self.request_timeout} second(s). This is likely due to the provider "
-                f"not returning a response with the same id that was sent in the "
-                f"request, which is required by the JSON-RPC spec."
+                f"{self.request_timeout} second(s). This may be due to the provider "
+                "not returning a response with the same id that was sent in the "
+                "request or an exception raised during the request was caught and "
+                "allowed to continue."
             )
 
     async def _ws_recv(self, timeout: float = None) -> RPCResponse:
