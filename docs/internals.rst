@@ -201,13 +201,13 @@ message and receive a response to that particular request,
 response *id* values coming back from the websocket connection. Any provider that does
 not adhere to the `JSON-RPC 2.0 specification <https://www.jsonrpc.org/specification>`_
 in this way will not work with ``PersistentConnectionProvider`` instances. The specifics
-of how the request processor handles this is outlined below.
+of how the request processor handles this are outlined below.
 
 One-To-One Requests
 ~~~~~~~~~~~~~~~~~~~
 
-One-to-one requests can be summarized as any request that expects one response back.
-An example is using the ``eth`` module API to request the latest block number.
+One-to-one requests can be summarized as any request that expects only one response
+back. An example is using the ``eth`` module API to request the latest block number.
 
 .. code-block:: python
 
@@ -220,13 +220,13 @@ An example is using the ``eth`` module API to request the latest block number.
 
     >>> asyncio.run(wsV2_one_to_one_example())
 
-With websockets we have to call ``ws_send()`` and asynchronously receive responses via
-``ws.recv()``. In order to make the one-to-one request-to-response call work, we
-have to save the request information somewhere so that, when the response is received,
-we can match it to the original request that was made (the request with a matching *id*
-to the response that was received), and use that request information to process the
-response. Processing the response, in this case, means running it through the
-formatters and middlewares internal to the *web3.py* library.
+With websockets we have to call ``send()`` and asynchronously receive responses via
+``recv()``. In order to make the one-to-one request-to-response call work, we
+have to save the request information somewhere so that when the response is received
+we can match it to the original request that was made i.e. the request with a matching
+*id* to the response that was received). The stored request information is then used to
+process the response when it is received, piping it through the response formatters and
+middlewares internal to the *web3.py* library.
 
 In order to store the request information, the ``RequestProcessor`` class has an
 internal ``RequestInformation`` cache. The ``RequestInformation`` class saves important
@@ -279,7 +279,7 @@ successful. For this reason, the original request is considered a one-to-one req
 so that a subscription *id* can be returned to the user on the same line, but the
 ``listen_to_websocket()`` method on the
 :class:`~web3.providers.websocket.WebsocketConnection` class, the public API for
-interacting with the active websocket connection, is set up to receive many-to-one
+interacting with the active websocket connection, is set up to receive
 ``eth_subscription`` responses over an asynchronous interator pattern.
 
 .. code-block:: python

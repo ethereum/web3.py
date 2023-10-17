@@ -369,10 +369,12 @@ class RequestManager:
             )
 
         while True:
+            # look in the cache for a response
             response = await self._request_processor.pop_raw_response(subscription=True)
             if response is not None:
                 break
             else:
+                # if no response in the cache, check the websocket connection
                 if not self._provider._ws_lock.locked():
                     async with self._provider._ws_lock:
                         try:

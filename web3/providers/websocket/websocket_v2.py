@@ -213,7 +213,7 @@ class WebsocketProviderV2(PersistentConnectionProvider):
                                 response, subscription=is_subscription
                             )
 
-                    # this is important to let asyncio run other tasksx
+                    # this is important to let asyncio run other tasks
                     await asyncio.sleep(0.05)
 
         try:

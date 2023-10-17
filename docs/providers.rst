@@ -397,8 +397,8 @@ Interacting with the Websocket Connection
 
         This method is available for listening to websocket responses indefinitely.
         It is an asynchronous iterator that yields strictly one-to-many
-        (e.g. eth_subscription responses) request-to-response responses from the
-        websocket connection. To receive responses for 1-to-1 request-to-response
+        (e.g. ``eth_subscription`` responses) request-to-response responses from the
+        websocket connection. To receive responses for one-to-one request-to-response
         calls, use the standard API for making requests via the appropriate module
         (e.g. ``block_num = await w3.eth.block_number``)
 
