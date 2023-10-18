@@ -3,6 +3,9 @@ import pytest
 from eth_utils import (
     decode_hex,
 )
+from hexbytes import (
+    HexBytes,
+)
 
 from web3._utils.contract_sources.contract_data.constructor_contracts import (
     CONSTRUCTOR_WITH_ADDRESS_ARGUMENT_CONTRACT_RUNTIME,
@@ -217,11 +220,11 @@ def test_contract_constructor_build_transaction_no_constructor(
     txn = w3.eth.get_transaction(txn_hash)
     nonce = w3.eth.get_transaction_count(w3.eth.coinbase)
     unsent_txn = math_contract_factory.constructor().build_transaction({"nonce": nonce})
-    assert txn["data"] == unsent_txn["data"]
+    assert txn["data"] == HexBytes(unsent_txn["data"])
 
     new_txn_hash = w3.eth.send_transaction(unsent_txn)
     new_txn = w3.eth.get_transaction(new_txn_hash)
-    assert new_txn["data"] == unsent_txn["data"]
+    assert new_txn["data"] == HexBytes(unsent_txn["data"])
     assert new_txn["nonce"] == nonce
 
 
@@ -234,11 +237,11 @@ def test_contract_constructor_build_transaction_without_arguments(
     txn = w3.eth.get_transaction(txn_hash)
     nonce = w3.eth.get_transaction_count(w3.eth.coinbase)
     unsent_txn = math_contract_factory.constructor().build_transaction({"nonce": nonce})
-    assert txn["data"] == unsent_txn["data"]
+    assert txn["data"] == HexBytes(unsent_txn["data"])
 
     new_txn_hash = w3.eth.send_transaction(unsent_txn)
     new_txn = w3.eth.get_transaction(new_txn_hash)
-    assert new_txn["data"] == unsent_txn["data"]
+    assert new_txn["data"] == HexBytes(unsent_txn["data"])
     assert new_txn["nonce"] == nonce
 
 
@@ -266,11 +269,11 @@ def test_contract_constructor_build_transaction_with_arguments(
     unsent_txn = non_strict_contract_with_constructor_args_factory.constructor(
         *constructor_args, **constructor_kwargs
     ).build_transaction({"nonce": nonce})
-    assert txn["data"] == unsent_txn["data"]
+    assert txn["data"] == HexBytes(unsent_txn["data"])
 
     new_txn_hash = w3_non_strict_abi.eth.send_transaction(unsent_txn)
     new_txn = w3_non_strict_abi.eth.get_transaction(new_txn_hash)
-    assert new_txn["data"] == unsent_txn["data"]
+    assert new_txn["data"] == HexBytes(unsent_txn["data"])
     assert new_txn["nonce"] == nonce
 
 
@@ -525,11 +528,11 @@ async def test_async_contract_constructor_build_transaction_no_constructor(
     unsent_txn = await async_math_contract_factory.constructor().build_transaction(
         {"nonce": nonce}
     )
-    assert txn["data"] == unsent_txn["data"]
+    assert txn["data"] == HexBytes(unsent_txn["data"])
 
     new_txn_hash = await async_w3.eth.send_transaction(unsent_txn)
     new_txn = await async_w3.eth.get_transaction(new_txn_hash)
-    assert new_txn["data"] == unsent_txn["data"]
+    assert new_txn["data"] == HexBytes(unsent_txn["data"])
     assert new_txn["nonce"] == nonce
 
 
@@ -547,11 +550,11 @@ async def test_async_contract_constructor_build_transaction_without_arguments(
     unsent_txn = await async_math_contract_factory.constructor().build_transaction(
         {"nonce": nonce}
     )
-    assert txn["data"] == unsent_txn["data"]
+    assert txn["data"] == HexBytes(unsent_txn["data"])
 
     new_txn_hash = await async_w3.eth.send_transaction(unsent_txn)
     new_txn = await async_w3.eth.get_transaction(new_txn_hash)
-    assert new_txn["data"] == unsent_txn["data"]
+    assert new_txn["data"] == HexBytes(unsent_txn["data"])
     assert new_txn["nonce"] == nonce
 
 
@@ -586,9 +589,9 @@ async def test_async_contract_constructor_build_transaction_with_arguments(
             *constructor_args, **constructor_kwargs
         ).build_transaction({"nonce": nonce})
     )
-    assert txn["data"] == unsent_txn["data"]
+    assert txn["data"] == HexBytes(unsent_txn["data"])
 
     new_txn_hash = await async_w3_non_strict_abi.eth.send_transaction(unsent_txn)
     new_txn = await async_w3_non_strict_abi.eth.get_transaction(new_txn_hash)
-    assert new_txn["data"] == unsent_txn["data"]
+    assert new_txn["data"] == HexBytes(unsent_txn["data"])
     assert new_txn["nonce"] == nonce
