@@ -1,1 +1,0 @@
-Properly define an ``__await__()`` method on the ``_PersistentConnectionWeb3`` class so a persistent connection may be initialized using the ``await`` pattern. Integration tests added for initializing the persistent connection using the ``await`` pattern.

@@ -1,1 +1,0 @@
-Fix optional ``BlockIdentifier`` argument type in synchronous ``get_storage_at`` method.

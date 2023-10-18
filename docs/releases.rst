@@ -6,6 +6,34 @@ v6 Breaking Changes Summary
 
 .. towncrier release notes start
 
+web3.py v6.11.1 (2023-10-18)
+----------------------------
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Update ``WebsocketProviderV2`` documentation. Document a general overview of the ``RequestProcessor`` class and its internal caches. (`#3125 <https://github.com/ethereum/web3.py/issues/3125>`__)
+
+
+Features
+~~~~~~~~
+
+- Properly define an ``__await__()`` method on the ``_PersistentConnectionWeb3`` class so a persistent connection may be initialized using the ``await`` pattern. Integration tests added for initializing the persistent connection using the ``await`` pattern. (`#3125 <https://github.com/ethereum/web3.py/issues/3125>`__)
+
+
+Internal Changes - for web3.py Contributors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Updates and refactoring for the ``WebsocketProviderV2`` class and its internal supporting classes and logic. Separation of one-to-one and one-to-many request responses. Storing of one-to-many responses in a ``deque`` and one-to-one responses in a ``SimpleCache`` class. Provide an async lock around the websocket ``recv()``. (`#3125 <https://github.com/ethereum/web3.py/issues/3125>`__)
+- Add upper pin to ``hexbytes`` dependency to due incoming breaking change (`#3127 <https://github.com/ethereum/web3.py/issues/3127>`__)
+
+
+Miscellaneous Changes
+~~~~~~~~~~~~~~~~~~~~~
+
+- `#3114 <https://github.com/ethereum/web3.py/issues/3114>`__, `#3129 <https://github.com/ethereum/web3.py/issues/3129>`__
+
+
 web3.py v6.11.0 (2023-10-11)
 ----------------------------
 
