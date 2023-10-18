@@ -85,13 +85,11 @@ To create a private key using web3.py and command line you can do:
 
 .. code-block:: shell
 
-  python3 -c "from web3 import Web3; w3 = Web3(); acc = w3.eth.account.create(); print(f'private key={w3.to_hex(acc._private_key)}, account={acc.address}')"
+    python -c "from web3 import Web3; w3 = Web3(); acc = w3.eth.account.create(); print(f'private key={w3.to_hex(acc.key)}, account={acc.address}')"
 
-Which outputs a new private key and an account pair:
+Which outputs a new private key and an account pair::
 
-```
-private key=0x480c4aec9fa..., account=0x9202a9d5D2d129CB400a40e00aC822a53ED81167
-```
+    private key=0x480c4aec9fa..., account=0x9202a9d5D2d129CB400a40e00aC822a53ED81167
 
 - *Never store private key with your source*. Use environment variables 
   to store the key. Read more below.
