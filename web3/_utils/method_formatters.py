@@ -219,6 +219,7 @@ TRANSACTION_RESULT_FORMATTERS = {
         ),
     ),
     "input": HexBytes,
+    "data": HexBytes,  # Nethermind, for example, returns both `input` and `data`
 }
 
 

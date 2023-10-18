@@ -1,0 +1,1 @@
+Add transaction result formatter for ``data`` field. Nethermind, for example, returns both ``data`` and ``input`` for transaction results.
