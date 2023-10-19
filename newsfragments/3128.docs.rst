@@ -1,0 +1,1 @@
+Fix formatting in documentation for creating an account.

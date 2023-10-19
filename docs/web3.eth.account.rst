@@ -83,15 +83,13 @@ account you can just generate a random number that acts as a private key.
 
 To create a private key using web3.py and command line you can do:
 
-```shell
-python -c "from web3 import Web3; w3 = Web3(); acc = w3.eth.account.create(); print(f'private key={w3.toHex(acc.privateKey)}, account={acc.address}')"
-```
+.. code-block:: shell
 
-Which outputs a new private key and an account pair:
+    python -c "from web3 import Web3; w3 = Web3(); acc = w3.eth.account.create(); print(f'private key={w3.to_hex(acc.key)}, account={acc.address}')"
 
-```
-private key=0x480c4aec9fa..., account=0x9202a9d5D2d129CB400a40e00aC822a53ED81167
-```
+Which outputs a new private key and an account pair::
+
+    private key=0x480c4aec9fa..., account=0x9202a9d5D2d129CB400a40e00aC822a53ED81167
 
 - *Never store private key with your source*. Use environment variables 
   to store the key. Read more below.
