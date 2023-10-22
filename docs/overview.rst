@@ -206,7 +206,7 @@ web3.py can help you deploy, read from, or execute functions on a deployed contr
 Deployment requires that the contract already be compiled, with its bytecode and ABI
 available. This compilation step can be done within
 `Remix <http://remix.ethereum.org/>`_ or one of the many contract development
-frameworks, such as `Ape <https://docs.apeworx.io/ape/stable/index.html/>`_.
+frameworks, such as `Ape <https://docs.apeworx.io/ape/stable/index.html>`_.
 
 Once the contract object is instantiated, calling ``transact`` on the
 :meth:`constructor <web3.contract.Contract.constructor>` method will deploy an
