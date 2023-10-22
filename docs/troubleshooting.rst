@@ -122,7 +122,7 @@ out of date, try the `Ethereum Stackexchange <https://ethereum.stackexchange.com
 Here are some links to testnet ether instructions (in no particular order):
 
 - `Goerli <https://goerli.net>`_ (different faucet links on top menu bar)
-- `Sepolia <https://faucet.sepolia.dev>`_
+- `Sepolia <https://sepoliafaucet.com>`_
 
 .. _account_troubleshooting:
 
