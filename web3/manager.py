@@ -369,8 +369,13 @@ class RequestManager:
             )
 
         while True:
+            # sleep(0) here seems to be the most efficient way to yield control back to
+            # the event loop while waiting for the response to be cached or received on
+            # the websocket.
+            await asyncio.sleep(0)
+
             # look in the cache for a response
-            response = await self._request_processor.pop_raw_response(subscription=True)
+            response = self._request_processor.pop_raw_response(subscription=True)
             if response is not None:
                 break
             else:
@@ -380,7 +385,7 @@ class RequestManager:
                         try:
                             # keep timeout low but reasonable to check both the cache
                             # and the websocket connection for new responses
-                            response = await self._provider._ws_recv(timeout=2)
+                            response = await self._provider._ws_recv(timeout=0.5)
                         except asyncio.TimeoutError:
                             # if no response received, continue to next iteration
                             continue
@@ -388,12 +393,7 @@ class RequestManager:
                     if response.get("method") == "eth_subscription":
                         break
                     else:
-                        await self._provider._request_processor.cache_raw_response(
-                            response
-                        )
-
-                # this is important to let asyncio run other tasks
-                await asyncio.sleep(0.05)
+                        self._provider._request_processor.cache_raw_response(response)
 
         yield await self._process_ws_response(response)
 

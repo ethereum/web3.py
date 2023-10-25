@@ -169,13 +169,18 @@ class WebsocketProviderV2(PersistentConnectionProvider):
             request_cache_key = generate_cache_key(request_id)
 
             while True:
+                # sleep(0) here seems to be the most efficient way to yield control
+                # back to the event loop while waiting for the response to be cached
+                # or received on the websocket.
+                await asyncio.sleep(0)
+
                 if request_cache_key in self._request_processor._request_response_cache:
                     # if response is already cached, pop it from cache
                     self.logger.debug(
                         f"Response for id {request_id} is already cached, pop it "
                         "from the cache."
                     )
-                    return await self._request_processor.pop_raw_response(
+                    return self._request_processor.pop_raw_response(
                         cache_key=request_cache_key,
                     )
 
@@ -189,7 +194,7 @@ class WebsocketProviderV2(PersistentConnectionProvider):
                             try:
                                 # keep timeout low but reasonable to check both the
                                 # cache and the websocket connection for new responses
-                                response = await self._ws_recv(timeout=2)
+                                response = await self._ws_recv(timeout=0.5)
                             except asyncio.TimeoutError:
                                 # keep the request timeout around the whole of this
                                 # while loop in case the response sneaks into the cache
@@ -209,12 +214,9 @@ class WebsocketProviderV2(PersistentConnectionProvider):
                             is_subscription = (
                                 response.get("method") == "eth_subscription"
                             )
-                            await self._request_processor.cache_raw_response(
+                            self._request_processor.cache_raw_response(
                                 response, subscription=is_subscription
                             )
-
-                    # this is important to let asyncio run other tasks
-                    await asyncio.sleep(0.05)
 
         try:
             # Add the request timeout around the while loop that checks the request
