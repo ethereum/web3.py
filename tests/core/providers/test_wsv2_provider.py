@@ -1,3 +1,4 @@
+import asyncio
 import json
 import pytest
 import sys
@@ -87,7 +88,7 @@ async def test_async_make_request_returns_cached_response_with_no_recv_if_cached
 
     # cache the response, so we should get it immediately & should never call `recv()`
     desired_response = {"jsonrpc": "2.0", "id": 0, "result": "0x1337"}
-    await provider._request_processor.cache_raw_response(desired_response)
+    provider._request_processor.cache_raw_response(desired_response)
 
     response = await method_under_test(RPCEndpoint("some_method"), ["desired_params"])
     assert response == desired_response
@@ -104,15 +105,18 @@ async def test_async_make_request_returns_cached_response_with_no_recv_if_cached
     reason="Uses AsyncMock, not supported by python 3.7",
 )
 async def test_async_make_request_times_out_of_while_loop_looking_for_response():
-    provider = WebsocketProviderV2("ws://mocked", request_timeout=0.1)
+    timeout = 0.001
+    provider = WebsocketProviderV2("ws://mocked", request_timeout=timeout)
 
     method_under_test = provider.make_request
 
     _mock_ws(provider)
-    provider._ws.recv.side_effect = lambda *args, **kwargs: b'{"jsonrpc": "2.0"}'
+    # mock the websocket to never receive a response & sleep longer than the timeout
+    provider._ws.recv = lambda *args, **kwargs: asyncio.sleep(1)
 
     with pytest.raises(
         TimeExhausted,
-        match=r"Timed out waiting for response with request id `0` after 0.1 second",
+        match=r"Timed out waiting for response with request id `0` after "
+        rf"{timeout} second\(s\)",
     ):
         await method_under_test(RPCEndpoint("some_method"), ["desired_params"])

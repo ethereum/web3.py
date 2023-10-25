@@ -191,9 +191,7 @@ class RequestProcessor:
 
     # raw response cache
 
-    async def cache_raw_response(
-        self, raw_response: Any, subscription: bool = False
-    ) -> None:
+    def cache_raw_response(self, raw_response: Any, subscription: bool = False) -> None:
         if subscription:
             self._provider.logger.debug(
                 f"Caching subscription response:\n    response={raw_response}"
@@ -208,7 +206,7 @@ class RequestProcessor:
             )
             self._request_response_cache.cache(cache_key, raw_response)
 
-    async def pop_raw_response(
+    def pop_raw_response(
         self, cache_key: str = None, subscription: bool = False
     ) -> Any:
         if subscription:
