@@ -11,7 +11,6 @@ extras_require = {
         "bumpversion>=0.5.3",
         "ipython",
         "pre-commit>=3.4.0",
-        "pytest-watch>=4.1.0",
         "tox>=4.0.0",
         "twine",
         "wheel",
