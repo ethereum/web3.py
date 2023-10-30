@@ -1,1 +1,0 @@
-Re-compile test contracts with Solidity ``v0.8.22`` to ensure compatibility with this latest Solidity version.

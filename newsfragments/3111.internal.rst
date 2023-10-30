@@ -1,1 +1,0 @@
-Speed up the core test suite by splitting up sync and async tests. This reduces the CI build times to ~8min from ~12min.
