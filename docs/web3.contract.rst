@@ -35,7 +35,13 @@ After ``py-solc-x`` is installed, you will need to install a version of ``solc``
     >>> from solcx import install_solc
     >>> install_solc(version='latest')
 
-You should now be set up to run the contract deployment example below:
+You should now be set up to compile and deploy a contract.
+
+The following example runs through these steps:
+1. Compile Solidity contract into bytecode and an ABI
+2. Initialize a Contract Web3.py instance
+3. Deploy the contract using the Contract instance to initiate a transaction
+4. Interact with the contract functions using the Contract instance
 
 .. code-block:: python
 

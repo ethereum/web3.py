@@ -1238,6 +1238,11 @@ Contracts
 
 .. py:method:: Eth.contract(address=None, contract_name=None, ContractFactoryClass=Contract, **contract_factory_kwargs)
 
+    An ``abi`` specifies how a contract can be interacted with. The ``abi`` 
+    must be provided to the constructor to expose contract functions and events 
+    as contract instance properties. Calling methods on a contract instance will fail 
+    if the ``abi`` is not provided.
+
     If ``address`` is provided, then this method will return an instance of the
     contract defined by ``abi``. The address may be a checksum string,
     or an ENS name like ``'mycontract.eth'``.
