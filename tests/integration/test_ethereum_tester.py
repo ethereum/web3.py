@@ -38,6 +38,7 @@ from web3._utils.module_testing.eth_module import (
 )
 from web3.exceptions import (
     MethodUnavailable,
+    Web3TypeError,
 )
 from web3.providers.eth_tester import (
     EthereumTesterProvider,
@@ -221,11 +222,6 @@ def keyfile_account_address_dual_type(keyfile_account_address, address_conversio
     yield keyfile_account_address
 
 
-class TestEthereumTesterWeb3Module(Web3ModuleTest):
-    def _check_web3_client_version(self, client_version):
-        assert client_version.startswith("EthereumTester/")
-
-
 def not_implemented(method, exc_type=NotImplementedError):
     @functools.wraps(method)
     def inner(*args, **kwargs):
@@ -248,6 +244,15 @@ def disable_auto_mine(func):
             eth_tester.revert_to_snapshot(snapshot)
 
     return func_wrapper
+
+
+class TestEthereumTesterWeb3Module(Web3ModuleTest):
+    def _check_web3_client_version(self, client_version):
+        assert client_version.startswith("EthereumTester/")
+
+    test_batch_request = not_implemented(
+        Web3ModuleTest.test_batch_request, Web3TypeError
+    )
 
 
 class TestEthereumTesterEthModule(EthModuleTest):

@@ -1,9 +1,11 @@
 import pytest
 from typing import (
     Any,
+    List,
     NoReturn,
     Sequence,
     Union,
+    cast,
 )
 
 from eth_typing import (
@@ -25,6 +27,9 @@ from web3._utils.ens import (
 )
 from web3.exceptions import (
     InvalidAddress,
+)
+from web3.types import (
+    BlockData,
 )
 
 
@@ -313,3 +318,18 @@ class Web3ModuleTest:
 
     def test_is_connected(self, w3: "Web3") -> None:
         assert w3.is_connected()
+
+    def test_batch_request(self, w3: "Web3") -> None:
+        with w3.manager.batch_requests() as batch:
+            batch.add(w3.eth.get_block(6))
+            batch.add(w3.eth.get_block(4))
+            batch.add(w3.eth.get_block(2))
+            batch.add(w3.eth.get_block(0))
+
+            responses = cast(List[BlockData], batch.execute())
+
+        assert len(responses) == 4
+        assert responses[0]["number"] == 6
+        assert responses[1]["number"] == 4
+        assert responses[2]["number"] == 2
+        assert responses[3]["number"] == 0

@@ -8,6 +8,7 @@ from typing import (
     Optional,
     Tuple,
     Union,
+    cast,
 )
 
 from aiohttp import (
@@ -150,13 +151,14 @@ class AsyncHTTPProvider(AsyncJSONBaseProvider):
         return response
 
     async def make_batch_request(
-        self, requests: Iterable[Tuple[RPCEndpoint, Any]]
+        self, batch_requests: List[Tuple[RPCEndpoint, Any]]
     ) -> List[RPCResponse]:
-        self.logger.debug(f"Making batch request HTTP. URI: {self.endpoint_uri}")
-        request_data: bytes = self.encode_batch_rpc_request(requests)
-        raw_response: bytes = await async_make_post_request(
+        self.logger.debug(f"Making batch request HTTP - uri: `{self.endpoint_uri}`")
+        request_data = self.encode_batch_rpc_request(batch_requests)
+        raw_response = await async_make_post_request(
             self.endpoint_uri, request_data, **self.get_request_kwargs()
         )
-        response: List[RPCResponse] = self.decode_batch_rpc_response(raw_response)
-        self.logger.debug(f"Getting batch response HTTP. URI: {self.endpoint_uri}")
-        return response
+        self.logger.debug("Received batch response HTTP.")
+        responses_list = cast(List[RPCResponse], self.decode_rpc_response(raw_response))
+        # sort by response `id` since the JSON-RPC 2.0 spec doesn't guarantee order
+        return sorted(responses_list, key=lambda resp: int(resp["id"]))

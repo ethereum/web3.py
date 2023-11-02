@@ -95,7 +95,11 @@ class RequestProcessor:
         self,
         method: RPCEndpoint,
         params: Any,
-        response_formatters: Tuple[Callable[..., Any], ...],
+        response_formatters: Tuple[
+            Dict[str, Callable[..., Any]],
+            Callable[..., Any],
+            Callable[..., Any],
+        ],
     ) -> Optional[str]:
         cached_requests_key = generate_cache_key((method, params))
         if cached_requests_key in self._provider._request_cache._data:

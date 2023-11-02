@@ -4,6 +4,8 @@ from abc import (
 from typing import (
     TYPE_CHECKING,
     Any,
+    List,
+    Tuple,
     Type,
     Union,
 )
@@ -18,7 +20,9 @@ if TYPE_CHECKING:
         Web3,
     )
     from web3.types import (  # noqa: F401
+        AsyncMakeBatchRequestFn,
         AsyncMakeRequestFn,
+        MakeBatchRequestFn,
         MakeRequestFn,
         RPCEndpoint,
         RPCResponse,
@@ -45,6 +49,25 @@ class Web3Middleware:
 
         return middleware
 
+    def wrap_make_batch_request(
+        self, make_batch_request: "MakeBatchRequestFn"
+    ) -> "MakeBatchRequestFn":
+        def middleware(
+            requests_info: List[Tuple["RPCEndpoint", Any]]
+        ) -> List["RPCResponse"]:
+            req_processed = [
+                self.request_processor(method, params)
+                for (method, params) in requests_info
+            ]
+            responses = make_batch_request(req_processed)
+            methods, _params = zip(*req_processed)
+            formatted_responses = [
+                self.response_processor(m, r) for m, r in zip(methods, responses)
+            ]
+            return formatted_responses
+
+        return middleware
+
     def request_processor(self, method: "RPCEndpoint", params: Any) -> Any:
         return method, params
 
@@ -64,6 +87,26 @@ class Web3Middleware:
                 method,
                 await make_request(method, params),
             )
+
+        return middleware
+
+    async def async_wrap_make_batch_request(
+        self, make_batch_request: "AsyncMakeBatchRequestFn"
+    ) -> "AsyncMakeBatchRequestFn":
+        async def middleware(
+            requests_info: List[Tuple["RPCEndpoint", Any]]
+        ) -> List["RPCResponse"]:
+            req_processed = [
+                await self.async_request_processor(method, params)
+                for (method, params) in requests_info
+            ]
+            responses = await make_batch_request(req_processed)
+            methods, _params = zip(*req_processed)
+            formatted_responses = [
+                await self.async_response_processor(m, r)
+                for m, r in zip(methods, responses)
+            ]
+            return formatted_responses
 
         return middleware
 

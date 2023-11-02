@@ -179,6 +179,7 @@ def get_default_modules() -> Dict[str, Union[Type[Module], Sequence[Any]]]:
 
 class BaseWeb3:
     _strict_bytes_type_checking = True
+    _is_batching: bool = False
 
     # Managers
     RequestManager = DefaultRequestManager

@@ -6,6 +6,7 @@ from typing import (
     Any,
     Callable,
     Coroutine,
+    Dict,
     List,
     Tuple,
     TypeVar,
@@ -69,7 +70,9 @@ class RequestInformation:
         self,
         method: "RPCEndpoint",
         params: Any,
-        response_formatters: Tuple[Callable[..., Any], ...],
+        response_formatters: Tuple[
+            Dict[str, Callable[..., Any]], Callable[..., Any], Callable[..., Any]
+        ],
         subscription_id: str = None,
     ):
         self.method = method

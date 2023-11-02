@@ -1,12 +1,10 @@
 import asyncio
 import itertools
-import json
 from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
     Coroutine,
-    Iterable,
     List,
     Optional,
     Set,
@@ -80,6 +78,9 @@ class AsyncBaseProvider:
     _request_func_cache: Tuple[
         Tuple[Middleware, ...], Callable[..., Coroutine[Any, Any, RPCResponse]]
     ] = (None, None)
+    _batch_request_func_cache: Tuple[
+        Tuple[Middleware, ...], Callable[..., Coroutine[Any, Any, List[RPCResponse]]]
+    ] = (None, None)
 
     is_async = True
     has_persistent_connection = False
@@ -112,12 +113,31 @@ class AsyncBaseProvider:
             )
         return self._request_func_cache[-1]
 
+    async def batch_request_func(
+        self, async_w3: "AsyncWeb3", middleware_onion: MiddlewareOnion
+    ) -> Callable[..., Coroutine[Any, Any, List[RPCResponse]]]:
+        middleware: Tuple[Middleware, ...] = middleware_onion.as_tuple_of_middleware()
+
+        cache_key = self._batch_request_func_cache[0]
+        if cache_key != middleware:
+            accumulator_fn = self.make_batch_request
+            for mw in reversed(middleware):
+                initialized = mw(async_w3)
+                # type ignore bc in order to wrap the method, we have to call
+                # `async_wrap_make_batch_request` with the accumulator_fn as the
+                # argument which breaks the type hinting for this particular case.
+                accumulator_fn = await initialized.async_wrap_make_batch_request(  # type: ignore # noqa: E501
+                    accumulator_fn
+                )
+            self._batch_request_func_cache = (middleware, accumulator_fn)
+        return self._batch_request_func_cache[-1]
+
     @async_handle_request_caching
     async def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
         raise NotImplementedError("Providers must implement this method")
 
     async def make_batch_request(
-        self, requests: Iterable[Tuple[RPCEndpoint, Any]]
+        self, requests: List[Tuple[RPCEndpoint, Any]]
     ) -> List[RPCResponse]:
         raise NotImplementedError("Only AsyncHTTPProvider supports this method")
 
@@ -164,28 +184,12 @@ class AsyncJSONBaseProvider(AsyncBaseProvider):
         encoded = FriendlyJsonSerde().json_encode(rpc_dict, cls=Web3JsonEncoder)
         return to_bytes(text=encoded)
 
-    def encode_batch_rpc_request(
-        self, requests: Iterable[Tuple[RPCEndpoint, Any]]
-    ) -> bytes:
-        return (
-            b"["
-            + b", ".join(
-                self.encode_rpc_request(method, params) for method, params in requests
-            )
-            + b"]"
-        )
-
-    def decode_rpc_response(self, raw_response: bytes) -> RPCResponse:
+    @staticmethod
+    def decode_rpc_response(raw_response: bytes) -> RPCResponse:
         text_response = str(
             to_text(raw_response) if not is_text(raw_response) else raw_response
         )
         return cast(RPCResponse, FriendlyJsonSerde().json_decode(text_response))
-
-    def decode_batch_rpc_response(self, raw_response: bytes) -> List[RPCResponse]:
-        text_response = str(
-            to_text(raw_response) if not is_text(raw_response) else raw_response
-        )
-        return json.loads(text_response)
 
     async def is_connected(self, show_traceback: bool = False) -> bool:
         try:
@@ -210,3 +214,16 @@ class AsyncJSONBaseProvider(AsyncBaseProvider):
             if show_traceback:
                 raise ProviderConnectionError(f"Bad jsonrpc version: {response}")
             return False
+
+    # -- batch requests -- #
+
+    def encode_batch_rpc_request(
+        self, requests: List[Tuple[RPCEndpoint, Any]]
+    ) -> bytes:
+        return (
+            b"["
+            + b", ".join(
+                self.encode_rpc_request(method, params) for method, params in requests
+            )
+            + b"]"
+        )
