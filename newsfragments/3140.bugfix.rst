@@ -1,0 +1,1 @@
+When coming back through the middleware onion after a request is made, we have the response ``id``. Use it to match to the cached request information and process the response accordingly.
