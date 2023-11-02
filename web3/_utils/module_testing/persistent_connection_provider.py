@@ -1,3 +1,4 @@
+import asyncio
 import json
 import pytest
 from typing import (
@@ -360,3 +361,53 @@ class PersistentConnectionProviderTest:
         # reset the mocked recv
         async_w3.provider._ws.__setattr__("recv", actual_recv_fxn)
         async_w3.middleware_onion.remove("poa_middleware")
+
+    @pytest.mark.asyncio
+    async def test_asyncio_gather_for_multiple_requests_matches_the_responses(
+        self,
+        async_w3: "_PersistentConnectionWeb3",
+    ) -> None:
+        (
+            latest,
+            chain_id,
+            block_num,
+            chain_id2,
+            pending,
+            chain_id3,
+        ) = await asyncio.gather(
+            async_w3.eth.get_block("latest"),
+            async_w3.eth.chain_id,
+            async_w3.eth.block_number,
+            async_w3.eth.chain_id,
+            async_w3.eth.get_block("pending"),
+            async_w3.eth.chain_id,
+        )
+
+        # assert attrdict middleware was applied appropriately
+        assert isinstance(latest, AttributeDict)
+        assert isinstance(pending, AttributeDict)
+
+        # assert block values
+        some_block_keys = [
+            "number",
+            "hash",
+            "parentHash",
+            "transactionsRoot",
+            "stateRoot",
+            "receiptsRoot",
+            "size",
+            "gasLimit",
+            "gasUsed",
+            "timestamp",
+            "transactions",
+            "baseFeePerGas",
+        ]
+        assert all(k in latest.keys() for k in some_block_keys)
+        assert all(k in pending.keys() for k in some_block_keys)
+
+        assert isinstance(block_num, int)
+        assert latest["number"] == block_num
+
+        assert isinstance(chain_id, int)
+        assert isinstance(chain_id2, int)
+        assert isinstance(chain_id3, int)
