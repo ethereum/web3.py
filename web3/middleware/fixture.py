@@ -129,7 +129,7 @@ async def async_construct_result_generator_middleware(
                     provider._request_processor.append_middleware_response_processor(
                         # processed asynchronously later but need to pass the actual
                         # response to the next middleware
-                        response.get("id"),
+                        response,
                         lambda _: {"result": result},
                     )
                     return response
@@ -176,7 +176,7 @@ async def async_construct_error_generator_middleware(
                     provider._request_processor.append_middleware_response_processor(
                         # processed asynchronously later but need to pass the actual
                         # response to the next middleware
-                        response.get("id"),
+                        response,
                         lambda _: error_response,
                     )
                     return response
