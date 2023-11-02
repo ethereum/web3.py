@@ -1238,11 +1238,6 @@ Contracts
 
 .. py:method:: Eth.contract(address=None, contract_name=None, ContractFactoryClass=Contract, **contract_factory_kwargs)
 
-    An ``abi`` specifies how a contract can be interacted with. The ``abi`` 
-    must be provided to the constructor to expose contract functions and events 
-    as contract instance properties. Calling methods on a contract instance will fail 
-    if the ``abi`` is not provided.
-
     If ``address`` is provided, then this method will return an instance of the
     contract defined by ``abi``. The address may be a checksum string,
     or an ENS name like ``'mycontract.eth'``.
@@ -1287,20 +1282,25 @@ Contracts
 
     The following arguments are accepted for contract class creation.
 
-    - ``abi``
-    - ``asm``
-    - ``ast``
-    - ``bytecode``
-    - ``bytecode_runtime``
-    - ``clone_bin``
-    - ``dev_doc``
-    - ``decode_tuples``
-    - ``interface``
-    - ``metadata``
-    - ``opcodes``
-    - ``src_map``
-    - ``src_map_runtime``
-    - ``user_doc``
+    :param abi: Application Binary Interface. Usually provided since an ``abi`` is required to interact with any contract.
+    :type abi: ABI
+    :param asm:
+    :param ast:
+    :param bytecode:
+    :param bytecode_runtime:
+    :param clone_bin:
+    :param dev_doc:
+    :param decode_tuples:
+    :param interface:
+    :param metadata:
+    :param opcodes:
+    :param src_map:
+    :param src_map_runtime:
+    :param user_doc:
+    :return: Instance of the contract
+    :rtype: Contract
+    :raises TypeError: if the address is not provided
+    :raises AttributeError: if the contract class is not initialized
 
     See :doc:`web3.contract` for more information about how to use contracts.
 

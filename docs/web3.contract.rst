@@ -138,7 +138,9 @@ Each Contract Factory exposes the following properties.
 
 .. py:attribute:: Contract.abi
 
-    The contract ABI array.
+    The contract ``abi``, or Application Binary Interface, specifies how a contract can
+    be interacted with. Without an ``abi``, the contract cannot be decoded. The ``abi``
+    enables the Contract instance to expose functions and events as object properties.
 
 
 .. py:attribute:: Contract.bytecode
