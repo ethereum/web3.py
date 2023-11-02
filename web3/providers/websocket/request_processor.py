@@ -177,15 +177,15 @@ class RequestProcessor:
 
     def append_middleware_response_processor(
         self,
+        response_id: int,
         middleware_response_processor: Callable[..., Any],
     ) -> None:
-        request_id = next(copy(self._provider.request_counter)) - 1
-        cache_key = generate_cache_key(request_id)
-        current_request_cached_info: RequestInformation = (
+        cache_key = generate_cache_key(response_id)
+        cached_request_info_for_id: RequestInformation = (
             self._request_information_cache.get_cache_entry(cache_key)
         )
-        if current_request_cached_info:
-            current_request_cached_info.middleware_response_processors.append(
+        if cached_request_info_for_id is not None:
+            cached_request_info_for_id.middleware_response_processors.append(
                 middleware_response_processor
             )
 

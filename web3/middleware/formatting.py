@@ -188,11 +188,12 @@ async def async_construct_web3_formatting_middleware(
                 # asynchronous response processing
                 provider = cast("PersistentConnectionProvider", async_w3.provider)
                 provider._request_processor.append_middleware_response_processor(
+                    response.get("id"),
                     _apply_response_formatters(
                         method,
                         formatters["result_formatters"],
                         formatters["error_formatters"],
-                    )
+                    ),
                 )
                 return response
             else:

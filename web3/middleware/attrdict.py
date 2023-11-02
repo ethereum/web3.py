@@ -71,7 +71,7 @@ async def async_attrdict_middleware(
             # asynchronous response processing
             provider = cast("PersistentConnectionProvider", async_w3.provider)
             provider._request_processor.append_middleware_response_processor(
-                _handle_async_response
+                response.get("id"), _handle_async_response
             )
             return response
         else:
