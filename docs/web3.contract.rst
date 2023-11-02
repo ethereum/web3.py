@@ -1295,4 +1295,4 @@ You can interact with web3.py contract API as follows:
 Where can I find more information about Ethereum Contracts?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Comprehensive documentation for Contracts is available from the `Solidity Docs<https://docs.soliditylang.org/>`_.
+Comprehensive documentation for Contracts is available from the `Solidity Docs <https://docs.soliditylang.org/>`_.
