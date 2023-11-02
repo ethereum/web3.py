@@ -5,6 +5,8 @@ from typing import (
     Coroutine,
     Dict,
     Optional,
+    Sequence,
+    Tuple,
     TypeVar,
     Union,
     cast,
@@ -56,8 +58,37 @@ TReturn = TypeVar("TReturn")
 
 
 @curry
+def retrieve_request_information_for_batching(
+    module: "Module",
+    method: Method[Callable[..., Any]],
+) -> Union[
+    Callable[..., Tuple[Tuple[RPCEndpoint, Any], Sequence[Any]]],
+    Callable[..., Coroutine[Any, Any, Tuple[Tuple[RPCEndpoint, Any], Sequence[Any]]]],
+]:
+    async def async_inner(
+        *args: Any, **kwargs: Any
+    ) -> Tuple[Tuple[RPCEndpoint, Any], Sequence[Any]]:
+        (method_str, params), response_formatters = method.process_params(
+            module, *args, **kwargs
+        )
+        return (cast(RPCEndpoint, method_str), params), response_formatters
+
+    def inner(
+        *args: Any, **kwargs: Any
+    ) -> Tuple[Tuple[RPCEndpoint, Any], Sequence[Any]]:
+        (method_str, params), response_formatters = method.process_params(
+            module, *args, **kwargs
+        )
+        return (cast(RPCEndpoint, method_str), params), response_formatters
+
+    return async_inner if module.is_async else inner
+
+
+@curry
 def retrieve_blocking_method_call_fn(
-    w3: "Web3", module: "Module", method: Method[Callable[..., TReturn]]
+    w3: "Web3",
+    module: "Module",
+    method: Method[Callable[..., TReturn]],
 ) -> Callable[..., Union[TReturn, LogFilter]]:
     def caller(*args: Any, **kwargs: Any) -> Union[TReturn, LogFilter]:
         try:
@@ -82,7 +113,9 @@ def retrieve_blocking_method_call_fn(
 
 @curry
 def retrieve_async_method_call_fn(
-    async_w3: "AsyncWeb3", module: "Module", method: Method[Callable[..., Any]]
+    async_w3: "AsyncWeb3",
+    module: "Module",
+    method: Method[Callable[..., Any]],
 ) -> Callable[..., Coroutine[Any, Any, Optional[Union[RPCResponse, AsyncLogFilter]]]]:
     async def caller(*args: Any, **kwargs: Any) -> Union[RPCResponse, AsyncLogFilter]:
         try:
@@ -93,12 +126,11 @@ def retrieve_async_method_call_fn(
             return AsyncLogFilter(eth_module=module, filter_id=err.filter_id)
 
         if isinstance(async_w3.provider, PersistentConnectionProvider):
-            # TODO: The typing does not seem to be correct for response_formatters.
-            #   For now, keep the expected typing but ignore it here.
             provider = async_w3.provider
             cache_key = provider._request_processor.cache_request_information(
-                cast(RPCEndpoint, method_str), params, response_formatters  # type: ignore # noqa: E501
+                cast(RPCEndpoint, method_str), params, response_formatters
             )
+
             try:
                 method_str = cast(RPCEndpoint, method_str)
                 return await async_w3.manager.send(method_str, params)
@@ -139,6 +171,9 @@ class Module:
             self.retrieve_caller_fn = retrieve_async_method_call_fn(w3, self)
         else:
             self.retrieve_caller_fn = retrieve_blocking_method_call_fn(w3, self)
+        self.retrieve_request_information = retrieve_request_information_for_batching(
+            self
+        )
         self.w3 = w3
 
     @property
@@ -152,8 +187,8 @@ class Module:
     ) -> None:
         for method_name, method_class in methods.items():
             klass = (
-                method_class.__get__(obj=self)()
+                method_class.__get__(module=self)()
                 if method_class.is_property
-                else method_class.__get__(obj=self)
+                else method_class.__get__(module=self)
             )
             setattr(self, method_name, klass)

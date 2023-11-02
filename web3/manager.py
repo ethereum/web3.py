@@ -1,3 +1,4 @@
+import asyncio
 import logging
 from typing import (
     TYPE_CHECKING,
@@ -22,6 +23,9 @@ from websockets.exceptions import (
     ConnectionClosedOK,
 )
 
+from web3._utils.batching import (
+    BatchRequestContextManager,
+)
 from web3._utils.caching import (
     generate_cache_key,
 )
@@ -39,6 +43,9 @@ from web3.exceptions import (
     Web3RPCError,
     Web3TypeError,
 )
+from web3.method import (
+    Method,
+)
 from web3.middleware import (
     AttributeDictMiddleware,
     BufferedGasEstimateMiddleware,
@@ -55,7 +62,11 @@ from web3.module import (
 )
 from web3.providers import (
     AutoProvider,
+    JSONBaseProvider,
     PersistentConnectionProvider,
+)
+from web3.providers.async_base import (
+    AsyncJSONBaseProvider,
 )
 from web3.types import (
     RPCEndpoint,
@@ -374,6 +385,86 @@ class RequestManager:
         response = await self._coro_make_request(method, params)
         return self.formatted_response(
             response, params, error_formatters, null_result_formatters
+        )
+
+    # -- batch requests -- #
+
+    def batch_requests(self) -> BatchRequestContextManager[Method[Callable[..., Any]]]:
+        """
+        Context manager for making batch requests
+        """
+        return BatchRequestContextManager(self.w3)
+
+    def make_batch_request(
+        self, requests_info: List[Tuple[Tuple["RPCEndpoint", Any], Sequence[Any]]]
+    ) -> List[RPCResponse]:
+        """
+        Make a batch request using the provider
+        """
+        if not isinstance(self.provider, JSONBaseProvider):
+            raise Web3TypeError(
+                "Only JSONBaseProvider classes support batched requests."
+            )
+
+        request_func = self.provider.batch_request_func(
+            cast("Web3", self.w3), cast("MiddlewareOnion", self.middleware_onion)
+        )
+        responses = request_func(
+            [
+                (method, params)
+                for (method, params), _response_formatters in requests_info
+            ]
+        )
+        formatted_responses = [
+            self._format_batched_response(info, resp)
+            for info, resp in zip(requests_info, responses)
+        ]
+        return list(formatted_responses)
+
+    async def async_make_batch_request(
+        self, requests_info: List[Tuple[Tuple["RPCEndpoint", Any], Sequence[Any]]]
+    ) -> List[RPCResponse]:
+        """
+        Make an asynchronous batch request using the provider
+        """
+        if not isinstance(self.provider, AsyncJSONBaseProvider):
+            raise Web3TypeError(
+                "Only AsyncJSONBaseProvider classes support batched requests."
+            )
+
+        request_func = await self.provider.batch_request_func(
+            cast("AsyncWeb3", self.w3),
+            cast("MiddlewareOnion", self.middleware_onion),
+        )
+
+        responses = await request_func(
+            [
+                (method, params)
+                for (method, params), _response_formatters in requests_info
+            ]
+        )
+
+        formatted_responses = [
+            self._format_batched_response(info, resp)
+            for info, resp in zip(requests_info, responses)
+        ]
+
+        return list(formatted_responses)
+
+    def _format_batched_response(
+        self,
+        requests_info: Tuple[Tuple[RPCEndpoint, Any], Sequence[Any]],
+        response: RPCResponse,
+    ) -> RPCResponse:
+        result_formatters, error_formatters, null_result_formatters = requests_info[1]
+        return apply_result_formatters(
+            result_formatters,
+            self.formatted_response(
+                response,
+                requests_info[0][1],
+                error_formatters,
+                null_result_formatters,
+            ),
         )
 
     # -- persistent connection -- #
