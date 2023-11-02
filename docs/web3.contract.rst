@@ -142,6 +142,8 @@ Each Contract Factory exposes the following properties.
     be interacted with. Without an ``abi``, the contract cannot be decoded. The ``abi``
     enables the Contract instance to expose functions and events as object properties.
 
+    For further details, see the `Solidity ABI specification <https://docs.soliditylang.org/en/develop/abi-spec.html>`_.
+
 
 .. py:attribute:: Contract.bytecode
 
@@ -1288,3 +1290,9 @@ You can interact with web3.py contract API as follows:
 
    >>> deployed_contract.functions.retrieve().call()
    '0x0000000000000000000000000000000000000002'
+
+
+Where can I find more information about Ethereum Contracts?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Comprehensive documentation for Contracts is available from the `Solidity Docs<https://docs.soliditylang.org/>`_.
