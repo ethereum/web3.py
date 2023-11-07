@@ -35,7 +35,13 @@ After ``py-solc-x`` is installed, you will need to install a version of ``solc``
     >>> from solcx import install_solc
     >>> install_solc(version='latest')
 
-You should now be set up to run the contract deployment example below:
+You should now be set up to compile and deploy a contract.
+
+The following example runs through these steps:
+#. Compile Solidity contract into bytecode and an ABI
+#. Initialize a Contract Web3.py instance
+#. Deploy the contract using the Contract instance to initiate a transaction
+#. Interact with the contract functions using the Contract instance
 
 .. code-block:: python
 
@@ -132,7 +138,11 @@ Each Contract Factory exposes the following properties.
 
 .. py:attribute:: Contract.abi
 
-    The contract ABI array.
+    The contract ``abi``, or Application Binary Interface, specifies how a contract can
+    be interacted with. Without an ``abi``, the contract cannot be decoded. The ``abi``
+    enables the Contract instance to expose functions and events as object properties.
+
+    For further details, see the `Solidity ABI specification <https://docs.soliditylang.org/en/develop/abi-spec.html>`_.
 
 
 .. py:attribute:: Contract.bytecode
@@ -1280,3 +1290,9 @@ You can interact with web3.py contract API as follows:
 
    >>> deployed_contract.functions.retrieve().call()
    '0x0000000000000000000000000000000000000002'
+
+
+Where can I find more information about Ethereum Contracts?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Comprehensive documentation for Contracts is available from the `Solidity Docs <https://docs.soliditylang.org/>`_.
