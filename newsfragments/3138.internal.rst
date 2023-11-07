@@ -1,0 +1,1 @@
+Fix type annotations for ``web3`` constants.
