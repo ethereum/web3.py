@@ -83,3 +83,4 @@ Hackathon Helpers
 - `ape-hackathon-kit <https://github.com/wolovim/ape-hackathon-kit>`__ - Ape project template with a web front-end (Next.js, Tailwind, RainbowKit, wagmi)
 - `eth-flogger <https://github.com/wolovim/eth-flogger>`__ - Sample web app utilizing async web3.py, Flask, SQLite, Sourcify
 - `Temo <https://github.com/wolovim/temo>`__ - Sample terminal app utilizing async web3py, Textual, Anvil
+- `web3py-discord-bot <https://github.com/wolovim/web3py-discord-bot>`__ - Sample Discord bot utilizing websockets, ``eth_subscribe``, and discord.py
