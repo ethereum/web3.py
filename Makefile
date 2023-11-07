@@ -67,7 +67,9 @@ notes: check-bump
 
 release: check-bump clean
 	# require that upstream is configured for ethereum/<REPO_NAME>
-	git remote -v | grep "upstream\tgit@github.com:ethereum/<REPO_NAME>.git (push)\|upstream\thttps://github.com/ethereum/<REPO_NAME> (push)"
+	@git remote -v | grep \
+		-e "upstream\tgit@github.com:ethereum/<REPO_NAME>.git (push)" \
+		-Ee "upstream\thttps://(www.)?github.com/ethereum/<REPO_NAME> \(push\)"
 	# verify that docs build correctly
 	./newsfragments/validate_files.py is-empty
 	make build-docs
