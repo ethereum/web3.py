@@ -4,6 +4,7 @@ from typing import (
     Callable,
     Coroutine,
     Optional,
+    TypeVar,
     cast,
 )
 
@@ -13,14 +14,14 @@ from eth_utils.toolz import (
     merge,
 )
 
+from web3.middleware.base import (
+    Web3Middleware,
+)
 from web3.types import (
-    AsyncMiddleware,
-    AsyncMiddlewareCoroutine,
     EthSubscriptionParams,
     Formatters,
     FormattersDict,
     Literal,
-    Middleware,
     RPCEndpoint,
     RPCResponse,
 )
@@ -85,125 +86,113 @@ def _apply_response_formatters(
         return response
 
 
-# --- sync -- #
+SYNC_FORMATTERS_BUILDER = Callable[["Web3", RPCEndpoint], FormattersDict]
+ASYNC_FORMATTERS_BUILDER = Callable[
+    ["AsyncWeb3", RPCEndpoint], Coroutine[Any, Any, FormattersDict]
+]
 
 
-def construct_formatting_middleware(
-    request_formatters: Optional[Formatters] = None,
-    result_formatters: Optional[Formatters] = None,
-    error_formatters: Optional[Formatters] = None,
-) -> Middleware:
-    def ignore_web3_in_standard_formatters(
-        _w3: "Web3",
-        _method: RPCEndpoint,
-    ) -> FormattersDict:
-        return dict(
-            request_formatters=request_formatters or {},
-            result_formatters=result_formatters or {},
-            error_formatters=error_formatters or {},
-        )
-
-    return construct_web3_formatting_middleware(ignore_web3_in_standard_formatters)
-
-
-def construct_web3_formatting_middleware(
-    web3_formatters_builder: Callable[["Web3", RPCEndpoint], FormattersDict],
-) -> Middleware:
-    def formatter_middleware(
-        make_request: Callable[[RPCEndpoint, Any], Any],
-        w3: "Web3",
-    ) -> Callable[[RPCEndpoint, Any], RPCResponse]:
-        def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
-            formatters = merge(
-                FORMATTER_DEFAULTS,
-                web3_formatters_builder(w3, method),
-            )
-            request_formatters = formatters.pop("request_formatters")
-
-            if method in request_formatters:
-                formatter = request_formatters[method]
-                params = formatter(params)
-            response = make_request(method, params)
-
-            return _apply_response_formatters(
-                method,
-                formatters["result_formatters"],
-                formatters["error_formatters"],
-                response,
+class FormattingMiddleware(Web3Middleware):
+    def __init__(
+        self,
+        # formatters option:
+        request_formatters: Optional[Formatters] = None,
+        result_formatters: Optional[Formatters] = None,
+        error_formatters: Optional[Formatters] = None,
+        # formatters builder option:
+        sync_formatters_builder: Optional[SYNC_FORMATTERS_BUILDER] = None,
+        async_formatters_builder: Optional[ASYNC_FORMATTERS_BUILDER] = None,
+    ):
+        # if not both sync and async formatters are specified, raise error
+        if (
+            sync_formatters_builder is None and async_formatters_builder is not None
+        ) or (sync_formatters_builder is not None and async_formatters_builder is None):
+            raise ValueError(
+                "Must specify both sync_formatters_builder and async_formatters_builder"
             )
 
-        return middleware
-
-    return formatter_middleware
-
-
-# --- async --- #
-
-
-async def async_construct_formatting_middleware(
-    request_formatters: Optional[Formatters] = None,
-    result_formatters: Optional[Formatters] = None,
-    error_formatters: Optional[Formatters] = None,
-) -> AsyncMiddleware:
-    async def ignore_web3_in_standard_formatters(
-        _async_w3: "AsyncWeb3",
-        _method: RPCEndpoint,
-    ) -> FormattersDict:
-        return dict(
-            request_formatters=request_formatters or {},
-            result_formatters=result_formatters or {},
-            error_formatters=error_formatters or {},
-        )
-
-    return await async_construct_web3_formatting_middleware(
-        ignore_web3_in_standard_formatters
-    )
-
-
-async def async_construct_web3_formatting_middleware(
-    async_web3_formatters_builder: Callable[
-        ["AsyncWeb3", RPCEndpoint], Coroutine[Any, Any, FormattersDict]
-    ]
-) -> Callable[
-    [Callable[[RPCEndpoint, Any], Any], "AsyncWeb3"],
-    Coroutine[Any, Any, AsyncMiddlewareCoroutine],
-]:
-    async def formatter_middleware(
-        make_request: Callable[[RPCEndpoint, Any], Any],
-        async_w3: "AsyncWeb3",
-    ) -> AsyncMiddlewareCoroutine:
-        async def middleware(method: RPCEndpoint, params: Any) -> Optional[RPCResponse]:
-            formatters = merge(
-                FORMATTER_DEFAULTS,
-                await async_web3_formatters_builder(async_w3, method),
-            )
-            request_formatters = formatters.pop("request_formatters")
-
-            if method in request_formatters:
-                formatter = request_formatters[method]
-                params = formatter(params)
-            response = await make_request(method, params)
-
-            if async_w3.provider.has_persistent_connection:
-                # asynchronous response processing
-                provider = cast("PersistentConnectionProvider", async_w3.provider)
-                provider._request_processor.append_middleware_response_processor(
-                    response,
-                    _apply_response_formatters(
-                        method,
-                        formatters["result_formatters"],
-                        formatters["error_formatters"],
-                    ),
-                )
-                return response
-            else:
-                return _apply_response_formatters(
-                    method,
-                    formatters["result_formatters"],
-                    formatters["error_formatters"],
-                    response,
+        if sync_formatters_builder is not None and async_formatters_builder is not None:
+            if (
+                request_formatters is not None
+                or result_formatters is not None
+                or error_formatters is not None
+            ):
+                raise ValueError(
+                    "Cannot specify formatters_builder and formatters at the same time"
                 )
 
-        return middleware
+        self.request_formatters = request_formatters or {}
+        self.result_formatters = result_formatters or {}
+        self.error_formatters = error_formatters or {}
+        self.sync_formatters_builder = sync_formatters_builder
+        self.async_formatters_builder = async_formatters_builder
 
-    return formatter_middleware
+    def process_request_params(
+        self, w3: "Web3", method: "RPCEndpoint", params: Any
+    ) -> Any:
+        if self.sync_formatters_builder is not None:
+            formatters = merge(
+                FORMATTER_DEFAULTS,
+                self.sync_formatters_builder(w3, method),
+            )
+            self.request_formatters = formatters.pop("request_formatters")
+
+        if method in self.request_formatters:
+            formatter = self.request_formatters[method]
+            params = formatter(params)
+
+        return params
+
+    def process_response(
+        self, w3: "Web3", method: RPCEndpoint, response: "RPCResponse"
+    ) -> Any:
+        if self.sync_formatters_builder is not None:
+            formatters = merge(
+                FORMATTER_DEFAULTS,
+                self.sync_formatters_builder(w3, method),
+            )
+            self.result_formatters = formatters["result_formatters"]
+            self.error_formatters = formatters["error_formatters"]
+
+        return _apply_response_formatters(
+            method,
+            self.result_formatters,
+            self.error_formatters,
+            response,
+        )
+
+    # -- async -- #
+
+    async def async_process_request_params(
+        self, async_w3: "AsyncWeb3", method: "RPCEndpoint", params: Any
+    ) -> Any:
+        if self.async_formatters_builder is not None:
+            formatters = merge(
+                FORMATTER_DEFAULTS,
+                await self.async_formatters_builder(async_w3, method),
+            )
+            self.request_formatters = formatters.pop("request_formatters")
+
+        if method in self.request_formatters:
+            formatter = self.request_formatters[method]
+            params = formatter(params)
+
+        return params
+
+    async def async_process_response(
+        self, async_w3: "AsyncWeb3", method: RPCEndpoint, response: "RPCResponse"
+    ) -> Any:
+        if self.async_formatters_builder is not None:
+            formatters = merge(
+                FORMATTER_DEFAULTS,
+                await self.async_formatters_builder(async_w3, method),
+            )
+            self.result_formatters = formatters["result_formatters"]
+            self.error_formatters = formatters["error_formatters"]
+
+        return _apply_response_formatters(
+            method,
+            self.result_formatters,
+            self.error_formatters,
+            response,
+        )

@@ -119,13 +119,11 @@ from web3.providers.eth_tester import (
 from web3.providers.ipc import (
     IPCProvider,
 )
-from web3.providers.async_rpc import (
-    AsyncHTTPProvider,
-)
 from web3.providers.persistent import (
     PersistentConnectionProvider,
 )
 from web3.providers.rpc import (
+    AsyncHTTPProvider,
     HTTPProvider,
 )
 from web3.providers.websocket import (

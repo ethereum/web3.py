@@ -20,9 +20,7 @@ from web3._utils.encoding import (
 from web3.exceptions import (
     ProviderConnectionError,
 )
-from web3.middleware import (
-    combine_middlewares,
-)
+from web3.middleware.base import Web3Middleware
 from web3.types import (
     Middleware,
     MiddlewareOnion,
@@ -35,7 +33,7 @@ if TYPE_CHECKING:
 
 
 class BaseProvider:
-    _middlewares: Tuple[Middleware, ...] = ()
+    _middlewares: Tuple[Web3Middleware, ...] = ()
     # a tuple of (all_middlewares, request_func)
     _request_func_cache: Tuple[Tuple[Middleware, ...], Callable[..., RPCResponse]] = (
         None,
@@ -48,42 +46,13 @@ class BaseProvider:
     ccip_read_max_redirects: int = 4
 
     @property
-    def middlewares(self) -> Tuple[Middleware, ...]:
+    def middlewares(self) -> Tuple[Web3Middleware, ...]:
         return self._middlewares
 
     @middlewares.setter
     def middlewares(self, values: MiddlewareOnion) -> None:
         # tuple(values) converts to MiddlewareOnion -> Tuple[Middleware, ...]
         self._middlewares = tuple(values)  # type: ignore
-
-    def request_func(
-        self, w3: "Web3", outer_middlewares: MiddlewareOnion
-    ) -> Callable[..., RPCResponse]:
-        """
-        @param outer_middlewares is an iterable of middlewares,
-            ordered by first to execute
-        @returns a function that calls all the middleware and
-            eventually self.make_request()
-        """
-        # type ignored b/c tuple(MiddlewareOnion) converts to tuple of middlewares
-        all_middlewares: Tuple[Middleware] = tuple(outer_middlewares) + tuple(self.middlewares)  # type: ignore # noqa: E501
-
-        cache_key = self._request_func_cache[0]
-        if cache_key is None or cache_key != all_middlewares:
-            self._request_func_cache = (
-                all_middlewares,
-                self._generate_request_func(w3, all_middlewares),
-            )
-        return self._request_func_cache[-1]
-
-    def _generate_request_func(
-        self, w3: "Web3", middlewares: Sequence[Middleware]
-    ) -> Callable[..., RPCResponse]:
-        return combine_middlewares(
-            middlewares=middlewares,
-            w3=w3,
-            provider_request_fn=self.make_request,
-        )
 
     def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
         raise NotImplementedError("Providers must implement this method")

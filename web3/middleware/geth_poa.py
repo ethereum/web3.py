@@ -24,10 +24,7 @@ from hexbytes import (
 from web3._utils.rpc_abi import (
     RPC,
 )
-from web3.middleware.formatting import (
-    async_construct_formatting_middleware,
-    construct_formatting_middleware,
-)
+from web3.middleware.formatting import FormattingMiddleware
 from web3.types import (
     AsyncMiddlewareCoroutine,
     RPCEndpoint,
@@ -56,26 +53,14 @@ pythonic_geth_poa = apply_formatters_to_dict(
 geth_poa_cleanup = compose(pythonic_geth_poa, remap_geth_poa_fields)
 
 
-geth_poa_middleware = construct_formatting_middleware(
+extradata_to_poa_middleware = FormattingMiddleware(
     result_formatters={
         RPC.eth_getBlockByHash: apply_formatter_if(is_not_null, geth_poa_cleanup),
         RPC.eth_getBlockByNumber: apply_formatter_if(is_not_null, geth_poa_cleanup),
+        RPC.eth_subscribe: apply_formatter_if(
+            is_not_null,
+            # original call to eth_subscribe returns a string, needs a dict check
+            apply_formatter_if(is_dict, geth_poa_cleanup),
+        ),
     },
 )
-
-
-async def async_geth_poa_middleware(
-    make_request: Callable[[RPCEndpoint, Any], Any], w3: "AsyncWeb3"
-) -> AsyncMiddlewareCoroutine:
-    middleware = await async_construct_formatting_middleware(
-        result_formatters={
-            RPC.eth_getBlockByHash: apply_formatter_if(is_not_null, geth_poa_cleanup),
-            RPC.eth_getBlockByNumber: apply_formatter_if(is_not_null, geth_poa_cleanup),
-            RPC.eth_subscribe: apply_formatter_if(
-                is_not_null,
-                # original call to eth_subscribe returns a string, needs a dict check
-                apply_formatter_if(is_dict, geth_poa_cleanup),
-            ),
-        },
-    )
-    return await middleware(make_request, w3)
