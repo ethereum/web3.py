@@ -1,11 +1,9 @@
 from web3._utils.method_formatters import (
     ABI_REQUEST_FORMATTERS,
 )
-
-from .formatting import (
-    construct_formatting_middleware,
+from web3.middleware.formatting import (
+    FormattingMiddleware,
 )
 
-abi_middleware = construct_formatting_middleware(
-    request_formatters=ABI_REQUEST_FORMATTERS
-)
+
+abi_middleware = FormattingMiddleware(request_formatters=ABI_REQUEST_FORMATTERS)

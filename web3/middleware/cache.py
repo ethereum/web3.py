@@ -23,6 +23,7 @@ from web3._utils.compat import (
     Literal,
     TypedDict,
 )
+from web3.middleware.base import Web3Middleware
 from web3.types import (
     BlockData,
     BlockNumber,
@@ -120,6 +121,19 @@ def construct_simple_cache_middleware(
 
 
 _simple_cache_middleware = construct_simple_cache_middleware()
+
+
+class SimpleCacheMiddleware(Web3Middleware):
+    """
+    Constructs a middleware which caches responses based on the request
+    ``method`` and ``params``
+
+    :param cache: A ``SimpleCache`` class.
+    :param rpc_whitelist: A set of RPC methods which may have their responses cached.
+    :param should_cache_fn: A callable which accepts ``method`` ``params`` and
+        ``response`` and returns a boolean as to whether the response should be
+        cached.
+    """
 
 
 TIME_BASED_CACHE_RPC_WHITELIST = cast(

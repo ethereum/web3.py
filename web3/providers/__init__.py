@@ -1,7 +1,7 @@
 from .async_base import (
     AsyncBaseProvider,
 )
-from .async_rpc import (
+from .rpc import (
     AsyncHTTPProvider,
 )
 from .base import (

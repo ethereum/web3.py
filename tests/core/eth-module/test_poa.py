@@ -6,7 +6,7 @@ from web3.exceptions import (
 )
 from web3.middleware import (
     construct_fixture_middleware,
-    geth_poa_middleware,
+    extradata_to_poa,
 )
 
 
@@ -39,7 +39,7 @@ def test_geth_proof_of_authority(w3):
             "eth_getBlockByNumber": {"extraData": "0x" + "ff" * 33},
         }
     )
-    w3.middleware_onion.inject(geth_poa_middleware, layer=0)
+    w3.middleware_onion.inject(extradata_to_poa, layer=0)
     w3.middleware_onion.inject(return_block_with_long_extra_data, layer=0)
     block = w3.eth.get_block("latest")
     assert "extraData" not in block
@@ -52,7 +52,7 @@ def test_returns_none_response(w3):
             "eth_getBlockByNumber": None,
         }
     )
-    w3.middleware_onion.inject(geth_poa_middleware, layer=0)
+    w3.middleware_onion.inject(extradata_to_poa, layer=0)
     w3.middleware_onion.inject(return_none_response, layer=0)
     with pytest.raises(BlockNotFound):
         w3.eth.get_block(100000000000)
