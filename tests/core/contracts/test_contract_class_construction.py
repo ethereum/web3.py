@@ -1,4 +1,3 @@
-import copy
 import json
 import pytest
 
@@ -43,28 +42,18 @@ def test_abi_as_json_string(w3, math_contract_abi, some_address):
     assert math.abi == math_contract_abi
 
 
-def test_abi_as_json_string_with_alternative_name(w3, math_contract_abi, some_address):
-    abi = copy.deepcopy(math_contract_abi)
-    abi[1]["name"] = "something_else"
-    abi_str = json.dumps(abi)
+def test_contract_init_with_w3_function_name(
+    w3,
+    function_name_tester_contract_abi,
+    function_name_tester_contract,  # this is the fixture that deployed the contract
+):
+    # this line only fails when that second function is there, however...
+    contract_factory = w3.eth.contract(abi=function_name_tester_contract_abi)
 
-    math_contract_factory = w3.eth.contract(abi=abi_str)
-    assert math_contract_factory.abi == abi
-
-    math = math_contract_factory(some_address)
-    assert math.abi == abi
-
-
-def test_abi_as_json_string_with_w3_name(w3, math_contract_abi, some_address):
-    abi = copy.deepcopy(math_contract_abi)
-    abi[1]["name"] = "w3"
-    abi_str = json.dumps(abi)
-
-    math_contract_factory = w3.eth.contract(abi=abi_str)
-    assert math_contract_factory.abi == abi
-
-    math = math_contract_factory(some_address)
-    assert math.abi == abi
+    # this will actually test that we can use the ABI and the deployed contract's
+    # address to re-instantiate a new contract and interact with it
+    contract = contract_factory(function_name_tester_contract.address)
+    assert contract.functions.w3().call() is True
 
 
 def test_error_to_call_non_existent_fallback(

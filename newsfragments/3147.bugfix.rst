@@ -1,0 +1,1 @@
+Fix collision of ``w3`` variable when initializing contract with function of the same name
