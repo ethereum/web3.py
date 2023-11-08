@@ -65,7 +65,9 @@ notes:
 
 release: clean
 	# require that upstream is configured for ethereum/web3.py
-	git remote -v | grep "upstream\tgit@github.com:ethereum/web3.py.git (push)\|upstream\thttps://github.com/ethereum/web3.py (push)"
+	@git remote -v | grep \
+		-e "upstream\tgit@github.com:ethereum/web3.py.git (push)" \
+		-Ee "upstream\thttps://(www.)?github.com/ethereum/web3.py \(push\)"
 	./newsfragments/validate_files.py is-empty
 	# verify that docs build correctly
 	make build-docs
