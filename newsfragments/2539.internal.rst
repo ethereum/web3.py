@@ -1,1 +1,0 @@
-Additional contract ``abi`` documentation to make it a clear requirement for contract instances.

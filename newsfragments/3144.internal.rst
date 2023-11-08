@@ -1,1 +1,0 @@
-Add upper pin to deprecated dependency ``lru-dict`` whose new minor version release introduced a typing issue with CI lint builds.

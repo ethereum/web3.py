@@ -6,6 +6,30 @@ v6 Breaking Changes Summary
 
 .. towncrier release notes start
 
+web3.py v6.11.3 (2023-11-08)
+----------------------------
+
+Bugfixes
+~~~~~~~~
+
+- When coming back through the middleware onion after a request is made, we have the response ``id``. Use it to match to the cached request information and process the response accordingly. (`#3140 <https://github.com/ethereum/web3.py/issues/3140>`__)
+
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Adds Discord bot template repo to Resources page (`#3143 <https://github.com/ethereum/web3.py/issues/3143>`__)
+
+
+Internal Changes - for web3.py Contributors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Additional contract ``abi`` documentation to make it a clear requirement for contract instances. (`#2539 <https://github.com/ethereum/web3.py/issues/2539>`__)
+- Fix type annotations for ``web3`` constants. (`#3138 <https://github.com/ethereum/web3.py/issues/3138>`__)
+- Add upper pin to deprecated dependency ``lru-dict`` whose new minor version release introduced a typing issue with CI lint builds. (`#3144 <https://github.com/ethereum/web3.py/issues/3144>`__)
+- Recompile test contracts with new Solidity version ``v0.8.23`` to ensure compatibility. (`#3146 <https://github.com/ethereum/web3.py/issues/3146>`__)
+
+
 web3.py v6.11.2 (2023-10-30)
 ----------------------------
 
