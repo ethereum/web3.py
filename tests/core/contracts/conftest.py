@@ -497,6 +497,20 @@ async def async_math_contract(
 
 
 @pytest.fixture
+def async_function_name_tester_contract_factory(async_w3):
+    return async_w3.eth.contract(**FUNCTION_NAME_TESTER_CONTRACT_DATA)
+
+
+@pytest_asyncio.fixture
+async def async_function_name_tester_contract(
+    async_w3, async_function_name_tester_contract_factory, w3_func
+):
+    return await async_deploy(
+        async_w3, async_function_name_tester_contract_factory, w3_func
+    )
+
+
+@pytest.fixture
 def async_simple_constructor_contract_factory(async_w3):
     return async_w3.eth.contract(**SIMPLE_CONSTRUCTOR_CONTRACT_DATA)
 
@@ -614,16 +628,6 @@ async def async_fallback_function_contract(async_w3, address_conversion_func):
     )
     return await async_deploy(
         async_w3, async_fallback_function_contract_factory, address_conversion_func
-    )
-
-
-@pytest_asyncio.fixture
-async def async_function_name_tester_contract(async_w3, address_conversion_func):
-    async_function_name_override_contract_factory = async_w3.eth.contract(
-        **FUNCTION_NAME_TESTER_CONTRACT_DATA
-    )
-    return await async_deploy(
-        async_w3, async_function_name_override_contract_factory, address_conversion_func
     )
 
 

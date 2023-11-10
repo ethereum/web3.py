@@ -1296,6 +1296,14 @@ async def test_async_saved_method_call_with_multiple_arguments(
 
 
 @pytest.mark.asyncio
+async def test_async_call_get_w3_value(async_function_name_tester_contract, async_call):
+    result = await async_call(
+        contract=async_function_name_tester_contract, contract_function="w3"
+    )
+    assert result is True
+
+
+@pytest.mark.asyncio
 async def test_async_call_get_string_value(async_string_contract, async_call):
     result = await async_call(
         contract=async_string_contract, contract_function="getValue"
