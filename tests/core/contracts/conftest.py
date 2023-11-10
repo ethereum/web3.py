@@ -503,10 +503,10 @@ def async_function_name_tester_contract_factory(async_w3):
 
 @pytest_asyncio.fixture
 async def async_function_name_tester_contract(
-    async_w3, async_function_name_tester_contract_factory, w3_func
+    async_w3, async_function_name_tester_contract_factory, address_conversion_func
 ):
     return await async_deploy(
-        async_w3, async_function_name_tester_contract_factory, w3_func
+        async_w3, async_function_name_tester_contract_factory, address_conversion_func
     )
 
 

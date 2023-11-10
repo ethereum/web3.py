@@ -575,7 +575,7 @@ class AsyncContractCaller(BaseContractCaller):
             for func in self._functions:
                 fn = AsyncContractFunction.factory(
                     func["name"],
-                    w3=self.w3,
+                    w3=w3,
                     contract_abi=self.abi,
                     address=self.address,
                     function_identifier=func["name"],
@@ -585,9 +585,7 @@ class AsyncContractCaller(BaseContractCaller):
                 # TODO: The no_extra_call method gets around the fact that we can't call
                 #  the full async method from within a class's __init__ method. We need
                 #  to see if there's a way to account for all desired elif cases.
-                block_id = parse_block_identifier_no_extra_call(
-                    self.w3, block_identifier
-                )
+                block_id = parse_block_identifier_no_extra_call(w3, block_identifier)
                 caller_method = partial(
                     self.call_function,
                     fn,
