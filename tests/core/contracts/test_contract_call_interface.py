@@ -178,6 +178,11 @@ def test_saved_method_call_with_multiple_arguments(
     assert result == 16
 
 
+def test_call_get_w3_value(function_name_tester_contract, call):
+    result = call(contract=function_name_tester_contract, contract_function="w3")
+    assert result is True
+
+
 def test_call_get_string_value(string_contract, call):
     result = call(contract=string_contract, contract_function="getValue")
     # eth_abi.decode() does not assume implicit utf-8
