@@ -1,0 +1,1 @@
+Add ``int`` type to ``yParity`` field for ``TxData``.

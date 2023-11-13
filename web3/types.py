@@ -157,6 +157,7 @@ TxData = TypedDict(
         "type": Union[int, HexStr],
         "v": int,
         "value": Wei,
+        "yParity": int,
     },
     total=False,
 )
