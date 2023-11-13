@@ -45,15 +45,36 @@ def test_abi_as_json_string(w3, math_contract_abi, some_address):
 def test_contract_init_with_w3_function_name(
     w3,
     function_name_tester_contract_abi,
-    function_name_tester_contract,  # this is the fixture that deployed the contract
+    function_name_tester_contract,
 ):
-    # this line only fails when that second function is there, however...
+    # test `w3` function name does not throw when creating the contract factory
     contract_factory = w3.eth.contract(abi=function_name_tester_contract_abi)
 
-    # this will actually test that we can use the ABI and the deployed contract's
-    # address to re-instantiate a new contract and interact with it
+    # re-instantiate the contract
     contract = contract_factory(function_name_tester_contract.address)
-    assert contract.functions.w3().call() is True
+
+    # assert the `w3` function returns true when called
+    result = contract.functions.w3().call()
+    assert result is True
+
+
+@pytest.mark.asyncio
+async def test_async_contract_init_with_w3_function_name(
+    async_w3,
+    async_function_name_tester_contract_abi,
+    async_function_name_tester_contract,
+):
+    # test `w3` function name does not throw when creating the contract factory
+    contract_factory = async_w3.eth.contract(
+        abi=async_function_name_tester_contract_abi
+    )
+
+    # re-instantiate the contract
+    contract = contract_factory(async_function_name_tester_contract.address)
+
+    # assert the `w3` function returns true when called
+    result = await contract.functions.w3().call()
+    assert result is True
 
 
 def test_error_to_call_non_existent_fallback(

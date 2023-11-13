@@ -496,17 +496,18 @@ async def async_math_contract(
     )
 
 
-@pytest.fixture
-def async_function_name_tester_contract_factory(async_w3):
-    return async_w3.eth.contract(**FUNCTION_NAME_TESTER_CONTRACT_DATA)
+@pytest_asyncio.fixture(scope="session")
+def async_function_name_tester_contract_abi():
+    return FUNCTION_NAME_TESTER_CONTRACT_ABI
 
 
 @pytest_asyncio.fixture
-async def async_function_name_tester_contract(
-    async_w3, async_function_name_tester_contract_factory, address_conversion_func
-):
+async def async_function_name_tester_contract(async_w3, address_conversion_func):
+    function_name_tester_contract_factory = async_w3.eth.contract(
+        **FUNCTION_NAME_TESTER_CONTRACT_DATA
+    )
     return await async_deploy(
-        async_w3, async_function_name_tester_contract_factory, address_conversion_func
+        async_w3, function_name_tester_contract_factory, address_conversion_func
     )
 
 
