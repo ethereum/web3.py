@@ -28,6 +28,10 @@ from web3._utils.contract_sources.contract_data.event_contracts import (
 from web3._utils.contract_sources.contract_data.fallback_function_contract import (
     FALLBACK_FUNCTION_CONTRACT_DATA,
 )
+from web3._utils.contract_sources.contract_data.function_name_tester_contract import (
+    FUNCTION_NAME_TESTER_CONTRACT_ABI,
+    FUNCTION_NAME_TESTER_CONTRACT_DATA,
+)
 from web3._utils.contract_sources.contract_data.math_contract import (
     MATH_CONTRACT_ABI,
     MATH_CONTRACT_BYTECODE,
@@ -55,6 +59,24 @@ from web3._utils.contract_sources.contract_data.tuple_contracts import (
     TUPLE_CONTRACT_DATA,
 )
 
+# --- function name tester contract --- #
+
+
+@pytest.fixture(scope="session")
+def function_name_tester_contract_abi():
+    return FUNCTION_NAME_TESTER_CONTRACT_ABI
+
+
+@pytest.fixture
+def function_name_tester_contract(w3, address_conversion_func):
+    function_name_tester_contract_factory = w3.eth.contract(
+        **FUNCTION_NAME_TESTER_CONTRACT_DATA
+    )
+    return deploy(w3, function_name_tester_contract_factory, address_conversion_func)
+
+
+# --- math contract --- #
+
 
 @pytest.fixture(scope="session")
 def math_contract_bytecode():
@@ -79,6 +101,9 @@ def math_contract_factory(w3):
 @pytest.fixture
 def math_contract(w3, math_contract_factory, address_conversion_func):
     return deploy(w3, math_contract_factory, address_conversion_func)
+
+
+# --- constructor contracts --- #
 
 
 @pytest.fixture
@@ -113,12 +138,18 @@ def contract_with_constructor_address(
     )
 
 
+# --- address reflector contract --- #
+
+
 @pytest.fixture
 def address_reflector_contract(w3, address_conversion_func):
     address_reflector_contract_factory = w3.eth.contract(
         **ADDRESS_REFLECTOR_CONTRACT_DATA
     )
     return deploy(w3, address_reflector_contract_factory, address_conversion_func)
+
+
+# --- string contract --- #
 
 
 @pytest.fixture(scope="session")
@@ -153,6 +184,9 @@ def non_strict_string_contract(
     )
 
 
+# --- emitter contract --- #
+
+
 @pytest.fixture
 def non_strict_emitter(
     w3_non_strict_abi,
@@ -178,6 +212,9 @@ def non_strict_emitter(
     emitter_contract = non_strict_emitter_contract_factory(address=contract_address)
     assert emitter_contract.address == contract_address
     return emitter_contract
+
+
+# --- event contract --- #
 
 
 @pytest.fixture
@@ -223,6 +260,9 @@ def indexed_event_contract(
     return indexed_event_contract
 
 
+# --- arrays contract --- #
+
+
 # bytes_32 = [keccak('0'), keccak('1')]
 BYTES32_ARRAY = [
     b"\x04HR\xb2\xa6p\xad\xe5@~x\xfb(c\xc5\x1d\xe9\xfc\xb9eB\xa0q\x86\xfe:\xed\xa6\xbb\x8a\x11m",  # noqa: E501
@@ -255,10 +295,16 @@ def non_strict_arrays_contract(w3_non_strict_abi, address_conversion_func):
     )
 
 
+# --- payable tester contract --- #
+
+
 @pytest.fixture
 def payable_tester_contract(w3, address_conversion_func):
     payable_tester_contract_factory = w3.eth.contract(**PAYABLE_TESTER_CONTRACT_DATA)
     return deploy(w3, payable_tester_contract_factory, address_conversion_func)
+
+
+# --- fixed reflector contract --- #
 
 
 # no matter the function selector, this will return back the 32 bytes of data supplied
@@ -304,6 +350,9 @@ def fixed_reflector_contract(w3, address_conversion_func):
         abi=FIXED_REFLECTOR_CONTRACT_ABI, bytecode=FIXED_REFLECTOR_CONTRACT_BYTECODE
     )
     return deploy(w3, fixed_reflector_contract_factory, address_conversion_func)
+
+
+# --- test data and functions contracts --- #
 
 
 @pytest.fixture
@@ -387,6 +436,9 @@ def some_address(address_conversion_func):
     return address_conversion_func("0x5B2063246F2191f18F2675ceDB8b28102e957458")
 
 
+# --- invoke contract --- #
+
+
 def invoke_contract(
     api_call_desig="call",
     contract=None,
@@ -441,6 +493,16 @@ async def async_math_contract(
 ):
     return await async_deploy(
         async_w3, async_math_contract_factory, address_conversion_func
+    )
+
+
+@pytest_asyncio.fixture
+async def async_function_name_tester_contract(async_w3, address_conversion_func):
+    function_name_tester_contract_factory = async_w3.eth.contract(
+        **FUNCTION_NAME_TESTER_CONTRACT_DATA
+    )
+    return await async_deploy(
+        async_w3, function_name_tester_contract_factory, address_conversion_func
     )
 
 
