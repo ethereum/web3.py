@@ -61,13 +61,11 @@ def test_contract_init_with_w3_function_name(
 @pytest.mark.asyncio
 async def test_async_contract_init_with_w3_function_name(
     async_w3,
-    async_function_name_tester_contract_abi,
+    function_name_tester_contract_abi,
     async_function_name_tester_contract,
 ):
     # test `w3` function name does not throw when creating the contract factory
-    contract_factory = async_w3.eth.contract(
-        abi=async_function_name_tester_contract_abi
-    )
+    contract_factory = async_w3.eth.contract(abi=function_name_tester_contract_abi)
 
     # re-instantiate the contract
     contract = contract_factory(async_function_name_tester_contract.address)

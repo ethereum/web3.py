@@ -496,11 +496,6 @@ async def async_math_contract(
     )
 
 
-@pytest_asyncio.fixture(scope="session")
-def async_function_name_tester_contract_abi():
-    return FUNCTION_NAME_TESTER_CONTRACT_ABI
-
-
 @pytest_asyncio.fixture
 async def async_function_name_tester_contract(async_w3, address_conversion_func):
     function_name_tester_contract_factory = async_w3.eth.contract(
