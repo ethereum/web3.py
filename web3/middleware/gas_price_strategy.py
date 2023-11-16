@@ -1,4 +1,3 @@
-from abc import ABC
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -79,7 +78,7 @@ def validate_transaction_params(
     return transaction
 
 
-class GasPriceStrategyMiddleware(Web3Middleware, ABC):
+class GasPriceStrategyMiddleware(Web3Middleware):
     """
     - Uses a gas price strategy if one is set. This is only supported for
       legacy transactions. It is recommended to send dynamic fee transactions
@@ -88,32 +87,29 @@ class GasPriceStrategyMiddleware(Web3Middleware, ABC):
     - Validates transaction params against legacy and dynamic fee txn values.
     """
 
-    def process_request_params(
-        self, w3: "Web3", method: RPCEndpoint, params: Any
-    ) -> Any:
+    def request_processor(self, method: RPCEndpoint, params: Any) -> Any:
         if method == "eth_sendTransaction":
             transaction = params[0]
-            generated_gas_price = w3.eth.generate_gas_price(transaction)
-            latest_block = w3.eth.get_block("latest")
+            generated_gas_price = self._w3.eth.generate_gas_price(transaction)
+            latest_block = self._w3.eth.get_block("latest")
             transaction = validate_transaction_params(
                 transaction, latest_block, generated_gas_price
             )
-            return (transaction,)
+            params = (transaction,)
+
         return params
 
     # -- async -- #
 
-    async def async_process_request_params(
-        self, async_w3: "AsyncWeb3", method: RPCEndpoint, params: Any
-    ) -> Any:
+    async def async_request_processor(self, method: RPCEndpoint, params: Any) -> Any:
         if method == "eth_sendTransaction":
             transaction = params[0]
-            generated_gas_price = async_w3.eth.generate_gas_price(transaction)
-            latest_block = await async_w3.eth.get_block("latest")
+            generated_gas_price = self._w3.eth.generate_gas_price(transaction)
+            latest_block = await self._w3.eth.get_block("latest")
             transaction = validate_transaction_params(
                 transaction, latest_block, generated_gas_price
             )
-            return (transaction,)
+            params = (transaction,)
         return params
 
 

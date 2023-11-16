@@ -4,7 +4,6 @@ from typing import (
     Callable,
     Coroutine,
     Optional,
-    TypeVar,
     cast,
 )
 
@@ -127,13 +126,11 @@ class FormattingMiddleware(Web3Middleware):
         self.sync_formatters_builder = sync_formatters_builder
         self.async_formatters_builder = async_formatters_builder
 
-    def process_request_params(
-        self, w3: "Web3", method: "RPCEndpoint", params: Any
-    ) -> Any:
+    def request_processor(self, method: "RPCEndpoint", params: Any) -> Any:
         if self.sync_formatters_builder is not None:
             formatters = merge(
                 FORMATTER_DEFAULTS,
-                self.sync_formatters_builder(w3, method),
+                self.sync_formatters_builder(self._w3, method),
             )
             self.request_formatters = formatters.pop("request_formatters")
 
@@ -143,13 +140,11 @@ class FormattingMiddleware(Web3Middleware):
 
         return params
 
-    def process_response(
-        self, w3: "Web3", method: RPCEndpoint, response: "RPCResponse"
-    ) -> Any:
+    def response_processor(self, method: RPCEndpoint, response: "RPCResponse") -> Any:
         if self.sync_formatters_builder is not None:
             formatters = merge(
                 FORMATTER_DEFAULTS,
-                self.sync_formatters_builder(w3, method),
+                self.sync_formatters_builder(self._w3, method),
             )
             self.result_formatters = formatters["result_formatters"]
             self.error_formatters = formatters["error_formatters"]
@@ -163,13 +158,11 @@ class FormattingMiddleware(Web3Middleware):
 
     # -- async -- #
 
-    async def async_process_request_params(
-        self, async_w3: "AsyncWeb3", method: "RPCEndpoint", params: Any
-    ) -> Any:
+    async def async_request_processor(self, method: "RPCEndpoint", params: Any) -> Any:
         if self.async_formatters_builder is not None:
             formatters = merge(
                 FORMATTER_DEFAULTS,
-                await self.async_formatters_builder(async_w3, method),
+                await self.async_formatters_builder(self._w3, method),
             )
             self.request_formatters = formatters.pop("request_formatters")
 
@@ -179,13 +172,13 @@ class FormattingMiddleware(Web3Middleware):
 
         return params
 
-    async def async_process_response(
-        self, async_w3: "AsyncWeb3", method: RPCEndpoint, response: "RPCResponse"
+    async def async_response_processor(
+        self, method: RPCEndpoint, response: "RPCResponse"
     ) -> Any:
         if self.async_formatters_builder is not None:
             formatters = merge(
                 FORMATTER_DEFAULTS,
-                await self.async_formatters_builder(async_w3, method),
+                await self.async_formatters_builder(self._w3, method),
             )
             self.result_formatters = formatters["result_formatters"]
             self.error_formatters = formatters["error_formatters"]

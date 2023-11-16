@@ -4,6 +4,7 @@ from typing import (
     Any,
     Callable,
     Coroutine,
+    Set,
     Tuple,
     cast,
 )
@@ -21,9 +22,13 @@ from web3._utils.encoding import (
 from web3.exceptions import (
     ProviderConnectionError,
 )
+from web3.middleware import (
+    async_combine_middlewares,
+)
 from web3.middleware.base import Web3Middleware
 from web3.types import (
     AsyncMiddleware,
+    AsyncMiddlewareOnion,
     MiddlewareOnion,
     RPCEndpoint,
     RPCResponse,
@@ -38,13 +43,9 @@ if TYPE_CHECKING:
 
 class AsyncBaseProvider:
     _middlewares: Tuple[Web3Middleware, ...] = ()
-    # a tuple of (all_middlewares, request_func)
     _request_func_cache: Tuple[
-        Tuple[AsyncMiddleware, ...], Callable[..., Coroutine[Any, Any, RPCResponse]]
-    ] = (
-        None,
-        None,
-    )
+        Tuple[Web3Middleware, ...], Callable[..., Coroutine[Any, Any, RPCResponse]]
+    ] = (None, None)
 
     is_async = True
     has_persistent_connection = False
@@ -59,6 +60,24 @@ class AsyncBaseProvider:
     def middlewares(self, values: MiddlewareOnion) -> None:
         # tuple(values) converts to MiddlewareOnion -> Tuple[Middleware, ...]
         self._middlewares = tuple(values)  # type: ignore
+
+    async def request_func(
+        self, async_w3: "AsyncWeb3", outer_middlewares: AsyncMiddlewareOnion
+    ) -> Callable[..., Coroutine[Any, Any, RPCResponse]]:
+        # type ignored b/c tuple(MiddlewareOnion) converts to tuple of middlewares
+        all_middlewares: Tuple[Web3Middleware] = tuple(outer_middlewares) + tuple(self.middlewares)  # type: ignore  # noqa: E501
+
+        cache_key = self._request_func_cache[0]
+        if cache_key != all_middlewares:
+            self._request_func_cache = (
+                all_middlewares,
+                await async_combine_middlewares(
+                    middlewares=all_middlewares,
+                    async_w3=async_w3,
+                    provider_request_fn=self.make_request,
+                ),
+            )
+        return self._request_func_cache[-1]
 
     async def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
         raise NotImplementedError("Providers must implement this method")

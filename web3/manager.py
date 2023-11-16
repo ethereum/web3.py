@@ -38,6 +38,7 @@ from web3.exceptions import (
 )
 from web3.middleware import (
     attrdict_middleware,
+    buffered_gas_estimate_middleware,
     gas_price_strategy_middleware,
     ens_name_to_address_middleware,
     validation_middleware,
@@ -63,15 +64,15 @@ if TYPE_CHECKING:
         AsyncWeb3,
         Web3,
     )
+    from web3.middleware.base import (  # noqa: F401
+        Web3Middleware,
+    )
     from web3.providers import (  # noqa: F401
         AsyncBaseProvider,
         BaseProvider,
     )
     from web3.providers.websocket.request_processor import (  # noqa: F401
         RequestProcessor,
-    )
-    from web3.middleware.base import (  # noqa: F401
-        Web3Middleware,
     )
 
 
@@ -169,10 +170,10 @@ class RequestManager:
         """
         return [
             (gas_price_strategy_middleware, "gas_price_strategy"),
-            # (ens_name_to_address_middleware, "name_to_address"),
+            (ens_name_to_address_middleware, "name_to_address"),
             (attrdict_middleware, "attrdict"),
             (validation_middleware, "validation"),
-            # (async_buffered_gas_estimate_middleware, "gas_estimate"),
+            (buffered_gas_estimate_middleware, "gas_estimate"),
         ]
 
     #
@@ -181,36 +182,23 @@ class RequestManager:
     def _make_request(
         self, method: Union[RPCEndpoint, Callable[..., RPCEndpoint]], params: Any
     ) -> RPCResponse:
-        """
-        1. Pipe the request params through the middleware stack
-        2. Make the request using the provider
-        3. Pipe the raw response through the middleware stack
-        """
+        provider = cast("BaseProvider", self.provider)
+        request_func = provider.request_func(
+            cast("Web3", self.w3), cast(MiddlewareOnion, self.middleware_onion)
+        )
         self.logger.debug(f"Making request. Method: {method}")
-        for middleware, _name in self.middleware_onion.middlewares:
-            params = middleware.process_request_params(self.w3, method, params)
-        response = self.provider.make_request(method, params)
-        for middleware, _name in reversed(self.middleware_onion.middlewares):
-            response = middleware.process_response(self.w3, method, response)
-        return response
+        return request_func(method, params)
 
     async def _coro_make_request(
         self, method: Union[RPCEndpoint, Callable[..., RPCEndpoint]], params: Any
     ) -> RPCResponse:
-        """
-        1. Pipe the request params through the middleware stack
-        2. Make the request using the provider
-        3. Pipe the raw response through the middleware stack
-        """
+        provider = cast("AsyncBaseProvider", self.provider)
+        request_func = await provider.request_func(
+            cast("AsyncWeb3", self.w3),
+            cast(AsyncMiddlewareOnion, self.middleware_onion),
+        )
         self.logger.debug(f"Making request. Method: {method}")
-        for middleware, _name in self.middleware_onion.middlewares:
-            params = await middleware.async_process_request_params(
-                self.w3, method, params
-            )
-        response = await self.provider.make_request(method, params)
-        for middleware, _name in reversed(self.middleware_onion.middlewares):
-            response = await middleware.async_process_response(self.w3, response)
-        return response
+        return await request_func(method, params)
 
     #
     # formatted_response parses and validates JSON-RPC responses for expected

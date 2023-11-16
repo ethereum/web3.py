@@ -1,4 +1,3 @@
-from abc import ABC
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -22,7 +21,9 @@ from web3._utils.rpc_abi import (
 from web3.types import (
     RPCEndpoint,
 )
-from .base import Web3Middleware
+from .base import (
+    Web3Middleware,
+)
 
 from .._utils.abi import (
     abi_data_tree,
@@ -96,26 +97,22 @@ async def async_apply_ens_to_address_conversion(
         )
 
 
-class EnsNameToAddressMiddleware(Web3Middleware, ABC):
-    def __init__(self) -> None:
-        # the sync version of this middleware utilizes the FormattingMiddleware
-        self._formatting_middleware = FormattingMiddleware(
-            request_formatters=abi_request_formatters(  # type: ignore
-                [abi_ens_resolver],
-                RPC_ABIS,  # type: ignore
-            )
-        )
+class EnsNameToAddressMiddleware(Web3Middleware):
+    _formatting_middleware = None
 
-    def process_request_params(
-        self, w3: "Web3", method: "RPCEndpoint", params: Any
-    ) -> Any:
-        return self._formatting_middleware.process_request_params(w3, method, params)
+    def request_processor(self, method: "RPCEndpoint", params: Any) -> Any:
+        if self._formatting_middleware is None:
+            normalizers = [
+                abi_ens_resolver(self._w3),
+            ]
+            self._formatting_middleware = FormattingMiddleware(
+                request_formatters=abi_request_formatters(normalizers, RPC_ABIS)  # type: ignore # noqa: E501
+            )
+        return self._formatting_middleware.request_processor(method, params)
 
     # -- async -- #
 
-    async def async_process_request_params(
-        self, async_w3: "AsyncWeb3", method: "RPCEndpoint", params: Any
-    ) -> Any:
+    async def async_request_processor(self, method: "RPCEndpoint", params: Any) -> Any:
         abi_types_for_method = RPC_ABIS.get(method, None)
 
         if abi_types_for_method is not None:
@@ -123,7 +120,7 @@ class EnsNameToAddressMiddleware(Web3Middleware, ABC):
                 # eth_subscribe optional logs params are unique.
                 # Handle them separately here.
                 (formatted_dict,) = await async_apply_ens_to_address_conversion(
-                    async_w3,
+                    self._w3,
                     (params[1],),
                     {
                         "address": "address",
@@ -134,7 +131,7 @@ class EnsNameToAddressMiddleware(Web3Middleware, ABC):
 
             else:
                 params = await async_apply_ens_to_address_conversion(
-                    async_w3,
+                    self._w3,
                     params,
                     abi_types_for_method,
                 )

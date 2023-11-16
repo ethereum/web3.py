@@ -3,7 +3,6 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    Sequence,
     Tuple,
     cast,
 )
@@ -20,7 +19,10 @@ from web3._utils.encoding import (
 from web3.exceptions import (
     ProviderConnectionError,
 )
-from web3.middleware.base import Web3Middleware
+from web3.middleware import (
+    Web3Middleware,
+    combine_middlewares,
+)
 from web3.types import (
     Middleware,
     MiddlewareOnion,
@@ -33,12 +35,10 @@ if TYPE_CHECKING:
 
 
 class BaseProvider:
-    _middlewares: Tuple[Web3Middleware, ...] = ()
-    # a tuple of (all_middlewares, request_func)
-    _request_func_cache: Tuple[Tuple[Middleware, ...], Callable[..., RPCResponse]] = (
-        None,
-        None,
-    )
+    _middlewares: Tuple[Middleware, ...] = ()
+    _request_func_cache: Tuple[
+        Tuple[Web3Middleware, ...], Callable[..., RPCResponse]
+    ] = (None, None)
 
     is_async = False
     has_persistent_connection = False
@@ -53,6 +53,32 @@ class BaseProvider:
     def middlewares(self, values: MiddlewareOnion) -> None:
         # tuple(values) converts to MiddlewareOnion -> Tuple[Middleware, ...]
         self._middlewares = tuple(values)  # type: ignore
+
+    def request_func(
+        self, w3: "Web3", outer_middlewares: MiddlewareOnion
+    ) -> Callable[..., RPCResponse]:
+        """
+        @param w3 is the web3 instance
+        @param outer_middlewares is an iterable of middlewares,
+            ordered by first to execute
+        @returns a function that calls all the middleware and
+            eventually self.make_request()
+        """
+        # type ignored b/c tuple(MiddlewareOnion) converts to tuple of middlewares
+        all_middlewares: Tuple[Web3Middleware] = tuple(outer_middlewares) + tuple(self.middlewares)  # type: ignore # noqa: E501
+
+        cache_key = self._request_func_cache[0]
+        if cache_key != all_middlewares:
+            self._request_func_cache = (
+                all_middlewares,
+                combine_middlewares(
+                    middlewares=all_middlewares,
+                    w3=w3,
+                    provider_request_fn=self.make_request,
+                ),
+            )
+
+        return self._request_func_cache[-1]
 
     def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
         raise NotImplementedError("Providers must implement this method")
