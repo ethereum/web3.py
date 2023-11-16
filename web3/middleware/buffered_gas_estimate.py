@@ -1,7 +1,6 @@
 from typing import (
     TYPE_CHECKING,
     Any,
-    Callable,
 )
 
 from eth_utils.toolz import (
@@ -14,10 +13,11 @@ from web3._utils.async_transactions import (
 from web3._utils.transactions import (
     get_buffered_gas_estimate,
 )
+from web3.middleware.base import (
+    Web3Middleware,
+)
 from web3.types import (
-    AsyncMiddlewareCoroutine,
     RPCEndpoint,
-    RPCResponse,
 )
 
 if TYPE_CHECKING:
@@ -27,34 +27,35 @@ if TYPE_CHECKING:
     )
 
 
-def buffered_gas_estimate_middleware(
-    make_request: Callable[[RPCEndpoint, Any], Any], w3: "Web3"
-) -> Callable[[RPCEndpoint, Any], RPCResponse]:
-    def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
+class BufferedGasEstimateMiddleware(Web3Middleware):
+    """
+    Includes a gas estimate for all transactions that do not already have a gas value.
+    """
+
+    def request_processor(self, method: "RPCEndpoint", params: Any) -> Any:
         if method == "eth_sendTransaction":
             transaction = params[0]
             if "gas" not in transaction:
                 transaction = assoc(
                     transaction,
                     "gas",
-                    hex(get_buffered_gas_estimate(w3, transaction)),
+                    hex(get_buffered_gas_estimate(self._w3, transaction)),
                 )
-                return make_request(method, [transaction])
-        return make_request(method, params)
+                params = (transaction,)
+        return params
 
-    return middleware
+    # -- async -- #
 
-
-async def async_buffered_gas_estimate_middleware(
-    make_request: Callable[[RPCEndpoint, Any], Any], w3: "AsyncWeb3"
-) -> AsyncMiddlewareCoroutine:
-    async def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
+    async def async_request_processor(self, method: "RPCEndpoint", params: Any) -> Any:
         if method == "eth_sendTransaction":
             transaction = params[0]
             if "gas" not in transaction:
-                gas_estimate = await async_get_buffered_gas_estimate(w3, transaction)
+                gas_estimate = await async_get_buffered_gas_estimate(
+                    self._w3, transaction
+                )
                 transaction = assoc(transaction, "gas", hex(gas_estimate))
-                return await make_request(method, [transaction])
-        return await make_request(method, params)
+                params = (transaction,)
+        return params
 
-    return middleware
+
+buffered_gas_estimate_middleware = BufferedGasEstimateMiddleware()

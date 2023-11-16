@@ -1,9 +1,11 @@
-from abc import abstractmethod
-from typing import Any, TYPE_CHECKING
-
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    TypeVar,
+)
 
 if TYPE_CHECKING:
-    from web3 import (
+    from web3 import (  # noqa: F401
         AsyncWeb3,
         Web3,
     )
@@ -13,29 +15,37 @@ if TYPE_CHECKING:
     )
 
 
+WEB3 = TypeVar("WEB3", "AsyncWeb3", "Web3")
+
+
 class Web3Middleware:
-    @abstractmethod
-    def process_request_params(
-        self, w3: "Web3", method: "RPCEndpoint", params: Any
-    ) -> Any:
+    """
+    Base class for web3.py middleware. This class is not meant to be used directly,
+    but instead inherited from.
+    """
+
+    _w3: WEB3
+
+    def request_processor(self, method: "RPCEndpoint", params: Any) -> Any:
         return params
 
-    @abstractmethod
-    def process_response(
-        self, w3: "Web3", method: "RPCEndpoint", response: "RPCResponse"
-    ) -> Any:
+    def response_processor(
+        self, method: "RPCEndpoint", response: "RPCResponse"
+    ) -> "RPCResponse":
         return response
 
     # -- async -- #
 
-    @abstractmethod
-    async def async_process_request_params(
-        self, async_w3: "AsyncWeb3", method: "RPCEndpoint", params: Any
+    async def async_request_processor(
+        self,
+        method: "RPCEndpoint",
+        params: Any,
     ) -> Any:
         return params
 
-    @abstractmethod
-    async def async_process_response(
-        self, async_w3: "AsyncWeb3", method: "RPCEndpoint", response: "RPCResponse"
-    ) -> Any:
+    async def async_response_processor(
+        self,
+        method: "RPCEndpoint",
+        response: "RPCResponse",
+    ) -> "RPCResponse":
         return response

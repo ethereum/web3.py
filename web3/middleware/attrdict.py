@@ -2,8 +2,6 @@ from abc import ABC
 from typing import (
     TYPE_CHECKING,
     Any,
-    Callable,
-    Optional,
     cast,
 )
 
@@ -58,9 +56,7 @@ class AttributeDictMiddleware(Web3Middleware, ABC):
         (e.g. my_attribute_dict.property1) will not preserve typing.
     """
 
-    def process_response(
-        self, w3: "Web3", method: "RPCEndpoint", response: "RPCResponse"
-    ) -> Any:
+    def response_processor(self, method: "RPCEndpoint", response: "RPCResponse") -> Any:
         if "result" in response:
             return assoc(
                 response, "result", AttributeDict.recursive(response["result"])
@@ -70,12 +66,12 @@ class AttributeDictMiddleware(Web3Middleware, ABC):
 
     # -- async -- #
 
-    async def async_process_response(
-        self, async_w3: "AsyncWeb3", method: "RPCEndpoint", response: "RPCResponse"
+    async def async_response_processor(
+        self, method: "RPCEndpoint", response: "RPCResponse"
     ) -> Any:
-        if async_w3.provider.has_persistent_connection:
+        if self._w3.provider.has_persistent_connection:
             # asynchronous response processing
-            provider = cast("PersistentConnectionProvider", async_w3.provider)
+            provider = cast("PersistentConnectionProvider", self._w3.provider)
             provider._request_processor.append_middleware_response_processor(
                 response, _handle_async_response
             )
