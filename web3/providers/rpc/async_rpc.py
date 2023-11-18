@@ -32,6 +32,9 @@ from web3.types import (
     RPCEndpoint,
     RPCResponse,
 )
+from ..._utils.caching import (
+    async_handle_request_caching,
+)
 
 from ...datastructures import (
     NamedElementOnion,
@@ -121,6 +124,7 @@ class AsyncHTTPProvider(AsyncJSONBaseProvider):
                 self.endpoint_uri, request_data, **self.get_request_kwargs()
             )
 
+    @async_handle_request_caching
     async def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
         self.logger.debug(
             f"Making request HTTP. URI: {self.endpoint_uri}, Method: {method}"

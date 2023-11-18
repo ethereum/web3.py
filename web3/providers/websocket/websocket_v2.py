@@ -1,4 +1,5 @@
 import asyncio
+import copy
 import json
 import logging
 import os
@@ -23,6 +24,7 @@ from websockets.exceptions import (
 )
 
 from web3._utils.caching import (
+    async_handle_request_caching,
     generate_cache_key,
 )
 from web3.exceptions import (
@@ -98,6 +100,21 @@ class WebsocketProviderV2(PersistentConnectionProvider):
     def __str__(self) -> str:
         return f"Websocket connection: {self.endpoint_uri}"
 
+    @property
+    def _effective_request_number(self) -> int:
+        current_request_id = next(copy.deepcopy(self.request_counter)) - 1
+        cache_key = generate_cache_key(current_request_id)
+        requests_info = self._request_processor._request_information_cache._data
+
+        if cache_key not in requests_info:
+            return current_request_id
+
+        while cache_key in requests_info:
+            current_request_id += 1
+            cache_key = generate_cache_key(current_request_id)
+
+        return current_request_id
+
     async def is_connected(self, show_traceback: bool = False) -> bool:
         if not self._ws:
             return False
@@ -147,6 +164,7 @@ class WebsocketProviderV2(PersistentConnectionProvider):
 
         self._request_processor.clear_caches()
 
+    @async_handle_request_caching
     async def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
         request_data = self.encode_rpc_request(method, params)
 

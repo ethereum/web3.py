@@ -40,6 +40,9 @@ from .utils import (
     check_if_retry_on_failure,
     ExceptionRetryConfiguration,
 )
+from ..._utils.caching import (
+    handle_request_caching,
+)
 
 
 class HTTPProvider(JSONBaseProvider):
@@ -115,6 +118,7 @@ class HTTPProvider(JSONBaseProvider):
                 self.endpoint_uri, request_data, **self.get_request_kwargs()
             )
 
+    @handle_request_caching
     def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
         self.logger.debug(
             f"Making request HTTP. URI: {self.endpoint_uri}, Method: {method}"
