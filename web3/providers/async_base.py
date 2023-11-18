@@ -27,12 +27,13 @@ from web3.middleware import (
 )
 from web3.middleware.base import Web3Middleware
 from web3.types import (
-    AsyncMiddleware,
     AsyncMiddlewareOnion,
     MiddlewareOnion,
     RPCEndpoint,
     RPCResponse,
 )
+from web3.utils import SimpleCache
+
 
 if TYPE_CHECKING:
     from web3 import (  # noqa: F401
@@ -41,11 +42,32 @@ if TYPE_CHECKING:
     )
 
 
+CACHEABLE_REQUESTS = cast(
+    Set[RPCEndpoint],
+    (
+        "eth_chainId",
+        "eth_getBlockByHash",
+        "eth_getBlockTransactionCountByHash",
+        "eth_getRawTransactionByHash",
+        "eth_getTransactionByBlockHashAndIndex",
+        "eth_getTransactionByHash",
+        "eth_getUncleByBlockHashAndIndex",
+        "eth_getUncleCountByBlockHash",
+        "net_version",
+        "web3_clientVersion",
+    ),
+)
+
+
 class AsyncBaseProvider:
     _middlewares: Tuple[Web3Middleware, ...] = ()
     _request_func_cache: Tuple[
         Tuple[Web3Middleware, ...], Callable[..., Coroutine[Any, Any, RPCResponse]]
     ] = (None, None)
+
+    _request_cache: SimpleCache = SimpleCache(size=500)
+    _cache_allowed_requests: bool = True
+    _cacheable_requests: Set[RPCEndpoint] = CACHEABLE_REQUESTS
 
     is_async = True
     has_persistent_connection = False

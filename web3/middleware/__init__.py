@@ -15,10 +15,6 @@ from web3.types import (
 from .abi import (
     abi_middleware,
 )
-from .async_cache import (
-    _async_simple_cache_middleware as async_simple_cache_middleware,
-    async_construct_simple_cache_middleware,
-)
 from .attrdict import (
     attrdict_middleware,
 )
@@ -27,14 +23,6 @@ from .base import (
 )
 from .buffered_gas_estimate import (
     buffered_gas_estimate_middleware,
-)
-from .cache import (
-    _latest_block_based_cache_middleware as latest_block_based_cache_middleware,
-    _simple_cache_middleware as simple_cache_middleware,
-    _time_based_cache_middleware as time_based_cache_middleware,
-    construct_latest_block_based_cache_middleware,
-    construct_simple_cache_middleware,
-    construct_time_based_cache_middleware,
 )
 from .gas_price_strategy import (
     gas_price_strategy_middleware,

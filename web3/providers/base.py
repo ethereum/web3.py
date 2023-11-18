@@ -3,6 +3,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
+    Set,
     Tuple,
     cast,
 )
@@ -29,9 +30,28 @@ from web3.types import (
     RPCEndpoint,
     RPCResponse,
 )
+from web3.utils import SimpleCache
+
 
 if TYPE_CHECKING:
     from web3 import Web3  # noqa: F401
+
+
+CACHEABLE_REQUESTS = cast(
+    Set[RPCEndpoint],
+    (
+        "eth_chainId",
+        "eth_getBlockByHash",
+        "eth_getBlockTransactionCountByHash",
+        "eth_getRawTransactionByHash",
+        "eth_getTransactionByBlockHashAndIndex",
+        "eth_getTransactionByHash",
+        "eth_getUncleByBlockHashAndIndex",
+        "eth_getUncleCountByBlockHash",
+        "net_version",
+        "web3_clientVersion",
+    ),
+)
 
 
 class BaseProvider:
@@ -39,6 +59,10 @@ class BaseProvider:
     _request_func_cache: Tuple[
         Tuple[Web3Middleware, ...], Callable[..., RPCResponse]
     ] = (None, None)
+
+    _request_cache: SimpleCache = SimpleCache(size=500)
+    _cache_allowed_requests: bool = True
+    _cacheable_requests: Set[RPCEndpoint] = CACHEABLE_REQUESTS
 
     is_async = False
     has_persistent_connection = False
