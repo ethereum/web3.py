@@ -5,7 +5,6 @@ from datetime import (
 from typing import (
     TYPE_CHECKING,
     Any,
-    Callable,
     Collection,
     Dict,
     List,

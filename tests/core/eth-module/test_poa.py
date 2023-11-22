@@ -5,54 +5,42 @@ from web3.exceptions import (
     ExtraDataLengthError,
 )
 from web3.middleware import (
-    construct_fixture_middleware,
-    extradata_to_poa,
+    extradata_to_poa_middleware,
 )
 
 
 # In the spec, a block with extra data longer than 32 bytes is invalid
-def test_long_extra_data(w3):
-    return_block_with_long_extra_data = construct_fixture_middleware(
-        {
+def test_long_extra_data(w3, request_mocker):
+    with request_mocker(
+        w3, mock_results={"eth_getBlockByNumber": {"extraData": "0x" + "ff" * 33}}
+    ):
+        with pytest.raises(ExtraDataLengthError):
+            w3.eth.get_block("latest")
+
+
+def test_full_extra_data(w3, request_mocker):
+    with request_mocker(
+        w3, mock_results={"eth_getBlockByNumber": {"extraData": "0x" + "ff" * 32}}
+    ):
+        block = w3.eth.get_block("latest")
+        assert block.extraData == b"\xff" * 32
+
+
+def test_geth_proof_of_authority(w3, request_mocker):
+    w3.middleware_onion.inject(extradata_to_poa_middleware, layer=0)
+
+    with request_mocker(
+        w3,
+        mock_results={
             "eth_getBlockByNumber": {"extraData": "0x" + "ff" * 33},
-        }
-    )
-    w3.middleware_onion.inject(return_block_with_long_extra_data, layer=0)
-    with pytest.raises(ExtraDataLengthError):
-        w3.eth.get_block("latest")
+        },
+    ):
+        block = w3.eth.get_block("latest")
+        assert "extraData" not in block
+        assert block.proofOfAuthorityData == b"\xff" * 33
 
 
-def test_full_extra_data(w3):
-    return_block_with_long_extra_data = construct_fixture_middleware(
-        {
-            "eth_getBlockByNumber": {"extraData": "0x" + "ff" * 32},
-        }
-    )
-    w3.middleware_onion.inject(return_block_with_long_extra_data, layer=0)
-    block = w3.eth.get_block("latest")
-    assert block.extraData == b"\xff" * 32
-
-
-def test_geth_proof_of_authority(w3):
-    return_block_with_long_extra_data = construct_fixture_middleware(
-        {
-            "eth_getBlockByNumber": {"extraData": "0x" + "ff" * 33},
-        }
-    )
-    w3.middleware_onion.inject(extradata_to_poa, layer=0)
-    w3.middleware_onion.inject(return_block_with_long_extra_data, layer=0)
-    block = w3.eth.get_block("latest")
-    assert "extraData" not in block
-    assert block.proofOfAuthorityData == b"\xff" * 33
-
-
-def test_returns_none_response(w3):
-    return_none_response = construct_fixture_middleware(
-        {
-            "eth_getBlockByNumber": None,
-        }
-    )
-    w3.middleware_onion.inject(extradata_to_poa, layer=0)
-    w3.middleware_onion.inject(return_none_response, layer=0)
-    with pytest.raises(BlockNotFound):
-        w3.eth.get_block(100000000000)
+def test_returns_none_response(w3, request_mocker):
+    with request_mocker(w3, mock_results={"eth_getBlockByNumber": None}):
+        with pytest.raises(BlockNotFound):
+            w3.eth.get_block("latest")

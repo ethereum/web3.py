@@ -183,9 +183,22 @@ class FormattingMiddleware(Web3Middleware):
             self.result_formatters = formatters["result_formatters"]
             self.error_formatters = formatters["error_formatters"]
 
-        return _apply_response_formatters(
-            method,
-            self.result_formatters,
-            self.error_formatters,
-            response,
-        )
+        if self._w3.provider.has_persistent_connection:
+            # asynchronous response processing
+            provider = cast("PersistentConnectionProvider", self._w3.provider)
+            provider._request_processor.append_middleware_response_processor(
+                response,
+                _apply_response_formatters(
+                    method,
+                    self.result_formatters,
+                    self.error_formatters,
+                ),
+            )
+            return response
+        else:
+            return _apply_response_formatters(
+                method,
+                self.result_formatters,
+                self.error_formatters,
+                response,
+            )

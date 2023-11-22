@@ -30,8 +30,9 @@ from web3.types import (
     RPCEndpoint,
     RPCResponse,
 )
-from web3.utils import SimpleCache
-
+from web3.utils import (
+    SimpleCache,
+)
 
 if TYPE_CHECKING:
     from web3 import Web3  # noqa: F401

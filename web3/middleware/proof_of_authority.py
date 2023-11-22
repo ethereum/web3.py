@@ -22,7 +22,9 @@ from hexbytes import (
 from web3._utils.rpc_abi import (
     RPC,
 )
-from web3.middleware.formatting import FormattingMiddleware
+from web3.middleware.formatting import (
+    FormattingMiddleware,
+)
 
 if TYPE_CHECKING:
     from web3 import (  # noqa: F401

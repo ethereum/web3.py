@@ -22,7 +22,6 @@ from eth_utils import (
     to_bytes,
 )
 
-
 if TYPE_CHECKING:
     from web3.providers import (  # noqa: F401
         BaseProvider,

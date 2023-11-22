@@ -36,7 +36,6 @@ from web3.middleware.formatting import (
     FormattingMiddleware,
 )
 from web3.types import (
-    AsyncMiddlewareCoroutine,
     Formatters,
     FormattersDict,
     RPCEndpoint,

@@ -21,9 +21,6 @@ from web3._utils.rpc_abi import (
 from web3.types import (
     RPCEndpoint,
 )
-from .base import (
-    Web3Middleware,
-)
 
 from .._utils.abi import (
     abi_data_tree,
@@ -32,6 +29,9 @@ from .._utils.abi import (
 )
 from .._utils.formatters import (
     recursive_map,
+)
+from .base import (
+    Web3Middleware,
 )
 from .formatting import (
     FormattingMiddleware,
