@@ -39,8 +39,8 @@ from web3.exceptions import (
 from web3.middleware import (
     attrdict_middleware,
     buffered_gas_estimate_middleware,
-    gas_price_strategy_middleware,
     ens_name_to_address_middleware,
+    gas_price_strategy_middleware,
     validation_middleware,
 )
 from web3.module import (

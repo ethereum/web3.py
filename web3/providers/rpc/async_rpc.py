@@ -32,10 +32,10 @@ from web3.types import (
     RPCEndpoint,
     RPCResponse,
 )
+
 from ..._utils.caching import (
     async_handle_request_caching,
 )
-
 from ...datastructures import (
     NamedElementOnion,
 )
@@ -43,8 +43,8 @@ from ..async_base import (
     AsyncJSONBaseProvider,
 )
 from .utils import (
-    check_if_retry_on_failure,
     ExceptionRetryConfiguration,
+    check_if_retry_on_failure,
 )
 
 

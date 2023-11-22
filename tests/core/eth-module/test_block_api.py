@@ -1,17 +1,13 @@
 import pytest
+from unittest.mock import (
+    Mock,
+)
 
 from eth_utils import (
     to_checksum_address,
 )
 from hexbytes import (
     HexBytes,
-)
-
-from web3._utils.rpc_abi import (
-    RPC,
-)
-from web3.middleware import (
-    construct_result_generator_middleware,
 )
 
 
@@ -26,7 +22,7 @@ def test_uses_default_block(w3, extra_accounts, wait_for_transaction):
     assert w3.eth.default_block == w3.eth.block_number
 
 
-def test_get_block_formatters_with_null_values(w3):
+def test_get_block_formatters_with_null_values(w3, mocker):
     null_values_block = {
         "baseFeePerGas": None,
         "extraData": None,
@@ -51,13 +47,7 @@ def test_get_block_formatters_with_null_values(w3):
         "withdrawalsRoot": None,
         "withdrawals": [],
     }
-    result_middleware = construct_result_generator_middleware(
-        {
-            RPC.eth_getBlockByNumber: lambda *_: null_values_block,
-        }
-    )
-
-    w3.middleware_onion.inject(result_middleware, "result_middleware", layer=0)
+    mocker.patch("web3.eth.eth.Eth.get_block", return_value=null_values_block)
 
     received_block = w3.eth.get_block("pending")
     assert received_block == null_values_block
@@ -116,13 +106,9 @@ def test_get_block_formatters_with_pre_formatted_values(w3):
             },
         ],
     }
-    result_middleware = construct_result_generator_middleware(
-        {
-            RPC.eth_getBlockByNumber: lambda *_: unformatted_values_block,
-        }
-    )
 
-    w3.middleware_onion.inject(result_middleware, "result_middleware", layer=0)
+    w3.manager._make_request = Mock()
+    w3.manager._make_request.return_value = {"result": unformatted_values_block}
 
     received_block = w3.eth.get_block("pending")
 

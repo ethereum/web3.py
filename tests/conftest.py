@@ -1,4 +1,7 @@
 import pytest
+from typing import (
+    Type,
+)
 
 from eth_utils import (
     event_signature_to_log_topic,
@@ -7,9 +10,13 @@ from eth_utils import (
 from eth_utils.toolz import (
     identity,
 )
+import pytest_asyncio
 
 from web3._utils.contract_sources.contract_data.emitter_contract import (
     EMITTER_CONTRACT_DATA,
+)
+from web3._utils.module_testing.utils import (
+    RequestMocker,
 )
 
 from .utils import (
@@ -107,3 +114,11 @@ class LogTopics:
 @pytest.fixture(scope="session")
 def emitter_contract_log_topics():
     return LogTopics
+
+
+# -- mock requests -- #
+
+
+@pytest_asyncio.fixture(scope="function")
+def request_mocker() -> Type[RequestMocker]:
+    return RequestMocker

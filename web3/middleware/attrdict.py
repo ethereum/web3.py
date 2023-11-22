@@ -1,4 +1,6 @@
-from abc import ABC
+from abc import (
+    ABC,
+)
 from typing import (
     TYPE_CHECKING,
     Any,

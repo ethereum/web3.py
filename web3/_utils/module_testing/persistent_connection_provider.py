@@ -21,7 +21,7 @@ from web3.datastructures import (
     AttributeDict,
 )
 from web3.middleware import (
-    async_geth_poa_middleware,
+    extradata_to_poa_middleware,
 )
 from web3.types import (
     FormattedEthSubscriptionResponse,
@@ -34,7 +34,7 @@ if TYPE_CHECKING:
 
 
 def _mocked_recv(sub_id: str, ws_subscription_response: Dict[str, Any]) -> bytes:
-    # Must be same subscription id so we can know how to parse the message.
+    # Must be same subscription id, so we can know how to parse the message.
     # We don't have this information when mocking the response.
     ws_subscription_response["params"]["subscription"] = sub_id
     return to_bytes(text=json.dumps(ws_subscription_response))
@@ -321,7 +321,7 @@ class PersistentConnectionProviderTest:
         async_w3: "_PersistentConnectionWeb3",
     ) -> None:
         async_w3.middleware_onion.inject(
-            async_geth_poa_middleware, "poa_middleware", layer=0
+            extradata_to_poa_middleware, "poa_middleware", layer=0
         )
 
         sub_id = await async_w3.eth.subscribe("newHeads")

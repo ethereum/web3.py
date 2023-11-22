@@ -10,6 +10,7 @@ from typing import (
     Any,
     Callable,
     List,
+    Type,
     Union,
     cast,
 )
@@ -49,6 +50,9 @@ from web3._utils.empty import (
 from web3._utils.ens import (
     ens_addresses,
 )
+from web3._utils.fee_utils import (
+    PRIORITY_FEE_MIN,
+)
 from web3._utils.method_formatters import (
     to_hex_if_integer,
 )
@@ -57,6 +61,9 @@ from web3._utils.module_testing.module_testing_utils import (
     async_mock_offchain_lookup_request_response,
     mine_pending_block,
     mock_offchain_lookup_request_response,
+)
+from web3._utils.module_testing.utils import (
+    RequestMocker,
 )
 from web3._utils.type_conversion import (
     to_hex_if_bytes,
@@ -78,12 +85,7 @@ from web3.exceptions import (
     Web3ValidationError,
 )
 from web3.middleware import (
-    async_geth_poa_middleware,
-)
-from web3.middleware.fixture import (
-    async_construct_error_generator_middleware,
-    async_construct_result_generator_middleware,
-    construct_error_generator_middleware,
+    extradata_to_poa_middleware,
 )
 from web3.types import (
     ENS,
@@ -648,27 +650,23 @@ class AsyncEthModuleTest:
             await async_w3.eth.send_transaction(txn_params)
 
     @pytest.mark.asyncio
-    async def test_geth_poa_middleware(self, async_w3: "AsyncWeb3") -> None:
-        return_block_with_long_extra_data = (
-            await async_construct_result_generator_middleware(
-                {
-                    RPCEndpoint("eth_getBlockByNumber"): lambda *_: {
-                        "extraData": "0x" + "ff" * 33
-                    },
-                }
-            )
-        )
-        async_w3.middleware_onion.inject(async_geth_poa_middleware, "poa", layer=0)
-        async_w3.middleware_onion.inject(
-            return_block_with_long_extra_data, "extradata", layer=0
-        )
-        block = await async_w3.eth.get_block("latest")
+    async def test_geth_poa_middleware(
+        self, async_w3: "AsyncWeb3", request_mocker
+    ) -> None:
+        async_w3.middleware_onion.inject(extradata_to_poa_middleware, "poa", layer=0)
+        extra_data = f"0x{'ff' * 33}"
+
+        async with request_mocker(
+            async_w3,
+            mock_results={"eth_getBlockByNumber": {"extraData": extra_data}},
+        ):
+            block = await async_w3.eth.get_block("latest")
+
         assert "extraData" not in block
-        assert block["proofOfAuthorityData"] == b"\xff" * 33
+        assert block["proofOfAuthorityData"] == to_bytes(hexstr=extra_data)
 
         # clean up
         async_w3.middleware_onion.remove("poa")
-        async_w3.middleware_onion.remove("extradata")
 
     @pytest.mark.asyncio
     async def test_eth_send_raw_transaction(self, async_w3: "AsyncWeb3") -> None:
@@ -853,59 +851,24 @@ class AsyncEthModuleTest:
         assert is_integer(max_priority_fee)
 
     @pytest.mark.asyncio
-    async def test_eth_max_priority_fee_with_fee_history_calculation_error_dict(
-        self, async_w3: "AsyncWeb3"
-    ) -> None:
-        fail_max_prio_middleware = await async_construct_error_generator_middleware(
-            {
-                RPCEndpoint("eth_maxPriorityFeePerGas"): lambda *_: {
-                    "error": {
-                        "code": -32601,
-                        "message": (
-                            "The method eth_maxPriorityFeePerGas does "
-                            "not exist/is not available"
-                        ),
-                    }
-                }
-            }
-        )
-        async_w3.middleware_onion.add(
-            fail_max_prio_middleware, name="fail_max_prio_middleware"
-        )
-
-        with pytest.warns(
-            UserWarning,
-            match=(
-                "There was an issue with the method eth_maxPriorityFeePerGas."
-                " Calculating using eth_feeHistory."
-            ),
-        ):
-            await async_w3.eth.max_priority_fee
-
-        async_w3.middleware_onion.remove("fail_max_prio_middleware")  # clean up
-
-    @pytest.mark.asyncio
     async def test_eth_max_priority_fee_with_fee_history_calculation(
-        self, async_w3: "AsyncWeb3"
+        self, async_w3: "AsyncWeb3", request_mocker: Type[RequestMocker]
     ) -> None:
-        fail_max_prio_middleware = await async_construct_error_generator_middleware(
-            {RPCEndpoint("eth_maxPriorityFeePerGas"): lambda *_: ""}
-        )
-        async_w3.middleware_onion.add(
-            fail_max_prio_middleware, name="fail_max_prio_middleware"
-        )
-
-        with pytest.warns(
-            UserWarning,
-            match=(
-                "There was an issue with the method eth_maxPriorityFeePerGas. "
-                "Calculating using eth_feeHistory."
-            ),
+        async with request_mocker(
+            async_w3,
+            mock_errors={RPCEndpoint("eth_maxPriorityFeePerGas"): {}},
+            mock_results={RPCEndpoint("eth_feeHistory"): {"reward": [[0]]}},
         ):
-            max_priority_fee = await async_w3.eth.max_priority_fee
-            assert is_integer(max_priority_fee)
-
-        async_w3.middleware_onion.remove("fail_max_prio_middleware")  # clean up
+            with pytest.warns(
+                UserWarning,
+                match=(
+                    "There was an issue with the method eth_maxPriorityFeePerGas. "
+                    "Calculating using eth_feeHistory."
+                ),
+            ):
+                priority_fee = await async_w3.eth.max_priority_fee
+                assert is_integer(priority_fee)
+                assert priority_fee == PRIORITY_FEE_MIN
 
     @pytest.mark.asyncio
     async def test_eth_getBlockByHash(
@@ -2480,58 +2443,24 @@ class EthModuleTest:
         max_priority_fee = w3.eth.max_priority_fee
         assert is_integer(max_priority_fee)
 
-    def test_eth_max_priority_fee_with_fee_history_calculation_error_dict(
-        self, w3: "Web3"
-    ) -> None:
-        fail_max_prio_middleware = construct_error_generator_middleware(
-            {
-                RPCEndpoint("eth_maxPriorityFeePerGas"): lambda *_: {
-                    "error": {
-                        "code": -32601,
-                        "message": (
-                            "The method eth_maxPriorityFeePerGas does "
-                            "not exist/is not available"
-                        ),
-                    }
-                }
-            }
-        )
-        w3.middleware_onion.add(
-            fail_max_prio_middleware, name="fail_max_prio_middleware"
-        )
-
-        with pytest.warns(
-            UserWarning,
-            match=(
-                "There was an issue with the method eth_maxPriorityFeePerGas."
-                " Calculating using eth_feeHistory."
-            ),
-        ):
-            w3.eth.max_priority_fee
-
-        w3.middleware_onion.remove("fail_max_prio_middleware")  # clean up
-
     def test_eth_max_priority_fee_with_fee_history_calculation(
-        self, w3: "Web3"
+        self, w3: "Web3", request_mocker: Type[RequestMocker]
     ) -> None:
-        fail_max_prio_middleware = construct_error_generator_middleware(
-            {RPCEndpoint("eth_maxPriorityFeePerGas"): lambda *_: ""}
-        )
-        w3.middleware_onion.add(
-            fail_max_prio_middleware, name="fail_max_prio_middleware"
-        )
-
-        with pytest.warns(
-            UserWarning,
-            match=(
-                "There was an issue with the method eth_maxPriorityFeePerGas."
-                " Calculating using eth_feeHistory."
-            ),
+        with request_mocker(
+            w3,
+            mock_errors={RPCEndpoint("eth_maxPriorityFeePerGas"): {}},
+            mock_results={RPCEndpoint("eth_feeHistory"): {"reward": [[0]]}},
         ):
-            max_priority_fee = w3.eth.max_priority_fee
-            assert is_integer(max_priority_fee)
-
-        w3.middleware_onion.remove("fail_max_prio_middleware")  # clean up
+            with pytest.warns(
+                UserWarning,
+                match=(
+                    "There was an issue with the method eth_maxPriorityFeePerGas. "
+                    "Calculating using eth_feeHistory."
+                ),
+            ):
+                max_priority_fee = w3.eth.max_priority_fee
+                assert is_integer(max_priority_fee)
+                assert max_priority_fee == PRIORITY_FEE_MIN
 
     def test_eth_accounts(self, w3: "Web3") -> None:
         accounts = w3.eth.accounts

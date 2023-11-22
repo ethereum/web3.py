@@ -33,15 +33,15 @@ from web3.types import (
     RPCResponse,
 )
 
+from ..._utils.caching import (
+    handle_request_caching,
+)
 from ..base import (
     JSONBaseProvider,
 )
 from .utils import (
-    check_if_retry_on_failure,
     ExceptionRetryConfiguration,
-)
-from ..._utils.caching import (
-    handle_request_caching,
+    check_if_retry_on_failure,
 )
 
 

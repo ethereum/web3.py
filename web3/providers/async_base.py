@@ -25,15 +25,18 @@ from web3.exceptions import (
 from web3.middleware import (
     async_combine_middlewares,
 )
-from web3.middleware.base import Web3Middleware
+from web3.middleware.base import (
+    Web3Middleware,
+)
 from web3.types import (
     AsyncMiddlewareOnion,
     MiddlewareOnion,
     RPCEndpoint,
     RPCResponse,
 )
-from web3.utils import SimpleCache
-
+from web3.utils import (
+    SimpleCache,
+)
 
 if TYPE_CHECKING:
     from web3 import (  # noqa: F401

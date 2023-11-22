@@ -1,11 +1,16 @@
-import asyncio
-from typing import Sequence, Type
+from typing import (
+    Sequence,
+    Type,
+)
 
+from pydantic import (
+    BaseModel,
+)
 import requests
-from pydantic import BaseModel
 
-from web3.types import RPCEndpoint
-
+from web3.types import (
+    RPCEndpoint,
+)
 
 REQUEST_RETRY_ALLOWLIST = [
     "admin",
@@ -84,7 +89,6 @@ class ExceptionRetryConfiguration(BaseModel):
     errors: Sequence[Type[BaseException]] = (
         ConnectionError,
         requests.HTTPError,
-        asyncio.Timeout,
         requests.Timeout,
     )
     retries: int = 5
