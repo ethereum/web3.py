@@ -60,6 +60,9 @@ chains
 .cache
 .pytest_cache
 
+# pycache
+__pycache__/
+
 # Test output logs
 logs
 
