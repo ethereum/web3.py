@@ -6,6 +6,21 @@ v6 Breaking Changes Summary
 
 .. towncrier release notes start
 
+web3.py v6.11.4 (2023-11-27)
+----------------------------
+
+Bugfixes
+~~~~~~~~
+
+- Fix collision of ``w3`` variable when initializing contract with function of the same name (`#3147 <https://github.com/ethereum/web3.py/issues/3147>`__)
+
+
+Miscellaneous Changes
+~~~~~~~~~~~~~~~~~~~~~
+
+- `#3148 <https://github.com/ethereum/web3.py/issues/3148>`__
+
+
 web3.py v6.11.3 (2023-11-08)
 ----------------------------
 
