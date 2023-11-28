@@ -6,7 +6,8 @@ build:
     python: "3.8"
 
 sphinx:
-   configuration: docs/conf.py
+  configuration: docs/conf.py
+  fail_on_warning: true 
 
 python:
   install:
@@ -14,3 +15,6 @@ python:
       path: .
       extra_requirements:
         - docs
+
+# Build all formats for RTD Downloads - htmlzip, pdf, epub
+formats: all
