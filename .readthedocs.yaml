@@ -15,3 +15,6 @@ python:
       path: .
       extra_requirements:
         - docs
+
+# Build all formats for RTD Downloads - htmlzip, pdf, epub
+formats: all
