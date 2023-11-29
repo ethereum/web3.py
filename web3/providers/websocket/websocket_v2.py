@@ -1,5 +1,4 @@
 import asyncio
-import copy
 import json
 import logging
 import os
@@ -41,6 +40,8 @@ from web3.types import (
     RPCId,
     RPCResponse,
 )
+from web3.utils import SimpleCache
+
 
 DEFAULT_PING_INTERVAL = 30  # 30 seconds
 DEFAULT_PING_TIMEOUT = 300  # 5 minutes
@@ -99,21 +100,6 @@ class WebsocketProviderV2(PersistentConnectionProvider):
 
     def __str__(self) -> str:
         return f"Websocket connection: {self.endpoint_uri}"
-
-    @property
-    def _effective_request_number(self) -> int:
-        current_request_id = next(copy.deepcopy(self.request_counter)) - 1
-        cache_key = generate_cache_key(current_request_id)
-        requests_info = self._request_processor._request_information_cache._data
-
-        if cache_key not in requests_info:
-            return current_request_id
-
-        while cache_key in requests_info:
-            current_request_id += 1
-            cache_key = generate_cache_key(current_request_id)
-
-        return current_request_id
 
     async def is_connected(self, show_traceback: bool = False) -> bool:
         if not self._ws:
