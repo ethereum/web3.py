@@ -68,7 +68,6 @@ from web3.method import (
 )
 from web3.types import (
     ENS,
-    AccessList,
     BlockData,
     BlockIdentifier,
     BlockParams,
@@ -287,7 +286,7 @@ class Eth(BaseEth):
     _create_access_list: Method[
         Callable[
             [TxParams, Optional[BlockIdentifier]],
-            AccessList,
+            TxData,
         ]
     ] = Method(RPC.eth_createAccessList, mungers=[BaseEth.create_access_list_munger])
 
@@ -295,7 +294,7 @@ class Eth(BaseEth):
         self,
         transaction: TxParams,
         block_identifier: Optional[BlockIdentifier] = None,
-    ) -> AccessList:
+    ) -> TxData:
         return self._create_access_list(transaction, block_identifier)
 
     # eth_estimateGas

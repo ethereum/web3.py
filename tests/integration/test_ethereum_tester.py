@@ -7,6 +7,9 @@ from eth_tester import (
 from eth_tester.exceptions import (
     TransactionFailed,
 )
+from eth_typing import (
+    ChecksumAddress,
+)
 from eth_utils import (
     is_checksum_address,
     is_dict,
@@ -626,6 +629,16 @@ class TestEthereumTesterEthModule(EthModuleTest):
         assert is_integer(genesis_balance)
         assert is_integer(later_balance)
         assert later_balance > genesis_balance
+
+    def test_eth_create_access_list(
+        self,
+        w3: "Web3",
+        unlocked_account_dual_type: ChecksumAddress,
+        unlocked_account: ChecksumAddress,
+    ) -> None:
+        super().test_eth_create_access_list(
+            w3, unlocked_account_dual_type, unlocked_account
+        )
 
 
 class TestEthereumTesterNetModule(NetModuleTest):

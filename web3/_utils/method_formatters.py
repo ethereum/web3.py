@@ -471,7 +471,7 @@ ACCESS_LIST_FORMATTER = type_aware_apply_formatters_to_dict(
 
 ACCESS_LIST_RESPONSE_FORMATTER = type_aware_apply_formatters_to_dict(
     {
-        "accessList": ACCESS_LIST_FORMATTER,
+        "accessList": apply_list_to_array_formatter(ACCESS_LIST_FORMATTER),
         "gasUsed": to_integer_if_hex,
     }
 )

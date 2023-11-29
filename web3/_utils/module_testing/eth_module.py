@@ -2694,6 +2694,31 @@ class EthModuleTest:
         assert isinstance(code, HexBytes)
         assert len(code) > 0
 
+    def test_eth_create_access_list(
+        self,
+        w3: "Web3",
+        unlocked_account_dual_type: ChecksumAddress,
+        unlocked_account: ChecksumAddress,
+    ) -> None:
+        response = w3.eth.create_access_list(
+            {
+                "from": unlocked_account_dual_type,
+                "to": unlocked_account,
+                "data": HexStr("0x0"),
+            }
+        )
+
+        assert is_dict(response)
+        access_list = response["accessList"]
+        assert len(access_list) > 0
+        assert access_list[0]["address"] is not None
+        assert is_checksum_address(access_list[0]["address"])
+        assert access_list[1]["address"] is not None
+        assert is_checksum_address(access_list[1]["address"])
+        assert len(access_list[0]["storageKeys"]) > 0
+        assert len(access_list[1]["storageKeys"]) > 0
+        assert int(response["gas"]) >= 0
+
     def test_eth_sign(
         self, w3: "Web3", unlocked_account_dual_type: ChecksumAddress
     ) -> None:
