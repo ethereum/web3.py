@@ -15,11 +15,8 @@ from web3.eth import (
     AsyncEth,
 )
 from web3.middleware import (
-    async_attrdict_middleware,
-    async_construct_result_generator_middleware,
     async_local_filter_middleware,
     attrdict_middleware,
-    construct_result_generator_middleware,
     local_filter_middleware,
 )
 from web3.middleware.filter import (
@@ -89,14 +86,15 @@ def iter_block_number(start=0):
 
 @pytest.fixture(scope="function")
 def result_generator_middleware(iter_block_number):
-    return construct_result_generator_middleware(
-        {
-            "eth_getLogs": lambda *_: FILTER_LOG,
-            "eth_getBlockByNumber": lambda *_: {"hash": BLOCK_HASH},
-            "net_version": lambda *_: 1,
-            "eth_blockNumber": lambda *_: next(iter_block_number),
-        }
-    )
+    return None
+    # return construct_result_generator_middleware(
+    #     {
+    #         "eth_getLogs": lambda *_: FILTER_LOG,
+    #         "eth_getBlockByNumber": lambda *_: {"hash": BLOCK_HASH},
+    #         "net_version": lambda *_: 1,
+    #         "eth_blockNumber": lambda *_: next(iter_block_number),
+    #     }
+    # )
 
 
 @pytest.fixture(scope="function")
@@ -267,14 +265,15 @@ class AsyncDummyProvider(AsyncBaseProvider):
 
 @pytest_asyncio.fixture(scope="function")
 async def async_result_generator_middleware(iter_block_number):
-    return await async_construct_result_generator_middleware(
-        {
-            "eth_getLogs": lambda *_: FILTER_LOG,
-            "eth_getBlockByNumber": lambda *_: {"hash": BLOCK_HASH},
-            "net_version": lambda *_: 1,
-            "eth_blockNumber": lambda *_: next(iter_block_number),
-        }
-    )
+    return None
+    # return await async_construct_result_generator_middleware(
+    #     {
+    #         "eth_getLogs": lambda *_: FILTER_LOG,
+    #         "eth_getBlockByNumber": lambda *_: {"hash": BLOCK_HASH},
+    #         "net_version": lambda *_: 1,
+    #         "eth_blockNumber": lambda *_: next(iter_block_number),
+    #     }
+    # )
 
 
 @pytest.fixture(scope="function")
@@ -286,9 +285,8 @@ def async_w3_base():
 
 @pytest.fixture(scope="function")
 def async_w3(async_w3_base, async_result_generator_middleware):
-    async_w3_base.middleware_onion.add(async_result_generator_middleware)
-    async_w3_base.middleware_onion.add(async_attrdict_middleware)
-    async_w3_base.middleware_onion.add(async_local_filter_middleware)
+    async_w3_base.middleware_onion.add(attrdict_middleware)
+    async_w3_base.middleware_onion.add(local_filter_middleware)
     return async_w3_base
 
 

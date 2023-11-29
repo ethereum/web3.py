@@ -198,3 +198,6 @@ class SignAndSendRawMiddleware(Web3Middleware):
                 raw_tx = account.sign_transaction(filled_transaction).rawTransaction
 
                 return (raw_tx.hex(),)
+
+
+construct_sign_and_send_raw_middleware = SignAndSendRawMiddleware

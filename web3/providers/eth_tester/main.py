@@ -23,9 +23,6 @@ from web3._utils.compat import (
 from web3.middleware.attrdict import (
     attrdict_middleware,
 )
-from web3.middleware.buffered_gas_estimate import (
-    buffered_gas_estimate_middleware,
-)
 from web3.providers import (
     BaseProvider,
 )
@@ -50,8 +47,6 @@ if TYPE_CHECKING:
 
 class AsyncEthereumTesterProvider(AsyncBaseProvider):
     middlewares = (
-        attrdict_middleware,
-        buffered_gas_estimate_middleware,
         default_transaction_fields_middleware,
         ethereum_tester_middleware,
     )
@@ -80,7 +75,6 @@ class AsyncEthereumTesterProvider(AsyncBaseProvider):
 
 class EthereumTesterProvider(BaseProvider):
     middlewares = (
-        attrdict_middleware,
         default_transaction_fields_middleware,
         ethereum_tester_middleware,
     )
@@ -95,6 +89,7 @@ class EthereumTesterProvider(BaseProvider):
         ] = None,
     ) -> None:
         # do not import eth_tester until runtime, it is not a default dependency
+        super().__init__()
         from eth_tester import EthereumTester  # noqa: F811
         from eth_tester.backends.base import (
             BaseChainBackend,

@@ -72,3 +72,6 @@ class StaleCheckMiddleware(Web3Middleware):
                     raise StaleBlockchain(latest, self.allowable_delay)
 
         return params
+
+
+make_stalecheck_middleware = StaleCheckMiddleware

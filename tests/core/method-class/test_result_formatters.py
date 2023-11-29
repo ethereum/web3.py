@@ -10,9 +10,6 @@ from web3 import (
 from web3.method import (
     Method,
 )
-from web3.middleware.fixture import (
-    construct_result_generator_middleware,
-)
 from web3.module import (
     Module,
 )
@@ -33,11 +30,7 @@ class DummyProvider(BaseProvider):
         raise NotImplementedError
 
 
-result_middleware = construct_result_generator_middleware(
-    {
-        "method_for_test": lambda m, p: "ok",
-    }
-)
+result_for_test = {"method_for_test": "ok"}
 
 
 class ModuleForTest(Module):
@@ -48,11 +41,11 @@ class ModuleForTest(Module):
 def dummy_w3():
     w3 = Web3(
         DummyProvider(),
-        middlewares=[result_middleware],
         modules={"module": ModuleForTest},
     )
     return w3
 
 
-def test_result_formatter(dummy_w3):
-    assert dummy_w3.module.method() == "OKAY"
+def test_result_formatter(dummy_w3, request_mocker):
+    with request_mocker(dummy_w3, mock_results=result_for_test):
+        assert dummy_w3.module.method() == "OKAY"
