@@ -61,14 +61,18 @@ class BaseProvider:
         Tuple[Web3Middleware, ...], Callable[..., RPCResponse]
     ] = (None, None)
 
-    _request_cache: SimpleCache = SimpleCache(size=500)
-    _cache_allowed_requests: bool = True
-    _cacheable_requests: Set[RPCEndpoint] = CACHEABLE_REQUESTS
-
     is_async = False
     has_persistent_connection = False
     global_ccip_read_enabled: bool = True
     ccip_read_max_redirects: int = 4
+
+    # request caching
+    cache_allowed_requests: bool = False
+    cacheable_requests: Set[RPCEndpoint] = CACHEABLE_REQUESTS
+    _request_cache: SimpleCache
+
+    def __init__(self) -> None:
+        self._request_cache = SimpleCache(1000)
 
     @property
     def middlewares(self) -> Tuple[Web3Middleware, ...]:
@@ -115,6 +119,7 @@ class BaseProvider:
 class JSONBaseProvider(BaseProvider):
     def __init__(self) -> None:
         self.request_counter = itertools.count()
+        super().__init__()
 
     def decode_rpc_response(self, raw_response: bytes) -> RPCResponse:
         text_response = to_text(raw_response)
