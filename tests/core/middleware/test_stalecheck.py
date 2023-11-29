@@ -16,7 +16,6 @@ from web3.middleware import (
 from web3.middleware.stalecheck import (
     StaleBlockchain,
     _is_fresh,
-    async_make_stalecheck_middleware,
 )
 
 
@@ -33,12 +32,10 @@ def allowable_delay():
 @pytest.fixture
 def request_middleware(allowable_delay):
     middleware = make_stalecheck_middleware(allowable_delay)
-    make_request, web3 = Mock(), Mock()
-    initialized = middleware(make_request, web3)
-    # for easier mocking, later:
-    initialized.web3 = web3
-    initialized.make_request = make_request
-    return initialized
+    web3 = Mock()
+    middleware._web3 = web3
+    middleware._web3.provider.make_request = Mock()
+    return middleware
 
 
 def stub_block(timestamp):
@@ -144,13 +141,11 @@ async def request_async_middleware(allowable_delay):
         AsyncMock,
     )
 
-    middleware = await async_make_stalecheck_middleware(allowable_delay)
-    make_request, web3 = AsyncMock(), AsyncMock()
-    initialized = await middleware(make_request, web3)
+    middleware = make_stalecheck_middleware(allowable_delay)
+    async_web3 = AsyncMock()
     # for easier mocking, later:
-    initialized.web3 = web3
-    initialized.make_request = make_request
-    return initialized
+    middleware._web3 = async_web3
+    return middleware
 
 
 @pytest.mark.asyncio

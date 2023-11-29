@@ -36,14 +36,9 @@ from web3.exceptions import (
     InvalidAddress,
 )
 from web3.middleware import (
-    async_construct_result_generator_middleware,
-    construct_result_generator_middleware,
     construct_sign_and_send_raw_middleware,
 )
-from web3.middleware.signing import (
-    async_construct_sign_and_send_raw_middleware,
-    gen_normalized_accounts,
-)
+from web3.middleware.signing import gen_normalized_accounts
 from web3.providers import (
     AsyncBaseProvider,
     BaseProvider,
@@ -98,13 +93,15 @@ class DummyProvider(BaseProvider):
 
 @pytest.fixture
 def result_generator_middleware():
-    return construct_result_generator_middleware(
-        {
-            "eth_sendRawTransaction": lambda *args: args,
-            "net_version": lambda *_: 1,
-            "eth_chainId": lambda *_: "0x02",
-        }
-    )
+    # TODO: replace with request mocker
+    return None
+    # return construct_result_generator_middleware(
+    #     {
+    #         "eth_sendRawTransaction": lambda *args: args,
+    #         "net_version": lambda *_: 1,
+    #         "eth_chainId": lambda *_: "0x02",
+    #     }
+    # )
 
 
 @pytest.fixture
@@ -426,13 +423,15 @@ def test_sign_and_send_raw_middleware_with_byte_addresses(
 
 @pytest_asyncio.fixture
 async def async_result_generator_middleware():
-    return await async_construct_result_generator_middleware(
-        {
-            "eth_sendRawTransaction": lambda *args: args,
-            "net_version": lambda *_: 1,
-            "eth_chainId": lambda *_: "0x02",
-        }
-    )
+    # TODO: replace with request mocker
+    return None
+    # return await async_construct_result_generator_middleware(
+    #     {
+    #         "eth_sendRawTransaction": lambda *args: args,
+    #         "net_version": lambda *_: 1,
+    #         "eth_chainId": lambda *_: "0x02",
+    #     }
+    # )
 
 
 class AsyncDummyProvider(AsyncBaseProvider):
@@ -482,7 +481,7 @@ async def test_async_sign_and_send_raw_middleware(
     key_object,
 ):
     async_w3_dummy.middleware_onion.add(
-        await async_construct_sign_and_send_raw_middleware(key_object)
+        construct_sign_and_send_raw_middleware(key_object)
     )
 
     legacy_transaction = {
@@ -553,9 +552,7 @@ async def test_async_signed_transaction(
     key_object,
     from_,
 ):
-    async_w3.middleware_onion.add(
-        await async_construct_sign_and_send_raw_middleware(key_object)
-    )
+    async_w3.middleware_onion.add(construct_sign_and_send_raw_middleware(key_object))
 
     # Drop any falsy addresses
     accounts = await async_w3.eth.accounts
@@ -595,7 +592,7 @@ async def test_async_sign_and_send_raw_middleware_with_byte_addresses(
     to_ = to_converter(ADDRESS_2)
 
     async_w3_dummy.middleware_onion.add(
-        await async_construct_sign_and_send_raw_middleware(private_key)
+        construct_sign_and_send_raw_middleware(private_key)
     )
 
     actual = await async_w3_dummy.manager.coro_request(

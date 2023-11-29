@@ -4,7 +4,6 @@ from unittest.mock import (
 )
 
 from web3.providers.eth_tester.middleware import (
-    async_default_transaction_fields_middleware,
     default_transaction_fields_middleware,
 )
 from web3.types import (
@@ -178,9 +177,7 @@ async def test_async_default_transaction_fields_middleware(
     mock_w3.eth.accounts = mock_async_accounts()
     mock_w3.eth.coinbase = mock_async_coinbase()
 
-    middleware = await async_default_transaction_fields_middleware(
-        mock_request, mock_w3
-    )
+    middleware = default_transaction_fields_middleware(mock_request, mock_w3)
     base_params = {"chainId": 5}
     filled_transaction = await middleware(method, [base_params])
 

@@ -47,10 +47,12 @@ from .pythonic import (
     pythonic_middleware,
 )
 from .signing import (
+    construct_sign_and_send_raw_middleware,
     SignAndSendRawMiddleware,
 )
 from .stalecheck import (
     StaleCheckMiddleware,
+    make_stalecheck_middleware,
 )
 from .validation import (
     validation_middleware,

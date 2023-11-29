@@ -3,12 +3,17 @@ from typing import (
     Any,
     Dict,
     TypeVar,
+    Union,
 )
 
 from toolz import (
     merge,
 )
 
+from web3.providers.eth_tester import (
+    AsyncEthereumTesterProvider,
+    EthereumTesterProvider,
+)
 from web3 import (
     AsyncWeb3,
     Web3,
@@ -47,8 +52,8 @@ class RequestMocker:
     def __init__(
         self,
         w3: WEB3,
-        mock_results: Dict[RPCEndpoint, Dict[str, Any]] = None,
-        mock_errors: Dict[RPCEndpoint, Dict[str, Any]] = None,
+        mock_results: Dict[Union[RPCEndpoint, str], Any] = None,
+        mock_errors: Dict[Union[RPCEndpoint, str], Dict[str, Any]] = None,
     ):
         self.w3 = w3
         self.mock_results = mock_results or {}
@@ -67,17 +72,28 @@ class RequestMocker:
         self.w3.provider._request_func_cache = (None, None)
 
     def _mock_request_handler(self, method, params):
+        if method not in self.mock_errors and method not in self.mock_results:
+            return self._make_request(method, params)
+
+        request_id = (
+            next(copy.deepcopy(self.w3.provider.request_counter))
+            if not isinstance(self.w3.provider, EthereumTesterProvider)
+            else 1
+        )
+        response_dict = {"jsonrpc": "2.0", "id": request_id}
+
         if method in self.mock_results:
-            return {"result": self.mock_results[method]}
+            return merge(response_dict, {"result": self.mock_results[method]})
         elif method in self.mock_errors:
             error = self.mock_errors[method]
             if not isinstance(error, dict):
                 raise Web3ValidationError("error must be a dict")
             code = error.get("code", -32000)
             message = error.get("message", "Mocked error")
-            return {"error": merge({"code": code, "message": message}, error)}
-        else:
-            return self._make_request(method, params)
+            return merge(
+                response_dict,
+                {"error": merge({"code": code, "message": message}, error)},
+            )
 
     # -- async -- #
     async def __aenter__(self):
@@ -95,10 +111,13 @@ class RequestMocker:
         if method not in self.mock_errors and method not in self.mock_results:
             return await self._make_request(method, params)
 
-        response_dict = {
-            "jsonrpc": "2.0",
-            "id": next(copy.deepcopy(self.w3.provider.request_counter)),
-        }
+        request_id = (
+            next(copy.deepcopy(self.w3.provider.request_counter))
+            if not isinstance(self.w3.provider, AsyncEthereumTesterProvider)
+            else 1
+        )
+        response_dict = {"jsonrpc": "2.0", "id": request_id}
+
         if method in self.mock_results:
             return merge(response_dict, {"result": self.mock_results[method]})
         elif method in self.mock_errors:

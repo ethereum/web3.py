@@ -10,9 +10,6 @@ from web3.exceptions import (
 from web3.gas_strategies.time_based import (
     construct_time_based_gas_price_strategy,
 )
-from web3.middleware import (
-    construct_result_generator_middleware,
-)
 from web3.providers.base import (
     BaseProvider,
 )
@@ -151,16 +148,16 @@ def _get_block_by_something(method, params):
     ),
 )
 def test_time_based_gas_price_strategy(strategy_params, expected):
-    fixture_middleware = construct_result_generator_middleware(
-        {
-            "eth_getBlockByHash": _get_block_by_something,
-            "eth_getBlockByNumber": _get_block_by_something,
-        }
-    )
+    # fixture_middleware = construct_result_generator_middleware(
+    #     {
+    #         "eth_getBlockByHash": _get_block_by_something,
+    #         "eth_getBlockByNumber": _get_block_by_something,
+    #     }
+    # )
 
     w3 = Web3(
         provider=BaseProvider(),
-        middlewares=[fixture_middleware],
+        # middlewares=[fixture_middleware],
     )
 
     time_based_gas_price_strategy = construct_time_based_gas_price_strategy(
@@ -187,17 +184,17 @@ def _get_gas_price(method, params):
 
 
 def test_time_based_gas_price_strategy_without_transactions():
-    fixture_middleware = construct_result_generator_middleware(
-        {
-            "eth_getBlockByHash": _get_initial_block,
-            "eth_getBlockByNumber": _get_initial_block,
-            "eth_gasPrice": _get_gas_price,
-        }
-    )
+    # fixture_middleware = construct_result_generator_middleware(
+    #     {
+    #         "eth_getBlockByHash": _get_initial_block,
+    #         "eth_getBlockByNumber": _get_initial_block,
+    #         "eth_gasPrice": _get_gas_price,
+    #     }
+    # )
 
     w3 = Web3(
         provider=BaseProvider(),
-        middlewares=[fixture_middleware],
+        # middlewares=[fixture_middleware],
     )
 
     time_based_gas_price_strategy = construct_time_based_gas_price_strategy(
@@ -272,16 +269,16 @@ def test_time_based_gas_price_strategy_zero_sample(
     strategy_params_zero, expected_exception_message
 ):
     with pytest.raises(Web3ValidationError) as excinfo:
-        fixture_middleware = construct_result_generator_middleware(
-            {
-                "eth_getBlockByHash": _get_block_by_something,
-                "eth_getBlockByNumber": _get_block_by_something,
-            }
-        )
+        # fixture_middleware = construct_result_generator_middleware(
+        #     {
+        #         "eth_getBlockByHash": _get_block_by_something,
+        #         "eth_getBlockByNumber": _get_block_by_something,
+        #     }
+        # )
 
         w3 = Web3(
             provider=BaseProvider(),
-            middlewares=[fixture_middleware],
+            # middlewares=[fixture_middleware],
         )
         time_based_gas_price_strategy_zero = construct_time_based_gas_price_strategy(
             **strategy_params_zero,
