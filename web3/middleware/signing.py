@@ -149,7 +149,7 @@ class SignAndSendRawMiddleware(Web3Middleware):
 
     def request_processor(self, method: "RPCEndpoint", params: Any) -> Any:
         if method != "eth_sendTransaction":
-            return params
+            return method, params
         else:
             if self.format_and_fill_tx is None:
                 self.format_and_fill_tx = compose(
@@ -164,18 +164,21 @@ class SignAndSendRawMiddleware(Web3Middleware):
             if tx_from is None or (
                 tx_from is not None and tx_from not in self._accounts
             ):
-                return params
+                return method, params
             else:
                 account = self._accounts[to_checksum_address(tx_from)]
                 raw_tx = account.sign_transaction(filled_transaction).rawTransaction
 
-                return (raw_tx.hex(),)
+                return (
+                    RPCEndpoint("eth_sendRawTransaction"),
+                    [raw_tx.hex()],
+                )
 
     # -- async -- #
 
     async def async_request_processor(self, method: "RPCEndpoint", params: Any) -> Any:
         if method != "eth_sendTransaction":
-            return params
+            return method, params
 
         else:
             formatted_transaction = format_transaction(params[0])
@@ -192,12 +195,15 @@ class SignAndSendRawMiddleware(Web3Middleware):
             if tx_from is None or (
                 tx_from is not None and tx_from not in self._accounts
             ):
-                return params
+                return method, params
             else:
                 account = self._accounts[to_checksum_address(tx_from)]
                 raw_tx = account.sign_transaction(filled_transaction).rawTransaction
 
-                return (raw_tx.hex(),)
+                return (
+                    RPCEndpoint("eth_sendRawTransaction"),
+                    [raw_tx.hex()],
+                )
 
 
 construct_sign_and_send_raw_middleware = SignAndSendRawMiddleware

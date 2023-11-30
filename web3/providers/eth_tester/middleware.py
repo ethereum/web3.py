@@ -381,7 +381,7 @@ class DefaultTransactionFieldsMiddleware(Web3Middleware):
                 fill_default_from,
             )
             params = [filled_transaction] + list(params)[1:]
-        return params
+        return method, params
 
     # --- async --- #
 
@@ -397,7 +397,7 @@ class DefaultTransactionFieldsMiddleware(Web3Middleware):
             )
             params = [filled_transaction] + list(params)[1:]
 
-        return params
+        return method, params
 
 
 ethereum_tester_middleware = FormattingMiddleware(

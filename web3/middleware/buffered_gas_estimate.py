@@ -42,7 +42,7 @@ class BufferedGasEstimateMiddleware(Web3Middleware):
                     hex(get_buffered_gas_estimate(self._w3, transaction)),
                 )
                 params = (transaction,)
-        return params
+        return method, params
 
     # -- async -- #
 
@@ -55,7 +55,7 @@ class BufferedGasEstimateMiddleware(Web3Middleware):
                 )
                 transaction = assoc(transaction, "gas", hex(gas_estimate))
                 params = (transaction,)
-        return params
+        return method, params
 
 
 buffered_gas_estimate_middleware = BufferedGasEstimateMiddleware()

@@ -1,4 +1,5 @@
 from typing import (
+    Sequence,
     TYPE_CHECKING,
     Any,
     TypeVar,
@@ -27,12 +28,10 @@ class Web3Middleware:
     _w3: WEB3
 
     def request_processor(self, method: "RPCEndpoint", params: Any) -> Any:
-        return params
+        return method, params
 
-    def response_processor(
-        self, method: "RPCEndpoint", response: "RPCResponse"
-    ) -> "RPCResponse":
-        return response
+    def response_processor(self, method: "RPCEndpoint", response: "RPCResponse") -> Any:
+        return (method, response)
 
     # -- async -- #
 
@@ -41,11 +40,11 @@ class Web3Middleware:
         method: "RPCEndpoint",
         params: Any,
     ) -> Any:
-        return params
+        return method, params
 
     async def async_response_processor(
         self,
         method: "RPCEndpoint",
         response: "RPCResponse",
-    ) -> "RPCResponse":
-        return response
+    ) -> Any:
+        return (method, response)

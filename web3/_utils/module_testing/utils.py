@@ -1,6 +1,7 @@
 import copy
 from typing import (
     Any,
+    Callable,
     Dict,
     TypeVar,
     Union,
@@ -10,10 +11,6 @@ from toolz import (
     merge,
 )
 
-from web3.providers.eth_tester import (
-    AsyncEthereumTesterProvider,
-    EthereumTesterProvider,
-)
 from web3 import (
     AsyncWeb3,
     Web3,
@@ -62,8 +59,10 @@ class RequestMocker:
 
     def __enter__(self):
         self.w3.provider.make_request = self._mock_request_handler
+
         # reset request func cache to re-build request_func with mocked make_request
         self.w3.provider._request_func_cache = (None, None)
+
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
@@ -77,13 +76,16 @@ class RequestMocker:
 
         request_id = (
             next(copy.deepcopy(self.w3.provider.request_counter))
-            if not isinstance(self.w3.provider, EthereumTesterProvider)
+            if hasattr(self.w3.provider, "request_counter")
             else 1
         )
         response_dict = {"jsonrpc": "2.0", "id": request_id}
 
         if method in self.mock_results:
-            return merge(response_dict, {"result": self.mock_results[method]})
+            mock_return = self.mock_results[method]
+            if isinstance(mock_return, Callable):
+                mock_return = mock_return(method, params)
+            return merge(response_dict, {"result": mock_return})
         elif method in self.mock_errors:
             error = self.mock_errors[method]
             if not isinstance(error, dict):
@@ -113,7 +115,7 @@ class RequestMocker:
 
         request_id = (
             next(copy.deepcopy(self.w3.provider.request_counter))
-            if not isinstance(self.w3.provider, AsyncEthereumTesterProvider)
+            if hasattr(self.w3.provider, "request_counter")
             else 1
         )
         response_dict = {"jsonrpc": "2.0", "id": request_id}

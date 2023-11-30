@@ -136,7 +136,7 @@ class EnsNameToAddressMiddleware(Web3Middleware):
                     abi_types_for_method,
                 )
 
-        return params
+        return method, params
 
 
 ens_name_to_address_middleware = EnsNameToAddressMiddleware()

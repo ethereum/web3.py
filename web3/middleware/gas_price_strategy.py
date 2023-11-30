@@ -97,7 +97,7 @@ class GasPriceStrategyMiddleware(Web3Middleware):
             )
             params = (transaction,)
 
-        return params
+        return method, params
 
     # -- async -- #
 
@@ -110,7 +110,7 @@ class GasPriceStrategyMiddleware(Web3Middleware):
                 transaction, latest_block, generated_gas_price
             )
             params = (transaction,)
-        return params
+        return method, params
 
 
 gas_price_strategy_middleware = GasPriceStrategyMiddleware()

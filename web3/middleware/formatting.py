@@ -138,7 +138,7 @@ class FormattingMiddleware(Web3Middleware):
             formatter = self.request_formatters[method]
             params = formatter(params)
 
-        return params
+        return method, params
 
     def response_processor(self, method: RPCEndpoint, response: "RPCResponse") -> Any:
         if self.sync_formatters_builder is not None:
@@ -149,11 +149,14 @@ class FormattingMiddleware(Web3Middleware):
             self.result_formatters = formatters["result_formatters"]
             self.error_formatters = formatters["error_formatters"]
 
-        return _apply_response_formatters(
+        return (
             method,
-            self.result_formatters,
-            self.error_formatters,
-            response,
+            _apply_response_formatters(
+                method,
+                self.result_formatters,
+                self.error_formatters,
+                response,
+            ),
         )
 
     # -- async -- #
@@ -170,7 +173,7 @@ class FormattingMiddleware(Web3Middleware):
             formatter = self.request_formatters[method]
             params = formatter(params)
 
-        return params
+        return method, params
 
     async def async_response_processor(
         self, method: RPCEndpoint, response: "RPCResponse"
