@@ -88,31 +88,21 @@ MIXED_KEY_SAME_TYPE = (
 
 class DummyProvider(BaseProvider):
     def make_request(self, method, params):
-        raise NotImplementedError(f"Cannot make request for {method}:{params}")
+        raise NotImplementedError(f"Cannot make request for {method}: {params}")
 
 
 @pytest.fixture
-def result_generator_middleware():
-    # TODO: replace with request mocker
-    return None
-    # return construct_result_generator_middleware(
-    #     {
-    #         "eth_sendRawTransaction": lambda *args: args,
-    #         "net_version": lambda *_: 1,
-    #         "eth_chainId": lambda *_: "0x02",
-    #     }
-    # )
-
-
-@pytest.fixture
-def w3_base():
-    return Web3(provider=DummyProvider(), middlewares=[])
-
-
-@pytest.fixture
-def w3_dummy(w3_base, result_generator_middleware):
-    w3_base.middleware_onion.add(result_generator_middleware)
-    return w3_base
+def w3_dummy(request_mocker):
+    w3_base = Web3(provider=DummyProvider(), middlewares=[])
+    with request_mocker(
+        w3_base,
+        mock_results={
+            "eth_sendRawTransaction": lambda *args: args,
+            "net_version": lambda *_: 1,
+            "eth_chainId": lambda *_: "0x02",
+        },
+    ):
+        yield w3_base
 
 
 def hex_to_bytes(s):
@@ -421,33 +411,14 @@ def test_sign_and_send_raw_middleware_with_byte_addresses(
 # -- async -- #
 
 
-@pytest_asyncio.fixture
-async def async_result_generator_middleware():
-    # TODO: replace with request mocker
-    return None
-    # return await async_construct_result_generator_middleware(
-    #     {
-    #         "eth_sendRawTransaction": lambda *args: args,
-    #         "net_version": lambda *_: 1,
-    #         "eth_chainId": lambda *_: "0x02",
-    #     }
-    # )
-
-
 class AsyncDummyProvider(AsyncBaseProvider):
     async def coro_request(self, method, params):
         raise NotImplementedError(f"Cannot make request for {method}:{params}")
 
 
 @pytest.fixture
-def async_w3_base():
+def async_w3_dummy():
     return AsyncWeb3(provider=AsyncDummyProvider(), middlewares=[])
-
-
-@pytest.fixture
-def async_w3_dummy(async_w3_base, async_result_generator_middleware):
-    async_w3_base.middleware_onion.add(async_result_generator_middleware)
-    return async_w3_base
 
 
 @pytest.fixture

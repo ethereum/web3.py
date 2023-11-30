@@ -77,18 +77,16 @@ def combine_middlewares(
     response_processors = [
         middleware.response_processor for middleware in reversed(middlewares)
     ]
-    return lambda method, params_or_response: functools.reduce(
-        lambda p_o_r, processor: processor(method, p_o_r),
-        response_processors,
-        provider_request_fn(
-            method,
-            functools.reduce(
-                lambda p, processor: processor(method, p),
-                request_processors,
-                params_or_response,
-            ),
-        ),
-    )
+
+    def request_fn(method: RPCEndpoint, params: Any) -> RPCResponse:
+        for processor in request_processors:
+            method, params = processor(method, params)
+        response = provider_request_fn(method, params)
+        for processor in response_processors:
+            method, response = processor(method, response)
+        return response
+
+    return request_fn
 
 
 async def async_combine_middlewares(
@@ -111,7 +109,7 @@ async def async_combine_middlewares(
 
     async def async_request_fn(method: RPCEndpoint, params: Any) -> RPCResponse:
         for processor in async_request_processors:
-            params = await processor(method, params)
+            method, params = await processor(method, params)
         response = await provider_request_fn(method, params)
         for processor in async_response_processors:
             response = await processor(method, response)

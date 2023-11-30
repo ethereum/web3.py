@@ -60,11 +60,12 @@ class AttributeDictMiddleware(Web3Middleware, ABC):
 
     def response_processor(self, method: "RPCEndpoint", response: "RPCResponse") -> Any:
         if "result" in response:
-            return assoc(
-                response, "result", AttributeDict.recursive(response["result"])
+            return (
+                method,
+                assoc(response, "result", AttributeDict.recursive(response["result"])),
             )
         else:
-            return response
+            return (method, response)
 
     # -- async -- #
 
@@ -77,9 +78,9 @@ class AttributeDictMiddleware(Web3Middleware, ABC):
             provider._request_processor.append_middleware_response_processor(
                 response, _handle_async_response
             )
-            return response
+            return (method, response)
         else:
-            return _handle_async_response(response)
+            return (method, _handle_async_response(response))
 
 
 attrdict_middleware = AttributeDictMiddleware()
