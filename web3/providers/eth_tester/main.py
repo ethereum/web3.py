@@ -155,7 +155,6 @@ def _make_request(
     api_endpoints: Dict[str, Dict[str, Any]],
     ethereum_tester_instance: "EthereumTester",
 ) -> RPCResponse:
-    print("OOOOOOOOOOO", params)
     # do not import eth_tester derivatives until runtime,
     # it is not a default dependency
     from eth_tester.exceptions import (
