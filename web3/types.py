@@ -368,6 +368,7 @@ GasPriceStrategy = Union[
 TxReceipt = TypedDict(
     "TxReceipt",
     {
+        "accessList": AccessList,
         "blockHash": HexBytes,
         "blockNumber": BlockNumber,
         "contractAddress": Optional[ChecksumAddress],

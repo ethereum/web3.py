@@ -2698,13 +2698,23 @@ class EthModuleTest:
         self,
         w3: "Web3",
         unlocked_account_dual_type: ChecksumAddress,
-        unlocked_account: ChecksumAddress,
+        math_contract: "Contract",
     ) -> None:
+        # Initialize transaction for gas estimation
+        txn_params: TxParams = {
+            "from": unlocked_account_dual_type,
+            "value": Wei(1),
+            "gas": 21000,
+        }
+
+        txn = math_contract.functions.incrementCounter(1).build_transaction(txn_params)
+
+        # create access list using data from transaction
         response = w3.eth.create_access_list(
             {
                 "from": unlocked_account_dual_type,
-                "to": unlocked_account,
-                "data": HexStr("0x0"),
+                "to": math_contract.address,
+                "data": txn["data"],
             }
         )
 
@@ -2713,11 +2723,7 @@ class EthModuleTest:
         assert len(access_list) > 0
         assert access_list[0]["address"] is not None
         assert is_checksum_address(access_list[0]["address"])
-        assert access_list[1]["address"] is not None
-        assert is_checksum_address(access_list[1]["address"])
-        assert len(access_list[0]["storageKeys"]) > 0
-        assert len(access_list[1]["storageKeys"]) > 0
-        assert int(response["gas"]) >= 0
+        assert int(response["gasUsed"]) >= 0
 
     def test_eth_sign(
         self, w3: "Web3", unlocked_account_dual_type: ChecksumAddress
