@@ -274,24 +274,24 @@ class TestEthereumTesterEthModule(EthModuleTest):
         EthModuleTest.test_eth_max_priority_fee_with_fee_history_calculation_error_dict,
         ValueError,
     )
-    test_eth_sign = not_implemented(EthModuleTest.test_eth_sign, ValueError)
+    test_eth_sign = not_implemented(EthModuleTest.test_eth_sign, MethodUnavailable)
     test_eth_sign_ens_names = not_implemented(
-        EthModuleTest.test_eth_sign_ens_names, ValueError
+        EthModuleTest.test_eth_sign_ens_names, MethodUnavailable
     )
     test_eth_sign_typed_data = not_implemented(
-        EthModuleTest.test_eth_sign_typed_data, ValueError
+        EthModuleTest.test_eth_sign_typed_data, MethodUnavailable
     )
     test_eth_sign_transaction_legacy = not_implemented(
-        EthModuleTest.test_eth_sign_transaction_legacy, ValueError
+        EthModuleTest.test_eth_sign_transaction_legacy, MethodUnavailable
     )
     test_eth_sign_transaction = not_implemented(
-        EthModuleTest.test_eth_sign_transaction, ValueError
+        EthModuleTest.test_eth_sign_transaction, MethodUnavailable
     )
     test_eth_sign_transaction_hex_fees = not_implemented(
-        EthModuleTest.test_eth_sign_transaction_hex_fees, ValueError
+        EthModuleTest.test_eth_sign_transaction_hex_fees, MethodUnavailable
     )
     test_eth_sign_transaction_ens_names = not_implemented(
-        EthModuleTest.test_eth_sign_transaction_ens_names, ValueError
+        EthModuleTest.test_eth_sign_transaction_ens_names, MethodUnavailable
     )
     test_eth_submit_hashrate = not_implemented(
         EthModuleTest.test_eth_submit_hashrate, MethodUnavailable
@@ -306,30 +306,38 @@ class TestEthereumTesterEthModule(EthModuleTest):
         EthModuleTest.test_eth_get_raw_transaction, MethodUnavailable
     )
     test_eth_get_raw_transaction_by_block = not_implemented(
-        EthModuleTest.test_eth_get_raw_transaction_by_block, ValueError
+        EthModuleTest.test_eth_get_raw_transaction_by_block, MethodUnavailable
     )
     test_eth_get_raw_transaction_by_block_raises_error = not_implemented(
-        EthModuleTest.test_eth_get_raw_transaction_by_block, ValueError
+        EthModuleTest.test_eth_get_raw_transaction_by_block, MethodUnavailable
     )
     test_eth_replace_transaction_already_mined = not_implemented(
-        EthModuleTest.test_eth_replace_transaction_already_mined, ValueError
+        EthModuleTest.test_eth_replace_transaction_already_mined, MethodUnavailable
+    )
+    test_eth_call_with_override_param_type_check = not_implemented(
+        EthModuleTest.test_eth_max_priority_fee_with_fee_history_calculation,
+        ValueError,
+    )
+    test_eth_fee_history = not_implemented(
+        EthModuleTest.test_eth_fee_history, MethodUnavailable
+    )
+    test_eth_fee_history_with_integer = not_implemented(
+        EthModuleTest.test_eth_fee_history_with_integer, MethodUnavailable
+    )
+    test_eth_fee_history_no_reward_percentiles = not_implemented(
+        EthModuleTest.test_eth_fee_history_no_reward_percentiles, MethodUnavailable
+    )
+    test_eth_send_transaction_with_nonce = not_implemented(
+        EthModuleTest.test_eth_send_transaction_with_nonce, MethodUnavailable
+    )
+    test_eth_call_with_override_code = not_implemented(
+        EthModuleTest.test_eth_call_with_override_code,
+        TypeError,
     )
 
     def test_eth_getBlockByHash_pending(self, w3: "Web3") -> None:
         block = w3.eth.get_block("pending")
         assert block["hash"] is not None
-
-    @pytest.mark.xfail(reason="eth_feeHistory is not implemented on eth-tester")
-    def test_eth_fee_history(self, w3: "Web3"):
-        super().test_eth_fee_history(w3)
-
-    @pytest.mark.xfail(reason="eth_feeHistory is not implemented on eth-tester")
-    def test_eth_fee_history_with_integer(self, w3: "Web3"):
-        super().test_eth_fee_history_with_integer(w3)
-
-    @pytest.mark.xfail(reason="eth_feeHistory is not implemented on eth-tester")
-    def test_eth_fee_history_no_reward_percentiles(self, w3: "Web3"):
-        super().test_eth_fee_history_no_reward_percentiles(w3)
 
     @disable_auto_mine
     def test_eth_get_transaction_receipt_unmined(
@@ -419,15 +427,6 @@ class TestEthereumTesterEthModule(EthModuleTest):
                 "eth-tester was unexpectedly able to give the pending call result"
             )
 
-    def test_eth_get_storage_at(self, w3, storage_contract):
-        super().test_eth_get_storage_at(w3, storage_contract)
-
-    def test_eth_get_storage_at_ens_name(self, w3, storage_contract):
-        super().test_eth_get_storage_at_ens_name(w3, storage_contract)
-
-    def test_eth_estimate_gas_with_block(self, w3, unlocked_account_dual_type):
-        super().test_eth_estimate_gas_with_block(w3, unlocked_account_dual_type)
-
     def test_eth_chain_id(self, w3):
         chain_id = w3.eth.chain_id
         assert is_integer(chain_id)
@@ -441,55 +440,43 @@ class TestEthereumTesterEthModule(EthModuleTest):
             w3, unlocked_account_dual_type
         )
 
-    @pytest.mark.xfail(
-        raises=TypeError, reason="call override param not implemented on eth-tester"
-    )
-    def test_eth_call_with_override_code(self, w3, revert_contract):
-        super().test_eth_call_with_override_code(w3, revert_contract)
-
-    @pytest.mark.xfail(
-        raises=TypeError, reason="call override param not implemented on eth-tester"
-    )
-    def test_eth_call_with_override_param_type_check(self, w3, math_contract):
-        super().test_eth_call_with_override_param_type_check(w3, math_contract)
-
     def test_eth_call_revert_with_msg(self, w3, revert_contract, unlocked_account):
+        txn_params = revert_contract._prepare_transaction(
+            fn_name="revertWithMessage",
+            transaction={
+                "from": unlocked_account,
+                "to": revert_contract.address,
+            },
+        )
         with pytest.raises(
             TransactionFailed, match="execution reverted: Function has been reverted"
         ):
-            txn_params = revert_contract._prepare_transaction(
-                fn_name="revertWithMessage",
-                transaction={
-                    "from": unlocked_account,
-                    "to": revert_contract.address,
-                },
-            )
             w3.eth.call(txn_params)
 
     def test_eth_call_revert_without_msg(self, w3, revert_contract, unlocked_account):
+        txn_params = revert_contract._prepare_transaction(
+            fn_name="revertWithoutMessage",
+            transaction={
+                "from": unlocked_account,
+                "to": revert_contract.address,
+            },
+        )
         with pytest.raises(TransactionFailed, match="execution reverted"):
-            txn_params = revert_contract._prepare_transaction(
-                fn_name="revertWithoutMessage",
-                transaction={
-                    "from": unlocked_account,
-                    "to": revert_contract.address,
-                },
-            )
             w3.eth.call(txn_params)
 
     def test_eth_estimate_gas_revert_with_msg(
         self, w3, revert_contract, unlocked_account
     ):
+        txn_params = revert_contract._prepare_transaction(
+            fn_name="revertWithMessage",
+            transaction={
+                "from": unlocked_account,
+                "to": revert_contract.address,
+            },
+        )
         with pytest.raises(
             TransactionFailed, match="execution reverted: Function has been reverted"
         ):
-            txn_params = revert_contract._prepare_transaction(
-                fn_name="revertWithMessage",
-                transaction={
-                    "from": unlocked_account,
-                    "to": revert_contract.address,
-                },
-            )
             w3.eth.estimate_gas(txn_params)
 
     def test_eth_estimate_gas_revert_without_msg(
@@ -503,6 +490,69 @@ class TestEthereumTesterEthModule(EthModuleTest):
                     "to": revert_contract.address,
                 },
             )
+            w3.eth.estimate_gas(txn_params)
+
+    def test_eth_call_custom_error_revert_with_msg(
+        self,
+        w3,
+        revert_contract,
+        unlocked_account,
+    ) -> None:
+        txn_params = revert_contract._prepare_transaction(
+            fn_name="customErrorWithMessage",
+            transaction={
+                "from": unlocked_account,
+                "to": revert_contract.address,
+            },
+        )
+        # test that the error message matches the custom error text from the contract
+        with pytest.raises(TransactionFailed, match="You are not authorized"):
+            w3.eth.call(txn_params)
+
+    def test_eth_call_custom_error_revert_without_msg(
+        self, w3, revert_contract, unlocked_account
+    ):
+        txn_params = revert_contract._prepare_transaction(
+            fn_name="customErrorWithoutMessage",
+            transaction={
+                "from": unlocked_account,
+                "to": revert_contract.address,
+            },
+        )
+        with pytest.raises(TransactionFailed, match="execution reverted"):
+            w3.eth.call(txn_params)
+
+    def test_eth_estimate_gas_custom_error_revert_with_msg(
+        self,
+        w3,
+        revert_contract,
+        unlocked_account,
+    ) -> None:
+        txn_params = revert_contract._prepare_transaction(
+            fn_name="customErrorWithMessage",
+            transaction={
+                "from": unlocked_account,
+                "to": revert_contract.address,
+            },
+        )
+        # test that the error message matches the custom error text from the contract
+        with pytest.raises(TransactionFailed, match="You are not authorized"):
+            w3.eth.estimate_gas(txn_params)
+
+    def test_eth_estimate_gas_custom_error_revert_without_msg(
+        self,
+        w3,
+        revert_contract,
+        unlocked_account,
+    ) -> None:
+        txn_params = revert_contract._prepare_transaction(
+            fn_name="customErrorWithoutMessage",
+            transaction={
+                "from": unlocked_account,
+                "to": revert_contract.address,
+            },
+        )
+        with pytest.raises(TransactionFailed, match="execution reverted"):
             w3.eth.estimate_gas(txn_params)
 
     @disable_auto_mine
@@ -540,12 +590,6 @@ class TestEthereumTesterEthModule(EthModuleTest):
             w3,
             unlocked_account,
         )
-
-    @pytest.mark.xfail(
-        raises=ValueError, reason="eth-tester does not have miner_start support"
-    )
-    def test_eth_send_transaction_with_nonce(self, eth_tester, w3, unlocked_account):
-        super().test_eth_send_transaction_with_nonce(w3, unlocked_account)
 
     @disable_auto_mine
     def test_eth_send_transaction_default_fees(self, eth_tester, w3, unlocked_account):
