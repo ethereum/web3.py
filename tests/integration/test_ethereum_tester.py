@@ -505,7 +505,8 @@ class TestEthereumTesterEthModule(EthModuleTest):
                 "to": revert_contract.address,
             },
         )
-        with pytest.raises(TransactionFailed, match="execution reverted"):
+        # test that the error message matches the custom error text from the contract
+        with pytest.raises(TransactionFailed, match="You are not authorized"):
             w3.eth.call(txn_params)
 
     def test_eth_call_custom_error_revert_without_msg(
@@ -534,7 +535,8 @@ class TestEthereumTesterEthModule(EthModuleTest):
                 "to": revert_contract.address,
             },
         )
-        with pytest.raises(TransactionFailed, match="execution reverted"):
+        # test that the error message matches the custom error text from the contract
+        with pytest.raises(TransactionFailed, match="You are not authorized"):
             w3.eth.estimate_gas(txn_params)
 
     def test_eth_estimate_gas_custom_error_revert_without_msg(
