@@ -34,6 +34,7 @@ from web3._utils.module_testing import (
     NetModuleTest,
     Web3ModuleTest,
 )
+from web3.contract.contract import Contract
 from web3.exceptions import (
     MethodUnavailable,
 )
@@ -634,10 +635,10 @@ class TestEthereumTesterEthModule(EthModuleTest):
         self,
         w3: "Web3",
         unlocked_account_dual_type: ChecksumAddress,
-        unlocked_account: ChecksumAddress,
+        math_contract: "Contract",
     ) -> None:
         super().test_eth_create_access_list(
-            w3, unlocked_account_dual_type, unlocked_account
+            w3, unlocked_account_dual_type, math_contract
         )
 
 
