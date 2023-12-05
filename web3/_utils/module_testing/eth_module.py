@@ -2723,6 +2723,7 @@ class EthModuleTest:
         assert len(access_list) > 0
         assert access_list[0]["address"] is not None
         assert is_checksum_address(access_list[0]["address"])
+        assert len(access_list[0]["storageKeys"][0]) == 32
         assert int(response["gasUsed"]) >= 0
 
     def test_eth_sign(

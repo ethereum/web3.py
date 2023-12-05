@@ -186,6 +186,24 @@ def type_aware_apply_formatters_to_dict_keys_and_values(
     )
 
 
+def apply_list_to_array_formatter(formatter: Any) -> Callable[..., Any]:
+    return to_list(apply_formatter_to_array(formatter))
+
+
+ACCESS_LIST_FORMATTER = type_aware_apply_formatters_to_dict(
+    {
+        "address": to_checksum_address,
+        "storageKeys": apply_list_to_array_formatter(to_hexbytes(64)),
+    }
+)
+
+ACCESS_LIST_RESPONSE_FORMATTER = type_aware_apply_formatters_to_dict(
+    {
+        "accessList": apply_list_to_array_formatter(ACCESS_LIST_FORMATTER),
+        "gasUsed": to_integer_if_hex,
+    }
+)
+
 TRANSACTION_RESULT_FORMATTERS = {
     "blockHash": apply_formatter_if(is_not_null, to_hexbytes(32)),
     "blockNumber": apply_formatter_if(is_not_null, to_integer_if_hex),
@@ -210,13 +228,7 @@ TRANSACTION_RESULT_FORMATTERS = {
     "chainId": apply_formatter_if(is_not_null, to_integer_if_hex),
     "accessList": apply_formatter_if(
         is_not_null,
-        apply_formatter_to_array(
-            type_aware_apply_formatters_to_dict(
-                {
-                    "address": to_checksum_address,
-                }
-            )
-        ),
+        apply_formatter_to_array(ACCESS_LIST_FORMATTER),
     ),
     "input": HexBytes,
     "data": HexBytes,  # Nethermind, for example, returns both `input` and `data`
@@ -236,10 +248,6 @@ WITHDRAWAL_RESULT_FORMATTERS = {
 withdrawal_result_formatter = type_aware_apply_formatters_to_dict(
     WITHDRAWAL_RESULT_FORMATTERS
 )
-
-
-def apply_list_to_array_formatter(formatter: Any) -> Callable[..., Any]:
-    return to_list(apply_formatter_to_array(formatter))
 
 
 LOG_ENTRY_FORMATTERS = {
@@ -462,19 +470,6 @@ SIGNED_TX_FORMATTER = {
 
 signed_tx_formatter = type_aware_apply_formatters_to_dict(SIGNED_TX_FORMATTER)
 
-ACCESS_LIST_FORMATTER = type_aware_apply_formatters_to_dict(
-    {
-        "address": to_checksum_address,
-        "storageKeys": apply_list_to_array_formatter(to_hexbytes(64)),
-    }
-)
-
-ACCESS_LIST_RESPONSE_FORMATTER = type_aware_apply_formatters_to_dict(
-    {
-        "accessList": apply_list_to_array_formatter(ACCESS_LIST_FORMATTER),
-        "gasUsed": to_integer_if_hex,
-    }
-)
 FILTER_PARAM_NORMALIZERS = type_aware_apply_formatters_to_dict(
     {"address": apply_formatter_if(is_string, lambda x: [x])}
 )

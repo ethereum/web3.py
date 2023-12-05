@@ -995,7 +995,7 @@ The following methods are available on the ``web3.eth`` namespace.
     This method creates an `EIP-2930 <https://eips.ethereum.org/EIPS/eip-2930>`_ type ``accessList`` based on a given
     ``Transaction``. The ``accessList`` contains all storage slots and addresses read and written by the transaction,
     except for the sender account and the precompiles. This method uses the same ``transaction`` call object and
-    ``block_identifier`` object as :meth:`~web3.eth.Eth.call()`. An ``accessList`` can be used to unstick contracts that
+    ``block_identifier`` object as :meth:`~web3.eth.Eth.call()`. An ``accessList`` can be used to access contracts that
     became inaccessible due to gas cost increases.
 
     :param transaction: ``TransactionCall`` object.
@@ -1023,7 +1023,7 @@ The following methods are available on the ``web3.eth`` namespace.
 
     The method ``eth_createAccessList`` returns a list of addresses and storage keys used by the transaction, plus the gas
     consumed when the ``accessList`` is included. Like ``eth_estimateGas``, this is an estimation; the list could change when
-    the transaction is actually mined. Adding an ``accessList`` to your transaction does not necessary result in lower
+    the transaction is actually finalized. Adding an ``accessList`` to your transaction does not necessarily result in lower
     gas usage compared to a transaction without an ``accessList``.
 
 .. py:method:: Eth.fee_history(block_count, newest_block, reward_percentiles=None)
