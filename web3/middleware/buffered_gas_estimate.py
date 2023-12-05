@@ -58,4 +58,4 @@ class BufferedGasEstimateMiddleware(Web3Middleware):
         return method, params
 
 
-buffered_gas_estimate_middleware = BufferedGasEstimateMiddleware()
+buffered_gas_estimate_middleware = BufferedGasEstimateMiddleware

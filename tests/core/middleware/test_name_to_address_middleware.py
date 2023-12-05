@@ -126,7 +126,7 @@ async def async_ens_addr_account_balance(async_ens_mapped_address, _async_w3_set
 @pytest_asyncio.fixture
 async def async_w3(_async_w3_setup, async_ens_mapped_address):
     _async_w3_setup.ens = AsyncTempENS({NAME: async_ens_mapped_address})
-    _async_w3_setup.middleware_onion.add(async_name_to_address_middleware)
+    _async_w3_setup.middleware_onion.add(ens_name_to_address_middleware)
     return _async_w3_setup
 
 

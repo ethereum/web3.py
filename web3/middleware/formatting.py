@@ -4,6 +4,7 @@ from typing import (
     Callable,
     Coroutine,
     Optional,
+    Union,
     cast,
 )
 
@@ -14,7 +15,7 @@ from eth_utils.toolz import (
 )
 
 from web3.middleware.base import (
-    Web3Middleware,
+    Web3MiddlewareBuilder,
 )
 from web3.types import (
     EthSubscriptionParams,
@@ -91,9 +92,17 @@ ASYNC_FORMATTERS_BUILDER = Callable[
 ]
 
 
-class FormattingMiddleware(Web3Middleware):
-    def __init__(
-        self,
+class FormattingMiddleware(Web3MiddlewareBuilder):
+    request_formatters = None
+    result_formatters = None
+    error_formatters = None
+    sync_formatters_builder = None
+    async_formatters_builder = None
+
+    @staticmethod
+    @curry
+    def build_middleware(
+        w3: Union["AsyncWeb3", "Web3"],
         # formatters option:
         request_formatters: Optional[Formatters] = None,
         result_formatters: Optional[Formatters] = None,
@@ -120,11 +129,13 @@ class FormattingMiddleware(Web3Middleware):
                     "Cannot specify formatters_builder and formatters at the same time"
                 )
 
-        self.request_formatters = request_formatters or {}
-        self.result_formatters = result_formatters or {}
-        self.error_formatters = error_formatters or {}
-        self.sync_formatters_builder = sync_formatters_builder
-        self.async_formatters_builder = async_formatters_builder
+        middleware = FormattingMiddleware(w3)
+        middleware.request_formatters = request_formatters or {}
+        middleware.result_formatters = result_formatters or {}
+        middleware.error_formatters = error_formatters or {}
+        middleware.sync_formatters_builder = sync_formatters_builder
+        middleware.async_formatters_builder = async_formatters_builder
+        return middleware
 
     def request_processor(self, method: "RPCEndpoint", params: Any) -> Any:
         if self.sync_formatters_builder is not None:
@@ -149,14 +160,11 @@ class FormattingMiddleware(Web3Middleware):
             self.result_formatters = formatters["result_formatters"]
             self.error_formatters = formatters["error_formatters"]
 
-        return (
+        return _apply_response_formatters(
             method,
-            _apply_response_formatters(
-                method,
-                self.result_formatters,
-                self.error_formatters,
-                response,
-            ),
+            self.result_formatters,
+            self.error_formatters,
+            response,
         )
 
     # -- async -- #

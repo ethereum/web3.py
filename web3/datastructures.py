@@ -172,6 +172,12 @@ class NamedElementOnion(Mapping[TKey, TValue]):
         if name is None:
             name = cast(TKey, element)
 
+        try:
+            # handle unhashable types
+            name.__hash__()
+        except TypeError:
+            name = repr(name)
+
         if name in self._queue:
             if name is element:
                 raise ValueError("You can't add the same un-named instance twice")
@@ -206,6 +212,13 @@ class NamedElementOnion(Mapping[TKey, TValue]):
         if layer == 0:
             if name is None:
                 name = cast(TKey, element)
+
+            try:
+                # handle unhashable types
+                name.__hash__()
+            except TypeError:
+                name = repr(name)
+
             self._queue.move_to_end(name, last=False)
         elif layer == len(self._queue):
             return
