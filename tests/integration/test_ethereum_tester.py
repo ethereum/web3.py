@@ -34,7 +34,9 @@ from web3._utils.module_testing import (
     NetModuleTest,
     Web3ModuleTest,
 )
-from web3.contract.contract import Contract
+from web3.contract.contract import (
+    Contract,
+)
 from web3.exceptions import (
     MethodUnavailable,
 )
