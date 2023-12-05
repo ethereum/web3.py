@@ -400,7 +400,7 @@ class DefaultTransactionFieldsMiddleware(Web3Middleware):
         return method, params
 
 
-ethereum_tester_middleware = FormattingMiddleware(
+ethereum_tester_middleware = FormattingMiddleware.build_middleware(
     request_formatters=request_formatters, result_formatters=result_formatters
 )
-default_transaction_fields_middleware = DefaultTransactionFieldsMiddleware()
+default_transaction_fields_middleware = DefaultTransactionFieldsMiddleware

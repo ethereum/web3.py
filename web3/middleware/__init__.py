@@ -1,10 +1,10 @@
-import functools
 from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
     Coroutine,
     Sequence,
+    Type,
 )
 
 from web3.types import (
@@ -63,7 +63,7 @@ if TYPE_CHECKING:
 
 
 def combine_middlewares(
-    middlewares: Sequence[Web3Middleware],
+    middlewares: Sequence[Type[Web3Middleware]],
     w3: "Web3",
     provider_request_fn: Callable[[RPCEndpoint, Any], Any],
 ) -> Callable[..., RPCResponse]:
@@ -72,25 +72,15 @@ def combine_middlewares(
     and passes these args through the request processors, makes the request, and passes
     the response through the response processors.
     """
-    [setattr(middleware, "_w3", w3) for middleware in middlewares]
-    request_processors = [middleware.request_processor for middleware in middlewares]
-    response_processors = [
-        middleware.response_processor for middleware in reversed(middlewares)
-    ]
-
-    def request_fn(method: RPCEndpoint, params: Any) -> RPCResponse:
-        for processor in request_processors:
-            method, params = processor(method, params)
-        response = provider_request_fn(method, params)
-        for processor in response_processors:
-            method, response = processor(method, response)
-        return response
-
-    return request_fn
+    accumulator_fn = provider_request_fn
+    for middleware in reversed(middlewares):
+        # initialize the middleware and wrap the accumulator function down the stack
+        accumulator_fn = middleware(w3)._wrap_make_request(accumulator_fn)
+    return accumulator_fn
 
 
 async def async_combine_middlewares(
-    middlewares: Sequence[Web3Middleware],
+    middlewares: Sequence[Type[Web3Middleware]],
     async_w3: "AsyncWeb3",
     provider_request_fn: Callable[[RPCEndpoint, Any], Any],
 ) -> Callable[..., Coroutine[Any, Any, RPCResponse]]:
@@ -99,7 +89,7 @@ async def async_combine_middlewares(
     and passes these args through the request processors, makes the request, and passes
     the response through the response processors.
     """
-    [setattr(middleware, "_w3", async_w3) for middleware in middlewares]
+    middlewares = [middleware(async_w3) for middleware in middlewares]
     async_request_processors = [
         middleware.async_request_processor for middleware in middlewares
     ]

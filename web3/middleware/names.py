@@ -105,10 +105,11 @@ class EnsNameToAddressMiddleware(Web3Middleware):
             normalizers = [
                 abi_ens_resolver(self._w3),
             ]
-            self._formatting_middleware = FormattingMiddleware(
+            self._formatting_middleware = FormattingMiddleware.build_middleware(
                 request_formatters=abi_request_formatters(normalizers, RPC_ABIS)  # type: ignore # noqa: E501
             )
-        return self._formatting_middleware.request_processor(method, params)
+
+        return self._formatting_middleware(self._w3).request_processor(method, params)
 
     # -- async -- #
 
@@ -139,4 +140,4 @@ class EnsNameToAddressMiddleware(Web3Middleware):
         return method, params
 
 
-ens_name_to_address_middleware = EnsNameToAddressMiddleware()
+ens_name_to_address_middleware = EnsNameToAddressMiddleware

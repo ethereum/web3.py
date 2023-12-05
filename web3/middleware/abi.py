@@ -5,4 +5,6 @@ from web3.middleware.formatting import (
     FormattingMiddleware,
 )
 
-abi_middleware = FormattingMiddleware(request_formatters=ABI_REQUEST_FORMATTERS)
+abi_middleware = FormattingMiddleware.build_middleware(
+    request_formatters=ABI_REQUEST_FORMATTERS
+)
