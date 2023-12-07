@@ -1,3 +1,4 @@
+import warnings
 from abc import abstractmethod
 from typing import (
     Sequence,
@@ -32,14 +33,14 @@ class Web3Middleware:
     def __init__(self, w3: WEB3) -> None:
         self._w3 = w3
 
+    # -- sync -- #
+
     def _wrap_make_request(self, make_request):
         def middleware(method: "RPCEndpoint", params: Any) -> "RPCResponse":
             method, params = self.request_processor(method, params)
             return self.response_processor(method, make_request(method, params))
 
         return middleware
-
-    # -- sync -- #
 
     def request_processor(self, method: "RPCEndpoint", params: Any) -> Any:
         return method, params
@@ -48,6 +49,16 @@ class Web3Middleware:
         return response
 
     # -- async -- #
+
+    async def _async_wrap_make_request(self, make_request):
+        async def middleware(method: "RPCEndpoint", params: Any) -> "RPCResponse":
+            method, params = await self.async_request_processor(method, params)
+            return await self.async_response_processor(
+                method,
+                await make_request(method, params),
+            )
+
+        return middleware
 
     async def async_request_processor(
         self,
@@ -67,7 +78,7 @@ class Web3Middleware:
 class Web3MiddlewareBuilder(Web3Middleware):
     @staticmethod
     @abstractmethod
-    def build_middleware(
+    def build(
         w3: Union["AsyncWeb3", "Web3"],
         *args: Any,
         **kwargs: Any,
@@ -82,15 +93,26 @@ class Web3MiddlewareBuilder(Web3Middleware):
 
         ```py
         class MyMiddleware(Web3BuilderMiddleware):
+            internal_property: str = None
 
             @staticmethod
             @curry
-            def build_middleware(w3, request_formatters=None, response_formatters=None):
+            def builder(user_provided_argument, w3):
                 middleware = MyMiddleware(w3)
-                middleware.request_formatters = request_formatters
-                middleware.response_formatters = response_formatters
-
+                middleware.internal_property = user_provided_argument
                 return middleware
+
+            def request_processor(self, method, params):
+                ...
+
+            def response_processor(self, method, response):
+                ...
+
+        construct_my_middleware = MyMiddleware.builder
+
+        w3 = Web3(provider)
+        my_middleware = construct_my_middleware("my argument")
+        w3.middleware_onion.inject(my_middleware, layer=0)
         ```
         """
         raise NotImplementedError("Must be implemented by subclasses")

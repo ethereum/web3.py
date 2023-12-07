@@ -23,7 +23,7 @@ from web3._utils.rpc_abi import (
     RPC,
 )
 from web3.middleware.formatting import (
-    FormattingMiddleware,
+    FormattingMiddlewareBuilder,
 )
 
 if TYPE_CHECKING:
@@ -49,7 +49,7 @@ pythonic_geth_poa = apply_formatters_to_dict(
 geth_poa_cleanup = compose(pythonic_geth_poa, remap_geth_poa_fields)
 
 
-extradata_to_poa_middleware = FormattingMiddleware.build_middleware(
+extradata_to_poa_middleware = FormattingMiddlewareBuilder.build(
     result_formatters={
         RPC.eth_getBlockByHash: apply_formatter_if(is_not_null, geth_poa_cleanup),
         RPC.eth_getBlockByNumber: apply_formatter_if(is_not_null, geth_poa_cleanup),

@@ -15,7 +15,6 @@ from web3.eth import (
     AsyncEth,
 )
 from web3.middleware import (
-    async_local_filter_middleware,
     attrdict_middleware,
     local_filter_middleware,
 )

@@ -5,7 +5,6 @@ from typing import (
     Any,
     AsyncIterable,
     AsyncIterator,
-    Callable,
     Dict,
     Generator,
     Iterable,
@@ -42,6 +41,9 @@ from web3._utils.formatters import (
 )
 from web3._utils.rpc_abi import (
     RPC,
+)
+from web3.middleware.base import (
+    Web3Middleware,
 )
 from web3.types import (
     Coroutine,
@@ -338,52 +340,6 @@ def block_hashes_in_range(
         yield getattr(w3.eth.get_block(BlockNumber(block_number)), "hash", None)
 
 
-def local_filter_middleware(
-    make_request: Callable[[RPCEndpoint, Any], Any], w3: "Web3"
-) -> Callable[[RPCEndpoint, Any], RPCResponse]:
-    filters = {}
-    filter_id_counter = map(to_hex, itertools.count())
-
-    def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
-        if method in NEW_FILTER_METHODS:
-            filter_id = next(filter_id_counter)
-
-            _filter: Union[RequestLogs, RequestBlocks]
-            if method == RPC.eth_newFilter:
-                _filter = RequestLogs(
-                    w3, **apply_key_map(FILTER_PARAMS_KEY_MAP, params[0])
-                )
-
-            elif method == RPC.eth_newBlockFilter:
-                _filter = RequestBlocks(w3)
-
-            else:
-                raise NotImplementedError(method)
-
-            filters[filter_id] = _filter
-            return {"result": filter_id}
-
-        elif method in FILTER_CHANGES_METHODS:
-            filter_id = params[0]
-            #  Pass through to filters not created by middleware
-            if filter_id not in filters:
-                return make_request(method, params)
-            _filter = filters[filter_id]
-            if method == RPC.eth_getFilterChanges:
-                return {"result": next(_filter.filter_changes)}
-
-            elif method == RPC.eth_getFilterLogs:
-                # type ignored b/c logic prevents RequestBlocks which
-                # doesn't implement get_logs
-                return {"result": _filter.get_logs()}  # type: ignore
-            else:
-                raise NotImplementedError(method)
-        else:
-            return make_request(method, params)
-
-    return middleware
-
-
 # --- async --- #
 
 
@@ -611,50 +567,102 @@ async def async_block_hashes_in_range(
     return block_hashes
 
 
-async def async_local_filter_middleware(
-    make_request: Callable[[RPCEndpoint, Any], Any], w3: "Web3"
-) -> Callable[[RPCEndpoint, Any], Coroutine[Any, Any, RPCResponse]]:
-    filters = {}
-    filter_id_counter = map(to_hex, itertools.count())
+# -- middleware -- #
 
-    async def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
-        if method in NEW_FILTER_METHODS:
-            filter_id = next(filter_id_counter)
 
-            _filter: Union[AsyncRequestLogs, AsyncRequestBlocks]
-            if method == RPC.eth_newFilter:
-                _filter = await AsyncRequestLogs(
-                    w3, **apply_key_map(FILTER_PARAMS_KEY_MAP, params[0])
-                )
+class LocalFilterMiddleware(Web3Middleware):
+    def __init__(self, w3):
+        self.filters = {}
+        self.filter_id_counter = itertools.count()
+        super().__init__(w3)
 
-            elif method == RPC.eth_newBlockFilter:
-                _filter = await AsyncRequestBlocks(w3)
+    def _wrap_make_request(self, make_request):
+        def middleware(method, params):
+            if method in NEW_FILTER_METHODS:
+                filter_id = to_hex(next(self.filter_id_counter))
 
+                _filter: Union[RequestLogs, RequestBlocks]
+
+                if method == RPC.eth_newFilter:
+                    _filter = RequestLogs(
+                        self._w3, **apply_key_map(FILTER_PARAMS_KEY_MAP, params[0])
+                    )
+
+                elif method == RPC.eth_newBlockFilter:
+                    _filter = RequestBlocks(self._w3)
+
+                else:
+                    raise NotImplementedError(method)
+
+                self.filters[filter_id] = _filter
+                return {"result": filter_id}
+
+            elif method in FILTER_CHANGES_METHODS:
+                _filter_id = params[0]
+
+                #  Pass through to filters not created by middleware
+                if _filter_id not in self.filters:
+                    return make_request(method, params)
+
+                _filter = self.filters[_filter_id]
+                if method == RPC.eth_getFilterChanges:
+                    return {"result": next(_filter.filter_changes)}
+
+                elif method == RPC.eth_getFilterLogs:
+                    # type ignored b/c logic prevents RequestBlocks which
+                    # doesn't implement get_logs
+                    return {"result": _filter.get_logs()}  # type: ignore
+                else:
+                    raise NotImplementedError(method)
             else:
-                raise NotImplementedError(method)
+                return make_request(method, params)
 
-            filters[filter_id] = _filter
-            return {"result": filter_id}
+        return middleware
 
-        elif method in FILTER_CHANGES_METHODS:
-            filter_id = params[0]
-            #  Pass through to filters not created by middleware
-            if filter_id not in filters:
+    # -- async -- #
+
+    async def _async_wrap_make_request(self, make_request):
+        async def middleware(method, params):
+            if method in NEW_FILTER_METHODS:
+                filter_id = to_hex(next(self.filter_id_counter))
+
+                _filter: Union[AsyncRequestLogs, AsyncRequestBlocks]
+
+                if method == RPC.eth_newFilter:
+                    _filter = await AsyncRequestLogs(
+                        self._w3, **apply_key_map(FILTER_PARAMS_KEY_MAP, params[0])
+                    )
+
+                elif method == RPC.eth_newBlockFilter:
+                    _filter = await AsyncRequestBlocks(self._w3)
+
+                else:
+                    raise NotImplementedError(method)
+
+                self.filters[filter_id] = _filter
+                return {"result": filter_id}
+
+            elif method in FILTER_CHANGES_METHODS:
+                _filter_id = params[0]
+
+                #  Pass through to filters not created by middleware
+                if _filter_id not in self.filters:
+                    return await make_request(method, params)
+
+                _filter = self.filters[_filter_id]
+                if method == RPC.eth_getFilterChanges:
+                    return {"result": await _filter.filter_changes.__anext__()}
+
+                elif method == RPC.eth_getFilterLogs:
+                    # type ignored b/c logic prevents RequestBlocks which
+                    # doesn't implement get_logs
+                    return {"result": await _filter.get_logs()}
+                else:
+                    raise NotImplementedError(method)
+            else:
                 return await make_request(method, params)
-            _filter = filters[filter_id]
 
-            if method == RPC.eth_getFilterChanges:
-                changes = await _filter.filter_changes.__anext__()
-                return {"result": changes}
+        return middleware
 
-            elif method == RPC.eth_getFilterLogs:
-                # type ignored b/c logic prevents RequestBlocks which
-                # doesn't implement get_logs
-                logs = await _filter.get_logs()  # type: ignore
-                return {"result": logs}
-            else:
-                raise NotImplementedError(method)
-        else:
-            return await make_request(method, params)
 
-    return middleware
+local_filter_middleware = LocalFilterMiddleware

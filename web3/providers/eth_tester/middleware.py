@@ -44,7 +44,7 @@ from web3.middleware.base import (
     Web3Middleware,
 )
 from web3.middleware.formatting import (
-    FormattingMiddleware,
+    FormattingMiddlewareBuilder,
 )
 from web3.types import (
     RPCEndpoint,
@@ -400,7 +400,7 @@ class DefaultTransactionFieldsMiddleware(Web3Middleware):
         return method, params
 
 
-ethereum_tester_middleware = FormattingMiddleware.build_middleware(
+ethereum_tester_middleware = FormattingMiddlewareBuilder.build(
     request_formatters=request_formatters, result_formatters=result_formatters
 )
 default_transaction_fields_middleware = DefaultTransactionFieldsMiddleware
