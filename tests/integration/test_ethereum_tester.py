@@ -7,9 +7,6 @@ from eth_tester import (
 from eth_tester.exceptions import (
     TransactionFailed,
 )
-from eth_typing import (
-    ChecksumAddress,
-)
 from eth_utils import (
     is_checksum_address,
     is_dict,
@@ -33,9 +30,6 @@ from web3._utils.module_testing import (
     GoEthereumPersonalModuleTest,
     NetModuleTest,
     Web3ModuleTest,
-)
-from web3.contract.contract import (
-    Contract,
 )
 from web3.exceptions import (
     MethodUnavailable,
@@ -336,6 +330,10 @@ class TestEthereumTesterEthModule(EthModuleTest):
     test_eth_send_transaction_with_nonce = not_implemented(
         EthModuleTest.test_eth_send_transaction_with_nonce, MethodUnavailable
     )
+    test_eth_create_access_list = not_implemented(
+        EthModuleTest.test_eth_create_access_list,
+        MethodUnavailable,
+    )
     test_eth_call_with_override_code = not_implemented(
         EthModuleTest.test_eth_call_with_override_code,
         TypeError,
@@ -632,16 +630,6 @@ class TestEthereumTesterEthModule(EthModuleTest):
         assert is_integer(genesis_balance)
         assert is_integer(later_balance)
         assert later_balance > genesis_balance
-
-    def test_eth_create_access_list(
-        self,
-        w3: "Web3",
-        unlocked_account_dual_type: ChecksumAddress,
-        math_contract: "Contract",
-    ) -> None:
-        super().test_eth_create_access_list(
-            w3, unlocked_account_dual_type, math_contract
-        )
 
 
 class TestEthereumTesterNetModule(NetModuleTest):
