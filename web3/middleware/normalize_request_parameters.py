@@ -3,9 +3,9 @@ from web3._utils.method_formatters import (
 )
 
 from .formatting import (
-    FormattingMiddleware,
+    FormattingMiddlewareBuilder,
 )
 
-request_parameter_normalizer = FormattingMiddleware.build_middleware(
+request_parameter_normalizer = FormattingMiddlewareBuilder.build(
     request_formatters=METHOD_NORMALIZERS,
 )

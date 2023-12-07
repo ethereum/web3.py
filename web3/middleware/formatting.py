@@ -92,16 +92,16 @@ ASYNC_FORMATTERS_BUILDER = Callable[
 ]
 
 
-class FormattingMiddleware(Web3MiddlewareBuilder):
-    request_formatters = None
-    result_formatters = None
-    error_formatters = None
-    sync_formatters_builder = None
-    async_formatters_builder = None
+class FormattingMiddlewareBuilder(Web3MiddlewareBuilder):
+    request_formatters: Formatters = None
+    result_formatters: Formatters = None
+    error_formatters: Formatters = None
+    sync_formatters_builder: SYNC_FORMATTERS_BUILDER = None
+    async_formatters_builder: ASYNC_FORMATTERS_BUILDER = None
 
     @staticmethod
     @curry
-    def build_middleware(
+    def build(
         w3: Union["AsyncWeb3", "Web3"],
         # formatters option:
         request_formatters: Optional[Formatters] = None,
@@ -129,7 +129,7 @@ class FormattingMiddleware(Web3MiddlewareBuilder):
                     "Cannot specify formatters_builder and formatters at the same time"
                 )
 
-        middleware = FormattingMiddleware(w3)
+        middleware = FormattingMiddlewareBuilder(w3)
         middleware.request_formatters = request_formatters or {}
         middleware.result_formatters = result_formatters or {}
         middleware.error_formatters = error_formatters or {}

@@ -34,7 +34,6 @@ from .names import (
     ens_name_to_address_middleware,
 )
 from .filter import (
-    async_local_filter_middleware,
     local_filter_middleware,
 )
 from .gas_price_strategy import (
@@ -48,10 +47,10 @@ from .pythonic import (
 )
 from .signing import (
     construct_sign_and_send_raw_middleware,
-    SignAndSendRawMiddleware,
+    SignAndSendRawMiddlewareBuilder,
 )
 from .stalecheck import (
-    StaleCheckMiddleware,
+    StaleCheckMiddlewareBuilder,
     make_stalecheck_middleware,
 )
 from .validation import (
@@ -89,20 +88,9 @@ async def async_combine_middlewares(
     and passes these args through the request processors, makes the request, and passes
     the response through the response processors.
     """
-    middlewares = [middleware(async_w3) for middleware in middlewares]
-    async_request_processors = [
-        middleware.async_request_processor for middleware in middlewares
-    ]
-    async_response_processors = [
-        middleware.async_response_processor for middleware in reversed(middlewares)
-    ]
-
-    async def async_request_fn(method: RPCEndpoint, params: Any) -> RPCResponse:
-        for processor in async_request_processors:
-            method, params = await processor(method, params)
-        response = await provider_request_fn(method, params)
-        for processor in async_response_processors:
-            response = await processor(method, response)
-        return response
-
-    return async_request_fn
+    accumulator_fn = provider_request_fn
+    for middleware in reversed(middlewares):
+        # initialize the middleware and wrap the accumulator function down the stack
+        initialized = middleware(async_w3)
+        accumulator_fn = await initialized._async_wrap_make_request(accumulator_fn)
+    return accumulator_fn

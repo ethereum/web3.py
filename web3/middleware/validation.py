@@ -33,7 +33,7 @@ from web3.exceptions import (
     Web3ValidationError,
 )
 from web3.middleware.formatting import (
-    FormattingMiddleware,
+    FormattingMiddlewareBuilder,
 )
 from web3.types import (
     Formatters,
@@ -160,7 +160,7 @@ async def async_build_method_validators(
     return _build_formatters_dict(request_formatters)
 
 
-validation_middleware = FormattingMiddleware.build_middleware(
+validation_middleware = FormattingMiddlewareBuilder.build(
     sync_formatters_builder=build_method_validators,
     async_formatters_builder=async_build_method_validators,
 )

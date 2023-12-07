@@ -34,7 +34,7 @@ from .base import (
     Web3Middleware,
 )
 from .formatting import (
-    FormattingMiddleware,
+    FormattingMiddlewareBuilder,
 )
 
 if TYPE_CHECKING:
@@ -105,7 +105,7 @@ class EnsNameToAddressMiddleware(Web3Middleware):
             normalizers = [
                 abi_ens_resolver(self._w3),
             ]
-            self._formatting_middleware = FormattingMiddleware.build_middleware(
+            self._formatting_middleware = FormattingMiddlewareBuilder.build(
                 request_formatters=abi_request_formatters(normalizers, RPC_ABIS)  # type: ignore # noqa: E501
             )
 

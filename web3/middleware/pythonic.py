@@ -3,10 +3,10 @@ from web3._utils.method_formatters import (
     PYTHONIC_RESULT_FORMATTERS,
 )
 from web3.middleware.formatting import (
-    FormattingMiddleware,
+    FormattingMiddlewareBuilder,
 )
 
-pythonic_middleware = FormattingMiddleware.build_middleware(
+pythonic_middleware = FormattingMiddlewareBuilder.build(
     request_formatters=PYTHONIC_REQUEST_FORMATTERS,
     result_formatters=PYTHONIC_RESULT_FORMATTERS,
 )

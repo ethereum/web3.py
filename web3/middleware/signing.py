@@ -12,6 +12,8 @@ from typing import (
     Union,
 )
 
+from toolz import curry
+
 from eth_account import (
     Account,
 )
@@ -53,6 +55,7 @@ from web3._utils.transactions import (
 )
 from web3.middleware.base import (
     Web3Middleware,
+    Web3MiddlewareBuilder,
 )
 from web3.types import (
     RPCEndpoint,
@@ -139,13 +142,16 @@ def format_transaction(transaction: TxParams) -> TxParams:
     )
 
 
-class SignAndSendRawMiddleware(Web3Middleware):
+class SignAndSendRawMiddlewareBuilder(Web3MiddlewareBuilder):
+    _accounts = None
     format_and_fill_tx = None
 
-    def __init__(
-        self, private_key_or_account: Union[_PrivateKey, Collection[_PrivateKey]]
-    ):
-        self._accounts = gen_normalized_accounts(private_key_or_account)
+    @staticmethod
+    @curry
+    def build(private_key_or_account: Union[_PrivateKey, Collection[_PrivateKey]], w3):
+        middleware = SignAndSendRawMiddlewareBuilder(w3)
+        middleware._accounts = gen_normalized_accounts(private_key_or_account)
+        return middleware
 
     def request_processor(self, method: "RPCEndpoint", params: Any) -> Any:
         if method != "eth_sendTransaction":
@@ -206,4 +212,4 @@ class SignAndSendRawMiddleware(Web3Middleware):
                 )
 
 
-construct_sign_and_send_raw_middleware = SignAndSendRawMiddleware
+construct_sign_and_send_raw_middleware = SignAndSendRawMiddlewareBuilder.build
