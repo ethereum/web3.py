@@ -43,3 +43,8 @@ repos:
     hooks:
     -   id: mypy
         exclude: tests/
+-   repo: https://github.com/asottile/pyupgrade
+    rev: v3.15.0
+    hooks:
+    -   id: pyupgrade
+        args: [--py38-plus]
