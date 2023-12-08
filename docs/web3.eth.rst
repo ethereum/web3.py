@@ -993,7 +993,7 @@ The following methods are available on the ``web3.eth`` namespace.
     * Delegates to ``eth_createAccessList`` RPC Method
 
     This method creates an `EIP-2930 <https://eips.ethereum.org/EIPS/eip-2930>`_ type ``accessList`` based on a given
-    ``Transaction``. The ``accessList`` contains all storage slots and addresses read and written by the transaction,
+    transaction. The ``accessList`` contains all storage slots and addresses read and written by the transaction,
     except for the sender account and the precompiles. This method uses the same ``transaction`` call object and
     ``block_identifier`` object as :meth:`~web3.eth.Eth.call()`. An ``accessList`` can be used to access contracts that
     became inaccessible due to gas cost increases.
