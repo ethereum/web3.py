@@ -43,6 +43,7 @@ Getting Started
 - Found a bug? → :ref:`Contribute <contributing>`
 - Want to chat? → `Discord`_
 - Read the source? → `Github`_
+- Looking for inspiration? → :ref:`resources`
 
 .. include:: toc.rst
 
