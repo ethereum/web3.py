@@ -12,9 +12,6 @@ from web3.types import (
     RPCResponse,
 )
 
-from .abi import (
-    abi_middleware,
-)
 from .attrdict import (
     attrdict_middleware,
 )
