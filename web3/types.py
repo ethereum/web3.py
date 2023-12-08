@@ -310,6 +310,7 @@ class FormattedEthSubscriptionResponse(TypedDict):
         BlockData, TxData, LogReceipt, SyncProgress, GethSyncingSubscriptionResult
     ]
 
+
 class CreateAccessListResponse(TypedDict):
     accessList: AccessList
     gasUsed: int
