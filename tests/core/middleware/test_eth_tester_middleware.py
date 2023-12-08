@@ -92,9 +92,10 @@ def test_default_transaction_fields_middleware(
     mock_w3.eth.accounts = w3_accounts
     mock_w3.eth.coinbase = w3_coinbase
 
-    middleware = default_transaction_fields_middleware(mock_request, mock_w3)
+    middleware = default_transaction_fields_middleware(mock_w3)
     base_params = {"chainId": 5}
-    filled_transaction = middleware(method, [base_params])
+    inner = middleware._wrap_make_request(mock_request)
+    filled_transaction = inner(method, [base_params])
 
     filled_params = filled_transaction[0]
 
@@ -177,9 +178,10 @@ async def test_async_default_transaction_fields_middleware(
     mock_w3.eth.accounts = mock_async_accounts()
     mock_w3.eth.coinbase = mock_async_coinbase()
 
-    middleware = default_transaction_fields_middleware(mock_request, mock_w3)
+    middleware = default_transaction_fields_middleware(mock_w3)
     base_params = {"chainId": 5}
-    filled_transaction = await middleware(method, [base_params])
+    inner = await middleware._async_wrap_make_request(mock_request)
+    filled_transaction = await inner(method, [base_params])
 
     filled_params = filled_transaction[0]
     assert ("from" in filled_params.keys()) == from_field_added

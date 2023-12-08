@@ -36,6 +36,9 @@ from .names import (
 from .filter import (
     local_filter_middleware,
 )
+from .formatting import (
+    construct_formatting_middleware,
+)
 from .gas_price_strategy import (
     GasPriceStrategyMiddleware,
 )

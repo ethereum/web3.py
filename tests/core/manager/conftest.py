@@ -1,6 +1,8 @@
 import itertools
 import pytest
 
+from web3.middleware import Web3Middleware
+
 
 @pytest.fixture
 def middleware_factory():
@@ -15,15 +17,19 @@ def middleware_factory():
             def __repr__(self):
                 return "middleware-" + key
 
-            def __call__(self, make_request, w3):
-                def middleware_fn(method, params):
-                    params.append(key)
-                    method = "|".join((method, key))
-                    response = make_request(method, params)
-                    response["result"]["middlewares"].append(key)
-                    return response
+            def __call__(self, web3):
+                class Middleware(Web3Middleware):
+                    def _wrap_make_request(self, make_request):
+                        def middleware_fn(method, params):
+                            params.append(key)
+                            method = "|".join((method, key))
+                            response = make_request(method, params)
+                            response["result"]["middlewares"].append(key)
+                            return response
 
-                return middleware_fn
+                        return middleware_fn
+
+                return Middleware(web3)
 
         return Wrapper()
 

@@ -5,6 +5,7 @@ import pytest
 import pytest_asyncio
 
 from web3 import (
+    AsyncWeb3,
     EthereumTesterProvider,
     Web3,
 )
@@ -121,10 +122,9 @@ def async_eth_tester():
 
 @pytest_asyncio.fixture()
 async def async_w3():
-    provider = AsyncEthereumTesterProvider()
-    w3 = Web3(provider, modules={"eth": [AsyncEth]}, middlewares=provider.middlewares)
-    w3.eth.default_account = await w3.eth.coinbase
-    return w3
+    async_w3 = AsyncWeb3(AsyncEthereumTesterProvider())
+    async_w3.eth.default_account = await async_w3.eth.coinbase
+    return async_w3
 
 
 @pytest_asyncio.fixture()
