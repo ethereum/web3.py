@@ -1,4 +1,5 @@
 import copy
+from asyncio import iscoroutine, iscoroutinefunction
 from typing import (
     Any,
     Callable,
@@ -121,7 +122,14 @@ class RequestMocker:
         response_dict = {"jsonrpc": "2.0", "id": request_id}
 
         if method in self.mock_results:
-            return merge(response_dict, {"result": self.mock_results[method]})
+            mock_return = self.mock_results[method]
+            if isinstance(mock_return, Callable):
+                # handle callable to make things easier since we're mocking
+                mock_return = mock_return(method, params)
+            elif iscoroutinefunction(mock_return):
+                # this is the "correct" way to mock the async make_request
+                mock_return = await mock_return(method, params)
+            return merge(response_dict, {"result": mock_return})
         elif method in self.mock_errors:
             error = self.mock_errors[method]
             if not isinstance(error, dict):

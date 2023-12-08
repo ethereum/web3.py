@@ -147,25 +147,22 @@ def _get_block_by_something(method, params):
         (dict(max_wait_seconds=80, sample_size=5, probability=50, weighted=True), 11),
     ),
 )
-def test_time_based_gas_price_strategy(strategy_params, expected):
-    # fixture_middleware = construct_result_generator_middleware(
-    #     {
-    #         "eth_getBlockByHash": _get_block_by_something,
-    #         "eth_getBlockByNumber": _get_block_by_something,
-    #     }
-    # )
-
-    w3 = Web3(
-        provider=BaseProvider(),
-        # middlewares=[fixture_middleware],
-    )
+def test_time_based_gas_price_strategy(strategy_params, expected, request_mocker):
+    w3 = Web3(provider=BaseProvider())
 
     time_based_gas_price_strategy = construct_time_based_gas_price_strategy(
         **strategy_params,
     )
     w3.eth.set_gas_price_strategy(time_based_gas_price_strategy)
-    actual = w3.eth.generate_gas_price()
-    assert actual == expected
+    with request_mocker(
+        w3,
+        mock_results={
+            "eth_getBlockByHash": _get_block_by_something,
+            "eth_getBlockByNumber": _get_block_by_something,
+        },
+    ):
+        actual = w3.eth.generate_gas_price()
+        assert actual == expected
 
 
 def _get_initial_block(method, params):
@@ -183,7 +180,7 @@ def _get_gas_price(method, params):
     return 4321
 
 
-def test_time_based_gas_price_strategy_without_transactions():
+def test_time_based_gas_price_strategy_without_transactions(request_mocker):
     # fixture_middleware = construct_result_generator_middleware(
     #     {
     #         "eth_getBlockByHash": _get_initial_block,
@@ -192,10 +189,7 @@ def test_time_based_gas_price_strategy_without_transactions():
     #     }
     # )
 
-    w3 = Web3(
-        provider=BaseProvider(),
-        # middlewares=[fixture_middleware],
-    )
+    w3 = Web3(provider=BaseProvider())
 
     time_based_gas_price_strategy = construct_time_based_gas_price_strategy(
         max_wait_seconds=80,
@@ -204,8 +198,16 @@ def test_time_based_gas_price_strategy_without_transactions():
         weighted=True,
     )
     w3.eth.set_gas_price_strategy(time_based_gas_price_strategy)
-    actual = w3.eth.generate_gas_price()
-    assert actual == w3.eth.gas_price
+    with request_mocker(
+        w3,
+        mock_results={
+            "eth_getBlockByHash": _get_initial_block,
+            "eth_getBlockByNumber": _get_initial_block,
+            "eth_gasPrice": _get_gas_price,
+        },
+    ):
+        actual = w3.eth.generate_gas_price()
+        assert actual == w3.eth.gas_price
 
 
 @pytest.mark.parametrize(
@@ -266,23 +268,20 @@ def test_time_based_gas_price_strategy_without_transactions():
     ),
 )
 def test_time_based_gas_price_strategy_zero_sample(
-    strategy_params_zero, expected_exception_message
+    strategy_params_zero, expected_exception_message, request_mocker
 ):
     with pytest.raises(Web3ValidationError) as excinfo:
-        # fixture_middleware = construct_result_generator_middleware(
-        #     {
-        #         "eth_getBlockByHash": _get_block_by_something,
-        #         "eth_getBlockByNumber": _get_block_by_something,
-        #     }
-        # )
-
-        w3 = Web3(
-            provider=BaseProvider(),
-            # middlewares=[fixture_middleware],
-        )
+        w3 = Web3(provider=BaseProvider())
         time_based_gas_price_strategy_zero = construct_time_based_gas_price_strategy(
             **strategy_params_zero,
         )
         w3.eth.set_gas_price_strategy(time_based_gas_price_strategy_zero)
-        w3.eth.generate_gas_price()
+        with request_mocker(
+            w3,
+            mock_results={
+                "eth_getBlockByHash": _get_block_by_something,
+                "eth_getBlockByNumber": _get_block_by_something,
+            },
+        ):
+            w3.eth.generate_gas_price()
     assert str(excinfo.value) == expected_exception_message

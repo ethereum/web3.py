@@ -416,9 +416,18 @@ class AsyncDummyProvider(AsyncBaseProvider):
         raise NotImplementedError(f"Cannot make request for {method}:{params}")
 
 
-@pytest.fixture
-def async_w3_dummy():
-    return AsyncWeb3(provider=AsyncDummyProvider(), middlewares=[])
+@pytest_asyncio.fixture
+async def async_w3_dummy(request_mocker):
+    w3_base = AsyncWeb3(provider=AsyncDummyProvider(), middlewares=[])
+    async with request_mocker(
+        w3_base,
+        mock_results={
+            "eth_sendRawTransaction": lambda *args: args,
+            "net_version": 1,
+            "eth_chainId": "0x02",
+        },
+    ):
+        yield w3_base
 
 
 @pytest.fixture

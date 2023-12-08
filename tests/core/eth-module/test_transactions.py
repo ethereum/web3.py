@@ -1,3 +1,6 @@
+import collections
+import itertools
+
 import pytest
 
 from eth_utils import (
@@ -170,8 +173,9 @@ def test_passing_string_to_to_hex(w3):
         w3.eth.wait_for_transaction_receipt(transaction_hash, timeout=RECEIPT_TIMEOUT)
 
 
-def test_unmined_transaction_wait_for_receipt(w3):
-    # w3.middleware_onion.add(unmined_receipt_simulator_middleware)
+def test_unmined_transaction_wait_for_receipt(w3, request_mocker):
+    receipt_counters = collections.defaultdict(itertools.count)
+
     txn_hash = w3.eth.send_transaction(
         {
             "from": w3.eth.coinbase,
@@ -179,12 +183,22 @@ def test_unmined_transaction_wait_for_receipt(w3):
             "value": 123457,
         }
     )
-    with pytest.raises(TransactionNotFound):
-        w3.eth.get_transaction_receipt(txn_hash)
+    unmocked_make_request = w3.provider.make_request
 
-    txn_receipt = w3.eth.wait_for_transaction_receipt(txn_hash)
-    assert txn_receipt["transactionHash"] == txn_hash
-    assert txn_receipt["blockHash"] is not None
+    with request_mocker(
+        w3,
+        mock_results={
+            RPC.eth_getTransactionReceipt: lambda method, params: None
+            if next(receipt_counters[params[0]]) < 5
+            else unmocked_make_request(method, params)["result"]
+        },
+    ):
+        with pytest.raises(TransactionNotFound):
+            w3.eth.get_transaction_receipt(txn_hash)
+
+        txn_receipt = w3.eth.wait_for_transaction_receipt(txn_hash)
+        assert txn_receipt["transactionHash"] == txn_hash
+        assert txn_receipt["blockHash"] is not None
 
 
 def test_get_transaction_formatters(w3, request_mocker):

@@ -1,20 +1,26 @@
 from web3.manager import (
     RequestManager,
 )
+from web3.middleware import (
+    Web3Middleware,
+)
 from web3.providers import (
     BaseProvider,
 )
 
 
-def stateful_middleware(make_request, w3):
+class StatefulMiddleware(Web3Middleware):
     state = []
 
-    def middleware(method, params):
-        state.append((method, params))
-        return {"result": state}
+    def _wrap_make_request(self, make_request):
+        def middleware(method, params):
+            self.state.append((method, params))
+            return {"result": self.state}
 
-    middleware.state = state
-    return middleware
+        return middleware
+
+
+stateful_middleware = StatefulMiddleware
 
 
 def test_middleware_holds_state_across_requests():

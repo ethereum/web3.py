@@ -213,3 +213,6 @@ class FormattingMiddlewareBuilder(Web3MiddlewareBuilder):
                 self.error_formatters,
                 response,
             )
+
+
+construct_formatting_middleware = FormattingMiddlewareBuilder.build

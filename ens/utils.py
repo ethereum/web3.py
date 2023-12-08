@@ -100,14 +100,14 @@ def init_web3(
 
 def customize_web3(w3: "_Web3") -> "_Web3":
     from web3.middleware import (
-        StaleCheckMiddlewareBuilder,
+        make_stalecheck_middleware,
     )
 
     if w3.middleware_onion.get("name_to_address"):
         w3.middleware_onion.remove("name_to_address")
 
     if not w3.middleware_onion.get("stalecheck"):
-        stalecheck_middleware = StaleCheckMiddlewareBuilder(
+        stalecheck_middleware = make_stalecheck_middleware(
             ACCEPTABLE_STALE_HOURS * 3600
         )
         w3.middleware_onion.add(stalecheck_middleware, name="stalecheck")
@@ -308,7 +308,7 @@ def init_async_web3(
         AsyncEth as AsyncEthMain,
     )
     from web3.middleware import (
-        StaleCheckMiddlewareBuilder,
+        make_stalecheck_middleware,
     )
 
     middlewares = list(middlewares)
@@ -318,7 +318,7 @@ def init_async_web3(
 
     if "stalecheck" not in (name for mw, name in middlewares):
         middlewares.append(
-            (StaleCheckMiddlewareBuilder(ACCEPTABLE_STALE_HOURS * 3600), "stalecheck")
+            (make_stalecheck_middleware(ACCEPTABLE_STALE_HOURS * 3600), "stalecheck")
         )
 
     if provider is default:
