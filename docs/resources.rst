@@ -29,27 +29,44 @@ Courses
 - `Blockchain Python Programming Tutorial (2019) <https://www.youtube.com/watch?v=pZSegEXtgAE>`__
 
 
-Frameworks and Tooling
-----------------------
-
-- `ApeWorX <https://www.apeworx.io/>`__ - The Ethereum development framework for Python Developers, Data Scientists, and Security Professionals
-- `Woke <https://github.com/Ackee-Blockchain/woke>`__ - A Python-based development and testing framework for Solidity
-- `Brownie <https://github.com/eth-brownie/brownie>`__- A Python-based development and testing framework for smart contracts targeting EVM
-
-.. warning ::
-
-  Brownie lacks active maintenance. 
-  `See migration guide to ApeWorX <https://academy.apeworx.io/articles/porting-brownie-to-ape>`__.
-
 Tutorials
 ---------
 
-- `Configuring Web3 for JSON-RPC fallback and MEV blocker providers <https://web3-ethereum-defi.readthedocs.io/tutorials/multi-rpc-configuration.html>`__
+- Intro to `Ape development framework <https://snakecharmers.ethereum.org/intro-to-ape/>`__
+- Intro to `websockets <https://snakecharmers.ethereum.org/websockets-v2/>`__ and web3.py
+- Intro to `asynchronous web3.py <https://snakecharmers.ethereum.org/web3-py-patterns-intro-async/>`__
+- Intro to `threaded web3.py <https://snakecharmers.ethereum.org/web3-py-patterns-multithreading/>`__
+- Sign `typed data messages <https://snakecharmers.ethereum.org/typed-data-message-signing/>`__ (EIP 712)
+- Look up offchain data via `CCIP Read <https://snakecharmers.ethereum.org/web3-py-patterns-off-chain-lookups/>`__
+- Configure and `customize web3.py <https://snakecharmers.ethereum.org/web3-py-patterns-customizations/>`__
+- `Decode a signed transaction <https://snakecharmers.ethereum.org/web3-py-patterns-decoding-signed-transactions/>`__
+- Find a historical contract `revert reason <https://snakecharmers.ethereum.org/web3py-revert-reason-parsing/>`__
+- Generate a `vanity address <https://snakecharmers.ethereum.org/web3-py-patterns-mining-addresses/>`__
+- Similate transactions with `call state overrides <https://snakecharmers.ethereum.org/web3-py-patterns-eth_call-overrides/>`__
+- Configure web3 for `JSON-RPC fallback and MEV blocker providers <https://web3-ethereum-defi.readthedocs.io/tutorials/multi-rpc-configuration.html>`__
+
+
+Conference Presentations and Videos
+-----------------------------------
+
+- `Web3.Py - Now And Near Future by Marc Garreau (2022, 15 mins) <https://www.youtube.com/watch?v=hj6ubyyE_TY>`__
+- `Python and DeFi by Curve Finance (2022, 15 mins) <https://www.youtube.com/watch?v=4HOU3z0LoDg>`__
+- `Working with MetaMask in Python by Rishab Kattimani (2022, 15 mins) <https://www.youtube.com/watch?v=cFB1BGeCpn0>`__
+
 
 Smart Contract Programming Languages
 ------------------------------------
 
 - `Vyper <https://docs.vyperlang.org/en/stable/>`__ - Contract-oriented, pythonic programming language that targets EVM
+
+
+Frameworks and Tooling
+----------------------
+
+- `Ape <https://www.apeworx.io/>`__ - The Ethereum development framework for Python Developers, Data Scientists, and Security Professionals
+- `Titanoboa <https://github.com/vyperlang/titanoboa>`__ - A Vyper interpreter and testing framework
+- `Wake <https://github.com/Ackee-Blockchain/wake>`__ - A Python-based development and testing framework for Solidity
+- `Brownie <https://github.com/eth-brownie/brownie>`__ - [No longer actively maintained] A Python-based development and testing framework for smart contracts targeting EVM
 
 
 Libraries
@@ -63,17 +80,11 @@ Libraries
 - `Lido Python SDK <https://github.com/lidofinance/lido-python-sdk>`__ - Library with which you can get all Lido validator's signatures and check their validity
 
 
-Conference Presentations and Videos
------------------------------------
-
-- `Web3.Py - Now And Near Future by Marc Garreau (2022, 15 mins) <https://www.youtube.com/watch?v=hj6ubyyE_TY>`__
-- `Python and DeFi by Curve Finance (2022, 15 mins) <https://www.youtube.com/watch?v=4HOU3z0LoDg>`__
-- `Working with MetaMask in Python by Rishab Kattimani (2022, 15 mins) <https://www.youtube.com/watch?v=cFB1BGeCpn0>`__
-
-
 Applications
 ------------
 
+- `Curve Finance <https://github.com/curvefi?q=&type=all&language=python&sort=>`__
+- `Yearn Finance <https://github.com/yearn?q=&type=all&language=python&sort=>`__
 - `StakeWise Oracle <https://github.com/stakewise/oracle/>`__
 
 
@@ -84,3 +95,4 @@ Hackathon Helpers
 - `eth-flogger <https://github.com/wolovim/eth-flogger>`__ - Sample web app utilizing async web3.py, Flask, SQLite, Sourcify
 - `Temo <https://github.com/wolovim/temo>`__ - Sample terminal app utilizing async web3py, Textual, Anvil
 - `web3py-discord-bot <https://github.com/wolovim/web3py-discord-bot>`__ - Sample Discord bot utilizing websockets, ``eth_subscribe``, and discord.py
+- `py-signer <https://github.com/wolovim/py-signer>`__ - Demo of typed data message signing (EIP-712) with eth-account and Ape
