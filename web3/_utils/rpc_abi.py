@@ -47,6 +47,7 @@ class RPC:
     eth_accounts = RPCEndpoint("eth_accounts")
     eth_blockNumber = RPCEndpoint("eth_blockNumber")
     eth_call = RPCEndpoint("eth_call")
+    eth_createAccessList = RPCEndpoint("eth_createAccessList")
     eth_chainId = RPCEndpoint("eth_chainId")
     eth_coinbase = RPCEndpoint("eth_coinbase")
     eth_estimateGas = RPCEndpoint("eth_estimateGas")
@@ -191,6 +192,7 @@ TRACE_FILTER_PARAM_ABIS = {
 RPC_ABIS: Dict[str, Union[Sequence[Any], Dict[str, str]]] = {
     # eth
     "eth_call": TRANSACTION_PARAMS_ABIS,
+    "eth_createAccessList": TRANSACTION_PARAMS_ABIS,
     "eth_estimateGas": TRANSACTION_PARAMS_ABIS,
     "eth_getBalance": ["address", None],
     "eth_getBlockByHash": ["bytes32", "bool"],

@@ -250,6 +250,10 @@ request_formatters = {
         transaction_request_transformer,
         apply_formatter_if(is_not_named_block, to_integer_if_hex),
     ),
+    RPCEndpoint("eth_createAccessList"): apply_formatters_to_args(
+        transaction_request_transformer,
+        apply_formatter_if(is_not_named_block, to_integer_if_hex),
+    ),
     RPCEndpoint("eth_uninstallFilter"): apply_formatters_to_args(hex_to_integer),
     RPCEndpoint("eth_getCode"): apply_formatters_to_args(
         identity,
@@ -346,6 +350,7 @@ def default_transaction_fields_middleware(
             "eth_call",
             "eth_estimateGas",
             "eth_sendTransaction",
+            "eth_createAccessList",
         ):
             fill_default_from = fill_default("from", guess_from, w3)
             filled_transaction = pipe(

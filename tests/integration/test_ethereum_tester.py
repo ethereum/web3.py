@@ -330,6 +330,10 @@ class TestEthereumTesterEthModule(EthModuleTest):
     test_eth_send_transaction_with_nonce = not_implemented(
         EthModuleTest.test_eth_send_transaction_with_nonce, MethodUnavailable
     )
+    test_eth_create_access_list = not_implemented(
+        EthModuleTest.test_eth_create_access_list,
+        MethodUnavailable,
+    )
     test_eth_call_with_override_code = not_implemented(
         EthModuleTest.test_eth_call_with_override_code,
         TypeError,

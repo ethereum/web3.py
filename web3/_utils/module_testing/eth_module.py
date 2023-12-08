@@ -112,6 +112,28 @@ OFFCHAIN_LOOKUP_RETURN_DATA = "0000000000000000000000000000000000000000000000000
 # "web3py" as an abi-encoded string
 WEB3PY_AS_HEXBYTES = "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000067765623370790000000000000000000000000000000000000000000000000000"  # noqa: E501
 
+RLP_ACCESS_LIST = [
+    (
+        "0xde0b295669a9fd93d5f28d9ec85e40f4cb697bae",
+        (
+            "0x0000000000000000000000000000000000000000000000000000000000000003",
+            "0x0000000000000000000000000000000000000000000000000000000000000007",
+        ),
+    ),
+    ("0xbb9bc244d798123fde783fcc1c72d3bb8c189413", ()),
+]
+
+RPC_ACCESS_LIST = [
+    {
+        "address": "0xde0b295669a9fd93d5f28d9ec85e40f4cb697bae",
+        "storageKeys": (
+            "0x0000000000000000000000000000000000000000000000000000000000000003",
+            "0x0000000000000000000000000000000000000000000000000000000000000007",
+        ),
+    },
+    {"address": "0xbb9bc244d798123fde783fcc1c72d3bb8c189413", "storageKeys": ()},
+]
+
 if TYPE_CHECKING:
     from _pytest.monkeypatch import MonkeyPatch  # noqa: F401
 
@@ -2671,6 +2693,38 @@ class EthModuleTest:
         )
         assert isinstance(code, HexBytes)
         assert len(code) > 0
+
+    def test_eth_create_access_list(
+        self,
+        w3: "Web3",
+        unlocked_account_dual_type: ChecksumAddress,
+        math_contract: "Contract",
+    ) -> None:
+        # Initialize transaction for gas estimation
+        txn_params: TxParams = {
+            "from": unlocked_account_dual_type,
+            "value": Wei(1),
+            "gas": 21000,
+        }
+
+        txn = math_contract.functions.incrementCounter(1).build_transaction(txn_params)
+
+        # create access list using data from transaction
+        response = w3.eth.create_access_list(
+            {
+                "from": unlocked_account_dual_type,
+                "to": math_contract.address,
+                "data": txn["data"],
+            }
+        )
+
+        assert is_dict(response)
+        access_list = response["accessList"]
+        assert len(access_list) > 0
+        assert access_list[0]["address"] is not None
+        assert is_checksum_address(access_list[0]["address"])
+        assert len(access_list[0]["storageKeys"][0]) == 32
+        assert int(response["gasUsed"]) >= 0
 
     def test_eth_sign(
         self, w3: "Web3", unlocked_account_dual_type: ChecksumAddress

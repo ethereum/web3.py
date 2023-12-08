@@ -987,6 +987,46 @@ The following methods are available on the ``web3.eth`` namespace.
     As of v6.3.0, the raw data is also returned and
     can be accessed via the ``data`` attribute on ``ContractLogicError``.
 
+
+.. py:method:: Eth.create_access_list(transaction, block_identifier=web3.eth.default_block)
+
+    * Delegates to ``eth_createAccessList`` RPC Method
+
+    This method creates an `EIP-2930 <https://eips.ethereum.org/EIPS/eip-2930>`_ type ``accessList`` based on a given
+    ``transaction``. The ``accessList`` contains all storage slots and addresses read and written by the transaction,
+    except for the sender account and the precompiles. This method uses the same ``transaction`` call object and
+    ``block_identifier`` object as :meth:`~web3.eth.Eth.call()`. An ``accessList`` can be used to access contracts that
+    became inaccessible due to gas cost increases.
+
+    The ``transaction`` parameter is handled in the same manner as the
+    :meth:`~web3.eth.Eth.send_transaction()` method.
+    The optional ``block_identifier`` parameter is a block_number or ``latest`` or ``pending``. Default is ``latest``.
+
+    .. code-block:: python
+
+        >>> w3.eth.create_access_list({'from': '0x0', 'data': '0x0', 'type': '0x1'})
+        {
+            'accessList': (
+                {
+                    'address': '0xde0b295669a9fd93d5f28d9ec85e40f4cb697bae',
+                    'storageKeys': (
+                        '0x0000000000000000000000000000000000000000000000000000000000000003',
+                        '0x0000000000000000000000000000000000000000000000000000000000000007',
+                    )
+                },
+                {
+                    'address': '0xbb9bc244d798123fde783fcc1c72d3bb8c189413',
+                    'storageKeys': ()
+                },
+            ),
+            "gas": "21000"
+        }
+
+    The method ``eth_createAccessList`` returns a list of addresses and storage keys used by the transaction, plus the gas
+    consumed when the ``accessList`` is included. Like ``eth_estimateGas``, this is an estimation; the list could change when
+    the transaction is actually finalized. Adding an ``accessList`` to your transaction does not necessarily result in lower
+    gas usage compared to a transaction without an ``accessList``.
+
 .. py:method:: Eth.fee_history(block_count, newest_block, reward_percentiles=None)
 
     * Delegates to ``eth_feeHistory`` RPC Method

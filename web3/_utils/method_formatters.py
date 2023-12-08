@@ -186,6 +186,24 @@ def type_aware_apply_formatters_to_dict_keys_and_values(
     )
 
 
+def apply_list_to_array_formatter(formatter: Any) -> Callable[..., Any]:
+    return to_list(apply_formatter_to_array(formatter))
+
+
+ACCESS_LIST_FORMATTER = type_aware_apply_formatters_to_dict(
+    {
+        "address": to_checksum_address,
+        "storageKeys": apply_list_to_array_formatter(to_hexbytes(64)),
+    }
+)
+
+ACCESS_LIST_RESPONSE_FORMATTER = type_aware_apply_formatters_to_dict(
+    {
+        "accessList": apply_list_to_array_formatter(ACCESS_LIST_FORMATTER),
+        "gasUsed": to_integer_if_hex,
+    }
+)
+
 TRANSACTION_RESULT_FORMATTERS = {
     "blockHash": apply_formatter_if(is_not_null, to_hexbytes(32)),
     "blockNumber": apply_formatter_if(is_not_null, to_integer_if_hex),
@@ -210,13 +228,7 @@ TRANSACTION_RESULT_FORMATTERS = {
     "chainId": apply_formatter_if(is_not_null, to_integer_if_hex),
     "accessList": apply_formatter_if(
         is_not_null,
-        apply_formatter_to_array(
-            type_aware_apply_formatters_to_dict(
-                {
-                    "address": to_checksum_address,
-                }
-            )
-        ),
+        apply_formatter_to_array(ACCESS_LIST_FORMATTER),
     ),
     "input": HexBytes,
     "data": HexBytes,  # Nethermind, for example, returns both `input` and `data`
@@ -236,10 +248,6 @@ WITHDRAWAL_RESULT_FORMATTERS = {
 withdrawal_result_formatter = type_aware_apply_formatters_to_dict(
     WITHDRAWAL_RESULT_FORMATTERS
 )
-
-
-def apply_list_to_array_formatter(formatter: Any) -> Callable[..., Any]:
-    return to_list(apply_formatter_to_array(formatter))
 
 
 LOG_ENTRY_FORMATTERS = {
@@ -517,6 +525,7 @@ PYTHONIC_REQUEST_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
             (is_length(3), call_with_override),
         )
     ),
+    RPC.eth_createAccessList: apply_formatter_at_index(transaction_param_formatter, 0),
     RPC.eth_estimateGas: apply_one_of_formatters(
         (
             (is_length(1), estimate_gas_without_block_id),
@@ -682,6 +691,7 @@ PYTHONIC_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     RPC.eth_chainId: to_integer_if_hex,
     RPC.eth_coinbase: to_checksum_address,
     RPC.eth_call: HexBytes,
+    RPC.eth_createAccessList: ACCESS_LIST_RESPONSE_FORMATTER,
     RPC.eth_estimateGas: to_integer_if_hex,
     RPC.eth_feeHistory: fee_history_formatter,
     RPC.eth_maxPriorityFeePerGas: to_integer_if_hex,
