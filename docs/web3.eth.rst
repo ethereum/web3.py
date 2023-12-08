@@ -998,7 +998,8 @@ The following methods are available on the ``web3.eth`` namespace.
     ``block_identifier`` object as :meth:`~web3.eth.Eth.call()`. An ``accessList`` can be used to access contracts that
     became inaccessible due to gas cost increases.
 
-    :param transaction: ``TransactionCall`` object.
+    :param transaction: The ``transaction`` parameter is handled in the same manner as the
+    :meth:`~web3.eth.Eth.send_transaction()` method.
     :param block_identifier: Optional, a block_number or ``latest`` or ``pending``
 
     .. code-block:: python
