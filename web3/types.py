@@ -310,6 +310,10 @@ class FormattedEthSubscriptionResponse(TypedDict):
         BlockData, TxData, LogReceipt, SyncProgress, GethSyncingSubscriptionResult
     ]
 
+class CreateAccessListResponse(TypedDict):
+    accessList: AccessList
+    gasUsed: int
+
 
 Middleware = Callable[[Callable[[RPCEndpoint, Any], RPCResponse], "Web3"], Any]
 AsyncMiddlewareCoroutine = Callable[
@@ -368,7 +372,6 @@ GasPriceStrategy = Union[
 TxReceipt = TypedDict(
     "TxReceipt",
     {
-        "accessList": AccessList,
         "blockHash": HexBytes,
         "blockNumber": BlockNumber,
         "contractAddress": Optional[ChecksumAddress],

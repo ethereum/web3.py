@@ -72,6 +72,7 @@ from web3.types import (
     BlockIdentifier,
     BlockParams,
     CallOverride,
+    CreateAccessListResponse,
     FeeHistory,
     FilterParams,
     LogReceipt,
@@ -286,7 +287,7 @@ class Eth(BaseEth):
     _create_access_list: Method[
         Callable[
             [TxParams, Optional[BlockIdentifier]],
-            TxReceipt,
+            CreateAccessListResponse,
         ]
     ] = Method(RPC.eth_createAccessList, mungers=[BaseEth.create_access_list_munger])
 
@@ -294,7 +295,7 @@ class Eth(BaseEth):
         self,
         transaction: TxParams,
         block_identifier: Optional[BlockIdentifier] = None,
-    ) -> TxReceipt:
+    ) -> CreateAccessListResponse:
         return self._create_access_list(transaction, block_identifier)
 
     # eth_estimateGas

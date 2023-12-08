@@ -298,7 +298,5 @@ def test_get_transaction_formatters(w3):
         }
     )
 
-    print(received_tx)
-    print(expected)
     assert received_tx == expected
     w3.middleware_onion.remove("result_middleware")
