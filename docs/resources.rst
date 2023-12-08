@@ -64,7 +64,7 @@ Frameworks and Tooling
 ----------------------
 
 - `Ape <https://www.apeworx.io/>`__ - The Ethereum development framework for Python Developers, Data Scientists, and Security Professionals
-- `titanoboa <https://github.com/vyperlang/titanoboa>`__ - A Vyper interpreter and testing framework
+- `Titanoboa <https://github.com/vyperlang/titanoboa>`__ - A Vyper interpreter and testing framework
 - `Wake <https://github.com/Ackee-Blockchain/wake>`__ - A Python-based development and testing framework for Solidity
 - `Brownie <https://github.com/eth-brownie/brownie>`__ - [No longer actively maintained.] A Python-based development and testing framework for smart contracts targeting EVM
 
