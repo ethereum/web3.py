@@ -1,1 +1,0 @@
-Make downloadable versions of docs available in ``pdf``, ``htmlzip``, and ``epub`` formats 

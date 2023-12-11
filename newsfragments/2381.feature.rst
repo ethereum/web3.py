@@ -1,1 +1,0 @@
-Implement ``createAccessList`` RPC endpoint to create an EIP-2930 access list.

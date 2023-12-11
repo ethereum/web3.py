@@ -6,6 +6,30 @@ v6 Breaking Changes Summary
 
 .. towncrier release notes start
 
+web3.py v6.12.0 (2023-12-11)
+----------------------------
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Make downloadable versions of docs available in ``pdf``, ``htmlzip``, and ``epub`` formats (`#3153 <https://github.com/ethereum/web3.py/issues/3153>`__)
+- Add 2023 user survey fine art banner in the docs (`#3159 <https://github.com/ethereum/web3.py/issues/3159>`__)
+- Polish the community resources docs page (`#3162 <https://github.com/ethereum/web3.py/issues/3162>`__)
+
+
+Features
+~~~~~~~~
+
+- Implement ``createAccessList`` RPC endpoint to create an EIP-2930 access list. (`#2381 <https://github.com/ethereum/web3.py/issues/2381>`__)
+
+
+Internal Changes - for web3.py Contributors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Run flaky eth-tester tests on CI (`#3157 <https://github.com/ethereum/web3.py/issues/3157>`__)
+- Pin ``pytest-asyncio`` dependency to <0.23 (`#3160 <https://github.com/ethereum/web3.py/issues/3160>`__)
+
+
 web3.py v6.11.4 (2023-11-27)
 ----------------------------
 
