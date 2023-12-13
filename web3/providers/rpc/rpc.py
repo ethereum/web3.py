@@ -48,10 +48,13 @@ from .utils import (
 class HTTPProvider(JSONBaseProvider):
     logger = logging.getLogger("web3.providers.HTTPProvider")
     endpoint_uri = None
+
     _request_args = None
     _request_kwargs = None
     # type ignored b/c conflict with _middlewares attr on BaseProvider
     _middlewares: Tuple[Middleware, ...] = NamedElementOnion([])  # type: ignore # noqa: E501
+
+    exception_retry_configuration: Optional[ExceptionRetryConfiguration] = None
 
     def __init__(
         self,

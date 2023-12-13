@@ -1,4 +1,5 @@
 from typing import (
+    Optional,
     Sequence,
     Type,
 )
@@ -79,18 +80,32 @@ def check_if_retry_on_failure(
     if allowlist is None:
         allowlist = REQUEST_RETRY_ALLOWLIST
 
-    if method in allowlist or method.split("_")[0]:
+    if method in allowlist or method.split("_")[0] in allowlist:
         return True
     else:
         return False
 
 
 class ExceptionRetryConfiguration(BaseModel):
-    errors: Sequence[Type[BaseException]] = (
-        ConnectionError,
-        requests.HTTPError,
-        requests.Timeout,
-    )
-    retries: int = 5
-    backoff_factor: float = 0.5
-    method_allowlist: Sequence[str] = REQUEST_RETRY_ALLOWLIST
+    errors: Sequence[Type[BaseException]]
+    retries: int
+    backoff_factor: float
+    method_allowlist: Sequence[str]
+
+    def __init__(
+        self,
+        errors: Sequence[Type[BaseException]] = (
+            ConnectionError,
+            requests.HTTPError,
+            requests.Timeout,
+        ),
+        retries: int = 5,
+        backoff_factor: float = 0.5,
+        method_allowlist: Sequence[str] = None,
+    ):
+        super().__init__(
+            errors=errors,
+            retries=retries,
+            backoff_factor=backoff_factor,
+            method_allowlist=method_allowlist or REQUEST_RETRY_ALLOWLIST,
+        )
