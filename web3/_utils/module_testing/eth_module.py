@@ -1121,23 +1121,26 @@ class AsyncEthModuleTest:
     async def test_eth_create_access_list(
         self,
         async_w3: "AsyncWeb3",
-        unlocked_account_dual_type: ChecksumAddress,
-        math_contract: "Contract",
+        async_unlocked_account_dual_type: ChecksumAddress,
+        async_math_contract: "Contract",
     ) -> None:
         # Initialize transaction for gas estimation
         txn_params: TxParams = {
-            "from": unlocked_account_dual_type,
+            "from": async_unlocked_account_dual_type,
             "value": Wei(1),
             "gas": 21000,
         }
-
-        txn = math_contract.functions.incrementCounter(1).build_transaction(txn_params)
+        txn = async_math_contract._prepare_transaction(
+            fn_name="incrementCounter",
+            fn_args=[1],
+            transaction=txn_params,
+        )
 
         # create access list using data from transaction
         response = await async_w3.eth.create_access_list(
             {
-                "from": unlocked_account_dual_type,
-                "to": math_contract.address,
+                "from": async_unlocked_account_dual_type,
+                "to": async_math_contract.address,
                 "data": txn["data"],
             }
         )
