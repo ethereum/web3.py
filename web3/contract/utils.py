@@ -181,6 +181,7 @@ def estimate_gas_for_function(
     contract_abi: Optional[ABI] = None,
     fn_abi: Optional[ABIFunction] = None,
     block_identifier: Optional[BlockIdentifier] = None,
+    state_override: Optional[CallOverride] = None,
     *args: Any,
     **kwargs: Any,
 ) -> int:
@@ -200,7 +201,7 @@ def estimate_gas_for_function(
         fn_kwargs=kwargs,
     )
 
-    return w3.eth.estimate_gas(estimate_transaction, block_identifier)
+    return w3.eth.estimate_gas(estimate_transaction, block_identifier, state_override)
 
 
 def build_transaction_for_function(
@@ -389,6 +390,7 @@ async def async_estimate_gas_for_function(
     contract_abi: Optional[ABI] = None,
     fn_abi: Optional[ABIFunction] = None,
     block_identifier: Optional[BlockIdentifier] = None,
+    state_override: Optional[CallOverride] = None,
     *args: Any,
     **kwargs: Any,
 ) -> int:
@@ -408,7 +410,9 @@ async def async_estimate_gas_for_function(
         fn_kwargs=kwargs,
     )
 
-    return await async_w3.eth.estimate_gas(estimate_transaction, block_identifier)
+    return await async_w3.eth.estimate_gas(
+        estimate_transaction, block_identifier, state_override
+    )
 
 
 async def async_build_transaction_for_function(

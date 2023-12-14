@@ -302,14 +302,17 @@ class Eth(BaseEth):
 
     # eth_estimateGas
 
-    _estimate_gas: Method[Callable[[TxParams, Optional[BlockIdentifier]], int]] = (
-        Method(RPC.eth_estimateGas, mungers=[BaseEth.estimate_gas_munger])
-    )
+    _estimate_gas: Method[
+        Callable[[TxParams, Optional[BlockIdentifier], Optional[CallOverride]], int]
+    ] = Method(RPC.eth_estimateGas, mungers=[BaseEth.estimate_gas_munger])
 
     def estimate_gas(
-        self, transaction: TxParams, block_identifier: Optional[BlockIdentifier] = None
+        self,
+        transaction: TxParams,
+        block_identifier: Optional[BlockIdentifier] = None,
+        state_override: Optional[CallOverride] = None,
     ) -> int:
-        return self._estimate_gas(transaction, block_identifier)
+        return self._estimate_gas(transaction, block_identifier, state_override)
 
     # eth_getTransactionByHash
 
