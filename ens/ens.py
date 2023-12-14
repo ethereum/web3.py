@@ -71,11 +71,14 @@ if TYPE_CHECKING:
         Contract,
         ContractFunction,
     )
+    from web3.middleware.base import (  # noqa: F401
+        Middleware,
+    )
     from web3.providers import (  # noqa: F401
         BaseProvider,
     )
     from web3.types import (  # noqa: F401
-        Middleware,
+        MakeRequestFn,
         TxParams,
     )
 

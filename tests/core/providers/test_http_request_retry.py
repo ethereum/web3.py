@@ -1,11 +1,9 @@
 import pytest
 from unittest.mock import (
-    Mock,
     patch,
 )
 
 import aiohttp
-import pytest_asyncio
 from requests.exceptions import (
     ConnectionError,
     HTTPError,
@@ -13,7 +11,6 @@ from requests.exceptions import (
     TooManyRedirects,
 )
 
-import web3
 from web3 import (
     AsyncHTTPProvider,
     AsyncWeb3,
@@ -27,8 +24,9 @@ from web3.providers.rpc.utils import (
     ExceptionRetryConfiguration,
     check_if_retry_on_failure,
 )
-from web3.types import RPCEndpoint
-
+from web3.types import (
+    RPCEndpoint,
+)
 
 TEST_RETRY_COUNT = 3
 

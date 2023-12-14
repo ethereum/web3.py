@@ -59,14 +59,15 @@ if TYPE_CHECKING:
         AsyncWeb3,
         Web3 as _Web3,
     )
+    from web3.middleware.base import (  # noqa: F401
+        Middleware,
+    )
     from web3.providers import (  # noqa: F401
         AsyncBaseProvider,
         BaseProvider,
     )
     from web3.types import (  # noqa: F401
         ABIFunction,
-        AsyncMiddleware,
-        Middleware,
         RPCEndpoint,
     )
 
@@ -299,7 +300,7 @@ def get_abi_output_types(abi: "ABIFunction") -> List[str]:
 
 def init_async_web3(
     provider: "AsyncBaseProvider" = cast("AsyncBaseProvider", default),
-    middlewares: Optional[Sequence[Tuple["AsyncMiddleware", str]]] = (),
+    middlewares: Optional[Sequence[Tuple["Middleware", str]]] = (),
 ) -> "AsyncWeb3":
     from web3 import (
         AsyncWeb3 as AsyncWeb3Main,

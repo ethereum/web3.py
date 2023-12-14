@@ -176,7 +176,7 @@ class NamedElementOnion(Mapping[TKey, TValue]):
             # handle unhashable types
             name.__hash__()
         except TypeError:
-            name = repr(name)
+            name = cast(TKey, repr(name))
 
         if name in self._queue:
             if name is element:
@@ -217,7 +217,7 @@ class NamedElementOnion(Mapping[TKey, TValue]):
                 # handle unhashable types
                 name.__hash__()
             except TypeError:
-                name = repr(name)
+                name = cast(TKey, repr(name))
 
             self._queue.move_to_end(name, last=False)
         elif layer == len(self._queue):

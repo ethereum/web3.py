@@ -9,9 +9,6 @@ from web3 import (
     EthereumTesterProvider,
     Web3,
 )
-from web3.eth import (
-    AsyncEth,
-)
 from web3.providers.eth_tester.main import (
     AsyncEthereumTesterProvider,
 )

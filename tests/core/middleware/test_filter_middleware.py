@@ -12,9 +12,6 @@ from web3 import (
 from web3.datastructures import (
     AttributeDict,
 )
-from web3.eth import (
-    AsyncEth,
-)
 from web3.middleware import (
     attrdict_middleware,
     local_filter_middleware,

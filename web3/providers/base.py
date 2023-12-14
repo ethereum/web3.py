@@ -21,12 +21,13 @@ from web3.exceptions import (
     ProviderConnectionError,
 )
 from web3.middleware import (
-    Web3Middleware,
     combine_middlewares,
 )
-from web3.types import (
+from web3.middleware.base import (
     Middleware,
     MiddlewareOnion,
+)
+from web3.types import (
     RPCEndpoint,
     RPCResponse,
 )
@@ -56,10 +57,11 @@ CACHEABLE_REQUESTS = cast(
 
 
 class BaseProvider:
-    _middlewares: Tuple[Middleware, ...] = ()
-    _request_func_cache: Tuple[
-        Tuple[Web3Middleware, ...], Callable[..., RPCResponse]
-    ] = (None, None)
+    # a tuple of (middlewares, request_func)
+    _request_func_cache: Tuple[Tuple[Middleware, ...], Callable[..., RPCResponse]] = (
+        None,
+        None,
+    )
 
     is_async = False
     has_persistent_connection = False
@@ -74,34 +76,25 @@ class BaseProvider:
     def __init__(self) -> None:
         self._request_cache = SimpleCache(1000)
 
-    @property
-    def middlewares(self) -> Tuple[Web3Middleware, ...]:
-        return self._middlewares
-
-    @middlewares.setter
-    def middlewares(self, values: MiddlewareOnion) -> None:
-        # tuple(values) converts to MiddlewareOnion -> Tuple[Middleware, ...]
-        self._middlewares = tuple(values)  # type: ignore
-
     def request_func(
-        self, w3: "Web3", outer_middlewares: MiddlewareOnion
+        self, w3: "Web3", middlewares: MiddlewareOnion
     ) -> Callable[..., RPCResponse]:
         """
         @param w3 is the web3 instance
-        @param outer_middlewares is an iterable of middlewares,
+        @param middlewares is an iterable of middlewares,
             ordered by first to execute
         @returns a function that calls all the middleware and
             eventually self.make_request()
         """
         # type ignored b/c tuple(MiddlewareOnion) converts to tuple of middlewares
-        all_middlewares: Tuple[Web3Middleware] = tuple(outer_middlewares) + tuple(self.middlewares)  # type: ignore # noqa: E501
+        middlewares: Tuple[Middleware] = tuple(middlewares)  # type: ignore
 
         cache_key = self._request_func_cache[0]
-        if cache_key != all_middlewares:
+        if cache_key != middlewares:  # type: ignore
             self._request_func_cache = (
-                all_middlewares,
+                middlewares,
                 combine_middlewares(
-                    middlewares=all_middlewares,
+                    middlewares=middlewares,  # type: ignore
                     w3=w3,
                     provider_request_fn=self.make_request,
                 ),

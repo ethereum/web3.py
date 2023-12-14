@@ -3,7 +3,9 @@ from unittest.mock import (
     Mock,
 )
 
-from toolz import merge
+from toolz import (
+    merge,
+)
 
 from web3.middleware import (
     gas_price_strategy_middleware,
@@ -11,23 +13,22 @@ from web3.middleware import (
 
 
 @pytest.fixture
-def the_gas_price_strategy_middleware(w3):
+def the_gas_price_strategy_middleware():
     w3 = Mock()
     initialized = gas_price_strategy_middleware(w3)
     return initialized
 
 
 def test_gas_price_generated(the_gas_price_strategy_middleware):
-    the_gas_price_strategy_middleware._w3.eth.generate_gas_price.return_value = 5
+    w3 = the_gas_price_strategy_middleware._w3
+    w3.eth.generate_gas_price.return_value = 5
 
     make_request = Mock()
     inner = the_gas_price_strategy_middleware._wrap_make_request(make_request)
     method, dict_param = "eth_sendTransaction", {"to": "0x0", "value": 1}
     inner(method, (dict_param,))
 
-    the_gas_price_strategy_middleware._w3.eth.generate_gas_price.assert_called_once_with(
-        dict_param
-    )
+    w3.eth.generate_gas_price.assert_called_once_with(dict_param)
     make_request.assert_called_once_with(
         method, (merge(dict_param, {"gasPrice": "0x5"}),)
     )

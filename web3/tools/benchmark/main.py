@@ -24,8 +24,6 @@ from web3 import (
     Web3,
 )
 from web3.middleware import (
-    async_buffered_gas_estimate_middleware,
-    async_gas_price_strategy_middleware,
     buffered_gas_estimate_middleware,
     gas_price_strategy_middleware,
 )
@@ -74,10 +72,7 @@ async def build_async_w3_http(endpoint_uri: str) -> AsyncWeb3:
     await wait_for_aiohttp(endpoint_uri)
     _w3 = AsyncWeb3(
         AsyncHTTPProvider(endpoint_uri),
-        middlewares=[
-            async_gas_price_strategy_middleware,
-            async_buffered_gas_estimate_middleware,
-        ],
+        middlewares=[gas_price_strategy_middleware, buffered_gas_estimate_middleware],
     )
     return _w3
 

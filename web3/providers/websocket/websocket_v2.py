@@ -40,8 +40,6 @@ from web3.types import (
     RPCId,
     RPCResponse,
 )
-from web3.utils import SimpleCache
-
 
 DEFAULT_PING_INTERVAL = 30  # 30 seconds
 DEFAULT_PING_TIMEOUT = 300  # 5 minutes

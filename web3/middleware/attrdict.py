@@ -17,10 +17,6 @@ from web3.datastructures import (
 from web3.middleware.base import (
     Web3Middleware,
 )
-from web3.types import (
-    RPCEndpoint,
-    RPCResponse,
-)
 
 if TYPE_CHECKING:
     from web3 import (  # noqa: F401
@@ -30,9 +26,13 @@ if TYPE_CHECKING:
     from web3.providers import (  # noqa: F401
         PersistentConnectionProvider,
     )
+    from web3.types import (  # noqa: F401
+        RPCEndpoint,
+        RPCResponse,
+    )
 
 
-def _handle_async_response(response: RPCResponse) -> RPCResponse:
+def _handle_async_response(response: "RPCResponse") -> "RPCResponse":
     if "result" in response:
         return assoc(response, "result", AttributeDict.recursive(response["result"]))
     elif "params" in response and "result" in response["params"]:

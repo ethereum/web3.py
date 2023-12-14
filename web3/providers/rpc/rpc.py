@@ -1,6 +1,7 @@
 import logging
 import time
 from typing import (
+    TYPE_CHECKING,
     Any,
     Dict,
     Iterable,
@@ -24,11 +25,7 @@ from web3._utils.request import (
     get_default_http_endpoint,
     make_post_request,
 )
-from web3.datastructures import (
-    NamedElementOnion,
-)
 from web3.types import (
-    Middleware,
     RPCEndpoint,
     RPCResponse,
 )
@@ -44,6 +41,11 @@ from .utils import (
     check_if_retry_on_failure,
 )
 
+if TYPE_CHECKING:
+    from web3.middleware.base import (  # noqa: F401
+        Middleware,
+    )
+
 
 class HTTPProvider(JSONBaseProvider):
     logger = logging.getLogger("web3.providers.HTTPProvider")
@@ -51,8 +53,6 @@ class HTTPProvider(JSONBaseProvider):
 
     _request_args = None
     _request_kwargs = None
-    # type ignored b/c conflict with _middlewares attr on BaseProvider
-    _middlewares: Tuple[Middleware, ...] = NamedElementOnion([])  # type: ignore # noqa: E501
 
     exception_retry_configuration: Optional[ExceptionRetryConfiguration] = None
 
@@ -110,12 +110,13 @@ class HTTPProvider(JSONBaseProvider):
                     return make_post_request(
                         self.endpoint_uri, request_data, **self.get_request_kwargs()
                     )
-                except tuple(self.exception_retry_configuration.errors):
+                except tuple(self.exception_retry_configuration.errors) as e:
                     if i < self.exception_retry_configuration.retries - 1:
                         time.sleep(self.exception_retry_configuration.backoff_factor)
                         continue
                     else:
-                        raise
+                        raise e
+            return None
         else:
             return make_post_request(
                 self.endpoint_uri, request_data, **self.get_request_kwargs()

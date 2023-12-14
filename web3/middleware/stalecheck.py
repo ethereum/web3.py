@@ -6,9 +6,13 @@ from typing import (  # noqa: F401
     Collection,
     Dict,
     Optional,
+    Union,
+    cast,
 )
 
-from toolz import curry
+from toolz import (
+    curry,
+)
 
 from web3.exceptions import (
     StaleBlockchain,
@@ -46,7 +50,7 @@ class StaleCheckMiddlewareBuilder(Web3MiddlewareBuilder):
     @curry
     def build(
         allowable_delay: int,
-        w3,
+        w3: Union["Web3", "AsyncWeb3"],
         skip_stalecheck_for_methods: Collection[str] = SKIP_STALECHECK_FOR_METHODS,
     ) -> Web3Middleware:
         if allowable_delay <= 0:
@@ -62,7 +66,9 @@ class StaleCheckMiddlewareBuilder(Web3MiddlewareBuilder):
     def request_processor(self, method: "RPCEndpoint", params: Any) -> Any:
         if method not in self.skip_stalecheck_for_methods:
             if not _is_fresh(self.cache["latest"], self.allowable_delay):
-                latest = self._w3.eth.get_block("latest")
+                w3 = cast("Web3", self._w3)
+                latest = w3.eth.get_block("latest")
+
                 if _is_fresh(latest, self.allowable_delay):
                     self.cache["latest"] = latest
                 else:
@@ -75,7 +81,9 @@ class StaleCheckMiddlewareBuilder(Web3MiddlewareBuilder):
     async def async_request_processor(self, method: "RPCEndpoint", params: Any) -> Any:
         if method not in self.skip_stalecheck_for_methods:
             if not _is_fresh(self.cache["latest"], self.allowable_delay):
-                latest = await self._w3.eth.get_block("latest")
+                w3 = cast("AsyncWeb3", self._w3)
+                latest = await w3.eth.get_block("latest")
+
                 if _is_fresh(latest, self.allowable_delay):
                     self.cache["latest"] = latest
                 else:

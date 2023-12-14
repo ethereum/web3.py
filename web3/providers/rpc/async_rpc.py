@@ -28,16 +28,12 @@ from web3._utils.request import (
     get_default_http_endpoint,
 )
 from web3.types import (
-    AsyncMiddleware,
     RPCEndpoint,
     RPCResponse,
 )
 
 from ..._utils.caching import (
     async_handle_request_caching,
-)
-from ...datastructures import (
-    NamedElementOnion,
 )
 from ..async_base import (
     AsyncJSONBaseProvider,
@@ -52,8 +48,6 @@ class AsyncHTTPProvider(AsyncJSONBaseProvider):
     logger = logging.getLogger("web3.providers.AsyncHTTPProvider")
     endpoint_uri = None
     _request_kwargs = None
-    # type ignored b/c conflict with _middlewares attr on AsyncBaseProvider
-    _middlewares: Tuple[AsyncMiddleware, ...] = NamedElementOnion([])  # type: ignore
 
     def __init__(
         self,
@@ -119,6 +113,7 @@ class AsyncHTTPProvider(AsyncJSONBaseProvider):
                         continue
                     else:
                         raise
+            return None
         else:
             return await async_make_post_request(
                 self.endpoint_uri, request_data, **self.get_request_kwargs()

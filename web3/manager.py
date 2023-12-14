@@ -43,6 +43,10 @@ from web3.middleware import (
     gas_price_strategy_middleware,
     validation_middleware,
 )
+from web3.middleware.base import (
+    Middleware,
+    MiddlewareOnion,
+)
 from web3.module import (
     apply_result_formatters,
 )
@@ -51,10 +55,6 @@ from web3.providers import (
     PersistentConnectionProvider,
 )
 from web3.types import (
-    AsyncMiddleware,
-    AsyncMiddlewareOnion,
-    Middleware,
-    MiddlewareOnion,
     RPCEndpoint,
     RPCResponse,
 )
@@ -116,21 +116,15 @@ def apply_null_result_formatters(
 
 
 class RequestManager:
-    logger = logging.getLogger("web3.RequestManager")
+    logger = logging.getLogger("web3.manager.RequestManager")
 
-    middleware_onion: Union[
-        MiddlewareOnion, AsyncMiddlewareOnion, NamedElementOnion[None, None]
-    ]
+    middleware_onion: Union["MiddlewareOnion", NamedElementOnion[None, None]]
 
     def __init__(
         self,
         w3: Union["AsyncWeb3", "Web3"],
         provider: Optional[Union["BaseProvider", "AsyncBaseProvider"]] = None,
-        middlewares: Optional[
-            Union[
-                Sequence[Tuple[Middleware, str]], Sequence[Tuple[AsyncMiddleware, str]]
-            ]
-        ] = None,
+        middlewares: Optional[Sequence[Tuple[Middleware, str]]] = None,
     ) -> None:
         self.w3 = w3
 
@@ -140,7 +134,7 @@ class RequestManager:
             self.provider = provider
 
         if middlewares is None:
-            middlewares = self.default_middlewares(w3)
+            middlewares = self.get_default_middlewares()
 
         self.middleware_onion = NamedElementOnion(middlewares)
 
@@ -162,10 +156,9 @@ class RequestManager:
         self._provider = provider
 
     @staticmethod
-    def default_middlewares(w3: "Web3") -> List[Tuple["Web3Middleware", str]]:
+    def get_default_middlewares() -> List[Tuple[Middleware, str]]:
         """
         List the default middlewares for the request manager.
-        Leaving w3 unspecified will prevent the middleware from resolving names.
         Documentation should remain in sync with these defaults.
         """
         return [
@@ -184,7 +177,7 @@ class RequestManager:
     ) -> RPCResponse:
         provider = cast("BaseProvider", self.provider)
         request_func = provider.request_func(
-            cast("Web3", self.w3), cast(MiddlewareOnion, self.middleware_onion)
+            cast("Web3", self.w3), cast("MiddlewareOnion", self.middleware_onion)
         )
         self.logger.debug(f"Making request. Method: {method}")
         return request_func(method, params)
@@ -194,8 +187,7 @@ class RequestManager:
     ) -> RPCResponse:
         provider = cast("AsyncBaseProvider", self.provider)
         request_func = await provider.request_func(
-            cast("AsyncWeb3", self.w3),
-            cast(AsyncMiddlewareOnion, self.middleware_onion),
+            cast("AsyncWeb3", self.w3), cast("MiddlewareOnion", self.middleware_onion)
         )
         self.logger.debug(f"Making request. Method: {method}")
         return await request_func(method, params)
@@ -323,8 +315,7 @@ class RequestManager:
     async def ws_send(self, method: RPCEndpoint, params: Any) -> RPCResponse:
         provider = cast(PersistentConnectionProvider, self._provider)
         request_func = await provider.request_func(
-            cast("AsyncWeb3", self.w3),
-            cast(AsyncMiddlewareOnion, self.middleware_onion),
+            cast("AsyncWeb3", self.w3), cast("MiddlewareOnion", self.middleware_onion)
         )
         self.logger.debug(
             "Making request to open websocket connection - "

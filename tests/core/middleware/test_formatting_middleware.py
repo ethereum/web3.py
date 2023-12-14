@@ -12,7 +12,9 @@ from web3.middleware import (
 from web3.providers.base import (
     BaseProvider,
 )
-from web3.types import RPCEndpoint
+from web3.types import (
+    RPCEndpoint,
+)
 
 
 class DummyProvider(BaseProvider):

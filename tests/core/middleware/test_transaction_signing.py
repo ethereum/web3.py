@@ -38,7 +38,9 @@ from web3.exceptions import (
 from web3.middleware import (
     construct_sign_and_send_raw_middleware,
 )
-from web3.middleware.signing import gen_normalized_accounts
+from web3.middleware.signing import (
+    gen_normalized_accounts,
+)
 from web3.providers import (
     AsyncBaseProvider,
     BaseProvider,

@@ -26,11 +26,10 @@ from web3.geth import (
     GethTxPool,
 )
 from web3.middleware import (
-    abi_middleware,
     attrdict_middleware,
     buffered_gas_estimate_middleware,
-    gas_price_strategy_middleware,
     ens_name_to_address_middleware,
+    gas_price_strategy_middleware,
     validation_middleware,
 )
 from web3.net import (
