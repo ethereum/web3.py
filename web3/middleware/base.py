@@ -1,11 +1,15 @@
-import warnings
-from abc import abstractmethod
+from abc import (
+    abstractmethod,
+)
 from typing import (
-    Sequence,
     TYPE_CHECKING,
     Any,
-    TypeVar,
+    Type,
     Union,
+)
+
+from web3.datastructures import (
+    NamedElementOnion,
 )
 
 if TYPE_CHECKING:
@@ -13,13 +17,12 @@ if TYPE_CHECKING:
         AsyncWeb3,
         Web3,
     )
-    from web3.types import (
+    from web3.types import (  # noqa: F401
+        AsyncMakeRequestFn,
+        MakeRequestFn,
         RPCEndpoint,
         RPCResponse,
     )
-
-
-WEB3 = TypeVar("WEB3", "AsyncWeb3", "Web3")
 
 
 class Web3Middleware:
@@ -28,14 +31,14 @@ class Web3Middleware:
     but instead inherited from.
     """
 
-    _w3: WEB3
+    _w3: Union["AsyncWeb3", "Web3"]
 
-    def __init__(self, w3: WEB3) -> None:
+    def __init__(self, w3: Union["AsyncWeb3", "Web3"]) -> None:
         self._w3 = w3
 
     # -- sync -- #
 
-    def _wrap_make_request(self, make_request):
+    def _wrap_make_request(self, make_request: "MakeRequestFn") -> "MakeRequestFn":
         def middleware(method: "RPCEndpoint", params: Any) -> "RPCResponse":
             method, params = self.request_processor(method, params)
             return self.response_processor(method, make_request(method, params))
@@ -50,7 +53,9 @@ class Web3Middleware:
 
     # -- async -- #
 
-    async def _async_wrap_make_request(self, make_request):
+    async def _async_wrap_make_request(
+        self, make_request: "AsyncMakeRequestFn"
+    ) -> "AsyncMakeRequestFn":
         async def middleware(method: "RPCEndpoint", params: Any) -> "RPCResponse":
             method, params = await self.async_request_processor(method, params)
             return await self.async_response_processor(
@@ -82,7 +87,7 @@ class Web3MiddlewareBuilder(Web3Middleware):
         w3: Union["AsyncWeb3", "Web3"],
         *args: Any,
         **kwargs: Any,
-    ):
+    ) -> Web3Middleware:
         """
         Implementation should initialize the middleware class that implements it,
         load it with any of the necessary properties that it needs for processing,
@@ -116,3 +121,9 @@ class Web3MiddlewareBuilder(Web3Middleware):
         ```
         """
         raise NotImplementedError("Must be implemented by subclasses")
+
+
+# --- type definitions --- #
+
+Middleware = Type[Web3Middleware]
+MiddlewareOnion = NamedElementOnion[str, Middleware]

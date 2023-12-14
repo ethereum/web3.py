@@ -362,8 +362,7 @@ def TEST_ADDRESS(address_conversion_func):
 
 @pytest_asyncio.fixture(scope="session")
 def async_w3():
-    provider = AsyncEthereumTesterProvider()
-    _async_w3 = AsyncWeb3(provider, middlewares=provider.middlewares)
+    _async_w3 = AsyncWeb3(AsyncEthereumTesterProvider())
     return _async_w3
 
 

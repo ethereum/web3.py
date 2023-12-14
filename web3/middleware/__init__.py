@@ -4,19 +4,13 @@ from typing import (
     Callable,
     Coroutine,
     Sequence,
-    Type,
-)
-
-from web3.types import (
-    RPCEndpoint,
-    RPCResponse,
 )
 
 from .attrdict import (
     attrdict_middleware,
 )
 from .base import (
-    Web3Middleware,
+    Middleware,
 )
 from .buffered_gas_estimate import (
     buffered_gas_estimate_middleware,
@@ -56,16 +50,27 @@ from .stalecheck import (
 from .validation import (
     validation_middleware,
 )
+from ..types import (
+    AsyncMakeRequestFn,
+    MakeRequestFn,
+)
+
 
 if TYPE_CHECKING:
-    from web3 import AsyncWeb3, Web3
+    from web3 import (
+        AsyncWeb3,
+        Web3,
+    )
+    from web3.types import (
+        RPCResponse,
+    )
 
 
 def combine_middlewares(
-    middlewares: Sequence[Type[Web3Middleware]],
+    middlewares: Sequence[Middleware],
     w3: "Web3",
-    provider_request_fn: Callable[[RPCEndpoint, Any], Any],
-) -> Callable[..., RPCResponse]:
+    provider_request_fn: MakeRequestFn,
+) -> Callable[..., "RPCResponse"]:
     """
     Returns a callable function which takes method and params as positional arguments
     and passes these args through the request processors, makes the request, and passes
@@ -79,10 +84,10 @@ def combine_middlewares(
 
 
 async def async_combine_middlewares(
-    middlewares: Sequence[Type[Web3Middleware]],
+    middlewares: Sequence[Middleware],
     async_w3: "AsyncWeb3",
-    provider_request_fn: Callable[[RPCEndpoint, Any], Any],
-) -> Callable[..., Coroutine[Any, Any, RPCResponse]]:
+    provider_request_fn: AsyncMakeRequestFn,
+) -> Callable[..., Coroutine[Any, Any, "RPCResponse"]]:
     """
     Returns a callable function which takes method and params as positional arguments
     and passes these args through the request processors, makes the request, and passes

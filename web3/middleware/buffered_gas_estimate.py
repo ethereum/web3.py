@@ -1,6 +1,7 @@
 from typing import (
     TYPE_CHECKING,
     Any,
+    cast,
 )
 
 from eth_utils.toolz import (
@@ -39,7 +40,7 @@ class BufferedGasEstimateMiddleware(Web3Middleware):
                 transaction = assoc(
                     transaction,
                     "gas",
-                    hex(get_buffered_gas_estimate(self._w3, transaction)),
+                    hex(get_buffered_gas_estimate(cast("Web3", self._w3), transaction)),
                 )
                 params = (transaction,)
         return method, params
@@ -51,7 +52,7 @@ class BufferedGasEstimateMiddleware(Web3Middleware):
             transaction = params[0]
             if "gas" not in transaction:
                 gas_estimate = await async_get_buffered_gas_estimate(
-                    self._w3, transaction
+                    cast("AsyncWeb3", self._w3), transaction
                 )
                 transaction = assoc(transaction, "gas", hex(gas_estimate))
                 params = (transaction,)

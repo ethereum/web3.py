@@ -33,9 +33,6 @@ from web3._utils.function_identifiers import (
     FallbackFn,
     ReceiveFn,
 )
-from web3.datastructures import (
-    NamedElementOnion,
-)
 
 if TYPE_CHECKING:
     from web3.contract.async_contract import AsyncContractFunction  # noqa: F401
@@ -316,15 +313,8 @@ class CreateAccessListResponse(TypedDict):
     gasUsed: int
 
 
-Middleware = Callable[[Callable[[RPCEndpoint, Any], RPCResponse], "Web3"], Any]
-AsyncMiddlewareCoroutine = Callable[
-    [RPCEndpoint, Any], Coroutine[Any, Any, RPCResponse]
-]
-AsyncMiddleware = Callable[
-    [Callable[[RPCEndpoint, Any], RPCResponse], "AsyncWeb3"], Any
-]
-MiddlewareOnion = NamedElementOnion[str, Middleware]
-AsyncMiddlewareOnion = NamedElementOnion[str, AsyncMiddleware]
+MakeRequestFn = Callable[[RPCEndpoint, Any], RPCResponse]
+AsyncMakeRequestFn = Callable[[RPCEndpoint, Any], Coroutine[Any, Any, RPCResponse]]
 
 
 class FormattersDict(TypedDict, total=False):

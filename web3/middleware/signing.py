@@ -10,9 +10,8 @@ from typing import (
     Tuple,
     TypeVar,
     Union,
+    cast,
 )
-
-from toolz import curry
 
 from eth_account import (
     Account,
@@ -37,6 +36,9 @@ from eth_utils.curried import (
 from eth_utils.toolz import (
     compose,
 )
+from toolz import (
+    curry,
+)
 
 from web3._utils.async_transactions import (
     async_fill_nonce,
@@ -54,7 +56,6 @@ from web3._utils.transactions import (
     fill_transaction_defaults,
 )
 from web3.middleware.base import (
-    Web3Middleware,
     Web3MiddlewareBuilder,
 )
 from web3.types import (
@@ -148,7 +149,10 @@ class SignAndSendRawMiddlewareBuilder(Web3MiddlewareBuilder):
 
     @staticmethod
     @curry
-    def build(private_key_or_account: Union[_PrivateKey, Collection[_PrivateKey]], w3):
+    def build(
+        private_key_or_account: Union[_PrivateKey, Collection[_PrivateKey]],
+        w3: Union["Web3", "AsyncWeb3"],
+    ) -> "SignAndSendRawMiddlewareBuilder":
         middleware = SignAndSendRawMiddlewareBuilder(w3)
         middleware._accounts = gen_normalized_accounts(private_key_or_account)
         return middleware
@@ -157,11 +161,12 @@ class SignAndSendRawMiddlewareBuilder(Web3MiddlewareBuilder):
         if method != "eth_sendTransaction":
             return method, params
         else:
+            w3 = cast("Web3", self._w3)
             if self.format_and_fill_tx is None:
                 self.format_and_fill_tx = compose(
                     format_transaction,
-                    fill_transaction_defaults(self._w3),
-                    fill_nonce(self._w3),
+                    fill_transaction_defaults(w3),
+                    fill_nonce(w3),
                 )
 
             filled_transaction = self.format_and_fill_tx(params[0])
@@ -187,15 +192,13 @@ class SignAndSendRawMiddlewareBuilder(Web3MiddlewareBuilder):
             return method, params
 
         else:
+            w3 = cast("AsyncWeb3", self._w3)
+
             formatted_transaction = format_transaction(params[0])
             filled_transaction = await async_fill_transaction_defaults(
-                self._w3,
-                formatted_transaction,
+                w3, formatted_transaction
             )
-            filled_transaction = await async_fill_nonce(
-                self._w3,
-                filled_transaction,
-            )
+            filled_transaction = await async_fill_nonce(w3, filled_transaction)
             tx_from = filled_transaction.get("from", None)
 
             if tx_from is None or (

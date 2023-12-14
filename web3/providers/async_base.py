@@ -26,11 +26,10 @@ from web3.middleware import (
     async_combine_middlewares,
 )
 from web3.middleware.base import (
-    Web3Middleware,
+    Middleware,
+    MiddlewareOnion,
 )
 from web3.types import (
-    AsyncMiddlewareOnion,
-    MiddlewareOnion,
     RPCEndpoint,
     RPCResponse,
 )
@@ -63,9 +62,8 @@ CACHEABLE_REQUESTS = cast(
 
 
 class AsyncBaseProvider:
-    _middlewares: Tuple[Web3Middleware, ...] = ()
     _request_func_cache: Tuple[
-        Tuple[Web3Middleware, ...], Callable[..., Coroutine[Any, Any, RPCResponse]]
+        Tuple[Middleware, ...], Callable[..., Coroutine[Any, Any, RPCResponse]]
     ] = (None, None)
 
     is_async = True
@@ -81,27 +79,18 @@ class AsyncBaseProvider:
     def __init__(self) -> None:
         self._request_cache = SimpleCache(1000)
 
-    @property
-    def middlewares(self) -> Tuple[Web3Middleware, ...]:
-        return self._middlewares
-
-    @middlewares.setter
-    def middlewares(self, values: MiddlewareOnion) -> None:
-        # tuple(values) converts to MiddlewareOnion -> Tuple[Middleware, ...]
-        self._middlewares = tuple(values)  # type: ignore
-
     async def request_func(
-        self, async_w3: "AsyncWeb3", outer_middlewares: AsyncMiddlewareOnion
+        self, async_w3: "AsyncWeb3", middlewares: MiddlewareOnion
     ) -> Callable[..., Coroutine[Any, Any, RPCResponse]]:
         # type ignored b/c tuple(MiddlewareOnion) converts to tuple of middlewares
-        all_middlewares: Tuple[Web3Middleware] = tuple(outer_middlewares) + tuple(self.middlewares)  # type: ignore  # noqa: E501
+        middlewares: Tuple[Middleware, ...] = tuple(middlewares)  # type: ignore
 
         cache_key = self._request_func_cache[0]
-        if cache_key != all_middlewares:
+        if cache_key != middlewares:  # type: ignore
             self._request_func_cache = (
-                all_middlewares,
+                middlewares,
                 await async_combine_middlewares(
-                    middlewares=all_middlewares,
+                    middlewares=middlewares,  # type: ignore
                     async_w3=async_w3,
                     provider_request_fn=self.make_request,
                 ),

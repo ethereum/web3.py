@@ -163,7 +163,9 @@ async def async_request_middleware(allowable_delay):
 @pytest.mark.asyncio
 @min_version
 async def test_async_stalecheck_pass(async_request_middleware):
-    from unittest.mock import AsyncMock
+    from unittest.mock import (
+        AsyncMock,
+    )
 
     with patch("web3.middleware.stalecheck._is_fresh", return_value=True):
         make_request = AsyncMock()

@@ -19,6 +19,6 @@ def test_default_sync_middlewares(w3):
         (buffered_gas_estimate_middleware, "gas_estimate"),
     ]
 
-    default_middlewares = RequestManager.default_middlewares(w3)
+    default_middlewares = RequestManager.get_default_middlewares()
 
     assert default_middlewares == expected_middlewares

@@ -1,7 +1,9 @@
 import itertools
 import pytest
 
-from web3.middleware import Web3Middleware
+from web3.middleware.base import (
+    Web3Middleware,
+)
 
 
 @pytest.fixture

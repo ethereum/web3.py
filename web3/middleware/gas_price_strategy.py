@@ -1,6 +1,7 @@
 from typing import (
     TYPE_CHECKING,
     Any,
+    cast,
 )
 
 from eth_utils.toolz import (
@@ -91,7 +92,8 @@ class GasPriceStrategyMiddleware(Web3Middleware):
         if method == "eth_sendTransaction":
             transaction = params[0]
             generated_gas_price = self._w3.eth.generate_gas_price(transaction)
-            latest_block = self._w3.eth.get_block("latest")
+            w3 = cast("Web3", self._w3)
+            latest_block = w3.eth.get_block("latest")
             transaction = validate_transaction_params(
                 transaction, latest_block, generated_gas_price
             )
@@ -104,8 +106,9 @@ class GasPriceStrategyMiddleware(Web3Middleware):
     async def async_request_processor(self, method: RPCEndpoint, params: Any) -> Any:
         if method == "eth_sendTransaction":
             transaction = params[0]
-            generated_gas_price = self._w3.eth.generate_gas_price(transaction)
-            latest_block = await self._w3.eth.get_block("latest")
+            w3 = cast("AsyncWeb3", self._w3)
+            generated_gas_price = w3.eth.generate_gas_price(transaction)
+            latest_block = await w3.eth.get_block("latest")
             transaction = validate_transaction_params(
                 transaction, latest_block, generated_gas_price
             )

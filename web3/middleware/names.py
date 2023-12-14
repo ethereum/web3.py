@@ -4,6 +4,7 @@ from typing import (
     Dict,
     Sequence,
     Union,
+    cast,
 )
 
 from toolz import (
@@ -106,7 +107,7 @@ class EnsNameToAddressMiddleware(Web3Middleware):
                 abi_ens_resolver(self._w3),
             ]
             self._formatting_middleware = FormattingMiddlewareBuilder.build(
-                request_formatters=abi_request_formatters(normalizers, RPC_ABIS)  # type: ignore # noqa: E501
+                request_formatters=abi_request_formatters(normalizers, RPC_ABIS)
             )
 
         return self._formatting_middleware(self._w3).request_processor(method, params)
@@ -121,7 +122,7 @@ class EnsNameToAddressMiddleware(Web3Middleware):
                 # eth_subscribe optional logs params are unique.
                 # Handle them separately here.
                 (formatted_dict,) = await async_apply_ens_to_address_conversion(
-                    self._w3,
+                    cast("AsyncWeb3", self._w3),
                     (params[1],),
                     {
                         "address": "address",
@@ -132,7 +133,7 @@ class EnsNameToAddressMiddleware(Web3Middleware):
 
             else:
                 params = await async_apply_ens_to_address_conversion(
-                    self._w3,
+                    cast("AsyncWeb3", self._w3),
                     params,
                     abi_types_for_method,
                 )

@@ -17,7 +17,9 @@ from web3.exceptions import (
 from web3.providers.ipc import (
     IPCProvider,
 )
-from web3.types import RPCEndpoint
+from web3.types import (
+    RPCEndpoint,
+)
 
 
 @pytest.fixture

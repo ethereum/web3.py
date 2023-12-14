@@ -31,6 +31,9 @@ if TYPE_CHECKING:
         AsyncWeb3,
         Web3,
     )
+    from web3.middleware.base import (  # noqa: F401
+        Web3Middleware,
+    )
     from web3.providers import (  # noqa: F401
         PersistentConnectionProvider,
     )
@@ -110,7 +113,7 @@ class FormattingMiddlewareBuilder(Web3MiddlewareBuilder):
         # formatters builder option:
         sync_formatters_builder: Optional[SYNC_FORMATTERS_BUILDER] = None,
         async_formatters_builder: Optional[ASYNC_FORMATTERS_BUILDER] = None,
-    ):
+    ) -> "FormattingMiddlewareBuilder":
         # if not both sync and async formatters are specified, raise error
         if (
             sync_formatters_builder is None and async_formatters_builder is not None
@@ -141,7 +144,7 @@ class FormattingMiddlewareBuilder(Web3MiddlewareBuilder):
         if self.sync_formatters_builder is not None:
             formatters = merge(
                 FORMATTER_DEFAULTS,
-                self.sync_formatters_builder(self._w3, method),
+                self.sync_formatters_builder(cast("Web3", self._w3), method),
             )
             self.request_formatters = formatters.pop("request_formatters")
 
@@ -155,7 +158,7 @@ class FormattingMiddlewareBuilder(Web3MiddlewareBuilder):
         if self.sync_formatters_builder is not None:
             formatters = merge(
                 FORMATTER_DEFAULTS,
-                self.sync_formatters_builder(self._w3, method),
+                self.sync_formatters_builder(cast("Web3", self._w3), method),
             )
             self.result_formatters = formatters["result_formatters"]
             self.error_formatters = formatters["error_formatters"]
@@ -173,7 +176,9 @@ class FormattingMiddlewareBuilder(Web3MiddlewareBuilder):
         if self.async_formatters_builder is not None:
             formatters = merge(
                 FORMATTER_DEFAULTS,
-                await self.async_formatters_builder(self._w3, method),
+                await self.async_formatters_builder(
+                    cast("AsyncWeb3", self._w3), method
+                ),
             )
             self.request_formatters = formatters.pop("request_formatters")
 
@@ -189,7 +194,9 @@ class FormattingMiddlewareBuilder(Web3MiddlewareBuilder):
         if self.async_formatters_builder is not None:
             formatters = merge(
                 FORMATTER_DEFAULTS,
-                await self.async_formatters_builder(self._w3, method),
+                await self.async_formatters_builder(
+                    cast("AsyncWeb3", self._w3), method
+                ),
             )
             self.result_formatters = formatters["result_formatters"]
             self.error_formatters = formatters["error_formatters"]

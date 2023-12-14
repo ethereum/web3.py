@@ -1,29 +1,37 @@
+from asyncio import (
+    iscoroutinefunction,
+)
 import copy
-from asyncio import iscoroutine, iscoroutinefunction
 from typing import (
+    TYPE_CHECKING,
     Any,
-    Callable,
     Dict,
-    TypeVar,
     Union,
+    cast,
 )
 
 from toolz import (
     merge,
 )
 
-from web3 import (
-    AsyncWeb3,
-    Web3,
-)
 from web3.exceptions import (
     Web3ValidationError,
 )
-from web3.types import (
-    RPCEndpoint,
-)
 
-WEB3 = TypeVar("WEB3", Web3, AsyncWeb3)
+if TYPE_CHECKING:
+    from web3 import (  # noqa: F401
+        AsyncWeb3,
+        Web3,
+    )
+    from web3._utils.compat import (  # noqa: F401
+        Self,
+    )
+    from web3.types import (  # noqa: F401
+        AsyncMakeRequestFn,
+        MakeRequestFn,
+        RPCEndpoint,
+        RPCResponse,
+    )
 
 
 class RequestMocker:
@@ -49,29 +57,36 @@ class RequestMocker:
 
     def __init__(
         self,
-        w3: WEB3,
-        mock_results: Dict[Union[RPCEndpoint, str], Any] = None,
-        mock_errors: Dict[Union[RPCEndpoint, str], Dict[str, Any]] = None,
+        w3: Union["AsyncWeb3", "Web3"],
+        mock_results: Dict[Union["RPCEndpoint", str], Any] = None,
+        mock_errors: Dict[Union["RPCEndpoint", str], Dict[str, Any]] = None,
     ):
         self.w3 = w3
         self.mock_results = mock_results or {}
         self.mock_errors = mock_errors or {}
-        self._make_request = w3.provider.make_request
+        self._make_request: Union[
+            "AsyncMakeRequestFn", "MakeRequestFn"
+        ] = w3.provider.make_request
 
-    def __enter__(self):
-        self.w3.provider.make_request = self._mock_request_handler
-
+    def __enter__(self) -> "Self":
+        setattr(self.w3.provider, "make_request", self._mock_request_handler)
         # reset request func cache to re-build request_func with mocked make_request
         self.w3.provider._request_func_cache = (None, None)
 
         return self
 
-    def __exit__(self, exc_type, exc_value, traceback):
-        self.w3.provider.make_request = self._make_request
+    # define __exit__ with typing information
+    def __exit__(self, exc_type: Any, exc_value: Any, traceback: Any) -> None:
+        setattr(self.w3.provider, "make_request", self._make_request)
         # reset request func cache to re-build request_func with original make_request
         self.w3.provider._request_func_cache = (None, None)
 
-    def _mock_request_handler(self, method, params):
+    def _mock_request_handler(
+        self, method: "RPCEndpoint", params: Any
+    ) -> "RPCResponse":
+        self.w3 = cast("Web3", self.w3)
+        self._make_request = cast("MakeRequestFn", self._make_request)
+
         if method not in self.mock_errors and method not in self.mock_results:
             return self._make_request(method, params)
 
@@ -84,7 +99,7 @@ class RequestMocker:
 
         if method in self.mock_results:
             mock_return = self.mock_results[method]
-            if isinstance(mock_return, Callable):
+            if callable(mock_return):
                 mock_return = mock_return(method, params)
             return merge(response_dict, {"result": mock_return})
         elif method in self.mock_errors:
@@ -97,20 +112,27 @@ class RequestMocker:
                 response_dict,
                 {"error": merge({"code": code, "message": message}, error)},
             )
+        else:
+            raise Exception("Invariant: unreachable code path")
 
     # -- async -- #
-    async def __aenter__(self):
-        self.w3.provider.make_request = self._async_mock_request_handler
+    async def __aenter__(self) -> "Self":
+        setattr(self.w3.provider, "make_request", self._async_mock_request_handler)
         # reset request func cache to re-build request_func with mocked make_request
         self.w3.provider._request_func_cache = (None, None)
         return self
 
-    async def __aexit__(self, exc_type, exc_value, traceback):
-        self.w3.provider.make_request = self._make_request
+    async def __aexit__(self, exc_type: Any, exc_value: Any, traceback: Any) -> None:
+        setattr(self.w3.provider, "make_request", self._make_request)
         # reset request func cache to re-build request_func with original make_request
         self.w3.provider._request_func_cache = (None, None)
 
-    async def _async_mock_request_handler(self, method, params):
+    async def _async_mock_request_handler(
+        self, method: "RPCEndpoint", params: Any
+    ) -> "RPCResponse":
+        self.w3 = cast("AsyncWeb3", self.w3)
+        self._make_request = cast("AsyncMakeRequestFn", self._make_request)
+
         if method not in self.mock_errors and method not in self.mock_results:
             return await self._make_request(method, params)
 
@@ -123,7 +145,7 @@ class RequestMocker:
 
         if method in self.mock_results:
             mock_return = self.mock_results[method]
-            if isinstance(mock_return, Callable):
+            if callable(mock_return):
                 # handle callable to make things easier since we're mocking
                 mock_return = mock_return(method, params)
             elif iscoroutinefunction(mock_return):
@@ -140,3 +162,5 @@ class RequestMocker:
                 response_dict,
                 {"error": merge({"code": code, "message": message}, error)},
             )
+        else:
+            raise Exception("Invariant: unreachable code path")

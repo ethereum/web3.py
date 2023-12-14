@@ -102,6 +102,7 @@ from web3.geth import (
 from web3.manager import (
     RequestManager as DefaultRequestManager,
 )
+from web3.middleware.base import MiddlewareOnion
 from web3.module import (
     Module,
 )
@@ -139,8 +140,6 @@ from web3.tracing import (
     Tracing,
 )
 from web3.types import (
-    AsyncMiddlewareOnion,
-    MiddlewareOnion,
     Wei,
 )
 
@@ -470,8 +469,8 @@ class AsyncWeb3(BaseWeb3):
         return await self.provider.is_connected(show_traceback)
 
     @property
-    def middleware_onion(self) -> AsyncMiddlewareOnion:
-        return cast(AsyncMiddlewareOnion, self.manager.middleware_onion)
+    def middleware_onion(self) -> MiddlewareOnion:
+        return cast(MiddlewareOnion, self.manager.middleware_onion)
 
     @property
     def provider(self) -> AsyncBaseProvider:

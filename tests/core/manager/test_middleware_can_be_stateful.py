@@ -1,7 +1,7 @@
 from web3.manager import (
     RequestManager,
 )
-from web3.middleware import (
+from web3.middleware.base import (
     Web3Middleware,
 )
 from web3.providers import (
