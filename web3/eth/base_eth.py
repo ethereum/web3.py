@@ -95,17 +95,28 @@ class BaseEth(Module):
         self._gas_price_strategy = gas_price_strategy
 
     def estimate_gas_munger(
-        self, transaction: TxParams, block_identifier: Optional[BlockIdentifier] = None
-    ) -> Sequence[Union[TxParams, BlockIdentifier]]:
+        self,
+        transaction: TxParams,
+        block_identifier: Optional[BlockIdentifier] = None,
+        state_override: Optional[CallOverride] = None,
+    ) -> Sequence[Union[TxParams, BlockIdentifier, CallOverride]]:
         if "from" not in transaction and is_checksum_address(self.default_account):
             transaction = assoc(transaction, "from", self.default_account)
 
         if block_identifier is None:
-            params: Sequence[Union[TxParams, BlockIdentifier]] = [transaction]
-        else:
-            params = [transaction, block_identifier]
+            return [transaction]
 
-        return params
+        if state_override is None:
+            return [
+                transaction,
+                block_identifier,
+            ]
+        else:
+            return [
+                transaction,
+                block_identifier,
+                state_override,
+            ]
 
     def get_block_munger(
         self, block_identifier: BlockIdentifier, full_transactions: bool = False

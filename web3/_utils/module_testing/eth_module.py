@@ -4161,6 +4161,36 @@ class EthModuleTest:
         assert is_integer(gas_estimate)
         assert gas_estimate > 0
 
+    @pytest.mark.parametrize(
+        "params",
+        (
+            {
+                "nonce": 1,  # int
+                "balance": 1,  # int
+                "code": HexStr("0x"),  # HexStr
+                # with state
+                "state": {HexStr(f"0x{'00' * 32}"): HexStr(f"0x{'00' * 32}")},
+            },
+            {
+                "nonce": HexStr("0x1"),  # HexStr
+                "balance": HexStr("0x1"),  # HexStr
+                "code": b"\x00",  # bytes
+                # with stateDiff
+                "stateDiff": {HexStr(f"0x{'00' * 32}"): HexStr(f"0x{'00' * 32}")},
+            },
+        ),
+    )
+    def test_eth_estimate_gas_with_override_param_type_check(
+        self,
+        w3: "Web3",
+        math_contract: "Contract",
+        params: CallOverrideParams,
+    ) -> None:
+        txn_params: TxParams = {"from": w3.eth.coinbase}
+
+        # assert does not raise
+        w3.eth.estimate_gas(txn_params, "latest", {math_contract.address: params})
+
     def test_eth_getBlockByHash(self, w3: "Web3", empty_block: BlockData) -> None:
         block = w3.eth.get_block(empty_block["hash"])
         assert block["hash"] == empty_block["hash"]
