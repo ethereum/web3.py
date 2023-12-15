@@ -181,14 +181,6 @@ def _get_gas_price(method, params):
 
 
 def test_time_based_gas_price_strategy_without_transactions(request_mocker):
-    # fixture_middleware = construct_result_generator_middleware(
-    #     {
-    #         "eth_getBlockByHash": _get_initial_block,
-    #         "eth_getBlockByNumber": _get_initial_block,
-    #         "eth_gasPrice": _get_gas_price,
-    #     }
-    # )
-
     w3 = Web3(provider=BaseProvider())
 
     time_based_gas_price_strategy = construct_time_based_gas_price_strategy(
