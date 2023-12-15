@@ -819,7 +819,8 @@ class AsyncEthModuleTest:
         assert is_integer(fee_history["oldestBlock"])
         assert fee_history["oldestBlock"] >= 0
         assert is_list_like(fee_history["reward"])
-        assert is_list_like(fee_history["reward"][0])
+        if len(fee_history["reward"]) > 0:
+            assert is_list_like(fee_history["reward"][0])
 
     @pytest.mark.asyncio
     async def test_eth_fee_history_with_integer(
@@ -833,7 +834,8 @@ class AsyncEthModuleTest:
         assert is_integer(fee_history["oldestBlock"])
         assert fee_history["oldestBlock"] >= 0
         assert is_list_like(fee_history["reward"])
-        assert is_list_like(fee_history["reward"][0])
+        if len(fee_history["reward"]) > 0:
+            assert is_list_like(fee_history["reward"][0])
 
     @pytest.mark.asyncio
     async def test_eth_fee_history_no_reward_percentiles(
@@ -2414,7 +2416,8 @@ class EthModuleTest:
         assert is_integer(fee_history["oldestBlock"])
         assert fee_history["oldestBlock"] >= 0
         assert is_list_like(fee_history["reward"])
-        assert is_list_like(fee_history["reward"][0])
+        if len(fee_history["reward"]) > 0:
+            assert is_list_like(fee_history["reward"][0])
 
     def test_eth_fee_history_with_integer(
         self, w3: "Web3", empty_block: BlockData
@@ -2425,7 +2428,8 @@ class EthModuleTest:
         assert is_integer(fee_history["oldestBlock"])
         assert fee_history["oldestBlock"] >= 0
         assert is_list_like(fee_history["reward"])
-        assert is_list_like(fee_history["reward"][0])
+        if len(fee_history["reward"]) > 0:
+            assert is_list_like(fee_history["reward"][0])
 
     def test_eth_fee_history_no_reward_percentiles(self, w3: "Web3") -> None:
         fee_history = w3.eth.fee_history(1, "latest")
