@@ -304,15 +304,6 @@ class TestEthereumTesterEthModule(EthModuleTest):
         EthModuleTest.test_eth_call_with_override_param_type_check,
         TypeError,
     )
-    test_eth_fee_history = not_implemented(
-        EthModuleTest.test_eth_fee_history, MethodUnavailable
-    )
-    test_eth_fee_history_with_integer = not_implemented(
-        EthModuleTest.test_eth_fee_history_with_integer, MethodUnavailable
-    )
-    test_eth_fee_history_no_reward_percentiles = not_implemented(
-        EthModuleTest.test_eth_fee_history_no_reward_percentiles, MethodUnavailable
-    )
     test_eth_create_access_list = not_implemented(
         EthModuleTest.test_eth_create_access_list,
         MethodUnavailable,
@@ -646,6 +637,17 @@ class TestEthereumTesterEthModule(EthModuleTest):
         self, w3: "Web3", empty_block: BlockData
     ) -> None:
         super().test_eth_getBlockByNumber_finalized(w3, empty_block)
+
+    def test_eth_fee_history(self, w3: "Web3") -> None:
+        super().test_eth_fee_history(w3)
+
+    def test_eth_fee_history_with_integer(
+        self, w3: "Web3", empty_block: BlockData
+    ) -> None:
+        super().test_eth_fee_history_with_integer(w3, empty_block)
+
+    def test_eth_fee_history_with_no_reward_percentiles(self, w3: "Web3") -> None:
+        super().test_eth_fee_history_no_reward_percentiles(w3)
 
     def test_eth_get_balance_with_block_identifier(self, w3: "Web3") -> None:
         w3.testing.mine()
