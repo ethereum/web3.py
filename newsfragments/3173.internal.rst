@@ -1,0 +1,1 @@
+Small fix for integration tests for ``tox`` to recognize independent patterns for each test run.
