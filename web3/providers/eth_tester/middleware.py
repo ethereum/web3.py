@@ -189,7 +189,6 @@ BLOCK_RESULT_KEY_MAPPING = {
 block_result_remapper = apply_key_map(BLOCK_RESULT_KEY_MAPPING)
 
 BLOCK_RESULT_FORMATTERS = {
-    "logsBloom": integer_to_hex,
     "withdrawals": apply_list_to_array_formatter(
         apply_key_map({"validator_index": "validatorIndex"}),
     ),
@@ -270,12 +269,10 @@ request_formatters = {
 }
 result_formatters: Optional[Dict[RPCEndpoint, Callable[..., Any]]] = {
     RPCEndpoint("eth_getBlockByHash"): apply_formatter_if(
-        is_dict,
-        compose(block_result_remapper, block_result_formatter),
+        is_dict, compose(block_result_remapper, block_result_formatter)
     ),
     RPCEndpoint("eth_getBlockByNumber"): apply_formatter_if(
-        is_dict,
-        compose(block_result_remapper, block_result_formatter),
+        is_dict, compose(block_result_remapper, block_result_formatter)
     ),
     RPCEndpoint("eth_getBlockTransactionCountByHash"): apply_formatter_if(
         is_dict,
