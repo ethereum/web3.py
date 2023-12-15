@@ -305,6 +305,13 @@ jobs:
     environment:
       TOXENV: py37-integration-goethereum-http_async
 
+  py37-integration-goethereum-http_async_flaky:
+    <<: *geth_steps
+    docker:
+      - image: cimg/python:3.7
+    environment:
+      TOXENV: py37-integration-goethereum-http_async_flaky
+
   py37-integration-goethereum-http_flaky:
     <<: *geth_steps
     docker:
@@ -438,6 +445,13 @@ jobs:
     environment:
       TOXENV: py38-integration-goethereum-http_async
 
+  py38-integration-goethereum-http_async_flaky:
+    <<: *geth_steps
+    docker:
+      - image: cimg/python:3.8
+    environment:
+      TOXENV: py38-integration-goethereum-http_async_flaky
+
   py38-integration-goethereum-http_flaky:
     <<: *geth_steps
     docker:
@@ -570,6 +584,13 @@ jobs:
     environment:
       TOXENV: py39-integration-goethereum-http_async
 
+  py39-integration-goethereum-http_async_flaky:
+    <<: *geth_steps
+    docker:
+      - image: cimg/python:3.9
+    environment:
+      TOXENV: py39-integration-goethereum-http_async_flaky
+
   py39-integration-goethereum-http_flaky:
     <<: *geth_steps
     docker:
@@ -701,6 +722,13 @@ jobs:
       - image: cimg/python:3.10
     environment:
       TOXENV: py310-integration-goethereum-http_async
+
+  py310-integration-goethereum-http_async_flaky:
+    <<: *geth_steps
+    docker:
+      - image: cimg/python:3.10
+    environment:
+      TOXENV: py310-integration-goethereum-http_async_flaky
 
   py310-integration-goethereum-http_flaky:
     <<: *geth_steps
@@ -840,6 +868,13 @@ jobs:
     environment:
       TOXENV: py311-integration-goethereum-http_async
 
+  py311-integration-goethereum-http_async_flaky:
+    <<: *geth_steps
+    docker:
+      - image: cimg/python:3.11
+    environment:
+      TOXENV: py311-integration-goethereum-http_async_flaky
+
   py311-integration-goethereum-http_flaky:
     <<: *geth_steps
     docker:
@@ -929,6 +964,7 @@ workflows:
       - py37-integration-goethereum-ipc_flaky
       - py37-integration-goethereum-http
       - py37-integration-goethereum-http_async
+      - py37-integration-goethereum-http_async_flaky
       - py37-integration-goethereum-http_flaky
       - py37-integration-goethereum-ws
       - py37-integration-goethereum-ws_flaky
@@ -945,6 +981,7 @@ workflows:
       - py38-integration-goethereum-ipc_flaky
       - py38-integration-goethereum-http
       - py38-integration-goethereum-http_async
+      - py38-integration-goethereum-http_async_flaky
       - py38-integration-goethereum-http_flaky
       - py38-integration-goethereum-ws
       - py38-integration-goethereum-ws_flaky
@@ -961,6 +998,7 @@ workflows:
       - py39-integration-goethereum-ipc_flaky
       - py39-integration-goethereum-http
       - py39-integration-goethereum-http_async
+      - py39-integration-goethereum-http_async_flaky
       - py39-integration-goethereum-http_flaky
       - py39-integration-goethereum-ws
       - py39-integration-goethereum-ws_flaky
@@ -977,6 +1015,7 @@ workflows:
       - py310-integration-goethereum-ipc_flaky
       - py310-integration-goethereum-http
       - py310-integration-goethereum-http_async
+      - py310-integration-goethereum-http_async_flaky
       - py310-integration-goethereum-http_flaky
       - py310-integration-goethereum-ws
       - py310-integration-goethereum-ws_flaky
@@ -993,6 +1032,7 @@ workflows:
       - py311-integration-goethereum-ipc_flaky
       - py311-integration-goethereum-http
       - py311-integration-goethereum-http_async
+      - py311-integration-goethereum-http_async_flaky
       - py311-integration-goethereum-http_flaky
       - py311-integration-goethereum-ws
       - py311-integration-goethereum-ws_flaky
