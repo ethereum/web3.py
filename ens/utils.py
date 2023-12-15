@@ -59,7 +59,7 @@ if TYPE_CHECKING:
         AsyncWeb3,
         Web3 as _Web3,
     )
-    from web3.middleware.base import (  # noqa: F401
+    from web3.middleware.base import (
         Middleware,
     )
     from web3.providers import (  # noqa: F401
@@ -68,7 +68,6 @@ if TYPE_CHECKING:
     )
     from web3.types import (  # noqa: F401
         ABIFunction,
-        RPCEndpoint,
     )
 
 
