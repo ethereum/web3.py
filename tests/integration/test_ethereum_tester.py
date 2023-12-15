@@ -315,8 +315,8 @@ class TestEthereumTesterEthModule(EthModuleTest):
         EthModuleTest.test_eth_replace_transaction_already_mined, MethodUnavailable
     )
     test_eth_call_with_override_param_type_check = not_implemented(
-        EthModuleTest.test_eth_max_priority_fee_with_fee_history_calculation,
-        ValueError,
+        EthModuleTest.test_eth_call_with_override_param_type_check,
+        TypeError,
     )
     test_eth_fee_history = not_implemented(
         EthModuleTest.test_eth_fee_history, MethodUnavailable
