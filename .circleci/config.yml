@@ -338,14 +338,14 @@ jobs:
     docker:
       - image: cimg/python:3.7
     environment:
-      TOXENV: py37-integration-goethereum-ws-v2
+      TOXENV: py37-integration-goethereum-ws_v2
 
   py37-integration-goethereum-ws-v2_flaky:
     <<: *geth_steps
     docker:
       - image: cimg/python:3.7
     environment:
-      TOXENV: py37-integration-goethereum-ws-v2_flaky
+      TOXENV: py37-integration-goethereum-ws_v2_flaky
 
   py37-integration-ethtester-pyevm:
     <<: *common
@@ -360,7 +360,7 @@ jobs:
     docker:
       - image: cimg/python:3.7
     environment:
-      TOXENV: py37-integration-ethtester-pyevm_flaky
+      TOXENV: py37-integration-ethtester_flaky
       ETHEREUM_TESTER_CHAIN_BACKEND: eth_tester.backends.PyEVMBackend
 
   py37-wheel-cli:
@@ -478,14 +478,14 @@ jobs:
     docker:
       - image: cimg/python:3.8
     environment:
-      TOXENV: py38-integration-goethereum-ws-v2
+      TOXENV: py38-integration-goethereum-ws_v2
 
   py38-integration-goethereum-ws-v2_flaky:
     <<: *geth_steps
     docker:
       - image: cimg/python:3.8
     environment:
-      TOXENV: py38-integration-goethereum-ws-v2_flaky
+      TOXENV: py38-integration-goethereum-ws_v2_flaky
 
   py38-integration-ethtester-pyevm:
     <<: *common
@@ -500,7 +500,7 @@ jobs:
     docker:
       - image: cimg/python:3.8
     environment:
-      TOXENV: py38-integration-ethtester-pyevm_flaky
+      TOXENV: py38-integration-ethtester_flaky
       ETHEREUM_TESTER_CHAIN_BACKEND: eth_tester.backends.PyEVMBackend
 
   py38-wheel-cli:
@@ -617,14 +617,14 @@ jobs:
     docker:
       - image: cimg/python:3.9
     environment:
-      TOXENV: py39-integration-goethereum-ws-v2
+      TOXENV: py39-integration-goethereum-ws_v2
 
   py39-integration-goethereum-ws-v2_flaky:
     <<: *geth_steps
     docker:
       - image: cimg/python:3.9
     environment:
-      TOXENV: py39-integration-goethereum-ws-v2_flaky
+      TOXENV: py39-integration-goethereum-ws_v2_flaky
 
   py39-integration-ethtester-pyevm:
     <<: *common
@@ -639,7 +639,7 @@ jobs:
     docker:
       - image: cimg/python:3.9
     environment:
-      TOXENV: py39-integration-ethtester-pyevm_flaky
+      TOXENV: py39-integration-ethtester_flaky
       ETHEREUM_TESTER_CHAIN_BACKEND: eth_tester.backends.PyEVMBackend
 
   py39-wheel-cli:
@@ -756,14 +756,14 @@ jobs:
     docker:
       - image: cimg/python:3.10
     environment:
-      TOXENV: py310-integration-goethereum-ws-v2
+      TOXENV: py310-integration-goethereum-ws_v2
 
   py310-integration-goethereum-ws-v2_flaky:
     <<: *geth_steps
     docker:
       - image: cimg/python:3.10
     environment:
-      TOXENV: py310-integration-goethereum-ws-v2_flaky
+      TOXENV: py310-integration-goethereum-ws_v2_flaky
 
   py310-integration-ethtester-pyevm:
     <<: *common
@@ -778,7 +778,7 @@ jobs:
     docker:
       - image: cimg/python:3.10
     environment:
-      TOXENV: py310-integration-ethtester-pyevm_flaky
+      TOXENV: py310-integration-ethtester_flaky
       ETHEREUM_TESTER_CHAIN_BACKEND: eth_tester.backends.PyEVMBackend
 
   py310-wheel-cli:
@@ -901,14 +901,14 @@ jobs:
     docker:
       - image: cimg/python:3.11
     environment:
-      TOXENV: py311-integration-goethereum-ws-v2
+      TOXENV: py311-integration-goethereum-ws_v2
 
   py311-integration-goethereum-ws-v2_flaky:
     <<: *geth_steps
     docker:
       - image: cimg/python:3.11
     environment:
-      TOXENV: py311-integration-goethereum-ws-v2_flaky
+      TOXENV: py311-integration-goethereum-ws_v2_flaky
 
   py311-integration-ethtester-pyevm:
     <<: *common
@@ -923,7 +923,7 @@ jobs:
     docker:
       - image: cimg/python:3.11
     environment:
-      TOXENV: py311-integration-ethtester-pyevm_flaky
+      TOXENV: py311-integration-ethtester_flaky
       ETHEREUM_TESTER_CHAIN_BACKEND: eth_tester.backends.PyEVMBackend
 
   py311-wheel-cli:
