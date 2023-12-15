@@ -78,7 +78,6 @@ if TYPE_CHECKING:
         BaseProvider,
     )
     from web3.types import (  # noqa: F401
-        MakeRequestFn,
         TxParams,
     )
 
