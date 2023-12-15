@@ -205,6 +205,16 @@ RECEIPT_RESULT_FORMATTERS = {
 }
 receipt_result_formatter = apply_formatters_to_dict(RECEIPT_RESULT_FORMATTERS)
 
+
+fee_history_result_remapper = apply_key_map(
+    {
+        "oldest_block": "oldestBlock",
+        "base_fee_per_gas": "baseFeePerGas",
+        "gas_used_ratio": "gasUsedRatio",
+    }
+)
+
+
 request_formatters = {
     # Eth
     RPCEndpoint("eth_getBlockByNumber"): apply_formatters_to_args(
@@ -263,6 +273,10 @@ request_formatters = {
         identity,
         apply_formatter_if(is_not_named_block, to_integer_if_hex),
     ),
+    RPCEndpoint("eth_feeHistory"): apply_formatters_to_args(
+        to_integer_if_hex,
+        apply_formatter_if(is_not_named_block, to_integer_if_hex),
+    ),
     # EVM
     RPCEndpoint("evm_revert"): apply_formatters_to_args(hex_to_integer),
     # Personal
@@ -271,6 +285,7 @@ request_formatters = {
         identity,
     ),
 }
+
 result_formatters: Optional[Dict[RPCEndpoint, Callable[..., Any]]] = {
     RPCEndpoint("eth_getBlockByHash"): apply_formatter_if(
         is_dict,
@@ -310,6 +325,9 @@ result_formatters: Optional[Dict[RPCEndpoint, Callable[..., Any]]] = {
     RPCEndpoint("eth_getFilterLogs"): apply_formatter_if(
         is_array_of_dicts,
         apply_list_to_array_formatter(log_result_remapper),
+    ),
+    RPCEndpoint("eth_feeHistory"): apply_formatter_if(
+        is_dict, fee_history_result_remapper
     ),
     # EVM
     RPCEndpoint("evm_snapshot"): integer_to_hex,
