@@ -650,7 +650,7 @@ class AsyncEthModuleTest:
             await async_w3.eth.send_transaction(txn_params)
 
     @pytest.mark.asyncio
-    async def test_geth_poa_middleware(
+    async def test_extradata_to_poa_middleware(
         self, async_w3: "AsyncWeb3", request_mocker: Type[RequestMocker]
     ) -> None:
         async_w3.middleware_onion.inject(extradata_to_poa_middleware, "poa", layer=0)

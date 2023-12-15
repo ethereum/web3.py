@@ -688,8 +688,8 @@ Inject the middleware into the middleware onion
 
 .. code-block:: python
 
-    from web3.middleware import geth_poa_middleware
-    w3.middleware_onion.inject(geth_poa_middleware, layer=0)
+    from web3.middleware import extradata_to_poa_middleware
+    w3.middleware_onion.inject(extradata_to_poa_middleware, layer=0)
 
 Just remember that you have to sign all transactions locally, as infura does not handle any keys from your wallet ( refer to `this`_  )
 

@@ -467,7 +467,6 @@ AsyncHTTPProvider
         - :meth:`Attribute Dict Middleware <web3.middleware.async_attrdict_middleware>`
         - :meth:`Buffered Gas Estimate Middleware <web3.middleware.async_buffered_gas_estimate_middleware>`
         - :meth:`Gas Price Strategy Middleware <web3.middleware.async_gas_price_strategy_middleware>`
-        - :meth:`Geth POA Middleware <web3.middleware.async_geth_poa_middleware>`
         - :meth:`Local Filter Middleware <web3.middleware.async_local_filter_middleware>`
         - :meth:`Simple Cache Middleware <web3.middleware.async_construct_simple_cache_middleware>`
         - :meth:`Stalecheck Middleware <web3.middleware.async_make_stalecheck_middleware>`

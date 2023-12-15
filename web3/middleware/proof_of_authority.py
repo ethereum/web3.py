@@ -34,29 +34,35 @@ if TYPE_CHECKING:
 
 is_not_null = complement(is_null)
 
-remap_geth_poa_fields = apply_key_map(
+remap_extradata_to_poa_fields = apply_key_map(
     {
         "extraData": "proofOfAuthorityData",
     }
 )
 
-pythonic_geth_poa = apply_formatters_to_dict(
+pythonic_extradata_to_poa = apply_formatters_to_dict(
     {
         "proofOfAuthorityData": HexBytes,
     }
 )
 
-geth_poa_cleanup = compose(pythonic_geth_poa, remap_geth_poa_fields)
+extradata_to_poa_cleanup = compose(
+    pythonic_extradata_to_poa, remap_extradata_to_poa_fields
+)
 
 
 extradata_to_poa_middleware = FormattingMiddlewareBuilder.build(
     result_formatters={
-        RPC.eth_getBlockByHash: apply_formatter_if(is_not_null, geth_poa_cleanup),
-        RPC.eth_getBlockByNumber: apply_formatter_if(is_not_null, geth_poa_cleanup),
+        RPC.eth_getBlockByHash: apply_formatter_if(
+            is_not_null, extradata_to_poa_cleanup
+        ),
+        RPC.eth_getBlockByNumber: apply_formatter_if(
+            is_not_null, extradata_to_poa_cleanup
+        ),
         RPC.eth_subscribe: apply_formatter_if(
             is_not_null,
             # original call to eth_subscribe returns a string, needs a dict check
-            apply_formatter_if(is_dict, geth_poa_cleanup),
+            apply_formatter_if(is_dict, extradata_to_poa_cleanup),
         ),
     },
 )
