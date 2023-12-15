@@ -316,7 +316,7 @@ class PersistentConnectionProviderTest:
         async_w3.provider._ws.__setattr__("recv", actual_recv_fxn)
 
     @pytest.mark.asyncio
-    async def test_async_geth_poa_middleware_on_eth_subscription(
+    async def test_async_extradata_to_poa_middleware_on_eth_subscription(
         self,
         async_w3: "_PersistentConnectionWeb3",
     ) -> None:

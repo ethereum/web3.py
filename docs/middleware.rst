@@ -446,16 +446,15 @@ Time-based Cache Middleware
 Proof of Authority
 ~~~~~~~~~~~~~~~~~~
 
-.. py:method:: web3.middleware.geth_poa_middleware
-               web3.middleware.async_geth_poa_middleware
+.. py:class:: web3.middleware.extradata_to_poa_middleware
 
 .. note::
     It's important to inject the middleware at the 0th layer of the middleware onion:
-    ``w3.middleware_onion.inject(geth_poa_middleware, layer=0)``
+    ``w3.middleware_onion.inject(extradata_to_poa_middleware, layer=0)``
 
-The ``geth_poa_middleware`` is required to connect to ``geth --dev`` or the Goerli 
-public network. It may also be needed for other EVM compatible blockchains like Polygon
-or BNB Chain (Binance Smart Chain).
+The ``extradata_to_poa_middleware`` is required to connect to ``geth --dev`` and may
+also be needed for other EVM compatible blockchains like Polygon or
+BNB Chain (Binance Smart Chain).
 
 If the middleware is not injected at the 0th layer of the middleware onion, you may get
 errors like the example below when interacting with your EVM node.
@@ -468,7 +467,8 @@ errors like the example below when interacting with your EVM node.
     for more details. The full extraData is: HexBytes('...')
 
 
-The easiest way to connect to a default ``geth --dev`` instance which loads the middleware is:
+The easiest way to connect to a default ``geth --dev`` instance which loads the
+middleware is:
 
 
 .. code-block:: python
@@ -489,25 +489,26 @@ unique IPC location and loads the middleware:
     # connect to the IPC location started with 'geth --dev --datadir ~/mynode'
     >>> w3 = Web3(IPCProvider('~/mynode/geth.ipc'))
 
-    >>> from web3.middleware import geth_poa_middleware
+    >>> from web3.middleware import extradata_to_poa_middleware
 
     # inject the poa compatibility middleware to the innermost layer (0th layer)
-    >>> w3.middleware_onion.inject(geth_poa_middleware, layer=0)
+    >>> w3.middleware_onion.inject(extradata_to_poa_middleware, layer=0)
 
     # confirm that the connection succeeded
     >>> w3.client_version
     'Geth/v1.7.3-stable-4bb3c89d/linux-amd64/go1.9'
 
-Why is ``geth_poa_middleware`` necessary?
-'''''''''''''''''''''''''''''''''''''''''
+Why is ``extradata_to_poa_middleware`` necessary?
+'''''''''''''''''''''''''''''''''''''''''''''''''
 
 There is no strong community consensus on a single Proof-of-Authority (PoA) standard yet.
 Some nodes have successful experiments running though. One is go-ethereum (geth),
 which uses a prototype PoA for its development mode and the Goerli test network.
 
 Unfortunately, it does deviate from the yellow paper specification, which constrains the
-``extraData`` field in each block to a maximum of 32-bytes. Geth's PoA uses more than
-32 bytes, so this middleware modifies the block data a bit before returning it.
+``extraData`` field in each block to a maximum of 32-bytes. Geth is one such example
+where PoA uses more than 32 bytes, so this middleware modifies the block data a bit
+before returning it.
 
 .. _local-filter:
 

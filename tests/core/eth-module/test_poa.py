@@ -26,7 +26,7 @@ def test_full_extra_data(w3, request_mocker):
         assert block.extraData == b"\xff" * 32
 
 
-def test_geth_proof_of_authority(w3, request_mocker):
+def test_extradata_to_poa_middleware(w3, request_mocker):
     w3.middleware_onion.inject(extradata_to_poa_middleware, layer=0)
 
     with request_mocker(
