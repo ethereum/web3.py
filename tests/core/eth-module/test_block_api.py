@@ -1,7 +1,4 @@
 import pytest
-from unittest.mock import (
-    Mock,
-)
 
 from eth_utils import (
     to_checksum_address,
@@ -22,7 +19,7 @@ def test_uses_default_block(w3, extra_accounts, wait_for_transaction):
     assert w3.eth.default_block == w3.eth.block_number
 
 
-def test_get_block_formatters_with_null_values(w3, mocker):
+def test_get_block_formatters_with_null_values(w3, request_mocker):
     null_values_block = {
         "baseFeePerGas": None,
         "extraData": None,
@@ -47,13 +44,12 @@ def test_get_block_formatters_with_null_values(w3, mocker):
         "withdrawalsRoot": None,
         "withdrawals": [],
     }
-    mocker.patch("web3.eth.eth.Eth.get_block", return_value=null_values_block)
-
-    received_block = w3.eth.get_block("pending")
+    with request_mocker(w3, mock_results={"eth_getBlockByNumber": null_values_block}):
+        received_block = w3.eth.get_block("pending")
     assert received_block == null_values_block
 
 
-def test_get_block_formatters_with_pre_formatted_values(w3):
+def test_get_block_formatters_with_pre_formatted_values(w3, request_mocker):
     unformatted_values_block = {
         "baseFeePerGas": "0x3b9aca00",
         "extraData": "0x",
@@ -107,10 +103,10 @@ def test_get_block_formatters_with_pre_formatted_values(w3):
         ],
     }
 
-    w3.manager._make_request = Mock()
-    w3.manager._make_request.return_value = {"result": unformatted_values_block}
-
-    received_block = w3.eth.get_block("pending")
+    with request_mocker(
+        w3, mock_results={"eth_getBlockByNumber": unformatted_values_block}
+    ):
+        received_block = w3.eth.get_block("pending")
 
     assert received_block == {
         "baseFeePerGas": int(unformatted_values_block["baseFeePerGas"], 16),
