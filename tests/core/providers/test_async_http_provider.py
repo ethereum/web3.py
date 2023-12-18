@@ -89,7 +89,7 @@ def test_web3_with_async_http_provider_has_default_middlewares_and_modules() -> 
         == gas_price_strategy_middleware
     )
     assert (
-        async_w3.middleware_onion.get("name_to_address")
+        async_w3.middleware_onion.get("ens_name_to_address")
         == ens_name_to_address_middleware
     )
     assert async_w3.middleware_onion.get("attrdict") == attrdict_middleware
