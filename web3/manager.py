@@ -163,7 +163,7 @@ class RequestManager:
         """
         return [
             (gas_price_strategy_middleware, "gas_price_strategy"),
-            (ens_name_to_address_middleware, "name_to_address"),
+            (ens_name_to_address_middleware, "ens_name_to_address"),
             (attrdict_middleware, "attrdict"),
             (validation_middleware, "validation"),
             (buffered_gas_estimate_middleware, "gas_estimate"),

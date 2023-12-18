@@ -103,8 +103,8 @@ def customize_web3(w3: "_Web3") -> "_Web3":
         make_stalecheck_middleware,
     )
 
-    if w3.middleware_onion.get("name_to_address"):
-        w3.middleware_onion.remove("name_to_address")
+    if w3.middleware_onion.get("ens_name_to_address"):
+        w3.middleware_onion.remove("ens_name_to_address")
 
     if not w3.middleware_onion.get("stalecheck"):
         stalecheck_middleware = make_stalecheck_middleware(
@@ -313,7 +313,7 @@ def init_async_web3(
 
     middlewares = list(middlewares)
     for i, (middleware, name) in enumerate(middlewares):
-        if name == "name_to_address":
+        if name == "ens_name_to_address":
             middlewares.pop(i)
 
     if "stalecheck" not in (name for mw, name in middlewares):

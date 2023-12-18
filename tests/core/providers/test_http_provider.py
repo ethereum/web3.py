@@ -84,7 +84,9 @@ def test_web3_with_http_provider_has_default_middlewares_and_modules() -> None:
     assert (
         w3.middleware_onion.get("gas_price_strategy") == gas_price_strategy_middleware
     )
-    assert w3.middleware_onion.get("name_to_address") == ens_name_to_address_middleware
+    assert (
+        w3.middleware_onion.get("ens_name_to_address") == ens_name_to_address_middleware
+    )
     assert w3.middleware_onion.get("attrdict") == attrdict_middleware
     assert w3.middleware_onion.get("validation") == validation_middleware
     assert w3.middleware_onion.get("gas_estimate") == buffered_gas_estimate_middleware
