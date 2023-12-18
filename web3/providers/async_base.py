@@ -1,3 +1,4 @@
+import asyncio
 import itertools
 from typing import (
     TYPE_CHECKING,
@@ -15,6 +16,9 @@ from eth_utils import (
     to_text,
 )
 
+from web3._utils.caching import (
+    async_handle_request_caching,
+)
 from web3._utils.encoding import (
     FriendlyJsonSerde,
     Web3JsonEncoder,
@@ -75,6 +79,7 @@ class AsyncBaseProvider:
     cache_allowed_requests: bool = False
     cacheable_requests: Set[RPCEndpoint] = CACHEABLE_REQUESTS
     _request_cache: SimpleCache
+    _request_cache_lock: asyncio.Lock = asyncio.Lock()
 
     def __init__(self) -> None:
         self._request_cache = SimpleCache(1000)
@@ -97,6 +102,7 @@ class AsyncBaseProvider:
             )
         return self._request_func_cache[-1]
 
+    @async_handle_request_caching
     async def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
         raise NotImplementedError("Providers must implement this method")
 

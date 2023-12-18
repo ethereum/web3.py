@@ -14,10 +14,6 @@ from toolz import (
     merge,
 )
 
-from web3.exceptions import (
-    Web3ValidationError,
-)
-
 if TYPE_CHECKING:
     from web3 import (  # noqa: F401
         AsyncWeb3,
@@ -59,7 +55,7 @@ class RequestMocker:
         self,
         w3: Union["AsyncWeb3", "Web3"],
         mock_results: Dict[Union["RPCEndpoint", str], Any] = None,
-        mock_errors: Dict[Union["RPCEndpoint", str], Dict[str, Any]] = None,
+        mock_errors: Dict[Union["RPCEndpoint", str], Any] = None,
     ):
         self.w3 = w3
         self.mock_results = mock_results or {}
@@ -101,19 +97,30 @@ class RequestMocker:
             mock_return = self.mock_results[method]
             if callable(mock_return):
                 mock_return = mock_return(method, params)
-            return merge(response_dict, {"result": mock_return})
+            mocked_response = merge(response_dict, {"result": mock_return})
         elif method in self.mock_errors:
             error = self.mock_errors[method]
-            if not isinstance(error, dict):
-                raise Web3ValidationError("error must be a dict")
+            if callable(error):
+                error = error(method, params)
             code = error.get("code", -32000)
             message = error.get("message", "Mocked error")
-            return merge(
+            mocked_response = merge(
                 response_dict,
                 {"error": merge({"code": code, "message": message}, error)},
             )
         else:
             raise Exception("Invariant: unreachable code path")
+
+        decorator = getattr(self._make_request, "_decorator", None)
+        if decorator is not None:
+            # If the original make_request was decorated, we need to re-apply
+            # the decorator to the mocked make_request. This is necessary for
+            # the request caching decorator to work properly.
+            return decorator(lambda *_: mocked_response)(
+                self.w3.provider, method, params
+            )
+        else:
+            return mocked_response
 
     # -- async -- #
     async def __aenter__(self) -> "Self":
@@ -151,16 +158,37 @@ class RequestMocker:
             elif iscoroutinefunction(mock_return):
                 # this is the "correct" way to mock the async make_request
                 mock_return = await mock_return(method, params)
-            return merge(response_dict, {"result": mock_return})
+
+            mocked_result = merge(response_dict, {"result": mock_return})
+
         elif method in self.mock_errors:
             error = self.mock_errors[method]
-            if not isinstance(error, dict):
-                raise Web3ValidationError("error must be a dict")
+            if callable(error):
+                error = error(method, params)
+            elif iscoroutinefunction(error):
+                error = await error(method, params)
+
             code = error.get("code", -32000)
             message = error.get("message", "Mocked error")
-            return merge(
+            mocked_result = merge(
                 response_dict,
                 {"error": merge({"code": code, "message": message}, error)},
             )
+
         else:
             raise Exception("Invariant: unreachable code path")
+
+        decorator = getattr(self._make_request, "_decorator", None)
+        if decorator is not None:
+            # If the original make_request was decorated, we need to re-apply
+            # the decorator to the mocked make_request. This is necessary for
+            # the request caching decorator to work properly.
+
+            async def _coro(
+                _provider: Any, _method: "RPCEndpoint", _params: Any
+            ) -> "RPCResponse":
+                return mocked_result
+
+            return await decorator(_coro)(self.w3.provider, method, params)
+        else:
+            return mocked_result

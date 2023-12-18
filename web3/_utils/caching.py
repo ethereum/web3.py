@@ -1,5 +1,6 @@
 import collections
 import hashlib
+import threading
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -85,6 +86,14 @@ def is_cacheable_request(
 # -- request caching decorators -- #
 
 
+def _should_cache_response(response: "RPCResponse") -> bool:
+    return (
+        "error" not in response
+        and "result" in response
+        and not is_null(response["result"])
+    )
+
+
 def handle_request_caching(
     func: Callable[[SYNC_PROVIDER_TYPE, "RPCEndpoint", Any], "RPCResponse"]
 ) -> Callable[..., "RPCResponse"]:
@@ -93,17 +102,23 @@ def handle_request_caching(
     ) -> "RPCResponse":
         if is_cacheable_request(provider, method):
             request_cache = provider._request_cache
-            cache_key = generate_cache_key((method, params))
+            cache_key = generate_cache_key(
+                f"{threading.get_ident()}:{(method, params)}"
+            )
             cache_result = request_cache.get_cache_entry(cache_key)
             if cache_result is not None:
                 return cache_result
             else:
                 response = func(provider, method, params)
-                request_cache.cache(cache_key, response)
+                if _should_cache_response(response):
+                    with provider._request_cache_lock:
+                        request_cache.cache(cache_key, response)
                 return response
         else:
             return func(provider, method, params)
 
+    # save a reference to the decorator on the wrapped function
+    wrapper._decorator = handle_request_caching  # type: ignore
     return wrapper
 
 
@@ -120,15 +135,21 @@ def async_handle_request_caching(
     ) -> "RPCResponse":
         if is_cacheable_request(provider, method):
             request_cache = provider._request_cache
-            cache_key = generate_cache_key((method, params))
+            cache_key = generate_cache_key(
+                f"{threading.get_ident()}:{(method, params)}"
+            )
             cache_result = request_cache.get_cache_entry(cache_key)
             if cache_result is not None:
                 return cache_result
             else:
                 response = await func(provider, method, params)
-                request_cache.cache(cache_key, response)
+                if _should_cache_response(response):
+                    async with provider._request_cache_lock:
+                        request_cache.cache(cache_key, response)
                 return response
         else:
             return await func(provider, method, params)
 
+    # save a reference to the decorator on the wrapped function
+    wrapper._decorator = async_handle_request_caching  # type: ignore
     return wrapper

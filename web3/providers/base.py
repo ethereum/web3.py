@@ -1,4 +1,5 @@
 import itertools
+import threading
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -13,6 +14,9 @@ from eth_utils import (
     to_text,
 )
 
+from web3._utils.caching import (
+    handle_request_caching,
+)
 from web3._utils.encoding import (
     FriendlyJsonSerde,
     Web3JsonEncoder,
@@ -72,6 +76,7 @@ class BaseProvider:
     cache_allowed_requests: bool = False
     cacheable_requests: Set[RPCEndpoint] = CACHEABLE_REQUESTS
     _request_cache: SimpleCache
+    _request_cache_lock: threading.Lock = threading.Lock()
 
     def __init__(self) -> None:
         self._request_cache = SimpleCache(1000)
@@ -102,6 +107,7 @@ class BaseProvider:
 
         return self._request_func_cache[-1]
 
+    @handle_request_caching
     def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
         raise NotImplementedError("Providers must implement this method")
 
