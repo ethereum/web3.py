@@ -1118,6 +1118,42 @@ class AsyncEthModuleTest:
         assert len(code) > 0
 
     @pytest.mark.asyncio
+    async def test_eth_create_access_list(
+        self,
+        async_w3: "AsyncWeb3",
+        async_unlocked_account_dual_type: ChecksumAddress,
+        async_math_contract: "Contract",
+    ) -> None:
+        # Initialize transaction for gas estimation
+        txn_params: TxParams = {
+            "from": async_unlocked_account_dual_type,
+            "value": Wei(1),
+            "gas": 21000,
+        }
+        txn = async_math_contract._prepare_transaction(
+            fn_name="incrementCounter",
+            fn_args=[1],
+            transaction=txn_params,
+        )
+
+        # create access list using data from transaction
+        response = await async_w3.eth.create_access_list(
+            {
+                "from": async_unlocked_account_dual_type,
+                "to": async_math_contract.address,
+                "data": txn["data"],
+            }
+        )
+
+        assert is_dict(response)
+        access_list = response["accessList"]
+        assert len(access_list) > 0
+        assert access_list[0]["address"] is not None
+        assert is_checksum_address(access_list[0]["address"])
+        assert len(access_list[0]["storageKeys"][0]) == 32
+        assert int(response["gasUsed"]) >= 0
+
+    @pytest.mark.asyncio
     async def test_eth_get_transaction_count(
         self, async_w3: "AsyncWeb3", async_unlocked_account_dual_type: ChecksumAddress
     ) -> None:
