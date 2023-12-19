@@ -1062,9 +1062,9 @@ The following methods are available on the ``web3.eth`` namespace.
     The ``transaction`` and ``block_identifier`` parameters are handled in the
     same manner as the :meth:`~web3.eth.Eth.send_transaction()` method.
 
-    The ``state_override`` parameter allows gas estimation for cases when there
-    are multiple calls that require a specific state as a side effect of the
-    earlier transaction, such as an `approve` followed by a `transfer` call.
+    The ``state_override`` is useful when there is a chain of transaction calls.
+    It overrides state so that the gas estimate of a transaction is accurate in
+    cases where prior calls produce side effects.
 
     .. code-block:: python
 
