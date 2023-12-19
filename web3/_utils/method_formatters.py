@@ -455,12 +455,31 @@ call_with_override: Callable[
 estimate_gas_without_block_id: Callable[[Dict[str, Any]], Dict[str, Any]]
 estimate_gas_without_block_id = apply_formatter_at_index(transaction_param_formatter, 0)
 estimate_gas_with_block_id: Callable[
-    [Tuple[Dict[str, Any], Union[str, int]]], Tuple[Dict[str, Any], int]
+    [Tuple[Dict[str, Any], BlockIdentifier]], Tuple[Dict[str, Any], int]
 ]
 estimate_gas_with_block_id = apply_formatters_to_sequence(
     [
         transaction_param_formatter,
         to_hex_if_integer,
+    ]
+)
+ESTIMATE_GAS_OVERRIDE_FORMATTERS = {
+    "balance": to_hex_if_integer,
+    "nonce": to_hex_if_integer,
+    "code": to_hex_if_bytes,
+}
+estimate_gas_with_override: Callable[
+    [Tuple[Dict[str, Any], BlockIdentifier, CallOverrideParams]],
+    Tuple[Dict[str, Any], int, Dict[str, Any]],
+] = apply_formatters_to_sequence(
+    [
+        transaction_param_formatter,
+        to_hex_if_integer,
+        lambda val: type_aware_apply_formatters_to_dict_keys_and_values(
+            to_checksum_address,
+            type_aware_apply_formatters_to_dict(ESTIMATE_GAS_OVERRIDE_FORMATTERS),
+            val,
+        ),
     ]
 )
 
@@ -531,6 +550,7 @@ PYTHONIC_REQUEST_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
         (
             (is_length(1), estimate_gas_without_block_id),
             (is_length(2), estimate_gas_with_block_id),
+            (is_length(3), estimate_gas_with_override),
         )
     ),
     RPC.eth_sendTransaction: apply_formatter_at_index(transaction_param_formatter, 0),
