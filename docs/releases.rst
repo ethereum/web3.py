@@ -6,6 +6,23 @@ v6 Breaking Changes Summary
 
 .. towncrier release notes start
 
+web3.py v6.13.0 (2023-12-20)
+----------------------------
+
+Features
+~~~~~~~~
+
+- Implement async ``eth_createAccessList`` RPC method to create an EIP-2930 access list. (`#3167 <https://github.com/ethereum/web3.py/issues/3167>`__)
+
+
+Internal Changes - for web3.py Contributors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Add flaky async Geth integration tests to CI (`#3170 <https://github.com/ethereum/web3.py/issues/3170>`__)
+- Fix wrong test reference for ``EthereumTesterProvider`` integration test suite. (`#3171 <https://github.com/ethereum/web3.py/issues/3171>`__)
+- Small fix for integration tests for ``tox`` to recognize independent patterns for each test run. (`#3173 <https://github.com/ethereum/web3.py/issues/3173>`__)
+
+
 web3.py v6.12.0 (2023-12-11)
 ----------------------------
 
