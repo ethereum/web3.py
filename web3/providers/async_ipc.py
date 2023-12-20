@@ -109,8 +109,6 @@ class AsyncIPCProvider(AsyncJSONBaseProvider):
         self,
         ipc_path: Union[str, Path] = None,
         timeout: int = 10,
-        *args: Any,
-        **kwargs: Any,
     ) -> None:
         if ipc_path is None:
             self.ipc_path = get_default_ipc_path()
