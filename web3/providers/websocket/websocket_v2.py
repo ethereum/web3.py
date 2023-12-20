@@ -160,70 +160,51 @@ class WebsocketProviderV2(PersistentConnectionProvider):
         )
 
         current_request_id = json.loads(request_data)["id"]
-        response = await self._get_response_for_request_id(current_request_id)
+        response = await self._wait_for_response_to_request_with_id(current_request_id)
 
         return response
 
-    async def _get_response_for_request_id(self, request_id: RPCId) -> RPCResponse:
-        async def _match_response_id_to_request_id() -> RPCResponse:
-            request_cache_key = generate_cache_key(request_id)
+    async def _get_response_for_request_with_id(self, request_id: RPCId) -> RPCResponse:
+        # check cache early to avoid unnecessary websocket recv()
+        cache_key = generate_cache_key(request_id)
+        cached_response = self._request_processor.pop_raw_response(cache_key)
+        if cached_response is not None:
+            return cached_response
 
-            while True:
-                # sleep(0) here seems to be the most efficient way to yield control
-                # back to the event loop while waiting for the response to be cached
-                # or received on the websocket.
-                await asyncio.sleep(0)
-
-                if request_cache_key in self._request_processor._request_response_cache:
-                    # if response is already cached, pop it from cache
-                    self.logger.debug(
-                        f"Response for id {request_id} is already cached, pop it "
-                        "from the cache."
+        # if not in cache, kick off two competing tasks to wait for the desired response
+        completed, pending = await asyncio.wait(
+            [
+                # create a task to wait for the response with the matching request id
+                # from the websocket
+                asyncio.create_task(
+                    self._await_next_ws_response(request_id=request_id)
+                ),
+                # create a task to wait for the response with the matching request id
+                # from the cache
+                asyncio.create_task(
+                    self._request_processor._await_next_cached_response(
+                        request_id=request_id
                     )
-                    return self._request_processor.pop_raw_response(
-                        cache_key=request_cache_key,
-                    )
+                ),
+            ],
+            # return when the first task to find the desired response completes
+            return_when=asyncio.FIRST_COMPLETED,
+        )
 
-                else:
-                    if not self._ws_lock.locked():
-                        async with self._ws_lock:
-                            self.logger.debug(
-                                f"Response for id {request_id} is not cached, calling "
-                                "`recv()` on websocket."
-                            )
-                            try:
-                                # keep timeout low but reasonable to check both the
-                                # cache and the websocket connection for new responses
-                                response = await self._ws_recv(timeout=0.5)
-                            except asyncio.TimeoutError:
-                                # keep the request timeout around the whole of this
-                                # while loop in case the response sneaks into the cache
-                                # from another call.
-                                continue
+        for task in pending:
+            task.cancel()
 
-                        response_id = response.get("id")
+        return completed.pop().result()
 
-                        if response_id == request_id:
-                            self.logger.debug(
-                                f"Received and returning response for id {request_id}."
-                            )
-                            return response
-                        else:
-                            # cache all responses that are not the desired response
-                            self.logger.debug("Undesired response received, caching.")
-                            is_subscription = (
-                                response.get("method") == "eth_subscription"
-                            )
-                            self._request_processor.cache_raw_response(
-                                response, subscription=is_subscription
-                            )
-
+    async def _wait_for_response_to_request_with_id(
+        self, request_id: RPCId
+    ) -> RPCResponse:
         try:
             # Add the request timeout around the while loop that checks the request
-            # cache and tried to recv(). If the request is neither in the cache, nor
+            # cache and tried to recv(). If the response is neither in the cache, nor
             # received within the request_timeout, raise ``TimeExhausted``.
             return await asyncio.wait_for(
-                _match_response_id_to_request_id(), self.request_timeout
+                self._get_response_for_request_with_id(request_id), self.request_timeout
             )
         except asyncio.TimeoutError:
             raise TimeExhausted(
@@ -234,5 +215,54 @@ class WebsocketProviderV2(PersistentConnectionProvider):
                 "allowed to continue."
             )
 
-    async def _ws_recv(self, timeout: float = None) -> RPCResponse:
-        return json.loads(await asyncio.wait_for(self._ws.recv(), timeout=timeout))
+    async def _await_next_ws_response(
+        self, request_id: Optional[RPCId] = None, subscription: bool = False
+    ) -> RPCResponse:
+        """
+        Wait for the next response from the websocket connection, by type, while
+        caching all other responses.
+
+        - If subscription is True, wait for the next subscription response.
+        - If subscription is False, wait for the next response that matches the
+            ``request_id``.
+        """
+        if request_id is None and not subscription:
+            raise ValueError("Must provide a request_id when subscription is False.")
+        elif subscription and request_id is not None:
+            raise ValueError(
+                "``request_id`` must be ``None`` when ``subscription`` is True."
+            )
+
+        while True:
+            await asyncio.sleep(0)
+
+            if not self._ws_lock.locked():
+                async with self._ws_lock:
+                    response = await self._ws_recv()
+
+                    if subscription and response.get("method") == "eth_subscription":
+                        # is a subscription type and is a subscription response
+                        self.logger.info(
+                            "Received subscription response from websocket, "
+                            "subscription_id="
+                            f"{response['params']['subscription']!r}"
+                        )
+                        return response
+                    elif not subscription and response.get("id") == request_id:
+                        # is not a subscription and response id matches the request id
+                        self.logger.info(
+                            f"Received response for request id `{request_id}` from "
+                            "websocket."
+                        )
+                        return response
+                    else:
+                        # cache all other responses
+                        self.logger.debug(
+                            "Caching undesired response from websocket:\n"
+                            f"    request_id={request_id}\n"
+                            f"    is_subscription={subscription}"
+                        )
+                        self._request_processor.cache_raw_response(response)
+
+    async def _ws_recv(self) -> RPCResponse:
+        return json.loads(await self._ws.recv())

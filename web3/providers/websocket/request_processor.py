@@ -1,3 +1,4 @@
+import asyncio
 from collections import (
     deque,
 )
@@ -20,6 +21,7 @@ from web3._utils.caching import (
 )
 from web3.types import (
     RPCEndpoint,
+    RPCId,
     RPCResponse,
 )
 from web3.utils import (
@@ -204,7 +206,9 @@ class RequestProcessor:
 
     # raw response cache
 
-    def cache_raw_response(self, raw_response: Any, subscription: bool = False) -> None:
+    def cache_raw_response(self, raw_response: Any) -> None:
+        subscription = raw_response.get("method") == "eth_subscription"
+
         if subscription:
             self._provider.logger.debug(
                 f"Caching subscription response:\n    response={raw_response}"
@@ -246,11 +250,52 @@ class RequestProcessor:
             if raw_response is not None:
                 self._provider.logger.debug(
                     "Cached response popped from cache to be processed:\n"
+                    f"    response_id={raw_response.get('id')},\n"
                     f"    cache_key={cache_key},\n"
-                    f"    raw_response={raw_response}"
+                    f"    raw_response={raw_response}",
                 )
 
         return raw_response
+
+    async def _await_next_cached_response(
+        self,
+        request_id: Optional[RPCId] = None,
+        subscription: bool = False,
+    ) -> RPCResponse:
+        """
+        Wait for the cached response, by type, while caching all other responses.
+
+        - If subscription is True, wait for the next cached subscription response.
+        - If subscription is False, wait for the next cached response that matches the
+            ``request_id``.
+        """
+        if request_id is None and not subscription:
+            raise ValueError("Must provide a request_id when subscription is False.")
+        elif subscription and request_id is not None:
+            raise ValueError(
+                "``request_id`` must be ``None`` when ``subscription`` is True."
+            )
+
+        while True:
+            # help yield control to the event loop to allow other tasks to run
+            await asyncio.sleep(0)
+
+            if subscription:
+                response = self.pop_raw_response(subscription=subscription)
+                if response is not None:
+                    self._provider.logger.info(
+                        "Popped subscription response from cache, "
+                        f"subscription_id={response['params']['subscription']}"
+                    )
+                    return response
+            else:
+                cache_key = generate_cache_key(request_id)
+                response = self.pop_raw_response(cache_key=cache_key)
+                if response is not None:
+                    self._provider.logger.info(
+                        f"Popped response for request id `{request_id}` from cache."
+                    )
+                    return response
 
     # request processor class methods
 

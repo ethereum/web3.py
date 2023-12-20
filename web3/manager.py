@@ -368,34 +368,32 @@ class RequestManager:
                 "can listen to websocket recv streams."
             )
 
-        while True:
-            # sleep(0) here seems to be the most efficient way to yield control back to
-            # the event loop while waiting for the response to be cached or received on
-            # the websocket.
-            await asyncio.sleep(0)
+        # check cache first to avoid unnecessary websocket recv()
+        cached_response = self._request_processor.pop_raw_response(subscription=True)
+        if cached_response is not None:
+            yield cached_response
 
-            # look in the cache for a response
-            response = self._request_processor.pop_raw_response(subscription=True)
-            if response is not None:
-                break
-            else:
-                # if no response in the cache, check the websocket connection
-                if not self._provider._ws_lock.locked():
-                    async with self._provider._ws_lock:
-                        try:
-                            # keep timeout low but reasonable to check both the cache
-                            # and the websocket connection for new responses
-                            response = await self._provider._ws_recv(timeout=0.5)
-                        except asyncio.TimeoutError:
-                            # if no response received, continue to next iteration
-                            continue
+        completed, pending = await asyncio.wait(
+            [
+                # create a task to wait for the next cached subscription response
+                asyncio.create_task(
+                    self._request_processor._await_next_cached_response(
+                        subscription=True
+                    )
+                ),
+                # create a task to wait for the next subscription response from the ws
+                asyncio.create_task(
+                    self._provider._await_next_ws_response(subscription=True)
+                ),
+            ],
+            # return when the first task to find the desired response completes
+            return_when=asyncio.FIRST_COMPLETED,
+        )
 
-                    if response.get("method") == "eth_subscription":
-                        break
-                    else:
-                        self._provider._request_processor.cache_raw_response(response)
+        for task in pending:
+            task.cancel()
 
-        yield await self._process_ws_response(response)
+        yield await self._process_ws_response(completed.pop().result())
 
     async def _process_ws_response(self, response: RPCResponse) -> RPCResponse:
         provider = cast(PersistentConnectionProvider, self._provider)

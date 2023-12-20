@@ -40,6 +40,7 @@ async def test_async_make_request_caches_all_undesired_responses_and_returns_des
     method_under_test = provider.make_request
 
     _mock_ws(provider)
+
     undesired_responses_count = 10
     ws_recv_responses = [
         to_bytes(
@@ -53,6 +54,7 @@ async def test_async_make_request_caches_all_undesired_responses_and_returns_des
         )
         for i in range(0, undesired_responses_count)
     ]
+
     # The first request we make should have an id of `0`, expect the response to match
     # that id. Append it as the last response in the list.
     ws_recv_responses.append(b'{"jsonrpc": "2.0", "id":0, "result": "0x1337"}')
@@ -90,11 +92,12 @@ async def test_async_make_request_returns_cached_response_with_no_recv_if_cached
     desired_response = {"jsonrpc": "2.0", "id": 0, "result": "0x1337"}
     provider._request_processor.cache_raw_response(desired_response)
 
+    # request with id `0` should return the cached response
     response = await method_under_test(RPCEndpoint("some_method"), ["desired_params"])
     assert response == desired_response
 
     assert len(provider._request_processor._request_response_cache) == 0
-    assert not provider._ws.recv.called  # type: ignore
+    assert provider._ws.recv.not_called  # type: ignore
 
 
 @pytest.mark.asyncio

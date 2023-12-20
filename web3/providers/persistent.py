@@ -18,6 +18,7 @@ from web3.providers.websocket.request_processor import (
     RequestProcessor,
 )
 from web3.types import (
+    RPCId,
     RPCResponse,
 )
 
@@ -52,5 +53,10 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
     async def disconnect(self) -> None:
         raise NotImplementedError("Must be implemented by subclasses")
 
-    async def _ws_recv(self, timeout: float = None) -> RPCResponse:
+    async def _ws_recv(self) -> RPCResponse:
+        raise NotImplementedError("Must be implemented by subclasses")
+
+    async def _await_next_ws_response(
+        self, request_id: Optional[RPCId] = None, subscription: bool = False
+    ) -> RPCResponse:
         raise NotImplementedError("Must be implemented by subclasses")
