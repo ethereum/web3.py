@@ -160,7 +160,7 @@ class WebsocketProviderV2(PersistentConnectionProvider):
         )
 
         current_request_id = json.loads(request_data)["id"]
-        response = await self._wait_for_response_to_request_with_id(current_request_id)
+        response = await self._get_response_for_request_with_id(current_request_id)
 
         return response
 
@@ -172,40 +172,34 @@ class WebsocketProviderV2(PersistentConnectionProvider):
             return cached_response
 
         # if not in cache, kick off two competing tasks to wait for the desired response
-        completed, pending = await asyncio.wait(
-            [
-                # create a task to wait for the response with the matching request id
-                # from the websocket
-                asyncio.create_task(
-                    self._await_next_ws_response(request_id=request_id)
-                ),
-                # create a task to wait for the response with the matching request id
-                # from the cache
-                asyncio.create_task(
-                    self._request_processor._await_next_cached_response(
-                        request_id=request_id
-                    )
-                ),
-            ],
-            # return when the first task to find the desired response completes
-            return_when=asyncio.FIRST_COMPLETED,
-        )
-
-        for task in pending:
-            task.cancel()
-
-        return completed.pop().result()
-
-    async def _wait_for_response_to_request_with_id(
-        self, request_id: RPCId
-    ) -> RPCResponse:
         try:
-            # Add the request timeout around the while loop that checks the request
-            # cache and tried to recv(). If the response is neither in the cache, nor
-            # received within the request_timeout, raise ``TimeExhausted``.
-            return await asyncio.wait_for(
-                self._get_response_for_request_with_id(request_id), self.request_timeout
+            completed, pending = await asyncio.wait_for(
+                asyncio.wait(
+                    [
+                        # create a task to wait for response with matching request id
+                        # from the websocket
+                        asyncio.create_task(
+                            self._await_next_ws_response(request_id=request_id)
+                        ),
+                        # create a task to wait for response with matching request id
+                        # from the cache
+                        asyncio.create_task(
+                            self._request_processor._await_next_cached_response(
+                                request_id=request_id
+                            )
+                        ),
+                    ],
+                    # return when the first task to find the desired response completes
+                    return_when=asyncio.FIRST_COMPLETED,
+                ),
+                timeout=self.request_timeout,
             )
+
+            for task in pending:
+                task.cancel()
+
+            return completed.pop().result()
+
         except asyncio.TimeoutError:
             raise TimeExhausted(
                 f"Timed out waiting for response with request id `{request_id}` after "
