@@ -47,6 +47,7 @@ Providers are web3.py classes that are configured for the kind of connection you
 See:
 
 - :class:`~web3.providers.ipc.IPCProvider`
+- :class:`~web3.providers.ipc.AsyncIPCProvider`
 - :class:`~web3.providers.websocket.WebsocketProvider`
 - :class:`~web3.providers.websocket.WebsocketProviderV2`
 - :class:`~web3.providers.rpc.HTTPProvider`
@@ -157,7 +158,7 @@ HTTPProvider
 IPCProvider
 ~~~~~~~~~~~
 
-.. py:class:: web3.providers.ipc.IPCProvider(ipc_path=None, testnet=False, timeout=10)
+.. py:class:: web3.providers.ipc.IPCProvider(ipc_path=None, timeout=10)
 
     This provider handles interaction with an IPC Socket based JSON-RPC
     server.
@@ -168,6 +169,29 @@ IPCProvider
 
         >>> from web3 import Web3
         >>> w3 = Web3(Web3.IPCProvider("~/Library/Ethereum/geth.ipc"))
+
+    If no ``ipc_path`` is specified, it will use a default depending on your operating
+    system.
+
+    - On Linux and FreeBSD: ``~/.ethereum/geth.ipc``
+    - On Mac OS: ``~/Library/Ethereum/geth.ipc``
+    - On Windows: ``\\.\pipe\geth.ipc``
+
+
+AsyncIPCProvider
+~~~~~~~~~~~~~~~~
+
+.. py:class:: web3.providers.ipc.AsyncIPCProvider(ipc_path=None, timeout=10)
+
+    Similar to the IPCProvider, this provider handles asynchronous interaction
+    with an IPC Socket based JSON-RPC server.
+
+    *  ``ipc_path`` is the filesystem path to the IPC socket:
+
+    .. code-block:: python
+
+        >>> from web3 import AsyncWeb3, AsyncIPCProvider
+        >>> w3 = AsyncWeb3(AsyncIPCProvider("~/Library/Ethereum/geth.ipc"))
 
     If no ``ipc_path`` is specified, it will use a default depending on your operating
     system.
