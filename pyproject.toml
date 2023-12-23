@@ -71,8 +71,8 @@ docs = ["sphinx", "sphinx_rtd_theme", "towncrier"]
 dev = ["eth-tester", "py-geth", "black", "flake8", "isort", "mypy", "types-setuptools", "types-requests", "types-protobuf", "sphinx", "sphinx_rtd_theme", "towncrier", "ipfshttpclient", "bumpversion", "flaky", "hypothesis", "importlib-metadata", "pytest", "pytest-asyncio", "pytest-mock", "pytest-watch", "pytest-xdist", "setuptools", "tox", "tqdm", "twine", "when-changed", "build"]
 ipfs = ["ipfshttpclient"]
 
-[tool.poetry.plugins."poetry.plugin"]
-pytest_ethereum = "web3.tools.pytest_ethereum.plugins"
+# [tool.poetry.plugins."poetry.plugin"]
+# pytest_ethereum = "web3.tools.pytest_ethereum.plugins"
 
 [build-system]
 requires = ["poetry-core >= 1.5.0"]

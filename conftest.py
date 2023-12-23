@@ -1,9 +1,25 @@
 import asyncio
+import json
+from pathlib import (
+    Path,
+)
 import pytest
 import time
+from typing import (
+    Callable,
+)
 import warnings
+
 import pytest_asyncio
 
+from ethpm import (
+    Package,
+)
+from tests.utils import (
+    PollDelayCounter,
+    _async_wait_for_block_fixture_logic,
+    _async_wait_for_transaction_fixture_logic,
+)
 from web3._utils.threads import (
     Timeout,
 )
@@ -14,11 +30,8 @@ from web3.providers.eth_tester import (
     AsyncEthereumTesterProvider,
     EthereumTesterProvider,
 )
-
-from tests.utils import (
-    PollDelayCounter,
-    _async_wait_for_block_fixture_logic,
-    _async_wait_for_transaction_fixture_logic,
+from web3.tools.pytest_ethereum.deployer import (
+    Deployer,
 )
 
 
@@ -98,6 +111,21 @@ def w3_non_strict_abi():
 @pytest.fixture(autouse=True)
 def print_warnings():
     warnings.simplefilter("always")
+
+
+@pytest.fixture
+def deployer(w3: Web3) -> Callable[[Path], Deployer]:
+    """
+    Returns a `Deployer` instance composed from a `Package` instance
+    generated from the manifest located at the provided `path` folder.
+    """
+
+    def _deployer(path: Path) -> Deployer:
+        manifest = json.loads(path.read_text())
+        package = Package(manifest, w3)
+        return Deployer(package)
+
+    return _deployer
 
 
 # --- async --- #
