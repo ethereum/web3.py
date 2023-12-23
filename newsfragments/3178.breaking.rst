@@ -1,0 +1,2 @@
+* Drop support for python 3.7 and 3.8.
+* Migrate from default packaging with pip to poetry.
