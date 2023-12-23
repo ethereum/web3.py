@@ -24,14 +24,13 @@ common: &common
         name: checkout ethpm-spec submodule
         command: git submodule update --init --recursive
     - run:
-        name: install tox dependencies
+        name: install dependencies
         command: |
-          sudo apt-get -qq update
-          sudo apt install -y build-essential libssl-dev libpython2-dev python3-pip
-          sudo pip3 install tox
+          python -m pip install --upgrade pip
+          python -m pip install tox
     - run:
         name: run tox
-        command: tox -r
+        command: python -m tox -r
     - save_cache:
         paths:
           - .tox
@@ -54,22 +53,16 @@ docs_steps: &docs_steps
         name: checkout ethpm-spec submodule
         command: git submodule update --init --recursive
     - run:
-        name: install tox dependencies
+        name: install dependencies
         command: |
-          sudo apt-get -qq update
-          sudo apt install -y build-essential libssl-dev libpython2-dev python3-pip
-          sudo pip3 install tox
+          python -m pip install --upgrade pip
+          python -m pip install tox
     - run:
-        name: Setup, install Poetry & dependencies
-        command: |
-          curl -sSL https://install.python-poetry.org | python3 - --uninstall
-          rm -rf /home/${USER}/.poetry
-          rm -rf /home/${USER}/.pyenv/shims/poetry
-          curl -sSL https://install.python-poetry.org | python3 - --version 1.6.1
-          poetry install
+        name: install web3
+        command: pip install -U web3
     - run:
         name: run tox
-        command: tox -r
+        command: python -m tox -r
     - save_cache:
         paths:
           - .tox
@@ -90,11 +83,10 @@ geth_steps: &geth_steps
         keys:
           - cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum "poetry.lock" }}-{{ checksum "tox.ini" }}
     - run:
-        name: install tox dependencies
+        name: install dependencies
         command: |
-          sudo apt-get -qq update
-          sudo apt install -y build-essential libssl-dev libpython2-dev python3-pip
-          sudo pip3 install tox
+          python -m pip install --upgrade pip
+          python -m pip install tox
     - run:
         name: build geth if missing
         command: |
@@ -118,7 +110,7 @@ geth_steps: &geth_steps
           geth makedag 0 $HOME/.ethash
     - run:
         name: run tox
-        command: tox -r
+        command: python -m tox -r
     - save_cache:
         paths:
           - .tox
@@ -137,11 +129,10 @@ geth_custom_steps: &geth_custom_steps
         keys:
           - cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum "poetry.lock" }}-{{ checksum "tox.ini" }}
     - run:
-        name: install tox dependencies
+        name: install dependencies
         command: |
-          sudo apt-get -qq update
-          sudo apt install -y build-essential libssl-dev libpython2-dev python3-pip
-          sudo pip3 install tox
+          python -m pip install --upgrade pip
+          python -m pip install tox
     - run:
         name: use a pre-built geth binary
         command: |
@@ -160,7 +151,7 @@ geth_custom_steps: &geth_custom_steps
           ./custom_geth makedag 0 $HOME/.ethash
     - run:
         name: run tox
-        command: tox -r
+        command: python -m tox -r
     - save_cache:
         paths:
           - .tox
@@ -193,14 +184,13 @@ ethpm_steps: &ethpm_steps
         name: checkout ethpm-spec submodule
         command: git submodule update --init --recursive
     - run:
-        name: install tox dependencies
+        name: install dependencies
         command: |
-          sudo apt-get -qq update
-          sudo apt install -y build-essential libssl-dev libpython2-dev python3-pip
-          sudo pip3 install tox
+          python -m pip install --upgrade pip
+          python -m pip install tox
     - run:
         name: run tox
-        command: tox -r
+        command: python -m tox -r
     - save_cache:
         paths:
           - .tox
@@ -225,14 +215,13 @@ windows_steps: &windows_steps
         name: checkout ethpm-spec submodule
         command: git submodule update --init --recursive
     - run:
-        name: install tox dependencies
+        name: install dependencies
         command: |
-          sudo apt-get -qq update
-          sudo apt install -y build-essential libssl-dev libpython2-dev python3-pip
-          sudo pip3 install tox
+          python -m pip install --upgrade pip
+          python -m pip install tox
     - run:
         name: run tox
-        command: tox -r
+        command: python -m tox -r
     - save_cache:
         paths:
           - .tox
