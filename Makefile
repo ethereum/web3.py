@@ -26,7 +26,7 @@ lint:
 
 lint-roll:
 	isort web3 ens tests
-	black web3 ens tests setup.py
+	black web3 ens tests
 	$(MAKE) lint
 
 test:
@@ -39,7 +39,7 @@ benchmark:
 	tox -e benchmark
 
 build-docs:
-	sphinx-apidoc -o docs/ . setup.py "*conftest*" "tests" "ethpm" "web3/tools/*"
+	sphinx-apidoc -o docs/ . "*conftest*" "tests" "ethpm" "web3/tools/*"
 	$(MAKE) -C docs clean
 	$(MAKE) -C docs html
 	$(MAKE) -C docs doctest
