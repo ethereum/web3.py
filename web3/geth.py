@@ -2,10 +2,7 @@ from typing import (
     Any,
     Awaitable,
     Callable,
-    Dict,
-    List,
     Optional,
-    Tuple,
 )
 
 from eth_typing.encoding import (
@@ -80,12 +77,12 @@ class GethPersonal(Module):
         mungers=[default_root_munger],
     )
 
-    list_accounts: Method[Callable[[], List[ChecksumAddress]]] = Method(
+    list_accounts: Method[Callable[[], list[ChecksumAddress]]] = Method(
         RPC.personal_listAccounts,
         is_property=True,
     )
 
-    list_wallets: Method[Callable[[], List[GethWallet]]] = Method(
+    list_wallets: Method[Callable[[], list[GethWallet]]] = Method(
         RPC.personal_listWallets,
         is_property=True,
     )
@@ -101,7 +98,7 @@ class GethPersonal(Module):
     )
 
     sign_typed_data: Method[
-        Callable[[Dict[str, Any], ChecksumAddress, str], HexStr]
+        Callable[[dict[str, Any], ChecksumAddress, str], HexStr]
     ] = Method(
         RPC.personal_signTypedData,
         mungers=[default_root_munger],
@@ -163,7 +160,7 @@ def admin_start_params_munger(
     port: int = 8546,
     cors: str = "",
     apis: str = "eth,net,web3",
-) -> Tuple[str, int, str, str]:
+) -> tuple[str, int, str, str]:
     return (host, port, cors, apis)
 
 
@@ -189,7 +186,7 @@ class GethAdmin(Module):
         is_property=True,
     )
 
-    peers: Method[Callable[[], List[Peer]]] = Method(
+    peers: Method[Callable[[], list[Peer]]] = Method(
         RPC.admin_peers,
         is_property=True,
     )
@@ -302,12 +299,12 @@ class AsyncGethAdmin(Module):
     async def node_info(self) -> NodeInfo:
         return await self._node_info()
 
-    _peers: Method[Callable[[], Awaitable[List[Peer]]]] = Method(
+    _peers: Method[Callable[[], Awaitable[list[Peer]]]] = Method(
         RPC.admin_peers,
         is_property=True,
     )
 
-    async def peers(self) -> List[Peer]:
+    async def peers(self) -> list[Peer]:
         return await self._peers()
 
     # start_http and stop_http
@@ -390,20 +387,20 @@ class AsyncGethPersonal(Module):
 
     # list_accounts and list_wallets
 
-    _list_accounts: Method[Callable[[], Awaitable[List[ChecksumAddress]]]] = Method(
+    _list_accounts: Method[Callable[[], Awaitable[list[ChecksumAddress]]]] = Method(
         RPC.personal_listAccounts,
         is_property=True,
     )
 
-    _list_wallets: Method[Callable[[], Awaitable[List[GethWallet]]]] = Method(
+    _list_wallets: Method[Callable[[], Awaitable[list[GethWallet]]]] = Method(
         RPC.personal_listWallets,
         is_property=True,
     )
 
-    async def list_accounts(self) -> List[ChecksumAddress]:
+    async def list_accounts(self) -> list[ChecksumAddress]:
         return await self._list_accounts()
 
-    async def list_wallets(self) -> List[GethWallet]:
+    async def list_wallets(self) -> list[GethWallet]:
         return await self._list_wallets()
 
     # send_transaction
@@ -428,7 +425,7 @@ class AsyncGethPersonal(Module):
     )
 
     _sign_typed_data: Method[
-        Callable[[Dict[str, Any], ChecksumAddress, str], Awaitable[HexStr]]
+        Callable[[dict[str, Any], ChecksumAddress, str], Awaitable[HexStr]]
     ] = Method(
         RPC.personal_signTypedData,
         mungers=[default_root_munger],
@@ -440,7 +437,7 @@ class AsyncGethPersonal(Module):
         return await self._sign(message, account, passphrase)
 
     async def sign_typed_data(
-        self, message: Dict[str, Any], account: ChecksumAddress, passphrase: str
+        self, message: dict[str, Any], account: ChecksumAddress, passphrase: str
     ) -> HexStr:
         return await self._sign_typed_data(message, account, passphrase)
 

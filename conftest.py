@@ -1,8 +1,8 @@
 import asyncio
 import pytest
-import pytest_asyncio
 import time
 import warnings
+import pytest_asyncio
 
 from web3._utils.threads import (
     Timeout,

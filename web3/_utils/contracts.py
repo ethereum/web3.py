@@ -3,11 +3,8 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    Dict,
     Optional,
     Sequence,
-    Tuple,
-    Type,
     Union,
     cast,
 )
@@ -144,7 +141,7 @@ def find_matching_event_abi(
 def find_matching_fn_abi(
     abi: ABI,
     abi_codec: ABICodec,
-    fn_identifier: Optional[Union[str, Type[FallbackFn], Type[ReceiveFn]]] = None,
+    fn_identifier: Optional[Union[str, type[FallbackFn], type[ReceiveFn]]] = None,
     args: Optional[Sequence[Any]] = None,
     kwargs: Optional[Any] = None,
 ) -> ABIFunction:
@@ -248,7 +245,7 @@ def encode_abi(
 def prepare_transaction(
     address: ChecksumAddress,
     w3: Union["AsyncWeb3", "Web3"],
-    fn_identifier: Union[str, Type[FallbackFn], Type[ReceiveFn]],
+    fn_identifier: Union[str, type[FallbackFn], type[ReceiveFn]],
     contract_abi: Optional[ABI] = None,
     fn_abi: Optional[ABIFunction] = None,
     transaction: Optional[TxParams] = None,
@@ -292,7 +289,7 @@ def prepare_transaction(
 
 def encode_transaction_data(
     w3: Union["AsyncWeb3", "Web3"],
-    fn_identifier: Union[str, Type[FallbackFn], Type[ReceiveFn]],
+    fn_identifier: Union[str, type[FallbackFn], type[ReceiveFn]],
     contract_abi: Optional[ABI] = None,
     fn_abi: Optional[ABIFunction] = None,
     args: Optional[Sequence[Any]] = None,
@@ -325,8 +322,8 @@ def encode_transaction_data(
 def decode_transaction_data(
     fn_abi: ABIFunction,
     data: HexStr,
-    normalizers: Sequence[Callable[[TypeStr, Any], Tuple[TypeStr, Any]]] = None,
-) -> Dict[str, Any]:
+    normalizers: Sequence[Callable[[TypeStr, Any], tuple[TypeStr, Any]]] = None,
+) -> dict[str, Any]:
     # type ignored b/c expects data arg to be HexBytes
     data = HexBytes(data)  # type: ignore
     types = get_abi_input_types(fn_abi)
@@ -339,21 +336,21 @@ def decode_transaction_data(
 
 def get_fallback_function_info(
     contract_abi: Optional[ABI] = None, fn_abi: Optional[ABIFunction] = None
-) -> Tuple[ABIFunction, HexStr, Tuple[Any, ...]]:
+) -> tuple[ABIFunction, HexStr, tuple[Any, ...]]:
     if fn_abi is None:
         fn_abi = get_fallback_func_abi(contract_abi)
     fn_selector = encode_hex(b"")
-    fn_arguments: Tuple[Any, ...] = tuple()
+    fn_arguments: tuple[Any, ...] = tuple()
     return fn_abi, fn_selector, fn_arguments
 
 
 def get_receive_function_info(
     contract_abi: Optional[ABI] = None, fn_abi: Optional[ABIFunction] = None
-) -> Tuple[ABIFunction, HexStr, Tuple[Any, ...]]:
+) -> tuple[ABIFunction, HexStr, tuple[Any, ...]]:
     if fn_abi is None:
         fn_abi = get_receive_func_abi(contract_abi)
     fn_selector = encode_hex(b"")
-    fn_arguments: Tuple[Any, ...] = tuple()
+    fn_arguments: tuple[Any, ...] = tuple()
     return fn_abi, fn_selector, fn_arguments
 
 
@@ -364,7 +361,7 @@ def get_function_info(
     fn_abi: Optional[ABIFunction] = None,
     args: Optional[Sequence[Any]] = None,
     kwargs: Optional[Any] = None,
-) -> Tuple[ABIFunction, HexStr, Tuple[Any, ...]]:
+) -> tuple[ABIFunction, HexStr, tuple[Any, ...]]:
     if args is None:
         args = tuple()
     if kwargs is None:

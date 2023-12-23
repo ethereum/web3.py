@@ -1,7 +1,6 @@
 import itertools
 from typing import (
     Any,
-    Dict,
 )
 
 from eth_typing import (
@@ -60,7 +59,7 @@ from web3.types import (
 )
 
 
-def _prepare_selector_collision_msg(duplicates: Dict[HexStr, ABIFunction]) -> str:
+def _prepare_selector_collision_msg(duplicates: dict[HexStr, ABIFunction]) -> str:
     dup_sel = valmap(apply_formatter_to_array(abi_to_signature), duplicates)
     joined_funcs = valmap(lambda funcs: ", ".join(funcs), dup_sel)
     func_sel_msg_list = [

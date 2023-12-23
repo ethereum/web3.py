@@ -3,12 +3,9 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    Dict,
     Iterable,
-    List,
     Optional,
     Sequence,
-    Type,
     cast,
 )
 
@@ -106,7 +103,7 @@ class ContractEvent(BaseContractEvent):
     @combomethod
     def get_logs(
         self,
-        argument_filters: Optional[Dict[str, Any]] = None,
+        argument_filters: Optional[dict[str, Any]] = None,
         fromBlock: Optional[BlockIdentifier] = None,
         toBlock: Optional[BlockIdentifier] = None,
         block_hash: Optional[HexBytes] = None,
@@ -198,7 +195,7 @@ class ContractEvent(BaseContractEvent):
     def create_filter(
         self,
         *,  # PEP 3102
-        argument_filters: Optional[Dict[str, Any]] = None,
+        argument_filters: Optional[dict[str, Any]] = None,
         fromBlock: Optional[BlockIdentifier] = None,
         toBlock: BlockIdentifier = "latest",
         address: Optional[ChecksumAddress] = None,
@@ -474,7 +471,7 @@ class Contract(BaseContract):
     @classmethod
     def factory(
         cls, w3: "Web3", class_name: Optional[str] = None, **kwargs: Any
-    ) -> Type[Self]:
+    ) -> type[Self]:
         kwargs["w3"] = w3
 
         normalizers = {
@@ -485,7 +482,7 @@ class Contract(BaseContract):
         }
 
         contract = cast(
-            Type[Self],
+            type[Self],
             PropertyCheckingFactory(
                 class_name or cls.__name__,
                 (cls,),
@@ -538,9 +535,9 @@ class Contract(BaseContract):
         w3: "Web3",
         address: ChecksumAddress,
         callable_check: Callable[..., Any],
-    ) -> List["ContractFunction"]:
+    ) -> list["ContractFunction"]:
         return cast(
-            List["ContractFunction"],
+            list["ContractFunction"],
             find_functions_by_identifier(
                 contract_abi, w3, address, callable_check, ContractFunction
             ),

@@ -54,7 +54,7 @@ Finally, install all development dependencies:
 
 .. code:: sh
 
-    $ pip install -e ".[dev]"
+    $ poetry install --extras "dev"
 
 
 Using Docker
@@ -143,7 +143,7 @@ First, install the test dependencies:
 
 .. code:: sh
 
-    $ pip install -e ".[tester]"
+    $ poetry install --extras "tester"
 
 You can run all tests with:
 
@@ -164,7 +164,7 @@ You can use ``tox`` to run all the tests for a given version of Python:
 
 .. code:: sh
 
-   $ tox -e py37-core
+   $ tox -e py38-core
 
 
 Linting is also performed by the CI. You can save yourself some time by checking for
@@ -303,7 +303,7 @@ you can install it from your development directory:
 
 .. code:: sh
 
-   $ pip install -e ../path/to/web3py
+   $ poetry install --extras ../path/to/web3py
 
 
 Documentation
@@ -351,7 +351,7 @@ Before generating new fixtures, make sure you have the test dependencies install
 
 .. code:: sh
 
-    $ pip install -e ".[tester]"
+    $ poetry install --extras "tester"
 
 .. note::
 

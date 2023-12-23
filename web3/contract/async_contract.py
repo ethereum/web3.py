@@ -4,12 +4,9 @@ from typing import (
     Any,
     Awaitable,
     Callable,
-    Dict,
     Iterable,
-    List,
     Optional,
     Sequence,
-    Type,
     cast,
 )
 
@@ -108,7 +105,7 @@ class AsyncContractEvent(BaseContractEvent):
     @combomethod
     async def get_logs(
         self,
-        argument_filters: Optional[Dict[str, Any]] = None,
+        argument_filters: Optional[dict[str, Any]] = None,
         fromBlock: Optional[BlockIdentifier] = None,
         toBlock: Optional[BlockIdentifier] = None,
         block_hash: Optional[HexBytes] = None,
@@ -200,7 +197,7 @@ class AsyncContractEvent(BaseContractEvent):
     async def create_filter(
         self,
         *,  # PEP 3102
-        argument_filters: Optional[Dict[str, Any]] = None,
+        argument_filters: Optional[dict[str, Any]] = None,
         fromBlock: Optional[BlockIdentifier] = None,
         toBlock: BlockIdentifier = "latest",
         address: Optional[ChecksumAddress] = None,
@@ -473,7 +470,7 @@ class AsyncContract(BaseContract):
     @classmethod
     def factory(
         cls, w3: "AsyncWeb3", class_name: Optional[str] = None, **kwargs: Any
-    ) -> Type[Self]:
+    ) -> type[Self]:
         kwargs["w3"] = w3
 
         normalizers = {
@@ -484,7 +481,7 @@ class AsyncContract(BaseContract):
         }
 
         contract = cast(
-            Type[Self],
+            type[Self],
             PropertyCheckingFactory(
                 class_name or cls.__name__,
                 (cls,),
@@ -536,9 +533,9 @@ class AsyncContract(BaseContract):
         w3: "AsyncWeb3",
         address: ChecksumAddress,
         callable_check: Callable[..., Any],
-    ) -> List["AsyncContractFunction"]:
+    ) -> list["AsyncContractFunction"]:
         return cast(
-            List[AsyncContractFunction],
+            list[AsyncContractFunction],
             find_functions_by_identifier(
                 contract_abi, w3, address, callable_check, AsyncContractFunction
             ),

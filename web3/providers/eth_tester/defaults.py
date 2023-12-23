@@ -6,11 +6,8 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    List,
     NoReturn,
     Optional,
-    Tuple,
-    Type,
 )
 
 from eth_abi import (
@@ -141,7 +138,7 @@ def without_params(
 @curry
 def preprocess_params(
     eth_tester: "EthereumTester", params: Any, preprocessor_fn: Callable[..., Any]
-) -> Tuple["EthereumTester", Callable[..., Any]]:
+) -> tuple["EthereumTester", Callable[..., Any]]:
     return eth_tester, preprocessor_fn(params)
 
 
@@ -164,7 +161,7 @@ def client_version(eth_tester: "EthereumTester", params: Any) -> str:
 
 @curry
 def null_if_excepts(
-    exc_type: Type[BaseException], fn: Callable[..., TReturn]
+    exc_type: type[BaseException], fn: Callable[..., TReturn]
 ) -> Callable[..., TReturn]:
     return excepts(
         exc_type,
@@ -207,7 +204,7 @@ def create_log_filter(eth_tester: "EthereumTester", params: Any) -> int:
     return filter_id
 
 
-def get_logs(eth_tester: "EthereumTester", params: Any) -> List[LogReceipt]:
+def get_logs(eth_tester: "EthereumTester", params: Any) -> list[LogReceipt]:
     filter_params = params[0]
     logs = eth_tester.get_logs(**filter_params)
     return logs

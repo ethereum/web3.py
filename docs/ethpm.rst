@@ -144,7 +144,7 @@ Methods
 
 .. py:classmethod:: LinkableContract.link_bytecode(attr_dict)
 
-   This method returns a newly created contract factory with the applied link references defined in the ``attr_dict``. This method expects ``attr_dict`` to be of the type ``Dict[`contract_name`: `address`]`` for all link references that are unlinked.
+   This method returns a newly created contract factory with the applied link references defined in the ``attr_dict``. This method expects ``attr_dict`` to be of the type ``dict[`contract_name`: `address`]`` for all link references that are unlinked.
 
 URI Schemes and Backends
 ------------------------
@@ -546,7 +546,7 @@ To add a source
        ...,
        inline_source(
            contract_name: str,
-           compiler_output: Dict[str, Any],
+           compiler_output: dict[str, Any],
            package_root_dir: Optional[Path]
        ),
        ...,
@@ -556,7 +556,7 @@ To add a source
        ...,
        pin_source(
            contract_name: str,
-           compiler_output: Dict[str, Any],
+           compiler_output: dict[str, Any],
            ipfs_backend: BaseIPFSBackend,
            package_root_dir: Optional[Path]
        ),
@@ -663,7 +663,7 @@ To add a contract type
        ...,
        contract_type(
            contract_name: str,
-           compiler_output: Dict[str, Any],
+           compiler_output: dict[str, Any],
            alias: Optional[str],
            abi: Optional[bool],
            compiler: Optional[bool],

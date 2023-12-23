@@ -10,12 +10,9 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Collection,
-    Dict,
     Iterable,
-    List,
     Optional,
     Sequence,
-    Tuple,
     Union,
     cast,
 )
@@ -102,8 +99,8 @@ if TYPE_CHECKING:
 def construct_event_topic_set(
     event_abi: ABIEvent,
     abi_codec: ABICodec,
-    arguments: Optional[Union[Sequence[Any], Dict[str, Any]]] = None,
-) -> List[HexStr]:
+    arguments: Optional[Union[Sequence[Any], dict[str, Any]]] = None,
+) -> list[HexStr]:
     if arguments is None:
         arguments = {}
     if isinstance(arguments, (list, tuple)):
@@ -147,8 +144,8 @@ def construct_event_topic_set(
 def construct_event_data_set(
     event_abi: ABIEvent,
     abi_codec: ABICodec,
-    arguments: Optional[Union[Sequence[Any], Dict[str, Any]]] = None,
-) -> List[List[Optional[HexStr]]]:
+    arguments: Optional[Union[Sequence[Any], dict[str, Any]]] = None,
+) -> list[list[Optional[HexStr]]]:
     if arguments is None:
         arguments = {}
     if isinstance(arguments, (list, tuple)):
@@ -224,7 +221,7 @@ def get_event_data(
         log_topics = log_entry["topics"]
     elif not log_entry["topics"]:
         raise MismatchedABI("Expected non-anonymous event to have 1 or more topics")
-    # type ignored b/c event_abi_to_log_topic(event_abi: Dict[str, Any])
+    # type ignored b/c event_abi_to_log_topic(event_abi: dict[str, Any])
     elif event_abi_to_log_topic(event_abi) != log_entry["topics"][0]:  # type: ignore
         raise MismatchedABI("The event signature did not match the provided ABI")
     else:
@@ -391,26 +388,26 @@ class BaseEventFilterBuilder:
             )
 
     @property
-    def ordered_args(self) -> Tuple[Any, ...]:
+    def ordered_args(self) -> tuple[Any, ...]:
         return tuple(map(self.args.__getitem__, self._ordered_arg_names))
 
     @property
     @to_tuple
-    def indexed_args(self) -> Tuple[Any, ...]:
+    def indexed_args(self) -> tuple[Any, ...]:
         return tuple(filter(is_indexed, self.ordered_args))
 
     @property
     @to_tuple
-    def data_args(self) -> Tuple[Any, ...]:
+    def data_args(self) -> tuple[Any, ...]:
         return tuple(filter(is_not_indexed, self.ordered_args))
 
     @property
-    def topics(self) -> List[HexStr]:
+    def topics(self) -> list[HexStr]:
         arg_topics = tuple(arg.match_values for arg in self.indexed_args)
         return normalize_topic_list(cons(to_hex(self.event_topic), arg_topics))
 
     @property
-    def data_argument_values(self) -> Tuple[Any, ...]:
+    def data_argument_values(self) -> tuple[Any, ...]:
         if self.data_args is not None:
             return tuple(arg.match_values for arg in self.data_args)
         else:
@@ -464,7 +461,7 @@ class AsyncEventFilterBuilder(BaseEventFilterBuilder):
         return log_filter
 
 
-def initialize_event_topics(event_abi: ABIEvent) -> Union[bytes, List[Any]]:
+def initialize_event_topics(event_abi: ABIEvent) -> Union[bytes, list[Any]]:
     if event_abi["anonymous"] is False:
         # https://github.com/python/mypy/issues/4976
         return event_abi_to_log_topic(event_abi)  # type: ignore
@@ -475,7 +472,7 @@ def initialize_event_topics(event_abi: ABIEvent) -> Union[bytes, List[Any]]:
 @to_dict
 def _build_argument_filters_from_event_abi(
     event_abi: ABIEvent, abi_codec: ABICodec
-) -> Iterable[Tuple[str, "BaseArgumentFilter"]]:
+) -> Iterable[tuple[str, "BaseArgumentFilter"]]:
     for item in event_abi["inputs"]:
         key = item["name"]
         value: "BaseArgumentFilter"
@@ -498,7 +495,7 @@ def _normalize_match_values(match_values: Collection[Any]) -> Iterable[Any]:
 
 
 class BaseArgumentFilter(ABC):
-    _match_values: Tuple[Any, ...] = None
+    _match_values: tuple[Any, ...] = None
     _immutable = False
 
     def __init__(self, arg_type: TypeStr) -> None:
@@ -529,7 +526,7 @@ class BaseArgumentFilter(ABC):
 class DataArgumentFilter(BaseArgumentFilter):
     # type ignore b/c conflict with BaseArgumentFilter.match_values type
     @property
-    def match_values(self) -> Tuple[TypeStr, Tuple[Any, ...]]:  # type: ignore
+    def match_values(self) -> tuple[TypeStr, tuple[Any, ...]]:  # type: ignore
         return self.arg_type, self._match_values
 
 
@@ -544,7 +541,7 @@ class TopicArgumentFilter(BaseArgumentFilter):
 
     # type ignore b/c conflict with BaseArgumentFilter.match_values type
     @property
-    def match_values(self) -> Optional[Tuple[HexStr, ...]]:  # type: ignore
+    def match_values(self) -> Optional[tuple[HexStr, ...]]:  # type: ignore
         if self._match_values is not None:
             return self._get_match_values()
         else:
@@ -564,5 +561,5 @@ class EventLogErrorFlags(Enum):
     Warn = "warn"
 
     @classmethod
-    def flag_options(self) -> List[str]:
+    def flag_options(self) -> list[str]:
         return [key.upper() for key in self.__members__.keys()]

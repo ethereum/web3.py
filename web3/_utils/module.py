@@ -5,8 +5,6 @@ from io import (
 from typing import (
     TYPE_CHECKING,
     Any,
-    Dict,
-    List,
     Optional,
     Sequence,
     Union,
@@ -23,7 +21,7 @@ if TYPE_CHECKING:
     from web3.main import BaseWeb3  # noqa: F401
 
 
-def _validate_init_params_and_return_if_found(module_class: Any) -> List[str]:
+def _validate_init_params_and_return_if_found(module_class: Any) -> list[str]:
     init_params_raw = list(inspect.signature(module_class.__init__).parameters)
     module_init_params = [
         param for param in init_params_raw if param not in ["self", "args", "kwargs"]
@@ -41,7 +39,7 @@ def _validate_init_params_and_return_if_found(module_class: Any) -> List[str]:
 
 def attach_modules(
     parent_module: Union["BaseWeb3", "Module"],
-    module_definitions: Dict[str, Any],
+    module_definitions: dict[str, Any],
     w3: Optional[Union["BaseWeb3", "Module"]] = None,
 ) -> None:
     for module_name, module_info in module_definitions.items():

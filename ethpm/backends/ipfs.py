@@ -5,11 +5,6 @@ import os
 from pathlib import (
     Path,
 )
-from typing import (
-    Dict,
-    List,
-    Type,
-)
 
 from eth_utils import (
     import_string,
@@ -66,7 +61,7 @@ class BaseIPFSBackend(BaseURIBackend):
         return False
 
     @abstractmethod
-    def pin_assets(self, file_or_dir_path: Path) -> List[Dict[str, str]]:
+    def pin_assets(self, file_or_dir_path: Path) -> list[dict[str, str]]:
         """
         Pin assets found at `file_or_dir_path` and return a
         list containing pinned asset data.
@@ -102,7 +97,7 @@ class IPFSOverHTTPBackend(BaseIPFSBackend):
     def base_uri(self) -> str:
         pass
 
-    def pin_assets(self, file_or_dir_path: Path) -> List[Dict[str, str]]:
+    def pin_assets(self, file_or_dir_path: Path) -> list[dict[str, str]]:
         if file_or_dir_path.is_dir():
             dir_data = self.client.add(str(file_or_dir_path), recursive=True)
             return dir_data
@@ -126,7 +121,7 @@ class IPFSGatewayBackend(IPFSOverHTTPBackend):
     def base_uri(self) -> str:
         return IPFS_GATEWAY_PREFIX
 
-    def pin_assets(self, file_or_dir_path: Path) -> List[Dict[str, str]]:
+    def pin_assets(self, file_or_dir_path: Path) -> list[dict[str, str]]:
         raise CannotHandleURI(
             "IPFS gateway is currently disabled, please use a different IPFS backend."
         )
@@ -184,7 +179,7 @@ class DummyIPFSBackend(BaseIPFSBackend):
     def can_resolve_uri(self, uri: str) -> bool:
         return uri in MANIFEST_URIS
 
-    def pin_assets(self, file_or_dir_path: Path) -> List[Dict[str, str]]:
+    def pin_assets(self, file_or_dir_path: Path) -> list[dict[str, str]]:
         """
         Return a dict containing the IPFS hash, file name, and size of a file.
         """
@@ -208,7 +203,7 @@ def get_ipfs_backend(import_path: str = None) -> BaseIPFSBackend:
     return backend_class()
 
 
-def get_ipfs_backend_class(import_path: str = None) -> Type[BaseIPFSBackend]:
+def get_ipfs_backend_class(import_path: str = None) -> type[BaseIPFSBackend]:
     if import_path is None:
         import_path = os.environ.get("ETHPM_IPFS_BACKEND_CLASS", DEFAULT_IPFS_BACKEND)
         if not import_path:

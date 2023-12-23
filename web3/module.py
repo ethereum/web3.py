@@ -3,7 +3,6 @@ from typing import (
     Any,
     Callable,
     Coroutine,
-    Dict,
     Optional,
     TypeVar,
     Union,
@@ -144,7 +143,7 @@ class Module:
 
     def attach_methods(
         self,
-        methods: Dict[str, Method[Callable[..., Any]]],
+        methods: dict[str, Method[Callable[..., Any]]],
     ) -> None:
         for method_name, method_class in methods.items():
             klass = (

@@ -1,10 +1,8 @@
 import logging
 from typing import (
     Any,
-    Dict,
     Iterable,
     Optional,
-    Tuple,
     Union,
 )
 
@@ -48,7 +46,7 @@ class AsyncHTTPProvider(AsyncJSONBaseProvider):
     endpoint_uri = None
     _request_kwargs = None
     # type ignored b/c conflict with _middlewares attr on AsyncBaseProvider
-    _middlewares: Tuple[AsyncMiddleware, ...] = NamedElementOnion([(async_http_retry_request_middleware, "http_retry_request")])  # type: ignore # noqa: E501
+    _middlewares: tuple[AsyncMiddleware, ...] = NamedElementOnion([(async_http_retry_request_middleware, "http_retry_request")])  # type: ignore # noqa: E501
 
     def __init__(
         self,
@@ -71,13 +69,13 @@ class AsyncHTTPProvider(AsyncJSONBaseProvider):
         return f"RPC connection {self.endpoint_uri}"
 
     @to_dict
-    def get_request_kwargs(self) -> Iterable[Tuple[str, Any]]:
+    def get_request_kwargs(self) -> Iterable[tuple[str, Any]]:
         if "headers" not in self._request_kwargs:
             yield "headers", self.get_request_headers()
         for key, value in self._request_kwargs.items():
             yield key, value
 
-    def get_request_headers(self) -> Dict[str, str]:
+    def get_request_headers(self) -> dict[str, str]:
         return {
             "Content-Type": "application/json",
             "User-Agent": construct_user_agent(str(type(self))),

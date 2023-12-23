@@ -2,11 +2,8 @@ import os
 from typing import (
     Any,
     Callable,
-    Dict,
     Optional,
     Sequence,
-    Tuple,
-    Type,
     Union,
 )
 from urllib.parse import (
@@ -44,7 +41,7 @@ def load_provider_from_environment() -> BaseProvider:
 
 
 def load_provider_from_uri(
-    uri_string: URI, headers: Optional[Dict[str, Tuple[str, str]]] = None
+    uri_string: URI, headers: Optional[dict[str, tuple[str, str]]] = None
 ) -> BaseProvider:
     uri = urlparse(uri_string)
     if uri.scheme == "file":
@@ -72,7 +69,7 @@ class AutoProvider(BaseProvider):
     def __init__(
         self,
         potential_providers: Optional[
-            Sequence[Union[Callable[..., BaseProvider], Type[BaseProvider]]]
+            Sequence[Union[Callable[..., BaseProvider], type[BaseProvider]]]
         ] = None,
     ) -> None:
         """

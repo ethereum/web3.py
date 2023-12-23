@@ -7,8 +7,6 @@ import os
 import threading
 from typing import (
     Any,
-    Dict,
-    List,
     Optional,
     Union,
 )
@@ -93,7 +91,7 @@ def get_response_from_get_request(
 
 def json_make_get_request(
     endpoint_uri: URI, *args: Any, **kwargs: Any
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     response = get_response_from_get_request(endpoint_uri, *args, **kwargs)
     response.raise_for_status()
     return response.json()
@@ -109,14 +107,14 @@ def get_response_from_post_request(
 
 
 def make_post_request(
-    endpoint_uri: URI, data: Union[bytes, Dict[str, Any]], *args: Any, **kwargs: Any
+    endpoint_uri: URI, data: Union[bytes, dict[str, Any]], *args: Any, **kwargs: Any
 ) -> bytes:
     response = get_response_from_post_request(endpoint_uri, data=data, *args, **kwargs)
     response.raise_for_status()
     return response.content
 
 
-def _close_evicted_sessions(evicted_sessions: List[requests.Session]) -> None:
+def _close_evicted_sessions(evicted_sessions: list[requests.Session]) -> None:
     for evicted_session in evicted_sessions:
         evicted_session.close()
         logger.debug(f"Closed evicted session: {evicted_session}")
@@ -218,7 +216,7 @@ async def async_get_response_from_get_request(
 
 async def async_json_make_get_request(
     endpoint_uri: URI, *args: Any, **kwargs: Any
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     response = await async_get_response_from_get_request(endpoint_uri, *args, **kwargs)
     response.raise_for_status()
     return await response.json()
@@ -234,7 +232,7 @@ async def async_get_response_from_post_request(
 
 
 async def async_make_post_request(
-    endpoint_uri: URI, data: Union[bytes, Dict[str, Any]], *args: Any, **kwargs: Any
+    endpoint_uri: URI, data: Union[bytes, dict[str, Any]], *args: Any, **kwargs: Any
 ) -> bytes:
     response = await async_get_response_from_post_request(
         endpoint_uri, data=data, *args, **kwargs
@@ -245,11 +243,11 @@ async def async_make_post_request(
 
 async def async_get_json_from_client_response(
     response: ClientResponse,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     return await response.json()
 
 
-def _async_close_evicted_sessions(evicted_sessions: List[ClientSession]) -> None:
+def _async_close_evicted_sessions(evicted_sessions: list[ClientSession]) -> None:
     loop = asyncio.new_event_loop()
 
     for evicted_session in evicted_sessions:

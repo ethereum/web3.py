@@ -4,10 +4,7 @@ from typing import (
     Any,
     Awaitable,
     Callable,
-    List,
     Optional,
-    Tuple,
-    Type,
     Union,
     cast,
     overload,
@@ -104,19 +101,19 @@ class AsyncEth(BaseEth):
 
     is_async = True
 
-    _default_contract_factory: Type[
+    _default_contract_factory: type[
         Union[AsyncContract, AsyncContractCaller]
     ] = AsyncContract
 
     # eth_accounts
 
-    _accounts: Method[Callable[[], Awaitable[Tuple[ChecksumAddress]]]] = Method(
+    _accounts: Method[Callable[[], Awaitable[tuple[ChecksumAddress]]]] = Method(
         RPC.eth_accounts,
         is_property=True,
     )
 
     @property
-    async def accounts(self) -> Tuple[ChecksumAddress]:
+    async def accounts(self) -> tuple[ChecksumAddress]:
         return await self._accounts()
 
     # eth_hashrate
@@ -223,7 +220,7 @@ class AsyncEth(BaseEth):
 
     _fee_history: Method[
         Callable[
-            [int, Union[BlockParams, BlockNumber], Optional[List[float]]],
+            [int, Union[BlockParams, BlockNumber], Optional[list[float]]],
             Awaitable[FeeHistory],
         ]
     ] = Method(RPC.eth_feeHistory, mungers=[default_root_munger])
@@ -232,7 +229,7 @@ class AsyncEth(BaseEth):
         self,
         block_count: int,
         newest_block: Union[BlockParams, BlockNumber],
-        reward_percentiles: Optional[List[float]] = None,
+        reward_percentiles: Optional[list[float]] = None,
     ) -> FeeHistory:
         return await self._fee_history(block_count, newest_block, reward_percentiles)
 
@@ -469,14 +466,14 @@ class AsyncEth(BaseEth):
 
     # eth_getLogs
 
-    _get_logs: Method[Callable[[FilterParams], Awaitable[List[LogReceipt]]]] = Method(
+    _get_logs: Method[Callable[[FilterParams], Awaitable[list[LogReceipt]]]] = Method(
         RPC.eth_getLogs, mungers=[default_root_munger]
     )
 
     async def get_logs(
         self,
         filter_params: FilterParams,
-    ) -> List[LogReceipt]:
+    ) -> list[LogReceipt]:
         return await self._get_logs(filter_params)
 
     # eth_getTransactionCount
@@ -653,17 +650,17 @@ class AsyncEth(BaseEth):
     # eth_getFilterChanges, eth_getFilterLogs, eth_uninstallFilter
 
     _get_filter_changes: Method[
-        Callable[[HexStr], Awaitable[List[LogReceipt]]]
+        Callable[[HexStr], Awaitable[list[LogReceipt]]]
     ] = Method(RPC.eth_getFilterChanges, mungers=[default_root_munger])
 
-    async def get_filter_changes(self, filter_id: HexStr) -> List[LogReceipt]:
+    async def get_filter_changes(self, filter_id: HexStr) -> list[LogReceipt]:
         return await self._get_filter_changes(filter_id)
 
-    _get_filter_logs: Method[Callable[[HexStr], Awaitable[List[LogReceipt]]]] = Method(
+    _get_filter_logs: Method[Callable[[HexStr], Awaitable[list[LogReceipt]]]] = Method(
         RPC.eth_getFilterLogs, mungers=[default_root_munger]
     )
 
-    async def get_filter_logs(self, filter_id: HexStr) -> List[LogReceipt]:
+    async def get_filter_logs(self, filter_id: HexStr) -> list[LogReceipt]:
         return await self._get_filter_logs(filter_id)
 
     _uninstall_filter: Method[Callable[[HexStr], Awaitable[bool]]] = Method(
@@ -732,7 +729,7 @@ class AsyncEth(BaseEth):
     # -- contract methods -- #
 
     @overload
-    def contract(self, address: None = None, **kwargs: Any) -> Type[AsyncContract]:
+    def contract(self, address: None = None, **kwargs: Any) -> type[AsyncContract]:
         ...
 
     @overload
@@ -745,7 +742,7 @@ class AsyncEth(BaseEth):
         self,
         address: Optional[Union[Address, ChecksumAddress, ENS]] = None,
         **kwargs: Any,
-    ) -> Union[Type[AsyncContract], AsyncContract]:
+    ) -> Union[type[AsyncContract], AsyncContract]:
         ContractFactoryClass = kwargs.pop(
             "ContractFactoryClass", self._default_contract_factory
         )
@@ -759,6 +756,6 @@ class AsyncEth(BaseEth):
 
     def set_contract_factory(
         self,
-        contract_factory: Type[Union[AsyncContract, AsyncContractCaller]],
+        contract_factory: type[Union[AsyncContract, AsyncContractCaller]],
     ) -> None:
         self._default_contract_factory = contract_factory

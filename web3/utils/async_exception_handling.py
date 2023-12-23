@@ -1,6 +1,5 @@
 from typing import (
     Any,
-    Dict,
 )
 
 from eth_abi import (
@@ -29,7 +28,7 @@ from web3.types import (
 
 
 async def async_handle_offchain_lookup(
-    offchain_lookup_payload: Dict[str, Any],
+    offchain_lookup_payload: dict[str, Any],
     transaction: TxParams,
 ) -> bytes:
     formatted_sender = to_hex_if_bytes(offchain_lookup_payload["sender"]).lower()

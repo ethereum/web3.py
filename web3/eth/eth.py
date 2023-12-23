@@ -2,11 +2,8 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    List,
     Optional,
     Sequence,
-    Tuple,
-    Type,
     Union,
     cast,
     overload,
@@ -99,17 +96,17 @@ class Eth(BaseEth):
     # mypy types
     w3: "Web3"
 
-    _default_contract_factory: Type[Union[Contract, ContractCaller]] = Contract
+    _default_contract_factory: type[Union[Contract, ContractCaller]] = Contract
 
     # eth_accounts
 
-    _accounts: Method[Callable[[], Tuple[ChecksumAddress]]] = Method(
+    _accounts: Method[Callable[[], tuple[ChecksumAddress]]] = Method(
         RPC.eth_accounts,
         is_property=True,
     )
 
     @property
-    def accounts(self) -> Tuple[ChecksumAddress]:
+    def accounts(self) -> tuple[ChecksumAddress]:
         return self._accounts()
 
     # eth_hashrate
@@ -216,7 +213,7 @@ class Eth(BaseEth):
 
     _fee_history: Method[
         Callable[
-            [int, Union[BlockParams, BlockNumber], Optional[List[float]]], FeeHistory
+            [int, Union[BlockParams, BlockNumber], Optional[list[float]]], FeeHistory
         ]
     ] = Method(RPC.eth_feeHistory, mungers=[default_root_munger])
 
@@ -224,7 +221,7 @@ class Eth(BaseEth):
         self,
         block_count: int,
         newest_block: Union[BlockParams, BlockNumber],
-        reward_percentiles: Optional[List[float]] = None,
+        reward_percentiles: Optional[list[float]] = None,
     ) -> FeeHistory:
         return self._fee_history(block_count, newest_block, reward_percentiles)
 
@@ -439,14 +436,14 @@ class Eth(BaseEth):
 
     # eth_getLogs
 
-    _get_logs: Method[Callable[[FilterParams], List[LogReceipt]]] = Method(
+    _get_logs: Method[Callable[[FilterParams], list[LogReceipt]]] = Method(
         RPC.eth_getLogs, mungers=[default_root_munger]
     )
 
     def get_logs(
         self,
         filter_params: FilterParams,
-    ) -> List[LogReceipt]:
+    ) -> list[LogReceipt]:
         return self._get_logs(filter_params)
 
     # eth_getTransactionCount
@@ -524,7 +521,7 @@ class Eth(BaseEth):
         account: Union[Address, ChecksumAddress, ENS],
         positions: Sequence[int],
         block_identifier: Optional[BlockIdentifier] = None,
-    ) -> Tuple[
+    ) -> tuple[
         Union[Address, ChecksumAddress, ENS], Sequence[int], Optional[BlockIdentifier]
     ]:
         if block_identifier is None:
@@ -534,7 +531,7 @@ class Eth(BaseEth):
     get_proof: Method[
         Callable[
             [
-                Tuple[
+                tuple[
                     Union[Address, ChecksumAddress, ENS],
                     Sequence[int],
                     Optional[BlockIdentifier],
@@ -627,11 +624,11 @@ class Eth(BaseEth):
 
     # eth_getFilterChanges, eth_getFilterLogs, eth_uninstallFilter
 
-    get_filter_changes: Method[Callable[[HexStr], List[LogReceipt]]] = Method(
+    get_filter_changes: Method[Callable[[HexStr], list[LogReceipt]]] = Method(
         RPC.eth_getFilterChanges, mungers=[default_root_munger]
     )
 
-    get_filter_logs: Method[Callable[[HexStr], List[LogReceipt]]] = Method(
+    get_filter_logs: Method[Callable[[HexStr], list[LogReceipt]]] = Method(
         RPC.eth_getFilterLogs, mungers=[default_root_munger]
     )
 
@@ -649,7 +646,7 @@ class Eth(BaseEth):
 
     # eth_getWork, eth_submitWork
 
-    get_work: Method[Callable[[], List[HexBytes]]] = Method(
+    get_work: Method[Callable[[], list[HexBytes]]] = Method(
         RPC.eth_getWork,
         is_property=True,
     )
@@ -660,7 +657,7 @@ class Eth(BaseEth):
     )
 
     @overload
-    def contract(self, address: None = None, **kwargs: Any) -> Type[Contract]:
+    def contract(self, address: None = None, **kwargs: Any) -> type[Contract]:
         ...
 
     @overload
@@ -673,7 +670,7 @@ class Eth(BaseEth):
         self,
         address: Optional[Union[Address, ChecksumAddress, ENS]] = None,
         **kwargs: Any,
-    ) -> Union[Type[Contract], Contract]:
+    ) -> Union[type[Contract], Contract]:
         ContractFactoryClass = kwargs.pop(
             "ContractFactoryClass", self._default_contract_factory
         )
@@ -687,6 +684,6 @@ class Eth(BaseEth):
 
     def set_contract_factory(
         self,
-        contract_factory: Type[Union[Contract, ContractCaller]],
+        contract_factory: type[Union[Contract, ContractCaller]],
     ) -> None:
         self._default_contract_factory = contract_factory

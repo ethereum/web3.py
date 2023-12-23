@@ -5,9 +5,7 @@ from typing import (
     Any,
     Callable,
     Collection,
-    List,
     Optional,
-    Type,
 )
 
 import aiohttp
@@ -91,7 +89,7 @@ DEFAULT_ALLOWLIST = [
 
 
 def check_if_retry_on_failure(
-    method: str, allow_list: Optional[List[str]] = None
+    method: str, allow_list: Optional[list[str]] = None
 ) -> bool:
     if allow_list is None:
         allow_list = DEFAULT_ALLOWLIST
@@ -108,10 +106,10 @@ def check_if_retry_on_failure(
 def exception_retry_middleware(
     make_request: Callable[[RPCEndpoint, Any], RPCResponse],
     _w3: "Web3",
-    errors: Collection[Type[BaseException]],
+    errors: Collection[type[BaseException]],
     retries: int = 5,
     backoff_factor: float = 0.3,
-    allow_list: Optional[List[str]] = None,
+    allow_list: Optional[list[str]] = None,
 ) -> Callable[[RPCEndpoint, Any], RPCResponse]:
     """
     Creates middleware that retries failed HTTP requests. Is a default
@@ -150,10 +148,10 @@ def http_retry_request_middleware(
 async def async_exception_retry_middleware(
     make_request: Callable[[RPCEndpoint, Any], Any],
     _async_w3: "AsyncWeb3",
-    errors: Collection[Type[BaseException]],
+    errors: Collection[type[BaseException]],
     retries: int = 5,
     backoff_factor: float = 0.3,
-    allow_list: Optional[List[str]] = None,
+    allow_list: Optional[list[str]] = None,
 ) -> AsyncMiddlewareCoroutine:
     """
     Creates middleware that retries failed HTTP requests.

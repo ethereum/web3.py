@@ -5,7 +5,6 @@ from typing import (
     Callable,
     Coroutine,
     Sequence,
-    Tuple,
     cast,
 )
 
@@ -41,10 +40,10 @@ if TYPE_CHECKING:
 
 
 class AsyncBaseProvider:
-    _middlewares: Tuple[AsyncMiddleware, ...] = ()
+    _middlewares: tuple[AsyncMiddleware, ...] = ()
     # a tuple of (all_middlewares, request_func)
-    _request_func_cache: Tuple[
-        Tuple[AsyncMiddleware, ...], Callable[..., Coroutine[Any, Any, RPCResponse]]
+    _request_func_cache: tuple[
+        tuple[AsyncMiddleware, ...], Callable[..., Coroutine[Any, Any, RPCResponse]]
     ] = (
         None,
         None,
@@ -56,19 +55,19 @@ class AsyncBaseProvider:
     ccip_read_max_redirects: int = 4
 
     @property
-    def middlewares(self) -> Tuple[AsyncMiddleware, ...]:
+    def middlewares(self) -> tuple[AsyncMiddleware, ...]:
         return self._middlewares
 
     @middlewares.setter
     def middlewares(self, values: MiddlewareOnion) -> None:
-        # tuple(values) converts to MiddlewareOnion -> Tuple[Middleware, ...]
+        # tuple(values) converts to MiddlewareOnion -> tuple[Middleware, ...]
         self._middlewares = tuple(values)  # type: ignore
 
     async def request_func(
         self, async_w3: "AsyncWeb3", outer_middlewares: AsyncMiddlewareOnion
     ) -> Callable[..., Coroutine[Any, Any, RPCResponse]]:
         # type ignored b/c tuple(MiddlewareOnion) converts to tuple of middlewares
-        all_middlewares: Tuple[AsyncMiddleware] = tuple(outer_middlewares) + tuple(self.middlewares)  # type: ignore  # noqa: E501
+        all_middlewares: tuple[AsyncMiddleware] = tuple(outer_middlewares) + tuple(self.middlewares)  # type: ignore  # noqa: E501
 
         cache_key = self._request_func_cache[0]
         if cache_key is None or cache_key != all_middlewares:

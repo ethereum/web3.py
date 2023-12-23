@@ -8,11 +8,8 @@ from pathlib import (
 )
 from typing import (
     Any,
-    Dict,
     Iterable,
     NamedTuple,
-    Tuple,
-    Type,
     TypeVar,
     Union,
     cast,
@@ -233,7 +230,7 @@ class ERC1319Registry(ABC):
 
     @classmethod
     @abstractmethod
-    def deploy_new_instance(cls: Type[T], w3: Web3) -> T:
+    def deploy_new_instance(cls: type[T], w3: Web3) -> T:
         """
         Class method that returns a newly deployed instance of ERC1319Registry.
 
@@ -508,7 +505,7 @@ class PM(Module):
         return self.registry._get_release_id(package_name, version)
 
     @to_tuple
-    def get_all_package_releases(self, package_name: str) -> Iterable[Tuple[str, str]]:
+    def get_all_package_releases(self, package_name: str) -> Iterable[tuple[str, str]]:
         """
         Returns a tuple of release data (version, manifest_ur) for every release of the
         given package name available on the current registry.
@@ -590,7 +587,7 @@ class PM(Module):
             )
 
 
-def get_simple_registry_manifest() -> Dict[str, Any]:
+def get_simple_registry_manifest() -> dict[str, Any]:
     return json.loads((ASSETS_DIR / "simple-registry" / "v3.json").read_text())
 
 

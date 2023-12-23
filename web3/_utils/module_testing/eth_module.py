@@ -9,7 +9,6 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    List,
     Union,
     cast,
 )
@@ -1358,7 +1357,7 @@ class AsyncEthModuleTest:
         async_w3: "AsyncWeb3",
         async_panic_errors_contract: "Contract",
         panic_error: str,
-        params: List[Any],
+        params: list[Any],
     ) -> None:
         method = getattr(
             async_panic_errors_contract.functions,
@@ -3832,7 +3831,7 @@ class EthModuleTest:
         w3: "Web3",
         panic_errors_contract: "Contract",
         panic_error: str,
-        params: List[Any],
+        params: list[Any],
     ) -> None:
         method = getattr(
             panic_errors_contract.functions,

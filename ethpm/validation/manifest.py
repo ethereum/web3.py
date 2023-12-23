@@ -4,9 +4,6 @@ from abc import (
 import json
 from typing import (
     Any,
-    Dict,
-    List,
-    Set,
     cast,
 )
 
@@ -35,7 +32,7 @@ META_FIELDS = {
 }
 
 
-def validate_meta_object(meta: Dict[str, Any], allow_extra_meta_fields: bool) -> None:
+def validate_meta_object(meta: dict[str, Any], allow_extra_meta_fields: bool) -> None:
     """
     Validates that every key is one of `META_FIELDS`
     and has a value of the expected type.
@@ -60,13 +57,13 @@ def validate_meta_object(meta: Dict[str, Any], allow_extra_meta_fields: bool) ->
             )
 
 
-def _load_schema_data() -> Dict[str, Any]:
+def _load_schema_data() -> dict[str, Any]:
     ethpm_spec_dir = get_ethpm_spec_dir()
     v3_schema_path = ethpm_spec_dir / "spec" / "v3.spec.json"
     return json.loads(v3_schema_path.read_text())
 
 
-def extract_contract_types_from_deployments(deployment_data: List[Any]) -> Set[str]:
+def extract_contract_types_from_deployments(deployment_data: list[Any]) -> set[str]:
     contract_types = {
         deployment["contractType"]
         for chain_deployments in deployment_data
@@ -75,7 +72,7 @@ def extract_contract_types_from_deployments(deployment_data: List[Any]) -> Set[s
     return contract_types
 
 
-def validate_manifest_against_schema(manifest: Dict[str, Any]) -> None:
+def validate_manifest_against_schema(manifest: dict[str, Any]) -> None:
     """
     Load and validate manifest against schema
     located at v3_schema_path.
@@ -91,13 +88,13 @@ def validate_manifest_against_schema(manifest: Dict[str, Any]) -> None:
         )
 
 
-def check_for_deployments(manifest: Dict[str, Any]) -> bool:
+def check_for_deployments(manifest: dict[str, Any]) -> bool:
     if "deployments" not in manifest or not manifest["deployments"]:
         return False
     return True
 
 
-def validate_build_dependencies_are_present(manifest: Dict[str, Any]) -> None:
+def validate_build_dependencies_are_present(manifest: dict[str, Any]) -> None:
     if "buildDependencies" not in manifest:
         raise EthPMValidationError("Manifest doesn't have any build dependencies.")
 
@@ -105,7 +102,7 @@ def validate_build_dependencies_are_present(manifest: Dict[str, Any]) -> None:
         raise EthPMValidationError("Manifest's build dependencies key is empty.")
 
 
-def validate_manifest_deployments(manifest: Dict[str, Any]) -> None:
+def validate_manifest_deployments(manifest: dict[str, Any]) -> None:
     """
     Validate that a manifest's deployments contracts reference existing contractTypes.
     """

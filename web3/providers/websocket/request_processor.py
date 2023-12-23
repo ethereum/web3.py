@@ -9,9 +9,7 @@ from typing import (
     Any,
     Callable,
     Deque,
-    Dict,
     Optional,
-    Tuple,
 )
 
 from web3._utils.caching import (
@@ -51,7 +49,7 @@ class RequestProcessor:
         )
 
     @property
-    def active_subscriptions(self) -> Dict[str, Any]:
+    def active_subscriptions(self) -> dict[str, Any]:
         return {
             value.subscription_id: {"params": value.params}
             for key, value in self._request_information_cache.items()
@@ -64,7 +62,7 @@ class RequestProcessor:
         self,
         method: RPCEndpoint,
         params: Any,
-        response_formatters: Tuple[Callable[..., Any], ...],
+        response_formatters: tuple[Callable[..., Any], ...],
     ) -> str:
         # copy the request counter and find the next request id without incrementing
         # since this is done when / if the request is successfully sent

@@ -7,12 +7,8 @@ from typing import (
     Any,
     Callable,
     Collection,
-    Dict,
-    List,
     Optional,
     Sequence,
-    Tuple,
-    Type,
     Union,
     cast,
 )
@@ -72,7 +68,7 @@ if TYPE_CHECKING:
     )
 
 
-def Web3() -> Type["_Web3"]:
+def Web3() -> type["_Web3"]:
     from web3 import (
         Web3 as Web3Main,
     )
@@ -82,7 +78,7 @@ def Web3() -> Type["_Web3"]:
 
 def init_web3(
     provider: "BaseProvider" = cast("BaseProvider", default),
-    middlewares: Optional[Sequence[Tuple["Middleware", str]]] = None,
+    middlewares: Optional[Sequence[tuple["Middleware", str]]] = None,
 ) -> "_Web3":
     from web3 import (
         Web3 as Web3Main,
@@ -286,11 +282,11 @@ def is_valid_ens_name(ens_name: str) -> bool:
 
 
 # borrowed from similar method at `web3._utils.abi` due to circular dependency
-def get_abi_output_types(abi: "ABIFunction") -> List[str]:
+def get_abi_output_types(abi: "ABIFunction") -> list[str]:
     return (
         []
         if abi["type"] == "fallback"
-        else [collapse_if_tuple(cast(Dict[str, Any], arg)) for arg in abi["outputs"]]
+        else [collapse_if_tuple(cast(dict[str, Any], arg)) for arg in abi["outputs"]]
     )
 
 
@@ -299,7 +295,7 @@ def get_abi_output_types(abi: "ABIFunction") -> List[str]:
 
 def init_async_web3(
     provider: "AsyncBaseProvider" = cast("AsyncBaseProvider", default),
-    middlewares: Optional[Sequence[Tuple["AsyncMiddleware", str]]] = (),
+    middlewares: Optional[Sequence[tuple["AsyncMiddleware", str]]] = (),
 ) -> "AsyncWeb3":
     from web3 import (
         AsyncWeb3 as AsyncWeb3Main,

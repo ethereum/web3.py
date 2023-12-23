@@ -1,10 +1,7 @@
 from typing import (
     TYPE_CHECKING,
     Any,
-    Dict,
     Generator,
-    List,
-    Tuple,
 )
 
 from eth_utils import (
@@ -28,7 +25,7 @@ if TYPE_CHECKING:
     from web3 import Web3  # noqa: F401
 
 
-def get_linked_deployments(deployments: Dict[str, Any]) -> Dict[str, Any]:
+def get_linked_deployments(deployments: dict[str, Any]) -> dict[str, Any]:
     """
     Returns all deployments found in a chain URI's deployment data that
     contain link dependencies.
@@ -51,7 +48,7 @@ def get_linked_deployments(deployments: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def validate_linked_references(
-    link_deps: Tuple[Tuple[int, bytes], ...], bytecode: HexBytes
+    link_deps: tuple[tuple[int, bytes], ...], bytecode: HexBytes
 ) -> None:
     """
     Validates that normalized linked_references (offset, expected_bytes)
@@ -77,8 +74,8 @@ def validate_linked_references(
 
 @to_tuple
 def normalize_linked_references(
-    data: List[Dict[str, Any]]
-) -> Generator[Tuple[int, str, str], None, None]:
+    data: list[dict[str, Any]]
+) -> Generator[tuple[int, str, str], None, None]:
     """
     Return a tuple of information representing all insertions of a linked reference.
     (offset, type, value)
@@ -89,7 +86,7 @@ def normalize_linked_references(
 
 
 def validate_deployments_tx_receipt(
-    deployments: Dict[str, Any], w3: "Web3", allow_missing_data: bool = False
+    deployments: dict[str, Any], w3: "Web3", allow_missing_data: bool = False
 ) -> None:
     """
     Validate that address and block hash found in deployment data match

@@ -4,7 +4,6 @@ import logging
 import os
 from typing import (
     Any,
-    Dict,
     Optional,
     Union,
 )
@@ -65,7 +64,7 @@ class WebsocketProviderV2(PersistentConnectionProvider):
     def __init__(
         self,
         endpoint_uri: Optional[Union[URI, str]] = None,
-        websocket_kwargs: Optional[Dict[str, Any]] = None,
+        websocket_kwargs: Optional[dict[str, Any]] = None,
         request_timeout: Optional[float] = DEFAULT_PERSISTENT_CONNECTION_TIMEOUT,
     ) -> None:
         self.endpoint_uri = URI(endpoint_uri)

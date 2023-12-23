@@ -35,12 +35,9 @@ from typing import (
     TYPE_CHECKING,
     Any,
     AsyncIterator,
-    Dict,
     Generator,
-    List,
     Optional,
     Sequence,
-    Type,
     Union,
     cast,
 )
@@ -151,7 +148,7 @@ if TYPE_CHECKING:
     from web3._utils.empty import Empty  # noqa: F401
 
 
-def get_async_default_modules() -> Dict[str, Union[Type[Module], Sequence[Any]]]:
+def get_async_default_modules() -> dict[str, Union[type[Module], Sequence[Any]]]:
     return {
         "eth": AsyncEth,
         "net": AsyncNet,
@@ -166,7 +163,7 @@ def get_async_default_modules() -> Dict[str, Union[Type[Module], Sequence[Any]]]
     }
 
 
-def get_default_modules() -> Dict[str, Union[Type[Module], Sequence[Any]]]:
+def get_default_modules() -> dict[str, Union[type[Module], Sequence[Any]]]:
     return {
         "eth": Eth,
         "net": Net,
@@ -233,7 +230,7 @@ class BaseWeb3:
 
     @staticmethod
     @wraps(to_json)
-    def to_json(obj: Dict[Any, Any]) -> str:
+    def to_json(obj: dict[Any, Any]) -> str:
         return to_json(obj)
 
     # Currency Utility
@@ -302,12 +299,12 @@ class BaseWeb3:
 
     @classmethod
     def normalize_values(
-        cls, w3: "BaseWeb3", abi_types: List[TypeStr], values: List[Any]
-    ) -> List[Any]:
+        cls, w3: "BaseWeb3", abi_types: list[TypeStr], values: list[Any]
+    ) -> list[Any]:
         return map_abi_data([abi_ens_resolver(w3)], abi_types, values)
 
     @combomethod
-    def solidity_keccak(cls, abi_types: List[TypeStr], values: List[Any]) -> bytes:
+    def solidity_keccak(cls, abi_types: list[TypeStr], values: list[Any]) -> bytes:
         """
         Executes keccak256 exactly as Solidity does.
         Takes list of abi_types as inputs -- `[uint24, int8[], bool]`
@@ -336,7 +333,7 @@ class BaseWeb3:
         return cls.keccak(hexstr=hex_string)
 
     def attach_modules(
-        self, modules: Optional[Dict[str, Union[Type[Module], Sequence[Any]]]]
+        self, modules: Optional[dict[str, Union[type[Module], Sequence[Any]]]]
     ) -> None:
         """
         Attach modules to the `Web3` instance.
@@ -381,9 +378,9 @@ class Web3(BaseWeb3):
         self,
         provider: Optional[BaseProvider] = None,
         middlewares: Optional[Sequence[Any]] = None,
-        modules: Optional[Dict[str, Union[Type[Module], Sequence[Any]]]] = None,
+        modules: Optional[dict[str, Union[type[Module], Sequence[Any]]]] = None,
         external_modules: Optional[
-            Dict[str, Union[Type[Module], Sequence[Any]]]
+            dict[str, Union[type[Module], Sequence[Any]]]
         ] = None,
         ens: Union[ENS, "Empty"] = empty,
     ) -> None:
@@ -448,9 +445,9 @@ class AsyncWeb3(BaseWeb3):
         self,
         provider: Optional[AsyncBaseProvider] = None,
         middlewares: Optional[Sequence[Any]] = None,
-        modules: Optional[Dict[str, Union[Type[Module], Sequence[Any]]]] = None,
+        modules: Optional[dict[str, Union[type[Module], Sequence[Any]]]] = None,
         external_modules: Optional[
-            Dict[str, Union[Type[Module], Sequence[Any]]]
+            dict[str, Union[type[Module], Sequence[Any]]]
         ] = None,
         ens: Union[AsyncENS, "Empty"] = empty,
         **kwargs: Any,
@@ -505,9 +502,9 @@ class AsyncWeb3(BaseWeb3):
     def persistent_websocket(
         provider: PersistentConnectionProvider,
         middlewares: Optional[Sequence[Any]] = None,
-        modules: Optional[Dict[str, Union[Type[Module], Sequence[Any]]]] = None,
+        modules: Optional[dict[str, Union[type[Module], Sequence[Any]]]] = None,
         external_modules: Optional[
-            Dict[str, Union[Type[Module], Sequence[Any]]]
+            dict[str, Union[type[Module], Sequence[Any]]]
         ] = None,
         ens: Union[AsyncENS, "Empty"] = empty,
     ) -> "_PersistentConnectionWeb3":
@@ -533,9 +530,9 @@ class _PersistentConnectionWeb3(AsyncWeb3):
         self,
         provider: PersistentConnectionProvider = None,
         middlewares: Optional[Sequence[Any]] = None,
-        modules: Optional[Dict[str, Union[Type[Module], Sequence[Any]]]] = None,
+        modules: Optional[dict[str, Union[type[Module], Sequence[Any]]]] = None,
         external_modules: Optional[
-            Dict[str, Union[Type[Module], Sequence[Any]]]
+            dict[str, Union[type[Module], Sequence[Any]]]
         ] = None,
         ens: Union[AsyncENS, "Empty"] = empty,
     ) -> None:
@@ -565,7 +562,7 @@ class _PersistentConnectionWeb3(AsyncWeb3):
 
     async def __aexit__(
         self,
-        exc_type: Type[BaseException],
+        exc_type: type[BaseException],
         exc_val: BaseException,
         exc_tb: TracebackType,
     ) -> None:

@@ -1,9 +1,3 @@
-from typing import (
-    Dict,
-    List,
-    Tuple,
-)
-
 from ethpm.validation.package import (
     validate_package_name,
 )
@@ -16,7 +10,7 @@ class Dependencies:
 
     # ignoring Package type here and below to avoid a circular dependency
     def __init__(
-        self, build_dependencies: Dict[str, "Package"]  # type: ignore  # noqa: F821
+        self, build_dependencies: dict[str, "Package"]  # type: ignore  # noqa: F821
     ) -> None:
         self.build_dependencies = build_dependencies
 
@@ -31,7 +25,7 @@ class Dependencies:
         if name not in self.build_dependencies:
             raise KeyError(f"Package name: {name} not found in build dependencies.")
 
-    def items(self) -> Tuple[Tuple[str, "Package"], ...]:  # type: ignore  # noqa: F821
+    def items(self) -> tuple[tuple[str, "Package"], ...]:  # type: ignore  # noqa: F821
         """
         Return an iterable containing package name and
         corresponding `Package` instance that are available.
@@ -41,7 +35,7 @@ class Dependencies:
         }
         return tuple(item_dict.items())
 
-    def values(self) -> List["Package"]:  # type: ignore  # noqa: F821
+    def values(self) -> list["Package"]:  # type: ignore  # noqa: F821
         """
         Return an iterable of the available `Package` instances.
         """

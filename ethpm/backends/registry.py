@@ -3,7 +3,6 @@ from collections import (
 )
 from typing import (
     Optional,
-    Tuple,
 )
 from urllib import (
     parse,
@@ -123,7 +122,7 @@ def parse_registry_uri(uri: str) -> RegistryURI:
 
 def _process_pkg_path(
     raw_pkg_path: str,
-) -> Tuple[Optional[str], Optional[str], Optional[str]]:
+) -> tuple[Optional[str], Optional[str], Optional[str]]:
     pkg_path = raw_pkg_path.strip("/")
     if not pkg_path:
         return None, None, None
@@ -138,7 +137,7 @@ def _process_pkg_path(
     return pkg_name, pkg_version, namespaced_asset
 
 
-def _parse_pkg_path(pkg_path: str) -> Tuple[str, Optional[str]]:
+def _parse_pkg_path(pkg_path: str) -> tuple[str, Optional[str]]:
     if "/" in pkg_path:
         pkg_id, _, namespaced_asset = pkg_path.partition("/")
         return pkg_id, namespaced_asset
@@ -146,7 +145,7 @@ def _parse_pkg_path(pkg_path: str) -> Tuple[str, Optional[str]]:
         return pkg_path, None
 
 
-def _parse_pkg_id(pkg_id: str) -> Tuple[str, Optional[str]]:
+def _parse_pkg_id(pkg_id: str) -> tuple[str, Optional[str]]:
     if "@" not in pkg_id:
         return pkg_id, None
     pkg_name, _, safe_pkg_version = pkg_id.partition("@")

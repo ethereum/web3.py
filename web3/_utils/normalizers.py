@@ -6,7 +6,6 @@ from typing import (
     Any,
     Callable,
     Optional,
-    Tuple,
     Union,
     cast,
 )
@@ -74,9 +73,9 @@ if TYPE_CHECKING:
 
 def implicitly_identity(
     to_wrap: Callable[[TypeStr, Any], Any]
-) -> Callable[[TypeStr, Any], Tuple[TypeStr, Any]]:
+) -> Callable[[TypeStr, Any], tuple[TypeStr, Any]]:
     @functools.wraps(to_wrap)
-    def wrapper(type_str: TypeStr, data: Any) -> Tuple[TypeStr, Any]:
+    def wrapper(type_str: TypeStr, data: Any) -> tuple[TypeStr, Any]:
         modified = to_wrap(type_str, data)
         if modified is None:
             return type_str, data
@@ -94,14 +93,14 @@ def implicitly_identity(
 @implicitly_identity
 def addresses_checksummed(
     type_str: TypeStr, data: Any
-) -> Tuple[TypeStr, ChecksumAddress]:
+) -> tuple[TypeStr, ChecksumAddress]:
     if type_str == "address":
         return type_str, to_checksum_address(data)
     return None
 
 
 @implicitly_identity
-def decode_abi_strings(type_str: TypeStr, data: Any) -> Tuple[TypeStr, str]:
+def decode_abi_strings(type_str: TypeStr, data: Any) -> tuple[TypeStr, str]:
     if type_str == "string":
         return type_str, codecs.decode(data, "utf8", "backslashreplace")
     return None
@@ -113,8 +112,8 @@ def decode_abi_strings(type_str: TypeStr, data: Any) -> Tuple[TypeStr, str]:
 
 
 def parse_basic_type_str(
-    old_normalizer: Callable[[BasicType, TypeStr, Any], Tuple[TypeStr, Any]]
-) -> Callable[[TypeStr, Any], Tuple[TypeStr, Any]]:
+    old_normalizer: Callable[[BasicType, TypeStr, Any], tuple[TypeStr, Any]]
+) -> Callable[[TypeStr, Any], tuple[TypeStr, Any]]:
     """
     Modifies a normalizer to automatically parse the incoming type string.  If
     that type string does not represent a basic type (i.e. non-tuple type) or is
@@ -122,7 +121,7 @@ def parse_basic_type_str(
     """
 
     @functools.wraps(old_normalizer)
-    def new_normalizer(type_str: TypeStr, data: Any) -> Tuple[TypeStr, Any]:
+    def new_normalizer(type_str: TypeStr, data: Any) -> tuple[TypeStr, Any]:
         try:
             abi_type = parse(type_str)
         except ParseError:
@@ -141,7 +140,7 @@ def parse_basic_type_str(
 @parse_basic_type_str
 def abi_bytes_to_hex(
     abi_type: BasicType, type_str: TypeStr, data: Any
-) -> Optional[Tuple[TypeStr, HexStr]]:
+) -> Optional[tuple[TypeStr, HexStr]]:
     if abi_type.base != "bytes" or abi_type.is_array:
         return None
 
@@ -164,7 +163,7 @@ def abi_bytes_to_hex(
 @parse_basic_type_str
 def abi_int_to_hex(
     abi_type: BasicType, type_str: TypeStr, data: Any
-) -> Optional[Tuple[TypeStr, HexStr]]:
+) -> Optional[tuple[TypeStr, HexStr]]:
     if abi_type.base == "uint" and not abi_type.is_array:
         # double check?
         return type_str, hexstr_if_str(to_hex, data)
@@ -172,14 +171,14 @@ def abi_int_to_hex(
 
 
 @implicitly_identity
-def abi_string_to_hex(type_str: TypeStr, data: Any) -> Optional[Tuple[TypeStr, str]]:
+def abi_string_to_hex(type_str: TypeStr, data: Any) -> Optional[tuple[TypeStr, str]]:
     if type_str == "string":
         return type_str, text_if_str(to_hex, data)
     return None
 
 
 @implicitly_identity
-def abi_string_to_text(type_str: TypeStr, data: Any) -> Optional[Tuple[TypeStr, str]]:
+def abi_string_to_text(type_str: TypeStr, data: Any) -> Optional[tuple[TypeStr, str]]:
     if type_str == "string":
         return type_str, text_if_str(to_text, data)
     return None
@@ -189,7 +188,7 @@ def abi_string_to_text(type_str: TypeStr, data: Any) -> Optional[Tuple[TypeStr, 
 @parse_basic_type_str
 def abi_bytes_to_bytes(
     abi_type: BasicType, type_str: TypeStr, data: Any
-) -> Optional[Tuple[TypeStr, HexStr]]:
+) -> Optional[tuple[TypeStr, HexStr]]:
     if abi_type.base == "bytes" and not abi_type.is_array:
         return type_str, hexstr_if_str(to_bytes, data)
     return None
@@ -198,7 +197,7 @@ def abi_bytes_to_bytes(
 @implicitly_identity
 def abi_address_to_hex(
     type_str: TypeStr, data: Any
-) -> Optional[Tuple[TypeStr, ChecksumAddress]]:
+) -> Optional[tuple[TypeStr, ChecksumAddress]]:
     if type_str == "address":
         validate_address(data)
         if is_binary_address(data):
@@ -211,7 +210,7 @@ def abi_ens_resolver(
     w3: "Web3",
     type_str: TypeStr,
     val: Any,
-) -> Tuple[TypeStr, Any]:
+) -> tuple[TypeStr, Any]:
     if type_str == "address" and is_ens_name(val):
         if w3 is None:
             raise InvalidAddress(
@@ -284,7 +283,7 @@ async def async_abi_ens_resolver(
     async_w3: "AsyncWeb3",
     type_str: TypeStr,
     val: Any,
-) -> Tuple[TypeStr, Any]:
+) -> tuple[TypeStr, Any]:
     if type_str == "address" and is_ens_name(val):
         if async_w3 is None:
             raise InvalidAddress(

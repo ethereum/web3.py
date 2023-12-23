@@ -28,5 +28,5 @@ zsh: no matches found: .[dev]
 
 Run install commands as follows:
 ```sh
-pip install -e .'[dev]'
+poetry install --extras "dev"
 ```

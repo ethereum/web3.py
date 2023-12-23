@@ -4,8 +4,6 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    List,
-    Tuple,
 )
 
 from eth_utils import (
@@ -50,11 +48,11 @@ class RequestInformation:
         self,
         method: "RPCEndpoint",
         params: Any,
-        response_formatters: Tuple[Callable[..., Any], ...],
+        response_formatters: tuple[Callable[..., Any], ...],
         subscription_id: str = None,
     ):
         self.method = method
         self.params = params
         self.response_formatters = response_formatters
         self.subscription_id = subscription_id
-        self.middleware_response_processors: List[Callable[..., Any]] = []
+        self.middleware_response_processors: list[Callable[..., Any]] = []

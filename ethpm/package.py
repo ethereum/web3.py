@@ -5,13 +5,9 @@ from pathlib import (
 from typing import (
     TYPE_CHECKING,
     Any,
-    Dict,
     Generator,
     Iterable,
-    List,
     Optional,
-    Tuple,
-    Type,
     Union,
     cast,
 )
@@ -92,7 +88,7 @@ if TYPE_CHECKING:
 
 class Package(object):
     def __init__(
-        self, manifest: Dict[str, Any], w3: "Web3", uri: Optional[str] = None
+        self, manifest: dict[str, Any], w3: "Web3", uri: Optional[str] = None
     ) -> None:
         """
         A package should be created using one of the available
@@ -115,7 +111,7 @@ class Package(object):
         validate_w3_instance(w3)
 
         self.w3 = w3
-        self.w3.eth._default_contract_factory = cast(Type[Contract], LinkableContract)
+        self.w3.eth._default_contract_factory = cast(type[Contract], LinkableContract)
         self.manifest = manifest
         self._uri = uri
 
@@ -191,7 +187,7 @@ class Package(object):
         return self._uri
 
     @property
-    def contract_types(self) -> List[str]:
+    def contract_types(self) -> list[str]:
         """
         All contract types included in this package.
         """
@@ -351,7 +347,7 @@ class Package(object):
     #
 
     @cached_property
-    def deployments(self) -> Union["Deployments", Dict[None, None]]:
+    def deployments(self) -> Union["Deployments", dict[None, None]]:
         """
         Returns a ``Deployments`` object containing all the deployment data and contract
         instances of a ``Package``'s `contract_types`. Automatically filters deployments
@@ -388,8 +384,8 @@ class Package(object):
 
     @to_dict
     def _get_all_contract_instances(
-        self, deployments: Dict[str, DeploymentData]
-    ) -> Iterable[Tuple[str, Contract]]:
+        self, deployments: dict[str, DeploymentData]
+    ) -> Iterable[tuple[str, Contract]]:
         for deployment_name, deployment_data in deployments.items():
             if deployment_data["contractType"] not in self.contract_types:
                 raise EthPMValidationError(
@@ -405,8 +401,8 @@ class Package(object):
 
     @to_tuple
     def _resolve_linked_references(
-        self, link_ref: Tuple[int, str, str], deployments: Dict[str, Any]
-    ) -> Generator[Tuple[int, bytes], None, None]:
+        self, link_ref: tuple[int, str, str], deployments: dict[str, Any]
+    ) -> Generator[tuple[int, bytes], None, None]:
         # No nested deployment: i.e. 'Owned'
         offset, link_type, value = link_ref
         if link_type == "literal":

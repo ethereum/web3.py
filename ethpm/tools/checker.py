@@ -1,7 +1,6 @@
 import re
 from typing import (
     Any,
-    Dict,
 )
 
 from eth_typing import (
@@ -66,7 +65,7 @@ WARNINGS = {
 #
 
 
-def check_manifest(manifest: Manifest) -> Dict[str, str]:
+def check_manifest(manifest: Manifest) -> dict[str, str]:
     generate_warnings = (
         check_manifest_version(manifest),
         check_package_name(manifest),
@@ -86,8 +85,8 @@ def check_manifest(manifest: Manifest) -> Dict[str, str]:
 
 @curry
 def check_manifest_version(
-    manifest: Manifest, warnings: Dict[str, str]
-) -> Dict[str, str]:
+    manifest: Manifest, warnings: dict[str, str]
+) -> dict[str, str]:
     if "manifest" not in manifest or not manifest["manifest"]:
         return assoc(warnings, "manifest", WARNINGS["manifest_missing"])
     if manifest["manifest"] != "ethpm/3":
@@ -96,7 +95,7 @@ def check_manifest_version(
 
 
 @curry
-def check_package_name(manifest: Manifest, warnings: Dict[str, str]) -> Dict[str, str]:
+def check_package_name(manifest: Manifest, warnings: dict[str, str]) -> dict[str, str]:
     if "name" not in manifest or not manifest["name"]:
         return assoc(warnings, "name", WARNINGS["name_missing"])
     if not bool(re.match(PACKAGE_NAME_REGEX, manifest["name"])):
@@ -105,7 +104,7 @@ def check_package_name(manifest: Manifest, warnings: Dict[str, str]) -> Dict[str
 
 
 @curry
-def check_version(manifest: Manifest, warnings: Dict[str, str]) -> Dict[str, str]:
+def check_version(manifest: Manifest, warnings: dict[str, str]) -> dict[str, str]:
     if "version" not in manifest or not manifest["version"]:
         return assoc(warnings, "version", WARNINGS["version_missing"])
     return warnings
@@ -117,7 +116,7 @@ def check_version(manifest: Manifest, warnings: Dict[str, str]) -> Dict[str, str
 
 
 @curry
-def check_meta(manifest: Manifest, warnings: Dict[str, str]) -> Dict[str, str]:
+def check_meta(manifest: Manifest, warnings: dict[str, str]) -> dict[str, str]:
     if "meta" not in manifest or not manifest["meta"]:
         return assoc(warnings, "meta", WARNINGS["meta_missing"])
     meta_validation = (
@@ -131,35 +130,35 @@ def check_meta(manifest: Manifest, warnings: Dict[str, str]) -> Dict[str, str]:
 
 
 @curry
-def check_authors(meta: Dict[str, Any], warnings: Dict[str, str]) -> Dict[str, str]:
+def check_authors(meta: dict[str, Any], warnings: dict[str, str]) -> dict[str, str]:
     if "authors" not in meta:
         return assoc(warnings, "meta.authors", WARNINGS["authors_missing"])
     return warnings
 
 
 @curry
-def check_license(meta: Dict[str, Any], warnings: Dict[str, str]) -> Dict[str, str]:
+def check_license(meta: dict[str, Any], warnings: dict[str, str]) -> dict[str, str]:
     if "license" not in meta or not meta["license"]:
         return assoc(warnings, "meta.license", WARNINGS["license_missing"])
     return warnings
 
 
 @curry
-def check_description(meta: Dict[str, Any], warnings: Dict[str, str]) -> Dict[str, str]:
+def check_description(meta: dict[str, Any], warnings: dict[str, str]) -> dict[str, str]:
     if "description" not in meta or not meta["description"]:
         return assoc(warnings, "meta.description", WARNINGS["description_missing"])
     return warnings
 
 
 @curry
-def check_keywords(meta: Dict[str, Any], warnings: Dict[str, str]) -> Dict[str, str]:
+def check_keywords(meta: dict[str, Any], warnings: dict[str, str]) -> dict[str, str]:
     if "keywords" not in meta or not meta["keywords"]:
         return assoc(warnings, "meta.keywords", WARNINGS["keywords_missing"])
     return warnings
 
 
 @curry
-def check_links(meta: Dict[str, Any], warnings: Dict[str, str]) -> Dict[str, str]:
+def check_links(meta: dict[str, Any], warnings: dict[str, str]) -> dict[str, str]:
     if "links" not in meta or not meta["links"]:
         return assoc(warnings, "meta.links", WARNINGS["links_missing"])
     return warnings
@@ -171,7 +170,7 @@ def check_links(meta: Dict[str, Any], warnings: Dict[str, str]) -> Dict[str, str
 
 
 @curry
-def check_sources(manifest: Manifest, warnings: Dict[str, str]) -> Dict[str, str]:
+def check_sources(manifest: Manifest, warnings: dict[str, str]) -> dict[str, str]:
     if "sources" not in manifest or not manifest["sources"]:
         return assoc(warnings, "sources", WARNINGS["sources_missing"])
     return warnings
@@ -185,8 +184,8 @@ def check_sources(manifest: Manifest, warnings: Dict[str, str]) -> Dict[str, str
 # todo: validate a contract type matches source
 @curry
 def check_contract_types(
-    manifest: Manifest, warnings: Dict[str, str]
-) -> Dict[str, str]:
+    manifest: Manifest, warnings: dict[str, str]
+) -> dict[str, str]:
     if "contractTypes" not in manifest or not manifest["contractTypes"]:
         return assoc(warnings, "contractTypes", WARNINGS["contract_type_missing"])
 
@@ -206,8 +205,8 @@ def check_contract_types(
 
 @curry
 def check_abi(
-    contract_name: str, data: Dict[str, Any], warnings: Dict[str, str]
-) -> Dict[str, str]:
+    contract_name: str, data: dict[str, Any], warnings: dict[str, str]
+) -> dict[str, str]:
     if "abi" not in data or not data["abi"]:
         return assoc_in(
             warnings,
@@ -219,8 +218,8 @@ def check_abi(
 
 @curry
 def check_contract_type(
-    contract_name: str, data: Dict[str, Any], warnings: Dict[str, str]
-) -> Dict[str, str]:
+    contract_name: str, data: dict[str, Any], warnings: dict[str, str]
+) -> dict[str, str]:
     if "contractType" not in data or not data["contractType"]:
         return assoc_in(
             warnings,
@@ -232,8 +231,8 @@ def check_contract_type(
 
 @curry
 def check_deployment_bytecode(
-    contract_name: str, data: Dict[str, Any], warnings: Dict[str, str]
-) -> Dict[str, str]:
+    contract_name: str, data: dict[str, Any], warnings: dict[str, str]
+) -> dict[str, str]:
     if "deploymentBytecode" not in data or not data["deploymentBytecode"]:
         return assoc_in(
             warnings,
@@ -248,8 +247,8 @@ def check_deployment_bytecode(
 
 @curry
 def check_runtime_bytecode(
-    contract_name: str, data: Dict[str, Any], warnings: Dict[str, str]
-) -> Dict[str, str]:
+    contract_name: str, data: dict[str, Any], warnings: dict[str, str]
+) -> dict[str, str]:
     if "runtimeBytecode" not in data or not data["runtimeBytecode"]:
         return assoc_in(
             warnings,
@@ -266,9 +265,9 @@ def check_runtime_bytecode(
 def check_bytecode_object(
     contract_name: str,
     bytecode_type: str,
-    bytecode_data: Dict[str, Any],
-    warnings: Dict[str, str],
-) -> Dict[str, str]:
+    bytecode_data: dict[str, Any],
+    warnings: dict[str, str],
+) -> dict[str, str]:
     # todo: check if bytecode has link_refs & validate link_refs present in object
     if "bytecode" not in bytecode_data or not bytecode_data["bytecode"]:
         return assoc_in(
@@ -281,8 +280,8 @@ def check_bytecode_object(
 
 @curry
 def check_devdoc(
-    contract_name: str, data: Dict[str, Any], warnings: Dict[str, str]
-) -> Dict[str, str]:
+    contract_name: str, data: dict[str, Any], warnings: dict[str, str]
+) -> dict[str, str]:
     if "devdoc" not in data or not data["devdoc"]:
         return assoc_in(
             warnings,
@@ -294,8 +293,8 @@ def check_devdoc(
 
 @curry
 def check_userdoc(
-    contract_name: str, data: Dict[str, Any], warnings: Dict[str, str]
-) -> Dict[str, str]:
+    contract_name: str, data: dict[str, Any], warnings: dict[str, str]
+) -> dict[str, str]:
     if "userdoc" not in data or not data["userdoc"]:
         return assoc_in(
             warnings,
@@ -306,7 +305,7 @@ def check_userdoc(
 
 
 @curry
-def check_compilers(manifest: Manifest, warnings: Dict[str, str]) -> Dict[str, str]:
+def check_compilers(manifest: Manifest, warnings: dict[str, str]) -> dict[str, str]:
     if "compilers" not in manifest or not manifest["compilers"]:
         return assoc(warnings, "compilers", WARNINGS["compilers_missing"])
     return warnings

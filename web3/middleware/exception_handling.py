@@ -2,10 +2,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    Dict,
     Optional,
-    Tuple,
-    Type,
 )
 
 from eth_utils.toolz import (
@@ -24,7 +21,7 @@ if TYPE_CHECKING:
 
 def construct_exception_handler_middleware(
     method_handlers: Optional[
-        Dict[RPCEndpoint, Tuple[Type[BaseException], Callable[..., None]]]
+        dict[RPCEndpoint, tuple[type[BaseException], Callable[..., None]]]
     ] = None
 ) -> Middleware:
     if method_handlers is None:

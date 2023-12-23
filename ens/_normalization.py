@@ -8,11 +8,7 @@ from sys import (
 )
 from typing import (
     Any,
-    Dict,
-    List,
     Optional,
-    Set,
-    Tuple,
     Union,
 )
 
@@ -40,9 +36,9 @@ else:
 
 
 def _json_list_mapping_to_dict(
-    f: Dict[str, Any],
+    f: dict[str, Any],
     list_mapped_key: str,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Takes a `[key, [value]]` mapping from the original ENS spec json files and turns it
     into a `{key: value}` mapping.
@@ -80,17 +76,17 @@ class TokenType(Enum):
 class Token:
     type: Literal[TokenType.TEXT, TokenType.EMOJI]
     _original_text: str
-    _original_codepoints: List[int]
-    _normalized_codepoints: Optional[List[int]] = None
+    _original_codepoints: list[int]
+    _normalized_codepoints: Optional[list[int]] = None
 
     restricted: bool = False
 
-    def __init__(self, codepoints: List[int]) -> None:
+    def __init__(self, codepoints: list[int]) -> None:
         self._original_codepoints = codepoints
         self._original_text = "".join(chr(cp) for cp in codepoints)
 
     @property
-    def codepoints(self) -> List[int]:
+    def codepoints(self) -> list[int]:
         return (
             self._normalized_codepoints
             if self._normalized_codepoints
@@ -112,12 +108,12 @@ class TextToken(Token):
 
 class Label:
     type: str
-    tokens: List[Token]
+    tokens: list[Token]
 
     def __init__(
         self,
         type: str = None,
-        tokens: List[Token] = None,
+        tokens: list[Token] = None,
     ) -> None:
         self.type = type
         self.tokens = tokens
@@ -131,9 +127,9 @@ class Label:
 
 
 class ENSNormalizedName:
-    labels: List[Label]
+    labels: list[Label]
 
-    def __init__(self, normalized_labels: List[Label]) -> None:
+    def __init__(self, normalized_labels: list[Label]) -> None:
         self.labels = normalized_labels
 
     @property
@@ -153,7 +149,7 @@ VALID_BY_GROUPS = {
 }
 
 
-def _extract_valid_codepoints() -> Set[int]:
+def _extract_valid_codepoints() -> set[int]:
     all_valid = set()
     for _name, valid_cps in VALID_BY_GROUPS.items():
         all_valid.update(valid_cps)
@@ -161,20 +157,20 @@ def _extract_valid_codepoints() -> Set[int]:
     return all_valid
 
 
-def _construct_whole_confusable_map() -> Dict[int, Set[str]]:
+def _construct_whole_confusable_map() -> dict[int, set[str]]:
     """
     Create a mapping, per confusable, that contains all the groups in the cp's whole
     confusable excluding the confusable extent of the cp itself - as per the spec at
     https://docs.ens.domains/ens-improvement-proposals/ensip-15-normalization-standard
     """
-    whole_map: Dict[int, Set[str]] = {}
+    whole_map: dict[int, set[str]] = {}
     for whole in NORMALIZATION_SPEC["wholes"]:
-        whole_confusables: Set[int] = set(whole["valid"] + whole["confused"])
-        confusable_extents: List[Tuple[Set[int], Set[str]]] = []
+        whole_confusables: set[int] = set(whole["valid"] + whole["confused"])
+        confusable_extents: list[tuple[set[int], set[str]]] = []
 
         for confusable_cp in whole_confusables:
             # create confusable extents for all whole confusables
-            groups: Set[str] = set()
+            groups: set[str] = set()
             for gn, gv in VALID_BY_GROUPS.items():
                 if confusable_cp in gv:
                     groups.add(gn)
@@ -194,7 +190,7 @@ def _construct_whole_confusable_map() -> Dict[int, Set[str]]:
                     confusable_extents.append(({confusable_cp}, groups))
 
         for confusable_cp in whole_confusables:
-            confusable_cp_extent_groups: Set[str] = set()
+            confusable_cp_extent_groups: set[str] = set()
 
             if confusable_cp in whole["confused"]:
                 whole_map[confusable_cp] = set()
@@ -222,17 +218,17 @@ def _is_fenced(cp: int) -> bool:
     return cp in [fenced[0] for fenced in NORMALIZATION_SPEC["fenced"]]
 
 
-def _codepoints_to_text(cps: Union[List[List[int]], List[int]]) -> str:
+def _codepoints_to_text(cps: Union[list[list[int]], list[int]]) -> str:
     return "".join(
         chr(cp) if isinstance(cp, int) else _codepoints_to_text(cp) for cp in cps
     )
 
 
-def _validate_tokens_and_get_label_type(tokens: List[Token]) -> str:
+def _validate_tokens_and_get_label_type(tokens: list[Token]) -> str:
     """
     Validate tokens and return the label type.
 
-    :param List[Token] tokens: the tokens to validate
+    :param list[Token] tokens: the tokens to validate
     :raises InvalidName: if any of the tokens are invalid
     """
 
@@ -402,7 +398,7 @@ def _validate_tokens_and_get_label_type(tokens: List[Token]) -> str:
     return chars_group_name
 
 
-def _build_and_validate_label_from_tokens(tokens: List[Token]) -> Label:
+def _build_and_validate_label_from_tokens(tokens: list[Token]) -> Label:
     for token in tokens:
         if token.type == TokenType.TEXT:
             # apply NFC normalization to text tokens
@@ -418,7 +414,7 @@ def _build_and_validate_label_from_tokens(tokens: List[Token]) -> Label:
     return label
 
 
-def _buffer_codepoints_to_chars(buffer: Union[List[int], List[List[int]]]) -> str:
+def _buffer_codepoints_to_chars(buffer: Union[list[int], list[list[int]]]) -> str:
     return "".join(
         "".join(chr(c) for c in char) if isinstance(char, list) else chr(char)
         for char in buffer
@@ -453,8 +449,8 @@ def normalize_name_ensip15(name: str) -> ENSNormalizedName:
         # _input takes the label and breaks it into a list of unicode code points
         # e.g. "xyz👨🏻" -> [120, 121, 122, 128104, 127995]
         _input = [ord(c) for c in label_str]
-        buffer: List[int] = []
-        tokens: List[Token] = []
+        buffer: list[int] = []
+        tokens: list[Token] = []
 
         while len(_input) > 0:
             emoji_codepoint = None

@@ -7,15 +7,11 @@ from collections.abc import (
 from typing import (
     Any,
     Callable,
-    Dict,
     Iterator,
-    List,
     Mapping,
     MutableMapping,
     Optional,
     Sequence,
-    Tuple,
-    Type,
     TypeVar,
     Union,
     cast,
@@ -45,7 +41,7 @@ class ReadableAttributeDict(Mapping[TKey, TValue]):
     """
 
     def __init__(
-        self, dictionary: Dict[TKey, TValue], *args: Any, **kwargs: Any
+        self, dictionary: dict[TKey, TValue], *args: Any, **kwargs: Any
     ) -> None:
         # type ignored on 46/50 b/c dict() expects str index type not TKey
         self.__dict__ = dict(dictionary)  # type: ignore
@@ -76,7 +72,7 @@ class ReadableAttributeDict(Mapping[TKey, TValue]):
         builder.text(")")
 
     @classmethod
-    def _apply_if_mapping(cls: Type[T], value: TValue) -> Union[T, TValue]:
+    def _apply_if_mapping(cls: type[T], value: TValue) -> Union[T, TValue]:
         if isinstance(value, Mapping):
             # error: Too many arguments for "object"
             return cls(value)  # type: ignore
@@ -133,7 +129,7 @@ def tupleize_lists_nested(d: Mapping[TKey, TValue]) -> AttributeDict[TKey, TValu
     Other unhashable types found will raise a TypeError
     """
 
-    def _to_tuple(value: Union[List[Any], Tuple[Any, ...]]) -> Any:
+    def _to_tuple(value: Union[list[Any], tuple[Any, ...]]) -> Any:
         return tuple(_to_tuple(i) if isinstance(i, (list, tuple)) else i for i in value)
 
     ret = dict()
@@ -268,7 +264,7 @@ class NamedElementOnion(Mapping[TKey, TValue]):
             return NotImplemented
         combined = self._queue.copy()
         combined.update(other._queue)
-        return NamedElementOnion(cast(List[Any], combined.items()))
+        return NamedElementOnion(cast(list[Any], combined.items()))
 
     def __contains__(self, element: Any) -> bool:
         return element in self._queue
@@ -280,7 +276,7 @@ class NamedElementOnion(Mapping[TKey, TValue]):
         return len(self._queue)
 
     def __reversed__(self) -> Iterator[TValue]:
-        elements = cast(List[Any], self._queue.values())
+        elements = cast(list[Any], self._queue.values())
         if not isinstance(elements, Sequence):
             elements = list(elements)
         return iter(elements)

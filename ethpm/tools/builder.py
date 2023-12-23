@@ -8,12 +8,8 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    Dict,
     Iterable,
-    List,
     Optional,
-    Set,
-    Tuple,
 )
 
 from eth_typing import (
@@ -71,7 +67,7 @@ if TYPE_CHECKING:
     from web3 import Web3  # noqa: F401
 
 
-def build(obj: Dict[str, Any], *fns: Callable[..., Any]) -> Dict[str, Any]:
+def build(obj: dict[str, Any], *fns: Callable[..., Any]) -> dict[str, Any]:
     """
     Wrapper function to pipe manifest through build functions.
     Does not validate the manifest by default.
@@ -123,7 +119,7 @@ def authors(*author_list: str) -> Manifest:
 
 @curry
 @functools.wraps(authors)
-def _authors(authors: Set[str], manifest: Manifest) -> Manifest:
+def _authors(authors: set[str], manifest: Manifest) -> Manifest:
     return assoc_in(manifest, ("meta", "authors"), list(authors))
 
 
@@ -155,7 +151,7 @@ def keywords(*keyword_list: str) -> Manifest:
 
 @curry
 @functools.wraps(keywords)
-def _keywords(keywords: Set[str], manifest: Manifest) -> Manifest:
+def _keywords(keywords: set[str], manifest: Manifest) -> Manifest:
     return assoc_in(manifest, ("meta", "keywords"), list(keywords))
 
 
@@ -168,7 +164,7 @@ def links(**link_dict: str) -> Manifest:
 
 
 @curry
-def _links(link_dict: Dict[str, str], manifest: Manifest) -> Manifest:
+def _links(link_dict: dict[str, str], manifest: Manifest) -> Manifest:
     return assoc_in(manifest, ("meta", "links"), link_dict)
 
 
@@ -177,7 +173,7 @@ def _links(link_dict: Dict[str, str], manifest: Manifest) -> Manifest:
 #
 
 
-def get_names_and_paths(compiler_output: Dict[str, Any]) -> Dict[str, str]:
+def get_names_and_paths(compiler_output: dict[str, Any]) -> dict[str, str]:
     """
     Return a mapping of contract name to relative path as defined in compiler output.
     """
@@ -206,20 +202,20 @@ def make_path_relative(path: str) -> str:
 
 
 def source_inliner(
-    compiler_output: Dict[str, Any], package_root_dir: Optional[Path] = None
+    compiler_output: dict[str, Any], package_root_dir: Optional[Path] = None
 ) -> Manifest:
     return _inline_sources(compiler_output, package_root_dir)
 
 
 @curry
 def _inline_sources(
-    compiler_output: Dict[str, Any], package_root_dir: Optional[Path], name: str
+    compiler_output: dict[str, Any], package_root_dir: Optional[Path], name: str
 ) -> Manifest:
     return _inline_source(name, compiler_output, package_root_dir)
 
 
 def inline_source(
-    name: str, compiler_output: Dict[str, Any], package_root_dir: Optional[Path] = None
+    name: str, compiler_output: dict[str, Any], package_root_dir: Optional[Path] = None
 ) -> Manifest:
     """
     Return a copy of manifest with added field to
@@ -234,7 +230,7 @@ def inline_source(
 @curry
 def _inline_source(
     name: str,
-    compiler_output: Dict[str, Any],
+    compiler_output: dict[str, Any],
     package_root_dir: Optional[Path],
     manifest: Manifest,
 ) -> Manifest:
@@ -274,7 +270,7 @@ def _inline_source(
 
 
 def source_pinner(
-    compiler_output: Dict[str, Any],
+    compiler_output: dict[str, Any],
     ipfs_backend: BaseIPFSBackend,
     package_root_dir: Optional[Path] = None,
 ) -> Manifest:
@@ -283,7 +279,7 @@ def source_pinner(
 
 @curry
 def _pin_sources(
-    compiler_output: Dict[str, Any],
+    compiler_output: dict[str, Any],
     ipfs_backend: BaseIPFSBackend,
     package_root_dir: Optional[Path],
     name: str,
@@ -293,7 +289,7 @@ def _pin_sources(
 
 def pin_source(
     name: str,
-    compiler_output: Dict[str, Any],
+    compiler_output: dict[str, Any],
     ipfs_backend: BaseIPFSBackend,
     package_root_dir: Optional[Path] = None,
 ) -> Manifest:
@@ -310,7 +306,7 @@ def pin_source(
 @curry
 def _pin_source(
     name: str,
-    compiler_output: Dict[str, Any],
+    compiler_output: dict[str, Any],
     ipfs_backend: BaseIPFSBackend,
     package_root_dir: Optional[Path],
     manifest: Manifest,
@@ -354,7 +350,7 @@ def _pin_source(
 
 def contract_type(
     name: str,
-    compiler_output: Dict[str, Any],
+    compiler_output: dict[str, Any],
     alias: Optional[str] = None,
     abi: Optional[bool] = False,
     compiler: Optional[bool] = False,
@@ -393,9 +389,9 @@ def contract_type(
 @curry
 def _contract_type(
     name: str,
-    compiler_output: Dict[str, Any],
+    compiler_output: dict[str, Any],
     alias: Optional[str],
-    selected_fields: Optional[List[str]],
+    selected_fields: Optional[list[str]],
     manifest: Manifest,
 ) -> Manifest:
     contracts_by_name = normalize_compiler_output(compiler_output)
@@ -433,7 +429,7 @@ def _contract_type(
 
 
 def add_compilers_to_manifest(
-    compiler_info: Dict[str, Any], contract_type: str, manifest: Manifest
+    compiler_info: dict[str, Any], contract_type: str, manifest: Manifest
 ) -> Manifest:
     """
     Adds a compiler information object to a manifest's top-level `compilers`.
@@ -450,10 +446,10 @@ def add_compilers_to_manifest(
 
 @to_list
 def update_compilers_object(
-    new_compiler: Dict[str, Any],
+    new_compiler: dict[str, Any],
     contract_type: str,
-    previous_compilers: List[Dict[str, Any]],
-) -> Iterable[Dict[str, Any]]:
+    previous_compilers: list[dict[str, Any]],
+) -> Iterable[dict[str, Any]]:
     """
     Updates a manifest's top-level `compilers` with a new compiler information object.
     - If compiler version already exists, we just update the compiler's `contractTypes`
@@ -478,8 +474,8 @@ def update_compilers_object(
 
 @to_dict
 def filter_all_data_by_selected_fields(
-    all_type_data: Dict[str, Any], selected_fields: List[str]
-) -> Iterable[Tuple[str, Any]]:
+    all_type_data: dict[str, Any], selected_fields: list[str]
+) -> Iterable[tuple[str, Any]]:
     """
     Raises exception if selected field data is not available in the contract type data
     automatically gathered by normalize_compiler_output. Otherwise, returns the data.
@@ -495,7 +491,7 @@ def filter_all_data_by_selected_fields(
             )
 
 
-def normalize_compiler_output(compiler_output: Dict[str, Any]) -> Dict[str, Any]:
+def normalize_compiler_output(compiler_output: dict[str, Any]) -> dict[str, Any]:
     """
     Return compiler output with normalized fields for each contract type,
     as specified in `normalize_contract_type`.
@@ -519,9 +515,9 @@ def normalize_compiler_output(compiler_output: Dict[str, Any]) -> Dict[str, Any]
 
 @to_dict
 def normalize_contract_type(
-    contract_type_data: Dict[str, Any],
+    contract_type_data: dict[str, Any],
     source_id: str,
-) -> Iterable[Tuple[str, Any]]:
+) -> Iterable[tuple[str, Any]]:
     """
     Serialize contract_data found in compiler output to the defined fields.
     """
@@ -548,14 +544,14 @@ def normalize_contract_type(
 
 
 @to_dict
-def normalize_compiler_object(obj: Dict[str, Any]) -> Iterable[Tuple[str, Any]]:
+def normalize_compiler_object(obj: dict[str, Any]) -> Iterable[tuple[str, Any]]:
     yield "name", "solc"
     yield "version", obj["compiler"]["version"]
     yield "settings", {"optimize": obj["settings"]["optimizer"]["enabled"]}
 
 
 @to_dict
-def normalize_bytecode_object(obj: Dict[str, Any]) -> Iterable[Tuple[str, Any]]:
+def normalize_bytecode_object(obj: dict[str, Any]) -> Iterable[tuple[str, Any]]:
     try:
         link_references = obj["linkReferences"]
     except KeyError:
@@ -574,7 +570,7 @@ def normalize_bytecode_object(obj: Dict[str, Any]) -> Iterable[Tuple[str, Any]]:
         yield "bytecode", add_0x_prefix(bytecode)
 
 
-def process_bytecode(link_refs: Dict[str, Any], bytecode: bytes) -> HexStr:
+def process_bytecode(link_refs: dict[str, Any], bytecode: bytes) -> HexStr:
     """
     Replace link_refs in bytecode with 0's.
     """
@@ -605,13 +601,13 @@ def replace_link_ref_in_bytecode(offset: int, length: int, bytecode: str) -> str
 # todo pull all bytecode linking/validating across py-ethpm into shared utils
 @to_list
 def process_link_references(
-    link_refs: Dict[str, Any], bytecode: str
-) -> Iterable[Dict[str, Any]]:
+    link_refs: dict[str, Any], bytecode: str
+) -> Iterable[dict[str, Any]]:
     for link_ref in link_refs.values():
         yield normalize_link_ref(link_ref, bytecode)
 
 
-def normalize_link_ref(link_ref: Dict[str, Any], bytecode: str) -> Dict[str, Any]:
+def normalize_link_ref(link_ref: dict[str, Any], bytecode: str) -> dict[str, Any]:
     name = list(link_ref.keys())[0]
     return {
         "name": name,
@@ -621,7 +617,7 @@ def normalize_link_ref(link_ref: Dict[str, Any], bytecode: str) -> Dict[str, Any
 
 
 @to_list
-def normalize_offsets(data: Dict[str, Any], bytecode: str) -> Iterable[List[int]]:
+def normalize_offsets(data: dict[str, Any], bytecode: str) -> Iterable[list[int]]:
     for link_ref in data.values():
         for ref in link_ref:
             yield ref["start"]
@@ -648,9 +644,9 @@ def deployment_type(
     *,
     contract_instance: str,
     contract_type: str,
-    deployment_bytecode: Dict[str, Any] = None,
-    runtime_bytecode: Dict[str, Any] = None,
-    compiler: Dict[str, Any] = None,
+    deployment_bytecode: dict[str, Any] = None,
+    runtime_bytecode: dict[str, Any] = None,
+    compiler: dict[str, Any] = None,
 ) -> Manifest:
     """
     Returns a callable that allows the user to add deployments of the same type
@@ -673,9 +669,9 @@ def deployment(
     address: HexStr,
     transaction: HexStr = None,
     block: HexStr = None,
-    deployment_bytecode: Dict[str, Any] = None,
-    runtime_bytecode: Dict[str, Any] = None,
-    compiler: Dict[str, Any] = None,
+    deployment_bytecode: dict[str, Any] = None,
+    runtime_bytecode: dict[str, Any] = None,
+    compiler: dict[str, Any] = None,
 ) -> Manifest:
     """
     Returns a manifest, with the newly included deployment. Requires a valid
@@ -700,9 +696,9 @@ def deployment(
 def _deployment_type(
     contract_instance: str,
     contract_type: str,
-    deployment_bytecode: Dict[str, Any],
-    runtime_bytecode: Dict[str, Any],
-    compiler: Dict[str, Any],
+    deployment_bytecode: dict[str, Any],
+    runtime_bytecode: dict[str, Any],
+    compiler: dict[str, Any],
     block_uri: URI,
     address: HexStr,
     tx: HexStr = None,
@@ -726,9 +722,9 @@ def _deployment_type(
 def _deployment(
     contract_instance: str,
     contract_type: str,
-    deployment_bytecode: Dict[str, Any],
-    runtime_bytecode: Dict[str, Any],
-    compiler: Dict[str, Any],
+    deployment_bytecode: dict[str, Any],
+    runtime_bytecode: dict[str, Any],
+    compiler: dict[str, Any],
     block_uri: URI,
     address: HexStr,
     tx: HexStr,
@@ -767,14 +763,14 @@ def _deployment(
 @to_dict
 def _build_deployments_object(
     contract_type: str,
-    deployment_bytecode: Dict[str, Any],
-    runtime_bytecode: Dict[str, Any],
-    compiler: Dict[str, Any],
+    deployment_bytecode: dict[str, Any],
+    runtime_bytecode: dict[str, Any],
+    compiler: dict[str, Any],
     address: HexStr,
     tx: HexStr,
     block: HexStr,
-    manifest: Dict[str, Any],
-) -> Iterable[Tuple[str, Any]]:
+    manifest: dict[str, Any],
+) -> Iterable[tuple[str, Any]]:
     """
     Returns a dict with properly formatted deployment data.
     """
@@ -823,7 +819,7 @@ def _build_dependency(package_name: str, uri: URI, manifest: Manifest) -> Manife
 @curry
 def init_manifest(
     package_name: str, version: str, manifest_version: Optional[str] = "ethpm/3"
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Returns an initial dict with the minimal required fields for a valid manifest.
     Should only be used as the first fn to be piped into a `build()` pipeline.
@@ -915,7 +911,7 @@ def _write_to_disk(
 @curry
 def pin_to_ipfs(
     manifest: Manifest, *, backend: BaseIPFSBackend, prettify: Optional[bool] = False
-) -> List[Dict[str, str]]:
+) -> list[dict[str, str]]:
     """
     Returns the IPFS pin data after pinning the manifest to the provided IPFS Backend.
 

@@ -1,7 +1,6 @@
 import json
 from typing import (
     Any,
-    Dict,
 )
 
 
@@ -17,7 +16,7 @@ def is_ens_domain(authority: str) -> bool:
     return True
 
 
-def fetch_standard_registry_abi() -> Dict[str, Any]:
+def fetch_standard_registry_abi() -> dict[str, Any]:
     """
     Return the standard Registry ABI to interact with a deployed Registry.
     TODO: Update once the standard is finalized via ERC process.

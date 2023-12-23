@@ -3,11 +3,8 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    List,
     Optional,
     Sequence,
-    Tuple,
-    Type,
     Union,
 )
 
@@ -66,7 +63,7 @@ ACCEPTABLE_EMPTY_STRINGS = ["0x", b"0x", "", b""]
 def call_contract_function(
     w3: "Web3",
     address: ChecksumAddress,
-    normalizers: Tuple[Callable[..., Any], ...],
+    normalizers: tuple[Callable[..., Any], ...],
     function_identifier: FunctionIdentifier,
     transaction: TxParams,
     block_id: Optional[BlockIdentifier] = None,
@@ -239,8 +236,8 @@ def find_functions_by_identifier(
     w3: Union["Web3", "AsyncWeb3"],
     address: ChecksumAddress,
     callable_check: Callable[..., Any],
-    function_type: Type[TContractFn],
-) -> List[TContractFn]:
+    function_type: type[TContractFn],
+) -> list[TContractFn]:
     fns_abi = filter_by_type("function", contract_abi)
     return [
         function_type.factory(
@@ -274,7 +271,7 @@ def get_function_by_identifier(
 async def async_call_contract_function(
     async_w3: "AsyncWeb3",
     address: ChecksumAddress,
-    normalizers: Tuple[Callable[..., Any], ...],
+    normalizers: tuple[Callable[..., Any], ...],
     function_identifier: FunctionIdentifier,
     transaction: TxParams,
     block_id: Optional[BlockIdentifier] = None,

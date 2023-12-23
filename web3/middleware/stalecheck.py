@@ -4,7 +4,6 @@ from typing import (  # noqa: F401
     Any,
     Callable,
     Collection,
-    Dict,
     Optional,
 )
 
@@ -58,7 +57,7 @@ def make_stalecheck_middleware(
     def stalecheck_middleware(
         make_request: Callable[[RPCEndpoint, Any], Any], w3: "Web3"
     ) -> Callable[[RPCEndpoint, Any], RPCResponse]:
-        cache: Dict[str, Optional[BlockData]] = {"latest": None}
+        cache: dict[str, Optional[BlockData]] = {"latest": None}
 
         def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
             if method not in skip_stalecheck_for_methods:
@@ -102,7 +101,7 @@ async def async_make_stalecheck_middleware(
     async def stalecheck_middleware(
         make_request: Callable[[RPCEndpoint, Any], Any], w3: "AsyncWeb3"
     ) -> AsyncMiddlewareCoroutine:
-        cache: Dict[str, Optional[BlockData]] = {"latest": None}
+        cache: dict[str, Optional[BlockData]] = {"latest": None}
 
         async def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
             if method not in skip_stalecheck_for_methods:

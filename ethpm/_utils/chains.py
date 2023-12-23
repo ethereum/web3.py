@@ -2,7 +2,6 @@ import re
 from typing import (
     TYPE_CHECKING,
     Any,
-    Tuple,
 )
 from urllib import (
     parse,
@@ -52,7 +51,7 @@ def is_BIP122_uri(value: URI) -> bool:
     return bool(re.match(BIP122_URL_REGEX, value))
 
 
-def parse_BIP122_uri(blockchain_uri: URI) -> Tuple[HexStr, str, HexStr]:
+def parse_BIP122_uri(blockchain_uri: URI) -> tuple[HexStr, str, HexStr]:
     match = re.match(BIP122_URL_REGEX, blockchain_uri)
     if match is None:
         raise ValueError(f"Invalid URI format: '{blockchain_uri}'")

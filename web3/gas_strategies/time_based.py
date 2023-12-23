@@ -4,7 +4,6 @@ import operator
 from typing import (
     Iterable,
     Sequence,
-    Tuple,
 )
 
 from eth_typing import (
@@ -80,7 +79,7 @@ def _get_weighted_avg_block_time(w3: Web3, sample_size: int) -> float:
 
 def _get_raw_miner_data(
     w3: Web3, sample_size: int
-) -> Iterable[Tuple[ChecksumAddress, HexBytes, Wei]]:
+) -> Iterable[tuple[ChecksumAddress, HexBytes, Wei]]:
     latest = w3.eth.get_block("latest", full_transactions=True)
 
     for transaction in latest["transactions"]:
@@ -102,7 +101,7 @@ def _get_raw_miner_data(
 
 
 def _aggregate_miner_data(
-    raw_data: Iterable[Tuple[ChecksumAddress, HexBytes, Wei]]
+    raw_data: Iterable[tuple[ChecksumAddress, HexBytes, Wei]]
 ) -> Iterable[MinerData]:
     data_by_miner = groupby(0, raw_data)
 

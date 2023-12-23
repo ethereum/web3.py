@@ -1,9 +1,6 @@
 from typing import (
     Any,
-    Dict,
     Iterable,
-    List,
-    Tuple,
 )
 
 from eth_typing import (
@@ -40,7 +37,7 @@ from web3.types import (
 )
 
 
-def pluck_matching_uri(deployment_data: Dict[URI, Dict[str, str]], w3: Web3) -> URI:
+def pluck_matching_uri(deployment_data: dict[URI, dict[str, str]], w3: Web3) -> URI:
     """
     Return any blockchain uri that matches w3-connected chain, if one
     is present in the deployment data keys.
@@ -54,7 +51,7 @@ def pluck_matching_uri(deployment_data: Dict[URI, Dict[str, str]], w3: Web3) -> 
     )
 
 
-def contains_matching_uri(deployment_data: Dict[str, Dict[str, str]], w3: Web3) -> bool:
+def contains_matching_uri(deployment_data: dict[str, dict[str, str]], w3: Web3) -> bool:
     """
     Returns true if any blockchain uri in deployment data matches
     w3-connected chain.
@@ -68,7 +65,7 @@ def contains_matching_uri(deployment_data: Dict[str, Dict[str, str]], w3: Web3) 
 def insert_deployment(
     package: Package,
     deployment_name: str,
-    deployment_data: Dict[str, str],
+    deployment_data: dict[str, str],
     latest_block_uri: URI,
 ) -> Manifest:
     """
@@ -111,8 +108,8 @@ def create_deployment_data(
     contract_name: ContractName,
     new_address: Address,
     tx_receipt: TxReceipt,
-    link_refs: List[Dict[str, Any]] = None,
-) -> Iterable[Tuple[str, Any]]:
+    link_refs: list[dict[str, Any]] = None,
+) -> Iterable[tuple[str, Any]]:
     yield "contractType", contract_name
     yield "address", new_address
     yield "transaction", to_hex(tx_receipt["transactionHash"])
@@ -122,7 +119,7 @@ def create_deployment_data(
 
 
 @to_list
-def create_link_dep(link_refs: List[Dict[str, Any]]) -> Iterable[Dict[str, Any]]:
+def create_link_dep(link_refs: list[dict[str, Any]]) -> Iterable[dict[str, Any]]:
     for link_ref in link_refs:
         yield {
             "offsets": link_ref["offsets"],

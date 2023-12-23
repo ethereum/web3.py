@@ -1,8 +1,5 @@
 import base64
 import json
-from typing import (
-    Tuple,
-)
 from urllib import (
     parse,
 )
@@ -81,7 +78,7 @@ def is_valid_api_github_uri(uri: URI) -> bool:
     return is_valid_github_uri(uri, ("/repos/", "/contents/"))
 
 
-def is_valid_github_uri(uri: URI, expected_path_terms: Tuple[str, ...]) -> bool:
+def is_valid_github_uri(uri: URI, expected_path_terms: tuple[str, ...]) -> bool:
     """
     Return a bool indicating whether or not the URI fulfills the following specs
     Valid Github URIs *must*:

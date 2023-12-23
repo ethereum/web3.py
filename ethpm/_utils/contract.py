@@ -1,8 +1,6 @@
 from typing import (
     Any,
-    Dict,
     Generator,
-    Tuple,
 )
 
 from eth_utils import (
@@ -12,8 +10,8 @@ from eth_utils import (
 
 @to_dict
 def generate_contract_factory_kwargs(
-    contract_data: Dict[str, Any]
-) -> Generator[Tuple[str, Any], None, None]:
+    contract_data: dict[str, Any]
+) -> Generator[tuple[str, Any], None, None]:
     """
     Build a dictionary of kwargs to be passed into contract factory.
     """

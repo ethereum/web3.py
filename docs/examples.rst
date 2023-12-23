@@ -815,7 +815,7 @@ The script can be run with: ``python ./eventscanner.py <your JSON-RPC API URL>``
     import time
     import logging
     from abc import ABC, abstractmethod
-    from typing import Tuple, Optional, Callable, List, Iterable, Dict, Any
+    from typing import Optional, Callable, Iterable, Any
 
     from web3 import Web3
     from web3.contract import Contract
@@ -890,7 +890,7 @@ The script can be run with: ``python ./eventscanner.py <your JSON-RPC API URL>``
         because it cannot correctly throttle and decrease the `eth_getLogs` block number range.
         """
 
-        def __init__(self, w3: Web3, contract: Contract, state: EventScannerState, events: List, filters: Dict[str, Any],
+        def __init__(self, w3: Web3, contract: Contract, state: EventScannerState, events: List, filters: dict[str, Any],
                      max_chunk_scan_size: int = 10000, max_request_retries: int = 30, request_retry_seconds: float = 3.0):
             """
             :param contract: Contract
@@ -965,7 +965,7 @@ The script can be run with: ``python ./eventscanner.py <your JSON-RPC API URL>``
             """Purge old data in the case of blockchain reorganisation."""
             self.state.delete_data(after_block)
 
-        def scan_chunk(self, start_block, end_block) -> Tuple[int, datetime.datetime, list]:
+        def scan_chunk(self, start_block, end_block) -> tuple[int, datetime.datetime, list]:
             """Read and process events between to block numbers.
 
             Dynamically decrease the size of the chunk if the case JSON-RPC server pukes out.
@@ -1053,7 +1053,7 @@ The script can be run with: ``python ./eventscanner.py <your JSON-RPC API URL>``
             current_chuck_size = min(self.max_scan_chunk_size, current_chuck_size)
             return int(current_chuck_size)
 
-        def scan(self, start_block, end_block, start_chunk_size=20, progress_callback=Optional[Callable]) -> Tuple[
+        def scan(self, start_block, end_block, start_chunk_size=20, progress_callback=Optional[Callable]) -> tuple[
             list, int]:
             """Perform a token balances scan.
 
@@ -1116,7 +1116,7 @@ The script can be run with: ``python ./eventscanner.py <your JSON-RPC API URL>``
             return all_processed, total_chunks_scanned
 
 
-    def _retry_web3_call(func, start_block, end_block, retries, delay) -> Tuple[int, list]:
+    def _retry_web3_call(func, start_block, end_block, retries, delay) -> tuple[int, list]:
         """A custom retry loop to throttle down block range.
 
         If our JSON-RPC server cannot serve all incoming `eth_getLogs` in a single request,
@@ -1155,7 +1155,7 @@ The script can be run with: ``python ./eventscanner.py <your JSON-RPC API URL>``
     def _fetch_events_for_all_contracts(
             w3,
             event,
-            argument_filters: Dict[str, Any],
+            argument_filters: dict[str, Any],
             from_block: int,
             to_block: int) -> Iterable:
         """Get events using eth_getLogs API.

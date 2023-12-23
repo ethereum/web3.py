@@ -1,7 +1,6 @@
 import hashlib
 from typing import (
     TYPE_CHECKING,
-    List,
 )
 from urllib import (
     parse,
@@ -121,7 +120,7 @@ def validate_registry_uri_scheme(scheme: str) -> None:
         )
 
 
-def validate_single_matching_uri(all_blockchain_uris: List[str], w3: "Web3") -> str:
+def validate_single_matching_uri(all_blockchain_uris: list[str], w3: "Web3") -> str:
     """
     Return a single block URI after validating that it is the *only* URI in
     all_blockchain_uris that matches the w3 instance.

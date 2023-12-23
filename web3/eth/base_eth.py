@@ -1,10 +1,8 @@
 from typing import (
     Any,
-    List,
     NoReturn,
     Optional,
     Sequence,
-    Tuple,
     Union,
 )
 
@@ -76,7 +74,7 @@ class BaseEth(Module):
     def default_account(self, account: Union[ChecksumAddress, Empty]) -> None:
         self._default_account = account
 
-    def send_transaction_munger(self, transaction: TxParams) -> Tuple[TxParams]:
+    def send_transaction_munger(self, transaction: TxParams) -> tuple[TxParams]:
         if "from" not in transaction and is_checksum_address(self.default_account):
             transaction = assoc(transaction, "from", self.default_account)
 
@@ -109,14 +107,14 @@ class BaseEth(Module):
 
     def get_block_munger(
         self, block_identifier: BlockIdentifier, full_transactions: bool = False
-    ) -> Tuple[BlockIdentifier, bool]:
+    ) -> tuple[BlockIdentifier, bool]:
         return (block_identifier, full_transactions)
 
     def block_id_munger(
         self,
         account: Union[Address, ChecksumAddress, ENS],
         block_identifier: Optional[BlockIdentifier] = None,
-    ) -> Tuple[Union[Address, ChecksumAddress, ENS], BlockIdentifier]:
+    ) -> tuple[Union[Address, ChecksumAddress, ENS], BlockIdentifier]:
         if block_identifier is None:
             block_identifier = self.default_block
         return (account, block_identifier)
@@ -126,7 +124,7 @@ class BaseEth(Module):
         account: Union[Address, ChecksumAddress, ENS],
         position: int,
         block_identifier: Optional[BlockIdentifier] = None,
-    ) -> Tuple[Union[Address, ChecksumAddress, ENS], int, BlockIdentifier]:
+    ) -> tuple[Union[Address, ChecksumAddress, ENS], int, BlockIdentifier]:
         if block_identifier is None:
             block_identifier = self.default_block
         return (account, position, block_identifier)
@@ -137,7 +135,7 @@ class BaseEth(Module):
         block_identifier: Optional[BlockIdentifier] = None,
         state_override: Optional[CallOverride] = None,
     ) -> Union[
-        Tuple[TxParams, BlockIdentifier], Tuple[TxParams, BlockIdentifier, CallOverride]
+        tuple[TxParams, BlockIdentifier], tuple[TxParams, BlockIdentifier, CallOverride]
     ]:
         # TODO: move to middleware
         if "from" not in transaction and is_checksum_address(self.default_account):
@@ -154,7 +152,7 @@ class BaseEth(Module):
 
     def create_access_list_munger(
         self, transaction: TxParams, block_identifier: Optional[BlockIdentifier] = None
-    ) -> Tuple[TxParams, BlockIdentifier]:
+    ) -> tuple[TxParams, BlockIdentifier]:
         # TODO: move to middleware
         if "from" not in transaction and is_checksum_address(self.default_account):
             transaction = assoc(transaction, "from", self.default_account)
@@ -171,7 +169,7 @@ class BaseEth(Module):
         data: Union[int, bytes] = None,
         hexstr: HexStr = None,
         text: str = None,
-    ) -> Tuple[Union[Address, ChecksumAddress, ENS], HexStr]:
+    ) -> tuple[Union[Address, ChecksumAddress, ENS], HexStr]:
         message_hex = to_hex(data, hexstr=hexstr, text=text)
         return (account, message_hex)
 
@@ -179,7 +177,7 @@ class BaseEth(Module):
         self,
         filter_params: Optional[Union[str, FilterParams]] = None,
         filter_id: Optional[HexStr] = None,
-    ) -> Union[List[FilterParams], List[HexStr], List[str]]:
+    ) -> Union[list[FilterParams], list[HexStr], list[str]]:
         if filter_id and filter_params:
             raise TypeError(
                 "Ambiguous invocation: provide either a `filter_params` or a "

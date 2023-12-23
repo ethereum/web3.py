@@ -2047,7 +2047,7 @@ Features
 Bugfixes
 ~~~~~~~~
 
-- ``my_contract.events.MyEvent`` was incorrectly annotated so that ``MyEvent`` was marked as a ``ContractEvent`` instance. Fixed to be a class type, i.e., ``Type[ContractEvent]``. (`#1646 <https://github.com/ethereum/web3.py/issues/1646>`__)
+- ``my_contract.events.MyEvent`` was incorrectly annotated so that ``MyEvent`` was marked as a ``ContractEvent`` instance. Fixed to be a class type, i.e., ``type[ContractEvent]``. (`#1646 <https://github.com/ethereum/web3.py/issues/1646>`__)
 - IPCProvider correctly handled ``pathlib.Path`` input, but warned against its type. Fixed to permit Path objects in addition to strings. (`#1647 <https://github.com/ethereum/web3.py/issues/1647>`__)
 
 

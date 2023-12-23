@@ -1,7 +1,6 @@
 from typing import (
     TYPE_CHECKING,
     Any,
-    Dict,
 )
 
 from web3.types import (
@@ -28,7 +27,7 @@ class WebsocketConnection:
         self._manager = w3.manager
 
     @property
-    def subscriptions(self) -> Dict[str, Any]:
+    def subscriptions(self) -> dict[str, Any]:
         return self._manager._request_processor.active_subscriptions
 
     async def send(self, method: RPCEndpoint, params: Any) -> RPCResponse:

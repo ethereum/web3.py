@@ -3,10 +3,7 @@ from collections import (
 )
 from typing import (
     Any,
-    Dict,
-    List,
     Optional,
-    Tuple,
 )
 
 
@@ -15,7 +12,7 @@ class SimpleCache:
         self._size = size
         self._data: OrderedDict[str, Any] = OrderedDict()
 
-    def cache(self, key: str, value: Any) -> Tuple[Any, Dict[str, Any]]:
+    def cache(self, key: str, value: Any) -> tuple[Any, dict[str, Any]]:
         evicted_items = None
         # If the key is already in the OrderedDict just update it
         # and don't evict any values. Ideally, we could still check to see
@@ -39,7 +36,7 @@ class SimpleCache:
     def clear(self) -> None:
         self._data.clear()
 
-    def items(self) -> List[Tuple[str, Any]]:
+    def items(self) -> list[tuple[str, Any]]:
         return list(self._data.items())
 
     def pop(self, key: str) -> Optional[Any]:

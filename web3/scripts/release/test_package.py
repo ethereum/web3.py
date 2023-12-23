@@ -5,9 +5,6 @@ import subprocess
 from tempfile import (
     TemporaryDirectory,
 )
-from typing import (
-    Tuple,
-)
 import venv
 
 
@@ -33,7 +30,7 @@ def find_wheel(project_path: Path) -> Path:
 
 
 def install_wheel(
-    venv_path: Path, wheel_path: Path, extras: Tuple[str, ...] = ()
+    venv_path: Path, wheel_path: Path, extras: tuple[str, ...] = ()
 ) -> None:
     if extras:
         extra_suffix = f"[{','.join(extras)}]"

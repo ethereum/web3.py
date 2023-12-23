@@ -5,10 +5,8 @@ from typing import (
     Any,
     AsyncGenerator,
     Callable,
-    List,
     Optional,
     Sequence,
-    Tuple,
     Union,
     cast,
 )
@@ -131,7 +129,7 @@ class RequestManager:
         provider: Optional[Union["BaseProvider", "AsyncBaseProvider"]] = None,
         middlewares: Optional[
             Union[
-                Sequence[Tuple[Middleware, str]], Sequence[Tuple[AsyncMiddleware, str]]
+                Sequence[tuple[Middleware, str]], Sequence[tuple[AsyncMiddleware, str]]
             ]
         ] = None,
     ) -> None:
@@ -169,7 +167,7 @@ class RequestManager:
         self._provider = provider
 
     @staticmethod
-    def default_middlewares(w3: "Web3") -> List[Tuple[Middleware, str]]:
+    def default_middlewares(w3: "Web3") -> list[tuple[Middleware, str]]:
         """
         List the default middlewares for the request manager.
         Leaving w3 unspecified will prevent the middleware from resolving names.
@@ -185,7 +183,7 @@ class RequestManager:
         ]
 
     @staticmethod
-    def async_default_middlewares() -> List[Tuple[AsyncMiddleware, str]]:
+    def async_default_middlewares() -> list[tuple[AsyncMiddleware, str]]:
         """
         List the default async middlewares for the request manager.
         Documentation should remain in sync with these defaults.

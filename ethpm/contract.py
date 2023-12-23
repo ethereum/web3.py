@@ -1,11 +1,7 @@
 from typing import (
     TYPE_CHECKING,
     Any,
-    Dict,
-    List,
     Optional,
-    Tuple,
-    Type,
 )
 
 from eth_utils import (
@@ -48,8 +44,8 @@ class LinkableContract(Contract):
     contract factories with link references in their package's manifest.
     """
 
-    unlinked_references: Optional[Tuple[Dict[str, Any]]] = None
-    linked_references: Optional[Tuple[Dict[str, Any]]] = None
+    unlinked_references: Optional[tuple[dict[str, Any]]] = None
+    linked_references: Optional[tuple[dict[str, Any]]] = None
     needs_bytecode_linking = None
 
     def __init__(self, address: bytes, **kwargs: Any) -> None:
@@ -62,7 +58,7 @@ class LinkableContract(Contract):
         super().__init__(address=address, **kwargs)  # type: ignore
 
     @classmethod
-    def factory(cls, w3: "Web3", class_name: str = None, **kwargs: Any) -> Type[Self]:
+    def factory(cls, w3: "Web3", class_name: str = None, **kwargs: Any) -> type[Self]:
         dep_link_refs = kwargs.get("unlinked_references")
         bytecode = kwargs.get("bytecode")
         needs_bytecode_linking = False
@@ -81,11 +77,11 @@ class LinkableContract(Contract):
         return super().constructor(*args, **kwargs)
 
     @classmethod
-    def link_bytecode(cls, attr_dict: Dict[str, str]) -> Type["LinkableContract"]:
+    def link_bytecode(cls, attr_dict: dict[str, str]) -> type["LinkableContract"]:
         """
         Return a cloned contract factory with the deployment / runtime bytecode linked.
 
-        :attr_dict: Dict[`ContractType`: `Address`] for all deployment and runtime
+        :attr_dict: dict[`ContractType`: `Address`] for all deployment and runtime
         link references.
         """
         if not cls.unlinked_references and not cls.linked_references:
@@ -108,7 +104,7 @@ class LinkableContract(Contract):
         return linked_class
 
     @combomethod
-    def validate_attr_dict(self, attr_dict: Dict[str, str]) -> None:
+    def validate_attr_dict(self, attr_dict: dict[str, str]) -> None:
         """
         Validates that ContractType keys in attr_dict reference existing
         manifest ContractTypes.
@@ -135,7 +131,7 @@ class LinkableContract(Contract):
             validate_address(address)
 
 
-def is_prelinked_bytecode(bytecode: bytes, link_refs: List[Dict[str, Any]]) -> bool:
+def is_prelinked_bytecode(bytecode: bytes, link_refs: list[dict[str, Any]]) -> bool:
     """
     Returns False if all expected link_refs are unlinked, otherwise returns True.
     todo support partially pre-linked bytecode (currently all or nothing)
@@ -150,7 +146,7 @@ def is_prelinked_bytecode(bytecode: bytes, link_refs: List[Dict[str, Any]]) -> b
 
 
 def apply_all_link_refs(
-    bytecode: bytes, link_refs: List[Dict[str, Any]], attr_dict: Dict[str, str]
+    bytecode: bytes, link_refs: list[dict[str, Any]], attr_dict: dict[str, str]
 ) -> bytes:
     """
     Applies all link references corresponding to a valid attr_dict to the bytecode.

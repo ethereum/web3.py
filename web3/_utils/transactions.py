@@ -1,7 +1,6 @@
 import math
 from typing import (
     TYPE_CHECKING,
-    List,
     Optional,
     Union,
     cast,
@@ -51,7 +50,7 @@ TX_PARAM_LITERALS = Literal[
     "accessList",
 ]
 
-VALID_TRANSACTION_PARAMS: List[TX_PARAM_LITERALS] = [
+VALID_TRANSACTION_PARAMS: list[TX_PARAM_LITERALS] = [
     "type",
     "from",
     "to",

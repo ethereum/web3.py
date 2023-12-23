@@ -11,7 +11,6 @@ from typing import (
     Any,
     Callable,
     Generic,
-    Type,
 )
 
 from web3._utils.compat import (
@@ -35,7 +34,7 @@ class Timeout(Exception):
     def __init__(
         self,
         seconds: float = None,
-        exception: Type[BaseException] = None,
+        exception: type[BaseException] = None,
         *args: Any,
         **kwargs: Any,
     ) -> None:
@@ -48,7 +47,7 @@ class Timeout(Exception):
 
     def __exit__(
         self,
-        exc_type: Type[BaseException],
+        exc_type: type[BaseException],
         exc_val: BaseException,
         exc_tb: TracebackType,
     ) -> Literal[False]:
@@ -150,7 +149,7 @@ class TimerClass(threading.Thread):
 def spawn(
     target: Callable[..., TReturn],
     *args: Any,
-    thread_class: Type[ThreadWithReturn[TReturn]] = ThreadWithReturn,
+    thread_class: type[ThreadWithReturn[TReturn]] = ThreadWithReturn,
     **kwargs: Any,
 ) -> ThreadWithReturn[TReturn]:
     thread = thread_class(

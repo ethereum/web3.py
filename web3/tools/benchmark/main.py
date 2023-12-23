@@ -9,7 +9,6 @@ import timeit
 from typing import (
     Any,
     Callable,
-    Dict,
     Union,
 )
 
@@ -172,8 +171,8 @@ def main(logger: logging.Logger, num_calls: int) -> None:
                 },
             ]
 
-            def benchmark(method: Dict[str, Any]) -> None:
-                outcomes: Dict[str, Union[str, float]] = defaultdict(lambda: "N/A")
+            def benchmark(method: dict[str, Any]) -> None:
+                outcomes: dict[str, Union[str, float]] = defaultdict(lambda: "N/A")
                 outcomes["name"] = method["name"]
                 outcomes["HTTPProvider"] = sync_benchmark(
                     method["exec"],

@@ -1,7 +1,6 @@
 import re
 from typing import (
     Any,
-    Dict,
 )
 
 from eth_utils import (
@@ -20,7 +19,7 @@ from ethpm.exceptions import (
 )
 
 
-def validate_minimal_contract_factory_data(contract_data: Dict[str, str]) -> None:
+def validate_minimal_contract_factory_data(contract_data: dict[str, str]) -> None:
     """
     Validate that contract data in a package contains at least an "abi" and
     "deploymentBytecode" necessary to generate a deployable contract factory.

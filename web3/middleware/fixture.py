@@ -2,7 +2,6 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    Dict,
     Optional,
     cast,
 )
@@ -25,7 +24,7 @@ if TYPE_CHECKING:
     )
 
 
-def construct_fixture_middleware(fixtures: Dict[RPCEndpoint, Any]) -> Middleware:
+def construct_fixture_middleware(fixtures: dict[RPCEndpoint, Any]) -> Middleware:
     """
     Constructs a middleware which returns a static response for any method
     which is found in the provided fixtures.
@@ -47,7 +46,7 @@ def construct_fixture_middleware(fixtures: Dict[RPCEndpoint, Any]) -> Middleware
 
 
 def construct_result_generator_middleware(
-    result_generators: Dict[RPCEndpoint, Any]
+    result_generators: dict[RPCEndpoint, Any]
 ) -> Middleware:
     """
     Constructs a middleware which intercepts requests for any method found in
@@ -72,7 +71,7 @@ def construct_result_generator_middleware(
 
 
 def construct_error_generator_middleware(
-    error_generators: Dict[RPCEndpoint, Any]
+    error_generators: dict[RPCEndpoint, Any]
 ) -> Middleware:
     """
     Constructs a middleware which intercepts requests for any method found in
@@ -109,7 +108,7 @@ def construct_error_generator_middleware(
 
 
 async def async_construct_result_generator_middleware(
-    result_generators: Dict[RPCEndpoint, Any]
+    result_generators: dict[RPCEndpoint, Any]
 ) -> AsyncMiddleware:
     """
     Constructs a middleware which returns a static response for any method
@@ -144,7 +143,7 @@ async def async_construct_result_generator_middleware(
 
 
 async def async_construct_error_generator_middleware(
-    error_generators: Dict[RPCEndpoint, Any]
+    error_generators: dict[RPCEndpoint, Any]
 ) -> AsyncMiddleware:
     """
     Constructs a middleware which intercepts requests for any method found in

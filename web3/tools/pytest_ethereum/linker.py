@@ -2,7 +2,6 @@ import logging
 from typing import (
     Any,
     Callable,
-    Dict,
 )
 
 from eth_typing import (
@@ -46,7 +45,7 @@ def _linker(operations: Callable[..., Any], package: Package) -> Callable[..., P
 
 
 def deploy(
-    contract_name: str, *args: Any, transaction: Dict[str, Any] = None
+    contract_name: str, *args: Any, transaction: dict[str, Any] = None
 ) -> Callable[..., Package]:
     """
     Return a newly created package and contract address.
@@ -61,7 +60,7 @@ def deploy(
 def _deploy(
     contract_name: ContractName,
     args: Any,
-    transaction: Dict[str, Any],
+    transaction: dict[str, Any],
     package: Package,
 ) -> Package:
     # Deploy new instance

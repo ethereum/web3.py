@@ -41,7 +41,5 @@ git clone https://github.com/ethereum/web3.py.git
 cd web3.py
 python3 -m venv venv
 . venv/bin/activate
-pip install --upgrade pip
-pip install -e .[dev]
-
+poetry install --extras "dev"
 ```

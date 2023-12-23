@@ -12,14 +12,10 @@ from typing import (
     Callable,
     Collection,
     Coroutine,
-    Dict,
     Iterable,
-    List,
     Mapping,
     Optional,
     Sequence,
-    Tuple,
-    Type,
     Union,
     cast,
 )
@@ -100,11 +96,11 @@ if TYPE_CHECKING:
     )
 
 
-def filter_by_type(_type: str, contract_abi: ABI) -> List[Union[ABIFunction, ABIEvent]]:
+def filter_by_type(_type: str, contract_abi: ABI) -> list[Union[ABIFunction, ABIEvent]]:
     return [abi for abi in contract_abi if abi["type"] == _type]
 
 
-def filter_by_name(name: str, contract_abi: ABI) -> List[Union[ABIFunction, ABIEvent]]:
+def filter_by_name(name: str, contract_abi: ABI) -> list[Union[ABIFunction, ABIEvent]]:
     return [
         abi
         for abi in contract_abi
@@ -115,18 +111,18 @@ def filter_by_name(name: str, contract_abi: ABI) -> List[Union[ABIFunction, ABIE
     ]
 
 
-def get_abi_input_types(abi: ABIFunction) -> List[str]:
+def get_abi_input_types(abi: ABIFunction) -> list[str]:
     if "inputs" not in abi and (abi["type"] == "fallback" or abi["type"] == "receive"):
         return []
     else:
-        return [collapse_if_tuple(cast(Dict[str, Any], arg)) for arg in abi["inputs"]]
+        return [collapse_if_tuple(cast(dict[str, Any], arg)) for arg in abi["inputs"]]
 
 
-def get_abi_output_types(abi: ABIFunction) -> List[str]:
+def get_abi_output_types(abi: ABIFunction) -> list[str]:
     if abi["type"] == "fallback":
         return []
     else:
-        return [collapse_if_tuple(cast(Dict[str, Any], arg)) for arg in abi["outputs"]]
+        return [collapse_if_tuple(cast(dict[str, Any], arg)) for arg in abi["outputs"]]
 
 
 def get_receive_func_abi(contract_abi: ABI) -> ABIFunction:
@@ -145,19 +141,19 @@ def get_fallback_func_abi(contract_abi: ABI) -> ABIFunction:
         raise FallbackNotFound("No fallback function was found in the contract ABI.")
 
 
-def fallback_func_abi_exists(contract_abi: ABI) -> List[Union[ABIFunction, ABIEvent]]:
+def fallback_func_abi_exists(contract_abi: ABI) -> list[Union[ABIFunction, ABIEvent]]:
     return filter_by_type("fallback", contract_abi)
 
 
-def receive_func_abi_exists(contract_abi: ABI) -> List[Union[ABIFunction, ABIEvent]]:
+def receive_func_abi_exists(contract_abi: ABI) -> list[Union[ABIFunction, ABIEvent]]:
     return filter_by_type("receive", contract_abi)
 
 
-def get_indexed_event_inputs(event_abi: ABIEvent) -> List[ABIEventParams]:
+def get_indexed_event_inputs(event_abi: ABIEvent) -> list[ABIEventParams]:
     return [arg for arg in event_abi["inputs"] if arg["indexed"] is True]
 
 
-def exclude_indexed_event_inputs(event_abi: ABIEvent) -> List[ABIEventParams]:
+def exclude_indexed_event_inputs(event_abi: ABIEvent) -> list[ABIEventParams]:
     return [arg for arg in event_abi["inputs"] if arg["indexed"] is False]
 
 
@@ -173,13 +169,13 @@ def get_normalized_abi_arg_type(abi_arg: ABIEventParams) -> str:
 
 def filter_by_argument_count(
     num_arguments: int, contract_abi: ABI
-) -> List[Union[ABIFunction, ABIEvent]]:
+) -> list[Union[ABIFunction, ABIEvent]]:
     return [abi for abi in contract_abi if len(abi["inputs"]) == num_arguments]
 
 
 def filter_by_argument_name(
     argument_names: Collection[str], contract_abi: ABI
-) -> List[Union[ABIFunction, ABIEvent]]:
+) -> list[Union[ABIFunction, ABIEvent]]:
     return [
         abi
         for abi in contract_abi
@@ -198,7 +194,7 @@ class AddressEncoder(encoding.AddressEncoder):
 
 
 class AcceptsHexStrEncoder(encoding.BaseEncoder):
-    subencoder_cls: Type[encoding.BaseEncoder] = None
+    subencoder_cls: type[encoding.BaseEncoder] = None
     is_strict: bool = None
     is_big_endian: bool = False
     data_byte_size: int = None
@@ -207,7 +203,7 @@ class AcceptsHexStrEncoder(encoding.BaseEncoder):
     def __init__(
         self,
         subencoder: encoding.BaseEncoder,
-        **kwargs: Dict[str, Any],
+        **kwargs: dict[str, Any],
     ) -> None:
         super().__init__(**kwargs)
         self.subencoder = subencoder
@@ -230,7 +226,7 @@ class AcceptsHexStrEncoder(encoding.BaseEncoder):
         return cls(subencoder)
 
     @classmethod
-    def get_subencoder_class(cls) -> Type[encoding.BaseEncoder]:
+    def get_subencoder_class(cls) -> type[encoding.BaseEncoder]:
         if cls.subencoder_cls is None:
             raise AttributeError(f"No subencoder class is set. {cls.__name__}")
         return cls.subencoder_cls
@@ -356,9 +352,9 @@ class TextStringEncoder(encoding.TextStringEncoder):
 def filter_by_encodability(
     abi_codec: codec.ABIEncoder,
     args: Sequence[Any],
-    kwargs: Dict[str, Any],
+    kwargs: dict[str, Any],
     contract_abi: ABI,
-) -> List[ABIFunction]:
+) -> list[ABIFunction]:
     return [
         cast(ABIFunction, function_abi)
         for function_abi in contract_abi
@@ -372,7 +368,7 @@ def check_if_arguments_can_be_encoded(
     function_abi: ABIFunction,
     abi_codec: codec.ABIEncoder,
     args: Sequence[Any],
-    kwargs: Dict[str, Any],
+    kwargs: dict[str, Any],
 ) -> bool:
     try:
         arguments = merge_args_and_kwargs(function_abi, args, kwargs)
@@ -393,8 +389,8 @@ def check_if_arguments_can_be_encoded(
 
 
 def merge_args_and_kwargs(
-    function_abi: ABIFunction, args: Sequence[Any], kwargs: Dict[str, Any]
-) -> Tuple[Any, ...]:
+    function_abi: ABIFunction, args: Sequence[Any], kwargs: dict[str, Any]
+) -> tuple[Any, ...]:
     """
     Takes a list of positional args (``args``) and a dict of keyword args
     (``kwargs``) defining values to be passed to a call to the contract function
@@ -412,7 +408,7 @@ def merge_args_and_kwargs(
 
     # If no keyword args were given, we don't need to align them
     if not kwargs:
-        return cast(Tuple[Any, ...], args)
+        return cast(tuple[Any, ...], args)
 
     kwarg_names = set(kwargs.keys())
     sorted_arg_names = tuple(arg_abi["name"] for arg_abi in function_abi["inputs"])
@@ -459,7 +455,7 @@ def merge_args_and_kwargs(
 TUPLE_TYPE_STR_RE = re.compile(r"^(tuple)((\[([1-9]\d*\b)?])*)??$")
 
 
-def get_tuple_type_str_parts(s: str) -> Optional[Tuple[str, Optional[str]]]:
+def get_tuple_type_str_parts(s: str) -> Optional[tuple[str, Optional[str]]]:
     """
     Takes a JSON ABI type string.  For tuple type strings, returns the separated
     prefix and array dimension parts.  For all other strings, returns ``None``.
@@ -475,7 +471,7 @@ def get_tuple_type_str_parts(s: str) -> Optional[Tuple[str, Optional[str]]]:
     return None
 
 
-def _align_abi_input(arg_abi: ABIFunctionParams, arg: Any) -> Tuple[Any, ...]:
+def _align_abi_input(arg_abi: ABIFunctionParams, arg: Any) -> tuple[Any, ...]:
     """
     Aligns the values of any mapping at any level of nesting in ``arg``
     according to the layout of the corresponding abi spec.
@@ -523,8 +519,8 @@ def _align_abi_input(arg_abi: ABIFunctionParams, arg: Any) -> Tuple[Any, ...]:
 
 
 def get_aligned_abi_inputs(
-    abi: ABIFunction, args: Union[Tuple[Any, ...], Mapping[Any, Any]]
-) -> Tuple[Tuple[Any, ...], Tuple[Any, ...]]:
+    abi: ABIFunction, args: Union[tuple[Any, ...], Mapping[Any, Any]]
+) -> tuple[tuple[Any, ...], tuple[Any, ...]]:
     """
     Takes a function ABI (``abi``) and a sequence or mapping of args (``args``).
     Returns a list of type strings for the function's inputs and a list of
@@ -681,7 +677,7 @@ def is_probably_enum(abi_type: TypeStr) -> bool:
 @to_tuple
 def normalize_event_input_types(
     abi_args: Collection[Union[ABIFunction, ABIEvent]]
-) -> Iterable[Union[ABIFunction, ABIEvent, Dict[TypeStr, Any]]]:
+) -> Iterable[Union[ABIFunction, ABIEvent, dict[TypeStr, Any]]]:
     for arg in abi_args:
         if is_recognized_type(arg["type"]):
             yield arg
@@ -711,7 +707,7 @@ def abi_to_signature(abi: Union[ABIFunction, ABIEvent]) -> str:
 
 @curry
 def map_abi_data(
-    normalizers: Sequence[Callable[[TypeStr, Any], Tuple[TypeStr, Any]]],
+    normalizers: Sequence[Callable[[TypeStr, Any], tuple[TypeStr, Any]]],
     types: Sequence[TypeStr],
     data: Sequence[Any],
 ) -> Any:
@@ -747,7 +743,7 @@ def map_abi_data(
 
 
 @curry
-def abi_data_tree(types: Sequence[TypeStr], data: Sequence[Any]) -> List[Any]:
+def abi_data_tree(types: Sequence[TypeStr], data: Sequence[Any]) -> list[Any]:
     """
     Decorate the data tree with pairs of (type, data). The pair tuple is actually an
     ABITypedData, but can be accessed as a tuple.
@@ -765,7 +761,7 @@ def abi_data_tree(types: Sequence[TypeStr], data: Sequence[Any]) -> List[Any]:
 
 @curry
 def data_tree_map(
-    func: Callable[[TypeStr, Any], Tuple[TypeStr, Any]], data_tree: Any
+    func: Callable[[TypeStr, Any], tuple[TypeStr, Any]], data_tree: Any
 ) -> "ABITypedData":
     """
     Map func to every ABITypedData element in the tree. func will
@@ -922,9 +918,9 @@ def build_strict_registry() -> ABIRegistry:
 
 
 def named_tree(
-    abi: Iterable[Union[ABIFunctionParams, ABIFunction, ABIEvent, Dict[TypeStr, Any]]],
-    data: Iterable[Tuple[Any, ...]],
-) -> Dict[str, Any]:
+    abi: Iterable[Union[ABIFunctionParams, ABIFunction, ABIEvent, dict[TypeStr, Any]]],
+    data: Iterable[tuple[Any, ...]],
+) -> dict[str, Any]:
     """
     Convert function inputs/outputs or event data tuple to dict with names from ABI.
     """
@@ -935,9 +931,9 @@ def named_tree(
 
 
 def _named_subtree(
-    abi: Union[ABIFunctionParams, ABIFunction, ABIEvent, Dict[TypeStr, Any]],
-    data: Tuple[Any, ...],
-) -> Union[Dict[str, Any], Tuple[Any, ...], List[Any]]:
+    abi: Union[ABIFunctionParams, ABIFunction, ABIEvent, dict[TypeStr, Any]],
+    data: tuple[Any, ...],
+) -> Union[dict[str, Any], tuple[Any, ...], list[Any]]:
     abi_type = parse(collapse_if_tuple(dict(abi)))
 
     if abi_type.is_array:
@@ -962,10 +958,10 @@ def _named_subtree(
     return data
 
 
-def recursive_dict_to_namedtuple(data: Dict[str, Any]) -> Tuple[Any, ...]:
+def recursive_dict_to_namedtuple(data: dict[str, Any]) -> tuple[Any, ...]:
     def _dict_to_namedtuple(
-        value: Union[Dict[str, Any], List[Any]]
-    ) -> Union[Tuple[Any, ...], List[Any]]:
+        value: Union[dict[str, Any], list[Any]]
+    ) -> Union[tuple[Any, ...], list[Any]]:
         if not isinstance(value, dict):
             return value
 
@@ -976,8 +972,8 @@ def recursive_dict_to_namedtuple(data: Dict[str, Any]) -> Tuple[Any, ...]:
 
 
 def abi_decoded_namedtuple_factory(
-    fields: Tuple[Any, ...]
-) -> Callable[..., Tuple[Any, ...]]:
+    fields: tuple[Any, ...]
+) -> Callable[..., tuple[Any, ...]]:
     class ABIDecodedNamedTuple(namedtuple("ABIDecodedNamedTuple", fields, rename=True)):  # type: ignore # noqa: E501
         def __new__(self, args: Any) -> "ABIDecodedNamedTuple":
             return super().__new__(self, *args)
@@ -991,7 +987,7 @@ def abi_decoded_namedtuple_factory(
 async def async_data_tree_map(
     async_w3: "AsyncWeb3",
     func: Callable[
-        ["AsyncWeb3", TypeStr, Any], Coroutine[Any, Any, Tuple[TypeStr, Any]]
+        ["AsyncWeb3", TypeStr, Any], Coroutine[Any, Any, tuple[TypeStr, Any]]
     ],
     data_tree: Any,
 ) -> "ABITypedData":

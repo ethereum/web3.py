@@ -11,9 +11,11 @@ COPY tests ./tests/
 COPY ens ./ens/
 COPY ethpm ./ethpm/
 
-COPY setup.py .
+COPY poetry.lock pyproject.toml ./
 COPY README.md .
 
-RUN pip install -e .[dev]
+# Install Poetry & Install dependencies
+RUN	curl -sSL https://install.python-poetry.org | python3 - --version 1.6.1
+RUN /root/.local/bin/poetry install --no-interaction --no-ansi --no-root --extras "dev"
 
 WORKDIR /code

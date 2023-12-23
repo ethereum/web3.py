@@ -3,15 +3,11 @@ from typing import (
     Any,
     Callable,
     Collection,
-    Dict,
     Generator,
     Iterable,
-    List,
     NoReturn,
     Optional,
     Sequence,
-    Tuple,
-    Type,
     Union,
     cast,
 )
@@ -138,7 +134,7 @@ class BaseContractEvent:
     contract_abi: ABI = None
     abi: ABIEvent = None
 
-    def __init__(self, *argument_names: Tuple[str]) -> None:
+    def __init__(self, *argument_names: tuple[str]) -> None:
         if argument_names is None:
             # https://github.com/python/mypy/issues/6283
             self.argument_names = tuple()  # type: ignore
@@ -199,7 +195,7 @@ class BaseContractEvent:
     def _get_event_filter_params(
         self,
         abi: ABIEvent,
-        argument_filters: Optional[Dict[str, Any]] = None,
+        argument_filters: Optional[dict[str, Any]] = None,
         fromBlock: Optional[BlockIdentifier] = None,
         toBlock: Optional[BlockIdentifier] = None,
         blockHash: Optional[HexBytes] = None,
@@ -245,7 +241,7 @@ class BaseContractEvent:
 
     @staticmethod
     def check_for_forbidden_api_filter_arguments(
-        event_abi: ABIEvent, _filters: Dict[str, Any]
+        event_abi: ABIEvent, _filters: dict[str, Any]
     ) -> None:
         name_indexed_inputs = {_input["name"]: _input for _input in event_abi["inputs"]}
 
@@ -267,7 +263,7 @@ class BaseContractEvent:
     def _process_get_logs_argument_filters(
         event_abi: ABIEvent,
         event_logs: Sequence[EventData],
-        argument_filters: Optional[Dict[str, Any]],
+        argument_filters: Optional[dict[str, Any]],
     ) -> Iterable[EventData]:
         if (
             argument_filters is None
@@ -314,7 +310,7 @@ class BaseContractEvent:
     @combomethod
     def _set_up_filter_builder(
         self,
-        argument_filters: Optional[Dict[str, Any]] = None,
+        argument_filters: Optional[dict[str, Any]] = None,
         fromBlock: Optional[BlockIdentifier] = None,
         toBlock: BlockIdentifier = "latest",
         address: Optional[ChecksumAddress] = None,
@@ -395,7 +391,7 @@ class BaseContractEvents:
         self,
         abi: ABI,
         w3: Union["Web3", "AsyncWeb3"],
-        contract_event_type: Type["BaseContractEvent"],
+        contract_event_type: type["BaseContractEvent"],
         address: Optional[ChecksumAddress] = None,
     ) -> None:
         if abi:
@@ -414,7 +410,7 @@ class BaseContractEvents:
                     ),
                 )
 
-    def __getattr__(self, event_name: str) -> Type["BaseContractEvent"]:
+    def __getattr__(self, event_name: str) -> type["BaseContractEvent"]:
         if "_events" not in self.__dict__:
             raise NoABIEventsFound(
                 "The abi for this contract contains no event definitions. ",
@@ -428,10 +424,10 @@ class BaseContractEvents:
         else:
             return super().__getattribute__(event_name)
 
-    def __getitem__(self, event_name: str) -> Type["BaseContractEvent"]:
+    def __getitem__(self, event_name: str) -> type["BaseContractEvent"]:
         return getattr(self, event_name)
 
-    def __iter__(self) -> Iterable[Type["BaseContractEvent"]]:
+    def __iter__(self) -> Iterable[type["BaseContractEvent"]]:
         """Iterate over supported
 
         :return: Iterable of :class:`ContractEvent`
@@ -459,7 +455,7 @@ class BaseContractFunction:
     contract_abi: ABI = None
     abi: ABIFunction = None
     transaction: TxParams = None
-    arguments: Tuple[Any, ...] = None
+    arguments: tuple[Any, ...] = None
     decode_tuples: Optional[bool] = False
     args: Any = None
     kwargs: Any = None
@@ -612,7 +608,7 @@ class BaseContractFunction:
     def _encode_transaction_data(cls) -> HexStr:
         return add_0x_prefix(encode_abi(cls.w3, cls.abi, cls.arguments, cls.selector))
 
-    _return_data_normalizers: Optional[Tuple[Callable[..., Any], ...]] = tuple()
+    _return_data_normalizers: Optional[tuple[Callable[..., Any], ...]] = tuple()
 
     def __repr__(self) -> str:
         if self.abi:
@@ -637,7 +633,7 @@ class BaseContractFunctions:
         abi: ABI,
         w3: Union["Web3", "AsyncWeb3"],
         contract_function_class: Union[
-            Type["ContractFunction"], Type["AsyncContractFunction"]
+            type["ContractFunction"], type["AsyncContractFunction"]
         ],
         address: Optional[ChecksumAddress] = None,
         decode_tuples: Optional[bool] = False,
@@ -805,7 +801,7 @@ class BaseContract:
     @combomethod
     def decode_function_input(
         self, data: HexStr
-    ) -> Tuple["BaseContractFunction", Dict[str, Any]]:
+    ) -> tuple["BaseContractFunction", dict[str, Any]]:
         # type ignored b/c expects data arg to be HexBytes
         data = HexBytes(data)  # type: ignore
         func = self.get_function_by_selector(data[:4])
@@ -833,7 +829,7 @@ class BaseContract:
     #
     # Private Helpers
     #
-    _return_data_normalizers: Tuple[Callable[..., Any], ...] = tuple()
+    _return_data_normalizers: tuple[Callable[..., Any], ...] = tuple()
 
     @classmethod
     def _prepare_transaction(
@@ -907,7 +903,7 @@ class BaseContract:
         w3: Union["Web3", "AsyncWeb3"],
         address: ChecksumAddress,
         callable_check: Callable[..., Any],
-    ) -> List[Any]:
+    ) -> list[Any]:
         raise NotImplementedError(
             "This method should be implemented in the inherited class"
         )
@@ -924,7 +920,7 @@ class BaseContract:
     def get_fallback_function(
         abi: ABI,
         w3: Union["Web3", "AsyncWeb3"],
-        function_type: Type["BaseContractFunction"],
+        function_type: type["BaseContractFunction"],
         address: Optional[ChecksumAddress] = None,
     ) -> "BaseContractFunction":
         if abi and fallback_func_abi_exists(abi):
@@ -942,7 +938,7 @@ class BaseContract:
     def get_receive_function(
         abi: ABI,
         w3: Union["Web3", "AsyncWeb3"],
-        function_type: Type["BaseContractFunction"],
+        function_type: type["BaseContractFunction"],
         address: Optional[ChecksumAddress] = None,
     ) -> "BaseContractFunction":
         if abi and receive_func_abi_exists(abi):
@@ -981,7 +977,7 @@ class BaseContractCaller:
     """
 
     # mypy types
-    _functions: List[Union[ABIFunction, ABIEvent]]
+    _functions: list[Union[ABIFunction, ABIEvent]]
 
     def __init__(
         self,

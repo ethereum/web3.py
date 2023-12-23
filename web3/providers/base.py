@@ -4,7 +4,6 @@ from typing import (
     Any,
     Callable,
     Sequence,
-    Tuple,
     cast,
 )
 
@@ -35,9 +34,9 @@ if TYPE_CHECKING:
 
 
 class BaseProvider:
-    _middlewares: Tuple[Middleware, ...] = ()
+    _middlewares: tuple[Middleware, ...] = ()
     # a tuple of (all_middlewares, request_func)
-    _request_func_cache: Tuple[Tuple[Middleware, ...], Callable[..., RPCResponse]] = (
+    _request_func_cache: tuple[tuple[Middleware, ...], Callable[..., RPCResponse]] = (
         None,
         None,
     )
@@ -48,12 +47,12 @@ class BaseProvider:
     ccip_read_max_redirects: int = 4
 
     @property
-    def middlewares(self) -> Tuple[Middleware, ...]:
+    def middlewares(self) -> tuple[Middleware, ...]:
         return self._middlewares
 
     @middlewares.setter
     def middlewares(self, values: MiddlewareOnion) -> None:
-        # tuple(values) converts to MiddlewareOnion -> Tuple[Middleware, ...]
+        # tuple(values) converts to MiddlewareOnion -> tuple[Middleware, ...]
         self._middlewares = tuple(values)  # type: ignore
 
     def request_func(
@@ -66,7 +65,7 @@ class BaseProvider:
             eventually self.make_request()
         """
         # type ignored b/c tuple(MiddlewareOnion) converts to tuple of middlewares
-        all_middlewares: Tuple[Middleware] = tuple(outer_middlewares) + tuple(self.middlewares)  # type: ignore # noqa: E501
+        all_middlewares: tuple[Middleware] = tuple(outer_middlewares) + tuple(self.middlewares)  # type: ignore # noqa: E501
 
         cache_key = self._request_func_cache[0]
         if cache_key is None or cache_key != all_middlewares:

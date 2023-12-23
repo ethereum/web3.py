@@ -2,9 +2,6 @@ import hashlib
 from pathlib import (
     Path,
 )
-from typing import (
-    Dict,
-)
 from urllib import (
     parse,
 )
@@ -31,7 +28,7 @@ except ImportError:
     pass
 
 
-def dummy_ipfs_pin(path: Path) -> Dict[str, str]:
+def dummy_ipfs_pin(path: Path) -> dict[str, str]:
     """
     Return IPFS data as if file was pinned to an actual node.
     """

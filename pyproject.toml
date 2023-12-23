@@ -1,3 +1,83 @@
+[tool.poetry]
+name = "web3"
+version = "6.13.0"
+description = "web3.py"
+authors = ["The Ethereum Foundation <snakecharmers@ethereum.org>"]
+license = "MIT"
+homepage = "https://github.com/ethereum/web3.py"
+repository = "https://github.com/ethereum/web3.py"
+include = ["VERSION", "README.md", "ens/specs/*", "ethpm/ethpm-spec/examples/*", "ethpm/ethpm-spec/spec/*"]
+exclude = ["__pycache__", "*.pyc"]
+packages = [
+    { include = "web3" },
+    # { include = "ens/specs/*" },
+    { include = "ethpm/assets/*" },
+    # { include = "ethpm/ethpm-spec/examples/*" },
+    # { include = "ethpm/ethpm-spec/spec/*" },
+]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+aiohttp = "^3.7.4.post0"
+eth-abi = "^4.0.0"
+eth-account = "^0.8.0"
+eth-hash = { version = "^0.5.1", extras = ["pycryptodome"] }
+eth-typing = "^3.0.0"
+eth-utils = "^2.1.0"
+hexbytes = { version = "^0.2.0" }
+jsonschema = "^4.0.0"
+lru-dict = { version = "^1.1.6" }
+protobuf = "^4.21.6"
+pywin32 = { version = "^223", markers = 'platform_system =="Windows"' }
+requests = "^2.16.0"
+typing-extensions = "^4.0.1"
+websockets = "^10.0.0"
+pyunormalize = "^15.0.0"
+
+# extras
+
+eth-tester = { version = "v0.9.1-b.1", optional = true, extras=["py-evm"] }
+py-geth = { version = "^3.11.0", optional = true }
+black = { version = "^22.1.0", optional = true }
+flake8 = { version = "==3.8.3", optional = true }
+isort = { version = "^5.11.0", optional = true }
+mypy = { version = "==1.4.1", optional = true }
+types-setuptools = { version = "^57.4.4", optional = true }
+types-requests = { version = "^2.26.1", optional = true }
+types-protobuf = { version = "==3.19.13", optional = true }
+sphinx = { version = "^5.3.0", optional = true }
+sphinx_rtd_theme = { version = "^1.0.0", optional = true }
+towncrier = { version = "^21, < 22", optional = true }
+ipfshttpclient = { version = "==0.8.0a2", optional = true }
+bumpversion = { version = "==0.6.0", optional = true }
+flaky = { version = "^3.7.0", optional = true }
+hypothesis = { version = "^6.92.1", optional = true }
+importlib-metadata = { version = "< 5.0", optional = true }
+pytest = { version = "^7.0.0", optional = true }
+pytest-asyncio = { version = "^0.18.1", optional = true }
+pytest-mock = { version = "^1.10", optional = true }
+pytest-watch = { version = "^4.2", optional = true }
+pytest-xdist = { version = "^1.29", optional = true }
+tox = { version = "^3.18.0", optional = true }
+tqdm = { version = "> 4.32", optional = true }
+twine = { version = "^1.13", optional = true }
+when-changed = { version = "^0.3.0", optional = true }
+build = { version = "^0.9.0", optional = true }
+
+[tool.poetry.extras]
+tester = ["eth-tester", "py-geth"]
+linter = ["black", "flake8", "isort", "mypy", "types-setuptools", "types-requests", "types-protobuf"]
+docs = ["sphinx", "sphinx_rtd_theme", "towncrier"]
+dev = ["eth-tester", "py-geth", "black", "flake8", "isort", "mypy", "types-setuptools", "types-requests", "types-protobuf", "sphinx", "sphinx_rtd_theme", "towncrier", "ipfshttpclient", "bumpversion", "flaky", "hypothesis", "importlib-metadata", "pytest", "pytest-asyncio", "pytest-mock", "pytest-watch", "pytest-xdist", "setuptools", "tox", "tqdm", "twine", "when-changed", "build"]
+ipfs = ["ipfshttpclient"]
+
+[tool.poetry.plugins."poetry.plugin"]
+pytest_ethereum = "web3.tools.pytest_ethereum.plugins"
+
+[build-system]
+requires = ["poetry-core >= 1.5.0"]
+build-backend = "poetry.core.masonry.api"
+
 [tool.towncrier]
 # Read https://github.com/ethereum/web3.py/blob/main/newsfragments/README.md for instructions
 package = "web3"

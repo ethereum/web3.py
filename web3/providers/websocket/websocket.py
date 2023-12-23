@@ -11,7 +11,6 @@ from types import (
 from typing import (
     Any,
     Optional,
-    Type,
     Union,
 )
 
@@ -70,7 +69,7 @@ class PersistentWebSocket:
 
     async def __aexit__(
         self,
-        exc_type: Type[BaseException],
+        exc_type: type[BaseException],
         exc_val: BaseException,
         exc_tb: TracebackType,
     ) -> None:

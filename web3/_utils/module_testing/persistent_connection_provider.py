@@ -4,8 +4,6 @@ import pytest
 from typing import (
     TYPE_CHECKING,
     Any,
-    Dict,
-    Tuple,
     cast,
 )
 
@@ -33,7 +31,7 @@ if TYPE_CHECKING:
     )
 
 
-def _mocked_recv(sub_id: str, ws_subscription_response: Dict[str, Any]) -> bytes:
+def _mocked_recv(sub_id: str, ws_subscription_response: dict[str, Any]) -> bytes:
     # Must be same subscription id so we can know how to parse the message.
     # We don't have this information when mocking the response.
     ws_subscription_response["params"]["subscription"] = sub_id
@@ -288,8 +286,8 @@ class PersistentConnectionProviderTest:
     async def test_async_eth_subscribe_mocked(
         self,
         async_w3: "_PersistentConnectionWeb3",
-        subscription_params: Tuple[Any, ...],
-        ws_subscription_response: Dict[str, Any],
+        subscription_params: tuple[Any, ...],
+        ws_subscription_response: dict[str, Any],
         expected_formatted_result: Any,
     ) -> None:
         sub_id = await async_w3.eth.subscribe(*subscription_params)

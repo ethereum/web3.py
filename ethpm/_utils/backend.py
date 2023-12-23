@@ -1,7 +1,6 @@
 import logging
 from typing import (
     Generator,
-    Type,
 )
 
 from eth_typing import (
@@ -62,7 +61,7 @@ def _handle_optional_ipfs_backend_exception(e: Exception) -> None:
 @to_tuple
 def get_translatable_backends_for_uri(
     uri: URI,
-) -> Generator[Type[BaseURIBackend], None, None]:
+) -> Generator[type[BaseURIBackend], None, None]:
     # type ignored because of conflict with instantiating BaseURIBackend
     for backend in ALL_URI_BACKENDS:
         try:
@@ -75,7 +74,7 @@ def get_translatable_backends_for_uri(
 @to_tuple
 def get_resolvable_backends_for_uri(
     uri: URI,
-) -> Generator[Type[BaseURIBackend], None, None]:
+) -> Generator[type[BaseURIBackend], None, None]:
     # special case the default IPFS backend to the first slot.
     default_ipfs = get_ipfs_backend_class()
     if default_ipfs in ALL_URI_BACKENDS and default_ipfs().can_resolve_uri(uri):

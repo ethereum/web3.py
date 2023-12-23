@@ -1,8 +1,6 @@
 from typing import (
     Any,
-    Dict,
     ItemsView,
-    List,
 )
 
 from eth_typing import (
@@ -29,27 +27,27 @@ class Deployments:
 
     def __init__(
         self,
-        deployment_data: Dict[str, Dict[str, str]],
-        contract_instances: Dict[str, Contract],
+        deployment_data: dict[str, dict[str, str]],
+        contract_instances: dict[str, Contract],
     ) -> None:
         self.deployment_data = deployment_data
         self.contract_instances = contract_instances
 
-    def __getitem__(self, key: str) -> Dict[str, str]:
+    def __getitem__(self, key: str) -> dict[str, str]:
         return self.get(key)
 
     def __contains__(self, key: str) -> bool:
         return key in self.deployment_data
 
-    def get(self, key: str) -> Dict[str, str]:
+    def get(self, key: str) -> dict[str, str]:
         self._validate_name_and_references(key)
         return self.deployment_data[key]
 
-    def items(self) -> ItemsView[str, Dict[str, str]]:
+    def items(self) -> ItemsView[str, dict[str, str]]:
         item_dict = {name: self.get(name) for name in self.deployment_data}
         return item_dict.items()
 
-    def values(self) -> List[Dict[str, str]]:
+    def values(self) -> list[dict[str, str]]:
         values = [self.get(name) for name in self.deployment_data]
         return values
 
@@ -75,6 +73,6 @@ class DeploymentData(TypedDict):
     address: Address
     transaction: HexStr
     block: HexStr
-    runtime_bytecode: Dict[str, Any]
-    compiler: Dict[str, str]
+    runtime_bytecode: dict[str, Any]
+    compiler: dict[str, str]
     contractType: str

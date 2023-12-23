@@ -4,11 +4,9 @@ import re
 from typing import (
     Any,
     Callable,
-    Dict,
     Iterable,
     Optional,
     Sequence,
-    Type,
     Union,
 )
 
@@ -187,7 +185,7 @@ class FriendlyJsonSerde:
     helpful information in the raised error messages.
     """
 
-    def _json_mapping_errors(self, mapping: Dict[Any, Any]) -> Iterable[str]:
+    def _json_mapping_errors(self, mapping: dict[Any, Any]) -> Iterable[str]:
         for key, val in mapping.items():
             try:
                 self._friendly_json_encode(val)
@@ -202,7 +200,7 @@ class FriendlyJsonSerde:
                 yield f"{index}: because ({exc})"
 
     def _friendly_json_encode(
-        self, obj: Dict[Any, Any], cls: Optional[Type[json.JSONEncoder]] = None
+        self, obj: dict[Any, Any], cls: Optional[type[json.JSONEncoder]] = None
     ) -> str:
         try:
             encoded = json.dumps(obj, cls=cls)
@@ -221,7 +219,7 @@ class FriendlyJsonSerde:
             else:
                 raise full_exception
 
-    def json_decode(self, json_str: str) -> Dict[Any, Any]:
+    def json_decode(self, json_str: str) -> dict[Any, Any]:
         try:
             decoded = json.loads(json_str)
             return decoded
@@ -232,7 +230,7 @@ class FriendlyJsonSerde:
             raise json.decoder.JSONDecodeError(err_msg, exc.doc, exc.pos)
 
     def json_encode(
-        self, obj: Dict[Any, Any], cls: Optional[Type[json.JSONEncoder]] = None
+        self, obj: dict[Any, Any], cls: Optional[type[json.JSONEncoder]] = None
     ) -> str:
         try:
             return self._friendly_json_encode(obj, cls=cls)
@@ -288,7 +286,7 @@ def encode_single_packed(_type: TypeStr, value: Any) -> bytes:
 
 
 class Web3JsonEncoder(json.JSONEncoder):
-    def default(self, obj: Any) -> Union[Dict[Any, Any], HexStr]:
+    def default(self, obj: Any) -> Union[dict[Any, Any], HexStr]:
         if isinstance(obj, AttributeDict):
             return obj.__dict__
         elif isinstance(obj, HexBytes):
@@ -298,7 +296,7 @@ class Web3JsonEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, obj)
 
 
-def to_json(obj: Dict[Any, Any]) -> str:
+def to_json(obj: dict[Any, Any]) -> str:
     """
     Convert a complex object (like a transaction object) to a JSON string
     """

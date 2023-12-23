@@ -6,8 +6,6 @@ from typing import (
     Any,
     Callable,
     Collection,
-    Dict,
-    Set,
     cast,
 )
 
@@ -38,7 +36,7 @@ if TYPE_CHECKING:
     from web3 import Web3  # noqa: F401
 
 SIMPLE_CACHE_RPC_WHITELIST = cast(
-    Set[RPCEndpoint],
+    set[RPCEndpoint],
     (
         "web3_clientVersion",
         "net_version",
@@ -123,7 +121,7 @@ _simple_cache_middleware = construct_simple_cache_middleware()
 
 
 TIME_BASED_CACHE_RPC_WHITELIST = cast(
-    Set[RPCEndpoint],
+    set[RPCEndpoint],
     {
         "eth_coinbase",
         "eth_accounts",
@@ -132,7 +130,7 @@ TIME_BASED_CACHE_RPC_WHITELIST = cast(
 
 
 def construct_time_based_cache_middleware(
-    cache_class: Callable[..., Dict[Any, Any]],
+    cache_class: Callable[..., dict[Any, Any]],
     cache_expire_seconds: int = 15,
     rpc_whitelist: Collection[RPCEndpoint] = TIME_BASED_CACHE_RPC_WHITELIST,
     should_cache_fn: Callable[
@@ -195,12 +193,12 @@ def construct_time_based_cache_middleware(
 
 
 _time_based_cache_middleware = construct_time_based_cache_middleware(
-    cache_class=functools.partial(lru.LRU, 256),
+    cache_class=functools.partial(lru.LRU, 256),  # type: ignore
 )
 
 
 BLOCK_NUMBER_RPC_WHITELIST = cast(
-    Set[RPCEndpoint],
+    set[RPCEndpoint],
     {
         "eth_gasPrice",
         "eth_blockNumber",
@@ -249,7 +247,7 @@ BlockInfoCache = TypedDict(
 
 
 def construct_latest_block_based_cache_middleware(
-    cache_class: Callable[..., Dict[Any, Any]],
+    cache_class: Callable[..., dict[Any, Any]],
     rpc_whitelist: Collection[RPCEndpoint] = BLOCK_NUMBER_RPC_WHITELIST,
     average_block_time_sample_size: int = 240,
     default_average_block_time: int = 15,
@@ -369,6 +367,6 @@ def construct_latest_block_based_cache_middleware(
 
 
 _latest_block_based_cache_middleware = construct_latest_block_based_cache_middleware(
-    cache_class=functools.partial(lru.LRU, 256),
+    cache_class=functools.partial(lru.LRU, 256),  # type: ignore
     rpc_whitelist=BLOCK_NUMBER_RPC_WHITELIST,
 )

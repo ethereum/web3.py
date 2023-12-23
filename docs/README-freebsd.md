@@ -42,7 +42,7 @@ git clone https://github.com/ethereum/web3.py.git
 cd web3.py
 
 # assuming you're using tcsh
-pip install -e .\[dev\]
+poetry install --extras "dev"
 ```
 
 ### Test

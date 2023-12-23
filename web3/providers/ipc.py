@@ -15,7 +15,6 @@ from types import (
 from typing import (
     Any,
     Optional,
-    Type,
     Union,
 )
 
@@ -65,7 +64,7 @@ class PersistantSocket:
 
     def __exit__(
         self,
-        exc_type: Type[BaseException],
+        exc_type: type[BaseException],
         exc_value: BaseException,
         traceback: TracebackType,
     ) -> None:
