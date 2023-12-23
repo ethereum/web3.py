@@ -11,7 +11,7 @@ exclude = ["__pycache__", "*.pyc"]
 packages = [
     { include = "web3" },
     { include = "ens" },
-    { include = "ethpm" },
+    { include = "ethpm" }
 ]
 
 [tool.poetry.dependencies]
@@ -26,7 +26,7 @@ hexbytes = { version = "^0.2.0" }
 jsonschema = "^4.0.0"
 lru-dict = { version = "^1.1.6" }
 protobuf = "^4.21.6"
-pywin32 = { version = "^223", markers = 'platform_system =="Windows"' }
+pywin32 = { version = "^306", markers = 'platform_system =="Windows"' }
 requests = "^2.16.0"
 typing-extensions = "^4.0.1"
 websockets = "^10.0.0"
