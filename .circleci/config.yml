@@ -230,6 +230,12 @@ windows_steps: &windows_steps
           python -m pip install --upgrade pip
           python -m pip install tox
     - run:
+        name: Setup, install Poetry & dependencies
+        command: |
+          curl -sSL https://install.python-poetry.org | python - --uninstall
+          curl -sSL https://install.python-poetry.org | python - --version 1.6.1
+          C:\\\Users\\\circleci\\\AppData\\\Roaming\\\Python\\\Scripts\\\poetry install
+    - run:
         name: run tox
         command: python -m tox -r
     - save_cache:
