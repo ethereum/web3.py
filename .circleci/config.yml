@@ -26,9 +26,9 @@ common: &common
     - run:
         name: install tox dependencies
         command: |
-          apt-get -qq update
-          apt install -y build-essential libssl-dev libpython2-dev python3-pip python3.10-venv
-          pip3 install tox
+          sudo apt-get -qq update
+          sudo apt install -y build-essential libssl-dev libpython2-dev python3-pip python3.10-venv
+          sudo pip3 install tox
     - run:
         name: run tox
         command: tox -r
@@ -56,9 +56,9 @@ docs_steps: &docs_steps
     - run:
         name: install tox dependencies
         command: |
-          apt-get -qq update
-          apt install -y build-essential libssl-dev libpython2-dev python3-pip
-          pip3 install tox
+          sudo apt-get -qq update
+          sudo apt install -y build-essential libssl-dev libpython2-dev python3-pip
+          sudo pip3 install tox
     - run:
         name: Setup, install Poetry & dependencies
         command: |
@@ -92,9 +92,9 @@ geth_steps: &geth_steps
     - run:
         name: install tox dependencies
         command: |
-          apt-get -qq update
-          apt install -y build-essential libssl-dev libpython2-dev python3-pip
-          pip3 install tox
+          sudo apt-get -qq update
+          sudo apt install -y build-essential libssl-dev libpython2-dev python3-pip
+          sudo pip3 install tox
     - run:
         name: build geth if missing
         command: |
@@ -139,9 +139,9 @@ geth_custom_steps: &geth_custom_steps
     - run:
         name: install tox dependencies
         command: |
-          apt-get -qq update
-          apt install -y build-essential libssl-dev libpython2-dev python3-pip
-          pip3 install tox
+          sudo apt-get -qq update
+          sudo apt install -y build-essential libssl-dev libpython2-dev python3-pip
+          sudo pip3 install tox
     - run:
         name: use a pre-built geth binary
         command: |
@@ -195,9 +195,9 @@ ethpm_steps: &ethpm_steps
     - run:
         name: install tox dependencies
         command: |
-          apt-get -qq update
-          apt install -y build-essential libssl-dev libpython2-dev python3-pip
-          pip3 install tox
+          sudo apt-get -qq update
+          sudo apt install -y build-essential libssl-dev libpython2-dev python3-pip
+          sudo pip3 install tox
     - run:
         name: run tox
         command: tox -r
@@ -227,9 +227,9 @@ windows_steps: &windows_steps
     - run:
         name: install tox dependencies
         command: |
-          apt-get -qq update
-          apt install -y build-essential libssl-dev libpython2-dev python3-pip
-          pip3 install tox
+          sudo apt-get -qq update
+          sudo apt install -y build-essential libssl-dev libpython2-dev python3-pip
+          sudo pip3 install tox
     - run:
         name: run tox
         command: tox -r
