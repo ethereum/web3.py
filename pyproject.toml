@@ -10,10 +10,9 @@ include = ["VERSION", "README.md", "ens/specs/*", "ethpm/ethpm-spec/examples/*",
 exclude = ["__pycache__", "*.pyc"]
 packages = [
     { include = "web3" },
-    # { include = "ens/specs/*" },
+    { include = "ens/*" },
     { include = "ethpm/assets/*" },
-    # { include = "ethpm/ethpm-spec/examples/*" },
-    # { include = "ethpm/ethpm-spec/spec/*" },
+    # { include = "ethpm/ethpm-spec" },
 ]
 
 [tool.poetry.dependencies]
