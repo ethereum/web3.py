@@ -17,9 +17,6 @@ from web3.providers.async_base import (
 from web3.providers.websocket.request_processor import (
     RequestProcessor,
 )
-from web3.types import (
-    RPCResponse,
-)
 
 DEFAULT_PERSISTENT_CONNECTION_TIMEOUT = 50
 
@@ -31,18 +28,20 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
     _ws: Optional[WebSocketClientProtocol] = None
     _ws_lock: asyncio.Lock = asyncio.Lock()
     _request_processor: RequestProcessor
+    _message_listener: Optional["asyncio.Task[None]"] = None
+    _listen_event: asyncio.Event = asyncio.Event()
 
     def __init__(
         self,
         endpoint_uri: str,
         request_timeout: float = DEFAULT_PERSISTENT_CONNECTION_TIMEOUT,
-        subscription_response_deque_size: int = 500,
+        subscription_response_queue_size: int = 500,
     ) -> None:
         super().__init__()
         self.endpoint_uri = endpoint_uri
         self._request_processor = RequestProcessor(
             self,
-            subscription_response_deque_size=subscription_response_deque_size,
+            subscription_response_queue_size=subscription_response_queue_size,
         )
         self.request_timeout = request_timeout
 
@@ -52,5 +51,5 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
     async def disconnect(self) -> None:
         raise NotImplementedError("Must be implemented by subclasses")
 
-    async def _ws_recv(self, timeout: float = None) -> RPCResponse:
+    async def _ws_listener_task(self) -> None:
         raise NotImplementedError("Must be implemented by subclasses")
