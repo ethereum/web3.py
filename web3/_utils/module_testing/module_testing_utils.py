@@ -1,7 +1,11 @@
+from collections import (
+    deque,
+)
 import time
 from typing import (
     TYPE_CHECKING,
     Any,
+    Collection,
     Dict,
     Generator,
     Sequence,
@@ -40,6 +44,9 @@ if TYPE_CHECKING:
     from requests import Response  # noqa: F401
 
     from web3 import Web3  # noqa: F401
+    from web3._utils.compat import (  # noqa: F401
+        Self,
+    )
 
 
 def mine_pending_block(w3: "Web3") -> None:
@@ -162,3 +169,25 @@ def async_mock_offchain_lookup_request_response(
     monkeypatch.setattr(
         f"aiohttp.ClientSession.{http_method.lower()}", _mock_specific_request
     )
+
+
+class WebsocketMessageStreamMock:
+    closed: bool = False
+
+    def __init__(self, messages: Collection[bytes]) -> None:
+        self.messages = deque(messages)
+
+    def __aiter__(self) -> "Self":
+        return self
+
+    async def __anext__(self) -> bytes:
+        if len(self.messages) == 0:
+            raise StopAsyncIteration
+
+        return self.messages.popleft()
+
+    async def send(self, data: bytes) -> None:
+        pass
+
+    async def close(self) -> None:
+        pass

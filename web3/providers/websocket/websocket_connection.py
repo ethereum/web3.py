@@ -27,6 +27,7 @@ class WebsocketConnection:
     def __init__(self, w3: "_PersistentConnectionWeb3"):
         self._manager = w3.manager
 
+    # -- public methods -- #
     @property
     def subscriptions(self) -> Dict[str, Any]:
         return self._manager._request_processor.active_subscriptions
@@ -35,7 +36,7 @@ class WebsocketConnection:
         return await self._manager.ws_send(method, params)
 
     async def recv(self) -> Any:
-        return await self._manager.ws_recv()
+        return await self._manager._ws_recv()
 
     def listen_to_websocket(self) -> "_AsyncPersistentRecvStream":
         return self._manager._persistent_recv_stream()
