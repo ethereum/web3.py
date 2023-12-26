@@ -317,6 +317,6 @@ checking this deque (in case somewhere else in the code, subscriptions responses
 put in the deque by another call looking for another response type) and calling
 ``recv()`` on the websocket connection to see if the response is yet to be received.
 With each iteration on this iterator, if the ``deque`` is non-empty, it will yield
-messages from the ``deque`` as FIFO order until the deque is empty before receiving any
+messages from the ``queue`` as FIFO order until the deque is empty before receiving any
 new messages from the websocket connection, guaranteeing the messages are yielded in the
 order they were received.

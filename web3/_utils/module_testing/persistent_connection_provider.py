@@ -1,5 +1,4 @@
 import asyncio
-import json
 import pytest
 from typing import (
     TYPE_CHECKING,
@@ -11,7 +10,6 @@ from typing import (
 
 from eth_utils import (
     is_hexstr,
-    to_bytes,
 )
 from hexbytes import (
     HexBytes,
@@ -31,13 +29,6 @@ if TYPE_CHECKING:
     from web3.main import (
         _PersistentConnectionWeb3,
     )
-
-
-def _mocked_recv(sub_id: str, ws_subscription_response: Dict[str, Any]) -> bytes:
-    # Must be same subscription id, so we can know how to parse the message.
-    # We don't have this information when mocking the response.
-    ws_subscription_response["params"]["subscription"] = sub_id
-    return to_bytes(text=json.dumps(ws_subscription_response))
 
 
 class PersistentConnectionProviderTest:
@@ -295,13 +286,13 @@ class PersistentConnectionProviderTest:
         sub_id = await async_w3.eth.subscribe(*subscription_params)
         assert is_hexstr(sub_id)
 
-        async def _mocked_recv_coro() -> bytes:
-            return _mocked_recv(sub_id, ws_subscription_response)
+        # stub out the subscription id so we know how to process the response
+        ws_subscription_response["params"]["subscription"] = sub_id
 
-        actual_recv_fxn = async_w3.provider._ws.recv
-        async_w3.provider._ws.__setattr__(
-            "recv",
-            _mocked_recv_coro,
+        # add the response to the subscription response cache as if it came from the
+        # websocket connection
+        await async_w3.provider._request_processor.cache_raw_response(
+            ws_subscription_response, subscription=True
         )
 
         async for msg in async_w3.ws.listen_to_websocket():
@@ -311,9 +302,6 @@ class PersistentConnectionProviderTest:
 
             # only testing one message, so break here
             break
-
-        # reset the mocked recv
-        async_w3.provider._ws.__setattr__("recv", actual_recv_fxn)
 
     @pytest.mark.asyncio
     async def test_async_extradata_to_poa_middleware_on_eth_subscription(
@@ -327,25 +315,20 @@ class PersistentConnectionProviderTest:
         sub_id = await async_w3.eth.subscribe("newHeads")
         assert is_hexstr(sub_id)
 
-        async def _mocked_recv_coro() -> bytes:
-            return _mocked_recv(
-                sub_id,
-                {
-                    "jsonrpc": "2.0",
-                    "method": "eth_subscription",
-                    "params": {
-                        "subscription": sub_id,
-                        "result": {
-                            "extraData": f"0x{'00' * 100}",
-                        },
+        # add the response to the subscription response cache as if it came from the
+        # websocket connection
+        await async_w3.provider._request_processor.cache_raw_response(
+            {
+                "jsonrpc": "2.0",
+                "method": "eth_subscription",
+                "params": {
+                    "subscription": sub_id,
+                    "result": {
+                        "extraData": f"0x{'00' * 100}",
                     },
                 },
-            )
-
-        actual_recv_fxn = async_w3.provider._ws.recv
-        async_w3.provider._ws.__setattr__(
-            "recv",
-            _mocked_recv_coro,
+            },
+            subscription=True,
         )
 
         async for msg in async_w3.ws.listen_to_websocket():
@@ -356,10 +339,10 @@ class PersistentConnectionProviderTest:
                 f"0x{'00' * 100}"
             )
 
+            # only testing one message, so break here
             break
 
-        # reset the mocked recv
-        async_w3.provider._ws.__setattr__("recv", actual_recv_fxn)
+        # clean up
         async_w3.middleware_onion.remove("poa_middleware")
 
     @pytest.mark.asyncio
