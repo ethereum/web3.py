@@ -35,6 +35,7 @@ from web3.datastructures import (
 from web3.exceptions import (
     BadResponseFormat,
     MethodUnavailable,
+    ProviderConnectionError,
 )
 from web3.middleware import (
     attrdict_middleware,
@@ -324,7 +325,7 @@ class RequestManager:
         response = await request_func(method, params)
         return await self._process_ws_response(response)
 
-    async def ws_recv(self) -> Any:
+    async def _ws_recv(self) -> Any:
         return await self._ws_recv_stream().__anext__()
 
     def _persistent_recv_stream(self) -> "_AsyncPersistentRecvStream":
@@ -337,34 +338,17 @@ class RequestManager:
                 "can listen to websocket recv streams."
             )
 
+        if self._provider._message_listener is None:
+            raise ProviderConnectionError("No listener found for websocket connection.")
+
         while True:
-            # sleep(0) here seems to be the most efficient way to yield control back to
-            # the event loop while waiting for the response to be cached or received on
-            # the websocket.
+            # sleep(0) here seems to be the most efficient way to yield control
+            # back to the event loop while waiting for the response in the queue.
             await asyncio.sleep(0)
 
-            # look in the cache for a response
             response = self._request_processor.pop_raw_response(subscription=True)
             if response is not None:
-                break
-            else:
-                # if no response in the cache, check the websocket connection
-                if not self._provider._ws_lock.locked():
-                    async with self._provider._ws_lock:
-                        try:
-                            # keep timeout low but reasonable to check both the cache
-                            # and the websocket connection for new responses
-                            response = await self._provider._ws_recv(timeout=0.5)
-                        except asyncio.TimeoutError:
-                            # if no response received, continue to next iteration
-                            continue
-
-                    if response.get("method") == "eth_subscription":
-                        break
-                    else:
-                        self._provider._request_processor.cache_raw_response(response)
-
-        yield await self._process_ws_response(response)
+                yield await self._process_ws_response(response)
 
     async def _process_ws_response(self, response: RPCResponse) -> RPCResponse:
         provider = cast(PersistentConnectionProvider, self._provider)
@@ -428,6 +412,6 @@ class _AsyncPersistentRecvStream:
 
     async def __anext__(self) -> RPCResponse:
         try:
-            return await self.manager.ws_recv()
+            return await self.manager._ws_recv()
         except ConnectionClosedOK:
             raise StopAsyncIteration

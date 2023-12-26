@@ -1,6 +1,4 @@
-from collections import (
-    deque,
-)
+import asyncio
 from copy import (
     copy,
 )
@@ -8,7 +6,6 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    Deque,
     Dict,
     Optional,
     Tuple,
@@ -33,21 +30,17 @@ if TYPE_CHECKING:
 
 
 class RequestProcessor:
-    _request_information_cache: SimpleCache
-    _request_response_cache: SimpleCache
-    _subscription_response_deque: Deque[RPCResponse]
-
     def __init__(
         self,
         provider: "PersistentConnectionProvider",
-        subscription_response_deque_size: int = 500,
+        subscription_response_queue_size: int = 500,
     ) -> None:
         self._provider = provider
 
-        self._request_information_cache = SimpleCache(500)
-        self._request_response_cache = SimpleCache(500)
-        self._subscription_response_deque = deque(
-            maxlen=subscription_response_deque_size
+        self._request_information_cache: SimpleCache = SimpleCache(500)
+        self._request_response_cache: SimpleCache = SimpleCache(500)
+        self._subscription_response_queue: asyncio.Queue[RPCResponse] = asyncio.Queue(
+            maxsize=subscription_response_queue_size
         )
 
     @property
@@ -184,16 +177,6 @@ class RequestProcessor:
                 subscribe_cache_key = generate_cache_key(subscription_id)
                 self.pop_cached_request_information(subscribe_cache_key)
 
-                # rebuild the deque without the unsubscribed subscription responses
-                self._subscription_response_deque = deque(
-                    filter(
-                        lambda sub_response: sub_response["params"]["subscription"]
-                        != subscription_id,
-                        self._subscription_response_deque,
-                    ),
-                    maxlen=self._subscription_response_deque.maxlen,
-                )
-
         return request_info
 
     def append_middleware_response_processor(
@@ -225,12 +208,21 @@ class RequestProcessor:
 
     # raw response cache
 
-    def cache_raw_response(self, raw_response: Any, subscription: bool = False) -> None:
+    async def cache_raw_response(
+        self, raw_response: Any, subscription: bool = False
+    ) -> None:
         if subscription:
+            if self._subscription_response_queue.full():
+                self._provider.logger.info(
+                    "Subscription queue is full. Waiting for listener to process "
+                    "messages before caching."
+                )
+                await self._provider._listen_event.wait()
+
             self._provider.logger.debug(
                 f"Caching subscription response:\n    response={raw_response}"
             )
-            self._subscription_response_deque.append(raw_response)
+            await self._subscription_response_queue.put(raw_response)
         else:
             response_id = raw_response.get("id")
             cache_key = generate_cache_key(response_id)
@@ -244,17 +236,20 @@ class RequestProcessor:
         self, cache_key: str = None, subscription: bool = False
     ) -> Any:
         if subscription:
-            deque_length = len(self._subscription_response_deque)
-            if deque_length == 0:
+            qsize = self._subscription_response_queue.qsize()
+            if qsize == 0:
                 return None
 
-            raw_response = self._subscription_response_deque.popleft()
+            if not self._provider._listen_event.is_set():
+                self._provider._listen_event.set()
+
+            raw_response = self._subscription_response_queue.get_nowait()
             self._provider.logger.debug(
-                f"Subscription response deque is not empty. Processing {deque_length} "
-                "subscription(s) as FIFO before receiving new response."
+                f"Subscription response queue has {qsize} subscription(s). Processing "
+                "as FIFO."
             )
             self._provider.logger.debug(
-                "Cached subscription response popped from deque to be processed:\n"
+                "Subscription response popped from queue to be processed:\n"
                 f"    raw_response={raw_response}"
             )
         else:
@@ -282,4 +277,6 @@ class RequestProcessor:
 
         self._request_information_cache.clear()
         self._request_response_cache.clear()
-        self._subscription_response_deque.clear()
+        self._subscription_response_queue = asyncio.Queue(
+            maxsize=self._subscription_response_queue.maxsize
+        )

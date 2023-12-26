@@ -3,12 +3,16 @@ import json
 import pytest
 from unittest.mock import (
     AsyncMock,
+    patch,
 )
 
 from eth_utils import (
     to_bytes,
 )
 
+from web3._utils.module_testing.module_testing_utils import (
+    WebsocketMessageStreamMock,
+)
 from web3.exceptions import (
     TimeExhausted,
 )
@@ -24,13 +28,22 @@ def _mock_ws(provider):
     provider._ws = AsyncMock()
 
 
+async def _coro():
+    return None
+
+
 @pytest.mark.asyncio
 async def test_async_make_request_caches_all_undesired_responses_and_returns_desired():
     provider = WebsocketProviderV2("ws://mocked")
 
-    method_under_test = provider.make_request
+    with patch(
+        "web3.providers.websocket.websocket_v2.connect", new=lambda *_1, **_2: _coro()
+    ):
+        await provider.connect()
 
     _mock_ws(provider)
+    method_under_test = provider.make_request
+
     undesired_responses_count = 10
     ws_recv_responses = [
         to_bytes(
@@ -42,44 +55,30 @@ async def test_async_make_request_caches_all_undesired_responses_and_returns_des
                 }
             )
         )
-        for i in range(0, undesired_responses_count)
+        for i in range(undesired_responses_count)
     ]
     # The first request we make should have an id of `0`, expect the response to match
     # that id. Append it as the last response in the list.
-    ws_recv_responses.append(b'{"jsonrpc": "2.0", "id":0, "result": "0x1337"}')
-    provider._ws.recv.side_effect = ws_recv_responses
+    ws_recv_responses.append(b'{"jsonrpc": "2.0", "id": 0, "result": "0x1337"}')
+    provider._ws = WebsocketMessageStreamMock(ws_recv_responses)
 
     response = await method_under_test(RPCEndpoint("some_method"), ["desired_params"])
-    assert response == json.loads(ws_recv_responses.pop())  # pop the expected response
+    assert response == json.loads(ws_recv_responses.pop())
 
-    assert (
-        len(provider._request_processor._subscription_response_deque)
-        == len(ws_recv_responses)
-        == undesired_responses_count
-    )
+    qsize = provider._request_processor._subscription_response_queue.qsize()
+    assert qsize == len(ws_recv_responses) == undesired_responses_count
 
-    for cached_response in provider._request_processor._subscription_response_deque:
+    for i in range(qsize):
+        cached_response = (
+            await provider._request_processor._subscription_response_queue.get()
+        )
         # assert all cached responses are in the list of responses we received
         assert to_bytes(text=json.dumps(cached_response)) in ws_recv_responses
 
-
-@pytest.mark.asyncio
-async def test_async_make_request_returns_cached_response_with_no_recv_if_cached():
-    provider = WebsocketProviderV2("ws://mocked")
-
-    method_under_test = provider.make_request
-
-    _mock_ws(provider)
-
-    # cache the response, so we should get it immediately & should never call `recv()`
-    desired_response = {"jsonrpc": "2.0", "id": 0, "result": "0x1337"}
-    provider._request_processor.cache_raw_response(desired_response)
-
-    response = await method_under_test(RPCEndpoint("some_method"), ["desired_params"])
-    assert response == desired_response
-
+    assert provider._request_processor._subscription_response_queue.empty()
     assert len(provider._request_processor._request_response_cache) == 0
-    assert not provider._ws.recv.called  # type: ignore
+
+    await provider.disconnect()
 
 
 @pytest.mark.asyncio
