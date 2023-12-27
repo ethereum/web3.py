@@ -68,7 +68,7 @@ class WebsocketProviderV2(PersistentConnectionProvider):
         endpoint_uri: Optional[Union[URI, str]] = None,
         websocket_kwargs: Optional[Dict[str, Any]] = None,
         request_timeout: Optional[float] = DEFAULT_PERSISTENT_CONNECTION_TIMEOUT,
-        listener_task_exceptions_limit: Optional[int] = None,
+        raise_listener_task_exceptions: bool = False,
     ) -> None:
         self.endpoint_uri = URI(endpoint_uri)
         if self.endpoint_uri is None:
@@ -94,7 +94,7 @@ class WebsocketProviderV2(PersistentConnectionProvider):
                 )
 
         self.websocket_kwargs = merge(DEFAULT_WEBSOCKET_KWARGS, websocket_kwargs or {})
-        self.listener_task_exceptions_limit = listener_task_exceptions_limit
+        self.raise_listener_task_exceptions = raise_listener_task_exceptions
 
         super().__init__(endpoint_uri, request_timeout=request_timeout)
 
@@ -215,8 +215,6 @@ class WebsocketProviderV2(PersistentConnectionProvider):
             "Websocket listener background task started. Storing all messages in "
             "appropriate request processor queues / caches to be processed."
         )
-        _exceptions = 0
-
         try:
             async for raw_message in self._ws:
                 # sleep(0) here seems to be the most efficient way to yield control
@@ -229,14 +227,10 @@ class WebsocketProviderV2(PersistentConnectionProvider):
                     response, subscription=subscription
                 )
         except Exception as e:
-            if (
-                self.listener_task_exceptions_limit
-                and _exceptions == self.listener_task_exceptions_limit
-            ):
-                # If exceptions limit reached, raise; else, error log & keep task alive
+            if self.raise_listener_task_exceptions:
+                # If ``True``, raise; else, error log & keep task alive
                 raise e
 
-            _exceptions += 1
             self.logger.error(
                 "Exception caught in listener, error logging and keeping listener "
                 f"background task alive.\n    error={e}"
