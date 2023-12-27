@@ -26,7 +26,6 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
     has_persistent_connection = True
 
     _ws: Optional[WebSocketClientProtocol] = None
-    _ws_lock: asyncio.Lock = asyncio.Lock()
     _request_processor: RequestProcessor
     _message_listener: Optional["asyncio.Task[None]"] = None
     _listen_event: asyncio.Event = asyncio.Event()

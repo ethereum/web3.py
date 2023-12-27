@@ -312,7 +312,8 @@ class RequestManager:
             response, params, error_formatters, null_result_formatters
         )
 
-    # persistent connection
+    # -- persistent connection -- #
+
     async def ws_send(self, method: RPCEndpoint, params: Any) -> RPCResponse:
         provider = cast(PersistentConnectionProvider, self._provider)
         request_func = await provider.request_func(
@@ -325,13 +326,13 @@ class RequestManager:
         response = await request_func(method, params)
         return await self._process_ws_response(response)
 
-    async def _ws_recv(self) -> Any:
-        return await self._ws_recv_stream().__anext__()
+    def _persistent_message_stream(self) -> "_AsyncPersistentMessageStream":
+        return _AsyncPersistentMessageStream(self)
 
-    def _persistent_recv_stream(self) -> "_AsyncPersistentRecvStream":
-        return _AsyncPersistentRecvStream(self)
+    async def _get_next_ws_message(self) -> Any:
+        return await self._ws_message_stream().__anext__()
 
-    async def _ws_recv_stream(self) -> AsyncGenerator[RPCResponse, None]:
+    async def _ws_message_stream(self) -> AsyncGenerator[RPCResponse, None]:
         if not isinstance(self._provider, PersistentConnectionProvider):
             raise TypeError(
                 "Only websocket providers that maintain an open, persistent connection "
@@ -396,15 +397,18 @@ class RequestManager:
             return apply_result_formatters(result_formatters, partly_formatted_response)
 
 
-class _AsyncPersistentRecvStream:
+class _AsyncPersistentMessageStream:
     """
-    Async generator for receiving responses from a persistent connection. This
-    abstraction is necessary to define the `__aiter__()` method required for
-    use with "async for" loops.
+    Async generator for pulling subscription responses from the request processor
+    subscription queue. This abstraction is necessary to define the `__aiter__()`
+    method required for use with "async for" loops.
     """
 
     def __init__(self, manager: RequestManager, *args: Any, **kwargs: Any) -> None:
         self.manager = manager
+        self.provider: PersistentConnectionProvider = cast(
+            PersistentConnectionProvider, manager._provider
+        )
         super().__init__(*args, **kwargs)
 
     def __aiter__(self) -> Self:
@@ -412,6 +416,6 @@ class _AsyncPersistentRecvStream:
 
     async def __anext__(self) -> RPCResponse:
         try:
-            return await self.manager._ws_recv()
+            return await self.manager._get_next_ws_message()
         except ConnectionClosedOK:
             raise StopAsyncIteration

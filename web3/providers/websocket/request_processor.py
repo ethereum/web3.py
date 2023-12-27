@@ -30,6 +30,8 @@ if TYPE_CHECKING:
 
 
 class RequestProcessor:
+    _subscription_queue_synced_with_ws_stream: bool = False
+
     def __init__(
         self,
         provider: "PersistentConnectionProvider",
@@ -214,7 +216,7 @@ class RequestProcessor:
         if subscription:
             if self._subscription_response_queue.full():
                 self._provider.logger.info(
-                    "Subscription queue is full. Waiting for listener to process "
+                    "Subscription queue is full. Waiting for provider to consume "
                     "messages before caching."
                 )
                 await self._provider._listen_event.wait()
@@ -244,10 +246,21 @@ class RequestProcessor:
                 self._provider._listen_event.set()
 
             raw_response = self._subscription_response_queue.get_nowait()
-            self._provider.logger.debug(
-                f"Subscription response queue has {qsize} subscription(s). Processing "
-                "as FIFO."
-            )
+            if qsize == 1:
+                if not self._subscription_queue_synced_with_ws_stream:
+                    self._subscription_queue_synced_with_ws_stream = True
+                    self._provider.logger.info(
+                        "Subscription response queue synced with websocket message "
+                        "stream."
+                    )
+            else:
+                if self._subscription_queue_synced_with_ws_stream:
+                    self._subscription_queue_synced_with_ws_stream = False
+                self._provider.logger.info(
+                    f"Subscription response queue has {qsize} subscriptions. "
+                    "Processing as FIFO."
+                )
+
             self._provider.logger.debug(
                 "Subscription response popped from queue to be processed:\n"
                 f"    raw_response={raw_response}"
