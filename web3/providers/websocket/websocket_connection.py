@@ -38,5 +38,5 @@ class WebsocketConnection:
     async def recv(self) -> Any:
         return await self._manager._get_next_ws_message()
 
-    def listen_to_websocket(self) -> "_AsyncPersistentMessageStream":
+    def process_subscriptions(self) -> "_AsyncPersistentMessageStream":
         return self._manager._persistent_message_stream()
