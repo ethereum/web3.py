@@ -273,7 +273,7 @@ asynchronous context manager, can be found in the `websockets connection`_ docs.
         ...         # subscribe to new block headers
         ...         subscription_id = await w3.eth.subscribe("newHeads")
         ...
-        ...         async for response in w3.ws.listen_to_websocket():
+        ...         async for response in w3.ws.process_subscriptions():
         ...             print(f"{response}\n")
         ...             # handle responses here
         ...
@@ -319,6 +319,7 @@ and reconnect automatically if the connection is lost. A similar example, using 
     ...         except websockets.ConnectionClosed:
     ...             continue
 
+    # run the example
     >>> asyncio.run(ws_v2_subscription_iterator_example())
 
 
@@ -338,6 +339,9 @@ provider in separate lines. Both of these examples are shown below.
     ...     # manual cleanup
     ...     await w3.provider.disconnect()
 
+    # run the example
+    >>> asyncio.run(ws_v2_alternate_init_example_1)
+
     >>> async def ws_v2_alternate_init_example_2():
     ...     # instantiation and connection via the provider as separate lines
     ...     w3 = AsyncWeb3.persistent_websocket(WebsocketProviderV2(f"ws://127.0.0.1:8546"))
@@ -348,8 +352,7 @@ provider in separate lines. Both of these examples are shown below.
     ...     # manual cleanup
     ...     await w3.provider.disconnect()
 
-    >>> # run the examples:
-    >>> asyncio.run(ws_v2_alternate_init_example_1)
+    # run the example
     >>> asyncio.run(ws_v2_alternate_init_example_2)
 
 The ``WebsocketProviderV2`` class uses the
@@ -393,11 +396,11 @@ Interacting with the Websocket Connection
         the subscription ``id`` to a dict of metadata about the subscription
         request.
 
-    .. py:method:: listen_to_websocket()
+    .. py:method:: process_subscriptions()
 
-        This method is available for listening to websocket responses indefinitely.
+        This method is available for listening to websocket subscriptions indefinitely.
         It is an asynchronous iterator that yields strictly one-to-many
-        (e.g. ``eth_subscription`` responses) request-to-response responses from the
+        (e.g. ``eth_subscription`` responses) request-to-response messages from the
         websocket connection. To receive responses for one-to-one request-to-response
         calls, use the standard API for making requests via the appropriate module
         (e.g. ``block_num = await w3.eth.block_number``)
@@ -410,9 +413,12 @@ Interacting with the Websocket Connection
 
         The ``recv()`` method can be used to receive the next message from the
         websocket. The response from this method is formatted by web3.py formatters
-        and run through the middlewares before being returned. This is useful for
-        receiving singled responses for one-to-many requests such receiving the
-        next ``eth_subscribe`` subscription response.
+        and run through the middlewares before being returned. This is not the
+        recommended way to receive a message as the ``process_subscriptions()`` method
+        is available for listening to websocket subscriptions and the standard API for
+        making requests via the appropriate module
+        (e.g. ``block_num = await w3.eth.block_number``) is available for receiving
+        responses for one-to-one request-to-response calls.
 
     .. py:method:: send(method: RPCEndpoint, params: Sequence[Any])
 
