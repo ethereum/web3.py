@@ -125,7 +125,9 @@ class WebsocketProviderV2(PersistentConnectionProvider):
             try:
                 _connection_attempts += 1
                 self._ws = await connect(self.endpoint_uri, **self.websocket_kwargs)
-                self._message_listener = asyncio.create_task(self._ws_listener_task())
+                self._message_listener_task = asyncio.create_task(
+                    self._ws_message_listener()
+                )
                 break
             except WebSocketException as e:
                 if _connection_attempts == self._max_connection_retries:
@@ -150,10 +152,13 @@ class WebsocketProviderV2(PersistentConnectionProvider):
             )
 
         try:
-            self._message_listener.cancel()
-            await self._message_listener
-        except (asyncio.CancelledError, StopAsyncIteration):
-            pass
+            self._message_listener_task.cancel()
+            await self._message_listener_task
+        except (asyncio.CancelledError, StopAsyncIteration) as e:
+            self.logger.info(
+                "Websocket message listener background task caught and ignored an "
+                f"exception during cancellation: {e}"
+            )
 
         self._request_processor.clear_caches()
 
@@ -210,7 +215,7 @@ class WebsocketProviderV2(PersistentConnectionProvider):
                 "allowed to continue."
             )
 
-    async def _ws_listener_task(self) -> None:
+    async def _ws_message_listener(self) -> None:
         self.logger.info(
             "Websocket listener background task started. Storing all messages in "
             "appropriate request processor queues / caches to be processed."
