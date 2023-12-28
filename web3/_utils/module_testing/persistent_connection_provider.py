@@ -295,7 +295,7 @@ class PersistentConnectionProviderTest:
             ws_subscription_response, subscription=True
         )
 
-        async for msg in async_w3.ws.listen_to_websocket():
+        async for msg in async_w3.ws.process_subscriptions():
             response = cast(FormattedEthSubscriptionResponse, msg)
             assert response["subscription"] == sub_id
             assert response["result"] == expected_formatted_result
@@ -331,7 +331,7 @@ class PersistentConnectionProviderTest:
             subscription=True,
         )
 
-        async for msg in async_w3.ws.listen_to_websocket():
+        async for msg in async_w3.ws.process_subscriptions():
             response = cast(FormattedEthSubscriptionResponse, msg)
             assert response.keys() == {"subscription", "result"}
             assert response["subscription"] == sub_id
