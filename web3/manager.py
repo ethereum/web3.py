@@ -339,7 +339,7 @@ class RequestManager:
                 "can listen to websocket recv streams."
             )
 
-        if self._provider._message_listener is None:
+        if self._provider._message_listener_task is None:
             raise ProviderConnectionError("No listener found for websocket connection.")
 
         while True:

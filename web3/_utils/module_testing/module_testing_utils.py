@@ -174,14 +174,20 @@ def async_mock_offchain_lookup_request_response(
 class WebsocketMessageStreamMock:
     closed: bool = False
 
-    def __init__(self, messages: Collection[bytes]) -> None:
-        self.messages = deque(messages)
+    def __init__(
+        self, messages: Collection[bytes] = None, raise_exception: Exception = None
+    ) -> None:
+        self.messages = deque(messages) if messages else deque()
+        self.raise_exception = raise_exception
 
     def __aiter__(self) -> "Self":
         return self
 
     async def __anext__(self) -> bytes:
-        if len(self.messages) == 0:
+        if self.raise_exception:
+            raise self.raise_exception
+
+        elif len(self.messages) == 0:
             raise StopAsyncIteration
 
         return self.messages.popleft()
