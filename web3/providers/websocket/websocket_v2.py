@@ -154,12 +154,8 @@ class WebsocketProviderV2(PersistentConnectionProvider):
         try:
             self._message_listener_task.cancel()
             await self._message_listener_task
-        except (asyncio.CancelledError, StopAsyncIteration) as e:
-            self.logger.info(
-                "Websocket message listener background task caught and ignored an "
-                f"exception during cancellation: {e}"
-            )
-
+        except (asyncio.CancelledError, StopAsyncIteration):
+            pass
         self._request_processor.clear_caches()
 
     @async_handle_request_caching
