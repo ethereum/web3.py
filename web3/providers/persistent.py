@@ -27,7 +27,7 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
 
     _ws: Optional[WebSocketClientProtocol] = None
     _request_processor: RequestProcessor
-    _message_listener: Optional["asyncio.Task[None]"] = None
+    _message_listener_task: Optional["asyncio.Task[None]"] = None
     _listen_event: asyncio.Event = asyncio.Event()
 
     def __init__(
@@ -50,5 +50,5 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
     async def disconnect(self) -> None:
         raise NotImplementedError("Must be implemented by subclasses")
 
-    async def _ws_listener_task(self) -> None:
+    async def _ws_message_listener(self) -> None:
         raise NotImplementedError("Must be implemented by subclasses")
