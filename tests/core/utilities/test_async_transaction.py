@@ -24,20 +24,20 @@ SIMPLE_CURRENT_TRANSACTION = {
 }
 
 
-@pytest.mark.asyncio()
-async def test_get_block_gas_limit_with_block_number(async_w3):
+@pytest.mark.asyncio
+async def test_async_get_block_gas_limit_with_block_number(async_w3):
     gas_limit = await get_block_gas_limit(async_w3.eth, BlockNumber(0))
     assert isinstance(gas_limit, int)
 
 
-@pytest.mark.asyncio()
-async def test_get_block_gas_limit_without_block_number(async_w3):
+@pytest.mark.asyncio
+async def test_async_get_block_gas_limit_without_block_number(async_w3):
     gas_limit = await get_block_gas_limit(async_w3.eth)
     assert isinstance(gas_limit, int)
 
 
-@pytest.mark.asyncio()
-async def test_get_buffered_gas_estimate(async_w3):
+@pytest.mark.asyncio
+async def test_async_get_buffered_gas_estimate(async_w3):
     txn_params = {
         "data": b"0x1",
     }
@@ -50,8 +50,8 @@ async def test_get_buffered_gas_estimate(async_w3):
     assert buffered_gas_estimate == min(gas_estimate + gas_buffer, gas_limit)
 
 
-@pytest.mark.asyncio()
-async def test_fill_transaction_defaults_for_all_params(async_w3):
+@pytest.mark.asyncio
+async def test_async_fill_transaction_defaults_for_all_params(async_w3):
     default_transaction = await async_fill_transaction_defaults(async_w3, {})
 
     block = await async_w3.eth.get_block("latest")
@@ -68,7 +68,7 @@ async def test_fill_transaction_defaults_for_all_params(async_w3):
 
 
 @pytest.mark.asyncio()
-async def test_fill_transaction_defaults_nondynamic_tranaction_fee(async_w3):
+async def test_async_fill_transaction_defaults_nondynamic_tranaction_fee(async_w3):
     gasPrice_transaction = {
         "gasPrice": 10,
     }
@@ -79,8 +79,8 @@ async def test_fill_transaction_defaults_nondynamic_tranaction_fee(async_w3):
     assert none_in_dict(DYNAMIC_FEE_TXN_PARAMS, default_transaction)
 
 
-@pytest.mark.asyncio()
-async def test_fill_transaction_defaults_for_zero_gas_price(async_w3):
+@pytest.mark.asyncio
+async def test_async_fill_transaction_defaults_for_zero_gas_price(async_w3):
     def gas_price_strategy(_w3, tx):
         return 0
 
