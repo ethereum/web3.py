@@ -47,7 +47,7 @@ async def clean_async_session_cache():
 
 
 @pytest.mark.asyncio
-async def test_no_args() -> None:
+async def test_async_no_args() -> None:
     provider = AsyncHTTPProvider()
     w3 = AsyncWeb3(provider)
     assert w3.manager.provider == provider
@@ -101,7 +101,7 @@ def test_web3_with_async_http_provider_has_default_middlewares_and_modules() -> 
 
 
 @pytest.mark.asyncio
-async def test_user_provided_session() -> None:
+async def test_async_user_provided_session() -> None:
     session = ClientSession()
     provider = AsyncHTTPProvider(endpoint_uri=URI)
     cached_session = await provider.cache_async_session(session)

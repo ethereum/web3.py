@@ -21,7 +21,7 @@ from web3.providers.eth_tester.main import (
 )
 
 
-def test_Eth_filter_creates_correct_filter_type(w3):
+def test_eth_filter_creates_correct_filter_type(w3):
     filter1 = w3.eth.filter("latest")
     assert isinstance(filter1, BlockFilter)
     filter2 = w3.eth.filter("pending")
@@ -41,7 +41,7 @@ async def async_w3():
 
 
 @pytest.mark.asyncio
-async def test_AsyncEth_filter_creates_correct_filter_type(async_w3):
+async def test_async_eth_filter_creates_correct_filter_type(async_w3):
     filter1 = await async_w3.eth.filter("latest")
     assert isinstance(filter1, AsyncBlockFilter)
     filter2 = await async_w3.eth.filter("pending")
