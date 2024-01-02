@@ -1,0 +1,1 @@
+Remove docs reference for removed ``protocol_version`` RPC method

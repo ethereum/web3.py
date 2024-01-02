@@ -170,18 +170,6 @@ The following properties are available on the ``web3.eth`` namespace.
         2206939
 
 
-.. py:attribute:: Eth.protocol_version
-
-    * Delegates to ``eth_protocolVersion`` RPC Method
-
-    Returns the id of the current Ethereum protocol version.
-
-    .. code-block:: python
-
-       >>> web3.eth.protocol_version
-       '63'
-
-
 .. py:attribute:: Eth.chain_id
 
     * Delegates to ``eth_chainId`` RPC Method
