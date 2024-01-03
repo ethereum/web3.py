@@ -348,7 +348,12 @@ class RequestManager:
             await asyncio.sleep(0)
 
             response = self._request_processor.pop_raw_response(subscription=True)
-            if response is not None:
+            if (
+                response is not None
+                and response.get("params").get("subscription")
+                in self._request_processor.active_subscriptions
+            ):
+                # if response is an active subscription response, process it
                 yield await self._process_ws_response(response)
 
     async def _process_ws_response(self, response: RPCResponse) -> RPCResponse:
