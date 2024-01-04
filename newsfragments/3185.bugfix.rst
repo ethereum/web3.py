@@ -1,0 +1,1 @@
+Change ``fee_history`` default behavior. If ``reward_percentiles`` arg not included, pass it to the provider as an empty list instead of ``None``.
