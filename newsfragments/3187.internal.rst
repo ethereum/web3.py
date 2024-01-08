@@ -1,0 +1,1 @@
+Add basic import and version tests for the ``web3`` module
