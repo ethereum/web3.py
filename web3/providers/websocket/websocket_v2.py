@@ -32,7 +32,6 @@ from web3.exceptions import (
     Web3ValidationError,
 )
 from web3.providers.persistent import (
-    DEFAULT_PERSISTENT_CONNECTION_TIMEOUT,
     PersistentConnectionProvider,
 )
 from web3.types import (
@@ -67,8 +66,9 @@ class WebsocketProviderV2(PersistentConnectionProvider):
         self,
         endpoint_uri: Optional[Union[URI, str]] = None,
         websocket_kwargs: Optional[Dict[str, Any]] = None,
-        request_timeout: Optional[float] = DEFAULT_PERSISTENT_CONNECTION_TIMEOUT,
         raise_listener_task_exceptions: bool = False,
+        # `PersistentConnectionProvider` kwargs can be passed through
+        **kwargs: Any,
     ) -> None:
         self.endpoint_uri = URI(endpoint_uri)
         if self.endpoint_uri is None:
@@ -96,7 +96,7 @@ class WebsocketProviderV2(PersistentConnectionProvider):
         self.websocket_kwargs = merge(DEFAULT_WEBSOCKET_KWARGS, websocket_kwargs or {})
         self.raise_listener_task_exceptions = raise_listener_task_exceptions
 
-        super().__init__(endpoint_uri, request_timeout=request_timeout)
+        super().__init__(endpoint_uri, **kwargs)
 
     def __str__(self) -> str:
         return f"Websocket connection: {self.endpoint_uri}"
