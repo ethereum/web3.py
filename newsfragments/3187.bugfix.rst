@@ -1,0 +1,1 @@
+Use ``importlib.metadata`` for version info if python>=3.8
