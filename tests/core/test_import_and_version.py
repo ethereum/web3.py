@@ -1,4 +1,3 @@
-def test_import():
+def test_import_and_version():
     import <MODULE_NAME>
-    version = <MODULE_NAME>.__version__
-    assert isinstance(version, str)
+    assert isinstance(<MODULE_NAME>.__version__, str)
