@@ -212,9 +212,8 @@ class AcceptsHexStrEncoder(encoding.BaseEncoder):
         super().__init__(**kwargs)
         self.subencoder = subencoder
 
-    # type ignored b/c conflict w/ defined BaseEncoder.is_dynamic = False
     @property
-    def is_dynamic(self) -> bool:  # type: ignore
+    def is_dynamic(self) -> bool:
         return self.subencoder.is_dynamic
 
     @classmethod
@@ -235,10 +234,8 @@ class AcceptsHexStrEncoder(encoding.BaseEncoder):
             raise AttributeError(f"No subencoder class is set. {cls.__name__}")
         return cls.subencoder_cls
 
-    # type ignored b/c combomethod makes signature conflict
-    # w/ defined BaseEncoder.validate_value()
     @combomethod
-    def validate_value(self, value: Any) -> None:  # type: ignore
+    def validate_value(self, value: Any) -> None:
         normalized_value = self.validate_and_normalize(value)
         return self.subencoder.validate_value(normalized_value)
 
@@ -319,9 +316,7 @@ class ExactLengthBytesEncoder(BytesEncoder):
             encoding.BaseEncoder,
             subencoder_cls.from_type_str(abi_type.to_type_str(), registry),
         )
-        # type ignored b/c kwargs are set in superclass init
-        # Unexpected keyword argument "value_bit_size" for "__call__" of "BaseEncoder"
-        return cls(  # type: ignore
+        return cls(
             subencoder,
             value_bit_size=abi_type.sub * 8,
             data_byte_size=abi_type.sub,
