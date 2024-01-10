@@ -6,6 +6,29 @@ v6 Breaking Changes Summary
 
 .. towncrier release notes start
 
+web3.py v6.14.0 (2024-01-10)
+----------------------------
+
+Bugfixes
+~~~~~~~~
+
+- Change ``fee_history`` default behavior. If ``reward_percentiles`` arg not included, pass it to the provider as an empty list instead of ``None``. (`#3185 <https://github.com/ethereum/web3.py/issues/3185>`__)
+- Use ``importlib.metadata`` for version info if python>=3.8 (`#3187 <https://github.com/ethereum/web3.py/issues/3187>`__)
+
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Remove docs reference for removed ``protocol_version`` RPC method (`#3183 <https://github.com/ethereum/web3.py/issues/3183>`__)
+
+
+Internal Changes - for web3.py Contributors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Re-define how async vs sync core test suites are ran. (`#3180 <https://github.com/ethereum/web3.py/issues/3180>`__)
+- Add basic import and version tests for the ``web3`` module (`#3187 <https://github.com/ethereum/web3.py/issues/3187>`__)
+
+
 web3.py v6.13.0 (2023-12-20)
 ----------------------------
 
