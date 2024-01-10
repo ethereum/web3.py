@@ -1,0 +1,1 @@
+Re-define how async vs sync core test suites are ran.
