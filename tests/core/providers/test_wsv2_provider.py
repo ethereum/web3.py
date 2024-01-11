@@ -1,3 +1,4 @@
+import asyncio
 import json
 import pytest
 from unittest.mock import (
@@ -9,6 +10,12 @@ from eth_utils import (
     to_bytes,
 )
 
+from web3 import (
+    AsyncWeb3,
+)
+from web3._utils.caching import (
+    RequestInformation,
+)
 from web3._utils.module_testing.module_testing_utils import (
     WebsocketMessageStreamMock,
 )
@@ -159,3 +166,89 @@ async def test_msg_listener_task_raises_when_raise_listener_task_exceptions_is_t
         await provider._message_listener_task
 
     assert provider._message_listener_task.done()
+
+
+@pytest.mark.asyncio
+@skip_if_py37
+async def test_listen_event_awaits_msg_processing_when_subscription_queue_is_full():
+    """
+    This test is to ensure that the `listen_event` method will wait for the
+    `process_subscriptions` method to process a message when the subscription queue
+    is full.
+    """
+    from unittest.mock import (
+        AsyncMock,
+    )
+
+    with patch(
+        "web3.providers.websocket.websocket_v2.connect", new=lambda *_1, **_2: _coro()
+    ):
+        async_w3 = await AsyncWeb3.persistent_websocket(
+            WebsocketProviderV2("ws://mocked")
+        )
+
+    _mock_ws(async_w3.provider)
+
+    assert async_w3.provider._message_listener_task is not None
+    assert not async_w3.provider._message_listener_task.cancelled()
+
+    # assert queue is instance of asyncio.Queue and replace with a new queue, maxsize=1
+    assert isinstance(
+        async_w3.provider._request_processor._subscription_response_queue,
+        type(asyncio.Queue()),
+    )
+    async_w3.provider._request_processor._subscription_response_queue = asyncio.Queue(
+        maxsize=1
+    )
+    assert not async_w3.provider._request_processor._subscription_response_queue.full()
+
+    # mock listen event
+    async_w3.provider._listen_event.wait = AsyncMock()
+    async_w3.provider._listen_event.set = AsyncMock()
+
+    # mock subscription and add to active subscriptions
+    sub_id = "0x1"
+    sub_request_information = RequestInformation(
+        method=RPCEndpoint("eth_subscribe"),
+        params=["mock"],
+        response_formatters=(),
+        subscription_id=sub_id,
+    )
+    async_w3.provider._request_processor._request_information_cache.cache(
+        "", sub_request_information
+    )
+
+    mocked_sub = {
+        "jsonrpc": "2.0",
+        "method": "eth_subscription",
+        "params": {"subscription": sub_id, "result": "0x1337"},
+    }
+
+    # fill queue with one item so it is full
+    async_w3.provider._request_processor._subscription_response_queue.put_nowait(
+        mocked_sub
+    )
+    assert async_w3.provider._request_processor._subscription_response_queue.full()
+
+    # wait will be called on the _listen_event when the next message comes in
+    async_w3.provider._listen_event.wait.assert_not_called()
+
+    # mock the message stream with a single message
+    # the message listener task should then call the _listen_event.wait since the
+    # queue is full
+    async_w3.provider._ws = WebsocketMessageStreamMock(
+        messages=[to_bytes(text=json.dumps(mocked_sub))]
+    )
+    await asyncio.sleep(0.05)
+    async_w3.provider._listen_event.wait.assert_called_once()
+
+    # set is not called until we start consuming messages
+    async_w3.provider._listen_event.set.assert_not_called()
+
+    async for message in async_w3.ws.process_subscriptions():
+        # assert the very next message is the mocked subscription
+        assert message == mocked_sub
+        break
+
+    # assert we set the _listen_event after we consume the message
+    async_w3.provider._listen_event.set.assert_called_once()
