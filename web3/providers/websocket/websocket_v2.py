@@ -216,23 +216,26 @@ class WebsocketProviderV2(PersistentConnectionProvider):
             "Websocket listener background task started. Storing all messages in "
             "appropriate request processor queues / caches to be processed."
         )
-        try:
-            async for raw_message in self._ws:
-                # sleep(0) here seems to be the most efficient way to yield control
-                # back to the event loop to share the loop with other tasks.
-                await asyncio.sleep(0)
+        while True:
+            # the use of sleep(0) seems to be the most efficient way to yield control
+            # back to the event loop to share the loop with other tasks.
+            await asyncio.sleep(0)
 
-                response = json.loads(raw_message)
-                subscription = response.get("method") == "eth_subscription"
-                await self._request_processor.cache_raw_response(
-                    response, subscription=subscription
+            try:
+                async for raw_message in self._ws:
+                    await asyncio.sleep(0)
+
+                    response = json.loads(raw_message)
+                    subscription = response.get("method") == "eth_subscription"
+                    await self._request_processor.cache_raw_response(
+                        response, subscription=subscription
+                    )
+            except Exception as e:
+                if self.raise_listener_task_exceptions:
+                    # If ``True``, raise; else, error log & keep task alive
+                    raise e
+
+                self.logger.error(
+                    "Exception caught in listener, error logging and keeping listener "
+                    f"background task alive.\n    error={e}"
                 )
-        except Exception as e:
-            if self.raise_listener_task_exceptions:
-                # If ``True``, raise; else, error log & keep task alive
-                raise e
-
-            self.logger.error(
-                "Exception caught in listener, error logging and keeping listener "
-                f"background task alive.\n    error={e}"
-            )

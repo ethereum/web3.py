@@ -3,6 +3,7 @@ import json
 import pytest
 from unittest.mock import (
     AsyncMock,
+    Mock,
     patch,
 )
 
@@ -139,13 +140,19 @@ async def test_msg_listener_task_silences_exceptions_by_default_and_error_logs(c
     provider._ws = WebsocketMessageStreamMock(
         raise_exception=Exception("test exception")
     )
-    await provider._message_listener_task
+    await asyncio.sleep(0.05)
 
     assert "test exception" in caplog.text
     assert (
         "Exception caught in listener, error logging and keeping listener background "
         "task alive.\n    error=test exception"
     ) in caplog.text
+
+    # assert is still running
+    assert not provider._message_listener_task.cancelled()
+
+    # proper cleanup
+    await provider.disconnect()
 
 
 @pytest.mark.asyncio
@@ -169,17 +176,12 @@ async def test_msg_listener_task_raises_when_raise_listener_task_exceptions_is_t
 
 
 @pytest.mark.asyncio
-@skip_if_py37
 async def test_listen_event_awaits_msg_processing_when_subscription_queue_is_full():
     """
     This test is to ensure that the `listen_event` method will wait for the
     `process_subscriptions` method to process a message when the subscription queue
     is full.
     """
-    from unittest.mock import (
-        AsyncMock,
-    )
-
     with patch(
         "web3.providers.websocket.websocket_v2.connect", new=lambda *_1, **_2: _coro()
     ):
@@ -204,7 +206,7 @@ async def test_listen_event_awaits_msg_processing_when_subscription_queue_is_ful
 
     # mock listen event
     async_w3.provider._listen_event.wait = AsyncMock()
-    async_w3.provider._listen_event.set = AsyncMock()
+    async_w3.provider._listen_event.set = Mock()
 
     # mock subscription and add to active subscriptions
     sub_id = "0x1"
@@ -252,3 +254,6 @@ async def test_listen_event_awaits_msg_processing_when_subscription_queue_is_ful
 
     # assert we set the _listen_event after we consume the message
     async_w3.provider._listen_event.set.assert_called_once()
+
+    # proper cleanup
+    await async_w3.provider.disconnect()
