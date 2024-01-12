@@ -26,9 +26,6 @@ common: &common
           python -m pip install --upgrade pip
           python -m pip install tox
     - run:
-        name: install pre-commit
-        command: python -m pip install --progress-bar=off pre-commit
-    - run:
         name: run tox
         command: python -m tox run -r
     - save_cache:
