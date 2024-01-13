@@ -3,6 +3,7 @@ from typing import (
     Any,
     Dict,
     Iterable,
+    List,
     Optional,
     Tuple,
     Union,
@@ -96,4 +97,16 @@ class AsyncHTTPProvider(AsyncJSONBaseProvider):
             f"Getting response HTTP. URI: {self.endpoint_uri}, "
             f"Method: {method}, Response: {response}"
         )
+        return response
+
+    async def make_batch_request(
+        self, requests: Iterable[Tuple[RPCEndpoint, Any]]
+    ) -> List[RPCResponse]:
+        self.logger.debug(f"Making batch request HTTP. URI: {self.endpoint_uri}")
+        request_data: bytes = self.encode_batch_rpc_request(requests)
+        raw_response: bytes = await async_make_post_request(
+            self.endpoint_uri, request_data, **self.get_request_kwargs()
+        )
+        response: List[RPCResponse] = self.decode_batch_rpc_response(raw_response)
+        self.logger.debug(f"Getting batch response HTTP. URI: {self.endpoint_uri}")
         return response
