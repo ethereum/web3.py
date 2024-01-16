@@ -193,11 +193,16 @@ class BaseWeb3:
 
     # Managers
     RequestManager = DefaultRequestManager
+    manager: DefaultRequestManager
 
     # mypy types
     eth: Union[Eth, AsyncEth]
     net: Union[Net, AsyncNet]
     geth: Union[Geth, AsyncGeth]
+
+    @property
+    def middleware_onion(self) -> MiddlewareOnion:
+        return cast(MiddlewareOnion, self.manager.middleware_onion)
 
     # Encoding and Decoding
     @staticmethod
@@ -401,10 +406,6 @@ class Web3(BaseWeb3):
         return self.provider.is_connected(show_traceback)
 
     @property
-    def middleware_onion(self) -> MiddlewareOnion:
-        return cast(MiddlewareOnion, self.manager.middleware_onion)
-
-    @property
     def provider(self) -> BaseProvider:
         return cast(BaseProvider, self.manager.provider)
 
@@ -467,10 +468,6 @@ class AsyncWeb3(BaseWeb3):
 
     async def is_connected(self, show_traceback: bool = False) -> bool:
         return await self.provider.is_connected(show_traceback)
-
-    @property
-    def middleware_onion(self) -> MiddlewareOnion:
-        return cast(MiddlewareOnion, self.manager.middleware_onion)
 
     @property
     def provider(self) -> AsyncBaseProvider:
