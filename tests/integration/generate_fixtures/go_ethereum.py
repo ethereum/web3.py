@@ -80,32 +80,30 @@ def get_geth_process(geth_binary, datadir, genesis_file_path, geth_ipc_path, get
     subprocess.check_output(
         init_datadir_command,
         stdin=subprocess.PIPE,
-        stderr=subprocess.PIPE,
+        stderr=False,
     )
 
     run_geth_command = (
         geth_binary,
-        "--datadir",
+        "--datadir",  # data dir for the db
         datadir,
-        "--ipcpath",
+        "--ipcpath",  # file for ipc socket/pipe
         geth_ipc_path,
-        "--ethash.dagsondisk",
-        "1",
-        "--gcmode",
+        "--gcmode",  # Blockchain garbage collection mode ("full", "archive")
         "archive",
-        "--nodiscover",
-        "--port",
+        "--nodiscover",  # Disables the peer discovery mechanism (manual peer addition)
+        "--port",  # Network listening port
         geth_port,
-        "--miner.etherbase",
+        "--miner.etherbase",  # Public address for block mining rewards
         common.COINBASE[2:],
-        "--rpc.enabledeprecatedpersonal",
+        "--rpc.enabledeprecatedpersonal",  # Enables the (deprecated) personal namespace
     )
 
     popen_proc = subprocess.Popen(
         run_geth_command,
         stdin=subprocess.PIPE,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
+        stdout=False,  # TODO: Revert to pipe
+        stderr=False,  # TODO: Revert to pipe
     )
     with popen_proc as proc:
         with graceful_kill_on_exit(proc) as graceful_proc:
