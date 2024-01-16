@@ -98,7 +98,7 @@ def test_request_caching_does_not_cache_error_responses(request_mocker):
         assert err_a.value.args != err_b.value.args
 
 
-def test_request_caching_does_not_cache_endpoints_not_in_whitelist(w3):
+def test_request_caching_does_not_cache_endpoints_not_in_allowlist(w3):
     result_a = w3.manager.request_blocking("not_on_allowlist", [])
     result_b = w3.manager.request_blocking("not_on_allowlist", [])
     assert result_a != result_b
@@ -121,7 +121,6 @@ def test_caching_requests_does_not_share_state_between_providers(request_mocker)
                 result_b = w3_b.manager.request_blocking("eth_chainId", [])
                 result_c = w3_c.manager.request_blocking("eth_chainId", [])
 
-    assert result_a != result_b != result_c
     assert result_a == 11111
     assert result_b == 22222
     assert result_c == 33333
@@ -204,7 +203,7 @@ async def test_async_request_caching_does_not_cache_error_responses(request_mock
 
 
 @pytest.mark.asyncio
-async def test_async_request_caching_does_not_cache_non_whitelist_endpoints(
+async def test_async_request_caching_does_not_cache_non_allowlist_endpoints(
     async_w3,
 ):
     result_a = await async_w3.manager.coro_request("not_on_allowlist", [])
@@ -232,7 +231,6 @@ async def test_async_request_caching_does_not_share_state_between_providers(
                 result_b = await async_w3_b.manager.coro_request("eth_chainId", [])
                 result_c = await async_w3_c.manager.coro_request("eth_chainId", [])
 
-    assert result_a != result_b != result_c
     assert result_a == 11111
     assert result_b == 22222
     assert result_c == 33333

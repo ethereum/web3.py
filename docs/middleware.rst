@@ -104,18 +104,6 @@ Buffered Gas Estimate
     ``min(w3.eth.estimate_gas + gas_buffer, gas_limit)``
     where the gas_buffer default is 100,000
 
-HTTPRequestRetry
-~~~~~~~~~~~~~~~~~~
-
-.. py:method:: web3.middleware.http_retry_request_middleware
-               web3.middleware.async_http_retry_request_middleware
-
-    This middleware is a default specifically for HTTPProvider that retries failed
-    requests that return the following errors: ``ConnectionError``, ``HTTPError``, ``Timeout``,
-    ``TooManyRedirects``. Additionally there is a whitelist that only allows certain
-    methods to be retried in order to not resend transactions, excluded methods are:
-    ``eth_sendTransaction``, ``personal_signAndSendTransaction``, ``personal_sendTransaction``.
-
 Validation
 ~~~~~~~~~~~~~~~~~~~~~~~~
 

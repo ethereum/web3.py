@@ -15,6 +15,7 @@ from web3 import (
     AsyncHTTPProvider,
     AsyncWeb3,
     Web3,
+    WebsocketProviderV2,
 )
 from web3.providers import (
     HTTPProvider,
@@ -40,7 +41,10 @@ def w3():
 
 def test_default_request_retry_configuration_for_http_provider():
     w3 = Web3(HTTPProvider())
-    assert w3.provider.exception_retry_configuration == ExceptionRetryConfiguration()
+    assert (
+        getattr(w3.provider, "exception_retry_configuration")
+        == ExceptionRetryConfiguration()
+    )
 
 
 def test_check_if_retry_on_failure_false():
@@ -82,6 +86,9 @@ def test_exception_retry_config_is_strictly_on_http_provider():
     w3 = Web3(IPCProvider())
     assert not hasattr(w3.provider, "exception_retry_configuration")
 
+    w3 = AsyncWeb3.persistent_websocket(WebsocketProviderV2("ws://localhost:8546"))
+    assert not hasattr(w3.provider, "exception_retry_configuration")
+
 
 @patch("web3.providers.rpc.rpc.make_post_request", side_effect=ConnectionError)
 def test_exception_retry_middleware_with_allow_list_kwarg(make_post_request_mock):
@@ -116,7 +123,8 @@ def async_w3():
 async def test_async_default_request_retry_configuration_for_http_provider():
     async_w3 = AsyncWeb3(AsyncHTTPProvider())
     assert (
-        async_w3.provider.exception_retry_configuration == ExceptionRetryConfiguration()
+        getattr(async_w3.provider, "exception_retry_configuration")
+        == ExceptionRetryConfiguration()
     )
 
 
