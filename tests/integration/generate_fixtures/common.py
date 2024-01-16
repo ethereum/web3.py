@@ -19,6 +19,17 @@ from web3.exceptions import (
     TransactionNotFound,
 )
 
+
+def _extradata_encode_signer(signer_address):
+    """
+    Encode signer address in extradata field
+    https://geth.ethereum.org/docs/fundamentals/private-network#clique-example
+    """
+    _32_zero_bytes = "0" * 64
+    _65_zero_bytes = "0" * 130
+    return f"0x{_32_zero_bytes}{signer_address[2:]}{_65_zero_bytes}"
+
+
 # use same coinbase value as in `web3.py/tests/integration/common.py`
 COINBASE = "0xdc544d1aa88ff8bbd2f2aec754b1f1e99e1812fd"
 COINBASE_PK = "0x58d23b55bc9cdce1f18c2500f40ff4ab7245df9a89505e9b1fa4851f623d241d"
@@ -40,20 +51,21 @@ GENESIS_DATA = {
     "config": {
         "chainId": 131277322940537,  # the string 'web3py' as an integer
         "homesteadBlock": 0,
-        "byzantiumBlock": 0,
-        "constantinopleBlock": 0,
         "eip150Block": 0,
         "eip155Block": 0,
         "eip158Block": 0,
-        "istanbulBlock": 0,
+        "byzantiumBlock": 0,
+        "constantinopleBlock": 0,
         "petersburgBlock": 0,
+        "istanbulBlock": 0,
         "berlinBlock": 0,
         "londonBlock": 0,
         "arrowGlacierBlock": 0,
         "grayGlacierBlock": 0,
         "shanghaiTime": 0,
+        "clique": {"period": 5, "epoch": 30000},
     },
-    "nonce": "0x0000000000000042",
+    "nonce": "0x8964358912345896",  # Random nonce to prevent unknown connections
     "alloc": {
         COINBASE: {"balance": "1000000000000000000000000000"},
         UNLOCKABLE_ACCOUNT: {"balance": "1000000000000000000000000000"},
@@ -67,7 +79,7 @@ GENESIS_DATA = {
     },
     "timestamp": "0x00",
     "parentHash": constants.HASH_ZERO,
-    "extraData": "0x3535353535353535353535353535353535353535353535353535353535353535",
+    "extraData": _extradata_encode_signer(COINBASE),
     "gasLimit": "0x3b9aca00",  # 1,000,000,000
     "difficulty": "0x10000",
     "mixhash": constants.HASH_ZERO,
