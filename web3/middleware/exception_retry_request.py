@@ -63,6 +63,7 @@ DEFAULT_ALLOWLIST = [
     "eth_getTransactionCount",
     "eth_getRawTransactionByHash",
     "eth_call",
+    "eth_createAccessList",
     "eth_estimateGas",
     "eth_maxPriorityFeePerGas",
     "eth_newBlockFilter",

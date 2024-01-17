@@ -75,6 +75,7 @@ from web3.types import (
     BlockIdentifier,
     BlockParams,
     CallOverride,
+    CreateAccessListResponse,
     FeeHistory,
     FilterParams,
     LogReceipt,
@@ -233,6 +234,7 @@ class AsyncEth(BaseEth):
         newest_block: Union[BlockParams, BlockNumber],
         reward_percentiles: Optional[List[float]] = None,
     ) -> FeeHistory:
+        reward_percentiles = reward_percentiles or []
         return await self._fee_history(block_count, newest_block, reward_percentiles)
 
     # eth_call
@@ -293,6 +295,22 @@ class AsyncEth(BaseEth):
                 transaction["data"] = durin_calldata
 
         raise TooManyRequests("Too many CCIP read redirects")
+
+    # eth_createAccessList
+
+    _create_access_list: Method[
+        Callable[
+            [TxParams, Optional[BlockIdentifier]],
+            Awaitable[CreateAccessListResponse],
+        ]
+    ] = Method(RPC.eth_createAccessList, mungers=[BaseEth.create_access_list_munger])
+
+    async def create_access_list(
+        self,
+        transaction: TxParams,
+        block_identifier: Optional[BlockIdentifier] = None,
+    ) -> CreateAccessListResponse:
+        return await self._create_access_list(transaction, block_identifier)
 
     # eth_estimateGas
 

@@ -311,6 +311,11 @@ class FormattedEthSubscriptionResponse(TypedDict):
     ]
 
 
+class CreateAccessListResponse(TypedDict):
+    accessList: AccessList
+    gasUsed: int
+
+
 Middleware = Callable[[Callable[[RPCEndpoint, Any], RPCResponse], "Web3"], Any]
 AsyncMiddlewareCoroutine = Callable[
     [RPCEndpoint, Any], Coroutine[Any, Any, RPCResponse]

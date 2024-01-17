@@ -1,5 +1,15 @@
-from eth_account import Account  # noqa: E402,
-import pkg_resources
+from eth_account import Account  # noqa: E402
+import sys
+
+if sys.version_info.major == 3 and sys.version_info.minor < 8:
+    import pkg_resources
+
+    __version__ = pkg_resources.get_distribution("web3").version
+else:
+    from importlib.metadata import version
+
+    __version__ = version("web3")
+
 
 from web3.main import (
     AsyncWeb3,
@@ -22,7 +32,6 @@ from web3.providers.websocket import (  # noqa: E402
     WebsocketProviderV2,
 )
 
-__version__ = pkg_resources.get_distribution("web3").version
 
 __all__ = [
     "__version__",

@@ -6,6 +6,70 @@ v6 Breaking Changes Summary
 
 .. towncrier release notes start
 
+web3.py v6.14.0 (2024-01-10)
+----------------------------
+
+Bugfixes
+~~~~~~~~
+
+- Change ``fee_history`` default behavior. If ``reward_percentiles`` arg not included, pass it to the provider as an empty list instead of ``None``. (`#3185 <https://github.com/ethereum/web3.py/issues/3185>`__)
+- Use ``importlib.metadata`` for version info if python>=3.8 (`#3187 <https://github.com/ethereum/web3.py/issues/3187>`__)
+
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Remove docs reference for removed ``protocol_version`` RPC method (`#3183 <https://github.com/ethereum/web3.py/issues/3183>`__)
+
+
+Internal Changes - for web3.py Contributors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Re-define how async vs sync core test suites are ran. (`#3180 <https://github.com/ethereum/web3.py/issues/3180>`__)
+- Add basic import and version tests for the ``web3`` module (`#3187 <https://github.com/ethereum/web3.py/issues/3187>`__)
+
+
+web3.py v6.13.0 (2023-12-20)
+----------------------------
+
+Features
+~~~~~~~~
+
+- Implement async ``eth_createAccessList`` RPC method to create an EIP-2930 access list. (`#3167 <https://github.com/ethereum/web3.py/issues/3167>`__)
+
+
+Internal Changes - for web3.py Contributors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Add flaky async Geth integration tests to CI (`#3170 <https://github.com/ethereum/web3.py/issues/3170>`__)
+- Fix wrong test reference for ``EthereumTesterProvider`` integration test suite. (`#3171 <https://github.com/ethereum/web3.py/issues/3171>`__)
+- Small fix for integration tests for ``tox`` to recognize independent patterns for each test run. (`#3173 <https://github.com/ethereum/web3.py/issues/3173>`__)
+
+
+web3.py v6.12.0 (2023-12-11)
+----------------------------
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Make downloadable versions of docs available in ``pdf``, ``htmlzip``, and ``epub`` formats (`#3153 <https://github.com/ethereum/web3.py/issues/3153>`__)
+- Add 2023 user survey fine art banner in the docs (`#3159 <https://github.com/ethereum/web3.py/issues/3159>`__)
+- Polish the community resources docs page (`#3162 <https://github.com/ethereum/web3.py/issues/3162>`__)
+
+
+Features
+~~~~~~~~
+
+- Implement ``createAccessList`` RPC endpoint to create an EIP-2930 access list. (`#2381 <https://github.com/ethereum/web3.py/issues/2381>`__)
+
+
+Internal Changes - for web3.py Contributors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Run flaky eth-tester tests on CI (`#3157 <https://github.com/ethereum/web3.py/issues/3157>`__)
+- Pin ``pytest-asyncio`` dependency to <0.23 (`#3160 <https://github.com/ethereum/web3.py/issues/3160>`__)
+
+
 web3.py v6.11.4 (2023-11-27)
 ----------------------------
 

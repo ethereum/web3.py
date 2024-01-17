@@ -29,7 +29,7 @@ extras_require = {
         "hypothesis>=3.31.2",
         "importlib-metadata<5.0;python_version<'3.8'",
         "pytest>=7.0.0",
-        "pytest-asyncio>=0.18.1",
+        "pytest-asyncio>=0.18.1,<0.23",
         "pytest-mock>=1.10",
         "pytest-watch>=4.2",
         "pytest-xdist>=1.29",
@@ -59,7 +59,7 @@ with open("./README.md") as readme:
 setup(
     name="web3",
     # *IMPORTANT*: Don't manually change the version here. Use the 'bumpversion' utility.
-    version="6.11.4",
+    version="6.14.0",
     description="""web3.py""",
     long_description_content_type="text/markdown",
     long_description=long_description,

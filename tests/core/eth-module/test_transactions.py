@@ -277,8 +277,12 @@ def test_get_transaction_formatters(w3):
                     {
                         "address": checksummed_addr,
                         "storageKeys": [
-                            "0x0000000000000000000000000000000000000000000000000000000000000032",  # noqa: E501
-                            "0x0000000000000000000000000000000000000000000000000000000000000036",  # noqa: E501
+                            HexBytes(
+                                "0x0000000000000000000000000000000000000000000000000000000000000032"  # noqa: E501
+                            ),
+                            HexBytes(
+                                "0x0000000000000000000000000000000000000000000000000000000000000036"  # noqa: E501
+                            ),
                         ],
                     }
                 ),
@@ -293,5 +297,6 @@ def test_get_transaction_formatters(w3):
             "data": HexBytes(unformatted_transaction["data"]),
         }
     )
+
     assert received_tx == expected
     w3.middleware_onion.remove("result_middleware")

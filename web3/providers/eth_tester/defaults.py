@@ -311,6 +311,7 @@ API_ENDPOINTS = {
         "sendTransaction": call_eth_tester("send_transaction"),
         "sendRawTransaction": call_eth_tester("send_raw_transaction"),
         "call": call_eth_tester("call"),  # TODO: untested
+        "createAccessList": not_implemented,
         "estimateGas": call_eth_tester("estimate_gas"),  # TODO: untested
         "getBlockByHash": null_if_block_not_found(call_eth_tester("get_block_by_hash")),
         "getBlockByNumber": null_if_block_not_found(
