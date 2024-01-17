@@ -5,9 +5,6 @@ import tempfile
 from tests.integration.common import (
     COINBASE,
 )
-from tests.utils import (
-    get_open_port,
-)
 from web3 import (
     Web3,
 )
@@ -25,11 +22,8 @@ from .utils import (
 
 
 def _geth_command_arguments(geth_ipc_path, base_geth_command_arguments):
-    geth_port = get_open_port()
     yield from base_geth_command_arguments
     yield from (
-        "--port",
-        geth_port,
         "--ipcpath",
         geth_ipc_path,
         "--miner.etherbase",

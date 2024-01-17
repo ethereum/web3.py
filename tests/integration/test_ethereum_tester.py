@@ -293,12 +293,6 @@ class TestEthereumTesterEthModule(EthModuleTest):
     test_eth_sign_transaction_ens_names = not_implemented(
         EthModuleTest.test_eth_sign_transaction_ens_names, MethodUnavailable
     )
-    test_eth_submit_hashrate = not_implemented(
-        EthModuleTest.test_eth_submit_hashrate, MethodUnavailable
-    )
-    test_eth_submit_work = not_implemented(
-        EthModuleTest.test_eth_submit_work, MethodUnavailable
-    )
     test_eth_get_raw_transaction = not_implemented(
         EthModuleTest.test_eth_get_raw_transaction, MethodUnavailable
     )

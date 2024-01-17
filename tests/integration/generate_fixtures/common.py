@@ -15,20 +15,6 @@ from eth_utils import (
 from web3 import (
     constants,
 )
-from web3.exceptions import (
-    TransactionNotFound,
-)
-
-
-def _extradata_encode_signer(signer_address):
-    """
-    Encode signer address in extradata field
-    https://geth.ethereum.org/docs/fundamentals/private-network#clique-example
-    """
-    _32_zero_bytes = "0" * 64
-    _65_zero_bytes = "0" * 130
-    return f"0x{_32_zero_bytes}{signer_address[2:]}{_65_zero_bytes}"
-
 
 # use same coinbase value as in `web3.py/tests/integration/common.py`
 COINBASE = "0xdc544d1aa88ff8bbd2f2aec754b1f1e99e1812fd"
@@ -37,6 +23,7 @@ COINBASE_PK = "0x58d23b55bc9cdce1f18c2500f40ff4ab7245df9a89505e9b1fa4851f623d241
 KEYFILE_DATA = '{"address":"dc544d1aa88ff8bbd2f2aec754b1f1e99e1812fd","crypto":{"cipher":"aes-128-ctr","ciphertext":"52e06bc9397ea9fa2f0dae8de2b3e8116e92a2ecca9ad5ff0061d1c449704e98","cipherparams":{"iv":"aa5d0a5370ef65395c1a6607af857124"},"kdf":"scrypt","kdfparams":{"dklen":32,"n":262144,"p":1,"r":8,"salt":"9fdf0764eb3645ffc184e166537f6fe70516bf0e34dc7311dea21f100f0c9263"},"mac":"4e0b51f42b865c15c485f4faefdd1f01a38637e5247f8c75ffe6a8c0eba856f6"},"id":"5a6124e0-10f1-4c1c-ae3e-d903eacb740a","version":3}'  # noqa: E501
 
 KEYFILE_PW = "web3py-test"
+KEYFILE_PW_TXT = "pw.txt"
 KEYFILE_FILENAME = "UTC--2017-08-24T19-42-47.517572178Z--dc544d1aa88ff8bbd2f2aec754b1f1e99e1812fd"  # noqa: E501
 
 RAW_TXN_ACCOUNT = "0x39EEed73fb1D3855E90Cbd42f348b3D7b340aAA6"
@@ -63,9 +50,10 @@ GENESIS_DATA = {
         "arrowGlacierBlock": 0,
         "grayGlacierBlock": 0,
         "shanghaiTime": 0,
-        "clique": {"period": 5, "epoch": 30000},
+        "terminalTotalDifficulty": 0,
+        "terminalTotalDifficultyPassed": True,
     },
-    "nonce": "0x8964358912345896",  # Random nonce to prevent unknown connections
+    "nonce": "0x0",
     "alloc": {
         COINBASE: {"balance": "1000000000000000000000000000"},
         UNLOCKABLE_ACCOUNT: {"balance": "1000000000000000000000000000"},
@@ -77,11 +65,11 @@ GENESIS_DATA = {
         "0000000000000000000000000000000000000005": {"balance": "1"},
         "0000000000000000000000000000000000000006": {"balance": "1"},
     },
-    "timestamp": "0x00",
+    "timestamp": "0x0",
     "parentHash": constants.HASH_ZERO,
-    "extraData": _extradata_encode_signer(COINBASE),
-    "gasLimit": "0x3b9aca00",  # 1,000,000,000
-    "difficulty": "0x10000",
+    "extraData": "0x3535353535353535353535353535353535353535353535353535353535353535",
+    "difficulty": "0x1",
+    "gasLimit": "0x1c9c380",
     "mixhash": constants.HASH_ZERO,
     "coinbase": COINBASE,
 }
@@ -184,6 +172,9 @@ def get_geth_process(
         geth_binary,
         "--datadir",
         datadir,
+        "--dev",
+        "--dev.period",
+        "1",
         "--ipcpath",
         ipc_path,
         "--nodiscover",
@@ -222,11 +213,9 @@ def mine_block(w3):
     origin_block_number = w3.eth.block_number
 
     start_time = time.time()
-    w3.geth.miner.start(1)
     while time.time() < start_time + 120:
         block_number = w3.eth.block_number
         if block_number > origin_block_number:
-            w3.geth.miner.stop()
             return block_number
         else:
             time.sleep(0.1)
@@ -234,31 +223,12 @@ def mine_block(w3):
         raise ValueError("No block mined during wait period")
 
 
-def mine_transaction_hash(w3, txn_hash):
-    start_time = time.time()
-    w3.geth.miner.start(1)
-    while time.time() < start_time + 120:
-        try:
-            receipt = w3.eth.get_transaction_receipt(txn_hash)
-        except TransactionNotFound:
-            continue
-        if receipt is not None:
-            w3.geth.miner.stop()
-            return receipt
-        else:
-            time.sleep(0.1)
-    else:
-        raise ValueError(
-            "Math contract deploy transaction not mined during wait period"
-        )
-
-
 def deploy_contract(w3, name, factory):
     name = name.upper()
     w3.geth.personal.unlock_account(w3.eth.coinbase, KEYFILE_PW)
     deploy_txn_hash = factory.constructor().transact({"from": w3.eth.coinbase})
     print(f"{name}_CONTRACT_DEPLOY_HASH: {deploy_txn_hash}")
-    deploy_receipt = mine_transaction_hash(w3, deploy_txn_hash)
+    deploy_receipt = w3.eth.wait_for_transaction_receipt(deploy_txn_hash)
     print(f"{name}_CONTRACT_DEPLOY_TRANSACTION_MINED")
     contract_address = deploy_receipt["contractAddress"]
     assert is_checksum_address(contract_address)

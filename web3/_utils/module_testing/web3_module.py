@@ -1,4 +1,5 @@
 import pytest
+import time
 from typing import (
     Any,
     NoReturn,
@@ -30,6 +31,7 @@ from web3.exceptions import (
 
 class Web3ModuleTest:
     def test_web3_client_version(self, w3: Web3) -> None:
+        time.sleep(1)
         client_version = w3.client_version
         self._check_web3_client_version(client_version)
 
