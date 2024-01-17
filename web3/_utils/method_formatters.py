@@ -287,9 +287,7 @@ receipt_formatter = type_aware_apply_formatters_to_dict(RECEIPT_FORMATTERS)
 
 BLOCK_FORMATTERS = {
     "baseFeePerGas": to_integer_if_hex,
-    "extraData": apply_formatter_if(
-        is_not_null, to_hexbytes(117, variable_length=True)
-    ),
+    "extraData": apply_formatter_if(is_not_null, to_hexbytes(32, variable_length=True)),
     "gasLimit": to_integer_if_hex,
     "gasUsed": to_integer_if_hex,
     "size": to_integer_if_hex,
