@@ -85,17 +85,16 @@ class AsyncBaseProvider:
         self._request_cache = SimpleCache(1000)
 
     async def request_func(
-        self, async_w3: "AsyncWeb3", middlewares: MiddlewareOnion
+        self, async_w3: "AsyncWeb3", middleware_onion: MiddlewareOnion
     ) -> Callable[..., Coroutine[Any, Any, RPCResponse]]:
-        # type ignored b/c tuple(MiddlewareOnion) converts to tuple of middlewares
-        middlewares: Tuple[Middleware, ...] = tuple(middlewares)  # type: ignore
+        middlewares: Tuple[Middleware, ...] = middleware_onion.as_tuple_of_middlewares()
 
         cache_key = self._request_func_cache[0]
-        if cache_key != middlewares:  # type: ignore
+        if cache_key != middlewares:
             self._request_func_cache = (
                 middlewares,
                 await async_combine_middlewares(
-                    middlewares=middlewares,  # type: ignore
+                    middlewares=middlewares,
                     async_w3=async_w3,
                     provider_request_fn=self.make_request,
                 ),

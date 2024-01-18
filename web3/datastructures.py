@@ -268,13 +268,6 @@ class NamedElementOnion(Mapping[TKey, TValue]):
                 self._queue.move_to_end(key)
         del self._queue[old]
 
-    def __iter__(self) -> Iterator[TKey]:
-        elements = self._queue.values()
-        if not isinstance(elements, Sequence):
-            # type ignored b/c elements is set as _OrderedDictValuesView[Any] on 210
-            elements = list(elements)  # type: ignore
-        return iter(reversed(elements))
-
     def __add__(self, other: Any) -> "NamedElementOnion[TKey, TValue]":
         if not isinstance(other, NamedElementOnion):
             # you can only combine with another ``NamedElementOnion``
@@ -297,3 +290,27 @@ class NamedElementOnion(Mapping[TKey, TValue]):
         if not isinstance(elements, Sequence):
             elements = list(elements)
         return iter(elements)
+
+    # --- iter and tupleize methods --- #
+
+    def _reversed_middlewares(self) -> Iterator[TValue]:
+        elements = self._queue.values()
+        if not isinstance(elements, Sequence):
+            # type ignored b/c elements is set as _OrderedDictValuesView[Any] on 210
+            elements = list(elements)  # type: ignore
+        return reversed(elements)
+
+    def as_tuple_of_middlewares(self) -> Tuple[TValue, ...]:
+        """
+        This helps with type hinting since we return `Iterator[TKey]` type, though it's
+        actually a `Iterator[TValue]` type, for the `__iter__()` method. This is in
+        order to satisfy the `Mapping` interface.
+        """
+        return tuple(self._reversed_middlewares())
+
+    def __iter__(self) -> Iterator[TKey]:
+        # ``__iter__()`` for a ``Mapping``  returns ``Iterator[TKey]`` but this
+        # implementation returns ``Iterator[TValue]`` on reversed values (not keys).
+        # This leads to typing issues, so it's better to use
+        # ``as_tuple_of_middlewares()`` to achieve the same result.
+        return iter(self._reversed_middlewares())  # type: ignore

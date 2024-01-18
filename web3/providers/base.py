@@ -82,24 +82,23 @@ class BaseProvider:
         self._request_cache = SimpleCache(1000)
 
     def request_func(
-        self, w3: "Web3", middlewares: MiddlewareOnion
+        self, w3: "Web3", middleware_onion: MiddlewareOnion
     ) -> Callable[..., RPCResponse]:
         """
         @param w3 is the web3 instance
-        @param middlewares is an iterable of middlewares,
+        @param middleware_onion is an iterable of middlewares,
             ordered by first to execute
         @returns a function that calls all the middleware and
             eventually self.make_request()
         """
-        # type ignored b/c tuple(MiddlewareOnion) converts to tuple of middlewares
-        middlewares: Tuple[Middleware] = tuple(middlewares)  # type: ignore
+        middlewares: Tuple[Middleware, ...] = middleware_onion.as_tuple_of_middlewares()
 
         cache_key = self._request_func_cache[0]
-        if cache_key != middlewares:  # type: ignore
+        if cache_key != middlewares:
             self._request_func_cache = (
                 middlewares,
                 combine_middlewares(
-                    middlewares=middlewares,  # type: ignore
+                    middlewares=middlewares,
                     w3=w3,
                     provider_request_fn=self.make_request,
                 ),
