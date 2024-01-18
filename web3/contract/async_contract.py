@@ -428,6 +428,37 @@ class AsyncContractFunctions(BaseContractFunctions):
             return super().__getattribute__(function_name)
 
 
+class AsyncContractConstructor(BaseContractConstructor):
+    # mypy types
+    w3: "AsyncWeb3"
+
+    @combomethod
+    async def transact(self, transaction: Optional[TxParams] = None) -> HexBytes:
+        return await self.w3.eth.send_transaction(self._get_transaction(transaction))
+
+    @combomethod
+    async def build_transaction(
+        self, transaction: Optional[TxParams] = None
+    ) -> TxParams:
+        """
+        Build the transaction dictionary without sending
+        """
+        built_transaction = self._build_transaction(transaction)
+        return await async_fill_transaction_defaults(self.w3, built_transaction)
+
+    @combomethod
+    async def estimate_gas(
+        self,
+        transaction: Optional[TxParams] = None,
+        block_identifier: Optional[BlockIdentifier] = None,
+    ) -> int:
+        transaction = self._estimate_gas(transaction)
+
+        return await self.w3.eth.estimate_gas(
+            transaction, block_identifier=block_identifier
+        )
+
+
 class AsyncContract(BaseContract):
     functions: AsyncContractFunctions = None
     caller: "AsyncContractCaller" = None
@@ -515,7 +546,7 @@ class AsyncContract(BaseContract):
         return contract
 
     @classmethod
-    def constructor(cls, *args: Any, **kwargs: Any) -> Self:
+    def constructor(cls, *args: Any, **kwargs: Any) -> AsyncContractConstructor:
         """
         :param args: The contract constructor arguments as positional arguments
         :param kwargs: The contract constructor arguments as keyword arguments
@@ -612,35 +643,4 @@ class AsyncContractCaller(BaseContractCaller):
             block_identifier=block_identifier,
             ccip_read_enabled=ccip_read_enabled,
             decode_tuples=self.decode_tuples,
-        )
-
-
-class AsyncContractConstructor(BaseContractConstructor):
-    # mypy types
-    w3: "AsyncWeb3"
-
-    @combomethod
-    async def transact(self, transaction: Optional[TxParams] = None) -> HexBytes:
-        return await self.w3.eth.send_transaction(self._get_transaction(transaction))
-
-    @combomethod
-    async def build_transaction(
-        self, transaction: Optional[TxParams] = None
-    ) -> TxParams:
-        """
-        Build the transaction dictionary without sending
-        """
-        built_transaction = self._build_transaction(transaction)
-        return await async_fill_transaction_defaults(self.w3, built_transaction)
-
-    @combomethod
-    async def estimate_gas(
-        self,
-        transaction: Optional[TxParams] = None,
-        block_identifier: Optional[BlockIdentifier] = None,
-    ) -> int:
-        transaction = self._estimate_gas(transaction)
-
-        return await self.w3.eth.estimate_gas(
-            transaction, block_identifier=block_identifier
         )
