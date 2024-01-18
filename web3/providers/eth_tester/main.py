@@ -79,19 +79,20 @@ class AsyncEthereumTesterProvider(AsyncBaseProvider):
         self.api_endpoints = API_ENDPOINTS
 
     async def request_func(
-        self, async_w3: "AsyncWeb3", middlewares: "MiddlewareOnion"
+        self, async_w3: "AsyncWeb3", middleware_onion: "MiddlewareOnion"
     ) -> Callable[..., Coroutine[Any, Any, RPCResponse]]:
         # override the request_func to add the ethereum_tester_middleware
 
-        # type ignored bc tuple(MiddlewareOnion) converts to tuple of middlewares
-        middlewares = tuple(middlewares) + tuple(self._middlewares)  # type: ignore
+        middlewares = middleware_onion.as_tuple_of_middlewares() + tuple(
+            self._middlewares
+        )
 
         cache_key = self._request_func_cache[0]
-        if cache_key != middlewares:  # type: ignore
+        if cache_key != middlewares:
             self._request_func_cache = (
                 middlewares,
                 await async_combine_middlewares(
-                    middlewares=middlewares,  # type: ignore
+                    middlewares=middlewares,
                     async_w3=async_w3,
                     provider_request_fn=self.make_request,
                 ),
@@ -154,19 +155,20 @@ class EthereumTesterProvider(BaseProvider):
             self.api_endpoints = api_endpoints
 
     def request_func(
-        self, w3: "Web3", middlewares: "MiddlewareOnion"
+        self, w3: "Web3", middleware_onion: "MiddlewareOnion"
     ) -> Callable[..., RPCResponse]:
         # override the request_func to add the ethereum_tester_middleware
 
-        # type ignored bc tuple(MiddlewareOnion) converts to tuple of middlewares
-        middlewares = tuple(middlewares) + tuple(self._middlewares)  # type: ignore
+        middlewares = middleware_onion.as_tuple_of_middlewares() + tuple(
+            self._middlewares
+        )
 
         cache_key = self._request_func_cache[0]
-        if cache_key != middlewares:  # type: ignore
+        if cache_key != middlewares:
             self._request_func_cache = (
                 middlewares,
                 combine_middlewares(
-                    middlewares=middlewares,  # type: ignore
+                    middlewares=middlewares,
                     w3=w3,
                     provider_request_fn=self.make_request,
                 ),
