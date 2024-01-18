@@ -75,7 +75,17 @@ def get_geth_version(geth_binary):
         get_geth_version,
     )
 
-    return get_geth_version(geth_executable=os.path.expanduser(geth_binary))
+    geth_version = get_geth_version(geth_executable=os.path.expanduser(geth_binary))
+
+    fixture_geth_version = GETH_FIXTURE_ZIP.split("-")[1]
+    if fixture_geth_version not in str(geth_version):
+        raise AssertionError(
+            f"geth fixture version `{fixture_geth_version}` does not match geth "
+            f"version for binary being used to run the test suite: `{geth_version}`. "
+            "For CI runs, make sure to update the geth version in the CI config file."
+        )
+
+    return geth_version
 
 
 @pytest.fixture(scope="module")
