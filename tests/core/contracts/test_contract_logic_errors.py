@@ -1,10 +1,17 @@
-from unittest.mock import patch
 import pytest
-from web3 import Web3
+from unittest.mock import (
+    patch,
+)
+
+from web3 import (
+    Web3,
+)
 from web3._utils.contract_sources.contract_data.contract_logic_error_tester import (
     MEAS_PUB_DATA,
 )
-from web3.exceptions import ContractLogicError
+from web3.exceptions import (
+    ContractLogicError,
+)
 
 
 @pytest.fixture
