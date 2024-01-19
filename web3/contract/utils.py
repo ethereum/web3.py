@@ -42,7 +42,7 @@ from web3._utils.transactions import (
     fill_transaction_defaults,
 )
 from web3.exceptions import (
-    BadFunctionCallOutput,
+    BadFunctionCallOutput, ContractLogicError,
 )
 from web3.types import (
     ABI,
@@ -121,12 +121,13 @@ def call_contract_function(
                 "Could not transact with/call contract function, is contract "
                 "deployed correctly and chain synced?"
             )
+            raise ContractLogicError(msg) from e
         else:
             msg = (
                 f"Could not decode contract function call to {function_identifier} "
                 f"with return data: {str(return_data)}, output_types: {output_types}"
             )
-        raise BadFunctionCallOutput(msg) from e
+            raise BadFunctionCallOutput(msg) from e
 
     _normalizers = itertools.chain(
         BASE_RETURN_NORMALIZERS,
