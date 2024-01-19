@@ -65,7 +65,19 @@ class RequestProcessor:
         method: RPCEndpoint,
         params: Any,
         response_formatters: Tuple[Callable[..., Any], ...],
-    ) -> str:
+    ) -> Optional[str]:
+        cached_requests_key = generate_cache_key((method, params))
+        if cached_requests_key in self._provider._request_cache._data:
+            cached_response = self._provider._request_cache._data[cached_requests_key]
+            cached_response_id = cached_response.get("id")
+            cache_key = generate_cache_key(cached_response_id)
+            if cache_key in self._request_information_cache:
+                self._provider.logger.debug(
+                    "This is a cached request, not caching request info because it is "
+                    f"not unique:\n    method={method},\n    params={params}"
+                )
+                return None
+
         # copy the request counter and find the next request id without incrementing
         # since this is done when / if the request is successfully sent
         request_id = next(copy(self._provider.request_counter))
@@ -147,11 +159,20 @@ class RequestProcessor:
         else:
             # retrieve the request info from the cache using the request id
             cache_key = generate_cache_key(response["id"])
-            request_info = (
-                # pop the request info from the cache since we don't need to keep it
-                # this keeps the cache size bounded
-                self.pop_cached_request_information(cache_key)
-            )
+            if response in self._provider._request_cache._data.values():
+                request_info = (
+                    # don't pop the request info from the cache, since we need to keep
+                    # it to process future responses
+                    # i.e. request information remains in the cache
+                    self._request_information_cache.get_cache_entry(cache_key)
+                )
+            else:
+                request_info = (
+                    # pop the request info from the cache since we don't need to keep it
+                    # this keeps the cache size bounded
+                    self.pop_cached_request_information(cache_key)
+                )
+
             if (
                 request_info is not None
                 and request_info.method == "eth_unsubscribe"

@@ -37,17 +37,15 @@ from web3.exceptions import (
     MethodUnavailable,
 )
 from web3.middleware import (
-    abi_middleware,
-    async_attrdict_middleware,
-    async_buffered_gas_estimate_middleware,
-    async_gas_price_strategy_middleware,
-    async_name_to_address_middleware,
-    async_validation_middleware,
     attrdict_middleware,
     buffered_gas_estimate_middleware,
+    ens_name_to_address_middleware,
     gas_price_strategy_middleware,
-    name_to_address_middleware,
     validation_middleware,
+)
+from web3.middleware.base import (
+    Middleware,
+    MiddlewareOnion,
 )
 from web3.module import (
     apply_result_formatters,
@@ -57,10 +55,6 @@ from web3.providers import (
     PersistentConnectionProvider,
 )
 from web3.types import (
-    AsyncMiddleware,
-    AsyncMiddlewareOnion,
-    Middleware,
-    MiddlewareOnion,
     RPCEndpoint,
     RPCResponse,
 )
@@ -69,6 +63,9 @@ if TYPE_CHECKING:
     from web3.main import (  # noqa: F401
         AsyncWeb3,
         Web3,
+    )
+    from web3.middleware.base import (  # noqa: F401
+        Web3Middleware,
     )
     from web3.providers import (  # noqa: F401
         AsyncBaseProvider,
@@ -119,21 +116,15 @@ def apply_null_result_formatters(
 
 
 class RequestManager:
-    logger = logging.getLogger("web3.RequestManager")
+    logger = logging.getLogger("web3.manager.RequestManager")
 
-    middleware_onion: Union[
-        MiddlewareOnion, AsyncMiddlewareOnion, NamedElementOnion[None, None]
-    ]
+    middleware_onion: Union["MiddlewareOnion", NamedElementOnion[None, None]]
 
     def __init__(
         self,
         w3: Union["AsyncWeb3", "Web3"],
         provider: Optional[Union["BaseProvider", "AsyncBaseProvider"]] = None,
-        middlewares: Optional[
-            Union[
-                Sequence[Tuple[Middleware, str]], Sequence[Tuple[AsyncMiddleware, str]]
-            ]
-        ] = None,
+        middlewares: Optional[Sequence[Tuple[Middleware, str]]] = None,
     ) -> None:
         self.w3 = w3
 
@@ -143,11 +134,7 @@ class RequestManager:
             self.provider = provider
 
         if middlewares is None:
-            middlewares = (
-                self.async_default_middlewares()
-                if self.provider.is_async
-                else self.default_middlewares(cast("Web3", w3))
-            )
+            middlewares = self.get_default_middlewares()
 
         self.middleware_onion = NamedElementOnion(middlewares)
 
@@ -169,33 +156,17 @@ class RequestManager:
         self._provider = provider
 
     @staticmethod
-    def default_middlewares(w3: "Web3") -> List[Tuple[Middleware, str]]:
+    def get_default_middlewares() -> List[Tuple[Middleware, str]]:
         """
         List the default middlewares for the request manager.
-        Leaving w3 unspecified will prevent the middleware from resolving names.
         Documentation should remain in sync with these defaults.
         """
         return [
             (gas_price_strategy_middleware, "gas_price_strategy"),
-            (name_to_address_middleware(w3), "name_to_address"),
+            (ens_name_to_address_middleware, "ens_name_to_address"),
             (attrdict_middleware, "attrdict"),
             (validation_middleware, "validation"),
-            (abi_middleware, "abi"),
             (buffered_gas_estimate_middleware, "gas_estimate"),
-        ]
-
-    @staticmethod
-    def async_default_middlewares() -> List[Tuple[AsyncMiddleware, str]]:
-        """
-        List the default async middlewares for the request manager.
-        Documentation should remain in sync with these defaults.
-        """
-        return [
-            (async_gas_price_strategy_middleware, "gas_price_strategy"),
-            (async_name_to_address_middleware, "name_to_address"),
-            (async_attrdict_middleware, "attrdict"),
-            (async_validation_middleware, "validation"),
-            (async_buffered_gas_estimate_middleware, "gas_estimate"),
         ]
 
     #
@@ -206,7 +177,7 @@ class RequestManager:
     ) -> RPCResponse:
         provider = cast("BaseProvider", self.provider)
         request_func = provider.request_func(
-            cast("Web3", self.w3), cast(MiddlewareOnion, self.middleware_onion)
+            cast("Web3", self.w3), cast("MiddlewareOnion", self.middleware_onion)
         )
         self.logger.debug(f"Making request. Method: {method}")
         return request_func(method, params)
@@ -216,8 +187,7 @@ class RequestManager:
     ) -> RPCResponse:
         provider = cast("AsyncBaseProvider", self.provider)
         request_func = await provider.request_func(
-            cast("AsyncWeb3", self.w3),
-            cast(AsyncMiddlewareOnion, self.middleware_onion),
+            cast("AsyncWeb3", self.w3), cast("MiddlewareOnion", self.middleware_onion)
         )
         self.logger.debug(f"Making request. Method: {method}")
         return await request_func(method, params)
@@ -345,8 +315,7 @@ class RequestManager:
     async def ws_send(self, method: RPCEndpoint, params: Any) -> RPCResponse:
         provider = cast(PersistentConnectionProvider, self._provider)
         request_func = await provider.request_func(
-            cast("AsyncWeb3", self.w3),
-            cast(AsyncMiddlewareOnion, self.middleware_onion),
+            cast("AsyncWeb3", self.w3), cast("MiddlewareOnion", self.middleware_onion)
         )
         self.logger.debug(
             "Making request to open websocket connection - "

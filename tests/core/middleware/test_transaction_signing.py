@@ -36,12 +36,9 @@ from web3.exceptions import (
     InvalidAddress,
 )
 from web3.middleware import (
-    async_construct_result_generator_middleware,
-    construct_result_generator_middleware,
     construct_sign_and_send_raw_middleware,
 )
 from web3.middleware.signing import (
-    async_construct_sign_and_send_raw_middleware,
     gen_normalized_accounts,
 )
 from web3.providers import (
@@ -93,29 +90,21 @@ MIXED_KEY_SAME_TYPE = (
 
 class DummyProvider(BaseProvider):
     def make_request(self, method, params):
-        raise NotImplementedError(f"Cannot make request for {method}:{params}")
+        raise NotImplementedError(f"Cannot make request for {method}: {params}")
 
 
 @pytest.fixture
-def result_generator_middleware():
-    return construct_result_generator_middleware(
-        {
+def w3_dummy(request_mocker):
+    w3_base = Web3(provider=DummyProvider(), middlewares=[])
+    with request_mocker(
+        w3_base,
+        mock_results={
             "eth_sendRawTransaction": lambda *args: args,
             "net_version": lambda *_: 1,
             "eth_chainId": lambda *_: "0x02",
-        }
-    )
-
-
-@pytest.fixture
-def w3_base():
-    return Web3(provider=DummyProvider(), middlewares=[])
-
-
-@pytest.fixture
-def w3_dummy(w3_base, result_generator_middleware):
-    w3_base.middleware_onion.add(result_generator_middleware)
-    return w3_base
+        },
+    ):
+        yield w3_base
 
 
 def hex_to_bytes(s):
@@ -424,31 +413,23 @@ def test_sign_and_send_raw_middleware_with_byte_addresses(
 # -- async -- #
 
 
-@pytest_asyncio.fixture
-async def async_result_generator_middleware():
-    return await async_construct_result_generator_middleware(
-        {
-            "eth_sendRawTransaction": lambda *args: args,
-            "net_version": lambda *_: 1,
-            "eth_chainId": lambda *_: "0x02",
-        }
-    )
-
-
 class AsyncDummyProvider(AsyncBaseProvider):
     async def coro_request(self, method, params):
         raise NotImplementedError(f"Cannot make request for {method}:{params}")
 
 
-@pytest.fixture
-def async_w3_base():
-    return AsyncWeb3(provider=AsyncDummyProvider(), middlewares=[])
-
-
-@pytest.fixture
-def async_w3_dummy(async_w3_base, async_result_generator_middleware):
-    async_w3_base.middleware_onion.add(async_result_generator_middleware)
-    return async_w3_base
+@pytest_asyncio.fixture
+async def async_w3_dummy(request_mocker):
+    w3_base = AsyncWeb3(provider=AsyncDummyProvider(), middlewares=[])
+    async with request_mocker(
+        w3_base,
+        mock_results={
+            "eth_sendRawTransaction": lambda *args: args,
+            "net_version": 1,
+            "eth_chainId": "0x02",
+        },
+    ):
+        yield w3_base
 
 
 @pytest.fixture
@@ -482,7 +463,7 @@ async def test_async_sign_and_send_raw_middleware(
     key_object,
 ):
     async_w3_dummy.middleware_onion.add(
-        await async_construct_sign_and_send_raw_middleware(key_object)
+        construct_sign_and_send_raw_middleware(key_object)
     )
 
     legacy_transaction = {
@@ -553,9 +534,7 @@ async def test_async_signed_transaction(
     key_object,
     from_,
 ):
-    async_w3.middleware_onion.add(
-        await async_construct_sign_and_send_raw_middleware(key_object)
-    )
+    async_w3.middleware_onion.add(construct_sign_and_send_raw_middleware(key_object))
 
     # Drop any falsy addresses
     accounts = await async_w3.eth.accounts
@@ -595,7 +574,7 @@ async def test_async_sign_and_send_raw_middleware_with_byte_addresses(
     to_ = to_converter(ADDRESS_2)
 
     async_w3_dummy.middleware_onion.add(
-        await async_construct_sign_and_send_raw_middleware(private_key)
+        construct_sign_and_send_raw_middleware(private_key)
     )
 
     actual = await async_w3_dummy.manager.coro_request(

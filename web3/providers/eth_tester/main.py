@@ -2,6 +2,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
+    Coroutine,
     Dict,
     Optional,
     Union,
@@ -20,13 +21,6 @@ from eth_utils import (
 from web3._utils.compat import (
     Literal,
 )
-from web3.middleware.attrdict import (
-    async_attrdict_middleware,
-    attrdict_middleware,
-)
-from web3.middleware.buffered_gas_estimate import (
-    async_buffered_gas_estimate_middleware,
-)
 from web3.providers import (
     BaseProvider,
 )
@@ -39,9 +33,11 @@ from web3.types import (
     RPCResponse,
 )
 
+from ...middleware import (
+    async_combine_middlewares,
+    combine_middlewares,
+)
 from .middleware import (
-    async_default_transaction_fields_middleware,
-    async_ethereum_tester_middleware,
     default_transaction_fields_middleware,
     ethereum_tester_middleware,
 )
@@ -50,13 +46,21 @@ if TYPE_CHECKING:
     from eth_tester import EthereumTester  # noqa: F401
     from eth_tester.backends.base import BaseChainBackend  # noqa: F401
 
+    from web3 import (  # noqa: F401
+        AsyncWeb3,
+        Web3,
+    )
+    from web3.middleware.base import (  # noqa: F401
+        Middleware,
+        MiddlewareOnion,
+        Web3Middleware,
+    )
+
 
 class AsyncEthereumTesterProvider(AsyncBaseProvider):
-    middlewares = (
-        async_attrdict_middleware,
-        async_buffered_gas_estimate_middleware,
-        async_default_transaction_fields_middleware,
-        async_ethereum_tester_middleware,
+    _middlewares = (
+        default_transaction_fields_middleware,
+        ethereum_tester_middleware,
     )
 
     def __init__(self) -> None:
@@ -74,6 +78,27 @@ class AsyncEthereumTesterProvider(AsyncBaseProvider):
         self.ethereum_tester = EthereumTester()
         self.api_endpoints = API_ENDPOINTS
 
+    async def request_func(
+        self, async_w3: "AsyncWeb3", middleware_onion: "MiddlewareOnion"
+    ) -> Callable[..., Coroutine[Any, Any, RPCResponse]]:
+        # override the request_func to add the ethereum_tester_middleware
+
+        middlewares = middleware_onion.as_tuple_of_middlewares() + tuple(
+            self._middlewares
+        )
+
+        cache_key = self._request_func_cache[0]
+        if cache_key != middlewares:
+            self._request_func_cache = (
+                middlewares,
+                await async_combine_middlewares(
+                    middlewares=middlewares,
+                    async_w3=async_w3,
+                    provider_request_fn=self.make_request,
+                ),
+            )
+        return self._request_func_cache[-1]
+
     async def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
         return _make_request(method, params, self.api_endpoints, self.ethereum_tester)
 
@@ -82,8 +107,7 @@ class AsyncEthereumTesterProvider(AsyncBaseProvider):
 
 
 class EthereumTesterProvider(BaseProvider):
-    middlewares = (
-        attrdict_middleware,
+    _middlewares = (
         default_transaction_fields_middleware,
         ethereum_tester_middleware,
     )
@@ -98,6 +122,7 @@ class EthereumTesterProvider(BaseProvider):
         ] = None,
     ) -> None:
         # do not import eth_tester until runtime, it is not a default dependency
+        super().__init__()
         from eth_tester import EthereumTester  # noqa: F811
         from eth_tester.backends.base import (
             BaseChainBackend,
@@ -128,6 +153,27 @@ class EthereumTesterProvider(BaseProvider):
             self.api_endpoints = API_ENDPOINTS
         else:
             self.api_endpoints = api_endpoints
+
+    def request_func(
+        self, w3: "Web3", middleware_onion: "MiddlewareOnion"
+    ) -> Callable[..., RPCResponse]:
+        # override the request_func to add the ethereum_tester_middleware
+
+        middlewares = middleware_onion.as_tuple_of_middlewares() + tuple(
+            self._middlewares
+        )
+
+        cache_key = self._request_func_cache[0]
+        if cache_key != middlewares:
+            self._request_func_cache = (
+                middlewares,
+                combine_middlewares(
+                    middlewares=middlewares,
+                    w3=w3,
+                    provider_request_fn=self.make_request,
+                ),
+            )
+        return self._request_func_cache[-1]
 
     def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
         return _make_request(method, params, self.api_endpoints, self.ethereum_tester)

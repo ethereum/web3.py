@@ -103,7 +103,11 @@ def retrieve_async_method_call_fn(
                 method_str = cast(RPCEndpoint, method_str)
                 return await async_w3.manager.ws_send(method_str, params)
             except Exception as e:
-                if cache_key in provider._request_processor._request_information_cache:
+                if (
+                    cache_key is not None
+                    and cache_key
+                    in provider._request_processor._request_information_cache
+                ):
                     provider._request_processor.pop_cached_request_information(
                         cache_key
                     )

@@ -1,7 +1,7 @@
 from typing import (
     TYPE_CHECKING,
     Any,
-    Callable,
+    cast,
 )
 
 from eth_utils.toolz import (
@@ -23,11 +23,12 @@ from web3.exceptions import (
     InvalidTransaction,
     TransactionTypeMismatch,
 )
+from web3.middleware.base import (
+    Web3Middleware,
+)
 from web3.types import (
-    AsyncMiddlewareCoroutine,
     BlockData,
     RPCEndpoint,
-    RPCResponse,
     TxParams,
     Wei,
 )
@@ -78,34 +79,7 @@ def validate_transaction_params(
     return transaction
 
 
-def gas_price_strategy_middleware(
-    make_request: Callable[[RPCEndpoint, Any], Any], w3: "Web3"
-) -> Callable[[RPCEndpoint, Any], RPCResponse]:
-    """
-    - Uses a gas price strategy if one is set. This is only supported
-      for legacy transactions. It is recommended to send dynamic fee
-      transactions (EIP-1559) whenever possible.
-
-    - Validates transaction params against legacy and dynamic fee txn values.
-    """
-
-    def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
-        if method == "eth_sendTransaction":
-            transaction = params[0]
-            generated_gas_price = w3.eth.generate_gas_price(transaction)
-            latest_block = w3.eth.get_block("latest")
-            transaction = validate_transaction_params(
-                transaction, latest_block, generated_gas_price
-            )
-            return make_request(method, (transaction,))
-        return make_request(method, params)
-
-    return middleware
-
-
-async def async_gas_price_strategy_middleware(
-    make_request: Callable[[RPCEndpoint, Any], Any], async_w3: "AsyncWeb3"
-) -> AsyncMiddlewareCoroutine:
+class GasPriceStrategyMiddleware(Web3Middleware):
     """
     - Uses a gas price strategy if one is set. This is only supported for
       legacy transactions. It is recommended to send dynamic fee transactions
@@ -114,15 +88,32 @@ async def async_gas_price_strategy_middleware(
     - Validates transaction params against legacy and dynamic fee txn values.
     """
 
-    async def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
+    def request_processor(self, method: RPCEndpoint, params: Any) -> Any:
         if method == "eth_sendTransaction":
             transaction = params[0]
-            generated_gas_price = async_w3.eth.generate_gas_price(transaction)
-            latest_block = await async_w3.eth.get_block("latest")
+            generated_gas_price = self._w3.eth.generate_gas_price(transaction)
+            w3 = cast("Web3", self._w3)
+            latest_block = w3.eth.get_block("latest")
             transaction = validate_transaction_params(
                 transaction, latest_block, generated_gas_price
             )
-            return await make_request(method, (transaction,))
-        return await make_request(method, params)
+            params = (transaction,)
 
-    return middleware
+        return method, params
+
+    # -- async -- #
+
+    async def async_request_processor(self, method: RPCEndpoint, params: Any) -> Any:
+        if method == "eth_sendTransaction":
+            transaction = params[0]
+            w3 = cast("AsyncWeb3", self._w3)
+            generated_gas_price = w3.eth.generate_gas_price(transaction)
+            latest_block = await w3.eth.get_block("latest")
+            transaction = validate_transaction_params(
+                transaction, latest_block, generated_gas_price
+            )
+            params = (transaction,)
+        return method, params
+
+
+gas_price_strategy_middleware = GasPriceStrategyMiddleware

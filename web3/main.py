@@ -102,6 +102,7 @@ from web3.geth import (
 from web3.manager import (
     RequestManager as DefaultRequestManager,
 )
+from web3.middleware.base import MiddlewareOnion
 from web3.module import (
     Module,
 )
@@ -119,13 +120,11 @@ from web3.providers.eth_tester import (
 from web3.providers.ipc import (
     IPCProvider,
 )
-from web3.providers.async_rpc import (
-    AsyncHTTPProvider,
-)
 from web3.providers.persistent import (
     PersistentConnectionProvider,
 )
 from web3.providers.rpc import (
+    AsyncHTTPProvider,
     HTTPProvider,
 )
 from web3.providers.websocket import (
@@ -141,8 +140,6 @@ from web3.tracing import (
     Tracing,
 )
 from web3.types import (
-    AsyncMiddlewareOnion,
-    MiddlewareOnion,
     Wei,
 )
 
@@ -196,11 +193,16 @@ class BaseWeb3:
 
     # Managers
     RequestManager = DefaultRequestManager
+    manager: DefaultRequestManager
 
     # mypy types
     eth: Union[Eth, AsyncEth]
     net: Union[Net, AsyncNet]
     geth: Union[Geth, AsyncGeth]
+
+    @property
+    def middleware_onion(self) -> MiddlewareOnion:
+        return cast(MiddlewareOnion, self.manager.middleware_onion)
 
     # Encoding and Decoding
     @staticmethod
@@ -404,10 +406,6 @@ class Web3(BaseWeb3):
         return self.provider.is_connected(show_traceback)
 
     @property
-    def middleware_onion(self) -> MiddlewareOnion:
-        return cast(MiddlewareOnion, self.manager.middleware_onion)
-
-    @property
     def provider(self) -> BaseProvider:
         return cast(BaseProvider, self.manager.provider)
 
@@ -470,10 +468,6 @@ class AsyncWeb3(BaseWeb3):
 
     async def is_connected(self, show_traceback: bool = False) -> bool:
         return await self.provider.is_connected(show_traceback)
-
-    @property
-    def middleware_onion(self) -> AsyncMiddlewareOnion:
-        return cast(AsyncMiddlewareOnion, self.manager.middleware_onion)
 
     @property
     def provider(self) -> AsyncBaseProvider:

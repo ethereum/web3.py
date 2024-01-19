@@ -40,17 +40,14 @@ from web3._utils.formatters import (
 from web3._utils.method_formatters import (
     apply_list_to_array_formatter,
 )
-from web3.middleware import (
-    construct_formatting_middleware,
+from web3.middleware.base import (
+    Web3Middleware,
 )
 from web3.middleware.formatting import (
-    async_construct_formatting_middleware,
+    FormattingMiddlewareBuilder,
 )
 from web3.types import (
-    AsyncMiddlewareCoroutine,
-    Middleware,
     RPCEndpoint,
-    RPCResponse,
     TxParams,
 )
 
@@ -192,7 +189,6 @@ BLOCK_RESULT_KEY_MAPPING = {
 block_result_remapper = apply_key_map(BLOCK_RESULT_KEY_MAPPING)
 
 BLOCK_RESULT_FORMATTERS = {
-    "logsBloom": integer_to_hex,
     "withdrawals": apply_list_to_array_formatter(
         apply_key_map({"validator_index": "validatorIndex"}),
     ),
@@ -273,12 +269,10 @@ request_formatters = {
 }
 result_formatters: Optional[Dict[RPCEndpoint, Callable[..., Any]]] = {
     RPCEndpoint("eth_getBlockByHash"): apply_formatter_if(
-        is_dict,
-        compose(block_result_remapper, block_result_formatter),
+        is_dict, compose(block_result_remapper, block_result_formatter)
     ),
     RPCEndpoint("eth_getBlockByNumber"): apply_formatter_if(
-        is_dict,
-        compose(block_result_remapper, block_result_formatter),
+        is_dict, compose(block_result_remapper, block_result_formatter)
     ),
     RPCEndpoint("eth_getBlockTransactionCountByHash"): apply_formatter_if(
         is_dict,
@@ -316,11 +310,6 @@ result_formatters: Optional[Dict[RPCEndpoint, Callable[..., Any]]] = {
 }
 
 
-ethereum_tester_middleware = construct_formatting_middleware(
-    request_formatters=request_formatters, result_formatters=result_formatters
-)
-
-
 def guess_from(w3: "Web3", _: TxParams) -> ChecksumAddress:
     if w3.eth.coinbase:
         return w3.eth.coinbase
@@ -342,38 +331,7 @@ def fill_default(
         return assoc(transaction, field, guess_val)
 
 
-def default_transaction_fields_middleware(
-    make_request: Callable[[RPCEndpoint, Any], Any], w3: "Web3"
-) -> Callable[[RPCEndpoint, Any], RPCResponse]:
-    def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
-        if method in (
-            "eth_call",
-            "eth_estimateGas",
-            "eth_sendTransaction",
-            "eth_createAccessList",
-        ):
-            fill_default_from = fill_default("from", guess_from, w3)
-            filled_transaction = pipe(
-                params[0],
-                fill_default_from,
-            )
-            return make_request(method, [filled_transaction] + list(params)[1:])
-        else:
-            return make_request(method, params)
-
-    return middleware
-
-
 # --- async --- #
-
-
-async def async_ethereum_tester_middleware(  # type: ignore
-    make_request, web3: "AsyncWeb3"
-) -> Middleware:
-    middleware = await async_construct_formatting_middleware(
-        request_formatters=request_formatters, result_formatters=result_formatters
-    )
-    return await middleware(make_request, web3)
 
 
 async def async_guess_from(
@@ -403,20 +361,43 @@ async def async_fill_default(
         return assoc(transaction, field, guess_val)
 
 
-async def async_default_transaction_fields_middleware(
-    make_request: Callable[[RPCEndpoint, Any], Any], async_w3: "AsyncWeb3"
-) -> AsyncMiddlewareCoroutine:
-    async def middleware(method: RPCEndpoint, params: Any) -> RPCResponse:
+# --- define middleware --- #
+
+
+class DefaultTransactionFieldsMiddleware(Web3Middleware):
+    def request_processor(self, method: "RPCEndpoint", params: Any) -> Any:
         if method in (
             "eth_call",
             "eth_estimateGas",
             "eth_sendTransaction",
+            "eth_createAccessList",
+        ):
+            fill_default_from = fill_default("from", guess_from, self._w3)
+            filled_transaction = pipe(
+                params[0],
+                fill_default_from,
+            )
+            params = [filled_transaction] + list(params)[1:]
+        return method, params
+
+    # --- async --- #
+
+    async def async_request_processor(self, method: "RPCEndpoint", params: Any) -> Any:
+        if method in (
+            "eth_call",
+            "eth_estimateGas",
+            "eth_sendTransaction",
+            "eth_createAccessList",
         ):
             filled_transaction = await async_fill_default(
-                "from", async_guess_from, async_w3, params[0]
+                "from", async_guess_from, self._w3, params[0]
             )
-            return await make_request(method, [filled_transaction] + list(params)[1:])
-        else:
-            return await make_request(method, params)
+            params = [filled_transaction] + list(params)[1:]
 
-    return middleware
+        return method, params
+
+
+ethereum_tester_middleware = FormattingMiddlewareBuilder.build(
+    request_formatters=request_formatters, result_formatters=result_formatters
+)
+default_transaction_fields_middleware = DefaultTransactionFieldsMiddleware

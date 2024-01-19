@@ -71,12 +71,14 @@ if TYPE_CHECKING:
         AsyncContractFunction,
     )
     from web3.main import AsyncWeb3  # noqa: F401
+    from web3.middleware.base import (  # noqa: F401
+        Middleware,
+    )
     from web3.providers import (  # noqa: F401
         AsyncBaseProvider,
         BaseProvider,
     )
     from web3.types import (  # noqa: F401
-        AsyncMiddleware,
         TxParams,
     )
 
@@ -98,7 +100,7 @@ class AsyncENS(BaseENS):
         self,
         provider: "AsyncBaseProvider" = cast("AsyncBaseProvider", default),
         addr: ChecksumAddress = None,
-        middlewares: Optional[Sequence[Tuple["AsyncMiddleware", str]]] = None,
+        middlewares: Optional[Sequence[Tuple["Middleware", str]]] = None,
     ) -> None:
         """
         :param provider: a single provider used to connect to Ethereum

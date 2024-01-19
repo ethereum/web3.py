@@ -6,20 +6,14 @@ from hexbytes import (
 import pytest_asyncio
 
 from web3 import (
+    AsyncWeb3,
     Web3,
 )
 from web3.datastructures import (
     AttributeDict,
 )
-from web3.eth import (
-    AsyncEth,
-)
 from web3.middleware import (
-    async_attrdict_middleware,
-    async_construct_result_generator_middleware,
-    async_local_filter_middleware,
     attrdict_middleware,
-    construct_result_generator_middleware,
     local_filter_middleware,
 )
 from web3.middleware.filter import (
@@ -88,28 +82,20 @@ def iter_block_number(start=0):
 
 
 @pytest.fixture(scope="function")
-def result_generator_middleware(iter_block_number):
-    return construct_result_generator_middleware(
-        {
+def w3(request_mocker, iter_block_number):
+    w3_base = Web3(provider=DummyProvider(), middlewares=[])
+    w3_base.middleware_onion.add(attrdict_middleware)
+    w3_base.middleware_onion.add(local_filter_middleware)
+    with request_mocker(
+        w3_base,
+        mock_results={
             "eth_getLogs": lambda *_: FILTER_LOG,
             "eth_getBlockByNumber": lambda *_: {"hash": BLOCK_HASH},
             "net_version": lambda *_: 1,
             "eth_blockNumber": lambda *_: next(iter_block_number),
-        }
-    )
-
-
-@pytest.fixture(scope="function")
-def w3_base():
-    return Web3(provider=DummyProvider(), middlewares=[])
-
-
-@pytest.fixture(scope="function")
-def w3(w3_base, result_generator_middleware):
-    w3_base.middleware_onion.add(result_generator_middleware)
-    w3_base.middleware_onion.add(attrdict_middleware)
-    w3_base.middleware_onion.add(local_filter_middleware)
-    return w3_base
+        },
+    ):
+        yield w3_base
 
 
 @pytest.mark.parametrize(
@@ -266,30 +252,21 @@ class AsyncDummyProvider(AsyncBaseProvider):
 
 
 @pytest_asyncio.fixture(scope="function")
-async def async_result_generator_middleware(iter_block_number):
-    return await async_construct_result_generator_middleware(
-        {
+async def async_w3(request_mocker, iter_block_number):
+    async_w3_base = AsyncWeb3(provider=AsyncDummyProvider(), middlewares=[])
+    async_w3_base.middleware_onion.add(attrdict_middleware)
+    async_w3_base.middleware_onion.add(local_filter_middleware)
+
+    async with request_mocker(
+        async_w3_base,
+        mock_results={
             "eth_getLogs": lambda *_: FILTER_LOG,
             "eth_getBlockByNumber": lambda *_: {"hash": BLOCK_HASH},
             "net_version": lambda *_: 1,
             "eth_blockNumber": lambda *_: next(iter_block_number),
-        }
-    )
-
-
-@pytest.fixture(scope="function")
-def async_w3_base():
-    return Web3(
-        provider=AsyncDummyProvider(), modules={"eth": (AsyncEth)}, middlewares=[]
-    )
-
-
-@pytest.fixture(scope="function")
-def async_w3(async_w3_base, async_result_generator_middleware):
-    async_w3_base.middleware_onion.add(async_result_generator_middleware)
-    async_w3_base.middleware_onion.add(async_attrdict_middleware)
-    async_w3_base.middleware_onion.add(async_local_filter_middleware)
-    return async_w3_base
+        },
+    ):
+        yield async_w3_base
 
 
 @pytest.mark.parametrize(

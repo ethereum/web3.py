@@ -1,10 +1,11 @@
+import asyncio
 import itertools
 from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
     Coroutine,
-    Sequence,
+    Set,
     Tuple,
     cast,
 )
@@ -15,6 +16,9 @@ from eth_utils import (
     to_text,
 )
 
+from web3._utils.caching import (
+    async_handle_request_caching,
+)
 from web3._utils.encoding import (
     FriendlyJsonSerde,
     Web3JsonEncoder,
@@ -25,12 +29,16 @@ from web3.exceptions import (
 from web3.middleware import (
     async_combine_middlewares,
 )
-from web3.types import (
-    AsyncMiddleware,
-    AsyncMiddlewareOnion,
+from web3.middleware.base import (
+    Middleware,
     MiddlewareOnion,
+)
+from web3.types import (
     RPCEndpoint,
     RPCResponse,
+)
+from web3.utils import (
+    SimpleCache,
 )
 
 if TYPE_CHECKING:
@@ -40,53 +48,60 @@ if TYPE_CHECKING:
     )
 
 
+CACHEABLE_REQUESTS = cast(
+    Set[RPCEndpoint],
+    (
+        "eth_chainId",
+        "eth_getBlockByHash",
+        "eth_getBlockTransactionCountByHash",
+        "eth_getRawTransactionByHash",
+        "eth_getTransactionByBlockHashAndIndex",
+        "eth_getTransactionByHash",
+        "eth_getUncleByBlockHashAndIndex",
+        "eth_getUncleCountByBlockHash",
+        "net_version",
+        "web3_clientVersion",
+    ),
+)
+
+
 class AsyncBaseProvider:
-    _middlewares: Tuple[AsyncMiddleware, ...] = ()
-    # a tuple of (all_middlewares, request_func)
     _request_func_cache: Tuple[
-        Tuple[AsyncMiddleware, ...], Callable[..., Coroutine[Any, Any, RPCResponse]]
-    ] = (
-        None,
-        None,
-    )
+        Tuple[Middleware, ...], Callable[..., Coroutine[Any, Any, RPCResponse]]
+    ] = (None, None)
 
     is_async = True
     has_persistent_connection = False
     global_ccip_read_enabled: bool = True
     ccip_read_max_redirects: int = 4
 
-    @property
-    def middlewares(self) -> Tuple[AsyncMiddleware, ...]:
-        return self._middlewares
+    # request caching
+    cache_allowed_requests: bool = False
+    cacheable_requests: Set[RPCEndpoint] = CACHEABLE_REQUESTS
+    _request_cache: SimpleCache
+    _request_cache_lock: asyncio.Lock = asyncio.Lock()
 
-    @middlewares.setter
-    def middlewares(self, values: MiddlewareOnion) -> None:
-        # tuple(values) converts to MiddlewareOnion -> Tuple[Middleware, ...]
-        self._middlewares = tuple(values)  # type: ignore
+    def __init__(self) -> None:
+        self._request_cache = SimpleCache(1000)
 
     async def request_func(
-        self, async_w3: "AsyncWeb3", outer_middlewares: AsyncMiddlewareOnion
+        self, async_w3: "AsyncWeb3", middleware_onion: MiddlewareOnion
     ) -> Callable[..., Coroutine[Any, Any, RPCResponse]]:
-        # type ignored b/c tuple(MiddlewareOnion) converts to tuple of middlewares
-        all_middlewares: Tuple[AsyncMiddleware] = tuple(outer_middlewares) + tuple(self.middlewares)  # type: ignore  # noqa: E501
+        middlewares: Tuple[Middleware, ...] = middleware_onion.as_tuple_of_middlewares()
 
         cache_key = self._request_func_cache[0]
-        if cache_key is None or cache_key != all_middlewares:
+        if cache_key != middlewares:
             self._request_func_cache = (
-                all_middlewares,
-                await self._generate_request_func(async_w3, all_middlewares),
+                middlewares,
+                await async_combine_middlewares(
+                    middlewares=middlewares,
+                    async_w3=async_w3,
+                    provider_request_fn=self.make_request,
+                ),
             )
         return self._request_func_cache[-1]
 
-    async def _generate_request_func(
-        self, async_w3: "AsyncWeb3", middlewares: Sequence[AsyncMiddleware]
-    ) -> Callable[..., Coroutine[Any, Any, RPCResponse]]:
-        return await async_combine_middlewares(
-            middlewares=middlewares,
-            async_w3=async_w3,
-            provider_request_fn=self.make_request,
-        )
-
+    @async_handle_request_caching
     async def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
         raise NotImplementedError("Providers must implement this method")
 

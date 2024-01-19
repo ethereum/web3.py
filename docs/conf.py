@@ -86,6 +86,7 @@ exclude_patterns = [
     "web3.gas_strategies.rst",
     "web3.middleware.rst",
     "web3.providers.rst",
+    "web3.providers.rpc.rst",
     "web3.providers.websocket.rst",
     "web3.providers.eth_tester.rst",
     "web3.scripts.*",
@@ -224,7 +225,13 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    ("index", "Populus.tex", "Populus Documentation", "The Ethereum Foundation", "manual"),
+    (
+        "index",
+        "Populus.tex",
+        "Populus Documentation",
+        "The Ethereum Foundation",
+        "manual",
+    ),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of

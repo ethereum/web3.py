@@ -26,11 +26,10 @@ from web3.geth import (
     GethTxPool,
 )
 from web3.middleware import (
-    abi_middleware,
     attrdict_middleware,
     buffered_gas_estimate_middleware,
+    ens_name_to_address_middleware,
     gas_price_strategy_middleware,
-    name_to_address_middleware,
     validation_middleware,
 )
 from web3.net import (
@@ -80,19 +79,17 @@ def test_web3_with_http_provider_has_default_middlewares_and_modules() -> None:
 
     # the following length check should fail and will need to be added to once more
     # middlewares are added to the defaults
-    assert len(w3.middleware_onion.middlewares) == 6
+    assert len(w3.middleware_onion.middlewares) == 5
 
     assert (
         w3.middleware_onion.get("gas_price_strategy") == gas_price_strategy_middleware
     )
     assert (
-        w3.middleware_onion.get("name_to_address").__name__
-        == name_to_address_middleware(w3).__name__
+        w3.middleware_onion.get("ens_name_to_address") == ens_name_to_address_middleware
     )
     assert w3.middleware_onion.get("attrdict") == attrdict_middleware
     assert w3.middleware_onion.get("validation") == validation_middleware
     assert w3.middleware_onion.get("gas_estimate") == buffered_gas_estimate_middleware
-    assert w3.middleware_onion.get("abi") == abi_middleware
 
 
 def test_user_provided_session():

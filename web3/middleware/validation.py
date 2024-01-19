@@ -33,11 +33,9 @@ from web3.exceptions import (
     Web3ValidationError,
 )
 from web3.middleware.formatting import (
-    async_construct_web3_formatting_middleware,
-    construct_web3_formatting_middleware,
+    FormattingMiddlewareBuilder,
 )
 from web3.types import (
-    AsyncMiddlewareCoroutine,
     Formatters,
     FormattersDict,
     RPCEndpoint,
@@ -147,9 +145,6 @@ def build_method_validators(w3: "Web3", method: RPCEndpoint) -> FormattersDict:
     return _build_formatters_dict(request_formatters)
 
 
-validation_middleware = construct_web3_formatting_middleware(build_method_validators)
-
-
 # -- async --- #
 
 
@@ -165,10 +160,7 @@ async def async_build_method_validators(
     return _build_formatters_dict(request_formatters)
 
 
-async def async_validation_middleware(
-    make_request: Callable[[RPCEndpoint, Any], Any], w3: "AsyncWeb3"
-) -> AsyncMiddlewareCoroutine:
-    middleware = await async_construct_web3_formatting_middleware(
-        async_build_method_validators
-    )
-    return await middleware(make_request, w3)
+validation_middleware = FormattingMiddlewareBuilder.build(
+    sync_formatters_builder=build_method_validators,
+    async_formatters_builder=async_build_method_validators,
+)

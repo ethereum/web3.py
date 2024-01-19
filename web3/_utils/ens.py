@@ -17,6 +17,7 @@ from eth_utils import (
     is_0x_prefixed,
     is_hex,
     is_hex_address,
+    to_checksum_address,
 )
 
 from ens import (
@@ -51,7 +52,7 @@ def is_ens_name(value: Any) -> bool:
 def validate_name_has_address(ens: ENS, name: str) -> ChecksumAddress:
     addr = ens.address(name)
     if addr:
-        return addr
+        return to_checksum_address(addr)
     else:
         raise NameNotFound(f"Could not find address for name {name!r}")
 

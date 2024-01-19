@@ -23,6 +23,7 @@ from websockets.exceptions import (
 )
 
 from web3._utils.caching import (
+    async_handle_request_caching,
     generate_cache_key,
 )
 from web3.exceptions import (
@@ -147,6 +148,7 @@ class WebsocketProviderV2(PersistentConnectionProvider):
 
         self._request_processor.clear_caches()
 
+    @async_handle_request_caching
     async def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
         request_data = self.encode_rpc_request(method, params)
 

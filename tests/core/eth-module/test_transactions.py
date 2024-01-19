@@ -1,3 +1,5 @@
+import collections
+import itertools
 import pytest
 
 from eth_utils import (
@@ -22,12 +24,6 @@ from web3.exceptions import (
     TimeExhausted,
     TransactionNotFound,
     Web3ValidationError,
-)
-from web3.middleware import (
-    construct_result_generator_middleware,
-)
-from web3.middleware.simulate_unmined_transaction import (
-    unmined_receipt_simulator_middleware,
 )
 
 RECEIPT_TIMEOUT = 0.2
@@ -176,8 +172,9 @@ def test_passing_string_to_to_hex(w3):
         w3.eth.wait_for_transaction_receipt(transaction_hash, timeout=RECEIPT_TIMEOUT)
 
 
-def test_unmined_transaction_wait_for_receipt(w3):
-    w3.middleware_onion.add(unmined_receipt_simulator_middleware)
+def test_unmined_transaction_wait_for_receipt(w3, request_mocker):
+    receipt_counters = collections.defaultdict(itertools.count)
+
     txn_hash = w3.eth.send_transaction(
         {
             "from": w3.eth.coinbase,
@@ -185,15 +182,25 @@ def test_unmined_transaction_wait_for_receipt(w3):
             "value": 123457,
         }
     )
-    with pytest.raises(TransactionNotFound):
-        w3.eth.get_transaction_receipt(txn_hash)
+    unmocked_make_request = w3.provider.make_request
 
-    txn_receipt = w3.eth.wait_for_transaction_receipt(txn_hash)
-    assert txn_receipt["transactionHash"] == txn_hash
-    assert txn_receipt["blockHash"] is not None
+    with request_mocker(
+        w3,
+        mock_results={
+            RPC.eth_getTransactionReceipt: lambda method, params: None
+            if next(receipt_counters[params[0]]) < 5
+            else unmocked_make_request(method, params)["result"]
+        },
+    ):
+        with pytest.raises(TransactionNotFound):
+            w3.eth.get_transaction_receipt(txn_hash)
+
+        txn_receipt = w3.eth.wait_for_transaction_receipt(txn_hash)
+        assert txn_receipt["transactionHash"] == txn_hash
+        assert txn_receipt["blockHash"] is not None
 
 
-def test_get_transaction_formatters(w3):
+def test_get_transaction_formatters(w3, request_mocker):
     non_checksummed_addr = "0xB2930B35844A230F00E51431ACAE96FE543A0347"  # all uppercase
     unformatted_transaction = {
         "blockHash": (
@@ -236,15 +243,11 @@ def test_get_transaction_formatters(w3):
         "data": "0x5b34b966",
     }
 
-    result_middleware = construct_result_generator_middleware(
-        {
-            RPC.eth_getTransactionByHash: lambda *_: unformatted_transaction,
-        }
-    )
-    w3.middleware_onion.inject(result_middleware, "result_middleware", layer=0)
-
-    # test against eth_getTransactionByHash
-    received_tx = w3.eth.get_transaction("")
+    with request_mocker(
+        w3, mock_results={RPC.eth_getTransactionByHash: unformatted_transaction}
+    ):
+        # test against eth_getTransactionByHash
+        received_tx = w3.eth.get_transaction("")
 
     checksummed_addr = to_checksum_address(non_checksummed_addr)
     assert non_checksummed_addr != checksummed_addr
@@ -299,4 +302,3 @@ def test_get_transaction_formatters(w3):
     )
 
     assert received_tx == expected
-    w3.middleware_onion.remove("result_middleware")

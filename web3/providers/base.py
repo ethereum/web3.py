@@ -1,9 +1,10 @@
 import itertools
+import threading
 from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    Sequence,
+    Set,
     Tuple,
     cast,
 )
@@ -13,6 +14,9 @@ from eth_utils import (
     to_text,
 )
 
+from web3._utils.caching import (
+    handle_request_caching,
+)
 from web3._utils.encoding import (
     FriendlyJsonSerde,
     Web3JsonEncoder,
@@ -23,20 +27,41 @@ from web3.exceptions import (
 from web3.middleware import (
     combine_middlewares,
 )
-from web3.types import (
+from web3.middleware.base import (
     Middleware,
     MiddlewareOnion,
+)
+from web3.types import (
     RPCEndpoint,
     RPCResponse,
+)
+from web3.utils import (
+    SimpleCache,
 )
 
 if TYPE_CHECKING:
     from web3 import Web3  # noqa: F401
 
 
+CACHEABLE_REQUESTS = cast(
+    Set[RPCEndpoint],
+    (
+        "eth_chainId",
+        "eth_getBlockByHash",
+        "eth_getBlockTransactionCountByHash",
+        "eth_getRawTransactionByHash",
+        "eth_getTransactionByBlockHashAndIndex",
+        "eth_getTransactionByHash",
+        "eth_getUncleByBlockHashAndIndex",
+        "eth_getUncleCountByBlockHash",
+        "net_version",
+        "web3_clientVersion",
+    ),
+)
+
+
 class BaseProvider:
-    _middlewares: Tuple[Middleware, ...] = ()
-    # a tuple of (all_middlewares, request_func)
+    # a tuple of (middlewares, request_func)
     _request_func_cache: Tuple[Tuple[Middleware, ...], Callable[..., RPCResponse]] = (
         None,
         None,
@@ -47,44 +72,41 @@ class BaseProvider:
     global_ccip_read_enabled: bool = True
     ccip_read_max_redirects: int = 4
 
-    @property
-    def middlewares(self) -> Tuple[Middleware, ...]:
-        return self._middlewares
+    # request caching
+    cache_allowed_requests: bool = False
+    cacheable_requests: Set[RPCEndpoint] = CACHEABLE_REQUESTS
+    _request_cache: SimpleCache
+    _request_cache_lock: threading.Lock = threading.Lock()
 
-    @middlewares.setter
-    def middlewares(self, values: MiddlewareOnion) -> None:
-        # tuple(values) converts to MiddlewareOnion -> Tuple[Middleware, ...]
-        self._middlewares = tuple(values)  # type: ignore
+    def __init__(self) -> None:
+        self._request_cache = SimpleCache(1000)
 
     def request_func(
-        self, w3: "Web3", outer_middlewares: MiddlewareOnion
+        self, w3: "Web3", middleware_onion: MiddlewareOnion
     ) -> Callable[..., RPCResponse]:
         """
-        @param outer_middlewares is an iterable of middlewares,
+        @param w3 is the web3 instance
+        @param middleware_onion is an iterable of middlewares,
             ordered by first to execute
         @returns a function that calls all the middleware and
             eventually self.make_request()
         """
-        # type ignored b/c tuple(MiddlewareOnion) converts to tuple of middlewares
-        all_middlewares: Tuple[Middleware] = tuple(outer_middlewares) + tuple(self.middlewares)  # type: ignore # noqa: E501
+        middlewares: Tuple[Middleware, ...] = middleware_onion.as_tuple_of_middlewares()
 
         cache_key = self._request_func_cache[0]
-        if cache_key is None or cache_key != all_middlewares:
+        if cache_key != middlewares:
             self._request_func_cache = (
-                all_middlewares,
-                self._generate_request_func(w3, all_middlewares),
+                middlewares,
+                combine_middlewares(
+                    middlewares=middlewares,
+                    w3=w3,
+                    provider_request_fn=self.make_request,
+                ),
             )
+
         return self._request_func_cache[-1]
 
-    def _generate_request_func(
-        self, w3: "Web3", middlewares: Sequence[Middleware]
-    ) -> Callable[..., RPCResponse]:
-        return combine_middlewares(
-            middlewares=middlewares,
-            w3=w3,
-            provider_request_fn=self.make_request,
-        )
-
+    @handle_request_caching
     def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
         raise NotImplementedError("Providers must implement this method")
 
@@ -95,6 +117,7 @@ class BaseProvider:
 class JSONBaseProvider(BaseProvider):
     def __init__(self) -> None:
         self.request_counter = itertools.count()
+        super().__init__()
 
     def decode_rpc_response(self, raw_response: bytes) -> RPCResponse:
         text_response = to_text(raw_response)

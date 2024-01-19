@@ -5,7 +5,6 @@ from datetime import (
 from typing import (
     TYPE_CHECKING,
     Any,
-    Callable,
     Collection,
     Dict,
     List,
@@ -60,15 +59,15 @@ if TYPE_CHECKING:
         AsyncWeb3,
         Web3 as _Web3,
     )
+    from web3.middleware.base import (
+        Middleware,
+    )
     from web3.providers import (  # noqa: F401
         AsyncBaseProvider,
         BaseProvider,
     )
     from web3.types import (  # noqa: F401
         ABIFunction,
-        AsyncMiddleware,
-        Middleware,
-        RPCEndpoint,
     )
 
 
@@ -104,13 +103,14 @@ def customize_web3(w3: "_Web3") -> "_Web3":
         make_stalecheck_middleware,
     )
 
-    if w3.middleware_onion.get("name_to_address"):
-        w3.middleware_onion.remove("name_to_address")
+    if w3.middleware_onion.get("ens_name_to_address"):
+        w3.middleware_onion.remove("ens_name_to_address")
 
     if not w3.middleware_onion.get("stalecheck"):
-        w3.middleware_onion.add(
-            make_stalecheck_middleware(ACCEPTABLE_STALE_HOURS * 3600), name="stalecheck"
+        stalecheck_middleware = make_stalecheck_middleware(
+            ACCEPTABLE_STALE_HOURS * 3600
         )
+        w3.middleware_onion.add(stalecheck_middleware, name="stalecheck")
     return w3
 
 
@@ -299,7 +299,7 @@ def get_abi_output_types(abi: "ABIFunction") -> List[str]:
 
 def init_async_web3(
     provider: "AsyncBaseProvider" = cast("AsyncBaseProvider", default),
-    middlewares: Optional[Sequence[Tuple["AsyncMiddleware", str]]] = (),
+    middlewares: Optional[Sequence[Tuple["Middleware", str]]] = (),
 ) -> "AsyncWeb3":
     from web3 import (
         AsyncWeb3 as AsyncWeb3Main,
@@ -307,14 +307,19 @@ def init_async_web3(
     from web3.eth import (
         AsyncEth as AsyncEthMain,
     )
+    from web3.middleware import (
+        make_stalecheck_middleware,
+    )
 
     middlewares = list(middlewares)
     for i, (middleware, name) in enumerate(middlewares):
-        if name == "name_to_address":
+        if name == "ens_name_to_address":
             middlewares.pop(i)
 
     if "stalecheck" not in (name for mw, name in middlewares):
-        middlewares.append((_async_ens_stalecheck_middleware, "stalecheck"))
+        middlewares.append(
+            (make_stalecheck_middleware(ACCEPTABLE_STALE_HOURS * 3600), "stalecheck")
+        )
 
     if provider is default:
         async_w3 = AsyncWeb3Main(
@@ -329,14 +334,3 @@ def init_async_web3(
         )
 
     return async_w3
-
-
-async def _async_ens_stalecheck_middleware(
-    make_request: Callable[["RPCEndpoint", Any], Any], w3: "AsyncWeb3"
-) -> "Middleware":
-    from web3.middleware import (
-        async_make_stalecheck_middleware,
-    )
-
-    middleware = await async_make_stalecheck_middleware(ACCEPTABLE_STALE_HOURS * 3600)
-    return await middleware(make_request, w3)
