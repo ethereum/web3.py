@@ -33,6 +33,7 @@ from web3._utils.ens import (
 from web3.exceptions import (
     BadFunctionCallOutput,
     BlockNumberOutofRange,
+    ContractLogicError,
     FallbackNotFound,
     InvalidAddress,
     MismatchedABI,
@@ -477,9 +478,10 @@ def test_call_missing_function(mismatched_math_contract, call):
 
 def test_call_undeployed_contract(undeployed_math_contract, call):
     expected_undeployed_call_error_message = (
-        "Could not transact with/call contract function"
+        "Could not transact with/call contract function, is contract "
+        + "deployed correctly and chain synced?"
     )
-    with pytest.raises(BadFunctionCallOutput) as exception_info:
+    with pytest.raises(ContractLogicError) as exception_info:
         call(contract=undeployed_math_contract, contract_function="return13")
     assert expected_undeployed_call_error_message in str(exception_info.value)
 
