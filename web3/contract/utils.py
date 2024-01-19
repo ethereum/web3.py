@@ -42,7 +42,8 @@ from web3._utils.transactions import (
     fill_transaction_defaults,
 )
 from web3.exceptions import (
-    BadFunctionCallOutput, ContractLogicError,
+    BadFunctionCallOutput,
+    ContractLogicError,
 )
 from web3.types import (
     ABI,
