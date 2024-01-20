@@ -5,8 +5,7 @@ from web3._utils.ens import (
     ens_addresses,
 )
 from web3.exceptions import (
-    BadFunctionCallOutput,
-    NameNotFound,
+    NameNotFound, ContractLogicError,
 )
 
 
@@ -68,7 +67,7 @@ def test_contract_with_name_address_changing(math_contract_factory, math_addr):
 
     # what happens when name returns address to different contract
     with contract_ens_addresses(mc, [("thedao.eth", "0x" + "11" * 20)]):
-        with pytest.raises(BadFunctionCallOutput):
+        with pytest.raises(ContractLogicError):
             mc.functions.return13().call({"from": caller})
 
     # contract works again when name resolves correctly
