@@ -6,7 +6,7 @@
 
 A Python library for interacting with Ethereum.
 
--   Python 3.7.2+ support
+-   Python 3.8+ support
 
 ---
 
