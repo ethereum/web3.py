@@ -164,7 +164,7 @@ You can use ``tox`` to run all the tests for a given version of Python:
 
 .. code:: sh
 
-   $ tox -e py37-core
+   $ tox -e py38-core
 
 
 Linting is also performed by the CI. You can save yourself some time by checking for
