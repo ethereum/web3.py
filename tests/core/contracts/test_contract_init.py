@@ -5,7 +5,8 @@ from web3._utils.ens import (
     ens_addresses,
 )
 from web3.exceptions import (
-    NameNotFound, ContractLogicError,
+    ContractLogicError,
+    NameNotFound,
 )
 
 
