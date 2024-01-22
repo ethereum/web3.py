@@ -297,9 +297,6 @@ class TestEthereumTesterEthModule(EthModuleTest):
     test_eth_get_raw_transaction_by_block_raises_error = not_implemented(
         EthModuleTest.test_eth_get_raw_transaction_by_block, MethodUnavailable
     )
-    test_eth_replace_transaction_already_mined = not_implemented(
-        EthModuleTest.test_eth_replace_transaction_already_mined, MethodUnavailable
-    )
     test_eth_call_with_override_param_type_check = not_implemented(
         EthModuleTest.test_eth_call_with_override_param_type_check,
         TypeError,
@@ -312,9 +309,6 @@ class TestEthereumTesterEthModule(EthModuleTest):
     )
     test_eth_fee_history_no_reward_percentiles = not_implemented(
         EthModuleTest.test_eth_fee_history_no_reward_percentiles, MethodUnavailable
-    )
-    test_eth_send_transaction_with_nonce = not_implemented(
-        EthModuleTest.test_eth_send_transaction_with_nonce, MethodUnavailable
     )
     test_eth_create_access_list = not_implemented(
         EthModuleTest.test_eth_create_access_list,
