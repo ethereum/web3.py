@@ -12,12 +12,6 @@ possible for a middleware to return early from a
 call without the request ever getting to the provider (or even reaching the middlewares
 that are in deeper layers).
 
-When integrating middleware with your provider, please ensure you're choosing the right
-version. For ``AsyncWeb3`` users, select the version prefixed with ``async``, such as
-``async_attrdict_middleware``. On the other hand, ``Web3`` users should opt for versions
-lacking the ``async`` prefix. If an async version isn't listed, it implies it hasn't
-been made available yet.
-
 More information is available in the "Internals: :ref:`internals__middlewares`" section.
 
 
@@ -34,25 +28,14 @@ Sync middlewares include:
 * ``name_to_address``
 * ``attrdict``
 * ``validation``
-* ``abi``
 * ``gas_estimate``
 
-Async middlewares include:
-
-* ``gas_price_strategy``
-* ``name_to_address``
-* ``attrdict``
-* ``validation``
-* ``gas_estimate``
-
-The defaults are found in ``default_middlewares`` and ``async_default_middlewares``
-methods in ``web3/manager.py``.
+The defaults are defined in the ``default_middlewares()`` method in ``web3/manager.py``.
 
 AttributeDict
 ~~~~~~~~~~~~~
 
 .. py:method:: web3.middleware.attrdict_middleware
-               web3.middleware.async_attrdict_middleware
 
     This middleware recursively converts any dictionary type in the result of a call
     to an ``AttributeDict``. This enables dot-syntax access, like
@@ -63,11 +46,10 @@ AttributeDict
         Accessing a property via attribute breaks type hinting. For this reason, this
         feature is available as a middleware, which may be removed if desired.
 
-.eth Name Resolution
-~~~~~~~~~~~~~~~~~~~~~
+ENS Name to Address Resolution
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. py:method:: web3.middleware.name_to_address_middleware
-               web3.middleware.async_name_to_address_middleware
 
     This middleware converts Ethereum Name Service (ENS) names into the
     address that the name points to. For example :meth:`w3.eth.send_transaction <web3.eth.Eth.send_transaction>` will
@@ -79,10 +61,9 @@ AttributeDict
         result in a ``NameNotFound`` error.
 
 Gas Price Strategy
-~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~
 
 .. py:method:: web3.middleware.gas_price_strategy_middleware
-               web3.middleware.async_gas_price_strategy_middleware
 
   .. warning::
 
@@ -94,10 +75,9 @@ Gas Price Strategy
   been set. See :ref:`Gas_Price` for information about how gas price is derived.
 
 Buffered Gas Estimate
-~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
 
 .. py:method:: web3.middleware.buffered_gas_estimate_middleware
-               web3.middleware.async_buffered_gas_estimate_middleware
 
     This adds a gas estimate to transactions if ``gas`` is not present in the transaction
     parameters. Sets gas to:
@@ -105,10 +85,9 @@ Buffered Gas Estimate
     where the gas_buffer default is 100,000
 
 Validation
-~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~
 
 .. py:method:: web3.middleware.validation_middleware
-               web3.middleware.async_validation_middleware
 
     This middleware includes block and transaction validators which perform validations
     for transaction parameters.
@@ -119,8 +98,7 @@ Configuring Middleware
 -----------------------
 
 Middleware can be added, removed, replaced, and cleared at runtime. To make that easier, you
-can name the middleware for later reference. Alternatively, you can use a reference to the
-middleware itself.
+can name the middleware for later reference.
 
 Middleware Order
 ~~~~~~~~~~~~~~~~~~
@@ -182,8 +160,7 @@ to the request inside the innermost layer of the onion. Here is a (simplified) d
                                           Returned value in web3.py
 
 
-The middlewares are maintained in ``Web3.middleware_onion``. See
-below for the API.
+The middlewares are maintained in ``Web3.middleware_onion``. See below for the API.
 
 When specifying middlewares in a list, or retrieving the list of middlewares, they will
 be returned in the order of outermost layer first and innermost layer last. In the above
@@ -209,9 +186,6 @@ To add or remove items in different layers, use the following API:
         >>> w3.middleware_onion.add(web3.middleware.gas_price_strategy_middleware)
         # or
         >>> w3.middleware_onion.add(web3.middleware.gas_price_strategy_middleware, 'gas_price_strategy')
-        # or
-        >>> async_w3 = AsyncWeb3(...)
-        >>> async_w3.middleware_onion.add(web3.middleware.async_gas_price_strategy_middleware, 'gas_price_strategy')
 
 .. py:method:: Web3.middleware_onion.inject(middleware, name=None, layer=None)
 
@@ -228,9 +202,6 @@ To add or remove items in different layers, use the following API:
         >>> w3.middleware_onion.inject(web3.middleware.gas_price_strategy_middleware, layer=0)
         # or
         >>> w3.middleware_onion.inject(web3.middleware.gas_price_strategy_middleware, 'gas_price_strategy', layer=0)
-        # or
-        >>> async_w3 = AsyncWeb3(...)
-        >>> async_w3.middleware_onion.inject(web3.middleware.async_gas_price_strategy_middleware, 'gas_price_strategy', layer=0)
 
 .. py:method:: Web3.middleware_onion.remove(middleware)
 
@@ -317,7 +288,6 @@ Stalecheck
 ~~~~~~~~~~~~
 
 .. py:method:: web3.middleware.make_stalecheck_middleware(allowable_delay)
-               web3.middleware.async_make_stalecheck_middleware(allowable_delay)
 
     This middleware checks how stale the blockchain is, and interrupts calls with a failure
     if the blockchain is too old.
@@ -338,97 +308,6 @@ Stalecheck
     ``web3.eth.get_block()``.
 
 
-Cache
-~~~~~
-
-Simple Cache Middleware
-'''''''''''''''''''''''
-
-.. py:method:: web3.middleware.construct_simple_cache_middleware(cache, rpc_whitelist, should_cache_fn)
-               web3.middleware.async_construct_simple_cache_middleware(cache, rpc_whitelist, should_cache_fn)
-
-    These simple cache constructor methods accept the following arguments:
-
-    :param cache: Must be an instance of the ``web3.utils.caching.SimpleCache`` class.
-        If a cache instance is not provided, a new instance will be created.
-    :param rpc_whitelist: Must be an iterable, preferably a set, of the RPC methods that
-        may be cached. A default list is used if none is provided.
-    :param should_cache_fn: Must be a callable with the signature
-        ``fn(method, params, response)`` which returns whether the response should
-        be cached.
-
-    Constructs a middleware which will cache the return values for any RPC
-    method in the ``rpc_whitelist``.
-
-    Ready to use versions of this middleware can be found at
-    ``web3.middleware.simple_cache_middleware`` and
-    ``web3.middleware.async_simple_cache_middleware``. These are the equivalent of using
-    the constructor methods with the default arguments.
-
-Time-based Cache Middleware
-'''''''''''''''''''''''''''
-
-.. py:method:: web3.middleware.construct_time_based_cache_middleware(cache_class, cache_expire_seconds, rpc_whitelist, should_cache_fn)
-
-    The time-based cache constructor method accepts the following arguments:
-
-    :param cache_class: Must be a callable which returns an object which implements the
-        dictionary API.
-    :param rpc_whitelist: Must be an iterable, preferably a set, of the RPC methods that
-        may be cached. A default list is used if none is provided.
-    :param should_cache_fn: Must be a callable with the signature
-        ``fn(method, params, response)`` which returns whether the response should
-        be cached.
-
-    .. warning::
-      The ``cache_class`` argument is slated to change to the ``cache``
-      argument with ``web3.utils.caching.SimpleCache`` instance in web3.py ``v7``,
-      as is the current state of the simple cache middleware above.
-
-    Constructs a middleware which will cache the return values for any RPC
-    method in the ``rpc_whitelist`` for an amount of time defined by
-    ``cache_expire_seconds``.
-
-    * ``cache_expire_seconds`` should be the number of seconds a value may
-      remain in the cache before being evicted.
-
-    A ready to use version of this middleware can be found at
-    ``web3.middleware.time_based_cache_middleware``.
-
-
-.. py:method:: web3.middleware.construct_latest_block_based_cache_middleware(cache_class, average_block_time_sample_size, default_average_block_time, rpc_whitelist, should_cache_fn)
-
-    The latest-block-based cache constructor method accepts the following arguments:
-
-    :param cache_class: Must be a callable which returns an object which implements the
-        dictionary API.
-    :param rpc_whitelist: Must be an iterable, preferably a set, of the RPC methods that
-        may be cached. A default list is used if none is provided.
-    :param should_cache_fn: Must be a callable with the signature
-        ``fn(method, params, response)`` which returns whether the response should
-        be cached.
-
-    .. warning::
-      The ``cache_class`` argument is slated to change to the ``cache``
-      argument with ``web3.utils.caching.SimpleCache`` instance in web3.py ``v7``,
-      as is the current state of the simple cache middleware above.
-
-    Constructs a middleware which will cache the return values for any RPC
-    method in the ``rpc_whitelist`` for the latest block.
-    It avoids re-fetching the current latest block for each
-    request by tracking the current average block time and only requesting
-    a new block when the last seen latest block is older than the average
-    block time.
-
-    * ``average_block_time_sample_size`` The number of blocks which should be
-      sampled to determine the average block time.
-    * ``default_average_block_time`` The initial average block time value to
-      use for cases where there is not enough chain history to determine the
-      average block time.
-
-    A ready to use version of this middleware can be found at
-    ``web3.middleware.latest_block_based_cache_middleware``.
-
 .. _geth-poa:
 
 Proof of Authority
@@ -441,8 +320,8 @@ Proof of Authority
     ``w3.middleware_onion.inject(extradata_to_poa_middleware, layer=0)``
 
 The ``extradata_to_poa_middleware`` is required to connect to ``geth --dev`` and may
-also be needed for other EVM compatible blockchains like Polygon or
-BNB Chain (Binance Smart Chain).
+also be needed for other EVM compatible blockchains like Polygon or BNB Chain
+(Binance Smart Chain).
 
 If the middleware is not injected at the 0th layer of the middleware onion, you may get
 errors like the example below when interacting with your EVM node.
@@ -450,14 +329,12 @@ errors like the example below when interacting with your EVM node.
 .. code-block:: shell
 
     web3.exceptions.ExtraDataLengthError: The field extraData is 97 bytes, but should be
-    1.  It is quite likely that you are connected to a POA chain. Refer to
+    32.  It is quite likely that you are connected to a POA chain. Refer to
     http://web3py.readthedocs.io/en/stable/middleware.html#proof-of-authority
     for more details. The full extraData is: HexBytes('...')
 
-
 The easiest way to connect to a default ``geth --dev`` instance which loads the
 middleware is:
-
 
 .. code-block:: python
 
@@ -504,7 +381,6 @@ Locally Managed Log and Block Filters
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. py:method:: web3.middleware.local_filter_middleware
-               web3.middleware.async_local_filter_middleware
 
 This middleware provides an alternative to ethereum node managed filters. When used, Log and
 Block filter logic are handled locally while using the same web3 filter api. Filter results are
@@ -528,7 +404,6 @@ Signing
 ~~~~~~~
 
 .. py:method:: web3.middleware.construct_sign_and_send_raw_middleware(private_key_or_account)
-               web3.middleware.async_construct_sign_and_send_raw_middleware(private_key_or_account)
 
 This middleware automatically captures transactions, signs them, and sends them as raw transactions.
 The ``from`` field on the transaction, or ``w3.eth.default_account`` must be set to the address of the private key for
@@ -575,11 +450,11 @@ Similarly, with AsyncWeb3:
 
     >>> from web3 import AsyncWeb3
     >>> async_w3 = AsyncWeb3(AsyncHTTPProvider('HTTP_ENDPOINT'))
-    >>> from web3.middleware import async_construct_sign_and_send_raw_middleware
+    >>> from web3.middleware import construct_sign_and_send_raw_middleware
     >>> from eth_account import Account
     >>> import os
     >>> acct = async_w3.eth.account.from_key(os.environ.get('PRIVATE_KEY'))
-    >>> async_w3.middleware_onion.add(await async_construct_sign_and_send_raw_middleware(acct))
+    >>> async_w3.middleware_onion.add(construct_sign_and_send_raw_middleware(acct))
     >>> async_w3.eth.default_account = acct.address
 
     >>> # use `eth_sendTransaction` to automatically sign and send the raw transaction

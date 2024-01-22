@@ -122,61 +122,92 @@ with the first middleware that processes the request at the beginning of the lis
 Middlewares
 -----------
 
-.. note:: The Middleware API in web3 borrows heavily from the Django middleware API introduced in version 1.10.0
+.. note:: The Middleware API in web3 borrows from the Django middleware API introduced
+          in version 1.10.0
 
-Middlewares provide a simple yet powerful api for implementing layers of
-business logic for web3 requests.  Writing middleware is simple.
-
-.. code-block:: python
-
-    def simple_middleware(make_request, w3):
-        # do one-time setup operations here
-
-        def middleware(method, params):
-            # do pre-processing here
-
-            # perform the RPC request, getting the response
-            response = make_request(method, params)
-
-            # do post-processing here
-
-            # finally return the response
-            return response
-        return middleware
-
-
-It is also possible to implement middlewares as a class.
-
+Middlewares provide a simple yet powerful api for implementing layers of business logic
+for web3 requests. Writing middleware is simple and extending from the base
+``Web3Middleware`` class allows for overriding only the parts of the middleware that
+make sense for your use case. If all you need to do is modify the
+params before the request is made, you can override the ``process_request`` method,
+make the necessary tweaks to the params, and pass the arguments to the next element in
+the middleware stack. If processing the response is the only concern, only need to
+override the ``process_response`` method and return the response. You only need to
+override the methods that make sense for your use case since the base middleware class
+provides default implementations for all methods.
 
 .. code-block:: python
 
-    class SimpleMiddleware:
-        def __init__(self, make_request, w3):
-            self.w3 = w3
-            self.make_request = make_request
+    from web3.middlewares import Web3Middleware
 
-        def __call__(self, method, params):
-            # do pre-processing here
+    class SimpleMiddleware(Web3Middleware):
 
-            # perform the RPC request, getting the response
-            response = self.make_request(method, params)
+        def request_processor(self, method, params):
+            # Pre-request processing goes here before passing to the next middleware.
+            return (method, params)
 
-            # do post-processing here
 
-            # finally return the response
+        def response_processor(self, method, response):
+            # Response processing goes here before passing to the next middleware.
+            return response
+
+        # If your provider is asynchronous, override the async methods instead
+
+        async def async_request_processor(self, method, params):
+            return (method, params)
+
+        async def async_process_response(self, method, response):
             return response
 
 
-The ``make_request`` parameter is a callable which takes two
-positional arguments, ``method`` and ``params`` which correspond to the RPC
-method that is being called.  There is no requirement that the ``make_request``
-function be called.  For example, if you were writing a middleware which cached
-responses for certain methods your middleware would likely not call the
-``make_request`` method, but instead get the response from some local cache.
+.. code-block:: python
 
-The ``RequestManager`` object exposes the ``middleware_onion`` object to manage middlewares. It
-is also exposed on the ``Web3`` object for convenience. That API is detailed in
-:ref:`Modifying_Middleware`.
+As with previous versions of the library, wrapping the ``make_request`` method of a
+provider is possible. If you wish to prevent making a call under certain conditions,
+for example, you can override the ``_wrap_make_request`` method. This allows for
+defining pre-request processing, skipping or making the request under certain
+conditions, as well as response processing before passing it to the next middleware.
+The order of operations still passes all pre-request processing down the middlewares
+before making the request, and then passes the response back up the middleware stack
+for processing. The next middleware on the stack is essentially the "make_request"
+method until we reach the end of the middlewares and the request is made by the actual
+`make_request` method of the provider. The response is then passed back up the
+middleware stack for processing before being returned to the user.
+
+.. code-block:: python
+
+    from web3.middlewares import Web3Middleware
+
+    class SimpleMiddleware(Web3Middleware):
+
+        def _wrap_make_request(self, make_request):
+            def middleware(method, params):
+                # pre-request processing goes here
+
+                response = make_request(method, params)  # make the request
+
+                # response processing goes here
+
+                return response
+
+        # If your provider is asynchronous, override the async method instead
+
+        async def _async_wrap_make_request(self, make_request):
+            async def middleware(method, params):
+                # pre-request processing goes here
+
+                response = await make_request(method, params)
+
+                # response processing goes here
+
+                return response
+
+            return middleware
+
+
+The ``RequestManager`` object exposes the ``middleware_onion`` object to manage
+middlewares. It is also exposed on the ``Web3`` object for convenience. That API is
+detailed in :ref:`Modifying_Middleware`.
 
 
 Managers
