@@ -1,5 +1,4 @@
 import pytest
-import sys
 from unittest.mock import (
     Mock,
     patch,
@@ -139,11 +138,6 @@ def test_stalecheck_adds_block_to_cache(request_middleware, allowable_delay):
 # -- async -- #
 
 
-min_version = pytest.mark.skipif(
-    sys.version_info < (3, 8), reason="AsyncMock requires python3.8 or higher"
-)
-
-
 async def _coro(_method, _params):
     return None
 
@@ -161,7 +155,6 @@ async def async_request_middleware(allowable_delay):
 
 
 @pytest.mark.asyncio
-@min_version
 async def test_async_stalecheck_pass(async_request_middleware):
     from unittest.mock import (
         AsyncMock,
@@ -178,7 +171,6 @@ async def test_async_stalecheck_pass(async_request_middleware):
 
 
 @pytest.mark.asyncio
-@min_version
 async def test_async_stalecheck_fail(async_request_middleware, now):
     with patch("web3.middleware.stalecheck._is_fresh", return_value=False):
         async_request_middleware._w3.eth.get_block.return_value = stub_block(now)
@@ -190,7 +182,6 @@ async def test_async_stalecheck_fail(async_request_middleware, now):
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("rpc_method", ["eth_getBlockByNumber"])
-@min_version
 async def test_async_stalecheck_ignores_get_by_block_methods(
     async_request_middleware, rpc_method
 ):
@@ -203,7 +194,6 @@ async def test_async_stalecheck_ignores_get_by_block_methods(
 
 
 @pytest.mark.asyncio
-@min_version
 async def test_async_stalecheck_calls_is_fresh_with_empty_cache(
     async_request_middleware, allowable_delay
 ):
@@ -220,7 +210,6 @@ async def test_async_stalecheck_calls_is_fresh_with_empty_cache(
 
 
 @pytest.mark.asyncio
-@min_version
 async def test_async_stalecheck_adds_block_to_cache(
     async_request_middleware, allowable_delay
 ):

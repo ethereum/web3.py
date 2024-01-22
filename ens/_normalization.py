@@ -3,13 +3,11 @@ from enum import (
 )
 import json
 import os
-from sys import (
-    version_info,
-)
 from typing import (
     Any,
     Dict,
     List,
+    Literal,
     Optional,
     Set,
     Tuple,
@@ -24,17 +22,6 @@ from pyunormalize import (
 from .exceptions import (
     InvalidName,
 )
-
-# TODO: remove once web3 supports python>=3.8
-if version_info >= (3, 8):
-    from typing import (
-        Literal,
-    )
-else:
-    from typing_extensions import (  # type: ignore
-        Literal,
-    )
-
 
 # -- setup -- #
 

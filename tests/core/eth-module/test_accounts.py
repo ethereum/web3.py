@@ -1,7 +1,6 @@
 import pytest
 
 # coding=utf-8
-import sys
 from unittest.mock import (
     patch,
 )
@@ -466,7 +465,6 @@ def test_eth_account_recover_transaction_from_eth_test(acct, transaction):
     assert acct.recover_transaction(raw_txn) == expected_sender
 
 
-@pytest.mark.xfail(sys.version_info < (3, 8), reason="Dependencies dropping py<3.8")
 def test_eth_account_encrypt(acct, web3js_key, web3js_password):
     encrypted = acct.encrypt(web3js_key, web3js_password)
 
@@ -478,7 +476,6 @@ def test_eth_account_encrypt(acct, web3js_key, web3js_password):
     assert decrypted_key == to_bytes(hexstr=web3js_key)
 
 
-@pytest.mark.xfail(sys.version_info < (3, 8), reason="Dependencies dropping py<3.8")
 def test_eth_account_prepared_encrypt(acct, web3js_key, web3js_password):
     account = acct.from_key(web3js_key)
     encrypted = account.encrypt(web3js_password)
