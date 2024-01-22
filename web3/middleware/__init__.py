@@ -33,9 +33,6 @@ from .formatting import (
 from .gas_price_strategy import (
     GasPriceStrategyMiddleware,
 )
-from .normalize_request_parameters import (
-    request_parameter_normalizer,
-)
 from .pythonic import (
     pythonic_middleware,
 )
