@@ -76,7 +76,6 @@ setup(
         "eth-utils>=2.1.0",
         "hexbytes>=0.1.0,<0.4.0",
         "jsonschema>=4.0.0",
-        "lru-dict>=1.1.6,<1.3.0",
         "protobuf>=4.21.6",
         "pydantic>=2.4.0",
         "pywin32>=223;platform_system=='Windows'",
