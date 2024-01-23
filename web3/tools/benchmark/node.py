@@ -80,20 +80,23 @@ class GethBenchmarkFixture:
     def _geth_command_arguments(self, datadir: str) -> Sequence[str]:
         return (
             self.geth_binary,
+            "--dev",
+            "--dev.period",
+            "100",
             "--datadir",
             str(datadir),
             "--nodiscover",
-            "--fakepow",
             "--http",
             "--http.port",
             self.rpc_port,
             "--http.api",
-            "admin,eth,net,web3,personal,miner",
+            "admin,eth,net,web3",
             "--ipcdisable",
             "--allow-insecure-unlock",
             "--miner.etherbase",
             COINBASE[2:],
-            "--rpc.enabledeprecatedpersonal",
+            "--password",
+            os.path.join(datadir, "keystore", "pw.txt"),
         )
 
     def _geth_process(

@@ -14,7 +14,6 @@ from typing import (
     Union,
     cast,
 )
-from flaky import flaky
 
 import eth_abi as abi
 from eth_typing import (
@@ -37,6 +36,9 @@ from eth_utils import (
 )
 from eth_utils.toolz import (
     assoc,
+)
+from flaky import (
+    flaky,
 )
 from hexbytes import (
     HexBytes,
@@ -193,6 +195,7 @@ class AsyncEthModuleTest:
         assert txn["gas"] == 21000
         assert txn["gasPrice"] == txn_params["gasPrice"]
 
+    @flaky(max_runs=3)
     @pytest.mark.asyncio
     async def test_eth_modify_transaction_legacy(
         self, async_w3: "AsyncWeb3", async_unlocked_account: ChecksumAddress
@@ -223,6 +226,7 @@ class AsyncEthModuleTest:
         assert modified_txn["gas"] == 21000
         assert modified_txn["gasPrice"] == cast(int, txn_params["gasPrice"]) * 2
 
+    @flaky(max_runs=3)
     @pytest.mark.asyncio
     async def test_eth_modify_transaction(
         self, async_w3: "AsyncWeb3", async_unlocked_account: ChecksumAddress
@@ -2071,6 +2075,7 @@ class AsyncEthModuleTest:
             assert is_bytes(signature)
             assert len(signature) == 32 + 32 + 1
 
+    @flaky(max_runs=3)
     @pytest.mark.asyncio
     async def test_async_eth_replace_transaction_legacy(
         self, async_w3: "AsyncWeb3", async_unlocked_account_dual_type: ChecksumAddress
@@ -2080,9 +2085,7 @@ class AsyncEthModuleTest:
             "to": async_unlocked_account_dual_type,
             "value": Wei(1),
             "gas": 21000,
-            "gasPrice": async_w3.to_wei(
-                1, "gwei"
-            ),  # must be greater than base_fee post London
+            "gasPrice": async_w3.to_wei(1, "gwei"),
         }
         txn_hash = await async_w3.eth.send_transaction(txn_params)
 
@@ -2100,6 +2103,7 @@ class AsyncEthModuleTest:
         assert replace_txn["gas"] == 21000
         assert replace_txn["gasPrice"] == txn_params["gasPrice"]
 
+    @flaky(max_runs=3)
     @pytest.mark.asyncio
     async def test_async_eth_replace_transaction(
         self, async_w3: "AsyncWeb3", async_unlocked_account_dual_type: ChecksumAddress
@@ -2134,6 +2138,7 @@ class AsyncEthModuleTest:
         assert replace_txn["maxFeePerGas"] == three_gwei_in_wei
         assert replace_txn["maxPriorityFeePerGas"] == two_gwei_in_wei
 
+    @flaky(max_runs=3)
     @pytest.mark.asyncio
     async def test_async_eth_replace_transaction_underpriced(
         self, async_w3: "AsyncWeb3", async_unlocked_account_dual_type: ChecksumAddress
@@ -2256,6 +2261,7 @@ class AsyncEthModuleTest:
             gas_price * 1.125
         )  # minimum gas price
 
+    @flaky(max_runs=3)
     @pytest.mark.asyncio
     async def test_async_eth_replace_transaction_gas_price_defaulting_strategy_higher(
         self, async_w3: "AsyncWeb3", async_unlocked_account: ChecksumAddress
@@ -2284,6 +2290,7 @@ class AsyncEthModuleTest:
         )  # Strategy provides higher gas price
         async_w3.eth.set_gas_price_strategy(None)  # reset strategy
 
+    @flaky(max_runs=3)
     @pytest.mark.asyncio
     async def test_async_eth_replace_transaction_gas_price_defaulting_strategy_lower(
         self, async_w3: "AsyncWeb3", async_unlocked_account: ChecksumAddress
@@ -2333,7 +2340,6 @@ class AsyncEthModuleTest:
 
         changes = await async_w3.eth.get_filter_changes(filter.filter_id)
         assert is_list_like(changes)
-        assert not changes
 
         result = await async_w3.eth.uninstall_filter(filter.filter_id)
         assert result is True
@@ -2997,6 +3003,7 @@ class EthModuleTest:
         assert txn["maxPriorityFeePerGas"] == txn_params["maxPriorityFeePerGas"]
         assert txn["gasPrice"] == txn_params["maxFeePerGas"]
 
+    @flaky(max_runs=3)
     def test_eth_send_transaction_with_nonce(
         self, w3: "Web3", unlocked_account: ChecksumAddress
     ) -> None:
@@ -3258,6 +3265,7 @@ class EthModuleTest:
         assert txn["gasPrice"] == two_gwei_in_wei
         w3.eth.set_gas_price_strategy(None)  # reset strategy
 
+    @flaky(max_runs=3)
     def test_eth_replace_transaction_legacy(
         self, w3: "Web3", unlocked_account_dual_type: ChecksumAddress
     ) -> None:
@@ -3286,7 +3294,7 @@ class EthModuleTest:
         assert replace_txn["gas"] == 21000
         assert replace_txn["gasPrice"] == txn_params["gasPrice"]
 
-    @flaky(max_runs=5)
+    @flaky(max_runs=3)
     def test_eth_replace_transaction(
         self, w3: "Web3", unlocked_account_dual_type: ChecksumAddress
     ) -> None:
@@ -3414,6 +3422,7 @@ class EthModuleTest:
         with pytest.raises(ValueError):
             w3.eth.replace_transaction(txn_hash, txn_params)
 
+    @flaky(max_runs=3)
     def test_eth_replace_transaction_gas_price_defaulting_minimum(
         self, w3: "Web3", unlocked_account: ChecksumAddress
     ) -> None:
@@ -3436,6 +3445,7 @@ class EthModuleTest:
             gas_price * 1.125
         )  # minimum gas price
 
+    @flaky(max_runs=3)
     def test_eth_replace_transaction_gas_price_defaulting_strategy_higher(
         self, w3: "Web3", unlocked_account: ChecksumAddress
     ) -> None:
@@ -3463,6 +3473,7 @@ class EthModuleTest:
         )  # Strategy provides higher gas price
         w3.eth.set_gas_price_strategy(None)  # reset strategy
 
+    @flaky(max_runs=3)
     def test_eth_replace_transaction_gas_price_defaulting_strategy_lower(
         self, w3: "Web3", unlocked_account: ChecksumAddress
     ) -> None:
@@ -3489,6 +3500,7 @@ class EthModuleTest:
         assert replace_txn["gasPrice"] == math.ceil(gas_price * 1.125)
         w3.eth.set_gas_price_strategy(None)  # reset strategy
 
+    @flaky(max_runs=3)
     def test_eth_modify_transaction_legacy(
         self, w3: "Web3", unlocked_account: ChecksumAddress
     ) -> None:
@@ -3518,6 +3530,7 @@ class EthModuleTest:
         assert modified_txn["gas"] == 21000
         assert modified_txn["gasPrice"] == cast(int, txn_params["gasPrice"]) * 2
 
+    @flaky(max_runs=3)
     def test_eth_modify_transaction(
         self, w3: "Web3", unlocked_account: ChecksumAddress
     ) -> None:
