@@ -1,5 +1,4 @@
 import pytest
-import sys
 from unittest.mock import (
     patch,
 )
@@ -107,12 +106,6 @@ def test_ens_strict_bytes_type_checking_is_distinct_from_w3_instance(w3):
         ("set_text", ("tester.eth", "url", "https://www.ethereum.org")),
         ("get_text", ("tester.eth", "url")),
     ),
-)
-@pytest.mark.skipif(
-    # TODO: remove when python 3.7 is no longer supported in web3.py
-    #  python 3.7 is already sunset so this feel like a reasonable tradeoff
-    sys.version_info < (3, 8),
-    reason="Mock args behave differently in python 3.7 but test should still pass.",
 )
 def test_ens_methods_normalize_name(
     ens,
@@ -238,12 +231,6 @@ def test_async_ens_strict_bytes_type_checking_is_distinct_from_w3_instance(
     ),
 )
 @pytest.mark.asyncio
-@pytest.mark.skipif(
-    # TODO: remove when python 3.7 is no longer supported in web3.py
-    #  python 3.7 is already sunset so this feel like a reasonable tradeoff
-    sys.version_info < (3, 8),
-    reason="Mock args behave differently in python 3.7 but test should still pass.",
-)
 async def test_async_ens_methods_normalize_name_with_ensip15(
     async_ens,
     method_str,

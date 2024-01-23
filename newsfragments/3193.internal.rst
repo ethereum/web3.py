@@ -1,0 +1,1 @@
+Validate geth version used to generate the integration test fixture against the version in the binary that is used to run the tests.

@@ -1,7 +1,9 @@
 import asyncio
 import json
 import pytest
-import sys
+from unittest.mock import (
+    AsyncMock,
+)
 
 from eth_utils import (
     to_bytes,
@@ -19,21 +21,10 @@ from web3.types import (
 
 
 def _mock_ws(provider):
-    # move to top of file when python 3.7 is no longer supported in web3.py
-    from unittest.mock import (
-        AsyncMock,
-    )
-
     provider._ws = AsyncMock()
 
 
 @pytest.mark.asyncio
-@pytest.mark.skipif(
-    # TODO: remove when python 3.7 is no longer supported in web3.py
-    #  python 3.7 is already sunset so this feels like a reasonable tradeoff
-    sys.version_info < (3, 8),
-    reason="Uses AsyncMock, not supported by python 3.7",
-)
 async def test_async_make_request_caches_all_undesired_responses_and_returns_desired():
     provider = WebsocketProviderV2("ws://mocked")
 
@@ -73,12 +64,6 @@ async def test_async_make_request_caches_all_undesired_responses_and_returns_des
 
 
 @pytest.mark.asyncio
-@pytest.mark.skipif(
-    # TODO: remove when python 3.7 is no longer supported in web3.py
-    #  python 3.7 is already sunset so this feels like a reasonable tradeoff
-    sys.version_info < (3, 8),
-    reason="Uses AsyncMock, not supported by python 3.7",
-)
 async def test_async_make_request_returns_cached_response_with_no_recv_if_cached():
     provider = WebsocketProviderV2("ws://mocked")
 
@@ -98,12 +83,6 @@ async def test_async_make_request_returns_cached_response_with_no_recv_if_cached
 
 
 @pytest.mark.asyncio
-@pytest.mark.skipif(
-    # TODO: remove when python 3.7 is no longer supported in web3.py
-    #  python 3.7 is already sunset so this feels like a reasonable tradeoff
-    sys.version_info < (3, 8),
-    reason="Uses AsyncMock, not supported by python 3.7",
-)
 async def test_async_make_request_times_out_of_while_loop_looking_for_response():
     timeout = 0.001
     provider = WebsocketProviderV2("ws://mocked", request_timeout=timeout)
