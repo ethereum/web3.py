@@ -350,7 +350,7 @@ class RequestManager:
             response = self._request_processor.pop_raw_response(subscription=True)
             if (
                 response is not None
-                and response.get("params").get("subscription")
+                and response.get("params", {}).get("subscription")
                 in self._request_processor.active_subscriptions
             ):
                 # if response is an active subscription response, process it
