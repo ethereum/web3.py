@@ -122,6 +122,12 @@ async def test_async_make_request_times_out_of_while_loop_looking_for_response()
 
 
 @pytest.mark.asyncio
+@pytest.mark.skipif(
+    # TODO: remove when python 3.7 is no longer supported in web3.py
+    #  python 3.7 is already sunset so this feels like a reasonable tradeoff
+    sys.version_info < (3, 8),
+    reason="Uses AsyncMock, not supported by python 3.7",
+)
 async def test_msg_listener_task_starts_on_provider_connect_and_cancels_on_disconnect():
     provider = WebsocketProviderV2("ws://mocked")
     _mock_ws(provider)
@@ -143,6 +149,12 @@ async def test_msg_listener_task_starts_on_provider_connect_and_cancels_on_disco
 
 
 @pytest.mark.asyncio
+@pytest.mark.skipif(
+    # TODO: remove when python 3.7 is no longer supported in web3.py
+    #  python 3.7 is already sunset so this feels like a reasonable tradeoff
+    sys.version_info < (3, 8),
+    reason="Uses AsyncMock, not supported by python 3.7",
+)
 async def test_msg_listener_task_silences_exceptions_by_default_and_error_logs(caplog):
     provider = WebsocketProviderV2("ws://mocked")
     _mock_ws(provider)
@@ -173,6 +185,12 @@ async def test_msg_listener_task_silences_exceptions_by_default_and_error_logs(c
 
 
 @pytest.mark.asyncio
+@pytest.mark.skipif(
+    # TODO: remove when python 3.7 is no longer supported in web3.py
+    #  python 3.7 is already sunset so this feels like a reasonable tradeoff
+    sys.version_info < (3, 8),
+    reason="Uses AsyncMock, not supported by python 3.7",
+)
 async def test_msg_listener_task_raises_when_raise_listener_task_exceptions_is_true():
     provider = WebsocketProviderV2("ws://mocked", raise_listener_task_exceptions=True)
     _mock_ws(provider)
@@ -193,12 +211,22 @@ async def test_msg_listener_task_raises_when_raise_listener_task_exceptions_is_t
 
 
 @pytest.mark.asyncio
+@pytest.mark.skipif(
+    # TODO: remove when python 3.7 is no longer supported in web3.py
+    #  python 3.7 is already sunset so this feels like a reasonable tradeoff
+    sys.version_info < (3, 8),
+    reason="Uses AsyncMock, not supported by python 3.7",
+)
 async def test_listen_event_awaits_msg_processing_when_subscription_queue_is_full():
     """
     This test is to ensure that the `listen_event` method will wait for the
     `process_subscriptions` method to process a message when the subscription queue
     is full.
     """
+    from unittest.mock import (
+        AsyncMock,
+    )
+
     with patch(
         "web3.providers.websocket.websocket_v2.connect", new=lambda *_1, **_2: _coro()
     ):
