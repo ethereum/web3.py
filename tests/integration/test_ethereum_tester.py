@@ -31,6 +31,9 @@ from web3._utils.module_testing import (
     NetModuleTest,
     Web3ModuleTest,
 )
+from web3._utils.module_testing.eth_module import (
+    UNKNOWN_ADDRESS,
+)
 from web3.exceptions import (
     MethodUnavailable,
 )
@@ -398,6 +401,49 @@ class TestEthereumTesterEthModule(EthModuleTest):
     @disable_auto_mine
     def test_eth_modify_transaction(self, eth_tester, w3, unlocked_account):
         super().test_eth_modify_transaction(w3, unlocked_account)
+
+    @disable_auto_mine
+    def test_eth_get_logs_without_logs(
+        self, eth_tester, w3: "Web3", block_with_txn_with_log: BlockData
+    ) -> None:
+        # Note: This was the old way the test was written before geth started returning
+        # an error when the `toBlock` was before the `fromBlock`
+
+        # Test with block range
+        filter_params = {
+            "fromBlock": 0,
+            "toBlock": block_with_txn_with_log["number"] - 1,
+        }
+        result = w3.eth.get_logs(filter_params)
+        assert len(result) == 0
+
+        # the range is wrong
+        filter_params = {
+            "fromBlock": block_with_txn_with_log["number"],
+            "toBlock": block_with_txn_with_log["number"] - 1,
+        }
+        result = w3.eth.get_logs(filter_params)
+        assert len(result) == 0
+
+        # Test with `address`
+
+        # filter with other address
+        filter_params = {
+            "fromBlock": 0,
+            "address": UNKNOWN_ADDRESS,
+        }
+        result = w3.eth.get_logs(filter_params)
+        assert len(result) == 0
+
+        # Test with multiple `address`
+
+        # filter with other address
+        filter_params = {
+            "fromBlock": 0,
+            "address": [UNKNOWN_ADDRESS, UNKNOWN_ADDRESS],
+        }
+        result = w3.eth.get_logs(filter_params)
+        assert len(result) == 0
 
     @disable_auto_mine
     def test_eth_call_old_contract_state(
