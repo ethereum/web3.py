@@ -4,7 +4,6 @@ from typing import (
     Callable,
     Collection,
     Dict,
-    Generator,
     Iterable,
     List,
     NoReturn,
@@ -662,12 +661,12 @@ class BaseContractFunctions:
                     ),
                 )
 
-    def __iter__(self) -> Generator[str, None, None]:
+    def __iter__(self) -> Iterable["ABIFunction"]:
         if not hasattr(self, "_functions") or not self._functions:
             return
 
         for func in self._functions:
-            yield func["name"]
+            yield self[func["name"]]
 
     def __getitem__(self, function_name: str) -> ABIFunction:
         return getattr(self, function_name)
