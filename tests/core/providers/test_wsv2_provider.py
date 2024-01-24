@@ -1,11 +1,11 @@
 import asyncio
 import json
 import pytest
+import sys
 from unittest.mock import (
     Mock,
     patch,
 )
-import sys
 
 from eth_utils import (
     to_bytes,
@@ -42,6 +42,10 @@ def _mock_ws(provider):
 
 async def _coro():
     return None
+
+
+class WSException(Exception):
+    pass
 
 
 @pytest.mark.asyncio
@@ -155,7 +159,7 @@ async def test_msg_listener_task_starts_on_provider_connect_and_cancels_on_disco
     sys.version_info < (3, 8),
     reason="Uses AsyncMock, not supported by python 3.7",
 )
-async def test_msg_listener_task_silences_exceptions_by_default_and_error_logs(caplog):
+async def test_msg_listener_task_raises_exceptions_by_default():
     provider = WebsocketProviderV2("ws://mocked")
     _mock_ws(provider)
 
@@ -164,35 +168,22 @@ async def test_msg_listener_task_silences_exceptions_by_default_and_error_logs(c
     ):
         await provider.connect()
         assert provider._message_listener_task is not None
-        assert provider.raise_listener_task_exceptions is False
+        assert provider.silence_listener_task_exceptions is False
 
     provider._ws = WebsocketMessageStreamMock(
-        raise_exception=Exception("test exception")
+        raise_exception=WSException("test exception")
     )
-    await asyncio.sleep(0.05)
+    with pytest.raises(WSException, match="test exception"):
+        await provider._message_listener_task
 
-    assert "test exception" in caplog.text
-    assert (
-        "Exception caught in listener, error logging and keeping listener background "
-        "task alive.\n    error=test exception"
-    ) in caplog.text
-
-    # assert is still running
-    assert not provider._message_listener_task.cancelled()
-
-    # proper cleanup
-    await provider.disconnect()
+    assert provider._message_listener_task.done()
 
 
 @pytest.mark.asyncio
-@pytest.mark.skipif(
-    # TODO: remove when python 3.7 is no longer supported in web3.py
-    #  python 3.7 is already sunset so this feels like a reasonable tradeoff
-    sys.version_info < (3, 8),
-    reason="Uses AsyncMock, not supported by python 3.7",
-)
-async def test_msg_listener_task_raises_when_raise_listener_task_exceptions_is_true():
-    provider = WebsocketProviderV2("ws://mocked", raise_listener_task_exceptions=True)
+async def test_msg_listener_task_silences_exceptions_and_error_logs_when_configured(
+    caplog,
+):
+    provider = WebsocketProviderV2("ws://mocked", silence_listener_task_exceptions=True)
     _mock_ws(provider)
 
     with patch(
@@ -200,14 +191,24 @@ async def test_msg_listener_task_raises_when_raise_listener_task_exceptions_is_t
     ):
         await provider.connect()
         assert provider._message_listener_task is not None
+        assert provider.silence_listener_task_exceptions is True
 
     provider._ws = WebsocketMessageStreamMock(
-        raise_exception=Exception("test exception")
+        raise_exception=WSException("test exception")
     )
-    with pytest.raises(Exception, match="test exception"):
-        await provider._message_listener_task
+    await asyncio.sleep(0.05)
 
-    assert provider._message_listener_task.done()
+    assert "test exception" in caplog.text
+    assert (
+        "Exception caught in listener, error logging and keeping listener background "
+        "task alive.\n    error=WSException: test exception"
+    ) in caplog.text
+
+    # assert is still running
+    assert not provider._message_listener_task.cancelled()
+
+    # proper cleanup
+    await provider.disconnect()
 
 
 @pytest.mark.asyncio
