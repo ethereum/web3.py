@@ -320,7 +320,7 @@ class RequestManager:
             cast("AsyncWeb3", self.w3), cast("MiddlewareOnion", self.middleware_onion)
         )
         self.logger.debug(
-            "Making request to open websocket connection - "
+            "Making request to open socket connection - "
             f"uri: {provider.endpoint_uri}, method: {method}"
         )
         response = await request_func(method, params)
