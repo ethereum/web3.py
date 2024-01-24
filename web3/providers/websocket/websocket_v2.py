@@ -66,7 +66,7 @@ class WebsocketProviderV2(PersistentConnectionProvider):
         self,
         endpoint_uri: Optional[Union[URI, str]] = None,
         websocket_kwargs: Optional[Dict[str, Any]] = None,
-        raise_listener_task_exceptions: bool = False,
+        silence_listener_task_exceptions: bool = False,
         # `PersistentConnectionProvider` kwargs can be passed through
         **kwargs: Any,
     ) -> None:
@@ -94,7 +94,7 @@ class WebsocketProviderV2(PersistentConnectionProvider):
                 )
 
         self.websocket_kwargs = merge(DEFAULT_WEBSOCKET_KWARGS, websocket_kwargs or {})
-        self.raise_listener_task_exceptions = raise_listener_task_exceptions
+        self.silence_listener_task_exceptions = silence_listener_task_exceptions
 
         super().__init__(endpoint_uri, **kwargs)
 
@@ -231,11 +231,14 @@ class WebsocketProviderV2(PersistentConnectionProvider):
                         response, subscription=subscription
                     )
             except Exception as e:
-                if self.raise_listener_task_exceptions:
-                    # If ``True``, raise; else, error log & keep task alive
+                if not self.silence_listener_task_exceptions:
+                    loop = asyncio.get_event_loop()
+                    for task in asyncio.all_tasks(loop=loop):
+                        task.cancel()
                     raise e
 
                 self.logger.error(
-                    "Exception caught in listener, error logging and keeping listener "
-                    f"background task alive.\n    error={e}"
+                    "Exception caught in listener, error logging and keeping "
+                    "listener background task alive."
+                    f"\n    error={e.__class__.__name__}: {e}"
                 )
