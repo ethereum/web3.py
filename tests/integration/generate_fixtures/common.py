@@ -68,8 +68,8 @@ GENESIS_DATA = {
     "timestamp": "0x0",
     "parentHash": constants.HASH_ZERO,
     "extraData": "0x3535353535353535353535353535353535353535353535353535353535353535",
-    "difficulty": "0x1",
-    "gasLimit": "0x1c9c380",
+    "gasLimit": "0x3b9aca00",  # 1,000,000,000
+    "difficulty": "0x10000",
     "mixhash": constants.HASH_ZERO,
     "coinbase": COINBASE,
 }
