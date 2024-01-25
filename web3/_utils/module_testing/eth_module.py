@@ -55,6 +55,7 @@ from web3._utils.method_formatters import (
 from web3._utils.module_testing.module_testing_utils import (
     assert_contains_log,
     async_mock_offchain_lookup_request_response,
+    flaky_geth_dev_mining,
     mock_offchain_lookup_request_response,
 )
 from web3._utils.type_conversion import (
@@ -2107,6 +2108,7 @@ class AsyncEthModuleTest:
             assert is_bytes(signature)
             assert len(signature) == 32 + 32 + 1
 
+    @flaky_geth_dev_mining
     @pytest.mark.asyncio
     async def test_async_eth_replace_transaction_legacy(
         self, async_w3: "AsyncWeb3", async_unlocked_account_dual_type: ChecksumAddress
@@ -2134,6 +2136,7 @@ class AsyncEthModuleTest:
         assert replace_txn["gas"] == 21000
         assert replace_txn["gasPrice"] == txn_params["gasPrice"]
 
+    @flaky_geth_dev_mining
     @pytest.mark.asyncio
     async def test_async_eth_replace_transaction(
         self, async_w3: "AsyncWeb3", async_unlocked_account_dual_type: ChecksumAddress
@@ -2168,6 +2171,7 @@ class AsyncEthModuleTest:
         assert replace_txn["maxFeePerGas"] == three_gwei_in_wei
         assert replace_txn["maxPriorityFeePerGas"] == two_gwei_in_wei
 
+    @flaky_geth_dev_mining
     @pytest.mark.asyncio
     async def test_async_eth_replace_transaction_underpriced(
         self, async_w3: "AsyncWeb3", async_unlocked_account_dual_type: ChecksumAddress
@@ -2189,6 +2193,7 @@ class AsyncEthModuleTest:
         with pytest.raises(ValueError, match="replacement transaction underpriced"):
             await async_w3.eth.replace_transaction(txn_hash, txn_params)
 
+    @flaky_geth_dev_mining
     @pytest.mark.asyncio
     async def test_async_eth_replace_transaction_non_existing_transaction(
         self, async_w3: "AsyncWeb3", async_unlocked_account_dual_type: ChecksumAddress
@@ -2209,6 +2214,7 @@ class AsyncEthModuleTest:
                 txn_params,
             )
 
+    @flaky_geth_dev_mining
     @pytest.mark.asyncio
     async def test_async_eth_replace_transaction_already_mined(
         self, async_w3: "AsyncWeb3", async_unlocked_account_dual_type: ChecksumAddress
@@ -2229,6 +2235,7 @@ class AsyncEthModuleTest:
         with pytest.raises(ValueError, match="Supplied transaction with hash"):
             await async_w3.eth.replace_transaction(txn_hash, txn_params)
 
+    @flaky_geth_dev_mining
     @pytest.mark.asyncio
     async def test_async_eth_replace_transaction_incorrect_nonce(
         self, async_w3: "AsyncWeb3", async_unlocked_account: ChecksumAddress
@@ -2250,6 +2257,7 @@ class AsyncEthModuleTest:
         with pytest.raises(ValueError):
             await async_w3.eth.replace_transaction(txn_hash, txn_params)
 
+    @flaky_geth_dev_mining
     @pytest.mark.asyncio
     async def test_async_eth_replace_transaction_gas_price_too_low(
         self, async_w3: "AsyncWeb3", async_unlocked_account_dual_type: ChecksumAddress
@@ -2267,6 +2275,7 @@ class AsyncEthModuleTest:
         with pytest.raises(ValueError):
             await async_w3.eth.replace_transaction(txn_hash, txn_params)
 
+    @flaky_geth_dev_mining
     @pytest.mark.asyncio
     async def test_async_eth_replace_transaction_gas_price_defaulting_minimum(
         self, async_w3: "AsyncWeb3", async_unlocked_account: ChecksumAddress
@@ -2290,6 +2299,7 @@ class AsyncEthModuleTest:
             gas_price * 1.125
         )  # minimum gas price
 
+    @flaky_geth_dev_mining
     @pytest.mark.asyncio
     async def test_async_eth_replace_transaction_gas_price_defaulting_strategy_higher(
         self, async_w3: "AsyncWeb3", async_unlocked_account: ChecksumAddress
@@ -2318,6 +2328,7 @@ class AsyncEthModuleTest:
         )  # Strategy provides higher gas price
         async_w3.eth.set_gas_price_strategy(None)  # reset strategy
 
+    @flaky_geth_dev_mining
     @pytest.mark.asyncio
     async def test_async_eth_replace_transaction_gas_price_defaulting_strategy_lower(
         self, async_w3: "AsyncWeb3", async_unlocked_account: ChecksumAddress
@@ -3325,6 +3336,7 @@ class EthModuleTest:
         assert txn["gasPrice"] == two_gwei_in_wei
         w3.eth.set_gas_price_strategy(None)  # reset strategy
 
+    @flaky_geth_dev_mining
     def test_eth_replace_transaction_legacy(
         self, w3: "Web3", unlocked_account_dual_type: ChecksumAddress
     ) -> None:
@@ -3353,6 +3365,7 @@ class EthModuleTest:
         assert replace_txn["gas"] == 21000
         assert replace_txn["gasPrice"] == txn_params["gasPrice"]
 
+    @flaky_geth_dev_mining
     def test_eth_replace_transaction(
         self, w3: "Web3", unlocked_account_dual_type: ChecksumAddress
     ) -> None:
@@ -3386,6 +3399,7 @@ class EthModuleTest:
         assert replace_txn["maxFeePerGas"] == three_gwei_in_wei
         assert replace_txn["maxPriorityFeePerGas"] == two_gwei_in_wei
 
+    @flaky_geth_dev_mining
     def test_eth_replace_transaction_underpriced(
         self, w3: "Web3", unlocked_account_dual_type: ChecksumAddress
     ) -> None:
@@ -3406,6 +3420,7 @@ class EthModuleTest:
         with pytest.raises(ValueError, match="replacement transaction underpriced"):
             w3.eth.replace_transaction(txn_hash, txn_params)
 
+    @flaky_geth_dev_mining
     def test_eth_replace_transaction_non_existing_transaction(
         self, w3: "Web3", unlocked_account_dual_type: ChecksumAddress
     ) -> None:
@@ -3425,6 +3440,7 @@ class EthModuleTest:
                 txn_params,
             )
 
+    @flaky_geth_dev_mining
     def test_eth_replace_transaction_already_mined(
         self, w3: "Web3", unlocked_account_dual_type: ChecksumAddress
     ) -> None:
@@ -3444,6 +3460,7 @@ class EthModuleTest:
         with pytest.raises(ValueError, match="Supplied transaction with hash"):
             w3.eth.replace_transaction(txn_hash, txn_params)
 
+    @flaky_geth_dev_mining
     def test_eth_replace_transaction_incorrect_nonce(
         self, w3: "Web3", unlocked_account: ChecksumAddress
     ) -> None:
@@ -3464,6 +3481,7 @@ class EthModuleTest:
         with pytest.raises(ValueError):
             w3.eth.replace_transaction(txn_hash, txn_params)
 
+    @flaky_geth_dev_mining
     def test_eth_replace_transaction_gas_price_too_low(
         self, w3: "Web3", unlocked_account_dual_type: ChecksumAddress
     ) -> None:
@@ -3480,6 +3498,7 @@ class EthModuleTest:
         with pytest.raises(ValueError):
             w3.eth.replace_transaction(txn_hash, txn_params)
 
+    @flaky_geth_dev_mining
     def test_eth_replace_transaction_gas_price_defaulting_minimum(
         self, w3: "Web3", unlocked_account: ChecksumAddress
     ) -> None:
@@ -3502,6 +3521,7 @@ class EthModuleTest:
             gas_price * 1.125
         )  # minimum gas price
 
+    @flaky_geth_dev_mining
     def test_eth_replace_transaction_gas_price_defaulting_strategy_higher(
         self, w3: "Web3", unlocked_account: ChecksumAddress
     ) -> None:
@@ -3529,6 +3549,7 @@ class EthModuleTest:
         )  # Strategy provides higher gas price
         w3.eth.set_gas_price_strategy(None)  # reset strategy
 
+    @flaky_geth_dev_mining
     def test_eth_replace_transaction_gas_price_defaulting_strategy_lower(
         self, w3: "Web3", unlocked_account: ChecksumAddress
     ) -> None:

@@ -85,16 +85,18 @@ def get_geth_process(geth_binary, datadir, genesis_file_path, geth_port, keyfile
 
     run_geth_command = (
         geth_binary,
-        "--datadir",  # data dir for the db
+        "--datadir",
         datadir,
         "--dev",
         "--dev.period",
         "1",
         "--port",
         geth_port,
+        "--miner.etherbase",
+        common.COINBASE[2:],
         "--password",
         keyfile_pw,
-        "--rpc.enabledeprecatedpersonal",  # Enables the (deprecated) personal namespace
+        "--rpc.enabledeprecatedpersonal",
     )
 
     popen_proc = subprocess.Popen(
