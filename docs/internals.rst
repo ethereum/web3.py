@@ -186,6 +186,7 @@ The Manager acts as a gatekeeper for the request/response lifecycle.  It is
 unlikely that you will need to change the Manager as most functionality can be
 implemented in the Middleware layer.
 
+.. _internals__persistent_connection_providers:
 
 Request Processing for Persistent Connection Providers
 ------------------------------------------------------

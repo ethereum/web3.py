@@ -96,7 +96,7 @@ class WebsocketProviderV2(PersistentConnectionProvider):
         self.websocket_kwargs = merge(DEFAULT_WEBSOCKET_KWARGS, websocket_kwargs or {})
         self.silence_listener_task_exceptions = silence_listener_task_exceptions
 
-        super().__init__(endpoint_uri, **kwargs)
+        super().__init__(**kwargs)
 
     def __str__(self) -> str:
         return f"Websocket connection: {self.endpoint_uri}"

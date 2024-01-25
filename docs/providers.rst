@@ -219,14 +219,38 @@ WebsocketProvider
         >>> w3 = Web3(Web3.WebsocketProvider("ws://127.0.0.1:8546", websocket_timeout=60))
 
 
+Persistent Connection Providers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. py:class:: web3.providers.persistent.PersistentConnectionProvider(endpoint_uri: str, request_timeout: float = 50.0, subscription_response_queue_size: int = 500)
+
+    This is a base provider class, currently inherited by the ``WebsocketProviderV2``.
+    It handles interactions with a persistent connection to a JSON-RPC server. Among
+    its configuration, it houses all of the
+    :class:`~web3.providers.websocket.request_processor.RequestProcessor` logic for
+    handling the asynchronous sending and receiving of requests and responses. See
+    the :ref:`internals__persistent_connection_providers` section for more details on
+    the internals of persistent connection providers.
+
+    * ``request_timeout`` is the timeout in seconds, used when sending data over the
+      connection and waiting for a response to be received from the listener task.
+      Defaults to ``50.0``.
+
+    * ``subscription_response_queue_size`` is the size of the queue used to store
+      subscription responses, defaults to ``500``. While messages are being consumed,
+      this queue should never fill up as it is a transient queue and meant to handle
+      asynchronous receiving and processing of responses. When in sync with the
+      websocket stream, this queue should only ever store 1 to a few messages at a time.
+
+
 WebsocketProviderV2 (beta)
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+``````````````````````````
 
 .. warning:: This provider is still in beta. However, it is being actively developed
     and supported and is expected to be stable in the next major version of *web3.py*
     (v7).
 
-.. py:class:: web3.providers.websocket.WebsocketProviderV2(endpoint_uri, websocket_kwargs, call_timeout)
+.. py:class:: web3.providers.websocket.WebsocketProviderV2(endpoint_uri: str, websocket_kwargs: Dict[str, Any] = {}, silence_listener_task_exceptions: bool = False)
 
     This provider handles interactions with an WS or WSS based JSON-RPC server.
 
@@ -234,8 +258,14 @@ WebsocketProviderV2 (beta)
       ``'ws://localhost:8546'``.
     * ``websocket_kwargs`` this should be a dictionary of keyword arguments which
       will be passed onto the ws/wss websocket connection.
-    * ``request_timeout`` is the timeout in seconds, as a float. Used when receiving or
-      sending data over the connection. This value defaults to 20 seconds.
+    * ``silence_listener_task_exceptions`` is a boolean that determines whether
+      exceptions raised by the listener task are silenced. Defaults to ``False``,
+      raising any exceptions that occur in the listener task.
+
+    This provider inherits from the
+    :class:`~web3.providers.persistent.PersistentConnectionProvider` class. Refer to
+    the :class:`~web3.providers.persistent.PersistentConnectionProvider` documentation
+    for details on additional configuration options available for this provider.
 
     Under the hood, the ``WebsocketProviderV2`` uses the python websockets library for
     making requests.  If you would like to modify how requests are made, you can
@@ -244,7 +274,7 @@ WebsocketProviderV2 (beta)
 
 
 Usage
-~~~~~
++++++
 
 The ``AsyncWeb3`` class may be used as a context manager, utilizing the ``async with``
 syntax, when connecting via ``persistent_websocket()`` using the
@@ -363,7 +393,7 @@ one-to-many request-to-response requests. Refer to the
 documentation for details.
 
 _PersistentConnectionWeb3 via AsyncWeb3.persistent_websocket()
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 When an ``AsyncWeb3`` class is connected to a persistent websocket connection, via the
 ``persistent_websocket()`` method, it becomes an instance of the
