@@ -50,8 +50,6 @@ class WSException(Exception):
 
 @pytest.mark.asyncio
 @pytest.mark.skipif(
-    # TODO: remove when python 3.7 is no longer supported in web3.py
-    #  python 3.7 is already sunset so this feels like a reasonable tradeoff
     sys.version_info < (3, 8),
     reason="Uses AsyncMock, not supported by python 3.7",
 )
@@ -105,8 +103,6 @@ async def test_async_make_request_returns_desired_response():
 
 @pytest.mark.asyncio
 @pytest.mark.skipif(
-    # TODO: remove when python 3.7 is no longer supported in web3.py
-    #  python 3.7 is already sunset so this feels like a reasonable tradeoff
     sys.version_info < (3, 8),
     reason="Uses AsyncMock, not supported by python 3.7",
 )
@@ -127,8 +123,6 @@ async def test_async_make_request_times_out_of_while_loop_looking_for_response()
 
 @pytest.mark.asyncio
 @pytest.mark.skipif(
-    # TODO: remove when python 3.7 is no longer supported in web3.py
-    #  python 3.7 is already sunset so this feels like a reasonable tradeoff
     sys.version_info < (3, 8),
     reason="Uses AsyncMock, not supported by python 3.7",
 )
@@ -154,8 +148,6 @@ async def test_msg_listener_task_starts_on_provider_connect_and_cancels_on_disco
 
 @pytest.mark.asyncio
 @pytest.mark.skipif(
-    # TODO: remove when python 3.7 is no longer supported in web3.py
-    #  python 3.7 is already sunset so this feels like a reasonable tradeoff
     sys.version_info < (3, 8),
     reason="Uses AsyncMock, not supported by python 3.7",
 )
@@ -180,6 +172,10 @@ async def test_msg_listener_task_raises_exceptions_by_default():
 
 
 @pytest.mark.asyncio
+@pytest.mark.skipif(
+    sys.version_info < (3, 8),
+    reason="Uses AsyncMock, not supported by python 3.7",
+)
 async def test_msg_listener_task_silences_exceptions_and_error_logs_when_configured(
     caplog,
 ):
@@ -213,8 +209,6 @@ async def test_msg_listener_task_silences_exceptions_and_error_logs_when_configu
 
 @pytest.mark.asyncio
 @pytest.mark.skipif(
-    # TODO: remove when python 3.7 is no longer supported in web3.py
-    #  python 3.7 is already sunset so this feels like a reasonable tradeoff
     sys.version_info < (3, 8),
     reason="Uses AsyncMock, not supported by python 3.7",
 )
