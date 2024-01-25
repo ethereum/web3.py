@@ -9,8 +9,8 @@ v6 Breaking Changes Summary
 web3.py v6.15.0 (2024-01-25)
 ----------------------------
 
-Breaking Changes
-~~~~~~~~~~~~~~~~
+Breaking Changes (to Beta APIs)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 - Use a message listener background task for ``WebsocketProviderV2`` rather than relying on ``ws.recv()`` blocking. Some breaking changes to API, notably ``listen_to_websocket`` -> ``process_subscriptions``. (`#3206 <https://github.com/ethereum/web3.py/issues/3206>`__)
 
