@@ -1,0 +1,1 @@
+Compile contracts with and test against new Solidity version ``v0.8.24``.
