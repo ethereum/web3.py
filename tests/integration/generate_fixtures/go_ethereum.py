@@ -69,13 +69,13 @@ def graceful_kill_on_exit(proc):
 
 
 @contextlib.contextmanager
-def get_geth_process(geth_binary, datadir, genesis_file_path, geth_port, keyfile_pw):
+def get_geth_process(geth_binary, datadir, geth_port):
     init_datadir_command = (
         geth_binary,
         "--datadir",
         datadir,
         "init",
-        genesis_file_path,
+        os.path.join(datadir, "genesis.json"),
     )
     subprocess.check_output(
         init_datadir_command,
@@ -95,7 +95,7 @@ def get_geth_process(geth_binary, datadir, genesis_file_path, geth_port, keyfile
         "--miner.etherbase",
         common.COINBASE[2:],
         "--password",
-        keyfile_pw,
+        os.path.join(datadir, "keystore", "pw.txt"),
         "--rpc.enabledeprecatedpersonal",
     )
 
@@ -151,9 +151,7 @@ def generate_go_ethereum_fixture(destination_dir):
         with get_geth_process(
             geth_binary=geth_binary,
             datadir=datadir,
-            genesis_file_path=genesis_file_path,
             geth_port=geth_port,
-            keyfile_pw=keyfile_pw,
         ):
             common.wait_for_socket(geth_ipc_path)
             w3 = Web3(Web3.IPCProvider(geth_ipc_path))
@@ -167,9 +165,7 @@ def generate_go_ethereum_fixture(destination_dir):
         with get_geth_process(
             geth_binary=geth_binary,
             datadir=datadir,
-            genesis_file_path=genesis_file_path,
             geth_port=geth_port,
-            keyfile_pw=keyfile_pw,
         ):
             common.wait_for_socket(geth_ipc_path)
             w3 = Web3(Web3.IPCProvider(geth_ipc_path))

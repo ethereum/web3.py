@@ -104,7 +104,7 @@ def base_geth_command_arguments(geth_binary, datadir):
 
 @pytest.fixture(scope="module")
 def geth_zipfile_version(get_geth_version):
-    if get_geth_version.major == 1 and get_geth_version.minor in [10, 11, 12, 13]:
+    if get_geth_version.major == 1 and get_geth_version.minor in [11, 12, 13]:
         return GETH_FIXTURE_ZIP
     raise AssertionError("Unsupported geth version")
 
