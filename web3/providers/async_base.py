@@ -134,7 +134,7 @@ class AsyncJSONBaseProvider(AsyncBaseProvider):
     async def is_connected(self, show_traceback: bool = False) -> bool:
         try:
             response = await self.make_request(RPCEndpoint("web3_clientVersion"), [])
-        except OSError as e:
+        except (OSError, ProviderConnectionError) as e:
             if show_traceback:
                 raise ProviderConnectionError(
                     f"Problem connecting to provider with error: {type(e)}: {e}"
@@ -148,7 +148,7 @@ class AsyncJSONBaseProvider(AsyncBaseProvider):
                 )
             return False
 
-        if response["jsonrpc"] == "2.0":
+        if response.get("jsonrpc") == "2.0":
             return True
         else:
             if show_traceback:

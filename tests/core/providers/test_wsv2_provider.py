@@ -192,7 +192,7 @@ async def test_listen_event_awaits_msg_processing_when_subscription_queue_is_ful
     with patch(
         "web3.providers.websocket.websocket_v2.connect", new=lambda *_1, **_2: _coro()
     ):
-        async_w3 = await AsyncWeb3.persistent_websocket(
+        async_w3 = await AsyncWeb3.persistent_connection(
             WebsocketProviderV2("ws://mocked")
         )
 
@@ -254,7 +254,7 @@ async def test_listen_event_awaits_msg_processing_when_subscription_queue_is_ful
     # set is not called until we start consuming messages
     async_w3.provider._listen_event.set.assert_not_called()
 
-    async for message in async_w3.ws.process_subscriptions():
+    async for message in async_w3.socket.process_subscriptions():
         # assert the very next message is the mocked subscription
         assert message == mocked_sub
         break

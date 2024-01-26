@@ -4,7 +4,7 @@ from .websocket import (
     WebsocketProvider,
 )
 from .websocket_connection import (
-    WebsocketConnection,
+    PersistentConnection,
 )
 from .websocket_v2 import (
     WebsocketProviderV2,

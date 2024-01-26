@@ -131,7 +131,7 @@ from web3.providers.websocket import (
     WebsocketProvider,
 )
 from web3.providers.websocket.websocket_connection import (
-    WebsocketConnection,
+    PersistentConnection,
 )
 from web3.testing import (
     Testing,
@@ -496,7 +496,7 @@ class AsyncWeb3(BaseWeb3):
         self._ens = new_ens
 
     @staticmethod
-    def persistent_websocket(
+    def persistent_connection(
         provider: PersistentConnectionProvider,
         middlewares: Optional[Sequence[Any]] = None,
         modules: Optional[Dict[str, Union[Type[Module], Sequence[Any]]]] = None,
@@ -521,7 +521,7 @@ class AsyncWeb3(BaseWeb3):
 class _PersistentConnectionWeb3(AsyncWeb3):
     provider: PersistentConnectionProvider
 
-    # w3 = AsyncWeb3.persistent_websocket(provider)
+    # w3 = AsyncWeb3.persistent_connection(provider)
     # await w3.provider.connect()
     def __init__(
         self,
@@ -538,7 +538,7 @@ class _PersistentConnectionWeb3(AsyncWeb3):
                 "Provider must inherit from PersistentConnectionProvider class."
             )
         AsyncWeb3.__init__(self, provider, middlewares, modules, external_modules, ens)
-        self.ws = WebsocketConnection(self)
+        self.socket = PersistentConnection(self)
 
     # w3 = await AsyncWeb3.persistent_websocket(provider)
     def __await__(
@@ -552,7 +552,7 @@ class _PersistentConnectionWeb3(AsyncWeb3):
 
         return __async_init__().__await__()
 
-    # async with w3.persistent_websocket(provider) as w3
+    # async with w3.persistent_connection(provider) as w3
     async def __aenter__(self) -> Self:
         await self.provider.connect()
         return self
@@ -565,7 +565,7 @@ class _PersistentConnectionWeb3(AsyncWeb3):
     ) -> None:
         await self.provider.disconnect()
 
-    # async for w3 in w3.persistent_websocket(provider)
+    # async for w3 in w3.persistent_connection(provider)
     async def __aiter__(self) -> AsyncIterator[Self]:
         if not await self.provider.is_connected():
             await self.provider.connect()

@@ -126,7 +126,7 @@ class WebsocketProviderV2(PersistentConnectionProvider):
                 _connection_attempts += 1
                 self._ws = await connect(self.endpoint_uri, **self.websocket_kwargs)
                 self._message_listener_task = asyncio.create_task(
-                    self._ws_message_listener()
+                    self._message_listener()
                 )
                 break
             except WebSocketException as e:
@@ -211,7 +211,7 @@ class WebsocketProviderV2(PersistentConnectionProvider):
                 "allowed to continue."
             )
 
-    async def _ws_message_listener(self) -> None:
+    async def _message_listener(self) -> None:
         self.logger.info(
             "Websocket listener background task started. Storing all messages in "
             "appropriate request processor queues / caches to be processed."

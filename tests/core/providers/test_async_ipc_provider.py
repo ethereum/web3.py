@@ -1,3 +1,5 @@
+import asyncio
+import json
 import os
 import pathlib
 import pytest
@@ -9,14 +11,14 @@ from threading import (
 import time
 import uuid
 
-from web3.auto.gethdev import (
-    async_w3,
+from web3 import (
+    AsyncWeb3,
+)
+from web3.datastructures import (
+    AttributeDict,
 )
 from web3.exceptions import (
     ProviderConnectionError,
-)
-from web3.middleware import (
-    async_construct_fixture_middleware,
 )
 from web3.providers.async_ipc import (
     AsyncIPCProvider,
@@ -35,14 +37,18 @@ def jsonrpc_ipc_pipe_path():
 
 
 @pytest.mark.asyncio
-async def test_ipc_no_path():
+async def test_provider_is_connected(jsonrpc_ipc_pipe_path, serve_empty_result):
     """
-    AsyncIPCProvider.is_connected() returns False when no path is supplied
+    AsyncIPCProvider.is_connected() returns False when disconnected
     """
-    ipc = AsyncIPCProvider(None)
-    assert await ipc.is_connected() is False
-    with pytest.raises(ProviderConnectionError):
-        await ipc.is_connected(show_traceback=True)
+    async with AsyncWeb3.persistent_connection(
+        AsyncIPCProvider(pathlib.Path(jsonrpc_ipc_pipe_path))
+    ) as w3:
+        # clears cache
+        await w3.provider.disconnect()
+        assert await w3.is_connected() is False
+        with pytest.raises(ProviderConnectionError):
+            await w3.is_connected(show_traceback=True)
 
 
 def test_ipc_tilda_in_path():
@@ -68,7 +74,7 @@ def serve_empty_result(simple_ipc_server):
         connection, client_address = simple_ipc_server.accept()
         try:
             connection.recv(1024)
-            connection.sendall(b'{"id":1, "result": {}')
+            connection.sendall(b'{"id": 0, "result": {}')
             time.sleep(0.1)
             connection.sendall(b"}")
         finally:
@@ -87,24 +93,101 @@ def serve_empty_result(simple_ipc_server):
 
 @pytest.mark.asyncio
 async def test_async_waits_for_full_result(jsonrpc_ipc_pipe_path, serve_empty_result):
-    provider = AsyncIPCProvider(pathlib.Path(jsonrpc_ipc_pipe_path), timeout=3)
-    result = await provider.make_request("method", [])
-    assert result == {"id": 1, "result": {}}
-    sock = provider._socket.sock
-    reader, writer = sock
-    writer.close()
-    await writer.wait_closed()
+    async with AsyncWeb3.persistent_connection(
+        AsyncIPCProvider(pathlib.Path(jsonrpc_ipc_pipe_path))
+    ) as w3:
+        result = await w3.provider.make_request("method", [])
+        assert result == {"id": 0, "result": {}}
+        # Cleanup
+        await w3.provider.disconnect()
 
 
 @pytest.mark.asyncio
-async def test_web3_auto_gethdev():
-    assert isinstance(async_w3.provider, AsyncIPCProvider)
-    return_block_with_long_extra_data = await async_construct_fixture_middleware(
-        {
-            "eth_getBlockByNumber": {"extraData": "0x" + "ff" * 33},
-        }
+async def test_await_persistent_connection(jsonrpc_ipc_pipe_path, serve_empty_result):
+    w3 = await AsyncWeb3.persistent_connection(
+        AsyncIPCProvider(pathlib.Path(jsonrpc_ipc_pipe_path))
     )
-    async_w3.middleware_onion.inject(return_block_with_long_extra_data, layer=0)
-    block = await async_w3.eth.get_block("latest")
-    assert "extraData" not in block
-    assert block.proofOfAuthorityData == b"\xff" * 33
+    result = await w3.provider.make_request("method", [])
+    assert result == {"id": 0, "result": {}}
+    await w3.provider.disconnect()
+
+
+@pytest.mark.asyncio
+async def test_persistent_connection(jsonrpc_ipc_pipe_path, serve_empty_result):
+    w3 = AsyncWeb3.persistent_connection(
+        AsyncIPCProvider(pathlib.Path(jsonrpc_ipc_pipe_path))
+    )
+    await w3.provider.connect()
+    result = await w3.provider.make_request("method", [])
+    assert result == {"id": 0, "result": {}}
+    await w3.provider.disconnect()
+
+
+ETH_SUBSCRIBE_RESPONSE = {
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "eth_subscription",
+    "params": {
+        "result": {
+            "removed": "false",
+            "transaction": {
+                "hash": "0xa8f2cf69e302da6c8100b80298ed77c37b6e75eed1177ca22acd5772c9fb9876",  # noqa: E501
+            },
+        },
+        "subscription": "0xf13f7073ddef66a8c1b0c9c9f0e543c3",
+    },
+}
+
+
+@pytest.fixture
+def serve_subscription_result(simple_ipc_server):
+    def reply():
+        connection, client_address = simple_ipc_server.accept()
+        try:
+            connection.recv(1024)
+            connection.sendall(
+                b'{"jsonrpc": "2.0", "id": 0, "result": "0xf13f7073ddef66a8c1b0c9c9f0e543c3"}'  # noqa: E501
+            )
+            time.sleep(0.1)
+            connection.sendall(json.dumps(ETH_SUBSCRIBE_RESPONSE).encode("utf-8"))
+        finally:
+            # Clean up the connection
+            connection.close()
+            simple_ipc_server.close()
+
+    thd = Thread(target=reply, daemon=True)
+    thd.start()
+
+    try:
+        yield
+    finally:
+        thd.join()
+
+
+@pytest.mark.asyncio
+async def test_eth_subscription(jsonrpc_ipc_pipe_path, serve_subscription_result):
+    async with AsyncWeb3.persistent_connection(
+        AsyncIPCProvider(pathlib.Path(jsonrpc_ipc_pipe_path))
+    ) as w3:
+        subscribe_response = await w3.eth.subscribe("newHeads")
+        subscription_id = "0xf13f7073ddef66a8c1b0c9c9f0e543c3"
+        assert subscribe_response == subscription_id
+
+        subscription_response = {
+            "result": AttributeDict(
+                {
+                    "removed": "false",
+                    "transaction": AttributeDict(
+                        {
+                            "hash": "0xa8f2cf69e302da6c8100b80298ed77c37b6e75eed1177ca22acd5772c9fb9876"  # noqa: E501
+                        }
+                    ),
+                }
+            ),
+            "subscription": "0xf13f7073ddef66a8c1b0c9c9f0e543c3",
+        }
+        await asyncio.sleep(0.5)
+        async for response in w3.socket.process_subscriptions():
+            assert response == subscription_response
+            break
+        await w3.provider.disconnect()

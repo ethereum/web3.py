@@ -88,7 +88,8 @@ Auto-initialization Provider Shortcuts
 Geth dev Proof of Authority
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To connect to a ``geth --dev`` Proof of Authority instance with defaults:
+To connect to a ``geth --dev`` Proof of Authority instance with
+the POA middleware loaded by default:
 
 .. code-block:: python
 
@@ -97,6 +98,18 @@ To connect to a ``geth --dev`` Proof of Authority instance with defaults:
     # confirm that the connection succeeded
     >>> w3.is_connected()
     True
+
+Or, connect to an async web3 instance:
+
+.. code-block:: python
+
+    >>> from web3.auto.gethdev import async_w3
+    >>> await async_w3.provider.connect()
+
+    # confirm that the connection succeeded
+    >>> await async_w3.is_connected()
+    True
+
 
 Built In Providers
 ------------------
@@ -301,7 +314,7 @@ Usage
 +++++
 
 The ``AsyncWeb3`` class may be used as a context manager, utilizing the ``async with``
-syntax, when connecting via ``persistent_websocket()`` using the
+syntax, when connecting via ``persistent_connection()`` using the
 ``WebsocketProviderV2``. This will automatically close the connection when the context
 manager exits and is the recommended way to initiate a persistent connection to the
 websocket provider. A similar example, using the ``websockets`` connection as an
@@ -321,13 +334,13 @@ asynchronous context manager, can be found in the `websockets connection`_ docs.
         ...     logger.addHandler(logging.StreamHandler())
 
         >>> async def ws_v2_subscription_context_manager_example():
-        ...     async with AsyncWeb3.persistent_websocket(
+        ...     async with AsyncWeb3.persistent_connection(
         ...         WebsocketProviderV2(f"ws://127.0.0.1:8546")
         ...     ) as w3:
         ...         # subscribe to new block headers
         ...         subscription_id = await w3.eth.subscribe("newHeads")
         ...
-        ...         async for response in w3.ws.process_subscriptions():
+        ...         async for response in w3.socket.process_subscriptions():
         ...             print(f"{response}\n")
         ...             # handle responses here
         ...
@@ -349,7 +362,7 @@ asynchronous context manager, can be found in the `websockets connection`_ docs.
 
 
 The ``AsyncWeb3`` class may also be used as an asynchronous iterator, utilizing the
-``async for`` syntax, when connecting via ``persistent_websocket()`` using the
+``async for`` syntax, when connecting via ``persistent_connection()`` using the
 ``WebsocketProviderV2``. This may be used to set up an indefinite websocket connection
 and reconnect automatically if the connection is lost. A similar example, using the
 ``websockets`` connection as an asynchronous iterator, can be found in the
@@ -365,7 +378,7 @@ and reconnect automatically if the connection is lost. A similar example, using 
     >>> import websockets
 
     >>> async def ws_v2_subscription_iterator_example():
-    ...     async for w3 in AsyncWeb3.persistent_websocket(
+    ...     async for w3 in AsyncWeb3.persistent_connection(
     ...         WebsocketProviderV2(f"ws://127.0.0.1:8546")
     ...     ):
     ...         try:
@@ -378,7 +391,7 @@ and reconnect automatically if the connection is lost. A similar example, using 
 
 
 If neither of the two init patterns above work for your application, the ``__await__()``
-method is defined on the ``persistent_websocket()`` connection in a manner that awaits
+method is defined on the ``persistent_connection()`` connection in a manner that awaits
 connecting to the websocket. You may also choose to instantiate and connect via the
 provider in separate lines. Both of these examples are shown below.
 
@@ -386,7 +399,7 @@ provider in separate lines. Both of these examples are shown below.
 
     >>> async def ws_v2_alternate_init_example_1():
     ...     # awaiting the persistent connection itself will connect to the websocket
-    ...     w3 = await AsyncWeb3.persistent_websocket(WebsocketProviderV2(f"ws://127.0.0.1:8546"))
+    ...     w3 = await AsyncWeb3.persistent_connection(WebsocketProviderV2(f"ws://127.0.0.1:8546"))
     ...
     ...     # some code here
     ...
@@ -398,7 +411,7 @@ provider in separate lines. Both of these examples are shown below.
 
     >>> async def ws_v2_alternate_init_example_2():
     ...     # instantiation and connection via the provider as separate lines
-    ...     w3 = AsyncWeb3.persistent_websocket(WebsocketProviderV2(f"ws://127.0.0.1:8546"))
+    ...     w3 = AsyncWeb3.persistent_connection(WebsocketProviderV2(f"ws://127.0.0.1:8546"))
     ...     await w3.provider.connect()
     ...
     ...     # some code here
@@ -416,11 +429,11 @@ one-to-many request-to-response requests. Refer to the
 :class:`~web3.providers.websocket.request_processor.RequestProcessor`
 documentation for details.
 
-_PersistentConnectionWeb3 via AsyncWeb3.persistent_websocket()
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+_PersistentConnectionWeb3 via AsyncWeb3.persistent_connection()
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 When an ``AsyncWeb3`` class is connected to a persistent websocket connection, via the
-``persistent_websocket()`` method, it becomes an instance of the
+``persistent_connection()`` method, it becomes an instance of the
 ``_PersistentConnectionWeb3`` class. This class has a few additional methods and
 attributes that are not available on the ``AsyncWeb3`` class.
 
@@ -431,18 +444,18 @@ attributes that are not available on the ``AsyncWeb3`` class.
         The public API for interacting with the websocket connection is available via
         the ``ws`` attribute of the ``_PersistentConnectionWeb3`` class. This attribute
         is an instance of the
-        :class:`~web3.providers.websocket.WebsocketConnection` class and is the main
+        :class:`~web3.providers.websocket.PersistentConnection` class and is the main
         interface for interacting with the websocket connection.
 
 
 Interacting with the Websocket Connection
 +++++++++++++++++++++++++++++++++++++++++
 
-.. py:class:: web3.providers.websocket.WebsocketConnection
+.. py:class:: web3.providers.websocket.PersistentConnection
 
     This class handles interactions with a websocket connection. It is available
     via the ``ws`` attribute of the ``_PersistentConnectionWeb3`` class. The
-    ``WebsocketConnection`` class has the following methods and attributes:
+    ``PersistentConnection`` class has the following methods and attributes:
 
     .. py:attribute:: subscriptions
 
@@ -481,7 +494,7 @@ Interacting with the Websocket Connection
         responses will not be formatted by web3.py formatters or run through the
         middlewares. Instead, use the methods available on the respective web3
         module. For example, use ``w3.eth.get_block("latest")`` instead of
-        ``w3.ws.send("eth_getBlockByNumber", ["latest", True])``.
+        ``w3.socket.send("eth_getBlockByNumber", ["latest", True])``.
 
 
 AutoProvider

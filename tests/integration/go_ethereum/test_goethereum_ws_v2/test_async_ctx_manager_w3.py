@@ -30,7 +30,7 @@ async def async_w3(geth_process, endpoint_uri):
     await wait_for_aiohttp(endpoint_uri)
 
     # async context manager pattern
-    async with AsyncWeb3.persistent_websocket(WebsocketProviderV2(endpoint_uri)) as w3:
+    async with AsyncWeb3.persistent_connection(WebsocketProviderV2(endpoint_uri)) as w3:
         yield w3
 
 

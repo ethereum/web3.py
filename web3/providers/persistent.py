@@ -49,5 +49,5 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
     async def disconnect(self) -> None:
         raise NotImplementedError("Must be implemented by subclasses")
 
-    async def _ws_message_listener(self) -> None:
+    async def _message_listener(self) -> None:
         raise NotImplementedError("Must be implemented by subclasses")
