@@ -42,7 +42,6 @@ filename with the ``-f`` (or ``--filename``) argument flag.
     reformatted ...
 """
 
-
 import argparse
 import os
 import re

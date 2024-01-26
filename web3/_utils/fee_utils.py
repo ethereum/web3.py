@@ -33,9 +33,11 @@ def _fee_history_priority_fee_estimate(fee_history: FeeHistory) -> Wei:
     return (  # keep estimated priority fee within a max / min range
         PRIORITY_FEE_MAX
         if priority_fee_average_for_percentile > PRIORITY_FEE_MAX
-        else PRIORITY_FEE_MIN
-        if priority_fee_average_for_percentile < PRIORITY_FEE_MIN
-        else priority_fee_average_for_percentile
+        else (
+            PRIORITY_FEE_MIN
+            if priority_fee_average_for_percentile < PRIORITY_FEE_MIN
+            else priority_fee_average_for_percentile
+        )
     )
 
 

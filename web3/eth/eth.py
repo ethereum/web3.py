@@ -301,9 +301,9 @@ class Eth(BaseEth):
 
     # eth_estimateGas
 
-    _estimate_gas: Method[
-        Callable[[TxParams, Optional[BlockIdentifier]], int]
-    ] = Method(RPC.eth_estimateGas, mungers=[BaseEth.estimate_gas_munger])
+    _estimate_gas: Method[Callable[[TxParams, Optional[BlockIdentifier]], int]] = (
+        Method(RPC.eth_estimateGas, mungers=[BaseEth.estimate_gas_munger])
+    )
 
     def estimate_gas(
         self, transaction: TxParams, block_identifier: Optional[BlockIdentifier] = None
@@ -615,15 +615,15 @@ class Eth(BaseEth):
 
     # eth_newFilter, eth_newBlockFilter, eth_newPendingTransactionFilter
 
-    filter: Method[
-        Callable[[Optional[Union[str, FilterParams, HexStr]]], Filter]
-    ] = Method(
-        method_choice_depends_on_args=select_filter_method(
-            if_new_block_filter=RPC.eth_newBlockFilter,
-            if_new_pending_transaction_filter=RPC.eth_newPendingTransactionFilter,
-            if_new_filter=RPC.eth_newFilter,
-        ),
-        mungers=[BaseEth.filter_munger],
+    filter: Method[Callable[[Optional[Union[str, FilterParams, HexStr]]], Filter]] = (
+        Method(
+            method_choice_depends_on_args=select_filter_method(
+                if_new_block_filter=RPC.eth_newBlockFilter,
+                if_new_pending_transaction_filter=RPC.eth_newPendingTransactionFilter,
+                if_new_filter=RPC.eth_newFilter,
+            ),
+            mungers=[BaseEth.filter_munger],
+        )
     )
 
     # eth_getFilterChanges, eth_getFilterLogs, eth_uninstallFilter
@@ -661,14 +661,12 @@ class Eth(BaseEth):
     )
 
     @overload
-    def contract(self, address: None = None, **kwargs: Any) -> Type[Contract]:
-        ...
+    def contract(self, address: None = None, **kwargs: Any) -> Type[Contract]: ...
 
     @overload
     def contract(
         self, address: Union[Address, ChecksumAddress, ENS], **kwargs: Any
-    ) -> Contract:
-        ...
+    ) -> Contract: ...
 
     def contract(
         self,

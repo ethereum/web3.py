@@ -187,9 +187,11 @@ def test_unmined_transaction_wait_for_receipt(w3, request_mocker):
     with request_mocker(
         w3,
         mock_results={
-            RPC.eth_getTransactionReceipt: lambda method, params: None
-            if next(receipt_counters[params[0]]) < 5
-            else unmocked_make_request(method, params)["result"]
+            RPC.eth_getTransactionReceipt: lambda method, params: (
+                None
+                if next(receipt_counters[params[0]]) < 5
+                else unmocked_make_request(method, params)["result"]
+            )
         },
     ):
         with pytest.raises(TransactionNotFound):
