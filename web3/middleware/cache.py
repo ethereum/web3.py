@@ -223,9 +223,9 @@ BLOCK_NUMBER_RPC_WHITELIST = cast(
 
 AVG_BLOCK_TIME_KEY: Literal["avg_block_time"] = "avg_block_time"
 AVG_BLOCK_SAMPLE_SIZE_KEY: Literal["avg_block_sample_size"] = "avg_block_sample_size"
-AVG_BLOCK_TIME_UPDATED_AT_KEY: Literal[
+AVG_BLOCK_TIME_UPDATED_AT_KEY: Literal["avg_block_time_updated_at"] = (
     "avg_block_time_updated_at"
-] = "avg_block_time_updated_at"
+)
 
 
 def _is_latest_block_number_request(method: RPCEndpoint, params: Any) -> bool:

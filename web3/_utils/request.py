@@ -157,9 +157,11 @@ async def async_cache_and_return_session(
             warning = (
                 "Async session was closed"
                 if session_is_closed
-                else "Loop was closed for async session"
-                if session_loop_is_closed
-                else None
+                else (
+                    "Loop was closed for async session"
+                    if session_loop_is_closed
+                    else None
+                )
             )
             if warning:
                 logger.debug(

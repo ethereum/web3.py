@@ -296,9 +296,9 @@ def test_abi_data_tree(types, data, expected):
             ["bool[2]", "int256"],
             [[True, False], 9876543210],
             [
-                lambda typ, dat: (typ, "Tru-dat")
-                if typ == "bool" and dat
-                else (typ, dat),
+                lambda typ, dat: (
+                    (typ, "Tru-dat") if typ == "bool" and dat else (typ, dat)
+                ),
                 lambda typ, dat: (typ, hex(dat)) if typ == "int256" else (typ, dat),
             ],
             [["Tru-dat", False], "0x24cb016ea"],
