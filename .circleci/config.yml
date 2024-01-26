@@ -94,6 +94,12 @@ jobs:
       - image: cimg/python:3.11
         environment:
           TOXENV: py311-core
+  py312-core:
+    <<: *common
+    docker:
+      - image: cimg/python:3.12
+        environment:
+          TOXENV: py312-core
 
   py38-lint:
     <<: *common
@@ -119,6 +125,12 @@ jobs:
       - image: cimg/python:3.11
         environment:
           TOXENV: py311-lint
+  py312-lint:
+    <<: *common
+    docker:
+      - image: cimg/python:3.12
+        environment:
+          TOXENV: py312-lint
 
   py38-wheel:
     <<: *common
@@ -144,6 +156,12 @@ jobs:
       - image: cimg/python:3.11
         environment:
           TOXENV: py311-wheel
+  py312-wheel:
+    <<: *common
+    docker:
+      - image: cimg/python:3.12
+        environment:
+          TOXENV: py312-wheel
 
   py311-wheel-windows:
     <<: *windows_steps
@@ -159,12 +177,15 @@ workflows:
       - py39-core
       - py310-core
       - py311-core
+      - py312-core
       - py38-lint
       - py39-lint
       - py310-lint
       - py311-lint
+      - py312-lint
       - py38-wheel
       - py39-wheel
       - py310-wheel
       - py311-wheel
+      - py312-wheel
       - py311-wheel-windows
