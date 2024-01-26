@@ -132,9 +132,11 @@ def construct_event_topic_set(
     ]
     encoded_args = [
         [
-            None
-            if option is None
-            else encode_hex(abi_codec.encode([arg["type"]], [option]))
+            (
+                None
+                if option is None
+                else encode_hex(abi_codec.encode([arg["type"]], [option]))
+            )
             for option in arg_options
         ]
         for arg, arg_options in zipped_abi_and_args
@@ -174,9 +176,11 @@ def construct_event_data_set(
     ]
     encoded_args = [
         [
-            None
-            if option is None
-            else encode_hex(abi_codec.encode([arg["type"]], [option]))
+            (
+                None
+                if option is None
+                else encode_hex(abi_codec.encode([arg["type"]], [option]))
+            )
             for option in arg_options
         ]
         for arg, arg_options in zipped_abi_and_args
