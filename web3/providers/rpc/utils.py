@@ -6,7 +6,6 @@ from typing import (
 from pydantic import (
     BaseModel,
 )
-import requests
 
 from web3.types import (
     RPCEndpoint,
@@ -93,11 +92,7 @@ class ExceptionRetryConfiguration(BaseModel):
 
     def __init__(
         self,
-        errors: Sequence[Type[BaseException]] = (
-            ConnectionError,
-            requests.HTTPError,
-            requests.Timeout,
-        ),
+        errors: Sequence[Type[BaseException]] = None,
         retries: int = 5,
         backoff_factor: float = 0.5,
         method_allowlist: Sequence[str] = None,

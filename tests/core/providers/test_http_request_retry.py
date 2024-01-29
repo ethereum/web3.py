@@ -5,7 +5,6 @@ from unittest.mock import (
 
 import aiohttp
 from requests.exceptions import (
-    ConnectionError,
     HTTPError,
     Timeout,
     TooManyRedirects,
@@ -41,10 +40,26 @@ def w3():
 
 def test_default_request_retry_configuration_for_http_provider():
     w3 = Web3(HTTPProvider())
-    assert (
-        getattr(w3.provider, "exception_retry_configuration")
-        == ExceptionRetryConfiguration()
+    assert getattr(
+        w3.provider, "exception_retry_configuration"
+    ) == ExceptionRetryConfiguration(
+        errors=(
+            ConnectionError,
+            HTTPError,
+            Timeout,
+        )
     )
+
+
+def test_check_without_retry_config():
+    w3 = Web3(HTTPProvider(exception_retry_configuration=None))
+
+    with patch("web3.providers.rpc.rpc.make_post_request") as make_post_request_mock:
+        make_post_request_mock.side_effect = Timeout
+
+        with pytest.raises(Timeout):
+            w3.eth.block_number
+        assert make_post_request_mock.call_count == 1
 
 
 def test_check_if_retry_on_failure_false():
@@ -122,10 +137,9 @@ def async_w3():
 @pytest.mark.asyncio
 async def test_async_default_request_retry_configuration_for_http_provider():
     async_w3 = AsyncWeb3(AsyncHTTPProvider())
-    assert (
-        getattr(async_w3.provider, "exception_retry_configuration")
-        == ExceptionRetryConfiguration()
-    )
+    assert getattr(
+        async_w3.provider, "exception_retry_configuration"
+    ) == ExceptionRetryConfiguration(errors=(aiohttp.ClientError, TimeoutError))
 
 
 @pytest.mark.asyncio
