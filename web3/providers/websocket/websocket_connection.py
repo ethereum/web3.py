@@ -14,7 +14,7 @@ if TYPE_CHECKING:
         _PersistentConnectionWeb3,
     )
     from web3.manager import (  # noqa: F401
-        _AsyncPersistentRecvStream,
+        _AsyncPersistentMessageStream,
     )
 
 
@@ -27,6 +27,7 @@ class WebsocketConnection:
     def __init__(self, w3: "_PersistentConnectionWeb3"):
         self._manager = w3.manager
 
+    # -- public methods -- #
     @property
     def subscriptions(self) -> Dict[str, Any]:
         return self._manager._request_processor.active_subscriptions
@@ -35,7 +36,7 @@ class WebsocketConnection:
         return await self._manager.ws_send(method, params)
 
     async def recv(self) -> Any:
-        return await self._manager.ws_recv()
+        return await self._manager._get_next_ws_message()
 
-    def listen_to_websocket(self) -> "_AsyncPersistentRecvStream":
-        return self._manager._persistent_recv_stream()
+    def process_subscriptions(self) -> "_AsyncPersistentMessageStream":
+        return self._manager._persistent_message_stream()

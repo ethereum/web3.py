@@ -32,7 +32,6 @@ from web3.exceptions import (
     Web3ValidationError,
 )
 from web3.providers.persistent import (
-    DEFAULT_PERSISTENT_CONNECTION_TIMEOUT,
     PersistentConnectionProvider,
 )
 from web3.types import (
@@ -67,7 +66,9 @@ class WebsocketProviderV2(PersistentConnectionProvider):
         self,
         endpoint_uri: Optional[Union[URI, str]] = None,
         websocket_kwargs: Optional[Dict[str, Any]] = None,
-        request_timeout: Optional[float] = DEFAULT_PERSISTENT_CONNECTION_TIMEOUT,
+        silence_listener_task_exceptions: bool = False,
+        # `PersistentConnectionProvider` kwargs can be passed through
+        **kwargs: Any,
     ) -> None:
         self.endpoint_uri = URI(endpoint_uri)
         if self.endpoint_uri is None:
@@ -78,7 +79,7 @@ class WebsocketProviderV2(PersistentConnectionProvider):
             for prefix in VALID_WEBSOCKET_URI_PREFIXES
         ):
             raise Web3ValidationError(
-                f"Websocket endpoint uri must begin with 'ws://' or 'wss://': "
+                "Websocket endpoint uri must begin with 'ws://' or 'wss://': "
                 f"{self.endpoint_uri}"
             )
 
@@ -93,8 +94,9 @@ class WebsocketProviderV2(PersistentConnectionProvider):
                 )
 
         self.websocket_kwargs = merge(DEFAULT_WEBSOCKET_KWARGS, websocket_kwargs or {})
+        self.silence_listener_task_exceptions = silence_listener_task_exceptions
 
-        super().__init__(endpoint_uri, request_timeout=request_timeout)
+        super().__init__(**kwargs)
 
     def __str__(self) -> str:
         return f"Websocket connection: {self.endpoint_uri}"
@@ -123,6 +125,9 @@ class WebsocketProviderV2(PersistentConnectionProvider):
             try:
                 _connection_attempts += 1
                 self._ws = await connect(self.endpoint_uri, **self.websocket_kwargs)
+                self._message_listener_task = asyncio.create_task(
+                    self._ws_message_listener()
+                )
                 break
             except WebSocketException as e:
                 if _connection_attempts == self._max_connection_retries:
@@ -146,6 +151,11 @@ class WebsocketProviderV2(PersistentConnectionProvider):
                 f'Successfully disconnected from endpoint: "{self.endpoint_uri}'
             )
 
+        try:
+            self._message_listener_task.cancel()
+            await self._message_listener_task
+        except (asyncio.CancelledError, StopAsyncIteration):
+            pass
         self._request_processor.clear_caches()
 
     @async_handle_request_caching
@@ -172,53 +182,18 @@ class WebsocketProviderV2(PersistentConnectionProvider):
 
             while True:
                 # sleep(0) here seems to be the most efficient way to yield control
-                # back to the event loop while waiting for the response to be cached
-                # or received on the websocket.
+                # back to the event loop while waiting for the response to be in the
+                # queue.
                 await asyncio.sleep(0)
 
                 if request_cache_key in self._request_processor._request_response_cache:
-                    # if response is already cached, pop it from cache
                     self.logger.debug(
-                        f"Response for id {request_id} is already cached, pop it "
-                        "from the cache."
+                        f"Popping response for id {request_id} from cache."
                     )
-                    return self._request_processor.pop_raw_response(
+                    popped_response = self._request_processor.pop_raw_response(
                         cache_key=request_cache_key,
                     )
-
-                else:
-                    if not self._ws_lock.locked():
-                        async with self._ws_lock:
-                            self.logger.debug(
-                                f"Response for id {request_id} is not cached, calling "
-                                "`recv()` on websocket."
-                            )
-                            try:
-                                # keep timeout low but reasonable to check both the
-                                # cache and the websocket connection for new responses
-                                response = await self._ws_recv(timeout=0.5)
-                            except asyncio.TimeoutError:
-                                # keep the request timeout around the whole of this
-                                # while loop in case the response sneaks into the cache
-                                # from another call.
-                                continue
-
-                        response_id = response.get("id")
-
-                        if response_id == request_id:
-                            self.logger.debug(
-                                f"Received and returning response for id {request_id}."
-                            )
-                            return response
-                        else:
-                            # cache all responses that are not the desired response
-                            self.logger.debug("Undesired response received, caching.")
-                            is_subscription = (
-                                response.get("method") == "eth_subscription"
-                            )
-                            self._request_processor.cache_raw_response(
-                                response, subscription=is_subscription
-                            )
+                    return popped_response
 
         try:
             # Add the request timeout around the while loop that checks the request
@@ -236,5 +211,34 @@ class WebsocketProviderV2(PersistentConnectionProvider):
                 "allowed to continue."
             )
 
-    async def _ws_recv(self, timeout: float = None) -> RPCResponse:
-        return json.loads(await asyncio.wait_for(self._ws.recv(), timeout=timeout))
+    async def _ws_message_listener(self) -> None:
+        self.logger.info(
+            "Websocket listener background task started. Storing all messages in "
+            "appropriate request processor queues / caches to be processed."
+        )
+        while True:
+            # the use of sleep(0) seems to be the most efficient way to yield control
+            # back to the event loop to share the loop with other tasks.
+            await asyncio.sleep(0)
+
+            try:
+                async for raw_message in self._ws:
+                    await asyncio.sleep(0)
+
+                    response = json.loads(raw_message)
+                    subscription = response.get("method") == "eth_subscription"
+                    await self._request_processor.cache_raw_response(
+                        response, subscription=subscription
+                    )
+            except Exception as e:
+                if not self.silence_listener_task_exceptions:
+                    loop = asyncio.get_event_loop()
+                    for task in asyncio.all_tasks(loop=loop):
+                        task.cancel()
+                    raise e
+
+                self.logger.error(
+                    "Exception caught in listener, error logging and keeping "
+                    "listener background task alive."
+                    f"\n    error={e.__class__.__name__}: {e}"
+                )

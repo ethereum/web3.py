@@ -35,6 +35,7 @@ from web3.datastructures import (
 from web3.exceptions import (
     BadResponseFormat,
     MethodUnavailable,
+    ProviderConnectionError,
 )
 from web3.middleware import (
     attrdict_middleware,
@@ -311,7 +312,8 @@ class RequestManager:
             response, params, error_formatters, null_result_formatters
         )
 
-    # persistent connection
+    # -- persistent connection -- #
+
     async def ws_send(self, method: RPCEndpoint, params: Any) -> RPCResponse:
         provider = cast(PersistentConnectionProvider, self._provider)
         request_func = await provider.request_func(
@@ -324,47 +326,35 @@ class RequestManager:
         response = await request_func(method, params)
         return await self._process_ws_response(response)
 
-    async def ws_recv(self) -> Any:
-        return await self._ws_recv_stream().__anext__()
+    def _persistent_message_stream(self) -> "_AsyncPersistentMessageStream":
+        return _AsyncPersistentMessageStream(self)
 
-    def _persistent_recv_stream(self) -> "_AsyncPersistentRecvStream":
-        return _AsyncPersistentRecvStream(self)
+    async def _get_next_ws_message(self) -> Any:
+        return await self._ws_message_stream().__anext__()
 
-    async def _ws_recv_stream(self) -> AsyncGenerator[RPCResponse, None]:
+    async def _ws_message_stream(self) -> AsyncGenerator[RPCResponse, None]:
         if not isinstance(self._provider, PersistentConnectionProvider):
             raise TypeError(
                 "Only websocket providers that maintain an open, persistent connection "
                 "can listen to websocket recv streams."
             )
 
+        if self._provider._message_listener_task is None:
+            raise ProviderConnectionError("No listener found for websocket connection.")
+
         while True:
-            # sleep(0) here seems to be the most efficient way to yield control back to
-            # the event loop while waiting for the response to be cached or received on
-            # the websocket.
+            # sleep(0) here seems to be the most efficient way to yield control
+            # back to the event loop while waiting for the response in the queue.
             await asyncio.sleep(0)
 
-            # look in the cache for a response
             response = self._request_processor.pop_raw_response(subscription=True)
-            if response is not None:
-                break
-            else:
-                # if no response in the cache, check the websocket connection
-                if not self._provider._ws_lock.locked():
-                    async with self._provider._ws_lock:
-                        try:
-                            # keep timeout low but reasonable to check both the cache
-                            # and the websocket connection for new responses
-                            response = await self._provider._ws_recv(timeout=0.5)
-                        except asyncio.TimeoutError:
-                            # if no response received, continue to next iteration
-                            continue
-
-                    if response.get("method") == "eth_subscription":
-                        break
-                    else:
-                        self._provider._request_processor.cache_raw_response(response)
-
-        yield await self._process_ws_response(response)
+            if (
+                response is not None
+                and response.get("params", {}).get("subscription")
+                in self._request_processor.active_subscriptions
+            ):
+                # if response is an active subscription response, process it
+                yield await self._process_ws_response(response)
 
     async def _process_ws_response(self, response: RPCResponse) -> RPCResponse:
         provider = cast(PersistentConnectionProvider, self._provider)
@@ -412,15 +402,18 @@ class RequestManager:
             return apply_result_formatters(result_formatters, partly_formatted_response)
 
 
-class _AsyncPersistentRecvStream:
+class _AsyncPersistentMessageStream:
     """
-    Async generator for receiving responses from a persistent connection. This
-    abstraction is necessary to define the `__aiter__()` method required for
-    use with "async for" loops.
+    Async generator for pulling subscription responses from the request processor
+    subscription queue. This abstraction is necessary to define the `__aiter__()`
+    method required for use with "async for" loops.
     """
 
     def __init__(self, manager: RequestManager, *args: Any, **kwargs: Any) -> None:
         self.manager = manager
+        self.provider: PersistentConnectionProvider = cast(
+            PersistentConnectionProvider, manager._provider
+        )
         super().__init__(*args, **kwargs)
 
     def __aiter__(self) -> Self:
@@ -428,6 +421,6 @@ class _AsyncPersistentRecvStream:
 
     async def __anext__(self) -> RPCResponse:
         try:
-            return await self.manager.ws_recv()
+            return await self.manager._get_next_ws_message()
         except ConnectionClosedOK:
             raise StopAsyncIteration
