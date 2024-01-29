@@ -172,11 +172,7 @@ class NamedElementOnion(Mapping[TKey, TValue]):
         if name is None:
             name = cast(TKey, element)
 
-        try:
-            # handle unhashable types
-            name.__hash__()
-        except TypeError:
-            name = cast(TKey, repr(name))
+        name = self._repr_if_not_hashable(name)
 
         if name in self._queue:
             if name is element:
@@ -207,17 +203,12 @@ class NamedElementOnion(Mapping[TKey, TValue]):
                 f"{len(self._queue)} are permitted. "
             )
 
+        name = self._repr_if_not_hashable(name)
         self.add(element, name=name)
 
         if layer == 0:
             if name is None:
                 name = cast(TKey, element)
-
-            try:
-                # handle unhashable types
-                name.__hash__()
-            except TypeError:
-                name = cast(TKey, repr(name))
 
             self._queue.move_to_end(name, last=False)
         elif layer == len(self._queue):
@@ -231,22 +222,33 @@ class NamedElementOnion(Mapping[TKey, TValue]):
         self._queue.clear()
 
     def replace(self, old: TKey, new: TKey) -> TValue:
-        if old not in self._queue:
+        old_name = self._repr_if_not_hashable(old)
+
+        if old_name not in self._queue:
             raise ValueError(
                 "You can't replace unless one already exists, use add instead"
             )
-        to_be_replaced = self._queue[old]
+
+        to_be_replaced = self._queue[old_name]
         if to_be_replaced is old:
             # re-insert with new name in old slot
             self._replace_with_new_name(old, new)
         else:
-            self._queue[old] = new
+            self._queue[old_name] = new
         return to_be_replaced
 
+    def _repr_if_not_hashable(self, value: TKey) -> TKey:
+        try:
+            value.__hash__()
+        except TypeError:
+            value = cast(TKey, repr(value))
+        return value
+
     def remove(self, old: TKey) -> None:
-        if old not in self._queue:
+        old_name = self._repr_if_not_hashable(old)
+        if old_name not in self._queue:
             raise ValueError("You can only remove something that has been added")
-        del self._queue[old]
+        del self._queue[old_name]
 
     @property
     def middlewares(self) -> Sequence[Any]:
@@ -257,16 +259,19 @@ class NamedElementOnion(Mapping[TKey, TValue]):
         return [(val, key) for key, val in reversed(self._queue.items())]
 
     def _replace_with_new_name(self, old: TKey, new: TKey) -> None:
-        self._queue[new] = new
+        old_name = self._repr_if_not_hashable(old)
+        new_name = self._repr_if_not_hashable(new)
+
+        self._queue[new_name] = new
         found_old = False
         for key in list(self._queue.keys()):
             if not found_old:
-                if key == old:
+                if key == old_name:
                     found_old = True
                 continue
-            elif key != new:
+            elif key != new_name:
                 self._queue.move_to_end(key)
-        del self._queue[old]
+        del self._queue[old_name]
 
     def __add__(self, other: Any) -> "NamedElementOnion[TKey, TValue]":
         if not isinstance(other, NamedElementOnion):
@@ -277,10 +282,12 @@ class NamedElementOnion(Mapping[TKey, TValue]):
         return NamedElementOnion(cast(List[Any], combined.items()))
 
     def __contains__(self, element: Any) -> bool:
-        return element in self._queue
+        element_name = self._repr_if_not_hashable(element)
+        return element_name in self._queue
 
     def __getitem__(self, element: TKey) -> TValue:
-        return self._queue[element]
+        element_name = self._repr_if_not_hashable(element)
+        return self._queue[element_name]
 
     def __len__(self) -> int:
         return len(self._queue)
