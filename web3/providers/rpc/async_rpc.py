@@ -10,6 +10,7 @@ from typing import (
 )
 
 from aiohttp import (
+    ClientError,
     ClientSession,
 )
 from eth_typing import (
@@ -53,7 +54,9 @@ class AsyncHTTPProvider(AsyncJSONBaseProvider):
         self,
         endpoint_uri: Optional[Union[URI, str]] = None,
         request_kwargs: Optional[Any] = None,
-        exception_retry_configuration: Optional[ExceptionRetryConfiguration] = None,
+        exception_retry_configuration: Optional[
+            ExceptionRetryConfiguration
+        ] = ExceptionRetryConfiguration(errors=(ClientError, TimeoutError)),
     ) -> None:
         if endpoint_uri is None:
             self.endpoint_uri = get_default_http_endpoint()
@@ -61,12 +64,7 @@ class AsyncHTTPProvider(AsyncJSONBaseProvider):
             self.endpoint_uri = URI(endpoint_uri)
 
         self._request_kwargs = request_kwargs or {}
-
-        self.exception_retry_configuration = (
-            exception_retry_configuration
-            # use default values if not provided
-            or ExceptionRetryConfiguration()
-        )
+        self.exception_retry_configuration = exception_retry_configuration
 
         super().__init__()
 

@@ -16,6 +16,7 @@ from eth_typing import (
 from eth_utils import (
     to_dict,
 )
+import requests
 
 from web3._utils.http import (
     construct_user_agent,
@@ -61,9 +62,15 @@ class HTTPProvider(JSONBaseProvider):
         endpoint_uri: Optional[Union[URI, str]] = None,
         request_kwargs: Optional[Any] = None,
         session: Optional[Any] = None,
-        exception_retry_configuration: Optional[
-            ExceptionRetryConfiguration
-        ] = ExceptionRetryConfiguration(),
+        exception_retry_configuration: Optional[ExceptionRetryConfiguration] = (
+            ExceptionRetryConfiguration(
+                errors=(
+                    ConnectionError,
+                    requests.HTTPError,
+                    requests.Timeout,
+                )
+            )
+        ),
     ) -> None:
         if endpoint_uri is None:
             self.endpoint_uri = get_default_http_endpoint()
