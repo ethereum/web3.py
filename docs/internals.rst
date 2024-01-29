@@ -206,12 +206,10 @@ Middlewares provide a simple yet powerful api for implementing layers of busines
 for web3 requests. Writing middleware is simple and extending from the base
 ``Web3Middleware`` class allows for overriding only the parts of the middleware that
 make sense for your use case. If all you need to do is modify the
-params before the request is made, you can override the ``process_request`` method,
+params before the request is made, you can override the ``request_processor`` method,
 make the necessary tweaks to the params, and pass the arguments to the next element in
-the middleware stack. If processing the response is the only concern, only need to
-override the ``process_response`` method and return the response. You only need to
-override the methods that make sense for your use case since the base middleware class
-provides default implementations for all methods.
+the middleware stack. If processing the response is the only concern, you only need to
+override the ``response_processor`` method and return the response.
 
 .. code-block:: python
 
@@ -233,7 +231,7 @@ provides default implementations for all methods.
         async def async_request_processor(self, method, params):
             return (method, params)
 
-        async def async_process_response(self, method, response):
+        async def async_response_processor(self, method, response):
             return response
 
 
@@ -285,6 +283,28 @@ middleware stack for processing before being returned to the user.
 The ``RequestManager`` object exposes the ``middleware_onion`` object to manage
 middlewares. It is also exposed on the ``Web3`` object for convenience. That API is
 detailed in :ref:`Modifying_Middleware`.
+
+Middlewares can be added to the middleware stack as the class itself. The default
+middleware have descriptive references to the classes for ease of use.
+
+.. code-block:: python
+
+    from web3 import Web3
+    from web3.middleware import (
+        attrdict_middleware,  # a user-friendly reference to the class
+    )
+    from web3.middleware.attrdict import (
+        AttributeDictMiddleware,  # the class where the logic is defined
+    )
+
+    w3 = Web3(HTTPProvider(endpoint_uri="..."))
+
+    # add the middleware to the stack as the class
+    w3.middleware_onion.add(AttributeDictMiddleware)
+
+    # or, add the middleware to the stack as the reference to the class
+    w3.middleware_onion.add(attrdict_middleware)
+
 
 
 Managers
