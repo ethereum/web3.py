@@ -3,7 +3,7 @@ from web3 import (
     Web3,
 )
 from web3.middleware import (
-    local_filter_middleware,
+    LocalFilterMiddleware,
 )
 from web3.providers.eth_tester import (
     AsyncEthereumTesterProvider,
@@ -16,7 +16,7 @@ def _w3_fixture_logic(request):
     provider = EthereumTesterProvider()
     w3 = Web3(provider)
     if use_filter_middleware:
-        w3.middleware_onion.add(local_filter_middleware)
+        w3.middleware_onion.add(LocalFilterMiddleware)
     return w3
 
 
@@ -48,7 +48,7 @@ def _async_w3_fixture_logic(request):
     async_w3 = AsyncWeb3(provider)
 
     if use_filter_middleware:
-        async_w3.middleware_onion.add(local_filter_middleware)
+        async_w3.middleware_onion.add(LocalFilterMiddleware)
     return async_w3
 
 

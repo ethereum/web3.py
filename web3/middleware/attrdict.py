@@ -82,4 +82,4 @@ class AttributeDictMiddleware(Web3Middleware, ABC):
             return _handle_async_response(response)
 
 
-attrdict_middleware = AttributeDictMiddleware
+AttributeDictMiddleware = AttributeDictMiddleware

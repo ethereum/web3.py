@@ -38,11 +38,11 @@ from web3.exceptions import (
     ProviderConnectionError,
 )
 from web3.middleware import (
-    attrdict_middleware,
-    buffered_gas_estimate_middleware,
-    ens_name_to_address_middleware,
-    gas_price_strategy_middleware,
-    validation_middleware,
+    AttributeDictMiddleware,
+    BufferedGasEstimateMiddleware,
+    ENSNameToAddressMiddleware,
+    GasPriceStrategyMiddleware,
+    ValidationMiddleware,
 )
 from web3.middleware.base import (
     Middleware,
@@ -163,11 +163,11 @@ class RequestManager:
         Documentation should remain in sync with these defaults.
         """
         return [
-            (gas_price_strategy_middleware, "gas_price_strategy"),
-            (ens_name_to_address_middleware, "ens_name_to_address"),
-            (attrdict_middleware, "attrdict"),
-            (validation_middleware, "validation"),
-            (buffered_gas_estimate_middleware, "gas_estimate"),
+            (GasPriceStrategyMiddleware, "gas_price_strategy"),
+            (ENSNameToAddressMiddleware, "ens_name_to_address"),
+            (AttributeDictMiddleware, "attrdict"),
+            (ValidationMiddleware, "validation"),
+            (BufferedGasEstimateMiddleware, "gas_estimate"),
         ]
 
     #

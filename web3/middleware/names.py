@@ -98,7 +98,7 @@ async def async_apply_ens_to_address_conversion(
         )
 
 
-class EnsNameToAddressMiddleware(Web3Middleware):
+class ENSNameToAddressMiddleware(Web3Middleware):
     _formatting_middleware = None
 
     def request_processor(self, method: "RPCEndpoint", params: Any) -> Any:
@@ -139,6 +139,3 @@ class EnsNameToAddressMiddleware(Web3Middleware):
                 )
 
         return method, params
-
-
-ens_name_to_address_middleware = EnsNameToAddressMiddleware

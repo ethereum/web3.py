@@ -6,7 +6,7 @@ from web3.middleware.formatting import (
     FormattingMiddlewareBuilder,
 )
 
-pythonic_middleware = FormattingMiddlewareBuilder.build(
+PythonicMiddleware = FormattingMiddlewareBuilder.build(
     request_formatters=PYTHONIC_REQUEST_FORMATTERS,
     result_formatters=PYTHONIC_RESULT_FORMATTERS,
 )

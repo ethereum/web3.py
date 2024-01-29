@@ -19,7 +19,7 @@ from web3.datastructures import (
     AttributeDict,
 )
 from web3.middleware import (
-    extradata_to_poa_middleware,
+    ExtradataToPOAMiddleware,
 )
 from web3.types import (
     FormattedEthSubscriptionResponse,
@@ -304,12 +304,12 @@ class PersistentConnectionProviderTest:
             break
 
     @pytest.mark.asyncio
-    async def test_async_extradata_to_poa_middleware_on_eth_subscription(
+    async def test_async_extradata_poa_middleware_on_eth_subscription(
         self,
         async_w3: "_PersistentConnectionWeb3",
     ) -> None:
         async_w3.middleware_onion.inject(
-            extradata_to_poa_middleware, "poa_middleware", layer=0
+            ExtradataToPOAMiddleware, "poa_middleware", layer=0
         )
 
         sub_id = await async_w3.eth.subscribe("newHeads")

@@ -219,7 +219,7 @@ class BlockData(TypedDict, total=False):
     withdrawals: Sequence[WithdrawalData]
     withdrawalsRoot: HexBytes
 
-    # extradata_to_poa_middleware replaces extraData w/ proofOfAuthorityData
+    # ExtradataToPOAMiddleware replaces extraData w/ proofOfAuthorityData
     proofOfAuthorityData: HexBytes
 
 

@@ -10,7 +10,7 @@ from web3.datastructures import (
     AttributeDict,
 )
 from web3.middleware import (
-    make_stalecheck_middleware,
+    StaleCheckMiddlewareBuilder,
 )
 from web3.middleware.stalecheck import (
     StaleBlockchain,
@@ -31,7 +31,7 @@ def allowable_delay():
 @pytest.fixture
 def request_middleware(allowable_delay):
     web3 = Mock()
-    middleware = make_stalecheck_middleware(allowable_delay, web3)
+    middleware = StaleCheckMiddlewareBuilder.build(allowable_delay, web3)
     middleware._w3.provider.make_request = Mock()
     return middleware
 
@@ -149,7 +149,7 @@ async def async_request_middleware(allowable_delay):
     )
 
     async_web3 = AsyncMock()
-    middleware = make_stalecheck_middleware(allowable_delay, async_web3)
+    middleware = StaleCheckMiddlewareBuilder.build(allowable_delay, async_web3)
     middleware._w3.provider.make_request = Mock()
     return middleware
 

@@ -14,8 +14,8 @@ from web3 import (
     AsyncWeb3,
 )
 from web3.middleware import (
-    gas_price_strategy_middleware,
-    validation_middleware,
+    GasPriceStrategyMiddleware,
+    ValidationMiddleware,
 )
 from web3.providers.eth_tester import (
     AsyncEthereumTesterProvider,
@@ -27,7 +27,7 @@ def _args_list_to_set(call_args_list):
 
 
 def test_from_web3_inherits_web3_middlewares(w3):
-    test_middleware = gas_price_strategy_middleware
+    test_middleware = GasPriceStrategyMiddleware
     w3.middleware_onion.add(test_middleware, "test_middleware")
 
     ns = ENS.from_web3(w3)
@@ -150,7 +150,7 @@ def local_async_w3():
 
 
 def test_async_from_web3_inherits_web3_middlewares(local_async_w3):
-    test_middleware = validation_middleware
+    test_middleware = ValidationMiddleware
     local_async_w3.middleware_onion.add(test_middleware, "test_middleware")
 
     ns = AsyncENS.from_web3(local_async_w3)

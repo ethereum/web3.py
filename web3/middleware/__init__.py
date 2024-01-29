@@ -7,45 +7,40 @@ from typing import (
 )
 
 from .attrdict import (
-    attrdict_middleware,
+    AttributeDictMiddleware,
 )
 from .base import (
     Middleware,
 )
 from .buffered_gas_estimate import (
-    buffered_gas_estimate_middleware,
-)
-from .gas_price_strategy import (
-    gas_price_strategy_middleware,
-)
-from .proof_of_authority import (
-    extradata_to_poa_middleware,
-)
-from .names import (
-    ens_name_to_address_middleware,
+    BufferedGasEstimateMiddleware,
 )
 from .filter import (
-    local_filter_middleware,
+    LocalFilterMiddleware,
 )
 from .formatting import (
-    construct_formatting_middleware,
+    FormattingMiddlewareBuilder,
 )
 from .gas_price_strategy import (
     GasPriceStrategyMiddleware,
 )
+from .names import (
+    ENSNameToAddressMiddleware,
+)
+from .proof_of_authority import (
+    ExtradataToPOAMiddleware,
+)
 from .pythonic import (
-    pythonic_middleware,
+    PythonicMiddleware,
 )
 from .signing import (
-    construct_sign_and_send_raw_middleware,
     SignAndSendRawMiddlewareBuilder,
 )
 from .stalecheck import (
-    StaleCheckMiddlewareBuilder,
-    make_stalecheck_middleware,
+    StalecheckMiddlewareBuilder,
 )
 from .validation import (
-    validation_middleware,
+    ValidationMiddleware,
 )
 from ..types import (
     AsyncMakeRequestFn,
