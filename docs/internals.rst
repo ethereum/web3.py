@@ -117,6 +117,83 @@ You can set a new list of middlewares by assigning to ``provider.middlewares``,
 with the first middleware that processes the request at the beginning of the list.
 
 
+Provider Configurations
+~~~~~~~~~~~~~~~~~~~~~~~
+
+.. _request_caching:
+
+Request Caching
+```````````````
+
+Request caching can be configured at the provider level via the following configuration
+options on the provider instance:
+
+- ``cache_allowed_requests: bool = False``
+- ``cacheable_requests: Set[RPCEndpoint] = CACHEABLE_REQUESTS``
+
+.. code-block:: python
+
+    from web3 import Web3, HTTPProvider
+
+    w3 = Web3(HTTPProvider(
+        endpoint_uri="...",
+
+        # optional flag to turn on cached requests, defaults to False
+        cache_allowed_requests=True,
+
+        # optional, defaults to an internal list of deemed-safe-to-cache endpoints
+        cacheable_requests={"eth_chainId", "eth_getBlockByNumber"},
+    ))
+
+.. _http_retry_requests:
+
+Retry Requests for HTTP Providers
+`````````````````````````````````
+
+``HTTPProvider`` and ``AsyncHTTPProvider`` instances retry certain requests by default
+on exceptions. This can be configured via configuration options on the provider
+instance. Below is an example showing the default options for the retry configuration
+and how to override them.
+
+.. code-block:: python
+
+    from web3 import Web3, HTTPProvider
+    from web3.providers.rpc.utils import (
+        REQUEST_RETRY_ALLOWLIST,
+        ExceptionRetryConfiguration,
+    )
+
+    w3 = Web3(HTTPProvider(
+        endpoint_uri="...",
+        retry_configuration=ExceptionRetryConfiguration(
+            errors=DEFAULT_EXCEPTIONS,
+
+            # number of retries to attempt
+            retries=5,
+
+            # how long to wait between retries
+            backoff_factor=0.5,
+
+            # an in-house default list of retryable methods
+            method_allowlist=REQUEST_RETRY_ALLOWLIST,
+        ),
+    ))
+
+For the different http providers, ``DEFAULT_EXCEPTIONS`` is defined as:
+
+- ``HTTPProvider``: ``(ConnectionError, requests.HTTPError, requests.Timeout)``
+- ``AsyncHTTPProvider``: ``(ConnectionError, aiohttp.ClientError, asyncio.TimeoutError)``
+
+Setting ``retry_configuration`` to ``None`` will disable retries on exceptions for the
+provider instance.
+
+.. code-block:: python
+
+    from web3 import Web3, HTTPProvider
+
+    w3 = Web3(HTTPProvider(endpoint_uri="...", retry_configuration=None)
+
+
 .. _internals__middlewares:
 
 Middlewares
