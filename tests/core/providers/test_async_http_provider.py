@@ -23,11 +23,11 @@ from web3.geth import (
     AsyncGethTxPool,
 )
 from web3.middleware import (
-    attrdict_middleware,
-    buffered_gas_estimate_middleware,
-    ens_name_to_address_middleware,
-    gas_price_strategy_middleware,
-    validation_middleware,
+    AttributeDictMiddleware,
+    BufferedGasEstimateMiddleware,
+    ENSNameToAddressMiddleware,
+    GasPriceStrategyMiddleware,
+    ValidationMiddleware,
 )
 from web3.net import (
     AsyncNet,
@@ -86,17 +86,16 @@ def test_web3_with_async_http_provider_has_default_middlewares_and_modules() -> 
 
     assert (
         async_w3.middleware_onion.get("gas_price_strategy")
-        == gas_price_strategy_middleware
+        == GasPriceStrategyMiddleware
     )
     assert (
         async_w3.middleware_onion.get("ens_name_to_address")
-        == ens_name_to_address_middleware
+        == ENSNameToAddressMiddleware
     )
-    assert async_w3.middleware_onion.get("attrdict") == attrdict_middleware
-    assert async_w3.middleware_onion.get("validation") == validation_middleware
+    assert async_w3.middleware_onion.get("attrdict") == AttributeDictMiddleware
+    assert async_w3.middleware_onion.get("validation") == ValidationMiddleware
     assert (
-        async_w3.middleware_onion.get("gas_estimate")
-        == buffered_gas_estimate_middleware
+        async_w3.middleware_onion.get("gas_estimate") == BufferedGasEstimateMiddleware
     )
 
 

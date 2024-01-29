@@ -41,7 +41,7 @@ def _is_fresh(block: BlockData, allowable_delay: int) -> bool:
     return False
 
 
-class StaleCheckMiddlewareBuilder(Web3MiddlewareBuilder):
+class StalecheckMiddlewareBuilder(Web3MiddlewareBuilder):
     allowable_delay: int
     skip_stalecheck_for_methods: Collection[str]
     cache: Dict[str, Optional[BlockData]]
@@ -57,7 +57,7 @@ class StaleCheckMiddlewareBuilder(Web3MiddlewareBuilder):
             raise ValueError(
                 "You must set a positive allowable_delay in seconds for this middleware"
             )
-        middleware = StaleCheckMiddlewareBuilder(w3)
+        middleware = StalecheckMiddlewareBuilder(w3)
         middleware.allowable_delay = allowable_delay
         middleware.skip_stalecheck_for_methods = skip_stalecheck_for_methods
         middleware.cache = {"latest": None}
@@ -90,6 +90,3 @@ class StaleCheckMiddlewareBuilder(Web3MiddlewareBuilder):
                     raise StaleBlockchain(latest, self.allowable_delay)
 
         return method, params
-
-
-make_stalecheck_middleware = StaleCheckMiddlewareBuilder.build

@@ -114,6 +114,3 @@ class GasPriceStrategyMiddleware(Web3Middleware):
             )
             params = (transaction,)
         return method, params
-
-
-gas_price_strategy_middleware = GasPriceStrategyMiddleware

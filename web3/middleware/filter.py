@@ -676,6 +676,3 @@ class LocalFilterMiddleware(Web3Middleware):
                 return await make_request(method, params)
 
         return middleware
-
-
-local_filter_middleware = LocalFilterMiddleware

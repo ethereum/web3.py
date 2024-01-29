@@ -160,7 +160,7 @@ async def async_build_method_validators(
     return _build_formatters_dict(request_formatters)
 
 
-validation_middleware = FormattingMiddlewareBuilder.build(
+ValidationMiddleware = FormattingMiddlewareBuilder.build(
     sync_formatters_builder=build_method_validators,
     async_formatters_builder=async_build_method_validators,
 )

@@ -26,11 +26,11 @@ from web3.geth import (
     GethTxPool,
 )
 from web3.middleware import (
-    attrdict_middleware,
-    buffered_gas_estimate_middleware,
-    ens_name_to_address_middleware,
-    gas_price_strategy_middleware,
-    validation_middleware,
+    AttributeDictMiddleware,
+    BufferedGasEstimateMiddleware,
+    ENSNameToAddressMiddleware,
+    GasPriceStrategyMiddleware,
+    ValidationMiddleware,
 )
 from web3.net import (
     Net,
@@ -81,15 +81,11 @@ def test_web3_with_http_provider_has_default_middlewares_and_modules() -> None:
     # middlewares are added to the defaults
     assert len(w3.middleware_onion.middlewares) == 5
 
-    assert (
-        w3.middleware_onion.get("gas_price_strategy") == gas_price_strategy_middleware
-    )
-    assert (
-        w3.middleware_onion.get("ens_name_to_address") == ens_name_to_address_middleware
-    )
-    assert w3.middleware_onion.get("attrdict") == attrdict_middleware
-    assert w3.middleware_onion.get("validation") == validation_middleware
-    assert w3.middleware_onion.get("gas_estimate") == buffered_gas_estimate_middleware
+    assert w3.middleware_onion.get("gas_price_strategy") == GasPriceStrategyMiddleware
+    assert w3.middleware_onion.get("ens_name_to_address") == ENSNameToAddressMiddleware
+    assert w3.middleware_onion.get("attrdict") == AttributeDictMiddleware
+    assert w3.middleware_onion.get("validation") == ValidationMiddleware
+    assert w3.middleware_onion.get("gas_estimate") == BufferedGasEstimateMiddleware
 
 
 def test_user_provided_session():

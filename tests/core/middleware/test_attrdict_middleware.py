@@ -9,7 +9,7 @@ from web3.datastructures import (
     AttributeDict,
 )
 from web3.middleware import (
-    attrdict_middleware,
+    AttributeDictMiddleware,
 )
 from web3.providers.eth_tester import (
     AsyncEthereumTesterProvider,
@@ -31,7 +31,7 @@ def _assert_dict_and_not_attrdict(value):
 
 def test_attrdict_middleware_default_for_ethereum_tester_provider():
     w3 = Web3(EthereumTesterProvider())
-    assert w3.middleware_onion.get("attrdict") == attrdict_middleware
+    assert w3.middleware_onion.get("attrdict") == AttributeDictMiddleware
 
 
 def test_attrdict_middleware_is_recursive(w3, request_mocker):
@@ -75,9 +75,9 @@ def test_no_attrdict_middleware_does_not_convert_dicts_to_attrdict(request_mocke
 
 
 @pytest.mark.asyncio
-async def test_async_attrdict_middleware_default_for_async_ethereum_tester_provider():
+async def test_async_attrdict_middleware_default_for_async_eth_tester_provider():
     async_w3 = AsyncWeb3(AsyncEthereumTesterProvider())
-    assert async_w3.middleware_onion.get("attrdict") == attrdict_middleware
+    assert async_w3.middleware_onion.get("attrdict") == AttributeDictMiddleware
 
 
 @pytest.mark.asyncio

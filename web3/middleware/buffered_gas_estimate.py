@@ -57,6 +57,3 @@ class BufferedGasEstimateMiddleware(Web3Middleware):
                 transaction = assoc(transaction, "gas", hex(gas_estimate))
                 params = (transaction,)
         return method, params
-
-
-buffered_gas_estimate_middleware = BufferedGasEstimateMiddleware

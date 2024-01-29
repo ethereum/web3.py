@@ -85,7 +85,7 @@ from web3.exceptions import (
     Web3ValidationError,
 )
 from web3.middleware import (
-    extradata_to_poa_middleware,
+    ExtradataToPOAMiddleware,
 )
 from web3.types import (
     ENS,
@@ -650,10 +650,10 @@ class AsyncEthModuleTest:
             await async_w3.eth.send_transaction(txn_params)
 
     @pytest.mark.asyncio
-    async def test_extradata_to_poa_middleware(
+    async def test_ExtradataToPOAMiddleware(
         self, async_w3: "AsyncWeb3", request_mocker: Type[RequestMocker]
     ) -> None:
-        async_w3.middleware_onion.inject(extradata_to_poa_middleware, "poa", layer=0)
+        async_w3.middleware_onion.inject(ExtradataToPOAMiddleware, "poa", layer=0)
         extra_data = f"0x{'ff' * 33}"
 
         async with request_mocker(
@@ -686,7 +686,7 @@ class AsyncEthModuleTest:
         assert txn_hash == async_w3.to_bytes(hexstr=expected_hash)
 
     @pytest.mark.asyncio
-    async def test_gas_price_strategy_middleware(
+    async def test_GasPriceStrategyMiddleware(
         self, async_w3: "AsyncWeb3", async_unlocked_account_dual_type: ChecksumAddress
     ) -> None:
         txn_params: TxParams = {
@@ -3243,7 +3243,7 @@ class EthModuleTest:
 
         w3.eth.set_gas_price_strategy(None)  # reset strategy
 
-    def test_gas_price_strategy_middleware_hex_value(
+    def test_gas_price_strategy_hex_value(
         self, w3: "Web3", unlocked_account_dual_type: ChecksumAddress
     ) -> None:
         txn_params: TxParams = {

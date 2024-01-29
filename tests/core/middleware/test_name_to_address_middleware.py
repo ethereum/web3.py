@@ -11,7 +11,7 @@ from web3.exceptions import (
     NameNotFound,
 )
 from web3.middleware import (
-    ens_name_to_address_middleware,
+    ENSNameToAddressMiddleware,
 )
 from web3.providers.eth_tester import (
     AsyncEthereumTesterProvider,
@@ -47,8 +47,8 @@ def ens_addr_account_balance(ens_mapped_address, _w3_setup):
 @pytest.fixture
 def w3(_w3_setup, ens_mapped_address):
     _w3_setup.ens = TempENS({NAME: ens_mapped_address})
-    ens_name_to_address_middleware._w3 = _w3_setup
-    _w3_setup.middleware_onion.add(ens_name_to_address_middleware)
+    ENSNameToAddressMiddleware._w3 = _w3_setup
+    _w3_setup.middleware_onion.add(ENSNameToAddressMiddleware)
     return _w3_setup
 
 
@@ -126,7 +126,7 @@ async def async_ens_addr_account_balance(async_ens_mapped_address, _async_w3_set
 @pytest_asyncio.fixture
 async def async_w3(_async_w3_setup, async_ens_mapped_address):
     _async_w3_setup.ens = AsyncTempENS({NAME: async_ens_mapped_address})
-    _async_w3_setup.middleware_onion.add(ens_name_to_address_middleware)
+    _async_w3_setup.middleware_onion.add(ENSNameToAddressMiddleware)
     return _async_w3_setup
 
 

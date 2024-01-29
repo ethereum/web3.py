@@ -36,7 +36,7 @@ from web3.exceptions import (
     InvalidAddress,
 )
 from web3.middleware import (
-    construct_sign_and_send_raw_middleware,
+    SignAndSendRawMiddlewareBuilder,
 )
 from web3.middleware.signing import (
     gen_normalized_accounts,
@@ -254,7 +254,7 @@ TEST_SIGNED_TRANSACTION_PARAMS = (
     TEST_SIGN_AND_SEND_RAW_MIDDLEWARE_PARAMS,
 )
 def test_sign_and_send_raw_middleware(w3_dummy, method, from_, expected, key_object):
-    w3_dummy.middleware_onion.add(construct_sign_and_send_raw_middleware(key_object))
+    w3_dummy.middleware_onion.add(SignAndSendRawMiddlewareBuilder.build(key_object))
 
     legacy_transaction = {
         "to": "0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf",
@@ -357,7 +357,7 @@ def fund_account(w3):
     ],
 )
 def test_signed_transaction(w3, fund_account, transaction, expected, key_object, from_):
-    w3.middleware_onion.add(construct_sign_and_send_raw_middleware(key_object))
+    w3.middleware_onion.add(SignAndSendRawMiddlewareBuilder.build(key_object))
 
     # Drop any falsy addresses
     to_from = valfilter(bool, {"to": w3.eth.accounts[0], "from": from_})
@@ -389,7 +389,7 @@ def test_sign_and_send_raw_middleware_with_byte_addresses(
     from_ = from_converter(ADDRESS_1)
     to_ = to_converter(ADDRESS_2)
 
-    w3_dummy.middleware_onion.add(construct_sign_and_send_raw_middleware(private_key))
+    w3_dummy.middleware_onion.add(SignAndSendRawMiddlewareBuilder.build(private_key))
 
     actual = w3_dummy.manager.request_blocking(
         "eth_sendTransaction",
@@ -463,7 +463,7 @@ async def test_async_sign_and_send_raw_middleware(
     key_object,
 ):
     async_w3_dummy.middleware_onion.add(
-        construct_sign_and_send_raw_middleware(key_object)
+        SignAndSendRawMiddlewareBuilder.build(key_object)
     )
 
     legacy_transaction = {
@@ -534,7 +534,7 @@ async def test_async_signed_transaction(
     key_object,
     from_,
 ):
-    async_w3.middleware_onion.add(construct_sign_and_send_raw_middleware(key_object))
+    async_w3.middleware_onion.add(SignAndSendRawMiddlewareBuilder.build(key_object))
 
     # Drop any falsy addresses
     accounts = await async_w3.eth.accounts
@@ -574,7 +574,7 @@ async def test_async_sign_and_send_raw_middleware_with_byte_addresses(
     to_ = to_converter(ADDRESS_2)
 
     async_w3_dummy.middleware_onion.add(
-        construct_sign_and_send_raw_middleware(private_key)
+        SignAndSendRawMiddlewareBuilder.build(private_key)
     )
 
     actual = await async_w3_dummy.manager.coro_request(

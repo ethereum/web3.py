@@ -158,7 +158,7 @@ class AsyncContractEvent(BaseContractEvent):
                 ...
             )
 
-        See also: :func:`web3.middleware.filter.local_filter_middleware`.
+        See also: :func:`web3.middleware.filter.LocalFilterMiddleware`.
 
         :param argument_filters: Filter by argument values. Indexed arguments are
           filtered by the node while non-indexed arguments are filtered by the library.
