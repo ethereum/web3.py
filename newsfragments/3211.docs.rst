@@ -1,0 +1,1 @@
+Documentation was updated to reflect early changes to ``v7`` from ``v6``. A ``v6`` -> ``v7`` migration guide was also started and will be added to as ``v7`` breaking changes are introduced.

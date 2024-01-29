@@ -1,0 +1,1 @@
+Allow HTTP provider request retry configuration to be turned off appropriately. Internal change since ``v7`` has not yet been released.
