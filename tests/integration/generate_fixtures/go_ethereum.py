@@ -69,13 +69,13 @@ def graceful_kill_on_exit(proc):
 
 
 @contextlib.contextmanager
-def get_geth_process(geth_binary, datadir, genesis_file_path, geth_ipc_path, geth_port):
+def get_geth_process(geth_binary, datadir, geth_port):
     init_datadir_command = (
         geth_binary,
         "--datadir",
         datadir,
         "init",
-        genesis_file_path,
+        os.path.join(datadir, "genesis.json"),
     )
     subprocess.check_output(
         init_datadir_command,
@@ -87,17 +87,15 @@ def get_geth_process(geth_binary, datadir, genesis_file_path, geth_ipc_path, get
         geth_binary,
         "--datadir",
         datadir,
-        "--ipcpath",
-        geth_ipc_path,
-        "--ethash.dagsondisk",
+        "--dev",
+        "--dev.period",
         "1",
-        "--gcmode",
-        "archive",
-        "--nodiscover",
         "--port",
         geth_port,
         "--miner.etherbase",
         common.COINBASE[2:],
+        "--password",
+        os.path.join(datadir, "keystore", "pw.txt"),
         "--rpc.enabledeprecatedpersonal",
     )
 
@@ -139,21 +137,20 @@ def generate_go_ethereum_fixture(destination_dir):
         keyfile_path = os.path.join(keystore_dir, common.KEYFILE_FILENAME)
         with open(keyfile_path, "w") as keyfile:
             keyfile.write(common.KEYFILE_DATA)
+        keyfile_pw = os.path.join(keystore_dir, common.KEYFILE_PW_TXT)
+        with open(keyfile_pw, "w") as keyfile_pw_file:
+            keyfile_pw_file.write(common.KEYFILE_PW)
         genesis_file_path = os.path.join(datadir, "genesis.json")
         with open(genesis_file_path, "w") as genesis_file:
             genesis_file.write(json.dumps(common.GENESIS_DATA))
 
-        geth_ipc_path_dir = stack.enter_context(common.tempdir())
-        geth_ipc_path = os.path.join(geth_ipc_path_dir, "geth.ipc")
-
+        geth_ipc_path = f"{datadir}/geth.ipc"
         geth_port = get_open_port()
         geth_binary = common.get_geth_binary()
 
         with get_geth_process(
             geth_binary=geth_binary,
             datadir=datadir,
-            genesis_file_path=genesis_file_path,
-            geth_ipc_path=geth_ipc_path,
             geth_port=geth_port,
         ):
             common.wait_for_socket(geth_ipc_path)
@@ -168,8 +165,6 @@ def generate_go_ethereum_fixture(destination_dir):
         with get_geth_process(
             geth_binary=geth_binary,
             datadir=datadir,
-            genesis_file_path=genesis_file_path,
-            geth_ipc_path=geth_ipc_path,
             geth_port=geth_port,
         ):
             common.wait_for_socket(geth_ipc_path)
@@ -193,23 +188,13 @@ def verify_chain_state(w3, chain_data):
     assert receipt.blockNumber <= latest.number
 
 
-def mine_transaction_hash(w3, txn_hash):
-    w3.geth.miner.start(1)
-    try:
-        return w3.eth.wait_for_transaction_receipt(txn_hash, timeout=120)
-    finally:
-        w3.geth.miner.stop()
-
-
 def mine_block(w3):
     origin_block_number = w3.eth.block_number
 
     start_time = time.time()
-    w3.geth.miner.start(1)
     while time.time() < start_time + 120:
         block_number = w3.eth.block_number
         if block_number > origin_block_number:
-            w3.geth.miner.stop()
             return block_number
         else:
             time.sleep(0.1)
@@ -256,7 +241,7 @@ def setup_chain_state(w3):
         }
     )
     print("TXN_HASH_WITH_LOG:", txn_hash_with_log)
-    txn_receipt_with_log = mine_transaction_hash(w3, txn_hash_with_log)
+    txn_receipt_with_log = w3.eth.wait_for_transaction_receipt(txn_hash_with_log)
     block_with_log = w3.eth.get_block(txn_receipt_with_log["blockHash"])
     print("BLOCK_HASH_WITH_LOG:", block_with_log["hash"])
 
@@ -280,8 +265,8 @@ def setup_chain_state(w3):
         {"gas": 320000, "from": w3.eth.coinbase}
     )
     print("TXN_HASH_REVERT_WITH_MSG:", txn_hash_revert_with_msg)
-    txn_receipt_revert_with_msg = common.mine_transaction_hash(
-        w3, txn_hash_revert_with_msg
+    txn_receipt_revert_with_msg = w3.eth.wait_for_transaction_receipt(
+        txn_hash_revert_with_msg
     )
     block_hash_revert_with_msg = w3.eth.get_block(
         txn_receipt_revert_with_msg["blockHash"]
@@ -294,8 +279,8 @@ def setup_chain_state(w3):
         )
     )
     print("TXN_HASH_REVERT_WITH_NO_MSG:", txn_hash_revert_with_no_msg)
-    txn_receipt_revert_with_no_msg = common.mine_transaction_hash(
-        w3, txn_hash_revert_with_no_msg
+    txn_receipt_revert_with_no_msg = w3.eth.wait_for_transaction_receipt(
+        txn_hash_revert_with_no_msg
     )
     block_hash_revert_no_msg = w3.eth.get_block(
         txn_receipt_revert_with_no_msg["blockHash"]
@@ -346,7 +331,6 @@ def setup_chain_state(w3):
     # Block with Transaction
     #
     w3.geth.personal.unlock_account(coinbase, common.KEYFILE_PW)
-    w3.geth.miner.start(1)
     mined_txn_hash = w3.eth.send_transaction(
         {
             "from": coinbase,
@@ -356,7 +340,7 @@ def setup_chain_state(w3):
             "gas_price": w3.eth.gas_price,
         }
     )
-    mined_txn_receipt = mine_transaction_hash(w3, mined_txn_hash)
+    mined_txn_receipt = w3.eth.wait_for_transaction_receipt(mined_txn_hash)
     print("MINED_TXN_HASH:", mined_txn_hash)
     block_with_txn = w3.eth.get_block(mined_txn_receipt["blockHash"])
     print("BLOCK_WITH_TXN_HASH:", block_with_txn["hash"])

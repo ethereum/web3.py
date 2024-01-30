@@ -57,7 +57,7 @@ def _geth_command_arguments(rpc_port, base_geth_command_arguments, geth_version)
             "--http.port",
             rpc_port,
             "--http.api",
-            "admin,eth,net,web3,personal,miner,txpool",
+            "admin,eth,net,web3,personal,txpool",
             "--ipcdisable",
             "--allow-insecure-unlock",
             "--miner.etherbase",
