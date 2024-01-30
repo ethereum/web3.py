@@ -39,12 +39,13 @@ you can find the latest block number in these two ways:
         Traceback # ... etc ...
         TypeError: This data is immutable -- create a copy instead of modifying
 
-This feature is available via the ``attrdict_middleware`` which is a default middleware.
+This feature is available via the ``AttributeDictMiddleware`` which is a default
+middleware.
 
 .. note::
     Accessing an ``AttributeDict`` property via attribute will break type hinting. If
     typing is crucial for your application, accessing via key / value, as well as
-    removing the ``attrdict_middleware`` altogether, may be desired.
+    removing the ``AttributeDictMiddleware`` altogether, may be desired.
 
 
 Properties
@@ -183,16 +184,13 @@ The following properties are available on the ``web3.eth`` namespace.
 
    .. note::
 
-      This property gets called frequently in validation middleware,
-      but `chain_id` is added to the ``simple_cache_middleware`` by default.
-      Add the :meth:`simple_cache_middleware<web3.middleware.construct_simple_cache_middleware>`
-      to the ``middleware_onion`` to increase performance:
+      This property gets called frequently in validation middleware, but `eth_chainId`
+      is an allowed method for caching by default. Simply turn on request caching to
+      avoid repeated calls to this method.
 
        .. code-block:: python
 
-          >>> from web3.middleware import simple_cache_middleware
-          >>> w3.middleware_onion.add(simple_cache_middleware)
-
+          >>> w3.provider.cache_allowed_requests
 
 
 Methods

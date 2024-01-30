@@ -138,7 +138,7 @@ Example ``account_test_script.py``
     from eth_account import Account
     from eth_account.signers.local import LocalAccount
     from web3 import Web3, EthereumTesterProvider
-    from web3.middleware import construct_sign_and_send_raw_middleware
+    from web3.middleware import SignAndSendRawMiddlewareBuilder
 
     w3 = Web3(EthereumTesterProvider())
 
@@ -147,7 +147,7 @@ Example ``account_test_script.py``
     assert private_key.startswith("0x"), "Private key must start with 0x hex prefix"
 
     account: LocalAccount = Account.from_key(private_key)
-    w3.middleware_onion.add(construct_sign_and_send_raw_middleware(account))
+    w3.middleware_onion.add(SignAndSendRawMiddlewareBuilder.build(account))
 
     print(f"Your hot wallet address is {account.address}")
 

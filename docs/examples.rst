@@ -181,7 +181,7 @@ There are a few options for sending transactions:
 - :meth:`~web3.eth.Eth.send_transaction`
 - :meth:`~web3.eth.Eth.send_raw_transaction`
 - Calling :meth:`~web3.contract.ContractFunction.transact` on a contract function
-- Utilizing :meth:`~web3.middleware.construct_sign_and_send_raw_middleware`
+- Configuring the ``build`` method for the :class:`~web3.middleware.SignAndSendRawMiddlewareBuilder`
 
 For more context, see the :doc:`transactions` Guide.
 
@@ -688,8 +688,8 @@ Inject the middleware into the middleware onion
 
 .. code-block:: python
 
-    from web3.middleware import extradata_to_poa_middleware
-    w3.middleware_onion.inject(extradata_to_poa_middleware, layer=0)
+    from web3.middleware import ExtradataToPOAMiddleware
+    w3.middleware_onion.inject(ExtradataToPOAMiddleware, layer=0)
 
 Just remember that you have to sign all transactions locally, as infura does not handle any keys from your wallet ( refer to `this`_  )
 
@@ -797,7 +797,7 @@ The following example code is divided into a reusable ``EventScanner`` class and
 
 * only supports ``HTTPS`` providers, because JSON-RPC retry logic depends on the implementation details of the underlying protocol,
 
-* disables the standard ``http_retry_request_middleware`` because it does not know how to handle the shrinking block range window for ``eth_getLogs``, and
+* disables the default exception retry configuration because it does not know how to handle the shrinking block range window for ``eth_getLogs``, and
 
 * consumes around 20k JSON-RPC API calls.
 
@@ -886,7 +886,7 @@ The script can be run with: ``python ./eventscanner.py <your JSON-RPC API URL>``
         Unlike the easy web3.contract.Contract, this scanner can scan events from multiple contracts at once.
         For example, you can get all transfers from all tokens in the same scan.
 
-        You *should* disable the default `http_retry_request_middleware` on your provider for Web3,
+        You *should* disable the default ``exception_retry_configuration`` on your provider for Web3,
         because it cannot correctly throttle and decrease the `eth_getLogs` block number range.
         """
 
@@ -1373,10 +1373,9 @@ The script can be run with: ``python ./eventscanner.py <your JSON-RPC API URL>``
 
             provider = HTTPProvider(api_url)
 
-            # Remove the default JSON-RPC retry middleware
+            # Disable the default JSON-RPC retry configuration
             # as it correctly cannot handle eth_getLogs block range
-            # throttle down.
-            provider.middlewares.clear()
+            provider.exception_retry_configuration = None
 
             w3 = Web3(provider)
 

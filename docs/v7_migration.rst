@@ -32,8 +32,8 @@ Middleware Renaming and Removals
 
 The following middleware have been renamed for generalization or clarity:
 
-- ``name_to_address_middleware`` -> ``ens_name_to_address_middleware``
-- ``geth_poa_middleware`` -> ``extradata_to_poa_middleware``
+- ``name_to_address_middleware`` -> ``ENSNameToAddressMiddleware``
+- ``geth_poa_middleware`` -> ``ExtradataToPOAMiddleware``
 
 The following middleware have been removed:
 
