@@ -36,7 +36,7 @@ from .utils import (
 
 KEYFILE_PW = "web3py-test"
 
-GETH_FIXTURE_ZIP = "geth-1.11.6-fixture.zip"
+GETH_FIXTURE_ZIP = "geth-1.13.9-fixture.zip"
 
 
 @pytest.fixture(scope="module")
@@ -94,14 +94,17 @@ def base_geth_command_arguments(geth_binary, datadir):
         geth_binary,
         "--datadir",
         str(datadir),
-        "--nodiscover",
-        "--fakepow",
+        "--dev",
+        "--dev.period",
+        "5",  # dev.period > 1 for tests which require pending blocks
+        "--password",
+        os.path.join(datadir, "keystore", "pw.txt"),
     )
 
 
 @pytest.fixture(scope="module")
 def geth_zipfile_version(get_geth_version):
-    if get_geth_version.major == 1 and get_geth_version.minor in [10, 11]:
+    if get_geth_version.major == 1 and get_geth_version.minor in [11, 12, 13]:
         return GETH_FIXTURE_ZIP
     raise AssertionError("Unsupported geth version")
 

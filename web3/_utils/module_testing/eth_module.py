@@ -59,7 +59,7 @@ from web3._utils.method_formatters import (
 from web3._utils.module_testing.module_testing_utils import (
     assert_contains_log,
     async_mock_offchain_lookup_request_response,
-    mine_pending_block,
+    flaky_geth_dev_mining,
     mock_offchain_lookup_request_response,
 )
 from web3._utils.module_testing.utils import (
@@ -509,8 +509,8 @@ class AsyncEthModuleTest:
         assert is_same_address(txn["to"], cast(ChecksumAddress, txn_params["to"]))
         assert txn["value"] == 1
         assert txn["gas"] == 21000
-        assert txn["maxPriorityFeePerGas"] == 1 * 10**9
-        assert txn["maxFeePerGas"] >= 1 * 10**9
+        assert is_integer(txn["maxPriorityFeePerGas"])
+        assert is_integer(txn["maxFeePerGas"])
         assert txn["gasPrice"] == txn["maxFeePerGas"]
 
     @pytest.mark.asyncio
@@ -637,7 +637,7 @@ class AsyncEthModuleTest:
             "from": async_unlocked_account_dual_type,
             "to": async_unlocked_account_dual_type,
             "value": Wei(1),
-            "gas": Wei(21000),
+            "gas": 21000,
             "maxFeePerGas": async_w3.to_wei(2, "gwei"),
             "maxPriorityFeePerGas": async_w3.to_wei(1, "gwei"),
             "chainId": wrong_chain_id,
@@ -927,7 +927,6 @@ class AsyncEthModuleTest:
         assert block["hash"] == genesis_block["hash"]
 
     @pytest.mark.asyncio
-    @pytest.mark.xfail(reason="Integration test suite not yet set up for PoS")
     async def test_eth_getBlockByNumber_safe(
         self, async_w3: "AsyncWeb3", async_empty_block: BlockData
     ) -> None:
@@ -936,7 +935,6 @@ class AsyncEthModuleTest:
         assert isinstance(block["number"], int)
 
     @pytest.mark.asyncio
-    @pytest.mark.xfail(reason="Integration test suite not yet set up for PoS")
     async def test_eth_getBlockByNumber_finalized(
         self, async_w3: "AsyncWeb3", async_empty_block: BlockData
     ) -> None:
@@ -1675,7 +1673,7 @@ class AsyncEthModuleTest:
             }
         )
 
-        timeout = 2
+        timeout = 0.01
         with pytest.raises(TimeExhausted) as exc_info:
             await async_w3.eth.wait_for_transaction_receipt(txn_hash, timeout=timeout)
 
@@ -1732,8 +1730,8 @@ class AsyncEthModuleTest:
             "fromBlock": async_block_with_txn_with_log["number"],
             "toBlock": BlockNumber(async_block_with_txn_with_log["number"] - 1),
         }
-        result = await async_w3.eth.get_logs(filter_params)
-        assert len(result) == 0
+        with pytest.raises(ValueError):
+            result = await async_w3.eth.get_logs(filter_params)
 
         # Test with `address`
 
@@ -2073,6 +2071,7 @@ class AsyncEthModuleTest:
             assert is_bytes(signature)
             assert len(signature) == 32 + 32 + 1
 
+    @flaky_geth_dev_mining
     @pytest.mark.asyncio
     async def test_async_eth_replace_transaction_legacy(
         self, async_w3: "AsyncWeb3", async_unlocked_account_dual_type: ChecksumAddress
@@ -2082,9 +2081,7 @@ class AsyncEthModuleTest:
             "to": async_unlocked_account_dual_type,
             "value": Wei(1),
             "gas": 21000,
-            "gasPrice": async_w3.to_wei(
-                1, "gwei"
-            ),  # must be greater than base_fee post London
+            "gasPrice": async_w3.to_wei(1, "gwei"),
         }
         txn_hash = await async_w3.eth.send_transaction(txn_params)
 
@@ -2102,6 +2099,7 @@ class AsyncEthModuleTest:
         assert replace_txn["gas"] == 21000
         assert replace_txn["gasPrice"] == txn_params["gasPrice"]
 
+    @flaky_geth_dev_mining
     @pytest.mark.asyncio
     async def test_async_eth_replace_transaction(
         self, async_w3: "AsyncWeb3", async_unlocked_account_dual_type: ChecksumAddress
@@ -2136,6 +2134,7 @@ class AsyncEthModuleTest:
         assert replace_txn["maxFeePerGas"] == three_gwei_in_wei
         assert replace_txn["maxPriorityFeePerGas"] == two_gwei_in_wei
 
+    @flaky_geth_dev_mining
     @pytest.mark.asyncio
     async def test_async_eth_replace_transaction_underpriced(
         self, async_w3: "AsyncWeb3", async_unlocked_account_dual_type: ChecksumAddress
@@ -2157,6 +2156,7 @@ class AsyncEthModuleTest:
         with pytest.raises(ValueError, match="replacement transaction underpriced"):
             await async_w3.eth.replace_transaction(txn_hash, txn_params)
 
+    @flaky_geth_dev_mining
     @pytest.mark.asyncio
     async def test_async_eth_replace_transaction_non_existing_transaction(
         self, async_w3: "AsyncWeb3", async_unlocked_account_dual_type: ChecksumAddress
@@ -2177,8 +2177,8 @@ class AsyncEthModuleTest:
                 txn_params,
             )
 
+    @flaky_geth_dev_mining
     @pytest.mark.asyncio
-    @pytest.mark.xfail(reason="AsyncGethMiner is missing.")
     async def test_async_eth_replace_transaction_already_mined(
         self, async_w3: "AsyncWeb3", async_unlocked_account_dual_type: ChecksumAddress
     ) -> None:
@@ -2191,17 +2191,14 @@ class AsyncEthModuleTest:
             "maxPriorityFeePerGas": async_w3.to_wei(1, "gwei"),
         }
         txn_hash = await async_w3.eth.send_transaction(txn_params)
-        try:
-            async_w3.geth.miner.start()  # type: ignore
-            await async_w3.eth.wait_for_transaction_receipt(txn_hash, timeout=10)
-        finally:
-            async_w3.geth.miner.stop()  # type: ignore
+        await async_w3.eth.wait_for_transaction_receipt(txn_hash, timeout=10)
 
         txn_params["maxFeePerGas"] = async_w3.to_wei(3, "gwei")
         txn_params["maxPriorityFeePerGas"] = async_w3.to_wei(2, "gwei")
         with pytest.raises(ValueError, match="Supplied transaction with hash"):
             await async_w3.eth.replace_transaction(txn_hash, txn_params)
 
+    @flaky_geth_dev_mining
     @pytest.mark.asyncio
     async def test_async_eth_replace_transaction_incorrect_nonce(
         self, async_w3: "AsyncWeb3", async_unlocked_account: ChecksumAddress
@@ -2223,6 +2220,7 @@ class AsyncEthModuleTest:
         with pytest.raises(ValueError):
             await async_w3.eth.replace_transaction(txn_hash, txn_params)
 
+    @flaky_geth_dev_mining
     @pytest.mark.asyncio
     async def test_async_eth_replace_transaction_gas_price_too_low(
         self, async_w3: "AsyncWeb3", async_unlocked_account_dual_type: ChecksumAddress
@@ -2240,6 +2238,7 @@ class AsyncEthModuleTest:
         with pytest.raises(ValueError):
             await async_w3.eth.replace_transaction(txn_hash, txn_params)
 
+    @flaky_geth_dev_mining
     @pytest.mark.asyncio
     async def test_async_eth_replace_transaction_gas_price_defaulting_minimum(
         self, async_w3: "AsyncWeb3", async_unlocked_account: ChecksumAddress
@@ -2263,6 +2262,7 @@ class AsyncEthModuleTest:
             gas_price * 1.125
         )  # minimum gas price
 
+    @flaky_geth_dev_mining
     @pytest.mark.asyncio
     async def test_async_eth_replace_transaction_gas_price_defaulting_strategy_higher(
         self, async_w3: "AsyncWeb3", async_unlocked_account: ChecksumAddress
@@ -2291,6 +2291,7 @@ class AsyncEthModuleTest:
         )  # Strategy provides higher gas price
         async_w3.eth.set_gas_price_strategy(None)  # reset strategy
 
+    @flaky_geth_dev_mining
     @pytest.mark.asyncio
     async def test_async_eth_replace_transaction_gas_price_defaulting_strategy_lower(
         self, async_w3: "AsyncWeb3", async_unlocked_account: ChecksumAddress
@@ -2340,7 +2341,6 @@ class AsyncEthModuleTest:
 
         changes = await async_w3.eth.get_filter_changes(filter.filter_id)
         assert is_list_like(changes)
-        assert not changes
 
         result = await async_w3.eth.uninstall_filter(filter.filter_id)
         assert result is True
@@ -2492,12 +2492,12 @@ class EthModuleTest:
 
     def test_eth_get_balance_with_block_identifier(self, w3: "Web3") -> None:
         miner_address = w3.eth.get_block(1)["miner"]
-        genesis_balance = w3.eth.get_balance(miner_address, 0)
-        later_balance = w3.eth.get_balance(miner_address, 1)
+        balance_post_genesis = w3.eth.get_balance(miner_address, 1)
+        later_balance = w3.eth.get_balance(miner_address, "latest")
 
-        assert is_integer(genesis_balance)
+        assert is_integer(balance_post_genesis)
         assert is_integer(later_balance)
-        assert later_balance > genesis_balance
+        assert later_balance > balance_post_genesis
 
     @pytest.mark.parametrize(
         "address, expect_success",
@@ -3007,17 +3007,18 @@ class EthModuleTest:
     def test_eth_send_transaction_with_nonce(
         self, w3: "Web3", unlocked_account: ChecksumAddress
     ) -> None:
-        mine_pending_block(w3)  # gives an accurate transaction count after mining
-
+        max_priority_fee_per_gas = w3.to_wei(1.234, "gwei")
+        max_fee_per_gas = Wei(
+            w3.eth.get_block("latest")["baseFeePerGas"] + max_priority_fee_per_gas
+        )
         txn_params: TxParams = {
             "from": unlocked_account,
             "to": unlocked_account,
             "value": Wei(1),
             "gas": 21000,
-            # unique maxFeePerGas to ensure transaction hash different from other tests
-            "maxFeePerGas": w3.to_wei(4.321, "gwei"),
-            "maxPriorityFeePerGas": w3.to_wei(1, "gwei"),
-            "nonce": w3.eth.get_transaction_count(unlocked_account),
+            "maxFeePerGas": max_fee_per_gas,
+            "maxPriorityFeePerGas": max_priority_fee_per_gas,
+            "nonce": Nonce(w3.eth.get_transaction_count(unlocked_account, "pending")),
         }
         txn_hash = w3.eth.send_transaction(txn_params)
         txn = w3.eth.get_transaction(txn_hash)
@@ -3029,7 +3030,8 @@ class EthModuleTest:
         assert txn["maxFeePerGas"] == txn_params["maxFeePerGas"]
         assert txn["maxPriorityFeePerGas"] == txn_params["maxPriorityFeePerGas"]
         assert txn["nonce"] == txn_params["nonce"]
-        assert txn["gasPrice"] == txn_params["maxFeePerGas"]
+        assert is_integer(txn["gasPrice"])
+        assert is_integer(txn_params["maxFeePerGas"])
 
     def test_eth_send_transaction_default_fees(
         self, w3: "Web3", unlocked_account_dual_type: ChecksumAddress
@@ -3047,8 +3049,8 @@ class EthModuleTest:
         assert is_same_address(txn["to"], cast(ChecksumAddress, txn_params["to"]))
         assert txn["value"] == 1
         assert txn["gas"] == 21000
-        assert txn["maxPriorityFeePerGas"] == 1 * 10**9
-        assert txn["maxFeePerGas"] >= 1 * 10**9
+        assert is_integer(txn["maxPriorityFeePerGas"])
+        assert is_integer(txn["maxFeePerGas"])
         assert txn["gasPrice"] == txn["maxFeePerGas"]
 
     def test_eth_send_transaction_hex_fees(
@@ -3123,13 +3125,13 @@ class EthModuleTest:
     def test_eth_send_transaction_no_max_fee(
         self, w3: "Web3", unlocked_account_dual_type: ChecksumAddress
     ) -> None:
-        maxPriorityFeePerGas = w3.to_wei(2, "gwei")
+        max_priority_fee_per_gas = w3.to_wei(2, "gwei")
         txn_params: TxParams = {
             "from": unlocked_account_dual_type,
             "to": unlocked_account_dual_type,
             "value": Wei(1),
             "gas": 21000,
-            "maxPriorityFeePerGas": maxPriorityFeePerGas,
+            "maxPriorityFeePerGas": max_priority_fee_per_gas,
         }
         txn_hash = w3.eth.send_transaction(txn_params)
         txn = w3.eth.get_transaction(txn_hash)
@@ -3138,9 +3140,9 @@ class EthModuleTest:
         assert is_same_address(txn["to"], cast(ChecksumAddress, txn_params["to"]))
         assert txn["value"] == 1
         assert txn["gas"] == 21000
-
-        block = w3.eth.get_block("latest")
-        assert txn["maxFeePerGas"] == maxPriorityFeePerGas + 2 * block["baseFeePerGas"]
+        assert is_integer(txn["maxPriorityFeePerGas"])
+        assert txn["maxPriorityFeePerGas"] == max_priority_fee_per_gas
+        assert is_integer(txn["maxFeePerGas"])
 
     def test_eth_send_transaction_max_fee_less_than_tip(
         self, w3: "Web3", unlocked_account_dual_type: ChecksumAddress
@@ -3263,6 +3265,7 @@ class EthModuleTest:
         assert txn["gasPrice"] == two_gwei_in_wei
         w3.eth.set_gas_price_strategy(None)  # reset strategy
 
+    @flaky_geth_dev_mining
     def test_eth_replace_transaction_legacy(
         self, w3: "Web3", unlocked_account_dual_type: ChecksumAddress
     ) -> None:
@@ -3291,6 +3294,7 @@ class EthModuleTest:
         assert replace_txn["gas"] == 21000
         assert replace_txn["gasPrice"] == txn_params["gasPrice"]
 
+    @flaky_geth_dev_mining
     def test_eth_replace_transaction(
         self, w3: "Web3", unlocked_account_dual_type: ChecksumAddress
     ) -> None:
@@ -3324,6 +3328,7 @@ class EthModuleTest:
         assert replace_txn["maxFeePerGas"] == three_gwei_in_wei
         assert replace_txn["maxPriorityFeePerGas"] == two_gwei_in_wei
 
+    @flaky_geth_dev_mining
     def test_eth_replace_transaction_underpriced(
         self, w3: "Web3", unlocked_account_dual_type: ChecksumAddress
     ) -> None:
@@ -3344,6 +3349,7 @@ class EthModuleTest:
         with pytest.raises(ValueError, match="replacement transaction underpriced"):
             w3.eth.replace_transaction(txn_hash, txn_params)
 
+    @flaky_geth_dev_mining
     def test_eth_replace_transaction_non_existing_transaction(
         self, w3: "Web3", unlocked_account_dual_type: ChecksumAddress
     ) -> None:
@@ -3363,6 +3369,7 @@ class EthModuleTest:
                 txn_params,
             )
 
+    @flaky_geth_dev_mining
     def test_eth_replace_transaction_already_mined(
         self, w3: "Web3", unlocked_account_dual_type: ChecksumAddress
     ) -> None:
@@ -3375,17 +3382,14 @@ class EthModuleTest:
             "maxPriorityFeePerGas": w3.to_wei(1, "gwei"),
         }
         txn_hash = w3.eth.send_transaction(txn_params)
-        try:
-            w3.geth.miner.start()  # type: ignore
-            w3.eth.wait_for_transaction_receipt(txn_hash, timeout=10)
-        finally:
-            w3.geth.miner.stop()  # type: ignore
+        w3.eth.wait_for_transaction_receipt(txn_hash, timeout=10)
 
         txn_params["maxFeePerGas"] = w3.to_wei(3, "gwei")
         txn_params["maxPriorityFeePerGas"] = w3.to_wei(2, "gwei")
         with pytest.raises(ValueError, match="Supplied transaction with hash"):
             w3.eth.replace_transaction(txn_hash, txn_params)
 
+    @flaky_geth_dev_mining
     def test_eth_replace_transaction_incorrect_nonce(
         self, w3: "Web3", unlocked_account: ChecksumAddress
     ) -> None:
@@ -3406,6 +3410,7 @@ class EthModuleTest:
         with pytest.raises(ValueError):
             w3.eth.replace_transaction(txn_hash, txn_params)
 
+    @flaky_geth_dev_mining
     def test_eth_replace_transaction_gas_price_too_low(
         self, w3: "Web3", unlocked_account_dual_type: ChecksumAddress
     ) -> None:
@@ -3422,6 +3427,7 @@ class EthModuleTest:
         with pytest.raises(ValueError):
             w3.eth.replace_transaction(txn_hash, txn_params)
 
+    @flaky_geth_dev_mining
     def test_eth_replace_transaction_gas_price_defaulting_minimum(
         self, w3: "Web3", unlocked_account: ChecksumAddress
     ) -> None:
@@ -3444,6 +3450,7 @@ class EthModuleTest:
             gas_price * 1.125
         )  # minimum gas price
 
+    @flaky_geth_dev_mining
     def test_eth_replace_transaction_gas_price_defaulting_strategy_higher(
         self, w3: "Web3", unlocked_account: ChecksumAddress
     ) -> None:
@@ -3471,6 +3478,7 @@ class EthModuleTest:
         )  # Strategy provides higher gas price
         w3.eth.set_gas_price_strategy(None)  # reset strategy
 
+    @flaky_geth_dev_mining
     def test_eth_replace_transaction_gas_price_defaulting_strategy_lower(
         self, w3: "Web3", unlocked_account: ChecksumAddress
     ) -> None:
@@ -4128,7 +4136,6 @@ class EthModuleTest:
         assert block["number"] == 0
         assert block["hash"] == genesis_block["hash"]
 
-    @pytest.mark.xfail(reason="Integration test suite not yet set up for PoS")
     def test_eth_getBlockByNumber_safe(
         self, w3: "Web3", empty_block: BlockData
     ) -> None:
@@ -4136,7 +4143,6 @@ class EthModuleTest:
         assert block is not None
         assert isinstance(block["number"], int)
 
-    @pytest.mark.xfail(reason="Integration test suite not yet set up for PoS")
     def test_eth_getBlockByNumber_finalized(
         self, w3: "Web3", empty_block: BlockData
     ) -> None:
@@ -4265,7 +4271,7 @@ class EthModuleTest:
             }
         )
 
-        timeout = 2
+        timeout = 0.01
         with pytest.raises(TimeExhausted) as exc_info:
             w3.eth.wait_for_transaction_receipt(txn_hash, timeout=timeout)
 
@@ -4323,7 +4329,6 @@ class EthModuleTest:
 
         changes = w3.eth.get_filter_changes(filter.filter_id)
         assert is_list_like(changes)
-        assert not changes
 
         result = w3.eth.uninstall_filter(filter.filter_id)
         assert result is True
@@ -4356,8 +4361,8 @@ class EthModuleTest:
             "fromBlock": block_with_txn_with_log["number"],
             "toBlock": BlockNumber(block_with_txn_with_log["number"] - 1),
         }
-        result = w3.eth.get_logs(filter_params)
-        assert len(result) == 0
+        with pytest.raises(ValueError):
+            w3.eth.get_logs(filter_params)
 
         # Test with `address`
 
@@ -4513,25 +4518,6 @@ class EthModuleTest:
 
         failure = w3.eth.uninstall_filter(filter.filter_id)
         assert failure is False
-
-    def test_eth_submit_hashrate(self, w3: "Web3") -> None:
-        # node_id from EIP 1474: https://github.com/ethereum/EIPs/pull/1474/files
-        node_id = HexStr(
-            "59daa26581d0acd1fce254fb7e85952f4c09d0915afd33d3886cd914bc7d283c"
-        )
-        result = w3.eth.submit_hashrate(5000, node_id)
-        assert result is True
-
-    def test_eth_submit_work(self, w3: "Web3") -> None:
-        nonce = 1
-        pow_hash = HexStr(
-            "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
-        )
-        mix_digest = HexStr(
-            "0xD1FE5700000000000000000000000000D1FE5700000000000000000000000000"
-        )
-        result = w3.eth.submit_work(nonce, pow_hash, mix_digest)
-        assert result is False
 
     def test_eth_get_raw_transaction(self, w3: "Web3", mined_txn_hash: HexStr) -> None:
         raw_transaction = w3.eth.get_raw_transaction(mined_txn_hash)

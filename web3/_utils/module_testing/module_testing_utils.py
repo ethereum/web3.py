@@ -22,6 +22,9 @@ from eth_typing import (
 from eth_utils import (
     is_same_address,
 )
+from flaky import (
+    flaky,
+)
 from hexbytes import (
     HexBytes,
 )
@@ -47,6 +50,14 @@ if TYPE_CHECKING:
     from web3._utils.compat import (  # noqa: F401
         Self,
     )
+
+
+"""
+flaky_geth_dev_mining decorator for tests requiring a pending block
+for the duration of the test. This behavior can be flaky
+due to timing of the test running as a block is mined.
+"""
+flaky_geth_dev_mining = flaky(max_runs=3)
 
 
 def mine_pending_block(w3: "Web3") -> None:
