@@ -13,7 +13,7 @@ There are two methods for sending transactions using web3.py: :meth:`~web3.eth.E
 
 #. Are you primarily using the same account for all transactions and would you prefer to save a few lines of code?
 
-   * configure :meth:`~web3.middleware.construct_sign_and_send_raw_middleware`, then
+   * configure the ``build`` method for :class:`~web3.middleware.SignAndSendRawMiddlewareBuilder`, then
    * use :meth:`~web3.eth.Eth.send_transaction`
 
 #. Otherwise:
@@ -32,7 +32,9 @@ An example for each can be found below.
 Chapter 0: ``w3.eth.send_transaction`` with ``eth-tester``
 ----------------------------------------------------------
 
-Many tutorials use ``eth-tester`` (via EthereumTesterProvider) for convenience and speed of conveying ideas/building a proof of concept. Transactions sent by test accounts are auto-signed.
+Many tutorials use ``eth-tester`` (via EthereumTesterProvider) for convenience and speed
+of conveying ideas/building a proof of concept. Transactions sent by test accounts are
+auto-signed.
 
 .. code-block:: python
 
@@ -60,11 +62,13 @@ Many tutorials use ``eth-tester`` (via EthereumTesterProvider) for convenience a
 Chapter 1: ``w3.eth.send_transaction`` + signer middleware
 ----------------------------------------------------------
 
-The :meth:`~web3.eth.Eth.send_transaction` method is convenient and to-the-point. If you want to continue using the pattern after graduating from ``eth-tester``, you can utilize web3.py middleware to sign transactions from a particular account:
+The :meth:`~web3.eth.Eth.send_transaction` method is convenient and to-the-point.
+If you want to continue using the pattern after graduating from ``eth-tester``, you can
+utilize web3.py middleware to sign transactions from a particular account:
 
 .. code-block:: python
 
-  from web3.middleware import construct_sign_and_send_raw_middleware
+  from web3.middleware import SignAndSendRawMiddlewareBuilder
   import os
 
   # Note: Never commit your key in your code! Use env variables instead:
@@ -81,8 +85,8 @@ The :meth:`~web3.eth.Eth.send_transaction` method is convenient and to-the-point
   })
 
   # Add acct2 as auto-signer:
-  w3.middleware_onion.add(construct_sign_and_send_raw_middleware(acct2))
-  # pk also works: w3.middleware_onion.add(construct_sign_and_send_raw_middleware(pk))
+  w3.middleware_onion.add(SignAndSendRawMiddlewareBuilder.build(acct2))
+  # pk also works: w3.middleware_onion.add(SignAndSendRawMiddlewareBuilder.build(pk))
 
   # Transactions from `acct2` will then be signed, under the hood, in the middleware:
   tx_hash = w3.eth.send_transaction({

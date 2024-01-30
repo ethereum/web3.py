@@ -20,12 +20,10 @@ More information is available in the "Internals: :ref:`internals__middlewares`" 
 Default Middleware
 ------------------
 
-Middlewares are added by default if you don't add any.
-
-Sync middlewares include:
+The following middleware are added by default if you don't add any:
 
 * ``gas_price_strategy``
-* ``name_to_address``
+* ``ens_name_to_address``
 * ``attrdict``
 * ``validation``
 * ``gas_estimate``
@@ -35,7 +33,7 @@ The defaults are defined in the ``default_middlewares()`` method in ``web3/manag
 AttributeDict
 ~~~~~~~~~~~~~
 
-.. py:method:: web3.middleware.attrdict_middleware
+.. py:class:: web3.middleware.AttributeDictMiddleware
 
     This middleware recursively converts any dictionary type in the result of a call
     to an ``AttributeDict``. This enables dot-syntax access, like
@@ -49,7 +47,7 @@ AttributeDict
 ENS Name to Address Resolution
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. py:method:: web3.middleware.name_to_address_middleware
+.. py:class:: web3.middleware.ENSNameToAddressMiddleware
 
     This middleware converts Ethereum Name Service (ENS) names into the
     address that the name points to. For example :meth:`w3.eth.send_transaction <web3.eth.Eth.send_transaction>` will
@@ -63,7 +61,7 @@ ENS Name to Address Resolution
 Gas Price Strategy
 ~~~~~~~~~~~~~~~~~~
 
-.. py:method:: web3.middleware.gas_price_strategy_middleware
+.. py:class:: web3.middleware.GasPriceStrategyMiddleware
 
   .. warning::
 
@@ -77,7 +75,7 @@ Gas Price Strategy
 Buffered Gas Estimate
 ~~~~~~~~~~~~~~~~~~~~~
 
-.. py:method:: web3.middleware.buffered_gas_estimate_middleware
+.. py:class:: web3.middleware.BufferedGasEstimateMiddleware
 
     This adds a gas estimate to transactions if ``gas`` is not present in the transaction
     parameters. Sets gas to:
@@ -87,7 +85,7 @@ Buffered Gas Estimate
 Validation
 ~~~~~~~~~~
 
-.. py:method:: web3.middleware.validation_middleware
+.. py:class:: web3.middleware.ValidationMiddleware
 
     This middleware includes block and transaction validators which perform validations
     for transaction parameters.
@@ -183,9 +181,9 @@ To add or remove items in different layers, use the following API:
     .. code-block:: python
 
         >>> w3 = Web3(...)
-        >>> w3.middleware_onion.add(web3.middleware.gas_price_strategy_middleware)
+        >>> w3.middleware_onion.add(web3.middleware.GasPriceStrategyMiddleware)
         # or
-        >>> w3.middleware_onion.add(web3.middleware.gas_price_strategy_middleware, 'gas_price_strategy')
+        >>> w3.middleware_onion.add(web3.middleware.GasPriceStrategyMiddleware, 'gas_price_strategy')
 
 .. py:method:: Web3.middleware_onion.inject(middleware, name=None, layer=None)
 
@@ -199,9 +197,9 @@ To add or remove items in different layers, use the following API:
 
         # Either of these will put the gas_price_strategy middleware at the innermost layer
         >>> w3 = Web3(...)
-        >>> w3.middleware_onion.inject(web3.middleware.gas_price_strategy_middleware, layer=0)
+        >>> w3.middleware_onion.inject(web3.middleware.GasPriceStrategyMiddleware, layer=0)
         # or
-        >>> w3.middleware_onion.inject(web3.middleware.gas_price_strategy_middleware, 'gas_price_strategy', layer=0)
+        >>> w3.middleware_onion.inject(web3.middleware.GasPriceStrategyMiddleware, 'gas_price_strategy', layer=0)
 
 .. py:method:: Web3.middleware_onion.remove(middleware)
 
@@ -212,7 +210,7 @@ To add or remove items in different layers, use the following API:
     .. code-block:: python
 
         >>> w3 = Web3(...)
-        >>> w3.middleware_onion.remove(web3.middleware.gas_price_strategy_middleware)
+        >>> w3.middleware_onion.remove(web3.middleware.GasPriceStrategyMiddleware)
         # or
         >>> w3.middleware_onion.remove('gas_price_strategy')
 
@@ -224,16 +222,16 @@ To add or remove items in different layers, use the following API:
 
     .. code-block:: python
 
-        >>> from web3.middleware import gas_price_strategy_middleware, attrdict_middleware
-        >>> w3 = Web3(...)
+        >>> from web3.middleware import GasPriceStrategyMiddleware, AttributeDictMiddleware
+        >>> w3 = Web3(provider, middlewares=[GasPriceStrategyMiddleware, AttributeDictMiddleware])
 
-        >>> w3.middleware_onion.replace(gas_price_strategy_middleware, attrdict_middleware)
+        >>> w3.middleware_onion.replace(GasPriceStrategyMiddleware, AttributeDictMiddleware)
         # this is now referenced by the new middleware object, so to remove it:
-        >>> w3.middleware_onion.remove(attrdict_middleware)
+        >>> w3.middleware_onion.remove(AttributeDictMiddleware)
 
         # or, if it was named
 
-        >>> w3.middleware_onion.replace('gas_price_strategy', attrdict_middleware)
+        >>> w3.middleware_onion.replace('gas_price_strategy', AttributeDictMiddleware)
         # this is still referenced by the original name, so to remove it:
         >>> w3.middleware_onion.remove('gas_price_strategy')
 
@@ -256,7 +254,7 @@ To add or remove items in different layers, use the following API:
 
         >>> w3_1 = Web3(...)
         # add uniquely named middleware:
-        >>> w3_1.middleware_onion.add(web3.middleware.gas_price_strategy_middleware, 'test_middleware')
+        >>> w3_1.middleware_onion.add(web3.middleware.GasPriceStrategyMiddleware, 'test_middleware')
         # export middlewares from first w3 instance
         >>> middlewares = w3_1.middleware_onion.middlewares
 
@@ -277,17 +275,16 @@ Web3 ships with non-default middleware, for your custom use. In addition to the 
     Web3(middlewares=[my_middleware1, my_middleware2])
 
 .. warning::
-  This will
-  *replace* the default middlewares. To keep the default functionality,
-  either use ``middleware_onion.add()`` from above, or add the default middlewares to your list of
-  new middlewares.
+  This will *replace* the default middlewares. To keep the default functionality,
+  either use ``middleware_onion.add()`` from above, or add the default middlewares to
+  your list of new middlewares.
 
 Below is a list of available middlewares which are not enabled by default.
 
 Stalecheck
 ~~~~~~~~~~~~
 
-.. py:method:: web3.middleware.make_stalecheck_middleware(allowable_delay)
+.. py:method:: web3.middleware.StalecheckMiddlewareBuilder
 
     This middleware checks how stale the blockchain is, and interrupts calls with a failure
     if the blockchain is too old.
@@ -300,7 +297,7 @@ Stalecheck
 
     .. code-block:: python
 
-        two_day_stalecheck = make_stalecheck_middleware(60 * 60 * 24 * 2)
+        two_day_stalecheck = StalecheckMiddlewareBuilder.build(60 * 60 * 24 * 2)
         web3.middleware_onion.add(two_day_stalecheck)
 
     If the latest block in the blockchain is older than 2 days in this example, then the
@@ -313,13 +310,13 @@ Stalecheck
 Proof of Authority
 ~~~~~~~~~~~~~~~~~~
 
-.. py:class:: web3.middleware.extradata_to_poa_middleware
+.. py:class:: web3.middleware.ExtradataToPOAMiddleware
 
 .. note::
     It's important to inject the middleware at the 0th layer of the middleware onion:
-    ``w3.middleware_onion.inject(extradata_to_poa_middleware, layer=0)``
+    ``w3.middleware_onion.inject(ExtradataToPOAMiddleware, layer=0)``
 
-The ``extradata_to_poa_middleware`` is required to connect to ``geth --dev`` and may
+``ExtradataToPOAMiddleware`` is required to connect to ``geth --dev`` and may
 also be needed for other EVM compatible blockchains like Polygon or BNB Chain
 (Binance Smart Chain).
 
@@ -354,17 +351,17 @@ unique IPC location and loads the middleware:
     # connect to the IPC location started with 'geth --dev --datadir ~/mynode'
     >>> w3 = Web3(IPCProvider('~/mynode/geth.ipc'))
 
-    >>> from web3.middleware import extradata_to_poa_middleware
+    >>> from web3.middleware import ExtradataToPOAMiddleware
 
     # inject the poa compatibility middleware to the innermost layer (0th layer)
-    >>> w3.middleware_onion.inject(extradata_to_poa_middleware, layer=0)
+    >>> w3.middleware_onion.inject(ExtradataToPOAMiddleware, layer=0)
 
     # confirm that the connection succeeded
     >>> w3.client_version
     'Geth/v1.7.3-stable-4bb3c89d/linux-amd64/go1.9'
 
-Why is ``extradata_to_poa_middleware`` necessary?
-'''''''''''''''''''''''''''''''''''''''''''''''''
+Why is ``ExtradataToPOAMiddleware`` necessary?
+''''''''''''''''''''''''''''''''''''''''''''''
 
 There is no strong community consensus on a single Proof-of-Authority (PoA) standard yet.
 Some nodes have successful experiments running though. One is go-ethereum (geth),
@@ -380,7 +377,7 @@ before returning it.
 Locally Managed Log and Block Filters
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. py:method:: web3.middleware.local_filter_middleware
+.. py:method:: web3.middleware.LocalFilterMiddleware
 
 This middleware provides an alternative to ethereum node managed filters. When used, Log and
 Block filter logic are handled locally while using the same web3 filter api. Filter results are
@@ -390,8 +387,8 @@ retrieved using JSON-RPC endpoints that don't rely on server state.
 
     >>> from web3 import Web3, EthereumTesterProvider
     >>> w3 = Web3(EthereumTesterProvider())
-    >>> from web3.middleware import local_filter_middleware
-    >>> w3.middleware_onion.add(local_filter_middleware)
+    >>> from web3.middleware import LocalFilterMiddleware
+    >>> w3.middleware_onion.add(LocalFilterMiddleware)
 
 .. code-block:: python
 
@@ -403,11 +400,13 @@ retrieved using JSON-RPC endpoints that don't rely on server state.
 Signing
 ~~~~~~~
 
-.. py:method:: web3.middleware.construct_sign_and_send_raw_middleware(private_key_or_account)
+.. py:method:: web3.middleware.SignAndSendRawMiddlewareBuilder
 
 This middleware automatically captures transactions, signs them, and sends them as raw transactions.
 The ``from`` field on the transaction, or ``w3.eth.default_account`` must be set to the address of the private key for
 this middleware to have any effect.
+
+The ``build`` method for this middleware builder takes a single argument:
 
    * ``private_key_or_account`` A single private key or a tuple, list or set of private keys.
 
@@ -421,23 +420,26 @@ this middleware to have any effect.
 
    >>> from web3 import Web3, EthereumTesterProvider
    >>> w3 = Web3(EthereumTesterProvider)
-   >>> from web3.middleware import construct_sign_and_send_raw_middleware
+   >>> from web3.middleware import SignAndSendRawMiddlewareBuilder
    >>> from eth_account import Account
    >>> acct = Account.create('KEYSMASH FJAFJKLDSKF7JKFDJ 1530')
-   >>> w3.middleware_onion.add(construct_sign_and_send_raw_middleware(acct))
+   >>> w3.middleware_onion.add(SignAndSendRawMiddlewareBuilder.build(acct))
    >>> w3.eth.default_account = acct.address
 
-:ref:`Hosted nodes<local_vs_hosted>` (like Infura or Alchemy) only support signed transactions. This often results in ``send_raw_transaction`` being used repeatedly. Instead, we can automate this process with ``construct_sign_and_send_raw_middleware(private_key_or_account)``.
+:ref:`Hosted nodes<local_vs_hosted>` (like Infura or Alchemy) only support signed
+transactions. This often results in ``send_raw_transaction`` being used repeatedly.
+Instead, we can automate this process with
+``SignAndSendRawMiddlewareBuilder.build(private_key_or_account)``.
 
 .. code-block:: python
 
     >>> from web3 import Web3
     >>> w3 = Web3(Web3.HTTPProvider('HTTP_ENDPOINT'))
-    >>> from web3.middleware import construct_sign_and_send_raw_middleware
+    >>> from web3.middleware import SignAndSendRawMiddlewareBuilder
     >>> from eth_account import Account
     >>> import os
     >>> acct = w3.eth.account.from_key(os.environ.get('PRIVATE_KEY'))
-    >>> w3.middleware_onion.add(construct_sign_and_send_raw_middleware(acct))
+    >>> w3.middleware_onion.add(SignAndSendRawMiddlewareBuilder.build(acct))
     >>> w3.eth.default_account = acct.address
 
     >>> # use `eth_sendTransaction` to automatically sign and send the raw transaction
@@ -450,11 +452,11 @@ Similarly, with AsyncWeb3:
 
     >>> from web3 import AsyncWeb3
     >>> async_w3 = AsyncWeb3(AsyncHTTPProvider('HTTP_ENDPOINT'))
-    >>> from web3.middleware import construct_sign_and_send_raw_middleware
+    >>> from web3.middleware import SignAndSendRawMiddlewareBuilder
     >>> from eth_account import Account
     >>> import os
     >>> acct = async_w3.eth.account.from_key(os.environ.get('PRIVATE_KEY'))
-    >>> async_w3.middleware_onion.add(construct_sign_and_send_raw_middleware(acct))
+    >>> async_w3.middleware_onion.add(SignAndSendRawMiddlewareBuilder.build(acct))
     >>> async_w3.eth.default_account = acct.address
 
     >>> # use `eth_sendTransaction` to automatically sign and send the raw transaction

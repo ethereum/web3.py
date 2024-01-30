@@ -203,12 +203,13 @@ class NamedElementOnion(Mapping[TKey, TValue]):
                 f"{len(self._queue)} are permitted. "
             )
 
-        name = self._repr_if_not_hashable(name)
         self.add(element, name=name)
 
         if layer == 0:
             if name is None:
                 name = cast(TKey, element)
+
+            name = self._repr_if_not_hashable(name)
 
             self._queue.move_to_end(name, last=False)
         elif layer == len(self._queue):

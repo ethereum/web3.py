@@ -165,7 +165,7 @@ and how to override them.
 
     w3 = Web3(HTTPProvider(
         endpoint_uri="...",
-        retry_configuration=ExceptionRetryConfiguration(
+        exception_retry_configuration=ExceptionRetryConfiguration(
             errors=DEFAULT_EXCEPTIONS,
 
             # number of retries to attempt
@@ -284,27 +284,20 @@ The ``RequestManager`` object exposes the ``middleware_onion`` object to manage
 middlewares. It is also exposed on the ``Web3`` object for convenience. That API is
 detailed in :ref:`Modifying_Middleware`.
 
-Middlewares can be added to the middleware stack as the class itself. The default
-middleware have descriptive references to the classes for ease of use.
+Middlewares are added to the middleware stack as the class itself. The ``name`` kwarg is
+optional.
 
 .. code-block:: python
 
     from web3 import Web3
-    from web3.middleware import (
-        attrdict_middleware,  # a user-friendly reference to the class
-    )
-    from web3.middleware.attrdict import (
-        AttributeDictMiddleware,  # the class where the logic is defined
+    from my_module import (
+        SimpleMiddleware,
     )
 
     w3 = Web3(HTTPProvider(endpoint_uri="..."))
 
     # add the middleware to the stack as the class
-    w3.middleware_onion.add(AttributeDictMiddleware)
-
-    # or, add the middleware to the stack as the reference to the class
-    w3.middleware_onion.add(attrdict_middleware)
-
+    w3.middleware_onion.add(SimpleMiddleware, name="simple_middleware")
 
 
 Managers
