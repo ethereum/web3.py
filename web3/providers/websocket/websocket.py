@@ -18,6 +18,7 @@ from typing import (
 from eth_typing import (
     URI,
 )
+import mesc
 from websockets.client import (
     connect,
 )
@@ -54,6 +55,16 @@ def _get_threaded_loop() -> asyncio.AbstractEventLoop:
 
 
 def get_default_endpoint() -> URI:
+    if mesc.is_mesc_enabled():
+        try:
+            endpoint = mesc.get_default_endpoint(profile="web3py_ws")
+            if endpoint is not None:
+                for prefix in ("ws://", "wss://"):
+                    if endpoint["url"].startswith(prefix):
+                        return URI(endpoint["url"])
+        except Exception as e:
+            print("MESC not configured properly: " + str(e))
+
     return URI(os.environ.get("WEB3_WS_PROVIDER_URI", "ws://127.0.0.1:8546"))
 
 
@@ -92,6 +103,21 @@ class WebsocketProvider(JSONBaseProvider):
         websocket_kwargs: Optional[Any] = None,
         websocket_timeout: int = DEFAULT_WEBSOCKET_TIMEOUT,
     ) -> None:
+
+        if endpoint_uri is not None and mesc.is_mesc_enabled():
+            try:
+                endpoint = mesc.get_endpoint_by_query(
+                    endpoint_uri,
+                    profile="web3py_ws",
+                )
+                if endpoint is not None:
+                    for prefix in ("ws://", "wss://"):
+                        if endpoint["url"].startswith(prefix):
+                            endpoint_uri = endpoint["url"]
+                            break
+            except Exception as e:
+                print("MESC not configured properly: " + str(e))
+
         self.endpoint_uri = URI(endpoint_uri)
         self.websocket_timeout = websocket_timeout
         if self.endpoint_uri is None:

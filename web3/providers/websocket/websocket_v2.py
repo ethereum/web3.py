@@ -12,6 +12,7 @@ from typing import (
 from eth_typing import (
     URI,
 )
+import mesc
 from toolz import (
     merge,
 )
@@ -54,6 +55,16 @@ DEFAULT_WEBSOCKET_KWARGS = {
 
 
 def get_default_endpoint() -> URI:
+    if mesc.is_mesc_enabled():
+        try:
+            endpoint = mesc.get_default_endpoint(profile="web3py_ws")
+            if endpoint is not None:
+                for prefix in VALID_WEBSOCKET_URI_PREFIXES:
+                    if endpoint["url"].startswith(prefix):
+                        return URI(endpoint["url"])
+        except Exception as e:
+            print("MESC not configured properly: " + str(e))
+
     return URI(os.environ.get("WEB3_WS_PROVIDER_URI", "ws://127.0.0.1:8546"))
 
 
@@ -70,6 +81,21 @@ class WebsocketProviderV2(PersistentConnectionProvider):
         # `PersistentConnectionProvider` kwargs can be passed through
         **kwargs: Any,
     ) -> None:
+
+        if endpoint_uri is not None and mesc.is_mesc_enabled():
+            try:
+                endpoint = mesc.get_endpoint_by_query(
+                    endpoint_uri,
+                    profile="web3py_ws",
+                )
+                if endpoint is not None:
+                    for prefix in VALID_WEBSOCKET_URI_PREFIXES:
+                        if endpoint["url"].startswith(prefix):
+                            endpoint_uri = endpoint["url"]
+                            break
+            except Exception as e:
+                print("MESC not configured properly: " + str(e))
+
         self.endpoint_uri = URI(endpoint_uri)
         if self.endpoint_uri is None:
             self.endpoint_uri = get_default_endpoint()

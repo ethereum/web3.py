@@ -19,6 +19,8 @@ from typing import (
     Union,
 )
 
+import mesc
+
 from web3._utils.threads import (
     Timeout,
 )
@@ -87,6 +89,14 @@ class PersistantSocket:
 
 
 def get_default_ipc_path() -> Optional[str]:
+    if mesc.is_mesc_enabled():
+        try:
+            endpoint = mesc.get_default_endpoint(profile="web3py_ipc")
+            if endpoint is not None and endpoint["url"].endswith(".ipc"):
+                return URI(endpoint["url"])
+        except Exception as e:
+            print("MESC not configured properly: " + str(e))
+
     if sys.platform == "darwin":
         ipc_path = os.path.expanduser(
             os.path.join("~", "Library", "Ethereum", "geth.ipc")
@@ -115,6 +125,15 @@ def get_default_ipc_path() -> Optional[str]:
 
 
 def get_dev_ipc_path() -> Optional[str]:
+
+    if mesc.is_mesc_enabled():
+        try:
+            endpoint = mesc.get_default_endpoint(profile="web3py_ipc")
+            if endpoint is not None and endpoint["url"].endswith(".ipc"):
+                return URI(endpoint["url"])
+        except Exception as e:
+            print("MESC not configured properly: " + str(e))
+
     if os.environ.get("WEB3_PROVIDER_URI", ""):
         ipc_path = os.environ.get("WEB3_PROVIDER_URI")
         if os.path.exists(ipc_path):

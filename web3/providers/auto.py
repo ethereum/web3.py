@@ -16,6 +16,7 @@ from urllib.parse import (
 from eth_typing import (
     URI,
 )
+import mesc
 
 from web3.exceptions import (
     CannotHandleRequest,
@@ -43,6 +44,18 @@ def load_provider_from_environment() -> BaseProvider:
     return load_provider_from_uri(uri_string)
 
 
+def load_provider_from_mesc() -> BaseProvider:
+    if not mesc.is_mesc_enabled():
+        return None
+    endpoint = mesc.get_default_endpoint(profile="web3py")
+    if endpoint is None:
+        return None
+    uri_string = URI(endpoint["url"])
+    if not uri_string:
+        return None
+    return load_provider_from_uri(uri_string)
+
+
 def load_provider_from_uri(
     uri_string: URI, headers: Optional[Dict[str, Tuple[str, str]]] = None
 ) -> BaseProvider:
@@ -62,6 +75,7 @@ def load_provider_from_uri(
 
 class AutoProvider(BaseProvider):
     default_providers = (
+        load_provider_from_mesc,
         load_provider_from_environment,
         IPCProvider,
         HTTPProvider,

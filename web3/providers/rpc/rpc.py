@@ -16,6 +16,7 @@ from eth_typing import (
 from eth_utils import (
     to_dict,
 )
+import mesc
 
 from web3._utils.http import (
     construct_user_agent,
@@ -65,6 +66,18 @@ class HTTPProvider(JSONBaseProvider):
             ExceptionRetryConfiguration
         ] = ExceptionRetryConfiguration(),
     ) -> None:
+
+        if endpoint_uri is not None and mesc.is_mesc_enabled():
+            try:
+                endpoint = mesc.get_endpoint_by_query(
+                    endpoint_uri,
+                    profile="web3py",
+                )
+                if endpoint is not None and endpoint["url"].startswith("http"):
+                    endpoint_uri = endpoint["url"]
+            except Exception as e:
+                print("MESC not configured properly: " + str(e))
+
         if endpoint_uri is None:
             self.endpoint_uri = get_default_http_endpoint()
         else:

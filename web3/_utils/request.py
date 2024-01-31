@@ -22,6 +22,7 @@ from eth_typing import (
     URI,
 )
 import requests
+import mesc
 
 from web3._utils.async_caching import (
     async_lock,
@@ -39,6 +40,14 @@ DEFAULT_TIMEOUT = 10
 
 
 def get_default_http_endpoint() -> URI:
+    if mesc.is_mesc_enabled():
+        try:
+            endpoint = mesc.get_default_endpoint(profile="web3py")
+            if endpoint is not None and endpoint["url"].startswith("http"):
+                return URI(endpoint["url"])
+        except Exception as e:
+            print("MESC not configured properly: " + str(e))
+
     return URI(os.environ.get("WEB3_HTTP_PROVIDER_URI", "http://localhost:8545"))
 
 
