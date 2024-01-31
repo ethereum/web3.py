@@ -10,8 +10,7 @@ exposed by the web3 object and the backend or node that web3 is connecting to.
 * **Providers** are responsible for the actual communication with the
   blockchain such as sending JSON-RPC requests over HTTP or an IPC socket.
 * **Middlewares** provide hooks for monitoring and modifying requests and
-  responses to and from the provider.  These can be *global* operating on all
-  providers or specific to one provider.
+  responses to and from the provider.
 * **Managers** provide thread safety and primitives to allow for asynchronous usage of web3.
 
 Here are some common things you might want to do with these APIs.
@@ -40,17 +39,12 @@ Each web3 RPC call passes through these layers in the following manner.
                        |                ^
                        v                |
                  +-----------------------------+
-                 |            Manager          |
+                 |           Manager           |
                  +-----------------------------+
                        |                ^
                        v                |
                  +-----------------------------+
-                 |     Global Middlewares      |
-                 +-----------------------------+
-                       |                ^
-                       v                |
-                 +-----------------------------+
-                 |    Provider Middlewares     |
+                 |         Middlewares         |
                  +-----------------------------+
                        |                ^
                        v                |
@@ -60,11 +54,11 @@ Each web3 RPC call passes through these layers in the following manner.
 
 
 You can visualize this relationship like an onion, with the Provider at the
-center.  The request originates from the Manager, outside of the onion, passing
-down through each layer of the onion until it reaches the Provider at the
-center.  The Provider then handles the request, producing a response which will
+center. The request originates from the ``Manager``, outside of the onion, passing
+down through each layer of the onion until it reaches the ``Provider`` at the
+center. The ``Provider`` then handles the request, producing a response which will
 then pass back out from the center of the onion, through each layer until it is
-finally returned by the Manager.
+finally returned by the ``Manager``.
 
 
 Providers
@@ -235,19 +229,17 @@ override the ``response_processor`` method and return the response.
             return response
 
 
-.. code-block:: python
-
-As with previous versions of the library, wrapping the ``make_request`` method of a
-provider is possible. If you wish to prevent making a call under certain conditions,
-for example, you can override the ``_wrap_make_request`` method. This allows for
-defining pre-request processing, skipping or making the request under certain
-conditions, as well as response processing before passing it to the next middleware.
-The order of operations still passes all pre-request processing down the middlewares
-before making the request, and then passes the response back up the middleware stack
-for processing. The next middleware on the stack is essentially the "make_request"
-method until we reach the end of the middlewares and the request is made by the actual
-`make_request` method of the provider. The response is then passed back up the
-middleware stack for processing before being returned to the user.
+Wrapping the ``make_request`` method of a provider is possible. If you wish to prevent
+making a call under certain conditions, for example, you can override the
+``wrap_make_request`` method. This allows for defining pre-request processing,
+skipping or making the request under certain conditions, as well as response
+processing before passing it to the next middleware. The order of operations still
+passes all pre-request processing down the middlewares before making the request,
+and then passes the response back up the middleware stack for processing. The next
+middleware on the stack is essentially the "make_request" method until we reach
+the end of the middlewares and the request is made by the actual ``make_request``
+method of the provider. The response is then passed back up the middleware stack for
+processing before being returned to the user.
 
 .. code-block:: python
 
@@ -255,7 +247,7 @@ middleware stack for processing before being returned to the user.
 
     class SimpleMiddleware(Web3Middleware):
 
-        def _wrap_make_request(self, make_request):
+        def wrap_make_request(self, make_request):
             def middleware(method, params):
                 # pre-request processing goes here
 
@@ -267,7 +259,7 @@ middleware stack for processing before being returned to the user.
 
         # If your provider is asynchronous, override the async method instead
 
-        async def _async_wrap_make_request(self, make_request):
+        async def async_wrap_make_request(self, make_request):
             async def middleware(method, params):
                 # pre-request processing goes here
 

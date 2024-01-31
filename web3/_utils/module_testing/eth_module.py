@@ -85,7 +85,7 @@ from web3.exceptions import (
     Web3ValidationError,
 )
 from web3.middleware import (
-    ExtradataToPOAMiddleware,
+    ExtraDataToPOAMiddleware,
 )
 from web3.types import (
     ENS,
@@ -650,10 +650,10 @@ class AsyncEthModuleTest:
             await async_w3.eth.send_transaction(txn_params)
 
     @pytest.mark.asyncio
-    async def test_ExtradataToPOAMiddleware(
+    async def test_ExtraDataToPOAMiddleware(
         self, async_w3: "AsyncWeb3", request_mocker: Type[RequestMocker]
     ) -> None:
-        async_w3.middleware_onion.inject(ExtradataToPOAMiddleware, "poa", layer=0)
+        async_w3.middleware_onion.inject(ExtraDataToPOAMiddleware, "poa", layer=0)
         extra_data = f"0x{'ff' * 33}"
 
         async with request_mocker(

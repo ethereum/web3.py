@@ -181,7 +181,7 @@ There are a few options for sending transactions:
 - :meth:`~web3.eth.Eth.send_transaction`
 - :meth:`~web3.eth.Eth.send_raw_transaction`
 - Calling :meth:`~web3.contract.ContractFunction.transact` on a contract function
-- Configuring the ``build`` method for the :class:`~web3.middleware.SignAndSendRawMiddlewareBuilder`
+- Configuring the sign-and-send middleware :class:`~web3.middleware.SignAndSendRawMiddlewareBuilder`
 
 For more context, see the :doc:`transactions` Guide.
 
@@ -688,8 +688,8 @@ Inject the middleware into the middleware onion
 
 .. code-block:: python
 
-    from web3.middleware import ExtradataToPOAMiddleware
-    w3.middleware_onion.inject(ExtradataToPOAMiddleware, layer=0)
+    from web3.middleware import ExtraDataToPOAMiddleware
+    w3.middleware_onion.inject(ExtraDataToPOAMiddleware, layer=0)
 
 Just remember that you have to sign all transactions locally, as infura does not handle any keys from your wallet ( refer to `this`_  )
 

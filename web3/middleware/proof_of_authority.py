@@ -51,7 +51,7 @@ extradata_to_poa_cleanup = compose(
 )
 
 
-ExtradataToPOAMiddleware = FormattingMiddlewareBuilder.build(
+ExtraDataToPOAMiddleware = FormattingMiddlewareBuilder.build(
     result_formatters={
         RPC.eth_getBlockByHash: apply_formatter_if(
             is_not_null, extradata_to_poa_cleanup

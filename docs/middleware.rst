@@ -20,7 +20,7 @@ More information is available in the "Internals: :ref:`internals__middlewares`" 
 Default Middleware
 ------------------
 
-The following middleware are added by default if you don't add any:
+The following middlewares are added by default if you don't add any:
 
 * ``gas_price_strategy``
 * ``ens_name_to_address``
@@ -99,9 +99,9 @@ Middleware can be added, removed, replaced, and cleared at runtime. To make that
 can name the middleware for later reference.
 
 Middleware Order
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~
 
-Think of the middleware as being layered in an onion, where you initiate a web3.py request at
+Think of the middlewares as being layered in an onion, where you initiate a web3.py request at
 the outermost layer of the onion, and the Ethereum node (like geth) receives and responds
 to the request inside the innermost layer of the onion. Here is a (simplified) diagram:
 
@@ -310,13 +310,13 @@ Stalecheck
 Proof of Authority
 ~~~~~~~~~~~~~~~~~~
 
-.. py:class:: web3.middleware.ExtradataToPOAMiddleware
+.. py:class:: web3.middleware.ExtraDataToPOAMiddleware
 
 .. note::
     It's important to inject the middleware at the 0th layer of the middleware onion:
-    ``w3.middleware_onion.inject(ExtradataToPOAMiddleware, layer=0)``
+    ``w3.middleware_onion.inject(ExtraDataToPOAMiddleware, layer=0)``
 
-``ExtradataToPOAMiddleware`` is required to connect to ``geth --dev`` and may
+``ExtraDataToPOAMiddleware`` is required to connect to ``geth --dev`` and may
 also be needed for other EVM compatible blockchains like Polygon or BNB Chain
 (Binance Smart Chain).
 
@@ -351,16 +351,16 @@ unique IPC location and loads the middleware:
     # connect to the IPC location started with 'geth --dev --datadir ~/mynode'
     >>> w3 = Web3(IPCProvider('~/mynode/geth.ipc'))
 
-    >>> from web3.middleware import ExtradataToPOAMiddleware
+    >>> from web3.middleware import ExtraDataToPOAMiddleware
 
     # inject the poa compatibility middleware to the innermost layer (0th layer)
-    >>> w3.middleware_onion.inject(ExtradataToPOAMiddleware, layer=0)
+    >>> w3.middleware_onion.inject(ExtraDataToPOAMiddleware, layer=0)
 
     # confirm that the connection succeeded
     >>> w3.client_version
     'Geth/v1.7.3-stable-4bb3c89d/linux-amd64/go1.9'
 
-Why is ``ExtradataToPOAMiddleware`` necessary?
+Why is ``ExtraDataToPOAMiddleware`` necessary?
 ''''''''''''''''''''''''''''''''''''''''''''''
 
 There is no strong community consensus on a single Proof-of-Authority (PoA) standard yet.

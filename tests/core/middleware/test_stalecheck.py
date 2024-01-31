@@ -66,7 +66,7 @@ def test_is_fresh(now):
 def test_stalecheck_pass(request_middleware):
     with patch("web3.middleware.stalecheck._is_fresh", return_value=True):
         make_request = Mock()
-        inner = request_middleware._wrap_make_request(make_request)
+        inner = request_middleware.wrap_make_request(make_request)
 
         method, params = object(), object()
         inner(method, params)
@@ -79,7 +79,7 @@ def test_stalecheck_fail(request_middleware, now):
         request_middleware._w3.eth.get_block.return_value = stub_block(now)
 
         response = object()
-        inner = request_middleware._wrap_make_request(lambda *_: response)
+        inner = request_middleware.wrap_make_request(lambda *_: response)
         with pytest.raises(StaleBlockchain):
             inner("", [])
 
@@ -94,7 +94,7 @@ def test_stalecheck_ignores_get_by_block_methods(request_middleware, rpc_method)
     # This is especially critical for get_block('latest')
     # which would cause infinite recursion
     with patch("web3.middleware.stalecheck._is_fresh", side_effect=[False, True]):
-        inner = request_middleware._wrap_make_request(lambda *_: None)
+        inner = request_middleware.wrap_make_request(lambda *_: None)
         inner(rpc_method, [])
         assert not request_middleware._w3.eth.get_block.called
 
@@ -107,7 +107,7 @@ def test_stalecheck_calls_is_fresh_with_empty_cache(
     ) as fresh_spy:
         block = object()
         request_middleware._w3.eth.get_block.return_value = block
-        inner = request_middleware._wrap_make_request(lambda *_: None)
+        inner = request_middleware.wrap_make_request(lambda *_: None)
         inner("", [])
         cache_call, live_call = fresh_spy.call_args_list
         assert cache_call[0] == (None, allowable_delay)
@@ -122,7 +122,7 @@ def test_stalecheck_adds_block_to_cache(request_middleware, allowable_delay):
         request_middleware._w3.eth.get_block.return_value = block
 
         # cache miss
-        inner = request_middleware._wrap_make_request(lambda *_: None)
+        inner = request_middleware.wrap_make_request(lambda *_: None)
         inner("", [])
         cache_call, live_call = fresh_spy.call_args_list
         assert fresh_spy.call_count == 2
@@ -162,7 +162,7 @@ async def test_async_stalecheck_pass(async_request_middleware):
 
     with patch("web3.middleware.stalecheck._is_fresh", return_value=True):
         make_request = AsyncMock()
-        inner = await async_request_middleware._async_wrap_make_request(make_request)
+        inner = await async_request_middleware.async_wrap_make_request(make_request)
 
         method, params = object(), object()
         await inner(method, params)
@@ -176,7 +176,7 @@ async def test_async_stalecheck_fail(async_request_middleware, now):
         async_request_middleware._w3.eth.get_block.return_value = stub_block(now)
 
         with pytest.raises(StaleBlockchain):
-            inner = await async_request_middleware._async_wrap_make_request(_coro)
+            inner = await async_request_middleware.async_wrap_make_request(_coro)
             await inner("", [])
 
 
@@ -188,7 +188,7 @@ async def test_async_stalecheck_ignores_get_by_block_methods(
     # This is especially critical for get_block("latest") which would cause
     # infinite recursion
     with patch("web3.middleware.stalecheck._is_fresh", side_effect=[False, True]):
-        inner = await async_request_middleware._async_wrap_make_request(_coro)
+        inner = await async_request_middleware.async_wrap_make_request(_coro)
         await inner(rpc_method, [])
         assert not async_request_middleware._w3.eth.get_block.called
 
@@ -202,7 +202,7 @@ async def test_async_stalecheck_calls_is_fresh_with_empty_cache(
     ) as fresh_spy:
         block = object()
         async_request_middleware._w3.eth.get_block.return_value = block
-        inner = await async_request_middleware._async_wrap_make_request(_coro)
+        inner = await async_request_middleware.async_wrap_make_request(_coro)
         await inner("", [])
         cache_call, live_call = fresh_spy.call_args_list
         assert cache_call[0] == (None, allowable_delay)
@@ -219,7 +219,7 @@ async def test_async_stalecheck_adds_block_to_cache(
         block = object()
         async_request_middleware._w3.eth.get_block.return_value = block
 
-        inner = await async_request_middleware._async_wrap_make_request(_coro)
+        inner = await async_request_middleware.async_wrap_make_request(_coro)
 
         # cache miss
         await inner("", [])
