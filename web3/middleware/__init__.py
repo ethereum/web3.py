@@ -28,7 +28,7 @@ from .names import (
     ENSNameToAddressMiddleware,
 )
 from .proof_of_authority import (
-    ExtradataToPOAMiddleware,
+    ExtraDataToPOAMiddleware,
 )
 from .pythonic import (
     PythonicMiddleware,
@@ -71,7 +71,7 @@ def combine_middlewares(
     accumulator_fn = provider_request_fn
     for middleware in reversed(middlewares):
         # initialize the middleware and wrap the accumulator function down the stack
-        accumulator_fn = middleware(w3)._wrap_make_request(accumulator_fn)
+        accumulator_fn = middleware(w3).wrap_make_request(accumulator_fn)
     return accumulator_fn
 
 
@@ -89,5 +89,5 @@ async def async_combine_middlewares(
     for middleware in reversed(middlewares):
         # initialize the middleware and wrap the accumulator function down the stack
         initialized = middleware(async_w3)
-        accumulator_fn = await initialized._async_wrap_make_request(accumulator_fn)
+        accumulator_fn = await initialized.async_wrap_make_request(accumulator_fn)
     return accumulator_fn

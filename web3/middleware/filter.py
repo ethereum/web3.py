@@ -586,7 +586,7 @@ class LocalFilterMiddleware(Web3Middleware):
         self.filter_id_counter = itertools.count()
         super().__init__(w3)
 
-    def _wrap_make_request(self, make_request: MakeRequestFn) -> MakeRequestFn:
+    def wrap_make_request(self, make_request: MakeRequestFn) -> MakeRequestFn:
         def middleware(method: "RPCEndpoint", params: Any) -> "RPCResponse":
             if method in NEW_FILTER_METHODS:
                 _filter: SyncFilter
@@ -631,7 +631,7 @@ class LocalFilterMiddleware(Web3Middleware):
 
     # -- async -- #
 
-    async def _async_wrap_make_request(
+    async def async_wrap_make_request(
         self,
         make_request: AsyncMakeRequestFn,
     ) -> AsyncMakeRequestFn:

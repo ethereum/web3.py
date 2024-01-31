@@ -21,7 +21,7 @@ def middleware_factory():
 
             def __call__(self, web3):
                 class Middleware(Web3Middleware):
-                    def _wrap_make_request(self, make_request):
+                    def wrap_make_request(self, make_request):
                         def middleware_fn(method, params):
                             params.append(key)
                             method = "|".join((method, key))

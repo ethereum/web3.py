@@ -15,10 +15,10 @@ Class-Based Middleware Model
 
 The middleware model has been changed to a class-based model. This allows for
 more flexibility in implementation, for asynchronous processing for example. Previously,
-the middleware were functions that tightly wrapped the `make_request` function of the
+the middleware were functions that tightly wrapped the ``make_request`` function of the
 provider, always making the request except if the middleware itself modified the
-`make_request` function. Now, the middleware logic can be separated into
-`request_processor` and `response_processor` functions that do pre-request and
+``make_request`` function. Now, the middleware logic can be separated into
+``request_processor`` and ``response_processor`` functions that do pre-request and
 post-response processing, respectively. This gives more flexibility for asynchronous
 operations where the response may come back at a later time than the request was made.
 This also paves the way for support of batch requests, which is a part of the roadmap
@@ -33,7 +33,7 @@ Middleware Renaming and Removals
 The following middleware have been renamed for generalization or clarity:
 
 - ``name_to_address_middleware`` -> ``ENSNameToAddressMiddleware``
-- ``geth_poa_middleware`` -> ``ExtradataToPOAMiddleware``
+- ``geth_poa_middleware`` -> ``ExtraDataToPOAMiddleware``
 
 The following middleware have been removed:
 
@@ -60,7 +60,7 @@ The configuration options are outlined in the documentation in the
 :ref:`request_caching` section.
 
 If desired, the previous caching middleware can be re-created using the new class-based
-middleware model overriding the ``_wrap_make_request`` (or ``_async_wrap_make_request``)
+middleware model overriding the ``wrap_make_request`` (or ``async_wrap_make_request``)
 method in the middleware class.
 
 Result Generating Middleware
@@ -72,7 +72,7 @@ The following middleware have been removed:
 
 The ``fixture_middleware`` and ``result_generator_middleware`` which were used for
 testing / mocking purposes have been removed. These have been replaced internally by the
-``RequestMocker`` class, utilized for testing via a `request_mocker`` pytest fixture.
+``RequestMocker`` class, utilized for testing via a ``request_mocker`` pytest fixture.
 
 HTTP Retry Request Middleware
 `````````````````````````````

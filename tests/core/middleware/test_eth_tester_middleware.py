@@ -94,7 +94,7 @@ def test_default_transaction_fields_middleware(
 
     middleware = default_transaction_fields_middleware(mock_w3)
     base_params = {"chainId": 5}
-    inner = middleware._wrap_make_request(mock_request)
+    inner = middleware.wrap_make_request(mock_request)
     filled_transaction = inner(method, [base_params])
 
     filled_params = filled_transaction[0]
@@ -180,7 +180,7 @@ async def test_async_default_transaction_fields_middleware(
 
     middleware = default_transaction_fields_middleware(mock_w3)
     base_params = {"chainId": 5}
-    inner = await middleware._async_wrap_make_request(mock_request)
+    inner = await middleware.async_wrap_make_request(mock_request)
     filled_transaction = await inner(method, [base_params])
 
     filled_params = filled_transaction[0]

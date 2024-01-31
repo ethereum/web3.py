@@ -38,7 +38,7 @@ class Web3Middleware:
 
     # -- sync -- #
 
-    def _wrap_make_request(self, make_request: "MakeRequestFn") -> "MakeRequestFn":
+    def wrap_make_request(self, make_request: "MakeRequestFn") -> "MakeRequestFn":
         def middleware(method: "RPCEndpoint", params: Any) -> "RPCResponse":
             method, params = self.request_processor(method, params)
             return self.response_processor(method, make_request(method, params))
@@ -53,7 +53,7 @@ class Web3Middleware:
 
     # -- async -- #
 
-    async def _async_wrap_make_request(
+    async def async_wrap_make_request(
         self, make_request: "AsyncMakeRequestFn"
     ) -> "AsyncMakeRequestFn":
         async def middleware(method: "RPCEndpoint", params: Any) -> "RPCResponse":

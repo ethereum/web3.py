@@ -5,7 +5,7 @@ from web3.exceptions import (
     ExtraDataLengthError,
 )
 from web3.middleware import (
-    ExtradataToPOAMiddleware,
+    ExtraDataToPOAMiddleware,
 )
 
 
@@ -26,8 +26,8 @@ def test_full_extra_data(w3, request_mocker):
         assert block.extraData == b"\xff" * 32
 
 
-def test_ExtradataToPOAMiddleware(w3, request_mocker):
-    w3.middleware_onion.inject(ExtradataToPOAMiddleware, layer=0)
+def test_ExtraDataToPOAMiddleware(w3, request_mocker):
+    w3.middleware_onion.inject(ExtraDataToPOAMiddleware, layer=0)
 
     with request_mocker(
         w3,
