@@ -84,10 +84,20 @@ windows-wheel-steps:
       paths:
         - .tox
       key: cache-v1-{{ arch }}-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
+        
+docs: &docs
+  docker:
+    - image: common
+  steps:
+    - run:
+        name: install latexpdf dependencies
+        command: |
+          sudo apt-get update
+          sudo apt-get install latexmk tex-gyre texlive-fonts-extra
 
 jobs:
   docs:
-    <<: *common
+    <<: *docs
     docker:
       - image: cimg/python:3.8
         environment:
