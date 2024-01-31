@@ -39,28 +39,51 @@ common: &common
 orbs:
   win: circleci/windows@5.0.0
 
-windows_steps: &windows_steps
-  executor:
-    name: win/default
-    shell: bash.exe
-  working_directory: C:\Users\circleci\project\<REPO_NAME>
-  steps:
-    - checkout
-    - restore_cache:
-        keys:
-          - cache-v1-{{ arch }}-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
-    - run:
-        name: install dependencies
-        command: |
-          python -m pip install --upgrade pip
-          python -m pip install tox
-    - run:
-        name: run tox
-        command: python -m tox run -r
-    - save_cache:
-        paths:
-          - .tox
-        key: cache-v1-{{ arch }}-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
+windows-wheel-steps:
+  windows-wheel-setup: &windows-wheel-setup
+    executor:
+      name: win/default
+      shell: bash.exe
+    working_directory: C:\Users\circleci\project\<REPO_NAME>
+    environment:
+      TOXENV: windows-wheel
+  restore-cache-step: &restore-cache-step
+    restore_cache:
+      keys:
+        - cache-v1-{{ arch }}-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
+  install-pyenv-step: &install-pyenv-step
+    run:
+      name: install pyenv
+      command: |
+        pip install pyenv-win --target $HOME/.pyenv
+        echo 'export PYENV="$HOME/.pyenv/pyenv-win/"' >> $BASH_ENV
+        echo 'export PYENV_ROOT="$HOME/.pyenv/pyenv-win/"' >> $BASH_ENV
+        echo 'export PYENV_USERPROFILE="$HOME/.pyenv/pyenv-win/"' >> $BASH_ENV
+        echo 'export PATH="$PATH:$HOME/.pyenv/pyenv-win/bin"' >> $BASH_ENV
+        echo 'export PATH="$PATH:$HOME/.pyenv/pyenv-win/shims"' >> $BASH_ENV
+        source $BASH_ENV
+        pyenv update
+  install-latest-python-step: &install-latest-python-step
+    run:
+      name: install latest python version and tox
+      command: |
+        LATEST_VERSION=$(pyenv install --list | grep -E "${MINOR_VERSION}\.[0-9]+$" | tail -1)
+        echo "installing python version $LATEST_VERSION"
+        pyenv install $LATEST_VERSION
+        pyenv global $LATEST_VERSION
+        python3 -m pip install --upgrade pip
+        python3 -m pip install tox
+  run-tox-step: &run-tox-step
+    run:
+      name: run tox
+      command: |
+        echo 'running tox with' $(python3 --version)
+        python3 -m tox run -r
+  save-cache-step: &save-cache-step
+    save_cache:
+      paths:
+        - .tox
+      key: cache-v1-{{ arch }}-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
 
 jobs:
   docs:
@@ -163,10 +186,31 @@ jobs:
         environment:
           TOXENV: py312-wheel
 
-  py311-wheel-windows:
-    <<: *windows_steps
-    environment:
-      TOXENV: py311-wheel-windows
+  py311-windows-wheel:
+    <<: *windows-wheel-setup
+    steps:
+      - checkout
+      - <<: *restore-cache-step
+      - <<: *install-pyenv-step
+      - run:
+          name: set minor version
+          command: echo "export MINOR_VERSION='3.11'" >> $BASH_ENV
+      - <<: *install-latest-python-step
+      - <<: *run-tox-step
+      - <<: *save-cache-step
+
+  py312-windows-wheel:
+    <<: *windows-wheel-setup
+    steps:
+      - checkout
+      - <<: *restore-cache-step
+      - <<: *install-pyenv-step
+      - run:
+          name: set minor version
+          command: echo "export MINOR_VERSION='3.12'" >> $BASH_ENV
+      - <<: *install-latest-python-step
+      - <<: *run-tox-step
+      - <<: *save-cache-step
 
 workflows:
   version: 2
@@ -188,4 +232,5 @@ workflows:
       - py310-wheel
       - py311-wheel
       - py312-wheel
-      - py311-wheel-windows
+      - py311-windows-wheel
+      - py312-windows-wheel
