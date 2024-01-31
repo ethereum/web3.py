@@ -21,8 +21,8 @@ from aiohttp import (
 from eth_typing import (
     URI,
 )
-import requests
 import mesc
+import requests
 
 from web3._utils.async_caching import (
     async_lock,
