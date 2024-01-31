@@ -93,7 +93,7 @@ def get_default_ipc_path() -> Optional[str]:
         try:
             endpoint = mesc.get_default_endpoint(profile="web3py_ipc")
             if endpoint is not None and endpoint["url"].endswith(".ipc"):
-                return URI(endpoint["url"])
+                return endpoint["url"]
         except Exception as e:
             print("MESC not configured properly: " + str(e))
 
@@ -130,7 +130,7 @@ def get_dev_ipc_path() -> Optional[str]:
         try:
             endpoint = mesc.get_default_endpoint(profile="web3py_ipc")
             if endpoint is not None and endpoint["url"].endswith(".ipc"):
-                return URI(endpoint["url"])
+                return endpoint["url"]
         except Exception as e:
             print("MESC not configured properly: " + str(e))
 
