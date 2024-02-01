@@ -29,6 +29,13 @@ from web3.exceptions import (
 RECEIPT_TIMEOUT = 0.2
 
 
+def _tx_indexing_response_iterator():
+    while True:
+        yield {"error": {"message": "transaction indexing in progress"}}
+        yield {"error": {"message": "transaction indexing in progress"}}
+        yield {"result": {"status": "0x1"}}
+
+
 @pytest.mark.parametrize(
     "transaction",
     (
@@ -202,6 +209,18 @@ def test_unmined_transaction_wait_for_receipt(w3, request_mocker):
         assert txn_receipt["blockHash"] is not None
 
 
+def test_eth_wait_for_transaction_receipt_transaction_indexing_in_progress(
+    w3, request_mocker
+):
+    i = _tx_indexing_response_iterator()
+    with request_mocker(
+        w3,
+        mock_responses={"eth_getTransactionReceipt": lambda *_: next(i)},
+    ):
+        receipt = w3.eth.wait_for_transaction_receipt(f"0x{'00' * 32}")
+        assert receipt == {"status": 1}
+
+
 def test_get_transaction_formatters(w3, request_mocker):
     non_checksummed_addr = "0xB2930B35844A230F00E51431ACAE96FE543A0347"  # all uppercase
     unformatted_transaction = {
@@ -304,3 +323,19 @@ def test_get_transaction_formatters(w3, request_mocker):
     )
 
     assert received_tx == expected
+
+
+# --- async --- #
+
+
+@pytest.mark.asyncio
+async def test_async_wait_for_transaction_receipt_transaction_indexing_in_progress(
+    async_w3, request_mocker
+):
+    i = _tx_indexing_response_iterator()
+    async with request_mocker(
+        async_w3,
+        mock_responses={"eth_getTransactionReceipt": lambda *_: next(i)},
+    ):
+        receipt = await async_w3.eth.wait_for_transaction_receipt(f"0x{'00' * 32}")
+        assert receipt == {"status": 1}

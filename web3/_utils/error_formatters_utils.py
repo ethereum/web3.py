@@ -12,6 +12,7 @@ from web3.exceptions import (
     ContractLogicError,
     ContractPanicError,
     OffchainLookup,
+    TransactionIndexingInProgress,
 )
 from web3.types import (
     RPCResponse,
@@ -162,5 +163,23 @@ def raise_contract_logic_error_on_revert(response: RPCResponse) -> RPCResponse:
         # Geth Revert without error message case:
         elif "execution reverted" in message:
             raise ContractLogicError("execution reverted", data=data)
+
+    return response
+
+
+def raise_transaction_indexing_error_if_indexing(response: RPCResponse) -> RPCResponse:
+    """
+    Raise an error if ``eth_getTransactionReceipt`` returns a response indicating that
+    transactions are still being indexed.
+    """
+
+    error = response.get("error")
+    if not isinstance(error, str) and error is not None:
+        message = error.get("message")
+        if message is not None:
+            if all(
+                idx_key_phrases in message for idx_key_phrases in ("index", "progress")
+            ):
+                raise TransactionIndexingInProgress(message)
 
     return response

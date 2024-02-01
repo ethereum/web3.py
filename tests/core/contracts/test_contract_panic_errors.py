@@ -4,11 +4,11 @@ import re
 from tests.core.contracts.utils import (
     deploy,
 )
-from web3._utils.contract_error_handling import (
-    PANIC_ERROR_CODES,
-)
 from web3._utils.contract_sources.contract_data.panic_errors_contract import (
     PANIC_ERRORS_CONTRACT_DATA,
+)
+from web3._utils.error_formatters_utils import (
+    PANIC_ERROR_CODES,
 )
 from web3.exceptions import (
     ContractPanicError,
