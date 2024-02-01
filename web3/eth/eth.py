@@ -60,6 +60,7 @@ from web3.exceptions import (
     OffchainLookup,
     TimeExhausted,
     TooManyRequests,
+    TransactionIndexingInProgress,
     TransactionNotFound,
 )
 from web3.method import (
@@ -485,7 +486,7 @@ class Eth(BaseEth):
                 while True:
                     try:
                         tx_receipt = self._transaction_receipt(transaction_hash)
-                    except TransactionNotFound:
+                    except (TransactionNotFound, TransactionIndexingInProgress):
                         tx_receipt = None
                     if tx_receipt is not None:
                         break
