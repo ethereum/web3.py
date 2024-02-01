@@ -169,7 +169,7 @@ def raise_contract_logic_error_on_revert(response: RPCResponse) -> RPCResponse:
 
 def raise_transaction_indexing_error_if_indexing(response: RPCResponse) -> RPCResponse:
     """
-    Raise an error if ``eth_getTransactionReceipt`` returns a response indicating that
+    Raise an error if ``eth_getTransactionReceipt`` returns an error indicating that
     transactions are still being indexed.
     """
 

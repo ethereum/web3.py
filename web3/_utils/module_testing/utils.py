@@ -49,16 +49,21 @@ class RequestMocker:
 
         async def test_my_w3(async_w3, request_mocker):
             def _iter_responses():
-                 yield {"error": {"code": -32000, "message": "indexing in progress"}}
-                 yield {"error": {"code": -32000, "message": "indexing in progress"}}
-                 yield {"result": "0x1"}
+                    while True:
+                        yield {"error": {"message": "transaction indexing in progress"}}
+                        yield {"error": {"message": "transaction indexing in progress"}}
+                        yield {"result": {"status": "0x1"}}
 
             iter_responses = _iter_responses()
 
             async with request_mocker(
                 async_w3,
-                mock_responses={"eth_getTransactionReceipt": next(iter_responses)}
+                mock_responses={
+                    "eth_getTransactionReceipt": lambda *_: next(iter_responses)
+                },
             ):
+                # assert that the first two error responses are handled and the result
+                # is eventually returned when present
                 assert await w3.eth.get_transaction_receipt("0x1") == "0x1"
 
 
