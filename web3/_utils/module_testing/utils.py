@@ -45,10 +45,33 @@ class RequestMocker:
 
             assert w3.eth.block_number == 0
 
-    ``mock_results`` is a dict mapping method names to the desired "result" object of
-    the RPC response. ``mock_errors`` is a dict mapping method names to the desired
-    "error" object of the RPC response. If a method name is not in either dict,
-    the request is made as usual.
+    Example with async and a mocked response object:
+
+        async def test_my_w3(async_w3, request_mocker):
+            def _iter_responses():
+                 yield {"error": {"code": -32000, "message": "indexing in progress"}}
+                 yield {"error": {"code": -32000, "message": "indexing in progress"}}
+                 yield {"result": "0x1"}
+
+            iter_responses = _iter_responses()
+
+            async with request_mocker(
+                async_w3,
+                mock_responses={"eth_getTransactionReceipt": next(iter_responses)}
+            ):
+                assert await w3.eth.get_transaction_receipt("0x1") == "0x1"
+
+
+    - ``mock_results`` is a dict mapping method names to the desired "result" object of
+        the RPC response.
+    - ``mock_errors`` is a dict mapping method names to the desired
+        "error" object of the RPC response.
+    -``mock_responses`` is a dict mapping method names to the entire RPC response
+        object. This can be useful if you wish to return an iterator which returns
+        different responses on each call to the method.
+
+    If a method name is not present in any of the dicts above, the request is made as
+    usual.
     """
 
     def __init__(
@@ -56,10 +79,12 @@ class RequestMocker:
         w3: Union["AsyncWeb3", "Web3"],
         mock_results: Dict[Union["RPCEndpoint", str], Any] = None,
         mock_errors: Dict[Union["RPCEndpoint", str], Any] = None,
+        mock_responses: Dict[Union["RPCEndpoint", str], Any] = None,
     ):
         self.w3 = w3
         self.mock_results = mock_results or {}
         self.mock_errors = mock_errors or {}
+        self.mock_responses = mock_responses or {}
         self._make_request: Union["AsyncMakeRequestFn", "MakeRequestFn"] = (
             w3.provider.make_request
         )
@@ -83,7 +108,10 @@ class RequestMocker:
         self.w3 = cast("Web3", self.w3)
         self._make_request = cast("MakeRequestFn", self._make_request)
 
-        if method not in self.mock_errors and method not in self.mock_results:
+        if all(
+            method not in mock_dict
+            for mock_dict in (self.mock_errors, self.mock_results, self.mock_responses)
+        ):
             return self._make_request(method, params)
 
         request_id = (
@@ -93,7 +121,18 @@ class RequestMocker:
         )
         response_dict = {"jsonrpc": "2.0", "id": request_id}
 
-        if method in self.mock_results:
+        if method in self.mock_responses:
+            mock_return = self.mock_responses[method]
+            if callable(mock_return):
+                mock_return = mock_return(method, params)
+
+            if "result" in mock_return:
+                mock_return = {"result": mock_return["result"]}
+            elif "error" in mock_return:
+                mock_return = self._create_error_object(mock_return["error"])
+
+            mocked_response = merge(response_dict, mock_return)
+        elif method in self.mock_results:
             mock_return = self.mock_results[method]
             if callable(mock_return):
                 mock_return = mock_return(method, params)
@@ -102,12 +141,7 @@ class RequestMocker:
             error = self.mock_errors[method]
             if callable(error):
                 error = error(method, params)
-            code = error.get("code", -32000)
-            message = error.get("message", "Mocked error")
-            mocked_response = merge(
-                response_dict,
-                {"error": merge({"code": code, "message": message}, error)},
-            )
+            mocked_response = merge(response_dict, self._create_error_object(error))
         else:
             raise Exception("Invariant: unreachable code path")
 
@@ -140,7 +174,10 @@ class RequestMocker:
         self.w3 = cast("AsyncWeb3", self.w3)
         self._make_request = cast("AsyncMakeRequestFn", self._make_request)
 
-        if method not in self.mock_errors and method not in self.mock_results:
+        if all(
+            method not in mock_dict
+            for mock_dict in (self.mock_errors, self.mock_results, self.mock_responses)
+        ):
             return await self._make_request(method, params)
 
         request_id = (
@@ -150,7 +187,22 @@ class RequestMocker:
         )
         response_dict = {"jsonrpc": "2.0", "id": request_id}
 
-        if method in self.mock_results:
+        if method in self.mock_responses:
+            mock_return = self.mock_responses[method]
+
+            if callable(mock_return):
+                mock_return = mock_return(method, params)
+            elif iscoroutinefunction(mock_return):
+                # this is the "correct" way to mock the async make_request
+                mock_return = await mock_return(method, params)
+
+            if "result" in mock_return:
+                mock_return = {"result": mock_return["result"]}
+            elif "error" in mock_return:
+                mock_return = self._create_error_object(mock_return["error"])
+
+            mocked_result = merge(response_dict, mock_return)
+        elif method in self.mock_results:
             mock_return = self.mock_results[method]
             if callable(mock_return):
                 # handle callable to make things easier since we're mocking
@@ -167,13 +219,7 @@ class RequestMocker:
                 error = error(method, params)
             elif iscoroutinefunction(error):
                 error = await error(method, params)
-
-            code = error.get("code", -32000)
-            message = error.get("message", "Mocked error")
-            mocked_result = merge(
-                response_dict,
-                {"error": merge({"code": code, "message": message}, error)},
-            )
+            mocked_result = merge(response_dict, self._create_error_object(error))
 
         else:
             raise Exception("Invariant: unreachable code path")
@@ -192,3 +238,9 @@ class RequestMocker:
             return await decorator(_coro)(self.w3.provider, method, params)
         else:
             return mocked_result
+
+    @staticmethod
+    def _create_error_object(error: Dict[str, Any]) -> Dict[str, Any]:
+        code = error.get("code", -32000)
+        message = error.get("message", "Mocked error")
+        return {"error": merge({"code": code, "message": message}, error)}
