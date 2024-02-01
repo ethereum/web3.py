@@ -45,7 +45,7 @@ from eth_utils.toolz import (
 from web3 import (
     Web3,
 )
-from web3._utils.contract_error_handling import (
+from web3._utils.error_formatters_utils import (
     OFFCHAIN_LOOKUP_FIELDS,
     PANIC_ERROR_CODES,
 )

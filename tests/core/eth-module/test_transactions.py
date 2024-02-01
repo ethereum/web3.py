@@ -24,6 +24,9 @@ from web3.exceptions import (
     Web3ValidationError,
 )
 from web3.middleware import (
+    async_construct_error_generator_middleware,
+    async_construct_result_generator_middleware,
+    construct_error_generator_middleware,
     construct_result_generator_middleware,
 )
 from web3.middleware.simulate_unmined_transaction import (
@@ -31,6 +34,16 @@ from web3.middleware.simulate_unmined_transaction import (
 )
 
 RECEIPT_TIMEOUT = 0.2
+
+
+def _swap_error_middleware_for_result_middleware_and_return_error(
+    w3, result_middleware
+):
+    # On the first call, this will be in ``layer=0`` and we will remove this
+    # middleware and add the result middleware to layer 0 for the next call.
+    w3.middleware_onion.remove("error_middleware")
+    w3.middleware_onion.inject(result_middleware, "result_middleware", layer=0)
+    return {"code": -32000, "message": "transaction indexing in progress"}
 
 
 @pytest.mark.parametrize(
@@ -193,6 +206,28 @@ def test_unmined_transaction_wait_for_receipt(w3):
     assert txn_receipt["blockHash"] is not None
 
 
+def test_eth_wait_for_transaction_receipt_transaction_indexing_in_progress(w3):
+    result_middleware = construct_result_generator_middleware(
+        {RPC.eth_getTransactionReceipt: lambda *_: {"status": 1}}
+    )
+    error_middleware = construct_error_generator_middleware(
+        {
+            RPC.eth_getTransactionReceipt: lambda *_: (
+                _swap_error_middleware_for_result_middleware_and_return_error(
+                    w3, result_middleware
+                )
+            )
+        }
+    )
+    w3.middleware_onion.inject(error_middleware, "error_middleware", layer=0)
+
+    receipt = w3.eth.wait_for_transaction_receipt(f"0x{'00' * 32}")
+    assert receipt == {"status": 1}
+
+    assert "error_middleware" not in w3.middleware_onion.middlewares
+    w3.middleware_onion.remove("result_middleware")
+
+
 def test_get_transaction_formatters(w3):
     non_checksummed_addr = "0xB2930B35844A230F00E51431ACAE96FE543A0347"  # all uppercase
     unformatted_transaction = {
@@ -300,3 +335,30 @@ def test_get_transaction_formatters(w3):
 
     assert received_tx == expected
     w3.middleware_onion.remove("result_middleware")
+
+
+# --- async --- #
+
+
+@pytest.mark.asyncio
+async def test_async_wait_for_transaction_receipt_transaction_indexing_in_progress(
+    async_w3,
+):
+    result_middleware = await async_construct_result_generator_middleware(
+        {RPC.eth_getTransactionReceipt: lambda *_: {"status": 1}}
+    )
+    error_middleware = await async_construct_error_generator_middleware(
+        {
+            RPC.eth_getTransactionReceipt: lambda *_: (
+                _swap_error_middleware_for_result_middleware_and_return_error(
+                    async_w3, result_middleware
+                )
+            )
+        }
+    )
+    async_w3.middleware_onion.inject(error_middleware, "error_middleware", layer=0)
+
+    receipt = await async_w3.eth.wait_for_transaction_receipt(f"0x{'00' * 32}")
+    assert receipt == {"status": 1}
+
+    async_w3.middleware_onion.remove("result_middleware")

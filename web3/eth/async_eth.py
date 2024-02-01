@@ -60,6 +60,7 @@ from web3.exceptions import (
     OffchainLookup,
     TimeExhausted,
     TooManyRequests,
+    TransactionIndexingInProgress,
     TransactionNotFound,
 )
 from web3.method import (
@@ -517,7 +518,7 @@ class AsyncEth(BaseEth):
             while True:
                 try:
                     tx_receipt = await self._transaction_receipt(_tx_hash)
-                except TransactionNotFound:
+                except (TransactionNotFound, TransactionIndexingInProgress):
                     tx_receipt = None
                 if tx_receipt is not None:
                     break

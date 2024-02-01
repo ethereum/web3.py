@@ -40,14 +40,14 @@ from hexbytes import (
     HexBytes,
 )
 
-from web3._utils.contract_error_handling import (
-    PANIC_ERROR_CODES,
-)
 from web3._utils.empty import (
     empty,
 )
 from web3._utils.ens import (
     ens_addresses,
+)
+from web3._utils.error_formatters_utils import (
+    PANIC_ERROR_CODES,
 )
 from web3._utils.method_formatters import (
     to_hex_if_integer,

@@ -52,12 +52,13 @@ from hexbytes import (
 from web3._utils.abi import (
     is_length,
 )
-from web3._utils.contract_error_handling import (
-    raise_contract_logic_error_on_revert,
-)
 from web3._utils.encoding import (
     hexstr_if_str,
     to_hex,
+)
+from web3._utils.error_formatters_utils import (
+    raise_contract_logic_error_on_revert,
+    raise_transaction_indexing_error_if_indexing,
 )
 from web3._utils.filters import (
     AsyncBlockFilter,
@@ -791,6 +792,7 @@ ABI_REQUEST_FORMATTERS: Formatters = abi_request_formatters(
 ERROR_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     RPC.eth_estimateGas: raise_contract_logic_error_on_revert,
     RPC.eth_call: raise_contract_logic_error_on_revert,
+    RPC.eth_getTransactionReceipt: raise_transaction_indexing_error_if_indexing,
 }
 
 
