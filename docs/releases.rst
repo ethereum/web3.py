@@ -6,6 +6,29 @@ v6 Breaking Changes Summary
 
 .. towncrier release notes start
 
+web3.py v6.15.1 (2024-02-05)
+----------------------------
+
+Bugfixes
+~~~~~~~~
+
+- Handle new geth errors related to waiting for a transaction receipt while transactions are still being indexed. (`#3217 <https://github.com/ethereum/web3.py/issues/3217>`__)
+
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Remove annual user survey prompt from docs (`#3218 <https://github.com/ethereum/web3.py/issues/3218>`__)
+
+
+Internal Changes - for web3.py Contributors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Create test fixture for latest ``geth`` version. Run tests with ``geth`` in ``--dev`` mode. (`#3191 <https://github.com/ethereum/web3.py/issues/3191>`__)
+- Formatting updates for ``black==24.1.0``. (`#3207 <https://github.com/ethereum/web3.py/issues/3207>`__)
+- Add eth-tester version that supports ``eth_feeHistory`` (`#3222 <https://github.com/ethereum/web3.py/issues/3222>`__)
+
+
 web3.py v6.15.0 (2024-01-25)
 ----------------------------
 

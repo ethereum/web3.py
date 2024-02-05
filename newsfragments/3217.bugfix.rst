@@ -1,1 +1,0 @@
-Handle new geth errors related to waiting for a transaction receipt while transactions are still being indexed.

@@ -1,1 +1,0 @@
-Formatting updates for ``black==24.1.0``.
