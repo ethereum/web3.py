@@ -1,0 +1,1 @@
+Add eth-tester version that supports ``eth_feeHistory``
