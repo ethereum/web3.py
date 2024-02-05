@@ -3,7 +3,6 @@ from typing import (
     List,
     NoReturn,
     Optional,
-    Sequence,
     Tuple,
     Union,
 )
@@ -94,18 +93,38 @@ class BaseEth(Module):
     ) -> None:
         self._gas_price_strategy = gas_price_strategy
 
-    def estimate_gas_munger(
-        self, transaction: TxParams, block_identifier: Optional[BlockIdentifier] = None
-    ) -> Sequence[Union[TxParams, BlockIdentifier]]:
+    def _eth_call_and_estimate_gas_munger(
+        self,
+        transaction: TxParams,
+        block_identifier: Optional[BlockIdentifier] = None,
+        state_override: Optional[CallOverride] = None,
+    ) -> Union[
+        Tuple[TxParams, BlockIdentifier], Tuple[TxParams, BlockIdentifier, CallOverride]
+    ]:
+        # TODO: move to middleware
         if "from" not in transaction and is_checksum_address(self.default_account):
             transaction = assoc(transaction, "from", self.default_account)
 
+        # TODO: move to middleware
         if block_identifier is None:
-            params: Sequence[Union[TxParams, BlockIdentifier]] = [transaction]
-        else:
-            params = [transaction, block_identifier]
+            block_identifier = self.default_block
 
-        return params
+        if state_override is None:
+            return (transaction, block_identifier)
+        else:
+            return (transaction, block_identifier, state_override)
+
+    def estimate_gas_munger(
+        self,
+        transaction: TxParams,
+        block_identifier: Optional[BlockIdentifier] = None,
+        state_override: Optional[CallOverride] = None,
+    ) -> Union[
+        Tuple[TxParams, BlockIdentifier], Tuple[TxParams, BlockIdentifier, CallOverride]
+    ]:
+        return self._eth_call_and_estimate_gas_munger(
+            transaction, block_identifier, state_override
+        )
 
     def get_block_munger(
         self, block_identifier: BlockIdentifier, full_transactions: bool = False
@@ -139,18 +158,9 @@ class BaseEth(Module):
     ) -> Union[
         Tuple[TxParams, BlockIdentifier], Tuple[TxParams, BlockIdentifier, CallOverride]
     ]:
-        # TODO: move to middleware
-        if "from" not in transaction and is_checksum_address(self.default_account):
-            transaction = assoc(transaction, "from", self.default_account)
-
-        # TODO: move to middleware
-        if block_identifier is None:
-            block_identifier = self.default_block
-
-        if state_override is None:
-            return (transaction, block_identifier)
-        else:
-            return (transaction, block_identifier, state_override)
+        return self._eth_call_and_estimate_gas_munger(
+            transaction, block_identifier, state_override
+        )
 
     def create_access_list_munger(
         self, transaction: TxParams, block_identifier: Optional[BlockIdentifier] = None

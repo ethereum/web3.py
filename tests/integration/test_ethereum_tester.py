@@ -304,6 +304,10 @@ class TestEthereumTesterEthModule(EthModuleTest):
         EthModuleTest.test_eth_call_with_override_param_type_check,
         TypeError,
     )
+    test_eth_estimate_gas_with_override_param_type_check = not_implemented(
+        EthModuleTest.test_eth_estimate_gas_with_override_param_type_check,
+        TypeError,
+    )
     test_eth_create_access_list = not_implemented(
         EthModuleTest.test_eth_create_access_list,
         MethodUnavailable,

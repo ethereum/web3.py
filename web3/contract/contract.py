@@ -335,6 +335,7 @@ class ContractFunction(BaseContractFunction):
         self,
         transaction: Optional[TxParams] = None,
         block_identifier: Optional[BlockIdentifier] = None,
+        state_override: Optional[CallOverride] = None,
     ) -> int:
         setup_transaction = self._estimate_gas(transaction)
         return estimate_gas_for_function(
@@ -345,6 +346,7 @@ class ContractFunction(BaseContractFunction):
             self.contract_abi,
             self.abi,
             block_identifier,
+            state_override,
             *self.args,
             **self.kwargs,
         )
