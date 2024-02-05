@@ -269,14 +269,6 @@ def disable_auto_mine(func):
 
 
 class TestEthereumTesterEthModule(EthModuleTest):
-    test_eth_max_priority_fee_with_fee_history_calculation = not_implemented(
-        EthModuleTest.test_eth_max_priority_fee_with_fee_history_calculation,
-        MethodUnavailable,
-    )
-    test_eth_max_priority_fee_with_fee_history_calculation_error_dict = not_implemented(
-        EthModuleTest.test_eth_max_priority_fee_with_fee_history_calculation_error_dict,
-        ValueError,
-    )
     test_eth_sign = not_implemented(EthModuleTest.test_eth_sign, MethodUnavailable)
     test_eth_sign_ens_names = not_implemented(
         EthModuleTest.test_eth_sign_ens_names, MethodUnavailable
@@ -636,26 +628,10 @@ class TestEthereumTesterEthModule(EthModuleTest):
     def test_eth_send_transaction_no_max_fee(self, eth_tester, w3, unlocked_account):
         super().test_eth_send_transaction_no_max_fee(w3, unlocked_account)
 
-    def test_eth_getBlockByNumber_safe(
-        self, w3: "Web3", empty_block: BlockData
-    ) -> None:
-        super().test_eth_getBlockByNumber_safe(w3, empty_block)
-
-    def test_eth_getBlockByNumber_finalized(
-        self, w3: "Web3", empty_block: BlockData
-    ) -> None:
-        super().test_eth_getBlockByNumber_finalized(w3, empty_block)
-
-    def test_eth_fee_history(self, w3: "Web3") -> None:
-        super().test_eth_fee_history(w3)
-
     def test_eth_fee_history_with_integer(
         self, w3: "Web3", empty_block: BlockData
     ) -> None:
         super().test_eth_fee_history_with_integer(w3, empty_block)
-
-    def test_eth_fee_history_with_no_reward_percentiles(self, w3: "Web3") -> None:
-        super().test_eth_fee_history_no_reward_percentiles(w3)
 
     def test_eth_get_balance_with_block_identifier(self, w3: "Web3") -> None:
         w3.testing.mine()
