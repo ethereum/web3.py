@@ -1051,7 +1051,7 @@ The following methods are available on the ``web3.eth`` namespace.
         })
 
 
-.. py:method:: Eth.estimate_gas(transaction, block_identifier=None)
+.. py:method:: Eth.estimate_gas(transaction, block_identifier=None, state_override=None)
 
     * Delegates to ``eth_estimateGas`` RPC Method
 
@@ -1061,6 +1061,10 @@ The following methods are available on the ``web3.eth`` namespace.
 
     The ``transaction`` and ``block_identifier`` parameters are handled in the
     same manner as the :meth:`~web3.eth.Eth.send_transaction()` method.
+
+    The ``state_override`` is useful when there is a chain of transaction calls.
+    It overrides state so that the gas estimate of a transaction is accurate in
+    cases where prior calls produce side effects.
 
     .. code-block:: python
 
