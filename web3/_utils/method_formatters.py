@@ -322,6 +322,9 @@ BLOCK_FORMATTERS = {
         is_not_null, apply_list_to_array_formatter(withdrawal_result_formatter)
     ),
     "withdrawalsRoot": apply_formatter_if(is_not_null, to_hexbytes(32)),
+    "blobGasUsed": to_integer_if_hex,
+    "excessBlobGas": to_integer_if_hex,
+    "parentBeaconBlockRoot": apply_formatter_if(is_not_null, to_hexbytes(32)),
 }
 
 
