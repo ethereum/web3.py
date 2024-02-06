@@ -75,7 +75,6 @@ from web3.types import (
     BlockData,
     BlockIdentifier,
     BlockParams,
-    CallOverride,
     CreateAccessListResponse,
     FeeHistory,
     FilterParams,
@@ -83,6 +82,7 @@ from web3.types import (
     LogsSubscriptionArg,
     Nonce,
     SignedTx,
+    StateOverride,
     SubscriptionType,
     SyncStatus,
     TxData,
@@ -245,7 +245,7 @@ class AsyncEth(BaseEth):
             [
                 TxParams,
                 Optional[BlockIdentifier],
-                Optional[CallOverride],
+                Optional[StateOverride],
             ],
             Awaitable[HexBytes],
         ]
@@ -255,7 +255,7 @@ class AsyncEth(BaseEth):
         self,
         transaction: TxParams,
         block_identifier: Optional[BlockIdentifier] = None,
-        state_override: Optional[CallOverride] = None,
+        state_override: Optional[StateOverride] = None,
         ccip_read_enabled: Optional[bool] = None,
     ) -> HexBytes:
         ccip_read_enabled_on_provider = self.w3.provider.global_ccip_read_enabled
@@ -276,7 +276,7 @@ class AsyncEth(BaseEth):
         self,
         transaction: TxParams,
         block_identifier: Optional[BlockIdentifier] = None,
-        state_override: Optional[CallOverride] = None,
+        state_override: Optional[StateOverride] = None,
     ) -> HexBytes:
         max_redirects = self.w3.provider.ccip_read_max_redirects
 
@@ -317,7 +317,7 @@ class AsyncEth(BaseEth):
 
     _estimate_gas: Method[
         Callable[
-            [TxParams, Optional[BlockIdentifier], Optional[CallOverride]],
+            [TxParams, Optional[BlockIdentifier], Optional[StateOverride]],
             Awaitable[int],
         ]
     ] = Method(RPC.eth_estimateGas, mungers=[BaseEth.estimate_gas_munger])
@@ -326,7 +326,7 @@ class AsyncEth(BaseEth):
         self,
         transaction: TxParams,
         block_identifier: Optional[BlockIdentifier] = None,
-        state_override: Optional[CallOverride] = None,
+        state_override: Optional[StateOverride] = None,
     ) -> int:
         return await self._estimate_gas(transaction, block_identifier, state_override)
 

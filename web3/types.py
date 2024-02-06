@@ -338,8 +338,8 @@ class FeeHistory(TypedDict):
     reward: List[List[Wei]]
 
 
-CallOverrideParams = TypedDict(
-    "CallOverrideParams",
+StateOverrideParams = TypedDict(
+    "StateOverrideParams",
     {
         "balance": Optional[Wei],
         "nonce": Optional[int],
@@ -351,7 +351,7 @@ CallOverrideParams = TypedDict(
 )
 
 
-CallOverride = Dict[ChecksumAddress, CallOverrideParams]
+StateOverride = Dict[ChecksumAddress, StateOverrideParams]
 
 
 GasPriceStrategy = Union[

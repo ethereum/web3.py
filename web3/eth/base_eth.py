@@ -36,9 +36,9 @@ from web3.module import (
 from web3.types import (
     ENS,
     BlockIdentifier,
-    CallOverride,
     FilterParams,
     GasPriceStrategy,
+    StateOverride,
     TxParams,
     Wei,
 )
@@ -97,9 +97,10 @@ class BaseEth(Module):
         self,
         transaction: TxParams,
         block_identifier: Optional[BlockIdentifier] = None,
-        state_override: Optional[CallOverride] = None,
+        state_override: Optional[StateOverride] = None,
     ) -> Union[
-        Tuple[TxParams, BlockIdentifier], Tuple[TxParams, BlockIdentifier, CallOverride]
+        Tuple[TxParams, BlockIdentifier],
+        Tuple[TxParams, BlockIdentifier, StateOverride],
     ]:
         # TODO: move to middleware
         if "from" not in transaction and is_checksum_address(self.default_account):
@@ -118,9 +119,10 @@ class BaseEth(Module):
         self,
         transaction: TxParams,
         block_identifier: Optional[BlockIdentifier] = None,
-        state_override: Optional[CallOverride] = None,
+        state_override: Optional[StateOverride] = None,
     ) -> Union[
-        Tuple[TxParams, BlockIdentifier], Tuple[TxParams, BlockIdentifier, CallOverride]
+        Tuple[TxParams, BlockIdentifier],
+        Tuple[TxParams, BlockIdentifier, StateOverride],
     ]:
         return self._eth_call_and_estimate_gas_munger(
             transaction, block_identifier, state_override
@@ -154,9 +156,10 @@ class BaseEth(Module):
         self,
         transaction: TxParams,
         block_identifier: Optional[BlockIdentifier] = None,
-        state_override: Optional[CallOverride] = None,
+        state_override: Optional[StateOverride] = None,
     ) -> Union[
-        Tuple[TxParams, BlockIdentifier], Tuple[TxParams, BlockIdentifier, CallOverride]
+        Tuple[TxParams, BlockIdentifier],
+        Tuple[TxParams, BlockIdentifier, StateOverride],
     ]:
         return self._eth_call_and_estimate_gas_munger(
             transaction, block_identifier, state_override

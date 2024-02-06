@@ -90,10 +90,10 @@ from web3.middleware import (
 from web3.types import (
     ENS,
     BlockData,
-    CallOverrideParams,
     FilterParams,
     Nonce,
     RPCEndpoint,
+    StateOverrideParams,
     SyncStatus,
     TxData,
     TxParams,
@@ -835,7 +835,7 @@ class AsyncEthModuleTest:
         self,
         async_w3: "AsyncWeb3",
         async_math_contract: "Contract",
-        params: CallOverrideParams,
+        params: StateOverrideParams,
     ) -> None:
         txn_params: TxParams = {"from": await async_w3.eth.coinbase}
 
@@ -1235,7 +1235,7 @@ class AsyncEthModuleTest:
         self,
         async_w3: "AsyncWeb3",
         async_math_contract: "Contract",
-        params: CallOverrideParams,
+        params: StateOverrideParams,
     ) -> None:
         coinbase = await async_w3.eth.coinbase
         txn_params: TxParams = {"from": coinbase}
@@ -3692,7 +3692,7 @@ class EthModuleTest:
         self,
         w3: "Web3",
         math_contract: "Contract",
-        params: CallOverrideParams,
+        params: StateOverrideParams,
     ) -> None:
         txn_params: TxParams = {"from": w3.eth.coinbase}
 
@@ -4146,7 +4146,7 @@ class EthModuleTest:
         self,
         w3: "Web3",
         math_contract: "Contract",
-        params: CallOverrideParams,
+        params: StateOverrideParams,
     ) -> None:
         txn_params: TxParams = {"from": w3.eth.coinbase}
 
