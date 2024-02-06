@@ -1,0 +1,1 @@
+Allow for configuring the ``request_information_cache_size`` for ``PersistentConnectionProvider`` classes. Issue a warning when the cache is full and unexpected behavior may occur.
