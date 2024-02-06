@@ -102,9 +102,9 @@ from web3.exceptions import (
 )
 from web3.types import (
     BlockIdentifier,
-    CallOverrideParams,
     Formatters,
     RPCEndpoint,
+    StateOverrideParams,
     TReturn,
     TxParams,
     _Hash32,
@@ -440,7 +440,7 @@ CALL_OVERRIDE_FORMATTERS = {
     "code": to_hex_if_bytes,
 }
 call_with_override: Callable[
-    [Tuple[TxParams, BlockIdentifier, CallOverrideParams]],
+    [Tuple[TxParams, BlockIdentifier, StateOverrideParams]],
     Tuple[Dict[str, Any], int, Dict[str, Any]],
 ] = apply_formatters_to_sequence(
     [
@@ -472,7 +472,7 @@ ESTIMATE_GAS_OVERRIDE_FORMATTERS = {
     "code": to_hex_if_bytes,
 }
 estimate_gas_with_override: Callable[
-    [Tuple[Dict[str, Any], BlockIdentifier, CallOverrideParams]],
+    [Tuple[Dict[str, Any], BlockIdentifier, StateOverrideParams]],
     Tuple[Dict[str, Any], int, Dict[str, Any]],
 ] = apply_formatters_to_sequence(
     [

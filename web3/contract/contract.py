@@ -86,8 +86,8 @@ from web3.exceptions import (
 from web3.types import (
     ABI,
     BlockIdentifier,
-    CallOverride,
     EventData,
+    StateOverride,
     TxParams,
 )
 from web3.utils import (
@@ -268,7 +268,7 @@ class ContractFunction(BaseContractFunction):
         self,
         transaction: Optional[TxParams] = None,
         block_identifier: BlockIdentifier = None,
-        state_override: Optional[CallOverride] = None,
+        state_override: Optional[StateOverride] = None,
         ccip_read_enabled: Optional[bool] = None,
     ) -> Any:
         """
@@ -335,7 +335,7 @@ class ContractFunction(BaseContractFunction):
         self,
         transaction: Optional[TxParams] = None,
         block_identifier: Optional[BlockIdentifier] = None,
-        state_override: Optional[CallOverride] = None,
+        state_override: Optional[StateOverride] = None,
     ) -> int:
         setup_transaction = self._estimate_gas(transaction)
         return estimate_gas_for_function(
