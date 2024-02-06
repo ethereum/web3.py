@@ -1,0 +1,1 @@
+``CallOverride`` type change to ``StateOverride`` to reflect better the type name for the state override. ``eth_call`` is also not the only method with this param, making the name more generic.
