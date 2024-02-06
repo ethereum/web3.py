@@ -236,6 +236,10 @@ Persistent Connection Providers
       connection and waiting for a response to be received from the listener task.
       Defaults to ``50.0``.
 
+    * ``request_information_cache_size`` is the size of the cache used to store
+      request information so that when a response is received, the provider knows
+      how to process it based on the original request. Defaults to ``500``.
+
     * ``subscription_response_queue_size`` is the size of the queue used to store
       subscription responses, defaults to ``500``. While messages are being consumed,
       this queue should never fill up as it is a transient queue and meant to handle
