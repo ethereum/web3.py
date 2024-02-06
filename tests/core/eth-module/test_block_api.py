@@ -43,6 +43,9 @@ def test_get_block_formatters_with_null_values(w3, request_mocker):
         "transactions": [],
         "withdrawalsRoot": None,
         "withdrawals": [],
+        "blobGasUsed": None,
+        "excessBlobGas": None,
+        "parentBeaconBlockRoot": None,
     }
     with request_mocker(w3, mock_results={"eth_getBlockByNumber": null_values_block}):
         received_block = w3.eth.get_block("pending")
@@ -101,6 +104,11 @@ def test_get_block_formatters_with_pre_formatted_values(w3, request_mocker):
                 "amount": "0x3f695",
             },
         ],
+        "blobGasUsed": "0x7ffff",
+        "excessBlobGas": "0x12c00000",
+        "parentBeaconBlockRoot": (
+            "0x6470e77f1b8a55a49a57b3f74c2a10a76185636d65122053752ea5e4bb4dac59"
+        ),
     }
 
     with request_mocker(
@@ -157,4 +165,9 @@ def test_get_block_formatters_with_pre_formatted_values(w3, request_mocker):
                 "amount": int(unformatted_values_block["withdrawals"][1]["amount"], 16),
             },
         ],
+        "blobGasUsed": int(unformatted_values_block["blobGasUsed"], 16),
+        "excessBlobGas": int(unformatted_values_block["excessBlobGas"], 16),
+        "parentBeaconBlockRoot": HexBytes(
+            unformatted_values_block["parentBeaconBlockRoot"]
+        ),
     }
