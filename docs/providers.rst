@@ -222,11 +222,11 @@ WebsocketProvider
 Persistent Connection Providers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. py:class:: web3.providers.persistent.PersistentConnectionProvider(
-                endpoint_uri: str,
-                request_timeout: float = 50.0,
-                subscription_response_queue_size: int = 500,
-                request_information_cache_size: int = 500,
+.. py:class:: web3.providers.persistent.PersistentConnectionProvider(\
+                endpoint_uri: str,\
+                request_timeout: float = 50.0,\
+                subscription_response_queue_size: int = 500,\
+                request_information_cache_size: int = 500,\
               )
 
     This is a base provider class, currently inherited by the ``WebsocketProviderV2``.
