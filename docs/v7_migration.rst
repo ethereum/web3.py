@@ -99,4 +99,7 @@ the latest versions of Python.
 Miscellaneous Changes
 ~~~~~~~~~~~~~~~~~~~~~
 
-- Drop dependency on ``lru-dict`` library.
+- ``LRU`` has been removed from the library and dependency on ``lru-dict`` library was
+  dropped.
+- ``CallOverride`` type was changed to ``StateOverride`` since more methods than
+  ``eth_call`` utilize the state override params.
