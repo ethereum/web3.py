@@ -35,17 +35,17 @@ class RequestProcessor:
     def __init__(
         self,
         provider: "PersistentConnectionProvider",
-        request_information_cache_size: int = 500,
         subscription_response_queue_size: int = 500,
+        request_information_cache_size: int = 500,
     ) -> None:
         self._provider = provider
 
-        self._request_information_cache: SimpleCache = SimpleCache(
-            request_information_cache_size
-        )
         self._request_response_cache: SimpleCache = SimpleCache(500)
         self._subscription_response_queue: asyncio.Queue[RPCResponse] = asyncio.Queue(
             maxsize=subscription_response_queue_size
+        )
+        self._request_information_cache: SimpleCache = SimpleCache(
+            request_information_cache_size
         )
 
     @property

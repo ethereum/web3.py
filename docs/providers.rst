@@ -222,7 +222,12 @@ WebsocketProvider
 Persistent Connection Providers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. py:class:: web3.providers.persistent.PersistentConnectionProvider(endpoint_uri: str, request_timeout: float = 50.0, subscription_response_queue_size: int = 500)
+.. py:class:: web3.providers.persistent.PersistentConnectionProvider(
+                endpoint_uri: str,
+                request_timeout: float = 50.0,
+                subscription_response_queue_size: int = 500,
+                request_information_cache_size: int = 500,
+              )
 
     This is a base provider class, currently inherited by the ``WebsocketProviderV2``.
     It handles interactions with a persistent connection to a JSON-RPC server. Among
@@ -236,15 +241,15 @@ Persistent Connection Providers
       connection and waiting for a response to be received from the listener task.
       Defaults to ``50.0``.
 
-    * ``request_information_cache_size`` is the size of the cache used to store
-      request information so that when a response is received, the provider knows
-      how to process it based on the original request. Defaults to ``500``.
-
     * ``subscription_response_queue_size`` is the size of the queue used to store
       subscription responses, defaults to ``500``. While messages are being consumed,
       this queue should never fill up as it is a transient queue and meant to handle
       asynchronous receiving and processing of responses. When in sync with the
       websocket stream, this queue should only ever store 1 to a few messages at a time.
+
+    * ``request_information_cache_size`` is the size of the cache used to store
+      request information so that when a response is received, the provider knows
+      how to process it based on the original request. Defaults to ``500``.
 
 
 WebsocketProviderV2 (beta)

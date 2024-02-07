@@ -34,14 +34,14 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
     def __init__(
         self,
         request_timeout: float = DEFAULT_PERSISTENT_CONNECTION_TIMEOUT,
-        request_information_cache_size: int = 500,
         subscription_response_queue_size: int = 500,
+        request_information_cache_size: int = 500,
     ) -> None:
         super().__init__()
         self._request_processor = RequestProcessor(
             self,
-            request_information_cache_size=request_information_cache_size,
             subscription_response_queue_size=subscription_response_queue_size,
+            request_information_cache_size=request_information_cache_size,
         )
         self.request_timeout = request_timeout
 
