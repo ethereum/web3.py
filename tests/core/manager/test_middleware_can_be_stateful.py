@@ -12,7 +12,7 @@ from web3.providers import (
 class StatefulMiddleware(Web3Middleware):
     state = []
 
-    def _wrap_make_request(self, make_request):
+    def wrap_make_request(self, make_request):
         def middleware(method, params):
             self.state.append((method, params))
             return {"result": self.state}

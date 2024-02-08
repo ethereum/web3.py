@@ -45,7 +45,7 @@ from eth_utils.toolz import (
 from web3 import (
     Web3,
 )
-from web3._utils.contract_error_handling import (
+from web3._utils.error_formatters_utils import (
     OFFCHAIN_LOOKUP_FIELDS,
     PANIC_ERROR_CODES,
 )
@@ -263,7 +263,7 @@ API_ENDPOINTS = {
         "mining": static_return(False),
         "hashrate": static_return(0),
         "chainId": static_return(131277322940537),  # from fixture generation file
-        "feeHistory": not_implemented,
+        "feeHistory": call_eth_tester("get_fee_history"),
         "maxPriorityFeePerGas": static_return(10**9),
         "gasPrice": static_return(10**9),  # must be >= base fee post-London
         "accounts": call_eth_tester("get_accounts"),

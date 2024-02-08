@@ -86,8 +86,8 @@ from web3.exceptions import (
 from web3.types import (
     ABI,
     BlockIdentifier,
-    CallOverride,
     EventData,
+    StateOverride,
     TxParams,
 )
 from web3.utils import (
@@ -156,7 +156,7 @@ class ContractEvent(BaseContractEvent):
                 ...
             )
 
-        See also: :func:`web3.middleware.filter.local_filter_middleware`.
+        See also: :func:`web3.middleware.filter.LocalFilterMiddleware`.
 
         :param argument_filters: Filter by argument values. Indexed arguments are
           filtered by the node while non-indexed arguments are filtered by the library.
@@ -268,7 +268,7 @@ class ContractFunction(BaseContractFunction):
         self,
         transaction: Optional[TxParams] = None,
         block_identifier: BlockIdentifier = None,
-        state_override: Optional[CallOverride] = None,
+        state_override: Optional[StateOverride] = None,
         ccip_read_enabled: Optional[bool] = None,
     ) -> Any:
         """
@@ -335,6 +335,7 @@ class ContractFunction(BaseContractFunction):
         self,
         transaction: Optional[TxParams] = None,
         block_identifier: Optional[BlockIdentifier] = None,
+        state_override: Optional[StateOverride] = None,
     ) -> int:
         setup_transaction = self._estimate_gas(transaction)
         return estimate_gas_for_function(
@@ -345,6 +346,7 @@ class ContractFunction(BaseContractFunction):
             self.contract_abi,
             self.abi,
             block_identifier,
+            state_override,
             *self.args,
             **self.kwargs,
         )

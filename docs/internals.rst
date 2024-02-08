@@ -10,8 +10,7 @@ exposed by the web3 object and the backend or node that web3 is connecting to.
 * **Providers** are responsible for the actual communication with the
   blockchain such as sending JSON-RPC requests over HTTP or an IPC socket.
 * **Middlewares** provide hooks for monitoring and modifying requests and
-  responses to and from the provider.  These can be *global* operating on all
-  providers or specific to one provider.
+  responses to and from the provider.
 * **Managers** provide thread safety and primitives to allow for asynchronous usage of web3.
 
 Here are some common things you might want to do with these APIs.
@@ -40,17 +39,12 @@ Each web3 RPC call passes through these layers in the following manner.
                        |                ^
                        v                |
                  +-----------------------------+
-                 |            Manager          |
+                 |           Manager           |
                  +-----------------------------+
                        |                ^
                        v                |
                  +-----------------------------+
-                 |     Global Middlewares      |
-                 +-----------------------------+
-                       |                ^
-                       v                |
-                 +-----------------------------+
-                 |    Provider Middlewares     |
+                 |         Middlewares         |
                  +-----------------------------+
                        |                ^
                        v                |
@@ -60,11 +54,11 @@ Each web3 RPC call passes through these layers in the following manner.
 
 
 You can visualize this relationship like an onion, with the Provider at the
-center.  The request originates from the Manager, outside of the onion, passing
-down through each layer of the onion until it reaches the Provider at the
-center.  The Provider then handles the request, producing a response which will
+center. The request originates from the ``Manager``, outside of the onion, passing
+down through each layer of the onion until it reaches the ``Provider`` at the
+center. The ``Provider`` then handles the request, producing a response which will
 then pass back out from the center of the onion, through each layer until it is
-finally returned by the Manager.
+finally returned by the ``Manager``.
 
 
 Providers
@@ -117,66 +111,185 @@ You can set a new list of middlewares by assigning to ``provider.middlewares``,
 with the first middleware that processes the request at the beginning of the list.
 
 
+Provider Configurations
+~~~~~~~~~~~~~~~~~~~~~~~
+
+.. _request_caching:
+
+Request Caching
+```````````````
+
+Request caching can be configured at the provider level via the following configuration
+options on the provider instance:
+
+- ``cache_allowed_requests: bool = False``
+- ``cacheable_requests: Set[RPCEndpoint] = CACHEABLE_REQUESTS``
+
+.. code-block:: python
+
+    from web3 import Web3, HTTPProvider
+
+    w3 = Web3(HTTPProvider(
+        endpoint_uri="...",
+
+        # optional flag to turn on cached requests, defaults to False
+        cache_allowed_requests=True,
+
+        # optional, defaults to an internal list of deemed-safe-to-cache endpoints
+        cacheable_requests={"eth_chainId", "eth_getBlockByNumber"},
+    ))
+
+.. _http_retry_requests:
+
+Retry Requests for HTTP Providers
+`````````````````````````````````
+
+``HTTPProvider`` and ``AsyncHTTPProvider`` instances retry certain requests by default
+on exceptions. This can be configured via configuration options on the provider
+instance. Below is an example showing the default options for the retry configuration
+and how to override them.
+
+.. code-block:: python
+
+    from web3 import Web3, HTTPProvider
+    from web3.providers.rpc.utils import (
+        REQUEST_RETRY_ALLOWLIST,
+        ExceptionRetryConfiguration,
+    )
+
+    w3 = Web3(HTTPProvider(
+        endpoint_uri="...",
+        exception_retry_configuration=ExceptionRetryConfiguration(
+            errors=DEFAULT_EXCEPTIONS,
+
+            # number of retries to attempt
+            retries=5,
+
+            # how long to wait between retries
+            backoff_factor=0.5,
+
+            # an in-house default list of retryable methods
+            method_allowlist=REQUEST_RETRY_ALLOWLIST,
+        ),
+    ))
+
+For the different http providers, ``DEFAULT_EXCEPTIONS`` is defined as:
+
+- ``HTTPProvider``: ``(ConnectionError, requests.HTTPError, requests.Timeout)``
+- ``AsyncHTTPProvider``: ``(ConnectionError, aiohttp.ClientError, asyncio.TimeoutError)``
+
+Setting ``retry_configuration`` to ``None`` will disable retries on exceptions for the
+provider instance.
+
+.. code-block:: python
+
+    from web3 import Web3, HTTPProvider
+
+    w3 = Web3(HTTPProvider(endpoint_uri="...", retry_configuration=None)
+
+
 .. _internals__middlewares:
 
 Middlewares
 -----------
 
-.. note:: The Middleware API in web3 borrows heavily from the Django middleware API introduced in version 1.10.0
+.. note:: The Middleware API in web3 borrows from the Django middleware API introduced
+          in version 1.10.0
 
-Middlewares provide a simple yet powerful api for implementing layers of
-business logic for web3 requests.  Writing middleware is simple.
-
-.. code-block:: python
-
-    def simple_middleware(make_request, w3):
-        # do one-time setup operations here
-
-        def middleware(method, params):
-            # do pre-processing here
-
-            # perform the RPC request, getting the response
-            response = make_request(method, params)
-
-            # do post-processing here
-
-            # finally return the response
-            return response
-        return middleware
-
-
-It is also possible to implement middlewares as a class.
-
+Middlewares provide a simple yet powerful api for implementing layers of business logic
+for web3 requests. Writing middleware is simple and extending from the base
+``Web3Middleware`` class allows for overriding only the parts of the middleware that
+make sense for your use case. If all you need to do is modify the
+params before the request is made, you can override the ``request_processor`` method,
+make the necessary tweaks to the params, and pass the arguments to the next element in
+the middleware stack. If processing the response is the only concern, you only need to
+override the ``response_processor`` method and return the response.
 
 .. code-block:: python
 
-    class SimpleMiddleware:
-        def __init__(self, make_request, w3):
-            self.w3 = w3
-            self.make_request = make_request
+    from web3.middlewares import Web3Middleware
 
-        def __call__(self, method, params):
-            # do pre-processing here
+    class SimpleMiddleware(Web3Middleware):
 
-            # perform the RPC request, getting the response
-            response = self.make_request(method, params)
+        def request_processor(self, method, params):
+            # Pre-request processing goes here before passing to the next middleware.
+            return (method, params)
 
-            # do post-processing here
 
-            # finally return the response
+        def response_processor(self, method, response):
+            # Response processing goes here before passing to the next middleware.
+            return response
+
+        # If your provider is asynchronous, override the async methods instead
+
+        async def async_request_processor(self, method, params):
+            return (method, params)
+
+        async def async_response_processor(self, method, response):
             return response
 
 
-The ``make_request`` parameter is a callable which takes two
-positional arguments, ``method`` and ``params`` which correspond to the RPC
-method that is being called.  There is no requirement that the ``make_request``
-function be called.  For example, if you were writing a middleware which cached
-responses for certain methods your middleware would likely not call the
-``make_request`` method, but instead get the response from some local cache.
+Wrapping the ``make_request`` method of a provider is possible. If you wish to prevent
+making a call under certain conditions, for example, you can override the
+``wrap_make_request`` method. This allows for defining pre-request processing,
+skipping or making the request under certain conditions, as well as response
+processing before passing it to the next middleware. The order of operations still
+passes all pre-request processing down the middlewares before making the request,
+and then passes the response back up the middleware stack for processing. The next
+middleware on the stack is essentially the "make_request" method until we reach
+the end of the middlewares and the request is made by the actual ``make_request``
+method of the provider. The response is then passed back up the middleware stack for
+processing before being returned to the user.
 
-The ``RequestManager`` object exposes the ``middleware_onion`` object to manage middlewares. It
-is also exposed on the ``Web3`` object for convenience. That API is detailed in
-:ref:`Modifying_Middleware`.
+.. code-block:: python
+
+    from web3.middlewares import Web3Middleware
+
+    class SimpleMiddleware(Web3Middleware):
+
+        def wrap_make_request(self, make_request):
+            def middleware(method, params):
+                # pre-request processing goes here
+
+                response = make_request(method, params)  # make the request
+
+                # response processing goes here
+
+                return response
+
+        # If your provider is asynchronous, override the async method instead
+
+        async def async_wrap_make_request(self, make_request):
+            async def middleware(method, params):
+                # pre-request processing goes here
+
+                response = await make_request(method, params)
+
+                # response processing goes here
+
+                return response
+
+            return middleware
+
+
+The ``RequestManager`` object exposes the ``middleware_onion`` object to manage
+middlewares. It is also exposed on the ``Web3`` object for convenience. That API is
+detailed in :ref:`Modifying_Middleware`.
+
+Middlewares are added to the middleware stack as the class itself. The ``name`` kwarg is
+optional.
+
+.. code-block:: python
+
+    from web3 import Web3
+    from my_module import (
+        SimpleMiddleware,
+    )
+
+    w3 = Web3(HTTPProvider(endpoint_uri="..."))
+
+    # add the middleware to the stack as the class
+    w3.middleware_onion.add(SimpleMiddleware, name="simple_middleware")
 
 
 Managers

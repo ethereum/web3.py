@@ -219,7 +219,7 @@ class BlockData(TypedDict, total=False):
     withdrawals: Sequence[WithdrawalData]
     withdrawalsRoot: HexBytes
 
-    # extradata_to_poa_middleware replaces extraData w/ proofOfAuthorityData
+    # ExtraDataToPOAMiddleware replaces extraData w/ proofOfAuthorityData
     proofOfAuthorityData: HexBytes
 
 
@@ -338,8 +338,8 @@ class FeeHistory(TypedDict):
     reward: List[List[Wei]]
 
 
-CallOverrideParams = TypedDict(
-    "CallOverrideParams",
+StateOverrideParams = TypedDict(
+    "StateOverrideParams",
     {
         "balance": Optional[Wei],
         "nonce": Optional[int],
@@ -351,7 +351,7 @@ CallOverrideParams = TypedDict(
 )
 
 
-CallOverride = Dict[ChecksumAddress, CallOverrideParams]
+StateOverride = Dict[ChecksumAddress, StateOverrideParams]
 
 
 GasPriceStrategy = Union[

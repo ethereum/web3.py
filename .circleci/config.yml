@@ -3,7 +3,7 @@ version: 2.1
 parameters:
   geth_version:
     # update default value when updating geth integration test fixture
-    default: "v1.11.6"
+    default: "v1.13.9"
     type: string
   pygeth_version:
     # update default value when updating geth integration test fixture
@@ -107,7 +107,6 @@ geth_steps: &geth_steps
           fi
           sudo ln -s /home/circleci/.py-geth/geth-<< pipeline.parameters.geth_version >>/bin/geth /usr/local/bin/geth
           geth version
-          geth makedag 0 $HOME/.ethash
     - run:
         name: run tox
         command: python -m tox -r
@@ -148,7 +147,6 @@ geth_custom_steps: &geth_custom_steps
           sudo apt-get update;
           sudo apt-get install -y build-essential;
           ./custom_geth version
-          ./custom_geth makedag 0 $HOME/.ethash
     - run:
         name: run tox
         command: python -m tox -r

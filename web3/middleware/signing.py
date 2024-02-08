@@ -213,6 +213,3 @@ class SignAndSendRawMiddlewareBuilder(Web3MiddlewareBuilder):
                     RPCEndpoint("eth_sendRawTransaction"),
                     [raw_tx.hex()],
                 )
-
-
-construct_sign_and_send_raw_middleware = SignAndSendRawMiddlewareBuilder.build

@@ -20,7 +20,7 @@ from tests.utils import (
 @pytest.fixture(
     scope="function",
     params=[True, False],
-    ids=["local_filter_middleware", "node_based_filter"],
+    ids=["LocalFilterMiddleware", "node_based_filter"],
 )
 def w3(request):
     return _w3_fixture_logic(request)
@@ -67,7 +67,7 @@ def create_filter(request):
 @pytest.fixture(
     scope="function",
     params=[True, False],
-    ids=["local_filter_middleware", "node_based_filter"],
+    ids=["LocalFilterMiddleware", "node_based_filter"],
 )
 def async_w3(request):
     return _async_w3_fixture_logic(request)

@@ -1,0 +1,1 @@
+Upgrade `eth-tester` to ``v0.10.0-b.1`` and turn on ``eth_feeHistory`` support for ``EthereumTesterProvider``.

@@ -223,6 +223,15 @@ class TransactionNotFound(Web3Exception):
     pass
 
 
+class TransactionIndexingInProgress(Web3Exception):
+    """
+    Raised when a transaction receipt is not yet available due to transaction indexing
+    still being in progress.
+    """
+
+    pass
+
+
 class BlockNotFound(Web3Exception):
     """
     Raised when the block id used to lookup a block in a jsonrpc call cannot be found.

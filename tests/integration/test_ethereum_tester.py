@@ -31,6 +31,9 @@ from web3._utils.module_testing import (
     NetModuleTest,
     Web3ModuleTest,
 )
+from web3._utils.module_testing.eth_module import (
+    UNKNOWN_ADDRESS,
+)
 from web3.exceptions import (
     MethodUnavailable,
 )
@@ -285,12 +288,6 @@ class TestEthereumTesterEthModule(EthModuleTest):
     test_eth_sign_transaction_ens_names = not_implemented(
         EthModuleTest.test_eth_sign_transaction_ens_names, MethodUnavailable
     )
-    test_eth_submit_hashrate = not_implemented(
-        EthModuleTest.test_eth_submit_hashrate, MethodUnavailable
-    )
-    test_eth_submit_work = not_implemented(
-        EthModuleTest.test_eth_submit_work, MethodUnavailable
-    )
     test_eth_get_raw_transaction = not_implemented(
         EthModuleTest.test_eth_get_raw_transaction, MethodUnavailable
     )
@@ -303,24 +300,13 @@ class TestEthereumTesterEthModule(EthModuleTest):
     test_eth_get_raw_transaction_by_block_raises_error = not_implemented(
         EthModuleTest.test_eth_get_raw_transaction_by_block, MethodUnavailable
     )
-    test_eth_replace_transaction_already_mined = not_implemented(
-        EthModuleTest.test_eth_replace_transaction_already_mined, MethodUnavailable
-    )
     test_eth_call_with_override_param_type_check = not_implemented(
         EthModuleTest.test_eth_call_with_override_param_type_check,
         TypeError,
     )
-    test_eth_fee_history = not_implemented(
-        EthModuleTest.test_eth_fee_history, MethodUnavailable
-    )
-    test_eth_fee_history_with_integer = not_implemented(
-        EthModuleTest.test_eth_fee_history_with_integer, MethodUnavailable
-    )
-    test_eth_fee_history_no_reward_percentiles = not_implemented(
-        EthModuleTest.test_eth_fee_history_no_reward_percentiles, MethodUnavailable
-    )
-    test_eth_send_transaction_with_nonce = not_implemented(
-        EthModuleTest.test_eth_send_transaction_with_nonce, MethodUnavailable
+    test_eth_estimate_gas_with_override_param_type_check = not_implemented(
+        EthModuleTest.test_eth_estimate_gas_with_override_param_type_check,
+        TypeError,
     )
     test_eth_create_access_list = not_implemented(
         EthModuleTest.test_eth_create_access_list,
@@ -402,6 +388,49 @@ class TestEthereumTesterEthModule(EthModuleTest):
     @disable_auto_mine
     def test_eth_modify_transaction(self, eth_tester, w3, unlocked_account):
         super().test_eth_modify_transaction(w3, unlocked_account)
+
+    @disable_auto_mine
+    def test_eth_get_logs_without_logs(
+        self, eth_tester, w3: "Web3", block_with_txn_with_log: BlockData
+    ) -> None:
+        # Note: This was the old way the test was written before geth started returning
+        # an error when the `toBlock` was before the `fromBlock`
+
+        # Test with block range
+        filter_params = {
+            "fromBlock": 0,
+            "toBlock": block_with_txn_with_log["number"] - 1,
+        }
+        result = w3.eth.get_logs(filter_params)
+        assert len(result) == 0
+
+        # the range is wrong
+        filter_params = {
+            "fromBlock": block_with_txn_with_log["number"],
+            "toBlock": block_with_txn_with_log["number"] - 1,
+        }
+        result = w3.eth.get_logs(filter_params)
+        assert len(result) == 0
+
+        # Test with `address`
+
+        # filter with other address
+        filter_params = {
+            "fromBlock": 0,
+            "address": UNKNOWN_ADDRESS,
+        }
+        result = w3.eth.get_logs(filter_params)
+        assert len(result) == 0
+
+        # Test with multiple `address`
+
+        # filter with other address
+        filter_params = {
+            "fromBlock": 0,
+            "address": [UNKNOWN_ADDRESS, UNKNOWN_ADDRESS],
+        }
+        result = w3.eth.get_logs(filter_params)
+        assert len(result) == 0
 
     @disable_auto_mine
     def test_eth_call_old_contract_state(
@@ -612,6 +641,17 @@ class TestEthereumTesterEthModule(EthModuleTest):
         self, w3: "Web3", empty_block: BlockData
     ) -> None:
         super().test_eth_getBlockByNumber_finalized(w3, empty_block)
+
+    def test_eth_fee_history(self, w3: "Web3") -> None:
+        super().test_eth_fee_history(w3)
+
+    def test_eth_fee_history_with_integer(
+        self, w3: "Web3", empty_block: BlockData
+    ) -> None:
+        super().test_eth_fee_history_with_integer(w3, empty_block)
+
+    def test_eth_fee_history_with_no_reward_percentiles(self, w3: "Web3") -> None:
+        super().test_eth_fee_history_no_reward_percentiles(w3)
 
     def test_eth_get_balance_with_block_identifier(self, w3: "Web3") -> None:
         w3.testing.mine()

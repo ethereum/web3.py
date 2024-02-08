@@ -60,6 +60,7 @@ from web3.exceptions import (
     OffchainLookup,
     TimeExhausted,
     TooManyRequests,
+    TransactionIndexingInProgress,
     TransactionNotFound,
 )
 from web3.method import (
@@ -71,7 +72,6 @@ from web3.types import (
     BlockData,
     BlockIdentifier,
     BlockParams,
-    CallOverride,
     CreateAccessListResponse,
     FeeHistory,
     FilterParams,
@@ -79,6 +79,7 @@ from web3.types import (
     MerkleProof,
     Nonce,
     SignedTx,
+    StateOverride,
     SyncStatus,
     TxData,
     TxParams,
@@ -233,7 +234,7 @@ class Eth(BaseEth):
 
     _call: Method[
         Callable[
-            [TxParams, Optional[BlockIdentifier], Optional[CallOverride]],
+            [TxParams, Optional[BlockIdentifier], Optional[StateOverride]],
             HexBytes,
         ]
     ] = Method(RPC.eth_call, mungers=[BaseEth.call_munger])
@@ -242,7 +243,7 @@ class Eth(BaseEth):
         self,
         transaction: TxParams,
         block_identifier: Optional[BlockIdentifier] = None,
-        state_override: Optional[CallOverride] = None,
+        state_override: Optional[StateOverride] = None,
         ccip_read_enabled: Optional[bool] = None,
     ) -> HexBytes:
         ccip_read_enabled_on_provider = self.w3.provider.global_ccip_read_enabled
@@ -263,7 +264,7 @@ class Eth(BaseEth):
         self,
         transaction: TxParams,
         block_identifier: Optional[BlockIdentifier] = None,
-        state_override: Optional[CallOverride] = None,
+        state_override: Optional[StateOverride] = None,
     ) -> HexBytes:
         max_redirects = self.w3.provider.ccip_read_max_redirects
 
@@ -301,14 +302,17 @@ class Eth(BaseEth):
 
     # eth_estimateGas
 
-    _estimate_gas: Method[Callable[[TxParams, Optional[BlockIdentifier]], int]] = (
-        Method(RPC.eth_estimateGas, mungers=[BaseEth.estimate_gas_munger])
-    )
+    _estimate_gas: Method[
+        Callable[[TxParams, Optional[BlockIdentifier], Optional[StateOverride]], int]
+    ] = Method(RPC.eth_estimateGas, mungers=[BaseEth.estimate_gas_munger])
 
     def estimate_gas(
-        self, transaction: TxParams, block_identifier: Optional[BlockIdentifier] = None
+        self,
+        transaction: TxParams,
+        block_identifier: Optional[BlockIdentifier] = None,
+        state_override: Optional[StateOverride] = None,
     ) -> int:
-        return self._estimate_gas(transaction, block_identifier)
+        return self._estimate_gas(transaction, block_identifier, state_override)
 
     # eth_getTransactionByHash
 
@@ -485,7 +489,7 @@ class Eth(BaseEth):
                 while True:
                     try:
                         tx_receipt = self._transaction_receipt(transaction_hash)
-                    except TransactionNotFound:
+                    except (TransactionNotFound, TransactionIndexingInProgress):
                         tx_receipt = None
                     if tx_receipt is not None:
                         break

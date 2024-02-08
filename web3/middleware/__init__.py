@@ -7,48 +7,40 @@ from typing import (
 )
 
 from .attrdict import (
-    attrdict_middleware,
+    AttributeDictMiddleware,
 )
 from .base import (
     Middleware,
 )
 from .buffered_gas_estimate import (
-    buffered_gas_estimate_middleware,
-)
-from .gas_price_strategy import (
-    gas_price_strategy_middleware,
-)
-from .proof_of_authority import (
-    extradata_to_poa_middleware,
-)
-from .names import (
-    ens_name_to_address_middleware,
+    BufferedGasEstimateMiddleware,
 )
 from .filter import (
-    local_filter_middleware,
+    LocalFilterMiddleware,
 )
 from .formatting import (
-    construct_formatting_middleware,
+    FormattingMiddlewareBuilder,
 )
 from .gas_price_strategy import (
     GasPriceStrategyMiddleware,
 )
-from .normalize_request_parameters import (
-    request_parameter_normalizer,
+from .names import (
+    ENSNameToAddressMiddleware,
+)
+from .proof_of_authority import (
+    ExtraDataToPOAMiddleware,
 )
 from .pythonic import (
-    pythonic_middleware,
+    PythonicMiddleware,
 )
 from .signing import (
-    construct_sign_and_send_raw_middleware,
     SignAndSendRawMiddlewareBuilder,
 )
 from .stalecheck import (
-    StaleCheckMiddlewareBuilder,
-    make_stalecheck_middleware,
+    StalecheckMiddlewareBuilder,
 )
 from .validation import (
-    validation_middleware,
+    ValidationMiddleware,
 )
 from ..types import (
     AsyncMakeRequestFn,
@@ -79,7 +71,7 @@ def combine_middlewares(
     accumulator_fn = provider_request_fn
     for middleware in reversed(middlewares):
         # initialize the middleware and wrap the accumulator function down the stack
-        accumulator_fn = middleware(w3)._wrap_make_request(accumulator_fn)
+        accumulator_fn = middleware(w3).wrap_make_request(accumulator_fn)
     return accumulator_fn
 
 
@@ -97,5 +89,5 @@ async def async_combine_middlewares(
     for middleware in reversed(middlewares):
         # initialize the middleware and wrap the accumulator function down the stack
         initialized = middleware(async_w3)
-        accumulator_fn = await initialized._async_wrap_make_request(accumulator_fn)
+        accumulator_fn = await initialized.async_wrap_make_request(accumulator_fn)
     return accumulator_fn

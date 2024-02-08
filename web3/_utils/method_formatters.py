@@ -52,12 +52,13 @@ from hexbytes import (
 from web3._utils.abi import (
     is_length,
 )
-from web3._utils.contract_error_handling import (
-    raise_contract_logic_error_on_revert,
-)
 from web3._utils.encoding import (
     hexstr_if_str,
     to_hex,
+)
+from web3._utils.error_formatters_utils import (
+    raise_contract_logic_error_on_revert,
+    raise_transaction_indexing_error_if_indexing,
 )
 from web3._utils.filters import (
     AsyncBlockFilter,
@@ -101,9 +102,9 @@ from web3.exceptions import (
 )
 from web3.types import (
     BlockIdentifier,
-    CallOverrideParams,
     Formatters,
     RPCEndpoint,
+    StateOverrideParams,
     TReturn,
     TxParams,
     _Hash32,
@@ -321,6 +322,9 @@ BLOCK_FORMATTERS = {
         is_not_null, apply_list_to_array_formatter(withdrawal_result_formatter)
     ),
     "withdrawalsRoot": apply_formatter_if(is_not_null, to_hexbytes(32)),
+    "blobGasUsed": to_integer_if_hex,
+    "excessBlobGas": to_integer_if_hex,
+    "parentBeaconBlockRoot": apply_formatter_if(is_not_null, to_hexbytes(32)),
 }
 
 
@@ -436,7 +440,7 @@ CALL_OVERRIDE_FORMATTERS = {
     "code": to_hex_if_bytes,
 }
 call_with_override: Callable[
-    [Tuple[TxParams, BlockIdentifier, CallOverrideParams]],
+    [Tuple[TxParams, BlockIdentifier, StateOverrideParams]],
     Tuple[Dict[str, Any], int, Dict[str, Any]],
 ] = apply_formatters_to_sequence(
     [
@@ -454,12 +458,31 @@ call_with_override: Callable[
 estimate_gas_without_block_id: Callable[[Dict[str, Any]], Dict[str, Any]]
 estimate_gas_without_block_id = apply_formatter_at_index(transaction_param_formatter, 0)
 estimate_gas_with_block_id: Callable[
-    [Tuple[Dict[str, Any], Union[str, int]]], Tuple[Dict[str, Any], int]
+    [Tuple[Dict[str, Any], BlockIdentifier]], Tuple[Dict[str, Any], int]
 ]
 estimate_gas_with_block_id = apply_formatters_to_sequence(
     [
         transaction_param_formatter,
         to_hex_if_integer,
+    ]
+)
+ESTIMATE_GAS_OVERRIDE_FORMATTERS = {
+    "balance": to_hex_if_integer,
+    "nonce": to_hex_if_integer,
+    "code": to_hex_if_bytes,
+}
+estimate_gas_with_override: Callable[
+    [Tuple[Dict[str, Any], BlockIdentifier, StateOverrideParams]],
+    Tuple[Dict[str, Any], int, Dict[str, Any]],
+] = apply_formatters_to_sequence(
+    [
+        transaction_param_formatter,
+        to_hex_if_integer,
+        lambda val: type_aware_apply_formatters_to_dict_keys_and_values(
+            to_checksum_address,
+            type_aware_apply_formatters_to_dict(ESTIMATE_GAS_OVERRIDE_FORMATTERS),
+            val,
+        ),
     ]
 )
 
@@ -530,6 +553,7 @@ PYTHONIC_REQUEST_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
         (
             (is_length(1), estimate_gas_without_block_id),
             (is_length(2), estimate_gas_with_block_id),
+            (is_length(3), estimate_gas_with_override),
         )
     ),
     RPC.eth_sendTransaction: apply_formatter_at_index(transaction_param_formatter, 0),
@@ -791,6 +815,7 @@ ABI_REQUEST_FORMATTERS: Formatters = abi_request_formatters(
 ERROR_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     RPC.eth_estimateGas: raise_contract_logic_error_on_revert,
     RPC.eth_call: raise_contract_logic_error_on_revert,
+    RPC.eth_getTransactionReceipt: raise_transaction_indexing_error_if_indexing,
 }
 
 

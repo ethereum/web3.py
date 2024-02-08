@@ -30,6 +30,12 @@ from web3._utils.contract_sources.contract_data.bytes_contracts import (
 from web3._utils.ens import (
     contract_ens_addresses,
 )
+from web3.contract.async_contract import (
+    AsyncContractFunction,
+)
+from web3.contract.contract import (
+    ContractFunction,
+)
 from web3.exceptions import (
     BadFunctionCallOutput,
     BlockNumberOutofRange,
@@ -1147,6 +1153,15 @@ def test_changing_default_block_identifier(w3, math_contract):
     assert math_contract.functions.counter().call(block_identifier=None) == 0
     w3.eth.default_block = 0x2
     assert math_contract.functions.counter().call(block_identifier=None) == 7
+
+
+def test_functions_iterator(w3, math_contract):
+    all_functions = math_contract.all_functions()
+    functions_iter = math_contract.functions
+
+    for fn, expected_fn in zip(iter(functions_iter), all_functions):
+        assert isinstance(fn, ContractFunction)
+        assert fn.fn_name == expected_fn.fn_name
 
 
 # -- async -- #
@@ -2313,3 +2328,12 @@ async def test_async_changing_default_block_identifier(async_w3, async_math_cont
     assert (
         await async_math_contract.functions.counter().call(block_identifier=None) == 7
     )
+
+
+def test_async_functions_iterator(async_w3, async_math_contract):
+    all_functions = async_math_contract.all_functions()
+    functions_iter = async_math_contract.functions
+
+    for fn, expected_fn in zip(iter(functions_iter), all_functions):
+        assert isinstance(fn, AsyncContractFunction)
+        assert fn.fn_name == expected_fn.fn_name

@@ -88,8 +88,8 @@ from web3.exceptions import (
 from web3.types import (
     ABI,
     BlockIdentifier,
-    CallOverride,
     EventData,
+    StateOverride,
     TxParams,
 )
 from web3.utils import (
@@ -158,7 +158,7 @@ class AsyncContractEvent(BaseContractEvent):
                 ...
             )
 
-        See also: :func:`web3.middleware.filter.local_filter_middleware`.
+        See also: :func:`web3.middleware.filter.LocalFilterMiddleware`.
 
         :param argument_filters: Filter by argument values. Indexed arguments are
           filtered by the node while non-indexed arguments are filtered by the library.
@@ -270,7 +270,7 @@ class AsyncContractFunction(BaseContractFunction):
         self,
         transaction: Optional[TxParams] = None,
         block_identifier: BlockIdentifier = None,
-        state_override: Optional[CallOverride] = None,
+        state_override: Optional[StateOverride] = None,
         ccip_read_enabled: Optional[bool] = None,
     ) -> Any:
         """
@@ -337,6 +337,7 @@ class AsyncContractFunction(BaseContractFunction):
         self,
         transaction: Optional[TxParams] = None,
         block_identifier: Optional[BlockIdentifier] = None,
+        state_override: Optional[StateOverride] = None,
     ) -> int:
         setup_transaction = self._estimate_gas(transaction)
         return await async_estimate_gas_for_function(
@@ -347,6 +348,7 @@ class AsyncContractFunction(BaseContractFunction):
             self.contract_abi,
             self.abi,
             block_identifier,
+            state_override,
             *self.args,
             **self.kwargs,
         )
@@ -515,7 +517,7 @@ class AsyncContract(BaseContract):
         return contract
 
     @classmethod
-    def constructor(cls, *args: Any, **kwargs: Any) -> Self:
+    def constructor(cls, *args: Any, **kwargs: Any) -> "AsyncContractConstructor":
         """
         :param args: The contract constructor arguments as positional arguments
         :param kwargs: The contract constructor arguments as keyword arguments
