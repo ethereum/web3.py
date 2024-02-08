@@ -4,6 +4,9 @@ from types import (
 from typing import (
     TYPE_CHECKING,
     Any,
+    Callable,
+    Coroutine,
+    Dict,
     Generic,
     List,
     Sequence,
@@ -41,17 +44,27 @@ class BatchRequestContextManager(Generic[TFunc]):
     def __init__(self, web3: Union["AsyncWeb3", "Web3"]) -> None:
         self.web3 = web3
         self._requests_info: List[BatchRequestInformation] = []
+        self._async_requests_info: List[
+            Coroutine[Any, Any, BatchRequestInformation]
+        ] = []
 
-    def add(self, batch_payload: Union[TReturn, Sequence[TReturn]]) -> None:
+    def add(self, batch_payload: TReturn) -> None:
         # When batching, we don't make a request. Instead, we will get the request
-        # information and store it in the _requests_info list.
-        if isinstance(batch_payload, Sequence):
-            for request_information in batch_payload:
-                self._requests_info.append(
-                    cast(BatchRequestInformation, request_information)
-                )
+        # information and store it in the `_requests_info` list. So we have to cast the
+        # apparent "request" into the BatchRequestInformation type.
+        if self.web3.provider.is_async:
+            self._async_requests_info.append(
+                cast(Coroutine[Any, Any, BatchRequestInformation], batch_payload)
+            )
         else:
             self._requests_info.append(cast(BatchRequestInformation, batch_payload))
+
+    def add_mapping(
+        self, batch_payload: Dict[Method[Callable[..., Any]], List[Any]]
+    ) -> None:
+        for method, params in batch_payload.items():
+            for param in params:
+                self.add(method(param))
 
     def __enter__(self) -> Self:
         self.web3._is_batching = True
@@ -83,4 +96,6 @@ class BatchRequestContextManager(Generic[TFunc]):
         self.web3._is_batching = False
 
     async def async_execute(self) -> List["RPCResponse"]:
-        return await self.web3.manager.async_make_batch_request(self._requests_info)
+        return await self.web3.manager.async_make_batch_request(
+            self._async_requests_info
+        )

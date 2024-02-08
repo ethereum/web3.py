@@ -5,6 +5,7 @@ from typing import (
     Any,
     AsyncGenerator,
     Callable,
+    Coroutine,
     List,
     Optional,
     Sequence,
@@ -422,7 +423,10 @@ class RequestManager:
         return list(formatted_responses)
 
     async def async_make_batch_request(
-        self, requests_info: List[Tuple[Tuple["RPCEndpoint", Any], Sequence[Any]]]
+        self,
+        requests_info: List[
+            Coroutine[Any, Any, Tuple[Tuple["RPCEndpoint", Any], Sequence[Any]]]
+        ],
     ) -> List[RPCResponse]:
         """
         Make an asynchronous batch request using the provider
@@ -436,19 +440,19 @@ class RequestManager:
             cast("AsyncWeb3", self.w3),
             cast("MiddlewareOnion", self.middleware_onion),
         )
-
+        # since add items to the batch without awaiting, we unpack the coroutines
+        # and await them all here
+        unpacked_requests_info = await asyncio.gather(*requests_info)
         responses = await request_func(
             [
                 (method, params)
-                for (method, params), _response_formatters in requests_info
+                for (method, params), _response_formatters in unpacked_requests_info
             ]
         )
-
         formatted_responses = [
             self._format_batched_response(info, resp)
-            for info, resp in zip(requests_info, responses)
+            for info, resp in zip(unpacked_requests_info, responses)
         ]
-
         return list(formatted_responses)
 
     def _format_batched_response(
