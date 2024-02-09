@@ -1,0 +1,1 @@
+Contract event ``get_logs`` results sorted by each ``ContractEvent`` ``logIndex``.
