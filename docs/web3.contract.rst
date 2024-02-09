@@ -944,6 +944,8 @@ For example:
 
    Fetches all logs for a given event within the specified block range or block hash.
 
+   Returns a list of decoded event logs sorted by ``logIndex``.
+
     ``argument_filters`` is an optional dictionary argument that can be used to filter
     for logs where the event's argument values match the values provided in the
     dictionary. The keys must match the event argument names as they exist in the ABI.
