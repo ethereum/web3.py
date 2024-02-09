@@ -365,7 +365,7 @@ def test_contract_event_get_logs_sorted_by_log_index(w3, emitter, request_mocker
             "transactionIndex": 0,
             "transactionHash": "0x61e57bb1b5af14ca1b0964a84fb640bf39927961f26311a6450475a749e00cbb",  # noqa: E501
             "blockHash": "0x73dd9a3b0f581689ebd67adea0debe05672a334c723379dc506fb71a666c1754",  # noqa: E501
-            "blockNumber": 4,
+            "blockNumber": 1,
             "address": "0xF2E246BB76DF876Cef8b38ae84130F4F55De395b",
             "data": "0x",
             "topics": [
@@ -378,7 +378,7 @@ def test_contract_event_get_logs_sorted_by_log_index(w3, emitter, request_mocker
             "transactionIndex": 0,
             "transactionHash": "0x61e57bb1b5af14ca1b0964a84fb640bf39927961f26311a6450475a749e00cbb",  # noqa: E501
             "blockHash": "0x73dd9a3b0f581689ebd67adea0debe05672a334c723379dc506fb71a666c1754",  # noqa: E501
-            "blockNumber": 4,
+            "blockNumber": 1,
             "address": "0xF2E246BB76DF876Cef8b38ae84130F4F55De395b",
             "data": "0x",
             "topics": [
@@ -393,6 +393,10 @@ def test_contract_event_get_logs_sorted_by_log_index(w3, emitter, request_mocker
         sorted_logs = sorted(
             emitter.events.LogNoArguments().get_logs(),
             key=lambda l: l["logIndex"],
+        )
+        sorted_logs = sorted(
+            emitter.events.LogNoArguments().get_logs(),
+            key=lambda l: l["blockNumber"],
         )
 
     assert len(logs) == 4
