@@ -46,9 +46,10 @@ def emitter_contract_data():
     return EMITTER_CONTRACT_DATA
 
 
+# This class defines events for the EmitterContract and are used to construct
+# a fixture for contract event logs. Parameterized tests that utilize an `emitter`
+# contract fixture will use this data.
 class LogFunctions:
-    # These appear to be for a very specific test and this doesn't need to be updated
-    # for every event in the emitter contract. That ends up breaking that test.
     LogAnonymous = 0
     LogNoArguments = 1
     LogSingleArg = 2
@@ -74,6 +75,9 @@ def emitter_contract_event_ids():
     return LogFunctions
 
 
+# This class defines topics for the EmitterContract and are used to construct
+# a fixture for contract event log topics. Parameterized tests that utilize
+# an `emitter` contract fixture will use this data.
 class LogTopics:
     LogAnonymous = event_signature_to_log_topic("LogAnonymous()")
     LogNoArguments = event_signature_to_log_topic("LogNoArguments()")
