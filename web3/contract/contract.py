@@ -192,7 +192,9 @@ class ContractEvent(BaseContractEvent):
             all_event_logs,
             argument_filters,
         )
-        return filtered_logs
+        sorted_logs = sorted(filtered_logs, key=lambda e: e["logIndex"])
+        sorted_logs = sorted(sorted_logs, key=lambda e: e["blockNumber"])
+        return sorted_logs
 
     @combomethod
     def create_filter(

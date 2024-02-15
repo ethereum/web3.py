@@ -331,6 +331,78 @@ def test_argument_extraction_strict_bytes_types(
     assert event_data["event"] == "LogListArgs"
 
 
+def test_contract_event_get_logs_sorted_by_log_index(w3, emitter, request_mocker):
+    get_logs_response = [
+        {
+            "type": "mined",
+            "logIndex": 10,
+            "transactionIndex": 0,
+            "transactionHash": "0xaef7f312d863780b861d8c38984b2a33f77e9508810735e2b042143f7f189f83",  # noqa: E501
+            "blockHash": "0x2200ec3324fdaca4ee2f4629489d2d06fb28108dae61b63b84ef39702e2b64e7",  # noqa: E501
+            "blockNumber": 3,
+            "address": "0xF2E246BB76DF876Cef8b38ae84130F4F55De395b",
+            "data": "0x",
+            "topics": [
+                "0x1e86022f78f8d04f8e3dfd13a2bdb280403e6632877c0dbee5e4eeb259908a5c"
+            ],
+        },
+        {
+            "type": "mined",
+            "logIndex": 0,
+            "transactionIndex": 0,
+            "transactionHash": "0x61e57bb1b5af14ca1b0964a84fb640bf39927961f26311a6450475a749e00cbb",  # noqa: E501
+            "blockHash": "0x73dd9a3b0f581689ebd67adea0debe05672a334c723379dc506fb71a666c1754",  # noqa: E501
+            "blockNumber": 4,
+            "address": "0xF2E246BB76DF876Cef8b38ae84130F4F55De395b",
+            "data": "0x",
+            "topics": [
+                "0x1e86022f78f8d04f8e3dfd13a2bdb280403e6632877c0dbee5e4eeb259908a5c"
+            ],
+        },
+        {
+            "type": "mined",
+            "logIndex": 123,
+            "transactionIndex": 0,
+            "transactionHash": "0x61e57bb1b5af14ca1b0964a84fb640bf39927961f26311a6450475a749e00cbb",  # noqa: E501
+            "blockHash": "0x73dd9a3b0f581689ebd67adea0debe05672a334c723379dc506fb71a666c1754",  # noqa: E501
+            "blockNumber": 1,
+            "address": "0xF2E246BB76DF876Cef8b38ae84130F4F55De395b",
+            "data": "0x",
+            "topics": [
+                "0x1e86022f78f8d04f8e3dfd13a2bdb280403e6632877c0dbee5e4eeb259908a5c"
+            ],
+        },
+        {
+            "type": "mined",
+            "logIndex": 54,
+            "transactionIndex": 0,
+            "transactionHash": "0x61e57bb1b5af14ca1b0964a84fb640bf39927961f26311a6450475a749e00cbb",  # noqa: E501
+            "blockHash": "0x73dd9a3b0f581689ebd67adea0debe05672a334c723379dc506fb71a666c1754",  # noqa: E501
+            "blockNumber": 1,
+            "address": "0xF2E246BB76DF876Cef8b38ae84130F4F55De395b",
+            "data": "0x",
+            "topics": [
+                "0x1e86022f78f8d04f8e3dfd13a2bdb280403e6632877c0dbee5e4eeb259908a5c"
+            ],
+        },
+    ]
+
+    with request_mocker(w3, mock_results={"eth_getLogs": get_logs_response}):
+        logs = emitter.events.LogNoArguments().get_logs()
+
+        sorted_logs = sorted(
+            emitter.events.LogNoArguments().get_logs(),
+            key=lambda l: l["logIndex"],
+        )
+        sorted_logs = sorted(
+            emitter.events.LogNoArguments().get_logs(),
+            key=lambda l: l["blockNumber"],
+        )
+
+    assert len(logs) == 4
+    assert logs == sorted_logs
+
+
 @pytest.mark.parametrize(
     "contract_fn,event_name,call_args,expected_args,warning_msg,process_receipt",
     (
