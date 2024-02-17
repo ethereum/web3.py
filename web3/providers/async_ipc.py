@@ -59,8 +59,8 @@ async def async_get_ipc_socket(
 class AsyncIPCProvider(PersistentConnectionProvider):
     logger = logging.getLogger("web3.providers.AsyncIPCProvider")
 
-    reader: asyncio.StreamReader = None
-    writer: asyncio.StreamWriter = None
+    reader: Optional[asyncio.StreamReader] = None
+    writer: Optional[asyncio.StreamWriter] = None
 
     def __init__(
         self,
@@ -82,6 +82,17 @@ class AsyncIPCProvider(PersistentConnectionProvider):
 
     def __str__(self) -> str:
         return f"<{self.__class__.__name__} {self.ipc_path}>"
+
+    async def is_connected(self, show_traceback: bool = False) -> bool:
+        try:
+            await self.make_request(RPCEndpoint("web3_clientVersion"), [])
+            return True
+        except (OSError, BrokenPipeError, ProviderConnectionError) as e:
+            if show_traceback:
+                raise ProviderConnectionError(
+                    f"Problem connecting to provider with error: {type(e)}: {e}"
+                )
+            return False
 
     async def connect(self) -> None:
         _connection_attempts = 0
@@ -111,11 +122,10 @@ class AsyncIPCProvider(PersistentConnectionProvider):
                 _backoff_time *= _backoff_rate_change
 
     async def disconnect(self) -> None:
-        # close the socket
-        if not self.writer.is_closing():
+        if self.writer and not self.writer.is_closing():
             self.writer.close()
             await self.writer.wait_closed()
-
+            self.writer = None
             self.logger.debug(
                 f'Successfully disconnected from endpoint: "{self.endpoint_uri}'
             )
@@ -123,6 +133,7 @@ class AsyncIPCProvider(PersistentConnectionProvider):
         try:
             self._message_listener_task.cancel()
             await self._message_listener_task
+            self.reader = None
         except (asyncio.CancelledError, StopAsyncIteration):
             pass
 
