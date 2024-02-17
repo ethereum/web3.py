@@ -16,6 +16,10 @@ from typing import (
     Union,
 )
 
+from eth_utils import (
+    to_text,
+)
+
 from web3.types import (
     RPCEndpoint,
     RPCId,
@@ -35,12 +39,11 @@ from ..exceptions import (
 )
 from .ipc import (
     get_default_ipc_path,
-    has_valid_json_rpc_ending,
 )
 
 
 async def async_get_ipc_socket(
-    ipc_path: str, timeout: float = 2.0
+    ipc_path: str,
 ) -> Tuple[asyncio.StreamReader, asyncio.StreamWriter]:
     if sys.platform == "win32":
         # On Windows named pipe is used. Simulate socket with it.
@@ -53,41 +56,17 @@ async def async_get_ipc_socket(
         return await asyncio.open_unix_connection(ipc_path)
 
 
-class PersistentSocket:
-    sock: Optional[Tuple[asyncio.StreamReader, asyncio.StreamWriter]] = None
-
-    def __init__(self, ipc_path: str) -> None:
-        self.ipc_path = ipc_path
-
-    async def _open(self) -> Tuple[asyncio.StreamReader, asyncio.StreamWriter]:
-        return await async_get_ipc_socket(self.ipc_path)
-
-    async def reset(self) -> Tuple[asyncio.StreamReader, asyncio.StreamWriter]:
-        reader, writer = self.sock
-        writer.close()
-        await writer.wait_closed()
-        self.sock = await self._open()
-        return self.sock
-
-
 class AsyncIPCProvider(PersistentConnectionProvider):
     logger = logging.getLogger("web3.providers.AsyncIPCProvider")
-    _socket = None
 
-    LOG = True  # toggle debug logging
-    if LOG:
-        import logging
-
-        logger = logging.getLogger("web3.providers.AsyncIPCProvider")
-        logger.setLevel(logging.DEBUG)
-        logger.addHandler(logging.StreamHandler())
+    reader: asyncio.StreamReader = None
+    writer: asyncio.StreamWriter = None
 
     def __init__(
         self,
         ipc_path: Optional[Union[str, Path]] = None,
         request_timeout: int = 10,
         max_connection_retries: int = 5,
-        raise_listener_task_exceptions: bool = False,
         **kwargs: Any,
     ) -> None:
         if ipc_path is None:
@@ -97,10 +76,8 @@ class AsyncIPCProvider(PersistentConnectionProvider):
         else:
             raise TypeError("ipc_path must be of type string or pathlib.Path")
 
-        self._socket = PersistentSocket(self.ipc_path)
         self.request_timeout = request_timeout
         self._max_connection_retries = max_connection_retries
-        self.raise_listener_task_exceptions = raise_listener_task_exceptions
         super().__init__(request_timeout, **kwargs)
 
     def __str__(self) -> str:
@@ -114,8 +91,7 @@ class AsyncIPCProvider(PersistentConnectionProvider):
         while _connection_attempts != self._max_connection_retries:
             try:
                 _connection_attempts += 1
-
-                self.reader, self.writer = await self._socket._open()
+                self.reader, self.writer = await async_get_ipc_socket(self.ipc_path)
                 self._message_listener_task = asyncio.create_task(
                     self._message_listener()
                 )
@@ -135,14 +111,11 @@ class AsyncIPCProvider(PersistentConnectionProvider):
                 _backoff_time *= _backoff_rate_change
 
     async def disconnect(self) -> None:
-        if self._socket is not None:
-            try:
-                self.writer.close()
-                await self.writer.wait_closed()
-            except Exception:
-                pass
+        # close the socket
+        if not self.writer.is_closing():
+            self.writer.close()
+            await self.writer.wait_closed()
 
-            self._socket = None
             self.logger.debug(
                 f'Successfully disconnected from endpoint: "{self.endpoint_uri}'
             )
@@ -152,13 +125,19 @@ class AsyncIPCProvider(PersistentConnectionProvider):
             await self._message_listener_task
         except (asyncio.CancelledError, StopAsyncIteration):
             pass
+
         self._request_processor.clear_caches()
+
+    async def _reset_socket(self) -> None:
+        self.writer.close()
+        await self.writer.wait_closed()
+        self.reader, self.writer = await async_get_ipc_socket(self.ipc_path)
 
     @async_handle_request_caching
     async def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
         request_data = self.encode_rpc_request(method, params)
 
-        if self._socket is None:
+        if self.writer is None:
             raise ProviderConnectionError(
                 "Connection to ipc socket has not been initiated for the provider."
             )
@@ -170,8 +149,7 @@ class AsyncIPCProvider(PersistentConnectionProvider):
             # Broken pipe
             if e.errno == errno.EPIPE:
                 # one extra attempt, then give up
-                new_sock = await self._socket.reset()
-                self.writer = new_sock[1]
+                await self._reset_socket()
                 self.writer.write(request_data)
                 await self.writer.drain()
 
@@ -220,8 +198,8 @@ class AsyncIPCProvider(PersistentConnectionProvider):
             "IPC socket listener background task started. Storing all messages in "
             "appropriate request processor queues / caches to be processed."
         )
-        raw_message = b""
-        # ipc_reader = self._socket[0]
+        raw_message = ""
+        decoder = json.JSONDecoder()
 
         while True:
             # the use of sleep(0) seems to be the most efficient way to yield control
@@ -229,26 +207,29 @@ class AsyncIPCProvider(PersistentConnectionProvider):
             await asyncio.sleep(0)
 
             try:
-                raw_message += await self.reader.read(4096)
+                raw_message += to_text(await self.reader.read(4096)).lstrip()
 
-                if has_valid_json_rpc_ending(raw_message):
+                while raw_message:
                     try:
-                        response = self.decode_rpc_response(raw_message)
+                        response, pos = decoder.raw_decode(raw_message)
                     except JSONDecodeError:
-                        await asyncio.sleep(0)
-                        continue
+                        break
+
                     subscription = response.get("method") == "eth_subscription"
                     await self._request_processor.cache_raw_response(
                         response, subscription=subscription
                     )
-                    # reset raw_message to an empty byte string
-                    raw_message = b""
+                    raw_message = raw_message[pos:].lstrip()
             except Exception as e:
-                if self.raise_listener_task_exceptions:
-                    # If ``True``, raise; else, error log & keep task alive
+                if not self.silence_listener_task_exceptions:
+                    loop = asyncio.get_event_loop()
+                    for task in asyncio.all_tasks(loop=loop):
+                        task.cancel()
                     raise e
 
                 self.logger.error(
                     "Exception caught in listener, error logging and keeping listener "
                     f"background task alive.\n    error={e}"
                 )
+                # if only error logging, reset the ``raw_message`` buffer and continue
+                raw_message = ""

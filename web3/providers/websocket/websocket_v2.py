@@ -66,7 +66,6 @@ class WebsocketProviderV2(PersistentConnectionProvider):
         self,
         endpoint_uri: Optional[Union[URI, str]] = None,
         websocket_kwargs: Optional[Dict[str, Any]] = None,
-        silence_listener_task_exceptions: bool = False,
         # `PersistentConnectionProvider` kwargs can be passed through
         **kwargs: Any,
     ) -> None:
@@ -94,7 +93,6 @@ class WebsocketProviderV2(PersistentConnectionProvider):
                 )
 
         self.websocket_kwargs = merge(DEFAULT_WEBSOCKET_KWARGS, websocket_kwargs or {})
-        self.silence_listener_task_exceptions = silence_listener_task_exceptions
 
         super().__init__(**kwargs)
 

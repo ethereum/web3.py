@@ -35,6 +35,7 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
         self,
         request_timeout: float = DEFAULT_PERSISTENT_CONNECTION_TIMEOUT,
         subscription_response_queue_size: int = 500,
+        silence_listener_task_exceptions: bool = False,
     ) -> None:
         super().__init__()
         self._request_processor = RequestProcessor(
@@ -42,6 +43,7 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
             subscription_response_queue_size=subscription_response_queue_size,
         )
         self.request_timeout = request_timeout
+        self.silence_listener_task_exceptions = silence_listener_task_exceptions
 
     async def connect(self) -> None:
         raise NotImplementedError("Must be implemented by subclasses")
