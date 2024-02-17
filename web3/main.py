@@ -130,7 +130,7 @@ from web3.providers.rpc import (
 from web3.providers.websocket import (
     WebsocketProvider,
 )
-from web3.providers.websocket.websocket_connection import (
+from web3.providers.persistent.persistent_connection import (
     PersistentConnection,
 )
 from web3.testing import (

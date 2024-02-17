@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 
 class PersistentConnection:
     """
-    A class that houses the public API for interacting with the websocket connection
+    A class that houses the public API for interacting with the persistent connection
     via a `_PersistentConnectionWeb3` instance.
     """
 

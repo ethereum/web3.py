@@ -14,7 +14,7 @@ from websockets.legacy.client import (
 from web3.providers.async_base import (
     AsyncJSONBaseProvider,
 )
-from web3.providers.websocket.request_processor import (
+from web3.providers.persistent.request_processor import (
     RequestProcessor,
 )
 

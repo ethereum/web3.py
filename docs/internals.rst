@@ -431,7 +431,7 @@ interacting with the active websocket connection, is set up to receive
     ...         # Listen to the websocket for the many responses utilizing the
     ...         # ``w3.socket`` ``PersistentConnection`` public API method
     ...         # ``process_subscriptions()``
-    ...         async for response in w3.ws.process_subscriptions():
+    ...         async for response in w3.socket.process_subscriptions():
     ...             # Receive only one-to-many responses here so that we don't
     ...             # accidentally return the response for a one-to-one request in this
     ...             # block

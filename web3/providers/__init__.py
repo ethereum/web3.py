@@ -16,10 +16,12 @@ from .rpc import (
 )
 from .websocket import (
     WebsocketProvider,
-    WebsocketProviderV2,
 )
 from .persistent import (
+    AsyncIPCProvider,
+    PersistentConnection,
     PersistentConnectionProvider,
+    WebsocketProviderV2,
 )
 from .auto import (
     AutoProvider,

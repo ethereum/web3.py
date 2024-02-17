@@ -20,6 +20,14 @@ from eth_utils import (
     to_text,
 )
 
+from web3._utils.caching import (
+    async_handle_request_caching,
+    generate_cache_key,
+)
+from web3.exceptions import (
+    ProviderConnectionError,
+    TimeExhausted,
+)
 from web3.types import (
     RPCEndpoint,
     RPCId,
@@ -29,15 +37,7 @@ from web3.types import (
 from . import (
     PersistentConnectionProvider,
 )
-from .._utils.caching import (
-    async_handle_request_caching,
-    generate_cache_key,
-)
-from ..exceptions import (
-    ProviderConnectionError,
-    TimeExhausted,
-)
-from .ipc import (
+from ..ipc import (
     get_default_ipc_path,
 )
 
@@ -226,9 +226,9 @@ class AsyncIPCProvider(PersistentConnectionProvider):
                     except JSONDecodeError:
                         break
 
-                    subscription = response.get("method") == "eth_subscription"
+                    is_subscription = response.get("method") == "eth_subscription"
                     await self._request_processor.cache_raw_response(
-                        response, subscription=subscription
+                        response, subscription=is_subscription
                     )
                     raw_message = raw_message[pos:].lstrip()
             except Exception as e:

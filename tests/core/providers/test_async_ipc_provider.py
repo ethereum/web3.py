@@ -1,4 +1,3 @@
-import asyncio
 import json
 import os
 import pathlib
@@ -20,7 +19,7 @@ from web3.datastructures import (
 from web3.exceptions import (
     ProviderConnectionError,
 )
-from web3.providers.async_ipc import (
+from web3.providers import (
     AsyncIPCProvider,
 )
 
@@ -96,7 +95,6 @@ def serve_subscription_result(simple_ipc_server):
             connection.sendall(
                 b'{"jsonrpc": "2.0", "id": 0, "result": "0xf13f7073ddef66a8c1b0c9c9f0e543c3"}'  # noqa: E501
             )
-            time.sleep(0.1)
             connection.sendall(json.dumps(ETH_SUBSCRIBE_RESPONSE).encode("utf-8"))
         finally:
             # Clean up the connection
@@ -136,6 +134,7 @@ async def test_async_waits_for_full_result(jsonrpc_ipc_pipe_path, serve_empty_re
     ) as w3:
         result = await w3.provider.make_request("method", [])
         assert result == {"id": 0, "result": {}}
+        await w3.provider.disconnect()
 
 
 @pytest.mark.asyncio
@@ -181,7 +180,7 @@ async def test_eth_subscription(jsonrpc_ipc_pipe_path, serve_subscription_result
             ),
             "subscription": "0xf13f7073ddef66a8c1b0c9c9f0e543c3",
         }
-        await asyncio.sleep(0.5)
         async for response in w3.socket.process_subscriptions():
             assert response == subscription_response
             break
+        await w3.provider.disconnect()

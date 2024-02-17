@@ -97,7 +97,7 @@ def retrieve_async_method_call_fn(
             #   For now, keep the expected typing but ignore it here.
             provider = async_w3.provider
             cache_key = provider._request_processor.cache_request_information(
-                method_str, params, response_formatters  # type: ignore
+                cast(RPCEndpoint, method_str), params, response_formatters  # type: ignore # noqa: E501
             )
             try:
                 method_str = cast(RPCEndpoint, method_str)
