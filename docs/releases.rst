@@ -3844,7 +3844,7 @@ v4.0.0-beta.1
 * Basic pep8 formatting.
 * Apply python naming conventions to internal APIs
 * Lots of minor bugfixes.
-* Removal of dead code left behing from ``1.0.0`` refactor.
+* Removal of dead code left behind from ``1.0.0`` refactor.
 * Removal of ``web3/solidity`` module.
 
 1.1.0
