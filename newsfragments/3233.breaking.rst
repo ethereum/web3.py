@@ -1,0 +1,1 @@
+Rename `beacon/main.py` -> `beacon/beacon.py`
