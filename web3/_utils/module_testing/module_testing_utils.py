@@ -1,7 +1,6 @@
 from collections import (
     deque,
 )
-import time
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -58,17 +57,6 @@ for the duration of the test. This behavior can be flaky
 due to timing of the test running as a block is mined.
 """
 flaky_geth_dev_mining = flaky(max_runs=3)
-
-
-def mine_pending_block(w3: "Web3") -> None:
-    timeout = 10
-
-    w3.geth.miner.start()  # type: ignore
-    start = time.time()
-    while time.time() < start + timeout:
-        if len(w3.eth.get_block("pending")["transactions"]) == 0:
-            break
-    w3.geth.miner.stop()  # type: ignore
 
 
 def assert_contains_log(
