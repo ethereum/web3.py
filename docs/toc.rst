@@ -40,7 +40,6 @@ Table of Contents
     web3.beacon
     web3.pm
     web3.net
-    web3.miner
     web3.geth
     web3.tracing
     web3.utils
