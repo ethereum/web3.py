@@ -516,7 +516,10 @@ class AsyncEth(BaseEth):
         return await self._transaction_receipt(transaction_hash)
 
     async def wait_for_transaction_receipt(
-        self, transaction_hash: _Hash32, timeout: float = 120, poll_latency: float = 0.1
+        self,
+        transaction_hash: _Hash32,
+        timeout: Optional[float] = 120,
+        poll_latency: float = 0.1,
     ) -> TxReceipt:
         async def _wait_for_tx_receipt_with_timeout(
             _tx_hash: _Hash32, _poll_latency: float
