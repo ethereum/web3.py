@@ -114,16 +114,6 @@ class RPC:
     evm_revert = RPCEndpoint("evm_revert")
     evm_snapshot = RPCEndpoint("evm_snapshot")
 
-    # miner
-    miner_makeDag = RPCEndpoint("miner_makeDag")
-    miner_setExtra = RPCEndpoint("miner_setExtra")
-    miner_setEtherbase = RPCEndpoint("miner_setEtherbase")
-    miner_setGasPrice = RPCEndpoint("miner_setGasPrice")
-    miner_start = RPCEndpoint("miner_start")
-    miner_stop = RPCEndpoint("miner_stop")
-    miner_startAutoDag = RPCEndpoint("miner_startAutoDag")
-    miner_stopAutoDag = RPCEndpoint("miner_stopAutoDag")
-
     # net
     net_listening = RPCEndpoint("net_listening")
     net_peerCount = RPCEndpoint("net_peerCount")

@@ -21,16 +21,6 @@ from hexbytes.main import (
 from web3._utils.compat import (
     Protocol,
 )
-from web3._utils.miner import (
-    make_dag,
-    set_etherbase,
-    set_extra,
-    set_gas_price,
-    start,
-    start_auto_dag,
-    stop,
-    stop_auto_dag,
-)
 from web3._utils.rpc_abi import (
     RPC,
 )
@@ -213,21 +203,6 @@ class GethAdmin(Module):
         RPC.admin_stopWS,
         is_property=True,
     )
-
-
-class GethMiner(Module):
-    """
-    https://geth.ethereum.org/docs/interacting-with-geth/rpc/ns-miner
-    """
-
-    make_dag = make_dag
-    set_extra = set_extra
-    set_etherbase = set_etherbase
-    set_gas_price = set_gas_price
-    start = start
-    stop = stop
-    start_auto_dag = start_auto_dag
-    stop_auto_dag = stop_auto_dag
 
 
 class Geth(Module):

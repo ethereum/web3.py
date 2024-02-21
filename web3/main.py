@@ -95,7 +95,6 @@ from web3.geth import (
     AsyncGethTxPool,
     Geth,
     GethAdmin,
-    GethMiner,
     GethPersonal,
     GethTxPool,
 )
@@ -171,7 +170,6 @@ def get_default_modules() -> Dict[str, Union[Type[Module], Sequence[Any]]]:
             Geth,
             {
                 "admin": GethAdmin,
-                "miner": GethMiner,
                 "personal": GethPersonal,
                 "txpool": GethTxPool,
             },
