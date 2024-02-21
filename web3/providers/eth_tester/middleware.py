@@ -131,6 +131,7 @@ TRANSACTION_RESULT_KEY_MAPPING = {
     "max_priority_fee_per_gas": "maxPriorityFeePerGas",
     "transaction_hash": "transactionHash",
     "transaction_index": "transactionIndex",
+    "data": "input",
 }
 transaction_result_remapper = apply_key_map(TRANSACTION_RESULT_KEY_MAPPING)
 
