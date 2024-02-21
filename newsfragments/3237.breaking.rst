@@ -1,0 +1,1 @@
+Change the signature for the async version of ``wait_for_transaction_receipt()`` to use ``Optional[float]`` instead of ``float``.
