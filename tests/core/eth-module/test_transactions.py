@@ -261,7 +261,6 @@ def test_get_transaction_formatters(w3, request_mocker):
             },
         ],
         "input": "0x5b34b966",
-        "data": "0x5b34b966",
     }
 
     with request_mocker(
@@ -318,7 +317,6 @@ def test_get_transaction_formatters(w3, request_mocker):
                 ),
             ],
             "input": HexBytes(unformatted_transaction["input"]),
-            "data": HexBytes(unformatted_transaction["data"]),
         }
     )
 
