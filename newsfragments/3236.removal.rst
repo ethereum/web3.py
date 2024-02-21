@@ -1,0 +1,1 @@
+Remove deprecated ``geth.miner`` namespace and methods.

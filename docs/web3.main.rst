@@ -363,10 +363,6 @@ Each ``Web3`` instance also exposes these namespaced API modules.
 
     See :doc:`./web3.eth`
 
-.. py:attribute:: Web3.miner
-
-    See :doc:`./web3.miner`
-
 .. py:attribute:: Web3.pm
 
     See :doc:`./web3.pm`
