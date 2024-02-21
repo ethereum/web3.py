@@ -6,6 +6,7 @@ from aiohttp import (
 
 from web3 import (
     AsyncWeb3,
+    __version__ as web3py_version,
 )
 from web3._utils import (
     request,
@@ -106,3 +107,14 @@ async def test_async_user_provided_session() -> None:
     cached_session = await provider.cache_async_session(session)
     assert len(request._async_session_cache) == 1
     assert cached_session == session
+
+
+def test_get_request_headers():
+    provider = AsyncHTTPProvider()
+    headers = provider.get_request_headers()
+    assert len(headers) == 2
+    assert headers["Content-Type"] == "application/json"
+    assert (
+        headers["User-Agent"] == f"web3.py/{web3py_version}/"
+        f"{AsyncHTTPProvider.__module__}.{AsyncHTTPProvider.__qualname__}"
+    )

@@ -1,7 +1,6 @@
-def construct_user_agent(class_name: str) -> str:
+def construct_user_agent(class_type: type) -> str:
     from web3 import (
         __version__ as web3_version,
     )
 
-    user_agent = f"web3.py/{web3_version}/{class_name}"
-    return user_agent
+    return f"web3.py/{web3_version}/{class_type.__module__}.{class_type.__qualname__}"

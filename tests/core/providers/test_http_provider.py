@@ -9,6 +9,7 @@ from requests.adapters import (
 
 from web3 import (
     Web3,
+    __version__ as web3py_version,
 )
 from web3._utils import (
     request,
@@ -103,3 +104,14 @@ def test_user_provided_session():
     assert isinstance(adapter, HTTPAdapter)
     assert adapter._pool_connections == 20
     assert adapter._pool_maxsize == 20
+
+
+def test_get_request_headers():
+    provider = HTTPProvider()
+    headers = provider.get_request_headers()
+    assert len(headers) == 2
+    assert headers["Content-Type"] == "application/json"
+    assert (
+        headers["User-Agent"] == f"web3.py/{web3py_version}/"
+        f"{HTTPProvider.__module__}.{HTTPProvider.__qualname__}"
+    )
