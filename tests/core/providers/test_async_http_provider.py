@@ -6,6 +6,7 @@ from aiohttp import (
 
 from web3 import (
     AsyncWeb3,
+    __version__ as web3py_version,
 )
 from web3._utils import (
     request,
@@ -108,18 +109,12 @@ async def test_async_user_provided_session() -> None:
     assert cached_session == session
 
 
-def test_construct_user_agent():
-    """
-    The User-Agent used to include a stringiffied class name like:
-
-        "web3.py/6.4.0/<class 'web3.providers.async_rpc.AsyncHTTPProvider'>"
-
-    This test does minimal checks to ensure it is more like:
-
-        "web3.py/6.4.0/web3.providers.async_rpc.AsyncHTTPProvider"
-
-    """
+def test_get_request_headers():
     provider = AsyncHTTPProvider()
     headers = provider.get_request_headers()
-    assert "<" not in headers["User-Agent"]
-    assert " " not in headers["User-Agent"]
+    assert len(headers) == 2
+    assert headers["Content-Type"] == "application/json"
+    assert (
+        headers["User-Agent"] == f"web3.py/{web3py_version}/"
+        f"{AsyncHTTPProvider.__module__}.{AsyncHTTPProvider.__qualname__}"
+    )

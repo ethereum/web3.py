@@ -9,6 +9,7 @@ from requests.adapters import (
 
 from web3 import (
     Web3,
+    __version__ as web3py_version,
 )
 from web3._utils import (
     request,
@@ -105,18 +106,12 @@ def test_user_provided_session():
     assert adapter._pool_maxsize == 20
 
 
-def test_construct_user_agent():
-    """
-    The User-Agent used to include a stringiffied class name like:
-
-        "web3.py/6.4.0/<class 'web3.providers.rpc.HTTPProvider'>"
-
-    This test does minimal checks to ensure it is more like:
-
-        "web3.py/6.4.0/web3.providers.rpc.HTTPProvider"
-
-    """
+def test_get_request_headers():
     provider = HTTPProvider()
     headers = provider.get_request_headers()
-    assert "<" not in headers["User-Agent"]
-    assert " " not in headers["User-Agent"]
+    assert len(headers) == 2
+    assert headers["Content-Type"] == "application/json"
+    assert (
+        headers["User-Agent"] == f"web3.py/{web3py_version}/"
+        f"{HTTPProvider.__module__}.{HTTPProvider.__qualname__}"
+    )
