@@ -506,7 +506,7 @@ class AsyncWeb3(BaseWeb3):
         ens: Union[AsyncENS, "Empty"] = empty,
     ) -> "_PersistentConnectionWeb3":
         """
-        Establish a persistent connection via websockets to a websocket provider using
+        Establish a persistent connection using
         a ``PersistentConnectionProvider`` instance.
         """
         return _PersistentConnectionWeb3(
@@ -540,7 +540,7 @@ class _PersistentConnectionWeb3(AsyncWeb3):
         AsyncWeb3.__init__(self, provider, middlewares, modules, external_modules, ens)
         self.socket = PersistentConnection(self)
 
-    # w3 = await AsyncWeb3.persistent_websocket(provider)
+    # w3 = await AsyncWeb3.persistent_connection(provider)
     def __await__(
         self,
     ) -> Generator[Any, None, Self]:

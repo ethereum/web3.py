@@ -335,12 +335,14 @@ class RequestManager:
     async def _message_stream(self) -> AsyncGenerator[RPCResponse, None]:
         if not isinstance(self._provider, PersistentConnectionProvider):
             raise TypeError(
-                "Only websocket providers that maintain an open, persistent connection "
-                "can listen to websocket recv streams."
+                "Only providers that maintain an open, persistent connection "
+                "can listen to streams."
             )
 
         if self._provider._message_listener_task is None:
-            raise ProviderConnectionError("No listener found for websocket connection.")
+            raise ProviderConnectionError(
+                "No listener found for persistent connection."
+            )
 
         while True:
             # sleep(0) here seems to be the most efficient way to yield control

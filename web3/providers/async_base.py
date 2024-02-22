@@ -44,7 +44,6 @@ from web3.utils import (
 if TYPE_CHECKING:
     from web3 import (  # noqa: F401
         AsyncWeb3,
-        WebsocketProviderV2,
     )
 
 
