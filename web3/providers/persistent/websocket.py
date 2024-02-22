@@ -9,6 +9,10 @@ from typing import (
     Union,
 )
 
+from websockets import (
+    WebSocketClientProtocol,
+)
+
 from eth_typing import (
     URI,
 )
@@ -27,11 +31,9 @@ from websockets.exceptions import (
 
 from web3._utils.caching import (
     async_handle_request_caching,
-    generate_cache_key,
 )
 from web3.exceptions import (
     ProviderConnectionError,
-    TimeExhausted,
     Web3ValidationError,
 )
 from web3.providers.persistent import (
@@ -39,7 +41,6 @@ from web3.providers.persistent import (
 )
 from web3.types import (
     RPCEndpoint,
-    RPCId,
     RPCResponse,
 )
 
@@ -61,9 +62,11 @@ def get_default_endpoint() -> URI:
 
 
 class WebsocketProvider(PersistentConnectionProvider):
-    logger = logging.getLogger("web3.providers.WebsocketProviderV2")
+    logger = logging.getLogger("web3.providers.WebsocketProvider")
     is_async: bool = True
+
     _max_connection_retries: int = 5
+    _ws: Optional[WebSocketClientProtocol] = None
 
     def __init__(
         self,
@@ -176,41 +179,6 @@ class WebsocketProvider(PersistentConnectionProvider):
         response = await self._get_response_for_request_id(current_request_id)
 
         return response
-
-    async def _get_response_for_request_id(self, request_id: RPCId) -> RPCResponse:
-        async def _match_response_id_to_request_id() -> RPCResponse:
-            request_cache_key = generate_cache_key(request_id)
-
-            while True:
-                # sleep(0) here seems to be the most efficient way to yield control
-                # back to the event loop while waiting for the response to be in the
-                # queue.
-                await asyncio.sleep(0)
-
-                if request_cache_key in self._request_processor._request_response_cache:
-                    self.logger.debug(
-                        f"Popping response for id {request_id} from cache."
-                    )
-                    popped_response = self._request_processor.pop_raw_response(
-                        cache_key=request_cache_key,
-                    )
-                    return popped_response
-
-        try:
-            # Add the request timeout around the while loop that checks the request
-            # cache and tried to recv(). If the request is neither in the cache, nor
-            # received within the request_timeout, raise ``TimeExhausted``.
-            return await asyncio.wait_for(
-                _match_response_id_to_request_id(), self.request_timeout
-            )
-        except asyncio.TimeoutError:
-            raise TimeExhausted(
-                f"Timed out waiting for response with request id `{request_id}` after "
-                f"{self.request_timeout} second(s). This may be due to the provider "
-                "not returning a response with the same id that was sent in the "
-                "request or an exception raised during the request was caught and "
-                "allowed to continue."
-            )
 
     async def _message_listener(self) -> None:
         self.logger.info(
