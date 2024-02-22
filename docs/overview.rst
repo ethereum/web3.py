@@ -26,8 +26,9 @@ following built-in providers:
 - :class:`~web3.providers.ipc.IPCProvider` for connecting to ipc socket based JSON-RPC servers.
 - :class:`~web3.providers.rpc.HTTPProvider` for connecting to http and https based JSON-RPC servers.
 - :class:`~web3.providers.websocket.WebsocketProvider` for connecting to ws and wss websocket based JSON-RPC servers.
-- :class:`~web3.providers.async_rpc.AsyncHTTPProvider` for connecting to http and https based JSON-RPC servers.
-
+- :class:`~web3.providers.async_rpc.AsyncHTTPProvider` for connecting to http and https based JSON-RPC servers asynchronously.
+- :class:`~web3.providers.persistent.WebsocketProviderV2` (beta) for connecting to websocket based JSON-RPC servers asynchronously.
+- :class:`~web3.providers.persistent.AsyncIPCProvider` (beta) for connecting to ipc socket based JSON-RPC servers asynchronously.
 
 Examples
 ^^^^^^^^
@@ -323,7 +324,7 @@ ENS
 
 `Ethereum Name Service (ENS) <https://ens.domains/>`_ provides the infrastructure
 for human-readable addresses. If an address is registered with the ENS registry,
-the domain name can be used in place of the address itself. For example, the registered domain 
+the domain name can be used in place of the address itself. For example, the registered domain
 name ``ethereum.eth`` will resolve to the address
 ``0xde0B295669a9FD93d5F28D9Ec85E40f4cb697BAe``. web3.py has support for ENS, documented
 :ref:`here <ens_overview>`.

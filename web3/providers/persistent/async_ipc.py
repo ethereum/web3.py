@@ -78,7 +78,7 @@ class AsyncIPCProvider(PersistentConnectionProvider):
 
         self.request_timeout = request_timeout
         self._max_connection_retries = max_connection_retries
-        super().__init__(request_timeout, **kwargs)
+        super().__init__(request_timeout, max_connection_retries, **kwargs)
 
     def __str__(self) -> str:
         return f"<{self.__class__.__name__} {self.ipc_path}>"

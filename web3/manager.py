@@ -72,7 +72,7 @@ if TYPE_CHECKING:
         AsyncBaseProvider,
         BaseProvider,
     )
-    from web3.providers.websocket.request_processor import (  # noqa: F401
+    from web3.providers.persistent.request_processor import (  # noqa: F401
         RequestProcessor,
     )
 

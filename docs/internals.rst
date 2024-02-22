@@ -304,12 +304,12 @@ implemented in the Middleware layer.
 Request Processing for Persistent Connection Providers
 ------------------------------------------------------
 
-.. py:class:: web3.providers.websocket.request_processor.RequestProcessor
+.. py:class:: web3.providers.persistent.request_processor.RequestProcessor
 
 The ``RequestProcessor`` class is responsible for the storing and syncing up of
 asynchronous requests to responses for a ``PersistentConnectionProvider``. The best
 example of one such provider is the
-:class:`~web3.providers.websocket.WebsocketProviderV2`. In order to send a websocket
+:class:`~web3.providers.persistent.WebsocketProviderV2`. In order to send a websocket
 message and receive a response to that particular request,
 ``PersistentConnectionProvider`` instances have to match request *id* values to
 response *id* values coming back from the websocket connection. Any provider that does
@@ -414,7 +414,7 @@ subscription *id* value, but it also expects to receive many ``eth_subscription`
 messages if and when the request is successful. For this reason, the original request
 is considered a one-to-one request so that a subscription *id* can be returned to the
 user on the same line, but the ``process_subscriptions()`` method on the
-:class:`~web3.providers.websocket.PersistentConnection` class, the public API for
+:class:`~web3.providers.persistent.PersistentConnection` class, the public API for
 interacting with the active websocket connection, is set up to receive
 ``eth_subscription`` responses over an asynchronous interator pattern.
 
