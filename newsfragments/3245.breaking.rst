@@ -1,0 +1,1 @@
+``get_default_ipc_path()`` and ``get_dev_ipc_path()`` now return the path value without checking if the ``geth.ipc`` file exists.
