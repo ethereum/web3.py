@@ -23,12 +23,12 @@ Providers
 :doc:`providers` are how web3.py connects to a blockchain. The library comes with the
 following built-in providers:
 
-- :class:`~web3.providers.ipc.IPCProvider` for connecting to ipc socket based JSON-RPC servers.
 - :class:`~web3.providers.rpc.HTTPProvider` for connecting to http and https based JSON-RPC servers.
-- :class:`~web3.providers.websocket.WebsocketProvider` for connecting to ws and wss websocket based JSON-RPC servers.
+- :class:`~web3.providers.ipc.IPCProvider` for connecting to ipc socket based JSON-RPC servers.
+- :class:`~web3.providers.legacy_websocket.LegacyWebsocketProvider` (deprecated) for connecting to websocket based JSON-RPC servers.
 - :class:`~web3.providers.async_rpc.AsyncHTTPProvider` for connecting to http and https based JSON-RPC servers asynchronously.
-- :class:`~web3.providers.persistent.WebsocketProviderV2` (beta) for connecting to websocket based JSON-RPC servers asynchronously.
-- :class:`~web3.providers.persistent.AsyncIPCProvider` (beta) for connecting to ipc socket based JSON-RPC servers asynchronously.
+- :class:`~web3.providers.persistent.AsyncIPCProvider` for connecting to ipc socket based JSON-RPC servers asynchronously via a persistent connection.
+- :class:`~web3.providers.persistent.WebsocketProvider` for connecting to websocket based JSON-RPC servers asynchronously via a persistent connection.
 
 Examples
 ^^^^^^^^
@@ -38,22 +38,32 @@ Examples
    >>> from web3 import Web3, AsyncWeb3
 
    # IPCProvider:
-   >>> w3 = Web3(Web3.IPCProvider('./path/to/geth.ipc'))
+   >>> w3 = Web3(Web3.IPCProvider('./path/to/filename.ipc'))
+   >>> w3.is_connected()
+   True
 
    # HTTPProvider:
    >>> w3 = Web3(Web3.HTTPProvider('http://127.0.0.1:8545'))
-
-   # WebsocketProvider:
-   >>> w3 = Web3(Web3.WebsocketProvider('ws://127.0.0.1:8546'))
-
    >>> w3.is_connected()
    True
 
    # AsyncHTTPProvider:
    >>> w3 = AsyncWeb3(AsyncWeb3.AsyncHTTPProvider('http://127.0.0.1:8545'))
-
    >>> await w3.is_connected()
    True
+
+   # -- Persistent Connection Providers -- #
+
+   # WebsocketProvider:
+   >>> w3 = await AsyncWeb3(AsyncWeb3.WebsocketProvider('ws://127.0.0.1:8546'))
+   >>> await w3.is_connected()
+   True
+
+   # AsyncIPCProvider
+   >>> w3 = await AsyncWeb3(AsyncWeb3.AsyncIPCProvider('./path/to/filename.ipc'))
+   >>> await w3.is_connected()
+   True
+
 
 For more context, see the :doc:`providers` documentation.
 

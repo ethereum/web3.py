@@ -19,8 +19,8 @@ from web3.exceptions import (
     ProviderConnectionError,
     Web3ValidationError,
 )
-from web3.providers.websocket import (
-    WebsocketProvider,
+from web3.providers.legacy_websocket import (
+    LegacyWebsocketProvider,
 )
 
 
@@ -53,12 +53,12 @@ def w3(open_port, start_websocket_server):
     event_loop = asyncio.new_event_loop()
     endpoint_uri = f"ws://127.0.0.1:{open_port}"
     event_loop.run_until_complete(wait_for_ws(endpoint_uri))
-    provider = WebsocketProvider(endpoint_uri, websocket_timeout=0.01)
+    provider = LegacyWebsocketProvider(endpoint_uri, websocket_timeout=0.01)
     return Web3(provider)
 
 
 def test_no_args():
-    provider = WebsocketProvider()
+    provider = LegacyWebsocketProvider()
     w3 = Web3(provider)
     assert w3.manager.provider == provider
     assert not w3.manager.provider.is_async
@@ -76,4 +76,4 @@ def test_restricted_websocket_kwargs():
     invalid_kwargs = {"uri": "ws://127.0.0.1:8546"}
     re_exc_message = f".*found: {set(invalid_kwargs)!r}*"
     with pytest.raises(Web3ValidationError, match=re_exc_message):
-        WebsocketProvider(websocket_kwargs=invalid_kwargs)
+        LegacyWebsocketProvider(websocket_kwargs=invalid_kwargs)

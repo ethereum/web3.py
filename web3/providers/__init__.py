@@ -14,14 +14,14 @@ from .ipc import (
 from .rpc import (
     HTTPProvider,
 )
-from .websocket import (
-    WebsocketProvider,
+from .legacy_websocket import (
+    LegacyWebsocketProvider,
 )
 from .persistent import (
     AsyncIPCProvider,
     PersistentConnection,
     PersistentConnectionProvider,
-    WebsocketProviderV2,
+    WebsocketProvider,
 )
 from .auto import (
     AutoProvider,

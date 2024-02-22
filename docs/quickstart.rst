@@ -70,20 +70,29 @@ to this local node can be done as follows:
    >>> from web3 import Web3, AsyncWeb3
 
    # IPCProvider:
-   >>> w3 = Web3(Web3.IPCProvider('./path/to/geth.ipc'))
+   >>> w3 = Web3(Web3.IPCProvider('./path/to/filename.ipc'))
+   >>> w3.is_connected()
+   True
 
    # HTTPProvider:
    >>> w3 = Web3(Web3.HTTPProvider('http://127.0.0.1:8545'))
-
-   # WebsocketProvider:
-   >>> w3 = Web3(Web3.WebsocketProvider('wss://127.0.0.1:8546'))
-
    >>> w3.is_connected()
    True
 
    # AsyncHTTPProvider:
    >>> w3 = AsyncWeb3(AsyncWeb3.AsyncHTTPProvider('http://127.0.0.1:8545'))
+   >>> await w3.is_connected()
+   True
 
+   # -- Persistent Connection Providers -- #
+
+   # WebsocketProvider:
+   >>> w3 = await AsyncWeb3(AsyncWeb3.WebsocketProvider('ws://127.0.0.1:8546'))
+   >>> await w3.is_connected()
+   True
+
+   # AsyncIPCProvider:
+   >>> w3 = await AsyncWeb3(AsyncWeb3.AsyncIPCProvider('./path/to/filename.ipc'))
    >>> await w3.is_connected()
    True
 
@@ -102,7 +111,7 @@ You can connect to a remote node by specifying the endpoint, just like the previ
 
    >>> w3 = AsyncWeb3(AsyncWeb3.AsyncHTTPProvider('https://<your-provider-url>'))
 
-   >>> w3 = Web3(Web3.WebsocketProvider('wss://<your-provider-url>'))
+   >>> w3 = await AsyncWeb3(AsyncWeb3.WebsocketProvider('wss://<your-provider-url>'))
 
 This endpoint is provided by the remote node service, typically after you create an account.
 

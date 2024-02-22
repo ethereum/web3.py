@@ -44,6 +44,10 @@ from web3.utils import (
 if TYPE_CHECKING:
     from web3 import (  # noqa: F401
         AsyncWeb3,
+        WebsocketProvider,
+    )
+    from web3.providers.persistent import (  # noqa: F401
+        RequestProcessor,
     )
 
 
@@ -106,6 +110,10 @@ class AsyncBaseProvider:
 
     async def is_connected(self, show_traceback: bool = False) -> bool:
         raise NotImplementedError("Providers must implement this method")
+
+    # -- persistent connection providers -- #
+
+    _request_processor: "RequestProcessor"
 
 
 class AsyncJSONBaseProvider(AsyncBaseProvider):

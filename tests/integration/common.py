@@ -15,7 +15,7 @@ COINBASE = "0xdc544d1aa88ff8bbd2f2aec754b1f1e99e1812fd"
 class MiscWebsocketTest:
     def test_websocket_max_size_error(self, w3, endpoint_uri):
         w3 = Web3(
-            Web3.WebsocketProvider(
+            Web3.LegacyWebsocketProvider(
                 endpoint_uri=endpoint_uri, websocket_kwargs={"max_size": 1}
             )
         )
