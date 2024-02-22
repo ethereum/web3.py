@@ -10,6 +10,6 @@ from .request_processor import (
 from .async_ipc import (
     AsyncIPCProvider,
 )
-from .websocket_v2 import (
-    WebsocketProviderV2,
+from .websocket import (
+    WebsocketProvider,
 )

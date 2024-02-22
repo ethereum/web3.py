@@ -15,6 +15,9 @@ from eth_typing import (
 from toolz import (
     merge,
 )
+from websockets import (
+    WebSocketClientProtocol,
+)
 from websockets.client import (
     connect,
 )
@@ -57,7 +60,7 @@ def get_default_endpoint() -> URI:
     return URI(os.environ.get("WEB3_WS_PROVIDER_URI", "ws://127.0.0.1:8546"))
 
 
-class WebsocketProviderV2(PersistentConnectionProvider):
+class WebsocketProvider(PersistentConnectionProvider):
     logger = logging.getLogger("web3.providers.WebsocketProviderV2")
     is_async: bool = True
     _max_connection_retries: int = 5

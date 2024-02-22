@@ -67,7 +67,7 @@ def geth_command_arguments(
 def w3(geth_process, endpoint_uri):
     event_loop = asyncio.new_event_loop()
     event_loop.run_until_complete(wait_for_ws(endpoint_uri))
-    _w3 = Web3(Web3.WebsocketProvider(endpoint_uri, websocket_timeout=30))
+    _w3 = Web3(Web3.LegacyWebsocketProvider(endpoint_uri, websocket_timeout=30))
     return _w3
 
 

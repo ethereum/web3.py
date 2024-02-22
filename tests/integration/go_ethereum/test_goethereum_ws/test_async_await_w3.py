@@ -4,7 +4,7 @@ import pytest_asyncio
 
 from web3 import (
     AsyncWeb3,
-    WebsocketProviderV2,
+    WebsocketProvider,
 )
 from web3._utils.module_testing.go_ethereum_admin_module import (
     GoEthereumAsyncAdminModuleTest,
@@ -29,9 +29,8 @@ from ..utils import (
 async def async_w3(geth_process, endpoint_uri):
     await wait_for_aiohttp(endpoint_uri)
 
-    # async context manager pattern
-    async with AsyncWeb3.persistent_connection(WebsocketProviderV2(endpoint_uri)) as w3:
-        yield w3
+    # await the persistent connection itself
+    return await AsyncWeb3(WebsocketProvider(endpoint_uri))
 
 
 class TestGoEthereumAsyncAdminModuleTest(GoEthereumAsyncAdminModuleTest):

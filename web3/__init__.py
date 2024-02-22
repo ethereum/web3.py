@@ -18,7 +18,7 @@ from web3.main import (
 from web3.providers.persistent import (  # noqa: E402
     AsyncIPCProvider,
     PersistentConnectionProvider,
-    WebsocketProviderV2,
+    WebsocketProvider,
 )
 from web3.providers.eth_tester import (  # noqa: E402
     EthereumTesterProvider,
@@ -30,8 +30,8 @@ from web3.providers.rpc import (  # noqa: E402
     AsyncHTTPProvider,
     HTTPProvider,
 )
-from web3.providers.websocket import (  # noqa: E402
-    WebsocketProvider,
+from web3.providers.legacy_websocket import (  # noqa: E402
+    LegacyWebsocketProvider,
 )
 
 
@@ -41,8 +41,8 @@ __all__ = [
     "Web3",
     "HTTPProvider",
     "IPCProvider",
+    "LegacyWebsocketProvider",
     "WebsocketProvider",
-    "WebsocketProviderV2",
     "EthereumTesterProvider",
     "Account",
     "AsyncHTTPProvider",

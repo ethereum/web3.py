@@ -49,11 +49,11 @@ class RegistryURIBackend(BaseURIBackend):
 
     def __init__(self) -> None:
         from web3 import (
+            LegacyWebsocketProvider,
             Web3,
-            WebsocketProvider,
         )
 
-        w3 = Web3(WebsocketProvider())
+        w3 = Web3(LegacyWebsocketProvider())
 
         self.w3 = w3
 
@@ -96,11 +96,11 @@ def parse_registry_uri(uri: str) -> RegistryURI:
     from a valid registry URI.
     """
     from web3 import (
+        LegacyWebsocketProvider,
         Web3,
-        WebsocketProvider,
     )
 
-    w3 = Web3(WebsocketProvider())
+    w3 = Web3(LegacyWebsocketProvider())
 
     validate_registry_uri(uri)
     parsed_uri = parse.urlparse(uri)

@@ -11,7 +11,7 @@ from web3.types import (
 
 if TYPE_CHECKING:
     from web3.main import (  # noqa: F401
-        _PersistentConnectionWeb3,
+        AsyncWeb3,
     )
     from web3.manager import (  # noqa: F401
         _AsyncPersistentMessageStream,
@@ -21,10 +21,10 @@ if TYPE_CHECKING:
 class PersistentConnection:
     """
     A class that houses the public API for interacting with the persistent connection
-    via a `_PersistentConnectionWeb3` instance.
+    via a `AsyncWeb3` instance instantiated with a `PersistentConnectionProvider` class.
     """
 
-    def __init__(self, w3: "_PersistentConnectionWeb3"):
+    def __init__(self, w3: "AsyncWeb3"):
         self._manager = w3.manager
 
     # -- public methods -- #

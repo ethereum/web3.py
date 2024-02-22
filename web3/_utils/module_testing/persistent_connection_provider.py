@@ -27,7 +27,7 @@ from web3.types import (
 
 if TYPE_CHECKING:
     from web3.main import (
-        _PersistentConnectionWeb3,
+        AsyncWeb3,
     )
 
 
@@ -278,7 +278,7 @@ class PersistentConnectionProviderTest:
     )
     async def test_async_eth_subscribe_mocked(
         self,
-        async_w3: "_PersistentConnectionWeb3",
+        async_w3: "AsyncWeb3",
         subscription_params: Tuple[Any, ...],
         ws_subscription_response: Dict[str, Any],
         expected_formatted_result: Any,
@@ -306,7 +306,7 @@ class PersistentConnectionProviderTest:
     @pytest.mark.asyncio
     async def test_async_extradata_poa_middleware_on_eth_subscription(
         self,
-        async_w3: "_PersistentConnectionWeb3",
+        async_w3: "AsyncWeb3",
     ) -> None:
         async_w3.middleware_onion.inject(
             ExtraDataToPOAMiddleware, "poa_middleware", layer=0
@@ -348,7 +348,7 @@ class PersistentConnectionProviderTest:
     @pytest.mark.asyncio
     async def test_asyncio_gather_for_multiple_requests_matches_the_responses(
         self,
-        async_w3: "_PersistentConnectionWeb3",
+        async_w3: "AsyncWeb3",
     ) -> None:
         (
             latest,

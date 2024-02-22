@@ -50,7 +50,6 @@ docs/web3.middleware.rst
 docs/web3.providers.eth_tester.rst
 docs/web3.providers.rst
 docs/web3.providers.rpc.rst
-docs/web3.providers.websocket.rst
 docs/web3.providers.persistent.rst
 docs/web3.rst
 docs/web3.scripts.release.rst

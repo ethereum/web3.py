@@ -82,7 +82,7 @@ class PersistentWebSocket:
             self.ws = None
 
 
-class WebsocketProvider(JSONBaseProvider):
+class LegacyWebsocketProvider(JSONBaseProvider):
     logger = logging.getLogger("web3.providers.WebsocketProvider")
     _loop = None
 
@@ -96,8 +96,8 @@ class WebsocketProvider(JSONBaseProvider):
         self.websocket_timeout = websocket_timeout
         if self.endpoint_uri is None:
             self.endpoint_uri = get_default_endpoint()
-        if WebsocketProvider._loop is None:
-            WebsocketProvider._loop = _get_threaded_loop()
+        if LegacyWebsocketProvider._loop is None:
+            LegacyWebsocketProvider._loop = _get_threaded_loop()
         if websocket_kwargs is None:
             websocket_kwargs = {}
         else:
@@ -130,6 +130,6 @@ class WebsocketProvider(JSONBaseProvider):
         )
         request_data = self.encode_rpc_request(method, params)
         future = asyncio.run_coroutine_threadsafe(
-            self.coro_make_request(request_data), WebsocketProvider._loop
+            self.coro_make_request(request_data), LegacyWebsocketProvider._loop
         )
         return future.result()

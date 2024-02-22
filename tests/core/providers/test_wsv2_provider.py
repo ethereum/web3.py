@@ -24,7 +24,7 @@ from web3.exceptions import (
     TimeExhausted,
 )
 from web3.providers.persistent import (
-    WebsocketProviderV2,
+    WebsocketProvider,
 )
 from web3.types import (
     RPCEndpoint,
@@ -45,7 +45,7 @@ class WSException(Exception):
 
 @pytest.mark.asyncio
 async def test_async_make_request_returns_desired_response():
-    provider = WebsocketProviderV2("ws://mocked")
+    provider = WebsocketProvider("ws://mocked")
 
     with patch(
         "web3.providers.persistent.websocket_v2.connect", new=lambda *_1, **_2: _coro()
@@ -95,7 +95,7 @@ async def test_async_make_request_returns_desired_response():
 @pytest.mark.asyncio
 async def test_async_make_request_times_out_of_while_loop_looking_for_response():
     timeout = 0.001
-    provider = WebsocketProviderV2("ws://mocked", request_timeout=timeout)
+    provider = WebsocketProvider("ws://mocked", request_timeout=timeout)
 
     method_under_test = provider.make_request
     _mock_ws(provider)
@@ -110,7 +110,7 @@ async def test_async_make_request_times_out_of_while_loop_looking_for_response()
 
 @pytest.mark.asyncio
 async def test_msg_listener_task_starts_on_provider_connect_and_cancels_on_disconnect():
-    provider = WebsocketProviderV2("ws://mocked")
+    provider = WebsocketProvider("ws://mocked")
     _mock_ws(provider)
 
     assert provider._message_listener_task is None
@@ -131,7 +131,7 @@ async def test_msg_listener_task_starts_on_provider_connect_and_cancels_on_disco
 
 @pytest.mark.asyncio
 async def test_msg_listener_task_raises_exceptions_by_default():
-    provider = WebsocketProviderV2("ws://mocked")
+    provider = WebsocketProvider("ws://mocked")
     _mock_ws(provider)
 
     with patch(
@@ -154,7 +154,7 @@ async def test_msg_listener_task_raises_exceptions_by_default():
 async def test_msg_listener_task_silences_exceptions_and_error_logs_when_configured(
     caplog,
 ):
-    provider = WebsocketProviderV2("ws://mocked", silence_listener_task_exceptions=True)
+    provider = WebsocketProvider("ws://mocked", silence_listener_task_exceptions=True)
     _mock_ws(provider)
 
     with patch(
@@ -193,7 +193,7 @@ async def test_listen_event_awaits_msg_processing_when_subscription_queue_is_ful
         "web3.providers.persistent.websocket_v2.connect", new=lambda *_1, **_2: _coro()
     ):
         async_w3 = await AsyncWeb3.persistent_connection(
-            WebsocketProviderV2("ws://mocked")
+            WebsocketProvider("ws://mocked")
         )
 
     _mock_ws(async_w3.provider)
