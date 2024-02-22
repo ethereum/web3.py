@@ -419,10 +419,10 @@ def parse_block_identifier(
         return parse_block_identifier_int(w3, block_identifier)
     elif block_identifier in ["latest", "earliest", "pending", "safe", "finalized"]:
         return block_identifier
-    elif isinstance(block_identifier, bytes) or is_hex_encoded_block_hash(
-        block_identifier
-    ):
-        return w3.eth.get_block(block_identifier)["number"]
+    elif is_hex_encoded_block_hash(block_identifier):
+        return block_identifier
+    elif isinstance(block_identifier, bytes):
+        return add_0x_prefix(block_identifier.hex())
     else:
         raise BlockNumberOutofRange
 
