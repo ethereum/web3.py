@@ -20,22 +20,19 @@ from eth_utils import (
     to_text,
 )
 
-from web3._utils.caching import (
-    async_handle_request_caching,
-    generate_cache_key,
-)
-from web3.exceptions import (
-    ProviderConnectionError,
-    TimeExhausted,
-)
 from web3.types import (
     RPCEndpoint,
-    RPCId,
     RPCResponse,
 )
 
 from . import (
     PersistentConnectionProvider,
+)
+from ..._utils.caching import (
+    async_handle_request_caching,
+)
+from ...exceptions import (
+    ProviderConnectionError,
 )
 from ..ipc import (
     get_default_ipc_path,
@@ -65,8 +62,8 @@ class AsyncIPCProvider(PersistentConnectionProvider):
     def __init__(
         self,
         ipc_path: Optional[Union[str, Path]] = None,
-        request_timeout: int = 10,
         max_connection_retries: int = 5,
+        # `PersistentConnectionProvider` kwargs can be passed through
         **kwargs: Any,
     ) -> None:
         if ipc_path is None:
@@ -76,9 +73,8 @@ class AsyncIPCProvider(PersistentConnectionProvider):
         else:
             raise TypeError("ipc_path must be of type string or pathlib.Path")
 
-        self.request_timeout = request_timeout
         self._max_connection_retries = max_connection_retries
-        super().__init__(request_timeout, max_connection_retries, **kwargs)
+        super().__init__(**kwargs)
 
     def __str__(self) -> str:
         return f"<{self.__class__.__name__} {self.ipc_path}>"
@@ -168,41 +164,6 @@ class AsyncIPCProvider(PersistentConnectionProvider):
         response = await self._get_response_for_request_id(current_request_id)
 
         return response
-
-    async def _get_response_for_request_id(self, request_id: RPCId) -> RPCResponse:
-        async def _match_response_id_to_request_id() -> RPCResponse:
-            request_cache_key = generate_cache_key(request_id)
-
-            while True:
-                # sleep(0) here seems to be the most efficient way to yield control
-                # back to the event loop while waiting for the response to be in the
-                # queue.
-                await asyncio.sleep(0)
-
-                if request_cache_key in self._request_processor._request_response_cache:
-                    self.logger.debug(
-                        f"Popping response for id {request_id} from cache."
-                    )
-                    popped_response = self._request_processor.pop_raw_response(
-                        cache_key=request_cache_key,
-                    )
-                    return popped_response
-
-        try:
-            # Add the request timeout around the while loop that checks the request
-            # cache and tried to recv(). If the request is neither in the cache, nor
-            # received within the request_timeout, raise ``TimeExhausted``.
-            return await asyncio.wait_for(
-                _match_response_id_to_request_id(), self.request_timeout
-            )
-        except asyncio.TimeoutError:
-            raise TimeExhausted(
-                f"Timed out waiting for response with request id `{request_id}` after "
-                f"{self.request_timeout} second(s). This may be due to the provider "
-                "not returning a response with the same id that was sent in the "
-                "request or an exception raised during the request was caught and "
-                "allowed to continue."
-            )
 
     async def _message_listener(self) -> None:
         self.logger.info(
