@@ -14,7 +14,6 @@ from types import (
 )
 from typing import (
     Any,
-    Optional,
     Type,
     Union,
 )
@@ -86,20 +85,15 @@ class PersistantSocket:
         return self.sock
 
 
-def get_default_ipc_path() -> Optional[str]:
+def get_default_ipc_path() -> str:
     if sys.platform == "darwin":
-        ipc_path = os.path.expanduser(
-            os.path.join("~", "Library", "Ethereum", "geth.ipc")
-        )
-        return ipc_path
+        return os.path.expanduser(os.path.join("~", "Library", "Ethereum", "geth.ipc"))
 
     elif sys.platform.startswith("linux") or sys.platform.startswith("freebsd"):
-        ipc_path = os.path.expanduser(os.path.join("~", ".ethereum", "geth.ipc"))
-        return ipc_path
+        return os.path.expanduser(os.path.join("~", ".ethereum", "geth.ipc"))
 
     elif sys.platform == "win32":
-        ipc_path = r"\\.\pipe\geth.ipc"
-        return ipc_path
+        return r"\\.\pipe\geth.ipc"
 
     else:
         raise ValueError(
@@ -108,23 +102,19 @@ def get_default_ipc_path() -> Optional[str]:
         )
 
 
-def get_dev_ipc_path() -> Optional[str]:
+def get_dev_ipc_path() -> str:
     if os.environ.get("WEB3_PROVIDER_URI", ""):
-        ipc_path = os.environ.get("WEB3_PROVIDER_URI")
-        return ipc_path
+        return os.environ.get("WEB3_PROVIDER_URI")
 
     elif sys.platform == "darwin":
         tmpdir = os.environ.get("TMPDIR", "")
-        ipc_path = os.path.expanduser(os.path.join(tmpdir, "geth.ipc"))
-        return ipc_path
+        return os.path.expanduser(os.path.join(tmpdir, "geth.ipc"))
 
     elif sys.platform.startswith("linux") or sys.platform.startswith("freebsd"):
-        ipc_path = os.path.expanduser(os.path.join("/tmp", "geth.ipc"))
-        return ipc_path
+        return os.path.expanduser(os.path.join("/tmp", "geth.ipc"))
 
     elif sys.platform == "win32":
-        ipc_path = os.path.join("\\\\", ".", "pipe", "geth.ipc")
-        return ipc_path
+        return os.path.join("\\\\", ".", "pipe", "geth.ipc")
 
     else:
         raise ValueError(
