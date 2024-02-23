@@ -57,6 +57,7 @@ class RPC:
     eth_getBalance = RPCEndpoint("eth_getBalance")
     eth_getBlockByHash = RPCEndpoint("eth_getBlockByHash")
     eth_getBlockByNumber = RPCEndpoint("eth_getBlockByNumber")
+    eth_getBlockReceipts = RPCEndpoint("eth_getBlockReceipts")
     eth_getBlockTransactionCountByHash = RPCEndpoint(
         "eth_getBlockTransactionCountByHash"
     )

@@ -316,6 +316,26 @@ class TestEthereumTesterEthModule(EthModuleTest):
         EthModuleTest.test_eth_call_with_override_code,
         TypeError,
     )
+    test_eth_getBlockReceipts_hash = not_implemented(
+        EthModuleTest.test_eth_getBlockReceipts_hash,
+        MethodUnavailable,
+    )
+    test_eth_getBlockReceipts_not_found = not_implemented(
+        EthModuleTest.test_eth_getBlockReceipts_not_found,
+        MethodUnavailable,
+    )
+    test_eth_getBlockReceipts_with_integer = not_implemented(
+        EthModuleTest.test_eth_getBlockReceipts_with_integer,
+        MethodUnavailable,
+    )
+    test_eth_getBlockReceipts_safe = not_implemented(
+        EthModuleTest.test_eth_getBlockReceipts_safe,
+        MethodUnavailable,
+    )
+    test_eth_getBlockReceipts_finalized = not_implemented(
+        EthModuleTest.test_eth_getBlockReceipts_finalized,
+        MethodUnavailable,
+    )
 
     def test_eth_getBlockByHash_pending(self, w3: "Web3") -> None:
         block = w3.eth.get_block("pending")
@@ -632,26 +652,10 @@ class TestEthereumTesterEthModule(EthModuleTest):
     def test_eth_send_transaction_no_max_fee(self, eth_tester, w3, unlocked_account):
         super().test_eth_send_transaction_no_max_fee(w3, unlocked_account)
 
-    def test_eth_getBlockByNumber_safe(
-        self, w3: "Web3", empty_block: BlockData
-    ) -> None:
-        super().test_eth_getBlockByNumber_safe(w3, empty_block)
-
-    def test_eth_getBlockByNumber_finalized(
-        self, w3: "Web3", empty_block: BlockData
-    ) -> None:
-        super().test_eth_getBlockByNumber_finalized(w3, empty_block)
-
-    def test_eth_fee_history(self, w3: "Web3") -> None:
-        super().test_eth_fee_history(w3)
-
     def test_eth_fee_history_with_integer(
         self, w3: "Web3", empty_block: BlockData
     ) -> None:
         super().test_eth_fee_history_with_integer(w3, empty_block)
-
-    def test_eth_fee_history_with_no_reward_percentiles(self, w3: "Web3") -> None:
-        super().test_eth_fee_history_no_reward_percentiles(w3)
 
     def test_eth_get_balance_with_block_identifier(self, w3: "Web3") -> None:
         w3.testing.mine()

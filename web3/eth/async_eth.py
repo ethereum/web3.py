@@ -75,6 +75,7 @@ from web3.types import (
     BlockData,
     BlockIdentifier,
     BlockParams,
+    BlockReceipts,
     CreateAccessListResponse,
     FeeHistory,
     FilterParams,
@@ -439,6 +440,20 @@ class AsyncEth(BaseEth):
         self, block_identifier: BlockIdentifier, full_transactions: bool = False
     ) -> BlockData:
         return await self._get_block(block_identifier, full_transactions)
+
+    # eth_getBlockReceipts
+
+    _get_block_receipts: Method[
+        Callable[[BlockIdentifier], Awaitable[BlockReceipts]]
+    ] = Method(
+        RPC.eth_getBlockReceipts,
+        mungers=[default_root_munger],
+    )
+
+    async def get_block_receipts(
+        self, block_identifier: BlockIdentifier
+    ) -> BlockReceipts:
+        return await self._get_block_receipts(block_identifier)
 
     # eth_getBalance
 
