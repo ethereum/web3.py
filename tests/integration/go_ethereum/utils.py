@@ -1,3 +1,4 @@
+import asyncio
 import signal
 import socket
 import time
@@ -14,6 +15,17 @@ def wait_for_socket(ipc_path, timeout=30):
             sock.connect(ipc_path)
             sock.settimeout(timeout)
         except (FileNotFoundError, socket.error):
+            time.sleep(0.01)
+        else:
+            break
+
+
+async def wait_for_async_socket(ipc_path, timeout=30):
+    start = time.time()
+    while time.time() < start + timeout:
+        try:
+            await asyncio.open_unix_connection(ipc_path)
+        except OSError:
             time.sleep(0.01)
         else:
             break

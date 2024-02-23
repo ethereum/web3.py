@@ -1,25 +1,23 @@
 import asyncio
+import errno
 import json
+from json import (
+    JSONDecodeError,
+)
 import logging
-import os
+from pathlib import (
+    Path,
+)
+import sys
 from typing import (
     Any,
-    Dict,
     Optional,
+    Tuple,
     Union,
 )
 
-from eth_typing import (
-    URI,
-)
-from toolz import (
-    merge,
-)
-from websockets.client import (
-    connect,
-)
-from websockets.exceptions import (
-    WebSocketException,
+from eth_utils import (
+    to_text,
 )
 
 from web3._utils.caching import (
@@ -29,10 +27,6 @@ from web3._utils.caching import (
 from web3.exceptions import (
     ProviderConnectionError,
     TimeExhausted,
-    Web3ValidationError,
-)
-from web3.providers.persistent import (
-    PersistentConnectionProvider,
 )
 from web3.types import (
     RPCEndpoint,
@@ -40,80 +34,64 @@ from web3.types import (
     RPCResponse,
 )
 
-DEFAULT_PING_INTERVAL = 30  # 30 seconds
-DEFAULT_PING_TIMEOUT = 300  # 5 minutes
-
-VALID_WEBSOCKET_URI_PREFIXES = {"ws://", "wss://"}
-RESTRICTED_WEBSOCKET_KWARGS = {"uri", "loop"}
-DEFAULT_WEBSOCKET_KWARGS = {
-    # set how long to wait between pings from the server
-    "ping_interval": DEFAULT_PING_INTERVAL,
-    # set how long to wait without a pong response before closing the connection
-    "ping_timeout": DEFAULT_PING_TIMEOUT,
-}
+from . import (
+    PersistentConnectionProvider,
+)
+from ..ipc import (
+    get_default_ipc_path,
+)
 
 
-def get_default_endpoint() -> URI:
-    return URI(os.environ.get("WEB3_WS_PROVIDER_URI", "ws://127.0.0.1:8546"))
+async def async_get_ipc_socket(
+    ipc_path: str,
+) -> Tuple[asyncio.StreamReader, asyncio.StreamWriter]:
+    if sys.platform == "win32":
+        # On Windows named pipe is used. Simulate socket with it.
+        from web3._utils.windows import (
+            NamedPipe,
+        )
+
+        return NamedPipe(ipc_path)
+    else:
+        return await asyncio.open_unix_connection(ipc_path)
 
 
-class WebsocketProviderV2(PersistentConnectionProvider):
-    logger = logging.getLogger("web3.providers.WebsocketProviderV2")
-    is_async: bool = True
-    _max_connection_retries: int = 5
+class AsyncIPCProvider(PersistentConnectionProvider):
+    logger = logging.getLogger("web3.providers.AsyncIPCProvider")
+
+    reader: Optional[asyncio.StreamReader] = None
+    writer: Optional[asyncio.StreamWriter] = None
 
     def __init__(
         self,
-        endpoint_uri: Optional[Union[URI, str]] = None,
-        websocket_kwargs: Optional[Dict[str, Any]] = None,
-        silence_listener_task_exceptions: bool = False,
-        # `PersistentConnectionProvider` kwargs can be passed through
+        ipc_path: Optional[Union[str, Path]] = None,
+        request_timeout: int = 10,
+        max_connection_retries: int = 5,
         **kwargs: Any,
     ) -> None:
-        self.endpoint_uri = URI(endpoint_uri)
-        if self.endpoint_uri is None:
-            self.endpoint_uri = get_default_endpoint()
+        if ipc_path is None:
+            self.ipc_path = get_default_ipc_path()
+        elif isinstance(ipc_path, str) or isinstance(ipc_path, Path):
+            self.ipc_path = str(Path(ipc_path).expanduser().resolve())
+        else:
+            raise TypeError("ipc_path must be of type string or pathlib.Path")
 
-        if not any(
-            self.endpoint_uri.startswith(prefix)
-            for prefix in VALID_WEBSOCKET_URI_PREFIXES
-        ):
-            raise Web3ValidationError(
-                "Websocket endpoint uri must begin with 'ws://' or 'wss://': "
-                f"{self.endpoint_uri}"
-            )
-
-        if websocket_kwargs is not None:
-            found_restricted_keys = set(websocket_kwargs).intersection(
-                RESTRICTED_WEBSOCKET_KWARGS
-            )
-            if found_restricted_keys:
-                raise Web3ValidationError(
-                    "Found restricted keys for websocket_kwargs: "
-                    f"{found_restricted_keys}."
-                )
-
-        self.websocket_kwargs = merge(DEFAULT_WEBSOCKET_KWARGS, websocket_kwargs or {})
-        self.silence_listener_task_exceptions = silence_listener_task_exceptions
-
-        super().__init__(**kwargs)
+        self.request_timeout = request_timeout
+        self._max_connection_retries = max_connection_retries
+        super().__init__(request_timeout, max_connection_retries, **kwargs)
 
     def __str__(self) -> str:
-        return f"Websocket connection: {self.endpoint_uri}"
+        return f"<{self.__class__.__name__} {self.ipc_path}>"
 
     async def is_connected(self, show_traceback: bool = False) -> bool:
-        if not self._ws:
-            return False
-
         try:
-            await self._ws.pong()
+            await self.make_request(RPCEndpoint("web3_clientVersion"), [])
             return True
-
-        except WebSocketException as e:
+        except (OSError, BrokenPipeError, ProviderConnectionError) as e:
             if show_traceback:
                 raise ProviderConnectionError(
-                    f"Error connecting to endpoint: '{self.endpoint_uri}'"
-                ) from e
+                    f"Problem connecting to provider with error: {type(e)}: {e}"
+                )
             return False
 
     async def connect(self) -> None:
@@ -124,12 +102,12 @@ class WebsocketProviderV2(PersistentConnectionProvider):
         while _connection_attempts != self._max_connection_retries:
             try:
                 _connection_attempts += 1
-                self._ws = await connect(self.endpoint_uri, **self.websocket_kwargs)
+                self.reader, self.writer = await async_get_ipc_socket(self.ipc_path)
                 self._message_listener_task = asyncio.create_task(
-                    self._ws_message_listener()
+                    self._message_listener()
                 )
                 break
-            except WebSocketException as e:
+            except OSError as e:
                 if _connection_attempts == self._max_connection_retries:
                     raise ProviderConnectionError(
                         f"Could not connect to endpoint: {self.endpoint_uri}. "
@@ -144,9 +122,10 @@ class WebsocketProviderV2(PersistentConnectionProvider):
                 _backoff_time *= _backoff_rate_change
 
     async def disconnect(self) -> None:
-        if self._ws is not None and not self._ws.closed:
-            await self._ws.close()
-            self._ws = None
+        if self.writer and not self.writer.is_closing():
+            self.writer.close()
+            await self.writer.wait_closed()
+            self.writer = None
             self.logger.debug(
                 f'Successfully disconnected from endpoint: "{self.endpoint_uri}'
             )
@@ -154,22 +133,36 @@ class WebsocketProviderV2(PersistentConnectionProvider):
         try:
             self._message_listener_task.cancel()
             await self._message_listener_task
+            self.reader = None
         except (asyncio.CancelledError, StopAsyncIteration):
             pass
+
         self._request_processor.clear_caches()
+
+    async def _reset_socket(self) -> None:
+        self.writer.close()
+        await self.writer.wait_closed()
+        self.reader, self.writer = await async_get_ipc_socket(self.ipc_path)
 
     @async_handle_request_caching
     async def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
         request_data = self.encode_rpc_request(method, params)
 
-        if self._ws is None:
+        if self.writer is None:
             raise ProviderConnectionError(
-                "Connection to websocket has not been initiated for the provider."
+                "Connection to ipc socket has not been initiated for the provider."
             )
 
-        await asyncio.wait_for(
-            self._ws.send(request_data), timeout=self.request_timeout
-        )
+        try:
+            self.writer.write(request_data)
+            await self.writer.drain()
+        except OSError as e:
+            # Broken pipe
+            if e.errno == errno.EPIPE:
+                # one extra attempt, then give up
+                await self._reset_socket()
+                self.writer.write(request_data)
+                await self.writer.drain()
 
         current_request_id = json.loads(request_data)["id"]
         response = await self._get_response_for_request_id(current_request_id)
@@ -211,25 +204,33 @@ class WebsocketProviderV2(PersistentConnectionProvider):
                 "allowed to continue."
             )
 
-    async def _ws_message_listener(self) -> None:
+    async def _message_listener(self) -> None:
         self.logger.info(
-            "Websocket listener background task started. Storing all messages in "
+            "IPC socket listener background task started. Storing all messages in "
             "appropriate request processor queues / caches to be processed."
         )
+        raw_message = ""
+        decoder = json.JSONDecoder()
+
         while True:
             # the use of sleep(0) seems to be the most efficient way to yield control
             # back to the event loop to share the loop with other tasks.
             await asyncio.sleep(0)
 
             try:
-                async for raw_message in self._ws:
-                    await asyncio.sleep(0)
+                raw_message += to_text(await self.reader.read(4096)).lstrip()
 
-                    response = json.loads(raw_message)
-                    subscription = response.get("method") == "eth_subscription"
+                while raw_message:
+                    try:
+                        response, pos = decoder.raw_decode(raw_message)
+                    except JSONDecodeError:
+                        break
+
+                    is_subscription = response.get("method") == "eth_subscription"
                     await self._request_processor.cache_raw_response(
-                        response, subscription=subscription
+                        response, subscription=is_subscription
                     )
+                    raw_message = raw_message[pos:].lstrip()
             except Exception as e:
                 if not self.silence_listener_task_exceptions:
                     loop = asyncio.get_event_loop()
@@ -238,7 +239,8 @@ class WebsocketProviderV2(PersistentConnectionProvider):
                     raise e
 
                 self.logger.error(
-                    "Exception caught in listener, error logging and keeping "
-                    "listener background task alive."
-                    f"\n    error={e.__class__.__name__}: {e}"
+                    "Exception caught in listener, error logging and keeping listener "
+                    f"background task alive.\n    error={e}"
                 )
+                # if only error logging, reset the ``raw_message`` buffer and continue
+                raw_message = ""

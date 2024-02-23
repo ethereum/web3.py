@@ -47,8 +47,9 @@ Providers are web3.py classes that are configured for the kind of connection you
 See:
 
 - :class:`~web3.providers.ipc.IPCProvider`
+- :class:`~web3.providers.persistent.AsyncIPCProvider`
 - :class:`~web3.providers.websocket.WebsocketProvider`
-- :class:`~web3.providers.websocket.WebsocketProviderV2`
+- :class:`~web3.providers.persistent.WebsocketProviderV2`
 - :class:`~web3.providers.rpc.HTTPProvider`
 - :class:`~web3.providers.async_rpc.AsyncHTTPProvider`
 
@@ -87,7 +88,8 @@ Auto-initialization Provider Shortcuts
 Geth dev Proof of Authority
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To connect to a ``geth --dev`` Proof of Authority instance with defaults:
+To connect to a ``geth --dev`` Proof of Authority instance with
+the POA middleware loaded by default:
 
 .. code-block:: python
 
@@ -96,6 +98,18 @@ To connect to a ``geth --dev`` Proof of Authority instance with defaults:
     # confirm that the connection succeeded
     >>> w3.is_connected()
     True
+
+Or, connect to an async web3 instance:
+
+.. code-block:: python
+
+    >>> from web3.auto.gethdev import async_w3
+    >>> await async_w3.provider.connect()
+
+    # confirm that the connection succeeded
+    >>> await async_w3.is_connected()
+    True
+
 
 Built In Providers
 ------------------
@@ -157,7 +171,7 @@ HTTPProvider
 IPCProvider
 ~~~~~~~~~~~
 
-.. py:class:: web3.providers.ipc.IPCProvider(ipc_path=None, testnet=False, timeout=10)
+.. py:class:: web3.providers.ipc.IPCProvider(ipc_path=None, timeout=10)
 
     This provider handles interaction with an IPC Socket based JSON-RPC
     server.
@@ -175,6 +189,120 @@ IPCProvider
     - On Linux and FreeBSD: ``~/.ethereum/geth.ipc``
     - On Mac OS: ``~/Library/Ethereum/geth.ipc``
     - On Windows: ``\\.\pipe\geth.ipc``
+
+
+AsyncIPCProvider (beta)
+~~~~~~~~~~~~~~~~~~~~~~~
+
+.. warning:: This provider is still in beta. However, it is being actively developed
+    and supported and is expected to be stable in the next major version of *web3.py*
+    (v7).
+
+.. py:class:: web3.providers.persistent.AsyncIPCProvider(ipc_path=None, request_timeout=10, max_connection_retries=5)
+
+    This provider handles asynchronous, persistent interaction
+    with an IPC Socket based JSON-RPC server.
+
+    *  ``ipc_path`` is the filesystem path to the IPC socket:
+
+    This provider inherits from the
+    :class:`~web3.providers.persistent.persistent_connection.PersistentConnectionProvider` class. Refer to
+    the :class:`~web3.providers.persistent.persistent_connection.PersistentConnectionProvider` documentation
+    for details on additional configuration options available for this provider.
+
+    If no ``ipc_path`` is specified, it will use a default depending on your operating
+    system.
+
+    - On Linux and FreeBSD: ``~/.ethereum/geth.ipc``
+    - On Mac OS: ``~/Library/Ethereum/geth.ipc``
+    - On Windows: ``\\.\pipe\geth.ipc``
+
+AsyncIPCProvider Usage
+++++++++++++++++++++++
+
+The ``AsyncWeb3`` class may be used as a context manager, utilizing the ``async with``
+syntax, when connecting via ``persistent_connection()`` using the
+``AsyncIPCProvider``. This will automatically close the connection when the context
+manager exits and is the recommended way to initiate a persistent connection to the
+provider.
+
+.. code-block:: python
+
+        >>> import asyncio
+        >>> from web3 import AsyncWeb3, AsyncIPCProvider
+
+        >>> LOG = True  # toggle debug logging
+        >>> if LOG:
+        ...     import logging
+        ...     logger = logging.getLogger("web3.providers.AsyncIPCProvider")
+        ...     logger.setLevel(logging.DEBUG)
+        ...     logger.addHandler(logging.StreamHandler())
+
+        >>> async def subscription_context_manager_example():
+        ...     async with AsyncWeb3.persistent_connection(
+        ...         AsyncIPCProvider('path/to/ipc')
+        ...     ) as w3:
+        ...         # subscribe to new block headers
+        ...         subscription_id = await w3.eth.subscribe("newHeads")
+        ...
+        ...         async for response in w3.socket.process_subscriptions():
+        ...             print(f"{response}\n")
+        ...             # handle responses here
+        ...
+        ...             if some_condition:
+        ...                 # unsubscribe from new block headers and break out of
+        ...                 # iterator
+        ...                 await w3.eth.unsubscribe(subscription_id)
+        ...                 break
+        ...
+        ...         # still an open connection, make any other requests and get
+        ...         # responses via send / receive
+        ...         latest_block = await w3.eth.get_block("latest")
+        ...         print(f"Latest block: {latest_block}")
+        ...
+        ...         # the connection closes automatically when exiting the context
+        ...         # manager (the `async with` block)
+
+        >>> asyncio.run(subscription_context_manager_example())
+
+If the above initilization pattern doesn't work for your application, the ``__await__()``
+method is defined on the ``persistent_connection()`` connection in a manner that awaits
+connecting to the socket. You may also choose to instantiate and connect via the
+provider in separate lines. Both of these examples are shown below.
+
+.. code-block:: python
+
+    >>> async def alternate_init_example_1():
+    ...     # awaiting the persistent connection itself will connect to the socket
+    ...     w3 = await AsyncWeb3.persistent_connection(AsyncIPCProvider('path/to/ipc'))
+    ...
+    ...     # some code here
+    ...
+    ...     # manual cleanup
+    ...     await w3.provider.disconnect()
+
+    # run the example
+    >>> asyncio.run(alternate_init_example_1)
+
+    >>> async def alternate_init_example_2():
+    ...     # instantiation and connection via the provider as separate lines
+    ...     w3 = AsyncWeb3.persistent_connection(AsyncIPCProvider('path/to/ipc'))
+    ...     await w3.provider.connect()
+    ...
+    ...     # some code here
+    ...
+    ...     # manual cleanup
+    ...     await w3.provider.disconnect()
+
+    # run the example
+    >>> asyncio.run(alternate_init_example_2)
+
+The ``AsyncIPCProvider`` class uses the
+:class:`~web3.providers.persistent.request_processor.RequestProcessor` class under the
+hood to sync up the receiving of responses and response processing for one-to-one and
+one-to-many request-to-response requests. Refer to the
+:class:`~web3.providers.persistent.request_processor.RequestProcessor`
+documentation for details.
 
 
 WebsocketProvider
@@ -222,12 +350,13 @@ WebsocketProvider
 Persistent Connection Providers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. py:class:: web3.providers.persistent.PersistentConnectionProvider(endpoint_uri: str, request_timeout: float = 50.0, subscription_response_queue_size: int = 500)
+.. py:class:: web3.providers.persistent.persistent_connection.PersistentConnectionProvider(endpoint_uri: str, request_timeout: float = 50.0, subscription_response_queue_size: int = 500)
 
-    This is a base provider class, currently inherited by the ``WebsocketProviderV2``.
+    This is a base provider class, currently inherited by the ``WebsocketProviderV2``,
+    and the ``AsyncIPCProvider``.
     It handles interactions with a persistent connection to a JSON-RPC server. Among
     its configuration, it houses all of the
-    :class:`~web3.providers.websocket.request_processor.RequestProcessor` logic for
+    :class:`~web3.providers.persistent.request_processor.RequestProcessor` logic for
     handling the asynchronous sending and receiving of requests and responses. See
     the :ref:`internals__persistent_connection_providers` section for more details on
     the internals of persistent connection providers.
@@ -242,15 +371,20 @@ Persistent Connection Providers
       asynchronous receiving and processing of responses. When in sync with the
       websocket stream, this queue should only ever store 1 to a few messages at a time.
 
+    * ``silence_listener_task_exceptions`` is a boolean that determines whether
+      exceptions raised by the listener task are silenced. Defaults to ``False``,
+      raising any exceptions that occur in the listener task.
+
+
 
 WebsocketProviderV2 (beta)
-``````````````````````````
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. warning:: This provider is still in beta. However, it is being actively developed
     and supported and is expected to be stable in the next major version of *web3.py*
     (v7).
 
-.. py:class:: web3.providers.websocket.WebsocketProviderV2(endpoint_uri: str, websocket_kwargs: Dict[str, Any] = {}, silence_listener_task_exceptions: bool = False)
+.. py:class:: web3.providers.persistent.WebsocketProviderV2(endpoint_uri: str, websocket_kwargs: Dict[str, Any] = {}, silence_listener_task_exceptions: bool = False)
 
     This provider handles interactions with an WS or WSS based JSON-RPC server.
 
@@ -258,13 +392,10 @@ WebsocketProviderV2 (beta)
       ``'ws://localhost:8546'``.
     * ``websocket_kwargs`` this should be a dictionary of keyword arguments which
       will be passed onto the ws/wss websocket connection.
-    * ``silence_listener_task_exceptions`` is a boolean that determines whether
-      exceptions raised by the listener task are silenced. Defaults to ``False``,
-      raising any exceptions that occur in the listener task.
 
     This provider inherits from the
-    :class:`~web3.providers.persistent.PersistentConnectionProvider` class. Refer to
-    the :class:`~web3.providers.persistent.PersistentConnectionProvider` documentation
+    :class:`~web3.providers.persistent.persistent_connection.PersistentConnectionProvider` class. Refer to
+    the :class:`~web3.providers.persistent.persistent_connection.PersistentConnectionProvider` documentation
     for details on additional configuration options available for this provider.
 
     Under the hood, the ``WebsocketProviderV2`` uses the python websockets library for
@@ -273,11 +404,11 @@ WebsocketProviderV2 (beta)
     available arguments.
 
 
-Usage
-+++++
+WebsocketProviderV2 Usage
++++++++++++++++++++++++++
 
 The ``AsyncWeb3`` class may be used as a context manager, utilizing the ``async with``
-syntax, when connecting via ``persistent_websocket()`` using the
+syntax, when connecting via ``persistent_connection()`` using the
 ``WebsocketProviderV2``. This will automatically close the connection when the context
 manager exits and is the recommended way to initiate a persistent connection to the
 websocket provider. A similar example, using the ``websockets`` connection as an
@@ -297,13 +428,13 @@ asynchronous context manager, can be found in the `websockets connection`_ docs.
         ...     logger.addHandler(logging.StreamHandler())
 
         >>> async def ws_v2_subscription_context_manager_example():
-        ...     async with AsyncWeb3.persistent_websocket(
+        ...     async with AsyncWeb3.persistent_connection(
         ...         WebsocketProviderV2(f"ws://127.0.0.1:8546")
         ...     ) as w3:
         ...         # subscribe to new block headers
         ...         subscription_id = await w3.eth.subscribe("newHeads")
         ...
-        ...         async for response in w3.ws.process_subscriptions():
+        ...         async for response in w3.socket.process_subscriptions():
         ...             print(f"{response}\n")
         ...             # handle responses here
         ...
@@ -325,7 +456,7 @@ asynchronous context manager, can be found in the `websockets connection`_ docs.
 
 
 The ``AsyncWeb3`` class may also be used as an asynchronous iterator, utilizing the
-``async for`` syntax, when connecting via ``persistent_websocket()`` using the
+``async for`` syntax, when connecting via ``persistent_connection()`` using the
 ``WebsocketProviderV2``. This may be used to set up an indefinite websocket connection
 and reconnect automatically if the connection is lost. A similar example, using the
 ``websockets`` connection as an asynchronous iterator, can be found in the
@@ -341,7 +472,7 @@ and reconnect automatically if the connection is lost. A similar example, using 
     >>> import websockets
 
     >>> async def ws_v2_subscription_iterator_example():
-    ...     async for w3 in AsyncWeb3.persistent_websocket(
+    ...     async for w3 in AsyncWeb3.persistent_connection(
     ...         WebsocketProviderV2(f"ws://127.0.0.1:8546")
     ...     ):
     ...         try:
@@ -354,7 +485,7 @@ and reconnect automatically if the connection is lost. A similar example, using 
 
 
 If neither of the two init patterns above work for your application, the ``__await__()``
-method is defined on the ``persistent_websocket()`` connection in a manner that awaits
+method is defined on the ``persistent_connection()`` connection in a manner that awaits
 connecting to the websocket. You may also choose to instantiate and connect via the
 provider in separate lines. Both of these examples are shown below.
 
@@ -362,7 +493,7 @@ provider in separate lines. Both of these examples are shown below.
 
     >>> async def ws_v2_alternate_init_example_1():
     ...     # awaiting the persistent connection itself will connect to the websocket
-    ...     w3 = await AsyncWeb3.persistent_websocket(WebsocketProviderV2(f"ws://127.0.0.1:8546"))
+    ...     w3 = await AsyncWeb3.persistent_connection(WebsocketProviderV2(f"ws://127.0.0.1:8546"))
     ...
     ...     # some code here
     ...
@@ -374,7 +505,7 @@ provider in separate lines. Both of these examples are shown below.
 
     >>> async def ws_v2_alternate_init_example_2():
     ...     # instantiation and connection via the provider as separate lines
-    ...     w3 = AsyncWeb3.persistent_websocket(WebsocketProviderV2(f"ws://127.0.0.1:8546"))
+    ...     w3 = AsyncWeb3.persistent_connection(WebsocketProviderV2(f"ws://127.0.0.1:8546"))
     ...     await w3.provider.connect()
     ...
     ...     # some code here
@@ -386,17 +517,17 @@ provider in separate lines. Both of these examples are shown below.
     >>> asyncio.run(ws_v2_alternate_init_example_2)
 
 The ``WebsocketProviderV2`` class uses the
-:class:`~web3.providers.websocket.request_processor.RequestProcessor` class under the
+:class:`~web3.providers.persistent.request_processor.RequestProcessor` class under the
 hood to sync up the receiving of responses and response processing for one-to-one and
 one-to-many request-to-response requests. Refer to the
-:class:`~web3.providers.websocket.request_processor.RequestProcessor`
+:class:`~web3.providers.persistent.request_processor.RequestProcessor`
 documentation for details.
 
-_PersistentConnectionWeb3 via AsyncWeb3.persistent_websocket()
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+_PersistentConnectionWeb3 via AsyncWeb3.persistent_connection()
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 When an ``AsyncWeb3`` class is connected to a persistent websocket connection, via the
-``persistent_websocket()`` method, it becomes an instance of the
+``persistent_connection()`` method, it becomes an instance of the
 ``_PersistentConnectionWeb3`` class. This class has a few additional methods and
 attributes that are not available on the ``AsyncWeb3`` class.
 
@@ -407,18 +538,18 @@ attributes that are not available on the ``AsyncWeb3`` class.
         The public API for interacting with the websocket connection is available via
         the ``ws`` attribute of the ``_PersistentConnectionWeb3`` class. This attribute
         is an instance of the
-        :class:`~web3.providers.websocket.WebsocketConnection` class and is the main
+        :class:`~web3.providers.persistent.persistent_connection.PersistentConnection` class and is the main
         interface for interacting with the websocket connection.
 
 
 Interacting with the Websocket Connection
 +++++++++++++++++++++++++++++++++++++++++
 
-.. py:class:: web3.providers.websocket.WebsocketConnection
+.. py:class:: web3.providers.persistent.persistent_connection.PersistentConnection
 
     This class handles interactions with a websocket connection. It is available
     via the ``ws`` attribute of the ``_PersistentConnectionWeb3`` class. The
-    ``WebsocketConnection`` class has the following methods and attributes:
+    ``PersistentConnection`` class has the following methods and attributes:
 
     .. py:attribute:: subscriptions
 
@@ -437,7 +568,7 @@ Interacting with the Websocket Connection
 
         The responses from this method are formatted by web3.py formatters and run
         through the middlewares that were present at the time of subscription.
-        An example of its use can be seen above in the `Usage`_ section.
+        An example of its use can be seen above in the `WebsocketProviderV2 Usage`_ section.
 
     .. py:method:: recv()
 
@@ -457,7 +588,7 @@ Interacting with the Websocket Connection
         responses will not be formatted by web3.py formatters or run through the
         middlewares. Instead, use the methods available on the respective web3
         module. For example, use ``w3.eth.get_block("latest")`` instead of
-        ``w3.ws.send("eth_getBlockByNumber", ["latest", True])``.
+        ``w3.socket.send("eth_getBlockByNumber", ["latest", True])``.
 
 
 AutoProvider

@@ -18,9 +18,9 @@ if TYPE_CHECKING:
     )
 
 
-class WebsocketConnection:
+class PersistentConnection:
     """
-    A class that houses the public API for interacting with the websocket connection
+    A class that houses the public API for interacting with the persistent connection
     via a `_PersistentConnectionWeb3` instance.
     """
 
@@ -33,10 +33,10 @@ class WebsocketConnection:
         return self._manager._request_processor.active_subscriptions
 
     async def send(self, method: RPCEndpoint, params: Any) -> RPCResponse:
-        return await self._manager.ws_send(method, params)
+        return await self._manager.send(method, params)
 
     async def recv(self) -> Any:
-        return await self._manager._get_next_ws_message()
+        return await self._manager._get_next_message()
 
     def process_subscriptions(self) -> "_AsyncPersistentMessageStream":
         return self._manager._persistent_message_stream()

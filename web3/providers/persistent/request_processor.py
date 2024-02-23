@@ -219,6 +219,7 @@ class RequestProcessor:
                     "Subscription queue is full. Waiting for provider to consume "
                     "messages before caching."
                 )
+                self._provider._listen_event.clear()
                 await self._provider._listen_event.wait()
 
             self._provider.logger.debug(

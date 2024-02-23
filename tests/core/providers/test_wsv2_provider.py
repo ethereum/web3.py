@@ -23,7 +23,7 @@ from web3._utils.module_testing.module_testing_utils import (
 from web3.exceptions import (
     TimeExhausted,
 )
-from web3.providers.websocket import (
+from web3.providers.persistent import (
     WebsocketProviderV2,
 )
 from web3.types import (
@@ -48,7 +48,7 @@ async def test_async_make_request_returns_desired_response():
     provider = WebsocketProviderV2("ws://mocked")
 
     with patch(
-        "web3.providers.websocket.websocket_v2.connect", new=lambda *_1, **_2: _coro()
+        "web3.providers.persistent.websocket_v2.connect", new=lambda *_1, **_2: _coro()
     ):
         await provider.connect()
 
@@ -116,7 +116,7 @@ async def test_msg_listener_task_starts_on_provider_connect_and_cancels_on_disco
     assert provider._message_listener_task is None
 
     with patch(
-        "web3.providers.websocket.websocket_v2.connect", new=lambda *_1, **_2: _coro()
+        "web3.providers.persistent.websocket_v2.connect", new=lambda *_1, **_2: _coro()
     ):
         await provider.connect()  # connect
 
@@ -135,7 +135,7 @@ async def test_msg_listener_task_raises_exceptions_by_default():
     _mock_ws(provider)
 
     with patch(
-        "web3.providers.websocket.websocket_v2.connect", new=lambda *_1, **_2: _coro()
+        "web3.providers.persistent.websocket_v2.connect", new=lambda *_1, **_2: _coro()
     ):
         await provider.connect()
         assert provider._message_listener_task is not None
@@ -158,7 +158,7 @@ async def test_msg_listener_task_silences_exceptions_and_error_logs_when_configu
     _mock_ws(provider)
 
     with patch(
-        "web3.providers.websocket.websocket_v2.connect", new=lambda *_1, **_2: _coro()
+        "web3.providers.persistent.websocket_v2.connect", new=lambda *_1, **_2: _coro()
     ):
         await provider.connect()
         assert provider._message_listener_task is not None
@@ -190,9 +190,9 @@ async def test_listen_event_awaits_msg_processing_when_subscription_queue_is_ful
     is full.
     """
     with patch(
-        "web3.providers.websocket.websocket_v2.connect", new=lambda *_1, **_2: _coro()
+        "web3.providers.persistent.websocket_v2.connect", new=lambda *_1, **_2: _coro()
     ):
-        async_w3 = await AsyncWeb3.persistent_websocket(
+        async_w3 = await AsyncWeb3.persistent_connection(
             WebsocketProviderV2("ws://mocked")
         )
 
@@ -254,7 +254,7 @@ async def test_listen_event_awaits_msg_processing_when_subscription_queue_is_ful
     # set is not called until we start consuming messages
     async_w3.provider._listen_event.set.assert_not_called()
 
-    async for message in async_w3.ws.process_subscriptions():
+    async for message in async_w3.socket.process_subscriptions():
         # assert the very next message is the mocked subscription
         assert message == mocked_sub
         break

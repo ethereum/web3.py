@@ -2,21 +2,28 @@ import os
 import pytest
 import tempfile
 
+import pytest_asyncio
+
 from tests.integration.common import (
     COINBASE,
 )
 from web3 import (
+    AsyncIPCProvider,
+    AsyncWeb3,
     Web3,
 )
 
 from .common import (
     GoEthereumAdminModuleTest,
+    GoEthereumAsyncEthModuleTest,
+    GoEthereumAsyncNetModuleTest,
     GoEthereumEthModuleTest,
     GoEthereumNetModuleTest,
     GoEthereumPersonalModuleTest,
     GoEthereumTest,
 )
 from .utils import (
+    wait_for_async_socket,
     wait_for_socket,
 )
 
@@ -54,6 +61,13 @@ def w3(geth_process, geth_ipc_path):
     return _w3
 
 
+@pytest_asyncio.fixture(scope="module")
+async def async_w3(geth_process, geth_ipc_path):
+    await wait_for_async_socket(geth_ipc_path)
+    async with AsyncWeb3.persistent_connection(AsyncIPCProvider(geth_ipc_path)) as _aw3:
+        yield _aw3
+
+
 class TestGoEthereumTest(GoEthereumTest):
     pass
 
@@ -82,7 +96,15 @@ class TestGoEthereumEthModuleTest(GoEthereumEthModuleTest):
     pass
 
 
+class TestGoEthereumAsyncEthModuleTest(GoEthereumAsyncEthModuleTest):
+    pass
+
+
 class TestGoEthereumNetModuleTest(GoEthereumNetModuleTest):
+    pass
+
+
+class TestGoEthereumAsyncNetModuleTest(GoEthereumAsyncNetModuleTest):
     pass
 
 

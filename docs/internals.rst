@@ -304,12 +304,12 @@ implemented in the Middleware layer.
 Request Processing for Persistent Connection Providers
 ------------------------------------------------------
 
-.. py:class:: web3.providers.websocket.request_processor.RequestProcessor
+.. py:class:: web3.providers.persistent.request_processor.RequestProcessor
 
 The ``RequestProcessor`` class is responsible for the storing and syncing up of
 asynchronous requests to responses for a ``PersistentConnectionProvider``. The best
 example of one such provider is the
-:class:`~web3.providers.websocket.WebsocketProviderV2`. In order to send a websocket
+:class:`~web3.providers.persistent.WebsocketProviderV2`. In order to send a websocket
 message and receive a response to that particular request,
 ``PersistentConnectionProvider`` instances have to match request *id* values to
 response *id* values coming back from the websocket connection. Any provider that does
@@ -339,7 +339,7 @@ back. An example is using the ``eth`` module API to request the latest block num
 .. code-block:: python
 
     >>> async def wsV2_one_to_one_example():
-    ...     async with AsyncWeb3.persistent_websocket(
+    ...     async with AsyncWeb3.persistent_connection(
     ...         WebsocketProviderV2(f"ws://127.0.0.1:8546")
     ...     ) as w3:
     ...         # make a request and expect a single response returned on the same line
@@ -414,23 +414,24 @@ subscription *id* value, but it also expects to receive many ``eth_subscription`
 messages if and when the request is successful. For this reason, the original request
 is considered a one-to-one request so that a subscription *id* can be returned to the
 user on the same line, but the ``process_subscriptions()`` method on the
-:class:`~web3.providers.websocket.WebsocketConnection` class, the public API for
+:class:`~web3.providers.persistent.PersistentConnection` class, the public API for
 interacting with the active websocket connection, is set up to receive
 ``eth_subscription`` responses over an asynchronous interator pattern.
 
 .. code-block:: python
 
     >>> async def ws_v2_subscription_example():
-    ...     async with AsyncWeb3.persistent_websocket(
+    ...     async with AsyncWeb3.persistent_connection(
     ...         WebsocketProviderV2(f"ws://127.0.0.1:8546")
     ...     ) as w3:
     ...         # Subscribe to new block headers and receive the subscription_id.
     ...         # A one-to-one call with a trigger for many responses
     ...         subscription_id = await w3.eth.subscribe("newHeads")
     ...
-    ...         # Listen to the websocket for the many responses utilizing the ``w3.ws``
-    ...         # ``WebsocketConnection`` public API method ``process_subscriptions()``
-    ...         async for response in w3.ws.process_subscriptions():
+    ...         # Listen to the websocket for the many responses utilizing the
+    ...         # ``w3.socket`` ``PersistentConnection`` public API method
+    ...         # ``process_subscriptions()``
+    ...         async for response in w3.socket.process_subscriptions():
     ...             # Receive only one-to-many responses here so that we don't
     ...             # accidentally return the response for a one-to-one request in this
     ...             # block
@@ -450,7 +451,7 @@ are stored in an internal ``asyncio.Queue`` instance, isolated from any one-to-o
 responses. When the ``PersistentConnectionProvider`` is looking for one-to-many
 responses internally, it will expect the message listener task to store these messages
 in this queue. Since the order of the messages is important, the queue is a FIFO queue.
-The ``process_subscriptions()`` method on the ``WebsocketConnection`` class is set up
+The ``process_subscriptions()`` method on the ``PersistentConnection`` class is set up
 to pop messages from this queue as FIFO over an asynchronous iterator pattern.
 
 If the stream of messages from the websocket is not being interrupted by any other

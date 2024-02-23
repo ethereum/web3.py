@@ -30,7 +30,7 @@ async def async_w3(geth_process, endpoint_uri):
     await wait_for_aiohttp(endpoint_uri)
 
     # await the persistent connection itself
-    return await AsyncWeb3.persistent_websocket(WebsocketProviderV2(endpoint_uri))
+    return await AsyncWeb3.persistent_connection(WebsocketProviderV2(endpoint_uri))
 
 
 class TestGoEthereumAsyncAdminModuleTest(GoEthereumAsyncAdminModuleTest):

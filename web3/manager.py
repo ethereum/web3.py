@@ -72,7 +72,7 @@ if TYPE_CHECKING:
         AsyncBaseProvider,
         BaseProvider,
     )
-    from web3.providers.websocket.request_processor import (  # noqa: F401
+    from web3.providers.persistent.request_processor import (  # noqa: F401
         RequestProcessor,
     )
 
@@ -314,33 +314,35 @@ class RequestManager:
 
     # -- persistent connection -- #
 
-    async def ws_send(self, method: RPCEndpoint, params: Any) -> RPCResponse:
+    async def send(self, method: RPCEndpoint, params: Any) -> RPCResponse:
         provider = cast(PersistentConnectionProvider, self._provider)
         request_func = await provider.request_func(
             cast("AsyncWeb3", self.w3), cast("MiddlewareOnion", self.middleware_onion)
         )
         self.logger.debug(
-            "Making request to open websocket connection - "
+            "Making request to open socket connection - "
             f"uri: {provider.endpoint_uri}, method: {method}"
         )
         response = await request_func(method, params)
-        return await self._process_ws_response(response)
+        return await self._process_response(response)
 
     def _persistent_message_stream(self) -> "_AsyncPersistentMessageStream":
         return _AsyncPersistentMessageStream(self)
 
-    async def _get_next_ws_message(self) -> Any:
-        return await self._ws_message_stream().__anext__()
+    async def _get_next_message(self) -> Any:
+        return await self._message_stream().__anext__()
 
-    async def _ws_message_stream(self) -> AsyncGenerator[RPCResponse, None]:
+    async def _message_stream(self) -> AsyncGenerator[RPCResponse, None]:
         if not isinstance(self._provider, PersistentConnectionProvider):
             raise TypeError(
-                "Only websocket providers that maintain an open, persistent connection "
-                "can listen to websocket recv streams."
+                "Only providers that maintain an open, persistent connection "
+                "can listen to streams."
             )
 
         if self._provider._message_listener_task is None:
-            raise ProviderConnectionError("No listener found for websocket connection.")
+            raise ProviderConnectionError(
+                "No listener found for persistent connection."
+            )
 
         while True:
             # sleep(0) here seems to be the most efficient way to yield control
@@ -354,9 +356,9 @@ class RequestManager:
                 in self._request_processor.active_subscriptions
             ):
                 # if response is an active subscription response, process it
-                yield await self._process_ws_response(response)
+                yield await self._process_response(response)
 
-    async def _process_ws_response(self, response: RPCResponse) -> RPCResponse:
+    async def _process_response(self, response: RPCResponse) -> RPCResponse:
         provider = cast(PersistentConnectionProvider, self._provider)
         request_info = self._request_processor.get_request_information_for_response(
             response
@@ -421,6 +423,6 @@ class _AsyncPersistentMessageStream:
 
     async def __anext__(self) -> RPCResponse:
         try:
-            return await self.manager._get_next_ws_message()
+            return await self.manager._get_next_message()
         except ConnectionClosedOK:
             raise StopAsyncIteration
