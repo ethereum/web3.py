@@ -117,10 +117,9 @@ from web3.providers.eth_tester import (
 from web3.providers.ipc import (
     IPCProvider,
 )
-from web3.providers.persistent import (
-    PersistentConnectionProvider,
+from web3.providers.persistent.utils import (
+    persistent_connection_provider_method,
 )
-from web3.providers.persistent.utils import persistent_connection_provider_method
 from web3.providers.rpc import (
     AsyncHTTPProvider,
     HTTPProvider,
@@ -509,10 +508,7 @@ class AsyncWeb3(BaseWeb3):
     )
     def __await__(self) -> Generator[Any, None, Self]:
         async def __async_init__() -> Self:
-            provider = cast(PersistentConnectionProvider, self.provider)
-            if not await provider.is_connected():
-                await provider.connect()
-
+            await self.provider.connect()
             return self
 
         return __async_init__().__await__()
@@ -523,8 +519,7 @@ class AsyncWeb3(BaseWeb3):
         "when instantiating via ``async with``."
     )
     async def __aenter__(self) -> Self:
-        provider = cast(PersistentConnectionProvider, self.provider)
-        await provider.connect()
+        await self.provider.connect()
         return self
 
     @persistent_connection_provider_method()
@@ -534,8 +529,7 @@ class AsyncWeb3(BaseWeb3):
         exc_val: BaseException,
         exc_tb: TracebackType,
     ) -> None:
-        provider = cast(PersistentConnectionProvider, self.provider)
-        await provider.disconnect()
+        await self.provider.disconnect()
 
     # async for w3 in AsyncWeb3(PersistentConnectionProvider(...)):
     @persistent_connection_provider_method(
@@ -544,8 +538,7 @@ class AsyncWeb3(BaseWeb3):
     )
     async def __aiter__(self) -> AsyncIterator[Self]:
         if not await self.provider.is_connected():
-            provider = cast(PersistentConnectionProvider, self.provider)
-            await provider.connect()
+            await self.provider.connect()
 
         while True:
             try:

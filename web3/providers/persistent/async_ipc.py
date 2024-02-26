@@ -80,8 +80,16 @@ class AsyncIPCProvider(PersistentConnectionProvider):
         return f"<{self.__class__.__name__} {self.ipc_path}>"
 
     async def is_connected(self, show_traceback: bool = False) -> bool:
+        if not self._writer or not self._reader:
+            return False
+
         try:
-            await self.make_request(RPCEndpoint("web3_clientVersion"), [])
+            request_data = self.encode_rpc_request(
+                RPCEndpoint("web3_clientVersions"), []
+            )
+            self._writer.write(request_data)
+            current_request_id = json.loads(request_data)["id"]
+            await self._get_response_for_request_id(current_request_id, timeout=2)
             return True
         except (OSError, BrokenPipeError, ProviderConnectionError) as e:
             if show_traceback:
