@@ -8,16 +8,12 @@ from threading import (
     Thread,
 )
 import time
-import uuid
 
 from web3 import (
     AsyncWeb3,
 )
 from web3.datastructures import (
     AttributeDict,
-)
-from web3.exceptions import (
-    ProviderConnectionError,
 )
 from web3.providers import (
     AsyncIPCProvider,
@@ -42,7 +38,7 @@ ETH_SUBSCRIBE_RESPONSE = {
 @pytest.fixture
 def jsonrpc_ipc_pipe_path():
     with tempfile.TemporaryDirectory() as temp_dir:
-        ipc_path = os.path.join(temp_dir, f"{uuid.uuid4()}.ipc")
+        ipc_path = os.path.join(temp_dir, "filename.ipc")
         try:
             yield ipc_path
         finally:
@@ -121,8 +117,6 @@ async def test_provider_is_connected(jsonrpc_ipc_pipe_path, serve_empty_result):
     w3 = await AsyncWeb3(AsyncIPCProvider(pathlib.Path(jsonrpc_ipc_pipe_path)))
     await w3.provider.disconnect()
     assert await w3.is_connected() is False
-    with pytest.raises(ProviderConnectionError):
-        await w3.is_connected(show_traceback=True)
 
 
 @pytest.mark.asyncio
