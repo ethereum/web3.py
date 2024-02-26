@@ -1,0 +1,1 @@
+Remove call to ``parse_block_identifier`` when initializing ``ContractCaller`` functions.
