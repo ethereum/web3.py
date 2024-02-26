@@ -5,6 +5,7 @@ from typing import (
     Any,
     Callable,
     Coroutine,
+    Optional,
     Set,
     Tuple,
     cast,
@@ -42,6 +43,10 @@ from web3.utils import (
 )
 
 if TYPE_CHECKING:
+    from websockets import (
+        WebSocketClientProtocol,
+    )
+
     from web3 import (  # noqa: F401
         AsyncWeb3,
         WebsocketProvider,
@@ -114,6 +119,25 @@ class AsyncBaseProvider:
     # -- persistent connection providers -- #
 
     _request_processor: "RequestProcessor"
+    _message_listener_task: "asyncio.Task[None]"
+    _listen_event: "asyncio.Event"
+
+    async def connect(self) -> None:
+        raise NotImplementedError(
+            "Persistent connection providers must implement this method"
+        )
+
+    async def disconnect(self) -> None:
+        raise NotImplementedError(
+            "Persistent connection providers must implement this method"
+        )
+
+    # WebSocket typing
+    _ws: "WebSocketClientProtocol"
+
+    # IPC typing
+    _reader: Optional[asyncio.StreamReader]
+    _writer: Optional[asyncio.StreamWriter]
 
 
 class AsyncJSONBaseProvider(AsyncBaseProvider):

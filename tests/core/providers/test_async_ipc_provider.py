@@ -118,9 +118,7 @@ def test_ipc_tilde_in_path():
 
 @pytest.mark.asyncio
 async def test_provider_is_connected(jsonrpc_ipc_pipe_path, serve_empty_result):
-    w3 = await AsyncWeb3.persistent_connection(
-        AsyncIPCProvider(pathlib.Path(jsonrpc_ipc_pipe_path))
-    )
+    w3 = await AsyncWeb3(AsyncIPCProvider(pathlib.Path(jsonrpc_ipc_pipe_path)))
     await w3.provider.disconnect()
     assert await w3.is_connected() is False
     with pytest.raises(ProviderConnectionError):
@@ -129,29 +127,23 @@ async def test_provider_is_connected(jsonrpc_ipc_pipe_path, serve_empty_result):
 
 @pytest.mark.asyncio
 async def test_async_waits_for_full_result(jsonrpc_ipc_pipe_path, serve_empty_result):
-    async with AsyncWeb3.persistent_connection(
-        AsyncIPCProvider(pathlib.Path(jsonrpc_ipc_pipe_path))
-    ) as w3:
+    async with AsyncWeb3(AsyncIPCProvider(pathlib.Path(jsonrpc_ipc_pipe_path))) as w3:
         result = await w3.provider.make_request("method", [])
         assert result == {"id": 0, "result": {}}
         await w3.provider.disconnect()
 
 
 @pytest.mark.asyncio
-async def test_await_persistent_connection(jsonrpc_ipc_pipe_path, serve_empty_result):
-    w3 = await AsyncWeb3.persistent_connection(
-        AsyncIPCProvider(pathlib.Path(jsonrpc_ipc_pipe_path))
-    )
+async def test_await_instantiation(jsonrpc_ipc_pipe_path, serve_empty_result):
+    w3 = await AsyncWeb3(AsyncIPCProvider(pathlib.Path(jsonrpc_ipc_pipe_path)))
     result = await w3.provider.make_request("method", [])
     assert result == {"id": 0, "result": {}}
     await w3.provider.disconnect()
 
 
 @pytest.mark.asyncio
-async def test_persistent_connection(jsonrpc_ipc_pipe_path, serve_empty_result):
-    w3 = AsyncWeb3.persistent_connection(
-        AsyncIPCProvider(pathlib.Path(jsonrpc_ipc_pipe_path))
-    )
+async def test_await_connect(jsonrpc_ipc_pipe_path, serve_empty_result):
+    w3 = AsyncWeb3(AsyncIPCProvider(pathlib.Path(jsonrpc_ipc_pipe_path)))
     await w3.provider.connect()
     result = await w3.provider.make_request("method", [])
     assert result == {"id": 0, "result": {}}
@@ -160,9 +152,7 @@ async def test_persistent_connection(jsonrpc_ipc_pipe_path, serve_empty_result):
 
 @pytest.mark.asyncio
 async def test_eth_subscription(jsonrpc_ipc_pipe_path, serve_subscription_result):
-    async with AsyncWeb3.persistent_connection(
-        AsyncIPCProvider(pathlib.Path(jsonrpc_ipc_pipe_path))
-    ) as w3:
+    async with AsyncWeb3(AsyncIPCProvider(pathlib.Path(jsonrpc_ipc_pipe_path))) as w3:
         subscribe_response = await w3.eth.subscribe("newHeads")
         subscription_id = "0xf13f7073ddef66a8c1b0c9c9f0e543c3"
         assert subscribe_response == subscription_id

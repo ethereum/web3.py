@@ -9,10 +9,6 @@ from typing import (
     Union,
 )
 
-from websockets import (
-    WebSocketClientProtocol,
-)
-
 from eth_typing import (
     URI,
 )

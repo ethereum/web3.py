@@ -192,12 +192,8 @@ IPCProvider
     - On Windows: ``\\.\pipe\geth.ipc``
 
 
-AsyncIPCProvider (beta)
-~~~~~~~~~~~~~~~~~~~~~~~
-
-.. warning:: This provider is still in beta. However, it is being actively developed
-    and supported and is expected to be stable in the next major version of *web3.py*
-    (v7).
+AsyncIPCProvider
+~~~~~~~~~~~~~~~~
 
 .. py:class:: web3.providers.persistent.AsyncIPCProvider(ipc_path=None, request_timeout=10, max_connection_retries=5)
 
@@ -222,10 +218,9 @@ AsyncIPCProvider Usage
 ++++++++++++++++++++++
 
 The ``AsyncWeb3`` class may be used as a context manager, utilizing the ``async with``
-syntax, when connecting via ``persistent_connection()`` using the
-``AsyncIPCProvider``. This will automatically close the connection when the context
-manager exits and is the recommended way to initiate a persistent connection to the
-provider.
+syntax, when connecting to the ``AsyncIPCProvider``. This will automatically close the
+connection when the context manager exits and is the recommended way to initiate a
+persistent connection to the provider.
 
 .. code-block:: python
 
@@ -240,9 +235,7 @@ provider.
         ...     logger.addHandler(logging.StreamHandler())
 
         >>> async def subscription_context_manager_example():
-        ...     async with AsyncWeb3.persistent_connection(
-        ...         AsyncIPCProvider('path/to/ipc')
-        ...     ) as w3:
+        ...     async with AsyncWeb3(AsyncIPCProvider('path/to/ipc')) as w3:
         ...         # subscribe to new block headers
         ...         subscription_id = await w3.eth.subscribe("newHeads")
         ...
@@ -266,16 +259,15 @@ provider.
 
         >>> asyncio.run(subscription_context_manager_example())
 
-If the above initilization pattern doesn't work for your application, the ``__await__()``
-method is defined on the ``persistent_connection()`` connection in a manner that awaits
-connecting to the socket. You may also choose to instantiate and connect via the
-provider in separate lines. Both of these examples are shown below.
+If the above initialization pattern doesn't work for your application, you may also
+choose to instantiate and connect via the provider in separate lines. Both of these
+examples are shown below.
 
 .. code-block:: python
 
     >>> async def alternate_init_example_1():
     ...     # awaiting the persistent connection itself will connect to the socket
-    ...     w3 = await AsyncWeb3.persistent_connection(AsyncIPCProvider('path/to/ipc'))
+    ...     w3 = await AsyncWeb3(AsyncIPCProvider('path/to/ipc'))
     ...
     ...     # some code here
     ...
@@ -287,7 +279,7 @@ provider in separate lines. Both of these examples are shown below.
 
     >>> async def alternate_init_example_2():
     ...     # instantiation and connection via the provider as separate lines
-    ...     w3 = AsyncWeb3.persistent_connection(AsyncIPCProvider('path/to/ipc'))
+    ...     w3 = AsyncWeb3(AsyncIPCProvider('path/to/ipc'))
     ...     await w3.provider.connect()
     ...
     ...     # some code here
