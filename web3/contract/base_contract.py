@@ -16,6 +16,9 @@ from typing import (
 )
 import warnings
 
+from eth_abi.exceptions import (
+    InsufficientDataBytes,
+)
 from eth_typing import (
     Address,
     ChecksumAddress,
@@ -156,13 +159,19 @@ class BaseContractEvent:
 
     @combomethod
     def process_receipt(
-        self, txn_receipt: TxReceipt, errors: EventLogErrorFlags = WARN
+        self,
+        txn_receipt: TxReceipt,
+        errors: EventLogErrorFlags = WARN,
+        abi_decode_strict: bool = True,
     ) -> Iterable[EventData]:
-        return self._parse_logs(txn_receipt, errors)
+        return self._parse_logs(txn_receipt, errors, abi_decode_strict)
 
     @to_tuple
     def _parse_logs(
-        self, txn_receipt: TxReceipt, errors: EventLogErrorFlags
+        self,
+        txn_receipt: TxReceipt,
+        errors: EventLogErrorFlags,
+        abi_decode_strict: bool,
     ) -> Iterable[EventData]:
         try:
             errors.name
@@ -173,8 +182,16 @@ class BaseContractEvent:
 
         for log in txn_receipt["logs"]:
             try:
-                rich_log = get_event_data(self.w3.codec, self.abi, log)
-            except (MismatchedABI, LogTopicError, InvalidEventABI, TypeError) as e:
+                rich_log = get_event_data(
+                    self.w3.codec, self.abi, log, abi_decode_strict
+                )
+            except (
+                MismatchedABI,
+                LogTopicError,
+                InvalidEventABI,
+                TypeError,
+                InsufficientDataBytes,
+            ) as e:
                 if errors == DISCARD:
                     continue
                 elif errors == IGNORE:
