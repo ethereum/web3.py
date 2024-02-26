@@ -101,7 +101,7 @@ def test_exception_retry_config_is_strictly_on_http_provider():
     w3 = Web3(IPCProvider())
     assert not hasattr(w3.provider, "exception_retry_configuration")
 
-    w3 = AsyncWeb3.persistent_connection(WebsocketProvider("ws://localhost:8546"))
+    w3 = AsyncWeb3(WebsocketProvider("ws://localhost:8546"))
     assert not hasattr(w3.provider, "exception_retry_configuration")
 
 

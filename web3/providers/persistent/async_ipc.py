@@ -56,8 +56,8 @@ async def async_get_ipc_socket(
 class AsyncIPCProvider(PersistentConnectionProvider):
     logger = logging.getLogger("web3.providers.AsyncIPCProvider")
 
-    reader: Optional[asyncio.StreamReader] = None
-    writer: Optional[asyncio.StreamWriter] = None
+    _reader: Optional[asyncio.StreamReader] = None
+    _writer: Optional[asyncio.StreamWriter] = None
 
     def __init__(
         self,
@@ -98,7 +98,7 @@ class AsyncIPCProvider(PersistentConnectionProvider):
         while _connection_attempts != self._max_connection_retries:
             try:
                 _connection_attempts += 1
-                self.reader, self.writer = await async_get_ipc_socket(self.ipc_path)
+                self._reader, self._writer = await async_get_ipc_socket(self.ipc_path)
                 self._message_listener_task = asyncio.create_task(
                     self._message_listener()
                 )
@@ -118,10 +118,10 @@ class AsyncIPCProvider(PersistentConnectionProvider):
                 _backoff_time *= _backoff_rate_change
 
     async def disconnect(self) -> None:
-        if self.writer and not self.writer.is_closing():
-            self.writer.close()
-            await self.writer.wait_closed()
-            self.writer = None
+        if self._writer and not self._writer.is_closing():
+            self._writer.close()
+            await self._writer.wait_closed()
+            self._writer = None
             self.logger.debug(
                 f'Successfully disconnected from endpoint: "{self.endpoint_uri}'
             )
@@ -129,36 +129,36 @@ class AsyncIPCProvider(PersistentConnectionProvider):
         try:
             self._message_listener_task.cancel()
             await self._message_listener_task
-            self.reader = None
+            self._reader = None
         except (asyncio.CancelledError, StopAsyncIteration):
             pass
 
         self._request_processor.clear_caches()
 
     async def _reset_socket(self) -> None:
-        self.writer.close()
-        await self.writer.wait_closed()
-        self.reader, self.writer = await async_get_ipc_socket(self.ipc_path)
+        self._writer.close()
+        await self._writer.wait_closed()
+        self._reader, self._writer = await async_get_ipc_socket(self.ipc_path)
 
     @async_handle_request_caching
     async def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
         request_data = self.encode_rpc_request(method, params)
 
-        if self.writer is None:
+        if self._writer is None:
             raise ProviderConnectionError(
                 "Connection to ipc socket has not been initiated for the provider."
             )
 
         try:
-            self.writer.write(request_data)
-            await self.writer.drain()
+            self._writer.write(request_data)
+            await self._writer.drain()
         except OSError as e:
             # Broken pipe
             if e.errno == errno.EPIPE:
                 # one extra attempt, then give up
                 await self._reset_socket()
-                self.writer.write(request_data)
-                await self.writer.drain()
+                self._writer.write(request_data)
+                await self._writer.drain()
 
         current_request_id = json.loads(request_data)["id"]
         response = await self._get_response_for_request_id(current_request_id)
@@ -179,7 +179,7 @@ class AsyncIPCProvider(PersistentConnectionProvider):
             await asyncio.sleep(0)
 
             try:
-                raw_message += to_text(await self.reader.read(4096)).lstrip()
+                raw_message += to_text(await self._reader.read(4096)).lstrip()
 
                 while raw_message:
                     try:
