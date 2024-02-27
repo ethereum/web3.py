@@ -4,7 +4,7 @@ import pytest
 from web3.providers import (
     HTTPProvider,
     IPCProvider,
-    LegacyWebsocketProvider,
+    LegacyWebSocketProvider,
 )
 from web3.providers.auto import (
     load_provider_from_environment,
@@ -41,7 +41,7 @@ def delete_environment_variables(monkeypatch):
         ),
         (
             "ws://1.2.3.4:5679",
-            LegacyWebsocketProvider,
+            LegacyWebSocketProvider,
             {"endpoint_uri": "ws://1.2.3.4:5679"},
         ),
     ),

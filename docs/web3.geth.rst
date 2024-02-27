@@ -131,7 +131,7 @@ The ``web3.geth.admin`` object exposes methods to interact with the RPC APIs und
 
     * Delegates to ``admin_startWS`` RPC Method
 
-    Starts the Websocket based JSON RPC API webserver on the specified ``host``
+    Starts the WebSocket based JSON RPC API webserver on the specified ``host``
     and ``port``, with the ``rpccorsdomain`` set to the provided ``cors`` value
     and with the APIs specified by ``apis`` enabled.  Returns boolean as to
     whether the server was successfully started.
@@ -158,7 +158,7 @@ The ``web3.geth.admin`` object exposes methods to interact with the RPC APIs und
 
     * Delegates to ``admin_stopWS`` RPC Method
 
-    Stops the Websocket based JSON RPC server.
+    Stops the WebSocket based JSON RPC server.
 
     .. code-block:: python
 

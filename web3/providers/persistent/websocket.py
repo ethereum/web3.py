@@ -57,8 +57,8 @@ def get_default_endpoint() -> URI:
     return URI(os.environ.get("WEB3_WS_PROVIDER_URI", "ws://127.0.0.1:8546"))
 
 
-class WebsocketProvider(PersistentConnectionProvider):
-    logger = logging.getLogger("web3.providers.WebsocketProvider")
+class WebSocketProvider(PersistentConnectionProvider):
+    logger = logging.getLogger("web3.providers.WebSocketProvider")
     is_async: bool = True
 
     _max_connection_retries: int = 5
@@ -80,7 +80,7 @@ class WebsocketProvider(PersistentConnectionProvider):
             for prefix in VALID_WEBSOCKET_URI_PREFIXES
         ):
             raise Web3ValidationError(
-                "Websocket endpoint uri must begin with 'ws://' or 'wss://': "
+                "WebSocket endpoint uri must begin with 'ws://' or 'wss://': "
                 f"{self.endpoint_uri}"
             )
 
@@ -99,7 +99,7 @@ class WebsocketProvider(PersistentConnectionProvider):
         super().__init__(**kwargs)
 
     def __str__(self) -> str:
-        return f"Websocket connection: {self.endpoint_uri}"
+        return f"WebSocket connection: {self.endpoint_uri}"
 
     async def is_connected(self, show_traceback: bool = False) -> bool:
         if not self._ws:
@@ -178,7 +178,7 @@ class WebsocketProvider(PersistentConnectionProvider):
 
     async def _message_listener(self) -> None:
         self.logger.info(
-            "Websocket listener background task started. Storing all messages in "
+            "WebSocket listener background task started. Storing all messages in "
             "appropriate request processor queues / caches to be processed."
         )
         while True:

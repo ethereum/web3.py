@@ -124,7 +124,7 @@ Internal Changes - for web3.py Contributors
 
 - Speed up the core test suite by splitting up sync and async tests. This reduces the CI build times to ~8min from ~12min. (`#3111 <https://github.com/ethereum/web3.py/issues/3111>`__)
 - Re-compile test contracts with Solidity ``v0.8.22`` to ensure compatibility with this latest Solidity version. (`#3134 <https://github.com/ethereum/web3.py/issues/3134>`__)
-- Improvements on yielding to the event loop while searching in response caches and calling ``recv()`` on the websocket connection for ``WebsocketProviderV2``. (`#3135 <https://github.com/ethereum/web3.py/issues/3135>`__)
+- Improvements on yielding to the event loop while searching in response caches and calling ``recv()`` on the websocket connection for ``WebSocketProviderV2``. (`#3135 <https://github.com/ethereum/web3.py/issues/3135>`__)
 
 
 web3.py v6.11.1 (2023-10-18)

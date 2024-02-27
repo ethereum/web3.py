@@ -18,13 +18,13 @@ from web3._utils.caching import (
     RequestInformation,
 )
 from web3._utils.module_testing.module_testing_utils import (
-    WebsocketMessageStreamMock,
+    WebSocketMessageStreamMock,
 )
 from web3.exceptions import (
     TimeExhausted,
 )
 from web3.providers.persistent import (
-    WebsocketProvider,
+    WebSocketProvider,
 )
 from web3.types import (
     RPCEndpoint,
@@ -45,7 +45,7 @@ class WSException(Exception):
 
 @pytest.mark.asyncio
 async def test_async_make_request_returns_desired_response():
-    provider = WebsocketProvider("ws://mocked")
+    provider = WebSocketProvider("ws://mocked")
 
     with patch(
         "web3.providers.persistent.websocket.connect", new=lambda *_1, **_2: _coro()
@@ -71,7 +71,7 @@ async def test_async_make_request_returns_desired_response():
     # The first request we make should have an id of `0`, expect the response to match
     # that id. Append it as the last response in the list.
     ws_messages.append(b'{"jsonrpc": "2.0", "id": 0, "result": "0x1337"}')
-    provider._ws = WebsocketMessageStreamMock(messages=ws_messages)
+    provider._ws = WebSocketMessageStreamMock(messages=ws_messages)
 
     response = await method_under_test(RPCEndpoint("some_method"), ["desired_params"])
     assert response == json.loads(ws_messages.pop())
@@ -95,7 +95,7 @@ async def test_async_make_request_returns_desired_response():
 @pytest.mark.asyncio
 async def test_async_make_request_times_out_of_while_loop_looking_for_response():
     timeout = 0.001
-    provider = WebsocketProvider("ws://mocked", request_timeout=timeout)
+    provider = WebSocketProvider("ws://mocked", request_timeout=timeout)
 
     method_under_test = provider.make_request
     _mock_ws(provider)
@@ -110,7 +110,7 @@ async def test_async_make_request_times_out_of_while_loop_looking_for_response()
 
 @pytest.mark.asyncio
 async def test_msg_listener_task_starts_on_provider_connect_and_cancels_on_disconnect():
-    provider = WebsocketProvider("ws://mocked")
+    provider = WebSocketProvider("ws://mocked")
     _mock_ws(provider)
 
     assert provider._message_listener_task is None
@@ -131,7 +131,7 @@ async def test_msg_listener_task_starts_on_provider_connect_and_cancels_on_disco
 
 @pytest.mark.asyncio
 async def test_msg_listener_task_raises_exceptions_by_default():
-    provider = WebsocketProvider("ws://mocked")
+    provider = WebSocketProvider("ws://mocked")
     _mock_ws(provider)
 
     with patch(
@@ -141,7 +141,7 @@ async def test_msg_listener_task_raises_exceptions_by_default():
         assert provider._message_listener_task is not None
         assert provider.silence_listener_task_exceptions is False
 
-    provider._ws = WebsocketMessageStreamMock(
+    provider._ws = WebSocketMessageStreamMock(
         raise_exception=WSException("test exception")
     )
     with pytest.raises(WSException, match="test exception"):
@@ -154,7 +154,7 @@ async def test_msg_listener_task_raises_exceptions_by_default():
 async def test_msg_listener_task_silences_exceptions_and_error_logs_when_configured(
     caplog,
 ):
-    provider = WebsocketProvider("ws://mocked", silence_listener_task_exceptions=True)
+    provider = WebSocketProvider("ws://mocked", silence_listener_task_exceptions=True)
     _mock_ws(provider)
 
     with patch(
@@ -164,7 +164,7 @@ async def test_msg_listener_task_silences_exceptions_and_error_logs_when_configu
         assert provider._message_listener_task is not None
         assert provider.silence_listener_task_exceptions is True
 
-    provider._ws = WebsocketMessageStreamMock(
+    provider._ws = WebSocketMessageStreamMock(
         raise_exception=WSException("test exception")
     )
     await asyncio.sleep(0.05)
@@ -192,7 +192,7 @@ async def test_listen_event_awaits_msg_processing_when_subscription_queue_is_ful
     with patch(
         "web3.providers.persistent.websocket.connect", new=lambda *_1, **_2: _coro()
     ):
-        async_w3 = await AsyncWeb3(WebsocketProvider("ws://mocked"))
+        async_w3 = await AsyncWeb3(WebSocketProvider("ws://mocked"))
 
     _mock_ws(async_w3.provider)
 
@@ -243,7 +243,7 @@ async def test_listen_event_awaits_msg_processing_when_subscription_queue_is_ful
     # mock the message stream with a single message
     # the message listener task should then call the _listen_event.wait since the
     # queue is full
-    async_w3.provider._ws = WebsocketMessageStreamMock(
+    async_w3.provider._ws = WebSocketMessageStreamMock(
         messages=[to_bytes(text=json.dumps(mocked_sub))]
     )
     await asyncio.sleep(0.05)
