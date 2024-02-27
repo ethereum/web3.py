@@ -438,23 +438,6 @@ def parse_block_identifier_int(w3: "Web3", block_identifier_int: int) -> BlockNu
     return BlockNumber(block_num)
 
 
-def parse_block_identifier_no_extra_call(
-    w3: Union["Web3", "AsyncWeb3"], block_identifier: BlockIdentifier
-) -> BlockIdentifier:
-    if block_identifier is None:
-        return w3.eth.default_block
-    elif isinstance(block_identifier, int) and block_identifier >= 0:
-        return block_identifier
-    elif block_identifier in ["latest", "earliest", "pending", "safe", "finalized"]:
-        return block_identifier
-    elif isinstance(block_identifier, bytes):
-        return HexBytes(block_identifier)
-    elif is_hex_encoded_block_hash(block_identifier):
-        return HexStr(str(block_identifier))
-    else:
-        raise BlockNumberOutofRange
-
-
 async def async_parse_block_identifier(
     async_w3: "AsyncWeb3", block_identifier: BlockIdentifier
 ) -> BlockIdentifier:

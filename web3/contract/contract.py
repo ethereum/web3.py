@@ -588,12 +588,11 @@ class ContractCaller(BaseContractCaller):
                     decode_tuples=decode_tuples,
                 )
 
-                block_id = parse_block_identifier(w3, block_identifier)
                 caller_method = partial(
                     self.call_function,
                     fn,
                     transaction=transaction,
-                    block_identifier=block_id,
+                    block_identifier=block_identifier,
                     ccip_read_enabled=ccip_read_enabled,
                 )
 
