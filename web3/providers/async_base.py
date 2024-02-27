@@ -49,7 +49,7 @@ if TYPE_CHECKING:
 
     from web3 import (  # noqa: F401
         AsyncWeb3,
-        WebsocketProvider,
+        WebSocketProvider,
     )
     from web3.providers.persistent import (  # noqa: F401
         RequestProcessor,

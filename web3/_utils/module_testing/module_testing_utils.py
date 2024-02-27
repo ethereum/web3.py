@@ -170,7 +170,7 @@ def async_mock_offchain_lookup_request_response(
     )
 
 
-class WebsocketMessageStreamMock:
+class WebSocketMessageStreamMock:
     closed: bool = False
 
     def __init__(

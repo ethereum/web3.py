@@ -308,7 +308,7 @@ Request Processing for Persistent Connection Providers
 
 The ``RequestProcessor`` class is responsible for the storing and syncing up of
 asynchronous requests to responses for a ``PersistentConnectionProvider``. The
-:class:`~web3.providers.persistent.WebsocketProvider` and the
+:class:`~web3.providers.persistent.WebSocketProvider` and the
 :class:`~web3.providers.persistent.AsyncIPCProvider` are two persistent connection
 providers. In order to send a request and receive a response to that same request,
 ``PersistentConnectionProvider`` instances have to match request *id* values to
@@ -339,7 +339,7 @@ back. An example is using the ``eth`` module API to request the latest block num
 .. code-block:: python
 
     >>> async def ws_one_to_one_example():
-    ...     async with AsyncWeb3(WebsocketProvider(f"ws://127.0.0.1:8546")) as w3:
+    ...     async with AsyncWeb3(WebSocketProvider(f"ws://127.0.0.1:8546")) as w3:
     ...         # make a request and expect a single response returned on the same line
     ...         latest_block_num = await w3.eth.block_number
 
@@ -420,7 +420,7 @@ interacting with the active persistent socket connection, is set up to receive
 .. code-block:: python
 
     >>> async def ws_subscription_example():
-    ...     async with AsyncWeb3(WebsocketProvider(f"ws://127.0.0.1:8546")) as w3:
+    ...     async with AsyncWeb3(WebSocketProvider(f"ws://127.0.0.1:8546")) as w3:
     ...         # Subscribe to new block headers and receive the subscription_id.
     ...         # A one-to-one call with a trigger for many responses
     ...         subscription_id = await w3.eth.subscribe("newHeads")

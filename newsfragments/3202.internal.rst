@@ -1,1 +1,1 @@
-Internal change to ``WebsocketsProviderV2`` before release: raise exceptions in message listener task by default; opting to silence them via a flag.
+Internal change to ``WebsocketProviderV2`` before release: raise exceptions in message listener task by default; opting to silence them via a flag.

@@ -46,7 +46,7 @@ Python 3.10 and 3.11 Support
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Support for Python 3.10 and 3.11 is here. In order to support Python 3.10, we had to
-update the Websockets dependency to v10+.
+update the ``websockets`` dependency to v10+.
 
 Exceptions
 ~~~~~~~~~~

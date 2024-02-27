@@ -629,10 +629,10 @@ appropriately in the following way:
 
 .. code-block:: python
 
-    from web3 import Web3, WebsocketProvider
+    from web3 import Web3, WebSocketProvider
     from web3.utils import handle_offchain_lookup
 
-    w3 = Web3(WebsocketProvider(...))
+    w3 = Web3(WebSocketProvider(...))
 
     myContract = w3.eth.contract(address=...)
     myData = b'data for offchain lookup function call'

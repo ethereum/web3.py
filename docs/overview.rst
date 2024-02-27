@@ -25,10 +25,10 @@ following built-in providers:
 
 - :class:`~web3.providers.rpc.HTTPProvider` for connecting to http and https based JSON-RPC servers.
 - :class:`~web3.providers.ipc.IPCProvider` for connecting to ipc socket based JSON-RPC servers.
-- :class:`~web3.providers.legacy_websocket.LegacyWebsocketProvider` (deprecated) for connecting to websocket based JSON-RPC servers.
+- :class:`~web3.providers.legacy_websocket.LegacyWebSocketProvider` (deprecated) for connecting to websocket based JSON-RPC servers.
 - :class:`~web3.providers.async_rpc.AsyncHTTPProvider` for connecting to http and https based JSON-RPC servers asynchronously.
 - :class:`~web3.providers.persistent.AsyncIPCProvider` for connecting to ipc socket based JSON-RPC servers asynchronously via a persistent connection.
-- :class:`~web3.providers.persistent.WebsocketProvider` for connecting to websocket based JSON-RPC servers asynchronously via a persistent connection.
+- :class:`~web3.providers.persistent.WebSocketProvider` for connecting to websocket based JSON-RPC servers asynchronously via a persistent connection.
 
 Examples
 ^^^^^^^^
@@ -54,8 +54,8 @@ Examples
 
    # -- Persistent Connection Providers -- #
 
-   # WebsocketProvider:
-   >>> w3 = await AsyncWeb3(AsyncWeb3.WebsocketProvider('ws://127.0.0.1:8546'))
+   # WebSocketProvider:
+   >>> w3 = await AsyncWeb3(AsyncWeb3.WebSocketProvider('ws://127.0.0.1:8546'))
    >>> await w3.is_connected()
    True
 

@@ -27,14 +27,14 @@ decided what kind of node to use, head on over to :ref:`choosing_node`
 The most common ways to connect to your node are:
 
 1. IPC (uses local filesystem: fastest and most secure)
-2. Websockets (works remotely, faster than HTTP)
+2. WebSocket (works remotely, faster than HTTP)
 3. HTTP (more nodes support it)
 
 If you're not sure how to decide, choose this way:
 
 - If you have the option of running web3.py on the same machine as the node, choose IPC.
-- If you must connect to a node on a different computer, use Websockets.
-- If your node does not support Websockets, use HTTP.
+- If you must connect to a node on a different computer, use WebSocket.
+- If your node does not support WebSocket, use HTTP.
 
 Most nodes have a way of "turning off" connection options.
 We recommend turning off all connection options that you are not using.
@@ -50,8 +50,8 @@ See:
 - :class:`~web3.providers.ipc.IPCProvider`
 - :class:`~web3.providers.async_rpc.AsyncHTTPProvider`
 - :class:`~web3.providers.persistent.AsyncIPCProvider` (Persistent Connection Provider)
-- :class:`~web3.providers.persistent.WebsocketProvider` (Persistent Connection Provider)
-- :class:`~web3.providers.legacy_websocket.LegacyWebsocketProvider` (Deprecated)
+- :class:`~web3.providers.persistent.WebSocketProvider` (Persistent Connection Provider)
+- :class:`~web3.providers.legacy_websocket.LegacyWebSocketProvider` (Deprecated)
 
 Each provider above should link to the documentation on how to properly initialize the
 provider. Once you have reviewed the relevant documentation for the provider of your
@@ -227,7 +227,7 @@ Persistent Connection Base Class
 
     This is a base provider class, inherited by the following providers:
 
-        - :class:`~web3.providers.persistent.WebsocketProvider`
+        - :class:`~web3.providers.persistent.WebSocketProvider`
         - :class:`~web3.providers.persistent.AsyncIPCProvider`
 
     It handles interactions with a persistent connection to a JSON-RPC server. Among
@@ -273,10 +273,10 @@ AsyncIPCProvider
     - On Mac OS: ``~/Library/Ethereum/geth.ipc``
     - On Windows: ``\\.\pipe\geth.ipc``
 
-WebsocketProvider
+WebSocketProvider
 +++++++++++++++++
 
-.. py:class:: web3.providers.persistent.WebsocketProvider(endpoint_uri: str, websocket_kwargs: Dict[str, Any] = {})
+.. py:class:: web3.providers.persistent.WebSocketProvider(endpoint_uri: str, websocket_kwargs: Dict[str, Any] = {})
 
     This provider handles interactions with an WS or WSS based JSON-RPC server.
 
@@ -290,7 +290,7 @@ WebsocketProvider
     the :class:`~web3.providers.persistent.PersistentConnectionProvider` documentation
     for details on additional configuration options available for this provider.
 
-    Under the hood, the ``WebsocketProvider`` uses the python websockets library for
+    Under the hood, the ``WebSocketProvider`` uses the python websockets library for
     making requests.  If you would like to modify how requests are made, you can
     use the ``websocket_kwargs`` to do so.  See the `websockets documentation`_ for
     available arguments.
@@ -314,20 +314,20 @@ can be found in the `websockets connection`_ docs.
         >>> from web3 import AsyncWeb3
         >>> from web3.providers.persistent import (
         ...     AsyncIPCProvider,
-        ...     WebsocketProvider,
+        ...     WebSocketProvider,
         ... )
 
         >>> LOG = True  # toggle debug logging
         >>> if LOG:
         ...     import logging
         ...     # logger = logging.getLogger("web3.providers.AsyncIPCProvider")  # for the AsyncIPCProvider
-        ...     logger = logging.getLogger("web3.providers.WebsocketProvider")  # for the WebsocketProvider
+        ...     logger = logging.getLogger("web3.providers.WebSocketProvider")  # for the WebSocketProvider
         ...     logger.setLevel(logging.DEBUG)
         ...     logger.addHandler(logging.StreamHandler())
 
         >>> async def context_manager_subscriptions_example():
         ...     #  async with AsyncWeb3(AsyncIPCProvider("./path/to.filename.ipc") as w3:  # for the AsyncIPCProvider
-        ...     async with AsyncWeb3(WebsocketProvider(f"ws://127.0.0.1:8546")) as w3:  # for the WebsocketProvider
+        ...     async with AsyncWeb3(WebSocketProvider(f"ws://127.0.0.1:8546")) as w3:  # for the WebSocketProvider
         ...         # subscribe to new block headers
         ...         subscription_id = await w3.eth.subscribe("newHeads")
         ...
@@ -370,12 +370,12 @@ be found in the `websockets connection`_ docs.
     >>> from web3 import AsyncWeb3
     >>> from web3.providers.persistent import (
     ...     AsyncIPCProvider,
-    ...     WebsocketProvider,
+    ...     WebSocketProvider,
     ... )
 
     >>> async def subscription_iterator_example():
     ...     # async for w3 in AsyncWeb3(AsyncIPCProvider("./path/to/filename.ipc")):  # for the AsyncIPCProvider
-    ...     async for w3 in AsyncWeb3(WebsocketProvider(f"ws://127.0.0.1:8546")):  # for the WebsocketProvider
+    ...     async for w3 in AsyncWeb3(WebSocketProvider(f"ws://127.0.0.1:8546")):  # for the WebSocketProvider
     ...         try:
     ...             ...
     ...         except websockets.ConnectionClosed:
@@ -394,7 +394,7 @@ shown below.
 
     >>> async def await_instantiation_example():
     ...     # w3 = await AsyncWeb3(AsyncIPCProvider("./path/to/filename.ipc"))  # for the AsyncIPCProvider
-    ...     w3 = await AsyncWeb3(WebsocketProvider(f"ws://127.0.0.1:8546"))  # for the WebsocketProvider
+    ...     w3 = await AsyncWeb3(WebSocketProvider(f"ws://127.0.0.1:8546"))  # for the WebSocketProvider
     ...
     ...     # some code here
     ...
@@ -408,7 +408,7 @@ shown below.
 
     >>> async def await_provider_connect_example():
     ...     # w3 = AsyncWeb3(AsyncIPCProvider("./path/to/filename.ipc"))  # for the AsyncIPCProvider
-    ...     w3 = AsyncWeb3(WebsocketProvider(f"ws://127.0.0.1:8546"))  # for the WebsocketProvider
+    ...     w3 = AsyncWeb3(WebSocketProvider(f"ws://127.0.0.1:8546"))  # for the WebSocketProvider
     ...     await w3.provider.connect()
     ...
     ...     # some code here
@@ -492,15 +492,15 @@ Interacting with the Persistent Connection
         ``w3.socket.send("eth_getBlockByNumber", ["latest", True])``.
 
 
-LegacyWebsocketProvider
+LegacyWebSocketProvider
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 .. warning::
 
-        ``LegacyWebsocketProvider`` is deprecated and is likely to be removed in a
-        future major release. Please use ``WebsocketProvider`` instead.
+        ``LegacyWebSocketProvider`` is deprecated and is likely to be removed in a
+        future major release. Please use ``WebSocketProvider`` instead.
 
-.. py:class:: web3.providers.legacy_websocket.LegacyWebsocketProvider(endpoint_uri[, websocket_timeout, websocket_kwargs])
+.. py:class:: web3.providers.legacy_websocket.LegacyWebSocketProvider(endpoint_uri[, websocket_timeout, websocket_kwargs])
 
     This provider handles interactions with an WS or WSS based JSON-RPC server.
 
@@ -514,9 +514,9 @@ LegacyWebsocketProvider
     .. code-block:: python
 
         >>> from web3 import Web3
-        >>> w3 = Web3(Web3.LegacyWebsocketProvider("ws://127.0.0.1:8546"))
+        >>> w3 = Web3(Web3.LegacyWebSocketProvider("ws://127.0.0.1:8546"))
 
-    Under the hood, ``LegacyWebsocketProvider`` uses the python ``websockets`` library for
+    Under the hood, ``LegacyWebSocketProvider`` uses the python ``websockets`` library for
     making requests.  If you would like to modify how requests are made, you can
     use the ``websocket_kwargs`` to do so.  See the `websockets documentation`_ for
     available arguments.
@@ -530,7 +530,7 @@ LegacyWebsocketProvider
     .. code-block:: python
 
         >>> from web3 import Web3
-        >>> w3 = Web3(Web3.LegacyWebsocketProvider("ws://127.0.0.1:8546", websocket_timeout=60))
+        >>> w3 = Web3(Web3.LegacyWebSocketProvider("ws://127.0.0.1:8546", websocket_timeout=60))
 
 
 AutoProvider

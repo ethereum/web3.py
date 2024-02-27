@@ -11,5 +11,5 @@ from .async_ipc import (
     AsyncIPCProvider,
 )
 from .websocket import (
-    WebsocketProvider,
+    WebSocketProvider,
 )

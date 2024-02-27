@@ -15,13 +15,13 @@ from .rpc import (
     HTTPProvider,
 )
 from .legacy_websocket import (
-    LegacyWebsocketProvider,
+    LegacyWebSocketProvider,
 )
 from .persistent import (
     AsyncIPCProvider,
     PersistentConnection,
     PersistentConnectionProvider,
-    WebsocketProvider,
+    WebSocketProvider,
 )
 from .auto import (
     AutoProvider,

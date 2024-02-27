@@ -86,8 +86,8 @@ to this local node can be done as follows:
 
    # -- Persistent Connection Providers -- #
 
-   # WebsocketProvider:
-   >>> w3 = await AsyncWeb3(AsyncWeb3.WebsocketProvider('ws://127.0.0.1:8546'))
+   # WebSocketProvider:
+   >>> w3 = await AsyncWeb3(AsyncWeb3.WebSocketProvider('ws://127.0.0.1:8546'))
    >>> await w3.is_connected()
    True
 
@@ -111,7 +111,7 @@ You can connect to a remote node by specifying the endpoint, just like the previ
 
    >>> w3 = AsyncWeb3(AsyncWeb3.AsyncHTTPProvider('https://<your-provider-url>'))
 
-   >>> w3 = await AsyncWeb3(AsyncWeb3.WebsocketProvider('wss://<your-provider-url>'))
+   >>> w3 = await AsyncWeb3(AsyncWeb3.WebSocketProvider('wss://<your-provider-url>'))
 
 This endpoint is provided by the remote node service, typically after you create an account.
 
