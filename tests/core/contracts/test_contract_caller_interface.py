@@ -149,24 +149,38 @@ def test_caller_with_invalid_block_identifier(w3, math_contract):
 
 
 def test_caller_with_block_identifier(w3, math_contract):
-    start_num = w3.eth.get_block("latest").number
+    start = w3.eth.get_block("latest")
+    start_num = start.number
+    block_hash = start.hash
+    block_hex = w3.to_hex(block_hash)
+
     assert math_contract.caller.counter() == 0
 
     w3.provider.make_request(method="evm_mine", params=[5])
     math_contract.functions.incrementCounter().transact()
     math_contract.functions.incrementCounter().transact()
 
-    assert math_contract.caller(block_identifier=start_num).counter() == 0
-    assert math_contract.caller(block_identifier=start_num + 6).counter() == 1
-    assert math_contract.caller.counter() == 2
-    assert math_contract.caller(block_identifier="latest").counter() == 2
-    last_counter = math_contract.caller(block_identifier=start_num + 7).counter()
-    assert last_counter == 2
+    assert_ids = [
+        (block_hash, 0),
+        (block_hex, 0),
+        (start_num, 0),
+        (start_num + 6, 1),
+        (start_num + 7, 2),
+        ("latest", 2),
+        (None, 2),
+    ]
 
-    # Pass `block_identifier` to function
-    assert (
-        math_contract.caller().counter(block_identifier=start_num + 7) == last_counter
-    )
+    for block_identifier, expected_value in assert_ids:
+        assert (
+            math_contract.caller(block_identifier=block_identifier).counter()
+            == expected_value
+        )
+
+        # Function arg `block_identifier` produces same result
+        assert (
+            math_contract.caller().counter(block_identifier=block_identifier)
+            == expected_value
+        )
 
 
 def test_caller_with_block_identifier_and_transaction_dict(
@@ -346,28 +360,40 @@ async def test_async_caller_with_invalid_block_identifier(
 async def test_async_caller_with_block_identifier(async_w3, async_math_contract):
     start = await async_w3.eth.get_block("latest")
     start_num = start.number
+    block_hash = start.hash
+    block_hex = async_w3.to_hex(block_hash)
+
     assert await async_math_contract.caller.counter() == 0
 
     await async_w3.provider.make_request(method="evm_mine", params=[5])
     await async_math_contract.functions.incrementCounter().transact()
     await async_math_contract.functions.incrementCounter().transact()
 
-    assert await async_math_contract.caller(block_identifier=start_num).counter() == 0
-    assert (
-        await async_math_contract.caller(block_identifier=start_num + 6).counter() == 1
-    )
-    assert await async_math_contract.caller.counter() == 2
-    assert await async_math_contract.caller(block_identifier="latest").counter() == 2
-    last_counter = await async_math_contract.caller(
-        block_identifier=start_num + 7
-    ).counter()
-    assert last_counter == 2
+    assert_ids = [
+        (block_hash, 0),
+        (block_hex, 0),
+        (start_num, 0),
+        (start_num + 6, 1),
+        (start_num + 7, 2),
+        ("latest", 2),
+        (None, 2),
+    ]
 
-    # Function arg `block_identifier` produces same result
-    assert (
-        await async_math_contract.caller().counter(block_identifier=start_num + 7)
-        == last_counter
-    )
+    for block_identifier, expected_value in assert_ids:
+        assert (
+            await async_math_contract.caller(
+                block_identifier=block_identifier
+            ).counter()
+            == expected_value
+        )
+
+        # Function arg `block_identifier` produces same result
+        assert (
+            await async_math_contract.caller().counter(
+                block_identifier=block_identifier
+            )
+            == expected_value
+        )
 
 
 @pytest.mark.asyncio
