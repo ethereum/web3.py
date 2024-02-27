@@ -1,0 +1,1 @@
+Catch ``InsufficientDataBytes`` errors and add ``abi_decode_strict`` flag to log receipt processing
