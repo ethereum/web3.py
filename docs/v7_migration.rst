@@ -37,7 +37,7 @@ The following middleware have been renamed for generalization or clarity:
 
 The following middleware have been removed:
 
-ABI middleware
+ABI Middleware
 ``````````````
 
 ``abi_middleware`` is no longer necessary and was removed. All of the functionality
@@ -88,6 +88,36 @@ The ``normalize_request_parameters`` middleware was not used anywhere internally
 has been removed.
 
 
+Provider Updates
+~~~~~~~~~~~~~~~~
+
+WebSocketProvider
+`````````````````
+
+``WebsocketProviderV2``, introduced in *web3.py* ``v6``, has taken priority over the
+legacy ``WebsocketProvider``. The ``LegacyWebSocketProvider`` is also deprecated in
+``v7`` and will likely be slated for removal in a later major version of the library
+to help with the transition to the asynchronous patterns required when using the
+``WebSocketProvider``.
+
+- ``WebsocketProvider`` -> ``LegacyWebSocketProvider`` (and deprecated)
+- ``WebsocketProviderV2`` -> ``WebSocketProvider``
+
+
+EthereumTesterProvider
+``````````````````````
+
+``EthereumTesterProvider`` now returns ``input`` instead of ``data`` for ``eth_getTransaction*``
+calls, as expected.
+
+AsyncIPCProvider (non-breaking feature)
+```````````````````````````````````````
+
+An asynchronous IPC provider, ``AsyncIPCProvider``, is also available in ``v7``. This
+provider makes use of some of the same internals that the new ``WebSocketProvider`` does
+which allow it to also support ``eth_subscription``.
+
+
 Python 3.7 Support Dropped
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -103,3 +133,13 @@ Miscellaneous Changes
   dropped.
 - ``CallOverride`` type was changed to ``StateOverride`` since more methods than
   ``eth_call`` utilize the state override params.
+- ``User-Agent`` header was changed to a more readable format.
+- ``BaseContractFunctions`` iterator now returns instances of ``ContractFunction`` rather
+  than the function names.
+- Beacon API filename change: ``beacon/main.py`` -> ``beacon/beacon.py``.
+- The ``geth.miner`` namespace and methods, deprecated in ``v6``, is removed in ``v7``.
+- The asynchronous version of ``w3.eth.wait_for_transaction_receipt()`` changes its
+  signature to use ``Optional[float]`` instead of ``float`` since it may be ``None``.
+- ``get_default_ipc_path()`` and ``get_dev_ipc_path()`` now return the path value
+  without checking if the ``geth.ipc`` file exists.
+- ``Web3.is_address()`` returns ``True`` for non-checksummed addresses.
