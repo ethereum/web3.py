@@ -1,0 +1,1 @@
+Name changes internal to the library related to ``v7``: ``WebsocketProvider`` -> ``LegacyWebSocketProvider``, ``WebsocketProviderV2`` -> ``WebSocketProvider``
