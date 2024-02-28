@@ -1,1 +1,0 @@
-Create test fixture for latest ``geth`` version. Run tests with ``geth`` in ``--dev`` mode.

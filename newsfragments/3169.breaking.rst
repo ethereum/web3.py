@@ -1,1 +1,0 @@
-Refactor the middleware setup so that request processors and response processors are separated. This will allow for more flexibility in the future and aid in the implementation of features such as batched requests. This PR also closes out a few outstanding issues and will be the start of the breaking changes for `web3.py` ``v7``. Review PR for a full list of changes.

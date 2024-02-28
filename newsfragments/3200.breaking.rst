@@ -1,1 +1,0 @@
-Return iterable of ``ABIFunction``s from the ``BaseContractFunctions`` iterator.

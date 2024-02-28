@@ -1,1 +1,0 @@
-Use a message listener background task for ``WebsocketProviderV2`` rather than relying on ``ws.recv()`` blocking. Some breaking changes to API, notably ``listen_to_websocket`` -> ``process_subscriptions``.
