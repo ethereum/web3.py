@@ -1,2 +1,2 @@
 def test_web3_api(w3):
-    assert w3.api.startswith("6")
+    assert w3.api.startswith("7")

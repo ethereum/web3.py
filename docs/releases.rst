@@ -1,8 +1,8 @@
 Release Notes
 =============
 
-v6 Breaking Changes Summary
-   See the :ref:`v6 Migration Guide<migrating_v5_to_v6>`
+v7 Breaking Changes Summary
+   See the :ref:`v7 Migration Guide<migrating_v6_to_v7>`
 
 .. towncrier release notes start
 
