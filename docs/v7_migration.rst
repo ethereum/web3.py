@@ -5,7 +5,7 @@ Migrating your code from v6 to v7
 
 web3.py follows `Semantic Versioning <http://semver.org>`_, which means
 that version 7 introduced backwards-incompatible changes. If your
-project depends on *web3.py* ``v7``, then you'll probably need to make some changes.
+project depends on web3.py ``v7``, you'll probably need to make some changes.
 
 Breaking Changes:
 
@@ -13,16 +13,15 @@ Breaking Changes:
 Class-Based Middleware Model
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The middleware model has been changed to a class-based model. This allows for
-more flexibility in implementation, for asynchronous processing for example. Previously,
-the middleware were functions that tightly wrapped the ``make_request`` function of the
-provider, always making the request except if the middleware itself modified the
-``make_request`` function. Now, the middleware logic can be separated into
-``request_processor`` and ``response_processor`` functions that do pre-request and
-post-response processing, respectively. This gives more flexibility for asynchronous
-operations where the response may come back at a later time than the request was made.
-This also paves the way for support of batch requests, which is a part of the roadmap
-for web3.py.
+The middleware model has been changed to a class-based model. Previously, middleware
+were defined as functions that tightly wrapped the provider's ``make_request`` function,
+where transformations could be conditionally applied before and after the request was made.
+
+Now, middleware logic can be separated into ``request_processor`` and ``response_processor``
+functions that enable pre-request and post-response logic, respectively. This change offers
+a simpler, clearer interface for defining middleware, gives more flexibility for
+asynchronous operations and also paves the way for supporting batch requests - included in
+the roadmap for web3.py.
 
 The new middleware model is documented in the :ref:`internals__middlewares` section.
 
@@ -40,10 +39,10 @@ The following middleware have been removed:
 ABI Middleware
 ``````````````
 
-``abi_middleware`` is no longer necessary and was removed. All of the functionality
-of the ``abi_middleware`` was already handled by the abi formatters but a bug in the
-ENS name-to-address middleware would override the formatters. Fixing this bug has
-removed the need for the ``abi_middleware``.
+``abi_middleware`` is no longer necessary and has been removed. All of the functionality
+of the ``abi_middleware`` was already handled by web3.py's ABI formatters. For additional
+context: a bug in the ENS name-to-address middleware would override the formatters. Fixing
+this bug has removed the need for the ``abi_middleware``.
 
 Caching Middleware
 ``````````````````
@@ -54,7 +53,7 @@ The following middleware have been removed:
 - ``latest_block_based_cache_middleware``
 - ``time_based_cache_middleware``
 
-All caching middleware has been removed in favor of a decorator / wrapper around the
+All caching middleware has been removed in favor of a decorator/wrapper around the
 ``make_request`` methods of providers with configuration options on the provider class.
 The configuration options are outlined in the documentation in the
 :ref:`request_caching` section.
@@ -71,7 +70,7 @@ The following middleware have been removed:
 - ``result_generator_middleware``
 
 The ``fixture_middleware`` and ``result_generator_middleware`` which were used for
-testing / mocking purposes have been removed. These have been replaced internally by the
+testing/mocking purposes have been removed. These have been replaced internally by the
 ``RequestMocker`` class, utilized for testing via a ``request_mocker`` pytest fixture.
 
 HTTP Retry Request Middleware
@@ -94,11 +93,11 @@ Provider Updates
 WebSocketProvider
 `````````````````
 
-``WebsocketProviderV2``, introduced in *web3.py* ``v6``, has taken priority over the
+``WebsocketProviderV2``, introduced in web3.py ``v6``, has taken priority over the
 legacy ``WebsocketProvider``. The ``LegacyWebSocketProvider`` is also deprecated in
 ``v7`` and will likely be slated for removal in a later major version of the library
 to help with the transition to the asynchronous patterns required when using the
-``WebSocketProvider``.
+``WebSocketProvider``. In summary:
 
 - ``WebsocketProvider`` -> ``LegacyWebSocketProvider`` (and deprecated)
 - ``WebsocketProviderV2`` -> ``WebSocketProvider``
@@ -113,9 +112,9 @@ calls, as expected.
 AsyncIPCProvider (non-breaking feature)
 ```````````````````````````````````````
 
-An asynchronous IPC provider, ``AsyncIPCProvider``, is also available in ``v7``. This
-provider makes use of some of the same internals that the new ``WebSocketProvider`` does
-which allow it to also support ``eth_subscription``.
+An asynchronous IPC provider, ``AsyncIPCProvider``, is also newly available in ``v7``.
+This provider makes use of some of the same internals that the new ``WebSocketProvider``
+introduced, allowing it to also support ``eth_subscription``.
 
 
 Python 3.7 Support Dropped
