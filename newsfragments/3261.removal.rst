@@ -1,0 +1,1 @@
+Remove the ``ethpm`` module and related docs, tests, and dependencies

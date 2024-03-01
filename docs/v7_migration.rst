@@ -124,6 +124,12 @@ Python 3.7 support has been dropped in favor of Python 3.8+. Python 3.7 is no lo
 supported by the Python core team, and we want to focus our efforts on supporting
 the latest versions of Python.
 
+EthPM Module Removed
+~~~~~~~~~~~~~~~~~~~~
+
+The EthPM module has been removed from the library. It was not widely used and has not
+been functional since around October 2022. It was deprecated in ``v6`` and has been
+completely removed in ``v7``.
 
 Miscellaneous Changes
 ~~~~~~~~~~~~~~~~~~~~~
