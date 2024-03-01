@@ -16,7 +16,6 @@ extras_require = {
         "mypy==1.4.1",
         "types-setuptools>=57.4.4",
         "types-requests>=2.26.1",
-        "types-protobuf==3.19.13",
     ],
     "docs": [
         "sphinx>=5.3.0",
@@ -76,7 +75,6 @@ setup(
         "eth-utils>=4.0.0",
         "hexbytes>=0.1.0,<0.4.0",
         "jsonschema>=4.0.0",
-        "protobuf>=4.21.6",
         "pydantic>=2.4.0",
         "pywin32>=223;platform_system=='Windows'",
         "requests>=2.16.0",
