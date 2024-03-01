@@ -39,16 +39,12 @@ extras_require = {
         "when-changed>=0.3.0",
         "build>=0.9.0",
     ],
-    "ipfs": [
-        "ipfshttpclient==0.8.0a2",
-    ],
 }
 
 extras_require["dev"] = (
     extras_require["tester"]
     + extras_require["linter"]
     + extras_require["docs"]
-    + extras_require["ipfs"]
     + extras_require["dev"]
 )
 
@@ -84,8 +80,7 @@ setup(
     ],
     python_requires=">=3.8",
     extras_require=extras_require,
-    py_modules=["web3", "ens", "ethpm"],
-    entry_points={"pytest11": ["pytest_ethereum = web3.tools.pytest_ethereum.plugins"]},
+    py_modules=["web3", "ens"],
     license="MIT",
     zip_safe=False,
     keywords="ethereum",

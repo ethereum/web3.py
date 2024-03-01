@@ -3178,7 +3178,7 @@ Released June 21, 2018
     - ``from web3.auto.gethdev import w3``
     - ``from web3.auto.infura import w3``
       (After setting the ``INFURA_API_KEY`` environment variable)
-  - Alpha support for a new package management tool based on ethpm-spec, see :doc:`web3.pm`
+  - Alpha support for a new package management tool based on ethpm-spec
 - Bugfixes
 
   - Can now receive large responses in :class:`~web3.providers.websocket.WebsocketProvider` by
