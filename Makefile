@@ -39,7 +39,7 @@ benchmark:
 	tox -e benchmark
 
 build-docs:
-	sphinx-apidoc -o docs/ . setup.py "*conftest*" "tests" "ethpm" "web3/tools/*"
+	sphinx-apidoc -o docs/ . setup.py "*conftest*" "tests" "web3/tools/*"
 	$(MAKE) -C docs clean
 	$(MAKE) -C docs html
 	$(MAKE) -C docs doctest

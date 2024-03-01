@@ -1,5 +1,4 @@
 import decimal
-import warnings
 from types import (
     TracebackType,
 )
@@ -142,7 +141,6 @@ from web3.types import (
 )
 
 if TYPE_CHECKING:
-    from web3.pm import PM  # noqa: F401
     from web3._utils.empty import Empty  # noqa: F401
 
 
@@ -337,30 +335,6 @@ class BaseWeb3:
 
     def is_encodable(self, _type: TypeStr, value: Any) -> bool:
         return self.codec.is_encodable(_type, value)
-
-    @property
-    def pm(self) -> "PM":
-        if hasattr(self, "_pm"):
-            # ignored b/c property is dynamically set
-            # via enable_unstable_package_management_api
-            return self._pm
-        else:
-            raise AttributeError(
-                "The Package Management feature is disabled by default until "
-                "its API stabilizes. To use these features, please enable them by "
-                "running `w3.enable_unstable_package_management_api()` and try again."
-            )
-
-    def enable_unstable_package_management_api(self) -> None:
-        if not hasattr(self, "_pm"):
-            warnings.warn(
-                "The ``ethPM`` module is no longer being maintained and will be "
-                "deprecated with ``web3.py`` version 7",
-                UserWarning,
-            )
-            from web3.pm import PM  # noqa: F811
-
-            self.attach_modules({"_pm": PM})
 
 
 class Web3(BaseWeb3):

@@ -322,13 +322,6 @@ Some basic network properties are available on the ``web3.net`` object:
 - :attr:`web3.net.version`
 
 
-ethPM
-~~~~~
-
-ethPM allows you to package up your contracts for reuse or use contracts from
-another trusted registry. See the full details :ref:`here <ethpm>`.
-
-
 ENS
 ~~~
 
