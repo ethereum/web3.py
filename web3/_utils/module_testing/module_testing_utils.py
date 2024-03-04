@@ -1,6 +1,7 @@
 from collections import (
     deque,
 )
+import pytest
 import time
 from typing import (
     TYPE_CHECKING,
@@ -61,14 +62,15 @@ flaky_geth_dev_mining = flaky(max_runs=3)
 
 
 def mine_pending_block(w3: "Web3") -> None:
-    timeout = 10
+    with pytest.warns(DeprecationWarning):
+        timeout = 10
 
-    w3.geth.miner.start()  # type: ignore
-    start = time.time()
-    while time.time() < start + timeout:
-        if len(w3.eth.get_block("pending")["transactions"]) == 0:
-            break
-    w3.geth.miner.stop()  # type: ignore
+        w3.geth.miner.start()  # type: ignore
+        start = time.time()
+        while time.time() < start + timeout:
+            if len(w3.eth.get_block("pending")["transactions"]) == 0:
+                break
+        w3.geth.miner.stop()  # type: ignore
 
 
 def assert_contains_log(
