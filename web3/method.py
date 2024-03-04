@@ -228,11 +228,12 @@ class DeprecatedMethod:
     def __get__(
         self, obj: Optional["Module"] = None, obj_type: Optional[Type["Module"]] = None
     ) -> Any:
+        message = f"{self.old_name} is deprecated in favor of {self.new_name}"
         if self.msg is not None:
-            warnings.warn(self.msg)
-        else:
-            warnings.warn(
-                f"{self.old_name} is deprecated in favor of {self.new_name}",
-                category=DeprecationWarning,
-            )
+            message = self.msg
+
+        warnings.warn(
+            message,
+            category=DeprecationWarning,
+        )
         return self.method.__get__(obj, obj_type)
