@@ -1,94 +1,19 @@
+.. _middleware_internals:
+
 Middleware
 ==========
 
-Web3 manages layers of middlewares by default. They sit between the public Web3 methods and the
-:doc:`providers`, which handle native communication with the Ethereum client. Each layer
-can modify the request and/or response. Some middlewares are enabled by default, and
-others are available for optional use.
+``Web3`` is instantiated with layers of middleware by default. They sit between the public
+``Web3`` methods and the :doc:`providers`, and are used to perform sanity checks, convert data
+types, enable ENS support, and more. Each layer can modify the request and/or response.
+While several middleware are enabled by default, others are available for optional use,
+and you're free to create your own!
 
 Each middleware layer gets invoked before the request reaches the provider, and then
 processes the result after the provider returns, in reverse order. However, it is
-possible for a middleware to return early from a
-call without the request ever getting to the provider (or even reaching the middlewares
-that are in deeper layers).
+possible for a middleware to return early from a call without the request ever getting
+to the provider (or even reaching the middleware that are in deeper layers).
 
-More information is available in the "Internals: :ref:`internals__middlewares`" section.
-
-
-.. _default_middleware:
-
-Default Middleware
-------------------
-
-The following middlewares are added by default if you don't add any:
-
-* ``gas_price_strategy``
-* ``ens_name_to_address``
-* ``attrdict``
-* ``validation``
-* ``gas_estimate``
-
-The defaults are defined in the ``default_middlewares()`` method in ``web3/manager.py``.
-
-AttributeDict
-~~~~~~~~~~~~~
-
-.. py:class:: web3.middleware.AttributeDictMiddleware
-
-    This middleware recursively converts any dictionary type in the result of a call
-    to an ``AttributeDict``. This enables dot-syntax access, like
-    ``eth.get_block('latest').number`` in addition to
-    ``eth.get_block('latest')['number']``.
-
-    .. note::
-        Accessing a property via attribute breaks type hinting. For this reason, this
-        feature is available as a middleware, which may be removed if desired.
-
-ENS Name to Address Resolution
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. py:class:: web3.middleware.ENSNameToAddressMiddleware
-
-    This middleware converts Ethereum Name Service (ENS) names into the
-    address that the name points to. For example :meth:`w3.eth.send_transaction <web3.eth.Eth.send_transaction>` will
-    accept .eth names in the 'from' and 'to' fields.
-
-    .. note::
-        This middleware only converts ENS names on chains where the proper ENS
-        contracts are deployed to support this functionality. All other cases will
-        result in a ``NameNotFound`` error.
-
-Gas Price Strategy
-~~~~~~~~~~~~~~~~~~
-
-.. py:class:: web3.middleware.GasPriceStrategyMiddleware
-
-  .. warning::
-
-      Gas price strategy is only supported for legacy transactions. The London fork
-      introduced ``maxFeePerGas`` and ``maxPriorityFeePerGas`` transaction parameters
-      which should be used over ``gasPrice`` whenever possible.
-
-  This adds a ``gasPrice`` to transactions if applicable and when a gas price strategy has
-  been set. See :ref:`Gas_Price` for information about how gas price is derived.
-
-Buffered Gas Estimate
-~~~~~~~~~~~~~~~~~~~~~
-
-.. py:class:: web3.middleware.BufferedGasEstimateMiddleware
-
-    This adds a gas estimate to transactions if ``gas`` is not present in the transaction
-    parameters. Sets gas to:
-    ``min(w3.eth.estimate_gas + gas_buffer, gas_limit)``
-    where the gas_buffer default is 100,000
-
-Validation
-~~~~~~~~~~
-
-.. py:class:: web3.middleware.ValidationMiddleware
-
-    This middleware includes block and transaction validators which perform validations
-    for transaction parameters.
 
 .. _Modifying_Middleware:
 
@@ -101,7 +26,7 @@ can name the middleware for later reference.
 Middleware Order
 ~~~~~~~~~~~~~~~~
 
-Think of the middlewares as being layered in an onion, where you initiate a web3.py request at
+Think of the middleware as being layered in an onion, where you initiate a web3.py request at
 the outermost layer of the onion, and the Ethereum node (like geth) receives and responds
 to the request inside the innermost layer of the onion. Here is a (simplified) diagram:
 
@@ -158,14 +83,15 @@ to the request inside the innermost layer of the onion. Here is a (simplified) d
                                           Returned value in web3.py
 
 
-The middlewares are maintained in ``Web3.middleware_onion``. See below for the API.
+The middleware are maintained in ``Web3.middleware_onion``. See below for the API.
 
-When specifying middlewares in a list, or retrieving the list of middlewares, they will
+When specifying middleware in a list, or retrieving the list of middleware, they will
 be returned in the order of outermost layer first and innermost layer last. In the above
-example, that means that ``w3.middleware_onion.middlewares`` would return the middlewares in
-the order of: ``[2, 1, 0]``.
+example, that means that ``w3.middleware_onion.middlewares`` would return the middleware
+in the order of: ``[2, 1, 0]``.
 
-See "Internals: :ref:`internals__middlewares`" for a deeper dive to how middlewares work.
+
+.. _middleware_stack_api:
 
 Middleware Stack API
 ~~~~~~~~~~~~~~~~~~~~
@@ -237,7 +163,7 @@ To add or remove items in different layers, use the following API:
 
 .. py:method:: Web3.middleware_onion.clear()
 
-    Empty all the middlewares, including the default ones.
+    Empty all the middleware, including the default ones.
 
     .. code-block:: python
 
@@ -247,7 +173,7 @@ To add or remove items in different layers, use the following API:
 
 .. py:attribute:: Web3.middleware_onion.middlewares
 
-    Return all the current middlewares for the ``Web3`` instance in the appropriate order for importing into a new
+    Return all the current middleware for the ``Web3`` instance in the appropriate order for importing into a new
     ``Web3`` instance.
 
     .. code-block:: python
@@ -255,7 +181,7 @@ To add or remove items in different layers, use the following API:
         >>> w3_1 = Web3(...)
         # add uniquely named middleware:
         >>> w3_1.middleware_onion.add(web3.middleware.GasPriceStrategyMiddleware, 'test_middleware')
-        # export middlewares from first w3 instance
+        # export middleware from first w3 instance
         >>> middlewares = w3_1.middleware_onion.middlewares
 
         # import into second instance
@@ -264,22 +190,103 @@ To add or remove items in different layers, use the following API:
         >>> assert w3_2.middleware_onion.get('test_middleware')
 
 
-Optional Middleware
--------------------
-
-Web3 ships with non-default middleware, for your custom use. In addition to the other ways of
-:ref:`Modifying_Middleware`, you can specify a list of middleware when initializing Web3, with:
+Instantiate with Custom Middleware
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        
+Instead of working from the default list, you can specify a custom list of
+middleware when initializing Web3:
 
 .. code-block:: python
 
     Web3(middlewares=[my_middleware1, my_middleware2])
 
 .. warning::
-  This will *replace* the default middlewares. To keep the default functionality,
-  either use ``middleware_onion.add()`` from above, or add the default middlewares to
-  your list of new middlewares.
+  This will *replace* the default middleware. To keep the default functionality,
+  either use ``middleware_onion.add()`` from above, or add the default middleware to
+  your list of new middleware.
 
-Below is a list of available middlewares which are not enabled by default.
+
+.. _default_middleware:
+
+Default Middleware
+------------------
+
+The following middleware are included by default:
+
+* ``gas_price_strategy``
+* ``ens_name_to_address``
+* ``attrdict``
+* ``validation``
+* ``gas_estimate``
+
+The defaults are defined in the ``get_default_middlewares()`` method in ``web3/manager.py``.
+
+AttributeDict
+~~~~~~~~~~~~~
+
+.. py:class:: web3.middleware.AttributeDictMiddleware
+
+    This middleware recursively converts any dictionary type in the result of a call
+    to an ``AttributeDict``. This enables dot-syntax access, like
+    ``eth.get_block('latest').number`` in addition to
+    ``eth.get_block('latest')['number']``.
+
+    .. note::
+        Accessing a property via attribute breaks type hinting. For this reason, this
+        feature is available as a middleware, which may be removed if desired.
+
+ENS Name to Address Resolution
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. py:class:: web3.middleware.ENSNameToAddressMiddleware
+
+    This middleware converts Ethereum Name Service (ENS) names into the
+    address that the name points to. For example :meth:`w3.eth.send_transaction <web3.eth.Eth.send_transaction>` will
+    accept .eth names in the 'from' and 'to' fields.
+
+    .. note::
+        This middleware only converts ENS names on chains where the proper ENS
+        contracts are deployed to support this functionality. All other cases will
+        result in a ``NameNotFound`` error.
+
+Gas Price Strategy
+~~~~~~~~~~~~~~~~~~
+
+.. py:class:: web3.middleware.GasPriceStrategyMiddleware
+
+  .. warning::
+
+      Gas price strategy is only supported for legacy transactions. The London fork
+      introduced ``maxFeePerGas`` and ``maxPriorityFeePerGas`` transaction parameters
+      which should be used over ``gasPrice`` whenever possible.
+
+  This adds a ``gasPrice`` to transactions if applicable and when a gas price strategy has
+  been set. See :ref:`Gas_Price` for information about how gas price is derived.
+
+Buffered Gas Estimate
+~~~~~~~~~~~~~~~~~~~~~
+
+.. py:class:: web3.middleware.BufferedGasEstimateMiddleware
+
+    This adds a gas estimate to transactions if ``gas`` is not present in the transaction
+    parameters. Sets gas to:
+    ``min(w3.eth.estimate_gas + gas_buffer, gas_limit)``
+    where the gas_buffer default is 100,000
+
+Validation
+~~~~~~~~~~
+
+.. py:class:: web3.middleware.ValidationMiddleware
+
+    This middleware includes block and transaction validators which perform validations
+    for transaction parameters.
+
+
+Optional Middleware
+-------------------
+
+``Web3`` includes optional middleware for common use cases. Below is a list of available
+middleware which are not enabled by default.
 
 Stalecheck
 ~~~~~~~~~~~~
@@ -339,7 +346,7 @@ middleware is:
 
     # confirm that the connection succeeded
     >>> w3.client_version
-    'Geth/v1.7.3-stable-4bb3c89d/linux-amd64/go1.9'
+    'Geth/v1.13.11-stable-4bb3c89d/linux-amd64/go1.20.2'
 
 This example connects to a local ``geth --dev`` instance on Linux with a
 unique IPC location and loads the middleware:
@@ -495,3 +502,94 @@ A legacy transaction still works in the same way as it did before EIP-1559 was i
    ...     'gasPrice': 123456,  # optional - if not provided, gas_price_strategy (if exists) or eth_gasPrice is used
    ... }
    >>> w3.eth.send_transaction(legacy_transaction)
+
+
+Creating Custom Middleware
+--------------------------
+
+To write your own middleware, create a class and extend from the base ``Web3Middleware``
+class, then override only the parts of the middleware that make sense for your use case.
+
+.. note:: The Middleware API borrows from the Django middleware API introduced
+          in version 1.10.0.
+
+If all you need is to modify the params before a request is made, you can override
+the ``request_processor`` method, make the necessary tweaks to the params, and pass the
+arguments to the next element in the middleware stack. Need to do some processing on the
+response? Override the ``response_processor`` method and return the modified response.
+
+The pattern:
+
+.. code-block:: python
+
+    from web3.middleware import Web3Middleware
+
+    class CustomMiddleware(Web3Middleware):
+
+        def request_processor(self, method, params):
+            # Pre-request processing goes here before passing to the next middleware.
+            return (method, params)
+
+        def response_processor(self, method, response):
+            # Response processing goes here before passing to the next middleware.
+            return response
+
+        # If your provider is asynchronous, override the async methods instead:
+
+        async def async_request_processor(self, method, params):
+            # Pre-request processing goes here before passing to the next middleware.
+            return (method, params)
+
+        async def async_response_processor(self, method, response):
+            # Response processing goes here before passing to the next middleware.
+            return response
+
+
+If you wish to prevent making a call under certain conditions, you can override the
+``wrap_make_request`` method. This allows for defining pre-request processing,
+skipping or making the request under certain conditions, as well as response
+processing before passing it to the next middleware.
+
+
+.. code-block:: python
+
+    from web3.middleware import Web3Middleware
+
+    class CustomMiddleware(Web3Middleware):
+
+        def wrap_make_request(self, make_request):
+            def middleware(method, params):
+                # pre-request processing goes here
+                response = make_request(method, params)  # make the request
+                # response processing goes here
+                return response
+
+            return middleware
+
+        # If your provider is asynchronous, override the async method instead:
+
+        async def async_wrap_make_request(self, make_request):
+            async def middleware(method, params):
+                # pre-request processing goes here
+                response = await make_request(method, params)
+                # response processing goes here
+                return response
+
+            return middleware
+
+
+Custom middleware can be added to the stack via the class itself, using the
+:ref:`middleware_stack_api`. The ``name`` kwarg is optional. For example:
+
+.. code-block:: python
+
+    from web3 import Web3
+    from my_module import (
+        CustomMiddleware,
+    )
+
+    w3 = Web3(HTTPProvider(endpoint_uri="..."))
+
+    # add the middleware to the stack as the class
+    w3.middleware_onion.add(CustomMiddleware, name="custom_middleware")
+

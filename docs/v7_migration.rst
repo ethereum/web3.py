@@ -23,7 +23,7 @@ a simpler, clearer interface for defining middleware, gives more flexibility for
 asynchronous operations and also paves the way for supporting batch requests - included in
 the roadmap for web3.py.
 
-The new middleware model is documented in the :ref:`internals__middlewares` section.
+The new middleware model is documented in the :ref:`middleware_internals` section.
 
 
 Middleware Renaming and Removals
