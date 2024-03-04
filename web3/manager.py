@@ -246,7 +246,11 @@ class RequestManager:
             if not isinstance(code, int):
                 _raise_bad_response_format(response, "error['code'] must be an integer")
             elif code == METHOD_NOT_FOUND:
-                raise MethodUnavailable(error)
+                raise MethodUnavailable(
+                    error,
+                    user_message="Check your node provider's API docs to see what "
+                    "methods are supported",
+                )
 
             # Errors must include a message
             if not isinstance(error.get("message"), str):
