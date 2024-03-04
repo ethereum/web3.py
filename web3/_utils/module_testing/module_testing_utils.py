@@ -104,7 +104,7 @@ def mock_offchain_lookup_request_response(
 
         # mock response only to specified url while validating appropriate fields
         if url_from_args == mocked_request_url:
-            assert kwargs["timeout"] == 10
+            assert kwargs["timeout"] == 30
             if http_method.upper() == "POST":
                 assert kwargs["data"] == {"data": calldata, "sender": sender}
             return MockedResponse()
@@ -154,7 +154,7 @@ def async_mock_offchain_lookup_request_response(
 
         # mock response only to specified url while validating appropriate fields
         if url_from_args == mocked_request_url:
-            assert kwargs["timeout"] == ClientTimeout(10)
+            assert kwargs["timeout"] == ClientTimeout(30)
             if http_method.upper() == "post":
                 assert kwargs["data"] == {"data": calldata, "sender": sender}
             return AsyncMockedResponse()

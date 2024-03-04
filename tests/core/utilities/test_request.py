@@ -99,7 +99,7 @@ def test_json_make_get_request(mocker):
     assert len(request._session_cache) == 1
     cache_key = generate_cache_key(f"{threading.get_ident()}:{TEST_URI}")
     session = request._session_cache.get_cache_entry(cache_key)
-    session.get.assert_called_once_with(TEST_URI, timeout=10)
+    session.get.assert_called_once_with(TEST_URI, timeout=30)
 
     # Ensure the adapter was created with default values
     check_adapters_mounted(session)
@@ -119,7 +119,7 @@ def test_make_post_request_no_args(mocker):
     assert len(request._session_cache) == 1
     cache_key = generate_cache_key(f"{threading.get_ident()}:{TEST_URI}")
     session = request._session_cache.get_cache_entry(cache_key)
-    session.post.assert_called_once_with(TEST_URI, data=b"request", timeout=10)
+    session.post.assert_called_once_with(TEST_URI, data=b"request", timeout=30)
 
     # Ensure the adapter was created with default values
     check_adapters_mounted(session)
@@ -267,7 +267,7 @@ async def test_async_json_make_get_request(mocker):
     session.get.assert_called_once_with(
         TEST_URI,
         timeout=ClientTimeout(
-            total=10, connect=None, sock_read=None, sock_connect=None
+            total=30, connect=None, sock_read=None, sock_connect=None
         ),
     )
     await session.close()
@@ -289,7 +289,7 @@ async def test_async_make_post_request(mocker):
         TEST_URI,
         data=b"request",
         timeout=ClientTimeout(
-            total=10, connect=None, sock_read=None, sock_connect=None
+            total=30, connect=None, sock_read=None, sock_connect=None
         ),
     )
     await session.close()

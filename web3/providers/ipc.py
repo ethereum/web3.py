@@ -130,7 +130,7 @@ class IPCProvider(JSONBaseProvider):
     def __init__(
         self,
         ipc_path: Union[str, Path] = None,
-        timeout: int = 10,
+        timeout: int = 30,
         *args: Any,
         **kwargs: Any,
     ) -> None:
