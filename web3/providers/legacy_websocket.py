@@ -37,7 +37,7 @@ from web3.types import (
 )
 
 RESTRICTED_WEBSOCKET_KWARGS = {"uri", "loop"}
-DEFAULT_WEBSOCKET_TIMEOUT = 10
+DEFAULT_WEBSOCKET_TIMEOUT = 30
 
 
 def _start_event_loop(loop: asyncio.AbstractEventLoop) -> None:

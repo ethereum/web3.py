@@ -35,7 +35,7 @@ from web3.utils.caching import (
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_TIMEOUT = 10
+DEFAULT_TIMEOUT = 30
 
 
 def get_default_http_endpoint() -> URI:

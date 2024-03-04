@@ -24,7 +24,7 @@ from web3.types import (
     RPCResponse,
 )
 
-DEFAULT_PERSISTENT_CONNECTION_TIMEOUT = 50.0
+DEFAULT_PERSISTENT_CONNECTION_TIMEOUT = 30.0
 
 
 class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
