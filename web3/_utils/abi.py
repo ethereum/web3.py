@@ -51,7 +51,6 @@ from eth_typing import (
     TypeStr,
 )
 from eth_utils import (
-    combomethod,
     decode_hex,
     is_bytes,
     is_list_like,
@@ -211,10 +210,7 @@ class AcceptsHexStrEncoder(encoding.BaseEncoder):
     ) -> None:
         super().__init__(**kwargs)
         self.subencoder = subencoder
-
-    @property
-    def is_dynamic(self) -> bool:
-        return self.subencoder.is_dynamic
+        self.is_dynamic = subencoder.is_dynamic
 
     @classmethod
     def from_type_str(
@@ -234,10 +230,9 @@ class AcceptsHexStrEncoder(encoding.BaseEncoder):
             raise AttributeError(f"No subencoder class is set. {cls.__name__}")
         return cls.subencoder_cls
 
-    @combomethod
     def validate_value(self, value: Any) -> None:
         normalized_value = self.validate_and_normalize(value)
-        return self.subencoder.validate_value(normalized_value)
+        self.subencoder.validate_value(normalized_value)
 
     def encode(self, value: Any) -> bytes:
         normalized_value = self.validate_and_normalize(value)
@@ -308,15 +303,14 @@ class ExactLengthBytesEncoder(BytesEncoder):
             raise ValueError("Value byte size exceeds data size")
 
     @parse_type_str("bytes")
-    def from_type_str(cls, abi_type: BasicType, registry: ABIRegistry) -> bytes:
+    def from_type_str(
+        cls, abi_type: BasicType, registry: ABIRegistry
+    ) -> "ExactLengthBytesEncoder":
         subencoder_cls = cls.get_subencoder_class()
-        # cast b/c expects BaseCoder but `from_type_string`
-        # restricted to BaseEncoder subclasses
-        subencoder = cast(
-            encoding.BaseEncoder,
-            subencoder_cls.from_type_str(abi_type.to_type_str(), registry),
-        )
-        return cls(
+        subencoder = subencoder_cls.from_type_str(abi_type.to_type_str(), registry)
+        # type ignored b/c @parse_type_str decorator turns it into a classmethod,
+        # so mypy thinks cls(...) is a call to __call__, but actually calls __init__
+        return cls(  # type: ignore
             subencoder,
             value_bit_size=abi_type.sub * 8,
             data_byte_size=abi_type.sub,
