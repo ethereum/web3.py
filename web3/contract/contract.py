@@ -41,7 +41,6 @@ from web3._utils.datatypes import (
 )
 from web3._utils.events import (
     EventFilterBuilder,
-    get_event_data,
 )
 from web3._utils.filters import (
     LogFilter,
@@ -74,6 +73,7 @@ from web3.contract.utils import (
     call_contract_function,
     estimate_gas_for_function,
     find_functions_by_identifier,
+    get_event_data,
     get_function_by_identifier,
     transact_with_contract_function,
 )

@@ -8,7 +8,7 @@ from eth_utils.toolz import (
     dissoc,
 )
 
-from web3._utils.events import (
+from web3.contract.utils import (
     get_event_data,
 )
 from web3.exceptions import (

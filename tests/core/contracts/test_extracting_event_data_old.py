@@ -4,7 +4,7 @@ from eth_utils import (
     is_same_address,
 )
 
-from web3._utils.events import (
+from web3.contract.utils import (
     get_event_data,
 )
 

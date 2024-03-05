@@ -11,11 +11,18 @@ from typing import (
     Union,
 )
 
+from eth_abi.codec import (
+    ABICodec,
+)
 from eth_abi.exceptions import (
     DecodingError,
 )
 from eth_typing import (
     ChecksumAddress,
+    HexStr,
+)
+from eth_utils.toolz import (
+    curry,
 )
 from hexbytes import (
     HexBytes,
@@ -33,7 +40,11 @@ from web3._utils.async_transactions import (
 )
 from web3._utils.contracts import (
     find_matching_fn_abi,
+    get_function_info as _get_function_info,
     prepare_transaction,
+)
+from web3._utils.events import (
+    get_event_data as _get_event_data,
 )
 from web3._utils.normalizers import (
     BASE_RETURN_NORMALIZERS,
@@ -46,9 +57,12 @@ from web3.exceptions import (
 )
 from web3.types import (
     ABI,
+    ABIEvent,
     ABIFunction,
     BlockIdentifier,
+    EventData,
     FunctionIdentifier,
+    LogReceipt,
     StateOverride,
     TContractFn,
     TxParams,
@@ -267,6 +281,26 @@ def get_function_by_identifier(
     elif len(fns) == 0:
         raise ValueError(f"Could not find any function with matching {identifier}")
     return fns[0]
+
+
+def get_function_info(
+    fn_name: str,
+    abi_codec: ABICodec,
+    contract_abi: Optional[ABI] = None,
+    fn_abi: Optional[ABIFunction] = None,
+    args: Optional[Sequence[Any]] = None,
+    kwargs: Optional[Any] = None,
+) -> Tuple[ABIFunction, HexStr, Tuple[Any, ...]]:
+    return _get_function_info(fn_name, abi_codec, contract_abi, fn_abi, args, kwargs)
+
+
+@curry
+def get_event_data(
+    abi_codec: ABICodec,
+    event_abi: ABIEvent,
+    log_entry: LogReceipt,
+) -> EventData:
+    return _get_event_data(abi_codec, event_abi, log_entry)
 
 
 # --- async --- #

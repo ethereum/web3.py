@@ -65,7 +65,6 @@ from web3._utils.encoding import (
 from web3._utils.events import (
     AsyncEventFilterBuilder,
     EventFilterBuilder,
-    get_event_data,
     is_dynamic_sized_type,
 )
 from web3._utils.filters import (
@@ -77,6 +76,9 @@ from web3._utils.function_identifiers import (
 )
 from web3._utils.normalizers import (
     BASE_RETURN_NORMALIZERS,
+)
+from web3.contract.utils import (
+    get_event_data,
 )
 from web3.datastructures import (
     AttributeDict,
