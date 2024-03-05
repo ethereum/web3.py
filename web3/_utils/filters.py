@@ -3,11 +3,9 @@ from typing import (
     Any,
     Callable,
     Collection,
-    Dict,
     Iterator,
     List,
     Optional,
-    Sequence,
     Tuple,
     Union,
 )
@@ -19,13 +17,11 @@ from eth_abi.grammar import (
     parse as parse_type_string,
 )
 from eth_typing import (
-    ChecksumAddress,
     HexStr,
     TypeStr,
 )
 from eth_utils import (
     is_hex,
-    is_list_like,
     is_string,
     is_text,
 )
@@ -43,18 +39,11 @@ from hexbytes import (
 from web3._utils.events import (
     AsyncEventFilterBuilder,
     EventFilterBuilder,
-    construct_event_data_set,
-    construct_event_topic_set,
-)
-from web3._utils.validation import (
-    validate_address,
 )
 from web3.exceptions import (
     Web3ValidationError,
 )
 from web3.types import (
-    ABIEvent,
-    BlockIdentifier,
     FilterParams,
     LogReceipt,
     RPCEndpoint,
@@ -63,72 +52,6 @@ from web3.types import (
 if TYPE_CHECKING:
     from web3.eth import AsyncEth  # noqa: F401
     from web3.eth import Eth  # noqa: F401
-
-
-def construct_event_filter_params(
-    event_abi: ABIEvent,
-    abi_codec: ABICodec,
-    contract_address: Optional[ChecksumAddress] = None,
-    argument_filters: Optional[Dict[str, Any]] = None,
-    topics: Optional[Sequence[HexStr]] = None,
-    fromBlock: Optional[BlockIdentifier] = None,
-    toBlock: Optional[BlockIdentifier] = None,
-    address: Optional[ChecksumAddress] = None,
-) -> Tuple[List[List[Optional[HexStr]]], FilterParams]:
-    filter_params: FilterParams = {}
-    topic_set: Sequence[HexStr] = construct_event_topic_set(
-        event_abi, abi_codec, argument_filters
-    )
-
-    if topics is not None:
-        if len(topic_set) > 1:
-            raise TypeError(
-                "Merging the topics argument with topics generated "
-                "from argument_filters is not supported."
-            )
-        topic_set = topics
-
-    if len(topic_set) == 1 and is_list_like(topic_set[0]):
-        # type ignored b/c list-like check on line 88
-        filter_params["topics"] = topic_set[0]  # type: ignore
-    else:
-        filter_params["topics"] = topic_set
-
-    if address and contract_address:
-        if is_list_like(address):
-            filter_params["address"] = [address] + [contract_address]
-        elif is_string(address):
-            filter_params["address"] = (
-                [address, contract_address]
-                if address != contract_address
-                else [address]
-            )
-        else:
-            raise ValueError(
-                f"Unsupported type for `address` parameter: {type(address)}"
-            )
-    elif address:
-        filter_params["address"] = address
-    elif contract_address:
-        filter_params["address"] = contract_address
-
-    if "address" not in filter_params:
-        pass
-    elif is_list_like(filter_params["address"]):
-        for addr in filter_params["address"]:
-            validate_address(addr)
-    else:
-        validate_address(filter_params["address"])
-
-    if fromBlock is not None:
-        filter_params["fromBlock"] = fromBlock
-
-    if toBlock is not None:
-        filter_params["toBlock"] = toBlock
-
-    data_filters_set = construct_event_data_set(event_abi, abi_codec, argument_filters)
-
-    return data_filters_set, filter_params
 
 
 class BaseFilter:

@@ -1,8 +1,10 @@
+import functools
 import itertools
 from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
+    Dict,
     List,
     Optional,
     Sequence,
@@ -21,14 +23,21 @@ from eth_typing import (
     ChecksumAddress,
     HexStr,
 )
+from eth_utils import (
+    is_list_like,
+    is_string,
+)
 from eth_utils.toolz import (
     curry,
+    pipe,
 )
 from hexbytes import (
     HexBytes,
 )
 
 from web3._utils.abi import (
+    filter_by_argument_name,
+    filter_by_name,
     filter_by_type,
     get_abi_output_types,
     map_abi_data,
@@ -44,6 +53,8 @@ from web3._utils.contracts import (
     prepare_transaction,
 )
 from web3._utils.events import (
+    construct_event_data_set,
+    construct_event_topic_set,
     get_event_data as _get_event_data,
 )
 from web3._utils.normalizers import (
@@ -51,6 +62,9 @@ from web3._utils.normalizers import (
 )
 from web3._utils.transactions import (
     fill_transaction_defaults,
+)
+from web3._utils.validation import (
+    validate_address,
 )
 from web3.exceptions import (
     BadFunctionCallOutput,
@@ -61,6 +75,7 @@ from web3.types import (
     ABIFunction,
     BlockIdentifier,
     EventData,
+    FilterParams,
     FunctionIdentifier,
     LogReceipt,
     StateOverride,
@@ -291,6 +306,11 @@ def get_function_info(
     args: Optional[Sequence[Any]] = None,
     kwargs: Optional[Any] = None,
 ) -> Tuple[ABIFunction, HexStr, Tuple[Any, ...]]:
+    """
+    Given a function name, contract ABI, function ABI, and function arguments
+    return the contract function ABI, selector and arguments.
+
+    """
     return _get_function_info(fn_name, abi_codec, contract_abi, fn_abi, args, kwargs)
 
 
@@ -300,7 +320,113 @@ def get_event_data(
     event_abi: ABIEvent,
     log_entry: LogReceipt,
 ) -> EventData:
+    """
+    Given an event ABI and a log entry for that event, return the decoded
+    event data.
+
+    See also: :func:`web3.contract.ContractEvent.get_logs`.
+
+    """
     return _get_event_data(abi_codec, event_abi, log_entry)
+
+
+def find_matching_event_abi(
+    abi: ABI,
+    event_name: Optional[str] = None,
+    argument_names: Optional[Sequence[str]] = None,
+) -> ABIEvent:
+    """
+    Find the ABI for the event with the provided name.
+
+    """
+    filters = [
+        functools.partial(filter_by_type, "event"),
+    ]
+
+    if event_name is not None:
+        filters.append(functools.partial(filter_by_name, event_name))
+
+    if argument_names is not None:
+        filters.append(functools.partial(filter_by_argument_name, argument_names))
+
+    event_abi_candidates = pipe(abi, *filters)
+
+    if len(event_abi_candidates) == 1:
+        return event_abi_candidates[0]
+    elif not event_abi_candidates:
+        raise ValueError("No matching events found")
+    else:
+        raise ValueError("Multiple events found")
+
+
+def construct_event_filter_params(
+    event_abi: ABIEvent,
+    abi_codec: ABICodec,
+    contract_address: Optional[ChecksumAddress] = None,
+    argument_filters: Optional[Dict[str, Any]] = None,
+    topics: Optional[Sequence[HexStr]] = None,
+    fromBlock: Optional[BlockIdentifier] = None,
+    toBlock: Optional[BlockIdentifier] = None,
+    address: Optional[ChecksumAddress] = None,
+) -> Tuple[List[List[Optional[HexStr]]], FilterParams]:
+    """
+    Convert human readable event filters to their keccak signatures.
+
+    """
+    filter_params: FilterParams = {}
+    topic_set: Sequence[HexStr] = construct_event_topic_set(
+        event_abi, abi_codec, argument_filters
+    )
+
+    if topics is not None:
+        if len(topic_set) > 1:
+            raise TypeError(
+                "Merging the topics argument with topics generated "
+                "from argument_filters is not supported."
+            )
+        topic_set = topics
+
+    if len(topic_set) == 1 and is_list_like(topic_set[0]):
+        # type ignored b/c list-like check on line 88
+        filter_params["topics"] = topic_set[0]  # type: ignore
+    else:
+        filter_params["topics"] = topic_set
+
+    if address and contract_address:
+        if is_list_like(address):
+            filter_params["address"] = [address] + [contract_address]
+        elif is_string(address):
+            filter_params["address"] = (
+                [address, contract_address]
+                if address != contract_address
+                else [address]
+            )
+        else:
+            raise ValueError(
+                f"Unsupported type for `address` parameter: {type(address)}"
+            )
+    elif address:
+        filter_params["address"] = address
+    elif contract_address:
+        filter_params["address"] = contract_address
+
+    if "address" not in filter_params:
+        pass
+    elif is_list_like(filter_params["address"]):
+        for addr in filter_params["address"]:
+            validate_address(addr)
+    else:
+        validate_address(filter_params["address"])
+
+    if fromBlock is not None:
+        filter_params["fromBlock"] = fromBlock
+
+    if toBlock is not None:
+        filter_params["toBlock"] = toBlock
+
+    data_filters_set = construct_event_data_set(event_abi, abi_codec, argument_filters)
+
+    return data_filters_set, filter_params
 
 
 # --- async --- #

@@ -40,7 +40,6 @@ def test_get_function_info_for_math_contract(
     w3, math_contract_abi, fn_name, args, kwargs, fn_selector, fn_arguments
 ):
     fn_info_abi, fn_info_selector, fn_info_arguments = get_function_info(
-        # fn_info = get_function_info(
         fn_name,
         w3.codec,
         contract_abi=math_contract_abi,

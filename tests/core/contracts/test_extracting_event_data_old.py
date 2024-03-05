@@ -5,6 +5,7 @@ from eth_utils import (
 )
 
 from web3.contract.utils import (
+    find_matching_event_abi,
     get_event_data,
 )
 
@@ -97,7 +98,8 @@ def test_event_data_extraction(
     assert len(txn_receipt["logs"]) == 1
     log_entry = txn_receipt["logs"][0]
 
-    event_abi = emitter._find_matching_event_abi(event_name)
+    contract_abi = emitter.abi
+    event_abi = find_matching_event_abi(contract_abi, event_name)
 
     event_topic = getattr(emitter_contract_log_topics, event_name)
     is_anonymous = event_abi["anonymous"]
@@ -122,7 +124,6 @@ def test_dynamic_length_argument_extraction(
     emitter,
     wait_for_transaction,
     emitter_contract_log_topics,
-    emitter_contract_event_ids,
 ):
     string_0 = "this-is-the-first-string-which-exceeds-32-bytes-in-length"
     string_1 = "this-is-the-second-string-which-exceeds-32-bytes-in-length"
@@ -132,7 +133,8 @@ def test_dynamic_length_argument_extraction(
     assert len(txn_receipt["logs"]) == 1
     log_entry = txn_receipt["logs"][0]
 
-    event_abi = emitter._find_matching_event_abi("LogDynamicArgs")
+    contract_abi = emitter.abi
+    event_abi = find_matching_event_abi(contract_abi, "LogDynamicArgs")
 
     event_topic = emitter_contract_log_topics.LogDynamicArgs
     assert event_topic in log_entry["topics"]
