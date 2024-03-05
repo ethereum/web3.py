@@ -254,19 +254,19 @@ Persistent Connection Base Class
 AsyncIPCProvider
 ++++++++++++++++
 
-.. py:class:: web3.providers.persistent.AsyncIPCProvider(ipc_path=None, max_connection_retries=5)
+.. py:class:: web3.providers.persistent.AsyncIPCProvider(endpoint_uri=None, max_connection_retries=5)
 
     This provider handles asynchronous, persistent interaction with an IPC Socket based
     JSON-RPC server.
 
-    *  ``ipc_path`` is the filesystem path to the IPC socket:
+    *  ``endpoint_uri`` is the filesystem path to the IPC socket:
 
     This provider inherits from the
     :class:`~web3.providers.persistent.PersistentConnectionProvider` class. Refer to
     the :class:`~web3.providers.persistent.PersistentConnectionProvider` documentation
     for details on additional configuration options available for this provider.
 
-    If no ``ipc_path`` is specified, it will use a default depending on your operating
+    If no ``endpoint_uri`` is specified, it will use a default depending on your operating
     system.
 
     - On Linux and FreeBSD: ``~/.ethereum/geth.ipc``

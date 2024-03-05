@@ -108,8 +108,8 @@ def serve_subscription_result(simple_ipc_server):
 
 def test_ipc_tilde_in_path():
     expected_path = str(pathlib.Path.home()) + "/foo"
-    assert AsyncIPCProvider("~/foo").ipc_path == expected_path
-    assert AsyncIPCProvider(pathlib.Path("~/foo")).ipc_path == expected_path
+    assert AsyncIPCProvider("~/foo").endpoint_uri == expected_path
+    assert AsyncIPCProvider(pathlib.Path("~/foo")).endpoint_uri == expected_path
 
 
 @pytest.mark.asyncio

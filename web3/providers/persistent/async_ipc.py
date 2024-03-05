@@ -40,7 +40,7 @@ from ..ipc import (
 
 
 async def async_get_ipc_socket(
-    ipc_path: str,
+    endpoint_uri: str,
 ) -> Tuple[asyncio.StreamReader, asyncio.StreamWriter]:
     if sys.platform == "win32":
         # On Windows named pipe is used. Simulate socket with it.
@@ -48,9 +48,9 @@ async def async_get_ipc_socket(
             NamedPipe,
         )
 
-        return NamedPipe(ipc_path)
+        return NamedPipe(endpoint_uri)
     else:
-        return await asyncio.open_unix_connection(ipc_path)
+        return await asyncio.open_unix_connection(endpoint_uri)
 
 
 class AsyncIPCProvider(PersistentConnectionProvider):
@@ -61,23 +61,23 @@ class AsyncIPCProvider(PersistentConnectionProvider):
 
     def __init__(
         self,
-        ipc_path: Optional[Union[str, Path]] = None,
+        endpoint_uri: Optional[Union[str, Path]] = None,
         max_connection_retries: int = 5,
         # `PersistentConnectionProvider` kwargs can be passed through
         **kwargs: Any,
     ) -> None:
-        if ipc_path is None:
-            self.ipc_path = get_default_ipc_path()
-        elif isinstance(ipc_path, str) or isinstance(ipc_path, Path):
-            self.ipc_path = str(Path(ipc_path).expanduser().resolve())
+        if endpoint_uri is None:
+            self.endpoint_uri = get_default_ipc_path()
+        elif isinstance(endpoint_uri, str) or isinstance(endpoint_uri, Path):
+            self.endpoint_uri = str(Path(endpoint_uri).expanduser().resolve())
         else:
-            raise TypeError("ipc_path must be of type string or pathlib.Path")
+            raise TypeError("endpoint_uri must be of type string or pathlib.Path")
 
         self._max_connection_retries = max_connection_retries
         super().__init__(**kwargs)
 
     def __str__(self) -> str:
-        return f"<{self.__class__.__name__} {self.ipc_path}>"
+        return f"<{self.__class__.__name__} {self.endpoint_uri}>"
 
     async def is_connected(self, show_traceback: bool = False) -> bool:
         if not self._writer or not self._reader:
@@ -106,7 +106,9 @@ class AsyncIPCProvider(PersistentConnectionProvider):
         while _connection_attempts != self._max_connection_retries:
             try:
                 _connection_attempts += 1
-                self._reader, self._writer = await async_get_ipc_socket(self.ipc_path)
+                self._reader, self._writer = await async_get_ipc_socket(
+                    self.endpoint_uri
+                )
                 self._message_listener_task = asyncio.create_task(
                     self._message_listener()
                 )
@@ -146,7 +148,7 @@ class AsyncIPCProvider(PersistentConnectionProvider):
     async def _reset_socket(self) -> None:
         self._writer.close()
         await self._writer.wait_closed()
-        self._reader, self._writer = await async_get_ipc_socket(self.ipc_path)
+        self._reader, self._writer = await async_get_ipc_socket(self.endpoint_uri)
 
     @async_handle_request_caching
     async def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
