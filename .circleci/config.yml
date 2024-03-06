@@ -13,6 +13,88 @@ parameters:
     default: "1.20.2"
     type: string
 
+define: &all_jobs
+  # These are the longest running tests, start them first
+  - py38-core
+  - py39-core
+  - py310-core
+  - py311-core
+  - py38-core_async
+  - py39-core_async
+  - py310-core_async
+  - py311-core_async
+  - docs
+  - benchmark
+  - py38-lint
+  - py38-ens
+  - py38-ensip15
+  - py38-integration-goethereum-ipc
+  - py38-integration-goethereum-ipc_async
+  - py38-integration-goethereum-ipc_flaky
+  - py38-integration-goethereum-http
+  - py38-integration-goethereum-http_async
+  - py38-integration-goethereum-http_async_flaky
+  - py38-integration-goethereum-http_flaky
+  - py38-integration-goethereum-legacy_ws
+  - py38-integration-goethereum-legacy_ws_flaky
+  - py38-integration-goethereum-ws
+  - py38-integration-goethereum-ws_flaky
+  - py38-integration-ethtester-pyevm
+  - py38-integration-ethtester-pyevm_flaky
+  - py38-wheel-cli
+  - py39-lint
+  - py39-ens
+  - py39-ensip15
+  - py39-integration-goethereum-ipc
+  - py39-integration-goethereum-ipc_async
+  - py39-integration-goethereum-ipc_flaky
+  - py39-integration-goethereum-http
+  - py39-integration-goethereum-http_async
+  - py39-integration-goethereum-http_async_flaky
+  - py39-integration-goethereum-http_flaky
+  - py39-integration-goethereum-legacy_ws
+  - py39-integration-goethereum-legacy_ws_flaky
+  - py39-integration-goethereum-ws
+  - py39-integration-goethereum-ws_flaky
+  - py39-integration-ethtester-pyevm
+  - py39-integration-ethtester-pyevm_flaky
+  - py39-wheel-cli
+  - py310-lint
+  - py310-ens
+  - py310-ensip15
+  - py310-integration-goethereum-ipc
+  - py310-integration-goethereum-ipc_async
+  - py310-integration-goethereum-ipc_flaky
+  - py310-integration-goethereum-http
+  - py310-integration-goethereum-http_async
+  - py310-integration-goethereum-http_async_flaky
+  - py310-integration-goethereum-http_flaky
+  - py310-integration-goethereum-legacy_ws
+  - py310-integration-goethereum-legacy_ws_flaky
+  - py310-integration-goethereum-ws
+  - py310-integration-goethereum-ws_flaky
+  - py310-integration-ethtester-pyevm
+  - py310-integration-ethtester-pyevm_flaky
+  - py310-wheel-cli
+  - py311-lint
+  - py311-ens
+  - py311-ensip15
+  - py311-integration-goethereum-ipc
+  - py311-integration-goethereum-ipc_async
+  - py311-integration-goethereum-ipc_flaky
+  - py311-integration-goethereum-http
+  - py311-integration-goethereum-http_async
+  - py311-integration-goethereum-http_async_flaky
+  - py311-integration-goethereum-http_flaky
+  - py311-integration-goethereum-legacy_ws
+  - py311-integration-goethereum-legacy_ws_flaky
+  - py311-integration-goethereum-ws
+  - py311-integration-goethereum-ws_flaky
+  - py311-integration-ethtester-pyevm
+  - py311-integration-ethtester-pyevm_flaky
+  - py311-wheel-cli
+  - py311-wheel-cli-windows
+
 common: &common
   working_directory: ~/repo
   steps:
@@ -755,84 +837,15 @@ jobs:
 workflows:
   version: 2.1
   test:
-    jobs:
-      # These are the longest running tests, start them first
-      - py38-core
-      - py39-core
-      - py310-core
-      - py311-core
-      - py38-core_async
-      - py39-core_async
-      - py310-core_async
-      - py311-core_async
-      - docs
-      - benchmark
-      - py38-lint
-      - py38-ens
-      - py38-ensip15
-      - py38-integration-goethereum-ipc
-      - py38-integration-goethereum-ipc_async
-      - py38-integration-goethereum-ipc_flaky
-      - py38-integration-goethereum-http
-      - py38-integration-goethereum-http_async
-      - py38-integration-goethereum-http_async_flaky
-      - py38-integration-goethereum-http_flaky
-      - py38-integration-goethereum-legacy_ws
-      - py38-integration-goethereum-legacy_ws_flaky
-      - py38-integration-goethereum-ws
-      - py38-integration-goethereum-ws_flaky
-      - py38-integration-ethtester-pyevm
-      - py38-integration-ethtester-pyevm_flaky
-      - py38-wheel-cli
-      - py39-lint
-      - py39-ens
-      - py39-ensip15
-      - py39-integration-goethereum-ipc
-      - py39-integration-goethereum-ipc_async
-      - py39-integration-goethereum-ipc_flaky
-      - py39-integration-goethereum-http
-      - py39-integration-goethereum-http_async
-      - py39-integration-goethereum-http_async_flaky
-      - py39-integration-goethereum-http_flaky
-      - py39-integration-goethereum-legacy_ws
-      - py39-integration-goethereum-legacy_ws_flaky
-      - py39-integration-goethereum-ws
-      - py39-integration-goethereum-ws_flaky
-      - py39-integration-ethtester-pyevm
-      - py39-integration-ethtester-pyevm_flaky
-      - py39-wheel-cli
-      - py310-lint
-      - py310-ens
-      - py310-ensip15
-      - py310-integration-goethereum-ipc
-      - py310-integration-goethereum-ipc_async
-      - py310-integration-goethereum-ipc_flaky
-      - py310-integration-goethereum-http
-      - py310-integration-goethereum-http_async
-      - py310-integration-goethereum-http_async_flaky
-      - py310-integration-goethereum-http_flaky
-      - py310-integration-goethereum-legacy_ws
-      - py310-integration-goethereum-legacy_ws_flaky
-      - py310-integration-goethereum-ws
-      - py310-integration-goethereum-ws_flaky
-      - py310-integration-ethtester-pyevm
-      - py310-integration-ethtester-pyevm_flaky
-      - py310-wheel-cli
-      - py311-lint
-      - py311-ens
-      - py311-ensip15
-      - py311-integration-goethereum-ipc
-      - py311-integration-goethereum-ipc_async
-      - py311-integration-goethereum-ipc_flaky
-      - py311-integration-goethereum-http
-      - py311-integration-goethereum-http_async
-      - py311-integration-goethereum-http_async_flaky
-      - py311-integration-goethereum-http_flaky
-      - py311-integration-goethereum-legacy_ws
-      - py311-integration-goethereum-legacy_ws_flaky
-      - py311-integration-goethereum-ws
-      - py311-integration-goethereum-ws_flaky
-      - py311-integration-ethtester-pyevm
-      - py311-integration-ethtester-pyevm_flaky
-      - py311-wheel-cli
-      - py311-wheel-cli-windows
+    jobs: *all_jobs
+  nightly:
+    triggers:
+      - schedule:
+          # Weekdays 12:00p UTC
+          cron: "0 12 * * 1,2,3,4,5"
+          filters:
+            branches:
+              only:
+                - v6
+                - main
+    jobs: *all_jobs
