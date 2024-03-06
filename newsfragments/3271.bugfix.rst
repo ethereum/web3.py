@@ -1,0 +1,2 @@
+Catch all types of ``eth-abi`` ``DecodingError`` in ``EthereumTesterProvider->_make_request()``
+
