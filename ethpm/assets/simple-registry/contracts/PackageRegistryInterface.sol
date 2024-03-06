@@ -11,7 +11,7 @@ contract PackageRegistryInterface {
     // +-------------+
     //
 
-    /// @dev Creates a a new release for the named package.
+    /// @dev Creates a new release for the named package.
     /// @notice Will create a new release the given package with the given release information.
     /// @param packageName Package name
     /// @param version Version string (ex: 1.0.0)

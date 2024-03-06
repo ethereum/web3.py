@@ -61,7 +61,7 @@ contract PackageRegistry is Authorized, PackageRegistryInterface {
   // |  Write API  |
   // +-------------+
   //
-  /// @dev Creates a a new release for the named package.  If this is the first release for the given package then this will also assign msg.sender as the owner of the package.  Returns success.
+  /// @dev Creates a new release for the named package.  If this is the first release for the given package then this will also assign msg.sender as the owner of the package.  Returns success.
   /// @notice Will create a new release the given package with the given release information.
   /// @param packageName Package name
   /// @param version Version string (ex: '1.0.0')
