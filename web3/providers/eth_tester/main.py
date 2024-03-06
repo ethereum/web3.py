@@ -12,7 +12,7 @@ from eth_abi import (
     abi,
 )
 from eth_abi.exceptions import (
-    InsufficientDataBytes,
+    DecodingError,
 )
 from eth_utils import (
     is_bytes,
@@ -229,7 +229,7 @@ def _make_request(
                 if is_bytes(raw_error_msg)
                 else raw_error_msg
             )
-        except InsufficientDataBytes:
+        except DecodingError:
             reason = first_arg
         raise TransactionFailed(f"execution reverted: {reason}")
     else:
