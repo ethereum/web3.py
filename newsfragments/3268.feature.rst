@@ -1,0 +1,1 @@
+Expose ``get_event_data``, ``get_function_info`` utilities via ``web3.contract.utils``.
