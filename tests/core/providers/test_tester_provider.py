@@ -1,5 +1,10 @@
 import pytest as pytest
 
+from eth_abi.exceptions import (
+    DecodingError,
+    InsufficientDataBytes,
+    NonEmptyPaddingBytes,
+)
 from eth_tester.exceptions import (
     TransactionFailed,
 )
@@ -88,3 +93,28 @@ def test_eth_tester_provider_properly_handles_eth_tester_not_implmented_error_me
         response["error"]["message"]
         == "RPC Endpoint has not been implemented: eth_blockNumber"
     )
+
+
+@pytest.mark.parametrize(
+    "exception_type",
+    (
+        DecodingError,
+        InsufficientDataBytes,
+        NonEmptyPaddingBytes,
+    ),
+)
+def test_eth_tester_provider_properly_handles_transaction_failed_with_decode_error(
+    exception_type,
+    mocker,
+):
+    mocker.patch(
+        "eth_tester.main.EthereumTester.get_block_by_number",
+        side_effect=TransactionFailed(b"0x1234"),
+    )
+    mocker.patch("eth_abi.abi.decode", side_effect=exception_type())
+
+    provider = EthereumTesterProvider()
+    with pytest.raises(TransactionFailed, match="execution reverted: b'0x1234'"):
+        # Assert that parametrized ``exception_type`` exception is caught and that
+        # the original message is re-raised inside a ``TransactionFailed``.
+        provider.make_request(RPCEndpoint("eth_blockNumber"), [])
