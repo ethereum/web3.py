@@ -83,9 +83,7 @@ class AsyncEthereumTesterProvider(AsyncBaseProvider):
     ) -> Callable[..., Coroutine[Any, Any, RPCResponse]]:
         # override the request_func to add the ethereum_tester_middleware
 
-        middleware = middleware_onion.as_tuple_of_middleware() + tuple(
-            self._middleware
-        )
+        middleware = middleware_onion.as_tuple_of_middleware() + tuple(self._middleware)
 
         cache_key = self._request_func_cache[0]
         if cache_key != middleware:
@@ -159,9 +157,7 @@ class EthereumTesterProvider(BaseProvider):
     ) -> Callable[..., RPCResponse]:
         # override the request_func to add the ethereum_tester_middleware
 
-        middleware = middleware_onion.as_tuple_of_middleware() + tuple(
-            self._middleware
-        )
+        middleware = middleware_onion.as_tuple_of_middleware() + tuple(self._middleware)
 
         cache_key = self._request_func_cache[0]
         if cache_key != middleware:

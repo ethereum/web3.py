@@ -69,9 +69,9 @@ def combine_middleware(
     the response through the response processors.
     """
     accumulator_fn = provider_request_fn
-    for middleware in reversed(middleware):
+    for mw in reversed(middleware):
         # initialize the middleware and wrap the accumulator function down the stack
-        accumulator_fn = middleware(w3).wrap_make_request(accumulator_fn)
+        accumulator_fn = mw(w3).wrap_make_request(accumulator_fn)
     return accumulator_fn
 
 
@@ -86,8 +86,8 @@ async def async_combine_middleware(
     the response through the response processors.
     """
     accumulator_fn = provider_request_fn
-    for middleware in reversed(middleware):
+    for mw in reversed(middleware):
         # initialize the middleware and wrap the accumulator function down the stack
-        initialized = middleware(async_w3)
+        initialized = mw(async_w3)
         accumulator_fn = await initialized.async_wrap_make_request(accumulator_fn)
     return accumulator_fn

@@ -130,9 +130,7 @@ class AsyncENS(BaseENS):
         """
         provider = w3.manager.provider
         middleware = w3.middleware_onion.middleware
-        ns = cls(
-            cast("AsyncBaseProvider", provider), addr=addr, middleware=middleware
-        )
+        ns = cls(cast("AsyncBaseProvider", provider), addr=addr, middleware=middleware)
 
         # inherit strict bytes checking from w3 instance
         ns.strict_bytes_type_checking = w3.strict_bytes_type_checking
