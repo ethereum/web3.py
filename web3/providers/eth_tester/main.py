@@ -34,8 +34,8 @@ from web3.types import (
 )
 
 from ...middleware import (
-    async_combine_middlewares,
-    combine_middlewares,
+    async_combine_middleware,
+    combine_middleware,
 )
 from .middleware import (
     default_transaction_fields_middleware,
@@ -58,7 +58,7 @@ if TYPE_CHECKING:
 
 
 class AsyncEthereumTesterProvider(AsyncBaseProvider):
-    _middlewares = (
+    _middleware = (
         default_transaction_fields_middleware,
         ethereum_tester_middleware,
     )
@@ -83,16 +83,14 @@ class AsyncEthereumTesterProvider(AsyncBaseProvider):
     ) -> Callable[..., Coroutine[Any, Any, RPCResponse]]:
         # override the request_func to add the ethereum_tester_middleware
 
-        middlewares = middleware_onion.as_tuple_of_middlewares() + tuple(
-            self._middlewares
-        )
+        middleware = middleware_onion.as_tuple_of_middleware() + tuple(self._middleware)
 
         cache_key = self._request_func_cache[0]
-        if cache_key != middlewares:
+        if cache_key != middleware:
             self._request_func_cache = (
-                middlewares,
-                await async_combine_middlewares(
-                    middlewares=middlewares,
+                middleware,
+                await async_combine_middleware(
+                    middleware=middleware,
                     async_w3=async_w3,
                     provider_request_fn=self.make_request,
                 ),
@@ -107,7 +105,7 @@ class AsyncEthereumTesterProvider(AsyncBaseProvider):
 
 
 class EthereumTesterProvider(BaseProvider):
-    _middlewares = (
+    _middleware = (
         default_transaction_fields_middleware,
         ethereum_tester_middleware,
     )
@@ -159,16 +157,14 @@ class EthereumTesterProvider(BaseProvider):
     ) -> Callable[..., RPCResponse]:
         # override the request_func to add the ethereum_tester_middleware
 
-        middlewares = middleware_onion.as_tuple_of_middlewares() + tuple(
-            self._middlewares
-        )
+        middleware = middleware_onion.as_tuple_of_middleware() + tuple(self._middleware)
 
         cache_key = self._request_func_cache[0]
-        if cache_key != middlewares:
+        if cache_key != middleware:
             self._request_func_cache = (
-                middlewares,
-                combine_middlewares(
-                    middlewares=middlewares,
+                middleware,
+                combine_middleware(
+                    middleware=middleware,
                     w3=w3,
                     provider_request_fn=self.make_request,
                 ),

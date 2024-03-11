@@ -252,9 +252,9 @@ class NamedElementOnion(Mapping[TKey, TValue]):
         del self._queue[old_name]
 
     @property
-    def middlewares(self) -> Sequence[Any]:
+    def middleware(self) -> Sequence[Any]:
         """
-        Returns middlewares in the appropriate order to be imported into a new Web3
+        Returns middleware in the appropriate order to be imported into a new Web3
         instance (reversed _queue order) as a list of (middleware, name) tuples.
         """
         return [(val, key) for key, val in reversed(self._queue.items())]
@@ -301,24 +301,24 @@ class NamedElementOnion(Mapping[TKey, TValue]):
 
     # --- iter and tupleize methods --- #
 
-    def _reversed_middlewares(self) -> Iterator[TValue]:
+    def _reversed_middleware(self) -> Iterator[TValue]:
         elements = self._queue.values()
         if not isinstance(elements, Sequence):
             # type ignored b/c elements is set as _OrderedDictValuesView[Any] on 210
             elements = list(elements)  # type: ignore
         return reversed(elements)
 
-    def as_tuple_of_middlewares(self) -> Tuple[TValue, ...]:
+    def as_tuple_of_middleware(self) -> Tuple[TValue, ...]:
         """
         This helps with type hinting since we return `Iterator[TKey]` type, though it's
         actually a `Iterator[TValue]` type, for the `__iter__()` method. This is in
         order to satisfy the `Mapping` interface.
         """
-        return tuple(self._reversed_middlewares())
+        return tuple(self._reversed_middleware())
 
     def __iter__(self) -> Iterator[TKey]:
         # ``__iter__()`` for a ``Mapping``  returns ``Iterator[TKey]`` but this
         # implementation returns ``Iterator[TValue]`` on reversed values (not keys).
         # This leads to typing issues, so it's better to use
-        # ``as_tuple_of_middlewares()`` to achieve the same result.
-        return iter(self._reversed_middlewares())  # type: ignore
+        # ``as_tuple_of_middleware()`` to achieve the same result.
+        return iter(self._reversed_middleware())  # type: ignore

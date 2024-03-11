@@ -37,10 +37,10 @@ from web3.providers.eth_tester import (
 )
 
 
-def test_init_web3_adds_expected_middlewares():
+def test_init_web3_adds_expected_middleware():
     w3 = init_web3()
-    middlewares = w3.middleware_onion.middlewares
-    assert middlewares[0][1] == "stalecheck"
+    middleware = w3.middleware_onion.middleware
+    assert middleware[0][1] == "stalecheck"
 
 
 @pytest.mark.parametrize(
@@ -205,10 +205,10 @@ def test_label_to_hash_normalizes_name_using_ensip15():
 
 
 @pytest.mark.asyncio
-async def test_init_async_web3_adds_expected_async_middlewares():
+async def test_init_async_web3_adds_expected_async_middleware():
     async_w3 = init_async_web3()
-    middlewares = async_w3.middleware_onion.middlewares
-    assert middlewares[0][1] == "stalecheck"
+    middleware = async_w3.middleware_onion.middleware
+    assert middleware[0][1] == "stalecheck"
 
 
 @pytest.mark.asyncio

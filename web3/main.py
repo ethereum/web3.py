@@ -352,14 +352,14 @@ class Web3(BaseWeb3):
     def __init__(
         self,
         provider: Optional[BaseProvider] = None,
-        middlewares: Optional[Sequence[Any]] = None,
+        middleware: Optional[Sequence[Any]] = None,
         modules: Optional[Dict[str, Union[Type[Module], Sequence[Any]]]] = None,
         external_modules: Optional[
             Dict[str, Union[Type[Module], Sequence[Any]]]
         ] = None,
         ens: Union[ENS, "Empty"] = empty,
     ) -> None:
-        self.manager = self.RequestManager(self, provider, middlewares)
+        self.manager = self.RequestManager(self, provider, middleware)
         self.codec = ABICodec(build_strict_registry())
 
         if modules is None:
@@ -420,14 +420,14 @@ class AsyncWeb3(BaseWeb3):
     def __init__(
         self,
         provider: Optional[AsyncBaseProvider] = None,
-        middlewares: Optional[Sequence[Any]] = None,
+        middleware: Optional[Sequence[Any]] = None,
         modules: Optional[Dict[str, Union[Type[Module], Sequence[Any]]]] = None,
         external_modules: Optional[
             Dict[str, Union[Type[Module], Sequence[Any]]]
         ] = None,
         ens: Union[AsyncENS, "Empty"] = empty,
     ) -> None:
-        self.manager = self.RequestManager(self, provider, middlewares)
+        self.manager = self.RequestManager(self, provider, middleware)
         self.codec = ABICodec(build_strict_registry())
 
         self._modules = get_async_default_modules() if modules is None else modules

@@ -467,7 +467,7 @@ Interacting with the Persistent Connection
         (e.g. ``block_num = await w3.eth.block_number``)
 
         The responses from this method are formatted by *web3.py* formatters and run
-        through the middlewares that were present at the time of subscription.
+        through the middleware that were present at the time of subscription.
         Examples on how to use this method can be seen above in the
         `Using Persistent Connection Providers`_ section.
 
@@ -475,7 +475,7 @@ Interacting with the Persistent Connection
 
         The ``recv()`` method can be used to receive the next message from the
         socket. The response from this method is formatted by web3.py formatters
-        and run through the middlewares before being returned. This is not the
+        and run through the middleware before being returned. This is not the
         recommended way to receive a message as the ``process_subscriptions()`` method
         is available for listening to subscriptions and the standard API for making
         requests via the appropriate module
@@ -487,7 +487,7 @@ Interacting with the Persistent Connection
         This method is available strictly for sending raw requests to the socket,
         if desired. It is not recommended to use this method directly, as the
         responses will not be formatted by *web3.py* formatters or run through the
-        middlewares. Instead, use the methods available on the respective web3
+        middleware. Instead, use the methods available on the respective web3
         module. For example, use ``w3.eth.get_block("latest")`` instead of
         ``w3.socket.send("eth_getBlockByNumber", ["latest", True])``.
 

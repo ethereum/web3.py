@@ -9,7 +9,7 @@ exposed by the web3 object and the backend or node that web3 is connecting to.
 
 * **Providers** are responsible for the actual communication with the
   blockchain such as sending JSON-RPC requests over HTTP or an IPC socket.
-* **Middlewares** provide hooks for monitoring and modifying requests and
+* **Middleware** provide hooks for monitoring and modifying requests and
   responses to and from the provider.
 * **Managers** provide thread safety and primitives to allow for asynchronous usage of web3.
 
@@ -44,7 +44,7 @@ Each web3 RPC call passes through these layers in the following manner.
                        |                ^
                        v                |
                  +-----------------------------+
-                 |         Middlewares         |
+                 |         Middleware          |
                  +-----------------------------+
                        |                ^
                        v                |
@@ -75,7 +75,7 @@ Writing your own Provider
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Writing your own provider requires implementing two required methods as well as
-setting the middlewares the provider should use.
+setting the middleware the provider should use.
 
 
 .. py:method:: BaseProvider.make_request(method, params)
@@ -103,11 +103,11 @@ setting the middlewares the provider should use.
     not be considered *connected*.
 
 
-.. py:attribute:: BaseProvider.middlewares
+.. py:attribute:: BaseProvider.middleware
 
-    This should be an iterable of middlewares.
+    This should be an iterable of middleware.
 
-You can set a new list of middlewares by assigning to ``provider.middlewares``,
+You can set a new list of middleware by assigning to ``provider.middleware``,
 with the first middleware that processes the request at the beginning of the list.
 
 
@@ -253,7 +253,7 @@ request-to-response calls work, we have to save the request information somewher
 that, when the response is received, we can match it to the original request that was
 made (i.e. the request with a matching *id* to the response that was received). The
 stored request information is then used to process the response when it is received,
-piping it through the response formatters and middlewares internal to the *web3.py*
+piping it through the response formatters and middleware internal to the *web3.py*
 library.
 
 In order to store the request information, the ``RequestProcessor`` class has an

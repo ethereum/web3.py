@@ -125,7 +125,7 @@ class RequestManager:
         self,
         w3: Union["AsyncWeb3", "Web3"],
         provider: Optional[Union["BaseProvider", "AsyncBaseProvider"]] = None,
-        middlewares: Optional[Sequence[Tuple[Middleware, str]]] = None,
+        middleware: Optional[Sequence[Tuple[Middleware, str]]] = None,
     ) -> None:
         self.w3 = w3
 
@@ -134,10 +134,10 @@ class RequestManager:
         else:
             self.provider = provider
 
-        if middlewares is None:
-            middlewares = self.get_default_middlewares()
+        if middleware is None:
+            middleware = self.get_default_middleware()
 
-        self.middleware_onion = NamedElementOnion(middlewares)
+        self.middleware_onion = NamedElementOnion(middleware)
 
         if isinstance(provider, PersistentConnectionProvider):
             # set up the request processor to be able to properly process ordered
@@ -157,9 +157,9 @@ class RequestManager:
         self._provider = provider
 
     @staticmethod
-    def get_default_middlewares() -> List[Tuple[Middleware, str]]:
+    def get_default_middleware() -> List[Tuple[Middleware, str]]:
         """
-        List the default middlewares for the request manager.
+        List the default middleware for the request manager.
         Documentation should remain in sync with these defaults.
         """
         return [

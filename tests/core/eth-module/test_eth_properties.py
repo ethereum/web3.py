@@ -1,10 +1,7 @@
 import pytest
 
 from web3 import (
-    Web3,
-)
-from web3.eth import (
-    AsyncEth,
+    AsyncWeb3,
 )
 from web3.providers.eth_tester.main import (
     AsyncEthereumTesterProvider,
@@ -13,12 +10,8 @@ from web3.providers.eth_tester.main import (
 
 @pytest.fixture
 def async_w3():
-    return Web3(
+    return AsyncWeb3(
         AsyncEthereumTesterProvider(),
-        middlewares=[],
-        modules={
-            "eth": (AsyncEth,),
-        },
     )
 
 

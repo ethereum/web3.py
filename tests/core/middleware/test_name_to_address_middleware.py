@@ -31,7 +31,7 @@ class TempENS:
 
 @pytest.fixture
 def _w3_setup():
-    return Web3(provider=EthereumTesterProvider(), middlewares=[])
+    return Web3(provider=EthereumTesterProvider(), middleware=[])
 
 
 @pytest.fixture
@@ -109,7 +109,7 @@ class AsyncTempENS(TempENS):
 
 @pytest_asyncio.fixture
 async def _async_w3_setup():
-    return AsyncWeb3(provider=AsyncEthereumTesterProvider(), middlewares=[])
+    return AsyncWeb3(provider=AsyncEthereumTesterProvider(), middleware=[])
 
 
 @pytest_asyncio.fixture

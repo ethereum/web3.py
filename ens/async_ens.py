@@ -100,7 +100,7 @@ class AsyncENS(BaseENS):
         self,
         provider: "AsyncBaseProvider" = cast("AsyncBaseProvider", default),
         addr: ChecksumAddress = None,
-        middlewares: Optional[Sequence[Tuple["Middleware", str]]] = None,
+        middleware: Optional[Sequence[Tuple["Middleware", str]]] = None,
     ) -> None:
         """
         :param provider: a single provider used to connect to Ethereum
@@ -108,7 +108,7 @@ class AsyncENS(BaseENS):
         :param hex-string addr: the address of the ENS registry on-chain.
             If not provided, ENS.py will default to the mainnet ENS registry address.
         """
-        self.w3 = init_async_web3(provider, middlewares)
+        self.w3 = init_async_web3(provider, middleware)
 
         ens_addr = addr if addr else ENS_MAINNET_ADDR
         self.ens = self.w3.eth.contract(abi=abis.ENS, address=ens_addr)
@@ -129,10 +129,8 @@ class AsyncENS(BaseENS):
             provided, defaults to the mainnet ENS registry address.
         """
         provider = w3.manager.provider
-        middlewares = w3.middleware_onion.middlewares
-        ns = cls(
-            cast("AsyncBaseProvider", provider), addr=addr, middlewares=middlewares
-        )
+        middleware = w3.middleware_onion.middleware
+        ns = cls(cast("AsyncBaseProvider", provider), addr=addr, middleware=middleware)
 
         # inherit strict bytes checking from w3 instance
         ns.strict_bytes_type_checking = w3.strict_bytes_type_checking

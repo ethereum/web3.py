@@ -59,7 +59,7 @@ def test_init_kwargs():
     assert w3.manager.provider == provider
 
 
-def test_web3_with_http_provider_has_default_middlewares_and_modules() -> None:
+def test_web3_with_http_provider_has_default_middleware_and_modules() -> None:
     adapter = HTTPAdapter(pool_connections=20, pool_maxsize=20)
     session = Session()
     session.mount("http://", adapter)
@@ -79,8 +79,8 @@ def test_web3_with_http_provider_has_default_middlewares_and_modules() -> None:
     # assert default middleware
 
     # the following length check should fail and will need to be added to once more
-    # middlewares are added to the defaults
-    assert len(w3.middleware_onion.middlewares) == 5
+    # middleware are added to the defaults
+    assert len(w3.middleware_onion.middleware) == 5
 
     assert w3.middleware_onion.get("gas_price_strategy") == GasPriceStrategyMiddleware
     assert w3.middleware_onion.get("ens_name_to_address") == ENSNameToAddressMiddleware

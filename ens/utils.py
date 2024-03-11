@@ -81,7 +81,7 @@ def Web3() -> Type["_Web3"]:
 
 def init_web3(
     provider: "BaseProvider" = cast("BaseProvider", default),
-    middlewares: Optional[Sequence[Tuple["Middleware", str]]] = None,
+    middleware: Optional[Sequence[Tuple["Middleware", str]]] = None,
 ) -> "_Web3":
     from web3 import (
         Web3 as Web3Main,
@@ -93,7 +93,7 @@ def init_web3(
     if provider is default:
         w3 = Web3Main(ens=None, modules={"eth": (EthMain)})
     else:
-        w3 = Web3Main(provider, middlewares, ens=None, modules={"eth": (EthMain)})
+        w3 = Web3Main(provider, middleware, ens=None, modules={"eth": (EthMain)})
 
     return customize_web3(w3)
 
@@ -299,7 +299,7 @@ def get_abi_output_types(abi: "ABIFunction") -> List[str]:
 
 def init_async_web3(
     provider: "AsyncBaseProvider" = cast("AsyncBaseProvider", default),
-    middlewares: Optional[Sequence[Tuple["Middleware", str]]] = (),
+    middleware: Optional[Sequence[Tuple["Middleware", str]]] = (),
 ) -> "AsyncWeb3":
     from web3 import (
         AsyncWeb3 as AsyncWeb3Main,
@@ -311,13 +311,13 @@ def init_async_web3(
         StalecheckMiddlewareBuilder,
     )
 
-    middlewares = list(middlewares)
-    for i, (middleware, name) in enumerate(middlewares):
+    middleware = list(middleware)
+    for i, (mw, name) in enumerate(middleware):
         if name == "ens_name_to_address":
-            middlewares.pop(i)
+            middleware.pop(i)
 
-    if "stalecheck" not in (name for mw, name in middlewares):
-        middlewares.append(
+    if "stalecheck" not in (name for mw, name in middleware):
+        middleware.append(
             (
                 StalecheckMiddlewareBuilder.build(ACCEPTABLE_STALE_HOURS * 3600),
                 "stalecheck",
@@ -326,12 +326,12 @@ def init_async_web3(
 
     if provider is default:
         async_w3 = AsyncWeb3Main(
-            middlewares=middlewares, ens=None, modules={"eth": (AsyncEthMain)}
+            middleware=middleware, ens=None, modules={"eth": (AsyncEthMain)}
         )
     else:
         async_w3 = AsyncWeb3Main(
             provider,
-            middlewares=middlewares,
+            middleware=middleware,
             ens=None,
             modules={"eth": (AsyncEthMain)},
         )
