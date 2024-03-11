@@ -9,7 +9,7 @@ exposed by the web3 object and the backend or node that web3 is connecting to.
 
 * **Providers** are responsible for the actual communication with the
   blockchain such as sending JSON-RPC requests over HTTP or an IPC socket.
-* **Middlewares** provide hooks for monitoring and modifying requests and
+* **Middleware** provide hooks for monitoring and modifying requests and
   responses to and from the provider.
 * **Managers** provide thread safety and primitives to allow for asynchronous usage of web3.
 
