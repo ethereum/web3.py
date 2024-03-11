@@ -26,7 +26,7 @@ def middleware_factory():
                             params.append(key)
                             method = "|".join((method, key))
                             response = make_request(method, params)
-                            response["result"]["middlewares"].append(key)
+                            response["result"]["middleware"].append(key)
                             return response
 
                         return middleware_fn

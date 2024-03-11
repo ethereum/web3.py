@@ -95,7 +95,7 @@ class DummyProvider(BaseProvider):
 
 @pytest.fixture
 def w3_dummy(request_mocker):
-    w3_base = Web3(provider=DummyProvider(), middlewares=[])
+    w3_base = Web3(provider=DummyProvider(), middleware=[])
     with request_mocker(
         w3_base,
         mock_results={
@@ -420,7 +420,7 @@ class AsyncDummyProvider(AsyncBaseProvider):
 
 @pytest_asyncio.fixture
 async def async_w3_dummy(request_mocker):
-    w3_base = AsyncWeb3(provider=AsyncDummyProvider(), middlewares=[])
+    w3_base = AsyncWeb3(provider=AsyncDummyProvider(), middleware=[])
     async with request_mocker(
         w3_base,
         mock_results={

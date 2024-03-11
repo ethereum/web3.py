@@ -58,8 +58,8 @@ if TYPE_CHECKING:
     )
 
 
-def combine_middlewares(
-    middlewares: Sequence[Middleware],
+def combine_middleware(
+    middleware: Sequence[Middleware],
     w3: "Web3",
     provider_request_fn: MakeRequestFn,
 ) -> Callable[..., "RPCResponse"]:
@@ -69,14 +69,14 @@ def combine_middlewares(
     the response through the response processors.
     """
     accumulator_fn = provider_request_fn
-    for middleware in reversed(middlewares):
+    for middleware in reversed(middleware):
         # initialize the middleware and wrap the accumulator function down the stack
         accumulator_fn = middleware(w3).wrap_make_request(accumulator_fn)
     return accumulator_fn
 
 
-async def async_combine_middlewares(
-    middlewares: Sequence[Middleware],
+async def async_combine_middleware(
+    middleware: Sequence[Middleware],
     async_w3: "AsyncWeb3",
     provider_request_fn: AsyncMakeRequestFn,
 ) -> Callable[..., Coroutine[Any, Any, "RPCResponse"]]:
@@ -86,7 +86,7 @@ async def async_combine_middlewares(
     the response through the response processors.
     """
     accumulator_fn = provider_request_fn
-    for middleware in reversed(middlewares):
+    for middleware in reversed(middleware):
         # initialize the middleware and wrap the accumulator function down the stack
         initialized = middleware(async_w3)
         accumulator_fn = await initialized.async_wrap_make_request(accumulator_fn)

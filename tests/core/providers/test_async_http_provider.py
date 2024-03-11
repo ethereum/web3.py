@@ -67,7 +67,7 @@ def test_init_kwargs():
     assert w3.manager.provider == provider
 
 
-def test_web3_with_async_http_provider_has_default_middlewares_and_modules() -> None:
+def test_web3_with_async_http_provider_has_default_middleware_and_modules() -> None:
     async_w3 = AsyncWeb3(AsyncHTTPProvider(endpoint_uri=URI))
 
     # assert default modules
@@ -82,8 +82,8 @@ def test_web3_with_async_http_provider_has_default_middlewares_and_modules() -> 
     # assert default middleware
 
     # the following length check should fail and will need to be added to once more
-    # async middlewares are added to the defaults
-    assert len(async_w3.middleware_onion.middlewares) == 5
+    # async middleware are added to the defaults
+    assert len(async_w3.middleware_onion.middleware) == 5
 
     assert (
         async_w3.middleware_onion.get("gas_price_strategy")

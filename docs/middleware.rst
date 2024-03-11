@@ -87,7 +87,7 @@ The middleware are maintained in ``Web3.middleware_onion``. See below for the AP
 
 When specifying middleware in a list, or retrieving the list of middleware, they will
 be returned in the order of outermost layer first and innermost layer last. In the above
-example, that means that ``w3.middleware_onion.middlewares`` would return the middleware
+example, that means that ``w3.middleware_onion.middleware`` would return the middleware
 in the order of: ``[2, 1, 0]``.
 
 
@@ -149,7 +149,7 @@ To add or remove items in different layers, use the following API:
     .. code-block:: python
 
         >>> from web3.middleware import GasPriceStrategyMiddleware, AttributeDictMiddleware
-        >>> w3 = Web3(provider, middlewares=[GasPriceStrategyMiddleware, AttributeDictMiddleware])
+        >>> w3 = Web3(provider, middleware=[GasPriceStrategyMiddleware, AttributeDictMiddleware])
 
         >>> w3.middleware_onion.replace(GasPriceStrategyMiddleware, AttributeDictMiddleware)
         # this is now referenced by the new middleware object, so to remove it:
@@ -171,7 +171,7 @@ To add or remove items in different layers, use the following API:
         >>> w3.middleware_onion.clear()
         >>> assert len(w3.middleware_onion) == 0
 
-.. py:attribute:: Web3.middleware_onion.middlewares
+.. py:attribute:: Web3.middleware_onion.middleware
 
     Return all the current middleware for the ``Web3`` instance in the appropriate order for importing into a new
     ``Web3`` instance.
@@ -182,23 +182,23 @@ To add or remove items in different layers, use the following API:
         # add uniquely named middleware:
         >>> w3_1.middleware_onion.add(web3.middleware.GasPriceStrategyMiddleware, 'test_middleware')
         # export middleware from first w3 instance
-        >>> middlewares = w3_1.middleware_onion.middlewares
+        >>> middleware = w3_1.middleware_onion.middleware
 
         # import into second instance
-        >>> w3_2 = Web3(..., middlewares=middlewares)
-        >>> assert w3_1.middleware_onion.middlewares == w3_2.middleware_onion.middlewares
+        >>> w3_2 = Web3(..., middleware=middleware)
+        >>> assert w3_1.middleware_onion.middleware == w3_2.middleware_onion.middleware
         >>> assert w3_2.middleware_onion.get('test_middleware')
 
 
 Instantiate with Custom Middleware
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        
+
 Instead of working from the default list, you can specify a custom list of
 middleware when initializing Web3:
 
 .. code-block:: python
 
-    Web3(middlewares=[my_middleware1, my_middleware2])
+    Web3(middleware=[my_middleware1, my_middleware2])
 
 .. warning::
   This will *replace* the default middleware. To keep the default functionality,
@@ -219,7 +219,7 @@ The following middleware are included by default:
 * ``validation``
 * ``gas_estimate``
 
-The defaults are defined in the ``get_default_middlewares()`` method in ``web3/manager.py``.
+The defaults are defined in the ``get_default_middleware()`` method in ``web3/manager.py``.
 
 AttributeDict
 ~~~~~~~~~~~~~

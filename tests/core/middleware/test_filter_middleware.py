@@ -83,7 +83,7 @@ def iter_block_number(start=0):
 
 @pytest.fixture(scope="function")
 def w3(request_mocker, iter_block_number):
-    w3_base = Web3(provider=DummyProvider(), middlewares=[])
+    w3_base = Web3(provider=DummyProvider(), middleware=[])
     w3_base.middleware_onion.add(AttributeDictMiddleware)
     w3_base.middleware_onion.add(LocalFilterMiddleware)
     with request_mocker(
@@ -253,7 +253,7 @@ class AsyncDummyProvider(AsyncBaseProvider):
 
 @pytest_asyncio.fixture(scope="function")
 async def async_w3(request_mocker, iter_block_number):
-    async_w3_base = AsyncWeb3(provider=AsyncDummyProvider(), middlewares=[])
+    async_w3_base = AsyncWeb3(provider=AsyncDummyProvider(), middleware=[])
     async_w3_base.middleware_onion.add(AttributeDictMiddleware)
     async_w3_base.middleware_onion.add(LocalFilterMiddleware)
 

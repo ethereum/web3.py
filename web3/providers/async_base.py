@@ -28,7 +28,7 @@ from web3.exceptions import (
     ProviderConnectionError,
 )
 from web3.middleware import (
-    async_combine_middlewares,
+    async_combine_middleware,
 )
 from web3.middleware.base import (
     Middleware,
@@ -95,14 +95,14 @@ class AsyncBaseProvider:
     async def request_func(
         self, async_w3: "AsyncWeb3", middleware_onion: MiddlewareOnion
     ) -> Callable[..., Coroutine[Any, Any, RPCResponse]]:
-        middlewares: Tuple[Middleware, ...] = middleware_onion.as_tuple_of_middlewares()
+        middleware: Tuple[Middleware, ...] = middleware_onion.as_tuple_of_middleware()
 
         cache_key = self._request_func_cache[0]
-        if cache_key != middlewares:
+        if cache_key != middleware:
             self._request_func_cache = (
-                middlewares,
-                await async_combine_middlewares(
-                    middlewares=middlewares,
+                middleware,
+                await async_combine_middleware(
+                    middleware=middleware,
                     async_w3=async_w3,
                     provider_request_fn=self.make_request,
                 ),

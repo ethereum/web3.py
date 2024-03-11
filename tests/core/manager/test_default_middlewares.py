@@ -10,8 +10,8 @@ from web3.middleware import (
 )
 
 
-def test_default_sync_middlewares(w3):
-    expected_middlewares = [
+def test_default_sync_middleware(w3):
+    expected_middleware = [
         (GasPriceStrategyMiddleware, "gas_price_strategy"),
         (ENSNameToAddressMiddleware, "ens_name_to_address"),
         (AttributeDictMiddleware, "attrdict"),
@@ -19,6 +19,6 @@ def test_default_sync_middlewares(w3):
         (BufferedGasEstimateMiddleware, "gas_estimate"),
     ]
 
-    default_middlewares = RequestManager.get_default_middlewares()
+    default_middleware = RequestManager.get_default_middleware()
 
-    assert default_middlewares == expected_middlewares
+    assert default_middleware == expected_middleware
