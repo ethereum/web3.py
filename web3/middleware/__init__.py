@@ -11,6 +11,7 @@ from .attrdict import (
 )
 from .base import (
     Middleware,
+    Web3Middleware,
 )
 from .buffered_gas_estimate import (
     BufferedGasEstimateMiddleware,
