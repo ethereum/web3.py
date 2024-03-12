@@ -1,0 +1,1 @@
+Remove ``Contract.encodeABI()`` in favor of ``Contract.encode_abi()`` to follow standard conventions.
