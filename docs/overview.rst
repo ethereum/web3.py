@@ -269,7 +269,7 @@ API
 - :attr:`Contract.events <web3.contract.Contract.events>`
 - :attr:`Contract.fallback <web3.contract.Contract.fallback.call>`
 - :meth:`Contract.constructor() <web3.contract.Contract.constructor>`
-- :meth:`Contract.encodeABI() <web3.contract.Contract.encodeABI>`
+- :meth:`Contract.encode_abi() <web3.contract.Contract.encode_abi>`
 - :attr:`web3.contract.ContractFunction <web3.contract.ContractFunction>`
 - :attr:`web3.contract.ContractEvents <web3.contract.ContractEvents>`
 

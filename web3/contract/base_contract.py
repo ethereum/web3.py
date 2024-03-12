@@ -55,6 +55,7 @@ from web3._utils.contracts import (
 from web3._utils.datatypes import (
     PropertyCheckingFactory,
 )
+from web3._utils.decorators import deprecated_for
 from web3._utils.empty import (
     empty,
 )
@@ -723,7 +724,18 @@ class BaseContract:
     #  Public API
     #
     @combomethod
+    @deprecated_for("encode_abi()")
     def encodeABI(
+        cls,
+        fn_name: str,
+        args: Optional[Any] = None,
+        kwargs: Optional[Any] = None,
+        data: Optional[HexStr] = None,
+    ) -> HexStr:
+        return cls.encode_abi(fn_name, args, kwargs, data)
+
+    @combomethod
+    def encode_abi(
         cls,
         fn_name: str,
         args: Optional[Any] = None,
