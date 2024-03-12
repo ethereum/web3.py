@@ -72,6 +72,7 @@ from web3.types import (
     BlockData,
     BlockIdentifier,
     BlockParams,
+    BlockReceipts,
     CreateAccessListResponse,
     FeeHistory,
     FilterParams,
@@ -410,6 +411,16 @@ class Eth(BaseEth):
         self, block_identifier: BlockIdentifier, full_transactions: bool = False
     ) -> BlockData:
         return self._get_block(block_identifier, full_transactions)
+
+    # eth_getBlockReceipts
+
+    _get_block_receipts: Method[Callable[[BlockIdentifier], BlockReceipts]] = Method(
+        RPC.eth_getBlockReceipts,
+        mungers=[default_root_munger],
+    )
+
+    def get_block_receipts(self, block_identifier: BlockIdentifier) -> BlockReceipts:
+        return self._get_block_receipts(block_identifier)
 
     # eth_getBalance
 

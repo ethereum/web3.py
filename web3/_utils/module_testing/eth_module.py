@@ -978,6 +978,39 @@ class AsyncEthModuleTest:
         assert isinstance(block["number"], int)
 
     @pytest.mark.asyncio
+    async def test_eth_getBlockReceipts_hash(
+        self, async_w3: "AsyncWeb3", async_empty_block: BlockData
+    ) -> None:
+        receipts = await async_w3.eth.get_block_receipts(async_empty_block["hash"])
+        assert isinstance(receipts, list)
+
+    @pytest.mark.asyncio
+    async def test_eth_getBlockReceipts_not_found(self, async_w3: "AsyncWeb3") -> None:
+        with pytest.raises(BlockNotFound):
+            await async_w3.eth.get_block_receipts(UNKNOWN_HASH)
+
+    @pytest.mark.asyncio
+    async def test_eth_getBlockReceipts_with_integer(
+        self, async_w3: "AsyncWeb3", async_empty_block: BlockData
+    ) -> None:
+        receipts = await async_w3.eth.get_block_receipts(async_empty_block["number"])
+        assert isinstance(receipts, list)
+
+    @pytest.mark.asyncio
+    async def test_eth_getBlockReceipts_safe(
+        self, async_w3: "AsyncWeb3", async_empty_block: BlockData
+    ) -> None:
+        receipts = await async_w3.eth.get_block_receipts("safe")
+        assert isinstance(receipts, list)
+
+    @pytest.mark.asyncio
+    async def test_eth_getBlockReceipts_finalized(
+        self, async_w3: "AsyncWeb3", async_empty_block: BlockData
+    ) -> None:
+        receipts = await async_w3.eth.get_block_receipts("finalized")
+        assert isinstance(receipts, list)
+
+    @pytest.mark.asyncio
     async def test_eth_get_block_by_number_full_transactions(
         self, async_w3: "AsyncWeb3", async_block_with_txn: BlockData
     ) -> None:
@@ -4223,6 +4256,34 @@ class EthModuleTest:
         block = w3.eth.get_block(block_with_txn["number"], True)
         transaction = block["transactions"][0]
         assert transaction["hash"] == block_with_txn["transactions"][0]  # type: ignore
+
+    def test_eth_getBlockReceipts_hash(
+        self, w3: "Web3", empty_block: BlockData
+    ) -> None:
+        receipts = w3.eth.get_block_receipts(empty_block["hash"])
+        assert isinstance(receipts, list)
+
+    def test_eth_getBlockReceipts_not_found(self, w3: "Web3") -> None:
+        with pytest.raises(BlockNotFound):
+            w3.eth.get_block_receipts(UNKNOWN_HASH)
+
+    def test_eth_getBlockReceipts_with_integer(
+        self, w3: "Web3", empty_block: BlockData
+    ) -> None:
+        receipts = w3.eth.get_block_receipts(empty_block["number"])
+        assert isinstance(receipts, list)
+
+    def test_eth_getBlockReceipts_safe(
+        self, w3: "Web3", empty_block: BlockData
+    ) -> None:
+        receipts = w3.eth.get_block_receipts("safe")
+        assert isinstance(receipts, list)
+
+    def test_eth_getBlockReceipts_finalized(
+        self, w3: "Web3", empty_block: BlockData
+    ) -> None:
+        receipts = w3.eth.get_block_receipts("finalized")
+        assert isinstance(receipts, list)
 
     def test_eth_getTransactionByHash(self, w3: "Web3", mined_txn_hash: HexStr) -> None:
         transaction = w3.eth.get_transaction(mined_txn_hash)

@@ -381,6 +381,8 @@ TxReceipt = TypedDict(
     },
 )
 
+BlockReceipts = List[TxReceipt]
+
 
 class SignedTx(TypedDict, total=False):
     raw: bytes
