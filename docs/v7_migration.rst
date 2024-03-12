@@ -9,6 +9,12 @@ project depends on web3.py ``v7``, you'll probably need to make some changes.
 
 Breaking Changes:
 
+Middlewares -> Middleware
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+All references to ``middlewares`` have been replaced with the more grammatically
+correct ``middleware``. Notably, this includes when a provider needs to be
+instantiated with custom middleware.
 
 Class-Based Middleware Model
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
