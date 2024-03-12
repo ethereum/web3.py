@@ -1,5 +1,8 @@
 import json
 import pytest
+from unittest.mock import (
+    patch,
+)
 
 from web3 import (
     constants,
@@ -64,7 +67,7 @@ ABI_D = json.loads(
 )
 def test_contract_abi_encoding(w3, abi, arguments, data, expected):
     contract = w3.eth.contract(abi=abi)
-    actual = contract.encodeABI("a", arguments, data=data)
+    actual = contract.encode_abi("a", arguments, data=data)
     assert actual == expected
 
 
@@ -116,7 +119,7 @@ def test_contract_abi_encoding_non_strict(
     w3_non_strict_abi, abi, arguments, data, expected
 ):
     contract = w3_non_strict_abi.eth.contract(abi=abi)
-    actual = contract.encodeABI("a", arguments, data=data)
+    actual = contract.encode_abi("a", arguments, data=data)
     assert actual == expected
 
 
@@ -128,7 +131,7 @@ def test_contract_abi_encoding_kwargs(w3):
             "0x6f8d2fa18448afbfe4f82143c384484ad09a0271f3a3c0eb9f629e703f883125",
         ],
     }
-    actual = contract.encodeABI("byte_array", kwargs=kwargs)
+    actual = contract.encode_abi("byte_array", kwargs=kwargs)
     assert (
         actual
         == "0xf166d6f8000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000025595c210956e7721f9b692e702708556aa9aabb14ea163e96afa56ffbe9fa8096f8d2fa18448afbfe4f82143c384484ad09a0271f3a3c0eb9f629e703f883125"  # noqa: E501
@@ -146,7 +149,7 @@ def test_contract_abi_encoding_kwargs(w3):
 def test_contract_abi_encoding_strict_with_error(w3, arguments):
     contract = w3.eth.contract(abi=ABI_C)
     with pytest.raises(Web3ValidationError):
-        contract.encodeABI("a", arguments, data=None)
+        contract.encode_abi("a", arguments, data=None)
 
 
 @pytest.mark.parametrize(
@@ -195,5 +198,44 @@ def test_contract_abi_encoding_strict_with_error(w3, arguments):
 )
 def test_contract_abi_encoding_strict(w3, abi, arguments, data, expected):
     contract = w3.eth.contract(abi=abi)
+    actual = contract.encode_abi("a", arguments, data=data)
+    assert actual == expected
+
+
+def test_contract_encodeABI_deprecated(w3):
+    abi = ABI_B
+    arguments = [0]
+
+    contract = w3.eth.contract(abi=abi)
+
+    with pytest.warns(DeprecationWarning):
+        contract.encodeABI("a", arguments)
+
+
+def test_contract_encodeABI_deprecated_returns_encoded(w3):
+    expected = "0xf0fdf8340000000000000000000000000000000000000000000000000000000000000000"  # noqa: E501
+
+    abi = ABI_B
+    arguments = [0]
+    data = None
+
+    contract = w3.eth.contract(abi=abi)
+
     actual = contract.encodeABI("a", arguments, data=data)
     assert actual == expected
+
+
+@patch("web3.eth.Contract.encodeABI", lambda w3, *args, **kwargs: (args, kwargs))
+def test_contract_encodeABI_deprecated_calls_encode_abi_with_args(w3):
+    abi = ABI_B
+    arguments = [0]
+    kwargs = {"x": 1}
+    data = {"secret_code": "12345"}
+
+    contract = w3.eth.contract(abi=abi)
+
+    passed_on_args, passed_on_kwargs = contract.encodeABI(
+        "a", arguments, kwargs, data=data
+    )
+    assert passed_on_args == ([0], {"x": 1})
+    assert passed_on_kwargs == {"data": {"secret_code": "12345"}}
