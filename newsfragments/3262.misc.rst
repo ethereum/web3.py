@@ -1,1 +1,0 @@
-Set all provider default timeouts to ``30``, effectively increasing HTTP timeouts to better match those of certain clients.

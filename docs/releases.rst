@@ -6,6 +6,42 @@ v7 Breaking Changes Summary
 
 .. towncrier release notes start
 
+web3.py v7.0.0-beta.2 (2024-03-11)
+----------------------------------
+
+Breaking Changes
+~~~~~~~~~~~~~~~~
+
+- Move ``middlewares`` -> ``middleware`` (`#3276 <https://github.com/ethereum/web3.py/issues/3276>`__)
+
+
+Bugfixes
+~~~~~~~~
+
+- Fix/update methods and decorators in ``web3/_utils/abi.py`` to address issues raised by ``mypy`` (`#3269 <https://github.com/ethereum/web3.py/issues/3269>`__)
+- Catch all types of ``eth-abi`` ``DecodingError`` in ``EthereumTesterProvider->_make_request()`` (`#3271 <https://github.com/ethereum/web3.py/issues/3271>`__)
+
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Remove annual user survey prompt from docs (`#3218 <https://github.com/ethereum/web3.py/issues/3218>`__)
+- Introduce feedback form banner prompt on docs (`#3253 <https://github.com/ethereum/web3.py/issues/3253>`__)
+- Refresh of the middleware docs (`#3266 <https://github.com/ethereum/web3.py/issues/3266>`__)
+
+
+Miscellaneous Changes
+~~~~~~~~~~~~~~~~~~~~~
+
+- `#3259 <https://github.com/ethereum/web3.py/issues/3259>`__, `#3262 <https://github.com/ethereum/web3.py/issues/3262>`__
+
+
+Removals
+~~~~~~~~
+
+- Remove the ``ethpm`` module and related docs, tests, and dependencies (`#3261 <https://github.com/ethereum/web3.py/issues/3261>`__)
+
+
 web3.py v7.0.0-beta.1 (2024-02-28)
 ----------------------------------
 
