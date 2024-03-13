@@ -490,7 +490,7 @@ class AsyncENS(BaseENS):
         ):
             contract_func_with_args = (fn_name, [node])
 
-            calldata = resolver.encodeABI(*contract_func_with_args)
+            calldata = resolver.encode_abi(*contract_func_with_args)
             contract_call_result = await resolver.caller.resolve(
                 ens_encode_name(normal_name),
                 calldata,
