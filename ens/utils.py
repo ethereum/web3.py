@@ -35,9 +35,6 @@ from hexbytes import (
     HexBytes,
 )
 
-from ._normalization import (
-    normalize_name_ensip15,
-)
 from .constants import (
     ACCEPTABLE_STALE_HOURS,
     AUCTION_START_GAS_CONSTANT,
@@ -124,6 +121,11 @@ def normalize_name(name: str) -> str:
     :param str name: the dot-separated ENS name
     :raises InvalidName: if ``name`` has invalid syntax
     """
+    # Defer import because module initialization takes > 0.1 ms
+    from ._normalization import (
+        normalize_name_ensip15,
+    )
+
     if is_empty_name(name):
         return ""
     elif isinstance(name, (bytes, bytearray)):
