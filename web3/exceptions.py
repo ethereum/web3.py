@@ -34,11 +34,11 @@ class Web3Exception(Exception):
         self,
         *args: Any,
         user_message: Optional[str] = None,
-        **kwargs: Any,
     ):
         super().__init__(*args)
+
         # Assign properties of Web3Exception
-        self.__dict__.update(locals())
+        self.user_message = user_message
 
 
 class BadFunctionCallOutput(Web3Exception):

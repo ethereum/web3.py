@@ -13,13 +13,15 @@ def test_web3exception_with_user_message():
 
 
 def test_web3exception_with_kwargs():
-    with pytest.raises(Web3Exception) as exception:
+    with pytest.raises(TypeError) as exception:
         raise Web3Exception(data={"message": "Unable to fulfill your request."})
-    assert exception.type is Web3Exception
-    assert exception.value.user_message is None
-    assert (
-        exception.value.kwargs["data"]["message"] == "Unable to fulfill your request."
-    )
+
+    # For Python > 3.9, str exception includes 'Web3Exception.'
+    expected = "__init__() got an unexpected keyword argument 'data'"
+    actual = str(exception.value)
+    assert exception.type is TypeError
+    assert hasattr(exception.value, "data") is False
+    assert expected in actual
 
 
 def test_web3exception_with_args():
