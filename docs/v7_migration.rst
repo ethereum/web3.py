@@ -154,3 +154,4 @@ Miscellaneous Changes
 - ``get_default_ipc_path()`` and ``get_dev_ipc_path()`` now return the path value
   without checking if the ``geth.ipc`` file exists.
 - ``Web3.is_address()`` returns ``True`` for non-checksummed addresses.
+- ``Contract.encodeABI()`` has been renamed to ``Contract.encode_abi()``.

@@ -477,7 +477,7 @@ class ENS(BaseENS):
         if _resolver_supports_interface(resolver, ENS_EXTENDED_RESOLVER_INTERFACE_ID):
             contract_func_with_args = (fn_name, [node])
 
-            calldata = resolver.encodeABI(*contract_func_with_args)
+            calldata = resolver.encode_abi(*contract_func_with_args)
             contract_call_result = resolver.caller.resolve(
                 ens_encode_name(normal_name),
                 calldata,

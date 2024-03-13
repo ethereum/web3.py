@@ -723,7 +723,7 @@ class BaseContract:
     #  Public API
     #
     @combomethod
-    def encodeABI(
+    def encode_abi(
         cls,
         fn_name: str,
         args: Optional[Any] = None,
