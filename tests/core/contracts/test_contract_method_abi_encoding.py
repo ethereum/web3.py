@@ -203,16 +203,6 @@ def test_contract_abi_encoding_strict(w3, abi, arguments, data, expected):
 
 
 def test_contract_encodeABI_deprecated(w3):
-    abi = ABI_B
-    arguments = [0]
-
-    contract = w3.eth.contract(abi=abi)
-
-    with pytest.warns(DeprecationWarning):
-        contract.encodeABI("a", arguments)
-
-
-def test_contract_encodeABI_deprecated_returns_encoded(w3):
     expected = "0xf0fdf8340000000000000000000000000000000000000000000000000000000000000000"  # noqa: E501
 
     abi = ABI_B
@@ -221,8 +211,9 @@ def test_contract_encodeABI_deprecated_returns_encoded(w3):
 
     contract = w3.eth.contract(abi=abi)
 
-    actual = contract.encodeABI("a", arguments, data=data)
-    assert actual == expected
+    with pytest.warns(DeprecationWarning):
+        actual = contract.encodeABI("a", arguments, data=data)
+        assert actual == expected
 
 
 @patch("web3.eth.Contract.encodeABI", lambda w3, *args, **kwargs: (args, kwargs))
@@ -234,6 +225,7 @@ def test_contract_encodeABI_deprecated_calls_encode_abi_with_args(w3):
 
     contract = w3.eth.contract(abi=abi)
 
+    # DeprecationWarning raised inside patched function
     passed_on_args, passed_on_kwargs = contract.encodeABI(
         "a", arguments, kwargs, data=data
     )
