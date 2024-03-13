@@ -1,0 +1,1 @@
+Add note about middlewares change to v7 migration guide.
