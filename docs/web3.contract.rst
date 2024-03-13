@@ -301,7 +301,6 @@ Each Contract Factory exposes the following methods.
         filter_builder.fromBlock = "latest"
         filter_builder.fromBlock = 0  # raises a ValueError
 
-
 .. py:classmethod:: Contract.encode_abi(fn_name, args=None, kwargs=None, data=None)
 
     Encodes the arguments using the Ethereum ABI for the contract function that
@@ -313,10 +312,6 @@ Each Contract Factory exposes the following methods.
       >>> contract.encode_abi(fn_name="register", args=["rainbows", 10])
       "0xea87152b0000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000000a00000000000000000000000000000000000000000000000000000000000000087261696e626f7773000000000000000000000000000000000000000000000000"
 
-.. py:classmethod:: Contract.encodeABI(fn_name, args=None, kwargs=None, data=None)
-
-    .. deprecated:: 7.0
-      Use :meth:`Contract.encode_abi` instead.
 
 .. py:classmethod:: Contract.all_functions()
 
