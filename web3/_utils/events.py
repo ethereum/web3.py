@@ -68,6 +68,9 @@ from web3._utils.encoding import (
 from web3._utils.normalizers import (
     BASE_RETURN_NORMALIZERS,
 )
+from web3._utils.type_conversion import (
+    to_hex_if_bytes,
+)
 from web3.datastructures import (
     AttributeDict,
 )
@@ -228,8 +231,11 @@ def get_event_data(
         log_topics = log_entry["topics"]
     elif not log_entry["topics"]:
         raise MismatchedABI("Expected non-anonymous event to have 1 or more topics")
-    # type ignored b/c event_abi_to_log_topic(event_abi: Dict[str, Any])
-    elif event_abi_to_log_topic(event_abi) != log_entry["topics"][0]:  # type: ignore
+    elif (
+        # type ignored b/c event_abi_to_log_topic(event_abi: Dict[str, Any])
+        to_hex(event_abi_to_log_topic(event_abi))  # type: ignore
+        != to_hex_if_bytes(log_entry["topics"][0])
+    ):
         raise MismatchedABI("The event signature did not match the provided ABI")
     else:
         log_topics = log_entry["topics"][1:]
