@@ -57,6 +57,7 @@ class RPC:
     eth_getBalance = RPCEndpoint("eth_getBalance")
     eth_getBlockByHash = RPCEndpoint("eth_getBlockByHash")
     eth_getBlockByNumber = RPCEndpoint("eth_getBlockByNumber")
+    eth_getBlockReceipts = RPCEndpoint("eth_getBlockReceipts")
     eth_getBlockTransactionCountByHash = RPCEndpoint(
         "eth_getBlockTransactionCountByHash"
     )
@@ -113,16 +114,6 @@ class RPC:
     evm_reset = RPCEndpoint("evm_reset")
     evm_revert = RPCEndpoint("evm_revert")
     evm_snapshot = RPCEndpoint("evm_snapshot")
-
-    # miner
-    miner_makeDag = RPCEndpoint("miner_makeDag")
-    miner_setExtra = RPCEndpoint("miner_setExtra")
-    miner_setEtherbase = RPCEndpoint("miner_setEtherbase")
-    miner_setGasPrice = RPCEndpoint("miner_setGasPrice")
-    miner_start = RPCEndpoint("miner_start")
-    miner_stop = RPCEndpoint("miner_stop")
-    miner_startAutoDag = RPCEndpoint("miner_startAutoDag")
-    miner_stopAutoDag = RPCEndpoint("miner_stopAutoDag")
 
     # net
     net_listening = RPCEndpoint("net_listening")

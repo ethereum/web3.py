@@ -1,18 +1,209 @@
+.. _middleware_internals:
+
 Middleware
 ==========
 
-Web3 manages layers of middlewares by default. They sit between the public Web3 methods and the
-:doc:`providers`, which handle native communication with the Ethereum client. Each layer
-can modify the request and/or response. Some middlewares are enabled by default, and
-others are available for optional use.
+``Web3`` is instantiated with layers of middleware by default. They sit between the public
+``Web3`` methods and the :doc:`providers`, and are used to perform sanity checks, convert data
+types, enable ENS support, and more. Each layer can modify the request and/or response.
+While several middleware are enabled by default, others are available for optional use,
+and you're free to create your own!
 
 Each middleware layer gets invoked before the request reaches the provider, and then
 processes the result after the provider returns, in reverse order. However, it is
-possible for a middleware to return early from a
-call without the request ever getting to the provider (or even reaching the middlewares
-that are in deeper layers).
+possible for a middleware to return early from a call without the request ever getting
+to the provider (or even reaching the middleware that are in deeper layers).
 
-More information is available in the "Internals: :ref:`internals__middlewares`" section.
+
+.. _Modifying_Middleware:
+
+Configuring Middleware
+-----------------------
+
+Middleware can be added, removed, replaced, and cleared at runtime. To make that easier, you
+can name the middleware for later reference.
+
+Middleware Order
+~~~~~~~~~~~~~~~~
+
+Think of the middleware as being layered in an onion, where you initiate a web3.py request at
+the outermost layer of the onion, and the Ethereum node (like geth) receives and responds
+to the request inside the innermost layer of the onion. Here is a (simplified) diagram:
+
+.. code-block:: none
+
+                                         New request from web3.py
+
+                                                     |
+                                                     |
+                                                     v
+
+                                             `````Layer 2``````
+                                      ```````                  ```````
+                                 `````               |                ````
+                              ````                   v                    ````
+                           ```                                                ```
+                         `.               ````````Layer 1```````                `.`
+                       ``             ````                      `````              .`
+                     `.            ```               |               ```            `.`
+                    .`          ```                  v                  ```           `.
+                  `.          `.`                                         ```           .`
+                 ``          .`                  `Layer 0`                  ``           .`
+                ``         `.               `````        ``````               .           .`
+               `.         ``             ```         |        ```              .`          .
+               .         ``            `.`           |           ``             .           .
+              .         `.            ``       JSON-RPC call       .`            .          .`
+              .         .            ``              |              .            ``          .
+             ``         .            .               v               .            .          .
+             .         .`           .                                .            .          ``
+             .         .            .          Ethereum node         .`           .           .
+             .         .            .                                .            .           .
+             .         ``           `.               |               .            .           .
+             .          .            .`              |              .`            .          .
+             `.         .`            .`          Response         .`            .`          .
+              .          .             `.`           |           `.`            `.           .
+              `.          .              ```         |        ````             `.           .
+               .          `.               `````     v     ````               `.           ``
+                .           .`                 ```Layer 0``                  ``           `.
+                 .           `.                                            `.`           `.
+                  .            `.                    |                   `.`            `.
+                   .`            ```                 |                 ```             .`
+                    `.              ```              v             ````              `.`
+                      ``               ``````                 `````                 .`
+                        ``                   `````Layer 1`````                   `.`
+                          ```                                                  ```
+                            ````                     |                      ```
+                               `````                 v                  ````
+                                   ``````                          `````
+                                         `````````Layer 2``````````
+
+                                                     |
+                                                     v
+
+                                          Returned value in web3.py
+
+
+The middleware are maintained in ``Web3.middleware_onion``. See below for the API.
+
+When specifying middleware in a list, or retrieving the list of middleware, they will
+be returned in the order of outermost layer first and innermost layer last. In the above
+example, that means that ``w3.middleware_onion.middleware`` would return the middleware
+in the order of: ``[2, 1, 0]``.
+
+
+.. _middleware_stack_api:
+
+Middleware Stack API
+~~~~~~~~~~~~~~~~~~~~
+
+To add or remove items in different layers, use the following API:
+
+.. py:method:: Web3.middleware_onion.add(middleware, name=None)
+
+    Middleware will be added to the outermost layer. That means the new middleware will modify the
+    request first, and the response last. You can optionally name it with any hashable object,
+    typically a string.
+
+    .. code-block:: python
+
+        >>> w3 = Web3(...)
+        >>> w3.middleware_onion.add(web3.middleware.GasPriceStrategyMiddleware)
+        # or
+        >>> w3.middleware_onion.add(web3.middleware.GasPriceStrategyMiddleware, 'gas_price_strategy')
+
+.. py:method:: Web3.middleware_onion.inject(middleware, name=None, layer=None)
+
+    Inject a named middleware to an arbitrary layer.
+
+    The current implementation only supports injection at the innermost or
+    outermost layers. Note that injecting to the outermost layer is equivalent to calling
+    :meth:`Web3.middleware_onion.add` .
+
+    .. code-block:: python
+
+        # Either of these will put the gas_price_strategy middleware at the innermost layer
+        >>> w3 = Web3(...)
+        >>> w3.middleware_onion.inject(web3.middleware.GasPriceStrategyMiddleware, layer=0)
+        # or
+        >>> w3.middleware_onion.inject(web3.middleware.GasPriceStrategyMiddleware, 'gas_price_strategy', layer=0)
+
+.. py:method:: Web3.middleware_onion.remove(middleware)
+
+    Middleware will be removed from whatever layer it was in. If you added the middleware with
+    a name, use the name to remove it. If you added the middleware as an object, use the object
+    again later to remove it:
+
+    .. code-block:: python
+
+        >>> w3 = Web3(...)
+        >>> w3.middleware_onion.remove(web3.middleware.GasPriceStrategyMiddleware)
+        # or
+        >>> w3.middleware_onion.remove('gas_price_strategy')
+
+.. py:method:: Web3.middleware_onion.replace(old_middleware, new_middleware)
+
+    Middleware will be replaced from whatever layer it was in. If the middleware was named, it will
+    continue to have the same name. If it was un-named, then you will now reference it with the new
+    middleware object.
+
+    .. code-block:: python
+
+        >>> from web3.middleware import GasPriceStrategyMiddleware, AttributeDictMiddleware
+        >>> w3 = Web3(provider, middleware=[GasPriceStrategyMiddleware, AttributeDictMiddleware])
+
+        >>> w3.middleware_onion.replace(GasPriceStrategyMiddleware, AttributeDictMiddleware)
+        # this is now referenced by the new middleware object, so to remove it:
+        >>> w3.middleware_onion.remove(AttributeDictMiddleware)
+
+        # or, if it was named
+
+        >>> w3.middleware_onion.replace('gas_price_strategy', AttributeDictMiddleware)
+        # this is still referenced by the original name, so to remove it:
+        >>> w3.middleware_onion.remove('gas_price_strategy')
+
+.. py:method:: Web3.middleware_onion.clear()
+
+    Empty all the middleware, including the default ones.
+
+    .. code-block:: python
+
+        >>> w3 = Web3(...)
+        >>> w3.middleware_onion.clear()
+        >>> assert len(w3.middleware_onion) == 0
+
+.. py:attribute:: Web3.middleware_onion.middleware
+
+    Return all the current middleware for the ``Web3`` instance in the appropriate order for importing into a new
+    ``Web3`` instance.
+
+    .. code-block:: python
+
+        >>> w3_1 = Web3(...)
+        # add uniquely named middleware:
+        >>> w3_1.middleware_onion.add(web3.middleware.GasPriceStrategyMiddleware, 'test_middleware')
+        # export middleware from first w3 instance
+        >>> middleware = w3_1.middleware_onion.middleware
+
+        # import into second instance
+        >>> w3_2 = Web3(..., middleware=middleware)
+        >>> assert w3_1.middleware_onion.middleware == w3_2.middleware_onion.middleware
+        >>> assert w3_2.middleware_onion.get('test_middleware')
+
+
+Instantiate with Custom Middleware
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Instead of working from the default list, you can specify a custom list of
+middleware when initializing Web3:
+
+.. code-block:: python
+
+    Web3(middleware=[my_middleware1, my_middleware2])
+
+.. warning::
+  This will *replace* the default middleware. To keep the default functionality,
+  either use ``middleware_onion.add()`` from above, or add the default middleware to
+  your list of new middleware.
 
 
 .. _default_middleware:
@@ -20,7 +211,7 @@ More information is available in the "Internals: :ref:`internals__middlewares`" 
 Default Middleware
 ------------------
 
-The following middlewares are added by default if you don't add any:
+The following middleware are included by default:
 
 * ``gas_price_strategy``
 * ``ens_name_to_address``
@@ -28,7 +219,7 @@ The following middlewares are added by default if you don't add any:
 * ``validation``
 * ``gas_estimate``
 
-The defaults are defined in the ``default_middlewares()`` method in ``web3/manager.py``.
+The defaults are defined in the ``get_default_middleware()`` method in ``web3/manager.py``.
 
 AttributeDict
 ~~~~~~~~~~~~~
@@ -90,196 +281,12 @@ Validation
     This middleware includes block and transaction validators which perform validations
     for transaction parameters.
 
-.. _Modifying_Middleware:
-
-Configuring Middleware
------------------------
-
-Middleware can be added, removed, replaced, and cleared at runtime. To make that easier, you
-can name the middleware for later reference.
-
-Middleware Order
-~~~~~~~~~~~~~~~~
-
-Think of the middlewares as being layered in an onion, where you initiate a web3.py request at
-the outermost layer of the onion, and the Ethereum node (like geth) receives and responds
-to the request inside the innermost layer of the onion. Here is a (simplified) diagram:
-
-.. code-block:: none
-
-                                         New request from web3.py
-
-                                                     |
-                                                     |
-                                                     v
-
-                                             `````Layer 2``````
-                                      ```````                  ```````
-                                 `````               |                ````
-                              ````                   v                    ````
-                           ```                                                ```
-                         `.               ````````Layer 1```````                `.`
-                       ``             ````                      `````              .`
-                     `.            ```               |               ```            `.`
-                    .`          ```                  v                  ```           `.
-                  `.          `.`                                         ```           .`
-                 ``          .`                  `Layer 0`                  ``           .`
-                ``         `.               `````        ``````               .           .`
-               `.         ``             ```         |        ```              .`          .
-               .         ``            `.`           |           ``             .           .
-              .         `.            ``       JSON-RPC call       .`            .          .`
-              .         .            ``              |              .            ``          .
-             ``         .            .               v               .            .          .
-             .         .`           .                                .            .          ``
-             .         .            .          Ethereum node         .`           .           .
-             .         .            .                                .            .           .
-             .         ``           `.               |               .            .           .
-             .          .            .`              |              .`            .          .
-             `.         .`            .`          Response         .`            .`          .
-              .          .             `.`           |           `.`            `.           .
-              `.          .              ```         |        ````             `.           .
-               .          `.               `````     v     ````               `.           ``
-                .           .`                 ```Layer 0``                  ``           `.
-                 .           `.                                            `.`           `.
-                  .            `.                    |                   `.`            `.
-                   .`            ```                 |                 ```             .`
-                    `.              ```              v             ````              `.`
-                      ``               ``````                 `````                 .`
-                        ``                   `````Layer 1`````                   `.`
-                          ```                                                  ```
-                            ````                     |                      ```
-                               `````                 v                  ````
-                                   ``````                          `````
-                                         `````````Layer 2``````````
-
-                                                     |
-                                                     v
-
-                                          Returned value in web3.py
-
-
-The middlewares are maintained in ``Web3.middleware_onion``. See below for the API.
-
-When specifying middlewares in a list, or retrieving the list of middlewares, they will
-be returned in the order of outermost layer first and innermost layer last. In the above
-example, that means that ``w3.middleware_onion.middlewares`` would return the middlewares in
-the order of: ``[2, 1, 0]``.
-
-See "Internals: :ref:`internals__middlewares`" for a deeper dive to how middlewares work.
-
-Middleware Stack API
-~~~~~~~~~~~~~~~~~~~~
-
-To add or remove items in different layers, use the following API:
-
-.. py:method:: Web3.middleware_onion.add(middleware, name=None)
-
-    Middleware will be added to the outermost layer. That means the new middleware will modify the
-    request first, and the response last. You can optionally name it with any hashable object,
-    typically a string.
-
-    .. code-block:: python
-
-        >>> w3 = Web3(...)
-        >>> w3.middleware_onion.add(web3.middleware.GasPriceStrategyMiddleware)
-        # or
-        >>> w3.middleware_onion.add(web3.middleware.GasPriceStrategyMiddleware, 'gas_price_strategy')
-
-.. py:method:: Web3.middleware_onion.inject(middleware, name=None, layer=None)
-
-    Inject a named middleware to an arbitrary layer.
-
-    The current implementation only supports injection at the innermost or
-    outermost layers. Note that injecting to the outermost layer is equivalent to calling
-    :meth:`Web3.middleware_onion.add` .
-
-    .. code-block:: python
-
-        # Either of these will put the gas_price_strategy middleware at the innermost layer
-        >>> w3 = Web3(...)
-        >>> w3.middleware_onion.inject(web3.middleware.GasPriceStrategyMiddleware, layer=0)
-        # or
-        >>> w3.middleware_onion.inject(web3.middleware.GasPriceStrategyMiddleware, 'gas_price_strategy', layer=0)
-
-.. py:method:: Web3.middleware_onion.remove(middleware)
-
-    Middleware will be removed from whatever layer it was in. If you added the middleware with
-    a name, use the name to remove it. If you added the middleware as an object, use the object
-    again later to remove it:
-
-    .. code-block:: python
-
-        >>> w3 = Web3(...)
-        >>> w3.middleware_onion.remove(web3.middleware.GasPriceStrategyMiddleware)
-        # or
-        >>> w3.middleware_onion.remove('gas_price_strategy')
-
-.. py:method:: Web3.middleware_onion.replace(old_middleware, new_middleware)
-
-    Middleware will be replaced from whatever layer it was in. If the middleware was named, it will
-    continue to have the same name. If it was un-named, then you will now reference it with the new
-    middleware object.
-
-    .. code-block:: python
-
-        >>> from web3.middleware import GasPriceStrategyMiddleware, AttributeDictMiddleware
-        >>> w3 = Web3(provider, middlewares=[GasPriceStrategyMiddleware, AttributeDictMiddleware])
-
-        >>> w3.middleware_onion.replace(GasPriceStrategyMiddleware, AttributeDictMiddleware)
-        # this is now referenced by the new middleware object, so to remove it:
-        >>> w3.middleware_onion.remove(AttributeDictMiddleware)
-
-        # or, if it was named
-
-        >>> w3.middleware_onion.replace('gas_price_strategy', AttributeDictMiddleware)
-        # this is still referenced by the original name, so to remove it:
-        >>> w3.middleware_onion.remove('gas_price_strategy')
-
-.. py:method:: Web3.middleware_onion.clear()
-
-    Empty all the middlewares, including the default ones.
-
-    .. code-block:: python
-
-        >>> w3 = Web3(...)
-        >>> w3.middleware_onion.clear()
-        >>> assert len(w3.middleware_onion) == 0
-
-.. py:attribute:: Web3.middleware_onion.middlewares
-
-    Return all the current middlewares for the ``Web3`` instance in the appropriate order for importing into a new
-    ``Web3`` instance.
-
-    .. code-block:: python
-
-        >>> w3_1 = Web3(...)
-        # add uniquely named middleware:
-        >>> w3_1.middleware_onion.add(web3.middleware.GasPriceStrategyMiddleware, 'test_middleware')
-        # export middlewares from first w3 instance
-        >>> middlewares = w3_1.middleware_onion.middlewares
-
-        # import into second instance
-        >>> w3_2 = Web3(..., middlewares=middlewares)
-        >>> assert w3_1.middleware_onion.middlewares == w3_2.middleware_onion.middlewares
-        >>> assert w3_2.middleware_onion.get('test_middleware')
-
 
 Optional Middleware
 -------------------
 
-Web3 ships with non-default middleware, for your custom use. In addition to the other ways of
-:ref:`Modifying_Middleware`, you can specify a list of middleware when initializing Web3, with:
-
-.. code-block:: python
-
-    Web3(middlewares=[my_middleware1, my_middleware2])
-
-.. warning::
-  This will *replace* the default middlewares. To keep the default functionality,
-  either use ``middleware_onion.add()`` from above, or add the default middlewares to
-  your list of new middlewares.
-
-Below is a list of available middlewares which are not enabled by default.
+``Web3`` includes optional middleware for common use cases. Below is a list of available
+middleware which are not enabled by default.
 
 Stalecheck
 ~~~~~~~~~~~~
@@ -339,7 +346,7 @@ middleware is:
 
     # confirm that the connection succeeded
     >>> w3.client_version
-    'Geth/v1.7.3-stable-4bb3c89d/linux-amd64/go1.9'
+    'Geth/v1.13.11-stable-4bb3c89d/linux-amd64/go1.20.2'
 
 This example connects to a local ``geth --dev`` instance on Linux with a
 unique IPC location and loads the middleware:
@@ -495,3 +502,94 @@ A legacy transaction still works in the same way as it did before EIP-1559 was i
    ...     'gasPrice': 123456,  # optional - if not provided, gas_price_strategy (if exists) or eth_gasPrice is used
    ... }
    >>> w3.eth.send_transaction(legacy_transaction)
+
+
+Creating Custom Middleware
+--------------------------
+
+To write your own middleware, create a class and extend from the base ``Web3Middleware``
+class, then override only the parts of the middleware that make sense for your use case.
+
+.. note:: The Middleware API borrows from the Django middleware API introduced
+          in version 1.10.0.
+
+If all you need is to modify the params before a request is made, you can override
+the ``request_processor`` method, make the necessary tweaks to the params, and pass the
+arguments to the next element in the middleware stack. Need to do some processing on the
+response? Override the ``response_processor`` method and return the modified response.
+
+The pattern:
+
+.. code-block:: python
+
+    from web3.middleware import Web3Middleware
+
+    class CustomMiddleware(Web3Middleware):
+
+        def request_processor(self, method, params):
+            # Pre-request processing goes here before passing to the next middleware.
+            return (method, params)
+
+        def response_processor(self, method, response):
+            # Response processing goes here before passing to the next middleware.
+            return response
+
+        # If your provider is asynchronous, override the async methods instead:
+
+        async def async_request_processor(self, method, params):
+            # Pre-request processing goes here before passing to the next middleware.
+            return (method, params)
+
+        async def async_response_processor(self, method, response):
+            # Response processing goes here before passing to the next middleware.
+            return response
+
+
+If you wish to prevent making a call under certain conditions, you can override the
+``wrap_make_request`` method. This allows for defining pre-request processing,
+skipping or making the request under certain conditions, as well as response
+processing before passing it to the next middleware.
+
+
+.. code-block:: python
+
+    from web3.middleware import Web3Middleware
+
+    class CustomMiddleware(Web3Middleware):
+
+        def wrap_make_request(self, make_request):
+            def middleware(method, params):
+                # pre-request processing goes here
+                response = make_request(method, params)  # make the request
+                # response processing goes here
+                return response
+
+            return middleware
+
+        # If your provider is asynchronous, override the async method instead:
+
+        async def async_wrap_make_request(self, make_request):
+            async def middleware(method, params):
+                # pre-request processing goes here
+                response = await make_request(method, params)
+                # response processing goes here
+                return response
+
+            return middleware
+
+
+Custom middleware can be added to the stack via the class itself, using the
+:ref:`middleware_stack_api`. The ``name`` kwarg is optional. For example:
+
+.. code-block:: python
+
+    from web3 import Web3
+    from my_module import (
+        CustomMiddleware,
+    )
+
+    w3 = Web3(HTTPProvider(endpoint_uri="..."))
+
+    # add the middleware to the stack as the class
+    w3.middleware_onion.add(CustomMiddleware, name="custom_middleware")
+

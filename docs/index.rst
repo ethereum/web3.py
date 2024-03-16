@@ -1,17 +1,6 @@
 .. meta::
    :description: Python Web3 SDK for Ethereum and EVM blockchains
 
-.. important::
-
-    For **ENS (Ethereum Name Service)** users, web3.py ``v6.6.0`` introduced ENS name
-    normalization standard
-    `ENSIP-15 <https://docs.ens.domains/ens-improvement-proposals/ensip-15-normalization-standard>`_.
-    This update to ENS name validation and normalization won't affect ~99%
-    of names but may prevent invalid names from being created and from interacting with
-    the ENS contracts via web3.py. We feel strongly that this change, though breaking,
-    is in the best interest of our users as it ensures compatibility with the latest ENS
-    standards.
-
 gm
 ==
 

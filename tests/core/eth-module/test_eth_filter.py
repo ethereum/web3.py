@@ -3,7 +3,7 @@ import pytest
 import pytest_asyncio
 
 from web3 import (
-    Web3,
+    AsyncWeb3,
 )
 from web3._utils.filters import (
     AsyncBlockFilter,
@@ -12,9 +12,6 @@ from web3._utils.filters import (
     BlockFilter,
     LogFilter,
     TransactionFilter,
-)
-from web3.eth import (
-    AsyncEth,
 )
 from web3.providers.eth_tester.main import (
     AsyncEthereumTesterProvider,
@@ -36,7 +33,7 @@ def test_eth_filter_creates_correct_filter_type(w3):
 @pytest_asyncio.fixture()
 async def async_w3():
     provider = AsyncEthereumTesterProvider()
-    w3 = Web3(provider, modules={"eth": [AsyncEth]}, middlewares=[])
+    w3 = AsyncWeb3(provider)
     return w3
 
 

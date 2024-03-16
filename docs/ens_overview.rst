@@ -44,7 +44,7 @@ Create an :class:`~ens.ENS` object (named ``ns`` below) in one of three ways:
     ns = ENS(provider)
 
     # or, with a w3 instance
-    # Note: This inherits the w3 middlewares from the w3 instance and adds a stalecheck middleware to the middleware onion.
+    # Note: This inherits the w3 middleware from the w3 instance and adds a stalecheck middleware to the middleware onion.
     # It also inherits the provider and codec from the w3 instance, as well as the ``strict_bytes_type_checking`` flag value.
     from ens import ENS
     w3 = Web3(...)

@@ -4,7 +4,7 @@ import pytest
 from web3.providers import (
     HTTPProvider,
     IPCProvider,
-    WebsocketProvider,
+    LegacyWebSocketProvider,
 )
 from web3.providers.auto import (
     load_provider_from_environment,
@@ -39,7 +39,11 @@ def delete_environment_variables(monkeypatch):
             IPCProvider,
             {"ipc_path": "/root/path/to/file.ipc"},
         ),
-        ("ws://1.2.3.4:5679", WebsocketProvider, {"endpoint_uri": "ws://1.2.3.4:5679"}),
+        (
+            "ws://1.2.3.4:5679",
+            LegacyWebSocketProvider,
+            {"endpoint_uri": "ws://1.2.3.4:5679"},
+        ),
     ),
 )
 def test_load_provider_from_env(monkeypatch, uri, expected_type, expected_attrs):

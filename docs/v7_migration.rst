@@ -5,26 +5,31 @@ Migrating your code from v6 to v7
 
 web3.py follows `Semantic Versioning <http://semver.org>`_, which means
 that version 7 introduced backwards-incompatible changes. If your
-project depends on *web3.py* ``v7``, then you'll probably need to make some changes.
+project depends on web3.py ``v7``, you'll probably need to make some changes.
 
 Breaking Changes:
 
+Middlewares -> Middleware
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+All references to ``middlewares`` have been replaced with the more grammatically
+correct ``middleware``. Notably, this includes when a provider needs to be
+instantiated with custom middleware.
 
 Class-Based Middleware Model
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The middleware model has been changed to a class-based model. This allows for
-more flexibility in implementation, for asynchronous processing for example. Previously,
-the middleware were functions that tightly wrapped the ``make_request`` function of the
-provider, always making the request except if the middleware itself modified the
-``make_request`` function. Now, the middleware logic can be separated into
-``request_processor`` and ``response_processor`` functions that do pre-request and
-post-response processing, respectively. This gives more flexibility for asynchronous
-operations where the response may come back at a later time than the request was made.
-This also paves the way for support of batch requests, which is a part of the roadmap
-for web3.py.
+The middleware model has been changed to a class-based model. Previously, middleware
+were defined as functions that tightly wrapped the provider's ``make_request`` function,
+where transformations could be conditionally applied before and after the request was made.
 
-The new middleware model is documented in the :ref:`internals__middlewares` section.
+Now, middleware logic can be separated into ``request_processor`` and ``response_processor``
+functions that enable pre-request and post-response logic, respectively. This change offers
+a simpler, clearer interface for defining middleware, gives more flexibility for
+asynchronous operations and also paves the way for supporting batch requests - included in
+the roadmap for web3.py.
+
+The new middleware model is documented in the :ref:`middleware_internals` section.
 
 
 Middleware Renaming and Removals
@@ -37,13 +42,13 @@ The following middleware have been renamed for generalization or clarity:
 
 The following middleware have been removed:
 
-ABI middleware
+ABI Middleware
 ``````````````
 
-``abi_middleware`` is no longer necessary and was removed. All of the functionality
-of the ``abi_middleware`` was already handled by the abi formatters but a bug in the
-ENS name-to-address middleware would override the formatters. Fixing this bug has
-removed the need for the ``abi_middleware``.
+``abi_middleware`` is no longer necessary and has been removed. All of the functionality
+of the ``abi_middleware`` was already handled by web3.py's ABI formatters. For additional
+context: a bug in the ENS name-to-address middleware would override the formatters. Fixing
+this bug has removed the need for the ``abi_middleware``.
 
 Caching Middleware
 ``````````````````
@@ -54,7 +59,7 @@ The following middleware have been removed:
 - ``latest_block_based_cache_middleware``
 - ``time_based_cache_middleware``
 
-All caching middleware has been removed in favor of a decorator / wrapper around the
+All caching middleware has been removed in favor of a decorator/wrapper around the
 ``make_request`` methods of providers with configuration options on the provider class.
 The configuration options are outlined in the documentation in the
 :ref:`request_caching` section.
@@ -71,7 +76,7 @@ The following middleware have been removed:
 - ``result_generator_middleware``
 
 The ``fixture_middleware`` and ``result_generator_middleware`` which were used for
-testing / mocking purposes have been removed. These have been replaced internally by the
+testing/mocking purposes have been removed. These have been replaced internally by the
 ``RequestMocker`` class, utilized for testing via a ``request_mocker`` pytest fixture.
 
 HTTP Retry Request Middleware
@@ -88,6 +93,36 @@ The ``normalize_request_parameters`` middleware was not used anywhere internally
 has been removed.
 
 
+Provider Updates
+~~~~~~~~~~~~~~~~
+
+WebSocketProvider
+`````````````````
+
+``WebsocketProviderV2``, introduced in web3.py ``v6``, has taken priority over the
+legacy ``WebsocketProvider``. The ``LegacyWebSocketProvider`` is also deprecated in
+``v7`` and will likely be slated for removal in a later major version of the library
+to help with the transition to the asynchronous patterns required when using the
+``WebSocketProvider``. In summary:
+
+- ``WebsocketProvider`` -> ``LegacyWebSocketProvider`` (and deprecated)
+- ``WebsocketProviderV2`` -> ``WebSocketProvider``
+
+
+EthereumTesterProvider
+``````````````````````
+
+``EthereumTesterProvider`` now returns ``input`` instead of ``data`` for ``eth_getTransaction*``
+calls, as expected.
+
+AsyncIPCProvider (non-breaking feature)
+```````````````````````````````````````
+
+An asynchronous IPC provider, ``AsyncIPCProvider``, is also newly available in ``v7``.
+This provider makes use of some of the same internals that the new ``WebSocketProvider``
+introduced, allowing it to also support ``eth_subscription``.
+
+
 Python 3.7 Support Dropped
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -95,6 +130,12 @@ Python 3.7 support has been dropped in favor of Python 3.8+. Python 3.7 is no lo
 supported by the Python core team, and we want to focus our efforts on supporting
 the latest versions of Python.
 
+EthPM Module Removed
+~~~~~~~~~~~~~~~~~~~~
+
+The EthPM module has been removed from the library. It was not widely used and has not
+been functional since around October 2022. It was deprecated in ``v6`` and has been
+completely removed in ``v7``.
 
 Miscellaneous Changes
 ~~~~~~~~~~~~~~~~~~~~~
@@ -103,3 +144,14 @@ Miscellaneous Changes
   dropped.
 - ``CallOverride`` type was changed to ``StateOverride`` since more methods than
   ``eth_call`` utilize the state override params.
+- ``User-Agent`` header was changed to a more readable format.
+- ``BaseContractFunctions`` iterator now returns instances of ``ContractFunction`` rather
+  than the function names.
+- Beacon API filename change: ``beacon/main.py`` -> ``beacon/beacon.py``.
+- The ``geth.miner`` namespace and methods, deprecated in ``v6``, is removed in ``v7``.
+- The asynchronous version of ``w3.eth.wait_for_transaction_receipt()`` changes its
+  signature to use ``Optional[float]`` instead of ``float`` since it may be ``None``.
+- ``get_default_ipc_path()`` and ``get_dev_ipc_path()`` now return the path value
+  without checking if the ``geth.ipc`` file exists.
+- ``Web3.is_address()`` returns ``True`` for non-checksummed addresses.
+- ``Contract.encodeABI()`` has been renamed to ``Contract.encode_abi()``.

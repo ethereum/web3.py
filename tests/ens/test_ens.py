@@ -26,7 +26,7 @@ def _args_list_to_set(call_args_list):
     return set(call_arg.args[0] for call_arg in call_args_list)
 
 
-def test_from_web3_inherits_web3_middlewares(w3):
+def test_from_web3_inherits_web3_middleware(w3):
     test_middleware = GasPriceStrategyMiddleware
     w3.middleware_onion.add(test_middleware, "test_middleware")
 
@@ -149,7 +149,7 @@ def local_async_w3():
     return AsyncWeb3(AsyncEthereumTesterProvider())
 
 
-def test_async_from_web3_inherits_web3_middlewares(local_async_w3):
+def test_async_from_web3_inherits_web3_middleware(local_async_w3):
     test_middleware = ValidationMiddleware
     local_async_w3.middleware_onion.add(test_middleware, "test_middleware")
 

@@ -24,7 +24,7 @@ from web3.providers import (
     BaseProvider,
     HTTPProvider,
     IPCProvider,
-    WebsocketProvider,
+    LegacyWebSocketProvider,
 )
 from web3.types import (
     RPCEndpoint,
@@ -52,7 +52,7 @@ def load_provider_from_uri(
     elif uri.scheme in HTTP_SCHEMES:
         return HTTPProvider(uri_string, headers)
     elif uri.scheme in WS_SCHEMES:
-        return WebsocketProvider(uri_string)
+        return LegacyWebSocketProvider(uri_string)
     else:
         raise NotImplementedError(
             "Web3 does not know how to connect to scheme "
@@ -65,7 +65,7 @@ class AutoProvider(BaseProvider):
         load_provider_from_environment,
         IPCProvider,
         HTTPProvider,
-        WebsocketProvider,
+        LegacyWebSocketProvider,
     )
     _active_provider = None
 

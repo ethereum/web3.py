@@ -978,6 +978,39 @@ class AsyncEthModuleTest:
         assert isinstance(block["number"], int)
 
     @pytest.mark.asyncio
+    async def test_eth_getBlockReceipts_hash(
+        self, async_w3: "AsyncWeb3", async_empty_block: BlockData
+    ) -> None:
+        receipts = await async_w3.eth.get_block_receipts(async_empty_block["hash"])
+        assert isinstance(receipts, list)
+
+    @pytest.mark.asyncio
+    async def test_eth_getBlockReceipts_not_found(self, async_w3: "AsyncWeb3") -> None:
+        with pytest.raises(BlockNotFound):
+            await async_w3.eth.get_block_receipts(UNKNOWN_HASH)
+
+    @pytest.mark.asyncio
+    async def test_eth_getBlockReceipts_with_integer(
+        self, async_w3: "AsyncWeb3", async_empty_block: BlockData
+    ) -> None:
+        receipts = await async_w3.eth.get_block_receipts(async_empty_block["number"])
+        assert isinstance(receipts, list)
+
+    @pytest.mark.asyncio
+    async def test_eth_getBlockReceipts_safe(
+        self, async_w3: "AsyncWeb3", async_empty_block: BlockData
+    ) -> None:
+        receipts = await async_w3.eth.get_block_receipts("safe")
+        assert isinstance(receipts, list)
+
+    @pytest.mark.asyncio
+    async def test_eth_getBlockReceipts_finalized(
+        self, async_w3: "AsyncWeb3", async_empty_block: BlockData
+    ) -> None:
+        receipts = await async_w3.eth.get_block_receipts("finalized")
+        assert isinstance(receipts, list)
+
+    @pytest.mark.asyncio
     async def test_eth_get_block_by_number_full_transactions(
         self, async_w3: "AsyncWeb3", async_block_with_txn: BlockData
     ) -> None:
@@ -1303,7 +1336,7 @@ class AsyncEthModuleTest:
         async_revert_contract: "Contract",
         async_unlocked_account: ChecksumAddress,
     ) -> None:
-        data = async_revert_contract.encodeABI(
+        data = async_revert_contract.encode_abi(
             fn_name="UnauthorizedWithMessage", args=["You are not authorized"]
         )
         txn_params = async_revert_contract._prepare_transaction(
@@ -1323,7 +1356,7 @@ class AsyncEthModuleTest:
         async_revert_contract: "Contract",
         async_unlocked_account: ChecksumAddress,
     ) -> None:
-        data = async_revert_contract.encodeABI(fn_name="Unauthorized")
+        data = async_revert_contract.encode_abi(fn_name="Unauthorized")
         txn_params = async_revert_contract._prepare_transaction(
             fn_name="customErrorWithoutMessage",
             transaction={
@@ -3755,7 +3788,7 @@ class EthModuleTest:
         revert_contract: "Contract",
         unlocked_account: ChecksumAddress,
     ) -> None:
-        data = revert_contract.encodeABI(
+        data = revert_contract.encode_abi(
             fn_name="UnauthorizedWithMessage", args=["You are not authorized"]
         )
         txn_params = revert_contract._prepare_transaction(
@@ -3775,7 +3808,7 @@ class EthModuleTest:
         revert_contract: "Contract",
         unlocked_account: ChecksumAddress,
     ) -> None:
-        data = revert_contract.encodeABI(fn_name="Unauthorized")
+        data = revert_contract.encode_abi(fn_name="Unauthorized")
         txn_params = revert_contract._prepare_transaction(
             fn_name="customErrorWithoutMessage",
             transaction={
@@ -4064,7 +4097,7 @@ class EthModuleTest:
         revert_contract: "Contract",
         unlocked_account: ChecksumAddress,
     ) -> None:
-        data = revert_contract.encodeABI(
+        data = revert_contract.encode_abi(
             fn_name="UnauthorizedWithMessage", args=["You are not authorized"]
         )
         txn_params = revert_contract._prepare_transaction(
@@ -4084,7 +4117,7 @@ class EthModuleTest:
         revert_contract: "Contract",
         unlocked_account: ChecksumAddress,
     ) -> None:
-        data = revert_contract.encodeABI(fn_name="Unauthorized")
+        data = revert_contract.encode_abi(fn_name="Unauthorized")
         txn_params = revert_contract._prepare_transaction(
             fn_name="customErrorWithoutMessage",
             transaction={
@@ -4223,6 +4256,34 @@ class EthModuleTest:
         block = w3.eth.get_block(block_with_txn["number"], True)
         transaction = block["transactions"][0]
         assert transaction["hash"] == block_with_txn["transactions"][0]  # type: ignore
+
+    def test_eth_getBlockReceipts_hash(
+        self, w3: "Web3", empty_block: BlockData
+    ) -> None:
+        receipts = w3.eth.get_block_receipts(empty_block["hash"])
+        assert isinstance(receipts, list)
+
+    def test_eth_getBlockReceipts_not_found(self, w3: "Web3") -> None:
+        with pytest.raises(BlockNotFound):
+            w3.eth.get_block_receipts(UNKNOWN_HASH)
+
+    def test_eth_getBlockReceipts_with_integer(
+        self, w3: "Web3", empty_block: BlockData
+    ) -> None:
+        receipts = w3.eth.get_block_receipts(empty_block["number"])
+        assert isinstance(receipts, list)
+
+    def test_eth_getBlockReceipts_safe(
+        self, w3: "Web3", empty_block: BlockData
+    ) -> None:
+        receipts = w3.eth.get_block_receipts("safe")
+        assert isinstance(receipts, list)
+
+    def test_eth_getBlockReceipts_finalized(
+        self, w3: "Web3", empty_block: BlockData
+    ) -> None:
+        receipts = w3.eth.get_block_receipts("finalized")
+        assert isinstance(receipts, list)
 
     def test_eth_getTransactionByHash(self, w3: "Web3", mined_txn_hash: HexStr) -> None:
         transaction = w3.eth.get_transaction(mined_txn_hash)

@@ -26,7 +26,7 @@ stateful_middleware = StatefulMiddleware
 def test_middleware_holds_state_across_requests():
     provider = BaseProvider()
 
-    manager = RequestManager(None, provider, middlewares=[stateful_middleware])
+    manager = RequestManager(None, provider, middleware=[stateful_middleware])
     state_a = manager.request_blocking("test_statefulness", [])
     assert len(state_a) == 1
 

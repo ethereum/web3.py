@@ -13,7 +13,6 @@ from web3.types import (
 
 REQUEST_RETRY_ALLOWLIST = [
     "admin",
-    "miner",
     "net",
     "txpool",
     "testing",

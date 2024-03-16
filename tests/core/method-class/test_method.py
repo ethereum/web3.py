@@ -369,7 +369,7 @@ class FakeModule(Module):
 
 @pytest.fixture
 def dummy_w3():
-    return Web3(EthereumTesterProvider(), modules={"fake": FakeModule}, middlewares=[])
+    return Web3(EthereumTesterProvider(), modules={"fake": FakeModule})
 
 
 def test_munger_class_method_access_raises_friendly_error():

@@ -1,6 +1,7 @@
 import pytest
 
 from web3.exceptions import (
+    BlockNumberOutofRange,
     MismatchedABI,
     NoABIFound,
     NoABIFunctionsFound,
@@ -130,19 +131,56 @@ def test_caller_with_a_nonexistent_function(math_contract):
         contract.caller.thisFunctionDoesNotExist()
 
 
+def test_caller_with_invalid_block_identifier(w3, math_contract):
+    w3.provider.make_request(method="evm_mine", params=[5])
+    math_contract.functions.incrementCounter().transact()
+    math_contract.functions.incrementCounter().transact()
+
+    # Invalid `block_identifier` should not raise when passed to `caller` directly.
+    # The function call itself parses the value.
+    caller = math_contract.caller(block_identifier="abc")
+    with pytest.raises(BlockNumberOutofRange):
+        caller.counter()
+
+    # Calling the function with an invalid `block_identifier` will raise.
+    default_caller = math_contract.caller()
+    with pytest.raises(BlockNumberOutofRange):
+        default_caller.counter(block_identifier="abc")
+
+
 def test_caller_with_block_identifier(w3, math_contract):
-    start_num = w3.eth.get_block("latest").number
+    start = w3.eth.get_block("latest")
+    start_num = start.number
+    block_hash = start.hash
+    block_hex = w3.to_hex(block_hash)
+
     assert math_contract.caller.counter() == 0
 
     w3.provider.make_request(method="evm_mine", params=[5])
     math_contract.functions.incrementCounter().transact()
     math_contract.functions.incrementCounter().transact()
 
-    output1 = math_contract.caller(block_identifier=start_num + 6).counter()
-    output2 = math_contract.caller(block_identifier=start_num + 7).counter()
+    assert_ids = [
+        (block_hash, 0),
+        (block_hex, 0),
+        (start_num, 0),
+        (start_num + 6, 1),
+        (start_num + 7, 2),
+        ("latest", 2),
+        (None, 2),
+    ]
 
-    assert output1 == 1
-    assert output2 == 2
+    for block_identifier, expected_value in assert_ids:
+        assert (
+            math_contract.caller(block_identifier=block_identifier).counter()
+            == expected_value
+        )
+
+        # Function arg `block_identifier` produces same result
+        assert (
+            math_contract.caller().counter(block_identifier=block_identifier)
+            == expected_value
+        )
 
 
 def test_caller_with_block_identifier_and_transaction_dict(
@@ -299,20 +337,63 @@ async def test_async_caller_with_a_nonexistent_function(async_math_contract):
 
 
 @pytest.mark.asyncio
+async def test_async_caller_with_invalid_block_identifier(
+    async_w3, async_math_contract
+):
+    await async_w3.provider.make_request(method="evm_mine", params=[5])
+    await async_math_contract.functions.incrementCounter().transact()
+    await async_math_contract.functions.incrementCounter().transact()
+
+    # Invalid `block_identifier` should not raise when passed to `caller` directly.
+    # The function call itself parses the value.
+    caller = async_math_contract.caller(block_identifier="abc")
+    with pytest.raises(BlockNumberOutofRange):
+        await caller.counter()
+
+    # Calling the function with an invalid `block_identifier` will raise.
+    default_caller = async_math_contract.caller()
+    with pytest.raises(BlockNumberOutofRange):
+        await default_caller.counter(block_identifier="abc")
+
+
+@pytest.mark.asyncio
 async def test_async_caller_with_block_identifier(async_w3, async_math_contract):
     start = await async_w3.eth.get_block("latest")
     start_num = start.number
+    block_hash = start.hash
+    block_hex = async_w3.to_hex(block_hash)
+
     assert await async_math_contract.caller.counter() == 0
 
     await async_w3.provider.make_request(method="evm_mine", params=[5])
     await async_math_contract.functions.incrementCounter().transact()
     await async_math_contract.functions.incrementCounter().transact()
 
-    output1 = await async_math_contract.caller(block_identifier=start_num + 6).counter()
-    output2 = await async_math_contract.caller(block_identifier=start_num + 7).counter()
+    assert_ids = [
+        (block_hash, 0),
+        (block_hex, 0),
+        (start_num, 0),
+        (start_num + 6, 1),
+        (start_num + 7, 2),
+        ("latest", 2),
+        (None, 2),
+    ]
 
-    assert output1 == 1
-    assert output2 == 2
+    for block_identifier, expected_value in assert_ids:
+        assert (
+            await async_math_contract.caller(
+                block_identifier=block_identifier
+            ).counter()
+            == expected_value
+        )
+
+        # Function arg `block_identifier` produces same result
+        assert (
+            await async_math_contract.caller().counter(
+                block_identifier=block_identifier
+            )
+            == expected_value
+        )
 
 
 @pytest.mark.asyncio

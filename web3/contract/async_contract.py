@@ -39,7 +39,6 @@ from web3._utils.compat import (
 )
 from web3._utils.contracts import (
     async_parse_block_identifier,
-    parse_block_identifier_no_extra_call,
 )
 from web3._utils.datatypes import (
     PropertyCheckingFactory,
@@ -584,15 +583,11 @@ class AsyncContractCaller(BaseContractCaller):
                     decode_tuples=decode_tuples,
                 )
 
-                # TODO: The no_extra_call method gets around the fact that we can't call
-                #  the full async method from within a class's __init__ method. We need
-                #  to see if there's a way to account for all desired elif cases.
-                block_id = parse_block_identifier_no_extra_call(w3, block_identifier)
                 caller_method = partial(
                     self.call_function,
                     fn,
                     transaction=transaction,
-                    block_identifier=block_id,
+                    block_identifier=block_identifier,
                     ccip_read_enabled=ccip_read_enabled,
                 )
 

@@ -25,7 +25,7 @@ from web3.exceptions import (
     ProviderConnectionError,
 )
 from web3.middleware import (
-    combine_middlewares,
+    combine_middleware,
 )
 from web3.middleware.base import (
     Middleware,
@@ -61,7 +61,7 @@ CACHEABLE_REQUESTS = cast(
 
 
 class BaseProvider:
-    # a tuple of (middlewares, request_func)
+    # a tuple of (middleware, request_func)
     _request_func_cache: Tuple[Tuple[Middleware, ...], Callable[..., RPCResponse]] = (
         None,
         None,
@@ -86,19 +86,19 @@ class BaseProvider:
     ) -> Callable[..., RPCResponse]:
         """
         @param w3 is the web3 instance
-        @param middleware_onion is an iterable of middlewares,
+        @param middleware_onion is an iterable of middleware,
             ordered by first to execute
         @returns a function that calls all the middleware and
             eventually self.make_request()
         """
-        middlewares: Tuple[Middleware, ...] = middleware_onion.as_tuple_of_middlewares()
+        middleware: Tuple[Middleware, ...] = middleware_onion.as_tuple_of_middleware()
 
         cache_key = self._request_func_cache[0]
-        if cache_key != middlewares:
+        if cache_key != middleware:
             self._request_func_cache = (
-                middlewares,
-                combine_middlewares(
-                    middlewares=middlewares,
+                middleware,
+                combine_middleware(
+                    middleware=middleware,
                     w3=w3,
                     provider_request_fn=self.make_request,
                 ),

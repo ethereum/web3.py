@@ -23,11 +23,12 @@ Providers
 :doc:`providers` are how web3.py connects to a blockchain. The library comes with the
 following built-in providers:
 
-- :class:`~web3.providers.ipc.IPCProvider` for connecting to ipc socket based JSON-RPC servers.
 - :class:`~web3.providers.rpc.HTTPProvider` for connecting to http and https based JSON-RPC servers.
-- :class:`~web3.providers.websocket.WebsocketProvider` for connecting to ws and wss websocket based JSON-RPC servers.
-- :class:`~web3.providers.async_rpc.AsyncHTTPProvider` for connecting to http and https based JSON-RPC servers.
-
+- :class:`~web3.providers.ipc.IPCProvider` for connecting to ipc socket based JSON-RPC servers.
+- :class:`~web3.providers.legacy_websocket.LegacyWebSocketProvider` (deprecated) for connecting to websocket based JSON-RPC servers.
+- :class:`~web3.providers.async_rpc.AsyncHTTPProvider` for connecting to http and https based JSON-RPC servers asynchronously.
+- :class:`~web3.providers.persistent.AsyncIPCProvider` for connecting to ipc socket based JSON-RPC servers asynchronously via a persistent connection.
+- :class:`~web3.providers.persistent.WebSocketProvider` for connecting to websocket based JSON-RPC servers asynchronously via a persistent connection.
 
 Examples
 ^^^^^^^^
@@ -37,22 +38,32 @@ Examples
    >>> from web3 import Web3, AsyncWeb3
 
    # IPCProvider:
-   >>> w3 = Web3(Web3.IPCProvider('./path/to/geth.ipc'))
+   >>> w3 = Web3(Web3.IPCProvider('./path/to/filename.ipc'))
+   >>> w3.is_connected()
+   True
 
    # HTTPProvider:
    >>> w3 = Web3(Web3.HTTPProvider('http://127.0.0.1:8545'))
-
-   # WebsocketProvider:
-   >>> w3 = Web3(Web3.WebsocketProvider('ws://127.0.0.1:8546'))
-
    >>> w3.is_connected()
    True
 
    # AsyncHTTPProvider:
    >>> w3 = AsyncWeb3(AsyncWeb3.AsyncHTTPProvider('http://127.0.0.1:8545'))
-
    >>> await w3.is_connected()
    True
+
+   # -- Persistent Connection Providers -- #
+
+   # WebSocketProvider:
+   >>> w3 = await AsyncWeb3(AsyncWeb3.WebSocketProvider('ws://127.0.0.1:8546'))
+   >>> await w3.is_connected()
+   True
+
+   # AsyncIPCProvider
+   >>> w3 = await AsyncWeb3(AsyncWeb3.AsyncIPCProvider('./path/to/filename.ipc'))
+   >>> await w3.is_connected()
+   True
+
 
 For more context, see the :doc:`providers` documentation.
 
@@ -258,7 +269,7 @@ API
 - :attr:`Contract.events <web3.contract.Contract.events>`
 - :attr:`Contract.fallback <web3.contract.Contract.fallback.call>`
 - :meth:`Contract.constructor() <web3.contract.Contract.constructor>`
-- :meth:`Contract.encodeABI() <web3.contract.Contract.encodeABI>`
+- :meth:`Contract.encode_abi() <web3.contract.Contract.encode_abi>`
 - :attr:`web3.contract.ContractFunction <web3.contract.ContractFunction>`
 - :attr:`web3.contract.ContractEvents <web3.contract.ContractEvents>`
 
@@ -311,19 +322,12 @@ Some basic network properties are available on the ``web3.net`` object:
 - :attr:`web3.net.version`
 
 
-ethPM
-~~~~~
-
-ethPM allows you to package up your contracts for reuse or use contracts from
-another trusted registry. See the full details :ref:`here <ethpm>`.
-
-
 ENS
 ~~~
 
 `Ethereum Name Service (ENS) <https://ens.domains/>`_ provides the infrastructure
 for human-readable addresses. If an address is registered with the ENS registry,
-the domain name can be used in place of the address itself. For example, the registered domain 
+the domain name can be used in place of the address itself. For example, the registered domain
 name ``ethereum.eth`` will resolve to the address
 ``0xde0B295669a9FD93d5F28D9Ec85E40f4cb697BAe``. web3.py has support for ENS, documented
 :ref:`here <ens_overview>`.

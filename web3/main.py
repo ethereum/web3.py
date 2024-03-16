@@ -1,5 +1,4 @@
 import decimal
-import warnings
 from types import (
     TracebackType,
 )
@@ -85,9 +84,6 @@ from web3.eth import (
     AsyncEth,
     Eth,
 )
-from web3.exceptions import (
-    Web3ValidationError,
-)
 from web3.geth import (
     AsyncGeth,
     AsyncGethAdmin,
@@ -95,7 +91,6 @@ from web3.geth import (
     AsyncGethTxPool,
     Geth,
     GethAdmin,
-    GethMiner,
     GethPersonal,
     GethTxPool,
 )
@@ -115,23 +110,25 @@ from web3.providers import (
     BaseProvider,
 )
 from web3.providers.eth_tester import (
+    AsyncEthereumTesterProvider,
     EthereumTesterProvider,
 )
 from web3.providers.ipc import (
     IPCProvider,
 )
-from web3.providers.persistent import (
-    PersistentConnectionProvider,
+from web3.providers.persistent.utils import (
+    persistent_connection_provider_method,
 )
 from web3.providers.rpc import (
     AsyncHTTPProvider,
     HTTPProvider,
 )
-from web3.providers.websocket import (
-    WebsocketProvider,
+from web3.providers import (
+    LegacyWebSocketProvider,
+    WebSocketProvider,
 )
-from web3.providers.websocket.websocket_connection import (
-    WebsocketConnection,
+from web3.providers.persistent import (
+    PersistentConnection,
 )
 from web3.testing import (
     Testing,
@@ -144,7 +141,6 @@ from web3.types import (
 )
 
 if TYPE_CHECKING:
-    from web3.pm import PM  # noqa: F401
     from web3._utils.empty import Empty  # noqa: F401
 
 
@@ -171,7 +167,6 @@ def get_default_modules() -> Dict[str, Union[Type[Module], Sequence[Any]]]:
             Geth,
             {
                 "admin": GethAdmin,
-                "miner": GethMiner,
                 "personal": GethPersonal,
                 "txpool": GethTxPool,
             },
@@ -183,13 +178,6 @@ def get_default_modules() -> Dict[str, Union[Type[Module], Sequence[Any]]]:
 
 class BaseWeb3:
     _strict_bytes_type_checking = True
-
-    # Providers
-    HTTPProvider = HTTPProvider
-    IPCProvider = IPCProvider
-    EthereumTesterProvider = EthereumTesterProvider
-    WebsocketProvider = WebsocketProvider
-    AsyncHTTPProvider = AsyncHTTPProvider
 
     # Managers
     RequestManager = DefaultRequestManager
@@ -348,30 +336,6 @@ class BaseWeb3:
     def is_encodable(self, _type: TypeStr, value: Any) -> bool:
         return self.codec.is_encodable(_type, value)
 
-    @property
-    def pm(self) -> "PM":
-        if hasattr(self, "_pm"):
-            # ignored b/c property is dynamically set
-            # via enable_unstable_package_management_api
-            return self._pm
-        else:
-            raise AttributeError(
-                "The Package Management feature is disabled by default until "
-                "its API stabilizes. To use these features, please enable them by "
-                "running `w3.enable_unstable_package_management_api()` and try again."
-            )
-
-    def enable_unstable_package_management_api(self) -> None:
-        if not hasattr(self, "_pm"):
-            warnings.warn(
-                "The ``ethPM`` module is no longer being maintained and will be "
-                "deprecated with ``web3.py`` version 7",
-                UserWarning,
-            )
-            from web3.pm import PM  # noqa: F811
-
-            self.attach_modules({"_pm": PM})
-
 
 class Web3(BaseWeb3):
     # mypy types
@@ -379,17 +343,23 @@ class Web3(BaseWeb3):
     net: Net
     geth: Geth
 
+    # Providers
+    HTTPProvider = HTTPProvider
+    IPCProvider = IPCProvider
+    EthereumTesterProvider = EthereumTesterProvider
+    LegacyWebSocketProvider = LegacyWebSocketProvider
+
     def __init__(
         self,
         provider: Optional[BaseProvider] = None,
-        middlewares: Optional[Sequence[Any]] = None,
+        middleware: Optional[Sequence[Any]] = None,
         modules: Optional[Dict[str, Union[Type[Module], Sequence[Any]]]] = None,
         external_modules: Optional[
             Dict[str, Union[Type[Module], Sequence[Any]]]
         ] = None,
         ens: Union[ENS, "Empty"] = empty,
     ) -> None:
-        self.manager = self.RequestManager(self, provider, middlewares)
+        self.manager = self.RequestManager(self, provider, middleware)
         self.codec = ABICodec(build_strict_registry())
 
         if modules is None:
@@ -442,25 +412,28 @@ class AsyncWeb3(BaseWeb3):
     net: AsyncNet
     geth: AsyncGeth
 
+    # Providers
+    AsyncHTTPProvider = AsyncHTTPProvider
+    WebSocketProvider = WebSocketProvider
+    AsyncEthereumTesterProvider = AsyncEthereumTesterProvider
+
     def __init__(
         self,
         provider: Optional[AsyncBaseProvider] = None,
-        middlewares: Optional[Sequence[Any]] = None,
+        middleware: Optional[Sequence[Any]] = None,
         modules: Optional[Dict[str, Union[Type[Module], Sequence[Any]]]] = None,
         external_modules: Optional[
             Dict[str, Union[Type[Module], Sequence[Any]]]
         ] = None,
         ens: Union[AsyncENS, "Empty"] = empty,
-        **kwargs: Any,
     ) -> None:
-        self.manager = self.RequestManager(self, provider, middlewares)
+        self.manager = self.RequestManager(self, provider, middleware)
         self.codec = ABICodec(build_strict_registry())
 
-        if modules is None:
-            modules = get_async_default_modules()
+        self._modules = get_async_default_modules() if modules is None else modules
+        self._external_modules = None if external_modules is None else external_modules
 
-        self.attach_modules(modules)
-
+        self.attach_modules(self._modules)
         if external_modules is not None:
             self.attach_modules(external_modules)
 
@@ -495,68 +468,35 @@ class AsyncWeb3(BaseWeb3):
             new_ens.w3 = self  # set self object reference for ``AsyncENS.w3``
         self._ens = new_ens
 
-    @staticmethod
-    def persistent_websocket(
-        provider: PersistentConnectionProvider,
-        middlewares: Optional[Sequence[Any]] = None,
-        modules: Optional[Dict[str, Union[Type[Module], Sequence[Any]]]] = None,
-        external_modules: Optional[
-            Dict[str, Union[Type[Module], Sequence[Any]]]
-        ] = None,
-        ens: Union[AsyncENS, "Empty"] = empty,
-    ) -> "_PersistentConnectionWeb3":
-        """
-        Establish a persistent connection via websockets to a websocket provider using
-        a ``PersistentConnectionProvider`` instance.
-        """
-        return _PersistentConnectionWeb3(
-            provider,
-            middlewares,
-            modules,
-            external_modules,
-            ens,
-        )
+        # -- persistent connection methods -- #
 
+    @property
+    @persistent_connection_provider_method()
+    def socket(self) -> PersistentConnection:
+        return PersistentConnection(self)
 
-class _PersistentConnectionWeb3(AsyncWeb3):
-    provider: PersistentConnectionProvider
-
-    # w3 = AsyncWeb3.persistent_websocket(provider)
-    # await w3.provider.connect()
-    def __init__(
-        self,
-        provider: PersistentConnectionProvider = None,
-        middlewares: Optional[Sequence[Any]] = None,
-        modules: Optional[Dict[str, Union[Type[Module], Sequence[Any]]]] = None,
-        external_modules: Optional[
-            Dict[str, Union[Type[Module], Sequence[Any]]]
-        ] = None,
-        ens: Union[AsyncENS, "Empty"] = empty,
-    ) -> None:
-        if not isinstance(provider, PersistentConnectionProvider):
-            raise Web3ValidationError(
-                "Provider must inherit from PersistentConnectionProvider class."
-            )
-        AsyncWeb3.__init__(self, provider, middlewares, modules, external_modules, ens)
-        self.ws = WebsocketConnection(self)
-
-    # w3 = await AsyncWeb3.persistent_websocket(provider)
-    def __await__(
-        self,
-    ) -> Generator[Any, None, Self]:
+    # w3 = await AsyncWeb3(PersistentConnectionProvider(...))
+    @persistent_connection_provider_method(
+        "Provider must inherit from ``PersistentConnectionProvider`` class "
+        "when instantiating via ``await``."
+    )
+    def __await__(self) -> Generator[Any, None, Self]:
         async def __async_init__() -> Self:
-            if self.provider._ws is None:
-                await self.provider.connect()
-
+            await self.provider.connect()
             return self
 
         return __async_init__().__await__()
 
-    # async with w3.persistent_websocket(provider) as w3
+    # async with AsyncWeb3(PersistentConnectionProvider(...)) as w3:
+    @persistent_connection_provider_method(
+        message="Provider must inherit from ``PersistentConnectionProvider`` class "
+        "when instantiating via ``async with``."
+    )
     async def __aenter__(self) -> Self:
         await self.provider.connect()
         return self
 
+    @persistent_connection_provider_method()
     async def __aexit__(
         self,
         exc_type: Type[BaseException],
@@ -565,7 +505,11 @@ class _PersistentConnectionWeb3(AsyncWeb3):
     ) -> None:
         await self.provider.disconnect()
 
-    # async for w3 in w3.persistent_websocket(provider)
+    # async for w3 in AsyncWeb3(PersistentConnectionProvider(...)):
+    @persistent_connection_provider_method(
+        message="Provider must inherit from ``PersistentConnectionProvider`` class "
+        "when instantiating via ``async for``."
+    )
     async def __aiter__(self) -> AsyncIterator[Self]:
         if not await self.provider.is_connected():
             await self.provider.connect()

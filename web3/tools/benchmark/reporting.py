@@ -14,7 +14,7 @@ def print_header(logger: Logger, num_calls: int) -> None:
             "HTTPProvider",
             "AsyncHTTProvider",
             "IPCProvider",
-            "WebsocketProvider",
+            "WebSocketProvider",
         )
     )
     logger.info("-" * 112)
@@ -30,7 +30,7 @@ def print_entry(
             method_benchmarks["HTTPProvider"],
             method_benchmarks["AsyncHTTPProvider"],
             method_benchmarks["IPCProvider"],
-            method_benchmarks["WebsocketProvider"],
+            method_benchmarks["WebSocketProvider"],
         )
     )
 

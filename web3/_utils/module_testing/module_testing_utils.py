@@ -1,7 +1,6 @@
 from collections import (
     deque,
 )
-import time
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -60,17 +59,6 @@ due to timing of the test running as a block is mined.
 flaky_geth_dev_mining = flaky(max_runs=3)
 
 
-def mine_pending_block(w3: "Web3") -> None:
-    timeout = 10
-
-    w3.geth.miner.start()  # type: ignore
-    start = time.time()
-    while time.time() < start + timeout:
-        if len(w3.eth.get_block("pending")["transactions"]) == 0:
-            break
-    w3.geth.miner.stop()  # type: ignore
-
-
 def assert_contains_log(
     result: Sequence[LogReceipt],
     block_with_txn_with_log: BlockData,
@@ -116,7 +104,7 @@ def mock_offchain_lookup_request_response(
 
         # mock response only to specified url while validating appropriate fields
         if url_from_args == mocked_request_url:
-            assert kwargs["timeout"] == 10
+            assert kwargs["timeout"] == 30
             if http_method.upper() == "POST":
                 assert kwargs["data"] == {"data": calldata, "sender": sender}
             return MockedResponse()
@@ -166,7 +154,7 @@ def async_mock_offchain_lookup_request_response(
 
         # mock response only to specified url while validating appropriate fields
         if url_from_args == mocked_request_url:
-            assert kwargs["timeout"] == ClientTimeout(10)
+            assert kwargs["timeout"] == ClientTimeout(30)
             if http_method.upper() == "post":
                 assert kwargs["data"] == {"data": calldata, "sender": sender}
             return AsyncMockedResponse()
@@ -182,7 +170,7 @@ def async_mock_offchain_lookup_request_response(
     )
 
 
-class WebsocketMessageStreamMock:
+class WebSocketMessageStreamMock:
     closed: bool = False
 
     def __init__(

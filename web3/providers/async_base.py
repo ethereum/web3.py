@@ -5,6 +5,7 @@ from typing import (
     Any,
     Callable,
     Coroutine,
+    Optional,
     Set,
     Tuple,
     cast,
@@ -27,7 +28,7 @@ from web3.exceptions import (
     ProviderConnectionError,
 )
 from web3.middleware import (
-    async_combine_middlewares,
+    async_combine_middleware,
 )
 from web3.middleware.base import (
     Middleware,
@@ -42,9 +43,16 @@ from web3.utils import (
 )
 
 if TYPE_CHECKING:
+    from websockets import (
+        WebSocketClientProtocol,
+    )
+
     from web3 import (  # noqa: F401
         AsyncWeb3,
-        WebsocketProviderV2,
+        WebSocketProvider,
+    )
+    from web3.providers.persistent import (  # noqa: F401
+        RequestProcessor,
     )
 
 
@@ -87,14 +95,14 @@ class AsyncBaseProvider:
     async def request_func(
         self, async_w3: "AsyncWeb3", middleware_onion: MiddlewareOnion
     ) -> Callable[..., Coroutine[Any, Any, RPCResponse]]:
-        middlewares: Tuple[Middleware, ...] = middleware_onion.as_tuple_of_middlewares()
+        middleware: Tuple[Middleware, ...] = middleware_onion.as_tuple_of_middleware()
 
         cache_key = self._request_func_cache[0]
-        if cache_key != middlewares:
+        if cache_key != middleware:
             self._request_func_cache = (
-                middlewares,
-                await async_combine_middlewares(
-                    middlewares=middlewares,
+                middleware,
+                await async_combine_middleware(
+                    middleware=middleware,
                     async_w3=async_w3,
                     provider_request_fn=self.make_request,
                 ),
@@ -107,6 +115,29 @@ class AsyncBaseProvider:
 
     async def is_connected(self, show_traceback: bool = False) -> bool:
         raise NotImplementedError("Providers must implement this method")
+
+    # -- persistent connection providers -- #
+
+    _request_processor: "RequestProcessor"
+    _message_listener_task: "asyncio.Task[None]"
+    _listen_event: "asyncio.Event"
+
+    async def connect(self) -> None:
+        raise NotImplementedError(
+            "Persistent connection providers must implement this method"
+        )
+
+    async def disconnect(self) -> None:
+        raise NotImplementedError(
+            "Persistent connection providers must implement this method"
+        )
+
+    # WebSocket typing
+    _ws: "WebSocketClientProtocol"
+
+    # IPC typing
+    _reader: Optional[asyncio.StreamReader]
+    _writer: Optional[asyncio.StreamWriter]
 
 
 class AsyncJSONBaseProvider(AsyncBaseProvider):
@@ -134,7 +165,7 @@ class AsyncJSONBaseProvider(AsyncBaseProvider):
     async def is_connected(self, show_traceback: bool = False) -> bool:
         try:
             response = await self.make_request(RPCEndpoint("web3_clientVersion"), [])
-        except OSError as e:
+        except (OSError, ProviderConnectionError) as e:
             if show_traceback:
                 raise ProviderConnectionError(
                     f"Problem connecting to provider with error: {type(e)}: {e}"
@@ -148,7 +179,7 @@ class AsyncJSONBaseProvider(AsyncBaseProvider):
                 )
             return False
 
-        if response["jsonrpc"] == "2.0":
+        if response.get("jsonrpc") == "2.0":
             return True
         else:
             if show_traceback:

@@ -22,7 +22,6 @@ Table of Contents
     abi_types
     middleware
     internals
-    ethpm
     ens_overview
     examples
     troubleshooting
@@ -38,9 +37,7 @@ Table of Contents
     web3.main
     web3.eth
     web3.beacon
-    web3.pm
     web3.net
-    web3.miner
     web3.geth
     web3.tracing
     web3.utils

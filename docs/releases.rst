@@ -1,10 +1,120 @@
 Release Notes
 =============
 
-v6 Breaking Changes Summary
-   See the :ref:`v6 Migration Guide<migrating_v5_to_v6>`
+v7 Breaking Changes Summary
+   See the :ref:`v7 Migration Guide<migrating_v6_to_v7>`
 
 .. towncrier release notes start
+
+web3.py v7.0.0-beta.2 (2024-03-11)
+----------------------------------
+
+Breaking Changes
+~~~~~~~~~~~~~~~~
+
+- Move ``middlewares`` -> ``middleware`` (`#3276 <https://github.com/ethereum/web3.py/issues/3276>`__)
+
+
+Bugfixes
+~~~~~~~~
+
+- Fix/update methods and decorators in ``web3/_utils/abi.py`` to address issues raised by ``mypy`` (`#3269 <https://github.com/ethereum/web3.py/issues/3269>`__)
+- Catch all types of ``eth-abi`` ``DecodingError`` in ``EthereumTesterProvider->_make_request()`` (`#3271 <https://github.com/ethereum/web3.py/issues/3271>`__)
+
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Remove annual user survey prompt from docs (`#3218 <https://github.com/ethereum/web3.py/issues/3218>`__)
+- Introduce feedback form banner prompt on docs (`#3253 <https://github.com/ethereum/web3.py/issues/3253>`__)
+- Refresh of the middleware docs (`#3266 <https://github.com/ethereum/web3.py/issues/3266>`__)
+
+
+Miscellaneous Changes
+~~~~~~~~~~~~~~~~~~~~~
+
+- `#3259 <https://github.com/ethereum/web3.py/issues/3259>`__, `#3262 <https://github.com/ethereum/web3.py/issues/3262>`__
+
+
+Removals
+~~~~~~~~
+
+- Remove the ``ethpm`` module and related docs, tests, and dependencies (`#3261 <https://github.com/ethereum/web3.py/issues/3261>`__)
+
+
+web3.py v7.0.0-beta.1 (2024-02-28)
+----------------------------------
+
+Breaking Changes
+~~~~~~~~~~~~~~~~
+
+- Refactor the middleware setup so that request processors and response processors are separated. This will allow for more flexibility in the future and aid in the implementation of features such as batched requests. This PR also closes out a few outstanding issues and will be the start of the breaking changes for `web3.py` ``v7``. Review PR for a full list of changes. (`#3169 <https://github.com/ethereum/web3.py/issues/3169>`__)
+- Use a message listener background task for ``WebsocketProviderV2`` rather than relying on ``ws.recv()`` blocking. Some breaking changes to API, notably ``listen_to_websocket`` -> ``process_subscriptions``. (`#3179 <https://github.com/ethereum/web3.py/issues/3179>`__)
+- Drop dependency on ``lru-dict`` library. (`#3196 <https://github.com/ethereum/web3.py/issues/3196>`__)
+- Drop support for python 3.7 (`#3198 <https://github.com/ethereum/web3.py/issues/3198>`__)
+- Return iterable of ``ABIFunction``s from the ``BaseContractFunctions`` iterator. (`#3200 <https://github.com/ethereum/web3.py/issues/3200>`__)
+- Name changes internal to the library related to ``v7``: ``WebsocketProvider`` -> ``LegacyWebSocketProvider``, ``WebsocketProviderV2`` -> ``WebSocketProvider`` (`#3225 <https://github.com/ethereum/web3.py/issues/3225>`__)
+- ``CallOverride`` type change to ``StateOverride`` to reflect better the type name for the state override. ``eth_call`` is also not the only method with this param, making the name more generic. (`#3227 <https://github.com/ethereum/web3.py/issues/3227>`__)
+- Rename `beacon/main.py` -> `beacon/beacon.py` (`#3233 <https://github.com/ethereum/web3.py/issues/3233>`__)
+- ``EthereumTesterProvider`` now returns ``input`` for `eth_getTransaction*` for better consistency with JSON-RPC spec. (`#3235 <https://github.com/ethereum/web3.py/issues/3235>`__)
+- Change the signature for the async version of ``wait_for_transaction_receipt()`` to use ``Optional[float]`` instead of ``float``. (`#3237 <https://github.com/ethereum/web3.py/issues/3237>`__)
+- ``get_default_ipc_path()`` and ``get_dev_ipc_path()`` now return the path value without checking if the ``geth.ipc`` file exists. (`#3245 <https://github.com/ethereum/web3.py/issues/3245>`__)
+
+
+Bugfixes
+~~~~~~~~
+
+- Fix return type of ``AsyncContract.constructor`` (`#3192 <https://github.com/ethereum/web3.py/issues/3192>`__)
+- Handle new geth errors related to waiting for a transaction receipt while transactions are still being indexed. (`#3216 <https://github.com/ethereum/web3.py/issues/3216>`__)
+
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Documentation was updated to reflect early changes to ``v7`` from ``v6``. A ``v6`` -> ``v7`` migration guide was also started and will be added to as ``v7`` breaking changes are introduced. (`#3211 <https://github.com/ethereum/web3.py/issues/3211>`__)
+- Remove ENS v6 breaking change warning from v7 (`#3254 <https://github.com/ethereum/web3.py/issues/3254>`__)
+
+
+Features
+~~~~~~~~
+
+- Add AsyncIPCProvider (`#2984 <https://github.com/ethereum/web3.py/issues/2984>`__)
+- Implement ``state_override`` parameter for ``eth_estimateGas`` method. (`#3164 <https://github.com/ethereum/web3.py/issues/3164>`__)
+- Upgrade `eth-tester` to ``v0.10.0-b.1`` and turn on ``eth_feeHistory`` support for ``EthereumTesterProvider``. (`#3172 <https://github.com/ethereum/web3.py/issues/3172>`__)
+- Add formatters for new ``Cancun`` network upgrade block header fields: ``blobGasUsed``, ``excessBlobGas``, and ``parentBeaconBlockRoot``. (`#3223 <https://github.com/ethereum/web3.py/issues/3223>`__)
+- Contract event ``get_logs`` results sorted by each ``ContractEvent`` ``logIndex``. (`#3228 <https://github.com/ethereum/web3.py/issues/3228>`__)
+
+
+Internal Changes - for web3.py Contributors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Create test fixture for latest ``geth`` version. Run tests with ``geth`` in ``--dev`` mode. (`#3191 <https://github.com/ethereum/web3.py/issues/3191>`__)
+- Validate geth version used to generate the integration test fixture against the version in the binary that is used to run the tests. (`#3193 <https://github.com/ethereum/web3.py/issues/3193>`__)
+- Internal change to ``WebsocketProviderV2`` before release: raise exceptions in message listener task by default; opting to silence them via a flag. (`#3202 <https://github.com/ethereum/web3.py/issues/3202>`__)
+- Compile contracts with and test against new Solidity version ``v0.8.24``. (`#3204 <https://github.com/ethereum/web3.py/issues/3204>`__)
+- Formatting updates for ``black==24.1.0``. (`#3207 <https://github.com/ethereum/web3.py/issues/3207>`__)
+- Allow HTTP provider request retry configuration to be turned off appropriately. Internal change since ``v7`` has not yet been released. (`#3211 <https://github.com/ethereum/web3.py/issues/3211>`__)
+- Upgraded geth fixture version (`#3231 <https://github.com/ethereum/web3.py/issues/3231>`__)
+
+
+Miscellaneous Changes
+~~~~~~~~~~~~~~~~~~~~~
+
+- `#2964 <https://github.com/ethereum/web3.py/issues/2964>`__, `#3248 <https://github.com/ethereum/web3.py/issues/3248>`__
+
+
+Performance Improvements
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Remove call to ``parse_block_identifier`` when initializing ``ContractCaller`` functions. (`#3257 <https://github.com/ethereum/web3.py/issues/3257>`__)
+
+
+Removals
+~~~~~~~~
+
+- ``normalize_request_parameters`` middleware was in a stale state and not being used or tested. This middleware has been removed. (`#3211 <https://github.com/ethereum/web3.py/issues/3211>`__)
+- Remove deprecated ``geth.miner`` namespace and methods. (`#3236 <https://github.com/ethereum/web3.py/issues/3236>`__)
+
 
 web3.py v6.14.0 (2024-01-10)
 ----------------------------
@@ -124,7 +234,7 @@ Internal Changes - for web3.py Contributors
 
 - Speed up the core test suite by splitting up sync and async tests. This reduces the CI build times to ~8min from ~12min. (`#3111 <https://github.com/ethereum/web3.py/issues/3111>`__)
 - Re-compile test contracts with Solidity ``v0.8.22`` to ensure compatibility with this latest Solidity version. (`#3134 <https://github.com/ethereum/web3.py/issues/3134>`__)
-- Improvements on yielding to the event loop while searching in response caches and calling ``recv()`` on the websocket connection for ``WebsocketProviderV2``. (`#3135 <https://github.com/ethereum/web3.py/issues/3135>`__)
+- Improvements on yielding to the event loop while searching in response caches and calling ``recv()`` on the websocket connection for ``WebSocketProviderV2``. (`#3135 <https://github.com/ethereum/web3.py/issues/3135>`__)
 
 
 web3.py v6.11.1 (2023-10-18)
@@ -3104,7 +3214,7 @@ Released June 21, 2018
     - ``from web3.auto.gethdev import w3``
     - ``from web3.auto.infura import w3``
       (After setting the ``INFURA_API_KEY`` environment variable)
-  - Alpha support for a new package management tool based on ethpm-spec, see :doc:`web3.pm`
+  - Alpha support for a new package management tool based on ethpm-spec
 - Bugfixes
 
   - Can now receive large responses in :class:`~web3.providers.websocket.WebsocketProvider` by

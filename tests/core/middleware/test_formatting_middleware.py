@@ -24,7 +24,7 @@ class DummyProvider(BaseProvider):
 
 @pytest.fixture
 def w3():
-    return Web3(provider=DummyProvider(), middlewares=[])
+    return Web3(provider=DummyProvider(), middleware=[])
 
 
 def test_formatting_middleware(w3, request_mocker):
