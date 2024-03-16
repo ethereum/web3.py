@@ -56,15 +56,12 @@ async def async_handle_offchain_lookup(
                 response = await session.get(
                     formatted_url, timeout=ClientTimeout(DEFAULT_HTTP_TIMEOUT)
                 )
-            elif "{sender}" in url:
+            else:
                 response = await session.post(
                     formatted_url,
                     data={"data": formatted_data, "sender": formatted_sender},
                     timeout=ClientTimeout(DEFAULT_HTTP_TIMEOUT),
                 )
-            else:
-                await session.close()
-                raise Web3ValidationError("url not formatted properly.")
         except Exception:
             continue  # try next url if timeout or issues making the request
 
