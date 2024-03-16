@@ -59,7 +59,13 @@ def handle_offchain_lookup(
                     },
                 )
             else:
-                raise Web3ValidationError("url not formatted properly.")
+                response = get_response_from_post_request(
+                    formatted_url,
+                    json={
+                        "data": formatted_data,
+                        "sender": formatted_sender,
+                    },
+                )
         except Exception:
             continue  # try next url if timeout or issues making the request
 
