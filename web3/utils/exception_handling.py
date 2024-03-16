@@ -51,7 +51,7 @@ def handle_offchain_lookup(
         try:
             if "{data}" in url and "{sender}" in url:
                 response = session.get(formatted_url, timeout=DEFAULT_HTTP_TIMEOUT)
-            elif "{sender}" in url:
+            else:
                 response = session.post(
                     formatted_url,
                     data={
@@ -60,8 +60,6 @@ def handle_offchain_lookup(
                     },
                     timeout=DEFAULT_HTTP_TIMEOUT,
                 )
-            else:
-                raise Web3ValidationError("url not formatted properly.")
         except Exception:
             continue  # try next url if timeout or issues making the request
 
