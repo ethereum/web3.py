@@ -15,6 +15,9 @@ from eth_utils.toolz import (
     merge,
 )
 
+from web3.exceptions import (
+    Web3ValueError,
+)
 from web3.middleware.base import (
     Web3MiddlewareBuilder,
 )
@@ -118,7 +121,7 @@ class FormattingMiddlewareBuilder(Web3MiddlewareBuilder):
         if (
             sync_formatters_builder is None and async_formatters_builder is not None
         ) or (sync_formatters_builder is not None and async_formatters_builder is None):
-            raise ValueError(
+            raise Web3ValueError(
                 "Must specify both sync_formatters_builder and async_formatters_builder"
             )
 
@@ -128,7 +131,7 @@ class FormattingMiddlewareBuilder(Web3MiddlewareBuilder):
                 or result_formatters is not None
                 or error_formatters is not None
             ):
-                raise ValueError(
+                raise Web3ValueError(
                     "Cannot specify formatters_builder and formatters at the same time"
                 )
 

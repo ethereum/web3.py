@@ -3,6 +3,9 @@ import pytest
 from web3._utils.transactions import (
     prepare_replacement_transaction,
 )
+from web3.exceptions import (
+    Web3ValueError,
+)
 
 SIMPLE_CURRENT_TRANSACTION = {
     "blockHash": None,
@@ -45,14 +48,14 @@ def test_prepare_transaction_replacement_without_nonce_sets_correct_nonce(w3):
 
 
 def test_prepare_transaction_replacement_already_mined_raises(w3):
-    with pytest.raises(ValueError):
+    with pytest.raises(Web3ValueError):
         prepare_replacement_transaction(
             w3, {"blockHash": "0xa1a1a1", "hash": "0x0"}, {"value": 2}
         )
 
 
 def test_prepare_transaction_replacement_nonce_mismatch_raises(w3):
-    with pytest.raises(ValueError):
+    with pytest.raises(Web3ValueError):
         prepare_replacement_transaction(
             w3,
             {
@@ -72,12 +75,12 @@ def test_prepare_transaction_replacement_not_higher_gas_price_raises(w3):
         "value": 1,
         "gasPrice": 5,
     }
-    with pytest.raises(ValueError):
+    with pytest.raises(Web3ValueError):
         prepare_replacement_transaction(w3, current_transaction, new_transaction)
 
     # Also raises when equal to the current transaction
     new_transaction["gasPrice"] = 10
-    with pytest.raises(ValueError):
+    with pytest.raises(Web3ValueError):
         prepare_replacement_transaction(w3, current_transaction, new_transaction)
 
 

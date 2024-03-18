@@ -10,6 +10,7 @@ from web3.contract import (
 )
 from web3.exceptions import (
     FallbackNotFound,
+    Web3AttributeError,
 )
 
 
@@ -28,7 +29,7 @@ def test_class_construction_sets_class_vars(
 
 
 def test_error_to_instantiate_base_class():
-    with pytest.raises(AttributeError):
+    with pytest.raises(Web3AttributeError):
         Contract()
 
 

@@ -327,7 +327,7 @@ Each Contract Factory exposes the following methods.
 .. py:classmethod:: Contract.get_function_by_signature(signature)
 
     Searches for a distinct function with matching signature. Returns an instance of
-    :py:class:`ContractFunction` upon finding a match. Raises ``ValueError`` if no
+    :py:class:`ContractFunction` upon finding a match. Raises ``Web3ValueError`` if no
     match is found.
 
     .. code-block:: python
@@ -351,7 +351,7 @@ Each Contract Factory exposes the following methods.
 .. py:classmethod:: Contract.get_function_by_name(name)
 
     Searches for a distinct function with matching name. Returns an instance of
-    :py:class:`ContractFunction` upon finding a match. Raises ``ValueError`` if no
+    :py:class:`ContractFunction` upon finding a match. Raises ``Web3ValueError`` if no
     match is found or if multiple matches are found.
 
     .. code-block:: python
@@ -365,7 +365,7 @@ Each Contract Factory exposes the following methods.
     Searches for a distinct function with matching selector.
     The selector can be a hexadecimal string, bytes or int.
     Returns an instance of :py:class:`ContractFunction` upon finding a match.
-    Raises ``ValueError`` if no match is found.
+    Raises ``Web3ValueError`` if no match is found.
 
     .. code-block:: python
 

@@ -8,6 +8,9 @@ from web3._utils.formatters import (
     map_collection,
     recursive_map,
 )
+from web3.exceptions import (
+    Web3ValueError,
+)
 
 
 def square_int(x):
@@ -40,7 +43,7 @@ def test_recursive_collection_apply():
 def test_recursive_collection_cycle():
     data = [3]
     data.append(data)
-    with pytest.raises(ValueError):
+    with pytest.raises(Web3ValueError):
         recursive_map(square_int, data)
 
 

@@ -1093,7 +1093,7 @@ The script can be run with: ``python ./eventscanner.py <your JSON-RPC API URL>``
         """
 
         if from_block is None:
-            raise TypeError("Missing mandatory keyword argument to get_logs: from_block")
+            raise Web3TypeError("Missing mandatory keyword argument to get_logs: from_block")
 
         # Currently no way to poke this using a public web3.py API.
         # This will return raw underlying ABI JSON object for the event

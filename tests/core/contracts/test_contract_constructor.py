@@ -12,6 +12,9 @@ from web3._utils.contract_sources.contract_data.constructor_contracts import (
     CONSTRUCTOR_WITH_ARGUMENTS_CONTRACT_RUNTIME,
     SIMPLE_CONSTRUCTOR_CONTRACT_RUNTIME,
 )
+from web3.exceptions import (
+    Web3ValueError,
+)
 
 TEST_ADDRESS = "0x16D9983245De15E7A9A73bC586E01FF6E08dE737"
 EXPECTED_DATA_A = 1234
@@ -207,7 +210,7 @@ def test_contract_constructor_transact_with_address_argument(
 
 
 def test_contract_constructor_build_transaction_to_field_error(math_contract_factory):
-    with pytest.raises(ValueError):
+    with pytest.raises(Web3ValueError):
         math_contract_factory.constructor().build_transaction({"to": "123"})
 
 
@@ -510,7 +513,7 @@ async def test_async_contract_constructor_transact_with_address_arguments(
 async def test_async_contract_constructor_build_transaction_to_field_error(
     async_math_contract_factory,
 ):
-    with pytest.raises(ValueError):
+    with pytest.raises(Web3ValueError):
         await async_math_contract_factory.constructor().build_transaction({"to": "123"})
 
 

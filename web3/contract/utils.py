@@ -43,6 +43,7 @@ from web3._utils.transactions import (
 )
 from web3.exceptions import (
     BadFunctionCallOutput,
+    Web3ValueError,
 )
 from web3.types import (
     ABI,
@@ -261,11 +262,11 @@ def get_function_by_identifier(
     fns: Sequence[TContractFn], identifier: str
 ) -> TContractFn:
     if len(fns) > 1:
-        raise ValueError(
+        raise Web3ValueError(
             f"Found multiple functions with matching {identifier}. " f"Found: {fns!r}"
         )
     elif len(fns) == 0:
-        raise ValueError(f"Could not find any function with matching {identifier}")
+        raise Web3ValueError(f"Could not find any function with matching {identifier}")
     return fns[0]
 
 

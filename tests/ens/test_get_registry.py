@@ -9,6 +9,9 @@ from ens import (
 from web3 import (
     Web3,
 )
+from web3.exceptions import (
+    Web3ValueError,
+)
 
 
 def test_resolver_empty(ens):
@@ -39,7 +42,7 @@ def test_reverse_domain(address, expected_reverse, address_conversion_func):
     [
         ("eth", "0x4f5b812789fc606be1b3b16908db13fc7a9adf7ca72641f84d75b47069d3d7f0"),
         ("ETH", "0x4f5b812789fc606be1b3b16908db13fc7a9adf7ca72641f84d75b47069d3d7f0"),
-        ("a.b", ValueError),
+        ("a.b", Web3ValueError),
     ],
 )
 def test_labelhash(ens, label, expected_hash):

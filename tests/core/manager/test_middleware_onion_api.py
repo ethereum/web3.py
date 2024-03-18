@@ -1,5 +1,8 @@
 import pytest
 
+from web3.exceptions import (
+    Web3ValueError,
+)
 from web3.manager import (
     RequestManager,
 )
@@ -32,7 +35,7 @@ def test_provider_property_setter_and_getter(middleware_factory):
     manager.middleware_onion.add(middleware_b)
     manager.middleware_onion.add(middleware_a)
 
-    with pytest.raises(ValueError):
+    with pytest.raises(Web3ValueError):
         manager.middleware_onion.add(middleware_b)
 
     assert tuple(manager.middleware_onion) == (
@@ -67,13 +70,13 @@ def test_add_named_duplicate_middleware(middleware_factory):
 
 def test_add_duplicate_middleware(middleware_factory):
     mw = middleware_factory()
-    with pytest.raises(ValueError):
+    with pytest.raises(Web3ValueError):
         RequestManager(None, BaseProvider(), middleware=[mw, mw])
 
     manager = RequestManager(None, BaseProvider(), middleware=[])
     manager.middleware_onion.add(mw)
 
-    with pytest.raises(ValueError):
+    with pytest.raises(Web3ValueError):
         manager.middleware_onion.add(mw)
     assert tuple(manager.middleware_onion) == (mw,)
 

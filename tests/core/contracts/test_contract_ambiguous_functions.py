@@ -8,6 +8,10 @@ from hexbytes import (
     HexBytes,
 )
 
+from web3.exceptions import (
+    Web3ValueError,
+)
+
 AMBIGUOUS_CONTRACT_ABI = [
     {
         "constant": False,
@@ -136,37 +140,37 @@ def test_find_or_get_functions_by_type(w3, method, args, repr_func, expected):
             "get_function_by_signature",
             ("identity(uint256, bool)",),
             r"Function signature should not contain any spaces.*",
-            ValueError,
+            Web3ValueError,
         ),
         (
             "get_function_by_name",
             ("identity",),
             r"Found multiple functions with matching name*",
-            ValueError,
+            Web3ValueError,
         ),
         (
             "get_function_by_name",
             ("undefined_function",),
             r"Could not find any function with matching name",
-            ValueError,
+            Web3ValueError,
         ),
         (
             "get_function_by_selector",
             (b"\x00" * (4 + 1),),
             f"expected value of size 4 bytes. Got: {(4 + 1)} bytes",
-            ValueError,
+            Web3ValueError,
         ),
         (
             "get_function_by_args",
             (1, True),
             r"Found multiple functions with matching args*",
-            ValueError,
+            Web3ValueError,
         ),
         (
             "get_function_by_args",
             (1,) * 50,
             r"Could not find any function with matching args",
-            ValueError,
+            Web3ValueError,
         ),
     ),
 )
