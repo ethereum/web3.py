@@ -143,6 +143,115 @@ def test_event_data_extraction(
     assert event_data["event"] == event_name
 
 
+def test_event_data_with_ordered_indexed_inputs(w3):
+    event_abi = {
+        "anonymous": False,
+        "inputs": [
+            {
+                "indexed": True,
+                "internalType": "uint64",
+                "name": "nonce",
+                "type": "uint64",
+            },
+            {
+                "indexed": True,
+                "internalType": "address",
+                "name": "burnToken",
+                "type": "address",
+            },
+            {
+                "indexed": False,
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256",
+            },
+            {
+                "indexed": True,
+                "internalType": "address",
+                "name": "depositor",
+                "type": "address",
+            },
+            {
+                "indexed": False,
+                "internalType": "bytes32",
+                "name": "mintRecipient",
+                "type": "bytes32",
+            },
+            {
+                "indexed": False,
+                "internalType": "uint32",
+                "name": "destinationDomain",
+                "type": "uint32",
+            },
+            {
+                "indexed": False,
+                "internalType": "bytes32",
+                "name": "destinationTokenMessenger",
+                "type": "bytes32",
+            },
+            {
+                "indexed": False,
+                "internalType": "bytes32",
+                "name": "destinationCaller",
+                "type": "bytes32",
+            },
+        ],
+        "name": "DepositForBurn",
+        "type": "event",
+    }
+    log_entry = {
+        "name": "DepositForBurn",
+        "topics": (
+            "0x2fa9ca894982930190727e75500a97d8dc500233a5065e0f3126c48fbe0343c0",
+            w3.to_bytes(
+                hexstr="0x0000000000000000000000000000000000000000000000000000000000014f45"  # noqa: E501
+            ),
+            w3.to_bytes(
+                hexstr="0x" + "af88d065e77c8cC2239327C5EDb3A432268e5831".zfill(64)
+            ),
+            w3.to_bytes(
+                hexstr="0x" + "02Ae4716B9D5d48Db1445814b0eDE39f5c28264B".zfill(64)
+            ),
+        ),
+        "data": w3.to_bytes(
+            hexstr="0x00000000000000000000000000000000000000000000000000000002962f766700000000000000000000000065f2145693be3e75b8cfb2e318a3a74d057e6c7b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000bd3fa81b58ba92a82136038b25adec7066af31550000000000000000000000000000000000000000000000000000000000000000"  # noqa: E501
+        ),
+        "logIndex": 1,
+        "transactionIndex": 1,
+        "transactionHash": "1234",
+        "address": "0x19330d10d9cc8751218eaf51e8885d058642e08a",
+        "blockHash": "",
+        "blockNumber": "",
+    }
+    event_data = get_event_data(w3.codec, event_abi, log_entry)
+    expected = {
+        "args": {
+            "nonce": 85829,
+            "burnToken": "0xaf88d065e77c8cC2239327C5EDb3A432268e5831",
+            "depositor": "0x02Ae4716B9D5d48Db1445814b0eDE39f5c28264B",
+            "amount": 11109627495,
+            "mintRecipient": b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00e\xf2\x14V\x93\xbe>u\xb8\xcf\xb2\xe3\x18\xa3\xa7M\x05~l{",  # noqa: E501
+            "destinationDomain": 0,
+            "destinationTokenMessenger": b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xbd?\xa8\x1bX\xba\x92\xa8!6\x03\x8b%\xad\xecpf\xaf1U",  # noqa: E501
+            "destinationCaller": b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00",  # noqa: E501
+        },
+        "event": "DepositForBurn",
+        "logIndex": 1,
+        "transactionIndex": 1,
+        "transactionHash": "1234",
+        "address": "0x19330d10d9cc8751218eaf51e8885d058642e08a",
+        "blockHash": "",
+        "blockNumber": "",
+    }
+
+    assert event_data["args"] == expected["args"]
+    assert event_data["blockHash"] == expected["blockHash"]
+    assert event_data["blockNumber"] == expected["blockNumber"]
+    assert event_data["transactionIndex"] == expected["transactionIndex"]
+    assert is_same_address(event_data["address"], expected["address"])
+    assert event_data["event"] == expected["event"]
+
+
 @pytest.mark.parametrize(
     "call_args,expected_args",
     (
