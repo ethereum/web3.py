@@ -1,0 +1,1 @@
+Add ``user_message`` kwarg for human readable ``Web3Exception`` messages.
