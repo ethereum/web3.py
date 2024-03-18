@@ -30,6 +30,16 @@ class Web3Exception(Exception):
             # deal with other exceptions
     """
 
+    def __init__(
+        self,
+        *args: Any,
+        user_message: Optional[str] = None,
+    ):
+        super().__init__(*args)
+
+        # Assign properties of Web3Exception
+        self.user_message = user_message
+
 
 class BadFunctionCallOutput(Web3Exception):
     """
@@ -274,6 +284,7 @@ class ContractLogicError(Web3Exception):
         message: Optional[str] = None,
         data: Optional[Union[str, Dict[str, str]]] = None,
     ):
+        super().__init__(message, data)
         self.message = message
         self.data = data
 
