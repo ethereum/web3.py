@@ -8,6 +8,10 @@ from typing import (
 )
 import warnings
 
+from web3.exceptions import (
+    Web3ValueError,
+)
+
 TFunc = TypeVar("TFunc", bound=Callable[..., Any])
 
 
@@ -24,7 +28,7 @@ def reject_recursive_repeats(to_wrap: Callable[..., Any]) -> Callable[..., Any]:
         thread_id = threading.get_ident()
         thread_local_args = (thread_id,) + arg_instances
         if thread_local_args in to_wrap.__already_called:  # type: ignore
-            raise ValueError(f"Recursively called {to_wrap} with {args!r}")
+            raise Web3ValueError(f"Recursively called {to_wrap} with {args!r}")
         to_wrap.__already_called[thread_local_args] = True  # type: ignore
         try:
             wrapped_val = to_wrap(*args)

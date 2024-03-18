@@ -76,7 +76,9 @@ from web3._utils.normalizers import (
 )
 from web3.exceptions import (
     BlockNumberOutofRange,
+    Web3TypeError,
     Web3ValidationError,
+    Web3ValueError,
 )
 from web3.types import (
     ABI,
@@ -136,9 +138,9 @@ def find_matching_event_abi(
     if len(event_abi_candidates) == 1:
         return event_abi_candidates[0]
     elif not event_abi_candidates:
-        raise ValueError("No matching events found")
+        raise Web3ValueError("No matching events found")
     else:
-        raise ValueError("Multiple events found")
+        raise Web3ValueError("Multiple events found")
 
 
 def find_matching_fn_abi(
@@ -159,7 +161,7 @@ def find_matching_fn_abi(
         return get_receive_func_abi(abi)
 
     if not is_text(fn_identifier):
-        raise TypeError("Unsupported function identifier")
+        raise Web3TypeError("Unsupported function identifier")
 
     name_filter = functools.partial(filter_by_name, fn_identifier)
     arg_count_filter = functools.partial(filter_by_argument_count, num_arguments)
@@ -217,7 +219,7 @@ def encode_abi(
     argument_types = get_abi_input_types(abi)
 
     if not check_if_arguments_can_be_encoded(abi, w3.codec, arguments, {}):
-        raise TypeError(
+        raise Web3TypeError(
             "One or more arguments could not be encoded to the necessary "
             f"ABI type. Expected types are: {', '.join(argument_types)}"
         )
@@ -274,7 +276,7 @@ def prepare_transaction(
         prepared_transaction = cast(TxParams, dict(**transaction))
 
     if "data" in prepared_transaction:
-        raise ValueError("Transaction parameter may not contain a 'data' key")
+        raise Web3ValueError("Transaction parameter may not contain a 'data' key")
 
     if address:
         prepared_transaction.setdefault("to", address)
@@ -317,7 +319,7 @@ def encode_transaction_data(
             kwargs,
         )
     else:
-        raise TypeError("Unsupported function identifier")
+        raise Web3TypeError("Unsupported function identifier")
 
     return add_0x_prefix(encode_abi(w3, fn_abi, fn_arguments, fn_selector))
 

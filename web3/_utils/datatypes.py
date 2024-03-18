@@ -14,10 +14,14 @@ from eth_utils.toolz import (
     concat,
 )
 
+from web3.exceptions import (
+    Web3AttributeError,
+)
+
 
 def verify_attr(class_name: str, key: str, namespace: Collection[str]) -> None:
     if key not in namespace:
-        raise AttributeError(
+        raise Web3AttributeError(
             f"Property {key} not found on {class_name} class. "
             f"`{class_name}.factory` only accepts keyword arguments which are "
             f"present on the {class_name} class"

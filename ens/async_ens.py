@@ -64,6 +64,9 @@ from ens.utils import (
     normalize_name,
     raw_name_to_hash,
 )
+from web3.exceptions import (
+    Web3ValueError,
+)
 
 if TYPE_CHECKING:
     from web3.contract.async_contract import (  # noqa: F401
@@ -204,7 +207,7 @@ class AsyncENS(BaseENS):
         elif is_binary_address(address):
             address = to_checksum_address(cast(str, address))
         elif not is_checksum_address(address):
-            raise ValueError("You must supply the address in checksum format")
+            raise Web3ValueError("You must supply the address in checksum format")
         if await self.address(name) == address:
             return None
         if address is None:
@@ -282,7 +285,7 @@ class AsyncENS(BaseENS):
             if is_binary_address(address):
                 address = to_checksum_address(address)
             if not is_checksum_address(address):
-                raise ValueError("You must supply the address in checksum format")
+                raise Web3ValueError("You must supply the address in checksum format")
             await self._assert_control(address, name)
             if not resolved:
                 await self.setup_address(name, address, transact=transact)

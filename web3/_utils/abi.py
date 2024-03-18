@@ -80,6 +80,9 @@ from web3._utils.formatters import (
 from web3.exceptions import (
     FallbackNotFound,
     MismatchedABI,
+    Web3AttributeError,
+    Web3TypeError,
+    Web3ValueError,
 )
 from web3.types import (
     ABI,
@@ -227,7 +230,7 @@ class AcceptsHexStrEncoder(encoding.BaseEncoder):
     @classmethod
     def get_subencoder_class(cls) -> Type[encoding.BaseEncoder]:
         if cls.subencoder_cls is None:
-            raise AttributeError(f"No subencoder class is set. {cls.__name__}")
+            raise Web3AttributeError(f"No subencoder class is set. {cls.__name__}")
         return cls.subencoder_cls
 
     def validate_value(self, value: Any) -> None:
@@ -287,20 +290,20 @@ class ExactLengthBytesEncoder(BytesEncoder):
     def validate(self) -> None:
         super().validate()
         if self.value_bit_size is None:
-            raise ValueError("`value_bit_size` may not be none")
+            raise Web3ValueError("`value_bit_size` may not be none")
         if self.data_byte_size is None:
-            raise ValueError("`data_byte_size` may not be none")
+            raise Web3ValueError("`data_byte_size` may not be none")
         if self.is_big_endian is None:
-            raise ValueError("`is_big_endian` may not be none")
+            raise Web3ValueError("`is_big_endian` may not be none")
 
         if self.value_bit_size % 8 != 0:
-            raise ValueError(
+            raise Web3ValueError(
                 f"Invalid value bit size: {self.value_bit_size}. "
                 "Must be a multiple of 8"
             )
 
         if self.value_bit_size > self.data_byte_size * 8:
-            raise ValueError("Value byte size exceeds data size")
+            raise Web3ValueError("Value byte size exceeds data size")
 
     @parse_type_str("bytes")
     def from_type_str(
@@ -394,7 +397,7 @@ def merge_args_and_kwargs(
     """
     # Ensure the function is being applied to the correct number of args
     if len(args) + len(kwargs) != len(function_abi.get("inputs", [])):
-        raise TypeError(
+        raise Web3TypeError(
             f"Incorrect argument count. Expected '{len(function_abi['inputs'])}'"
             f". Got '{len(args) + len(kwargs)}'"
         )
@@ -410,7 +413,7 @@ def merge_args_and_kwargs(
     # Check for duplicate args
     duplicate_args = kwarg_names.intersection(args_as_kwargs.keys())
     if duplicate_args:
-        raise TypeError(
+        raise Web3TypeError(
             f"{function_abi.get('name')}() got multiple values for argument(s) "
             f"'{', '.join(duplicate_args)}'"
         )
@@ -419,11 +422,11 @@ def merge_args_and_kwargs(
     unknown_args = kwarg_names.difference(sorted_arg_names)
     if unknown_args:
         if function_abi.get("name"):
-            raise TypeError(
+            raise Web3TypeError(
                 f"{function_abi.get('name')}() got unexpected keyword argument(s)"
                 f" '{', '.join(unknown_args)}'"
             )
-        raise TypeError(
+        raise Web3TypeError(
             f"Type: '{function_abi.get('type')}' got unexpected keyword argument(s)"
             f" '{', '.join(unknown_args)}'"
         )
@@ -497,7 +500,7 @@ def _align_abi_input(arg_abi: ABIFunctionParams, arg: Any) -> Tuple[Any, ...]:
         aligned_arg = arg
 
     if not is_list_like(aligned_arg):
-        raise TypeError(
+        raise Web3TypeError(
             f'Expected non-string sequence for "{arg_abi.get("type")}" '
             f"component type: got {aligned_arg}"
         )
@@ -542,7 +545,7 @@ def get_constructor_abi(contract_abi: ABI) -> ABIFunction:
     elif len(candidates) == 0:
         return None
     elif len(candidates) > 1:
-        raise ValueError("Found multiple constructors.")
+        raise Web3ValueError("Found multiple constructors.")
     return None
 
 
@@ -630,14 +633,14 @@ END_BRACKETS_OF_ARRAY_TYPE_REGEX = r"\[[^]]*\]$"
 
 def sub_type_of_array_type(abi_type: TypeStr) -> str:
     if not is_array_type(abi_type):
-        raise ValueError(f"Cannot parse subtype of nonarray abi-type: {abi_type}")
+        raise Web3ValueError(f"Cannot parse subtype of nonarray abi-type: {abi_type}")
 
     return re.sub(END_BRACKETS_OF_ARRAY_TYPE_REGEX, "", abi_type, 1)
 
 
 def length_of_array_type(abi_type: TypeStr) -> int:
     if not is_array_type(abi_type):
-        raise ValueError(f"Cannot parse length of nonarray abi-type: {abi_type}")
+        raise Web3ValueError(f"Cannot parse length of nonarray abi-type: {abi_type}")
 
     inner_brackets = (
         re.search(END_BRACKETS_OF_ARRAY_TYPE_REGEX, abi_type).group(0).strip("[]")

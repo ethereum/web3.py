@@ -42,6 +42,9 @@ from web3._utils.formatters import (
 from web3._utils.rpc_abi import (
     RPC,
 )
+from web3.exceptions import (
+    Web3TypeError,
+)
 from web3.middleware.base import (
     Web3Middleware,
 )
@@ -124,7 +127,7 @@ def block_ranges(
     json-rpc arguments, which are both inclusive.
     """
     if last_block is not None and start_block > last_block:
-        raise TypeError(
+        raise Web3TypeError(
             "Incompatible start and stop arguments.",
             "Start must be less than or equal to stop.",
         )

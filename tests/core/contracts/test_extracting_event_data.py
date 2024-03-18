@@ -13,6 +13,7 @@ from web3._utils.events import (
 )
 from web3.exceptions import (
     LogTopicError,
+    Web3AttributeError,
     Web3ValidationError,
 )
 from web3.logs import (
@@ -1167,7 +1168,7 @@ def test_receipt_processing_with_strict_flag(indexed_event_contract, dup_txn_rec
 def test_receipt_processing_with_invalid_flag(indexed_event_contract, dup_txn_receipt):
     event_instance = indexed_event_contract.events.LogSingleWithIndex()
 
-    with pytest.raises(AttributeError, match="Error flag must be one of: "):
+    with pytest.raises(Web3AttributeError, match="Error flag must be one of: "):
         event_instance.process_receipt(dup_txn_receipt, errors="not-a-flag")
 
 

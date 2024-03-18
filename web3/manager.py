@@ -35,6 +35,8 @@ from web3.exceptions import (
     BadResponseFormat,
     MethodUnavailable,
     ProviderConnectionError,
+    Web3TypeError,
+    Web3ValueError,
 )
 from web3.middleware import (
     AttributeDictMiddleware,
@@ -238,7 +240,7 @@ class RequestManager:
             error = response.get("error")
             # Raise the error when the value is a string
             if error is None or isinstance(error, str):
-                raise ValueError(error)
+                raise Web3ValueError(error)
 
             # Errors must include an integer code
             code = error.get("code")
@@ -259,7 +261,7 @@ class RequestManager:
 
             apply_error_formatters(error_formatters, response)
 
-            raise ValueError(error)
+            raise Web3ValueError(error)
 
         # Format and validate results
         elif "result" in response:
@@ -337,7 +339,7 @@ class RequestManager:
 
     async def _message_stream(self) -> AsyncGenerator[RPCResponse, None]:
         if not isinstance(self._provider, PersistentConnectionProvider):
-            raise TypeError(
+            raise Web3TypeError(
                 "Only providers that maintain an open, persistent connection "
                 "can listen to streams."
             )

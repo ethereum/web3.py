@@ -51,6 +51,9 @@ from web3.contract import (
     AsyncContract,
     Contract,
 )
+from web3.exceptions import (
+    Web3TypeError,
+)
 from web3.providers.eth_tester import (
     AsyncEthereumTesterProvider,
     EthereumTesterProvider,
@@ -61,7 +64,7 @@ def bytes32(val):
     if isinstance(val, int):
         result = Web3.to_bytes(val)
     else:
-        raise TypeError(f"{val!r} could not be converted to bytes")
+        raise Web3TypeError(f"{val!r} could not be converted to bytes")
     if len(result) < 32:
         return result.rjust(32, b"\0")
     else:

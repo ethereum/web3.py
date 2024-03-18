@@ -24,6 +24,9 @@ from web3._utils.utility_methods import (
 from web3.constants import (
     DYNAMIC_FEE_TXN_PARAMS,
 )
+from web3.exceptions import (
+    Web3ValueError,
+)
 from web3.types import (
     BlockIdentifier,
     TxData,
@@ -87,7 +90,7 @@ async def get_buffered_gas_estimate(
     gas_limit = await get_block_gas_limit(async_w3.eth)
 
     if gas_estimate > gas_limit:
-        raise ValueError(
+        raise Web3ValueError(
             "Contract does not appear to be deployable within the "
             f"current network gas limits.  Estimated: {gas_estimate}. "
             f"Current gas limit: {gas_limit}"
@@ -134,7 +137,7 @@ async def async_fill_transaction_defaults(
 
             if callable(default_getter):
                 if async_w3 is None:
-                    raise ValueError(
+                    raise Web3ValueError(
                         f"You must specify a '{key}' value in the transaction"
                     )
                 if key == "gasPrice":
@@ -155,7 +158,7 @@ async def async_get_required_transaction(
 ) -> TxData:
     current_transaction = await async_w3.eth.get_transaction(transaction_hash)
     if not current_transaction:
-        raise ValueError(
+        raise Web3ValueError(
             f"Supplied transaction with hash {transaction_hash!r} does not exist"
         )
     return current_transaction

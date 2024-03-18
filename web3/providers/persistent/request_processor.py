@@ -15,6 +15,9 @@ from web3._utils.caching import (
     RequestInformation,
     generate_cache_key,
 )
+from web3.exceptions import (
+    Web3ValueError,
+)
 from web3.types import (
     RPCEndpoint,
     RPCResponse,
@@ -136,9 +139,9 @@ class RequestProcessor:
     ) -> RequestInformation:
         if "method" in response and response["method"] == "eth_subscription":
             if "params" not in response:
-                raise ValueError("Subscription response must have params field")
+                raise Web3ValueError("Subscription response must have params field")
             if "subscription" not in response["params"]:
-                raise ValueError(
+                raise Web3ValueError(
                     "Subscription response params must have subscription field"
                 )
 
@@ -266,7 +269,7 @@ class RequestProcessor:
             )
         else:
             if not cache_key:
-                raise ValueError(
+                raise Web3ValueError(
                     "Must provide cache key when popping a non-subscription response."
                 )
 

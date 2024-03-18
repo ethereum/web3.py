@@ -41,6 +41,42 @@ class Web3Exception(Exception):
         self.user_message = user_message
 
 
+class Web3AssertionError(Web3Exception, AssertionError):
+    """
+    A web3.py exception wrapper for `AssertionError`, for better control over
+    exception handling.
+    """
+
+    pass
+
+
+class Web3ValueError(Web3Exception, ValueError):
+    """
+    A web3.py exception wrapper for `ValueError`, for better control over
+    exception handling.
+    """
+
+    pass
+
+
+class Web3AttributeError(Web3Exception, AttributeError):
+    """
+    A web3.py exception wrapper for `AttributeError`, for better control over
+    exception handling.
+    """
+
+    pass
+
+
+class Web3TypeError(Web3Exception, TypeError):
+    """
+    A web3.py exception wrapper for `TypeError`, for better control over
+    exception handling.
+    """
+
+    pass
+
+
 class BadFunctionCallOutput(Web3Exception):
     """
     We failed to decode ABI output.

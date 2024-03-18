@@ -62,6 +62,7 @@ from web3.exceptions import (
     TooManyRequests,
     TransactionIndexingInProgress,
     TransactionNotFound,
+    Web3ValueError,
 )
 from web3.method import (
     Method,
@@ -270,7 +271,7 @@ class Eth(BaseEth):
         max_redirects = self.w3.provider.ccip_read_max_redirects
 
         if not max_redirects or max_redirects < 4:
-            raise ValueError(
+            raise Web3ValueError(
                 "ccip_read_max_redirects property on provider must be at least 4."
             )
 

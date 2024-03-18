@@ -30,6 +30,10 @@ from web3._utils.empty import (
 from web3._utils.encoding import (
     to_hex,
 )
+from web3.exceptions import (
+    Web3TypeError,
+    Web3ValueError,
+)
 from web3.module import (
     Module,
 )
@@ -194,7 +198,7 @@ class BaseEth(Module):
         filter_id: Optional[HexStr] = None,
     ) -> Union[List[FilterParams], List[HexStr], List[str]]:
         if filter_id and filter_params:
-            raise TypeError(
+            raise Web3TypeError(
                 "Ambiguous invocation: provide either a `filter_params` or a "
                 "`filter_id` argument. Both were supplied."
             )
@@ -204,14 +208,14 @@ class BaseEth(Module):
             if filter_params in {"latest", "pending"}:
                 return [filter_params]
             else:
-                raise ValueError(
+                raise Web3ValueError(
                     "The filter API only accepts the values of `pending` or "
                     "`latest` for string based filters"
                 )
         elif filter_id and not filter_params:
             return [filter_id]
         else:
-            raise TypeError(
+            raise Web3TypeError(
                 "Must provide either filter_params as a string or "
                 "a valid filter object, or a filter_id as a string "
                 "or hex."

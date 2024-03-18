@@ -84,6 +84,10 @@ from web3.eth import (
     AsyncEth,
     Eth,
 )
+from web3.exceptions import (
+    Web3TypeError,
+    Web3ValueError,
+)
 from web3.geth import (
     AsyncGeth,
     AsyncGethAdmin,
@@ -283,7 +287,7 @@ class BaseWeb3:
             input_bytes = to_bytes(primitive, hexstr=hexstr, text=text)
             return eth_utils_keccak(input_bytes)
 
-        raise TypeError(
+        raise Web3TypeError(
             f"You called keccak with first arg {primitive!r} and keywords "
             f"{{'text': {text!r}, 'hexstr': {hexstr!r}}}. You must call it with "
             "one of these approaches: keccak(text='txt'), keccak(hexstr='0x747874'), "
@@ -304,7 +308,7 @@ class BaseWeb3:
         and list of corresponding values  -- `[20, [-1, 5, 0], True]`
         """
         if len(abi_types) != len(values):
-            raise ValueError(
+            raise Web3ValueError(
                 "Length mismatch between provided abi types and values.  Got "
                 f"{len(abi_types)} types and {len(values)} values."
             )

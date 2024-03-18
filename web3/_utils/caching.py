@@ -23,6 +23,10 @@ from eth_utils import (
     to_bytes,
 )
 
+from web3.exceptions import (
+    Web3TypeError,
+)
+
 if TYPE_CHECKING:
     from web3.providers import (  # noqa: F401
         AsyncBaseProvider,
@@ -55,7 +59,7 @@ def generate_cache_key(value: Any) -> str:
     elif is_list_like(value) or isinstance(value, collections.abc.Generator):
         return generate_cache_key("".join((generate_cache_key(item) for item in value)))
     else:
-        raise TypeError(
+        raise Web3TypeError(
             f"Cannot generate cache key for value {value} of type {type(value)}"
         )
 
