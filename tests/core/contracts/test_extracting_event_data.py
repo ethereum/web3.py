@@ -143,7 +143,93 @@ def test_event_data_extraction(
     assert event_data["event"] == event_name
 
 
-def test_event_data_with_ordered_indexed_inputs(w3):
+@pytest.mark.parametrize(
+    "log_entry,expected",
+    (
+        # Example from contract event:
+        # https://arbiscan.io/tx/0x51d5c2d87cdf8b7dc560c807521869f47ca8d7a1ad879c0237747ec45f5d1bfb#eventlog
+        # Ensures the inputs are ordered correctly when indexed arguments are ordered
+        # arbitrarily
+        (
+            {
+                "name": "DepositForBurn",
+                "topics": (
+                    "0x2fa9ca894982930190727e75500a97d8dc500233a5065e0f3126c48fbe0343c0",  # noqa: E501
+                    "0x0000000000000000000000000000000000000000000000000000000000014f45",  # noqa: E501
+                    "0x" + "af88d065e77c8cC2239327C5EDb3A432268e5831".zfill(64),
+                    "0x" + "02Ae4716B9D5d48Db1445814b0eDE39f5c28264B".zfill(64),
+                ),
+                "data": "0x00000000000000000000000000000000000000000000000000000002962f766700000000000000000000000065f2145693be3e75b8cfb2e318a3a74d057e6c7b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000bd3fa81b58ba92a82136038b25adec7066af31550000000000000000000000000000000000000000000000000000000000000000",  # noqa: E501
+                "logIndex": 41,
+                "transactionIndex": "0x1",
+                "transactionHash": "0x51d5c2d87cdf8b7dc560c807521869f47ca8d7a1ad879c0237747ec45f5d1bfb",  # noqa: E501
+                "address": "0x19330d10d9cc8751218eaf51e8885d058642e08a",
+                "blockHash": "0x3cc51a448ac07ab76a6ce4c04bdfe383062dd1e9a0a415a259fbd9997f08804d",  # noqa: E501
+                "blockNumber": "184506606",
+            },
+            {
+                "args": {
+                    "nonce": 85829,
+                    "burnToken": "0xaf88d065e77c8cC2239327C5EDb3A432268e5831",
+                    "depositor": "0x02Ae4716B9D5d48Db1445814b0eDE39f5c28264B",
+                    "amount": 11109627495,
+                    "mintRecipient": b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00e\xf2\x14V\x93\xbe>u\xb8\xcf\xb2\xe3\x18\xa3\xa7M\x05~l{",  # noqa: E501
+                    "destinationDomain": 0,
+                    "destinationTokenMessenger": b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xbd?\xa8\x1bX\xba\x92\xa8!6\x03\x8b%\xad\xecpf\xaf1U",  # noqa: E501
+                    "destinationCaller": b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00",  # noqa: E501
+                },
+                "event": "DepositForBurn",
+                "logIndex": 41,
+                "transactionIndex": "0x1",
+                "transactionHash": "0x51d5c2d87cdf8b7dc560c807521869f47ca8d7a1ad879c0237747ec45f5d1bfb",  # noqa: E501
+                "address": "0x19330d10d9cc8751218eaf51e8885d058642e08a",
+                "blockHash": "0x3cc51a448ac07ab76a6ce4c04bdfe383062dd1e9a0a415a259fbd9997f08804d",  # noqa: E501
+                "blockNumber": "184506606",
+            },
+        ),
+        # Example from contract event:
+        # https://arbiscan.io/tx/0xb3e60df2a9af1e1c0e8d8a1a615772c5b2a416b93055cf5b1d5bc1dcaaa66c4d#eventlog
+        # Ensures the data and topics are correctly typed before processing
+        (
+            {
+                "address": "0x19330d10d9cc8751218eaf51e8885d058642e08a",
+                "topics": [
+                    "0x2fa9ca894982930190727e75500a97d8dc500233a5065e0f3126c48fbe0343c0",  # noqa: E501
+                    "0x0000000000000000000000000000000000000000000000000000000000016b52",  # noqa: E501
+                    "0x000000000000000000000000af88d065e77c8cc2239327c5edb3a432268e5831",  # noqa: E501
+                    "0x00000000000000000000000002ae4716b9d5d48db1445814b0ede39f5c28264b",  # noqa: E501
+                ],
+                "data": "0x000000000000000000000000000000000000000000000000000000021424d4a600000000000000000000000065f2145693be3e75b8cfb2e318a3a74d057e6c7b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000bd3fa81b58ba92a82136038b25adec7066af31550000000000000000000000000000000000000000000000000000000000000000",  # noqa: E501
+                "blockNumber": "0xb547cb0",
+                "transactionHash": "0xbe3178507c2054b3177e8e686def9127e1c34c61e9ac9575caa59e1730cde109",  # noqa: E501
+                "transactionIndex": "0x1",
+                "blockHash": "0x7c15f4af3cbc34c52a381e6f22585c89ed2e6880fa609b1943ec05648049ba6b",  # noqa: E501
+                "logIndex": "0xa",
+                "removed": False,
+            },
+            {
+                "args": {
+                    "nonce": 93010,
+                    "burnToken": "0xaf88d065e77c8cC2239327C5EDb3A432268e5831",
+                    "depositor": "0x02Ae4716B9D5d48Db1445814b0eDE39f5c28264B",
+                    "amount": 8927892646,
+                    "mintRecipient": b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00e\xf2\x14V\x93\xbe>u\xb8\xcf\xb2\xe3\x18\xa3\xa7M\x05~l{",  # noqa: E501
+                    "destinationDomain": 0,
+                    "destinationTokenMessenger": b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xbd?\xa8\x1bX\xba\x92\xa8!6\x03\x8b%\xad\xecpf\xaf1U",  # noqa: E501
+                    "destinationCaller": b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00",  # noqa: E501
+                },
+                "event": "DepositForBurn",
+                "logIndex": 10,
+                "transactionIndex": "0x1",
+                "transactionHash": "0xbe3178507c2054b3177e8e686def9127e1c34c61e9ac9575caa59e1730cde109",  # noqa: E501
+                "address": "0x19330d10d9cc8751218eaf51e8885d058642e08a",
+                "blockHash": "0x7c15f4af3cbc34c52a381e6f22585c89ed2e6880fa609b1943ec05648049ba6b",  # noqa: E501
+                "blockNumber": "0xb547cb0",
+            },
+        ),
+    ),
+)
+def test_event_data_with_hexstr_inputs(w3, log_entry, expected):
     event_abi = {
         "anonymous": False,
         "inputs": [
@@ -199,50 +285,7 @@ def test_event_data_with_ordered_indexed_inputs(w3):
         "name": "DepositForBurn",
         "type": "event",
     }
-    log_entry = {
-        "name": "DepositForBurn",
-        "topics": (
-            "0x2fa9ca894982930190727e75500a97d8dc500233a5065e0f3126c48fbe0343c0",
-            w3.to_bytes(
-                hexstr="0x0000000000000000000000000000000000000000000000000000000000014f45"  # noqa: E501
-            ),
-            w3.to_bytes(
-                hexstr="0x" + "af88d065e77c8cC2239327C5EDb3A432268e5831".zfill(64)
-            ),
-            w3.to_bytes(
-                hexstr="0x" + "02Ae4716B9D5d48Db1445814b0eDE39f5c28264B".zfill(64)
-            ),
-        ),
-        "data": w3.to_bytes(
-            hexstr="0x00000000000000000000000000000000000000000000000000000002962f766700000000000000000000000065f2145693be3e75b8cfb2e318a3a74d057e6c7b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000bd3fa81b58ba92a82136038b25adec7066af31550000000000000000000000000000000000000000000000000000000000000000"  # noqa: E501
-        ),
-        "logIndex": 1,
-        "transactionIndex": 1,
-        "transactionHash": "1234",
-        "address": "0x19330d10d9cc8751218eaf51e8885d058642e08a",
-        "blockHash": "",
-        "blockNumber": "",
-    }
     event_data = get_event_data(w3.codec, event_abi, log_entry)
-    expected = {
-        "args": {
-            "nonce": 85829,
-            "burnToken": "0xaf88d065e77c8cC2239327C5EDb3A432268e5831",
-            "depositor": "0x02Ae4716B9D5d48Db1445814b0eDE39f5c28264B",
-            "amount": 11109627495,
-            "mintRecipient": b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00e\xf2\x14V\x93\xbe>u\xb8\xcf\xb2\xe3\x18\xa3\xa7M\x05~l{",  # noqa: E501
-            "destinationDomain": 0,
-            "destinationTokenMessenger": b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xbd?\xa8\x1bX\xba\x92\xa8!6\x03\x8b%\xad\xecpf\xaf1U",  # noqa: E501
-            "destinationCaller": b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00",  # noqa: E501
-        },
-        "event": "DepositForBurn",
-        "logIndex": 1,
-        "transactionIndex": 1,
-        "transactionHash": "1234",
-        "address": "0x19330d10d9cc8751218eaf51e8885d058642e08a",
-        "blockHash": "",
-        "blockNumber": "",
-    }
 
     assert event_data["args"] == expected["args"]
     assert event_data["blockHash"] == expected["blockHash"]
