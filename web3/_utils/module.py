@@ -13,6 +13,7 @@ from typing import (
 )
 
 from web3.exceptions import (
+    Web3AttributeError,
     Web3ValidationError,
 )
 from web3.module import (
@@ -50,7 +51,7 @@ def attach_modules(
         module_class = module_info[0] if module_info_is_list_like else module_info
 
         if hasattr(parent_module, module_name):
-            raise AttributeError(
+            raise Web3AttributeError(
                 f"Cannot set {parent_module} module named '{module_name}'. "
                 " The web3 object already has an attribute with that name"
             )

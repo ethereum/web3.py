@@ -5,6 +5,7 @@ from typing import (
 
 from web3.exceptions import (
     InsufficientData,
+    Web3ValueError,
 )
 
 
@@ -17,9 +18,9 @@ def percentile(
             f"Expected a sequence of at least 1 integers, got {values!r}"
         )
     if percentile is None:
-        raise ValueError(f"Expected a percentile choice, got {percentile}")
+        raise Web3ValueError(f"Expected a percentile choice, got {percentile}")
     if percentile < 0 or percentile > 100:
-        raise ValueError("percentile must be in the range [0, 100]")
+        raise Web3ValueError("percentile must be in the range [0, 100]")
 
     sorted_values = sorted(values)
 

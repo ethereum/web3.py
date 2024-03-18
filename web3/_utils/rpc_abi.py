@@ -24,6 +24,9 @@ from eth_utils.toolz import (
 from web3._utils.abi import (
     map_abi_data,
 )
+from web3.exceptions import (
+    Web3TypeError,
+)
 from web3.types import (
     RPCEndpoint,
 )
@@ -247,6 +250,6 @@ def abi_request_formatters(
             single_dict_formatter = apply_abi_formatters_to_dict(normalizers, abi_types)
             yield method, apply_formatter_at_index(single_dict_formatter, 0)
         else:
-            raise TypeError(
+            raise Web3TypeError(
                 f"ABI definitions must be a list or dictionary, got {abi_types!r}"
             )

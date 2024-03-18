@@ -28,6 +28,11 @@ from eth_utils import (
 from web3._utils.formatters import (
     recursive_map,
 )
+from web3.exceptions import (
+    Web3AssertionError,
+    Web3TypeError,
+    Web3ValueError,
+)
 
 # Hashable must be immutable:
 # "the implementation of hashable collections requires that a
@@ -107,12 +112,14 @@ class AttributeDict(ReadableAttributeDict[TKey, TValue], Hashable):
         if attr == "__dict__":
             super().__setattr__(attr, val)
         else:
-            raise TypeError(
+            raise Web3TypeError(
                 "This data is immutable -- create a copy instead of modifying"
             )
 
     def __delattr__(self, key: str) -> None:
-        raise TypeError("This data is immutable -- create a copy instead of modifying")
+        raise Web3TypeError(
+            "This data is immutable -- create a copy instead of modifying"
+        )
 
     def __hash__(self) -> int:
         return hash(tuple(sorted(tupleize_lists_nested(self).items())))
@@ -143,7 +150,7 @@ def tupleize_lists_nested(d: Mapping[TKey, TValue]) -> AttributeDict[TKey, TValu
         elif isinstance(v, Mapping):
             ret[k] = tupleize_lists_nested(v)
         elif not isinstance(v, Hashable):
-            raise TypeError(f"Found unhashable type '{type(v).__name__}': {v}")
+            raise Web3TypeError(f"Found unhashable type '{type(v).__name__}': {v}")
         else:
             ret[k] = v
     return AttributeDict(ret)
@@ -176,9 +183,9 @@ class NamedElementOnion(Mapping[TKey, TValue]):
 
         if name in self._queue:
             if name is element:
-                raise ValueError("You can't add the same un-named instance twice")
+                raise Web3ValueError("You can't add the same un-named instance twice")
             else:
-                raise ValueError(
+                raise Web3ValueError(
                     "You can't add the same name again, use replace instead"
                 )
 
@@ -195,7 +202,7 @@ class NamedElementOnion(Mapping[TKey, TValue]):
         to calling :meth:`add` .
         """
         if not is_integer(layer):
-            raise TypeError("The layer for insertion must be an int.")
+            raise Web3TypeError("The layer for insertion must be an int.")
         elif layer != 0 and layer != len(self._queue):
             raise NotImplementedError(
                 f"You can only insert to the beginning or end of a {type(self)}, "
@@ -215,7 +222,7 @@ class NamedElementOnion(Mapping[TKey, TValue]):
         elif layer == len(self._queue):
             return
         else:
-            raise AssertionError(
+            raise Web3AssertionError(
                 "Impossible to reach: earlier validation raises an error"
             )
 
@@ -226,7 +233,7 @@ class NamedElementOnion(Mapping[TKey, TValue]):
         old_name = self._repr_if_not_hashable(old)
 
         if old_name not in self._queue:
-            raise ValueError(
+            raise Web3ValueError(
                 "You can't replace unless one already exists, use add instead"
             )
 
@@ -248,7 +255,7 @@ class NamedElementOnion(Mapping[TKey, TValue]):
     def remove(self, old: TKey) -> None:
         old_name = self._repr_if_not_hashable(old)
         if old_name not in self._queue:
-            raise ValueError("You can only remove something that has been added")
+            raise Web3ValueError("You can only remove something that has been added")
         del self._queue[old_name]
 
     @property

@@ -26,6 +26,10 @@ from web3.types import (
     RPCResponse,
 )
 
+from ..exceptions import (
+    Web3TypeError,
+    Web3ValueError,
+)
 from .base import (
     JSONBaseProvider,
 )
@@ -96,7 +100,7 @@ def get_default_ipc_path() -> str:
         return r"\\.\pipe\geth.ipc"
 
     else:
-        raise ValueError(
+        raise Web3ValueError(
             f"Unsupported platform '{sys.platform}'. Only darwin/linux/win32/"
             "freebsd are supported.  You must specify the ipc_path"
         )
@@ -117,7 +121,7 @@ def get_dev_ipc_path() -> str:
         return r"\\.\pipe\geth.ipc"
 
     else:
-        raise ValueError(
+        raise Web3ValueError(
             f"Unsupported platform '{sys.platform}'. Only darwin/linux/win32/"
             "freebsd are supported.  You must specify the ipc_path"
         )
@@ -139,7 +143,7 @@ class IPCProvider(JSONBaseProvider):
         elif isinstance(ipc_path, str) or isinstance(ipc_path, Path):
             self.ipc_path = str(Path(ipc_path).expanduser().resolve())
         else:
-            raise TypeError("ipc_path must be of type string or pathlib.Path")
+            raise Web3TypeError("ipc_path must be of type string or pathlib.Path")
 
         self.timeout = timeout
         self._lock = threading.Lock()

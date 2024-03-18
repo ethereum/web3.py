@@ -16,6 +16,7 @@ from web3.exceptions import (
     ContractLogicError,
     MethodUnavailable,
     TransactionNotFound,
+    Web3ValueError,
 )
 
 ERROR_RESPONSE = {
@@ -109,7 +110,7 @@ def raise_contract_logic_error(response):
             (),
             identity,
             identity,
-            ValueError,
+            Web3ValueError,
         ),
         (
             # Error response with error formatters raises error in formatter
@@ -125,7 +126,7 @@ def raise_contract_logic_error(response):
             (),
             identity,
             raise_block_not_found,
-            ValueError,
+            Web3ValueError,
         ),
         (
             # Error response with no result formatters raises a ValueError
@@ -133,7 +134,7 @@ def raise_contract_logic_error(response):
             (),
             identity,
             raise_block_not_found,
-            ValueError,
+            Web3ValueError,
         ),
         (
             # Error response with no result formatters raises a ValueError
@@ -141,7 +142,7 @@ def raise_contract_logic_error(response):
             (),
             identity,
             raise_block_not_found,
-            ValueError,
+            Web3ValueError,
         ),
         (
             # None result raises error if there is a null_result_formatter
@@ -195,7 +196,7 @@ def raise_contract_logic_error(response):
             (),
             identity,
             identity,
-            ValueError,
+            Web3ValueError,
         ),
     ],
 )

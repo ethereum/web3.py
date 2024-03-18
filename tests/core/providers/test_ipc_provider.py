@@ -17,6 +17,7 @@ from web3.auto.gethdev import (
 )
 from web3.exceptions import (
     ProviderConnectionError,
+    Web3ValueError,
 )
 from web3.providers.ipc import (
     IPCProvider,
@@ -66,7 +67,7 @@ def test_ipc_tilda_in_path():
             "unknown",
             None,
             {
-                "error": ValueError,
+                "error": Web3ValueError,
                 "match": (
                     "Unsupported platform 'unknown'. Only darwin/linux/win32/"
                     "freebsd are supported.  You must specify the ipc_path"
@@ -102,7 +103,7 @@ def test_get_default_ipc_path(platform, expected_result, expected_error):
             "unknown",
             None,
             {
-                "error": ValueError,
+                "error": Web3ValueError,
                 "match": (
                     "Unsupported platform 'unknown'. Only darwin/linux/win32/"
                     "freebsd are supported.  You must specify the ipc_path"

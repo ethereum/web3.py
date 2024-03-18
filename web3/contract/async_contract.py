@@ -82,7 +82,10 @@ from web3.exceptions import (
     ABIFunctionNotFound,
     NoABIFound,
     NoABIFunctionsFound,
+    Web3AttributeError,
+    Web3TypeError,
     Web3ValidationError,
+    Web3ValueError,
 )
 from web3.types import (
     ABI,
@@ -445,7 +448,7 @@ class AsyncContract(BaseContract):
         :param address: Contract address as 0x hex string"""
 
         if self.w3 is None:
-            raise AttributeError(
+            raise Web3AttributeError(
                 "The `Contract` class has not been initialized.  Please use the "
                 "`web3.contract` interface to create your contract class."
             )
@@ -454,7 +457,7 @@ class AsyncContract(BaseContract):
             self.address = normalize_address_no_ens(address)
 
         if not self.address:
-            raise TypeError(
+            raise Web3TypeError(
                 "The address argument is required to instantiate a contract."
             )
         self.functions = AsyncContractFunctions(
@@ -523,7 +526,7 @@ class AsyncContract(BaseContract):
         :return: a contract constructor object
         """
         if cls.bytecode is None:
-            raise ValueError(
+            raise Web3ValueError(
                 "Cannot call constructor on a contract that does not have "
                 "'bytecode' associated with it"
             )

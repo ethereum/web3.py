@@ -14,6 +14,7 @@ from web3._utils.module import (
     attach_modules,
 )
 from web3.exceptions import (
+    Web3AttributeError,
     Web3ValidationError,
 )
 from web3.module import (
@@ -103,7 +104,8 @@ def test_attach_modules_with_existing_modules():
     }
     w3 = Web3(EthereumTesterProvider, modules=mods)
     with pytest.raises(
-        AttributeError, match="The web3 object already has an attribute with that name"
+        Web3AttributeError,
+        match=("The web3 object already has an attribute with that name"),
     ):
         attach_modules(w3, mods)
 

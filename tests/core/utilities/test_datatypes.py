@@ -3,6 +3,9 @@ import pytest
 from web3._utils.datatypes import (
     PropertyCheckingFactory,
 )
+from web3.exceptions import (
+    Web3AttributeError,
+)
 
 
 class InheritedBaseClass:
@@ -18,7 +21,7 @@ class BaseClass(InheritedBaseClass):
 def test_property_checking_metaclass_attribute_error():
     # Test proper attribute checking, arg from both bases.
     namespace = {"arg2": True, "arg0": True, "arg4": True}
-    with pytest.raises(AttributeError):
+    with pytest.raises(Web3AttributeError):
         PropertyCheckingFactory("class_name", (BaseClass,), namespace)
 
     # Test proper attribute checking, only absent arg.

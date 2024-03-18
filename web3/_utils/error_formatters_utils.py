@@ -13,6 +13,7 @@ from web3.exceptions import (
     ContractPanicError,
     OffchainLookup,
     TransactionIndexingInProgress,
+    Web3ValueError,
 )
 from web3.types import (
     RPCResponse,
@@ -140,7 +141,7 @@ def raise_contract_logic_error_on_revert(response: RPCResponse) -> RPCResponse:
     """
     error = response.get("error")
     if error is None or isinstance(error, str):
-        raise ValueError(error)
+        raise Web3ValueError(error)
 
     message = error.get("message")
     message_present = message is not None and message != ""

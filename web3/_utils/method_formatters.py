@@ -99,6 +99,8 @@ from web3.datastructures import (
 from web3.exceptions import (
     BlockNotFound,
     TransactionNotFound,
+    Web3TypeError,
+    Web3ValueError,
 )
 from web3.types import (
     BlockIdentifier,
@@ -136,7 +138,7 @@ def to_hexbytes(
     if isinstance(val, (str, int, bytes)):
         result = HexBytes(val)
     else:
-        raise TypeError(f"Cannot convert {val!r} to HexBytes")
+        raise Web3TypeError(f"Cannot convert {val!r} to HexBytes")
 
     extra_bytes = len(result) - num_bytes
     if extra_bytes == 0 or (variable_length and extra_bytes < 0):
@@ -144,7 +146,7 @@ def to_hexbytes(
     elif all(byte == 0 for byte in result[:extra_bytes]):
         return HexBytes(result[extra_bytes:])
     else:
-        raise ValueError(
+        raise Web3ValueError(
             f"The value {result!r} is {len(result)} bytes, but should be {num_bytes}"
         )
 

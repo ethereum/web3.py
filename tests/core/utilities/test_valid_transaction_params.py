@@ -5,6 +5,10 @@ from web3._utils.transactions import (
     extract_valid_transaction_params,
     fill_transaction_defaults,
 )
+from web3.exceptions import (
+    Web3AttributeError,
+    Web3ValueError,
+)
 
 
 def test_assert_valid_transaction_params_all_params():
@@ -49,7 +53,7 @@ def test_assert_valid_transaction_params_some_params():
 
 
 def test_assert_valid_transaction_params_invalid_param():
-    with pytest.raises(ValueError):
+    with pytest.raises(Web3ValueError):
         assert_valid_transaction_params(
             {
                 "from": "0x0",
@@ -111,7 +115,7 @@ EXPECTED_EXC_MSG = r'.* "input:(.*)" and "data:(.*)" .*'
     "transaction_params, expected_exc_msg", ((INVALID_TXN_PARAMS, EXPECTED_EXC_MSG),)
 )
 def test_extract_valid_transaction_params_invalid(transaction_params, expected_exc_msg):
-    with pytest.raises(AttributeError, match=expected_exc_msg):
+    with pytest.raises(Web3AttributeError, match=expected_exc_msg):
         extract_valid_transaction_params(transaction_params)
 
 

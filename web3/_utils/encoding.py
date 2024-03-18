@@ -55,6 +55,10 @@ from web3._utils.validation import (
 from web3.datastructures import (
     AttributeDict,
 )
+from web3.exceptions import (
+    Web3TypeError,
+    Web3ValueError,
+)
 
 
 def hex_encode_abi_type(
@@ -90,7 +94,7 @@ def hex_encode_abi_type(
     elif is_string_type(abi_type):
         return to_hex(text=value)
     else:
-        raise ValueError(f"Unsupported ABI type: {abi_type}")
+        raise Web3ValueError(f"Unsupported ABI type: {abi_type}")
 
 
 def to_hex_twos_compliment(value: Any, bit_size: int) -> HexStr:
@@ -169,7 +173,7 @@ def hexstr_if_str(
     if isinstance(hexstr_or_primitive, str):
         (primitive, hexstr) = (None, hexstr_or_primitive)
         if remove_0x_prefix(HexStr(hexstr)) and not is_hex(hexstr):
-            raise ValueError(
+            raise Web3ValueError(
                 "when sending a str, it must be a hex string. "
                 f"Got: {hexstr_or_primitive!r}"
             )
@@ -210,12 +214,12 @@ class FriendlyJsonSerde:
         except TypeError as full_exception:
             if hasattr(obj, "items"):
                 item_errors = "; ".join(self._json_mapping_errors(obj))
-                raise TypeError(
+                raise Web3TypeError(
                     f"dict had unencodable value at keys: {{{item_errors}}}"
                 )
             elif is_list_like(obj):
                 element_errors = "; ".join(self._json_list_errors(obj))
-                raise TypeError(
+                raise Web3TypeError(
                     f"list had unencodable value at index: [{element_errors}]"
                 )
             else:
@@ -237,14 +241,16 @@ class FriendlyJsonSerde:
         try:
             return self._friendly_json_encode(obj, cls=cls)
         except TypeError as exc:
-            raise TypeError(f"Could not encode to JSON: {exc}")
+            raise Web3TypeError(f"Could not encode to JSON: {exc}")
 
 
 def to_4byte_hex(hex_or_str_or_bytes: Union[HexStr, str, bytes, int]) -> HexStr:
     size_of_4bytes = 4 * 8
     byte_str = hexstr_if_str(to_bytes, hex_or_str_or_bytes)
     if len(byte_str) > 4:
-        raise ValueError(f"expected value of size 4 bytes. Got: {len(byte_str)} bytes")
+        raise Web3ValueError(
+            f"expected value of size 4 bytes. Got: {len(byte_str)} bytes"
+        )
     hex_str = encode_hex(byte_str)
     return pad_hex(hex_str, size_of_4bytes)
 

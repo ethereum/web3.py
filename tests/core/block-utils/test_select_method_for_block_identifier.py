@@ -7,6 +7,9 @@ from eth_utils.toolz import (
 from web3._utils.blocks import (
     select_method_for_block_identifier,
 )
+from web3.exceptions import (
+    Web3ValueError,
+)
 
 selector_fn = partial(
     select_method_for_block_identifier,
@@ -24,7 +27,7 @@ selector_fn = partial(
         ("earliest", "test_predefined"),
         ("safe", "test_predefined"),
         ("finalized", "test_predefined"),
-        (-1, ValueError),
+        (-1, Web3ValueError),
         (0, "test_number"),
         (1, "test_number"),
         (4000000, "test_number"),

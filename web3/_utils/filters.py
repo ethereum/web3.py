@@ -50,7 +50,9 @@ from web3._utils.validation import (
     validate_address,
 )
 from web3.exceptions import (
+    Web3TypeError,
     Web3ValidationError,
+    Web3ValueError,
 )
 from web3.types import (
     ABIEvent,
@@ -82,7 +84,7 @@ def construct_event_filter_params(
 
     if topics is not None:
         if len(topic_set) > 1:
-            raise TypeError(
+            raise Web3TypeError(
                 "Merging the topics argument with topics generated "
                 "from argument_filters is not supported."
             )
@@ -104,7 +106,7 @@ def construct_event_filter_params(
                 else [address]
             )
         else:
-            raise ValueError(
+            raise Web3ValueError(
                 f"Unsupported type for `address` parameter: {type(address)}"
             )
     elif address:
@@ -352,7 +354,7 @@ def match_fn(
         normalized_data = normalize_data_values(abi_type, data_value)
         for value in match_values:
             if not codec.is_encodable(abi_type, value):
-                raise ValueError(
+                raise Web3ValueError(
                     f"Value {value} is of the wrong abi type. "
                     f"Expected {abi_type} typed value."
                 )

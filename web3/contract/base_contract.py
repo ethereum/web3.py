@@ -92,7 +92,10 @@ from web3.exceptions import (
     NoABIEventsFound,
     NoABIFound,
     NoABIFunctionsFound,
+    Web3AttributeError,
+    Web3TypeError,
     Web3ValidationError,
+    Web3ValueError,
 )
 from web3.logs import (
     DISCARD,
@@ -163,7 +166,7 @@ class BaseContractEvent:
         try:
             errors.name
         except AttributeError:
-            raise AttributeError(
+            raise Web3AttributeError(
                 f"Error flag must be one of: {EventLogErrorFlags.flag_options()}"
             )
 
@@ -204,7 +207,7 @@ class BaseContractEvent:
         blockHash: Optional[HexBytes] = None,
     ) -> FilterParams:
         if not self.address:
-            raise TypeError(
+            raise Web3TypeError(
                 "This method can be only called on "
                 "an instated contract with an address"
             )
@@ -251,12 +254,12 @@ class BaseContractEvent:
         for filter_name, filter_value in _filters.items():
             _input = name_indexed_inputs[filter_name]
             if is_array_type(_input["type"]):
-                raise TypeError(
+                raise Web3TypeError(
                     "createFilter no longer supports array type filter arguments. "
                     "see the build_filter method for filtering array type filters."
                 )
             if is_list_like(filter_value) and is_dynamic_sized_type(_input["type"]):
-                raise TypeError(
+                raise Web3TypeError(
                     "createFilter no longer supports setting filter argument options "
                     "for dynamic sized types. See the build_filter method for setting "
                     "filters with the match_any method."
@@ -321,7 +324,7 @@ class BaseContractEvent:
         filter_builder: Union[EventFilterBuilder, AsyncEventFilterBuilder] = None,
     ) -> None:
         if fromBlock is None:
-            raise TypeError(
+            raise Web3TypeError(
                 "Missing mandatory keyword argument to create_filter: fromBlock"
             )
 
@@ -484,7 +487,7 @@ class BaseContractFunction:
                 function_abi_to_4byte_selector(self.abi)  # type: ignore
             )
         else:
-            raise TypeError("Unsupported function identifier")
+            raise Web3TypeError("Unsupported function identifier")
 
         self.arguments = merge_args_and_kwargs(self.abi, self.args, self.kwargs)
 
@@ -495,7 +498,7 @@ class BaseContractFunction:
             call_transaction = cast(TxParams, dict(**transaction))
 
         if "data" in call_transaction:
-            raise ValueError("Cannot set 'data' field in call transaction")
+            raise Web3ValueError("Cannot set 'data' field in call transaction")
 
         if self.address:
             call_transaction.setdefault("to", self.address)
@@ -508,13 +511,13 @@ class BaseContractFunction:
 
         if "to" not in call_transaction:
             if isinstance(self, type):
-                raise ValueError(
+                raise Web3ValueError(
                     "When using `Contract.[methodtype].[method].call()` from"
                     " a contract factory you "
                     "must provide a `to` address with the transaction"
                 )
             else:
-                raise ValueError(
+                raise Web3ValueError(
                     "Please ensure that this contract instance has an address."
                 )
 
@@ -527,7 +530,7 @@ class BaseContractFunction:
             transact_transaction = cast(TxParams, dict(**transaction))
 
         if "data" in transact_transaction:
-            raise ValueError("Cannot set 'data' field in transact transaction")
+            raise Web3ValueError("Cannot set 'data' field in transact transaction")
 
         if self.address is not None:
             transact_transaction.setdefault("to", self.address)
@@ -539,12 +542,12 @@ class BaseContractFunction:
 
         if "to" not in transact_transaction:
             if isinstance(self, type):
-                raise ValueError(
+                raise Web3ValueError(
                     "When using `Contract.transact` from a contract factory you "
                     "must provide a `to` address with the transaction"
                 )
             else:
-                raise ValueError(
+                raise Web3ValueError(
                     "Please ensure that this contract instance has an address."
                 )
         return transact_transaction
@@ -556,9 +559,9 @@ class BaseContractFunction:
             estimate_gas_transaction = cast(TxParams, dict(**transaction))
 
         if "data" in estimate_gas_transaction:
-            raise ValueError("Cannot set 'data' field in estimate_gas transaction")
+            raise Web3ValueError("Cannot set 'data' field in estimate_gas transaction")
         if "to" in estimate_gas_transaction:
-            raise ValueError("Cannot set to in estimate_gas transaction")
+            raise Web3ValueError("Cannot set to in estimate_gas transaction")
 
         if self.address:
             estimate_gas_transaction.setdefault("to", self.address)
@@ -570,12 +573,12 @@ class BaseContractFunction:
 
         if "to" not in estimate_gas_transaction:
             if isinstance(self, type):
-                raise ValueError(
+                raise Web3ValueError(
                     "When using `Contract.estimate_gas` from a contract factory "
                     "you must provide a `to` address with the transaction"
                 )
             else:
-                raise ValueError(
+                raise Web3ValueError(
                     "Please ensure that this contract instance has an address."
                 )
         return estimate_gas_transaction
@@ -587,21 +590,23 @@ class BaseContractFunction:
             built_transaction = cast(TxParams, dict(**transaction))
 
         if "data" in built_transaction:
-            raise ValueError("Cannot set 'data' field in build transaction")
+            raise Web3ValueError("Cannot set 'data' field in build transaction")
 
         if not self.address and "to" not in built_transaction:
-            raise ValueError(
+            raise Web3ValueError(
                 "When using `ContractFunction.build_transaction` from a contract "
                 "factory you must provide a `to` address with the transaction"
             )
         if self.address and "to" in built_transaction:
-            raise ValueError("Cannot set 'to' field in contract call build transaction")
+            raise Web3ValueError(
+                "Cannot set 'to' field in contract call build transaction"
+            )
 
         if self.address:
             built_transaction.setdefault("to", self.address)
 
         if "to" not in built_transaction:
-            raise ValueError(
+            raise Web3ValueError(
                 "Please ensure that this contract instance has an address."
             )
 
@@ -760,7 +765,7 @@ class BaseContract:
     @combomethod
     def get_function_by_signature(self, signature: str) -> "BaseContractFunction":
         if " " in signature:
-            raise ValueError(
+            raise Web3ValueError(
                 "Function signature should not contain any spaces. "
                 f"Found spaces in input: {signature}"
             )
@@ -893,7 +898,7 @@ class BaseContract:
         else:
             if args is not None or kwargs is not None:
                 msg = "Constructor args were provided, but no constructor function was provided."  # noqa: E501
-                raise TypeError(msg)
+                raise Web3TypeError(msg)
 
             deploy_data = to_hex(cls.bytecode)
 
@@ -1128,7 +1133,7 @@ class BaseContractConstructor:
     ) -> None:
         keys_found = transaction.keys() & forbidden_keys
         if keys_found:
-            raise ValueError(
+            raise Web3ValueError(
                 f"Cannot set '{', '.join(keys_found)}' field(s) in transaction"
             )
 
