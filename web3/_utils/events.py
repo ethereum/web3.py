@@ -222,6 +222,7 @@ def get_event_data(
     abi_codec: ABICodec,
     event_abi: ABIEvent,
     log_entry: LogReceipt,
+    abi_decode_strict: bool = True,
 ) -> EventData:
     """
     Given an event ABI and a log entry for that event, return the decoded
@@ -265,7 +266,9 @@ def get_event_data(
             f"between event inputs: '{', '.join(duplicate_names)}'"
         )
 
-    decoded_log_data = abi_codec.decode(log_data_types, log_data)
+    decoded_log_data = abi_codec.decode(
+        log_data_types, log_data, strict=abi_decode_strict
+    )
     normalized_log_data = map_abi_data(
         BASE_RETURN_NORMALIZERS, log_data_types, decoded_log_data
     )
@@ -275,7 +278,7 @@ def get_event_data(
     )
 
     decoded_topic_data = [
-        abi_codec.decode([topic_type], topic_data)[0]
+        abi_codec.decode([topic_type], topic_data, strict=abi_decode_strict)[0]
         for topic_type, topic_data in zip(log_topic_types, log_topics)
     ]
     normalized_topic_data = map_abi_data(

@@ -969,7 +969,7 @@ For example:
 
 .. _process_receipt:
 
-.. py:method:: ContractEvents.myEvent(*args, **kwargs).process_receipt(transaction_receipt, errors=WARN)
+.. py:method:: ContractEvents.myEvent(*args, **kwargs).process_receipt(transaction_receipt, errors=WARN, abi_decode_strict=True)
    :noindex:
 
    Extracts the pertinent logs from a transaction receipt.
@@ -1037,6 +1037,11 @@ For example:
        >>> processed_logs = contract.events.myEvent().process_receipt(tx_receipt, errors=DISCARD)
        >>> assert processed_logs == ()
        True
+       
+   In the case of an ``InsufficientDataBytes`` error, it may be possible to decode the log by passing ``abi_decode_strict=False``.
+   This will attempt to decode the log by reading only the data size specified in the ABI. This is useful when the log data is
+   not padded to the correct size, but the data is still valid. Because any data past the specified size is ignored, this may
+   result in data loss. It is not recommended for general use, but may be useful in some cases.
 
 .. py:method:: ContractEvents.myEvent(*args, **kwargs).process_log(log)
 
