@@ -1,0 +1,1 @@
+Bump to ``hexbytes>=1.2.0``
