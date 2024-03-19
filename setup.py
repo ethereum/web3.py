@@ -11,6 +11,7 @@ extras_require = {
     ],
     "linter": [
         "black>=22.1.0",
+        "blocklint>=0.2.4",
         "flake8==3.8.3",
         "isort>=5.11.0",
         "mypy==1.4.1",
