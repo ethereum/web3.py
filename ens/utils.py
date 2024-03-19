@@ -117,7 +117,7 @@ def customize_web3(w3: "_Web3") -> "_Web3":
 def normalize_name(name: str) -> str:
     """
     Clean the fully qualified name, as defined in ENS `EIP-137
-    <https://github.com/ethereum/EIPs/blob/master/EIPS/eip-137.md#name-syntax>`_
+    <https://github.com/ethereum/EIPs/blob/master/EIPS/eip-137.md#name-syntax>`_  # blocklint: pragma # noqa: E501
 
     This does *not* enforce whether ``name`` is a label or fully qualified domain.
 
@@ -169,7 +169,7 @@ def ens_encode_name(name: str) -> bytes:
 def is_valid_name(name: str) -> bool:
     """
     Validate whether the fully qualified name is valid, as defined in ENS `EIP-137
-    <https://github.com/ethereum/EIPs/blob/master/EIPS/eip-137.md#name-syntax>`_
+    <https://github.com/ethereum/EIPs/blob/master/EIPS/eip-137.md#name-syntax>`_  # blocklint: pragma # noqa: E501
 
     :param str name: the dot-separated ENS name
     :returns: True if ``name`` is set, and :meth:`~ens.ENS.nameprep` will not
@@ -229,7 +229,7 @@ def raw_name_to_hash(name: str) -> HexBytes:
     behind the scenes. For advanced usage, it is a helpful utility.
 
     This normalizes the name with `nameprep
-    <https://github.com/ethereum/EIPs/blob/master/EIPS/eip-137.md#name-syntax>`_
+    <https://github.com/ethereum/EIPs/blob/master/EIPS/eip-137.md#name-syntax>`_  # blocklint: pragma # noqa: E501
     before hashing.
 
     :param str name: ENS name to hash

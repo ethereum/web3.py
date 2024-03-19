@@ -88,7 +88,7 @@ class ENS(BaseENS):
     like getting the address for a name.
 
     Unless otherwise specified, all addresses are assumed to be a `str` in
-    `checksum format <https://github.com/ethereum/EIPs/blob/master/EIPS/eip-155.md>`_,
+    `checksum format <https://github.com/ethereum/EIPs/blob/master/EIPS/eip-155.md>`_,  # blocklint: pragma # noqa: E501
     like: ``"0x314159265dD8dbb310642f98f50C066173C1259b"``
     """
 
