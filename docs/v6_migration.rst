@@ -99,7 +99,7 @@ The `Web3` class previously contained both sync and async methods. We've separat
 
     w3 = Web3(Web3.HTTPProvider(<provider.url>))
     async_w3 = AsyncWeb3(AsyncWeb3.AsyncHTTPProvider(<provider.url>))
-    
+
 `dict` to `AttributeDict` conversion moved to middleware
 --------------------------------------------------------
 

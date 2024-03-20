@@ -138,4 +138,3 @@ contract EmitterContract {
         );
     }
 }
-

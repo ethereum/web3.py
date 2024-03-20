@@ -1,12 +1,12 @@
 exclude: '.project-template|docs/conf.py|.bumpversion.cfg'
 repos:
-# -   repo: https://github.com/pre-commit/pre-commit-hooks
-#     rev: v4.5.0
-#     hooks:
-#     -   id: check-yaml
-#     -   id: check-toml
-#     -   id: end-of-file-fixer
-#     -   id: trailing-whitespace
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+    -   id: check-yaml
+    -   id: check-toml
+    -   id: end-of-file-fixer
+    -   id: trailing-whitespace
 # -   repo: https://github.com/asottile/pyupgrade
 #     rev: v3.15.0
 #     hooks:

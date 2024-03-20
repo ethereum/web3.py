@@ -1360,5 +1360,3 @@ The script can be run with: ``python ./eventscanner.py <your JSON-RPC API URL>``
             print(f"Scanned total {len(result)} Transfer events, in {duration} seconds, total {total_chunks_scanned} chunk scans performed")
 
         run()
-
-
