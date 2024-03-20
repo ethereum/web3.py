@@ -11,19 +11,19 @@ def test_filtering_sequential_blocks_with_bounded_range(
 
     builder.toBlock = initial_block_number + 100
     filter_ = builder.deploy(w3)
-    for i in range(100):
+    for _ in range(100):
         emitter.functions.logNoArgs(which=1).transact()
     assert w3.eth.block_number == initial_block_number + 100
     assert len(filter_.get_new_entries()) == 100
 
 
 def test_filtering_starting_block_range(w3, emitter, wait_for_transaction):
-    for i in range(10):
+    for _ in range(10):
         emitter.functions.logNoArgs(which=1).transact()
     builder = emitter.events.LogNoArguments.build_filter()
     filter_ = builder.deploy(w3)
     initial_block_number = w3.eth.block_number
-    for i in range(10):
+    for _ in range(10):
         emitter.functions.logNoArgs(which=1).transact()
     assert w3.eth.block_number == initial_block_number + 10
     assert len(filter_.get_new_entries()) == 10
@@ -47,7 +47,7 @@ async def test_async_filtering_sequential_blocks_with_bounded_range(
     initial_block_number = await async_w3.eth.block_number
     builder.toBlock = initial_block_number + 100
     filter_ = await builder.deploy(async_w3)
-    for i in range(100):
+    for _ in range(100):
         await async_emitter.functions.logNoArgs(which=1).transact()
     eth_block_number = await async_w3.eth.block_number
     assert eth_block_number == initial_block_number + 100
@@ -57,12 +57,12 @@ async def test_async_filtering_sequential_blocks_with_bounded_range(
 
 @pytest.mark.asyncio
 async def test_async_filtering_starting_block_range(async_w3, async_emitter):
-    for i in range(10):
+    for _ in range(10):
         await async_emitter.functions.logNoArgs(which=1).transact()
     builder = async_emitter.events.LogNoArguments.build_filter()
     filter_ = await builder.deploy(async_w3)
     initial_block_number = await async_w3.eth.block_number
-    for i in range(10):
+    for _ in range(10):
         await async_emitter.functions.logNoArgs(which=1).transact()
     eth_block_number = await async_w3.eth.block_number
     assert eth_block_number == initial_block_number + 10

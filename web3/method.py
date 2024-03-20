@@ -230,5 +230,6 @@ class DeprecatedMethod:
         warnings.warn(
             f"{self.old_name} is deprecated in favor of {self.new_name}",
             category=DeprecationWarning,
+            stacklevel=2,
         )
         return self.method.__get__(obj, obj_type)

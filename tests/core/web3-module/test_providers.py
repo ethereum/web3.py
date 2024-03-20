@@ -22,9 +22,9 @@ def test_auto_provider_none():
     w3 = Web3()
 
     # non-node requests succeed
-    w3.to_hex(0) == "0x0"
+    assert w3.to_hex(0) == "0x0"
 
-    type(w3.provider) == AutoProvider
+    assert type(w3.provider) is AutoProvider
 
 
 def test_provider_default_value_for_ccip_read_redirect(w3):

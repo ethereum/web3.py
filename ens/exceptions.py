@@ -9,8 +9,6 @@ class ENSException(Exception):
     Base class for all ENS Errors
     """
 
-    pass
-
 
 class AddressMismatch(ENSException):
     """
@@ -18,8 +16,6 @@ class AddressMismatch(ENSException):
     point to the address. This exception is raised if the name does
     not currently point to the address.
     """
-
-    pass
 
 
 class InvalidName(idna.IDNAError, ENSException):
@@ -29,8 +25,6 @@ class InvalidName(idna.IDNAError, ENSException):
     <https://docs.ens.domains/ens-improvement-proposals/ensip-15-normalization-standard>`_.
     """
 
-    pass
-
 
 class UnauthorizedError(ENSException):
     """
@@ -38,8 +32,6 @@ class UnauthorizedError(ENSException):
     you are trying to modify. Make sure to set ``from`` in the
     ``transact`` keyword argument to the owner of the name.
     """
-
-    pass
 
 
 class UnownedName(ENSException):
@@ -50,15 +42,11 @@ class UnownedName(ENSException):
     first with :meth:`~ens.ENS.setup_address`.
     """
 
-    pass
-
 
 class ResolverNotFound(ENSException):
     """
     Raised if no resolver was found for the name you are trying to resolve.
     """
-
-    pass
 
 
 class UnsupportedFunction(ENSException):
@@ -66,15 +54,11 @@ class UnsupportedFunction(ENSException):
     Raised if a resolver does not support a particular method.
     """
 
-    pass
-
 
 class BidTooLow(ENSException):
     """
     Raised if you bid less than the minimum amount
     """
-
-    pass
 
 
 class InvalidBidHash(ENSException):
@@ -82,15 +66,11 @@ class InvalidBidHash(ENSException):
     Raised if you supply incorrect data to generate the bid hash.
     """
 
-    pass
-
 
 class InvalidLabel(ENSException):
     """
     Raised if you supply an invalid label
     """
-
-    pass
 
 
 class OversizeTransaction(ENSException):
@@ -101,16 +81,12 @@ class OversizeTransaction(ENSException):
     For example: when you try to start too many auctions at once.
     """
 
-    pass
-
 
 class UnderfundedBid(ENSException):
     """
     Raised if you send less wei with your bid than you declared
     as your intent to bid.
     """
-
-    pass
 
 
 class ENSValidationError(ENSException, ValidationError):

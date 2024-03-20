@@ -95,7 +95,7 @@ class RequestMocker:
         ] = w3.provider.make_request
 
     def __enter__(self) -> "Self":
-        setattr(self.w3.provider, "make_request", self._mock_request_handler)
+        self.w3.provider.make_request = self._mock_request_handler
         # reset request func cache to re-build request_func with mocked make_request
         self.w3.provider._request_func_cache = (None, None)
 
@@ -103,7 +103,7 @@ class RequestMocker:
 
     # define __exit__ with typing information
     def __exit__(self, exc_type: Any, exc_value: Any, traceback: Any) -> None:
-        setattr(self.w3.provider, "make_request", self._make_request)
+        self.w3.provider.make_request = self._make_request
         # reset request func cache to re-build request_func with original make_request
         self.w3.provider._request_func_cache = (None, None)
 
@@ -163,13 +163,13 @@ class RequestMocker:
 
     # -- async -- #
     async def __aenter__(self) -> "Self":
-        setattr(self.w3.provider, "make_request", self._async_mock_request_handler)
+        self.w3.provider.make_request = self._async_mock_request_handler
         # reset request func cache to re-build request_func with mocked make_request
         self.w3.provider._request_func_cache = (None, None)
         return self
 
     async def __aexit__(self, exc_type: Any, exc_value: Any, traceback: Any) -> None:
-        setattr(self.w3.provider, "make_request", self._make_request)
+        self.w3.provider.make_request = self._make_request
         # reset request func cache to re-build request_func with original make_request
         self.w3.provider._request_func_cache = (None, None)
 

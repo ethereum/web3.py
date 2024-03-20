@@ -1,3 +1,4 @@
+# flake8: noqa: B008
 from copy import (
     deepcopy,
 )

@@ -56,7 +56,9 @@ class AsyncHTTPProvider(AsyncJSONBaseProvider):
         request_kwargs: Optional[Any] = None,
         exception_retry_configuration: Optional[
             ExceptionRetryConfiguration
-        ] = ExceptionRetryConfiguration(errors=(ClientError, TimeoutError)),
+        ] = ExceptionRetryConfiguration(  # noqa: B008
+            errors=(ClientError, TimeoutError)
+        ),
     ) -> None:
         if endpoint_uri is None:
             self.endpoint_uri = get_default_http_endpoint()
