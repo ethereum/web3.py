@@ -90,9 +90,9 @@ class RequestMocker:
         self.mock_results = mock_results or {}
         self.mock_errors = mock_errors or {}
         self.mock_responses = mock_responses or {}
-        self._make_request: Union["AsyncMakeRequestFn", "MakeRequestFn"] = (
-            w3.provider.make_request
-        )
+        self._make_request: Union[
+            "AsyncMakeRequestFn", "MakeRequestFn"
+        ] = w3.provider.make_request
 
     def __enter__(self) -> "Self":
         setattr(self.w3.provider, "make_request", self._mock_request_handler)
