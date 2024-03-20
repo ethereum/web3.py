@@ -118,7 +118,9 @@ def test_ens_methods_normalize_name(
     # normalizes the full name and each label
     expected_call_args = {"tester.eth", "tester", "eth"}
 
-    with patch("ens.utils.normalize_name_ensip15") as mock_normalize_name_ensip15:
+    with patch(
+        "ens._normalization.normalize_name_ensip15"
+    ) as mock_normalize_name_ensip15:
         mock_normalize_name_ensip15.side_effect = normalize_name_ensip15
 
         # test setup address while appropriately setting up the test
@@ -243,7 +245,9 @@ async def test_async_ens_methods_normalize_name_with_ensip15(
     # normalizes the full name and each label
     expected_call_args = {"tester.eth", "tester", "eth"}
 
-    with patch("ens.utils.normalize_name_ensip15") as mock_normalize_name_ensip15:
+    with patch(
+        "ens._normalization.normalize_name_ensip15"
+    ) as mock_normalize_name_ensip15:
         mock_normalize_name_ensip15.side_effect = normalize_name_ensip15
 
         # test setup address while appropriately setting up the test

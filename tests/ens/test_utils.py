@@ -174,7 +174,9 @@ def test_normal_name_to_hash(name, hashed):
 def test_name_utility_methods_normalize_the_name_using_ensip15(utility_method):
     # we already have tests for `normalize_name_ensip15` so we just need to make sure
     # the utility methods call it under the hood with the correct arguments
-    with patch("ens.utils.normalize_name_ensip15") as normalize_name_ensip15_mock:
+    with patch(
+        "ens._normalization.normalize_name_ensip15"
+    ) as normalize_name_ensip15_mock:
         utility_method("foo.eth")
         normalize_name_ensip15_mock.assert_called_once_with("foo.eth")
 
@@ -188,7 +190,9 @@ def test_label_to_hash_normalizes_name_using_ensip15():
     )
     assert normalized_name.as_text == "foo.eth"
 
-    with patch("ens.utils.normalize_name_ensip15") as mock_normalize_name_ensip15:
+    with patch(
+        "ens._normalization.normalize_name_ensip15"
+    ) as mock_normalize_name_ensip15:
         for label in normalized_name.labels:
             mock_normalize_name_ensip15.return_value = ENSNormalizedName([label])
 
