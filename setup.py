@@ -15,19 +15,20 @@ extras_require = {
         "towncrier>=21,<22",
     ],
     "dev": [
+        "build>=0.9.0",
         "bumpversion",
         "flaky>=3.7.0",
         "hypothesis>=3.31.2",
-        "pytest>=7.0.0",
+        "pre-commit>=3.4.0",
         "pytest-asyncio>=0.18.1,<0.23",
         "pytest-mock>=1.10",
         "pytest-watch>=4.2",
         "pytest-xdist>=1.29",
+        "pytest>=7.0.0",
         "setuptools>=38.6.0",
         "tox>=3.18.0",
         "tqdm>4.32",
         "twine>=1.13",
-        "build>=0.9.0",
     ],
 }
 

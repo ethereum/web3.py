@@ -40,9 +40,7 @@ def w3():
 
 def test_default_request_retry_configuration_for_http_provider():
     w3 = Web3(HTTPProvider())
-    assert getattr(
-        w3.provider, "exception_retry_configuration"
-    ) == ExceptionRetryConfiguration(
+    assert w3.provider.exception_retry_configuration == ExceptionRetryConfiguration(
         errors=(
             ConnectionError,
             HTTPError,
@@ -137,9 +135,10 @@ def async_w3():
 @pytest.mark.asyncio
 async def test_async_default_request_retry_configuration_for_http_provider():
     async_w3 = AsyncWeb3(AsyncHTTPProvider())
-    assert getattr(
-        async_w3.provider, "exception_retry_configuration"
-    ) == ExceptionRetryConfiguration(errors=(aiohttp.ClientError, TimeoutError))
+    assert (
+        async_w3.provider.exception_retry_configuration
+        == ExceptionRetryConfiguration(errors=(aiohttp.ClientError, TimeoutError))
+    )
 
 
 @pytest.mark.asyncio

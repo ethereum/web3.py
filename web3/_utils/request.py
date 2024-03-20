@@ -109,9 +109,9 @@ def get_response_from_post_request(
 
 
 def make_post_request(
-    endpoint_uri: URI, data: Union[bytes, Dict[str, Any]], *args: Any, **kwargs: Any
+    endpoint_uri: URI, data: Union[bytes, Dict[str, Any]], **kwargs: Any
 ) -> bytes:
-    response = get_response_from_post_request(endpoint_uri, data=data, *args, **kwargs)
+    response = get_response_from_post_request(endpoint_uri, data=data, **kwargs)
     response.raise_for_status()
     return response.content
 
@@ -236,10 +236,10 @@ async def async_get_response_from_post_request(
 
 
 async def async_make_post_request(
-    endpoint_uri: URI, data: Union[bytes, Dict[str, Any]], *args: Any, **kwargs: Any
+    endpoint_uri: URI, data: Union[bytes, Dict[str, Any]], **kwargs: Any
 ) -> bytes:
     response = await async_get_response_from_post_request(
-        endpoint_uri, data=data, *args, **kwargs
+        endpoint_uri, data=data, **kwargs
     )
     response.raise_for_status()
     return await response.read()

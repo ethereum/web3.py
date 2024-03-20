@@ -190,7 +190,8 @@ class Eth(BaseEth):
         except (ValueError, MethodUnavailable):
             warnings.warn(
                 "There was an issue with the method eth_maxPriorityFeePerGas. "
-                "Calculating using eth_feeHistory."
+                "Calculating using eth_feeHistory.",
+                stacklevel=2,
             )
             return fee_history_priority_fee(self)
 

@@ -446,10 +446,16 @@ def invoke_contract(
     api_call_desig="call",
     contract=None,
     contract_function=None,
-    func_args=[],
-    func_kwargs={},
-    tx_params={},
+    func_args=None,
+    func_kwargs=None,
+    tx_params=None,
 ):
+    if func_args is None:
+        func_args = []
+    if func_kwargs is None:
+        func_kwargs = {}
+    if tx_params is None:
+        tx_params = {}
     allowable_call_desig = ["call", "transact", "estimate_gas", "build_transaction"]
     if api_call_desig not in allowable_call_desig:
         raise Web3ValueError(
@@ -714,10 +720,16 @@ async def async_invoke_contract(
     api_call_desig="call",
     contract=None,
     contract_function=None,
-    func_args=[],
-    func_kwargs={},
-    tx_params={},
+    func_args=None,
+    func_kwargs=None,
+    tx_params=None,
 ):
+    if func_args is None:
+        func_args = []
+    if func_kwargs is None:
+        func_kwargs = {}
+    if tx_params is None:
+        tx_params = {}
     allowable_call_desig = ["call", "transact", "estimate_gas", "build_transaction"]
     if api_call_desig not in allowable_call_desig:
         raise Web3ValueError(

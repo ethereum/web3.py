@@ -188,7 +188,8 @@ class BaseContractEvent:
                         f"The log with transaction hash: {log['transactionHash']!r} "
                         f"and logIndex: {log['logIndex']} encountered the following "
                         f"error during processing: {type(e).__name__}({e}). It has "
-                        "been discarded."
+                        "been discarded.",
+                        stacklevel=2,
                     )
                     continue
             yield rich_log

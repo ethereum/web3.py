@@ -84,23 +84,17 @@ class BadFunctionCallOutput(Web3Exception):
     Most likely ABI mismatch.
     """
 
-    pass
-
 
 class BlockNumberOutofRange(Web3Exception):
     """
     block_identifier passed does not match known block.
     """
 
-    pass
-
 
 class ProviderConnectionError(Web3Exception):
     """
     Raised when unable to connect to a provider
     """
-
-    pass
 
 
 class CannotHandleRequest(Web3Exception):
@@ -109,15 +103,11 @@ class CannotHandleRequest(Web3Exception):
     that the manager should proceed to the next provider.
     """
 
-    pass
-
 
 class TooManyRequests(Web3Exception):
     """
     Raised by a provider to signal that too many requests have been made consecutively.
     """
-
-    pass
 
 
 class MultipleFailedRequests(Web3Exception):
@@ -126,15 +116,11 @@ class MultipleFailedRequests(Web3Exception):
     (or similar) data have failed.
     """
 
-    pass
-
 
 class InvalidAddress(Web3Exception):
     """
     The supplied address does not have a valid checksum, as defined in EIP-55
     """
-
-    pass
 
 
 class NameNotFound(Web3Exception):
@@ -142,8 +128,6 @@ class NameNotFound(Web3Exception):
     Raised when a caller provides an Ethereum Name Service name that
     does not resolve to an address.
     """
-
-    pass
 
 
 class StaleBlockchain(Web3Exception):
@@ -174,16 +158,12 @@ class MismatchedABI(Web3Exception):
     attempt is made to access a function/event that does not exist in the ABI.
     """
 
-    pass
-
 
 class ABIEventFunctionNotFound(AttributeError, MismatchedABI):
     """
     Raised when an attempt is made to access an event
     that does not exist in the ABI.
     """
-
-    pass
 
 
 class ABIFunctionNotFound(AttributeError, MismatchedABI):
@@ -192,15 +172,11 @@ class ABIFunctionNotFound(AttributeError, MismatchedABI):
     that does not exist in the ABI.
     """
 
-    pass
-
 
 class FallbackNotFound(Web3Exception):
     """
     Raised when fallback function doesn't exist in contract.
     """
-
-    pass
 
 
 class Web3ValidationError(Web3Exception, ValidationError):
@@ -208,15 +184,11 @@ class Web3ValidationError(Web3Exception, ValidationError):
     Raised when a supplied value is invalid.
     """
 
-    pass
-
 
 class ExtraDataLengthError(Web3ValidationError):
     """
     Raised when an RPC call returns >32 bytes of extraData.
     """
-
-    pass
 
 
 class NoABIFunctionsFound(Web3Exception):
@@ -224,23 +196,17 @@ class NoABIFunctionsFound(Web3Exception):
     Raised when an ABI is present, but doesn't contain any functions.
     """
 
-    pass
-
 
 class NoABIFound(Web3Exception):
     """
     Raised when no ABI is present.
     """
 
-    pass
-
 
 class NoABIEventsFound(Web3Exception):
     """
     Raised when an ABI doesn't contain any events.
     """
-
-    pass
 
 
 class InsufficientData(Web3Exception):
@@ -249,8 +215,6 @@ class InsufficientData(Web3Exception):
     complete a calculation
     """
 
-    pass
-
 
 class TimeExhausted(Web3Exception):
     """
@@ -258,15 +222,11 @@ class TimeExhausted(Web3Exception):
     result within a specified timeout.
     """
 
-    pass
-
 
 class TransactionNotFound(Web3Exception):
     """
     Raised when a tx hash used to lookup a tx in a jsonrpc call cannot be found.
     """
-
-    pass
 
 
 class TransactionIndexingInProgress(Web3Exception):
@@ -275,15 +235,11 @@ class TransactionIndexingInProgress(Web3Exception):
     still being in progress.
     """
 
-    pass
-
 
 class BlockNotFound(Web3Exception):
     """
     Raised when the block id used to lookup a block in a jsonrpc call cannot be found.
     """
-
-    pass
 
 
 class InfuraProjectIdNotFound(Web3Exception):
@@ -291,23 +247,17 @@ class InfuraProjectIdNotFound(Web3Exception):
     Raised when there is no Infura Project Id set.
     """
 
-    pass
-
 
 class LogTopicError(Web3Exception):
     """
     Raised when the number of log topics is mismatched.
     """
 
-    pass
-
 
 class InvalidEventABI(Web3Exception):
     """
     Raised when the event ABI is invalid.
     """
-
-    pass
 
 
 class ContractLogicError(Web3Exception):
@@ -330,15 +280,11 @@ class ContractCustomError(ContractLogicError):
     Raised on a contract revert custom error
     """
 
-    pass
-
 
 class ContractPanicError(ContractLogicError):
     """
     Raised when a contract reverts with Panic, as of Solidity 0.8.0
     """
-
-    pass
 
 
 class OffchainLookup(ContractLogicError):
@@ -377,12 +323,8 @@ class BadResponseFormat(Web3Exception):
     Raised when a JSON-RPC response comes back in an unexpected format
     """
 
-    pass
-
 
 class MethodUnavailable(Web3Exception):
     """
     Raised when the method is not available on the node
     """
-
-    pass

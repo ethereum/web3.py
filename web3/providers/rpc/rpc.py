@@ -63,7 +63,7 @@ class HTTPProvider(JSONBaseProvider):
         request_kwargs: Optional[Any] = None,
         session: Optional[Any] = None,
         exception_retry_configuration: Optional[ExceptionRetryConfiguration] = (
-            ExceptionRetryConfiguration(
+            ExceptionRetryConfiguration(  # noqa: B008
                 errors=(
                     ConnectionError,
                     requests.HTTPError,

@@ -1,3 +1,4 @@
+# flake8: noqa: B008
 from datetime import (
     datetime,
     timezone,
@@ -319,7 +320,7 @@ def init_async_web3(
     )
 
     middleware = list(middleware)
-    for i, (mw, name) in enumerate(middleware):
+    for i, (_mw, name) in enumerate(middleware):
         if name == "ens_name_to_address":
             middleware.pop(i)
 

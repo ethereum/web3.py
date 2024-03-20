@@ -8,7 +8,7 @@ from eth_utils import (
 
 @to_tuple
 def deploy_contracts(w3, contract, wait_for_transaction):
-    for i in range(25):
+    for _ in range(25):
         tx_hash = contract.constructor().transact()
         wait_for_transaction(w3, tx_hash)
         yield w3.eth.get_transaction_receipt(tx_hash)["contractAddress"]
@@ -151,7 +151,7 @@ def test_event_filter_new_events_many_deployed_contracts(
 
 async def async_deploy_contracts(async_w3, contract, async_wait_for_transaction):
     txs = []
-    for i in range(25):
+    for _ in range(25):
         tx_hash = await contract.constructor().transact()
         await async_wait_for_transaction(async_w3, tx_hash)
         tx = await async_w3.eth.get_transaction_receipt(tx_hash)

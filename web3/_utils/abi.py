@@ -635,7 +635,7 @@ def sub_type_of_array_type(abi_type: TypeStr) -> str:
     if not is_array_type(abi_type):
         raise Web3ValueError(f"Cannot parse subtype of nonarray abi-type: {abi_type}")
 
-    return re.sub(END_BRACKETS_OF_ARRAY_TYPE_REGEX, "", abi_type, 1)
+    return re.sub(END_BRACKETS_OF_ARRAY_TYPE_REGEX, "", abi_type, count=1)
 
 
 def length_of_array_type(abi_type: TypeStr) -> int:

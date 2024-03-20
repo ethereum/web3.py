@@ -77,7 +77,9 @@ def _parse_error_with_reverted_prefix(data: str) -> str:
     try:
         error = bytes.fromhex(error).decode("utf8")
     except UnicodeDecodeError:
-        warnings.warn("Could not decode revert reason as UTF-8", RuntimeWarning)
+        warnings.warn(
+            "Could not decode revert reason as UTF-8", RuntimeWarning, stacklevel=2
+        )
         raise ContractLogicError("execution reverted", data=data)
 
     return error

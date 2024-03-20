@@ -545,11 +545,11 @@ def test_contract_event_get_logs_sorted_by_log_index(w3, emitter, request_mocker
 
         sorted_logs = sorted(
             emitter.events.LogNoArguments().get_logs(),
-            key=lambda l: l["logIndex"],
+            key=lambda log: log["logIndex"],
         )
         sorted_logs = sorted(
             emitter.events.LogNoArguments().get_logs(),
-            key=lambda l: l["blockNumber"],
+            key=lambda log: log["blockNumber"],
         )
 
     assert len(logs) == 4
