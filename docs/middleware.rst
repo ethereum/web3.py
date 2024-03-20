@@ -592,4 +592,3 @@ Custom middleware can be added to the stack via the class itself, using the
 
     # add the middleware to the stack as the class
     w3.middleware_onion.add(CustomMiddleware, name="custom_middleware")
-
