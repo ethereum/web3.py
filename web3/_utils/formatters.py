@@ -114,13 +114,13 @@ def apply_key_map(
 def is_array_of_strings(value: Any) -> bool:
     if not is_list_like(value):
         return False
-    return all((is_string(item) for item in value))
+    return all(is_string(item) for item in value)
 
 
 def is_array_of_dicts(value: Any) -> bool:
     if not is_list_like(value):
         return False
-    return all((is_dict(item) for item in value))
+    return all(is_dict(item) for item in value)
 
 
 @curry

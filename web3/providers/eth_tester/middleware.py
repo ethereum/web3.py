@@ -90,7 +90,7 @@ TRANSACTION_REQUEST_FORMATTERS = {
     "maxFeePerGas": to_integer_if_hex,
     "maxPriorityFeePerGas": to_integer_if_hex,
     "accessList": apply_list_to_array_formatter(
-        (apply_key_map({"storageKeys": "storage_keys"}))
+        apply_key_map({"storageKeys": "storage_keys"})
     ),
 }
 transaction_request_formatter = apply_formatters_to_dict(TRANSACTION_REQUEST_FORMATTERS)
