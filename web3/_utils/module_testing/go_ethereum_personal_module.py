@@ -62,7 +62,7 @@ class GoEthereumPersonalModuleTest:
         accounts = w3.geth.personal.list_accounts()
         assert is_list_like(accounts)
         assert len(accounts) > 0
-        assert all((is_checksum_address(item) for item in accounts))
+        assert all(is_checksum_address(item) for item in accounts)
 
     def test_personal_list_wallets(self, w3: "Web3") -> None:
         wallets = w3.geth.personal.list_wallets()

@@ -567,7 +567,7 @@ STATIC_TYPES = list(
 )
 
 BASE_TYPE_REGEX = "|".join(
-    (_type + "(?![a-z0-9])" for _type in itertools.chain(STATIC_TYPES, DYNAMIC_TYPES))
+    _type + "(?![a-z0-9])" for _type in itertools.chain(STATIC_TYPES, DYNAMIC_TYPES)
 )
 
 SUB_TYPE_REGEX = r"\[" "[0-9]*" r"\]"

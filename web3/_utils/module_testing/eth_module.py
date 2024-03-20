@@ -1775,7 +1775,7 @@ class AsyncEthModuleTest:
         accounts = await async_w3.eth.accounts
         assert is_list_like(accounts)
         assert len(accounts) != 0
-        assert all((is_checksum_address(account) for account in accounts))
+        assert all(is_checksum_address(account) for account in accounts)
         assert await async_w3.eth.coinbase in accounts
 
     @pytest.mark.asyncio
@@ -2534,7 +2534,7 @@ class EthModuleTest:
         accounts = w3.eth.accounts
         assert is_list_like(accounts)
         assert len(accounts) != 0
-        assert all((is_checksum_address(account) for account in accounts))
+        assert all(is_checksum_address(account) for account in accounts)
         assert w3.eth.coinbase in accounts
 
     def test_eth_block_number(self, w3: "Web3") -> None:

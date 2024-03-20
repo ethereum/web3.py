@@ -180,7 +180,7 @@ class BaseFilter:
 class Filter(BaseFilter):
     def __init__(self, filter_id: HexStr, eth_module: "Eth") -> None:
         self.eth_module = eth_module
-        super(Filter, self).__init__(filter_id)
+        super().__init__(filter_id)
 
     def get_new_entries(self) -> List[LogReceipt]:
         log_entries = self._filter_valid_entries(
@@ -198,7 +198,7 @@ class Filter(BaseFilter):
 class AsyncFilter(BaseFilter):
     def __init__(self, filter_id: HexStr, eth_module: "AsyncEth") -> None:
         self.eth_module = eth_module
-        super(AsyncFilter, self).__init__(filter_id)
+        super().__init__(filter_id)
 
     async def get_new_entries(self) -> List[LogReceipt]:
         filter_changes = await self.eth_module.get_filter_changes(self.filter_id)
@@ -328,7 +328,7 @@ def normalize_data_values(type_string: TypeStr, data_value: Any) -> Any:
     _type = parse_type_string(type_string)
     if _type.base == "string":
         if _type.arrlist is not None:
-            return tuple((normalize_to_text(value) for value in data_value))
+            return tuple(normalize_to_text(value) for value in data_value)
         else:
             return normalize_to_text(data_value)
     return data_value

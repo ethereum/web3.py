@@ -179,9 +179,9 @@ def type_aware_apply_formatters_to_dict_keys_and_values(
     """
     Preserve ``AttributeDict`` types if original ``value`` was an ``AttributeDict``.
     """
-    formatted_dict = dict(
-        (key_formatters(k), value_formatters(v)) for k, v in dict_like_object.items()
-    )
+    formatted_dict = {
+        key_formatters(k): value_formatters(v) for k, v in dict_like_object.items()
+    }
     return (
         AttributeDict.recursive(formatted_dict)
         if is_attrdict(dict_like_object)

@@ -59,13 +59,9 @@ def test_get_tuple_type_str_parts(input, expected):
     assert get_tuple_type_str_parts(input) == expected
 
 
-MyXYTuple = NamedTuple(
-    "MyXYTuple",
-    [
-        ("x", int),
-        ("y", int),
-    ],
-)
+class MyXYTuple(NamedTuple):
+    x: int
+    y: int
 
 
 TEST_FUNCTION_ABI_JSON = """

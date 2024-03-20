@@ -218,7 +218,7 @@ def _generate_random_private_key() -> HexStr:
     WARNING: This is not a secure way to generate private keys and should only
     be used for testing purposes.
     """
-    return encode_hex(bytes(bytearray((random.randint(0, 255) for _ in range(32)))))
+    return encode_hex(bytes(bytearray(random.randint(0, 255) for _ in range(32))))
 
 
 @without_params
