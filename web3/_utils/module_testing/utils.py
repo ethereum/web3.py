@@ -36,6 +36,7 @@ class RequestMocker:
     via a ``request_mocker`` fixture defined within the appropriate context.
 
     Example:
+    -------
 
         def test_my_w3(w3, request_mocker):
             assert w3.eth.block_number == 0
@@ -46,6 +47,7 @@ class RequestMocker:
             assert w3.eth.block_number == 0
 
     Example with async and a mocked response object:
+    -----------------------------------------------
 
         async def test_my_w3(async_w3, request_mocker):
             def _iter_responses():
@@ -77,6 +79,7 @@ class RequestMocker:
 
     If a method name is not present in any of the dicts above, the request is made as
     usual.
+
     """
 
     def __init__(

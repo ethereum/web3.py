@@ -31,12 +31,12 @@ repos:
     rev: 5.12.0
     hooks:
     -   id: isort
-# -   repo: https://github.com/pycqa/pydocstyle
-#     rev: 6.3.0
-#     hooks:
-#     -   id: pydocstyle
-#         additional_dependencies:
-#         -   tomli  # required until >= python311
+-   repo: https://github.com/pycqa/pydocstyle
+    rev: 6.3.0
+    hooks:
+    -   id: pydocstyle
+        additional_dependencies:
+        -   tomli  # required until >= python311
 # -   repo: https://github.com/executablebooks/mdformat
 #     rev: 0.7.17
 #     hooks:
