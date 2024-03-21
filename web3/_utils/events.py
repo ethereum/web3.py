@@ -478,8 +478,7 @@ class AsyncEventFilterBuilder(BaseEventFilterBuilder):
 
 def initialize_event_topics(event_abi: ABIEvent) -> Union[bytes, List[Any]]:
     if event_abi["anonymous"] is False:
-        # https://github.com/python/mypy/issues/4976
-        return event_abi_to_log_topic(event_abi)  # type: ignore
+        return event_abi_to_log_topic(event_abi)
     else:
         return list()
 

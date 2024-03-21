@@ -763,7 +763,8 @@ class AsyncEth(BaseEth):
     # -- contract methods -- #
 
     @overload
-    def contract(self, address: None = None, **kwargs: Any) -> Type[AsyncContract]:
+    # mypy error: Overloaded function signatures 1 and 2 overlap with incompatible return types  # noqa: E501
+    def contract(self, address: None = None, **kwargs: Any) -> Type[AsyncContract]:  # type: ignore[misc]  # noqa: E501
         ...
 
     @overload

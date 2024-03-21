@@ -311,9 +311,7 @@ class ExactLengthBytesEncoder(BytesEncoder):
     ) -> "ExactLengthBytesEncoder":
         subencoder_cls = cls.get_subencoder_class()
         subencoder = subencoder_cls.from_type_str(abi_type.to_type_str(), registry)
-        # type ignored b/c @parse_type_str decorator turns it into a classmethod,
-        # so mypy thinks cls(...) is a call to __call__, but actually calls __init__
-        return cls(  # type: ignore
+        return cls(
             subencoder,
             value_bit_size=abi_type.sub * 8,
             data_byte_size=abi_type.sub,

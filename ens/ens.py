@@ -390,7 +390,7 @@ class ENS(BaseENS):
 
         r = self.resolver(name)
         _validate_resolver_and_interface_id(name, r, ENS_TEXT_INTERFACE_ID, "text")
-        return r.caller.text(node, key)
+        return cast(str, r.caller.text(node, key))
 
     def set_text(
         self,
@@ -561,7 +561,9 @@ class ENS(BaseENS):
 
     def _reverse_registrar(self) -> "Contract":
         addr = self.ens.caller.owner(normal_name_to_hash(REVERSE_REGISTRAR_DOMAIN))
-        return self.w3.eth.contract(address=addr, abi=abis.REVERSE_REGISTRAR)
+        return cast(
+            "Contract", self.w3.eth.contract(address=addr, abi=abis.REVERSE_REGISTRAR)
+        )
 
     def _set_property(
         self,

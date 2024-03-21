@@ -202,14 +202,14 @@ class BaseWeb3:
     def to_bytes(
         primitive: Primitives = None, hexstr: HexStr = None, text: str = None
     ) -> bytes:
-        return to_bytes(primitive, hexstr, text)
+        return cast(bytes, to_bytes(primitive, hexstr, text))
 
     @staticmethod
     @wraps(to_int)
     def to_int(
         primitive: Primitives = None, hexstr: HexStr = None, text: str = None
     ) -> int:
-        return to_int(primitive, hexstr, text)
+        return cast(int, to_int(primitive, hexstr, text))
 
     @staticmethod
     @wraps(to_hex)
@@ -223,7 +223,7 @@ class BaseWeb3:
     def to_text(
         primitive: Primitives = None, hexstr: HexStr = None, text: str = None
     ) -> str:
-        return to_text(primitive, hexstr, text)
+        return cast(str, to_text(primitive, hexstr, text))
 
     @staticmethod
     @wraps(to_json)
@@ -239,18 +239,18 @@ class BaseWeb3:
     @staticmethod
     @wraps(from_wei)
     def from_wei(number: int, unit: str) -> Union[int, decimal.Decimal]:
-        return from_wei(number, unit)
+        return cast(Union[int, decimal.Decimal], from_wei(number, unit))
 
     # Address Utility
     @staticmethod
     @wraps(is_address)
     def is_address(value: Any) -> bool:
-        return is_address(value)
+        return cast(bool, is_address(value))
 
     @staticmethod
     @wraps(is_checksum_address)
     def is_checksum_address(value: Any) -> bool:
-        return is_checksum_address(value)
+        return cast(bool, is_checksum_address(value))
 
     @staticmethod
     @wraps(to_checksum_address)
@@ -285,7 +285,7 @@ class BaseWeb3:
     ) -> bytes:
         if isinstance(primitive, (bytes, int, type(None))):
             input_bytes = to_bytes(primitive, hexstr=hexstr, text=text)
-            return eth_utils_keccak(input_bytes)
+            return cast(bytes, eth_utils_keccak(input_bytes))
 
         raise Web3TypeError(
             f"You called keccak with first arg {primitive!r} and keywords "
@@ -298,7 +298,7 @@ class BaseWeb3:
     def normalize_values(
         cls, w3: "BaseWeb3", abi_types: List[TypeStr], values: List[Any]
     ) -> List[Any]:
-        return map_abi_data([abi_ens_resolver(w3)], abi_types, values)
+        return cast(List[Any], map_abi_data([abi_ens_resolver(w3)], abi_types, values))
 
     @combomethod
     def solidity_keccak(cls, abi_types: List[TypeStr], values: List[Any]) -> bytes:
@@ -327,7 +327,7 @@ class BaseWeb3:
                 )
             )
         )
-        return cls.keccak(hexstr=hex_string)
+        return cast(bytes, cls.keccak(hexstr=hex_string))
 
     def attach_modules(
         self, modules: Optional[Dict[str, Union[Type[Module], Sequence[Any]]]]
@@ -338,7 +338,7 @@ class BaseWeb3:
         _attach_modules(self, modules)
 
     def is_encodable(self, _type: TypeStr, value: Any) -> bool:
-        return self.codec.is_encodable(_type, value)
+        return cast(bool, self.codec.is_encodable(_type, value))
 
 
 class Web3(BaseWeb3):
@@ -389,7 +389,7 @@ class Web3(BaseWeb3):
 
     @property
     def client_version(self) -> str:
-        return self.manager.request_blocking(RPC.web3_clientVersion, [])
+        return cast(str, self.manager.request_blocking(RPC.web3_clientVersion, []))
 
     @property
     def ens(self) -> Union[ENS, "Empty"]:
@@ -456,7 +456,7 @@ class AsyncWeb3(BaseWeb3):
 
     @property
     async def client_version(self) -> str:
-        return await self.manager.coro_request(RPC.web3_clientVersion, [])
+        return cast(str, await self.manager.coro_request(RPC.web3_clientVersion, []))
 
     @property
     def ens(self) -> Union[AsyncENS, "Empty"]:

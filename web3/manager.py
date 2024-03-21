@@ -100,7 +100,7 @@ def apply_error_formatters(
 ) -> RPCResponse:
     if error_formatters:
         formatted_resp = pipe(response, error_formatters)
-        return formatted_resp
+        return cast(RPCResponse, formatted_resp)
     else:
         return response
 
@@ -112,7 +112,7 @@ def apply_null_result_formatters(
 ) -> RPCResponse:
     if null_result_formatters:
         formatted_resp = pipe(params, null_result_formatters)
-        return formatted_resp
+        return cast(RPCResponse, formatted_resp)
     else:
         return response
 
@@ -402,7 +402,10 @@ class RequestManager:
                 error_formatters,
                 null_formatters,
             )
-            return apply_result_formatters(result_formatters, partly_formatted_response)
+            return cast(
+                RPCResponse,
+                apply_result_formatters(result_formatters, partly_formatted_response),
+            )
 
 
 class _AsyncPersistentMessageStream:
@@ -424,6 +427,6 @@ class _AsyncPersistentMessageStream:
 
     async def __anext__(self) -> RPCResponse:
         try:
-            return await self.manager._get_next_message()
+            return cast(RPCResponse, await self.manager._get_next_message())
         except ConnectionClosedOK:
             raise StopAsyncIteration

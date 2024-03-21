@@ -793,9 +793,9 @@ class BaseContract:
         self, selector: Union[bytes, int, HexStr]
     ) -> "BaseContractFunction":
         def callable_check(fn_abi: ABIFunction) -> bool:
-            # typed dict cannot be used w/ a normal Dict
-            # https://github.com/python/mypy/issues/4976
-            return encode_hex(function_abi_to_4byte_selector(fn_abi)) == to_4byte_hex(selector)  # type: ignore # noqa: E501
+            return encode_hex(function_abi_to_4byte_selector(fn_abi)) == to_4byte_hex(
+                selector
+            )
 
         fns = self.find_functions_by_identifier(
             self.abi, self.w3, self.address, callable_check
