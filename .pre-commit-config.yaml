@@ -27,10 +27,10 @@ repos:
     rev: v2.2.1
     hooks:
     -   id: autoflake
-# -   repo: https://github.com/pycqa/isort
-#     rev: 5.12.0
-#     hooks:
-#     -   id: isort
+-   repo: https://github.com/pycqa/isort
+    rev: 5.12.0
+    hooks:
+    -   id: isort
 # -   repo: https://github.com/pycqa/pydocstyle
 #     rev: 6.3.0
 #     hooks:
