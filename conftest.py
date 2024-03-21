@@ -1,8 +1,14 @@
 import pytest
-import pytest_asyncio
 import time
 import warnings
 
+import pytest_asyncio
+
+from tests.utils import (
+    PollDelayCounter,
+    _async_wait_for_block_fixture_logic,
+    _async_wait_for_transaction_fixture_logic,
+)
 from web3._utils.threads import (
     Timeout,
 )
@@ -12,12 +18,6 @@ from web3.main import (
 from web3.providers.eth_tester import (
     AsyncEthereumTesterProvider,
     EthereumTesterProvider,
-)
-
-from tests.utils import (
-    PollDelayCounter,
-    _async_wait_for_block_fixture_logic,
-    _async_wait_for_transaction_fixture_logic,
 )
 
 
