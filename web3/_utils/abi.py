@@ -708,8 +708,8 @@ def map_abi_data(
     data: Sequence[Any],
 ) -> Any:
     """
-    This function will apply normalizers to your data, in the
-    context of the relevant types. Each normalizer is in the format:
+    Applies normalizers to your data, in the context of the relevant types.
+    Each normalizer is in the format:
 
     def normalizer(datatype, data):
         # Conditionally modify data
@@ -775,7 +775,7 @@ def data_tree_map(
 
 class ABITypedData(namedtuple("ABITypedData", "abi_type, data")):
     """
-    This class marks data as having a certain ABI-type.
+    Marks data as having a certain ABI-type.
 
     >>> a1 = ABITypedData(['address', addr1])
     >>> a2 = ABITypedData(['address', addr2])
@@ -1032,7 +1032,6 @@ async def async_map_if_collection(
     Apply an awaitable method to each element of a collection or value of a dictionary.
     If the value is not a collection, return it unmodified.
     """
-
     datatype = type(value)
     if isinstance(value, Mapping):
         return datatype({key: await func(val) for key, val in value.values()})

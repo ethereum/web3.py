@@ -38,8 +38,8 @@ class AddressMismatch(ENSException):
 
 class InvalidName(idna.IDNAError, ENSException):
     """
-    This exception is raised if the provided name does not meet
-    the normalization standards specified in `ENSIP-15
+    Raised if the provided name does not meet the normalization
+    standards specified in `ENSIP-15
     <https://docs.ens.domains/ens-improvement-proposals/ensip-15-normalization-standard>`_.
     """
 

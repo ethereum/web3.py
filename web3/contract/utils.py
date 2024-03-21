@@ -186,7 +186,8 @@ def estimate_gas_for_function(
     *args: Any,
     **kwargs: Any,
 ) -> int:
-    """Estimates gas cost a function call would take.
+    """
+    Estimates gas cost a function call would take.
 
     Don't call this directly, instead use :meth:`Contract.estimate_gas`
     on your contract instance.
@@ -215,7 +216,8 @@ def build_transaction_for_function(
     *args: Any,
     **kwargs: Any,
 ) -> TxParams:
-    """Builds a dictionary with the fields required to make the given transaction
+    """
+    Builds a dictionary with the fields required to make the given transaction
 
     Don't call this directly, instead use :meth:`Contract.build_transaction`
     on your contract instance.
@@ -395,7 +397,8 @@ async def async_estimate_gas_for_function(
     *args: Any,
     **kwargs: Any,
 ) -> int:
-    """Estimates gas cost a function call would take.
+    """
+    Estimates gas cost a function call would take.
 
     Don't call this directly, instead use :meth:`Contract.estimate_gas`
     on your contract instance.
@@ -426,7 +429,8 @@ async def async_build_transaction_for_function(
     *args: Any,
     **kwargs: Any,
 ) -> TxParams:
-    """Builds a dictionary with the fields required to make the given transaction
+    """
+    Builds a dictionary with the fields required to make the given transaction
 
     Don't call this directly, instead use :meth:`Contract.build_transaction`
     on your contract instance.

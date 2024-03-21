@@ -175,7 +175,6 @@ def raise_transaction_indexing_error_if_indexing(response: RPCResponse) -> RPCRe
     Raise an error if ``eth_getTransactionReceipt`` returns an error indicating that
     transactions are still being indexed.
     """
-
     error = response.get("error")
     if not isinstance(error, str) and error is not None:
         message = error.get("message")

@@ -105,7 +105,7 @@ class MutableAttributeDict(
 
 class AttributeDict(ReadableAttributeDict[TKey, TValue], Hashable):
     """
-    This provides superficial immutability, someone could hack around it
+    Provides superficial immutability, someone could hack around it
     """
 
     def __setattr__(self, attr: str, val: TValue) -> None:
@@ -317,7 +317,7 @@ class NamedElementOnion(Mapping[TKey, TValue]):
 
     def as_tuple_of_middleware(self) -> Tuple[TValue, ...]:
         """
-        This helps with type hinting since we return `Iterator[TKey]` type, though it's
+        Helps with type hinting since we return `Iterator[TKey]` type, though it's
         actually a `Iterator[TValue]` type, for the `__iter__()` method. This is in
         order to satisfy the `Mapping` interface.
         """

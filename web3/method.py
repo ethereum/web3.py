@@ -88,7 +88,8 @@ TFunc = TypeVar("TFunc", bound=Callable[..., Any])
 
 
 class Method(Generic[TFunc]):
-    """Method object for web3 module methods
+    """
+    Method object for web3 module methods
 
     Calls to the Method go through these steps:
 

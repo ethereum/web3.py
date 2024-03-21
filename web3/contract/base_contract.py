@@ -128,7 +128,8 @@ if TYPE_CHECKING:
 
 
 class BaseContractEvent:
-    """Base class for contract events
+    """
+    Base class for contract events
 
     An event accessed via the api `contract.events.myEvents(*args, **kwargs)`
     is a subclass of this class.
@@ -374,7 +375,8 @@ class BaseContractEvent:
 
 
 class BaseContractEvents:
-    """Class containing contract event objects
+    """
+    Class containing contract event objects
 
     This is available via:
 
@@ -435,7 +437,8 @@ class BaseContractEvents:
         return getattr(self, event_name)
 
     def __iter__(self) -> Iterable[Type["BaseContractEvent"]]:
-        """Iterate over supported
+        """
+        Iterate over supported
 
         :return: Iterable of :class:`ContractEvent`
         """
@@ -450,7 +453,8 @@ class BaseContractEvents:
 
 
 class BaseContractFunction:
-    """Base class for contract functions
+    """
+    Base class for contract functions
 
     A function accessed via the api `contract.functions.myMethod(*args, **kwargs)`
     is a subclass of this class.
@@ -685,7 +689,8 @@ class BaseContractFunctions:
 
 
 class BaseContract:
-    """Base class for Contract proxy classes.
+    """
+    Base class for Contract proxy classes.
 
     First you need to create your Contract classes using
     :meth:`web3.eth.Eth.contract` that takes compiled Solidity contract

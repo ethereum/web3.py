@@ -109,7 +109,7 @@ def fill_nonce(w3: "Web3", transaction: TxParams) -> TxParams:
 @curry
 def fill_transaction_defaults(w3: "Web3", transaction: TxParams) -> TxParams:
     """
-    if w3 is None, fill as much as possible while offline
+    If w3 is None, fill as much as possible while offline
     """
     strategy_based_gas_price = w3.eth.generate_gas_price(transaction)
     is_dynamic_fee_transaction = strategy_based_gas_price is None and (

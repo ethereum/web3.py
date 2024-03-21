@@ -141,7 +141,7 @@ def normalize_name(name: str) -> str:
 
 
 def ens_encode_name(name: str) -> bytes:
-    """
+    r"""
     Encode a name according to DNS standards specified in section 3.1
     of RFC1035 with the following validations:
 
@@ -211,11 +211,11 @@ def label_to_hash(label: str) -> HexBytes:
 
 def normal_name_to_hash(name: str) -> HexBytes:
     """
-    This method will not normalize the name. 'normal' name here means the name
-    should already be normalized before calling this method.
+    Hashes a pre-normalized name.
+    The normalization of the name is a prerequisite and is not handled by this function.
 
-    :param name:            the name to hash - should already be normalized
-    :return: namehash       the hash of the name
+    :param str name: A normalized name string to be hashed.
+    :return: namehash - the hash of the name
     :rtype: HexBytes
     """
     node = EMPTY_SHA3_BYTES

@@ -252,7 +252,8 @@ class LogFilter(Filter):
     def set_data_filters(
         self, data_filter_set: Collection[Tuple[TypeStr, Any]]
     ) -> None:
-        """Sets the data filters (non indexed argument filters)
+        """
+        Sets the data filters (non indexed argument filters)
 
         Expects a set of tuples with the type and value, e.g.:
         (('uint256', [12345, 54321]), ('string', ('a-single-string',)))
@@ -294,7 +295,8 @@ class AsyncLogFilter(AsyncFilter):
     def set_data_filters(
         self, data_filter_set: Collection[Tuple[TypeStr, Any]]
     ) -> None:
-        """Sets the data filters (non indexed argument filters)
+        """
+        Sets the data filters (non indexed argument filters)
 
         Expects a set of tuples with the type and value, e.g.:
         (('uint256', [12345, 54321]), ('string', ('a-single-string',)))
@@ -320,7 +322,8 @@ normalize_to_text = apply_formatter_if(not_text, decode_utf8_bytes)
 
 
 def normalize_data_values(type_string: TypeStr, data_value: Any) -> Any:
-    """Decodes utf-8 bytes to strings for abi string values.
+    """
+    Decodes utf-8 bytes to strings for abi string values.
 
     eth-abi v1 returns utf-8 bytes for string values.
     This can be removed once eth-abi v2 is required.
@@ -338,7 +341,8 @@ def normalize_data_values(type_string: TypeStr, data_value: Any) -> Any:
 def match_fn(
     codec: ABICodec, match_values_and_abi: Collection[Tuple[str, Any]], data: Any
 ) -> bool:
-    """Match function used for filtering non-indexed event arguments.
+    """
+    Match function used for filtering non-indexed event arguments.
 
     Values provided through the match_values_and_abi parameter are
     compared to the abi decoded log data.

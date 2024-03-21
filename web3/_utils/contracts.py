@@ -387,7 +387,8 @@ def get_function_info(
 
 
 def validate_payable(transaction: TxParams, abi: ABIFunction) -> None:
-    """Raise Web3ValidationError if non-zero ether
+    """
+    Raise Web3ValidationError if non-zero ether
     is sent to a non-payable function.
     """
     if "value" in transaction:
