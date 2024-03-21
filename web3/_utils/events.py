@@ -130,9 +130,7 @@ def construct_event_topic_set(
         for key, value in arguments.items()  # type: ignore
     }
 
-    # typed dict cannot be used w/ a normal Dict
-    # https://github.com/python/mypy/issues/4976
-    event_topic = encode_hex(event_abi_to_log_topic(event_abi))  # type: ignore
+    event_topic = encode_hex(event_abi_to_log_topic(event_abi))
     indexed_args = get_indexed_event_inputs(event_abi)
     zipped_abi_and_args = [
         (arg, normalized_args.get(arg["name"], [None])) for arg in indexed_args
@@ -445,7 +443,7 @@ class EventFilterBuilder(BaseEventFilterBuilder):
         if not isinstance(w3, web3.Web3):
             raise ValueError(f"Invalid web3 argument: got: {w3!r}")
 
-        for arg in AttributeDict.values(self.args):  # type: ignore[arg-type]
+        for arg in AttributeDict.values(self.args):
             arg._immutable = True  # type: ignore[attr-defined]
         self._immutable = True
 
@@ -463,7 +461,7 @@ class AsyncEventFilterBuilder(BaseEventFilterBuilder):
         if not isinstance(async_w3, web3.AsyncWeb3):
             raise ValueError(f"Invalid web3 argument: got: {async_w3!r}")
 
-        for arg in AttributeDict.values(self.args):  # type: ignore[arg-type]
+        for arg in AttributeDict.values(self.args):
             arg._immutable = True  # type: ignore[attr-defined]
         self._immutable = True
 
