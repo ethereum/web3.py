@@ -468,9 +468,9 @@ class AsyncENS(BaseENS):
             resolver_addr = await self.address("resolver.eth")
         namehash = raw_name_to_hash(name)
         if await self.ens.caller.resolver(namehash) != resolver_addr:
-            await self.ens.functions.setResolver(  # type: ignore
-                namehash, resolver_addr
-            ).transact(transact)
+            await self.ens.functions.setResolver(namehash, resolver_addr).transact(
+                transact
+            )
         return cast("AsyncContract", self._resolver_contract(address=resolver_addr))
 
     async def _resolve(
@@ -552,7 +552,7 @@ class AsyncENS(BaseENS):
         transact = deepcopy(transact)
         transact["from"] = old_owner or owner
         for label in reversed(unowned):
-            await self.ens.functions.setSubnodeOwner(  # type: ignore
+            await self.ens.functions.setSubnodeOwner(
                 raw_name_to_hash(owned),
                 label_to_hash(label),
                 owner,

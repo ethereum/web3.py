@@ -167,8 +167,7 @@ def iter_latest_block(
 
     while True:
         latest_block = w3.eth.block_number
-        # type ignored b/c is_bounded_range prevents unsupported comparison
-        if is_bounded_range and latest_block > to_block:  # type: ignore
+        if is_bounded_range and latest_block > to_block:
             yield None
         #  No new blocks since last iteration.
         if _last is not None and _last == latest_block:
@@ -256,9 +255,8 @@ class RequestLogs:
         if from_block is None or from_block == "latest":
             self._from_block = BlockNumber(w3.eth.block_number + 1)
         elif is_string(from_block) and is_hex(from_block):
-            self._from_block = BlockNumber(hex_to_integer(from_block))  # type: ignore
+            self._from_block = BlockNumber(hex_to_integer(from_block))
         else:
-            # cast b/c LatestBlockParam is handled above
             self._from_block = from_block
         self._to_block = to_block
         self.filter_changes = self._get_filter_changes()
@@ -274,7 +272,7 @@ class RequestLogs:
         elif self._to_block == "latest":
             to_block = self.w3.eth.block_number
         elif is_string(self._to_block) and is_hex(self._to_block):
-            to_block = BlockNumber(hex_to_integer(self._to_block))  # type: ignore
+            to_block = BlockNumber(hex_to_integer(self._to_block))
         else:
             to_block = self._to_block
 

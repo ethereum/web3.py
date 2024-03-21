@@ -274,8 +274,7 @@ def normalize_address_no_ens(address: ChecksumAddress) -> ChecksumAddress:
 def normalize_bytecode(bytecode: bytes) -> HexBytes:
     if bytecode:
         bytecode = HexBytes(bytecode)
-    # type ignored b/c bytecode is converted to HexBytes above
-    return bytecode  # type: ignore
+    return bytecode
 
 
 # --- async -- #

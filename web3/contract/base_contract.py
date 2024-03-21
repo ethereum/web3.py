@@ -487,10 +487,7 @@ class BaseContractFunction:
         if self.function_identifier in [FallbackFn, ReceiveFn]:
             self.selector = encode_hex(b"")
         elif is_text(self.function_identifier):
-            # https://github.com/python/mypy/issues/4976
-            self.selector = encode_hex(
-                function_abi_to_4byte_selector(self.abi)  # type: ignore
-            )
+            self.selector = encode_hex(function_abi_to_4byte_selector(self.abi))
         else:
             raise Web3TypeError("Unsupported function identifier")
 
@@ -508,10 +505,9 @@ class BaseContractFunction:
         if self.address:
             call_transaction.setdefault("to", self.address)
         if self.w3.eth.default_account is not empty:
-            # type ignored b/c check prevents an empty default_account
             call_transaction.setdefault(
                 "from",
-                self.w3.eth.default_account,  # type: ignore
+                self.w3.eth.default_account,
             )
 
         if "to" not in call_transaction:
@@ -540,10 +536,7 @@ class BaseContractFunction:
         if self.address is not None:
             transact_transaction.setdefault("to", self.address)
         if self.w3.eth.default_account is not empty:
-            # type ignored b/c check prevents an empty default_account
-            transact_transaction.setdefault(
-                "from", self.w3.eth.default_account  # type: ignore
-            )
+            transact_transaction.setdefault("from", self.w3.eth.default_account)
 
         if "to" not in transact_transaction:
             if isinstance(self, type):
@@ -571,10 +564,7 @@ class BaseContractFunction:
         if self.address:
             estimate_gas_transaction.setdefault("to", self.address)
         if self.w3.eth.default_account is not empty:
-            # type ignored b/c check prevents an empty default_account
-            estimate_gas_transaction.setdefault(
-                "from", self.w3.eth.default_account  # type: ignore
-            )
+            estimate_gas_transaction.setdefault("from", self.w3.eth.default_account)
 
         if "to" not in estimate_gas_transaction:
             if isinstance(self, type):
@@ -816,8 +806,7 @@ class BaseContract:
     def decode_function_input(
         self, data: HexStr
     ) -> Tuple["BaseContractFunction", Dict[str, Any]]:
-        # type ignored b/c expects data arg to be HexBytes
-        data = HexBytes(data)  # type: ignore
+        data = HexBytes(data)
         func = self.get_function_by_selector(data[:4])
         arguments = decode_transaction_data(
             func.abi, data, normalizers=BASE_RETURN_NORMALIZERS
@@ -1099,10 +1088,7 @@ class BaseContractConstructor:
             )
 
         if self.w3.eth.default_account is not empty:
-            # type ignored b/c check prevents an empty default_account
-            estimate_gas_transaction.setdefault(
-                "from", self.w3.eth.default_account  # type: ignore
-            )
+            estimate_gas_transaction.setdefault("from", self.w3.eth.default_account)
 
         estimate_gas_transaction["data"] = self.data_in_transaction
 
@@ -1118,10 +1104,7 @@ class BaseContractConstructor:
             )
 
         if self.w3.eth.default_account is not empty:
-            # type ignored b/c check prevents an empty default_account
-            transact_transaction.setdefault(
-                "from", self.w3.eth.default_account  # type: ignore
-            )
+            transact_transaction.setdefault("from", self.w3.eth.default_account)
 
         transact_transaction["data"] = self.data_in_transaction
 
