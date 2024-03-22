@@ -157,7 +157,7 @@ def test_ens_encode_name_normalizes_name_before_encoding():
     ),
 )
 def test_normal_name_to_hash(name, hashed):
-    assert normal_name_to_hash(name).hex() == hashed
+    assert normal_name_to_hash(name).to_0x_hex() == hashed
 
 
 @pytest.mark.parametrize(
@@ -200,7 +200,7 @@ def test_label_to_hash_normalizes_name_using_ensip15():
             mock_normalize_name_ensip15.assert_called_once_with(label.text)
             mock_normalize_name_ensip15.reset_mock()
 
-    assert label_to_hash("foo").hex() == (
+    assert label_to_hash("foo").to_0x_hex() == (
         "0x41b1a0649752af1b28b3dc29a1556eee781e4a4c3a1f7f53f90fa834de098c4d"
     )
 

@@ -14,7 +14,7 @@ def test_build_filter_topic_signature(w3, math_contract_abi):
     filter_builder.args["value"].match_any(100, 200, 300)
     _filter = filter_builder.deploy(w3)
     assert _filter.filter_params == {
-        "topics": (HexBytes(keccak(text="Increased(uint256)")).hex(),)
+        "topics": (HexBytes(keccak(text="Increased(uint256)")).to_0x_hex(),)
     }
     assert _filter.data_filter_set == (("uint256", (100, 200, 300)),)
 
