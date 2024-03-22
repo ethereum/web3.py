@@ -84,7 +84,7 @@ windows-wheel-steps:
       paths:
         - .tox
       key: cache-v1-{{ arch }}-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
-        
+
 docs: &docs
   docker:
     - image: common
@@ -222,25 +222,37 @@ jobs:
       - <<: *run-tox-step
       - <<: *save-cache-step
 
+define: &all_jobs
+  - docs
+  - py38-core
+  - py39-core
+  - py310-core
+  - py311-core
+  - py312-core
+  - py38-lint
+  - py39-lint
+  - py310-lint
+  - py311-lint
+  - py312-lint
+  - py38-wheel
+  - py39-wheel
+  - py310-wheel
+  - py311-wheel
+  - py312-wheel
+  - py311-windows-wheel
+  - py312-windows-wheel
+
 workflows:
   version: 2
   test:
-    jobs:
-      - docs
-      - py38-core
-      - py39-core
-      - py310-core
-      - py311-core
-      - py312-core
-      - py38-lint
-      - py39-lint
-      - py310-lint
-      - py311-lint
-      - py312-lint
-      - py38-wheel
-      - py39-wheel
-      - py310-wheel
-      - py311-wheel
-      - py312-wheel
-      - py311-windows-wheel
-      - py312-windows-wheel
+    jobs: *all_jobs
+  nightly:
+    triggers:
+      - schedule:
+          # Weekdays 12:00p UTC
+          cron: "0 12 * * 1,2,3,4,5"
+          filters:
+            branches:
+              only:
+                - main
+    jobs: *all_jobs
