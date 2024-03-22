@@ -241,7 +241,7 @@ Methods
                     'signature': '0x967dd2946358db7e426ed19d4576bc75123520ef6a489ca50002222070ee4611f9cef394e5e3071236a93b825f18a4ad07f1d5a1405e6c984f1d71e03f535d13a2156d6ba22cb0c2b148df23a7b8a7293315d6e74b9a26b64283e8393f2ad4c5'
                   }
                 ],
-                'deposits': [], 
+                'deposits': [],
                 'voluntary_exits': []
               }
             },
@@ -512,4 +512,3 @@ Methods
             'sync_distance': '190861'
           }
         }
-
