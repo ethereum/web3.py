@@ -34,8 +34,9 @@ from web3.datastructures import (
 )
 from web3.exceptions import (
     BadResponseFormat,
-    MethodUnavailable, Web3ValueError,
-
+    MethodUnavailable,
+    ProviderConnectionError,
+    Web3ValueError,
 )
 from web3.middleware import (
     AttributeDictMiddleware,

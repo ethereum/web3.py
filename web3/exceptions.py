@@ -43,15 +43,17 @@ class Web3Exception(Exception):
 
 class Web3ValueError(Web3Exception):
     """
-    Exception raised when an invalid value is encountered by the Web3 library. This error is typically
-    thrown in situations where the provided value does not meet the required format, type, or range expected
-    by a Web3 method or operation. For instance, this could occur when an incorrect address format is used,
-    when parameters do not match an expected pattern, or when a response from the blockchain is not in the
-    anticipated format or structure. It serves as an indicator that user input or the response content needs
-    to be reviewed and corrected.
+    Exception raised when an invalid value is encountered by the Web3 library.
+    This error is typically thrown in situations where the provided value does
+    not meet the required format, type, or range expected by a Web3 method or
+    operation. For instance, this could occur when an incorrect address format is
+    used, when parameters do not match an expected pattern, or when a response from
+    the blockchain is not in the anticipated format or structure. It serves as an
+    indicator that user input or the response content needs to be reviewed
+    and corrected.
     """
-    pass
 
+    pass
 
 
 class BadFunctionCallOutput(Web3Exception):
