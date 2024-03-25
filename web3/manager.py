@@ -34,8 +34,8 @@ from web3.datastructures import (
 )
 from web3.exceptions import (
     BadResponseFormat,
-    MethodUnavailable,
-    ProviderConnectionError,
+    MethodUnavailable, Web3ValueError,
+
 )
 from web3.middleware import (
     AttributeDictMiddleware,
@@ -239,7 +239,7 @@ class RequestManager:
             error = response.get("error")
             # Raise the error when the value is a string
             if error is None or isinstance(error, str):
-                raise ValueError(error)
+                raise Web3ValueError(error)
 
             # Errors must include an integer code
             code = error.get("code")
@@ -260,7 +260,7 @@ class RequestManager:
 
             apply_error_formatters(error_formatters, response)
 
-            raise ValueError(error)
+            raise Web3ValueError(error)
 
         # Format and validate results
         elif "result" in response:
