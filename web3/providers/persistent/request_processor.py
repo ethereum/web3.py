@@ -239,13 +239,13 @@ class RequestProcessor:
         self, cache_key: str = None, subscription: bool = False
     ) -> Any:
         if subscription:
+            qsize = self._subscription_response_queue.qsize()
             raw_response = await self._subscription_response_queue.get()
 
             if not self._provider._listen_event.is_set():
                 self._provider._listen_event.set()
 
-            qsize = self._subscription_response_queue.qsize()
-            if qsize == 1:
+            if qsize == 0:
                 if not self._subscription_queue_synced_with_ws_stream:
                     self._subscription_queue_synced_with_ws_stream = True
                     self._provider.logger.info(
