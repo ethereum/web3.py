@@ -1,0 +1,1 @@
+Fix internal typing for functions used by ``process_log``.
