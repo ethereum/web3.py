@@ -47,6 +47,9 @@ build-docs:
 docs: build-docs validate-docs
 	open docs/_build/html/index.html
 
+autobuild-docs:
+	sphinx-autobuild --open-browser docs docs/_build/html
+
 validate-docs: build-docs
 	python newsfragments/validate_files.py
 	towncrier build --draft
