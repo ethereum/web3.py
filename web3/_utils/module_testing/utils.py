@@ -160,12 +160,11 @@ class RequestMocker:
             # If the original make_request was decorated, we need to re-apply
             # the decorator to the mocked make_request. This is necessary for
             # the request caching decorator to work properly.
-            return cast(
-                "RPCResponse",
-                decorator(lambda *_: mocked_response)(self.w3.provider, method, params),
+            return decorator(lambda *_: mocked_response)(
+                self.w3.provider, method, params
             )
         else:
-            return cast("RPCResponse", mocked_response)
+            return mocked_response
 
     # -- async -- #
     async def __aenter__(self) -> "Self":
@@ -246,13 +245,11 @@ class RequestMocker:
             async def _coro(
                 _provider: Any, _method: "RPCEndpoint", _params: Any
             ) -> "RPCResponse":
-                return cast("RPCResponse", mocked_result)
+                return mocked_result
 
-            return cast(
-                "RPCResponse", await decorator(_coro)(self.w3.provider, method, params)
-            )
+            return await decorator(_coro)(self.w3.provider, method, params)
         else:
-            return cast("RPCResponse", mocked_result)
+            return mocked_result
 
     @staticmethod
     def _create_error_object(error: Dict[str, Any]) -> Dict[str, Any]:

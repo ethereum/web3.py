@@ -1,4 +1,3 @@
-# flake8: noqa: B008
 from datetime import (
     datetime,
     timezone,
@@ -78,7 +77,7 @@ def Web3() -> Type["_Web3"]:
 
 
 def init_web3(
-    provider: "BaseProvider" = cast("BaseProvider", default),
+    provider: "BaseProvider" = None,
     middleware: Optional[Sequence[Tuple["Middleware", str]]] = None,
 ) -> "_Web3":
     from web3 import (
@@ -88,6 +87,7 @@ def init_web3(
         Eth as EthMain,
     )
 
+    provider = provider or cast("BaseProvider", default)
     if provider is default:
         w3 = Web3Main(ens=None, modules={"eth": (EthMain)})
     else:
@@ -301,7 +301,7 @@ def get_abi_output_types(abi: "ABIFunction") -> List[str]:
 
 
 def init_async_web3(
-    provider: "AsyncBaseProvider" = cast("AsyncBaseProvider", default),
+    provider: "AsyncBaseProvider" = None,
     middleware: Optional[Sequence[Tuple["Middleware", str]]] = (),
 ) -> "AsyncWeb3":
     from web3 import (
@@ -314,6 +314,7 @@ def init_async_web3(
         StalecheckMiddlewareBuilder,
     )
 
+    provider = provider or cast("AsyncBaseProvider", default)
     middleware = list(middleware)
     for i, (_mw, name) in enumerate(middleware):
         if name == "ens_name_to_address":

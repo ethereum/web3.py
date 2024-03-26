@@ -1,4 +1,3 @@
-# flake8: noqa: B008
 from copy import (
     deepcopy,
 )
@@ -99,7 +98,7 @@ class AsyncENS(BaseENS):
 
     def __init__(
         self,
-        provider: "AsyncBaseProvider" = cast("AsyncBaseProvider", default),
+        provider: "AsyncBaseProvider" = None,
         addr: ChecksumAddress = None,
         middleware: Optional[Sequence[Tuple["Middleware", str]]] = None,
     ) -> None:
@@ -109,6 +108,7 @@ class AsyncENS(BaseENS):
         :param hex-string addr: the address of the ENS registry on-chain.
             If not provided, ENS.py will default to the mainnet ENS registry address.
         """
+        provider = provider or cast("AsyncBaseProvider", default)
         self.w3 = init_async_web3(provider, middleware)
 
         ens_addr = addr if addr else ENS_MAINNET_ADDR
@@ -168,7 +168,7 @@ class AsyncENS(BaseENS):
     async def setup_address(
         self,
         name: str,
-        address: Union[Address, ChecksumAddress, HexAddress] = cast(
+        address: Union[Address, ChecksumAddress, HexAddress] = cast(  # noqa: B008
             ChecksumAddress, default
         ),
         coin_type: Optional[int] = None,
@@ -306,7 +306,7 @@ class AsyncENS(BaseENS):
     async def setup_owner(
         self,
         name: str,
-        new_owner: ChecksumAddress = cast(ChecksumAddress, default),
+        new_owner: ChecksumAddress = None,
         transact: Optional["TxParams"] = None,
     ) -> Optional[ChecksumAddress]:
         """
@@ -333,6 +333,7 @@ class AsyncENS(BaseENS):
         :raises UnauthorizedError: if ``'from'`` in `transact` does not own `name`
         :returns: the new owner's address
         """
+        new_owner = new_owner or cast(ChecksumAddress, default)
         if not transact:
             transact = {}
         transact = deepcopy(transact)
