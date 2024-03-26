@@ -1,4 +1,3 @@
-import asyncio
 import logging
 from typing import (
     TYPE_CHECKING,
@@ -349,7 +348,6 @@ class RequestManager:
             )
 
         while True:
-           
             response = await self._request_processor.pop_raw_response(subscription=True)
             if (
                 response is not None
