@@ -4,6 +4,7 @@ from typing import (
     Any,
     Awaitable,
     Callable,
+    Dict,
     List,
     Optional,
     Tuple,
@@ -637,14 +638,16 @@ class AsyncEth(BaseEth):
     # eth_signTypedData
 
     _sign_typed_data: Method[
-        Callable[[Union[Address, ChecksumAddress, ENS], str], Awaitable[HexStr]]
+        Callable[
+            [Union[Address, ChecksumAddress, ENS], Dict[str, Any]], Awaitable[HexStr]
+        ]
     ] = Method(
         RPC.eth_signTypedData,
         mungers=[default_root_munger],
     )
 
     async def sign_typed_data(
-        self, account: Union[Address, ChecksumAddress, ENS], data: str
+        self, account: Union[Address, ChecksumAddress, ENS], data: Dict[str, Any]
     ) -> HexStr:
         return await self._sign_typed_data(account, data)
 
