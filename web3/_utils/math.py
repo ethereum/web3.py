@@ -18,22 +18,20 @@ def percentile(
         )
     if percentile is None:
         raise ValueError(f"Expected a percentile choice, got {percentile}")
+    if percentile < 0 or percentile > 100:
+        raise ValueError("percentile must be in the range [0, 100]")
 
     sorted_values = sorted(values)
 
-    rank = len(values) * percentile / 100
-    if rank > 0:
-        index = rank - 1
-        if index < 0:
-            return sorted_values[0]
-    else:
-        index = rank
+    index = len(values) * percentile / 100 - 1
+    if index < 0:
+        return sorted_values[0]
 
-    if index % 1 == 0:
+    fractional = index % 1
+    if fractional == 0:
         return sorted_values[int(index)]
-    else:
-        fractional = index % 1
-        integer = int(index - fractional)
-        lower = sorted_values[integer]
-        higher = sorted_values[integer + 1]
-        return lower + fractional * (higher - lower)
+
+    integer = int(index - fractional)
+    lower = sorted_values[integer]
+    higher = sorted_values[integer + 1]
+    return lower + fractional * (higher - lower)
