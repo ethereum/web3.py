@@ -35,9 +35,9 @@ from hexbytes import (
     HexBytes,
 )
 
-from web3.exceptions import (
-    Web3TypeError,
-    Web3ValueError,
+from ens.exceptions import (
+    ENSTypeError,
+    ENSValueError,
 )
 
 from .constants import (
@@ -204,7 +204,7 @@ def sha3_text(val: Union[str, bytes]) -> HexBytes:
 def label_to_hash(label: str) -> HexBytes:
     label = normalize_name(label)
     if "." in label:
-        raise Web3ValueError(f"Cannot generate hash for label {label!r} with a '.'")
+        raise ENSValueError(f"Cannot generate hash for label {label!r} with a '.'")
     return Web3().keccak(text=label)
 
 
@@ -269,7 +269,7 @@ def assert_signer_in_modifier_kwargs(modifier_kwargs: Any) -> ChecksumAddress:
 
     _modifier_type, modifier_dict = dict(modifier_kwargs).popitem()
     if "from" not in modifier_dict:
-        raise Web3TypeError(ERR_MSG)
+        raise ENSTypeError(ERR_MSG)
 
     return modifier_dict["from"]
 

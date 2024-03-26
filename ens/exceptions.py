@@ -12,6 +12,24 @@ class ENSException(Exception):
     pass
 
 
+class ENSValueError(ENSException, ValueError):
+    """
+    An ENS exception wrapper for `ValueError`, for better control over
+    exception handling.
+    """
+
+    pass
+
+
+class ENSTypeError(ENSException, TypeError):
+    """
+    An ENS exception wrapper for `TypeError`, for better control over
+    exception handling.
+    """
+
+    pass
+
+
 class AddressMismatch(ENSException):
     """
     In order to set up reverse resolution correctly, the ENS name should first
