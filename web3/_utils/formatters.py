@@ -8,7 +8,6 @@ from typing import (
     Iterable,
     Tuple,
     TypeVar,
-    cast,
 )
 
 from eth_typing import (
@@ -47,14 +46,11 @@ integer_to_hex = hex
 def apply_formatters_to_args(
     *formatters: Callable[[TValue], TReturn]
 ) -> Callable[..., TReturn]:
-    return cast(
-        Callable[..., TReturn],
-        compose(
-            *(
-                apply_formatter_at_index(formatter, index)
-                for index, formatter in enumerate(formatters)
-            )
-        ),
+    return compose(
+        *(
+            apply_formatter_at_index(formatter, index)
+            for index, formatter in enumerate(formatters)
+        )
     )
 
 
@@ -83,7 +79,7 @@ def recursive_map(func: Callable[..., TReturn], data: Any) -> TReturn:
     """
 
     def recurse(item: Any) -> TReturn:
-        return cast(TReturn, recursive_map(func, item))
+        return recursive_map(func, item)
 
     items_mapped = map_collection(recurse, data)
     return func(items_mapped)
@@ -132,6 +128,6 @@ def remove_key_if(
     key: Any, remove_if: Callable[[Dict[Any, Any]], bool], input_dict: Dict[Any, Any]
 ) -> Dict[Any, Any]:
     if key in input_dict and remove_if(input_dict):
-        return cast(Dict[Any, Any], dissoc(input_dict, key))
+        return dissoc(input_dict, key)
     else:
         return input_dict

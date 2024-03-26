@@ -1,6 +1,5 @@
 from typing import (
     Optional,
-    cast,
 )
 
 from web3._utils.rpc_abi import (
@@ -20,7 +19,7 @@ class Testing(Module):
 
     def snapshot(self) -> int:
         self.last_snapshot_idx = self.w3.manager.request_blocking(RPC.evm_snapshot, [])
-        return cast(int, self.last_snapshot_idx)
+        return self.last_snapshot_idx
 
     def reset(self) -> None:
         self.w3.manager.request_blocking(RPC.evm_reset, [])

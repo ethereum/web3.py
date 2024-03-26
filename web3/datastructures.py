@@ -246,7 +246,7 @@ class NamedElementOnion(Mapping[TKey, TValue]):
             self._replace_with_new_name(old, new)
         else:
             self._queue[old_name] = new
-        return cast(TValue, to_be_replaced)
+        return to_be_replaced
 
     def _repr_if_not_hashable(self, value: TKey) -> TKey:
         try:
@@ -298,7 +298,7 @@ class NamedElementOnion(Mapping[TKey, TValue]):
 
     def __getitem__(self, element: TKey) -> TValue:
         element_name = self._repr_if_not_hashable(element)
-        return cast(TValue, self._queue[element_name])
+        return self._queue[element_name]
 
     def __len__(self) -> int:
         return len(self._queue)

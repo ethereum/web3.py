@@ -1,4 +1,3 @@
-# flake8: noqa: B008
 from copy import (
     deepcopy,
 )
@@ -99,7 +98,7 @@ class ENS(BaseENS):
 
     def __init__(
         self,
-        provider: "BaseProvider" = cast("BaseProvider", default),
+        provider: "BaseProvider" = None,
         addr: ChecksumAddress = None,
         middleware: Optional[Sequence[Tuple["Middleware", str]]] = None,
     ) -> None:
@@ -110,6 +109,7 @@ class ENS(BaseENS):
             If not provided, ENS.py will default to the mainnet ENS
             registry address.
         """
+        provider = provider or cast("BaseProvider", default)
         self.w3 = init_web3(provider, middleware)
 
         ens_addr = addr if addr else ENS_MAINNET_ADDR
@@ -172,7 +172,7 @@ class ENS(BaseENS):
     def setup_address(
         self,
         name: str,
-        address: Union[Address, ChecksumAddress, HexAddress] = cast(
+        address: Union[Address, ChecksumAddress, HexAddress] = cast(  # noqa: B008
             ChecksumAddress, default
         ),
         coin_type: Optional[int] = None,
@@ -309,7 +309,7 @@ class ENS(BaseENS):
     def setup_owner(
         self,
         name: str,
-        new_owner: ChecksumAddress = cast(ChecksumAddress, default),
+        new_owner: ChecksumAddress = None,
         transact: Optional["TxParams"] = None,
     ) -> Optional[ChecksumAddress]:
         """
@@ -336,6 +336,7 @@ class ENS(BaseENS):
         :raises UnauthorizedError: if ``'from'`` in `transact` does not own `name`
         :returns: the new owner's address
         """
+        new_owner = new_owner or cast(ChecksumAddress, default)
         if not transact:
             transact = {}
 
@@ -390,7 +391,7 @@ class ENS(BaseENS):
 
         r = self.resolver(name)
         _validate_resolver_and_interface_id(name, r, ENS_TEXT_INTERFACE_ID, "text")
-        return cast(str, r.caller.text(node, key))
+        return r.caller.text(node, key)
 
     def set_text(
         self,
@@ -561,9 +562,7 @@ class ENS(BaseENS):
 
     def _reverse_registrar(self) -> "Contract":
         addr = self.ens.caller.owner(normal_name_to_hash(REVERSE_REGISTRAR_DOMAIN))
-        return cast(
-            "Contract", self.w3.eth.contract(address=addr, abi=abis.REVERSE_REGISTRAR)
-        )
+        return self.w3.eth.contract(address=addr, abi=abis.REVERSE_REGISTRAR)
 
     def _set_property(
         self,

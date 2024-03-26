@@ -56,7 +56,7 @@ def deprecated_for(replace_message: str) -> Callable[..., Any]:
                 category=DeprecationWarning,
                 stacklevel=2,
             )
-            return cast(Callable[..., Any], to_wrap(*args, **kwargs))
+            return to_wrap(*args, **kwargs)
 
         return cast(TFunc, wrapper)
 

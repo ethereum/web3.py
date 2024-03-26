@@ -53,7 +53,7 @@ def _get_avg_block_time(w3: Web3, sample_size: int) -> float:
         raise Web3ValidationError("Constrained sample size is 0")
 
     oldest = w3.eth.get_block(BlockNumber(latest["number"] - constrained_sample_size))
-    return float((latest["timestamp"] - oldest["timestamp"]) / constrained_sample_size)
+    return (latest["timestamp"] - oldest["timestamp"]) / constrained_sample_size
 
 
 def _get_weighted_avg_block_time(w3: Web3, sample_size: int) -> float:

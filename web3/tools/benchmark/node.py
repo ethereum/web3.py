@@ -73,7 +73,7 @@ class GethBenchmarkFixture:
             if not os.path.exists(_geth_binary):
                 install_geth(geth_version)
             assert os.path.exists(_geth_binary)
-            return str(_geth_binary)
+            return _geth_binary
         else:
             return "geth"
 
