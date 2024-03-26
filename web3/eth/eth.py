@@ -2,6 +2,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
+    Dict,
     List,
     Optional,
     Sequence,
@@ -622,7 +623,7 @@ class Eth(BaseEth):
     # eth_signTypedData
 
     sign_typed_data: Method[
-        Callable[[Union[Address, ChecksumAddress, ENS], str], HexStr]
+        Callable[[Union[Address, ChecksumAddress, ENS], Dict[str, Any]], HexStr]
     ] = Method(
         RPC.eth_signTypedData,
         mungers=[default_root_munger],
