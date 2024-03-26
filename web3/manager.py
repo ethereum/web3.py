@@ -349,11 +349,8 @@ class RequestManager:
             )
 
         while True:
-            # sleep(0) here seems to be the most efficient way to yield control
-            # back to the event loop while waiting for the response in the queue.
-            await asyncio.sleep(0)
-
-            response = self._request_processor.pop_raw_response(subscription=True)
+           
+            response = await self._request_processor.pop_raw_response(subscription=True)
             if (
                 response is not None
                 and response.get("params", {}).get("subscription")
