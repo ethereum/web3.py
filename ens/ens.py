@@ -30,10 +30,6 @@ from hexbytes import (
     HexBytes,
 )
 
-from web3.exceptions import (
-    Web3ValueError,
-)
-
 from . import (
     abis,
 )
@@ -50,6 +46,7 @@ from .constants import (
 )
 from .exceptions import (
     AddressMismatch,
+    ENSValueError,
     ResolverNotFound,
     UnauthorizedError,
     UnownedName,
@@ -212,7 +209,7 @@ class ENS(BaseENS):
         elif is_binary_address(address):
             address = to_checksum_address(cast(str, address))
         elif not is_checksum_address(address):
-            raise Web3ValueError("You must supply the address in checksum format")
+            raise ENSValueError("You must supply the address in checksum format")
         if self.address(name) == address:
             return None
         if address is None:
@@ -288,7 +285,7 @@ class ENS(BaseENS):
             if is_binary_address(address):
                 address = to_checksum_address(address)
             if not is_checksum_address(address):
-                raise Web3ValueError("You must supply the address in checksum format")
+                raise ENSValueError("You must supply the address in checksum format")
             self._assert_control(address, name)
             if not resolved:
                 self.setup_address(name, address, transact=transact)

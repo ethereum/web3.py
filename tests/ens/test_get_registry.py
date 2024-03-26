@@ -6,11 +6,11 @@ from unittest.mock import (
 from ens import (
     ENS,
 )
+from ens.exceptions import (
+    ENSValueError,
+)
 from web3 import (
     Web3,
-)
-from web3.exceptions import (
-    Web3ValueError,
 )
 
 
@@ -42,7 +42,7 @@ def test_reverse_domain(address, expected_reverse, address_conversion_func):
     [
         ("eth", "0x4f5b812789fc606be1b3b16908db13fc7a9adf7ca72641f84d75b47069d3d7f0"),
         ("ETH", "0x4f5b812789fc606be1b3b16908db13fc7a9adf7ca72641f84d75b47069d3d7f0"),
-        ("a.b", Web3ValueError),
+        ("a.b", ENSValueError),
     ],
 )
 def test_labelhash(ens, label, expected_hash):
