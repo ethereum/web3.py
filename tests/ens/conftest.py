@@ -157,7 +157,7 @@ def ENSRegistryFactory(w3):
 @pytest.fixture
 def ens(ens_setup, mocker):
     mocker.patch("web3.middleware.stalecheck._is_fresh", return_value=True)
-    ens_setup.w3.eth.default_account = ens_setup.w3.eth.coinbase
+    ens_setup.w3.eth.default_account = ens_setup.w3.eth.accounts[0]
     return ens_setup
 
 
@@ -462,13 +462,12 @@ def event_loop():
 # add session scope with above session-scoped `event_loop` for better performance
 @pytest_asyncio.fixture(scope="session")
 async def async_ens_setup(async_w3):
-    async_w3.eth.default_account = await async_w3.eth.coinbase
-
     # ** Set up ENS contracts **
 
     # remove account that creates ENS, so test transactions don't have write access
     accounts = await async_w3.eth.accounts
     ens_key = accounts.pop()
+    async_w3.eth.default_account = accounts[0]
 
     # create ENS contract
     eth_labelhash = async_w3.keccak(text="eth")
@@ -659,5 +658,6 @@ async def async_ens_setup(async_w3):
 @pytest_asyncio.fixture
 async def async_ens(async_ens_setup, mocker):
     mocker.patch("web3.middleware.stalecheck._is_fresh", return_value=True)
-    async_ens_setup.w3.eth.default_account = await async_ens_setup.w3.eth.coinbase
+    accounts = await async_ens_setup.w3.eth.accounts
+    async_ens_setup.w3.eth.default_account = accounts[0]
     return async_ens_setup

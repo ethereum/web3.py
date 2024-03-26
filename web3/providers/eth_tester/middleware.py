@@ -59,7 +59,7 @@ if TYPE_CHECKING:
 
 
 def is_named_block(value: Any) -> bool:
-    return value in {"latest", "earliest", "pending", "safe", "finalized"}
+    return value in {"latest", "earliest", "safe", "finalized"}
 
 
 def is_hexstr(value: Any) -> bool:
@@ -334,9 +334,7 @@ result_formatters: Optional[Dict[RPCEndpoint, Callable[..., Any]]] = {
 
 
 def guess_from(w3: "Web3", _: TxParams) -> ChecksumAddress:
-    if w3.eth.coinbase:
-        return w3.eth.coinbase
-    elif w3.eth.accounts and len(w3.eth.accounts) > 0:
+    if w3.eth.accounts and len(w3.eth.accounts) > 0:
         return w3.eth.accounts[0]
 
     return None
@@ -360,11 +358,8 @@ def fill_default(
 async def async_guess_from(
     async_w3: "AsyncWeb3", _: TxParams
 ) -> Optional[ChecksumAddress]:
-    coinbase = await async_w3.eth.coinbase
     accounts = await async_w3.eth.accounts
-    if coinbase is not None:
-        return coinbase
-    elif accounts is not None and len(accounts) > 0:
+    if accounts is not None and len(accounts) > 0:
         return accounts[0]
     return None
 

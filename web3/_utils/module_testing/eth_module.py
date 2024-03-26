@@ -5,7 +5,6 @@ from random import (
     randint,
 )
 import re
-import time
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -882,7 +881,8 @@ class AsyncEthModuleTest:
         async_math_contract: "AsyncContract",
         params: StateOverrideParams,
     ) -> None:
-        txn_params: TxParams = {"from": await async_w3.eth.coinbase}
+        accounts = await async_w3.eth.accounts
+        txn_params: TxParams = {"from": accounts[0]}
 
         # assert does not raise
         await async_w3.eth.estimate_gas(
@@ -978,9 +978,8 @@ class AsyncEthModuleTest:
     async def test_eth_getBlockByNumber_latest(
         self, async_w3: "AsyncWeb3", async_empty_block: BlockData
     ) -> None:
-        current_block_number = await async_w3.eth.block_number
         block = await async_w3.eth.get_block("latest")
-        assert block["number"] == current_block_number
+        assert block["hash"] is not None
 
     @pytest.mark.asyncio
     async def test_eth_getBlockByNumber_not_found(
@@ -1087,19 +1086,16 @@ class AsyncEthModuleTest:
         async_keyfile_account_address_dual_type: ChecksumAddress,
     ) -> None:
         # eth_getRawTransactionByBlockNumberAndIndex: block identifier
-        # send a txn to make sure pending block has at least one txn
-        await async_w3.eth.send_transaction(
+        # send a tx and wait until the latest block includes it
+        tx_hash = await async_w3.eth.send_transaction(
             {
                 "from": async_keyfile_account_address_dual_type,
                 "to": async_keyfile_account_address_dual_type,
                 "value": Wei(1),
             }
         )
-        pending_block = await async_w3.eth.get_block("pending")
-        last_pending_txn_index = len(pending_block["transactions"]) - 1
-        raw_txn = await async_w3.eth.get_raw_transaction_by_block(
-            "pending", last_pending_txn_index
-        )
+        await async_w3.eth.wait_for_transaction_receipt(tx_hash)
+        raw_txn = await async_w3.eth.get_raw_transaction_by_block("latest", 0)
         assert is_bytes(raw_txn)
 
         # eth_getRawTransactionByBlockNumberAndIndex: block number
@@ -1149,14 +1145,15 @@ class AsyncEthModuleTest:
 
     @pytest.mark.asyncio
     async def test_eth_get_balance(self, async_w3: "AsyncWeb3") -> None:
-        coinbase = await async_w3.eth.coinbase
+        accounts = await async_w3.eth.accounts
+        account = accounts[0]
 
         with pytest.raises(InvalidAddress):
             await async_w3.eth.get_balance(
-                ChecksumAddress(HexAddress(HexStr(coinbase.lower())))
+                ChecksumAddress(HexAddress(HexStr(account.lower())))
             )
 
-        balance = await async_w3.eth.get_balance(coinbase)
+        balance = await async_w3.eth.get_balance(account)
 
         assert is_integer(balance)
         assert balance >= 0
@@ -1235,11 +1232,13 @@ class AsyncEthModuleTest:
     async def test_eth_call(
         self, async_w3: "AsyncWeb3", async_math_contract: "AsyncContract"
     ) -> None:
-        coinbase = await async_w3.eth.coinbase
+        accounts = await async_w3.eth.accounts
+        account = accounts[0]
+
         txn_params = async_math_contract._prepare_transaction(
             fn_name="add",
             fn_args=(7, 11),
-            transaction={"from": coinbase, "to": async_math_contract.address},
+            transaction={"from": account, "to": async_math_contract.address},
         )
         call_result = await async_w3.eth.call(txn_params)
         assert is_string(call_result)
@@ -1252,10 +1251,11 @@ class AsyncEthModuleTest:
         async_w3: "AsyncWeb3",
         async_revert_contract: "AsyncContract",
     ) -> None:
-        coinbase = await async_w3.eth.coinbase
+        accounts = await async_w3.eth.accounts
+        account = accounts[0]
         txn_params = async_revert_contract._prepare_transaction(
             fn_name="normalFunction",
-            transaction={"from": coinbase, "to": async_revert_contract.address},
+            transaction={"from": account, "to": async_revert_contract.address},
         )
         call_result = await async_w3.eth.call(txn_params)
         (result,) = async_w3.codec.decode(["bool"], call_result)
@@ -1309,8 +1309,8 @@ class AsyncEthModuleTest:
         async_math_contract: "AsyncContract",
         params: StateOverrideParams,
     ) -> None:
-        coinbase = await async_w3.eth.coinbase
-        txn_params: TxParams = {"from": coinbase}
+        accounts = await async_w3.eth.accounts
+        txn_params: TxParams = {"from": accounts[0]}
 
         # assert does not raise
         await async_w3.eth.call(
@@ -1321,11 +1321,11 @@ class AsyncEthModuleTest:
     async def test_eth_call_with_0_result(
         self, async_w3: "AsyncWeb3", async_math_contract: "AsyncContract"
     ) -> None:
-        coinbase = await async_w3.eth.coinbase
+        accounts = await async_w3.eth.accounts
         txn_params = async_math_contract._prepare_transaction(
             fn_name="add",
             fn_args=(0, 0),
-            transaction={"from": coinbase, "to": async_math_contract.address},
+            transaction={"from": accounts[0], "to": async_math_contract.address},
         )
         call_result = await async_w3.eth.call(txn_params)
         assert is_string(call_result)
@@ -1662,21 +1662,10 @@ class AsyncEthModuleTest:
             await async_offchain_lookup_contract.caller().continuousOffchainLookup()  # noqa: E501 type: ignore
 
     @pytest.mark.asyncio
-    async def test_async_eth_hashrate(self, async_w3: "AsyncWeb3") -> None:
-        hashrate = await async_w3.eth.hashrate
-        assert is_integer(hashrate)
-        assert hashrate >= 0
-
-    @pytest.mark.asyncio
     async def test_async_eth_chain_id(self, async_w3: "AsyncWeb3") -> None:
         chain_id = await async_w3.eth.chain_id
         # chain id value from geth fixture genesis file
         assert chain_id == 131277322940537
-
-    @pytest.mark.asyncio
-    async def test_async_eth_mining(self, async_w3: "AsyncWeb3") -> None:
-        mining = await async_w3.eth.mining
-        assert is_boolean(mining)
 
     @pytest.mark.asyncio
     async def test_async_eth_get_transaction_receipt_mined(
@@ -1818,7 +1807,6 @@ class AsyncEthModuleTest:
         assert is_list_like(accounts)
         assert len(accounts) != 0
         assert all(is_checksum_address(account) for account in accounts)
-        assert await async_w3.eth.coinbase in accounts
 
     @pytest.mark.asyncio
     async def test_async_eth_get_logs_without_logs(
@@ -2028,10 +2016,10 @@ class AsyncEthModuleTest:
     async def test_async_eth_get_storage_at_invalid_address(
         self, async_w3: "AsyncWeb3"
     ) -> None:
-        coinbase = await async_w3.eth.coinbase
+        accounts = await async_w3.eth.accounts
         with pytest.raises(InvalidAddress):
             await async_w3.eth.get_storage_at(
-                ChecksumAddress(HexAddress(HexStr(coinbase.lower()))), 0
+                ChecksumAddress(HexAddress(HexStr(accounts[0].lower()))), 0
             )
 
     def test_async_provider_default_account(
@@ -2517,19 +2505,6 @@ class EthModuleTest:
             assert is_integer(sync_dict["currentBlock"])
             assert is_integer(sync_dict["highestBlock"])
 
-    def test_eth_coinbase(self, w3: "Web3") -> None:
-        coinbase = w3.eth.coinbase
-        assert is_checksum_address(coinbase)
-
-    def test_eth_mining(self, w3: "Web3") -> None:
-        mining = w3.eth.mining
-        assert is_boolean(mining)
-
-    def test_eth_hashrate(self, w3: "Web3") -> None:
-        hashrate = w3.eth.hashrate
-        assert is_integer(hashrate)
-        assert hashrate >= 0
-
     def test_eth_chain_id(self, w3: "Web3") -> None:
         chain_id = w3.eth.chain_id
         # chain id value from geth fixture genesis file
@@ -2597,7 +2572,6 @@ class EthModuleTest:
         assert is_list_like(accounts)
         assert len(accounts) != 0
         assert all(is_checksum_address(account) for account in accounts)
-        assert w3.eth.coinbase in accounts
 
     def test_eth_block_number(self, w3: "Web3") -> None:
         block_number = w3.eth.block_number
@@ -2610,12 +2584,12 @@ class EthModuleTest:
         assert block_number >= 0
 
     def test_eth_get_balance(self, w3: "Web3") -> None:
-        coinbase = w3.eth.coinbase
+        account = w3.eth.accounts[0]
 
         with pytest.raises(InvalidAddress):
-            w3.eth.get_balance(ChecksumAddress(HexAddress(HexStr(coinbase.lower()))))
+            w3.eth.get_balance(ChecksumAddress(HexAddress(HexStr(account.lower()))))
 
-        balance = w3.eth.get_balance(coinbase)
+        balance = w3.eth.get_balance(account)
 
         assert is_integer(balance)
         assert balance >= 0
@@ -2677,10 +2651,10 @@ class EthModuleTest:
             assert storage == HexBytes(f"0x{'00' * 31}01")
 
     def test_eth_get_storage_at_invalid_address(self, w3: "Web3") -> None:
-        coinbase = w3.eth.coinbase
+        account = w3.eth.accounts[0]
         with pytest.raises(InvalidAddress):
             w3.eth.get_storage_at(
-                ChecksumAddress(HexAddress(HexStr(coinbase.lower()))), 0
+                ChecksumAddress(HexAddress(HexStr(account.lower()))), 0
             )
 
     def test_eth_get_transaction_count(
@@ -2705,10 +2679,10 @@ class EthModuleTest:
             assert transaction_count >= 0
 
     def test_eth_get_transaction_count_invalid_address(self, w3: "Web3") -> None:
-        coinbase = w3.eth.coinbase
+        account = w3.eth.accounts[0]
         with pytest.raises(InvalidAddress):
             w3.eth.get_transaction_count(
-                ChecksumAddress(HexAddress(HexStr(coinbase.lower())))
+                ChecksumAddress(HexAddress(HexStr(account.lower())))
             )
 
     def test_eth_getBlockTransactionCountByHash_empty_block(
@@ -3724,11 +3698,10 @@ class EthModuleTest:
         assert txn_hash == HexBytes(signed.hash)
 
     def test_eth_call(self, w3: "Web3", math_contract: "Contract") -> None:
-        coinbase = w3.eth.coinbase
         txn_params = math_contract._prepare_transaction(
             fn_name="add",
             fn_args=(7, 11),
-            transaction={"from": coinbase, "to": math_contract.address},
+            transaction={"from": w3.eth.accounts[0], "to": math_contract.address},
         )
         call_result = w3.eth.call(txn_params)
         assert is_string(call_result)
@@ -3738,10 +3711,9 @@ class EthModuleTest:
     def test_eth_call_with_override_code(
         self, w3: "Web3", revert_contract: "Contract"
     ) -> None:
-        coinbase = w3.eth.coinbase
         txn_params = revert_contract._prepare_transaction(
             fn_name="normalFunction",
-            transaction={"from": coinbase, "to": revert_contract.address},
+            transaction={"from": w3.eth.accounts[0], "to": revert_contract.address},
         )
         call_result = w3.eth.call(txn_params)
         (result,) = w3.codec.decode(["bool"], call_result)
@@ -3792,7 +3764,7 @@ class EthModuleTest:
         math_contract: "Contract",
         params: StateOverrideParams,
     ) -> None:
-        txn_params: TxParams = {"from": w3.eth.coinbase}
+        txn_params: TxParams = {"from": w3.eth.accounts[0]}
 
         # assert does not raise
         w3.eth.call(txn_params, "latest", {math_contract.address: params})
@@ -3800,11 +3772,10 @@ class EthModuleTest:
     def test_eth_call_with_0_result(
         self, w3: "Web3", math_contract: "Contract"
     ) -> None:
-        coinbase = w3.eth.coinbase
         txn_params = math_contract._prepare_transaction(
             fn_name="add",
             fn_args=(0, 0),
-            transaction={"from": coinbase, "to": math_contract.address},
+            transaction={"from": w3.eth.accounts[0], "to": math_contract.address},
         )
         call_result = w3.eth.call(txn_params)
         assert is_string(call_result)
@@ -4243,7 +4214,7 @@ class EthModuleTest:
         math_contract: "Contract",
         params: StateOverrideParams,
     ) -> None:
-        txn_params: TxParams = {"from": w3.eth.coinbase}
+        txn_params: TxParams = {"from": w3.eth.accounts[0]}
 
         # assert does not raise
         w3.eth.estimate_gas(txn_params, None, {math_contract.address: params})
@@ -4270,12 +4241,9 @@ class EthModuleTest:
         block = w3.eth.get_block(empty_block["number"])
         assert block["number"] == empty_block["number"]
 
-    def test_eth_getBlockByNumber_latest(
-        self, w3: "Web3", empty_block: BlockData
-    ) -> None:
-        current_block_number = w3.eth.block_number
+    def test_eth_getBlockByNumber_latest(self, w3: "Web3") -> None:
         block = w3.eth.get_block("latest")
-        assert block["number"] == current_block_number
+        assert block["hash"] is not None
 
     def test_eth_getBlockByNumber_not_found(
         self, w3: "Web3", empty_block: BlockData
@@ -4665,39 +4633,43 @@ class EthModuleTest:
         math_contract: "Contract",
         keyfile_account_address: ChecksumAddress,
     ) -> None:
-        latest_block = w3.eth.get_block("latest")
-        block_num = latest_block["number"]
-        block_hash = latest_block["hash"]
+        current_block = w3.eth.get_block("latest")
+        block_num = current_block["number"]
+        block_hash = current_block["hash"]
 
-        latest_call_result = math_contract.functions.counter().call(
+        default_call_result = math_contract.functions.counter().call()
+        pre_state_change_latest = math_contract.functions.counter().call(
             block_identifier="latest"
         )
+
+        # increment counter and wait 1 second to "mine" txn
+        tx_hash = math_contract.functions.incrementCounter().transact(
+            {"from": keyfile_account_address}
+        )
+        w3.eth.wait_for_transaction_receipt(tx_hash)
+        # assert block number increased
+        assert w3.eth.get_block("latest")["number"] == block_num + 1
+
         block_hash_call_result = math_contract.functions.counter().call(
             block_identifier=block_hash
         )
         block_num_call_result = math_contract.functions.counter().call(
             block_identifier=block_num
         )
-        default_call_result = math_contract.functions.counter().call()
 
-        # send and wait 1 second to mine
-        math_contract.functions.incrementCounter().transact(
-            {"from": keyfile_account_address}
+        # assert old state values
+        assert (
+            block_hash_call_result
+            == block_num_call_result
+            == default_call_result
+            == pre_state_change_latest
         )
-        time.sleep(1)
 
-        pending_call_result = math_contract.functions.counter().call(
-            block_identifier="pending"
+        # assert new state value
+        post_state_change_latest = math_contract.functions.counter().call(
+            block_identifier="latest"
         )
-        assert block_hash_call_result == 0
-        assert block_num_call_result == 0
-        assert latest_call_result == 0
-        assert default_call_result == 0
-
-        if pending_call_result != 1:
-            raise AssertionError(
-                f"pending call result was {pending_call_result} instead of 1"
-            )
+        assert post_state_change_latest == pre_state_change_latest + 1
 
     def test_eth_uninstall_filter(self, w3: "Web3") -> None:
         filter = w3.eth.filter({})
@@ -4726,18 +4698,16 @@ class EthModuleTest:
         block_with_txn: BlockData,
     ) -> None:
         # eth_getRawTransactionByBlockNumberAndIndex: block identifier
-        # send a txn to make sure pending block has at least one txn
-        w3.eth.send_transaction(
+        # send a tx and wait until the latest block includes it
+        tx_hash = w3.eth.send_transaction(
             {
                 "from": keyfile_account_address_dual_type,
                 "to": keyfile_account_address_dual_type,
                 "value": Wei(1),
             }
         )
-        last_pending_txn_index = len(w3.eth.get_block("pending")["transactions"]) - 1
-        raw_transaction = w3.eth.get_raw_transaction_by_block(
-            "pending", last_pending_txn_index
-        )
+        w3.eth.wait_for_transaction_receipt(tx_hash)
+        raw_transaction = w3.eth.get_raw_transaction_by_block("latest", 0)
         assert is_bytes(raw_transaction)
 
         # eth_getRawTransactionByBlockNumberAndIndex: block number

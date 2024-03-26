@@ -33,7 +33,7 @@ def _geth_command_arguments(ws_port, base_geth_command_arguments, geth_version):
             "*",
             "--ipcdisable",
         )
-        if geth_version.minor not in [11, 12, 13]:
+        if geth_version.minor not in [13, 14]:
             raise AssertionError("Unsupported Geth version")
     else:
         raise AssertionError("Unsupported Geth version")

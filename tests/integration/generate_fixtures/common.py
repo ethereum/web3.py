@@ -39,6 +39,8 @@ RAW_TXN_ACCOUNT = "0x39EEed73fb1D3855E90Cbd42f348b3D7b340aAA6"
 GENESIS_DATA = {
     "config": {
         "chainId": 131277322940537,  # the string 'web3py' as an integer
+        "ethash": {},  # establishes `consensus` == "PoW -> PoS" rather than "unknown"
+        # pre-merge, block numbers are used for network transitions
         "homesteadBlock": 0,
         "eip150Block": 0,
         "eip155Block": 0,
@@ -51,12 +53,12 @@ GENESIS_DATA = {
         "londonBlock": 0,
         "arrowGlacierBlock": 0,
         "grayGlacierBlock": 0,
-        "shanghaiTime": 0,
-        # TODO: Remove this once this bug is fixed. We need to set TTD to -1 and
-        #  `difficulty` to `0` to trick geth into using the correct EVM rules for
-        #  `eth_estimateGas`. See: github.com/ethereum/go-ethereum/issues/29404
-        "terminalTotalDifficulty": -1,
+        # merge
+        "terminalTotalDifficulty": 0,
         "terminalTotalDifficultyPassed": True,
+        # post-merge, timestamp is used for network transitions
+        "shanghaiTime": 0,
+        "cancunTime": 0,
     },
     "nonce": "0x0",
     "alloc": {
@@ -70,7 +72,6 @@ GENESIS_DATA = {
         "0000000000000000000000000000000000000005": {"balance": "1"},
         "0000000000000000000000000000000000000006": {"balance": "1"},
     },
-    "timestamp": "0x0",
     "parentHash": constants.HASH_ZERO,
     "extraData": "0x3535353535353535353535353535353535353535353535353535353535353535",
     "gasLimit": "0x3b9aca00",  # 1,000,000,000
@@ -178,8 +179,6 @@ def get_geth_process(
         "--datadir",
         datadir,
         "--dev",
-        "--dev.period",
-        "1",
         "--ipcpath",
         ipc_path,
         "--nodiscover",

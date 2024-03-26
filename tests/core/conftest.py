@@ -119,7 +119,8 @@ def module_many_init_args():
 @pytest_asyncio.fixture
 async def async_w3():
     w3 = AsyncWeb3(AsyncEthereumTesterProvider())
-    w3.eth.default_account = await w3.eth.coinbase
+    accounts = await w3.eth.accounts
+    w3.eth.default_account = accounts[0]
     return w3
 
 
@@ -127,5 +128,6 @@ async def async_w3():
 async def async_w3_non_strict_abi():
     w3 = AsyncWeb3(AsyncEthereumTesterProvider())
     w3.strict_bytes_type_checking = False
-    w3.eth.default_account = await w3.eth.coinbase
+    accounts = await w3.eth.accounts
+    w3.eth.default_account = accounts[0]
     return w3

@@ -127,17 +127,6 @@ class AsyncEth(BaseEth):
     async def accounts(self) -> Tuple[ChecksumAddress]:
         return await self._accounts()
 
-    # eth_hashrate
-
-    _hashrate: Method[Callable[[], Awaitable[int]]] = Method(
-        RPC.eth_hashrate,
-        is_property=True,
-    )
-
-    @property
-    async def hashrate(self) -> int:
-        return await self._hashrate()
-
     # eth_blockNumber
 
     get_block_number: Method[Callable[[], Awaitable[BlockNumber]]] = Method(
@@ -159,17 +148,6 @@ class AsyncEth(BaseEth):
     @property
     async def chain_id(self) -> int:
         return await self._chain_id()
-
-    # eth_coinbase
-
-    _coinbase: Method[Callable[[], Awaitable[ChecksumAddress]]] = Method(
-        RPC.eth_coinbase,
-        is_property=True,
-    )
-
-    @property
-    async def coinbase(self) -> ChecksumAddress:
-        return await self._coinbase()
 
     # eth_gasPrice
 
@@ -205,17 +183,6 @@ class AsyncEth(BaseEth):
                 stacklevel=2,
             )
             return await async_fee_history_priority_fee(self)
-
-    # eth_mining
-
-    _mining: Method[Callable[[], Awaitable[bool]]] = Method(
-        RPC.eth_mining,
-        is_property=True,
-    )
-
-    @property
-    async def mining(self) -> bool:
-        return await self._mining()
 
     # eth_syncing
 

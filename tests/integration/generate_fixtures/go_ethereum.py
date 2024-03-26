@@ -9,9 +9,6 @@ import sys
 import time
 
 import common
-from eth_utils import (
-    is_same_address,
-)
 from eth_utils.curried import (
     apply_formatter_if,
     is_bytes,
@@ -206,8 +203,7 @@ def mine_block(w3):
 
 
 def setup_chain_state(w3):
-    coinbase = w3.eth.coinbase
-    assert is_same_address(coinbase, common.COINBASE)
+    coinbase = common.COINBASE
 
     #
     # Math Contract
@@ -256,11 +252,11 @@ def setup_chain_state(w3):
     revert_contract = revert_contract_factory(revert_deploy_receipt["contractAddress"])
 
     txn_hash_normal_function = revert_contract.functions.normalFunction().transact(
-        {"gas": 320000, "from": w3.eth.coinbase}
+        {"gas": 320000, "from": coinbase}
     )
     print("TXN_HASH_REVERT_NORMAL:", txn_hash_normal_function)
     txn_hash_revert_with_msg = revert_contract.functions.revertWithMessage().transact(
-        {"gas": 320000, "from": w3.eth.coinbase}
+        {"gas": 320000, "from": coinbase}
     )
     print("TXN_HASH_REVERT_WITH_MSG:", txn_hash_revert_with_msg)
     txn_receipt_revert_with_msg = w3.eth.wait_for_transaction_receipt(
@@ -273,7 +269,7 @@ def setup_chain_state(w3):
 
     txn_hash_revert_with_no_msg = (
         revert_contract.functions.revertWithoutMessage().transact(
-            {"gas": 320000, "from": w3.eth.coinbase}
+            {"gas": 320000, "from": coinbase}
         )
     )
     print("TXN_HASH_REVERT_WITH_NO_MSG:", txn_hash_revert_with_no_msg)
@@ -318,7 +314,8 @@ def setup_chain_state(w3):
     #
     # Empty Block
     #
-    empty_block_number = mine_block(w3)
+    time.sleep(2)
+    empty_block_number = w3.eth.block_number
     print("MINED_EMPTY_BLOCK")
     empty_block = w3.eth.get_block(empty_block_number)
     assert is_dict(empty_block)

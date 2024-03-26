@@ -234,7 +234,7 @@ Each Contract Factory exposes the following methods.
 
     .. code-block:: python
 
-        >>> deploy_txn = token_contract.constructor(web3.eth.coinbase, 12345).transact()
+        >>> deploy_txn = token_contract.constructor(web3.eth.accounts[0], 12345).transact()
         >>> txn_receipt = web3.eth.get_transaction_receipt(deploy_txn)
         >>> txn_receipt['contractAddress']
         '0x4c0883a69102937d6231471b5dbb6204fe5129617082792ae468d01a3f362318'
@@ -259,7 +259,7 @@ Each Contract Factory exposes the following methods.
 
     .. code-block:: python
 
-        >>> token_contract.constructor(web3.eth.coinbase, 12345).estimate_gas()
+        >>> token_contract.constructor(web3.eth.accounts[0], 12345).estimate_gas()
         12563
 
 .. py:classmethod:: Contract.constructor(*args, **kwargs).build_transaction(transaction=None)
@@ -281,7 +281,7 @@ Each Contract Factory exposes the following methods.
         'gasPrice': w3.eth.gas_price,
         'chainId': None
         }
-        >>> contract_data = token_contract.constructor(web3.eth.coinbase, 12345).build_transaction(transaction)
+        >>> contract_data = token_contract.constructor(web3.eth.accounts[0], 12345).build_transaction(transaction)
         >>> web3.eth.send_transaction(contract_data)
 
 .. _contract_create_filter:
@@ -777,8 +777,8 @@ Methods
 
         >>> my_contract.functions.multiply7(3).call()
         21
-        >>> token_contract.functions.myBalance().call({'from': web3.eth.coinbase})
-        12345  # the token balance for `web3.eth.coinbase`
+        >>> token_contract.functions.myBalance().call({'from': web3.eth.accounts[0]})
+        12345  # the token balance for `web3.eth.accounts[0]`
         >>> token_contract.functions.myBalance().call({'from': web3.eth.accounts[1]})
         54321  # the token balance for the account `web3.eth.accounts[1]`
 

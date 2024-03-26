@@ -77,28 +77,6 @@ def test_block_filter(w3):
     assert len(block_filter.get_new_entries()) == w3.eth.block_number
 
 
-def test_transaction_filter_with_mining(w3):
-    transaction_filter = w3.eth.filter("pending")
-
-    transaction_counter = 0
-
-    while transaction_counter < 100:
-        single_transaction(w3)
-        transaction_counter += 1
-
-    assert len(transaction_filter.get_new_entries()) == transaction_counter
-
-
-def test_transaction_filter_without_mining(w3):
-    transaction_filter = w3.eth.filter("pending")
-    transaction_counter = 0
-    while transaction_counter < 100:
-        single_transaction(w3)
-        transaction_counter += 1
-
-    assert len(transaction_filter.get_new_entries()) == transaction_counter
-
-
 @pytest.mark.parametrize("api_style", ("v4", "build_filter"))
 def test_event_filter_new_events_many_deployed_contracts(
     w3,
@@ -236,30 +214,6 @@ async def test_async_block_filter(async_w3):
     new_entries = await block_filter.get_new_entries()
     eth_block_number = await async_w3.eth.block_number
     assert len(new_entries) == eth_block_number
-
-
-@pytest.mark.asyncio
-async def async_test_transaction_filter_with_mining(async_w3):
-    transaction_filter = await async_w3.eth.filter("pending")
-    transaction_counter = 0
-    while transaction_counter < 100:
-        await async_single_transaction(async_w3)
-        transaction_counter += 1
-
-    new_entries = await transaction_filter.get_new_entries()
-    assert len(new_entries) == transaction_counter
-
-
-@pytest.mark.asyncio
-async def test_async_transaction_filter_without_mining(async_w3):
-    transaction_filter = await async_w3.eth.filter("pending")
-    transaction_counter = 0
-    while transaction_counter < 100:
-        await async_single_transaction(async_w3)
-        transaction_counter += 1
-
-    new_entries = await transaction_filter.get_new_entries()
-    assert len(new_entries) == transaction_counter
 
 
 @pytest.mark.asyncio
