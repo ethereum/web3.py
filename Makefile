@@ -3,7 +3,7 @@
 help:
 	@echo "clean-build - remove build artifacts"
 	@echo "clean-pyc - remove Python file artifacts"
-	@echo "lint - check style with flake8"
+	@echo "lint - fix linting issues with pre-commit"
 	@echo "test - run tests quickly with the default Python"
 	@echo "testall - run tests on every Python version with tox"
 	@echo "release - package and upload a release"
@@ -22,12 +22,10 @@ clean-pyc:
 	find . -name '*~' -exec rm -f {} +
 
 lint:
-	tox -e lint
-
-lint-roll:
-	isort web3 ens tests
-	black web3 ens tests setup.py
-	$(MAKE) lint
+	@pre-commit run --all-files --show-diff-on-failure || ( \
+		echo "\n\n\n * pre-commit should have fixed the errors above. Running again to make sure everything is good..." \
+		&& pre-commit run --all-files --show-diff-on-failure \
+	)
 
 test:
 	pytest tests

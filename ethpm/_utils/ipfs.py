@@ -12,7 +12,7 @@ from urllib import (
 from eth_utils import (
     to_text,
 )
-from google.protobuf.descriptor import (
+from google.protobuf.descriptor import (  # type: ignore
     Descriptor,
 )
 

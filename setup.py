@@ -9,15 +9,6 @@ extras_require = {
         "eth-tester[py-evm]==v0.9.1-b.2",
         "py-geth>=3.14.0",
     ],
-    "linter": [
-        "black>=22.1.0",
-        "flake8==3.8.3",
-        "isort>=5.11.0",
-        "mypy==1.4.1",
-        "types-setuptools>=57.4.4",
-        "types-requests>=2.26.1",
-        "types-protobuf==3.19.13",
-    ],
     "docs": [
         "sphinx>=5.3.0",
         "sphinx_rtd_theme>=1.0.0",
@@ -28,6 +19,7 @@ extras_require = {
         "flaky>=3.7.0",
         "hypothesis>=3.31.2",
         "importlib-metadata<5.0;python_version<'3.8'",
+        "pre-commit>=2.21.0",
         "pytest>=7.0.0",
         "pytest-asyncio>=0.18.1,<0.23",
         "pytest-mock>=1.10",
@@ -47,7 +39,6 @@ extras_require = {
 
 extras_require["dev"] = (
     extras_require["tester"]
-    + extras_require["linter"]
     + extras_require["docs"]
     + extras_require["ipfs"]
     + extras_require["dev"]
