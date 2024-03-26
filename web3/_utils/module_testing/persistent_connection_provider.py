@@ -301,6 +301,7 @@ class PersistentConnectionProviderTest:
             assert response["result"] == expected_formatted_result
 
             # only testing one message, so break here
+            await async_w3.eth.unsubscribe(sub_id)
             break
 
     @pytest.mark.asyncio

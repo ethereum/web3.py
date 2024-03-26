@@ -34,7 +34,7 @@ from .utils import (
 )
 
 KEYFILE_PW = "web3py-test"
-GETH_FIXTURE_ZIP = "geth-1.13.14-fixture.zip"
+GETH_FIXTURE_ZIP = "geth-1.14.5-fixture.zip"
 
 
 @pytest.fixture(scope="module")
@@ -94,7 +94,7 @@ def base_geth_command_arguments(geth_binary, datadir):
         datadir,
         "--dev",
         "--dev.period",
-        "5",  # dev.period > 1 for tests which require pending blocks
+        "1",
         "--password",
         os.path.join(datadir, "keystore", "pw.txt"),
     )
@@ -102,7 +102,7 @@ def base_geth_command_arguments(geth_binary, datadir):
 
 @pytest.fixture(scope="module")
 def geth_zipfile_version(get_geth_version):
-    if get_geth_version.major == 1 and get_geth_version.minor in [11, 12, 13]:
+    if get_geth_version.major == 1 and get_geth_version.minor in [13, 14]:
         return GETH_FIXTURE_ZIP
     raise AssertionError("Unsupported geth version")
 
@@ -159,11 +159,6 @@ def geth_process(geth_binary, datadir, genesis_file, geth_command_arguments):
             f"stdout:{to_text(output)}\n\n"
             f"stderr:{to_text(errors)}\n\n"
         )
-
-
-@pytest.fixture(scope="module")
-def coinbase(w3):
-    return w3.eth.coinbase
 
 
 @pytest.fixture(scope="module")
@@ -278,11 +273,6 @@ def storage_contract(
 
 
 # --- async --- #
-
-
-@pytest_asyncio.fixture(scope="module")
-async def async_coinbase(async_w3):
-    return await async_w3.eth.coinbase
 
 
 @pytest_asyncio.fixture(scope="module")

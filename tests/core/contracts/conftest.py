@@ -231,7 +231,7 @@ def event_contract(
 
     event_contract_factory = w3.eth.contract(**EVENT_CONTRACT_DATA)
     deploy_txn_hash = event_contract_factory.constructor().transact(
-        {"from": w3.eth.coinbase, "gas": 1000000}
+        {"from": w3.eth.accounts[0], "gas": 1000000}
     )
     deploy_receipt = wait_for_transaction(w3, deploy_txn_hash)
     contract_address = address_conversion_func(deploy_receipt["contractAddress"])
@@ -251,7 +251,7 @@ def indexed_event_contract(
 
     indexed_event_contract_factory = w3.eth.contract(**INDEXED_EVENT_CONTRACT_DATA)
     deploy_txn_hash = indexed_event_contract_factory.constructor().transact(
-        {"from": w3.eth.coinbase, "gas": 1000000}
+        {"from": w3.eth.accounts[0], "gas": 1000000}
     )
     deploy_receipt = wait_for_transaction(w3, deploy_txn_hash)
     contract_address = address_conversion_func(deploy_receipt["contractAddress"])

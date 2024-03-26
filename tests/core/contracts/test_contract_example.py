@@ -120,7 +120,8 @@ def async_eth_tester():
 @pytest_asyncio.fixture()
 async def async_w3():
     async_w3 = AsyncWeb3(AsyncEthereumTesterProvider())
-    async_w3.eth.default_account = await async_w3.eth.coinbase
+    accounts = await async_w3.eth.accounts
+    async_w3.eth.default_account = accounts[0]
     return async_w3
 
 

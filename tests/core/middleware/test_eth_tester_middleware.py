@@ -34,61 +34,32 @@ def test_get_block_formatters(w3):
 
 
 @pytest.mark.parametrize(
-    "w3_accounts, w3_coinbase, method, from_field_added, from_field_value",
+    "w3_accounts, method, from_field_added, from_field_value",
     (
-        (SAMPLE_ADDRESS_LIST, SAMPLE_ADDRESS, "eth_call", True, SAMPLE_ADDRESS),
+        (SAMPLE_ADDRESS_LIST, "eth_gasPrice", False, None),
+        (SAMPLE_ADDRESS_LIST, "eth_blockNumber", False, None),
+        (SAMPLE_ADDRESS_LIST, "meow", False, None),
+        (SAMPLE_ADDRESS_LIST, "eth_call", True, SAMPLE_ADDRESS_LIST[0]),
+        (SAMPLE_ADDRESS_LIST, "eth_estimateGas", True, SAMPLE_ADDRESS_LIST[0]),
         (
             SAMPLE_ADDRESS_LIST,
-            SAMPLE_ADDRESS,
-            "eth_estimateGas",
-            True,
-            SAMPLE_ADDRESS,
-        ),
-        (
-            SAMPLE_ADDRESS_LIST,
-            SAMPLE_ADDRESS,
-            "eth_sendTransaction",
-            True,
-            SAMPLE_ADDRESS,
-        ),
-        (SAMPLE_ADDRESS_LIST, SAMPLE_ADDRESS, "eth_gasPrice", False, None),
-        (SAMPLE_ADDRESS_LIST, SAMPLE_ADDRESS, "eth_blockNumber", False, None),
-        (SAMPLE_ADDRESS_LIST, SAMPLE_ADDRESS, "meow", False, None),
-        (SAMPLE_ADDRESS_LIST, None, "eth_call", True, SAMPLE_ADDRESS_LIST[0]),
-        (SAMPLE_ADDRESS_LIST, None, "eth_estimateGas", True, SAMPLE_ADDRESS_LIST[0]),
-        (
-            SAMPLE_ADDRESS_LIST,
-            None,
             "eth_sendTransaction",
             True,
             SAMPLE_ADDRESS_LIST[0],
         ),
-        (SAMPLE_ADDRESS_LIST, None, "eth_gasPrice", False, None),
-        (SAMPLE_ADDRESS_LIST, None, "eth_blockNumber", False, None),
-        (SAMPLE_ADDRESS_LIST, None, "meow", False, None),
-        (None, SAMPLE_ADDRESS, "eth_call", True, SAMPLE_ADDRESS),
-        (None, SAMPLE_ADDRESS, "eth_estimateGas", True, SAMPLE_ADDRESS),
-        (None, SAMPLE_ADDRESS, "eth_sendTransaction", True, SAMPLE_ADDRESS),
-        (None, SAMPLE_ADDRESS, "eth_gasPrice", False, SAMPLE_ADDRESS),
-        (None, SAMPLE_ADDRESS, "eth_blockNumber", False, SAMPLE_ADDRESS),
-        (None, SAMPLE_ADDRESS, "meow", False, SAMPLE_ADDRESS),
-        (None, None, "eth_call", True, None),
-        (None, None, "eth_estimateGas", True, None),
-        (None, None, "eth_sendTransaction", True, None),
-        (None, None, "eth_gasPrice", False, None),
-        (None, None, "eth_blockNumber", False, None),
-        (None, None, "meow", False, None),
+        (SAMPLE_ADDRESS_LIST, "eth_gasPrice", False, None),
+        (SAMPLE_ADDRESS_LIST, "eth_blockNumber", False, None),
+        (SAMPLE_ADDRESS_LIST, "meow", False, None),
     ),
 )
 def test_default_transaction_fields_middleware(
-    w3_accounts, w3_coinbase, method, from_field_added, from_field_value
+    w3_accounts, method, from_field_added, from_field_value
 ):
     def mock_request(_method, params):
         return params
 
     mock_w3 = Mock()
     mock_w3.eth.accounts = w3_accounts
-    mock_w3.eth.coinbase = w3_coinbase
 
     middleware = default_transaction_fields_middleware(mock_w3)
     base_params = {"chainId": 5}
@@ -109,56 +80,27 @@ def test_default_transaction_fields_middleware(
 
 
 @pytest.mark.parametrize(
-    "w3_accounts, w3_coinbase, method, from_field_added, from_field_value",
+    "w3_accounts, method, from_field_added, from_field_value",
     (
-        (SAMPLE_ADDRESS_LIST, SAMPLE_ADDRESS, "eth_call", True, SAMPLE_ADDRESS),
+        (SAMPLE_ADDRESS_LIST, "eth_gasPrice", False, None),
+        (SAMPLE_ADDRESS_LIST, "eth_blockNumber", False, None),
+        (SAMPLE_ADDRESS_LIST, "meow", False, None),
+        (SAMPLE_ADDRESS_LIST, "eth_call", True, SAMPLE_ADDRESS_LIST[0]),
+        (SAMPLE_ADDRESS_LIST, "eth_estimateGas", True, SAMPLE_ADDRESS_LIST[0]),
         (
             SAMPLE_ADDRESS_LIST,
-            SAMPLE_ADDRESS,
-            "eth_estimateGas",
-            True,
-            SAMPLE_ADDRESS,
-        ),
-        (
-            SAMPLE_ADDRESS_LIST,
-            SAMPLE_ADDRESS,
-            "eth_sendTransaction",
-            True,
-            SAMPLE_ADDRESS,
-        ),
-        (SAMPLE_ADDRESS_LIST, SAMPLE_ADDRESS, "eth_gasPrice", False, None),
-        (SAMPLE_ADDRESS_LIST, SAMPLE_ADDRESS, "eth_blockNumber", False, None),
-        (SAMPLE_ADDRESS_LIST, SAMPLE_ADDRESS, "meow", False, None),
-        (SAMPLE_ADDRESS_LIST, None, "eth_call", True, SAMPLE_ADDRESS_LIST[0]),
-        (SAMPLE_ADDRESS_LIST, None, "eth_estimateGas", True, SAMPLE_ADDRESS_LIST[0]),
-        (
-            SAMPLE_ADDRESS_LIST,
-            None,
             "eth_sendTransaction",
             True,
             SAMPLE_ADDRESS_LIST[0],
         ),
-        (SAMPLE_ADDRESS_LIST, None, "eth_gasPrice", False, None),
-        (SAMPLE_ADDRESS_LIST, None, "eth_blockNumber", False, None),
-        (SAMPLE_ADDRESS_LIST, None, "meow", False, None),
-        (None, SAMPLE_ADDRESS, "eth_call", True, SAMPLE_ADDRESS),
-        (None, SAMPLE_ADDRESS, "eth_estimateGas", True, SAMPLE_ADDRESS),
-        (None, SAMPLE_ADDRESS, "eth_sendTransaction", True, SAMPLE_ADDRESS),
-        (None, SAMPLE_ADDRESS, "eth_gasPrice", False, SAMPLE_ADDRESS),
-        (None, SAMPLE_ADDRESS, "eth_blockNumber", False, SAMPLE_ADDRESS),
-        (None, SAMPLE_ADDRESS, "meow", False, SAMPLE_ADDRESS),
-        (None, None, "eth_call", True, None),
-        (None, None, "eth_estimateGas", True, None),
-        (None, None, "eth_sendTransaction", True, None),
-        (None, None, "eth_gasPrice", False, None),
-        (None, None, "eth_blockNumber", False, None),
-        (None, None, "meow", False, None),
+        (SAMPLE_ADDRESS_LIST, "eth_gasPrice", False, None),
+        (SAMPLE_ADDRESS_LIST, "eth_blockNumber", False, None),
+        (SAMPLE_ADDRESS_LIST, "meow", False, None),
     ),
 )
 @pytest.mark.asyncio
 async def test_async_default_transaction_fields_middleware(
     w3_accounts,
-    w3_coinbase,
     method,
     from_field_added,
     from_field_value,
@@ -169,12 +111,8 @@ async def test_async_default_transaction_fields_middleware(
     async def mock_async_accounts():
         return w3_accounts
 
-    async def mock_async_coinbase():
-        return w3_coinbase
-
     mock_w3 = Mock()
     mock_w3.eth.accounts = mock_async_accounts()
-    mock_w3.eth.coinbase = mock_async_coinbase()
 
     middleware = default_transaction_fields_middleware(mock_w3)
     base_params = {"chainId": 5}
@@ -191,4 +129,3 @@ async def test_async_default_transaction_fields_middleware(
 
     # clean up
     mock_w3.eth.accounts.close()
-    mock_w3.eth.coinbase.close()

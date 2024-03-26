@@ -55,7 +55,9 @@ KEYFILE_ACCOUNT_ADDRESS = "0xdC544d1AA88Ff8bbd2F2AeC754B1F1e99e1812fd"
 
 
 def _deploy_contract(w3, contract_factory):
-    deploy_txn_hash = contract_factory.constructor().transact({"from": w3.eth.coinbase})
+    deploy_txn_hash = contract_factory.constructor().transact(
+        {"from": w3.eth.accounts[0]}
+    )
     deploy_receipt = w3.eth.wait_for_transaction_receipt(deploy_txn_hash)
     assert is_dict(deploy_receipt)
     contract_address = deploy_receipt["contractAddress"]
@@ -82,7 +84,7 @@ def _eth_tester_state_setup(w3):
     # fund the account
     w3.eth.send_transaction(
         {
-            "from": w3.eth.coinbase,
+            "from": w3.eth.accounts[0],
             "to": KEYFILE_ACCOUNT_ADDRESS,
             "value": w3.to_wei(0.5, "ether"),
             "gas": 21000,
@@ -101,7 +103,7 @@ def w3(eth_tester_provider):
 @pytest.fixture(scope="module")
 def math_contract_deploy_txn_hash(w3, math_contract_factory):
     deploy_txn_hash = math_contract_factory.constructor().transact(
-        {"from": w3.eth.coinbase}
+        {"from": w3.eth.accounts[0]}
     )
     return deploy_txn_hash
 
@@ -148,8 +150,8 @@ def empty_block(w3):
 def block_with_txn(w3):
     txn_hash = w3.eth.send_transaction(
         {
-            "from": w3.eth.coinbase,
-            "to": w3.eth.coinbase,
+            "from": w3.eth.accounts[0],
+            "to": w3.eth.accounts[0],
             "value": w3.to_wei(1, "gwei"),
             "gas": 21000,
             "gasPrice": w3.to_wei(
@@ -175,7 +177,7 @@ def block_with_txn_with_log(w3, emitter_contract):
         arg1=54321,
     ).transact(
         {
-            "from": w3.eth.coinbase,
+            "from": w3.eth.accounts[0],
         }
     )
     txn = w3.eth.get_transaction(txn_hash)
@@ -460,25 +462,12 @@ class TestEthereumTesterEthModule(EthModuleTest):
         result = w3.eth.get_logs(filter_params)
         assert len(result) == 0
 
-    @disable_auto_mine
     def test_eth_call_old_contract_state(
         self, eth_tester, w3, math_contract, keyfile_account_address
     ):
-        # For now, ethereum tester cannot give call results in the pending block.
-        # Once that feature is added, then delete the except/else blocks.
-        try:
-            super().test_eth_call_old_contract_state(
-                w3, math_contract, keyfile_account_address
-            )
-        except AssertionError as err:
-            if str(err) == "pending call result was 0 instead of 1":
-                pass
-            else:
-                raise err
-        else:
-            raise AssertionError(
-                "eth-tester was unexpectedly able to give the pending call result"
-            )
+        super().test_eth_call_old_contract_state(
+            w3, math_contract, keyfile_account_address
+        )
 
     def test_eth_chain_id(self, w3):
         chain_id = w3.eth.chain_id

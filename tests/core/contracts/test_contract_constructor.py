@@ -221,7 +221,7 @@ def test_contract_constructor_build_transaction_no_constructor(
         {"from": address_conversion_func(w3.eth.accounts[0])}
     )
     txn = w3.eth.get_transaction(txn_hash)
-    nonce = w3.eth.get_transaction_count(w3.eth.coinbase)
+    nonce = w3.eth.get_transaction_count(w3.eth.accounts[0])
     unsent_txn = math_contract_factory.constructor().build_transaction({"nonce": nonce})
     assert txn["input"] == HexBytes(unsent_txn["data"])
 
@@ -238,7 +238,7 @@ def test_contract_constructor_build_transaction_without_arguments(
         {"from": address_conversion_func(w3.eth.accounts[0])}
     )
     txn = w3.eth.get_transaction(txn_hash)
-    nonce = w3.eth.get_transaction_count(w3.eth.coinbase)
+    nonce = w3.eth.get_transaction_count(w3.eth.accounts[0])
     unsent_txn = math_contract_factory.constructor().build_transaction({"nonce": nonce})
     assert txn["input"] == HexBytes(unsent_txn["data"])
 
@@ -268,7 +268,9 @@ def test_contract_constructor_build_transaction_with_arguments(
         *constructor_args, **constructor_kwargs
     ).transact({"from": address_conversion_func(w3_non_strict_abi.eth.accounts[0])})
     txn = w3_non_strict_abi.eth.get_transaction(txn_hash)
-    nonce = w3_non_strict_abi.eth.get_transaction_count(w3_non_strict_abi.eth.coinbase)
+    nonce = w3_non_strict_abi.eth.get_transaction_count(
+        w3_non_strict_abi.eth.accounts[0]
+    )
     unsent_txn = non_strict_contract_with_constructor_args_factory.constructor(
         *constructor_args, **constructor_kwargs
     ).build_transaction({"nonce": nonce})
@@ -526,8 +528,7 @@ async def test_async_contract_constructor_build_transaction_no_constructor(
         {"from": address_conversion_func(async_w3_accounts[0])}
     )
     txn = await async_w3.eth.get_transaction(txn_hash)
-    async_w3_coinbase = await async_w3.eth.coinbase
-    nonce = await async_w3.eth.get_transaction_count(async_w3_coinbase)
+    nonce = await async_w3.eth.get_transaction_count(async_w3_accounts[0])
     unsent_txn = await async_math_contract_factory.constructor().build_transaction(
         {"nonce": nonce}
     )
@@ -548,8 +549,7 @@ async def test_async_contract_constructor_build_transaction_without_arguments(
         {"from": address_conversion_func(async_w3_accounts[0])}
     )
     txn = await async_w3.eth.get_transaction(txn_hash)
-    async_w3_coinbase = await async_w3.eth.coinbase
-    nonce = await async_w3.eth.get_transaction_count(async_w3_coinbase)
+    nonce = await async_w3.eth.get_transaction_count(async_w3_accounts[0])
     unsent_txn = await async_math_contract_factory.constructor().build_transaction(
         {"nonce": nonce}
     )
@@ -585,8 +585,9 @@ async def test_async_contract_constructor_build_transaction_with_arguments(
         ).transact({"from": address_conversion_func(async_w3_accounts[0])})
     )
     txn = await async_w3_non_strict_abi.eth.get_transaction(txn_hash)
-    async_w3_coinbase = await async_w3_non_strict_abi.eth.coinbase
-    nonce = await async_w3_non_strict_abi.eth.get_transaction_count(async_w3_coinbase)
+    nonce = await async_w3_non_strict_abi.eth.get_transaction_count(
+        async_w3_accounts[0]
+    )
     unsent_txn = (
         await async_non_strict_constructor_with_args_contract_factory.constructor(
             *constructor_args, **constructor_kwargs

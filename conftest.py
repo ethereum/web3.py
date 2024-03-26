@@ -39,18 +39,6 @@ def skip_if_testrpc():
     return _skip_if_testrpc
 
 
-@pytest.fixture()
-def wait_for_miner_start():
-    def _wait_for_miner_start(w3, timeout=60):
-        poll_delay_counter = PollDelayCounter()
-        with Timeout(timeout) as timeout:
-            while not w3.eth.mining or not w3.eth.hashrate:
-                time.sleep(poll_delay_counter())
-                timeout.check()
-
-    return _wait_for_miner_start
-
-
 @pytest.fixture(scope="module")
 def wait_for_block():
     def _wait_for_block(w3, block_number=1, timeout=None):

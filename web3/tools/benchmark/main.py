@@ -108,13 +108,14 @@ def main(logger: logging.Logger, num_calls: int) -> None:
                 asyncio.set_event_loop(loop)
 
             # -- sync -- #
-            coinbase = w3_http.eth.coinbase
+            account = w3_http.eth.accounts[0]
 
             # -- async -- #
             async_w3_http = loop.run_until_complete(
                 build_async_w3_http(fixture.endpoint_uri)
             )
-            async_coinbase = loop.run_until_complete(async_w3_http.eth.coinbase)
+            async_accounts = loop.run_until_complete(async_w3_http.eth.accounts)
+            async_account = async_accounts[0]
 
             methods = [
                 {
@@ -126,17 +127,17 @@ def main(logger: logging.Logger, num_calls: int) -> None:
                 {
                     "name": "eth_sendTransaction",
                     "params": {},
-                    "exec": lambda w3_http=w3_http, coinbase=coinbase: w3_http.eth.send_transaction(  # noqa: E501
+                    "exec": lambda w3_http=w3_http, account=account: w3_http.eth.send_transaction(  # noqa: E501
                         {
                             "to": "0xd3CdA913deB6f67967B99D67aCDFa1712C293601",
-                            "from": coinbase,
+                            "from": account,
                             "value": Wei(1),
                         }
                     ),
-                    "async_exec": lambda async_w3_http=async_w3_http, async_coinbase=async_coinbase: async_w3_http.eth.send_transaction(  # noqa: E501
+                    "async_exec": lambda async_w3_http=async_w3_http, async_account=async_account: async_w3_http.eth.send_transaction(  # noqa: E501
                         {
                             "to": "0xd3CdA913deB6f67967B99D67aCDFa1712C293601",
-                            "from": async_coinbase,
+                            "from": async_account,
                             "value": Wei(1),
                         }
                     ),

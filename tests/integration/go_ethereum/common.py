@@ -72,7 +72,6 @@ class GoEthereumEthModuleTest(EthModuleTest):
             w3, keyfile_account_address_dual_type
         )
 
-    @pytest.mark.xfail(reason="Inconsistently creating timeout issues.", strict=False)
     def test_eth_get_raw_transaction_by_block(
         self,
         w3: "Web3",

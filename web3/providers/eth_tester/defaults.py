@@ -243,12 +243,6 @@ API_ENDPOINTS = {
     "eth": {
         "protocolVersion": static_return(63),
         "syncing": static_return(False),
-        "coinbase": compose(
-            operator.itemgetter(0),
-            call_eth_tester("get_accounts"),
-        ),
-        "mining": static_return(False),
-        "hashrate": static_return(0),
         "chainId": static_return(131277322940537),  # from fixture generation file
         "feeHistory": call_eth_tester("get_fee_history"),
         "maxPriorityFeePerGas": static_return(10**9),

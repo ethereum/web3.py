@@ -40,9 +40,9 @@ def test_attach_methods_to_module(web3_with_external_modules):
     assert w3.eth.chain_id == 131277322940537
     assert w3.module1.property1 == 131277322940537
 
-    coinbase = w3.eth.coinbase
-    assert w3.eth.get_balance(coinbase, "latest") == 1000000000000000000000000
-    assert w3.module1.method1(coinbase, "latest") == 1000000000000000000000000
+    account = w3.eth.accounts[0]
+    assert w3.eth.get_balance(account, "latest") == 1000000000000000000000000
+    assert w3.module1.method1(account, "latest") == 1000000000000000000000000
 
     w3.module2.submodule1.attach_methods(
         {

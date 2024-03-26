@@ -79,42 +79,6 @@ The following properties are available on the ``web3.eth`` namespace.
         })
 
 
-.. py:attribute:: Eth.coinbase
-
-    * Delegates to ``eth_coinbase`` RPC Method
-
-    Returns the current *Coinbase* address.
-
-    .. code-block:: python
-
-        >>> web3.eth.coinbase
-        '0xC014BA5EC014ba5ec014Ba5EC014ba5Ec014bA5E'
-
-
-.. py:attribute:: Eth.mining
-
-    * Delegates to ``eth_mining`` RPC Method
-
-    Returns boolean as to whether the node is currently mining.
-
-    .. code-block:: python
-
-        >>> web3.eth.mining
-        False
-
-
-.. py:attribute:: Eth.hashrate
-
-    * Delegates to ``eth_hashrate`` RPC Method
-
-    Returns the current number of hashes per second the node is mining with.
-
-    .. code-block:: python
-
-        >>> web3.eth.hashrate
-        906
-
-
 .. py:attribute:: Eth.max_priority_fee
 
     * Delegates to ``eth_maxPriorityFeePerGas`` RPC Method
@@ -720,7 +684,7 @@ The following methods are available on the ``web3.eth`` namespace.
         # simple example (web3.py and / or client determines gas and fees, typically defaults to a dynamic fee transaction post London fork)
         >>> web3.eth.send_transaction({
           'to': '0x582AC4D8929f58c217d4a52aDD361AE470a8a4cD',
-          'from': web3.eth.coinbase,
+          'from': web3.eth.accounts[0],
           'value': 12345
         })
 
@@ -728,7 +692,7 @@ The following methods are available on the ``web3.eth`` namespace.
         HexBytes('0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331')
         >>> web3.eth.send_transaction({
           'to': '0x582AC4D8929f58c217d4a52aDD361AE470a8a4cD',
-          'from': web3.eth.coinbase,
+          'from': web3.eth.accounts[0],
           'value': 12345,
           'gas': 21000,
           'maxFeePerGas': web3.to_wei(250, 'gwei'),
@@ -740,7 +704,7 @@ The following methods are available on the ``web3.eth`` namespace.
         HexBytes('0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331')
         >>> web3.eth.send_transaction({
           'to': '0x582AC4D8929f58c217d4a52aDD361AE470a8a4cD',
-          'from': web3.eth.coinbase,
+          'from': web3.eth.accounts[0],
           'value': 12345,
           'gas': 21000,
           'gasPrice': web3.to_wei(50, 'gwei'),
@@ -758,7 +722,7 @@ The following methods are available on the ``web3.eth`` namespace.
     .. code-block:: python
 
         >>> signed_txn = w3.eth.sign_transaction(dict(
-            nonce=w3.eth.get_transaction_count(w3.eth.coinbase),
+            nonce=w3.eth.get_transaction_count(w3.eth.accounts[0]),
             maxFeePerGas=2000000000,
             maxPriorityFeePerGas=1000000000,
             gas=100000,
@@ -839,13 +803,13 @@ The following methods are available on the ``web3.eth`` namespace.
 
         >>> tx = web3.eth.send_transaction({
                 'to': '0x582AC4D8929f58c217d4a52aDD361AE470a8a4cD',
-                'from': web3.eth.coinbase,
+                'from': web3.eth.accounts[0],
                 'value': 1000
             })
         HexBytes('0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331')
         >>> web3.eth.replace_transaction('0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331', {
                 'to': '0x582AC4D8929f58c217d4a52aDD361AE470a8a4cD',
-                'from': web3.eth.coinbase,
+                'from': web3.eth.accounts[0],
                 'value': 2000
             })
         HexBytes('0x4177e670ec6431606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1528989')
@@ -870,7 +834,7 @@ The following methods are available on the ``web3.eth`` namespace.
 
         >>> tx = web3.eth.send_transaction({
                 'to': '0x582AC4D8929f58c217d4a52aDD361AE470a8a4cD',
-                'from': web3.eth.coinbase,
+                'from': web3.eth.accounts[0],
                 'value': 1000
             })
         HexBytes('0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331')
@@ -1072,7 +1036,7 @@ The following methods are available on the ``web3.eth`` namespace.
 
     .. code-block:: python
 
-        >>> web3.eth.estimate_gas({'to': '0xd3CdA913deB6f67967B99D67aCDFa1712C293601', 'from':web3.eth.coinbase, 'value': 12345})
+        >>> web3.eth.estimate_gas({'to': '0xd3CdA913deB6f67967B99D67aCDFa1712C293601', 'from':web3.eth.accounts[0], 'value': 12345})
         21000
 
 
@@ -1278,30 +1242,6 @@ with the filtering API.
     This is the equivalent of: creating a new
     filter, running :meth:`~Eth.get_filter_logs`, and then uninstalling the filter. See
     :meth:`~Eth.filter` for details on allowed filter parameters.
-
-.. py:method:: Eth.submit_hashrate(hashrate, nodeid)
-
-    * Delegates to ``eth_submitHashrate`` RPC Method
-
-    .. code-block:: python
-
-       >>> node_id = '59daa26581d0acd1fce254fb7e85952f4c09d0915afd33d3886cd914bc7d283c'
-       >>> web3.eth.submit_hashrate(5000, node_id)
-       True
-
-
-.. py:method:: Eth.submit_work(nonce, pow_hash, mix_digest)
-
-    * Delegates to ``eth_submitWork`` RPC Method.
-
-    .. code-block:: python
-
-       >>> web3.eth.submit_work(
-               1,
-               '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
-               '0xD1FE5700000000000000000000000000D1FE5700000000000000000000000000',
-           )
-       True
 
 
 Contracts

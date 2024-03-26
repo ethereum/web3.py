@@ -721,7 +721,6 @@ PYTHONIC_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     RPC.eth_accounts: apply_list_to_array_formatter(to_checksum_address),
     RPC.eth_blockNumber: to_integer_if_hex,
     RPC.eth_chainId: to_integer_if_hex,
-    RPC.eth_coinbase: to_checksum_address,
     RPC.eth_call: HexBytes,
     RPC.eth_createAccessList: ACCESS_LIST_RESPONSE_FORMATTER,
     RPC.eth_estimateGas: to_integer_if_hex,
@@ -761,7 +760,6 @@ PYTHONIC_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     ),
     RPC.eth_getUncleCountByBlockHash: to_integer_if_hex,
     RPC.eth_getUncleCountByBlockNumber: to_integer_if_hex,
-    RPC.eth_hashrate: to_integer_if_hex,
     RPC.eth_protocolVersion: compose(
         apply_formatter_if(is_0x_prefixed, to_integer_if_hex),
         apply_formatter_if(is_integer, str),

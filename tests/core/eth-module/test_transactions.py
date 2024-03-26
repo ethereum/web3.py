@@ -184,7 +184,7 @@ def test_unmined_transaction_wait_for_receipt(w3, request_mocker):
 
     txn_hash = w3.eth.send_transaction(
         {
-            "from": w3.eth.coinbase,
+            "from": w3.eth.accounts[0],
             "to": "0xd3CdA913deB6f67967B99D67aCDFa1712C293601",
             "value": 123457,
         }

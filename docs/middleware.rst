@@ -346,7 +346,7 @@ middleware is:
 
     # confirm that the connection succeeded
     >>> w3.client_version
-    'Geth/v1.13.14-stable-4bb3c89d/linux-amd64/go1.20.2'
+    'Geth/v1.14.5-stable-4bb3c89d/linux-amd64/go1.22.4'
 
 This example connects to a local ``geth --dev`` instance on Linux with a
 unique IPC location and loads the middleware:
