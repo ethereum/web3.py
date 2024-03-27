@@ -47,7 +47,7 @@ build-docs:
 docs: build-docs validate-docs
 	open docs/_build/html/index.html
 
-autobuild-docs:
+autodocs:
 	sphinx-autobuild --open-browser docs docs/_build/html
 
 validate-docs: build-docs
