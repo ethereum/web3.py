@@ -69,7 +69,7 @@ setup(
         "eth-hash[pycryptodome]>=0.5.1",
         "eth-typing>=3.0.0",
         "eth-utils>=4.0.0",
-        "hexbytes>=0.1.0,<0.4.0",
+        "hexbytes>=1.2.0",
         "pydantic>=2.4.0",
         "pywin32>=223;platform_system=='Windows'",
         "requests>=2.16.0",
