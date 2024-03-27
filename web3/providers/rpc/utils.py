@@ -77,10 +77,7 @@ def check_if_retry_on_failure(
     if allowlist is None:
         allowlist = REQUEST_RETRY_ALLOWLIST
 
-    if method in allowlist or method.split("_")[0] in allowlist:
-        return True
-    else:
-        return False
+    return method in allowlist or method.split("_")[0] in allowlist
 
 
 class ExceptionRetryConfiguration(BaseModel):
