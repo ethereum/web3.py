@@ -57,7 +57,10 @@ async def async_handle_offchain_lookup(
                     data={"data": formatted_data, "sender": formatted_sender},
                 )
             else:
-                raise Web3ValidationError("url not formatted properly.")
+                response = await async_get_response_from_post_request(
+                    formatted_url,
+                    json={"data": formatted_data, "sender": formatted_sender},
+                )
         except Exception:
             continue  # try next url if timeout or issues making the request
 
