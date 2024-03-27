@@ -33,6 +33,9 @@ from web3.types import (
     RPCResponse,
 )
 
+from ...exceptions import (
+    Web3TypeError,
+)
 from ...middleware import (
     async_combine_middleware,
     combine_middleware,
@@ -133,7 +136,7 @@ class EthereumTesterProvider(BaseProvider):
         elif isinstance(ethereum_tester, BaseChainBackend):
             self.ethereum_tester = EthereumTester(ethereum_tester)
         else:
-            raise TypeError(
+            raise Web3TypeError(
                 "Expected ethereum_tester to be of type `eth_tester.EthereumTester` or "
                 "a subclass of `eth_tester.backends.base.BaseChainBackend`, "
                 f"instead received {type(ethereum_tester)}. "

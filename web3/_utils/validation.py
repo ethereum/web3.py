@@ -53,6 +53,8 @@ from web3._utils.abi import (
 )
 from web3.exceptions import (
     InvalidAddress,
+    Web3TypeError,
+    Web3ValueError,
 )
 from web3.types import (
     ABI,
@@ -74,16 +76,16 @@ def validate_abi(abi: ABI) -> None:
     Helper function for validating an ABI
     """
     if not is_list_like(abi):
-        raise ValueError("'abi' is not a list")
+        raise Web3ValueError("'abi' is not a list")
 
     if not all(is_dict(e) for e in abi):
-        raise ValueError("'abi' is not a list of dictionaries")
+        raise Web3ValueError("'abi' is not a list of dictionaries")
 
     functions = filter_by_type("function", abi)
     selectors = groupby(compose(encode_hex, function_abi_to_4byte_selector), functions)
     duplicates = valfilter(lambda funcs: len(funcs) > 1, selectors)
     if duplicates:
-        raise ValueError(
+        raise Web3ValueError(
             "Abi contains functions with colliding selectors. "
             f"Functions {_prepare_selector_collision_msg(duplicates)}"
         )
@@ -94,7 +96,7 @@ def validate_abi_type(abi_type: TypeStr) -> None:
     Helper function for validating an abi_type
     """
     if not is_recognized_type(abi_type):
-        raise ValueError(f"Unrecognized abi_type: {abi_type}")
+        raise Web3ValueError(f"Unrecognized abi_type: {abi_type}")
 
 
 def validate_abi_value(abi_type: TypeStr, value: Any) -> None:
@@ -107,12 +109,12 @@ def validate_abi_value(abi_type: TypeStr, value: Any) -> None:
         specified_length = length_of_array_type(abi_type)
         if specified_length is not None:
             if specified_length < 1:
-                raise TypeError(
+                raise Web3TypeError(
                     f"Invalid abi-type: {abi_type}. Length of fixed sized "
                     "arrays must be greater than 0."
                 )
             if specified_length != len(value):
-                raise TypeError(
+                raise Web3TypeError(
                     "The following array length does not the length specified"
                     f"by the abi-type, {abi_type}: {value}"
                 )
@@ -138,14 +140,14 @@ def validate_abi_value(abi_type: TypeStr, value: Any) -> None:
             if is_0x_prefixed(value):
                 return
             else:
-                raise TypeError(
+                raise Web3TypeError(
                     "ABI values of abi-type 'bytes' must be either"
                     "a python3 'bytes' object or an '0x' prefixed string."
                 )
     elif is_string_type(abi_type) and is_string(value):
         return
 
-    raise TypeError(f"The following abi value is not a '{abi_type}': {value}")
+    raise Web3TypeError(f"The following abi value is not a '{abi_type}': {value}")
 
 
 def is_not_address_string(value: Any) -> bool:
@@ -173,7 +175,7 @@ def validate_address(value: Any) -> None:
         return
 
     if not isinstance(value, str):
-        raise TypeError(f"Address {value} must be provided as a string")
+        raise Web3TypeError(f"Address {value} must be provided as a string")
     if not is_hex_address(value):
         raise InvalidAddress(
             "Address must be 20 bytes, as a hex string with a 0x prefix", value
@@ -204,7 +206,7 @@ def has_one_val(*args: Any, **kwargs: Any) -> bool:
 
 def assert_one_val(*args: Any, **kwargs: Any) -> None:
     if not has_one_val(*args, **kwargs):
-        raise TypeError(
+        raise Web3TypeError(
             "Exactly one of the passed values can be specified. "
             f"Instead, values were: {args!r}, {kwargs!r}"
         )

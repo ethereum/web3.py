@@ -15,6 +15,10 @@ from eth_utils.toolz import (
     curry,
 )
 
+from web3.exceptions import (
+    Web3TypeError,
+    Web3ValueError,
+)
 from web3.types import (
     RPCEndpoint,
 )
@@ -32,7 +36,7 @@ def is_predefined_block_number(value: Any) -> bool:
     elif is_integer(value):
         return False
     else:
-        raise TypeError(f"unrecognized block reference: {value!r}")
+        raise Web3TypeError(f"unrecognized block reference: {value!r}")
 
     return value_text in {"latest", "pending", "earliest", "safe", "finalized"}
 
@@ -70,6 +74,6 @@ def select_method_for_block_identifier(
     elif is_hex_encoded_block_number(value):
         return if_number
     else:
-        raise ValueError(
+        raise Web3ValueError(
             f"Value did not match any of the recognized block identifiers: {value}"
         )

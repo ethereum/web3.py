@@ -50,6 +50,9 @@ from web3._utils.contract_sources.contract_data.revert_contract import (
 from web3._utils.contract_sources.contract_data.storage_contract import (
     STORAGE_CONTRACT_DATA,
 )
+from web3.exceptions import (
+    Web3ValueError,
+)
 
 
 def get_open_port():
@@ -199,7 +202,7 @@ def mine_block(w3):
         else:
             time.sleep(0.1)
     else:
-        raise ValueError("No block mined during wait period")
+        raise Web3ValueError("No block mined during wait period")
 
 
 def setup_chain_state(w3):

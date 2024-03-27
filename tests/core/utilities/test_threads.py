@@ -6,6 +6,9 @@ from web3._utils.threads import (
     Timeout,
     spawn,
 )
+from web3.exceptions import (
+    Web3ValueError,
+)
 
 
 class CustomThreadClass(ThreadWithReturn):
@@ -89,19 +92,19 @@ def test_contextmanager_timeout():
 
 
 def test_with_custom_exception_type():
-    timeout = Timeout(0.01, ValueError)
+    timeout = Timeout(0.01, Web3ValueError)
     timeout.start()
     time.sleep(0.02)
-    with pytest.raises(ValueError):
+    with pytest.raises(Web3ValueError):
         timeout.check()
 
 
 def test_with_custom_exception_instance():
-    exc = ValueError("an instance of an excepiton")
+    exc = Web3ValueError("an instance of an excepiton")
     timeout = Timeout(0.01, exc)
     timeout.start()
     time.sleep(0.02)
-    with pytest.raises(ValueError) as err:
+    with pytest.raises(Web3ValueError) as err:
         timeout.check()
 
     assert err.value is exc

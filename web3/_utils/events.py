@@ -76,6 +76,7 @@ from web3.exceptions import (
     InvalidEventABI,
     LogTopicError,
     MismatchedABI,
+    Web3ValueError,
 )
 from web3.types import (
     ABIEvent,
@@ -115,7 +116,7 @@ def construct_event_topic_set(
         arguments = {}
     if isinstance(arguments, (list, tuple)):
         if len(arguments) != len(event_abi["inputs"]):
-            raise ValueError(
+            raise Web3ValueError(
                 "When passing an argument list, the number of arguments must "
                 "match the event constructor."
             )
@@ -162,7 +163,7 @@ def construct_event_data_set(
         arguments = {}
     if isinstance(arguments, (list, tuple)):
         if len(arguments) != len(event_abi["inputs"]):
-            raise ValueError(
+            raise Web3ValueError(
                 "When passing an argument list, the number of arguments must "
                 "match the event constructor."
             )
@@ -370,7 +371,7 @@ class BaseEventFilterBuilder:
         if self._fromBlock is None and not self._immutable:
             self._fromBlock = value
         else:
-            raise ValueError(
+            raise Web3ValueError(
                 f"fromBlock is already set to {self._fromBlock!r}. "
                 "Resetting filter parameters is not permitted"
             )
@@ -384,7 +385,7 @@ class BaseEventFilterBuilder:
         if self._toBlock is None and not self._immutable:
             self._toBlock = value
         else:
-            raise ValueError(
+            raise Web3ValueError(
                 f"toBlock is already set to {self._toBlock!r}. "
                 "Resetting filter parameters is not permitted"
             )
@@ -398,7 +399,7 @@ class BaseEventFilterBuilder:
         if self._address is None and not self._immutable:
             self._address = value
         else:
-            raise ValueError(
+            raise Web3ValueError(
                 f"address is already set to {self.address!r}. "
                 "Resetting filter parameters is not permitted"
             )
@@ -443,7 +444,7 @@ class BaseEventFilterBuilder:
 class EventFilterBuilder(BaseEventFilterBuilder):
     def deploy(self, w3: "Web3") -> "LogFilter":
         if not isinstance(w3, web3.Web3):
-            raise ValueError(f"Invalid web3 argument: got: {w3!r}")
+            raise Web3ValueError(f"Invalid web3 argument: got: {w3!r}")
 
         for arg in AttributeDict.values(self.args):  # type: ignore[arg-type]
             arg._immutable = True  # type: ignore[attr-defined]
@@ -461,7 +462,7 @@ class EventFilterBuilder(BaseEventFilterBuilder):
 class AsyncEventFilterBuilder(BaseEventFilterBuilder):
     async def deploy(self, async_w3: "AsyncWeb3") -> "AsyncLogFilter":
         if not isinstance(async_w3, web3.AsyncWeb3):
-            raise ValueError(f"Invalid web3 argument: got: {async_w3!r}")
+            raise Web3ValueError(f"Invalid web3 argument: got: {async_w3!r}")
 
         for arg in AttributeDict.values(self.args):  # type: ignore[arg-type]
             arg._immutable = True  # type: ignore[attr-defined]
@@ -519,19 +520,23 @@ class BaseArgumentFilter(ABC):
 
     def match_single(self, value: Any) -> None:
         if self._immutable:
-            raise ValueError("Setting values is forbidden after filter is deployed.")
+            raise Web3ValueError(
+                "Setting values is forbidden after filter is deployed."
+            )
         if self._match_values is None:
             self._match_values = _normalize_match_values((value,))
         else:
-            raise ValueError("An argument match value/s has already been set.")
+            raise Web3ValueError("An argument match value/s has already been set.")
 
     def match_any(self, *values: Collection[Any]) -> None:
         if self._immutable:
-            raise ValueError("Setting values is forbidden after filter is deployed.")
+            raise Web3ValueError(
+                "Setting values is forbidden after filter is deployed."
+            )
         if self._match_values is None:
             self._match_values = _normalize_match_values(values)
         else:
-            raise ValueError("An argument match value/s has already been set.")
+            raise Web3ValueError("An argument match value/s has already been set.")
 
     @property
     @abstractmethod

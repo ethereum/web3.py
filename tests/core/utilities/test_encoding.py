@@ -33,6 +33,10 @@ from web3._utils.hypothesis import (
 from web3.datastructures import (
     AttributeDict,
 )
+from web3.exceptions import (
+    Web3TypeError,
+    Web3ValueError,
+)
 from web3.providers import (
     JSONBaseProvider,
 )
@@ -54,12 +58,12 @@ from web3.providers import (
         ("bytes2", b"T\x02", "0x5402"),
         ("bytes3", b"T\x02", "0x5402"),
         ("bytes", "0x5402", "0x5402"),
-        ("bytes", "5402", TypeError),
+        ("bytes", "5402", Web3TypeError),
         ("string", "testing a string!", "0x74657374696e67206120737472696e6721"),
-        ("strings", "bad abi!", ValueError),
-        ("bool[", True, ValueError),
-        ("bool", "string", TypeError),
-        ("uint24", -20, TypeError),
+        ("strings", "bad abi!", Web3ValueError),
+        ("bool[", True, Web3ValueError),
+        ("bool", "string", Web3TypeError),
+        ("uint24", -20, Web3TypeError),
     ],
 )
 def test_hex_encode_abi_type(abi_type, value, expected):
@@ -102,7 +106,7 @@ def test_hexstr_if_str_on_invalid_hex(val):
         is_hexstr = False
 
     if not is_hexstr:
-        with pytest.raises(ValueError):
+        with pytest.raises(Web3ValueError):
             hexstr_if_str(Mock(), val)
 
 

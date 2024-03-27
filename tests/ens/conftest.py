@@ -28,6 +28,9 @@ from ens.contract_data import (
     reverse_resolver_bytecode,
     reverse_resolver_bytecode_runtime,
 )
+from ens.exceptions import (
+    ENSTypeError,
+)
 from web3 import (
     AsyncWeb3,
     Web3,
@@ -61,7 +64,7 @@ def bytes32(val):
     if isinstance(val, int):
         result = Web3.to_bytes(val)
     else:
-        raise TypeError(f"{val!r} could not be converted to bytes")
+        raise ENSTypeError(f"{val!r} could not be converted to bytes")
     if len(result) < 32:
         return result.rjust(32, b"\0")
     else:

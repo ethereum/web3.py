@@ -16,6 +16,7 @@ from toolz import (
 
 from web3.exceptions import (
     StaleBlockchain,
+    Web3ValueError,
 )
 from web3.middleware.base import (
     Web3Middleware,
@@ -54,7 +55,7 @@ class StalecheckMiddlewareBuilder(Web3MiddlewareBuilder):
         skip_stalecheck_for_methods: Collection[str] = SKIP_STALECHECK_FOR_METHODS,
     ) -> Web3Middleware:
         if allowable_delay <= 0:
-            raise ValueError(
+            raise Web3ValueError(
                 "You must set a positive allowable_delay in seconds for this middleware"
             )
         middleware = StalecheckMiddlewareBuilder(w3)

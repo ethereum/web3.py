@@ -58,6 +58,9 @@ from web3._utils.contract_sources.contract_data.tuple_contracts import (
     NESTED_TUPLE_CONTRACT_DATA,
     TUPLE_CONTRACT_DATA,
 )
+from web3.exceptions import (
+    Web3ValueError,
+)
 
 # --- function name tester contract --- #
 
@@ -449,7 +452,7 @@ def invoke_contract(
 ):
     allowable_call_desig = ["call", "transact", "estimate_gas", "build_transaction"]
     if api_call_desig not in allowable_call_desig:
-        raise ValueError(
+        raise Web3ValueError(
             f"allowable_invoke_method must be one of: {allowable_call_desig}"
         )
 
@@ -717,7 +720,7 @@ async def async_invoke_contract(
 ):
     allowable_call_desig = ["call", "transact", "estimate_gas", "build_transaction"]
     if api_call_desig not in allowable_call_desig:
-        raise ValueError(
+        raise Web3ValueError(
             f"allowable_invoke_method must be one of: {allowable_call_desig}"
         )
 

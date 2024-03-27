@@ -33,6 +33,7 @@ from ..._utils.caching import (
 )
 from ...exceptions import (
     ProviderConnectionError,
+    Web3TypeError,
 )
 from ..ipc import (
     get_default_ipc_path,
@@ -71,7 +72,7 @@ class AsyncIPCProvider(PersistentConnectionProvider):
         elif isinstance(ipc_path, str) or isinstance(ipc_path, Path):
             self.ipc_path = str(Path(ipc_path).expanduser().resolve())
         else:
-            raise TypeError("ipc_path must be of type string or pathlib.Path")
+            raise Web3TypeError("ipc_path must be of type string or pathlib.Path")
 
         self._max_connection_retries = max_connection_retries
         super().__init__(**kwargs)

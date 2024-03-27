@@ -55,6 +55,9 @@ from web3._utils.transactions import (
     fill_nonce,
     fill_transaction_defaults,
 )
+from web3.exceptions import (
+    Web3TypeError,
+)
 from web3.middleware.base import (
     Web3MiddlewareBuilder,
 )
@@ -108,7 +111,7 @@ def gen_normalized_accounts(
 
 @singledispatch
 def to_account(val: Any) -> LocalAccount:
-    raise TypeError(
+    raise Web3TypeError(
         "key must be one of the types: "
         "eth_keys.datatype.PrivateKey, eth_account.signers.local.LocalAccount, "
         "or raw private key as a hex string or byte string. "

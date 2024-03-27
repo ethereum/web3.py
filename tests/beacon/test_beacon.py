@@ -13,6 +13,9 @@ from web3._utils.request import (
 from web3.beacon import (
     Beacon,
 )
+from web3.exceptions import (
+    Web3ValueError,
+)
 
 # tested against lighthouse which uses port 5052 by default
 BASE_URL = "http://localhost:5052"
@@ -37,7 +40,7 @@ def _cleanup():
 
 # sanity check to make sure the positive test cases are valid
 def test_cl_beacon_raises_exception_on_invalid_url(beacon):
-    with pytest.raises(ValueError):
+    with pytest.raises(Web3ValueError):
         beacon._make_get_request(BASE_URL + "/eth/v1/beacon/nonexistent")
 
 

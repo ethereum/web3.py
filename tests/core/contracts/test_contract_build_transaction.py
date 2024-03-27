@@ -6,6 +6,7 @@ from eth_utils.toolz import (
 
 from web3.exceptions import (
     Web3ValidationError,
+    Web3ValueError,
 )
 
 
@@ -122,7 +123,7 @@ def test_build_transaction_with_gas_price_strategy_set(
 def test_build_transaction_with_contract_data_supplied_errors(
     w3, math_contract, build_transaction
 ):
-    with pytest.raises(ValueError):
+    with pytest.raises(Web3ValueError):
         build_transaction(
             contract=math_contract,
             contract_function="incrementCounter",
@@ -133,7 +134,7 @@ def test_build_transaction_with_contract_data_supplied_errors(
 def test_build_transaction_with_contract_to_address_supplied_errors(
     w3, math_contract, build_transaction
 ):
-    with pytest.raises(ValueError):
+    with pytest.raises(Web3ValueError):
         build_transaction(
             contract=math_contract,
             contract_function="incrementCounter",
@@ -386,7 +387,7 @@ async def test_async_build_transaction_with_gas_price_strategy_set(
 async def test_async_build_transaction_with_contract_data_supplied_errors(
     async_w3, async_math_contract, async_build_transaction
 ):
-    with pytest.raises(ValueError):
+    with pytest.raises(Web3ValueError):
         await async_build_transaction(
             contract=async_math_contract,
             contract_function="incrementCounter",
@@ -398,7 +399,7 @@ async def test_async_build_transaction_with_contract_data_supplied_errors(
 async def test_async_build_transaction_with_contract_to_address_supplied_errors(
     async_w3, async_math_contract, async_build_transaction
 ):
-    with pytest.raises(ValueError):
+    with pytest.raises(Web3ValueError):
         await async_build_transaction(
             contract=async_math_contract,
             contract_function="incrementCounter",

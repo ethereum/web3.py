@@ -11,6 +11,9 @@ from web3._utils.request import (
 from web3.beacon import (
     AsyncBeacon,
 )
+from web3.exceptions import (
+    Web3ValueError,
+)
 
 # tested against lighthouse which uses port 5052 by default
 BASE_URL = "http://localhost:5052"
@@ -37,7 +40,7 @@ async def _cleanup():
 # sanity check to make sure the positive test cases are valid
 @pytest.mark.asyncio
 async def test_async_cl_beacon_raises_exception_on_invalid_url(async_beacon):
-    with pytest.raises(ValueError):
+    with pytest.raises(Web3ValueError):
         await async_beacon._async_make_get_request(
             BASE_URL + "/eth/v1/beacon/nonexistent"
         )

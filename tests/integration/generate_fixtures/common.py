@@ -15,6 +15,9 @@ from eth_utils import (
 from web3 import (
     constants,
 )
+from web3.exceptions import (
+    Web3ValueError,
+)
 
 # use same coinbase value as in `web3.py/tests/integration/common.py`
 COINBASE = "0xdc544d1aa88ff8bbd2f2aec754b1f1e99e1812fd"
@@ -220,7 +223,7 @@ def mine_block(w3):
         else:
             time.sleep(0.1)
     else:
-        raise ValueError("No block mined during wait period")
+        raise Web3ValueError("No block mined during wait period")
 
 
 def deploy_contract(w3, name, factory):

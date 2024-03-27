@@ -32,7 +32,9 @@ from web3._utils.rpc_abi import (
     RPC,
 )
 from web3.exceptions import (
+    Web3TypeError,
     Web3ValidationError,
+    Web3ValueError,
 )
 from web3.types import (
     RPCEndpoint,
@@ -147,7 +149,7 @@ class Method(Generic[TFunc]):
         self, obj: Optional["Module"] = None, obj_type: Optional[Type["Module"]] = None
     ) -> TFunc:
         if obj is None:
-            raise TypeError(
+            raise Web3TypeError(
                 "Direct calls to methods are not supported. "
                 "Methods must be called from an module instance, "
                 "usually attached to a web3 instance."
@@ -163,7 +165,7 @@ class Method(Generic[TFunc]):
             return self.json_rpc_method
         elif isinstance(self.json_rpc_method, (str,)):
             return lambda *_: self.json_rpc_method
-        raise ValueError(
+        raise Web3ValueError(
             "``json_rpc_method`` config invalid.  May be a string or function"
         )
 

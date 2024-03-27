@@ -31,6 +31,9 @@ from .._utils.abi import (
 from .._utils.formatters import (
     recursive_map,
 )
+from ..exceptions import (
+    Web3TypeError,
+)
 from .base import (
     Web3Middleware,
 )
@@ -92,7 +95,7 @@ async def async_apply_ens_to_address_conversion(
         return (formatted_params_dict, *params[1:])
 
     else:
-        raise TypeError(
+        raise Web3TypeError(
             f"ABI definitions must be a list or dictionary, "
             f"got {abi_types_for_method!r}"
         )
