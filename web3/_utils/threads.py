@@ -15,6 +15,7 @@ from typing import (
     Literal,
     Type,
 )
+
 from web3.exceptions import (
     Web3ValueError,
 )
