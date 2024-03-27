@@ -308,9 +308,7 @@ class ExactLengthBytesEncoder(BytesEncoder):
     ) -> "ExactLengthBytesEncoder":
         subencoder_cls = cls.get_subencoder_class()
         subencoder = subencoder_cls.from_type_str(abi_type.to_type_str(), registry)
-        # type ignored b/c @parse_type_str decorator turns it into a classmethod,
-        # so mypy thinks cls(...) is a call to __call__, but actually calls __init__
-        return cls(  # type: ignore
+        return cls(
             subencoder,
             value_bit_size=abi_type.sub * 8,
             data_byte_size=abi_type.sub,
@@ -528,9 +526,7 @@ def get_aligned_abi_inputs(
         args = tuple(args[abi["name"]] for abi in input_abis)
 
     return (
-        # typed dict cannot be used w/ a normal Dict
-        # https://github.com/python/mypy/issues/4976
-        tuple(collapse_if_tuple(abi) for abi in input_abis),  # type: ignore
+        tuple(collapse_if_tuple(abi) for abi in input_abis),
         type(args)(_align_abi_input(abi, arg) for abi, arg in zip(input_abis, args)),
     )
 
@@ -564,7 +560,7 @@ STATIC_TYPES = list(
 )
 
 BASE_TYPE_REGEX = "|".join(
-    (_type + "(?![a-z0-9])" for _type in itertools.chain(STATIC_TYPES, DYNAMIC_TYPES))
+    _type + "(?![a-z0-9])" for _type in itertools.chain(STATIC_TYPES, DYNAMIC_TYPES)
 )
 
 SUB_TYPE_REGEX = r"\[" "[0-9]*" r"\]"
@@ -632,7 +628,7 @@ def sub_type_of_array_type(abi_type: TypeStr) -> str:
     if not is_array_type(abi_type):
         raise ValueError(f"Cannot parse subtype of nonarray abi-type: {abi_type}")
 
-    return re.sub(END_BRACKETS_OF_ARRAY_TYPE_REGEX, "", abi_type, 1)
+    return re.sub(END_BRACKETS_OF_ARRAY_TYPE_REGEX, "", abi_type, count=1)
 
 
 def length_of_array_type(abi_type: TypeStr) -> int:
@@ -705,8 +701,8 @@ def map_abi_data(
     data: Sequence[Any],
 ) -> Any:
     """
-    This function will apply normalizers to your data, in the
-    context of the relevant types. Each normalizer is in the format:
+    Applies normalizers to your data, in the context of the relevant types.
+    Each normalizer is in the format:
 
     def normalizer(datatype, data):
         # Conditionally modify data
@@ -772,7 +768,7 @@ def data_tree_map(
 
 class ABITypedData(namedtuple("ABITypedData", "abi_type, data")):
     """
-    This class marks data as having a certain ABI-type.
+    Marks data as having a certain ABI-type.
 
     >>> a1 = ABITypedData(['address', addr1])
     >>> a2 = ABITypedData(['address', addr2])
@@ -1029,7 +1025,6 @@ async def async_map_if_collection(
     Apply an awaitable method to each element of a collection or value of a dictionary.
     If the value is not a collection, return it unmodified.
     """
-
     datatype = type(value)
     if isinstance(value, Mapping):
         return datatype({key: await func(val) for key, val in value.values()})

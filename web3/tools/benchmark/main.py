@@ -120,20 +120,20 @@ def main(logger: logging.Logger, num_calls: int) -> None:
                 {
                     "name": "eth_gasPrice",
                     "params": {},
-                    "exec": lambda: w3_http.eth.gas_price,
-                    "async_exec": lambda: async_w3_http.eth.gas_price,
+                    "exec": lambda w3_http=w3_http: w3_http.eth.gas_price,
+                    "async_exec": lambda async_w3_http=async_w3_http: async_w3_http.eth.gas_price,  # noqa: E501
                 },
                 {
                     "name": "eth_sendTransaction",
                     "params": {},
-                    "exec": lambda: w3_http.eth.send_transaction(
+                    "exec": lambda w3_http=w3_http, coinbase=coinbase: w3_http.eth.send_transaction(  # noqa: E501
                         {
                             "to": "0xd3CdA913deB6f67967B99D67aCDFa1712C293601",
                             "from": coinbase,
                             "value": Wei(1),
                         }
                     ),
-                    "async_exec": lambda: async_w3_http.eth.send_transaction(
+                    "async_exec": lambda async_w3_http=async_w3_http, async_coinbase=async_coinbase: async_w3_http.eth.send_transaction(  # noqa: E501
                         {
                             "to": "0xd3CdA913deB6f67967B99D67aCDFa1712C293601",
                             "from": async_coinbase,
@@ -144,18 +144,22 @@ def main(logger: logging.Logger, num_calls: int) -> None:
                 {
                     "name": "eth_blockNumber",
                     "params": {},
-                    "exec": lambda: w3_http.eth.block_number,
-                    "async_exec": lambda: async_w3_http.eth.block_number,
+                    "exec": lambda w3_http=w3_http: w3_http.eth.block_number,
+                    "async_exec": lambda async_w3_http=async_w3_http: async_w3_http.eth.block_number,  # noqa: E501
                 },
                 {
                     "name": "eth_getBlock",
                     "params": {},
-                    "exec": lambda: w3_http.eth.get_block(1),
-                    "async_exec": lambda: async_w3_http.eth.get_block(1),
+                    "exec": lambda w3_http=w3_http: w3_http.eth.get_block(1),
+                    "async_exec": lambda async_w3_http=async_w3_http: async_w3_http.eth.get_block(  # noqa: E501
+                        1
+                    ),
                 },
             ]
 
-            def benchmark(method: Dict[str, Any]) -> None:
+            def benchmark(
+                method: Dict[str, Any], loop: asyncio.AbstractEventLoop = loop
+            ) -> None:
                 outcomes: Dict[str, Union[str, float]] = defaultdict(lambda: "N/A")
                 outcomes["name"] = method["name"]
                 outcomes["HTTPProvider"] = sync_benchmark(

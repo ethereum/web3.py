@@ -37,7 +37,7 @@ def recursive_shuffle_dict(v):
     if isinstance(v, dict):
         return shuffle_dict(v)
     elif isinstance(v, (list, tuple)):
-        return type(v)((recursive_shuffle_dict(_v) for _v in v))
+        return type(v)(recursive_shuffle_dict(_v) for _v in v)
     else:
         return v
 

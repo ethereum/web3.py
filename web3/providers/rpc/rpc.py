@@ -63,7 +63,7 @@ class HTTPProvider(JSONBaseProvider):
         request_kwargs: Optional[Any] = None,
         session: Optional[Any] = None,
         exception_retry_configuration: Optional[ExceptionRetryConfiguration] = (
-            ExceptionRetryConfiguration(
+            ExceptionRetryConfiguration(  # noqa: B008
                 errors=(
                     ConnectionError,
                     requests.HTTPError,
@@ -92,8 +92,7 @@ class HTTPProvider(JSONBaseProvider):
     def get_request_kwargs(self) -> Iterable[Tuple[str, Any]]:
         if "headers" not in self._request_kwargs:
             yield "headers", self.get_request_headers()
-        for key, value in self._request_kwargs.items():
-            yield key, value
+        yield from self._request_kwargs.items()
 
     def get_request_headers(self) -> Dict[str, str]:
         return {

@@ -1,6 +1,4 @@
 import pytest
-
-# coding=utf-8
 from unittest.mock import (
     patch,
 )

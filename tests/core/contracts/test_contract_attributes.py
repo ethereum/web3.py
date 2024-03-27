@@ -15,7 +15,7 @@ def abi():
 def test_getattr(w3, abi, attribute):
     contract = w3.eth.contract(abi=abi)
     contract_attribute = getattr(contract, attribute)
-    assert getattr(contract_attribute, "Increased")
+    assert getattr(contract_attribute, "Increased")  # noqa: B009
 
 
 @pytest.mark.parametrize(
@@ -31,7 +31,7 @@ def test_getattr_raises_error(w3, abi, attribute, error):
     contract_attribute = getattr(contract, attribute)
 
     with pytest.raises(error):
-        getattr(contract_attribute, "Decreased")
+        getattr(contract_attribute, "Decreased")  # noqa: B009
 
 
 @pytest.mark.parametrize("attribute", ("functions", "events", "caller"))

@@ -7,7 +7,7 @@ Table of Contents
 
     quickstart
     overview
-    releases
+    release_notes
 
 .. toctree::
     :maxdepth: 1

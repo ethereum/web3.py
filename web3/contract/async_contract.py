@@ -112,7 +112,8 @@ class AsyncContractEvent(BaseContractEvent):
         toBlock: Optional[BlockIdentifier] = None,
         block_hash: Optional[HexBytes] = None,
     ) -> Awaitable[Iterable[EventData]]:
-        """Get events for this contract instance using eth_getLogs API.
+        """
+        Get events for this contract instance using eth_getLogs API.
 
         This is a stateless method, as opposed to createFilter.
         It can be safely called against nodes which do not provide
@@ -440,10 +441,11 @@ class AsyncContract(BaseContract):
     events: AsyncContractEvents = None
 
     def __init__(self, address: Optional[ChecksumAddress] = None) -> None:
-        """Create a new smart contract proxy object.
+        """
+        Create a new smart contract proxy object.
 
-        :param address: Contract address as 0x hex string"""
-
+        :param address: Contract address as 0x hex string
+        """
         if self.w3 is None:
             raise AttributeError(
                 "The `Contract` class has not been initialized.  Please use the "

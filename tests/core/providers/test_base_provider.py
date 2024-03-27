@@ -39,7 +39,7 @@ def test_autoprovider_detection():
         return None
 
     def must_not_call():
-        assert False
+        raise AssertionError
 
     auto = AutoProvider(
         [

@@ -56,7 +56,9 @@ class AsyncHTTPProvider(AsyncJSONBaseProvider):
         request_kwargs: Optional[Any] = None,
         exception_retry_configuration: Optional[
             ExceptionRetryConfiguration
-        ] = ExceptionRetryConfiguration(errors=(ClientError, TimeoutError)),
+        ] = ExceptionRetryConfiguration(  # noqa: B008
+            errors=(ClientError, TimeoutError)
+        ),
     ) -> None:
         if endpoint_uri is None:
             self.endpoint_uri = get_default_http_endpoint()
@@ -78,8 +80,7 @@ class AsyncHTTPProvider(AsyncJSONBaseProvider):
     def get_request_kwargs(self) -> Iterable[Tuple[str, Any]]:
         if "headers" not in self._request_kwargs:
             yield "headers", self.get_request_headers()
-        for key, value in self._request_kwargs.items():
-            yield key, value
+        yield from self._request_kwargs.items()
 
     def get_request_headers(self) -> Dict[str, str]:
         return {

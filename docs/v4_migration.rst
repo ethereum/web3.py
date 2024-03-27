@@ -91,9 +91,9 @@ These providers are fairly uncommon. If you don't recognize the names,
 you can probably skip the section.
 
 However, if you were using web3.py for testing contracts,
-you might have been using TestRPCProvider or EthereumTesterProvider. 
+you might have been using TestRPCProvider or EthereumTesterProvider.
 
-In v4 there is a new :class:`EthereumTesterProvider`, and the old v3 implementation has been 
+In v4 there is a new :class:`EthereumTesterProvider`, and the old v3 implementation has been
 removed. Web3.py v4 uses :class:`eth_tester.main.EthereumTester` under the hood, instead
 of eth-testrpc. While ``eth-tester`` is still in beta, many parts are
 already in better shape than testrpc, so we decided to replace it in v4.
@@ -101,7 +101,7 @@ already in better shape than testrpc, so we decided to replace it in v4.
 If you were using TestRPC, or were explicitly importing EthereumTesterProvider, like:
 ``from web3.providers.tester import EthereumTesterProvider``, then you will need to update.
 
-With v4 you should import with ``from web3 import EthereumTesterProvider``. As before, you'll 
+With v4 you should import with ``from web3 import EthereumTesterProvider``. As before, you'll
 need to install Web3.py with the ``tester`` extra to get these features, like:
 
 .. code-block:: bash

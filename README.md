@@ -6,9 +6,9 @@
 
 A Python library for interacting with Ethereum.
 
--   Python 3.8+ support
+- Python 3.8+ support
 
----
+______________________________________________________________________
 
 ## Quickstart
 
@@ -26,6 +26,6 @@ guidelines for [contributing](https://web3py.readthedocs.io/en/latest/contributi
 then check out issues that are labeled
 [Good First Issue](https://github.com/ethereum/web3.py/issues?q=is%3Aissue+is%3Aopen+label%3A%22Good+First+Issue%22).
 
----
+______________________________________________________________________
 
 #### Questions on implementation or usage? Join the conversation on [discord](https://discord.gg/GHryRvPB84).

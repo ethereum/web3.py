@@ -80,11 +80,11 @@ diagnose the problem, ``is_connected`` has an optional ``show_traceback`` argume
 
     >>> w3.is_connected(show_traceback=True)
     # this is an example, your error may differ
-    
+
     # <long stack trace output>
     ProviderConnectionError: Problem connecting to provider with error: <class 'FileNotFoundError'>: cannot connect to IPC socket at path: None
 
-If you're running a local node, such as Geth, double-check that you've indeed started 
+If you're running a local node, such as Geth, double-check that you've indeed started
 the binary and that you've started it from the intended directory - particularly if
 you've specified a relative path to its ipc file.
 
@@ -185,7 +185,7 @@ Your Ethereum node JSON-RPC API might be slow when fetching multiple and large r
         multiple and large responses.
         """
         provider.decode_rpc_response = _fast_decode_rpc_response
-        
+
 Why am I getting Visual C++ or Cython not installed error?
 ----------------------------------------------------------
 
@@ -195,13 +195,13 @@ when installing web3.py as shown below:
 .. code-block:: shell
 
     error: Microsoft Visual C++ 14.0 or greater is required. Get it with "Microsoft C++ Build Tools": https://visualstudio.microsoft.com/visual-cpp-build-tools/
-    
 
-To fix this error, download and install Microsoft Visual C++ from here : 
+
+To fix this error, download and install Microsoft Visual C++ from here :
 
 `Microsoft Visual C++ Redistributable for Visual Studio <https://visualstudio.microsoft.com/downloads/#microsoft-visual-c-redistributable-for-visual-studio-2019>`_
 
-- `x64 Visual C++ <https://aka.ms/vs/16/release/VC_redist.x64.exe>`_  
+- `x64 Visual C++ <https://aka.ms/vs/16/release/VC_redist.x64.exe>`_
 
 - `x86 Visual C++ <https://aka.ms/vs/16/release/VC_redist.x86.exe>`_
 

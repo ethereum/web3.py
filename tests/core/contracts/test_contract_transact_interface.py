@@ -133,7 +133,7 @@ def test_transacting_with_contract_with_encoded_string_argument_non_strict(
     txn_hash = transact(
         contract=non_strict_string_contract,
         contract_function="setValue",
-        func_args=["ÄLÄMÖLÖ".encode("utf8")],
+        func_args=["ÄLÄMÖLÖ".encode()],
     )
     txn_receipt = w3_non_strict_abi.eth.wait_for_transaction_receipt(txn_hash)
     assert txn_receipt is not None

@@ -23,7 +23,7 @@ from web3.providers.eth_tester import (
 
 
 def _args_list_to_set(call_args_list):
-    return set(call_arg.args[0] for call_arg in call_args_list)
+    return {call_arg.args[0] for call_arg in call_args_list}
 
 
 def test_from_web3_inherits_web3_middleware(w3):

@@ -268,7 +268,7 @@ The following methods are available on the ``web3.geth.personal`` namespace.
     * Delegates to ``personal_sign`` RPC Method
 
     Generates an Ethereum-specific signature for ``keccak256("\x19Ethereum Signed Message:\n" + len(message) + message))``
-    
+
     .. code-block:: python
 
         >>> web3.geth.personal.sign('snakesnax', '0x9ad3c920dce5cea9a31d69467bb8d7c954e5acff', '')

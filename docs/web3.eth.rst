@@ -914,11 +914,11 @@ The following methods are available on the ``web3.eth`` namespace.
 .. py:method:: Eth.sign_typed_data(account, jsonMessage)
 
     * Delegates to ``eth_signTypedData`` RPC Method
-      
+
     .. note::
-    
+
         ``eth_signTypedData`` is not currently supported by any major client (Besu, Erigon, Geth, or Nethermind)
-        
+
     Please note that the ``jsonMessage`` argument is the loaded JSON Object
     and **NOT** the JSON String itself.
 
