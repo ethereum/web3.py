@@ -1,1 +1,0 @@
-Fix ``process_log()`` when parsing logs for events with indexed and non-indexed inputs. ``get_event_data()`` now compares log topics and event ABIs as hex values.

@@ -6,6 +6,58 @@ v7 Breaking Changes Summary
 
 .. towncrier release notes start
 
+web3.py v7.0.0-beta.3 (2024-03-28)
+----------------------------------
+
+Bugfixes
+~~~~~~~~
+
+- Fix ``process_log()`` when parsing logs for events with indexed and non-indexed inputs. ``get_event_data()`` now compares log topics and event ABIs as hex values. (`#3289 <https://github.com/ethereum/web3.py/issues/3289>`__)
+- Fix ``process_log`` for ``HexStr`` inputs. Explicit type coercion of entry ``topics`` and ``data`` values. (`#3293 <https://github.com/ethereum/web3.py/issues/3293>`__)
+- Fix typing for json data argument to ``eth_signTypedData``. (`#3308 <https://github.com/ethereum/web3.py/issues/3308>`__)
+
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Add note about middlewares change to v7 migration guide. (`#3277 <https://github.com/ethereum/web3.py/issues/3277>`__)
+- Rearrange v7 migration guide and include upgrade path from WebsocketProviderV2 (`#3310 <https://github.com/ethereum/web3.py/issues/3310>`__)
+
+
+Features
+~~~~~~~~
+
+- Add support for ``eth_getRawTransactionByHash`` RPC method (`#3247 <https://github.com/ethereum/web3.py/issues/3247>`__)
+- Add ``user_message`` kwarg for human readable ``Web3Exception`` messages. (`#3263 <https://github.com/ethereum/web3.py/issues/3263>`__)
+- Add formatters for type 3 transaction fields ``maxFeePerBlobGas`` and ``blobVersionedHashes``. (`#3314 <https://github.com/ethereum/web3.py/issues/3314>`__)
+
+
+Internal Changes - for web3.py Contributors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Add a daily CI run (`#3272 <https://github.com/ethereum/web3.py/issues/3272>`__)
+- Add linting for non-inclusive language with ``blocklint``. (`#3275 <https://github.com/ethereum/web3.py/issues/3275>`__)
+
+
+Miscellaneous Changes
+~~~~~~~~~~~~~~~~~~~~~
+
+- `#3304 <https://github.com/ethereum/web3.py/issues/3304>`__
+
+
+Performance Improvements
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Importing ``ens._normalization`` is deferred until the first call of ``ens.utils.normalize_name`` in order to speed up ``import web3``. (`#3285 <https://github.com/ethereum/web3.py/issues/3285>`__)
+- Utilize ``async`` functionality when popping responses from request manager cache for persistent connection providers. (`#3306 <https://github.com/ethereum/web3.py/issues/3306>`__)
+
+
+Removals
+~~~~~~~~
+
+- Remove ``Contract.encodeABI()`` in favor of ``Contract.encode_abi()`` to follow standard conventions. (`#3281 <https://github.com/ethereum/web3.py/issues/3281>`__)
+
+
 web3.py v7.0.0-beta.2 (2024-03-11)
 ----------------------------------
 

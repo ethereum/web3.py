@@ -1,1 +1,0 @@
-Importing ``ens._normalization`` is deferred until the first call of ``ens.utils.normalize_name`` in order to speed up ``import web3``.
