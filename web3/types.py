@@ -138,6 +138,7 @@ TxData = TypedDict(
     "TxData",
     {
         "accessList": AccessList,
+        "blobVersionedHashes": Sequence[HexBytes],
         "blockHash": HexBytes,
         "blockNumber": BlockNumber,
         "chainId": int,
@@ -145,6 +146,7 @@ TxData = TypedDict(
         "from": ChecksumAddress,
         "gas": int,
         "gasPrice": Wei,
+        "maxFeePerBlobGas": Wei,
         "maxFeePerGas": Wei,
         "maxPriorityFeePerGas": Wei,
         "hash": HexBytes,

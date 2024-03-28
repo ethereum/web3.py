@@ -233,6 +233,10 @@ TRANSACTION_RESULT_FORMATTERS = {
     ),
     "input": HexBytes,
     "data": HexBytes,  # Nethermind, for example, returns both `input` and `data`
+    "maxFeePerBlobGas": to_integer_if_hex,
+    "blobVersionedHashes": apply_formatter_if(
+        is_not_null, apply_formatter_to_array(to_hexbytes(32))
+    ),
 }
 
 
