@@ -188,7 +188,7 @@ class WebsocketProviderV2(PersistentConnectionProvider):
                     self.logger.debug(
                         f"Popping response for id {request_id} from cache."
                     )
-                    popped_response = self._request_processor.pop_raw_response(
+                    popped_response = await self._request_processor.pop_raw_response(
                         cache_key=request_cache_key,
                     )
                     return popped_response
