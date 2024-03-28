@@ -45,11 +45,7 @@ from web3._utils.abi import (
     receive_func_abi_exists,
 )
 from web3._utils.contracts import (
-    decode_transaction_data,
     encode_abi,
-    find_matching_event_abi,
-    find_matching_fn_abi,
-    get_function_info,
     prepare_transaction,
 )
 from web3._utils.datatypes import (
@@ -65,7 +61,6 @@ from web3._utils.encoding import (
 from web3._utils.events import (
     AsyncEventFilterBuilder,
     EventFilterBuilder,
-    get_event_data,
     is_dynamic_sized_type,
 )
 from web3._utils.filters import (
@@ -109,9 +104,17 @@ from web3.types import (
     EventData,
     FilterParams,
     FunctionIdentifier,
+    LogReceipt,
     TContractFn,
     TxParams,
     TxReceipt,
+)
+from web3.utils.abi import (
+    decode_function_outputs,
+    get_event_abi,
+    get_function_abi,
+    get_function_info,
+    parse_transaction_for_event,
 )
 
 if TYPE_CHECKING:
@@ -148,7 +151,7 @@ class BaseContractEvent:
 
     @classmethod
     def _get_event_abi(cls) -> ABIEvent:
-        return find_matching_event_abi(cls.contract_abi, event_name=cls.event_name)
+        return get_event_abi(cls.contract_abi, event_name=cls.event_name)
 
     @combomethod
     def process_receipt(
@@ -169,7 +172,7 @@ class BaseContractEvent:
 
         for log in txn_receipt["logs"]:
             try:
-                rich_log = get_event_data(self.w3.codec, self.abi, log)
+                rich_log = parse_transaction_for_event(self.abi, log)
             except (MismatchedABI, LogTopicError, InvalidEventABI, TypeError) as e:
                 if errors == DISCARD:
                     continue
@@ -191,8 +194,8 @@ class BaseContractEvent:
             yield rich_log
 
     @combomethod
-    def process_log(self, log: HexStr) -> EventData:
-        return get_event_data(self.w3.codec, self.abi, log)
+    def process_log(self, log: LogReceipt) -> EventData:
+        return parse_transaction_for_event(self.abi, log)
 
     @combomethod
     def _get_event_filter_params(
@@ -469,9 +472,8 @@ class BaseContractFunction:
 
     def _set_function_info(self) -> None:
         if not self.abi:
-            self.abi = find_matching_fn_abi(
+            self.abi = get_function_abi(
                 self.contract_abi,
-                self.w3.codec,
                 self.function_identifier,
                 self.args,
                 self.kwargs,
@@ -736,18 +738,17 @@ class BaseContract:
 
         :param data: defaults to function selector
         """
-        fn_abi, fn_selector, fn_arguments = get_function_info(
+        fn_info = get_function_info(
+            cls.abi,
             fn_name,
-            cls.w3.codec,
-            contract_abi=cls.abi,
             args=args,
             kwargs=kwargs,
         )
 
         if data is None:
-            data = fn_selector
+            data = fn_info["selector"]
 
-        return encode_abi(cls.w3, fn_abi, fn_arguments, data)
+        return encode_abi(cls.w3, fn_info["abi"], fn_info["arguments"], data)
 
     @combomethod
     def all_functions(
@@ -808,7 +809,7 @@ class BaseContract:
         # type ignored b/c expects data arg to be HexBytes
         data = HexBytes(data)  # type: ignore
         func = self.get_function_by_selector(data[:4])
-        arguments = decode_transaction_data(
+        arguments = decode_function_outputs(
             func.abi, data, normalizers=BASE_RETURN_NORMALIZERS
         )
         return func, arguments
@@ -859,9 +860,7 @@ class BaseContract:
         args: Optional[Any] = None,
         kwargs: Optional[Any] = None,
     ) -> ABIFunction:
-        return find_matching_fn_abi(
-            cls.abi, cls.w3.codec, fn_identifier=fn_identifier, args=args, kwargs=kwargs
-        )
+        return get_function_abi(cls.abi, fn_identifier, args=args, kwargs=kwargs)
 
     @classmethod
     def _find_matching_event_abi(
@@ -869,7 +868,7 @@ class BaseContract:
         event_name: Optional[str] = None,
         argument_names: Optional[Sequence[str]] = None,
     ) -> ABIEvent:
-        return find_matching_event_abi(
+        return get_event_abi(
             abi=cls.abi, event_name=event_name, argument_names=argument_names
         )
 

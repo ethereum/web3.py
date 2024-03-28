@@ -4,8 +4,19 @@ classify as breaking changes.
 """
 
 from .abi import (  # NOQA
+    decode_event_args,
+    decode_function_outputs,
     get_abi_input_names,
+    get_abi_input_types,
     get_abi_output_names,
+    get_abi_output_types,
+    get_all_event_abis,
+    get_event_abi,
+    get_event_log_topics,
+    get_all_function_abis,
+    get_function_abi,
+    get_function_info,
+    parse_transaction_for_event,
 )
 from .address import get_create_address  # NOQA
 from .async_exception_handling import (  # NOQA
