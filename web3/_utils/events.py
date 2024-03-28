@@ -52,30 +52,22 @@ from eth_utils.toolz import (
     curry,
     valfilter,
 )
+from hexbytes import (
+    HexBytes,
+)
 
 import web3
 from web3._utils.abi import (
     exclude_indexed_event_inputs,
     get_indexed_event_inputs,
     get_normalized_abi_arg_type,
-    map_abi_data,
-    named_tree,
-    normalize_event_input_types,
 )
 from web3._utils.encoding import (
     encode_single_packed,
     hexstr_if_str,
 )
-from web3._utils.normalizers import (
-    BASE_RETURN_NORMALIZERS,
-)
 from web3.datastructures import (
     AttributeDict,
-)
-from web3.exceptions import (
-    InvalidEventABI,
-    LogTopicError,
-    MismatchedABI,
 )
 from web3.types import (
     ABIEvent,
@@ -83,10 +75,6 @@ from web3.types import (
     BlockIdentifier,
     EventData,
     FilterParams,
-    LogReceipt,
-)
-from web3.utils import (
-    get_abi_input_names,
 )
 
 if TYPE_CHECKING:
@@ -100,9 +88,9 @@ if TYPE_CHECKING:
     )
 
 
-def _log_entry_data_to_bytes(
+def log_entry_data_to_bytes(
     log_entry_data: Union[Primitives, HexStr, str],
-) -> bytes:
+) -> HexBytes:
     return hexstr_if_str(to_bytes, log_entry_data)
 
 
@@ -219,94 +207,6 @@ def get_event_abi_types_for_decoding(
             yield "bytes32"
         else:
             yield get_normalized_abi_arg_type(input_abi)
-
-
-@curry
-def get_event_data(
-    abi_codec: ABICodec,
-    event_abi: ABIEvent,
-    log_entry: LogReceipt,
-) -> EventData:
-    """
-    Given an event ABI and a log entry for that event, return the decoded
-    event data
-    """
-    if event_abi["anonymous"]:
-        log_topics = log_entry["topics"]
-    elif not log_entry["topics"]:
-        raise MismatchedABI("Expected non-anonymous event to have 1 or more topics")
-    elif event_abi_to_log_topic(dict(event_abi)) != _log_entry_data_to_bytes(
-        log_entry["topics"][0]
-    ):
-        raise MismatchedABI("The event signature did not match the provided ABI")
-    else:
-        log_topics = log_entry["topics"][1:]
-
-    log_topics_bytes = [_log_entry_data_to_bytes(topic) for topic in log_topics]
-    log_topics_abi = get_indexed_event_inputs(event_abi)
-    log_topic_normalized_inputs = normalize_event_input_types(log_topics_abi)
-    log_topic_types = get_event_abi_types_for_decoding(log_topic_normalized_inputs)
-    log_topic_names = get_abi_input_names(ABIEvent({"inputs": log_topics_abi}))
-
-    if len(log_topics_bytes) != len(log_topic_types):
-        raise LogTopicError(
-            f"Expected {len(log_topic_types)} log topics.  Got {len(log_topics_bytes)}"
-        )
-
-    log_data = _log_entry_data_to_bytes(log_entry["data"])
-    log_data_abi = exclude_indexed_event_inputs(event_abi)
-    log_data_normalized_inputs = normalize_event_input_types(log_data_abi)
-    log_data_types = get_event_abi_types_for_decoding(log_data_normalized_inputs)
-    log_data_names = get_abi_input_names(ABIEvent({"inputs": log_data_abi}))
-
-    # sanity check that there are not name intersections between the topic
-    # names and the data argument names.
-    duplicate_names = set(log_topic_names).intersection(log_data_names)
-    if duplicate_names:
-        raise InvalidEventABI(
-            "The following argument names are duplicated "
-            f"between event inputs: '{', '.join(duplicate_names)}'"
-        )
-
-    decoded_log_data = abi_codec.decode(log_data_types, log_data)
-    normalized_log_data = map_abi_data(
-        BASE_RETURN_NORMALIZERS, log_data_types, decoded_log_data
-    )
-    named_log_data = named_tree(
-        log_data_normalized_inputs,
-        normalized_log_data,
-    )
-
-    decoded_topic_data = [
-        abi_codec.decode([topic_type], topic_data)[0]
-        for topic_type, topic_data in zip(log_topic_types, log_topics_bytes)
-    ]
-    normalized_topic_data = map_abi_data(
-        BASE_RETURN_NORMALIZERS, log_topic_types, decoded_topic_data
-    )
-
-    event_args = dict(
-        itertools.chain(
-            zip(log_topic_names, normalized_topic_data),
-            named_log_data.items(),
-        )
-    )
-
-    event_data = EventData(
-        args=event_args,
-        event=event_abi["name"],
-        logIndex=log_entry["logIndex"],
-        transactionIndex=log_entry["transactionIndex"],
-        transactionHash=log_entry["transactionHash"],
-        address=log_entry["address"],
-        blockHash=log_entry["blockHash"],
-        blockNumber=log_entry["blockNumber"],
-    )
-
-    if isinstance(log_entry, AttributeDict):
-        return cast(EventData, AttributeDict.recursive(event_data))
-
-    return event_data
 
 
 @to_tuple

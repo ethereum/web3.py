@@ -8,6 +8,7 @@ from typing import (
     NewType,
     Optional,
     Sequence,
+    Tuple,
     Type,
     TypeVar,
     Union,
@@ -109,16 +110,25 @@ class ABIFunction(TypedDict, total=False):
     type: Literal["function", "constructor", "fallback", "receive"]
 
 
+class ABIFunctionInfo(TypedDict):
+    abi: ABIFunction
+    selector: HexStr
+    arguments: Tuple[Any, ...]
+
+
 ABIElement = Union[ABIFunction, ABIEvent]
 ABI = Sequence[Union[ABIFunction, ABIEvent]]
 
 
-class EventData(TypedDict):
-    address: ChecksumAddress
+class EventDataArgs(TypedDict):
+    event: str
     args: Dict[str, Any]
+
+
+class EventData(EventDataArgs):
+    address: ChecksumAddress
     blockHash: HexBytes
     blockNumber: int
-    event: str
     logIndex: int
     transactionHash: HexBytes
     transactionIndex: int
