@@ -82,6 +82,10 @@ FULL_TXN_DICT = {
         },
         {"address": "0xbb9bc244d798123fde783fcc1c72d3bb8c189413", "storageKeys": ()},
     ),
+    "maxFeePerBlobGas": 2000000000,
+    "blobVersionedHashes": (
+        "0x01a915e4d060149eb4365960e6a7a45f334393093061116b197e3240065ff2d8",
+    ),
 }
 
 
