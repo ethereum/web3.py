@@ -49,6 +49,8 @@ TX_PARAM_LITERALS = Literal[
     "nonce",
     "chainId",
     "accessList",
+    "maxFeePerBlobGas",
+    "blobVersionedHashes",
 ]
 
 VALID_TRANSACTION_PARAMS: List[TX_PARAM_LITERALS] = [
@@ -64,6 +66,8 @@ VALID_TRANSACTION_PARAMS: List[TX_PARAM_LITERALS] = [
     "data",
     "nonce",
     "chainId",
+    "maxFeePerBlobGas",
+    "blobVersionedHashes",
 ]
 
 TRANSACTION_DEFAULTS = {
