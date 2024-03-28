@@ -3,11 +3,70 @@
 Migrating your code from v6 to v7
 =================================
 
-web3.py follows `Semantic Versioning <http://semver.org>`_, which means
-that version 7 introduced backwards-incompatible changes. If your
-project depends on web3.py ``v7``, you'll probably need to make some changes.
+web3.py follows `Semantic Versioning <http://semver.org>`_, which means that
+version 7 introduced backwards-incompatible changes. If you're upgrading from
+web3.py ``v6`` or earlier, you can expect to need to make some changes. Refer
+to this guide for a summary of breaking changes when updating from ``v6`` to
+``v7``. If you are more than one major version behind, you should also review
+the migration guides for the versions in between.
 
-Breaking Changes:
+
+Provider Updates
+~~~~~~~~~~~~~~~~
+
+
+WebSocketProvider
+`````````````````
+
+``WebsocketProviderV2``, introduced in web3.py ``v6``, has taken priority over the
+legacy ``WebsocketProvider``. The ``LegacyWebSocketProvider`` has been deprecated in
+``v7`` and is slated for removal in the next major version of the library. In summary:
+
+- ``WebsocketProvider`` -> ``LegacyWebSocketProvider`` (and deprecated)
+- ``WebsocketProviderV2`` -> ``WebSocketProvider``
+
+If migrating from ``WebSocketProviderV2`` to ``WebSocketProvider``, you can expect the
+following changes:
+
+- Instantiation no longer requires the ``persistant_websocket`` method:
+
+  .. code-block:: python
+
+      # WebsocketsProviderV2:
+      AsyncWeb3.persistent_websocket(WebsocketProviderV2('...'))
+
+      # WebSocketProvider:
+      AsyncWeb3(WebSocketProvider('...'))
+
+- Handling incoming subscription messages now occurs under a more flexible namespace:
+  ``socket``. The ``AsyncIPCProvider`` uses the same API to listen for messages via
+  an IPC socket.
+
+  .. code-block:: python
+
+    # WebsocketsProviderV2:
+    async for message in w3.ws.process_subscriptions():
+      ...
+
+    # WebSocketProvider:
+    async for message in w3.socket.process_subscriptions():
+      ...
+
+
+AsyncIPCProvider (non-breaking feature)
+```````````````````````````````````````
+
+An asynchronous IPC provider, ``AsyncIPCProvider``, is newly available in ``v7``.
+This provider makes use of some of the same internals that the new ``WebSocketProvider``
+introduced, allowing it to also support ``eth_subscription``.
+
+
+EthereumTesterProvider
+``````````````````````
+
+``EthereumTesterProvider`` now returns ``input`` instead of ``data`` for ``eth_getTransaction*``
+calls, as expected.
+
 
 Middlewares -> Middleware
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -15,6 +74,7 @@ Middlewares -> Middleware
 All references to ``middlewares`` have been replaced with the more grammatically
 correct ``middleware``. Notably, this includes when a provider needs to be
 instantiated with custom middleware.
+
 
 Class-Based Middleware Model
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -42,6 +102,7 @@ The following middleware have been renamed for generalization or clarity:
 
 The following middleware have been removed:
 
+
 ABI Middleware
 ``````````````
 
@@ -49,6 +110,7 @@ ABI Middleware
 of the ``abi_middleware`` was already handled by web3.py's ABI formatters. For additional
 context: a bug in the ENS name-to-address middleware would override the formatters. Fixing
 this bug has removed the need for the ``abi_middleware``.
+
 
 Caching Middleware
 ``````````````````
@@ -68,6 +130,7 @@ If desired, the previous caching middleware can be re-created using the new clas
 middleware model overriding the ``wrap_make_request`` (or ``async_wrap_make_request``)
 method in the middleware class.
 
+
 Result Generating Middleware
 ````````````````````````````
 The following middleware have been removed:
@@ -79,6 +142,7 @@ The ``fixture_middleware`` and ``result_generator_middleware`` which were used f
 testing/mocking purposes have been removed. These have been replaced internally by the
 ``RequestMocker`` class, utilized for testing via a ``request_mocker`` pytest fixture.
 
+
 HTTP Retry Request Middleware
 `````````````````````````````
 
@@ -86,41 +150,12 @@ The ``http_retry_request_middleware`` has been removed in favor of a configurati
 option on the ``HTTPProvider`` and ``AsyncHTTPProvider`` classes. The configuration
 options are outlined in the documentation in the :ref:`http_retry_requests` section.
 
+
 Normalize Request Parameters Middleware
 ```````````````````````````````````````
 
 The ``normalize_request_parameters`` middleware was not used anywhere internally and
 has been removed.
-
-
-Provider Updates
-~~~~~~~~~~~~~~~~
-
-WebSocketProvider
-`````````````````
-
-``WebsocketProviderV2``, introduced in web3.py ``v6``, has taken priority over the
-legacy ``WebsocketProvider``. The ``LegacyWebSocketProvider`` is also deprecated in
-``v7`` and will likely be slated for removal in a later major version of the library
-to help with the transition to the asynchronous patterns required when using the
-``WebSocketProvider``. In summary:
-
-- ``WebsocketProvider`` -> ``LegacyWebSocketProvider`` (and deprecated)
-- ``WebsocketProviderV2`` -> ``WebSocketProvider``
-
-
-EthereumTesterProvider
-``````````````````````
-
-``EthereumTesterProvider`` now returns ``input`` instead of ``data`` for ``eth_getTransaction*``
-calls, as expected.
-
-AsyncIPCProvider (non-breaking feature)
-```````````````````````````````````````
-
-An asynchronous IPC provider, ``AsyncIPCProvider``, is also newly available in ``v7``.
-This provider makes use of some of the same internals that the new ``WebSocketProvider``
-introduced, allowing it to also support ``eth_subscription``.
 
 
 Python 3.7 Support Dropped
@@ -130,12 +165,14 @@ Python 3.7 support has been dropped in favor of Python 3.8+. Python 3.7 is no lo
 supported by the Python core team, and we want to focus our efforts on supporting
 the latest versions of Python.
 
+
 EthPM Module Removed
 ~~~~~~~~~~~~~~~~~~~~
 
 The EthPM module has been removed from the library. It was not widely used and has not
 been functional since around October 2022. It was deprecated in ``v6`` and has been
 completely removed in ``v7``.
+
 
 Miscellaneous Changes
 ~~~~~~~~~~~~~~~~~~~~~
