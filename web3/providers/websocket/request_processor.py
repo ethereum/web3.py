@@ -222,19 +222,17 @@ class RequestProcessor:
             )
             self._request_response_cache.cache(cache_key, raw_response)
 
-    def pop_raw_response(
+    async def pop_raw_response(
         self, cache_key: str = None, subscription: bool = False
     ) -> Any:
         if subscription:
             qsize = self._subscription_response_queue.qsize()
-            if qsize == 0:
-                return None
+            raw_response = await self._subscription_response_queue.get()
 
             if not self._provider._listen_event.is_set():
                 self._provider._listen_event.set()
 
-            raw_response = self._subscription_response_queue.get_nowait()
-            if qsize == 1:
+            if qsize == 0:
                 if not self._subscription_queue_synced_with_ws_stream:
                     self._subscription_queue_synced_with_ws_stream = True
                     self._provider.logger.info(
