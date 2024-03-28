@@ -1,0 +1,1 @@
+Fix typing for json data argument to ``eth_signTypedData``.
