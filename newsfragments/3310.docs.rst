@@ -1,0 +1,1 @@
+Rearrange v7 migration guide and include upgrade path from WebsocketProviderV2
