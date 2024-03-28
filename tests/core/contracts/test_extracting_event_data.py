@@ -8,9 +8,6 @@ from eth_utils.toolz import (
     dissoc,
 )
 
-from web3._utils.events import (
-    get_event_data,
-)
 from web3.exceptions import (
     LogTopicError,
     Web3ValidationError,
@@ -20,6 +17,9 @@ from web3.logs import (
     IGNORE,
     STRICT,
     WARN,
+)
+from web3.utils.abi import (
+    decode_transaction_data_for_event,
 )
 
 
@@ -133,7 +133,7 @@ def test_event_data_extraction(
     else:
         assert event_topic in log_entry["topics"]
 
-    event_data = get_event_data(w3.codec, event_abi, log_entry)
+    event_data = decode_transaction_data_for_event(event_abi, log_entry)
 
     assert event_data["args"] == expected_args
     assert event_data["blockHash"] == txn_receipt["blockHash"]
@@ -285,7 +285,7 @@ def test_event_data_with_hexstr_inputs(w3, log_entry, expected):
         "name": "DepositForBurn",
         "type": "event",
     }
-    event_data = get_event_data(w3.codec, event_abi, log_entry)
+    event_data = decode_transaction_data_for_event(event_abi, log_entry)
 
     assert event_data["args"] == expected["args"]
     assert event_data["blockHash"] == expected["blockHash"]
@@ -336,7 +336,7 @@ def test_event_data_extraction_bytes(
 
     assert event_topic in log_entry["topics"]
 
-    event_data = get_event_data(w3.codec, event_abi, log_entry)
+    event_data = decode_transaction_data_for_event(event_abi, log_entry)
 
     assert event_data["args"] == expected_args
     assert event_data["blockHash"] == txn_receipt["blockHash"]
@@ -387,7 +387,7 @@ def test_event_data_extraction_bytes_non_strict(
 
     assert event_topic in log_entry["topics"]
 
-    event_data = get_event_data(w3_non_strict_abi.codec, event_abi, log_entry)
+    event_data = decode_transaction_data_for_event(event_abi, log_entry)
 
     assert event_data["args"] == expected_args
     assert event_data["blockHash"] == txn_receipt["blockHash"]
@@ -434,7 +434,7 @@ def test_dynamic_length_argument_extraction(
     string_0_topic = w3.keccak(text=string_0)
     assert string_0_topic in log_entry["topics"]
 
-    event_data = get_event_data(w3.codec, event_abi, log_entry)
+    event_data = decode_transaction_data_for_event(event_abi, log_entry)
 
     expected_args = {
         "arg0": string_0_topic,
@@ -471,7 +471,7 @@ def test_argument_extraction_strict_bytes_types(
     arg_0_topic = w3.keccak(padded_arg_0)
     assert arg_0_topic in log_entry["topics"]
 
-    event_data = get_event_data(w3.codec, event_abi, log_entry)
+    event_data = decode_transaction_data_for_event(event_abi, log_entry)
 
     expected_args = {"arg0": arg_0_topic, "arg1": arg_1}
 

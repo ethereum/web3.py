@@ -52,7 +52,9 @@ from eth_typing import (
 )
 from eth_utils import (
     decode_hex,
+    is_binary_address,
     is_bytes,
+    is_checksum_address,
     is_list_like,
     is_string,
     is_text,
@@ -83,14 +85,12 @@ from web3.exceptions import (
 )
 from web3.types import (
     ABI,
+    ABIElement,
     ABIEvent,
     ABIEventParams,
     ABIFunction,
     ABIFunctionParams,
     TReturn,
-)
-from web3.utils import (  # public utils module
-    get_abi_input_names,
 )
 
 if TYPE_CHECKING:
@@ -99,11 +99,40 @@ if TYPE_CHECKING:
     )
 
 
-def filter_by_type(_type: str, contract_abi: ABI) -> List[Union[ABIFunction, ABIEvent]]:
+def _get_argument_readable_type(arg: Any) -> str:
+    if is_checksum_address(arg) or is_binary_address(arg):
+        return "address"
+
+    return arg.__class__.__name__
+
+
+def extract_argument_types(*args: Sequence[Any]) -> str:
+    """
+    Takes a list of arguments and returns a string representation of the argument types,
+    appropriately collapsing `tuple` types into the respective nested types.
+    """
+    collapsed_args = []
+
+    for arg in args:
+        if is_list_like(arg):
+            collapsed_nested = []
+            for nested in arg:
+                if is_list_like(nested):
+                    collapsed_nested.append(f"({extract_argument_types(nested)})")
+                else:
+                    collapsed_nested.append(_get_argument_readable_type(nested))
+            collapsed_args.append(",".join(collapsed_nested))
+        else:
+            collapsed_args.append(_get_argument_readable_type(arg))
+
+    return ",".join(collapsed_args)
+
+
+def filter_by_type(_type: str, contract_abi: ABI) -> List[ABIElement]:
     return [abi for abi in contract_abi if abi["type"] == _type]
 
 
-def filter_by_name(name: str, contract_abi: ABI) -> List[Union[ABIFunction, ABIEvent]]:
+def filter_by_name(name: str, contract_abi: ABI) -> List[ABIElement]:
     return [
         abi
         for abi in contract_abi
@@ -114,11 +143,23 @@ def filter_by_name(name: str, contract_abi: ABI) -> List[Union[ABIFunction, ABIE
     ]
 
 
-def get_abi_input_types(abi: ABIFunction) -> List[str]:
+def get_abi_input_names(abi: ABIElement) -> List[str]:
+    if "inputs" not in abi and abi["type"] == "fallback":
+        return []
+    return [arg["name"] for arg in abi["inputs"]]
+
+
+def get_abi_input_types(abi: ABIElement) -> List[str]:
     if "inputs" not in abi and (abi["type"] == "fallback" or abi["type"] == "receive"):
         return []
     else:
         return [collapse_if_tuple(cast(Dict[str, Any], arg)) for arg in abi["inputs"]]
+
+
+def get_abi_output_names(abi: ABIFunction) -> List[str]:
+    if "outputs" not in abi and abi["type"] == "fallback":
+        return []
+    return [arg["name"] for arg in abi["outputs"]]
 
 
 def get_abi_output_types(abi: ABIFunction) -> List[str]:
@@ -144,11 +185,11 @@ def get_fallback_func_abi(contract_abi: ABI) -> ABIFunction:
         raise FallbackNotFound("No fallback function was found in the contract ABI.")
 
 
-def fallback_func_abi_exists(contract_abi: ABI) -> List[Union[ABIFunction, ABIEvent]]:
+def fallback_func_abi_exists(contract_abi: ABI) -> List[ABIElement]:
     return filter_by_type("fallback", contract_abi)
 
 
-def receive_func_abi_exists(contract_abi: ABI) -> List[Union[ABIFunction, ABIEvent]]:
+def receive_func_abi_exists(contract_abi: ABI) -> List[ABIElement]:
     return filter_by_type("receive", contract_abi)
 
 
@@ -170,15 +211,13 @@ def get_normalized_abi_arg_type(abi_arg: ABIEventParams) -> str:
     return collapse_if_tuple(dict(abi_arg))
 
 
-def filter_by_argument_count(
-    num_arguments: int, contract_abi: ABI
-) -> List[Union[ABIFunction, ABIEvent]]:
+def filter_by_argument_count(num_arguments: int, contract_abi: ABI) -> List[ABIElement]:
     return [abi for abi in contract_abi if len(abi["inputs"]) == num_arguments]
 
 
 def filter_by_argument_name(
     argument_names: Collection[str], contract_abi: ABI
-) -> List[Union[ABIFunction, ABIEvent]]:
+) -> List[ABIElement]:
     return [
         abi
         for abi in contract_abi
@@ -669,7 +708,7 @@ def is_probably_enum(abi_type: TypeStr) -> bool:
 
 @to_tuple
 def normalize_event_input_types(
-    abi_args: Collection[Union[ABIFunction, ABIEvent]]
+    abi_args: Collection[ABIElement],
 ) -> Iterable[Union[ABIFunction, ABIEvent, Dict[TypeStr, Any]]]:
     for arg in abi_args:
         if is_recognized_type(arg["type"]):
@@ -680,7 +719,7 @@ def normalize_event_input_types(
             yield arg
 
 
-def abi_to_signature(abi: Union[ABIFunction, ABIEvent]) -> str:
+def abi_to_signature(abi: ABIElement) -> str:
     function_signature = "{fn_name}({fn_input_types})".format(
         fn_name=abi["name"],
         fn_input_types=",".join(

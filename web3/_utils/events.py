@@ -5,12 +5,10 @@ from abc import (
 from enum import (
     Enum,
 )
-import itertools
 from typing import (
     TYPE_CHECKING,
     Any,
     Collection,
-    Dict,
     Iterable,
     List,
     Optional,
@@ -33,7 +31,6 @@ from eth_typing import (
     TypeStr,
 )
 from eth_utils import (
-    encode_hex,
     event_abi_to_log_topic,
     is_list_like,
     keccak,
@@ -52,30 +49,20 @@ from eth_utils.toolz import (
     curry,
     valfilter,
 )
+from hexbytes import (
+    HexBytes,
+)
 
 import web3
 from web3._utils.abi import (
-    exclude_indexed_event_inputs,
-    get_indexed_event_inputs,
     get_normalized_abi_arg_type,
-    map_abi_data,
-    named_tree,
-    normalize_event_input_types,
 )
 from web3._utils.encoding import (
     encode_single_packed,
     hexstr_if_str,
 )
-from web3._utils.normalizers import (
-    BASE_RETURN_NORMALIZERS,
-)
 from web3.datastructures import (
     AttributeDict,
-)
-from web3.exceptions import (
-    InvalidEventABI,
-    LogTopicError,
-    MismatchedABI,
 )
 from web3.types import (
     ABIEvent,
@@ -83,10 +70,6 @@ from web3.types import (
     BlockIdentifier,
     EventData,
     FilterParams,
-    LogReceipt,
-)
-from web3.utils import (
-    get_abi_input_names,
 )
 
 if TYPE_CHECKING:
@@ -100,104 +83,10 @@ if TYPE_CHECKING:
     )
 
 
-def _log_entry_data_to_bytes(
+def log_entry_data_to_bytes(
     log_entry_data: Union[Primitives, HexStr, str],
-) -> bytes:
+) -> HexBytes:
     return hexstr_if_str(to_bytes, log_entry_data)
-
-
-def construct_event_topic_set(
-    event_abi: ABIEvent,
-    abi_codec: ABICodec,
-    arguments: Optional[Union[Sequence[Any], Dict[str, Any]]] = None,
-) -> List[HexStr]:
-    if arguments is None:
-        arguments = {}
-    if isinstance(arguments, (list, tuple)):
-        if len(arguments) != len(event_abi["inputs"]):
-            raise ValueError(
-                "When passing an argument list, the number of arguments must "
-                "match the event constructor."
-            )
-        arguments = {
-            arg["name"]: [arg_value]
-            for arg, arg_value in zip(event_abi["inputs"], arguments)
-        }
-
-    normalized_args = {
-        key: value if is_list_like(value) else [value]
-        # type ignored b/c arguments is always a dict at this point
-        for key, value in arguments.items()  # type: ignore
-    }
-
-    # typed dict cannot be used w/ a normal Dict
-    # https://github.com/python/mypy/issues/4976
-    event_topic = encode_hex(event_abi_to_log_topic(event_abi))  # type: ignore
-    indexed_args = get_indexed_event_inputs(event_abi)
-    zipped_abi_and_args = [
-        (arg, normalized_args.get(arg["name"], [None])) for arg in indexed_args
-    ]
-    encoded_args = [
-        [
-            (
-                None
-                if option is None
-                else encode_hex(abi_codec.encode([arg["type"]], [option]))
-            )
-            for option in arg_options
-        ]
-        for arg, arg_options in zipped_abi_and_args
-    ]
-
-    topics = list(normalize_topic_list([event_topic] + encoded_args))
-    return topics
-
-
-def construct_event_data_set(
-    event_abi: ABIEvent,
-    abi_codec: ABICodec,
-    arguments: Optional[Union[Sequence[Any], Dict[str, Any]]] = None,
-) -> List[List[Optional[HexStr]]]:
-    if arguments is None:
-        arguments = {}
-    if isinstance(arguments, (list, tuple)):
-        if len(arguments) != len(event_abi["inputs"]):
-            raise ValueError(
-                "When passing an argument list, the number of arguments must "
-                "match the event constructor."
-            )
-        arguments = {
-            arg["name"]: [arg_value]
-            for arg, arg_value in zip(event_abi["inputs"], arguments)
-        }
-
-    normalized_args = {
-        key: value if is_list_like(value) else [value]
-        # type ignored b/c at this point arguments is always a dict
-        for key, value in arguments.items()  # type: ignore
-    }
-
-    non_indexed_args = exclude_indexed_event_inputs(event_abi)
-    zipped_abi_and_args = [
-        (arg, normalized_args.get(arg["name"], [None])) for arg in non_indexed_args
-    ]
-    encoded_args = [
-        [
-            (
-                None
-                if option is None
-                else encode_hex(abi_codec.encode([arg["type"]], [option]))
-            )
-            for option in arg_options
-        ]
-        for arg, arg_options in zipped_abi_and_args
-    ]
-
-    data = [
-        list(permutation) if any(value is not None for value in permutation) else []
-        for permutation in itertools.product(*encoded_args)
-    ]
-    return data
 
 
 def is_dynamic_sized_type(type_str: TypeStr) -> bool:
@@ -221,94 +110,6 @@ def get_event_abi_types_for_decoding(
             yield get_normalized_abi_arg_type(input_abi)
 
 
-@curry
-def get_event_data(
-    abi_codec: ABICodec,
-    event_abi: ABIEvent,
-    log_entry: LogReceipt,
-) -> EventData:
-    """
-    Given an event ABI and a log entry for that event, return the decoded
-    event data
-    """
-    if event_abi["anonymous"]:
-        log_topics = log_entry["topics"]
-    elif not log_entry["topics"]:
-        raise MismatchedABI("Expected non-anonymous event to have 1 or more topics")
-    elif event_abi_to_log_topic(dict(event_abi)) != _log_entry_data_to_bytes(
-        log_entry["topics"][0]
-    ):
-        raise MismatchedABI("The event signature did not match the provided ABI")
-    else:
-        log_topics = log_entry["topics"][1:]
-
-    log_topics_bytes = [_log_entry_data_to_bytes(topic) for topic in log_topics]
-    log_topics_abi = get_indexed_event_inputs(event_abi)
-    log_topic_normalized_inputs = normalize_event_input_types(log_topics_abi)
-    log_topic_types = get_event_abi_types_for_decoding(log_topic_normalized_inputs)
-    log_topic_names = get_abi_input_names(ABIEvent({"inputs": log_topics_abi}))
-
-    if len(log_topics_bytes) != len(log_topic_types):
-        raise LogTopicError(
-            f"Expected {len(log_topic_types)} log topics.  Got {len(log_topics_bytes)}"
-        )
-
-    log_data = _log_entry_data_to_bytes(log_entry["data"])
-    log_data_abi = exclude_indexed_event_inputs(event_abi)
-    log_data_normalized_inputs = normalize_event_input_types(log_data_abi)
-    log_data_types = get_event_abi_types_for_decoding(log_data_normalized_inputs)
-    log_data_names = get_abi_input_names(ABIEvent({"inputs": log_data_abi}))
-
-    # sanity check that there are not name intersections between the topic
-    # names and the data argument names.
-    duplicate_names = set(log_topic_names).intersection(log_data_names)
-    if duplicate_names:
-        raise InvalidEventABI(
-            "The following argument names are duplicated "
-            f"between event inputs: '{', '.join(duplicate_names)}'"
-        )
-
-    decoded_log_data = abi_codec.decode(log_data_types, log_data)
-    normalized_log_data = map_abi_data(
-        BASE_RETURN_NORMALIZERS, log_data_types, decoded_log_data
-    )
-    named_log_data = named_tree(
-        log_data_normalized_inputs,
-        normalized_log_data,
-    )
-
-    decoded_topic_data = [
-        abi_codec.decode([topic_type], topic_data)[0]
-        for topic_type, topic_data in zip(log_topic_types, log_topics_bytes)
-    ]
-    normalized_topic_data = map_abi_data(
-        BASE_RETURN_NORMALIZERS, log_topic_types, decoded_topic_data
-    )
-
-    event_args = dict(
-        itertools.chain(
-            zip(log_topic_names, normalized_topic_data),
-            named_log_data.items(),
-        )
-    )
-
-    event_data = EventData(
-        args=event_args,
-        event=event_abi["name"],
-        logIndex=log_entry["logIndex"],
-        transactionIndex=log_entry["transactionIndex"],
-        transactionHash=log_entry["transactionHash"],
-        address=log_entry["address"],
-        blockHash=log_entry["blockHash"],
-        blockNumber=log_entry["blockNumber"],
-    )
-
-    if isinstance(log_entry, AttributeDict):
-        return cast(EventData, AttributeDict.recursive(event_data))
-
-    return event_data
-
-
 @to_tuple
 def pop_singlets(seq: Sequence[Any]) -> Iterable[Any]:
     yield from (i[0] if is_list_like(i) and len(i) == 1 else i for i in seq)
@@ -324,10 +125,14 @@ def remove_trailing_from_seq(
     return seq[:index]
 
 
-normalize_topic_list = compose(
+_normalize_topic_list = compose(
     remove_trailing_from_seq(remove_value=None),
     pop_singlets,
 )
+
+
+def normalize_topic_list(topics: List[HexStr]) -> List[HexStr]:
+    return _normalize_topic_list(topics)
 
 
 def is_indexed(arg: Any) -> bool:

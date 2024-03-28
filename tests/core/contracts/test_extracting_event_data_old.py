@@ -4,8 +4,8 @@ from eth_utils import (
     is_same_address,
 )
 
-from web3._utils.events import (
-    get_event_data,
+from web3.utils.abi import (
+    decode_transaction_data_for_event,
 )
 
 
@@ -107,7 +107,7 @@ def test_event_data_extraction(
     else:
         assert event_topic in log_entry["topics"]
 
-    event_data = get_event_data(w3.codec, event_abi, log_entry)
+    event_data = decode_transaction_data_for_event(event_abi, log_entry)
 
     assert event_data["args"] == expected_args
     assert event_data["blockHash"] == txn_receipt["blockHash"]
@@ -140,7 +140,7 @@ def test_dynamic_length_argument_extraction(
     string_0_topic = w3.keccak(text=string_0)
     assert string_0_topic in log_entry["topics"]
 
-    event_data = get_event_data(w3.codec, event_abi, log_entry)
+    event_data = decode_transaction_data_for_event(event_abi, log_entry)
 
     expected_args = {
         "arg0": string_0_topic,

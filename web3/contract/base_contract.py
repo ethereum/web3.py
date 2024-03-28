@@ -45,11 +45,8 @@ from web3._utils.abi import (
     receive_func_abi_exists,
 )
 from web3._utils.contracts import (
-    decode_transaction_data,
+    build_transaction,
     encode_abi,
-    find_matching_event_abi,
-    find_matching_fn_abi,
-    get_function_info,
     prepare_transaction,
 )
 from web3._utils.datatypes import (
@@ -65,11 +62,7 @@ from web3._utils.encoding import (
 from web3._utils.events import (
     AsyncEventFilterBuilder,
     EventFilterBuilder,
-    get_event_data,
     is_dynamic_sized_type,
-)
-from web3._utils.filters import (
-    construct_event_filter_params,
 )
 from web3._utils.function_identifiers import (
     FallbackFn,
@@ -109,9 +102,18 @@ from web3.types import (
     EventData,
     FilterParams,
     FunctionIdentifier,
+    LogReceipt,
     TContractFn,
     TxParams,
     TxReceipt,
+)
+from web3.utils.abi import (
+    decode_function_outputs,
+    decode_transaction_data_for_event,
+    encode_event_filter_params,
+    get_event_abi,
+    get_function_abi,
+    get_function_info,
 )
 
 if TYPE_CHECKING:
@@ -148,7 +150,7 @@ class BaseContractEvent:
 
     @classmethod
     def _get_event_abi(cls) -> ABIEvent:
-        return find_matching_event_abi(cls.contract_abi, event_name=cls.event_name)
+        return get_event_abi(cls.contract_abi, event_name=cls.event_name)
 
     @combomethod
     def process_receipt(
@@ -169,7 +171,7 @@ class BaseContractEvent:
 
         for log in txn_receipt["logs"]:
             try:
-                rich_log = get_event_data(self.w3.codec, self.abi, log)
+                rich_log = decode_transaction_data_for_event(self.abi, log)
             except (MismatchedABI, LogTopicError, InvalidEventABI, TypeError) as e:
                 if errors == DISCARD:
                     continue
@@ -191,8 +193,8 @@ class BaseContractEvent:
             yield rich_log
 
     @combomethod
-    def process_log(self, log: HexStr) -> EventData:
-        return get_event_data(self.w3.codec, self.abi, log)
+    def process_log(self, log: LogReceipt) -> EventData:
+        return decode_transaction_data_for_event(self.abi, log)
 
     @combomethod
     def _get_event_filter_params(
@@ -223,14 +225,14 @@ class BaseContractEvent:
 
         # Construct JSON-RPC raw filter presentation based on human readable
         # Python descriptions. Namely, convert event names to their keccak signatures
-        _, event_filter_params = construct_event_filter_params(
-            abi,
-            self.w3.codec,
+        _, event_filter_params = encode_event_filter_params(
+            event_abi=abi,
             contract_address=self.address,
             argument_filters=_filters,
             fromBlock=fromBlock,
             toBlock=toBlock,
             address=self.address,
+            abi_codec=self.w3.codec,
         )
 
         if blockHash is not None:
@@ -334,15 +336,15 @@ class BaseContractEvent:
 
         self.check_for_forbidden_api_filter_arguments(event_abi, _filters)
 
-        _, event_filter_params = construct_event_filter_params(
-            self._get_event_abi(),
-            self.w3.codec,
+        _, event_filter_params = encode_event_filter_params(
+            event_abi=self._get_event_abi(),
             contract_address=self.address,
             argument_filters=_filters,
+            topics=topics,
             fromBlock=fromBlock,
             toBlock=toBlock,
             address=address,
-            topics=topics,
+            abi_codec=self.w3.codec,
         )
 
         filter_builder.address = cast(
@@ -469,9 +471,8 @@ class BaseContractFunction:
 
     def _set_function_info(self) -> None:
         if not self.abi:
-            self.abi = find_matching_fn_abi(
+            self.abi = get_function_abi(
                 self.contract_abi,
-                self.w3.codec,
                 self.function_identifier,
                 self.args,
                 self.kwargs,
@@ -581,31 +582,7 @@ class BaseContractFunction:
         return estimate_gas_transaction
 
     def _build_transaction(self, transaction: Optional[TxParams] = None) -> TxParams:
-        if transaction is None:
-            built_transaction: TxParams = {}
-        else:
-            built_transaction = cast(TxParams, dict(**transaction))
-
-        if "data" in built_transaction:
-            raise ValueError("Cannot set 'data' field in build transaction")
-
-        if not self.address and "to" not in built_transaction:
-            raise ValueError(
-                "When using `ContractFunction.build_transaction` from a contract "
-                "factory you must provide a `to` address with the transaction"
-            )
-        if self.address and "to" in built_transaction:
-            raise ValueError("Cannot set 'to' field in contract call build transaction")
-
-        if self.address:
-            built_transaction.setdefault("to", self.address)
-
-        if "to" not in built_transaction:
-            raise ValueError(
-                "Please ensure that this contract instance has an address."
-            )
-
-        return built_transaction
+        return build_transaction(self.address, transaction)
 
     @combomethod
     def _encode_transaction_data(cls) -> HexStr:
@@ -736,18 +713,17 @@ class BaseContract:
 
         :param data: defaults to function selector
         """
-        fn_abi, fn_selector, fn_arguments = get_function_info(
+        fn_info = get_function_info(
+            cls.abi,
             fn_name,
-            cls.w3.codec,
-            contract_abi=cls.abi,
             args=args,
             kwargs=kwargs,
         )
 
         if data is None:
-            data = fn_selector
+            data = fn_info["selector"]
 
-        return encode_abi(cls.w3, fn_abi, fn_arguments, data)
+        return encode_abi(cls.w3, fn_info["abi"], fn_info["arguments"], data)
 
     @combomethod
     def all_functions(
@@ -808,7 +784,7 @@ class BaseContract:
         # type ignored b/c expects data arg to be HexBytes
         data = HexBytes(data)  # type: ignore
         func = self.get_function_by_selector(data[:4])
-        arguments = decode_transaction_data(
+        arguments = decode_function_outputs(
             func.abi, data, normalizers=BASE_RETURN_NORMALIZERS
         )
         return func, arguments
@@ -859,9 +835,7 @@ class BaseContract:
         args: Optional[Any] = None,
         kwargs: Optional[Any] = None,
     ) -> ABIFunction:
-        return find_matching_fn_abi(
-            cls.abi, cls.w3.codec, fn_identifier=fn_identifier, args=args, kwargs=kwargs
-        )
+        return get_function_abi(cls.abi, fn_identifier, args=args, kwargs=kwargs)
 
     @classmethod
     def _find_matching_event_abi(
@@ -869,7 +843,7 @@ class BaseContract:
         event_name: Optional[str] = None,
         argument_names: Optional[Sequence[str]] = None,
     ) -> ABIEvent:
-        return find_matching_event_abi(
+        return get_event_abi(
             abi=cls.abi, event_name=event_name, argument_names=argument_names
         )
 

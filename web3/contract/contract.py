@@ -28,6 +28,7 @@ from hexbytes import (
 from web3._utils.abi import (
     fallback_func_abi_exists,
     filter_by_type,
+    get_abi_input_names,
     receive_func_abi_exists,
 )
 from web3._utils.compat import (
@@ -41,7 +42,6 @@ from web3._utils.datatypes import (
 )
 from web3._utils.events import (
     EventFilterBuilder,
-    get_event_data,
 )
 from web3._utils.filters import (
     LogFilter,
@@ -90,8 +90,8 @@ from web3.types import (
     StateOverride,
     TxParams,
 )
-from web3.utils import (
-    get_abi_input_names,
+from web3.utils.abi import (
+    decode_transaction_data_for_event,
 )
 
 if TYPE_CHECKING:
@@ -185,7 +185,7 @@ class ContractEvent(BaseContractEvent):
 
         # convert raw binary data to Python proxy objects as described by ABI:
         all_event_logs = tuple(
-            get_event_data(self.w3.codec, event_abi, entry) for entry in logs
+            decode_transaction_data_for_event(event_abi, entry) for entry in logs
         )
         filtered_logs = self._process_get_logs_argument_filters(
             event_abi,
@@ -219,8 +219,8 @@ class ContractEvent(BaseContractEvent):
             filter_builder,
         )
         log_filter = filter_builder.deploy(self.w3)
-        log_filter.log_entry_formatter = get_event_data(
-            self.w3.codec, self._get_event_abi()
+        log_filter.log_entry_formatter = decode_transaction_data_for_event(
+            self._get_event_abi()
         )
         log_filter.builder = filter_builder
 
@@ -231,7 +231,7 @@ class ContractEvent(BaseContractEvent):
         builder = EventFilterBuilder(
             self._get_event_abi(),
             self.w3.codec,
-            formatter=get_event_data(self.w3.codec, self._get_event_abi()),
+            formatter=decode_transaction_data_for_event(self._get_event_abi()),
         )
         builder.address = self.address
         return builder

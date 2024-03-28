@@ -211,15 +211,16 @@ def abi_ens_resolver(
     w3: "Web3",
     type_str: TypeStr,
     val: Any,
+    ens: ENS = None,
 ) -> Tuple[TypeStr, Any]:
     if type_str == "address" and is_ens_name(val):
-        if w3 is None:
+        if ens is None and w3 is None:
             raise InvalidAddress(
                 f"Could not look up name {val!r} because no web3"
                 " connection available"
             )
 
-        _ens = cast(ENS, w3.ens)
+        _ens = ens or cast(ENS, w3.ens)
         if _ens is None:
             raise InvalidAddress(
                 f"Could not look up name {val!r} because ENS is set to None"
