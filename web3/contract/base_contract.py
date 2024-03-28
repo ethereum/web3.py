@@ -47,7 +47,6 @@ from web3._utils.abi import (
 from web3._utils.contracts import (
     decode_transaction_data,
     encode_abi,
-    find_matching_event_abi,
     find_matching_fn_abi,
     get_function_info,
     prepare_transaction,
@@ -65,11 +64,7 @@ from web3._utils.encoding import (
 from web3._utils.events import (
     AsyncEventFilterBuilder,
     EventFilterBuilder,
-    get_event_data,
     is_dynamic_sized_type,
-)
-from web3._utils.filters import (
-    construct_event_filter_params,
 )
 from web3._utils.function_identifiers import (
     FallbackFn,
@@ -77,6 +72,11 @@ from web3._utils.function_identifiers import (
 )
 from web3._utils.normalizers import (
     BASE_RETURN_NORMALIZERS,
+)
+from web3.contract.utils import (
+    construct_event_filter_params,
+    find_matching_event_abi,
+    get_event_data,
 )
 from web3.datastructures import (
     AttributeDict,
@@ -861,16 +861,6 @@ class BaseContract:
     ) -> ABIFunction:
         return find_matching_fn_abi(
             cls.abi, cls.w3.codec, fn_identifier=fn_identifier, args=args, kwargs=kwargs
-        )
-
-    @classmethod
-    def _find_matching_event_abi(
-        cls,
-        event_name: Optional[str] = None,
-        argument_names: Optional[Sequence[str]] = None,
-    ) -> ABIEvent:
-        return find_matching_event_abi(
-            abi=cls.abi, event_name=event_name, argument_names=argument_names
         )
 
     @combomethod

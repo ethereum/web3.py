@@ -45,7 +45,6 @@ from web3._utils.datatypes import (
 )
 from web3._utils.events import (
     AsyncEventFilterBuilder,
-    get_event_data,
 )
 from web3._utils.filters import (
     AsyncLogFilter,
@@ -76,6 +75,7 @@ from web3.contract.utils import (
     async_estimate_gas_for_function,
     async_transact_with_contract_function,
     find_functions_by_identifier,
+    get_event_data,
     get_function_by_identifier,
 )
 from web3.exceptions import (

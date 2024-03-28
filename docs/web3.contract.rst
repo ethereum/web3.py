@@ -1178,6 +1178,87 @@ Utils
           '_debatingPeriod': 604800,
           '_newCurator': True})
 
+.. py:method:: web3.contract.utils.get_function_info(fn_name, abi_codec, contract_abi, fn_abi, args, kwargs)
+
+    Get function signature and information from a contract ABI given a name, contract 
+    ABI, and arguments.
+
+    If the function exists and its signature matches the provided arguments, the 
+    function ABI, selector and arguments will be returned.
+
+    Inspect a contract function from an ABI as follows:
+
+    .. code-block:: python
+
+        # Contract ABI with a single "counter" function
+        contract_abi = [
+            {
+                "inputs": [],
+                "name": "counter",
+                "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+                "stateMutability": "view",
+                "type": "function",
+            },
+        ]
+
+        >>> web3.contract.utils.get_function_info("counter", w3.codec, contract_abi)
+        ({'inputs': [], 'name': 'counter', 'outputs': [{'internalType': 'uint256', 'name': '', 'type': 'uint256'}], 'stateMutability': 'view', 'type': 'function'}, '0x61bc221a', ())
+
+.. py:method:: web3.contract.utils.get_event_data(abi_codec, event_abi, log_entry)
+
+    Get decoded event data from a log entry using an event ABI.
+
+    For example, to find all WETH "Transfer" events in the latest block:
+
+    .. code-block:: python
+
+        WETH_ADDRESS = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2'
+        WETH_ABI = '[{"constant":true,"inputs":[],"name":"name","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"guy","type":"address"},{"name":"wad","type":"uint256"}],"name":"approve","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"src","type":"address"},{"name":"dst","type":"address"},{"name":"wad","type":"uint256"}],"name":"transferFrom","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"wad","type":"uint256"}],"name":"withdraw","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"","type":"address"}],"name":"balanceOf","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"symbol","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"dst","type":"address"},{"name":"wad","type":"uint256"}],"name":"transfer","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[],"name":"deposit","outputs":[],"payable":true,"stateMutability":"payable","type":"function"},{"constant":true,"inputs":[{"name":"","type":"address"},{"name":"","type":"address"}],"name":"allowance","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"payable":true,"stateMutability":"payable","type":"fallback"},{"anonymous":false,"inputs":[{"indexed":true,"name":"src","type":"address"},{"indexed":true,"name":"guy","type":"address"},{"indexed":false,"name":"wad","type":"uint256"}],"name":"Approval","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"src","type":"address"},{"indexed":true,"name":"dst","type":"address"},{"indexed":false,"name":"wad","type":"uint256"}],"name":"Transfer","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"dst","type":"address"},{"indexed":false,"name":"wad","type":"uint256"}],"name":"Deposit","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"src","type":"address"},{"indexed":false,"name":"wad","type":"uint256"}],"name":"Withdrawal","type":"event"}]'
+
+        # Obtain an event ABI for the "Transfer" event
+        event_abi = find_matching_event_abi(WETH_ABI, "Transfer")
+
+        # Build keccak signatures for event filter_params
+        data_filter_params, filter_params = construct_event_filter_params(
+            event_abi,
+            w3.codec,
+            contract_address=WETH_ADDRESS,
+            fromBlock="latest",
+        )
+
+        # call JSON-RPC API to get logs
+        logs = w3.eth.get_logs(filter_params)
+
+        # convert raw binary data to Python proxy objects as described by ABI:
+        all_event_logs = tuple(get_event_data(w3.codec, event_abi, entry) for entry in logs)
+
+        print(all_event_logs)
+        >>> {'topics': ['0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef'], 'address': '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', 'fromBlock': 'latest'}
+        logs: [AttributeDict({'address': '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', 'blockHash': HexBytes('0xf72be5db2280ddc56ce01405f606a99593f95efbf7ebb4ab4df6ba860248410c'), 'blockNumber': 19414349, 'data':
+        HexBytes('0x00000000000000000000000000000000000000000000000000499d1f0dbe4c00'), 'logIndex': 26, 'removed': False, 'topics': [HexBytes('0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef')
+        , HexBytes('0x0000000000000000000000003fc91a3afd70395cd496c647d5a6cc9d4b2b7fad'), HexBytes('0x000000000000000000000000b9ed555632c308f0f44489500045a9afba73473c')], 'transactionHash': HexBytes('0xaaf772c057
+        20be70081aefefcbf88fbe5740a3090afdc1a651b5e4d0e3d8ab75'), 'transactionIndex': 25})]
+        events: (AttributeDict({'args': AttributeDict({'src': '0x3fC91A3afd70395Cd496C647d5a6CC9D4B2b7FAD', 'dst': '0xB9ed555632c308f0f44489500045A9AFba73473c', 'wad': 20720430000000000}), 'event': 'Transfer', 'l
+        ogIndex': 26, 'transactionIndex': 25, 'transactionHash': HexBytes('0xaaf772c05720be70081aefefcbf88fbe5740a3090afdc1a651b5e4d0e3d8ab75'), 'address': '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', 'blockHash
+        ': HexBytes('0xf72be5db2280ddc56ce01405f606a99593f95efbf7ebb4ab4df6ba860248410c'), 'blockNumber': 19414349}),)
+
+
+    See also: :class:`web3.contract.ContractEvents` for obtaining event logs from a Contract instance.
+
+.. py:method:: web3.contract.utils.find_matching_event_abi(contract_abi, event_name, argument_names)
+
+    Find the ABI for the event with the provided name. Useful when filtering logs to find event data.
+    
+    Returns ValueError if the event does not exist.
+
+.. py:method:: web3.contract.utils.construct_event_filter_params(event_abi, abi_codec, contract_address, argument_filters, topics, fromBlock, toBlock, address)
+
+    Convert human readable filter inputs to their keccak signatures. Often used when 
+    filtering events using the JSON-RPC :meth:`web3.eth.get_logs() <web3.eth.Eth.get_logs>` API.
+
+    See :doc:`filters` for more examples using filter params.
+
+
 ContractCaller
 --------------
 

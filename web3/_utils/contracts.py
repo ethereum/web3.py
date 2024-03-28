@@ -43,10 +43,8 @@ from web3._utils.abi import (
     abi_to_signature,
     check_if_arguments_can_be_encoded,
     filter_by_argument_count,
-    filter_by_argument_name,
     filter_by_encodability,
     filter_by_name,
-    filter_by_type,
     get_abi_input_types,
     get_aligned_abi_inputs,
     get_fallback_func_abi,
@@ -80,7 +78,6 @@ from web3.exceptions import (
 )
 from web3.types import (
     ABI,
-    ABIEvent,
     ABIFunction,
     BlockIdentifier,
     BlockNumber,
@@ -114,31 +111,6 @@ def extract_argument_types(*args: Sequence[Any]) -> str:
             collapsed_args.append(_get_argument_readable_type(arg))
 
     return ",".join(collapsed_args)
-
-
-def find_matching_event_abi(
-    abi: ABI,
-    event_name: Optional[str] = None,
-    argument_names: Optional[Sequence[str]] = None,
-) -> ABIEvent:
-    filters = [
-        functools.partial(filter_by_type, "event"),
-    ]
-
-    if event_name is not None:
-        filters.append(functools.partial(filter_by_name, event_name))
-
-    if argument_names is not None:
-        filters.append(functools.partial(filter_by_argument_name, argument_names))
-
-    event_abi_candidates = pipe(abi, *filters)
-
-    if len(event_abi_candidates) == 1:
-        return event_abi_candidates[0]
-    elif not event_abi_candidates:
-        raise ValueError("No matching events found")
-    else:
-        raise ValueError("Multiple events found")
 
 
 def find_matching_fn_abi(
