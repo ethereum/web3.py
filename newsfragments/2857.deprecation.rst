@@ -1,1 +1,0 @@
-Deprecate Geth miner namespace

@@ -1,1 +1,0 @@
-Fix/update methods and decorators in ``web3/_utils/abi.py`` to address issues raised by ``mypy``

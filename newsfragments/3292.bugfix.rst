@@ -1,1 +1,0 @@
-Fix ``process_log`` for ``HexStr`` inputs. Explicit type coercion of entry ``topics`` and ``data`` values.

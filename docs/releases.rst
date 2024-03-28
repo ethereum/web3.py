@@ -6,6 +6,48 @@ v6 Breaking Changes Summary
 
 .. towncrier release notes start
 
+web3.py v6.16.0 (2024-03-28)
+----------------------------
+
+Bugfixes
+~~~~~~~~
+
+- Catch all types of ``eth-abi`` ``DecodingError`` in ``EthereumTesterProvider->_make_request()`` (`#3267 <https://github.com/ethereum/web3.py/issues/3267>`__)
+- Fix/update methods and decorators in ``web3/_utils/abi.py`` to address issues raised by ``mypy`` (`#3273 <https://github.com/ethereum/web3.py/issues/3273>`__)
+- Fix ``process_log()`` when parsing logs for events with indexed and non-indexed inputs. ``get_event_data()`` now compares log topics and event ABIs as hex values. (`#3288 <https://github.com/ethereum/web3.py/issues/3288>`__)
+- Fix ``process_log`` for ``HexStr`` inputs. Explicit type coercion of entry ``topics`` and ``data`` values. (`#3292 <https://github.com/ethereum/web3.py/issues/3292>`__)
+- Fix typing for json data argument to ``eth_signTypedData``. (`#3311 <https://github.com/ethereum/web3.py/issues/3311>`__)
+
+
+Deprecations
+~~~~~~~~~~~~
+
+- Deprecate Geth miner namespace (`#2857 <https://github.com/ethereum/web3.py/issues/2857>`__)
+- Deprecated ``Contract.encodeABI()`` in favor of ``Contract.encode_abi()``. (`#3280 <https://github.com/ethereum/web3.py/issues/3280>`__)
+
+
+Features
+~~~~~~~~
+
+- Implement ``state_override`` parameter for ``eth_estimateGas`` method. (`#3164 <https://github.com/ethereum/web3.py/issues/3164>`__)
+- Add formatters for new ``Cancun`` network upgrade block header fields: ``blobGasUsed``, ``excessBlobGas``, and ``parentBeaconBlockRoot``. (`#3224 <https://github.com/ethereum/web3.py/issues/3224>`__)
+- Allow for configuring the ``request_information_cache_size`` for ``PersistentConnectionProvider`` classes. Issue a warning when the cache is full and unexpected behavior may occur. (`#3226 <https://github.com/ethereum/web3.py/issues/3226>`__)
+- Add ``user_message`` kwarg for human readable ``Web3Exception`` messages. (`#3282 <https://github.com/ethereum/web3.py/issues/3282>`__)
+- Add formatters for type 3 transaction fields ``maxFeePerBlobGas`` and ``blobVersionedHashes``. (`#3315 <https://github.com/ethereum/web3.py/issues/3315>`__)
+
+
+Internal Changes - for web3.py Contributors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Fix internal typing for functions used by ``process_log``. (`#3301 <https://github.com/ethereum/web3.py/issues/3301>`__)
+
+
+Performance Improvements
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Utilize ``async`` functionality when popping responses from request manager cache for persistent connection providers. (`#3305 <https://github.com/ethereum/web3.py/issues/3305>`__)
+
+
 web3.py v6.15.1 (2024-02-05)
 ----------------------------
 

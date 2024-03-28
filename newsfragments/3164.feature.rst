@@ -1,1 +1,0 @@
-Implement ``state_override`` parameter for ``eth_estimateGas`` method.

@@ -1,1 +1,0 @@
-Deprecated ``Contract.encodeABI()`` in favor of ``Contract.encode_abi()``.
