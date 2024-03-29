@@ -27,7 +27,6 @@ extras_require = {
         "bumpversion",
         "flaky>=3.7.0",
         "hypothesis>=3.31.2",
-        "importlib-metadata<5.0;python_version<'3.8'",
         "pytest>=7.0.0",
         "pytest-asyncio>=0.18.1,<0.23",
         "pytest-mock>=1.10",

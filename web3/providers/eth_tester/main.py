@@ -4,6 +4,7 @@ from typing import (
     Callable,
     Coroutine,
     Dict,
+    Literal,
     Optional,
     Union,
 )
@@ -18,9 +19,6 @@ from eth_utils import (
     is_bytes,
 )
 
-from web3._utils.compat import (
-    Literal,
-)
 from web3.providers import (
     BaseProvider,
 )

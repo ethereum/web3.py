@@ -2,6 +2,7 @@ import math
 from typing import (
     TYPE_CHECKING,
     List,
+    Literal,
     Optional,
     Union,
     cast,
@@ -19,9 +20,6 @@ from hexbytes import (
     HexBytes,
 )
 
-from web3._utils.compat import (
-    Literal,
-)
 from web3._utils.utility_methods import (
     all_in_dict,
     any_in_dict,
