@@ -12,12 +12,10 @@ from typing import (
     Any,
     Callable,
     Generic,
+    Literal,
     Type,
 )
 
-from web3._utils.compat import (
-    Literal,
-)
 from web3.types import (
     TReturn,
 )

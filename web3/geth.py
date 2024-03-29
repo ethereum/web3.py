@@ -5,6 +5,7 @@ from typing import (
     Dict,
     List,
     Optional,
+    Protocol,
     Tuple,
 )
 
@@ -18,9 +19,6 @@ from hexbytes.main import (
     HexBytes,
 )
 
-from web3._utils.compat import (
-    Protocol,
-)
 from web3._utils.rpc_abi import (
     RPC,
 )

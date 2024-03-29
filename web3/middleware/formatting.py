@@ -3,6 +3,7 @@ from typing import (
     Any,
     Callable,
     Coroutine,
+    Literal,
     Optional,
     Union,
     cast,
@@ -21,7 +22,6 @@ from web3.types import (
     EthSubscriptionParams,
     Formatters,
     FormattersDict,
-    Literal,
     RPCEndpoint,
     RPCResponse,
 )

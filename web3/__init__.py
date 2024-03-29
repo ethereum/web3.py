@@ -1,14 +1,9 @@
 from eth_account import Account  # noqa: E402
 import sys
 
-if sys.version_info.major == 3 and sys.version_info.minor < 8:
-    import pkg_resources
+from importlib.metadata import version
 
-    __version__ = pkg_resources.get_distribution("web3").version
-else:
-    from importlib.metadata import version
-
-    __version__ = version("web3")
+__version__ = version("web3")
 
 
 from web3.main import (

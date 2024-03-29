@@ -7,6 +7,7 @@ from typing import (
     Collection,
     Dict,
     Generator,
+    Literal,
     Sequence,
     Union,
 )
@@ -28,9 +29,6 @@ from hexbytes import (
     HexBytes,
 )
 
-from web3._utils.compat import (
-    Literal,
-)
 from web3._utils.request import (
     async_cache_and_return_session,
     cache_and_return_session,

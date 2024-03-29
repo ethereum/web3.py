@@ -5,10 +5,12 @@ from typing import (
     Coroutine,
     Dict,
     List,
+    Literal,
     NewType,
     Optional,
     Sequence,
     Type,
+    TypedDict,
     TypeVar,
     Union,
 )
@@ -25,9 +27,7 @@ from hexbytes import (
 )
 
 from web3._utils.compat import (
-    Literal,
     NotRequired,
-    TypedDict,
 )
 from web3._utils.function_identifiers import (
     FallbackFn,
