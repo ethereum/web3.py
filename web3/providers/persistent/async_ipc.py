@@ -114,11 +114,11 @@ class AsyncIPCProvider(PersistentConnectionProvider):
             except OSError as e:
                 if _connection_attempts == self._max_connection_retries:
                     raise ProviderConnectionError(
-                        f"Could not connect to endpoint: {self.endpoint_uri}. "
+                        f"Could not connect to: {self.ipc_path}. "
                         f"Retries exceeded max of {self._max_connection_retries}."
                     ) from e
                 self.logger.info(
-                    f"Could not connect to endpoint: {self.endpoint_uri}. Retrying in "
+                    f"Could not connect to: {self.ipc_path}. Retrying in "
                     f"{round(_backoff_time, 1)} seconds.",
                     exc_info=True,
                 )
@@ -130,9 +130,7 @@ class AsyncIPCProvider(PersistentConnectionProvider):
             self._writer.close()
             await self._writer.wait_closed()
             self._writer = None
-            self.logger.debug(
-                f'Successfully disconnected from endpoint: "{self.endpoint_uri}'
-            )
+            self.logger.debug(f'Successfully disconnected from : "{self.ipc_path}')
 
         try:
             self._message_listener_task.cancel()

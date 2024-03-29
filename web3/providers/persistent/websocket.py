@@ -71,9 +71,9 @@ class WebSocketProvider(PersistentConnectionProvider):
         # `PersistentConnectionProvider` kwargs can be passed through
         **kwargs: Any,
     ) -> None:
-        self.endpoint_uri = URI(endpoint_uri)
-        if self.endpoint_uri is None:
-            self.endpoint_uri = get_default_endpoint()
+        self.endpoint_uri = (
+            URI(endpoint_uri) if endpoint_uri is not None else get_default_endpoint()
+        )
 
         if not any(
             self.endpoint_uri.startswith(prefix)
