@@ -30,7 +30,6 @@ DEFAULT_PERSISTENT_CONNECTION_TIMEOUT = 30.0
 class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
     logger = logging.getLogger("web3.providers.PersistentConnectionProvider")
     has_persistent_connection = True
-    endpoint_uri: Optional[str] = None
 
     _request_processor: RequestProcessor
     _message_listener_task: Optional["asyncio.Task[None]"] = None
@@ -49,6 +48,18 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
         )
         self.request_timeout = request_timeout
         self.silence_listener_task_exceptions = silence_listener_task_exceptions
+
+    @property
+    def endpoint_uri_or_ipc_path(self) -> str:
+        if hasattr(self, "endpoint_uri"):
+            return str(self.endpoint_uri)
+        elif hasattr(self, "ipc_path"):
+            return str(self.ipc_path)
+        else:
+            raise AttributeError(
+                "`PersistentConnectionProvider` must have either `endpoint_uri` or "
+                "`ipc_path` attribute."
+            )
 
     async def connect(self) -> None:
         raise NotImplementedError("Must be implemented by subclasses")
