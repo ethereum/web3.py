@@ -167,6 +167,7 @@ TRANSACTION_PARAMS_ABIS = {
     "from": "address",
     "gas": "uint",
     "gasPrice": "uint",
+    "maxFeePerBlobGas": "uint",
     "maxFeePerGas": "uint",
     "maxPriorityFeePerGas": "uint",
     "nonce": "uint",
