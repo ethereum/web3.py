@@ -22,7 +22,7 @@ def test_build_filter_topic_signature(w3, math_contract_abi):
 def test_build_filter_resetting_build_filter_properties(w3, math_contract_abi):
     contract = w3.eth.contract(abi=math_contract_abi)
     filter_builder = contract.events.Increased.build_filter()
-    # Address is setable from undeployed contract class
+    # Address is settable from undeployed contract class
     filter_builder.address = b"\x10" * 40
     filter_builder.fromBlock = 0
     filter_builder.toBlock = "latest"
