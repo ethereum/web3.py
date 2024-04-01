@@ -285,6 +285,8 @@ RECEIPT_FORMATTERS = {
     "to": apply_formatter_if(is_address, to_checksum_address),
     "effectiveGasPrice": to_integer_if_hex,
     "type": to_integer_if_hex,
+    "blobGasPrice": to_integer_if_hex,
+    "blobGasUsed": to_integer_if_hex,
 }
 
 
