@@ -224,6 +224,11 @@ def test_eth_wait_for_transaction_receipt_transaction_indexing_in_progress(
 def test_get_transaction_formatters(w3, request_mocker):
     non_checksummed_addr = "0xB2930B35844A230F00E51431ACAE96FE543A0347"  # all uppercase
     unformatted_transaction = {
+        "blobVersionedHashes": [
+            "0x01b8c5b09810b5fc07355d3da42e2c3a3e200c1d9a678491b7e8e256fc50cc4f",
+            "0x015b4c8cc4f86aa2d2cf9e9ce97fca704a11a6c20f6b1d6c00a6e15f6d60a6df",
+            "0x01878f80eaf10be1a6f618e6f8c071b10a6c14d9b89a3bf2a3f3cf2db6c5681d",
+        ],
         "blockHash": (
             "0x849044202a39ae36888481f90d62c3826bca8269c2716d7a38696b4f45e61d83"
         ),
@@ -232,6 +237,7 @@ def test_get_transaction_formatters(w3, request_mocker):
         "nonce": "0x0",
         "gas": "0x4c4b40",
         "gasPrice": "0x1",
+        "maxFeePerBlobGas": "0x1",
         "maxFeePerGas": "0x1",
         "maxPriorityFeePerGas": "0x1",
         "value": "0x1",
@@ -274,12 +280,24 @@ def test_get_transaction_formatters(w3, request_mocker):
 
     expected = AttributeDict(
         {
+            "blobVersionedHashes": [
+                HexBytes(
+                    "0x01b8c5b09810b5fc07355d3da42e2c3a3e200c1d9a678491b7e8e256fc50cc4f"
+                ),
+                HexBytes(
+                    "0x015b4c8cc4f86aa2d2cf9e9ce97fca704a11a6c20f6b1d6c00a6e15f6d60a6df"
+                ),
+                HexBytes(
+                    "0x01878f80eaf10be1a6f618e6f8c071b10a6c14d9b89a3bf2a3f3cf2db6c5681d"
+                ),
+            ],
             "blockHash": HexBytes(unformatted_transaction["blockHash"]),
             "blockNumber": to_int(hexstr=unformatted_transaction["blockNumber"]),
             "transactionIndex": 0,
             "nonce": 0,
             "gas": to_int(hexstr=unformatted_transaction["gas"]),
             "gasPrice": 1,
+            "maxFeePerBlobGas": 1,
             "maxFeePerGas": 1,
             "maxPriorityFeePerGas": 1,
             "value": 1,
