@@ -1,0 +1,1 @@
+Add an upperpin at ``eth-typing<4.2.0`` due to removal of EthPM types in that lib
