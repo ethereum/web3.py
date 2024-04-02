@@ -990,23 +990,31 @@ The following methods are available on the ``web3.eth`` namespace.
 
     .. code-block:: python
 
-        >>> w3.eth.create_access_list({'from': '0x0', 'data': '0x0', 'type': '0x1'})
-        {
-            'accessList': (
-                {
-                    'address': '0xde0b295669a9fd93d5f28d9ec85e40f4cb697bae',
-                    'storageKeys': (
-                        '0x0000000000000000000000000000000000000000000000000000000000000003',
-                        '0x0000000000000000000000000000000000000000000000000000000000000007',
-                    )
-                },
-                {
-                    'address': '0xbb9bc244d798123fde783fcc1c72d3bb8c189413',
-                    'storageKeys': ()
-                },
-            ),
-            "gas": "21000"
-        }
+        >>> w3.eth.create_access_list(
+        ...     {
+        ...         "to": to_checksum_address("0xF0109fC8DF283027b6285cc889F5aA624EaC1F55"),
+        ...         "gasPrice": 10**11,
+        ...         "value": 0,
+        ...         "data": "0x608060806080608155",
+        ...     },
+        ...     "pending",
+        ... )
+        AttributeDict({
+            'accessList': [
+                AttributeDict({
+                    'address': '0xde0B295669a9FD93d5F28D9Ec85E40f4cb697BAe',
+                    'storageKeys': [
+                        HexBytes('0x0000000000000000000000000000000000000000000000000000000000000003'),
+                        HexBytes('0x0000000000000000000000000000000000000000000000000000000000000007'),
+                    ]
+                }),
+                AttributeDict({
+                    'address': '0xBB9bc244D798123fDe783fCc1C72d3Bb8C189413',
+                    'storageKeys': []
+                }),
+            ],
+            "gasUsed": 21000
+        })
 
     The method ``eth_createAccessList`` returns a list of addresses and storage keys used by the transaction, plus the gas
     consumed when the ``accessList`` is included. Like ``eth_estimateGas``, this is an estimation; the list could change when
