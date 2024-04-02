@@ -291,9 +291,7 @@ class Web3JsonEncoder(json.JSONEncoder):
     def default(self, obj: Any) -> Union[Dict[Any, Any], HexStr]:
         if isinstance(obj, AttributeDict):
             return obj.__dict__
-        elif isinstance(obj, HexBytes):
-            return HexStr(obj.hex())
-        elif isinstance(obj, bytes):
+        elif isinstance(obj, (HexBytes, bytes)):
             return to_hex(obj)
         return json.JSONEncoder.default(self, obj)
 
