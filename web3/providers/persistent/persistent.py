@@ -49,8 +49,7 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
         self.request_timeout = request_timeout
         self.silence_listener_task_exceptions = silence_listener_task_exceptions
 
-    @property
-    def endpoint_uri_or_ipc_path(self) -> str:
+    def get_endpoint_uri_or_ipc_path(self) -> str:
         if hasattr(self, "endpoint_uri"):
             return str(self.endpoint_uri)
         elif hasattr(self, "ipc_path"):

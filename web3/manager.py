@@ -324,7 +324,7 @@ class RequestManager:
         )
         self.logger.debug(
             "Making request to open socket connection: "
-            f"{provider.endpoint_uri_or_ipc_path}, method: {method}"
+            f"{provider.get_endpoint_uri_or_ipc_path()}, method: {method}"
         )
         response = await request_func(method, params)
         return await self._process_response(response)
