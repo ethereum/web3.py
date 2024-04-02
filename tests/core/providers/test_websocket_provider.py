@@ -262,3 +262,12 @@ async def test_listen_event_awaits_msg_processing_when_subscription_queue_is_ful
 
     # proper cleanup
     await async_w3.provider.disconnect()
+
+
+def test_get_endpoint_uri_or_ipc_path_returns_endpoint_uri():
+    provider = WebSocketProvider("ws://mocked")
+    assert (
+        provider.get_endpoint_uri_or_ipc_path()
+        == "ws://mocked"
+        == provider.endpoint_uri
+    )
