@@ -1,0 +1,1 @@
+Dependency updates: ``eth-abi>=5.0.1``, ``eth-account>=0.12.0`` ``eth-typing>=4.0.0`` and ``hexbytes>=1.2.0`` with relevant changes to support these.
