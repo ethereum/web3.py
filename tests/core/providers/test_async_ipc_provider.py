@@ -168,3 +168,10 @@ async def test_eth_subscription(jsonrpc_ipc_pipe_path, serve_subscription_result
             assert response == subscription_response
             break
         await w3.provider.disconnect()
+
+
+def test_get_endpoint_uri_or_ipc_path_returns_ipc_path():
+    provider = AsyncIPCProvider(pathlib.Path("/path/to/file"))
+    assert (
+        provider.get_endpoint_uri_or_ipc_path() == "/path/to/file" == provider.ipc_path
+    )
