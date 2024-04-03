@@ -137,7 +137,10 @@ RPC_ACCESS_LIST = [
 if TYPE_CHECKING:
     from _pytest.monkeypatch import MonkeyPatch  # noqa: F401
 
-    from web3.contract import Contract  # noqa: F401
+    from web3.contract import (  # noqa: F401
+        AsyncContract,
+        Contract,
+    )
     from web3.main import (  # noqa: F401
         AsyncWeb3,
         Web3,
@@ -145,7 +148,8 @@ if TYPE_CHECKING:
 
 
 def abi_encoded_offchain_lookup_contract_address(
-    w3: Union["Web3", "AsyncWeb3"], offchain_lookup_contract: "Contract"
+    w3: Union["Web3", "AsyncWeb3"],
+    offchain_lookup_contract: Union["Contract", "AsyncContract"],
 ) -> HexAddress:
     return HexAddress(
         remove_0x_prefix(
@@ -836,7 +840,7 @@ class AsyncEthModuleTest:
     async def test_eth_estimate_gas_with_override_param_type_check(
         self,
         async_w3: "AsyncWeb3",
-        async_math_contract: "Contract",
+        async_math_contract: "AsyncContract",
         params: CallOverrideParams,
     ) -> None:
         txn_params: TxParams = {"from": await async_w3.eth.coinbase}
@@ -1134,7 +1138,7 @@ class AsyncEthModuleTest:
     async def test_eth_get_code_invalid_address(
         self,
         async_w3: "AsyncWeb3",
-        async_math_contract: "Contract",
+        async_math_contract: "AsyncContract",
     ) -> None:
         with pytest.raises(InvalidAddress):
             await async_w3.eth.get_code(
@@ -1143,7 +1147,7 @@ class AsyncEthModuleTest:
 
     @pytest.mark.asyncio
     async def test_eth_get_code_with_block_identifier(
-        self, async_w3: "AsyncWeb3", async_emitter_contract: "Contract"
+        self, async_w3: "AsyncWeb3", async_emitter_contract: "AsyncContract"
     ) -> None:
         block_id = await async_w3.eth.block_number
         code = await async_w3.eth.get_code(async_emitter_contract.address, block_id)
@@ -1155,7 +1159,7 @@ class AsyncEthModuleTest:
         self,
         async_w3: "AsyncWeb3",
         async_unlocked_account_dual_type: ChecksumAddress,
-        async_math_contract: "Contract",
+        async_math_contract: "AsyncContract",
     ) -> None:
         # build txn
         txn = await async_math_contract.functions.incrementCounter(1).build_transaction(
@@ -1192,7 +1196,7 @@ class AsyncEthModuleTest:
 
     @pytest.mark.asyncio
     async def test_eth_call(
-        self, async_w3: "AsyncWeb3", async_math_contract: "Contract"
+        self, async_w3: "AsyncWeb3", async_math_contract: "AsyncContract"
     ) -> None:
         coinbase = await async_w3.eth.coinbase
         txn_params = async_math_contract._prepare_transaction(
@@ -1209,7 +1213,7 @@ class AsyncEthModuleTest:
     async def test_eth_call_with_override_code(
         self,
         async_w3: "AsyncWeb3",
-        async_revert_contract: "Contract",
+        async_revert_contract: "AsyncContract",
     ) -> None:
         coinbase = await async_w3.eth.coinbase
         txn_params = async_revert_contract._prepare_transaction(
@@ -1265,7 +1269,7 @@ class AsyncEthModuleTest:
     async def test_eth_call_with_override_param_type_check(
         self,
         async_w3: "AsyncWeb3",
-        async_math_contract: "Contract",
+        async_math_contract: "AsyncContract",
         params: CallOverrideParams,
     ) -> None:
         coinbase = await async_w3.eth.coinbase
@@ -1278,7 +1282,7 @@ class AsyncEthModuleTest:
 
     @pytest.mark.asyncio
     async def test_eth_call_with_0_result(
-        self, async_w3: "AsyncWeb3", async_math_contract: "Contract"
+        self, async_w3: "AsyncWeb3", async_math_contract: "AsyncContract"
     ) -> None:
         coinbase = await async_w3.eth.coinbase
         txn_params = async_math_contract._prepare_transaction(
@@ -1295,7 +1299,7 @@ class AsyncEthModuleTest:
     async def test_eth_call_revert_with_msg(
         self,
         async_w3: "AsyncWeb3",
-        async_revert_contract: "Contract",
+        async_revert_contract: "AsyncContract",
         async_unlocked_account: ChecksumAddress,
     ) -> None:
         txn_params = async_revert_contract._prepare_transaction(
@@ -1314,7 +1318,7 @@ class AsyncEthModuleTest:
     async def test_eth_call_revert_without_msg(
         self,
         async_w3: "AsyncWeb3",
-        async_revert_contract: "Contract",
+        async_revert_contract: "AsyncContract",
         async_unlocked_account: ChecksumAddress,
     ) -> None:
         with pytest.raises(ContractLogicError, match="execution reverted"):
@@ -1331,7 +1335,7 @@ class AsyncEthModuleTest:
     async def test_eth_call_revert_custom_error_with_msg(
         self,
         async_w3: "AsyncWeb3",
-        async_revert_contract: "Contract",
+        async_revert_contract: "AsyncContract",
         async_unlocked_account: ChecksumAddress,
     ) -> None:
         data = async_revert_contract.encode_abi(
@@ -1351,7 +1355,7 @@ class AsyncEthModuleTest:
     async def test_eth_call_revert_custom_error_without_msg(
         self,
         async_w3: "AsyncWeb3",
-        async_revert_contract: "Contract",
+        async_revert_contract: "AsyncContract",
         async_unlocked_account: ChecksumAddress,
     ) -> None:
         data = async_revert_contract.encode_abi(fn_name="Unauthorized")
@@ -1383,7 +1387,7 @@ class AsyncEthModuleTest:
     async def test_contract_panic_errors(
         self,
         async_w3: "AsyncWeb3",
-        async_panic_errors_contract: "Contract",
+        async_panic_errors_contract: "AsyncContract",
         panic_error: str,
         params: List[Any],
     ) -> None:
@@ -1400,7 +1404,7 @@ class AsyncEthModuleTest:
     async def test_eth_call_offchain_lookup(
         self,
         async_w3: "AsyncWeb3",
-        async_offchain_lookup_contract: "Contract",
+        async_offchain_lookup_contract: "AsyncContract",
         async_unlocked_account: ChecksumAddress,
         monkeypatch: "MonkeyPatch",
     ) -> None:
@@ -1426,7 +1430,7 @@ class AsyncEthModuleTest:
     async def test_eth_call_offchain_lookup_raises_when_ccip_read_is_disabled(
         self,
         async_w3: "AsyncWeb3",
-        async_offchain_lookup_contract: "Contract",
+        async_offchain_lookup_contract: "AsyncContract",
     ) -> None:
         return_data = (
             OFFCHAIN_LOOKUP_4BYTE_DATA
@@ -1464,7 +1468,7 @@ class AsyncEthModuleTest:
     async def test_eth_call_offchain_lookup_call_flag_overrides_provider_flag(
         self,
         async_w3: "AsyncWeb3",
-        async_offchain_lookup_contract: "Contract",
+        async_offchain_lookup_contract: "AsyncContract",
         async_unlocked_account: ChecksumAddress,
         monkeypatch: "MonkeyPatch",
     ) -> None:
@@ -1492,7 +1496,7 @@ class AsyncEthModuleTest:
     async def test_eth_call_offchain_lookup_raises_if_max_redirects_is_less_than_4(
         self,
         async_w3: "AsyncWeb3",
-        async_offchain_lookup_contract: "Contract",
+        async_offchain_lookup_contract: "AsyncContract",
         max_redirects: int,
     ) -> None:
         default_max_redirects = async_w3.provider.ccip_read_max_redirects
@@ -1509,7 +1513,7 @@ class AsyncEthModuleTest:
     async def test_eth_call_offchain_lookup_raises_for_improperly_formatted_rest_request_response(  # noqa: E501
         self,
         async_w3: "AsyncWeb3",
-        async_offchain_lookup_contract: "Contract",
+        async_offchain_lookup_contract: "AsyncContract",
         async_unlocked_account: ChecksumAddress,
         monkeypatch: "MonkeyPatch",
     ) -> None:
@@ -1533,7 +1537,7 @@ class AsyncEthModuleTest:
     async def test_eth_call_offchain_lookup_tries_next_url_for_non_4xx_error_status_and_tests_POST(  # noqa: E501
         self,
         async_w3: "AsyncWeb3",
-        async_offchain_lookup_contract: "Contract",
+        async_offchain_lookup_contract: "AsyncContract",
         async_unlocked_account: ChecksumAddress,
         monkeypatch: "MonkeyPatch",
         status_code_non_4xx_error: int,
@@ -1571,7 +1575,7 @@ class AsyncEthModuleTest:
     async def test_eth_call_offchain_lookup_calls_raise_for_status_for_4xx_status_code(
         self,
         async_w3: "AsyncWeb3",
-        async_offchain_lookup_contract: "Contract",
+        async_offchain_lookup_contract: "AsyncContract",
         async_unlocked_account: ChecksumAddress,
         monkeypatch: "MonkeyPatch",
     ) -> None:
@@ -1594,7 +1598,7 @@ class AsyncEthModuleTest:
     async def test_eth_call_offchain_lookup_raises_when_all_supplied_urls_fail(
         self,
         async_w3: "AsyncWeb3",
-        async_offchain_lookup_contract: "Contract",
+        async_offchain_lookup_contract: "AsyncContract",
     ) -> None:
         # GET and POST requests should fail since responses are not mocked
         with pytest.raises(
@@ -1608,7 +1612,7 @@ class AsyncEthModuleTest:
     async def test_eth_call_continuous_offchain_lookup_raises_with_too_many_requests(
         self,
         async_w3: "AsyncWeb3",
-        async_offchain_lookup_contract: "Contract",
+        async_offchain_lookup_contract: "AsyncContract",
         async_unlocked_account: ChecksumAddress,
         monkeypatch: "MonkeyPatch",
     ) -> None:
@@ -1683,7 +1687,7 @@ class AsyncEthModuleTest:
         self,
         async_w3: "AsyncWeb3",
         async_block_with_txn_with_log: BlockData,
-        async_emitter_contract: "Contract",
+        async_emitter_contract: "AsyncContract",
         txn_hash_with_log: HexStr,
     ) -> None:
         receipt = await async_w3.eth.wait_for_transaction_receipt(txn_hash_with_log)
@@ -1750,7 +1754,7 @@ class AsyncEthModuleTest:
         self,
         async_w3: "AsyncWeb3",
         async_block_with_txn_with_log: BlockData,
-        async_emitter_contract: "Contract",
+        async_emitter_contract: "AsyncContract",
         txn_hash_with_log: HexStr,
     ) -> None:
         receipt = await async_w3.eth.wait_for_transaction_receipt(txn_hash_with_log)
@@ -1948,7 +1952,7 @@ class AsyncEthModuleTest:
 
     @pytest.mark.asyncio
     async def test_async_eth_get_storage_at(
-        self, async_w3: "AsyncWeb3", async_storage_contract: "Contract"
+        self, async_w3: "AsyncWeb3", async_storage_contract: "AsyncContract"
     ) -> None:
         async_storage_contract_address = async_storage_contract.address
 
@@ -1976,7 +1980,7 @@ class AsyncEthModuleTest:
     @pytest.mark.asyncio
     @pytest.mark.xfail
     async def test_async_eth_get_storage_at_ens_name(
-        self, async_w3: "AsyncWeb3", async_storage_contract: "Contract"
+        self, async_w3: "AsyncWeb3", async_storage_contract: "AsyncContract"
     ) -> None:
         with ens_addresses(async_w3, {"storage.eth": async_storage_contract.address}):
             storage = await async_w3.eth.get_storage_at(ENS("storage.eth"), 1)
