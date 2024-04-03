@@ -425,7 +425,22 @@ filter_result_formatter = apply_one_of_formatters(
     )
 )
 
+ACCESS_LIST_REQUEST_FORMATTER = type_aware_apply_formatters_to_dict(
+    {
+        "accessList": apply_formatter_if(
+            is_not_null,
+            apply_list_to_array_formatter(
+                apply_formatters_to_dict(
+                    {
+                        "storageKeys": apply_list_to_array_formatter(to_hex_if_bytes),
+                    }
+                )
+            ),
+        ),
+    }
+)
 transaction_param_formatter = compose(
+    ACCESS_LIST_REQUEST_FORMATTER,
     remove_key_if("to", lambda txn: txn["to"] in {"", b"", None}),
     remove_key_if("gasPrice", lambda txn: txn["gasPrice"] in {"", b"", None}),
 )
