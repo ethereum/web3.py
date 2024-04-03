@@ -1,0 +1,1 @@
+Fix ``eth_createAccessList`` docs to reflect the correct behavior.
