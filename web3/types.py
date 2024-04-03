@@ -165,6 +165,7 @@ TxData = TypedDict(
 TxParams = TypedDict(
     "TxParams",
     {
+        "accessList": AccessList,
         "chainId": int,
         "data": Union[bytes, HexStr],
         # addr or ens
