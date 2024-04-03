@@ -1,1 +1,1 @@
-Catch ``InsufficientDataBytes`` errors and add ``abi_decode_strict`` flag to log receipt processing
+Catch ``InsufficientDataBytes`` errors and respect ``w3.strict_bytes_type_checking`` flag in log receipt processing
