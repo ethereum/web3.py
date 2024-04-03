@@ -1153,26 +1153,13 @@ class AsyncEthModuleTest:
         async_unlocked_account_dual_type: ChecksumAddress,
         async_math_contract: "Contract",
     ) -> None:
-        # Initialize transaction for gas estimation
-        txn_params: TxParams = {
-            "from": async_unlocked_account_dual_type,
-            "value": Wei(1),
-            "gas": 21000,
-        }
-        txn = async_math_contract._prepare_transaction(
-            fn_name="incrementCounter",
-            fn_args=[1],
-            transaction=txn_params,
+        # build txn
+        txn = await async_math_contract.functions.incrementCounter(1).build_transaction(
+            {"from": async_unlocked_account_dual_type}
         )
 
-        # create access list using data from transaction
-        response = await async_w3.eth.create_access_list(
-            {
-                "from": async_unlocked_account_dual_type,
-                "to": async_math_contract.address,
-                "data": txn["data"],
-            }
-        )
+        # create access list
+        response = await async_w3.eth.create_access_list(txn)
 
         assert is_dict(response)
         access_list = response["accessList"]
@@ -1181,6 +1168,13 @@ class AsyncEthModuleTest:
         assert is_checksum_address(access_list[0]["address"])
         assert len(access_list[0]["storageKeys"][0]) == 32
         assert int(response["gasUsed"]) >= 0
+
+        # assert the result can be used directly in a transaction dict
+        txn["accessList"] = response["accessList"]
+        txn["gas"] = response["gasUsed"]
+
+        # send txn with access list
+        await async_w3.eth.send_transaction(txn)
 
     @pytest.mark.asyncio
     async def test_eth_get_transaction_count(
@@ -2735,23 +2729,13 @@ class EthModuleTest:
         unlocked_account_dual_type: ChecksumAddress,
         math_contract: "Contract",
     ) -> None:
-        # Initialize transaction for gas estimation
-        txn_params: TxParams = {
-            "from": unlocked_account_dual_type,
-            "value": Wei(1),
-            "gas": 21000,
-        }
-
-        txn = math_contract.functions.incrementCounter(1).build_transaction(txn_params)
-
-        # create access list using data from transaction
-        response = w3.eth.create_access_list(
-            {
-                "from": unlocked_account_dual_type,
-                "to": math_contract.address,
-                "data": txn["data"],
-            }
+        # build txn
+        txn = math_contract.functions.incrementCounter(1).build_transaction(
+            {"from": unlocked_account_dual_type}
         )
+
+        # create access list
+        response = w3.eth.create_access_list(txn)
 
         assert is_dict(response)
         access_list = response["accessList"]
@@ -2760,6 +2744,13 @@ class EthModuleTest:
         assert is_checksum_address(access_list[0]["address"])
         assert len(access_list[0]["storageKeys"][0]) == 32
         assert int(response["gasUsed"]) >= 0
+
+        # assert the result can be used directly in a transaction dict
+        txn["accessList"] = response["accessList"]
+        txn["gas"] = response["gasUsed"]
+
+        # send txn with access list
+        w3.eth.send_transaction(txn)
 
     def test_eth_sign(
         self, w3: "Web3", unlocked_account_dual_type: ChecksumAddress
