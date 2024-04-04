@@ -72,7 +72,9 @@ is_not_named_block = complement(is_named_block)
 # --- Request Mapping --- #
 
 TRANSACTION_REQUEST_KEY_MAPPING = {
+    "blobVersionedHashes": "blob_versioned_hashes",
     "gasPrice": "gas_price",
+    "maxFeePerBlobGas": "max_fee_per_blob_gas",
     "maxFeePerGas": "max_fee_per_gas",
     "maxPriorityFeePerGas": "max_priority_fee_per_gas",
     "accessList": "access_list",
@@ -123,10 +125,12 @@ filter_request_transformer = compose(
 
 TRANSACTION_RESULT_KEY_MAPPING = {
     "access_list": "accessList",
+    "blob_versioned_hashes": "blobVersionedHashes",
     "block_hash": "blockHash",
     "block_number": "blockNumber",
     "chain_id": "chainId",
     "gas_price": "gasPrice",
+    "max_fee_per_blob_gas": "maxFeePerBlobGas",
     "max_fee_per_gas": "maxFeePerGas",
     "max_priority_fee_per_gas": "maxPriorityFeePerGas",
     "transaction_hash": "transactionHash",
@@ -164,6 +168,8 @@ RECEIPT_RESULT_KEY_MAPPING = {
     "effective_gas_price": "effectiveGasPrice",
     "transaction_hash": "transactionHash",
     "transaction_index": "transactionIndex",
+    "blob_gas_used": "blobGasUsed",
+    "blob_gas_price": "blobGasPrice",
 }
 receipt_result_remapper = apply_key_map(RECEIPT_RESULT_KEY_MAPPING)
 
@@ -186,6 +192,9 @@ BLOCK_RESULT_KEY_MAPPING = {
     # JSON-RPC spec still says miner
     "coinbase": "miner",
     "withdrawals_root": "withdrawalsRoot",
+    "parent_beacon_block_root": "parentBeaconBlockRoot",
+    "blob_gas_used": "blobGasUsed",
+    "excess_blob_gas": "excessBlobGas",
 }
 block_result_remapper = apply_key_map(BLOCK_RESULT_KEY_MAPPING)
 
