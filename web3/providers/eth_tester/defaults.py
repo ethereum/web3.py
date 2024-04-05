@@ -226,18 +226,6 @@ def create_new_account(eth_tester: "EthereumTester") -> HexAddress:
     return eth_tester.add_account(_generate_random_private_key())
 
 
-def personal_send_transaction(eth_tester: "EthereumTester", params: Any) -> HexStr:
-    transaction, password = params
-
-    try:
-        eth_tester.unlock_account(transaction["from"], password)
-        transaction_hash = eth_tester.send_transaction(transaction)
-    finally:
-        eth_tester.lock_account(transaction["from"])
-
-    return transaction_hash
-
-
 API_ENDPOINTS = {
     "web3": {
         "clientVersion": client_version,
@@ -403,41 +391,6 @@ API_ENDPOINTS = {
         "vmodule": not_implemented,
         "writeBlockProfile": not_implemented,
         "writeMemProfile": not_implemented,
-    },
-    "personal": {
-        "ec_recover": not_implemented,
-        "import_raw_key": call_eth_tester("add_account"),
-        "list_accounts": call_eth_tester("get_accounts"),
-        "list_wallets": not_implemented,
-        "lock_account": excepts(
-            ValidationError,
-            compose(static_return(True), call_eth_tester("lock_account")),
-            static_return(False),
-        ),
-        "new_account": create_new_account,
-        "unlock_account": excepts(
-            ValidationError,
-            compose(static_return(True), call_eth_tester("unlock_account")),
-            static_return(False),
-        ),
-        "send_transaction": personal_send_transaction,
-        "sign": not_implemented,
-        # deprecated
-        "ecRecover": not_implemented,
-        "importRawKey": call_eth_tester("add_account"),
-        "listAccounts": call_eth_tester("get_accounts"),
-        "lockAccount": excepts(
-            ValidationError,
-            compose(static_return(True), call_eth_tester("lock_account")),
-            static_return(False),
-        ),
-        "newAccount": create_new_account,
-        "unlockAccount": excepts(
-            ValidationError,
-            compose(static_return(True), call_eth_tester("unlock_account")),
-            static_return(False),
-        ),
-        "sendTransaction": personal_send_transaction,
     },
     "testing": {
         "timeTravel": call_eth_tester("time_travel"),

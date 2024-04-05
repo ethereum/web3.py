@@ -12,6 +12,9 @@ from web3 import (
     AsyncWeb3,
     Web3,
 )
+from web3.middleware import (
+    SignAndSendRawMiddlewareBuilder,
+)
 
 from .common import (
     GoEthereumAdminModuleTest,
@@ -19,7 +22,6 @@ from .common import (
     GoEthereumAsyncNetModuleTest,
     GoEthereumEthModuleTest,
     GoEthereumNetModuleTest,
-    GoEthereumPersonalModuleTest,
     GoEthereumTest,
 )
 from .utils import (
@@ -35,7 +37,6 @@ def _geth_command_arguments(geth_ipc_path, base_geth_command_arguments):
         geth_ipc_path,
         "--miner.etherbase",
         COINBASE[2:],
-        "--rpc.enabledeprecatedpersonal",
     )
 
 
@@ -55,9 +56,13 @@ def geth_ipc_path(datadir):
 
 
 @pytest.fixture(scope="module")
-def w3(geth_process, geth_ipc_path):
+def w3(geth_process, geth_ipc_path, geth_fixture_data):
     wait_for_socket(geth_ipc_path)
     _w3 = Web3(Web3.IPCProvider(geth_ipc_path, timeout=30))
+    unlocked_account_middleware = SignAndSendRawMiddlewareBuilder.build(
+        geth_fixture_data["test_sender_account_pk"]
+    )
+    _w3.middleware_onion.add(unlocked_account_middleware)
     return _w3
 
 
@@ -105,8 +110,4 @@ class TestGoEthereumNetModuleTest(GoEthereumNetModuleTest):
 
 
 class TestGoEthereumAsyncNetModuleTest(GoEthereumAsyncNetModuleTest):
-    pass
-
-
-class TestGoEthereumPersonalModuleTest(GoEthereumPersonalModuleTest):
     pass

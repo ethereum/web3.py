@@ -39,17 +39,11 @@ class MockGethAdmin(Module):
         return True
 
 
-class MockGethPersonal(Module):
-    def unlock_account(self):
-        return True
-
-
 def test_attach_modules():
     mods = {
         "geth": (
             MockGeth,
             {
-                "personal": MockGethPersonal,
                 "admin": MockGethAdmin,
             },
         ),
@@ -58,7 +52,6 @@ def test_attach_modules():
     w3 = Web3(EthereumTesterProvider(), modules={})
     attach_modules(w3, mods)
     assert w3.eth.block_number() == 42
-    assert w3.geth.personal.unlock_account() is True
     assert w3.geth.admin.start_ws() is True
 
 
@@ -70,23 +63,12 @@ def test_attach_single_module_as_tuple():
 def test_attach_modules_multiple_levels_deep():
     mods = {
         "eth": MockEth,
-        "geth": (
-            MockGeth,
-            {
-                "personal": (
-                    MockGethPersonal,
-                    {
-                        "admin": MockGethAdmin,
-                    },
-                ),
-            },
-        ),
+        "geth": MockGeth,
     }
     w3 = Web3(EthereumTesterProvider(), modules={})
     attach_modules(w3, mods)
     assert w3.eth.block_number() == 42
-    assert w3.geth.personal.unlock_account() is True
-    assert w3.geth.personal.admin.start_ws() is True
+    assert w3.geth.admin.start_ws() is True
 
 
 def test_attach_modules_with_wrong_module_format():

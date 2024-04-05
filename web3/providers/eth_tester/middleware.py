@@ -285,11 +285,6 @@ request_formatters = {
     ),
     # EVM
     RPCEndpoint("evm_revert"): apply_formatters_to_args(hex_to_integer),
-    # Personal
-    RPCEndpoint("personal_sendTransaction"): apply_formatters_to_args(
-        transaction_request_transformer,
-        identity,
-    ),
 }
 
 result_formatters: Optional[Dict[RPCEndpoint, Callable[..., Any]]] = {

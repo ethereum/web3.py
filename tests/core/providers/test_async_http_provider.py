@@ -76,7 +76,6 @@ def test_web3_with_async_http_provider_has_default_middleware_and_modules() -> N
     assert isinstance(async_w3.net, AsyncNet)
     assert isinstance(async_w3.geth, AsyncGeth)
     assert isinstance(async_w3.geth.admin, AsyncGethAdmin)
-    assert isinstance(async_w3.geth.personal, AsyncGethPersonal)
     assert isinstance(async_w3.geth.txpool, AsyncGethTxPool)
 
     # assert default middleware

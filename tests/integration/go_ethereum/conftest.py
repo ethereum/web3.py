@@ -194,32 +194,13 @@ def emitter_contract_address(emitter_contract, address_conversion_func):
 
 
 @pytest.fixture(scope="module")
-def unlocked_account(w3, unlockable_account, unlockable_account_pw):
-    w3.geth.personal.unlock_account(unlockable_account, unlockable_account_pw)
-    yield unlockable_account
-    w3.geth.personal.lock_account(unlockable_account)
+def test_sender_account(geth_fixture_data):
+    return geth_fixture_data["test_sender_account_address"]
 
 
 @pytest.fixture(scope="module")
-def unlockable_account_pw(geth_fixture_data):
-    return geth_fixture_data["keyfile_pw"]
-
-
-@pytest.fixture(scope="module")
-def unlockable_account(coinbase):
-    yield coinbase
-
-
-@pytest.fixture(scope="module")
-def unlockable_account_dual_type(unlockable_account, address_conversion_func):
-    return address_conversion_func(unlockable_account)
-
-
-@pytest.fixture(scope="module")
-def unlocked_account_dual_type(w3, unlockable_account_dual_type, unlockable_account_pw):
-    w3.geth.personal.unlock_account(unlockable_account_dual_type, unlockable_account_pw)
-    yield unlockable_account_dual_type
-    w3.geth.personal.lock_account(unlockable_account_dual_type)
+def test_sender_account_dual_type(test_sender_account, address_conversion_func):
+    yield test_sender_account
 
 
 @pytest.fixture(scope="module")
@@ -309,42 +290,15 @@ async def async_coinbase(async_w3):
 
 
 @pytest_asyncio.fixture(scope="module")
-async def async_unlockable_account(async_coinbase):
-    yield async_coinbase
+async def async_test_sender_account(geth_fixture_data):
+    return geth_fixture_data["test_sender_account_address"]
 
 
 @pytest_asyncio.fixture(scope="module")
-def async_unlockable_account_dual_type(
-    async_unlockable_account,
-    address_conversion_func,
+async def async_test_sender_account_dual_type(
+    async_test_sender_account, address_conversion_func
 ):
-    return address_conversion_func(async_unlockable_account)
-
-
-@pytest_asyncio.fixture(scope="module")
-async def async_unlocked_account(
-    async_w3,
-    async_unlockable_account,
-    unlockable_account_pw,
-):
-    await async_w3.geth.personal.unlock_account(
-        async_unlockable_account, unlockable_account_pw
-    )
-    yield async_unlockable_account
-    await async_w3.geth.personal.lock_account(async_unlockable_account)
-
-
-@pytest_asyncio.fixture(scope="module")
-async def async_unlocked_account_dual_type(
-    async_w3,
-    async_unlockable_account_dual_type,
-    unlockable_account_pw,
-):
-    await async_w3.geth.personal.unlock_account(
-        async_unlockable_account_dual_type, unlockable_account_pw
-    )
-    yield async_unlockable_account_dual_type
-    await async_w3.geth.personal.lock_account(async_unlockable_account_dual_type)
+    yield async_test_sender_account
 
 
 @pytest.fixture(scope="module")

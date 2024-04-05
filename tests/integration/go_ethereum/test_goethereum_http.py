@@ -15,9 +15,7 @@ from web3 import (
 from web3._utils.module_testing.go_ethereum_admin_module import (
     GoEthereumAsyncAdminModuleTest,
 )
-from web3._utils.module_testing.go_ethereum_personal_module import (
-    GoEthereumAsyncPersonalModuleTest,
-)
+from web3.middleware import SignAndSendRawMiddlewareBuilder
 from web3.providers.rpc import (
     AsyncHTTPProvider,
 )
@@ -29,7 +27,6 @@ from .common import (
     GoEthereumAsyncTxPoolModuleTest,
     GoEthereumEthModuleTest,
     GoEthereumNetModuleTest,
-    GoEthereumPersonalModuleTest,
     GoEthereumTest,
     GoEthereumTxPoolModuleTest,
 )
@@ -57,7 +54,7 @@ def _geth_command_arguments(rpc_port, base_geth_command_arguments, geth_version)
             "--http.port",
             rpc_port,
             "--http.api",
-            "admin,eth,net,web3,personal,txpool",
+            "admin,eth,net,web3,txpool",
             "--ipcdisable",
             "--allow-insecure-unlock",
             "--miner.etherbase",
@@ -75,9 +72,13 @@ def geth_command_arguments(rpc_port, base_geth_command_arguments, get_geth_versi
 
 
 @pytest.fixture(scope="module")
-def w3(geth_process, endpoint_uri):
+def w3(geth_process, endpoint_uri, geth_fixture_data):
     wait_for_http(endpoint_uri)
     _w3 = Web3(Web3.HTTPProvider(endpoint_uri))
+    unlocked_account_middleware = SignAndSendRawMiddlewareBuilder.build(
+        geth_fixture_data["test_sender_account_pk"]
+    )
+    _w3.middleware_onion.add(unlocked_account_middleware)
     return _w3
 
 
@@ -110,10 +111,6 @@ class TestGoEthereumEthModuleTest(GoEthereumEthModuleTest):
 
 
 class TestGoEthereumNetModuleTest(GoEthereumNetModuleTest):
-    pass
-
-
-class TestGoEthereumPersonalModuleTest(GoEthereumPersonalModuleTest):
     pass
 
 
@@ -155,10 +152,6 @@ class TestGoEthereumAsyncAdminModuleTest(GoEthereumAsyncAdminModuleTest):
 
 
 class TestGoEthereumAsyncNetModuleTest(GoEthereumAsyncNetModuleTest):
-    pass
-
-
-class TestGoEthereumAsyncPersonalModuleTest(GoEthereumAsyncPersonalModuleTest):
     pass
 
 

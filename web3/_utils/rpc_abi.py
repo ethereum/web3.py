@@ -123,18 +123,6 @@ class RPC:
     net_peerCount = RPCEndpoint("net_peerCount")
     net_version = RPCEndpoint("net_version")
 
-    # personal
-    personal_ecRecover = RPCEndpoint("personal_ecRecover")
-    personal_importRawKey = RPCEndpoint("personal_importRawKey")
-    personal_listAccounts = RPCEndpoint("personal_listAccounts")
-    personal_listWallets = RPCEndpoint("personal_listWallets")
-    personal_lockAccount = RPCEndpoint("personal_lockAccount")
-    personal_newAccount = RPCEndpoint("personal_newAccount")
-    personal_sendTransaction = RPCEndpoint("personal_sendTransaction")
-    personal_sign = RPCEndpoint("personal_sign")
-    personal_signTypedData = RPCEndpoint("personal_signTypedData")
-    personal_unlockAccount = RPCEndpoint("personal_unlockAccount")
-
     # testing
     testing_timeTravel = RPCEndpoint("testing_timeTravel")
 
@@ -211,12 +199,6 @@ RPC_ABIS: Dict[str, Union[Sequence[Any], Dict[str, str]]] = {
     "eth_signTypedData": ["address", None],
     "eth_submitHashrate": ["uint", "bytes32"],
     "eth_submitWork": ["bytes8", "bytes32", "bytes32"],
-    # personal
-    "personal_sendTransaction": TRANSACTION_PARAMS_ABIS,
-    "personal_lockAccount": ["address"],
-    "personal_unlockAccount": ["address", None, None],
-    "personal_sign": [None, "address", None],
-    "personal_signTypedData": [None, "address", None],
     "trace_call": TRANSACTION_PARAMS_ABIS,
     "trace_filter": TRACE_FILTER_PARAM_ABIS,
 }

@@ -91,11 +91,9 @@ from web3.exceptions import (
 from web3.geth import (
     AsyncGeth,
     AsyncGethAdmin,
-    AsyncGethPersonal,
     AsyncGethTxPool,
     Geth,
     GethAdmin,
-    GethPersonal,
     GethTxPool,
 )
 from web3.manager import (
@@ -156,7 +154,6 @@ def get_async_default_modules() -> Dict[str, Union[Type[Module], Sequence[Any]]]
             AsyncGeth,
             {
                 "admin": AsyncGethAdmin,
-                "personal": AsyncGethPersonal,
                 "txpool": AsyncGethTxPool,
             },
         ),
@@ -171,7 +168,6 @@ def get_default_modules() -> Dict[str, Union[Type[Module], Sequence[Any]]]:
             Geth,
             {
                 "admin": GethAdmin,
-                "personal": GethPersonal,
                 "txpool": GethTxPool,
             },
         ),

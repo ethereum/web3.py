@@ -9,12 +9,10 @@ from web3 import (
 from web3._utils.module_testing.go_ethereum_admin_module import (
     GoEthereumAsyncAdminModuleTest,
 )
-from web3._utils.module_testing.go_ethereum_personal_module import (
-    GoEthereumAsyncPersonalModuleTest,
-)
 from web3._utils.module_testing.persistent_connection_provider import (
     PersistentConnectionProviderTest,
 )
+from web3.middleware import SignAndSendRawMiddlewareBuilder
 
 from ..common import (
     GoEthereumAsyncEthModuleTest,
@@ -26,11 +24,16 @@ from ..utils import (
 
 
 @pytest_asyncio.fixture(scope="module")
-async def async_w3(geth_process, endpoint_uri):
+async def async_w3(geth_process, endpoint_uri, geth_fixture_data):
     await wait_for_aiohttp(endpoint_uri)
 
     # await the persistent connection itself
-    return await AsyncWeb3(WebSocketProvider(endpoint_uri))
+    w3 = await AsyncWeb3(WebSocketProvider(endpoint_uri))
+    unlocked_account_middleware = SignAndSendRawMiddlewareBuilder.build(
+        geth_fixture_data["test_sender_account_pk"]
+    )
+    w3.middleware_onion.add(unlocked_account_middleware)
+    return w3
 
 
 class TestGoEthereumAsyncAdminModuleTest(GoEthereumAsyncAdminModuleTest):
@@ -68,8 +71,4 @@ class TestGoEthereumAsyncEthModuleTest(GoEthereumAsyncEthModuleTest):
 
 
 class TestGoEthereumAsyncNetModuleTest(GoEthereumAsyncNetModuleTest):
-    pass
-
-
-class TestGoEthereumAsyncPersonalModuleTest(GoEthereumAsyncPersonalModuleTest):
     pass
