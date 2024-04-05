@@ -27,7 +27,6 @@ from web3._utils.contract_sources.contract_data.storage_contract import (
 )
 from web3._utils.module_testing import (
     EthModuleTest,
-    GoEthereumPersonalModuleTest,
     NetModuleTest,
     Web3ModuleTest,
 )
@@ -37,11 +36,17 @@ from web3._utils.module_testing.eth_module import (
 from web3.exceptions import (
     MethodUnavailable,
 )
+from web3.middleware import SignAndSendRawMiddlewareBuilder
 from web3.providers.eth_tester import (
     EthereumTesterProvider,
 )
 from web3.types import (  # noqa: F401
     BlockData,
+)
+
+
+TEST_SENDER_ACCOUNT_PK = (
+    "0x392f63a79b1ff8774845f3fa69de4a13800a59e7083f5187f1558f0797ad0f01"
 )
 
 
@@ -69,6 +74,10 @@ def eth_tester_provider(eth_tester):
 @pytest.fixture(scope="module")
 def w3(eth_tester_provider):
     _w3 = Web3(eth_tester_provider)
+    unlocked_account_middleware = SignAndSendRawMiddlewareBuilder.build(
+        TEST_SENDER_ACCOUNT_PK
+    )
+    _w3.middleware_onion.add(unlocked_account_middleware)
     return _w3
 
 
@@ -179,25 +188,18 @@ def panic_errors_contract(w3):
     return _deploy_contract(w3, panic_errors_contract_factory)
 
 
-UNLOCKABLE_PRIVATE_KEY = (
-    "0x392f63a79b1ff8774845f3fa69de4a13800a59e7083f5187f1558f0797ad0f01"
-)
-
-
 @pytest.fixture(scope="module")
-def unlockable_account_pw():
+def test_sender_account_pw():
     return "web3-testing"
 
 
 @pytest.fixture(scope="module")
-def unlockable_account(w3, unlockable_account_pw):
-    account = w3.geth.personal.import_raw_key(
-        UNLOCKABLE_PRIVATE_KEY, unlockable_account_pw
-    )
+def test_sender_account(w3, test_sender_account_pw):
+    account = w3.eth.account.from_key(TEST_SENDER_ACCOUNT_PK)
     w3.eth.send_transaction(
         {
             "from": w3.eth.coinbase,
-            "to": account,
+            "to": account.address,
             "value": w3.to_wei(10, "ether"),
             "gas": 21000,
         }
@@ -206,22 +208,8 @@ def unlockable_account(w3, unlockable_account_pw):
 
 
 @pytest.fixture
-def unlocked_account(w3, unlockable_account, unlockable_account_pw):
-    w3.geth.personal.unlock_account(unlockable_account, unlockable_account_pw)
-    yield unlockable_account
-    w3.geth.personal.lock_account(unlockable_account)
-
-
-@pytest.fixture()
-def unlockable_account_dual_type(unlockable_account, address_conversion_func):
-    return address_conversion_func(unlockable_account)
-
-
-@pytest.fixture
-def unlocked_account_dual_type(w3, unlockable_account_dual_type, unlockable_account_pw):
-    w3.geth.personal.unlock_account(unlockable_account_dual_type, unlockable_account_pw)
-    yield unlockable_account_dual_type
-    w3.geth.personal.lock_account(unlockable_account_dual_type)
+def test_sender_account_dual_type(test_sender_account, address_conversion_func):
+    yield test_sender_account
 
 
 @pytest.fixture(scope="module")
@@ -343,17 +331,17 @@ class TestEthereumTesterEthModule(EthModuleTest):
 
     @disable_auto_mine
     def test_eth_get_transaction_receipt_unmined(
-        self, eth_tester, w3, unlocked_account
+        self, eth_tester, w3, test_sender_account
     ):
-        super().test_eth_get_transaction_receipt_unmined(w3, unlocked_account)
+        super().test_eth_get_transaction_receipt_unmined(w3, test_sender_account)
 
     @disable_auto_mine
-    def test_eth_replace_transaction_legacy(self, eth_tester, w3, unlocked_account):
-        super().test_eth_replace_transaction_legacy(w3, unlocked_account)
+    def test_eth_replace_transaction_legacy(self, eth_tester, w3, test_sender_account):
+        super().test_eth_replace_transaction_legacy(w3, test_sender_account)
 
     @disable_auto_mine
-    def test_eth_replace_transaction(self, eth_tester, w3, unlocked_account):
-        super().test_eth_replace_transaction(w3, unlocked_account)
+    def test_eth_replace_transaction(self, eth_tester, w3, test_sender_account):
+        super().test_eth_replace_transaction(w3, test_sender_account)
 
     @disable_auto_mine
     @pytest.mark.xfail(
@@ -361,53 +349,53 @@ class TestEthereumTesterEthModule(EthModuleTest):
     )
     # TODO: This might also be an issue in py-evm worth looking into. See reason above.
     def test_eth_replace_transaction_underpriced(
-        self, eth_tester, w3, unlocked_account
+        self, eth_tester, w3, test_sender_account
     ):
-        super().test_eth_replace_transaction_underpriced(w3, unlocked_account)
+        super().test_eth_replace_transaction_underpriced(w3, test_sender_account)
 
     @disable_auto_mine
     def test_eth_replace_transaction_incorrect_nonce(
-        self, eth_tester, w3, unlocked_account
+        self, eth_tester, w3, test_sender_account
     ):
-        super().test_eth_replace_transaction_incorrect_nonce(w3, unlocked_account)
+        super().test_eth_replace_transaction_incorrect_nonce(w3, test_sender_account)
 
     @disable_auto_mine
     def test_eth_replace_transaction_gas_price_too_low(
-        self, eth_tester, w3, unlocked_account
+        self, eth_tester, w3, test_sender_account
     ):
-        super().test_eth_replace_transaction_gas_price_too_low(w3, unlocked_account)
+        super().test_eth_replace_transaction_gas_price_too_low(w3, test_sender_account)
 
     @disable_auto_mine
     def test_eth_replace_transaction_gas_price_defaulting_minimum(
-        self, eth_tester, w3, unlocked_account
+        self, eth_tester, w3, test_sender_account
     ):
         super().test_eth_replace_transaction_gas_price_defaulting_minimum(
-            w3, unlocked_account
+            w3, test_sender_account
         )
 
     @disable_auto_mine
     def test_eth_replace_transaction_gas_price_defaulting_strategy_higher(
-        self, eth_tester, w3, unlocked_account
+        self, eth_tester, w3, test_sender_account
     ):
         super().test_eth_replace_transaction_gas_price_defaulting_strategy_higher(
-            w3, unlocked_account
+            w3, test_sender_account
         )
 
     @disable_auto_mine
     def test_eth_replace_transaction_gas_price_defaulting_strategy_lower(
-        self, eth_tester, w3, unlocked_account
+        self, eth_tester, w3, test_sender_account
     ):
         super().test_eth_replace_transaction_gas_price_defaulting_strategy_lower(
-            w3, unlocked_account
+            w3, test_sender_account
         )
 
     @disable_auto_mine
-    def test_eth_modify_transaction_legacy(self, eth_tester, w3, unlocked_account):
-        super().test_eth_modify_transaction_legacy(w3, unlocked_account)
+    def test_eth_modify_transaction_legacy(self, eth_tester, w3, test_sender_account):
+        super().test_eth_modify_transaction_legacy(w3, test_sender_account)
 
     @disable_auto_mine
-    def test_eth_modify_transaction(self, eth_tester, w3, unlocked_account):
-        super().test_eth_modify_transaction(w3, unlocked_account)
+    def test_eth_modify_transaction(self, eth_tester, w3, test_sender_account):
+        super().test_eth_modify_transaction(w3, test_sender_account)
 
     @disable_auto_mine
     def test_eth_get_logs_without_logs(
@@ -454,13 +442,13 @@ class TestEthereumTesterEthModule(EthModuleTest):
 
     @disable_auto_mine
     def test_eth_call_old_contract_state(
-        self, eth_tester, w3, math_contract, unlocked_account
+        self, eth_tester, w3, math_contract, test_sender_account
     ):
         # For now, ethereum tester cannot give call results in the pending block.
         # Once that feature is added, then delete the except/else blocks.
         try:
             super().test_eth_call_old_contract_state(
-                w3, math_contract, unlocked_account
+                w3, math_contract, test_sender_account
             )
         except AssertionError as err:
             if str(err) == "pending call result was 0 instead of 1":
@@ -479,17 +467,17 @@ class TestEthereumTesterEthModule(EthModuleTest):
 
     @disable_auto_mine
     def test_eth_wait_for_transaction_receipt_unmined(
-        self, eth_tester, w3, unlocked_account_dual_type
+        self, eth_tester, w3, test_sender_account_dual_type
     ):
         super().test_eth_wait_for_transaction_receipt_unmined(
-            w3, unlocked_account_dual_type
+            w3, test_sender_account_dual_type
         )
 
-    def test_eth_call_revert_with_msg(self, w3, revert_contract, unlocked_account):
+    def test_eth_call_revert_with_msg(self, w3, revert_contract, test_sender_account):
         txn_params = revert_contract._prepare_transaction(
             fn_name="revertWithMessage",
             transaction={
-                "from": unlocked_account,
+                "from": test_sender_account,
                 "to": revert_contract.address,
             },
         )
@@ -498,11 +486,13 @@ class TestEthereumTesterEthModule(EthModuleTest):
         ):
             w3.eth.call(txn_params)
 
-    def test_eth_call_revert_without_msg(self, w3, revert_contract, unlocked_account):
+    def test_eth_call_revert_without_msg(
+        self, w3, revert_contract, test_sender_account
+    ):
         txn_params = revert_contract._prepare_transaction(
             fn_name="revertWithoutMessage",
             transaction={
-                "from": unlocked_account,
+                "from": test_sender_account,
                 "to": revert_contract.address,
             },
         )
@@ -510,12 +500,12 @@ class TestEthereumTesterEthModule(EthModuleTest):
             w3.eth.call(txn_params)
 
     def test_eth_estimate_gas_revert_with_msg(
-        self, w3, revert_contract, unlocked_account
+        self, w3, revert_contract, test_sender_account
     ):
         txn_params = revert_contract._prepare_transaction(
             fn_name="revertWithMessage",
             transaction={
-                "from": unlocked_account,
+                "from": test_sender_account,
                 "to": revert_contract.address,
             },
         )
@@ -525,13 +515,13 @@ class TestEthereumTesterEthModule(EthModuleTest):
             w3.eth.estimate_gas(txn_params)
 
     def test_eth_estimate_gas_revert_without_msg(
-        self, w3, revert_contract, unlocked_account
+        self, w3, revert_contract, test_sender_account
     ):
         with pytest.raises(TransactionFailed, match="execution reverted"):
             txn_params = revert_contract._prepare_transaction(
                 fn_name="revertWithoutMessage",
                 transaction={
-                    "from": unlocked_account,
+                    "from": test_sender_account,
                     "to": revert_contract.address,
                 },
             )
@@ -541,12 +531,12 @@ class TestEthereumTesterEthModule(EthModuleTest):
         self,
         w3,
         revert_contract,
-        unlocked_account,
+        test_sender_account,
     ) -> None:
         txn_params = revert_contract._prepare_transaction(
             fn_name="customErrorWithMessage",
             transaction={
-                "from": unlocked_account,
+                "from": test_sender_account,
                 "to": revert_contract.address,
             },
         )
@@ -555,12 +545,12 @@ class TestEthereumTesterEthModule(EthModuleTest):
             w3.eth.call(txn_params)
 
     def test_eth_call_custom_error_revert_without_msg(
-        self, w3, revert_contract, unlocked_account
+        self, w3, revert_contract, test_sender_account
     ):
         txn_params = revert_contract._prepare_transaction(
             fn_name="customErrorWithoutMessage",
             transaction={
-                "from": unlocked_account,
+                "from": test_sender_account,
                 "to": revert_contract.address,
             },
         )
@@ -571,12 +561,12 @@ class TestEthereumTesterEthModule(EthModuleTest):
         self,
         w3,
         revert_contract,
-        unlocked_account,
+        test_sender_account,
     ) -> None:
         txn_params = revert_contract._prepare_transaction(
             fn_name="customErrorWithMessage",
             transaction={
-                "from": unlocked_account,
+                "from": test_sender_account,
                 "to": revert_contract.address,
             },
         )
@@ -588,12 +578,12 @@ class TestEthereumTesterEthModule(EthModuleTest):
         self,
         w3,
         revert_contract,
-        unlocked_account,
+        test_sender_account,
     ) -> None:
         txn_params = revert_contract._prepare_transaction(
             fn_name="customErrorWithoutMessage",
             transaction={
-                "from": unlocked_account,
+                "from": test_sender_account,
                 "to": revert_contract.address,
             },
         )
@@ -601,16 +591,16 @@ class TestEthereumTesterEthModule(EthModuleTest):
             w3.eth.estimate_gas(txn_params)
 
     @disable_auto_mine
-    def test_eth_send_transaction(self, eth_tester, w3, unlocked_account):
-        super().test_eth_send_transaction(w3, unlocked_account)
+    def test_eth_send_transaction(self, eth_tester, w3, test_sender_account):
+        super().test_eth_send_transaction(w3, test_sender_account)
 
     @disable_auto_mine
-    def test_eth_send_transaction_legacy(self, eth_tester, w3, unlocked_account):
-        super().test_eth_send_transaction_legacy(w3, unlocked_account)
+    def test_eth_send_transaction_legacy(self, eth_tester, w3, test_sender_account):
+        super().test_eth_send_transaction_legacy(w3, test_sender_account)
 
     @disable_auto_mine
-    def test_eth_send_raw_transaction(self, eth_tester, w3, unlocked_account):
-        super().test_eth_send_raw_transaction(w3, unlocked_account)
+    def test_eth_send_raw_transaction(self, eth_tester, w3, test_sender_account):
+        super().test_eth_send_raw_transaction(w3, test_sender_account)
 
     @disable_auto_mine
     @pytest.mark.parametrize(
@@ -620,37 +610,39 @@ class TestEthereumTesterEthModule(EthModuleTest):
         self,
         eth_tester,
         w3,
-        unlocked_account,
+        test_sender_account,
         max_fee,
     ):
         super().test_gas_price_from_strategy_bypassed_for_dynamic_fee_txn(
-            w3, unlocked_account, max_fee
+            w3, test_sender_account, max_fee
         )
 
     @disable_auto_mine
     def test_gas_price_from_strategy_bypassed_for_dynamic_fee_txn_no_tip(
-        self, eth_tester, w3, unlocked_account
+        self, eth_tester, w3, test_sender_account
     ):
         super().test_gas_price_from_strategy_bypassed_for_dynamic_fee_txn_no_tip(
             w3,
-            unlocked_account,
+            test_sender_account,
         )
 
     @disable_auto_mine
-    def test_eth_send_transaction_default_fees(self, eth_tester, w3, unlocked_account):
-        super().test_eth_send_transaction_default_fees(w3, unlocked_account)
+    def test_eth_send_transaction_default_fees(
+        self, eth_tester, w3, test_sender_account
+    ):
+        super().test_eth_send_transaction_default_fees(w3, test_sender_account)
 
     @disable_auto_mine
-    def test_eth_send_transaction_hex_fees(self, eth_tester, w3, unlocked_account):
-        super().test_eth_send_transaction_hex_fees(w3, unlocked_account)
+    def test_eth_send_transaction_hex_fees(self, eth_tester, w3, test_sender_account):
+        super().test_eth_send_transaction_hex_fees(w3, test_sender_account)
 
     @disable_auto_mine
-    def test_eth_send_transaction_no_gas(self, eth_tester, w3, unlocked_account):
-        super().test_eth_send_transaction_no_gas(w3, unlocked_account)
+    def test_eth_send_transaction_no_gas(self, eth_tester, w3, test_sender_account):
+        super().test_eth_send_transaction_no_gas(w3, test_sender_account)
 
     @disable_auto_mine
-    def test_eth_send_transaction_no_max_fee(self, eth_tester, w3, unlocked_account):
-        super().test_eth_send_transaction_no_max_fee(w3, unlocked_account)
+    def test_eth_send_transaction_no_max_fee(self, eth_tester, w3, test_sender_account):
+        super().test_eth_send_transaction_no_max_fee(w3, test_sender_account)
 
     def test_eth_fee_history_with_integer(
         self, w3: "Web3", empty_block: BlockData
@@ -670,24 +662,3 @@ class TestEthereumTesterEthModule(EthModuleTest):
 
 class TestEthereumTesterNetModule(NetModuleTest):
     pass
-
-
-# Use web3.geth.personal namespace for testing eth-tester
-class TestEthereumTesterPersonalModule(GoEthereumPersonalModuleTest):
-    test_personal_sign_and_ecrecover = not_implemented(
-        GoEthereumPersonalModuleTest.test_personal_sign_and_ecrecover,
-        MethodUnavailable,
-    )
-
-    test_personal_list_wallets = not_implemented(
-        GoEthereumPersonalModuleTest.test_personal_list_wallets,
-        MethodUnavailable,
-    )
-
-    # Test overridden here since eth-tester returns False
-    # rather than None for failed unlock
-    def test_personal_unlock_account_failure(self, w3, unlockable_account_dual_type):
-        result = w3.geth.personal.unlock_account(
-            unlockable_account_dual_type, "bad-password"
-        )
-        assert result is False

@@ -28,11 +28,10 @@ def _geth_command_arguments(ws_port, base_geth_command_arguments, geth_version):
             "--ws.port",
             ws_port,
             "--ws.api",
-            "admin,eth,net,web3,personal",
+            "admin,eth,net,web3",
             "--ws.origins",
             "*",
             "--ipcdisable",
-            "--allow-insecure-unlock",
         )
         if geth_version.minor not in [11, 12, 13]:
             raise AssertionError("Unsupported Geth version")

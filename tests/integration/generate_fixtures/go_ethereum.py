@@ -99,7 +99,6 @@ def get_geth_process(geth_binary, datadir, geth_port):
         common.COINBASE[2:],
         "--password",
         os.path.join(datadir, "keystore", "pw.txt"),
-        "--rpc.enabledeprecatedpersonal",
     )
 
     popen_proc = subprocess.Popen(
@@ -187,6 +186,7 @@ def generate_go_ethereum_fixture(destination_dir):
 
 def verify_chain_state(w3, chain_data):
     receipt = w3.eth.wait_for_transaction_receipt(chain_data["mined_txn_hash"])
+    time.sleep(1)  # assert we mine a block in between (--dev.period=1)
     latest = w3.eth.get_block("latest")
     assert receipt.blockNumber <= latest.number
 
@@ -333,7 +333,6 @@ def setup_chain_state(w3):
     #
     # Block with Transaction
     #
-    w3.geth.personal.unlock_account(coinbase, common.KEYFILE_PW)
     mined_txn_hash = w3.eth.send_transaction(
         {
             "from": coinbase,
@@ -349,6 +348,8 @@ def setup_chain_state(w3):
     print("BLOCK_WITH_TXN_HASH:", block_with_txn["hash"])
 
     geth_fixture = {
+        "test_sender_account_address": common.TEST_SENDER_ACCOUNT_ADDRESS,
+        "test_sender_account_pk": common.TEST_SENDER_ACCOUNT_PK,
         "math_deploy_txn_hash": math_deploy_receipt["transactionHash"],
         "math_address": math_deploy_receipt["contractAddress"],
         "emitter_deploy_txn_hash": emitter_deploy_receipt["transactionHash"],

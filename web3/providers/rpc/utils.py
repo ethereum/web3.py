@@ -58,15 +58,6 @@ REQUEST_RETRY_ALLOWLIST = [
     "eth_sign",
     "eth_signTypedData",
     "eth_sendRawTransaction",
-    "personal_importRawKey",
-    "personal_newAccount",
-    "personal_listAccounts",
-    "personal_listWallets",
-    "personal_lockAccount",
-    "personal_unlockAccount",
-    "personal_ecRecover",
-    "personal_sign",
-    "personal_signTypedData",
 ]
 
 

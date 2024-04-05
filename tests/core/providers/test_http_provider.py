@@ -73,7 +73,6 @@ def test_web3_with_http_provider_has_default_middleware_and_modules() -> None:
     assert isinstance(w3.net, Net)
     assert isinstance(w3.geth, Geth)
     assert isinstance(w3.geth.admin, GethAdmin)
-    assert isinstance(w3.geth.personal, GethPersonal)
     assert isinstance(w3.geth.txpool, GethTxPool)
 
     # assert default middleware

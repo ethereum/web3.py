@@ -61,14 +61,7 @@ def test_check_without_retry_config():
 
 
 def test_check_if_retry_on_failure_false():
-    methods = [
-        "eth_sendTransaction",
-        "personal_signAndSendTransaction",
-        "personal_sendTransaction",
-    ]
-
-    for method in methods:
-        assert not check_if_retry_on_failure(method)
+    assert not check_if_retry_on_failure("eth_sendTransaction")
 
 
 def test_check_if_retry_on_failure_true():

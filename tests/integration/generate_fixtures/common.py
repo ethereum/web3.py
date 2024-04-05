@@ -31,11 +31,10 @@ KEYFILE_FILENAME = "UTC--2017-08-24T19-42-47.517572178Z--dc544d1aa88ff8bbd2f2aec
 
 RAW_TXN_ACCOUNT = "0x39EEed73fb1D3855E90Cbd42f348b3D7b340aAA6"
 
-UNLOCKABLE_PRIVATE_KEY = (
+TEST_SENDER_ACCOUNT_PK = (
     "0x392f63a79b1ff8774845f3fa69de4a13800a59e7083f5187f1558f0797ad0f01"
 )
-UNLOCKABLE_ACCOUNT = "0x12efdc31b1a8fa1a1e756dfd8a1601055c971e13"
-UNLOCKABLE_ACCOUNT_PW = KEYFILE_PW
+TEST_SENDER_ACCOUNT_ADDRESS = "0x12efDc31B1a8FA1A1e756DFD8A1601055C971E13"
 
 GENESIS_DATA = {
     "config": {
@@ -59,7 +58,7 @@ GENESIS_DATA = {
     "nonce": "0x0",
     "alloc": {
         COINBASE: {"balance": "1000000000000000000000000000"},
-        UNLOCKABLE_ACCOUNT: {"balance": "1000000000000000000000000000"},
+        TEST_SENDER_ACCOUNT_ADDRESS: {"balance": "1000000000000000000000000000"},
         RAW_TXN_ACCOUNT: {"balance": "1000000000000000000000000000"},
         "0000000000000000000000000000000000000001": {"balance": "1"},
         "0000000000000000000000000000000000000002": {"balance": "1"},
@@ -228,7 +227,6 @@ def mine_block(w3):
 
 def deploy_contract(w3, name, factory):
     name = name.upper()
-    w3.geth.personal.unlock_account(w3.eth.coinbase, KEYFILE_PW)
     deploy_txn_hash = factory.constructor().transact({"from": w3.eth.coinbase})
     print(f"{name}_CONTRACT_DEPLOY_HASH: {deploy_txn_hash}")
     deploy_receipt = w3.eth.wait_for_transaction_receipt(deploy_txn_hash)

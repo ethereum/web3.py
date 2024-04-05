@@ -9,9 +9,6 @@ from web3 import (
 from web3._utils.module_testing.go_ethereum_admin_module import (
     GoEthereumAsyncAdminModuleTest,
 )
-from web3._utils.module_testing.go_ethereum_personal_module import (
-    GoEthereumAsyncPersonalModuleTest,
-)
 from web3._utils.module_testing.persistent_connection_provider import (
     PersistentConnectionProviderTest,
 )
@@ -69,8 +66,4 @@ class TestGoEthereumAsyncEthModuleTest(GoEthereumAsyncEthModuleTest):
 
 
 class TestGoEthereumAsyncNetModuleTest(GoEthereumAsyncNetModuleTest):
-    pass
-
-
-class TestGoEthereumAsyncPersonalModuleTest(GoEthereumAsyncPersonalModuleTest):
     pass

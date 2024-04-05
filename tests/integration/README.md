@@ -1,31 +1,19 @@
 For each integration test you need to define the following pytest fixtures.
 They **must** all be *session* scoped.
 
-- `web3`
+* `web3`
+* `empty_block`
+* `block_with_txn`
+* `math_contract`
+* `keyfile_account_address`
+* `keyfile_account_pkey`
+* `funded_account_for_raw_txn`
+* `math_contract_deploy_txn_hash`
+* `mined_txn_hash`
+* `emitter_contract`
+* `block_with_txn_with_log`
+* `txn_hash_with_log`
 
-- `empty_block`
-
-- `block_with_txn`
-
-- `math_contract`
-
-- `unlocked_account`
-
-- `funded_account_for_raw_txn`
-
-- `math_contract_deploy_txn_hash`
-
-- `mined_txn_hash`
-
-- `emitter_contract`
-
-- `block_with_txn_with_log`
-
-- `txn_hash_with_log`
-
-- `unlockable_account`
-
-- `unlockable_account_pw`
 
 The details for these fixtures are as follows.
 
@@ -48,9 +36,14 @@ A block as returned by `web3.eth.get_block` that has a single transaction.
 An deployed Contract instance of the *Math* contract found in
 `web3._utils.contract_sources.MathContract.sol`.
 
-#### `unlocked_account`
 
-The address of an account which is *unlocked*.
+#### `keyfile_account_address`
+
+The address of an account known and managed by the test fixture node.
+
+#### `keyfile_account_pkey`
+
+The private key of an account known and managed by the test fixture node.
 
 #### `funded_account_for_raw_txn`
 
@@ -78,9 +71,11 @@ A block with a transaction with a single log entry.
 
 The hash of a transaction which fires a single log entry.
 
+
 #### `unlockable_account`
 
 The address of an account that can be unlocked using the `unlockable_account_pw`
+
 
 #### `unlockable_account_pw`
 

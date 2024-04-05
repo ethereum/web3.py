@@ -583,16 +583,6 @@ PYTHONIC_REQUEST_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     RPC.eth_sendTransaction: apply_formatter_at_index(transaction_param_formatter, 0),
     RPC.eth_signTransaction: apply_formatter_at_index(transaction_param_formatter, 0),
     RPC.eth_getProof: apply_formatter_at_index(to_hex_if_integer, 2),
-    # personal
-    RPC.personal_importRawKey: apply_formatter_at_index(
-        compose(remove_0x_prefix, hexstr_if_str(to_hex)),
-        0,
-    ),
-    RPC.personal_sign: apply_formatter_at_index(text_if_str(to_hex), 0),
-    RPC.personal_ecRecover: apply_formatter_at_index(text_if_str(to_hex), 0),
-    RPC.personal_sendTransaction: apply_formatter_at_index(
-        transaction_param_formatter, 0
-    ),
     # Snapshot and Revert
     RPC.evm_revert: apply_formatter_at_index(integer_to_hex, 0),
     # tracing
@@ -788,13 +778,6 @@ PYTHONIC_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     RPC.eth_signTransaction: apply_formatter_if(is_not_null, signed_tx_formatter),
     RPC.eth_signTypedData: HexBytes,
     RPC.eth_syncing: apply_formatter_if(is_not_false, syncing_formatter),
-    # personal
-    RPC.personal_importRawKey: to_checksum_address,
-    RPC.personal_listAccounts: apply_list_to_array_formatter(to_checksum_address),
-    RPC.personal_listWallets: apply_list_to_array_formatter(geth_wallets_formatter),
-    RPC.personal_newAccount: to_checksum_address,
-    RPC.personal_sendTransaction: to_hexbytes(32),
-    RPC.personal_signTypedData: HexBytes,
     # Transaction Pool
     RPC.txpool_content: transaction_pool_content_formatter,
     RPC.txpool_inspect: transaction_pool_inspect_formatter,

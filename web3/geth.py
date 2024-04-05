@@ -1,22 +1,14 @@
 from typing import (
-    Any,
     Awaitable,
     Callable,
-    Dict,
     List,
     Optional,
     Protocol,
     Tuple,
 )
 
-from eth_typing.encoding import (
-    HexStr,
-)
 from eth_typing.evm import (
     ChecksumAddress,
-)
-from hexbytes.main import (
-    HexBytes,
 )
 
 from web3._utils.rpc_abi import (
@@ -31,10 +23,8 @@ from web3.module import (
 )
 from web3.types import (
     EnodeURI,
-    GethWallet,
     NodeInfo,
     Peer,
-    TxParams,
     TxPoolContent,
     TxPoolInspect,
     TxPoolStatus,
@@ -49,66 +39,6 @@ class UnlockAccountWrapper(Protocol):
         duration: Optional[int] = None,
     ) -> bool:
         pass
-
-
-class GethPersonal(Module):
-    """
-    https://geth.ethereum.org/docs/interacting-with-geth/rpc/ns-personal
-    """
-
-    is_async = False
-
-    ec_recover: Method[Callable[[str, HexStr], ChecksumAddress]] = Method(
-        RPC.personal_ecRecover,
-        mungers=[default_root_munger],
-    )
-
-    import_raw_key: Method[Callable[[str, str], ChecksumAddress]] = Method(
-        RPC.personal_importRawKey,
-        mungers=[default_root_munger],
-    )
-
-    list_accounts: Method[Callable[[], List[ChecksumAddress]]] = Method(
-        RPC.personal_listAccounts,
-        is_property=True,
-    )
-
-    list_wallets: Method[Callable[[], List[GethWallet]]] = Method(
-        RPC.personal_listWallets,
-        is_property=True,
-    )
-
-    send_transaction: Method[Callable[[TxParams, str], HexBytes]] = Method(
-        RPC.personal_sendTransaction,
-        mungers=[default_root_munger],
-    )
-
-    sign: Method[Callable[[str, ChecksumAddress, Optional[str]], HexStr]] = Method(
-        RPC.personal_sign,
-        mungers=[default_root_munger],
-    )
-
-    sign_typed_data: Method[
-        Callable[[Dict[str, Any], ChecksumAddress, str], HexStr]
-    ] = Method(
-        RPC.personal_signTypedData,
-        mungers=[default_root_munger],
-    )
-
-    new_account: Method[Callable[[str], ChecksumAddress]] = Method(
-        RPC.personal_newAccount,
-        mungers=[default_root_munger],
-    )
-
-    lock_account: Method[Callable[[ChecksumAddress], bool]] = Method(
-        RPC.personal_lockAccount,
-        mungers=[default_root_munger],
-    )
-
-    unlock_account: Method[UnlockAccountWrapper] = Method(
-        RPC.personal_unlockAccount,
-        mungers=[default_root_munger],
-    )
 
 
 class GethTxPool(Module):
@@ -204,7 +134,6 @@ class GethAdmin(Module):
 
 
 class Geth(Module):
-    personal: GethPersonal
     admin: GethAdmin
     txpool: GethTxPool
 
@@ -332,125 +261,8 @@ class AsyncGethAdmin(Module):
         return await self._stop_ws()
 
 
-class AsyncGethPersonal(Module):
-    """
-    https://geth.ethereum.org/docs/interacting-with-geth/rpc/ns-personal
-    """
-
-    is_async = True
-
-    # ec_recover
-
-    _ec_recover: Method[Callable[[str, HexStr], Awaitable[ChecksumAddress]]] = Method(
-        RPC.personal_ecRecover,
-        mungers=[default_root_munger],
-    )
-
-    async def ec_recover(self, message: str, signature: HexStr) -> ChecksumAddress:
-        return await self._ec_recover(message, signature)
-
-    # import_raw_key
-
-    _import_raw_key: Method[Callable[[str, str], Awaitable[ChecksumAddress]]] = Method(
-        RPC.personal_importRawKey,
-        mungers=[default_root_munger],
-    )
-
-    async def import_raw_key(
-        self, private_key: str, passphrase: str
-    ) -> ChecksumAddress:
-        return await self._import_raw_key(private_key, passphrase)
-
-    # list_accounts and list_wallets
-
-    _list_accounts: Method[Callable[[], Awaitable[List[ChecksumAddress]]]] = Method(
-        RPC.personal_listAccounts,
-        is_property=True,
-    )
-
-    _list_wallets: Method[Callable[[], Awaitable[List[GethWallet]]]] = Method(
-        RPC.personal_listWallets,
-        is_property=True,
-    )
-
-    async def list_accounts(self) -> List[ChecksumAddress]:
-        return await self._list_accounts()
-
-    async def list_wallets(self) -> List[GethWallet]:
-        return await self._list_wallets()
-
-    # send_transaction
-
-    _send_transaction: Method[Callable[[TxParams, str], Awaitable[HexBytes]]] = Method(
-        RPC.personal_sendTransaction,
-        mungers=[default_root_munger],
-    )
-
-    async def send_transaction(
-        self, transaction: TxParams, passphrase: str
-    ) -> HexBytes:
-        return await self._send_transaction(transaction, passphrase)
-
-    # sign and sign_typed_data
-
-    _sign: Method[
-        Callable[[str, ChecksumAddress, Optional[str]], Awaitable[HexStr]]
-    ] = Method(
-        RPC.personal_sign,
-        mungers=[default_root_munger],
-    )
-
-    _sign_typed_data: Method[
-        Callable[[Dict[str, Any], ChecksumAddress, str], Awaitable[HexStr]]
-    ] = Method(
-        RPC.personal_signTypedData,
-        mungers=[default_root_munger],
-    )
-
-    async def sign(
-        self, message: str, account: ChecksumAddress, passphrase: str
-    ) -> HexStr:
-        return await self._sign(message, account, passphrase)
-
-    async def sign_typed_data(
-        self, message: Dict[str, Any], account: ChecksumAddress, passphrase: str
-    ) -> HexStr:
-        return await self._sign_typed_data(message, account, passphrase)
-
-    # new_account, lock_account, and unlock_account
-
-    _new_account: Method[Callable[[str], Awaitable[ChecksumAddress]]] = Method(
-        RPC.personal_newAccount,
-        mungers=[default_root_munger],
-    )
-
-    _lock_account: Method[Callable[[ChecksumAddress], Awaitable[bool]]] = Method(
-        RPC.personal_lockAccount,
-        mungers=[default_root_munger],
-    )
-
-    _unlock_account: Method[
-        Callable[[ChecksumAddress, str, Optional[int]], Awaitable[bool]]
-    ] = Method(
-        RPC.personal_unlockAccount,
-        mungers=[default_root_munger],
-    )
-
-    async def new_account(self, passphrase: str) -> ChecksumAddress:
-        return await self._new_account(passphrase)
-
-    async def lock_account(self, account: ChecksumAddress) -> bool:
-        return await self._lock_account(account)
-
-    async def unlock_account(
-        self, account: ChecksumAddress, passphrase: str, duration: Optional[int] = None
-    ) -> bool:
-        return await self._unlock_account(account, passphrase, duration)
-
-
 class AsyncGeth(Module):
     is_async = True
 
-    personal: AsyncGethPersonal
     admin: AsyncGethAdmin
     txpool: AsyncGethTxPool
