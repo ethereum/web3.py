@@ -619,8 +619,8 @@ DEBUG_CALLTRACE_LOG_ENTRY_FORMATTERS = apply_formatter_if(
         }
     ),
 )
-debug_calltrace_log_list_result_formatter = apply_formatter_to_array(
-    DEBUG_CALLTRACE_LOG_ENTRY_FORMATTERS
+debug_calltrace_log_list_result_formatter: Callable[[Formatters], Any] = (
+    apply_formatter_to_array(DEBUG_CALLTRACE_LOG_ENTRY_FORMATTERS)
 )
 
 DEBUG_CALLTRACE_FORMATTERS = {
@@ -639,8 +639,8 @@ debug_calltrace_result_formatter = type_aware_apply_formatters_to_dict(
     DEBUG_CALLTRACE_FORMATTERS
 )
 
-debug_calltrace_list_result_formatter = apply_formatter_to_array(
-    debug_calltrace_result_formatter
+debug_calltrace_list_result_formatter: Callable[[Formatters], Any] = (
+    apply_formatter_to_array(debug_calltrace_result_formatter)
 )
 
 
