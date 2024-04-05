@@ -140,6 +140,9 @@ class RPC:
     # web3
     web3_clientVersion = RPCEndpoint("web3_clientVersion")
 
+    # debug
+    debug_traceTransaction = RPCEndpoint("debug_traceTransaction")
+
 
 TRANSACTION_PARAMS_ABIS = {
     "data": "bytes",

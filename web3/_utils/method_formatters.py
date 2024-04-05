@@ -607,6 +607,61 @@ PYTHONIC_REQUEST_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
 }
 
 # --- Result Formatters --- #
+# -- debug -- #
+DEBUG_CALLTRACE_LOG_ENTRY_FORMATTERS = apply_formatter_if(
+    is_not_null,
+    type_aware_apply_formatters_to_dict(
+        {
+            "address": to_checksum_address,
+            "topics": apply_list_to_array_formatter(to_hexbytes(32)),
+            "data": HexBytes,
+            "position": to_integer_if_hex,
+        }
+    ),
+)
+debug_calltrace_log_list_result_formatter = apply_formatter_to_array(
+    DEBUG_CALLTRACE_LOG_ENTRY_FORMATTERS
+)
+
+DEBUG_CALLTRACE_FORMATTERS = {
+    "from": to_checksum_address,
+    "to": to_checksum_address,
+    "value": to_integer_if_hex,
+    "gas": to_integer_if_hex,
+    "gasUsed": to_integer_if_hex,
+    "input": HexBytes,
+    "output": HexBytes,
+    "calls": lambda calls: debug_calltrace_list_result_formatter(calls),
+    "logs": debug_calltrace_log_list_result_formatter,
+}
+
+debug_calltrace_result_formatter = type_aware_apply_formatters_to_dict(
+    DEBUG_CALLTRACE_FORMATTERS
+)
+
+debug_calltrace_list_result_formatter = apply_formatter_to_array(
+    debug_calltrace_result_formatter
+)
+
+
+def debug_trace_transaction_result_formatter(result: Dict[str, Any]) -> Dict[str, Any]:
+
+    # TODO: add more formatters for other types of tracers
+    result_formatter = None
+    result_key_set = set(result.keys())
+
+    if either_set_is_a_subset(
+        result_key_set,
+        set(DEBUG_CALLTRACE_FORMATTERS.keys()),
+        percentage=70,
+    ):
+        result_formatter = debug_calltrace_result_formatter
+
+    if result_formatter is not None:
+        result = result_formatter(result)
+
+    return result
+
 
 # -- tracing -- #
 
@@ -795,6 +850,11 @@ PYTHONIC_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     RPC.evm_snapshot: hex_to_integer,
     # Net
     RPC.net_peerCount: to_integer_if_hex,
+    # Debug
+    RPC.debug_traceTransaction: apply_formatter_if(
+        is_not_null,
+        debug_trace_transaction_result_formatter,
+    ),
     # tracing
     RPC.trace_block: trace_list_result_formatter,
     RPC.trace_call: common_tracing_result_formatter,
