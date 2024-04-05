@@ -470,6 +470,56 @@ class TxPoolStatus(TypedDict, total=False):
 
 
 #
+# debug types
+#
+class TraceConfig(TypedDict, total=False):
+    disableStorage: bool
+    disableStack: bool
+    enableMemory: bool
+    enableReturnData: bool
+    tracer: str
+    tracerConfig: Dict[str, Any]
+    timeout: int
+
+
+CallTraceLog = TypedDict(
+    "CallTraceLog",
+    {
+        "address": ChecksumAddress,
+        "data": HexBytes,
+        "topics": Sequence[HexBytes],
+        "position": int,
+    },
+)
+
+# syntax b/c "from" keyword not allowed w/ class construction
+CallTrace = TypedDict(
+    "CallTrace",
+    {
+        "type": str,
+        "from": ChecksumAddress,
+        "to": ChecksumAddress,
+        "value": Wei,
+        "gas": int,
+        "gasUsed": int,
+        "input": HexBytes,
+        "output": HexBytes,
+        "error": str,
+        "revertReason": str,
+        "calls": Sequence["CallTrace"],
+        "logs": Sequence[CallTraceLog],
+    },
+    total=False,
+)
+
+# TODO: add more built-in tracers if needed
+# 1. Struct/opcode logger
+# 2. 4byteTracer
+# 3. prestateTracer
+# 4. ...
+
+
+#
 # web3.geth types
 #
 
