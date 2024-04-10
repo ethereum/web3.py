@@ -1,4 +1,5 @@
 import pytest
+import sys
 
 from eth_utils import (
     to_checksum_address,
@@ -355,6 +356,47 @@ def test_get_transaction_formatters(w3):
     w3.middleware_onion.remove("result_middleware")
 
 
+@pytest.mark.skipif(
+    sys.version_info < (3, 8),
+    reason=(
+        "There is no version of eth-tester that supports both python 3.7 and blob "
+        "transactions / Cancun network upgrade."
+    ),
+)
+def test_eth_send_raw_blob_transaction(w3):
+    # `eth-tester` account #1's pkey is "0x00000000...01"
+    acct = w3.eth.account.from_key(f"0x{'00' * 31}01")
+
+    text = "We are the music makers and we are the dreamers of dreams."
+    encoded_text = w3.codec.encode(["string"], [text])
+    # Blobs contain 4096 32-byte field elements. Subtract the length of the encoded text
+    # divided into 32-byte chunks from 4096 and pad the rest with zeros.
+    blob_data = (b"\x00" * 32 * (4096 - len(encoded_text) // 32)) + encoded_text
+
+    tx = {
+        "type": 3,
+        "chainId": 1337,
+        "from": acct.address,
+        "to": "0xb45BEc6eeCA2a09f4689Dd308F550Ad7855051B5",
+        "value": 0,
+        "gas": 21000,
+        "maxFeePerGas": 10**10,
+        "maxPriorityFeePerGas": 10**10,
+        "maxFeePerBlobGas": 10**10,
+        "nonce": w3.eth.get_transaction_count(acct.address),
+    }
+
+    signed = acct.sign_transaction(tx, blobs=[blob_data])
+
+    tx_hash = w3.eth.send_raw_transaction(signed.rawTransaction)
+    transaction = w3.eth.get_transaction(tx_hash)
+
+    assert len(transaction["blobVersionedHashes"]) == 1
+    assert transaction["blobVersionedHashes"][0] == HexBytes(
+        "0x0127c38bcad458d932e828b580b9ad97310be01407dfa0ed88118735980a3e9a"
+    )
+
+
 # --- async --- #
 
 
@@ -380,3 +422,45 @@ async def test_async_wait_for_transaction_receipt_transaction_indexing_in_progre
     assert receipt == {"status": 1}
 
     async_w3.middleware_onion.remove("result_middleware")
+
+
+@pytest.mark.skipif(
+    sys.version_info < (3, 8),
+    reason=(
+        "There is no version of eth-tester that supports both python 3.7 and blob "
+        "transactions / Cancun network upgrade."
+    ),
+)
+@pytest.mark.asyncio
+async def test_async_send_raw_blob_transaction(async_w3):
+    # `eth-tester` account #1's pkey is "0x00000000...01"
+    acct = async_w3.eth.account.from_key(f"0x{'00' * 31}01")
+
+    text = "We are the music makers and we are the dreamers of dreams."
+    encoded_text = async_w3.codec.encode(["string"], [text])
+    # Blobs contain 4096 32-byte field elements. Subtract the length of the encoded text
+    # divided into 32-byte chunks from 4096 and pad the rest with zeros.
+    blob_data = (b"\x00" * 32 * (4096 - len(encoded_text) // 32)) + encoded_text
+
+    tx = {
+        "type": 3,
+        "chainId": 1337,
+        "from": acct.address,
+        "to": "0xb45BEc6eeCA2a09f4689Dd308F550Ad7855051B5",
+        "value": 0,
+        "gas": 21000,
+        "maxFeePerGas": 10**10,
+        "maxPriorityFeePerGas": 10**10,
+        "maxFeePerBlobGas": 10**10,
+        "nonce": await async_w3.eth.get_transaction_count(acct.address),
+    }
+
+    signed = acct.sign_transaction(tx, blobs=[blob_data])
+
+    tx_hash = await async_w3.eth.send_raw_transaction(signed.rawTransaction)
+    transaction = await async_w3.eth.get_transaction(tx_hash)
+
+    assert len(transaction["blobVersionedHashes"]) == 1
+    assert transaction["blobVersionedHashes"][0] == HexBytes(
+        "0x0127c38bcad458d932e828b580b9ad97310be01407dfa0ed88118735980a3e9a"
+    )
