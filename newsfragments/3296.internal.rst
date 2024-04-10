@@ -1,0 +1,1 @@
+Use ``pre-commit`` for linting the v6 branch
