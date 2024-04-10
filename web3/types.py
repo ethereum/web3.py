@@ -166,6 +166,7 @@ TxParams = TypedDict(
     "TxParams",
     {
         "accessList": AccessList,
+        "blobVersionedHashes": Sequence[Union[str, HexStr, bytes, HexBytes]],
         "chainId": int,
         "data": Union[bytes, HexStr],
         # addr or ens
@@ -173,6 +174,7 @@ TxParams = TypedDict(
         "gas": int,
         # legacy pricing
         "gasPrice": Wei,
+        "maxFeePerBlobGas": Union[str, Wei],
         # dynamic fee pricing
         "maxFeePerGas": Union[str, Wei],
         "maxPriorityFeePerGas": Union[str, Wei],
@@ -217,6 +219,9 @@ class BlockData(TypedDict, total=False):
     uncles: Sequence[HexBytes]
     withdrawals: Sequence[WithdrawalData]
     withdrawalsRoot: HexBytes
+    parentBeaconBlockRoot: HexBytes
+    blobGasUsed: int
+    excessBlobGas: int
 
     # ExtraDataToPOAMiddleware replaces extraData w/ proofOfAuthorityData
     proofOfAuthorityData: HexBytes
