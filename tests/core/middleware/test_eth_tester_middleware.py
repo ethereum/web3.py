@@ -1,4 +1,5 @@
 import pytest
+import sys
 from unittest.mock import (
     Mock,
 )
@@ -25,6 +26,13 @@ def test_get_transaction_count_formatters(w3, block_number):
     assert tx_counts == 0
 
 
+@pytest.mark.skipif(
+    sys.version_info < (3, 8),
+    reason=(
+        "There is no version of eth-tester that supports both python 3.7 and blob "
+        "transactions / Cancun network upgrade."
+    ),
+)
 def test_get_block_formatters(w3):
     all_block_keys = BlockData.__annotations__.keys()
     all_non_poa_block_keys = set(
