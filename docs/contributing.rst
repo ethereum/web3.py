@@ -512,9 +512,9 @@ version explicitly, like ``make release bump="--new-version 4.0.0-alpha.1 devnum
 
 
 .. _Python Discord server: https://discord.gg/GHryRvPB84
-.. _style guide: https://github.com/ethereum/ethereum-dev-tactical-manual/blob/master/style-guide.md
+.. _style guide: https://github.com/ethereum/snake-charmers-tactical-manual/blob/main/style-guide.md
 .. _type hints: https://www.python.org/dev/peps/pep-0484/
-.. _how to create documentation: https://github.com/ethereum/snake-charmers-tactical-manual/blob/master/documentation.md
+.. _how to create documentation: https://github.com/ethereum/snake-charmers-tactical-manual/blob/main/documentation.md
 .. _working on pull requests: https://help.github.com/articles/about-pull-requests/
 .. _py-geth: https://github.com/ethereum/py-geth
 .. _pytest documentation: https://docs.pytest.org/en/latest

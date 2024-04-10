@@ -72,7 +72,7 @@ or see a full list of things you can do in the docs for
 Creating a Private Key
 ----------------------
 
-Each Ethereum address has a matching private key. To create a new Ethereum 
+Each Ethereum address has a matching private key. To create a new Ethereum
 account you can just generate a random number that acts as a private key.
 
 - A private key is just a random unguessable, or cryptographically safe, 256-bit integer number
@@ -91,9 +91,9 @@ Which outputs a new private key and an account pair::
 
     private key=0x480c4aec9fa..., account=0x9202a9d5D2d129CB400a40e00aC822a53ED81167
 
-- *Never store private key with your source*. Use environment variables 
+- *Never store private key with your source*. Use environment variables
   to store the key. Read more below.
-  
+
 - You can also import the raw hex private key to MetaMask and any other
   wallet - the private key can be shared between your Python code
   and any number of wallets.
@@ -108,7 +108,7 @@ you need to top up.
 
 - For a local test environment, any environment is bootstrapped with accounts that have ETH on them. Move
   ETH from default accounts to your newly created account.
-  
+
 - For public mainnet, you need to buy ETH in a cryptocurrency exchange
 
 - For a testnet, you need to [use a testnet faucet](https://faucet.paradigm.xyz/)
@@ -117,9 +117,9 @@ you need to top up.
 Reading a Private Key from an Environment Variable
 --------------------------------------------------
 
-In this example we pass the private key to our Python application in an 
+In this example we pass the private key to our Python application in an
 `environment variable <https://en.wikipedia.org/wiki/Environment_variable>`_.
-This private key is then added to the transaction signing keychain 
+This private key is then added to the transaction signing keychain
 with ``Signing`` middleware.
 
 If unfamiliar, note that you can `export your private keys from Metamask and other wallets <https://metamask.zendesk.com/hc/en-us/articles/360015289632-How-to-Export-an-Account-Private-Key>`_.

@@ -45,7 +45,7 @@ async def wait_for_ws(endpoint_uri, timeout=10):
         try:
             async with websockets.connect(uri=endpoint_uri):
                 pass
-        except (ConnectionRefusedError, OSError):
+        except OSError:
             await asyncio.sleep(0.01)
         else:
             break

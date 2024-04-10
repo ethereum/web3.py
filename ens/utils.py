@@ -82,7 +82,7 @@ def Web3() -> Type["_Web3"]:
 
 
 def init_web3(
-    provider: "BaseProvider" = cast("BaseProvider", default),
+    provider: "BaseProvider" = None,
     middleware: Optional[Sequence[Tuple["Middleware", str]]] = None,
 ) -> "_Web3":
     from web3 import (
@@ -92,6 +92,7 @@ def init_web3(
         Eth as EthMain,
     )
 
+    provider = provider or cast("BaseProvider", default)
     if provider is default:
         w3 = Web3Main(ens=None, modules={"eth": (EthMain)})
     else:
@@ -140,7 +141,7 @@ def normalize_name(name: str) -> str:
 
 
 def ens_encode_name(name: str) -> bytes:
-    """
+    r"""
     Encode a name according to DNS standards specified in section 3.1
     of RFC1035 with the following validations:
 
@@ -210,11 +211,11 @@ def label_to_hash(label: str) -> HexBytes:
 
 def normal_name_to_hash(name: str) -> HexBytes:
     """
-    This method will not normalize the name. 'normal' name here means the name
-    should already be normalized before calling this method.
+    Hashes a pre-normalized name.
+    The normalization of the name is a prerequisite and is not handled by this function.
 
-    :param name:            the name to hash - should already be normalized
-    :return: namehash       the hash of the name
+    :param str name: A normalized name string to be hashed.
+    :return: namehash - the hash of the name
     :rtype: HexBytes
     """
     node = EMPTY_SHA3_BYTES
@@ -305,7 +306,7 @@ def get_abi_output_types(abi: "ABIFunction") -> List[str]:
 
 
 def init_async_web3(
-    provider: "AsyncBaseProvider" = cast("AsyncBaseProvider", default),
+    provider: "AsyncBaseProvider" = None,
     middleware: Optional[Sequence[Tuple["Middleware", str]]] = (),
 ) -> "AsyncWeb3":
     from web3 import (
@@ -318,8 +319,9 @@ def init_async_web3(
         StalecheckMiddlewareBuilder,
     )
 
+    provider = provider or cast("AsyncBaseProvider", default)
     middleware = list(middleware)
-    for i, (mw, name) in enumerate(middleware):
+    for i, (_mw, name) in enumerate(middleware):
         if name == "ens_name_to_address":
             middleware.pop(i)
 

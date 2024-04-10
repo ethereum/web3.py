@@ -1,7 +1,81 @@
+[tool.autoflake]
+remove_all_unused_imports = true
+exclude = "__init__.py"
+
+[tool.isort]
+combine_as_imports = true
+extra_standard_library = "pytest"
+force_grid_wrap = 1
+force_sort_within_sections = true
+honor_noqa = true
+known_first_party = "web3"
+known_third_party = "hypothesis"
+multi_line_output = 3
+profile = "black"
+# skip `__init__.py` files because sometimes order of initialization is important
+skip="__init__.py,web3/main.py,web3/utils/windows.py"
+use_parentheses = true
+
+[tool.mypy]
+check_untyped_defs = true
+disallow_any_generics = true
+disallow_incomplete_defs = true
+disallow_subclassing_any = true
+disallow_untyped_calls = true
+disallow_untyped_decorators = false
+disallow_untyped_defs = true
+ignore_missing_imports = true
+strict_equality = true
+strict_optional = false
+warn_redundant_casts = true
+warn_return_any = false
+warn_unused_configs = true
+warn_unused_ignores = true
+
+
+[tool.pydocstyle]
+# All error codes found here:
+# http://www.pydocstyle.org/en/3.0.0/error_codes.html
+#
+# Ignored:
+# D1 - Missing docstring error codes
+#
+# Selected:
+# D2 - Whitespace error codes
+# D3 - Quote error codes
+# D4 - Content related error codes
+select = "D2,D3,D4"
+
+# Extra ignores:
+# D200 - One-line docstring should fit on one line with quotes
+# D203 - 1 blank line required before class docstring
+# D204 - 1 blank line required after class docstring
+# D205 - 1 blank line required between summary line and description
+# D212 - Multi-line docstring summary should start at the first line
+# D302 - Use u""" for Unicode docstrings
+# D400 - First line should end with a period
+# D401 - First line should be in imperative mood
+# D412 - No blank lines allowed between a section header and its content
+# D415 - First line should end with a period, question mark, or exclamation point
+add-ignore = "D200,D203,D204,D205,D212,D302,D400,D401,D412,D415"
+
+# Explanation:
+# D400 - Enabling this error code seems to make it a requirement that the first
+# sentence in a docstring is not split across two lines.  It also makes it a
+# requirement that no docstring can have a multi-sentence description without a
+# summary line.  Neither one of those requirements seem appropriate.
+
+[tool.pytest.ini_options]
+addopts = "-v --showlocals --durations 10"
+xfail_strict = true
+asyncio_mode = "strict"
+log_format = "%(levelname)8s  %(asctime)s  %(filename)20s  %(message)s"
+log_date_format = "%m-%d %H:%M:%S"
+
 [tool.towncrier]
 # Read https://github.com/ethereum/web3.py/blob/main/newsfragments/README.md for instructions
 package = "web3"
-filename = "docs/releases.rst"
+filename = "docs/release_notes.rst"
 directory = "newsfragments"
 underlines = ["-", "~", "^"]
 title_format = "web3.py v{version} ({project_date})"

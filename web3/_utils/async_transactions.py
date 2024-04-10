@@ -113,7 +113,7 @@ async def async_fill_transaction_defaults(
     async_w3: "AsyncWeb3", transaction: TxParams
 ) -> TxParams:
     """
-    if async_w3 is None, fill as much as possible while offline
+    If async_w3 is None, fill as much as possible while offline
     """
     strategy_based_gas_price = async_w3.eth.generate_gas_price(transaction)
 

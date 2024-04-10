@@ -98,7 +98,7 @@ class ENS(BaseENS):
 
     def __init__(
         self,
-        provider: "BaseProvider" = cast("BaseProvider", default),
+        provider: "BaseProvider" = None,
         addr: ChecksumAddress = None,
         middleware: Optional[Sequence[Tuple["Middleware", str]]] = None,
     ) -> None:
@@ -109,6 +109,7 @@ class ENS(BaseENS):
             If not provided, ENS.py will default to the mainnet ENS
             registry address.
         """
+        provider = provider or cast("BaseProvider", default)
         self.w3 = init_web3(provider, middleware)
 
         ens_addr = addr if addr else ENS_MAINNET_ADDR
@@ -171,7 +172,7 @@ class ENS(BaseENS):
     def setup_address(
         self,
         name: str,
-        address: Union[Address, ChecksumAddress, HexAddress] = cast(
+        address: Union[Address, ChecksumAddress, HexAddress] = cast(  # noqa: B008
             ChecksumAddress, default
         ),
         coin_type: Optional[int] = None,
@@ -308,7 +309,7 @@ class ENS(BaseENS):
     def setup_owner(
         self,
         name: str,
-        new_owner: ChecksumAddress = cast(ChecksumAddress, default),
+        new_owner: ChecksumAddress = None,
         transact: Optional["TxParams"] = None,
     ) -> Optional[ChecksumAddress]:
         """
@@ -335,6 +336,7 @@ class ENS(BaseENS):
         :raises UnauthorizedError: if ``'from'`` in `transact` does not own `name`
         :returns: the new owner's address
         """
+        new_owner = new_owner or cast(ChecksumAddress, default)
         if not transact:
             transact = {}
 

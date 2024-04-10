@@ -1,0 +1,59 @@
+exclude: '.project-template|docs/conf.py|.bumpversion.cfg'
+repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+    -   id: check-yaml
+    -   id: check-toml
+    -   id: end-of-file-fixer
+    -   id: trailing-whitespace
+-   repo: https://github.com/asottile/pyupgrade
+    rev: v3.15.0
+    hooks:
+    -   id: pyupgrade
+        args: [--py38-plus]
+-   repo: https://github.com/psf/black
+    rev: 23.9.1
+    hooks:
+    -   id: black
+-   repo: https://github.com/PyCQA/flake8
+    rev: 6.1.0
+    hooks:
+    -   id: flake8
+        additional_dependencies:
+        -   flake8-bugbear==23.9.16
+        exclude: setup.py
+-   repo: https://github.com/PyCQA/autoflake
+    rev: v2.2.1
+    hooks:
+    -   id: autoflake
+-   repo: https://github.com/pycqa/isort
+    rev: 5.12.0
+    hooks:
+    -   id: isort
+-   repo: https://github.com/pycqa/pydocstyle
+    rev: 6.3.0
+    hooks:
+    -   id: pydocstyle
+        additional_dependencies:
+        -   tomli  # required until >= python311
+-   repo: https://github.com/executablebooks/mdformat
+    rev: 0.7.17
+    hooks:
+    -   id: mdformat
+        additional_dependencies:
+        -   mdformat-gfm
+-   repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.5.1
+    hooks:
+    -   id: mypy
+        exclude: 'tests/|conftest.py'
+        additional_dependencies:
+        -   pydantic
+        -   types-setuptools
+        -   types-requests
+-   repo: https://github.com/PrincetonUniversity/blocklint
+    rev: v0.2.4
+    hooks:
+    -   id: blocklint
+        exclude: 'normalization_tests.json|docs/(Makefile|release_notes.rst|web3.eth.rst|ens_overview.rst|abi_types.rst|transactions.rst)'

@@ -74,7 +74,8 @@ else:
 
 
 def segment_count(start: int, stop: int, step: int = 5) -> Iterable[Tuple[int, int]]:
-    """Creates a segment counting generator
+    """
+    Creates a segment counting generator
 
     The generator returns tuple pairs of integers
     that correspond to segments in the provided range.
@@ -87,6 +88,7 @@ def segment_count(start: int, stop: int, step: int = 5) -> Iterable[Tuple[int, i
 
 
     Example:
+    -------
 
     >>> segment_counter = segment_count(start=0, stop=10, step=3)
     >>> next(segment_counter)
@@ -97,6 +99,7 @@ def segment_count(start: int, stop: int, step: int = 5) -> Iterable[Tuple[int, i
     (6, 9)
     >>> next(segment_counter) #  Remainder is also returned
     (9, 10)
+
     """
     return gen_bounded_segments(start, stop, step)
 
@@ -107,10 +110,9 @@ def gen_bounded_segments(start: int, stop: int, step: int) -> Iterable[Tuple[int
     if start + step >= stop:
         yield (start, stop)
         return
-    for segment in zip(
+    yield from zip(
         range(start, stop - step + 1, step), range(start + step, stop + 1, step)
-    ):
-        yield segment
+    )
 
     remainder = (stop - start) % step
     #  Handle the remainder
@@ -121,7 +123,8 @@ def gen_bounded_segments(start: int, stop: int, step: int) -> Iterable[Tuple[int
 def block_ranges(
     start_block: BlockNumber, last_block: Optional[BlockNumber], step: int = 5
 ) -> Iterable[Tuple[BlockNumber, BlockNumber]]:
-    """Returns 2-tuple ranges describing ranges of block from start_block to last_block
+    """
+    Returns 2-tuple ranges describing ranges of block from start_block to last_block
 
     Ranges do not overlap to facilitate use as ``toBlock``, ``fromBlock``
     json-rpc arguments, which are both inclusive.
@@ -141,7 +144,8 @@ def block_ranges(
 def iter_latest_block(
     w3: "Web3", to_block: Optional[Union[BlockNumber, LatestBlockParam]] = None
 ) -> Iterable[BlockNumber]:
-    """Returns a generator that dispenses the latest block, if
+    """
+    Returns a generator that dispenses the latest block, if
     any new blocks have been mined since last iteration.
 
     If there are no new blocks or the latest block is greater than
@@ -163,8 +167,7 @@ def iter_latest_block(
 
     while True:
         latest_block = w3.eth.block_number
-        # type ignored b/c is_bounded_range prevents unsupported comparison
-        if is_bounded_range and latest_block > to_block:  # type: ignore
+        if is_bounded_range and latest_block > to_block:
             yield None
         #  No new blocks since last iteration.
         if _last is not None and _last == latest_block:
@@ -179,7 +182,8 @@ def iter_latest_block_ranges(
     from_block: BlockNumber,
     to_block: Optional[Union[BlockNumber, LatestBlockParam]] = None,
 ) -> Iterable[Tuple[Optional[BlockNumber], Optional[BlockNumber]]]:
-    """Returns an iterator unloading ranges of available blocks
+    """
+    Returns an iterator unloading ranges of available blocks
 
     starting from `fromBlock` to the latest mined block,
     until reaching toBlock. e.g.:
@@ -215,7 +219,8 @@ def get_logs_multipart(
     topics: List[Optional[Union[_Hash32, List[_Hash32]]]],
     max_blocks: int,
 ) -> Iterable[List[LogReceipt]]:
-    """Used to break up requests to ``eth_getLogs``
+    """
+    Used to break up requests to ``eth_getLogs``
 
     The getLog request is partitioned into multiple calls of the max number of blocks
     ``max_blocks``.
@@ -250,9 +255,8 @@ class RequestLogs:
         if from_block is None or from_block == "latest":
             self._from_block = BlockNumber(w3.eth.block_number + 1)
         elif is_string(from_block) and is_hex(from_block):
-            self._from_block = BlockNumber(hex_to_integer(from_block))  # type: ignore
+            self._from_block = BlockNumber(hex_to_integer(from_block))
         else:
-            # cast b/c LatestBlockParam is handled above
             self._from_block = from_block
         self._to_block = to_block
         self.filter_changes = self._get_filter_changes()
@@ -268,7 +272,7 @@ class RequestLogs:
         elif self._to_block == "latest":
             to_block = self.w3.eth.block_number
         elif is_string(self._to_block) and is_hex(self._to_block):
-            to_block = BlockNumber(hex_to_integer(self._to_block))  # type: ignore
+            to_block = BlockNumber(hex_to_integer(self._to_block))
         else:
             to_block = self._to_block
 
@@ -355,7 +359,8 @@ def block_hashes_in_range(
 async def async_iter_latest_block(
     w3: "AsyncWeb3", to_block: Optional[Union[BlockNumber, LatestBlockParam]] = None
 ) -> AsyncIterable[BlockNumber]:
-    """Returns a generator that dispenses the latest block, if
+    """
+    Returns a generator that dispenses the latest block, if
     any new blocks have been mined since last iteration.
 
     If there are no new blocks or the latest block is greater than
@@ -393,7 +398,8 @@ async def async_iter_latest_block_ranges(
     from_block: BlockNumber,
     to_block: Optional[Union[BlockNumber, LatestBlockParam]] = None,
 ) -> AsyncIterable[Tuple[Optional[BlockNumber], Optional[BlockNumber]]]:
-    """Returns an iterator unloading ranges of available blocks
+    """
+    Returns an iterator unloading ranges of available blocks
 
     starting from `from_block` to the latest mined block,
     until reaching to_block. e.g.:
@@ -426,7 +432,8 @@ async def async_get_logs_multipart(
     topics: List[Optional[Union[_Hash32, List[_Hash32]]]],
     max_blocks: int,
 ) -> AsyncIterable[List[LogReceipt]]:
-    """Used to break up requests to ``eth_getLogs``
+    """
+    Used to break up requests to ``eth_getLogs``
 
     The getLog request is partitioned into multiple calls of the max number of blocks
     ``max_blocks``.

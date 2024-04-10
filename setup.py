@@ -9,42 +9,31 @@ extras_require = {
         "eth-tester[py-evm]==v0.10.0-b.3",
         "py-geth>=4.1.0",
     ],
-    "linter": [
-        "black>=22.1.0",
-        "blocklint>=0.2.4",
-        "flake8==3.8.3",
-        "isort>=5.11.0",
-        "mypy==1.4.1",
-        "types-setuptools>=57.4.4",
-        "types-requests>=2.26.1",
-    ],
     "docs": [
         "sphinx>=5.3.0",
         "sphinx_rtd_theme>=1.0.0",
         "towncrier>=21,<22",
     ],
     "dev": [
+        "build>=0.9.0",
         "bumpversion",
         "flaky>=3.7.0",
         "hypothesis>=3.31.2",
-        "pytest>=7.0.0",
+        "pre-commit>=3.4.0",
         "pytest-asyncio>=0.18.1,<0.23",
         "pytest-mock>=1.10",
         "pytest-watch>=4.2",
         "pytest-xdist>=1.29",
+        "pytest>=7.0.0",
         "setuptools>=38.6.0",
         "tox>=3.18.0",
         "tqdm>4.32",
         "twine>=1.13",
-        "build>=0.9.0",
     ],
 }
 
 extras_require["dev"] = (
-    extras_require["tester"]
-    + extras_require["linter"]
-    + extras_require["docs"]
-    + extras_require["dev"]
+    extras_require["tester"] + extras_require["docs"] + extras_require["dev"]
 )
 
 with open("./README.md") as readme:

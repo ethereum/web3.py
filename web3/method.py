@@ -68,7 +68,9 @@ def _set_mungers(
     return (
         mungers
         if mungers
-        else [default_munger] if is_property else [default_root_munger]
+        else [default_munger]
+        if is_property
+        else [default_root_munger]
     )
 
 
@@ -86,7 +88,8 @@ TFunc = TypeVar("TFunc", bound=Callable[..., Any])
 
 
 class Method(Generic[TFunc]):
-    """Method object for web3 module methods
+    """
+    Method object for web3 module methods
 
     Calls to the Method go through these steps:
 
@@ -177,7 +180,9 @@ class Method(Generic[TFunc]):
             lambda args, munger: munger(module, *args, **kwargs), self.mungers, args
         )
 
-    def process_params(self, module: "Module", *args: Any, **kwargs: Any) -> Tuple[
+    def process_params(
+        self, module: "Module", *args: Any, **kwargs: Any
+    ) -> Tuple[
         Tuple[Union[RPCEndpoint, Callable[..., RPCEndpoint]], Tuple[Any, ...]],
         Tuple[
             Union[TReturn, Dict[str, Callable[..., Any]]],
@@ -228,5 +233,6 @@ class DeprecatedMethod:
         warnings.warn(
             f"{self.old_name} is deprecated in favor of {self.new_name}",
             category=DeprecationWarning,
+            stacklevel=2,
         )
         return self.method.__get__(obj, obj_type)

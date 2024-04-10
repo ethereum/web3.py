@@ -36,6 +36,7 @@ class RequestMocker:
     via a ``request_mocker`` fixture defined within the appropriate context.
 
     Example:
+    -------
 
         def test_my_w3(w3, request_mocker):
             assert w3.eth.block_number == 0
@@ -46,6 +47,7 @@ class RequestMocker:
             assert w3.eth.block_number == 0
 
     Example with async and a mocked response object:
+    -----------------------------------------------
 
         async def test_my_w3(async_w3, request_mocker):
             def _iter_responses():
@@ -77,6 +79,7 @@ class RequestMocker:
 
     If a method name is not present in any of the dicts above, the request is made as
     usual.
+
     """
 
     def __init__(
@@ -90,12 +93,13 @@ class RequestMocker:
         self.mock_results = mock_results or {}
         self.mock_errors = mock_errors or {}
         self.mock_responses = mock_responses or {}
-        self._make_request: Union["AsyncMakeRequestFn", "MakeRequestFn"] = (
-            w3.provider.make_request
-        )
+        self._make_request: Union[
+            "AsyncMakeRequestFn", "MakeRequestFn"
+        ] = w3.provider.make_request
 
     def __enter__(self) -> "Self":
-        setattr(self.w3.provider, "make_request", self._mock_request_handler)
+        # mypy error: Cannot assign to a method
+        self.w3.provider.make_request = self._mock_request_handler  # type: ignore[method-assign]  # noqa: E501
         # reset request func cache to re-build request_func with mocked make_request
         self.w3.provider._request_func_cache = (None, None)
 
@@ -103,7 +107,8 @@ class RequestMocker:
 
     # define __exit__ with typing information
     def __exit__(self, exc_type: Any, exc_value: Any, traceback: Any) -> None:
-        setattr(self.w3.provider, "make_request", self._make_request)
+        # mypy error: Cannot assign to a method
+        self.w3.provider.make_request = self._make_request  # type: ignore[method-assign]  # noqa: E501
         # reset request func cache to re-build request_func with original make_request
         self.w3.provider._request_func_cache = (None, None)
 
@@ -163,13 +168,15 @@ class RequestMocker:
 
     # -- async -- #
     async def __aenter__(self) -> "Self":
-        setattr(self.w3.provider, "make_request", self._async_mock_request_handler)
+        # mypy error: Cannot assign to a method
+        self.w3.provider.make_request = self._async_mock_request_handler  # type: ignore[method-assign]  # noqa: E501
         # reset request func cache to re-build request_func with mocked make_request
         self.w3.provider._request_func_cache = (None, None)
         return self
 
     async def __aexit__(self, exc_type: Any, exc_value: Any, traceback: Any) -> None:
-        setattr(self.w3.provider, "make_request", self._make_request)
+        # mypy error: Cannot assign to a method
+        self.w3.provider.make_request = self._make_request  # type: ignore[method-assign]  # noqa: E501
         # reset request func cache to re-build request_func with original make_request
         self.w3.provider._request_func_cache = (None, None)
 

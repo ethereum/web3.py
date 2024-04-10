@@ -128,8 +128,8 @@ def test_block_ranges(start, stop, expected):
     else:
         actual = tuple(block_ranges(start, stop))
         assert len(actual) == len(expected)
-        for actual, expected in zip(actual, expected):
-            assert actual == expected
+        for actual_item, expected_item in zip(actual, expected):
+            assert actual_item == expected_item
 
 
 @pytest.mark.parametrize(

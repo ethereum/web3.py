@@ -286,10 +286,7 @@ class RequestProcessor:
     # request processor class methods
 
     def clear_caches(self) -> None:
-        """
-        Clear the request processor caches.
-        """
-
+        """Clear the request processor caches."""
         self._request_information_cache.clear()
         self._request_response_cache.clear()
         self._subscription_response_queue = asyncio.Queue(

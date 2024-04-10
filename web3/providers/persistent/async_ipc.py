@@ -92,7 +92,7 @@ class AsyncIPCProvider(PersistentConnectionProvider):
             current_request_id = json.loads(request_data)["id"]
             await self._get_response_for_request_id(current_request_id, timeout=2)
             return True
-        except (OSError, BrokenPipeError, ProviderConnectionError) as e:
+        except (OSError, ProviderConnectionError) as e:
             if show_traceback:
                 raise ProviderConnectionError(
                     f"Problem connecting to provider with error: {type(e)}: {e}"

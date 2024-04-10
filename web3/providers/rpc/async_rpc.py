@@ -20,6 +20,10 @@ from eth_utils import (
     to_dict,
 )
 
+from web3._utils.empty import (
+    Empty,
+    empty,
+)
 from web3._utils.http import (
     construct_user_agent,
 )
@@ -54,9 +58,9 @@ class AsyncHTTPProvider(AsyncJSONBaseProvider):
         self,
         endpoint_uri: Optional[Union[URI, str]] = None,
         request_kwargs: Optional[Any] = None,
-        exception_retry_configuration: Optional[
-            ExceptionRetryConfiguration
-        ] = ExceptionRetryConfiguration(errors=(ClientError, TimeoutError)),
+        exception_retry_configuration: Union[
+            ExceptionRetryConfiguration, Empty
+        ] = empty,
     ) -> None:
         if endpoint_uri is None:
             self.endpoint_uri = get_default_http_endpoint()
@@ -64,7 +68,7 @@ class AsyncHTTPProvider(AsyncJSONBaseProvider):
             self.endpoint_uri = URI(endpoint_uri)
 
         self._request_kwargs = request_kwargs or {}
-        self.exception_retry_configuration = exception_retry_configuration
+        self._exception_retry_configuration = exception_retry_configuration
 
         super().__init__()
 
@@ -74,12 +78,25 @@ class AsyncHTTPProvider(AsyncJSONBaseProvider):
     def __str__(self) -> str:
         return f"RPC connection {self.endpoint_uri}"
 
+    @property
+    def exception_retry_configuration(self) -> ExceptionRetryConfiguration:
+        if isinstance(self._exception_retry_configuration, Empty):
+            self._exception_retry_configuration = ExceptionRetryConfiguration(
+                errors=(ClientError, TimeoutError)
+            )
+        return self._exception_retry_configuration
+
+    @exception_retry_configuration.setter
+    def exception_retry_configuration(
+        self, value: Union[ExceptionRetryConfiguration, Empty]
+    ) -> None:
+        self._exception_retry_configuration = value
+
     @to_dict
     def get_request_kwargs(self) -> Iterable[Tuple[str, Any]]:
         if "headers" not in self._request_kwargs:
             yield "headers", self.get_request_headers()
-        for key, value in self._request_kwargs.items():
-            yield key, value
+        yield from self._request_kwargs.items()
 
     def get_request_headers(self) -> Dict[str, str]:
         return {

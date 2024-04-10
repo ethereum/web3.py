@@ -17,7 +17,7 @@ def test_no_default_exceptions_are_raised_within_web3py():
         for file in files:
             if file.endswith(".py"):
                 file_path = os.path.join(root, file)
-                with open(file_path, "r", encoding="utf-8") as f:
+                with open(file_path, encoding="utf-8") as f:
                     for idx, line in enumerate(f):
                         for exception in DEFAULT_EXCEPTIONS:
                             exception_name = exception.__name__

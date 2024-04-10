@@ -128,7 +128,8 @@ if TYPE_CHECKING:
 
 
 class BaseContractEvent:
-    """Base class for contract events
+    """
+    Base class for contract events
 
     An event accessed via the api `contract.events.myEvents(*args, **kwargs)`
     is a subclass of this class.
@@ -188,7 +189,8 @@ class BaseContractEvent:
                         f"The log with transaction hash: {log['transactionHash']!r} "
                         f"and logIndex: {log['logIndex']} encountered the following "
                         f"error during processing: {type(e).__name__}({e}). It has "
-                        "been discarded."
+                        "been discarded.",
+                        stacklevel=2,
                     )
                     continue
             yield rich_log
@@ -373,7 +375,8 @@ class BaseContractEvent:
 
 
 class BaseContractEvents:
-    """Class containing contract event objects
+    """
+    Class containing contract event objects
 
     This is available via:
 
@@ -434,7 +437,8 @@ class BaseContractEvents:
         return getattr(self, event_name)
 
     def __iter__(self) -> Iterable[Type["BaseContractEvent"]]:
-        """Iterate over supported
+        """
+        Iterate over supported
 
         :return: Iterable of :class:`ContractEvent`
         """
@@ -449,7 +453,8 @@ class BaseContractEvents:
 
 
 class BaseContractFunction:
-    """Base class for contract functions
+    """
+    Base class for contract functions
 
     A function accessed via the api `contract.functions.myMethod(*args, **kwargs)`
     is a subclass of this class.
@@ -482,10 +487,7 @@ class BaseContractFunction:
         if self.function_identifier in [FallbackFn, ReceiveFn]:
             self.selector = encode_hex(b"")
         elif is_text(self.function_identifier):
-            # https://github.com/python/mypy/issues/4976
-            self.selector = encode_hex(
-                function_abi_to_4byte_selector(self.abi)  # type: ignore
-            )
+            self.selector = encode_hex(function_abi_to_4byte_selector(self.abi))
         else:
             raise Web3TypeError("Unsupported function identifier")
 
@@ -503,10 +505,9 @@ class BaseContractFunction:
         if self.address:
             call_transaction.setdefault("to", self.address)
         if self.w3.eth.default_account is not empty:
-            # type ignored b/c check prevents an empty default_account
             call_transaction.setdefault(
                 "from",
-                self.w3.eth.default_account,  # type: ignore
+                self.w3.eth.default_account,
             )
 
         if "to" not in call_transaction:
@@ -535,10 +536,7 @@ class BaseContractFunction:
         if self.address is not None:
             transact_transaction.setdefault("to", self.address)
         if self.w3.eth.default_account is not empty:
-            # type ignored b/c check prevents an empty default_account
-            transact_transaction.setdefault(
-                "from", self.w3.eth.default_account  # type: ignore
-            )
+            transact_transaction.setdefault("from", self.w3.eth.default_account)
 
         if "to" not in transact_transaction:
             if isinstance(self, type):
@@ -566,10 +564,7 @@ class BaseContractFunction:
         if self.address:
             estimate_gas_transaction.setdefault("to", self.address)
         if self.w3.eth.default_account is not empty:
-            # type ignored b/c check prevents an empty default_account
-            estimate_gas_transaction.setdefault(
-                "from", self.w3.eth.default_account  # type: ignore
-            )
+            estimate_gas_transaction.setdefault("from", self.w3.eth.default_account)
 
         if "to" not in estimate_gas_transaction:
             if isinstance(self, type):
@@ -684,7 +679,8 @@ class BaseContractFunctions:
 
 
 class BaseContract:
-    """Base class for Contract proxy classes.
+    """
+    Base class for Contract proxy classes.
 
     First you need to create your Contract classes using
     :meth:`web3.eth.Eth.contract` that takes compiled Solidity contract
@@ -797,9 +793,9 @@ class BaseContract:
         self, selector: Union[bytes, int, HexStr]
     ) -> "BaseContractFunction":
         def callable_check(fn_abi: ABIFunction) -> bool:
-            # typed dict cannot be used w/ a normal Dict
-            # https://github.com/python/mypy/issues/4976
-            return encode_hex(function_abi_to_4byte_selector(fn_abi)) == to_4byte_hex(selector)  # type: ignore # noqa: E501
+            return encode_hex(function_abi_to_4byte_selector(fn_abi)) == to_4byte_hex(
+                selector
+            )
 
         fns = self.find_functions_by_identifier(
             self.abi, self.w3, self.address, callable_check
@@ -810,8 +806,7 @@ class BaseContract:
     def decode_function_input(
         self, data: HexStr
     ) -> Tuple["BaseContractFunction", Dict[str, Any]]:
-        # type ignored b/c expects data arg to be HexBytes
-        data = HexBytes(data)  # type: ignore
+        data = HexBytes(data)
         func = self.get_function_by_selector(data[:4])
         arguments = decode_transaction_data(
             func.abi, data, normalizers=BASE_RETURN_NORMALIZERS
@@ -1093,10 +1088,7 @@ class BaseContractConstructor:
             )
 
         if self.w3.eth.default_account is not empty:
-            # type ignored b/c check prevents an empty default_account
-            estimate_gas_transaction.setdefault(
-                "from", self.w3.eth.default_account  # type: ignore
-            )
+            estimate_gas_transaction.setdefault("from", self.w3.eth.default_account)
 
         estimate_gas_transaction["data"] = self.data_in_transaction
 
@@ -1112,10 +1104,7 @@ class BaseContractConstructor:
             )
 
         if self.w3.eth.default_account is not empty:
-            # type ignored b/c check prevents an empty default_account
-            transact_transaction.setdefault(
-                "from", self.w3.eth.default_account  # type: ignore
-            )
+            transact_transaction.setdefault("from", self.w3.eth.default_account)
 
         transact_transaction["data"] = self.data_in_transaction
 

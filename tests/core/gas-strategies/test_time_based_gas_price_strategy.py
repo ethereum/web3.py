@@ -119,7 +119,7 @@ def _get_block_by_something(method, params):
             "timestamp": 0,
         }
     else:
-        assert False
+        raise AssertionError
 
 
 @pytest.mark.parametrize(

@@ -114,7 +114,8 @@ class ContractEvent(BaseContractEvent):
         toBlock: Optional[BlockIdentifier] = None,
         block_hash: Optional[HexBytes] = None,
     ) -> Iterable[EventData]:
-        """Get events for this contract instance using eth_getLogs API.
+        """
+        Get events for this contract instance using eth_getLogs API.
 
         This is a stateless method, as opposed to create_filter.
         It can be safely called against nodes which do not provide
@@ -441,8 +442,10 @@ class Contract(BaseContract):
     events: ContractEvents = None
 
     def __init__(self, address: Optional[ChecksumAddress] = None) -> None:
-        """Create a new smart contract proxy object.
-        :param address: Contract address as 0x hex string"""
+        """
+        Create a new smart contract proxy object.
+        :param address: Contract address as 0x hex string
+        """
         _w3 = self.w3
         if _w3 is None:
             raise Web3AttributeError(

@@ -1104,9 +1104,7 @@ class AsyncEthModuleTest:
                 f"{unknown_identifier}"
             ),
         ):
-            await async_w3.eth.get_raw_transaction_by_block(
-                unknown_identifier, 0  # type: ignore
-            )
+            await async_w3.eth.get_raw_transaction_by_block(unknown_identifier, 0)
 
     @pytest.mark.asyncio
     async def test_eth_get_balance(self, async_w3: "AsyncWeb3") -> None:
@@ -1775,7 +1773,7 @@ class AsyncEthModuleTest:
         accounts = await async_w3.eth.accounts
         assert is_list_like(accounts)
         assert len(accounts) != 0
-        assert all((is_checksum_address(account) for account in accounts))
+        assert all(is_checksum_address(account) for account in accounts)
         assert await async_w3.eth.coinbase in accounts
 
     @pytest.mark.asyncio
@@ -2534,7 +2532,7 @@ class EthModuleTest:
         accounts = w3.eth.accounts
         assert is_list_like(accounts)
         assert len(accounts) != 0
-        assert all((is_checksum_address(account) for account in accounts))
+        assert all(is_checksum_address(account) for account in accounts)
         assert w3.eth.coinbase in accounts
 
     def test_eth_block_number(self, w3: "Web3") -> None:
@@ -4250,7 +4248,7 @@ class EthModuleTest:
     ) -> None:
         block = w3.eth.get_block(block_with_txn["number"], True)
         transaction = block["transactions"][0]
-        assert transaction["hash"] == block_with_txn["transactions"][0]  # type: ignore
+        assert transaction["hash"] == block_with_txn["transactions"][0]
 
     def test_eth_getBlockReceipts_hash(
         self, w3: "Web3", empty_block: BlockData
@@ -4709,7 +4707,7 @@ class EthModuleTest:
                 f"{unknown_identifier}"
             ),
         ):
-            w3.eth.get_raw_transaction_by_block(unknown_identifier, 0)  # type: ignore
+            w3.eth.get_raw_transaction_by_block(unknown_identifier, 0)
 
     def test_default_account(
         self, w3: "Web3", unlocked_account_dual_type: ChecksumAddress

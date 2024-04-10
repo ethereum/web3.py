@@ -9,8 +9,6 @@ class ENSException(Exception):
     Base class for all ENS Errors
     """
 
-    pass
-
 
 class ENSValueError(ENSException, ValueError):
     """
@@ -18,16 +16,12 @@ class ENSValueError(ENSException, ValueError):
     exception handling.
     """
 
-    pass
-
 
 class ENSTypeError(ENSException, TypeError):
     """
     An ENS exception wrapper for `TypeError`, for better control over
     exception handling.
     """
-
-    pass
 
 
 class AddressMismatch(ENSException):
@@ -37,17 +31,14 @@ class AddressMismatch(ENSException):
     not currently point to the address.
     """
 
-    pass
 
-
-class InvalidName(idna.IDNAError, ENSException):
+# type ignored because subclassing IDNAError which has type Any
+class InvalidName(idna.IDNAError, ENSException):  # type: ignore[misc]
     """
-    This exception is raised if the provided name does not meet
-    the normalization standards specified in `ENSIP-15
+    Raised if the provided name does not meet the normalization
+    standards specified in `ENSIP-15
     <https://docs.ens.domains/ens-improvement-proposals/ensip-15-normalization-standard>`_.
     """
-
-    pass
 
 
 class UnauthorizedError(ENSException):
@@ -56,8 +47,6 @@ class UnauthorizedError(ENSException):
     you are trying to modify. Make sure to set ``from`` in the
     ``transact`` keyword argument to the owner of the name.
     """
-
-    pass
 
 
 class UnownedName(ENSException):
@@ -68,15 +57,11 @@ class UnownedName(ENSException):
     first with :meth:`~ens.ENS.setup_address`.
     """
 
-    pass
-
 
 class ResolverNotFound(ENSException):
     """
     Raised if no resolver was found for the name you are trying to resolve.
     """
-
-    pass
 
 
 class UnsupportedFunction(ENSException):
@@ -84,15 +69,11 @@ class UnsupportedFunction(ENSException):
     Raised if a resolver does not support a particular method.
     """
 
-    pass
-
 
 class BidTooLow(ENSException):
     """
     Raised if you bid less than the minimum amount
     """
-
-    pass
 
 
 class InvalidBidHash(ENSException):
@@ -100,15 +81,11 @@ class InvalidBidHash(ENSException):
     Raised if you supply incorrect data to generate the bid hash.
     """
 
-    pass
-
 
 class InvalidLabel(ENSException):
     """
     Raised if you supply an invalid label
     """
-
-    pass
 
 
 class OversizeTransaction(ENSException):
@@ -119,8 +96,6 @@ class OversizeTransaction(ENSException):
     For example: when you try to start too many auctions at once.
     """
 
-    pass
-
 
 class UnderfundedBid(ENSException):
     """
@@ -128,10 +103,9 @@ class UnderfundedBid(ENSException):
     as your intent to bid.
     """
 
-    pass
 
-
-class ENSValidationError(ENSException, ValidationError):
+# type ignored because subclassing ValidationError which has type Any
+class ENSValidationError(ENSException, ValidationError):  # type: ignore[misc]
     """
     Raised if there is a validation error
     """

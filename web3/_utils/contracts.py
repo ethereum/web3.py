@@ -329,8 +329,7 @@ def decode_transaction_data(
     data: HexStr,
     normalizers: Sequence[Callable[[TypeStr, Any], Tuple[TypeStr, Any]]] = None,
 ) -> Dict[str, Any]:
-    # type ignored b/c expects data arg to be HexBytes
-    data = HexBytes(data)  # type: ignore
+    data = HexBytes(data)
     types = get_abi_input_types(fn_abi)
     abi_codec = ABICodec(default_registry)
     decoded = abi_codec.decode(types, HexBytes(data[4:]))
@@ -375,9 +374,7 @@ def get_function_info(
     if fn_abi is None:
         fn_abi = find_matching_fn_abi(contract_abi, abi_codec, fn_name, args, kwargs)
 
-    # typed dict cannot be used w/ a normal Dict
-    # https://github.com/python/mypy/issues/4976
-    fn_selector = encode_hex(function_abi_to_4byte_selector(fn_abi))  # type: ignore
+    fn_selector = encode_hex(function_abi_to_4byte_selector(fn_abi))
 
     fn_arguments = merge_args_and_kwargs(fn_abi, args, kwargs)
 
@@ -387,7 +384,8 @@ def get_function_info(
 
 
 def validate_payable(transaction: TxParams, abi: ABIFunction) -> None:
-    """Raise Web3ValidationError if non-zero ether
+    """
+    Raise Web3ValidationError if non-zero ether
     is sent to a non-payable function.
     """
     if "value" in transaction:

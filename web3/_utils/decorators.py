@@ -54,6 +54,7 @@ def deprecated_for(replace_message: str) -> Callable[..., Any]:
             warnings.warn(
                 f"{to_wrap.__name__} is deprecated in favor of {replace_message}",
                 category=DeprecationWarning,
+                stacklevel=2,
             )
             return to_wrap(*args, **kwargs)
 

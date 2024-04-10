@@ -48,7 +48,9 @@ class Web3Middleware:
     def request_processor(self, method: "RPCEndpoint", params: Any) -> Any:
         return method, params
 
-    def response_processor(self, method: "RPCEndpoint", response: "RPCResponse") -> Any:
+    def response_processor(
+        self, method: "RPCEndpoint", response: "RPCResponse"
+    ) -> "RPCResponse":
         return response
 
     # -- async -- #
@@ -76,7 +78,7 @@ class Web3Middleware:
         self,
         method: "RPCEndpoint",
         response: "RPCResponse",
-    ) -> Any:
+    ) -> "RPCResponse":
         return response
 
 

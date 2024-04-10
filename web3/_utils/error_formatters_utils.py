@@ -77,7 +77,9 @@ def _parse_error_with_reverted_prefix(data: str) -> str:
     try:
         error = bytes.fromhex(error).decode("utf8")
     except UnicodeDecodeError:
-        warnings.warn("Could not decode revert reason as UTF-8", RuntimeWarning)
+        warnings.warn(
+            "Could not decode revert reason as UTF-8", RuntimeWarning, stacklevel=2
+        )
         raise ContractLogicError("execution reverted", data=data)
 
     return error
@@ -173,7 +175,6 @@ def raise_transaction_indexing_error_if_indexing(response: RPCResponse) -> RPCRe
     Raise an error if ``eth_getTransactionReceipt`` returns an error indicating that
     transactions are still being indexed.
     """
-
     error = response.get("error")
     if not isinstance(error, str) and error is not None:
         message = error.get("message")

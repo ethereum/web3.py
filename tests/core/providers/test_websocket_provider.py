@@ -79,7 +79,7 @@ async def test_async_make_request_returns_desired_response():
     qsize = provider._request_processor._subscription_response_queue.qsize()
     assert qsize == len(ws_messages) == undesired_responses_count
 
-    for i in range(qsize):
+    for _ in range(qsize):
         cached_response = (
             await provider._request_processor._subscription_response_queue.get()
         )

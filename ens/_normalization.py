@@ -48,7 +48,7 @@ with open(os.path.join(specs_dir_path, "normalization_spec.json")) as spec:
     # clean `FE0F` (65039) from entries since it's optional
     for e in NORMALIZATION_SPEC["emoji"]:
         if 65039 in e:
-            for i in range(e.count(65039)):
+            for _ in range(e.count(65039)):
                 e.remove(65039)
 
 with open(os.path.join(specs_dir_path, "nf.json")) as nf:
@@ -222,7 +222,6 @@ def _validate_tokens_and_get_label_type(tokens: List[Token]) -> str:
     :param List[Token] tokens: the tokens to validate
     :raises InvalidName: if any of the tokens are invalid
     """
-
     if all(token.type == TokenType.EMOJI for token in tokens):
         return "emoji"
 
@@ -423,7 +422,6 @@ def normalize_name_ensip15(name: str) -> ENSNormalizedName:
     :param str name: the dot-separated ENS name
     :raises InvalidName: if ``name`` has invalid syntax
     """
-
     if not name:
         raise InvalidName("Name cannot be empty")
     elif isinstance(name, (bytes, bytearray)):

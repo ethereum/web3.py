@@ -121,7 +121,6 @@ def test_get_dev_ipc_path_(provider_env_uri, platform, expected_result, expected
                 "WEB3_PROVIDER_URI": provider_env_uri,
             },
         ):
-
             if provider_env_uri:
                 assert get_dev_ipc_path() == provider_env_uri
             elif expected_error:

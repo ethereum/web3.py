@@ -26,9 +26,7 @@ def test_get_transaction_count_formatters(w3, block_number):
 
 def test_get_block_formatters(w3):
     all_block_keys = BlockData.__annotations__.keys()
-    all_non_poa_block_keys = set(
-        [k for k in all_block_keys if k != "proofOfAuthorityData"]
-    )
+    all_non_poa_block_keys = {k for k in all_block_keys if k != "proofOfAuthorityData"}
 
     latest_block = w3.eth.get_block("latest")
     latest_block_keys = set(latest_block.keys())

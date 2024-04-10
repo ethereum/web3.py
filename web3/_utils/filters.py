@@ -91,8 +91,7 @@ def construct_event_filter_params(
         topic_set = topics
 
     if len(topic_set) == 1 and is_list_like(topic_set[0]):
-        # type ignored b/c list-like check on line 88
-        filter_params["topics"] = topic_set[0]  # type: ignore
+        filter_params["topics"] = topic_set[0]
     else:
         filter_params["topics"] = topic_set
 
@@ -180,7 +179,7 @@ class BaseFilter:
 class Filter(BaseFilter):
     def __init__(self, filter_id: HexStr, eth_module: "Eth") -> None:
         self.eth_module = eth_module
-        super(Filter, self).__init__(filter_id)
+        super().__init__(filter_id)
 
     def get_new_entries(self) -> List[LogReceipt]:
         log_entries = self._filter_valid_entries(
@@ -198,7 +197,7 @@ class Filter(BaseFilter):
 class AsyncFilter(BaseFilter):
     def __init__(self, filter_id: HexStr, eth_module: "AsyncEth") -> None:
         self.eth_module = eth_module
-        super(AsyncFilter, self).__init__(filter_id)
+        super().__init__(filter_id)
 
     async def get_new_entries(self) -> List[LogReceipt]:
         filter_changes = await self.eth_module.get_filter_changes(self.filter_id)
@@ -252,7 +251,8 @@ class LogFilter(Filter):
     def set_data_filters(
         self, data_filter_set: Collection[Tuple[TypeStr, Any]]
     ) -> None:
-        """Sets the data filters (non indexed argument filters)
+        """
+        Sets the data filters (non indexed argument filters)
 
         Expects a set of tuples with the type and value, e.g.:
         (('uint256', [12345, 54321]), ('string', ('a-single-string',)))
@@ -294,7 +294,8 @@ class AsyncLogFilter(AsyncFilter):
     def set_data_filters(
         self, data_filter_set: Collection[Tuple[TypeStr, Any]]
     ) -> None:
-        """Sets the data filters (non indexed argument filters)
+        """
+        Sets the data filters (non indexed argument filters)
 
         Expects a set of tuples with the type and value, e.g.:
         (('uint256', [12345, 54321]), ('string', ('a-single-string',)))
@@ -320,7 +321,8 @@ normalize_to_text = apply_formatter_if(not_text, decode_utf8_bytes)
 
 
 def normalize_data_values(type_string: TypeStr, data_value: Any) -> Any:
-    """Decodes utf-8 bytes to strings for abi string values.
+    """
+    Decodes utf-8 bytes to strings for abi string values.
 
     eth-abi v1 returns utf-8 bytes for string values.
     This can be removed once eth-abi v2 is required.
@@ -328,7 +330,7 @@ def normalize_data_values(type_string: TypeStr, data_value: Any) -> Any:
     _type = parse_type_string(type_string)
     if _type.base == "string":
         if _type.arrlist is not None:
-            return tuple((normalize_to_text(value) for value in data_value))
+            return tuple(normalize_to_text(value) for value in data_value)
         else:
             return normalize_to_text(data_value)
     return data_value
@@ -338,7 +340,8 @@ def normalize_data_values(type_string: TypeStr, data_value: Any) -> Any:
 def match_fn(
     codec: ABICodec, match_values_and_abi: Collection[Tuple[str, Any]], data: Any
 ) -> bool:
-    """Match function used for filtering non-indexed event arguments.
+    """
+    Match function used for filtering non-indexed event arguments.
 
     Values provided through the match_values_and_abi parameter are
     compared to the abi decoded log data.

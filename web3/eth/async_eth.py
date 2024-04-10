@@ -108,9 +108,9 @@ class AsyncEth(BaseEth):
 
     is_async = True
 
-    _default_contract_factory: Type[Union[AsyncContract, AsyncContractCaller]] = (
-        AsyncContract
-    )
+    _default_contract_factory: Type[
+        Union[AsyncContract, AsyncContractCaller]
+    ] = AsyncContract
 
     # eth_accounts
 
@@ -197,7 +197,8 @@ class AsyncEth(BaseEth):
         except (ValueError, MethodUnavailable):
             warnings.warn(
                 "There was an issue with the method eth_maxPriorityFeePerGas. "
-                "Calculating using eth_feeHistory."
+                "Calculating using eth_feeHistory.",
+                stacklevel=2,
             )
             return await async_fee_history_priority_fee(self)
 
@@ -392,15 +393,15 @@ class AsyncEth(BaseEth):
     # eth_getBlockTransactionCountByHash
     # eth_getBlockTransactionCountByNumber
 
-    get_block_transaction_count: Method[Callable[[BlockIdentifier], Awaitable[int]]] = (
-        Method(
-            method_choice_depends_on_args=select_method_for_block_identifier(
-                if_predefined=RPC.eth_getBlockTransactionCountByNumber,
-                if_hash=RPC.eth_getBlockTransactionCountByHash,
-                if_number=RPC.eth_getBlockTransactionCountByNumber,
-            ),
-            mungers=[default_root_munger],
-        )
+    get_block_transaction_count: Method[
+        Callable[[BlockIdentifier], Awaitable[int]]
+    ] = Method(
+        method_choice_depends_on_args=select_method_for_block_identifier(
+            if_predefined=RPC.eth_getBlockTransactionCountByNumber,
+            if_hash=RPC.eth_getBlockTransactionCountByHash,
+            if_number=RPC.eth_getBlockTransactionCountByNumber,
+        ),
+        mungers=[default_root_munger],
     )
 
     # eth_sendTransaction
@@ -427,15 +428,15 @@ class AsyncEth(BaseEth):
     # eth_getBlockByHash
     # eth_getBlockByNumber
 
-    _get_block: Method[Callable[[BlockIdentifier, bool], Awaitable[BlockData]]] = (
-        Method(
-            method_choice_depends_on_args=select_method_for_block_identifier(
-                if_predefined=RPC.eth_getBlockByNumber,
-                if_hash=RPC.eth_getBlockByHash,
-                if_number=RPC.eth_getBlockByNumber,
-            ),
-            mungers=[BaseEth.get_block_munger],
-        )
+    _get_block: Method[
+        Callable[[BlockIdentifier, bool], Awaitable[BlockData]]
+    ] = Method(
+        method_choice_depends_on_args=select_method_for_block_identifier(
+            if_predefined=RPC.eth_getBlockByNumber,
+            if_hash=RPC.eth_getBlockByHash,
+            if_number=RPC.eth_getBlockByNumber,
+        ),
+        mungers=[BaseEth.get_block_munger],
     )
 
     async def get_block(
@@ -682,9 +683,9 @@ class AsyncEth(BaseEth):
 
     # eth_getFilterChanges, eth_getFilterLogs, eth_uninstallFilter
 
-    _get_filter_changes: Method[Callable[[HexStr], Awaitable[List[LogReceipt]]]] = (
-        Method(RPC.eth_getFilterChanges, mungers=[default_root_munger])
-    )
+    _get_filter_changes: Method[
+        Callable[[HexStr], Awaitable[List[LogReceipt]]]
+    ] = Method(RPC.eth_getFilterChanges, mungers=[default_root_munger])
 
     async def get_filter_changes(self, filter_id: HexStr) -> List[LogReceipt]:
         return await self._get_filter_changes(filter_id)
@@ -762,12 +763,15 @@ class AsyncEth(BaseEth):
     # -- contract methods -- #
 
     @overload
-    def contract(self, address: None = None, **kwargs: Any) -> Type[AsyncContract]: ...
+    # mypy error: Overloaded function signatures 1 and 2 overlap with incompatible return types  # noqa: E501
+    def contract(self, address: None = None, **kwargs: Any) -> Type[AsyncContract]:  # type: ignore[misc]  # noqa: E501
+        ...
 
     @overload
     def contract(
         self, address: Union[Address, ChecksumAddress, ENS], **kwargs: Any
-    ) -> AsyncContract: ...
+    ) -> AsyncContract:
+        ...
 
     def contract(
         self,

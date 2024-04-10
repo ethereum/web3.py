@@ -99,7 +99,7 @@ class AsyncENS(BaseENS):
 
     def __init__(
         self,
-        provider: "AsyncBaseProvider" = cast("AsyncBaseProvider", default),
+        provider: "AsyncBaseProvider" = None,
         addr: ChecksumAddress = None,
         middleware: Optional[Sequence[Tuple["Middleware", str]]] = None,
     ) -> None:
@@ -109,6 +109,7 @@ class AsyncENS(BaseENS):
         :param hex-string addr: the address of the ENS registry on-chain.
             If not provided, ENS.py will default to the mainnet ENS registry address.
         """
+        provider = provider or cast("AsyncBaseProvider", default)
         self.w3 = init_async_web3(provider, middleware)
 
         ens_addr = addr if addr else ENS_MAINNET_ADDR
@@ -168,7 +169,7 @@ class AsyncENS(BaseENS):
     async def setup_address(
         self,
         name: str,
-        address: Union[Address, ChecksumAddress, HexAddress] = cast(
+        address: Union[Address, ChecksumAddress, HexAddress] = cast(  # noqa: B008
             ChecksumAddress, default
         ),
         coin_type: Optional[int] = None,
@@ -306,7 +307,7 @@ class AsyncENS(BaseENS):
     async def setup_owner(
         self,
         name: str,
-        new_owner: ChecksumAddress = cast(ChecksumAddress, default),
+        new_owner: ChecksumAddress = None,
         transact: Optional["TxParams"] = None,
     ) -> Optional[ChecksumAddress]:
         """
@@ -333,6 +334,7 @@ class AsyncENS(BaseENS):
         :raises UnauthorizedError: if ``'from'`` in `transact` does not own `name`
         :returns: the new owner's address
         """
+        new_owner = new_owner or cast(ChecksumAddress, default)
         if not transact:
             transact = {}
         transact = deepcopy(transact)
@@ -467,9 +469,9 @@ class AsyncENS(BaseENS):
             resolver_addr = await self.address("resolver.eth")
         namehash = raw_name_to_hash(name)
         if await self.ens.caller.resolver(namehash) != resolver_addr:
-            await self.ens.functions.setResolver(  # type: ignore
-                namehash, resolver_addr
-            ).transact(transact)
+            await self.ens.functions.setResolver(namehash, resolver_addr).transact(
+                transact
+            )
         return cast("AsyncContract", self._resolver_contract(address=resolver_addr))
 
     async def _resolve(
@@ -551,7 +553,7 @@ class AsyncENS(BaseENS):
         transact = deepcopy(transact)
         transact["from"] = old_owner or owner
         for label in reversed(unowned):
-            await self.ens.functions.setSubnodeOwner(  # type: ignore
+            await self.ens.functions.setSubnodeOwner(
                 raw_name_to_hash(owned),
                 label_to_hash(label),
                 owner,
