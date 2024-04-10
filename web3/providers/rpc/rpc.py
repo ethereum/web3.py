@@ -18,6 +18,10 @@ from eth_utils import (
 )
 import requests
 
+from web3._utils.empty import (
+    Empty,
+    empty,
+)
 from web3._utils.http import (
     construct_user_agent,
 )
@@ -51,26 +55,16 @@ if TYPE_CHECKING:
 class HTTPProvider(JSONBaseProvider):
     logger = logging.getLogger("web3.providers.HTTPProvider")
     endpoint_uri = None
-
-    _request_args = None
     _request_kwargs = None
-
-    exception_retry_configuration: Optional[ExceptionRetryConfiguration] = None
 
     def __init__(
         self,
         endpoint_uri: Optional[Union[URI, str]] = None,
         request_kwargs: Optional[Any] = None,
         session: Optional[Any] = None,
-        exception_retry_configuration: Optional[ExceptionRetryConfiguration] = (
-            ExceptionRetryConfiguration(  # noqa: B008
-                errors=(
-                    ConnectionError,
-                    requests.HTTPError,
-                    requests.Timeout,
-                )
-            )
-        ),
+        exception_retry_configuration: Union[
+            ExceptionRetryConfiguration, Empty
+        ] = empty,
     ) -> None:
         if endpoint_uri is None:
             self.endpoint_uri = get_default_http_endpoint()
@@ -78,7 +72,7 @@ class HTTPProvider(JSONBaseProvider):
             self.endpoint_uri = URI(endpoint_uri)
 
         self._request_kwargs = request_kwargs or {}
-        self.exception_retry_configuration = exception_retry_configuration
+        self._exception_retry_configuration = exception_retry_configuration
 
         if session:
             cache_and_return_session(self.endpoint_uri, session)
@@ -87,6 +81,24 @@ class HTTPProvider(JSONBaseProvider):
 
     def __str__(self) -> str:
         return f"RPC connection {self.endpoint_uri}"
+
+    @property
+    def exception_retry_configuration(self) -> ExceptionRetryConfiguration:
+        if isinstance(self._exception_retry_configuration, Empty):
+            self._exception_retry_configuration = ExceptionRetryConfiguration(
+                errors=(
+                    ConnectionError,
+                    requests.HTTPError,
+                    requests.Timeout,
+                )
+            )
+        return self._exception_retry_configuration
+
+    @exception_retry_configuration.setter
+    def exception_retry_configuration(
+        self, value: Union[ExceptionRetryConfiguration, Empty]
+    ) -> None:
+        self._exception_retry_configuration = value
 
     @to_dict
     def get_request_kwargs(self) -> Iterable[Tuple[str, Any]]:
