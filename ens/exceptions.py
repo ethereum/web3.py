@@ -16,16 +16,12 @@ class ENSValueError(ENSException, ValueError):
     exception handling.
     """
 
-    pass
-
 
 class ENSTypeError(ENSException, TypeError):
     """
     An ENS exception wrapper for `TypeError`, for better control over
     exception handling.
     """
-
-    pass
 
 
 class AddressMismatch(ENSException):

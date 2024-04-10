@@ -186,15 +186,11 @@ TxParams = TypedDict(
 )
 
 
-WithdrawalData = TypedDict(
-    "WithdrawalData",
-    {
-        "index": int,
-        "validator_index": int,
-        "address": ChecksumAddress,
-        "amount": Gwei,
-    },
-)
+class WithdrawalData(TypedDict):
+    index: int
+    validator_index: int
+    address: ChecksumAddress
+    amount: Gwei
 
 
 class BlockData(TypedDict, total=False):
@@ -341,17 +337,12 @@ class FeeHistory(TypedDict):
     reward: List[List[Wei]]
 
 
-StateOverrideParams = TypedDict(
-    "StateOverrideParams",
-    {
-        "balance": Optional[Wei],
-        "nonce": Optional[int],
-        "code": Optional[Union[bytes, HexStr]],
-        "state": Optional[Dict[HexStr, HexStr]],
-        "stateDiff": Optional[Dict[HexStr, HexStr]],
-    },
-    total=False,
-)
+class StateOverrideParams(TypedDict, total=False):
+    balance: Optional[Wei]
+    nonce: Optional[int]
+    code: Optional[Union[bytes, HexStr]]
+    state: Optional[Dict[HexStr, HexStr]]
+    stateDiff: Optional[Dict[HexStr, HexStr]]
 
 
 StateOverride = Dict[ChecksumAddress, StateOverrideParams]

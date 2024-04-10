@@ -47,16 +47,12 @@ class Web3AssertionError(Web3Exception, AssertionError):
     exception handling.
     """
 
-    pass
-
 
 class Web3ValueError(Web3Exception, ValueError):
     """
     A web3.py exception wrapper for `ValueError`, for better control over
     exception handling.
     """
-
-    pass
 
 
 class Web3AttributeError(Web3Exception, AttributeError):
@@ -65,16 +61,12 @@ class Web3AttributeError(Web3Exception, AttributeError):
     exception handling.
     """
 
-    pass
-
 
 class Web3TypeError(Web3Exception, TypeError):
     """
     A web3.py exception wrapper for `TypeError`, for better control over
     exception handling.
     """
-
-    pass
 
 
 class BadFunctionCallOutput(Web3Exception):
