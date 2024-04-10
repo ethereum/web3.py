@@ -171,7 +171,8 @@ class FallbackNotFound(Web3Exception):
     """
 
 
-class Web3ValidationError(Web3Exception, ValidationError):
+# type ignored because subclassing ValidationError which has type Any
+class Web3ValidationError(Web3Exception, ValidationError):  # type: ignore[misc]
     """
     Raised when a supplied value is invalid.
     """

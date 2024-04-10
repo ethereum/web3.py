@@ -32,7 +32,8 @@ class AddressMismatch(ENSException):
     """
 
 
-class InvalidName(idna.IDNAError, ENSException):
+# type ignored because subclassing IDNAError which has type Any
+class InvalidName(idna.IDNAError, ENSException):  # type: ignore[misc]
     """
     Raised if the provided name does not meet the normalization
     standards specified in `ENSIP-15
@@ -103,7 +104,8 @@ class UnderfundedBid(ENSException):
     """
 
 
-class ENSValidationError(ENSException, ValidationError):
+# type ignored because subclassing ValidationError which has type Any
+class ENSValidationError(ENSException, ValidationError):  # type: ignore[misc]
     """
     Raised if there is a validation error
     """

@@ -49,6 +49,7 @@ repos:
     -   id: mypy
         exclude: 'tests/|conftest.py'
         additional_dependencies:
+        -   pydantic
         -   types-setuptools
         -   types-requests
 -   repo: https://github.com/PrincetonUniversity/blocklint
