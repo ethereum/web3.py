@@ -1,1 +1,0 @@
-Fix misused call to `endpoint_uri` for all cases of ``PersistentConnectionProvider`` by being able to retrieve either the ``ipc_path`` or the ``endpoint_uri`` from the base class with ``endpoint_uri_or_ipc_path`` property.

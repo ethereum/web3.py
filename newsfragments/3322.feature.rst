@@ -1,1 +1,0 @@
-Add request formatter for ``maxFeePerBlobGas`` when sending blob transactions. Add formatters for ``blobGasPrice`` and ``blobGasUsed`` for *eth_getTransactionReceipt*.

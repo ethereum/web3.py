@@ -6,6 +6,38 @@ v7 Breaking Changes Summary
 
 .. towncrier release notes start
 
+web3.py v7.0.0-beta.4 (2024-04-11)
+----------------------------------
+
+Bugfixes
+~~~~~~~~
+
+- Fix misused call to `endpoint_uri` for all cases of ``PersistentConnectionProvider`` by being able to retrieve either the ``ipc_path`` or the ``endpoint_uri`` from the base class with ``endpoint_uri_or_ipc_path`` property. (`#3319 <https://github.com/ethereum/web3.py/issues/3319>`__)
+
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Fix ``eth_createAccessList`` docs to reflect the correct behavior. (`#3327 <https://github.com/ethereum/web3.py/issues/3327>`__)
+
+
+Features
+~~~~~~~~
+
+- Use in-house exception wrappers for common Python exceptions, such as ``ValueError``, ``TypeError``, ``AttributeError``, and ``AssertionError``, for better control over exception handling. (`#3300 <https://github.com/ethereum/web3.py/issues/3300>`__)
+- Add request formatter for ``maxFeePerBlobGas`` when sending blob transactions. Add formatters for ``blobGasPrice`` and ``blobGasUsed`` for *eth_getTransactionReceipt*. (`#3322 <https://github.com/ethereum/web3.py/issues/3322>`__)
+- Add formatters to ensure that the result of a ``eth_createAccessList`` response can be plugged directly into an ``accessList`` in a transaction. (`#3327 <https://github.com/ethereum/web3.py/issues/3327>`__)
+- Add Cancun support to ``EthereumTesterProvider``; update Cancun-related fields in some internal types. (`#3332 <https://github.com/ethereum/web3.py/issues/3332>`__)
+
+
+Internal Changes - for web3.py Contributors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Use ``pre-commit`` for linting, run updated lint tools and fix errors (`#3297 <https://github.com/ethereum/web3.py/issues/3297>`__)
+- Dependency updates: ``eth-abi>=5.0.1``, ``eth-account>=0.12.0`` ``eth-typing>=4.0.0`` and ``hexbytes>=1.2.0`` with relevant changes to support these. (`#3298 <https://github.com/ethereum/web3.py/issues/3298>`__)
+- Remove code conditionally necessary for ``python<=3.7`` (`#3317 <https://github.com/ethereum/web3.py/issues/3317>`__)
+
+
 web3.py v7.0.0-beta.3 (2024-03-28)
 ----------------------------------
 
