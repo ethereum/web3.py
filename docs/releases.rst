@@ -6,6 +6,31 @@ v6 Breaking Changes Summary
 
 .. towncrier release notes start
 
+web3.py v6.17.0 (2024-04-11)
+----------------------------
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Add feedback survey banner to docs (`#3325 <https://github.com/ethereum/web3.py/issues/3325>`__)
+- Fix ``eth_createAccessList`` docs to reflect the correct behavior. (`#3329 <https://github.com/ethereum/web3.py/issues/3329>`__)
+
+
+Features
+~~~~~~~~
+
+- Add request formatter for ``maxFeePerBlobGas`` when sending blob transactions. Add formatters for ``blobGasPrice`` and ``blobGasUsed`` for *eth_getTransactionReceipt*. (`#3323 <https://github.com/ethereum/web3.py/issues/3323>`__)
+- Add formatters to ensure that the result of a ``eth_createAccessList`` response can be plugged directly into an ``accessList`` in a transaction. (`#3329 <https://github.com/ethereum/web3.py/issues/3329>`__)
+- Add Cancun support to ``EthereumTesterProvider``; update Cancun-related fields in some internal types. (`#3338 <https://github.com/ethereum/web3.py/issues/3338>`__)
+
+
+Internal Changes - for web3.py Contributors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Use ``pre-commit`` for linting the v6 branch (`#3296 <https://github.com/ethereum/web3.py/issues/3296>`__)
+- Add an upperpin at ``eth-typing<4.2.0`` due to removal of EthPM types in that lib (`#3324 <https://github.com/ethereum/web3.py/issues/3324>`__)
+
+
 web3.py v6.16.0 (2024-03-28)
 ----------------------------
 
