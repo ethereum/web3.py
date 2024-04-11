@@ -21,7 +21,7 @@ Features
 
 - Add request formatter for ``maxFeePerBlobGas`` when sending blob transactions. Add formatters for ``blobGasPrice`` and ``blobGasUsed`` for *eth_getTransactionReceipt*. (`#3323 <https://github.com/ethereum/web3.py/issues/3323>`__)
 - Add formatters to ensure that the result of a ``eth_createAccessList`` response can be plugged directly into an ``accessList`` in a transaction. (`#3329 <https://github.com/ethereum/web3.py/issues/3329>`__)
-- Add Cancun support to ``EthereumTesterProvider``; update Cancun-related fields in some internal types. (`#3338 <https://github.com/ethereum/web3.py/issues/3338>`__)
+- Add Cancun support to ``EthereumTesterProvider`` (for supported Python versions greater than 3.7); update Cancun-related fields in some internal types. (`#3338 <https://github.com/ethereum/web3.py/issues/3338>`__)
 
 
 Internal Changes - for web3.py Contributors
