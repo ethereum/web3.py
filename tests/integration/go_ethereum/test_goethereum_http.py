@@ -18,10 +18,12 @@ from web3.providers.rpc import (
 
 from .common import (
     GoEthereumAdminModuleTest,
+    GoEthereumAsyncDebugModuleTest,
     GoEthereumAsyncEthModuleTest,
     GoEthereumAsyncNetModuleTest,
     GoEthereumAsyncTxPoolModuleTest,
     GoEthereumAsyncWeb3ModuleTest,
+    GoEthereumDebugModuleTest,
     GoEthereumEthModuleTest,
     GoEthereumNetModuleTest,
     GoEthereumTxPoolModuleTest,
@@ -95,6 +97,10 @@ class TestGoEthereumAdminModuleTest(GoEthereumAdminModuleTest):
         super().test_admin_start_stop_ws(w3)
 
 
+class TestGoEthereumDebugModuleTest(GoEthereumDebugModuleTest):
+    pass
+
+
 class TestGoEthereumEthModuleTest(GoEthereumEthModuleTest):
     pass
 
@@ -142,6 +148,10 @@ class TestGoEthereumAsyncAdminModuleTest(GoEthereumAsyncAdminModuleTest):
         # This test causes all tests after it to fail on CI if it's allowed to run
         pytest.xfail(reason="Only one WS endpoint is allowed to be active at any time")
         await super().test_admin_start_stop_ws(async_w3)
+
+
+class TestGoEthereumAsyncDebugModuleTest(GoEthereumAsyncDebugModuleTest):
+    pass
 
 
 class TestGoEthereumAsyncNetModuleTest(GoEthereumAsyncNetModuleTest):

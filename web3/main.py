@@ -94,7 +94,6 @@ from web3.geth import (
     AsyncGeth,
     AsyncGethAdmin,
     AsyncGethDebug,
-    AsyncGethPersonal,
     AsyncGethTxPool,
     Geth,
     GethAdmin,
