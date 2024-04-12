@@ -15,6 +15,7 @@ from web3 import (
 
 from .common import (
     GoEthereumAdminModuleTest,
+    GoEthereumDebugModuleTest,
     GoEthereumEthModuleTest,
     GoEthereumNetModuleTest,
     GoEthereumWeb3ModuleTest,
@@ -95,6 +96,10 @@ class TestGoEthereumAdminModuleTest(GoEthereumAdminModuleTest):
             reason="Only one WebSocket endpoint is allowed to be active at any time"
         )
         super().test_admin_start_stop_ws(w3)
+
+
+class TestGoEthereumDebugModuleTest(GoEthereumDebugModuleTest):
+    pass
 
 
 class TestGoEthereumEthModuleTest(GoEthereumEthModuleTest):
