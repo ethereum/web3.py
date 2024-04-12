@@ -87,7 +87,7 @@ class GethBenchmarkFixture:
             "--http.port",
             self.rpc_port,
             "--http.api",
-            "admin,eth,net,web3",
+            "admin,debug,eth,net,web3",
             "--ipcdisable",
             "--password",
             os.path.join(datadir, "keystore", "pw.txt"),

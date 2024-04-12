@@ -619,9 +619,9 @@ DEBUG_CALLTRACE_LOG_ENTRY_FORMATTERS = apply_formatter_if(
         }
     ),
 )
-debug_calltrace_log_list_result_formatter: Callable[[Formatters], Any] = (
-    apply_formatter_to_array(DEBUG_CALLTRACE_LOG_ENTRY_FORMATTERS)
-)
+debug_calltrace_log_list_result_formatter: Callable[
+    [Formatters], Any
+] = apply_formatter_to_array(DEBUG_CALLTRACE_LOG_ENTRY_FORMATTERS)
 
 DEBUG_CALLTRACE_FORMATTERS = {
     "from": to_checksum_address,
@@ -639,13 +639,12 @@ debug_calltrace_result_formatter = type_aware_apply_formatters_to_dict(
     DEBUG_CALLTRACE_FORMATTERS
 )
 
-debug_calltrace_list_result_formatter: Callable[[Formatters], Any] = (
-    apply_formatter_to_array(debug_calltrace_result_formatter)
-)
+debug_calltrace_list_result_formatter: Callable[
+    [Formatters], Any
+] = apply_formatter_to_array(debug_calltrace_result_formatter)
 
 
 def debug_trace_transaction_result_formatter(result: Dict[str, Any]) -> Dict[str, Any]:
-
     # TODO: add more formatters for other types of tracers
     result_formatter = None
     result_key_set = set(result.keys())
