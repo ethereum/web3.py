@@ -12,8 +12,10 @@ from web3 import (
 
 from .common import (
     GoEthereumAdminModuleTest,
+    GoEthereumAsyncDebugModuleTest,
     GoEthereumAsyncEthModuleTest,
     GoEthereumAsyncNetModuleTest,
+    GoEthereumDebugModuleTest,
     GoEthereumEthModuleTest,
     GoEthereumNetModuleTest,
     GoEthereumTest,
@@ -82,6 +84,14 @@ class TestGoEthereumAdminModuleTest(GoEthereumAdminModuleTest):
         # This test causes all tests after it to fail on CI if it's allowed to run
         pytest.xfail(reason="Only one WS endpoint is allowed to be active at any time")
         super().test_admin_start_stop_ws(w3)
+
+
+class TestGoEthereumDebugModuleTest(GoEthereumDebugModuleTest):
+    pass
+
+
+class TestGoEthereumAsyncDebugModuleTest(GoEthereumAsyncDebugModuleTest):
+    pass
 
 
 class TestGoEthereumEthModuleTest(GoEthereumEthModuleTest):
