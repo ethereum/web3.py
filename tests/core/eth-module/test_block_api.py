@@ -13,7 +13,7 @@ def wait_for_first_block(w3, wait_for_block):
     wait_for_block(w3)
 
 
-def test_uses_default_block(w3, extra_accounts, wait_for_transaction):
+def test_uses_default_block(w3, wait_for_transaction):
     assert w3.eth.default_block == "latest"
     w3.eth.default_block = w3.eth.block_number
     assert w3.eth.default_block == w3.eth.block_number

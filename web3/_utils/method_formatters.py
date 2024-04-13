@@ -32,8 +32,6 @@ from eth_utils.curried import (
     is_integer,
     is_null,
     is_string,
-    remove_0x_prefix,
-    text_if_str,
     to_checksum_address,
     to_list,
     to_tuple,
@@ -51,10 +49,6 @@ from hexbytes import (
 
 from web3._utils.abi import (
     is_length,
-)
-from web3._utils.encoding import (
-    hexstr_if_str,
-    to_hex,
 )
 from web3._utils.error_formatters_utils import (
     raise_contract_logic_error_on_revert,

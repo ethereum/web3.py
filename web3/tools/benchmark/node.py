@@ -96,7 +96,7 @@ class GethBenchmarkFixture:
             "--miner.etherbase",
             COINBASE[2:],
             "--password",
-            os.path.join(datadir, "keystore", "pw.txt"),
+            os.path.join(datadir, "keystore_pw.txt"),
         )
 
     def _geth_process(

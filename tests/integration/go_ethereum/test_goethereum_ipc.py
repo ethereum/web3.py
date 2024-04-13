@@ -4,16 +4,10 @@ import tempfile
 
 import pytest_asyncio
 
-from tests.integration.common import (
-    COINBASE,
-)
 from web3 import (
     AsyncIPCProvider,
     AsyncWeb3,
     Web3,
-)
-from web3.middleware import (
-    SignAndSendRawMiddlewareBuilder,
 )
 
 from .common import (
@@ -35,8 +29,6 @@ def _geth_command_arguments(geth_ipc_path, base_geth_command_arguments):
     yield from (
         "--ipcpath",
         geth_ipc_path,
-        "--miner.etherbase",
-        COINBASE[2:],
     )
 
 
@@ -58,12 +50,7 @@ def geth_ipc_path(datadir):
 @pytest.fixture(scope="module")
 def w3(geth_process, geth_ipc_path, geth_fixture_data):
     wait_for_socket(geth_ipc_path)
-    _w3 = Web3(Web3.IPCProvider(geth_ipc_path, timeout=30))
-    unlocked_account_middleware = SignAndSendRawMiddlewareBuilder.build(
-        geth_fixture_data["test_sender_account_pk"]
-    )
-    _w3.middleware_onion.add(unlocked_account_middleware)
-    return _w3
+    return Web3(Web3.IPCProvider(geth_ipc_path, timeout=30))
 
 
 @pytest_asyncio.fixture(scope="module")

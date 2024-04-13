@@ -23,7 +23,6 @@ from web3.exceptions import (
 from web3.geth import (
     Geth,
     GethAdmin,
-    GethPersonal,
     GethTxPool,
 )
 from web3.middleware import (

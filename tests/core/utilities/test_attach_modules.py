@@ -60,19 +60,29 @@ def test_attach_single_module_as_tuple():
     assert w3.eth.block_number() == 42
 
 
-def test_attach_modules_multiple_levels_deep():
+def test_attach_modules_multiple_levels_deep(module1):
     mods = {
         "eth": MockEth,
-        "geth": MockGeth,
+        "geth": (
+            MockGeth,
+            {
+                "module1": (
+                    module1,
+                    {
+                        "admin": MockGethAdmin,
+                    },
+                ),
+            },
+        ),
     }
     w3 = Web3(EthereumTesterProvider(), modules={})
     attach_modules(w3, mods)
     assert w3.eth.block_number() == 42
-    assert w3.geth.admin.start_ws() is True
+    assert w3.geth.module1.admin.start_ws() is True
 
 
 def test_attach_modules_with_wrong_module_format():
-    mods = {"eth": (MockEth, MockGeth, MockGethPersonal)}
+    mods = {"eth": (MockEth, MockEth, MockEth)}
     w3 = Web3(EthereumTesterProvider, modules={})
     with pytest.raises(
         Web3ValidationError, match="Module definitions can only have 1 or 2 elements"
