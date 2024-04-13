@@ -21,7 +21,6 @@ from eth_tester.exceptions import (
     FilterNotFound,
     TransactionFailed,
     TransactionNotFound,
-    ValidationError,
 )
 from eth_typing import (
     HexAddress,

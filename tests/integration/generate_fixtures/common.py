@@ -20,21 +20,21 @@ from web3.exceptions import (
 )
 
 # use same coinbase value as in `web3.py/tests/integration/common.py`
-COINBASE = "0xdc544d1aa88ff8bbd2f2aec754b1f1e99e1812fd"
+COINBASE = "0xdC544d1AA88Ff8bbd2F2AeC754B1F1e99e1812fd"
 COINBASE_PK = "0x58d23b55bc9cdce1f18c2500f40ff4ab7245df9a89505e9b1fa4851f623d241d"
 
+# set up the keyfile account with a known address
+KEYFILE_ACCOUNT_PKEY = (
+    "0x58d23b55bc9cdce1f18c2500f40ff4ab7245df9a89505e9b1fa4851f623d241d"
+)
+KEYFILE_ACCOUNT_ADDRESS = "0xdC544d1AA88Ff8bbd2F2AeC754B1F1e99e1812fd"
 KEYFILE_DATA = '{"address":"dc544d1aa88ff8bbd2f2aec754b1f1e99e1812fd","crypto":{"cipher":"aes-128-ctr","ciphertext":"52e06bc9397ea9fa2f0dae8de2b3e8116e92a2ecca9ad5ff0061d1c449704e98","cipherparams":{"iv":"aa5d0a5370ef65395c1a6607af857124"},"kdf":"scrypt","kdfparams":{"dklen":32,"n":262144,"p":1,"r":8,"salt":"9fdf0764eb3645ffc184e166537f6fe70516bf0e34dc7311dea21f100f0c9263"},"mac":"4e0b51f42b865c15c485f4faefdd1f01a38637e5247f8c75ffe6a8c0eba856f6"},"id":"5a6124e0-10f1-4c1c-ae3e-d903eacb740a","version":3}'  # noqa: E501
 
 KEYFILE_PW = "web3py-test"
-KEYFILE_PW_TXT = "pw.txt"
+KEYFILE_PW_TXT = "keystore_pw.txt"
 KEYFILE_FILENAME = "UTC--2017-08-24T19-42-47.517572178Z--dc544d1aa88ff8bbd2f2aec754b1f1e99e1812fd"  # noqa: E501
 
 RAW_TXN_ACCOUNT = "0x39EEed73fb1D3855E90Cbd42f348b3D7b340aAA6"
-
-TEST_SENDER_ACCOUNT_PK = (
-    "0x392f63a79b1ff8774845f3fa69de4a13800a59e7083f5187f1558f0797ad0f01"
-)
-TEST_SENDER_ACCOUNT_ADDRESS = "0x12efDc31B1a8FA1A1e756DFD8A1601055C971E13"
 
 GENESIS_DATA = {
     "config": {
@@ -52,13 +52,13 @@ GENESIS_DATA = {
         "arrowGlacierBlock": 0,
         "grayGlacierBlock": 0,
         "shanghaiTime": 0,
-        "terminalTotalDifficulty": 0,
+        "terminalTotalDifficulty": -1,
         "terminalTotalDifficultyPassed": True,
     },
     "nonce": "0x0",
     "alloc": {
         COINBASE: {"balance": "1000000000000000000000000000"},
-        TEST_SENDER_ACCOUNT_ADDRESS: {"balance": "1000000000000000000000000000"},
+        KEYFILE_ACCOUNT_ADDRESS: {"balance": "1000000000000000000000000000"},
         RAW_TXN_ACCOUNT: {"balance": "1000000000000000000000000000"},
         "0000000000000000000000000000000000000001": {"balance": "1"},
         "0000000000000000000000000000000000000002": {"balance": "1"},
@@ -71,7 +71,7 @@ GENESIS_DATA = {
     "parentHash": constants.HASH_ZERO,
     "extraData": "0x3535353535353535353535353535353535353535353535353535353535353535",
     "gasLimit": "0x3b9aca00",  # 1,000,000,000
-    "difficulty": "0x10000",
+    "difficulty": 0,
     "mixhash": constants.HASH_ZERO,
     "coinbase": COINBASE,
 }
@@ -227,7 +227,7 @@ def mine_block(w3):
 
 def deploy_contract(w3, name, factory):
     name = name.upper()
-    deploy_txn_hash = factory.constructor().transact({"from": w3.eth.coinbase})
+    deploy_txn_hash = factory.constructor().transact({"from": COINBASE})
     print(f"{name}_CONTRACT_DEPLOY_HASH: {deploy_txn_hash}")
     deploy_receipt = w3.eth.wait_for_transaction_receipt(deploy_txn_hash)
     print(f"{name}_CONTRACT_DEPLOY_TRANSACTION_MINED")

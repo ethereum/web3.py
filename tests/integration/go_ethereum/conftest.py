@@ -35,8 +35,7 @@ from .utils import (
 )
 
 KEYFILE_PW = "web3py-test"
-
-GETH_FIXTURE_ZIP = "geth-1.13.11-fixture.zip"
+GETH_FIXTURE_ZIP = "geth-1.13.14-fixture.zip"
 
 
 @pytest.fixture(scope="module")
@@ -93,12 +92,12 @@ def base_geth_command_arguments(geth_binary, datadir):
     return (
         geth_binary,
         "--datadir",
-        str(datadir),
+        datadir,
         "--dev",
         "--dev.period",
         "5",  # dev.period > 1 for tests which require pending blocks
         "--password",
-        os.path.join(datadir, "keystore", "pw.txt"),
+        os.path.join(datadir, "keystore_pw.txt"),
     )
 
 
@@ -194,13 +193,13 @@ def emitter_contract_address(emitter_contract, address_conversion_func):
 
 
 @pytest.fixture(scope="module")
-def test_sender_account(geth_fixture_data):
-    return geth_fixture_data["test_sender_account_address"]
+def keyfile_account_address(geth_fixture_data):
+    return geth_fixture_data["keyfile_account_address"]
 
 
 @pytest.fixture(scope="module")
-def test_sender_account_dual_type(test_sender_account, address_conversion_func):
-    yield test_sender_account
+def keyfile_account_address_dual_type(keyfile_account_address, address_conversion_func):
+    yield keyfile_account_address
 
 
 @pytest.fixture(scope="module")
@@ -290,15 +289,15 @@ async def async_coinbase(async_w3):
 
 
 @pytest_asyncio.fixture(scope="module")
-async def async_test_sender_account(geth_fixture_data):
-    return geth_fixture_data["test_sender_account_address"]
+async def async_keyfile_account_address(geth_fixture_data):
+    return geth_fixture_data["keyfile_account_address"]
 
 
 @pytest_asyncio.fixture(scope="module")
-async def async_test_sender_account_dual_type(
-    async_test_sender_account, address_conversion_func
+async def async_keyfile_account_address_dual_type(
+    async_keyfile_account_address, address_conversion_func
 ):
-    yield async_test_sender_account
+    yield async_keyfile_account_address
 
 
 @pytest.fixture(scope="module")

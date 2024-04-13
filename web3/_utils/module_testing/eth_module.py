@@ -5,6 +5,7 @@ from random import (
     randint,
 )
 import re
+import time
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -181,11 +182,11 @@ class AsyncEthModuleTest:
     async def test_eth_send_transaction_legacy(
         self,
         async_w3: "AsyncWeb3",
-        async_test_sender_account_dual_type: ChecksumAddress,
+        async_keyfile_account_address_dual_type: ChecksumAddress,
     ) -> None:
         txn_params: TxParams = {
-            "from": async_test_sender_account_dual_type,
-            "to": async_test_sender_account_dual_type,
+            "from": async_keyfile_account_address_dual_type,
+            "to": async_keyfile_account_address_dual_type,
             "value": Wei(1),
             "gas": 21000,
             "gasPrice": await async_w3.eth.gas_price,
@@ -203,11 +204,11 @@ class AsyncEthModuleTest:
     async def test_eth_modify_transaction_legacy(
         self,
         async_w3: "AsyncWeb3",
-        async_test_sender_account_dual_type: ChecksumAddress,
+        async_keyfile_account_address_dual_type: ChecksumAddress,
     ) -> None:
         txn_params: TxParams = {
-            "from": async_test_sender_account_dual_type,
-            "to": async_test_sender_account_dual_type,
+            "from": async_keyfile_account_address_dual_type,
+            "to": async_keyfile_account_address_dual_type,
             "value": Wei(1),
             "gas": 21000,
             "gasPrice": async_w3.to_wei(
@@ -235,11 +236,11 @@ class AsyncEthModuleTest:
     async def test_eth_modify_transaction(
         self,
         async_w3: "AsyncWeb3",
-        async_test_sender_account_dual_type: ChecksumAddress,
+        async_keyfile_account_address_dual_type: ChecksumAddress,
     ) -> None:
         txn_params: TxParams = {
-            "from": async_test_sender_account_dual_type,
-            "to": async_test_sender_account_dual_type,
+            "from": async_keyfile_account_address_dual_type,
+            "to": async_keyfile_account_address_dual_type,
             "value": Wei(1),
             "gas": 21000,
             "maxPriorityFeePerGas": async_w3.to_wei(1, "gwei"),
@@ -273,11 +274,11 @@ class AsyncEthModuleTest:
     async def test_async_eth_sign_transaction(
         self,
         async_w3: "AsyncWeb3",
-        async_test_sender_account_dual_type: ChecksumAddress,
+        async_keyfile_account_address_dual_type: ChecksumAddress,
     ) -> None:
         txn_params: TxParams = {
-            "from": async_test_sender_account_dual_type,
-            "to": async_test_sender_account_dual_type,
+            "from": async_keyfile_account_address_dual_type,
+            "to": async_keyfile_account_address_dual_type,
             "value": Wei(1),
             "gas": 21000,
             "maxFeePerGas": async_w3.to_wei(2, "gwei"),
@@ -286,7 +287,7 @@ class AsyncEthModuleTest:
         }
         result = await async_w3.eth.sign_transaction(txn_params)
         signatory_account = async_w3.eth.account.recover_transaction(result["raw"])
-        assert async_test_sender_account_dual_type == signatory_account
+        assert async_keyfile_account_address_dual_type == signatory_account
         assert result["tx"]["to"] == txn_params["to"]
         assert result["tx"]["value"] == txn_params["value"]
         assert result["tx"]["gas"] == txn_params["gas"]
@@ -300,7 +301,7 @@ class AsyncEthModuleTest:
     async def test_eth_sign_typed_data(
         self,
         async_w3: "AsyncWeb3",
-        async_test_sender_account_dual_type: ChecksumAddress,
+        async_keyfile_account_address_dual_type: ChecksumAddress,
         async_skip_if_testrpc: Callable[["AsyncWeb3"], None],
     ) -> None:
         validJSONMessage = """
@@ -345,7 +346,7 @@ class AsyncEthModuleTest:
         async_skip_if_testrpc(async_w3)
         signature = HexBytes(
             await async_w3.eth.sign_typed_data(
-                async_test_sender_account_dual_type, json.loads(validJSONMessage)
+                async_keyfile_account_address_dual_type, json.loads(validJSONMessage)
             )
         )
         assert len(signature) == 32 + 32 + 1
@@ -354,7 +355,7 @@ class AsyncEthModuleTest:
     async def test_invalid_eth_sign_typed_data(
         self,
         async_w3: "AsyncWeb3",
-        async_test_sender_account_dual_type: ChecksumAddress,
+        async_keyfile_account_address_dual_type: ChecksumAddress,
         async_skip_if_testrpc: Callable[["AsyncWeb3"], None],
     ) -> None:
         async_skip_if_testrpc(async_w3)
@@ -402,16 +403,17 @@ class AsyncEthModuleTest:
             match=r".*Expected 2 items for array type Person\[2\], got 1 items.*",
         ):
             await async_w3.eth.sign_typed_data(
-                async_test_sender_account_dual_type, json.loads(invalid_typed_message)
+                async_keyfile_account_address_dual_type,
+                json.loads(invalid_typed_message),
             )
 
     @pytest.mark.asyncio
     async def test_async_eth_sign_transaction_legacy(
-        self, async_w3: "AsyncWeb3", async_test_sender_account: ChecksumAddress
+        self, async_w3: "AsyncWeb3", async_keyfile_account_address: ChecksumAddress
     ) -> None:
         txn_params: TxParams = {
-            "from": async_test_sender_account,
-            "to": async_test_sender_account,
+            "from": async_keyfile_account_address,
+            "to": async_keyfile_account_address,
             "value": Wei(1),
             "gas": 21000,
             "gasPrice": await async_w3.eth.gas_price,
@@ -419,7 +421,7 @@ class AsyncEthModuleTest:
         }
         result = await async_w3.eth.sign_transaction(txn_params)
         signatory_account = async_w3.eth.account.recover_transaction(result["raw"])
-        assert async_test_sender_account == signatory_account
+        assert async_keyfile_account_address == signatory_account
         assert result["tx"]["to"] == txn_params["to"]
         assert result["tx"]["value"] == txn_params["value"]
         assert result["tx"]["gas"] == txn_params["gas"]
@@ -428,11 +430,11 @@ class AsyncEthModuleTest:
 
     @pytest.mark.asyncio
     async def test_async_eth_sign_transaction_hex_fees(
-        self, async_w3: "AsyncWeb3", async_test_sender_account: ChecksumAddress
+        self, async_w3: "AsyncWeb3", async_keyfile_account_address: ChecksumAddress
     ) -> None:
         txn_params: TxParams = {
-            "from": async_test_sender_account,
-            "to": async_test_sender_account,
+            "from": async_keyfile_account_address,
+            "to": async_keyfile_account_address,
             "value": Wei(1),
             "gas": 21000,
             "maxFeePerGas": hex(async_w3.to_wei(2, "gwei")),
@@ -441,7 +443,7 @@ class AsyncEthModuleTest:
         }
         result = await async_w3.eth.sign_transaction(txn_params)
         signatory_account = async_w3.eth.account.recover_transaction(result["raw"])
-        assert async_test_sender_account == signatory_account
+        assert async_keyfile_account_address == signatory_account
         assert result["tx"]["to"] == txn_params["to"]
         assert result["tx"]["value"] == txn_params["value"]
         assert result["tx"]["gas"] == txn_params["gas"]
@@ -456,10 +458,10 @@ class AsyncEthModuleTest:
         reason="async name_to_address_middleware has not been implemented yet"
     )
     async def test_async_eth_sign_transaction_ens_names(
-        self, async_w3: "AsyncWeb3", async_test_sender_account: ChecksumAddress
+        self, async_w3: "AsyncWeb3", async_keyfile_account_address: ChecksumAddress
     ) -> None:
         with ens_addresses(
-            async_w3, {"unlocked-account.eth": async_test_sender_account}
+            async_w3, {"unlocked-account.eth": async_keyfile_account_address}
         ):
             txn_params: TxParams = {
                 "from": "unlocked-account.eth",
@@ -472,8 +474,8 @@ class AsyncEthModuleTest:
             }
             result = await async_w3.eth.sign_transaction(txn_params)
             signatory_account = async_w3.eth.account.recover_transaction(result["raw"])
-            assert async_test_sender_account == signatory_account
-            assert result["tx"]["to"] == async_test_sender_account
+            assert async_keyfile_account_address == signatory_account
+            assert result["tx"]["to"] == async_keyfile_account_address
             assert result["tx"]["value"] == txn_params["value"]
             assert result["tx"]["gas"] == txn_params["gas"]
             assert result["tx"]["maxFeePerGas"] == txn_params["maxFeePerGas"]
@@ -487,11 +489,11 @@ class AsyncEthModuleTest:
     async def test_eth_send_transaction(
         self,
         async_w3: "AsyncWeb3",
-        async_test_sender_account_dual_type: ChecksumAddress,
+        async_keyfile_account_address_dual_type: ChecksumAddress,
     ) -> None:
         txn_params: TxParams = {
-            "from": async_test_sender_account_dual_type,
-            "to": async_test_sender_account_dual_type,
+            "from": async_keyfile_account_address_dual_type,
+            "to": async_keyfile_account_address_dual_type,
             "value": Wei(1),
             "gas": 21000,
             "maxFeePerGas": async_w3.to_wei(3, "gwei"),
@@ -512,11 +514,11 @@ class AsyncEthModuleTest:
     async def test_eth_send_transaction_default_fees(
         self,
         async_w3: "AsyncWeb3",
-        async_test_sender_account_dual_type: ChecksumAddress,
+        async_keyfile_account_address_dual_type: ChecksumAddress,
     ) -> None:
         txn_params: TxParams = {
-            "from": async_test_sender_account_dual_type,
-            "to": async_test_sender_account_dual_type,
+            "from": async_keyfile_account_address_dual_type,
+            "to": async_keyfile_account_address_dual_type,
             "value": Wei(1),
             "gas": 21000,
         }
@@ -535,11 +537,11 @@ class AsyncEthModuleTest:
     async def test_eth_send_transaction_hex_fees(
         self,
         async_w3: "AsyncWeb3",
-        async_test_sender_account_dual_type: ChecksumAddress,
+        async_keyfile_account_address_dual_type: ChecksumAddress,
     ) -> None:
         txn_params: TxParams = {
-            "from": async_test_sender_account_dual_type,
-            "to": async_test_sender_account_dual_type,
+            "from": async_keyfile_account_address_dual_type,
+            "to": async_keyfile_account_address_dual_type,
             "value": Wei(1),
             "gas": 21000,
             "maxFeePerGas": hex(250 * 10**9),
@@ -559,11 +561,11 @@ class AsyncEthModuleTest:
     async def test_eth_send_transaction_no_gas(
         self,
         async_w3: "AsyncWeb3",
-        async_test_sender_account_dual_type: ChecksumAddress,
+        async_keyfile_account_address_dual_type: ChecksumAddress,
     ) -> None:
         txn_params: TxParams = {
-            "from": async_test_sender_account_dual_type,
-            "to": async_test_sender_account_dual_type,
+            "from": async_keyfile_account_address_dual_type,
+            "to": async_keyfile_account_address_dual_type,
             "value": Wei(1),
             "maxFeePerGas": Wei(250 * 10**9),
             "maxPriorityFeePerGas": Wei(2 * 10**9),
@@ -580,11 +582,11 @@ class AsyncEthModuleTest:
     async def test_eth_send_transaction_with_gas_price(
         self,
         async_w3: "AsyncWeb3",
-        async_test_sender_account_dual_type: ChecksumAddress,
+        async_keyfile_account_address_dual_type: ChecksumAddress,
     ) -> None:
         txn_params: TxParams = {
-            "from": async_test_sender_account_dual_type,
-            "to": async_test_sender_account_dual_type,
+            "from": async_keyfile_account_address_dual_type,
+            "to": async_keyfile_account_address_dual_type,
             "value": Wei(1),
             "gas": 21000,
             "gasPrice": Wei(1),
@@ -598,11 +600,11 @@ class AsyncEthModuleTest:
     async def test_eth_send_transaction_no_priority_fee(
         self,
         async_w3: "AsyncWeb3",
-        async_test_sender_account_dual_type: ChecksumAddress,
+        async_keyfile_account_address_dual_type: ChecksumAddress,
     ) -> None:
         txn_params: TxParams = {
-            "from": async_test_sender_account_dual_type,
-            "to": async_test_sender_account_dual_type,
+            "from": async_keyfile_account_address_dual_type,
+            "to": async_keyfile_account_address_dual_type,
             "value": Wei(1),
             "gas": 21000,
             "maxFeePerGas": Wei(250 * 10**9),
@@ -616,12 +618,12 @@ class AsyncEthModuleTest:
     async def test_eth_send_transaction_no_max_fee(
         self,
         async_w3: "AsyncWeb3",
-        async_test_sender_account_dual_type: ChecksumAddress,
+        async_keyfile_account_address_dual_type: ChecksumAddress,
     ) -> None:
         maxPriorityFeePerGas = async_w3.to_wei(2, "gwei")
         txn_params: TxParams = {
-            "from": async_test_sender_account_dual_type,
-            "to": async_test_sender_account_dual_type,
+            "from": async_keyfile_account_address_dual_type,
+            "to": async_keyfile_account_address_dual_type,
             "value": Wei(1),
             "gas": 21000,
             "maxPriorityFeePerGas": maxPriorityFeePerGas,
@@ -641,11 +643,11 @@ class AsyncEthModuleTest:
     async def test_eth_send_transaction_max_fee_less_than_tip(
         self,
         async_w3: "AsyncWeb3",
-        async_test_sender_account_dual_type: ChecksumAddress,
+        async_keyfile_account_address_dual_type: ChecksumAddress,
     ) -> None:
         txn_params: TxParams = {
-            "from": async_test_sender_account_dual_type,
-            "to": async_test_sender_account_dual_type,
+            "from": async_keyfile_account_address_dual_type,
+            "to": async_keyfile_account_address_dual_type,
             "value": Wei(1),
             "gas": 21000,
             "maxFeePerGas": Wei(1 * 10**9),
@@ -660,14 +662,14 @@ class AsyncEthModuleTest:
     async def test_validation_middleware_chain_id_mismatch(
         self,
         async_w3: "AsyncWeb3",
-        async_test_sender_account_dual_type: ChecksumAddress,
+        async_keyfile_account_address_dual_type: ChecksumAddress,
     ) -> None:
         wrong_chain_id = 1234567890
         actual_chain_id = await async_w3.eth.chain_id
 
         txn_params: TxParams = {
-            "from": async_test_sender_account_dual_type,
-            "to": async_test_sender_account_dual_type,
+            "from": async_keyfile_account_address_dual_type,
+            "to": async_keyfile_account_address_dual_type,
             "value": Wei(1),
             "gas": 21000,
             "maxFeePerGas": async_w3.to_wei(2, "gwei"),
@@ -721,11 +723,11 @@ class AsyncEthModuleTest:
     async def test_GasPriceStrategyMiddleware(
         self,
         async_w3: "AsyncWeb3",
-        async_test_sender_account_dual_type: ChecksumAddress,
+        async_keyfile_account_address_dual_type: ChecksumAddress,
     ) -> None:
         txn_params: TxParams = {
-            "from": async_test_sender_account_dual_type,
-            "to": async_test_sender_account_dual_type,
+            "from": async_keyfile_account_address_dual_type,
+            "to": async_keyfile_account_address_dual_type,
             "value": Wei(1),
             "gas": 21000,
         }
@@ -746,11 +748,11 @@ class AsyncEthModuleTest:
     async def test_gas_price_strategy_middleware_hex_value(
         self,
         async_w3: "AsyncWeb3",
-        async_test_sender_account_dual_type: ChecksumAddress,
+        async_keyfile_account_address_dual_type: ChecksumAddress,
     ) -> None:
         txn_params: TxParams = {
-            "from": async_test_sender_account_dual_type,
-            "to": async_test_sender_account_dual_type,
+            "from": async_keyfile_account_address_dual_type,
+            "to": async_keyfile_account_address_dual_type,
             "value": Wei(1),
             "gas": 21000,
         }
@@ -774,13 +776,13 @@ class AsyncEthModuleTest:
     async def test_gas_price_from_strategy_bypassed_for_dynamic_fee_txn(
         self,
         async_w3: "AsyncWeb3",
-        async_test_sender_account_dual_type: ChecksumAddress,
+        async_keyfile_account_address_dual_type: ChecksumAddress,
         max_fee: Wei,
     ) -> None:
         max_priority_fee = async_w3.to_wei(1, "gwei")
         txn_params: TxParams = {
-            "from": async_test_sender_account_dual_type,
-            "to": async_test_sender_account_dual_type,
+            "from": async_keyfile_account_address_dual_type,
+            "to": async_keyfile_account_address_dual_type,
             "value": Wei(1),
             "gas": 21000,
             "maxPriorityFeePerGas": max_priority_fee,
@@ -811,11 +813,11 @@ class AsyncEthModuleTest:
     async def test_gas_price_from_strategy_bypassed_for_dynamic_fee_txn_no_tip(
         self,
         async_w3: "AsyncWeb3",
-        async_test_sender_account_dual_type: ChecksumAddress,
+        async_keyfile_account_address_dual_type: ChecksumAddress,
     ) -> None:
         txn_params: TxParams = {
-            "from": async_test_sender_account_dual_type,
-            "to": async_test_sender_account_dual_type,
+            "from": async_keyfile_account_address_dual_type,
+            "to": async_keyfile_account_address_dual_type,
             "value": Wei(1),
             "gas": 21000,
             "maxFeePerGas": Wei(1000000000),
@@ -837,12 +839,12 @@ class AsyncEthModuleTest:
     async def test_eth_estimate_gas(
         self,
         async_w3: "AsyncWeb3",
-        async_test_sender_account_dual_type: ChecksumAddress,
+        async_keyfile_account_address_dual_type: ChecksumAddress,
     ) -> None:
         gas_estimate = await async_w3.eth.estimate_gas(
             {
-                "from": async_test_sender_account_dual_type,
-                "to": async_test_sender_account_dual_type,
+                "from": async_keyfile_account_address_dual_type,
+                "to": async_keyfile_account_address_dual_type,
                 "value": Wei(1),
             }
         )
@@ -1077,14 +1079,14 @@ class AsyncEthModuleTest:
         self,
         async_w3: "AsyncWeb3",
         async_block_with_txn: BlockData,
-        async_test_sender_account_dual_type: ChecksumAddress,
+        async_keyfile_account_address_dual_type: ChecksumAddress,
     ) -> None:
         # eth_getRawTransactionByBlockNumberAndIndex: block identifier
         # send a txn to make sure pending block has at least one txn
         await async_w3.eth.send_transaction(
             {
-                "from": async_test_sender_account_dual_type,
-                "to": async_test_sender_account_dual_type,
+                "from": async_keyfile_account_address_dual_type,
+                "to": async_keyfile_account_address_dual_type,
                 "value": Wei(1),
             }
         )
@@ -1186,12 +1188,12 @@ class AsyncEthModuleTest:
     async def test_eth_create_access_list(
         self,
         async_w3: "AsyncWeb3",
-        async_test_sender_account_dual_type: ChecksumAddress,
+        async_keyfile_account_address_dual_type: ChecksumAddress,
         async_math_contract: "AsyncContract",
     ) -> None:
         # build txn
         txn = await async_math_contract.functions.incrementCounter(1).build_transaction(
-            {"from": async_test_sender_account_dual_type}
+            {"from": async_keyfile_account_address_dual_type}
         )
 
         # create access list
@@ -1216,10 +1218,10 @@ class AsyncEthModuleTest:
     async def test_eth_get_transaction_count(
         self,
         async_w3: "AsyncWeb3",
-        async_test_sender_account_dual_type: ChecksumAddress,
+        async_keyfile_account_address_dual_type: ChecksumAddress,
     ) -> None:
         transaction_count = await async_w3.eth.get_transaction_count(
-            async_test_sender_account_dual_type
+            async_keyfile_account_address_dual_type
         )
         assert is_integer(transaction_count)
         assert transaction_count >= 0
@@ -1330,12 +1332,12 @@ class AsyncEthModuleTest:
         self,
         async_w3: "AsyncWeb3",
         async_revert_contract: "AsyncContract",
-        async_test_sender_account: ChecksumAddress,
+        async_keyfile_account_address: ChecksumAddress,
     ) -> None:
         txn_params = async_revert_contract._prepare_transaction(
             fn_name="revertWithMessage",
             transaction={
-                "from": async_test_sender_account,
+                "from": async_keyfile_account_address,
                 "to": async_revert_contract.address,
             },
         )
@@ -1349,13 +1351,13 @@ class AsyncEthModuleTest:
         self,
         async_w3: "AsyncWeb3",
         async_revert_contract: "AsyncContract",
-        async_test_sender_account: ChecksumAddress,
+        async_keyfile_account_address: ChecksumAddress,
     ) -> None:
         with pytest.raises(ContractLogicError, match="execution reverted"):
             txn_params = async_revert_contract._prepare_transaction(
                 fn_name="revertWithoutMessage",
                 transaction={
-                    "from": async_test_sender_account,
+                    "from": async_keyfile_account_address,
                     "to": async_revert_contract.address,
                 },
             )
@@ -1366,7 +1368,7 @@ class AsyncEthModuleTest:
         self,
         async_w3: "AsyncWeb3",
         async_revert_contract: "AsyncContract",
-        async_test_sender_account: ChecksumAddress,
+        async_keyfile_account_address: ChecksumAddress,
     ) -> None:
         data = async_revert_contract.encode_abi(
             fn_name="UnauthorizedWithMessage", args=["You are not authorized"]
@@ -1374,7 +1376,7 @@ class AsyncEthModuleTest:
         txn_params = async_revert_contract._prepare_transaction(
             fn_name="customErrorWithMessage",
             transaction={
-                "from": async_test_sender_account,
+                "from": async_keyfile_account_address,
                 "to": async_revert_contract.address,
             },
         )
@@ -1386,13 +1388,13 @@ class AsyncEthModuleTest:
         self,
         async_w3: "AsyncWeb3",
         async_revert_contract: "AsyncContract",
-        async_test_sender_account: ChecksumAddress,
+        async_keyfile_account_address: ChecksumAddress,
     ) -> None:
         data = async_revert_contract.encode_abi(fn_name="Unauthorized")
         txn_params = async_revert_contract._prepare_transaction(
             fn_name="customErrorWithoutMessage",
             transaction={
-                "from": async_test_sender_account,
+                "from": async_keyfile_account_address,
                 "to": async_revert_contract.address,
             },
         )
@@ -1435,7 +1437,7 @@ class AsyncEthModuleTest:
         self,
         async_w3: "AsyncWeb3",
         async_offchain_lookup_contract: "AsyncContract",
-        async_test_sender_account: ChecksumAddress,
+        async_keyfile_account_address: ChecksumAddress,
         monkeypatch: "MonkeyPatch",
     ) -> None:
         normalized_contract_address = to_hex_if_bytes(
@@ -1499,7 +1501,7 @@ class AsyncEthModuleTest:
         self,
         async_w3: "AsyncWeb3",
         async_offchain_lookup_contract: "AsyncContract",
-        async_test_sender_account: ChecksumAddress,
+        async_keyfile_account_address: ChecksumAddress,
         monkeypatch: "MonkeyPatch",
     ) -> None:
         normalized_contract_address = to_hex_if_bytes(
@@ -1544,7 +1546,7 @@ class AsyncEthModuleTest:
         self,
         async_w3: "AsyncWeb3",
         async_offchain_lookup_contract: "AsyncContract",
-        async_test_sender_account: ChecksumAddress,
+        async_keyfile_account_address: ChecksumAddress,
         monkeypatch: "MonkeyPatch",
     ) -> None:
         normalized_contract_address = to_hex_if_bytes(
@@ -1568,7 +1570,7 @@ class AsyncEthModuleTest:
         self,
         async_w3: "AsyncWeb3",
         async_offchain_lookup_contract: "AsyncContract",
-        async_test_sender_account: ChecksumAddress,
+        async_keyfile_account_address: ChecksumAddress,
         monkeypatch: "MonkeyPatch",
         status_code_non_4xx_error: int,
     ) -> None:
@@ -1606,7 +1608,7 @@ class AsyncEthModuleTest:
         self,
         async_w3: "AsyncWeb3",
         async_offchain_lookup_contract: "AsyncContract",
-        async_test_sender_account: ChecksumAddress,
+        async_keyfile_account_address: ChecksumAddress,
         monkeypatch: "MonkeyPatch",
     ) -> None:
         normalized_contract_address = to_hex_if_bytes(
@@ -1627,7 +1629,6 @@ class AsyncEthModuleTest:
     @pytest.mark.asyncio
     async def test_eth_call_offchain_lookup_raises_when_all_supplied_urls_fail(
         self,
-        async_w3: "AsyncWeb3",
         async_offchain_lookup_contract: "AsyncContract",
     ) -> None:
         # GET and POST requests should fail since responses are not mocked
@@ -1641,9 +1642,7 @@ class AsyncEthModuleTest:
     @pytest.mark.asyncio
     async def test_eth_call_continuous_offchain_lookup_raises_with_too_many_requests(
         self,
-        async_w3: "AsyncWeb3",
         async_offchain_lookup_contract: "AsyncContract",
-        async_test_sender_account: ChecksumAddress,
         monkeypatch: "MonkeyPatch",
     ) -> None:
         normalized_contract_address = to_hex_if_bytes(
@@ -1699,12 +1698,12 @@ class AsyncEthModuleTest:
     async def test_async_eth_get_transaction_receipt_unmined(
         self,
         async_w3: "AsyncWeb3",
-        async_test_sender_account_dual_type: ChecksumAddress,
+        async_keyfile_account_address_dual_type: ChecksumAddress,
     ) -> None:
         txn_hash = await async_w3.eth.send_transaction(
             {
-                "from": async_test_sender_account_dual_type,
-                "to": async_test_sender_account_dual_type,
+                "from": async_keyfile_account_address_dual_type,
+                "to": async_keyfile_account_address_dual_type,
                 "value": Wei(1),
                 "gas": 21000,
                 "maxFeePerGas": async_w3.to_wei(3, "gwei"),
@@ -1764,12 +1763,12 @@ class AsyncEthModuleTest:
     async def test_async_eth_wait_for_transaction_receipt_unmined(
         self,
         async_w3: "AsyncWeb3",
-        async_test_sender_account_dual_type: ChecksumAddress,
+        async_keyfile_account_address_dual_type: ChecksumAddress,
     ) -> None:
         txn_hash = await async_w3.eth.send_transaction(
             {
-                "from": async_test_sender_account_dual_type,
-                "to": async_test_sender_account_dual_type,
+                "from": async_keyfile_account_address_dual_type,
+                "to": async_keyfile_account_address_dual_type,
                 "value": Wei(1),
                 "gas": 21000,
                 "maxFeePerGas": async_w3.to_wei(3, "gwei"),
@@ -2033,16 +2032,16 @@ class AsyncEthModuleTest:
     def test_async_provider_default_account(
         self,
         async_w3: "AsyncWeb3",
-        async_test_sender_account_dual_type: ChecksumAddress,
+        async_keyfile_account_address_dual_type: ChecksumAddress,
     ) -> None:
         # check defaults to empty
         default_account = async_w3.eth.default_account
         assert default_account is empty
 
         # check setter
-        async_w3.eth.default_account = async_test_sender_account_dual_type
+        async_w3.eth.default_account = async_keyfile_account_address_dual_type
         default_account = async_w3.eth.default_account
-        assert default_account == async_test_sender_account_dual_type
+        assert default_account == async_keyfile_account_address_dual_type
 
         # reset to default
         async_w3.eth.default_account = empty
@@ -2129,10 +2128,10 @@ class AsyncEthModuleTest:
     async def test_async_eth_sign(
         self,
         async_w3: "AsyncWeb3",
-        async_test_sender_account_dual_type: ChecksumAddress,
+        async_keyfile_account_address_dual_type: ChecksumAddress,
     ) -> None:
         signature = await async_w3.eth.sign(
-            async_test_sender_account_dual_type,
+            async_keyfile_account_address_dual_type,
             text="Message tö sign. Longer than hash!",
         )
         assert is_bytes(signature)
@@ -2140,7 +2139,7 @@ class AsyncEthModuleTest:
 
         # test other formats
         hexsign = await async_w3.eth.sign(
-            async_test_sender_account_dual_type,
+            async_keyfile_account_address_dual_type,
             hexstr=HexStr(
                 "0x4d6573736167652074c3b6207369676e2e204c6f6e676572207468616e206861736821"  # noqa: E501
             ),
@@ -2148,19 +2147,20 @@ class AsyncEthModuleTest:
         assert hexsign == signature
 
         intsign = await async_w3.eth.sign(
-            async_test_sender_account_dual_type,
+            async_keyfile_account_address_dual_type,
             0x4D6573736167652074C3B6207369676E2E204C6F6E676572207468616E206861736821,
         )
         assert intsign == signature
 
         bytessign = await async_w3.eth.sign(
-            async_test_sender_account_dual_type,
+            async_keyfile_account_address_dual_type,
             b"Message t\xc3\xb6 sign. Longer than hash!",
         )
         assert bytessign == signature
 
         new_signature = await async_w3.eth.sign(
-            async_test_sender_account_dual_type, text="different message is different"
+            async_keyfile_account_address_dual_type,
+            text="different message is different",
         )
         assert new_signature != signature
 
@@ -2171,10 +2171,10 @@ class AsyncEthModuleTest:
     async def test_async_eth_sign_ens_names(
         self,
         async_w3: "AsyncWeb3",
-        async_test_sender_account_dual_type: ChecksumAddress,
+        async_keyfile_account_address_dual_type: ChecksumAddress,
     ) -> None:
         with ens_addresses(
-            async_w3, {"unlocked-acct.eth": async_test_sender_account_dual_type}
+            async_w3, {"unlocked-acct.eth": async_keyfile_account_address_dual_type}
         ):
             signature = await async_w3.eth.sign(
                 ENS("unlocked-acct.eth"), text="Message tö sign. Longer than hash!"
@@ -2187,11 +2187,11 @@ class AsyncEthModuleTest:
     async def test_async_eth_replace_transaction_legacy(
         self,
         async_w3: "AsyncWeb3",
-        async_test_sender_account_dual_type: ChecksumAddress,
+        async_keyfile_account_address_dual_type: ChecksumAddress,
     ) -> None:
         txn_params: TxParams = {
-            "from": async_test_sender_account_dual_type,
-            "to": async_test_sender_account_dual_type,
+            "from": async_keyfile_account_address_dual_type,
+            "to": async_keyfile_account_address_dual_type,
             "value": Wei(1),
             "gas": 21000,
             "gasPrice": async_w3.to_wei(1, "gwei"),
@@ -2217,14 +2217,14 @@ class AsyncEthModuleTest:
     async def test_async_eth_replace_transaction(
         self,
         async_w3: "AsyncWeb3",
-        async_test_sender_account_dual_type: ChecksumAddress,
+        async_keyfile_account_address_dual_type: ChecksumAddress,
     ) -> None:
         two_gwei_in_wei = async_w3.to_wei(2, "gwei")
         three_gwei_in_wei = async_w3.to_wei(3, "gwei")
 
         txn_params: TxParams = {
-            "from": async_test_sender_account_dual_type,
-            "to": async_test_sender_account_dual_type,
+            "from": async_keyfile_account_address_dual_type,
+            "to": async_keyfile_account_address_dual_type,
             "value": Wei(1),
             "gas": 21000,
             "maxFeePerGas": two_gwei_in_wei,
@@ -2254,11 +2254,11 @@ class AsyncEthModuleTest:
     async def test_async_eth_replace_transaction_underpriced(
         self,
         async_w3: "AsyncWeb3",
-        async_test_sender_account_dual_type: ChecksumAddress,
+        async_keyfile_account_address_dual_type: ChecksumAddress,
     ) -> None:
         txn_params: TxParams = {
-            "from": async_test_sender_account_dual_type,
-            "to": async_test_sender_account_dual_type,
+            "from": async_keyfile_account_address_dual_type,
+            "to": async_keyfile_account_address_dual_type,
             "value": Wei(1),
             "gas": 21000,
             "maxFeePerGas": async_w3.to_wei(3, "gwei"),
@@ -2278,11 +2278,11 @@ class AsyncEthModuleTest:
     async def test_async_eth_replace_transaction_non_existing_transaction(
         self,
         async_w3: "AsyncWeb3",
-        async_test_sender_account_dual_type: ChecksumAddress,
+        async_keyfile_account_address_dual_type: ChecksumAddress,
     ) -> None:
         txn_params: TxParams = {
-            "from": async_test_sender_account_dual_type,
-            "to": async_test_sender_account_dual_type,
+            "from": async_keyfile_account_address_dual_type,
+            "to": async_keyfile_account_address_dual_type,
             "value": Wei(1),
             "gas": 21000,
             "maxFeePerGas": async_w3.to_wei(3, "gwei"),
@@ -2301,11 +2301,11 @@ class AsyncEthModuleTest:
     async def test_async_eth_replace_transaction_already_mined(
         self,
         async_w3: "AsyncWeb3",
-        async_test_sender_account_dual_type: ChecksumAddress,
+        async_keyfile_account_address_dual_type: ChecksumAddress,
     ) -> None:
         txn_params: TxParams = {
-            "from": async_test_sender_account_dual_type,
-            "to": async_test_sender_account_dual_type,
+            "from": async_keyfile_account_address_dual_type,
+            "to": async_keyfile_account_address_dual_type,
             "value": Wei(1),
             "gas": 21000,
             "maxFeePerGas": async_w3.to_wei(2, "gwei"),
@@ -2322,11 +2322,11 @@ class AsyncEthModuleTest:
     @flaky_geth_dev_mining
     @pytest.mark.asyncio
     async def test_async_eth_replace_transaction_incorrect_nonce(
-        self, async_w3: "AsyncWeb3", async_test_sender_account: ChecksumAddress
+        self, async_w3: "AsyncWeb3", async_keyfile_account_address: ChecksumAddress
     ) -> None:
         txn_params: TxParams = {
-            "from": async_test_sender_account,
-            "to": async_test_sender_account,
+            "from": async_keyfile_account_address,
+            "to": async_keyfile_account_address,
             "value": Wei(1),
             "gas": 21000,
             "maxFeePerGas": async_w3.to_wei(2, "gwei"),
@@ -2346,11 +2346,11 @@ class AsyncEthModuleTest:
     async def test_async_eth_replace_transaction_gas_price_too_low(
         self,
         async_w3: "AsyncWeb3",
-        async_test_sender_account_dual_type: ChecksumAddress,
+        async_keyfile_account_address_dual_type: ChecksumAddress,
     ) -> None:
         txn_params: TxParams = {
-            "from": async_test_sender_account_dual_type,
-            "to": async_test_sender_account_dual_type,
+            "from": async_keyfile_account_address_dual_type,
+            "to": async_keyfile_account_address_dual_type,
             "value": Wei(1),
             "gas": 21000,
             "gasPrice": async_w3.to_wei(2, "gwei"),
@@ -2364,13 +2364,13 @@ class AsyncEthModuleTest:
     @flaky_geth_dev_mining
     @pytest.mark.asyncio
     async def test_async_eth_replace_transaction_gas_price_defaulting_minimum(
-        self, async_w3: "AsyncWeb3", async_test_sender_account: ChecksumAddress
+        self, async_w3: "AsyncWeb3", async_keyfile_account_address: ChecksumAddress
     ) -> None:
         gas_price = async_w3.to_wei(1, "gwei")
 
         txn_params: TxParams = {
-            "from": async_test_sender_account,
-            "to": async_test_sender_account,
+            "from": async_keyfile_account_address,
+            "to": async_keyfile_account_address,
             "value": Wei(1),
             "gas": 21000,
             "gasPrice": gas_price,
@@ -2388,11 +2388,11 @@ class AsyncEthModuleTest:
     @flaky_geth_dev_mining
     @pytest.mark.asyncio
     async def test_async_eth_replace_transaction_gas_price_defaulting_strategy_higher(
-        self, async_w3: "AsyncWeb3", async_test_sender_account: ChecksumAddress
+        self, async_w3: "AsyncWeb3", async_keyfile_account_address: ChecksumAddress
     ) -> None:
         txn_params: TxParams = {
-            "from": async_test_sender_account,
-            "to": async_test_sender_account,
+            "from": async_keyfile_account_address,
+            "to": async_keyfile_account_address,
             "value": Wei(1),
             "gas": 21000,
             "gasPrice": async_w3.to_wei(1, "gwei"),
@@ -2417,13 +2417,13 @@ class AsyncEthModuleTest:
     @flaky_geth_dev_mining
     @pytest.mark.asyncio
     async def test_async_eth_replace_transaction_gas_price_defaulting_strategy_lower(
-        self, async_w3: "AsyncWeb3", async_test_sender_account: ChecksumAddress
+        self, async_w3: "AsyncWeb3", async_keyfile_account_address: ChecksumAddress
     ) -> None:
         gas_price = async_w3.to_wei(2, "gwei")
 
         txn_params: TxParams = {
-            "from": async_test_sender_account,
-            "to": async_test_sender_account,
+            "from": async_keyfile_account_address,
+            "to": async_keyfile_account_address,
             "value": Wei(1),
             "gas": 21000,
             "gasPrice": gas_price,
@@ -2679,17 +2679,19 @@ class EthModuleTest:
             )
 
     def test_eth_get_transaction_count(
-        self, w3: "Web3", test_sender_account_dual_type: ChecksumAddress
+        self, w3: "Web3", keyfile_account_address_dual_type: ChecksumAddress
     ) -> None:
-        transaction_count = w3.eth.get_transaction_count(test_sender_account_dual_type)
+        transaction_count = w3.eth.get_transaction_count(
+            keyfile_account_address_dual_type
+        )
         assert is_integer(transaction_count)
         assert transaction_count >= 0
 
     def test_eth_get_transaction_count_ens_name(
-        self, w3: "Web3", test_sender_account_dual_type: ChecksumAddress
+        self, w3: "Web3", keyfile_account_address_dual_type: ChecksumAddress
     ) -> None:
         with ens_addresses(
-            w3, {"unlocked-acct-dual-type.eth": test_sender_account_dual_type}
+            w3, {"unlocked-acct-dual-type.eth": keyfile_account_address_dual_type}
         ):
             transaction_count = w3.eth.get_transaction_count(
                 ENS("unlocked-acct-dual-type.eth")
@@ -2787,12 +2789,12 @@ class EthModuleTest:
     def test_eth_create_access_list(
         self,
         w3: "Web3",
-        test_sender_account_dual_type: ChecksumAddress,
+        keyfile_account_address_dual_type: ChecksumAddress,
         math_contract: "Contract",
     ) -> None:
         # build txn
         txn = math_contract.functions.incrementCounter(1).build_transaction(
-            {"from": test_sender_account_dual_type}
+            {"from": keyfile_account_address_dual_type}
         )
 
         # create access list
@@ -2814,17 +2816,17 @@ class EthModuleTest:
         w3.eth.send_transaction(txn)
 
     def test_eth_sign(
-        self, w3: "Web3", test_sender_account_dual_type: ChecksumAddress
+        self, w3: "Web3", keyfile_account_address_dual_type: ChecksumAddress
     ) -> None:
         signature = w3.eth.sign(
-            test_sender_account_dual_type, text="Message tö sign. Longer than hash!"
+            keyfile_account_address_dual_type, text="Message tö sign. Longer than hash!"
         )
         assert is_bytes(signature)
         assert len(signature) == 32 + 32 + 1
 
         # test other formats
         hexsign = w3.eth.sign(
-            test_sender_account_dual_type,
+            keyfile_account_address_dual_type,
             hexstr=HexStr(
                 "0x4d6573736167652074c3b6207369676e2e204c6f6e676572207468616e206861736821"  # noqa: E501
             ),
@@ -2832,25 +2834,28 @@ class EthModuleTest:
         assert hexsign == signature
 
         intsign = w3.eth.sign(
-            test_sender_account_dual_type,
+            keyfile_account_address_dual_type,
             0x4D6573736167652074C3B6207369676E2E204C6F6E676572207468616E206861736821,
         )
         assert intsign == signature
 
         bytessign = w3.eth.sign(
-            test_sender_account_dual_type, b"Message t\xc3\xb6 sign. Longer than hash!"
+            keyfile_account_address_dual_type,
+            b"Message t\xc3\xb6 sign. Longer than hash!",
         )
         assert bytessign == signature
 
         new_signature = w3.eth.sign(
-            test_sender_account_dual_type, text="different message is different"
+            keyfile_account_address_dual_type, text="different message is different"
         )
         assert new_signature != signature
 
     def test_eth_sign_ens_names(
-        self, w3: "Web3", test_sender_account_dual_type: ChecksumAddress
+        self, w3: "Web3", keyfile_account_address_dual_type: ChecksumAddress
     ) -> None:
-        with ens_addresses(w3, {"unlocked-acct.eth": test_sender_account_dual_type}):
+        with ens_addresses(
+            w3, {"unlocked-acct.eth": keyfile_account_address_dual_type}
+        ):
             signature = w3.eth.sign(
                 "unlocked-acct.eth", text="Message tö sign. Longer than hash!"
             )
@@ -2860,7 +2865,7 @@ class EthModuleTest:
     def test_eth_sign_typed_data(
         self,
         w3: "Web3",
-        test_sender_account_dual_type: ChecksumAddress,
+        keyfile_account_address_dual_type: ChecksumAddress,
         skip_if_testrpc: Callable[["Web3"], None],
     ) -> None:
         validJSONMessage = """
@@ -2905,7 +2910,7 @@ class EthModuleTest:
         skip_if_testrpc(w3)
         signature = HexBytes(
             w3.eth.sign_typed_data(
-                test_sender_account_dual_type, json.loads(validJSONMessage)
+                keyfile_account_address_dual_type, json.loads(validJSONMessage)
             )
         )
         assert len(signature) == 32 + 32 + 1
@@ -2913,7 +2918,7 @@ class EthModuleTest:
     def test_invalid_eth_sign_typed_data(
         self,
         w3: "Web3",
-        test_sender_account_dual_type: ChecksumAddress,
+        keyfile_account_address_dual_type: ChecksumAddress,
         skip_if_testrpc: Callable[["Web3"], None],
     ) -> None:
         skip_if_testrpc(w3)
@@ -2961,15 +2966,15 @@ class EthModuleTest:
             match=r".*Expected 2 items for array type Person\[2\], got 1 items.*",
         ):
             w3.eth.sign_typed_data(
-                test_sender_account_dual_type, json.loads(invalid_typed_message)
+                keyfile_account_address_dual_type, json.loads(invalid_typed_message)
             )
 
     def test_eth_sign_transaction_legacy(
-        self, w3: "Web3", test_sender_account: ChecksumAddress
+        self, w3: "Web3", keyfile_account_address: ChecksumAddress
     ) -> None:
         txn_params: TxParams = {
-            "from": test_sender_account,
-            "to": test_sender_account,
+            "from": keyfile_account_address,
+            "to": keyfile_account_address,
             "value": Wei(1),
             "gas": 21000,
             "gasPrice": w3.eth.gas_price,
@@ -2977,7 +2982,7 @@ class EthModuleTest:
         }
         result = w3.eth.sign_transaction(txn_params)
         signatory_account = w3.eth.account.recover_transaction(result["raw"])
-        assert test_sender_account == signatory_account
+        assert keyfile_account_address == signatory_account
         assert result["tx"]["to"] == txn_params["to"]
         assert result["tx"]["value"] == txn_params["value"]
         assert result["tx"]["gas"] == txn_params["gas"]
@@ -2985,11 +2990,11 @@ class EthModuleTest:
         assert result["tx"]["nonce"] == txn_params["nonce"]
 
     def test_eth_sign_transaction(
-        self, w3: "Web3", test_sender_account: ChecksumAddress
+        self, w3: "Web3", keyfile_account_address: ChecksumAddress
     ) -> None:
         txn_params: TxParams = {
-            "from": test_sender_account,
-            "to": test_sender_account,
+            "from": keyfile_account_address,
+            "to": keyfile_account_address,
             "value": Wei(1),
             "gas": 21000,
             "maxFeePerGas": w3.to_wei(2, "gwei"),
@@ -2998,7 +3003,7 @@ class EthModuleTest:
         }
         result = w3.eth.sign_transaction(txn_params)
         signatory_account = w3.eth.account.recover_transaction(result["raw"])
-        assert test_sender_account == signatory_account
+        assert keyfile_account_address == signatory_account
         assert result["tx"]["to"] == txn_params["to"]
         assert result["tx"]["value"] == txn_params["value"]
         assert result["tx"]["gas"] == txn_params["gas"]
@@ -3009,11 +3014,11 @@ class EthModuleTest:
         assert result["tx"]["nonce"] == txn_params["nonce"]
 
     def test_eth_sign_transaction_hex_fees(
-        self, w3: "Web3", test_sender_account: ChecksumAddress
+        self, w3: "Web3", keyfile_account_address: ChecksumAddress
     ) -> None:
         txn_params: TxParams = {
-            "from": test_sender_account,
-            "to": test_sender_account,
+            "from": keyfile_account_address,
+            "to": keyfile_account_address,
             "value": Wei(1),
             "gas": 21000,
             "maxFeePerGas": hex(w3.to_wei(2, "gwei")),
@@ -3022,7 +3027,7 @@ class EthModuleTest:
         }
         result = w3.eth.sign_transaction(txn_params)
         signatory_account = w3.eth.account.recover_transaction(result["raw"])
-        assert test_sender_account == signatory_account
+        assert keyfile_account_address == signatory_account
         assert result["tx"]["to"] == txn_params["to"]
         assert result["tx"]["value"] == txn_params["value"]
         assert result["tx"]["gas"] == txn_params["gas"]
@@ -3033,9 +3038,9 @@ class EthModuleTest:
         assert result["tx"]["nonce"] == txn_params["nonce"]
 
     def test_eth_sign_transaction_ens_names(
-        self, w3: "Web3", test_sender_account: ChecksumAddress
+        self, w3: "Web3", keyfile_account_address: ChecksumAddress
     ) -> None:
-        with ens_addresses(w3, {"unlocked-account.eth": test_sender_account}):
+        with ens_addresses(w3, {"unlocked-account.eth": keyfile_account_address}):
             txn_params: TxParams = {
                 "from": "unlocked-account.eth",
                 "to": "unlocked-account.eth",
@@ -3047,8 +3052,8 @@ class EthModuleTest:
             }
             result = w3.eth.sign_transaction(txn_params)
             signatory_account = w3.eth.account.recover_transaction(result["raw"])
-            assert test_sender_account == signatory_account
-            assert result["tx"]["to"] == test_sender_account
+            assert keyfile_account_address == signatory_account
+            assert result["tx"]["to"] == keyfile_account_address
             assert result["tx"]["value"] == txn_params["value"]
             assert result["tx"]["gas"] == txn_params["gas"]
             assert result["tx"]["maxFeePerGas"] == txn_params["maxFeePerGas"]
@@ -3059,12 +3064,12 @@ class EthModuleTest:
             assert result["tx"]["nonce"] == txn_params["nonce"]
 
     def test_eth_send_transaction_addr_checksum_required(
-        self, w3: "Web3", test_sender_account: ChecksumAddress
+        self, w3: "Web3", keyfile_account_address: ChecksumAddress
     ) -> None:
-        non_checksum_addr = test_sender_account.lower()
+        non_checksum_addr = keyfile_account_address.lower()
         txn_params: TxParams = {
-            "from": test_sender_account,
-            "to": test_sender_account,
+            "from": keyfile_account_address,
+            "to": keyfile_account_address,
             "value": Wei(1),
             "gas": 21000,
             "maxFeePerGas": w3.to_wei(2, "gwei"),
@@ -3084,11 +3089,11 @@ class EthModuleTest:
             w3.eth.send_transaction(invalid_params)
 
     def test_eth_send_transaction_legacy(
-        self, w3: "Web3", test_sender_account_dual_type: ChecksumAddress
+        self, w3: "Web3", keyfile_account_address_dual_type: ChecksumAddress
     ) -> None:
         txn_params: TxParams = {
-            "from": test_sender_account_dual_type,
-            "to": test_sender_account_dual_type,
+            "from": keyfile_account_address_dual_type,
+            "to": keyfile_account_address_dual_type,
             "value": Wei(1),
             "gas": 21000,
             "gasPrice": w3.to_wei(
@@ -3105,11 +3110,11 @@ class EthModuleTest:
         assert txn["gasPrice"] == txn_params["gasPrice"]
 
     def test_eth_send_transaction(
-        self, w3: "Web3", test_sender_account_dual_type: ChecksumAddress
+        self, w3: "Web3", keyfile_account_address_dual_type: ChecksumAddress
     ) -> None:
         txn_params: TxParams = {
-            "from": test_sender_account_dual_type,
-            "to": test_sender_account_dual_type,
+            "from": keyfile_account_address_dual_type,
+            "to": keyfile_account_address_dual_type,
             "value": Wei(1),
             "gas": 21000,
             "maxFeePerGas": w3.to_wei(3, "gwei"),
@@ -3127,21 +3132,21 @@ class EthModuleTest:
         assert txn["gasPrice"] == txn_params["maxFeePerGas"]
 
     def test_eth_send_transaction_with_nonce(
-        self, w3: "Web3", test_sender_account: ChecksumAddress
+        self, w3: "Web3", keyfile_account_address: ChecksumAddress
     ) -> None:
         max_priority_fee_per_gas = w3.to_wei(1.234, "gwei")
         max_fee_per_gas = Wei(
             w3.eth.get_block("latest")["baseFeePerGas"] + max_priority_fee_per_gas
         )
         txn_params: TxParams = {
-            "from": test_sender_account,
-            "to": test_sender_account,
+            "from": keyfile_account_address,
+            "to": keyfile_account_address,
             "value": Wei(1),
             "gas": 21000,
             "maxFeePerGas": max_fee_per_gas,
             "maxPriorityFeePerGas": max_priority_fee_per_gas,
             "nonce": Nonce(
-                w3.eth.get_transaction_count(test_sender_account, "pending")
+                w3.eth.get_transaction_count(keyfile_account_address, "pending")
             ),
         }
         txn_hash = w3.eth.send_transaction(txn_params)
@@ -3158,11 +3163,11 @@ class EthModuleTest:
         assert is_integer(txn_params["maxFeePerGas"])
 
     def test_eth_send_transaction_default_fees(
-        self, w3: "Web3", test_sender_account_dual_type: ChecksumAddress
+        self, w3: "Web3", keyfile_account_address_dual_type: ChecksumAddress
     ) -> None:
         txn_params: TxParams = {
-            "from": test_sender_account_dual_type,
-            "to": test_sender_account_dual_type,
+            "from": keyfile_account_address_dual_type,
+            "to": keyfile_account_address_dual_type,
             "value": Wei(1),
             "gas": 21000,
         }
@@ -3178,11 +3183,11 @@ class EthModuleTest:
         assert txn["gasPrice"] == txn["maxFeePerGas"]
 
     def test_eth_send_transaction_hex_fees(
-        self, w3: "Web3", test_sender_account_dual_type: ChecksumAddress
+        self, w3: "Web3", keyfile_account_address_dual_type: ChecksumAddress
     ) -> None:
         txn_params: TxParams = {
-            "from": test_sender_account_dual_type,
-            "to": test_sender_account_dual_type,
+            "from": keyfile_account_address_dual_type,
+            "to": keyfile_account_address_dual_type,
             "value": Wei(1),
             "gas": 21000,
             "maxFeePerGas": hex(250 * 10**9),
@@ -3199,11 +3204,11 @@ class EthModuleTest:
         assert txn["maxPriorityFeePerGas"] == 2 * 10**9
 
     def test_eth_send_transaction_no_gas(
-        self, w3: "Web3", test_sender_account_dual_type: ChecksumAddress
+        self, w3: "Web3", keyfile_account_address_dual_type: ChecksumAddress
     ) -> None:
         txn_params: TxParams = {
-            "from": test_sender_account_dual_type,
-            "to": test_sender_account_dual_type,
+            "from": keyfile_account_address_dual_type,
+            "to": keyfile_account_address_dual_type,
             "value": Wei(1),
             "maxFeePerGas": Wei(250 * 10**9),
             "maxPriorityFeePerGas": Wei(2 * 10**9),
@@ -3217,11 +3222,11 @@ class EthModuleTest:
         assert txn["gas"] == 121000  # 21000 + buffer
 
     def test_eth_send_transaction_with_gas_price(
-        self, w3: "Web3", test_sender_account_dual_type: ChecksumAddress
+        self, w3: "Web3", keyfile_account_address_dual_type: ChecksumAddress
     ) -> None:
         txn_params: TxParams = {
-            "from": test_sender_account_dual_type,
-            "to": test_sender_account_dual_type,
+            "from": keyfile_account_address_dual_type,
+            "to": keyfile_account_address_dual_type,
             "value": Wei(1),
             "gas": 21000,
             "gasPrice": Wei(1),
@@ -3232,11 +3237,11 @@ class EthModuleTest:
             w3.eth.send_transaction(txn_params)
 
     def test_eth_send_transaction_no_priority_fee(
-        self, w3: "Web3", test_sender_account_dual_type: ChecksumAddress
+        self, w3: "Web3", keyfile_account_address_dual_type: ChecksumAddress
     ) -> None:
         txn_params: TxParams = {
-            "from": test_sender_account_dual_type,
-            "to": test_sender_account_dual_type,
+            "from": keyfile_account_address_dual_type,
+            "to": keyfile_account_address_dual_type,
             "value": Wei(1),
             "gas": 21000,
             "maxFeePerGas": Wei(250 * 10**9),
@@ -3247,12 +3252,12 @@ class EthModuleTest:
             w3.eth.send_transaction(txn_params)
 
     def test_eth_send_transaction_no_max_fee(
-        self, w3: "Web3", test_sender_account_dual_type: ChecksumAddress
+        self, w3: "Web3", keyfile_account_address_dual_type: ChecksumAddress
     ) -> None:
         max_priority_fee_per_gas = w3.to_wei(2, "gwei")
         txn_params: TxParams = {
-            "from": test_sender_account_dual_type,
-            "to": test_sender_account_dual_type,
+            "from": keyfile_account_address_dual_type,
+            "to": keyfile_account_address_dual_type,
             "value": Wei(1),
             "gas": 21000,
             "maxPriorityFeePerGas": max_priority_fee_per_gas,
@@ -3269,11 +3274,11 @@ class EthModuleTest:
         assert is_integer(txn["maxFeePerGas"])
 
     def test_eth_send_transaction_max_fee_less_than_tip(
-        self, w3: "Web3", test_sender_account_dual_type: ChecksumAddress
+        self, w3: "Web3", keyfile_account_address_dual_type: ChecksumAddress
     ) -> None:
         txn_params: TxParams = {
-            "from": test_sender_account_dual_type,
-            "to": test_sender_account_dual_type,
+            "from": keyfile_account_address_dual_type,
+            "to": keyfile_account_address_dual_type,
             "value": Wei(1),
             "gas": 21000,
             "maxFeePerGas": Wei(1 * 10**9),
@@ -3285,14 +3290,14 @@ class EthModuleTest:
             w3.eth.send_transaction(txn_params)
 
     def test_validation_middleware_chain_id_mismatch(
-        self, w3: "Web3", test_sender_account_dual_type: ChecksumAddress
+        self, w3: "Web3", keyfile_account_address_dual_type: ChecksumAddress
     ) -> None:
         wrong_chain_id = 1234567890
         actual_chain_id = w3.eth.chain_id
 
         txn_params: TxParams = {
-            "from": test_sender_account_dual_type,
-            "to": test_sender_account_dual_type,
+            "from": keyfile_account_address_dual_type,
+            "to": keyfile_account_address_dual_type,
             "value": Wei(1),
             "gas": Wei(21000),
             "maxFeePerGas": w3.to_wei(2, "gwei"),
@@ -3310,12 +3315,15 @@ class EthModuleTest:
         "max_fee", (1000000000, None), ids=["with_max_fee", "without_max_fee"]
     )
     def test_gas_price_from_strategy_bypassed_for_dynamic_fee_txn(
-        self, w3: "Web3", test_sender_account_dual_type: ChecksumAddress, max_fee: Wei
+        self,
+        w3: "Web3",
+        keyfile_account_address_dual_type: ChecksumAddress,
+        max_fee: Wei,
     ) -> None:
         max_priority_fee = w3.to_wei(1, "gwei")
         txn_params: TxParams = {
-            "from": test_sender_account_dual_type,
-            "to": test_sender_account_dual_type,
+            "from": keyfile_account_address_dual_type,
+            "to": keyfile_account_address_dual_type,
             "value": Wei(1),
             "gas": 21000,
             "maxPriorityFeePerGas": max_priority_fee,
@@ -3345,11 +3353,11 @@ class EthModuleTest:
     def test_gas_price_from_strategy_bypassed_for_dynamic_fee_txn_no_tip(
         self,
         w3: "Web3",
-        test_sender_account_dual_type: ChecksumAddress,
+        keyfile_account_address_dual_type: ChecksumAddress,
     ) -> None:
         txn_params: TxParams = {
-            "from": test_sender_account_dual_type,
-            "to": test_sender_account_dual_type,
+            "from": keyfile_account_address_dual_type,
+            "to": keyfile_account_address_dual_type,
             "value": Wei(1),
             "gas": 21000,
             "maxFeePerGas": Wei(1000000000),
@@ -3368,11 +3376,11 @@ class EthModuleTest:
         w3.eth.set_gas_price_strategy(None)  # reset strategy
 
     def test_gas_price_strategy_hex_value(
-        self, w3: "Web3", test_sender_account_dual_type: ChecksumAddress
+        self, w3: "Web3", keyfile_account_address_dual_type: ChecksumAddress
     ) -> None:
         txn_params: TxParams = {
-            "from": test_sender_account_dual_type,
-            "to": test_sender_account_dual_type,
+            "from": keyfile_account_address_dual_type,
+            "to": keyfile_account_address_dual_type,
             "value": Wei(1),
             "gas": 21000,
         }
@@ -3391,11 +3399,11 @@ class EthModuleTest:
 
     @flaky_geth_dev_mining
     def test_eth_replace_transaction_legacy(
-        self, w3: "Web3", test_sender_account_dual_type: ChecksumAddress
+        self, w3: "Web3", keyfile_account_address_dual_type: ChecksumAddress
     ) -> None:
         txn_params: TxParams = {
-            "from": test_sender_account_dual_type,
-            "to": test_sender_account_dual_type,
+            "from": keyfile_account_address_dual_type,
+            "to": keyfile_account_address_dual_type,
             "value": Wei(1),
             "gas": 21000,
             "gasPrice": w3.to_wei(
@@ -3420,14 +3428,14 @@ class EthModuleTest:
 
     @flaky_geth_dev_mining
     def test_eth_replace_transaction(
-        self, w3: "Web3", test_sender_account_dual_type: ChecksumAddress
+        self, w3: "Web3", keyfile_account_address_dual_type: ChecksumAddress
     ) -> None:
         two_gwei_in_wei = w3.to_wei(2, "gwei")
         three_gwei_in_wei = w3.to_wei(3, "gwei")
 
         txn_params: TxParams = {
-            "from": test_sender_account_dual_type,
-            "to": test_sender_account_dual_type,
+            "from": keyfile_account_address_dual_type,
+            "to": keyfile_account_address_dual_type,
             "value": Wei(1),
             "gas": 21000,
             "maxFeePerGas": two_gwei_in_wei,
@@ -3454,11 +3462,11 @@ class EthModuleTest:
 
     @flaky_geth_dev_mining
     def test_eth_replace_transaction_underpriced(
-        self, w3: "Web3", test_sender_account_dual_type: ChecksumAddress
+        self, w3: "Web3", keyfile_account_address_dual_type: ChecksumAddress
     ) -> None:
         txn_params: TxParams = {
-            "from": test_sender_account_dual_type,
-            "to": test_sender_account_dual_type,
+            "from": keyfile_account_address_dual_type,
+            "to": keyfile_account_address_dual_type,
             "value": Wei(1),
             "gas": 21000,
             "maxFeePerGas": w3.to_wei(3, "gwei"),
@@ -3475,11 +3483,11 @@ class EthModuleTest:
 
     @flaky_geth_dev_mining
     def test_eth_replace_transaction_non_existing_transaction(
-        self, w3: "Web3", test_sender_account_dual_type: ChecksumAddress
+        self, w3: "Web3", keyfile_account_address_dual_type: ChecksumAddress
     ) -> None:
         txn_params: TxParams = {
-            "from": test_sender_account_dual_type,
-            "to": test_sender_account_dual_type,
+            "from": keyfile_account_address_dual_type,
+            "to": keyfile_account_address_dual_type,
             "value": Wei(1),
             "gas": 21000,
             "maxFeePerGas": w3.to_wei(3, "gwei"),
@@ -3495,11 +3503,11 @@ class EthModuleTest:
 
     @flaky_geth_dev_mining
     def test_eth_replace_transaction_already_mined(
-        self, w3: "Web3", test_sender_account_dual_type: ChecksumAddress
+        self, w3: "Web3", keyfile_account_address_dual_type: ChecksumAddress
     ) -> None:
         txn_params: TxParams = {
-            "from": test_sender_account_dual_type,
-            "to": test_sender_account_dual_type,
+            "from": keyfile_account_address_dual_type,
+            "to": keyfile_account_address_dual_type,
             "value": Wei(1),
             "gas": 21000,
             "maxFeePerGas": w3.to_wei(2, "gwei"),
@@ -3515,11 +3523,11 @@ class EthModuleTest:
 
     @flaky_geth_dev_mining
     def test_eth_replace_transaction_incorrect_nonce(
-        self, w3: "Web3", test_sender_account: ChecksumAddress
+        self, w3: "Web3", keyfile_account_address: ChecksumAddress
     ) -> None:
         txn_params: TxParams = {
-            "from": test_sender_account,
-            "to": test_sender_account,
+            "from": keyfile_account_address,
+            "to": keyfile_account_address,
             "value": Wei(1),
             "gas": 21000,
             "maxFeePerGas": w3.to_wei(2, "gwei"),
@@ -3536,11 +3544,11 @@ class EthModuleTest:
 
     @flaky_geth_dev_mining
     def test_eth_replace_transaction_gas_price_too_low(
-        self, w3: "Web3", test_sender_account_dual_type: ChecksumAddress
+        self, w3: "Web3", keyfile_account_address_dual_type: ChecksumAddress
     ) -> None:
         txn_params: TxParams = {
-            "from": test_sender_account_dual_type,
-            "to": test_sender_account_dual_type,
+            "from": keyfile_account_address_dual_type,
+            "to": keyfile_account_address_dual_type,
             "value": Wei(1),
             "gas": 21000,
             "gasPrice": w3.to_wei(2, "gwei"),
@@ -3553,13 +3561,13 @@ class EthModuleTest:
 
     @flaky_geth_dev_mining
     def test_eth_replace_transaction_gas_price_defaulting_minimum(
-        self, w3: "Web3", test_sender_account: ChecksumAddress
+        self, w3: "Web3", keyfile_account_address: ChecksumAddress
     ) -> None:
         gas_price = w3.to_wei(1, "gwei")
 
         txn_params: TxParams = {
-            "from": test_sender_account,
-            "to": test_sender_account,
+            "from": keyfile_account_address,
+            "to": keyfile_account_address,
             "value": Wei(1),
             "gas": 21000,
             "gasPrice": gas_price,
@@ -3576,11 +3584,11 @@ class EthModuleTest:
 
     @flaky_geth_dev_mining
     def test_eth_replace_transaction_gas_price_defaulting_strategy_higher(
-        self, w3: "Web3", test_sender_account: ChecksumAddress
+        self, w3: "Web3", keyfile_account_address: ChecksumAddress
     ) -> None:
         txn_params: TxParams = {
-            "from": test_sender_account,
-            "to": test_sender_account,
+            "from": keyfile_account_address,
+            "to": keyfile_account_address,
             "value": Wei(1),
             "gas": 21000,
             "gasPrice": w3.to_wei(1, "gwei"),
@@ -3604,13 +3612,13 @@ class EthModuleTest:
 
     @flaky_geth_dev_mining
     def test_eth_replace_transaction_gas_price_defaulting_strategy_lower(
-        self, w3: "Web3", test_sender_account: ChecksumAddress
+        self, w3: "Web3", keyfile_account_address: ChecksumAddress
     ) -> None:
         gas_price = w3.to_wei(2, "gwei")
 
         txn_params: TxParams = {
-            "from": test_sender_account,
-            "to": test_sender_account,
+            "from": keyfile_account_address,
+            "to": keyfile_account_address,
             "value": Wei(1),
             "gas": 21000,
             "gasPrice": gas_price,
@@ -3630,11 +3638,11 @@ class EthModuleTest:
         w3.eth.set_gas_price_strategy(None)  # reset strategy
 
     def test_eth_modify_transaction_legacy(
-        self, w3: "Web3", test_sender_account: ChecksumAddress
+        self, w3: "Web3", keyfile_account_address: ChecksumAddress
     ) -> None:
         txn_params: TxParams = {
-            "from": test_sender_account,
-            "to": test_sender_account,
+            "from": keyfile_account_address,
+            "to": keyfile_account_address,
             "value": Wei(1),
             "gas": 21000,
             "gasPrice": w3.to_wei(
@@ -3659,11 +3667,11 @@ class EthModuleTest:
         assert modified_txn["gasPrice"] == cast(int, txn_params["gasPrice"]) * 2
 
     def test_eth_modify_transaction(
-        self, w3: "Web3", test_sender_account: ChecksumAddress
+        self, w3: "Web3", keyfile_account_address: ChecksumAddress
     ) -> None:
         txn_params: TxParams = {
-            "from": test_sender_account,
-            "to": test_sender_account,
+            "from": keyfile_account_address,
+            "to": keyfile_account_address,
             "value": Wei(1),
             "gas": 21000,
             "maxPriorityFeePerGas": w3.to_wei(1, "gwei"),
@@ -3710,7 +3718,7 @@ class EthModuleTest:
             "0x392f63a79b1ff8774845f3fa69de4a13800a59e7083f5187f1558f0797ad0f01",
         )
         txn_hash = w3.eth.send_raw_transaction(signed_tx.raw_transaction)
-        assert txn_hash == signed_tx.hash
+        assert txn_hash == HexBytes(signed_tx.hash)
 
     def test_eth_call(self, w3: "Web3", math_contract: "Contract") -> None:
         coinbase = w3.eth.coinbase
@@ -3804,12 +3812,12 @@ class EthModuleTest:
         self,
         w3: "Web3",
         revert_contract: "Contract",
-        test_sender_account: ChecksumAddress,
+        keyfile_account_address: ChecksumAddress,
     ) -> None:
         txn_params = revert_contract._prepare_transaction(
             fn_name="revertWithMessage",
             transaction={
-                "from": test_sender_account,
+                "from": keyfile_account_address,
                 "to": revert_contract.address,
             },
         )
@@ -3824,13 +3832,13 @@ class EthModuleTest:
         self,
         w3: "Web3",
         revert_contract: "Contract",
-        test_sender_account: ChecksumAddress,
+        keyfile_account_address: ChecksumAddress,
     ) -> None:
         with pytest.raises(ContractLogicError, match="execution reverted"):
             txn_params = revert_contract._prepare_transaction(
                 fn_name="revertWithoutMessage",
                 transaction={
-                    "from": test_sender_account,
+                    "from": keyfile_account_address,
                     "to": revert_contract.address,
                 },
             )
@@ -3840,7 +3848,7 @@ class EthModuleTest:
         self,
         w3: "Web3",
         revert_contract: "Contract",
-        test_sender_account: ChecksumAddress,
+        keyfile_account_address: ChecksumAddress,
     ) -> None:
         data = revert_contract.encode_abi(
             fn_name="UnauthorizedWithMessage", args=["You are not authorized"]
@@ -3848,7 +3856,7 @@ class EthModuleTest:
         txn_params = revert_contract._prepare_transaction(
             fn_name="customErrorWithMessage",
             transaction={
-                "from": test_sender_account,
+                "from": keyfile_account_address,
                 "to": revert_contract.address,
             },
         )
@@ -3860,13 +3868,13 @@ class EthModuleTest:
         self,
         w3: "Web3",
         revert_contract: "Contract",
-        test_sender_account: ChecksumAddress,
+        keyfile_account_address: ChecksumAddress,
     ) -> None:
         data = revert_contract.encode_abi(fn_name="Unauthorized")
         txn_params = revert_contract._prepare_transaction(
             fn_name="customErrorWithoutMessage",
             transaction={
-                "from": test_sender_account,
+                "from": keyfile_account_address,
                 "to": revert_contract.address,
             },
         )
@@ -3908,7 +3916,7 @@ class EthModuleTest:
         self,
         w3: "Web3",
         offchain_lookup_contract: "Contract",
-        test_sender_account: ChecksumAddress,
+        keyfile_account_address: ChecksumAddress,
         monkeypatch: "MonkeyPatch",
     ) -> None:
         normalized_contract_address = to_hex_if_bytes(
@@ -3963,7 +3971,7 @@ class EthModuleTest:
         self,
         w3: "Web3",
         offchain_lookup_contract: "Contract",
-        test_sender_account: ChecksumAddress,
+        keyfile_account_address: ChecksumAddress,
         monkeypatch: "MonkeyPatch",
     ) -> None:
         normalized_contract_address = to_hex_if_bytes(
@@ -4005,7 +4013,7 @@ class EthModuleTest:
         self,
         w3: "Web3",
         offchain_lookup_contract: "Contract",
-        test_sender_account: ChecksumAddress,
+        keyfile_account_address: ChecksumAddress,
         monkeypatch: "MonkeyPatch",
     ) -> None:
         normalized_contract_address = to_hex_if_bytes(
@@ -4027,7 +4035,7 @@ class EthModuleTest:
         self,
         w3: "Web3",
         offchain_lookup_contract: "Contract",
-        test_sender_account: ChecksumAddress,
+        keyfile_account_address: ChecksumAddress,
         monkeypatch: "MonkeyPatch",
         status_code_non_4xx_error: int,
     ) -> None:
@@ -4064,7 +4072,7 @@ class EthModuleTest:
         self,
         w3: "Web3",
         offchain_lookup_contract: "Contract",
-        test_sender_account: ChecksumAddress,
+        keyfile_account_address: ChecksumAddress,
         monkeypatch: "MonkeyPatch",
     ) -> None:
         normalized_contract_address = to_hex_if_bytes(
@@ -4083,7 +4091,6 @@ class EthModuleTest:
 
     def test_eth_call_offchain_lookup_raises_when_all_supplied_urls_fail(
         self,
-        w3: "Web3",
         offchain_lookup_contract: "Contract",
     ) -> None:
         # GET and POST requests should fail since responses are not mocked
@@ -4096,9 +4103,7 @@ class EthModuleTest:
 
     def test_eth_call_continuous_offchain_lookup_raises_with_too_many_requests(
         self,
-        w3: "Web3",
         offchain_lookup_contract: "Contract",
-        test_sender_account: ChecksumAddress,
         monkeypatch: "MonkeyPatch",
     ) -> None:
         normalized_contract_address = to_hex_if_bytes(
@@ -4115,7 +4120,7 @@ class EthModuleTest:
         self,
         w3: "Web3",
         revert_contract: "Contract",
-        test_sender_account: ChecksumAddress,
+        keyfile_account_address: ChecksumAddress,
     ) -> None:
         with pytest.raises(
             ContractLogicError, match="execution reverted: Function has been reverted"
@@ -4123,7 +4128,7 @@ class EthModuleTest:
             txn_params = revert_contract._prepare_transaction(
                 fn_name="revertWithMessage",
                 transaction={
-                    "from": test_sender_account,
+                    "from": keyfile_account_address,
                     "to": revert_contract.address,
                 },
             )
@@ -4133,13 +4138,13 @@ class EthModuleTest:
         self,
         w3: "Web3",
         revert_contract: "Contract",
-        test_sender_account: ChecksumAddress,
+        keyfile_account_address: ChecksumAddress,
     ) -> None:
         with pytest.raises(ContractLogicError, match="execution reverted"):
             txn_params = revert_contract._prepare_transaction(
                 fn_name="revertWithoutMessage",
                 transaction={
-                    "from": test_sender_account,
+                    "from": keyfile_account_address,
                     "to": revert_contract.address,
                 },
             )
@@ -4149,7 +4154,7 @@ class EthModuleTest:
         self,
         w3: "Web3",
         revert_contract: "Contract",
-        test_sender_account: ChecksumAddress,
+        keyfile_account_address: ChecksumAddress,
     ) -> None:
         data = revert_contract.encode_abi(
             fn_name="UnauthorizedWithMessage", args=["You are not authorized"]
@@ -4157,7 +4162,7 @@ class EthModuleTest:
         txn_params = revert_contract._prepare_transaction(
             fn_name="customErrorWithMessage",
             transaction={
-                "from": test_sender_account,
+                "from": keyfile_account_address,
                 "to": revert_contract.address,
             },
         )
@@ -4169,13 +4174,13 @@ class EthModuleTest:
         self,
         w3: "Web3",
         revert_contract: "Contract",
-        test_sender_account: ChecksumAddress,
+        keyfile_account_address: ChecksumAddress,
     ) -> None:
         data = revert_contract.encode_abi(fn_name="Unauthorized")
         txn_params = revert_contract._prepare_transaction(
             fn_name="customErrorWithoutMessage",
             transaction={
-                "from": test_sender_account,
+                "from": keyfile_account_address,
                 "to": revert_contract.address,
             },
         )
@@ -4184,12 +4189,12 @@ class EthModuleTest:
         assert excinfo.value.data == data
 
     def test_eth_estimate_gas(
-        self, w3: "Web3", test_sender_account_dual_type: ChecksumAddress
+        self, w3: "Web3", keyfile_account_address_dual_type: ChecksumAddress
     ) -> None:
         gas_estimate = w3.eth.estimate_gas(
             {
-                "from": test_sender_account_dual_type,
-                "to": test_sender_account_dual_type,
+                "from": keyfile_account_address_dual_type,
+                "to": keyfile_account_address_dual_type,
                 "value": Wei(1),
             }
         )
@@ -4197,12 +4202,12 @@ class EthModuleTest:
         assert gas_estimate > 0
 
     def test_eth_estimate_gas_with_block(
-        self, w3: "Web3", test_sender_account_dual_type: ChecksumAddress
+        self, w3: "Web3", keyfile_account_address_dual_type: ChecksumAddress
     ) -> None:
         gas_estimate = w3.eth.estimate_gas(
             {
-                "from": test_sender_account_dual_type,
-                "to": test_sender_account_dual_type,
+                "from": keyfile_account_address_dual_type,
+                "to": keyfile_account_address_dual_type,
                 "value": Wei(1),
             },
             "latest",
@@ -4383,12 +4388,12 @@ class EthModuleTest:
         assert effective_gas_price > 0
 
     def test_eth_get_transaction_receipt_unmined(
-        self, w3: "Web3", test_sender_account_dual_type: ChecksumAddress
+        self, w3: "Web3", keyfile_account_address_dual_type: ChecksumAddress
     ) -> None:
         txn_hash = w3.eth.send_transaction(
             {
-                "from": test_sender_account_dual_type,
-                "to": test_sender_account_dual_type,
+                "from": keyfile_account_address_dual_type,
+                "to": keyfile_account_address_dual_type,
                 "value": Wei(1),
                 "gas": 21000,
                 "maxFeePerGas": w3.to_wei(3, "gwei"),
@@ -4440,12 +4445,12 @@ class EthModuleTest:
         assert effective_gas_price > 0
 
     def test_eth_wait_for_transaction_receipt_unmined(
-        self, w3: "Web3", test_sender_account_dual_type: ChecksumAddress
+        self, w3: "Web3", keyfile_account_address_dual_type: ChecksumAddress
     ) -> None:
         txn_hash = w3.eth.send_transaction(
             {
-                "from": test_sender_account_dual_type,
-                "to": test_sender_account_dual_type,
+                "from": keyfile_account_address_dual_type,
+                "to": keyfile_account_address_dual_type,
                 "value": Wei(1),
                 "gas": 21000,
                 "maxFeePerGas": w3.to_wei(3, "gwei"),
@@ -4655,14 +4660,14 @@ class EthModuleTest:
         self,
         w3: "Web3",
         math_contract: "Contract",
-        test_sender_account: ChecksumAddress,
+        keyfile_account_address: ChecksumAddress,
     ) -> None:
         start_block = w3.eth.get_block("latest")
         block_num = start_block["number"]
         block_hash = start_block["hash"]
 
         math_contract.functions.incrementCounter().transact(
-            {"from": test_sender_account}
+            {"from": keyfile_account_address}
         )
 
         # This isn't an incredibly convincing test since we can't mine, and
@@ -4719,15 +4724,15 @@ class EthModuleTest:
     def test_eth_get_raw_transaction_by_block(
         self,
         w3: "Web3",
-        test_sender_account_dual_type: ChecksumAddress,
+        keyfile_account_address_dual_type: ChecksumAddress,
         block_with_txn: BlockData,
     ) -> None:
         # eth_getRawTransactionByBlockNumberAndIndex: block identifier
         # send a txn to make sure pending block has at least one txn
         w3.eth.send_transaction(
             {
-                "from": test_sender_account_dual_type,
-                "to": test_sender_account_dual_type,
+                "from": keyfile_account_address_dual_type,
+                "to": keyfile_account_address_dual_type,
                 "value": Wei(1),
             }
         )
@@ -4776,16 +4781,16 @@ class EthModuleTest:
             w3.eth.get_raw_transaction_by_block(unknown_identifier, 0)
 
     def test_default_account(
-        self, w3: "Web3", test_sender_account_dual_type: ChecksumAddress
+        self, w3: "Web3", keyfile_account_address_dual_type: ChecksumAddress
     ) -> None:
         # check defaults to empty
         default_account = w3.eth.default_account
         assert default_account is empty
 
         # check setter
-        w3.eth.default_account = test_sender_account_dual_type
+        w3.eth.default_account = keyfile_account_address_dual_type
         default_account = w3.eth.default_account
-        assert default_account == test_sender_account_dual_type
+        assert default_account == keyfile_account_address_dual_type
 
         # reset to default
         w3.eth.default_account = empty

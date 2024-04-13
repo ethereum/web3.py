@@ -20,7 +20,6 @@ from web3.exceptions import (
 from web3.geth import (
     AsyncGeth,
     AsyncGethAdmin,
-    AsyncGethPersonal,
     AsyncGethTxPool,
 )
 from web3.middleware import (

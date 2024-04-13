@@ -13,7 +13,6 @@ from eth_utils.curried import (
     apply_formatter_if,
     is_bytes,
     is_dict,
-    is_same_address,
     to_hex,
     to_text,
 )
@@ -95,10 +94,8 @@ def get_geth_process(geth_binary, datadir, geth_port):
         "1",
         "--port",
         geth_port,
-        "--miner.etherbase",
-        common.COINBASE[2:],
         "--password",
-        os.path.join(datadir, "keystore", "pw.txt"),
+        os.path.join(datadir, "keystore_pw.txt"),
     )
 
     popen_proc = subprocess.Popen(
@@ -139,7 +136,7 @@ def generate_go_ethereum_fixture(destination_dir):
         keyfile_path = os.path.join(keystore_dir, common.KEYFILE_FILENAME)
         with open(keyfile_path, "w") as keyfile:
             keyfile.write(common.KEYFILE_DATA)
-        keyfile_pw = os.path.join(keystore_dir, common.KEYFILE_PW_TXT)
+        keyfile_pw = os.path.join(datadir, common.KEYFILE_PW_TXT)
         with open(keyfile_pw, "w") as keyfile_pw_file:
             keyfile_pw_file.write(common.KEYFILE_PW)
         genesis_file_path = os.path.join(datadir, "genesis.json")
@@ -207,8 +204,7 @@ def mine_block(w3):
 
 def setup_chain_state(w3):
     coinbase = w3.eth.coinbase
-
-    assert is_same_address(coinbase, common.COINBASE)
+    # assert is_same_address(coinbase, common.COINBASE)
 
     #
     # Math Contract
@@ -238,11 +234,7 @@ def setup_chain_state(w3):
         which=EMITTER_ENUM["LogDoubleWithIndex"],
         arg0=12345,
         arg1=54321,
-    ).transact(
-        {
-            "from": w3.eth.coinbase,
-        }
-    )
+    ).transact({"from": coinbase})
     print("TXN_HASH_WITH_LOG:", txn_hash_with_log)
     txn_receipt_with_log = w3.eth.wait_for_transaction_receipt(txn_hash_with_log)
     block_with_log = w3.eth.get_block(txn_receipt_with_log["blockHash"])
@@ -348,8 +340,7 @@ def setup_chain_state(w3):
     print("BLOCK_WITH_TXN_HASH:", block_with_txn["hash"])
 
     geth_fixture = {
-        "test_sender_account_address": common.TEST_SENDER_ACCOUNT_ADDRESS,
-        "test_sender_account_pk": common.TEST_SENDER_ACCOUNT_PK,
+        "keyfile_account_address": common.KEYFILE_ACCOUNT_ADDRESS,
         "math_deploy_txn_hash": math_deploy_receipt["transactionHash"],
         "math_address": math_deploy_receipt["contractAddress"],
         "emitter_deploy_txn_hash": emitter_deploy_receipt["transactionHash"],

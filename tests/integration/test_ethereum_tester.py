@@ -1,5 +1,8 @@
 import functools
 import pytest
+from typing import (
+    cast,
+)
 
 from eth_tester import (
     EthereumTester,
@@ -36,7 +39,6 @@ from web3._utils.module_testing.eth_module import (
 from web3.exceptions import (
     MethodUnavailable,
 )
-from web3.middleware import SignAndSendRawMiddlewareBuilder
 from web3.providers.eth_tester import (
     EthereumTesterProvider,
 )
@@ -44,10 +46,11 @@ from web3.types import (  # noqa: F401
     BlockData,
 )
 
-
-TEST_SENDER_ACCOUNT_PK = (
-    "0x392f63a79b1ff8774845f3fa69de4a13800a59e7083f5187f1558f0797ad0f01"
+# set up the keyfile account with a known address (same from geth setup)
+KEYFILE_ACCOUNT_PKEY = (
+    "0x58d23b55bc9cdce1f18c2500f40ff4ab7245df9a89505e9b1fa4851f623d241d"
 )
+KEYFILE_ACCOUNT_ADDRESS = "0xdC544d1AA88Ff8bbd2F2AeC754B1F1e99e1812fd"
 
 
 def _deploy_contract(w3, contract_factory):
@@ -71,13 +74,26 @@ def eth_tester_provider(eth_tester):
     return provider
 
 
+def _eth_tester_state_setup(w3):
+    provider = cast(EthereumTesterProvider, w3.provider)
+    provider.ethereum_tester.add_account(KEYFILE_ACCOUNT_PKEY)
+
+    # fund the account
+    w3.eth.send_transaction(
+        {
+            "from": w3.eth.coinbase,
+            "to": KEYFILE_ACCOUNT_ADDRESS,
+            "value": w3.to_wei(0.5, "ether"),
+            "gas": 21000,
+            "gasPrice": 10**9,  # needs to be > base_fee post London
+        }
+    )
+
+
 @pytest.fixture(scope="module")
 def w3(eth_tester_provider):
     _w3 = Web3(eth_tester_provider)
-    unlocked_account_middleware = SignAndSendRawMiddlewareBuilder.build(
-        TEST_SENDER_ACCOUNT_PK
-    )
-    _w3.middleware_onion.add(unlocked_account_middleware)
+    _eth_tester_state_setup(_w3)
     return _w3
 
 
@@ -133,9 +149,9 @@ def block_with_txn(w3):
         {
             "from": w3.eth.coinbase,
             "to": w3.eth.coinbase,
-            "value": 1,
+            "value": w3.to_wei(1, "gwei"),
             "gas": 21000,
-            "gas_price": 1000000000,  # needs to be greater than base_fee post London
+            "gasPrice": w3.to_wei(10**9, "gwei"),  # needs to be > base_fee post London
         }
     )
     txn = w3.eth.get_transaction(txn_hash)
@@ -189,27 +205,13 @@ def panic_errors_contract(w3):
 
 
 @pytest.fixture(scope="module")
-def test_sender_account_pw():
-    return "web3-testing"
-
-
-@pytest.fixture(scope="module")
-def test_sender_account(w3, test_sender_account_pw):
-    account = w3.eth.account.from_key(TEST_SENDER_ACCOUNT_PK)
-    w3.eth.send_transaction(
-        {
-            "from": w3.eth.coinbase,
-            "to": account.address,
-            "value": w3.to_wei(10, "ether"),
-            "gas": 21000,
-        }
-    )
-    yield account
+def keyfile_account_address():
+    yield KEYFILE_ACCOUNT_ADDRESS
 
 
 @pytest.fixture
-def test_sender_account_dual_type(test_sender_account, address_conversion_func):
-    yield test_sender_account
+def keyfile_account_address_dual_type(keyfile_account_address, address_conversion_func):
+    yield keyfile_account_address
 
 
 @pytest.fixture(scope="module")
@@ -221,7 +223,7 @@ def funded_account_for_raw_txn(w3):
             "to": account,
             "value": w3.to_wei(10, "ether"),
             "gas": 21000,
-            "gas_price": 1,
+            "gasPrice": w3.to_wei(1),
         }
     )
     return account
@@ -331,17 +333,19 @@ class TestEthereumTesterEthModule(EthModuleTest):
 
     @disable_auto_mine
     def test_eth_get_transaction_receipt_unmined(
-        self, eth_tester, w3, test_sender_account
+        self, eth_tester, w3, keyfile_account_address
     ):
-        super().test_eth_get_transaction_receipt_unmined(w3, test_sender_account)
+        super().test_eth_get_transaction_receipt_unmined(w3, keyfile_account_address)
 
     @disable_auto_mine
-    def test_eth_replace_transaction_legacy(self, eth_tester, w3, test_sender_account):
-        super().test_eth_replace_transaction_legacy(w3, test_sender_account)
+    def test_eth_replace_transaction_legacy(
+        self, eth_tester, w3, keyfile_account_address
+    ):
+        super().test_eth_replace_transaction_legacy(w3, keyfile_account_address)
 
     @disable_auto_mine
-    def test_eth_replace_transaction(self, eth_tester, w3, test_sender_account):
-        super().test_eth_replace_transaction(w3, test_sender_account)
+    def test_eth_replace_transaction(self, eth_tester, w3, keyfile_account_address):
+        super().test_eth_replace_transaction(w3, keyfile_account_address)
 
     @disable_auto_mine
     @pytest.mark.xfail(
@@ -349,53 +353,59 @@ class TestEthereumTesterEthModule(EthModuleTest):
     )
     # TODO: This might also be an issue in py-evm worth looking into. See reason above.
     def test_eth_replace_transaction_underpriced(
-        self, eth_tester, w3, test_sender_account
+        self, eth_tester, w3, keyfile_account_address
     ):
-        super().test_eth_replace_transaction_underpriced(w3, test_sender_account)
+        super().test_eth_replace_transaction_underpriced(w3, keyfile_account_address)
 
     @disable_auto_mine
     def test_eth_replace_transaction_incorrect_nonce(
-        self, eth_tester, w3, test_sender_account
+        self, eth_tester, w3, keyfile_account_address
     ):
-        super().test_eth_replace_transaction_incorrect_nonce(w3, test_sender_account)
+        super().test_eth_replace_transaction_incorrect_nonce(
+            w3, keyfile_account_address
+        )
 
     @disable_auto_mine
     def test_eth_replace_transaction_gas_price_too_low(
-        self, eth_tester, w3, test_sender_account
+        self, eth_tester, w3, keyfile_account_address
     ):
-        super().test_eth_replace_transaction_gas_price_too_low(w3, test_sender_account)
+        super().test_eth_replace_transaction_gas_price_too_low(
+            w3, keyfile_account_address
+        )
 
     @disable_auto_mine
     def test_eth_replace_transaction_gas_price_defaulting_minimum(
-        self, eth_tester, w3, test_sender_account
+        self, eth_tester, w3, keyfile_account_address
     ):
         super().test_eth_replace_transaction_gas_price_defaulting_minimum(
-            w3, test_sender_account
+            w3, keyfile_account_address
         )
 
     @disable_auto_mine
     def test_eth_replace_transaction_gas_price_defaulting_strategy_higher(
-        self, eth_tester, w3, test_sender_account
+        self, eth_tester, w3, keyfile_account_address
     ):
         super().test_eth_replace_transaction_gas_price_defaulting_strategy_higher(
-            w3, test_sender_account
+            w3, keyfile_account_address
         )
 
     @disable_auto_mine
     def test_eth_replace_transaction_gas_price_defaulting_strategy_lower(
-        self, eth_tester, w3, test_sender_account
+        self, eth_tester, w3, keyfile_account_address
     ):
         super().test_eth_replace_transaction_gas_price_defaulting_strategy_lower(
-            w3, test_sender_account
+            w3, keyfile_account_address
         )
 
     @disable_auto_mine
-    def test_eth_modify_transaction_legacy(self, eth_tester, w3, test_sender_account):
-        super().test_eth_modify_transaction_legacy(w3, test_sender_account)
+    def test_eth_modify_transaction_legacy(
+        self, eth_tester, w3, keyfile_account_address
+    ):
+        super().test_eth_modify_transaction_legacy(w3, keyfile_account_address)
 
     @disable_auto_mine
-    def test_eth_modify_transaction(self, eth_tester, w3, test_sender_account):
-        super().test_eth_modify_transaction(w3, test_sender_account)
+    def test_eth_modify_transaction(self, eth_tester, w3, keyfile_account_address):
+        super().test_eth_modify_transaction(w3, keyfile_account_address)
 
     @disable_auto_mine
     def test_eth_get_logs_without_logs(
@@ -442,13 +452,13 @@ class TestEthereumTesterEthModule(EthModuleTest):
 
     @disable_auto_mine
     def test_eth_call_old_contract_state(
-        self, eth_tester, w3, math_contract, test_sender_account
+        self, eth_tester, w3, math_contract, keyfile_account_address
     ):
         # For now, ethereum tester cannot give call results in the pending block.
         # Once that feature is added, then delete the except/else blocks.
         try:
             super().test_eth_call_old_contract_state(
-                w3, math_contract, test_sender_account
+                w3, math_contract, keyfile_account_address
             )
         except AssertionError as err:
             if str(err) == "pending call result was 0 instead of 1":
@@ -467,17 +477,19 @@ class TestEthereumTesterEthModule(EthModuleTest):
 
     @disable_auto_mine
     def test_eth_wait_for_transaction_receipt_unmined(
-        self, eth_tester, w3, test_sender_account_dual_type
+        self, eth_tester, w3, keyfile_account_address_dual_type
     ):
         super().test_eth_wait_for_transaction_receipt_unmined(
-            w3, test_sender_account_dual_type
+            w3, keyfile_account_address_dual_type
         )
 
-    def test_eth_call_revert_with_msg(self, w3, revert_contract, test_sender_account):
+    def test_eth_call_revert_with_msg(
+        self, w3, revert_contract, keyfile_account_address
+    ):
         txn_params = revert_contract._prepare_transaction(
             fn_name="revertWithMessage",
             transaction={
-                "from": test_sender_account,
+                "from": keyfile_account_address,
                 "to": revert_contract.address,
             },
         )
@@ -487,12 +499,12 @@ class TestEthereumTesterEthModule(EthModuleTest):
             w3.eth.call(txn_params)
 
     def test_eth_call_revert_without_msg(
-        self, w3, revert_contract, test_sender_account
+        self, w3, revert_contract, keyfile_account_address
     ):
         txn_params = revert_contract._prepare_transaction(
             fn_name="revertWithoutMessage",
             transaction={
-                "from": test_sender_account,
+                "from": keyfile_account_address,
                 "to": revert_contract.address,
             },
         )
@@ -500,12 +512,12 @@ class TestEthereumTesterEthModule(EthModuleTest):
             w3.eth.call(txn_params)
 
     def test_eth_estimate_gas_revert_with_msg(
-        self, w3, revert_contract, test_sender_account
+        self, w3, revert_contract, keyfile_account_address
     ):
         txn_params = revert_contract._prepare_transaction(
             fn_name="revertWithMessage",
             transaction={
-                "from": test_sender_account,
+                "from": keyfile_account_address,
                 "to": revert_contract.address,
             },
         )
@@ -515,13 +527,13 @@ class TestEthereumTesterEthModule(EthModuleTest):
             w3.eth.estimate_gas(txn_params)
 
     def test_eth_estimate_gas_revert_without_msg(
-        self, w3, revert_contract, test_sender_account
+        self, w3, revert_contract, keyfile_account_address
     ):
         with pytest.raises(TransactionFailed, match="execution reverted"):
             txn_params = revert_contract._prepare_transaction(
                 fn_name="revertWithoutMessage",
                 transaction={
-                    "from": test_sender_account,
+                    "from": keyfile_account_address,
                     "to": revert_contract.address,
                 },
             )
@@ -531,12 +543,12 @@ class TestEthereumTesterEthModule(EthModuleTest):
         self,
         w3,
         revert_contract,
-        test_sender_account,
+        keyfile_account_address,
     ) -> None:
         txn_params = revert_contract._prepare_transaction(
             fn_name="customErrorWithMessage",
             transaction={
-                "from": test_sender_account,
+                "from": keyfile_account_address,
                 "to": revert_contract.address,
             },
         )
@@ -545,12 +557,12 @@ class TestEthereumTesterEthModule(EthModuleTest):
             w3.eth.call(txn_params)
 
     def test_eth_call_custom_error_revert_without_msg(
-        self, w3, revert_contract, test_sender_account
+        self, w3, revert_contract, keyfile_account_address
     ):
         txn_params = revert_contract._prepare_transaction(
             fn_name="customErrorWithoutMessage",
             transaction={
-                "from": test_sender_account,
+                "from": keyfile_account_address,
                 "to": revert_contract.address,
             },
         )
@@ -561,12 +573,12 @@ class TestEthereumTesterEthModule(EthModuleTest):
         self,
         w3,
         revert_contract,
-        test_sender_account,
+        keyfile_account_address,
     ) -> None:
         txn_params = revert_contract._prepare_transaction(
             fn_name="customErrorWithMessage",
             transaction={
-                "from": test_sender_account,
+                "from": keyfile_account_address,
                 "to": revert_contract.address,
             },
         )
@@ -578,12 +590,12 @@ class TestEthereumTesterEthModule(EthModuleTest):
         self,
         w3,
         revert_contract,
-        test_sender_account,
+        keyfile_account_address,
     ) -> None:
         txn_params = revert_contract._prepare_transaction(
             fn_name="customErrorWithoutMessage",
             transaction={
-                "from": test_sender_account,
+                "from": keyfile_account_address,
                 "to": revert_contract.address,
             },
         )
@@ -591,16 +603,24 @@ class TestEthereumTesterEthModule(EthModuleTest):
             w3.eth.estimate_gas(txn_params)
 
     @disable_auto_mine
-    def test_eth_send_transaction(self, eth_tester, w3, test_sender_account):
-        super().test_eth_send_transaction(w3, test_sender_account)
+    def test_eth_send_transaction(self, eth_tester, w3, keyfile_account_address):
+        super().test_eth_send_transaction(w3, keyfile_account_address)
 
     @disable_auto_mine
-    def test_eth_send_transaction_legacy(self, eth_tester, w3, test_sender_account):
-        super().test_eth_send_transaction_legacy(w3, test_sender_account)
+    def test_eth_send_transaction_legacy(self, eth_tester, w3, keyfile_account_address):
+        super().test_eth_send_transaction_legacy(w3, keyfile_account_address)
 
-    @disable_auto_mine
-    def test_eth_send_raw_transaction(self, eth_tester, w3, test_sender_account):
-        super().test_eth_send_raw_transaction(w3, test_sender_account)
+    def test_eth_send_raw_transaction(self, eth_tester, w3):
+        # fund address 0x6E6d469fa47ab2f6630bAfc03ECca1212c29B114
+        w3.eth.send_transaction(
+            {
+                "from": w3.eth.coinbase,
+                "to": "0x6E6d469fa47ab2f6630bAfc03ECca1212c29B114",
+                "value": w3.to_wei(0.5, "ether"),
+                "gas": 21000,
+            }
+        )
+        super().test_eth_send_raw_transaction(w3)
 
     @disable_auto_mine
     @pytest.mark.parametrize(
@@ -610,39 +630,43 @@ class TestEthereumTesterEthModule(EthModuleTest):
         self,
         eth_tester,
         w3,
-        test_sender_account,
+        keyfile_account_address,
         max_fee,
     ):
         super().test_gas_price_from_strategy_bypassed_for_dynamic_fee_txn(
-            w3, test_sender_account, max_fee
+            w3, keyfile_account_address, max_fee
         )
 
     @disable_auto_mine
     def test_gas_price_from_strategy_bypassed_for_dynamic_fee_txn_no_tip(
-        self, eth_tester, w3, test_sender_account
+        self, eth_tester, w3, keyfile_account_address
     ):
         super().test_gas_price_from_strategy_bypassed_for_dynamic_fee_txn_no_tip(
             w3,
-            test_sender_account,
+            keyfile_account_address,
         )
 
     @disable_auto_mine
     def test_eth_send_transaction_default_fees(
-        self, eth_tester, w3, test_sender_account
+        self, eth_tester, w3, keyfile_account_address
     ):
-        super().test_eth_send_transaction_default_fees(w3, test_sender_account)
+        super().test_eth_send_transaction_default_fees(w3, keyfile_account_address)
 
     @disable_auto_mine
-    def test_eth_send_transaction_hex_fees(self, eth_tester, w3, test_sender_account):
-        super().test_eth_send_transaction_hex_fees(w3, test_sender_account)
+    def test_eth_send_transaction_hex_fees(
+        self, eth_tester, w3, keyfile_account_address
+    ):
+        super().test_eth_send_transaction_hex_fees(w3, keyfile_account_address)
 
     @disable_auto_mine
-    def test_eth_send_transaction_no_gas(self, eth_tester, w3, test_sender_account):
-        super().test_eth_send_transaction_no_gas(w3, test_sender_account)
+    def test_eth_send_transaction_no_gas(self, eth_tester, w3, keyfile_account_address):
+        super().test_eth_send_transaction_no_gas(w3, keyfile_account_address)
 
     @disable_auto_mine
-    def test_eth_send_transaction_no_max_fee(self, eth_tester, w3, test_sender_account):
-        super().test_eth_send_transaction_no_max_fee(w3, test_sender_account)
+    def test_eth_send_transaction_no_max_fee(
+        self, eth_tester, w3, keyfile_account_address
+    ):
+        super().test_eth_send_transaction_no_max_fee(w3, keyfile_account_address)
 
     def test_eth_fee_history_with_integer(
         self, w3: "Web3", empty_block: BlockData
