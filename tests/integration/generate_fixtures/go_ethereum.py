@@ -9,6 +9,9 @@ import sys
 import time
 
 import common
+from eth_utils import (
+    is_same_address,
+)
 from eth_utils.curried import (
     apply_formatter_if,
     is_bytes,
@@ -204,7 +207,7 @@ def mine_block(w3):
 
 def setup_chain_state(w3):
     coinbase = w3.eth.coinbase
-    # assert is_same_address(coinbase, common.COINBASE)
+    assert is_same_address(coinbase, common.COINBASE)
 
     #
     # Math Contract
