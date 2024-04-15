@@ -99,7 +99,7 @@ jobs:
   docs:
     <<: *docs
     docker:
-      - image: cimg/python:3.8
+      - image: cimg/python:3.9
         environment:
           TOXENV: docs
 

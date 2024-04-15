@@ -17,6 +17,7 @@ extras_require = {
     ],
     "docs": [
         "sphinx>=6.0.0",
+        "sphinx-autobuild>=2024.2.4",
         "sphinx_rtd_theme>=1.0.0",
         "towncrier>=21,<22",
     ],

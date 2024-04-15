@@ -8,6 +8,7 @@ help:
 	@echo "lint - fix linting issues with pre-commit"
 	@echo "test - run tests quickly with the default Python"
 	@echo "docs - generate docs and open in browser (linux-docs for version on linux)"
+	@echo "autobuild-docs - live update docs when changes are saved"
 	@echo "notes - consume towncrier newsfragments/ and update release notes in docs/"
 	@echo "release - package and upload a release (does not run notes target)"
 	@echo "dist - package"
@@ -32,6 +33,9 @@ lint:
 
 test:
 	pytest tests
+
+autobuild-docs:
+	sphinx-autobuild --open-browser docs docs/_build/html
 
 build-docs:
 	sphinx-apidoc -o docs/ . setup.py "*conftest*"
