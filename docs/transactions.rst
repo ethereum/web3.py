@@ -129,7 +129,7 @@ if you don't opt for the middleware, you'll need to:
   signed = w3.eth.account.sign_transaction(transaction, pk)
 
   # 3. Send the signed transaction
-  tx_hash = w3.eth.send_raw_transaction(signed.rawTransaction)
+  tx_hash = w3.eth.send_raw_transaction(signed.raw_transaction)
   tx = w3.eth.get_transaction(tx_hash)
   assert tx["from"] == acct2.address
 
@@ -186,6 +186,6 @@ Executing a function on a smart contract requires sending a transaction, which i
 
   # Send the raw transaction:
   assert billboard.functions.message().call() == "gm"
-  tx_hash = w3.eth.send_raw_transaction(signed_tx.rawTransaction)
+  tx_hash = w3.eth.send_raw_transaction(signed_tx.raw_transaction)
   w3.eth.wait_for_transaction_receipt(tx_hash)
   assert billboard.functions.message().call() == "gn"

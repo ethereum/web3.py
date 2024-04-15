@@ -635,7 +635,7 @@ And finally, send the transaction
 
 .. code-block:: python
 
-    txn_hash = w3.eth.send_raw_transaction(signed_tx.rawTransaction)
+    txn_hash = w3.eth.send_raw_transaction(signed_tx.raw_transaction)
     txn_receipt = w3.eth.wait_for_transaction_receipt(txn_hash)
 
 Tip : afterwards you can use the value stored in ``txn_hash``, in an explorer like `etherscan`_ to view the transaction's details
