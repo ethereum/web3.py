@@ -32,7 +32,7 @@ lint:
 	)
 
 test:
-	pytest tests
+	python -m pytest tests
 
 autobuild-docs:
 	sphinx-autobuild --open-browser docs docs/_build/html
