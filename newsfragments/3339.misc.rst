@@ -1,1 +1,0 @@
-Add upper pin to eth-account so that incoming breaking changes are avoided.

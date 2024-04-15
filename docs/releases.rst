@@ -6,6 +6,15 @@ v6 Breaking Changes Summary
 
 .. towncrier release notes start
 
+web3.py v6.17.1 (2024-04-15)
+----------------------------
+
+Miscellaneous Changes
+~~~~~~~~~~~~~~~~~~~~~
+
+- `#3339 <https://github.com/ethereum/web3.py/issues/3339>`__
+
+
 web3.py v6.17.0 (2024-04-11)
 ----------------------------
 
