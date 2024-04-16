@@ -245,7 +245,7 @@ You might have produced the signed_message locally, as in
 
     >>> from web3 import Web3
 
-    # ecrecover in Solidity expects v as a native uint8, but r and s as left-padded bytes32
+    # ecrecover in Solidity expects v as a uint8, but r and s as left-padded bytes32
     # Remix / web3.js expect r and s to be encoded to hex
     # This convenience method will do the pad & hex for us:
     >>> def to_32byte_hex(val):
