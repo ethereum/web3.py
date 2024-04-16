@@ -182,7 +182,7 @@ class SignAndSendRawMiddlewareBuilder(Web3MiddlewareBuilder):
                 return method, params
             else:
                 account = self._accounts[to_checksum_address(tx_from)]
-                raw_tx = account.sign_transaction(filled_transaction).rawTransaction
+                raw_tx = account.sign_transaction(filled_transaction).raw_transaction
 
                 return (
                     RPCEndpoint("eth_sendRawTransaction"),
@@ -211,7 +211,7 @@ class SignAndSendRawMiddlewareBuilder(Web3MiddlewareBuilder):
                 return method, params
             else:
                 account = self._accounts[to_checksum_address(tx_from)]
-                raw_tx = account.sign_transaction(filled_transaction).rawTransaction
+                raw_tx = account.sign_transaction(filled_transaction).raw_transaction
 
                 return (
                     RPCEndpoint("eth_sendRawTransaction"),

@@ -366,7 +366,7 @@ def test_eth_send_raw_blob_transaction(w3):
 
     signed = acct.sign_transaction(tx, blobs=[blob_data])
 
-    tx_hash = w3.eth.send_raw_transaction(signed.rawTransaction)
+    tx_hash = w3.eth.send_raw_transaction(signed.raw_transaction)
     transaction = w3.eth.get_transaction(tx_hash)
 
     assert len(transaction["blobVersionedHashes"]) == 1
@@ -417,7 +417,7 @@ async def test_async_send_raw_blob_transaction(async_w3):
 
     signed = acct.sign_transaction(tx, blobs=[blob_data])
 
-    tx_hash = await async_w3.eth.send_raw_transaction(signed.rawTransaction)
+    tx_hash = await async_w3.eth.send_raw_transaction(signed.raw_transaction)
     transaction = await async_w3.eth.get_transaction(tx_hash)
 
     assert len(transaction["blobVersionedHashes"]) == 1

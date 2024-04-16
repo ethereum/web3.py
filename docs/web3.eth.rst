@@ -795,7 +795,7 @@ The following methods are available on the ``web3.eth`` namespace.
           ),
           private_key_for_senders_account,
         )
-        >>> w3.eth.send_raw_transaction(signed_txn.rawTransaction)
+        >>> w3.eth.send_raw_transaction(signed_txn.raw_transaction)
         HexBytes('0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331')
 
 

@@ -3648,7 +3648,7 @@ class EthModuleTest:
             # unlocked_account private key:
             "0x392f63a79b1ff8774845f3fa69de4a13800a59e7083f5187f1558f0797ad0f01",
         )
-        txn_hash = w3.eth.send_raw_transaction(signed_tx.rawTransaction)
+        txn_hash = w3.eth.send_raw_transaction(signed_tx.raw_transaction)
         assert txn_hash == signed_tx.hash
 
     def test_eth_call(self, w3: "Web3", math_contract: "Contract") -> None:
