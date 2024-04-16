@@ -31,7 +31,7 @@ KEYFILE_ACCOUNT_ADDRESS = "0xdC544d1AA88Ff8bbd2F2AeC754B1F1e99e1812fd"
 KEYFILE_DATA = '{"address":"dc544d1aa88ff8bbd2f2aec754b1f1e99e1812fd","crypto":{"cipher":"aes-128-ctr","ciphertext":"52e06bc9397ea9fa2f0dae8de2b3e8116e92a2ecca9ad5ff0061d1c449704e98","cipherparams":{"iv":"aa5d0a5370ef65395c1a6607af857124"},"kdf":"scrypt","kdfparams":{"dklen":32,"n":262144,"p":1,"r":8,"salt":"9fdf0764eb3645ffc184e166537f6fe70516bf0e34dc7311dea21f100f0c9263"},"mac":"4e0b51f42b865c15c485f4faefdd1f01a38637e5247f8c75ffe6a8c0eba856f6"},"id":"5a6124e0-10f1-4c1c-ae3e-d903eacb740a","version":3}'  # noqa: E501
 
 KEYFILE_PW = "web3py-test"
-KEYFILE_PW_TXT = "keystore_pw.txt"
+KEYFILE_PW_TXT = "pw.txt"
 KEYFILE_FILENAME = "UTC--2017-08-24T19-42-47.517572178Z--dc544d1aa88ff8bbd2f2aec754b1f1e99e1812fd"  # noqa: E501
 
 RAW_TXN_ACCOUNT = "0x39EEed73fb1D3855E90Cbd42f348b3D7b340aAA6"
@@ -52,6 +52,9 @@ GENESIS_DATA = {
         "arrowGlacierBlock": 0,
         "grayGlacierBlock": 0,
         "shanghaiTime": 0,
+        # TODO: Remove this once this bug is fixed. We need to set TTD to -1 and
+        #  `difficulty` to `0` to trick geth into using the correct EVM rules for
+        #  `eth_estimateGas`. See: github.com/ethereum/go-ethereum/issues/29404
         "terminalTotalDifficulty": -1,
         "terminalTotalDifficultyPassed": True,
     },

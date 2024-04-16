@@ -98,7 +98,7 @@ def get_geth_process(geth_binary, datadir, geth_port):
         "--port",
         geth_port,
         "--password",
-        os.path.join(datadir, "keystore_pw.txt"),
+        os.path.join(datadir, "keystore", "pw.txt"),
     )
 
     popen_proc = subprocess.Popen(
@@ -139,7 +139,7 @@ def generate_go_ethereum_fixture(destination_dir):
         keyfile_path = os.path.join(keystore_dir, common.KEYFILE_FILENAME)
         with open(keyfile_path, "w") as keyfile:
             keyfile.write(common.KEYFILE_DATA)
-        keyfile_pw = os.path.join(datadir, common.KEYFILE_PW_TXT)
+        keyfile_pw = os.path.join(keystore_dir, common.KEYFILE_PW_TXT)
         with open(keyfile_pw, "w") as keyfile_pw_file:
             keyfile_pw_file.write(common.KEYFILE_PW)
         genesis_file_path = os.path.join(datadir, "genesis.json")

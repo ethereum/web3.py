@@ -65,7 +65,7 @@ def geth_command_arguments(rpc_port, base_geth_command_arguments, get_geth_versi
 
 
 @pytest.fixture(scope="module")
-def w3(geth_process, endpoint_uri, geth_fixture_data, get_geth_version, datadir):
+def w3(geth_process, endpoint_uri):
     wait_for_http(endpoint_uri)
     return Web3(Web3.HTTPProvider(endpoint_uri))
 

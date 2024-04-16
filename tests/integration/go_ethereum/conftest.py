@@ -97,7 +97,7 @@ def base_geth_command_arguments(geth_binary, datadir):
         "--dev.period",
         "5",  # dev.period > 1 for tests which require pending blocks
         "--password",
-        os.path.join(datadir, "keystore_pw.txt"),
+        os.path.join(datadir, "keystore", "pw.txt"),
     )
 
 
