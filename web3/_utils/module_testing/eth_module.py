@@ -703,21 +703,24 @@ class AsyncEthModuleTest:
         async_w3.middleware_onion.remove("poa")
 
     @pytest.mark.asyncio
-    async def test_eth_send_raw_transaction(self, async_w3: "AsyncWeb3") -> None:
-        # private key 0x3c2ab4e8f17a7dea191b8c991522660126d681039509dc3bb31af7c9bdb63518
-        # This is an unfunded account, but the transaction has a 0 gas price, so is
-        # valid. It never needs to be mined, we just want the transaction hash back
-        # to confirm.
-        # tx = {'to': '0x0000000000000000000000000000000000000000', 'value': 0,  'nonce': 1, 'gas': 21000, 'gasPrice': 0, 'chainId': 131277322940537}  # noqa: E501
-        # NOTE: nonce=1 to make txn unique from the non-async version of this test
-        raw_txn = HexBytes(
-            "0xf8650180825208940000000000000000000000000000000000000000808086eecac466e115a0ffdd42d7dee4ac85427468bc616812e49432e285e4e8f5cd9381163ac3b28108a04ec6b0d89ecbd5e89b0399f336ad50f283fafd70e86593250bf5a2adfb93d17e"  # noqa: E501
-        )
-        expected_hash = HexStr(
-            "0x52b0ff9cb472f25872fa8ec6a62fa59454fc2ae7901cfcc6cc89d096f49b8fc1"
-        )
-        txn_hash = await async_w3.eth.send_raw_transaction(raw_txn)
-        assert txn_hash == async_w3.to_bytes(hexstr=expected_hash)
+    async def test_async_eth_send_raw_transaction(
+        self, async_w3: "AsyncWeb3", keyfile_account_pkey: HexStr
+    ) -> None:
+        keyfile_account = async_w3.eth.account.from_key(keyfile_account_pkey)
+        txn = {
+            "chainId": 131277322940537,  # the chainId set for the fixture
+            "from": keyfile_account.address,
+            "to": keyfile_account.address,
+            "value": Wei(0),
+            "gas": 21000,
+            "nonce": await async_w3.eth.get_transaction_count(
+                keyfile_account.address, "pending"
+            ),
+            "gasPrice": 10**9,
+        }
+        signed = keyfile_account.sign_transaction(txn)
+        txn_hash = await async_w3.eth.send_raw_transaction(signed.rawTransaction)
+        assert txn_hash == HexBytes(signed.hash)
 
     @pytest.mark.asyncio
     async def test_GasPriceStrategyMiddleware(
@@ -3702,23 +3705,21 @@ class EthModuleTest:
         assert modified_txn["maxFeePerGas"] == cast(Wei, txn_params["maxFeePerGas"]) * 2
 
     def test_eth_send_raw_transaction(
-        self, w3: "Web3", test_sender_account: ChecksumAddress
+        self, w3: "Web3", keyfile_account_pkey: HexStr
     ) -> None:
-        signed_tx = w3.eth.account.sign_transaction(
-            {
-                "to": "0x0000000000000000000000000000000000000000",
-                "value": 0,
-                "nonce": w3.eth.get_transaction_count(test_sender_account),
-                "gas": 21000,
-                "maxFeePerGas": 1000000000,
-                "maxPriorityFeePerGas": 1000000000,
-                "chainId": 131277322940537,
-            },
-            # test_sender_account private key:
-            "0x392f63a79b1ff8774845f3fa69de4a13800a59e7083f5187f1558f0797ad0f01",
-        )
-        txn_hash = w3.eth.send_raw_transaction(signed_tx.raw_transaction)
-        assert txn_hash == HexBytes(signed_tx.hash)
+        keyfile_account = w3.eth.account.from_key(keyfile_account_pkey)
+        txn = {
+            "chainId": 131277322940537,  # the chainId set for the fixture
+            "from": keyfile_account.address,
+            "to": keyfile_account.address,
+            "value": Wei(0),
+            "gas": 21000,
+            "nonce": w3.eth.get_transaction_count(keyfile_account.address, "pending"),
+            "gasPrice": 10**9,
+        }
+        signed = keyfile_account.sign_transaction(txn)
+        txn_hash = w3.eth.send_raw_transaction(signed.rawTransaction)
+        assert txn_hash == HexBytes(signed.hash)
 
     def test_eth_call(self, w3: "Web3", math_contract: "Contract") -> None:
         coinbase = w3.eth.coinbase
