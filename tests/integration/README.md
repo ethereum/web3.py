@@ -7,7 +7,6 @@ They **must** all be *session* scoped.
 - `math_contract`
 - `keyfile_account_address`
 - `keyfile_account_pkey`
-- `funded_account_for_raw_txn`
 - `math_contract_deploy_txn_hash`
 - `mined_txn_hash`
 - `emitter_contract`
@@ -42,11 +41,6 @@ The address of an account known and managed by the test fixture node.
 #### `keyfile_account_pkey`
 
 The private key of an account known and managed by the test fixture node.
-
-#### `funded_account_for_raw_txn`
-
-An account which has not sent any transactions (nonce of 0) which has enough
-ether for sending a single transaction.
 
 #### `math_contract_deploy_txn_hash`
 
