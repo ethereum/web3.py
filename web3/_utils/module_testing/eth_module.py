@@ -4663,35 +4663,30 @@ class EthModuleTest:
         math_contract: "Contract",
         keyfile_account_address: ChecksumAddress,
     ) -> None:
-        start_block = w3.eth.get_block("latest")
-        block_num = start_block["number"]
-        block_hash = start_block["hash"]
+        latest_block = w3.eth.get_block("latest")
+        block_num = latest_block["number"]
+        block_hash = latest_block["hash"]
 
-        math_contract.functions.incrementCounter().transact(
-            {"from": keyfile_account_address}
+        latest_call_result = math_contract.functions.counter().call(
+            block_identifier="latest"
         )
-
-        # This isn't an incredibly convincing test since we can't mine, and
-        # the default resolved block is latest, So if block_identifier was ignored
-        # we would get the same result. For now, we mostly depend on core tests.
-        # Ideas to improve this test:
-        #  - Enable on-demand mining in more clients
-        #  - Increment the math contract in all of the fixtures, and check the
-        #    value in an old block
         block_hash_call_result = math_contract.functions.counter().call(
             block_identifier=block_hash
         )
         block_num_call_result = math_contract.functions.counter().call(
             block_identifier=block_num
         )
-        latest_call_result = math_contract.functions.counter().call(
-            block_identifier="latest"
-        )
         default_call_result = math_contract.functions.counter().call()
+
+        # send and wait 1 second to mine
+        math_contract.functions.incrementCounter().transact(
+            {"from": keyfile_account_address}
+        )
+        time.sleep(1)
+
         pending_call_result = math_contract.functions.counter().call(
             block_identifier="pending"
         )
-
         assert block_hash_call_result == 0
         assert block_num_call_result == 0
         assert latest_call_result == 0
