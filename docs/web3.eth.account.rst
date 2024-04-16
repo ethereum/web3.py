@@ -214,6 +214,7 @@ is provided by :meth:`w3.eth.sign() <web3.eth.Eth.sign>`.
     >>> signed_message = w3.eth.account.sign_message(message, private_key=private_key)
     >>> signed_message
     SignedMessage(messageHash=HexBytes('0x1476abb745d423bf09273f1afd887d951181d25adc66c4834a70491911b7f750'),
+    message_hash=HexBytes('0x1476abb745d423bf09273f1afd887d951181d25adc66c4834a70491911b7f750'),
      r=104389933075820307925104709181714897380569894203213074526835978196648170704563,
      s=28205917190874851400050446352651915501321657673772411533993420917949420456142,
      v=28,
@@ -251,7 +252,7 @@ You might have produced the signed_message locally, as in
     ...   return Web3.to_hex(Web3.to_bytes(val).rjust(32, b'\0'))
 
     >>> ec_recover_args = (msghash, v, r, s) = (
-    ...   Web3.to_hex(signed_message.messageHash),
+    ...   Web3.to_hex(signed_message.message_hash),
     ...   signed_message.v,
     ...   to_32byte_hex(signed_message.r),
     ...   to_32byte_hex(signed_message.s),
@@ -356,7 +357,7 @@ with :meth:`~web3.eth.Eth.send_raw_transaction`.
     ... }
     >>> key = '0x4c0883a69102937d6231471b5dbb6204fe5129617082792ae468d01a3f362318'
     >>> signed = w3.eth.account.sign_transaction(transaction, key)
-    >>> signed.rawTransaction
+    >>> signed.raw_transaction
     HexBytes('0x02f8e20180843b9aca008477359400831e848094f0109fc8df283027b6285cc889f5aa624eac1f55843b9aca0080f872f85994de0b295669a9fd93d5f28d9ec85e40f4cb697baef842a00000000000000000000000000000000000000000000000000000000000000003a00000000000000000000000000000000000000000000000000000000000000007d694bb9bc244d798123fde783fcc1c72d3bb8c189413c001a0b9ec671ccee417ff79e06e9e52bfa82b37cf1145affde486006072ca7a11cf8da0484a9beea46ff6a90ac76e7bbf3718db16a8b4b09cef477fb86cf4e123d98fde')
     >>> signed.hash
     HexBytes('0xe85ce7efa52c16cb5c469c7bde54fbd4911639fdfde08003f65525a85076d915')
@@ -368,7 +369,7 @@ with :meth:`~web3.eth.Eth.send_raw_transaction`.
     1
 
     # When you run send_raw_transaction, you get back the hash of the transaction:
-    >>> w3.eth.send_raw_transaction(signed.rawTransaction)  # doctest: +SKIP
+    >>> w3.eth.send_raw_transaction(signed.raw_transaction)  # doctest: +SKIP
     '0xe85ce7efa52c16cb5c469c7bde54fbd4911639fdfde08003f65525a85076d915'
 
 Sign a Contract Transaction
@@ -429,7 +430,7 @@ To sign a transaction locally that will invoke a smart contract:
     >>> signed_txn = w3.eth.account.sign_transaction(unicorn_txn, private_key=private_key)
     >>> signed_txn.hash
     HexBytes('0x748db062639a45e519dba934fce09c367c92043867409160c9989673439dc817')
-    >>> signed_txn.rawTransaction
+    >>> signed_txn.raw_transaction
     HexBytes('0x02f8b00180843b9aca0084773594008301117094fb6916095ca1df60bb79ce92ce3ea74c37c5d35980b844a9059cbb000000000000000000000000fb6916095ca1df60bb79ce92ce3ea74c37c5d3590000000000000000000000000000000000000000000000000000000000000001c001a0cec4150e52898cf1295cc4020ac0316cbf186071e7cdc5ec44eeb7cdda05afa2a06b0b3a09c7fb0112123c0bef1fd6334853a9dcf3cb5bab3ccd1f5baae926d449')
     >>> signed_txn.r
     93522894155654168208483453926995743737629589441154283159505514235904280342434
@@ -438,8 +439,8 @@ To sign a transaction locally that will invoke a smart contract:
     >>> signed_txn.v
     1
 
-    >>> w3.eth.send_raw_transaction(signed_txn.rawTransaction)  # doctest: +SKIP
+    >>> w3.eth.send_raw_transaction(signed_txn.raw_transaction)  # doctest: +SKIP
 
     # When you run send_raw_transaction, you get the same result as the hash of the transaction:
-    >>> w3.to_hex(w3.keccak(signed_txn.rawTransaction))
+    >>> w3.to_hex(w3.keccak(signed_txn.raw_transaction))
     '0x748db062639a45e519dba934fce09c367c92043867409160c9989673439dc817'
