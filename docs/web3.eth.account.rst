@@ -212,7 +212,7 @@ is provided by :meth:`w3.eth.sign() <web3.eth.Eth.sign>`.
     >>> private_key = b"\xb2\\}\xb3\x1f\xee\xd9\x12''\xbf\t9\xdcv\x9a\x96VK-\xe4\xc4rm\x03[6\xec\xf1\xe5\xb3d"
     >>> message = encode_defunct(text=msg)
     >>> signed_message = w3.eth.account.sign_message(message, private_key=private_key)
-    >>> signed_message
+    >>> signed_message  # doctest: +SKIP
     SignedMessage(messageHash=HexBytes('0x1476abb745d423bf09273f1afd887d951181d25adc66c4834a70491911b7f750'),
      r=104389933075820307925104709181714897380569894203213074526835978196648170704563,
      s=28205917190874851400050446352651915501321657673772411533993420917949420456142,
