@@ -221,21 +221,6 @@ def keyfile_account_address_dual_type(keyfile_account_address, address_conversio
     yield keyfile_account_address
 
 
-@pytest.fixture(scope="module")
-def funded_account_for_raw_txn(w3):
-    account = "0x39EEed73fb1D3855E90Cbd42f348b3D7b340aAA6"
-    w3.eth.send_transaction(
-        {
-            "from": w3.eth.coinbase,
-            "to": account,
-            "value": w3.to_wei(10, "ether"),
-            "gas": 21000,
-            "gasPrice": w3.to_wei(1),
-        }
-    )
-    return account
-
-
 class TestEthereumTesterWeb3Module(Web3ModuleTest):
     def _check_web3_client_version(self, client_version):
         assert client_version.startswith("EthereumTester/")

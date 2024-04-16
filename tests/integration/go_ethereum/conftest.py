@@ -8,7 +8,6 @@ import subprocess
 import zipfile
 
 from eth_utils import (
-    is_checksum_address,
     is_dict,
     to_text,
 )
@@ -205,13 +204,6 @@ def keyfile_account_address(geth_fixture_data):
 @pytest.fixture(scope="module")
 def keyfile_account_address_dual_type(keyfile_account_address, address_conversion_func):
     yield keyfile_account_address
-
-
-@pytest.fixture(scope="module")
-def funded_account_for_raw_txn(geth_fixture_data):
-    account = geth_fixture_data["raw_txn_account"]
-    assert is_checksum_address(account)
-    return account
 
 
 @pytest.fixture(scope="module")
