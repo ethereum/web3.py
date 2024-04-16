@@ -344,6 +344,7 @@ def setup_chain_state(w3):
 
     geth_fixture = {
         "keyfile_account_address": common.KEYFILE_ACCOUNT_ADDRESS,
+        "keyfile_account_pkey": common.KEYFILE_ACCOUNT_PKEY,
         "math_deploy_txn_hash": math_deploy_receipt["transactionHash"],
         "math_address": math_deploy_receipt["contractAddress"],
         "emitter_deploy_txn_hash": emitter_deploy_receipt["transactionHash"],

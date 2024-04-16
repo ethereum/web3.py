@@ -151,7 +151,9 @@ def block_with_txn(w3):
             "to": w3.eth.coinbase,
             "value": w3.to_wei(1, "gwei"),
             "gas": 21000,
-            "gasPrice": w3.to_wei(10**9, "gwei"),  # needs to be > base_fee post London
+            "gasPrice": w3.to_wei(
+                10**9, "gwei"
+            ),  # needs to be > base_fee post London
         }
     )
     txn = w3.eth.get_transaction(txn_hash)
@@ -202,6 +204,11 @@ def offchain_lookup_contract(w3, offchain_lookup_contract_factory):
 def panic_errors_contract(w3):
     panic_errors_contract_factory = w3.eth.contract(**PANIC_ERRORS_CONTRACT_DATA)
     return _deploy_contract(w3, panic_errors_contract_factory)
+
+
+@pytest.fixture(scope="module")
+def keyfile_account_pkey():
+    yield KEYFILE_ACCOUNT_PKEY
 
 
 @pytest.fixture(scope="module")
@@ -610,17 +617,8 @@ class TestEthereumTesterEthModule(EthModuleTest):
     def test_eth_send_transaction_legacy(self, eth_tester, w3, keyfile_account_address):
         super().test_eth_send_transaction_legacy(w3, keyfile_account_address)
 
-    def test_eth_send_raw_transaction(self, eth_tester, w3):
-        # fund address 0x6E6d469fa47ab2f6630bAfc03ECca1212c29B114
-        w3.eth.send_transaction(
-            {
-                "from": w3.eth.coinbase,
-                "to": "0x6E6d469fa47ab2f6630bAfc03ECca1212c29B114",
-                "value": w3.to_wei(0.5, "ether"),
-                "gas": 21000,
-            }
-        )
-        super().test_eth_send_raw_transaction(w3)
+    def test_eth_send_raw_transaction(self, eth_tester, w3, keyfile_account_pkey):
+        super().test_eth_send_raw_transaction(w3, keyfile_account_pkey)
 
     @disable_auto_mine
     @pytest.mark.parametrize(

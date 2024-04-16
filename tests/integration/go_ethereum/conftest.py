@@ -193,6 +193,11 @@ def emitter_contract_address(emitter_contract, address_conversion_func):
 
 
 @pytest.fixture(scope="module")
+def keyfile_account_pkey(geth_fixture_data):
+    return geth_fixture_data["keyfile_account_pkey"]
+
+
+@pytest.fixture(scope="module")
 def keyfile_account_address(geth_fixture_data):
     return geth_fixture_data["keyfile_account_address"]
 
