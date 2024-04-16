@@ -1,1 +1,0 @@
-`eth-typing` pinned below `4.1.0` to fix type references.

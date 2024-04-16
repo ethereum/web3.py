@@ -64,7 +64,7 @@ setup(
         "eth-abi>=4.0.0",
         "eth-account>=0.8.0,<0.13",
         "eth-hash[pycryptodome]>=0.5.1",
-        "eth-typing>=3.0.0,<4.2.0",
+        "eth-typing>=3.0.0",
         "eth-utils>=2.1.0",
         "hexbytes>=0.1.0,<0.4.0",
         "jsonschema>=4.0.0",
