@@ -1,0 +1,1 @@
+Revert pin of `eth-typing` to utilize `EthPM` types.
