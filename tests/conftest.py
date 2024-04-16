@@ -34,10 +34,6 @@ def open_port():
     return get_open_port()
 
 
-def pytest_addoption(parser):
-    parser.addoption("--flaky", action="store_true")
-
-
 # --- session-scoped constants --- #
 
 
