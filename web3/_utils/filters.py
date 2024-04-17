@@ -73,8 +73,8 @@ def construct_event_filter_params(
     contract_address: Optional[ChecksumAddress] = None,
     argument_filters: Optional[Dict[str, Any]] = None,
     topics: Optional[Sequence[HexStr]] = None,
-    fromBlock: Optional[BlockIdentifier] = None,
-    toBlock: Optional[BlockIdentifier] = None,
+    from_block: Optional[BlockIdentifier] = None,
+    to_block: Optional[BlockIdentifier] = None,
     address: Optional[ChecksumAddress] = None,
 ) -> Tuple[List[List[Optional[HexStr]]], FilterParams]:
     filter_params: FilterParams = {}
@@ -121,11 +121,11 @@ def construct_event_filter_params(
     else:
         validate_address(filter_params["address"])
 
-    if fromBlock is not None:
-        filter_params["fromBlock"] = fromBlock
+    if from_block is not None:
+        filter_params["fromBlock"] = from_block
 
-    if toBlock is not None:
-        filter_params["toBlock"] = toBlock
+    if to_block is not None:
+        filter_params["toBlock"] = to_block
 
     data_filters_set = construct_event_data_set(event_abi, abi_codec, argument_filters)
 

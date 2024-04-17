@@ -10,7 +10,7 @@ def test_merged_topic_list_event(emitter):
     ]
     with pytest.raises(TypeError):
         emitter.events.LogTripleWithIndex().create_filter(
-            fromBlock="latest",
+            from_block="latest",
             topics=manual_topics,
             argument_filters={"arg0": 2222, "arg1": 2222, "arg2": 2222},
         )

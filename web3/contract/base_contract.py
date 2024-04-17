@@ -204,9 +204,9 @@ class BaseContractEvent:
         self,
         abi: ABIEvent,
         argument_filters: Optional[Dict[str, Any]] = None,
-        fromBlock: Optional[BlockIdentifier] = None,
-        toBlock: Optional[BlockIdentifier] = None,
-        blockHash: Optional[HexBytes] = None,
+        from_block: Optional[BlockIdentifier] = None,
+        to_block: Optional[BlockIdentifier] = None,
+        block_hash: Optional[HexBytes] = None,
     ) -> FilterParams:
         if not self.address:
             raise Web3TypeError(
@@ -219,11 +219,12 @@ class BaseContractEvent:
 
         _filters = dict(**argument_filters)
 
-        blkhash_set = blockHash is not None
-        blknum_set = fromBlock is not None or toBlock is not None
+        blkhash_set = block_hash is not None
+        blknum_set = from_block is not None or to_block is not None
         if blkhash_set and blknum_set:
             raise Web3ValidationError(
-                "blockHash cannot be set at the same time as fromBlock or toBlock"
+                "`block_hash` cannot be set at the same time as "
+                "`from_block` or `to_block`"
             )
 
         # Construct JSON-RPC raw filter presentation based on human readable
@@ -233,13 +234,13 @@ class BaseContractEvent:
             self.w3.codec,
             contract_address=self.address,
             argument_filters=_filters,
-            fromBlock=fromBlock,
-            toBlock=toBlock,
+            from_block=from_block,
+            to_block=to_block,
             address=self.address,
         )
 
-        if blockHash is not None:
-            event_filter_params["blockHash"] = blockHash
+        if block_hash is not None:
+            event_filter_params["blockHash"] = block_hash
 
         return event_filter_params
 
@@ -319,15 +320,15 @@ class BaseContractEvent:
     def _set_up_filter_builder(
         self,
         argument_filters: Optional[Dict[str, Any]] = None,
-        fromBlock: Optional[BlockIdentifier] = None,
-        toBlock: BlockIdentifier = "latest",
+        from_block: Optional[BlockIdentifier] = None,
+        to_block: BlockIdentifier = "latest",
         address: Optional[ChecksumAddress] = None,
         topics: Optional[Sequence[Any]] = None,
         filter_builder: Union[EventFilterBuilder, AsyncEventFilterBuilder] = None,
     ) -> None:
-        if fromBlock is None:
+        if from_block is None:
             raise Web3TypeError(
-                "Missing mandatory keyword argument to create_filter: fromBlock"
+                "Missing mandatory keyword argument to create_filter: `from_block`"
             )
 
         if argument_filters is None:
@@ -344,8 +345,8 @@ class BaseContractEvent:
             self.w3.codec,
             contract_address=self.address,
             argument_filters=_filters,
-            fromBlock=fromBlock,
-            toBlock=toBlock,
+            from_block=from_block,
+            to_block=to_block,
             address=address,
             topics=topics,
         )
@@ -353,8 +354,8 @@ class BaseContractEvent:
         filter_builder.address = cast(
             ChecksumAddress, event_filter_params.get("address")
         )
-        filter_builder.fromBlock = event_filter_params.get("fromBlock")
-        filter_builder.toBlock = event_filter_params.get("toBlock")
+        filter_builder.from_block = event_filter_params.get("fromBlock")
+        filter_builder.to_block = event_filter_params.get("toBlock")
         match_any_vals = {
             arg: value
             for arg, value in _filters.items()

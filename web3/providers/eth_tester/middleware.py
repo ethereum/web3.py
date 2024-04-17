@@ -110,14 +110,14 @@ filter_request_remapper = apply_key_map(FILTER_REQUEST_KEY_MAPPING)
 
 
 FILTER_REQUEST_FORMATTERS = {
-    "fromBlock": to_integer_if_hex,
-    "toBlock": to_integer_if_hex,
+    "from_block": to_integer_if_hex,
+    "to_block": to_integer_if_hex,
 }
 filter_request_formatter = apply_formatters_to_dict(FILTER_REQUEST_FORMATTERS)
 
 filter_request_transformer = compose(
-    filter_request_remapper,
     filter_request_formatter,
+    filter_request_remapper,
 )
 
 

@@ -264,12 +264,12 @@ Each Contract Factory exposes the following methods.
 
 .. _contract_create_filter:
 
-.. py:classmethod:: Contract.events.your_event_name.create_filter(fromBlock=None, toBlock="latest", argument_filters={}, topics=[])
+.. py:classmethod:: Contract.events.your_event_name.create_filter(from_block=None, to_block="latest", argument_filters={}, topics=[])
 
     Creates a new event filter, an instance of :py:class:`web3.utils.filters.LogFilter`.
 
-    - ``fromBlock`` is a mandatory field. Defines the starting block (exclusive) filter block range. It can be either the starting block number, or 'latest' for the last mined block, or 'pending' for unmined transactions. In the case of ``fromBlock``, 'latest' and 'pending' set the 'latest' or 'pending' block as a static value for the starting filter block.
-    - ``toBlock`` optional. Defaults to 'latest'. Defines the ending block (inclusive) in the filter block range.  Special values 'latest' and 'pending' set a dynamic range that always includes the 'latest' or 'pending' blocks for the filter's upper block range.
+    - ``from_block`` is a mandatory field. Defines the starting block (exclusive) filter block range. It can be either the starting block number, or 'latest' for the last mined block, or 'pending' for unmined transactions. In the case of ``from_block``, 'latest' and 'pending' set the 'latest' or 'pending' block as a static value for the starting filter block.
+    - ``to_block`` optional. Defaults to 'latest'. Defines the ending block (inclusive) in the filter block range.  Special values 'latest' and 'pending' set a dynamic range that always includes the 'latest' or 'pending' blocks for the filter's upper block range.
     - ``address`` optional. Defaults to the contract address. The filter matches the event logs emanating from ``address``.
     - ``argument_filters``, optional. Expects a dictionary of argument names and values. When provided event logs are filtered for the event argument values. Event arguments can be both indexed or unindexed. Indexed values will be translated to their corresponding topic arguments. Unindexed arguments will be filtered using a regular expression.
     - ``topics`` optional, accepts the standard JSON-RPC topics argument.  See the JSON-RPC documentation for `eth_newFilter <https://github.com/ethereum/wiki/wiki/JSON-RPC#eth_newfilter>`_ more information on the ``topics`` parameters.
@@ -281,7 +281,7 @@ Each Contract Factory exposes the following methods.
     .. code-block:: python
 
         filter_builder = myContract.events.myEvent.build_filter()
-        filter_builder.fromBlock = "latest"
+        filter_builder.from_block = "latest"
         filter_builder.args.clientID.match_any(1, 2, 3, 4)
         filter_builder.args.region.match_single("UK")
         filter_instance = filter_builder.deploy()
@@ -297,9 +297,9 @@ Each Contract Factory exposes the following methods.
 
     .. code-block:: python
 
-        filter_builder = myContract.events.myEvent.build_filter()
-        filter_builder.fromBlock = "latest"
-        filter_builder.fromBlock = 0  # raises a ValueError
+        filter_builder = my_contract.events.myEvent.build_filter()
+        filter_builder.from_block = "latest"
+        filter_builder.from_block = 0  # raises a ValueError
 
 .. py:classmethod:: Contract.encode_abi(fn_name, args=None, kwargs=None, data=None)
 
@@ -939,7 +939,7 @@ For example:
 
 .. _contract_get_logs:
 
-.. py:method:: ContractEvents.myEvent(*args, **kwargs).get_logs(fromBlock=None, toBlock="latest", block_hash=None, argument_filters={})
+.. py:method:: ContractEvents.myEvent(*args, **kwargs).get_logs(from_block=None, to_block="latest", block_hash=None, argument_filters={})
    :noindex:
 
    Fetches all logs for a given event within the specified block range or block hash.
@@ -957,14 +957,14 @@ For example:
 
     .. code-block:: python
 
-        myContract = web3.eth.contract(address=contract_address, abi=contract_abi)
+        my_contract = web3.eth.contract(address=contract_address, abi=contract_abi)
 
         # get ``myEvent`` logs from block 1337 to block 2337 where the value for the
         # event argument "eventArg1" is either 1, 2, or 3
-        myContract.events.myEvent().get_logs(
+        my_contract.events.myEvent().get_logs(
             argument_filters={"eventArg1": [1, 2, 3]},
-            fromBlock=1337,
-            toBlock=2337,
+            from_block=1337,
+            to_block=2337,
         )
 
 .. _process_receipt:
@@ -1107,7 +1107,7 @@ Event Log Object
 
 .. doctest:: create_filter
 
-    >>> transfer_filter = my_token_contract.events.Transfer.create_filter(fromBlock="0x0", argument_filters={'from': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf'})
+    >>> transfer_filter = my_token_contract.events.Transfer.create_filter(from_block="0x0", argument_filters={'from': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf'})
     >>> transfer_filter.get_new_entries()
     [AttributeDict({'args': AttributeDict({'from': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf',
      'to': '0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf',

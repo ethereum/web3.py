@@ -1136,7 +1136,8 @@ with the filtering API.
     callbacks which will be called with each result of the filter.
 
     When creating a new log filter, the ``filter_params`` should be a
-    dictionary with the following keys.
+    dictionary with the following keys. Note that the keys are camel-cased
+    strings, as is expected in a JSON-RPC request.
 
     * ``fromBlock``: ``integer/tag`` - (optional, default: "latest") Integer
       block number, or one of predefined block identifiers

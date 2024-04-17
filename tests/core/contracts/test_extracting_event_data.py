@@ -1188,7 +1188,7 @@ def test_single_log_processing_with_errors(indexed_event_contract, dup_txn_recei
 
 
 def test_get_all_entries_with_nested_tuple_event(w3, emitter):
-    struct_args_filter = emitter.events.LogStructArgs.create_filter(fromBlock=0)
+    struct_args_filter = emitter.events.LogStructArgs.create_filter(from_block=0)
 
     tx_hash = emitter.functions.logStruct(1, (2, 3, (4,))).transact()
     w3.eth.wait_for_transaction_receipt(tx_hash)
@@ -1213,7 +1213,7 @@ def test_get_all_entries_with_nested_tuple_event_non_strict(
     w3_non_strict_abi, non_strict_emitter
 ):
     struct_args_filter = non_strict_emitter.events.LogStructArgs.create_filter(
-        fromBlock=0
+        from_block=0
     )
 
     tx_hash = non_strict_emitter.functions.logStruct(1, (2, 3, (4,))).transact()

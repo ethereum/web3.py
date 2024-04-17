@@ -110,8 +110,8 @@ class ContractEvent(BaseContractEvent):
     def get_logs(
         self,
         argument_filters: Optional[Dict[str, Any]] = None,
-        fromBlock: Optional[BlockIdentifier] = None,
-        toBlock: Optional[BlockIdentifier] = None,
+        from_block: Optional[BlockIdentifier] = None,
+        to_block: Optional[BlockIdentifier] = None,
         block_hash: Optional[HexBytes] = None,
     ) -> Iterable[EventData]:
         """
@@ -131,10 +131,10 @@ class ContractEvent(BaseContractEvent):
 
         .. code-block:: python
 
-            from = max(mycontract.web3.eth.block_number - 10, 1)
-            to = mycontract.web3.eth.block_number
+            from = max(my_contract.web3.eth.block_number - 10, 1)
+            to = my_contract.web3.eth.block_number
 
-            events = mycontract.events.Transfer.get_logs(fromBlock=from, toBlock=to)
+            events = my_contract.events.Transfer.get_logs(from_block=from, to_block=to)
 
             for e in events:
                 print(e["args"]["from"],
@@ -164,10 +164,10 @@ class ContractEvent(BaseContractEvent):
 
         :param argument_filters: Filter by argument values. Indexed arguments are
           filtered by the node while non-indexed arguments are filtered by the library.
-        :param fromBlock: block number or "latest", defaults to "latest"
-        :param toBlock: block number or "latest". Defaults to "latest"
+        :param from_block: block number or "latest", defaults to "latest"
+        :param to_block: block number or "latest". Defaults to "latest"
         :param block_hash: block hash. block_hash cannot be set at the
-          same time as fromBlock or toBlock
+          same time as ``from_block`` or ``to_block``
         :yield: Tuple of :class:`AttributeDict` instances
         """
         event_abi = self._get_event_abi()
@@ -182,7 +182,7 @@ class ContractEvent(BaseContractEvent):
                 )
 
         _filter_params = self._get_event_filter_params(
-            event_abi, argument_filters, fromBlock, toBlock, block_hash
+            event_abi, argument_filters, from_block, to_block, block_hash
         )
         # call JSON-RPC API
         logs = self.w3.eth.get_logs(_filter_params)
@@ -205,8 +205,8 @@ class ContractEvent(BaseContractEvent):
         self,
         *,  # PEP 3102
         argument_filters: Optional[Dict[str, Any]] = None,
-        fromBlock: Optional[BlockIdentifier] = None,
-        toBlock: BlockIdentifier = "latest",
+        from_block: Optional[BlockIdentifier] = None,
+        to_block: BlockIdentifier = "latest",
         address: Optional[ChecksumAddress] = None,
         topics: Optional[Sequence[Any]] = None,
     ) -> LogFilter:
@@ -216,8 +216,8 @@ class ContractEvent(BaseContractEvent):
         filter_builder = EventFilterBuilder(self._get_event_abi(), self.w3.codec)
         self._set_up_filter_builder(
             argument_filters,
-            fromBlock,
-            toBlock,
+            from_block,
+            to_block,
             address,
             topics,
             filter_builder,
