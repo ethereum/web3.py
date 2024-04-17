@@ -174,6 +174,21 @@ been functional since around October 2022. It was deprecated in ``v6`` and has b
 completely removed in ``v7``.
 
 
+Remaining cameCase -> snake_case Changes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The following arguments have been renamed across the library from camelCase to
+snake_case in all methods where they are passed in as a kwarg.
+
+- ``fromBlock`` -> ``from_block``
+- ``toBlock`` -> ``to_block``
+- ``blockHash`` -> ``block_hash``
+
+Note that if a dictionary is used instead, say to a call such as `eth_getLogs`, the
+keys in the dictionary should be camelCase. This is because the dictionary is passed
+directly to the JSON-RPC request, where the keys are expected to be in camelCase.
+
+
 Miscellaneous Changes
 ~~~~~~~~~~~~~~~~~~~~~
 
