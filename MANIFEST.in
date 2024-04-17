@@ -1,6 +1,7 @@
 include LICENSE
 include README.md
 
+recursive-include scripts *
 recursive-include tests *
 
 global-include *.pyi
