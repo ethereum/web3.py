@@ -6,6 +6,21 @@ v6 Breaking Changes Summary
 
 .. towncrier release notes start
 
+web3.py vpatch (2024-04-17)
+---------------------------
+
+No significant changes.
+
+
+web3.py v6.17.2 (2024-04-17)
+----------------------------
+
+Bugfixes
+~~~~~~~~
+
+- Revert pin of `eth-typing` to utilize `EthPM` types. (`#3349 <https://github.com/ethereum/web3.py/issues/3349>`__)
+
+
 web3.py v6.17.1 (2024-04-15)
 ----------------------------
 
