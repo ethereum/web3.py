@@ -1117,8 +1117,8 @@ The script can be run with: ``python ./eventscanner.py <your JSON-RPC API URL>``
             codec,
             address=argument_filters.get("address"),
             argument_filters=argument_filters,
-            fromBlock=from_block,
-            toBlock=to_block
+            from_block=from_block,
+            to_block=to_block
         )
 
         logger.debug(f"Querying eth_getLogs with the following parameters: {event_filter_params}")

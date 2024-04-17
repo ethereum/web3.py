@@ -340,8 +340,8 @@ is_not_indexed = complement(is_indexed)
 
 class BaseEventFilterBuilder:
     formatter = None
-    _fromBlock = None
-    _toBlock = None
+    _from_block = None
+    _to_block = None
     _address = None
     _immutable = False
 
@@ -361,30 +361,30 @@ class BaseEventFilterBuilder:
         self._ordered_arg_names = tuple(arg["name"] for arg in event_abi["inputs"])
 
     @property
-    def fromBlock(self) -> BlockIdentifier:
-        return self._fromBlock
+    def from_block(self) -> BlockIdentifier:
+        return self._from_block
 
-    @fromBlock.setter
-    def fromBlock(self, value: BlockIdentifier) -> None:
-        if self._fromBlock is None and not self._immutable:
-            self._fromBlock = value
+    @from_block.setter
+    def from_block(self, value: BlockIdentifier) -> None:
+        if self._from_block is None and not self._immutable:
+            self._from_block = value
         else:
             raise Web3ValueError(
-                f"fromBlock is already set to {self._fromBlock!r}. "
+                f"from_block is already set to {self._from_block!r}. "
                 "Resetting filter parameters is not permitted"
             )
 
     @property
-    def toBlock(self) -> BlockIdentifier:
-        return self._toBlock
+    def to_block(self) -> BlockIdentifier:
+        return self._to_block
 
-    @toBlock.setter
-    def toBlock(self, value: BlockIdentifier) -> None:
-        if self._toBlock is None and not self._immutable:
-            self._toBlock = value
+    @to_block.setter
+    def to_block(self, value: BlockIdentifier) -> None:
+        if self._to_block is None and not self._immutable:
+            self._to_block = value
         else:
             raise Web3ValueError(
-                f"toBlock is already set to {self._toBlock!r}. "
+                f"toBlock is already set to {self._to_block!r}. "
                 "Resetting filter parameters is not permitted"
             )
 
@@ -432,8 +432,8 @@ class BaseEventFilterBuilder:
     def filter_params(self) -> FilterParams:
         params = {
             "topics": self.topics,
-            "fromBlock": self.fromBlock,
-            "toBlock": self.toBlock,
+            "fromBlock": self.from_block,
+            "toBlock": self.to_block,
             "address": self.address,
         }
         return valfilter(lambda x: x is not None, params)

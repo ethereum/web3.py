@@ -32,7 +32,7 @@ If you're on this page, you're likely looking for an answer to this question:
    weth_contract = w3.eth.contract(address=WETH_ADDRESS, abi=WETH_ABI)
 
    # fetch transfer events in the last block
-   logs = weth_contract.events.Transfer().get_logs(fromBlock=w3.eth.block_number)
+   logs = weth_contract.events.Transfer().get_logs(from_block=w3.eth.block_number)
 
    for log in logs:
       print(f"Transfer of {w3.from_wei(log.args.wad, 'ether')} WETH from {log.args.src} to {log.args.dst}")
@@ -62,7 +62,7 @@ The :meth:`web3.eth.Eth.filter` method can be used to set up filters for:
 
     .. code-block:: python
 
-        event_filter = mycontract.events.myEvent.create_filter(fromBlock='latest', argument_filters={'arg1':10})
+        event_filter = my_contract.events.myEvent.create_filter(from_block='latest', argument_filters={'arg1':10})
 
     Or built manually by supplying `valid filter params <https://github.com/ethereum/execution-apis/blob/bea0266c42919a2fb3ee524fb91e624a23bc17c5/src/schemas/filter.json#L28>`_:
 
@@ -169,7 +169,7 @@ creating event log filters. Refer to the following example:
 
     .. code-block:: python
 
-        event_filter = myContract.events.<event_name>.create_filter(fromBlock="latest", argument_filters={'arg1':10})
+        event_filter = my_contract.events.<event_name>.create_filter(from_block="latest", argument_filters={'arg1':10})
         event_filter.get_new_entries()
 
 See :meth:`web3.contract.Contract.events.your_event_name.create_filter()` documentation for more information.

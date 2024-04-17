@@ -52,10 +52,14 @@ def test_contract_get_logs_range(
     log_entries = list(contract.events.LogNoArguments.get_logs())
     assert len(log_entries) == 1
 
-    log_entries = list(contract.events.LogNoArguments.get_logs(fromBlock=2, toBlock=3))
+    log_entries = list(
+        contract.events.LogNoArguments.get_logs(from_block=2, to_block=3)
+    )
     assert len(log_entries) == 1
 
-    log_entries = list(contract.events.LogNoArguments.get_logs(fromBlock=1, toBlock=2))
+    log_entries = list(
+        contract.events.LogNoArguments.get_logs(from_block=1, to_block=2)
+    )
     assert len(log_entries) == 0
 
 
@@ -76,19 +80,19 @@ def test_contract_get_logs_argument_filter(
     for txn_hash in txn_hashes:
         wait_for_transaction(w3, txn_hash)
 
-    all_logs = contract.events.LogTripleWithIndex.get_logs(fromBlock=1)
+    all_logs = contract.events.LogTripleWithIndex.get_logs(from_block=1)
     assert len(all_logs) == 4
 
     # Filter all entries where arg1 in (1, 2)
     partial_logs = contract.events.LogTripleWithIndex.get_logs(
-        fromBlock=1,
+        from_block=1,
         argument_filters={"arg1": [1, 2]},
     )
     assert len(partial_logs) == 2
 
     # Filter all entries where arg0 == 1
     partial_logs = contract.events.LogTripleWithIndex.get_logs(
-        fromBlock=1,
+        from_block=1,
         argument_filters={"arg0": 1},
     )
     assert len(partial_logs) == 4
@@ -111,16 +115,16 @@ def test_get_logs_argument_filters_indexed_and_non_indexed_args(emitter):
     ).transact()
 
     # get all logs
-    logs_no_filter = emitter.events.LogIndexedAndNotIndexed.get_logs(fromBlock=1)
+    logs_no_filter = emitter.events.LogIndexedAndNotIndexed.get_logs(from_block=1)
     assert len(logs_no_filter) == 2
 
     # filter for the second log by each of the indexed args and compare
     logs_filter_indexed_address = emitter.events.LogIndexedAndNotIndexed.get_logs(
-        fromBlock=1,
+        from_block=1,
         argument_filters={"indexedAddress": f"0xdEaD{'00' * 17}02"},
     )
     logs_filter_indexed_uint256 = emitter.events.LogIndexedAndNotIndexed.get_logs(
-        fromBlock=1,
+        from_block=1,
         argument_filters={"indexedUint256": 102},
     )
     assert len(logs_filter_indexed_address) == len(logs_filter_indexed_uint256) == 1
@@ -132,7 +136,7 @@ def test_get_logs_argument_filters_indexed_and_non_indexed_args(emitter):
 
     # filter for the first log by non-indexed address
     logs_filter_non_indexed_address = emitter.events.LogIndexedAndNotIndexed.get_logs(
-        fromBlock=1,
+        from_block=1,
         argument_filters={"nonIndexedAddress": f"0xBEEf{'00' * 17}01"},
     )
     assert len(logs_filter_non_indexed_address) == 1
@@ -140,11 +144,11 @@ def test_get_logs_argument_filters_indexed_and_non_indexed_args(emitter):
 
     # filter for the second log by non-indexed uint256 and string separately
     logs_filter_non_indexed_uint256 = emitter.events.LogIndexedAndNotIndexed.get_logs(
-        fromBlock=1,
+        from_block=1,
         argument_filters={"nonIndexedUint256": 202},
     )
     logs_filter_non_indexed_string = emitter.events.LogIndexedAndNotIndexed.get_logs(
-        fromBlock=1,
+        from_block=1,
         argument_filters={"nonIndexedString": "SECOND"},
     )
     assert len(logs_filter_non_indexed_uint256) == 1
@@ -158,7 +162,7 @@ def test_get_logs_argument_filters_indexed_and_non_indexed_args(emitter):
     # filter by both string and uint256, non-indexed
     logs_filter_non_indexed_uint256_and_string = (
         emitter.events.LogIndexedAndNotIndexed.get_logs(
-            fromBlock=1,
+            from_block=1,
             argument_filters={
                 "nonIndexedUint256": 201,
                 "nonIndexedString": "FIRST",
@@ -235,13 +239,13 @@ async def test_async_contract_get_logs_range(
     assert len(log_entries) == 1
 
     contract_logs = await contract.events.LogNoArguments.get_logs(
-        fromBlock=2, toBlock=3
+        from_block=2, to_block=3
     )
     log_entries = list(contract_logs)
     assert len(log_entries) == 1
 
     contract_logs = await contract.events.LogNoArguments.get_logs(
-        fromBlock=1, toBlock=2
+        from_block=1, to_block=2
     )
     log_entries = list(contract_logs)
     assert len(log_entries) == 0
@@ -273,19 +277,19 @@ async def test_async_contract_get_logs_argument_filter(
     for txn_hash in txn_hashes:
         await async_wait_for_transaction(async_w3, txn_hash)
 
-    all_logs = await contract.events.LogTripleWithIndex.get_logs(fromBlock=1)
+    all_logs = await contract.events.LogTripleWithIndex.get_logs(from_block=1)
     assert len(all_logs) == 4
 
     # Filter all entries where arg1 in (1, 2)
     partial_logs = await contract.events.LogTripleWithIndex.get_logs(
-        fromBlock=1,
+        from_block=1,
         argument_filters={"arg1": [1, 2]},
     )
     assert len(partial_logs) == 2
 
     # Filter all entries where arg0 == 1
     partial_logs = await contract.events.LogTripleWithIndex.get_logs(
-        fromBlock=1,
+        from_block=1,
         argument_filters={"arg0": 1},
     )
     assert len(partial_logs) == 4
@@ -312,20 +316,20 @@ async def test_async_get_logs_argument_filters_indexed_and_non_indexed_args(
 
     # get all logs
     logs_no_filter = await async_emitter.events.LogIndexedAndNotIndexed.get_logs(
-        fromBlock=1
+        from_block=1
     )
     assert len(logs_no_filter) == 2
 
     # filter for the second log by each of the indexed args and compare
     logs_filter_indexed_address = (
         await async_emitter.events.LogIndexedAndNotIndexed.get_logs(
-            fromBlock=1,
+            from_block=1,
             argument_filters={"indexedAddress": f"0xdEaD{'00' * 17}02"},
         )
     )
     logs_filter_indexed_uint256 = (
         await async_emitter.events.LogIndexedAndNotIndexed.get_logs(
-            fromBlock=1,
+            from_block=1,
             argument_filters={"indexedUint256": 102},
         )
     )
@@ -339,7 +343,7 @@ async def test_async_get_logs_argument_filters_indexed_and_non_indexed_args(
     # filter for the first log by non-indexed address
     logs_filter_non_indexed_address = (
         await async_emitter.events.LogIndexedAndNotIndexed.get_logs(
-            fromBlock=1,
+            from_block=1,
             argument_filters={"nonIndexedAddress": f"0xBEEf{'00' * 17}01"},
         )
     )
@@ -349,13 +353,13 @@ async def test_async_get_logs_argument_filters_indexed_and_non_indexed_args(
     # filter for the second log by non-indexed uint256 and string separately
     logs_filter_non_indexed_uint256 = (
         await async_emitter.events.LogIndexedAndNotIndexed.get_logs(
-            fromBlock=1,
+            from_block=1,
             argument_filters={"nonIndexedUint256": 202},
         )
     )
     logs_filter_non_indexed_string = (
         await async_emitter.events.LogIndexedAndNotIndexed.get_logs(
-            fromBlock=1,
+            from_block=1,
             argument_filters={"nonIndexedString": "SECOND"},
         )
     )
@@ -370,7 +374,7 @@ async def test_async_get_logs_argument_filters_indexed_and_non_indexed_args(
     # filter by both string and uint256, non-indexed
     logs_filter_non_indexed_uint256_and_string = (
         await async_emitter.events.LogIndexedAndNotIndexed.get_logs(
-            fromBlock=1,
+            from_block=1,
             argument_filters={
                 "nonIndexedUint256": 201,
                 "nonIndexedString": "FIRST",

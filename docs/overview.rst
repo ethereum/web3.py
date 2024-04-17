@@ -286,7 +286,7 @@ a contract, you can leverage web3.py filters.
    >>> new_filter = web3.eth.filter('latest')
 
    # Use case: filter for contract event "MyEvent"
-   >>> new_filter = deployed_contract.events.MyEvent.create_filter(fromBlock='latest')
+   >>> new_filter = deployed_contract.events.MyEvent.create_filter(from_block='latest')
 
    # retrieve filter results:
    >>> new_filter.get_all_entries()

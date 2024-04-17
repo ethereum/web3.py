@@ -5,7 +5,7 @@ def test_filtering_sequential_blocks_with_bounded_range(
     w3, emitter, wait_for_transaction
 ):
     builder = emitter.events.LogNoArguments.build_filter()
-    builder.fromBlock = "latest"
+    builder.from_block = "latest"
 
     initial_block_number = w3.eth.block_number
 
@@ -43,7 +43,7 @@ async def test_async_filtering_sequential_blocks_with_bounded_range(
     async_w3, async_emitter
 ):
     builder = async_emitter.events.LogNoArguments.build_filter()
-    builder.fromBlock = "latest"
+    builder.from_block = "latest"
     initial_block_number = await async_w3.eth.block_number
     builder.toBlock = initial_block_number + 100
     filter_ = await builder.deploy(async_w3)

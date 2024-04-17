@@ -25,11 +25,11 @@ def test_on_filter_using_get_all_entries_interface(
 
     if api_style == "build_filter":
         builder = contract.events.LogNoArguments.build_filter()
-        builder.fromBlock = "latest"
+        builder.from_block = "latest"
         event_filter = builder.deploy(w3)
     else:
         event_filter = create_filter(
-            contract, ["LogNoArguments", {"fromBlock": "latest"}]
+            contract, ["LogNoArguments", {"from_block": "latest"}]
         )
 
     txn_hash = emitter.functions.logNoArgs(
@@ -73,11 +73,11 @@ def test_get_all_entries_returned_block_data(
 
     if api_style == "build_filter":
         builder = contract.events.LogNoArguments.build_filter()
-        builder.fromBlock = txn_receipt["blockNumber"]
+        builder.from_block = txn_receipt["blockNumber"]
         event_filter = builder.deploy(w3)
     else:
         event_filter = create_filter(
-            contract, ["LogNoArguments", {"fromBlock": txn_receipt["blockNumber"]}]
+            contract, ["LogNoArguments", {"from_block": txn_receipt["blockNumber"]}]
         )
 
     log_entries = event_filter.get_all_entries()
@@ -122,11 +122,11 @@ async def test_on_async_filter_using_get_all_entries_interface(
 
     if api_style == "build_filter":
         builder = contract.events.LogNoArguments.build_filter()
-        builder.fromBlock = "latest"
+        builder.from_block = "latest"
         event_filter = await builder.deploy(async_w3)
     else:
         event_filter = await async_create_filter(
-            contract, ["LogNoArguments", {"fromBlock": "latest"}]
+            contract, ["LogNoArguments", {"from_block": "latest"}]
         )
 
     txn_hash = await async_emitter.functions.logNoArgs(
@@ -171,11 +171,11 @@ async def test_async_get_all_entries_returned_block_data(
 
     if api_style == "build_filter":
         builder = contract.events.LogNoArguments.build_filter()
-        builder.fromBlock = txn_receipt["blockNumber"]
+        builder.from_block = txn_receipt["blockNumber"]
         event_filter = await builder.deploy(async_w3)
     else:
         event_filter = await async_create_filter(
-            contract, ["LogNoArguments", {"fromBlock": txn_receipt["blockNumber"]}]
+            contract, ["LogNoArguments", {"from_block": txn_receipt["blockNumber"]}]
         )
 
     log_entries = await event_filter.get_all_entries()
