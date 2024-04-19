@@ -86,14 +86,32 @@ windows-wheel-steps:
       key: cache-v1-{{ arch }}-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
 
 docs: &docs
-  docker:
-    - image: common
+  working_directory: ~/repo
   steps:
+    - checkout
+    - restore_cache:
+        keys:
+          - cache-v1-{{ arch }}-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
+    - run:
+        name: install dependencies
+        command: |
+          python -m pip install --upgrade pip
+          python -m pip install tox
     - run:
         name: install latexpdf dependencies
         command: |
           sudo apt-get update
           sudo apt-get install latexmk tex-gyre texlive-fonts-extra
+    - run:
+        name: run tox
+        command: python -m tox run -r
+    - save_cache:
+        paths:
+          - .tox
+          - ~/.cache/pip
+          - ~/.local
+        key: cache-v1-{{ arch }}-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
+  resource_class: xlarge
 
 jobs:
   docs:
