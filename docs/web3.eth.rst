@@ -618,17 +618,17 @@ The following methods are available on the ``web3.eth`` namespace.
         # ...
         # Then when the transaction is added to a block, its receipt is returned:
         AttributeDict({
-            'blockHash': '0x4e3a3754410177e6937ef1f84bba68ea139e8d1a2258c5f85db9f1cd715a1bdd',
+            'blockHash': HexBytes('0x4e3a3754410177e6937ef1f84bba68ea139e8d1a2258c5f85db9f1cd715a1bdd'),
             'blockNumber': 46147,
             'contractAddress': None,
             'cumulativeGasUsed': 21000,
             'from': '0xA1E4380A3B1f749673E270229993eE55F35663b4',
             'gasUsed': 21000,
             'logs': [],
-            'logsBloom': '0x000000000000000000000000000000000000000000000000...0000',
+            'logsBloom': HexBytes('0x000000000000000000000000000000000000000000000000...0000'),
             'status': 1,
             'to': '0x5DF9B87991262F6BA471F09758CDE1c0FC1De734',
-            'transactionHash': '0x5c504ed432cb51138bcf09aa5e8a410dd4a1e204ef84bfed1be16dfba1b22060',
+            'transactionHash': HexBytes('0x5c504ed432cb51138bcf09aa5e8a410dd4a1e204ef84bfed1be16dfba1b22060'),
             'transactionIndex': 0,
         })
 
