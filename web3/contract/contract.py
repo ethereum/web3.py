@@ -13,10 +13,14 @@ from typing import (
 )
 
 from eth_typing import (
+    ABI,
     ChecksumAddress,
 )
 from eth_utils import (
     combomethod,
+)
+from eth_utils.abi import (
+    get_abi_input_names,
 )
 from eth_utils.toolz import (
     partial,
@@ -84,14 +88,10 @@ from web3.exceptions import (
     Web3ValidationError,
 )
 from web3.types import (
-    ABI,
     BlockIdentifier,
     CallOverride,
     EventData,
     TxParams,
-)
-from web3.utils import (
-    get_abi_input_names,
 )
 
 if TYPE_CHECKING:

@@ -1,31 +1,27 @@
 from typing import (
     Any,
-    List,
     Optional,
     Sequence,
-    Union,
 )
 
 from eth_abi.abi import (
     ABICodec,
 )
-
 from eth_abi.registry import (
     registry as default_registry,
 )
 from eth_typing import (
+    ABIFunction,
     HexStr,
 )
-
-from web3.providers.rpc import (
-    HTTPProvider,
+from eth_utils.abi import (
+    get_abi_input_types,
 )
-from web3.providers import (
-    BaseProvider,
+from eth_utils.hexadecimal import (
+    encode_hex,
 )
-from web3.types import (
-    ABIEvent,
-    ABIFunction,
+from hexbytes import (
+    HexBytes,
 )
 
 from ens import (
@@ -44,28 +40,9 @@ from web3._utils.normalizers import (
     abi_ens_resolver,
     abi_string_to_text,
 )
-
-from eth_utils.abi import (
-    get_abi_input_types,
+from web3.providers.rpc import (
+    HTTPProvider,
 )
-from eth_utils.hexadecimal import (
-    encode_hex,
-)
-from hexbytes import (
-    HexBytes,
-)
-
-
-def get_abi_input_names(abi: Union[ABIFunction, ABIEvent]) -> List[str]:
-    if "inputs" not in abi and abi["type"] == "fallback":
-        return []
-    return [arg["name"] for arg in abi["inputs"]]
-
-
-def get_abi_output_names(abi: Union[ABIFunction]) -> List[str]:
-    if "outputs" not in abi and abi["type"] == "fallback":
-        return []
-    return [arg["name"] for arg in abi["outputs"]]
 
 
 def encode_abi(

@@ -19,6 +19,7 @@ from eth_abi.grammar import (
     parse as parse_type_string,
 )
 from eth_typing import (
+    ABIEvent,
     ChecksumAddress,
     HexStr,
     TypeStr,
@@ -53,7 +54,6 @@ from web3.exceptions import (
     Web3ValidationError,
 )
 from web3.types import (
-    ABIEvent,
     BlockIdentifier,
     FilterParams,
     LogReceipt,

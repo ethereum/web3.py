@@ -4,8 +4,6 @@ classify as breaking changes.
 """
 
 from .abi import (  # NOQA
-    get_abi_input_names,
-    get_abi_output_names,
     encode_abi,
 )
 from .address import get_create_address  # NOQA
@@ -20,7 +18,6 @@ from .exception_handling import (  # NOQA
 )
 
 # from eth_utils import (  # NOQA
-#     collapse_if_tuple,
 #     event_abi_to_log_topic,
 #     event_signature_to_log_topic,
 #     function_abi_to_4byte_selector,
@@ -35,11 +32,11 @@ from .exception_handling import (  # NOQA
 #     get_event_log_topics,
 #     get_function_abi,
 #     get_function_info,
+#     get_normalized_abi_arg_type,
 # )
 
 # __all__ = [
 #     "async_handle_offchain_lookup",
-#     "collapse_if_tuple",
 #     "encode_abi",
 #     "event_abi_to_log_topic",
 #     "event_signature_to_log_topic",
@@ -55,6 +52,7 @@ from .exception_handling import (  # NOQA
 #     "get_event_log_topics",
 #     "get_function_abi",
 #     "get_function_info",
+#     "get_normalized_abi_arg_type",
 #     "handle_offchain_lookup",
 #     "SimpleCache",
 # ]
