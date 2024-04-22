@@ -7,6 +7,7 @@ from typing import (
     Literal,
     Optional,
     Union,
+    cast,
 )
 
 from eth_abi import (
@@ -59,6 +60,7 @@ if TYPE_CHECKING:
 
 
 class AsyncEthereumTesterProvider(AsyncBaseProvider):
+    _current_request_id = 0
     _middleware = (
         default_transaction_fields_middleware,
         ethereum_tester_middleware,
@@ -99,13 +101,22 @@ class AsyncEthereumTesterProvider(AsyncBaseProvider):
         return self._request_func_cache[-1]
 
     async def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
-        return _make_request(method, params, self.api_endpoints, self.ethereum_tester)
+        response = _make_request(
+            method,
+            params,
+            self.api_endpoints,
+            self.ethereum_tester,
+            repr(self._current_request_id),
+        )
+        self._current_request_id += 1
+        return response
 
     async def is_connected(self, show_traceback: bool = False) -> Literal[True]:
         return True
 
 
 class EthereumTesterProvider(BaseProvider):
+    _current_request_id = 0
     _middleware = (
         default_transaction_fields_middleware,
         ethereum_tester_middleware,
@@ -173,23 +184,32 @@ class EthereumTesterProvider(BaseProvider):
         return self._request_func_cache[-1]
 
     def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
-        return _make_request(method, params, self.api_endpoints, self.ethereum_tester)
+        response = _make_request(
+            method,
+            params,
+            self.api_endpoints,
+            self.ethereum_tester,
+            repr(self._current_request_id),
+        )
+        self._current_request_id += 1
+        return response
 
     def is_connected(self, show_traceback: bool = False) -> Literal[True]:
         return True
 
 
-def _make_response(result: Any, message: str = "") -> RPCResponse:
+def _make_response(result: Any, response_id: str, message: str = "") -> RPCResponse:
     if isinstance(result, Exception):
-        return RPCResponse(
+        return cast(
+            RPCResponse,
             {
-                "id": 1,
+                "id": response_id,
                 "jsonrpc": "2.0",
-                "error": RPCError({"code": -32601, "message": message}),
-            }
+                "error": cast(RPCError, {"code": -32601, "message": message}),
+            },
         )
 
-    return RPCResponse({"id": 1, "jsonrpc": "2.0", "result": result})
+    return cast(RPCResponse, {"id": response_id, "jsonrpc": "2.0", "result": result})
 
 
 def _make_request(
@@ -197,6 +217,7 @@ def _make_request(
     params: Any,
     api_endpoints: Dict[str, Dict[str, Any]],
     ethereum_tester_instance: "EthereumTester",
+    request_id: str,
 ) -> RPCResponse:
     # do not import eth_tester derivatives until runtime,
     # it is not a default dependency
@@ -209,11 +230,15 @@ def _make_request(
     try:
         delegator = api_endpoints[namespace][endpoint]
     except KeyError as e:
-        return _make_response(e, f"Unknown RPC Endpoint: {method}")
+        return _make_response(e, request_id, message=f"Unknown RPC Endpoint: {method}")
     try:
         response = delegator(ethereum_tester_instance, params)
     except NotImplementedError as e:
-        return _make_response(e, f"RPC Endpoint has not been implemented: {method}")
+        return _make_response(
+            e,
+            request_id,
+            message=f"RPC Endpoint has not been implemented: {method}",
+        )
     except TransactionFailed as e:
         first_arg = e.args[0]
         try:
@@ -230,4 +255,4 @@ def _make_request(
             reason = first_arg
         raise TransactionFailed(f"execution reverted: {reason}")
     else:
-        return _make_response(response)
+        return _make_response(response, request_id)
