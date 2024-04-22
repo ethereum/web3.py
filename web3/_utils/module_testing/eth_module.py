@@ -83,7 +83,9 @@ from web3.exceptions import (
     TooManyRequests,
     TransactionNotFound,
     TransactionTypeMismatch,
+    Web3RPCError,
     Web3ValidationError,
+    Web3ValueError,
 )
 from web3.middleware import (
     ExtraDataToPOAMiddleware,
@@ -399,7 +401,7 @@ class AsyncEthModuleTest:
             }
         """
         with pytest.raises(
-            ValueError,
+            Web3ValueError,
             match=r".*Expected 2 items for array type Person\[2\], got 1 items.*",
         ):
             await async_w3.eth.sign_typed_data(
@@ -1137,7 +1139,7 @@ class AsyncEthModuleTest:
     ) -> None:
         unknown_identifier = "unknown"
         with pytest.raises(
-            ValueError,
+            Web3ValueError,
             match=(
                 "Value did not match any of the recognized block identifiers: "
                 f"{unknown_identifier}"
@@ -1537,7 +1539,7 @@ class AsyncEthModuleTest:
         default_max_redirects = async_w3.provider.ccip_read_max_redirects
 
         async_w3.provider.ccip_read_max_redirects = max_redirects
-        with pytest.raises(ValueError, match="at least 4"):
+        with pytest.raises(Web3ValueError, match="at least 4"):
             await async_offchain_lookup_contract.caller().testOffchainLookup(
                 OFFCHAIN_LOOKUP_TEST_DATA
             )
@@ -1836,7 +1838,7 @@ class AsyncEthModuleTest:
             "fromBlock": async_block_with_txn_with_log["number"],
             "toBlock": BlockNumber(async_block_with_txn_with_log["number"] - 1),
         }
-        with pytest.raises(ValueError):
+        with pytest.raises(Web3RPCError):
             result = await async_w3.eth.get_logs(filter_params)
 
         # Test with `address`
@@ -2273,7 +2275,7 @@ class AsyncEthModuleTest:
         txn_params["maxFeePerGas"] = one_gwei_in_wei
         txn_params["maxPriorityFeePerGas"] = one_gwei_in_wei
 
-        with pytest.raises(ValueError, match="replacement transaction underpriced"):
+        with pytest.raises(Web3RPCError, match="replacement transaction underpriced"):
             await async_w3.eth.replace_transaction(txn_hash, txn_params)
 
     @flaky_geth_dev_mining
@@ -2319,7 +2321,7 @@ class AsyncEthModuleTest:
 
         txn_params["maxFeePerGas"] = async_w3.to_wei(3, "gwei")
         txn_params["maxPriorityFeePerGas"] = async_w3.to_wei(2, "gwei")
-        with pytest.raises(ValueError, match="Supplied transaction with hash"):
+        with pytest.raises(Web3ValueError, match="Supplied transaction with hash"):
             await async_w3.eth.replace_transaction(txn_hash, txn_params)
 
     @flaky_geth_dev_mining
@@ -2341,7 +2343,7 @@ class AsyncEthModuleTest:
         txn_params["maxFeePerGas"] = async_w3.to_wei(3, "gwei")
         txn_params["maxPriorityFeePerGas"] = async_w3.to_wei(2, "gwei")
         txn_params["nonce"] = Nonce(txn["nonce"] + 1)
-        with pytest.raises(ValueError):
+        with pytest.raises(Web3ValueError):
             await async_w3.eth.replace_transaction(txn_hash, txn_params)
 
     @flaky_geth_dev_mining
@@ -2361,7 +2363,7 @@ class AsyncEthModuleTest:
         txn_hash = await async_w3.eth.send_transaction(txn_params)
 
         txn_params["gasPrice"] = async_w3.to_wei(1, "gwei")
-        with pytest.raises(ValueError):
+        with pytest.raises(Web3ValueError):
             await async_w3.eth.replace_transaction(txn_hash, txn_params)
 
     @flaky_geth_dev_mining
@@ -2965,7 +2967,7 @@ class EthModuleTest:
             }
         """
         with pytest.raises(
-            ValueError,
+            Web3ValueError,
             match=r".*Expected 2 items for array type Person\[2\], got 1 items.*",
         ):
             w3.eth.sign_typed_data(
@@ -3481,7 +3483,7 @@ class EthModuleTest:
         txn_params["maxFeePerGas"] = one_gwei_in_wei
         txn_params["maxPriorityFeePerGas"] = one_gwei_in_wei
 
-        with pytest.raises(ValueError, match="replacement transaction underpriced"):
+        with pytest.raises(Web3RPCError, match="replacement transaction underpriced"):
             w3.eth.replace_transaction(txn_hash, txn_params)
 
     @flaky_geth_dev_mining
@@ -3521,7 +3523,7 @@ class EthModuleTest:
 
         txn_params["maxFeePerGas"] = w3.to_wei(3, "gwei")
         txn_params["maxPriorityFeePerGas"] = w3.to_wei(2, "gwei")
-        with pytest.raises(ValueError, match="Supplied transaction with hash"):
+        with pytest.raises(Web3ValueError, match="Supplied transaction with hash"):
             w3.eth.replace_transaction(txn_hash, txn_params)
 
     @flaky_geth_dev_mining
@@ -3542,7 +3544,7 @@ class EthModuleTest:
         txn_params["maxFeePerGas"] = w3.to_wei(3, "gwei")
         txn_params["maxPriorityFeePerGas"] = w3.to_wei(2, "gwei")
         txn_params["nonce"] = Nonce(txn["nonce"] + 1)
-        with pytest.raises(ValueError):
+        with pytest.raises(Web3ValueError):
             w3.eth.replace_transaction(txn_hash, txn_params)
 
     @flaky_geth_dev_mining
@@ -3559,7 +3561,7 @@ class EthModuleTest:
         txn_hash = w3.eth.send_transaction(txn_params)
 
         txn_params["gasPrice"] = w3.to_wei(1, "gwei")
-        with pytest.raises(ValueError):
+        with pytest.raises(Web3ValueError):
             w3.eth.replace_transaction(txn_hash, txn_params)
 
     @flaky_geth_dev_mining
@@ -4003,7 +4005,7 @@ class EthModuleTest:
         default_max_redirects = w3.provider.ccip_read_max_redirects
 
         w3.provider.ccip_read_max_redirects = max_redirects
-        with pytest.raises(ValueError, match="at least 4"):
+        with pytest.raises(Web3ValueError, match="at least 4"):
             offchain_lookup_contract.functions.testOffchainLookup(
                 OFFCHAIN_LOOKUP_TEST_DATA
             ).call()
@@ -4549,7 +4551,7 @@ class EthModuleTest:
             "fromBlock": block_with_txn_with_log["number"],
             "toBlock": BlockNumber(block_with_txn_with_log["number"] - 1),
         }
-        with pytest.raises(ValueError):
+        with pytest.raises(Web3RPCError):
             w3.eth.get_logs(filter_params)
 
         # Test with `address`
@@ -4768,7 +4770,7 @@ class EthModuleTest:
     ) -> None:
         unknown_identifier = "unknown"
         with pytest.raises(
-            ValueError,
+            Web3ValueError,
             match=(
                 "Value did not match any of the recognized block identifiers: "
                 f"{unknown_identifier}"

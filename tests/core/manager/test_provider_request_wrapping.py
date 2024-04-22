@@ -9,6 +9,8 @@ from web3.providers import (
 class DummyProvider(BaseProvider):
     def make_request(self, method, params):
         return {
+            "jsonrpc": "2.0",
+            "id": 1,
             "result": {
                 "method": method,
                 "params": params,

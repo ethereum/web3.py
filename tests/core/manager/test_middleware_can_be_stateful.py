@@ -15,7 +15,7 @@ class StatefulMiddleware(Web3Middleware):
     def wrap_make_request(self, make_request):
         def middleware(method, params):
             self.state.append((method, params))
-            return {"result": self.state}
+            return {"jsonrpc": "2.0", "id": 1, "result": self.state}
 
         return middleware
 

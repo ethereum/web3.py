@@ -13,7 +13,7 @@ from web3._utils.caching import (
     generate_cache_key,
 )
 from web3.exceptions import (
-    Web3ValueError,
+    Web3RPCError,
 )
 from web3.providers import (
     AsyncBaseProvider,
@@ -31,7 +31,7 @@ def simple_cache_return_value_a():
     _cache = SimpleCache()
     _cache.cache(
         generate_cache_key(f"{threading.get_ident()}:{('fake_endpoint', [1])}"),
-        {"result": "value-a"},
+        {"jsonrpc": "2.0", "id": 0, "result": "value-a"},
     )
     return _cache
 
@@ -92,9 +92,9 @@ def test_request_caching_does_not_cache_error_responses(request_mocker):
     with request_mocker(
         w3, mock_errors={"fake_endpoint": lambda *_: {"message": f"msg-{uuid.uuid4()}"}}
     ):
-        with pytest.raises(Web3ValueError) as err_a:
+        with pytest.raises(Web3RPCError) as err_a:
             w3.manager.request_blocking("fake_endpoint", [])
-        with pytest.raises(Web3ValueError) as err_b:
+        with pytest.raises(Web3RPCError) as err_b:
             w3.manager.request_blocking("fake_endpoint", [])
 
         assert str(err_a) != str(err_b)
@@ -197,9 +197,9 @@ async def test_async_request_caching_does_not_cache_error_responses(request_mock
         async_w3,
         mock_errors={"fake_endpoint": lambda *_: {"message": f"msg-{uuid.uuid4()}"}},
     ):
-        with pytest.raises(Web3ValueError) as err_a:
+        with pytest.raises(Web3RPCError) as err_a:
             await async_w3.manager.coro_request("fake_endpoint", [])
-        with pytest.raises(Web3ValueError) as err_b:
+        with pytest.raises(Web3RPCError) as err_b:
             await async_w3.manager.coro_request("fake_endpoint", [])
 
     assert str(err_a) != str(err_b)

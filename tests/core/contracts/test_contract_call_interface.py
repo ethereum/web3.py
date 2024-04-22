@@ -38,7 +38,7 @@ from web3.contract.contract import (
 )
 from web3.exceptions import (
     BadFunctionCallOutput,
-    BlockNumberOutofRange,
+    BlockNumberOutOfRange,
     FallbackNotFound,
     InvalidAddress,
     MismatchedABI,
@@ -538,7 +538,7 @@ def test_call_nonexistent_receive_function(fallback_function_contract):
 
 def test_throws_error_if_block_out_of_range(w3, math_contract):
     w3.provider.make_request(method="evm_mine", params=[20])
-    with pytest.raises(BlockNumberOutofRange):
+    with pytest.raises(BlockNumberOutOfRange):
         math_contract.functions.counter().call(block_identifier=-50)
 
 
@@ -1726,7 +1726,7 @@ async def test_async_call_nonexistent_receive_function(
 @pytest.mark.asyncio
 async def test_async_throws_error_if_block_out_of_range(async_w3, async_math_contract):
     await async_w3.provider.make_request(method="evm_mine", params=[20])
-    with pytest.raises(BlockNumberOutofRange):
+    with pytest.raises(BlockNumberOutOfRange):
         await async_math_contract.functions.counter().call(block_identifier=-50)
 
 
