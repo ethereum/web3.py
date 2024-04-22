@@ -20,6 +20,9 @@ from eth_abi.exceptions import (
     InsufficientDataBytes,
 )
 from eth_typing import (
+    ABI,
+    ABIEvent,
+    ABIFunction,
     Address,
     ChecksumAddress,
     HexStr,
@@ -108,9 +111,6 @@ from web3.logs import (
     EventLogErrorFlags,
 )
 from web3.types import (
-    ABI,
-    ABIEvent,
-    ABIFunction,
     BlockIdentifier,
     EventData,
     FilterParams,

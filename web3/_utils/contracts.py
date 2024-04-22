@@ -19,6 +19,9 @@ from eth_abi.registry import (
     registry as default_registry,
 )
 from eth_typing import (
+    ABI,
+    ABIEvent,
+    ABIFunction,
     ChecksumAddress,
     HexStr,
     TypeStr,
@@ -31,6 +34,9 @@ from eth_utils import (
     is_checksum_address,
     is_list_like,
     is_text,
+)
+from eth_utils.abi import (
+    get_abi_input_types,
 )
 from eth_utils.toolz import (
     pipe,
@@ -47,7 +53,6 @@ from web3._utils.abi import (
     filter_by_encodability,
     filter_by_name,
     filter_by_type,
-    get_abi_input_types,
     get_aligned_abi_inputs,
     get_fallback_func_abi,
     get_receive_func_abi,
@@ -81,9 +86,6 @@ from web3.exceptions import (
     Web3ValueError,
 )
 from web3.types import (
-    ABI,
-    ABIEvent,
-    ABIFunction,
     BlockIdentifier,
     BlockNumber,
     TxParams,
