@@ -193,6 +193,7 @@ def _validate_response(
         elif code == METHOD_NOT_FOUND:
             raise MethodUnavailable(
                 repr(error),
+                rpc_response=response,
                 user_message="Check your node provider or your client's API docs to "
                 "see what methods are supported and / or currently enabled.",
             )

@@ -57,12 +57,13 @@ from web3.eth.base_eth import (
     BaseEth,
 )
 from web3.exceptions import (
-    MethodUnavailable,
+    MethodNotSupported,
     OffchainLookup,
     TimeExhausted,
     TooManyRequests,
     TransactionIndexingInProgress,
     TransactionNotFound,
+    Web3RPCError,
     Web3ValueError,
 )
 from web3.method import (
@@ -194,7 +195,7 @@ class AsyncEth(BaseEth):
         """
         try:
             return await self._max_priority_fee()
-        except (ValueError, MethodUnavailable):
+        except Web3RPCError:
             warnings.warn(
                 "There was an issue with the method eth_maxPriorityFeePerGas. "
                 "Calculating using eth_feeHistory.",
@@ -736,7 +737,7 @@ class AsyncEth(BaseEth):
         ] = None,
     ) -> HexStr:
         if not isinstance(self.w3.provider, PersistentConnectionProvider):
-            raise MethodUnavailable(
+            raise MethodNotSupported(
                 "eth_subscribe is only supported with providers that support "
                 "persistent connections."
             )
@@ -753,7 +754,7 @@ class AsyncEth(BaseEth):
 
     async def unsubscribe(self, subscription_id: HexStr) -> bool:
         if not isinstance(self.w3.provider, PersistentConnectionProvider):
-            raise MethodUnavailable(
+            raise MethodNotSupported(
                 "eth_unsubscribe is only supported with providers that support "
                 "persistent connections."
             )

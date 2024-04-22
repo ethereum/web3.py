@@ -57,12 +57,12 @@ from web3.eth.base_eth import (
     BaseEth,
 )
 from web3.exceptions import (
-    MethodUnavailable,
     OffchainLookup,
     TimeExhausted,
     TooManyRequests,
     TransactionIndexingInProgress,
     TransactionNotFound,
+    Web3RPCError,
     Web3ValueError,
 )
 from web3.method import (
@@ -187,7 +187,7 @@ class Eth(BaseEth):
         """
         try:
             return self._max_priority_fee()
-        except (ValueError, MethodUnavailable):
+        except Web3RPCError:
             warnings.warn(
                 "There was an issue with the method eth_maxPriorityFeePerGas. "
                 "Calculating using eth_feeHistory.",

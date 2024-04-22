@@ -78,6 +78,12 @@ class Web3TypeError(Web3Exception, TypeError):
     """
 
 
+class MethodNotSupported(Web3Exception):
+    """
+    Raised when a method is not supported by the provider.
+    """
+
+
 class BadFunctionCallOutput(Web3Exception):
     """
     We failed to decode ABI output.
@@ -225,25 +231,6 @@ class TimeExhausted(Web3Exception):
     """
 
 
-class TransactionNotFound(Web3Exception):
-    """
-    Raised when a tx hash used to look up a tx in a jsonrpc call cannot be found.
-    """
-
-
-class TransactionIndexingInProgress(Web3Exception):
-    """
-    Raised when a transaction receipt is not yet available due to transaction indexing
-    still being in progress.
-    """
-
-
-class BlockNotFound(Web3Exception):
-    """
-    Raised when the block id used to lookup a block in a jsonrpc call cannot be found.
-    """
-
-
 class InfuraProjectIdNotFound(Web3Exception):
     """
     Raised when there is no Infura Project Id set.
@@ -356,14 +343,21 @@ class MethodUnavailable(Web3RPCError):
     Raised when the method is not available on the node
     """
 
-    def __init__(
-        self,
-        message: str,
-        rpc_response: Optional[RPCResponse] = None,
-        user_message: Optional[str] = "This method is not available.",
-    ) -> None:
-        super().__init__(
-            message,
-            rpc_response=rpc_response,
-            user_message=user_message,
-        )
+
+class TransactionNotFound(Web3RPCError):
+    """
+    Raised when a tx hash used to look up a tx in a jsonrpc call cannot be found.
+    """
+
+
+class TransactionIndexingInProgress(Web3RPCError):
+    """
+    Raised when a transaction receipt is not yet available due to transaction indexing
+    still being in progress.
+    """
+
+
+class BlockNotFound(Web3RPCError):
+    """
+    Raised when the block id used to look up a block in a jsonrpc call cannot be found.
+    """
