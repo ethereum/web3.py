@@ -13,6 +13,7 @@ from eth_utils import (
 
 from web3.types import (
     BlockData,
+    RPCResponse,
 )
 
 
@@ -30,6 +31,8 @@ class Web3Exception(Exception):
             # deal with other exceptions
     """
 
+    user_message: Optional[str] = None
+
     def __init__(
         self,
         *args: Any,
@@ -39,6 +42,12 @@ class Web3Exception(Exception):
 
         # Assign properties of Web3Exception
         self.user_message = user_message
+
+    def __str__(self) -> str:
+        # append a clarifying user message if one is provided
+        return super().__str__() + (
+            f"\nUser message: {self.user_message}" if self.user_message else ""
+        )
 
 
 class Web3AssertionError(Web3Exception, AssertionError):
@@ -77,7 +86,7 @@ class BadFunctionCallOutput(Web3Exception):
     """
 
 
-class BlockNumberOutofRange(Web3Exception):
+class BlockNumberOutOfRange(Web3Exception):
     """
     block_identifier passed does not match known block.
     """
@@ -218,7 +227,7 @@ class TimeExhausted(Web3Exception):
 
 class TransactionNotFound(Web3Exception):
     """
-    Raised when a tx hash used to lookup a tx in a jsonrpc call cannot be found.
+    Raised when a tx hash used to look up a tx in a jsonrpc call cannot be found.
     """
 
 
@@ -317,7 +326,44 @@ class BadResponseFormat(Web3Exception):
     """
 
 
-class MethodUnavailable(Web3Exception):
+class Web3RPCError(Web3Exception):
+    """
+    Raised when a JSON-RPC response contains an error field.
+    """
+
+    def __init__(
+        self,
+        message: str,
+        rpc_response: Optional[RPCResponse] = None,
+        user_message: Optional[str] = None,
+    ) -> None:
+        if user_message is None:
+            user_message = (
+                "An RPC error was returned by the node. Check the message provided in "
+                "the error and any available logs for more information."
+            )
+
+        super().__init__(
+            message,
+            user_message=user_message,
+        )
+        self.message = message
+        self.rpc_response = rpc_response
+
+
+class MethodUnavailable(Web3RPCError):
     """
     Raised when the method is not available on the node
     """
+
+    def __init__(
+        self,
+        message: str,
+        rpc_response: Optional[RPCResponse] = None,
+        user_message: Optional[str] = "This method is not available.",
+    ) -> None:
+        super().__init__(
+            message,
+            rpc_response=rpc_response,
+            user_message=user_message,
+        )

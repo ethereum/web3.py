@@ -1,7 +1,7 @@
 import pytest
 
 from web3.exceptions import (
-    BlockNumberOutofRange,
+    BlockNumberOutOfRange,
     MismatchedABI,
     NoABIFound,
     NoABIFunctionsFound,
@@ -139,12 +139,12 @@ def test_caller_with_invalid_block_identifier(w3, math_contract):
     # Invalid `block_identifier` should not raise when passed to `caller` directly.
     # The function call itself parses the value.
     caller = math_contract.caller(block_identifier="abc")
-    with pytest.raises(BlockNumberOutofRange):
+    with pytest.raises(BlockNumberOutOfRange):
         caller.counter()
 
     # Calling the function with an invalid `block_identifier` will raise.
     default_caller = math_contract.caller()
-    with pytest.raises(BlockNumberOutofRange):
+    with pytest.raises(BlockNumberOutOfRange):
         default_caller.counter(block_identifier="abc")
 
 
@@ -347,12 +347,12 @@ async def test_async_caller_with_invalid_block_identifier(
     # Invalid `block_identifier` should not raise when passed to `caller` directly.
     # The function call itself parses the value.
     caller = async_math_contract.caller(block_identifier="abc")
-    with pytest.raises(BlockNumberOutofRange):
+    with pytest.raises(BlockNumberOutOfRange):
         await caller.counter()
 
     # Calling the function with an invalid `block_identifier` will raise.
     default_caller = async_math_contract.caller()
-    with pytest.raises(BlockNumberOutofRange):
+    with pytest.raises(BlockNumberOutOfRange):
         await default_caller.counter(block_identifier="abc")
 
 

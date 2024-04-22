@@ -7,7 +7,7 @@ from web3 import (
     Web3,
 )
 from web3.exceptions import (
-    Web3ValueError,
+    Web3RPCError,
 )
 from web3.middleware import (
     FormattingMiddlewareBuilder,
@@ -98,6 +98,6 @@ def test_formatting_middleware_error_formatters(w3, request_mocker):
 
     expected = "error"
     with request_mocker(w3, mock_errors={"test_endpoint": {"message": "error"}}):
-        with pytest.raises(Web3ValueError) as err:
+        with pytest.raises(Web3RPCError) as err:
             w3.manager.request_blocking("test_endpoint", [])
             assert str(err.value) == expected

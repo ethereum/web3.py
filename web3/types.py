@@ -295,7 +295,7 @@ RPCId = Optional[Union[int, str]]
 
 
 class RPCResponse(TypedDict, total=False):
-    error: Union[RPCError, str]
+    error: RPCError
     id: RPCId
     jsonrpc: Literal["2.0"]
     result: Any

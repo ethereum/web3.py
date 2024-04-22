@@ -35,8 +35,8 @@ from web3.exceptions import (
     BadResponseFormat,
     MethodUnavailable,
     ProviderConnectionError,
+    Web3RPCError,
     Web3TypeError,
-    Web3ValueError,
 )
 from web3.middleware import (
     AttributeDictMiddleware,
@@ -87,6 +87,7 @@ def _raise_bad_response_format(response: RPCResponse, error: str = "") -> None:
     raw_response = f"The raw response is: {response}"
 
     if error is not None and error != "":
+        error = error[:-1] if error.endswith(".") else error
         message = f"{message} {error}. {raw_response}"
     else:
         message = f"{message} {raw_response}"
@@ -115,6 +116,99 @@ def apply_null_result_formatters(
         return formatted_resp
     else:
         return response
+
+
+def _validate_subscription_fields(response: RPCResponse) -> None:
+    params = response["params"]
+    subscription = params["subscription"]
+    if not isinstance(subscription, str) and not len(subscription) == 34:
+        _raise_bad_response_format(
+            response, "eth_subscription 'params' must include a 'subscription' field."
+        )
+
+
+def _validate_response(
+    response: RPCResponse,
+    error_formatters: Optional[Callable[..., Any]],
+    is_subscription_response: bool = False,
+) -> None:
+    if "jsonrpc" not in response or response["jsonrpc"] != "2.0":
+        _raise_bad_response_format(
+            response, 'The "jsonrpc" field must be present with a value of "2.0".'
+        )
+
+    response_id = response.get("id")
+    if "id" in response:
+        int_error_msg = (
+            '"id" must be an integer or a string representation of an integer.'
+        )
+        if response_id is None and "error" in response:
+            # errors can sometimes have null `id`, according to the JSON-RPC spec
+            pass
+        elif not isinstance(response_id, (str, int)):
+            _raise_bad_response_format(response, int_error_msg)
+        elif isinstance(response_id, str):
+            try:
+                int(response_id)
+            except ValueError:
+                _raise_bad_response_format(response, int_error_msg)
+    elif is_subscription_response:
+        # if `id` is not present, this must be a subscription response
+        _validate_subscription_fields(response)
+    else:
+        _raise_bad_response_format(
+            response,
+            'Response must include an "id" field or be formatted as an '
+            "`eth_subscription` response.",
+        )
+
+    if all(key in response for key in {"error", "result"}):
+        _raise_bad_response_format(
+            response, 'Response cannot include both "error" and "result".'
+        )
+    elif (
+        not any(key in response for key in {"error", "result"})
+        and not is_subscription_response
+    ):
+        _raise_bad_response_format(
+            response, 'Response must include either "error" or "result".'
+        )
+    elif "error" in response:
+        error = response["error"]
+
+        # raise the error when the value is a string
+        if error is None or not isinstance(error, dict):
+            _raise_bad_response_format(
+                response,
+                'response["error"] must be a valid object as defined by the '
+                "JSON-RPC 2.0 specification.",
+            )
+
+        # errors must include an integer code
+        code = error.get("code")
+        if not isinstance(code, int):
+            _raise_bad_response_format(
+                response, 'error["code"] is required and must be an integer value.'
+            )
+        elif code == METHOD_NOT_FOUND:
+            raise MethodUnavailable(
+                repr(error),
+                user_message="Check your node provider or your client's API docs to "
+                "see what methods are supported and / or currently enabled.",
+            )
+
+        # errors must include a message
+        error_message = error.get("message")
+        if not isinstance(error_message, str):
+            _raise_bad_response_format(
+                response, 'error["message"] is required and must be a string value.'
+            )
+
+        apply_error_formatters(error_formatters, response)
+        raise Web3RPCError(repr(error), rpc_response=response)
+
+    elif "result" not in response and not is_subscription_response:
+        _raise_bad_response_format(response)
 
 
 class RequestManager:
@@ -210,82 +304,33 @@ class RequestManager:
         error_formatters: Optional[Callable[..., Any]] = None,
         null_result_formatters: Optional[Callable[..., Any]] = None,
     ) -> Any:
-        # jsonrpc is not enforced (as per the spec) but if present, it must be 2.0
-        if "jsonrpc" in response and response["jsonrpc"] != "2.0":
-            _raise_bad_response_format(
-                response, 'The "jsonrpc" field must be present with a value of "2.0"'
-            )
+        is_subscription_response = (
+            response.get("method") == "eth_subscription"
+            and response.get("params") is not None
+            and response["params"].get("subscription") is not None
+            and response["params"].get("result") is not None
+        )
 
-        # id is not enforced (as per the spec) but if present, it must be a
-        # string or integer
-        # TODO: v7 - enforce id per the spec
-        if "id" in response:
-            response_id = response["id"]
-            # id is always None for errors
-            if response_id is None and "error" not in response:
-                _raise_bad_response_format(
-                    response, '"id" must be None when an error is present'
-                )
-            elif not isinstance(response_id, (str, int, type(None))):
-                _raise_bad_response_format(response, '"id" must be a string or integer')
+        _validate_response(
+            response,
+            error_formatters,
+            is_subscription_response=is_subscription_response,
+        )
 
-        # Response may not include both "error" and "result"
-        if "error" in response and "result" in response:
-            _raise_bad_response_format(
-                response, 'Response cannot include both "error" and "result"'
-            )
-
-        # Format and validate errors
-        elif "error" in response:
-            error = response.get("error")
-            # Raise the error when the value is a string
-            if error is None or isinstance(error, str):
-                raise Web3ValueError(error)
-
-            # Errors must include an integer code
-            code = error.get("code")
-            if not isinstance(code, int):
-                _raise_bad_response_format(response, "error['code'] must be an integer")
-            elif code == METHOD_NOT_FOUND:
-                raise MethodUnavailable(
-                    error,
-                    user_message="Check your node provider's API docs to see what "
-                    "methods are supported",
-                )
-
-            # Errors must include a message
-            if not isinstance(error.get("message"), str):
-                _raise_bad_response_format(
-                    response, "error['message'] must be a string"
-                )
-
-            apply_error_formatters(error_formatters, response)
-
-            raise Web3ValueError(error)
-
-        # Format and validate results
-        elif "result" in response:
+        # format results
+        if "result" in response:
             # Null values for result should apply null_result_formatters
             # Skip when result not present in the response (fallback to False)
             if response.get("result", False) in NULL_RESPONSES:
                 apply_null_result_formatters(null_result_formatters, response, params)
             return response.get("result")
 
-        # Response from eth_subscription includes response["params"]["result"]
-        elif (
-            response.get("method") == "eth_subscription"
-            and response.get("params") is not None
-            and response["params"].get("subscription") is not None
-            and response["params"].get("result") is not None
-        ):
+        # response from eth_subscription includes response["params"]["result"]
+        elif is_subscription_response:
             return {
                 "subscription": response["params"]["subscription"],
                 "result": response["params"]["result"],
             }
-
-        # Any other response type raises BadResponseFormat
-        else:
-            _raise_bad_response_format(response)
 
     def request_blocking(
         self,

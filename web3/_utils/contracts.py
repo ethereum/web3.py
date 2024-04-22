@@ -75,7 +75,7 @@ from web3._utils.normalizers import (
     abi_string_to_text,
 )
 from web3.exceptions import (
-    BlockNumberOutofRange,
+    BlockNumberOutOfRange,
     Web3TypeError,
     Web3ValidationError,
     Web3ValueError,
@@ -424,7 +424,7 @@ def parse_block_identifier(
     ):
         return w3.eth.get_block(block_identifier)["number"]
     else:
-        raise BlockNumberOutofRange
+        raise BlockNumberOutOfRange
 
 
 def parse_block_identifier_int(w3: "Web3", block_identifier_int: int) -> BlockNumber:
@@ -434,7 +434,7 @@ def parse_block_identifier_int(w3: "Web3", block_identifier_int: int) -> BlockNu
         last_block = w3.eth.get_block("latest")["number"]
         block_num = last_block + block_identifier_int + 1
         if block_num < 0:
-            raise BlockNumberOutofRange
+            raise BlockNumberOutOfRange
     return BlockNumber(block_num)
 
 
@@ -453,7 +453,7 @@ async def async_parse_block_identifier(
         requested_block = await async_w3.eth.get_block(block_identifier)
         return requested_block["number"]
     else:
-        raise BlockNumberOutofRange
+        raise BlockNumberOutOfRange
 
 
 async def async_parse_block_identifier_int(
@@ -466,5 +466,5 @@ async def async_parse_block_identifier_int(
         last_block_num = last_block["number"]
         block_num = last_block_num + block_identifier_int + 1
         if block_num < 0:
-            raise BlockNumberOutofRange
+            raise BlockNumberOutOfRange
     return BlockNumber(block_num)
