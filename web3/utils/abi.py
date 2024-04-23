@@ -1,7 +1,9 @@
 from typing import (
     Any,
+    Callable,
     Optional,
     Sequence,
+    Tuple,
 )
 
 from eth_abi.abi import (
@@ -13,6 +15,7 @@ from eth_abi.registry import (
 from eth_typing import (
     ABIFunction,
     HexStr,
+    TypeStr,
 )
 from eth_utils.abi import (
     get_abi_input_types,
@@ -24,9 +27,6 @@ from hexbytes import (
     HexBytes,
 )
 
-from ens import (
-    ENS,
-)
 from web3._utils.abi import (
     check_if_arguments_can_be_encoded,
     map_abi_data,
@@ -37,11 +37,7 @@ from web3._utils.encoding import (
 from web3._utils.normalizers import (
     abi_address_to_hex,
     abi_bytes_to_bytes,
-    abi_ens_resolver,
     abi_string_to_text,
-)
-from web3.providers.rpc import (
-    HTTPProvider,
 )
 
 
@@ -50,9 +46,7 @@ def encode_abi(
     arguments: Sequence[Any] = None,
     data: Optional[HexStr] = None,
     is_async: Optional[bool] = False,
-    provider: Optional[
-        Any
-    ] = None,  # TODO: Unable to use BaseProvider type here for some reason
+    resolver: Callable[..., Tuple[TypeStr, Any]] = None,
     abi_codec: Optional[ABICodec] = None,
 ) -> HexStr:
     """
@@ -73,9 +67,6 @@ def encode_abi(
     :return: Encoded data for a transaction.
     :rtype: `HexStr`
     """
-    if provider is None:
-        provider = HTTPProvider()
-
     if abi_codec is None:
         abi_codec = ABICodec(default_registry)
 
@@ -93,9 +84,8 @@ def encode_abi(
         abi_string_to_text,
     ]
 
-    if not is_async:
-        ens = ENS(provider)
-        normalizers.append(abi_ens_resolver(ens=ens))
+    if not is_async and resolver is not None:
+        normalizers.append(resolver)
 
     normalized_arguments = map_abi_data(
         normalizers,
