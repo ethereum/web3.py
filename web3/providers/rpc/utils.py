@@ -84,7 +84,7 @@ class ExceptionRetryConfiguration(BaseModel):
         self,
         errors: Sequence[Type[BaseException]] = None,
         retries: int = 5,
-        backoff_factor: float = 0.5,
+        backoff_factor: float = 0.125,
         method_allowlist: Sequence[str] = None,
     ):
         super().__init__(
