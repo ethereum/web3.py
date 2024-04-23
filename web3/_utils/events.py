@@ -44,9 +44,6 @@ from eth_utils import (
     to_hex,
     to_tuple,
 )
-from eth_utils.abi import (
-    get_abi_input_names,
-)
 from eth_utils.curried import (
     apply_formatter_if,
 )
@@ -245,7 +242,7 @@ def get_event_data(
     log_topics_abi = get_indexed_event_inputs(event_abi)
     log_topic_normalized_inputs = normalize_event_input_types(log_topics_abi)
     log_topic_types = get_event_abi_types_for_decoding(log_topic_normalized_inputs)
-    log_topic_names = get_abi_input_names(ABIEvent({"inputs": log_topics_abi}))
+    log_topic_names = [param["name"] for param in log_topic_normalized_inputs]
 
     if len(log_topics_bytes) != len(log_topic_types):
         raise LogTopicError(
@@ -256,7 +253,7 @@ def get_event_data(
     log_data_abi = exclude_indexed_event_inputs(event_abi)
     log_data_normalized_inputs = normalize_event_input_types(log_data_abi)
     log_data_types = get_event_abi_types_for_decoding(log_data_normalized_inputs)
-    log_data_names = get_abi_input_names(ABIEvent({"inputs": log_data_abi}))
+    log_data_names = [param["name"] for param in log_data_normalized_inputs]
 
     # sanity check that there are not name intersections between the topic
     # names and the data argument names.

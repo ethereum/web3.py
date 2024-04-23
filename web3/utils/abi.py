@@ -9,9 +9,6 @@ from typing import (
 from eth_abi.abi import (
     ABICodec,
 )
-from eth_abi.registry import (
-    registry as default_registry,
-)
 from eth_typing import (
     ABIFunction,
     HexStr,
@@ -28,6 +25,7 @@ from hexbytes import (
 )
 
 from web3._utils.abi import (
+    build_strict_registry,
     check_if_arguments_can_be_encoded,
     map_abi_data,
 )
@@ -46,7 +44,7 @@ def encode_abi(
     arguments: Sequence[Any] = None,
     data: Optional[HexStr] = None,
     is_async: Optional[bool] = False,
-    resolver: Callable[..., Tuple[TypeStr, Any]] = None,
+    resolver: Optional[Callable[..., Tuple[TypeStr, Any]]] = None,
     abi_codec: Optional[ABICodec] = None,
 ) -> HexStr:
     """
@@ -68,7 +66,7 @@ def encode_abi(
     :rtype: `HexStr`
     """
     if abi_codec is None:
-        abi_codec = ABICodec(default_registry)
+        abi_codec = ABICodec(build_strict_registry())
 
     argument_types = get_abi_input_types(function_abi)
 

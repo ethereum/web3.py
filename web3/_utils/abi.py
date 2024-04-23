@@ -466,7 +466,7 @@ def _align_abi_input(arg_abi: ABIFunctionParam, arg: Any) -> Tuple[Any, ...]:
         new_abi = copy.copy(arg_abi)
         new_abi["type"] = tuple_prefix + "[]" * (num_dims - 1)
 
-        sub_abis = itertools.repeat(new_abi)  # type: ignore
+        sub_abis = itertools.repeat(new_abi)
 
     if isinstance(arg, abc.Mapping):
         # Arg is mapping.  Align values according to abi order.
@@ -508,7 +508,7 @@ def get_aligned_abi_inputs(
     return (
         # typed dict cannot be used w/ a normal Dict
         # https://github.com/python/mypy/issues/4976
-        tuple(get_normalized_abi_arg_type(abi) for abi in input_abis),  # type: ignore
+        tuple(get_normalized_abi_arg_type(abi) for abi in input_abis),
         type(args)(_align_abi_input(abi, arg) for abi, arg in zip(input_abis, args)),
     )
 

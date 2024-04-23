@@ -743,7 +743,7 @@ class BaseContract:
     ) -> HexStr:
         """
         Encodes the arguments using the Ethereum ABI for the contract function
-        that matches the given name and arguments..
+        that matches the given name and arguments.
 
         :param data: defaults to function selector
         """
