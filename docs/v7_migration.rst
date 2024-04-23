@@ -189,6 +189,41 @@ keys in the dictionary should be camelCase. This is because the dictionary is pa
 directly to the JSON-RPC request, where the keys are expected to be in camelCase.
 
 
+Changes to Exception Handling
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+All Python standard library exceptions that were raised from within web3.py have
+been replaced with custom ``Web3Exception`` classes. This change allows for better
+control over exception handling, being able to distinguish between exceptions raised
+by web3.py and those raised from elsewhere in a codebase. The following exceptions
+have been replaced:
+
+- ``AssertionError`` -> ``Web3AssertionError``
+- ``ValueError`` -> ``Web3ValueError``
+- ``TypeError`` -> ``Web3TypeError``
+- ``AttributeError`` -> ``Web3AttributeError``
+
+A new ``MethodNotSupported`` exception is now raised when a method is not supported by
+web3.py. This allows a user to distinguish between when a method is not available on
+the current provider, ``MethodUnavailable``, and when a method is not supported by
+web3.py under certain conditions, ``MethodNotSupported``.
+
+
+JSON-RPC Error Handling
+```````````````````````
+
+Rather than a ``ValueError`` being replaced with a ``Web3ValueError`` when a JSON-RPC
+response comes back with an ``error`` object, a new ``Web3RPCError`` exception is
+now raised to provide more distinction for JSON-RPC error responses. Some previously
+existing exceptions now extend from this class since they too are related to JSON-RPC
+errors:
+
+- ``MethodUnavailable``
+- ``BlockNotFound``
+- ``TransactionNotFound``
+- ``TransactionIndexingInProgress``
+
+
 Miscellaneous Changes
 ~~~~~~~~~~~~~~~~~~~~~
 
@@ -207,3 +242,5 @@ Miscellaneous Changes
   without checking if the ``geth.ipc`` file exists.
 - ``Web3.is_address()`` returns ``True`` for non-checksummed addresses.
 - ``Contract.encodeABI()`` has been renamed to ``Contract.encode_abi()``.
+- JSON-RPC responses are now more strictly validated against the JSON-RPC 2.0
+  specification while providing more informative error messages for invalid responses.

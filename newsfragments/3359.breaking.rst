@@ -1,0 +1,1 @@
+Validate JSON-RPC responses more strictly against the JSON-RPC 2.0 specifications. ``BlockNumberOutofRange`` -> ``BlockNumberOutOfRange``.
