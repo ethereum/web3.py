@@ -246,7 +246,7 @@ def get_event_data(
     log_topics_abi = get_indexed_event_inputs(event_abi)
     log_topic_normalized_inputs = normalize_event_input_types(log_topics_abi)
     log_topic_types = get_event_abi_types_for_decoding(log_topic_normalized_inputs)
-    log_topic_names = get_abi_input_names(ABIEvent({"inputs": log_topics_abi}))
+    log_topic_names = get_abi_input_names(event_abi)
 
     if len(log_topics_bytes) != len(log_topic_types):
         raise LogTopicError(
@@ -257,7 +257,7 @@ def get_event_data(
     log_data_abi = exclude_indexed_event_inputs(event_abi)
     log_data_normalized_inputs = normalize_event_input_types(log_data_abi)
     log_data_types = get_event_abi_types_for_decoding(log_data_normalized_inputs)
-    log_data_names = get_abi_input_names(ABIEvent({"inputs": log_data_abi}))
+    log_data_names = get_abi_input_names(event_abi)
 
     # sanity check that there are not name intersections between the topic
     # names and the data argument names.
