@@ -146,8 +146,10 @@ Retry Requests for HTTP Providers
 
 ``HTTPProvider`` and ``AsyncHTTPProvider`` instances retry certain requests by default
 on exceptions. This can be configured via configuration options on the provider
-instance. Below is an example showing the default options for the retry configuration
-and how to override them.
+instance. The retry mechanism employs an exponential backoff strategy, starting from
+the initial value determined by the ``backoff_factor``, and doubling the delay with
+each attempt, up to the ``retries`` value. Below is an example showing the default
+options for the retry configuration and how to override them.
 
 .. code-block:: python
 
@@ -165,8 +167,8 @@ and how to override them.
             # number of retries to attempt
             retries=5,
 
-            # how long to wait between retries
-            backoff_factor=0.5,
+            # initial delay multiplier, doubles with each retry attempt
+            backoff_factor=0.125,
 
             # an in-house default list of retryable methods
             method_allowlist=REQUEST_RETRY_ALLOWLIST,

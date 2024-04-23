@@ -130,7 +130,9 @@ class HTTPProvider(JSONBaseProvider):
                     )
                 except tuple(self.exception_retry_configuration.errors) as e:
                     if i < self.exception_retry_configuration.retries - 1:
-                        time.sleep(self.exception_retry_configuration.backoff_factor)
+                        time.sleep(
+                            self.exception_retry_configuration.backoff_factor * 2**i
+                        )
                         continue
                     else:
                         raise e

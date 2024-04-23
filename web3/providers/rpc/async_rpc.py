@@ -123,7 +123,7 @@ class AsyncHTTPProvider(AsyncJSONBaseProvider):
                 except tuple(self.exception_retry_configuration.errors):
                     if i < self.exception_retry_configuration.retries - 1:
                         await asyncio.sleep(
-                            self.exception_retry_configuration.backoff_factor
+                            self.exception_retry_configuration.backoff_factor * 2**i
                         )
                         continue
                     else:
