@@ -589,6 +589,10 @@ SyncFilter = Union[RequestLogs, RequestBlocks]
 AsyncFilter = Union[AsyncRequestLogs, AsyncRequestBlocks]
 
 
+def _simulate_rpc_response_with_result(filter_id: str) -> "RPCResponse":
+    return {"jsonrpc": "2.0", "id": -1, "result": filter_id}
+
+
 class LocalFilterMiddleware(Web3Middleware):
     def __init__(self, w3: Union["Web3", "AsyncWeb3"]):
         self.filters: Dict[str, SyncFilter] = {}
@@ -615,7 +619,7 @@ class LocalFilterMiddleware(Web3Middleware):
                     raise NotImplementedError(method)
 
                 self.filters[filter_id] = _filter
-                return {"result": filter_id}
+                return _simulate_rpc_response_with_result(filter_id)
 
             elif method in FILTER_CHANGES_METHODS:
                 _filter_id = params[0]
@@ -626,12 +630,16 @@ class LocalFilterMiddleware(Web3Middleware):
 
                 _filter = self.filters[_filter_id]
                 if method == RPC.eth_getFilterChanges:
-                    return {"result": next(_filter.filter_changes)}
+                    return _simulate_rpc_response_with_result(
+                        next(_filter.filter_changes)  # type: ignore
+                    )
 
                 elif method == RPC.eth_getFilterLogs:
                     # type ignored b/c logic prevents RequestBlocks which
                     # doesn't implement get_logs
-                    return {"result": _filter.get_logs()}  # type: ignore
+                    return _simulate_rpc_response_with_result(
+                        _filter.get_logs()  # type: ignore
+                    )
                 else:
                     raise NotImplementedError(method)
             else:
@@ -663,7 +671,7 @@ class LocalFilterMiddleware(Web3Middleware):
                     raise NotImplementedError(method)
 
                 self.async_filters[filter_id] = _filter
-                return {"result": filter_id}
+                return _simulate_rpc_response_with_result(filter_id)
 
             elif method in FILTER_CHANGES_METHODS:
                 _filter_id = params[0]
@@ -674,12 +682,16 @@ class LocalFilterMiddleware(Web3Middleware):
 
                 _filter = self.async_filters[_filter_id]
                 if method == RPC.eth_getFilterChanges:
-                    return {"result": await _filter.filter_changes.__anext__()}
+                    return _simulate_rpc_response_with_result(
+                        await _filter.filter_changes.__anext__()  # type: ignore
+                    )
 
                 elif method == RPC.eth_getFilterLogs:
                     # type ignored b/c logic prevents RequestBlocks which
                     # doesn't implement get_logs
-                    return {"result": await _filter.get_logs()}  # type: ignore
+                    return _simulate_rpc_response_with_result(
+                        await _filter.get_logs()  # type: ignore
+                    )
                 else:
                     raise NotImplementedError(method)
             else:
