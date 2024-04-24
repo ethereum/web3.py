@@ -158,24 +158,8 @@ The ``normalize_request_parameters`` middleware was not used anywhere internally
 has been removed.
 
 
-Python 3.7 Support Dropped
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Python 3.7 support has been dropped in favor of Python 3.8+. Python 3.7 is no longer
-supported by the Python core team, and we want to focus our efforts on supporting
-the latest versions of Python.
-
-
-EthPM Module Removed
-~~~~~~~~~~~~~~~~~~~~
-
-The EthPM module has been removed from the library. It was not widely used and has not
-been functional since around October 2022. It was deprecated in ``v6`` and has been
-completely removed in ``v7``.
-
-
-Remaining cameCase -> snake_case Changes
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Remaining camelCase -> snake_case Updates
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The following arguments have been renamed across the library from camelCase to
 snake_case in all methods where they are passed in as a kwarg.
@@ -224,6 +208,42 @@ errors:
 - ``TransactionIndexingInProgress``
 
 
+End of Support and Feature Removals
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Python 3.7 Support Dropped
+``````````````````````````
+
+Python 3.7 support has been dropped in favor of Python 3.8+. Python 3.7 is no longer
+supported by the Python core team, and we want to focus our efforts on supporting
+the latest versions of Python.
+
+
+EthPM Module Removed
+````````````````````
+
+The EthPM module has been removed from the library. It was not widely used and has not
+been functional since around October 2022. It was deprecated in ``v6`` and has been
+completely removed in ``v7``.
+
+
+Geth Miner Namespace Removed
+````````````````````````````
+
+The ``geth.miner`` namespace, deprecated in ``v6``, has been removed in ``v7``.
+The ``miner`` namespace was used for managing the concept of a miner in geth. This is
+no longer a feature in geth and is planned for complete removal in the future, with
+Ethereum having transitioned to proof-of-stake.
+
+
+Geth Personal Namespace Removed
+```````````````````````````````
+
+The ``geth.personal`` namespace, deprecated in ``v6``, has been removed in ``v7``.
+The ``personal`` namespace was used for managing accounts and keys and was deprecated
+in geth in ``v1.11.0``. Geth has moved to using ``clef`` for account and key management.
+
+
 Miscellaneous Changes
 ~~~~~~~~~~~~~~~~~~~~~
 
@@ -235,7 +255,6 @@ Miscellaneous Changes
 - ``BaseContractFunctions`` iterator now returns instances of ``ContractFunction`` rather
   than the function names.
 - Beacon API filename change: ``beacon/main.py`` -> ``beacon/beacon.py``.
-- The ``geth.miner`` namespace and methods, deprecated in ``v6``, is removed in ``v7``.
 - The asynchronous version of ``w3.eth.wait_for_transaction_receipt()`` changes its
   signature to use ``Optional[float]`` instead of ``float`` since it may be ``None``.
 - ``get_default_ipc_path()`` and ``get_dev_ipc_path()`` now return the path value
