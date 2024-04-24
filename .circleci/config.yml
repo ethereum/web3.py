@@ -47,7 +47,6 @@ common: &common
           - .tox
           - ~/.cache/pip
           - ~/.local
-          - ~/.py-geth
         key: cache-v1-{{ arch }}-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
   resource_class: xlarge
 
@@ -92,6 +91,7 @@ geth_steps: &geth_steps
           - .tox
           - ~/.cache/pip
           - ~/.local
+          - ~/.ethash
           - ~/.py-geth
         key: cache-v1-{{ arch }}-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
 
@@ -194,11 +194,12 @@ docs: &docs
         command: |
           python -m pip install --upgrade pip
           python -m pip install tox
-    - run:
-        name: install latexpdf dependencies
-        command: |
-          sudo apt-get update
-          sudo apt-get install latexmk tex-gyre texlive-fonts-extra texlive-xetex xindy
+    # latexpdf turned off for now - won't build due to long line lengths
+    # - run:
+    #     name: install latexpdf dependencies
+    #     command: |
+    #       sudo apt-get update
+    #       sudo apt-get install latexmk tex-gyre texlive-fonts-extra texlive-xetex xindy
     - run:
         name: run tox
         command: python -m tox run -r
@@ -217,6 +218,13 @@ jobs:
       - image: cimg/python:3.9
         environment:
           TOXENV: docs
+
+  py38-lint:
+    <<: *common
+    docker:
+      - image: cimg/python:3.8
+    environment:
+      TOXENV: py38-lint
 
   py38-core:
     <<: *common
@@ -301,7 +309,7 @@ jobs:
     docker:
       - image: cimg/python:3.8
     environment:
-      TOXENV: py38-wheel-cli
+      TOXENV: py38-wheel
 
   #
   # Python 3.9
@@ -391,12 +399,12 @@ jobs:
       TOXENV: py39-integration-ethtester
       ETHEREUM_TESTER_CHAIN_BACKEND: eth_tester.backends.PyEVMBackend
 
-  py39-wheel-cli:
+  py39-wheel:
     <<: *common
     docker:
       - image: cimg/python:3.9
         environment:
-          TOXENV: py39-wheel-cli
+          TOXENV: py39-wheel
 
   #
   # Python 3.10
@@ -486,12 +494,12 @@ jobs:
       TOXENV: py310-integration-ethtester
       ETHEREUM_TESTER_CHAIN_BACKEND: eth_tester.backends.PyEVMBackend
 
-  py310-wheel-cli:
+  py310-wheel:
     <<: *common
     docker:
       - image: cimg/python:3.10
         environment:
-          TOXENV: py310-wheel-cli
+          TOXENV: py310-wheel
 
   #
   # Python 3.11
@@ -586,7 +594,7 @@ jobs:
     docker:
       - image: cimg/python:3.11
         environment:
-          TOXENV: py311-wheel-cli
+          TOXENV: py311-wheel
 
   py311-windows-wheel:
     <<: *windows-wheel-setup
@@ -694,7 +702,7 @@ jobs:
     docker:
       - image: cimg/python:3.12
         environment:
-          TOXENV: py312-wheel-cli
+          TOXENV: py312-wheel
 
   py312-windows-wheel:
     <<: *windows-wheel-setup
@@ -775,7 +783,7 @@ define: &all_jobs
   - py311-integration-goethereum-ws
   - py311-integration-ethtester-pyevm
   - py311-wheel
-  - py311-wheel-cli-windows
+  - py311-windows-wheel
   - py312-lint
   - py312-ens
   - py312-ensip15
@@ -787,7 +795,7 @@ define: &all_jobs
   - py312-integration-goethereum-ws
   - py312-integration-ethtester-pyevm
   - py312-wheel
-  - py312-wheel-cli-windows
+  - py312-windows-wheel
 
 workflows:
   version: 2

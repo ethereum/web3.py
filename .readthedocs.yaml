@@ -17,4 +17,8 @@ python:
         - docs
 
 # Build all formats for RTD Downloads - htmlzip, pdf, epub
-formats: all
+# formats: all
+# Turning off pdf for now - won't build due to long line lenghts
+formats:
+  - epub
+  - htmlzip

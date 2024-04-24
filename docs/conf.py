@@ -306,10 +306,10 @@ texinfo_documents = [
 # -- Intersphinx configuration ------------------------------------------------
 
 intersphinx_mapping = {
-    "python": ("https://docs.python.org/3.5", None),
-    "eth-account": ("http://eth-account.readthedocs.io/en/latest/", None),
-    "eth-tester": ("http://eth-tester.readthedocs.io/en/latest/", None),
-    "hexbytes": ("http://hexbytes.readthedocs.io/en/latest/", None),
+    "python": ("https://docs.python.org/3", None),
+    "eth-account": ("https://eth-account.readthedocs.io/en/latest/", None),
+    # doesn't exist yet "eth-tester": ("https://eth-tester.readthedocs.io/en/latest/", None),
+    "hexbytes": ("https://hexbytes.readthedocs.io/en/latest/", None),
 }
 
 autodoc_member_order = "bysource"

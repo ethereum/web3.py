@@ -34,6 +34,9 @@ lint:
 test:
 	python -m pytest tests
 
+benchmark:
+	python -m tox run -e benchmark
+
 autobuild-docs:
 	sphinx-autobuild --open-browser docs docs/_build/html
 
@@ -44,7 +47,8 @@ build-docs:
 	$(MAKE) -C docs doctest
 
 build-docs-ci:
-	$(MAKE) -C docs latexpdf
+	# pdf turned off for now - long line lengths break the build
+	# $(MAKE) -C docs latexpdf
 	$(MAKE) -C docs epub
 
 validate-newsfragments:
