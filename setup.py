@@ -62,7 +62,7 @@ setup(
     install_requires=[
         "aiohttp>=3.7.4.post0",
         "eth-abi>=4.0.0",
-        "eth-account>=0.8.0,<0.13",
+        "eth-account>=0.9.0,<0.13",
         "eth-hash[pycryptodome]>=0.5.1",
         "eth-typing @ git+https://github.com/reedsa/eth-typing@abi-utils-type-fixes",
         "eth-utils @ git+https://github.com/reedsa/eth-utils@abi-element-utils",
