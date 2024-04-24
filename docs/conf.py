@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-#
 # <PROJECT_NAME> documentation build configuration file, created by
 # sphinx-quickstart on Thu Oct 16 20:43:24 2014.
 #
@@ -194,6 +192,8 @@ htmlhelp_basename = "<MODULE_NAME>docs"
 
 
 # -- Options for LaTeX output ---------------------------------------------
+
+latex_engine = "xelatex"
 
 latex_elements = {
     # The paper size ('letterpaper' or 'a4paper').
