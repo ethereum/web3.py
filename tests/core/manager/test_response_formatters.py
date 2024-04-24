@@ -3,8 +3,6 @@ import re
 
 from eth_utils.toolz import (
     identity,
-)
-from toolz import (
     merge,
 )
 
