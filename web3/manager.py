@@ -131,6 +131,7 @@ def _validate_response(
     response: RPCResponse,
     error_formatters: Optional[Callable[..., Any]],
     is_subscription_response: bool = False,
+    logger: Optional[logging.Logger] = None,
 ) -> None:
     if "jsonrpc" not in response or response["jsonrpc"] != "2.0":
         _raise_bad_response_format(
@@ -191,12 +192,18 @@ def _validate_response(
                 response, 'error["code"] is required and must be an integer value.'
             )
         elif code == METHOD_NOT_FOUND:
-            raise MethodUnavailable(
+            exception = MethodUnavailable(
                 repr(error),
                 rpc_response=response,
-                user_message="Check your node provider or your client's API docs to "
-                "see what methods are supported and / or currently enabled.",
+                user_message=(
+                    "This method is not available. Check your node provider or your "
+                    "client's API docs to see what methods are supported and / or "
+                    "currently enabled."
+                ),
             )
+            logger.error(exception.user_message)
+            logger.debug(f"RPC error response: {response}")
+            raise exception
 
         # errors must include a message
         error_message = error.get("message")
@@ -206,7 +213,11 @@ def _validate_response(
             )
 
         apply_error_formatters(error_formatters, response)
-        raise Web3RPCError(repr(error), rpc_response=response)
+
+        web3_rpc_error = Web3RPCError(repr(error), rpc_response=response)
+        logger.error(web3_rpc_error.user_message)
+        logger.debug(f"RPC error response: {response}")
+        raise web3_rpc_error
 
     elif "result" not in response and not is_subscription_response:
         _raise_bad_response_format(response)
@@ -298,8 +309,8 @@ class RequestManager:
     #
     # See also: https://www.jsonrpc.org/specification
     #
-    @staticmethod
     def formatted_response(
+        self,
         response: RPCResponse,
         params: Any,
         error_formatters: Optional[Callable[..., Any]] = None,
@@ -316,6 +327,7 @@ class RequestManager:
             response,
             error_formatters,
             is_subscription_response=is_subscription_response,
+            logger=self.logger,
         )
 
         # format results

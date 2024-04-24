@@ -43,12 +43,6 @@ class Web3Exception(Exception):
         # Assign properties of Web3Exception
         self.user_message = user_message
 
-    def __str__(self) -> str:
-        # append a clarifying user message if one is provided
-        return super().__str__() + (
-            f"\nUser message: {self.user_message}" if self.user_message else ""
-        )
-
 
 class Web3AssertionError(Web3Exception, AssertionError):
     """
