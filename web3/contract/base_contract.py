@@ -52,7 +52,6 @@ from web3._utils.abi import (
 )
 from web3._utils.contracts import (
     decode_transaction_data,
-    encode_abi,
     find_matching_event_abi,
     find_matching_fn_abi,
     get_function_info,
@@ -118,6 +117,9 @@ from web3.types import (
     TContractFn,
     TxParams,
     TxReceipt,
+)
+from web3.utils.abi import (
+    encode_abi,
 )
 
 if TYPE_CHECKING:
@@ -619,7 +621,9 @@ class BaseContractFunction:
 
     @combomethod
     def _encode_transaction_data(cls) -> HexStr:
-        return add_0x_prefix(encode_abi(cls.w3, cls.abi, cls.arguments, cls.selector))
+        return add_0x_prefix(
+            encode_abi(cls.abi, cls.arguments, strict=cls.w3.strict_bytes_type_checking)
+        )
 
     _return_data_normalizers: Optional[Tuple[Callable[..., Any], ...]] = tuple()
 
@@ -758,7 +762,9 @@ class BaseContract:
         if data is None:
             data = fn_selector
 
-        return encode_abi(cls.w3, fn_abi, fn_arguments, data)
+        return encode_abi(
+            fn_abi, fn_arguments, data, strict=cls.w3.strict_bytes_type_checking
+        )
 
     @combomethod
     def all_functions(
@@ -898,7 +904,12 @@ class BaseContract:
             arguments = merge_args_and_kwargs(constructor_abi, args, kwargs)
 
             deploy_data = add_0x_prefix(
-                encode_abi(cls.w3, constructor_abi, arguments, data=cls.bytecode)
+                encode_abi(
+                    constructor_abi,
+                    arguments,
+                    data=cls.bytecode,
+                    strict=cls.w3.strict_bytes_type_checking,
+                )
             )
         else:
             if args is not None or kwargs is not None:
@@ -1080,7 +1091,12 @@ class BaseContractConstructor:
 
             arguments = merge_args_and_kwargs(constructor_abi, args, kwargs)
             data = add_0x_prefix(
-                encode_abi(self.w3, constructor_abi, arguments, data=self.bytecode)
+                encode_abi(
+                    constructor_abi,
+                    arguments,
+                    data=self.bytecode,
+                    strict=self.w3.strict_bytes_type_checking,
+                )
             )
         else:
             data = to_hex(self.bytecode)

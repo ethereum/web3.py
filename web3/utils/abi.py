@@ -25,6 +25,7 @@ from hexbytes import (
 )
 
 from web3._utils.abi import (
+    build_non_strict_registry,
     build_strict_registry,
     check_if_arguments_can_be_encoded,
     map_abi_data,
@@ -46,6 +47,7 @@ def encode_abi(
     is_async: Optional[bool] = False,
     resolver: Optional[Callable[..., Tuple[TypeStr, Any]]] = None,
     abi_codec: Optional[ABICodec] = None,
+    strict: Optional[bool] = True,
 ) -> HexStr:
     """
     Return encoded data from a function ABI and arguments.
@@ -66,9 +68,15 @@ def encode_abi(
     :rtype: `HexStr`
     """
     if abi_codec is None:
-        abi_codec = ABICodec(build_strict_registry())
+        registry = build_strict_registry()
+        if not strict:
+            registry = build_non_strict_registry()
+        abi_codec = ABICodec(registry)
 
-    argument_types = get_abi_input_types(function_abi)
+    try:
+        argument_types = get_abi_input_types(function_abi)
+    except ValueError:
+        argument_types = []
 
     if not check_if_arguments_can_be_encoded(function_abi, abi_codec, arguments, {}):
         raise TypeError(
