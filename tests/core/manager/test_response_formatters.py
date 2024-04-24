@@ -35,10 +35,6 @@ INVALID_ERROR_MESSAGE_MSG = 'error["message"] is required and must be a string v
 METHOD_UNAVAILABLE_MSG = (
     "the method eth_getTransactionByHash does not exist/is not available."
 )
-DEFAULT_USER_MSG = (
-    "An RPC error was returned by the node. Check the message provided in the error "
-    "and any available logs for more information."
-)
 
 
 VALID_RESULT_OBJ_RESPONSE = {"jsonrpc": "2.0", "id": 1, "result": {"foo": "bar"}}
@@ -179,19 +175,17 @@ def test_formatted_response_invalid_response_object(w3, response, error, error_m
         (
             VALID_ERROR_RESPONSE,
             Web3RPCError,
-            f'{VALID_ERROR_RESPONSE["error"]}\nUser message: {DEFAULT_USER_MSG}',
+            f'{VALID_ERROR_RESPONSE["error"]}',
         ),
         (
             ERROR_RESPONSE_VALID_ID_STRING,
             Web3RPCError,
-            f'{ERROR_RESPONSE_VALID_ID_STRING["error"]}\n'
-            f"User message: {DEFAULT_USER_MSG}",
+            f'{ERROR_RESPONSE_VALID_ID_STRING["error"]}',
         ),
         (
             ERROR_RESPONSE_VALID_ID_NONE,
             Web3RPCError,
-            f'{ERROR_RESPONSE_VALID_ID_NONE["error"]}\n'
-            f"User message: {DEFAULT_USER_MSG}",
+            f'{ERROR_RESPONSE_VALID_ID_NONE["error"]}',
         ),
         (
             ERROR_RESPONSE_VALID_METHOD_UNAVAILABLE,
@@ -284,7 +278,7 @@ def test_formatted_response_invalid_error_object(
             identity,
             raise_block_not_found,
             Web3RPCError,
-            f'{VALID_ERROR_RESPONSE["error"]}\nUser message: {DEFAULT_USER_MSG}',
+            f'{VALID_ERROR_RESPONSE["error"]}',
         ),
     ),
 )
