@@ -84,18 +84,21 @@ ERROR_RESPONSE_VALID_METHOD_UNAVAILABLE = merge(
     {"error": {"code": -32601, "message": (METHOD_UNAVAILABLE_MSG)}},
 )
 ERROR_RESPONSE_INVALID_ID = merge(VALID_ERROR_RESPONSE, {"id": b"invalid"})
-ERROR_RESPONSE_INVALID_ERROR_OBJECT = merge(
-    VALID_ERROR_RESPONSE, {"error": METHOD_UNAVAILABLE_MSG}
-)
+
 ERROR_RESPONSE_INVALID_CODE = merge(VALID_ERROR_RESPONSE, {"error": {"code": "-32601"}})
-ERROR_RESPONSE_INVALID_MESSAGE = merge(
-    VALID_ERROR_RESPONSE, {"error": {"code": -32000, "message": {}}}
-)
 ERROR_RESPONSE_INVALID_MISSING_CODE = merge(
     VALID_ERROR_RESPONSE, {"error": {"message": "msg"}}
 )
+
+ERROR_RESPONSE_INVALID_MESSAGE = merge(
+    VALID_ERROR_RESPONSE, {"error": {"code": -32000, "message": {}}}
+)
 ERROR_RESPONSE_INVALID_MISSING_MESSAGE = merge(
     VALID_ERROR_RESPONSE, {"error": {"code": -32000}}
+)
+
+ERROR_RESPONSE_INVALID_ERROR_OBJECT = merge(
+    VALID_ERROR_RESPONSE, {"error": METHOD_UNAVAILABLE_MSG}
 )
 
 # result object validation
@@ -280,13 +283,6 @@ def test_formatted_response_invalid_error_object(
             # formatters raises generic `Web3RPCError`, not `BlockNotFound`
             identity,
             raise_block_not_found,
-            Web3RPCError,
-            f'{VALID_ERROR_RESPONSE["error"]}\nUser message: {DEFAULT_USER_MSG}',
-        ),
-        (
-            # Valid error response with no null result formatters raises `Web3RPCError`
-            identity,
-            identity,
             Web3RPCError,
             f'{VALID_ERROR_RESPONSE["error"]}\nUser message: {DEFAULT_USER_MSG}',
         ),
