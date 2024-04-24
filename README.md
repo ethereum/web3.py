@@ -1,8 +1,10 @@
 # web3.py
 
-[![Documentation Status](https://readthedocs.org/projects/web3py/badge/?version=latest)](https://web3py.readthedocs.io/en/latest/?badge=latest)
-[![Discord](https://img.shields.io/discord/809793915578089484?color=blue&label=chat&logo=discord&logoColor=white)](https://discord.gg/GHryRvPB84)
+[![Join the conversation on Discord](https://img.shields.io/discord/809793915578089484?color=blue&label=chat&logo=discord&logoColor=white)](https://discord.gg/GHryRvPB84)
 [![Build Status](https://circleci.com/gh/ethereum/web3.py.svg?style=shield)](https://circleci.com/gh/ethereum/web3.py)
+[![PyPI version](https://badge.fury.io/py/web3.svg)](https://badge.fury.io/py/web3)
+[![Python versions](https://img.shields.io/pypi/pyversions/web3.svg)](https://pypi.python.org/pypi/web3)
+[![Docs build](https://readthedocs.org/projects/web3.py/badge/?version=latest)](https://web3.py.readthedocs.io/en/latest/?badge=latest)
 
 A Python library for interacting with Ethereum.
 
