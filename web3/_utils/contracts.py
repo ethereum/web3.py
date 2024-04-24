@@ -280,9 +280,7 @@ def encode_transaction_data(
         raise Web3TypeError("Unsupported function identifier")
 
     return add_0x_prefix(
-        encode_abi(
-            fn_abi, fn_arguments, fn_selector, strict=w3.strict_bytes_type_checking
-        )
+        encode_abi(fn_abi, fn_arguments, strict=w3.strict_bytes_type_checking)
     )
 
 

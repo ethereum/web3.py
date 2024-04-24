@@ -4,13 +4,17 @@ from typing import (
     Optional,
     Sequence,
     Tuple,
+    Union,
 )
 
 from eth_abi.abi import (
     ABICodec,
 )
 from eth_typing import (
+    ABIConstructor,
+    ABIFallback,
     ABIFunction,
+    ABIReceive,
     HexStr,
     TypeStr,
 )
@@ -41,11 +45,11 @@ from web3._utils.normalizers import (
 
 
 def encode_abi(
-    function_abi: ABIFunction,
+    function_abi: Union[ABIFunction, ABIConstructor, ABIFallback, ABIReceive],
     arguments: Sequence[Any] = None,
     data: Optional[HexStr] = None,
     is_async: Optional[bool] = False,
-    resolver: Optional[Callable[..., Tuple[TypeStr, Any]]] = None,
+    data_normalizers: Optional[Sequence[Callable[..., Tuple[TypeStr, Any]]]] = None,
     abi_codec: Optional[ABICodec] = None,
     strict: Optional[bool] = True,
 ) -> HexStr:
@@ -59,11 +63,13 @@ def encode_abi(
     :param type: `Any`
     :param is_async: Enable async transaction encoder.
     :param type: `bool`
-    :param provider: Provider instance to configure ENS for syncronous requests.
-    :param type: `BaseProvider`
-    :param abi_codec: Codec used for encoding and decoding. Default with
-    `strict_bytes_type_checking` enabled.
+    :param data_normalizers: List of custom normalizers to apply to the data.
+    :param type: `list[Callable[..., Tuple[TypeStr, Any]]]`
+    :param abi_codec: Codec used for encoding and decoding.
     :param type: `ABICodec`
+    :param strict: If using default codec, enable `strict_bytes_type_checking`.
+    Ignored if `abi_codec` is provided.
+    :param type: `bool`
     :return: Encoded data for a transaction.
     :rtype: `HexStr`
     """
@@ -76,6 +82,7 @@ def encode_abi(
     try:
         argument_types = get_abi_input_types(function_abi)
     except ValueError:
+        # Fallback/receive functions do not have inputs
         argument_types = []
 
     if not check_if_arguments_can_be_encoded(function_abi, abi_codec, arguments, {}):
@@ -90,8 +97,8 @@ def encode_abi(
         abi_string_to_text,
     ]
 
-    if not is_async and resolver is not None:
-        normalizers.append(resolver)
+    if not is_async and data_normalizers is not None:
+        normalizers.extend(data_normalizers)
 
     normalized_arguments = map_abi_data(
         normalizers,
