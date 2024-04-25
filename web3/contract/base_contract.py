@@ -82,6 +82,7 @@ from web3._utils.function_identifiers import (
 )
 from web3._utils.normalizers import (
     BASE_RETURN_NORMALIZERS,
+    abi_ens_resolver,
 )
 from web3.datastructures import (
     AttributeDict,
@@ -627,6 +628,7 @@ class BaseContractFunction:
                 cls.arguments,
                 data=cls.selector,
                 abi_codec=cls.w3.codec,
+                data_normalizers=[abi_ens_resolver(cls.w3)],
                 strict=cls.w3.strict_bytes_type_checking,
             )
         )
@@ -773,6 +775,7 @@ class BaseContract:
             fn_arguments,
             data,
             abi_codec=cls.w3.codec,
+            data_normalizers=[abi_ens_resolver(cls.w3)],
             strict=cls.w3.strict_bytes_type_checking,
         )
 
@@ -919,6 +922,7 @@ class BaseContract:
                     arguments,
                     data=cls.bytecode,
                     abi_codec=cls.w3.codec,
+                    data_normalizers=[abi_ens_resolver(cls.w3)],
                     strict=cls.w3.strict_bytes_type_checking,
                 )
             )
@@ -1107,6 +1111,7 @@ class BaseContractConstructor:
                     arguments,
                     data=self.bytecode,
                     abi_codec=self.w3.codec,
+                    data_normalizers=[abi_ens_resolver(self.w3)],
                     strict=self.w3.strict_bytes_type_checking,
                 )
             )

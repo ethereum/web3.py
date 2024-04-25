@@ -69,6 +69,9 @@ from web3._utils.function_identifiers import (
 from web3._utils.method_formatters import (
     to_integer_if_hex,
 )
+from web3._utils.normalizers import (
+    abi_ens_resolver,
+)
 from web3.exceptions import (
     BlockNumberOutOfRange,
     Web3TypeError,
@@ -281,7 +284,12 @@ def encode_transaction_data(
 
     return add_0x_prefix(
         encode_abi(
-            fn_abi, fn_arguments, data=fn_selector, strict=w3.strict_bytes_type_checking
+            fn_abi,
+            fn_arguments,
+            data=fn_selector,
+            abi_codec=w3.codec,
+            data_normalizers=[abi_ens_resolver(w3)],
+            strict=w3.strict_bytes_type_checking,
         )
     )
 
