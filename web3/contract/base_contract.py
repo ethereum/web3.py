@@ -622,7 +622,13 @@ class BaseContractFunction:
     @combomethod
     def _encode_transaction_data(cls) -> HexStr:
         return add_0x_prefix(
-            encode_abi(cls.abi, cls.arguments, strict=cls.w3.strict_bytes_type_checking)
+            encode_abi(
+                cls.abi,
+                cls.arguments,
+                data=cls.selector,
+                abi_codec=cls.w3.codec,
+                strict=cls.w3.strict_bytes_type_checking,
+            )
         )
 
     _return_data_normalizers: Optional[Tuple[Callable[..., Any], ...]] = tuple()
@@ -763,7 +769,11 @@ class BaseContract:
             data = fn_selector
 
         return encode_abi(
-            fn_abi, fn_arguments, data, strict=cls.w3.strict_bytes_type_checking
+            fn_abi,
+            fn_arguments,
+            data,
+            abi_codec=cls.w3.codec,
+            strict=cls.w3.strict_bytes_type_checking,
         )
 
     @combomethod
@@ -908,6 +918,7 @@ class BaseContract:
                     constructor_abi,
                     arguments,
                     data=cls.bytecode,
+                    abi_codec=cls.w3.codec,
                     strict=cls.w3.strict_bytes_type_checking,
                 )
             )
@@ -1095,6 +1106,7 @@ class BaseContractConstructor:
                     constructor_abi,
                     arguments,
                     data=self.bytecode,
+                    abi_codec=self.w3.codec,
                     strict=self.w3.strict_bytes_type_checking,
                 )
             )

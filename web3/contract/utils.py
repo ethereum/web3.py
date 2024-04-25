@@ -154,7 +154,10 @@ def call_contract_function(
             contract_abi, w3.codec, function_identifier, args, kwargs
         )
 
-    output_types = get_abi_output_types(fn_abi)
+    try:
+        output_types = get_abi_output_types(fn_abi)
+    except ValueError:
+        output_types = []
 
     provider = w3.provider
     if hasattr(provider, "_is_batching") and provider._is_batching:
@@ -393,7 +396,10 @@ async def async_call_contract_function(
             contract_abi, async_w3.codec, function_identifier, args, kwargs
         )
 
-    output_types = get_abi_output_types(fn_abi)
+    try:
+        output_types = get_abi_output_types(fn_abi)
+    except ValueError:
+        output_types = []
 
     if async_w3.provider._is_batching:
         contract_call_return_data_formatter = format_contract_call_return_data_curried(
