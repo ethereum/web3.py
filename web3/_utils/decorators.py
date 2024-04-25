@@ -35,22 +35,37 @@ def reject_recursive_repeats(to_wrap: Callable[..., Any]) -> Callable[..., Any]:
     return wrapped
 
 
-def deprecated_for(replace_message: str) -> Callable[..., Any]:
+def deprecate_method(
+    replacement_method: str = None, deprecation_msg: str = None
+) -> Callable[..., Any]:
     """
-    Decorate a deprecated function, with info about what to use instead, like:
+    Decorate a deprecated function with info on its replacement method OR a clarifying
+    reason for the deprecation.
 
-    @deprecated_for("to_bytes()")
-    def toAscii(arg):
+    @deprecate_method("to_bytes()")
+    def to_ascii(arg):
+        ...
+
+    @deprecate_method(deprecation_msg=(
+        "This method is no longer supported and will be removed in the next release."
+    ))
+    def some_method(arg):
         ...
     """
+    if replacement_method is None and deprecation_msg is None:
+        raise ValueError(
+            "Must provide either `replacement_method` or `deprecation_msg`"
+        )
 
     def decorator(to_wrap: TFunc) -> TFunc:
         @functools.wraps(to_wrap)
         def wrapper(*args: Any, **kwargs: Any) -> Callable[..., Any]:
-            warnings.warn(
-                f"{to_wrap.__name__} is deprecated in favor of {replace_message}",
-                category=DeprecationWarning,
+            msg = (
+                f"{to_wrap.__name__} is deprecated in favor of {replacement_method}"
+                if replacement_method is not None
+                else deprecation_msg
             )
+            warnings.warn(msg, category=DeprecationWarning)
             return to_wrap(*args, **kwargs)
 
         return cast(TFunc, wrapper)

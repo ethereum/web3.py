@@ -220,7 +220,7 @@ class DeprecatedMethod:
     def __init__(
         self,
         method: Method[Callable[..., Any]],
-        old_name: str,
+        old_name: Optional[str] = None,
         new_name: Optional[str] = None,
         msg: Optional[str] = None,
     ) -> None:
@@ -232,9 +232,17 @@ class DeprecatedMethod:
     def __get__(
         self, obj: Optional["Module"] = None, obj_type: Optional[Type["Module"]] = None
     ) -> Any:
-        message = f"{self.old_name} is deprecated in favor of {self.new_name}"
-        if self.msg is not None:
+        if self.old_name is not None and self.new_name is not None:
+            if self.msg is not None:
+                raise ValueError(
+                    "Cannot specify `old_name` and `new_name` along with `msg`"
+                )
+
+            message = f"{self.old_name} is deprecated in favor of {self.new_name}"
+        elif self.msg is not None:
             message = self.msg
+        else:
+            raise ValueError("Must provide either `old_name` and `new_name` or `msg`")
 
         warnings.warn(
             message,

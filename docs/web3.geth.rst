@@ -173,6 +173,10 @@ GethPersonal API
 
 The following methods are available on the ``web3.geth.personal`` namespace.
 
+.. warning:: Deprecated: Geth has deprecated the ``personal`` namespace and
+    has transitioned to using ``clef`` for account management. The ``personal``
+    namespace will be removed in *web3.py* ``v7``.
+
 .. py:method:: ec_recover(message, signature)
 
     * Delegates to ``personal_ecRecover`` RPC Method
