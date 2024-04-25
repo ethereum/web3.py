@@ -628,6 +628,7 @@ class BaseContractFunction:
                 cls.arguments,
                 data=cls.selector,
                 abi_codec=cls.w3.codec,
+                is_async=cls.w3.provider.is_async,
                 data_normalizers=[abi_ens_resolver(cls.w3)],
                 strict=cls.w3.strict_bytes_type_checking,
             )
@@ -775,6 +776,7 @@ class BaseContract:
             fn_arguments,
             data,
             abi_codec=cls.w3.codec,
+            is_async=cls.w3.provider.is_async,
             data_normalizers=[abi_ens_resolver(cls.w3)],
             strict=cls.w3.strict_bytes_type_checking,
         )
@@ -922,6 +924,7 @@ class BaseContract:
                     arguments,
                     data=cls.bytecode,
                     abi_codec=cls.w3.codec,
+                    is_async=cls.w3.provider.is_async,
                     data_normalizers=[abi_ens_resolver(cls.w3)],
                     strict=cls.w3.strict_bytes_type_checking,
                 )
@@ -1111,6 +1114,7 @@ class BaseContractConstructor:
                     arguments,
                     data=self.bytecode,
                     abi_codec=self.w3.codec,
+                    is_async=self.w3.provider.is_async,
                     data_normalizers=[abi_ens_resolver(self.w3)],
                     strict=self.w3.strict_bytes_type_checking,
                 )

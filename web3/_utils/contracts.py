@@ -288,6 +288,7 @@ def encode_transaction_data(
             fn_arguments,
             data=fn_selector,
             abi_codec=w3.codec,
+            is_async=w3.provider.is_async,
             data_normalizers=[abi_ens_resolver(w3)],
             strict=w3.strict_bytes_type_checking,
         )
