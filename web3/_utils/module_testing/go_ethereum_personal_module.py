@@ -55,17 +55,20 @@ ACCOUNT_FOR_UNLOCK = "0x12efDc31B1a8FA1A1e756DFD8A1601055C971E13"
 
 class GoEthereumPersonalModuleTest:
     def test_personal_import_raw_key(self, w3: "Web3") -> None:
-        actual = w3.geth.personal.import_raw_key(PRIVATE_KEY_HEX, PASSWORD)
+        with pytest.warns(DeprecationWarning):
+            actual = w3.geth.personal.import_raw_key(PRIVATE_KEY_HEX, PASSWORD)
         assert actual == ADDRESS
 
     def test_personal_list_accounts(self, w3: "Web3") -> None:
-        accounts = w3.geth.personal.list_accounts()
+        with pytest.warns(DeprecationWarning):
+            accounts = w3.geth.personal.list_accounts()
         assert is_list_like(accounts)
         assert len(accounts) > 0
         assert all((is_checksum_address(item) for item in accounts))
 
     def test_personal_list_wallets(self, w3: "Web3") -> None:
-        wallets = w3.geth.personal.list_wallets()
+        with pytest.warns(DeprecationWarning):
+            wallets = w3.geth.personal.list_wallets()
         assert is_list_like(wallets)
         assert len(wallets) > 0
         assert is_checksum_address(wallets[0]["accounts"][0]["address"])
@@ -76,8 +79,8 @@ class GoEthereumPersonalModuleTest:
     def test_personal_lock_account(
         self, w3: "Web3", unlockable_account_dual_type: ChecksumAddress
     ) -> None:
-        # TODO: how do we test this better?
-        w3.geth.personal.lock_account(unlockable_account_dual_type)
+        with pytest.warns(DeprecationWarning):
+            w3.geth.personal.lock_account(unlockable_account_dual_type)
 
     def test_personal_unlock_account_success(
         self,
@@ -85,9 +88,10 @@ class GoEthereumPersonalModuleTest:
         unlockable_account_dual_type: ChecksumAddress,
         unlockable_account_pw: str,
     ) -> None:
-        result = w3.geth.personal.unlock_account(
-            unlockable_account_dual_type, unlockable_account_pw
-        )
+        with pytest.warns(DeprecationWarning):
+            result = w3.geth.personal.unlock_account(
+                unlockable_account_dual_type, unlockable_account_pw
+            )
         assert result is True
 
     def test_personal_unlock_account_failure(
@@ -99,7 +103,8 @@ class GoEthereumPersonalModuleTest:
             )
 
     def test_personal_new_account(self, w3: "Web3") -> None:
-        new_account = w3.geth.personal.new_account(PASSWORD)
+        with pytest.warns(DeprecationWarning):
+            new_account = w3.geth.personal.new_account(PASSWORD)
         assert is_checksum_address(new_account)
 
     def test_personal_send_transaction(
@@ -118,7 +123,10 @@ class GoEthereumPersonalModuleTest:
             "value": Wei(1),
             "gasPrice": w3.to_wei(1, "gwei"),
         }
-        txn_hash = w3.geth.personal.send_transaction(txn_params, unlockable_account_pw)
+        with pytest.warns(DeprecationWarning):
+            txn_hash = w3.geth.personal.send_transaction(
+                txn_params, unlockable_account_pw
+            )
         assert txn_hash
         transaction = w3.eth.get_transaction(txn_hash)
 
@@ -139,10 +147,13 @@ class GoEthereumPersonalModuleTest:
         unlockable_account_pw: str,
     ) -> None:
         message = "test-web3-geth-personal-sign"
-        signature = w3.geth.personal.sign(
-            message, unlockable_account_dual_type, unlockable_account_pw
-        )
-        signer = w3.geth.personal.ec_recover(message, signature)
+        with pytest.warns(DeprecationWarning):
+            signature = w3.geth.personal.sign(
+                message, unlockable_account_dual_type, unlockable_account_pw
+            )
+
+        with pytest.warns(DeprecationWarning):
+            signer = w3.geth.personal.ec_recover(message, signature)
         assert is_same_address(signer, unlockable_account_dual_type)
 
     @pytest.mark.xfail(
@@ -193,13 +204,14 @@ class GoEthereumPersonalModuleTest:
                 }
             }
         """
-        signature = HexBytes(
-            w3.geth.personal.sign_typed_data(
-                json.loads(typed_message),
-                unlockable_account_dual_type,
-                unlockable_account_pw,
+        with pytest.warns(DeprecationWarning):
+            signature = HexBytes(
+                w3.geth.personal.sign_typed_data(
+                    json.loads(typed_message),
+                    unlockable_account_dual_type,
+                    unlockable_account_pw,
+                )
             )
-        )
 
         expected_signature = HexBytes(
             "0xc8b56aaeefd10ab4005c2455daf28d9082af661ac347cd"
@@ -219,33 +231,38 @@ class GoEthereumAsyncPersonalModuleTest:
         unlockable_account_pw: str,
     ) -> None:
         message = "This is a test"
-        signature = await async_w3.geth.personal.sign(
-            message, async_unlockable_account_dual_type, unlockable_account_pw
-        )
+        with pytest.warns(DeprecationWarning):
+            signature = await async_w3.geth.personal.sign(
+                message, async_unlockable_account_dual_type, unlockable_account_pw
+            )
         address = await async_w3.geth.personal.ec_recover(message, signature)
         assert is_same_address(async_unlockable_account_dual_type, address)
 
     @pytest.mark.asyncio
     async def test_async_import_key(self, async_w3: "AsyncWeb3") -> None:
-        address = await async_w3.geth.personal.import_raw_key(
-            THIRD_PRIVATE_KEY_HEX, "Testing"
-        )
+        with pytest.warns(DeprecationWarning):
+            address = await async_w3.geth.personal.import_raw_key(
+                THIRD_PRIVATE_KEY_HEX, "Testing"
+            )
         assert address is not None
 
     @pytest.mark.asyncio
     async def test_async_list_accounts(self, async_w3: "AsyncWeb3") -> None:
-        accounts = await async_w3.geth.personal.list_accounts()
+        with pytest.warns(DeprecationWarning):
+            accounts = await async_w3.geth.personal.list_accounts()
         assert len(accounts) > 0
 
     @pytest.mark.asyncio
     async def test_async_list_wallets(self, async_w3: "AsyncWeb3") -> None:
-        wallets = await async_w3.geth.personal.list_wallets()
+        with pytest.warns(DeprecationWarning):
+            wallets = await async_w3.geth.personal.list_wallets()
         assert isinstance(wallets[0], AttributeDict)
 
     @pytest.mark.asyncio
     async def test_async_new_account(self, async_w3: "AsyncWeb3") -> None:
         passphrase = "Create New Account"
-        account = await async_w3.geth.personal.new_account(passphrase)
+        with pytest.warns(DeprecationWarning):
+            account = await async_w3.geth.personal.new_account(passphrase)
         assert is_checksum_address(account)
 
     @pytest.mark.asyncio
@@ -255,13 +272,16 @@ class GoEthereumAsyncPersonalModuleTest:
         async_unlockable_account_dual_type: ChecksumAddress,
         unlockable_account_pw: str,
     ) -> None:
-        unlocked = await async_w3.geth.personal.unlock_account(
-            async_unlockable_account_dual_type, unlockable_account_pw
-        )
+        with pytest.warns(DeprecationWarning):
+            unlocked = await async_w3.geth.personal.unlock_account(
+                async_unlockable_account_dual_type, unlockable_account_pw
+            )
         assert unlocked is True
-        locked = await async_w3.geth.personal.lock_account(
-            async_unlockable_account_dual_type
-        )
+
+        with pytest.warns(DeprecationWarning):
+            locked = await async_w3.geth.personal.lock_account(
+                async_unlockable_account_dual_type
+            )
         assert locked is True
 
     @pytest.mark.asyncio
@@ -275,9 +295,10 @@ class GoEthereumAsyncPersonalModuleTest:
         tx_params["to"] = async_unlockable_account_dual_type
         tx_params["from"] = async_unlockable_account_dual_type
         tx_params["value"] = Wei(123)
-        response = await async_w3.geth.personal.send_transaction(
-            tx_params, unlockable_account_pw
-        )
+        with pytest.warns(DeprecationWarning):
+            response = await async_w3.geth.personal.send_transaction(
+                tx_params, unlockable_account_pw
+            )
         assert response is not None
 
     @pytest.mark.xfail(
@@ -291,10 +312,12 @@ class GoEthereumAsyncPersonalModuleTest:
         unlockable_account_pw: str,
     ) -> None:
         message = {"message": "This is a test"}
-        signature = await async_w3.geth.personal.sign_typed_data(
-            message, async_unlockable_account_dual_type, unlockable_account_pw
-        )
-        address = await async_w3.geth.personal.ec_recover(
-            json.dumps(message), signature
-        )
+        with pytest.warns(DeprecationWarning):
+            signature = await async_w3.geth.personal.sign_typed_data(
+                message, async_unlockable_account_dual_type, unlockable_account_pw
+            )
+        with pytest.warns(DeprecationWarning):
+            address = await async_w3.geth.personal.ec_recover(
+                json.dumps(message), signature
+            )
         assert is_same_address(async_unlockable_account_dual_type, address)

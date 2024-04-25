@@ -21,6 +21,9 @@ from hexbytes.main import (
 from web3._utils.compat import (
     Protocol,
 )
+from web3._utils.decorators import (
+    deprecate_method,
+)
 from web3._utils.miner import (
     make_dag,
     set_etherbase,
@@ -35,6 +38,7 @@ from web3._utils.rpc_abi import (
     RPC,
 )
 from web3.method import (
+    DeprecatedMethod,
     Method,
     default_root_munger,
 )
@@ -63,6 +67,12 @@ class UnlockAccountWrapper(Protocol):
         pass
 
 
+GETH_PERSONAL_DEPRECATION_MSG = (
+    "Geth now uses `clef` for account and key management. This method will be removed "
+    "in web3.py `v7`."
+)
+
+
 class GethPersonal(Module):
     """
     https://geth.ethereum.org/docs/interacting-with-geth/rpc/ns-personal
@@ -70,56 +80,74 @@ class GethPersonal(Module):
 
     is_async = False
 
-    ec_recover: Method[Callable[[str, HexStr], ChecksumAddress]] = Method(
+    _ec_recover: Method[Callable[[str, HexStr], ChecksumAddress]] = Method(
         RPC.personal_ecRecover,
         mungers=[default_root_munger],
     )
+    ec_recover = DeprecatedMethod(_ec_recover, msg=GETH_PERSONAL_DEPRECATION_MSG)
 
-    import_raw_key: Method[Callable[[str, str], ChecksumAddress]] = Method(
+    _import_raw_key: Method[Callable[[str, str], ChecksumAddress]] = Method(
         RPC.personal_importRawKey,
         mungers=[default_root_munger],
     )
+    import_raw_key = DeprecatedMethod(
+        _import_raw_key, msg=GETH_PERSONAL_DEPRECATION_MSG
+    )
 
-    list_accounts: Method[Callable[[], List[ChecksumAddress]]] = Method(
+    _list_accounts: Method[Callable[[], List[ChecksumAddress]]] = Method(
         RPC.personal_listAccounts,
         is_property=True,
     )
+    list_accounts = DeprecatedMethod(_list_accounts, msg=GETH_PERSONAL_DEPRECATION_MSG)
 
-    list_wallets: Method[Callable[[], List[GethWallet]]] = Method(
+    _list_wallets: Method[Callable[[], List[GethWallet]]] = Method(
         RPC.personal_listWallets,
         is_property=True,
     )
+    list_wallets = DeprecatedMethod(_list_wallets, msg=GETH_PERSONAL_DEPRECATION_MSG)
 
-    send_transaction: Method[Callable[[TxParams, str], HexBytes]] = Method(
+    _send_transaction: Method[Callable[[TxParams, str], HexBytes]] = Method(
         RPC.personal_sendTransaction,
         mungers=[default_root_munger],
     )
+    send_transaction = DeprecatedMethod(
+        _send_transaction, msg=GETH_PERSONAL_DEPRECATION_MSG
+    )
 
-    sign: Method[Callable[[str, ChecksumAddress, Optional[str]], HexStr]] = Method(
+    _sign: Method[Callable[[str, ChecksumAddress, Optional[str]], HexStr]] = Method(
         RPC.personal_sign,
         mungers=[default_root_munger],
     )
+    sign = DeprecatedMethod(_sign, msg=GETH_PERSONAL_DEPRECATION_MSG)
 
-    sign_typed_data: Method[
+    _sign_typed_data: Method[
         Callable[[Dict[str, Any], ChecksumAddress, str], HexStr]
     ] = Method(
         RPC.personal_signTypedData,
         mungers=[default_root_munger],
     )
+    sign_typed_data = DeprecatedMethod(
+        _sign_typed_data, msg=GETH_PERSONAL_DEPRECATION_MSG
+    )
 
-    new_account: Method[Callable[[str], ChecksumAddress]] = Method(
+    _new_account: Method[Callable[[str], ChecksumAddress]] = Method(
         RPC.personal_newAccount,
         mungers=[default_root_munger],
     )
+    new_account = DeprecatedMethod(_new_account, msg=GETH_PERSONAL_DEPRECATION_MSG)
 
-    lock_account: Method[Callable[[ChecksumAddress], bool]] = Method(
+    _lock_account: Method[Callable[[ChecksumAddress], bool]] = Method(
         RPC.personal_lockAccount,
         mungers=[default_root_munger],
     )
+    lock_account = DeprecatedMethod(_lock_account, msg=GETH_PERSONAL_DEPRECATION_MSG)
 
-    unlock_account: Method[UnlockAccountWrapper] = Method(
+    _unlock_account: Method[UnlockAccountWrapper] = Method(
         RPC.personal_unlockAccount,
         mungers=[default_root_munger],
+    )
+    unlock_account = DeprecatedMethod(
+        _unlock_account, msg=GETH_PERSONAL_DEPRECATION_MSG
     )
 
 
@@ -373,6 +401,7 @@ class AsyncGethPersonal(Module):
         mungers=[default_root_munger],
     )
 
+    @deprecate_method(deprecation_msg=GETH_PERSONAL_DEPRECATION_MSG)
     async def ec_recover(self, message: str, signature: HexStr) -> ChecksumAddress:
         return await self._ec_recover(message, signature)
 
@@ -383,6 +412,7 @@ class AsyncGethPersonal(Module):
         mungers=[default_root_munger],
     )
 
+    @deprecate_method(deprecation_msg=GETH_PERSONAL_DEPRECATION_MSG)
     async def import_raw_key(
         self, private_key: str, passphrase: str
     ) -> ChecksumAddress:
@@ -400,9 +430,11 @@ class AsyncGethPersonal(Module):
         is_property=True,
     )
 
+    @deprecate_method(deprecation_msg=GETH_PERSONAL_DEPRECATION_MSG)
     async def list_accounts(self) -> List[ChecksumAddress]:
         return await self._list_accounts()
 
+    @deprecate_method(deprecation_msg=GETH_PERSONAL_DEPRECATION_MSG)
     async def list_wallets(self) -> List[GethWallet]:
         return await self._list_wallets()
 
@@ -413,6 +445,7 @@ class AsyncGethPersonal(Module):
         mungers=[default_root_munger],
     )
 
+    @deprecate_method(deprecation_msg=GETH_PERSONAL_DEPRECATION_MSG)
     async def send_transaction(
         self, transaction: TxParams, passphrase: str
     ) -> HexBytes:
@@ -434,11 +467,13 @@ class AsyncGethPersonal(Module):
         mungers=[default_root_munger],
     )
 
+    @deprecate_method(deprecation_msg=GETH_PERSONAL_DEPRECATION_MSG)
     async def sign(
         self, message: str, account: ChecksumAddress, passphrase: str
     ) -> HexStr:
         return await self._sign(message, account, passphrase)
 
+    @deprecate_method(deprecation_msg=GETH_PERSONAL_DEPRECATION_MSG)
     async def sign_typed_data(
         self, message: Dict[str, Any], account: ChecksumAddress, passphrase: str
     ) -> HexStr:
@@ -463,12 +498,15 @@ class AsyncGethPersonal(Module):
         mungers=[default_root_munger],
     )
 
+    @deprecate_method(deprecation_msg=GETH_PERSONAL_DEPRECATION_MSG)
     async def new_account(self, passphrase: str) -> ChecksumAddress:
         return await self._new_account(passphrase)
 
+    @deprecate_method(deprecation_msg=GETH_PERSONAL_DEPRECATION_MSG)
     async def lock_account(self, account: ChecksumAddress) -> bool:
         return await self._lock_account(account)
 
+    @deprecate_method(deprecation_msg=GETH_PERSONAL_DEPRECATION_MSG)
     async def unlock_account(
         self, account: ChecksumAddress, passphrase: str, duration: Optional[int] = None
     ) -> bool:
