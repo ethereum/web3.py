@@ -482,15 +482,12 @@ class TraceConfig(TypedDict, total=False):
     timeout: int
 
 
-CallTraceLog = TypedDict(
-    "CallTraceLog",
-    {
-        "address": ChecksumAddress,
-        "data": HexBytes,
-        "topics": Sequence[HexBytes],
-        "position": int,
-    },
-)
+class CallTraceLog(TypedDict):
+    address: ChecksumAddress
+    data: HexBytes
+    topics: Sequence[HexBytes]
+    position: int
+
 
 # syntax b/c "from" keyword not allowed w/ class construction
 CallTrace = TypedDict(

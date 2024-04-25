@@ -28,7 +28,6 @@ from web3.types import (
     NodeInfo,
     Peer,
     TraceConfig,
-    TxParams,
     TxPoolContent,
     TxPoolInspect,
     TxPoolStatus,
@@ -146,13 +145,13 @@ class GethDebug(Module):
     is_async = False
 
     def trace_transaction_munger(
-        self,
-        transaction_hash: _Hash32,
-        trace_config: TraceConfig = {
-            "tracer": "callTracer",
-            "tracerConfig": {"withLog": False},
-        },
+        self, transaction_hash: _Hash32, trace_config: TraceConfig = None
     ) -> Tuple[_Hash32, TraceConfig]:
+        if trace_config is None:
+            trace_config = {
+                "tracer": "callTracer",
+                "tracerConfig": {"withLog": False},
+            }
         return (transaction_hash, trace_config)
 
     trace_transaction: Method[Callable[..., Union[CallTrace]]] = Method(
@@ -304,11 +303,14 @@ class AsyncGethDebug(Module):
     async def trace_transaction(
         self,
         transaction_hash: _Hash32,
-        trace_config: TraceConfig = {
-            "tracer": "callTracer",
-            "tracerConfig": {"withLog": False},
-        },
+        trace_config: TraceConfig = None,
     ) -> Union[CallTrace]:
+        if trace_config is None:
+            trace_config = {
+                "tracer": "callTracer",
+                "tracerConfig": {"withLog": False},
+            }
+
         return await self._trace_transaction(transaction_hash, trace_config)
 
 
