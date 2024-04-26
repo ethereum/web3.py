@@ -6,6 +6,41 @@ v7 Breaking Changes Summary
 
 .. towncrier release notes start
 
+web3.py v7.0.0-beta.5 (2024-04-26)
+----------------------------------
+
+Breaking Changes
+~~~~~~~~~~~~~~~~
+
+- Snake-case remaining arguments ``fromBlock``, ``toBlock``, and ``blockHash`` in contract and filter methods where they are passed in as kwargs. (`#3353 <https://github.com/ethereum/web3.py/issues/3353>`__)
+- Employ an exponential backoff strategy using the ``backoff_factor`` in ``ExceptionRetryConfiguration`` for ``HTTPProvider`` and ``AsyncHTTPProvider``. Reduce the default initial delay to ``0.125`` seconds. (`#3358 <https://github.com/ethereum/web3.py/issues/3358>`__)
+- Validate JSON-RPC responses more strictly against the JSON-RPC 2.0 specifications. ``BlockNumberOutofRange`` -> ``BlockNumberOutOfRange``. (`#3359 <https://github.com/ethereum/web3.py/issues/3359>`__)
+
+
+Deprecations
+~~~~~~~~~~~~
+
+- ``messageHash`` and ``rawTransaction`` from ``eth-account`` have been deprecated for snake_case versions (`#3348 <https://github.com/ethereum/web3.py/issues/3348>`__)
+
+
+Features
+~~~~~~~~
+
+- Raise ``Web3RPCError`` on JSON-RPC errors rather than ``Web3ValueError``. Raise ``MethodNotSupported`` exception when a method is not supported within *web3.py*; keep ``MethodUnavailable`` for when a method is not available on the current provider (JSON-RPC error). (`#3359 <https://github.com/ethereum/web3.py/issues/3359>`__)
+
+
+Internal Changes - for web3.py Contributors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Bump ``eth-account`` dependency to ``>=0.12.2`` (`#3348 <https://github.com/ethereum/web3.py/issues/3348>`__)
+
+
+Removals
+~~~~~~~~
+
+- Remove the deprecated ``personal`` namespace and all references to it. (`#3350 <https://github.com/ethereum/web3.py/issues/3350>`__)
+
+
 web3.py v7.0.0-beta.4 (2024-04-11)
 ----------------------------------
 
