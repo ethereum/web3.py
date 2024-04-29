@@ -22,7 +22,7 @@ extras_require = {
         "importlib-metadata<5.0;python_version<'3.8'",
         "pre-commit>=2.21.0",
         "pytest>=7.0.0",
-        "pytest-asyncio>=0.18.1,<0.23",
+        "pytest-asyncio>=0.21.2,<0.23",
         "pytest-mock>=1.10",
         "pytest-watch>=4.2",
         "pytest-xdist>=1.29",
