@@ -19,6 +19,12 @@ from typing import (
 from web3._utils.compat import (
     Self,
 )
+from web3.contract.async_contract import (
+    AsyncContractFunction,
+)
+from web3.contract.contract import (
+    ContractFunction,
+)
 from web3.method import (
     Method,
 )
@@ -52,6 +58,9 @@ class BatchRequestContextManager(Generic[TFunc]):
         # When batching, we don't make a request. Instead, we will get the request
         # information and store it in the `_requests_info` list. So we have to cast the
         # apparent "request" into the BatchRequestInformation type.
+        if isinstance(batch_payload, (ContractFunction, AsyncContractFunction)):
+            batch_payload = batch_payload.call()  # type: ignore
+
         if self.web3.provider.is_async:
             self._async_requests_info.append(
                 cast(Coroutine[Any, Any, BatchRequestInformation], batch_payload)
