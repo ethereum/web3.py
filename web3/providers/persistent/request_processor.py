@@ -190,9 +190,8 @@ class RequestProcessor:
                 # i.e. subscription request information remains in the cache
                 self._request_information_cache.get_cache_entry(cache_key)
             )
-
         else:
-            # retrieve the request info from the cache using the request id
+            # retrieve the request info from the cache using the response id
             cache_key = generate_cache_key(response["id"])
             if response in self._provider._request_cache._data.values():
                 request_info = (
@@ -266,6 +265,15 @@ class RequestProcessor:
                 f"Caching subscription response:\n    response={raw_response}"
             )
             await self._subscription_response_queue.put(raw_response)
+        elif isinstance(raw_response, list):
+            # hash all response ids in the list and cache the list with this hash
+            response_ids = [response.get("id") for response in raw_response]
+            cache_key = generate_cache_key(response_ids)
+            self._provider.logger.debug(
+                f"Caching batch response:\n    cache_key={cache_key},\n"
+                f"    response={raw_response}"
+            )
+            self._request_response_cache.cache(cache_key, raw_response)
         else:
             response_id = raw_response.get("id")
             cache_key = generate_cache_key(response_id)

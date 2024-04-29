@@ -440,7 +440,7 @@ class RequestManager:
             cast("AsyncWeb3", self.w3),
             cast("MiddlewareOnion", self.middleware_onion),
         )
-        # since add items to the batch without awaiting, we unpack the coroutines
+        # since we add items to the batch without awaiting, we unpack the coroutines
         # and await them all here
         unpacked_requests_info = await asyncio.gather(*requests_info)
         responses = await request_func(
@@ -449,6 +449,11 @@ class RequestManager:
                 for (method, params), _response_formatters in unpacked_requests_info
             ]
         )
+
+        if isinstance(self.provider, PersistentConnectionProvider):
+            # call _process_response for each response in the batch
+            return [await self._process_response(resp) for resp in responses]
+
         formatted_responses = [
             self._format_batched_response(info, resp)
             for info, resp in zip(unpacked_requests_info, responses)

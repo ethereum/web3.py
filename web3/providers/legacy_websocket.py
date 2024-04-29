@@ -10,9 +10,12 @@ from types import (
 )
 from typing import (
     Any,
+    List,
     Optional,
+    Tuple,
     Type,
     Union,
+    cast,
 )
 
 from eth_typing import (
@@ -133,3 +136,16 @@ class LegacyWebSocketProvider(JSONBaseProvider):
             self.coro_make_request(request_data), LegacyWebSocketProvider._loop
         )
         return future.result()
+
+    def make_batch_request(
+        self, requests: List[Tuple[RPCEndpoint, Any]]
+    ) -> List[RPCResponse]:
+        self.logger.debug(
+            f"Making batch request WebSocket. URI: {self.endpoint_uri}, "
+            f"Methods: {requests}"
+        )
+        request_data = self.encode_batch_rpc_request(requests)
+        future = asyncio.run_coroutine_threadsafe(
+            self.coro_make_request(request_data), LegacyWebSocketProvider._loop
+        )
+        return cast(List[RPCResponse], future.result())

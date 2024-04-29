@@ -9,6 +9,9 @@ from web3 import (
     AsyncWeb3,
     Web3,
 )
+from web3._utils.module_testing.persistent_connection_provider import (
+    PersistentConnectionProviderTest,
+)
 
 from .common import (
     GoEthereumAdminModuleTest,
@@ -97,4 +100,8 @@ class TestGoEthereumNetModuleTest(GoEthereumNetModuleTest):
 
 
 class TestGoEthereumAsyncNetModuleTest(GoEthereumAsyncNetModuleTest):
+    pass
+
+
+class TestPersistentConnectionProviderTest(PersistentConnectionProviderTest):
     pass

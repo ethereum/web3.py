@@ -4,6 +4,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Dict,
+    Sequence,
     Tuple,
     cast,
 )
@@ -22,6 +23,7 @@ from web3.middleware import (
     ExtraDataToPOAMiddleware,
 )
 from web3.types import (
+    BlockData,
     FormattedEthSubscriptionResponse,
 )
 
@@ -394,3 +396,20 @@ class PersistentConnectionProviderTest:
         assert isinstance(chain_id, int)
         assert isinstance(chain_id2, int)
         assert isinstance(chain_id3, int)
+
+    @pytest.mark.asyncio
+    async def test_async_batch_request(self, async_w3: "AsyncWeb3") -> None:
+        async with async_w3.manager.batch_requests() as batch:
+            batch.add(async_w3.eth.get_block(6))
+            batch.add(async_w3.eth.get_block(4))
+            batch.add(async_w3.eth.get_block(2))
+            batch.add(async_w3.eth.get_block(0))
+
+            responses = cast(Sequence[BlockData], await batch.async_execute())
+
+        assert len(responses) == 4
+        assert all(isinstance(response, AttributeDict) for response in responses)
+        assert responses[0]["number"] == 6
+        assert responses[1]["number"] == 4
+        assert responses[2]["number"] == 2
+        assert responses[3]["number"] == 0

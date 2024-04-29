@@ -59,6 +59,7 @@ TReturn = TypeVar("TReturn")
 
 @curry
 def retrieve_request_information_for_batching(
+    w3: Union["AsyncWeb3", "Web3"],
     module: "Module",
     method: Method[Callable[..., Any]],
 ) -> Union[
@@ -71,6 +72,10 @@ def retrieve_request_information_for_batching(
         (method_str, params), response_formatters = method.process_params(
             module, *args, **kwargs
         )
+        if isinstance(w3.provider, PersistentConnectionProvider):
+            w3.provider._request_processor.cache_request_information(
+                cast(RPCEndpoint, method_str), params, response_formatters
+            )
         return (cast(RPCEndpoint, method_str), params), response_formatters
 
     def inner(
@@ -172,7 +177,7 @@ class Module:
         else:
             self.retrieve_caller_fn = retrieve_blocking_method_call_fn(w3, self)
         self.retrieve_request_information = retrieve_request_information_for_batching(
-            self
+            w3, self
         )
         self.w3 = w3
 
