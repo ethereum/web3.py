@@ -6,6 +6,21 @@ v6 Breaking Changes Summary
 
 .. towncrier release notes start
 
+web3.py v6.18.0 (2024-04-29)
+----------------------------
+
+Deprecations
+~~~~~~~~~~~~
+
+- Disable doctest in ``docs/web3.eth.account.rst`` due to ``eth-account`` deprecation of ``messageHash`` for ``message_hash`` (`#3351 <https://github.com/ethereum/web3.py/issues/3351>`__)
+- Deprecate the ``geth.personal`` namespace methods. These will be removed in *web3.py* ``v7``. (`#3364 <https://github.com/ethereum/web3.py/issues/3364>`__)
+
+
+Internal Changes - for web3.py Contributors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Increase pytest-asyncio dependency to be >=0.21.2,<0.23 (`#3368 <https://github.com/ethereum/web3.py/issues/3368>`__)
+
 
 web3.py v6.17.2 (2024-04-17)
 ----------------------------

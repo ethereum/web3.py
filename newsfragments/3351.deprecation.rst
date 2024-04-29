@@ -1,1 +1,0 @@
-Disable doctest in ``docs/web3.eth.account.rst`` due to ``eth-account`` deprecation of ``messageHash`` for ``message_hash``

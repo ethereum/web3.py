@@ -1,1 +1,0 @@
-Deprecate the ``geth.personal`` namespace methods. These will be removed in *web3.py* ``v7``.
