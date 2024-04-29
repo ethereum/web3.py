@@ -14,8 +14,11 @@ from types import (
 )
 from typing import (
     Any,
+    List,
+    Tuple,
     Type,
     Union,
+    cast,
 )
 
 from web3._utils.threads import (
@@ -185,6 +188,42 @@ class IPCProvider(JSONBaseProvider):
                             continue
                         else:
                             return response
+                    else:
+                        timeout.sleep(0)
+                        continue
+
+    def make_batch_request(
+        self, requests: List[Tuple[RPCEndpoint, Any]]
+    ) -> List[RPCResponse]:
+        self.logger.debug(f"Making batch request IPC. Path: {self.ipc_path}")
+        request_data = self.encode_batch_rpc_request(requests)
+
+        with self._lock, self._socket as sock:
+            try:
+                sock.sendall(request_data)
+            except BrokenPipeError:
+                # one extra attempt, then give up
+                sock = self._socket.reset()
+                sock.sendall(request_data)
+
+            raw_response = b""
+            with Timeout(self.timeout) as timeout:
+                while True:
+                    try:
+                        raw_response += sock.recv(4096)
+                    except socket.timeout:
+                        timeout.sleep(0)
+                        continue
+                    if raw_response == b"":
+                        timeout.sleep(0)
+                    elif has_valid_json_rpc_ending(raw_response):
+                        try:
+                            response = self.decode_rpc_response(raw_response)
+                        except JSONDecodeError:
+                            timeout.sleep(0)
+                            continue
+                        else:
+                            return cast(List[RPCResponse], response)
                     else:
                         timeout.sleep(0)
                         continue

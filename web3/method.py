@@ -42,7 +42,10 @@ from web3.types import (
 )
 
 if TYPE_CHECKING:
-    from web3 import Web3  # noqa: F401
+    from web3 import (  # noqa: F401
+        PersistentConnectionProvider,
+        Web3,
+    )
     from web3.module import Module  # noqa: F401
 
 
