@@ -148,4 +148,6 @@ class LegacyWebSocketProvider(JSONBaseProvider):
         future = asyncio.run_coroutine_threadsafe(
             self.coro_make_request(request_data), LegacyWebSocketProvider._loop
         )
-        return cast(List[RPCResponse], future.result())
+        response = cast(List[RPCResponse], future.result())
+        # sort by response `id` since the JSON-RPC 2.0 spec doesn't guarantee order
+        return sorted(response, key=lambda resp: int(resp["id"]))

@@ -160,8 +160,11 @@ class WebSocketProvider(PersistentConnectionProvider):
 
         # generate a cache key with all the request ids hashed
         request_ids = [rpc_request["id"] for rpc_request in json.loads(request_data)]
-        response = await self._get_response_for_request_id(request_ids)
-        return cast(List[RPCResponse], response)
+        response = cast(
+            List[RPCResponse], await self._get_response_for_request_id(request_ids)
+        )
+        # sort by response `id` since the JSON-RPC 2.0 spec doesn't guarantee order
+        return sorted(response, key=lambda resp: int(resp["id"]))
 
     async def _provider_specific_message_listener(self) -> None:
         async for raw_message in self._ws:
