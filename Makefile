@@ -89,8 +89,8 @@ release: check-bump clean
 	CURRENT_SIGN_SETTING=$(git config commit.gpgSign)
 	git config commit.gpgSign true
 	bumpversion $(bump)
-	git push upstream && git push upstream --tags
 	python -m build
+	git push upstream && git push upstream --tags
 	twine upload dist/*
 	git config commit.gpgSign "$(CURRENT_SIGN_SETTING)"
 

@@ -12,6 +12,7 @@ extras_require = {
         "hypothesis>=3.31.2",
         "ipython",
         "pre-commit>=3.4.0",
+        "pytest-asyncio>=0.21.2,<0.23",
         "pytest-mock>=1.10",
         "setuptools>=38.6.0",
         "tox>=4.0.0",
@@ -47,7 +48,7 @@ with open("./README.md") as readme:
 setup(
     name="web3",
     # *IMPORTANT*: Don't manually change the version here. Use `make bump`, as described in readme
-    version="7.0.0-beta.4",
+    version="7.0.0-beta.5",
     description="""web3: A Python library for interacting with Ethereum""",
     long_description=long_description,
     long_description_content_type="text/markdown",

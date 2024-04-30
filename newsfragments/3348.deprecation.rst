@@ -1,1 +1,0 @@
-``messageHash`` and ``rawTransaction`` from ``eth-account`` have been deprecated for snake_case versions
