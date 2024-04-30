@@ -394,6 +394,8 @@ class RequestManager:
         """
         Context manager for making batch requests
         """
+        if not isinstance(self.provider, (AsyncJSONBaseProvider, JSONBaseProvider)):
+            raise Web3TypeError("Batch requests are not supported by this provider.")
         return BatchRequestContextManager(self.w3)
 
     def _make_batch_request(
@@ -402,12 +404,8 @@ class RequestManager:
         """
         Make a batch request using the provider
         """
-        if not isinstance(self.provider, JSONBaseProvider):
-            raise Web3TypeError(
-                "Only JSONBaseProvider classes support batched requests."
-            )
-
-        request_func = self.provider.batch_request_func(
+        provider = cast(JSONBaseProvider, self.provider)
+        request_func = provider.batch_request_func(
             cast("Web3", self.w3), cast("MiddlewareOnion", self.middleware_onion)
         )
         responses = request_func(
@@ -431,12 +429,8 @@ class RequestManager:
         """
         Make an asynchronous batch request using the provider
         """
-        if not isinstance(self.provider, AsyncJSONBaseProvider):
-            raise Web3TypeError(
-                "Only AsyncJSONBaseProvider classes support batched requests."
-            )
-
-        request_func = await self.provider.batch_request_func(
+        provider = cast(AsyncJSONBaseProvider, self.provider)
+        request_func = await provider.batch_request_func(
             cast("AsyncWeb3", self.w3),
             cast("MiddlewareOnion", self.middleware_onion),
         )
