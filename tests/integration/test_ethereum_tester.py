@@ -250,8 +250,13 @@ class TestEthereumTesterWeb3Module(Web3ModuleTest):
     def _check_web3_client_version(self, client_version):
         assert client_version.startswith("EthereumTester/")
 
-    test_batch_request = not_implemented(
-        Web3ModuleTest.test_batch_request, Web3TypeError
+    test_batch_requests = not_implemented(
+        Web3ModuleTest.test_batch_requests, Web3TypeError
+    )
+
+    test_batch_requests_raises_for_common_unsupported_methods = not_implemented(
+        Web3ModuleTest.test_batch_requests_raises_for_common_unsupported_methods,
+        Web3TypeError,
     )
 
 
