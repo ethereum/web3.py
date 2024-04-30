@@ -44,6 +44,8 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
     _message_listener_task: Optional["asyncio.Task[None]"] = None
     _listen_event: asyncio.Event = asyncio.Event()
 
+    _batch_request_counter: Optional[int] = None
+
     def __init__(
         self,
         request_timeout: float = DEFAULT_PERSISTENT_CONNECTION_TIMEOUT,

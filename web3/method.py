@@ -160,7 +160,7 @@ class Method(Generic[TFunc]):
                 "Methods must be called from a module instance, "
                 "usually attached to a web3 instance."
             )
-        if module.w3._is_batching:
+        if module.w3.provider._is_batching:
             return module.retrieve_request_information(self)
         else:
             return module.retrieve_caller_fn(self)

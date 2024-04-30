@@ -1,11 +1,9 @@
 import pytest
 from typing import (
     Any,
-    List,
     NoReturn,
     Sequence,
     Union,
-    cast,
 )
 
 from eth_typing import (
@@ -25,11 +23,14 @@ from web3 import (
 from web3._utils.ens import (
     ens_addresses,
 )
+from web3.contract import (
+    Contract,
+)
+from web3.datastructures import (
+    AttributeDict,
+)
 from web3.exceptions import (
     InvalidAddress,
-)
-from web3.types import (
-    BlockData,
 )
 
 
@@ -319,17 +320,36 @@ class Web3ModuleTest:
     def test_is_connected(self, w3: "Web3") -> None:
         assert w3.is_connected()
 
-    def test_batch_request(self, w3: "Web3") -> None:
+    def test_batch_request(self, w3: "Web3", math_contract: Contract) -> None:
         with w3.manager.batch_requests() as batch:
             batch.add(w3.eth.get_block(6))
             batch.add(w3.eth.get_block(4))
             batch.add(w3.eth.get_block(2))
             batch.add(w3.eth.get_block(0))
+            batch.add(math_contract.functions.multiply7(0))
 
-            responses = cast(List[BlockData], batch.execute())
+            batch.add_mapping(
+                {
+                    math_contract.functions.multiply7: [1, 2, 3],
+                    w3.eth.get_block: [1, 3, 5],
+                }
+            )
 
-        assert len(responses) == 4
+            responses = batch.execute()
+
+        assert len(responses) == 11
+        assert all(isinstance(response, AttributeDict) for response in responses[:4])
         assert responses[0]["number"] == 6
         assert responses[1]["number"] == 4
         assert responses[2]["number"] == 2
         assert responses[3]["number"] == 0
+
+        assert responses[4] == 0
+        assert responses[5] == 7
+        assert responses[6] == 14
+        assert responses[7] == 21
+
+        assert all(isinstance(response, AttributeDict) for response in responses[8:])
+        assert responses[8]["number"] == 1
+        assert responses[9]["number"] == 3
+        assert responses[10]["number"] == 5

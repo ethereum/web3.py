@@ -67,6 +67,8 @@ class BaseProvider:
         None,
         None,
     )
+
+    _is_batching: bool = False
     _batch_request_func_cache: Tuple[
         Tuple[Middleware, ...], Callable[..., List[RPCResponse]]
     ] = (None, None)

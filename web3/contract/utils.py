@@ -9,6 +9,7 @@ from typing import (
     Tuple,
     Type,
     Union,
+    cast,
 )
 
 from eth_abi.exceptions import (
@@ -64,6 +65,9 @@ if TYPE_CHECKING:
     from web3 import (  # noqa: F401
         AsyncWeb3,
         Web3,
+    )
+    from web3.providers.persistent import (  # noqa: F401
+        PersistentConnectionProvider,
     )
 
 ACCEPTABLE_EMPTY_STRINGS = ["0x", b"0x", "", b""]
@@ -150,7 +154,7 @@ def call_contract_function(
 
     output_types = get_abi_output_types(fn_abi)
 
-    if w3._is_batching:
+    if w3.provider._is_batching:
         return_data = list(return_data)
         # append return data formatting to response formatters
         resp_formatters = compose(
@@ -378,21 +382,31 @@ async def async_call_contract_function(
 
     output_types = get_abi_output_types(fn_abi)
 
-    if async_w3._is_batching:
-        return_data = list(return_data)
-        # append return data formatting to response formatters
-        resp_formatters = compose(
-            format_contract_call_return_data_curried(
-                async_w3,
-                decode_tuples,
-                fn_abi,
-                function_identifier,
-                normalizers,
-                output_types,
-            ),
-            return_data[1][0],
+    if async_w3.provider._is_batching:
+        formatter = format_contract_call_return_data_curried(
+            async_w3,
+            decode_tuples,
+            fn_abi,
+            function_identifier,
+            normalizers,
+            output_types,
         )
-        return_data[1] = (resp_formatters, return_data[1][1], return_data[1][2])
+        if async_w3.provider.has_persistent_connection:
+            # get the current request id
+            provider = cast("PersistentConnectionProvider", async_w3.provider)
+            current_request_id = provider._batch_request_counter - 1
+            provider._request_processor.append_result_formatter_for_request(
+                current_request_id, formatter
+            )
+        else:
+            return_data = list(return_data)
+            # append return data formatter to response formatters
+            resp_formatters = compose(
+                formatter,
+                return_data[1][0],
+            )
+            return_data[1] = (resp_formatters, return_data[1][1], return_data[1][2])
+
         return return_data
 
     try:
