@@ -1,3 +1,6 @@
+from copy import (
+    copy,
+)
 from types import (
     TracebackType,
 )
@@ -38,6 +41,12 @@ if TYPE_CHECKING:
         AsyncWeb3,
         Web3,
     )
+    from web3.providers import (  # noqa: F401
+        PersistentConnectionProvider,
+    )
+    from web3.providers.async_base import (  # noqa: F401
+        AsyncJSONBaseProvider,
+    )
     from web3.types import (  # noqa: F401
         RPCEndpoint,
         RPCResponse,
@@ -76,7 +85,7 @@ class BatchRequestContextManager(Generic[TFunc]):
                 self.add(method(param))
 
     def __enter__(self) -> Self:
-        self.web3._is_batching = True
+        self.web3.provider._is_batching = True
         return self
 
     def __exit__(
@@ -85,7 +94,7 @@ class BatchRequestContextManager(Generic[TFunc]):
         exc_val: BaseException,
         exc_tb: TracebackType,
     ) -> None:
-        self.web3._is_batching = False
+        self.web3.provider._is_batching = False
 
     def execute(self) -> List["RPCResponse"]:
         return self.web3.manager.make_batch_request(self._requests_info)
@@ -93,7 +102,11 @@ class BatchRequestContextManager(Generic[TFunc]):
     # -- async -- #
 
     async def __aenter__(self) -> Self:
-        self.web3._is_batching = True
+        provider = cast("AsyncJSONBaseProvider", self.web3.provider)
+        provider._is_batching = True
+        if provider.has_persistent_connection:
+            provider = cast("PersistentConnectionProvider", provider)
+            provider._batch_request_counter = next(copy(provider.request_counter))
         return self
 
     async def __aexit__(
@@ -102,7 +115,11 @@ class BatchRequestContextManager(Generic[TFunc]):
         exc_val: BaseException,
         exc_tb: TracebackType,
     ) -> None:
-        self.web3._is_batching = False
+        provider = cast("AsyncJSONBaseProvider", self.web3.provider)
+        provider._is_batching = False
+        if provider.has_persistent_connection:
+            provider = cast("PersistentConnectionProvider", provider)
+            provider._batch_request_counter = None
 
     async def async_execute(self) -> List["RPCResponse"]:
         return await self.web3.manager.async_make_batch_request(

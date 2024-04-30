@@ -78,6 +78,8 @@ class AsyncBaseProvider:
     _request_func_cache: Tuple[
         Tuple[Middleware, ...], Callable[..., Coroutine[Any, Any, RPCResponse]]
     ] = (None, None)
+
+    _is_batching: bool = False
     _batch_request_func_cache: Tuple[
         Tuple[Middleware, ...], Callable[..., Coroutine[Any, Any, List[RPCResponse]]]
     ] = (None, None)

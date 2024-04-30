@@ -71,7 +71,9 @@ class RequestInformation:
         method: "RPCEndpoint",
         params: Any,
         response_formatters: Tuple[
-            Dict[str, Callable[..., Any]], Callable[..., Any], Callable[..., Any]
+            Union[Dict[str, Callable[..., Any]], Callable[..., Any]],
+            Callable[..., Any],
+            Callable[..., Any],
         ],
         subscription_id: str = None,
     ):
