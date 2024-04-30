@@ -253,10 +253,12 @@ class TestEthereumTesterWeb3Module(Web3ModuleTest):
     test_batch_requests = not_implemented(
         Web3ModuleTest.test_batch_requests, Web3TypeError
     )
-
     test_batch_requests_raises_for_common_unsupported_methods = not_implemented(
         Web3ModuleTest.test_batch_requests_raises_for_common_unsupported_methods,
         Web3TypeError,
+    )
+    test_batch_requests_initialized_as_object = not_implemented(
+        Web3ModuleTest.test_batch_requests_initialized_as_object, Web3TypeError
     )
 
 
