@@ -4,7 +4,7 @@
 [![Build Status](https://circleci.com/gh/ethereum/web3.py.svg?style=shield)](https://circleci.com/gh/ethereum/web3.py)
 [![PyPI version](https://badge.fury.io/py/web3.svg)](https://badge.fury.io/py/web3)
 [![Python versions](https://img.shields.io/pypi/pyversions/web3.svg)](https://pypi.python.org/pypi/web3)
-[![Docs build](https://readthedocs.org/projects/web3.py/badge/?version=latest)](https://web3.py.readthedocs.io/en/latest/?badge=latest)
+[![Docs build](https://readthedocs.org/projects/web3py/badge/?version=latest)](https://web3py.readthedocs.io/en/latest/?badge=latest)
 
 A Python library for interacting with Ethereum.
 

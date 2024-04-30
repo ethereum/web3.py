@@ -18,6 +18,7 @@ clean: clean-build clean-pyc
 clean-build:
 	rm -fr build/
 	rm -fr dist/
+	rm -fr *.egg-info
 
 clean-pyc:
 	find . -name '*.pyc' -exec rm -f {} +
@@ -32,7 +33,7 @@ lint:
 	)
 
 test:
-	python -m pytest tests
+	python -m pytest tests/core tests/ens tests/integration
 
 benchmark:
 	python -m tox run -e benchmark
@@ -41,7 +42,7 @@ autobuild-docs:
 	sphinx-autobuild --open-browser docs docs/_build/html
 
 build-docs:
-	sphinx-apidoc -o docs/ . setup.py "*conftest*"
+	sphinx-apidoc -o docs/ . setup.py "*conftest*" "tests" "web3/tools/*"
 	$(MAKE) -C docs clean
 	$(MAKE) -C docs html
 	$(MAKE) -C docs doctest
