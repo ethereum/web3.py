@@ -356,6 +356,27 @@ class Web3ModuleTest:
         assert last_three_responses[1]["number"] == 3
         assert last_three_responses[2]["number"] == 5
 
+    def test_batch_requests_initialized_as_object(
+        self, w3: "Web3", math_contract: Contract
+    ) -> None:
+        batch = w3.batch_requests()
+        batch.add(w3.eth.get_block(1))
+        batch.add(w3.eth.get_block(2))
+        batch.add(math_contract.functions.multiply7(0))
+        batch.add_mapping(
+            {math_contract.functions.multiply7: [1, 2], w3.eth.get_block: [3, 4]}
+        )
+
+        b1, b2, m0, m1, m2, b3, b4 = batch.execute()
+
+        assert cast(BlockData, b1)["number"] == 1
+        assert cast(BlockData, b2)["number"] == 2
+        assert cast(int, m0) == 0
+        assert cast(int, m1) == 7
+        assert cast(int, m2) == 14
+        assert cast(BlockData, b3)["number"] == 3
+        assert cast(BlockData, b4)["number"] == 4
+
     def test_batch_requests_raises_for_common_unsupported_methods(
         self, w3: "Web3", math_contract: Contract
     ) -> None:
@@ -437,6 +458,31 @@ class AsyncWeb3ModuleTest(Web3ModuleTest):
         assert last_three_responses[0]["number"] == 1
         assert last_three_responses[1]["number"] == 3
         assert last_three_responses[2]["number"] == 5
+
+    @pytest.mark.asyncio
+    async def test_batch_requests_initialized_as_object(
+        self, async_w3: AsyncWeb3, async_math_contract: "AsyncContract"
+    ) -> None:
+        batch = async_w3.batch_requests()
+        batch.add(async_w3.eth.get_block(1))
+        batch.add(async_w3.eth.get_block(2))
+        batch.add(async_math_contract.functions.multiply7(0))
+        batch.add_mapping(
+            {
+                async_math_contract.functions.multiply7: [1, 2],
+                async_w3.eth.get_block: [3, 4],
+            }
+        )
+
+        b1, b2, m0, m1, m2, b3, b4 = await batch.async_execute()
+
+        assert cast(BlockData, b1)["number"] == 1
+        assert cast(BlockData, b2)["number"] == 2
+        assert cast(int, m0) == 0
+        assert cast(int, m1) == 7
+        assert cast(int, m2) == 14
+        assert cast(BlockData, b3)["number"] == 3
+        assert cast(BlockData, b4)["number"] == 4
 
     @pytest.mark.asyncio
     async def test_batch_requests_raises_for_common_unsupported_methods(
