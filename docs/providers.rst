@@ -1,11 +1,15 @@
 .. _providers:
 
-Providers
-=========
+Connecting to Ethereum
+======================
 
-The provider is how web3 talks to the blockchain.  Providers take JSON-RPC
-requests and return the response.  This is normally done by submitting the
-request to an HTTP or IPC socket based server.
+Using Ethereum requires access to an Ethereum node. If you have the means, you're
+encouraged to `run your own node`_. (Note that you do not need to stake ether to
+run a node.) If you're unable to run your own node, you can use a `remote node`_.
+
+Once you have access to a node, you can connect to it using a **provider**.
+Providers generate `JSON-RPC`_ requests and return the response. This is done by submitting
+the request to an HTTP, WebSocket, or IPC socket-based server.
 
 .. note::
 
@@ -14,17 +18,18 @@ request to an HTTP or IPC socket based server.
    per connection.
 
 If you are already happily connected to your Ethereum node, then you
-can skip the rest of the Providers section.
+can skip the rest of this providers section.
+
+.. _run your own node: https://ethereum.org/en/developers/docs/nodes-and-clients/run-a-node/
+.. _remote node: https://ethereum.org/en/developers/docs/nodes-and-clients/nodes-as-a-service/
+.. _JSON-RPC: https://ethereum.org/en/developers/docs/apis/json-rpc/
 
 .. _choosing_provider:
 
-Choosing How to Connect to Your Node
-------------------------------------
+Choosing a Provider
+-------------------
 
-Most nodes have a variety of ways to connect to them. If you have not
-decided what kind of node to use, head on over to :ref:`choosing_node`
-
-The most common ways to connect to your node are:
+Most nodes have a variety of ways to connect to them. Most commonly:
 
 1. IPC (uses local filesystem: fastest and most secure)
 2. WebSocket (works remotely, faster than HTTP)
@@ -36,24 +41,16 @@ If you're not sure how to decide, choose this way:
 - If you must connect to a node on a different computer, use WebSocket.
 - If your node does not support WebSocket, use HTTP.
 
-Most nodes have a way of "turning off" connection options.
-We recommend turning off all connection options that you are not using.
-This provides a safer setup: it reduces the
-number of ways that malicious hackers can try to steal your ether.
-
-Once you have decided how to connect, you specify the details using a Provider.
-Providers are web3.py classes that are configured for the kind of connection you want.
-
-See:
+Once you have decided how to connect, you'll select and configure the appropriate provider
+class:
 
 - :class:`~web3.providers.rpc.HTTPProvider`
 - :class:`~web3.providers.ipc.IPCProvider`
 - :class:`~web3.providers.async_rpc.AsyncHTTPProvider`
 - :class:`~web3.providers.persistent.AsyncIPCProvider` (Persistent Connection Provider)
 - :class:`~web3.providers.persistent.WebSocketProvider` (Persistent Connection Provider)
-- :class:`~web3.providers.legacy_websocket.LegacyWebSocketProvider` (Deprecated)
 
-Each provider above should link to the documentation on how to properly initialize the
+Each provider above links to the documentation on how to properly initialize that
 provider. Once you have reviewed the relevant documentation for the provider of your
 choice, you are ready to :ref:`get started with web3.py<first_w3_use>`.
 
