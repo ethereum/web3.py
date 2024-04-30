@@ -388,15 +388,15 @@ class RequestManager:
             response, params, error_formatters, null_result_formatters
         )
 
-    # -- batch requests -- #
+    # -- batch requests management -- #
 
-    def batch_requests(self) -> BatchRequestContextManager[Method[Callable[..., Any]]]:
+    def _batch_requests(self) -> BatchRequestContextManager[Method[Callable[..., Any]]]:
         """
         Context manager for making batch requests
         """
         return BatchRequestContextManager(self.w3)
 
-    def make_batch_request(
+    def _make_batch_request(
         self, requests_info: List[Tuple[Tuple["RPCEndpoint", Any], Sequence[Any]]]
     ) -> List[RPCResponse]:
         """
@@ -422,7 +422,7 @@ class RequestManager:
         ]
         return list(formatted_responses)
 
-    async def async_make_batch_request(
+    async def _async_make_batch_request(
         self,
         requests_info: List[
             Coroutine[Any, Any, Tuple[Tuple["RPCEndpoint", Any], Sequence[Any]]]

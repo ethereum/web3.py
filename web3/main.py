@@ -34,6 +34,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     AsyncIterator,
+    Callable,
     Dict,
     Generator,
     List,
@@ -100,6 +101,9 @@ from web3.manager import (
     RequestManager as DefaultRequestManager,
 )
 from web3.middleware.base import MiddlewareOnion
+from web3.method import (
+    Method,
+)
 from web3.module import (
     Module,
 )
@@ -143,6 +147,7 @@ from web3.types import (
 )
 
 if TYPE_CHECKING:
+    from web3._utils.batching import BatchRequestContextManager  # noqa: F401
     from web3._utils.empty import Empty  # noqa: F401
     from web3.providers.persistent import PersistentConnectionProvider  # noqa: F401
 
@@ -337,6 +342,13 @@ class BaseWeb3:
     def is_encodable(self, _type: TypeStr, value: Any) -> bool:
         return self.codec.is_encodable(_type, value)
 
+    # -- APIs for high-level requests -- #
+
+    def batch_requests(
+        self,
+    ) -> "BatchRequestContextManager[Method[Callable[..., Any]]]":
+        return self.manager._batch_requests()
+
 
 class Web3(BaseWeb3):
     # mypy types
@@ -469,7 +481,7 @@ class AsyncWeb3(BaseWeb3):
             new_ens.w3 = self  # set self object reference for ``AsyncENS.w3``
         self._ens = new_ens
 
-        # -- persistent connection methods -- #
+    # -- persistent connection methods -- #
 
     @property
     @persistent_connection_provider_method()

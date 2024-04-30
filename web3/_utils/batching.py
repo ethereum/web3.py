@@ -28,9 +28,6 @@ from web3.contract.async_contract import (
 from web3.contract.contract import (
     ContractFunction,
 )
-from web3.method import (
-    Method,
-)
 from web3.types import (
     TFunc,
     TReturn,
@@ -40,6 +37,9 @@ if TYPE_CHECKING:
     from web3 import (  # noqa: F401
         AsyncWeb3,
         Web3,
+    )
+    from web3.method import (  # noqa: F401
+        Method,
     )
     from web3.providers import (  # noqa: F401
         PersistentConnectionProvider,
@@ -53,6 +53,15 @@ if TYPE_CHECKING:
     )
 
 BatchRequestInformation = Tuple[Tuple["RPCEndpoint", Any], Sequence[Any]]
+RPC_METHODS_UNSUPPORTED_DURING_BATCH = {
+    "eth_subscribe",
+    "eth_unsubscribe",
+    "eth_sendRawTransaction",
+    "eth_sendTransaction",
+    "eth_signTransaction",
+    "eth_sign",
+    "eth_signTypedData",
+}
 
 
 class BatchRequestContextManager(Generic[TFunc]):
@@ -64,12 +73,12 @@ class BatchRequestContextManager(Generic[TFunc]):
         ] = []
 
     def add(self, batch_payload: TReturn) -> None:
-        # When batching, we don't make a request. Instead, we will get the request
-        # information and store it in the `_requests_info` list. So we have to cast the
-        # apparent "request" into the BatchRequestInformation type.
         if isinstance(batch_payload, (ContractFunction, AsyncContractFunction)):
             batch_payload = batch_payload.call()  # type: ignore
 
+        # When batching, we don't make a request. Instead, we will get the request
+        # information and store it in the `_requests_info` list. So we have to cast the
+        # apparent "request" into the BatchRequestInformation type.
         if self.web3.provider.is_async:
             self._async_requests_info.append(
                 cast(Coroutine[Any, Any, BatchRequestInformation], batch_payload)
@@ -78,7 +87,16 @@ class BatchRequestContextManager(Generic[TFunc]):
             self._requests_info.append(cast(BatchRequestInformation, batch_payload))
 
     def add_mapping(
-        self, batch_payload: Dict[Method[Callable[..., Any]], List[Any]]
+        self,
+        batch_payload: Dict[
+            Union[
+                "Method[Callable[..., Any]]",
+                Callable[..., Any],
+                ContractFunction,
+                AsyncContractFunction,
+            ],
+            List[Any],
+        ],
     ) -> None:
         for method, params in batch_payload.items():
             for param in params:
@@ -97,7 +115,7 @@ class BatchRequestContextManager(Generic[TFunc]):
         self.web3.provider._is_batching = False
 
     def execute(self) -> List["RPCResponse"]:
-        return self.web3.manager.make_batch_request(self._requests_info)
+        return self.web3.manager._make_batch_request(self._requests_info)
 
     # -- async -- #
 
@@ -122,6 +140,6 @@ class BatchRequestContextManager(Generic[TFunc]):
             provider._batch_request_counter = None
 
     async def async_execute(self) -> List["RPCResponse"]:
-        return await self.web3.manager.async_make_batch_request(
+        return await self.web3.manager._async_make_batch_request(
             self._async_requests_info
         )

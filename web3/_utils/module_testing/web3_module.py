@@ -1,12 +1,14 @@
 import pytest
 from typing import (
+    TYPE_CHECKING,
     Any,
     NoReturn,
     Sequence,
-    Union,
+    cast,
 )
 
 from eth_typing import (
+    Address,
     ChecksumAddress,
     HexAddress,
     HexStr,
@@ -26,12 +28,18 @@ from web3._utils.ens import (
 from web3.contract import (
     Contract,
 )
-from web3.datastructures import (
-    AttributeDict,
-)
 from web3.exceptions import (
     InvalidAddress,
+    MethodNotSupported,
 )
+from web3.types import (
+    BlockData,
+)
+
+if TYPE_CHECKING:
+    from web3.contract import (  # noqa: F401
+        AsyncContract,
+    )
 
 
 class Web3ModuleTest:
@@ -229,16 +237,9 @@ class Web3ModuleTest:
             ),
         ),
     )
-    @pytest.mark.parametrize(
-        "w3",
-        (
-            Web3,
-            AsyncWeb3,
-        ),
-    )
     def test_solidity_keccak(
         self,
-        w3: Union["Web3", "AsyncWeb3"],
+        w3: "Web3",
         types: Sequence[TypeStr],
         values: Sequence[Any],
         expected: HexBytes,
@@ -270,16 +271,9 @@ class Web3ModuleTest:
             ),
         ),
     )
-    @pytest.mark.parametrize(
-        "w3",
-        (
-            Web3(),
-            AsyncWeb3(),
-        ),
-    )
     def test_solidity_keccak_ens(
         self,
-        w3: Union["Web3", "AsyncWeb3"],
+        w3: "Web3",
         types: Sequence[TypeStr],
         values: Sequence[str],
         expected: HexBytes,
@@ -320,8 +314,8 @@ class Web3ModuleTest:
     def test_is_connected(self, w3: "Web3") -> None:
         assert w3.is_connected()
 
-    def test_batch_request(self, w3: "Web3", math_contract: Contract) -> None:
-        with w3.manager.batch_requests() as batch:
+    def test_batch_requests(self, w3: "Web3", math_contract: Contract) -> None:
+        with w3.batch_requests() as batch:
             batch.add(w3.eth.get_block(6))
             batch.add(w3.eth.get_block(4))
             batch.add(w3.eth.get_block(2))
@@ -338,18 +332,132 @@ class Web3ModuleTest:
             responses = batch.execute()
 
         assert len(responses) == 11
-        assert all(isinstance(response, AttributeDict) for response in responses[:4])
-        assert responses[0]["number"] == 6
-        assert responses[1]["number"] == 4
-        assert responses[2]["number"] == 2
-        assert responses[3]["number"] == 0
 
-        assert responses[4] == 0
-        assert responses[5] == 7
-        assert responses[6] == 14
-        assert responses[7] == 21
+        first_four_responses: Sequence[BlockData] = cast(
+            Sequence[BlockData], responses[:4]
+        )
+        assert first_four_responses[0]["number"] == 6
+        assert first_four_responses[1]["number"] == 4
+        assert first_four_responses[2]["number"] == 2
+        assert first_four_responses[3]["number"] == 0
 
-        assert all(isinstance(response, AttributeDict) for response in responses[8:])
-        assert responses[8]["number"] == 1
-        assert responses[9]["number"] == 3
-        assert responses[10]["number"] == 5
+        responses_five_through_eight: Sequence[int] = cast(
+            Sequence[int], responses[4:8]
+        )
+        assert responses_five_through_eight[0] == 0
+        assert responses_five_through_eight[1] == 7
+        assert responses_five_through_eight[2] == 14
+        assert responses_five_through_eight[3] == 21
+
+        last_three_responses: Sequence[BlockData] = cast(
+            Sequence[BlockData], responses[8:]
+        )
+        assert last_three_responses[0]["number"] == 1
+        assert last_three_responses[1]["number"] == 3
+        assert last_three_responses[2]["number"] == 5
+
+    def test_batch_requests_raises_for_common_unsupported_methods(
+        self, w3: "Web3", math_contract: Contract
+    ) -> None:
+        with w3.batch_requests() as batch:
+            with pytest.raises(MethodNotSupported, match="eth_sendTransaction"):
+                batch.add(w3.eth.send_transaction({}))
+                batch.execute()
+
+        with w3.batch_requests() as batch:
+            with pytest.raises(MethodNotSupported, match="eth_sendTransaction"):
+                batch.add(math_contract.functions.multiply7(1).transact({}))
+                batch.execute()
+
+        with w3.batch_requests() as batch:
+            with pytest.raises(MethodNotSupported, match="eth_sendRawTransaction"):
+                batch.add(w3.eth.send_raw_transaction(b""))
+                batch.execute()
+
+        with w3.batch_requests() as batch:
+            with pytest.raises(MethodNotSupported, match="eth_sign"):
+                batch.add(w3.eth.sign(Address(b"\x00" * 20)))
+                batch.execute()
+
+
+# -- async -- #
+
+
+class AsyncWeb3ModuleTest(Web3ModuleTest):
+    # Note: Any test that overrides the synchronous test from `Web3ModuleTest` with
+    # an asynchronous test should have the exact same name.
+
+    @pytest.mark.asyncio
+    async def test_web3_client_version(self, async_w3: AsyncWeb3) -> None:
+        client_version = await async_w3.client_version
+        self._check_web3_client_version(client_version)
+
+    @pytest.mark.asyncio
+    async def test_batch_requests(
+        self, async_w3: AsyncWeb3, async_math_contract: "AsyncContract"
+    ) -> None:
+        async with async_w3.batch_requests() as batch:
+            batch.add(async_w3.eth.get_block(6))
+            batch.add(async_w3.eth.get_block(4))
+            batch.add(async_w3.eth.get_block(2))
+            batch.add(async_w3.eth.get_block(0))
+
+            batch.add(async_math_contract.functions.multiply7(0))
+
+            batch.add_mapping(
+                {
+                    async_math_contract.functions.multiply7: [1, 2, 3],
+                    async_w3.eth.get_block: [1, 3, 5],
+                }
+            )
+
+            responses = await batch.async_execute()
+
+        assert len(responses) == 11
+
+        first_four_responses: Sequence[BlockData] = cast(
+            Sequence[BlockData], responses[:4]
+        )
+        assert first_four_responses[0]["number"] == 6
+        assert first_four_responses[1]["number"] == 4
+        assert first_four_responses[2]["number"] == 2
+        assert first_four_responses[3]["number"] == 0
+
+        responses_five_through_eight: Sequence[int] = cast(
+            Sequence[int], responses[4:8]
+        )
+        assert responses_five_through_eight[0] == 0
+        assert responses_five_through_eight[1] == 7
+        assert responses_five_through_eight[2] == 14
+        assert responses_five_through_eight[3] == 21
+
+        last_three_responses: Sequence[BlockData] = cast(
+            Sequence[BlockData], responses[8:]
+        )
+        assert last_three_responses[0]["number"] == 1
+        assert last_three_responses[1]["number"] == 3
+        assert last_three_responses[2]["number"] == 5
+
+    @pytest.mark.asyncio
+    async def test_batch_requests_raises_for_common_unsupported_methods(
+        self, async_w3: AsyncWeb3, async_math_contract: "AsyncContract"
+    ) -> None:
+        async with async_w3.batch_requests() as batch:
+            with pytest.raises(MethodNotSupported, match="eth_sendTransaction"):
+                batch.add(async_w3.eth.send_transaction({}))
+                await batch.async_execute()
+
+        async with async_w3.batch_requests() as batch:
+            with pytest.raises(MethodNotSupported, match="eth_sendTransaction"):
+                batch.add(async_math_contract.functions.multiply7(1).transact({}))
+                await batch.async_execute()
+
+        async with async_w3.batch_requests() as batch:
+            with pytest.raises(MethodNotSupported, match="eth_sendRawTransaction"):
+                batch.add(async_w3.eth.send_raw_transaction(b""))
+                await batch.async_execute()
+
+        async with async_w3.batch_requests() as batch:
+            with pytest.raises(MethodNotSupported, match="eth_sign"):
+                batch.add(async_w3.eth.sign(Address(b"\x00" * 20)))
+                await batch.async_execute()
