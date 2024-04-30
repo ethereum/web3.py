@@ -17,7 +17,7 @@ extras_require = {
         "setuptools>=38.6.0",
         "tox>=4.0.0",
         "tqdm>4.32",
-        "twine",
+        "twine>=1.13",
         "wheel",
     ],
     "docs": [
