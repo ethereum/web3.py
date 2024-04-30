@@ -17,9 +17,10 @@ from .common import (
     GoEthereumAdminModuleTest,
     GoEthereumAsyncEthModuleTest,
     GoEthereumAsyncNetModuleTest,
+    GoEthereumAsyncWeb3ModuleTest,
     GoEthereumEthModuleTest,
     GoEthereumNetModuleTest,
-    GoEthereumTest,
+    GoEthereumWeb3ModuleTest,
 )
 from .utils import (
     wait_for_async_socket,
@@ -56,14 +57,15 @@ def w3(geth_process, geth_ipc_path):
     return Web3(Web3.IPCProvider(geth_ipc_path, timeout=30))
 
 
-@pytest_asyncio.fixture(scope="module")
-async def async_w3(geth_process, geth_ipc_path):
-    await wait_for_async_socket(geth_ipc_path)
-    async with AsyncWeb3(AsyncIPCProvider(geth_ipc_path)) as _aw3:
-        yield _aw3
+class TestGoEthereumWeb3ModuleTest(GoEthereumWeb3ModuleTest):
+    pass
 
 
-class TestGoEthereumTest(GoEthereumTest):
+class TestGoEthereumEthModuleTest(GoEthereumEthModuleTest):
+    pass
+
+
+class TestGoEthereumNetModuleTest(GoEthereumNetModuleTest):
     pass
 
 
@@ -87,15 +89,21 @@ class TestGoEthereumAdminModuleTest(GoEthereumAdminModuleTest):
         super().test_admin_start_stop_ws(w3)
 
 
-class TestGoEthereumEthModuleTest(GoEthereumEthModuleTest):
+# -- async -- #
+
+
+@pytest_asyncio.fixture(scope="module")
+async def async_w3(geth_process, geth_ipc_path):
+    await wait_for_async_socket(geth_ipc_path)
+    async with AsyncWeb3(AsyncIPCProvider(geth_ipc_path)) as _aw3:
+        yield _aw3
+
+
+class TestGoEthereumAsyncWeb3ModuleTest(GoEthereumAsyncWeb3ModuleTest):
     pass
 
 
 class TestGoEthereumAsyncEthModuleTest(GoEthereumAsyncEthModuleTest):
-    pass
-
-
-class TestGoEthereumNetModuleTest(GoEthereumNetModuleTest):
     pass
 
 

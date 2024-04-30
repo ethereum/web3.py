@@ -26,9 +26,6 @@ from web3.types import (
 )
 
 if TYPE_CHECKING:
-    from web3.contract import (
-        AsyncContract,
-    )
     from web3.main import (
         AsyncWeb3,
     )
@@ -397,41 +394,3 @@ class PersistentConnectionProviderTest:
         assert isinstance(chain_id, int)
         assert isinstance(chain_id2, int)
         assert isinstance(chain_id3, int)
-
-    @pytest.mark.asyncio
-    async def test_async_batch_request(
-        self, async_w3: "AsyncWeb3", async_math_contract: "AsyncContract"
-    ) -> None:
-        async with async_w3.manager.batch_requests() as batch:
-            batch.add(async_w3.eth.get_block(6))
-            batch.add(async_w3.eth.get_block(4))
-            batch.add(async_w3.eth.get_block(2))
-            batch.add(async_w3.eth.get_block(0))
-
-            batch.add(async_math_contract.functions.multiply7(0))
-
-            batch.add_mapping(
-                {
-                    async_math_contract.functions.multiply7: [1, 2, 3],
-                    async_w3.eth.get_block: [1, 3, 5],
-                }
-            )
-
-            responses = await batch.async_execute()
-
-        assert len(responses) == 11
-        assert all(isinstance(response, AttributeDict) for response in responses[:3])
-        assert responses[0]["number"] == 6
-        assert responses[1]["number"] == 4
-        assert responses[2]["number"] == 2
-        assert responses[3]["number"] == 0
-
-        assert responses[4] == 0
-        assert responses[5] == 7
-        assert responses[6] == 14
-        assert responses[7] == 21
-
-        assert all(isinstance(response, AttributeDict) for response in responses[8:])
-        assert responses[8]["number"] == 1
-        assert responses[9]["number"] == 3
-        assert responses[10]["number"] == 5

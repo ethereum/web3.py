@@ -17,6 +17,9 @@ from web3._utils.module_testing import (  # noqa: F401
     NetModuleTest,
     Web3ModuleTest,
 )
+from web3._utils.module_testing.web3_module import (
+    AsyncWeb3ModuleTest,
+)
 from web3.types import (
     BlockData,
 )
@@ -27,7 +30,7 @@ if TYPE_CHECKING:
     )
 
 
-class GoEthereumTest(Web3ModuleTest):
+class GoEthereumWeb3ModuleTest(Web3ModuleTest):
     def _check_web3_client_version(self, client_version):
         assert client_version.startswith("Geth/")
 
@@ -85,12 +88,16 @@ class GoEthereumNetModuleTest(NetModuleTest):
     pass
 
 
-class GoEthereumAsyncNetModuleTest(AsyncNetModuleTest):
-    pass
-
-
 class GoEthereumAdminModuleTest(GoEthereumAdminModuleTest):
     pass
+
+
+# --- async --- #
+
+
+class GoEthereumAsyncWeb3ModuleTest(AsyncWeb3ModuleTest):
+    def _check_web3_client_version(self, client_version):
+        assert client_version.startswith("Geth/")
 
 
 class GoEthereumAsyncEthModuleTest(AsyncEthModuleTest):
@@ -111,3 +118,7 @@ class GoEthereumAsyncEthModuleTest(AsyncEthModuleTest):
         await super().test_invalid_eth_sign_typed_data(
             async_w3, keyfile_account_address_dual_type, async_skip_if_testrpc
         )
+
+
+class GoEthereumAsyncNetModuleTest(AsyncNetModuleTest):
+    pass
