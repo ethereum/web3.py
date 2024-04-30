@@ -218,12 +218,17 @@ class IPCProvider(JSONBaseProvider):
                         timeout.sleep(0)
                     elif has_valid_json_rpc_ending(raw_response):
                         try:
-                            response = self.decode_rpc_response(raw_response)
+                            response = cast(
+                                List[RPCResponse],
+                                self.decode_rpc_response(raw_response),
+                            )
                         except JSONDecodeError:
                             timeout.sleep(0)
                             continue
                         else:
-                            return cast(List[RPCResponse], response)
+                            # sort by response `id` since the JSON-RPC 2.0 spec doesn't
+                            # guarantee order
+                            return sorted(response, key=lambda resp: int(resp["id"]))
                     else:
                         timeout.sleep(0)
                         continue
