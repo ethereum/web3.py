@@ -1,0 +1,1 @@
+Add ``py312`` support by adding it to CI testing
