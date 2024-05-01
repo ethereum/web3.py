@@ -6,7 +6,6 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Collection,
-    Dict,
     List,
     Optional,
     Sequence,
@@ -60,6 +59,7 @@ if TYPE_CHECKING:
     from eth_typing import (  # noqa: F401
         ABIFunction,
     )
+
     from web3 import (  # noqa: F401
         AsyncWeb3,
         Web3 as _Web3,

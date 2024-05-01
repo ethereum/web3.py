@@ -1,4 +1,4 @@
-from eth_utils import (
+from eth_utils.abi import (  # NOQA
     event_abi_to_log_topic,
     event_signature_to_log_topic,
     function_abi_to_4byte_selector,

@@ -482,7 +482,7 @@ def _align_abi_input(arg_abi: ABIFunctionParam, arg: Any) -> Tuple[Any, ...]:
         new_abi = copy.copy(arg_abi)
         new_abi["type"] = tuple_prefix + "[]" * (num_dims - 1)
 
-        sub_abis = itertools.repeat(new_abi)  # type: ignore
+        sub_abis = itertools.repeat(new_abi)
 
     if isinstance(arg, abc.Mapping):
         # Arg is mapping.  Align values according to abi order.
