@@ -1,0 +1,1 @@
+Upgrade to `eth-utils` @ 4.2.2 with public ABI utilities.
