@@ -44,6 +44,9 @@ from eth_utils import (
     to_hex,
     to_tuple,
 )
+from eth_utils.abi import (
+    get_normalized_abi_arg_type,
+)
 from eth_utils.curried import (
     apply_formatter_if,
 )
@@ -59,7 +62,6 @@ import web3
 from web3._utils.abi import (
     exclude_indexed_event_inputs,
     get_indexed_event_inputs,
-    get_normalized_abi_arg_type,
     map_abi_data,
     named_tree,
     normalize_event_input_types,
