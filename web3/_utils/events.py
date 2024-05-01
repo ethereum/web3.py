@@ -27,6 +27,8 @@ from eth_abi.codec import (
     ABICodec,
 )
 from eth_typing import (
+    ABIEvent,
+    ABIEventParam,
     ChecksumAddress,
     HexStr,
     Primitives,
@@ -79,8 +81,6 @@ from web3.exceptions import (
     Web3ValueError,
 )
 from web3.types import (
-    ABIEvent,
-    ABIEventParams,
     BlockIdentifier,
     EventData,
     FilterParams,
@@ -206,7 +206,7 @@ def is_dynamic_sized_type(type_str: TypeStr) -> bool:
 
 @to_tuple
 def get_event_abi_types_for_decoding(
-    event_inputs: Sequence[ABIEventParams],
+    event_inputs: Sequence[ABIEventParam],
 ) -> Iterable[TypeStr]:
     """
     Event logs use the `keccak(value)` for indexed inputs of type `bytes` or

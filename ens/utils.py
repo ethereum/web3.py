@@ -29,7 +29,7 @@ from eth_utils import (
     to_normalized_address,
 )
 from eth_utils.abi import (
-    collapse_if_tuple,
+    get_normalized_abi_arg_type,
 )
 from hexbytes import (
     HexBytes,
@@ -57,6 +57,9 @@ default = object()
 
 
 if TYPE_CHECKING:
+    from eth_typing import (  # noqa: F401
+        ABIFunction,
+    )
     from web3 import (  # noqa: F401
         AsyncWeb3,
         Web3 as _Web3,
@@ -67,9 +70,6 @@ if TYPE_CHECKING:
     from web3.providers import (  # noqa: F401
         AsyncBaseProvider,
         BaseProvider,
-    )
-    from web3.types import (  # noqa: F401
-        ABIFunction,
     )
 
 
@@ -298,7 +298,7 @@ def get_abi_output_types(abi: "ABIFunction") -> List[str]:
     return (
         []
         if abi["type"] == "fallback"
-        else [collapse_if_tuple(cast(Dict[str, Any], arg)) for arg in abi["outputs"]]
+        else [get_normalized_abi_arg_type(arg) for arg in abi["outputs"]]
     )
 
 

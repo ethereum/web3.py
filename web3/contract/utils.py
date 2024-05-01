@@ -15,6 +15,8 @@ from eth_abi.exceptions import (
     DecodingError,
 )
 from eth_typing import (
+    ABI,
+    ABIFunction,
     ChecksumAddress,
 )
 from hexbytes import (
@@ -46,8 +48,6 @@ from web3.exceptions import (
     Web3ValueError,
 )
 from web3.types import (
-    ABI,
-    ABIFunction,
     BlockIdentifier,
     FunctionIdentifier,
     StateOverride,

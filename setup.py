@@ -56,7 +56,7 @@ setup(
         "eth-account>=0.12.2",
         "eth-hash[pycryptodome]>=0.5.1",
         "eth-typing>=4.0.0",
-        "eth-utils>=4.0.0",
+        "eth-utils @ git+https://github.com/reedsa/eth-utils@abi-element-utils",
         "hexbytes>=1.2.0",
         "pydantic>=2.4.0",
         "pywin32>=223;platform_system=='Windows'",

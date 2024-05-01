@@ -14,6 +14,7 @@ from typing import (
 )
 
 from eth_typing import (
+    ABI,
     ChecksumAddress,
 )
 from eth_utils import (
@@ -88,7 +89,6 @@ from web3.exceptions import (
     Web3ValueError,
 )
 from web3.types import (
-    ABI,
     BlockIdentifier,
     EventData,
     StateOverride,
