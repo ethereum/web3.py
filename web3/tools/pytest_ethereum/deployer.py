@@ -27,7 +27,7 @@ class Deployer:
                 f"Expected a Package object, instead received {type(package)}."
             )
         self.package = package
-        self.strategies = {}  # type: Dict[str, Callable[[Package], Package]]
+        self.strategies: Dict[str, Callable[[Package], Package]] = {}
 
     def deploy(self, contract_type: ContractName, *args: Any, **kwargs: Any) -> Package:
         factory = self.package.get_contract_factory(contract_type)

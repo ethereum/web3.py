@@ -931,6 +931,146 @@ jobs:
         environment:
           TOXENV: py311-wheel-cli
 
+  #
+  # Python 3.12
+  #
+  py312-lint:
+    <<: *common
+    docker:
+      - image: cimg/python:3.12
+    environment:
+      TOXENV: py312-lint
+
+  py312-core:
+    <<: *common
+    docker:
+      - image: cimg/python:3.12
+    environment:
+      TOXENV: py312-core
+
+  py312-core_async:
+    <<: *common
+    docker:
+      - image: cimg/python:3.12
+    environment:
+      TOXENV: py312-core_async
+
+  py312-ens:
+    <<: *common
+    docker:
+      - image: cimg/python:3.12
+    environment:
+      TOXENV: py312-ens
+
+  py312-ensip15:
+    <<: *common
+    docker:
+      - image: cimg/python:3.12
+    environment:
+      TOXENV: py312-ensip15
+
+  py312-ethpm:
+    <<: *ethpm_steps
+    docker:
+      - image: cimg/python:3.12
+    environment:
+      TOXENV: py312-ethpm
+      # Please don't use this key for any shenanigans
+      WEB3_INFURA_PROJECT_ID: $WEB3_INFURA_PROJECT_ID
+
+  py312-integration-goethereum-ipc:
+    <<: *geth_steps
+    docker:
+      - image: cimg/python:3.12
+    environment:
+      TOXENV: py312-integration-goethereum-ipc
+
+  py312-integration-goethereum-ipc_flaky:
+    <<: *geth_steps
+    docker:
+      - image: cimg/python:3.12
+    environment:
+      TOXENV: py312-integration-goethereum-ipc_flaky
+
+  py312-integration-goethereum-http:
+    <<: *geth_steps
+    docker:
+      - image: cimg/python:3.12
+    environment:
+      TOXENV: py312-integration-goethereum-http
+
+  py312-integration-goethereum-http_async:
+    <<: *geth_steps
+    docker:
+      - image: cimg/python:3.12
+    environment:
+      TOXENV: py312-integration-goethereum-http_async
+
+  py312-integration-goethereum-http_async_flaky:
+    <<: *geth_steps
+    docker:
+      - image: cimg/python:3.12
+    environment:
+      TOXENV: py312-integration-goethereum-http_async_flaky
+
+  py312-integration-goethereum-http_flaky:
+    <<: *geth_steps
+    docker:
+      - image: cimg/python:3.12
+    environment:
+      TOXENV: py312-integration-goethereum-http_flaky
+
+  py312-integration-goethereum-ws:
+    <<: *geth_steps
+    docker:
+      - image: cimg/python:3.12
+    environment:
+      TOXENV: py312-integration-goethereum-ws
+
+  py312-integration-goethereum-ws_flaky:
+    <<: *geth_steps
+    docker:
+      - image: cimg/python:3.12
+    environment:
+      TOXENV: py312-integration-goethereum-ws_flaky
+
+  py312-integration-goethereum-ws-v2:
+    <<: *geth_steps
+    docker:
+      - image: cimg/python:3.12
+    environment:
+      TOXENV: py312-integration-goethereum-ws_v2
+
+  py312-integration-goethereum-ws-v2_flaky:
+    <<: *geth_steps
+    docker:
+      - image: cimg/python:3.12
+    environment:
+      TOXENV: py312-integration-goethereum-ws_v2_flaky
+
+  py312-integration-ethtester-pyevm:
+    <<: *common
+    docker:
+      - image: cimg/python:3.12
+    environment:
+      TOXENV: py312-integration-ethtester
+      ETHEREUM_TESTER_CHAIN_BACKEND: eth_tester.backends.PyEVMBackend
+
+  py312-integration-ethtester-pyevm_flaky:
+    <<: *common
+    docker:
+      - image: cimg/python:3.12
+    environment:
+      TOXENV: py312-integration-ethtester_flaky
+      ETHEREUM_TESTER_CHAIN_BACKEND: eth_tester.backends.PyEVMBackend
+
+  py312-wheel-cli:
+    <<: *common
+    docker:
+      - image: cimg/python:3.12
+        environment:
+          TOXENV: py312-wheel-cli
+
   benchmark:
     <<: *geth_steps
     docker:
@@ -948,11 +1088,13 @@ workflows:
       - py39-core
       - py310-core
       - py311-core
+      - py312-core
       - py37-core_async
       - py38-core_async
       - py39-core_async
       - py310-core_async
       - py311-core_async
+      - py312-core_async
       - docs
       - benchmark
       - py37-ens
@@ -1040,3 +1182,20 @@ workflows:
       - py311-integration-ethtester-pyevm_flaky
       - py311-wheel-cli
       - py311-wheel-cli-windows
+      - py312-lint
+      - py312-ens
+      - py312-ensip15
+      - py312-ethpm
+      - py312-integration-goethereum-ipc
+      - py312-integration-goethereum-ipc_flaky
+      - py312-integration-goethereum-http
+      - py312-integration-goethereum-http_async
+      - py312-integration-goethereum-http_async_flaky
+      - py312-integration-goethereum-http_flaky
+      - py312-integration-goethereum-ws
+      - py312-integration-goethereum-ws_flaky
+      - py312-integration-goethereum-ws-v2
+      - py312-integration-goethereum-ws-v2_flaky
+      - py312-integration-ethtester-pyevm
+      - py312-integration-ethtester-pyevm_flaky
+      - py312-wheel-cli
