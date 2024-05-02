@@ -56,4 +56,4 @@ repos:
     rev: v0.2.4
     hooks:
     -   id: blocklint
-        exclude: 'normalization_tests.json|docs/(Makefile|release_notes.rst|web3.eth.rst|ens_overview.rst|abi_types.rst|transactions.rst)'
+        exclude: 'normalization_tests.json|docs/(Makefile|release_notes.rst|web3.eth.rst|ens_overview.rst|abi_types.rst|transactions.rst|examples.rst)'
