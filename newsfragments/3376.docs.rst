@@ -1,0 +1,1 @@
+Warn of updates to WebSocketProvider in v7
