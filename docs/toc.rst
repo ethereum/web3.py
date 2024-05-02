@@ -13,7 +13,6 @@ Table of Contents
     :maxdepth: 1
     :caption: Guides
 
-    node
     providers
     web3.eth.account
     transactions

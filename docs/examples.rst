@@ -141,7 +141,7 @@ Web3 can help you convert between denominations.  The following denominations ar
 | tether       | 1000000000000000000000000000000 |
 +--------------+---------------------------------+
 
-Picking up from the previous example, the largest account contained
+Picking up from the previous example, the account contained
 3841357360894980500000001 wei. You can use the :meth:`~web3.from_wei` method
 to convert that balance to ether (or another denomination).
 
@@ -254,7 +254,7 @@ Working with Contracts
 ----------------------
 
 
-Interacting with existing contracts
+Interacting with deployed contracts
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 In order to use an existing contract, you'll need its deployed address and its ABI.
@@ -301,10 +301,10 @@ Given the following solidity source file stored at ``contract.sol``.
 
 The following example demonstrates a few things:
 
-* Compiling a contract from a sol file.
-* Estimating gas costs of a transaction.
-* Transacting with a contract function.
-* Waiting for a transaction receipt to be mined.
+* Compiling a contract from a sol file
+* Estimating gas costs of a transaction
+* Transacting with a contract function
+* Waiting for a transaction receipt
 
 .. code-block:: python
 
@@ -385,11 +385,16 @@ Output:
      Was transaction successful?
      1
 
+.. note::
 
-Working with an ERC20 Token Contract
-------------------------------------
+    If you're looking for a more robust smart contract development environment, give the
+    `Ape Framework <https://github.com/ApeWorX/ape>`_ a try!
 
-Most fungible tokens on the Ethereum blockchain conform to the `ERC20`_
+
+Working with an ERC-20 Token Contract
+-------------------------------------
+
+Most fungible tokens on the Ethereum blockchain conform to the `ERC-20`_
 standard.  This section of the guide covers interacting with an existing token
 contract which conforms to this standard.
 
@@ -427,7 +432,7 @@ Creating the contract factory
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 First we need to create a contract instance with the address of our token
-contract and the ``ERC20`` ABI.
+contract and the ``ERC-20`` ABI.
 
 .. doctest::
 
@@ -533,7 +538,7 @@ When someone has an allowance they can transfer those tokens using the
     175
 
 
-.. _ERC20: https://github.com/ethereum/EIPs/blob/7f4f0377730f5fc266824084188cc17cf246932e/EIPS/eip-20.md
+.. _ERC-20: https://github.com/ethereum/ERCs/blob/master/ERCS/erc-20.md
 
 
 .. _ccip-read-example:
@@ -595,53 +600,6 @@ like so:
     :code: python
     :start-line: 1
 
-Using Infura Goerli Node
--------------------------
-Import your required libraries
-
-.. code-block:: python
-
-    from web3 import Web3, HTTPProvider
-
-Initialize a web3 instance with an Infura node
-
-.. code-block:: python
-
-    w3 = Web3(Web3.HTTPProvider("https://goerli.infura.io/v3/YOUR_INFURA_KEY"))
-
-
-Inject the middleware into the middleware onion
-
-.. code-block:: python
-
-    from web3.middleware import ExtraDataToPOAMiddleware
-    w3.middleware_onion.inject(ExtraDataToPOAMiddleware, layer=0)
-
-Just remember that you have to sign all transactions locally, as infura does not handle any keys from your wallet ( refer to `this`_  )
-
-
-..  _this: https://web3py.readthedocs.io/en/stable/web3.eth.account.html#local-vs-hosted-nodes
-
-.. code-block:: python
-
-    transaction = contract.functions.function_Name(params).build_transaction()
-    transaction.update({ 'gas' : appropriate_gas_amount })
-    transaction.update({ 'nonce' : w3.eth.get_transaction_count('Your_Wallet_Address') })
-    signed_tx = w3.eth.account.sign_transaction(transaction, private_key)
-
-P.S : the two updates are done to the transaction dictionary, since a raw transaction might not contain gas & nonce amounts, so you have to add them manually.
-
-And finally, send the transaction
-
-.. code-block:: python
-
-    txn_hash = w3.eth.send_raw_transaction(signed_tx.raw_transaction)
-    txn_receipt = w3.eth.wait_for_transaction_receipt(txn_hash)
-
-Tip : afterwards you can use the value stored in ``txn_hash``, in an explorer like `etherscan`_ to view the transaction's details
-
-.. _etherscan: https://goerli.etherscan.io
-
 
 Adjusting log levels
 --------------------
@@ -697,13 +655,13 @@ In this example, we show how to fetch all events of a certain event type from th
 eth_getLogs limitations
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-Ethereum JSON-RPC API servers, like Geth, do not provide easy to paginate over events, only over blocks. There's no request that can find the first block with an event or how many events occur within a range of blocks. The only feedback the JSON-RPC service will give you is whether the `eth_getLogs` call failed.
+Ethereum JSON-RPC API servers, like Geth, do not provide an easy way to paginate over events, only over blocks. There's no request that can find the first block with an event or how many events occur within a range of blocks. The only feedback the JSON-RPC service will give you is whether the ``eth_getLogs`` call failed.
 
 In this example script, we provide two kinds of heuristics to deal with this issue. The script scans events in a chunk of blocks (start block number - end block number). Then it uses two methods to find how many events there are likely to be in a block window:
 
 * Dynamically set the block range window size, while never exceeding a threshold (e.g., 10,000 blocks).
 
-* In the case `eth_getLogs` JSON-PRC call gives a timeout error, decrease the end block number and try again with a smaller block range window.
+* In the case of ``eth_getLogs``, the JSON-RPC call gives a timeout error, decrease the end block number and tries again with a smaller block range window.
 
 
 Example code

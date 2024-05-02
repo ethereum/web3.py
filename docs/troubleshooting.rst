@@ -113,16 +113,9 @@ Test networks usually have something called a "faucet" to
 help get test ether to people who want to use it. The faucet
 simply sends you test ether when you visit a web page, or ping a chat bot, etc.
 
-Each test network has its own version of test ether, so each one
-must maintain its own faucet. If you're not sure which test network
-to use, see :ref:`choosing_network`
-
-Faucet mechanisms tend to come and go, so if any information here is
-out of date, try the `Ethereum Stackexchange <https://ethereum.stackexchange.com/>`_.
-Here are some links to testnet ether instructions (in no particular order):
-
-- `Goerli <https://goerli.net>`_ (different faucet links on top menu bar)
-- `Sepolia <https://sepoliafaucet.com>`_
+Each test network has its own version of test ether, so each one must maintain
+its own faucet. Faucet mechanisms tend to come and go, so a web search for
+"ethereum testnet faucet" should give you the most up-to-date options.
 
 .. _account_troubleshooting:
 
