@@ -655,7 +655,7 @@ In this example, we show how to fetch all events of a certain event type from th
 eth_getLogs limitations
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-Ethereum JSON-RPC API servers, like Geth, do not provide easy to paginate over events, only over blocks. There's no request that can find the first block with an event or how many events occur within a range of blocks. The only feedback the JSON-RPC service will give you is whether the ``eth_getLogs`` call failed.
+Ethereum JSON-RPC API servers, like Geth, do not provide an easy way to paginate over events, only over blocks. There's no request that can find the first block with an event or how many events occur within a range of blocks. The only feedback the JSON-RPC service will give you is whether the ``eth_getLogs`` call failed.
 
 In this example script, we provide two kinds of heuristics to deal with this issue. The script scans events in a chunk of blocks (start block number - end block number). Then it uses two methods to find how many events there are likely to be in a block window:
 
