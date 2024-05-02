@@ -538,7 +538,7 @@ When someone has an allowance they can transfer those tokens using the
     175
 
 
-.. _ERC-20: https://github.com/ethereum/EIPs/blob/7f4f0377730f5fc266824084188cc17cf246932e/EIPS/eip-20.md
+.. _ERC-20: https://github.com/ethereum/ERCs/blob/master/ERCS/erc-20.md
 
 
 .. _ccip-read-example:
