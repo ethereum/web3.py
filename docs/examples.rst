@@ -661,7 +661,7 @@ In this example script, we provide two kinds of heuristics to deal with this iss
 
 * Dynamically set the block range window size, while never exceeding a threshold (e.g., 10,000 blocks).
 
-* In the case ``eth_getLogs`` JSON-PRC call gives a timeout error, decrease the end block number and try again with a smaller block range window.
+* In the case of ``eth_getLogs``, the JSON-RPC call gives a timeout error, decrease the end block number and tries again with a smaller block range window.
 
 
 Example code
