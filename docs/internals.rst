@@ -16,8 +16,8 @@ exposed by the web3 object and the backend or node that web3 is connecting to.
 Here are some common things you might want to do with these APIs.
 
 * Redirect certain RPC requests to different providers such as sending all
-  *read* operations to a provider backed by Infura and all *write* operations
-  to a go-ethereum node that you control.
+  *read* operations to a provider backed by a remote node and all *write* operations
+  to a local node that you control.
 * Transparently intercept transactions sent over ``eth_sendTransaction``, sign
   them locally, and then send them through ``eth_sendRawTransaction``.
 * Modify the response from an RPC request so that it is returned in different

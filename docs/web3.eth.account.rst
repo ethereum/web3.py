@@ -9,14 +9,13 @@ Local vs Hosted Nodes
 ---------------------
 
 Hosted Node
-  A hosted node is controlled by someone else. When you connect to Infura, you are
-  connected to a hosted node. See `ethereumnodes.com <https://ethereumnodes.com>`__
-  for the list of free and commercial node providers.
+  A **hosted** node is controlled by someone else. You may also see these referred to
+  as **remote** nodes. View a list of commercial `node providers <https://ethereum.org/en/developers/docs/nodes-and-clients/nodes-as-a-service/>`_.
 
 Local Node
-  A local node is started and controlled by you on your computer. For several reasons
+  A **local** node is started and controlled by you on your computer. For several reasons
   (e.g., privacy, security), this is the recommended path, but it requires more resources
-  and work to set up and maintain.
+  and work to set up and maintain. See `ethereum.org <https://ethereum.org/en/developers/docs/nodes-and-clients/>`_ for a guided tour.
 
 Local vs Hosted Keys
 --------------------
@@ -36,21 +35,22 @@ Local Private Key
 
 Hosted Private Key
   This is a legacy way to use accounts when working with unit test backends like
-  :py:class:`web3.providers.eth_tester.main.EthereumTesterProvider`
-  or Anvil. Calling ``web3.eth.accounts`` gives you a predefined
-  list of accounts that have been funded with test ETH.
-  You can use any of these accounts with use :meth:`~web3.eth.Eth.send_transaction`
+  ``EthereumTesterProvider`` or `Anvil <https://book.getfoundry.sh/reference/anvil/>`_.
+  Calling ``web3.eth.accounts`` gives you a
+  predefined list of accounts that have been funded with test ETH.
+  You can use :meth:`~web3.eth.Eth.send_transaction` on any of these accounts
   without further configuration.
 
   In the past, around 2015, this was also a way to use private keys
   in a locally hosted node, but this practice is now discouraged.
 
-.. note::
+.. warning::
 
-  Methods like `web3.eth.send_transaction`` do not work with modern
-  node providers, because they relied on a node state and all modern nodes
-  are stateless. You must always use local private keys when working
-  with nodes hosted by someone else.
+  ``web3.eth.send_transaction`` does not work with modern node providers,
+  because they relied on a node state and all modern nodes are stateless.
+  You must always use local private keys when working with nodes hosted by
+  someone else.
+
 
 Some Common Uses for Local Private Keys
 ---------------------------------------
@@ -68,6 +68,7 @@ Some common things you might want to do with a `Local Private Key` are:
 Using private keys usually involves ``w3.eth.account`` in one way or another. Read on for more,
 or see a full list of things you can do in the docs for
 :class:`eth_account.Account <eth_account.account.Account>`.
+
 
 Creating a Private Key
 ----------------------
@@ -98,6 +99,7 @@ Which outputs a new private key and an account pair::
   wallet - the private key can be shared between your Python code
   and any number of wallets.
 
+
 Funding a New Account
 ---------------------
 
@@ -106,12 +108,14 @@ By default, the balance of this address is zero.
 Before you can send any transactions with your account,
 you need to top up.
 
-- For a local test environment, any environment is bootstrapped with accounts that have ETH on them. Move
-  ETH from default accounts to your newly created account.
+- For a local test environment (e.g., ``EthereumTesterProvider``), any
+  environment is bootstrapped with accounts that have test ETH in them.
+  Move ETH from default accounts to your newly created account.
 
 - For public mainnet, you need to buy ETH in a cryptocurrency exchange
+  and send it to your privately controlled account.
 
-- For a testnet, you need to [use a testnet faucet](https://faucet.paradigm.xyz/)
+- For a testnet, find a relevant testnet :ref:`faucet <faucets>`.
 
 
 Reading a Private Key from an Environment Variable
@@ -189,6 +193,7 @@ Extract private key from geth keyfile
         private_key = w3.eth.account.decrypt(encrypted_key, 'correcthorsebatterystaple')
         # tip: do not save the key or password anywhere, especially into a shared source file
 
+
 Sign a Message
 --------------
 
@@ -220,6 +225,7 @@ is provided by :meth:`w3.eth.sign() <web3.eth.Eth.sign>`.
      v=28,
      signature=HexBytes('0xe6ca9bba58c88611fad66a6ce8f996908195593807c4b38bd528d2cff09d4eb33e5bfbbf4d3e39b1a2fd816a7680c19ebebaf3a141b239934ad43cb33fcec8ce1c'))
 
+
 Verify a Message
 ----------------
 
@@ -230,6 +236,7 @@ With the original message text and a signature:
     >>> message = encode_defunct(text="I♥SF")
     >>> w3.eth.account.recover_message(message, signature=signed_message.signature)
     '0x5ce9454909639D2D17A3F753ce7d93fa0b9aB12E'
+
 
 Prepare message for ecrecover in Solidity
 -----------------------------------------
@@ -322,6 +329,7 @@ Then call ecr with these arguments from `Prepare message for ecrecover in Solidi
 The message is verified, because we get the correct sender of
 the message back in response: ``0x5ce9454909639d2d17a3f753ce7d93fa0b9ab12e``.
 
+
 .. _local-sign-transaction:
 
 Sign a Transaction
@@ -371,6 +379,7 @@ with :meth:`~web3.eth.Eth.send_raw_transaction`.
     # When you run send_raw_transaction, you get back the hash of the transaction:
     >>> w3.eth.send_raw_transaction(signed.raw_transaction)  # doctest: +SKIP
     '0xe85ce7efa52c16cb5c469c7bde54fbd4911639fdfde08003f65525a85076d915'
+
 
 Sign a Contract Transaction
 ---------------------------
