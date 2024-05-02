@@ -105,6 +105,8 @@ docs: &docs
     - run:
         name: run tox
         command: python -m tox run -r
+    - store_artifacts:
+          path: /home/circleci/repo/docs/_build
     - save_cache:
         paths:
           - .tox
