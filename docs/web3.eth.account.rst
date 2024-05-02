@@ -46,10 +46,10 @@ Hosted Private Key
 
 .. warning::
 
-  Methods like ``web3.eth.send_transaction`` do not work with modern
-  node providers, because they relied on a node state and all modern nodes
-  are stateless. You must always use local private keys when working
-  with nodes hosted by someone else.
+  ``web3.eth.send_transaction`` does not work with modern node providers,
+  because they relied on a node state and all modern nodes are stateless.
+  You must always use local private keys when working with nodes hosted by
+  someone else.
 
 
 Some Common Uses for Local Private Keys
