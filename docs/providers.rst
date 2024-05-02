@@ -180,11 +180,11 @@ IPCProvider
 WebsocketProvider
 ~~~~~~~~~~~~~~~~~
 
-.. note::
+.. warning::
 
-        ``WebsocketProviderV2`` is currently in beta and our goal is to fully replace
-        ``WebsocketProvider`` with ``WebsocketProviderV2`` in the next major release
-        of web3.py.
+        This provider is deprecated in web3.py v7. ``WebsocketProviderV2`` replaces
+        this provider and is renamed ``WebSocketProvider`` in the process.
+        See this `blog post`_ for more context.
 
 .. py:class:: web3.providers.websocket.WebsocketProvider(endpoint_uri[, websocket_timeout, websocket_kwargs])
 
@@ -255,9 +255,10 @@ Persistent Connection Providers
 WebsocketProviderV2 (beta)
 ``````````````````````````
 
-.. warning:: This provider is still in beta. However, it is being actively developed
-    and supported and is expected to be stable in the next major version of *web3.py*
-    (v7).
+.. warning::
+
+   In web3.py v7, ``WebsocketProviderV2`` graduates from its `beta` designation and is
+   renamed ``WebSocketProvider``. See this `blog post`_ for more context.
 
 .. py:class:: web3.providers.websocket.WebsocketProviderV2(endpoint_uri: str, websocket_kwargs: Dict[str, Any] = {}, silence_listener_task_exceptions: bool = False)
 
@@ -545,3 +546,5 @@ EthereumTesterProvider
 .. NOTE:: To install the needed dependencies to use EthereumTesterProvider, you can install the
     pip extras package that has the correct interoperable versions of the ``eth-tester``
     and ``py-evm`` dependencies needed to do testing: e.g. ``pip install web3[tester]``
+
+.. _`blog post`: https://snakecharmers.ethereum.org/websocketprovider/
