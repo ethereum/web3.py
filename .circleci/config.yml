@@ -1,5 +1,7 @@
 version: 2.1
 
+# heavily inspired by https://raw.githubusercontent.com/pinax/pinax-wiki/6bd2a99ab6f702e300d708532a6d1d9aa638b9f8/.circleci/config.yml
+
 parameters:
   geth_version:
     # update default value when updating geth integration test fixture
@@ -13,71 +15,24 @@ parameters:
     default: "1.20.2"
     type: string
 
-define: &all_jobs
-  # These are the longest running tests, start them first
-  - py38-core
-  - py39-core
-  - py310-core
-  - py311-core
-  - py38-core_async
-  - py39-core_async
-  - py310-core_async
-  - py311-core_async
-  - docs
-  - benchmark
-  - py38-lint
-  - py38-ens
-  - py38-ensip15
-  - py38-integration-goethereum-ipc
-  - py38-integration-goethereum-ipc_async
-  - py38-integration-goethereum-http
-  - py38-integration-goethereum-http_async
-  - py38-integration-goethereum-legacy_ws
-  - py38-integration-goethereum-ws
-  - py38-integration-ethtester-pyevm
-  - py38-wheel-cli
-  - py39-lint
-  - py39-ens
-  - py39-ensip15
-  - py39-integration-goethereum-ipc
-  - py39-integration-goethereum-ipc_async
-  - py39-integration-goethereum-http
-  - py39-integration-goethereum-http_async
-  - py39-integration-goethereum-legacy_ws
-  - py39-integration-goethereum-ws
-  - py39-integration-ethtester-pyevm
-  - py39-wheel-cli
-  - py310-lint
-  - py310-ens
-  - py310-ensip15
-  - py310-integration-goethereum-ipc
-  - py310-integration-goethereum-ipc_async
-  - py310-integration-goethereum-http
-  - py310-integration-goethereum-http_async
-  - py310-integration-goethereum-legacy_ws
-  - py310-integration-goethereum-ws
-  - py310-integration-ethtester-pyevm
-  - py310-wheel-cli
-  - py311-lint
-  - py311-ens
-  - py311-ensip15
-  - py311-integration-goethereum-ipc
-  - py311-integration-goethereum-ipc_async
-  - py311-integration-goethereum-http
-  - py311-integration-goethereum-http_async
-  - py311-integration-goethereum-legacy_ws
-  - py311-integration-goethereum-ws
-  - py311-integration-ethtester-pyevm
-  - py311-wheel-cli
-  - py311-wheel-cli-windows
-
 common: &common
   working_directory: ~/repo
   steps:
     - checkout
+    - run:
+        name: merge pull request base
+        command: ./.circleci/merge_pr.sh
+    - run:
+        name: merge pull request base (2nd try)
+        command: ./.circleci/merge_pr.sh
+        when: on_fail
+    - run:
+        name: merge pull request base (3rd try)
+        command: ./.circleci/merge_pr.sh
+        when: on_fail
     - restore_cache:
         keys:
-          - cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
+          - cache-v1-{{ arch }}-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
     - run:
         name: install dependencies
         command: |
@@ -85,45 +40,14 @@ common: &common
           python -m pip install tox
     - run:
         name: run tox
-        command: python -m tox -r
+        command: python -m tox run -r
     - save_cache:
         paths:
+          - .hypothesis
           - .tox
           - ~/.cache/pip
           - ~/.local
-          - ./eggs
-          - ~/.ethash
-          - ~/.py-geth
-        key: cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
-  resource_class: xlarge
-
-docs_steps: &docs_steps
-  working_directory: ~/repo
-  steps:
-    - checkout
-    - restore_cache:
-        keys:
-          - cache-docs-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
-    - run:
-        name: install dependencies
-        command: |
-          python -m pip install --upgrade pip
-          python -m pip install tox
-    - run:
-        name: install web3
-        command: pip install -U web3
-    - run:
-        name: run tox
-        command: python -m tox -r
-    - save_cache:
-        paths:
-          - .tox
-          - ~/.cache/pip
-          - ~/.local
-          - ./eggs
-          - ~/.ethash
-          - ~/.py-geth
-        key: cache-docs-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
+        key: cache-v1-{{ arch }}-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
   resource_class: xlarge
 
 geth_steps: &geth_steps
@@ -133,7 +57,7 @@ geth_steps: &geth_steps
     - checkout
     - restore_cache:
         keys:
-          - cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
+          - cache-v1-{{ arch }}-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
     - run:
         name: install dependencies
         command: |
@@ -161,16 +85,15 @@ geth_steps: &geth_steps
           geth version
     - run:
         name: run tox
-        command: python -m tox -r
+        command: python -m tox run -r
     - save_cache:
         paths:
           - .tox
           - ~/.cache/pip
           - ~/.local
-          - ./eggs
           - ~/.ethash
           - ~/.py-geth
-        key: cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
+        key: cache-v1-{{ arch }}-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
 
 geth_custom_steps: &geth_custom_steps
   working_directory: ~/repo
@@ -178,7 +101,7 @@ geth_custom_steps: &geth_custom_steps
     - checkout
     - restore_cache:
         keys:
-          - cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
+          - cache-v1-{{ arch }}-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
     - run:
         name: install dependencies
         command: |
@@ -201,54 +124,101 @@ geth_custom_steps: &geth_custom_steps
           ./custom_geth version
     - run:
         name: run tox
-        command: python -m tox -r
+        command: python -m tox run -r
     - save_cache:
         paths:
           - .tox
           - ~/.cache/pip
           - ~/.local
-          - ./eggs
           - ~/.ethash
-        key: cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
+        key: cache-v1-{{ arch }}-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
 
 orbs:
   win: circleci/windows@5.0.0
 
-windows_steps: &windows_steps
-  executor:
-    name: win/default
-    shell: bash.exe
-  working_directory: C:\Users\circleci\project\web3py
+windows-wheel-steps:
+  windows-wheel-setup: &windows-wheel-setup
+    executor:
+      name: win/default
+      shell: bash.exe
+    working_directory: C:\Users\circleci\project\web3.py
+    environment:
+      TOXENV: windows-wheel
+  restore-cache-step: &restore-cache-step
+    restore_cache:
+      keys:
+        - cache-v1-{{ arch }}-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
+  install-pyenv-step: &install-pyenv-step
+    run:
+      name: install pyenv
+      command: |
+        pip install pyenv-win --target $HOME/.pyenv
+        echo 'export PYENV="$HOME/.pyenv/pyenv-win/"' >> $BASH_ENV
+        echo 'export PYENV_ROOT="$HOME/.pyenv/pyenv-win/"' >> $BASH_ENV
+        echo 'export PYENV_USERPROFILE="$HOME/.pyenv/pyenv-win/"' >> $BASH_ENV
+        echo 'export PATH="$PATH:$HOME/.pyenv/pyenv-win/bin"' >> $BASH_ENV
+        echo 'export PATH="$PATH:$HOME/.pyenv/pyenv-win/shims"' >> $BASH_ENV
+        source $BASH_ENV
+        pyenv update
+  install-latest-python-step: &install-latest-python-step
+    run:
+      name: install latest python version and tox
+      command: |
+        LATEST_VERSION=$(pyenv install --list | grep -E "${MINOR_VERSION}\.[0-9]+$" | tail -1)
+        echo "installing python version $LATEST_VERSION"
+        pyenv install $LATEST_VERSION
+        pyenv global $LATEST_VERSION
+        python3 -m pip install --upgrade pip
+        python3 -m pip install tox
+  run-tox-step: &run-tox-step
+    run:
+      name: run tox
+      command: |
+        echo 'running tox with' $(python3 --version)
+        python3 -m tox run -r
+  save-cache-step: &save-cache-step
+    save_cache:
+      paths:
+        - .tox
+      key: cache-v1-{{ arch }}-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
+
+docs: &docs
+  working_directory: ~/repo
   steps:
     - checkout
     - restore_cache:
         keys:
-          - windows-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
+          - cache-v1-{{ arch }}-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
     - run:
         name: install dependencies
         command: |
           python -m pip install --upgrade pip
           python -m pip install tox
+    # latexpdf turned off for now - won't build due to long line lengths
+    # - run:
+    #     name: install latexpdf dependencies
+    #     command: |
+    #       sudo apt-get update
+    #       sudo apt-get install latexmk tex-gyre texlive-fonts-extra texlive-xetex xindy
     - run:
         name: run tox
-        command: python -m tox -r
+        command: python -m tox run -r
     - save_cache:
         paths:
           - .tox
-        key: windows-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
-
+          - ~/.cache/pip
+          - ~/.local
+        key: cache-v1-{{ arch }}-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
+  resource_class: xlarge
 
 jobs:
   docs:
-    <<: *docs_steps
+    <<: *docs
     docker:
       - image: cimg/python:3.9
-    environment:
-      TOXENV: docs
+        environment:
+          TOXENV: docs
 
-  #
-  # Python 3.8
-  #
   py38-lint:
     <<: *common
     docker:
@@ -334,12 +304,12 @@ jobs:
       TOXENV: py38-integration-ethtester
       ETHEREUM_TESTER_CHAIN_BACKEND: eth_tester.backends.PyEVMBackend
 
-  py38-wheel-cli:
+  py38-wheel:
     <<: *common
     docker:
       - image: cimg/python:3.8
     environment:
-      TOXENV: py38-wheel-cli
+      TOXENV: py38-wheel
 
   #
   # Python 3.9
@@ -429,12 +399,12 @@ jobs:
       TOXENV: py39-integration-ethtester
       ETHEREUM_TESTER_CHAIN_BACKEND: eth_tester.backends.PyEVMBackend
 
-  py39-wheel-cli:
+  py39-wheel:
     <<: *common
     docker:
       - image: cimg/python:3.9
         environment:
-          TOXENV: py39-wheel-cli
+          TOXENV: py39-wheel
 
   #
   # Python 3.10
@@ -524,17 +494,12 @@ jobs:
       TOXENV: py310-integration-ethtester
       ETHEREUM_TESTER_CHAIN_BACKEND: eth_tester.backends.PyEVMBackend
 
-  py310-wheel-cli:
+  py310-wheel:
     <<: *common
     docker:
       - image: cimg/python:3.10
         environment:
-          TOXENV: py310-wheel-cli
-
-  py311-wheel-cli-windows:
-    <<: *windows_steps
-    environment:
-      TOXENV: py311-wheel-cli-windows
+          TOXENV: py310-wheel
 
   #
   # Python 3.11
@@ -624,12 +589,133 @@ jobs:
       TOXENV: py311-integration-ethtester
       ETHEREUM_TESTER_CHAIN_BACKEND: eth_tester.backends.PyEVMBackend
 
-  py311-wheel-cli:
+  py311-wheel:
     <<: *common
     docker:
       - image: cimg/python:3.11
         environment:
-          TOXENV: py311-wheel-cli
+          TOXENV: py311-wheel
+
+  py311-windows-wheel:
+    <<: *windows-wheel-setup
+    steps:
+      - checkout
+      - <<: *restore-cache-step
+      - <<: *install-pyenv-step
+      - run:
+          name: set minor version
+          command: echo "export MINOR_VERSION='3.11'" >> $BASH_ENV
+      - <<: *install-latest-python-step
+      - <<: *run-tox-step
+      - <<: *save-cache-step
+
+  #
+  # Python 3.12
+  #
+  py312-lint:
+    <<: *common
+    docker:
+      - image: cimg/python:3.12
+    environment:
+      TOXENV: py312-lint
+
+  py312-core:
+    <<: *common
+    docker:
+      - image: cimg/python:3.12
+    environment:
+      TOXENV: py312-core
+
+  py312-core_async:
+    <<: *common
+    docker:
+      - image: cimg/python:3.12
+    environment:
+      TOXENV: py312-core_async
+
+  py312-ens:
+    <<: *common
+    docker:
+      - image: cimg/python:3.12
+    environment:
+      TOXENV: py312-ens
+
+  py312-ensip15:
+    <<: *common
+    docker:
+      - image: cimg/python:3.12
+    environment:
+      TOXENV: py312-ensip15
+
+  py312-integration-goethereum-ipc:
+    <<: *geth_steps
+    docker:
+      - image: cimg/python:3.12
+    environment:
+      TOXENV: py312-integration-goethereum-ipc
+
+  py312-integration-goethereum-ipc_async:
+    <<: *geth_steps
+    docker:
+      - image: cimg/python:3.12
+    environment:
+      TOXENV: py312-integration-goethereum-ipc_async
+
+  py312-integration-goethereum-http:
+    <<: *geth_steps
+    docker:
+      - image: cimg/python:3.12
+    environment:
+      TOXENV: py312-integration-goethereum-http
+
+  py312-integration-goethereum-http_async:
+    <<: *geth_steps
+    docker:
+      - image: cimg/python:3.12
+    environment:
+      TOXENV: py312-integration-goethereum-http_async
+
+  py312-integration-goethereum-legacy_ws:
+    <<: *geth_steps
+    docker:
+      - image: cimg/python:3.12
+    environment:
+      TOXENV: py312-integration-goethereum-legacy_ws
+
+  py312-integration-goethereum-ws:
+    <<: *geth_steps
+    docker:
+      - image: cimg/python:3.12
+    environment:
+      TOXENV: py312-integration-goethereum-ws
+
+  py312-integration-ethtester-pyevm:
+    <<: *common
+    docker:
+      - image: cimg/python:3.12
+    environment:
+      TOXENV: py312-integration-ethtester
+      ETHEREUM_TESTER_CHAIN_BACKEND: eth_tester.backends.PyEVMBackend
+
+  py312-wheel:
+    <<: *common
+    docker:
+      - image: cimg/python:3.12
+        environment:
+          TOXENV: py312-wheel
+
+  py312-windows-wheel:
+    <<: *windows-wheel-setup
+    steps:
+      - checkout
+      - <<: *restore-cache-step
+      - <<: *install-pyenv-step
+      - run:
+          name: set minor version
+          command: echo "export MINOR_VERSION='3.12'" >> $BASH_ENV
+      - <<: *install-latest-python-step
+      - <<: *run-tox-step
+      - <<: *save-cache-step
 
   benchmark:
     <<: *geth_steps
@@ -638,8 +724,81 @@ jobs:
     environment:
       TOXENV: benchmark
 
+
+define: &all_jobs
+  # These are the longest running tests, start them first
+  - py38-core
+  - py39-core
+  - py310-core
+  - py311-core
+  - py312-core
+  - py38-core_async
+  - py39-core_async
+  - py310-core_async
+  - py311-core_async
+  - py312-core_async
+  - docs
+  - benchmark
+  - py38-lint
+  - py38-ens
+  - py38-ensip15
+  - py38-integration-goethereum-ipc
+  - py38-integration-goethereum-ipc_async
+  - py38-integration-goethereum-http
+  - py38-integration-goethereum-http_async
+  - py38-integration-goethereum-legacy_ws
+  - py38-integration-goethereum-ws
+  - py38-integration-ethtester-pyevm
+  - py38-wheel
+  - py39-lint
+  - py39-ens
+  - py39-ensip15
+  - py39-integration-goethereum-ipc
+  - py39-integration-goethereum-ipc_async
+  - py39-integration-goethereum-http
+  - py39-integration-goethereum-http_async
+  - py39-integration-goethereum-legacy_ws
+  - py39-integration-goethereum-ws
+  - py39-integration-ethtester-pyevm
+  - py39-wheel
+  - py310-lint
+  - py310-ens
+  - py310-ensip15
+  - py310-integration-goethereum-ipc
+  - py310-integration-goethereum-ipc_async
+  - py310-integration-goethereum-http
+  - py310-integration-goethereum-http_async
+  - py310-integration-goethereum-legacy_ws
+  - py310-integration-goethereum-ws
+  - py310-integration-ethtester-pyevm
+  - py310-wheel
+  - py311-lint
+  - py311-ens
+  - py311-ensip15
+  - py311-integration-goethereum-ipc
+  - py311-integration-goethereum-ipc_async
+  - py311-integration-goethereum-http
+  - py311-integration-goethereum-http_async
+  - py311-integration-goethereum-legacy_ws
+  - py311-integration-goethereum-ws
+  - py311-integration-ethtester-pyevm
+  - py311-wheel
+  - py311-windows-wheel
+  - py312-lint
+  - py312-ens
+  - py312-ensip15
+  - py312-integration-goethereum-ipc
+  - py312-integration-goethereum-ipc_async
+  - py312-integration-goethereum-http
+  - py312-integration-goethereum-http_async
+  - py312-integration-goethereum-legacy_ws
+  - py312-integration-goethereum-ws
+  - py312-integration-ethtester-pyevm
+  - py312-wheel
+  - py312-windows-wheel
+
 workflows:
-  version: 2.1
+  version: 2
   test:
     jobs: *all_jobs
   nightly:

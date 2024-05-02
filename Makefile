@@ -1,3 +1,5 @@
+CURRENT_SIGN_SETTING := $(shell git config commit.gpgSign)
+
 .PHONY: clean-pyc clean-build docs
 
 help:
@@ -5,8 +7,10 @@ help:
 	@echo "clean-pyc - remove Python file artifacts"
 	@echo "lint - fix linting issues with pre-commit"
 	@echo "test - run tests quickly with the default Python"
-	@echo "testall - run tests on every Python version with tox"
-	@echo "release - package and upload a release"
+	@echo "docs - generate docs and open in browser (linux-docs for version on linux)"
+	@echo "autobuild-docs - live update docs when changes are saved"
+	@echo "notes - consume towncrier newsfragments/ and update release notes in docs/"
+	@echo "release - package and upload a release (does not run notes target)"
 	@echo "dist - package"
 
 clean: clean-build clean-pyc
@@ -20,6 +24,7 @@ clean-pyc:
 	find . -name '*.pyc' -exec rm -f {} +
 	find . -name '*.pyo' -exec rm -f {} +
 	find . -name '*~' -exec rm -f {} +
+	find . -name '__pycache__' -exec rm -rf {} +
 
 lint:
 	@pre-commit run --all-files --show-diff-on-failure || ( \
@@ -28,13 +33,13 @@ lint:
 	)
 
 test:
-	pytest tests
-
-test-all:
-	tox
+	python -m pytest tests/core tests/ens tests/integration
 
 benchmark:
-	tox -e benchmark
+	python -m tox run -e benchmark
+
+autobuild-docs:
+	sphinx-autobuild --open-browser docs docs/_build/html
 
 build-docs:
 	sphinx-apidoc -o docs/ . setup.py "*conftest*" "tests" "web3/tools/*"
@@ -42,17 +47,31 @@ build-docs:
 	$(MAKE) -C docs html
 	$(MAKE) -C docs doctest
 
-docs: build-docs validate-docs
+build-docs-ci:
+	# pdf turned off for now - long line lengths break the build
+	# $(MAKE) -C docs latexpdf
+	$(MAKE) -C docs epub
+
+validate-newsfragments:
+	python ./newsfragments/validate_files.py
+	towncrier build --draft --version preview
+
+check-docs: build-docs validate-newsfragments
+
+check-docs-ci: build-docs build-docs-ci validate-newsfragments
+
+docs: check-docs
 	open docs/_build/html/index.html
 
-validate-docs: build-docs
-	python newsfragments/validate_files.py
-	towncrier build --draft
+linux-docs: check-docs
+	xdg-open docs/_build/html/index.html
 
-linux-docs: build-docs
-	readlink -f docs/_build/html/index.html
+check-bump:
+ifndef bump
+	$(error bump must be set, typically: major, minor, patch, or devnum)
+endif
 
-notes:
+notes: check-bump validate-newsfragments
 	# Let UPCOMING_VERSION be the version that is used for the current bump
 	$(eval UPCOMING_VERSION=$(shell bumpversion $(bump) --dry-run --list | grep new_version= | sed 's/new_version=//g'))
 	# Now generate the release notes to have them included in the release commit
@@ -61,11 +80,11 @@ notes:
 	make build-docs
 	git commit -m "Compile release notes for v$(UPCOMING_VERSION)"
 
-release: clean
+release: check-bump clean
 	# require that upstream is configured for ethereum/web3.py
-	@git remote -v | grep -E "upstream\tgit@github.com:ethereum/web3.py.git \(push\)|upstream\thttps://(www.)?github.com/ethereum/web3.py \(push\)"
-	./newsfragments/validate_files.py is-empty
+	@git remote -v | grep "upstream[[:space:]]git@github.com:ethereum/web3.py.git (push)\|upstream[[:space:]]https://github.com/ethereum/web3.py (push)"
 	# verify that docs build correctly
+	./newsfragments/validate_files.py is-empty
 	make build-docs
 	CURRENT_SIGN_SETTING=$(git config commit.gpgSign)
 	git config commit.gpgSign true
