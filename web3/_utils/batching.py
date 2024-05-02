@@ -67,34 +67,32 @@ RPC_METHODS_UNSUPPORTED_DURING_BATCH = {
 }
 
 
-class BatchRequestContextManager(Generic[TFunc]):
+class RequestBatcher(Generic[TFunc]):
     def __init__(self, web3: Union["AsyncWeb3", "Web3"]) -> None:
         self.web3 = web3
         self._requests_info: List[BatchRequestInformation] = []
         self._async_requests_info: List[
             Coroutine[Any, Any, BatchRequestInformation]
         ] = []
-        self._start()
+        self._initialize_batching()
 
     def _validate_is_batching(self) -> None:
         if not self.web3.provider._is_batching:
             raise Web3ValueError(
-                "Batching is not started or batch has already been executed. Start "
-                "a new batch using `web3.batch_requests()`."
+                "Batch has already been executed or cancelled. Create a new batch to "
+                "issue batched requests."
             )
 
-    def _start(self) -> None:
+    def _initialize_batching(self) -> None:
         self.web3.provider._is_batching = True
+        self.clear()
+
+    def _end_batching(self) -> None:
+        self.clear()
+        self.web3.provider._is_batching = False
         if self.web3.provider.has_persistent_connection:
             provider = cast("PersistentConnectionProvider", self.web3.provider)
-            provider._batch_request_counter = next(copy(provider.request_counter))
-
-    def _cleanup(self) -> None:
-        if self.web3.provider._is_batching:
-            self.web3.provider._is_batching = False
-            if self.web3.provider.has_persistent_connection:
-                provider = cast("PersistentConnectionProvider", self.web3.provider)
-                provider._batch_request_counter = None
+            provider._batch_request_counter = None
 
     def add(self, batch_payload: TReturn) -> None:
         self._validate_is_batching()
@@ -125,13 +123,30 @@ class BatchRequestContextManager(Generic[TFunc]):
         ],
     ) -> None:
         self._validate_is_batching()
-
         for method, params in batch_payload.items():
             for param in params:
                 self.add(method(param))
 
+    def execute(self) -> List["RPCResponse"]:
+        self._validate_is_batching()
+        responses = self.web3.manager._make_batch_request(self._requests_info)
+        self._end_batching()
+        return responses
+
+    def clear(self) -> None:
+        self._requests_info = []
+        self._async_requests_info = []
+        if self.web3.provider.has_persistent_connection:
+            provider = cast("PersistentConnectionProvider", self.web3.provider)
+            provider._batch_request_counter = next(copy(provider.request_counter))
+
+    def cancel(self) -> None:
+        self._end_batching()
+
+    # -- context manager -- #
+
     def __enter__(self) -> Self:
-        self._start()
+        self._initialize_batching()
         return self
 
     def __exit__(
@@ -140,18 +155,22 @@ class BatchRequestContextManager(Generic[TFunc]):
         exc_val: BaseException,
         exc_tb: TracebackType,
     ) -> None:
-        self._cleanup()
-
-    def execute(self) -> List["RPCResponse"]:
-        self._validate_is_batching()
-        responses = self.web3.manager._make_batch_request(self._requests_info)
-        self._cleanup()
-        return responses
+        self._end_batching()
 
     # -- async -- #
 
+    async def async_execute(self) -> List["RPCResponse"]:
+        self._validate_is_batching()
+        responses = await self.web3.manager._async_make_batch_request(
+            self._async_requests_info
+        )
+        self._end_batching()
+        return responses
+
+    # -- async context manager -- #
+
     async def __aenter__(self) -> Self:
-        self._start()
+        self._initialize_batching()
         return self
 
     async def __aexit__(
@@ -160,12 +179,4 @@ class BatchRequestContextManager(Generic[TFunc]):
         exc_val: BaseException,
         exc_tb: TracebackType,
     ) -> None:
-        self._cleanup()
-
-    async def async_execute(self) -> List["RPCResponse"]:
-        self._validate_is_batching()
-        responses = await self.web3.manager._async_make_batch_request(
-            self._async_requests_info
-        )
-        self._cleanup()
-        return responses
+        self._end_batching()

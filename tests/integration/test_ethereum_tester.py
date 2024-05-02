@@ -260,6 +260,12 @@ class TestEthereumTesterWeb3Module(Web3ModuleTest):
     test_batch_requests_initialized_as_object = not_implemented(
         Web3ModuleTest.test_batch_requests_initialized_as_object, Web3TypeError
     )
+    test_batch_requests_cancel = not_implemented(
+        Web3ModuleTest.test_batch_requests_cancel, Web3TypeError
+    )
+    test_batch_requests_clear = not_implemented(
+        Web3ModuleTest.test_batch_requests_clear, Web3TypeError
+    )
 
 
 class TestEthereumTesterEthModule(EthModuleTest):

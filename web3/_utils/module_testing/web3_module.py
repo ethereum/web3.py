@@ -31,6 +31,7 @@ from web3.contract import (
 from web3.exceptions import (
     InvalidAddress,
     MethodNotSupported,
+    Web3ValueError,
 )
 from web3.types import (
     BlockData,
@@ -329,9 +330,31 @@ class Web3ModuleTest:
                 }
             )
 
+            assert len(batch._requests_info) == 11
             responses = batch.execute()
+            assert len(responses) == 11
 
-        assert len(responses) == 11
+            # assert proper batch cleanup after execution
+            assert batch._requests_info == []
+            assert not batch.web3.provider._is_batching
+
+            # assert batch cannot be added to after execution
+            with pytest.raises(
+                Web3ValueError,
+                match="Batch has already been executed or cancelled",
+            ):
+                batch.add(w3.eth.get_block(5))
+
+            # assert batch cannot be executed again
+            with pytest.raises(
+                Web3ValueError,
+                match="Batch has already been executed or cancelled",
+            ):
+                batch.execute()
+
+        # assert can make a request after executing
+        block_num = w3.eth.block_number
+        assert isinstance(block_num, int)
 
         first_four_responses: Sequence[BlockData] = cast(
             Sequence[BlockData], responses[:4]
@@ -367,7 +390,30 @@ class Web3ModuleTest:
             {math_contract.functions.multiply7: [1, 2], w3.eth.get_block: [3, 4]}
         )
 
+        assert len(batch._requests_info) == 7
         b1, b2, m0, m1, m2, b3, b4 = batch.execute()
+
+        # assert proper batch cleanup after execution
+        assert batch._requests_info == []
+        assert not batch.web3.provider._is_batching
+
+        # assert batch cannot be added to after execution
+        with pytest.raises(
+            Web3ValueError,
+            match="Batch has already been executed or cancelled",
+        ):
+            batch.add(w3.eth.get_block(5))
+
+        # assert batch cannot be executed again
+        with pytest.raises(
+            Web3ValueError,
+            match="Batch has already been executed or cancelled",
+        ):
+            batch.execute()
+
+        # assert can make a request after executing
+        block_num = w3.eth.block_number
+        assert isinstance(block_num, int)
 
         assert cast(BlockData, b1)["number"] == 1
         assert cast(BlockData, b2)["number"] == 2
@@ -376,6 +422,73 @@ class Web3ModuleTest:
         assert cast(int, m2) == 14
         assert cast(BlockData, b3)["number"] == 3
         assert cast(BlockData, b4)["number"] == 4
+
+    def test_batch_requests_clear(self, w3: "Web3") -> None:
+        with w3.batch_requests() as batch:
+            batch.add(w3.eth.get_block(1))
+            batch.add(w3.eth.get_block(2))
+
+            assert len(batch._requests_info) == 2
+            batch.clear()
+            assert batch._requests_info == []
+
+            batch.add(w3.eth.get_block(3))
+            batch.add(w3.eth.get_block(4))
+
+            r1, r2 = batch.execute()
+
+            assert cast(BlockData, r1)["number"] == 3
+            assert cast(BlockData, r2)["number"] == 4
+
+        new_batch = w3.batch_requests()
+        new_batch.add(w3.eth.get_block(5))
+
+        assert len(new_batch._requests_info) == 1
+        new_batch.clear()
+        assert new_batch._requests_info == []
+
+        new_batch.add(w3.eth.get_block(6))
+        (r3,) = new_batch.execute()
+        assert cast(BlockData, r3)["number"] == 6
+
+    def test_batch_requests_cancel(self, w3: "Web3") -> None:
+        # as context manager
+        with w3.batch_requests() as batch:
+            batch.add(w3.eth.get_block(1))
+            batch.cancel()
+            with pytest.raises(
+                Web3ValueError,
+                match="Batch has already been executed or cancelled",
+            ):
+                batch.add(w3.eth.get_block(2))
+            with pytest.raises(
+                Web3ValueError,
+                match="Batch has already been executed or cancelled",
+            ):
+                batch.execute()
+
+        # can make a request after cancelling
+        block_num = w3.eth.block_number
+        assert isinstance(block_num, int)
+
+        # as obj
+        new_batch = w3.batch_requests()
+        new_batch.add(w3.eth.get_block(1))
+        new_batch.cancel()
+        with pytest.raises(
+            Web3ValueError,
+            match="Batch has already been executed or cancelled",
+        ):
+            new_batch.add(w3.eth.get_block(2))
+        with pytest.raises(
+            Web3ValueError,
+            match="Batch has already been executed or cancelled",
+        ):
+            new_batch.execute()
+
+        # assert can make a request after cancelling
+        block_num = w3.eth.block_number
+        assert isinstance(block_num, int)
 
     def test_batch_requests_raises_for_common_unsupported_methods(
         self, w3: "Web3", math_contract: Contract
@@ -432,9 +545,31 @@ class AsyncWeb3ModuleTest(Web3ModuleTest):
                 }
             )
 
+            assert len(batch._async_requests_info) == 11
             responses = await batch.async_execute()
+            assert len(responses) == 11
 
-        assert len(responses) == 11
+            # assert proper batch cleanup after execution
+            assert batch._async_requests_info == []
+            assert not batch.web3.provider._is_batching
+
+            # assert batch cannot be added to after execution
+            with pytest.raises(
+                Web3ValueError,
+                match="Batch has already been executed or cancelled",
+            ):
+                batch.add(async_w3.eth.get_block(5))
+
+            # assert batch cannot be executed again
+            with pytest.raises(
+                Web3ValueError,
+                match="Batch has already been executed or cancelled",
+            ):
+                await batch.async_execute()
+
+        # assert can make a request after executing
+        block_num = await async_w3.eth.block_number
+        assert isinstance(block_num, int)
 
         first_four_responses: Sequence[BlockData] = cast(
             Sequence[BlockData], responses[:4]
@@ -474,7 +609,30 @@ class AsyncWeb3ModuleTest(Web3ModuleTest):
             }
         )
 
+        assert len(batch._async_requests_info) == 7
         b1, b2, m0, m1, m2, b3, b4 = await batch.async_execute()
+
+        # assert proper batch cleanup after execution
+        assert batch._async_requests_info == []
+        assert not batch.web3.provider._is_batching
+
+        # assert batch cannot be added to after execution
+        with pytest.raises(
+            Web3ValueError,
+            match="Batch has already been executed or cancelled",
+        ):
+            batch.add(async_w3.eth.get_block(5))
+
+        # assert batch cannot be executed again
+        with pytest.raises(
+            Web3ValueError,
+            match="Batch has already been executed or cancelled",
+        ):
+            await batch.async_execute()
+
+        # assert can make a request after executing
+        block_num = await async_w3.eth.block_number
+        assert isinstance(block_num, int)
 
         assert cast(BlockData, b1)["number"] == 1
         assert cast(BlockData, b2)["number"] == 2
@@ -483,6 +641,75 @@ class AsyncWeb3ModuleTest(Web3ModuleTest):
         assert cast(int, m2) == 14
         assert cast(BlockData, b3)["number"] == 3
         assert cast(BlockData, b4)["number"] == 4
+
+    @pytest.mark.asyncio
+    async def test_batch_requests_clear(self, async_w3: AsyncWeb3) -> None:
+        async with async_w3.batch_requests() as batch:
+            batch.add(async_w3.eth.get_block(1))
+            batch.add(async_w3.eth.get_block(2))
+
+            assert len(batch._async_requests_info) == 2
+            batch.clear()
+            assert batch._async_requests_info == []
+
+            batch.add(async_w3.eth.get_block(3))
+            batch.add(async_w3.eth.get_block(4))
+
+            r1, r2 = await batch.async_execute()
+
+            assert cast(BlockData, r1)["number"] == 3
+            assert cast(BlockData, r2)["number"] == 4
+
+        new_batch = async_w3.batch_requests()
+        new_batch.add(async_w3.eth.get_block(5))
+
+        assert len(new_batch._async_requests_info) == 1
+        new_batch.clear()
+        assert new_batch._async_requests_info == []
+
+        new_batch.add(async_w3.eth.get_block(6))
+        (r3,) = await new_batch.async_execute()
+        assert cast(BlockData, r3)["number"] == 6
+
+    @pytest.mark.asyncio
+    async def test_batch_requests_cancel(self, async_w3: AsyncWeb3) -> None:
+        # as context manager
+        async with async_w3.batch_requests() as batch:
+            batch.add(async_w3.eth.get_block(1))
+            batch.cancel()
+            with pytest.raises(
+                Web3ValueError,
+                match="Batch has already been executed or cancelled",
+            ):
+                batch.add(async_w3.eth.get_block(2))
+            with pytest.raises(
+                Web3ValueError,
+                match="Batch has already been executed or cancelled",
+            ):
+                await batch.async_execute()
+
+        # can make a request after cancelling
+        block_num = await async_w3.eth.block_number
+        assert isinstance(block_num, int)
+
+        # as obj
+        new_batch = async_w3.batch_requests()
+        new_batch.add(async_w3.eth.get_block(1))
+        new_batch.cancel()
+        with pytest.raises(
+            Web3ValueError,
+            match="Batch has already been executed or cancelled",
+        ):
+            new_batch.add(async_w3.eth.get_block(2))
+        with pytest.raises(
+            Web3ValueError,
+            match="Batch has already been executed or cancelled",
+        ):
+            await new_batch.async_execute()
+
+        # can make a request after cancelling
+        block_num = await async_w3.eth.block_number
+        assert isinstance(block_num, int)
 
     @pytest.mark.asyncio
     async def test_batch_requests_raises_for_common_unsupported_methods(
