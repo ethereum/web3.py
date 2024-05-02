@@ -25,7 +25,7 @@ from websockets.exceptions import (
 )
 
 from web3._utils.batching import (
-    BatchRequestContextManager,
+    RequestBatcher,
 )
 from web3._utils.caching import (
     generate_cache_key,
@@ -390,13 +390,13 @@ class RequestManager:
 
     # -- batch requests management -- #
 
-    def _batch_requests(self) -> BatchRequestContextManager[Method[Callable[..., Any]]]:
+    def _batch_requests(self) -> RequestBatcher[Method[Callable[..., Any]]]:
         """
         Context manager for making batch requests
         """
         if not isinstance(self.provider, (AsyncJSONBaseProvider, JSONBaseProvider)):
             raise Web3TypeError("Batch requests are not supported by this provider.")
-        return BatchRequestContextManager(self.w3)
+        return RequestBatcher(self.w3)
 
     def _make_batch_request(
         self, requests_info: List[Tuple[Tuple["RPCEndpoint", Any], Sequence[Any]]]
