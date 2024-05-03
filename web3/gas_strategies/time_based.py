@@ -110,11 +110,11 @@ def _aggregate_miner_data(
             # types ignored b/c mypy has trouble inferring gas_prices: Sequence[Wei]
             price_percentile = percentile(gas_prices, percentile=20)  # type: ignore
         except InsufficientData:
-            price_percentile = min(gas_prices)  # type: ignore
+            price_percentile = min(gas_prices)
         yield MinerData(
             miner,
             len(set(block_hashes)),
-            min(gas_prices),  # type: ignore
+            min(gas_prices),
             price_percentile,
         )
 
