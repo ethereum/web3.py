@@ -144,6 +144,13 @@ class WebSocketProvider(PersistentConnectionProvider):
                 _backoff_time *= _backoff_rate_change
 
     async def disconnect(self) -> None:
+        if self._message_listener_task is not None:
+            try:
+                self._message_listener_task.cancel()
+                await self._message_listener_task
+            except (asyncio.CancelledError, StopAsyncIteration):
+                pass
+
         if self._ws is not None and not self._ws.closed:
             await self._ws.close()
             self._ws = None
@@ -151,11 +158,6 @@ class WebSocketProvider(PersistentConnectionProvider):
                 f'Successfully disconnected from endpoint: "{self.endpoint_uri}'
             )
 
-        try:
-            self._message_listener_task.cancel()
-            await self._message_listener_task
-        except (asyncio.CancelledError, StopAsyncIteration):
-            pass
         self._request_processor.clear_caches()
 
     @async_handle_request_caching
@@ -197,9 +199,6 @@ class WebSocketProvider(PersistentConnectionProvider):
                     )
             except Exception as e:
                 if not self.silence_listener_task_exceptions:
-                    loop = asyncio.get_event_loop()
-                    for task in asyncio.all_tasks(loop=loop):
-                        task.cancel()
                     raise e
 
                 self.logger.error(

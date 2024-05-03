@@ -408,6 +408,10 @@ class RequestManager:
             )
 
         while True:
+            # check if an exception was recorded in the listener task and raise it
+            # in the main loop if so
+            self._provider._handle_message_listener_exceptions()
+
             response = await self._request_processor.pop_raw_response(subscription=True)
             if (
                 response is not None
