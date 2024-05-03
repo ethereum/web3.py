@@ -35,6 +35,9 @@ from web3._utils.async_transactions import (
 from web3._utils.blocks import (
     select_method_for_block_identifier,
 )
+from web3._utils.compat import (
+    Unpack,
+)
 from web3._utils.fee_utils import (
     async_fee_history_priority_fee,
 )
@@ -594,10 +597,8 @@ class AsyncEth(BaseEth):
             self.w3, current_transaction, new_transaction
         )
 
-    # todo: Update Any to stricter kwarg checking with TxParams
-    # https://github.com/python/mypy/issues/4441
     async def modify_transaction(
-        self, transaction_hash: _Hash32, **transaction_params: Any
+        self, transaction_hash: _Hash32, **transaction_params: Unpack[TxParams]
     ) -> HexBytes:
         assert_valid_transaction_params(cast(TxParams, transaction_params))
 
