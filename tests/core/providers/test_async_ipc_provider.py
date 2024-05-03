@@ -9,6 +9,10 @@ from threading import (
 )
 import time
 
+from websockets import (
+    ConnectionClosed,
+)
+
 from web3 import (
     AsyncWeb3,
 )
@@ -112,6 +116,20 @@ def test_ipc_tilde_in_path():
     assert AsyncIPCProvider(pathlib.Path("~/foo")).ipc_path == expected_path
 
 
+def test_get_endpoint_uri_or_ipc_path_returns_ipc_path():
+    provider = AsyncIPCProvider(pathlib.Path("/path/to/file"))
+    assert (
+        provider.get_endpoint_uri_or_ipc_path() == "/path/to/file" == provider.ipc_path
+    )
+
+
+# -- async -- #
+
+
+async def _raise_connection_closed(*_args, **_kwargs):
+    raise ConnectionClosed(None, None)
+
+
 @pytest.mark.asyncio
 async def test_provider_is_connected(jsonrpc_ipc_pipe_path, serve_empty_result):
     w3 = await AsyncWeb3(AsyncIPCProvider(pathlib.Path(jsonrpc_ipc_pipe_path)))
@@ -170,8 +188,21 @@ async def test_eth_subscription(jsonrpc_ipc_pipe_path, serve_subscription_result
         await w3.provider.disconnect()
 
 
-def test_get_endpoint_uri_or_ipc_path_returns_ipc_path():
-    provider = AsyncIPCProvider(pathlib.Path("/path/to/file"))
-    assert (
-        provider.get_endpoint_uri_or_ipc_path() == "/path/to/file" == provider.ipc_path
-    )
+@pytest.mark.asyncio
+async def test_async_iterator_pattern_exception_handling(
+    simple_ipc_server,
+    jsonrpc_ipc_pipe_path,
+):
+    exception_caught = False
+    async for w3 in AsyncWeb3(AsyncIPCProvider(pathlib.Path(jsonrpc_ipc_pipe_path))):
+        # patch the listener to raise `ConnectionClosed` on read
+        w3.provider._reader.read = _raise_connection_closed
+        try:
+            await w3.eth.block_number
+        except ConnectionClosed:
+            exception_caught = True
+            break
+
+        pytest.fail("Expected `ConnectionClosed` exception.")
+
+    assert exception_caught

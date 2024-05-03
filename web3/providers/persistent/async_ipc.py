@@ -127,18 +127,21 @@ class AsyncIPCProvider(PersistentConnectionProvider):
                 _backoff_time *= _backoff_rate_change
 
     async def disconnect(self) -> None:
+        if self._message_listener_task is not None:
+            try:
+                self._message_listener_task.cancel()
+                await self._message_listener_task
+                self._reader = None
+            except (asyncio.CancelledError, StopAsyncIteration):
+                pass
+
         if self._writer and not self._writer.is_closing():
             self._writer.close()
             await self._writer.wait_closed()
             self._writer = None
             self.logger.debug(f'Successfully disconnected from : "{self.ipc_path}')
-
-        try:
-            self._message_listener_task.cancel()
-            await self._message_listener_task
+        if self._reader:
             self._reader = None
-        except (asyncio.CancelledError, StopAsyncIteration):
-            pass
 
         self._request_processor.clear_caches()
 
@@ -201,9 +204,6 @@ class AsyncIPCProvider(PersistentConnectionProvider):
                     raw_message = raw_message[pos:].lstrip()
             except Exception as e:
                 if not self.silence_listener_task_exceptions:
-                    loop = asyncio.get_event_loop()
-                    for task in asyncio.all_tasks(loop=loop):
-                        task.cancel()
                     raise e
 
                 self.logger.error(

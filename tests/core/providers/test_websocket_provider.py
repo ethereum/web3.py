@@ -10,6 +10,9 @@ from unittest.mock import (
 from eth_utils import (
     to_bytes,
 )
+from websockets import (
+    ConnectionClosed,
+)
 
 from web3 import (
     AsyncWeb3,
@@ -43,12 +46,25 @@ class WSException(Exception):
     pass
 
 
+def test_get_endpoint_uri_or_ipc_path_returns_endpoint_uri():
+    provider = WebSocketProvider("ws://mocked")
+    assert (
+        provider.get_endpoint_uri_or_ipc_path()
+        == "ws://mocked"
+        == provider.endpoint_uri
+    )
+
+
+# -- async -- #
+
+
 @pytest.mark.asyncio
 async def test_async_make_request_returns_desired_response():
     provider = WebSocketProvider("ws://mocked")
 
     with patch(
-        "web3.providers.persistent.websocket.connect", new=lambda *_1, **_2: _coro()
+        "web3.providers.persistent.websocket.connect",
+        new=lambda *_1, **_2: _coro(),
     ):
         await provider.connect()
 
@@ -116,7 +132,8 @@ async def test_msg_listener_task_starts_on_provider_connect_and_cancels_on_disco
     assert provider._message_listener_task is None
 
     with patch(
-        "web3.providers.persistent.websocket.connect", new=lambda *_1, **_2: _coro()
+        "web3.providers.persistent.websocket.connect",
+        new=lambda *_1, **_2: _coro(),
     ):
         await provider.connect()  # connect
 
@@ -135,7 +152,8 @@ async def test_msg_listener_task_raises_exceptions_by_default():
     _mock_ws(provider)
 
     with patch(
-        "web3.providers.persistent.websocket.connect", new=lambda *_1, **_2: _coro()
+        "web3.providers.persistent.websocket.connect",
+        new=lambda *_1, **_2: _coro(),
     ):
         await provider.connect()
         assert provider._message_listener_task is not None
@@ -158,7 +176,8 @@ async def test_msg_listener_task_silences_exceptions_and_error_logs_when_configu
     _mock_ws(provider)
 
     with patch(
-        "web3.providers.persistent.websocket.connect", new=lambda *_1, **_2: _coro()
+        "web3.providers.persistent.websocket.connect",
+        new=lambda *_1, **_2: _coro(),
     ):
         await provider.connect()
         assert provider._message_listener_task is not None
@@ -190,7 +209,8 @@ async def test_listen_event_awaits_msg_processing_when_subscription_queue_is_ful
     is full.
     """
     with patch(
-        "web3.providers.persistent.websocket.connect", new=lambda *_1, **_2: _coro()
+        "web3.providers.persistent.websocket.connect",
+        new=lambda *_1, **_2: _coro(),
     ):
         async_w3 = await AsyncWeb3(WebSocketProvider("ws://mocked"))
 
@@ -264,10 +284,26 @@ async def test_listen_event_awaits_msg_processing_when_subscription_queue_is_ful
     await async_w3.provider.disconnect()
 
 
-def test_get_endpoint_uri_or_ipc_path_returns_endpoint_uri():
-    provider = WebSocketProvider("ws://mocked")
-    assert (
-        provider.get_endpoint_uri_or_ipc_path()
-        == "ws://mocked"
-        == provider.endpoint_uri
-    )
+@pytest.mark.asyncio
+async def test_async_iterator_pattern_exception_handling():
+    iterations = 1
+
+    with patch(
+        "web3.providers.persistent.websocket.connect",
+        new=lambda *_1, **_2: WebSocketMessageStreamMock(
+            raise_exception=ConnectionClosed(None, None)
+        ),
+    ):
+        async for w3 in AsyncWeb3(WebSocketProvider("ws://mocked")):
+            try:
+                await w3.eth.block_number
+            except ConnectionClosed:
+                if iterations == 3:
+                    break
+                else:
+                    iterations += 1
+                    continue
+
+            pytest.fail("Expected `ConnectionClosed` exception.")
+
+        assert iterations == 3

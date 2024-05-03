@@ -69,6 +69,15 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
     async def _message_listener(self) -> None:
         raise NotImplementedError("Must be implemented by subclasses")
 
+    def _handle_message_listener_exceptions(self) -> None:
+        msg_listener_task = getattr(self, "_message_listener_task", None)
+        if (
+            msg_listener_task
+            and msg_listener_task.done()
+            and msg_listener_task.exception()
+        ):
+            raise msg_listener_task.exception()
+
     async def _get_response_for_request_id(
         self, request_id: RPCId, timeout: Optional[float] = None
     ) -> RPCResponse:
@@ -84,6 +93,10 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
                 # queue.
                 await asyncio.sleep(0)
 
+                # check if an exception was recorded in the listener task and raise it
+                # in the main loop if so
+                self._handle_message_listener_exceptions()
+
                 if request_cache_key in self._request_processor._request_response_cache:
                     self.logger.debug(
                         f"Popping response for id {request_id} from cache."
@@ -95,8 +108,8 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
 
         try:
             # Add the request timeout around the while loop that checks the request
-            # cache and tried to recv(). If the request is neither in the cache, nor
-            # received within the request_timeout, raise ``TimeExhausted``.
+            # cache. If the request is not in the cache within the request_timeout,
+            # raise ``TimeExhausted``.
             return await asyncio.wait_for(_match_response_id_to_request_id(), timeout)
         except asyncio.TimeoutError:
             raise TimeExhausted(

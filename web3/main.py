@@ -85,6 +85,7 @@ from web3.eth import (
     Eth,
 )
 from web3.exceptions import (
+    ProviderConnectionError,
     Web3TypeError,
     Web3ValueError,
 )
@@ -511,12 +512,18 @@ class AsyncWeb3(BaseWeb3):
         "when instantiating via ``async for``."
     )
     async def __aiter__(self) -> AsyncIterator[Self]:
-        if not await self.provider.is_connected():
-            await self.provider.connect()
-
         while True:
             try:
+                await self.provider.connect()
                 yield self
+            except ProviderConnectionError:
+                # We use an exponential retry in `connect()` so if we raise a
+                # `ProviderConnectionError`, there is likely an issue with the provider
+                # that will likely not be resolved by continuing to iterate.
+                raise
+            except KeyboardInterrupt:
+                # If the user interrupts the iteration, stop iterating.
+                break
             except Exception:
-                # provider should handle connection / reconnection
+                # If we encounter any other exception, continue iterating.
                 continue
