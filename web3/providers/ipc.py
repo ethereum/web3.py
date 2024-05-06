@@ -156,12 +156,7 @@ class IPCProvider(JSONBaseProvider):
     def __str__(self) -> str:
         return f"<{self.__class__.__name__} {self.ipc_path}>"
 
-    def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
-        self.logger.debug(
-            f"Making request IPC. Path: {self.ipc_path}, Method: {method}"
-        )
-        request = self.encode_rpc_request(method, params)
-
+    def _make_request(self, request: bytes) -> RPCResponse:
         with self._lock, self._socket as sock:
             try:
                 sock.sendall(request)
@@ -192,46 +187,20 @@ class IPCProvider(JSONBaseProvider):
                         timeout.sleep(0)
                         continue
 
+    def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
+        self.logger.debug(
+            f"Making request IPC. Path: {self.ipc_path}, Method: {method}"
+        )
+        request = self.encode_rpc_request(method, params)
+        return self._make_request(request)
+
     def make_batch_request(
         self, requests: List[Tuple[RPCEndpoint, Any]]
     ) -> List[RPCResponse]:
         self.logger.debug(f"Making batch request IPC. Path: {self.ipc_path}")
         request_data = self.encode_batch_rpc_request(requests)
-
-        with self._lock, self._socket as sock:
-            try:
-                sock.sendall(request_data)
-            except BrokenPipeError:
-                # one extra attempt, then give up
-                sock = self._socket.reset()
-                sock.sendall(request_data)
-
-            raw_response = b""
-            with Timeout(self.timeout) as timeout:
-                while True:
-                    try:
-                        raw_response += sock.recv(4096)
-                    except socket.timeout:
-                        timeout.sleep(0)
-                        continue
-                    if raw_response == b"":
-                        timeout.sleep(0)
-                    elif has_valid_json_rpc_ending(raw_response):
-                        try:
-                            response = cast(
-                                List[RPCResponse],
-                                self.decode_rpc_response(raw_response),
-                            )
-                        except JSONDecodeError:
-                            timeout.sleep(0)
-                            continue
-                        else:
-                            # sort by response `id` since the JSON-RPC 2.0 spec doesn't
-                            # guarantee order
-                            return sorted(response, key=lambda resp: int(resp["id"]))
-                    else:
-                        timeout.sleep(0)
-                        continue
+        response = cast(List[RPCResponse], self._make_request(request_data))
+        return sorted(response, key=lambda resp: resp["id"])
 
 
 # A valid JSON RPC response can only end in } or ] http://www.jsonrpc.org/specification
