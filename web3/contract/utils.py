@@ -154,7 +154,8 @@ def call_contract_function(
 
     output_types = get_abi_output_types(fn_abi)
 
-    if w3.provider._is_batching:
+    provider = w3.provider
+    if hasattr(provider, "_is_batching") and provider._is_batching:
         # request_information == ((method, params), response_formatters)
         request_information = tuple(return_data)
         method_and_params = request_information[0]
