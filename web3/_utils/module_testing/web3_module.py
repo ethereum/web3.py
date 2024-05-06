@@ -336,7 +336,7 @@ class Web3ModuleTest:
 
             # assert proper batch cleanup after execution
             assert batch._requests_info == []
-            assert not batch.web3.provider._is_batching
+            assert not batch._provider._is_batching
 
             # assert batch cannot be added to after execution
             with pytest.raises(
@@ -395,7 +395,7 @@ class Web3ModuleTest:
 
         # assert proper batch cleanup after execution
         assert batch._requests_info == []
-        assert not batch.web3.provider._is_batching
+        assert not batch._provider._is_batching
 
         # assert batch cannot be added to after execution
         with pytest.raises(
@@ -551,7 +551,7 @@ class AsyncWeb3ModuleTest(Web3ModuleTest):
 
             # assert proper batch cleanup after execution
             assert batch._async_requests_info == []
-            assert not batch.web3.provider._is_batching
+            assert not batch._provider._is_batching
 
             # assert batch cannot be added to after execution
             with pytest.raises(
@@ -614,7 +614,7 @@ class AsyncWeb3ModuleTest(Web3ModuleTest):
 
         # assert proper batch cleanup after execution
         assert batch._async_requests_info == []
-        assert not batch.web3.provider._is_batching
+        assert not batch._provider._is_batching
 
         # assert batch cannot be added to after execution
         with pytest.raises(

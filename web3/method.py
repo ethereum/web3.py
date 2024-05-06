@@ -164,7 +164,9 @@ class Method(Generic[TFunc]):
                 "Methods must be called from a module instance, "
                 "usually attached to a web3 instance."
             )
-        if module.w3.provider._is_batching:
+
+        provider = module.w3.provider
+        if hasattr(provider, "_is_batching") and provider._is_batching:
             if self.json_rpc_method in RPC_METHODS_UNSUPPORTED_DURING_BATCH:
                 raise MethodNotSupported(
                     f"Method `{self.json_rpc_method}` is not supported within a batch "

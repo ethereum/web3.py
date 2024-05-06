@@ -50,6 +50,9 @@ if TYPE_CHECKING:
     from web3.providers.async_base import (  # noqa: F401
         AsyncJSONBaseProvider,
     )
+    from web3.providers.base import (  # noqa: F401
+        JSONBaseProvider,
+    )
     from web3.types import (  # noqa: F401
         RPCEndpoint,
         RPCResponse,
@@ -76,22 +79,30 @@ class RequestBatcher(Generic[TFunc]):
         ] = []
         self._initialize_batching()
 
+    @property
+    def _provider(self) -> Union["JSONBaseProvider", "AsyncJSONBaseProvider"]:
+        return (
+            cast("AsyncJSONBaseProvider", self.web3.provider)
+            if self.web3.provider.is_async
+            else cast("JSONBaseProvider", self.web3.provider)
+        )
+
     def _validate_is_batching(self) -> None:
-        if not self.web3.provider._is_batching:
+        if not self._provider._is_batching:
             raise Web3ValueError(
                 "Batch has already been executed or cancelled. Create a new batch to "
                 "issue batched requests."
             )
 
     def _initialize_batching(self) -> None:
-        self.web3.provider._is_batching = True
+        self._provider._is_batching = True
         self.clear()
 
     def _end_batching(self) -> None:
         self.clear()
-        self.web3.provider._is_batching = False
-        if self.web3.provider.has_persistent_connection:
-            provider = cast("PersistentConnectionProvider", self.web3.provider)
+        self._provider._is_batching = False
+        if self._provider.has_persistent_connection:
+            provider = cast("PersistentConnectionProvider", self._provider)
             provider._batch_request_counter = None
 
     def add(self, batch_payload: TReturn) -> None:
@@ -103,7 +114,7 @@ class RequestBatcher(Generic[TFunc]):
         # When batching, we don't make a request. Instead, we will get the request
         # information and store it in the `_requests_info` list. So we have to cast the
         # apparent "request" into the BatchRequestInformation type.
-        if self.web3.provider.is_async:
+        if self._provider.is_async:
             self._async_requests_info.append(
                 cast(Coroutine[Any, Any, BatchRequestInformation], batch_payload)
             )
@@ -136,8 +147,8 @@ class RequestBatcher(Generic[TFunc]):
     def clear(self) -> None:
         self._requests_info = []
         self._async_requests_info = []
-        if self.web3.provider.has_persistent_connection:
-            provider = cast("PersistentConnectionProvider", self.web3.provider)
+        if self._provider.has_persistent_connection:
+            provider = cast("PersistentConnectionProvider", self._provider)
             provider._batch_request_counter = next(copy(provider.request_counter))
 
     def cancel(self) -> None:
