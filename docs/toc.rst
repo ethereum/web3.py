@@ -26,9 +26,7 @@ Table of Contents
     ens_overview
     examples
     troubleshooting
-    v6_migration
-    v5_migration
-    v4_migration
+    migration
 
 .. toctree::
     :maxdepth: 1
