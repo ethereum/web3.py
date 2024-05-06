@@ -155,9 +155,15 @@ def call_contract_function(
     output_types = get_abi_output_types(fn_abi)
 
     if w3.provider._is_batching:
-        return_data = list(return_data)
-        # append return data formatting to response formatters
-        resp_formatters = compose(
+        # request_information == ((method, params), response_formatters)
+        request_information = tuple(return_data)
+        method_and_params = request_information[0]
+
+        # append return data formatting to result formatters
+        current_response_formatters = request_information[1]
+        current_result_formatters = current_response_formatters[0]
+        updated_result_formatters = compose(
+            # contract call return data formatter
             format_contract_call_return_data_curried(
                 w3,
                 decode_tuples,
@@ -166,10 +172,14 @@ def call_contract_function(
                 normalizers,
                 output_types,
             ),
-            return_data[1][0],
+            current_result_formatters,
         )
-        return_data[1] = (resp_formatters, return_data[1][1], return_data[1][2])
-        return return_data
+        response_formatters = (
+            updated_result_formatters,  # result formatters
+            current_response_formatters[1],  # error formatters
+            current_response_formatters[2],  # null result formatters
+        )
+        return (method_and_params, response_formatters)
 
     try:
         output_data = w3.codec.decode(output_types, return_data)
@@ -383,7 +393,7 @@ async def async_call_contract_function(
     output_types = get_abi_output_types(fn_abi)
 
     if async_w3.provider._is_batching:
-        formatter = format_contract_call_return_data_curried(
+        contract_call_return_data_formatter = format_contract_call_return_data_curried(
             async_w3,
             decode_tuples,
             fn_abi,
@@ -396,16 +406,26 @@ async def async_call_contract_function(
             provider = cast("PersistentConnectionProvider", async_w3.provider)
             current_request_id = provider._batch_request_counter - 1
             provider._request_processor.append_result_formatter_for_request(
-                current_request_id, formatter
+                current_request_id, contract_call_return_data_formatter
             )
         else:
-            return_data = list(return_data)
-            # append return data formatter to response formatters
-            resp_formatters = compose(
-                formatter,
-                return_data[1][0],
+            # request_information == ((method, params), response_formatters)
+            request_information = tuple(return_data)
+            method_and_params = request_information[0]
+
+            # append return data formatter to result formatters
+            current_response_formatters = request_information[1]
+            current_result_formatters = current_response_formatters[0]
+            updated_result_formatters = compose(
+                contract_call_return_data_formatter,
+                current_result_formatters,
             )
-            return_data[1] = (resp_formatters, return_data[1][1], return_data[1][2])
+            response_formatters = (
+                updated_result_formatters,  # result formatters
+                current_response_formatters[1],  # error formatters
+                current_response_formatters[2],  # null result formatters
+            )
+            return (method_and_params, response_formatters)
 
         return return_data
 
