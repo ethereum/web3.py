@@ -189,7 +189,13 @@ class ContractEvent(BaseContractEvent):
 
         # convert raw binary data to Python proxy objects as described by ABI:
         all_event_logs = tuple(
-            get_event_data(self.w3.codec, event_abi, entry) for entry in logs
+            get_event_data(
+                self.w3.codec,
+                event_abi,
+                entry,
+                abi_decode_strict=self.w3.strict_bytes_type_checking,
+            )
+            for entry in logs
         )
         filtered_logs = self._process_get_logs_argument_filters(
             event_abi,
@@ -224,7 +230,9 @@ class ContractEvent(BaseContractEvent):
         )
         log_filter = filter_builder.deploy(self.w3)
         log_filter.log_entry_formatter = get_event_data(
-            self.w3.codec, self._get_event_abi()
+            self.w3.codec,
+            self._get_event_abi(),
+            abi_decode_strict=self.w3.strict_bytes_type_checking,
         )
         log_filter.builder = filter_builder
 
@@ -235,7 +243,11 @@ class ContractEvent(BaseContractEvent):
         builder = EventFilterBuilder(
             self._get_event_abi(),
             self.w3.codec,
-            formatter=get_event_data(self.w3.codec, self._get_event_abi()),
+            formatter=get_event_data(
+                self.w3.codec,
+                self._get_event_abi(),
+                abi_decode_strict=self.w3.strict_bytes_type_checking,
+            ),
         )
         builder.address = self.address
         return builder

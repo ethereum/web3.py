@@ -1037,16 +1037,16 @@ For example:
        >>> processed_logs = contract.events.myEvent().process_receipt(tx_receipt, errors=DISCARD)
        >>> assert processed_logs == ()
        True
-       
+
    In the case of an ``InsufficientDataBytes`` error, it may be possible to decode the
    log by setting the ``strict_bytes_type_checking`` flag to ``False`` on the Web3
    instance.
-   
+
     .. code-block:: python
-  
+
         >>> w3.strict_bytes_type_checking = False
-        
-  
+
+
    This will attempt to decode the log by reading only the data size specified in the
    ABI. This is useful when the log data is not padded to the correct size, but the data
    is still valid. Because any data past the specified size is ignored, this may result

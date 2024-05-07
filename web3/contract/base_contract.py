@@ -164,14 +164,13 @@ class BaseContractEvent:
         errors: EventLogErrorFlags = WARN,
         abi_decode_strict: bool = True,
     ) -> Iterable[EventData]:
-        return self._parse_logs(txn_receipt, errors, abi_decode_strict)
+        return self._parse_logs(txn_receipt, errors)
 
     @to_tuple
     def _parse_logs(
         self,
         txn_receipt: TxReceipt,
         errors: EventLogErrorFlags,
-        abi_decode_strict: bool,
     ) -> Iterable[EventData]:
         try:
             errors.name
@@ -183,7 +182,10 @@ class BaseContractEvent:
         for log in txn_receipt["logs"]:
             try:
                 rich_log = get_event_data(
-                    self.w3.codec, self.abi, log, abi_decode_strict
+                    self.w3.codec,
+                    self.abi,
+                    log,
+                    abi_decode_strict=self.w3.strict_bytes_type_checking,
                 )
             except (
                 MismatchedABI,
@@ -214,7 +216,12 @@ class BaseContractEvent:
 
     @combomethod
     def process_log(self, log: HexStr) -> EventData:
-        return get_event_data(self.w3.codec, self.abi, log)
+        return get_event_data(
+            self.w3.codec,
+            self.abi,
+            log,
+            abi_decode_strict=self.w3.strict_bytes_type_checking,
+        )
 
     @combomethod
     def _get_event_filter_params(

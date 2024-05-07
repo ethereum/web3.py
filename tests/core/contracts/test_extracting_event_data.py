@@ -1182,7 +1182,7 @@ def test_receipt_processing_with_no_flag(indexed_event_contract, dup_txn_receipt
     with pytest.warns(UserWarning, match="Expected 1 log topics.  Got 0"):
         returned_log = event_instance.process_receipt(dup_txn_receipt)
         assert len(returned_log) == 0
-        
+
 
 def test_receipt_processing_catches_insufficientdatabytes_error(
     w3, emitter, emitter_contract_event_ids, wait_for_transaction
@@ -1190,21 +1190,27 @@ def test_receipt_processing_catches_insufficientdatabytes_error(
     txn_hash = emitter.functions.logListArgs([b"13"], [b"54"]).transact()
     txn_receipt = wait_for_transaction(w3, txn_hash)
     event_instance = emitter.events.LogListArgs()
-    
+
     # web3 doesn't generate logs with non-standard lengths, so we have to do it manually
     txn_receipt_dict = copy.deepcopy(txn_receipt)
     txn_receipt_dict["logs"][0] = dict(txn_receipt_dict["logs"][0])
     txn_receipt_dict["logs"][0]["data"] = txn_receipt_dict["logs"][0]["data"][:-8]
-    
 
     assert len(event_instance.process_receipt(txn_receipt_dict)) == 0
 
     with pytest.raises(InsufficientDataBytes):
         returned_log = event_instance.process_receipt(txn_receipt_dict, errors=STRICT)
         assert len(returned_log) == 0
-    
+
     assert len(event_instance.process_receipt(txn_receipt_dict, errors=WARN)) == 0
-    assert len(event_instance.process_receipt(txn_receipt_dict, errors=WARN, abi_decode_strict=False)) == 0
+    assert (
+        len(
+            event_instance.process_receipt(
+                txn_receipt_dict, errors=WARN, abi_decode_strict=False
+            )
+        )
+        == 0
+    )
 
     # processed_logs = event_instance.process_receipt(txn_receipt)
     # assert len(processed_logs) == 1
@@ -1212,9 +1218,9 @@ def test_receipt_processing_catches_insufficientdatabytes_error(
 
     # event_instance = indexed_event_contract.events.LogSingleWithIndex()
     # breakpoint()
-    
 
-# def test_receipt_processing_with_abi_strict_decode_flag(indexed_event_contract, dup_txn_receipt):
+
+# def test_receipt_processing_with_abi_strict_decode_flag(indexed_event_contract, dup_txn_receipt):  # noqa: E501
 
 
 def test_single_log_processing_with_errors(indexed_event_contract, dup_txn_receipt):
