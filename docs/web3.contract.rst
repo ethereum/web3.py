@@ -1040,7 +1040,7 @@ For example:
 
    In the case of an ``InsufficientDataBytes`` error, it may be possible to decode the
    log by setting the ``strict_bytes_type_checking`` flag to ``False`` on the Web3
-   instance.
+   instance before decoding.
 
     .. code-block:: python
 

@@ -162,7 +162,6 @@ class BaseContractEvent:
         self,
         txn_receipt: TxReceipt,
         errors: EventLogErrorFlags = WARN,
-        abi_decode_strict: bool = True,
     ) -> Iterable[EventData]:
         return self._parse_logs(txn_receipt, errors)
 

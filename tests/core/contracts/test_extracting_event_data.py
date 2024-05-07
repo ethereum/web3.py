@@ -1202,6 +1202,13 @@ def test_receipt_processing_catches_insufficientdatabytes_error(
         returned_log = event_instance.process_receipt(txn_receipt_dict, errors=STRICT)
         assert len(returned_log) == 0
 
+    w3.strict_bytes_type_checking = False
+    returned_log = event_instance.process_receipt(txn_receipt_dict, errors=STRICT)
+    assert len(returned_log) == 0
+
+    breakpoint()
+
+    assert len(event_instance.process_receipt(txn_receipt_dict, errors=IGNORE)) == 1
     assert len(event_instance.process_receipt(txn_receipt_dict, errors=WARN)) == 0
     assert (
         len(
@@ -1217,7 +1224,6 @@ def test_receipt_processing_catches_insufficientdatabytes_error(
     # rich_log = processed_logs[0]
 
     # event_instance = indexed_event_contract.events.LogSingleWithIndex()
-    # breakpoint()
 
 
 # def test_receipt_processing_with_abi_strict_decode_flag(indexed_event_contract, dup_txn_receipt):  # noqa: E501
