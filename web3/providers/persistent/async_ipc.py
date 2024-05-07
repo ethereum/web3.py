@@ -59,6 +59,8 @@ class AsyncIPCProvider(PersistentConnectionProvider):
 
     _reader: Optional[asyncio.StreamReader] = None
     _writer: Optional[asyncio.StreamWriter] = None
+    _decoder: json.JSONDecoder = json.JSONDecoder()
+    _raw_message: str = ""
 
     def __init__(
         self,
@@ -175,40 +177,22 @@ class AsyncIPCProvider(PersistentConnectionProvider):
 
         return response
 
-    async def _message_listener(self) -> None:
-        self.logger.info(
-            "IPC socket listener background task started. Storing all messages in "
-            "appropriate request processor queues / caches to be processed."
-        )
-        raw_message = ""
-        decoder = json.JSONDecoder()
+    async def _message_listener_provider_specific_logic(self) -> None:
+        self._raw_message += to_text(await self._reader.read(4096)).lstrip()
 
-        while True:
-            # the use of sleep(0) seems to be the most efficient way to yield control
-            # back to the event loop to share the loop with other tasks.
-            await asyncio.sleep(0)
-
+        while self._raw_message:
             try:
-                raw_message += to_text(await self._reader.read(4096)).lstrip()
+                response, pos = self._decoder.raw_decode(self._raw_message)
+            except JSONDecodeError:
+                break
 
-                while raw_message:
-                    try:
-                        response, pos = decoder.raw_decode(raw_message)
-                    except JSONDecodeError:
-                        break
+            is_subscription = response.get("method") == "eth_subscription"
+            await self._request_processor.cache_raw_response(
+                response, subscription=is_subscription
+            )
+            self._raw_message = self._raw_message[pos:].lstrip()
 
-                    is_subscription = response.get("method") == "eth_subscription"
-                    await self._request_processor.cache_raw_response(
-                        response, subscription=is_subscription
-                    )
-                    raw_message = raw_message[pos:].lstrip()
-            except Exception as e:
-                if not self.silence_listener_task_exceptions:
-                    raise e
-
-                self.logger.error(
-                    "Exception caught in listener, error logging and keeping listener "
-                    f"background task alive.\n    error={e}"
-                )
-                # if only error logging, reset the ``raw_message`` buffer and continue
-                raw_message = ""
+    def _error_log_listener_task_exception(self, e: Exception) -> None:
+        super()._error_log_listener_task_exception(e)
+        # reset the raw message buffer on exception when error logging
+        self._raw_message = ""

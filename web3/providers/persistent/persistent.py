@@ -66,10 +66,45 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
     async def disconnect(self) -> None:
         raise NotImplementedError("Must be implemented by subclasses")
 
-    async def _message_listener(self) -> None:
+    async def _message_listener_provider_specific_logic(self) -> None:
         raise NotImplementedError("Must be implemented by subclasses")
 
-    def _handle_message_listener_exceptions(self) -> None:
+    async def _message_listener(self) -> None:
+        self.logger.info(
+            f"{self.__class__.__qualname__} listener background task started. Storing "
+            "all messages in appropriate request processor queues / caches to be "
+            "processed."
+        )
+        while True:
+            # the use of sleep(0) seems to be the most efficient way to yield control
+            # back to the event loop to share the loop with other tasks.
+            await asyncio.sleep(0)
+            try:
+                await self._message_listener_provider_specific_logic()
+            except Exception as e:
+                if not self.silence_listener_task_exceptions:
+                    raise e
+                else:
+                    self._error_log_listener_task_exception(e)
+
+    def _error_log_listener_task_exception(self, e: Exception) -> None:
+        """
+        When silencing listener task exceptions, this method is used to log the
+        exception and keep the listener task alive. Override this method to fine-tune
+        error logging behavior for the implementation class.
+        """
+        self.logger.error(
+            "Exception caught in listener, error logging and keeping "
+            "listener background task alive."
+            f"\n    error={e.__class__.__name__}: {e}"
+        )
+
+    def _handle_listener_task_exceptions(self) -> None:
+        """
+        Should be called every time a `PersistentConnectionProvider` is polling for
+        messages in the main loop. If the message listener task has completed and an
+        exception was recorded, raise the exception in the main loop.
+        """
         msg_listener_task = getattr(self, "_message_listener_task", None)
         if (
             msg_listener_task
@@ -95,7 +130,7 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
 
                 # check if an exception was recorded in the listener task and raise it
                 # in the main loop if so
-                self._handle_message_listener_exceptions()
+                self._handle_listener_task_exceptions()
 
                 if request_cache_key in self._request_processor._request_response_cache:
                     self.logger.debug(
