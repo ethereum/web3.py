@@ -1,7 +1,7 @@
 .. _filtering:
 
-Monitoring Events
-=================
+Events and Logs
+===============
 
 If you're on this page, you're likely looking for an answer to this question:
 **How do I know when a specific contract is used?** You have at least three options:

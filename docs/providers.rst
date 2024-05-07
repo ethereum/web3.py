@@ -1,7 +1,7 @@
 .. _providers:
 
-Connecting to Ethereum
-======================
+Providers
+=========
 
 Using Ethereum requires access to an Ethereum node. If you have the means, you're
 encouraged to `run your own node`_. (Note that you do not need to stake ether to
