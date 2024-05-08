@@ -80,6 +80,9 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
                 self._message_listener_task = asyncio.create_task(
                     self._message_listener()
                 )
+                self._message_listener_task.add_done_callback(
+                    self._message_listener_callback
+                )
                 break
             except (WebSocketException, OSError) as e:
                 if _connection_attempts == self._max_connection_retries:
@@ -117,6 +120,14 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
 
     async def _provider_specific_message_listener(self) -> None:
         raise NotImplementedError("Must be implemented by subclasses")
+
+    def _message_listener_callback(
+        self, _message_listener_task: "asyncio.Task[None]"
+    ) -> None:
+        # Since we await subscription messages in the queue, subscription message
+        # streams don't know when the listener task is done and would hang indefinitely.
+        # This puts a `None` in the queue to signal that the listener task is done.
+        self._request_processor._subscription_response_queue.put_nowait(None)
 
     async def _message_listener(self) -> None:
         self.logger.info(

@@ -44,9 +44,9 @@ class RequestProcessor:
 
         self._request_information_cache: SimpleCache = SimpleCache(500)
         self._request_response_cache: SimpleCache = SimpleCache(500)
-        self._subscription_response_queue: asyncio.Queue[RPCResponse] = asyncio.Queue(
-            maxsize=subscription_response_queue_size
-        )
+        self._subscription_response_queue: asyncio.Queue[
+            Optional[RPCResponse]
+        ] = asyncio.Queue(maxsize=subscription_response_queue_size)
 
     @property
     def active_subscriptions(self) -> Dict[str, Any]:
@@ -251,14 +251,14 @@ class RequestProcessor:
             if qsize == 0:
                 if not self._subscription_queue_synced_with_ws_stream:
                     self._subscription_queue_synced_with_ws_stream = True
-                    self._provider.logger.debug(
+                    self._provider.logger.info(
                         "Subscription response queue synced with websocket message "
                         "stream."
                     )
             else:
                 if self._subscription_queue_synced_with_ws_stream:
                     self._subscription_queue_synced_with_ws_stream = False
-                self._provider.logger.debug(
+                self._provider.logger.info(
                     f"Subscription response queue has {qsize} subscriptions. "
                     "Processing as FIFO."
                 )

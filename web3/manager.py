@@ -1,4 +1,3 @@
-import asyncio
 import logging
 from typing import (
     TYPE_CHECKING,
@@ -403,47 +402,30 @@ class RequestManager:
                 "can listen to streams."
             )
 
-        msg_listener_task = self._provider._message_listener_task
-        if msg_listener_task is None:
+        if self._provider._message_listener_task is None:
             raise ProviderConnectionError(
                 "No listener found for persistent connection."
             )
 
         while True:
-            # Awaiting a message in the queue will block the loop until a message is
-            # received. If the listener task finishes for any reason, a new message will
-            # never come in. We have to simultaneously heck if the listener task is
-            # done, returning the first completed task.
-            done, pending = await asyncio.wait(
-                [
-                    asyncio.create_task(
-                        self._request_processor.pop_raw_response(subscription=True)
-                    ),
-                    msg_listener_task,
-                ],
-                return_when=asyncio.FIRST_COMPLETED,
-            )
-
-            if msg_listener_task.done():
-                for task in pending:
-                    task.cancel()
-
+            response = await self._request_processor.pop_raw_response(subscription=True)
+            if response is None:
+                # Part of the callback for the listener task is to push `None` to the
+                # subscription queue so that we can pop out of the queue above and
+                # process any exceptions that occurred in the listener task.
                 self._provider._handle_listener_task_exceptions()
-                # if no exceptions raised and listener task is done, stop the stream
-                self.logger.debug(
-                    "Message listener task is not running, stopping message stream."
+                self.logger.error(
+                    "Message listener background task has stopped unexpectedly. "
+                    "Stopping message stream."
                 )
                 raise StopAsyncIteration
-
-            else:
-                response = done.pop().result()
-                if (
-                    response is not None
-                    and response.get("params", {}).get("subscription")
-                    in self._request_processor.active_subscriptions
-                ):
-                    # if response is an active subscription response, process it
-                    yield await self._process_response(response)
+            elif (
+                response is not None
+                and response.get("params", {}).get("subscription")
+                in self._request_processor.active_subscriptions
+            ):
+                # if response is an active subscription response, process it
+                yield await self._process_response(response)
 
     async def _process_response(self, response: RPCResponse) -> RPCResponse:
         provider = cast(PersistentConnectionProvider, self._provider)
