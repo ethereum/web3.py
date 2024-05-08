@@ -23,9 +23,11 @@ from hexbytes import (
     HexBytes,
 )
 
+from web3.utils.abi import (
+    get_abi_output_types,
+)
 from web3._utils.abi import (
     filter_by_type,
-    get_abi_output_types,
     map_abi_data,
     named_tree,
     recursive_dict_to_namedtuple,

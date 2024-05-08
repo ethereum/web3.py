@@ -399,11 +399,8 @@ To sign a transaction locally that will invoke a smart contract:
 
     >>> from web3 import Web3, EthereumTesterProvider
     >>> w3 = Web3(EthereumTesterProvider())
-
     >>> unicorns = w3.eth.contract(address="0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359", abi=EIP20_ABI)
-
     >>> nonce = w3.eth.get_transaction_count('0x5ce9454909639D2D17A3F753ce7d93fa0b9aB12E')  # doctest: +SKIP
-
     # Build a transaction that invokes this contract's function, called transfer
     >>> unicorn_txn = unicorns.functions.transfer(
     ...     '0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359',
@@ -415,7 +412,6 @@ To sign a transaction locally that will invoke a smart contract:
     ...     'maxPriorityFeePerGas': w3.to_wei('1', 'gwei'),
     ...     'nonce': nonce,
     ... })
-
     >>> unicorn_txn
     {'value': 0,
      'chainId': 1,
@@ -425,7 +421,6 @@ To sign a transaction locally that will invoke a smart contract:
      'nonce': 0,
      'to': '0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359',
      'data': '0xa9059cbb000000000000000000000000fb6916095ca1df60bb79ce92ce3ea74c37c5d3590000000000000000000000000000000000000000000000000000000000000001'}
-
     >>> private_key = b"\xb2\\}\xb3\x1f\xee\xd9\x12''\xbf\t9\xdcv\x9a\x96VK-\xe4\xc4rm\x03[6\xec\xf1\xe5\xb3d"
     >>> signed_txn = w3.eth.account.sign_transaction(unicorn_txn, private_key=private_key)
     >>> signed_txn.hash
@@ -438,9 +433,7 @@ To sign a transaction locally that will invoke a smart contract:
     48417310681110102814014302147799665717176259465062324746227758019974374282313
     >>> signed_txn.v
     1
-
     >>> w3.eth.send_raw_transaction(signed_txn.raw_transaction)  # doctest: +SKIP
-
     # When you run send_raw_transaction, you get the same result as the hash of the transaction:
     >>> w3.to_hex(w3.keccak(signed_txn.raw_transaction))
     '0x748db062639a45e519dba934fce09c367c92043867409160c9989673439dc817'

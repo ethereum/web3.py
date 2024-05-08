@@ -1,7 +1,7 @@
 import json
 import pytest
 
-from web3._utils.abi import (
+from web3.utils.abi import (
     get_abi_input_types,
 )
 from web3._utils.function_identifiers import (

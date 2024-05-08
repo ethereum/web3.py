@@ -92,7 +92,7 @@ from web3.exceptions import (
 from web3.types import (
     TReturn,
 )
-from web3.utils import (  # public utils module
+from web3.utils import (
     get_abi_input_names,
 )
 
@@ -115,20 +115,6 @@ def filter_by_name(name: str, contract_abi: ABI) -> List[Union[ABIFunction, ABIE
             and abi["name"] == name
         )
     ]
-
-
-def get_abi_input_types(abi: ABIFunction) -> List[str]:
-    if "inputs" not in abi and (abi["type"] == "fallback" or abi["type"] == "receive"):
-        return []
-    else:
-        return [get_normalized_abi_arg_type(arg) for arg in abi["inputs"]]
-
-
-def get_abi_output_types(abi: ABIFunction) -> List[str]:
-    if abi["type"] == "fallback":
-        return []
-    else:
-        return [get_normalized_abi_arg_type(arg) for arg in abi["outputs"]]
 
 
 def get_receive_func_abi(contract_abi: ABI) -> ABIFunction:

@@ -8,14 +8,13 @@ The ``utils`` module houses public utility functions and classes.
 ABI
 ---
 
-.. py:method:: utils.get_abi_input_names(abi)
+ABI utilities re-exported as ``web3.utils.abi`` from
+`eth-utils <https://github.com/ethereum/eth-utils>`_.
 
-    Return the ``input`` names for an ABI function or event.
-
-
-.. py:method:: utils.get_abi_output_names(abi)
-
-    Return the ``output`` names an ABI function or event.
+.. automodule:: web3.utils.abi
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 Address
 -------
