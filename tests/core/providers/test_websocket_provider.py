@@ -285,7 +285,7 @@ async def test_listen_event_awaits_msg_processing_when_subscription_queue_is_ful
 
 
 @pytest.mark.asyncio
-async def test_async_iterator_pattern_exception_handling():
+async def test_async_iterator_pattern_exception_handling_for_requests():
     iterations = 1
 
     with patch(
@@ -297,6 +297,33 @@ async def test_async_iterator_pattern_exception_handling():
         async for w3 in AsyncWeb3(WebSocketProvider("ws://mocked")):
             try:
                 await w3.eth.block_number
+            except ConnectionClosed:
+                if iterations == 3:
+                    break
+                else:
+                    iterations += 1
+                    continue
+
+            pytest.fail("Expected `ConnectionClosed` exception.")
+
+        assert iterations == 3
+
+
+@pytest.mark.asyncio
+async def test_async_iterator_pattern_exception_handling_for_subscriptions():
+    iterations = 1
+
+    with patch(
+        "web3.providers.persistent.websocket.connect",
+        new=lambda *_1, **_2: WebSocketMessageStreamMock(
+            raise_exception=ConnectionClosed(None, None)
+        ),
+    ):
+        async for w3 in AsyncWeb3(WebSocketProvider("ws://mocked")):
+            try:
+                async for _ in w3.socket.process_subscriptions():
+                    # raises exception
+                    pass
             except ConnectionClosed:
                 if iterations == 3:
                     break

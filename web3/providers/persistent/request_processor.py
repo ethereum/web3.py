@@ -218,7 +218,7 @@ class RequestProcessor:
     ) -> None:
         if subscription:
             if self._subscription_response_queue.full():
-                self._provider.logger.info(
+                self._provider.logger.debug(
                     "Subscription queue is full. Waiting for provider to consume "
                     "messages before caching."
                 )
@@ -251,14 +251,14 @@ class RequestProcessor:
             if qsize == 0:
                 if not self._subscription_queue_synced_with_ws_stream:
                     self._subscription_queue_synced_with_ws_stream = True
-                    self._provider.logger.info(
+                    self._provider.logger.debug(
                         "Subscription response queue synced with websocket message "
                         "stream."
                     )
             else:
                 if self._subscription_queue_synced_with_ws_stream:
                     self._subscription_queue_synced_with_ws_stream = False
-                self._provider.logger.info(
+                self._provider.logger.debug(
                     f"Subscription response queue has {qsize} subscriptions. "
                     "Processing as FIFO."
                 )
