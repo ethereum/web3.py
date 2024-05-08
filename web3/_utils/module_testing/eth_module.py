@@ -721,7 +721,7 @@ class AsyncEthModuleTest:
             "gasPrice": 10**9,
         }
         signed = keyfile_account.sign_transaction(txn)
-        txn_hash = await async_w3.eth.send_raw_transaction(signed.rawTransaction)
+        txn_hash = await async_w3.eth.send_raw_transaction(signed.raw_transaction)
         assert txn_hash == HexBytes(signed.hash)
 
     @pytest.mark.asyncio
@@ -3720,7 +3720,7 @@ class EthModuleTest:
             "gasPrice": 10**9,
         }
         signed = keyfile_account.sign_transaction(txn)
-        txn_hash = w3.eth.send_raw_transaction(signed.rawTransaction)
+        txn_hash = w3.eth.send_raw_transaction(signed.raw_transaction)
         assert txn_hash == HexBytes(signed.hash)
 
     def test_eth_call(self, w3: "Web3", math_contract: "Contract") -> None:
