@@ -76,12 +76,18 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
         while _connection_attempts != self._max_connection_retries:
             try:
                 _connection_attempts += 1
+                self.logger.info(
+                    f"Connecting to: {self.get_endpoint_uri_or_ipc_path()}"
+                )
                 await self._provider_specific_connect()
                 self._message_listener_task = asyncio.create_task(
                     self._message_listener()
                 )
                 self._message_listener_task.add_done_callback(
                     self._message_listener_callback
+                )
+                self.logger.info(
+                    f"Successfully connected to: {self.get_endpoint_uri_or_ipc_path()}"
                 )
                 break
             except (WebSocketException, OSError) as e:
@@ -99,15 +105,18 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
                 _backoff_time *= _backoff_rate_change
 
     async def disconnect(self) -> None:
-        if self._message_listener_task is not None:
-            try:
+        try:
+            if self._message_listener_task:
                 self._message_listener_task.cancel()
                 await self._message_listener_task
-            except (asyncio.CancelledError, StopAsyncIteration, ConnectionClosed):
-                pass
+        except (asyncio.CancelledError, StopAsyncIteration, ConnectionClosed):
+            pass
+        finally:
+            self.logger.info("Message listener background task successfully shut down.")
+
         await self._provider_specific_disconnect()
-        self.logger.debug(
-            f'Successfully disconnected from: "{self.get_endpoint_uri_or_ipc_path()}'
+        self.logger.info(
+            f"Successfully disconnected from: {self.get_endpoint_uri_or_ipc_path()}"
         )
 
     # -- private methods -- #
