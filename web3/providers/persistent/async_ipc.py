@@ -177,7 +177,7 @@ class AsyncIPCProvider(PersistentConnectionProvider):
 
         return response
 
-    async def _message_listener_provider_specific_logic(self) -> None:
+    async def _provider_specific_message_listener(self) -> None:
         self._raw_message += to_text(await self._reader.read(4096)).lstrip()
 
         while self._raw_message:

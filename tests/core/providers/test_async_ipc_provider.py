@@ -189,7 +189,7 @@ async def test_eth_subscription(jsonrpc_ipc_pipe_path, serve_subscription_result
 
 
 @pytest.mark.asyncio
-async def test_async_iterator_pattern_exception_handling(
+async def test_async_iterator_pattern_exception_handling_for_requests(
     simple_ipc_server,
     jsonrpc_ipc_pipe_path,
 ):
@@ -199,6 +199,28 @@ async def test_async_iterator_pattern_exception_handling(
         w3.provider._reader.read = _raise_connection_closed
         try:
             await w3.eth.block_number
+        except ConnectionClosed:
+            exception_caught = True
+            break
+
+        pytest.fail("Expected `ConnectionClosed` exception.")
+
+    assert exception_caught
+
+
+@pytest.mark.asyncio
+async def test_async_iterator_pattern_exception_handling_for_subscriptions(
+    simple_ipc_server,
+    jsonrpc_ipc_pipe_path,
+):
+    exception_caught = False
+    async for w3 in AsyncWeb3(AsyncIPCProvider(pathlib.Path(jsonrpc_ipc_pipe_path))):
+        # patch the listener to raise `ConnectionClosed` on read
+        w3.provider._reader.read = _raise_connection_closed
+        try:
+            async for _ in w3.socket.process_subscriptions():
+                # raises exception
+                pass
         except ConnectionClosed:
             exception_caught = True
             break

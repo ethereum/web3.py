@@ -63,10 +63,21 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
     async def connect(self) -> None:
         raise NotImplementedError("Must be implemented by subclasses")
 
-    async def disconnect(self) -> None:
+    async def _provider_specific_disconnect(self) -> None:
         raise NotImplementedError("Must be implemented by subclasses")
 
-    async def _message_listener_provider_specific_logic(self) -> None:
+    async def disconnect(self) -> None:
+        if self._message_listener_task is not None:
+            try:
+                self._message_listener_task.cancel()
+            except (asyncio.CancelledError, StopAsyncIteration):
+                pass
+            finally:
+                self._message_listener_task = None
+
+        await self._provider_specific_disconnect()
+
+    async def _provider_specific_message_listener(self) -> None:
         raise NotImplementedError("Must be implemented by subclasses")
 
     async def _message_listener(self) -> None:
@@ -80,7 +91,7 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
             # back to the event loop to share the loop with other tasks.
             await asyncio.sleep(0)
             try:
-                await self._message_listener_provider_specific_logic()
+                await self._provider_specific_message_listener()
             except Exception as e:
                 if not self.silence_listener_task_exceptions:
                     raise e
@@ -123,11 +134,6 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
             request_cache_key = generate_cache_key(request_id)
 
             while True:
-                # sleep(0) here seems to be the most efficient way to yield control
-                # back to the event loop while waiting for the response to be in the
-                # queue.
-                await asyncio.sleep(0)
-
                 # check if an exception was recorded in the listener task and raise it
                 # in the main loop if so
                 self._handle_listener_task_exceptions()
@@ -140,6 +146,8 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
                         cache_key=request_cache_key,
                     )
                     return popped_response
+                else:
+                    await asyncio.sleep(0)
 
         try:
             # Add the request timeout around the while loop that checks the request

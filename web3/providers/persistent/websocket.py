@@ -147,9 +147,10 @@ class WebSocketProvider(PersistentConnectionProvider):
         if self._message_listener_task is not None:
             try:
                 self._message_listener_task.cancel()
-                await self._message_listener_task
             except (asyncio.CancelledError, StopAsyncIteration):
                 pass
+            finally:
+                self._message_listener_task = None
 
         if self._ws is not None and not self._ws.closed:
             await self._ws.close()
@@ -178,7 +179,7 @@ class WebSocketProvider(PersistentConnectionProvider):
 
         return response
 
-    async def _message_listener_provider_specific_logic(self) -> None:
+    async def _provider_specific_message_listener(self) -> None:
         async for raw_message in self._ws:
             await asyncio.sleep(0)
 
