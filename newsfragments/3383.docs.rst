@@ -1,0 +1,1 @@
+Distribute examples into relevant guides and delete Example page

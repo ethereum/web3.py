@@ -1,6 +1,11 @@
 Transactions
 ============
 
+There are a handful of ways to interact with transactions in web3.py. See the
+:ref:`Web3.eth module <web3-eth-methods>` for a full list of transaction-related methods.
+
+This guide covers the decision tree for how to send a transaction.
+
 .. note::
 
   Prefer to view this code in a Jupyter Notebook? View the repo `here <https://github.com/wolovim/ethereum-notebooks/blob/master/Sending%20Transactions.ipynb>`_.
@@ -30,7 +35,7 @@ An example for each can be found below.
 
 
 Chapter 0: ``w3.eth.send_transaction`` with ``eth-tester``
-----------------------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Many tutorials use ``eth-tester`` (via EthereumTesterProvider) for convenience and speed
 of conveying ideas/building a proof of concept. Transactions sent by test accounts are
@@ -60,7 +65,7 @@ auto-signed.
 
 
 Chapter 1: ``w3.eth.send_transaction`` + signer middleware
-----------------------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The :meth:`~web3.eth.Eth.send_transaction` method is convenient and to-the-point.
 If you want to continue using the pattern after graduating from ``eth-tester``, you can
@@ -104,7 +109,7 @@ utilize web3.py middleware to sign transactions from a particular account:
 
 
 Chapter 2: ``w3.eth.send_raw_transaction``
-------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 if you don't opt for the middleware, you'll need to:
 
@@ -135,7 +140,7 @@ if you don't opt for the middleware, you'll need to:
 
 
 Chapter 3: Contract transactions
---------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The same concepts apply for contract interactions, at least under the hood.
 
