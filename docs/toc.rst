@@ -18,7 +18,6 @@ Table of Contents
     transactions
     filters
     web3.contract
-    abi_types
     middleware
     internals
     ens_overview
