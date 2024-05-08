@@ -65,7 +65,6 @@ class AsyncIPCProvider(PersistentConnectionProvider):
     def __init__(
         self,
         ipc_path: Optional[Union[str, Path]] = None,
-        max_connection_retries: int = 5,
         # `PersistentConnectionProvider` kwargs can be passed through
         **kwargs: Any,
     ) -> None:
@@ -76,7 +75,6 @@ class AsyncIPCProvider(PersistentConnectionProvider):
         else:
             raise Web3TypeError("ipc_path must be of type string or pathlib.Path")
 
-        self._max_connection_retries = max_connection_retries
         super().__init__(**kwargs)
 
     def __str__(self) -> str:
@@ -101,51 +99,16 @@ class AsyncIPCProvider(PersistentConnectionProvider):
                 )
             return False
 
-    async def connect(self) -> None:
-        _connection_attempts = 0
-        _backoff_rate_change = 1.75
-        _backoff_time = 1.75
+    async def _provider_specific_connect(self) -> None:
+        self._reader, self._writer = await async_get_ipc_socket(self.ipc_path)
 
-        while _connection_attempts != self._max_connection_retries:
-            try:
-                _connection_attempts += 1
-                self._reader, self._writer = await async_get_ipc_socket(self.ipc_path)
-                self._message_listener_task = asyncio.create_task(
-                    self._message_listener()
-                )
-                break
-            except OSError as e:
-                if _connection_attempts == self._max_connection_retries:
-                    raise ProviderConnectionError(
-                        f"Could not connect to: {self.ipc_path}. "
-                        f"Retries exceeded max of {self._max_connection_retries}."
-                    ) from e
-                self.logger.info(
-                    f"Could not connect to: {self.ipc_path}. Retrying in "
-                    f"{round(_backoff_time, 1)} seconds.",
-                    exc_info=True,
-                )
-                await asyncio.sleep(_backoff_time)
-                _backoff_time *= _backoff_rate_change
-
-    async def disconnect(self) -> None:
-        if self._message_listener_task is not None:
-            try:
-                self._message_listener_task.cancel()
-                await self._message_listener_task
-                self._reader = None
-            except (asyncio.CancelledError, StopAsyncIteration):
-                pass
-
+    async def _provider_specific_disconnect(self) -> None:
         if self._writer and not self._writer.is_closing():
             self._writer.close()
             await self._writer.wait_closed()
             self._writer = None
-            self.logger.debug(f'Successfully disconnected from : "{self.ipc_path}')
         if self._reader:
             self._reader = None
-
-        self._request_processor.clear_caches()
 
     async def _reset_socket(self) -> None:
         self._writer.close()

@@ -7,10 +7,16 @@ from typing import (
     Optional,
 )
 
+from websockets import (
+    ConnectionClosed,
+    WebSocketException,
+)
+
 from web3._utils.caching import (
     generate_cache_key,
 )
 from web3.exceptions import (
+    ProviderConnectionError,
     TimeExhausted,
 )
 from web3.providers.async_base import (
@@ -40,6 +46,7 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
         request_timeout: float = DEFAULT_PERSISTENT_CONNECTION_TIMEOUT,
         subscription_response_queue_size: int = 500,
         silence_listener_task_exceptions: bool = False,
+        max_connection_retries: int = 5,
     ) -> None:
         super().__init__()
         self._request_processor = RequestProcessor(
@@ -48,6 +55,7 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
         )
         self.request_timeout = request_timeout
         self.silence_listener_task_exceptions = silence_listener_task_exceptions
+        self._max_connection_retries = max_connection_retries
 
     def get_endpoint_uri_or_ipc_path(self) -> str:
         if hasattr(self, "endpoint_uri"):
@@ -61,21 +69,51 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
             )
 
     async def connect(self) -> None:
-        raise NotImplementedError("Must be implemented by subclasses")
+        _connection_attempts = 0
+        _backoff_rate_change = 1.75
+        _backoff_time = 1.75
 
-    async def _provider_specific_disconnect(self) -> None:
-        raise NotImplementedError("Must be implemented by subclasses")
+        while _connection_attempts != self._max_connection_retries:
+            try:
+                _connection_attempts += 1
+                await self._provider_specific_connect()
+                self._message_listener_task = asyncio.create_task(
+                    self._message_listener()
+                )
+                break
+            except (WebSocketException, OSError) as e:
+                if _connection_attempts == self._max_connection_retries:
+                    raise ProviderConnectionError(
+                        f"Could not connect to: {self.get_endpoint_uri_or_ipc_path()}. "
+                        f"Retries exceeded max of {self._max_connection_retries}."
+                    ) from e
+                self.logger.info(
+                    f"Could not connect to: {self.get_endpoint_uri_or_ipc_path()}. "
+                    f"Retrying in {round(_backoff_time, 1)} seconds.",
+                    exc_info=True,
+                )
+                await asyncio.sleep(_backoff_time)
+                _backoff_time *= _backoff_rate_change
 
     async def disconnect(self) -> None:
         if self._message_listener_task is not None:
             try:
                 self._message_listener_task.cancel()
-            except (asyncio.CancelledError, StopAsyncIteration):
+                await self._message_listener_task
+            except (asyncio.CancelledError, StopAsyncIteration, ConnectionClosed):
                 pass
-            finally:
-                self._message_listener_task = None
-
         await self._provider_specific_disconnect()
+        self.logger.debug(
+            f'Successfully disconnected from: "{self.get_endpoint_uri_or_ipc_path()}'
+        )
+
+    # -- private methods -- #
+
+    async def _provider_specific_connect(self) -> None:
+        raise NotImplementedError("Must be implemented by subclasses")
+
+    async def _provider_specific_disconnect(self) -> None:
+        raise NotImplementedError("Must be implemented by subclasses")
 
     async def _provider_specific_message_listener(self) -> None:
         raise NotImplementedError("Must be implemented by subclasses")
