@@ -144,6 +144,7 @@ from web3.types import (
 
 if TYPE_CHECKING:
     from web3._utils.empty import Empty  # noqa: F401
+    from web3.providers.persistent import PersistentConnectionProvider  # noqa: F401
 
 
 def get_async_default_modules() -> Dict[str, Union[Type[Module], Sequence[Any]]]:
@@ -511,7 +512,11 @@ class AsyncWeb3(BaseWeb3):
         "when instantiating via ``async for``."
     )
     async def __aiter__(self) -> AsyncIterator[Self]:
+        provider = self.provider
         while True:
-            await self.provider.connect()
+            await provider.connect()
             yield self
-            await self.provider.disconnect()
+            cast("PersistentConnectionProvider", provider).logger.error(
+                "Connection interrupted, attempting to reconnect..."
+            )
+            await provider.disconnect()
