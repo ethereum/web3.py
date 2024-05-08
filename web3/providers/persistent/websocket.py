@@ -61,7 +61,6 @@ class WebSocketProvider(PersistentConnectionProvider):
     logger = logging.getLogger("web3.providers.WebSocketProvider")
     is_async: bool = True
 
-    _max_connection_retries: int = 5
     _ws: Optional[WebSocketClientProtocol] = None
 
     def __init__(
@@ -116,50 +115,13 @@ class WebSocketProvider(PersistentConnectionProvider):
                 ) from e
             return False
 
-    async def connect(self) -> None:
-        _connection_attempts = 0
-        _backoff_rate_change = 1.75
-        _backoff_time = 1.75
+    async def _provider_specific_connect(self) -> None:
+        self._ws = await connect(self.endpoint_uri, **self.websocket_kwargs)
 
-        while _connection_attempts != self._max_connection_retries:
-            try:
-                _connection_attempts += 1
-                self._ws = await connect(self.endpoint_uri, **self.websocket_kwargs)
-                self._message_listener_task = asyncio.create_task(
-                    self._message_listener()
-                )
-                break
-            except WebSocketException as e:
-                if _connection_attempts == self._max_connection_retries:
-                    raise ProviderConnectionError(
-                        f"Could not connect to endpoint: {self.endpoint_uri}. "
-                        f"Retries exceeded max of {self._max_connection_retries}."
-                    ) from e
-                self.logger.info(
-                    f"Could not connect to endpoint: {self.endpoint_uri}. Retrying in "
-                    f"{round(_backoff_time, 1)} seconds.",
-                    exc_info=True,
-                )
-                await asyncio.sleep(_backoff_time)
-                _backoff_time *= _backoff_rate_change
-
-    async def disconnect(self) -> None:
-        if self._message_listener_task is not None:
-            try:
-                self._message_listener_task.cancel()
-            except (asyncio.CancelledError, StopAsyncIteration):
-                pass
-            finally:
-                self._message_listener_task = None
-
+    async def _provider_specific_disconnect(self) -> None:
         if self._ws is not None and not self._ws.closed:
             await self._ws.close()
             self._ws = None
-            self.logger.debug(
-                f'Successfully disconnected from endpoint: "{self.endpoint_uri}'
-            )
-
-        self._request_processor.clear_caches()
 
     @async_handle_request_caching
     async def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
