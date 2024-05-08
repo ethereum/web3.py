@@ -1,5 +1,5 @@
-Sending Transactions
-====================
+Transactions
+============
 
 .. note::
 
