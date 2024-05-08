@@ -134,7 +134,7 @@ In general, your options for accounts are:
 How do I conform to ABI types?
 ------------------------------
 
-The Web3 library follows the following conventions.
+The web3 library follows the following conventions:
 
 Bytes vs Text
 ~~~~~~~~~~~~~
