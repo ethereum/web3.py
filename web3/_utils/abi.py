@@ -158,12 +158,19 @@ def filter_by_argument_count(
 def filter_by_argument_name(
     argument_names: Collection[str], contract_abi: ABI
 ) -> List[Union[ABIFunction, ABIEvent]]:
-    return [
-        abi
-        for abi in contract_abi
-        if set(argument_names).intersection(get_abi_input_names(abi))
-        == set(argument_names)
-    ]
+    abis_with_matching_args = ()
+    for abi_element in contract_abi:
+        try:
+            abi_arg_names = get_abi_input_names(abi_element)
+
+            if set(argument_names).intersection(abi_arg_names) == set(abi_arg_names):
+                abis_with_matching_args.push(abi_element)
+        except ValueError:
+            # fallback or receive functions do not have arguments
+            # proceed to next ABIElement
+            continue
+
+    return abis_with_matching_args
 
 
 # type ignored because subclassing encoding.AddressEncoder which has type Any

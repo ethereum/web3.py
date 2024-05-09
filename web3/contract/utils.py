@@ -108,7 +108,13 @@ def call_contract_function(
             contract_abi, w3.codec, function_identifier, args, kwargs
         )
 
-    output_types = get_abi_output_types(fn_abi)
+    try:
+        output_types = get_abi_output_types(fn_abi)
+    except ValueError:
+        # constructor, fallback and receive functions do not have arguments
+        # proceed with decoding data without arguments
+        output_types = []
+        pass
 
     try:
         output_data = w3.codec.decode(output_types, return_data)
@@ -319,7 +325,13 @@ async def async_call_contract_function(
             contract_abi, async_w3.codec, function_identifier, args, kwargs
         )
 
-    output_types = get_abi_output_types(fn_abi)
+    try:
+        output_types = get_abi_output_types(fn_abi)
+    except ValueError:
+        # constructor, fallback and receive functions do not have arguments
+        # proceed with decoding data without arguments
+        output_types = []
+        pass
 
     try:
         output_data = async_w3.codec.decode(output_types, return_data)

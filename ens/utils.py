@@ -26,9 +26,7 @@ from eth_utils import (
     remove_0x_prefix,
     to_bytes,
     to_normalized_address,
-)
-from eth_utils.abi import (
-    get_normalized_abi_arg_type,
+    get_abi_output_types as abi_output_types,
 )
 from hexbytes import (
     HexBytes,
@@ -293,13 +291,9 @@ def is_valid_ens_name(ens_name: str) -> bool:
     return True
 
 
-# borrowed from similar method at `web3._utils.abi` due to circular dependency
+# Wrap `get_abi_output_types` to prevent direct imports causing circular dependencies
 def get_abi_output_types(abi: "ABIFunction") -> List[str]:
-    return (
-        []
-        if abi["type"] == "fallback"
-        else [get_normalized_abi_arg_type(arg) for arg in abi["outputs"]]
-    )
+    return abi_output_types(abi)
 
 
 # -- async -- #

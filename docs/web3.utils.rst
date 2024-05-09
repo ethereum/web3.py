@@ -8,8 +8,12 @@ The ``utils`` module houses public utility functions and classes.
 ABI
 ---
 
-ABI utilities re-exported as ``web3.utils.abi`` from
-`eth-utils <https://github.com/ethereum/eth-utils>`_.
+``web3.utils.abi``
+
+Application Binary Interface (ABI) methods to encode/decode contract transactions.
+
+It is generally recommended to use the `web3.eth.contract` module. These methods are
+useful when a contract's ABI is known and a Web3 instance is not needed.
 
 .. automodule:: web3.utils.abi
    :members:

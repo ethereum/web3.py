@@ -634,7 +634,7 @@ Taking the following contract code as an example:
     >>> arrays_contract.functions.setBytes2Value([b'b']).transact()
     Traceback (most recent call last):
        ...
-    web3.exceptions.Web3ValidationError:
+    web3.exceptions.Web3TypeError:
     Could not identify the intended function with name
     >>> # check value is still b'aa'
     >>> arrays_contract.functions.getBytes2Value().call()
@@ -659,7 +659,7 @@ Taking the following contract code as an example:
     >>> arrays_contract.functions.setBytes2Value([b'a']).transact()
     Traceback (most recent call last):
        ...
-    web3.exceptions.Web3ValidationError:
+    web3.exceptions.Web3TypeError:
     Could not identify the intended function with name
 
 .. _contract-functions:

@@ -17,11 +17,11 @@ from hexbytes import (
 
 from .utils import (
     address_to_reverse_domain,
-    get_abi_output_types,
     is_valid_name,
     label_to_hash,
     normalize_name,
     raw_name_to_hash,
+    get_abi_output_types,
 )
 
 if TYPE_CHECKING:
@@ -108,7 +108,14 @@ class BaseENS:
             if fn_name == "addr"
             else extended_resolver.get_function_by_name(fn_name)
         )
-        output_types = get_abi_output_types(func.abi)
+        try:
+            output_types = get_abi_output_types(func.abi)
+        except ValueError:
+            # constructor, fallback and receive functions do not have outputs
+            # proceed with decoding data without outputs
+            output_types = []
+            pass
+
         decoded = self.w3.codec.decode(output_types, contract_call_result)
 
         # if decoding a single value, return that value - else, return the tuple

@@ -218,7 +218,12 @@ def encode_abi(
     arguments: Sequence[Any],
     data: Optional[HexStr] = None,
 ) -> HexStr:
-    argument_types = get_abi_input_types(abi)
+    try:
+        argument_types = get_abi_input_types(abi)
+    except ValueError:
+        # fallback or receive functions do not have arguments
+        # return encoded data without arguments
+        return to_hex(HexBytes(data))
 
     if not check_if_arguments_can_be_encoded(abi, w3.codec, arguments, {}):
         raise Web3TypeError(
@@ -332,11 +337,19 @@ def decode_transaction_data(
     normalizers: Sequence[Callable[[TypeStr, Any], Tuple[TypeStr, Any]]] = None,
 ) -> Dict[str, Any]:
     data = HexBytes(data)
-    types = get_abi_input_types(fn_abi)
+
+    try:
+        argument_types = get_abi_input_types(fn_abi)
+    except ValueError:
+        # fallback or receive functions do not have arguments
+        # proceed with decoding data without arguments
+        argument_types = []
+        pass
+
     abi_codec = ABICodec(default_registry)
-    decoded = abi_codec.decode(types, HexBytes(data[4:]))
+    decoded = abi_codec.decode(argument_types, HexBytes(data[4:]))
     if normalizers:
-        decoded = map_abi_data(normalizers, types, decoded)
+        decoded = map_abi_data(normalizers, argument_types, decoded)
     return named_tree(fn_abi["inputs"], decoded)
 
 
