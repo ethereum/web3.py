@@ -29,6 +29,9 @@ from web3.types import (
     RPCResponse,
 )
 
+from .._utils.batching import (
+    sort_batch_response_by_response_ids,
+)
 from ..exceptions import (
     Web3TypeError,
     Web3ValueError,
@@ -200,7 +203,7 @@ class IPCProvider(JSONBaseProvider):
         self.logger.debug(f"Making batch request IPC. Path: {self.ipc_path}")
         request_data = self.encode_batch_rpc_request(requests)
         response = cast(List[RPCResponse], self._make_request(request_data))
-        return sorted(response, key=lambda resp: resp["id"])
+        return sort_batch_response_by_response_ids(response)
 
 
 # A valid JSON RPC response can only end in } or ] http://www.jsonrpc.org/specification

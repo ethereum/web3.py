@@ -19,6 +19,9 @@ from eth_utils.toolz import (
     compose,
 )
 
+from web3._utils.batching import (
+    BATCH_REQUEST_ID,
+)
 from web3._utils.caching import (
     RequestInformation,
     generate_cache_key,
@@ -297,9 +300,9 @@ class RequestProcessor:
             )
             await self._subscription_response_queue.put(raw_response)
         elif isinstance(raw_response, list):
-            # hash all response ids in the list and cache the list with this hash
-            response_ids = [response.get("id") for response in raw_response]
-            cache_key = generate_cache_key(response_ids)
+            # Since only one batch should be in the cache at all times, we use a
+            # constant cache key for the batch response.
+            cache_key = generate_cache_key(BATCH_REQUEST_ID)
             self._provider.logger.debug(
                 f"Caching batch response:\n    cache_key={cache_key},\n"
                 f"    response={raw_response}"
