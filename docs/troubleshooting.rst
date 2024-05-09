@@ -336,3 +336,125 @@ To fix this error, download and install Microsoft Visual C++ from here :
 - `x86 Visual C++ <https://aka.ms/vs/16/release/VC_redist.x86.exe>`_
 
 - `ARM64 Visual C++ <https://aka.ms/vs/16/release/VC_redist.arm64.exe>`_
+
+
+How do I convert currency denominations?
+----------------------------------------
+
+The following denominations are supported:
+
++--------------+---------------------------------+
+| denomination | amount in wei                   |
++--------------+---------------------------------+
+| wei          | 1                               |
++--------------+---------------------------------+
+| kwei         | 1000                            |
++--------------+---------------------------------+
+| babbage      | 1000                            |
++--------------+---------------------------------+
+| femtoether   | 1000                            |
++--------------+---------------------------------+
+| mwei         | 1000000                         |
++--------------+---------------------------------+
+| lovelace     | 1000000                         |
++--------------+---------------------------------+
+| picoether    | 1000000                         |
++--------------+---------------------------------+
+| gwei         | 1000000000                      |
++--------------+---------------------------------+
+| shannon      | 1000000000                      |
++--------------+---------------------------------+
+| nanoether    | 1000000000                      |
++--------------+---------------------------------+
+| nano         | 1000000000                      |
++--------------+---------------------------------+
+| szabo        | 1000000000000                   |
++--------------+---------------------------------+
+| microether   | 1000000000000                   |
++--------------+---------------------------------+
+| micro        | 1000000000000                   |
++--------------+---------------------------------+
+| finney       | 1000000000000000                |
++--------------+---------------------------------+
+| milliether   | 1000000000000000                |
++--------------+---------------------------------+
+| milli        | 1000000000000000                |
++--------------+---------------------------------+
+| ether        | 1000000000000000000             |
++--------------+---------------------------------+
+| kether       | 1000000000000000000000          |
++--------------+---------------------------------+
+| grand        | 1000000000000000000000          |
++--------------+---------------------------------+
+| mether       | 1000000000000000000000000       |
++--------------+---------------------------------+
+| gether       | 1000000000000000000000000000    |
++--------------+---------------------------------+
+| tether       | 1000000000000000000000000000000 |
++--------------+---------------------------------+
+
+You can use the :meth:`~web3.from_wei` method
+to convert a balance to ether (or another denomination).
+
+.. code-block:: python
+
+    >>> web3.from_wei(3841357360894980500000001, 'ether')
+    Decimal('3841357.360894980500000001')
+
+To convert back to wei, you can use the inverse function, :meth:`~web3.to_wei`.
+Note that Python's default floating point precision is insufficient for this
+use case, so it's necessary to cast the value to a
+`Decimal <https://docs.python.org/3/library/decimal.html>`_ if it isn't already.
+
+.. code-block:: python
+
+    >>> from decimal import Decimal
+    >>> web3.to_wei(Decimal('3841357.360894980500000001'), 'ether')
+    3841357360894980500000001
+
+Best practice: If you need to work with multiple currency denominations, default
+to wei. A typical workflow may require a conversion from some denomination to
+wei, then from wei to whatever you need.
+
+.. code-block:: python
+
+    >>> web3.to_wei(Decimal('0.000000005'), 'ether')
+    5000000000
+    >>> web3.from_wei(5000000000, 'gwei')
+    Decimal('5')
+
+
+How do I adjust the log levels?
+-------------------------------
+
+web3.py internally uses `Python logging subsystem <https://docs.python.org/3/library/logging.html>`_.
+
+If you want to run your application logging in debug mode, below is an example of how to make some JSON-RPC traffic quieter.
+
+.. code-block:: python
+
+    import logging
+    import coloredlogs
+
+    def setup_logging(log_level=logging.DEBUG):
+        """Setup root logger and quiet some levels."""
+        logger = logging.getLogger()
+
+        # Set log format to display the logger name to hunt down verbose logging modules
+        fmt = "%(name)-25s %(levelname)-8s %(message)s"
+
+        # Use colored logging output for console with the coloredlogs package
+        # https://pypi.org/project/coloredlogs/
+        coloredlogs.install(level=log_level, fmt=fmt, logger=logger)
+
+        # Disable logging of JSON-RPC requests and replies
+        logging.getLogger("web3.RequestManager").setLevel(logging.WARNING)
+        logging.getLogger("web3.providers.HTTPProvider").setLevel(logging.WARNING)
+        # logging.getLogger("web3.RequestManager").propagate = False
+
+        # Disable all internal debug logging of requests and urllib3
+        # E.g. HTTP traffic
+        logging.getLogger("requests").setLevel(logging.WARNING)
+        logging.getLogger("urllib3").setLevel(logging.WARNING)
+
+        return logger

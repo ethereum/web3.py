@@ -16,12 +16,11 @@ Table of Contents
     providers
     web3.eth.account
     transactions
-    filters
     web3.contract
+    filters
     middleware
     internals
     ens_overview
-    examples
     troubleshooting
     migration
 
