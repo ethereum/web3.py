@@ -1,6 +1,7 @@
 import datetime
 import time
 from typing import (
+    TYPE_CHECKING,
     Any,
     Dict,
     Optional,
@@ -14,6 +15,9 @@ from eth_utils import (
 from web3.types import (
     BlockData,
 )
+
+if TYPE_CHECKING:
+    import asyncio
 
 
 class Web3Exception(Exception):
@@ -341,7 +345,21 @@ class BadResponseFormat(Web3Exception):
     Raised when a JSON-RPC response comes back in an unexpected format
     """
 
-    pass
+
+class TaskNotRunning(Web3Exception):
+    """
+    Used to signal between asyncio contexts that a task that is being awaited
+    is not currently running.
+    """
+
+    def __init__(
+        self, task: "asyncio.Task[Any]", message: Optional[str] = None
+    ) -> None:
+        self.task = task
+        if message is None:
+            message = f"Task {task} is not running."
+        self.message = message
+        super().__init__(message)
 
 
 class MethodUnavailable(Web3Exception):

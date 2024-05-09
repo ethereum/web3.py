@@ -22,12 +22,8 @@ from websockets.exceptions import (
     WebSocketException,
 )
 
-from web3._utils.caching import (
-    generate_cache_key,
-)
 from web3.exceptions import (
     ProviderConnectionError,
-    TimeExhausted,
     Web3ValidationError,
 )
 from web3.providers.persistent import (
@@ -35,7 +31,6 @@ from web3.providers.persistent import (
 )
 from web3.types import (
     RPCEndpoint,
-    RPCId,
     RPCResponse,
 )
 
@@ -59,7 +54,6 @@ def get_default_endpoint() -> URI:
 class WebsocketProviderV2(PersistentConnectionProvider):
     logger = logging.getLogger("web3.providers.WebsocketProviderV2")
     is_async: bool = True
-    _max_connection_retries: int = 5
 
     def __init__(
         self,
@@ -69,16 +63,16 @@ class WebsocketProviderV2(PersistentConnectionProvider):
         # `PersistentConnectionProvider` kwargs can be passed through
         **kwargs: Any,
     ) -> None:
-        self.endpoint_uri = URI(endpoint_uri)
-        if self.endpoint_uri is None:
-            self.endpoint_uri = get_default_endpoint()
+        self.endpoint_uri = (
+            URI(endpoint_uri) if endpoint_uri is not None else get_default_endpoint()
+        )
 
         if not any(
             self.endpoint_uri.startswith(prefix)
             for prefix in VALID_WEBSOCKET_URI_PREFIXES
         ):
             raise Web3ValidationError(
-                "Websocket endpoint uri must begin with 'ws://' or 'wss://': "
+                "WebSocket endpoint uri must begin with 'ws://' or 'wss://': "
                 f"{self.endpoint_uri}"
             )
 
@@ -93,12 +87,13 @@ class WebsocketProviderV2(PersistentConnectionProvider):
                 )
 
         self.websocket_kwargs = merge(DEFAULT_WEBSOCKET_KWARGS, websocket_kwargs or {})
-        self.silence_listener_task_exceptions = silence_listener_task_exceptions
 
-        super().__init__(**kwargs)
+        super().__init__(
+            silence_listener_task_exceptions=silence_listener_task_exceptions, **kwargs
+        )
 
     def __str__(self) -> str:
-        return f"Websocket connection: {self.endpoint_uri}"
+        return f"WebSocket connection: {self.endpoint_uri}"
 
     async def is_connected(self, show_traceback: bool = False) -> bool:
         if not self._ws:
@@ -115,47 +110,13 @@ class WebsocketProviderV2(PersistentConnectionProvider):
                 ) from e
             return False
 
-    async def connect(self) -> None:
-        _connection_attempts = 0
-        _backoff_rate_change = 1.75
-        _backoff_time = 1.75
+    async def _provider_specific_connect(self) -> None:
+        self._ws = await connect(self.endpoint_uri, **self.websocket_kwargs)
 
-        while _connection_attempts != self._max_connection_retries:
-            try:
-                _connection_attempts += 1
-                self._ws = await connect(self.endpoint_uri, **self.websocket_kwargs)
-                self._message_listener_task = asyncio.create_task(
-                    self._ws_message_listener()
-                )
-                break
-            except WebSocketException as e:
-                if _connection_attempts == self._max_connection_retries:
-                    raise ProviderConnectionError(
-                        f"Could not connect to endpoint: {self.endpoint_uri}. "
-                        f"Retries exceeded max of {self._max_connection_retries}."
-                    ) from e
-                self.logger.info(
-                    f"Could not connect to endpoint: {self.endpoint_uri}. Retrying in "
-                    f"{round(_backoff_time, 1)} seconds.",
-                    exc_info=True,
-                )
-                await asyncio.sleep(_backoff_time)
-                _backoff_time *= _backoff_rate_change
-
-    async def disconnect(self) -> None:
+    async def _provider_specific_disconnect(self) -> None:
         if self._ws is not None and not self._ws.closed:
             await self._ws.close()
             self._ws = None
-            self.logger.debug(
-                f'Successfully disconnected from endpoint: "{self.endpoint_uri}'
-            )
-
-        try:
-            self._message_listener_task.cancel()
-            await self._message_listener_task
-        except (asyncio.CancelledError, StopAsyncIteration):
-            pass
-        self._request_processor.clear_caches()
 
     async def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
         request_data = self.encode_rpc_request(method, params)
@@ -174,69 +135,12 @@ class WebsocketProviderV2(PersistentConnectionProvider):
 
         return response
 
-    async def _get_response_for_request_id(self, request_id: RPCId) -> RPCResponse:
-        async def _match_response_id_to_request_id() -> RPCResponse:
-            request_cache_key = generate_cache_key(request_id)
-
-            while True:
-                # sleep(0) here seems to be the most efficient way to yield control
-                # back to the event loop while waiting for the response to be in the
-                # queue.
-                await asyncio.sleep(0)
-
-                if request_cache_key in self._request_processor._request_response_cache:
-                    self.logger.debug(
-                        f"Popping response for id {request_id} from cache."
-                    )
-                    popped_response = await self._request_processor.pop_raw_response(
-                        cache_key=request_cache_key,
-                    )
-                    return popped_response
-
-        try:
-            # Add the request timeout around the while loop that checks the request
-            # cache and tried to recv(). If the request is neither in the cache, nor
-            # received within the request_timeout, raise ``TimeExhausted``.
-            return await asyncio.wait_for(
-                _match_response_id_to_request_id(), self.request_timeout
-            )
-        except asyncio.TimeoutError:
-            raise TimeExhausted(
-                f"Timed out waiting for response with request id `{request_id}` after "
-                f"{self.request_timeout} second(s). This may be due to the provider "
-                "not returning a response with the same id that was sent in the "
-                "request or an exception raised during the request was caught and "
-                "allowed to continue."
-            )
-
-    async def _ws_message_listener(self) -> None:
-        self.logger.info(
-            "Websocket listener background task started. Storing all messages in "
-            "appropriate request processor queues / caches to be processed."
-        )
-        while True:
-            # the use of sleep(0) seems to be the most efficient way to yield control
-            # back to the event loop to share the loop with other tasks.
+    async def _provider_specific_message_listener(self) -> None:
+        async for raw_message in self._ws:
             await asyncio.sleep(0)
 
-            try:
-                async for raw_message in self._ws:
-                    await asyncio.sleep(0)
-
-                    response = json.loads(raw_message)
-                    subscription = response.get("method") == "eth_subscription"
-                    await self._request_processor.cache_raw_response(
-                        response, subscription=subscription
-                    )
-            except Exception as e:
-                if not self.silence_listener_task_exceptions:
-                    loop = asyncio.get_event_loop()
-                    for task in asyncio.all_tasks(loop=loop):
-                        task.cancel()
-                    raise e
-
-                self.logger.error(
-                    "Exception caught in listener, error logging and keeping "
-                    "listener background task alive."
-                    f"\n    error={e.__class__.__name__}: {e}"
-                )
+            response = json.loads(raw_message)
+            subscription = response.get("method") == "eth_subscription"
+            await self._request_processor.cache_raw_response(
+                response, subscription=subscription
+            )
