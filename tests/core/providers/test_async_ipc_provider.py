@@ -126,6 +126,36 @@ def test_get_endpoint_uri_or_ipc_path_returns_ipc_path():
 # -- async -- #
 
 
+@pytest.mark.asyncio
+async def test_disconnect_cleanup(
+    simple_ipc_server,
+    jsonrpc_ipc_pipe_path,
+):
+    w3 = await AsyncWeb3(AsyncIPCProvider(pathlib.Path(jsonrpc_ipc_pipe_path)))
+    provider = w3.provider
+
+    assert provider._message_listener_task is not None
+    assert provider._reader is not None
+    assert provider._writer is not None
+
+    # put some items in each cache
+    provider._request_processor._request_response_cache.cache("0", "0x1337")
+    provider._request_processor._request_information_cache.cache("0", "0x1337")
+    provider._request_processor._subscription_response_queue.put_nowait({"id": "0"})
+    assert len(provider._request_processor._request_response_cache) == 1
+    assert len(provider._request_processor._request_information_cache) == 1
+    assert provider._request_processor._subscription_response_queue.qsize() == 1
+
+    await w3.provider.disconnect()
+
+    assert not provider._message_listener_task
+    assert not w3.provider._reader
+    assert not w3.provider._writer
+    assert len(provider._request_processor._request_response_cache) == 0
+    assert len(provider._request_processor._request_information_cache) == 0
+    assert provider._request_processor._subscription_response_queue.empty()
+
+
 async def _raise_connection_closed(*_args, **_kwargs):
     raise ConnectionClosed(None, None)
 

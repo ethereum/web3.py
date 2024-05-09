@@ -113,9 +113,11 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
         except (asyncio.CancelledError, StopAsyncIteration, ConnectionClosed):
             pass
         finally:
+            self._message_listener_task = None
             self.logger.info("Message listener background task successfully shut down.")
 
         await self._provider_specific_disconnect()
+        self._request_processor.clear_caches()
         self.logger.info(
             f"Successfully disconnected from: {self.get_endpoint_uri_or_ipc_path()}"
         )
