@@ -36,7 +36,6 @@ from web3._utils.async_transactions import (
     async_fill_transaction_defaults,
 )
 from web3._utils.contracts import (
-    find_matching_fn_abi,
     prepare_transaction,
 )
 from web3._utils.normalizers import (
@@ -55,6 +54,9 @@ from web3.types import (
     StateOverride,
     TContractFn,
     TxParams,
+)
+from web3.utils.abi import (
+    get_function_abi,
 )
 
 if TYPE_CHECKING:
@@ -104,8 +106,8 @@ def call_contract_function(
     )
 
     if fn_abi is None:
-        fn_abi = find_matching_fn_abi(
-            contract_abi, w3.codec, function_identifier, args, kwargs
+        fn_abi = get_function_abi(
+            contract_abi, function_identifier, args, kwargs, abi_codec=w3.codec
         )
 
     try:
@@ -321,8 +323,8 @@ async def async_call_contract_function(
     )
 
     if fn_abi is None:
-        fn_abi = find_matching_fn_abi(
-            contract_abi, async_w3.codec, function_identifier, args, kwargs
+        fn_abi = get_function_abi(
+            contract_abi, function_identifier, args, kwargs, abi_codec=async_w3.codec
         )
 
     try:
