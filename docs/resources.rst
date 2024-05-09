@@ -33,7 +33,7 @@ Tutorials
 ---------
 
 - Intro to `Ape development framework <https://snakecharmers.ethereum.org/intro-to-ape/>`__
-- Intro to `websockets <https://snakecharmers.ethereum.org/websockets-v2/>`__ and web3.py
+- Intro to `websockets <https://snakecharmers.ethereum.org/websocketprovider/>`__ and web3.py
 - Intro to `asynchronous web3.py <https://snakecharmers.ethereum.org/web3-py-patterns-intro-async/>`__
 - Intro to `threaded web3.py <https://snakecharmers.ethereum.org/web3-py-patterns-multithreading/>`__
 - Sign `typed data messages <https://snakecharmers.ethereum.org/typed-data-message-signing/>`__ (EIP 712)

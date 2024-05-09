@@ -293,6 +293,8 @@ WebSocketProvider
     available arguments.
 
 
+.. _subscription-examples:
+
 Using Persistent Connection Providers
 +++++++++++++++++++++++++++++++++++++
 
