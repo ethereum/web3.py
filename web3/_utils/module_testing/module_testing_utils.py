@@ -196,7 +196,7 @@ class WebSocketMessageStreamMock:
         return self.messages.popleft()
 
     @staticmethod
-    async def pong() -> bool:
+    async def pong() -> Literal[False]:
         return False
 
     async def connect(self) -> None:

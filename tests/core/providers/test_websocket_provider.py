@@ -36,10 +36,13 @@ from web3.types import (
 
 def _mock_ws(provider):
     provider._ws = AsyncMock()
+    provider._ws.closed = False
 
 
-async def _coro():
-    return None
+async def _mocked_ws_conn():
+    _conn = AsyncMock()
+    _conn.closed = False
+    return _conn
 
 
 class WSException(Exception):
@@ -59,12 +62,41 @@ def test_get_endpoint_uri_or_ipc_path_returns_endpoint_uri():
 
 
 @pytest.mark.asyncio
+async def test_disconnect_cleanup():
+    provider = WebSocketProvider("ws://mocked")
+
+    with patch(
+        "web3.providers.persistent.websocket.connect",
+        new=lambda *_1, **_2: _mocked_ws_conn(),
+    ):
+        await provider.connect()
+
+    assert provider._ws is not None
+    assert provider._message_listener_task is not None
+
+    # put some items in each cache
+    provider._request_processor._request_response_cache.cache("0", "0x1337")
+    provider._request_processor._request_information_cache.cache("0", "0x1337")
+    provider._request_processor._subscription_response_queue.put_nowait({"id": "0"})
+    assert len(provider._request_processor._request_response_cache) == 1
+    assert len(provider._request_processor._request_information_cache) == 1
+    assert provider._request_processor._subscription_response_queue.qsize() == 1
+
+    await provider.disconnect()
+
+    assert provider._ws is None
+    assert len(provider._request_processor._request_response_cache) == 0
+    assert len(provider._request_processor._request_information_cache) == 0
+    assert provider._request_processor._subscription_response_queue.empty()
+
+
+@pytest.mark.asyncio
 async def test_async_make_request_returns_desired_response():
     provider = WebSocketProvider("ws://mocked")
 
     with patch(
         "web3.providers.persistent.websocket.connect",
-        new=lambda *_1, **_2: _coro(),
+        new=lambda *_1, **_2: _mocked_ws_conn(),
     ):
         await provider.connect()
 
@@ -125,7 +157,7 @@ async def test_async_make_request_times_out_of_while_loop_looking_for_response()
 
 
 @pytest.mark.asyncio
-async def test_msg_listener_task_starts_on_provider_connect_and_cancels_on_disconnect():
+async def test_msg_listener_task_starts_on_provider_connect_and_clears_on_disconnect():
     provider = WebSocketProvider("ws://mocked")
     _mock_ws(provider)
 
@@ -133,7 +165,7 @@ async def test_msg_listener_task_starts_on_provider_connect_and_cancels_on_disco
 
     with patch(
         "web3.providers.persistent.websocket.connect",
-        new=lambda *_1, **_2: _coro(),
+        new=lambda *_1, **_2: _mocked_ws_conn(),
     ):
         await provider.connect()  # connect
 
@@ -142,8 +174,7 @@ async def test_msg_listener_task_starts_on_provider_connect_and_cancels_on_disco
 
     await provider.disconnect()  # disconnect
 
-    assert provider._message_listener_task.cancelled()
-    assert provider._message_listener_task.done()
+    assert not provider._message_listener_task
 
 
 @pytest.mark.asyncio
@@ -153,7 +184,7 @@ async def test_msg_listener_task_raises_exceptions_by_default():
 
     with patch(
         "web3.providers.persistent.websocket.connect",
-        new=lambda *_1, **_2: _coro(),
+        new=lambda *_1, **_2: _mocked_ws_conn(),
     ):
         await provider.connect()
         assert provider._message_listener_task is not None
@@ -177,7 +208,7 @@ async def test_msg_listener_task_silences_exceptions_and_error_logs_when_configu
 
     with patch(
         "web3.providers.persistent.websocket.connect",
-        new=lambda *_1, **_2: _coro(),
+        new=lambda *_1, **_2: _mocked_ws_conn(),
     ):
         await provider.connect()
         assert provider._message_listener_task is not None
@@ -210,7 +241,7 @@ async def test_listen_event_awaits_msg_processing_when_subscription_queue_is_ful
     """
     with patch(
         "web3.providers.persistent.websocket.connect",
-        new=lambda *_1, **_2: _coro(),
+        new=lambda *_1, **_2: _mocked_ws_conn(),
     ):
         async_w3 = await AsyncWeb3(WebSocketProvider("ws://mocked"))
 
