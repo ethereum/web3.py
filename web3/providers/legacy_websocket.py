@@ -28,6 +28,9 @@ from websockets.legacy.client import (
     WebSocketClientProtocol,
 )
 
+from web3._utils.batching import (
+    sort_batch_response_by_response_ids,
+)
 from web3.exceptions import (
     Web3ValidationError,
 )
@@ -149,5 +152,4 @@ class LegacyWebSocketProvider(JSONBaseProvider):
             self.coro_make_request(request_data), LegacyWebSocketProvider._loop
         )
         response = cast(List[RPCResponse], future.result())
-        # sort by response `id` since the JSON-RPC 2.0 spec doesn't guarantee order
-        return sorted(response, key=lambda resp: int(resp["id"]))
+        return sort_batch_response_by_response_ids(response)

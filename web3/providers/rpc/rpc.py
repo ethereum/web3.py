@@ -37,6 +37,9 @@ from web3.types import (
     RPCResponse,
 )
 
+from ..._utils.batching import (
+    sort_batch_response_by_response_ids,
+)
 from ..._utils.caching import (
     handle_request_caching,
 )
@@ -168,5 +171,4 @@ class HTTPProvider(JSONBaseProvider):
         )
         self.logger.debug("Received batch response HTTP.")
         responses_list = cast(List[RPCResponse], self.decode_rpc_response(raw_response))
-        # sort by response `id` since the JSON-RPC 2.0 spec doesn't guarantee order
-        return sorted(responses_list, key=lambda resp: int(resp["id"]))
+        return sort_batch_response_by_response_ids(responses_list)

@@ -28,6 +28,10 @@ from websockets.exceptions import (
     WebSocketException,
 )
 
+from web3._utils.batching import (
+    BATCH_REQUEST_ID,
+    sort_batch_response_by_response_ids,
+)
 from web3._utils.caching import (
     async_handle_request_caching,
 )
@@ -158,10 +162,9 @@ class WebSocketProvider(PersistentConnectionProvider):
             self._ws.send(request_data), timeout=self.request_timeout
         )
 
-        # generate a cache key with all the request ids hashed
-        request_ids = [rpc_request["id"] for rpc_request in json.loads(request_data)]
         response = cast(
-            List[RPCResponse], await self._get_response_for_request_id(request_ids)
+            List[RPCResponse],
+            await self._get_response_for_request_id(BATCH_REQUEST_ID),
         )
         return response
 
@@ -171,11 +174,7 @@ class WebSocketProvider(PersistentConnectionProvider):
 
             response = json.loads(raw_message)
             if isinstance(response, list):
-                # Order responses to batch requests by `id` since the
-                # JSON-RPC 2.0 spec doesn't guarantee order. It's important
-                # to do this before caching since we generate and look for
-                # cache keys using the ordered request ids.
-                response = sorted(response, key=lambda resp: int(resp["id"]))
+                response = sort_batch_response_by_response_ids(response)
 
             subscription = (
                 response.get("method") == "eth_subscription"
