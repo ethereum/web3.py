@@ -17,6 +17,7 @@ from web3._utils.caching import (
 )
 from web3.exceptions import (
     ProviderConnectionError,
+    TaskNotRunning,
     TimeExhausted,
 )
 from web3.providers.async_base import (
@@ -131,12 +132,13 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
         raise NotImplementedError("Must be implemented by subclasses")
 
     def _message_listener_callback(
-        self, _message_listener_task: "asyncio.Task[None]"
+        self, message_listener_task: "asyncio.Task[None]"
     ) -> None:
-        # Since we await subscription messages in the queue, subscription message
-        # streams don't know when the listener task is done and would hang indefinitely.
-        # This puts a `None` in the queue to signal that the listener task is done.
-        self._request_processor._subscription_response_queue.put_nowait(None)
+        # Puts a `TaskNotRunning` in the queue to signal the end of the listener task
+        # to any running subscription streams that are awaiting a response.
+        self._request_processor._subscription_response_queue.put_nowait(
+            TaskNotRunning(message_listener_task)
+        )
 
     async def _message_listener(self) -> None:
         self.logger.info(

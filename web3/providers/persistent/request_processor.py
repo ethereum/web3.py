@@ -2,13 +2,17 @@ import asyncio
 from copy import (
     copy,
 )
+import sys
 from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
     Dict,
+    Generic,
     Optional,
     Tuple,
+    TypeVar,
+    Union,
 )
 
 from web3._utils.caching import (
@@ -16,6 +20,7 @@ from web3._utils.caching import (
     generate_cache_key,
 )
 from web3.exceptions import (
+    TaskNotRunning,
     Web3ValueError,
 )
 from web3.types import (
@@ -31,6 +36,34 @@ if TYPE_CHECKING:
         PersistentConnectionProvider,
     )
 
+T = TypeVar("T")
+
+# TODO: This is an ugly hack for python 3.8. Remove this after we drop support for it
+#  and use `asyncio.Queue[T]` type directly in the `TaskReliantQueue` class.
+if sys.version_info >= (3, 9):
+
+    class _TaskReliantQueue(asyncio.Queue[T], Generic[T]):
+        pass
+
+else:
+
+    class _TaskReliantQueue(asyncio.Queue, Generic[T]):  # type: ignore
+        pass
+
+
+class TaskReliantQueue(_TaskReliantQueue[T]):
+    """
+    A queue that relies on a task to be running to process items in the queue.
+    """
+
+    async def get(self) -> T:
+        item = await super().get()
+        if isinstance(item, Exception):
+            # if the item is an exception, raise it so the task can handle this case
+            # more gracefully
+            raise item
+        return item
+
 
 class RequestProcessor:
     _subscription_queue_synced_with_ws_stream: bool = False
@@ -44,9 +77,9 @@ class RequestProcessor:
 
         self._request_information_cache: SimpleCache = SimpleCache(500)
         self._request_response_cache: SimpleCache = SimpleCache(500)
-        self._subscription_response_queue: asyncio.Queue[
-            Optional[RPCResponse]
-        ] = asyncio.Queue(maxsize=subscription_response_queue_size)
+        self._subscription_response_queue: TaskReliantQueue[
+            Union[RPCResponse, TaskNotRunning]
+        ] = TaskReliantQueue(maxsize=subscription_response_queue_size)
 
     @property
     def active_subscriptions(self) -> Dict[str, Any]:
@@ -289,6 +322,6 @@ class RequestProcessor:
         """Clear the request processor caches."""
         self._request_information_cache.clear()
         self._request_response_cache.clear()
-        self._subscription_response_queue = asyncio.Queue(
+        self._subscription_response_queue = TaskReliantQueue(
             maxsize=self._subscription_response_queue.maxsize
         )
