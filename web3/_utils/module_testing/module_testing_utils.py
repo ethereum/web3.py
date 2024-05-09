@@ -193,6 +193,12 @@ class WebsocketMessageStreamMock:
         self.messages = deque(messages) if messages else deque()
         self.raise_exception = raise_exception
 
+    def __await__(self) -> Generator[Any, Any, "Self"]:
+        async def __async_init__() -> "Self":
+            return self
+
+        return __async_init__().__await__()
+
     def __aiter__(self) -> "Self":
         return self
 
@@ -204,6 +210,13 @@ class WebsocketMessageStreamMock:
             raise StopAsyncIteration
 
         return self.messages.popleft()
+
+    @staticmethod
+    async def pong() -> Literal[False]:
+        return False
+
+    async def connect(self) -> None:
+        pass
 
     async def send(self, data: bytes) -> None:
         pass

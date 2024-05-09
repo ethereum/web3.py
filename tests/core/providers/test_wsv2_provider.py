@@ -10,6 +10,9 @@ from unittest.mock import (
 from eth_utils import (
     to_bytes,
 )
+from websockets import (
+    ConnectionClosed,
+)
 
 from web3 import (
     AsyncWeb3,
@@ -38,26 +41,67 @@ def _mock_ws(provider):
     )
 
     provider._ws = AsyncMock()
+    provider._ws.closed = False
 
 
-async def _coro():
-    return None
+async def _mocked_ws_conn():
+    # move to top of file when python 3.7 is no longer supported in web3.py
+    from unittest.mock import (
+        AsyncMock,
+    )
+
+    _conn = AsyncMock()
+    _conn.closed = False
+    return _conn
 
 
 class WSException(Exception):
     pass
 
 
-@pytest.mark.asyncio
-@pytest.mark.skipif(
-    sys.version_info < (3, 8),
-    reason="Uses AsyncMock, not supported by python 3.7",
+skip_if_below_py38 = pytest.mark.skipif(
+    sys.version_info < (3, 8), reason="AsyncMock requires python 3.8 or higher"
 )
+
+
+@pytest.mark.asyncio
+@skip_if_below_py38
+async def test_disconnect_cleanup():
+    provider = WebsocketProviderV2("ws://mocked")
+
+    with patch(
+        "web3.providers.websocket.websocket_v2.connect",
+        new=lambda *_1, **_2: _mocked_ws_conn(),
+    ):
+        await provider.connect()
+
+    assert provider._ws is not None
+    assert provider._message_listener_task is not None
+
+    # put some items in each cache
+    provider._request_processor._request_response_cache.cache("0", "0x1337")
+    provider._request_processor._request_information_cache.cache("0", "0x1337")
+    provider._request_processor._subscription_response_queue.put_nowait({"id": "0"})
+    assert len(provider._request_processor._request_response_cache) == 1
+    assert len(provider._request_processor._request_information_cache) == 1
+    assert provider._request_processor._subscription_response_queue.qsize() == 1
+
+    await provider.disconnect()
+
+    assert provider._ws is None
+    assert len(provider._request_processor._request_response_cache) == 0
+    assert len(provider._request_processor._request_information_cache) == 0
+    assert provider._request_processor._subscription_response_queue.empty()
+
+
+@pytest.mark.asyncio
+@skip_if_below_py38
 async def test_async_make_request_returns_desired_response():
     provider = WebsocketProviderV2("ws://mocked")
 
     with patch(
-        "web3.providers.websocket.websocket_v2.connect", new=lambda *_1, **_2: _coro()
+        "web3.providers.websocket.websocket_v2.connect",
+        new=lambda *_1, **_2: _mocked_ws_conn(),
     ):
         await provider.connect()
 
@@ -102,10 +146,7 @@ async def test_async_make_request_returns_desired_response():
 
 
 @pytest.mark.asyncio
-@pytest.mark.skipif(
-    sys.version_info < (3, 8),
-    reason="Uses AsyncMock, not supported by python 3.7",
-)
+@skip_if_below_py38
 async def test_async_make_request_times_out_of_while_loop_looking_for_response():
     timeout = 0.001
     provider = WebsocketProviderV2("ws://mocked", request_timeout=timeout)
@@ -122,18 +163,16 @@ async def test_async_make_request_times_out_of_while_loop_looking_for_response()
 
 
 @pytest.mark.asyncio
-@pytest.mark.skipif(
-    sys.version_info < (3, 8),
-    reason="Uses AsyncMock, not supported by python 3.7",
-)
-async def test_msg_listener_task_starts_on_provider_connect_and_cancels_on_disconnect():
+@skip_if_below_py38
+async def test_msg_listener_task_starts_on_provider_connect_and_clears_on_disconnect():
     provider = WebsocketProviderV2("ws://mocked")
     _mock_ws(provider)
 
     assert provider._message_listener_task is None
 
     with patch(
-        "web3.providers.websocket.websocket_v2.connect", new=lambda *_1, **_2: _coro()
+        "web3.providers.websocket.websocket_v2.connect",
+        new=lambda *_1, **_2: _mocked_ws_conn(),
     ):
         await provider.connect()  # connect
 
@@ -142,21 +181,18 @@ async def test_msg_listener_task_starts_on_provider_connect_and_cancels_on_disco
 
     await provider.disconnect()  # disconnect
 
-    assert provider._message_listener_task.cancelled()
-    assert provider._message_listener_task.done()
+    assert provider._message_listener_task is None
 
 
 @pytest.mark.asyncio
-@pytest.mark.skipif(
-    sys.version_info < (3, 8),
-    reason="Uses AsyncMock, not supported by python 3.7",
-)
+@skip_if_below_py38
 async def test_msg_listener_task_raises_exceptions_by_default():
     provider = WebsocketProviderV2("ws://mocked")
     _mock_ws(provider)
 
     with patch(
-        "web3.providers.websocket.websocket_v2.connect", new=lambda *_1, **_2: _coro()
+        "web3.providers.websocket.websocket_v2.connect",
+        new=lambda *_1, **_2: _mocked_ws_conn(),
     ):
         await provider.connect()
         assert provider._message_listener_task is not None
@@ -172,10 +208,7 @@ async def test_msg_listener_task_raises_exceptions_by_default():
 
 
 @pytest.mark.asyncio
-@pytest.mark.skipif(
-    sys.version_info < (3, 8),
-    reason="Uses AsyncMock, not supported by python 3.7",
-)
+@skip_if_below_py38
 async def test_msg_listener_task_silences_exceptions_and_error_logs_when_configured(
     caplog,
 ):
@@ -183,7 +216,8 @@ async def test_msg_listener_task_silences_exceptions_and_error_logs_when_configu
     _mock_ws(provider)
 
     with patch(
-        "web3.providers.websocket.websocket_v2.connect", new=lambda *_1, **_2: _coro()
+        "web3.providers.websocket.websocket_v2.connect",
+        new=lambda *_1, **_2: _mocked_ws_conn(),
     ):
         await provider.connect()
         assert provider._message_listener_task is not None
@@ -208,10 +242,7 @@ async def test_msg_listener_task_silences_exceptions_and_error_logs_when_configu
 
 
 @pytest.mark.asyncio
-@pytest.mark.skipif(
-    sys.version_info < (3, 8),
-    reason="Uses AsyncMock, not supported by python 3.7",
-)
+@skip_if_below_py38
 async def test_listen_event_awaits_msg_processing_when_subscription_queue_is_full():
     """
     This test is to ensure that the `listen_event` method will wait for the
@@ -223,7 +254,8 @@ async def test_listen_event_awaits_msg_processing_when_subscription_queue_is_ful
     )
 
     with patch(
-        "web3.providers.websocket.websocket_v2.connect", new=lambda *_1, **_2: _coro()
+        "web3.providers.websocket.websocket_v2.connect",
+        new=lambda *_1, **_2: _mocked_ws_conn(),
     ):
         async_w3 = await AsyncWeb3.persistent_websocket(
             WebsocketProviderV2("ws://mocked")
@@ -300,9 +332,11 @@ async def test_listen_event_awaits_msg_processing_when_subscription_queue_is_ful
 
 
 @pytest.mark.asyncio
+@skip_if_below_py38
 async def test_wsv2_req_info_cache_size_configuration_and_warns_when_full(caplog):
     with patch(
-        "web3.providers.websocket.websocket_v2.connect", new=lambda *_1, **_2: _coro()
+        "web3.providers.websocket.websocket_v2.connect",
+        new=lambda *_1, **_2: _mocked_ws_conn(),
     ):
         async_w3 = await AsyncWeb3.persistent_websocket(
             WebsocketProviderV2("ws://mocked", request_information_cache_size=1)
@@ -319,3 +353,61 @@ async def test_wsv2_req_info_cache_size_configuration_and_warns_when_full(caplog
         "Request information cache is full. This may result in unexpected behavior. "
         "Consider increasing the ``request_information_cache_size`` on the provider."
     ) in caplog.text
+
+
+@pytest.mark.asyncio
+@skip_if_below_py38
+async def test_async_iterator_pattern_exception_handling_for_requests():
+    iterations = 1
+
+    with patch(
+        "web3.providers.websocket.websocket_v2.connect",
+        new=lambda *_1, **_2: WebsocketMessageStreamMock(
+            raise_exception=ConnectionClosed(None, None)
+        ),
+    ):
+        async for w3 in AsyncWeb3.persistent_websocket(
+            WebsocketProviderV2("ws://mocked")
+        ):
+            try:
+                await w3.eth.block_number
+            except ConnectionClosed:
+                if iterations == 3:
+                    break
+                else:
+                    iterations += 1
+                    continue
+
+            pytest.fail("Expected `ConnectionClosed` exception.")
+
+        assert iterations == 3
+
+
+@pytest.mark.asyncio
+@skip_if_below_py38
+async def test_async_iterator_pattern_exception_handling_for_subscriptions():
+    iterations = 1
+
+    with patch(
+        "web3.providers.websocket.websocket_v2.connect",
+        new=lambda *_1, **_2: WebsocketMessageStreamMock(
+            raise_exception=ConnectionClosed(None, None)
+        ),
+    ):
+        async for w3 in AsyncWeb3.persistent_websocket(
+            WebsocketProviderV2("ws://mocked")
+        ):
+            try:
+                async for _ in w3.ws.process_subscriptions():
+                    # raises exception
+                    pass
+            except ConnectionClosed:
+                if iterations == 3:
+                    break
+                else:
+                    iterations += 1
+                    continue
+
+            pytest.fail("Expected `ConnectionClosed` exception.")
+
+        assert iterations == 3

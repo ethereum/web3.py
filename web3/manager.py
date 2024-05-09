@@ -35,6 +35,7 @@ from web3.exceptions import (
     BadResponseFormat,
     MethodUnavailable,
     ProviderConnectionError,
+    TaskNotRunning,
 )
 from web3.middleware import (
     abi_middleware,
@@ -377,14 +378,24 @@ class RequestManager:
             raise ProviderConnectionError("No listener found for websocket connection.")
 
         while True:
-            response = await self._request_processor.pop_raw_response(subscription=True)
-            if (
-                response is not None
-                and response.get("params", {}).get("subscription")
-                in self._request_processor.active_subscriptions
-            ):
-                # if response is an active subscription response, process it
-                yield await self._process_ws_response(response)
+            try:
+                response = await self._request_processor.pop_raw_response(
+                    subscription=True
+                )
+                if (
+                    response is not None
+                    and response.get("params", {}).get("subscription")
+                    in self._request_processor.active_subscriptions
+                ):
+                    # if response is an active subscription response, process it
+                    yield await self._process_ws_response(response)
+            except TaskNotRunning:
+                self._provider._handle_listener_task_exceptions()
+                self.logger.error(
+                    "Message listener background task has stopped unexpectedly. "
+                    "Stopping message stream."
+                )
+                raise StopAsyncIteration
 
     async def _process_ws_response(self, response: RPCResponse) -> RPCResponse:
         provider = cast(PersistentConnectionProvider, self._provider)

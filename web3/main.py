@@ -573,12 +573,9 @@ class _PersistentConnectionWeb3(AsyncWeb3):
 
     # async for w3 in w3.persistent_websocket(provider)
     async def __aiter__(self) -> AsyncIterator[Self]:
-        if not await self.provider.is_connected():
-            await self.provider.connect()
-
+        provider = self.provider
         while True:
-            try:
-                yield self
-            except Exception:
-                # provider should handle connection / reconnection
-                continue
+            await provider.connect()
+            yield self
+            provider.logger.error("Connection interrupted, attempting to reconnect...")
+            await provider.disconnect()
