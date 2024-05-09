@@ -1,0 +1,1 @@
+Update wheel-cli-windows CI test to use py312, due to circle updating their default image

@@ -786,11 +786,6 @@ jobs:
         environment:
           TOXENV: py310-wheel-cli
 
-  py311-wheel-cli-windows:
-    <<: *windows_steps
-    environment:
-      TOXENV: py311-wheel-cli-windows
-
   #
   # Python 3.11
   #
@@ -1071,6 +1066,12 @@ jobs:
         environment:
           TOXENV: py312-wheel-cli
 
+  py312-wheel-cli-windows:
+    <<: *windows_steps
+    environment:
+      TOXENV: py312-wheel-cli-windows
+
+
   benchmark:
     <<: *geth_steps
     docker:
@@ -1181,7 +1182,6 @@ workflows:
       - py311-integration-ethtester-pyevm
       - py311-integration-ethtester-pyevm_flaky
       - py311-wheel-cli
-      - py311-wheel-cli-windows
       - py312-lint
       - py312-ens
       - py312-ensip15
@@ -1199,3 +1199,4 @@ workflows:
       - py312-integration-ethtester-pyevm
       - py312-integration-ethtester-pyevm_flaky
       - py312-wheel-cli
+      - py312-wheel-cli-windows
