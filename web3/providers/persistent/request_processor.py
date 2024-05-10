@@ -240,13 +240,18 @@ class RequestProcessor:
             self._request_information_cache.get_cache_entry(cache_key)
         )
         if cached_request_info_for_id is not None:
+            (
+                current_result_formatters,
+                error_formatters,
+                null_result_formatters,
+            ) = cached_request_info_for_id.response_formatters
             cached_request_info_for_id.response_formatters = (
                 compose(
                     result_formatter,
-                    cached_request_info_for_id.response_formatters[0],
+                    current_result_formatters,
                 ),
-                cached_request_info_for_id.response_formatters[1],
-                cached_request_info_for_id.response_formatters[2],
+                error_formatters,
+                null_result_formatters,
             )
         else:
             self._provider.logger.debug(
