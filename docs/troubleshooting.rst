@@ -133,7 +133,7 @@ Why doesn't my transaction work on another network?
 ---------------------------------------------------
 
 web3.py is an Ethereum-specific library, which defaults to
-`"type 2" transactions <https://ethereum.org/en/developers/docs/transactions/#typed-transaction-envelope>`_
+`"type 2" EIP-1559 transactions <https://ethereum.org/en/developers/docs/transactions/#typed-transaction-envelope>`_
 as of the London network upgrade. Some chains (including Ethereum L2s) do not support
 the same transaction types.
 
