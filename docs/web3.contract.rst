@@ -1420,7 +1420,7 @@ Let's take a look at a quick example. Given the following Solidity contract:
      }
    }
 
-You can interact with web3.py contract API as follows:
+You can interact with the web3.py contract API as follows:
 
 .. code-block:: python
 
