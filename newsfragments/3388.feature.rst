@@ -1,0 +1,1 @@
+Properly handle ``InsufficientDataBytes`` errors when processing receipts

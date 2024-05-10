@@ -1,6 +1,10 @@
+import copy
 import pytest
 import re
 
+from eth_abi.exceptions import (
+    InsufficientDataBytes,
+)
 from eth_utils import (
     is_same_address,
 )
@@ -1233,3 +1237,29 @@ def test_get_all_entries_with_nested_tuple_event_non_strict(
     assert log_entry.blockNumber == txn_receipt["blockNumber"]
     assert log_entry.transactionIndex == txn_receipt["transactionIndex"]
     assert is_same_address(log_entry.address, non_strict_emitter.address)
+
+
+def test_receipt_processing_catches_insufficientdatabytes_error_by_default(
+    w3, emitter, wait_for_transaction
+):
+    txn_hash = emitter.functions.logListArgs([b"13"], [b"54"]).transact()
+    txn_receipt = wait_for_transaction(w3, txn_hash)
+    event_instance = emitter.events.LogListArgs()
+
+    # web3 doesn't generate logs with non-standard lengths, so we have to do it manually
+    txn_receipt_dict = copy.deepcopy(txn_receipt)
+    txn_receipt_dict["logs"][0] = dict(txn_receipt_dict["logs"][0])
+    txn_receipt_dict["logs"][0]["data"] = txn_receipt_dict["logs"][0]["data"][:-8]
+
+    # WARN is default
+    assert len(event_instance.process_receipt(txn_receipt_dict)) == 0
+    assert len(event_instance.process_receipt(txn_receipt_dict, errors=WARN)) == 0
+    assert len(event_instance.process_receipt(txn_receipt_dict, errors=DISCARD)) == 0
+
+    # IGNORE includes the InsufficientDataBytes error in the log
+    assert len(event_instance.process_receipt(txn_receipt_dict, errors=IGNORE)) == 1
+
+    # STRICT raises an error to be caught
+    with pytest.raises(InsufficientDataBytes):
+        returned_log = event_instance.process_receipt(txn_receipt_dict, errors=STRICT)
+        assert len(returned_log) == 0

@@ -16,6 +16,9 @@ from typing import (
 )
 import warnings
 
+from eth_abi.exceptions import (
+    InsufficientDataBytes,
+)
 from eth_typing import (
     Address,
     ChecksumAddress,
@@ -174,7 +177,13 @@ class BaseContractEvent:
         for log in txn_receipt["logs"]:
             try:
                 rich_log = get_event_data(self.w3.codec, self.abi, log)
-            except (MismatchedABI, LogTopicError, InvalidEventABI, TypeError) as e:
+            except (
+                MismatchedABI,
+                LogTopicError,
+                InvalidEventABI,
+                TypeError,
+                InsufficientDataBytes,
+            ) as e:
                 if errors == DISCARD:
                     continue
                 elif errors == IGNORE:
