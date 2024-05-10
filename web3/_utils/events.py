@@ -267,6 +267,7 @@ def get_event_data(
             "The following argument names are duplicated "
             f"between event inputs: '{', '.join(duplicate_names)}'"
         )
+    breakpoint()
 
     decoded_log_data = abi_codec.decode(
         log_data_types, log_data, strict=abi_decode_strict
