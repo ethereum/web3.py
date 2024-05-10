@@ -1106,7 +1106,7 @@ The following methods are available on the ``web3.eth`` namespace.
 
       Only available on persistent connection providers: ``WebSocketProvider`` and ``AsyncIPCProvider``.
 
-      Returns a subscription ID that can be used to track or unsubscribe from an event's logs.
+      Returns a subscription ID that can be used to track a particular subscription to, or unsubscribe from, an event.
       For usage examples see the docs on :ref:`subscription-examples`.
 
       .. code-block:: python
