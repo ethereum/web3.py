@@ -1,1 +1,0 @@
-Snake-case remaining arguments ``fromBlock``, ``toBlock``, and ``blockHash`` in contract and filter methods where they are passed in as kwargs.

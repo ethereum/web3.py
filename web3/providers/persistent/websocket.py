@@ -5,8 +5,11 @@ import os
 from typing import (
     Any,
     Dict,
+    List,
     Optional,
+    Tuple,
     Union,
+    cast,
 )
 
 from eth_typing import (
@@ -25,6 +28,10 @@ from websockets.exceptions import (
     WebSocketException,
 )
 
+from web3._utils.batching import (
+    BATCH_REQUEST_ID,
+    sort_batch_response_by_response_ids,
+)
 from web3._utils.caching import (
     async_handle_request_caching,
 )
@@ -61,7 +68,6 @@ class WebSocketProvider(PersistentConnectionProvider):
     logger = logging.getLogger("web3.providers.WebSocketProvider")
     is_async: bool = True
 
-    _max_connection_retries: int = 5
     _ws: Optional[WebSocketClientProtocol] = None
 
     def __init__(
@@ -116,47 +122,13 @@ class WebSocketProvider(PersistentConnectionProvider):
                 ) from e
             return False
 
-    async def connect(self) -> None:
-        _connection_attempts = 0
-        _backoff_rate_change = 1.75
-        _backoff_time = 1.75
+    async def _provider_specific_connect(self) -> None:
+        self._ws = await connect(self.endpoint_uri, **self.websocket_kwargs)
 
-        while _connection_attempts != self._max_connection_retries:
-            try:
-                _connection_attempts += 1
-                self._ws = await connect(self.endpoint_uri, **self.websocket_kwargs)
-                self._message_listener_task = asyncio.create_task(
-                    self._message_listener()
-                )
-                break
-            except WebSocketException as e:
-                if _connection_attempts == self._max_connection_retries:
-                    raise ProviderConnectionError(
-                        f"Could not connect to endpoint: {self.endpoint_uri}. "
-                        f"Retries exceeded max of {self._max_connection_retries}."
-                    ) from e
-                self.logger.info(
-                    f"Could not connect to endpoint: {self.endpoint_uri}. Retrying in "
-                    f"{round(_backoff_time, 1)} seconds.",
-                    exc_info=True,
-                )
-                await asyncio.sleep(_backoff_time)
-                _backoff_time *= _backoff_rate_change
-
-    async def disconnect(self) -> None:
+    async def _provider_specific_disconnect(self) -> None:
         if self._ws is not None and not self._ws.closed:
             await self._ws.close()
             self._ws = None
-            self.logger.debug(
-                f'Successfully disconnected from endpoint: "{self.endpoint_uri}'
-            )
-
-        try:
-            self._message_listener_task.cancel()
-            await self._message_listener_task
-        except (asyncio.CancelledError, StopAsyncIteration):
-            pass
-        self._request_processor.clear_caches()
 
     @async_handle_request_caching
     async def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
@@ -176,34 +148,39 @@ class WebSocketProvider(PersistentConnectionProvider):
 
         return response
 
-    async def _message_listener(self) -> None:
-        self.logger.info(
-            "WebSocket listener background task started. Storing all messages in "
-            "appropriate request processor queues / caches to be processed."
+    async def make_batch_request(
+        self, requests: List[Tuple[RPCEndpoint, Any]]
+    ) -> List[RPCResponse]:
+        request_data = self.encode_batch_rpc_request(requests)
+
+        if self._ws is None:
+            raise ProviderConnectionError(
+                "Connection to websocket has not been initiated for the provider."
+            )
+
+        await asyncio.wait_for(
+            self._ws.send(request_data), timeout=self.request_timeout
         )
-        while True:
-            # the use of sleep(0) seems to be the most efficient way to yield control
-            # back to the event loop to share the loop with other tasks.
+
+        response = cast(
+            List[RPCResponse],
+            await self._get_response_for_request_id(BATCH_REQUEST_ID),
+        )
+        return response
+
+    async def _provider_specific_message_listener(self) -> None:
+        async for raw_message in self._ws:
             await asyncio.sleep(0)
 
-            try:
-                async for raw_message in self._ws:
-                    await asyncio.sleep(0)
+            response = json.loads(raw_message)
+            if isinstance(response, list):
+                response = sort_batch_response_by_response_ids(response)
 
-                    response = json.loads(raw_message)
-                    subscription = response.get("method") == "eth_subscription"
-                    await self._request_processor.cache_raw_response(
-                        response, subscription=subscription
-                    )
-            except Exception as e:
-                if not self.silence_listener_task_exceptions:
-                    loop = asyncio.get_event_loop()
-                    for task in asyncio.all_tasks(loop=loop):
-                        task.cancel()
-                    raise e
-
-                self.logger.error(
-                    "Exception caught in listener, error logging and keeping "
-                    "listener background task alive."
-                    f"\n    error={e.__class__.__name__}: {e}"
-                )
+            subscription = (
+                response.get("method") == "eth_subscription"
+                if not isinstance(response, list)
+                else False
+            )
+            await self._request_processor.cache_raw_response(
+                response, subscription=subscription
+            )

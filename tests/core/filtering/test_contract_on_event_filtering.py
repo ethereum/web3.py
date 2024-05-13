@@ -21,7 +21,7 @@ def test_create_filter_address_parameter(
         # Assert this is a single string value, and not a list of addresses
         assert is_address(event_filter.filter_params["address"])
     else:
-        #  Undeployed contract shouldnt have address...
+        #  Undeployed contract shouldn't have address...
         assert "address" not in event_filter.filter_params
 
 
@@ -249,7 +249,7 @@ async def test_async_create_filter_address_parameter(
         # Assert this is a single string value, and not a list of addresses
         assert is_address(event_filter.filter_params["address"])
     else:
-        #  Undeployed contract shouldnt have address...
+        #  Undeployed contract shouldn't have address...
         assert "address" not in event_filter.filter_params
 
 

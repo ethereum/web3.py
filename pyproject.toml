@@ -1,6 +1,6 @@
 [tool.autoflake]
-remove_all_unused_imports = true
 exclude = "__init__.py"
+remove_all_unused_imports = true
 
 [tool.isort]
 combine_as_imports = true
@@ -12,9 +12,9 @@ known_first_party = "web3"
 known_third_party = "hypothesis"
 multi_line_output = 3
 profile = "black"
+use_parentheses = true
 # skip `__init__.py` files because sometimes order of initialization is important
 skip="__init__.py,web3/main.py,web3/utils/windows.py"
-use_parentheses = true
 
 [tool.mypy]
 check_untyped_defs = true
@@ -67,19 +67,19 @@ add-ignore = "D200,D203,D204,D205,D212,D302,D400,D401,D412,D415"
 
 [tool.pytest.ini_options]
 addopts = "-v --showlocals --durations 10"
-xfail_strict = true
 asyncio_mode = "strict"
-log_format = "%(levelname)8s  %(asctime)s  %(filename)20s  %(message)s"
 log_date_format = "%m-%d %H:%M:%S"
+log_format = "%(levelname)8s  %(asctime)s  %(filename)20s  %(message)s"
+xfail_strict = true
 
 [tool.towncrier]
 # Read https://github.com/ethereum/web3.py/blob/main/newsfragments/README.md for instructions
-package = "web3"
-filename = "docs/release_notes.rst"
 directory = "newsfragments"
-underlines = ["-", "~", "^"]
-title_format = "web3.py v{version} ({project_date})"
+filename = "docs/release_notes.rst"
 issue_format = "`#{issue} <https://github.com/ethereum/web3.py/issues/{issue}>`__"
+package = "web3"
+title_format = "web3.py v{version} ({project_date})"
+underlines = ["-", "~", "^"]
 
 [[tool.towncrier.type]]
 directory = "breaking"

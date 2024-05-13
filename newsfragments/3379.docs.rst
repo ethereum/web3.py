@@ -1,0 +1,1 @@
+Merge migration guides into one page

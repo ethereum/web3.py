@@ -99,7 +99,7 @@ from web3.exceptions import (
                     ("bytes3[]", ((b"aye", b"bee"),)),
                     ("string[]", (("sea", "dee"),)),
                 ),
-                id="lists with valud string and bytes values",
+                id="lists with valid string and bytes values",
             )
         ),
         (

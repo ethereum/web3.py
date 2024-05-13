@@ -9,6 +9,7 @@ from typing import (
     NewType,
     Optional,
     Sequence,
+    Tuple,
     Type,
     TypedDict,
     TypeVar,
@@ -43,8 +44,9 @@ if TYPE_CHECKING:
     )
 
 
-TReturn = TypeVar("TReturn")
+TFunc = TypeVar("TFunc", bound=Callable[..., Any])
 TParams = TypeVar("TParams")
+TReturn = TypeVar("TReturn")
 TValue = TypeVar("TValue")
 
 BlockParams = Literal["latest", "earliest", "pending", "safe", "finalized"]
@@ -318,7 +320,11 @@ class CreateAccessListResponse(TypedDict):
 
 
 MakeRequestFn = Callable[[RPCEndpoint, Any], RPCResponse]
+MakeBatchRequestFn = Callable[[List[Tuple[RPCEndpoint, Any]]], List[RPCResponse]]
 AsyncMakeRequestFn = Callable[[RPCEndpoint, Any], Coroutine[Any, Any, RPCResponse]]
+AsyncMakeBatchRequestFn = Callable[
+    [List[Tuple[RPCEndpoint, Any]]], Coroutine[Any, Any, List[RPCResponse]]
+]
 
 
 class FormattersDict(TypedDict, total=False):

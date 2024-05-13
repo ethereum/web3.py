@@ -11,9 +11,11 @@ from pathlib import (
 import sys
 from typing import (
     Any,
+    List,
     Optional,
     Tuple,
     Union,
+    cast,
 )
 
 from eth_utils import (
@@ -27,6 +29,10 @@ from web3.types import (
 
 from . import (
     PersistentConnectionProvider,
+)
+from ..._utils.batching import (
+    BATCH_REQUEST_ID,
+    sort_batch_response_by_response_ids,
 )
 from ..._utils.caching import (
     async_handle_request_caching,
@@ -59,11 +65,12 @@ class AsyncIPCProvider(PersistentConnectionProvider):
 
     _reader: Optional[asyncio.StreamReader] = None
     _writer: Optional[asyncio.StreamWriter] = None
+    _decoder: json.JSONDecoder = json.JSONDecoder()
+    _raw_message: str = ""
 
     def __init__(
         self,
         ipc_path: Optional[Union[str, Path]] = None,
-        max_connection_retries: int = 5,
         # `PersistentConnectionProvider` kwargs can be passed through
         **kwargs: Any,
     ) -> None:
@@ -74,7 +81,6 @@ class AsyncIPCProvider(PersistentConnectionProvider):
         else:
             raise Web3TypeError("ipc_path must be of type string or pathlib.Path")
 
-        self._max_connection_retries = max_connection_retries
         super().__init__(**kwargs)
 
     def __str__(self) -> str:
@@ -99,48 +105,16 @@ class AsyncIPCProvider(PersistentConnectionProvider):
                 )
             return False
 
-    async def connect(self) -> None:
-        _connection_attempts = 0
-        _backoff_rate_change = 1.75
-        _backoff_time = 1.75
+    async def _provider_specific_connect(self) -> None:
+        self._reader, self._writer = await async_get_ipc_socket(self.ipc_path)
 
-        while _connection_attempts != self._max_connection_retries:
-            try:
-                _connection_attempts += 1
-                self._reader, self._writer = await async_get_ipc_socket(self.ipc_path)
-                self._message_listener_task = asyncio.create_task(
-                    self._message_listener()
-                )
-                break
-            except OSError as e:
-                if _connection_attempts == self._max_connection_retries:
-                    raise ProviderConnectionError(
-                        f"Could not connect to: {self.ipc_path}. "
-                        f"Retries exceeded max of {self._max_connection_retries}."
-                    ) from e
-                self.logger.info(
-                    f"Could not connect to: {self.ipc_path}. Retrying in "
-                    f"{round(_backoff_time, 1)} seconds.",
-                    exc_info=True,
-                )
-                await asyncio.sleep(_backoff_time)
-                _backoff_time *= _backoff_rate_change
-
-    async def disconnect(self) -> None:
+    async def _provider_specific_disconnect(self) -> None:
         if self._writer and not self._writer.is_closing():
             self._writer.close()
             await self._writer.wait_closed()
             self._writer = None
-            self.logger.debug(f'Successfully disconnected from : "{self.ipc_path}')
-
-        try:
-            self._message_listener_task.cancel()
-            await self._message_listener_task
+        if self._reader:
             self._reader = None
-        except (asyncio.CancelledError, StopAsyncIteration):
-            pass
-
-        self._request_processor.clear_caches()
 
     async def _reset_socket(self) -> None:
         self._writer.close()
@@ -149,13 +123,12 @@ class AsyncIPCProvider(PersistentConnectionProvider):
 
     @async_handle_request_caching
     async def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
-        request_data = self.encode_rpc_request(method, params)
-
         if self._writer is None:
             raise ProviderConnectionError(
                 "Connection to ipc socket has not been initiated for the provider."
             )
 
+        request_data = self.encode_rpc_request(method, params)
         try:
             self._writer.write(request_data)
             await self._writer.drain()
@@ -172,43 +145,54 @@ class AsyncIPCProvider(PersistentConnectionProvider):
 
         return response
 
-    async def _message_listener(self) -> None:
-        self.logger.info(
-            "IPC socket listener background task started. Storing all messages in "
-            "appropriate request processor queues / caches to be processed."
+    async def make_batch_request(
+        self, requests: List[Tuple[RPCEndpoint, Any]]
+    ) -> List[RPCResponse]:
+        if self._writer is None:
+            raise ProviderConnectionError(
+                "Connection to ipc socket has not been initiated for the provider."
+            )
+
+        request_data = self.encode_batch_rpc_request(requests)
+        try:
+            self._writer.write(request_data)
+            await self._writer.drain()
+        except OSError as e:
+            # Broken pipe
+            if e.errno == errno.EPIPE:
+                # one extra attempt, then give up
+                await self._reset_socket()
+                self._writer.write(request_data)
+                await self._writer.drain()
+
+        response = cast(
+            List[RPCResponse], await self._get_response_for_request_id(BATCH_REQUEST_ID)
         )
-        raw_message = ""
-        decoder = json.JSONDecoder()
+        return response
 
-        while True:
-            # the use of sleep(0) seems to be the most efficient way to yield control
-            # back to the event loop to share the loop with other tasks.
-            await asyncio.sleep(0)
+    async def _provider_specific_message_listener(self) -> None:
+        self._raw_message += to_text(await self._reader.read(4096)).lstrip()
 
+        while self._raw_message:
             try:
-                raw_message += to_text(await self._reader.read(4096)).lstrip()
+                response, pos = self._decoder.raw_decode(self._raw_message)
+            except JSONDecodeError:
+                break
 
-                while raw_message:
-                    try:
-                        response, pos = decoder.raw_decode(raw_message)
-                    except JSONDecodeError:
-                        break
+            if isinstance(response, list):
+                response = sort_batch_response_by_response_ids(response)
 
-                    is_subscription = response.get("method") == "eth_subscription"
-                    await self._request_processor.cache_raw_response(
-                        response, subscription=is_subscription
-                    )
-                    raw_message = raw_message[pos:].lstrip()
-            except Exception as e:
-                if not self.silence_listener_task_exceptions:
-                    loop = asyncio.get_event_loop()
-                    for task in asyncio.all_tasks(loop=loop):
-                        task.cancel()
-                    raise e
+            is_subscription = (
+                response.get("method") == "eth_subscription"
+                if not isinstance(response, list)
+                else False
+            )
+            await self._request_processor.cache_raw_response(
+                response, subscription=is_subscription
+            )
+            self._raw_message = self._raw_message[pos:].lstrip()
 
-                self.logger.error(
-                    "Exception caught in listener, error logging and keeping listener "
-                    f"background task alive.\n    error={e}"
-                )
-                # if only error logging, reset the ``raw_message`` buffer and continue
-                raw_message = ""
+    def _error_log_listener_task_exception(self, e: Exception) -> None:
+        super()._error_log_listener_task_exception(e)
+        # reset the raw message buffer on exception when error logging
+        self._raw_message = ""

@@ -4,9 +4,11 @@ from typing import (
     Any,
     Dict,
     Iterable,
+    List,
     Optional,
     Tuple,
     Union,
+    cast,
 )
 
 from aiohttp import (
@@ -37,6 +39,9 @@ from web3.types import (
     RPCResponse,
 )
 
+from ..._utils.batching import (
+    sort_batch_response_by_response_ids,
+)
 from ..._utils.caching import (
     async_handle_request_caching,
 )
@@ -147,3 +152,15 @@ class AsyncHTTPProvider(AsyncJSONBaseProvider):
             f"Method: {method}, Response: {response}"
         )
         return response
+
+    async def make_batch_request(
+        self, batch_requests: List[Tuple[RPCEndpoint, Any]]
+    ) -> List[RPCResponse]:
+        self.logger.debug(f"Making batch request HTTP - uri: `{self.endpoint_uri}`")
+        request_data = self.encode_batch_rpc_request(batch_requests)
+        raw_response = await async_make_post_request(
+            self.endpoint_uri, request_data, **self.get_request_kwargs()
+        )
+        self.logger.debug("Received batch response HTTP.")
+        responses_list = cast(List[RPCResponse], self.decode_rpc_response(raw_response))
+        return sort_batch_response_by_response_ids(responses_list)

@@ -1,4 +1,3 @@
-#
 # web3.py documentation build configuration file, created by
 # sphinx-quickstart on Thu Oct 16 20:43:24 2014.
 #
@@ -54,7 +53,7 @@ master_doc = "index"
 
 # General information about the project.
 project = "web3.py"
-copyright = "2023, Ethereum Foundation"
+copyright = "2016-2024, The Ethereum Foundation"
 
 __version__ = setup_version
 # The version info for the project you're documenting, acts as replacement for
@@ -80,15 +79,15 @@ release = __version__
 # directories to ignore when looking for source files.
 exclude_patterns = [
     "_build",
-    "web3.rst",
     "modules.rst",
     "web3.auto.rst",
     "web3.gas_strategies.rst",
     "web3.middleware.rst",
-    "web3.providers.rst",
-    "web3.providers.rpc.rst",
-    "web3.providers.persistent.rst",
     "web3.providers.eth_tester.rst",
+    "web3.providers.persistent.rst",
+    "web3.providers.rpc.rst",
+    "web3.providers.rst",
+    "web3.rst",
     "web3.scripts.*",
     "web3.testing.rst",
     "web3.tools.*",
@@ -207,10 +206,12 @@ html_extra_path = ["_static/css"]
 # html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = "Populusdoc"
+htmlhelp_basename = "web3docs"
 
 
 # -- Options for LaTeX output ---------------------------------------------
+
+latex_engine = "xelatex"
 
 latex_elements = {
     # The paper size ('letterpaper' or 'a4paper').
@@ -227,8 +228,8 @@ latex_elements = {
 latex_documents = [
     (
         "index",
-        "Populus.tex",
-        "Populus Documentation",
+        "web3.tex",
+        "web3.py Documentation",
         "The Ethereum Foundation",
         "manual",
     ),
@@ -259,7 +260,15 @@ latex_documents = [
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-man_pages = [("index", "web3", "web3.py Documentation", ["The Ethereum Foundation"], 1)]
+man_pages = [
+    (
+        "index",
+        "web3",
+        "web3.py Documentation",
+        ["The Ethereum Foundation"],
+        1,
+    )
+]
 
 # If true, show URL addresses after external links.
 # man_show_urls = False
@@ -277,7 +286,7 @@ texinfo_documents = [
         "web3.py Documentation",
         "The Ethereum Foundation",
         "web3.py",
-        "Backend agnostic Ethereum client interactions.",
+        "A Python library for interacting with Ethereum",
         "Miscellaneous",
     ),
 ]
@@ -297,10 +306,10 @@ texinfo_documents = [
 # -- Intersphinx configuration ------------------------------------------------
 
 intersphinx_mapping = {
-    "python": ("https://docs.python.org/3.5", None),
-    "eth-account": ("http://eth-account.readthedocs.io/en/latest/", None),
-    # does not exist yet: 'eth-tester': ('http://eth-tester.readthedocs.io/en/latest/', None),
-    "hexbytes": ("http://hexbytes.readthedocs.io/en/latest/", None),
+    "python": ("https://docs.python.org/3", None),
+    "eth-account": ("https://eth-account.readthedocs.io/en/latest/", None),
+    # doesn't exist yet "eth-tester": ("https://eth-tester.readthedocs.io/en/latest/", None),
+    "hexbytes": ("https://hexbytes.readthedocs.io/en/latest/", None),
 }
 
 autodoc_member_order = "bysource"

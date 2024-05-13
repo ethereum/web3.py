@@ -1,0 +1,1 @@
+Properly propagate exceptions from the message listener task to the main loop for persistent connection providers.

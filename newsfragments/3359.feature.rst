@@ -1,1 +1,0 @@
-Raise ``Web3RPCError`` on JSON-RPC errors rather than ``Web3ValueError``. Raise ``MethodNotSupported`` exception when a method is not supported within *web3.py*; keep ``MethodUnavailable`` for when a method is not available on the current provider (JSON-RPC error).

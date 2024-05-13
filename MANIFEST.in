@@ -1,7 +1,13 @@
-include VERSION
+include LICENSE
 include README.md
+
+recursive-include ens/specs *
+recursive-include scripts *
+recursive-include tests *
+
+global-include *.pyi
 
 recursive-exclude * __pycache__
 recursive-exclude * *.py[co]
-
-recursive-include ens/specs *
+prune .tox
+prune venv*

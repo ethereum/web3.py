@@ -1,12 +1,14 @@
 import pytest
 from typing import (
+    TYPE_CHECKING,
     Any,
     NoReturn,
     Sequence,
-    Union,
+    cast,
 )
 
 from eth_typing import (
+    Address,
     ChecksumAddress,
     HexAddress,
     HexStr,
@@ -23,9 +25,22 @@ from web3 import (
 from web3._utils.ens import (
     ens_addresses,
 )
+from web3.contract import (
+    Contract,
+)
 from web3.exceptions import (
     InvalidAddress,
+    MethodNotSupported,
+    Web3ValueError,
 )
+from web3.types import (
+    BlockData,
+)
+
+if TYPE_CHECKING:
+    from web3.contract import (  # noqa: F401
+        AsyncContract,
+    )
 
 
 class Web3ModuleTest:
@@ -223,16 +238,9 @@ class Web3ModuleTest:
             ),
         ),
     )
-    @pytest.mark.parametrize(
-        "w3",
-        (
-            Web3,
-            AsyncWeb3,
-        ),
-    )
     def test_solidity_keccak(
         self,
-        w3: Union["Web3", "AsyncWeb3"],
+        w3: "Web3",
         types: Sequence[TypeStr],
         values: Sequence[Any],
         expected: HexBytes,
@@ -264,16 +272,9 @@ class Web3ModuleTest:
             ),
         ),
     )
-    @pytest.mark.parametrize(
-        "w3",
-        (
-            Web3(),
-            AsyncWeb3(),
-        ),
-    )
     def test_solidity_keccak_ens(
         self,
-        w3: Union["Web3", "AsyncWeb3"],
+        w3: "Web3",
         types: Sequence[TypeStr],
         values: Sequence[str],
         expected: HexBytes,
@@ -313,3 +314,423 @@ class Web3ModuleTest:
 
     def test_is_connected(self, w3: "Web3") -> None:
         assert w3.is_connected()
+
+    def test_batch_requests(self, w3: "Web3", math_contract: Contract) -> None:
+        with w3.batch_requests() as batch:
+            batch.add(w3.eth.get_block(6))
+            batch.add(w3.eth.get_block(4))
+            batch.add(w3.eth.get_block(2))
+            batch.add(w3.eth.get_block(0))
+            batch.add(math_contract.functions.multiply7(0))
+
+            batch.add_mapping(
+                {
+                    math_contract.functions.multiply7: [1, 2, 3],
+                    w3.eth.get_block: [1, 3, 5],
+                }
+            )
+
+            assert len(batch._requests_info) == 11
+            responses = batch.execute()
+            assert len(responses) == 11
+
+            # assert proper batch cleanup after execution
+            assert batch._requests_info == []
+            assert not batch._provider._is_batching
+
+            # assert batch cannot be added to after execution
+            with pytest.raises(
+                Web3ValueError,
+                match="Batch has already been executed or cancelled",
+            ):
+                batch.add(w3.eth.get_block(5))
+
+            # assert batch cannot be executed again
+            with pytest.raises(
+                Web3ValueError,
+                match="Batch has already been executed or cancelled",
+            ):
+                batch.execute()
+
+        # assert can make a request after executing
+        block_num = w3.eth.block_number
+        assert isinstance(block_num, int)
+
+        first_four_responses: Sequence[BlockData] = cast(
+            Sequence[BlockData], responses[:4]
+        )
+        assert first_four_responses[0]["number"] == 6
+        assert first_four_responses[1]["number"] == 4
+        assert first_four_responses[2]["number"] == 2
+        assert first_four_responses[3]["number"] == 0
+
+        responses_five_through_eight: Sequence[int] = cast(
+            Sequence[int], responses[4:8]
+        )
+        assert responses_five_through_eight[0] == 0
+        assert responses_five_through_eight[1] == 7
+        assert responses_five_through_eight[2] == 14
+        assert responses_five_through_eight[3] == 21
+
+        last_three_responses: Sequence[BlockData] = cast(
+            Sequence[BlockData], responses[8:]
+        )
+        assert last_three_responses[0]["number"] == 1
+        assert last_three_responses[1]["number"] == 3
+        assert last_three_responses[2]["number"] == 5
+
+    def test_batch_requests_initialized_as_object(
+        self, w3: "Web3", math_contract: Contract
+    ) -> None:
+        batch = w3.batch_requests()
+        batch.add(w3.eth.get_block(1))
+        batch.add(w3.eth.get_block(2))
+        batch.add(math_contract.functions.multiply7(0))
+        batch.add_mapping(
+            {math_contract.functions.multiply7: [1, 2], w3.eth.get_block: [3, 4]}
+        )
+
+        assert len(batch._requests_info) == 7
+        b1, b2, m0, m1, m2, b3, b4 = batch.execute()
+
+        # assert proper batch cleanup after execution
+        assert batch._requests_info == []
+        assert not batch._provider._is_batching
+
+        # assert batch cannot be added to after execution
+        with pytest.raises(
+            Web3ValueError,
+            match="Batch has already been executed or cancelled",
+        ):
+            batch.add(w3.eth.get_block(5))
+
+        # assert batch cannot be executed again
+        with pytest.raises(
+            Web3ValueError,
+            match="Batch has already been executed or cancelled",
+        ):
+            batch.execute()
+
+        # assert can make a request after executing
+        block_num = w3.eth.block_number
+        assert isinstance(block_num, int)
+
+        assert cast(BlockData, b1)["number"] == 1
+        assert cast(BlockData, b2)["number"] == 2
+        assert cast(int, m0) == 0
+        assert cast(int, m1) == 7
+        assert cast(int, m2) == 14
+        assert cast(BlockData, b3)["number"] == 3
+        assert cast(BlockData, b4)["number"] == 4
+
+    def test_batch_requests_clear(self, w3: "Web3") -> None:
+        with w3.batch_requests() as batch:
+            batch.add(w3.eth.get_block(1))
+            batch.add(w3.eth.get_block(2))
+
+            assert len(batch._requests_info) == 2
+            batch.clear()
+            assert batch._requests_info == []
+
+            batch.add(w3.eth.get_block(3))
+            batch.add(w3.eth.get_block(4))
+
+            r1, r2 = batch.execute()
+
+            assert cast(BlockData, r1)["number"] == 3
+            assert cast(BlockData, r2)["number"] == 4
+
+        new_batch = w3.batch_requests()
+        new_batch.add(w3.eth.get_block(5))
+
+        assert len(new_batch._requests_info) == 1
+        new_batch.clear()
+        assert new_batch._requests_info == []
+
+        new_batch.add(w3.eth.get_block(6))
+        (r3,) = new_batch.execute()
+        assert cast(BlockData, r3)["number"] == 6
+
+    def test_batch_requests_cancel(self, w3: "Web3") -> None:
+        # as context manager
+        with w3.batch_requests() as batch:
+            batch.add(w3.eth.get_block(1))
+            batch.cancel()
+            with pytest.raises(
+                Web3ValueError,
+                match="Batch has already been executed or cancelled",
+            ):
+                batch.add(w3.eth.get_block(2))
+            with pytest.raises(
+                Web3ValueError,
+                match="Batch has already been executed or cancelled",
+            ):
+                batch.execute()
+
+        # can make a request after cancelling
+        block_num = w3.eth.block_number
+        assert isinstance(block_num, int)
+
+        # as obj
+        new_batch = w3.batch_requests()
+        new_batch.add(w3.eth.get_block(1))
+        new_batch.cancel()
+        with pytest.raises(
+            Web3ValueError,
+            match="Batch has already been executed or cancelled",
+        ):
+            new_batch.add(w3.eth.get_block(2))
+        with pytest.raises(
+            Web3ValueError,
+            match="Batch has already been executed or cancelled",
+        ):
+            new_batch.execute()
+
+        # assert can make a request after cancelling
+        block_num = w3.eth.block_number
+        assert isinstance(block_num, int)
+
+    def test_batch_requests_raises_for_common_unsupported_methods(
+        self, w3: "Web3", math_contract: Contract
+    ) -> None:
+        with w3.batch_requests() as batch:
+            with pytest.raises(MethodNotSupported, match="eth_sendTransaction"):
+                batch.add(w3.eth.send_transaction({}))
+                batch.execute()
+
+        with w3.batch_requests() as batch:
+            with pytest.raises(MethodNotSupported, match="eth_sendTransaction"):
+                batch.add(math_contract.functions.multiply7(1).transact({}))
+                batch.execute()
+
+        with w3.batch_requests() as batch:
+            with pytest.raises(MethodNotSupported, match="eth_sendRawTransaction"):
+                batch.add(w3.eth.send_raw_transaction(b""))
+                batch.execute()
+
+        with w3.batch_requests() as batch:
+            with pytest.raises(MethodNotSupported, match="eth_sign"):
+                batch.add(w3.eth.sign(Address(b"\x00" * 20)))
+                batch.execute()
+
+
+# -- async -- #
+
+
+class AsyncWeb3ModuleTest(Web3ModuleTest):
+    # Note: Any test that overrides the synchronous test from `Web3ModuleTest` with
+    # an asynchronous test should have the exact same name.
+
+    @pytest.mark.asyncio
+    async def test_web3_client_version(self, async_w3: AsyncWeb3) -> None:
+        client_version = await async_w3.client_version
+        self._check_web3_client_version(client_version)
+
+    @pytest.mark.asyncio
+    async def test_batch_requests(
+        self, async_w3: AsyncWeb3, async_math_contract: "AsyncContract"
+    ) -> None:
+        async with async_w3.batch_requests() as batch:
+            batch.add(async_w3.eth.get_block(6))
+            batch.add(async_w3.eth.get_block(4))
+            batch.add(async_w3.eth.get_block(2))
+            batch.add(async_w3.eth.get_block(0))
+
+            batch.add(async_math_contract.functions.multiply7(0))
+
+            batch.add_mapping(
+                {
+                    async_math_contract.functions.multiply7: [1, 2, 3],
+                    async_w3.eth.get_block: [1, 3, 5],
+                }
+            )
+
+            assert len(batch._async_requests_info) == 11
+            responses = await batch.async_execute()
+            assert len(responses) == 11
+
+            # assert proper batch cleanup after execution
+            assert batch._async_requests_info == []
+            assert not batch._provider._is_batching
+
+            # assert batch cannot be added to after execution
+            with pytest.raises(
+                Web3ValueError,
+                match="Batch has already been executed or cancelled",
+            ):
+                batch.add(async_w3.eth.get_block(5))
+
+            # assert batch cannot be executed again
+            with pytest.raises(
+                Web3ValueError,
+                match="Batch has already been executed or cancelled",
+            ):
+                await batch.async_execute()
+
+        # assert can make a request after executing
+        block_num = await async_w3.eth.block_number
+        assert isinstance(block_num, int)
+
+        first_four_responses: Sequence[BlockData] = cast(
+            Sequence[BlockData], responses[:4]
+        )
+        assert first_four_responses[0]["number"] == 6
+        assert first_four_responses[1]["number"] == 4
+        assert first_four_responses[2]["number"] == 2
+        assert first_four_responses[3]["number"] == 0
+
+        responses_five_through_eight: Sequence[int] = cast(
+            Sequence[int], responses[4:8]
+        )
+        assert responses_five_through_eight[0] == 0
+        assert responses_five_through_eight[1] == 7
+        assert responses_five_through_eight[2] == 14
+        assert responses_five_through_eight[3] == 21
+
+        last_three_responses: Sequence[BlockData] = cast(
+            Sequence[BlockData], responses[8:]
+        )
+        assert last_three_responses[0]["number"] == 1
+        assert last_three_responses[1]["number"] == 3
+        assert last_three_responses[2]["number"] == 5
+
+    @pytest.mark.asyncio
+    async def test_batch_requests_initialized_as_object(
+        self, async_w3: AsyncWeb3, async_math_contract: "AsyncContract"
+    ) -> None:
+        batch = async_w3.batch_requests()
+        batch.add(async_w3.eth.get_block(1))
+        batch.add(async_w3.eth.get_block(2))
+        batch.add(async_math_contract.functions.multiply7(0))
+        batch.add_mapping(
+            {
+                async_math_contract.functions.multiply7: [1, 2],
+                async_w3.eth.get_block: [3, 4],
+            }
+        )
+
+        assert len(batch._async_requests_info) == 7
+        b1, b2, m0, m1, m2, b3, b4 = await batch.async_execute()
+
+        # assert proper batch cleanup after execution
+        assert batch._async_requests_info == []
+        assert not batch._provider._is_batching
+
+        # assert batch cannot be added to after execution
+        with pytest.raises(
+            Web3ValueError,
+            match="Batch has already been executed or cancelled",
+        ):
+            batch.add(async_w3.eth.get_block(5))
+
+        # assert batch cannot be executed again
+        with pytest.raises(
+            Web3ValueError,
+            match="Batch has already been executed or cancelled",
+        ):
+            await batch.async_execute()
+
+        # assert can make a request after executing
+        block_num = await async_w3.eth.block_number
+        assert isinstance(block_num, int)
+
+        assert cast(BlockData, b1)["number"] == 1
+        assert cast(BlockData, b2)["number"] == 2
+        assert cast(int, m0) == 0
+        assert cast(int, m1) == 7
+        assert cast(int, m2) == 14
+        assert cast(BlockData, b3)["number"] == 3
+        assert cast(BlockData, b4)["number"] == 4
+
+    @pytest.mark.asyncio
+    async def test_batch_requests_clear(self, async_w3: AsyncWeb3) -> None:
+        async with async_w3.batch_requests() as batch:
+            batch.add(async_w3.eth.get_block(1))
+            batch.add(async_w3.eth.get_block(2))
+
+            assert len(batch._async_requests_info) == 2
+            batch.clear()
+            assert batch._async_requests_info == []
+
+            batch.add(async_w3.eth.get_block(3))
+            batch.add(async_w3.eth.get_block(4))
+
+            r1, r2 = await batch.async_execute()
+
+            assert cast(BlockData, r1)["number"] == 3
+            assert cast(BlockData, r2)["number"] == 4
+
+        new_batch = async_w3.batch_requests()
+        new_batch.add(async_w3.eth.get_block(5))
+
+        assert len(new_batch._async_requests_info) == 1
+        new_batch.clear()
+        assert new_batch._async_requests_info == []
+
+        new_batch.add(async_w3.eth.get_block(6))
+        (r3,) = await new_batch.async_execute()
+        assert cast(BlockData, r3)["number"] == 6
+
+    @pytest.mark.asyncio
+    async def test_batch_requests_cancel(self, async_w3: AsyncWeb3) -> None:
+        # as context manager
+        async with async_w3.batch_requests() as batch:
+            batch.add(async_w3.eth.get_block(1))
+            batch.cancel()
+            with pytest.raises(
+                Web3ValueError,
+                match="Batch has already been executed or cancelled",
+            ):
+                batch.add(async_w3.eth.get_block(2))
+            with pytest.raises(
+                Web3ValueError,
+                match="Batch has already been executed or cancelled",
+            ):
+                await batch.async_execute()
+
+        # can make a request after cancelling
+        block_num = await async_w3.eth.block_number
+        assert isinstance(block_num, int)
+
+        # as obj
+        new_batch = async_w3.batch_requests()
+        new_batch.add(async_w3.eth.get_block(1))
+        new_batch.cancel()
+        with pytest.raises(
+            Web3ValueError,
+            match="Batch has already been executed or cancelled",
+        ):
+            new_batch.add(async_w3.eth.get_block(2))
+        with pytest.raises(
+            Web3ValueError,
+            match="Batch has already been executed or cancelled",
+        ):
+            await new_batch.async_execute()
+
+        # can make a request after cancelling
+        block_num = await async_w3.eth.block_number
+        assert isinstance(block_num, int)
+
+    @pytest.mark.asyncio
+    async def test_batch_requests_raises_for_common_unsupported_methods(
+        self, async_w3: AsyncWeb3, async_math_contract: "AsyncContract"
+    ) -> None:
+        async with async_w3.batch_requests() as batch:
+            with pytest.raises(MethodNotSupported, match="eth_sendTransaction"):
+                batch.add(async_w3.eth.send_transaction({}))
+                await batch.async_execute()
+
+        async with async_w3.batch_requests() as batch:
+            with pytest.raises(MethodNotSupported, match="eth_sendTransaction"):
+                batch.add(async_math_contract.functions.multiply7(1).transact({}))
+                await batch.async_execute()
+
+        async with async_w3.batch_requests() as batch:
+            with pytest.raises(MethodNotSupported, match="eth_sendRawTransaction"):
+                batch.add(async_w3.eth.send_raw_transaction(b""))
+                await batch.async_execute()
+
+        async with async_w3.batch_requests() as batch:
+            with pytest.raises(MethodNotSupported, match="eth_sign"):
+                batch.add(async_w3.eth.sign(Address(b"\x00" * 20)))
+                await batch.async_execute()

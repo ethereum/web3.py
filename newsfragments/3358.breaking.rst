@@ -1,1 +1,0 @@
-Employ an exponential backoff strategy using the ``backoff_factor`` in ``ExceptionRetryConfiguration`` for ``HTTPProvider`` and ``AsyncHTTPProvider``. Reduce the default initial delay to ``0.125`` seconds.

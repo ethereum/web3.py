@@ -14,8 +14,11 @@ from types import (
 )
 from typing import (
     Any,
+    List,
+    Tuple,
     Type,
     Union,
+    cast,
 )
 
 from web3._utils.threads import (
@@ -26,6 +29,9 @@ from web3.types import (
     RPCResponse,
 )
 
+from .._utils.batching import (
+    sort_batch_response_by_response_ids,
+)
 from ..exceptions import (
     Web3TypeError,
     Web3ValueError,
@@ -153,12 +159,7 @@ class IPCProvider(JSONBaseProvider):
     def __str__(self) -> str:
         return f"<{self.__class__.__name__} {self.ipc_path}>"
 
-    def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
-        self.logger.debug(
-            f"Making request IPC. Path: {self.ipc_path}, Method: {method}"
-        )
-        request = self.encode_rpc_request(method, params)
-
+    def _make_request(self, request: bytes) -> RPCResponse:
         with self._lock, self._socket as sock:
             try:
                 sock.sendall(request)
@@ -188,6 +189,21 @@ class IPCProvider(JSONBaseProvider):
                     else:
                         timeout.sleep(0)
                         continue
+
+    def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
+        self.logger.debug(
+            f"Making request IPC. Path: {self.ipc_path}, Method: {method}"
+        )
+        request = self.encode_rpc_request(method, params)
+        return self._make_request(request)
+
+    def make_batch_request(
+        self, requests: List[Tuple[RPCEndpoint, Any]]
+    ) -> List[RPCResponse]:
+        self.logger.debug(f"Making batch request IPC. Path: {self.ipc_path}")
+        request_data = self.encode_batch_rpc_request(requests)
+        response = cast(List[RPCResponse], self._make_request(request_data))
+        return sort_batch_response_by_response_ids(response)
 
 
 # A valid JSON RPC response can only end in } or ] http://www.jsonrpc.org/specification

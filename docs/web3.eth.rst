@@ -1,3 +1,5 @@
+.. _web3-eth:
+
 web3.eth API
 ============
 
@@ -192,6 +194,8 @@ The following properties are available on the ``web3.eth`` namespace.
 
           >>> w3.provider.cache_allowed_requests
 
+
+.. _web3-eth-methods:
 
 Methods
 -------

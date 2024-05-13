@@ -16,6 +16,7 @@ from web3._utils.module_testing.persistent_connection_provider import (
 from ..common import (
     GoEthereumAsyncEthModuleTest,
     GoEthereumAsyncNetModuleTest,
+    GoEthereumAsyncWeb3ModuleTest,
 )
 from ..utils import (
     wait_for_aiohttp,
@@ -29,6 +30,10 @@ async def async_w3(geth_process, endpoint_uri):
     # async context manager pattern
     async with AsyncWeb3(WebSocketProvider(endpoint_uri)) as w3:
         yield w3
+
+
+class TestGoEthereumAsyncWeb3ModuleTest(GoEthereumAsyncWeb3ModuleTest):
+    pass
 
 
 class TestGoEthereumAsyncAdminModuleTest(GoEthereumAsyncAdminModuleTest):

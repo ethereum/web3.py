@@ -18,7 +18,7 @@ from .common import (
     GoEthereumDebugModuleTest,
     GoEthereumEthModuleTest,
     GoEthereumNetModuleTest,
-    GoEthereumTest,
+    GoEthereumWeb3ModuleTest,
 )
 
 
@@ -71,7 +71,7 @@ def w3(geth_process, endpoint_uri):
     return _w3
 
 
-class TestGoEthereumTest(GoEthereumTest):
+class TestGoEthereumWeb3ModuleTest(GoEthereumWeb3ModuleTest):
     pass
 
 

@@ -22,11 +22,12 @@ from .common import (
     GoEthereumAsyncEthModuleTest,
     GoEthereumAsyncNetModuleTest,
     GoEthereumAsyncTxPoolModuleTest,
+    GoEthereumAsyncWeb3ModuleTest,
     GoEthereumDebugModuleTest,
     GoEthereumEthModuleTest,
     GoEthereumNetModuleTest,
-    GoEthereumTest,
     GoEthereumTxPoolModuleTest,
+    GoEthereumWeb3ModuleTest,
 )
 from .utils import (
     wait_for_aiohttp,
@@ -72,7 +73,7 @@ def w3(geth_process, endpoint_uri):
     return Web3(Web3.HTTPProvider(endpoint_uri))
 
 
-class TestGoEthereumTest(GoEthereumTest):
+class TestGoEthereumWeb3ModuleTest(GoEthereumWeb3ModuleTest):
     pass
 
 
@@ -120,6 +121,10 @@ async def async_w3(geth_process, endpoint_uri):
     await wait_for_aiohttp(endpoint_uri)
     _w3 = AsyncWeb3(AsyncHTTPProvider(endpoint_uri))
     return _w3
+
+
+class TestGoEthereumAsyncWeb3ModuleTest(GoEthereumAsyncWeb3ModuleTest):
+    pass
 
 
 class TestGoEthereumAsyncAdminModuleTest(GoEthereumAsyncAdminModuleTest):

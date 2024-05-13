@@ -3,7 +3,7 @@
 Constants
 =========
 
-The web3.contants module contains commonly used values.
+The web3.constants module contains commonly used values.
 
 Strings
 *******

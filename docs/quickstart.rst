@@ -157,7 +157,6 @@ A few suggestions from here:
 - The :class:`w3.eth <web3.eth.Eth>` API contains the most frequently used methods.
 - A guide to :ref:`contracts` includes deployment and usage examples.
 - The nuances of :doc:`transactions` are explained in another guide.
-- For other inspiration, see the :doc:`examples`.
 
 .. NOTE:: It is recommended that your development environment have the ``PYTHONWARNINGS=default``
     environment variable set. Some deprecation warnings will not show up

@@ -13,22 +13,16 @@ Table of Contents
     :maxdepth: 1
     :caption: Guides
 
-    node
     providers
     web3.eth.account
     transactions
-    filters
     web3.contract
-    abi_types
+    filters
     middleware
     internals
     ens_overview
-    examples
     troubleshooting
-    v7_migration
-    v6_migration
-    v5_migration
-    v4_migration
+    migration
 
 .. toctree::
     :maxdepth: 1

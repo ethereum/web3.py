@@ -9,6 +9,7 @@ from typing import (
     Tuple,
     Type,
     Union,
+    cast,
 )
 
 from eth_abi.exceptions import (
@@ -16,6 +17,11 @@ from eth_abi.exceptions import (
 )
 from eth_typing import (
     ChecksumAddress,
+    TypeStr,
+)
+from eth_utils.toolz import (
+    compose,
+    curry,
 )
 from hexbytes import (
     HexBytes,
@@ -60,8 +66,48 @@ if TYPE_CHECKING:
         AsyncWeb3,
         Web3,
     )
+    from web3.providers.persistent import (  # noqa: F401
+        PersistentConnectionProvider,
+    )
 
 ACCEPTABLE_EMPTY_STRINGS = ["0x", b"0x", "", b""]
+
+
+@curry
+def format_contract_call_return_data_curried(
+    async_w3: Union["AsyncWeb3", "Web3"],
+    decode_tuples: bool,
+    fn_abi: ABIFunction,
+    function_identifier: FunctionIdentifier,
+    normalizers: Tuple[Callable[..., Any], ...],
+    output_types: Sequence[TypeStr],
+    return_data: Any,
+) -> Any:
+    """
+    Helper function for formatting contract call return data for batch requests. Curry
+    with all arguments except `return_data` and process `return_data` once it is
+    available.
+    """
+    try:
+        output_data = async_w3.codec.decode(output_types, return_data)
+    except DecodingError as e:
+        msg = (
+            f"Could not decode contract function call to {function_identifier} "
+            f"with return data: {str(return_data)}, output_types: {output_types}"
+        )
+        raise BadFunctionCallOutput(msg) from e
+
+    _normalizers = itertools.chain(
+        BASE_RETURN_NORMALIZERS,
+        normalizers,
+    )
+    normalized_data = map_abi_data(_normalizers, output_types, output_data)
+
+    if decode_tuples:
+        decoded = named_tree(fn_abi["outputs"], normalized_data)
+        normalized_data = recursive_dict_to_namedtuple(decoded)
+
+    return normalized_data[0] if len(normalized_data) == 1 else normalized_data
 
 
 def call_contract_function(
@@ -107,6 +153,34 @@ def call_contract_function(
         )
 
     output_types = get_abi_output_types(fn_abi)
+
+    provider = w3.provider
+    if hasattr(provider, "_is_batching") and provider._is_batching:
+        # request_information == ((method, params), response_formatters)
+        request_information = tuple(return_data)
+        method_and_params = request_information[0]
+
+        # append return data formatting to result formatters
+        current_response_formatters = request_information[1]
+        current_result_formatters = current_response_formatters[0]
+        updated_result_formatters = compose(
+            # contract call return data formatter
+            format_contract_call_return_data_curried(
+                w3,
+                decode_tuples,
+                fn_abi,
+                function_identifier,
+                normalizers,
+                output_types,
+            ),
+            current_result_formatters,
+        )
+        response_formatters = (
+            updated_result_formatters,  # result formatters
+            current_response_formatters[1],  # error formatters
+            current_response_formatters[2],  # null result formatters
+        )
+        return (method_and_params, response_formatters)
 
     try:
         output_data = w3.codec.decode(output_types, return_data)
@@ -319,6 +393,43 @@ async def async_call_contract_function(
 
     output_types = get_abi_output_types(fn_abi)
 
+    if async_w3.provider._is_batching:
+        contract_call_return_data_formatter = format_contract_call_return_data_curried(
+            async_w3,
+            decode_tuples,
+            fn_abi,
+            function_identifier,
+            normalizers,
+            output_types,
+        )
+        if async_w3.provider.has_persistent_connection:
+            # get the current request id
+            provider = cast("PersistentConnectionProvider", async_w3.provider)
+            current_request_id = provider._batch_request_counter - 1
+            provider._request_processor.append_result_formatter_for_request(
+                current_request_id, contract_call_return_data_formatter
+            )
+        else:
+            # request_information == ((method, params), response_formatters)
+            request_information = tuple(return_data)
+            method_and_params = request_information[0]
+
+            # append return data formatter to result formatters
+            current_response_formatters = request_information[1]
+            current_result_formatters = current_response_formatters[0]
+            updated_result_formatters = compose(
+                contract_call_return_data_formatter,
+                current_result_formatters,
+            )
+            response_formatters = (
+                updated_result_formatters,  # result formatters
+                current_response_formatters[1],  # error formatters
+                current_response_formatters[2],  # null result formatters
+            )
+            return (method_and_params, response_formatters)
+
+        return return_data
+
     try:
         output_data = async_w3.codec.decode(output_types, return_data)
     except DecodingError as e:
@@ -350,10 +461,7 @@ async def async_call_contract_function(
         decoded = named_tree(fn_abi["outputs"], normalized_data)
         normalized_data = recursive_dict_to_namedtuple(decoded)
 
-    if len(normalized_data) == 1:
-        return normalized_data[0]
-    else:
-        return normalized_data
+    return normalized_data[0] if len(normalized_data) == 1 else normalized_data
 
 
 async def async_transact_with_contract_function(

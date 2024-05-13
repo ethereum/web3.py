@@ -1,0 +1,1 @@
+Move ABI Types guide into the Troubleshooting page

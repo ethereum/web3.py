@@ -1,9 +1,11 @@
+import asyncio
 import logging
 from typing import (
     TYPE_CHECKING,
     Any,
     AsyncGenerator,
     Callable,
+    Coroutine,
     List,
     Optional,
     Sequence,
@@ -22,6 +24,9 @@ from websockets.exceptions import (
     ConnectionClosedOK,
 )
 
+from web3._utils.batching import (
+    RequestBatcher,
+)
 from web3._utils.caching import (
     generate_cache_key,
 )
@@ -35,8 +40,12 @@ from web3.exceptions import (
     BadResponseFormat,
     MethodUnavailable,
     ProviderConnectionError,
+    TaskNotRunning,
     Web3RPCError,
     Web3TypeError,
+)
+from web3.method import (
+    Method,
 )
 from web3.middleware import (
     AttributeDictMiddleware,
@@ -54,7 +63,11 @@ from web3.module import (
 )
 from web3.providers import (
     AutoProvider,
+    JSONBaseProvider,
     PersistentConnectionProvider,
+)
+from web3.providers.async_base import (
+    AsyncJSONBaseProvider,
 )
 from web3.types import (
     RPCEndpoint,
@@ -375,6 +388,88 @@ class RequestManager:
             response, params, error_formatters, null_result_formatters
         )
 
+    # -- batch requests management -- #
+
+    def _batch_requests(self) -> RequestBatcher[Method[Callable[..., Any]]]:
+        """
+        Context manager for making batch requests
+        """
+        if not isinstance(self.provider, (AsyncJSONBaseProvider, JSONBaseProvider)):
+            raise Web3TypeError("Batch requests are not supported by this provider.")
+        return RequestBatcher(self.w3)
+
+    def _make_batch_request(
+        self, requests_info: List[Tuple[Tuple["RPCEndpoint", Any], Sequence[Any]]]
+    ) -> List[RPCResponse]:
+        """
+        Make a batch request using the provider
+        """
+        provider = cast(JSONBaseProvider, self.provider)
+        request_func = provider.batch_request_func(
+            cast("Web3", self.w3), cast("MiddlewareOnion", self.middleware_onion)
+        )
+        responses = request_func(
+            [
+                (method, params)
+                for (method, params), _response_formatters in requests_info
+            ]
+        )
+        formatted_responses = [
+            self._format_batched_response(info, resp)
+            for info, resp in zip(requests_info, responses)
+        ]
+        return list(formatted_responses)
+
+    async def _async_make_batch_request(
+        self,
+        requests_info: List[
+            Coroutine[Any, Any, Tuple[Tuple["RPCEndpoint", Any], Sequence[Any]]]
+        ],
+    ) -> List[RPCResponse]:
+        """
+        Make an asynchronous batch request using the provider
+        """
+        provider = cast(AsyncJSONBaseProvider, self.provider)
+        request_func = await provider.batch_request_func(
+            cast("AsyncWeb3", self.w3),
+            cast("MiddlewareOnion", self.middleware_onion),
+        )
+        # since we add items to the batch without awaiting, we unpack the coroutines
+        # and await them all here
+        unpacked_requests_info = await asyncio.gather(*requests_info)
+        responses = await request_func(
+            [
+                (method, params)
+                for (method, params), _response_formatters in unpacked_requests_info
+            ]
+        )
+
+        if isinstance(self.provider, PersistentConnectionProvider):
+            # call _process_response for each response in the batch
+            return [await self._process_response(resp) for resp in responses]
+
+        formatted_responses = [
+            self._format_batched_response(info, resp)
+            for info, resp in zip(unpacked_requests_info, responses)
+        ]
+        return list(formatted_responses)
+
+    def _format_batched_response(
+        self,
+        requests_info: Tuple[Tuple[RPCEndpoint, Any], Sequence[Any]],
+        response: RPCResponse,
+    ) -> RPCResponse:
+        result_formatters, error_formatters, null_result_formatters = requests_info[1]
+        return apply_result_formatters(
+            result_formatters,
+            self.formatted_response(
+                response,
+                requests_info[0][1],
+                error_formatters,
+                null_result_formatters,
+            ),
+        )
+
     # -- persistent connection -- #
 
     async def send(self, method: RPCEndpoint, params: Any) -> RPCResponse:
@@ -408,14 +503,24 @@ class RequestManager:
             )
 
         while True:
-            response = await self._request_processor.pop_raw_response(subscription=True)
-            if (
-                response is not None
-                and response.get("params", {}).get("subscription")
-                in self._request_processor.active_subscriptions
-            ):
-                # if response is an active subscription response, process it
-                yield await self._process_response(response)
+            try:
+                response = await self._request_processor.pop_raw_response(
+                    subscription=True
+                )
+                if (
+                    response is not None
+                    and response.get("params", {}).get("subscription")
+                    in self._request_processor.active_subscriptions
+                ):
+                    # if response is an active subscription response, process it
+                    yield await self._process_response(response)
+            except TaskNotRunning:
+                self._provider._handle_listener_task_exceptions()
+                self.logger.error(
+                    "Message listener background task has stopped unexpectedly. "
+                    "Stopping message stream."
+                )
+                raise StopAsyncIteration
 
     async def _process_response(self, response: RPCResponse) -> RPCResponse:
         provider = cast(PersistentConnectionProvider, self._provider)

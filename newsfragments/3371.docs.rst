@@ -1,0 +1,1 @@
+Prunes the node onboarding text

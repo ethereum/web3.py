@@ -220,7 +220,7 @@ class AsyncEthModuleTest:
         txn_hash = await async_w3.eth.send_transaction(txn_params)
 
         modified_txn_hash = await async_w3.eth.modify_transaction(
-            txn_hash, gasPrice=(cast(int, txn_params["gasPrice"]) * 2), value=2
+            txn_hash, gasPrice=(cast(Wei, txn_params["gasPrice"] * 2)), value=Wei(2)
         )
         modified_txn = await async_w3.eth.get_transaction(modified_txn_hash)
 
@@ -252,9 +252,9 @@ class AsyncEthModuleTest:
 
         modified_txn_hash = await async_w3.eth.modify_transaction(
             txn_hash,
-            value=2,
-            maxPriorityFeePerGas=(cast(Wei, txn_params["maxPriorityFeePerGas"]) * 2),
-            maxFeePerGas=(cast(Wei, txn_params["maxFeePerGas"]) * 2),
+            value=Wei(2),
+            maxPriorityFeePerGas=(cast(Wei, txn_params["maxPriorityFeePerGas"] * 2)),
+            maxFeePerGas=(cast(Wei, txn_params["maxFeePerGas"] * 2)),
         )
         modified_txn = await async_w3.eth.get_transaction(modified_txn_hash)
 
@@ -721,7 +721,7 @@ class AsyncEthModuleTest:
             "gasPrice": 10**9,
         }
         signed = keyfile_account.sign_transaction(txn)
-        txn_hash = await async_w3.eth.send_raw_transaction(signed.rawTransaction)
+        txn_hash = await async_w3.eth.send_raw_transaction(signed.raw_transaction)
         assert txn_hash == HexBytes(signed.hash)
 
     @pytest.mark.asyncio
@@ -3657,7 +3657,7 @@ class EthModuleTest:
         txn_hash = w3.eth.send_transaction(txn_params)
 
         modified_txn_hash = w3.eth.modify_transaction(
-            txn_hash, gasPrice=(cast(int, txn_params["gasPrice"]) * 2), value=2
+            txn_hash, gasPrice=(cast(Wei, txn_params["gasPrice"] * 2)), value=Wei(2)
         )
         modified_txn = w3.eth.get_transaction(modified_txn_hash)
 
@@ -3686,9 +3686,9 @@ class EthModuleTest:
 
         modified_txn_hash = w3.eth.modify_transaction(
             txn_hash,
-            value=2,
-            maxPriorityFeePerGas=(cast(Wei, txn_params["maxPriorityFeePerGas"]) * 2),
-            maxFeePerGas=(cast(Wei, txn_params["maxFeePerGas"]) * 2),
+            value=Wei(2),
+            maxPriorityFeePerGas=(cast(Wei, txn_params["maxPriorityFeePerGas"] * 2)),
+            maxFeePerGas=(cast(Wei, txn_params["maxFeePerGas"] * 2)),
         )
         modified_txn = w3.eth.get_transaction(modified_txn_hash)
 
@@ -3720,7 +3720,7 @@ class EthModuleTest:
             "gasPrice": 10**9,
         }
         signed = keyfile_account.sign_transaction(txn)
-        txn_hash = w3.eth.send_raw_transaction(signed.rawTransaction)
+        txn_hash = w3.eth.send_raw_transaction(signed.raw_transaction)
         assert txn_hash == HexBytes(signed.hash)
 
     def test_eth_call(self, w3: "Web3", math_contract: "Contract") -> None:

@@ -5,20 +5,17 @@ Overview
 
 The purpose of this page is to give you a sense of everything web3.py can do
 and to serve as a quick reference guide. You'll find a summary of each feature
-with links to learn more. You may also be interested in the
-:ref:`Examples <examples>` page, which demonstrates some of these features in
-greater detail.
-
+with links to learn more.
 
 Configuration
-~~~~~~~~~~~~~
+-------------
 
 After installing web3.py (via ``pip install web3``), you'll need to configure
 a provider endpoint and any middleware you want to use beyond the defaults.
 
 
 Providers
----------
+~~~~~~~~~
 
 :doc:`providers` are how web3.py connects to a blockchain. The library comes with the
 following built-in providers:
@@ -31,7 +28,7 @@ following built-in providers:
 - :class:`~web3.providers.persistent.WebSocketProvider` for connecting to websocket based JSON-RPC servers asynchronously via a persistent connection.
 
 Examples
-^^^^^^^^
+````````
 
 .. code-block:: python
 
@@ -69,7 +66,7 @@ For more context, see the :doc:`providers` documentation.
 
 
 Middleware
-----------
+~~~~~~~~~~
 
 Your web3.py instance may be further configured via :doc:`middleware`.
 
@@ -86,7 +83,7 @@ Several middleware are :ref:`included by default <default_middleware>`. You may 
 
 
 Accounts and Private Keys
-~~~~~~~~~~~~~~~~~~~~~~~~~
+-------------------------
 
 Private keys are required to approve any transaction made on your behalf. The manner in
 which your key is secured will determine how you create and send transactions in web3.py.
@@ -104,13 +101,13 @@ The separate guide to :doc:`transactions` may also help clarify how to manage ke
 
 
 Base API
-~~~~~~~~
+--------
 
 The :ref:`Web3 <web3_base>` class includes a number of convenient utility functions:
 
 
 Encoding and Decoding Helpers
------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 - :meth:`Web3.is_encodable() <web3.w3.is_encodable>`
 - :meth:`Web3.to_bytes() <web3.Web3.to_bytes>`
@@ -121,7 +118,7 @@ Encoding and Decoding Helpers
 
 
 Address Helpers
----------------
+~~~~~~~~~~~~~~~
 
 - :meth:`Web3.is_address() <web3.Web3.is_address>`
 - :meth:`Web3.is_checksum_address() <web3.Web3.is_checksum_address>`
@@ -129,29 +126,28 @@ Address Helpers
 
 
 Currency Conversions
---------------------
+~~~~~~~~~~~~~~~~~~~~
 
 - :meth:`Web3.from_wei() <web3.Web3.from_wei>`
 - :meth:`Web3.to_wei() <web3.Web3.to_wei>`
 
 
 Cryptographic Hashing
----------------------
+~~~~~~~~~~~~~~~~~~~~~
 
 - :meth:`Web3.keccak() <web3.Web3.keccak>`
 - :meth:`Web3.solidity_keccak() <web3.Web3.solidity_keccak>`
 
 
 web3.eth API
-~~~~~~~~~~~~
+------------
 
 The most commonly used APIs for interacting with Ethereum can be found under the
-``web3.eth`` namespace.  As a reminder, the :doc:`examples` page will demonstrate
-how to use several of these methods.
+:ref:`web3-eth` namespace.
 
 
 Fetching Data
--------------
+~~~~~~~~~~~~~
 
 Viewing account balances (:meth:`get_balance <web3.eth.Eth.get_balance>`), transactions
 (:meth:`get_transaction <web3.eth.Eth.get_transaction>`), and block data
@@ -160,7 +156,7 @@ points in web3.py.
 
 
 API
-^^^
+```
 
 - :meth:`web3.eth.get_balance() <web3.eth.Eth.get_balance>`
 - :meth:`web3.eth.get_block() <web3.eth.Eth.get_block>`
@@ -176,7 +172,7 @@ API
 
 
 Sending Transactions
---------------------
+~~~~~~~~~~~~~~~~~~~~
 
 The most common use cases will be satisfied with
 :meth:`send_transaction <web3.eth.Eth.send_transaction>` or the combination of
@@ -191,7 +187,7 @@ see the full guide to :doc:`transactions`.
 
 
 API
-^^^
+```
 
 - :meth:`web3.eth.send_transaction() <web3.eth.Eth.send_transaction>`
 - :meth:`web3.eth.sign_transaction() <web3.eth.Eth.sign_transaction>`
@@ -258,7 +254,7 @@ For more, see the full :ref:`Contracts` documentation.
 
 
 API
-^^^
+~~~
 
 - :meth:`web3.eth.contract() <web3.eth.Eth.contract>`
 - :attr:`Contract.address <web3.contract.Contract.address>`
@@ -274,31 +270,19 @@ API
 - :attr:`web3.contract.ContractEvents <web3.contract.ContractEvents>`
 
 
-Logs and Filters
-----------------
+Events, Logs, and Filters
+-------------------------
 
 If you want to react to new blocks being mined or specific events being emitted by
-a contract, you can leverage web3.py filters.
+a contract, you can leverage ``get_logs``, subscriptions, or filters.
 
-.. code-block:: python
-
-   # Use case: filter for new blocks
-   >>> new_filter = web3.eth.filter('latest')
-
-   # Use case: filter for contract event "MyEvent"
-   >>> new_filter = deployed_contract.events.MyEvent.create_filter(from_block='latest')
-
-   # retrieve filter results:
-   >>> new_filter.get_all_entries()
-   >>> new_filter.get_new_entries()
-
-More complex patterns for creating filters and polling for logs can be found in the
-:doc:`filters` documentation.
+See the :doc:`filters` guide for more information.
 
 
 API
-^^^
+~~~
 
+- :meth:`web3.eth.subscribe() <web3.eth.Eth.subscribe>`
 - :meth:`web3.eth.filter() <web3.eth.Eth.filter>`
 - :meth:`web3.eth.get_filter_changes() <web3.eth.Eth.get_filter_changes>`
 - :meth:`web3.eth.get_filter_logs() <web3.eth.Eth.get_filter_logs>`
@@ -313,7 +297,7 @@ API
 
 
 Net API
-~~~~~~~
+-------
 
 Some basic network properties are available on the ``web3.net`` object:
 
@@ -323,7 +307,7 @@ Some basic network properties are available on the ``web3.net`` object:
 
 
 ENS
-~~~
+---
 
 `Ethereum Name Service (ENS) <https://ens.domains/>`_ provides the infrastructure
 for human-readable addresses. If an address is registered with the ENS registry,
