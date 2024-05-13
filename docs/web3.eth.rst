@@ -5,14 +5,6 @@ web3.eth API
 
 .. py:module:: web3.eth
 
-.. warning:: Whoa there, Binance Smart Chain user! web3.py is an Ethereum-specific library,
-  which now defaults to "type 2" transactions as of the London network upgrade. BSC apparently
-  does not support these newer transaction types.
-
-  From issues opened, it seems BSC transactions must include ``gasPrice``, but not ``type``,
-  ``maxFeePerGas``, or ``maxPriorityFeePerGas``. If you have trouble beyond that, please find an
-  appropriate BSC forum to raise your question.
-
 .. py:class:: Eth
 
 The ``web3.eth`` object exposes the following properties and methods to
@@ -1106,6 +1098,42 @@ The following methods are available on the ``web3.eth`` namespace.
 
     Set the selected gas price strategy. It must be a method of the signature
     ``(web3, transaction_params)`` and return a gas price denominated in wei.
+
+
+.. py:method:: Eth.subscribe(subscription_identifier, subscription_params)
+
+      * Delegates to ``eth_subscribe`` RPC Method
+
+      Only available on persistent connection providers:
+      :class:`~web3.providers.persistent.WebSocketProvider` and
+      :class:`~web3.providers.persistent.AsyncIPCProvider`.
+
+      Returns a subscription ID that can be used to track a particular subscription to, or unsubscribe from, an event.
+      For usage examples see the docs on :ref:`subscription-examples`.
+
+      .. code-block:: python
+
+          >>> subscription_id = await web3.eth.subscribe('newHeaders')
+          >>> subscription_id
+          '0xbd63bb89e7475591a0a6fc9014307bc4'
+
+
+.. py:method:: Eth.unsubscribe(subscription_id)
+
+      * Delegates to ``eth_unsubscribe`` RPC Method
+
+      Only available on persistent connection providers:
+      :class:`~web3.providers.persistent.WebSocketProvider` and
+      :class:`~web3.providers.persistent.AsyncIPCProvider`.
+
+      Returns ``True`` if successfully unsubscribed. For usage examples see the docs on
+      :ref:`subscription-examples`.
+
+      .. code-block:: python
+
+          >>> result = await web3.eth.unsubscribe(subscription_id)
+          >>> result
+          True
 
 
 Filters

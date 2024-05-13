@@ -437,37 +437,6 @@ Each Contract Factory exposes the following methods.
     will be rejected.
 
 
-.. _ambiguous-contract-functions:
-
-Invoke Ambiguous Contract Functions Example
--------------------------------------------
-
-Below is an example of a contract that has multiple functions of the same name,
-and the arguments are ambiguous.
-
-.. code-block:: python
-
-        >>> contract_source_code = """
-        pragma solidity ^0.4.21;
-        contract AmbiguousDuo {
-          function identity(uint256 input, bool uselessFlag) returns (uint256) {
-            return input;
-          }
-          function identity(int256 input, bool uselessFlag) returns (int256) {
-            return input;
-          }
-        }
-        """
-        # fast forward all the steps of compiling and deploying the contract.
-        >>> ambiguous_contract.functions.identity(1, True) # raises Web3ValidationError
-
-        >>> identity_func = ambiguous_contract.get_function_by_signature('identity(uint256,bool)')
-        >>> identity_func(1, True)
-        <Function identity(uint256,bool) bound to (1, True)>
-        >>> identity_func(1, True).call()
-        1
-
-
 .. _disable-strict-byte-check:
 
 Disabling Strict Checks for Bytes Types
@@ -1262,60 +1231,6 @@ will be used to find the contract function by signature,
 and forwarded to the contract function when applicable.
 
 
-Contract FAQs
--------------
-
-How do I pass in a struct as a function argument?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-web3.py accepts struct arguments as dictionaries. This format also supports nested structs.
-Let's take a look at a quick example. Given the following Solidity contract:
-
-.. code-block:: none
-
-   contract Example {
-     address addr;
-
-     struct S1 {
-       address a1;
-       address a2;
-     }
-
-     struct S2 {
-       bytes32 b1;
-       bytes32 b2;
-     }
-
-     struct X {
-       S1 s1;
-       S2 s2;
-       address[] users;
-     }
-
-     function update(X memory x) public {
-       addr = x.s1.a2;
-     }
-
-     function retrieve() public view returns (address) {
-       return addr;
-     }
-   }
-
-You can interact with web3.py contract API as follows:
-
-.. code-block:: python
-
-   # deploy or lookup the deployed contract, then:
-
-   >>> deployed_contract.functions.retrieve().call()
-   '0x0000000000000000000000000000000000000000'
-
-   >>> deployed_contract.functions.update({'s1': ['0x0000000000000000000000000000000000000001', '0x0000000000000000000000000000000000000002'], 's2': [b'0'*32, b'1'*32], 'users': []}).transact()
-
-   >>> deployed_contract.functions.retrieve().call()
-   '0x0000000000000000000000000000000000000002'
-
-
 Examples
 --------
 
@@ -1447,7 +1362,7 @@ spend using the ``allowance`` function.
 
 
 Performing an external transfer
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```````````````````````````````
 
 When someone has an allowance they can transfer those tokens using the
 ``transferFrom`` function.
@@ -1469,10 +1384,93 @@ When someone has an allowance they can transfer those tokens using the
 .. _ERC-20: https://github.com/ethereum/ERCs/blob/master/ERCS/erc-20.md
 
 
+Using a struct as a function argument
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+web3.py accepts struct arguments as dictionaries. This format also supports nested structs.
+Let's take a look at a quick example. Given the following Solidity contract:
+
+.. code-block:: none
+
+   contract Example {
+     address addr;
+
+     struct S1 {
+       address a1;
+       address a2;
+     }
+
+     struct S2 {
+       bytes32 b1;
+       bytes32 b2;
+     }
+
+     struct X {
+       S1 s1;
+       S2 s2;
+       address[] users;
+     }
+
+     function update(X memory x) public {
+       addr = x.s1.a2;
+     }
+
+     function retrieve() public view returns (address) {
+       return addr;
+     }
+   }
+
+You can interact with the web3.py contract API as follows:
+
+.. code-block:: python
+
+   # deploy or lookup the deployed contract, then:
+
+   >>> deployed_contract.functions.retrieve().call()
+   '0x0000000000000000000000000000000000000000'
+
+   >>> deployed_contract.functions.update({'s1': ['0x0000000000000000000000000000000000000001', '0x0000000000000000000000000000000000000002'], 's2': [b'0'*32, b'1'*32], 'users': []}).transact()
+
+   >>> deployed_contract.functions.retrieve().call()
+   '0x0000000000000000000000000000000000000002'
+
+
+.. _ambiguous-contract-functions:
+
+Invoke Ambiguous Contract Functions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Below is an example of a contract that has multiple functions of the same name,
+and the arguments are ambiguous. You can use the :meth:`Contract.get_function_by_signature`
+method to reference the intended function and call it with the correct arguments.
+
+.. code-block:: python
+
+        >>> contract_source_code = """
+        pragma solidity ^0.8.24;
+        contract AmbiguousDuo {
+          function identity(uint256 input, bool uselessFlag) public pure returns (uint256) {
+            return input;
+          }
+          function identity(int256 input, bool uselessFlag) public pure returns (int256) {
+            return input;
+          }
+        }
+        """
+        # fast forward all the steps of compiling and deploying the contract.
+        >>> ambiguous_contract.functions.identity(1, True) # raises Web3ValidationError
+
+        >>> identity_func = ambiguous_contract.get_function_by_signature('identity(uint256,bool)')
+        >>> identity_func(1, True)
+        <Function identity(uint256,bool) bound to (1, True)>
+        >>> identity_func(1, True).call()
+        1
+
+
 .. _ccip-read-example:
 
 CCIP Read support for offchain lookup
--------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Contract calls support CCIP Read by default, via a ``ccip_read_enabled`` flag on the call and, more globally, a
 ``global_ccip_read_enabled`` flag on the provider. The following should work by default without raising an
@@ -1508,7 +1506,7 @@ appropriately in the following way:
         tx_hash = w3.eth.send_transaction(tx)
 
 Contract Unit Tests in Python
------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Here is an example of how one can use the `pytest`_ framework in python, web3.py,
 eth-tester, and PyEVM to perform unit tests entirely in python without any

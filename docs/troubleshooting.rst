@@ -92,18 +92,6 @@ If that does not address your issue, it's probable that you still have a
 Provider configuration issue. There are several options for configuring
 a Provider, detailed :ref:`here<providers>`.
 
-How do I use my MetaMask accounts from web3.py?
------------------------------------------------
-Often you don't need to do this, just make a new account in web3.py,
-and transfer funds from your MetaMask account into it. But if you must...
-
-Export your private key from MetaMask, and use
-the local private key tools in web3.py to sign and send transactions.
-
-See `how to export your private key
-<https://ethereum.stackexchange.com/questions/33053/what-is-a-private-key-in-an-ethereum-wallet-like-metamask-and-how-do-i-find-it>`_
-and :ref:`eth-account`.
-
 .. _faucets:
 
 How do I get ether for my test network?
@@ -116,6 +104,16 @@ simply sends you test ether when you visit a web page, or ping a chat bot, etc.
 Each test network has its own version of test ether, so each one must maintain
 its own faucet. Faucet mechanisms tend to come and go, so a web search for
 "ethereum testnet faucet" should give you the most up-to-date options.
+
+How do I use my MetaMask accounts from web3.py?
+-----------------------------------------------
+
+Export your private key from MetaMask, and use
+the local private key tools in web3.py to sign and send transactions.
+
+See `how to export your private key
+<https://ethereum.stackexchange.com/questions/33053/what-is-a-private-key-in-an-ethereum-wallet-like-metamask-and-how-do-i-find-it>`_
+and :ref:`eth-account`.
 
 .. _account_troubleshooting:
 
@@ -130,6 +128,26 @@ In general, your options for accounts are:
 
 .. Warning:: Don't store real value in an account until you are familiar with security best practices.
    If you lose your private key, you lose your account!
+
+Why doesn't my transaction work on another network?
+---------------------------------------------------
+
+web3.py is an Ethereum-specific library, which defaults to
+`"type 2" EIP-1559 transactions <https://ethereum.org/en/developers/docs/transactions/#typed-transaction-envelope>`_
+as of the London network upgrade. Some chains (including Ethereum L2s) do not support
+the same transaction types.
+
+If your chain doesn't support this transaction type, you likely need to create a
+"legacy" transaction, i.e., include ``gasPrice``, but not ``type``, ``maxFeePerGas``,
+or ``maxPriorityFeePerGas`` in your transaction body.
+
+If that doesn't resolve your issue, open a GitHub issue or reach out for help in the community
+`Discord`_ server if you're having trouble with an Ethereum-ecosystem chain. If you're
+debugging in an alternative ecosystem, please find another appropriate forum to raise
+your question.
+
+.. _Discord: https://discord.gg/GHryRvPB84
+
 
 How do I conform to ABI types?
 ------------------------------
