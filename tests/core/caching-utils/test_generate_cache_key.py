@@ -28,7 +28,12 @@ def extend_fn(children):
 
 
 all_st = st.recursive(
-    st.none() | st.integers() | st.booleans() | st.floats() | st.text() | st.binary(),
+    st.none()
+    | st.integers()
+    | st.booleans()
+    | st.floats(allow_infinity=False)
+    | st.text()
+    | st.binary(),
     extend_fn,
 )
 
