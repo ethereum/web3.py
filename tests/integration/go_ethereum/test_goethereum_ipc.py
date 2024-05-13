@@ -93,12 +93,8 @@ class TestGoEthereumAdminModuleTest(GoEthereumAdminModuleTest):
 
 class TestGoEthereumDebugModuleTest(GoEthereumDebugModuleTest):
     pass
-  
 
-class TestGoEthereumEthModuleTest(GoEthereumEthModuleTest):
-    pass
-  
-  
+
 # -- async -- #
 
 
@@ -119,8 +115,8 @@ class TestGoEthereumAsyncEthModuleTest(GoEthereumAsyncEthModuleTest):
 
 class TestGoEthereumAsyncNetModuleTest(GoEthereumAsyncNetModuleTest):
     pass
-  
-  
+
+
 class TestGoEthereumAsyncDebugModuleTest(GoEthereumAsyncDebugModuleTest):
     pass
 
