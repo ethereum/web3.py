@@ -1104,7 +1104,9 @@ The following methods are available on the ``web3.eth`` namespace.
 
       * Delegates to ``eth_subscribe`` RPC Method
 
-      Only available on persistent connection providers: ``WebSocketProvider`` and ``AsyncIPCProvider``.
+      Only available on persistent connection providers:
+      :class:`~web3.providers.persistent.WebSocketProvider` and
+      :class:`~web3.providers.persistent.AsyncIPCProvider`.
 
       Returns a subscription ID that can be used to track a particular subscription to, or unsubscribe from, an event.
       For usage examples see the docs on :ref:`subscription-examples`.
@@ -1120,7 +1122,9 @@ The following methods are available on the ``web3.eth`` namespace.
 
       * Delegates to ``eth_unsubscribe`` RPC Method
 
-      Only available on persistent connection providers: ``WebSocketProvider`` and ``AsyncIPCProvider``.
+      Only available on persistent connection providers:
+      :class:`~web3.providers.persistent.WebSocketProvider` and
+      :class:`~web3.providers.persistent.AsyncIPCProvider`.
 
       Returns ``True`` if successfully unsubscribed. For usage examples see the docs on
       :ref:`subscription-examples`.

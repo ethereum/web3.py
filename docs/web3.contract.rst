@@ -1447,12 +1447,12 @@ method to reference the intended function and call it with the correct arguments
 .. code-block:: python
 
         >>> contract_source_code = """
-        pragma solidity ^0.4.21;
+        pragma solidity ^0.8.24;
         contract AmbiguousDuo {
-          function identity(uint256 input, bool uselessFlag) returns (uint256) {
+          function identity(uint256 input, bool uselessFlag) public pure returns (uint256) {
             return input;
           }
-          function identity(int256 input, bool uselessFlag) returns (int256) {
+          function identity(int256 input, bool uselessFlag) public pure returns (int256) {
             return input;
           }
         }

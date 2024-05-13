@@ -141,10 +141,12 @@ If your chain doesn't support this transaction type, you likely need to create a
 "legacy" transaction, i.e., include ``gasPrice``, but not ``type``, ``maxFeePerGas``,
 or ``maxPriorityFeePerGas`` in your transaction body.
 
-If that doesn't resolve your issue, open a GitHub issue or reach out for help in the
-Discord server if you're having trouble with an Ethereum-ecosystem chain. If you're
+If that doesn't resolve your issue, open a GitHub issue or reach out for help in the community
+`Discord`_ server if you're having trouble with an Ethereum-ecosystem chain. If you're
 debugging in an alternative ecosystem, please find another appropriate forum to raise
 your question.
+
+.. _Discord: https://discord.gg/GHryRvPB84
 
 
 How do I conform to ABI types?
