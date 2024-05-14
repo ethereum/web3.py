@@ -141,7 +141,6 @@ class IPCProvider(JSONBaseProvider):
         self,
         ipc_path: Union[str, Path] = None,
         timeout: int = 30,
-        *args: Any,
         **kwargs: Any,
     ) -> None:
         if ipc_path is None:
@@ -154,7 +153,7 @@ class IPCProvider(JSONBaseProvider):
         self.timeout = timeout
         self._lock = threading.Lock()
         self._socket = PersistantSocket(self.ipc_path)
-        super().__init__()
+        super().__init__(**kwargs)
 
     def __str__(self) -> str:
         return f"<{self.__class__.__name__} {self.ipc_path}>"

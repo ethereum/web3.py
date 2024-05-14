@@ -19,6 +19,7 @@ from eth_utils import (
 )
 
 from web3._utils.caching import (
+    CACHEABLE_REQUESTS,
     async_handle_request_caching,
 )
 from web3._utils.encoding import (
@@ -57,23 +58,6 @@ if TYPE_CHECKING:
     )
 
 
-CACHEABLE_REQUESTS = cast(
-    Set[RPCEndpoint],
-    (
-        "eth_chainId",
-        "eth_getBlockByHash",
-        "eth_getBlockTransactionCountByHash",
-        "eth_getRawTransactionByHash",
-        "eth_getTransactionByBlockHashAndIndex",
-        "eth_getTransactionByHash",
-        "eth_getUncleByBlockHashAndIndex",
-        "eth_getUncleCountByBlockHash",
-        "net_version",
-        "web3_clientVersion",
-    ),
-)
-
-
 class AsyncBaseProvider:
     _request_func_cache: Tuple[
         Tuple[Middleware, ...], Callable[..., Coroutine[Any, Any, RPCResponse]]
@@ -90,13 +74,17 @@ class AsyncBaseProvider:
     ccip_read_max_redirects: int = 4
 
     # request caching
-    cache_allowed_requests: bool = False
-    cacheable_requests: Set[RPCEndpoint] = CACHEABLE_REQUESTS
     _request_cache: SimpleCache
     _request_cache_lock: asyncio.Lock = asyncio.Lock()
 
-    def __init__(self) -> None:
+    def __init__(
+        self,
+        cache_allowed_requests: bool = False,
+        cacheable_requests: Set[RPCEndpoint] = None,
+    ) -> None:
         self._request_cache = SimpleCache(1000)
+        self.cache_allowed_requests = cache_allowed_requests
+        self.cacheable_requests = cacheable_requests or CACHEABLE_REQUESTS
 
     async def request_func(
         self, async_w3: "AsyncWeb3", middleware_onion: MiddlewareOnion
@@ -171,9 +159,9 @@ class AsyncBaseProvider:
 
 
 class AsyncJSONBaseProvider(AsyncBaseProvider):
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(self, **kwargs: Any) -> None:
         self.request_counter = itertools.count()
+        super().__init__(**kwargs)
 
     def encode_rpc_request(self, method: RPCEndpoint, params: Any) -> bytes:
         request_id = next(self.request_counter)

@@ -8,9 +8,11 @@ from typing import (
     Coroutine,
     Dict,
     List,
+    Set,
     Tuple,
     TypeVar,
     Union,
+    cast,
 )
 
 from eth_utils import (
@@ -92,7 +94,24 @@ def is_cacheable_request(
     return False
 
 
-# -- request caching decorators -- #
+# -- request caching -- #
+
+
+CACHEABLE_REQUESTS = cast(
+    Set["RPCEndpoint"],
+    (
+        "eth_chainId",
+        "eth_getBlockByHash",
+        "eth_getBlockTransactionCountByHash",
+        "eth_getRawTransactionByHash",
+        "eth_getTransactionByBlockHashAndIndex",
+        "eth_getTransactionByHash",
+        "eth_getUncleByBlockHashAndIndex",
+        "eth_getUncleCountByBlockHash",
+        "net_version",
+        "web3_clientVersion",
+    ),
+)
 
 
 def _should_cache_response(response: "RPCResponse") -> bool:
