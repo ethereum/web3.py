@@ -70,6 +70,7 @@ class HTTPProvider(JSONBaseProvider):
         exception_retry_configuration: Union[
             ExceptionRetryConfiguration, Empty
         ] = empty,
+        **kwargs: Any,
     ) -> None:
         if endpoint_uri is None:
             self.endpoint_uri = get_default_http_endpoint()
@@ -82,7 +83,7 @@ class HTTPProvider(JSONBaseProvider):
         if session:
             cache_and_return_session(self.endpoint_uri, session)
 
-        super().__init__()
+        super().__init__(**kwargs)
 
     def __str__(self) -> str:
         return f"RPC connection {self.endpoint_uri}"

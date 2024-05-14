@@ -66,6 +66,7 @@ class AsyncHTTPProvider(AsyncJSONBaseProvider):
         exception_retry_configuration: Union[
             ExceptionRetryConfiguration, Empty
         ] = empty,
+        **kwargs: Any,
     ) -> None:
         if endpoint_uri is None:
             self.endpoint_uri = get_default_http_endpoint()
@@ -75,7 +76,7 @@ class AsyncHTTPProvider(AsyncJSONBaseProvider):
         self._request_kwargs = request_kwargs or {}
         self._exception_retry_configuration = exception_retry_configuration
 
-        super().__init__()
+        super().__init__(**kwargs)
 
     async def cache_async_session(self, session: ClientSession) -> ClientSession:
         return await _async_cache_and_return_session(self.endpoint_uri, session)

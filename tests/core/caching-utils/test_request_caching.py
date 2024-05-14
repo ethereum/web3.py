@@ -6,10 +6,17 @@ import uuid
 import pytest_asyncio
 
 from web3 import (
+    AsyncHTTPProvider,
+    AsyncIPCProvider,
     AsyncWeb3,
+    HTTPProvider,
+    IPCProvider,
+    LegacyWebSocketProvider,
     Web3,
+    WebSocketProvider,
 )
 from web3._utils.caching import (
+    CACHEABLE_REQUESTS,
     generate_cache_key,
 )
 from web3.exceptions import (
@@ -18,6 +25,10 @@ from web3.exceptions import (
 from web3.providers import (
     AsyncBaseProvider,
     BaseProvider,
+    JSONBaseProvider,
+)
+from web3.providers.async_base import (
+    AsyncJSONBaseProvider,
 )
 from web3.types import (
     RPCEndpoint,
@@ -38,8 +49,7 @@ def simple_cache_return_value_a():
 
 @pytest.fixture
 def w3(request_mocker):
-    _w3 = Web3(provider=BaseProvider())
-    _w3.provider.cache_allowed_requests = True
+    _w3 = Web3(provider=BaseProvider(cache_allowed_requests=True))
     _w3.provider.cacheable_requests += (RPCEndpoint("fake_endpoint"),)
     with request_mocker(
         _w3,
@@ -67,8 +77,7 @@ def test_request_caching_populates_cache(w3):
 
 
 def test_request_caching_does_not_cache_none_responses(request_mocker):
-    w3 = Web3(BaseProvider())
-    w3.provider.cache_allowed_requests = True
+    w3 = Web3(BaseProvider(cache_allowed_requests=True))
     w3.provider.cacheable_requests += (RPCEndpoint("fake_endpoint"),)
 
     counter = itertools.count()
@@ -85,8 +94,7 @@ def test_request_caching_does_not_cache_none_responses(request_mocker):
 
 
 def test_request_caching_does_not_cache_error_responses(request_mocker):
-    w3 = Web3(provider=BaseProvider())
-    w3.provider.cache_allowed_requests = True
+    w3 = Web3(BaseProvider(cache_allowed_requests=True))
     w3.provider.cacheable_requests += (RPCEndpoint("fake_endpoint"),)
 
     with request_mocker(
@@ -129,13 +137,47 @@ def test_caching_requests_does_not_share_state_between_providers(request_mocker)
     assert result_c == 33333
 
 
+@pytest.mark.parametrize(
+    "provider",
+    [
+        BaseProvider,
+        JSONBaseProvider,
+        HTTPProvider,
+        IPCProvider,
+        AsyncBaseProvider,
+        AsyncJSONBaseProvider,
+        AsyncHTTPProvider,
+        AsyncIPCProvider,
+        WebSocketProvider,
+        LegacyWebSocketProvider,  # deprecated
+    ],
+)
+def test_all_providers_do_not_cache_by_default_and_can_set_caching_properties(provider):
+    _provider_default_init = provider()
+    assert _provider_default_init.cache_allowed_requests is False
+    assert _provider_default_init.cacheable_requests == CACHEABLE_REQUESTS
+
+    # can set properties
+    _provider_default_init.cache_allowed_requests = True
+    _provider_default_init.cacheable_requests = {RPCEndpoint("fake_endpoint")}
+    assert _provider_default_init.cache_allowed_requests is True
+    assert _provider_default_init.cacheable_requests == {RPCEndpoint("fake_endpoint")}
+
+    # can set properties on init
+    _provider_set_on_init = provider(
+        cache_allowed_requests=True,
+        cacheable_requests={RPCEndpoint("fake_endpoint")},
+    )
+    assert _provider_set_on_init.cache_allowed_requests is True
+    assert _provider_set_on_init.cacheable_requests == {RPCEndpoint("fake_endpoint")}
+
+
 # -- async -- #
 
 
 @pytest_asyncio.fixture
 async def async_w3(request_mocker):
-    _async_w3 = AsyncWeb3(AsyncBaseProvider())
-    _async_w3.provider.cache_allowed_requests = True
+    _async_w3 = AsyncWeb3(AsyncBaseProvider(cache_allowed_requests=True))
     _async_w3.provider.cacheable_requests += (RPCEndpoint("fake_endpoint"),)
     async with request_mocker(
         _async_w3,
@@ -170,8 +212,7 @@ async def test_async_request_caching_populates_cache(async_w3):
 
 @pytest.mark.asyncio
 async def test_async_request_caching_does_not_cache_none_responses(request_mocker):
-    async_w3 = AsyncWeb3(AsyncBaseProvider())
-    async_w3.provider.cache_allowed_requests = True
+    async_w3 = AsyncWeb3(AsyncBaseProvider(cache_allowed_requests=True))
     async_w3.provider.cacheable_requests += (RPCEndpoint("fake_endpoint"),)
 
     counter = itertools.count()
@@ -189,8 +230,7 @@ async def test_async_request_caching_does_not_cache_none_responses(request_mocke
 
 @pytest.mark.asyncio
 async def test_async_request_caching_does_not_cache_error_responses(request_mocker):
-    async_w3 = AsyncWeb3(AsyncBaseProvider())
-    async_w3.provider.cache_allowed_requests = True
+    async_w3 = AsyncWeb3(AsyncBaseProvider(cache_allowed_requests=True))
     async_w3.provider.cacheable_requests += (RPCEndpoint("fake_endpoint"),)
 
     async with request_mocker(

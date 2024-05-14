@@ -16,6 +16,7 @@ from eth_utils import (
 )
 
 from web3._utils.caching import (
+    CACHEABLE_REQUESTS,
     handle_request_caching,
 )
 from web3._utils.encoding import (
@@ -44,23 +45,6 @@ if TYPE_CHECKING:
     from web3 import Web3  # noqa: F401
 
 
-CACHEABLE_REQUESTS = cast(
-    Set[RPCEndpoint],
-    (
-        "eth_chainId",
-        "eth_getBlockByHash",
-        "eth_getBlockTransactionCountByHash",
-        "eth_getRawTransactionByHash",
-        "eth_getTransactionByBlockHashAndIndex",
-        "eth_getTransactionByHash",
-        "eth_getUncleByBlockHashAndIndex",
-        "eth_getUncleCountByBlockHash",
-        "net_version",
-        "web3_clientVersion",
-    ),
-)
-
-
 class BaseProvider:
     # a tuple of (middleware, request_func)
     _request_func_cache: Tuple[Tuple[Middleware, ...], Callable[..., RPCResponse]] = (
@@ -74,13 +58,17 @@ class BaseProvider:
     ccip_read_max_redirects: int = 4
 
     # request caching
-    cache_allowed_requests: bool = False
-    cacheable_requests: Set[RPCEndpoint] = CACHEABLE_REQUESTS
     _request_cache: SimpleCache
     _request_cache_lock: threading.Lock = threading.Lock()
 
-    def __init__(self) -> None:
+    def __init__(
+        self,
+        cache_allowed_requests: bool = False,
+        cacheable_requests: Set[RPCEndpoint] = None,
+    ) -> None:
         self._request_cache = SimpleCache(1000)
+        self.cache_allowed_requests = cache_allowed_requests
+        self.cacheable_requests = cacheable_requests or CACHEABLE_REQUESTS
 
     def request_func(
         self, w3: "Web3", middleware_onion: MiddlewareOnion
@@ -121,9 +109,9 @@ class JSONBaseProvider(BaseProvider):
         Tuple[Middleware, ...], Callable[..., List[RPCResponse]]
     ] = (None, None)
 
-    def __init__(self) -> None:
+    def __init__(self, **kwargs: Any) -> None:
         self.request_counter = itertools.count()
-        super().__init__()
+        super().__init__(**kwargs)
 
     def encode_rpc_request(self, method: RPCEndpoint, params: Any) -> bytes:
         rpc_dict = {

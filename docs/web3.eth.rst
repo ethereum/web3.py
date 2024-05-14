@@ -184,7 +184,7 @@ The following properties are available on the ``web3.eth`` namespace.
 
        .. code-block:: python
 
-          >>> w3.provider.cache_allowed_requests
+          >>> w3.provider.cache_allowed_requests = True
 
 
 .. _web3-eth-methods:
