@@ -6,6 +6,44 @@ v7 Breaking Changes Summary
 
 .. towncrier release notes start
 
+web3.py v7.0.0-beta.6 (2024-05-15)
+----------------------------------
+
+Bugfixes
+~~~~~~~~
+
+- Properly propagate exceptions from the message listener task to the main loop for persistent connection providers. (`#3378 <https://github.com/ethereum/web3.py/issues/3378>`__)
+
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Prunes the node onboarding text (`#3371 <https://github.com/ethereum/web3.py/issues/3371>`__)
+- Stale example cleanup (`#3374 <https://github.com/ethereum/web3.py/issues/3374>`__)
+- Merge migration guides into one page (`#3379 <https://github.com/ethereum/web3.py/issues/3379>`__)
+- Simplify titles of docs guides (`#3381 <https://github.com/ethereum/web3.py/issues/3381>`__)
+- Move ABI Types guide into the Troubleshooting page (`#3382 <https://github.com/ethereum/web3.py/issues/3382>`__)
+- Distribute examples into relevant guides and delete Example page (`#3383 <https://github.com/ethereum/web3.py/issues/3383>`__)
+- Add subscribe/unsubscribe API (`#3386 <https://github.com/ethereum/web3.py/issues/3386>`__)
+- Introduces batch request API (`#3393 <https://github.com/ethereum/web3.py/issues/3393>`__)
+
+
+Features
+~~~~~~~~
+
+- Add support for request batching via ``w3.batch_requests()`` context manager (sync and async). (`#3370 <https://github.com/ethereum/web3.py/issues/3370>`__)
+- Allow request cache configuration on provider ``__init__()`` for all provider classes. (`#3395 <https://github.com/ethereum/web3.py/issues/3395>`__)
+
+
+Internal Changes - for web3.py Contributors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Merge the python project template, notably adding python 3.12 support (`#3363 <https://github.com/ethereum/web3.py/issues/3363>`__)
+- Increase python-asyncio dependency to be >=0.21.2,<0.23 (`#3369 <https://github.com/ethereum/web3.py/issues/3369>`__)
+- Bump to ``mypy==1.10.0`` for ``pre-commit`` (`#3377 <https://github.com/ethereum/web3.py/issues/3377>`__)
+- Move signed.rawTransaction -> signed.raw_transaction in eth module tests (`#3380 <https://github.com/ethereum/web3.py/issues/3380>`__)
+
+
 web3.py v7.0.0-beta.5 (2024-04-26)
 ----------------------------------
 

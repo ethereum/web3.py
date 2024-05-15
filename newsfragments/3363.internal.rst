@@ -1,1 +1,0 @@
-Merge the python project template, notably adding python 3.12 support

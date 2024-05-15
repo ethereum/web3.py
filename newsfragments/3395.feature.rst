@@ -1,1 +1,0 @@
-Allow request cache configuration on provider ``__init__()`` for all provider classes.

@@ -1,1 +1,0 @@
-Add support for request batching via ``w3.batch_requests()`` context manager (sync and async).

@@ -1,1 +1,0 @@
-Introduces batch request API
