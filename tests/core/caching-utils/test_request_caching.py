@@ -116,12 +116,18 @@ def test_request_caching_does_not_cache_endpoints_not_in_allowlist(w3):
 
 
 def test_caching_requests_does_not_share_state_between_providers(request_mocker):
-    w3_a, w3_b, w3_c = (
-        Web3(provider=BaseProvider()),
-        Web3(provider=BaseProvider()),
-        Web3(provider=BaseProvider()),
+    w3_a, w3_b, w3_c, w3_a_shared_cache = (
+        Web3(provider=BaseProvider(cache_allowed_requests=True)),
+        Web3(provider=BaseProvider(cache_allowed_requests=True)),
+        Web3(provider=BaseProvider(cache_allowed_requests=True)),
+        Web3(provider=BaseProvider(cache_allowed_requests=True)),
     )
+
+    # strap w3_a_shared_cache with w3_a's cache
+    w3_a_shared_cache.provider._request_cache = w3_a.provider._request_cache
+
     mock_results_a = {RPCEndpoint("eth_chainId"): 11111}
+    mock_results_a_shared_cache = {RPCEndpoint("eth_chainId"): 00000}
     mock_results_b = {RPCEndpoint("eth_chainId"): 22222}
     mock_results_c = {RPCEndpoint("eth_chainId"): 33333}
 
@@ -132,9 +138,18 @@ def test_caching_requests_does_not_share_state_between_providers(request_mocker)
                 result_b = w3_b.manager.request_blocking("eth_chainId", [])
                 result_c = w3_c.manager.request_blocking("eth_chainId", [])
 
+        with request_mocker(
+            w3_a_shared_cache, mock_results=mock_results_a_shared_cache
+        ):
+            # test a shared cache returns 11111, not 00000
+            result_a_shared_cache = w3_a_shared_cache.manager.request_blocking(
+                "eth_chainId", []
+            )
+
     assert result_a == 11111
     assert result_b == 22222
     assert result_c == 33333
+    assert result_a_shared_cache == 11111
 
 
 @pytest.mark.parametrize(
@@ -258,12 +273,18 @@ async def test_async_request_caching_does_not_cache_non_allowlist_endpoints(
 async def test_async_request_caching_does_not_share_state_between_providers(
     request_mocker,
 ):
-    async_w3_a, async_w3_b, async_w3_c = (
-        AsyncWeb3(AsyncBaseProvider()),
-        AsyncWeb3(AsyncBaseProvider()),
-        AsyncWeb3(AsyncBaseProvider()),
+    async_w3_a, async_w3_b, async_w3_c, async_w3_a_shared_cache = (
+        AsyncWeb3(AsyncBaseProvider(cache_allowed_requests=True)),
+        AsyncWeb3(AsyncBaseProvider(cache_allowed_requests=True)),
+        AsyncWeb3(AsyncBaseProvider(cache_allowed_requests=True)),
+        AsyncWeb3(AsyncBaseProvider(cache_allowed_requests=True)),
     )
+
+    # strap async_w3_a_shared_cache with async_w3_a's cache
+    async_w3_a_shared_cache.provider._request_cache = async_w3_a.provider._request_cache
+
     mock_results_a = {RPCEndpoint("eth_chainId"): 11111}
+    mock_results_a_shared_cache = {RPCEndpoint("eth_chainId"): 00000}
     mock_results_b = {RPCEndpoint("eth_chainId"): 22222}
     mock_results_c = {RPCEndpoint("eth_chainId"): 33333}
 
@@ -274,6 +295,15 @@ async def test_async_request_caching_does_not_share_state_between_providers(
                 result_b = await async_w3_b.manager.coro_request("eth_chainId", [])
                 result_c = await async_w3_c.manager.coro_request("eth_chainId", [])
 
+        async with request_mocker(
+            async_w3_a_shared_cache, mock_results=mock_results_a_shared_cache
+        ):
+            # test a shared cache returns 11111, not 00000
+            result_a_shared_cache = await async_w3_a_shared_cache.manager.coro_request(
+                "eth_chainId", []
+            )
+
     assert result_a == 11111
     assert result_b == 22222
     assert result_c == 33333
+    assert result_a_shared_cache == 11111
