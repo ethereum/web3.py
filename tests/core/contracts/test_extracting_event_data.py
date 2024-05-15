@@ -1,6 +1,10 @@
+import copy
 import pytest
 import re
 
+from eth_abi.exceptions import (
+    InsufficientDataBytes,
+)
 from eth_utils import (
     is_same_address,
 )
@@ -1178,6 +1182,54 @@ def test_receipt_processing_with_no_flag(indexed_event_contract, dup_txn_receipt
     with pytest.warns(UserWarning, match="Expected 1 log topics.  Got 0"):
         returned_log = event_instance.process_receipt(dup_txn_receipt)
         assert len(returned_log) == 0
+
+
+def test_receipt_processing_catches_insufficientdatabytes_error_by_default(
+    w3, emitter, wait_for_transaction
+):
+    txn_hash = emitter.functions.logListArgs([b"13"], [b"54"]).transact()
+    txn_receipt = wait_for_transaction(w3, txn_hash)
+    event_instance = emitter.events.LogListArgs()
+
+    # web3 doesn't generate logs with non-standard lengths, so we have to do it manually
+    txn_receipt_dict = copy.deepcopy(txn_receipt)
+    txn_receipt_dict["logs"][0] = dict(txn_receipt_dict["logs"][0])
+    txn_receipt_dict["logs"][0]["data"] = txn_receipt_dict["logs"][0]["data"][:-8]
+
+    # WARN is default
+    assert len(event_instance.process_receipt(txn_receipt_dict)) == 0
+    assert len(event_instance.process_receipt(txn_receipt_dict, errors=WARN)) == 0
+    assert len(event_instance.process_receipt(txn_receipt_dict, errors=DISCARD)) == 0
+
+    # IGNORE includes the InsufficientDataBytes error in the log
+    assert len(event_instance.process_receipt(txn_receipt_dict, errors=IGNORE)) == 1
+
+    # STRICT raises an error to be caught
+    with pytest.raises(InsufficientDataBytes):
+        returned_log = event_instance.process_receipt(txn_receipt_dict, errors=STRICT)
+        assert len(returned_log) == 0
+
+
+def test_receipt_processing_respects_w3_strict_bytes_type_checking_flag(
+    w3, emitter, wait_for_transaction
+):
+    txn_hash = emitter.functions.logListArgs([b"13"], [b"54"]).transact()
+    txn_receipt = wait_for_transaction(w3, txn_hash)
+    event_instance = emitter.events.LogListArgs()
+
+    # web3 doesn't generate logs with non-standard lengths, so we have to do it manually
+    txn_receipt_dict = copy.deepcopy(txn_receipt)
+    txn_receipt_dict["logs"][0] = dict(txn_receipt_dict["logs"][0])
+    txn_receipt_dict["logs"][0]["data"] = txn_receipt_dict["logs"][0]["data"][:-4]
+
+    # STRICT raises an error to be caught
+    with pytest.raises(InsufficientDataBytes):
+        returned_log = event_instance.process_receipt(txn_receipt_dict, errors=STRICT)
+        assert len(returned_log) == 0
+
+    w3.strict_bytes_type_checking = False
+    returned_log = event_instance.process_receipt(txn_receipt_dict, errors=STRICT)
+    assert len(returned_log) == 1
 
 
 def test_single_log_processing_with_errors(indexed_event_contract, dup_txn_receipt):
