@@ -95,7 +95,10 @@ Batch Requests
 
         batch = w3.batch_requests()
         batch.add_mapping(
-            {math_contract.functions.multiply7: [1, 2], w3.eth.get_block: [3, 4]}
+            {
+                math_contract.functions.multiply7: [1, 2], 
+                w3.eth.get_block: [3, 4],
+            }
         )
         responses = batch.execute()
         assert len(responses) == 4
