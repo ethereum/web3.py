@@ -57,7 +57,7 @@ Batch Requests
 .. py:method:: Web3.batch_requests()
 
     The JSON-RPC API allows for batch requests, meaning you can send a single request
-    that contains an array of RPC commands. Generally, this may be useful when you want
+    that contains an array of request objects. Generally, this may be useful when you want
     to limit the number of requests you send to a node.
 
     You have can choose to build a batch of requests within or outside of a context manager:
@@ -96,7 +96,7 @@ Batch Requests
         batch = w3.batch_requests()
         batch.add_mapping(
             {
-                math_contract.functions.multiply7: [1, 2], 
+                math_contract.functions.multiply7: [1, 2],
                 w3.eth.get_block: [3, 4],
             }
         )
@@ -130,6 +130,32 @@ Batch Requests
         - :meth:`sign_transaction <web3.eth.Eth.sign_transaction>`
         - :meth:`sign <web3.eth.Eth.sign>`
         - :meth:`sign_typed_data <web3.eth.Eth.sign_typed_data>`
+
+  Async Batch Requests
+  ````````````````````
+
+  If using one of the asynchronous providers, you'll need to make use of
+  the ``async_execute`` method and the ``async`` and ``await`` keywords
+  as appropriate:
+
+  .. code-block:: python
+
+      # context manager:
+      async with w3.batch_requests() as batch:
+          batch.add(w3.eth.get_block(6))
+          batch.add(w3.eth.get_block(4))
+          batch.add(w3.eth.get_block(2))
+
+          responses = await batch.async_execute()
+          assert len(responses) == 3
+
+      # object:
+      batch = w3.batch_requests()
+      batch.add(w3.eth.get_block(1))
+      batch.add(w3.eth.get_block(2))
+      responses = await batch.async_execute()
+      assert len(responses) == 2
+
 
 .. _overview_type_conversions:
 
