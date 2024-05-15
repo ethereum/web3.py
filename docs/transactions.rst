@@ -2,9 +2,9 @@ Transactions
 ============
 
 There are a handful of ways to interact with transactions in web3.py. See the
-:ref:`Web3.eth module <web3-eth-methods>` for a full list of transaction-related methods.
+:ref:`Web3.eth module <web3-eth-methods>` for a full list of transaction-related methods. Note that you may also :ref:`batch requests <batch_requests>` that read transaction data, but not send new transactions in a batch request.
 
-This guide covers the decision tree for how to send a transaction.
+The rest of this guide covers the decision tree for how to send a transaction.
 
 .. note::
 

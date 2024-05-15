@@ -49,6 +49,114 @@ Attributes
        'Geth/v1.4.11-stable-fed692f6/darwin/go1.7'
 
 
+.. _batch_requests:
+
+Batch Requests
+~~~~~~~~~~~~~~
+
+.. py:method:: Web3.batch_requests()
+
+    The JSON-RPC API allows for batch requests, meaning you can send a single request
+    that contains an array of request objects. Generally, this may be useful when you want
+    to limit the number of requests you send to a node.
+
+    You have can choose to build a batch of requests within or outside of a context manager:
+
+    .. code-block:: python
+
+        with w3.batch_requests() as batch:
+            batch.add(w3.eth.get_block(6))
+            batch.add(w3.eth.get_block(4))
+            batch.add(w3.eth.get_block(2))
+
+            responses = batch.execute()
+            assert len(responses) == 3
+
+    Using the batch object directly:
+
+    .. code-block:: python
+
+        batch = w3.batch_requests()
+        batch.add(w3.eth.get_block(1))
+        batch.add(w3.eth.get_block(2))
+        responses = batch.execute()
+        assert len(responses) == 2
+
+    Contract interactions can be included in batch requests by omitting the ``call()`` method:
+
+    .. code-block:: python
+
+        batch.add(math_contract.functions.multiply7(0))
+
+    Additionally, if you need to make multiple calls of the same function, you can add
+    a mapping of the function to its arguments:
+
+    .. code-block:: python
+
+        batch = w3.batch_requests()
+        batch.add_mapping(
+            {
+                math_contract.functions.multiply7: [1, 2],
+                w3.eth.get_block: [3, 4],
+            }
+        )
+        responses = batch.execute()
+        assert len(responses) == 4
+
+    The ``execute`` method returns a list of responses in the order they were included in
+    the batch.
+
+    If you need to abandon or rebuild a batch request, utilize the ``clear`` method:
+
+    .. code-block:: python
+
+        batch = w3.batch_requests()
+        batch.add(w3.eth.get_block(1))
+        batch.add(w3.eth.get_block(2))
+        assert len(batch._requests_info) == 2
+
+        batch.clear()
+        assert batch._requests_info == []
+
+    .. note::
+
+        Only read-only operations are supported by ``batch_requests``.
+        Unsupported methods include:
+
+        - :meth:`subscribe <web3.eth.Eth.subscribe>`
+        - :meth:`unsubscribe <web3.eth.Eth.unsubscribe>`
+        - :meth:`send_raw_transaction <web3.eth.Eth.send_raw_transaction>`
+        - :meth:`send_transaction <web3.eth.Eth.send_transaction>`
+        - :meth:`sign_transaction <web3.eth.Eth.sign_transaction>`
+        - :meth:`sign <web3.eth.Eth.sign>`
+        - :meth:`sign_typed_data <web3.eth.Eth.sign_typed_data>`
+
+  Async Batch Requests
+  ````````````````````
+
+  If using one of the asynchronous providers, you'll need to make use of
+  the ``async_execute`` method and the ``async`` and ``await`` keywords
+  as appropriate:
+
+  .. code-block:: python
+
+      # context manager:
+      async with w3.batch_requests() as batch:
+          batch.add(w3.eth.get_block(6))
+          batch.add(w3.eth.get_block(4))
+          batch.add(w3.eth.get_block(2))
+
+          responses = await batch.async_execute()
+          assert len(responses) == 3
+
+      # object:
+      batch = w3.batch_requests()
+      batch.add(w3.eth.get_block(1))
+      batch.add(w3.eth.get_block(2))
+      responses = await batch.async_execute()
+      assert len(responses) == 2
+
+
 .. _overview_type_conversions:
 
 Encoding and Decoding Helpers
