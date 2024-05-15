@@ -82,7 +82,7 @@ Batch Requests
         responses = batch.execute()
         assert len(responses) == 2
 
-    Contract interactions can be included in batch requests by omitting the ``call`` method:
+    Contract interactions can be included in batch requests by omitting the ``call()`` method:
 
     .. code-block:: python
 
