@@ -6,6 +6,34 @@ v6 Breaking Changes Summary
 
 .. towncrier release notes start
 
+web3.py v6.19.0 (2024-05-15)
+----------------------------
+
+Bugfixes
+~~~~~~~~
+
+- Properly propagate exceptions from the message listener task to the main loop for persistent connection providers. (`#3387 <https://github.com/ethereum/web3.py/issues/3387>`__)
+
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Warn of updates to WebSocketProvider in v7 (`#3376 <https://github.com/ethereum/web3.py/issues/3376>`__)
+- Condense the migration guides into one page (`#3390 <https://github.com/ethereum/web3.py/issues/3390>`__)
+
+
+Internal Changes - for web3.py Contributors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Add ``py312`` support by adding it to CI testing (`#3373 <https://github.com/ethereum/web3.py/issues/3373>`__)
+
+
+Miscellaneous Changes
+~~~~~~~~~~~~~~~~~~~~~
+
+- `#3385 <https://github.com/ethereum/web3.py/issues/3385>`__
+
+
 web3.py v6.18.0 (2024-04-29)
 ----------------------------
 

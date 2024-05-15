@@ -1,1 +1,0 @@
-Condense the migration guides into one page
