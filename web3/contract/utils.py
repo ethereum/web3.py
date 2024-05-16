@@ -21,12 +21,12 @@ from eth_typing import (
     ChecksumAddress,
     TypeStr,
 )
+from eth_utils.abi import (
+    get_abi_output_types,
+)
 from eth_utils.toolz import (
     compose,
     curry,
-)
-from eth_utils.abi import (
-    get_abi_output_types,
 )
 from hexbytes import (
     HexBytes,
