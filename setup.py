@@ -27,7 +27,7 @@ extras_require = {
         "towncrier>=21,<22",
     ],
     "test": [
-        "eth-tester[py-evm]>=0.11.0b1,<0.12.0b1",
+        "eth-tester[py-evm]>=0.11.0b1,<0.13.0b1",
         "py-geth>=4.1.0",
         "pytest-asyncio>=0.18.1,<0.23",
         "pytest-mock>=1.10",
