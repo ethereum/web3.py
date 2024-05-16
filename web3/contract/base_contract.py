@@ -155,7 +155,10 @@ class BaseContractEvent:
 
     @classmethod
     def _get_event_abi(cls) -> ABIEvent:
-        return get_event_abi(cls.contract_abi, event_name=cls.event_name)
+        try:
+            return get_event_abi(cls.contract_abi, event_name=cls.event_name)
+        except (ValidationError, ValueError) as message:
+            raise Web3ValidationError(message)
 
     @combomethod
     def process_receipt(
@@ -481,13 +484,16 @@ class BaseContractFunction:
 
     def _set_function_info(self) -> None:
         if not self.abi:
-            self.abi = get_function_abi(
-                self.contract_abi,
-                self.function_identifier,
-                self.args,
-                self.kwargs,
-                self.w3.codec,
-            )
+            try:
+                self.abi = get_function_abi(
+                    self.contract_abi,
+                    self.function_identifier,
+                    self.args,
+                    self.kwargs,
+                    self.w3.codec,
+                )
+            except TypeError:
+                raise
         if self.function_identifier in [FallbackFn, ReceiveFn]:
             self.selector = encode_hex(b"")
         elif is_text(self.function_identifier):
@@ -741,18 +747,23 @@ class BaseContract:
 
         :param data: defaults to function selector
         """
-        function_info = get_function_info(
-            abi=cls.abi,
-            function_identifier=fn_name,
-            args=args,
-            kwargs=kwargs,
-            abi_codec=cls.w3.codec,
-        )
+        try:
+            function_info = get_function_info(
+                abi=cls.abi,
+                function_identifier=fn_name,
+                args=args,
+                kwargs=kwargs,
+                abi_codec=cls.w3.codec,
+            )
+        except (MismatchedABI, TypeError) as e:
+            raise Web3ValidationError(e)
 
         if data is None:
             data = function_info["selector"]
 
-        return encode_abi(cls.w3, function_info["abi"], function_info["arguments"], data)
+        return encode_abi(
+            cls.w3, function_info["abi"], function_info["arguments"], data
+        )
 
     @combomethod
     def all_functions(
@@ -869,10 +880,10 @@ class BaseContract:
                 fn_identifier=fn_identifier,
                 args=args,
                 kwargs=kwargs,
-                codec=cls.w3.codec,
+                abi_codec=cls.w3.codec,
             )
-        except MismatchedABI as message:
-            raise Web3ValidationError(message)
+        except TypeError as e:
+            raise Web3ValidationError(e)
 
     @classmethod
     def _find_matching_event_abi(

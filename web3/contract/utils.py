@@ -46,6 +46,7 @@ from web3._utils.transactions import (
 )
 from web3.exceptions import (
     BadFunctionCallOutput,
+    MismatchedABI,
     Web3ValueError,
 )
 from web3.types import (
@@ -106,9 +107,12 @@ def call_contract_function(
     )
 
     if fn_abi is None:
-        fn_abi = get_function_abi(
-            contract_abi, function_identifier, args, kwargs, abi_codec=w3.codec
-        )
+        try:
+            fn_abi = get_function_abi(
+                contract_abi, function_identifier, args, kwargs, abi_codec=w3.codec
+            )
+        except TypeError:
+            raise
 
     try:
         output_types = get_abi_output_types(fn_abi)
@@ -323,9 +327,16 @@ async def async_call_contract_function(
     )
 
     if fn_abi is None:
-        fn_abi = get_function_abi(
-            contract_abi, function_identifier, args, kwargs, abi_codec=async_w3.codec
-        )
+        try:
+            fn_abi = get_function_abi(
+                contract_abi,
+                function_identifier,
+                args,
+                kwargs,
+                abi_codec=async_w3.codec,
+            )
+        except TypeError:
+            raise
 
     try:
         output_types = get_abi_output_types(fn_abi)

@@ -70,6 +70,7 @@ from web3._utils.normalizers import (
 )
 from web3.exceptions import (
     BlockNumberOutOfRange,
+    MismatchedABI,
     Web3TypeError,
     Web3ValidationError,
     Web3ValueError,
@@ -168,9 +169,12 @@ def prepare_transaction(
     TODO: add new prepare_deploy_transaction API
     """
     if fn_abi is None:
-        fn_abi = get_function_abi(
-            contract_abi, fn_identifier, fn_args, fn_kwargs, abi_codec=w3.codec
-        )
+        try:
+            fn_abi = get_function_abi(
+                contract_abi, fn_identifier, fn_args, fn_kwargs, abi_codec=w3.codec
+            )
+        except (MismatchedABI, TypeError):
+            raise
 
     validate_payable(transaction, fn_abi)
 
