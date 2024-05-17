@@ -50,6 +50,7 @@ from eth_typing import (
     ABI,
     ABIComponent,
     ABIComponentIndexed,
+    ABIElement,
     ABIEvent,
     ABIFunction,
     HexStr,
@@ -101,11 +102,11 @@ if TYPE_CHECKING:
     )
 
 
-def filter_by_type(_type: str, contract_abi: ABI) -> List[Union[ABIFunction, ABIEvent]]:
+def filter_by_type(_type: str, contract_abi: ABI) -> List[ABIElement]:
     return [abi for abi in contract_abi if abi["type"] == _type]
 
 
-def filter_by_name(name: str, contract_abi: ABI) -> List[Union[ABIFunction, ABIEvent]]:
+def filter_by_name(name: str, contract_abi: ABI) -> List[ABIElement]:
     return [
         abi
         for abi in contract_abi
@@ -152,11 +153,11 @@ def get_fallback_func_abi(contract_abi: ABI) -> ABIFunction:
         raise FallbackNotFound("No fallback function was found in the contract ABI.")
 
 
-def fallback_func_abi_exists(contract_abi: ABI) -> List[Union[ABIFunction, ABIEvent]]:
+def fallback_func_abi_exists(contract_abi: ABI) -> List[ABIElement]:
     return filter_by_type("fallback", contract_abi)
 
 
-def receive_func_abi_exists(contract_abi: ABI) -> List[Union[ABIFunction, ABIEvent]]:
+def receive_func_abi_exists(contract_abi: ABI) -> List[ABIElement]:
     return filter_by_type("receive", contract_abi)
 
 
@@ -176,13 +177,24 @@ def filter_by_argument_count(
 
 def filter_by_argument_name(
     argument_names: Collection[str], contract_abi: ABI
-) -> List[Union[ABIFunction, ABIEvent]]:
-    return [
-        abi
-        for abi in contract_abi
-        if set(argument_names).intersection(get_abi_input_names(abi))
-        == set(argument_names)
-    ]
+) -> List[ABIElement]:
+    """
+    Return a list of each ``ABIElement`` which contain arguments matching provided
+    names.
+    """
+    abis_with_matching_args = []
+    for abi_element in contract_abi:
+        try:
+            abi_arg_names = get_abi_input_names(abi_element)
+
+            if set(argument_names).intersection(abi_arg_names) == set(abi_arg_names):
+                abis_with_matching_args.append(abi_element)
+        except TypeError:
+            # fallback or receive functions do not have arguments
+            # proceed to next ABIElement
+            continue
+
+    return abis_with_matching_args
 
 
 # type ignored because subclassing encoding.AddressEncoder which has type Any
@@ -604,7 +616,7 @@ def is_probably_enum(abi_type: TypeStr) -> bool:
 
 @to_tuple
 def normalize_event_input_types(
-    abi_args: Collection[Union[ABIFunction, ABIEvent]]
+    abi_args: Collection[ABIElement],
 ) -> Iterable[Union[ABIFunction, ABIEvent, Dict[TypeStr, Any]]]:
     for arg in abi_args:
         if is_recognized_type(arg["type"]):
@@ -615,7 +627,7 @@ def normalize_event_input_types(
             yield arg
 
 
-def abi_to_signature(abi: Union[ABIFunction, ABIEvent]) -> str:
+def abi_to_signature(abi: ABIElement) -> str:
     function_signature = "{fn_name}({fn_input_types})".format(
         fn_name=abi["name"],
         fn_input_types=",".join(

@@ -20,6 +20,7 @@ from eth_abi.exceptions import (
     InsufficientDataBytes,
 )
 from eth_typing import (
+    ABIComponent,
     Address,
     ChecksumAddress,
     HexStr,
@@ -992,7 +993,7 @@ class BaseContractCaller:
     """
 
     # mypy types
-    _functions: List[Union[ABIFunction, ABIEvent]]
+    _functions: List[ABIComponent]
 
     def __init__(
         self,

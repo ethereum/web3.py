@@ -47,6 +47,7 @@ from eth_utils import (
 from eth_utils.abi import (
     event_abi_to_log_topic,
     get_abi_input_names,
+    get_event_log_topics,
 )
 from eth_utils.curried import (
     apply_formatter_if,
@@ -81,7 +82,6 @@ from web3.datastructures import (
 from web3.exceptions import (
     InvalidEventABI,
     LogTopicError,
-    MismatchedABI,
     Web3ValueError,
 )
 from web3.types import (
@@ -231,17 +231,7 @@ def get_event_data(
     Given an event ABI and a log entry for that event, return the decoded
     event data
     """
-    if event_abi["anonymous"]:
-        log_topics = log_entry["topics"]
-    elif not log_entry["topics"]:
-        raise MismatchedABI("Expected non-anonymous event to have 1 or more topics")
-    elif event_abi_to_log_topic(dict(event_abi)) != _log_entry_data_to_bytes(
-        log_entry["topics"][0]
-    ):
-        raise MismatchedABI("The event signature did not match the provided ABI")
-    else:
-        log_topics = log_entry["topics"][1:]
-
+    log_topics = get_event_log_topics(event_abi, log_entry["topics"])
     log_topics_bytes = [_log_entry_data_to_bytes(topic) for topic in log_topics]
     log_topics_abi = get_indexed_event_inputs(event_abi)
     log_topic_normalized_inputs = normalize_event_input_types(log_topics_abi)
