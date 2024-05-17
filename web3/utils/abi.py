@@ -3,18 +3,29 @@ from typing import (
     Any,
     Optional,
     Sequence,
+    Union,
     cast,
 )
 
+from eth_typing import (
+    HexStr,
+    Primitives,
+)
 from eth_typing.abi import (
     ABI,
+    ABIEvent,
     ABIFunction,
     ABIFunctionInfo,
 )
 from eth_utils.abi import (
+    event_abi_to_log_topic,
     function_abi_to_4byte_selector,
     get_aligned_abi_inputs,
     get_normalized_abi_inputs,
+)
+from eth_utils.conversions import (
+    hexstr_if_str,
+    to_bytes,
 )
 from eth_utils.encoding import (
     get_default_codec,
@@ -27,6 +38,9 @@ from eth_utils.toolz import (
 )
 from eth_utils.types import (
     is_text,
+)
+from hexbytes import (
+    HexBytes,
 )
 
 from web3._utils.abi import (
@@ -207,3 +221,42 @@ def _mismatched_abi_error_diagnosis(
         f"\nFound {len(matching_function_signatures)} function(s) with the name "
         f"`{function_identifier}`: {matching_function_signatures}{diagnosis}"
     )
+
+
+def get_event_log_topics(
+    event_abi: ABIEvent,
+    topics: Optional[Sequence[HexBytes]] = None,
+) -> Sequence[HexBytes]:
+    """
+    Return topics from an event ABI.
+
+    :param event_abi: Event ABI.
+    :type event_abi: `ABIEvent`
+    :param topics: Transaction topics from a `LogReceipt`.
+    :type topics: `list[HexBytes]`
+    :return: Event topics from the event ABI.
+    :rtype: `list[HexBytes]`
+    """
+    if topics is None:
+        topics = []
+
+    if event_abi["anonymous"]:
+        return topics
+    elif len(topics) == 0:
+        raise MismatchedABI("Expected non-anonymous event to have 1 or more topics")
+    elif event_abi_to_log_topic(event_abi) != log_topic_to_bytes(topics[0]):
+        raise MismatchedABI("The event signature did not match the provided ABI")
+    else:
+        return topics[1:]
+
+
+def log_topic_to_bytes(
+    log_topic: Union[Primitives, HexStr, str],
+) -> bytes:
+    """
+    Return topic signature as bytes.
+
+    :param log_topic: Event topic from a `LogReceipt`.
+    :type log_topic: `Primitive`, `HexStr` or `str`
+    """
+    return hexstr_if_str(to_bytes, log_topic)

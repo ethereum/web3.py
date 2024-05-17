@@ -6,6 +6,10 @@ classify as breaking changes.
 from .abi import (  # NOQA
     get_function_info,
     get_function_abi,
+    get_abi_input_names,
+    get_abi_output_names,
+    get_event_log_topics,
+    log_topic_to_bytes,
 )
 from .address import get_create_address
 from .async_exception_handling import (

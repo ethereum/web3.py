@@ -25,6 +25,7 @@ from web3.exceptions import (
     Web3ValueError,
 )
 from web3.utils.abi import (
+    get_event_log_topics,
     get_function_abi,
     get_function_info,
 )
@@ -410,3 +411,60 @@ def test_get_function_abi_codec_override(contract_abi):
         "type": "function",
     }
     assert function_abi == expected_abi
+
+
+@pytest.mark.parametrize(
+    "topics,anonymous,expected_topics",
+    [
+        (
+            [
+                "0x87e10a54d1dda06db0fde99bdb2e67e6638ca9d2b5add2e3b5b406525b15824a",
+                "0x1",
+                "0x2",
+            ],
+            False,
+            ["0x1", "0x2"],
+        ),
+        (
+            [
+                "0x111",
+            ],
+            True,
+            ["0x111"],
+        ),
+    ],
+)
+def test_get_event_log_topics(topics, anonymous, expected_topics):
+    event_abi = {
+        "anonymous": anonymous,
+        "inputs": [],
+        "name": "LogSingleArg",
+        "type": "event",
+    }
+
+    assert get_event_log_topics(event_abi, topics) == expected_topics
+
+
+@pytest.mark.parametrize(
+    "topics,expected_error",
+    [
+        (
+            [],
+            "Expected non-anonymous event to have 1 or more topics",
+        ),
+        (
+            ["0x1"],
+            "The event signature did not match the provided ABI",
+        ),
+    ],
+)
+def test_get_event_log_topics_raises_for_bad_topics(topics, expected_error):
+    event_abi = {
+        "anonymous": False,
+        "inputs": [],
+        "name": "LogSingleArg",
+        "type": "event",
+    }
+
+    with pytest.raises(MismatchedABI, match=expected_error):
+        get_event_log_topics(event_abi, topics)
