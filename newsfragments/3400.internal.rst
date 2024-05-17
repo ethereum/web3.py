@@ -1,0 +1,1 @@
+Increase allowable range of eth-tester: 0.11.x and 0.12.x
