@@ -223,3 +223,15 @@ def test_cl_node_get_version(beacon):
 def test_cl_node_get_syncing(beacon):
     response = beacon.get_syncing()
     _assert_valid_response(response)
+
+
+# Blob endpoint tests
+
+
+def test_cl_node_get_blob_sidecars(beacon):
+    response = beacon.get_blob_sidecars("head")
+    _assert_valid_response(response)
+
+    # test with indices
+    with_indices = beacon.get_blob_sidecars("head", [0, 1])
+    _assert_valid_response(with_indices)

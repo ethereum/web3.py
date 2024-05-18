@@ -1,0 +1,1 @@
+Add sync and async support for beacon ``/eth/v1/beacon/blob_sidecars`` endpoint.
