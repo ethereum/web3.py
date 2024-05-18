@@ -1,6 +1,7 @@
 from typing import (
     Any,
     Dict,
+    List,
 )
 
 from eth_typing import (
@@ -18,6 +19,7 @@ from web3.beacon.api_endpoints import (
     GET_BEACON_HEADS,
     GET_BEACON_STATE,
     GET_BLINDED_BLOCKS,
+    GET_BLOB_SIDECARS,
     GET_BLOCK,
     GET_BLOCK_ATTESTATIONS,
     GET_BLOCK_HEADER,
@@ -62,9 +64,11 @@ class Beacon:
         self.base_url = base_url
         self.request_timeout = request_timeout
 
-    def _make_get_request(self, endpoint_url: str) -> Dict[str, Any]:
+    def _make_get_request(
+        self, endpoint_url: str, params: Dict[str, str] = {}
+    ) -> Dict[str, Any]:
         uri = URI(self.base_url + endpoint_url)
-        return json_make_get_request(uri, timeout=self.request_timeout)
+        return json_make_get_request(uri, timeout=self.request_timeout, params=params)
 
     # [ BEACON endpoints ]
 
@@ -204,3 +208,13 @@ class Beacon:
 
     def get_syncing(self) -> Dict[str, Any]:
         return self._make_get_request(GET_SYNCING)
+
+    # [ BLOB endpoints ]
+
+    def get_blob_sidecars(
+        self, block_id: str, indices: List[int] = []
+    ) -> Dict[str, Any]:
+        return self._make_get_request(
+            GET_BLOB_SIDECARS.format(block_id),
+            {"indices": ",".join(map(str, indices))} if indices else {},
+        )
