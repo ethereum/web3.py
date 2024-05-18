@@ -4,3 +4,8 @@ from .async_rpc import (
 from .rpc import (
     HTTPProvider,
 )
+
+__all__ = [
+    "AsyncHTTPProvider",
+    "HTTPProvider",
+]

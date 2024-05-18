@@ -92,3 +92,25 @@ async def async_combine_middleware(
         initialized = mw(async_w3)
         accumulator_fn = await initialized.async_wrap_make_request(accumulator_fn)
     return accumulator_fn
+
+
+__all__ = [
+    "AttributeDictMiddleware",
+    "Middleware",
+    "Web3Middleware",
+    "BufferedGasEstimateMiddleware",
+    "LocalFilterMiddleware",
+    "FormattingMiddlewareBuilder",
+    "GasPriceStrategyMiddleware",
+    "ENSNameToAddressMiddleware",
+    "ExtraDataToPOAMiddleware",
+    "PythonicMiddleware",
+    "SignAndSendRawMiddlewareBuilder",
+    "StalecheckMiddlewareBuilder",
+    "ValidationMiddleware",
+    "AsyncWeb3",
+    "Web3",
+    "RPCResponse",
+    "combine_middleware",
+    "async_combine_middleware",
+]

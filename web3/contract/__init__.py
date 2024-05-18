@@ -7,3 +7,10 @@ from web3.contract.contract import (
     ContractCaller,
     ContractConstructor,
 )
+
+__all__ = [
+    "AsyncContract",
+    "AsyncContractCaller",
+    "Contract",
+    "ContractConstructor",
+]
