@@ -26,6 +26,9 @@ GET_BLINDED_BLOCKS = "/eth/v1/beacon/blinded_blocks/{0}"
 # rewards
 GET_REWARDS = "/eth/v1/beacon/rewards/blocks/{0}"
 
+# blobs
+GET_BLOB_SIDECARS = "/eth/v1/beacon/blob_sidecars/{0}"
+
 # light client
 GET_LIGHT_CLIENT_BOOTSTRAP_STRUCTURE = "/eth/v1/beacon/light_client/bootstrap/{0}"
 GET_LIGHT_CLIENT_UPDATES = "/eth/v1/beacon/light_client/updates"
