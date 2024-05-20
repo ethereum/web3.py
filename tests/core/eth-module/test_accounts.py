@@ -132,7 +132,7 @@ def test_eth_account_from_key_seed_restrictions(acct):
 
 def test_eth_account_from_key_properties(acct, PRIVATE_BYTES):
     account = acct.from_key(PRIVATE_BYTES)
-    assert callable(account.signHash)
+    assert callable(account.unsafe_sign_hash)
     assert callable(account.sign_transaction)
     assert is_checksum_address(account.address)
     assert account.address == "0xa79F6f349C853F9Ea0B29636779ae3Cb4E3BA729"
@@ -141,7 +141,7 @@ def test_eth_account_from_key_properties(acct, PRIVATE_BYTES):
 
 def test_eth_account_create_properties(acct):
     account = acct.create()
-    assert callable(account.signHash)
+    assert callable(account.unsafe_sign_hash)
     assert callable(account.sign_transaction)
     assert is_checksum_address(account.address)
     assert isinstance(account.key, bytes) and len(account.key) == 32
