@@ -25,6 +25,7 @@ extras_require = {
         "sphinx-autobuild>=2021.3.14",
         "sphinx_rtd_theme>=1.0.0",
         "towncrier>=21,<22",
+        "eth-account>=0.13.0",
     ],
     "test": [
         "eth-tester[py-evm]>=0.11.0b1,<0.13.0b1",
