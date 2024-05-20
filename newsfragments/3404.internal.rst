@@ -1,0 +1,1 @@
+Remove uses of signHash in tests, require eth-account >=0.13.0 in doctests
