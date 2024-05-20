@@ -123,3 +123,46 @@ showcontent = true
 directory = "removal"
 name = "Removals"
 showcontent = true
+
+[tool.bumpversion]
+current_version = "0.1.0-alpha.0"
+parse = """
+    (?P<major>\\d+)
+    \\.(?P<minor>\\d+)
+    \\.(?P<patch>\\d+)
+		(-
+			(?P<stage>[^.]*)
+			\\.(?P<devnum>\\d+)
+		)?
+"""
+serialize = [
+	"{major}.{minor}.{patch}-{stage}.{devnum}",
+	"{major}.{minor}.{patch}",
+]
+search = "{current_version}"
+replace = "{new_version}"
+regex = false
+ignore_missing_version = false
+tag = true
+sign_tags = true
+tag_name = "v{new_version}"
+tag_message = "Bump version: {current_version} → {new_version}"
+allow_dirty = false
+commit = true
+message = "Bump version: {current_version} → {new_version}"
+
+[tool.bumpversion.parts.stage]
+optional_value = "stable"
+first_value = "stable"
+values = [
+	"alpha",
+	"beta",
+	"stable",
+]
+
+[tool.bumpversion.part.devnum]
+
+[[tool.bumpversion.files]]
+filename = "setup.py"
+search = "version=\"{current_version}\""
+replace = "version=\"{new_version}\""

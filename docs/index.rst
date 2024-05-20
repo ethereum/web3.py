@@ -3,18 +3,24 @@
 
 <SHORT_DESCRIPTION>
 
-Contents
---------
+Installation
+------------
+
+.. code-block:: bash
+
+    python -m pip install <PROJECT_NAME>
+
 
 .. toctree::
-    :maxdepth: 3
+    :maxdepth: 1
+    :caption: General
 
-    <MODULE_NAME>
+    Usage<<MODULE_NAME>>
     release_notes
 
+.. toctree::
+    :maxdepth: 1
+    :caption: Community
 
-Indices and tables
-------------------
-
-* :ref:`genindex`
-* :ref:`modindex`
+    contributing
+    code_of_conduct

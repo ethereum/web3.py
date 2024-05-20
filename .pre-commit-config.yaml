@@ -1,4 +1,4 @@
-exclude: '.project-template|docs/conf.py|.bumpversion.cfg'
+exclude: '.project-template|docs/conf.py'
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.5.0

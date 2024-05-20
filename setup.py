@@ -7,7 +7,7 @@ from setuptools import (
 extras_require = {
     "dev": [
         "build>=0.9.0",
-        "bumpversion>=0.5.3",
+        "bump_my_version>=0.19.0",
         "ipython",
         "pre-commit>=3.4.0",
         "tox>=4.0.0",
