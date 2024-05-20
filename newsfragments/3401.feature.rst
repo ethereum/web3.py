@@ -1,0 +1,1 @@
+Refactor `get_event_data` to use `get_event_log_topics` and `log_topics_to_bytes` utilities.
