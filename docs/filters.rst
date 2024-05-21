@@ -4,7 +4,7 @@ Events and Logs
 ===============
 
 If you're on this page, you're likely looking for an answer to this question:
-**How do I know when a specific contract is used?** You have at least three options:
+**How do I know when a specific contract is used?** You have several options:
 
 1. Query blocks for transactions that include the contract address in the ``"to"`` field.
    This contrived example is searching the latest block for any transactions sent to the
@@ -39,7 +39,45 @@ If you're on this page, you're likely looking for an answer to this question:
 
 See an advanced example of fetching log history :ref:`here <advanced_token_fetch>`.
 
-3. Use a filter.
+3. Subscribe to events for real-time updates. When using a persistent connection provider
+   (:class:`~web3.providers.persistent.WebSocketProvider` or
+   :class:`~web3.providers.persistent.AsyncIPCProvider`), the
+   :meth:`subscribe() <web3.eth.Eth.subscribe>` method can be used to establish a new
+   event subscription. This example subscribes to ``Transfer`` events of the WETH contract.
+
+  .. code-block:: python
+
+    import asyncio
+    from web3 import AsyncWeb3, WebSocketProvider
+    from eth_abi.abi import decode
+
+    WETH_ADDRESS = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
+
+
+    async def subscribe_to_transfer_events():
+        async with AsyncWeb3(WebSocketProvider("...")) as w3:
+            transfer_event_topic = w3.keccak(text="Transfer(address,address,uint256)")
+            filter_params = {
+                "address": WETH_ADDRESS,
+                "topics": [transfer_event_topic],
+            }
+            subscription_id = await w3.eth.subscribe("logs", filter_params)
+            print(f"Subscribing to transfer events for WETH at {subscription_id}")
+
+            async for payload in w3.socket.process_subscriptions():
+                result = payload["result"]
+
+                from_addr = decode(["address"], result["topics"][1])[0]
+                to_addr = decode(["address"], result["topics"][2])[0]
+                amount = decode(["uint256"], result["data"])[0]
+                print(f"{w3.from_wei(amount, 'ether')} WETH from {from_addr} to {to_addr}")
+
+    asyncio.run(subscribe_to_transfer_events())
+
+
+  For more usage examples see the docs on :ref:`subscription-examples`.
+
+4. Use a filter.
 
 .. warning ::
 
