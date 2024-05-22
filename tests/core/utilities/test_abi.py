@@ -4,6 +4,13 @@ from typing import (
     NamedTuple,
 )
 
+from eth_abi.registry import (
+    registry as default_registry,
+)
+from eth_typing import (
+    ABI,
+)
+
 from web3._utils.abi import (
     ExactLengthBytesEncoder,
     abi_data_tree,
@@ -18,7 +25,11 @@ from web3._utils.normalizers import (
     addresses_checksummed,
 )
 from web3.exceptions import (
+    MismatchedABI,
     Web3ValueError,
+)
+from web3.utils.abi import (
+    get_function_info,
 )
 
 
@@ -269,6 +280,46 @@ def test_get_aligned_abi_inputs_raises_type_error(abi, args):
         get_aligned_abi_inputs(abi, args)
 
 
+TEST_CONTRACT_ABI_JSON = """
+[
+    {
+        "inputs": [{"name": "_arg0", "type": "uint256"}],
+        "name": "logTwoEvents",
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [{"name": "_arg0", "type": "uint256"}],
+        "name": "setValue",
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {"name": "_arg0", "type": "uint256"},
+            {
+                "type": "tuple",
+                "name": "arg1",
+                "components": [
+                    {"name": "a", "type": "uint256"},
+                    {"name": "b", "type": "uint256"}
+                ]
+            }
+        ],
+        "name": "setValue",
+        "stateMutability": "nonpayable",
+        "type": "function"
+    }
+]
+"""
+CONTRACT_ABI = json.loads(TEST_CONTRACT_ABI_JSON)
+
+
+@pytest.fixture()
+def contract_abi() -> ABI:
+    return CONTRACT_ABI
+
+
 @pytest.mark.parametrize(
     "types, data, expected",
     [
@@ -381,3 +432,122 @@ def test_recursive_dict_to_namedtuple(input, expected_output):
     named_tuple_output = recursive_dict_to_namedtuple(input)
     output_repr = named_tuple_output.__repr__()
     assert output_repr == expected_output
+
+
+@pytest.mark.parametrize(
+    "name,input_args,input_kwargs,expected_selector,expected_arguments",
+    [
+        (
+            "logTwoEvents",
+            [100],
+            {},
+            "0x5818fad7",
+            [
+                100,
+            ],
+        ),
+        (
+            "setValue",
+            [99],
+            {},
+            "0x55241077",
+            [
+                99,
+            ],
+        ),
+        (
+            "setValue",
+            [1],
+            ({"arg1": {"a": 2, "b": 0}}),
+            "0x647c15ed",
+            (
+                1,
+                (
+                    2,
+                    0,
+                ),
+            ),
+        ),
+    ],
+)
+def test_get_function_info(
+    contract_abi, name, input_args, input_kwargs, expected_selector, expected_arguments
+):
+    function_info = get_function_info(contract_abi, name, input_args, input_kwargs)
+    assert function_info["abi"] == get_function_abi(
+        contract_abi, name, input_args, input_kwargs
+    )
+    assert function_info["selector"] == expected_selector
+    assert function_info["arguments"] == expected_arguments
+
+
+def test_get_function_abi_by_name_with_args(contract_abi):
+    function_abi = get_function_abi(contract_abi, "logTwoEvents", [1])
+    expected_abi = {
+        "inputs": [{"name": "_arg0", "type": "uint256"}],
+        "name": "logTwoEvents",
+        "stateMutability": "nonpayable",
+        "type": "function",
+    }
+    assert function_abi == expected_abi
+
+
+def test_get_function_abi_by_name_with_kwargs(contract_abi):
+    function_abi = get_function_abi(
+        contract_abi,
+        "setValue",
+        [0],
+        {
+            "arg1": {
+                "a": 10000,
+                "b": 987654321,
+            }
+        },
+    )
+    expected_abi = {
+        "inputs": [
+            {"name": "_arg0", "type": "uint256"},
+            {
+                "type": "tuple",
+                "name": "arg1",
+                "components": [
+                    {"name": "a", "type": "uint256"},
+                    {"name": "b", "type": "uint256"},
+                ],
+            },
+        ],
+        "name": "setValue",
+        "stateMutability": "nonpayable",
+        "type": "function",
+    }
+
+    assert function_abi == expected_abi
+
+
+def test_get_function_abi_raises_without_valid_function_identifier(contract_abi):
+    with pytest.raises(TypeError, match="Unsupported function identifier"):
+        get_function_abi(contract_abi, 1, ["_arg0"])
+
+
+def test_get_function_abi_by_name(contract_abi):
+    with pytest.raises(
+        MismatchedABI,
+        match="Function invocation failed due to improper number of arguments.",
+    ):
+        get_function_abi(contract_abi, "logTwoEvents")
+
+
+def test_get_function_abi_codec_override(contract_abi):
+    from eth_abi.codec import (
+        ABICodec,
+    )
+
+    codec = ABICodec(default_registry)
+    function_abi = get_function_abi(contract_abi, "logTwoEvents", [1], abi_codec=codec)
+    expected_abi = {
+        "inputs": [{"name": "_arg0", "type": "uint256"}],
+        "name": "logTwoEvents",
+        "stateMutability": "nonpayable",
+        "type": "function",
+    }
+    assert function_abi == expected_abi
