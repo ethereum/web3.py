@@ -19,6 +19,9 @@ from eth_abi.registry import (
     registry as default_registry,
 )
 from eth_typing import (
+    ABI,
+    ABIEvent,
+    ABIFunction,
     ChecksumAddress,
     HexStr,
     TypeStr,
@@ -32,6 +35,9 @@ from eth_utils import (
     is_list_like,
     is_text,
 )
+from eth_utils.abi import (
+    get_abi_input_types,
+)
 from eth_utils.toolz import (
     pipe,
 )
@@ -41,13 +47,11 @@ from hexbytes import (
 
 from web3._utils.abi import (
     abi_to_signature,
-    check_if_arguments_can_be_encoded,
     filter_by_argument_count,
     filter_by_argument_name,
     filter_by_encodability,
     filter_by_name,
     filter_by_type,
-    get_abi_input_types,
     get_aligned_abi_inputs,
     get_fallback_func_abi,
     get_receive_func_abi,
@@ -58,9 +62,6 @@ from web3._utils.abi import (
 from web3._utils.blocks import (
     is_hex_encoded_block_hash,
 )
-from web3._utils.encoding import (
-    to_hex,
-)
 from web3._utils.function_identifiers import (
     FallbackFn,
     ReceiveFn,
@@ -69,10 +70,7 @@ from web3._utils.method_formatters import (
     to_integer_if_hex,
 )
 from web3._utils.normalizers import (
-    abi_address_to_hex,
-    abi_bytes_to_bytes,
     abi_ens_resolver,
-    abi_string_to_text,
 )
 from web3.exceptions import (
     BlockNumberOutOfRange,
@@ -81,12 +79,12 @@ from web3.exceptions import (
     Web3ValueError,
 )
 from web3.types import (
-    ABI,
-    ABIEvent,
-    ABIFunction,
     BlockIdentifier,
     BlockNumber,
     TxParams,
+)
+from web3.utils.abi import (
+    encode_abi,
 )
 
 if TYPE_CHECKING:
@@ -210,43 +208,6 @@ def find_matching_fn_abi(
         raise Web3ValidationError(message)
 
 
-def encode_abi(
-    w3: Union["AsyncWeb3", "Web3"],
-    abi: ABIFunction,
-    arguments: Sequence[Any],
-    data: Optional[HexStr] = None,
-) -> HexStr:
-    argument_types = get_abi_input_types(abi)
-
-    if not check_if_arguments_can_be_encoded(abi, w3.codec, arguments, {}):
-        raise Web3TypeError(
-            "One or more arguments could not be encoded to the necessary "
-            f"ABI type. Expected types are: {', '.join(argument_types)}"
-        )
-
-    normalizers = [
-        abi_address_to_hex,
-        abi_bytes_to_bytes,
-        abi_string_to_text,
-    ]
-    if not w3.eth.is_async:
-        normalizers.append(abi_ens_resolver(w3))
-
-    normalized_arguments = map_abi_data(
-        normalizers,
-        argument_types,
-        arguments,
-    )
-    encoded_arguments = w3.codec.encode(
-        argument_types,
-        normalized_arguments,
-    )
-    if data:
-        return to_hex(HexBytes(data) + encoded_arguments)
-    else:
-        return encode_hex(encoded_arguments)
-
-
 def prepare_transaction(
     address: ChecksumAddress,
     w3: Union["AsyncWeb3", "Web3"],
@@ -321,7 +282,17 @@ def encode_transaction_data(
     else:
         raise Web3TypeError("Unsupported function identifier")
 
-    return add_0x_prefix(encode_abi(w3, fn_abi, fn_arguments, fn_selector))
+    return add_0x_prefix(
+        encode_abi(
+            fn_abi,
+            fn_arguments,
+            data=fn_selector,
+            abi_codec=w3.codec,
+            is_async=w3.provider.is_async,
+            data_normalizers=[abi_ens_resolver(w3)],
+            strict=w3.strict_bytes_type_checking,
+        )
+    )
 
 
 def decode_transaction_data(

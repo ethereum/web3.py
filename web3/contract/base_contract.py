@@ -20,6 +20,9 @@ from eth_abi.exceptions import (
     InsufficientDataBytes,
 )
 from eth_typing import (
+    ABI,
+    ABIEvent,
+    ABIFunction,
     Address,
     ChecksumAddress,
     HexStr,
@@ -49,7 +52,6 @@ from web3._utils.abi import (
 )
 from web3._utils.contracts import (
     decode_transaction_data,
-    encode_abi,
     find_matching_event_abi,
     find_matching_fn_abi,
     get_function_info,
@@ -80,6 +82,7 @@ from web3._utils.function_identifiers import (
 )
 from web3._utils.normalizers import (
     BASE_RETURN_NORMALIZERS,
+    abi_ens_resolver,
 )
 from web3.datastructures import (
     AttributeDict,
@@ -108,9 +111,6 @@ from web3.logs import (
     EventLogErrorFlags,
 )
 from web3.types import (
-    ABI,
-    ABIEvent,
-    ABIFunction,
     BlockIdentifier,
     EventData,
     FilterParams,
@@ -118,6 +118,9 @@ from web3.types import (
     TContractFn,
     TxParams,
     TxReceipt,
+)
+from web3.utils.abi import (
+    encode_abi,
 )
 
 if TYPE_CHECKING:
@@ -619,7 +622,17 @@ class BaseContractFunction:
 
     @combomethod
     def _encode_transaction_data(cls) -> HexStr:
-        return add_0x_prefix(encode_abi(cls.w3, cls.abi, cls.arguments, cls.selector))
+        return add_0x_prefix(
+            encode_abi(
+                cls.abi,
+                cls.arguments,
+                data=cls.selector,
+                abi_codec=cls.w3.codec,
+                is_async=cls.w3.provider.is_async,
+                data_normalizers=[abi_ens_resolver(cls.w3)],
+                strict=cls.w3.strict_bytes_type_checking,
+            )
+        )
 
     _return_data_normalizers: Optional[Tuple[Callable[..., Any], ...]] = tuple()
 
@@ -743,7 +756,7 @@ class BaseContract:
     ) -> HexStr:
         """
         Encodes the arguments using the Ethereum ABI for the contract function
-        that matches the given name and arguments..
+        that matches the given name and arguments.
 
         :param data: defaults to function selector
         """
@@ -758,7 +771,15 @@ class BaseContract:
         if data is None:
             data = fn_selector
 
-        return encode_abi(cls.w3, fn_abi, fn_arguments, data)
+        return encode_abi(
+            fn_abi,
+            fn_arguments,
+            data,
+            abi_codec=cls.w3.codec,
+            is_async=cls.w3.provider.is_async,
+            data_normalizers=[abi_ens_resolver(cls.w3)],
+            strict=cls.w3.strict_bytes_type_checking,
+        )
 
     @combomethod
     def all_functions(
@@ -898,7 +919,15 @@ class BaseContract:
             arguments = merge_args_and_kwargs(constructor_abi, args, kwargs)
 
             deploy_data = add_0x_prefix(
-                encode_abi(cls.w3, constructor_abi, arguments, data=cls.bytecode)
+                encode_abi(
+                    constructor_abi,
+                    arguments,
+                    data=cls.bytecode,
+                    abi_codec=cls.w3.codec,
+                    is_async=cls.w3.provider.is_async,
+                    data_normalizers=[abi_ens_resolver(cls.w3)],
+                    strict=cls.w3.strict_bytes_type_checking,
+                )
             )
         else:
             if args is not None or kwargs is not None:
@@ -1080,7 +1109,15 @@ class BaseContractConstructor:
 
             arguments = merge_args_and_kwargs(constructor_abi, args, kwargs)
             data = add_0x_prefix(
-                encode_abi(self.w3, constructor_abi, arguments, data=self.bytecode)
+                encode_abi(
+                    constructor_abi,
+                    arguments,
+                    data=self.bytecode,
+                    abi_codec=self.w3.codec,
+                    is_async=self.w3.provider.is_async,
+                    data_normalizers=[abi_ens_resolver(self.w3)],
+                    strict=self.w3.strict_bytes_type_checking,
+                )
             )
         else:
             data = to_hex(self.bytecode)

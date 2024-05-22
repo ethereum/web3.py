@@ -1,9 +1,10 @@
 import json
 import pytest
 
-from web3._utils.abi import (
+from eth_utils.abi import (
     get_abi_input_types,
 )
+
 from web3._utils.function_identifiers import (
     FallbackFn,
     ReceiveFn,

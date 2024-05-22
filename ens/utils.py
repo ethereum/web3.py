@@ -6,8 +6,6 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Collection,
-    Dict,
-    List,
     Optional,
     Sequence,
     Tuple,
@@ -27,9 +25,6 @@ from eth_utils import (
     remove_0x_prefix,
     to_bytes,
     to_normalized_address,
-)
-from eth_utils.abi import (
-    collapse_if_tuple,
 )
 from hexbytes import (
     HexBytes,
@@ -67,9 +62,6 @@ if TYPE_CHECKING:
     from web3.providers import (  # noqa: F401
         AsyncBaseProvider,
         BaseProvider,
-    )
-    from web3.types import (  # noqa: F401
-        ABIFunction,
     )
 
 
@@ -291,15 +283,6 @@ def is_valid_ens_name(ens_name: str) -> bool:
         if not is_valid_name(name):
             return False
     return True
-
-
-# borrowed from similar method at `web3._utils.abi` due to circular dependency
-def get_abi_output_types(abi: "ABIFunction") -> List[str]:
-    return (
-        []
-        if abi["type"] == "fallback"
-        else [collapse_if_tuple(cast(Dict[str, Any], arg)) for arg in abi["outputs"]]
-    )
 
 
 # -- async -- #

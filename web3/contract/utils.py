@@ -16,8 +16,13 @@ from eth_abi.exceptions import (
     DecodingError,
 )
 from eth_typing import (
+    ABI,
+    ABIFunction,
     ChecksumAddress,
     TypeStr,
+)
+from eth_utils.abi import (
+    get_abi_output_types,
 )
 from eth_utils.toolz import (
     compose,
@@ -29,7 +34,6 @@ from hexbytes import (
 
 from web3._utils.abi import (
     filter_by_type,
-    get_abi_output_types,
     map_abi_data,
     named_tree,
     recursive_dict_to_namedtuple,
@@ -52,8 +56,6 @@ from web3.exceptions import (
     Web3ValueError,
 )
 from web3.types import (
-    ABI,
-    ABIFunction,
     BlockIdentifier,
     FunctionIdentifier,
     StateOverride,
@@ -152,7 +154,10 @@ def call_contract_function(
             contract_abi, w3.codec, function_identifier, args, kwargs
         )
 
-    output_types = get_abi_output_types(fn_abi)
+    try:
+        output_types = get_abi_output_types(fn_abi)
+    except ValueError:
+        output_types = []
 
     provider = w3.provider
     if hasattr(provider, "_is_batching") and provider._is_batching:
@@ -391,7 +396,10 @@ async def async_call_contract_function(
             contract_abi, async_w3.codec, function_identifier, args, kwargs
         )
 
-    output_types = get_abi_output_types(fn_abi)
+    try:
+        output_types = get_abi_output_types(fn_abi)
+    except ValueError:
+        output_types = []
 
     if async_w3.provider._is_batching:
         contract_call_return_data_formatter = format_contract_call_return_data_curried(

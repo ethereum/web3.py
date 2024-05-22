@@ -19,6 +19,7 @@ from eth_abi.grammar import (
     parse,
 )
 from eth_typing import (
+    ABI,
     ChecksumAddress,
     HexStr,
     TypeStr,
@@ -61,9 +62,6 @@ from web3.exceptions import (
     InvalidAddress,
     NameNotFound,
     Web3ValueError,
-)
-from web3.types import (
-    ABI,
 )
 
 if TYPE_CHECKING:

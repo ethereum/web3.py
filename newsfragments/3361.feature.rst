@@ -1,0 +1,1 @@
+Add `w3.utils.encode_abi` for encoding contract function data with arguments.
