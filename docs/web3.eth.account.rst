@@ -218,8 +218,7 @@ is provided by :meth:`w3.eth.sign() <web3.eth.Eth.sign>`.
     >>> message = encode_defunct(text=msg)
     >>> signed_message = w3.eth.account.sign_message(message, private_key=private_key)
     >>> signed_message
-    SignedMessage(messageHash=HexBytes('0x1476abb745d423bf09273f1afd887d951181d25adc66c4834a70491911b7f750'),
-    message_hash=HexBytes('0x1476abb745d423bf09273f1afd887d951181d25adc66c4834a70491911b7f750'),
+    SignedMessage(message_hash=HexBytes('0x1476abb745d423bf09273f1afd887d951181d25adc66c4834a70491911b7f750'),
      r=104389933075820307925104709181714897380569894203213074526835978196648170704563,
      s=28205917190874851400050446352651915501321657673772411533993420917949420456142,
      v=28,
