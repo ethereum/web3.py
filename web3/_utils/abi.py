@@ -69,6 +69,7 @@ from eth_utils.toolz import (
 )
 
 from web3._utils.decorators import (
+    deprecated_for,
     reject_recursive_repeats,
 )
 from web3._utils.ens import (
@@ -385,6 +386,7 @@ def check_if_arguments_can_be_encoded(
     )
 
 
+@deprecated_for("eth_utils.abi.get_normalized_abi_inputs")
 def merge_args_and_kwargs(
     function_abi: ABIFunction, args: Sequence[Any], kwargs: Dict[str, Any]
 ) -> Tuple[Any, ...]:

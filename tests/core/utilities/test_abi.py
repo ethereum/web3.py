@@ -1,8 +1,5 @@
 import json
 import pytest
-from typing import (
-    NamedTuple,
-)
 
 from eth_abi.registry import (
     registry as default_registry,
@@ -14,7 +11,6 @@ from eth_typing import (
 from web3._utils.abi import (
     ExactLengthBytesEncoder,
     abi_data_tree,
-    get_aligned_abi_inputs,
     get_tuple_type_str_parts,
     map_abi_data,
     recursive_dict_to_namedtuple,
@@ -68,11 +64,6 @@ from web3.utils.abi import (
 )
 def test_get_tuple_type_str_parts(input, expected):
     assert get_tuple_type_str_parts(input) == expected
-
-
-class MyXYTuple(NamedTuple):
-    x: int
-    y: int
 
 
 TEST_FUNCTION_ABI_JSON = """
@@ -148,136 +139,6 @@ TEST_FUNCTION_ABI_JSON = """
 }
 """
 TEST_FUNCTION_ABI = json.loads(TEST_FUNCTION_ABI_JSON)
-
-
-GET_ABI_INPUTS_OUTPUT = (
-    (
-        "(uint256,uint256[],(uint256,uint256)[])",  # Type of s
-        "(uint256,uint256)",  # Type of t
-        "uint256",  # Type of a
-        "(uint256,uint256)[][]",  # Type of b
-    ),
-    (
-        (1, [2, 3, 4], [(5, 6), (7, 8), (9, 10)]),  # Value for s
-        (11, 12),  # Value for t
-        13,  # Value for a
-        [[(14, 15), (16, 17)], [(18, 19)]],  # Value for b
-    ),
-)
-
-GET_ABI_INPUTS_TESTS = (
-    (
-        TEST_FUNCTION_ABI,
-        {
-            "s": {
-                "a": 1,
-                "b": [2, 3, 4],
-                "c": [{"x": 5, "y": 6}, {"x": 7, "y": 8}, {"x": 9, "y": 10}],
-            },
-            "t": {"x": 11, "y": 12},
-            "a": 13,
-            "b": [[{"x": 14, "y": 15}, {"x": 16, "y": 17}], [{"x": 18, "y": 19}]],
-        },
-        GET_ABI_INPUTS_OUTPUT,
-    ),
-    (
-        TEST_FUNCTION_ABI,
-        {
-            "s": {"a": 1, "b": [2, 3, 4], "c": [(5, 6), (7, 8), {"x": 9, "y": 10}]},
-            "t": {"x": 11, "y": 12},
-            "a": 13,
-            "b": [[(14, 15), (16, 17)], [{"x": 18, "y": 19}]],
-        },
-        GET_ABI_INPUTS_OUTPUT,
-    ),
-    (
-        TEST_FUNCTION_ABI,
-        {
-            "s": {"a": 1, "b": [2, 3, 4], "c": [(5, 6), (7, 8), (9, 10)]},
-            "t": (11, 12),
-            "a": 13,
-            "b": [[(14, 15), (16, 17)], [(18, 19)]],
-        },
-        GET_ABI_INPUTS_OUTPUT,
-    ),
-    (
-        TEST_FUNCTION_ABI,
-        {
-            "s": (1, [2, 3, 4], [(5, 6), (7, 8), (9, 10)]),
-            "t": (11, 12),
-            "a": 13,
-            "b": [[(14, 15), (16, 17)], [(18, 19)]],
-        },
-        GET_ABI_INPUTS_OUTPUT,
-    ),
-    (
-        TEST_FUNCTION_ABI,
-        (
-            (1, [2, 3, 4], [(5, 6), (7, 8), (9, 10)]),
-            (11, 12),
-            13,
-            [[(14, 15), (16, 17)], [(18, 19)]],
-        ),
-        GET_ABI_INPUTS_OUTPUT,
-    ),
-    (
-        TEST_FUNCTION_ABI,
-        {
-            "s": {"a": 1, "b": [2, 3, 4], "c": [(5, 6), (7, 8), MyXYTuple(x=9, y=10)]},
-            "t": MyXYTuple(x=11, y=12),
-            "a": 13,
-            "b": [
-                [MyXYTuple(x=14, y=15), MyXYTuple(x=16, y=17)],
-                [MyXYTuple(x=18, y=19)],
-            ],
-        },
-        GET_ABI_INPUTS_OUTPUT,
-    ),
-    (
-        {},
-        (),
-        ((), ()),
-    ),
-)
-
-
-@pytest.mark.parametrize(
-    "abi, args, expected",
-    GET_ABI_INPUTS_TESTS,
-)
-def test_get_aligned_abi_inputs(abi, args, expected):
-    assert get_aligned_abi_inputs(abi, args) == expected
-
-
-GET_ABI_INPUTS_RAISING_TESTS = (
-    (
-        TEST_FUNCTION_ABI,
-        {
-            "s": {"a": 1, "b": [2, 3, 4], "c": ["56", (7, 8), (9, 10)]},
-            "t": (11, 12),
-            "a": 13,
-            "b": [[(14, 15), (16, 17)], [(18, 19)]],
-        },
-    ),
-    (
-        TEST_FUNCTION_ABI,
-        {
-            "s": {"a": 1, "b": [2, 3, 4], "c": {(5, 6), (7, 8), (9, 10)}},
-            "t": (11, 12),
-            "a": 13,
-            "b": [[(14, 15), (16, 17)], [(18, 19)]],
-        },
-    ),
-)
-
-
-@pytest.mark.parametrize(
-    "abi, args",
-    GET_ABI_INPUTS_RAISING_TESTS,
-)
-def test_get_aligned_abi_inputs_raises_type_error(abi, args):
-    with pytest.raises(TypeError):
-        get_aligned_abi_inputs(abi, args)
 
 
 TEST_CONTRACT_ABI_JSON = """
