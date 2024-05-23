@@ -32,6 +32,9 @@ from eth_utils import (
     is_list_like,
     is_text,
 )
+from eth_utils.abi import (
+    get_aligned_abi_inputs,
+)
 from eth_utils.toolz import (
     pipe,
 )
@@ -48,7 +51,6 @@ from web3._utils.abi import (
     filter_by_name,
     filter_by_type,
     get_abi_input_types,
-    get_aligned_abi_inputs,
     get_fallback_func_abi,
     get_receive_func_abi,
     map_abi_data,
