@@ -19,6 +19,9 @@ from eth_typing import (
 from eth_utils import (
     combomethod,
 )
+from eth_utils.abi import (
+    get_abi_input_names,
+)
 from eth_utils.toolz import (
     partial,
 )
@@ -93,9 +96,6 @@ from web3.types import (
     EventData,
     StateOverride,
     TxParams,
-)
-from web3.utils import (
-    get_abi_input_names,
 )
 
 if TYPE_CHECKING:

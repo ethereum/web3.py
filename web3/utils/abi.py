@@ -22,6 +22,9 @@ from eth_utils.encoding import (
 from eth_utils.hexadecimal import (
     encode_hex,
 )
+from eth_utils.toolz import (
+    pipe,
+)
 from eth_utils.types import (
     is_text,
 )
@@ -42,10 +45,6 @@ from web3.types import (
     ABI,
     ABIEvent,
     ABIFunction,
-)
-
-from .toolz import (
-    pipe,
 )
 
 

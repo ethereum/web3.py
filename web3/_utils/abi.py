@@ -61,6 +61,7 @@ from eth_utils import (
 )
 from eth_utils.abi import (
     collapse_if_tuple,
+    get_abi_input_names,
 )
 from eth_utils.toolz import (
     curry,
@@ -92,9 +93,6 @@ from web3.types import (
     ABIFunction,
     ABIFunctionParams,
     TReturn,
-)
-from web3.utils import (  # public utils module
-    get_abi_input_names,
 )
 
 if TYPE_CHECKING:
