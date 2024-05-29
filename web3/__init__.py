@@ -1,5 +1,4 @@
 from eth_account import Account  # noqa: E402
-import sys
 
 from importlib.metadata import version
 
@@ -10,12 +9,20 @@ from web3.main import (
     AsyncWeb3,
     Web3,
 )
+from web3.providers import (
+    AsyncBaseProvider,
+    AutoProvider,
+    BaseProvider,
+    JSONBaseProvider,
+    PersistentConnection,
+)
 from web3.providers.persistent import (  # noqa: E402
     AsyncIPCProvider,
     PersistentConnectionProvider,
     WebSocketProvider,
 )
 from web3.providers.eth_tester import (  # noqa: E402
+    AsyncEthereumTesterProvider,
     EthereumTesterProvider,
 )
 from web3.providers.ipc import (  # noqa: E402
@@ -32,14 +39,23 @@ from web3.providers.legacy_websocket import (  # noqa: E402
 
 __all__ = [
     "__version__",
+    "Account",
+    # web3:
     "AsyncWeb3",
     "Web3",
-    "HTTPProvider",
-    "IPCProvider",
-    "LegacyWebSocketProvider",
-    "WebSocketProvider",
-    "EthereumTesterProvider",
-    "Account",
+    # providers:
+    "AsyncBaseProvider",
+    "AsyncEthereumTesterProvider",
     "AsyncHTTPProvider",
     "AsyncIPCProvider",
+    "AutoProvider",
+    "BaseProvider",
+    "EthereumTesterProvider",
+    "HTTPProvider",
+    "IPCProvider",
+    "JSONBaseProvider",
+    "LegacyWebSocketProvider",
+    "PersistentConnection",
+    "PersistentConnectionProvider",
+    "WebSocketProvider",
 ]
