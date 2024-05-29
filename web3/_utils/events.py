@@ -27,6 +27,9 @@ from eth_abi.codec import (
     ABICodec,
 )
 from eth_typing import (
+    ABIComponent,
+    ABIComponentIndexed,
+    ABIEvent,
     ChecksumAddress,
     HexStr,
     Primitives,
@@ -82,8 +85,6 @@ from web3.exceptions import (
     Web3ValueError,
 )
 from web3.types import (
-    ABIEvent,
-    ABIEventParams,
     BlockIdentifier,
     EventData,
     FilterParams,
@@ -206,7 +207,7 @@ def is_dynamic_sized_type(type_str: TypeStr) -> bool:
 
 @to_tuple
 def get_event_abi_types_for_decoding(
-    event_inputs: Sequence[ABIEventParams],
+    event_inputs: Sequence[Union[ABIComponent, ABIComponentIndexed]],
 ) -> Iterable[TypeStr]:
     """
     Event logs use the `keccak(value)` for indexed inputs of type `bytes` or
@@ -245,7 +246,9 @@ def get_event_data(
     log_topics_abi = get_indexed_event_inputs(event_abi)
     log_topic_normalized_inputs = normalize_event_input_types(log_topics_abi)
     log_topic_types = get_event_abi_types_for_decoding(log_topic_normalized_inputs)
-    log_topic_names = get_abi_input_names(ABIEvent({"inputs": log_topics_abi}))
+    log_topic_names = get_abi_input_names(
+        ABIEvent({"type": "event", "inputs": log_topics_abi})
+    )
 
     if len(log_topics_bytes) != len(log_topic_types):
         raise LogTopicError(
@@ -256,7 +259,9 @@ def get_event_data(
     log_data_abi = exclude_indexed_event_inputs(event_abi)
     log_data_normalized_inputs = normalize_event_input_types(log_data_abi)
     log_data_types = get_event_abi_types_for_decoding(log_data_normalized_inputs)
-    log_data_names = get_abi_input_names(ABIEvent({"inputs": log_data_abi}))
+    log_data_names = get_abi_input_names(
+        ABIEvent({"type": "event", "inputs": log_data_abi})
+    )
 
     # sanity check that there are not name intersections between the topic
     # names and the data argument names.

@@ -47,6 +47,11 @@ from eth_abi.registry import (
     registry as default_registry,
 )
 from eth_typing import (
+    ABI,
+    ABIComponent,
+    ABIComponentIndexed,
+    ABIEvent,
+    ABIFunction,
     HexStr,
     TypeStr,
 )
@@ -87,11 +92,6 @@ from web3.exceptions import (
     Web3ValueError,
 )
 from web3.types import (
-    ABI,
-    ABIEvent,
-    ABIEventParams,
-    ABIFunction,
-    ABIFunctionParams,
     TReturn,
 )
 
@@ -154,15 +154,17 @@ def receive_func_abi_exists(contract_abi: ABI) -> List[Union[ABIFunction, ABIEve
     return filter_by_type("receive", contract_abi)
 
 
-def get_indexed_event_inputs(event_abi: ABIEvent) -> List[ABIEventParams]:
+def get_indexed_event_inputs(event_abi: ABIEvent) -> List[ABIComponentIndexed]:
     return [arg for arg in event_abi["inputs"] if arg["indexed"] is True]
 
 
-def exclude_indexed_event_inputs(event_abi: ABIEvent) -> List[ABIEventParams]:
+def exclude_indexed_event_inputs(event_abi: ABIEvent) -> List[ABIComponent]:
     return [arg for arg in event_abi["inputs"] if arg["indexed"] is False]
 
 
-def get_normalized_abi_arg_type(abi_arg: ABIEventParams) -> str:
+def get_normalized_abi_arg_type(
+    abi_arg: Union[ABIComponent, ABIComponentIndexed]
+) -> str:
     """
     Return the normalized type for the abi argument provided.
     In order to account for tuple argument types, this abstraction
@@ -468,7 +470,9 @@ def get_tuple_type_str_parts(s: str) -> Optional[Tuple[str, Optional[str]]]:
     return None
 
 
-def _align_abi_input(arg_abi: ABIFunctionParams, arg: Any) -> Tuple[Any, ...]:
+def _align_abi_input(
+    arg_abi: Union[ABIComponent, ABIComponentIndexed], arg: Any
+) -> Tuple[Any, ...]:
     """
     Aligns the values of any mapping at any level of nesting in ``arg``
     according to the layout of the corresponding abi spec.
@@ -492,7 +496,7 @@ def _align_abi_input(arg_abi: ABIFunctionParams, arg: Any) -> Tuple[Any, ...]:
         new_abi = copy.copy(arg_abi)
         new_abi["type"] = tuple_prefix + "[]" * (num_dims - 1)
 
-        sub_abis = itertools.repeat(new_abi)  # type: ignore
+        sub_abis = itertools.repeat(new_abi)
 
     if isinstance(arg, abc.Mapping):
         # Arg is mapping.  Align values according to abi order.
@@ -913,7 +917,11 @@ def build_strict_registry() -> ABIRegistry:
 
 
 def named_tree(
-    abi: Iterable[Union[ABIFunctionParams, ABIFunction, ABIEvent, Dict[TypeStr, Any]]],
+    abi: Iterable[
+        Union[
+            ABIComponent, ABIComponentIndexed, ABIFunction, ABIEvent, Dict[TypeStr, Any]
+        ]
+    ],
     data: Iterable[Tuple[Any, ...]],
 ) -> Dict[str, Any]:
     """
@@ -926,7 +934,9 @@ def named_tree(
 
 
 def _named_subtree(
-    abi: Union[ABIFunctionParams, ABIFunction, ABIEvent, Dict[TypeStr, Any]],
+    abi: Union[
+        ABIComponent, ABIComponentIndexed, ABIFunction, ABIEvent, Dict[TypeStr, Any]
+    ],
     data: Tuple[Any, ...],
 ) -> Union[Dict[str, Any], Tuple[Any, ...], List[Any]]:
     abi_type = parse(collapse_if_tuple(dict(abi)))
@@ -938,7 +948,11 @@ def _named_subtree(
         return items
 
     elif isinstance(abi_type, TupleType):
-        abi = cast(ABIFunctionParams, abi)
+        if abi.get("indexed"):
+            abi = cast(ABIComponentIndexed, abi)
+        else:
+            abi = cast(ABIComponent, abi)
+
         names = [item["name"] for item in abi["components"]]
         items = [_named_subtree(*item) for item in zip(abi["components"], data)]
 

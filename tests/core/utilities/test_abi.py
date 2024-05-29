@@ -25,6 +25,7 @@ from web3.exceptions import (
     Web3ValueError,
 )
 from web3.utils.abi import (
+    get_function_abi,
     get_function_info,
 )
 
