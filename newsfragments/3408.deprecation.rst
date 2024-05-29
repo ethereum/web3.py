@@ -1,0 +1,4 @@
+Deprecated ``web3.utils.abi`` utils and types.
+
+Types replaced with those from ``eth_typing``.
+Deprecated ``get_abi_input_names`` and ``get_abi_output_names`` in favor of those in ``eth_utils``.
