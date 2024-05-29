@@ -1,0 +1,3 @@
+ABI utilities to get information about functions in a contract, ``get_function_info`` and ``get_function_abi``.
+
+Move ``get_abi_input_names`` and ``get_abi_output_names`` to ``eth-utils`` and re-export in ``web3.utils.abi``.
