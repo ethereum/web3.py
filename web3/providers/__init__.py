@@ -8,6 +8,10 @@ from .base import (
     BaseProvider,
     JSONBaseProvider,
 )
+from .eth_tester import (
+    AsyncEthereumTesterProvider,
+    EthereumTesterProvider,
+)
 from .ipc import (
     IPCProvider,
 )
@@ -24,3 +28,18 @@ from .persistent import (
 from .auto import (
     AutoProvider,
 )
+
+__all__ = [
+    "AsyncBaseProvider",
+    "AsyncEthereumTesterProvider",
+    "AsyncHTTPProvider",
+    "AutoProvider",
+    "BaseProvider",
+    "EthereumTesterProvider",
+    "HTTPProvider",
+    "IPCProvider",
+    "JSONBaseProvider",
+    "PersistentConnectionProvider",
+    "WebsocketProvider",
+    "WebsocketProviderV2",
+]
