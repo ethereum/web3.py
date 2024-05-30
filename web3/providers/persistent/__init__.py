@@ -17,7 +17,6 @@ from .websocket import (
 __all__ = [
     "PersistentConnectionProvider",
     "PersistentConnection",
-    "RequestProcessor",
     "AsyncIPCProvider",
     "WebSocketProvider",
 ]

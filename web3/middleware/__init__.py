@@ -108,9 +108,4 @@ __all__ = [
     "SignAndSendRawMiddlewareBuilder",
     "StalecheckMiddlewareBuilder",
     "ValidationMiddleware",
-    "AsyncWeb3",
-    "Web3",
-    "RPCResponse",
-    "combine_middleware",
-    "async_combine_middleware",
 ]
