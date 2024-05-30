@@ -67,7 +67,7 @@ class AsyncBeacon:
         self.request_timeout = request_timeout
 
     async def _async_make_get_request(
-        self, endpoint_uri: str, params: Dict[str, str] = {}
+        self, endpoint_uri: str, params: Dict[str, str] = None
     ) -> Dict[str, Any]:
         uri = URI(self.base_url + endpoint_uri)
         return await async_json_make_get_request(
@@ -226,7 +226,7 @@ class AsyncBeacon:
     # [ BLOB endpoints ]
 
     async def get_blob_sidecars(
-        self, block_id: str, indices: List[int] = []
+        self, block_id: str, indices: List[int] = None
     ) -> Dict[str, Any]:
         return await self._async_make_get_request(
             GET_BLOB_SIDECARS.format(block_id),

@@ -65,7 +65,7 @@ class Beacon:
         self.request_timeout = request_timeout
 
     def _make_get_request(
-        self, endpoint_url: str, params: Dict[str, str] = {}
+        self, endpoint_url: str, params: Dict[str, str] = None
     ) -> Dict[str, Any]:
         uri = URI(self.base_url + endpoint_url)
         return json_make_get_request(uri, timeout=self.request_timeout, params=params)
@@ -212,7 +212,7 @@ class Beacon:
     # [ BLOB endpoints ]
 
     def get_blob_sidecars(
-        self, block_id: str, indices: List[int] = []
+        self, block_id: str, indices: List[int] = None
     ) -> Dict[str, Any]:
         return self._make_get_request(
             GET_BLOB_SIDECARS.format(block_id),
