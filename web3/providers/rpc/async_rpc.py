@@ -55,9 +55,7 @@ from .utils import (
 class AsyncHTTPProvider(AsyncJSONBaseProvider):
     logger = logging.getLogger("web3.providers.AsyncHTTPProvider")
     endpoint_uri = None
-
     _request_kwargs = None
-    _request_session_manager = RequestSessionManager()
 
     def __init__(
         self,
@@ -68,6 +66,8 @@ class AsyncHTTPProvider(AsyncJSONBaseProvider):
         ] = empty,
         **kwargs: Any,
     ) -> None:
+        self._request_session_manager = RequestSessionManager()
+
         if endpoint_uri is None:
             self.endpoint_uri = (
                 self._request_session_manager.get_default_http_endpoint()
