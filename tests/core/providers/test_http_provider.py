@@ -11,9 +11,6 @@ from web3 import (
     Web3,
     __version__ as web3py_version,
 )
-from web3._utils import (
-    request,
-)
 from web3.eth import (
     Eth,
 )
@@ -94,10 +91,10 @@ def test_user_provided_session():
     session.mount("https://", adapter)
 
     provider = HTTPProvider(endpoint_uri=URI, session=session)
+    session = provider._request_session_manager.cache_and_return_session(URI)
     w3 = Web3(provider)
     assert w3.manager.provider == provider
 
-    session = request.cache_and_return_session(URI)
     adapter = session.get_adapter(URI)
     assert isinstance(adapter, HTTPAdapter)
     assert adapter._pool_connections == 20

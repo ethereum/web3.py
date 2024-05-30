@@ -52,7 +52,9 @@ def test_default_request_retry_configuration_for_http_provider():
 def test_check_without_retry_config():
     w3 = Web3(HTTPProvider(exception_retry_configuration=None))
 
-    with patch("web3.providers.rpc.rpc.make_post_request") as make_post_request_mock:
+    with patch(
+        "web3.providers.rpc.rpc.RequestSessionManager.make_post_request"
+    ) as make_post_request_mock:
         make_post_request_mock.side_effect = Timeout
 
         with pytest.raises(Timeout):
@@ -69,7 +71,10 @@ def test_check_if_retry_on_failure_true():
     assert check_if_retry_on_failure(method)
 
 
-@patch("web3.providers.rpc.rpc.make_post_request", side_effect=ConnectionError)
+@patch(
+    "web3.providers.rpc.rpc.RequestSessionManager.make_post_request",
+    side_effect=ConnectionError,
+)
 def test_check_send_transaction_called_once(make_post_request_mock, w3):
     with pytest.raises(ConnectionError):
         w3.provider.make_request(
@@ -78,7 +83,10 @@ def test_check_send_transaction_called_once(make_post_request_mock, w3):
     assert make_post_request_mock.call_count == 1
 
 
-@patch("web3.providers.rpc.rpc.make_post_request", side_effect=ConnectionError)
+@patch(
+    "web3.providers.rpc.rpc.RequestSessionManager.make_post_request",
+    side_effect=ConnectionError,
+)
 def test_valid_method_retried(make_post_request_mock, w3):
     with pytest.raises(ConnectionError):
         w3.provider.make_request(RPCEndpoint("eth_getBalance"), [f"0x{'00' * 20}"])
@@ -96,7 +104,10 @@ def test_exception_retry_config_is_strictly_on_http_provider():
     assert not hasattr(w3.provider, "exception_retry_configuration")
 
 
-@patch("web3.providers.rpc.rpc.make_post_request", side_effect=ConnectionError)
+@patch(
+    "web3.providers.rpc.rpc.RequestSessionManager.make_post_request",
+    side_effect=ConnectionError,
+)
 def test_exception_retry_middleware_with_allow_list_kwarg(make_post_request_mock):
     config = ExceptionRetryConfiguration(
         errors=(ConnectionError, HTTPError, Timeout, TooManyRedirects),
@@ -148,7 +159,7 @@ async def test_async_default_request_retry_configuration_for_http_provider():
 )
 async def test_async_check_retry_middleware(async_w3, error):
     with patch(
-        "web3.providers.rpc.async_rpc.async_make_post_request"
+        "web3.providers.rpc.async_rpc.RequestSessionManager.async_make_post_request"
     ) as async_make_post_request_mock:
         async_make_post_request_mock.side_effect = error
 
@@ -162,7 +173,7 @@ async def test_async_check_without_retry_config():
     w3 = AsyncWeb3(AsyncHTTPProvider(exception_retry_configuration=None))
 
     with patch(
-        "web3.providers.rpc.async_rpc.async_make_post_request"
+        "web3.providers.rpc.async_rpc.RequestSessionManager.async_make_post_request"
     ) as async_make_post_request_mock:
         async_make_post_request_mock.side_effect = TimeoutError
 
@@ -181,7 +192,7 @@ async def test_async_exception_retry_middleware_with_allow_list_kwarg():
     async_w3 = AsyncWeb3(AsyncHTTPProvider(exception_retry_configuration=config))
 
     with patch(
-        "web3.providers.rpc.async_rpc.async_make_post_request"
+        "web3.providers.rpc.async_rpc.RequestSessionManager.async_make_post_request"
     ) as async_make_post_request_mock:
         async_make_post_request_mock.side_effect = TimeoutError
 
