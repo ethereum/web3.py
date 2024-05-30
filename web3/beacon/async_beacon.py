@@ -208,7 +208,7 @@ class AsyncBeacon:
 
     async def get_health(self) -> int:
         url = URI(self.base_url + GET_HEALTH)
-        response = await async_get_response_from_get_request(url)
+        response = await async_get_response_from_get_request(url, owning_class=self)
         return response.status
 
     async def get_version(self) -> Dict[str, Any]:

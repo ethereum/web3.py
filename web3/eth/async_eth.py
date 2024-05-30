@@ -300,6 +300,7 @@ class AsyncEth(BaseEth):
                 durin_calldata = await async_handle_offchain_lookup(
                     offchain_lookup.payload,
                     transaction,
+                    owning_class=self.w3,
                 )
                 transaction["data"] = durin_calldata
 

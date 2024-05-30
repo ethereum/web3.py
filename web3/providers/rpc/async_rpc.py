@@ -79,7 +79,9 @@ class AsyncHTTPProvider(AsyncJSONBaseProvider):
         super().__init__(**kwargs)
 
     async def cache_async_session(self, session: ClientSession) -> ClientSession:
-        return await _async_cache_and_return_session(self.endpoint_uri, session)
+        return await _async_cache_and_return_session(
+            self.endpoint_uri, session, owning_class=self
+        )
 
     def __str__(self) -> str:
         return f"RPC connection {self.endpoint_uri}"
@@ -124,7 +126,10 @@ class AsyncHTTPProvider(AsyncJSONBaseProvider):
             for i in range(self.exception_retry_configuration.retries):
                 try:
                     return await async_make_post_request(
-                        self.endpoint_uri, request_data, **self.get_request_kwargs()
+                        self.endpoint_uri,
+                        request_data,
+                        owning_class=self,
+                        **self.get_request_kwargs(),
                     )
                 except tuple(self.exception_retry_configuration.errors):
                     if i < self.exception_retry_configuration.retries - 1:
@@ -137,7 +142,10 @@ class AsyncHTTPProvider(AsyncJSONBaseProvider):
             return None
         else:
             return await async_make_post_request(
-                self.endpoint_uri, request_data, **self.get_request_kwargs()
+                self.endpoint_uri,
+                request_data,
+                owning_class=self,
+                **self.get_request_kwargs(),
             )
 
     @async_handle_request_caching
@@ -160,7 +168,10 @@ class AsyncHTTPProvider(AsyncJSONBaseProvider):
         self.logger.debug(f"Making batch request HTTP - uri: `{self.endpoint_uri}`")
         request_data = self.encode_batch_rpc_request(batch_requests)
         raw_response = await async_make_post_request(
-            self.endpoint_uri, request_data, **self.get_request_kwargs()
+            self.endpoint_uri,
+            request_data,
+            owning_class=self,
+            **self.get_request_kwargs(),
         )
         self.logger.debug("Received batch response HTTP.")
         responses_list = cast(List[RPCResponse], self.decode_rpc_response(raw_response))

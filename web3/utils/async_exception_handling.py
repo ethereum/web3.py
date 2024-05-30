@@ -1,4 +1,5 @@
 from typing import (
+    TYPE_CHECKING,
     Any,
     Dict,
 )
@@ -27,10 +28,16 @@ from web3.types import (
     TxParams,
 )
 
+if TYPE_CHECKING:
+    from web3 import (
+        AsyncWeb3,
+    )
+
 
 async def async_handle_offchain_lookup(
     offchain_lookup_payload: Dict[str, Any],
     transaction: TxParams,
+    owning_class: "AsyncWeb3" = None,
 ) -> bytes:
     formatted_sender = to_hex_if_bytes(offchain_lookup_payload["sender"]).lower()
     formatted_data = to_hex_if_bytes(offchain_lookup_payload["callData"]).lower()
@@ -50,11 +57,14 @@ async def async_handle_offchain_lookup(
 
         try:
             if "{data}" in url and "{sender}" in url:
-                response = await async_get_response_from_get_request(formatted_url)
+                response = await async_get_response_from_get_request(
+                    formatted_url, owning_class=owning_class
+                )
             elif "{sender}" in url:
                 response = await async_get_response_from_post_request(
                     formatted_url,
                     data={"data": formatted_data, "sender": formatted_sender},
+                    owning_class=owning_class,
                 )
             else:
                 raise Web3ValidationError("url not formatted properly.")

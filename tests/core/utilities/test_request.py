@@ -97,7 +97,7 @@ def test_json_make_get_request(mocker):
     response = request.json_make_get_request(TEST_URI)
     assert response == json.dumps({"data": "content"})
     assert len(request._session_cache) == 1
-    cache_key = generate_cache_key(f"{threading.get_ident()}:{TEST_URI}")
+    cache_key = generate_cache_key(f"None:{threading.get_ident()}:{TEST_URI}")
     session = request._session_cache.get_cache_entry(cache_key)
     session.get.assert_called_once_with(TEST_URI, timeout=30)
 
@@ -117,7 +117,7 @@ def test_make_post_request_no_args(mocker):
     response = request.make_post_request(TEST_URI, data=b"request")
     assert response == "content"
     assert len(request._session_cache) == 1
-    cache_key = generate_cache_key(f"{threading.get_ident()}:{TEST_URI}")
+    cache_key = generate_cache_key(f"None:{threading.get_ident()}:{TEST_URI}")
     session = request._session_cache.get_cache_entry(cache_key)
     session.post.assert_called_once_with(TEST_URI, data=b"request", timeout=30)
 
@@ -261,11 +261,12 @@ async def test_async_json_make_get_request(mocker):
     response = await request.async_json_make_get_request(TEST_URI)
     assert response == json.dumps({"data": "content"})
     assert len(request._async_session_cache) == 1
-    cache_key = generate_cache_key(f"{threading.get_ident()}:{TEST_URI}")
+    cache_key = generate_cache_key(f"None:{threading.get_ident()}:{TEST_URI}")
     session = request._async_session_cache.get_cache_entry(cache_key)
     assert isinstance(session, ClientSession)
     session.get.assert_called_once_with(
         TEST_URI,
+        owning_class=None,
         timeout=ClientTimeout(
             total=30, connect=None, sock_read=None, sock_connect=None
         ),
@@ -282,7 +283,7 @@ async def test_async_make_post_request(mocker):
     response = await request.async_make_post_request(TEST_URI, data=b"request")
     assert response == "content"
     assert len(request._async_session_cache) == 1
-    cache_key = generate_cache_key(f"{threading.get_ident()}:{TEST_URI}")
+    cache_key = generate_cache_key(f"None:{threading.get_ident()}:{TEST_URI}")
     session = request._async_session_cache.get_cache_entry(cache_key)
     assert isinstance(session, ClientSession)
     session.post.assert_called_once_with(
@@ -411,8 +412,8 @@ async def test_async_use_new_session_if_loop_closed_for_cached_session():
 
     await async_cache_and_return_session(TEST_URI, session=session1)
 
-    # assert session1 was cached
-    cache_key = generate_cache_key(f"{threading.get_ident()}:{TEST_URI}")
+    # assert session1 was cached; None bc no owning_class
+    cache_key = generate_cache_key(f"None:{threading.get_ident()}:{TEST_URI}")
 
     assert len(request._async_session_cache) == 1
     cached_session = request._async_session_cache.get_cache_entry(cache_key)
@@ -448,7 +449,7 @@ async def test_async_use_new_session_if_session_closed_for_cached_session():
     await async_cache_and_return_session(TEST_URI, session=session1)
 
     # assert session1 was cached
-    cache_key = generate_cache_key(f"{threading.get_ident()}:{TEST_URI}")
+    cache_key = generate_cache_key(f"None:{threading.get_ident()}:{TEST_URI}")
 
     assert len(request._async_session_cache) == 1
     cached_session = request._async_session_cache.get_cache_entry(cache_key)

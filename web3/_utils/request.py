@@ -6,6 +6,7 @@ import logging
 import os
 import threading
 from typing import (
+    TYPE_CHECKING,
     Any,
     Dict,
     List,
@@ -33,6 +34,20 @@ from web3.utils.caching import (
     SimpleCache,
 )
 
+if TYPE_CHECKING:
+    from web3 import (
+        AsyncWeb3,
+        Web3,
+    )
+    from web3.beacon import (
+        AsyncBeacon,
+        Beacon,
+    )
+    from web3.providers import (
+        AsyncHTTPProvider,
+        HTTPProvider,
+    )
+
 logger = logging.getLogger(__name__)
 
 DEFAULT_TIMEOUT = 30
@@ -47,10 +62,14 @@ _session_cache_lock = threading.Lock()
 
 
 def cache_and_return_session(
-    endpoint_uri: URI, session: requests.Session = None
+    endpoint_uri: URI,
+    session: requests.Session = None,
+    owning_class: Union["Web3", "HTTPProvider", "Beacon"] = None,
 ) -> requests.Session:
-    # cache key should have a unique thread identifier
-    cache_key = generate_cache_key(f"{threading.get_ident()}:{endpoint_uri}")
+    # cache key has a unique identifier per owning_class instance & thread id
+    cache_key = generate_cache_key(
+        f"{owning_class}:{threading.get_ident()}:{endpoint_uri}"
+    )
 
     cached_session = _session_cache.get_cache_entry(cache_key)
     if cached_session is not None:
@@ -83,35 +102,51 @@ def cache_and_return_session(
 
 
 def get_response_from_get_request(
-    endpoint_uri: URI, *args: Any, **kwargs: Any
+    endpoint_uri: URI,
+    *args: Any,
+    owning_class: Union["Web3", "HTTPProvider", "Beacon"] = None,
+    **kwargs: Any,
 ) -> requests.Response:
     kwargs.setdefault("timeout", DEFAULT_TIMEOUT)
-    session = cache_and_return_session(endpoint_uri)
+    session = cache_and_return_session(endpoint_uri, owning_class=owning_class)
     response = session.get(endpoint_uri, *args, **kwargs)
     return response
 
 
 def json_make_get_request(
-    endpoint_uri: URI, *args: Any, **kwargs: Any
+    endpoint_uri: URI,
+    *args: Any,
+    owning_class: Union["Web3", "HTTPProvider", "Beacon"] = None,
+    **kwargs: Any,
 ) -> Dict[str, Any]:
-    response = get_response_from_get_request(endpoint_uri, *args, **kwargs)
+    response = get_response_from_get_request(
+        endpoint_uri, *args, owning_class=owning_class, **kwargs
+    )
     response.raise_for_status()
     return response.json()
 
 
 def get_response_from_post_request(
-    endpoint_uri: URI, *args: Any, **kwargs: Any
+    endpoint_uri: URI,
+    owning_class: Union["Web3", "HTTPProvider", "Beacon"] = None,
+    *args: Any,
+    **kwargs: Any,
 ) -> requests.Response:
     kwargs.setdefault("timeout", DEFAULT_TIMEOUT)
-    session = cache_and_return_session(endpoint_uri)
+    session = cache_and_return_session(endpoint_uri, owning_class=owning_class)
     response = session.post(endpoint_uri, *args, **kwargs)
     return response
 
 
 def make_post_request(
-    endpoint_uri: URI, data: Union[bytes, Dict[str, Any]], **kwargs: Any
+    endpoint_uri: URI,
+    data: Union[bytes, Dict[str, Any]],
+    owning_class: Union["Web3", "HTTPProvider", "Beacon"] = None,
+    **kwargs: Any,
 ) -> bytes:
-    response = get_response_from_post_request(endpoint_uri, data=data, **kwargs)
+    response = get_response_from_post_request(
+        endpoint_uri, data=data, owning_class=owning_class, **kwargs
+    )
     response.raise_for_status()
     return response.content
 
@@ -133,9 +168,12 @@ _async_session_pool = ThreadPoolExecutor(max_workers=1)
 async def async_cache_and_return_session(
     endpoint_uri: URI,
     session: Optional[ClientSession] = None,
+    owning_class: Union["AsyncWeb3", "AsyncHTTPProvider", "AsyncBeacon"] = None,
 ) -> ClientSession:
-    # cache key should have a unique thread identifier
-    cache_key = generate_cache_key(f"{threading.get_ident()}:{endpoint_uri}")
+    # cache key has a unique identifier per owning_class instance & thread id
+    cache_key = generate_cache_key(
+        f"{owning_class}:{threading.get_ident()}:{endpoint_uri}"
+    )
 
     evicted_items = None
     async with async_lock(_async_session_pool, _async_session_cache_lock):
@@ -210,36 +248,54 @@ async def async_cache_and_return_session(
 
 
 async def async_get_response_from_get_request(
-    endpoint_uri: URI, *args: Any, **kwargs: Any
+    endpoint_uri: URI,
+    *args: Any,
+    owning_class: Union["AsyncWeb3", "AsyncHTTPProvider", "AsyncBeacon"] = None,
+    **kwargs: Any,
 ) -> ClientResponse:
     kwargs.setdefault("timeout", ClientTimeout(DEFAULT_TIMEOUT))
-    session = await async_cache_and_return_session(endpoint_uri)
+    session = await async_cache_and_return_session(
+        endpoint_uri, owning_class=owning_class
+    )
     response = await session.get(endpoint_uri, *args, **kwargs)
     return response
 
 
 async def async_json_make_get_request(
-    endpoint_uri: URI, *args: Any, **kwargs: Any
+    endpoint_uri: URI,
+    *args: Any,
+    owning_class: Union["AsyncWeb3", "AsyncHTTPProvider", "AsyncBeacon"] = None,
+    **kwargs: Any,
 ) -> Dict[str, Any]:
-    response = await async_get_response_from_get_request(endpoint_uri, *args, **kwargs)
+    response = await async_get_response_from_get_request(
+        endpoint_uri, *args, owning_class=owning_class, **kwargs
+    )
     response.raise_for_status()
     return await response.json()
 
 
 async def async_get_response_from_post_request(
-    endpoint_uri: URI, *args: Any, **kwargs: Any
+    endpoint_uri: URI,
+    owning_class: Union["AsyncWeb3", "AsyncHTTPProvider", "AsyncBeacon"] = None,
+    *args: Any,
+    **kwargs: Any,
 ) -> ClientResponse:
     kwargs.setdefault("timeout", ClientTimeout(DEFAULT_TIMEOUT))
-    session = await async_cache_and_return_session(endpoint_uri)
+    session = await async_cache_and_return_session(
+        endpoint_uri, owning_class=owning_class
+    )
     response = await session.post(endpoint_uri, *args, **kwargs)
     return response
 
 
 async def async_make_post_request(
-    endpoint_uri: URI, data: Union[bytes, Dict[str, Any]], **kwargs: Any
+    endpoint_uri: URI,
+    data: Union[bytes, Dict[str, Any]],
+    owning_class: Union["AsyncWeb3", "AsyncHTTPProvider", "AsyncBeacon"] = None,
+    **kwargs: Any,
 ) -> bytes:
     response = await async_get_response_from_post_request(
-        endpoint_uri, data=data, **kwargs
+        endpoint_uri, data=data, owning_class=owning_class, **kwargs
     )
     response.raise_for_status()
     return await response.read()

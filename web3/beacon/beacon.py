@@ -64,7 +64,9 @@ class Beacon:
 
     def _make_get_request(self, endpoint_url: str) -> Dict[str, Any]:
         uri = URI(self.base_url + endpoint_url)
-        return json_make_get_request(uri, timeout=self.request_timeout)
+        return json_make_get_request(
+            uri, owning_class=self, timeout=self.request_timeout
+        )
 
     # [ BEACON endpoints ]
 
@@ -196,7 +198,7 @@ class Beacon:
 
     def get_health(self) -> int:
         url = URI(self.base_url + GET_HEALTH)
-        response = get_response_from_get_request(url)
+        response = get_response_from_get_request(self, url)
         return response.status_code
 
     def get_version(self) -> Dict[str, Any]:
