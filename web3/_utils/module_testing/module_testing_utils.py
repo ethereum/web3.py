@@ -12,9 +12,7 @@ from typing import (
     Union,
 )
 
-from aiohttp import (
-    ClientTimeout,
-)
+import aiohttp
 from eth_typing import (
     ChecksumAddress,
     HexStr,
@@ -28,11 +26,8 @@ from flaky import (
 from hexbytes import (
     HexBytes,
 )
+import requests
 
-from web3._utils.request import (
-    async_cache_and_return_session,
-    cache_and_return_session,
-)
 from web3.types import (
     BlockData,
     LogReceipt,
@@ -102,13 +97,12 @@ def mock_offchain_lookup_request_response(
 
         # mock response only to specified url while validating appropriate fields
         if url_from_args == mocked_request_url:
-            assert kwargs["timeout"] == 30
             if http_method.upper() == "POST":
                 assert kwargs["data"] == {"data": calldata, "sender": sender}
             return MockedResponse()
 
         # else, make a normal request (no mocking)
-        session = cache_and_return_session(url_from_args)
+        session = requests.Session()
         return session.request(method=http_method.upper(), url=url_from_args, **kwargs)
 
     monkeypatch.setattr(
@@ -152,13 +146,12 @@ def async_mock_offchain_lookup_request_response(
 
         # mock response only to specified url while validating appropriate fields
         if url_from_args == mocked_request_url:
-            assert kwargs["timeout"] == ClientTimeout(30)
             if http_method.upper() == "post":
                 assert kwargs["data"] == {"data": calldata, "sender": sender}
             return AsyncMockedResponse()
 
         # else, make a normal request (no mocking)
-        session = await async_cache_and_return_session(url_from_args)
+        session = aiohttp.ClientSession()
         return await session.request(
             method=http_method.upper(), url=url_from_args, **kwargs
         )

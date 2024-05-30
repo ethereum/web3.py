@@ -3,6 +3,9 @@ from typing import (
     Dict,
 )
 
+from aiohttp import (
+    ClientSession,
+)
 from eth_abi import (
     abi,
 )
@@ -10,11 +13,6 @@ from eth_typing import (
     URI,
 )
 
-from web3._utils.request import (
-    async_get_json_from_client_response,
-    async_get_response_from_get_request,
-    async_get_response_from_post_request,
-)
 from web3._utils.type_conversion import (
     to_bytes_if_hex,
     to_hex_if_bytes,
@@ -41,6 +39,7 @@ async def async_handle_offchain_lookup(
             "`sender` value does not equal `to` address in transaction."
         )
 
+    session = ClientSession()
     for url in offchain_lookup_payload["urls"]:
         formatted_url = URI(
             str(url)
@@ -50,9 +49,9 @@ async def async_handle_offchain_lookup(
 
         try:
             if "{data}" in url and "{sender}" in url:
-                response = await async_get_response_from_get_request(formatted_url)
+                response = await session.get(formatted_url)
             elif "{sender}" in url:
-                response = await async_get_response_from_post_request(
+                response = await session.post(
                     formatted_url,
                     data={"data": formatted_data, "sender": formatted_sender},
                 )
@@ -68,7 +67,7 @@ async def async_handle_offchain_lookup(
         if not 200 <= response.status <= 299:  # if not 400 error, try next url
             continue
 
-        result = await async_get_json_from_client_response(response)
+        result = await response.json()
 
         if "data" not in result.keys():
             raise Web3ValidationError(

@@ -27,11 +27,6 @@ from web3._utils.empty import (
 from web3._utils.http import (
     construct_user_agent,
 )
-from web3._utils.request import (
-    cache_and_return_session,
-    get_default_http_endpoint,
-    make_post_request,
-)
 from web3.types import (
     RPCEndpoint,
     RPCResponse,
@@ -42,6 +37,9 @@ from ..._utils.batching import (
 )
 from ..._utils.caching import (
     handle_request_caching,
+)
+from ..._utils.request import (
+    RequestSessionManager,
 )
 from ..base import (
     JSONBaseProvider,
@@ -60,7 +58,9 @@ if TYPE_CHECKING:
 class HTTPProvider(JSONBaseProvider):
     logger = logging.getLogger("web3.providers.HTTPProvider")
     endpoint_uri = None
+
     _request_kwargs = None
+    _request_session_manager = RequestSessionManager()
 
     def __init__(
         self,
@@ -73,7 +73,9 @@ class HTTPProvider(JSONBaseProvider):
         **kwargs: Any,
     ) -> None:
         if endpoint_uri is None:
-            self.endpoint_uri = get_default_http_endpoint()
+            self.endpoint_uri = (
+                self._request_session_manager.get_default_http_endpoint()
+            )
         else:
             self.endpoint_uri = URI(endpoint_uri)
 
@@ -81,7 +83,9 @@ class HTTPProvider(JSONBaseProvider):
         self._exception_retry_configuration = exception_retry_configuration
 
         if session:
-            cache_and_return_session(self.endpoint_uri, session)
+            self._request_session_manager.cache_and_return_session(
+                self.endpoint_uri, session
+            )
 
         super().__init__(**kwargs)
 
@@ -131,7 +135,7 @@ class HTTPProvider(JSONBaseProvider):
         ):
             for i in range(self.exception_retry_configuration.retries):
                 try:
-                    return make_post_request(
+                    return self._request_session_manager.make_post_request(
                         self.endpoint_uri, request_data, **self.get_request_kwargs()
                     )
                 except tuple(self.exception_retry_configuration.errors) as e:
@@ -144,7 +148,7 @@ class HTTPProvider(JSONBaseProvider):
                         raise e
             return None
         else:
-            return make_post_request(
+            return self._request_session_manager.make_post_request(
                 self.endpoint_uri, request_data, **self.get_request_kwargs()
             )
 
@@ -167,7 +171,7 @@ class HTTPProvider(JSONBaseProvider):
     ) -> List[RPCResponse]:
         self.logger.debug(f"Making batch request HTTP, uri: `{self.endpoint_uri}`")
         request_data = self.encode_batch_rpc_request(batch_requests)
-        raw_response = make_post_request(
+        raw_response = self._request_session_manager.make_post_request(
             self.endpoint_uri, request_data, **self.get_request_kwargs()
         )
         self.logger.debug("Received batch response HTTP.")
