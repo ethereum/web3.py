@@ -65,8 +65,8 @@ class HTTPProvider(JSONBaseProvider):
         endpoint_uri: Optional[Union[URI, str]] = None,
         request_kwargs: Optional[Any] = None,
         session: Optional[Any] = None,
-        exception_retry_configuration: Union[
-            ExceptionRetryConfiguration, Empty
+        exception_retry_configuration: Optional[
+            Union[ExceptionRetryConfiguration, Empty]
         ] = empty,
         **kwargs: Any,
     ) -> None:

@@ -107,7 +107,7 @@ local and remote JSON-RPC servers.
 HTTPProvider
 ~~~~~~~~~~~~
 
-.. py:class:: web3.providers.rpc.HTTPProvider(endpoint_uri[, request_kwargs, session])
+.. py:class:: web3.providers.rpc.HTTPProvider(endpoint_uri, request_kwargs={}, session=None, exception_retry_configuration=ExceptionRetryConfiguration())
 
     This provider handles interactions with an HTTP or HTTPS based JSON-RPC server.
 
@@ -119,6 +119,11 @@ HTTPProvider
       will be passed onto each http/https POST request made to your node.
     * ``session`` allows you to pass a ``requests.Session`` object initialized
       as desired.
+    * ``exception_retry_configuration`` is an instance of the
+      :class:`~web3.providers.rpc.utils.ExceptionRetryConfiguration`
+      class which allows you to configure how the provider should handle exceptions
+      when making certain requests. Setting this to ``None`` will disable
+      exception retries.
 
     .. code-block:: python
 
@@ -180,7 +185,7 @@ IPCProvider
 AsyncHTTPProvider
 ~~~~~~~~~~~~~~~~~
 
-.. py:class:: web3.providers.async_rpc.AsyncHTTPProvider(endpoint_uri[, request_kwargs])
+.. py:class:: web3.providers.rpc.AsyncHTTPProvider(endpoint_uri, request_kwargs={}, exception_retry_configuration=ExceptionRetryConfiguration())
 
     This provider handles interactions with an HTTP or HTTPS based JSON-RPC server asynchronously.
 
@@ -190,7 +195,14 @@ AsyncHTTPProvider
       be omitted from the URI.
     * ``request_kwargs`` should be a dictionary of keyword arguments which
       will be passed onto each http/https POST request made to your node.
-    * the ``cache_async_session()`` method allows you to use your own ``aiohttp.ClientSession`` object. This is an async method and not part of the constructor
+    * ``exception_retry_configuration`` is an instance of the
+      :class:`~web3.providers.rpc.utils.ExceptionRetryConfiguration`
+      class which allows you to configure how the provider should handle exceptions
+      when making certain requests. Setting this to ``None`` will disable
+      exception retries.
+
+    The ``cache_async_session()`` method allows you to use your own
+    ``aiohttp.ClientSession`` object.
 
     .. code-block:: python
 
