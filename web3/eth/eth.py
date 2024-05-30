@@ -285,7 +285,8 @@ class Eth(BaseEth):
                 return self._call(transaction, block_identifier, state_override)
             except OffchainLookup as offchain_lookup:
                 durin_calldata = handle_offchain_lookup(
-                    offchain_lookup.payload, transaction
+                    offchain_lookup.payload,
+                    transaction,
                 )
                 transaction["data"] = durin_calldata
 

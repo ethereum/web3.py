@@ -9,8 +9,7 @@ from eth_typing import (
 )
 
 from web3._utils.request import (
-    get_response_from_get_request,
-    json_make_get_request,
+    RequestSessionManager,
 )
 from web3.beacon.api_endpoints import (
     GET_ATTESTATIONS,
@@ -61,10 +60,13 @@ class Beacon:
     ) -> None:
         self.base_url = base_url
         self.request_timeout = request_timeout
+        self._request_session_manager = RequestSessionManager()
 
     def _make_get_request(self, endpoint_url: str) -> Dict[str, Any]:
         uri = URI(self.base_url + endpoint_url)
-        return json_make_get_request(uri, timeout=self.request_timeout)
+        return self._request_session_manager.json_make_get_request(
+            uri, timeout=self.request_timeout
+        )
 
     # [ BEACON endpoints ]
 
@@ -196,7 +198,7 @@ class Beacon:
 
     def get_health(self) -> int:
         url = URI(self.base_url + GET_HEALTH)
-        response = get_response_from_get_request(url)
+        response = self._request_session_manager.get_response_from_get_request(url)
         return response.status_code
 
     def get_version(self) -> Dict[str, Any]:

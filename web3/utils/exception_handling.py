@@ -9,11 +9,8 @@ from eth_abi import (
 from eth_typing import (
     URI,
 )
+import requests
 
-from web3._utils.request import (
-    get_response_from_get_request,
-    get_response_from_post_request,
-)
 from web3._utils.type_conversion import (
     to_bytes_if_hex,
     to_hex_if_bytes,
@@ -40,6 +37,7 @@ def handle_offchain_lookup(
             "Returned `sender` value does not equal `to` address in transaction."
         )
 
+    session = requests.Session()
     for url in offchain_lookup_payload["urls"]:
         formatted_url = URI(
             str(url)
@@ -49,9 +47,9 @@ def handle_offchain_lookup(
 
         try:
             if "{data}" in url and "{sender}" in url:
-                response = get_response_from_get_request(formatted_url)
+                response = session.get(formatted_url)
             elif "{sender}" in url:
-                response = get_response_from_post_request(
+                response = session.post(
                     formatted_url,
                     data={
                         "data": formatted_data,
