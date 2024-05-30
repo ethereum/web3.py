@@ -1,0 +1,1 @@
+Add support for Beacon ``/eth/v1/beacon/blob_sidecars`` endpoint at :meth:`~web3.beacon.Beacon.get_blob_sidecars`.

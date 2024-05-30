@@ -268,3 +268,12 @@ async def test_async_cl_node_get_version(async_beacon):
 async def test_async_cl_node_get_syncing(async_beacon):
     response = await async_beacon.get_syncing()
     _assert_valid_response(response)
+
+
+# Blob endpoint tests
+
+
+@pytest.mark.asyncio
+def test_cl_node_get_blob_sidecars(async_beacon):
+    response = await async_beacon.get_blob_sidecars()
+    _assert_valid_response(response)
