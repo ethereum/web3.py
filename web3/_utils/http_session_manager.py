@@ -29,18 +29,23 @@ from web3._utils.async_caching import (
 from web3._utils.caching import (
     generate_cache_key,
 )
+from web3._utils.http import (
+    DEFAULT_HTTP_TIMEOUT,
+)
 from web3.utils.caching import (
     SimpleCache,
 )
 
-DEFAULT_TIMEOUT = 30
 
-
-class RequestSessionManager:
-    logger = logging.getLogger("web3._utils.request.RequestSessionManager")
+class HTTPSessionManager:
+    logger = logging.getLogger("web3._utils.http_session_manager.HTTPSessionManager")
     _lock: threading.Lock = threading.Lock()
 
-    def __init__(self, cache_size: int = 100, session_pool_max_workers: int = 5):
+    def __init__(
+        self,
+        cache_size: int = 100,
+        session_pool_max_workers: int = 5,
+    ) -> None:
         self.session_cache = SimpleCache(cache_size)
         self.session_pool = ThreadPoolExecutor(max_workers=session_pool_max_workers)
 
@@ -52,6 +57,7 @@ class RequestSessionManager:
         self,
         endpoint_uri: URI,
         session: requests.Session = None,
+        request_timeout: Optional[float] = None,
     ) -> requests.Session:
         # cache key should have a unique thread identifier
         cache_key = generate_cache_key(f"{threading.get_ident()}:{endpoint_uri}")
@@ -80,7 +86,7 @@ class RequestSessionManager:
                     f"{evicted_session}",
                 )
             threading.Timer(
-                DEFAULT_TIMEOUT + 0.1,
+                request_timeout + 0.1,
                 self._close_evicted_sessions,
                 args=[evicted_sessions],
             ).start()
@@ -90,8 +96,10 @@ class RequestSessionManager:
     def get_response_from_get_request(
         self, endpoint_uri: URI, *args: Any, **kwargs: Any
     ) -> requests.Response:
-        kwargs.setdefault("timeout", DEFAULT_TIMEOUT)
-        session = self.cache_and_return_session(endpoint_uri)
+        kwargs.setdefault("timeout", DEFAULT_HTTP_TIMEOUT)
+        session = self.cache_and_return_session(
+            endpoint_uri, request_timeout=kwargs["timeout"]
+        )
         response = session.get(endpoint_uri, *args, **kwargs)
         return response
 
@@ -105,8 +113,10 @@ class RequestSessionManager:
     def get_response_from_post_request(
         self, endpoint_uri: URI, *args: Any, **kwargs: Any
     ) -> requests.Response:
-        kwargs.setdefault("timeout", DEFAULT_TIMEOUT)
-        session = self.cache_and_return_session(endpoint_uri)
+        kwargs.setdefault("timeout", DEFAULT_HTTP_TIMEOUT)
+        session = self.cache_and_return_session(
+            endpoint_uri, request_timeout=kwargs["timeout"]
+        )
         response = session.post(endpoint_uri, *args, **kwargs)
         return response
 
@@ -130,6 +140,7 @@ class RequestSessionManager:
         self,
         endpoint_uri: URI,
         session: Optional[ClientSession] = None,
+        request_timeout: Optional[ClientTimeout] = None,
     ) -> ClientSession:
         # cache key should have a unique thread identifier
         cache_key = generate_cache_key(f"{threading.get_ident()}:{endpoint_uri}")
@@ -202,7 +213,7 @@ class RequestSessionManager:
             # should make it so that any call from an evicted session can still be made
             # before the session is closed.
             threading.Timer(
-                DEFAULT_TIMEOUT + 0.1,
+                request_timeout.total + 0.1,
                 self._async_close_evicted_sessions,
                 args=[evicted_sessions],
             ).start()
@@ -212,8 +223,10 @@ class RequestSessionManager:
     async def async_get_response_from_get_request(
         self, endpoint_uri: URI, *args: Any, **kwargs: Any
     ) -> ClientResponse:
-        kwargs.setdefault("timeout", ClientTimeout(DEFAULT_TIMEOUT))
-        session = await self.async_cache_and_return_session(endpoint_uri)
+        kwargs.setdefault("timeout", ClientTimeout(DEFAULT_HTTP_TIMEOUT))
+        session = await self.async_cache_and_return_session(
+            endpoint_uri, request_timeout=kwargs["timeout"]
+        )
         response = await session.get(endpoint_uri, *args, **kwargs)
         return response
 
@@ -229,8 +242,10 @@ class RequestSessionManager:
     async def async_get_response_from_post_request(
         self, endpoint_uri: URI, *args: Any, **kwargs: Any
     ) -> ClientResponse:
-        kwargs.setdefault("timeout", ClientTimeout(DEFAULT_TIMEOUT))
-        session = await self.async_cache_and_return_session(endpoint_uri)
+        kwargs.setdefault("timeout", ClientTimeout(DEFAULT_HTTP_TIMEOUT))
+        session = await self.async_cache_and_return_session(
+            endpoint_uri, request_timeout=kwargs["timeout"]
+        )
         response = await session.post(endpoint_uri, *args, **kwargs)
         return response
 

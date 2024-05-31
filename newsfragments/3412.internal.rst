@@ -1,1 +1,1 @@
-Use a ``RequestSessionManager`` to manage sessions for http providers, rather than have them share a single session manager / cache.
+Use a ``HTTPSessionManager`` to manage sessions for http providers, rather than have them share a single session manager / cache.
