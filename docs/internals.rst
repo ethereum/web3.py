@@ -144,6 +144,16 @@ options on the provider instance:
 Retry Requests for HTTP Providers
 `````````````````````````````````
 
+``HTTPProvider`` and ``AsyncHTTPProvider`` instances retry certain requests by default
+on exceptions. This can be configured via the ``exception_retry_configuration``
+property on the provider instance, which takes a
+:class:`~web3.providers.rpc.utils.ExceptionRetryConfiguration` class as its value. The
+retry mechanism employs an exponential backoff strategy, starting from the initial
+value determined by the ``backoff_factor``, and doubling the delay with each attempt,
+up to the ``retries`` value. Below is an example showing the default options for the
+retry configuration and how to override them.
+
+
 .. py:class:: web3.providers.rpc.utils.ExceptionRetryConfiguration
 
     .. py:attribute:: errors
@@ -165,14 +175,6 @@ Retry Requests for HTTP Providers
 
         A list of retryable methods. The default is an in-house list of deemed-safe-to-
         retry methods.
-
-
-``HTTPProvider`` and ``AsyncHTTPProvider`` instances retry certain requests by default
-on exceptions. This can be configured via configuration options on the provider
-instance. The retry mechanism employs an exponential backoff strategy, starting from
-the initial value determined by the ``backoff_factor``, and doubling the delay with
-each attempt, up to the ``retries`` value. Below is an example showing the default
-options for the retry configuration and how to override them.
 
 .. code-block:: python
 
