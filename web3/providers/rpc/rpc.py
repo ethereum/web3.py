@@ -38,8 +38,8 @@ from ..._utils.batching import (
 from ..._utils.caching import (
     handle_request_caching,
 )
-from ..._utils.request import (
-    RequestSessionManager,
+from ..._utils.http_session_manager import (
+    HTTPSessionManager,
 )
 from ..base import (
     JSONBaseProvider,
@@ -70,7 +70,7 @@ class HTTPProvider(JSONBaseProvider):
         ] = empty,
         **kwargs: Any,
     ) -> None:
-        self._request_session_manager = RequestSessionManager()
+        self._request_session_manager = HTTPSessionManager()
 
         if endpoint_uri is None:
             self.endpoint_uri = (

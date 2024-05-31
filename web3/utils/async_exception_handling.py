@@ -5,6 +5,7 @@ from typing import (
 
 from aiohttp import (
     ClientSession,
+    ClientTimeout,
 )
 from eth_abi import (
     abi,
@@ -13,6 +14,9 @@ from eth_typing import (
     URI,
 )
 
+from web3._utils.http import (
+    DEFAULT_HTTP_TIMEOUT,
+)
 from web3._utils.type_conversion import (
     to_bytes_if_hex,
     to_hex_if_bytes,
@@ -49,11 +53,14 @@ async def async_handle_offchain_lookup(
 
         try:
             if "{data}" in url and "{sender}" in url:
-                response = await session.get(formatted_url)
+                response = await session.get(
+                    formatted_url, timeout=DEFAULT_HTTP_TIMEOUT
+                )
             elif "{sender}" in url:
                 response = await session.post(
                     formatted_url,
                     data={"data": formatted_data, "sender": formatted_sender},
+                    timeout=ClientTimeout(DEFAULT_HTTP_TIMEOUT),
                 )
             else:
                 raise Web3ValidationError("url not formatted properly.")

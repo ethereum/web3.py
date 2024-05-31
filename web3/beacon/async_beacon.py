@@ -8,9 +8,6 @@ from eth_typing import (
     HexStr,
 )
 
-from web3._utils.request import (
-    RequestSessionManager,
-)
 from web3.beacon.api_endpoints import (
     GET_ATTESTATIONS,
     GET_ATTESTER_SLASHINGS,
@@ -50,6 +47,9 @@ from web3.beacon.api_endpoints import (
     GET_VERSION,
     GET_VOLUNTARY_EXITS,
 )
+from web3.session_manager import (
+    HTTPSessionManager,
+)
 
 
 class AsyncBeacon:
@@ -62,7 +62,7 @@ class AsyncBeacon:
     ) -> None:
         self.base_url = base_url
         self.request_timeout = request_timeout
-        self._request_session_manager = RequestSessionManager()
+        self._request_session_manager = HTTPSessionManager()
 
     async def _async_make_get_request(self, endpoint_uri: str) -> Dict[str, Any]:
         uri = URI(self.base_url + endpoint_uri)

@@ -23,11 +23,11 @@ from requests.adapters import (
     HTTPAdapter,
 )
 
-from web3._utils import (
-    request,
-)
 from web3._utils.caching import (
     generate_cache_key,
+)
+from web3._utils.http_session_manager import (
+    HTTPSessionManager,
 )
 from web3.utils.caching import (
     SimpleCache,
@@ -67,8 +67,8 @@ def check_adapters_mounted(session: Session):
     assert len(session.adapters) == 2
 
 
-def _simulate_call(request_session_manager, uri):
-    _session = request_session_manager.cache_and_return_session(uri)
+def _simulate_call(http_session_manager, uri):
+    _session = http_session_manager.cache_and_return_session(uri, request_timeout=0.01)
 
     # simulate a call taking 0.01s to return a response
     time.sleep(0.01)
@@ -76,20 +76,20 @@ def _simulate_call(request_session_manager, uri):
 
 
 @pytest.fixture
-def request_session_manager():
-    return request.RequestSessionManager()
+def http_session_manager():
+    return HTTPSessionManager()
 
 
-def test_session_manager_json_make_get_request(mocker, request_session_manager):
+def test_session_manager_json_make_get_request(mocker, http_session_manager):
     mocker.patch("requests.Session.get", return_value=MockedResponse())
 
     # Submit a first request to create a session with default parameters
-    assert len(request_session_manager.session_cache) == 0
-    response = request_session_manager.json_make_get_request(TEST_URI)
+    assert len(http_session_manager.session_cache) == 0
+    response = http_session_manager.json_make_get_request(TEST_URI)
     assert response == json.dumps({"data": "content"})
-    assert len(request_session_manager.session_cache) == 1
+    assert len(http_session_manager.session_cache) == 1
     cache_key = generate_cache_key(f"{threading.get_ident()}:{TEST_URI}")
-    session = request_session_manager.session_cache.get_cache_entry(cache_key)
+    session = http_session_manager.session_cache.get_cache_entry(cache_key)
     session.get.assert_called_once_with(TEST_URI, timeout=30)
 
     # Ensure the adapter was created with default values
@@ -100,16 +100,16 @@ def test_session_manager_json_make_get_request(mocker, request_session_manager):
     assert adapter._pool_maxsize == DEFAULT_POOLSIZE
 
 
-def test_session_manager_make_post_request_no_args(mocker, request_session_manager):
+def test_session_manager_make_post_request_no_args(mocker, http_session_manager):
     mocker.patch("requests.Session.post", return_value=MockedResponse())
 
     # Submit a first request to create a session with default parameters
-    assert len(request_session_manager.session_cache) == 0
-    response = request_session_manager.make_post_request(TEST_URI, data=b"request")
+    assert len(http_session_manager.session_cache) == 0
+    response = http_session_manager.make_post_request(TEST_URI, data=b"request")
     assert response == "content"
-    assert len(request_session_manager.session_cache) == 1
+    assert len(http_session_manager.session_cache) == 1
     cache_key = generate_cache_key(f"{threading.get_ident()}:{TEST_URI}")
-    session = request_session_manager.session_cache.get_cache_entry(cache_key)
+    session = http_session_manager.session_cache.get_cache_entry(cache_key)
     session.post.assert_called_once_with(TEST_URI, data=b"request", timeout=30)
 
     # Ensure the adapter was created with default values
@@ -120,7 +120,7 @@ def test_session_manager_make_post_request_no_args(mocker, request_session_manag
     assert adapter._pool_maxsize == DEFAULT_POOLSIZE
 
 
-def test_session_manager_precached_session(mocker, request_session_manager):
+def test_session_manager_precached_session(mocker, http_session_manager):
     mocker.patch("requests.Session.post", return_value=MockedResponse())
 
     # Update the cache with a handcrafted session
@@ -128,18 +128,18 @@ def test_session_manager_precached_session(mocker, request_session_manager):
     session = Session()
     session.mount("http://", adapter)
     session.mount("https://", adapter)
-    request_session_manager.cache_and_return_session(TEST_URI, session)
+    http_session_manager.cache_and_return_session(TEST_URI, session)
 
     # Submit a second request with different arguments
-    assert len(request_session_manager.session_cache) == 1
-    response = request_session_manager.make_post_request(
+    assert len(http_session_manager.session_cache) == 1
+    response = http_session_manager.make_post_request(
         TEST_URI, data=b"request", timeout=60
     )
     assert response == "content"
-    assert len(request_session_manager.session_cache) == 1
+    assert len(http_session_manager.session_cache) == 1
 
     # Ensure the timeout was passed to the request
-    session = request_session_manager.cache_and_return_session(TEST_URI)
+    session = http_session_manager.cache_and_return_session(TEST_URI)
     session.post.assert_called_once_with(TEST_URI, data=b"request", timeout=60)
 
     # Ensure the adapter parameters match those we specified
@@ -179,25 +179,18 @@ def test_simple_cache_cache_session():
 
 
 def test_session_manager_cache_does_not_close_session_before_a_call_when_multithreading(
-    request_session_manager,
+    http_session_manager,
 ):
-    # save default values
-    session_cache_default = request_session_manager.session_cache
-    timeout_default = request.DEFAULT_TIMEOUT
-
     # set cache size to 1 + set future session close thread time to 0.01s
-    request_session_manager.session_cache = SimpleCache(1)
-    _timeout_for_testing = 0.01
-    request.DEFAULT_TIMEOUT = _timeout_for_testing
+    http_session_manager.session_cache = SimpleCache(1)
 
     with ThreadPoolExecutor(max_workers=len(UNIQUE_URIS)) as exc:
         all_sessions = [
-            exc.submit(_simulate_call, request_session_manager, uri)
-            for uri in UNIQUE_URIS
+            exc.submit(_simulate_call, http_session_manager, uri) for uri in UNIQUE_URIS
         ]
 
     # assert last session remains in cache, all others evicted
-    cache_data = request_session_manager.session_cache._data
+    cache_data = http_session_manager.session_cache._data
     assert len(cache_data) == 1
     _key, cached_session = cache_data.popitem()
     assert cached_session == all_sessions[-1].result()  # result of the `Future`
@@ -207,24 +200,19 @@ def test_session_manager_cache_does_not_close_session_before_a_call_when_multith
     # close the cached session before exiting test
     cached_session.close()
 
-    # reset default values
-    request_session_manager.session_cache = session_cache_default
-    request.DEFAULT_TIMEOUT = timeout_default
-
 
 def test_session_manager_unique_cache_keys_created_per_thread_with_same_uri(
-    request_session_manager,
+    http_session_manager,
 ):
     # somewhat inspired by issue #2680
 
     with ThreadPoolExecutor(max_workers=2) as exc:
         test_sessions = [
-            exc.submit(_simulate_call, request_session_manager, TEST_URI)
-            for _ in range(2)
+            exc.submit(_simulate_call, http_session_manager, TEST_URI) for _ in range(2)
         ]
 
     # assert unique keys are generated per thread for the same uri
-    assert len(request_session_manager.session_cache._data) == 2
+    assert len(http_session_manager.session_cache._data) == 2
 
     # -- teardown -- #
 
@@ -257,17 +245,17 @@ class AsyncMockedResponse:
 
 @pytest.mark.asyncio
 async def test_session_manager_async_json_make_get_request(
-    mocker, request_session_manager
+    mocker, http_session_manager
 ):
     mocker.patch("aiohttp.ClientSession.get", return_value=AsyncMockedResponse())
 
     # Submit a first request to create a session with default parameters
-    assert len(request_session_manager.session_cache) == 0
-    response = await request_session_manager.async_json_make_get_request(TEST_URI)
+    assert len(http_session_manager.session_cache) == 0
+    response = await http_session_manager.async_json_make_get_request(TEST_URI)
     assert response == json.dumps({"data": "content"})
-    assert len(request_session_manager.session_cache) == 1
+    assert len(http_session_manager.session_cache) == 1
     cache_key = generate_cache_key(f"{threading.get_ident()}:{TEST_URI}")
-    session = request_session_manager.session_cache.get_cache_entry(cache_key)
+    session = http_session_manager.session_cache.get_cache_entry(cache_key)
     assert isinstance(session, ClientSession)
     session.get.assert_called_once_with(
         TEST_URI,
@@ -279,18 +267,18 @@ async def test_session_manager_async_json_make_get_request(
 
 
 @pytest.mark.asyncio
-async def test_session_manager_async_make_post_request(mocker, request_session_manager):
+async def test_session_manager_async_make_post_request(mocker, http_session_manager):
     mocker.patch("aiohttp.ClientSession.post", return_value=AsyncMockedResponse())
 
     # Submit a first request to create a session with default parameters
-    assert len(request_session_manager.session_cache) == 0
-    response = await request_session_manager.async_make_post_request(
+    assert len(http_session_manager.session_cache) == 0
+    response = await http_session_manager.async_make_post_request(
         TEST_URI, data=b"request"
     )
     assert response == "content"
-    assert len(request_session_manager.session_cache) == 1
+    assert len(http_session_manager.session_cache) == 1
     cache_key = generate_cache_key(f"{threading.get_ident()}:{TEST_URI}")
-    session = request_session_manager.session_cache.get_cache_entry(cache_key)
+    session = http_session_manager.session_cache.get_cache_entry(cache_key)
     assert isinstance(session, ClientSession)
     session.post.assert_called_once_with(
         TEST_URI,
@@ -303,49 +291,47 @@ async def test_session_manager_async_make_post_request(mocker, request_session_m
 
 
 @pytest.mark.asyncio
-async def test_session_manager_async_precached_session(request_session_manager):
+async def test_session_manager_async_precached_session(http_session_manager):
     # Add a session
     session = ClientSession()
-    await request_session_manager.async_cache_and_return_session(TEST_URI, session)
-    assert len(request_session_manager.session_cache) == 1
+    await http_session_manager.async_cache_and_return_session(TEST_URI, session)
+    assert len(http_session_manager.session_cache) == 1
 
     # Make sure the session isn't duplicated
-    await request_session_manager.async_cache_and_return_session(TEST_URI, session)
-    assert len(request_session_manager.session_cache) == 1
+    await http_session_manager.async_cache_and_return_session(TEST_URI, session)
+    assert len(http_session_manager.session_cache) == 1
 
     # Make sure a request with a different URI adds another cached session
-    await request_session_manager.async_cache_and_return_session(
+    await http_session_manager.async_cache_and_return_session(
         URI(f"{TEST_URI}/test"), session
     )
-    assert len(request_session_manager.session_cache) == 2
+    assert len(http_session_manager.session_cache) == 2
 
     # -- teardown -- #
 
     # appropriately close the cached sessions
     [
         await session.close()
-        for session in request_session_manager.session_cache._data.values()
+        for session in http_session_manager.session_cache._data.values()
     ]
 
 
 @pytest.mark.asyncio
 async def test_session_manager_async_cache_does_not_close_session_before_a_call_when_multithreading(  # noqa: E501
-    request_session_manager,
+    http_session_manager,
 ):
-    # save default values
-    session_cache_default = request_session_manager.session_cache
-    timeout_default = request.DEFAULT_TIMEOUT
-
     # set cache size to 1 + set future session close thread time to 0.01s
-    request_session_manager.session_cache = SimpleCache(1)
+    http_session_manager.session_cache = SimpleCache(1)
     _timeout_for_testing = 0.01
-    request.DEFAULT_TIMEOUT = _timeout_for_testing
+    http_session_manager.request_timeout = _timeout_for_testing
 
     async def cache_uri_and_return_session(uri):
-        _session = await request_session_manager.async_cache_and_return_session(uri)
+        _session = await http_session_manager.async_cache_and_return_session(
+            uri, request_timeout=ClientTimeout(_timeout_for_testing)
+        )
 
         # simulate a call taking 0.01s to return a response
-        await asyncio.sleep(0.01)
+        await asyncio.sleep(_timeout_for_testing)
 
         assert not _session.closed
         return _session
@@ -357,7 +343,7 @@ async def test_session_manager_async_cache_does_not_close_session_before_a_call_
     assert all(isinstance(s, ClientSession) for s in all_sessions)
 
     # last session remains in cache, all others evicted
-    cache_data = request_session_manager.session_cache._data
+    cache_data = http_session_manager.session_cache._data
     assert len(cache_data) == 1
     _key, cached_session = cache_data.popitem()
     assert cached_session == all_sessions[-1]
@@ -371,14 +357,10 @@ async def test_session_manager_async_cache_does_not_close_session_before_a_call_
     # appropriately close the cached session
     await cached_session.close()
 
-    # reset default values
-    request_session_manager.session_cache = session_cache_default
-    request_session_manager.DEFAULT_TIMEOUT = timeout_default
-
 
 @pytest.mark.asyncio
 async def test_session_manager_async_unique_cache_keys_created_per_thread_with_same_uri(
-    request_session_manager,
+    http_session_manager,
 ):
     # inspired by issue #2680
     # Note: unique event loops for each thread are important here
@@ -389,7 +371,9 @@ async def test_session_manager_async_unique_cache_keys_created_per_thread_with_s
     def target_function(endpoint_uri):
         event_loop = asyncio.new_event_loop()
         unique_session = event_loop.run_until_complete(
-            request_session_manager.async_cache_and_return_session(endpoint_uri)
+            http_session_manager.async_cache_and_return_session(
+                endpoint_uri, request_timeout=ClientTimeout(0.01)
+            )
         )
         event_loop.close()
         test_sessions.append(unique_session)
@@ -409,7 +393,7 @@ async def test_session_manager_async_unique_cache_keys_created_per_thread_with_s
 
     # assert unique keys are generated per thread, w/ unique event loops,
     # for the same uri
-    assert len(request_session_manager.session_cache._data) == 2
+    assert len(http_session_manager.session_cache._data) == 2
 
     # -- teardown -- #
 
@@ -419,7 +403,7 @@ async def test_session_manager_async_unique_cache_keys_created_per_thread_with_s
 
 @pytest.mark.asyncio
 async def test_session_manager_async_use_new_session_if_loop_closed_for_cached_session(
-    request_session_manager,
+    http_session_manager,
 ):
     # create new loop, cache a session wihin the loop, close the loop
     loop1 = asyncio.new_event_loop()
@@ -427,15 +411,15 @@ async def test_session_manager_async_use_new_session_if_loop_closed_for_cached_s
     session1 = ClientSession(raise_for_status=True)
     session1._loop = loop1
 
-    await request_session_manager.async_cache_and_return_session(
+    await http_session_manager.async_cache_and_return_session(
         TEST_URI, session=session1
     )
 
     # assert session1 was cached
     cache_key = generate_cache_key(f"{threading.get_ident()}:{TEST_URI}")
 
-    assert len(request_session_manager.session_cache) == 1
-    cached_session = request_session_manager.session_cache.get_cache_entry(cache_key)
+    assert len(http_session_manager.session_cache) == 1
+    cached_session = http_session_manager.session_cache.get_cache_entry(cache_key)
     assert cached_session == session1
 
     # close loop that was used with session1
@@ -443,15 +427,15 @@ async def test_session_manager_async_use_new_session_if_loop_closed_for_cached_s
 
     # assert we create a new session when trying to retrieve the session at the
     # cache key for TEST_URI
-    session2 = await request_session_manager.async_cache_and_return_session(TEST_URI)
+    session2 = await http_session_manager.async_cache_and_return_session(TEST_URI)
     assert not session2._loop.is_closed()
     assert session2 != session1
 
     # assert we appropriately closed session1, evicted it from the cache, and cached
     # the new session2 at the cache key
     assert session1.closed
-    assert len(request_session_manager.session_cache) == 1
-    cached_session = request_session_manager.session_cache.get_cache_entry(cache_key)
+    assert len(http_session_manager.session_cache) == 1
+    cached_session = http_session_manager.session_cache.get_cache_entry(cache_key)
     assert cached_session == session2
 
     # -- teardown -- #
@@ -462,31 +446,31 @@ async def test_session_manager_async_use_new_session_if_loop_closed_for_cached_s
 
 @pytest.mark.asyncio
 async def test_session_manager_async_use_new_session_if_session_closed_for_cached_session(  # noqa: E501
-    request_session_manager,
+    http_session_manager,
 ):
     # create a session, close it, and cache it at the cache key for TEST_URI
     session1 = ClientSession(raise_for_status=True)
     await session1.close()
-    await request_session_manager.async_cache_and_return_session(
+    await http_session_manager.async_cache_and_return_session(
         TEST_URI, session=session1
     )
 
     # assert session1 was cached
     cache_key = generate_cache_key(f"{threading.get_ident()}:{TEST_URI}")
 
-    assert len(request_session_manager.session_cache) == 1
-    cached_session = request_session_manager.session_cache.get_cache_entry(cache_key)
+    assert len(http_session_manager.session_cache) == 1
+    cached_session = http_session_manager.session_cache.get_cache_entry(cache_key)
     assert cached_session == session1
 
     # assert we create a new session when trying to retrieve closed session from cache
-    session2 = await request_session_manager.async_cache_and_return_session(TEST_URI)
+    session2 = await http_session_manager.async_cache_and_return_session(TEST_URI)
     assert not session2.closed
     assert session2 != session1
 
     # assert we evicted session1 from the cache, and cached the new session2
     # at the cache key
-    assert len(request_session_manager.session_cache) == 1
-    cached_session = request_session_manager.session_cache.get_cache_entry(cache_key)
+    assert len(http_session_manager.session_cache) == 1
+    cached_session = http_session_manager.session_cache.get_cache_entry(cache_key)
     assert cached_session == session2
 
     # -- teardown -- #
