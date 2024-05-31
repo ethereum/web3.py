@@ -142,19 +142,18 @@ TEST_FUNCTION_ABI_JSON = """
 TEST_FUNCTION_ABI = json.loads(TEST_FUNCTION_ABI_JSON)
 
 
-TEST_CONTRACT_ABI_JSON = """
-[
+CONTRACT_ABI: ABI = [
     {
         "inputs": [{"name": "_arg0", "type": "uint256"}],
         "name": "logTwoEvents",
         "stateMutability": "nonpayable",
-        "type": "function"
+        "type": "function",
     },
     {
         "inputs": [{"name": "_arg0", "type": "uint256"}],
         "name": "setValue",
         "stateMutability": "nonpayable",
-        "type": "function"
+        "type": "function",
     },
     {
         "inputs": [
@@ -164,17 +163,15 @@ TEST_CONTRACT_ABI_JSON = """
                 "name": "arg1",
                 "components": [
                     {"name": "a", "type": "uint256"},
-                    {"name": "b", "type": "uint256"}
-                ]
-            }
+                    {"name": "b", "type": "uint256"},
+                ],
+            },
         ],
         "name": "setValue",
         "stateMutability": "nonpayable",
-        "type": "function"
-    }
+        "type": "function",
+    },
 ]
-"""
-CONTRACT_ABI = json.loads(TEST_CONTRACT_ABI_JSON)
 
 
 @pytest.fixture()
