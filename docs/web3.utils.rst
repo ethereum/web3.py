@@ -17,6 +17,12 @@ ABI
 
     Return the ``output`` names an ABI function or event.
 
+
+.. automodule:: web3.utils.abi
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Address
 -------
 
