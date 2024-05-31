@@ -28,6 +28,9 @@ from eth_utils.toolz import (
 from eth_utils.types import (
     is_text,
 )
+from typing_extensions import (
+    deprecated,
+)
 
 from web3._utils.abi import (
     abi_to_signature,
@@ -47,13 +50,31 @@ from web3.types import (
     ABIFunction,
 )
 
+DEPRECATION_MESSAGE = (
+    "`{0}` is deprecated and will be removed in a future release. Use " "`{1}` instead."
+)
 
+
+@deprecated(
+    DEPRECATION_MESSAGE.format(
+        "get_abi_input_names", "eth_utils.abi.get_abi_output_names"
+    )
+)
+@deprecated("Use eth_utils.abi.get_abi_input_names")
 def get_abi_input_names(abi: Union[ABIFunction, ABIEvent]) -> List[str]:
+    """
+    Return the ``input`` names for an ABI function or event.
+    """
     if "inputs" not in abi and abi["type"] == "fallback":
         return []
     return [arg["name"] for arg in abi["inputs"]]
 
 
+@deprecated(
+    DEPRECATION_MESSAGE.format(
+        "get_abi_output_names", "eth_utils.abi.get_abi_output_names"
+    )
+)
 def get_abi_output_names(abi: Union[ABIFunction]) -> List[str]:
     if "outputs" not in abi and abi["type"] == "fallback":
         return []
