@@ -5,6 +5,8 @@ from typing import (
 )
 
 from eth_typing import (
+    ABI,
+    ABIFunction,
     HexStr,
     TypeStr,
 )
@@ -53,10 +55,6 @@ from web3._utils.abi import (
 )
 from web3.exceptions import (
     InvalidAddress,
-)
-from web3.types import (
-    ABI,
-    ABIFunction,
 )
 
 

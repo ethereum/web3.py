@@ -15,7 +15,12 @@ from eth_abi.exceptions import (
     DecodingError,
 )
 from eth_typing import (
+    ABI,
+    ABIFunction,
     ChecksumAddress,
+)
+from eth_utils.abi import (
+    get_abi_output_types,
 )
 from hexbytes import (
     HexBytes,
@@ -23,7 +28,6 @@ from hexbytes import (
 
 from web3._utils.abi import (
     filter_by_type,
-    get_abi_output_types,
     map_abi_data,
     named_tree,
     recursive_dict_to_namedtuple,
@@ -45,8 +49,6 @@ from web3.exceptions import (
     BadFunctionCallOutput,
 )
 from web3.types import (
-    ABI,
-    ABIFunction,
     BlockIdentifier,
     CallOverride,
     FunctionIdentifier,
