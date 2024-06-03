@@ -23,10 +23,14 @@ from .exception_handling import (
 )
 
 __all__ = [
+    "log_topic_to_bytes",
     "SimpleCache",
     "async_handle_offchain_lookup",
     "get_abi_input_names",
     "get_abi_output_names",
     "get_create_address",
+    "get_event_log_topics",
+    "get_function_abi",
+    "get_function_info",
     "handle_offchain_lookup",
 ]

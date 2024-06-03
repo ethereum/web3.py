@@ -47,7 +47,6 @@ from eth_utils import (
 from eth_utils.abi import (
     event_abi_to_log_topic,
     get_abi_input_names,
-    get_event_log_topics,
 )
 from eth_utils.curried import (
     apply_formatter_if,
@@ -89,6 +88,9 @@ from web3.types import (
     EventData,
     FilterParams,
     LogReceipt,
+)
+from web3.utils.abi import (
+    get_event_log_topics,
 )
 
 if TYPE_CHECKING:
