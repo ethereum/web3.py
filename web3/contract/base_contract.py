@@ -24,6 +24,11 @@ from eth_typing import (
     ChecksumAddress,
     HexStr,
 )
+from eth_typing.abi import (
+    ABI,
+    ABIEvent,
+    ABIFunction,
+)
 from eth_utils import (
     add_0x_prefix,
     combomethod,
@@ -108,9 +113,6 @@ from web3.logs import (
     EventLogErrorFlags,
 )
 from web3.types import (
-    ABI,
-    ABIEvent,
-    ABIFunction,
     BlockIdentifier,
     EventData,
     FilterParams,

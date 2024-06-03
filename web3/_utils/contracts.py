@@ -23,6 +23,11 @@ from eth_typing import (
     HexStr,
     TypeStr,
 )
+from eth_typing.abi import (
+    ABI,
+    ABIEvent,
+    ABIFunction,
+)
 from eth_utils import (
     add_0x_prefix,
     encode_hex,
@@ -83,9 +88,6 @@ from web3.exceptions import (
     Web3ValueError,
 )
 from web3.types import (
-    ABI,
-    ABIEvent,
-    ABIFunction,
     BlockIdentifier,
     BlockNumber,
     TxParams,
