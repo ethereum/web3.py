@@ -8,6 +8,10 @@ from eth_typing import (
     HexStr,
     TypeStr,
 )
+from eth_typing.abi import (
+    ABI,
+    ABIFunction,
+)
 from eth_utils import (
     function_abi_to_4byte_selector,
     is_0x_prefixed,
@@ -55,10 +59,6 @@ from web3.exceptions import (
     InvalidAddress,
     Web3TypeError,
     Web3ValueError,
-)
-from web3.types import (
-    ABI,
-    ABIFunction,
 )
 
 

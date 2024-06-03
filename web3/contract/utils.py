@@ -19,6 +19,10 @@ from eth_typing import (
     ChecksumAddress,
     TypeStr,
 )
+from eth_typing.abi import (
+    ABI,
+    ABIFunction,
+)
 from eth_utils.toolz import (
     compose,
     curry,
@@ -52,8 +56,6 @@ from web3.exceptions import (
     Web3ValueError,
 )
 from web3.types import (
-    ABI,
-    ABIFunction,
     BlockIdentifier,
     FunctionIdentifier,
     StateOverride,

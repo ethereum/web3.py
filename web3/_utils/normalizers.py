@@ -23,6 +23,9 @@ from eth_typing import (
     HexStr,
     TypeStr,
 )
+from eth_typing.abi import (
+    ABI,
+)
 from eth_utils import (
     to_bytes,
     to_checksum_address,
@@ -61,9 +64,6 @@ from web3.exceptions import (
     InvalidAddress,
     NameNotFound,
     Web3ValueError,
-)
-from web3.types import (
-    ABI,
 )
 
 if TYPE_CHECKING:

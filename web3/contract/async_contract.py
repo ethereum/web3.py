@@ -16,6 +16,9 @@ from typing import (
 from eth_typing import (
     ChecksumAddress,
 )
+from eth_typing.abi import (
+    ABI,
+)
 from eth_utils import (
     combomethod,
 )
@@ -91,7 +94,6 @@ from web3.exceptions import (
     Web3ValueError,
 )
 from web3.types import (
-    ABI,
     BlockIdentifier,
     EventData,
     StateOverride,
