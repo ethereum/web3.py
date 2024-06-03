@@ -54,7 +54,7 @@ async def async_handle_offchain_lookup(
         try:
             if "{data}" in url and "{sender}" in url:
                 response = await session.get(
-                    formatted_url, timeout=DEFAULT_HTTP_TIMEOUT
+                    formatted_url, timeout=ClientTimeout(DEFAULT_HTTP_TIMEOUT)
                 )
             elif "{sender}" in url:
                 response = await session.post(
@@ -63,6 +63,7 @@ async def async_handle_offchain_lookup(
                     timeout=ClientTimeout(DEFAULT_HTTP_TIMEOUT),
                 )
             else:
+                await session.close()
                 raise Web3ValidationError("url not formatted properly.")
         except Exception:
             continue  # try next url if timeout or issues making the request
@@ -70,6 +71,7 @@ async def async_handle_offchain_lookup(
         if (
             400 <= response.status <= 499
         ):  # if request returns 400 error, raise exception
+            await session.close()
             response.raise_for_status()
         if not 200 <= response.status <= 299:  # if not 400 error, try next url
             continue
@@ -77,6 +79,7 @@ async def async_handle_offchain_lookup(
         result = await response.json()
 
         if "data" not in result.keys():
+            await session.close()
             raise Web3ValidationError(
                 "Improperly formatted response for offchain lookup HTTP request"
                 " - missing 'data' field."
@@ -97,5 +100,8 @@ async def async_handle_offchain_lookup(
             ]
         )
 
+        await session.close()
         return encoded_data_with_function_selector
+
+    await session.close()
     raise MultipleFailedRequests("Offchain lookup failed for supplied urls.")
