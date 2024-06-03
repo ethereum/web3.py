@@ -11,6 +11,9 @@ from eth_typing import (
 )
 import requests
 
+from web3._utils.http import (
+    DEFAULT_HTTP_TIMEOUT,
+)
 from web3._utils.type_conversion import (
     to_bytes_if_hex,
     to_hex_if_bytes,
@@ -47,7 +50,7 @@ def handle_offchain_lookup(
 
         try:
             if "{data}" in url and "{sender}" in url:
-                response = session.get(formatted_url)
+                response = session.get(formatted_url, timeout=DEFAULT_HTTP_TIMEOUT)
             elif "{sender}" in url:
                 response = session.post(
                     formatted_url,
@@ -55,6 +58,7 @@ def handle_offchain_lookup(
                         "data": formatted_data,
                         "sender": formatted_sender,
                     },
+                    timeout=DEFAULT_HTTP_TIMEOUT,
                 )
             else:
                 raise Web3ValidationError("url not formatted properly.")

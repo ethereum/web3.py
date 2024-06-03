@@ -12,7 +12,10 @@ from typing import (
     Union,
 )
 
-import aiohttp
+from aiohttp import (
+    ClientSession,
+    ClientTimeout,
+)
 from eth_typing import (
     ChecksumAddress,
     HexStr,
@@ -28,6 +31,9 @@ from hexbytes import (
 )
 import requests
 
+from web3._utils.http import (
+    DEFAULT_HTTP_TIMEOUT,
+)
 from web3.types import (
     BlockData,
     LogReceipt,
@@ -35,7 +41,9 @@ from web3.types import (
 
 if TYPE_CHECKING:
     from _pytest.monkeypatch import MonkeyPatch  # noqa: F401
-    from aiohttp import ClientResponse  # noqa: F401
+    from aiohttp import (  # noqa: F401
+        ClientResponse,
+    )
     from requests import Response  # noqa: F401
 
     from web3 import Web3  # noqa: F401
@@ -97,6 +105,7 @@ def mock_offchain_lookup_request_response(
 
         # mock response only to specified url while validating appropriate fields
         if url_from_args == mocked_request_url:
+            assert kwargs["timeout"] == DEFAULT_HTTP_TIMEOUT
             if http_method.upper() == "POST":
                 assert kwargs["data"] == {"data": calldata, "sender": sender}
             return MockedResponse()
@@ -146,15 +155,18 @@ def async_mock_offchain_lookup_request_response(
 
         # mock response only to specified url while validating appropriate fields
         if url_from_args == mocked_request_url:
+            assert kwargs["timeout"] == ClientTimeout(DEFAULT_HTTP_TIMEOUT)
             if http_method.upper() == "post":
                 assert kwargs["data"] == {"data": calldata, "sender": sender}
             return AsyncMockedResponse()
 
         # else, make a normal request (no mocking)
-        session = aiohttp.ClientSession()
-        return await session.request(
+        session = ClientSession()
+        response = await session.request(
             method=http_method.upper(), url=url_from_args, **kwargs
         )
+        await session.close()
+        return response
 
     monkeypatch.setattr(
         f"aiohttp.ClientSession.{http_method.lower()}", _mock_specific_request
