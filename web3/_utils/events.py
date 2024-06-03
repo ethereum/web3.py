@@ -215,7 +215,7 @@ def get_event_abi_types_for_decoding(
     decode the log entries using the correct types.
     """
     for input_abi in event_inputs:
-        if input_abi["indexed"] and is_dynamic_sized_type(input_abi["type"]):
+        if input_abi.get("indexed") and is_dynamic_sized_type(input_abi["type"]):
             yield "bytes32"
         else:
             yield get_normalized_abi_arg_type(input_abi)
@@ -485,7 +485,7 @@ def _build_argument_filters_from_event_abi(
     for item in event_abi["inputs"]:
         key = item["name"]
         value: "BaseArgumentFilter"
-        if item["indexed"] is True:
+        if item.get("indexed") is True:
             value = TopicArgumentFilter(
                 abi_codec=abi_codec, arg_type=get_normalized_abi_arg_type(item)
             )

@@ -38,6 +38,7 @@ from eth_utils import (
     is_text,
 )
 from eth_utils.abi import (
+    get_abi_input_types,
     get_aligned_abi_inputs,
     get_normalized_abi_inputs,
 )
@@ -56,7 +57,6 @@ from web3._utils.abi import (
     filter_by_encodability,
     filter_by_name,
     filter_by_type,
-    get_abi_input_types,
     get_fallback_func_abi,
     get_receive_func_abi,
     map_abi_data,

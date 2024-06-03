@@ -22,9 +22,11 @@ from web3._utils.normalizers import (
 )
 from web3.exceptions import (
     MismatchedABI,
+    Web3ValidationError,
     Web3ValueError,
 )
 from web3.utils.abi import (
+    get_event_abi,
     get_event_log_topics,
     get_function_abi,
     get_function_info,
@@ -468,3 +470,92 @@ def test_get_event_log_topics_raises_for_bad_topics(topics, expected_error):
 
     with pytest.raises(MismatchedABI, match=expected_error):
         get_event_log_topics(event_abi, topics)
+
+
+@pytest.mark.parametrize(
+    "event_name,input_args",
+    [
+        ("LogSingleArg", [{"name": "arg0", "type": "uint256"}]),
+        ("LogSingleWithIndex", [{"name": "arg0", "type": "uint256"}]),
+        ("LogNoArg", []),
+    ],
+)
+def test_get_event_abi(event_name, input_args):
+    contract_abi = [
+        {
+            "anonymous": False,
+            "inputs": [{"name": "arg0", "type": "uint256"}],
+            "name": "LogSingleArg",
+            "type": "event",
+        },
+        {
+            "anonymous": False,
+            "inputs": [{"name": "arg0", "type": "uint256", "indexed": True}],
+            "name": "LogSingleWithIndex",
+            "type": "event",
+        },
+        {
+            "anonymous": False,
+            "inputs": [],
+            "name": "LogNoArg",
+            "type": "event",
+        },
+    ]
+    expected_event_abi = {
+        "anonymous": False,
+        "inputs": input_args,
+        "name": event_name,
+        "type": "event",
+    }
+
+    input_names = [arg["name"] for arg in input_args]
+    assert get_event_abi(contract_abi, event_name, input_names) == expected_event_abi
+
+
+@pytest.mark.parametrize(
+    "name,args,error_type,expected_value",
+    (
+        (
+            None,
+            None,
+            Web3ValidationError,
+            "event_name is required in order to match an event ABI.",
+        ),
+        ("foo", None, Web3ValueError, "No matching events found"),
+    ),
+)
+def test_get_event_abi_raises_on_error(name, args, error_type, expected_value):
+    contract_abi = [
+        {
+            "inputs": [
+                {"name": "x", "type": "uint256"},
+                {"name": "y", "type": "uint256"},
+            ],
+            "outputs": [
+                {"name": "sum", "type": "uint256"},
+            ],
+            "name": "add",
+            "type": "function",
+        }
+    ]
+    with pytest.raises(error_type, match=expected_value):
+        get_event_abi(contract_abi, name, args)
+
+
+def test_get_event_abi_raises_if_multiple_found():
+    contract_ambiguous_event = [
+        {
+            "anonymous": False,
+            "inputs": [{"name": "arg0", "type": "uint256"}],
+            "name": "LogSingleArg",
+            "type": "event",
+        },
+        {
+            "anonymous": False,
+            "inputs": [{"name": "arg0", "type": "uint256"}],
+            "name": "LogSingleArg",
+            "type": "event",
+        },
+    ]
+    with pytest.raises(ValueError, match="Multiple events found"):
+        get_event_abi(contract_ambiguous_event, "LogSingleArg", ["arg0"])

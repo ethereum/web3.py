@@ -117,26 +117,6 @@ def filter_by_name(name: str, contract_abi: ABI) -> List[ABIElement]:
     ]
 
 
-def get_abi_input_types(abi: ABIFunction) -> List[str]:
-    if "inputs" not in abi and (abi["type"] == "fallback" or abi["type"] == "receive"):
-        return []
-    else:
-        return [
-            get_normalized_abi_arg_type(cast(Dict[str, Any], arg))
-            for arg in abi["inputs"]
-        ]
-
-
-def get_abi_output_types(abi: ABIFunction) -> List[str]:
-    if abi["type"] == "fallback":
-        return []
-    else:
-        return [
-            get_normalized_abi_arg_type(cast(Dict[str, Any], arg))
-            for arg in abi["outputs"]
-        ]
-
-
 def get_receive_func_abi(contract_abi: ABI) -> ABIFunction:
     receive_abis = filter_by_type("receive", contract_abi)
     if receive_abis:
@@ -169,9 +149,7 @@ def exclude_indexed_event_inputs(event_abi: ABIEvent) -> List[ABIComponent]:
     return [arg for arg in event_abi["inputs"] if arg["indexed"] is False]
 
 
-def filter_by_argument_count(
-    num_arguments: int, contract_abi: ABI
-) -> List[Union[ABIFunction, ABIEvent]]:
+def filter_by_argument_count(num_arguments: int, contract_abi: ABI) -> List[ABIElement]:
     return [abi for abi in contract_abi if len(abi["inputs"]) == num_arguments]
 
 

@@ -20,7 +20,10 @@ from eth_abi.exceptions import (
     InsufficientDataBytes,
 )
 from eth_typing import (
+    ABI,
     ABIComponent,
+    ABIEvent,
+    ABIFunction,
     Address,
     ChecksumAddress,
     HexStr,

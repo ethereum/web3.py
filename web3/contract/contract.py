@@ -13,6 +13,7 @@ from typing import (
 )
 
 from eth_typing import (
+    ABI,
     ChecksumAddress,
 )
 from eth_typing.abi import (
