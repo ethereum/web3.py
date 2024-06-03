@@ -229,6 +229,11 @@ The EthPM module has been removed from the library. It was not widely used and h
 been functional since around October 2022. It was deprecated in ``v6`` and has been
 completely removed in ``v7``.
 
+Types in the
+`eth_typing.ethpm <https://github.com/ethereum/eth-typing/blob/ef9c2d566b7747bb6799214e2c89006b8cde4c36/eth_typing/ethpm.py>`_
+module have been deprecated and will be removed from ``eth-typing`` in the next major
+release.
+
 
 Geth Miner Namespace Removed
 ````````````````````````````
