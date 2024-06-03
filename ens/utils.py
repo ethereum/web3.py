@@ -29,7 +29,7 @@ from eth_utils import (
     to_normalized_address,
 )
 from eth_utils.abi import (
-    collapse_if_tuple,
+    get_normalized_abi_arg_type,
 )
 from hexbytes import (
     HexBytes,
@@ -298,7 +298,10 @@ def get_abi_output_types(abi: "ABIFunction") -> List[str]:
     return (
         []
         if abi["type"] == "fallback"
-        else [collapse_if_tuple(cast(Dict[str, Any], arg)) for arg in abi["outputs"]]
+        else [
+            get_normalized_abi_arg_type(cast(Dict[str, Any], arg))
+            for arg in abi["outputs"]
+        ]
     )
 
 

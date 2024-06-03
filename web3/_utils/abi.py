@@ -65,8 +65,8 @@ from eth_utils import (
     to_tuple,
 )
 from eth_utils.abi import (
-    collapse_if_tuple,
     get_abi_input_names,
+    get_normalized_abi_arg_type,
     get_normalized_abi_inputs,
 )
 from eth_utils.toolz import (
@@ -120,14 +120,20 @@ def get_abi_input_types(abi: ABIFunction) -> List[str]:
     if "inputs" not in abi and (abi["type"] == "fallback" or abi["type"] == "receive"):
         return []
     else:
-        return [collapse_if_tuple(cast(Dict[str, Any], arg)) for arg in abi["inputs"]]
+        return [
+            get_normalized_abi_arg_type(cast(Dict[str, Any], arg))
+            for arg in abi["inputs"]
+        ]
 
 
 def get_abi_output_types(abi: ABIFunction) -> List[str]:
     if abi["type"] == "fallback":
         return []
     else:
-        return [collapse_if_tuple(cast(Dict[str, Any], arg)) for arg in abi["outputs"]]
+        return [
+            get_normalized_abi_arg_type(cast(Dict[str, Any], arg))
+            for arg in abi["outputs"]
+        ]
 
 
 def get_receive_func_abi(contract_abi: ABI) -> ABIFunction:
@@ -160,18 +166,6 @@ def get_indexed_event_inputs(event_abi: ABIEvent) -> List[ABIComponentIndexed]:
 
 def exclude_indexed_event_inputs(event_abi: ABIEvent) -> List[ABIComponent]:
     return [arg for arg in event_abi["inputs"] if arg["indexed"] is False]
-
-
-def get_normalized_abi_arg_type(
-    abi_arg: Union[ABIComponent, ABIComponentIndexed]
-) -> str:
-    """
-    Return the normalized type for the abi argument provided.
-    In order to account for tuple argument types, this abstraction
-    makes use of `collapse_if_tuple()` to collapse the appropriate component
-    types within a tuple type, if present.
-    """
-    return collapse_if_tuple(dict(abi_arg))
 
 
 def filter_by_argument_count(
@@ -471,7 +465,7 @@ def get_aligned_abi_inputs(
         args = tuple(args[abi["name"]] for abi in input_abis)
 
     return (
-        tuple(collapse_if_tuple(abi) for abi in input_abis),
+        tuple(get_normalized_abi_arg_type(abi) for abi in input_abis),
         type(args)(_align_abi_input(abi, arg) for abi, arg in zip(input_abis, args)),
     )
 
@@ -625,7 +619,7 @@ def abi_to_signature(abi: Union[ABIFunction, ABIEvent]) -> str:
     function_signature = "{fn_name}({fn_input_types})".format(
         fn_name=abi["name"],
         fn_input_types=",".join(
-            collapse_if_tuple(dict(arg))
+            get_normalized_abi_arg_type(dict(arg))
             for arg in normalize_event_input_types(abi.get("inputs", []))
         ),
     )
@@ -869,12 +863,10 @@ def named_tree(
 
 
 def _named_subtree(
-    abi: Union[
-        ABIComponent, ABIComponentIndexed, ABIFunction, ABIEvent, Dict[TypeStr, Any]
-    ],
+    abi: Union[ABIComponent, ABIComponentIndexed],
     data: Tuple[Any, ...],
 ) -> Union[Dict[str, Any], Tuple[Any, ...], List[Any]]:
-    abi_type = parse(collapse_if_tuple(dict(abi)))
+    abi_type = parse(get_normalized_abi_arg_type(abi))
 
     if abi_type.is_array:
         item_type = abi_type.item_type.to_type_str()
