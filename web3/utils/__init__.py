@@ -3,9 +3,9 @@ NOTE: This is a public utility module. Any changes to these utility methods woul
 classify as breaking changes.
 """
 
-from .abi import (
-    get_abi_input_names,
-    get_abi_output_names,
+from .abi import (  # NOQA
+    get_function_info,
+    get_function_abi,
 )
 from .address import get_create_address
 from .async_exception_handling import (
