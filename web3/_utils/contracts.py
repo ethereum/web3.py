@@ -34,6 +34,7 @@ from eth_utils import (
 )
 from eth_utils.abi import (
     get_aligned_abi_inputs,
+    get_normalized_abi_inputs,
 )
 from eth_utils.toolz import (
     pipe,
@@ -54,7 +55,6 @@ from web3._utils.abi import (
     get_fallback_func_abi,
     get_receive_func_abi,
     map_abi_data,
-    merge_args_and_kwargs,
     named_tree,
 )
 from web3._utils.blocks import (
@@ -378,7 +378,7 @@ def get_function_info(
 
     fn_selector = encode_hex(function_abi_to_4byte_selector(fn_abi))
 
-    fn_arguments = merge_args_and_kwargs(fn_abi, args, kwargs)
+    fn_arguments = get_normalized_abi_inputs(fn_abi, args, kwargs)
 
     _, aligned_fn_arguments = get_aligned_abi_inputs(fn_abi, fn_arguments)
 

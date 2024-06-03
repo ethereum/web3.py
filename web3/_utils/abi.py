@@ -67,6 +67,7 @@ from eth_utils import (
 from eth_utils.abi import (
     collapse_if_tuple,
     get_abi_input_names,
+    get_normalized_abi_inputs,
 )
 from eth_utils.toolz import (
     curry,
@@ -75,7 +76,6 @@ from eth_utils.toolz import (
 )
 
 from web3._utils.decorators import (
-    deprecated_for,
     reject_recursive_repeats,
 )
 from web3._utils.ens import (
@@ -369,7 +369,7 @@ def check_if_arguments_can_be_encoded(
     kwargs: Dict[str, Any],
 ) -> bool:
     try:
-        arguments = merge_args_and_kwargs(function_abi, args, kwargs)
+        arguments = get_normalized_abi_inputs(function_abi, args, kwargs)
     except TypeError:
         return False
 
@@ -384,71 +384,6 @@ def check_if_arguments_can_be_encoded(
     return all(
         abi_codec.is_encodable(_type, arg) for _type, arg in zip(types, aligned_args)
     )
-
-
-@deprecated_for("eth_utils.abi.get_normalized_abi_inputs")
-def merge_args_and_kwargs(
-    function_abi: ABIFunction, args: Sequence[Any], kwargs: Dict[str, Any]
-) -> Tuple[Any, ...]:
-    """
-    Takes a list of positional args (``args``) and a dict of keyword args
-    (``kwargs``) defining values to be passed to a call to the contract function
-    described by ``function_abi``.  Checks to ensure that the correct number of
-    args were given, no duplicate args were given, and no unknown args were
-    given.  Returns a list of argument values aligned to the order of inputs
-    defined in ``function_abi``.
-    """
-    # Ensure the function is being applied to the correct number of args
-    if len(args) + len(kwargs) != len(function_abi.get("inputs", [])):
-        raise Web3TypeError(
-            f"Incorrect argument count. Expected '{len(function_abi['inputs'])}'"
-            f". Got '{len(args) + len(kwargs)}'"
-        )
-
-    # If no keyword args were given, we don't need to align them
-    if not kwargs:
-        return cast(Tuple[Any, ...], args)
-
-    kwarg_names = set(kwargs.keys())
-    sorted_arg_names = tuple(arg_abi["name"] for arg_abi in function_abi["inputs"])
-    args_as_kwargs = dict(zip(sorted_arg_names, args))
-
-    # Check for duplicate args
-    duplicate_args = kwarg_names.intersection(args_as_kwargs.keys())
-    if duplicate_args:
-        raise Web3TypeError(
-            f"{function_abi.get('name')}() got multiple values for argument(s) "
-            f"'{', '.join(duplicate_args)}'"
-        )
-
-    # Check for unknown args
-    unknown_args = kwarg_names.difference(sorted_arg_names)
-    if unknown_args:
-        if function_abi.get("name"):
-            raise Web3TypeError(
-                f"{function_abi.get('name')}() got unexpected keyword argument(s)"
-                f" '{', '.join(unknown_args)}'"
-            )
-        raise Web3TypeError(
-            f"Type: '{function_abi.get('type')}' got unexpected keyword argument(s)"
-            f" '{', '.join(unknown_args)}'"
-        )
-
-    # Sort args according to their position in the ABI and unzip them from their
-    # names
-    sorted_args = tuple(
-        zip(
-            *sorted(
-                itertools.chain(kwargs.items(), args_as_kwargs.items()),
-                key=lambda kv: sorted_arg_names.index(kv[0]),
-            )
-        )
-    )
-
-    if sorted_args:
-        return sorted_args[1]
-    else:
-        return tuple()
 
 
 TUPLE_TYPE_STR_RE = re.compile(r"^(tuple)((\[([1-9]\d*\b)?])*)??$")
