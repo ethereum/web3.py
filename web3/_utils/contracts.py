@@ -31,10 +31,6 @@ from eth_typing.abi import (
 from eth_utils import (
     add_0x_prefix,
     encode_hex,
-    is_binary_address,
-    is_checksum_address,
-    is_list_like,
-    is_text,
 )
 from eth_utils.toolz import (
     pipe,
@@ -44,11 +40,7 @@ from hexbytes import (
 )
 
 from web3._utils.abi import (
-    check_if_arguments_can_be_encoded,
-    filter_by_argument_count,
     filter_by_argument_name,
-    filter_by_encodability,
-    filter_by_name,
     filter_by_type,
     get_fallback_func_abi,
     get_receive_func_abi,
@@ -83,11 +75,14 @@ from web3.exceptions import (
 from web3.types import (
     BlockIdentifier,
     BlockNumber,
+    FunctionIdentifier,
     TxParams,
 )
 from web3.utils.abi import (
-    abi_to_signature,
+    check_if_arguments_can_be_encoded,
+    filter_by_name,
     get_abi_input_types,
+    get_function_abi,
     get_function_info,
 )
 
@@ -96,28 +91,6 @@ if TYPE_CHECKING:
         AsyncWeb3,
         Web3,
     )
-
-
-def extract_argument_types(*args: Sequence[Any]) -> str:
-    """
-    Takes a list of arguments and returns a string representation of the argument types,
-    appropriately collapsing `tuple` types into the respective nested types.
-    """
-    collapsed_args = []
-
-    for arg in args:
-        if is_list_like(arg):
-            collapsed_nested = []
-            for nested in arg:
-                if is_list_like(nested):
-                    collapsed_nested.append(f"({extract_argument_types(nested)})")
-                else:
-                    collapsed_nested.append(_get_argument_readable_type(nested))
-            collapsed_args.append(",".join(collapsed_nested))
-        else:
-            collapsed_args.append(_get_argument_readable_type(arg))
-
-    return ",".join(collapsed_args)
 
 
 def find_matching_event_abi(
@@ -143,73 +116,6 @@ def find_matching_event_abi(
         raise Web3ValueError("No matching events found")
     else:
         raise Web3ValueError("Multiple events found")
-
-
-def find_matching_fn_abi(
-    abi: ABI,
-    abi_codec: ABICodec,
-    fn_identifier: Optional[Union[str, Type[FallbackFn], Type[ReceiveFn]]] = None,
-    args: Optional[Sequence[Any]] = None,
-    kwargs: Optional[Any] = None,
-) -> ABIFunction:
-    args = args or tuple()
-    kwargs = kwargs or dict()
-    num_arguments = len(args) + len(kwargs)
-
-    if fn_identifier is FallbackFn:
-        return get_fallback_func_abi(abi)
-
-    if fn_identifier is ReceiveFn:
-        return get_receive_func_abi(abi)
-
-    if not is_text(fn_identifier):
-        raise Web3TypeError("Unsupported function identifier")
-
-    name_filter = functools.partial(filter_by_name, fn_identifier)
-    arg_count_filter = functools.partial(filter_by_argument_count, num_arguments)
-    encoding_filter = functools.partial(filter_by_encodability, abi_codec, args, kwargs)
-
-    function_candidates = pipe(abi, name_filter, arg_count_filter, encoding_filter)
-
-    if len(function_candidates) == 1:
-        return function_candidates[0]
-    else:
-        matching_identifiers = name_filter(abi)
-        matching_function_signatures = [
-            abi_to_signature(func) for func in matching_identifiers
-        ]
-
-        arg_count_matches = len(arg_count_filter(matching_identifiers))
-        encoding_matches = len(encoding_filter(matching_identifiers))
-
-        if arg_count_matches == 0:
-            diagnosis = (
-                "\nFunction invocation failed due to improper number of arguments."
-            )
-        elif encoding_matches == 0:
-            diagnosis = (
-                "\nFunction invocation failed due to no matching argument types."
-            )
-        elif encoding_matches > 1:
-            diagnosis = (
-                "\nAmbiguous argument encoding. "
-                "Provided arguments can be encoded to multiple functions "
-                "matching this call."
-            )
-
-        collapsed_args = extract_argument_types(args)
-        collapsed_kwargs = dict(
-            {(k, extract_argument_types([v])) for k, v in kwargs.items()}
-        )
-        message = (
-            f"\nCould not identify the intended function with name `{fn_identifier}`, "
-            f"positional arguments with type(s) `{collapsed_args}` and "
-            f"keyword arguments with type(s) `{collapsed_kwargs}`."
-            f"\nFound {len(matching_identifiers)} function(s) with "
-            f"the name `{fn_identifier}`: {matching_function_signatures}{diagnosis}"
-        )
-
-        raise Web3ValidationError(message)
 
 
 def encode_abi(
@@ -266,8 +172,8 @@ def prepare_transaction(
     TODO: add new prepare_deploy_transaction API
     """
     if fn_abi is None:
-        fn_abi = find_matching_fn_abi(
-            contract_abi, w3.codec, fn_identifier, fn_args, fn_kwargs
+        fn_abi = get_function_abi(
+            contract_abi, fn_identifier, fn_args, fn_kwargs, w3.codec
         )
 
     validate_payable(transaction, fn_abi)
@@ -296,7 +202,7 @@ def prepare_transaction(
 
 def encode_transaction_data(
     w3: Union["AsyncWeb3", "Web3"],
-    fn_identifier: Union[str, Type[FallbackFn], Type[ReceiveFn]],
+    fn_identifier: FunctionIdentifier,
     contract_abi: Optional[ABI] = None,
     fn_abi: Optional[ABIFunction] = None,
     args: Optional[Sequence[Any]] = None,
@@ -310,16 +216,17 @@ def encode_transaction_data(
         fn_abi, fn_selector, fn_arguments = get_receive_function_info(
             contract_abi, fn_abi
         )
-    elif is_text(fn_identifier):
-        fn_abi, fn_selector, fn_arguments = get_function_info(
-            # type ignored b/c fn_id here is always str b/c FallbackFn is handled above
-            fn_identifier,  # type: ignore
-            w3.codec,
+    elif isinstance(fn_identifier, str):
+        fn_info = get_function_info(
             contract_abi,
-            fn_abi,
+            fn_identifier,
             args,
             kwargs,
+            w3.codec,
         )
+        fn_abi = fn_info["abi"]
+        fn_selector = fn_info["selector"]
+        fn_arguments = fn_info["arguments"]
     else:
         raise Web3TypeError("Unsupported function identifier")
 
@@ -378,13 +285,6 @@ def validate_payable(transaction: TxParams, abi: ABIFunction) -> None:
                     "with payable=False. Please ensure that "
                     "transaction's value is 0."
                 )
-
-
-def _get_argument_readable_type(arg: Any) -> str:
-    if is_checksum_address(arg) or is_binary_address(arg):
-        return "address"
-
-    return arg.__class__.__name__
 
 
 def parse_block_identifier(

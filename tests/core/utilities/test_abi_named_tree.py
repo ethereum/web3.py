@@ -9,12 +9,14 @@ from eth_abi.registry import (
 
 from web3._utils.abi import (
     abi_decoded_namedtuple_factory,
-    check_if_arguments_can_be_encoded,
     named_tree,
     recursive_dict_to_namedtuple,
 )
 from web3.exceptions import (
     MismatchedABI,
+)
+from web3.utils.abi import (
+    check_if_arguments_can_be_encoded,
 )
 
 from .test_abi import (

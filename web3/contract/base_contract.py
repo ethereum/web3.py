@@ -20,6 +20,7 @@ from eth_abi.exceptions import (
     InsufficientDataBytes,
 )
 from eth_typing import (
+    ABIElement,
     Address,
     ChecksumAddress,
     HexStr,
@@ -42,7 +43,6 @@ from hexbytes import (
 )
 
 from web3._utils.abi import (
-    check_if_arguments_can_be_encoded,
     fallback_func_abi_exists,
     filter_by_type,
     get_constructor_abi,
@@ -53,7 +53,6 @@ from web3._utils.contracts import (
     decode_transaction_data,
     encode_abi,
     find_matching_event_abi,
-    find_matching_fn_abi,
     prepare_transaction,
 )
 from web3._utils.datatypes import (
@@ -119,7 +118,9 @@ from web3.types import (
 )
 from web3.utils.abi import (
     abi_to_signature,
+    check_if_arguments_can_be_encoded,
     function_abi_to_4byte_selector,
+    get_function_abi,
     get_function_info,
     get_normalized_abi_inputs,
 )
@@ -491,12 +492,12 @@ class BaseContractFunction:
 
     def _set_function_info(self) -> None:
         if not self.abi:
-            self.abi = find_matching_fn_abi(
-                self.contract_abi,
-                self.w3.codec,
-                self.function_identifier,
-                self.args,
-                self.kwargs,
+            self.abi = get_function_abi(
+                abi=self.contract_abi,
+                function_identifier=self.function_identifier,
+                args=self.args,
+                kwargs=self.kwargs,
+                abi_codec=self.w3.codec,
             )
         if self.function_identifier in [FallbackFn, ReceiveFn]:
             self.selector = encode_hex(b"")
@@ -869,12 +870,16 @@ class BaseContract:
     @classmethod
     def _find_matching_fn_abi(
         cls,
-        fn_identifier: Optional[str] = None,
+        fn_identifier: Optional[FunctionIdentifier] = None,
         args: Optional[Any] = None,
         kwargs: Optional[Any] = None,
     ) -> ABIFunction:
-        return find_matching_fn_abi(
-            cls.abi, cls.w3.codec, fn_identifier=fn_identifier, args=args, kwargs=kwargs
+        return get_function_abi(
+            cls.abi,
+            function_identifier=fn_identifier,
+            args=args,
+            kwargs=kwargs,
+            abi_codec=cls.w3.codec,
         )
 
     @classmethod
@@ -994,7 +999,7 @@ class BaseContractCaller:
     """
 
     # mypy types
-    _functions: List[Union[ABIFunction, ABIEvent]]
+    _functions: List[ABIElement]
 
     def __init__(
         self,

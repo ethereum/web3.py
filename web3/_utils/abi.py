@@ -25,7 +25,6 @@ from typing import (
 )
 
 from eth_abi import (
-    codec,
     decoding,
     encoding,
 )
@@ -50,6 +49,7 @@ from eth_typing import (
     ABI,
     ABIComponent,
     ABIComponentIndexed,
+    ABIElement,
     ABIEvent,
     ABIFunction,
     HexStr,
@@ -91,9 +91,7 @@ from web3.types import (
 )
 from web3.utils.abi import (
     get_abi_input_names,
-    get_aligned_abi_inputs,
     get_normalized_abi_arg_type,
-    get_normalized_abi_inputs,
 )
 
 if TYPE_CHECKING:
@@ -102,19 +100,8 @@ if TYPE_CHECKING:
     )
 
 
-def filter_by_type(_type: str, contract_abi: ABI) -> List[Union[ABIFunction, ABIEvent]]:
+def filter_by_type(_type: str, contract_abi: ABI) -> List[ABIElement]:
     return [abi for abi in contract_abi if abi["type"] == _type]
-
-
-def filter_by_name(name: str, contract_abi: ABI) -> List[Union[ABIFunction, ABIEvent]]:
-    return [
-        abi
-        for abi in contract_abi
-        if (
-            abi["type"] not in ("fallback", "constructor", "receive")
-            and abi["name"] == name
-        )
-    ]
 
 
 def get_receive_func_abi(contract_abi: ABI) -> ABIFunction:
@@ -133,11 +120,11 @@ def get_fallback_func_abi(contract_abi: ABI) -> ABIFunction:
         raise FallbackNotFound("No fallback function was found in the contract ABI.")
 
 
-def fallback_func_abi_exists(contract_abi: ABI) -> List[Union[ABIFunction, ABIEvent]]:
+def fallback_func_abi_exists(contract_abi: ABI) -> List[ABIElement]:
     return filter_by_type("fallback", contract_abi)
 
 
-def receive_func_abi_exists(contract_abi: ABI) -> List[Union[ABIFunction, ABIEvent]]:
+def receive_func_abi_exists(contract_abi: ABI) -> List[ABIElement]:
     return filter_by_type("receive", contract_abi)
 
 
@@ -149,15 +136,9 @@ def exclude_indexed_event_inputs(event_abi: ABIEvent) -> List[ABIComponent]:
     return [arg for arg in event_abi["inputs"] if arg["indexed"] is False]
 
 
-def filter_by_argument_count(
-    num_arguments: int, contract_abi: ABI
-) -> List[Union[ABIFunction, ABIEvent]]:
-    return [abi for abi in contract_abi if len(abi["inputs"]) == num_arguments]
-
-
 def filter_by_argument_name(
     argument_names: Collection[str], contract_abi: ABI
-) -> List[Union[ABIFunction, ABIEvent]]:
+) -> List[ABIElement]:
     return [
         abi
         for abi in contract_abi
@@ -320,45 +301,6 @@ class TextStringEncoder(encoding.TextStringEncoder):  # type: ignore[misc]
                 )
 
         super().validate_value(value)
-
-
-def filter_by_encodability(
-    abi_codec: codec.ABIEncoder,
-    args: Sequence[Any],
-    kwargs: Dict[str, Any],
-    contract_abi: ABI,
-) -> List[ABIFunction]:
-    return [
-        cast(ABIFunction, function_abi)
-        for function_abi in contract_abi
-        if check_if_arguments_can_be_encoded(
-            cast(ABIFunction, function_abi), abi_codec, args, kwargs
-        )
-    ]
-
-
-def check_if_arguments_can_be_encoded(
-    function_abi: ABIFunction,
-    abi_codec: codec.ABIEncoder,
-    args: Sequence[Any],
-    kwargs: Dict[str, Any],
-) -> bool:
-    try:
-        arguments = get_normalized_abi_inputs(function_abi, args, kwargs)
-    except TypeError:
-        return False
-
-    if len(function_abi.get("inputs", [])) != len(arguments):
-        return False
-
-    try:
-        types, aligned_args = get_aligned_abi_inputs(function_abi, arguments)
-    except TypeError:
-        return False
-
-    return all(
-        abi_codec.is_encodable(_type, arg) for _type, arg in zip(types, aligned_args)
-    )
 
 
 TUPLE_TYPE_STR_RE = re.compile(r"^(tuple)((\[([1-9]\d*\b)?])*)??$")
@@ -563,7 +505,7 @@ def is_probably_enum(abi_type: TypeStr) -> bool:
 
 @to_tuple
 def normalize_event_input_types(
-    abi_args: Collection[Union[ABIFunction, ABIEvent]]
+    abi_args: Collection[ABIElement],
 ) -> Iterable[Union[ABIFunction, ABIEvent, Dict[TypeStr, Any]]]:
     for arg in abi_args:
         if is_recognized_type(arg["type"]):
