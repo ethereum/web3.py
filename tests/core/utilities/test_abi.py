@@ -340,6 +340,17 @@ def test_get_function_info(
     assert function_info["arguments"] == expected_arguments
 
 
+def test_get_function_info_throws(
+    contract_abi, name, input_args, input_kwargs, expected_selector, expected_arguments
+):
+    function_info = get_function_info(contract_abi, "foo", input_args, input_kwargs)
+    assert function_info["abi"] == get_function_abi(
+        contract_abi, name, input_args, input_kwargs
+    )
+    assert function_info["selector"] == expected_selector
+    assert function_info["arguments"] == expected_arguments
+
+
 def test_get_function_abi_by_name_with_args(contract_abi):
     function_abi = get_function_abi(contract_abi, "logTwoEvents", [1])
     expected_abi = {

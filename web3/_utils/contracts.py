@@ -36,6 +36,10 @@ from eth_utils import (
     is_list_like,
     is_text,
 )
+from eth_utils.abi import (
+    abi_to_signature,
+    get_abi_input_types,
+)
 from eth_utils.toolz import (
     pipe,
 )
@@ -44,14 +48,12 @@ from hexbytes import (
 )
 
 from web3._utils.abi import (
-    abi_to_signature,
     check_if_arguments_can_be_encoded,
     filter_by_argument_count,
     filter_by_argument_name,
     filter_by_encodability,
     filter_by_name,
     filter_by_type,
-    get_abi_input_types,
     get_fallback_func_abi,
     get_receive_func_abi,
     map_abi_data,

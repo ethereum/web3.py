@@ -23,6 +23,9 @@ from eth_typing.abi import (
     ABI,
     ABIFunction,
 )
+from eth_utils.abi import (
+    get_abi_output_types,
+)
 from eth_utils.toolz import (
     compose,
     curry,
@@ -33,7 +36,6 @@ from hexbytes import (
 
 from web3._utils.abi import (
     filter_by_type,
-    get_abi_output_types,
     map_abi_data,
     named_tree,
     recursive_dict_to_namedtuple,

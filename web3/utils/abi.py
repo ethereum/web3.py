@@ -12,6 +12,7 @@ from eth_typing.abi import (
     ABIFunctionInfo,
 )
 from eth_utils.abi import (
+    abi_to_signature,
     function_abi_to_4byte_selector,
     get_aligned_abi_inputs,
     get_normalized_abi_inputs,
@@ -30,7 +31,6 @@ from eth_utils.types import (
 )
 
 from web3._utils.abi import (
-    abi_to_signature,
     filter_by_argument_count,
     filter_by_encodability,
     filter_by_name,

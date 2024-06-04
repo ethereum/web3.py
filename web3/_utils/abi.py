@@ -116,26 +116,6 @@ def filter_by_name(name: str, contract_abi: ABI) -> List[Union[ABIFunction, ABIE
     ]
 
 
-def get_abi_input_types(abi: ABIFunction) -> List[str]:
-    if "inputs" not in abi and (abi["type"] == "fallback" or abi["type"] == "receive"):
-        return []
-    else:
-        return [
-            get_normalized_abi_arg_type(cast(Dict[str, Any], arg))
-            for arg in abi["inputs"]
-        ]
-
-
-def get_abi_output_types(abi: ABIFunction) -> List[str]:
-    if abi["type"] == "fallback":
-        return []
-    else:
-        return [
-            get_normalized_abi_arg_type(cast(Dict[str, Any], arg))
-            for arg in abi["outputs"]
-        ]
-
-
 def get_receive_func_abi(contract_abi: ABI) -> ABIFunction:
     receive_abis = filter_by_type("receive", contract_abi)
     if receive_abis:
@@ -613,17 +593,6 @@ def normalize_event_input_types(
             yield {k: "uint8" if k == "type" else v for k, v in arg.items()}
         else:
             yield arg
-
-
-def abi_to_signature(abi: Union[ABIFunction, ABIEvent]) -> str:
-    function_signature = "{fn_name}({fn_input_types})".format(
-        fn_name=abi["name"],
-        fn_input_types=",".join(
-            get_normalized_abi_arg_type(dict(arg))
-            for arg in normalize_event_input_types(abi.get("inputs", []))
-        ),
-    )
-    return function_signature
 
 
 ########################################################

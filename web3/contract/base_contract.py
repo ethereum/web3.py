@@ -39,12 +39,14 @@ from eth_utils import (
     is_text,
     to_tuple,
 )
+from eth_utils.abi import (
+    abi_to_signature,
+)
 from hexbytes import (
     HexBytes,
 )
 
 from web3._utils.abi import (
-    abi_to_signature,
     check_if_arguments_can_be_encoded,
     fallback_func_abi_exists,
     filter_by_type,

@@ -1,15 +1,15 @@
 import json
 import pytest
 
-from web3._utils.abi import (
-    get_abi_input_types,
-)
 from web3._utils.function_identifiers import (
     FallbackFn,
     ReceiveFn,
 )
 from web3.exceptions import (
     Web3ValidationError,
+)
+from web3.utils.abi import (
+    get_abi_input_types,
 )
 
 SINGLE_FN_NO_ARGS = json.loads(

@@ -13,7 +13,6 @@ from eth_typing.abi import (
     ABIFunction,
 )
 from eth_utils import (
-    function_abi_to_4byte_selector,
     is_0x_prefixed,
     is_binary_address,
     is_boolean,
@@ -24,6 +23,10 @@ from eth_utils import (
     is_integer,
     is_list_like,
     is_string,
+)
+from eth_utils.abi import (
+    abi_to_signature,
+    function_abi_to_4byte_selector,
 )
 from eth_utils.curried import (
     apply_formatter_to_array,
@@ -42,7 +45,6 @@ from ens.utils import (
     is_valid_ens_name,
 )
 from web3._utils.abi import (
-    abi_to_signature,
     filter_by_type,
     is_address_type,
     is_array_type,
