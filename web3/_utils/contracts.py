@@ -31,15 +31,10 @@ from eth_typing.abi import (
 from eth_utils import (
     add_0x_prefix,
     encode_hex,
-    function_abi_to_4byte_selector,
     is_binary_address,
     is_checksum_address,
     is_list_like,
     is_text,
-)
-from eth_utils.abi import (
-    get_aligned_abi_inputs,
-    get_normalized_abi_inputs,
 )
 from eth_utils.toolz import (
     pipe,
@@ -91,6 +86,9 @@ from web3.types import (
     BlockIdentifier,
     BlockNumber,
     TxParams,
+)
+from web3.utils.abi import (
+    get_function_info,
 )
 
 if TYPE_CHECKING:
@@ -360,31 +358,6 @@ def get_receive_function_info(
     fn_selector = encode_hex(b"")
     fn_arguments: Tuple[Any, ...] = tuple()
     return fn_abi, fn_selector, fn_arguments
-
-
-def get_function_info(
-    fn_name: str,
-    abi_codec: ABICodec,
-    contract_abi: Optional[ABI] = None,
-    fn_abi: Optional[ABIFunction] = None,
-    args: Optional[Sequence[Any]] = None,
-    kwargs: Optional[Any] = None,
-) -> Tuple[ABIFunction, HexStr, Tuple[Any, ...]]:
-    if args is None:
-        args = tuple()
-    if kwargs is None:
-        kwargs = {}
-
-    if fn_abi is None:
-        fn_abi = find_matching_fn_abi(contract_abi, abi_codec, fn_name, args, kwargs)
-
-    fn_selector = encode_hex(function_abi_to_4byte_selector(fn_abi))
-
-    fn_arguments = get_normalized_abi_inputs(fn_abi, args, kwargs)
-
-    _, aligned_fn_arguments = get_aligned_abi_inputs(fn_abi, fn_arguments)
-
-    return fn_abi, fn_selector, aligned_fn_arguments
 
 
 def validate_payable(transaction: TxParams, abi: ABIFunction) -> None:

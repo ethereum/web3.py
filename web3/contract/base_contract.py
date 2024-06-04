@@ -57,7 +57,6 @@ from web3._utils.contracts import (
     encode_abi,
     find_matching_event_abi,
     find_matching_fn_abi,
-    get_function_info,
     prepare_transaction,
 )
 from web3._utils.datatypes import (
@@ -120,6 +119,9 @@ from web3.types import (
     TContractFn,
     TxParams,
     TxReceipt,
+)
+from web3.utils.abi import (
+    get_function_info,
 )
 
 if TYPE_CHECKING:
@@ -749,18 +751,18 @@ class BaseContract:
 
         :param data: defaults to function selector
         """
-        fn_abi, fn_selector, fn_arguments = get_function_info(
-            fn_name,
-            cls.w3.codec,
-            contract_abi=cls.abi,
+        fn_info = get_function_info(
+            abi=cls.abi,
+            function_identifier=fn_name,
             args=args,
             kwargs=kwargs,
+            abi_codec=cls.w3.codec,
         )
 
         if data is None:
-            data = fn_selector
+            data = fn_info["selector"]
 
-        return encode_abi(cls.w3, fn_abi, fn_arguments, data)
+        return encode_abi(cls.w3, fn_info["abi"], fn_info["arguments"], data)
 
     @combomethod
     def all_functions(
