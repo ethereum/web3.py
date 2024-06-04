@@ -1,7 +1,7 @@
 import pytest
 
 from web3.utils.abi import (
-    filter_by_name,
+    filter_abi_by_name,
 )
 
 ABI_FUNC_1 = {
@@ -69,5 +69,5 @@ ABI = [
     ),
 )
 def test_filter_by_arguments(name, expected):
-    actual_matches = filter_by_name(name, ABI)
+    actual_matches = filter_abi_by_name(name, ABI)
     assert actual_matches == expected

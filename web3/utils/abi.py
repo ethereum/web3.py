@@ -304,7 +304,7 @@ def get_function_abi(
     kwargs = kwargs or dict()
     num_arguments = len(args) + len(kwargs)
 
-    name_filter = functools.partial(filter_by_name, function_identifier)
+    name_filter = functools.partial(filter_abi_by_name, function_identifier)
     arg_count_filter = functools.partial(_filter_by_argument_count, num_arguments)
     encoding_filter = functools.partial(
         _filter_by_encodability, abi_codec, args, kwargs
@@ -337,7 +337,9 @@ def get_function_abi(
     return function_candidates[0]
 
 
-def filter_by_name(name: str, contract_abi: ABI) -> List[Union[ABIFunction, ABIEvent]]:
+def filter_abi_by_name(
+    name: str, contract_abi: ABI
+) -> List[Union[ABIFunction, ABIEvent]]:
     """
     Get one or more function and event ABIs by name.
 
@@ -350,7 +352,7 @@ def filter_by_name(name: str, contract_abi: ABI) -> List[Union[ABIFunction, ABIE
 
     .. doctest
 
-            >>> from web3.utils.abi import filter_by_name
+            >>> from web3.utils.abi import filter_abi_by_name
             >>> abi = [
             ...     {
             ...         "constant": False,
@@ -390,7 +392,7 @@ def filter_by_name(name: str, contract_abi: ABI) -> List[Union[ABIFunction, ABIE
             ...         "type": "function",
             ...     },
             ... ]
-            >>> filter_by_name("func_1", abi)
+            >>> filter_abi_by_name("func_1", abi)
             [{'constant': False, 'inputs': [], 'name': 'func_1', 'outputs': [], \
 'type': 'function'}]
     """

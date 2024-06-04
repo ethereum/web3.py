@@ -22,6 +22,8 @@ from eth_utils.abi import (
 from .abi import (
     get_function_info,
     get_function_abi,
+    filter_abi_by_name,
+    check_if_arguments_can_be_encoded,
 )
 from .address import get_create_address
 from .async_exception_handling import (
@@ -37,9 +39,11 @@ from .exception_handling import (
 __all__ = [
     "SimpleCache",
     "abi_to_signature",
+    "check_if_arguments_can_be_encoded",
     "async_handle_offchain_lookup",
     "event_abi_to_log_topic",
     "event_signature_to_log_topic",
+    "filter_abi_by_name",
     "function_abi_to_4byte_selector",
     "function_signature_to_4byte_selector",
     "get_abi_input_names",
