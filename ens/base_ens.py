@@ -11,11 +11,12 @@ from typing import (
 from eth_typing import (
     ChecksumAddress,
 )
-from eth_utils import (
-    get_abi_output_types,
-)
 from hexbytes import (
     HexBytes,
+)
+
+from web3.utils.abi import (
+    get_abi_output_types,
 )
 
 from .utils import (

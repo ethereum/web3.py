@@ -64,11 +64,6 @@ from eth_utils import (
     to_text,
     to_tuple,
 )
-from eth_utils.abi import (
-    get_abi_input_names,
-    get_normalized_abi_arg_type,
-    get_normalized_abi_inputs,
-)
 from eth_utils.toolz import (
     curry,
     partial,
@@ -93,6 +88,12 @@ from web3.exceptions import (
 )
 from web3.types import (
     TReturn,
+)
+from web3.utils.abi import (
+    get_abi_input_names,
+    get_aligned_abi_inputs,
+    get_normalized_abi_arg_type,
+    get_normalized_abi_inputs,
 )
 
 if TYPE_CHECKING:
@@ -425,28 +426,6 @@ def _align_abi_input(
     return typing(
         _align_abi_input(sub_abi, sub_arg)
         for sub_abi, sub_arg in zip(sub_abis, aligned_arg)
-    )
-
-
-def get_aligned_abi_inputs(
-    abi: ABIFunction, args: Union[Tuple[Any, ...], Mapping[Any, Any]]
-) -> Tuple[Tuple[Any, ...], Tuple[Any, ...]]:
-    """
-    Takes a function ABI (``abi``) and a sequence or mapping of args (``args``).
-    Returns a list of type strings for the function's inputs and a list of
-    arguments which have been aligned to the layout of those types.  The args
-    contained in ``args`` may contain nested mappings or sequences corresponding
-    to tuple-encoded values in ``abi``.
-    """
-    input_abis = abi.get("inputs", [])
-
-    if isinstance(args, abc.Mapping):
-        # `args` is mapping.  Align values according to abi order.
-        args = tuple(args[abi["name"]] for abi in input_abis)
-
-    return (
-        tuple(get_normalized_abi_arg_type(abi) for abi in input_abis),
-        type(args)(_align_abi_input(abi, arg) for abi, arg in zip(input_abis, args)),
     )
 
 

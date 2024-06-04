@@ -44,10 +44,6 @@ from eth_utils import (
     to_hex,
     to_tuple,
 )
-from eth_utils.abi import (
-    event_abi_to_log_topic,
-    get_abi_input_names,
-)
 from eth_utils.curried import (
     apply_formatter_if,
 )
@@ -63,7 +59,6 @@ import web3
 from web3._utils.abi import (
     exclude_indexed_event_inputs,
     get_indexed_event_inputs,
-    get_normalized_abi_arg_type,
     map_abi_data,
     named_tree,
     normalize_event_input_types,
@@ -89,6 +84,11 @@ from web3.types import (
     EventData,
     FilterParams,
     LogReceipt,
+)
+from web3.utils.abi import (
+    event_abi_to_log_topic,
+    get_abi_input_names,
+    get_normalized_abi_arg_type,
 )
 
 if TYPE_CHECKING:

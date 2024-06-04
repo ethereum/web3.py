@@ -23,9 +23,6 @@ from eth_typing.abi import (
     ABI,
     ABIFunction,
 )
-from eth_utils.abi import (
-    get_abi_output_types,
-)
 from eth_utils.toolz import (
     compose,
     curry,
@@ -63,6 +60,9 @@ from web3.types import (
     StateOverride,
     TContractFn,
     TxParams,
+)
+from web3.utils.abi import (
+    get_abi_output_types,
 )
 
 if TYPE_CHECKING:

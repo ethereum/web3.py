@@ -11,12 +11,6 @@ from eth_typing.abi import (
     ABIFunction,
     ABIFunctionInfo,
 )
-from eth_utils.abi import (
-    abi_to_signature,
-    function_abi_to_4byte_selector,
-    get_aligned_abi_inputs,
-    get_normalized_abi_inputs,
-)
 from eth_utils.encoding import (
     get_default_codec,
 )
@@ -42,9 +36,21 @@ from web3.exceptions import (
     MismatchedABI,
 )
 
-from eth_utils import (  # NOQA
+from eth_utils.abi import (  # noqa
+    abi_to_signature,
+    event_abi_to_log_topic,
+    event_signature_to_log_topic,
+    function_abi_to_4byte_selector,
+    function_signature_to_4byte_selector,
     get_abi_input_names,
+    get_abi_input_types,
     get_abi_output_names,
+    get_abi_output_types,
+    get_aligned_abi_inputs,
+    get_all_event_abis,
+    get_all_function_abis,
+    get_normalized_abi_arg_type,
+    get_normalized_abi_inputs,
 )
 
 

@@ -36,10 +36,6 @@ from eth_utils import (
     is_list_like,
     is_text,
 )
-from eth_utils.abi import (
-    abi_to_signature,
-    get_abi_input_types,
-)
 from eth_utils.toolz import (
     pipe,
 )
@@ -90,6 +86,8 @@ from web3.types import (
     TxParams,
 )
 from web3.utils.abi import (
+    abi_to_signature,
+    get_abi_input_types,
     get_function_info,
 )
 

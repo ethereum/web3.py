@@ -3,7 +3,23 @@ NOTE: This is a public utility module. Any changes to these utility methods woul
 classify as breaking changes.
 """
 
-from .abi import (  # NOQA
+from eth_utils.abi import (
+    abi_to_signature,
+    event_abi_to_log_topic,
+    event_signature_to_log_topic,
+    function_abi_to_4byte_selector,
+    function_signature_to_4byte_selector,
+    get_abi_input_names,
+    get_abi_input_types,
+    get_abi_output_names,
+    get_abi_output_types,
+    get_aligned_abi_inputs,
+    get_all_event_abis,
+    get_all_function_abis,
+    get_normalized_abi_arg_type,
+    get_normalized_abi_inputs,
+)
+from .abi import (
     get_function_info,
     get_function_abi,
 )
@@ -20,9 +36,23 @@ from .exception_handling import (
 
 __all__ = [
     "SimpleCache",
+    "abi_to_signature",
     "async_handle_offchain_lookup",
+    "event_abi_to_log_topic",
+    "event_signature_to_log_topic",
+    "function_abi_to_4byte_selector",
+    "function_signature_to_4byte_selector",
     "get_abi_input_names",
+    "get_abi_input_types",
     "get_abi_output_names",
+    "get_abi_output_types",
+    "get_aligned_abi_inputs",
+    "get_all_event_abis",
+    "get_all_function_abis",
     "get_create_address",
+    "get_function_info",
+    "get_function_abi",
+    "get_normalized_abi_arg_type",
+    "get_normalized_abi_inputs",
     "handle_offchain_lookup",
 ]
