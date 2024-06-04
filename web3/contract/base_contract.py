@@ -38,13 +38,15 @@ from eth_utils import (
     is_text,
     to_tuple,
 )
+from eth_utils.abi import (
+    filter_by_type,
+)
 from hexbytes import (
     HexBytes,
 )
 
 from web3._utils.abi import (
     fallback_func_abi_exists,
-    filter_by_type,
     get_constructor_abi,
     is_array_type,
     receive_func_abi_exists,

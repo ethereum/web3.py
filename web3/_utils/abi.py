@@ -64,6 +64,9 @@ from eth_utils import (
     to_text,
     to_tuple,
 )
+from eth_utils.abi import (
+    filter_by_type,
+)
 from eth_utils.toolz import (
     curry,
     partial,
@@ -80,7 +83,6 @@ from web3._utils.formatters import (
     recursive_map,
 )
 from web3.exceptions import (
-    FallbackNotFound,
     MismatchedABI,
     Web3AttributeError,
     Web3TypeError,
@@ -98,26 +100,6 @@ if TYPE_CHECKING:
     from web3 import (  # noqa: F401
         AsyncWeb3,
     )
-
-
-def filter_by_type(_type: str, contract_abi: ABI) -> List[ABIElement]:
-    return [abi for abi in contract_abi if abi["type"] == _type]
-
-
-def get_receive_func_abi(contract_abi: ABI) -> ABIFunction:
-    receive_abis = filter_by_type("receive", contract_abi)
-    if receive_abis:
-        return cast(ABIFunction, receive_abis[0])
-    else:
-        raise FallbackNotFound("No receive function was found in the contract ABI.")
-
-
-def get_fallback_func_abi(contract_abi: ABI) -> ABIFunction:
-    fallback_abis = filter_by_type("fallback", contract_abi)
-    if fallback_abis:
-        return cast(ABIFunction, fallback_abis[0])
-    else:
-        raise FallbackNotFound("No fallback function was found in the contract ABI.")
 
 
 def fallback_func_abi_exists(contract_abi: ABI) -> List[ABIElement]:

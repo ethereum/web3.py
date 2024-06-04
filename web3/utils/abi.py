@@ -27,6 +27,9 @@ from eth_typing.abi import (
     ABIFunction,
     ABIFunctionInfo,
 )
+from eth_utils.abi import (
+    filter_by_type,
+)
 from eth_utils.address import (
     is_binary_address,
     is_checksum_address,
@@ -42,15 +45,12 @@ from eth_utils.types import (
     is_text,
 )
 
-from web3._utils.abi import (
-    get_fallback_func_abi,
-    get_receive_func_abi,
-)
 from web3._utils.function_identifiers import (
     FallbackFn,
     ReceiveFn,
 )
 from web3.exceptions import (
+    FallbackNotFound,
     MismatchedABI,
 )
 from web3.types import (
@@ -303,10 +303,10 @@ def get_function_abi(
 'type': 'function'}
     """
     if function_identifier is FallbackFn:
-        return get_fallback_func_abi(abi)
+        return get_fallback_function_abi(abi)
 
     if function_identifier is ReceiveFn:
-        return get_receive_func_abi(abi)
+        return get_receive_function_abi(abi)
 
     if function_identifier is None or not is_text(function_identifier):
         raise TypeError("Unsupported function identifier")
@@ -349,6 +349,22 @@ def get_function_abi(
         raise MismatchedABI(error_diagnosis)
 
     return function_candidates[0]
+
+
+def get_receive_function_abi(contract_abi: ABI) -> ABIFunction:
+    receive_abis = filter_by_type("receive", contract_abi)
+    if receive_abis:
+        return cast(ABIFunction, receive_abis[0])
+    else:
+        raise FallbackNotFound("No receive function was found in the contract ABI.")
+
+
+def get_fallback_function_abi(contract_abi: ABI) -> ABIFunction:
+    fallback_abis = filter_by_type("fallback", contract_abi)
+    if fallback_abis:
+        return cast(ABIFunction, fallback_abis[0])
+    else:
+        raise FallbackNotFound("No fallback function was found in the contract ABI.")
 
 
 def filter_abi_by_name(

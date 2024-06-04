@@ -22,6 +22,9 @@ from eth_typing.abi import (
 from eth_utils import (
     combomethod,
 )
+from eth_utils.abi import (
+    filter_by_type,
+)
 from eth_utils.toolz import (
     partial,
 )
@@ -31,7 +34,6 @@ from hexbytes import (
 
 from web3._utils.abi import (
     fallback_func_abi_exists,
-    filter_by_type,
     receive_func_abi_exists,
 )
 from web3._utils.async_transactions import (

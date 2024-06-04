@@ -24,6 +24,9 @@ from eth_utils import (
     is_list_like,
     is_string,
 )
+from eth_utils.abi import (
+    filter_by_type,
+)
 from eth_utils.curried import (
     apply_formatter_to_array,
 )
@@ -41,7 +44,6 @@ from ens.utils import (
     is_valid_ens_name,
 )
 from web3._utils.abi import (
-    filter_by_type,
     is_address_type,
     is_array_type,
     is_bool_type,

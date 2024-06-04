@@ -32,6 +32,9 @@ from eth_utils import (
     add_0x_prefix,
     encode_hex,
 )
+from eth_utils.abi import (
+    filter_by_type,
+)
 from eth_utils.toolz import (
     pipe,
 )
@@ -41,9 +44,6 @@ from hexbytes import (
 
 from web3._utils.abi import (
     filter_by_argument_name,
-    filter_by_type,
-    get_fallback_func_abi,
-    get_receive_func_abi,
     map_abi_data,
     named_tree,
 )
@@ -82,8 +82,10 @@ from web3.utils.abi import (
     check_if_arguments_can_be_encoded,
     filter_abi_by_name,
     get_abi_input_types,
+    get_fallback_function_abi,
     get_function_abi,
     get_function_info,
+    get_receive_function_abi,
 )
 
 if TYPE_CHECKING:
@@ -251,7 +253,7 @@ def get_fallback_function_info(
     contract_abi: Optional[ABI] = None, fn_abi: Optional[ABIFunction] = None
 ) -> Tuple[ABIFunction, HexStr, Tuple[Any, ...]]:
     if fn_abi is None:
-        fn_abi = get_fallback_func_abi(contract_abi)
+        fn_abi = get_fallback_function_abi(contract_abi)
     fn_selector = encode_hex(b"")
     fn_arguments: Tuple[Any, ...] = tuple()
     return fn_abi, fn_selector, fn_arguments
@@ -261,7 +263,7 @@ def get_receive_function_info(
     contract_abi: Optional[ABI] = None, fn_abi: Optional[ABIFunction] = None
 ) -> Tuple[ABIFunction, HexStr, Tuple[Any, ...]]:
     if fn_abi is None:
-        fn_abi = get_receive_func_abi(contract_abi)
+        fn_abi = get_receive_function_abi(contract_abi)
     fn_selector = encode_hex(b"")
     fn_arguments: Tuple[Any, ...] = tuple()
     return fn_abi, fn_selector, fn_arguments
