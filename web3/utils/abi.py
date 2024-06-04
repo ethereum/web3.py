@@ -5,6 +5,7 @@ from typing import (
     List,
     Optional,
     Sequence,
+    Union,
     cast,
 )
 
@@ -19,6 +20,7 @@ from eth_abi.registry import (
 )
 from eth_typing import (
     ABIElement,
+    ABIEvent,
 )
 from eth_typing.abi import (
     ABI,
@@ -335,7 +337,7 @@ def get_function_abi(
     return function_candidates[0]
 
 
-def filter_by_name(name: str, contract_abi: ABI) -> List[ABIElement]:
+def filter_by_name(name: str, contract_abi: ABI) -> List[Union[ABIFunction, ABIEvent]]:
     """
     Get one or more function and event ABIs by name.
 
@@ -395,7 +397,10 @@ def filter_by_name(name: str, contract_abi: ABI) -> List[ABIElement]:
     return [
         abi
         for abi in contract_abi
-        if (abi["type"] == "function" and abi["name"] == name)
+        if (
+            (abi["type"] == "function" or abi["type"] == "event")
+            and abi["name"] == name
+        )
     ]
 
 
