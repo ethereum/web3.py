@@ -42,6 +42,14 @@ from eth_utils.types import (
     is_text,
 )
 
+from web3._utils.abi import (
+    get_fallback_func_abi,
+    get_receive_func_abi,
+)
+from web3._utils.function_identifiers import (
+    FallbackFn,
+    ReceiveFn,
+)
 from web3.exceptions import (
     MismatchedABI,
 )
@@ -294,6 +302,12 @@ def get_function_abi(
 'type': 'uint256'}], 'payable': False, 'stateMutability': 'nonpayable', \
 'type': 'function'}
     """
+    if function_identifier is FallbackFn:
+        return get_fallback_func_abi(abi)
+
+    if function_identifier is ReceiveFn:
+        return get_receive_func_abi(abi)
+
     if function_identifier is None or not is_text(function_identifier):
         raise TypeError("Unsupported function identifier")
 
