@@ -399,7 +399,9 @@ async def async_call_contract_function(
             contract_abi, function_identifier, args, kwargs, async_w3.codec
         )
 
-    output_types = get_abi_output_types(fn_abi)
+    output_types = []
+    if fn_abi["type"] == "function":
+        output_types = get_abi_output_types(fn_abi)
 
     if async_w3.provider._is_batching:
         contract_call_return_data_formatter = format_contract_call_return_data_curried(

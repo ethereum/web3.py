@@ -7,7 +7,6 @@ from web3._utils.function_identifiers import (
 )
 from web3.exceptions import (
     MismatchedABI,
-    Web3ValidationError,
 )
 from web3.utils.abi import (
     get_abi_input_types,
@@ -138,7 +137,7 @@ def test_finds_receive_function(w3):
 def test_error_when_no_function_name_match(w3):
     Contract = w3.eth.contract(abi=SINGLE_FN_NO_ARGS)
 
-    with pytest.raises(Web3ValidationError):
+    with pytest.raises(MismatchedABI):
         Contract._find_matching_fn_abi("no_function_name", [1234])
 
 
@@ -168,14 +167,14 @@ def test_finds_function_with_matching_args_non_strict(
 
 def test_finds_function_with_matching_args_strict_type_checking_by_default(w3):
     contract = w3.eth.contract(abi=MULTIPLE_FUNCTIONS)
-    with pytest.raises(Web3ValidationError):
+    with pytest.raises(MismatchedABI):
         contract._find_matching_fn_abi("a", [""])
 
 
 def test_error_when_duplicate_match(w3):
     Contract = w3.eth.contract(abi=MULTIPLE_FUNCTIONS)
 
-    with pytest.raises(Web3ValidationError):
+    with pytest.raises(MismatchedABI):
         Contract._find_matching_fn_abi("a", [100])
 
 
