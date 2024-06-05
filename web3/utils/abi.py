@@ -22,6 +22,8 @@ from eth_typing import (
     ABIElement,
     ABIError,
     ABIEvent,
+    ABIFallback,
+    ABIReceive,
 )
 from eth_typing.abi import (
     ABI,
@@ -254,7 +256,7 @@ def get_function_abi(
     args: Optional[Sequence[Any]] = None,
     kwargs: Optional[Any] = None,
     abi_codec: Optional[Any] = None,
-) -> Union[ABIFunction, ABIError]:
+) -> Union[ABIFunction, ABIError, ABIFallback, ABIReceive]:
     """
     Return the interface for an ``ABIFunction`` which matches the provided identifier
     and arguments.
@@ -356,25 +358,25 @@ def get_function_abi(
     return function_candidates[0]
 
 
-def get_receive_function_abi(contract_abi: ABI) -> ABIFunction:
+def get_receive_function_abi(contract_abi: ABI) -> ABIReceive:
     receive_abis = filter_by_type("receive", contract_abi)
-    if receive_abis:
-        return cast(ABIFunction, receive_abis[0])
+    if receive_abis and receive_abis[0]["type"] == "receive":
+        return cast(ABIReceive, receive_abis[0])
     else:
         raise FallbackNotFound("No receive function was found in the contract ABI.")
 
 
-def get_fallback_function_abi(contract_abi: ABI) -> ABIFunction:
+def get_fallback_function_abi(contract_abi: ABI) -> ABIFallback:
     fallback_abis = filter_by_type("fallback", contract_abi)
-    if fallback_abis:
-        return cast(ABIFunction, fallback_abis[0])
+    if fallback_abis and fallback_abis[0]["type"] == "fallback":
+        return cast(ABIFallback, fallback_abis[0])
     else:
         raise FallbackNotFound("No fallback function was found in the contract ABI.")
 
 
 def filter_abi_by_name(
     name: str, contract_abi: ABI
-) -> List[Union[ABIFunction, ABIEvent]]:
+) -> List[Union[ABIFunction, ABIEvent, ABIError]]:
     """
     Get one or more function and event ABIs by name.
 

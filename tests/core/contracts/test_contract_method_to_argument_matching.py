@@ -6,6 +6,7 @@ from web3._utils.function_identifiers import (
     ReceiveFn,
 )
 from web3.exceptions import (
+    MismatchedABI,
     Web3ValidationError,
 )
 from web3.utils.abi import (
@@ -182,7 +183,7 @@ def test_error_when_duplicate_match(w3):
 def test_strict_errors_if_type_is_wrong(w3, arguments):
     Contract = w3.eth.contract(abi=MULTIPLE_FUNCTIONS)
 
-    with pytest.raises(Web3ValidationError):
+    with pytest.raises(MismatchedABI):
         Contract._find_matching_fn_abi("a", arguments)
 
 

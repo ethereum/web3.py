@@ -617,13 +617,13 @@ def test_no_functions_match_identifier(arrays_contract):
 
 def test_function_1_match_identifier_wrong_number_of_args(arrays_contract):
     regex = message_regex + diagnosis_arg_regex
-    with pytest.raises(Web3ValidationError, match=regex):
+    with pytest.raises(MismatchedABI, match=regex):
         arrays_contract.functions.setBytes32Value().call()
 
 
 def test_function_1_match_identifier_wrong_args_encoding(arrays_contract):
     regex = message_regex + diagnosis_encoding_regex
-    with pytest.raises(Web3ValidationError, match=regex):
+    with pytest.raises(MismatchedABI, match=regex):
         arrays_contract.functions.setBytes32Value("dog").call()
 
 
@@ -638,7 +638,7 @@ def test_function_1_match_identifier_wrong_args_encoding(arrays_contract):
 def test_function_multiple_error_diagnoses(w3, arg1, arg2, diagnosis):
     Contract = w3.eth.contract(abi=MULTIPLE_FUNCTIONS)
     regex = message_regex + diagnosis
-    with pytest.raises(Web3ValidationError, match=regex):
+    with pytest.raises(MismatchedABI, match=regex):
         if arg2:
             Contract.functions.a(arg1, arg2).call()
         else:
@@ -656,7 +656,7 @@ def test_function_wrong_args_for_tuple_collapses_args_in_message(
     address,
     tuple_contract,
 ):
-    with pytest.raises(Web3ValidationError) as e:
+    with pytest.raises(MismatchedABI) as e:
         tuple_contract.functions.method(
             (1, [2, 3], [(4, [True, [False]], [address])])
         ).call()
@@ -790,7 +790,7 @@ def test_invalid_fixed_value_reflections(
     fixed_reflector_contract, function, value, error
 ):
     contract_func = fixed_reflector_contract.functions[function]
-    with pytest.raises(Web3ValidationError, match=error):
+    with pytest.raises(MismatchedABI, match=error):
         contract_func(value).call({"gas": 420000})
 
 
