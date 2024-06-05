@@ -75,7 +75,7 @@ def _simulate_call(http_session_manager, uri):
     return _session
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def http_session_manager():
     return HTTPSessionManager()
 
@@ -323,7 +323,6 @@ async def test_session_manager_async_cache_does_not_close_session_before_a_call_
     # set cache size to 1 + set future session close thread time to 0.01s
     http_session_manager.session_cache = SimpleCache(1)
     _timeout_for_testing = 0.01
-    http_session_manager.request_timeout = _timeout_for_testing
 
     async def cache_uri_and_return_session(uri):
         _session = await http_session_manager.async_cache_and_return_session(
