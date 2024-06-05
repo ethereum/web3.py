@@ -242,12 +242,16 @@ def get_function_info(
         abi, function_identifier, args, kwargs, abi_codec=abi_codec
     )
     fn_selector = encode_hex(function_abi_to_4byte_selector(fn_abi))
-    fn_inputs = get_normalized_abi_inputs(fn_abi, args, kwargs)
-    _, aligned_fn_inputs = get_aligned_abi_inputs(fn_abi, fn_inputs)
 
-    return ABIFunctionInfo(
-        abi=fn_abi, selector=fn_selector, arguments=aligned_fn_inputs
-    )
+    if fn_abi["type"] == "fallback" or fn_abi["type"] == "receive":
+        return ABIFunctionInfo(abi=fn_abi, selector=fn_selector, arguments=tuple())
+    else:
+        fn_inputs = get_normalized_abi_inputs(fn_abi, args, kwargs)
+        _, aligned_fn_inputs = get_aligned_abi_inputs(fn_abi, fn_inputs)
+
+        return ABIFunctionInfo(
+            abi=fn_abi, selector=fn_selector, arguments=aligned_fn_inputs
+        )
 
 
 def get_function_abi(
