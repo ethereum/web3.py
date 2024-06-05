@@ -86,7 +86,9 @@ class HTTPSessionManager:
                     f"{evicted_session}",
                 )
             threading.Timer(
-                request_timeout or 0 + 0.1,
+                # If `request_timeout` is `None`, don't wait forever for the closing
+                # session to finish the request. Instead, wait over the default timeout.
+                request_timeout or DEFAULT_HTTP_TIMEOUT + 0.1,
                 self._close_evicted_sessions,
                 args=[evicted_sessions],
             ).start()
@@ -214,7 +216,10 @@ class HTTPSessionManager:
             # is closed.
             asyncio.create_task(
                 self._async_close_evicted_sessions(
-                    request_timeout.total or 0 + 0.1,
+                    # if `ClientTimeout.total` is `None`, don't wait forever for the
+                    # closing session to finish the request. Instead, use the default
+                    # timeout.
+                    request_timeout.total or DEFAULT_HTTP_TIMEOUT + 0.1,
                     evicted_sessions,
                 )
             )
