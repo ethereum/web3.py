@@ -86,7 +86,7 @@ class HTTPSessionManager:
                     f"{evicted_session}",
                 )
             threading.Timer(
-                request_timeout + 0.1,
+                request_timeout or 0 + 0.1,
                 self._close_evicted_sessions,
                 args=[evicted_sessions],
             ).start()
@@ -200,23 +200,24 @@ class HTTPSessionManager:
             # At this point the evicted sessions are already popped out of the cache and
             # just stored in the `evicted_sessions` dict. So we can kick off a future
             # task to close them and it should be safe to pop out of the lock here.
-            evicted_sessions = evicted_items.values()
+            evicted_sessions = list(evicted_items.values())
             for evicted_session in evicted_sessions:
                 self.logger.debug(
                     "Async session cache full. Session evicted from cache: "
                     f"{evicted_session}",
                 )
-            # Kick off a future task, in a separate thread, to close the evicted
-            # sessions. In the case that the cache filled very quickly and some
-            # sessions have been evicted before their original request has been made,
-            # we set the timer to a bit more than the `DEFAULT_TIMEOUT` for a call. This
-            # should make it so that any call from an evicted session can still be made
-            # before the session is closed.
-            threading.Timer(
-                request_timeout.total + 0.1,
-                self._async_close_evicted_sessions,
-                args=[evicted_sessions],
-            ).start()
+            # Kick off an asyncio `Task` to close the evicted sessions. In the case
+            # that the cache filled very quickly and some sessions have been evicted
+            # before their original request has been made, we set the timer to a bit
+            # more than the `request_timeout` for a call. This should make it so that
+            # any call from an evicted session can still be made before the session
+            # is closed.
+            asyncio.create_task(
+                self._async_close_evicted_sessions(
+                    request_timeout.total or 0 + 0.1,
+                    evicted_sessions,
+                )
+            )
 
         return cached_session
 
@@ -258,13 +259,13 @@ class HTTPSessionManager:
         response.raise_for_status()
         return await response.read()
 
-    def _async_close_evicted_sessions(
-        self, evicted_sessions: List[ClientSession]
+    async def _async_close_evicted_sessions(
+        self, timeout: float, evicted_sessions: List[ClientSession]
     ) -> None:
-        loop = asyncio.new_event_loop()
+        await asyncio.sleep(timeout)
 
         for evicted_session in evicted_sessions:
-            loop.run_until_complete(evicted_session.close())
+            await evicted_session.close()
             self.logger.debug(f"Closed evicted async session: {evicted_session}")
 
         if any(not evicted_session.closed for evicted_session in evicted_sessions):
@@ -272,4 +273,3 @@ class HTTPSessionManager:
                 "Some evicted async sessions were not properly closed: "
                 f"{evicted_sessions}"
             )
-        loop.close()
