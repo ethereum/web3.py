@@ -126,7 +126,12 @@ def encode_abi(
     arguments: Sequence[Any],
     data: Optional[HexStr] = None,
 ) -> HexStr:
-    argument_types = get_abi_input_types(abi)
+    argument_types = []
+    try:
+        argument_types = get_abi_input_types(abi)
+    except ValueError:
+        # Use the default argument_types if the abi doesn't have inputs
+        pass
 
     if not check_if_arguments_can_be_encoded(abi, w3.codec, arguments, {}):
         raise Web3TypeError(
