@@ -42,6 +42,9 @@ from web3._utils.abi import (
 from web3._utils.async_transactions import (
     async_fill_transaction_defaults,
 )
+from web3._utils.compat import (
+    TypeAlias,
+)
 from web3._utils.contracts import (
     prepare_transaction,
 )
@@ -171,8 +174,8 @@ def call_contract_function(
 
     provider = w3.provider
     if hasattr(provider, "_is_batching") and provider._is_batching:
-        # request_information == ((method, params), response_formatters)
-        request_information = tuple(return_data)
+        BatchingReturnData: TypeAlias = Tuple[Tuple[RPCEndpoint, Any], Tuple[Any, ...]]
+        request_information = tuple(cast(BatchingReturnData, return_data))
         method_and_params = request_information[0]
 
         # append return data formatting to result formatters
@@ -436,7 +439,10 @@ async def async_call_contract_function(
             )
         else:
             # request_information == ((method, params), response_formatters)
-            request_information = tuple(return_data)
+            BatchingReturnData: TypeAlias = Tuple[
+                Tuple[RPCEndpoint, Any], Tuple[Any, ...]
+            ]
+            request_information = tuple(cast(BatchingReturnData, return_data))
             method_and_params = request_information[0]
 
             # append return data formatter to result formatters

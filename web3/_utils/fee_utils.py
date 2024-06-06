@@ -45,7 +45,7 @@ def fee_history_priority_fee(eth: "Eth") -> Wei:
     # This is a tested internal call so no need for type hinting. We can keep
     # better consistency between the sync and async calls by unpacking
     # PRIORITY_FEE_HISTORY_PARAMS as constants here.
-    fee_history = eth.fee_history(*PRIORITY_FEE_HISTORY_PARAMS)
+    fee_history = eth.fee_history(*PRIORITY_FEE_HISTORY_PARAMS)  # type: ignore
     return _fee_history_priority_fee_estimate(fee_history)
 
 
@@ -53,5 +53,5 @@ async def async_fee_history_priority_fee(async_eth: "AsyncEth") -> Wei:
     # This is a tested internal call so no need for type hinting. We can keep
     # better consistency between the sync and async calls by unpacking
     # PRIORITY_FEE_HISTORY_PARAMS as constants here.
-    fee_history = await async_eth.fee_history(*PRIORITY_FEE_HISTORY_PARAMS)
+    fee_history = await async_eth.fee_history(*PRIORITY_FEE_HISTORY_PARAMS)  # type: ignore  # noqa: E501
     return _fee_history_priority_fee_estimate(fee_history)

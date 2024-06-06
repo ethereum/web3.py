@@ -389,7 +389,9 @@ class PersistentConnectionProviderTest:
         assert isinstance(pending, AttributeDict)
 
         # assert block values
+        assert latest is not None
         assert all(k in latest.keys() for k in SOME_BLOCK_KEYS)
+        assert pending is not None
         assert all(k in pending.keys() for k in SOME_BLOCK_KEYS)
 
         assert isinstance(block_num, int)

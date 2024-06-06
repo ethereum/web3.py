@@ -6,7 +6,9 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Collection,
+    Dict,
     Iterable,
+    Sequence,
     Tuple,
     TypeVar,
     Union,
@@ -43,6 +45,9 @@ from toolz import (
 from web3._utils.async_transactions import (
     async_fill_nonce,
     async_fill_transaction_defaults,
+)
+from web3._utils.compat import (
+    TypeAlias,
 )
 from web3._utils.method_formatters import (
     STANDARD_NORMALIZERS,
@@ -211,7 +216,16 @@ class SignAndSendRawMiddlewareBuilder(Web3MiddlewareBuilder):
                 return method, params
             else:
                 account = self._accounts[to_checksum_address(tx_from)]
-                raw_tx = account.sign_transaction(filled_transaction).raw_transaction
+                EthAccountTxParams: TypeAlias = Dict[
+                    str,
+                    Sequence[Dict[str, HexStr | Sequence[HexStr]]]
+                    | bytes
+                    | HexStr
+                    | int,
+                ]
+                raw_tx = account.sign_transaction(
+                    cast(EthAccountTxParams, filled_transaction)
+                ).raw_transaction
 
                 return (
                     RPCEndpoint("eth_sendRawTransaction"),

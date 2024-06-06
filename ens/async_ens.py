@@ -4,6 +4,7 @@ from copy import (
 from typing import (
     TYPE_CHECKING,
     Any,
+    Coroutine,
     Optional,
     Sequence,
     Tuple,
@@ -469,9 +470,13 @@ class AsyncENS(BaseENS):
             resolver_addr = await self.address("resolver.eth")
         namehash = raw_name_to_hash(name)
         if await self.ens.caller.resolver(namehash) != resolver_addr:
-            await self.ens.functions.setResolver(namehash, resolver_addr).transact(
-                transact
+            coro = cast(
+                Coroutine[Any, Any, HexBytes],
+                self.ens.functions.setResolver(namehash, resolver_addr).transact(
+                    transact
+                ),
             )
+            await coro
         return cast("AsyncContract", self._resolver_contract(address=resolver_addr))
 
     async def _resolve(
@@ -553,11 +558,15 @@ class AsyncENS(BaseENS):
         transact = deepcopy(transact)
         transact["from"] = old_owner or owner
         for label in reversed(unowned):
-            await self.ens.functions.setSubnodeOwner(
-                raw_name_to_hash(owned),
-                label_to_hash(label),
-                owner,
-            ).transact(transact)
+            coro = cast(
+                Coroutine[Any, Any, HexBytes],
+                self.ens.functions.setSubnodeOwner(
+                    raw_name_to_hash(owned),
+                    label_to_hash(label),
+                    owner,
+                ).transact(transact),
+            )
+            await coro
             owned = f"{label}.{owned}"
 
     async def _setup_reverse(

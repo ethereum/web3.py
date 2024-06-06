@@ -1149,7 +1149,8 @@ class AsyncEthModuleTest:
                 f"{unknown_identifier}"
             ),
         ):
-            await async_w3.eth.get_raw_transaction_by_block(unknown_identifier, 0)
+            # type ignored because we are testing an invalid block identifier
+            await async_w3.eth.get_raw_transaction_by_block(unknown_identifier, 0)  # type: ignore  # noqa: E501
 
     @pytest.mark.asyncio
     async def test_eth_get_balance(self, async_w3: "AsyncWeb3") -> None:
@@ -4304,7 +4305,7 @@ class EthModuleTest:
         self, w3: "Web3", block_with_txn: BlockData
     ) -> None:
         block = w3.eth.get_block(block_with_txn["number"], True)
-        transaction = block["transactions"][0]
+        transaction = cast(TxData, block["transactions"][0])
         assert transaction["hash"] == block_with_txn["transactions"][0]
 
     def test_eth_getBlockReceipts_hash(
@@ -4771,7 +4772,8 @@ class EthModuleTest:
                 f"{unknown_identifier}"
             ),
         ):
-            w3.eth.get_raw_transaction_by_block(unknown_identifier, 0)
+            # type ignored because we are testing an invalid input
+            w3.eth.get_raw_transaction_by_block(unknown_identifier, 0)  # type: ignore
 
     def test_default_account(
         self, w3: "Web3", keyfile_account_address_dual_type: ChecksumAddress

@@ -537,7 +537,7 @@ class BaseContractFunction:
         if self.w3.eth.default_account is not empty:
             call_transaction.setdefault(
                 "from",
-                self.w3.eth.default_account,
+                cast(ChecksumAddress, self.w3.eth.default_account),
             )
 
         if "to" not in call_transaction:
@@ -566,7 +566,9 @@ class BaseContractFunction:
         if self.address is not None:
             transact_transaction.setdefault("to", self.address)
         if self.w3.eth.default_account is not empty:
-            transact_transaction.setdefault("from", self.w3.eth.default_account)
+            transact_transaction.setdefault(
+                "from", cast(ChecksumAddress, self.w3.eth.default_account)
+            )
 
         if "to" not in transact_transaction:
             if isinstance(self, type):
@@ -594,7 +596,9 @@ class BaseContractFunction:
         if self.address:
             estimate_gas_transaction.setdefault("to", self.address)
         if self.w3.eth.default_account is not empty:
-            estimate_gas_transaction.setdefault("from", self.w3.eth.default_account)
+            estimate_gas_transaction.setdefault(
+                "from", cast(ChecksumAddress, self.w3.eth.default_account)
+            )
 
         if "to" not in estimate_gas_transaction:
             if isinstance(self, type):
@@ -826,9 +830,9 @@ class BaseContract:
         self, selector: Union[bytes, int, HexStr]
     ) -> "BaseContractFunction":
         def callable_check(fn_abi: ABIFunction) -> bool:
-            return encode_hex(function_abi_to_4byte_selector(fn_abi)) == to_4byte_hex(
-                selector
-            )
+            return encode_hex(
+                function_abi_to_4byte_selector(cast(Dict[str, Any], fn_abi))
+            ) == to_4byte_hex(selector)
 
         fns = self.find_functions_by_identifier(
             self.abi, self.w3, self.address, callable_check
@@ -839,8 +843,7 @@ class BaseContract:
     def decode_function_input(
         self, data: HexStr
     ) -> Tuple["BaseContractFunction", Dict[str, Any]]:
-        data = HexBytes(data)
-        func = self.get_function_by_selector(data[:4])
+        func = self.get_function_by_selector(HexBytes(data)[:4])
         arguments = decode_transaction_data(
             func.abi, data, normalizers=BASE_RETURN_NORMALIZERS
         )
@@ -1127,7 +1130,9 @@ class BaseContractConstructor:
             )
 
         if self.w3.eth.default_account is not empty:
-            estimate_gas_transaction.setdefault("from", self.w3.eth.default_account)
+            estimate_gas_transaction.setdefault(
+                "from", cast(ChecksumAddress, self.w3.eth.default_account)
+            )
 
         estimate_gas_transaction["data"] = self.data_in_transaction
 
@@ -1143,7 +1148,9 @@ class BaseContractConstructor:
             )
 
         if self.w3.eth.default_account is not empty:
-            transact_transaction.setdefault("from", self.w3.eth.default_account)
+            transact_transaction.setdefault(
+                "from", cast(ChecksumAddress, self.w3.eth.default_account)
+            )
 
         transact_transaction["data"] = self.data_in_transaction
 

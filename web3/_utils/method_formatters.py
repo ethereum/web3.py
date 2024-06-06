@@ -199,7 +199,7 @@ def storage_key_to_hexstr(value: Union[bytes, int, str]) -> HexStr:
             return HexStr(f"0x{value}")
     elif isinstance(value, bytes):
         if len(value) == 32:
-            return HexBytes(value).to_0x_hex()
+            return cast(HexStr, HexBytes(value).to_0x_hex())
     elif isinstance(value, int):
         return storage_key_to_hexstr(hex(value))
     raise Web3ValueError(f"Storage key must be a 32-byte value, got {value!r}")
@@ -424,8 +424,8 @@ ACCOUNT_PROOF_FORMATTERS = {
 proof_formatter = type_aware_apply_formatters_to_dict(ACCOUNT_PROOF_FORMATTERS)
 
 FILTER_PARAMS_FORMATTERS = {
-    "fromBlock": apply_formatter_if(is_integer, integer_to_hex),
-    "toBlock": apply_formatter_if(is_integer, integer_to_hex),
+    "fromBlock": to_hex_if_integer,
+    "toBlock": to_hex_if_integer,
 }
 
 
