@@ -190,8 +190,7 @@ def filter_by_argument_name(
     ]
 
 
-# type ignored because subclassing encoding.AddressEncoder which has type Any
-class AddressEncoder(encoding.AddressEncoder):  # type: ignore[misc]
+class AddressEncoder(encoding.AddressEncoder):
     @classmethod
     def validate_value(cls, value: Any) -> None:
         if is_ens_name(value):
@@ -200,8 +199,7 @@ class AddressEncoder(encoding.AddressEncoder):  # type: ignore[misc]
         super().validate_value(value)
 
 
-# type ignored because subclassing encoding.BytesEncoder which has type Any
-class AcceptsHexStrEncoder(encoding.BaseEncoder):  # type: ignore[misc]
+class AcceptsHexStrEncoder(encoding.BaseEncoder):
     subencoder_cls: Type[encoding.BaseEncoder] = None
     is_strict: bool = None
     is_big_endian: bool = False
@@ -330,8 +328,7 @@ class StrictByteStringEncoder(AcceptsHexStrEncoder):
     is_strict = True
 
 
-# type ignored because subclassing encoding.TextStringEncoder which has type Any
-class TextStringEncoder(encoding.TextStringEncoder):  # type: ignore[misc]
+class TextStringEncoder(encoding.TextStringEncoder):
     @classmethod
     def validate_value(cls, value: Any) -> None:
         if is_bytes(value):
