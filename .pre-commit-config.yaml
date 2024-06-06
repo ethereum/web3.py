@@ -47,7 +47,6 @@ repos:
     hooks:
     -   id: mypy-local
         name: run mypy with all dev dependencies present
-        # exclude: 'tests/|conftest.py'
         entry: python -m mypy -p web3
         language: system
         always_run: true

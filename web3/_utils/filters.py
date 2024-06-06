@@ -10,6 +10,7 @@ from typing import (
     Sequence,
     Tuple,
     Union,
+    cast,
 )
 
 from eth_abi.codec import (
@@ -78,9 +79,9 @@ def construct_event_filter_params(
     address: Optional[ChecksumAddress] = None,
 ) -> Tuple[List[List[Optional[HexStr]]], FilterParams]:
     filter_params: FilterParams = {}
-    topic_set: Sequence[HexStr] = construct_event_topic_set(
-        event_abi, abi_codec, argument_filters
-    )
+    topic_set: Union[
+        Sequence[HexStr], Sequence[Sequence[HexStr]]
+    ] = construct_event_topic_set(event_abi, abi_codec, argument_filters)
 
     if topics is not None:
         if len(topic_set) > 1:
@@ -91,7 +92,7 @@ def construct_event_filter_params(
         topic_set = topics
 
     if len(topic_set) == 1 and is_list_like(topic_set[0]):
-        filter_params["topics"] = topic_set[0]
+        filter_params["topics"] = cast(Sequence[HexStr], topic_set[0])
     else:
         filter_params["topics"] = topic_set
 

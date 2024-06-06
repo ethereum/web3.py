@@ -134,7 +134,7 @@ def construct_event_topic_set(
         for key, value in arguments.items()  # type: ignore
     }
 
-    event_topic = encode_hex(event_abi_to_log_topic(event_abi))
+    event_topic = encode_hex(event_abi_to_log_topic(cast(Dict[str, Any], event_abi)))
     indexed_args = get_indexed_event_inputs(event_abi)
     zipped_abi_and_args = [
         (arg, normalized_args.get(arg["name"], [None])) for arg in indexed_args
@@ -459,8 +459,8 @@ class AsyncEventFilterBuilder(BaseEventFilterBuilder):
         if not isinstance(async_w3, web3.AsyncWeb3):
             raise Web3ValueError(f"Invalid web3 argument: got: {async_w3!r}")
 
-        for arg in AttributeDict.values(self.args):
-            arg._immutable = True  # type: ignore[attr-defined]
+        for arg in self.args.values():
+            arg._immutable = True
         self._immutable = True
 
         log_filter = await async_w3.eth.filter(self.filter_params)
@@ -475,7 +475,7 @@ class AsyncEventFilterBuilder(BaseEventFilterBuilder):
 
 def initialize_event_topics(event_abi: ABIEvent) -> Union[bytes, List[Any]]:
     if event_abi["anonymous"] is False:
-        return event_abi_to_log_topic(event_abi)
+        return event_abi_to_log_topic(cast(Dict[str, Any], event_abi))
     else:
         return list()
 

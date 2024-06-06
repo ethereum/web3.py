@@ -12,4 +12,5 @@ from typing_extensions import (
     NotRequired,  # py311
     Self,  # py311
     Unpack,  # py311
+    TypeAlias,  # py310
 )

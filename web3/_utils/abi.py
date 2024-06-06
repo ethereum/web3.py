@@ -147,8 +147,7 @@ def filter_by_argument_name(
     return abis_with_matching_args
 
 
-# type ignored because subclassing encoding.AddressEncoder which has type Any
-class AddressEncoder(encoding.AddressEncoder):  # type: ignore[misc]
+class AddressEncoder(encoding.AddressEncoder):
     @classmethod
     def validate_value(cls, value: Any) -> None:
         if is_ens_name(value):
@@ -157,8 +156,7 @@ class AddressEncoder(encoding.AddressEncoder):  # type: ignore[misc]
         super().validate_value(value)
 
 
-# type ignored because subclassing encoding.BytesEncoder which has type Any
-class AcceptsHexStrEncoder(encoding.BaseEncoder):  # type: ignore[misc]
+class AcceptsHexStrEncoder(encoding.BaseEncoder):
     subencoder_cls: Type[encoding.BaseEncoder] = None
     is_strict: bool = None
     is_big_endian: bool = False
@@ -270,10 +268,16 @@ class ExactLengthBytesEncoder(BytesEncoder):
     ) -> "ExactLengthBytesEncoder":
         subencoder_cls = cls.get_subencoder_class()
         subencoder = subencoder_cls.from_type_str(abi_type.to_type_str(), registry)
-        return cls(
-            subencoder,
-            value_bit_size=abi_type.sub * 8,
-            data_byte_size=abi_type.sub,
+        return cast(
+            ExactLengthBytesEncoder,
+            # type ignored b/c mypy thinks the __call__ is from BaseEncoder, but it's
+            # from ExactLengthBytesEncoder, which does have value_bit_size and
+            # data_byte_size attributes
+            cls(  # type: ignore[call-arg]
+                subencoder,
+                value_bit_size=abi_type.sub * 8,
+                data_byte_size=abi_type.sub,
+            ),
         )
 
 
@@ -287,8 +291,7 @@ class StrictByteStringEncoder(AcceptsHexStrEncoder):
     is_strict = True
 
 
-# type ignored because subclassing encoding.TextStringEncoder which has type Any
-class TextStringEncoder(encoding.TextStringEncoder):  # type: ignore[misc]
+class TextStringEncoder(encoding.TextStringEncoder):
     @classmethod
     def validate_value(cls, value: Any) -> None:
         if is_bytes(value):
