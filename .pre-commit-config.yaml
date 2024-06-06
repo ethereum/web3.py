@@ -43,15 +43,15 @@ repos:
     -   id: mdformat
         additional_dependencies:
         -   mdformat-gfm
--   repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.10.0
+-   repo: local
     hooks:
-    -   id: mypy
-        exclude: 'tests/|conftest.py'
-        additional_dependencies:
-        -   pydantic
-        -   types-setuptools
-        -   types-requests
+    -   id: mypy-local
+        name: run mypy with all dev dependencies present
+        # exclude: 'tests/|conftest.py'
+        entry: python -m mypy -p web3
+        language: system
+        always_run: true
+        pass_filenames: false
 -   repo: https://github.com/PrincetonUniversity/blocklint
     rev: v0.2.5
     hooks:

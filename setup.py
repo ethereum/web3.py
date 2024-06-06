@@ -11,6 +11,7 @@ extras_require = {
         "flaky>=3.7.0",
         "hypothesis>=3.31.2",
         "ipython",
+        "mypy==1.10.0",
         "pre-commit>=3.4.0",
         "pytest-asyncio>=0.21.2,<0.23",
         "pytest-mock>=1.10",
