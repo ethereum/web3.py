@@ -7,6 +7,8 @@ from eth_utils.abi import (
     abi_to_signature,
     event_abi_to_log_topic,
     event_signature_to_log_topic,
+    filter_abi_by_name,
+    filter_abi_by_type,
     function_abi_to_4byte_selector,
     function_signature_to_4byte_selector,
     get_abi_input_names,
@@ -22,7 +24,6 @@ from eth_utils.abi import (
 from .abi import (
     get_function_info,
     get_function_abi,
-    filter_abi_by_name,
     check_if_arguments_can_be_encoded,
 )
 from .address import get_create_address
@@ -44,6 +45,7 @@ __all__ = [
     "event_abi_to_log_topic",
     "event_signature_to_log_topic",
     "filter_abi_by_name",
+    "filter_abi_by_type",
     "function_abi_to_4byte_selector",
     "function_signature_to_4byte_selector",
     "get_abi_input_names",

@@ -21,7 +21,6 @@ from eth_abi.registry import (
 from eth_typing import (
     ABIElement,
     ABIError,
-    ABIEvent,
     ABIFallback,
     ABIReceive,
 )
@@ -64,6 +63,8 @@ from eth_utils.abi import (  # noqa
     abi_to_signature,
     event_abi_to_log_topic,
     event_signature_to_log_topic,
+    filter_abi_by_name,
+    filter_abi_by_type,
     function_abi_to_4byte_selector,
     function_signature_to_4byte_selector,
     get_abi_input_names,
@@ -376,79 +377,6 @@ def get_fallback_function_abi(contract_abi: ABI) -> ABIFallback:
         return cast(ABIFallback, fallback_abis[0])
     else:
         raise FallbackNotFound("No fallback function was found in the contract ABI.")
-
-
-def filter_abi_by_name(
-    name: str, contract_abi: ABI
-) -> List[Union[ABIFunction, ABIEvent, ABIError]]:
-    """
-    Get one or more function and event ABIs by name.
-
-    :param name: Name of the function or event.
-    :type name: `str`
-    :param contract_abi: Contract ABI.
-    :type contract_abi: `ABI`
-    :return: Function or event ABIs with matching name.
-    :rtype: `List[ABIElement]`
-
-    .. doctest
-
-            >>> from web3.utils.abi import filter_abi_by_name
-            >>> abi = [
-            ...     {
-            ...         "constant": False,
-            ...         "inputs": [],
-            ...         "name": "func_1",
-            ...         "outputs": [],
-            ...         "type": "function",
-            ...     },
-            ...     {
-            ...         "constant": False,
-            ...         "inputs": [
-            ...             {"name": "a", "type": "uint256"},
-            ...         ],
-            ...         "name": "func_2",
-            ...         "outputs": [],
-            ...         "type": "function",
-            ...     },
-            ...     {
-            ...         "constant": False,
-            ...         "inputs": [
-            ...             {"name": "a", "type": "uint256"},
-            ...             {"name": "b", "type": "uint256"},
-            ...         ],
-            ...         "name": "func_3",
-            ...         "outputs": [],
-            ...         "type": "function",
-            ...     },
-            ...     {
-            ...         "constant": False,
-            ...         "inputs": [
-            ...             {"name": "a", "type": "uint256"},
-            ...             {"name": "b", "type": "uint256"},
-            ...             {"name": "c", "type": "uint256"},
-            ...         ],
-            ...         "name": "func_4",
-            ...         "outputs": [],
-            ...         "type": "function",
-            ...     },
-            ... ]
-            >>> filter_abi_by_name("func_1", abi)
-            [{'constant': False, 'inputs': [], 'name': 'func_1', 'outputs': [], \
-'type': 'function'}]
-    """
-    return [
-        abi
-        for abi in contract_abi
-        if (
-            (
-                abi["type"] == "function"
-                or abi["type"] == "event"
-                or abi["type"] == "error"
-            )
-            and abi["name"] == name
-        )
-    ]
 
 
 def check_if_arguments_can_be_encoded(
