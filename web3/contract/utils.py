@@ -25,6 +25,7 @@ from eth_typing.abi import (
 )
 from eth_utils.abi import (
     filter_abi_by_type,
+    get_abi_output_types,
 )
 from eth_utils.toolz import (
     compose,
@@ -63,7 +64,6 @@ from web3.types import (
     TxParams,
 )
 from web3.utils.abi import (
-    get_abi_output_types,
     get_function_abi,
 )
 

@@ -39,7 +39,10 @@ from eth_utils import (
     to_tuple,
 )
 from eth_utils.abi import (
+    abi_to_signature,
     filter_abi_by_type,
+    function_abi_to_4byte_selector,
+    get_normalized_abi_inputs,
 )
 from hexbytes import (
     HexBytes,
@@ -119,12 +122,9 @@ from web3.types import (
     TxReceipt,
 )
 from web3.utils.abi import (
-    abi_to_signature,
     check_if_arguments_can_be_encoded,
-    function_abi_to_4byte_selector,
     get_function_abi,
     get_function_info,
-    get_normalized_abi_inputs,
 )
 
 if TYPE_CHECKING:

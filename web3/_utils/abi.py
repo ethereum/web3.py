@@ -66,6 +66,8 @@ from eth_utils import (
 )
 from eth_utils.abi import (
     filter_abi_by_type,
+    get_abi_input_names,
+    get_normalized_abi_component_type,
 )
 from eth_utils.toolz import (
     curry,
@@ -90,10 +92,6 @@ from web3.exceptions import (
 )
 from web3.types import (
     TReturn,
-)
-from web3.utils.abi import (
-    get_abi_input_names,
-    get_normalized_abi_component_type,
 )
 
 if TYPE_CHECKING:

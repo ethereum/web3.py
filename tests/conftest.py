@@ -6,6 +6,9 @@ from typing import (
 from eth_utils import (
     to_bytes,
 )
+from eth_utils.abi import (
+    event_signature_to_log_topic,
+)
 from eth_utils.toolz import (
     identity,
 )
@@ -16,9 +19,6 @@ from web3._utils.contract_sources.contract_data.emitter_contract import (
 )
 from web3._utils.module_testing.utils import (
     RequestMocker,
-)
-from web3.utils.abi import (
-    event_signature_to_log_topic,
 )
 
 from .utils import (

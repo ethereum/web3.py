@@ -25,7 +25,9 @@ from eth_utils import (
     is_string,
 )
 from eth_utils.abi import (
+    abi_to_signature,
     filter_abi_by_type,
+    function_abi_to_4byte_selector,
 )
 from eth_utils.curried import (
     apply_formatter_to_array,
@@ -59,10 +61,6 @@ from web3.exceptions import (
     InvalidAddress,
     Web3TypeError,
     Web3ValueError,
-)
-from web3.utils.abi import (
-    abi_to_signature,
-    function_abi_to_4byte_selector,
 )
 
 

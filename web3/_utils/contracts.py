@@ -33,7 +33,9 @@ from eth_utils import (
     encode_hex,
 )
 from eth_utils.abi import (
+    filter_abi_by_name,
     filter_abi_by_type,
+    get_abi_input_types,
 )
 from eth_utils.toolz import (
     pipe,
@@ -80,8 +82,6 @@ from web3.types import (
 )
 from web3.utils.abi import (
     check_if_arguments_can_be_encoded,
-    filter_abi_by_name,
-    get_abi_input_types,
     get_fallback_function_abi,
     get_function_abi,
     get_function_info,
