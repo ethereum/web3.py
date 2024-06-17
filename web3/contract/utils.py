@@ -124,7 +124,7 @@ def call_contract_function(
     transaction: TxParams,
     block_id: Optional[BlockIdentifier] = None,
     contract_abi: Optional[ABI] = None,
-    fn_abi: Optional[Union[ABIFunction]] = None,
+    fn_abi: Optional[ABIFunction] = None,
     state_override: Optional[StateOverride] = None,
     ccip_read_enabled: Optional[bool] = None,
     decode_tuples: Optional[bool] = False,
