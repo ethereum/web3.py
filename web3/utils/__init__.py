@@ -18,7 +18,7 @@ from eth_utils.abi import (
     get_aligned_abi_inputs,
     get_all_event_abis,
     get_all_function_abis,
-    get_normalized_abi_arg_type,
+    get_normalized_abi_component_type,
     get_normalized_abi_inputs,
 )
 from .abi import (
@@ -58,7 +58,7 @@ __all__ = [
     "get_create_address",
     "get_function_info",
     "get_function_abi",
-    "get_normalized_abi_arg_type",
+    "get_normalized_abi_component_type",
     "get_normalized_abi_inputs",
     "handle_offchain_lookup",
 ]

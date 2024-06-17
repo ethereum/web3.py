@@ -25,7 +25,7 @@ from eth_utils import (
     is_string,
 )
 from eth_utils.abi import (
-    filter_by_type,
+    filter_abi_by_type,
 )
 from eth_utils.curried import (
     apply_formatter_to_array,
@@ -85,7 +85,7 @@ def validate_abi(abi: ABI) -> None:
     if not all(is_dict(e) for e in abi):
         raise Web3ValueError("'abi' is not a list of dictionaries")
 
-    functions = filter_by_type("function", abi)
+    functions = filter_abi_by_type("function", abi)
     selectors = groupby(compose(encode_hex, function_abi_to_4byte_selector), functions)
     duplicates = valfilter(lambda funcs: len(funcs) > 1, selectors)
     if duplicates:

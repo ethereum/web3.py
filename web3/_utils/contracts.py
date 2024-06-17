@@ -33,7 +33,7 @@ from eth_utils import (
     encode_hex,
 )
 from eth_utils.abi import (
-    filter_by_type,
+    filter_abi_by_type,
 )
 from eth_utils.toolz import (
     pipe,
@@ -101,7 +101,7 @@ def find_matching_event_abi(
     argument_names: Optional[Sequence[str]] = None,
 ) -> ABIEvent:
     filters = [
-        functools.partial(filter_by_type, "event"),
+        functools.partial(filter_abi_by_type, "event"),
     ]
 
     if event_name is not None:

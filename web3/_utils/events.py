@@ -88,7 +88,7 @@ from web3.types import (
 from web3.utils.abi import (
     event_abi_to_log_topic,
     get_abi_input_names,
-    get_normalized_abi_arg_type,
+    get_normalized_abi_component_type,
 )
 
 if TYPE_CHECKING:
@@ -218,7 +218,7 @@ def get_event_abi_types_for_decoding(
         if input_abi["indexed"] and is_dynamic_sized_type(input_abi["type"]):
             yield "bytes32"
         else:
-            yield get_normalized_abi_arg_type(input_abi)
+            yield get_normalized_abi_component_type(input_abi)
 
 
 @curry
@@ -497,10 +497,10 @@ def _build_argument_filters_from_event_abi(
         value: "BaseArgumentFilter"
         if item["indexed"] is True:
             value = TopicArgumentFilter(
-                abi_codec=abi_codec, arg_type=get_normalized_abi_arg_type(item)
+                abi_codec=abi_codec, arg_type=get_normalized_abi_component_type(item)
             )
         else:
-            value = DataArgumentFilter(arg_type=get_normalized_abi_arg_type(item))
+            value = DataArgumentFilter(arg_type=get_normalized_abi_component_type(item))
         yield key, value
 
 

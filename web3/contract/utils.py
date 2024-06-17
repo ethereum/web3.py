@@ -24,7 +24,7 @@ from eth_typing.abi import (
     ABIFunction,
 )
 from eth_utils.abi import (
-    filter_by_type,
+    filter_abi_by_type,
 )
 from eth_utils.toolz import (
     compose,
@@ -327,7 +327,7 @@ def find_functions_by_identifier(
     callable_check: Callable[..., Any],
     function_type: Type[TContractFn],
 ) -> List[TContractFn]:
-    fns_abi = filter_by_type("function", contract_abi)
+    fns_abi = filter_abi_by_type("function", contract_abi)
     return [
         function_type.factory(
             fn_abi["name"],

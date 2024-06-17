@@ -30,7 +30,7 @@ from eth_typing.abi import (
     ABIFunctionInfo,
 )
 from eth_utils.abi import (
-    filter_by_type,
+    filter_abi_by_type,
 )
 from eth_utils.address import (
     is_binary_address,
@@ -74,7 +74,7 @@ from eth_utils.abi import (  # noqa
     get_aligned_abi_inputs,
     get_all_event_abis,
     get_all_function_abis,
-    get_normalized_abi_arg_type,
+    get_normalized_abi_component_type,
     get_normalized_abi_inputs,
 )
 
@@ -364,7 +364,7 @@ def get_function_abi(
 
 
 def get_receive_function_abi(contract_abi: ABI) -> ABIReceive:
-    receive_abis = filter_by_type("receive", contract_abi)
+    receive_abis = filter_abi_by_type("receive", contract_abi)
     if receive_abis and receive_abis[0]["type"] == "receive":
         return cast(ABIReceive, receive_abis[0])
     else:
@@ -372,7 +372,7 @@ def get_receive_function_abi(contract_abi: ABI) -> ABIReceive:
 
 
 def get_fallback_function_abi(contract_abi: ABI) -> ABIFallback:
-    fallback_abis = filter_by_type("fallback", contract_abi)
+    fallback_abis = filter_abi_by_type("fallback", contract_abi)
     if fallback_abis and fallback_abis[0]["type"] == "fallback":
         return cast(ABIFallback, fallback_abis[0])
     else:

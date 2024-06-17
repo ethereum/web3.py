@@ -65,7 +65,7 @@ from eth_utils import (
     to_tuple,
 )
 from eth_utils.abi import (
-    filter_by_type,
+    filter_abi_by_type,
 )
 from eth_utils.toolz import (
     curry,
@@ -93,7 +93,7 @@ from web3.types import (
 )
 from web3.utils.abi import (
     get_abi_input_names,
-    get_normalized_abi_arg_type,
+    get_normalized_abi_component_type,
 )
 
 if TYPE_CHECKING:
@@ -103,11 +103,11 @@ if TYPE_CHECKING:
 
 
 def fallback_func_abi_exists(contract_abi: ABI) -> List[ABIElement]:
-    return filter_by_type("fallback", contract_abi)
+    return filter_abi_by_type("fallback", contract_abi)
 
 
 def receive_func_abi_exists(contract_abi: ABI) -> List[ABIElement]:
-    return filter_by_type("receive", contract_abi)
+    return filter_abi_by_type("receive", contract_abi)
 
 
 def get_indexed_event_inputs(event_abi: ABIEvent) -> List[ABIComponentIndexed]:
@@ -738,7 +738,7 @@ def _named_subtree(
     abi: Union[ABIComponent, ABIComponentIndexed],
     data: Tuple[Any, ...],
 ) -> Union[Dict[str, Any], Tuple[Any, ...], List[Any]]:
-    abi_type = parse(get_normalized_abi_arg_type(abi))
+    abi_type = parse(get_normalized_abi_component_type(abi))
 
     if abi_type.is_array:
         item_type = abi_type.item_type.to_type_str()

@@ -22,7 +22,7 @@ from eth_utils import (
     combomethod,
 )
 from eth_utils.abi import (
-    filter_by_type,
+    filter_abi_by_type,
 )
 from eth_utils.toolz import (
     partial,
@@ -587,7 +587,7 @@ class ContractCaller(BaseContractCaller):
             if transaction is None:
                 transaction = {}
 
-            self._functions = filter_by_type("function", self.abi)
+            self._functions = filter_abi_by_type("function", self.abi)
             for func in self._functions:
                 fn = ContractFunction.factory(
                     func["name"],

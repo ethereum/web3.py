@@ -39,7 +39,7 @@ from eth_utils import (
     to_tuple,
 )
 from eth_utils.abi import (
-    filter_by_type,
+    filter_abi_by_type,
 )
 from hexbytes import (
     HexBytes,
@@ -422,7 +422,7 @@ class BaseContractEvents:
     ) -> None:
         if abi:
             self.abi = abi
-            self._events = filter_by_type("event", self.abi)
+            self._events = filter_abi_by_type("event", self.abi)
             for event in self._events:
                 setattr(
                     self,
@@ -663,7 +663,7 @@ class BaseContractFunctions:
         self.address = address
 
         if self.abi:
-            self._functions = filter_by_type("function", self.abi)
+            self._functions = filter_abi_by_type("function", self.abi)
             for func in self._functions:
                 setattr(
                     self,
