@@ -26,9 +26,6 @@ from eth_typing import (
 from hexbytes import (
     HexBytes,
 )
-from typing_extensions import (
-    deprecated,
-)
 
 from web3._utils.compat import (
     NotRequired,
@@ -76,66 +73,6 @@ class AccessListEntry(TypedDict):
 
 
 AccessList = NewType("AccessList", Sequence[AccessListEntry])
-
-ABI_COMPONENT_DEPRECATION_MSG = "`{0}` is deprecated, use `{1}` instead."
-
-
-@deprecated(
-    ABI_COMPONENT_DEPRECATION_MSG.format(
-        "ABIEventParams", "eth_utils.abi.ABIComponentIndexed"
-    )
-)
-class ABIEventParams(TypedDict, total=False):
-    indexed: bool
-    name: str
-    type: str
-
-
-@deprecated(ABI_COMPONENT_DEPRECATION_MSG.format("ABIEvent", "eth_utils.abi.ABIEvent"))
-class ABIEvent(TypedDict, total=False):
-    anonymous: bool
-    inputs: Sequence["ABIEventParams"]
-    name: str
-    type: Literal["event"]
-
-
-@deprecated(
-    ABI_COMPONENT_DEPRECATION_MSG.format(
-        "ABIFunctionComponents", "eth_utils.abi.ABIComponent"
-    )
-)
-class ABIFunctionComponents(TypedDict, total=False):
-    components: Sequence["ABIFunctionComponents"]
-    name: str
-    type: str
-
-
-@deprecated(
-    ABI_COMPONENT_DEPRECATION_MSG.format(
-        "ABIFunctionParams", "eth_utils.abi.ABIComponent"
-    )
-)
-class ABIFunctionParams(TypedDict, total=False):
-    components: Sequence["ABIFunctionComponents"]
-    name: str
-    type: str
-
-
-@deprecated(
-    ABI_COMPONENT_DEPRECATION_MSG.format("ABIFunction", "eth_utils.abi.ABIFunction")
-)
-class ABIFunction(TypedDict, total=False):
-    constant: bool
-    inputs: Sequence["ABIFunctionParams"]
-    name: str
-    outputs: Sequence["ABIFunctionParams"]
-    payable: bool
-    stateMutability: Literal["pure", "view", "nonpayable", "payable"]
-    type: Literal["function", "constructor", "fallback", "receive"]
-
-
-ABIElement = Union[ABIFunction, ABIEvent]
-ABI = Sequence[Union[ABIFunction, ABIEvent]]
 
 
 class EventData(TypedDict):

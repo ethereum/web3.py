@@ -63,9 +63,6 @@ if TYPE_CHECKING:
         AsyncBaseProvider,
         BaseProvider,
     )
-    from web3.types import (  # noqa: F401
-        ABIFunction,
-    )
 
 
 def Web3() -> Type["_Web3"]:
