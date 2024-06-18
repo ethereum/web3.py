@@ -4317,7 +4317,7 @@ class EthModuleTest:
         self, w3: "Web3", block_with_txn: BlockData
     ) -> None:
         block = w3.eth.get_block(block_with_txn["number"], True)
-        transaction = block["transactions"][0]
+        transaction = cast(TxData, block["transactions"][0])
         assert transaction["hash"] == block_with_txn["transactions"][0]
 
     def test_eth_getBlockReceipts_hash(
