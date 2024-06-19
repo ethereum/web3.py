@@ -385,6 +385,8 @@ class PersistentConnectionProviderTest:
             "transactions",
             "baseFeePerGas",
         ]
+        assert latest is not None
+        assert pending is not None
         assert all(k in latest.keys() for k in some_block_keys)
         assert all(k in pending.keys() for k in some_block_keys)
 
