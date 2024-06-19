@@ -48,14 +48,12 @@ from hexbytes import (
 
 from web3._utils.abi import (
     abi_to_signature,
+    extract_argument_types,
     filter_by_argument_count,
     filter_by_argument_name,
     filter_by_encodability,
     filter_by_name,
     filter_by_type,
-)
-from web3._utils.contracts import (
-    extract_argument_types,
 )
 from web3.exceptions import (
     MismatchedABI,
@@ -252,7 +250,7 @@ def get_event_abi(
 
     .. doctest::
 
-        >>> from eth_utils import get_event_abi
+        >>> from web3.utils import get_event_abi
         >>> abi = [
         ...   {"type": "function", "name": "myFunction", "inputs": [], "outputs": []},
         ...   {"type": "function", "name": "myFunction2", "inputs": [], "outputs": []},
@@ -301,7 +299,7 @@ def get_event_log_topics(
 
     .. doctest::
 
-        >>> from eth_utils import get_event_log_topics
+        >>> from web3.utils import get_event_log_topics
         >>> abi = {
         ...   'type': 'event',
         ...   'anonymous': False,

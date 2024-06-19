@@ -70,6 +70,10 @@ from eth_utils.abi import (
     get_normalized_abi_component_type,
     get_normalized_abi_inputs,
 )
+from eth_utils.address import (
+    is_binary_address,
+    is_checksum_address,
+)
 from eth_utils.toolz import (
     curry,
     partial,
@@ -100,6 +104,35 @@ if TYPE_CHECKING:
     from web3 import (  # noqa: F401
         AsyncWeb3,
     )
+
+
+def _get_argument_readable_type(arg: Any) -> str:
+    if is_checksum_address(arg) or is_binary_address(arg):
+        return "address"
+
+    return arg.__class__.__name__
+
+
+def extract_argument_types(*args: Sequence[Any]) -> str:
+    """
+    Takes a list of arguments and returns a string representation of the argument types,
+    appropriately collapsing `tuple` types into the respective nested types.
+    """
+    collapsed_args = []
+
+    for arg in args:
+        if is_list_like(arg):
+            collapsed_nested = []
+            for nested in arg:
+                if is_list_like(nested):
+                    collapsed_nested.append(f"({extract_argument_types(nested)})")
+                else:
+                    collapsed_nested.append(_get_argument_readable_type(nested))
+            collapsed_args.append(",".join(collapsed_nested))
+        else:
+            collapsed_args.append(_get_argument_readable_type(arg))
+
+    return ",".join(collapsed_args)
 
 
 def filter_by_type(_type: str, contract_abi: ABI) -> List[ABIElement]:

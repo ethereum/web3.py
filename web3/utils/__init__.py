@@ -4,6 +4,7 @@ classify as breaking changes.
 """
 
 from .abi import (  # NOQA
+    get_event_abi,
     get_function_info,
     get_function_abi,
     get_abi_input_names,
@@ -29,6 +30,7 @@ __all__ = [
     "get_abi_input_names",
     "get_abi_output_names",
     "get_create_address",
+    "get_event_abi",
     "get_event_log_topics",
     "get_function_abi",
     "get_function_info",

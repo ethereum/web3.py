@@ -32,9 +32,6 @@ from eth_utils import (
     add_0x_prefix,
     encode_hex,
     function_abi_to_4byte_selector,
-    is_binary_address,
-    is_checksum_address,
-    is_list_like,
     is_text,
 )
 from eth_utils.abi import (
@@ -52,6 +49,7 @@ from hexbytes import (
 from web3._utils.abi import (
     abi_to_signature,
     check_if_arguments_can_be_encoded,
+    extract_argument_types,
     filter_by_argument_count,
     filter_by_argument_name,
     filter_by_encodability,
@@ -98,28 +96,6 @@ if TYPE_CHECKING:
         AsyncWeb3,
         Web3,
     )
-
-
-def extract_argument_types(*args: Sequence[Any]) -> str:
-    """
-    Takes a list of arguments and returns a string representation of the argument types,
-    appropriately collapsing `tuple` types into the respective nested types.
-    """
-    collapsed_args = []
-
-    for arg in args:
-        if is_list_like(arg):
-            collapsed_nested = []
-            for nested in arg:
-                if is_list_like(nested):
-                    collapsed_nested.append(f"({extract_argument_types(nested)})")
-                else:
-                    collapsed_nested.append(_get_argument_readable_type(nested))
-            collapsed_args.append(",".join(collapsed_nested))
-        else:
-            collapsed_args.append(_get_argument_readable_type(arg))
-
-    return ",".join(collapsed_args)
 
 
 def find_matching_event_abi(
@@ -405,13 +381,6 @@ def validate_payable(transaction: TxParams, abi: ABIFunction) -> None:
                     "with payable=False. Please ensure that "
                     "transaction's value is 0."
                 )
-
-
-def _get_argument_readable_type(arg: Any) -> str:
-    if is_checksum_address(arg) or is_binary_address(arg):
-        return "address"
-
-    return arg.__class__.__name__
 
 
 def parse_block_identifier(
