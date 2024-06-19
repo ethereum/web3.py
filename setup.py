@@ -64,7 +64,7 @@ setup(
         "eth-abi>=5.0.1",
         "eth-account>=0.12.2",
         "eth-hash[pycryptodome]>=0.5.1",
-        "eth-typing @ git+https://github.com/reedsa/eth-typing@5d8dc7d719afe9507c22ace4f359e338224f762e",
+        "eth-typing>=4.3.1",
         "eth-utils @ git+https://github.com/reedsa/eth-utils@abi-element-utils",
         "hexbytes>=1.2.0",
         "pydantic>=2.4.0",
