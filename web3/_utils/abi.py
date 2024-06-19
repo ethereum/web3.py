@@ -67,7 +67,7 @@ from eth_utils import (
 )
 from eth_utils.abi import (
     get_abi_input_names,
-    get_normalized_abi_arg_type,
+    get_normalized_abi_component_type,
     get_normalized_abi_inputs,
 )
 from eth_utils.toolz import (
@@ -455,7 +455,7 @@ def get_aligned_abi_inputs(
         args = tuple(args[abi["name"]] for abi in input_abis)
 
     return (
-        tuple(get_normalized_abi_arg_type(abi) for abi in input_abis),
+        tuple(get_normalized_abi_component_type(abi) for abi in input_abis),
         type(args)(_align_abi_input(abi, arg) for abi, arg in zip(input_abis, args)),
     )
 
@@ -609,7 +609,7 @@ def abi_to_signature(abi: ABIElement) -> str:
     function_signature = "{fn_name}({fn_input_types})".format(
         fn_name=abi["name"],
         fn_input_types=",".join(
-            get_normalized_abi_arg_type(dict(arg))
+            get_normalized_abi_component_type(dict(arg))
             for arg in normalize_event_input_types(abi.get("inputs", []))
         ),
     )
@@ -856,7 +856,7 @@ def _named_subtree(
     abi: Union[ABIComponent, ABIComponentIndexed],
     data: Tuple[Any, ...],
 ) -> Union[Dict[str, Any], Tuple[Any, ...], List[Any]]:
-    abi_type = parse(get_normalized_abi_arg_type(abi))
+    abi_type = parse(get_normalized_abi_component_type(abi))
 
     if abi_type.is_array:
         item_type = abi_type.item_type.to_type_str()

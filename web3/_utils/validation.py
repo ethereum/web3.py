@@ -5,8 +5,6 @@ from typing import (
 )
 
 from eth_typing import (
-    ABI,
-    ABIFunction,
     HexStr,
     TypeStr,
 )

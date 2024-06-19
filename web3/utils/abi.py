@@ -7,6 +7,12 @@ from typing import (
     cast,
 )
 
+from eth_abi.abi import (
+    ABICodec,
+)
+from eth_abi.registry import (
+    registry as default_registry,
+)
 from eth_typing import (
     HexStr,
     Primitives,
@@ -26,9 +32,6 @@ from eth_utils.abi import (
 from eth_utils.conversions import (
     hexstr_if_str,
     to_bytes,
-)
-from eth_utils.encoding import (
-    get_default_codec,
 )
 from eth_utils.hexadecimal import (
     encode_hex,
@@ -63,6 +66,10 @@ from eth_utils import (  # NOQA
     get_abi_input_names,
     get_abi_output_names,
 )
+
+
+def _get_default_codec() -> "ABICodec":
+    return ABICodec(default_registry)
 
 
 def get_function_info(
@@ -141,7 +148,7 @@ def get_function_abi(
         raise TypeError("Unsupported function identifier")
 
     if abi_codec is None:
-        abi_codec = get_default_codec()
+        abi_codec = _get_default_codec()
 
     args = args or tuple()
     kwargs = kwargs or dict()

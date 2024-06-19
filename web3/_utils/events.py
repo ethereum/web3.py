@@ -47,6 +47,7 @@ from eth_utils import (
 from eth_utils.abi import (
     event_abi_to_log_topic,
     get_abi_input_names,
+    get_normalized_abi_component_type,
 )
 from eth_utils.curried import (
     apply_formatter_if,
@@ -63,7 +64,6 @@ import web3
 from web3._utils.abi import (
     exclude_indexed_event_inputs,
     get_indexed_event_inputs,
-    get_normalized_abi_arg_type,
     map_abi_data,
     named_tree,
     normalize_event_input_types,
@@ -220,7 +220,7 @@ def get_event_abi_types_for_decoding(
         if input_abi.get("indexed") and is_dynamic_sized_type(input_abi["type"]):
             yield "bytes32"
         else:
-            yield get_normalized_abi_arg_type(input_abi)
+            yield get_normalized_abi_component_type(input_abi)
 
 
 @curry
@@ -489,10 +489,10 @@ def _build_argument_filters_from_event_abi(
         value: "BaseArgumentFilter"
         if item.get("indexed") is True:
             value = TopicArgumentFilter(
-                abi_codec=abi_codec, arg_type=get_normalized_abi_arg_type(item)
+                abi_codec=abi_codec, arg_type=get_normalized_abi_component_type(item)
             )
         else:
-            value = DataArgumentFilter(arg_type=get_normalized_abi_arg_type(item))
+            value = DataArgumentFilter(arg_type=get_normalized_abi_component_type(item))
         yield key, value
 
 
