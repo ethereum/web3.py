@@ -1,3 +1,4 @@
+import asyncio
 import json
 import math
 import pytest
@@ -992,9 +993,8 @@ class AsyncEthModuleTest:
     async def test_eth_getBlockByNumber_pending(
         self, async_w3: "AsyncWeb3", async_empty_block: BlockData
     ) -> None:
-        current_block_number = await async_w3.eth.block_number
         block = await async_w3.eth.get_block("pending")
-        assert block["number"] == current_block_number + 1
+        assert block["hash"] is None
 
     @pytest.mark.asyncio
     async def test_eth_getBlockByNumber_earliest(
@@ -1086,16 +1086,23 @@ class AsyncEthModuleTest:
         async_keyfile_account_address_dual_type: ChecksumAddress,
     ) -> None:
         # eth_getRawTransactionByBlockNumberAndIndex: block identifier
-        # send a tx and wait until the latest block includes it
-        tx_hash = await async_w3.eth.send_transaction(
+        await async_w3.eth.send_transaction(
             {
                 "from": async_keyfile_account_address_dual_type,
                 "to": async_keyfile_account_address_dual_type,
                 "value": Wei(1),
             }
         )
-        await async_w3.eth.wait_for_transaction_receipt(tx_hash)
-        raw_txn = await async_w3.eth.get_raw_transaction_by_block("latest", 0)
+
+        async def wait_for_block_with_txn() -> HexBytes:
+            while True:
+                try:
+                    return await async_w3.eth.get_raw_transaction_by_block("latest", 0)
+                except TransactionNotFound:
+                    await asyncio.sleep(0.1)
+                    continue
+
+        raw_txn = await asyncio.wait_for(wait_for_block_with_txn(), timeout=5)
         assert is_bytes(raw_txn)
 
         # eth_getRawTransactionByBlockNumberAndIndex: block number
@@ -4698,16 +4705,20 @@ class EthModuleTest:
         block_with_txn: BlockData,
     ) -> None:
         # eth_getRawTransactionByBlockNumberAndIndex: block identifier
-        # send a tx and wait until the latest block includes it
-        tx_hash = w3.eth.send_transaction(
+        w3.eth.send_transaction(
             {
                 "from": keyfile_account_address_dual_type,
                 "to": keyfile_account_address_dual_type,
                 "value": Wei(1),
             }
         )
-        w3.eth.wait_for_transaction_receipt(tx_hash)
-        raw_transaction = w3.eth.get_raw_transaction_by_block("latest", 0)
+        raw_transaction = None
+        while not raw_transaction:
+            try:
+                raw_transaction = w3.eth.get_raw_transaction_by_block("latest", 0)
+            except TransactionNotFound:
+                continue
+
         assert is_bytes(raw_transaction)
 
         # eth_getRawTransactionByBlockNumberAndIndex: block number
