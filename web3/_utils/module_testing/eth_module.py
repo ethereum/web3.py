@@ -4645,38 +4645,37 @@ class EthModuleTest:
         block_hash = current_block["hash"]
 
         default_call_result = math_contract.functions.counter().call()
-        pre_state_change_latest = math_contract.functions.counter().call(
+        latest_call_result = math_contract.functions.counter().call(
             block_identifier="latest"
         )
 
-        # increment counter and wait 1 second to "mine" txn
+        # increment counter and get tx receipt
         tx_hash = math_contract.functions.incrementCounter().transact(
             {"from": keyfile_account_address}
         )
-        w3.eth.wait_for_transaction_receipt(tx_hash)
-        # assert block number increased
-        assert w3.eth.get_block("latest")["number"] == block_num + 1
+        tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
 
+        # get new state value
+        post_state_block_num_call_result = math_contract.functions.counter().call(
+            block_identifier=tx_receipt["blockNumber"]
+        )
+
+        # call old state values with different block identifiers
         block_hash_call_result = math_contract.functions.counter().call(
             block_identifier=block_hash
         )
-        block_num_call_result = math_contract.functions.counter().call(
+        pre_state_block_num_call_result = math_contract.functions.counter().call(
             block_identifier=block_num
         )
 
-        # assert old state values
+        # assert old state values before incrementing counter
+        assert pre_state_block_num_call_result == post_state_block_num_call_result - 1
         assert (
-            block_hash_call_result
-            == block_num_call_result
+            pre_state_block_num_call_result
+            == block_hash_call_result
             == default_call_result
-            == pre_state_change_latest
+            == latest_call_result
         )
-
-        # assert new state value
-        post_state_change_latest = math_contract.functions.counter().call(
-            block_identifier="latest"
-        )
-        assert post_state_change_latest == pre_state_change_latest + 1
 
     def test_eth_uninstall_filter(self, w3: "Web3") -> None:
         filter = w3.eth.filter({})
