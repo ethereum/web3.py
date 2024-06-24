@@ -61,6 +61,7 @@ from web3.types import (
 
 from eth_utils.abi import (  # noqa
     abi_to_signature,
+    collapse_if_tuple,
     event_abi_to_log_topic,
     event_signature_to_log_topic,
     filter_abi_by_name,
@@ -74,7 +75,6 @@ from eth_utils.abi import (  # noqa
     get_aligned_abi_inputs,
     get_all_event_abis,
     get_all_function_abis,
-    get_normalized_abi_component_type,
     get_normalized_abi_inputs,
 )
 

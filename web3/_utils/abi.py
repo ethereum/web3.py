@@ -65,9 +65,9 @@ from eth_utils import (
     to_tuple,
 )
 from eth_utils.abi import (
+    collapse_if_tuple,
     filter_abi_by_type,
     get_abi_input_names,
-    get_normalized_abi_component_type,
 )
 from eth_utils.toolz import (
     curry,
@@ -736,7 +736,7 @@ def _named_subtree(
     abi: Union[ABIComponent, ABIComponentIndexed],
     data: Tuple[Any, ...],
 ) -> Union[Dict[str, Any], Tuple[Any, ...], List[Any]]:
-    abi_type = parse(get_normalized_abi_component_type(abi))
+    abi_type = parse(collapse_if_tuple(abi))
 
     if abi_type.is_array:
         item_type = abi_type.item_type.to_type_str()

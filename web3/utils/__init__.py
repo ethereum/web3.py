@@ -5,6 +5,7 @@ classify as breaking changes.
 
 from eth_utils.abi import (
     abi_to_signature,
+    collapse_if_tuple,
     event_abi_to_log_topic,
     event_signature_to_log_topic,
     filter_abi_by_name,
@@ -18,7 +19,6 @@ from eth_utils.abi import (
     get_aligned_abi_inputs,
     get_all_event_abis,
     get_all_function_abis,
-    get_normalized_abi_component_type,
     get_normalized_abi_inputs,
 )
 from .abi import (
@@ -38,10 +38,8 @@ from .exception_handling import (
 )
 
 __all__ = [
-    "SimpleCache",
     "abi_to_signature",
-    "check_if_arguments_can_be_encoded",
-    "async_handle_offchain_lookup",
+    "collapse_if_tuple",
     "event_abi_to_log_topic",
     "event_signature_to_log_topic",
     "filter_abi_by_name",
@@ -56,9 +54,11 @@ __all__ = [
     "get_all_event_abis",
     "get_all_function_abis",
     "get_create_address",
-    "get_function_info",
-    "get_function_abi",
-    "get_normalized_abi_component_type",
     "get_normalized_abi_inputs",
+    "get_function_abi",
+    "get_function_info",
+    "check_if_arguments_can_be_encoded",
+    "async_handle_offchain_lookup",
+    "SimpleCache",
     "handle_offchain_lookup",
 ]
