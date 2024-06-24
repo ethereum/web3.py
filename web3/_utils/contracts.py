@@ -4,6 +4,7 @@ from typing import (
     Any,
     Callable,
     Dict,
+    List,
     Optional,
     Sequence,
     Tuple,
@@ -19,12 +20,16 @@ from eth_abi.registry import (
     registry as default_registry,
 )
 from eth_typing import (
+    ABIElement,
+    ABIFallback,
+    ABIReceive,
     ChecksumAddress,
     HexStr,
     TypeStr,
 )
 from eth_typing.abi import (
     ABI,
+    ABICallable,
     ABIEvent,
     ABIFunction,
 )
@@ -95,6 +100,14 @@ if TYPE_CHECKING:
     )
 
 
+def _filter_event_abi_by_name(abi: ABI, name: str) -> List[ABIElement]:
+    """
+    Wrapper around `filter_abi_by_name` that builds a list of `ABIEvent` objects with
+    the given name. Returns an ABIElement list to pipe with other filters.
+    """
+    return [cast(ABIEvent, abi_event) for abi_event in filter_abi_by_name(name, abi)]
+
+
 def find_matching_event_abi(
     abi: ABI,
     event_name: Optional[str] = None,
@@ -105,7 +118,7 @@ def find_matching_event_abi(
     ]
 
     if event_name is not None:
-        filters.append(functools.partial(filter_abi_by_name, event_name))
+        filters.append(functools.partial(_filter_event_abi_by_name, event_name))
 
     if argument_names is not None:
         filters.append(functools.partial(filter_by_argument_name, argument_names))
@@ -122,7 +135,7 @@ def find_matching_event_abi(
 
 def encode_abi(
     w3: Union["AsyncWeb3", "Web3"],
-    abi: ABIFunction,
+    abi: ABICallable,
     arguments: Sequence[Any],
     data: Optional[HexStr] = None,
 ) -> HexStr:
@@ -167,7 +180,7 @@ def prepare_transaction(
     w3: Union["AsyncWeb3", "Web3"],
     fn_identifier: Union[str, Type[FallbackFn], Type[ReceiveFn]],
     contract_abi: Optional[ABI] = None,
-    fn_abi: Optional[ABIFunction] = None,
+    fn_abi: Optional[ABICallable] = None,
     transaction: Optional[TxParams] = None,
     fn_args: Optional[Sequence[Any]] = None,
     fn_kwargs: Optional[Any] = None,
@@ -179,8 +192,10 @@ def prepare_transaction(
     TODO: add new prepare_deploy_transaction API
     """
     if fn_abi is None:
-        fn_abi = get_function_abi(
-            contract_abi, fn_identifier, fn_args, fn_kwargs, w3.codec
+        # ABICallable cast as an ABIFunction for encoding
+        fn_abi = cast(
+            ABIFunction,
+            get_function_abi(contract_abi, fn_identifier, fn_args, fn_kwargs, w3.codec),
         )
 
     validate_payable(transaction, fn_abi)
@@ -211,17 +226,18 @@ def encode_transaction_data(
     w3: Union["AsyncWeb3", "Web3"],
     fn_identifier: FunctionIdentifier,
     contract_abi: Optional[ABI] = None,
-    fn_abi: Optional[ABIFunction] = None,
+    fn_abi: Optional[ABICallable] = None,
     args: Optional[Sequence[Any]] = None,
     kwargs: Optional[Any] = None,
 ) -> HexStr:
+    info_abi: ABICallable
     if fn_identifier is FallbackFn:
-        fn_abi, fn_selector, fn_arguments = get_fallback_function_info(
-            contract_abi, fn_abi
+        info_abi, info_selector, info_arguments = get_fallback_function_info(
+            contract_abi, cast(ABIFallback, fn_abi)
         )
     elif fn_identifier is ReceiveFn:
-        fn_abi, fn_selector, fn_arguments = get_receive_function_info(
-            contract_abi, fn_abi
+        info_abi, info_selector, info_arguments = get_receive_function_info(
+            contract_abi, cast(ABIReceive, fn_abi)
         )
     elif isinstance(fn_identifier, str):
         fn_info = get_function_info(
@@ -231,13 +247,13 @@ def encode_transaction_data(
             kwargs,
             w3.codec,
         )
-        fn_abi = fn_info["abi"]
-        fn_selector = fn_info["selector"]
-        fn_arguments = fn_info["arguments"]
+        info_abi = fn_info["abi"]
+        info_selector = fn_info["selector"]
+        info_arguments = fn_info["arguments"]
     else:
         raise Web3TypeError("Unsupported function identifier")
 
-    return add_0x_prefix(encode_abi(w3, fn_abi, fn_arguments, fn_selector))
+    return add_0x_prefix(encode_abi(w3, info_abi, info_arguments, info_selector))
 
 
 def decode_transaction_data(
@@ -245,18 +261,18 @@ def decode_transaction_data(
     data: HexStr,
     normalizers: Sequence[Callable[[TypeStr, Any], Tuple[TypeStr, Any]]] = None,
 ) -> Dict[str, Any]:
-    data = HexBytes(data)
+    data_bytes = HexBytes(data)
     types = get_abi_input_types(fn_abi)
     abi_codec = ABICodec(default_registry)
-    decoded = abi_codec.decode(types, HexBytes(data[4:]))
+    decoded = abi_codec.decode(types, data_bytes[4:])
     if normalizers:
         decoded = map_abi_data(normalizers, types, decoded)
     return named_tree(fn_abi["inputs"], decoded)
 
 
 def get_fallback_function_info(
-    contract_abi: Optional[ABI] = None, fn_abi: Optional[ABIFunction] = None
-) -> Tuple[ABIFunction, HexStr, Tuple[Any, ...]]:
+    contract_abi: Optional[ABI] = None, fn_abi: Optional[ABIFallback] = None
+) -> Tuple[ABIFallback, HexStr, Tuple[Any, ...]]:
     if fn_abi is None:
         fn_abi = get_fallback_function_abi(contract_abi)
     fn_selector = encode_hex(b"")
@@ -265,8 +281,8 @@ def get_fallback_function_info(
 
 
 def get_receive_function_info(
-    contract_abi: Optional[ABI] = None, fn_abi: Optional[ABIFunction] = None
-) -> Tuple[ABIFunction, HexStr, Tuple[Any, ...]]:
+    contract_abi: Optional[ABI] = None, fn_abi: Optional[ABIReceive] = None
+) -> Tuple[ABIReceive, HexStr, Tuple[Any, ...]]:
     if fn_abi is None:
         fn_abi = get_receive_function_abi(contract_abi)
     fn_selector = encode_hex(b"")
@@ -274,7 +290,7 @@ def get_receive_function_info(
     return fn_abi, fn_selector, fn_arguments
 
 
-def validate_payable(transaction: TxParams, abi: ABIFunction) -> None:
+def validate_payable(transaction: TxParams, abi: ABICallable) -> None:
     """
     Raise Web3ValidationError if non-zero ether
     is sent to a non-payable function.

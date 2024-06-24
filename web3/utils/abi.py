@@ -19,6 +19,7 @@ from eth_abi.registry import (
     registry as default_registry,
 )
 from eth_typing import (
+    ABICallable,
     ABIElement,
     ABIFallback,
     ABIReceive,
@@ -260,7 +261,7 @@ def get_function_abi(
     args: Optional[Sequence[Any]] = None,
     kwargs: Optional[Any] = None,
     abi_codec: Optional[Any] = None,
-) -> Union[ABIFunction, ABIFallback, ABIReceive]:
+) -> Union[ABICallable]:
     """
     Return the interface for an ``ABIFunction`` which matches the provided identifier
     and arguments.
@@ -377,7 +378,7 @@ def get_fallback_function_abi(contract_abi: ABI) -> ABIFallback:
 
 
 def check_if_arguments_can_be_encoded(
-    function_abi: ABIFunction,
+    function_abi: ABICallable,
     abi_codec: codec.ABIEncoder,
     args: Sequence[Any],
     kwargs: Dict[str, Any],
@@ -412,6 +413,13 @@ def check_if_arguments_can_be_encoded(
             >>> check_if_arguments_can_be_encoded(abi, [7, 3])
             True
     """
+    if (
+        "inputs" not in function_abi
+        or function_abi["type"] == "fallback"
+        or function_abi["type"] == "receive"
+    ):
+        return True
+
     try:
         arguments = get_normalized_abi_inputs(function_abi, args, kwargs)
     except TypeError:
