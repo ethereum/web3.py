@@ -305,7 +305,9 @@ def assert_method_and_txn_signed(actual, expected):
 
 @pytest.fixture()
 def w3():
-    return Web3(EthereumTesterProvider())
+    _w3 = Web3(EthereumTesterProvider())
+    _w3.eth.default_account = _w3.eth.accounts[0]
+    return _w3
 
 
 @pytest.mark.parametrize(
@@ -338,7 +340,12 @@ def fund_account(w3):
     tx_value = w3.to_wei(10, "ether")
     for address in (ADDRESS_1, ADDRESS_2):
         w3.eth.send_transaction(
-            {"to": address, "from": w3.eth.accounts[0], "gas": 21000, "value": tx_value}
+            {
+                "to": address,
+                "from": w3.eth.default_account,
+                "gas": 21000,
+                "value": tx_value,
+            }
         )
         assert w3.eth.get_balance(address) == tx_value
 
@@ -360,7 +367,7 @@ def test_signed_transaction(w3, fund_account, transaction, expected, key_object,
     w3.middleware_onion.add(SignAndSendRawMiddlewareBuilder.build(key_object))
 
     # Drop any falsy addresses
-    to_from = valfilter(bool, {"to": w3.eth.accounts[0], "from": from_})
+    to_from = valfilter(bool, {"to": w3.eth.default_account, "from": from_})
 
     _transaction = merge(transaction, to_from)
 
@@ -368,7 +375,9 @@ def test_signed_transaction(w3, fund_account, transaction, expected, key_object,
         with pytest.raises(expected):
             w3.eth.send_transaction(_transaction)
     else:
-        start_balance = w3.eth.get_balance(_transaction.get("from", w3.eth.accounts[0]))
+        start_balance = w3.eth.get_balance(
+            _transaction.get("from", w3.eth.default_account)
+        )
         w3.eth.send_transaction(_transaction)
         assert w3.eth.get_balance(_transaction.get("from")) <= start_balance + expected
 
@@ -432,19 +441,26 @@ async def async_w3_dummy(request_mocker):
         yield w3_base
 
 
-@pytest.fixture
-def async_w3():
-    return AsyncWeb3(AsyncEthereumTesterProvider())
+@pytest_asyncio.fixture
+async def async_w3():
+    _async_w3 = AsyncWeb3(AsyncEthereumTesterProvider())
+    accounts = await _async_w3.eth.accounts
+    _async_w3.eth.default_account = accounts[0]
+    return _async_w3
 
 
 @pytest_asyncio.fixture
 async def async_fund_account(async_w3):
     # fund local account
-    accounts = await async_w3.eth.accounts
     tx_value = async_w3.to_wei(10, "ether")
     for address in (ADDRESS_1, ADDRESS_2):
         await async_w3.eth.send_transaction(
-            {"to": address, "from": accounts[0], "gas": 21000, "value": tx_value}
+            {
+                "to": address,
+                "from": async_w3.eth.default_account,
+                "gas": 21000,
+                "value": tx_value,
+            }
         )
         acct_bal = await async_w3.eth.get_balance(address)
         assert acct_bal == tx_value
@@ -537,8 +553,7 @@ async def test_async_signed_transaction(
     async_w3.middleware_onion.add(SignAndSendRawMiddlewareBuilder.build(key_object))
 
     # Drop any falsy addresses
-    accounts = await async_w3.eth.accounts
-    to_from = valfilter(bool, {"to": accounts[0], "from": from_})
+    to_from = valfilter(bool, {"to": async_w3.eth.default_account, "from": from_})
 
     _transaction = merge(transaction, to_from)
 
@@ -547,7 +562,7 @@ async def test_async_signed_transaction(
             await async_w3.eth.send_transaction(_transaction)
     else:
         start_balance = await async_w3.eth.get_balance(
-            _transaction.get("from", accounts[0])
+            _transaction.get("from", async_w3.eth.default_account)
         )
         await async_w3.eth.send_transaction(_transaction)
         assert (

@@ -149,9 +149,6 @@ async def async_foo_contract(async_w3):
     #
     # }
 
-    async_eth_tester_accounts = await async_w3.eth.accounts
-    deploy_address = async_eth_tester_accounts[0]
-
     abi = """[{"anonymous":false,"inputs":[{"indexed":false,"name":"_bar","type":"string"}],"name":"barred","type":"event"},{"constant":false,"inputs":[{"name":"_bar","type":"string"}],"name":"setBar","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"inputs":[],"payable":false,"stateMutability":"nonpayable","type":"constructor"},{"constant":true,"inputs":[],"name":"bar","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"}]"""  # noqa: E501
     # This bytecode is the output of compiling with
     # solc version:0.5.3+commit.10d17f24.Emscripten.clang
@@ -162,13 +159,13 @@ async def async_foo_contract(async_w3):
     # issue a transaction to deploy the contract.
     tx_hash = await FooContract.constructor().transact(
         {
-            "from": deploy_address,
+            "from": async_w3.eth.default_account,
         }
     )
     # wait for the transaction to be mined
     tx_receipt = await async_w3.eth.wait_for_transaction_receipt(tx_hash, 180)
     # instantiate and return an instance of our contract.
-    return FooContract(tx_receipt.contractAddress)
+    return FooContract(tx_receipt["contractAddress"])
 
 
 @pytest.mark.asyncio
@@ -179,13 +176,11 @@ async def test_async_initial_greeting(async_foo_contract):
 
 @pytest.mark.asyncio
 async def test_async_can_update_greeting(async_w3, async_foo_contract):
-    async_eth_tester_accounts = await async_w3.eth.accounts
-    # send transaction that updates the greeting
     tx_hash = await async_foo_contract.functions.setBar(
         "testing contracts is easy",
     ).transact(
         {
-            "from": async_eth_tester_accounts[1],
+            "from": async_w3.eth.default_account,
         }
     )
     await async_w3.eth.wait_for_transaction_receipt(tx_hash, 180)
@@ -197,13 +192,12 @@ async def test_async_can_update_greeting(async_w3, async_foo_contract):
 
 @pytest.mark.asyncio
 async def test_async_updating_greeting_emits_event(async_w3, async_foo_contract):
-    async_eth_tester_accounts = await async_w3.eth.accounts
     # send transaction that updates the greeting
     tx_hash = await async_foo_contract.functions.setBar(
         "testing contracts is easy",
     ).transact(
         {
-            "from": async_eth_tester_accounts[1],
+            "from": async_w3.eth.default_account,
         }
     )
     receipt = await async_w3.eth.wait_for_transaction_receipt(tx_hash, 180)
