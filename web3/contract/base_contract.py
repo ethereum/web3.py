@@ -21,6 +21,8 @@ from eth_abi.exceptions import (
 )
 from eth_typing import (
     ABIElement,
+    ABIFallback,
+    ABIReceive,
     Address,
     ChecksumAddress,
     HexStr,
@@ -481,7 +483,7 @@ class BaseContractFunction:
     function_identifier: FunctionIdentifier = None
     w3: Union["Web3", "AsyncWeb3"] = None
     contract_abi: ABI = None
-    abi: ABIFunction = None
+    abi: Union[ABIFunction, ABIFallback, ABIReceive] = None
     transaction: TxParams = None
     arguments: Tuple[Any, ...] = None
     decode_tuples: Optional[bool] = False
@@ -508,7 +510,10 @@ class BaseContractFunction:
         else:
             raise Web3TypeError("Unsupported function identifier")
 
-        self.arguments = get_normalized_abi_inputs(self.abi, self.args, self.kwargs)
+        if self.function_identifier in [FallbackFn, ReceiveFn]:
+            self.arguments = ()
+        else:
+            self.arguments = get_normalized_abi_inputs(self.abi, self.args, self.kwargs)
 
     def _get_call_txparams(self, transaction: Optional[TxParams] = None) -> TxParams:
         if transaction is None:

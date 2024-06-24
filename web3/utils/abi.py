@@ -20,7 +20,6 @@ from eth_abi.registry import (
 )
 from eth_typing import (
     ABIElement,
-    ABIError,
     ABIFallback,
     ABIReceive,
 )
@@ -261,7 +260,7 @@ def get_function_abi(
     args: Optional[Sequence[Any]] = None,
     kwargs: Optional[Any] = None,
     abi_codec: Optional[Any] = None,
-) -> Union[ABIFunction, ABIError, ABIFallback, ABIReceive]:
+) -> Union[ABIFunction, ABIFallback, ABIReceive]:
     """
     Return the interface for an ``ABIFunction`` which matches the provided identifier
     and arguments.
@@ -333,11 +332,9 @@ def get_function_abi(
     )
 
     function_matches = pipe(abi, name_filter, arg_count_filter, encoding_filter)
-    function_candidates: List[Union[ABIFunction, ABIError]] = []
+    function_candidates: List[ABIFunction] = []
     for fn in function_matches:
-        if fn["type"] == "error":
-            function_candidates.append(cast(ABIError, fn))
-        elif fn["type"] == "function":
+        if fn["type"] == "function":
             function_candidates.append(cast(ABIFunction, fn))
 
     if len(function_candidates) != 1:
