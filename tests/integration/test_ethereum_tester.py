@@ -10,6 +10,9 @@ from eth_tester import (
 from eth_tester.exceptions import (
     TransactionFailed,
 )
+from eth_typing import (
+    ChecksumAddress,
+)
 from eth_utils import (
     is_checksum_address,
     is_dict,
@@ -56,7 +59,7 @@ KEYFILE_ACCOUNT_ADDRESS = "0xdC544d1AA88Ff8bbd2F2AeC754B1F1e99e1812fd"
 
 def _deploy_contract(w3, contract_factory):
     deploy_txn_hash = contract_factory.constructor().transact(
-        {"from": w3.eth.accounts[0]}
+        {"from": w3.eth.default_account}
     )
     deploy_receipt = w3.eth.wait_for_transaction_receipt(deploy_txn_hash)
     assert is_dict(deploy_receipt)
@@ -84,7 +87,7 @@ def _eth_tester_state_setup(w3):
     # fund the account
     w3.eth.send_transaction(
         {
-            "from": w3.eth.accounts[0],
+            "from": ChecksumAddress(w3.eth.default_account),
             "to": KEYFILE_ACCOUNT_ADDRESS,
             "value": w3.to_wei(0.5, "ether"),
             "gas": 21000,
@@ -96,6 +99,7 @@ def _eth_tester_state_setup(w3):
 @pytest.fixture(scope="module")
 def w3(eth_tester_provider):
     _w3 = Web3(eth_tester_provider)
+    _w3.eth.default_account = _w3.eth.accounts[0]
     _eth_tester_state_setup(_w3)
     return _w3
 
@@ -103,7 +107,7 @@ def w3(eth_tester_provider):
 @pytest.fixture(scope="module")
 def math_contract_deploy_txn_hash(w3, math_contract_factory):
     deploy_txn_hash = math_contract_factory.constructor().transact(
-        {"from": w3.eth.accounts[0]}
+        {"from": w3.eth.default_account}
     )
     return deploy_txn_hash
 
@@ -150,8 +154,8 @@ def empty_block(w3):
 def block_with_txn(w3):
     txn_hash = w3.eth.send_transaction(
         {
-            "from": w3.eth.accounts[0],
-            "to": w3.eth.accounts[0],
+            "from": ChecksumAddress(w3.eth.default_account),
+            "to": ChecksumAddress(w3.eth.default_account),
             "value": w3.to_wei(1, "gwei"),
             "gas": 21000,
             "gasPrice": w3.to_wei(
@@ -175,11 +179,7 @@ def block_with_txn_with_log(w3, emitter_contract):
         which=EMITTER_ENUM["LogDoubleWithIndex"],
         arg0=12345,
         arg1=54321,
-    ).transact(
-        {
-            "from": w3.eth.accounts[0],
-        }
-    )
+    ).transact({"from": w3.eth.default_account})
     txn = w3.eth.get_transaction(txn_hash)
     block = w3.eth.get_block(txn["blockNumber"])
     return block

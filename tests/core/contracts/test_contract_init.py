@@ -14,7 +14,7 @@ from web3.exceptions import (
 def math_addr(math_contract_factory, address_conversion_func):
     w3 = math_contract_factory.w3
     deploy_txn = math_contract_factory.constructor().transact(
-        {"from": w3.eth.accounts[0]}
+        {"from": w3.eth.default_account}
     )
     deploy_receipt = w3.eth.wait_for_transaction_receipt(deploy_txn)
     assert deploy_receipt is not None
@@ -30,7 +30,7 @@ def test_contract_with_unset_address(math_contract_factory):
 def test_contract_with_name_address(math_contract_factory, math_addr):
     with contract_ens_addresses(math_contract_factory, [("thedao.eth", math_addr)]):
         mc = math_contract_factory(address="thedao.eth")
-        caller = mc.w3.eth.accounts[0]
+        caller = mc.w3.eth.default_account
         assert mc.address == "thedao.eth"
         assert mc.functions.return13().call({"from": caller}) == 13
 
@@ -50,9 +50,8 @@ def test_contract_with_name_address_from_eth_contract(
             bytecode_runtime=math_contract_runtime,
         )
 
-        caller = mc.w3.eth.accounts[0]
         assert mc.address == "thedao.eth"
-        assert mc.functions.return13().call({"from": caller}) == 13
+        assert mc.functions.return13().call({"from": mc.w3.eth.default_account}) == 13
 
 
 def test_contract_with_name_address_changing(math_contract_factory, math_addr):
@@ -60,7 +59,7 @@ def test_contract_with_name_address_changing(math_contract_factory, math_addr):
     with contract_ens_addresses(math_contract_factory, [("thedao.eth", math_addr)]):
         mc = math_contract_factory(address="thedao.eth")
 
-    caller = mc.w3.eth.accounts[0]
+    caller = mc.w3.eth.default_account
     assert mc.address == "thedao.eth"
 
     # what happens when name returns no address at all

@@ -42,9 +42,6 @@ from hexbytes import (
     HexBytes,
 )
 
-from web3._utils.empty import (
-    empty,
-)
 from web3._utils.ens import (
     ens_addresses,
 )
@@ -2034,9 +2031,7 @@ class AsyncEthModuleTest:
         async_w3: "AsyncWeb3",
         async_keyfile_account_address_dual_type: ChecksumAddress,
     ) -> None:
-        # check defaults to empty
-        default_account = async_w3.eth.default_account
-        assert default_account is empty
+        current_default_account = async_w3.eth.default_account
 
         # check setter
         async_w3.eth.default_account = async_keyfile_account_address_dual_type
@@ -2044,7 +2039,7 @@ class AsyncEthModuleTest:
         assert default_account == async_keyfile_account_address_dual_type
 
         # reset to default
-        async_w3.eth.default_account = empty
+        async_w3.eth.default_account = current_default_account
 
     def test_async_provider_default_block(
         self,
@@ -4761,9 +4756,7 @@ class EthModuleTest:
     def test_default_account(
         self, w3: "Web3", keyfile_account_address_dual_type: ChecksumAddress
     ) -> None:
-        # check defaults to empty
-        default_account = w3.eth.default_account
-        assert default_account is empty
+        current_default = w3.eth.default_account
 
         # check setter
         w3.eth.default_account = keyfile_account_address_dual_type
@@ -4771,7 +4764,7 @@ class EthModuleTest:
         assert default_account == keyfile_account_address_dual_type
 
         # reset to default
-        w3.eth.default_account = empty
+        w3.eth.default_account = current_default
 
     def test_default_block(
         self,

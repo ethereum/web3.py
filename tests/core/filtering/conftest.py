@@ -64,13 +64,13 @@ def create_filter(request):
 # --- async --- #
 
 
-@pytest.fixture(
+@pytest_asyncio.fixture(
     scope="function",
     params=[True, False],
     ids=["LocalFilterMiddleware", "node_based_filter"],
 )
-def async_w3(request):
-    return _async_w3_fixture_logic(request)
+async def async_w3(request):
+    return await _async_w3_fixture_logic(request)
 
 
 @pytest.fixture

@@ -27,6 +27,9 @@ from web3 import (
     AsyncWeb3,
     Web3,
 )
+from web3._utils.empty import (
+    Empty,
+)
 from web3.eth import (
     BaseEth,
 )
@@ -98,6 +101,10 @@ def acct(request, w3):
 @pytest.fixture()
 def w3():
     return Web3(EthereumTesterProvider())
+
+
+def test_eth_default_account_is_empty_by_default(w3):
+    assert isinstance(w3.eth.default_account, Empty)
 
 
 def test_eth_account_create_variation(acct):

@@ -8,14 +8,14 @@ def test_sync_filter_against_pending_transactions(
     txn_filter = w3.eth.filter("pending")
     txn_1_hash = w3.eth.send_transaction(
         {
-            "from": w3.eth.accounts[0],
+            "from": w3.eth.default_account,
             "to": "0xd3CdA913deB6f67967B99D67aCDFa1712C293601",
             "value": 12345,
         }
     )
     txn_2_hash = w3.eth.send_transaction(
         {
-            "from": w3.eth.accounts[0],
+            "from": w3.eth.default_account,
             "to": "0xd3CdA913deB6f67967B99D67aCDFa1712C293601",
             "value": 54321,
         }
@@ -35,17 +35,16 @@ async def test_async_filter_against_pending_transactions(
     async_w3, async_wait_for_transaction
 ):
     txn_filter = await async_w3.eth.filter("pending")
-    accounts = await async_w3.eth.accounts
     txn_1_hash = await async_w3.eth.send_transaction(
         {
-            "from": accounts[0],
+            "from": async_w3.eth.default_account,
             "to": "0xd3CdA913deB6f67967B99D67aCDFa1712C293601",
             "value": 12345,
         }
     )
     txn_2_hash = await async_w3.eth.send_transaction(
         {
-            "from": accounts[0],
+            "from": async_w3.eth.default_account,
             "to": "0xd3CdA913deB6f67967B99D67aCDFa1712C293601",
             "value": 54321,
         }

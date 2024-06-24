@@ -89,7 +89,7 @@ def test_transacting_with_contract_with_arguments(
 
 
 def test_deploy_when_default_account_is_set(w3, string_contract_data):
-    w3.eth.default_account = w3.eth.accounts[1]
+    # default account for tests is set as the first account
     assert w3.eth.default_account is not empty
 
     StringContract = w3.eth.contract(**string_contract_data)
@@ -101,7 +101,7 @@ def test_deploy_when_default_account_is_set(w3, string_contract_data):
 
 
 def test_transact_when_default_account_is_set(w3, math_contract, transact):
-    w3.eth.default_account = w3.eth.accounts[1]
+    # default account for tests is set as the first account
     assert w3.eth.default_account is not empty
 
     txn_hash = transact(contract=math_contract, contract_function="incrementCounter")
@@ -392,8 +392,7 @@ async def test_async_transacting_with_contract_with_arguments(
 
 @pytest.mark.asyncio
 async def test_async_deploy_when_default_account_is_set(async_w3, string_contract_data):
-    async_w3_accounts = await async_w3.eth.accounts
-    async_w3.eth.default_account = async_w3_accounts[1]
+    # default account for tests is set as the first account
     assert async_w3.eth.default_account is not empty
 
     StringContract = async_w3.eth.contract(**string_contract_data)
@@ -408,8 +407,7 @@ async def test_async_deploy_when_default_account_is_set(async_w3, string_contrac
 async def test_async_transact_when_default_account_is_set(
     async_w3, async_math_contract, async_transact
 ):
-    async_w3_accounts = await async_w3.eth.accounts
-    async_w3.eth.default_account = async_w3_accounts[1]
+    # default account for tests is set as the first account
     assert async_w3.eth.default_account is not empty
 
     txn_hash = await async_transact(
