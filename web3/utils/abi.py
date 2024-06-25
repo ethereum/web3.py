@@ -19,10 +19,8 @@ from eth_abi.registry import (
 )
 from eth_typing import (
     ABICallable,
-    ABIConstructor,
     ABIElement,
     ABIFallback,
-    ABIFunction,
     ABIReceive,
 )
 from eth_typing.abi import (
@@ -54,7 +52,6 @@ from web3._utils.function_identifiers import (
 from web3.exceptions import (
     FallbackNotFound,
     MismatchedABI,
-    Web3ValueError,
 )
 from web3.types import (
     FunctionIdentifier,
@@ -355,30 +352,6 @@ def get_abi_element(
         raise MismatchedABI(error_diagnosis)
 
     return function_matches[0]
-
-
-def get_callable_abi(
-    contract_abi: ABI,
-    function_identifier: FunctionIdentifier,
-    args: Any,
-    kwargs: Any,
-    abi_codec: Optional[Any] = None,
-) -> ABICallable:
-    element_abi = get_abi_element(
-        contract_abi, function_identifier, args, kwargs, abi_codec
-    )
-
-    element_type = element_abi.get("type")
-    if element_type == "function":
-        return cast(ABIFunction, element_abi)
-    elif element_type == "constructor":
-        return cast(ABIConstructor, element_abi)
-    elif element_type == "fallback":
-        return cast(ABIFallback, element_abi)
-    elif element_type == "receive":
-        return cast(ABIReceive, element_abi)
-    else:
-        raise Web3ValueError(f"Invalid abi type, {element_type} is not callable.")
 
 
 def get_receive_function_abi(contract_abi: ABI) -> ABIReceive:

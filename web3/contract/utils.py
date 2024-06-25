@@ -37,6 +37,7 @@ from hexbytes import (
 )
 
 from web3._utils.abi import (
+    get_callable_abi,
     map_abi_data,
     named_tree,
     recursive_dict_to_namedtuple,
@@ -63,9 +64,6 @@ from web3.types import (
     StateOverride,
     TContractFn,
     TxParams,
-)
-from web3.utils.abi import (
-    get_callable_abi,
 )
 
 if TYPE_CHECKING:

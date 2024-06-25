@@ -52,6 +52,7 @@ from hexbytes import (
 
 from web3._utils.abi import (
     fallback_func_abi_exists,
+    get_callable_abi,
     get_constructor_abi,
     is_array_type,
     receive_func_abi_exists,
@@ -127,7 +128,6 @@ from web3.utils.abi import (
     check_if_arguments_can_be_encoded,
     get_abi_element,
     get_abi_element_info,
-    get_callable_abi,
 )
 
 if TYPE_CHECKING:

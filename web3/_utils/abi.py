@@ -47,11 +47,15 @@ from eth_abi.registry import (
 )
 from eth_typing import (
     ABI,
+    ABICallable,
     ABIComponent,
     ABIComponentIndexed,
     ABIConstructor,
     ABIElement,
     ABIEvent,
+    ABIFallback,
+    ABIFunction,
+    ABIReceive,
     HexStr,
     TypeStr,
 )
@@ -91,7 +95,11 @@ from web3.exceptions import (
     Web3ValueError,
 )
 from web3.types import (
+    FunctionIdentifier,
     TReturn,
+)
+from web3.utils.abi import (
+    get_abi_element,
 )
 
 if TYPE_CHECKING:
@@ -357,6 +365,30 @@ def _align_abi_input(
         _align_abi_input(sub_abi, sub_arg)
         for sub_abi, sub_arg in zip(sub_abis, aligned_arg)
     )
+
+
+def get_callable_abi(
+    contract_abi: ABI,
+    function_identifier: FunctionIdentifier,
+    args: Any,
+    kwargs: Any,
+    abi_codec: Optional[Any] = None,
+) -> ABICallable:
+    element_abi = get_abi_element(
+        contract_abi, function_identifier, args, kwargs, abi_codec
+    )
+
+    element_type = element_abi.get("type")
+    if element_type == "function":
+        return cast(ABIFunction, element_abi)
+    elif element_type == "constructor":
+        return cast(ABIConstructor, element_abi)
+    elif element_type == "fallback":
+        return cast(ABIFallback, element_abi)
+    elif element_type == "receive":
+        return cast(ABIReceive, element_abi)
+    else:
+        raise Web3ValueError(f"Invalid abi type, {element_type} is not callable.")
 
 
 def get_constructor_abi(contract_abi: ABI) -> ABIConstructor:
