@@ -16,6 +16,7 @@ from eth_abi.exceptions import (
     DecodingError,
 )
 from eth_typing import (
+    ABICallable,
     ChecksumAddress,
     TypeStr,
 )
@@ -124,7 +125,7 @@ def call_contract_function(
     transaction: TxParams,
     block_id: Optional[BlockIdentifier] = None,
     contract_abi: Optional[ABI] = None,
-    fn_abi: Optional[ABIFunction] = None,
+    fn_abi: Optional[ABICallable] = None,
     state_override: Optional[StateOverride] = None,
     ccip_read_enabled: Optional[bool] = None,
     decode_tuples: Optional[bool] = False,
@@ -217,7 +218,7 @@ def call_contract_function(
     )
     normalized_data = map_abi_data(_normalizers, output_types, output_data)
 
-    if decode_tuples:
+    if decode_tuples and fn_abi["type"] == "function":
         decoded = named_tree(fn_abi["outputs"], normalized_data)
         normalized_data = recursive_dict_to_namedtuple(decoded)
 
@@ -365,7 +366,7 @@ async def async_call_contract_function(
     transaction: TxParams,
     block_id: Optional[BlockIdentifier] = None,
     contract_abi: Optional[ABI] = None,
-    fn_abi: Optional[ABIFunction] = None,
+    fn_abi: Optional[ABICallable] = None,
     state_override: Optional[StateOverride] = None,
     ccip_read_enabled: Optional[bool] = None,
     decode_tuples: Optional[bool] = False,
@@ -467,7 +468,7 @@ async def async_call_contract_function(
     )
     normalized_data = map_abi_data(_normalizers, output_types, output_data)
 
-    if decode_tuples:
+    if decode_tuples and fn_abi["type"] == "function":
         decoded = named_tree(fn_abi["outputs"], normalized_data)
         normalized_data = recursive_dict_to_namedtuple(decoded)
 

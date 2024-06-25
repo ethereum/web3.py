@@ -100,7 +100,7 @@ if TYPE_CHECKING:
     )
 
 
-def _filter_event_abi_by_name(abi: ABI, name: str) -> List[ABIElement]:
+def _filter_event_abi_by_name(name: str, abi: ABI) -> List[ABIElement]:
     """
     Wrapper around `filter_abi_by_name` that builds a list of `ABIEvent` objects with
     the given name. Returns an ABIElement list to pipe with other filters.

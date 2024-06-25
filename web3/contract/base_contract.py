@@ -20,9 +20,8 @@ from eth_abi.exceptions import (
     InsufficientDataBytes,
 )
 from eth_typing import (
+    ABICallable,
     ABIElement,
-    ABIFallback,
-    ABIReceive,
     Address,
     ChecksumAddress,
     HexStr,
@@ -483,7 +482,7 @@ class BaseContractFunction:
     function_identifier: FunctionIdentifier = None
     w3: Union["Web3", "AsyncWeb3"] = None
     contract_abi: ABI = None
-    abi: Union[ABIFunction, ABIFallback, ABIReceive] = None
+    abi: ABICallable = None
     transaction: TxParams = None
     arguments: Tuple[Any, ...] = None
     decode_tuples: Optional[bool] = False
@@ -828,8 +827,8 @@ class BaseContract:
     def decode_function_input(
         self, data: HexStr
     ) -> Tuple["BaseContractFunction", Dict[str, Any]]:
-        data = HexBytes(data)
-        func = self.get_function_by_selector(data[:4])
+        selector = HexBytes(data)
+        func = self.get_function_by_selector(selector[:4])
         arguments = decode_transaction_data(
             func.abi, data, normalizers=BASE_RETURN_NORMALIZERS
         )
@@ -880,7 +879,7 @@ class BaseContract:
         fn_identifier: Optional[FunctionIdentifier] = None,
         args: Optional[Any] = None,
         kwargs: Optional[Any] = None,
-    ) -> ABIFunction:
+    ) -> ABICallable:
         return get_function_abi(
             cls.abi,
             function_identifier=fn_identifier,
