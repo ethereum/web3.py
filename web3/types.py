@@ -125,7 +125,7 @@ class ABIError(TypedDict):
     """Error input components."""
 
 
-ABIElement = Union[ABIFunction, ABIEvent]
+ABIElement = Union[ABIFunction, ABIEvent, ABIError]
 ABI = Sequence[Union[ABIFunction, ABIEvent]]
 
 
