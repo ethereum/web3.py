@@ -156,9 +156,9 @@ def call_contract_function(
 
     if fn_abi is None:
         fn_abi = get_callable_abi(
-            w3,
             contract_abi,
             function_identifier,
+            w3.codec,
             args,
             kwargs,
         )
@@ -401,7 +401,11 @@ async def async_call_contract_function(
 
     if fn_abi is None:
         fn_abi = get_callable_abi(
-            async_w3, contract_abi, function_identifier, args, kwargs, async_w3.codec
+            contract_abi,
+            function_identifier,
+            async_w3.codec,
+            args,
+            kwargs,
         )
 
     output_types = []

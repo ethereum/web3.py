@@ -5,7 +5,6 @@ from typing import (
     List,
     Optional,
     Sequence,
-    Union,
     cast,
 )
 
@@ -56,10 +55,6 @@ from web3.exceptions import (
     FallbackNotFound,
     MismatchedABI,
     Web3ValueError,
-)
-from web3.main import (
-    AsyncWeb3,
-    Web3,
 )
 from web3.types import (
     FunctionIdentifier,
@@ -363,14 +358,14 @@ def get_abi_element(
 
 
 def get_callable_abi(
-    w3: Union["Web3", "AsyncWeb3"],
     contract_abi: ABI,
     function_identifier: FunctionIdentifier,
+    abi_codec: Optional[Any] = None,
     *args: Any,
     **kwargs: Any,
 ) -> ABICallable:
     element_abi = get_abi_element(
-        contract_abi, function_identifier, args, kwargs, w3.codec
+        contract_abi, function_identifier, args, kwargs, abi_codec
     )
 
     element_type = element_abi.get("type")

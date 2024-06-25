@@ -127,6 +127,7 @@ from web3.utils.abi import (
     check_if_arguments_can_be_encoded,
     get_abi_element,
     get_abi_element_info,
+    get_callable_abi,
 )
 
 if TYPE_CHECKING:
@@ -496,8 +497,8 @@ class BaseContractFunction:
 
     def _set_function_info(self) -> None:
         if not self.abi:
-            self.abi: ABICallable = get_abi_element(
-                abi=self.contract_abi,
+            self.abi: ABICallable = get_callable_abi(
+                contract_abi=self.contract_abi,
                 function_identifier=self.function_identifier,
                 args=self.args,
                 kwargs=self.kwargs,
@@ -668,7 +669,9 @@ class BaseContractFunctions:
         self.address = address
 
         if self.abi:
-            self._functions = filter_abi_by_type("function", self.abi)
+            self._functions: Sequence[ABIFunction] = filter_abi_by_type(
+                "function", self.abi
+            )
             for func in self._functions:
                 setattr(
                     self,
@@ -880,7 +883,7 @@ class BaseContract:
         fn_identifier: Optional[FunctionIdentifier] = None,
         args: Optional[Any] = None,
         kwargs: Optional[Any] = None,
-    ) -> ABICallable:
+    ) -> ABIElement:
         return get_abi_element(
             cls.abi,
             function_identifier=fn_identifier,
@@ -1006,7 +1009,7 @@ class BaseContractCaller:
     """
 
     # mypy types
-    _functions: List[ABIElement]
+    _functions: List[ABICallable]
 
     def __init__(
         self,
@@ -1022,6 +1025,11 @@ class BaseContractCaller:
         self._functions = []
 
     def __getattr__(self, function_name: str) -> Any:
+        function_names = [
+            cast(ABIFunction, fn)["name"]
+            for fn in self._functions
+            if fn.get("type") == "function"
+        ]
         if self.abi is None:
             raise NoABIFound(
                 "There is no ABI found for this contract.",
@@ -1031,8 +1039,8 @@ class BaseContractCaller:
                 "The ABI for this contract contains no function definitions. ",
                 "Are you sure you provided the correct contract ABI?",
             )
-        elif function_name not in {fn["name"] for fn in self._functions}:
-            functions_available = ", ".join([fn["name"] for fn in self._functions])
+        elif function_name not in function_names:
+            functions_available = ", ".join(function_names)
             raise ABIFunctionNotFound(
                 f"The function '{function_name}' was not found in this contract's ABI.",
                 " Here is a list of all of the function names found: ",
