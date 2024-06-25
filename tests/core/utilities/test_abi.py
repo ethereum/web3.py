@@ -25,8 +25,8 @@ from web3.exceptions import (
     Web3ValueError,
 )
 from web3.utils.abi import (
-    get_function_abi,
-    get_function_info,
+    get_abi_element,
+    get_abi_element_info,
 )
 
 
@@ -329,24 +329,24 @@ def test_recursive_dict_to_namedtuple(input, expected_output):
         ),
     ],
 )
-def test_get_function_info(
+def test_get_abi_element_info(
     contract_abi, name, input_args, input_kwargs, expected_selector, expected_arguments
 ):
-    function_info = get_function_info(contract_abi, name, input_args, input_kwargs)
-    assert function_info["abi"] == get_function_abi(
+    function_info = get_abi_element_info(contract_abi, name, input_args, input_kwargs)
+    assert function_info["abi"] == get_abi_element(
         contract_abi, name, input_args, input_kwargs
     )
     assert function_info["selector"] == expected_selector
     assert function_info["arguments"] == expected_arguments
 
 
-def test_get_function_info_raises_mismatched_abi(contract_abi):
+def test_get_abi_element_info_raises_mismatched_abi(contract_abi):
     with pytest.raises(MismatchedABI, match="Could not identify the intended function"):
-        get_function_info(contract_abi, "foo", [1], {})
+        get_abi_element_info(contract_abi, "foo", [1], {})
 
 
-def test_get_function_abi_by_name_with_args(contract_abi):
-    function_abi = get_function_abi(contract_abi, "logTwoEvents", [1])
+def test_get_abi_element_by_name_with_args(contract_abi):
+    function_abi = get_abi_element(contract_abi, "logTwoEvents", [1])
     expected_abi = {
         "inputs": [{"name": "_arg0", "type": "uint256"}],
         "name": "logTwoEvents",
@@ -356,8 +356,8 @@ def test_get_function_abi_by_name_with_args(contract_abi):
     assert function_abi == expected_abi
 
 
-def test_get_function_abi_by_name_with_kwargs(contract_abi):
-    function_abi = get_function_abi(
+def test_get_abi_element_by_name_with_kwargs(contract_abi):
+    function_abi = get_abi_element(
         contract_abi,
         "setValue",
         [0],
@@ -388,26 +388,26 @@ def test_get_function_abi_by_name_with_kwargs(contract_abi):
     assert function_abi == expected_abi
 
 
-def test_get_function_abi_raises_without_valid_function_identifier(contract_abi):
+def test_get_abi_element_raises_without_valid_function_identifier(contract_abi):
     with pytest.raises(TypeError, match="Unsupported function identifier"):
-        get_function_abi(contract_abi, 1, ["_arg0"])
+        get_abi_element(contract_abi, 1, ["_arg0"])
 
 
-def test_get_function_abi_by_name(contract_abi):
+def test_get_abi_element_by_name(contract_abi):
     with pytest.raises(
         MismatchedABI,
         match="Function invocation failed due to improper number of arguments.",
     ):
-        get_function_abi(contract_abi, "logTwoEvents")
+        get_abi_element(contract_abi, "logTwoEvents")
 
 
-def test_get_function_abi_codec_override(contract_abi):
+def test_get_abi_element_codec_override(contract_abi):
     from eth_abi.codec import (
         ABICodec,
     )
 
     codec = ABICodec(default_registry)
-    function_abi = get_function_abi(contract_abi, "logTwoEvents", [1], abi_codec=codec)
+    function_abi = get_abi_element(contract_abi, "logTwoEvents", [1], abi_codec=codec)
     expected_abi = {
         "inputs": [{"name": "_arg0", "type": "uint256"}],
         "name": "logTwoEvents",

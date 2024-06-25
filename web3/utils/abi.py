@@ -210,7 +210,7 @@ def get_abi_element_info(
 
     .. doctest
 
-        >>> from web3.utils.abi import get_function_info
+        >>> from web3.utils.abi import get_abi_element_info
         >>> abi = [
         ...     {
         ...         "constant": False,
@@ -225,7 +225,7 @@ def get_abi_element_info(
         ...         "type": "function",
         ...     }
         ... ]
-        >>> fn_info = get_function_info(abi, "multiply", [7, 3])
+        >>> fn_info = get_abi_element_info(abi, "multiply", [7, 3])
         >>> fn_info.abi
         {'constant': False, 'inputs': [{'name': 'a', 'type': 'uint256'}, {\
 'name': 'b', 'type': 'uint256'}], 'name': 'multiply', 'outputs': [{\
@@ -290,7 +290,7 @@ def get_abi_element(
 
     .. doctest
 
-        >>> from web3.utils.abi import get_element_abi
+        >>> from web3.utils.abi import get_abi_element
         >>> abi = [
         ...     {
         ...         "constant": False,
@@ -305,7 +305,7 @@ def get_abi_element(
         ...         "type": "function",
         ...     }
         ... ]
-        >>> get_element_abi(abi, "multiply", [7, 3])
+        >>> get_abi_element(abi, "multiply", [7, 3])
         {'constant': False, 'inputs': [{'name': 'a', 'type': 'uint256'}, {\
 'name': 'b', 'type': 'uint256'}], 'name': 'multiply', 'outputs': [{'name': 'result', \
 'type': 'uint256'}], 'payable': False, 'stateMutability': 'nonpayable', \
