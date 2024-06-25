@@ -112,6 +112,19 @@ class ABIFunction(TypedDict, total=False):
     type: Literal["function", "constructor", "fallback", "receive"]
 
 
+class ABIError(TypedDict):
+    """
+    TypedDict representing the `ABI` for an error.
+    """
+
+    type: Literal["error"]
+    """Type of the error."""
+    name: str
+    """Name of the error."""
+    inputs: NotRequired[Sequence["ABIFunctionParams"]]
+    """Error input components."""
+
+
 ABIElement = Union[ABIFunction, ABIEvent]
 ABI = Sequence[Union[ABIFunction, ABIEvent]]
 
