@@ -21,6 +21,7 @@ from eth_abi.exceptions import (
 )
 from eth_typing import (
     ABICallable,
+    ABIComponentIndexed,
     ABIElement,
     Address,
     ChecksumAddress,
@@ -124,8 +125,8 @@ from web3.types import (
 )
 from web3.utils.abi import (
     check_if_arguments_can_be_encoded,
-    get_function_abi,
-    get_function_info,
+    get_abi_element,
+    get_abi_element_info,
 )
 
 if TYPE_CHECKING:
@@ -298,7 +299,7 @@ class BaseContractEvent:
             # if no non-indexed args in argument filters, since indexed args are
             # filtered pre-call to ``eth_getLogs`` by building specific ``topics``.
             not any(
-                not arg["indexed"]
+                not cast(ABIComponentIndexed, arg)["indexed"]
                 for arg in event_abi["inputs"]
                 if arg["name"] in argument_filters
             )
@@ -423,7 +424,7 @@ class BaseContractEvents:
     ) -> None:
         if abi:
             self.abi = abi
-            self._events = filter_abi_by_type("event", self.abi)
+            self._events: Sequence[ABIEvent] = filter_abi_by_type("event", self.abi)
             for event in self._events:
                 setattr(
                     self,
@@ -489,13 +490,13 @@ class BaseContractFunction:
     args: Any = None
     kwargs: Any = None
 
-    def __init__(self, abi: Optional[ABIFunction] = None) -> None:
+    def __init__(self, abi: Optional[ABICallable] = None) -> None:
         self.abi = abi
         self.fn_name = type(self).__name__
 
     def _set_function_info(self) -> None:
         if not self.abi:
-            self.abi = get_function_abi(
+            self.abi: ABICallable = get_abi_element(
                 abi=self.contract_abi,
                 function_identifier=self.function_identifier,
                 args=self.args,
@@ -758,7 +759,7 @@ class BaseContract:
 
         :param data: defaults to function selector
         """
-        fn_info = get_function_info(
+        fn_info = get_abi_element_info(
             abi=cls.abi,
             function_identifier=fn_name,
             args=args,
@@ -880,7 +881,7 @@ class BaseContract:
         args: Optional[Any] = None,
         kwargs: Optional[Any] = None,
     ) -> ABICallable:
-        return get_function_abi(
+        return get_abi_element(
             cls.abi,
             function_identifier=fn_identifier,
             args=args,

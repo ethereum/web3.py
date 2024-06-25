@@ -49,9 +49,9 @@ from eth_typing import (
     ABI,
     ABIComponent,
     ABIComponentIndexed,
+    ABIConstructor,
     ABIElement,
     ABIEvent,
-    ABIFunction,
     HexStr,
     TypeStr,
 )
@@ -109,11 +109,19 @@ def receive_func_abi_exists(contract_abi: ABI) -> List[ABIElement]:
 
 
 def get_indexed_event_inputs(event_abi: ABIEvent) -> List[ABIComponentIndexed]:
-    return [arg for arg in event_abi["inputs"] if arg["indexed"] is True]
+    return [
+        arg
+        for arg in cast(Sequence[ABIComponentIndexed], event_abi["inputs"])
+        if arg["indexed"] is True
+    ]
 
 
 def exclude_indexed_event_inputs(event_abi: ABIEvent) -> List[ABIComponent]:
-    return [arg for arg in event_abi["inputs"] if arg["indexed"] is False]
+    return [
+        arg
+        for arg in cast(Sequence[ABIComponentIndexed], event_abi["inputs"])
+        if arg["indexed"] is False
+    ]
 
 
 def filter_by_argument_name(
@@ -351,8 +359,12 @@ def _align_abi_input(
     )
 
 
-def get_constructor_abi(contract_abi: ABI) -> ABIFunction:
-    candidates = [abi for abi in contract_abi if abi["type"] == "constructor"]
+def get_constructor_abi(contract_abi: ABI) -> ABIConstructor:
+    candidates = [
+        cast(ABIConstructor, abi)
+        for abi in contract_abi
+        if abi["type"] == "constructor"
+    ]
     if len(candidates) == 1:
         return candidates[0]
     elif len(candidates) == 0:
@@ -485,8 +497,8 @@ def is_probably_enum(abi_type: TypeStr) -> bool:
 
 @to_tuple
 def normalize_event_input_types(
-    abi_args: Collection[ABIElement],
-) -> Iterable[Union[ABIFunction, ABIEvent, Dict[TypeStr, Any]]]:
+    abi_args: Collection[ABIEvent],
+) -> Iterable[Union[ABIEvent, Dict[TypeStr, Any]]]:
     for arg in abi_args:
         if is_recognized_type(arg["type"]):
             yield arg
@@ -716,11 +728,7 @@ def build_strict_registry() -> ABIRegistry:
 
 
 def named_tree(
-    abi: Iterable[
-        Union[
-            ABIComponent, ABIComponentIndexed, ABIFunction, ABIEvent, Dict[TypeStr, Any]
-        ]
-    ],
+    abi: Iterable[Union[ABIComponent, ABIComponentIndexed, Dict[TypeStr, Any]]],
     data: Iterable[Tuple[Any, ...]],
 ) -> Dict[str, Any]:
     """
@@ -733,7 +741,7 @@ def named_tree(
 
 
 def _named_subtree(
-    abi: Union[ABIComponent, ABIComponentIndexed],
+    abi: Union[ABIComponent, ABIComponentIndexed, Dict[TypeStr, Any]],
     data: Tuple[Any, ...],
 ) -> Union[Dict[str, Any], Tuple[Any, ...], List[Any]]:
     abi_type = parse(collapse_if_tuple(abi))

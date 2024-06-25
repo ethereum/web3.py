@@ -20,14 +20,15 @@ from eth_abi.registry import (
 )
 from eth_typing import (
     ABICallable,
+    ABIConstructor,
     ABIElement,
     ABIFallback,
+    ABIFunction,
     ABIReceive,
 )
 from eth_typing.abi import (
     ABI,
-    ABIFunction,
-    ABIFunctionInfo,
+    ABIElementInfo,
 )
 from eth_utils.abi import (
     filter_abi_by_type,
@@ -54,6 +55,11 @@ from web3._utils.function_identifiers import (
 from web3.exceptions import (
     FallbackNotFound,
     MismatchedABI,
+    Web3ValueError,
+)
+from web3.main import (
+    AsyncWeb3,
+    Web3,
 )
 from web3.types import (
     FunctionIdentifier,
@@ -96,12 +102,12 @@ def _filter_by_encodability(
     args: Sequence[Any],
     kwargs: Dict[str, Any],
     contract_abi: ABI,
-) -> List[ABIFunction]:
+) -> List[ABICallable]:
     return [
-        cast(ABIFunction, function_abi)
+        cast(ABICallable, function_abi)
         for function_abi in contract_abi
         if check_if_arguments_can_be_encoded(
-            cast(ABIFunction, function_abi), abi_codec, args, kwargs
+            cast(ABICallable, function_abi), abi_codec, args, kwargs
         )
     ]
 
@@ -183,13 +189,13 @@ def _get_argument_readable_type(arg: Any) -> str:
     return arg.__class__.__name__
 
 
-def get_function_info(
+def get_abi_element_info(
     abi: ABI,
     function_identifier: str,
     args: Optional[Sequence[Any]] = None,
     kwargs: Optional[Any] = None,
     abi_codec: Optional[Any] = None,
-) -> ABIFunctionInfo:
+) -> ABIElementInfo:
     """
     Information about the function ABI, selector and input arguments.
 
@@ -205,7 +211,7 @@ def get_function_info(
     :param kwargs: Find a function ABI with matching kwargs.
     :type kwargs: `Any`
     :return: Function information including the ABI, selector and args.
-    :rtype: `ABIFunctionInfo`
+    :rtype: `ABIElementInfo`
 
     .. doctest
 
@@ -239,31 +245,31 @@ def get_function_info(
     args = args or tuple()
     kwargs = kwargs or dict()
 
-    fn_abi = get_function_abi(
+    fn_abi = get_abi_element(
         abi, function_identifier, args, kwargs, abi_codec=abi_codec
     )
     fn_selector = encode_hex(function_abi_to_4byte_selector(fn_abi))
 
     if fn_abi["type"] == "fallback" or fn_abi["type"] == "receive":
-        return ABIFunctionInfo(abi=fn_abi, selector=fn_selector, arguments=tuple())
+        return ABIElementInfo(abi=fn_abi, selector=fn_selector, arguments=tuple())
     else:
         fn_inputs = get_normalized_abi_inputs(fn_abi, args, kwargs)
         _, aligned_fn_inputs = get_aligned_abi_inputs(fn_abi, fn_inputs)
 
-        return ABIFunctionInfo(
+        return ABIElementInfo(
             abi=fn_abi, selector=fn_selector, arguments=aligned_fn_inputs
         )
 
 
-def get_function_abi(
+def get_abi_element(
     abi: ABI,
     function_identifier: FunctionIdentifier,
     args: Optional[Sequence[Any]] = None,
     kwargs: Optional[Any] = None,
     abi_codec: Optional[Any] = None,
-) -> Union[ABICallable]:
+) -> ABIElement:
     """
-    Return the interface for an ``ABIFunction`` which matches the provided identifier
+    Return the interface for an ``ABIElement`` which matches the provided identifier
     and arguments.
 
     The ABI which matches the provided identifier, named arguments (``args``) and
@@ -289,7 +295,7 @@ def get_function_abi(
 
     .. doctest
 
-        >>> from web3.utils.abi import get_function_abi
+        >>> from web3.utils.abi import get_element_abi
         >>> abi = [
         ...     {
         ...         "constant": False,
@@ -304,7 +310,7 @@ def get_function_abi(
         ...         "type": "function",
         ...     }
         ... ]
-        >>> get_function_abi(abi, "multiply", [7, 3])
+        >>> get_element_abi(abi, "multiply", [7, 3])
         {'constant': False, 'inputs': [{'name': 'a', 'type': 'uint256'}, {\
 'name': 'b', 'type': 'uint256'}], 'name': 'multiply', 'outputs': [{'name': 'result', \
 'type': 'uint256'}], 'payable': False, 'stateMutability': 'nonpayable', \
@@ -333,13 +339,8 @@ def get_function_abi(
     )
 
     function_matches = pipe(abi, name_filter, arg_count_filter, encoding_filter)
-    function_candidates: List[ABIFunction] = []
-    for fn in function_matches:
-        if fn["type"] == "function":
-            function_candidates.append(cast(ABIFunction, fn))
-
-    if len(function_candidates) != 1:
-        matching_identifiers = name_filter(abi)
+    if len(function_matches) != 1:
+        matching_identifiers = cast(Sequence[ABIElement], name_filter(abi))
         matching_function_signatures = [
             abi_to_signature(func) for func in matching_identifiers
         ]
@@ -358,27 +359,51 @@ def get_function_abi(
 
         raise MismatchedABI(error_diagnosis)
 
-    return function_candidates[0]
+    return function_matches[0]
+
+
+def get_callable_abi(
+    w3: Union["Web3", "AsyncWeb3"],
+    contract_abi: ABI,
+    function_identifier: FunctionIdentifier,
+    *args: Any,
+    **kwargs: Any,
+) -> ABICallable:
+    element_abi = get_abi_element(
+        contract_abi, function_identifier, args, kwargs, w3.codec
+    )
+
+    element_type = element_abi.get("type")
+    if element_type == "function":
+        return cast(ABIFunction, element_abi)
+    elif element_type == "constructor":
+        return cast(ABIConstructor, element_abi)
+    elif element_type == "fallback":
+        return cast(ABIFallback, element_abi)
+    elif element_type == "receive":
+        return cast(ABIReceive, element_abi)
+    else:
+        raise Web3ValueError(f"Invalid abi type, {element_type} is not callable.")
 
 
 def get_receive_function_abi(contract_abi: ABI) -> ABIReceive:
-    receive_abis = filter_abi_by_type("receive", contract_abi)
+    receive_abis: Sequence[ABIReceive] = filter_abi_by_type("receive", contract_abi)
     if receive_abis and receive_abis[0]["type"] == "receive":
-        return cast(ABIReceive, receive_abis[0])
+        return receive_abis[0]
     else:
         raise FallbackNotFound("No receive function was found in the contract ABI.")
 
 
 def get_fallback_function_abi(contract_abi: ABI) -> ABIFallback:
-    fallback_abis = filter_abi_by_type("fallback", contract_abi)
+    fallback_abis: Sequence[ABIFallback] = filter_abi_by_type("fallback", contract_abi)
     if fallback_abis and fallback_abis[0]["type"] == "fallback":
-        return cast(ABIFallback, fallback_abis[0])
+        return fallback_abis[0]
     else:
         raise FallbackNotFound("No fallback function was found in the contract ABI.")
 
 
 def check_if_arguments_can_be_encoded(
-    function_abi: ABICallable,
+    function_abi: ABIElement,
     abi_codec: codec.ABIEncoder,
     args: Sequence[Any],
     kwargs: Dict[str, Any],

@@ -65,7 +65,7 @@ from web3.types import (
     TxParams,
 )
 from web3.utils.abi import (
-    get_function_abi,
+    get_callable_abi,
 )
 
 if TYPE_CHECKING:
@@ -84,7 +84,7 @@ ACCEPTABLE_EMPTY_STRINGS = ["0x", b"0x", "", b""]
 def format_contract_call_return_data_curried(
     async_w3: Union["AsyncWeb3", "Web3"],
     decode_tuples: bool,
-    fn_abi: ABIFunction,
+    fn_abi: ABICallable,
     function_identifier: FunctionIdentifier,
     normalizers: Tuple[Callable[..., Any], ...],
     output_types: Sequence[TypeStr],
@@ -110,7 +110,7 @@ def format_contract_call_return_data_curried(
     )
     normalized_data = map_abi_data(_normalizers, output_types, output_data)
 
-    if decode_tuples:
+    if decode_tuples and fn_abi["type"] == "function":
         decoded = named_tree(fn_abi["outputs"], normalized_data)
         normalized_data = recursive_dict_to_namedtuple(decoded)
 
@@ -155,8 +155,12 @@ def call_contract_function(
     )
 
     if fn_abi is None:
-        fn_abi = get_function_abi(
-            contract_abi, function_identifier, args, kwargs, w3.codec
+        fn_abi = get_callable_abi(
+            w3,
+            contract_abi,
+            function_identifier,
+            args,
+            kwargs,
         )
 
     output_types = []
@@ -328,7 +332,7 @@ def find_functions_by_identifier(
     callable_check: Callable[..., Any],
     function_type: Type[TContractFn],
 ) -> List[TContractFn]:
-    fns_abi = filter_abi_by_type("function", contract_abi)
+    fns_abi: Sequence[ABIFunction] = filter_abi_by_type("function", contract_abi)
     return [
         function_type.factory(
             fn_abi["name"],
@@ -396,8 +400,8 @@ async def async_call_contract_function(
     )
 
     if fn_abi is None:
-        fn_abi = get_function_abi(
-            contract_abi, function_identifier, args, kwargs, async_w3.codec
+        fn_abi = get_callable_abi(
+            async_w3, contract_abi, function_identifier, args, kwargs, async_w3.codec
         )
 
     output_types = []

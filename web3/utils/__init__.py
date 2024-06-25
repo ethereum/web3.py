@@ -22,8 +22,8 @@ from eth_utils.abi import (
     get_normalized_abi_inputs,
 )
 from .abi import (
-    get_function_info,
-    get_function_abi,
+    get_abi_element_info,
+    get_abi_element,
     check_if_arguments_can_be_encoded,
 )
 from .address import get_create_address
@@ -55,8 +55,8 @@ __all__ = [
     "get_all_function_abis",
     "get_create_address",
     "get_normalized_abi_inputs",
-    "get_function_abi",
-    "get_function_info",
+    "get_abi_element_info",
+    "get_abi_element",
     "check_if_arguments_can_be_encoded",
     "async_handle_offchain_lookup",
     "SimpleCache",

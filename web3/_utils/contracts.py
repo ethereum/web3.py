@@ -87,9 +87,9 @@ from web3.types import (
 )
 from web3.utils.abi import (
     check_if_arguments_can_be_encoded,
+    get_abi_element,
+    get_abi_element_info,
     get_fallback_function_abi,
-    get_function_abi,
-    get_function_info,
     get_receive_function_abi,
 )
 
@@ -135,7 +135,7 @@ def find_matching_event_abi(
 
 def encode_abi(
     w3: Union["AsyncWeb3", "Web3"],
-    abi: ABICallable,
+    abi: ABIElement,
     arguments: Sequence[Any],
     data: Optional[HexStr] = None,
 ) -> HexStr:
@@ -195,7 +195,7 @@ def prepare_transaction(
         # ABICallable cast as an ABIFunction for encoding
         fn_abi = cast(
             ABIFunction,
-            get_function_abi(contract_abi, fn_identifier, fn_args, fn_kwargs, w3.codec),
+            get_abi_element(contract_abi, fn_identifier, fn_args, fn_kwargs, w3.codec),
         )
 
     validate_payable(transaction, fn_abi)
@@ -230,7 +230,7 @@ def encode_transaction_data(
     args: Optional[Sequence[Any]] = None,
     kwargs: Optional[Any] = None,
 ) -> HexStr:
-    info_abi: ABICallable
+    info_abi: ABIElement
     if fn_identifier is FallbackFn:
         info_abi, info_selector, info_arguments = get_fallback_function_info(
             contract_abi, cast(ABIFallback, fn_abi)
@@ -240,7 +240,7 @@ def encode_transaction_data(
             contract_abi, cast(ABIReceive, fn_abi)
         )
     elif isinstance(fn_identifier, str):
-        fn_info = get_function_info(
+        fn_info = get_abi_element_info(
             contract_abi,
             fn_identifier,
             args,
