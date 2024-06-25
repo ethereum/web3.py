@@ -360,9 +360,9 @@ def get_abi_element(
 def get_callable_abi(
     contract_abi: ABI,
     function_identifier: FunctionIdentifier,
+    args: Any,
+    kwargs: Any,
     abi_codec: Optional[Any] = None,
-    *args: Any,
-    **kwargs: Any,
 ) -> ABICallable:
     element_abi = get_abi_element(
         contract_abi, function_identifier, args, kwargs, abi_codec
