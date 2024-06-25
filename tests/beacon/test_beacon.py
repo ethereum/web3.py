@@ -6,15 +6,12 @@ from random import (
 from requests import (
     Timeout,
 )
-
-from web3._utils.request import (
-    _session_cache,
+from requests.exceptions import (
+    InvalidURL,
 )
+
 from web3.beacon import (
     Beacon,
-)
-from web3.exceptions import (
-    Web3ValueError,
 )
 
 # tested against lighthouse which uses port 5052 by default
@@ -32,15 +29,9 @@ def beacon():
     return Beacon(base_url=BASE_URL)
 
 
-@pytest.fixture(autouse=True)
-def _cleanup():
-    yield
-    _session_cache.clear()
-
-
 # sanity check to make sure the positive test cases are valid
 def test_cl_beacon_raises_exception_on_invalid_url(beacon):
-    with pytest.raises(Web3ValueError):
+    with pytest.raises(InvalidURL):
         beacon._make_get_request(BASE_URL + "/eth/v1/beacon/nonexistent")
 
 
