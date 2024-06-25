@@ -1,0 +1,1 @@
+A bugfix, pre-release, to update the ``Beacon`` APIs (sync and async) to properly use the new ``HTTPSessionManager``.

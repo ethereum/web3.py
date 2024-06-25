@@ -3,16 +3,13 @@ from random import (
     randint,
 )
 
+from aiohttp.client_exceptions import (
+    InvalidURL,
+)
 import pytest_asyncio
 
-from web3._utils.request import (
-    _async_session_cache,
-)
 from web3.beacon import (
     AsyncBeacon,
-)
-from web3.exceptions import (
-    Web3ValueError,
 )
 
 # tested against lighthouse which uses port 5052 by default
@@ -27,20 +24,22 @@ def _assert_valid_response(response):
 
 @pytest.fixture
 def async_beacon():
-    return AsyncBeacon(base_url=BASE_URL)
+    return AsyncBeacon(base_url=BASE_URL, request_timeout=30.0)
 
 
 @pytest_asyncio.fixture(autouse=True)
-async def _cleanup():
+async def _cleanup(async_beacon):
     yield
-    [await session.close() for _, session in _async_session_cache.items()]
-    _async_session_cache.clear()
+    [
+        await session.close()
+        for _, session in async_beacon._request_session_manager.session_cache.items()
+    ]
 
 
 # sanity check to make sure the positive test cases are valid
 @pytest.mark.asyncio
 async def test_async_cl_beacon_raises_exception_on_invalid_url(async_beacon):
-    with pytest.raises(Web3ValueError):
+    with pytest.raises(InvalidURL):
         await async_beacon._async_make_get_request(
             BASE_URL + "/eth/v1/beacon/nonexistent"
         )

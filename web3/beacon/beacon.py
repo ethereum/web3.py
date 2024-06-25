@@ -8,6 +8,9 @@ from eth_typing import (
     HexStr,
 )
 
+from web3._utils.http_session_manager import (
+    HTTPSessionManager,
+)
 from web3.beacon.api_endpoints import (
     GET_ATTESTATIONS,
     GET_ATTESTER_SLASHINGS,
@@ -46,9 +49,6 @@ from web3.beacon.api_endpoints import (
     GET_VALIDATORS,
     GET_VERSION,
     GET_VOLUNTARY_EXITS,
-)
-from web3.session_manager import (
-    HTTPSessionManager,
 )
 
 
