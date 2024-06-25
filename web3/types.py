@@ -112,7 +112,33 @@ class ABIFunction(TypedDict, total=False):
     type: Literal["function", "constructor", "fallback", "receive"]
 
 
-ABIElement = Union[ABIFunction, ABIEvent]
+class ABIComponent(TypedDict):
+    """
+    TypedDict representing an `ABIElement` component.
+    """
+
+    name: str
+    """Name of the component."""
+    type: str
+    """Type of the component."""
+    components: NotRequired[Sequence["ABIComponent"]]
+    """List of nested `ABI` components for ABI types."""
+
+
+class ABIError(TypedDict):
+    """
+    TypedDict representing the `ABI` for an error.
+    """
+
+    type: Literal["error"]
+    """Type of the error."""
+    name: str
+    """Name of the error."""
+    inputs: NotRequired[Sequence["ABIComponent"]]
+    """Error input components."""
+
+
+ABIElement = Union[ABIFunction, ABIEvent, ABIError]
 ABI = Sequence[Union[ABIFunction, ABIEvent]]
 
 
