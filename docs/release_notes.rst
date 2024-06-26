@@ -6,6 +6,22 @@ v6 Breaking Changes Summary
 
 .. towncrier release notes start
 
+web3.py v6.20.0 (2024-06-26)
+----------------------------
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Release notes page name changed from ``releases`` to ``release_notes`` (`#3399 <https://github.com/ethereum/web3.py/issues/3399>`__)
+
+
+Features
+~~~~~~~~
+
+- Provide explicit ``__all__`` exports for providers in `web3/providers/__init__.py`; update `web3/__init__.py` to include all provider classes including base classes. (`#3410 <https://github.com/ethereum/web3.py/issues/3410>`__)
+- Created ``ABIError`` type in the ``web3.types`` module and added as a valid type of ``ABIElement``. (`#3419 <https://github.com/ethereum/web3.py/issues/3419>`__)
+
+
 web3.py v6.19.0 (2024-05-15)
 ----------------------------
 

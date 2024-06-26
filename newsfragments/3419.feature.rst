@@ -1,1 +1,0 @@
-Created ``ABIError`` type in the ``web3.types`` module and added as a valid type of ``ABIElement``.
