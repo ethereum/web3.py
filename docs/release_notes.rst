@@ -6,6 +6,38 @@ v7 Breaking Changes Summary
 
 .. towncrier release notes start
 
+web3.py v7.0.0-beta.7 (2024-06-26)
+-----------------------------
+
+Bugfixes
+~~~~~~~~
+
+- Change the ``exception_retry_configuration`` typing on http providers to be an ``Optional``, as setting this property to ``None`` effectively turns off retries on exceptions for requests. (`#3412 <https://github.com/ethereum/web3.py/issues/3412>`__)
+- A bugfix, pre-release, to update the ``Beacon`` APIs (sync and async) to properly use the new ``HTTPSessionManager``. (`#3421 <https://github.com/ethereum/web3.py/issues/3421>`__)
+
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Add an ``eth_subscribe`` example to the events guide (`#3403 <https://github.com/ethereum/web3.py/issues/3403>`__)
+
+
+Features
+~~~~~~~~
+
+- Properly handle ``InsufficientDataBytes`` errors when processing receipts (`#3388 <https://github.com/ethereum/web3.py/issues/3388>`__)
+- Provide explicit ``__all__`` exports for providers in `web3/providers/__init__.py`; update `web3/__init__.py` to include all provider classes including base classes. (`#3409 <https://github.com/ethereum/web3.py/issues/3409>`__)
+
+
+Internal Changes - for web3.py Contributors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Re-compile test contracts with Solidity v0.8.25 to ensure compatibility. (`#3307 <https://github.com/ethereum/web3.py/issues/3307>`__)
+- Increase allowable range of eth-tester: 0.11.x and 0.12.x (`#3400 <https://github.com/ethereum/web3.py/issues/3400>`__)
+- Remove uses of signHash in tests, require eth-account >=0.13.0 in doctests (`#3404 <https://github.com/ethereum/web3.py/issues/3404>`__)
+- Use a ``HTTPSessionManager`` to manage sessions for http providers, rather than have them share a single session manager / cache. (`#3412 <https://github.com/ethereum/web3.py/issues/3412>`__)
+
+
 web3.py v7.0.0-beta.6 (2024-05-15)
 ----------------------------------
 

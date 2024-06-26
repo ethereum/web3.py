@@ -1,1 +1,0 @@
-Change the ``exception_retry_configuration`` typing on http providers to be an ``Optional``, as setting this property to ``None`` effectively turns off retries on exceptions for requests.
