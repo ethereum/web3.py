@@ -1,4 +1,3 @@
-import json
 import pytest
 
 from eth_abi.registry import (
@@ -6,6 +5,7 @@ from eth_abi.registry import (
 )
 from eth_typing import (
     ABI,
+    ABIFunction,
 )
 
 from web3._utils.abi import (
@@ -67,110 +67,84 @@ def test_get_tuple_type_str_parts(input, expected):
     assert get_tuple_type_str_parts(input) == expected
 
 
-TEST_FUNCTION_ABI_JSON = """
-{
-  "constant": false,
-  "inputs": [
-    {
-      "components": [
+FUNCTION_ABI: ABIFunction = {
+    "constant": False,
+    "inputs": [
         {
-          "name": "a",
-          "type": "uint256"
+            "components": [
+                {"name": "a", "type": "uint256"},
+                {"name": "b", "type": "uint256[]"},
+                {
+                    "components": [
+                        {"name": "x", "type": "uint256"},
+                        {"name": "y", "type": "uint256"},
+                    ],
+                    "name": "c",
+                    "type": "tuple[]",
+                },
+            ],
+            "name": "s",
+            "type": "tuple",
         },
         {
-          "name": "b",
-          "type": "uint256[]"
+            "components": [
+                {"name": "x", "type": "uint256"},
+                {"name": "y", "type": "uint256"},
+            ],
+            "name": "t",
+            "type": "tuple",
         },
+        {"name": "a", "type": "uint256"},
         {
-          "components": [
-            {
-              "name": "x",
-              "type": "uint256"
-            },
-            {
-              "name": "y",
-              "type": "uint256"
-            }
-          ],
-          "name": "c",
-          "type": "tuple[]"
-        }
-      ],
-      "name": "s",
-      "type": "tuple"
-    },
-    {
-      "components": [
-        {
-          "name": "x",
-          "type": "uint256"
+            "components": [
+                {"name": "x", "type": "uint256"},
+                {"name": "y", "type": "uint256"},
+            ],
+            "name": "b",
+            "type": "tuple[][]",
         },
-        {
-          "name": "y",
-          "type": "uint256"
-        }
-      ],
-      "name": "t",
-      "type": "tuple"
-    },
-    {
-      "name": "a",
-      "type": "uint256"
-    },
-    {
-      "components": [
-        {
-          "name": "x",
-          "type": "uint256"
-        },
-        {
-          "name": "y",
-          "type": "uint256"
-        }
-      ],
-      "name": "b",
-      "type": "tuple[][]"
-    }
-  ],
-  "name": "f",
-  "outputs": [],
-  "payable": false,
-  "stateMutability": "nonpayable",
-  "type": "function"
+    ],
+    "name": "f",
+    "outputs": [],
+    "payable": False,
+    "stateMutability": "nonpayable",
+    "type": "function",
 }
-"""
-TEST_FUNCTION_ABI = json.loads(TEST_FUNCTION_ABI_JSON)
 
+LOG_TWO_EVENTS_ABI: ABIFunction = {
+    "inputs": [{"name": "_arg0", "type": "uint256"}],
+    "name": "logTwoEvents",
+    "stateMutability": "nonpayable",
+    "type": "function",
+}
+
+SET_VALUE_ABI: ABIFunction = {
+    "inputs": [{"name": "_arg0", "type": "uint256"}],
+    "name": "setValue",
+    "stateMutability": "nonpayable",
+    "type": "function",
+}
+SET_VALUE_WITH_TUPLE_ABI: ABIFunction = {
+    "inputs": [
+        {"name": "_arg0", "type": "uint256"},
+        {
+            "type": "tuple",
+            "name": "arg1",
+            "components": [
+                {"name": "a", "type": "uint256"},
+                {"name": "b", "type": "uint256"},
+            ],
+        },
+    ],
+    "name": "setValue",
+    "stateMutability": "nonpayable",
+    "type": "function",
+}
 
 CONTRACT_ABI: ABI = [
-    {
-        "inputs": [{"name": "_arg0", "type": "uint256"}],
-        "name": "logTwoEvents",
-        "stateMutability": "nonpayable",
-        "type": "function",
-    },
-    {
-        "inputs": [{"name": "_arg0", "type": "uint256"}],
-        "name": "setValue",
-        "stateMutability": "nonpayable",
-        "type": "function",
-    },
-    {
-        "inputs": [
-            {"name": "_arg0", "type": "uint256"},
-            {
-                "type": "tuple",
-                "name": "arg1",
-                "components": [
-                    {"name": "a", "type": "uint256"},
-                    {"name": "b", "type": "uint256"},
-                ],
-            },
-        ],
-        "name": "setValue",
-        "stateMutability": "nonpayable",
-        "type": "function",
-    },
+    LOG_TWO_EVENTS_ABI,
+    SET_VALUE_ABI,
+    SET_VALUE_WITH_TUPLE_ABI,
 ]
 
 
