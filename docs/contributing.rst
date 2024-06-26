@@ -212,12 +212,12 @@ Integration Testing
 Our integration test suite setup lives under the ``/tests/integration`` directory.
 The integration test suite is dependent on what we call "fixtures" (not to be
 confused with pytest fixtures). These zip file fixtures, which also live in the
-``/tests/integration`` directory, are configured to run the specific client we are
+``/tests/integration`` directory, is configured to run the specific client we are
 testing against along with a genesis configuration that gives our tests some
 pre-determined useful objects (like unlocked, pre-loaded accounts) to be able to
 interact with the client when we run our tests.
 
-The parent ``/integration`` directory houses some common configuration shared across
+The parent ``/integration`` directory houses some common configurations shared across
 all client tests, whereas the ``/go_ethereum`` directory houses common code to be
 shared across geth-specific provider tests. Though the setup and run configurations
 exist across the different files within ``/tests/integration``, our integration module
