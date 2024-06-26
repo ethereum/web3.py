@@ -82,7 +82,7 @@ The first time it's used, web3.py will create the  ``ens`` instance using
     this flag. For more examples, see :ref:`disable-strict-byte-check`
 
     If instantiating a standalone ENS instance using ``ENS.from_web3()``, the ENS
-    instance will inherit the value of the flag on the Web3 instance at time of
+    instance will inherit the value of the flag on the Web3 instance at the time of
     instantiation.
 
     .. doctest::
