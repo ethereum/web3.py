@@ -156,7 +156,7 @@ Filter Class
     Hook for subclasses to modify the format of the log entries this filter
     returns, or passes to its callback functions.
 
-    By default this returns the ``entry`` parameter umodified.
+    By default this returns the ``entry`` parameter unmodified.
 
 
 .. py:method:: Filter.is_valid_entry(entry)
