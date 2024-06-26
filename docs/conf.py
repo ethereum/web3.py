@@ -56,7 +56,7 @@ project = "web3.py"
 copyright = "2016-2024, The Ethereum Foundation"
 
 __version__ = setup_version
-# The version info for the project you're documenting, acts as replacement for
+# The version info for the project you're documenting, acts as a replacement for
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 #
