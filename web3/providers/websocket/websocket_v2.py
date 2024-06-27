@@ -136,9 +136,8 @@ class WebsocketProviderV2(PersistentConnectionProvider):
         return response
 
     async def _provider_specific_message_listener(self) -> None:
-        async for raw_message in self._ws:
-            await asyncio.sleep(0)
-
+        while True:
+            raw_message = await self._ws.recv()
             response = json.loads(raw_message)
             subscription = response.get("method") == "eth_subscription"
             await self._request_processor.cache_raw_response(

@@ -1,6 +1,3 @@
-from collections import (
-    deque,
-)
 import pytest
 import time
 from typing import (
@@ -9,6 +6,7 @@ from typing import (
     Collection,
     Dict,
     Generator,
+    Optional,
     Sequence,
     Union,
 )
@@ -35,6 +33,7 @@ from web3._utils.compat import (
 )
 from web3._utils.request import (
     async_cache_and_return_session,
+    asyncio,
     cache_and_return_session,
 )
 from web3.types import (
@@ -188,9 +187,13 @@ class WebsocketMessageStreamMock:
     closed: bool = False
 
     def __init__(
-        self, messages: Collection[bytes] = None, raise_exception: Exception = None
+        self,
+        messages: Optional[Collection[bytes]] = None,
+        raise_exception: Optional[Exception] = None,
     ) -> None:
-        self.messages = deque(messages) if messages else deque()
+        self.queue = asyncio.Queue[bytes]()
+        for msg in messages or []:
+            self.queue.put_nowait(msg)
         self.raise_exception = raise_exception
 
     def __await__(self) -> Generator[Any, Any, "Self"]:
@@ -203,13 +206,13 @@ class WebsocketMessageStreamMock:
         return self
 
     async def __anext__(self) -> bytes:
+        return await self.recv()
+
+    async def recv(self) -> bytes:
         if self.raise_exception:
             raise self.raise_exception
 
-        elif len(self.messages) == 0:
-            raise StopAsyncIteration
-
-        return self.messages.popleft()
+        return await self.queue.get()
 
     @staticmethod
     async def pong() -> Literal[False]:
