@@ -125,6 +125,8 @@ async def test_async_make_request_returns_desired_response():
     # that id. Append it as the last response in the list.
     ws_messages.append(b'{"jsonrpc": "2.0", "id": 0, "result": "0x1337"}')
     provider._ws = WebsocketMessageStreamMock(messages=ws_messages)
+    # ignore websocket ConnectionClosedOK exception
+    provider.silence_listener_task_exceptions = True
 
     response = await method_under_test(RPCEndpoint("some_method"), ["desired_params"])
     assert response == json.loads(ws_messages.pop())
