@@ -7,7 +7,7 @@ v7 Breaking Changes Summary
 .. towncrier release notes start
 
 web3.py v7.0.0-beta.7 (2024-06-26)
------------------------------
+----------------------------------
 
 Bugfixes
 ~~~~~~~~
