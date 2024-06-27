@@ -29,6 +29,9 @@ from flaky import (
 from hexbytes import (
     HexBytes,
 )
+from websockets import (
+    ConnectionClosedOK,
+)
 
 from web3._utils.compat import (
     Literal,
@@ -208,6 +211,15 @@ class WebsocketMessageStreamMock:
 
         elif len(self.messages) == 0:
             raise StopAsyncIteration
+
+        return self.messages.popleft()
+
+    async def recv(self) -> bytes:
+        if self.raise_exception:
+            raise self.raise_exception
+
+        elif len(self.messages) == 0:
+            raise ConnectionClosedOK(None, None)
 
         return self.messages.popleft()
 
