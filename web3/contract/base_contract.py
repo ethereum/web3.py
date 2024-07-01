@@ -24,11 +24,18 @@ from eth_typing import (
     ChecksumAddress,
     HexStr,
 )
+from eth_typing.abi import (
+    ABI,
+    ABIComponent,
+    ABIEvent,
+    ABIFunction,
+)
 from eth_utils import (
     add_0x_prefix,
     combomethod,
     encode_hex,
     function_abi_to_4byte_selector,
+    get_normalized_abi_inputs,
     is_list_like,
     is_text,
     to_tuple,
@@ -44,7 +51,6 @@ from web3._utils.abi import (
     filter_by_type,
     get_constructor_abi,
     is_array_type,
-    merge_args_and_kwargs,
     receive_func_abi_exists,
 )
 from web3._utils.contracts import (
@@ -108,9 +114,6 @@ from web3.logs import (
     EventLogErrorFlags,
 )
 from web3.types import (
-    ABI,
-    ABIEvent,
-    ABIFunction,
     BlockIdentifier,
     EventData,
     FilterParams,
@@ -501,7 +504,7 @@ class BaseContractFunction:
         else:
             raise Web3TypeError("Unsupported function identifier")
 
-        self.arguments = merge_args_and_kwargs(self.abi, self.args, self.kwargs)
+        self.arguments = get_normalized_abi_inputs(self.abi, self.args, self.kwargs)
 
     def _get_call_txparams(self, transaction: Optional[TxParams] = None) -> TxParams:
         if transaction is None:
@@ -895,7 +898,7 @@ class BaseContract:
             if kwargs is None:
                 kwargs = {}
 
-            arguments = merge_args_and_kwargs(constructor_abi, args, kwargs)
+            arguments = get_normalized_abi_inputs(constructor_abi, args, kwargs)
 
             deploy_data = add_0x_prefix(
                 encode_abi(cls.w3, constructor_abi, arguments, data=cls.bytecode)
@@ -990,7 +993,7 @@ class BaseContractCaller:
     """
 
     # mypy types
-    _functions: List[Union[ABIFunction, ABIEvent]]
+    _functions: List[ABIComponent]
 
     def __init__(
         self,
@@ -1078,7 +1081,7 @@ class BaseContractConstructor:
             if not kwargs:
                 kwargs = {}
 
-            arguments = merge_args_and_kwargs(constructor_abi, args, kwargs)
+            arguments = get_normalized_abi_inputs(constructor_abi, args, kwargs)
             data = add_0x_prefix(
                 encode_abi(self.w3, constructor_abi, arguments, data=self.bytecode)
             )

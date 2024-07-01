@@ -19,6 +19,13 @@ from eth_typing import (
     ChecksumAddress,
     TypeStr,
 )
+from eth_typing.abi import (
+    ABI,
+    ABIFunction,
+)
+from eth_utils.abi import (
+    get_abi_output_types,
+)
 from eth_utils.toolz import (
     compose,
     curry,
@@ -29,7 +36,6 @@ from hexbytes import (
 
 from web3._utils.abi import (
     filter_by_type,
-    get_abi_output_types,
     map_abi_data,
     named_tree,
     recursive_dict_to_namedtuple,
@@ -52,8 +58,6 @@ from web3.exceptions import (
     Web3ValueError,
 )
 from web3.types import (
-    ABI,
-    ABIFunction,
     BlockIdentifier,
     FunctionIdentifier,
     StateOverride,
@@ -330,7 +334,7 @@ def find_functions_by_identifier(
             abi=fn_abi,
         )
         for fn_abi in fns_abi
-        if callable_check(fn_abi)
+        if callable_check(fn_abi) and fn_abi["type"] == "function"
     ]
 
 

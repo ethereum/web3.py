@@ -47,6 +47,12 @@ from eth_abi.registry import (
     registry as default_registry,
 )
 from eth_typing import (
+    ABI,
+    ABIComponent,
+    ABIComponentIndexed,
+    ABIElement,
+    ABIEvent,
+    ABIFunction,
     HexStr,
     TypeStr,
 )
@@ -60,7 +66,13 @@ from eth_utils import (
     to_tuple,
 )
 from eth_utils.abi import (
-    collapse_if_tuple,
+    get_abi_input_names,
+    get_normalized_abi_component_type,
+    get_normalized_abi_inputs,
+)
+from eth_utils.address import (
+    is_binary_address,
+    is_checksum_address,
 )
 from eth_utils.toolz import (
     curry,
@@ -85,15 +97,7 @@ from web3.exceptions import (
     Web3ValueError,
 )
 from web3.types import (
-    ABI,
-    ABIEvent,
-    ABIEventParams,
-    ABIFunction,
-    ABIFunctionParams,
     TReturn,
-)
-from web3.utils import (  # public utils module
-    get_abi_input_names,
 )
 
 if TYPE_CHECKING:
@@ -102,11 +106,40 @@ if TYPE_CHECKING:
     )
 
 
-def filter_by_type(_type: str, contract_abi: ABI) -> List[Union[ABIFunction, ABIEvent]]:
+def _get_argument_readable_type(arg: Any) -> str:
+    if is_checksum_address(arg) or is_binary_address(arg):
+        return "address"
+
+    return arg.__class__.__name__
+
+
+def extract_argument_types(*args: Sequence[Any]) -> str:
+    """
+    Takes a list of arguments and returns a string representation of the argument types,
+    appropriately collapsing `tuple` types into the respective nested types.
+    """
+    collapsed_args = []
+
+    for arg in args:
+        if is_list_like(arg):
+            collapsed_nested = []
+            for nested in arg:
+                if is_list_like(nested):
+                    collapsed_nested.append(f"({extract_argument_types(nested)})")
+                else:
+                    collapsed_nested.append(_get_argument_readable_type(nested))
+            collapsed_args.append(",".join(collapsed_nested))
+        else:
+            collapsed_args.append(_get_argument_readable_type(arg))
+
+    return ",".join(collapsed_args)
+
+
+def filter_by_type(_type: str, contract_abi: ABI) -> List[ABIElement]:
     return [abi for abi in contract_abi if abi["type"] == _type]
 
 
-def filter_by_name(name: str, contract_abi: ABI) -> List[Union[ABIFunction, ABIEvent]]:
+def filter_by_name(name: str, contract_abi: ABI) -> List[ABIElement]:
     return [
         abi
         for abi in contract_abi
@@ -115,20 +148,6 @@ def filter_by_name(name: str, contract_abi: ABI) -> List[Union[ABIFunction, ABIE
             and abi["name"] == name
         )
     ]
-
-
-def get_abi_input_types(abi: ABIFunction) -> List[str]:
-    if "inputs" not in abi and (abi["type"] == "fallback" or abi["type"] == "receive"):
-        return []
-    else:
-        return [collapse_if_tuple(cast(Dict[str, Any], arg)) for arg in abi["inputs"]]
-
-
-def get_abi_output_types(abi: ABIFunction) -> List[str]:
-    if abi["type"] == "fallback":
-        return []
-    else:
-        return [collapse_if_tuple(cast(Dict[str, Any], arg)) for arg in abi["outputs"]]
 
 
 def get_receive_func_abi(contract_abi: ABI) -> ABIFunction:
@@ -147,47 +166,46 @@ def get_fallback_func_abi(contract_abi: ABI) -> ABIFunction:
         raise FallbackNotFound("No fallback function was found in the contract ABI.")
 
 
-def fallback_func_abi_exists(contract_abi: ABI) -> List[Union[ABIFunction, ABIEvent]]:
+def fallback_func_abi_exists(contract_abi: ABI) -> List[ABIElement]:
     return filter_by_type("fallback", contract_abi)
 
 
-def receive_func_abi_exists(contract_abi: ABI) -> List[Union[ABIFunction, ABIEvent]]:
+def receive_func_abi_exists(contract_abi: ABI) -> List[ABIElement]:
     return filter_by_type("receive", contract_abi)
 
 
-def get_indexed_event_inputs(event_abi: ABIEvent) -> List[ABIEventParams]:
+def get_indexed_event_inputs(event_abi: ABIEvent) -> List[ABIComponentIndexed]:
     return [arg for arg in event_abi["inputs"] if arg["indexed"] is True]
 
 
-def exclude_indexed_event_inputs(event_abi: ABIEvent) -> List[ABIEventParams]:
+def exclude_indexed_event_inputs(event_abi: ABIEvent) -> List[ABIComponent]:
     return [arg for arg in event_abi["inputs"] if arg["indexed"] is False]
 
 
-def get_normalized_abi_arg_type(abi_arg: ABIEventParams) -> str:
-    """
-    Return the normalized type for the abi argument provided.
-    In order to account for tuple argument types, this abstraction
-    makes use of `collapse_if_tuple()` to collapse the appropriate component
-    types within a tuple type, if present.
-    """
-    return collapse_if_tuple(dict(abi_arg))
-
-
-def filter_by_argument_count(
-    num_arguments: int, contract_abi: ABI
-) -> List[Union[ABIFunction, ABIEvent]]:
+def filter_by_argument_count(num_arguments: int, contract_abi: ABI) -> List[ABIElement]:
     return [abi for abi in contract_abi if len(abi["inputs"]) == num_arguments]
 
 
 def filter_by_argument_name(
     argument_names: Collection[str], contract_abi: ABI
-) -> List[Union[ABIFunction, ABIEvent]]:
-    return [
-        abi
-        for abi in contract_abi
-        if set(argument_names).intersection(get_abi_input_names(abi))
-        == set(argument_names)
-    ]
+) -> List[ABIElement]:
+    """
+    Return a list of each ``ABIElement`` which contain arguments matching provided
+    names.
+    """
+    abis_with_matching_args = []
+    for abi_element in contract_abi:
+        try:
+            abi_arg_names = get_abi_input_names(abi_element)
+
+            if set(argument_names).intersection(abi_arg_names) == set(abi_arg_names):
+                abis_with_matching_args.append(abi_element)
+        except TypeError:
+            # fallback or receive functions do not have arguments
+            # proceed to next ABIElement
+            continue
+
+    return abis_with_matching_args
 
 
 # type ignored because subclassing encoding.AddressEncoder which has type Any
@@ -368,7 +386,7 @@ def check_if_arguments_can_be_encoded(
     kwargs: Dict[str, Any],
 ) -> bool:
     try:
-        arguments = merge_args_and_kwargs(function_abi, args, kwargs)
+        arguments = get_normalized_abi_inputs(function_abi, args, kwargs)
     except TypeError:
         return False
 
@@ -383,70 +401,6 @@ def check_if_arguments_can_be_encoded(
     return all(
         abi_codec.is_encodable(_type, arg) for _type, arg in zip(types, aligned_args)
     )
-
-
-def merge_args_and_kwargs(
-    function_abi: ABIFunction, args: Sequence[Any], kwargs: Dict[str, Any]
-) -> Tuple[Any, ...]:
-    """
-    Takes a list of positional args (``args``) and a dict of keyword args
-    (``kwargs``) defining values to be passed to a call to the contract function
-    described by ``function_abi``.  Checks to ensure that the correct number of
-    args were given, no duplicate args were given, and no unknown args were
-    given.  Returns a list of argument values aligned to the order of inputs
-    defined in ``function_abi``.
-    """
-    # Ensure the function is being applied to the correct number of args
-    if len(args) + len(kwargs) != len(function_abi.get("inputs", [])):
-        raise Web3TypeError(
-            f"Incorrect argument count. Expected '{len(function_abi['inputs'])}'"
-            f". Got '{len(args) + len(kwargs)}'"
-        )
-
-    # If no keyword args were given, we don't need to align them
-    if not kwargs:
-        return cast(Tuple[Any, ...], args)
-
-    kwarg_names = set(kwargs.keys())
-    sorted_arg_names = tuple(arg_abi["name"] for arg_abi in function_abi["inputs"])
-    args_as_kwargs = dict(zip(sorted_arg_names, args))
-
-    # Check for duplicate args
-    duplicate_args = kwarg_names.intersection(args_as_kwargs.keys())
-    if duplicate_args:
-        raise Web3TypeError(
-            f"{function_abi.get('name')}() got multiple values for argument(s) "
-            f"'{', '.join(duplicate_args)}'"
-        )
-
-    # Check for unknown args
-    unknown_args = kwarg_names.difference(sorted_arg_names)
-    if unknown_args:
-        if function_abi.get("name"):
-            raise Web3TypeError(
-                f"{function_abi.get('name')}() got unexpected keyword argument(s)"
-                f" '{', '.join(unknown_args)}'"
-            )
-        raise Web3TypeError(
-            f"Type: '{function_abi.get('type')}' got unexpected keyword argument(s)"
-            f" '{', '.join(unknown_args)}'"
-        )
-
-    # Sort args according to their position in the ABI and unzip them from their
-    # names
-    sorted_args = tuple(
-        zip(
-            *sorted(
-                itertools.chain(kwargs.items(), args_as_kwargs.items()),
-                key=lambda kv: sorted_arg_names.index(kv[0]),
-            )
-        )
-    )
-
-    if sorted_args:
-        return sorted_args[1]
-    else:
-        return tuple()
 
 
 TUPLE_TYPE_STR_RE = re.compile(r"^(tuple)((\[([1-9]\d*\b)?])*)??$")
@@ -468,7 +422,9 @@ def get_tuple_type_str_parts(s: str) -> Optional[Tuple[str, Optional[str]]]:
     return None
 
 
-def _align_abi_input(arg_abi: ABIFunctionParams, arg: Any) -> Tuple[Any, ...]:
+def _align_abi_input(
+    arg_abi: Union[ABIComponent, ABIComponentIndexed], arg: Any
+) -> Tuple[Any, ...]:
     """
     Aligns the values of any mapping at any level of nesting in ``arg``
     according to the layout of the corresponding abi spec.
@@ -492,7 +448,7 @@ def _align_abi_input(arg_abi: ABIFunctionParams, arg: Any) -> Tuple[Any, ...]:
         new_abi = copy.copy(arg_abi)
         new_abi["type"] = tuple_prefix + "[]" * (num_dims - 1)
 
-        sub_abis = itertools.repeat(new_abi)  # type: ignore
+        sub_abis = itertools.repeat(new_abi)
 
     if isinstance(arg, abc.Mapping):
         # Arg is mapping.  Align values according to abi order.
@@ -532,7 +488,7 @@ def get_aligned_abi_inputs(
         args = tuple(args[abi["name"]] for abi in input_abis)
 
     return (
-        tuple(collapse_if_tuple(abi) for abi in input_abis),
+        tuple(get_normalized_abi_component_type(abi) for abi in input_abis),
         type(args)(_align_abi_input(abi, arg) for abi, arg in zip(input_abis, args)),
     )
 
@@ -671,7 +627,7 @@ def is_probably_enum(abi_type: TypeStr) -> bool:
 
 @to_tuple
 def normalize_event_input_types(
-    abi_args: Collection[Union[ABIFunction, ABIEvent]]
+    abi_args: Collection[ABIElement],
 ) -> Iterable[Union[ABIFunction, ABIEvent, Dict[TypeStr, Any]]]:
     for arg in abi_args:
         if is_recognized_type(arg["type"]):
@@ -682,11 +638,11 @@ def normalize_event_input_types(
             yield arg
 
 
-def abi_to_signature(abi: Union[ABIFunction, ABIEvent]) -> str:
+def abi_to_signature(abi: ABIElement) -> str:
     function_signature = "{fn_name}({fn_input_types})".format(
         fn_name=abi["name"],
         fn_input_types=",".join(
-            collapse_if_tuple(dict(arg))
+            get_normalized_abi_component_type(dict(arg))
             for arg in normalize_event_input_types(abi.get("inputs", []))
         ),
     )
@@ -913,7 +869,11 @@ def build_strict_registry() -> ABIRegistry:
 
 
 def named_tree(
-    abi: Iterable[Union[ABIFunctionParams, ABIFunction, ABIEvent, Dict[TypeStr, Any]]],
+    abi: Iterable[
+        Union[
+            ABIComponent, ABIComponentIndexed, ABIFunction, ABIEvent, Dict[TypeStr, Any]
+        ]
+    ],
     data: Iterable[Tuple[Any, ...]],
 ) -> Dict[str, Any]:
     """
@@ -926,10 +886,10 @@ def named_tree(
 
 
 def _named_subtree(
-    abi: Union[ABIFunctionParams, ABIFunction, ABIEvent, Dict[TypeStr, Any]],
+    abi: Union[ABIComponent, ABIComponentIndexed],
     data: Tuple[Any, ...],
 ) -> Union[Dict[str, Any], Tuple[Any, ...], List[Any]]:
-    abi_type = parse(collapse_if_tuple(dict(abi)))
+    abi_type = parse(get_normalized_abi_component_type(abi))
 
     if abi_type.is_array:
         item_type = abi_type.item_type.to_type_str()
@@ -938,7 +898,11 @@ def _named_subtree(
         return items
 
     elif isinstance(abi_type, TupleType):
-        abi = cast(ABIFunctionParams, abi)
+        if abi.get("indexed"):
+            abi = cast(ABIComponentIndexed, abi)
+        else:
+            abi = cast(ABIComponent, abi)
+
         names = [item["name"] for item in abi["components"]]
         items = [_named_subtree(*item) for item in zip(abi["components"], data)]
 
