@@ -1,13 +1,16 @@
-import json
 import pytest
-from typing import (
-    NamedTuple,
+
+from eth_abi.registry import (
+    registry as default_registry,
+)
+from eth_typing import (
+    ABI,
+    ABIFunction,
 )
 
 from web3._utils.abi import (
     ExactLengthBytesEncoder,
     abi_data_tree,
-    get_aligned_abi_inputs,
     get_tuple_type_str_parts,
     map_abi_data,
     recursive_dict_to_namedtuple,
@@ -18,7 +21,12 @@ from web3._utils.normalizers import (
     addresses_checksummed,
 )
 from web3.exceptions import (
+    MismatchedABI,
     Web3ValueError,
+)
+from web3.utils.abi import (
+    get_abi_element,
+    get_abi_element_info,
 )
 
 
@@ -59,214 +67,90 @@ def test_get_tuple_type_str_parts(input, expected):
     assert get_tuple_type_str_parts(input) == expected
 
 
-class MyXYTuple(NamedTuple):
-    x: int
-    y: int
-
-
-TEST_FUNCTION_ABI_JSON = """
-{
-  "constant": false,
-  "inputs": [
-    {
-      "components": [
+FUNCTION_ABI: ABIFunction = {
+    "constant": False,
+    "inputs": [
         {
-          "name": "a",
-          "type": "uint256"
+            "components": [
+                {"name": "a", "type": "uint256"},
+                {"name": "b", "type": "uint256[]"},
+                {
+                    "components": [
+                        {"name": "x", "type": "uint256"},
+                        {"name": "y", "type": "uint256"},
+                    ],
+                    "name": "c",
+                    "type": "tuple[]",
+                },
+            ],
+            "name": "s",
+            "type": "tuple",
         },
         {
-          "name": "b",
-          "type": "uint256[]"
+            "components": [
+                {"name": "x", "type": "uint256"},
+                {"name": "y", "type": "uint256"},
+            ],
+            "name": "t",
+            "type": "tuple",
         },
+        {"name": "a", "type": "uint256"},
         {
-          "components": [
-            {
-              "name": "x",
-              "type": "uint256"
-            },
-            {
-              "name": "y",
-              "type": "uint256"
-            }
-          ],
-          "name": "c",
-          "type": "tuple[]"
-        }
-      ],
-      "name": "s",
-      "type": "tuple"
-    },
-    {
-      "components": [
-        {
-          "name": "x",
-          "type": "uint256"
+            "components": [
+                {"name": "x", "type": "uint256"},
+                {"name": "y", "type": "uint256"},
+            ],
+            "name": "b",
+            "type": "tuple[][]",
         },
-        {
-          "name": "y",
-          "type": "uint256"
-        }
-      ],
-      "name": "t",
-      "type": "tuple"
-    },
-    {
-      "name": "a",
-      "type": "uint256"
-    },
-    {
-      "components": [
-        {
-          "name": "x",
-          "type": "uint256"
-        },
-        {
-          "name": "y",
-          "type": "uint256"
-        }
-      ],
-      "name": "b",
-      "type": "tuple[][]"
-    }
-  ],
-  "name": "f",
-  "outputs": [],
-  "payable": false,
-  "stateMutability": "nonpayable",
-  "type": "function"
+    ],
+    "name": "f",
+    "outputs": [],
+    "payable": False,
+    "stateMutability": "nonpayable",
+    "type": "function",
 }
-"""
-TEST_FUNCTION_ABI = json.loads(TEST_FUNCTION_ABI_JSON)
 
+LOG_TWO_EVENTS_ABI: ABIFunction = {
+    "inputs": [{"name": "_arg0", "type": "uint256"}],
+    "name": "logTwoEvents",
+    "stateMutability": "nonpayable",
+    "type": "function",
+}
 
-GET_ABI_INPUTS_OUTPUT = (
-    (
-        "(uint256,uint256[],(uint256,uint256)[])",  # Type of s
-        "(uint256,uint256)",  # Type of t
-        "uint256",  # Type of a
-        "(uint256,uint256)[][]",  # Type of b
-    ),
-    (
-        (1, [2, 3, 4], [(5, 6), (7, 8), (9, 10)]),  # Value for s
-        (11, 12),  # Value for t
-        13,  # Value for a
-        [[(14, 15), (16, 17)], [(18, 19)]],  # Value for b
-    ),
-)
-
-GET_ABI_INPUTS_TESTS = (
-    (
-        TEST_FUNCTION_ABI,
+SET_VALUE_ABI: ABIFunction = {
+    "inputs": [{"name": "_arg0", "type": "uint256"}],
+    "name": "setValue",
+    "stateMutability": "nonpayable",
+    "type": "function",
+}
+SET_VALUE_WITH_TUPLE_ABI: ABIFunction = {
+    "inputs": [
+        {"name": "_arg0", "type": "uint256"},
         {
-            "s": {
-                "a": 1,
-                "b": [2, 3, 4],
-                "c": [{"x": 5, "y": 6}, {"x": 7, "y": 8}, {"x": 9, "y": 10}],
-            },
-            "t": {"x": 11, "y": 12},
-            "a": 13,
-            "b": [[{"x": 14, "y": 15}, {"x": 16, "y": 17}], [{"x": 18, "y": 19}]],
-        },
-        GET_ABI_INPUTS_OUTPUT,
-    ),
-    (
-        TEST_FUNCTION_ABI,
-        {
-            "s": {"a": 1, "b": [2, 3, 4], "c": [(5, 6), (7, 8), {"x": 9, "y": 10}]},
-            "t": {"x": 11, "y": 12},
-            "a": 13,
-            "b": [[(14, 15), (16, 17)], [{"x": 18, "y": 19}]],
-        },
-        GET_ABI_INPUTS_OUTPUT,
-    ),
-    (
-        TEST_FUNCTION_ABI,
-        {
-            "s": {"a": 1, "b": [2, 3, 4], "c": [(5, 6), (7, 8), (9, 10)]},
-            "t": (11, 12),
-            "a": 13,
-            "b": [[(14, 15), (16, 17)], [(18, 19)]],
-        },
-        GET_ABI_INPUTS_OUTPUT,
-    ),
-    (
-        TEST_FUNCTION_ABI,
-        {
-            "s": (1, [2, 3, 4], [(5, 6), (7, 8), (9, 10)]),
-            "t": (11, 12),
-            "a": 13,
-            "b": [[(14, 15), (16, 17)], [(18, 19)]],
-        },
-        GET_ABI_INPUTS_OUTPUT,
-    ),
-    (
-        TEST_FUNCTION_ABI,
-        (
-            (1, [2, 3, 4], [(5, 6), (7, 8), (9, 10)]),
-            (11, 12),
-            13,
-            [[(14, 15), (16, 17)], [(18, 19)]],
-        ),
-        GET_ABI_INPUTS_OUTPUT,
-    ),
-    (
-        TEST_FUNCTION_ABI,
-        {
-            "s": {"a": 1, "b": [2, 3, 4], "c": [(5, 6), (7, 8), MyXYTuple(x=9, y=10)]},
-            "t": MyXYTuple(x=11, y=12),
-            "a": 13,
-            "b": [
-                [MyXYTuple(x=14, y=15), MyXYTuple(x=16, y=17)],
-                [MyXYTuple(x=18, y=19)],
+            "type": "tuple",
+            "name": "arg1",
+            "components": [
+                {"name": "a", "type": "uint256"},
+                {"name": "b", "type": "uint256"},
             ],
         },
-        GET_ABI_INPUTS_OUTPUT,
-    ),
-    (
-        {},
-        (),
-        ((), ()),
-    ),
-)
+    ],
+    "name": "setValue",
+    "stateMutability": "nonpayable",
+    "type": "function",
+}
+
+CONTRACT_ABI: ABI = [
+    LOG_TWO_EVENTS_ABI,
+    SET_VALUE_ABI,
+    SET_VALUE_WITH_TUPLE_ABI,
+]
 
 
-@pytest.mark.parametrize(
-    "abi, args, expected",
-    GET_ABI_INPUTS_TESTS,
-)
-def test_get_aligned_abi_inputs(abi, args, expected):
-    assert get_aligned_abi_inputs(abi, args) == expected
-
-
-GET_ABI_INPUTS_RAISING_TESTS = (
-    (
-        TEST_FUNCTION_ABI,
-        {
-            "s": {"a": 1, "b": [2, 3, 4], "c": ["56", (7, 8), (9, 10)]},
-            "t": (11, 12),
-            "a": 13,
-            "b": [[(14, 15), (16, 17)], [(18, 19)]],
-        },
-    ),
-    (
-        TEST_FUNCTION_ABI,
-        {
-            "s": {"a": 1, "b": [2, 3, 4], "c": {(5, 6), (7, 8), (9, 10)}},
-            "t": (11, 12),
-            "a": 13,
-            "b": [[(14, 15), (16, 17)], [(18, 19)]],
-        },
-    ),
-)
-
-
-@pytest.mark.parametrize(
-    "abi, args",
-    GET_ABI_INPUTS_RAISING_TESTS,
-)
-def test_get_aligned_abi_inputs_raises_type_error(abi, args):
-    with pytest.raises(TypeError):
-        get_aligned_abi_inputs(abi, args)
+@pytest.fixture()
+def contract_abi() -> ABI:
+    return CONTRACT_ABI
 
 
 @pytest.mark.parametrize(
@@ -381,3 +265,127 @@ def test_recursive_dict_to_namedtuple(input, expected_output):
     named_tuple_output = recursive_dict_to_namedtuple(input)
     output_repr = named_tuple_output.__repr__()
     assert output_repr == expected_output
+
+
+@pytest.mark.parametrize(
+    "name,input_args,input_kwargs,expected_selector,expected_arguments",
+    [
+        (
+            "logTwoEvents",
+            [100],
+            {},
+            "0x5818fad7",
+            [
+                100,
+            ],
+        ),
+        (
+            "setValue",
+            [99],
+            {},
+            "0x55241077",
+            [
+                99,
+            ],
+        ),
+        (
+            "setValue",
+            [1],
+            ({"arg1": {"a": 2, "b": 0}}),
+            "0x647c15ed",
+            (
+                1,
+                (
+                    2,
+                    0,
+                ),
+            ),
+        ),
+    ],
+)
+def test_get_abi_element_info(
+    contract_abi, name, input_args, input_kwargs, expected_selector, expected_arguments
+):
+    function_info = get_abi_element_info(contract_abi, name, input_args, input_kwargs)
+    assert function_info["abi"] == get_abi_element(
+        contract_abi, name, input_args, input_kwargs
+    )
+    assert function_info["selector"] == expected_selector
+    assert function_info["arguments"] == expected_arguments
+
+
+def test_get_abi_element_info_raises_mismatched_abi(contract_abi):
+    with pytest.raises(MismatchedABI, match="Could not identify the intended function"):
+        get_abi_element_info(contract_abi, "foo", [1], {})
+
+
+def test_get_abi_element_by_name_with_args(contract_abi):
+    function_abi = get_abi_element(contract_abi, "logTwoEvents", [1])
+    expected_abi = {
+        "inputs": [{"name": "_arg0", "type": "uint256"}],
+        "name": "logTwoEvents",
+        "stateMutability": "nonpayable",
+        "type": "function",
+    }
+    assert function_abi == expected_abi
+
+
+def test_get_abi_element_by_name_with_kwargs(contract_abi):
+    function_abi = get_abi_element(
+        contract_abi,
+        "setValue",
+        [0],
+        {
+            "arg1": {
+                "a": 10000,
+                "b": 987654321,
+            }
+        },
+    )
+    expected_abi = {
+        "inputs": [
+            {"name": "_arg0", "type": "uint256"},
+            {
+                "type": "tuple",
+                "name": "arg1",
+                "components": [
+                    {"name": "a", "type": "uint256"},
+                    {"name": "b", "type": "uint256"},
+                ],
+            },
+        ],
+        "name": "setValue",
+        "stateMutability": "nonpayable",
+        "type": "function",
+    }
+
+    assert function_abi == expected_abi
+
+
+def test_get_abi_element_raises_without_valid_function_identifier(contract_abi):
+    with pytest.raises(TypeError, match="Unsupported function identifier"):
+        get_abi_element(contract_abi, 1, ["_arg0"])
+
+
+def test_get_abi_element_by_name(contract_abi):
+    with pytest.raises(
+        MismatchedABI,
+        match="Function invocation failed due to improper number of arguments.",
+    ):
+        get_abi_element(contract_abi, "logTwoEvents")
+
+
+def test_get_abi_element_codec_override(contract_abi):
+    from eth_abi.codec import (
+        ABICodec,
+    )
+
+    codec = ABICodec(default_registry)
+    function_abi = get_abi_element(contract_abi, "logTwoEvents", [1], abi_codec=codec)
+    expected_abi = {
+        "inputs": [{"name": "_arg0", "type": "uint256"}],
+        "name": "logTwoEvents",
+        "stateMutability": "nonpayable",
+        "type": "function",
+    }
+    assert function_abi == expected_abi

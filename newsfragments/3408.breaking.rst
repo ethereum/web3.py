@@ -1,0 +1,1 @@
+Upgrades to use latest ``ABI`` utilities and typings from ``eth-utils`` and ``eth-typing``.

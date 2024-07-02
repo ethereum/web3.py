@@ -8,8 +8,11 @@ from eth_typing import (
     HexStr,
     TypeStr,
 )
+from eth_typing.abi import (
+    ABI,
+    ABIFunction,
+)
 from eth_utils import (
-    function_abi_to_4byte_selector,
     is_0x_prefixed,
     is_binary_address,
     is_boolean,
@@ -20,6 +23,11 @@ from eth_utils import (
     is_integer,
     is_list_like,
     is_string,
+)
+from eth_utils.abi import (
+    abi_to_signature,
+    filter_abi_by_type,
+    function_abi_to_4byte_selector,
 )
 from eth_utils.curried import (
     apply_formatter_to_array,
@@ -38,8 +46,6 @@ from ens.utils import (
     is_valid_ens_name,
 )
 from web3._utils.abi import (
-    abi_to_signature,
-    filter_by_type,
     is_address_type,
     is_array_type,
     is_bool_type,
@@ -55,10 +61,6 @@ from web3.exceptions import (
     InvalidAddress,
     Web3TypeError,
     Web3ValueError,
-)
-from web3.types import (
-    ABI,
-    ABIFunction,
 )
 
 
@@ -81,7 +83,7 @@ def validate_abi(abi: ABI) -> None:
     if not all(is_dict(e) for e in abi):
         raise Web3ValueError("'abi' is not a list of dictionaries")
 
-    functions = filter_by_type("function", abi)
+    functions = filter_abi_by_type("function", abi)
     selectors = groupby(compose(encode_hex, function_abi_to_4byte_selector), functions)
     duplicates = valfilter(lambda funcs: len(funcs) > 1, selectors)
     if duplicates:

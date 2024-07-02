@@ -252,6 +252,26 @@ The ``personal`` namespace was used for managing accounts and keys and was depre
 in geth in ``v1.11.0``. Geth has moved to using ``clef`` for account and key management.
 
 
+ABI Types Removed
+`````````````````
+
+The type definitions for ABIs, deprecated in ``v6``, have been removed in ``v7``. New
+types have been introduced in the ``eth_typing`` package for ABIs. Improvements have
+been made to make required types more explicit and to offer better semantics.
+
+The following types from ``web3.types`` have been removed:
+- ``ABIEventParams`` is no longer avaiable. Use ``ABIComponentIndexed`` from
+``eth_typing`` to represent event input components.
+- ``ABIEvent`` now resides in ``eth_typing``. ``ABIEvent.type`` and ``ABIEvent.name``
+are now required fields.
+- ``ABIFunctionComponents`` and ``ABIFunctionParams`` are no longer available. Use
+``ABIComponent`` from ``eth_typing`` to represent function input components.
+- ``ABIFunction`` now resides in ``eth_typing``. ``ABIFunction.type`` and
+``ABIFunction.name`` are now required fields.
+- ``ABIElement`` now resides in ``eth_typing`` and represents a ``Union`` of all valid
+ABI element types, ``ABICallable``, ``ABIEvent`` and ``ABIError``.
+
+
 Miscellaneous Changes
 ~~~~~~~~~~~~~~~~~~~~~
 

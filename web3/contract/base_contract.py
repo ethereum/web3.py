@@ -20,39 +20,47 @@ from eth_abi.exceptions import (
     InsufficientDataBytes,
 )
 from eth_typing import (
+    ABICallable,
+    ABIComponentIndexed,
+    ABIElement,
     Address,
     ChecksumAddress,
     HexStr,
+)
+from eth_typing.abi import (
+    ABI,
+    ABIEvent,
+    ABIFunction,
 )
 from eth_utils import (
     add_0x_prefix,
     combomethod,
     encode_hex,
-    function_abi_to_4byte_selector,
     is_list_like,
     is_text,
     to_tuple,
+)
+from eth_utils.abi import (
+    abi_to_signature,
+    filter_abi_by_type,
+    function_abi_to_4byte_selector,
+    get_normalized_abi_inputs,
 )
 from hexbytes import (
     HexBytes,
 )
 
 from web3._utils.abi import (
-    abi_to_signature,
-    check_if_arguments_can_be_encoded,
     fallback_func_abi_exists,
-    filter_by_type,
+    get_callable_abi,
     get_constructor_abi,
     is_array_type,
-    merge_args_and_kwargs,
     receive_func_abi_exists,
 )
 from web3._utils.contracts import (
     decode_transaction_data,
     encode_abi,
     find_matching_event_abi,
-    find_matching_fn_abi,
-    get_function_info,
     prepare_transaction,
 )
 from web3._utils.datatypes import (
@@ -108,9 +116,6 @@ from web3.logs import (
     EventLogErrorFlags,
 )
 from web3.types import (
-    ABI,
-    ABIEvent,
-    ABIFunction,
     BlockIdentifier,
     EventData,
     FilterParams,
@@ -118,6 +123,11 @@ from web3.types import (
     TContractFn,
     TxParams,
     TxReceipt,
+)
+from web3.utils.abi import (
+    check_if_arguments_can_be_encoded,
+    get_abi_element,
+    get_abi_element_info,
 )
 
 if TYPE_CHECKING:
@@ -290,7 +300,7 @@ class BaseContractEvent:
             # if no non-indexed args in argument filters, since indexed args are
             # filtered pre-call to ``eth_getLogs`` by building specific ``topics``.
             not any(
-                not arg["indexed"]
+                not cast(ABIComponentIndexed, arg)["indexed"]
                 for arg in event_abi["inputs"]
                 if arg["name"] in argument_filters
             )
@@ -415,7 +425,7 @@ class BaseContractEvents:
     ) -> None:
         if abi:
             self.abi = abi
-            self._events = filter_by_type("event", self.abi)
+            self._events: Sequence[ABIEvent] = filter_abi_by_type("event", self.abi)
             for event in self._events:
                 setattr(
                     self,
@@ -474,25 +484,25 @@ class BaseContractFunction:
     function_identifier: FunctionIdentifier = None
     w3: Union["Web3", "AsyncWeb3"] = None
     contract_abi: ABI = None
-    abi: ABIFunction = None
+    abi: ABICallable = None
     transaction: TxParams = None
     arguments: Tuple[Any, ...] = None
     decode_tuples: Optional[bool] = False
     args: Any = None
     kwargs: Any = None
 
-    def __init__(self, abi: Optional[ABIFunction] = None) -> None:
+    def __init__(self, abi: Optional[ABICallable] = None) -> None:
         self.abi = abi
         self.fn_name = type(self).__name__
 
     def _set_function_info(self) -> None:
         if not self.abi:
-            self.abi = find_matching_fn_abi(
-                self.contract_abi,
-                self.w3.codec,
-                self.function_identifier,
-                self.args,
-                self.kwargs,
+            self.abi: ABICallable = get_callable_abi(
+                contract_abi=self.contract_abi,
+                function_identifier=self.function_identifier,
+                args=self.args,
+                kwargs=self.kwargs,
+                abi_codec=self.w3.codec,
             )
         if self.function_identifier in [FallbackFn, ReceiveFn]:
             self.selector = encode_hex(b"")
@@ -501,7 +511,10 @@ class BaseContractFunction:
         else:
             raise Web3TypeError("Unsupported function identifier")
 
-        self.arguments = merge_args_and_kwargs(self.abi, self.args, self.kwargs)
+        if self.function_identifier in [FallbackFn, ReceiveFn]:
+            self.arguments = ()
+        else:
+            self.arguments = get_normalized_abi_inputs(self.abi, self.args, self.kwargs)
 
     def _get_call_txparams(self, transaction: Optional[TxParams] = None) -> TxParams:
         if transaction is None:
@@ -656,7 +669,9 @@ class BaseContractFunctions:
         self.address = address
 
         if self.abi:
-            self._functions = filter_by_type("function", self.abi)
+            self._functions: Sequence[ABIFunction] = filter_abi_by_type(
+                "function", self.abi
+            )
             for func in self._functions:
                 setattr(
                     self,
@@ -747,18 +762,18 @@ class BaseContract:
 
         :param data: defaults to function selector
         """
-        fn_abi, fn_selector, fn_arguments = get_function_info(
-            fn_name,
-            cls.w3.codec,
-            contract_abi=cls.abi,
+        fn_info = get_abi_element_info(
+            abi=cls.abi,
+            function_identifier=fn_name,
             args=args,
             kwargs=kwargs,
+            abi_codec=cls.w3.codec,
         )
 
         if data is None:
-            data = fn_selector
+            data = fn_info["selector"]
 
-        return encode_abi(cls.w3, fn_abi, fn_arguments, data)
+        return encode_abi(cls.w3, fn_info["abi"], fn_info["arguments"], data)
 
     @combomethod
     def all_functions(
@@ -865,12 +880,16 @@ class BaseContract:
     @classmethod
     def _find_matching_fn_abi(
         cls,
-        fn_identifier: Optional[str] = None,
+        fn_identifier: Optional[FunctionIdentifier] = None,
         args: Optional[Any] = None,
         kwargs: Optional[Any] = None,
-    ) -> ABIFunction:
-        return find_matching_fn_abi(
-            cls.abi, cls.w3.codec, fn_identifier=fn_identifier, args=args, kwargs=kwargs
+    ) -> ABIElement:
+        return get_abi_element(
+            cls.abi,
+            function_identifier=fn_identifier,
+            args=args,
+            kwargs=kwargs,
+            abi_codec=cls.w3.codec,
         )
 
     @classmethod
@@ -895,7 +914,7 @@ class BaseContract:
             if kwargs is None:
                 kwargs = {}
 
-            arguments = merge_args_and_kwargs(constructor_abi, args, kwargs)
+            arguments = get_normalized_abi_inputs(constructor_abi, args, kwargs)
 
             deploy_data = add_0x_prefix(
                 encode_abi(cls.w3, constructor_abi, arguments, data=cls.bytecode)
@@ -990,7 +1009,7 @@ class BaseContractCaller:
     """
 
     # mypy types
-    _functions: List[Union[ABIFunction, ABIEvent]]
+    _functions: List[ABICallable]
 
     def __init__(
         self,
@@ -1006,6 +1025,11 @@ class BaseContractCaller:
         self._functions = []
 
     def __getattr__(self, function_name: str) -> Any:
+        function_names = [
+            cast(ABIFunction, fn)["name"]
+            for fn in self._functions
+            if fn.get("type") == "function"
+        ]
         if self.abi is None:
             raise NoABIFound(
                 "There is no ABI found for this contract.",
@@ -1015,8 +1039,8 @@ class BaseContractCaller:
                 "The ABI for this contract contains no function definitions. ",
                 "Are you sure you provided the correct contract ABI?",
             )
-        elif function_name not in {fn["name"] for fn in self._functions}:
-            functions_available = ", ".join([fn["name"] for fn in self._functions])
+        elif function_name not in function_names:
+            functions_available = ", ".join(function_names)
             raise ABIFunctionNotFound(
                 f"The function '{function_name}' was not found in this contract's ABI.",
                 " Here is a list of all of the function names found: ",
@@ -1078,7 +1102,7 @@ class BaseContractConstructor:
             if not kwargs:
                 kwargs = {}
 
-            arguments = merge_args_and_kwargs(constructor_abi, args, kwargs)
+            arguments = get_normalized_abi_inputs(constructor_abi, args, kwargs)
             data = add_0x_prefix(
                 encode_abi(self.w3, constructor_abi, arguments, data=self.bytecode)
             )

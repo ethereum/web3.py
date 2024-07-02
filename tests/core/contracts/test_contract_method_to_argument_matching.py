@@ -1,15 +1,16 @@
 import json
 import pytest
 
-from web3._utils.abi import (
+from eth_utils.abi import (
     get_abi_input_types,
 )
+
 from web3._utils.function_identifiers import (
     FallbackFn,
     ReceiveFn,
 )
 from web3.exceptions import (
-    Web3ValidationError,
+    MismatchedABI,
 )
 
 SINGLE_FN_NO_ARGS = json.loads(
@@ -137,7 +138,7 @@ def test_finds_receive_function(w3):
 def test_error_when_no_function_name_match(w3):
     Contract = w3.eth.contract(abi=SINGLE_FN_NO_ARGS)
 
-    with pytest.raises(Web3ValidationError):
+    with pytest.raises(MismatchedABI):
         Contract._find_matching_fn_abi("no_function_name", [1234])
 
 
@@ -167,14 +168,14 @@ def test_finds_function_with_matching_args_non_strict(
 
 def test_finds_function_with_matching_args_strict_type_checking_by_default(w3):
     contract = w3.eth.contract(abi=MULTIPLE_FUNCTIONS)
-    with pytest.raises(Web3ValidationError):
+    with pytest.raises(MismatchedABI):
         contract._find_matching_fn_abi("a", [""])
 
 
 def test_error_when_duplicate_match(w3):
     Contract = w3.eth.contract(abi=MULTIPLE_FUNCTIONS)
 
-    with pytest.raises(Web3ValidationError):
+    with pytest.raises(MismatchedABI):
         Contract._find_matching_fn_abi("a", [100])
 
 
@@ -182,7 +183,7 @@ def test_error_when_duplicate_match(w3):
 def test_strict_errors_if_type_is_wrong(w3, arguments):
     Contract = w3.eth.contract(abi=MULTIPLE_FUNCTIONS)
 
-    with pytest.raises(Web3ValidationError):
+    with pytest.raises(MismatchedABI):
         Contract._find_matching_fn_abi("a", arguments)
 
 

@@ -16,8 +16,17 @@ from eth_abi.exceptions import (
     DecodingError,
 )
 from eth_typing import (
+    ABICallable,
     ChecksumAddress,
     TypeStr,
+)
+from eth_typing.abi import (
+    ABI,
+    ABIFunction,
+)
+from eth_utils.abi import (
+    filter_abi_by_type,
+    get_abi_output_types,
 )
 from eth_utils.toolz import (
     compose,
@@ -28,8 +37,7 @@ from hexbytes import (
 )
 
 from web3._utils.abi import (
-    filter_by_type,
-    get_abi_output_types,
+    get_callable_abi,
     map_abi_data,
     named_tree,
     recursive_dict_to_namedtuple,
@@ -38,7 +46,6 @@ from web3._utils.async_transactions import (
     async_fill_transaction_defaults,
 )
 from web3._utils.contracts import (
-    find_matching_fn_abi,
     prepare_transaction,
 )
 from web3._utils.normalizers import (
@@ -52,8 +59,6 @@ from web3.exceptions import (
     Web3ValueError,
 )
 from web3.types import (
-    ABI,
-    ABIFunction,
     BlockIdentifier,
     FunctionIdentifier,
     StateOverride,
@@ -77,7 +82,7 @@ ACCEPTABLE_EMPTY_STRINGS = ["0x", b"0x", "", b""]
 def format_contract_call_return_data_curried(
     async_w3: Union["AsyncWeb3", "Web3"],
     decode_tuples: bool,
-    fn_abi: ABIFunction,
+    fn_abi: ABICallable,
     function_identifier: FunctionIdentifier,
     normalizers: Tuple[Callable[..., Any], ...],
     output_types: Sequence[TypeStr],
@@ -103,7 +108,7 @@ def format_contract_call_return_data_curried(
     )
     normalized_data = map_abi_data(_normalizers, output_types, output_data)
 
-    if decode_tuples:
+    if decode_tuples and fn_abi["type"] == "function":
         decoded = named_tree(fn_abi["outputs"], normalized_data)
         normalized_data = recursive_dict_to_namedtuple(decoded)
 
@@ -118,7 +123,7 @@ def call_contract_function(
     transaction: TxParams,
     block_id: Optional[BlockIdentifier] = None,
     contract_abi: Optional[ABI] = None,
-    fn_abi: Optional[ABIFunction] = None,
+    fn_abi: Optional[ABICallable] = None,
     state_override: Optional[StateOverride] = None,
     ccip_read_enabled: Optional[bool] = None,
     decode_tuples: Optional[bool] = False,
@@ -148,11 +153,17 @@ def call_contract_function(
     )
 
     if fn_abi is None:
-        fn_abi = find_matching_fn_abi(
-            contract_abi, w3.codec, function_identifier, args, kwargs
+        fn_abi = get_callable_abi(
+            contract_abi,
+            function_identifier,
+            args,
+            kwargs,
+            w3.codec,
         )
 
-    output_types = get_abi_output_types(fn_abi)
+    output_types = []
+    if fn_abi["type"] == "function":
+        output_types = get_abi_output_types(fn_abi)
 
     provider = w3.provider
     if hasattr(provider, "_is_batching") and provider._is_batching:
@@ -209,7 +220,7 @@ def call_contract_function(
     )
     normalized_data = map_abi_data(_normalizers, output_types, output_data)
 
-    if decode_tuples:
+    if decode_tuples and fn_abi["type"] == "function":
         decoded = named_tree(fn_abi["outputs"], normalized_data)
         normalized_data = recursive_dict_to_namedtuple(decoded)
 
@@ -319,7 +330,7 @@ def find_functions_by_identifier(
     callable_check: Callable[..., Any],
     function_type: Type[TContractFn],
 ) -> List[TContractFn]:
-    fns_abi = filter_by_type("function", contract_abi)
+    fns_abi: Sequence[ABIFunction] = filter_abi_by_type("function", contract_abi)
     return [
         function_type.factory(
             fn_abi["name"],
@@ -357,7 +368,7 @@ async def async_call_contract_function(
     transaction: TxParams,
     block_id: Optional[BlockIdentifier] = None,
     contract_abi: Optional[ABI] = None,
-    fn_abi: Optional[ABIFunction] = None,
+    fn_abi: Optional[ABICallable] = None,
     state_override: Optional[StateOverride] = None,
     ccip_read_enabled: Optional[bool] = None,
     decode_tuples: Optional[bool] = False,
@@ -387,11 +398,17 @@ async def async_call_contract_function(
     )
 
     if fn_abi is None:
-        fn_abi = find_matching_fn_abi(
-            contract_abi, async_w3.codec, function_identifier, args, kwargs
+        fn_abi = get_callable_abi(
+            contract_abi,
+            function_identifier,
+            args,
+            kwargs,
+            async_w3.codec,
         )
 
-    output_types = get_abi_output_types(fn_abi)
+    output_types = []
+    if fn_abi["type"] == "function":
+        output_types = get_abi_output_types(fn_abi)
 
     if async_w3.provider._is_batching:
         contract_call_return_data_formatter = format_contract_call_return_data_curried(
@@ -457,7 +474,7 @@ async def async_call_contract_function(
     )
     normalized_data = map_abi_data(_normalizers, output_types, output_data)
 
-    if decode_tuples:
+    if decode_tuples and fn_abi["type"] == "function":
         decoded = named_tree(fn_abi["outputs"], normalized_data)
         normalized_data = recursive_dict_to_namedtuple(decoded)
 

@@ -15,8 +15,15 @@ from typing import (
 from eth_typing import (
     ChecksumAddress,
 )
+from eth_typing.abi import (
+    ABI,
+)
 from eth_utils import (
     combomethod,
+)
+from eth_utils.abi import (
+    filter_abi_by_type,
+    get_abi_input_names,
 )
 from eth_utils.toolz import (
     partial,
@@ -27,7 +34,6 @@ from hexbytes import (
 
 from web3._utils.abi import (
     fallback_func_abi_exists,
-    filter_by_type,
     receive_func_abi_exists,
 )
 from web3._utils.compat import (
@@ -87,14 +93,10 @@ from web3.exceptions import (
     Web3ValueError,
 )
 from web3.types import (
-    ABI,
     BlockIdentifier,
     EventData,
     StateOverride,
     TxParams,
-)
-from web3.utils import (
-    get_abi_input_names,
 )
 
 if TYPE_CHECKING:
@@ -583,7 +585,7 @@ class ContractCaller(BaseContractCaller):
             if transaction is None:
                 transaction = {}
 
-            self._functions = filter_by_type("function", self.abi)
+            self._functions = filter_abi_by_type("function", self.abi)
             for func in self._functions:
                 fn = ContractFunction.factory(
                     func["name"],
