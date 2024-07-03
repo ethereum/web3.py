@@ -5,6 +5,7 @@ from concurrent.futures import (
 import logging
 import os
 import threading
+import time
 from typing import (
     Any,
     Dict,
@@ -115,11 +116,20 @@ class HTTPSessionManager:
     def get_response_from_post_request(
         self, endpoint_uri: URI, *args: Any, **kwargs: Any
     ) -> requests.Response:
-        kwargs.setdefault("timeout", DEFAULT_HTTP_TIMEOUT)
+        timeout = kwargs.setdefault("timeout", DEFAULT_HTTP_TIMEOUT)
+        kwargs.setdefault("stream", True)
         session = self.cache_and_return_session(
             endpoint_uri, request_timeout=kwargs["timeout"]
         )
+        start = time.time()
         response = session.post(endpoint_uri, *args, **kwargs)
+        response_body = b""
+        for data in response.iter_content():
+            response_body += data
+            # Allow timeout in chunked responses, like Erigon nodes
+            if (time.time() - start) > timeout:
+                raise requests.Timeout()
+        response.content = response_body
         return response
 
     def make_post_request(
