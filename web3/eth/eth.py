@@ -606,8 +606,7 @@ class Eth(BaseEth):
         Callable[[Optional[Union[str, FilterParams, HexStr]]], Filter]
     ] = Method(
         method_choice_depends_on_args=select_filter_method(
-            if_new_block_filter=RPC.eth_newBlockFilter,
-            if_new_filter=RPC.eth_newFilter
+            if_new_block_filter=RPC.eth_newBlockFilter, if_new_filter=RPC.eth_newFilter
         ),
         mungers=[BaseEth.filter_munger],
     )

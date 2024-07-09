@@ -9,7 +9,7 @@ from web3._utils.filters import (
     AsyncBlockFilter,
     AsyncLogFilter,
     BlockFilter,
-    LogFilter
+    LogFilter,
 )
 from web3.providers.eth_tester.main import (
     AsyncEthereumTesterProvider,

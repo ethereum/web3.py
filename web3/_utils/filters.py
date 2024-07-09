@@ -380,9 +380,9 @@ class _UseExistingFilter(Exception):
 
 @curry
 def select_filter_method(
-        value: Union[str, FilterParams, HexStr],
-        if_new_block_filter: RPCEndpoint,
-        if_new_filter: RPCEndpoint
+    value: Union[str, FilterParams, HexStr],
+    if_new_block_filter: RPCEndpoint,
+    if_new_filter: RPCEndpoint,
 ) -> Optional[RPCEndpoint]:
     if is_string(value):
         if value == "latest":

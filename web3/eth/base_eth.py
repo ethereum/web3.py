@@ -209,7 +209,8 @@ class BaseEth(Module):
                 return [filter_params]
             else:
                 raise Web3ValueError(
-                    "The filter API only accepts the value of `latest` for string based filters"
+                    "The filter API only accepts the value of"
+                    " `latest` for string based filters"
                 )
         elif filter_id and not filter_params:
             return [filter_id]

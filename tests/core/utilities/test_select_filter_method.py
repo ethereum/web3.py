@@ -11,15 +11,11 @@ from web3.exceptions import (
 
 @pytest.mark.parametrize(
     "value, expected",
-    (
-        ("latest", "new_block_filter"),
-        ({"to": "0x" + "00" * 20}, "new_filter")
-    ),
+    (("latest", "new_block_filter"), ({"to": "0x" + "00" * 20}, "new_filter")),
 )
 def test_select_filter_method(value, expected):
     filter_method = select_filter_method(
-        if_new_block_filter="new_block_filter",
-        if_new_filter="new_filter"
+        if_new_block_filter="new_block_filter", if_new_filter="new_filter"
     )
     assert filter_method(value) == expected
 
@@ -34,8 +30,7 @@ def test_select_filter_method(value, expected):
 )
 def test_select_filter_method_raises_error(value, error):
     filter_method = select_filter_method(
-        if_new_block_filter="new_block_filter",
-        if_new_filter="new_filter"
+        if_new_block_filter="new_block_filter", if_new_filter="new_filter"
     )
     with pytest.raises(error):
         filter_method(value)
