@@ -44,7 +44,6 @@ REQUEST_RETRY_ALLOWLIST = [
     "eth_createAccessList",
     "eth_maxPriorityFeePerGas",
     "eth_newBlockFilter",
-    "eth_newPendingTransactionFilter",
     "eth_newFilter",
     "eth_getFilterChanges",
     "eth_getFilterLogs",

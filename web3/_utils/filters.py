@@ -380,22 +380,19 @@ class _UseExistingFilter(Exception):
 
 @curry
 def select_filter_method(
-    value: Union[str, FilterParams, HexStr],
-    if_new_block_filter: RPCEndpoint,
-    if_new_pending_transaction_filter: RPCEndpoint,
-    if_new_filter: RPCEndpoint,
+        value: Union[str, FilterParams, HexStr],
+        if_new_block_filter: RPCEndpoint,
+        if_new_filter: RPCEndpoint
 ) -> Optional[RPCEndpoint]:
     if is_string(value):
         if value == "latest":
             return if_new_block_filter
-        elif value == "pending":
-            return if_new_pending_transaction_filter
         elif is_hex(value):
             raise _UseExistingFilter(value)
         else:
             raise Web3ValidationError(
-                "Filter argument needs to be either 'latest',"
-                " 'pending', or a hex-encoded filter_id. Filter argument"
+                "Filter argument needs to be either 'latest'"
+                " or a hex-encoded filter_id. Filter argument"
                 f" is: {value}"
             )
     elif isinstance(value, dict):
@@ -403,6 +400,6 @@ def select_filter_method(
     else:
         raise Web3ValidationError(
             "Filter argument needs to be either the string "
-            "'pending' or 'latest', a filter_id, "
+            "'latest', a filter_id, "
             f"or a filter params dictionary. Filter argument is: {value}"
         )

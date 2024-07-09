@@ -934,13 +934,6 @@ def filter_wrapper(
             return AsyncBlockFilter(filter_id, eth_module=cast("AsyncEth", module))
         else:
             return BlockFilter(filter_id, eth_module=cast("Eth", module))
-    elif method == RPC.eth_newPendingTransactionFilter:
-        if module.is_async:
-            return AsyncTransactionFilter(
-                filter_id, eth_module=cast("AsyncEth", module)
-            )
-        else:
-            return TransactionFilter(filter_id, eth_module=cast("Eth", module))
     elif method == RPC.eth_newFilter:
         if module.is_async:
             return AsyncLogFilter(filter_id, eth_module=cast("AsyncEth", module))
@@ -949,13 +942,11 @@ def filter_wrapper(
     else:
         raise NotImplementedError(
             "Filter wrapper needs to be used with either "
-            f"{RPC.eth_newBlockFilter}, {RPC.eth_newPendingTransactionFilter}"
-            f" or {RPC.eth_newFilter}"
+            f"{RPC.eth_newBlockFilter} or {RPC.eth_newFilter}"
         )
 
 
 FILTER_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
-    RPC.eth_newPendingTransactionFilter: filter_wrapper,
     RPC.eth_newBlockFilter: filter_wrapper,
     RPC.eth_newFilter: filter_wrapper,
 }

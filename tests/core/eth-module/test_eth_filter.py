@@ -8,10 +8,8 @@ from web3 import (
 from web3._utils.filters import (
     AsyncBlockFilter,
     AsyncLogFilter,
-    AsyncTransactionFilter,
     BlockFilter,
-    LogFilter,
-    TransactionFilter,
+    LogFilter
 )
 from web3.providers.eth_tester.main import (
     AsyncEthereumTesterProvider,
@@ -21,10 +19,8 @@ from web3.providers.eth_tester.main import (
 def test_eth_filter_creates_correct_filter_type(w3):
     filter1 = w3.eth.filter("latest")
     assert isinstance(filter1, BlockFilter)
-    filter2 = w3.eth.filter("pending")
-    assert isinstance(filter2, TransactionFilter)
-    filter3 = w3.eth.filter({})
-    assert isinstance(filter3, LogFilter)
+    filter2 = w3.eth.filter({})
+    assert isinstance(filter2, LogFilter)
 
 
 # --- async --- #
@@ -41,7 +37,5 @@ async def async_w3():
 async def test_async_eth_filter_creates_correct_filter_type(async_w3):
     filter1 = await async_w3.eth.filter("latest")
     assert isinstance(filter1, AsyncBlockFilter)
-    filter2 = await async_w3.eth.filter("pending")
-    assert isinstance(filter2, AsyncTransactionFilter)
-    filter3 = await async_w3.eth.filter({})
-    assert isinstance(filter3, AsyncLogFilter)
+    filter2 = await async_w3.eth.filter({})
+    assert isinstance(filter2, AsyncLogFilter)

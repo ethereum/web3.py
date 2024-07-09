@@ -90,8 +90,6 @@ See an advanced example of fetching log history :ref:`here <advanced_token_fetch
 
 The :meth:`web3.eth.Eth.filter` method can be used to set up filters for:
 
-* Pending Transactions: ``w3.eth.filter("pending")``
-
 * New Blocks ``w3.eth.filter("latest")``
 
 * Event Logs
@@ -117,7 +115,6 @@ The :meth:`web3.eth.Eth.filter` method can be used to set up filters for:
 .. note ::
 
     Creating event filters requires that your Ethereum node has an API support enabled for filters.
-    Note that Infura support for filters does not offer access to `pending` filters.
     To get event logs on other stateless nodes please see :class:`web3.contract.ContractEvents`.
 
 
@@ -188,15 +185,6 @@ will return a new :class:`BlockFilter` object.
 .. py:class:: TransactionFilter(...)
 
 ``TransactionFilter`` is a subclass of :class:`Filter`.
-
-You can setup a filter for new blocks using ``web3.eth.filter('pending')`` which
-will return a new :class:`TransactionFilter` object.
-
-    .. code-block:: python
-
-        new_transaction_filter = w3.eth.filter('pending')
-        new_transaction_filter.get_new_entries()
-
 
 Event Log Filters
 -----------------
@@ -328,13 +316,11 @@ entries to a handler.
 
             def main():
                 block_filter = w3.eth.filter('latest')
-                tx_filter = w3.eth.filter('pending')
                 loop = asyncio.get_event_loop()
                 try:
                     loop.run_until_complete(
                         asyncio.gather(
-                            log_loop(block_filter, 2),
-                            log_loop(tx_filter, 2)))
+                            log_loop(block_filter, 2))
                 finally:
                     loop.close()
 

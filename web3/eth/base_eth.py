@@ -205,12 +205,11 @@ class BaseEth(Module):
         if isinstance(filter_params, dict):
             return [filter_params]
         elif is_string(filter_params):
-            if filter_params in {"latest", "pending"}:
+            if filter_params == "latest":
                 return [filter_params]
             else:
                 raise Web3ValueError(
-                    "The filter API only accepts the values of `pending` or "
-                    "`latest` for string based filters"
+                    "The filter API only accepts the value of `latest` for string based filters"
                 )
         elif filter_id and not filter_params:
             return [filter_id]

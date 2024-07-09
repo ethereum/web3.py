@@ -637,15 +637,14 @@ class AsyncEth(BaseEth):
     async def get_uncle_count(self, block_identifier: BlockIdentifier) -> int:
         return await self._get_uncle_count(block_identifier)
 
-    # eth_newFilter, eth_newBlockFilter, eth_newPendingTransactionFilter
+    # eth_newFilter, eth_newBlockFilter
 
     filter: Method[
         Callable[[Optional[Union[str, FilterParams, HexStr]]], Awaitable[AsyncFilter]]
     ] = Method(
         method_choice_depends_on_args=select_filter_method(
             if_new_block_filter=RPC.eth_newBlockFilter,
-            if_new_pending_transaction_filter=RPC.eth_newPendingTransactionFilter,
-            if_new_filter=RPC.eth_newFilter,
+            if_new_filter=RPC.eth_newFilter
         ),
         mungers=[BaseEth.filter_munger],
     )

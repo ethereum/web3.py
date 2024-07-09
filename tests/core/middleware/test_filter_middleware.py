@@ -207,11 +207,6 @@ def test_iter_latest_block_ranges(
         assert actual_tuple == expected_tuple
 
 
-def test_pending_block_filter_middleware(w3):
-    with pytest.raises(NotImplementedError):
-        w3.eth.filter("pending")
-
-
 def test_LocalFilterMiddleware(w3, iter_block_number):
     block_filter = w3.eth.filter("latest")
     block_filter.get_new_entries()
