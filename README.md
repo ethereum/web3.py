@@ -6,7 +6,9 @@
 [![Python versions](https://img.shields.io/pypi/pyversions/web3.svg)](https://pypi.python.org/pypi/web3)
 [![Docs build](https://readthedocs.org/projects/web3py/badge/?version=latest)](https://web3py.readthedocs.io/en/latest/?badge=latest)
 
-A Python library for interacting with Ethereum.
+## A Python Library for Interacting with Ethereum
+
+web3.py allows you to interact with the Ethereum blockchain using Python, enabling you to build decentralized applications, interact with smart contracts, and much more.
 
 - Python 3.8+ support
 
@@ -21,7 +23,7 @@ ______________________________________________________________________
 
 For additional guides, examples, and APIs, see the [documentation](https://web3py.readthedocs.io/en/latest/).
 
-## Want to help?
+## Want to Help?
 
 Want to file a bug, contribute some code, or improve documentation? Excellent! Read up on our
 guidelines for [contributing](https://web3py.readthedocs.io/en/latest/contributing.html),
@@ -30,4 +32,6 @@ then check out issues that are labeled
 
 ______________________________________________________________________
 
-#### Questions on implementation or usage? Join the conversation on [discord](https://discord.gg/GHryRvPB84).
+## Questions on Implementation or Usage?
+
+Join the conversation in the Ethereum Python Community [Discord](https://discord.gg/GHryRvPB84).
