@@ -53,7 +53,6 @@ from web3._utils.abi import (
 from web3._utils.contracts import (
     decode_transaction_data,
     encode_abi,
-    find_matching_event_abi,
     prepare_transaction,
 )
 from web3._utils.datatypes import (
@@ -124,6 +123,7 @@ from web3.utils.abi import (
     get_abi_element,
     get_abi_element_info,
     get_constructor_function_abi,
+    get_event_abi,
 )
 
 if TYPE_CHECKING:
@@ -161,7 +161,7 @@ class BaseContractEvent:
 
     @classmethod
     def _get_event_abi(cls) -> ABIEvent:
-        return find_matching_event_abi(cls.contract_abi, event_name=cls.event_name)
+        return get_event_abi(cls.contract_abi, event_name=cls.event_name)
 
     @combomethod
     def process_receipt(
@@ -504,6 +504,7 @@ class BaseContractFunction:
                     **self.kwargs,
                 ),
             )
+
         if self.function_identifier in [FallbackFn, ReceiveFn]:
             self.selector = encode_hex(b"")
         elif is_text(self.function_identifier):
@@ -900,12 +901,12 @@ class BaseContract:
         )
 
     @classmethod
-    def _find_matching_event_abi(
+    def _get_event_abi(
         cls,
         event_name: Optional[str] = None,
         argument_names: Optional[Sequence[str]] = None,
     ) -> ABIEvent:
-        return find_matching_event_abi(
+        return get_event_abi(
             abi=cls.abi, event_name=event_name, argument_names=argument_names
         )
 

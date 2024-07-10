@@ -128,7 +128,7 @@ def test_event_data_extraction(
     assert len(txn_receipt["logs"]) == 1
     log_entry = txn_receipt["logs"][0]
 
-    event_abi = emitter._find_matching_event_abi(event_name)
+    event_abi = emitter._get_event_abi(event_name)
 
     event_topic = getattr(emitter_contract_log_topics, event_name)
     is_anonymous = event_abi["anonymous"]
@@ -335,7 +335,7 @@ def test_event_data_extraction_bytes(
     log_entry = txn_receipt["logs"][0]
 
     event_name = "LogListArgs"
-    event_abi = emitter._find_matching_event_abi(event_name)
+    event_abi = emitter._get_event_abi(event_name)
 
     event_topic = getattr(emitter_contract_log_topics, event_name)
 
@@ -386,7 +386,7 @@ def test_event_data_extraction_bytes_non_strict(
     log_entry = txn_receipt["logs"][0]
 
     event_name = "LogListArgs"
-    event_abi = non_strict_emitter._find_matching_event_abi(event_name)
+    event_abi = non_strict_emitter._get_event_abi(event_name)
 
     event_topic = getattr(emitter_contract_log_topics, event_name)
 
@@ -431,7 +431,7 @@ def test_dynamic_length_argument_extraction(
     assert len(txn_receipt["logs"]) == 1
     log_entry = txn_receipt["logs"][0]
 
-    event_abi = emitter._find_matching_event_abi("LogDynamicArgs")
+    event_abi = emitter._get_event_abi("LogDynamicArgs")
 
     event_topic = emitter_contract_log_topics.LogDynamicArgs
     assert event_topic in log_entry["topics"]
@@ -466,7 +466,7 @@ def test_argument_extraction_strict_bytes_types(
     log_entry = txn_receipt["logs"][0]
     assert len(log_entry["topics"]) == 2
 
-    event_abi = emitter._find_matching_event_abi("LogListArgs")
+    event_abi = emitter._get_event_abi("LogListArgs")
 
     event_topic = emitter_contract_log_topics.LogListArgs
     assert event_topic in log_entry["topics"]

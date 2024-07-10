@@ -26,8 +26,11 @@ from .abi import (  # NOQA
     get_abi_element_info,
     get_abi_element,
     get_constructor_function_abi,
+    get_event_abi,
+    get_event_log_topics,
     get_fallback_function_abi,
     get_receive_function_abi,
+    log_topic_to_bytes,
 )
 from .address import (
     get_create_address,
@@ -63,8 +66,11 @@ __all__ = [
     "get_abi_element_info",
     "get_abi_element",
     "get_constructor_function_abi",
+    "get_event_abi",
+    "get_event_log_topics",
     "get_fallback_function_abi",
     "get_receive_function_abi",
+    "log_topic_to_bytes",
     "get_create_address",
     "async_handle_offchain_lookup",
     "SimpleCache",

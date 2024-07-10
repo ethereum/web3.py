@@ -1,9 +1,12 @@
+import functools
 from typing import (
     Any,
     Dict,
     List,
     Optional,
     Sequence,
+    Tuple,
+    Union,
     cast,
 )
 
@@ -27,19 +30,34 @@ from eth_typing import (
     ABIFallback,
     ABIFunction,
     ABIReceive,
+    HexStr,
+    Primitives,
 )
 from eth_utils.address import (
     is_binary_address,
     is_checksum_address,
 )
+from eth_utils.conversions import (
+    hexstr_if_str,
+    to_bytes,
+)
 from eth_utils.hexadecimal import (
     encode_hex,
+)
+from eth_utils.toolz import (
+    pipe,
 )
 from eth_utils.types import (
     is_list_like,
     is_text,
 )
+from hexbytes import (
+    HexBytes,
+)
 
+from web3._utils.abi import (
+    filter_by_argument_name,
+)
 from web3._utils.function_identifiers import (
     FallbackFn,
     ReceiveFn,
@@ -50,6 +68,7 @@ from web3.exceptions import (
     ABIReceiveNotFound,
     MismatchedABI,
     Web3TypeError,
+    Web3ValidationError,
     Web3ValueError,
 )
 from web3.types import (
@@ -258,6 +277,7 @@ def get_abi_element_info(
         abi, function_identifier, *args, abi_codec=abi_codec, **kwargs
     )
     fn_selector = encode_hex(function_abi_to_4byte_selector(fn_abi))
+    fn_inputs: Tuple[Any, ...] = tuple()
 
     if fn_abi["type"] == "fallback" or fn_abi["type"] == "receive":
         return ABIElementInfo(abi=fn_abi, selector=fn_selector, arguments=tuple())
@@ -535,3 +555,120 @@ def check_if_arguments_can_be_encoded(
     return all(
         abi_codec.is_encodable(_type, arg) for _type, arg in zip(types, aligned_args)
     )
+
+
+def get_event_abi(
+    abi: ABI,
+    event_name: str,
+    argument_names: Optional[Sequence[str]] = None,
+) -> ABIEvent:
+    """
+    Find the event interface with the given name and/or arguments.
+
+    :param abi: Contract ABI.
+    :type abi: `ABI`
+    :param event_name: Find an event abi with matching event name.
+    :type event_name: `str`
+    :param argument_names: Find an event abi with matching arguments.
+    :type argument_names: `list[str]`
+    :return: ABI for the event interface.
+    :rtype: `ABIEvent`
+
+    .. doctest::
+
+        >>> from web3.utils import get_event_abi
+        >>> abi = [
+        ...   {"type": "function", "name": "myFunction", "inputs": [], "outputs": []},
+        ...   {"type": "function", "name": "myFunction2", "inputs": [], "outputs": []},
+        ...   {"type": "event", "name": "MyEvent", "inputs": []}
+        ... ]
+        >>> get_event_abi(abi, 'MyEvent')
+        {'type': 'event', 'name': 'MyEvent', 'inputs': []}
+    """
+    filters = [
+        functools.partial(filter_abi_by_type, "event"),
+    ]
+
+    if event_name is None or event_name == "":
+        raise Web3ValidationError(
+            "event_name is required in order to match an event ABI."
+        )
+
+    filters.append(functools.partial(filter_abi_by_name, event_name))
+
+    if argument_names is not None:
+        filters.append(functools.partial(filter_by_argument_name, argument_names))
+
+    event_abi_candidates = cast(Sequence[ABIEvent], pipe(abi, *filters))
+
+    if len(event_abi_candidates) == 1:
+        return event_abi_candidates[0]
+    elif len(event_abi_candidates) == 0:
+        raise Web3ValueError("No matching events found")
+    else:
+        raise Web3ValueError("Multiple events found")
+
+
+def get_event_log_topics(
+    event_abi: ABIEvent,
+    topics: Optional[Sequence[HexBytes]] = None,
+) -> Sequence[HexBytes]:
+    r"""
+    Return topics for an event ABI.
+
+    :param event_abi: Event ABI.
+    :type event_abi: `ABIEvent`
+    :param topics: Transaction topics from a `LogReceipt`.
+    :type topics: `list[HexBytes]`
+    :return: Event topics for the event ABI.
+    :rtype: `list[HexBytes]`
+
+    .. doctest::
+
+        >>> from web3.utils import get_event_log_topics
+        >>> abi = {
+        ...   'type': 'event',
+        ...   'anonymous': False,
+        ...   'name': 'MyEvent',
+        ...   'inputs': [
+        ...     {
+        ...       'name': 's',
+        ...       'type': 'uint256'
+        ...     }
+        ...   ]
+        ... }
+        >>> keccak_signature = b'l+Ff\xba\x8d\xa5\xa9W\x17b\x1d\x87\x9aw\xder_=\x81g\t\xb9\xcb\xe9\xf0Y\xb8\xf8u\xe2\x84'  # noqa: E501
+        >>> get_event_log_topics(abi, [keccak_signature, '0x1', '0x2'])
+        ['0x1', '0x2']
+    """
+    if topics is None:
+        topics = []
+
+    if event_abi["anonymous"]:
+        return topics
+    elif len(topics) == 0:
+        raise MismatchedABI("Expected non-anonymous event to have 1 or more topics")
+    elif event_abi_to_log_topic(event_abi) != log_topic_to_bytes(topics[0]):
+        raise MismatchedABI("The event signature did not match the provided ABI")
+    else:
+        return topics[1:]
+
+
+def log_topic_to_bytes(
+    log_topic: Union[Primitives, HexStr, str],
+) -> bytes:
+    r"""
+    Return topic signature as bytes.
+
+    :param log_topic: Event topic from a `LogReceipt`.
+    :type log_topic: `Primitive`, `HexStr` or `str`
+    :return: Topic signature as bytes.
+    :rtype: `bytes`
+
+    .. doctest::
+
+        >>> from web3.utils import log_topic_to_bytes
+        >>> log_topic_to_bytes('0xa12fd1')
+        b'\xa1/\xd1'
+    """
+    return hexstr_if_str(to_bytes, log_topic)

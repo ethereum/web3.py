@@ -81,7 +81,6 @@ from web3.datastructures import (
 from web3.exceptions import (
     InvalidEventABI,
     LogTopicError,
-    MismatchedABI,
     Web3ValueError,
 )
 from web3.types import (
@@ -89,6 +88,9 @@ from web3.types import (
     EventData,
     FilterParams,
     LogReceipt,
+)
+from web3.utils.abi import (
+    get_event_log_topics,
 )
 
 if TYPE_CHECKING:
@@ -215,7 +217,7 @@ def get_event_abi_types_for_decoding(
     decode the log entries using the correct types.
     """
     for input_abi in event_inputs:
-        if input_abi["indexed"] and is_dynamic_sized_type(input_abi["type"]):
+        if input_abi.get("indexed") and is_dynamic_sized_type(input_abi["type"]):
             yield "bytes32"
         else:
             yield collapse_if_tuple(input_abi)
@@ -231,17 +233,7 @@ def get_event_data(
     Given an event ABI and a log entry for that event, return the decoded
     event data
     """
-    if event_abi["anonymous"]:
-        log_topics = log_entry["topics"]
-    elif not log_entry["topics"]:
-        raise MismatchedABI("Expected non-anonymous event to have 1 or more topics")
-    elif event_abi_to_log_topic(dict(event_abi)) != _log_entry_data_to_bytes(
-        log_entry["topics"][0]
-    ):
-        raise MismatchedABI("The event signature did not match the provided ABI")
-    else:
-        log_topics = log_entry["topics"][1:]
-
+    log_topics = get_event_log_topics(event_abi, log_entry["topics"])
     log_topics_bytes = [_log_entry_data_to_bytes(topic) for topic in log_topics]
     log_topics_abi = get_indexed_event_inputs(event_abi)
     log_topic_normalized_inputs = normalize_event_input_types(log_topics_abi)
@@ -495,7 +487,7 @@ def _build_argument_filters_from_event_abi(
     for item in event_abi["inputs"]:
         key = item["name"]
         value: "BaseArgumentFilter"
-        if item["indexed"] is True:
+        if item.get("indexed") is True:
             value = TopicArgumentFilter(
                 abi_codec=abi_codec, arg_type=collapse_if_tuple(item)
             )
