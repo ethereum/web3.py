@@ -1,7 +1,7 @@
 import pytest
 
 from web3.exceptions import (
-    ABIEventFunctionNotFound,
+    ABIEventNotFound,
     ABIFunctionNotFound,
 )
 
@@ -22,7 +22,7 @@ def test_getattr(w3, abi, attribute):
     "attribute,error",
     (
         ("functions", ABIFunctionNotFound),
-        ("events", ABIEventFunctionNotFound),
+        ("events", ABIEventNotFound),
         ("caller", ABIFunctionNotFound),
     ),
 )

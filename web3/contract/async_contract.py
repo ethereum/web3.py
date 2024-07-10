@@ -14,10 +14,15 @@ from typing import (
 )
 
 from eth_typing import (
+    ABI,
     ChecksumAddress,
 )
 from eth_utils import (
     combomethod,
+)
+from eth_utils.abi import (
+    get_abi_input_names,
+    get_all_function_abis,
 )
 from eth_utils.toolz import (
     partial,
@@ -28,8 +33,11 @@ from hexbytes import (
 
 from web3._utils.abi import (
     fallback_func_abi_exists,
-    filter_by_type,
     receive_func_abi_exists,
+)
+from web3._utils.abi_element_identifiers import (
+    FallbackFn,
+    ReceiveFn,
 )
 from web3._utils.async_transactions import (
     async_fill_transaction_defaults,
@@ -49,10 +57,6 @@ from web3._utils.events import (
 )
 from web3._utils.filters import (
     AsyncLogFilter,
-)
-from web3._utils.function_identifiers import (
-    FallbackFn,
-    ReceiveFn,
 )
 from web3._utils.normalizers import (
     normalize_abi,
@@ -88,14 +92,10 @@ from web3.exceptions import (
     Web3ValueError,
 )
 from web3.types import (
-    ABI,
     BlockIdentifier,
     EventData,
     StateOverride,
     TxParams,
-)
-from web3.utils import (
-    get_abi_input_names,
 )
 
 if TYPE_CHECKING:
@@ -311,7 +311,7 @@ class AsyncContractFunction(BaseContractFunction):
             self.w3,
             self.address,
             self._return_data_normalizers,
-            self.function_identifier,
+            self.abi_element_identifier,
             call_transaction,
             block_id,
             self.contract_abi,
@@ -328,7 +328,7 @@ class AsyncContractFunction(BaseContractFunction):
         return await async_transact_with_contract_function(
             self.address,
             self.w3,
-            self.function_identifier,
+            self.abi_element_identifier,
             setup_transaction,
             self.contract_abi,
             self.abi,
@@ -346,7 +346,7 @@ class AsyncContractFunction(BaseContractFunction):
         return await async_estimate_gas_for_function(
             self.address,
             self.w3,
-            self.function_identifier,
+            self.abi_element_identifier,
             setup_transaction,
             self.contract_abi,
             self.abi,
@@ -363,7 +363,7 @@ class AsyncContractFunction(BaseContractFunction):
         return await async_build_transaction_for_function(
             self.address,
             self.w3,
-            self.function_identifier,
+            self.abi_element_identifier,
             built_transaction,
             self.contract_abi,
             self.abi,
@@ -383,7 +383,7 @@ class AsyncContractFunction(BaseContractFunction):
                 w3=async_w3,
                 contract_abi=abi,
                 address=address,
-                function_identifier=FallbackFn,
+                abi_element_identifier=FallbackFn,
             )()
         return cast(AsyncContractFunction, NonExistentFallbackFunction())
 
@@ -399,7 +399,7 @@ class AsyncContractFunction(BaseContractFunction):
                 w3=async_w3,
                 contract_abi=abi,
                 address=address,
-                function_identifier=ReceiveFn,
+                abi_element_identifier=ReceiveFn,
             )()
         return cast(AsyncContractFunction, NonExistentReceiveFunction())
 
@@ -577,14 +577,15 @@ class AsyncContractCaller(BaseContractCaller):
             if transaction is None:
                 transaction = {}
 
-            self._functions = filter_by_type("function", self.abi)
+            self._functions = get_all_function_abis(self.abi)
+
             for func in self._functions:
                 fn = AsyncContractFunction.factory(
                     func["name"],
                     w3=w3,
                     contract_abi=self.abi,
                     address=self.address,
-                    function_identifier=func["name"],
+                    abi_element_identifier=func["name"],
                     decode_tuples=decode_tuples,
                 )
 

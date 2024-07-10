@@ -11,13 +11,15 @@ from typing import (
 from eth_typing import (
     ChecksumAddress,
 )
+from eth_utils.abi import (
+    get_abi_output_types,
+)
 from hexbytes import (
     HexBytes,
 )
 
 from .utils import (
     address_to_reverse_domain,
-    get_abi_output_types,
     is_valid_name,
     label_to_hash,
     normalize_name,
