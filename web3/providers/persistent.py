@@ -191,10 +191,6 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
             request_cache_key = generate_cache_key(request_id)
 
             while True:
-                # check if an exception was recorded in the listener task and raise it
-                # in the main loop if so
-                self._handle_listener_task_exceptions()
-
                 if request_cache_key in self._request_processor._request_response_cache:
                     self.logger.debug(
                         f"Popping response for id {request_id} from cache."
@@ -204,6 +200,9 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
                     )
                     return popped_response
                 else:
+                    # check if an exception was recorded in the listener task and raise
+                    # it in the main loop if so
+                    self._handle_listener_task_exceptions()
                     await asyncio.sleep(0)
 
         try:
