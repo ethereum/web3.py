@@ -1,0 +1,4 @@
+Utilities to extract event ``ABI`` attributes from a contract.
+* ``get_event_abi`` returns the ``ABI`` of an event given the name.
+* ``get_event_log_topics`` returns the log topics of an event given the name.
+* ``log_topics_to_bytes`` returns the log topics as bytes.
