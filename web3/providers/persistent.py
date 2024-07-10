@@ -9,6 +9,7 @@ from typing import (
 
 from websockets import (
     ConnectionClosed,
+    ConnectionClosedOK,
     WebSocketClientProtocol,
     WebSocketException,
 )
@@ -142,6 +143,12 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
             await asyncio.sleep(0)
             try:
                 await self._provider_specific_message_listener()
+            except ConnectionClosedOK:
+                # RequestManager._ws_message_stream() will rethrow this exception and
+                # cause WebsocketConnection to stop the process_subscriptions() loop,
+                # or raise ConnectionClosedOK when recv() is called.
+                # see: https://github.com/ethereum/web3.py/pull/3424
+                raise
             except Exception as e:
                 if not self.silence_listener_task_exceptions:
                     raise e
