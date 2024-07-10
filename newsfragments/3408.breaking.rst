@@ -1,0 +1,5 @@
+Upgrades to use latest ``ABI`` utilities and typings from ``eth-utils`` and ``eth-typing``.
+* New ``ABI`` functions from ``eth-utils`` are now included in the ``web3.utils.abi`` module.
+* Typings for ``ABI`` components are now available in the ``eth-typing`` package. ``ABI`` types previously in ``web3.types`` have been removed.
+* ABI exceptions have been renamed in ``web3.exceptions``. The ``ABIEventFunctionNotFound`` and ``FallbackNotFound`` exceptions have been removed. Use ``ABIEventNotFound`` and ``ABIFallbackNotFound`` instead.
+* ``MismatchedABI`` exceptions are raised instead of a ``Web3ValidationError`` for ABI related errors.
