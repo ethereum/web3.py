@@ -17,8 +17,8 @@ from web3._utils.events import (
 )
 from web3.exceptions import (
     LogTopicError,
+    MismatchedABI,
     Web3AttributeError,
-    Web3ValidationError,
 )
 from web3.logs import (
     DISCARD,
@@ -412,7 +412,7 @@ def test_event_data_extraction_bytes_non_strict(
 )
 def test_event_data_extraction_bytes_strict_with_errors(emitter, call_args):
     emitter_fn = emitter.functions.logListArgs
-    with pytest.raises(Web3ValidationError):
+    with pytest.raises(MismatchedABI):
         emitter_fn(*call_args).transact()
 
 

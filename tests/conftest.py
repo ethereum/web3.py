@@ -4,8 +4,10 @@ from typing import (
 )
 
 from eth_utils import (
-    event_signature_to_log_topic,
     to_bytes,
+)
+from eth_utils.abi import (
+    event_signature_to_log_topic,
 )
 from eth_utils.toolz import (
     identity,

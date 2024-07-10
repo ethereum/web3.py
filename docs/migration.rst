@@ -195,6 +195,10 @@ web3.py. This allows a user to distinguish between when a method is not availabl
 the current provider, ``MethodUnavailable``, and when a method is not supported by
 web3.py under certain conditions, ``MethodNotSupported``.
 
+A ``MismatchedABI`` exception is now raised instead of a ``Web3ValidationError`` in
+cases where an ABI is not compatible with the data being passed to it. This change
+allows for more specific error handling when using certain ABI types.
+
 
 JSON-RPC Error Handling
 ```````````````````````
@@ -250,6 +254,26 @@ Geth Personal Namespace Removed
 The ``geth.personal`` namespace, deprecated in ``v6``, has been removed in ``v7``.
 The ``personal`` namespace was used for managing accounts and keys and was deprecated
 in geth in ``v1.11.0``. Geth has moved to using ``clef`` for account and key management.
+
+
+ABI Types Removed
+`````````````````
+
+The type definitions for ABIs, deprecated in ``v6``, have been removed in ``v7``. New
+types have been introduced in the ``eth_typing`` ``v5`` package for ABIs. Improvements have
+been made to make required types more explicit and to offer better semantics.
+
+The following types from ``web3.types`` have been removed:
+- ``ABIEventParams`` is no longer avaiable. Use ``ABIComponentIndexed`` from
+``eth_typing`` to represent event input components.
+- ``ABIEvent`` now resides in ``eth_typing``. ``ABIEvent.type`` and ``ABIEvent.name``
+are now required fields.
+- ``ABIFunctionComponents`` and ``ABIFunctionParams`` are no longer available. Use
+``ABIComponent`` from ``eth_typing`` to represent function input components.
+- ``ABIFunction`` now resides in ``eth_typing``. ``ABIFunction.type`` and
+``ABIFunction.name`` are now required fields.
+- ``ABIElement`` now resides in ``eth_typing`` and represents a ``Union`` of all valid
+ABI element types, ``ABICallable``, ``ABIEvent`` and ``ABIError``.
 
 
 Miscellaneous Changes

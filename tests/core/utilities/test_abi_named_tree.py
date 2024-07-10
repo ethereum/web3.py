@@ -9,19 +9,21 @@ from eth_abi.registry import (
 
 from web3._utils.abi import (
     abi_decoded_namedtuple_factory,
-    check_if_arguments_can_be_encoded,
     named_tree,
     recursive_dict_to_namedtuple,
 )
 from web3.exceptions import (
     MismatchedABI,
 )
-
-from .test_abi import (
-    TEST_FUNCTION_ABI,
+from web3.utils import (
+    check_if_arguments_can_be_encoded,
 )
 
-full_abi_inputs = TEST_FUNCTION_ABI["inputs"]
+from .test_abi import (
+    FUNCTION_ABI,
+)
+
+full_abi_inputs = FUNCTION_ABI["inputs"]
 full_values = (
     (1, [2, 3, 4], [(5, 6), (7, 8), (9, 10)]),  # Value for s
     (11, 12),  # Value for t
@@ -94,8 +96,10 @@ def test_namedtuples_encodable():
     codec = ABICodec(registry)
     kwargs = named_tree(full_abi_inputs, full_values)
     args = recursive_dict_to_namedtuple(kwargs)
-    assert check_if_arguments_can_be_encoded(TEST_FUNCTION_ABI, codec, (), kwargs)
-    assert check_if_arguments_can_be_encoded(TEST_FUNCTION_ABI, codec, args, {})
+    assert check_if_arguments_can_be_encoded(
+        FUNCTION_ABI, *(), **kwargs, abi_codec=codec
+    )
+    assert check_if_arguments_can_be_encoded(FUNCTION_ABI, *args, **{}, abi_codec=codec)
 
 
 def test_ABIDecodedNamedTuple():

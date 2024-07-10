@@ -27,15 +27,15 @@ def test_contract_constructor_abi_encoding_with_constructor_with_no_args(
 @pytest.mark.parametrize(
     "args,kwargs",
     (
-        (None, "kwarg-is-ignored"),
-        ("arg-is-ignored", None),
+        (tuple(), {"kwarg-is-ignored": True}),
+        ("arg-is-ignored", {}),
     ),
 )
 def test_contract_error_if_additional_args_are_supplied_with_no_constructor_fn(
     math_contract_factory, args, kwargs
 ):
     with pytest.raises(TypeError, match="Constructor args"):
-        math_contract_factory._encode_constructor_data(args, kwargs)
+        math_contract_factory._encode_constructor_data(*args, **kwargs)
 
 
 @pytest.mark.parametrize(
@@ -53,7 +53,7 @@ def test_error_if_invalid_arguments_supplied(
     contract_with_constructor_args_factory, arguments
 ):
     with pytest.raises(TypeError):
-        contract_with_constructor_args_factory._encode_constructor_data(arguments)
+        contract_with_constructor_args_factory._encode_constructor_data(*arguments)
 
 
 @pytest.mark.parametrize(
@@ -76,7 +76,7 @@ def test_contract_constructor_encoding(
     bytes_arg,
 ):
     deploy_data = contract_with_constructor_args_factory._encode_constructor_data(
-        [1234, bytes_arg]
+        *[1234, bytes_arg]
     )
     expected_ending = encode_hex(
         w3.codec.encode(["uint256", "bytes32"], [1234, bytes_arg])
@@ -98,7 +98,7 @@ def test_contract_constructor_encoding_non_strict(
 ):
     deploy_data = (
         non_strict_contract_with_constructor_args_factory._encode_constructor_data(
-            [1234, bytes_arg]
+            *[1234, bytes_arg]
         )
     )
     encoded_args = "0x00000000000000000000000000000000000000000000000000000000000004d26162636400000000000000000000000000000000000000000000000000000000"  # noqa: E501
@@ -126,5 +126,5 @@ def test_contract_constructor_encoding_strict_errors(
         match="One or more arguments could not be encoded to the necessary ABI type.",
     ):
         contract_with_constructor_args_factory._encode_constructor_data(
-            [1234, bytes_arg]
+            *[1234, bytes_arg]
         )

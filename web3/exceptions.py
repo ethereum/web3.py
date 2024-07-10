@@ -164,7 +164,7 @@ class MismatchedABI(Web3Exception):
     """
 
 
-class ABIEventFunctionNotFound(AttributeError, MismatchedABI):
+class ABIEventNotFound(AttributeError, MismatchedABI):
     """
     Raised when an attempt is made to access an event
     that does not exist in the ABI.
@@ -178,9 +178,21 @@ class ABIFunctionNotFound(AttributeError, MismatchedABI):
     """
 
 
-class FallbackNotFound(Web3Exception):
+class ABIConstructorNotFound(Web3Exception):
     """
-    Raised when fallback function doesn't exist in contract.
+    Raised when a constructor function doesn't exist in contract.
+    """
+
+
+class ABIFallbackNotFound(Web3Exception):
+    """
+    Raised when a fallback function doesn't exist in contract.
+    """
+
+
+class ABIReceiveNotFound(Web3Exception):
+    """
+    Raised when a receive function doesn't exist in contract.
     """
 
 

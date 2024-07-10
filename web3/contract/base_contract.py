@@ -20,15 +20,23 @@ from eth_abi.exceptions import (
     InsufficientDataBytes,
 )
 from eth_typing import (
+    ABI,
+    ABIComponentIndexed,
+    ABIElement,
+    ABIEvent,
+    ABIFunction,
     Address,
     ChecksumAddress,
     HexStr,
 )
 from eth_utils import (
+    abi_to_signature,
     add_0x_prefix,
     combomethod,
     encode_hex,
+    filter_abi_by_type,
     function_abi_to_4byte_selector,
+    get_normalized_abi_inputs,
     is_list_like,
     is_text,
     to_tuple,
@@ -38,21 +46,14 @@ from hexbytes import (
 )
 
 from web3._utils.abi import (
-    abi_to_signature,
-    check_if_arguments_can_be_encoded,
     fallback_func_abi_exists,
-    filter_by_type,
-    get_constructor_abi,
     is_array_type,
-    merge_args_and_kwargs,
     receive_func_abi_exists,
 )
 from web3._utils.contracts import (
     decode_transaction_data,
     encode_abi,
     find_matching_event_abi,
-    find_matching_fn_abi,
-    get_function_info,
     prepare_transaction,
 )
 from web3._utils.datatypes import (
@@ -86,9 +87,11 @@ from web3.datastructures import (
     MutableAttributeDict,
 )
 from web3.exceptions import (
-    ABIEventFunctionNotFound,
+    ABIConstructorNotFound,
+    ABIEventNotFound,
+    ABIFallbackNotFound,
     ABIFunctionNotFound,
-    FallbackNotFound,
+    ABIReceiveNotFound,
     InvalidEventABI,
     LogTopicError,
     MismatchedABI,
@@ -108,9 +111,6 @@ from web3.logs import (
     EventLogErrorFlags,
 )
 from web3.types import (
-    ABI,
-    ABIEvent,
-    ABIFunction,
     BlockIdentifier,
     EventData,
     FilterParams,
@@ -118,6 +118,12 @@ from web3.types import (
     TContractFn,
     TxParams,
     TxReceipt,
+)
+from web3.utils.abi import (
+    check_if_arguments_can_be_encoded,
+    get_abi_element,
+    get_abi_element_info,
+    get_constructor_function_abi,
 )
 
 if TYPE_CHECKING:
@@ -290,7 +296,7 @@ class BaseContractEvent:
             # if no non-indexed args in argument filters, since indexed args are
             # filtered pre-call to ``eth_getLogs`` by building specific ``topics``.
             not any(
-                not arg["indexed"]
+                not cast(ABIComponentIndexed, arg)["indexed"]
                 for arg in event_abi["inputs"]
                 if arg["name"] in argument_filters
             )
@@ -415,19 +421,20 @@ class BaseContractEvents:
     ) -> None:
         if abi:
             self.abi = abi
-            self._events = filter_by_type("event", self.abi)
+            self._events = filter_abi_by_type("event", self.abi)
             for event in self._events:
-                setattr(
-                    self,
-                    event["name"],
-                    contract_event_type.factory(
+                if event["type"] == "event":
+                    setattr(
+                        self,
                         event["name"],
-                        w3=w3,
-                        contract_abi=self.abi,
-                        address=address,
-                        event_name=event["name"],
-                    ),
-                )
+                        contract_event_type.factory(
+                            event["name"],
+                            w3=w3,
+                            contract_abi=self.abi,
+                            address=address,
+                            event_name=event["name"],
+                        ),
+                    )
 
     def __getattr__(self, event_name: str) -> Type["BaseContractEvent"]:
         if "_events" not in self.__dict__:
@@ -436,7 +443,7 @@ class BaseContractEvents:
                 "Are you sure you provided the correct contract abi?",
             )
         elif event_name not in self.__dict__["_events"]:
-            raise ABIEventFunctionNotFound(
+            raise ABIEventNotFound(
                 f"The event '{event_name}' was not found in this contract's abi. ",
                 "Are you sure you provided the correct contract abi?",
             )
@@ -458,7 +465,7 @@ class BaseContractEvents:
     def __hasattr__(self, event_name: str) -> bool:
         try:
             return event_name in self.__dict__["_events"]
-        except ABIEventFunctionNotFound:
+        except ABIEventNotFound:
             return False
 
 
@@ -487,12 +494,15 @@ class BaseContractFunction:
 
     def _set_function_info(self) -> None:
         if not self.abi:
-            self.abi = find_matching_fn_abi(
-                self.contract_abi,
-                self.w3.codec,
-                self.function_identifier,
-                self.args,
-                self.kwargs,
+            self.abi = cast(
+                ABIFunction,
+                get_abi_element(
+                    self.contract_abi,
+                    self.function_identifier,
+                    *self.args,
+                    abi_codec=self.w3.codec,
+                    **self.kwargs,
+                ),
             )
         if self.function_identifier in [FallbackFn, ReceiveFn]:
             self.selector = encode_hex(b"")
@@ -501,7 +511,12 @@ class BaseContractFunction:
         else:
             raise Web3TypeError("Unsupported function identifier")
 
-        self.arguments = merge_args_and_kwargs(self.abi, self.args, self.kwargs)
+        if self.function_identifier in [FallbackFn, ReceiveFn]:
+            self.arguments = ()
+        else:
+            self.arguments = get_normalized_abi_inputs(
+                self.abi, *self.args, **self.kwargs
+            )
 
     def _get_call_txparams(self, transaction: Optional[TxParams] = None) -> TxParams:
         if transaction is None:
@@ -656,20 +671,21 @@ class BaseContractFunctions:
         self.address = address
 
         if self.abi:
-            self._functions = filter_by_type("function", self.abi)
+            self._functions = filter_abi_by_type("function", self.abi)
             for func in self._functions:
-                setattr(
-                    self,
-                    func["name"],
-                    contract_function_class.factory(
+                if func["type"] == "function":
+                    setattr(
+                        self,
                         func["name"],
-                        w3=self.w3,
-                        contract_abi=self.abi,
-                        address=self.address,
-                        decode_tuples=decode_tuples,
-                        function_identifier=func["name"],
-                    ),
-                )
+                        contract_function_class.factory(
+                            func["name"],
+                            w3=self.w3,
+                            contract_abi=self.abi,
+                            address=self.address,
+                            decode_tuples=decode_tuples,
+                            function_identifier=func["name"],
+                        ),
+                    )
 
     def __iter__(self) -> Iterable["ABIFunction"]:
         if not hasattr(self, "_functions") or not self._functions:
@@ -747,18 +763,21 @@ class BaseContract:
 
         :param data: defaults to function selector
         """
-        fn_abi, fn_selector, fn_arguments = get_function_info(
+        args = args or tuple()
+        kwargs = kwargs or {}
+
+        fn_info = get_abi_element_info(
+            cls.abi,
             fn_name,
-            cls.w3.codec,
-            contract_abi=cls.abi,
-            args=args,
-            kwargs=kwargs,
+            *args,
+            abi_codec=cls.w3.codec,
+            **kwargs,
         )
 
         if data is None:
-            data = fn_selector
+            data = fn_info["selector"]
 
-        return encode_abi(cls.w3, fn_abi, fn_arguments, data)
+        return encode_abi(cls.w3, fn_info["abi"], fn_info["arguments"], data)
 
     @combomethod
     def all_functions(
@@ -827,7 +846,10 @@ class BaseContract:
     def find_functions_by_args(self, *args: Any) -> "BaseContractFunction":
         def callable_check(fn_abi: ABIFunction) -> bool:
             return check_if_arguments_can_be_encoded(
-                fn_abi, self.w3.codec, args=args, kwargs={}
+                fn_abi,
+                *args,
+                abi_codec=self.w3.codec,
+                **{},
             )
 
         return self.find_functions_by_identifier(
@@ -865,12 +887,16 @@ class BaseContract:
     @classmethod
     def _find_matching_fn_abi(
         cls,
-        fn_identifier: Optional[str] = None,
-        args: Optional[Any] = None,
-        kwargs: Optional[Any] = None,
-    ) -> ABIFunction:
-        return find_matching_fn_abi(
-            cls.abi, cls.w3.codec, fn_identifier=fn_identifier, args=args, kwargs=kwargs
+        fn_identifier: Optional[FunctionIdentifier] = None,
+        *args: Optional[Sequence[Any]],
+        **kwargs: Optional[Dict[str, Any]],
+    ) -> ABIElement:
+        return get_abi_element(
+            cls.abi,
+            fn_identifier,
+            *args,
+            abi_codec=cls.w3.codec,
+            **kwargs,
         )
 
     @classmethod
@@ -885,23 +911,21 @@ class BaseContract:
 
     @combomethod
     def _encode_constructor_data(
-        cls, args: Optional[Any] = None, kwargs: Optional[Any] = None
+        cls, *args: Optional[Sequence[Any]], **kwargs: Optional[Dict[str, Any]]
     ) -> HexStr:
-        constructor_abi = get_constructor_abi(cls.abi)
+        try:
+            constructor_abi = get_constructor_function_abi(cls.abi)
+        except ABIConstructorNotFound:
+            constructor_abi = None
 
         if constructor_abi:
-            if args is None:
-                args = tuple()
-            if kwargs is None:
-                kwargs = {}
-
-            arguments = merge_args_and_kwargs(constructor_abi, args, kwargs)
+            arguments = get_normalized_abi_inputs(constructor_abi, *args, **kwargs)
 
             deploy_data = add_0x_prefix(
                 encode_abi(cls.w3, constructor_abi, arguments, data=cls.bytecode)
             )
         else:
-            if args is not None or kwargs is not None:
+            if args or kwargs:
                 msg = "Constructor args were provided, but no constructor function was provided."  # noqa: E501
                 raise Web3TypeError(msg)
 
@@ -990,7 +1014,7 @@ class BaseContractCaller:
     """
 
     # mypy types
-    _functions: List[Union[ABIFunction, ABIEvent]]
+    _functions: Sequence[ABIFunction]
 
     def __init__(
         self,
@@ -1006,6 +1030,9 @@ class BaseContractCaller:
         self._functions = []
 
     def __getattr__(self, function_name: str) -> Any:
+        function_names = [
+            fn["name"] for fn in self._functions if fn.get("type") == "function"
+        ]
         if self.abi is None:
             raise NoABIFound(
                 "There is no ABI found for this contract.",
@@ -1015,8 +1042,8 @@ class BaseContractCaller:
                 "The ABI for this contract contains no function definitions. ",
                 "Are you sure you provided the correct contract ABI?",
             )
-        elif function_name not in {fn["name"] for fn in self._functions}:
-            functions_available = ", ".join([fn["name"] for fn in self._functions])
+        elif function_name not in function_names:
+            functions_available = ", ".join(function_names)
             raise ABIFunctionNotFound(
                 f"The function '{function_name}' was not found in this contract's ABI.",
                 " Here is a list of all of the function names found: ",
@@ -1070,7 +1097,10 @@ class BaseContractConstructor:
 
     @combomethod
     def _encode_data_in_transaction(self, *args: Any, **kwargs: Any) -> HexStr:
-        constructor_abi = get_constructor_abi(self.abi)
+        try:
+            constructor_abi = get_constructor_function_abi(self.abi)
+        except ABIConstructorNotFound:
+            constructor_abi = None
 
         if constructor_abi:
             if not args:
@@ -1078,7 +1108,7 @@ class BaseContractConstructor:
             if not kwargs:
                 kwargs = {}
 
-            arguments = merge_args_and_kwargs(constructor_abi, args, kwargs)
+            arguments = get_normalized_abi_inputs(constructor_abi, *args, **kwargs)
             data = add_0x_prefix(
                 encode_abi(self.w3, constructor_abi, arguments, data=self.bytecode)
             )
@@ -1140,7 +1170,7 @@ class BaseContractConstructor:
 class NonExistentFallbackFunction:
     @staticmethod
     def _raise_exception() -> NoReturn:
-        raise FallbackNotFound("No fallback function was found in the contract ABI.")
+        raise ABIFallbackNotFound("No fallback function was found in the contract ABI.")
 
     def __getattr__(self, attr: Any) -> Callable[[], None]:
         return self._raise_exception
@@ -1149,7 +1179,7 @@ class NonExistentFallbackFunction:
 class NonExistentReceiveFunction:
     @staticmethod
     def _raise_exception() -> NoReturn:
-        raise FallbackNotFound("No receive function was found in the contract ABI.")
+        raise ABIReceiveNotFound("No receive function was found in the contract ABI.")
 
     def __getattr__(self, attr: Any) -> Callable[[], None]:
         return self._raise_exception
