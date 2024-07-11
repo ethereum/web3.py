@@ -55,6 +55,9 @@ from web3._utils.validation import (
 from web3.datastructures import (
     AttributeDict,
 )
+from web3.types import (
+    RPCResponse,
+)
 
 
 def hex_encode_abi_type(
@@ -221,7 +224,7 @@ class FriendlyJsonSerde:
             else:
                 raise full_exception
 
-    def json_decode(self, json_str: str) -> Dict[Any, Any]:
+    def json_decode(self, json_str: str) -> RPCResponse:
         try:
             decoded = json.loads(json_str)
             return decoded

@@ -5,7 +5,6 @@ from typing import (
     Callable,
     Sequence,
     Tuple,
-    cast,
 )
 
 from eth_utils import (
@@ -98,7 +97,7 @@ class JSONBaseProvider(BaseProvider):
 
     def decode_rpc_response(self, raw_response: bytes) -> RPCResponse:
         text_response = to_text(raw_response)
-        return cast(RPCResponse, FriendlyJsonSerde().json_decode(text_response))
+        return FriendlyJsonSerde().json_decode(text_response)
 
     def encode_rpc_request(self, method: RPCEndpoint, params: Any) -> bytes:
         rpc_dict = {

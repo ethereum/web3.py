@@ -102,7 +102,6 @@ def json_make_get_request(
 def get_response_from_post_request(
     endpoint_uri: URI, *args: Any, **kwargs: Any
 ) -> requests.Response:
-    kwargs.setdefault("timeout", DEFAULT_TIMEOUT)
     session = cache_and_return_session(endpoint_uri)
     response = session.post(endpoint_uri, *args, **kwargs)
     return response
@@ -111,9 +110,16 @@ def get_response_from_post_request(
 def make_post_request(
     endpoint_uri: URI, data: Union[bytes, Dict[str, Any]], *args: Any, **kwargs: Any
 ) -> bytes:
-    response = get_response_from_post_request(endpoint_uri, data=data, *args, **kwargs)
-    response.raise_for_status()
-    return response.content
+    kwargs.setdefault("timeout", DEFAULT_TIMEOUT)
+    kwargs.setdefault("stream", True)
+    with get_response_from_post_request(
+        endpoint_uri, data=data, *args, **kwargs
+    ) as response:
+        response.raise_for_status()
+        result = b""
+        for line in response.iter_content():
+            result += line
+        return result
 
 
 def _close_evicted_sessions(evicted_sessions: List[requests.Session]) -> None:
