@@ -20,9 +20,6 @@ from eth_utils.toolz import (
 from hexbytes import (
     HexBytes,
 )
-from websockets.exceptions import (
-    ConnectionClosedOK,
-)
 
 from web3._utils.batching import (
     RequestBatcher,
@@ -487,7 +484,7 @@ class RequestManager:
     def _persistent_message_stream(self) -> "_AsyncPersistentMessageStream":
         return _AsyncPersistentMessageStream(self)
 
-    async def _get_next_message(self) -> Any:
+    async def _get_next_message(self) -> Optional[RPCResponse]:
         return await self._message_stream().__anext__()
 
     async def _message_stream(self) -> AsyncGenerator[RPCResponse, None]:
@@ -515,12 +512,13 @@ class RequestManager:
                     # if response is an active subscription response, process it
                     yield await self._process_response(response)
             except TaskNotRunning:
+                await asyncio.sleep(0)
                 self._provider._handle_listener_task_exceptions()
                 self.logger.error(
                     "Message listener background task has stopped unexpectedly. "
                     "Stopping message stream."
                 )
-                raise StopAsyncIteration
+                return
 
     async def _process_response(self, response: RPCResponse) -> RPCResponse:
         provider = cast(PersistentConnectionProvider, self._provider)
@@ -586,7 +584,4 @@ class _AsyncPersistentMessageStream:
         return self
 
     async def __anext__(self) -> RPCResponse:
-        try:
-            return await self.manager._get_next_message()
-        except ConnectionClosedOK:
-            raise StopAsyncIteration
+        return await self.manager._get_next_message()
