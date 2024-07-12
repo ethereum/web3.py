@@ -191,7 +191,7 @@ class WebsocketMessageStreamMock:
         messages: Optional[Collection[bytes]] = None,
         raise_exception: Optional[Exception] = None,
     ) -> None:
-        self.queue = asyncio.Queue[bytes]()
+        self.queue = asyncio.Queue()  # type: ignore  # py38 issue
         for msg in messages or []:
             self.queue.put_nowait(msg)
         self.raise_exception = raise_exception
