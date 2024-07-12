@@ -1,0 +1,1 @@
+Handle ``ConnectionClosedOK`` case for ``WebSocketProvider``. If a persistent connection is closed gracefully, log and raise a silent ``PersistentConnectionClosedOK`` exception, triggering an end to the message listener task and breaking out of the ``process_subscriptions()`` iterator.

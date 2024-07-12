@@ -25,6 +25,7 @@ from websockets.client import (
     connect,
 )
 from websockets.exceptions import (
+    ConnectionClosedOK,
     WebSocketException,
 )
 
@@ -36,6 +37,7 @@ from web3._utils.caching import (
     async_handle_request_caching,
 )
 from web3.exceptions import (
+    PersistentConnectionClosedOK,
     ProviderConnectionError,
     Web3ValidationError,
 )
@@ -169,8 +171,13 @@ class WebSocketProvider(PersistentConnectionProvider):
         return response
 
     async def _provider_specific_message_listener(self) -> None:
-        async for raw_message in self._ws:
-            await asyncio.sleep(0)
+        while True:
+            try:
+                raw_message = await self._ws.recv()
+            except ConnectionClosedOK:
+                raise PersistentConnectionClosedOK(
+                    user_message="WebSocket connection received `ConnectionClosedOK`."
+                )
 
             response = json.loads(raw_message)
             if isinstance(response, list):

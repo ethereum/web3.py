@@ -2,6 +2,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Dict,
+    Optional,
 )
 
 from web3.types import (
@@ -35,7 +36,7 @@ class PersistentConnection:
     async def send(self, method: RPCEndpoint, params: Any) -> RPCResponse:
         return await self._manager.send(method, params)
 
-    async def recv(self) -> Any:
+    async def recv(self) -> Optional[RPCResponse]:
         return await self._manager._get_next_message()
 
     def process_subscriptions(self) -> "_AsyncPersistentMessageStream":

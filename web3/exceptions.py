@@ -327,6 +327,12 @@ class TaskNotRunning(Web3Exception):
         super().__init__(message)
 
 
+class PersistentConnectionClosedOK(Web3Exception):
+    """
+    Raised when a persistent connection is closed gracefully by the server.
+    """
+
+
 class Web3RPCError(Web3Exception):
     """
     Raised when a JSON-RPC response contains an error field.

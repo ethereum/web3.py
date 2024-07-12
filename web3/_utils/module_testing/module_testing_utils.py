@@ -1,6 +1,4 @@
-from collections import (
-    deque,
-)
+import asyncio
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -179,7 +177,9 @@ class WebSocketMessageStreamMock:
     def __init__(
         self, messages: Collection[bytes] = None, raise_exception: Exception = None
     ) -> None:
-        self.messages = deque(messages) if messages else deque()
+        self.queue = asyncio.Queue()  # type: ignore  # py38 issue
+        for msg in messages or []:
+            self.queue.put_nowait(msg)
         self.raise_exception = raise_exception
 
     def __await__(self) -> Generator[Any, Any, "Self"]:
@@ -192,13 +192,12 @@ class WebSocketMessageStreamMock:
         return self
 
     async def __anext__(self) -> bytes:
+        return await self.queue.get()
+
+    async def recv(self) -> bytes:
         if self.raise_exception:
             raise self.raise_exception
-
-        elif len(self.messages) == 0:
-            raise StopAsyncIteration
-
-        return self.messages.popleft()
+        return await self.queue.get()
 
     @staticmethod
     async def pong() -> Literal[False]:

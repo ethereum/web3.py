@@ -19,6 +19,7 @@ from web3._utils.caching import (
     generate_cache_key,
 )
 from web3.exceptions import (
+    PersistentConnectionClosedOK,
     ProviderConnectionError,
     TaskNotRunning,
     TimeExhausted,
@@ -160,6 +161,13 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
             await asyncio.sleep(0)
             try:
                 await self._provider_specific_message_listener()
+            except PersistentConnectionClosedOK as e:
+                self.logger.info(
+                    "Message listener background task has ended gracefully: "
+                    f"{e.user_message}"
+                )
+                # trigger a return to end the listener task and initiate the callback fn
+                return
             except Exception as e:
                 if not self.silence_listener_task_exceptions:
                     raise e
@@ -202,10 +210,6 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
             request_cache_key = generate_cache_key(request_id)
 
             while True:
-                # check if an exception was recorded in the listener task and raise it
-                # in the main loop if so
-                self._handle_listener_task_exceptions()
-
                 if request_cache_key in self._request_processor._request_response_cache:
                     self.logger.debug(
                         f"Popping response for id {request_id} from cache."
@@ -215,6 +219,9 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
                     )
                     return popped_response
                 else:
+                    # check if an exception was recorded in the listener task and raise
+                    # it in the main loop if so
+                    self._handle_listener_task_exceptions()
                     await asyncio.sleep(0)
 
         try:
