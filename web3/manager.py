@@ -469,22 +469,50 @@ class RequestManager:
 
     # -- persistent connection -- #
 
-    async def send(self, method: RPCEndpoint, params: Any) -> RPCResponse:
+    async def socket_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
         provider = cast(PersistentConnectionProvider, self._provider)
         request_func = await provider.request_func(
             cast("AsyncWeb3", self.w3), cast("MiddlewareOnion", self.middleware_onion)
         )
         self.logger.debug(
-            "Making request to open socket connection: "
+            "Making request to open socket connection and waiting for response: "
             f"{provider.get_endpoint_uri_or_ipc_path()}, method: {method}"
         )
         response = await request_func(method, params)
         return await self._process_response(response)
 
+    async def send(self, method: RPCEndpoint, params: Any) -> None:
+        provider = cast(PersistentConnectionProvider, self._provider)
+        # run through the request processors of the middleware
+        for mw_class in self.middleware_onion.as_tuple_of_middleware():
+            mw = mw_class(self.w3)
+            method, params = mw.request_processor(method, params)
+
+        self.logger.debug(
+            "Sending request to open socket connection: "
+            f"{provider.get_endpoint_uri_or_ipc_path()}, method: {method}"
+        )
+        await provider.socket_send(provider.encode_rpc_request(method, params))
+
+    async def recv(self) -> RPCResponse:
+        provider = cast(PersistentConnectionProvider, self._provider)
+        self.logger.debug(
+            "Getting next response from open socket connection: "
+            f"{provider.get_endpoint_uri_or_ipc_path()}"
+        )
+        # pop from the queue since the listener task is responsible for reading
+        # directly from the socket
+        request_response_cache = self._request_processor._request_response_cache
+        _key, response = await request_response_cache.async_await_and_popitem(
+            last=False,
+            timeout=provider.request_timeout,
+        )
+        return await self._process_response(response)
+
     def _persistent_message_stream(self) -> "_AsyncPersistentMessageStream":
         return _AsyncPersistentMessageStream(self)
 
-    async def _get_next_message(self) -> Optional[RPCResponse]:
+    async def _get_next_message(self) -> RPCResponse:
         return await self._message_stream().__anext__()
 
     async def _message_stream(self) -> AsyncGenerator[RPCResponse, None]:

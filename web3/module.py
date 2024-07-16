@@ -138,7 +138,7 @@ def retrieve_async_method_call_fn(
 
             try:
                 method_str = cast(RPCEndpoint, method_str)
-                return await async_w3.manager.send(method_str, params)
+                return await async_w3.manager.socket_request(method_str, params)
             except Exception as e:
                 if (
                     cache_key is not None

@@ -1,0 +1,1 @@
+Refactor some common logic for persistent connection providers back into the base ``PersistentConnectionProvider`` class to reduce code duplication and improve maintainability.

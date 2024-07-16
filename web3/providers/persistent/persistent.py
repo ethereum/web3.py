@@ -1,13 +1,17 @@
 from abc import (
     ABC,
+    abstractmethod,
 )
 import asyncio
+import json
 import logging
 from typing import (
     Any,
     List,
     Optional,
+    Tuple,
     Union,
+    cast,
 )
 
 from websockets import (
@@ -15,7 +19,12 @@ from websockets import (
     WebSocketException,
 )
 
+from web3._utils.batching import (
+    BATCH_REQUEST_ID,
+    sort_batch_response_by_response_ids,
+)
 from web3._utils.caching import (
+    async_handle_request_caching,
     generate_cache_key,
 )
 from web3.exceptions import (
@@ -32,6 +41,7 @@ from web3.providers.persistent.request_processor import (
     RequestProcessor,
 )
 from web3.types import (
+    RPCEndpoint,
     RPCId,
     RPCResponse,
 )
@@ -130,6 +140,44 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
             f"Successfully disconnected from: {self.get_endpoint_uri_or_ipc_path()}"
         )
 
+    @async_handle_request_caching
+    async def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
+        request_data = self.encode_rpc_request(method, params)
+        await self.socket_send(request_data)
+
+        current_request_id = json.loads(request_data)["id"]
+        response = await self._get_response_for_request_id(current_request_id)
+
+        return response
+
+    async def make_batch_request(
+        self, requests: List[Tuple[RPCEndpoint, Any]]
+    ) -> List[RPCResponse]:
+        request_data = self.encode_batch_rpc_request(requests)
+        await self.socket_send(request_data)
+
+        response = cast(
+            List[RPCResponse], await self._get_response_for_request_id(BATCH_REQUEST_ID)
+        )
+        return response
+
+    # -- abstract methods -- #
+
+    @abstractmethod
+    async def socket_send(self, request_data: bytes) -> None:
+        """
+        Send an encoded RPC request to the provider over the persistent connection.
+        """
+        raise NotImplementedError("Must be implemented by subclasses")
+
+    @abstractmethod
+    async def socket_recv(self) -> RPCResponse:
+        """
+        Receive, decode, and return an RPC response from the provider over the
+        persistent connection.
+        """
+        raise NotImplementedError("Must be implemented by subclasses")
+
     # -- private methods -- #
 
     async def _provider_specific_connect(self) -> None:
@@ -138,7 +186,7 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
     async def _provider_specific_disconnect(self) -> None:
         raise NotImplementedError("Must be implemented by subclasses")
 
-    async def _provider_specific_message_listener(self) -> None:
+    async def _provider_specific_socket_reader(self) -> RPCResponse:
         raise NotImplementedError("Must be implemented by subclasses")
 
     def _message_listener_callback(
@@ -160,8 +208,21 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
             # the use of sleep(0) seems to be the most efficient way to yield control
             # back to the event loop to share the loop with other tasks.
             await asyncio.sleep(0)
+
             try:
-                await self._provider_specific_message_listener()
+                response = await self._provider_specific_socket_reader()
+
+                if isinstance(response, list):
+                    response = sort_batch_response_by_response_ids(response)
+
+                subscription = (
+                    response.get("method") == "eth_subscription"
+                    if not isinstance(response, list)
+                    else False
+                )
+                await self._request_processor.cache_raw_response(
+                    response, subscription=subscription
+                )
             except PersistentConnectionClosedOK as e:
                 self.logger.info(
                     "Message listener background task has ended gracefully: "

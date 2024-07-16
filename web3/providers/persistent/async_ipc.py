@@ -11,11 +11,9 @@ from pathlib import (
 import sys
 from typing import (
     Any,
-    List,
     Optional,
     Tuple,
     Union,
-    cast,
 )
 
 from eth_utils import (
@@ -23,19 +21,11 @@ from eth_utils import (
 )
 
 from web3.types import (
-    RPCEndpoint,
     RPCResponse,
 )
 
 from . import (
     PersistentConnectionProvider,
-)
-from ..._utils.batching import (
-    BATCH_REQUEST_ID,
-    sort_batch_response_by_response_ids,
-)
-from ..._utils.caching import (
-    async_handle_request_caching,
 )
 from ...exceptions import (
     ProviderConnectionError,
@@ -91,12 +81,7 @@ class AsyncIPCProvider(PersistentConnectionProvider):
             return False
 
         try:
-            request_data = self.encode_rpc_request(
-                RPCEndpoint("web3_clientVersions"), []
-            )
-            self._writer.write(request_data)
-            current_request_id = json.loads(request_data)["id"]
-            await self._get_response_for_request_id(current_request_id, timeout=2)
+            await self.make_request("web3_clientVersion", [])
             return True
         except (OSError, ProviderConnectionError) as e:
             if show_traceback:
@@ -104,6 +89,49 @@ class AsyncIPCProvider(PersistentConnectionProvider):
                     f"Problem connecting to provider with error: {type(e)}: {e}"
                 )
             return False
+
+    async def socket_send(self, request_data: bytes) -> None:
+        if self._writer is None:
+            raise ProviderConnectionError(
+                "Connection to ipc socket has not been initiated for the provider."
+            )
+
+        return await asyncio.wait_for(
+            self._socket_send(request_data), timeout=self.request_timeout
+        )
+
+    async def socket_recv(self) -> RPCResponse:
+        while True:
+            # yield to the event loop to allow other tasks to run
+            await asyncio.sleep(0)
+
+            try:
+                response, pos = self._decoder.raw_decode(self._raw_message)
+                self._raw_message = self._raw_message[pos:].lstrip()
+                return response
+            except JSONDecodeError:
+                # read more data from the socket if the current raw message is
+                # incomplete
+                self._raw_message += to_text(await self._reader.read(4096)).lstrip()
+
+    # -- private methods -- #
+
+    async def _socket_send(self, request_data: bytes) -> None:
+        try:
+            self._writer.write(request_data)
+            await self._writer.drain()
+        except OSError as e:
+            # Broken pipe
+            if e.errno == errno.EPIPE:
+                # one extra attempt, then give up
+                await self._reset_socket()
+                self._writer.write(request_data)
+                await self._writer.drain()
+
+    async def _reset_socket(self) -> None:
+        self._writer.close()
+        await self._writer.wait_closed()
+        self._reader, self._writer = await async_get_ipc_socket(self.ipc_path)
 
     async def _provider_specific_connect(self) -> None:
         self._reader, self._writer = await async_get_ipc_socket(self.ipc_path)
@@ -116,81 +144,8 @@ class AsyncIPCProvider(PersistentConnectionProvider):
         if self._reader:
             self._reader = None
 
-    async def _reset_socket(self) -> None:
-        self._writer.close()
-        await self._writer.wait_closed()
-        self._reader, self._writer = await async_get_ipc_socket(self.ipc_path)
-
-    @async_handle_request_caching
-    async def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
-        if self._writer is None:
-            raise ProviderConnectionError(
-                "Connection to ipc socket has not been initiated for the provider."
-            )
-
-        request_data = self.encode_rpc_request(method, params)
-        try:
-            self._writer.write(request_data)
-            await self._writer.drain()
-        except OSError as e:
-            # Broken pipe
-            if e.errno == errno.EPIPE:
-                # one extra attempt, then give up
-                await self._reset_socket()
-                self._writer.write(request_data)
-                await self._writer.drain()
-
-        current_request_id = json.loads(request_data)["id"]
-        response = await self._get_response_for_request_id(current_request_id)
-
-        return response
-
-    async def make_batch_request(
-        self, requests: List[Tuple[RPCEndpoint, Any]]
-    ) -> List[RPCResponse]:
-        if self._writer is None:
-            raise ProviderConnectionError(
-                "Connection to ipc socket has not been initiated for the provider."
-            )
-
-        request_data = self.encode_batch_rpc_request(requests)
-        try:
-            self._writer.write(request_data)
-            await self._writer.drain()
-        except OSError as e:
-            # Broken pipe
-            if e.errno == errno.EPIPE:
-                # one extra attempt, then give up
-                await self._reset_socket()
-                self._writer.write(request_data)
-                await self._writer.drain()
-
-        response = cast(
-            List[RPCResponse], await self._get_response_for_request_id(BATCH_REQUEST_ID)
-        )
-        return response
-
-    async def _provider_specific_message_listener(self) -> None:
-        self._raw_message += to_text(await self._reader.read(4096)).lstrip()
-
-        while self._raw_message:
-            try:
-                response, pos = self._decoder.raw_decode(self._raw_message)
-            except JSONDecodeError:
-                break
-
-            if isinstance(response, list):
-                response = sort_batch_response_by_response_ids(response)
-
-            is_subscription = (
-                response.get("method") == "eth_subscription"
-                if not isinstance(response, list)
-                else False
-            )
-            await self._request_processor.cache_raw_response(
-                response, subscription=is_subscription
-            )
-            self._raw_message = self._raw_message[pos:].lstrip()
+    async def _provider_specific_socket_reader(self) -> RPCResponse:
+        return await self.socket_recv()
 
     def _error_log_listener_task_exception(self, e: Exception) -> None:
         super()._error_log_listener_task_exception(e)
