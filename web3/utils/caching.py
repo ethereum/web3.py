@@ -1,6 +1,8 @@
+import asyncio
 from collections import (
     OrderedDict,
 )
+import time
 from typing import (
     Any,
     Dict,
@@ -46,8 +48,30 @@ class SimpleCache:
 
         return self._data.pop(key)
 
+    def popitem(self, last: bool = True) -> Tuple[str, Any]:
+        return self._data.popitem(last=last)
+
     def __contains__(self, key: str) -> bool:
         return key in self._data
 
     def __len__(self) -> int:
         return len(self._data)
+
+    # -- async utility methods -- #
+
+    async def async_await_and_popitem(
+        self, last: bool = True, timeout: float = 10.0
+    ) -> Tuple[str, Any]:
+        start = time.time()
+        end_time = start + timeout
+        while True:
+            await asyncio.sleep(0)
+            try:
+                return self.popitem(last=last)
+            except KeyError:
+                now = time.time()
+                if now >= end_time:
+                    raise asyncio.TimeoutError(
+                        "Timeout waiting for item to be available"
+                    )
+                await asyncio.sleep(min(0.1, end_time - now))

@@ -2,7 +2,6 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Dict,
-    Optional,
 )
 
 from web3.types import (
@@ -28,16 +27,56 @@ class PersistentConnection:
     def __init__(self, w3: "AsyncWeb3"):
         self._manager = w3.manager
 
-    # -- public methods -- #
     @property
     def subscriptions(self) -> Dict[str, Any]:
+        """
+        Return the active subscriptions on the persistent connection.
+
+        :return: The active subscriptions on the persistent connection.
+        :rtype: Dict[str, Any]
+        """
         return self._manager._request_processor.active_subscriptions
 
-    async def send(self, method: RPCEndpoint, params: Any) -> RPCResponse:
-        return await self._manager.send(method, params)
+    async def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
+        """
+        Make a request to the persistent connection, returning the response. This method
+        does not process the response as it would when invoking a method via the
+        appropriate module on the `AsyncWeb3` instance,
+        e.g. `w3.eth.get_block("latest")`.
 
-    async def recv(self) -> Optional[RPCResponse]:
-        return await self._manager._get_next_message()
+        :param method: The RPC method, e.g. `eth_getBlockByNumber`.
+        :param params: The RPC method parameters, e.g. `["0x1337", False]`.
+
+        :return: The processed response from the persistent connection.
+        :rtype: RPCResponse
+        """
+        return await self._manager.socket_request(method, params)
+
+    async def send(self, method: RPCEndpoint, params: Any) -> None:
+        """
+        Send a raw, unprocessed message to the persistent connection.
+
+        :param method: The RPC method, e.g. `eth_getBlockByNumber`.
+        :param params: The RPC method parameters, e.g. `["0x1337", False]`.
+
+        :return: None
+        """
+        await self._manager.send(method, params)
+
+    async def recv(self) -> RPCResponse:
+        """
+        Receive the next unprocessed response for a request from the persistent
+        connection.
+
+        :return: RPCResponse: The raw, unprocessed message from the
+                                        persistent connection.
+        """
+        return await self._manager.recv()
 
     def process_subscriptions(self) -> "_AsyncPersistentMessageStream":
+        """
+        Asynchronous iterator that yields messages from the subscription message stream.
+
+        :return: _AsyncPersistentMessageStream: The subscription message stream.
+        """
         return self._manager._persistent_message_stream()
