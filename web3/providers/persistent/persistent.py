@@ -23,6 +23,7 @@ from web3.exceptions import (
     ProviderConnectionError,
     TaskNotRunning,
     TimeExhausted,
+    Web3AttributeError,
 )
 from web3.providers.async_base import (
     AsyncJSONBaseProvider,
@@ -71,7 +72,7 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
         elif hasattr(self, "ipc_path"):
             return str(self.ipc_path)
         else:
-            raise AttributeError(
+            raise Web3AttributeError(
                 "`PersistentConnectionProvider` must have either `endpoint_uri` or "
                 "`ipc_path` attribute."
             )

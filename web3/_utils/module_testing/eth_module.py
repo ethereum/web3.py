@@ -1210,7 +1210,7 @@ class AsyncEthModuleTest:
         assert len(access_list) > 0
         assert access_list[0]["address"] is not None
         assert is_checksum_address(access_list[0]["address"])
-        assert len(access_list[0]["storageKeys"][0]) == 32
+        assert len(access_list[0]["storageKeys"][0]) == 66
         assert int(response["gasUsed"]) >= 0
 
         # assert the result can be used directly in a transaction dict
@@ -2786,7 +2786,7 @@ class EthModuleTest:
         assert len(access_list) > 0
         assert access_list[0]["address"] is not None
         assert is_checksum_address(access_list[0]["address"])
-        assert len(access_list[0]["storageKeys"][0]) == 32
+        assert len(access_list[0]["storageKeys"][0]) == 66
         assert int(response["gasUsed"]) >= 0
 
         # assert the result can be used directly in a transaction dict
