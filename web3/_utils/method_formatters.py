@@ -187,10 +187,28 @@ def apply_list_to_array_formatter(formatter: Any) -> Callable[..., Any]:
     return to_list(apply_formatter_to_array(formatter))
 
 
+def storage_key_to_hexstr(value: Union[bytes, int, str]) -> HexStr:
+    if not isinstance(value, (bytes, int, str)):
+        raise Web3ValueError(
+            f"Storage key must be one of bytes, int, str, got {type(value)}"
+        )
+    if isinstance(value, str):
+        if value.startswith("0x") and len(value) == 66:
+            return HexStr(value)
+        elif len(value) == 64:
+            return HexStr(f"0x{value}")
+    elif isinstance(value, bytes):
+        if len(value) == 32:
+            return HexBytes(value).to_0x_hex()
+    elif isinstance(value, int):
+        return storage_key_to_hexstr(hex(value))
+    raise Web3ValueError(f"Storage key must be a 32-byte value, got {value!r}")
+
+
 ACCESS_LIST_FORMATTER = type_aware_apply_formatters_to_dict(
     {
         "address": to_checksum_address,
-        "storageKeys": apply_list_to_array_formatter(to_hexbytes(64)),
+        "storageKeys": apply_list_to_array_formatter(storage_key_to_hexstr),
     }
 )
 

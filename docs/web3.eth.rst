@@ -960,17 +960,17 @@ The following methods are available on the ``web3.eth`` namespace.
         ...     "pending",
         ... )
         AttributeDict({
-            'accessList': [
+            "accessList": [
                 AttributeDict({
-                    'address': '0xde0B295669a9FD93d5F28D9Ec85E40f4cb697BAe',
-                    'storageKeys': [
-                        HexBytes('0x0000000000000000000000000000000000000000000000000000000000000003'),
-                        HexBytes('0x0000000000000000000000000000000000000000000000000000000000000007'),
+                    "address": "0xde0B295669a9FD93d5F28D9Ec85E40f4cb697BAe",
+                    "storageKeys": [
+                        "0x0000000000000000000000000000000000000000000000000000000000000003",
+                        "0x0000000000000000000000000000000000000000000000000000000000000007",
                     ]
                 }),
                 AttributeDict({
-                    'address': '0xBB9bc244D798123fDe783fCc1C72d3Bb8C189413',
-                    'storageKeys': []
+                    "address": "0xBB9bc244D798123fDe783fCc1C72d3Bb8C189413",
+                    "storageKeys": []
                 }),
             ],
             "gasUsed": 21000

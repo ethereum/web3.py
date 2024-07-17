@@ -1,14 +1,20 @@
 import pytest
 
+from eth_typing import (
+    HexStr,
+)
+
 from web3._utils.method_formatters import (
     get_error_formatters,
     raise_contract_logic_error_on_revert,
+    storage_key_to_hexstr,
 )
 from web3._utils.rpc_abi import (
     RPC,
 )
 from web3.exceptions import (
     ContractLogicError,
+    Web3ValueError,
 )
 from web3.types import (
     RPCResponse,
@@ -192,3 +198,41 @@ def test_get_error_formatters() -> None:
     with pytest.raises(ContractLogicError):
         formatters(REVERT_WITHOUT_MSG)
     assert formatters(OTHER_ERROR) == OTHER_ERROR
+
+
+@pytest.mark.parametrize(
+    "input_value,expected_output",
+    [
+        ("0x" + "a" * 64, HexStr("0x" + "a" * 64)),
+        ("a" * 64, HexStr("0x" + "a" * 64)),
+        ("0x" + "a" * 63, Web3ValueError),
+        ("a" * 63, Web3ValueError),
+        (b"a" * 32, HexStr("0x" + "61" * 32)),
+        (b"a" * 31, Web3ValueError),
+        (b"a" * 33, Web3ValueError),
+        (
+            7719472615821079694904732333912527190217998977709370935963838933860875309329,  # noqa: E501
+            HexStr("0x" + "1" * 64),
+        ),
+        (3567, Web3ValueError),
+        (3.14, Web3ValueError),
+    ],
+    ids=[
+        "valid-0x-hex-string",
+        "valid-no-0x-hex-string",
+        "invalid-0x-hex-string",
+        "invalid-no-0x-hex-string",
+        "valid-32-byte-value",
+        "invalid-31-byte-value",
+        "invalid-33-byte-value",
+        "valid-integer",
+        "invalid-integer",
+        "invalid-float",
+    ],
+)
+def test_storage_key_to_hexstr(input_value, expected_output):
+    if isinstance(expected_output, type) and issubclass(expected_output, Exception):
+        with pytest.raises(expected_output):
+            storage_key_to_hexstr(input_value)
+    else:
+        assert storage_key_to_hexstr(input_value) == expected_output
