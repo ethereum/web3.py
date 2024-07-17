@@ -336,7 +336,7 @@ can be found in the `websockets connection`_ docs.
         ...     logger.setLevel(logging.DEBUG)
         ...     logger.addHandler(logging.StreamHandler())
 
-        >>> async def context_manager_subscriptions_example():
+        >>> async def context_manager_subscription_example():
         ...     #  async with AsyncWeb3(AsyncIPCProvider("./path/to.filename.ipc") as w3:  # for the AsyncIPCProvider
         ...     async with AsyncWeb3(WebSocketProvider(f"ws://127.0.0.1:8546")) as w3:  # for the WebSocketProvider
         ...         # subscribe to new block headers
@@ -482,17 +482,6 @@ Interacting with the Persistent Connection
         Examples on how to use this method can be seen above in the
         `Using Persistent Connection Providers`_ section.
 
-    .. py:method:: recv()
-
-        The ``recv()`` method can be used to receive the next message from the
-        socket. The response from this method is formatted by web3.py formatters
-        and run through the middleware before being returned. This is not the
-        recommended way to receive a message as the ``process_subscriptions()`` method
-        is available for listening to subscriptions and the standard API for making
-        requests via the appropriate module
-        (e.g. ``block_num = await w3.eth.block_number``) is available for receiving
-        responses for one-to-one request-to-response calls.
-
     .. py:method:: send(method: RPCEndpoint, params: Sequence[Any])
 
         This method is available strictly for sending raw requests to the socket,
@@ -501,6 +490,25 @@ Interacting with the Persistent Connection
         middleware. Instead, use the methods available on the respective web3
         module. For example, use ``w3.eth.get_block("latest")`` instead of
         ``w3.socket.send("eth_getBlockByNumber", ["latest", True])``.
+
+    .. py:method:: recv()
+
+        The ``recv()`` method can be used to receive the next response for a request
+        from the socket. The response from this method is the raw response. This is not
+        the recommended way to receive a response for a request, as it is not formatted
+        by *web3.py* formatters or run through the middleware. Instead, use the methods
+        available on the respective web3 module
+        (e.g. ``block_num = await w3.eth.block_number``) for retrieving responses for
+        one-to-one request-to-response calls.
+
+    .. py:method:: make_request(method: RPCEndpoint, params: Sequence[Any])
+
+        This method is available for making requests to the socket and retrieving the
+        response. It is not recommended to use this method directly, as the responses
+        will not be properly formatted by *web3.py* formatters or run through the
+        middleware. Instead, use the methods available on the respective web3 module.
+        For example, use ``w3.eth.get_block("latest")`` instead of
+        ``w3.socket.make_request("eth_getBlockByNumber", ["latest", True])``.
 
 
 LegacyWebSocketProvider
