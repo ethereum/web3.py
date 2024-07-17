@@ -39,7 +39,7 @@ class PersistentConnection:
 
     async def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
         """
-        Make a request to the persistent connection, returning the response. This method
+        Make a request to the persistent connection and return the response. This method
         does not process the response as it would when invoking a method via the
         appropriate module on the `AsyncWeb3` instance,
         e.g. `w3.eth.get_block("latest")`.
@@ -68,8 +68,9 @@ class PersistentConnection:
         Receive the next unprocessed response for a request from the persistent
         connection.
 
-        :return: RPCResponse: The raw, unprocessed message from the
-                                        persistent connection.
+        :return: The next unprocessed response for a request from the persistent
+                 connection.
+        :rtype: RPCResponse
         """
         return await self._manager.recv()
 
@@ -77,6 +78,7 @@ class PersistentConnection:
         """
         Asynchronous iterator that yields messages from the subscription message stream.
 
-        :return: _AsyncPersistentMessageStream: The subscription message stream.
+        :return: The subscription message stream.
+        :rtype: _AsyncPersistentMessageStream
         """
         return self._manager._persistent_message_stream()
