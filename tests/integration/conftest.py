@@ -64,3 +64,14 @@ def event_loop():
     loop = asyncio.get_event_loop_policy().new_event_loop()
     yield loop
     loop.close()
+
+
+@pytest.fixture(autouse=True)
+def _async_test_setup(request) -> None:
+    # Check if the 'async_w3' fixture is available in the current context
+    if "async_w3" in request.fixturenames:
+        async_w3 = request.getfixturevalue("async_w3")
+        if hasattr(async_w3.provider, "_request_processor"):
+            # Clear the request processor cache for persistent connection provider tests
+            async_w3.provider._request_processor.clear_caches()
+    yield

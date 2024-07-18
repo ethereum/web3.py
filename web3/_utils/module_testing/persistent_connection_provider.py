@@ -364,39 +364,10 @@ class PersistentConnectionProviderTest:
         async_w3.middleware_onion.remove("poa_middleware")
 
     @pytest.mark.asyncio
-    async def test_public_socket_api(self, async_w3: "AsyncWeb3") -> None:
-        async_w3.provider._request_processor.clear_caches()
-
-        # send a request over the socket
-        await async_w3.socket.send(
-            RPCEndpoint("eth_getBlockByNumber"), ["latest", True]
-        )
-
-        # recv and validate the unprocessed response
-        response = await async_w3.socket.recv()
-        assert "id" in response, "Expected 'id' key in response."
-        assert "jsonrpc" in response, "Expected 'jsonrpc' key in response."
-        assert "result" in response, "Expected 'result' key in response."
-        assert all(k in response["result"].keys() for k in SOME_BLOCK_KEYS)
-        assert not isinstance(response["result"]["number"], int)  # assert not processed
-
-        # make a request over the socket
-        response = await async_w3.socket.make_request(
-            RPCEndpoint("eth_getBlockByNumber"), ["latest", True]
-        )
-        assert "id" in response, "Expected 'id' key in response."
-        assert "jsonrpc" in response, "Expected 'jsonrpc' key in response."
-        assert "result" in response, "Expected 'result' key in response."
-        assert all(k in response["result"].keys() for k in SOME_BLOCK_KEYS)
-        assert not isinstance(response["result"]["number"], int)  # assert not processed
-
-    @pytest.mark.asyncio
     async def test_asyncio_gather_for_multiple_requests_matches_the_responses(
         self,
         async_w3: "AsyncWeb3",
     ) -> None:
-        async_w3.provider._request_processor.clear_caches()
-
         (
             latest,
             chain_id,
@@ -427,3 +398,28 @@ class PersistentConnectionProviderTest:
         assert isinstance(chain_id, int)
         assert isinstance(chain_id2, int)
         assert isinstance(chain_id3, int)
+
+    @pytest.mark.asyncio
+    async def test_public_socket_api(self, async_w3: "AsyncWeb3") -> None:
+        # send a request over the socket
+        await async_w3.socket.send(
+            RPCEndpoint("eth_getBlockByNumber"), ["latest", True]
+        )
+
+        # recv and validate the unprocessed response
+        response = await async_w3.socket.recv()
+        assert "id" in response, "Expected 'id' key in response."
+        assert "jsonrpc" in response, "Expected 'jsonrpc' key in response."
+        assert "result" in response, "Expected 'result' key in response."
+        assert all(k in response["result"].keys() for k in SOME_BLOCK_KEYS)
+        assert not isinstance(response["result"]["number"], int)  # assert not processed
+
+        # make a request over the socket
+        response = await async_w3.socket.make_request(
+            RPCEndpoint("eth_getBlockByNumber"), ["latest", True]
+        )
+        assert "id" in response, "Expected 'id' key in response."
+        assert "jsonrpc" in response, "Expected 'jsonrpc' key in response."
+        assert "result" in response, "Expected 'result' key in response."
+        assert all(k in response["result"].keys() for k in SOME_BLOCK_KEYS)
+        assert not isinstance(response["result"]["number"], int)  # assert not processed
