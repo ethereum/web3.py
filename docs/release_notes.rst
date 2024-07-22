@@ -6,6 +6,21 @@ v6 Breaking Changes Summary
 
 .. towncrier release notes start
 
+web3.py v6.20.1 (2024-07-22)
+----------------------------
+
+Bugfixes
+~~~~~~~~
+
+- Propagate ``ConnectionClosedOK`` exception for ``WebsocketProviderV2`` to properly break the loop when listening for messages over the socket. (`#3424 <https://github.com/ethereum/web3.py/issues/3424>`__)
+
+
+Internal Changes - for web3.py Contributors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Update the ``ipfs`` version used in CircleCI for ``ethpm`` tests from ``v0.7.0`` to ``v0.29.0``. (`#3437 <https://github.com/ethereum/web3.py/issues/3437>`__)
+
+
 web3.py v6.20.0 (2024-06-26)
 ----------------------------
 

@@ -1,1 +1,0 @@
-Propagate ``ConnectionClosedOK`` exception for ``WebsocketProviderV2`` to properly break the loop when listening for messages over the socket.
