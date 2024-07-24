@@ -1692,6 +1692,7 @@ class AsyncEthModuleTest:
         assert isinstance(effective_gas_price, int)
         assert effective_gas_price > 0
 
+    @flaky_geth_dev_mining
     @pytest.mark.asyncio
     async def test_async_eth_get_transaction_receipt_unmined(
         self,
@@ -1757,6 +1758,7 @@ class AsyncEthModuleTest:
         assert isinstance(effective_gas_price, int)
         assert effective_gas_price > 0
 
+    @flaky_geth_dev_mining
     @pytest.mark.asyncio
     async def test_async_eth_wait_for_transaction_receipt_unmined(
         self,
@@ -3596,7 +3598,6 @@ class EthModuleTest:
         self, w3: "Web3", keyfile_account_address: ChecksumAddress
     ) -> None:
         gas_price = w3.to_wei(2, "gwei")
-
         txn_params: TxParams = {
             "from": keyfile_account_address,
             "to": keyfile_account_address,
@@ -4360,6 +4361,7 @@ class EthModuleTest:
         assert isinstance(effective_gas_price, int)
         assert effective_gas_price > 0
 
+    @flaky_geth_dev_mining
     def test_eth_get_transaction_receipt_unmined(
         self, w3: "Web3", keyfile_account_address_dual_type: ChecksumAddress
     ) -> None:
@@ -4417,6 +4419,7 @@ class EthModuleTest:
         assert isinstance(effective_gas_price, int)
         assert effective_gas_price > 0
 
+    @flaky_geth_dev_mining
     def test_eth_wait_for_transaction_receipt_unmined(
         self, w3: "Web3", keyfile_account_address_dual_type: ChecksumAddress
     ) -> None:
