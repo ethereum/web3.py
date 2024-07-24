@@ -29,6 +29,9 @@ from web3._utils.caching import (
 from web3._utils.http_session_manager import (
     HTTPSessionManager,
 )
+from web3.exceptions import (
+    TimeExhausted,
+)
 from web3.utils.caching import (
     SimpleCache,
 )
@@ -43,6 +46,15 @@ class MockedResponse:
         self.text = text
         self.reason = None
         self.content = "content"
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        pass
+
+    def iter_content(self):
+        return [b"iter content"]
 
     @staticmethod
     def json():
@@ -110,7 +122,59 @@ def test_session_manager_make_post_request_no_args(mocker, http_session_manager)
     assert len(http_session_manager.session_cache) == 1
     cache_key = generate_cache_key(f"{threading.get_ident()}:{TEST_URI}")
     session = http_session_manager.session_cache.get_cache_entry(cache_key)
-    session.post.assert_called_once_with(TEST_URI, data=b"request", timeout=30)
+    session.post.assert_called_once_with(
+        TEST_URI, data=b"request", timeout=30, stream=False
+    )
+
+    # Ensure the adapter was created with default values
+    check_adapters_mounted(session)
+    adapter = session.get_adapter(TEST_URI)
+    assert isinstance(adapter, HTTPAdapter)
+    assert adapter._pool_connections == DEFAULT_POOLSIZE
+    assert adapter._pool_maxsize == DEFAULT_POOLSIZE
+
+
+def test_session_manager_make_post_request_streaming(mocker, http_session_manager):
+    mocker.patch("requests.Session.post", return_value=MockedResponse())
+
+    # Submit a first request to create a session
+    assert len(http_session_manager.session_cache) == 0
+    response = http_session_manager.make_post_request(
+        TEST_URI, data=b"request", stream=True
+    )
+    assert response == b"iter content"
+    assert len(http_session_manager.session_cache) == 1
+    cache_key = generate_cache_key(f"{threading.get_ident()}:{TEST_URI}")
+    session = http_session_manager.session_cache.get_cache_entry(cache_key)
+    session.post.assert_called_once_with(
+        TEST_URI, data=b"request", timeout=30, stream=True
+    )
+
+    # Ensure the adapter was created with passed in values
+    check_adapters_mounted(session)
+    adapter = session.get_adapter(TEST_URI)
+    assert isinstance(adapter, HTTPAdapter)
+    assert adapter._pool_connections == DEFAULT_POOLSIZE
+    assert adapter._pool_maxsize == DEFAULT_POOLSIZE
+
+
+def test_session_manager_make_post_request_times_out_while_streaming(
+    mocker, http_session_manager
+):
+    mocker.patch("requests.Session.post", return_value=MockedResponse())
+
+    # Submit a first request to create a session
+    assert len(http_session_manager.session_cache) == 0
+    with pytest.raises(TimeExhausted):
+        http_session_manager.make_post_request(
+            TEST_URI, data=b"request", stream=True, timeout=0.000001
+        )
+    assert len(http_session_manager.session_cache) == 1
+    cache_key = generate_cache_key(f"{threading.get_ident()}:{TEST_URI}")
+    session = http_session_manager.session_cache.get_cache_entry(cache_key)
+    session.post.assert_called_once_with(
+        TEST_URI, data=b"request", timeout=0.000001, stream=True
+    )
 
     # Ensure the adapter was created with default values
     check_adapters_mounted(session)
@@ -140,7 +204,9 @@ def test_session_manager_precached_session(mocker, http_session_manager):
 
     # Ensure the timeout was passed to the request
     session = http_session_manager.cache_and_return_session(TEST_URI)
-    session.post.assert_called_once_with(TEST_URI, data=b"request", timeout=60)
+    session.post.assert_called_once_with(
+        TEST_URI, data=b"request", timeout=60, stream=False
+    )
 
     # Ensure the adapter parameters match those we specified
     check_adapters_mounted(session)
