@@ -1,1 +1,0 @@
-Refactor the public ``socket`` api for persistent connection providers to properly define ``send()``, ``recv()``, and ``make_request()`` (send and wait for response) methods for interacting with the open socket.

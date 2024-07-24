@@ -1,1 +1,0 @@
-Add ``popitem()`` functionality to the ``SimpleCache`` class as well as an async utility method to wait for the next item, ``async_await_and_popitem()``.

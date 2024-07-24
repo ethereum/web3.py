@@ -6,6 +6,34 @@ v7 Breaking Changes Summary
 
 .. towncrier release notes start
 
+web3.py v7.0.0-beta.8 (2024-07-24)
+----------------------------------
+
+Breaking Changes
+~~~~~~~~~~~~~~~~
+
+- Refactor the public ``socket`` api for persistent connection providers to properly define ``send()``, ``recv()``, and ``make_request()`` (send and wait for response) methods for interacting with the open socket. (`#3433 <https://github.com/ethereum/web3.py/issues/3433>`__)
+- Format entries in ``accessList`` ``storageKeys`` to be ``HexStr`` instead of ``HexBytes`` (`#3434 <https://github.com/ethereum/web3.py/issues/3434>`__)
+
+
+Bugfixes
+~~~~~~~~
+
+- Handle ``ConnectionClosedOK`` case for ``WebSocketProvider``. If a persistent connection is closed gracefully, log and raise a silent ``PersistentConnectionClosedOK`` exception, triggering an end to the message listener task and breaking out of the ``process_subscriptions()`` iterator. (`#3432 <https://github.com/ethereum/web3.py/issues/3432>`__)
+
+
+Features
+~~~~~~~~
+
+- Add ``popitem()`` functionality to the ``SimpleCache`` class as well as an async utility method to wait for the next item, ``async_await_and_popitem()``. (`#3433 <https://github.com/ethereum/web3.py/issues/3433>`__)
+
+
+Internal Changes - for web3.py Contributors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Refactor some common logic for persistent connection providers back into the base ``PersistentConnectionProvider`` class to reduce code duplication and improve maintainability. (`#3433 <https://github.com/ethereum/web3.py/issues/3433>`__)
+
+
 web3.py v7.0.0-beta.7 (2024-06-26)
 ----------------------------------
 
