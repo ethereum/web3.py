@@ -58,6 +58,7 @@ from web3._utils.module_testing.module_testing_utils import (
     assert_contains_log,
     async_mock_offchain_lookup_request_response,
     flaky_geth_dev_mining,
+    flaky_with_xfail_on_exception,
     mock_offchain_lookup_request_response,
 )
 from web3._utils.module_testing.utils import (
@@ -2359,10 +2360,9 @@ class AsyncEthModuleTest:
         with pytest.raises(Web3ValueError):
             await async_w3.eth.replace_transaction(txn_hash, txn_params)
 
-    @pytest.mark.xfail(
-        reason="Very flaky on CI runs, hard to reproduce locally",
-        strict=False,
-        raises=(RequestTimedOut, asyncio.TimeoutError, Web3ValueError),
+    @flaky_with_xfail_on_exception(
+        reason="Very flaky on CI runs, hard to reproduce locally.",
+        exception=RequestTimedOut,
     )
     @pytest.mark.asyncio
     async def test_async_eth_replace_transaction_gas_price_defaulting_minimum(
@@ -2387,10 +2387,9 @@ class AsyncEthModuleTest:
             gas_price * 1.125
         )  # minimum gas price
 
-    @pytest.mark.xfail(
-        reason="Very flaky on CI runs, hard to reproduce locally",
-        strict=False,
-        raises=(RequestTimedOut, asyncio.TimeoutError, Web3ValueError),
+    @flaky_with_xfail_on_exception(
+        reason="Very flaky on CI runs, hard to reproduce locally.",
+        exception=RequestTimedOut,
     )
     @pytest.mark.asyncio
     async def test_async_eth_replace_transaction_gas_price_defaulting_strategy_higher(
@@ -2420,10 +2419,9 @@ class AsyncEthModuleTest:
         )  # Strategy provides higher gas price
         async_w3.eth.set_gas_price_strategy(None)  # reset strategy
 
-    @pytest.mark.xfail(
-        reason="Very flaky on CI runs, hard to reproduce locally",
-        strict=False,
-        raises=(RequestTimedOut, asyncio.TimeoutError, Web3ValueError),
+    @flaky_with_xfail_on_exception(
+        reason="Very flaky on CI runs, hard to reproduce locally.",
+        exception=RequestTimedOut,
     )
     @pytest.mark.asyncio
     async def test_async_eth_replace_transaction_gas_price_defaulting_strategy_lower(
