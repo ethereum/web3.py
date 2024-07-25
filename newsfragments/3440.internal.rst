@@ -1,0 +1,1 @@
+Mitigate inconsistently failing tests for CI runs with appropriate ``flaky`` or ``pytest.mark.xfail()`` decorators.

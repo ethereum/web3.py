@@ -76,6 +76,7 @@ from web3.exceptions import (
     MultipleFailedRequests,
     NameNotFound,
     OffchainLookup,
+    RequestTimedOut,
     TimeExhausted,
     TooManyRequests,
     TransactionNotFound,
@@ -2359,7 +2360,9 @@ class AsyncEthModuleTest:
             await async_w3.eth.replace_transaction(txn_hash, txn_params)
 
     @pytest.mark.xfail(
-        reason="Very flaky on CI runs, hard to reproduce locally", strict=False
+        reason="Very flaky on CI runs, hard to reproduce locally",
+        strict=False,
+        raises=(RequestTimedOut, asyncio.TimeoutError, Web3ValueError),
     )
     @pytest.mark.asyncio
     async def test_async_eth_replace_transaction_gas_price_defaulting_minimum(
@@ -2385,7 +2388,9 @@ class AsyncEthModuleTest:
         )  # minimum gas price
 
     @pytest.mark.xfail(
-        reason="Very flaky on CI runs, hard to reproduce locally", strict=False
+        reason="Very flaky on CI runs, hard to reproduce locally",
+        strict=False,
+        raises=(RequestTimedOut, asyncio.TimeoutError, Web3ValueError),
     )
     @pytest.mark.asyncio
     async def test_async_eth_replace_transaction_gas_price_defaulting_strategy_higher(
@@ -2416,7 +2421,9 @@ class AsyncEthModuleTest:
         async_w3.eth.set_gas_price_strategy(None)  # reset strategy
 
     @pytest.mark.xfail(
-        reason="Very flaky on CI runs, hard to reproduce locally", strict=False
+        reason="Very flaky on CI runs, hard to reproduce locally",
+        strict=False,
+        raises=(RequestTimedOut, asyncio.TimeoutError, Web3ValueError),
     )
     @pytest.mark.asyncio
     async def test_async_eth_replace_transaction_gas_price_defaulting_strategy_lower(
