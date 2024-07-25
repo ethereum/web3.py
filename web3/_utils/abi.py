@@ -153,7 +153,7 @@ class AddressEncoder(encoding.AddressEncoder):
         if is_ens_name(value):
             return
 
-        super().validate_value(value)
+        super().validate_value(value)  # type: ignore[no-untyped-call]
 
 
 class AcceptsHexStrEncoder(encoding.BaseEncoder):
@@ -168,7 +168,7 @@ class AcceptsHexStrEncoder(encoding.BaseEncoder):
         subencoder: encoding.BaseEncoder,
         **kwargs: Dict[str, Any],
     ) -> None:
-        super().__init__(**kwargs)
+        super().__init__(**kwargs)  # type: ignore[no-untyped-call]
         self.subencoder = subencoder
         self.is_dynamic = subencoder.is_dynamic
 
@@ -180,7 +180,7 @@ class AcceptsHexStrEncoder(encoding.BaseEncoder):
         # cast b/c expects BaseCoder but `from_type_string`
         # restricted to BaseEncoder subclasses
         subencoder = cast(
-            encoding.BaseEncoder, subencoder_cls.from_type_str(abi_type, registry)
+            encoding.BaseEncoder, subencoder_cls.from_type_str(abi_type, registry)  # type: ignore[no-untyped-call]  # noqa: E501
         )
         return cls(subencoder)
 
@@ -245,7 +245,7 @@ class ExactLengthBytesEncoder(BytesEncoder):
     is_strict = True
 
     def validate(self) -> None:
-        super().validate()
+        super().validate()  # type: ignore[no-untyped-call]
         if self.value_bit_size is None:
             raise Web3ValueError("`value_bit_size` may not be none")
         if self.data_byte_size is None:
@@ -262,12 +262,12 @@ class ExactLengthBytesEncoder(BytesEncoder):
         if self.value_bit_size > self.data_byte_size * 8:
             raise Web3ValueError("Value byte size exceeds data size")
 
-    @parse_type_str("bytes")
+    @parse_type_str("bytes")  # type: ignore[no-untyped-call]
     def from_type_str(
         cls, abi_type: BasicType, registry: ABIRegistry
     ) -> "ExactLengthBytesEncoder":
         subencoder_cls = cls.get_subencoder_class()
-        subencoder = subencoder_cls.from_type_str(abi_type.to_type_str(), registry)
+        subencoder = subencoder_cls.from_type_str(abi_type.to_type_str(), registry)  # type: ignore[no-untyped-call]  # noqa: E501
         return cast(
             ExactLengthBytesEncoder,
             # type ignored b/c mypy thinks the __call__ is from BaseEncoder, but it's
@@ -303,7 +303,7 @@ class TextStringEncoder(encoding.TextStringEncoder):
                     msg="not decodable as unicode string",
                 )
 
-        super().validate_value(value)
+        super().validate_value(value)  # type: ignore[no-untyped-call]
 
 
 TUPLE_TYPE_STR_RE = re.compile(r"^(tuple)((\[([1-9]\d*\b)?])*)??$")
@@ -676,7 +676,7 @@ def strip_abi_type(elements: Any) -> Any:
 def build_non_strict_registry() -> ABIRegistry:
     # We make a copy here just to make sure that eth-abi's default registry is not
     # affected by our custom encoder subclasses
-    registry = default_registry.copy()
+    registry = default_registry.copy()  # type: ignore[no-untyped-call]
 
     registry.unregister("address")
     registry.unregister("bytes<M>")
@@ -684,25 +684,25 @@ def build_non_strict_registry() -> ABIRegistry:
     registry.unregister("string")
 
     registry.register(
-        BaseEquals("address"),
+        BaseEquals("address"),  # type: ignore[no-untyped-call]
         AddressEncoder,
         decoding.AddressDecoder,
         label="address",
     )
     registry.register(
-        BaseEquals("bytes", with_sub=True),
+        BaseEquals("bytes", with_sub=True),  # type: ignore[no-untyped-call]
         BytesEncoder,
         decoding.BytesDecoder,
         label="bytes<M>",
     )
     registry.register(
-        BaseEquals("bytes", with_sub=False),
+        BaseEquals("bytes", with_sub=False),  # type: ignore[no-untyped-call]
         ByteStringEncoder,
         decoding.ByteStringDecoder,
         label="bytes",
     )
     registry.register(
-        BaseEquals("string"),
+        BaseEquals("string"),  # type: ignore[no-untyped-call]
         TextStringEncoder,
         decoding.StringDecoder,
         label="string",
@@ -711,7 +711,7 @@ def build_non_strict_registry() -> ABIRegistry:
 
 
 def build_strict_registry() -> ABIRegistry:
-    registry = default_registry.copy()
+    registry = default_registry.copy()  # type: ignore[no-untyped-call]
 
     registry.unregister("address")
     registry.unregister("bytes<M>")
@@ -719,25 +719,25 @@ def build_strict_registry() -> ABIRegistry:
     registry.unregister("string")
 
     registry.register(
-        BaseEquals("address"),
+        BaseEquals("address"),  # type: ignore[no-untyped-call]
         AddressEncoder,
         decoding.AddressDecoder,
         label="address",
     )
     registry.register(
-        BaseEquals("bytes", with_sub=True),
+        BaseEquals("bytes", with_sub=True),  # type: ignore[no-untyped-call]
         ExactLengthBytesEncoder,
         decoding.BytesDecoder,
         label="bytes<M>",
     )
     registry.register(
-        BaseEquals("bytes", with_sub=False),
+        BaseEquals("bytes", with_sub=False),  # type: ignore[no-untyped-call]
         StrictByteStringEncoder,
         decoding.ByteStringDecoder,
         label="bytes",
     )
     registry.register(
-        BaseEquals("string"),
+        BaseEquals("string"),  # type: ignore[no-untyped-call]
         encoding.TextStringEncoder,
         decoding.StringDecoder,
         label="string",
