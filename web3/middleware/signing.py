@@ -218,10 +218,12 @@ class SignAndSendRawMiddlewareBuilder(Web3MiddlewareBuilder):
                 account = self._accounts[to_checksum_address(tx_from)]
                 EthAccountTxParams: TypeAlias = Dict[
                     str,
-                    Sequence[Dict[str, HexStr | Sequence[HexStr]]]
-                    | bytes
-                    | HexStr
-                    | int,
+                    Union[
+                        Sequence[Dict[str, Union[HexStr, Sequence[HexStr]]]],
+                        bytes,
+                        HexStr,
+                        int,
+                    ],
                 ]
                 raw_tx = account.sign_transaction(
                     cast(EthAccountTxParams, filled_transaction)
