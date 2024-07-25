@@ -16,6 +16,7 @@ from web3.exceptions import (
     BlockNotFound,
     ContractLogicError,
     MethodUnavailable,
+    RequestTimedOut,
     TransactionNotFound,
     Web3RPCError,
 )
@@ -76,6 +77,10 @@ ERROR_RESPONSE_VALID_ID_NONE = merge(VALID_ERROR_RESPONSE, {"id": None})
 ERROR_RESPONSE_VALID_METHOD_UNAVAILABLE = merge(
     VALID_ERROR_RESPONSE,
     {"error": {"code": -32601, "message": (METHOD_UNAVAILABLE_MSG)}},
+)
+ERROR_RESPONSE_REQUEST_TIMED_OUT = merge(
+    VALID_ERROR_RESPONSE,
+    {"error": {"code": -32002, "message": "Request timed out."}},
 )
 ERROR_RESPONSE_INVALID_ID = merge(VALID_ERROR_RESPONSE, {"id": b"invalid"})
 
@@ -189,6 +194,11 @@ def test_formatted_response_invalid_response_object(w3, response, error, error_m
             ERROR_RESPONSE_VALID_METHOD_UNAVAILABLE,
             MethodUnavailable,
             METHOD_UNAVAILABLE_MSG,
+        ),
+        (
+            ERROR_RESPONSE_REQUEST_TIMED_OUT,
+            RequestTimedOut,
+            f'{ERROR_RESPONSE_REQUEST_TIMED_OUT["error"]}',
         ),
     ),
 )

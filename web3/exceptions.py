@@ -364,6 +364,12 @@ class MethodUnavailable(Web3RPCError):
     """
 
 
+class RequestTimedOut(Web3RPCError):
+    """
+    Raised when a request to the node times out.
+    """
+
+
 class TransactionNotFound(Web3RPCError):
     """
     Raised when a tx hash used to look up a tx in a jsonrpc call cannot be found.

@@ -37,6 +37,7 @@ from web3.exceptions import (
     BadResponseFormat,
     MethodUnavailable,
     ProviderConnectionError,
+    RequestTimedOut,
     TaskNotRunning,
     Web3RPCError,
     Web3TypeError,
@@ -89,6 +90,13 @@ if TYPE_CHECKING:
 
 
 NULL_RESPONSES = [None, HexBytes("0x"), "0x"]
+KNOWN_REQUEST_TIMEOUT_MESSAGING = {
+    # Note: It's important to be very explicit here and not too broad. We don't want
+    # to accidentally catch a message that is not for a request timeout. In the worst
+    # case, we raise something more generic like `Web3RPCError`. JSON-RPC unfortunately
+    # has not standardized error codes for request timeouts.
+    "request timed out",  # go-ethereum
+}
 METHOD_NOT_FOUND = -32601
 
 
@@ -185,6 +193,7 @@ def _validate_response(
             response, 'Response must include either "error" or "result".'
         )
     elif "error" in response:
+        web3_rpc_error: Optional[Web3RPCError] = None
         error = response["error"]
 
         # raise the error when the value is a string
@@ -202,7 +211,7 @@ def _validate_response(
                 response, 'error["code"] is required and must be an integer value.'
             )
         elif code == METHOD_NOT_FOUND:
-            exception = MethodUnavailable(
+            web3_rpc_error = MethodUnavailable(
                 repr(error),
                 rpc_response=response,
                 user_message=(
@@ -211,9 +220,6 @@ def _validate_response(
                     "currently enabled."
                 ),
             )
-            logger.error(exception.user_message)
-            logger.debug(f"RPC error response: {response}")
-            raise exception
 
         # errors must include a message
         error_message = error.get("message")
@@ -222,9 +228,26 @@ def _validate_response(
                 response, 'error["message"] is required and must be a string value.'
             )
 
-        apply_error_formatters(error_formatters, response)
+        if any(
+            # parse specific timeout messages
+            timeout_str in error_message.lower()
+            for timeout_str in KNOWN_REQUEST_TIMEOUT_MESSAGING
+        ):
+            web3_rpc_error = RequestTimedOut(
+                repr(error),
+                rpc_response=response,
+                user_message=(
+                    "The request timed out. Check the connection to your node and "
+                    "try again."
+                ),
+            )
 
-        web3_rpc_error = Web3RPCError(repr(error), rpc_response=response)
+        if web3_rpc_error is None:
+            # if no condition was met above, raise a more generic `Web3RPCError`
+            web3_rpc_error = Web3RPCError(repr(error), rpc_response=response)
+
+        response = apply_error_formatters(error_formatters, response)
+
         logger.error(web3_rpc_error.user_message)
         logger.debug(f"RPC error response: {response}")
         raise web3_rpc_error
