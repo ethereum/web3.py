@@ -500,6 +500,7 @@ class AsyncEthModuleTest:
             "maxFeePerGas": async_w3.to_wei(3, "gwei"),
             "maxPriorityFeePerGas": async_w3.to_wei(1, "gwei"),
         }
+
         txn_hash = await async_w3.eth.send_transaction(txn_params)
         txn = await async_w3.eth.get_transaction(txn_hash)
 
@@ -509,7 +510,7 @@ class AsyncEthModuleTest:
         assert txn["gas"] == 21000
         assert txn["maxFeePerGas"] == txn_params["maxFeePerGas"]
         assert txn["maxPriorityFeePerGas"] == txn_params["maxPriorityFeePerGas"]
-        assert txn["gasPrice"] == txn_params["maxFeePerGas"]
+        assert txn["gasPrice"] <= txn["maxFeePerGas"]  # effective gas price
 
     @pytest.mark.asyncio
     async def test_eth_send_transaction_default_fees(
@@ -523,6 +524,7 @@ class AsyncEthModuleTest:
             "value": Wei(1),
             "gas": 21000,
         }
+
         txn_hash = await async_w3.eth.send_transaction(txn_params)
         txn = await async_w3.eth.get_transaction(txn_hash)
 
@@ -532,7 +534,7 @@ class AsyncEthModuleTest:
         assert txn["gas"] == 21000
         assert is_integer(txn["maxPriorityFeePerGas"])
         assert is_integer(txn["maxFeePerGas"])
-        assert txn["gasPrice"] == txn["maxFeePerGas"]
+        assert txn["gasPrice"] <= txn["maxFeePerGas"]  # effective gas price
 
     @pytest.mark.asyncio
     async def test_eth_send_transaction_hex_fees(
@@ -809,7 +811,7 @@ class AsyncEthModuleTest:
             else 2 * latest_block["baseFeePerGas"] + max_priority_fee
         )
         assert txn["maxPriorityFeePerGas"] == max_priority_fee
-        assert txn["gasPrice"] == txn["maxFeePerGas"]
+        assert txn["gasPrice"] <= txn["maxFeePerGas"]  # effective gas price
 
         async_w3.eth.set_gas_price_strategy(None)  # reset strategy
 
@@ -3114,6 +3116,7 @@ class EthModuleTest:
             "maxFeePerGas": w3.to_wei(3, "gwei"),
             "maxPriorityFeePerGas": w3.to_wei(1, "gwei"),
         }
+
         txn_hash = w3.eth.send_transaction(txn_params)
         txn = w3.eth.get_transaction(txn_hash)
 
@@ -3123,7 +3126,7 @@ class EthModuleTest:
         assert txn["gas"] == 21000
         assert txn["maxFeePerGas"] == txn_params["maxFeePerGas"]
         assert txn["maxPriorityFeePerGas"] == txn_params["maxPriorityFeePerGas"]
-        assert txn["gasPrice"] == txn_params["maxFeePerGas"]
+        assert txn["gasPrice"] <= txn["maxFeePerGas"]  # effective gas price
 
     def test_eth_send_transaction_with_nonce(
         self, w3: "Web3", keyfile_account_address: ChecksumAddress
@@ -3174,7 +3177,7 @@ class EthModuleTest:
         assert txn["gas"] == 21000
         assert is_integer(txn["maxPriorityFeePerGas"])
         assert is_integer(txn["maxFeePerGas"])
-        assert txn["gasPrice"] == txn["maxFeePerGas"]
+        assert txn["gasPrice"] <= txn["maxFeePerGas"]  # effective gas price
 
     def test_eth_send_transaction_hex_fees(
         self, w3: "Web3", keyfile_account_address_dual_type: ChecksumAddress
@@ -3340,7 +3343,7 @@ class EthModuleTest:
             else 2 * latest_block["baseFeePerGas"] + max_priority_fee
         )
         assert txn["maxPriorityFeePerGas"] == max_priority_fee
-        assert txn["gasPrice"] == txn["maxFeePerGas"]
+        assert txn["gasPrice"] <= txn["maxFeePerGas"]  # effective gas price
 
         w3.eth.set_gas_price_strategy(None)  # reset strategy
 
