@@ -3,9 +3,6 @@ from inspect import (
 )
 import pytest
 
-from eth_utils import (
-    ValidationError,
-)
 from eth_utils.toolz import (
     compose,
 )
@@ -15,6 +12,7 @@ from web3 import (
     Web3,
 )
 from web3.exceptions import (
+    Web3ValidationError,
     Web3ValueError,
 )
 from web3.method import (
@@ -160,13 +158,13 @@ def test_empty_mungers_for_property_with_no_input_parameters(empty):
     assert method.input_munger(object(), [], {}) == ()
 
 
-def test_default_munger_for_property_with_input_parameters_raises_ValidationError():
+def test_default_munger_for_property_with_input_params_raises_validation_error():
     method = Method(
         is_property=True,
         json_rpc_method="eth_method",
     )
     with pytest.raises(
-        ValidationError, match="Parameters cannot be passed to a property"
+        Web3ValidationError, match="Parameters cannot be passed to a property"
     ):
         method.input_munger(object(), [1], {})
 
@@ -174,20 +172,22 @@ def test_default_munger_for_property_with_input_parameters_raises_ValidationErro
 @pytest.mark.parametrize(
     "empty", ([], (), None), ids=["empty-list", "empty-tuple", "None"]
 )
-def test_empty_mungers_for_property_with_input_parameters_raises_ValidationError(empty):
+def test_empty_mungers_for_property_with_input_params_raises_validation_error(empty):
     method = Method(
         is_property=True,
         mungers=empty,
         json_rpc_method="eth_method",
     )
     with pytest.raises(
-        ValidationError, match="Parameters cannot be passed to a property"
+        Web3ValidationError, match="Parameters cannot be passed to a property"
     ):
         method.input_munger(object(), [1], {})
 
 
-def test_property_with_mungers_raises_ValidationError():
-    with pytest.raises(ValidationError, match="Mungers cannot be used with a property"):
+def test_property_with_mungers_raises_validation_error():
+    with pytest.raises(
+        Web3ValidationError, match="Mungers cannot be used with a property"
+    ):
         Method(
             is_property=True,
             mungers=[lambda m, z, y: "success"],
