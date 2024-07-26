@@ -8,10 +8,6 @@ from typing import (
     Union,
 )
 
-from eth_utils import (
-    ValidationError,
-)
-
 from web3.types import (
     BlockData,
     RPCResponse,
@@ -184,8 +180,7 @@ class FallbackNotFound(Web3Exception):
     """
 
 
-# type ignored because subclassing ValidationError which has type Any
-class Web3ValidationError(Web3Exception, ValidationError):  # type: ignore[misc]
+class Web3ValidationError(Web3Exception):
     """
     Raised when a supplied value is invalid.
     """
