@@ -204,6 +204,13 @@ def _validate_response(
                 "JSON-RPC 2.0 specification.",
             )
 
+        # errors must include a message
+        error_message = error.get("message")
+        if not isinstance(error_message, str):
+            _raise_bad_response_format(
+                response, 'error["message"] is required and must be a string value.'
+            )
+
         # errors must include an integer code
         code = error.get("code")
         if not isinstance(code, int):
@@ -220,15 +227,7 @@ def _validate_response(
                     "currently enabled."
                 ),
             )
-
-        # errors must include a message
-        error_message = error.get("message")
-        if not isinstance(error_message, str):
-            _raise_bad_response_format(
-                response, 'error["message"] is required and must be a string value.'
-            )
-
-        if any(
+        elif any(
             # parse specific timeout messages
             timeout_str in error_message.lower()
             for timeout_str in KNOWN_REQUEST_TIMEOUT_MESSAGING

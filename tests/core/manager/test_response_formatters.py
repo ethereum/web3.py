@@ -84,7 +84,9 @@ ERROR_RESPONSE_REQUEST_TIMED_OUT = merge(
 )
 ERROR_RESPONSE_INVALID_ID = merge(VALID_ERROR_RESPONSE, {"id": b"invalid"})
 
-ERROR_RESPONSE_INVALID_CODE = merge(VALID_ERROR_RESPONSE, {"error": {"code": "-32601"}})
+ERROR_RESPONSE_INVALID_CODE = merge(
+    VALID_ERROR_RESPONSE, {"error": {"code": "-32601", "message": ""}}
+)
 ERROR_RESPONSE_INVALID_MISSING_CODE = merge(
     VALID_ERROR_RESPONSE, {"error": {"message": "msg"}}
 )
