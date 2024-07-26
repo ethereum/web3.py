@@ -1,6 +1,3 @@
-from eth_utils import (
-    ValidationError,
-)
 import idna
 
 
@@ -104,8 +101,7 @@ class UnderfundedBid(ENSException):
     """
 
 
-# type ignored because subclassing ValidationError which has type Any
-class ENSValidationError(ENSException, ValidationError):  # type: ignore[misc]
+class ENSValidationError(ENSException):
     """
     Raised if there is a validation error
     """
