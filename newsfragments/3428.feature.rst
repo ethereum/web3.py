@@ -1,0 +1,1 @@
+Add explicit stream kwarg to HTTPProvider so that timeout can be more finely tuned.
