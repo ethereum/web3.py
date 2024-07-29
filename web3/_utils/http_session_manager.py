@@ -5,6 +5,7 @@ from concurrent.futures import (
 import logging
 import os
 import threading
+import time
 from typing import (
     Any,
     Dict,
@@ -31,6 +32,9 @@ from web3._utils.caching import (
 )
 from web3._utils.http import (
     DEFAULT_HTTP_TIMEOUT,
+)
+from web3.exceptions import (
+    TimeExhausted,
 )
 from web3.utils.caching import (
     SimpleCache,
@@ -115,21 +119,40 @@ class HTTPSessionManager:
     def get_response_from_post_request(
         self, endpoint_uri: URI, *args: Any, **kwargs: Any
     ) -> requests.Response:
-        kwargs.setdefault("timeout", DEFAULT_HTTP_TIMEOUT)
         session = self.cache_and_return_session(
             endpoint_uri, request_timeout=kwargs["timeout"]
         )
-        response = session.post(endpoint_uri, *args, **kwargs)
-        return response
+        return session.post(endpoint_uri, *args, **kwargs)
 
     def make_post_request(
         self, endpoint_uri: URI, data: Union[bytes, Dict[str, Any]], **kwargs: Any
     ) -> bytes:
-        response = self.get_response_from_post_request(
+        kwargs.setdefault("timeout", DEFAULT_HTTP_TIMEOUT)
+        kwargs.setdefault("stream", False)
+
+        start = time.time()
+        timeout = kwargs["timeout"]
+
+        with self.get_response_from_post_request(
             endpoint_uri, data=data, **kwargs
-        )
-        response.raise_for_status()
-        return response.content
+        ) as response:
+            response.raise_for_status()
+            if kwargs.get("stream"):
+                return self._handle_streaming_response(response, start, timeout)
+            else:
+                return response.content
+
+    def _handle_streaming_response(
+        self, response: requests.Response, start: float, timeout: float
+    ) -> bytes:
+        response_body = b""
+        for data in response.iter_content():
+            response_body += data
+            # Manually manage timeout so streaming responses time out
+            # rather than resetting the timeout each time a response comes back
+            if (time.time() - start) > timeout:
+                raise TimeExhausted
+        return response_body
 
     def _close_evicted_sessions(self, evicted_sessions: List[requests.Session]) -> None:
         for evicted_session in evicted_sessions:
