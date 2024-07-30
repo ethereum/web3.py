@@ -113,11 +113,11 @@ def _log_entry_data_to_bytes(
 def construct_event_topic_set(
     event_abi: ABIEvent,
     abi_codec: ABICodec,
-    arguments: Optional[Union[Sequence[Any], Dict[str, Any]]] = None,
+    arguments: Optional[Union[List[Any], Tuple[Any], Dict[str, Any]]] = None,
 ) -> List[HexStr]:
     if arguments is None:
         arguments = {}
-    if isinstance(arguments, (list, tuple)):
+    elif isinstance(arguments, (list, tuple)):
         if len(arguments) != len(event_abi["inputs"]):
             raise Web3ValueError(
                 "When passing an argument list, the number of arguments must "
@@ -127,14 +127,12 @@ def construct_event_topic_set(
             arg["name"]: [arg_value]
             for arg, arg_value in zip(event_abi["inputs"], arguments)
         }
-
     normalized_args = {
         key: value if is_list_like(value) else [value]
-        # type ignored b/c arguments is always a dict at this point
-        for key, value in arguments.items()  # type: ignore
+        for key, value in arguments.items()
     }
 
-    event_topic = encode_hex(event_abi_to_log_topic(cast(Dict[str, Any], event_abi)))
+    event_topic = encode_hex(event_abi_to_log_topic(event_abi))
     indexed_args = get_indexed_event_inputs(event_abi)
     zipped_abi_and_args = [
         (arg, normalized_args.get(arg["name"], [None])) for arg in indexed_args
@@ -475,7 +473,7 @@ class AsyncEventFilterBuilder(BaseEventFilterBuilder):
 
 def initialize_event_topics(event_abi: ABIEvent) -> Union[bytes, List[Any]]:
     if event_abi["anonymous"] is False:
-        return event_abi_to_log_topic(cast(Dict[str, Any], event_abi))
+        return event_abi_to_log_topic(event_abi)
     else:
         return list()
 
