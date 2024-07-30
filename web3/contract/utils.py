@@ -61,6 +61,7 @@ from web3.exceptions import (
 from web3.types import (
     ABIElementIdentifier,
     BlockIdentifier,
+    RPCEndpoint,
     StateOverride,
     TContractFn,
     TxParams,
@@ -227,7 +228,7 @@ def call_contract_function(
     )
     normalized_data = map_abi_data(_normalizers, output_types, output_data)
 
-    if decode_tuples:
+    if decode_tuples and abi_callable["type"] == "function":
         decoded = named_tree(abi_callable["outputs"], normalized_data)
         normalized_data = recursive_dict_to_namedtuple(decoded)
 
@@ -438,7 +439,6 @@ async def async_call_contract_function(
                 current_request_id, contract_call_return_data_formatter
             )
         else:
-            # request_information == ((method, params), response_formatters)
             BatchingReturnData: TypeAlias = Tuple[
                 Tuple[RPCEndpoint, Any], Tuple[Any, ...]
             ]
