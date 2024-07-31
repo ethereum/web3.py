@@ -319,8 +319,8 @@ class AsyncContractFunction(BaseContractFunction):
             state_override,
             ccip_read_enabled,
             self.decode_tuples,
-            *self.args,
-            **self.kwargs,
+            *self.args or (),
+            **self.kwargs or {},
         )
 
     async def transact(self, transaction: Optional[TxParams] = None) -> HexBytes:
@@ -332,8 +332,8 @@ class AsyncContractFunction(BaseContractFunction):
             setup_transaction,
             self.contract_abi,
             self.abi,
-            *self.args,
-            **self.kwargs,
+            *self.args or (),
+            **self.kwargs or {},
         )
 
     async def estimate_gas(
@@ -352,8 +352,8 @@ class AsyncContractFunction(BaseContractFunction):
             self.abi,
             block_identifier,
             state_override,
-            *self.args,
-            **self.kwargs,
+            *self.args or (),
+            **self.kwargs or {},
         )
 
     async def build_transaction(
@@ -367,8 +367,8 @@ class AsyncContractFunction(BaseContractFunction):
             built_transaction,
             self.contract_abi,
             self.abi,
-            *self.args,
-            **self.kwargs,
+            *self.args or (),
+            **self.kwargs or {},
         )
 
     @staticmethod

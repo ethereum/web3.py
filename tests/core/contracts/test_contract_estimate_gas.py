@@ -18,6 +18,19 @@ def test_contract_estimate_gas(w3, math_contract, estimate_gas, transact):
     assert abs(gas_estimate - gas_used) < 21000
 
 
+def test_estimate_gas_can_be_called_without_parens(
+    w3, math_contract, estimate_gas, transact
+):
+    gas_estimate = math_contract.functions.incrementCounter.estimate_gas()
+
+    txn_hash = transact(contract=math_contract, contract_function="incrementCounter")
+
+    txn_receipt = w3.eth.wait_for_transaction_receipt(txn_hash)
+    gas_used = txn_receipt.get("gasUsed")
+
+    assert abs(gas_estimate - gas_used) < 21000
+
+
 def test_contract_fallback_estimate_gas(w3, fallback_function_contract):
     gas_estimate = fallback_function_contract.fallback.estimate_gas()
 
@@ -184,6 +197,24 @@ async def test_async_estimate_gas_accepts_latest_block(
     async_w3, async_math_contract, async_transact
 ):
     gas_estimate = await async_math_contract.functions.counter().estimate_gas(
+        block_identifier="latest"
+    )
+
+    txn_hash = await async_transact(
+        contract=async_math_contract, contract_function="incrementCounter"
+    )
+
+    txn_receipt = await async_w3.eth.wait_for_transaction_receipt(txn_hash)
+    gas_used = txn_receipt.get("gasUsed")
+
+    assert abs(gas_estimate - gas_used) < 21000
+
+
+@pytest.mark.asyncio
+async def test_async_estimate_gas_can_be_called_without_parens(
+    async_w3, async_math_contract, async_transact
+):
+    gas_estimate = await async_math_contract.functions.counter.estimate_gas(
         block_identifier="latest"
     )
 

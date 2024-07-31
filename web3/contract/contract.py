@@ -318,12 +318,13 @@ class ContractFunction(BaseContractFunction):
             state_override,
             ccip_read_enabled,
             self.decode_tuples,
-            *self.args,
-            **self.kwargs,
+            *self.args or (),
+            **self.kwargs or {},
         )
 
     def transact(self, transaction: Optional[TxParams] = None) -> HexBytes:
         setup_transaction = self._transact(transaction)
+
         return transact_with_contract_function(
             self.address,
             self.w3,
@@ -331,8 +332,8 @@ class ContractFunction(BaseContractFunction):
             setup_transaction,
             self.contract_abi,
             self.abi,
-            *self.args,
-            **self.kwargs,
+            *self.args or (),
+            **self.kwargs or {},
         )
 
     def estimate_gas(
@@ -351,12 +352,13 @@ class ContractFunction(BaseContractFunction):
             self.abi,
             block_identifier,
             state_override,
-            *self.args,
-            **self.kwargs,
+            *self.args or (),
+            **self.kwargs or {},
         )
 
     def build_transaction(self, transaction: Optional[TxParams] = None) -> TxParams:
         built_transaction = self._build_transaction(transaction)
+
         return build_transaction_for_function(
             self.address,
             self.w3,
@@ -364,8 +366,8 @@ class ContractFunction(BaseContractFunction):
             built_transaction,
             self.contract_abi,
             self.abi,
-            *self.args,
-            **self.kwargs,
+            *self.args or (),
+            **self.kwargs or {},
         )
 
     @staticmethod

@@ -53,6 +53,20 @@ def test_build_transaction_with_contract_no_arguments(
     }
 
 
+def test_build_transaction_with_contract_no_arguments_no_parens(
+    w3, math_contract, build_transaction
+):
+    txn = math_contract.functions.incrementCounter.build_transaction()
+    assert dissoc(txn, "gas") == {
+        "to": math_contract.address,
+        "data": "0x5b34b966",
+        "value": 0,
+        "maxFeePerGas": 2750000000,
+        "maxPriorityFeePerGas": 10**9,
+        "chainId": 131277322940537,
+    }
+
+
 def test_build_transaction_with_contract_fallback_function(
     w3, fallback_function_contract
 ):
@@ -299,6 +313,21 @@ async def test_async_build_transaction_with_contract_no_arguments(
     txn = await async_build_transaction(
         contract=async_math_contract, contract_function="incrementCounter"
     )
+    assert dissoc(txn, "gas") == {
+        "to": async_math_contract.address,
+        "data": "0x5b34b966",
+        "value": 0,
+        "maxFeePerGas": 2750000000,
+        "maxPriorityFeePerGas": 10**9,
+        "chainId": 131277322940537,
+    }
+
+
+@pytest.mark.asyncio
+async def test_async_build_transaction_with_contract_no_arguments_no_parens(
+    async_w3, async_math_contract, async_build_transaction
+):
+    txn = await async_math_contract.functions.incrementCounter.build_transaction()
     assert dissoc(txn, "gas") == {
         "to": async_math_contract.address,
         "data": "0x5b34b966",
