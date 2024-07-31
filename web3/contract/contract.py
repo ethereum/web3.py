@@ -308,6 +308,16 @@ class ContractFunction(BaseContractFunction):
 
         block_id = parse_block_identifier(self.w3, block_identifier)
 
+        # Proxy validation to make sure the contract function hits __call__()
+        if self.args is None and self.kwargs is None:
+            raise Web3ValidationError(
+                "There is a problem with how the contract function: "
+                f"'{self.function_identifier}' was called. "
+                "Sometimes this happens when a function is called without "
+                "the contract instance, or if the function was referenced "
+                "instead of called."
+            )
+
         return call_contract_function(
             self.w3,
             self.address,
