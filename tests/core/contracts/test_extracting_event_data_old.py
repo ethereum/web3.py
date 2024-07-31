@@ -97,7 +97,7 @@ def test_event_data_extraction(
     assert len(txn_receipt["logs"]) == 1
     log_entry = txn_receipt["logs"][0]
 
-    event_abi = emitter._find_matching_event_abi(event_name)
+    event_abi = emitter._get_event_abi(event_name)
 
     event_topic = getattr(emitter_contract_log_topics, event_name)
     is_anonymous = event_abi["anonymous"]
@@ -132,7 +132,7 @@ def test_dynamic_length_argument_extraction(
     assert len(txn_receipt["logs"]) == 1
     log_entry = txn_receipt["logs"][0]
 
-    event_abi = emitter._find_matching_event_abi("LogDynamicArgs")
+    event_abi = emitter._get_event_abi("LogDynamicArgs")
 
     event_topic = emitter_contract_log_topics.LogDynamicArgs
     assert event_topic in log_entry["topics"]

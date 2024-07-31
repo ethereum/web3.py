@@ -9,7 +9,7 @@ from web3.contract import (
     Contract,
 )
 from web3.exceptions import (
-    FallbackNotFound,
+    ABIFallbackNotFound,
     Web3AttributeError,
 )
 
@@ -84,5 +84,5 @@ def test_error_to_call_non_existent_fallback(
         bytecode=math_contract_bytecode,
         bytecode_runtime=math_contract_runtime,
     )
-    with pytest.raises(FallbackNotFound):
+    with pytest.raises(ABIFallbackNotFound):
         math_contract.fallback.estimate_gas()

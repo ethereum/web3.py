@@ -1244,7 +1244,7 @@ class AsyncEthModuleTest:
         account = accounts[0]
 
         txn_params = async_math_contract._prepare_transaction(
-            fn_name="add",
+            abi_element_identifier="add",
             fn_args=(7, 11),
             transaction={"from": account, "to": async_math_contract.address},
         )
@@ -1262,7 +1262,7 @@ class AsyncEthModuleTest:
         accounts = await async_w3.eth.accounts
         account = accounts[0]
         txn_params = async_revert_contract._prepare_transaction(
-            fn_name="normalFunction",
+            abi_element_identifier="normalFunction",
             transaction={"from": account, "to": async_revert_contract.address},
         )
         call_result = await async_w3.eth.call(txn_params)
@@ -1331,7 +1331,7 @@ class AsyncEthModuleTest:
     ) -> None:
         accounts = await async_w3.eth.accounts
         txn_params = async_math_contract._prepare_transaction(
-            fn_name="add",
+            abi_element_identifier="add",
             fn_args=(0, 0),
             transaction={"from": accounts[0], "to": async_math_contract.address},
         )
@@ -1348,7 +1348,7 @@ class AsyncEthModuleTest:
         async_keyfile_account_address: ChecksumAddress,
     ) -> None:
         txn_params = async_revert_contract._prepare_transaction(
-            fn_name="revertWithMessage",
+            abi_element_identifier="revertWithMessage",
             transaction={
                 "from": async_keyfile_account_address,
                 "to": async_revert_contract.address,
@@ -1368,7 +1368,7 @@ class AsyncEthModuleTest:
     ) -> None:
         with pytest.raises(ContractLogicError, match="execution reverted"):
             txn_params = async_revert_contract._prepare_transaction(
-                fn_name="revertWithoutMessage",
+                abi_element_identifier="revertWithoutMessage",
                 transaction={
                     "from": async_keyfile_account_address,
                     "to": async_revert_contract.address,
@@ -1384,10 +1384,11 @@ class AsyncEthModuleTest:
         async_keyfile_account_address: ChecksumAddress,
     ) -> None:
         data = async_revert_contract.encode_abi(
-            fn_name="UnauthorizedWithMessage", args=["You are not authorized"]
+            abi_element_identifier="UnauthorizedWithMessage",
+            args=["You are not authorized"],
         )
         txn_params = async_revert_contract._prepare_transaction(
-            fn_name="customErrorWithMessage",
+            abi_element_identifier="customErrorWithMessage",
             transaction={
                 "from": async_keyfile_account_address,
                 "to": async_revert_contract.address,
@@ -1403,9 +1404,9 @@ class AsyncEthModuleTest:
         async_revert_contract: "AsyncContract",
         async_keyfile_account_address: ChecksumAddress,
     ) -> None:
-        data = async_revert_contract.encode_abi(fn_name="Unauthorized")
+        data = async_revert_contract.encode_abi(abi_element_identifier="Unauthorized")
         txn_params = async_revert_contract._prepare_transaction(
-            fn_name="customErrorWithoutMessage",
+            abi_element_identifier="customErrorWithoutMessage",
             transaction={
                 "from": async_keyfile_account_address,
                 "to": async_revert_contract.address,
@@ -3716,7 +3717,7 @@ class EthModuleTest:
 
     def test_eth_call(self, w3: "Web3", math_contract: "Contract") -> None:
         txn_params = math_contract._prepare_transaction(
-            fn_name="add",
+            abi_element_identifier="add",
             fn_args=(7, 11),
             transaction={"from": w3.eth.accounts[0], "to": math_contract.address},
         )
@@ -3729,7 +3730,7 @@ class EthModuleTest:
         self, w3: "Web3", revert_contract: "Contract"
     ) -> None:
         txn_params = revert_contract._prepare_transaction(
-            fn_name="normalFunction",
+            abi_element_identifier="normalFunction",
             transaction={"from": w3.eth.accounts[0], "to": revert_contract.address},
         )
         call_result = w3.eth.call(txn_params)
@@ -3790,7 +3791,7 @@ class EthModuleTest:
         self, w3: "Web3", math_contract: "Contract"
     ) -> None:
         txn_params = math_contract._prepare_transaction(
-            fn_name="add",
+            abi_element_identifier="add",
             fn_args=(0, 0),
             transaction={"from": w3.eth.accounts[0], "to": math_contract.address},
         )
@@ -3806,7 +3807,7 @@ class EthModuleTest:
         keyfile_account_address: ChecksumAddress,
     ) -> None:
         txn_params = revert_contract._prepare_transaction(
-            fn_name="revertWithMessage",
+            abi_element_identifier="revertWithMessage",
             transaction={
                 "from": keyfile_account_address,
                 "to": revert_contract.address,
@@ -3827,7 +3828,7 @@ class EthModuleTest:
     ) -> None:
         with pytest.raises(ContractLogicError, match="execution reverted"):
             txn_params = revert_contract._prepare_transaction(
-                fn_name="revertWithoutMessage",
+                abi_element_identifier="revertWithoutMessage",
                 transaction={
                     "from": keyfile_account_address,
                     "to": revert_contract.address,
@@ -3842,10 +3843,11 @@ class EthModuleTest:
         keyfile_account_address: ChecksumAddress,
     ) -> None:
         data = revert_contract.encode_abi(
-            fn_name="UnauthorizedWithMessage", args=["You are not authorized"]
+            abi_element_identifier="UnauthorizedWithMessage",
+            args=["You are not authorized"],
         )
         txn_params = revert_contract._prepare_transaction(
-            fn_name="customErrorWithMessage",
+            abi_element_identifier="customErrorWithMessage",
             transaction={
                 "from": keyfile_account_address,
                 "to": revert_contract.address,
@@ -3861,9 +3863,9 @@ class EthModuleTest:
         revert_contract: "Contract",
         keyfile_account_address: ChecksumAddress,
     ) -> None:
-        data = revert_contract.encode_abi(fn_name="Unauthorized")
+        data = revert_contract.encode_abi(abi_element_identifier="Unauthorized")
         txn_params = revert_contract._prepare_transaction(
-            fn_name="customErrorWithoutMessage",
+            abi_element_identifier="customErrorWithoutMessage",
             transaction={
                 "from": keyfile_account_address,
                 "to": revert_contract.address,
@@ -4117,7 +4119,7 @@ class EthModuleTest:
             ContractLogicError, match="execution reverted: Function has been reverted"
         ):
             txn_params = revert_contract._prepare_transaction(
-                fn_name="revertWithMessage",
+                abi_element_identifier="revertWithMessage",
                 transaction={
                     "from": keyfile_account_address,
                     "to": revert_contract.address,
@@ -4133,7 +4135,7 @@ class EthModuleTest:
     ) -> None:
         with pytest.raises(ContractLogicError, match="execution reverted"):
             txn_params = revert_contract._prepare_transaction(
-                fn_name="revertWithoutMessage",
+                abi_element_identifier="revertWithoutMessage",
                 transaction={
                     "from": keyfile_account_address,
                     "to": revert_contract.address,
@@ -4148,10 +4150,11 @@ class EthModuleTest:
         keyfile_account_address: ChecksumAddress,
     ) -> None:
         data = revert_contract.encode_abi(
-            fn_name="UnauthorizedWithMessage", args=["You are not authorized"]
+            abi_element_identifier="UnauthorizedWithMessage",
+            args=["You are not authorized"],
         )
         txn_params = revert_contract._prepare_transaction(
-            fn_name="customErrorWithMessage",
+            abi_element_identifier="customErrorWithMessage",
             transaction={
                 "from": keyfile_account_address,
                 "to": revert_contract.address,
@@ -4167,9 +4170,9 @@ class EthModuleTest:
         revert_contract: "Contract",
         keyfile_account_address: ChecksumAddress,
     ) -> None:
-        data = revert_contract.encode_abi(fn_name="Unauthorized")
+        data = revert_contract.encode_abi(abi_element_identifier="Unauthorized")
         txn_params = revert_contract._prepare_transaction(
-            fn_name="customErrorWithoutMessage",
+            abi_element_identifier="customErrorWithoutMessage",
             transaction={
                 "from": keyfile_account_address,
                 "to": revert_contract.address,
