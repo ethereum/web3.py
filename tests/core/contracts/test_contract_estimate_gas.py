@@ -87,10 +87,9 @@ def test_estimate_gas_sending_ether_to_nonpayable_function(
 
 
 def test_estimate_gas_accepts_latest_block(w3, math_contract, transact):
-    gas_estimate = math_contract.functions.counter().estimate_gas(
+    gas_estimate = math_contract.functions.incrementCounter().estimate_gas(
         block_identifier="latest"
     )
-
     txn_hash = transact(contract=math_contract, contract_function="incrementCounter")
 
     txn_receipt = w3.eth.wait_for_transaction_receipt(txn_hash)
@@ -196,7 +195,7 @@ async def test_async_estimate_gas_sending_ether_to_nonpayable_function(
 async def test_async_estimate_gas_accepts_latest_block(
     async_w3, async_math_contract, async_transact
 ):
-    gas_estimate = await async_math_contract.functions.counter().estimate_gas(
+    gas_estimate = await async_math_contract.functions.incrementCounter().estimate_gas(
         block_identifier="latest"
     )
 
