@@ -65,7 +65,7 @@ setup(
         "eth-abi>=5.0.1",
         "eth-account>=0.13.1",
         "eth-hash[pycryptodome]>=0.5.1",
-        "eth-typing>=5.0.0b1",
+        "eth-typing>=5.0.0b3",
         "eth-utils>=5.0.0b1",
         "hexbytes>=1.2.0",
         "pydantic>=2.4.0",
