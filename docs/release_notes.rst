@@ -6,6 +6,54 @@ v7 Breaking Changes Summary
 
 .. towncrier release notes start
 
+web3.py v7.0.0-beta.9 (2024-08-01)
+----------------------------------
+
+Breaking Changes
+~~~~~~~~~~~~~~~~
+
+- Upgrades to use latest ``ABI`` utilities and typings from ``eth-utils`` and ``eth-typing``.
+  * Typings for ``ABI`` components are now available in the ``eth-typing`` package. ``ABI`` types previously in ``web3.types`` have been removed.
+  * New versions of existing ABI functions were added to ``eth-utils`` and are now exposed in `web3.py` via ``web3.utils.abi``.
+  * ABI exceptions have been renamed in ``web3.exceptions``. The ``ABIEventFunctionNotFound`` and ``FallbackNotFound`` exceptions have been removed. Use ``ABIEventNotFound`` and ``ABIFallbackNotFound`` instead.
+  * ``MismatchedABI`` exceptions are raised instead of a ``Web3ValidationError`` for ABI related errors.
+  * ``encode_abi`` arguments have been updated to use ``abi_element_name`` instead of ``fn_name``. (`#3408 <https://github.com/ethereum/web3.py/issues/3408>`__)
+- Remove ``Web3ValidationError`` dependence / inheritance from `eth-utils` ``ValidationError``. (`#3443 <https://github.com/ethereum/web3.py/issues/3443>`__)
+
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Use autodoc and update ABI functions with docstrings and doctests. (`#3408 <https://github.com/ethereum/web3.py/issues/3408>`__)
+
+
+Features
+~~~~~~~~
+
+- Utilities to extract function and event ``ABI`` attributes from a contract. Utilities in the ``web3.utils.abi`` module parse ABI elements and check encodability of provided arguments. ABI functions in ``eth-utils`` are exposed by the ``web3.utils.abi`` module.
+  * ``get_abi_element_info`` returns an ``ABIElementInfo`` TypedDict with the ``abi``, ``selector``, and ``arguments``.
+  * ``get_abi_element`` returns the ``ABI`` of a function, event, or error given the name and arguments.
+  * ``check_if_arguments_can_be_encoded`` returns true if the arguments can be encoded with the given ABI.
+  * ``get_event_abi`` returns the ``ABI`` of an event given the name.
+  * ``get_event_log_topics`` returns the log topics of an event given the name.
+  * ``log_topics_to_bytes`` returns the log topics as bytes. (`#3408 <https://github.com/ethereum/web3.py/issues/3408>`__)
+- Add explicit stream kwarg to HTTPProvider so that timeout can be more finely tuned. (`#3428 <https://github.com/ethereum/web3.py/issues/3428>`__)
+- Implement a ``RequestTimedOut`` exception, extending from ``Web3RPCError``, for when requests to the node time out. (`#3440 <https://github.com/ethereum/web3.py/issues/3440>`__)
+
+
+Internal Changes - for web3.py Contributors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Run ``mypy`` locally using ``pre-commit`` hook, instead of within ``pre-commit`` container (`#3414 <https://github.com/ethereum/web3.py/issues/3414>`__)
+- Mitigate inconsistently failing tests for CI runs with appropriate ``flaky`` or ``pytest.mark.xfail()`` decorators. (`#3440 <https://github.com/ethereum/web3.py/issues/3440>`__)
+
+
+Miscellaneous Changes
+~~~~~~~~~~~~~~~~~~~~~
+
+- `#3408 <https://github.com/ethereum/web3.py/issues/3408>`__, `#3445 <https://github.com/ethereum/web3.py/issues/3445>`__
+
+
 web3.py v7.0.0-beta.8 (2024-07-24)
 ----------------------------------
 

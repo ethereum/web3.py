@@ -1,6 +1,0 @@
-Upgrades to use latest ``ABI`` utilities and typings from ``eth-utils`` and ``eth-typing``.
-* Typings for ``ABI`` components are now available in the ``eth-typing`` package. ``ABI`` types previously in ``web3.types`` have been removed.
-* New versions of existing ABI functions were added to ``eth-utils`` and are now exposed in `web3.py` via ``web3.utils.abi``.
-* ABI exceptions have been renamed in ``web3.exceptions``. The ``ABIEventFunctionNotFound`` and ``FallbackNotFound`` exceptions have been removed. Use ``ABIEventNotFound`` and ``ABIFallbackNotFound`` instead.
-* ``MismatchedABI`` exceptions are raised instead of a ``Web3ValidationError`` for ABI related errors.
-* ``encode_abi`` arguments have been updated to use ``abi_element_name`` instead of ``fn_name``.

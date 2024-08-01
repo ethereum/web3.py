@@ -1,7 +1,0 @@
-Utilities to extract function and event ``ABI`` attributes from a contract. Utilities in the ``web3.utils.abi`` module parse ABI elements and check encodability of provided arguments. ABI functions in ``eth-utils`` are exposed by the ``web3.utils.abi`` module.
-* ``get_abi_element_info`` returns an ``ABIElementInfo`` TypedDict with the ``abi``, ``selector``, and ``arguments``.
-* ``get_abi_element`` returns the ``ABI`` of a function, event, or error given the name and arguments.
-* ``check_if_arguments_can_be_encoded`` returns true if the arguments can be encoded with the given ABI.
-* ``get_event_abi`` returns the ``ABI`` of an event given the name.
-* ``get_event_log_topics`` returns the log topics of an event given the name.
-* ``log_topics_to_bytes`` returns the log topics as bytes.

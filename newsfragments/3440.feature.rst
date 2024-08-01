@@ -1,1 +1,0 @@
-Implement a ``RequestTimedOut`` exception, extending from ``Web3RPCError``, for when requests to the node time out.

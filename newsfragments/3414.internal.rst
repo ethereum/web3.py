@@ -1,1 +1,0 @@
-Run ``mypy`` locally using ``pre-commit`` hook, instead of within ``pre-commit`` container

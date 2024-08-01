@@ -1,1 +1,0 @@
-Move ``get_abi_input_names`` and ``get_abi_output_names`` to ``eth-utils`` and re-export in ``web3.utils.abi``.
