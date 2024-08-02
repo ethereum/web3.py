@@ -42,6 +42,6 @@ cd web3.py
 python3 -m venv venv
 . venv/bin/activate
 pip install --upgrade pip
-pip install -e .[dev]
+pip install -e ".[dev]"
 
 ```
