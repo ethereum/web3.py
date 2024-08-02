@@ -1,0 +1,1 @@
+New ``Beacon`` and ``AsyncBeacon`` endpoints: ``get_peer_count``, ``get_attester_duties``, ``get_block_proposer_duties``, ``get_sync_committee_duties``, and ``get_attestation_rewards``.
