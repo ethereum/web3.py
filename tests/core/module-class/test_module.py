@@ -37,8 +37,9 @@ def test_attach_methods_to_module(web3_with_external_modules):
         }
     )
 
-    assert w3.eth.chain_id == 131277322940537
-    assert w3.module1.property1 == 131277322940537
+    configured_chain_id = w3.provider.eth_tester.chain_id
+    assert w3.eth.chain_id == configured_chain_id
+    assert w3.module1.property1 == configured_chain_id
 
     account = w3.eth.accounts[0]
     assert w3.eth.get_balance(account, "latest") == 1000000000000000000000000

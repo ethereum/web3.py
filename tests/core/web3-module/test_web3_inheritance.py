@@ -9,4 +9,4 @@ def test_classes_may_inherit_from_web3():
         pass
 
     inherited_w3 = InheritsFromWeb3(EthereumTesterProvider())
-    assert inherited_w3.eth.chain_id == 131277322940537
+    assert inherited_w3.eth.chain_id == inherited_w3.provider.eth_tester.chain_id

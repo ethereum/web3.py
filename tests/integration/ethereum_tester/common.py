@@ -1,36 +1,16 @@
 import pytest
 import functools
 from typing import (
-    cast,
+    TYPE_CHECKING,
 )
 
-from eth_tester import (
-    EthereumTester,
-)
 from eth_tester.exceptions import (
     TransactionFailed,
 )
-from eth_typing import (
-    ChecksumAddress,
-)
 from eth_utils import (
-    is_checksum_address,
-    is_dict,
     is_integer,
 )
 
-from web3 import (
-    Web3,
-)
-from web3._utils.contract_sources.contract_data._custom_contract_data import (
-    EMITTER_ENUM,
-)
-from web3._utils.contract_sources.contract_data.panic_errors_contract import (
-    PANIC_ERRORS_CONTRACT_DATA,
-)
-from web3._utils.contract_sources.contract_data.storage_contract import (
-    STORAGE_CONTRACT_DATA,
-)
 from web3._utils.module_testing import (
     EthModuleTest,
     NetModuleTest,
@@ -43,185 +23,14 @@ from web3.exceptions import (
     MethodUnavailable,
     Web3TypeError,
 )
-from web3.providers.eth_tester import (
-    EthereumTesterProvider,
-)
-from web3.types import (  # noqa: F401
+from web3.types import (
     BlockData,
 )
 
-# set up the keyfile account with a known address (same from geth setup)
-KEYFILE_ACCOUNT_PKEY = (
-    "0x58d23b55bc9cdce1f18c2500f40ff4ab7245df9a89505e9b1fa4851f623d241d"
-)
-KEYFILE_ACCOUNT_ADDRESS = "0xdC544d1AA88Ff8bbd2F2AeC754B1F1e99e1812fd"
-
-
-def _deploy_contract(w3, contract_factory):
-    deploy_txn_hash = contract_factory.constructor().transact(
-        {"from": w3.eth.default_account}
+if TYPE_CHECKING:
+    from web3 import (
+        Web3,
     )
-    deploy_receipt = w3.eth.wait_for_transaction_receipt(deploy_txn_hash)
-    assert is_dict(deploy_receipt)
-    contract_address = deploy_receipt["contractAddress"]
-    assert is_checksum_address(contract_address)
-    return contract_factory(contract_address)
-
-
-@pytest.fixture(scope="module")
-def eth_tester():
-    _eth_tester = EthereumTester()
-    return _eth_tester
-
-
-@pytest.fixture(scope="module")
-def eth_tester_provider(eth_tester):
-    provider = EthereumTesterProvider(eth_tester)
-    return provider
-
-
-def _eth_tester_state_setup(w3):
-    provider = cast(EthereumTesterProvider, w3.provider)
-    provider.ethereum_tester.add_account(KEYFILE_ACCOUNT_PKEY)
-
-    # fund the account
-    w3.eth.send_transaction(
-        {
-            "from": ChecksumAddress(w3.eth.default_account),
-            "to": KEYFILE_ACCOUNT_ADDRESS,
-            "value": w3.to_wei(0.5, "ether"),
-            "gas": 21000,
-            "gasPrice": 10**9,  # needs to be > base_fee post London
-        }
-    )
-
-
-@pytest.fixture(scope="module")
-def w3(eth_tester_provider):
-    _w3 = Web3(eth_tester_provider)
-    _w3.eth.default_account = _w3.eth.accounts[0]
-    _eth_tester_state_setup(_w3)
-    return _w3
-
-
-@pytest.fixture(scope="module")
-def math_contract_deploy_txn_hash(w3, math_contract_factory):
-    deploy_txn_hash = math_contract_factory.constructor().transact(
-        {"from": w3.eth.default_account}
-    )
-    return deploy_txn_hash
-
-
-@pytest.fixture(scope="module")
-def math_contract(w3, math_contract_factory, math_contract_deploy_txn_hash):
-    deploy_receipt = w3.eth.wait_for_transaction_receipt(math_contract_deploy_txn_hash)
-    assert is_dict(deploy_receipt)
-    contract_address = deploy_receipt["contractAddress"]
-    assert is_checksum_address(contract_address)
-    return math_contract_factory(contract_address)
-
-
-@pytest.fixture(scope="module")
-def math_contract_address(math_contract, address_conversion_func):
-    return address_conversion_func(math_contract.address)
-
-
-@pytest.fixture(scope="module")
-def storage_contract(w3):
-    contract_factory = w3.eth.contract(**STORAGE_CONTRACT_DATA)
-    return _deploy_contract(w3, contract_factory)
-
-
-@pytest.fixture(scope="module")
-def emitter_contract(w3, emitter_contract_factory):
-    return _deploy_contract(w3, emitter_contract_factory)
-
-
-@pytest.fixture(scope="module")
-def emitter_contract_address(emitter_contract, address_conversion_func):
-    return address_conversion_func(emitter_contract.address)
-
-
-@pytest.fixture(scope="module")
-def empty_block(w3):
-    w3.testing.mine()
-    block = w3.eth.get_block("latest")
-    assert not block["transactions"]
-    return block
-
-
-@pytest.fixture(scope="module")
-def block_with_txn(w3):
-    txn_hash = w3.eth.send_transaction(
-        {
-            "from": ChecksumAddress(w3.eth.default_account),
-            "to": ChecksumAddress(w3.eth.default_account),
-            "value": w3.to_wei(1, "gwei"),
-            "gas": 21000,
-            "gasPrice": w3.to_wei(
-                10**9, "gwei"
-            ),  # needs to be > base_fee post London
-        }
-    )
-    txn = w3.eth.get_transaction(txn_hash)
-    block = w3.eth.get_block(txn["blockNumber"])
-    return block
-
-
-@pytest.fixture(scope="module")
-def mined_txn_hash(block_with_txn):
-    return block_with_txn["transactions"][0]
-
-
-@pytest.fixture(scope="module")
-def block_with_txn_with_log(w3, emitter_contract):
-    txn_hash = emitter_contract.functions.logDouble(
-        which=EMITTER_ENUM["LogDoubleWithIndex"],
-        arg0=12345,
-        arg1=54321,
-    ).transact({"from": w3.eth.default_account})
-    txn = w3.eth.get_transaction(txn_hash)
-    block = w3.eth.get_block(txn["blockNumber"])
-    return block
-
-
-@pytest.fixture(scope="module")
-def txn_hash_with_log(block_with_txn_with_log):
-    return block_with_txn_with_log["transactions"][0]
-
-
-@pytest.fixture(scope="module")
-def revert_contract(w3, revert_contract_factory):
-    return _deploy_contract(w3, revert_contract_factory)
-
-
-#
-# Offchain Lookup Contract Setup
-#
-@pytest.fixture(scope="module")
-def offchain_lookup_contract(w3, offchain_lookup_contract_factory):
-    return _deploy_contract(w3, offchain_lookup_contract_factory)
-
-
-@pytest.fixture(scope="module")
-def panic_errors_contract(w3):
-    panic_errors_contract_factory = w3.eth.contract(**PANIC_ERRORS_CONTRACT_DATA)
-    return _deploy_contract(w3, panic_errors_contract_factory)
-
-
-@pytest.fixture(scope="module")
-def keyfile_account_pkey():
-    yield KEYFILE_ACCOUNT_PKEY
-
-
-@pytest.fixture(scope="module")
-def keyfile_account_address():
-    yield KEYFILE_ACCOUNT_ADDRESS
-
-
-@pytest.fixture
-def keyfile_account_address_dual_type(keyfile_account_address, address_conversion_func):
-    yield keyfile_account_address
 
 
 def not_implemented(method, exc_type=NotImplementedError):
@@ -242,13 +51,12 @@ def disable_auto_mine(func):
             func(self, eth_tester, *args, **kwargs)
         finally:
             eth_tester.enable_auto_mine_transactions()
-            eth_tester.mine_block()
             eth_tester.revert_to_snapshot(snapshot)
 
     return func_wrapper
 
 
-class TestEthereumTesterWeb3Module(Web3ModuleTest):
+class EthereumTesterWeb3Module(Web3ModuleTest):
     def _check_web3_client_version(self, client_version):
         assert client_version.startswith("EthereumTester/")
 
@@ -270,7 +78,7 @@ class TestEthereumTesterWeb3Module(Web3ModuleTest):
     )
 
 
-class TestEthereumTesterEthModule(EthModuleTest):
+class EthereumTesterEthModule(EthModuleTest):
     test_eth_sign = not_implemented(EthModuleTest.test_eth_sign, MethodUnavailable)
     test_eth_sign_ens_names = not_implemented(
         EthModuleTest.test_eth_sign_ens_names, MethodUnavailable
@@ -472,7 +280,7 @@ class TestEthereumTesterEthModule(EthModuleTest):
     def test_eth_chain_id(self, w3):
         chain_id = w3.eth.chain_id
         assert is_integer(chain_id)
-        assert chain_id == 131277322940537
+        assert chain_id == w3.provider.eth_tester.chain_id
 
     @disable_auto_mine
     def test_eth_wait_for_transaction_receipt_unmined(
@@ -674,5 +482,5 @@ class TestEthereumTesterEthModule(EthModuleTest):
         assert later_balance > genesis_balance
 
 
-class TestEthereumTesterNetModule(NetModuleTest):
+class EthereumTesterNetModule(NetModuleTest):
     pass
