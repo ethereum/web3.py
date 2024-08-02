@@ -52,6 +52,11 @@ async def test_async_beacon_user_request_timeout():
         await beacon.get_validators()
 
 
+@pytest.mark.asyncio
+async def test_async_beacon_request_timeout_type(async_beacon):
+    assert isinstance(async_beacon.request_timeout, float)
+
+
 # Beacon endpoint tests:
 
 
