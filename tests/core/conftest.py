@@ -1,5 +1,9 @@
 import pytest
 
+from eth_tester import (
+    EELSBackend,
+    EthereumTester,
+)
 import pytest_asyncio
 
 from web3 import (
@@ -118,7 +122,10 @@ def module_many_init_args():
 
 @pytest_asyncio.fixture
 async def async_w3():
-    w3 = AsyncWeb3(AsyncEthereumTesterProvider())
+    t = EthereumTester(backend=EELSBackend("cancun"))
+    provider = AsyncEthereumTesterProvider()
+    provider.ethereum_tester = t
+    w3 = AsyncWeb3(provider)
     accounts = await w3.eth.accounts
     w3.eth.default_account = accounts[0]
     return w3

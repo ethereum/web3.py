@@ -3348,7 +3348,7 @@ class EthModuleTest:
             "from": keyfile_account_address_dual_type,
             "to": keyfile_account_address_dual_type,
             "value": Wei(1),
-            "maxFeePerGas": Wei(250 * 10**9),
+            "maxFeePerGas": Wei(2 * 10**9),
             "maxPriorityFeePerGas": Wei(2 * 10**9),
         }
         txn_hash = w3.eth.send_transaction(txn_params)
@@ -3836,7 +3836,7 @@ class EthModuleTest:
     ) -> None:
         keyfile_account = w3.eth.account.from_key(keyfile_account_pkey)
         txn = {
-            "chainId": 131277322940537,  # the chainId set for the fixture
+            "chainId": w3.eth.chain_id,
             "from": keyfile_account.address,
             "to": keyfile_account.address,
             "value": Wei(0),

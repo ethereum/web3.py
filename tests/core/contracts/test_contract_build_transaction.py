@@ -22,7 +22,7 @@ def test_build_transaction_not_paying_to_nonpayable_function(
         "value": 0,
         "maxFeePerGas": 2750000000,
         "maxPriorityFeePerGas": 10**9,
-        "chainId": 131277322940537,
+        "chainId": w3.eth.chain_id,
     }
 
 
@@ -49,7 +49,7 @@ def test_build_transaction_with_contract_no_arguments(
         "value": 0,
         "maxFeePerGas": 2750000000,
         "maxPriorityFeePerGas": 10**9,
-        "chainId": 131277322940537,
+        "chainId": w3.eth.chain_id,
     }
 
 
@@ -77,7 +77,7 @@ def test_build_transaction_with_contract_fallback_function(
         "value": 0,
         "maxFeePerGas": 2750000000,
         "maxPriorityFeePerGas": 10**9,
-        "chainId": 131277322940537,
+        "chainId": w3.eth.chain_id,
     }
 
 
@@ -95,7 +95,7 @@ def test_build_transaction_with_contract_class_method(
         "value": 0,
         "maxFeePerGas": 2750000000,
         "maxPriorityFeePerGas": 10**9,
-        "chainId": 131277322940537,
+        "chainId": w3.eth.chain_id,
     }
 
 
@@ -111,7 +111,7 @@ def test_build_transaction_with_contract_default_account_is_set(
         "value": 0,
         "maxFeePerGas": 2750000000,
         "maxPriorityFeePerGas": 10**9,
-        "chainId": 131277322940537,
+        "chainId": w3.eth.chain_id,
     }
 
 
@@ -130,7 +130,7 @@ def test_build_transaction_with_gas_price_strategy_set(
         "data": "0x5b34b966",
         "value": 0,
         "gasPrice": 5,
-        "chainId": 131277322940537,
+        "chainId": w3.eth.chain_id,
     }
 
 
@@ -168,7 +168,6 @@ def test_build_transaction_with_contract_to_address_supplied_errors(
                 "value": 0,
                 "maxFeePerGas": 2750000000,
                 "maxPriorityFeePerGas": 1000000000,
-                "chainId": 131277322940537,
             },
             False,
         ),
@@ -181,7 +180,6 @@ def test_build_transaction_with_contract_to_address_supplied_errors(
                 "value": 0,
                 "maxFeePerGas": 2750000000,
                 "maxPriorityFeePerGas": 1000000000,
-                "chainId": 131277322940537,
             },
             False,
         ),
@@ -193,7 +191,6 @@ def test_build_transaction_with_contract_to_address_supplied_errors(
                 "data": "0x6abbb3b40000000000000000000000000000000000000000000000000000000000000005",  # noqa: E501
                 "value": 0,
                 "gasPrice": 22 * 10**8,
-                "chainId": 131277322940537,
             },
             False,
         ),
@@ -206,7 +203,6 @@ def test_build_transaction_with_contract_to_address_supplied_errors(
                 "value": 0,
                 "maxFeePerGas": 22 * 10**8,
                 "maxPriorityFeePerGas": 22 * 10**8,
-                "chainId": 131277322940537,
             },
             False,
         ),
@@ -220,7 +216,6 @@ def test_build_transaction_with_contract_to_address_supplied_errors(
                 "maxFeePerGas": 2750000000,
                 "maxPriorityFeePerGas": 1000000000,
                 "nonce": 7,
-                "chainId": 131277322940537,
             },
             True,
         ),
@@ -233,7 +228,6 @@ def test_build_transaction_with_contract_to_address_supplied_errors(
                 "value": 20000,
                 "maxFeePerGas": 2750000000,
                 "maxPriorityFeePerGas": 1000000000,
-                "chainId": 131277322940537,
             },
             False,
         ),
@@ -261,6 +255,7 @@ def test_build_transaction_with_contract_arguments(
     if skip_testrpc:
         skip_if_testrpc(w3)
 
+    expected["chainId"] = w3.eth.chain_id
     txn = build_transaction(
         contract=math_contract,
         contract_function="incrementCounter",
@@ -290,7 +285,7 @@ async def test_async_build_transaction_not_paying_to_nonpayable_function(
         "value": 0,
         "maxFeePerGas": 2750000000,
         "maxPriorityFeePerGas": 10**9,
-        "chainId": 131277322940537,
+        "chainId": await async_w3.eth.chain_id,
     }
 
 
@@ -319,7 +314,7 @@ async def test_async_build_transaction_with_contract_no_arguments(
         "value": 0,
         "maxFeePerGas": 2750000000,
         "maxPriorityFeePerGas": 10**9,
-        "chainId": 131277322940537,
+        "chainId": await async_w3.eth.chain_id,
     }
 
 
@@ -349,7 +344,7 @@ async def test_async_build_transaction_with_contract_fallback_function(
         "value": 0,
         "maxFeePerGas": 2750000000,
         "maxPriorityFeePerGas": 10**9,
-        "chainId": 131277322940537,
+        "chainId": await async_w3.eth.chain_id,
     }
 
 
@@ -371,7 +366,7 @@ async def test_async_build_transaction_with_contract_class_method(
         "value": 0,
         "maxFeePerGas": 2750000000,
         "maxPriorityFeePerGas": 10**9,
-        "chainId": 131277322940537,
+        "chainId": await async_w3.eth.chain_id,
     }
 
 
@@ -388,7 +383,7 @@ async def test_async_build_transaction_with_contract_default_account_is_set(
         "value": 0,
         "maxFeePerGas": 2750000000,
         "maxPriorityFeePerGas": 10**9,
-        "chainId": 131277322940537,
+        "chainId": await async_w3.eth.chain_id,
     }
 
 
@@ -408,7 +403,7 @@ async def test_async_build_transaction_with_gas_price_strategy_set(
         "data": "0x5b34b966",
         "value": 0,
         "gasPrice": 5,
-        "chainId": 131277322940537,
+        "chainId": await async_w3.eth.chain_id,
     }
 
 
@@ -449,7 +444,6 @@ async def test_async_build_transaction_with_contract_to_address_supplied_errors(
                 "value": 0,
                 "maxFeePerGas": 2750000000,
                 "maxPriorityFeePerGas": 1000000000,
-                "chainId": 131277322940537,
             },
             False,
         ),
@@ -462,7 +456,6 @@ async def test_async_build_transaction_with_contract_to_address_supplied_errors(
                 "value": 0,
                 "maxFeePerGas": 2750000000,
                 "maxPriorityFeePerGas": 1000000000,
-                "chainId": 131277322940537,
             },
             False,
         ),
@@ -474,7 +467,6 @@ async def test_async_build_transaction_with_contract_to_address_supplied_errors(
                 "data": "0x6abbb3b40000000000000000000000000000000000000000000000000000000000000005",  # noqa: E501
                 "value": 0,
                 "gasPrice": 22 * 10**8,
-                "chainId": 131277322940537,
             },
             False,
         ),
@@ -487,7 +479,6 @@ async def test_async_build_transaction_with_contract_to_address_supplied_errors(
                 "value": 0,
                 "maxFeePerGas": 22 * 10**8,
                 "maxPriorityFeePerGas": 22 * 10**8,
-                "chainId": 131277322940537,
             },
             False,
         ),
@@ -501,7 +492,6 @@ async def test_async_build_transaction_with_contract_to_address_supplied_errors(
                 "maxFeePerGas": 2750000000,
                 "maxPriorityFeePerGas": 1000000000,
                 "nonce": 7,
-                "chainId": 131277322940537,
             },
             True,
         ),
@@ -514,7 +504,6 @@ async def test_async_build_transaction_with_contract_to_address_supplied_errors(
                 "value": 20000,
                 "maxFeePerGas": 2750000000,
                 "maxPriorityFeePerGas": 1000000000,
-                "chainId": 131277322940537,
             },
             False,
         ),
@@ -542,6 +531,7 @@ async def test_async_build_transaction_with_contract_with_arguments(
     if skip_testrpc:
         async_skip_if_testrpc(async_w3)
 
+    expected["chainId"] = await async_w3.eth.chain_id
     txn = await async_build_transaction(
         contract=async_math_contract,
         contract_function="incrementCounter",
