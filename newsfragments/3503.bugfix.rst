@@ -1,0 +1,1 @@
+Properly wrap ``AsyncBeacon.request_timeout`` float in a ``aiohttp.ClientTimeout`` when making requests.

@@ -5,6 +5,9 @@ from typing import (
     Optional,
 )
 
+from aiohttp import (
+    ClientTimeout,
+)
 from eth_typing import (
     URI,
     HexStr,
@@ -72,7 +75,7 @@ class AsyncBeacon:
     ) -> Dict[str, Any]:
         uri = URI(self.base_url + endpoint_uri)
         return await self._request_session_manager.async_json_make_get_request(
-            uri, params=params, timeout=self.request_timeout
+            uri, params=params, timeout=ClientTimeout(self.request_timeout)
         )
 
     # [ BEACON endpoints ]
