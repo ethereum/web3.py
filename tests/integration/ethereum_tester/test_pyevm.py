@@ -65,7 +65,9 @@ class TestEthereumTesterWeb3Module(EthereumTesterWeb3Module):
 
 
 class TestEthereumTesterEthModule(EthereumTesterEthModule):
-    pass
+    def test_eth_chain_id(self, w3):
+        chain_id = w3.eth.chain_id
+        assert chain_id == 131277322940537
 
 
 class TestEthereumTesterNetModule(EthereumTesterNetModule):

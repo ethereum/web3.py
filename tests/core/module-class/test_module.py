@@ -37,7 +37,7 @@ def test_attach_methods_to_module(web3_with_external_modules):
         }
     )
 
-    configured_chain_id = w3.provider.eth_tester.chain_id
+    configured_chain_id = w3.provider.ethereum_tester.backend.chain.chain_id
     assert w3.eth.chain_id == configured_chain_id
     assert w3.module1.property1 == configured_chain_id
 
