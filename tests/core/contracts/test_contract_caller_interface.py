@@ -8,12 +8,12 @@ from web3.exceptions import (
 )
 
 
-@pytest.fixture()
+@pytest.fixture
 def address(w3):
     return w3.eth.accounts[1]
 
 
-@pytest.fixture()
+@pytest.fixture
 def transaction_dict(w3, address):
     return {
         "from": address,

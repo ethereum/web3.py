@@ -3,6 +3,23 @@ import pytest
 from tests.integration.common import (
     COINBASE,
 )
+from tests.utils import (
+    get_open_port,
+)
+from web3 import (
+    AsyncWeb3,
+    WebSocketProvider,
+)
+
+
+@pytest.fixture
+def w3():
+    """
+    Defined for the sake of overriding the `w3` in the `AsyncWeb3ModuleTest` test cases.
+    """
+    return AsyncWeb3(WebSocketProvider())
+
+
 
 
 def _geth_command_arguments(base_geth_command_arguments, geth_version):

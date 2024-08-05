@@ -4,11 +4,15 @@ from setuptools import (
     setup,
 )
 
+CUSTOM_ETH_TESTER_BRANCH = " @ git+https://github.com/fselmo/eth-tester@eels-backend"
+
 extras_require = {
     "tester": [
         # Note: ethereum-maintained libraries in this list should be added to the
         # `install_pre_releases.py` script.
-        "eth-tester[py-evm]>=0.13.0b1,<0.14.0b1",
+        f"eth-tester[py-evm]{CUSTOM_ETH_TESTER_BRANCH}",
+        # if python version >= 3.10, install the eels backend:
+        f"eth-tester[eels]{CUSTOM_ETH_TESTER_BRANCH} ; python_version >= '3.10'",
         "py-geth>=5.1.0",
     ],
     "dev": [

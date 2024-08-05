@@ -92,7 +92,7 @@ def test_setup_name_default_address(ens):
     assert not ens.name(new_resolution)
     assert ens.owner(name) == owner
     assert ens.address(name) == new_resolution
-    ens.setup_name(name)
+    ens.setup_name(name, transact={"gas": 222_222})
     assert ens.name(new_resolution) == name
     ens.setup_name(None, new_resolution)
 
@@ -190,7 +190,7 @@ async def test_async_setup_name_default_address(async_ens):
     assert not await async_ens.name(new_resolution)
     assert await async_ens.owner(name) == owner
     assert await async_ens.address(name) == new_resolution
-    await async_ens.setup_name(name)
+    await async_ens.setup_name(name, transact={"gas": 222_222})
     assert await async_ens.name(new_resolution) == name
     await async_ens.setup_name(None, new_resolution)
 

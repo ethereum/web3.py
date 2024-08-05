@@ -1,7 +1,7 @@
 import pytest
 
-from eth_utils import (
-    ValidationError as EthUtilsValidationError,
+from eth_tester.exceptions import (
+    ValidationError as EthTesterValidationError,
 )
 
 from ens.exceptions import (
@@ -31,9 +31,14 @@ def test_set_text_fails_with_bad_address(ens):
     address = ens.w3.eth.accounts[2]
     ens.setup_address("tester.eth", address)
     zero_address = "0x" + "00" * 20
-    with pytest.raises(EthUtilsValidationError):
+    with pytest.raises(EthTesterValidationError):
         ens.set_text(
-            "tester.eth", "url", "http://example.com", transact={"from": zero_address}
+            "tester.eth",
+            "url",
+            "http://example.com",
+            # add gas so we don't call eth_estimateGas which can fail the transaction
+            # in a different way
+            transact={"from": zero_address, "gas": 222_222},
         )
 
     # teardown
@@ -49,8 +54,8 @@ def test_set_text_pass_in_transaction_dict(ens):
         "avatar",
         "example.jpeg",
         transact={
-            "maxFeePerGas": Web3.to_wei(100, "gwei"),
-            "maxPriorityFeePerGas": Web3.to_wei(100, "gwei"),
+            "maxFeePerGas": Web3.to_wei(1, "gwei"),
+            "maxPriorityFeePerGas": Web3.to_wei(1, "gwei"),
         },
     )
     assert ens.get_text("tester.eth", "url") == "http://example.com"
@@ -102,9 +107,14 @@ async def test_async_set_text_fails_with_bad_address(async_ens):
     address = accounts[2]
     await async_ens.setup_address("tester.eth", address)
     zero_address = "0x" + "00" * 20
-    with pytest.raises(EthUtilsValidationError):
+    with pytest.raises(EthTesterValidationError):
         await async_ens.set_text(
-            "tester.eth", "url", "http://example.com", transact={"from": zero_address}
+            "tester.eth",
+            "url",
+            "http://example.com",
+            # add gas so we don't call eth_estimateGas which can fail the transaction
+            # in a different way
+            transact={"from": zero_address, "gas": 222_222},
         )
 
     # teardown
@@ -125,8 +135,8 @@ async def test_async_set_text_pass_in_transaction_dict(async_ens):
         "avatar",
         "example.jpeg",
         transact={
-            "maxFeePerGas": Web3.to_wei(100, "gwei"),
-            "maxPriorityFeePerGas": Web3.to_wei(100, "gwei"),
+            "maxFeePerGas": Web3.to_wei(1, "gwei"),
+            "maxPriorityFeePerGas": Web3.to_wei(1, "gwei"),
         },
     )
     assert await async_ens.get_text("tester.eth", "url") == "http://example.com"

@@ -1,5 +1,8 @@
 import pytest
 
+from eth_tester import (
+    EthereumTester,
+)
 import pytest_asyncio
 
 from web3 import (
@@ -30,11 +33,11 @@ def test_eth_filter_creates_correct_filter_type(w3):
 # --- async --- #
 
 
-@pytest_asyncio.fixture()
-async def async_w3():
-    provider = AsyncEthereumTesterProvider()
-    w3 = AsyncWeb3(provider)
-    return w3
+@pytest_asyncio.fixture
+async def async_w3(backend_class):
+    return AsyncWeb3(
+        AsyncEthereumTesterProvider(EthereumTester(backend=backend_class()))
+    )
 
 
 @pytest.mark.asyncio

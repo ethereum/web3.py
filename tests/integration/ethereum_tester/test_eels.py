@@ -46,7 +46,7 @@ def _eth_tester_state_setup(w3, keyfile_account_address, keyfile_account_pkey):
 
 @pytest.fixture(scope="module")
 def eth_tester():
-    return EthereumTester(backend=EELSBackend(debug_mode=True))
+    return EthereumTester(backend=EELSBackend())
 
 
 @pytest.fixture(scope="module")

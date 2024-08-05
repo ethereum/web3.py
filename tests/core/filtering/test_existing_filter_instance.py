@@ -7,7 +7,7 @@ from web3._utils.threads import (
 )
 
 
-@pytest.fixture()
+@pytest.fixture
 def filter_id(w3):
     block_filter = w3.eth.filter("latest")
     return block_filter.filter_id
