@@ -66,20 +66,30 @@ class AsyncEthereumTesterProvider(AsyncBaseProvider):
         ethereum_tester_middleware,
     )
 
-    def __init__(self) -> None:
+    def __init__(
+        self,
+        ethereum_tester: Optional["EthereumTester"] = None,
+        api_endpoints: Optional[
+            Dict[str, Dict[str, Callable[..., RPCResponse]]]
+        ] = None,
+    ) -> None:
         super().__init__()
+        if not ethereum_tester:
+            from eth_tester import (
+                EthereumTester,
+            )
 
-        # do not import eth_tester until runtime, it is not a default dependency
-        from eth_tester import (
-            EthereumTester,
-        )
+            ethereum_tester = EthereumTester()
 
-        from web3.providers.eth_tester.defaults import (
-            API_ENDPOINTS,
-        )
+        if not api_endpoints:
+            from web3.providers.eth_tester.defaults import (
+                API_ENDPOINTS,
+            )
 
-        self.ethereum_tester = EthereumTester()
-        self.api_endpoints = API_ENDPOINTS
+            api_endpoints = API_ENDPOINTS
+
+        self.ethereum_tester = ethereum_tester
+        self.api_endpoints = api_endpoints
 
     async def request_func(
         self, async_w3: "AsyncWeb3", middleware_onion: "MiddlewareOnion"

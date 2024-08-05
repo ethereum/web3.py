@@ -6,6 +6,18 @@ from tests.integration.common import (
 from tests.utils import (
     get_open_port,
 )
+from web3 import (
+    AsyncWeb3,
+    WebSocketProvider,
+)
+
+
+@pytest.fixture(scope="module")
+def w3():
+    """
+    Defined for the sake of overriding the `w3` in the `AsyncWeb3ModuleTest` test cases.
+    """
+    return AsyncWeb3(WebSocketProvider())
 
 
 @pytest.fixture(scope="module")
