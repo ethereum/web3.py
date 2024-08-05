@@ -3,6 +3,9 @@ from typing import (
     Type,
 )
 
+from eth_tester import (
+    PyEVMBackend,
+)
 from eth_utils import (
     event_signature_to_log_topic,
     to_bytes,
@@ -23,18 +26,61 @@ from .utils import (
     get_open_port,
 )
 
+SUPPORTED_ETH_TESTER_BACKENDS = {"pyevm", "eels"}
+
 
 @pytest.fixture(scope="module", params=[lambda x: to_bytes(hexstr=x), identity])
 def address_conversion_func(request):
     return request.param
 
 
-@pytest.fixture()
+@pytest.fixture
 def open_port():
     return get_open_port()
 
 
 # --- session-scoped constants --- #
+
+
+def pytest_addoption(parser):
+    parser.addoption(
+        "--backend",
+        action="store",
+        default=None,
+        help="Specify the backend for `EthereumTester` to use.",
+    )
+
+
+def pytest_collection_modifyitems(config, items):
+    backend_required_for_tests = any(
+        "backend_class" in item.fixturenames for item in items
+    )
+    if backend_required_for_tests:
+        backend = config.getoption("--backend")
+        if not backend:
+            raise pytest.UsageError(
+                "This test run requires a specified a backend via the `--backend` "
+                "command line option. Supported backends are: "
+                f"{SUPPORTED_ETH_TESTER_BACKENDS}"
+            )
+        elif backend not in SUPPORTED_ETH_TESTER_BACKENDS:
+            raise pytest.UsageError(f"Unsupported backend: `{backend}`.")
+
+
+@pytest.fixture(scope="session")
+def backend_class(request):
+    backend = request.config.getoption("--backend")
+    if backend == "pyevm":
+        return PyEVMBackend
+    elif backend == "eels":
+        # conditionally import since eels is only supported on python >= 3.10
+        from eth_tester.backends.eels import (
+            EELSBackend,
+        )
+
+        return EELSBackend
+    else:
+        raise ValueError("Invariant: Unreachable code path.")
 
 
 @pytest.fixture(scope="session")
