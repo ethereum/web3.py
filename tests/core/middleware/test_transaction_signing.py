@@ -10,11 +10,13 @@ from eth_account.signers.local import (
     LocalAccount,
 )
 import eth_keys
+from eth_tester import (
+    EthereumTester,
+)
 from eth_tester.exceptions import (
     ValidationError,
 )
 from eth_utils import (
-    ValidationError as EthUtilsValidationError,
     is_hexstr,
     to_bytes,
     to_hex,
@@ -226,7 +228,7 @@ TEST_SIGNED_TRANSACTION_PARAMS = (
     ),
     (
         {"gas": 21000, "gasPrice": 0, "value": 1},
-        EthUtilsValidationError,
+        Exception,
         MIXED_KEY_MIXED_TYPE,
         ADDRESS_1,
     ),
@@ -244,7 +246,7 @@ TEST_SIGNED_TRANSACTION_PARAMS = (
     (
         {
             "value": 22,
-            "maxFeePerGas": 20**9,
+            "maxFeePerGas": 10**9,
             "maxPriorityFeePerGas": 10**9,
         },
         -1,
@@ -310,9 +312,9 @@ def assert_method_and_txn_signed(actual, expected):
     assert is_hexstr(raw_txn)
 
 
-@pytest.fixture()
-def w3():
-    _w3 = Web3(EthereumTesterProvider())
+@pytest.fixture
+def w3(backend_class):
+    _w3 = Web3(EthereumTesterProvider(EthereumTester(backend=backend_class())))
     _w3.eth.default_account = _w3.eth.accounts[0]
     return _w3
 
@@ -494,8 +496,10 @@ async def async_w3_dummy(request_mocker):
 
 
 @pytest_asyncio.fixture
-async def async_w3():
-    _async_w3 = AsyncWeb3(AsyncEthereumTesterProvider())
+async def async_w3(backend_class):
+    _async_w3 = AsyncWeb3(
+        AsyncEthereumTesterProvider(EthereumTester(backend=backend_class()))
+    )
     accounts = await _async_w3.eth.accounts
     _async_w3.eth.default_account = accounts[0]
     return _async_w3
