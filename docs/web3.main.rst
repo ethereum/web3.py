@@ -120,7 +120,8 @@ Batch Requests
 
     .. note::
 
-        Only read-only operations are supported by ``batch_requests``.
+        Only read-only operations that exist within modules on the ``Web3`` class
+        (e.g. ``w3.eth``, ``w3.net``) are supported by ``batch_requests``.
         Unsupported methods include:
 
         - :meth:`subscribe <web3.eth.Eth.subscribe>`
@@ -130,13 +131,19 @@ Batch Requests
         - :meth:`sign_transaction <web3.eth.Eth.sign_transaction>`
         - :meth:`sign <web3.eth.Eth.sign>`
         - :meth:`sign_typed_data <web3.eth.Eth.sign_typed_data>`
+        - ``w3.provider.make_request()``.
 
   Async Batch Requests
   ````````````````````
 
   If using one of the asynchronous providers, you'll need to make use of
-  the ``async_execute`` method and the ``async`` and ``await`` keywords
-  as appropriate:
+  the ``async_execute`` method and the ``async`` and ``await`` keywords as appropriate.
+
+  .. note::
+
+    If performance is a concern, consider using ``asyncio.gather()`` with single
+    concurrent requests instead of an asynchronous batch request. It will generally be
+    the faster option due to the overhead of batching.
 
   .. code-block:: python
 
