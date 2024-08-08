@@ -9,6 +9,7 @@ from hexbytes import (
 )
 
 from web3.exceptions import (
+    Web3ValidationError,
     Web3ValueError,
 )
 
@@ -195,3 +196,15 @@ def test_diff_between_fn_and_fn_called(string_contract):
     assert get_value_func is not get_value_func_called
     assert repr(get_value_func) == "<Function getValue()>"
     assert repr(get_value_func_called) == "<Function getValue() bound to ()>"
+
+
+def test_fn_raises_error_if_not_called(string_contract):
+    get_value_func = string_contract.get_function_by_signature("getValue()")
+    with pytest.raises(
+        Web3ValidationError,
+        match=(
+            "There is a problem with how the contract function: "
+            "'getValue' was called"
+        ),
+    ):
+        get_value_func.call()
