@@ -95,7 +95,6 @@ class RPC:
     eth_getWork = RPCEndpoint("eth_getWork")
     eth_newBlockFilter = RPCEndpoint("eth_newBlockFilter")
     eth_newFilter = RPCEndpoint("eth_newFilter")
-    eth_newPendingTransactionFilter = RPCEndpoint("eth_newPendingTransactionFilter")
     eth_protocolVersion = RPCEndpoint("eth_protocolVersion")
     eth_sendRawTransaction = RPCEndpoint("eth_sendRawTransaction")
     eth_sendTransaction = RPCEndpoint("eth_sendTransaction")

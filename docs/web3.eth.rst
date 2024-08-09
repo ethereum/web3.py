@@ -1109,16 +1109,11 @@ with the filtering API.
 
 .. py:method:: Eth.filter(filter_params)
 
-    * Delegates to ``eth_newFilter``, ``eth_newBlockFilter``, and
-      ``eth_newPendingTransactionFilter`` RPC Methods.
+    * Delegates to ``eth_newFilter``, ``eth_newBlockFilter`` RPC Methods.
 
     This method delegates to one of three RPC methods depending on the value of
     ``filter_params``.
 
-    * If ``filter_params`` is the string ``'pending'`` then a new filter is
-      registered using the ``eth_newPendingTransactionFilter`` RPC method.
-      This will create a new filter that will be called for each new unmined
-      transaction that the node receives.
     * If ``filter_params`` is the string ``'latest'`` then a new filter is
       registered using the ``eth_newBlockFilter`` RPC method.  This will create
       a new filter that will be called each time the node receives a new block.

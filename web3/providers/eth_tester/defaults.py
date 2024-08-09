@@ -320,9 +320,6 @@ API_ENDPOINTS = {
         "compileSerpent": not_implemented,
         "newFilter": create_log_filter,
         "newBlockFilter": call_eth_tester("create_block_filter"),
-        "newPendingTransactionFilter": call_eth_tester(
-            "create_pending_transaction_filter"
-        ),
         "uninstallFilter": excepts(
             FilterNotFound,
             compose(
