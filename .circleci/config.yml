@@ -226,26 +226,26 @@ jobs:
     environment:
       TOXENV: py38-lint
 
-  py38-core:
+  py38-core-pyevm:
     <<: *common
     docker:
       - image: cimg/python:3.8
     environment:
-      TOXENV: py38-core
+      TOXENV: py38-core-pyevm
 
-  py38-core_async:
+  py38-core-pyevm_async:
     <<: *common
     docker:
       - image: cimg/python:3.8
     environment:
-        TOXENV: py38-core_async
+        TOXENV: py38-core-pyevm_async
 
-  py38-ens:
+  py38-ens-pyevm:
     <<: *common
     docker:
       - image: cimg/python:3.8
     environment:
-      TOXENV: py38-ens
+      TOXENV: py38-ens-pyevm
 
   py38-ensip15:
     <<: *common
@@ -301,8 +301,7 @@ jobs:
     docker:
       - image: cimg/python:3.8
     environment:
-      TOXENV: py38-integration-ethtester
-      ETHEREUM_TESTER_CHAIN_BACKEND: eth_tester.backends.PyEVMBackend
+      TOXENV: py38-integration-ethtester-pyevm
 
   py38-wheel:
     <<: *common
@@ -321,26 +320,26 @@ jobs:
     environment:
       TOXENV: py39-lint
 
-  py39-core:
+  py39-core-pyevm:
     <<: *common
     docker:
       - image: cimg/python:3.9
     environment:
-      TOXENV: py39-core
+      TOXENV: py39-core-pyevm
 
-  py39-core_async:
+  py39-core-pyevm_async:
     <<: *common
     docker:
       - image: cimg/python:3.9
     environment:
-        TOXENV: py39-core_async
+        TOXENV: py39-core-pyevm_async
 
-  py39-ens:
+  py39-ens-pyevm:
     <<: *common
     docker:
       - image: cimg/python:3.9
     environment:
-      TOXENV: py39-ens
+      TOXENV: py39-ens-pyevm
 
   py39-ensip15:
     <<: *common
@@ -396,8 +395,7 @@ jobs:
     docker:
       - image: cimg/python:3.9
     environment:
-      TOXENV: py39-integration-ethtester
-      ETHEREUM_TESTER_CHAIN_BACKEND: eth_tester.backends.PyEVMBackend
+      TOXENV: py39-integration-ethtester-pyevm
 
   py39-wheel:
     <<: *common
@@ -416,26 +414,47 @@ jobs:
     environment:
       TOXENV: py310-lint
 
-  py310-core:
+  py310-core-pyevm:
     <<: *common
     docker:
       - image: cimg/python:3.10
     environment:
-      TOXENV: py310-core
+      TOXENV: py310-core-pyevm
 
-  py310-core_async:
+  py310-core-pyevm_async:
     <<: *common
     docker:
       - image: cimg/python:3.10
     environment:
-      TOXENV: py310-core_async
+      TOXENV: py310-core-pyevm_async
 
-  py310-ens:
+  py310-core-eels:
     <<: *common
     docker:
       - image: cimg/python:3.10
     environment:
-      TOXENV: py310-ens
+      TOXENV: py310-core-eels
+
+  py310-core-eels_async:
+    <<: *common
+    docker:
+      - image: cimg/python:3.10
+    environment:
+      TOXENV: py310-core-eels_async
+
+  py310-ens-pyevm:
+    <<: *common
+    docker:
+      - image: cimg/python:3.10
+    environment:
+      TOXENV: py310-ens-pyevm
+
+  py310-ens-eels:
+    <<: *common
+    docker:
+      - image: cimg/python:3.10
+    environment:
+      TOXENV: py310-ens-eels
 
   py310-ensip15:
     <<: *common
@@ -491,8 +510,14 @@ jobs:
     docker:
       - image: cimg/python:3.10
     environment:
-      TOXENV: py310-integration-ethtester
-      ETHEREUM_TESTER_CHAIN_BACKEND: eth_tester.backends.PyEVMBackend
+      TOXENV: py310-integration-ethtester-pyevm
+
+  py310-integration-ethtester-eels:
+    <<: *common
+    docker:
+      - image: cimg/python:3.10
+    environment:
+      TOXENV: py310-integration-ethtester-eels
 
   py310-wheel:
     <<: *common
@@ -511,26 +536,47 @@ jobs:
     environment:
       TOXENV: py311-lint
 
-  py311-core:
+  py311-core-pyevm:
     <<: *common
     docker:
       - image: cimg/python:3.11
     environment:
-      TOXENV: py311-core
+      TOXENV: py311-core-pyevm
 
-  py311-core_async:
+  py311-core-pyevm_async:
     <<: *common
     docker:
       - image: cimg/python:3.11
     environment:
-      TOXENV: py311-core_async
+      TOXENV: py311-core-pyevm_async
 
-  py311-ens:
+  py311-core-eels:
     <<: *common
     docker:
       - image: cimg/python:3.11
     environment:
-      TOXENV: py311-ens
+      TOXENV: py311-core-eels
+
+  py311-core-eels_async:
+    <<: *common
+    docker:
+      - image: cimg/python:3.11
+    environment:
+      TOXENV: py311-core-eels_async
+
+  py311-ens-pyevm:
+    <<: *common
+    docker:
+      - image: cimg/python:3.11
+    environment:
+      TOXENV: py311-ens-pyevm
+
+  py311-ens-eels:
+    <<: *common
+    docker:
+      - image: cimg/python:3.11
+    environment:
+      TOXENV: py311-ens-eels
 
   py311-ensip15:
     <<: *common
@@ -586,8 +632,14 @@ jobs:
     docker:
       - image: cimg/python:3.11
     environment:
-      TOXENV: py311-integration-ethtester
-      ETHEREUM_TESTER_CHAIN_BACKEND: eth_tester.backends.PyEVMBackend
+      TOXENV: py311-integration-ethtester-pyevm
+
+  py311-integration-ethtester-eels:
+    <<: *common
+    docker:
+      - image: cimg/python:3.11
+    environment:
+      TOXENV: py311-integration-ethtester-eels
 
   py311-wheel:
     <<: *common
@@ -619,26 +671,47 @@ jobs:
     environment:
       TOXENV: py312-lint
 
-  py312-core:
+  py312-core-pyevm:
     <<: *common
     docker:
       - image: cimg/python:3.12
     environment:
-      TOXENV: py312-core
+      TOXENV: py312-core-pyevm
 
-  py312-core_async:
+  py312-core-pyevm_async:
     <<: *common
     docker:
       - image: cimg/python:3.12
     environment:
-      TOXENV: py312-core_async
+      TOXENV: py312-core-pyevm_async
 
-  py312-ens:
+  py312-core-eels:
     <<: *common
     docker:
       - image: cimg/python:3.12
     environment:
-      TOXENV: py312-ens
+      TOXENV: py312-core-eels
+
+  py312-core-eels_async:
+    <<: *common
+    docker:
+      - image: cimg/python:3.12
+    environment:
+      TOXENV: py312-core-eels_async
+
+  py312-ens-pyevm:
+    <<: *common
+    docker:
+      - image: cimg/python:3.12
+    environment:
+      TOXENV: py312-ens-pyevm
+
+  py312-ens-eels:
+    <<: *common
+    docker:
+      - image: cimg/python:3.12
+    environment:
+      TOXENV: py312-ens-eels
 
   py312-ensip15:
     <<: *common
@@ -694,8 +767,14 @@ jobs:
     docker:
       - image: cimg/python:3.12
     environment:
-      TOXENV: py312-integration-ethtester
-      ETHEREUM_TESTER_CHAIN_BACKEND: eth_tester.backends.PyEVMBackend
+      TOXENV: py312-integration-ethtester-pyevm
+
+  py312-integration-ethtester-eels:
+    <<: *common
+    docker:
+      - image: cimg/python:3.12
+    environment:
+      TOXENV: py312-integration-ethtester-eels
 
   py312-wheel:
     <<: *common
@@ -727,20 +806,26 @@ jobs:
 
 define: &all_jobs
   # These are the longest running tests, start them first
-  - py38-core
-  - py39-core
-  - py310-core
-  - py311-core
-  - py312-core
-  - py38-core_async
-  - py39-core_async
-  - py310-core_async
-  - py311-core_async
-  - py312-core_async
+  - py310-core-eels
+  - py311-core-eels
+  - py312-core-eels
+  - py38-core-pyevm
+  - py39-core-pyevm
+  - py310-core-pyevm
+  - py311-core-pyevm
+  - py312-core-pyevm
+  - py310-core-eels_async
+  - py311-core-eels_async
+  - py312-core-eels_async
+  - py38-core-pyevm_async
+  - py39-core-pyevm_async
+  - py310-core-pyevm_async
+  - py311-core-pyevm_async
+  - py312-core-pyevm_async
   - docs
   - benchmark
   - py38-lint
-  - py38-ens
+  - py38-ens-pyevm
   - py38-ensip15
   - py38-integration-goethereum-ipc
   - py38-integration-goethereum-ipc_async
@@ -751,7 +836,7 @@ define: &all_jobs
   - py38-integration-ethtester-pyevm
   - py38-wheel
   - py39-lint
-  - py39-ens
+  - py39-ens-pyevm
   - py39-ensip15
   - py39-integration-goethereum-ipc
   - py39-integration-goethereum-ipc_async
@@ -762,7 +847,8 @@ define: &all_jobs
   - py39-integration-ethtester-pyevm
   - py39-wheel
   - py310-lint
-  - py310-ens
+  - py310-ens-pyevm
+  - py310-ens-eels
   - py310-ensip15
   - py310-integration-goethereum-ipc
   - py310-integration-goethereum-ipc_async
@@ -771,9 +857,11 @@ define: &all_jobs
   - py310-integration-goethereum-legacy_ws
   - py310-integration-goethereum-ws
   - py310-integration-ethtester-pyevm
+  - py310-integration-ethtester-eels
   - py310-wheel
   - py311-lint
-  - py311-ens
+  - py311-ens-pyevm
+  - py311-ens-eels
   - py311-ensip15
   - py311-integration-goethereum-ipc
   - py311-integration-goethereum-ipc_async
@@ -782,10 +870,12 @@ define: &all_jobs
   - py311-integration-goethereum-legacy_ws
   - py311-integration-goethereum-ws
   - py311-integration-ethtester-pyevm
+  - py311-integration-ethtester-eels
   - py311-wheel
   - py311-windows-wheel
   - py312-lint
-  - py312-ens
+  - py312-ens-pyevm
+  - py312-ens-eels
   - py312-ensip15
   - py312-integration-goethereum-ipc
   - py312-integration-goethereum-ipc_async
@@ -794,6 +884,7 @@ define: &all_jobs
   - py312-integration-goethereum-legacy_ws
   - py312-integration-goethereum-ws
   - py312-integration-ethtester-pyevm
+  - py312-integration-ethtester-eels
   - py312-wheel
   - py312-windows-wheel
 

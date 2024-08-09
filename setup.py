@@ -4,6 +4,8 @@ from setuptools import (
     setup,
 )
 
+CUSTOM_ETH_TESTER_BRANCH = " @ git+https://github.com/fselmo/eth-tester@eels-backend"
+
 extras_require = {
     "dev": [
         "build>=0.9.0",
@@ -31,7 +33,9 @@ extras_require = {
         "eth-account>=0.13.0",
     ],
     "test": [
-        "eth-tester[py-evm]>=0.11.0b1,<0.13.0b1",
+        f"eth-tester[py-evm]{CUSTOM_ETH_TESTER_BRANCH}",
+        # if python version >= 3.10, install the eels backend:
+        f"eth-tester[eels]{CUSTOM_ETH_TESTER_BRANCH} ; python_version >= '3.10'",
         "py-geth>=5.0.0b1",
         "pytest-asyncio>=0.18.1,<0.23",
         "pytest-mock>=1.10",
