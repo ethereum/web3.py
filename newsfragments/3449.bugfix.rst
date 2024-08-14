@@ -1,0 +1,1 @@
+Add upper pins to ``eth-typing``, ``eth-utils``, and ``py-geth`` to prevent latest breaking major versions from installing.
