@@ -6,6 +6,15 @@ v6 Breaking Changes Summary
 
 .. towncrier release notes start
 
+web3.py v6.20.2 (2024-08-14)
+----------------------------
+
+Bugfixes
+~~~~~~~~
+
+- Add upper pins to ``eth-typing``, ``eth-utils``, and ``py-geth`` to prevent latest breaking major versions from installing. (`#3449 <https://github.com/ethereum/web3.py/issues/3449>`__)
+
+
 web3.py v6.20.1 (2024-07-22)
 ----------------------------
 
