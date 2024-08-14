@@ -8,7 +8,7 @@ extras_require = {
     "tester": [
         "eth-tester[py-evm]>=0.9.0b1,<0.10.0b1; python_version <= '3.7'",
         "eth-tester[py-evm]>=0.11.0b1,<0.12.0b1; python_version > '3.7'",
-        "py-geth>=3.14.0",
+        "py-geth>=3.14.0,<4",
     ],
     "docs": [
         "sphinx>=5.3.0",
