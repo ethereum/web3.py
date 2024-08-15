@@ -2,10 +2,10 @@ import contextlib
 import json
 import os
 import pprint
+import re
 import shutil
 import socket
 import subprocess
-import sys
 import time
 
 import common
@@ -361,6 +361,32 @@ def setup_chain_state(w3):
     return geth_fixture
 
 
+def update_circleci_geth_version(new_version):
+    file_path = "./.circleci/config.yml"
+    with open(file_path) as file:
+        lines = file.readlines()
+
+    replaced = False
+    for i, line in enumerate(lines):
+        if "geth_version:" in line:
+            if "default:" in lines[i + 1]:
+                lines[i + 1] = f'    default: "{new_version}"\n'
+                replaced = True
+                break
+
+    if not replaced:
+        raise ValueError("`geth_version` for circleci not found / replaced.")
+
+    with open(file_path, "w") as file:
+        file.writelines(lines)
+    print(f"Updated geth_version to {new_version}")
+
+
 if __name__ == "__main__":
-    fixture_dir = sys.argv[1]
-    generate_go_ethereum_fixture(fixture_dir)
+    geth_binary = os.environ.get("GETH_BINARY", None)
+    if not geth_binary:
+        raise ValueError("GETH_BINARY not set. Cannot generate geth fixture.")
+
+    geth_version = re.search(r"geth-v([\d.]+)/", geth_binary).group(1)
+    generate_go_ethereum_fixture(f"./tests/integration/geth-{geth_version}-fixture")
+    update_circleci_geth_version(geth_version)

@@ -11,9 +11,7 @@ DEFAULT_EXCEPTIONS = (
 
 def test_no_default_exceptions_are_raised_within_web3py():
     for root, dirs, files in os.walk(WEB3_PATH):
-        if "module_testing" in dirs:
-            dirs.remove("module_testing")
-            continue
+        [dirs.remove(dir_) for dir_ in dirs if dir_ in ("scripts", "module_testing")]
         for file in files:
             if file.endswith(".py"):
                 file_path = os.path.join(root, file)

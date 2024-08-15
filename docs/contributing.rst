@@ -379,7 +379,7 @@ Geth Fixtures
 
    .. code:: sh
 
-       $ GETH_BINARY=~/.py-geth/geth-v1.14.5/bin/geth python ./tests/integration/generate_fixtures/go_ethereum.py ./tests/integration/geth-1.14.5-fixture
+       $ GETH_BINARY=~/.py-geth/geth-v1.14.5/bin/geth python ./tests/integration/generate_fixtures/go_ethereum.py
 
 3. The output of this script is your fixture, a zip file, which is now stored in ``/tests/integration/``.
    Update the ``/tests/integration/go_ethereum/conftest.py`` and
