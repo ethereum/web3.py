@@ -397,11 +397,10 @@ Geth Fixtures
 CI Testing With a Nightly Geth Build
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Occasionally you'll want to have CI run the test suite against an unreleased version of Geth,
-for example, to test upcoming hard fork changes. The workflow described below is for testing only,
-i.e., open a PR, let CI run the tests, but the changes should only be merged into main once the
-Geth release is published or you have some workaround that doesn't require test fixtures built from
-an unstable client.
+Occasionally you'll want to have CI run the test suite against an unreleased version of
+Geth - e.g. to test upcoming hard fork changes. The workflow described below is for
+testing only, as updates will only be merged into main once the Geth release is
+published and the test runs are updated to use the new stable version.
 
 1. Configure ``tests/integration/generate_fixtures/go_ethereum/common.py`` as needed.
 
@@ -415,7 +414,8 @@ an unstable client.
    `develop build <https://geth.ethereum.org/downloads/>`_, then
    add it to the root of your web3.py directory. Rename the binary ``custom_geth``.
 
-5. In ``.circleci/config.yml``, update jobs relying on ``geth_steps``, to instead use ``custom_geth_steps``.
+5. In ``.circleci/config.yml``, update the ``geth_version`` pipeline parameter to
+   "custom". This will trigger the custom Geth build to be used in the CI test suite.
 
 6. Create a PR and let CI do its thing.
 
