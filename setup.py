@@ -28,6 +28,8 @@ extras_require = {
         "towncrier>=21,<22",
     ],
     "test": [
+        # Note: ethereum-maintained libraries in this list should be added to the
+        # `install_pre_releases.py` script.
         "eth-tester[py-evm]>=0.11.0b1,<0.13.0b1",
         "py-geth>=5.0.0",
         "pytest-asyncio>=0.18.1,<0.23",
@@ -58,13 +60,15 @@ setup(
     url="https://github.com/ethereum/web3.py",
     include_package_data=True,
     install_requires=[
-        "aiohttp>=3.7.4.post0",
+        # Note: ethereum-maintained libraries in this list should be added to the
+        # `install_pre_releases.py` script.
         "eth-abi>=5.0.1",
         "eth-account>=0.13.1",
         "eth-hash[pycryptodome]>=0.5.1",
         "eth-typing>=5.0.0",
         "eth-utils>=5.0.0",
         "hexbytes>=1.2.0",
+        "aiohttp>=3.7.4.post0",
         "pydantic>=2.4.0",
         "pywin32>=223;platform_system=='Windows'",
         "requests>=2.23.0",
