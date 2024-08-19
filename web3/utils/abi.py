@@ -67,7 +67,6 @@ from web3.exceptions import (
     MismatchedABI,
     Web3TypeError,
     Web3ValidationError,
-    Web3ValueError,
 )
 from web3.types import (
     ABIElementIdentifier,
@@ -160,29 +159,37 @@ def _get_fallback_function_abi(contract_abi: ABI) -> ABIFallback:
 
 def _mismatched_abi_error_diagnosis(
     abi_element_identifier: ABIElementIdentifier,
-    matching_function_signatures: Sequence[str],
-    arg_count_matches: int,
-    encoding_matches: int,
+    matching_element_signatures: Sequence[str],
+    abi_matches: int,
     *args: Optional[Sequence[Any]],
+    encodable_abi_matches: int = None,
     **kwargs: Optional[Dict[str, Any]],
 ) -> str:
     """
-    Raise a ``MismatchedABI`` when a function ABI lookup results in an error.
+    Raise a ``MismatchedABI`` when an ABI lookup results in an error.
+
+    The number of `num_matches` and `encoding_matches` are used to determine the
+    specific error diagnosis. The `num_matches` is the number of functions with
+    the same name and the same number of arguments. The `encoding_matches` is the number
+    of functions with the same name and the same number of arguments that can be
+    encoded with the provided arguments and keyword arguments.
 
     An error may result from multiple functions matching the provided signature and
     arguments or no functions are identified.
     """
     diagnosis = "\n"
-    if arg_count_matches == 0:
-        diagnosis += "Function invocation failed due to improper number of arguments."
-    elif encoding_matches == 0:
-        diagnosis += "Function invocation failed due to no matching argument types."
-    elif encoding_matches > 1:
-        diagnosis += (
-            "Ambiguous argument encoding. "
-            "Provided arguments can be encoded to multiple functions "
-            "matching this call."
-        )
+    if abi_matches == 0:
+        diagnosis += "No ABIs match the given number of arguments."
+
+    if encodable_abi_matches is not None:
+        if encodable_abi_matches == 0:
+            diagnosis += "No ABIs match the encoded argument types."
+        elif encodable_abi_matches > 1:
+            diagnosis += (
+                "Ambiguous argument encoding. "
+                "Provided arguments can be encoded to multiple ABIs "
+                "matching this call."
+            )
 
     collapsed_args = _extract_argument_types(*args)
     collapsed_kwargs = dict(
@@ -190,12 +197,12 @@ def _mismatched_abi_error_diagnosis(
     )
 
     return (
-        f"\nCould not identify the intended function with name "
+        f"\nCould not identify the intended ABI with name "
         f"`{abi_element_identifier}`, positional arguments with type(s) "
         f"`({collapsed_args})` and keyword arguments with type(s) "
         f"`{collapsed_kwargs}`."
-        f"\nFound {len(matching_function_signatures)} function(s) with the name "
-        f"`{abi_element_identifier}`: {matching_function_signatures}{diagnosis}"
+        f"\nFound {len(matching_element_signatures)} ABI(s) with the name "
+        f"`{abi_element_identifier}`: {matching_element_signatures}{diagnosis}"
     )
 
 
@@ -239,7 +246,7 @@ def get_abi_element_info(
     **kwargs: Optional[Dict[str, Any]],
 ) -> ABIElementInfo:
     """
-    Information about the function ABI, selector and input arguments.
+    Information about the element ABI, selector and input arguments.
 
     Returns the ABI which matches the provided identifier, named arguments (``args``)
     and keyword args (``kwargs``).
@@ -248,7 +255,7 @@ def get_abi_element_info(
     :type abi: `ABI`
     :param abi_element_identifier: Find an element ABI with matching identifier.
     :type abi_element_identifier: `ABIElementIdentifier`
-    :param args: Find a function ABI with matching args.
+    :param args: Find an element ABI with matching args.
     :type args: `Optional[Sequence[Any]]`
     :param abi_codec: Codec used for encoding and decoding. Default with \
     `strict_bytes_type_checking` enabled.
@@ -391,16 +398,12 @@ def get_abi_element(
     )
 
     if len(elements_with_encodable_args) != 1:
-        matching_function_signatures = [
-            abi_to_signature(func) for func in filtered_abis_by_name
-        ]
-
         error_diagnosis = _mismatched_abi_error_diagnosis(
             abi_element_identifier,
-            matching_function_signatures,
+            [abi_to_signature(func) for func in filtered_abis_by_name],
             len(filtered_abis_by_arg_count),
-            len(elements_with_encodable_args),
             *args,
+            encodable_abi_matches=len(elements_with_encodable_args),
             **kwargs,
         )
 
@@ -480,6 +483,10 @@ def get_event_abi(
     """
     Find the event interface with the given name and/or arguments.
 
+    Unlike the `get_abi_element` function, which returns the function ABI that matches
+    the provided identifier and arguments, this function will return the event ABI which
+    matches the provided event name and argument names.
+
     :param abi: Contract ABI.
     :type abi: `ABI`
     :param event_name: Find an event abi with matching event name.
@@ -516,12 +523,16 @@ def get_event_abi(
 
     event_abi_candidates = cast(Sequence[ABIEvent], pipe(abi, *filters))
 
-    if len(event_abi_candidates) == 1:
-        return event_abi_candidates[0]
-    elif len(event_abi_candidates) == 0:
-        raise Web3ValueError("No matching events found")
-    else:
-        raise Web3ValueError("Multiple events found")
+    if len(event_abi_candidates) != 1:
+        raise MismatchedABI(
+            _mismatched_abi_error_diagnosis(
+                event_name,
+                [abi_to_signature(event_abi) for event_abi in event_abi_candidates],
+                len(event_abi_candidates),
+            )
+        )
+
+    return event_abi_candidates[0]
 
 
 def get_event_log_topics(

@@ -1,4 +1,5 @@
 import pytest
+import re
 from typing import (
     Any,
     Callable,
@@ -385,7 +386,7 @@ def test_get_abi_element_info_without_args_and_kwargs(
 
 
 def test_get_abi_element_info_raises_mismatched_abi(contract_abi: ABI) -> None:
-    with pytest.raises(MismatchedABI, match="Could not identify the intended function"):
+    with pytest.raises(MismatchedABI, match="Could not identify the intended ABI"):
         args: Sequence[Any] = [1]
         get_abi_element_info(contract_abi, "foo", *args, **{})
 
@@ -516,7 +517,7 @@ def test_get_abi_element(
             [],
             {},
             MismatchedABI,
-            "Function invocation failed due to improper number of arguments.",
+            "No ABIs match the given number of arguments.",
         ),
     ),
 )
@@ -650,6 +651,12 @@ def test_get_event_abi(event_name: str, input_args: Sequence[ABIComponent]) -> N
     assert get_event_abi(contract_abi, event_name, input_names) == expected_event_abi
 
 
+def test_get_event_abi_raises_mismatched_abi(contract_abi: ABI) -> None:
+    with pytest.raises(MismatchedABI, match="Could not identify the intended ABI"):
+        args: Sequence[Any] = [1]
+        get_event_abi(contract_abi, "foo", *args, **{})
+
+
 @pytest.mark.parametrize(
     "name,args,error_type,expected_value",
     (
@@ -659,7 +666,7 @@ def test_get_event_abi(event_name: str, input_args: Sequence[ABIComponent]) -> N
             Web3ValidationError,
             "event_name is required in order to match an event ABI.",
         ),
-        ("foo", None, Web3ValueError, "No matching events found"),
+        ("foo", None, MismatchedABI, "No ABIs match the given number of arguments."),
     ),
 )
 def test_get_event_abi_raises_on_error(
@@ -697,5 +704,7 @@ def test_get_event_abi_raises_if_multiple_found() -> None:
             "type": "event",
         },
     ]
-    with pytest.raises(ValueError, match="Multiple events found"):
+    with pytest.raises(
+        MismatchedABI, match=re.escape("Found 2 ABI(s) with the name `LogSingleArg`")
+    ):
         get_event_abi(contract_ambiguous_event, "LogSingleArg", ["arg0"])

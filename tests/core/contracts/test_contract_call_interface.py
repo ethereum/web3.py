@@ -272,7 +272,7 @@ def test_set_byte_array_non_strict(
 def test_set_byte_array_with_invalid_args(arrays_contract, transact, args):
     with pytest.raises(
         MismatchedABI,
-        match="Could not identify the intended function with name `setByteValue`",
+        match="Could not identify the intended ABI with name `setByteValue`",
     ):
         transact(
             contract=arrays_contract,
@@ -594,19 +594,15 @@ def test_returns_data_from_specified_block(w3, math_contract):
 
 
 message_regex = (
-    r"\nCould not identify the intended function with name `.*`, positional arguments "
+    r"\nCould not identify the intended ABI with name `.*`, positional arguments "
     r"with type\(s\) `.*` and keyword arguments with type\(s\) `.*`."
-    r"\nFound .* function\(s\) with the name `.*`: .*"
+    r"\nFound .* ABI\(s\) with the name `.*`: .*"
 )
-diagnosis_arg_regex = (
-    r"\nFunction invocation failed due to improper number of arguments."
-)
-diagnosis_encoding_regex = (
-    r"\nFunction invocation failed due to no matching argument types."
-)
+diagnosis_arg_regex = r"\nNo ABIs match the given number of arguments."
+diagnosis_encoding_regex = r"\nNo ABIs match the encoded argument types."
 diagnosis_ambiguous_encoding = (
     r"\nAmbiguous argument encoding. "
-    r"Provided arguments can be encoded to multiple functions matching this call."
+    r"Provided arguments can be encoded to multiple ABIs matching this call."
 )
 
 
@@ -761,29 +757,29 @@ DEFAULT_DECIMALS = getcontext().prec
     "function, value, error",
     (
         # out of range
-        ("reflect_short_u", Decimal("25.6"), "no matching argument types"),
-        ("reflect_short_u", Decimal("-.1"), "no matching argument types"),
+        ("reflect_short_u", Decimal("25.6"), diagnosis_encoding_regex),
+        ("reflect_short_u", Decimal("-.1"), diagnosis_encoding_regex),
         # too many digits for *x1, too large for 256x80
-        ("reflect", Decimal("0.01"), "no matching argument types"),
+        ("reflect", Decimal("0.01"), diagnosis_encoding_regex),
         # too many digits
-        ("reflect_short_u", Decimal("0.01"), "no matching argument types"),
+        ("reflect_short_u", Decimal("0.01"), diagnosis_encoding_regex),
         (
             "reflect_short_u",
             Decimal(f"1e-{DEFAULT_DECIMALS + 1}"),
-            "no matching argument types",
+            diagnosis_encoding_regex,
         ),
         (
             "reflect_short_u",
             Decimal("25.4" + "9" * DEFAULT_DECIMALS),
-            "no matching argument types",
+            diagnosis_encoding_regex,
         ),
-        ("reflect", Decimal(1) / 10**81, "no matching argument types"),
+        ("reflect", Decimal(1) / 10**81, diagnosis_encoding_regex),
         # floats not accepted, for floating point error concerns
-        ("reflect_short_u", 0.1, "no matching argument types"),
+        ("reflect_short_u", 0.1, diagnosis_encoding_regex),
         # ambiguous
-        ("reflect", Decimal("12.7"), "Ambiguous argument encoding"),
-        ("reflect", Decimal(0), "Ambiguous argument encoding"),
-        ("reflect", 0, "Ambiguous argument encoding"),
+        ("reflect", Decimal("12.7"), diagnosis_ambiguous_encoding),
+        ("reflect", Decimal(0), diagnosis_ambiguous_encoding),
+        ("reflect", 0, diagnosis_ambiguous_encoding),
     ),
 )
 def test_invalid_fixed_value_reflections(
@@ -1891,29 +1887,29 @@ DEFAULT_DECIMALS = getcontext().prec
     "function, value, error",
     (
         # out of range
-        ("reflect_short_u", Decimal("25.6"), "no matching argument types"),
-        ("reflect_short_u", Decimal("-.1"), "no matching argument types"),
+        ("reflect_short_u", Decimal("25.6"), diagnosis_encoding_regex),
+        ("reflect_short_u", Decimal("-.1"), diagnosis_encoding_regex),
         # too many digits for *x1, too large for 256x80
-        ("reflect", Decimal("0.01"), "no matching argument types"),
+        ("reflect", Decimal("0.01"), diagnosis_encoding_regex),
         # too many digits
-        ("reflect_short_u", Decimal("0.01"), "no matching argument types"),
+        ("reflect_short_u", Decimal("0.01"), diagnosis_encoding_regex),
         (
             "reflect_short_u",
             Decimal(f"1e-{DEFAULT_DECIMALS + 1}"),
-            "no matching argument types",
+            diagnosis_encoding_regex,
         ),
         (
             "reflect_short_u",
             Decimal("25.4" + "9" * DEFAULT_DECIMALS),
-            "no matching argument types",
+            diagnosis_encoding_regex,
         ),
-        ("reflect", Decimal(1) / 10**81, "no matching argument types"),
+        ("reflect", Decimal(1) / 10**81, diagnosis_encoding_regex),
         # floats not accepted, for floating point error concerns
-        ("reflect_short_u", 0.1, "no matching argument types"),
+        ("reflect_short_u", 0.1, diagnosis_encoding_regex),
         # ambiguous
-        ("reflect", Decimal("12.7"), "Ambiguous argument encoding"),
-        ("reflect", Decimal(0), "Ambiguous argument encoding"),
-        ("reflect", 0, "Ambiguous argument encoding"),
+        ("reflect", Decimal("12.7"), diagnosis_ambiguous_encoding),
+        ("reflect", Decimal(0), diagnosis_ambiguous_encoding),
+        ("reflect", 0, diagnosis_ambiguous_encoding),
     ),
 )
 async def test_async_invalid_fixed_value_reflections(

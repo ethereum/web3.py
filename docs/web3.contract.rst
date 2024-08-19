@@ -626,7 +626,7 @@ Taking the following contract code as an example:
     Traceback (most recent call last):
        ...
     web3.exceptions.MismatchedABI:
-    Could not identify the intended function with name
+    Could not identify the intended ABI with name
     >>> # check value is still b'aa'
     >>> arrays_contract.functions.getBytes2Value().call()
     [b'aa']
@@ -651,7 +651,7 @@ Taking the following contract code as an example:
     Traceback (most recent call last):
        ...
     web3.exceptions.MismatchedABI:
-    Could not identify the intended function with name
+    Could not identify the intended ABI with name
 
 .. _contract-functions:
 
