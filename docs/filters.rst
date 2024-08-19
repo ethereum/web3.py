@@ -724,7 +724,7 @@ The script can be run with: ``python ./eventscanner.py <your JSON-RPC API URL>``
                 self.state.start_chunk(current_block, chunk_size)
 
                 # Print some diagnostics to logs to try to fiddle with real world JSON-RPC API performance
-                estimated_end_block = current_block + chunk_size
+                estimated_end_block = min(current_block + chunk_size, end_block)
                 logger.debug(
                     f"Scanning token transfers for blocks: {current_block} - {estimated_end_block}, chunk size {chunk_size}, last chunk scan took {last_scan_duration}, last logs found {last_logs_found}"
                 )
