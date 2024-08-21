@@ -36,6 +36,8 @@ from eth_utils import (
     encode_hex,
     filter_abi_by_type,
     function_abi_to_4byte_selector,
+    get_abi_input_names,
+    get_abi_input_types,
     get_normalized_abi_inputs,
     is_list_like,
     is_text,
@@ -121,6 +123,7 @@ from web3.types import (
 from web3.utils.abi import (
     check_if_arguments_can_be_encoded,
     get_abi_element,
+    get_abi_element_by_name_and_arguments,
     get_abi_element_info,
     get_event_abi,
 )
@@ -148,6 +151,7 @@ class BaseContractEvent:
     w3: Union["Web3", "AsyncWeb3"] = None
     contract_abi: ABI = None
     abi: ABIEvent = None
+    arguments: Dict[str, str] = None
 
     def __init__(self, *argument_names: Tuple[str]) -> None:
         if argument_names is None:
@@ -159,8 +163,22 @@ class BaseContractEvent:
         self.abi = self._get_event_abi()
 
     @classmethod
-    def _get_event_abi(cls) -> ABIEvent:
-        return get_event_abi(cls.contract_abi, event_name=cls.event_name)
+    def _get_event_abi(
+        cls,
+        arguments: Optional[Dict[str, str]] = None,
+    ) -> ABIEvent:
+        if arguments is None:
+            return cast(ABIEvent, get_event_abi(cls.contract_abi, cls.event_name))
+
+        return cast(
+            ABIEvent,
+            get_abi_element_by_name_and_arguments(
+                filter_abi_by_type("event", cls.contract_abi),
+                cls.event_name,
+                tuple(arguments.keys()),
+                tuple(arguments.values()),
+            ),
+        )
 
     @combomethod
     def process_receipt(
@@ -431,6 +449,9 @@ class BaseContractEvents:
                         contract_abi=self.abi,
                         address=address,
                         event_name=event["name"],
+                        arguments=dict(
+                            zip(get_abi_input_names(event), get_abi_input_types(event))
+                        ),
                     ),
                 )
 
@@ -909,11 +930,18 @@ class BaseContract:
     @classmethod
     def _get_event_abi(
         cls,
-        event_name: Optional[str] = None,
-        argument_names: Optional[Sequence[str]] = None,
+        event_name: str,
     ) -> ABIEvent:
+        """
+        Return the ABI for the event with the given name.
+
+        The event must be distinct in the ABI, otherwise an exception will be raised.
+        Event arguments can be used to distinguish event ABIs using the ContractEvents
+        class.
+        """
         return get_event_abi(
-            abi=cls.abi, event_name=event_name, argument_names=argument_names
+            filter_abi_by_type("event", cls.abi),
+            event_name,
         )
 
     @combomethod

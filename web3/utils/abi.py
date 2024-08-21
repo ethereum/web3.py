@@ -55,6 +55,7 @@ from hexbytes import (
 
 from web3._utils.abi import (
     filter_by_argument_name,
+    filter_by_argument_type,
 )
 from web3._utils.abi_element_identifiers import (
     FallbackFn,
@@ -67,7 +68,6 @@ from web3.exceptions import (
     MismatchedABI,
     Web3TypeError,
     Web3ValidationError,
-    Web3ValueError,
 )
 from web3.types import (
     ABIElementIdentifier,
@@ -113,7 +113,7 @@ def _filter_by_encodability(
 
 def _get_constructor_function_abi(contract_abi: ABI) -> ABIConstructor:
     """
-    Return the receive function ABI from the contract ABI.
+    Return the constructor function ABI from the contract ABI.
     """
     filtered_abis = filter_abi_by_type("constructor", contract_abi)
 
@@ -160,28 +160,27 @@ def _get_fallback_function_abi(contract_abi: ABI) -> ABIFallback:
 
 def _mismatched_abi_error_diagnosis(
     abi_element_identifier: ABIElementIdentifier,
-    matching_function_signatures: Sequence[str],
-    arg_count_matches: int,
-    encoding_matches: int,
+    abi_signatures_matching_names: Sequence[str],
+    abis_matching_arg_count: int,
+    abis_matching_args: int,
     *args: Optional[Sequence[Any]],
     **kwargs: Optional[Dict[str, Any]],
 ) -> str:
     """
-    Raise a ``MismatchedABI`` when a function ABI lookup results in an error.
+    Raise a ``MismatchedABI`` when an element ABI lookup results in an error.
 
-    An error may result from multiple functions matching the provided signature and
+    An error may result from multiple ABI elements matching the provided signature and
     arguments or no functions are identified.
     """
     diagnosis = "\n"
-    if arg_count_matches == 0:
-        diagnosis += "Function invocation failed due to improper number of arguments."
-    elif encoding_matches == 0:
-        diagnosis += "Function invocation failed due to no matching argument types."
-    elif encoding_matches > 1:
+    if abis_matching_arg_count == 0:
+        diagnosis += "Could not find an ABI with that name and number of arguments."
+    elif abis_matching_args == 0:
+        diagnosis += "Could not find an ABI for the provided argument names and types."
+    elif abis_matching_args > 1:
         diagnosis += (
-            "Ambiguous argument encoding. "
-            "Provided arguments can be encoded to multiple functions "
-            "matching this call."
+            "Could not find an ABI due to ambiguous argument matches. "
+            "ABIs must have unique signatures."
         )
 
     collapsed_args = _extract_argument_types(*args)
@@ -190,12 +189,12 @@ def _mismatched_abi_error_diagnosis(
     )
 
     return (
-        f"\nCould not identify the intended function with name "
+        f"\nCould not identify the intended ABI with name "
         f"`{abi_element_identifier}`, positional arguments with type(s) "
         f"`({collapsed_args})` and keyword arguments with type(s) "
         f"`{collapsed_kwargs}`."
-        f"\nFound {len(matching_function_signatures)} function(s) with the name "
-        f"`{abi_element_identifier}`: {matching_function_signatures}{diagnosis}"
+        f"\nFound {len(abi_signatures_matching_names)} ABI(s) with the name "
+        f"`{abi_element_identifier}`: {abi_signatures_matching_names}{diagnosis}"
     )
 
 
@@ -306,9 +305,9 @@ def get_abi_element_info(
 def get_abi_element(
     abi: ABI,
     abi_element_identifier: ABIElementIdentifier,
-    *args: Optional[Sequence[Any]],
+    *args: Optional[Any],
     abi_codec: Optional[Any] = None,
-    **kwargs: Optional[Dict[str, Any]],
+    **kwargs: Optional[Any],
 ) -> ABIElement:
     """
     Return the interface for an ``ABIElement`` which matches the provided identifier
@@ -361,6 +360,9 @@ def get_abi_element(
     if abi_codec is None:
         abi_codec = ABICodec(default_registry)
 
+    if abi_element_identifier == "constructor":
+        return _get_constructor_function_abi(abi)
+
     if abi_element_identifier is FallbackFn or abi_element_identifier == "fallback":
         return _get_fallback_function_abi(abi)
 
@@ -370,13 +372,9 @@ def get_abi_element(
     if abi_element_identifier is None or not is_text(abi_element_identifier):
         raise Web3TypeError("Unsupported function identifier")
 
-    filtered_abis_by_name: Sequence[ABIElement]
-    if abi_element_identifier == "constructor":
-        filtered_abis_by_name = [_get_constructor_function_abi(abi)]
-    else:
-        filtered_abis_by_name = filter_abi_by_name(
-            cast(str, abi_element_identifier), abi
-        )
+    filtered_abis_by_name: Sequence[ABIElement] = filter_abi_by_name(
+        cast(str, abi_element_identifier), abi
+    )
 
     arg_count = len(args) + len(kwargs)
     filtered_abis_by_arg_count = _filter_by_argument_count(
@@ -391,15 +389,17 @@ def get_abi_element(
     )
 
     if len(elements_with_encodable_args) != 1:
-        matching_function_signatures = [
+        abi_signatures_matching_names = [
             abi_to_signature(func) for func in filtered_abis_by_name
         ]
+        abis_matching_arg_count = len(filtered_abis_by_arg_count)
+        abis_matching_args = len(elements_with_encodable_args)
 
         error_diagnosis = _mismatched_abi_error_diagnosis(
             abi_element_identifier,
-            matching_function_signatures,
-            len(filtered_abis_by_arg_count),
-            len(elements_with_encodable_args),
+            abi_signatures_matching_names,
+            abis_matching_arg_count,
+            abis_matching_args,
             *args,
             **kwargs,
         )
@@ -407,6 +407,63 @@ def get_abi_element(
         raise MismatchedABI(error_diagnosis)
 
     return elements_with_encodable_args[0]
+
+
+def get_abi_element_by_name_and_arguments(
+    abi: ABI,
+    abi_element_identifier: ABIElementIdentifier,
+    argument_names: Optional[Tuple[str, ...]] = (),
+    argument_types: Optional[Tuple[Union[str, Tuple[str, ...]], ...]] = (),
+) -> ABIElement:
+    if abi_element_identifier == "constructor":
+        return _get_constructor_function_abi(abi)
+
+    if abi_element_identifier is FallbackFn or abi_element_identifier == "fallback":
+        return _get_fallback_function_abi(abi)
+
+    if abi_element_identifier is ReceiveFn or abi_element_identifier == "receive":
+        return _get_receive_function_abi(abi)
+
+    if abi_element_identifier is None or not is_text(abi_element_identifier):
+        raise Web3TypeError("Unsupported function identifier")
+
+    filters: List[functools.partial[Sequence[ABIElement]]] = [
+        functools.partial(filter_abi_by_name, cast(str, abi_element_identifier)),
+        functools.partial(_filter_by_argument_count, len(argument_names)),
+    ]
+
+    if len(argument_names):
+        filters.append(functools.partial(filter_by_argument_name, argument_names))
+
+    if len(argument_types):
+        # Tuple types are collapsed into a single string for filtering
+        argument_type_strings = [str(t) for t in argument_types]
+        filters.append(
+            functools.partial(filter_by_argument_type, argument_type_strings)
+        )
+
+    abi_element_candidates = cast(Sequence[ABIEvent], pipe(abi, *filters))
+
+    if len(abi_element_candidates) != 1:
+        abis_matching_names = filter_abi_by_name(cast(str, abi_element_identifier), abi)
+        abi_signatures_matching_names = [
+            abi_to_signature(abi) for abi in abis_matching_names
+        ]
+        abis_matching_arg_count = len(
+            _filter_by_argument_count(len(argument_names), abis_matching_names)
+        )
+        abis_matching_args = len(abi_element_candidates)
+
+        error_diagnosis = _mismatched_abi_error_diagnosis(
+            abi_element_identifier,
+            abi_signatures_matching_names,
+            abis_matching_arg_count,
+            abis_matching_args,
+        )
+
+        raise MismatchedABI(error_diagnosis)
+
+    return abi_element_candidates[0]
 
 
 def check_if_arguments_can_be_encoded(
@@ -480,6 +537,10 @@ def get_event_abi(
     """
     Find the event interface with the given name and/or arguments.
 
+    .. warning:: Overloaded events with the same name and different arguments are not
+        supported. Use `get_abi_element_by_name_and_arguments` to find an event ABI with
+        matching arguments and types.
+
     :param abi: Contract ABI.
     :type abi: `ABI`
     :param event_name: Find an event abi with matching event name.
@@ -511,17 +572,33 @@ def get_event_abi(
 
     filters.append(functools.partial(filter_abi_by_name, event_name))
 
+    arg_count = 0
     if argument_names is not None:
         filters.append(functools.partial(filter_by_argument_name, argument_names))
+        arg_count = len(argument_names)
 
     event_abi_candidates = cast(Sequence[ABIEvent], pipe(abi, *filters))
 
-    if len(event_abi_candidates) == 1:
-        return event_abi_candidates[0]
-    elif len(event_abi_candidates) == 0:
-        raise Web3ValueError("No matching events found")
-    else:
-        raise Web3ValueError("Multiple events found")
+    if len(event_abi_candidates) != 1:
+        abis_matching_names = filter_abi_by_name(event_name, abi)
+        abi_signatures_matching_names = [
+            abi_to_signature(abi) for abi in abis_matching_names
+        ]
+        abis_matching_arg_count = len(
+            _filter_by_argument_count(arg_count, abis_matching_names)
+        )
+        abis_matching_args = len(event_abi_candidates)
+
+        error_diagnosis = _mismatched_abi_error_diagnosis(
+            event_name,
+            abi_signatures_matching_names,
+            abis_matching_arg_count,
+            abis_matching_args,
+        )
+
+        raise MismatchedABI(error_diagnosis)
+
+    return event_abi_candidates[0]
 
 
 def get_event_log_topics(

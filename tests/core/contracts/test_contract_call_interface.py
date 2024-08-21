@@ -276,7 +276,7 @@ def test_set_byte_array_non_strict(
 def test_set_byte_array_with_invalid_args(arrays_contract, transact, args):
     with pytest.raises(
         MismatchedABI,
-        match="Could not identify the intended function with name `setByteValue`",
+        match="Could not identify the intended ABI with name `setByteValue`",
     ):
         transact(
             contract=arrays_contract,
@@ -598,19 +598,17 @@ def test_returns_data_from_specified_block(w3, math_contract):
 
 
 message_regex = (
-    r"\nCould not identify the intended function with name `.*`, positional arguments "
+    r"\nCould not identify the intended ABI with name `.*`, positional arguments "
     r"with type\(s\) `.*` and keyword arguments with type\(s\) `.*`."
-    r"\nFound .* function\(s\) with the name `.*`: .*"
+    r"\nFound .* ABI\(s\) with the name `.*`: .*"
 )
-diagnosis_arg_regex = (
-    r"\nFunction invocation failed due to improper number of arguments."
+diagnosis_arg_regex = r"\nCould not find an ABI with that name and number of arguments."
+diagnosis_arguments_regex = (
+    r"\nCould not find an ABI for the provided argument names and types."
 )
-diagnosis_encoding_regex = (
-    r"\nFunction invocation failed due to no matching argument types."
-)
-diagnosis_ambiguous_encoding = (
-    r"\nAmbiguous argument encoding. "
-    r"Provided arguments can be encoded to multiple functions matching this call."
+diagnosis_ambiguous_arguments = (
+    r"\nCould not find an ABI due to ambiguous argument matches. "
+    r"ABIs must have unique signatures."
 )
 
 
@@ -626,7 +624,7 @@ def test_function_1_match_identifier_wrong_number_of_args(arrays_contract):
 
 
 def test_function_1_match_identifier_wrong_args_encoding(arrays_contract):
-    regex = message_regex + diagnosis_encoding_regex
+    regex = message_regex + diagnosis_arguments_regex
     with pytest.raises(MismatchedABI, match=regex):
         arrays_contract.functions.setBytes32Value("dog").call()
 
@@ -635,8 +633,8 @@ def test_function_1_match_identifier_wrong_args_encoding(arrays_contract):
     "arg1,arg2,diagnosis",
     (
         (100, "dog", diagnosis_arg_regex),
-        ("dog", None, diagnosis_encoding_regex),
-        (100, None, diagnosis_ambiguous_encoding),
+        ("dog", None, diagnosis_arguments_regex),
+        (100, None, diagnosis_ambiguous_arguments),
     ),
 )
 def test_function_multiple_error_diagnoses(w3, arg1, arg2, diagnosis):
@@ -765,29 +763,53 @@ DEFAULT_DECIMALS = getcontext().prec
     "function, value, error",
     (
         # out of range
-        ("reflect_short_u", Decimal("25.6"), "no matching argument types"),
-        ("reflect_short_u", Decimal("-.1"), "no matching argument types"),
+        (
+            "reflect_short_u",
+            Decimal("25.6"),
+            "Could not find an ABI for the provided argument names and types",
+        ),
+        (
+            "reflect_short_u",
+            Decimal("-.1"),
+            "Could not find an ABI for the provided argument names and types",
+        ),
         # too many digits for *x1, too large for 256x80
-        ("reflect", Decimal("0.01"), "no matching argument types"),
+        (
+            "reflect",
+            Decimal("0.01"),
+            "Could not find an ABI for the provided argument names and types",
+        ),
         # too many digits
-        ("reflect_short_u", Decimal("0.01"), "no matching argument types"),
+        (
+            "reflect_short_u",
+            Decimal("0.01"),
+            "Could not find an ABI for the provided argument names and types",
+        ),
         (
             "reflect_short_u",
             Decimal(f"1e-{DEFAULT_DECIMALS + 1}"),
-            "no matching argument types",
+            "Could not find an ABI for the provided argument names and types",
         ),
         (
             "reflect_short_u",
             Decimal("25.4" + "9" * DEFAULT_DECIMALS),
-            "no matching argument types",
+            "Could not find an ABI for the provided argument names and types",
         ),
-        ("reflect", Decimal(1) / 10**81, "no matching argument types"),
+        (
+            "reflect",
+            Decimal(1) / 10**81,
+            "Could not find an ABI for the provided argument names and types",
+        ),
         # floats not accepted, for floating point error concerns
-        ("reflect_short_u", 0.1, "no matching argument types"),
+        (
+            "reflect_short_u",
+            0.1,
+            "Could not find an ABI for the provided argument names and types",
+        ),
         # ambiguous
-        ("reflect", Decimal("12.7"), "Ambiguous argument encoding"),
-        ("reflect", Decimal(0), "Ambiguous argument encoding"),
-        ("reflect", 0, "Ambiguous argument encoding"),
+        ("reflect", Decimal("12.7"), "ambiguous argument matches"),
+        ("reflect", Decimal(0), "ambiguous argument matches"),
+        ("reflect", 0, "ambiguous argument matches"),
     ),
 )
 def test_invalid_fixed_value_reflections(
@@ -1798,7 +1820,7 @@ async def test_async_function_1_match_identifier_wrong_number_of_args(
 async def test_async_function_1_match_identifier_wrong_args_encoding(
     async_arrays_contract,
 ):
-    regex = message_regex + diagnosis_encoding_regex
+    regex = message_regex + diagnosis_arguments_regex
     with pytest.raises(MismatchedABI, match=regex):
         await async_arrays_contract.functions.setBytes32Value("dog").call()
 
@@ -1808,8 +1830,8 @@ async def test_async_function_1_match_identifier_wrong_args_encoding(
     "arg1,arg2,diagnosis",
     (
         (100, "dog", diagnosis_arg_regex),
-        ("dog", None, diagnosis_encoding_regex),
-        (100, None, diagnosis_ambiguous_encoding),
+        ("dog", None, diagnosis_arguments_regex),
+        (100, None, diagnosis_ambiguous_arguments),
     ),
 )
 async def test_async_function_multiple_error_diagnoses(async_w3, arg1, arg2, diagnosis):
@@ -1895,29 +1917,53 @@ DEFAULT_DECIMALS = getcontext().prec
     "function, value, error",
     (
         # out of range
-        ("reflect_short_u", Decimal("25.6"), "no matching argument types"),
-        ("reflect_short_u", Decimal("-.1"), "no matching argument types"),
+        (
+            "reflect_short_u",
+            Decimal("25.6"),
+            "Could not find an ABI for the provided argument names and types",
+        ),
+        (
+            "reflect_short_u",
+            Decimal("-.1"),
+            "Could not find an ABI for the provided argument names and types",
+        ),
         # too many digits for *x1, too large for 256x80
-        ("reflect", Decimal("0.01"), "no matching argument types"),
+        (
+            "reflect",
+            Decimal("0.01"),
+            "Could not find an ABI for the provided argument names and types",
+        ),
         # too many digits
-        ("reflect_short_u", Decimal("0.01"), "no matching argument types"),
+        (
+            "reflect_short_u",
+            Decimal("0.01"),
+            "Could not find an ABI for the provided argument names and types",
+        ),
         (
             "reflect_short_u",
             Decimal(f"1e-{DEFAULT_DECIMALS + 1}"),
-            "no matching argument types",
+            "Could not find an ABI for the provided argument names and types",
         ),
         (
             "reflect_short_u",
             Decimal("25.4" + "9" * DEFAULT_DECIMALS),
-            "no matching argument types",
+            "Could not find an ABI for the provided argument names and types",
         ),
-        ("reflect", Decimal(1) / 10**81, "no matching argument types"),
+        (
+            "reflect",
+            Decimal(1) / 10**81,
+            "Could not find an ABI for the provided argument names and types",
+        ),
         # floats not accepted, for floating point error concerns
-        ("reflect_short_u", 0.1, "no matching argument types"),
+        (
+            "reflect_short_u",
+            0.1,
+            "Could not find an ABI for the provided argument names and types",
+        ),
         # ambiguous
-        ("reflect", Decimal("12.7"), "Ambiguous argument encoding"),
-        ("reflect", Decimal(0), "Ambiguous argument encoding"),
-        ("reflect", 0, "Ambiguous argument encoding"),
+        ("reflect", Decimal("12.7"), "ambiguous argument matches"),
+        ("reflect", Decimal(0), "ambiguous argument matches"),
+        ("reflect", 0, "ambiguous argument matches"),
     ),
 )
 async def test_async_invalid_fixed_value_reflections(

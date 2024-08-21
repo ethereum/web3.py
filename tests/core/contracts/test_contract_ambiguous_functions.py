@@ -1,5 +1,14 @@
 import pytest
+from typing import (
+    cast,
+)
 
+from eth_typing import (
+    ABI,
+)
+from eth_utils.abi import (
+    filter_abi_by_name,
+)
 from eth_utils.toolz import (
     compose,
     curry,
@@ -8,8 +17,15 @@ from hexbytes import (
     HexBytes,
 )
 
+from web3.contract.contract import (
+    Contract,
+)
 from web3.exceptions import (
+    MismatchedABI,
     Web3ValueError,
+)
+from web3.utils.abi import (
+    get_abi_element_by_name_and_arguments,
 )
 
 AMBIGUOUS_CONTRACT_ABI = [
@@ -178,6 +194,31 @@ def test_functions_error_messages(w3, method, args, expected_message, expected_e
     contract = w3.eth.contract(abi=AMBIGUOUS_CONTRACT_ABI)
     with pytest.raises(expected_error, match=expected_message):
         getattr(contract, method)(*args)
+
+
+def test_get_abi_element_by_name_and_arguments(string_contract: "Contract") -> None:
+    abi_element = get_abi_element_by_name_and_arguments(string_contract.abi, "getValue")
+    expected_abi = filter_abi_by_name("getValue", string_contract.abi)[0]
+
+    assert abi_element == expected_abi
+
+
+def test_get_abi_element_by_name_and_arguments_errors() -> None:
+    with pytest.raises(
+        MismatchedABI,
+        match="Could not find an ABI for the provided argument names and types.",
+    ):
+        get_abi_element_by_name_and_arguments(
+            cast(ABI, AMBIGUOUS_CONTRACT_ABI), "identity", ("uint256", "bool")
+        )
+
+    with pytest.raises(
+        MismatchedABI,
+        match="Could not find an ABI with that name and number of arguments.",
+    ):
+        get_abi_element_by_name_and_arguments(
+            cast(ABI, AMBIGUOUS_CONTRACT_ABI), "notafunction"
+        )
 
 
 def test_contract_function_methods(string_contract):

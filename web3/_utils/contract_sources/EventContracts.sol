@@ -19,3 +19,13 @@ contract IndexedEventContract {
         emit LogSingleArg(_arg0);
     }
 }
+
+contract DuplicateEventContract {
+    event LogSingleArg(uint256 arg0);
+    event LogSingleArg(bytes32 arg0);
+
+    function logTwoEvents(uint256 _arg0) external {
+        emit LogSingleArg(_arg0);
+        emit LogSingleArg(abi.encodePacked(_arg0));
+    }
+}

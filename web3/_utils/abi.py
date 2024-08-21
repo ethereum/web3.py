@@ -63,6 +63,7 @@ from eth_utils import (
     decode_hex,
     filter_abi_by_type,
     get_abi_input_names,
+    get_abi_input_types,
     is_bytes,
     is_list_like,
     is_string,
@@ -140,6 +141,28 @@ def filter_by_argument_name(
             if set(argument_names).intersection(abi_arg_names) == set(argument_names):
                 abis_with_matching_args.append(abi_element)
         except TypeError:
+            # fallback or receive functions do not have arguments
+            # proceed to next ABIElement
+            continue
+
+    return abis_with_matching_args
+
+
+def filter_by_argument_type(
+    argument_types: Collection[str], contract_abi: ABI
+) -> List[ABIElement]:
+    """
+    Return a list of each ``ABIElement`` which contain arguments matching provided
+    types.
+    """
+    abis_with_matching_args = []
+    for abi_element in contract_abi:
+        try:
+            abi_arg_types = get_abi_input_types(abi_element)
+
+            if set(argument_types).intersection(abi_arg_types) == set(argument_types):
+                abis_with_matching_args.append(abi_element)
+        except ValueError:
             # fallback or receive functions do not have arguments
             # proceed to next ABIElement
             continue

@@ -385,7 +385,7 @@ def test_get_abi_element_info_without_args_and_kwargs(
 
 
 def test_get_abi_element_info_raises_mismatched_abi(contract_abi: ABI) -> None:
-    with pytest.raises(MismatchedABI, match="Could not identify the intended function"):
+    with pytest.raises(MismatchedABI, match="Could not identify the intended ABI"):
         args: Sequence[Any] = [1]
         get_abi_element_info(contract_abi, "foo", *args, **{})
 
@@ -516,7 +516,7 @@ def test_get_abi_element(
             [],
             {},
             MismatchedABI,
-            "Function invocation failed due to improper number of arguments.",
+            "Could not find an ABI with that name and number of arguments.",
         ),
     ),
 )
@@ -659,7 +659,12 @@ def test_get_event_abi(event_name: str, input_args: Sequence[ABIComponent]) -> N
             Web3ValidationError,
             "event_name is required in order to match an event ABI.",
         ),
-        ("foo", None, Web3ValueError, "No matching events found"),
+        (
+            "foo",
+            None,
+            MismatchedABI,
+            "Could not find an ABI with that name and number of arguments.",
+        ),
     ),
 )
 def test_get_event_abi_raises_on_error(
@@ -682,6 +687,22 @@ def test_get_event_abi_raises_on_error(
         get_event_abi(contract_abi, name, args)
 
 
+def test_get_event_abi_raises_if_no_arg_matches() -> None:
+    contract_event: ABI = [
+        {
+            "anonymous": False,
+            "inputs": [{"name": "arg0", "type": "uint256"}],
+            "name": "LogSingleArg",
+            "type": "event",
+        },
+    ]
+    with pytest.raises(
+        MismatchedABI,
+        match="Could not find an ABI for the provided argument names and types.",
+    ):
+        get_event_abi(contract_event, "LogSingleArg", ["notanarg"])
+
+
 def test_get_event_abi_raises_if_multiple_found() -> None:
     contract_ambiguous_event: ABI = [
         {
@@ -697,5 +718,9 @@ def test_get_event_abi_raises_if_multiple_found() -> None:
             "type": "event",
         },
     ]
-    with pytest.raises(ValueError, match="Multiple events found"):
+    with pytest.raises(
+        MismatchedABI,
+        match="Could not find an ABI due to ambiguous argument matches. ABIs must have "
+        "unique signatures.",
+    ):
         get_event_abi(contract_ambiguous_event, "LogSingleArg", ["arg0"])
