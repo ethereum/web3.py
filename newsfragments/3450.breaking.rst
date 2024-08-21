@@ -1,3 +1,0 @@
-Update `eth-utils` and `eth-typing` to latest major versions
-
-`eth-utils` v5 and `eth-typing` v5

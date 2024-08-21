@@ -6,6 +6,29 @@ v7 Breaking Changes Summary
 
 .. towncrier release notes start
 
+web3.py v7.0.0 (2024-08-21)
+---------------------------
+
+Breaking Changes
+~~~~~~~~~~~~~~~~
+
+- Update `eth-utils` and `eth-typing` to latest major versions
+
+  `eth-utils` v5 and `eth-typing` v5 (`#3450 <https://github.com/ethereum/web3.py/issues/3450>`__)
+
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Improve batch request documentation. (`#3448 <https://github.com/ethereum/web3.py/issues/3448>`__)
+
+
+Internal Changes - for web3.py Contributors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Fix Release Notes formatting (`#3454 <https://github.com/ethereum/web3.py/issues/3454>`__)
+
+
 web3.py v7.0.0-beta.9 (2024-08-01)
 ----------------------------------
 
