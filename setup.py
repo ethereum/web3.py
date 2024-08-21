@@ -62,6 +62,7 @@ setup(
     include_package_data=True,
     install_requires=[
         "aiohttp>=3.7.4.post0",
+        "ckzg<2.0",
         "eth-abi>=5.0.1",
         "eth-account>=0.13.1",
         "eth-hash[pycryptodome]>=0.5.1",
