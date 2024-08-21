@@ -1,0 +1,1 @@
+Pin ckzg library to <2.0 so core tests pass
