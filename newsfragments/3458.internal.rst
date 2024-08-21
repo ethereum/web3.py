@@ -1,0 +1,1 @@
+Bump `py-geth` to ``>=5.0.0`` from ``>=5.0.0b1`` now that stable has been released. This only matters for the ``test`` install extra (CI and dev purposes).
