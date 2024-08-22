@@ -6,6 +6,15 @@ v6 Breaking Changes Summary
 
 .. towncrier release notes start
 
+web3.py v6.20.3 (2024-08-22)
+----------------------------
+
+Bugfixes
+~~~~~~~~
+
+- Pin ckzg dependency to <2 so that blob transactions work (`#3459 <https://github.com/ethereum/web3.py/issues/3459>`__)
+
+
 web3.py v6.20.2 (2024-08-14)
 ----------------------------
 
