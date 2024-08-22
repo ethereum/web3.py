@@ -2,6 +2,7 @@
 
 set -e
 rm -rf build dist
+python --version
 python -m build
 cd $(mktemp -d)
 python -m venv venv-test
