@@ -60,7 +60,7 @@ Batch Requests
     that contains an array of request objects. Generally, this may be useful when you want
     to limit the number of requests you send to a node.
 
-    You have can choose to build a batch of requests within or outside of a context manager:
+    You can choose to build a batch of requests within or outside of a context manager:
 
     .. code-block:: python
 
