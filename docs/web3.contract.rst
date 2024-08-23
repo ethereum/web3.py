@@ -679,6 +679,16 @@ If you have the function name in a variable, you might prefer this alternative:
         contract_func = myContract.functions[func_to_call]
         twentyone = contract_func(3).call()
 
+You can also interact with contract functions without parentheses if the function doesn't
+take any arguments. For example:
+
+    .. code-block:: python
+
+        >>> myContract.functions.return13.call()
+        13
+        >>> myContract.functions.return13().call()
+        13
+
 :py:class:`ContractFunction` provides methods to interact with contract functions.
 Positional and keyword arguments supplied to the contract function subclass
 will be used to find the contract function by signature,

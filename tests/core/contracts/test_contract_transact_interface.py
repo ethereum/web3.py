@@ -285,6 +285,17 @@ def test_receive_contract_with_fallback_function(receive_function_contract, call
     assert final_value == "receive"
 
 
+def test_contract_can_transact_without_fn_parens(w3, math_contract, call):
+    initial_value = call(contract=math_contract, contract_function="counter")
+    txn_hash = math_contract.functions.incrementCounter.transact()
+    txn_receipt = w3.eth.wait_for_transaction_receipt(txn_hash)
+    assert txn_receipt is not None
+
+    final_value = call(contract=math_contract, contract_function="counter")
+
+    assert final_value - initial_value == 1
+
+
 @pytest.mark.asyncio
 async def test_async_transacting_with_contract_no_arguments(
     async_w3, async_math_contract, async_transact, async_call
@@ -296,6 +307,25 @@ async def test_async_transacting_with_contract_no_arguments(
     txn_hash = await async_transact(
         contract=async_math_contract, contract_function="incrementCounter"
     )
+    txn_receipt = await async_w3.eth.wait_for_transaction_receipt(txn_hash)
+    assert txn_receipt is not None
+
+    final_value = await async_call(
+        contract=async_math_contract, contract_function="counter"
+    )
+
+    assert final_value - initial_value == 1
+
+
+@pytest.mark.asyncio
+async def test_async_transacting_with_contract_no_arguments_no_parens(
+    async_w3, async_math_contract, async_transact, async_call
+):
+    initial_value = await async_call(
+        contract=async_math_contract, contract_function="counter"
+    )
+
+    txn_hash = await async_math_contract.functions.incrementCounter.transact()
     txn_receipt = await async_w3.eth.wait_for_transaction_receipt(txn_hash)
     assert txn_receipt is not None
 

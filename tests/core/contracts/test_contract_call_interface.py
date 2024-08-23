@@ -145,6 +145,10 @@ def test_call_with_no_arguments(math_contract, call):
     assert result == 13
 
 
+def test_call_no_arguments_no_parens(math_contract):
+    assert math_contract.functions.return13.call() == 13
+
+
 def test_call_with_one_argument(math_contract, call):
     result = call(contract=math_contract, contract_function="multiply7", func_args=[3])
     assert result == 21
@@ -2284,6 +2288,12 @@ async def test_async_call_revert_contract(async_revert_contract):
 @pytest.mark.asyncio
 async def test_async_call_with_no_arguments(async_math_contract, call):
     result = await async_math_contract.functions.return13().call()
+    assert result == 13
+
+
+@pytest.mark.asyncio
+async def test_async_call_with_no_arguments_no_parens(async_math_contract, call):
+    result = await async_math_contract.functions.return13.call()
     assert result == 13
 
 
