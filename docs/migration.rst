@@ -82,9 +82,21 @@ instantiated with custom middleware.
 Class-Based Middleware Model
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The middleware model has been changed to a class-based model. Previously, middleware
-were defined as functions that tightly wrapped the provider's ``make_request`` function,
-where transformations could be conditionally applied before and after the request was made.
+The middleware model has been changed to a class-based model.
+
+.. code-block:: python
+
+    # v6 (no longer supported)
+    from web3.middleware import pythonic_middleware
+    w3.middleware_onion.add(pythonic_middleware)
+
+    # v7
+    from web3.middleware import PythonicMiddleware
+    w3.middleware_onion.add(PythonicMiddleware)
+
+Previously, middleware were defined as functions that tightly wrapped the provider's
+``make_request`` function, where transformations could be conditionally applied before
+and after the request was made.
 
 Now, middleware logic can be separated into ``request_processor`` and ``response_processor``
 functions that enable pre-request and post-response logic, respectively. This change offers
@@ -92,7 +104,31 @@ a simpler, clearer interface for defining middleware, gives more flexibility for
 asynchronous operations and also paves the way for supporting batch requests - included in
 the roadmap for web3.py.
 
-The new middleware model is documented in the :ref:`middleware_internals` section.
+Major changes for migration are highlighted in this section. Consult the
+:ref:`middleware_internals` section of the documentation for specifics and examples on
+the new class-based design.
+
+
+Middleware Builder Classes
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In ``v6``, certain middleware needed to be constructed with parameters. This was done
+by passing the parameters to a constructor method.
+
+.. code-block:: python
+
+    # v6 (no longer supported)
+    from web3.middleware import construct_sign_and_send_raw_middleware
+    w3.middleware_onion.add(construct_sign_and_send_raw_middleware(private_key))
+
+In the class-based ``v7`` middleware model, a middleware builder class is instantiated
+with the necessary parameters via the ``build()`` method.
+
+.. code-block:: python
+
+    # v7
+    from web3.middleware import SignAndSendRawMiddlewareBuilder
+    w3.middleware_onion.add(SignAndSendRawMiddlewareBuilder.build(private_key))
 
 
 Middleware Renaming and Removals
