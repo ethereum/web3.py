@@ -1,0 +1,1 @@
+Update ``v6`` -> ``v7`` migration guide with examples for importing and adding middleware, as well as examples on how to use the ``MiddlewareBuilder`` classes.
