@@ -40,6 +40,14 @@ class Web3Middleware:
     def __init__(self, w3: Union["AsyncWeb3", "Web3"]) -> None:
         self._w3 = w3
 
+    def __hash__(self) -> int:
+        return hash(f"{self.__class__.__name__}({str(self.__dict__)})")
+
+    def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, Web3Middleware):
+            return False
+        return self.__hash__() == other.__hash__()
+
     # -- sync -- #
 
     def wrap_make_request(self, make_request: "MakeRequestFn") -> "MakeRequestFn":
