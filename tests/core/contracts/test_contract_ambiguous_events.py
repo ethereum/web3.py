@@ -167,7 +167,7 @@ def test_get_event_abi_with_ambiguous_events(
         "type": "event",
     }
 
-    event_abi_event_method = ambiguous_event_contract.events.LogSingleArg.get_abi(
+    event_abi_event_method = ambiguous_event_contract.events.LogSingleArg._get_abi(
         abi_input_arguments=[{"name": "arg0", "type": "uint256"}]
     )
     assert event_abi_util_method == event_abi_event_method
@@ -180,7 +180,7 @@ def test_get_event_abi_with_ambiguous_events_errors(
         MismatchedABI,
         match="Could not find an ABI for the provided argument names and types.",
     ):
-        ambiguous_event_contract.events.LogSingleArg.get_abi(
+        ambiguous_event_contract.events.LogSingleArg._get_abi(
             abi_input_arguments=[{"name": "arg0", "type": None}]
         )
 
@@ -188,7 +188,7 @@ def test_get_event_abi_with_ambiguous_events_errors(
         MismatchedABI,
         match="Could not find an ABI with that name and number of arguments.",
     ):
-        ambiguous_event_contract.events.LogSingleArg.get_abi()
+        ambiguous_event_contract.events.LogSingleArg._get_abi()
 
     with pytest.raises(
         MismatchedABI,

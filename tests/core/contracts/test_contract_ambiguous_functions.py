@@ -210,7 +210,7 @@ def test_get_abi_element_errors() -> None:
     ):
         get_abi_element(cast(ABI, AMBIGUOUS_CONTRACT_ABI), "identity(uint256, bool)")
 
-    with pytest.raises
+    with pytest.raises(
         MismatchedABI,
         match="Could not find an ABI with that name and number of arguments.",
     ):

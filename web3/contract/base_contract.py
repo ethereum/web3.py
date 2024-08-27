@@ -132,8 +132,14 @@ if TYPE_CHECKING:
         Web3,
     )
 
-    from .async_contract import AsyncContractFunction  # noqa: F401
-    from .contract import ContractFunction  # noqa: F401
+    from .async_contract import (  # noqa: F401
+        AsyncContractEvent,
+        AsyncContractFunction,
+    )
+    from .contract import (  # noqa: F401
+        ContractEvent,
+        ContractFunction,
+    )
 
 
 class BaseContractEvent:
@@ -157,14 +163,16 @@ class BaseContractEvent:
         else:
             self.argument_names = argument_names
 
-        self.abi = self.get_abi(argument_names=argument_names)
+        self.abi = self._get_abi(argument_names=argument_names)
 
     @classmethod
-    def get_abi(
+    def _get_abi(
         cls,
-        argument_names: Sequence[str] = None,
-        argument_types: Sequence[str] = None,
-        abi_input_arguments: Sequence[Union[ABIComponent, ABIComponentIndexed]] = None,
+        argument_names: Optional[Sequence[str]] = None,
+        argument_types: Optional[Sequence[str]] = None,
+        abi_input_arguments: Optional[
+            Sequence[Union[ABIComponent, ABIComponentIndexed]]
+        ] = None,
     ) -> ABIEvent:
         abi_events = filter_abi_by_type("event", cls.contract_abi)
 
@@ -174,7 +182,8 @@ class BaseContractEvent:
             and abi_input_arguments is None
         ):
             raise Web3TypeError(
-                "One and only one of argument_names, argument_types, or abi_input_arguments must be provided."
+                "One and only one of argument_names, argument_types, or "
+                "abi_input_arguments must be provided."
             )
 
         elif argument_names:
@@ -311,8 +320,10 @@ class BaseContractEvent:
         return event_filter_params
 
     @classmethod
-    def factory(cls, class_name: str, **kwargs: Any) -> PropertyCheckingFactory:
-        return PropertyCheckingFactory(class_name, (cls,), kwargs)
+    def factory(
+        cls, class_name: str, **kwargs: Any
+    ) -> Union["ContractEvent", "AsyncContractEvent"]:
+        return PropertyCheckingFactory(class_name, (cls,), kwargs)()
 
     @staticmethod
     def check_for_forbidden_api_filter_arguments(
@@ -402,12 +413,12 @@ class BaseContractEvent:
 
         _filters = dict(**argument_filters)
 
-        event_abi = self.get_abi()
+        event_abi = self._get_abi()
 
         self.check_for_forbidden_api_filter_arguments(event_abi, _filters)
 
         _, event_filter_params = construct_event_filter_params(
-            self.get_abi(),
+            self._get_abi(),
             self.w3.codec,
             contract_address=self.address,
             argument_filters=_filters,
@@ -467,7 +478,7 @@ class BaseContractEvents:
         self,
         abi: ABI,
         w3: Union["Web3", "AsyncWeb3"],
-        contract_event_type: Type["BaseContractEvent"],
+        contract_event_type: Union[Type["ContractEvent"], Type["AsyncContractEvent"]],
         address: Optional[ChecksumAddress] = None,
     ) -> None:
         if abi:
@@ -482,7 +493,7 @@ class BaseContractEvents:
                         w3=w3,
                         contract_abi=self.abi,
                         address=address,
-                        event_name=event["name"],
+                        abi_element_identifier=event["name"],
                         abi=event,
                     ),
                 )
@@ -545,7 +556,7 @@ class BaseContractFunction:
 
     def _set_function_info(self) -> None:
         if not self.abi:
-            self.abi = self.get_abi(
+            self.abi = self._get_abi(
                 self.abi_element_identifier,
                 *self.args,
                 **self.kwargs,
@@ -710,7 +721,7 @@ class BaseContractFunction:
         return PropertyCheckingFactory(class_name, (cls,), kwargs)(kwargs.get("abi"))
 
     @classmethod
-    def get_abi(
+    def _get_abi(
         cls,
         abi_element_identifier: Optional[ABIElementIdentifier] = None,
         *args: Sequence[Any],

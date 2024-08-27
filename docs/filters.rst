@@ -808,7 +808,7 @@ The script can be run with: ``python ./eventscanner.py <your JSON-RPC API URL>``
 
         # Currently no way to poke this using a public web3.py API.
         # This will return raw underlying ABI JSON object for the event
-        abi = event._get_event_abi()
+        abi = event._get_abi()
 
         # Depending on the Solidity version used to compile
         # the contract that uses the ABI,
