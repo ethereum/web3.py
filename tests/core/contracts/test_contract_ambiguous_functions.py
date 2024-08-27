@@ -206,13 +206,13 @@ def test_get_abi_element(string_contract: "Contract") -> None:
 def test_get_abi_element_errors() -> None:
     with pytest.raises(
         MismatchedABI,
-        match="Could not find an ABI for the provided argument names and types.",
+        match="Could not identify the intended ABI with name",
     ):
         get_abi_element(cast(ABI, AMBIGUOUS_CONTRACT_ABI), "identity(uint256, bool)")
 
     with pytest.raises(
         MismatchedABI,
-        match="Could not find an ABI with that name and number of arguments.",
+        match="Could not identify the intended ABI with name",
     ):
         get_abi_element(cast(ABI, AMBIGUOUS_CONTRACT_ABI), "notafunction")
 

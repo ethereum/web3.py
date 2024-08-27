@@ -6,17 +6,47 @@ from typing import (
 from eth_typing import (
     ABI,
 )
+from eth_utils.toolz import (
+    compose,
+    curry,
+)
 
 from web3.contract.contract import (
     Contract,
 )
 from web3.exceptions import (
     MismatchedABI,
+    Web3ValueError,
 )
 from web3.utils.abi import (
     get_abi_element,
 )
 
+ABI_EVENT_TRANSFER = {
+    "anonymous": False,
+    "inputs": [
+        {
+            "indexed": True,
+            "internalType": "address",
+            "name": "from",
+            "type": "address",
+        },
+        {
+            "indexed": True,
+            "internalType": "address",
+            "name": "to",
+            "type": "address",
+        },
+        {
+            "indexed": False,
+            "internalType": "uint256",
+            "name": "value",
+            "type": "uint256",
+        },
+    ],
+    "name": "Transfer",
+    "type": "event",
+}
 ABI_EVENT_DEPOSIT_WITH_TUPLE = {
     "anonymous": False,
     "inputs": [
@@ -89,9 +119,65 @@ ABI_FUNCTION_DEPOSIT_VALUE = {
 AMBIGUOUS_EVENT_WITH_TUPLE_CONTRACT_ABI = [
     ABI_EVENT_DEPOSIT_WITH_TUPLE,
     ABI_EVENT_DEPOSIT,
+    ABI_EVENT_TRANSFER,
     ABI_FUNCTION_DEPOSIT_STRUCT,
     ABI_FUNCTION_DEPOSIT_VALUE,
 ]
+
+map_repr = compose(list, curry(map, repr))
+
+
+@pytest.mark.parametrize(
+    "method,args,repr_func,expected",
+    (
+        (
+            "all_events",
+            (),
+            map_repr,
+            [
+                "<Event Deposit(address,bytes32,(uint256,uint256))>",
+                "<Event Deposit(address,bytes32,uint256)>",
+                "<Event Transfer(address,address,uint256)>",
+            ],
+        ),
+        (
+            "find_events_by_name",
+            ("Deposit",),
+            map_repr,
+            [
+                "<Event Deposit(address,bytes32,(uint256,uint256))>",
+                "<Event Deposit(address,bytes32,uint256)>",
+            ],
+        ),
+        (
+            "get_event_by_name",
+            ("Transfer",),
+            repr,
+            "<Event Transfer(address,address,uint256)>",
+        ),
+    ),
+)
+def test_find_or_get_events_by_type(w3, method, args, repr_func, expected):
+    contract = w3.eth.contract(abi=AMBIGUOUS_EVENT_WITH_TUPLE_CONTRACT_ABI)
+    contract_function = getattr(contract, method)(*args)
+    assert repr_func(contract_function) == expected
+
+
+@pytest.mark.parametrize(
+    "method,args,expected_message,expected_error",
+    (
+        (
+            "get_event_by_name",
+            ("Deposit",),
+            r"Found multiple events with matching name*",
+            Web3ValueError,
+        ),
+    ),
+)
+def test_get_event_error_messages(w3, method, args, expected_message, expected_error):
+    contract = w3.eth.contract(abi=AMBIGUOUS_EVENT_WITH_TUPLE_CONTRACT_ABI)
+    with pytest.raises(expected_error, match=expected_message):
+        getattr(contract, method)(*args)
 
 
 def test_get_abi_element_for_amibguous_tuple_events() -> None:
@@ -178,7 +264,7 @@ def test_get_event_abi_with_ambiguous_events_errors(
 ) -> None:
     with pytest.raises(
         MismatchedABI,
-        match="Could not find an ABI for the provided argument names and types.",
+        match="Could not identify the intended ABI with name",
     ):
         ambiguous_event_contract.events.LogSingleArg._get_abi(
             abi_input_arguments=[{"name": "arg0", "type": None}]
@@ -186,18 +272,18 @@ def test_get_event_abi_with_ambiguous_events_errors(
 
     with pytest.raises(
         MismatchedABI,
-        match="Could not find an ABI with that name and number of arguments.",
+        match="Could not identify the intended ABI with name",
     ):
         ambiguous_event_contract.events.LogSingleArg._get_abi()
 
     with pytest.raises(
         MismatchedABI,
-        match="Could not find an ABI with that name and number of arguments.",
+        match="Could not identify the intended ABI with name",
     ):
         ambiguous_event_contract.get_event_abi("NotAnEvent")
 
     with pytest.raises(
         MismatchedABI,
-        match="Could not find an ABI with that name and number of arguments.",
+        match="Could not identify the intended ABI with name",
     ):
         ambiguous_event_contract.get_event_abi("LogSingleArg")

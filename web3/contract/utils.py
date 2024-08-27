@@ -63,6 +63,7 @@ from web3.types import (
     BlockIdentifier,
     RPCEndpoint,
     StateOverride,
+    TContractEvent,
     TContractFn,
     TxParams,
 )
@@ -363,6 +364,40 @@ def get_function_by_identifier(
     elif len(fns) == 0:
         raise Web3ValueError(f"Could not find any function with matching {identifier}")
     return fns[0]
+
+
+def find_events_by_identifier(
+    contract_abi: ABI,
+    w3: Union["Web3", "AsyncWeb3"],
+    address: ChecksumAddress,
+    callable_check: Callable[..., Any],
+    event_type: Type[TContractEvent],
+) -> List[TContractEvent]:
+    event_abis = filter_abi_by_type("event", contract_abi)
+    return [
+        event_type.factory(
+            event_abi["name"],
+            w3=w3,
+            contract_abi=contract_abi,
+            address=address,
+            abi_element_identifier=event_abi["name"],
+            abi=event_abi,
+        )
+        for event_abi in event_abis
+        if callable_check(event_abi)
+    ]
+
+
+def get_event_by_identifier(
+    events: Sequence[TContractEvent], identifier: str
+) -> TContractEvent:
+    if len(events) > 1:
+        raise Web3ValueError(
+            f"Found multiple events with matching {identifier}. " f"Found: {events!r}"
+        )
+    elif len(events) == 0:
+        raise Web3ValueError(f"Could not find any event with matching {identifier}")
+    return events[0]
 
 
 # --- async --- #

@@ -96,6 +96,10 @@ def _filter_by_argument_count(
     ]
 
 
+def _filter_by_signature(signature: str, contract_abi: ABI) -> List[ABIElement]:
+    return [abi for abi in contract_abi if abi_to_signature(abi) == signature]
+
+
 def _filter_by_encodability(
     abi_codec: codec.ABIEncoder,
     contract_abi: ABI,
@@ -369,12 +373,8 @@ def get_abi_element(
     elif is_text(abi_element_identifier):
         abi_element_identifier = cast(str, abi_element_identifier)
 
-        if "(" in abi_element_identifier:
-            element_name, element_args = abi_element_identifier.split("(")
-            argument_types = element_args.strip(")").split(",")
-        else:
-            element_name = abi_element_identifier
-            argument_types = None
+        element_name = abi_element_identifier
+        argument_types = None
 
         if element_name == "constructor":
             return _get_constructor_function_abi(abi)
@@ -403,6 +403,8 @@ def get_abi_element(
         return filtered_abis_by_arg_count[0]
 
     abi_element_matches = []
+    if "(" in abi_element_identifier:
+        abi_element_matches = _filter_by_signature(abi_element_identifier, abi)
     if argument_types is not None:
         abi_element_matches = filter_by_argument_type(
             argument_types, filtered_abis_by_arg_count
@@ -509,8 +511,8 @@ def get_event_abi(
 
     :param abi: Contract ABI.
     :type abi: `ABI`
-    :param event_identifier: Event name and optional argument types as a string to match
-    an event ABI.
+    :param event_identifier: ABI signature represented by an event name and optional \
+argument types. The event name is required to match an event ABI.
     :type event_identifier: `str`
     :param argument_names: List of argument names to match an event ABI.
     :type argument_names: `Optional[Sequence[str]]`
@@ -540,9 +542,9 @@ def get_event_abi(
         functools.partial(filter_abi_by_type, "event"),
     ]
 
-    if "(" in event_identifier:
-        event_name, event_args = event_identifier.split("(")
-        argument_types = event_args.strip(")").split(",")
+    if event_identifier is not None and "(" in event_identifier:
+        event_name = event_identifier.split("(")[0]
+        argument_types = event_identifier.split("(")[1].strip(")").split(",")
     else:
         event_name = event_identifier
         argument_types = None

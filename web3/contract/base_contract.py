@@ -37,6 +37,7 @@ from eth_utils import (
     encode_hex,
     filter_abi_by_type,
     function_abi_to_4byte_selector,
+    get_abi_input_types,
     get_normalized_abi_inputs,
     is_list_like,
     is_text,
@@ -155,15 +156,24 @@ class BaseContractEvent:
     w3: Union["Web3", "AsyncWeb3"] = None
     contract_abi: ABI = None
     abi: ABIEvent = None
+    abi_element_identifier: str = None
 
-    def __init__(self, *argument_names: str) -> None:
-        if argument_names is None:
-            # https://github.com/python/mypy/issues/6283
-            self.argument_names = tuple()  # type: ignore
-        else:
-            self.argument_names = argument_names
+    def __init__(self, abi: Optional[ABIEvent] = None) -> None:
+        if self.abi is None:
+            self.abi = abi
 
-        self.abi = self._get_abi(argument_names=argument_names)
+        self.event_name = self.abi["name"] if self.abi else None
+
+        if self.event_name is None:
+            raise NoABIFound("No ABI name was found for this contract event.")
+
+        if self.abi_element_identifier is None:
+            self.abi_element_identifier = (
+                f"{self.event_name}({','.join(get_abi_input_types(self.abi))})"
+            )
+
+    def __repr__(self) -> str:
+        return f"<Event {abi_to_signature(self.abi)}>"
 
     @classmethod
     def _get_abi(
@@ -176,17 +186,7 @@ class BaseContractEvent:
     ) -> ABIEvent:
         abi_events = filter_abi_by_type("event", cls.contract_abi)
 
-        if (argument_names and argument_types and abi_input_arguments) or (
-            argument_names is None
-            and argument_types is None
-            and abi_input_arguments is None
-        ):
-            raise Web3TypeError(
-                "One and only one of argument_names, argument_types, or "
-                "abi_input_arguments must be provided."
-            )
-
-        elif argument_names:
+        if argument_names and not argument_types and not abi_input_arguments:
             return cast(
                 ABIEvent,
                 get_event_abi(
@@ -194,8 +194,10 @@ class BaseContractEvent:
                 ),
             )
 
-        elif abi_input_arguments:
-            abi_argument_types = ",".join(arg["type"] for arg in abi_input_arguments)
+        elif not argument_names and not argument_types and abi_input_arguments:
+            abi_argument_types = ",".join(
+                str(arg["type"]) for arg in abi_input_arguments
+            )
             abi_identifier = f"{cls.event_name}({abi_argument_types})"
 
             return cast(
@@ -206,7 +208,7 @@ class BaseContractEvent:
                 ),
             )
 
-        elif argument_types:
+        elif not argument_names and argument_types and not abi_input_arguments:
             abi_identifier = f"{cls.event_name}({','.join(argument_types)})"
 
             return cast(
@@ -217,10 +219,16 @@ class BaseContractEvent:
                 ),
             )
 
-        else:
+        elif not argument_names and not argument_types and not abi_input_arguments:
             return cast(
                 ABIEvent,
                 get_event_abi(abi_events, cls.event_name),
+            )
+
+        else:
+            raise Web3TypeError(
+                "One and only one of argument_names, argument_types, or "
+                "abi_input_arguments must be provided."
             )
 
     @combomethod
@@ -493,8 +501,8 @@ class BaseContractEvents:
                         w3=w3,
                         contract_abi=self.abi,
                         address=address,
-                        abi_element_identifier=event["name"],
                         abi=event,
+                        event_name=event["name"],
                     ),
                 )
 
@@ -864,6 +872,7 @@ class BaseContract:
 
         return encode_abi(cls.w3, element_info["abi"], element_info["arguments"], data)
 
+    #  Functions API
     @combomethod
     def all_functions(
         self,
@@ -944,6 +953,29 @@ class BaseContract:
     def get_function_by_args(self, *args: Any) -> "BaseContractFunction":
         fns = self.find_functions_by_args(*args)
         return self.get_function_by_identifier(fns, "args")
+
+    #
+    #  Events API
+    #
+    @combomethod
+    def all_events(self) -> "BaseContractEvent":
+        return self.find_events_by_identifier(
+            self.abi, self.w3, self.address, lambda _: True
+        )
+
+    @combomethod
+    def find_events_by_name(self, event_name: str) -> "BaseContractEvent":
+        def callable_check(fn_abi: ABIFunction) -> bool:
+            return fn_abi["name"] == event_name
+
+        return self.find_events_by_identifier(
+            self.abi, self.w3, self.address, callable_check
+        )
+
+    @combomethod
+    def get_event_by_name(self, event_name: str) -> "BaseContractEvent":
+        events = self.find_events_by_name(event_name)
+        return self.get_event_by_identifier(events, "name")
 
     #
     # Private Helpers
@@ -1037,6 +1069,26 @@ class BaseContract:
     def get_function_by_identifier(
         cls, fns: Sequence["BaseContractFunction"], identifier: str
     ) -> "BaseContractFunction":
+        raise NotImplementedError(
+            "This method should be implemented in the inherited class"
+        )
+
+    @combomethod
+    def find_events_by_identifier(
+        cls,
+        contract_abi: ABI,
+        w3: Union["Web3", "AsyncWeb3"],
+        address: ChecksumAddress,
+        callable_check: Callable[..., Any],
+    ) -> List[Any]:
+        raise NotImplementedError(
+            "This method should be implemented in the inherited class"
+        )
+
+    @combomethod
+    def get_event_by_identifier(
+        cls, fns: Sequence["BaseContractEvent"], identifier: str
+    ) -> "BaseContractEvent":
         raise NotImplementedError(
             "This method should be implemented in the inherited class"
         )

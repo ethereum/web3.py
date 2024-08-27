@@ -107,6 +107,10 @@ class AsyncContractEvent(BaseContractEvent):
     # mypy types
     w3: "AsyncWeb3"
 
+    @classmethod
+    def factory(cls, class_name: str, **kwargs: Any) -> Self:
+        return PropertyCheckingFactory(class_name, (cls,), kwargs)()
+
     @combomethod
     async def get_logs(
         self,

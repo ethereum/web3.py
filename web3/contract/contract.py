@@ -75,7 +75,9 @@ from web3.contract.utils import (
     build_transaction_for_function,
     call_contract_function,
     estimate_gas_for_function,
+    find_events_by_identifier,
     find_functions_by_identifier,
+    get_event_by_identifier,
     get_function_by_identifier,
     transact_with_contract_function,
 )
@@ -235,6 +237,10 @@ class ContractEvent(BaseContractEvent):
         )
         builder.address = self.address
         return builder
+
+    @classmethod
+    def factory(cls, class_name: str, **kwargs: Any) -> Self:
+        return PropertyCheckingFactory(class_name, (cls,), kwargs)()
 
 
 class ContractEvents(BaseContractEvents):
@@ -559,6 +565,27 @@ class Contract(BaseContract):
         cls, fns: Sequence["ContractFunction"], identifier: str
     ) -> "ContractFunction":
         return get_function_by_identifier(fns, identifier)
+
+    @combomethod
+    def find_events_by_identifier(
+        cls,
+        contract_abi: ABI,
+        w3: "Web3",
+        address: ChecksumAddress,
+        callable_check: Callable[..., Any],
+    ) -> List["ContractEvent"]:
+        return cast(
+            List["ContractEvent"],
+            find_events_by_identifier(
+                contract_abi, w3, address, callable_check, ContractEvent
+            ),
+        )
+
+    @combomethod
+    def get_event_by_identifier(
+        cls, events: Sequence["ContractEvent"], identifier: str
+    ) -> "ContractEvent":
+        return get_event_by_identifier(events, identifier)
 
 
 class ContractCaller(BaseContractCaller):

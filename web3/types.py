@@ -36,7 +36,9 @@ from web3._utils.compat import (
 )
 
 if TYPE_CHECKING:
+    from web3.contract.async_contract import AsyncContractEvent  # noqa: F401
     from web3.contract.async_contract import AsyncContractFunction  # noqa: F401
+    from web3.contract.contract import ContractEvent  # noqa: F401
     from web3.contract.contract import ContractFunction  # noqa: F401
     from web3.main import (  # noqa: F401
         AsyncWeb3,
@@ -483,6 +485,7 @@ class GethWallet(TypedDict):
 # Contract types
 
 TContractFn = TypeVar("TContractFn", "ContractFunction", "AsyncContractFunction")
+TContractEvent = TypeVar("TContractEvent", "ContractEvent", "AsyncContractEvent")
 
 
 # Tracing types
