@@ -15,6 +15,9 @@ from eth_utils.toolz import (
 from web3._utils.events import (
     get_event_data,
 )
+from web3.contract.contract import (
+    Contract,
+)
 from web3.exceptions import (
     LogTopicError,
     MismatchedABI,
@@ -60,6 +63,40 @@ def emitter(
     _emitter = emitter_contract_factory(address=contract_address)
     assert _emitter.address == contract_address
     return _emitter
+
+
+def test_get_abi_for_events(emitter: "Contract") -> None:
+    event_abi = emitter.events.LogSingleArg.get_abi()
+    event_abi_with_arg_name = emitter.events.LogSingleArg.get_abi(
+        argument_names=["arg0"]
+    )
+    event_abi_with_arg_type = emitter.events.LogSingleArg.get_abi(
+        argument_types=["uint256"]
+    )
+    event_abi_with_input_args = emitter.events.LogSingleArg.get_abi(
+        abi_input_arguments=[{"name": "arg0", "type": "uint256"}]
+    )
+
+    assert event_abi == {
+        "anonymous": False,
+        "inputs": [
+            {
+                "indexed": False,
+                "internalType": "uint256",
+                "name": "arg0",
+                "type": "uint256",
+            }
+        ],
+        "name": "LogSingleArg",
+        "type": "event",
+    }
+
+    assert (
+        event_abi
+        == event_abi_with_arg_name
+        == event_abi_with_arg_type
+        == event_abi_with_input_args
+    )
 
 
 @pytest.mark.parametrize(

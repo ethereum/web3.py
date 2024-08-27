@@ -15,7 +15,6 @@ from web3.exceptions import (
 )
 from web3.utils.abi import (
     get_abi_element,
-    get_abi_element_by_name_and_arguments,
 )
 
 ABI_EVENT_DEPOSIT_WITH_TUPLE = {
@@ -121,24 +120,30 @@ def test_get_abi_element_for_amibguous_tuple_events() -> None:
     assert event_abi == ABI_EVENT_DEPOSIT
 
 
-def test_get_abi_element_by_name_and_arguments_for_amibguous_tuple_events() -> None:
-    event_abi = get_abi_element_by_name_and_arguments(
+def test_get_abi_element_with_signature_for_amibguous_tuple_events() -> None:
+    event_abi = get_abi_element(
         cast(ABI, AMBIGUOUS_EVENT_WITH_TUPLE_CONTRACT_ABI),
-        "Deposit",
-        ("from", "id", "value"),
-        ("address", "bytes32", "(uint256,uint256)"),
+        "Deposit(address,bytes32,(uint256,uint256))",
     )
 
     assert event_abi == ABI_EVENT_DEPOSIT_WITH_TUPLE
 
-    event_abi = get_abi_element_by_name_and_arguments(
+    event_abi = get_abi_element(
         cast(ABI, AMBIGUOUS_EVENT_WITH_TUPLE_CONTRACT_ABI),
-        "Deposit",
-        ("from", "id", "value"),
-        ("address", "bytes32", "uint256"),
+        "Deposit(address,bytes32,uint256)",
     )
 
     assert event_abi == ABI_EVENT_DEPOSIT
+
+
+def test_get_abi_element_by_name_and_arguments_errors(
+    ambiguous_event_contract: "Contract",
+) -> None:
+    with pytest.raises(
+        MismatchedABI,
+        match="Could not find an ABI with that name and number of arguments.",
+    ):
+        get_abi_element(ambiguous_event_contract.abi, "NotAnEvent")
 
 
 def test_get_event_abi_with_ambiguous_events(
@@ -146,9 +151,6 @@ def test_get_event_abi_with_ambiguous_events(
 ) -> None:
     event_abi_util_method = get_abi_element(
         ambiguous_event_contract.abi, "LogSingleArg", *[], **{"arg0": 1}
-    )
-    event_abi_util_method_args = get_abi_element_by_name_and_arguments(
-        ambiguous_event_contract.abi, "LogSingleArg", ("arg0",), ("uint256",)
     )
 
     assert event_abi_util_method == {
@@ -165,10 +167,10 @@ def test_get_event_abi_with_ambiguous_events(
         "type": "event",
     }
 
-    event_abi_event_method = (
-        ambiguous_event_contract.events.LogSingleArg._get_event_abi({"arg0": "uint256"})
+    event_abi_event_method = ambiguous_event_contract.events.LogSingleArg.get_abi(
+        abi_input_arguments=[{"name": "arg0", "type": "uint256"}]
     )
-    assert event_abi_util_method == event_abi_util_method_args == event_abi_event_method
+    assert event_abi_util_method == event_abi_event_method
 
 
 def test_get_event_abi_with_ambiguous_events_errors(
@@ -178,43 +180,24 @@ def test_get_event_abi_with_ambiguous_events_errors(
         MismatchedABI,
         match="Could not find an ABI for the provided argument names and types.",
     ):
-        ambiguous_event_contract.events.LogSingleArg._get_event_abi({"arg0": None})
-
-    with pytest.raises(
-        MismatchedABI,
-        match="Could not find an ABI with that name and number of arguments.",
-    ):
-        ambiguous_event_contract.events.LogSingleArg._get_event_abi()
-
-    with pytest.raises(
-        MismatchedABI,
-        match="Could not find an ABI with that name and number of arguments.",
-    ):
-        ambiguous_event_contract._get_event_abi("NotAnEvent")
-
-    with pytest.raises(
-        MismatchedABI,
-        match="Could not find an ABI with that name and number of arguments.",
-    ):
-        ambiguous_event_contract._get_event_abi("LogSingleArg")
-
-
-def test_get_element_abi_by_name_and_arguments_errors(
-    ambiguous_event_contract: "Contract",
-) -> None:
-    with pytest.raises(
-        MismatchedABI,
-        match="Could not find an ABI due to ambiguous argument matches. ABIs "
-        "must have unique signatures.",
-    ):
-        get_abi_element_by_name_and_arguments(
-            ambiguous_event_contract.abi, "LogSingleArg", ("arg0",)
+        ambiguous_event_contract.events.LogSingleArg.get_abi(
+            abi_input_arguments=[{"name": "arg0", "type": None}]
         )
 
     with pytest.raises(
         MismatchedABI,
         match="Could not find an ABI with that name and number of arguments.",
     ):
-        get_abi_element_by_name_and_arguments(
-            ambiguous_event_contract.abi, "NotAnEvent"
-        )
+        ambiguous_event_contract.events.LogSingleArg.get_abi()
+
+    with pytest.raises(
+        MismatchedABI,
+        match="Could not find an ABI with that name and number of arguments.",
+    ):
+        ambiguous_event_contract.get_event_abi("NotAnEvent")
+
+    with pytest.raises(
+        MismatchedABI,
+        match="Could not find an ABI with that name and number of arguments.",
+    ):
+        ambiguous_event_contract.get_event_abi("LogSingleArg")

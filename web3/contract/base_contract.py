@@ -21,6 +21,7 @@ from eth_abi.exceptions import (
 )
 from eth_typing import (
     ABI,
+    ABIComponent,
     ABIComponentIndexed,
     ABIElement,
     ABIEvent,
@@ -36,8 +37,6 @@ from eth_utils import (
     encode_hex,
     filter_abi_by_type,
     function_abi_to_4byte_selector,
-    get_abi_input_names,
-    get_abi_input_types,
     get_normalized_abi_inputs,
     is_list_like,
     is_text,
@@ -123,7 +122,6 @@ from web3.types import (
 from web3.utils.abi import (
     check_if_arguments_can_be_encoded,
     get_abi_element,
-    get_abi_element_by_name_and_arguments,
     get_abi_element_info,
     get_event_abi,
 )
@@ -151,34 +149,70 @@ class BaseContractEvent:
     w3: Union["Web3", "AsyncWeb3"] = None
     contract_abi: ABI = None
     abi: ABIEvent = None
-    arguments: Dict[str, str] = None
 
-    def __init__(self, *argument_names: Tuple[str]) -> None:
+    def __init__(self, *argument_names: str) -> None:
         if argument_names is None:
             # https://github.com/python/mypy/issues/6283
             self.argument_names = tuple()  # type: ignore
         else:
             self.argument_names = argument_names
 
-        self.abi = self._get_event_abi()
+        self.abi = self.get_abi(argument_names=argument_names)
 
     @classmethod
-    def _get_event_abi(
+    def get_abi(
         cls,
-        arguments: Optional[Dict[str, str]] = None,
+        argument_names: Sequence[str] = None,
+        argument_types: Sequence[str] = None,
+        abi_input_arguments: Sequence[Union[ABIComponent, ABIComponentIndexed]] = None,
     ) -> ABIEvent:
-        if arguments is None:
-            return cast(ABIEvent, get_event_abi(cls.contract_abi, cls.event_name))
+        abi_events = filter_abi_by_type("event", cls.contract_abi)
 
-        return cast(
-            ABIEvent,
-            get_abi_element_by_name_and_arguments(
-                filter_abi_by_type("event", cls.contract_abi),
-                cls.event_name,
-                tuple(arguments.keys()),
-                tuple(arguments.values()),
-            ),
-        )
+        if (argument_names and argument_types and abi_input_arguments) or (
+            argument_names is None
+            and argument_types is None
+            and abi_input_arguments is None
+        ):
+            raise Web3TypeError(
+                "One and only one of argument_names, argument_types, or abi_input_arguments must be provided."
+            )
+
+        elif argument_names:
+            return cast(
+                ABIEvent,
+                get_event_abi(
+                    abi_events, cls.event_name, argument_names=argument_names
+                ),
+            )
+
+        elif abi_input_arguments:
+            abi_argument_types = ",".join(arg["type"] for arg in abi_input_arguments)
+            abi_identifier = f"{cls.event_name}({abi_argument_types})"
+
+            return cast(
+                ABIEvent,
+                get_abi_element(
+                    abi_events,
+                    abi_identifier,
+                ),
+            )
+
+        elif argument_types:
+            abi_identifier = f"{cls.event_name}({','.join(argument_types)})"
+
+            return cast(
+                ABIEvent,
+                get_abi_element(
+                    abi_events,
+                    abi_identifier,
+                ),
+            )
+
+        else:
+            return cast(
+                ABIEvent,
+                get_event_abi(abi_events, cls.event_name),
+            )
 
     @combomethod
     def process_receipt(
@@ -368,12 +402,12 @@ class BaseContractEvent:
 
         _filters = dict(**argument_filters)
 
-        event_abi = self._get_event_abi()
+        event_abi = self.get_abi()
 
         self.check_for_forbidden_api_filter_arguments(event_abi, _filters)
 
         _, event_filter_params = construct_event_filter_params(
-            self._get_event_abi(),
+            self.get_abi(),
             self.w3.codec,
             contract_address=self.address,
             argument_filters=_filters,
@@ -449,9 +483,7 @@ class BaseContractEvents:
                         contract_abi=self.abi,
                         address=address,
                         event_name=event["name"],
-                        arguments=dict(
-                            zip(get_abi_input_names(event), get_abi_input_types(event))
-                        ),
+                        abi=event,
                     ),
                 )
 
@@ -513,15 +545,10 @@ class BaseContractFunction:
 
     def _set_function_info(self) -> None:
         if not self.abi:
-            self.abi = cast(
-                ABIFunction,
-                get_abi_element(
-                    self.contract_abi,
-                    self.abi_element_identifier,
-                    *self.args,
-                    abi_codec=self.w3.codec,
-                    **self.kwargs,
-                ),
+            self.abi = self.get_abi(
+                self.abi_element_identifier,
+                *self.args,
+                **self.kwargs,
             )
 
         if self.abi_element_identifier in [
@@ -681,6 +708,24 @@ class BaseContractFunction:
         cls, class_name: str, **kwargs: Any
     ) -> Union["ContractFunction", "AsyncContractFunction"]:
         return PropertyCheckingFactory(class_name, (cls,), kwargs)(kwargs.get("abi"))
+
+    @classmethod
+    def get_abi(
+        cls,
+        abi_element_identifier: Optional[ABIElementIdentifier] = None,
+        *args: Sequence[Any],
+        **kwargs: Dict[str, Any],
+    ) -> ABIFunction:
+        return cast(
+            ABIFunction,
+            get_abi_element(
+                cls.contract_abi,
+                abi_element_identifier,
+                *args,
+                abi_codec=cls.w3.codec,
+                **kwargs,
+            ),
+        )
 
 
 class BaseContractFunctions:
@@ -928,12 +973,12 @@ class BaseContract:
         )
 
     @classmethod
-    def _get_event_abi(
+    def get_event_abi(
         cls,
-        event_name: str,
+        event_signature: str,
     ) -> ABIEvent:
         """
-        Return the ABI for the event with the given name.
+        Return the ABI for the event with the given name and argument types.
 
         The event must be distinct in the ABI, otherwise an exception will be raised.
         Event arguments can be used to distinguish event ABIs using the ContractEvents
@@ -941,7 +986,7 @@ class BaseContract:
         """
         return get_event_abi(
             filter_abi_by_type("event", cls.abi),
-            event_name,
+            event_signature,
         )
 
     @combomethod
