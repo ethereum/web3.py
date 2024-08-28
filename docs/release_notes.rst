@@ -6,6 +6,36 @@ v7 Breaking Changes Summary
 
 .. towncrier release notes start
 
+web3.py v7.1.0 (2024-08-28)
+---------------------------
+
+Bugfixes
+~~~~~~~~
+
+- Specify a unique ``__hash__()`` for unhashable ``Web3Middleware`` types and use this hash as the middleware onion key when a name is not provided for the middleware. This fixes a bug where different middleware were given the same name and therefore raised errors. (`#3463 <https://github.com/ethereum/web3.py/issues/3463>`__)
+
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Fix bug in filters example code (`#3455 <https://github.com/ethereum/web3.py/issues/3455>`__)
+- Update ``v6`` -> ``v7`` migration guide with examples for importing and adding middleware, as well as examples on how to use the ``MiddlewareBuilder`` classes. (`#3462 <https://github.com/ethereum/web3.py/issues/3462>`__)
+
+
+Features
+~~~~~~~~
+
+- Add sync and async support for beacon ``/eth/v1/beacon/blob_sidecars`` endpoint. (`#3407 <https://github.com/ethereum/web3.py/issues/3407>`__)
+- Allow user to call ContractFunctions without parentheses (`#3444 <https://github.com/ethereum/web3.py/issues/3444>`__)
+
+
+Internal Changes - for web3.py Contributors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Refactor and DRY up CI run setup and reduce surface area for errors. Include pre-releases in CI runs for internally maintained libraries to try and catch any conflicts. (`#3452 <https://github.com/ethereum/web3.py/issues/3452>`__)
+- Bump `py-geth` to ``>=5.0.0`` from ``>=5.0.0b1`` now that stable has been released. This only matters for the ``test`` install extra (CI and dev purposes). (`#3458 <https://github.com/ethereum/web3.py/issues/3458>`__)
+
+
 web3.py v7.0.0 (2024-08-21)
 ---------------------------
 
