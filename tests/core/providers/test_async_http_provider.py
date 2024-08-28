@@ -94,8 +94,8 @@ async def test_async_user_provided_session() -> None:
     assert cached_session == session
 
 
-def test_get_request_headers():
-    provider = AsyncHTTPProvider()
+@pytest.mark.parametrize("provider", (AsyncHTTPProvider(), AsyncHTTPProvider))
+def test_get_request_headers(provider):
     headers = provider.get_request_headers()
     assert len(headers) == 2
     assert headers["Content-Type"] == "application/json"
