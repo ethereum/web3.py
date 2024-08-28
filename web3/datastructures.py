@@ -182,7 +182,7 @@ class NamedElementOnion(Mapping[TKey, TValue]):
         if name is None:
             name = cast(TKey, element)
 
-        name = self._build_tkey(name)
+        name = self._build_name(name)
 
         if name in self._queue:
             if name is element:
@@ -219,7 +219,7 @@ class NamedElementOnion(Mapping[TKey, TValue]):
             if name is None:
                 name = cast(TKey, element)
 
-            name = self._build_tkey(name)
+            name = self._build_name(name)
 
             self._queue.move_to_end(name, last=False)
         elif layer == len(self._queue):
@@ -233,7 +233,7 @@ class NamedElementOnion(Mapping[TKey, TValue]):
         self._queue.clear()
 
     def replace(self, old: TKey, new: TKey) -> TValue:
-        old_name = self._build_tkey(old)
+        old_name = self._build_name(old)
 
         if old_name not in self._queue:
             raise Web3ValueError(
@@ -249,7 +249,7 @@ class NamedElementOnion(Mapping[TKey, TValue]):
         return to_be_replaced
 
     @staticmethod
-    def _build_tkey(value: TKey) -> TKey:
+    def _build_name(value: TKey) -> TKey:
         try:
             value.__hash__()
             return value
@@ -261,12 +261,12 @@ class NamedElementOnion(Mapping[TKey, TValue]):
                 )
             # This will either be ``Web3Middleware`` class or the ``build`` method of a
             # ``Web3MiddlewareBuilder``. Instantiate with empty ``Web3`` and use a
-            # unique identifier with the ``__hash__()`` as the TKey.
+            # unique identifier with the ``__hash__()`` as the name.
             v = value(None)
             return cast(TKey, f"{v.__class__}<{v.__hash__()}>")
 
     def remove(self, old: TKey) -> None:
-        old_name = self._build_tkey(old)
+        old_name = self._build_name(old)
         if old_name not in self._queue:
             raise Web3ValueError("You can only remove something that has been added")
         del self._queue[old_name]
@@ -280,8 +280,8 @@ class NamedElementOnion(Mapping[TKey, TValue]):
         return [(val, key) for key, val in reversed(self._queue.items())]
 
     def _replace_with_new_name(self, old: TKey, new: TKey) -> None:
-        old_name = self._build_tkey(old)
-        new_name = self._build_tkey(new)
+        old_name = self._build_name(old)
+        new_name = self._build_name(new)
 
         self._queue[new_name] = new
         found_old = False
@@ -303,11 +303,11 @@ class NamedElementOnion(Mapping[TKey, TValue]):
         return NamedElementOnion(cast(List[Any], combined.items()))
 
     def __contains__(self, element: Any) -> bool:
-        element_name = self._build_tkey(element)
+        element_name = self._build_name(element)
         return element_name in self._queue
 
     def __getitem__(self, element: TKey) -> TValue:
-        element_name = self._build_tkey(element)
+        element_name = self._build_name(element)
         return self._queue[element_name]
 
     def __len__(self) -> int:

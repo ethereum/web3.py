@@ -12,17 +12,25 @@ from web3.middleware import (
 )
 
 
+class TestMiddleware(Web3Middleware):
+    def response_processor(self, method, response):
+        if method == "eth_blockNumber":
+            response["result"] = 1234
+
+        return response
+
+
+class TestMiddleware2(Web3Middleware):
+    def response_processor(self, method, response):
+        if method == "eth_blockNumber":
+            response["result"] = 4321
+
+        return response
+
+
 def test_middleware_class_eq_magic_method():
     w3_a = Web3()
     w3_b = Web3()
-
-    class TestMiddleware(Web3Middleware):
-        def request_processor(self, method, params):
-            return 1234
-
-    class TestMiddleware2(Web3Middleware):
-        def request_processor(self, method, params):
-            return 4321
 
     mw1w3_a = TestMiddleware(w3_a)
     assert mw1w3_a is not None
@@ -61,3 +69,13 @@ def test_unnamed_middleware_are_given_unique_keys(w3):
     with pytest.raises(Web3ValueError):
         # adding the same middleware again should cause an error
         w3.middleware_onion.add(request_formatting_middleware)
+
+
+def test_unnamed_class_middleware_are_given_unique_keys(w3):
+    w3.middleware_onion.add(TestMiddleware)
+    w3.middleware_onion.add(TestMiddleware2)
+    assert isinstance(w3.eth.block_number, int)
+
+    with pytest.raises(Web3ValueError):
+        # adding the same middleware again should cause an error
+        w3.middleware_onion.add(TestMiddleware)
