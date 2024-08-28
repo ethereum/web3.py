@@ -51,7 +51,7 @@ with open("./README.md") as readme:
 setup(
     name="web3",
     # *IMPORTANT*: Don't manually change the version here. Use `make bump`, as described in readme
-    version="7.0.0",
+    version="7.1.0",
     description="""web3: A Python library for interacting with Ethereum""",
     long_description=long_description,
     long_description_content_type="text/markdown",
