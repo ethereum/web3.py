@@ -806,10 +806,6 @@ The script can be run with: ``python ./eventscanner.py <your JSON-RPC API URL>``
         if from_block is None:
             raise Web3TypeError("Missing mandatory keyword argument to get_logs: from_block")
 
-        # Currently no way to poke this using a public web3.py API.
-        # This will return raw underlying ABI JSON object for the event
-        abi = event._get_abi()
-
         # Depending on the Solidity version used to compile
         # the contract that uses the ABI,
         # it might have Solidity ABI encoding v1 or v2.
@@ -824,7 +820,7 @@ The script can be run with: ``python ./eventscanner.py <your JSON-RPC API URL>``
         # More information here:
         # https://github.com/ethereum/web3.py/blob/e176ce0793dafdd0573acc8d4b76425b6eb604ca/web3/_utils/filters.py#L71
         data_filter_set, event_filter_params = construct_event_filter_params(
-            abi,
+            event.abi,
             codec,
             address=argument_filters.get("address"),
             argument_filters=argument_filters,
@@ -844,7 +840,7 @@ The script can be run with: ``python ./eventscanner.py <your JSON-RPC API URL>``
             # Convert raw JSON-RPC log result to human readable event by using ABI data
             # More information how process_log works here
             # https://github.com/ethereum/web3.py/blob/fbaf1ad11b0c7fac09ba34baff2c256cffe0a148/web3/_utils/events.py#L200
-            evt = get_event_data(codec, abi, log)
+            evt = get_event_data(codec, event.abi, log)
             # Note: This was originally yield,
             # but deferring the timeout exception caused the throttle logic not to work
             all_events.append(evt)

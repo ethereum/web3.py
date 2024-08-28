@@ -202,10 +202,7 @@ class BaseContractEvent:
 
             return cast(
                 ABIEvent,
-                get_abi_element(
-                    abi_events,
-                    abi_identifier,
-                ),
+                get_event_abi(abi_events, abi_identifier),
             )
 
         elif not argument_names and argument_types and not abi_input_arguments:
@@ -213,10 +210,7 @@ class BaseContractEvent:
 
             return cast(
                 ABIEvent,
-                get_abi_element(
-                    abi_events,
-                    abi_identifier,
-                ),
+                get_event_abi(abi_events, abi_identifier),
             )
 
         elif not argument_names and not argument_types and not abi_input_arguments:
@@ -547,6 +541,7 @@ class BaseContractFunction:
     is a subclass of this class.
     """
 
+    fn_name: str = None
     address: ChecksumAddress = None
     abi_element_identifier: ABIElementIdentifier = None
     w3: Union["Web3", "AsyncWeb3"] = None
@@ -559,8 +554,15 @@ class BaseContractFunction:
     kwargs: Any = None
 
     def __init__(self, abi: Optional[ABIFunction] = None) -> None:
-        self.abi = abi
         self.fn_name = type(self).__name__
+
+        if self.abi is None:
+            self.abi = abi
+
+        if self.abi_element_identifier is None:
+            self.abi_element_identifier = (
+                f"{self.fn_name}({','.join(get_abi_input_types(self.abi))})"
+            )
 
     def _set_function_info(self) -> None:
         if not self.abi:
@@ -731,7 +733,7 @@ class BaseContractFunction:
     @classmethod
     def _get_abi(
         cls,
-        abi_element_identifier: Optional[ABIElementIdentifier] = None,
+        abi_element_identifier: ABIElementIdentifier,
         *args: Sequence[Any],
         **kwargs: Dict[str, Any],
     ) -> ABIFunction:

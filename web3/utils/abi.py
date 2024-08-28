@@ -1,6 +1,7 @@
 import functools
 from typing import (
     Any,
+    Callable,
     Dict,
     List,
     Optional,
@@ -22,12 +23,9 @@ from eth_abi.registry import (
 from eth_typing import (
     ABI,
     ABICallable,
-    ABIConstructor,
     ABIElement,
     ABIElementInfo,
     ABIEvent,
-    ABIFallback,
-    ABIReceive,
     HexStr,
     Primitives,
 )
@@ -47,7 +45,6 @@ from eth_utils.toolz import (
 )
 from eth_utils.types import (
     is_list_like,
-    is_text,
 )
 from hexbytes import (
     HexBytes,
@@ -62,11 +59,7 @@ from web3._utils.abi_element_identifiers import (
     ReceiveFn,
 )
 from web3.exceptions import (
-    ABIConstructorNotFound,
-    ABIFallbackNotFound,
-    ABIReceiveNotFound,
     MismatchedABI,
-    Web3TypeError,
     Web3ValidationError,
 )
 from web3.types import (
@@ -102,9 +95,9 @@ def _filter_by_signature(signature: str, contract_abi: ABI) -> List[ABIElement]:
 
 def _filter_by_encodability(
     abi_codec: codec.ABIEncoder,
+    args: Optional[Sequence[Any]],
+    kwargs: Optional[Dict[str, Any]],
     contract_abi: ABI,
-    *args: Optional[Sequence[Any]],
-    **kwargs: Optional[Dict[str, Any]],
 ) -> List[ABICallable]:
     return [
         cast(ABICallable, function_abi)
@@ -115,58 +108,11 @@ def _filter_by_encodability(
     ]
 
 
-def _get_constructor_function_abi(contract_abi: ABI) -> ABIConstructor:
-    """
-    Return the constructor function ABI from the contract ABI.
-    """
-    filtered_abis = filter_abi_by_type("constructor", contract_abi)
-
-    if len(filtered_abis) > 1:
-        raise MismatchedABI("Multiple constructor functions found in the contract ABI.")
-
-    if filtered_abis:
-        return filtered_abis[0]
-    else:
-        raise ABIConstructorNotFound(
-            "No constructor function was found in the contract ABI."
-        )
-
-
-def _get_receive_function_abi(contract_abi: ABI) -> ABIReceive:
-    """
-    Return the receive function ABI from the contract ABI.
-    """
-    filtered_abis = filter_abi_by_type("receive", contract_abi)
-
-    if len(filtered_abis) > 1:
-        raise MismatchedABI("Multiple receive functions found in the contract ABI.")
-
-    if filtered_abis:
-        return filtered_abis[0]
-    else:
-        raise ABIReceiveNotFound("No receive function was found in the contract ABI.")
-
-
-def _get_fallback_function_abi(contract_abi: ABI) -> ABIFallback:
-    """
-    Return the fallback function ABI from the contract ABI.
-    """
-    filtered_abis = filter_abi_by_type("fallback", contract_abi)
-
-    if len(filtered_abis) > 1:
-        raise MismatchedABI("Multiple fallback functions found in the contract ABI.")
-
-    if filtered_abis:
-        return filtered_abis[0]
-    else:
-        raise ABIFallbackNotFound("No fallback function was found in the contract ABI.")
-
-
 def _mismatched_abi_error_diagnosis(
-    abi_element_identifier: ABIElementIdentifier,
-    abi_signatures_matching_names: Sequence[str],
-    abis_matching_arg_count: int,
-    abis_matching_args: int,
+    abi_element_identifier: str,
+    abi: ABI,
+    num_matches: int = 0,
+    num_args: int = 0,
     *args: Optional[Sequence[Any]],
     **kwargs: Optional[Dict[str, Any]],
 ) -> str:
@@ -176,12 +122,20 @@ def _mismatched_abi_error_diagnosis(
     An error may result from multiple ABI elements matching the provided signature and
     arguments or no functions are identified.
     """
+    abis_matching_names = filter_abi_by_name(abi_element_identifier, abi)
+    abi_signatures_matching_names = [
+        abi_to_signature(abi) for abi in abis_matching_names
+    ]
+    abis_matching_arg_count = len(
+        _filter_by_argument_count(num_args, abis_matching_names)
+    )
+
     diagnosis = "\n"
     if abis_matching_arg_count == 0:
         diagnosis += "Could not find an ABI with that name and number of arguments."
-    elif abis_matching_args == 0:
+    elif num_matches == 0:
         diagnosis += "Could not find an ABI for the provided argument names and types."
-    elif abis_matching_args > 1:
+    elif num_matches > 1:
         diagnosis += (
             "Could not find an ABI due to ambiguous argument matches. "
             "ABIs must have unique signatures."
@@ -364,71 +318,40 @@ def get_abi_element(
     if abi_codec is None:
         abi_codec = ABICodec(default_registry)
 
-    if abi_element_identifier is FallbackFn:
-        return _get_fallback_function_abi(abi)
+    abi_type = None
+    if abi_element_identifier == FallbackFn:
+        abi_element_identifier = abi_type = "fallback"
+    elif abi_element_identifier == ReceiveFn:
+        abi_element_identifier = abi_type = "receive"
 
-    elif abi_element_identifier is ReceiveFn:
-        return _get_receive_function_abi(abi)
+    abi_element_identifier = cast(str, abi_element_identifier)
 
-    elif is_text(abi_element_identifier):
-        abi_element_identifier = cast(str, abi_element_identifier)
-
-        element_name = abi_element_identifier
-        argument_types = None
-
-        if element_name == "constructor":
-            return _get_constructor_function_abi(abi)
-
-        if element_name == "fallback":
-            return _get_fallback_function_abi(abi)
-
-        if element_name == "receive":
-            return _get_receive_function_abi(abi)
-    else:
-        raise Web3TypeError("Unsupported function identifier")
-
-    filtered_abis_by_name: Sequence[ABIElement] = filter_abi_by_name(element_name, abi)
-
-    arg_count = 0
-    if args or kwargs:
-        arg_count = len(args) + len(kwargs)
-    elif argument_types:
-        arg_count = len(argument_types)
-
-    filtered_abis_by_arg_count = _filter_by_argument_count(
-        arg_count, filtered_abis_by_name
+    abi_element_matches: Sequence[ABIElement] = pipe(
+        abi,
+        *_build_abi_filters(
+            abi_element_identifier,
+            *args,
+            abi_type=abi_type,
+            abi_codec=abi_codec,
+            **kwargs,
+        ),
     )
 
-    if arg_count == 0 and len(filtered_abis_by_arg_count) == 1:
-        return filtered_abis_by_arg_count[0]
+    num_matches = len(abi_element_matches)
 
-    abi_element_matches = []
-    if "(" in abi_element_identifier:
-        abi_element_matches = _filter_by_signature(abi_element_identifier, abi)
-    if argument_types is not None:
-        abi_element_matches = filter_by_argument_type(
-            argument_types, filtered_abis_by_arg_count
-        )
-    elif args or kwargs:
-        abi_element_matches = cast(
-            List[ABIElement],
-            _filter_by_encodability(
-                abi_codec, filtered_abis_by_arg_count, *args, **kwargs
-            ),
-        )
+    # Resolve ambiguity if no arguments are provided
+    if num_matches > 1 and not args and not kwargs:
+        abi_element_matches_no_args = _filter_by_argument_count(0, abi_element_matches)
+        if len(abi_element_matches_no_args) == 1:
+            return cast(ABIEvent, abi_element_matches_no_args[0])
 
-    if len(abi_element_matches) != 1:
-        abi_signatures_matching_names = [
-            abi_to_signature(func) for func in filtered_abis_by_name
-        ]
-        abis_matching_arg_count = len(filtered_abis_by_arg_count)
-        abis_matching_args = len(abi_element_matches)
-
+    # Raise MismatchedABI when more than one found
+    if num_matches != 1:
         error_diagnosis = _mismatched_abi_error_diagnosis(
-            abi_element_identifier,
-            abi_signatures_matching_names,
-            abis_matching_arg_count,
-            abis_matching_args,
+            str(abi_element_identifier),
+            abi,
+            num_matches,
+            len(args) + len(kwargs),
             *args,
             **kwargs,
         )
@@ -501,9 +424,73 @@ def check_if_arguments_can_be_encoded(
     )
 
 
+def _build_abi_filters(
+    abi_element_identifier: str,
+    *args: Optional[Sequence[Any]],
+    abi_type: Optional[str] = None,
+    argument_names: Optional[Sequence[str]] = None,
+    argument_types: Optional[Sequence[str]] = None,
+    abi_codec: Optional[Any] = None,
+    **kwargs: Optional[Dict[str, Any]],
+) -> List[Callable[..., Sequence[ABIElement]]]:
+    if abi_element_identifier == "fallback" or abi_element_identifier == "receive":
+        return [functools.partial(filter_abi_by_type, abi_type)]
+
+    filters: List[Callable[..., Sequence[ABIElement]]] = []
+
+    if abi_type:
+        filters.append(functools.partial(filter_abi_by_type, abi_type))
+
+    if abi_element_identifier.endswith("()") or argument_names or (args or kwargs):
+        arg_count = len(argument_names) if argument_names else len(args) + len(kwargs)
+
+        if abi_element_identifier.endswith("()"):
+            arg_count = 0
+
+        filters.append(functools.partial(_filter_by_argument_count, arg_count))
+
+    if "(" in abi_element_identifier:
+        if argument_names or argument_types:
+            raise Web3ValidationError(
+                "Cannot specify argument names or types with a signature."
+            )
+        filters.append(functools.partial(_filter_by_signature, abi_element_identifier))
+    elif abi_type == "event":
+        filters.append(functools.partial(filter_abi_by_name, abi_element_identifier))
+    elif abi_element_identifier != "fallback" and abi_element_identifier != "receive":
+        filters.append(functools.partial(filter_abi_by_name, abi_element_identifier))
+
+        if argument_names:
+            filters.append(functools.partial(filter_by_argument_name, argument_names))
+
+            if argument_types:
+                if arg_count != len(argument_types):
+                    raise Web3ValidationError(
+                        "The number of argument names and types must match."
+                    )
+
+                filters.append(
+                    functools.partial(filter_by_argument_type, argument_types)
+                )
+
+        if abi_codec is None:
+            abi_codec = ABICodec(default_registry)
+
+        filters.append(
+            functools.partial(
+                _filter_by_encodability,
+                abi_codec,
+                args,
+                kwargs,
+            )
+        )
+
+    return filters
+
+
 def get_event_abi(
     abi: ABI,
-    event_identifier: str,
+    event_name: str,
     argument_names: Optional[Sequence[str]] = None,
 ) -> ABIEvent:
     """
@@ -511,9 +498,9 @@ def get_event_abi(
 
     :param abi: Contract ABI.
     :type abi: `ABI`
-    :param event_identifier: ABI signature represented by an event name and optional \
+    :param event_name: ABI signature represented by an event name and optional \
 argument types. The event name is required to match an event ABI.
-    :type event_identifier: `str`
+    :type event_name: `str`
     :param argument_names: List of argument names to match an event ABI.
     :type argument_names: `Optional[Sequence[str]]`
     :return: ABI for the event interface.
@@ -538,63 +525,35 @@ argument types. The event name is required to match an event ABI.
         {'type': 'event', 'name': 'MyEvent', 'inputs': \
 [{'name': 'a', 'type': 'uint256'}]}
     """
-    filters: List[functools.partial[Sequence[ABIElement]]] = [
-        functools.partial(filter_abi_by_type, "event"),
-    ]
+    event_abi_matches: Sequence[ABIEvent] = pipe(
+        abi,
+        *_build_abi_filters(
+            event_name,
+            abi_type="event",
+            argument_names=argument_names,
+        ),
+    )
 
-    if event_identifier is not None and "(" in event_identifier:
-        event_name = event_identifier.split("(")[0]
-        argument_types = event_identifier.split("(")[1].strip(")").split(",")
-    else:
-        event_name = event_identifier
-        argument_types = None
-
-    if event_name is None or event_name == "":
-        raise Web3ValidationError(
-            "event_name is required in order to match an event ABI."
-        )
-
-    filters.append(functools.partial(filter_abi_by_name, event_name))
-
-    arg_count = 0
-    if argument_names is not None:
-        filters.append(functools.partial(filter_by_argument_name, argument_names))
-        arg_count = len(argument_names)
-
-    if argument_types is not None:
-        if argument_names and arg_count != len(argument_types):
-            raise Web3ValidationError(
-                "The number of argument names and types must match."
-            )
-
-        filters.append(functools.partial(filter_by_argument_type, argument_types))
-
-    event_abi_candidates = pipe(abi, *filters)
+    num_matches = len(event_abi_matches)
 
     # Resolve ambiguity if no arguments are provided
-    if len(event_abi_candidates) > 1 and arg_count == 0:
-        event_abi_candidates = _filter_by_argument_count(0, event_abi_candidates)
+    if num_matches > 1 and argument_names is None:
+        event_abi_matches_no_args = _filter_by_argument_count(0, event_abi_matches)
+        if len(event_abi_matches_no_args) == 1:
+            return cast(ABIEvent, event_abi_matches_no_args[0])
 
-    if len(event_abi_candidates) != 1:
-        abis_matching_names = filter_abi_by_name(event_name, abi)
-        abi_signatures_matching_names = [
-            abi_to_signature(abi) for abi in abis_matching_names
-        ]
-        abis_matching_arg_count = len(
-            _filter_by_argument_count(arg_count, abis_matching_names)
-        )
-        abis_matching_args = len(event_abi_candidates)
-
+    # Raise MismatchedABI when more than one found
+    if num_matches != 1:
         error_diagnosis = _mismatched_abi_error_diagnosis(
             event_name,
-            abi_signatures_matching_names,
-            abis_matching_arg_count,
-            abis_matching_args,
+            abi,
+            num_matches,
+            len(argument_names) if argument_names else 0,
         )
 
         raise MismatchedABI(error_diagnosis)
 
-    return event_abi_candidates[0]
+    return event_abi_matches[0]
 
 
 def get_event_log_topics(
