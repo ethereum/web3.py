@@ -50,7 +50,6 @@ from web3._utils.normalizers import (
 )
 from web3.exceptions import (
     MismatchedABI,
-    Web3ValidationError,
     Web3ValueError,
 )
 from web3.types import (
@@ -510,14 +509,6 @@ def test_get_abi_element(
             TypeError,
             "Unsupported function identifier",
         ),
-        (
-            CONTRACT_ABI,
-            "logTwoEvents",
-            [],
-            {},
-            MismatchedABI,
-            "Could not find an ABI with that name and number of arguments.",
-        ),
     ),
 )
 def test_get_abi_element_raises_with_invalid_parameters(
@@ -653,12 +644,6 @@ def test_get_event_abi(event_name: str, input_args: Sequence[ABIComponent]) -> N
 @pytest.mark.parametrize(
     "name,args,error_type,expected_value",
     (
-        (
-            None,
-            None,
-            Web3ValidationError,
-            "event_name is required in order to match an event ABI.",
-        ),
         (
             "foo",
             None,

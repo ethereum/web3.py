@@ -45,6 +45,7 @@ from eth_utils.toolz import (
 )
 from eth_utils.types import (
     is_list_like,
+    is_text,
 )
 from hexbytes import (
     HexBytes,
@@ -60,6 +61,7 @@ from web3._utils.abi_element_identifiers import (
 )
 from web3.exceptions import (
     MismatchedABI,
+    Web3TypeError,
     Web3ValidationError,
 )
 from web3.types import (
@@ -244,7 +246,12 @@ def get_abi_element_info(
         (7, 3)
     """
     fn_abi = get_abi_element(
-        abi, abi_element_identifier, *args, abi_codec=abi_codec, **kwargs
+        abi,
+        abi_element_identifier,
+        *args,
+        argument_names=None,
+        abi_codec=abi_codec,
+        **kwargs,
     )
     fn_selector = encode_hex(function_abi_to_4byte_selector(fn_abi))
     fn_inputs: Tuple[Any, ...] = tuple()
@@ -264,6 +271,7 @@ def get_abi_element(
     abi: ABI,
     abi_element_identifier: ABIElementIdentifier,
     *args: Optional[Any],
+    argument_names: Optional[Sequence[str]] = None,
     abi_codec: Optional[Any] = None,
     **kwargs: Optional[Any],
 ) -> ABIElement:
@@ -319,10 +327,15 @@ def get_abi_element(
         abi_codec = ABICodec(default_registry)
 
     abi_type = None
-    if abi_element_identifier == FallbackFn:
+    if abi_element_identifier == FallbackFn or abi_element_identifier == "fallback":
         abi_element_identifier = abi_type = "fallback"
-    elif abi_element_identifier == ReceiveFn:
+    elif abi_element_identifier == ReceiveFn or abi_element_identifier == "receive":
         abi_element_identifier = abi_type = "receive"
+    elif abi_element_identifier == "constructor":
+        abi_element_identifier = abi_type = "constructor"
+
+    if abi_element_identifier is None or not is_text(abi_element_identifier):
+        raise Web3TypeError("Unsupported function identifier")
 
     abi_element_identifier = cast(str, abi_element_identifier)
 
@@ -332,18 +345,13 @@ def get_abi_element(
             abi_element_identifier,
             *args,
             abi_type=abi_type,
+            argument_names=argument_names,
             abi_codec=abi_codec,
             **kwargs,
         ),
     )
 
     num_matches = len(abi_element_matches)
-
-    # Resolve ambiguity if no arguments are provided
-    if num_matches > 1 and not args and not kwargs:
-        abi_element_matches_no_args = _filter_by_argument_count(0, abi_element_matches)
-        if len(abi_element_matches_no_args) == 1:
-            return cast(ABIEvent, abi_element_matches_no_args[0])
 
     # Raise MismatchedABI when more than one found
     if num_matches != 1:
@@ -433,7 +441,11 @@ def _build_abi_filters(
     abi_codec: Optional[Any] = None,
     **kwargs: Optional[Dict[str, Any]],
 ) -> List[Callable[..., Sequence[ABIElement]]]:
-    if abi_element_identifier == "fallback" or abi_element_identifier == "receive":
+    if (
+        abi_element_identifier == "constructor"
+        or abi_element_identifier == "fallback"
+        or abi_element_identifier == "receive"
+    ):
         return [functools.partial(filter_abi_by_type, abi_type)]
 
     filters: List[Callable[..., Sequence[ABIElement]]] = []
@@ -441,24 +453,31 @@ def _build_abi_filters(
     if abi_type:
         filters.append(functools.partial(filter_abi_by_type, abi_type))
 
-    if abi_element_identifier.endswith("()") or argument_names or (args or kwargs):
-        arg_count = len(argument_names) if argument_names else len(args) + len(kwargs)
+    arg_count = len(argument_names) if argument_names else len(args) + len(kwargs)
 
-        if abi_element_identifier.endswith("()"):
-            arg_count = 0
-
+    if arg_count > 0:
+        filters.append(
+            functools.partial(filter_abi_by_name, abi_element_identifier.split("(")[0])
+        )
         filters.append(functools.partial(_filter_by_argument_count, arg_count))
 
-    if "(" in abi_element_identifier:
-        if argument_names or argument_types:
-            raise Web3ValidationError(
-                "Cannot specify argument names or types with a signature."
+        if "(" in abi_element_identifier:
+            filters.append(
+                functools.partial(_filter_by_signature, abi_element_identifier)
             )
-        filters.append(functools.partial(_filter_by_signature, abi_element_identifier))
-    elif abi_type == "event":
-        filters.append(functools.partial(filter_abi_by_name, abi_element_identifier))
-    elif abi_element_identifier != "fallback" and abi_element_identifier != "receive":
-        filters.append(functools.partial(filter_abi_by_name, abi_element_identifier))
+
+        if args or kwargs:
+            if abi_codec is None:
+                abi_codec = ABICodec(default_registry)
+
+            filters.append(
+                functools.partial(
+                    _filter_by_encodability,
+                    abi_codec,
+                    args,
+                    kwargs,
+                )
+            )
 
         if argument_names:
             filters.append(functools.partial(filter_by_argument_name, argument_names))
@@ -472,18 +491,14 @@ def _build_abi_filters(
                 filters.append(
                     functools.partial(filter_by_argument_type, argument_types)
                 )
-
-        if abi_codec is None:
-            abi_codec = ABICodec(default_registry)
-
+    else:
         filters.append(
-            functools.partial(
-                _filter_by_encodability,
-                abi_codec,
-                args,
-                kwargs,
-            )
+            functools.partial(filter_abi_by_name, abi_element_identifier.split("(")[0])
         )
+        if "(" in abi_element_identifier:
+            filters.append(
+                functools.partial(_filter_by_signature, abi_element_identifier)
+            )
 
     return filters
 

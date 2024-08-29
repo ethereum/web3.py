@@ -182,6 +182,17 @@ def prepare_transaction(
     """
     fn_args = fn_args or []
     fn_kwargs = fn_kwargs or {}
+
+    if abi_element_identifier == "fallback":
+        abi_element_identifier = FallbackFn
+    elif abi_element_identifier == "receive":
+        abi_element_identifier = ReceiveFn
+
+    if (not fn_args and not fn_kwargs) and (
+        abi_element_identifier not in [FallbackFn, ReceiveFn]
+    ):
+        abi_element_identifier = f"{str(abi_element_identifier).split('(')[0]}()"
+
     if abi_callable is None:
         abi_callable = cast(
             ABICallable,

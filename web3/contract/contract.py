@@ -314,7 +314,7 @@ class ContractFunction(BaseContractFunction):
             self.w3,
             self.address,
             self._return_data_normalizers,
-            self.abi_element_identifier,
+            self.fn_name,
             call_transaction,
             block_id,
             self.contract_abi,
@@ -332,7 +332,7 @@ class ContractFunction(BaseContractFunction):
         return transact_with_contract_function(
             self.address,
             self.w3,
-            self.abi_element_identifier,
+            self.fn_name,
             setup_transaction,
             self.contract_abi,
             self.abi,
@@ -350,7 +350,7 @@ class ContractFunction(BaseContractFunction):
         return estimate_gas_for_function(
             self.address,
             self.w3,
-            self.abi_element_identifier,
+            self.fn_name,
             setup_transaction,
             self.contract_abi,
             self.abi,
