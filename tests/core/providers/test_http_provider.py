@@ -101,8 +101,8 @@ def test_user_provided_session():
     assert adapter._pool_maxsize == 20
 
 
-def test_get_request_headers():
-    provider = HTTPProvider()
+@pytest.mark.parametrize("provider", (HTTPProvider(), HTTPProvider))
+def test_get_request_headers(provider):
     headers = provider.get_request_headers()
     assert len(headers) == 2
     assert headers["Content-Type"] == "application/json"

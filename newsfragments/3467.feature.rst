@@ -1,0 +1,1 @@
+HTTPProvider and AsyncHTTPProvider's get_request_headers is now available on both the class and the instance

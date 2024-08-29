@@ -19,6 +19,7 @@ from eth_typing import (
     URI,
 )
 from eth_utils import (
+    combomethod,
     to_dict,
 )
 
@@ -108,10 +109,17 @@ class AsyncHTTPProvider(AsyncJSONBaseProvider):
             yield "headers", self.get_request_headers()
         yield from self._request_kwargs.items()
 
-    def get_request_headers(self) -> Dict[str, str]:
+    @combomethod
+    def get_request_headers(cls) -> Dict[str, str]:
+        if isinstance(cls, AsyncHTTPProvider):
+            cls_name = cls.__class__.__name__
+        else:
+            cls_name = cls.__name__
+        module = cls.__module__
+
         return {
             "Content-Type": "application/json",
-            "User-Agent": construct_user_agent(type(self)),
+            "User-Agent": construct_user_agent(module, cls_name),
         }
 
     async def _make_request(self, method: RPCEndpoint, request_data: bytes) -> bytes:
