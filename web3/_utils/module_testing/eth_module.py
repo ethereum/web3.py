@@ -88,6 +88,7 @@ from web3.exceptions import (
 )
 from web3.middleware import (
     ExtraDataToPOAMiddleware,
+    SignAndSendRawMiddlewareBuilder,
 )
 from web3.types import (
     ENS,
@@ -724,6 +725,26 @@ class AsyncEthModuleTest:
         signed = keyfile_account.sign_transaction(txn)
         txn_hash = await async_w3.eth.send_raw_transaction(signed.raw_transaction)
         assert txn_hash == HexBytes(signed.hash)
+
+    @pytest.mark.asyncio
+    async def test_async_sign_and_send_raw_middleware(
+        self, async_w3: "AsyncWeb3", keyfile_account_pkey: HexStr
+    ) -> None:
+        keyfile_account = async_w3.eth.account.from_key(keyfile_account_pkey)
+        txn: TxParams = {
+            "from": keyfile_account.address,
+            "to": keyfile_account.address,
+            "value": Wei(0),
+            "gas": 21000,
+        }
+        async_w3.middleware_onion.add(
+            SignAndSendRawMiddlewareBuilder.build(keyfile_account), "signing"
+        )
+        txn_hash = await async_w3.eth.send_transaction(txn)
+        assert isinstance(txn_hash, HexBytes)
+
+        # clean up
+        async_w3.middleware_onion.remove("signing")
 
     @pytest.mark.asyncio
     async def test_GasPriceStrategyMiddleware(
@@ -3715,6 +3736,25 @@ class EthModuleTest:
         signed = keyfile_account.sign_transaction(txn)
         txn_hash = w3.eth.send_raw_transaction(signed.raw_transaction)
         assert txn_hash == HexBytes(signed.hash)
+
+    def test_sign_and_send_raw_middleware(
+        self, w3: "Web3", keyfile_account_pkey: HexStr
+    ) -> None:
+        keyfile_account = w3.eth.account.from_key(keyfile_account_pkey)
+        txn: TxParams = {
+            "from": keyfile_account.address,
+            "to": keyfile_account.address,
+            "value": Wei(0),
+            "gas": 21000,
+        }
+        w3.middleware_onion.add(
+            SignAndSendRawMiddlewareBuilder.build(keyfile_account), "signing"
+        )
+        txn_hash = w3.eth.send_transaction(txn)
+        assert isinstance(txn_hash, HexBytes)
+
+        # cleanup
+        w3.middleware_onion.remove("signing")
 
     def test_eth_call(self, w3: "Web3", math_contract: "Contract") -> None:
         txn_params = math_contract._prepare_transaction(

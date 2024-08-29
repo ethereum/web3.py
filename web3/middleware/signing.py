@@ -189,7 +189,7 @@ class SignAndSendRawMiddlewareBuilder(Web3MiddlewareBuilder):
 
                 return (
                     RPCEndpoint("eth_sendRawTransaction"),
-                    [raw_tx.hex()],
+                    [raw_tx.to_0x_hex()],
                 )
 
     # -- async -- #
@@ -220,5 +220,5 @@ class SignAndSendRawMiddlewareBuilder(Web3MiddlewareBuilder):
 
                 return (
                     RPCEndpoint("eth_sendRawTransaction"),
-                    [raw_tx.hex()],
+                    [raw_tx.to_0x_hex()],
                 )
