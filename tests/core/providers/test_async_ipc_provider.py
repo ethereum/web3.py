@@ -234,6 +234,9 @@ async def test_async_iterator_pattern_exception_handling_for_requests(
             break
 
         pytest.fail("Expected `ConnectionClosed` exception.")
+        for cache_items in w3.provider._request_session_manager.session_cache.items():
+            cache_key, session = cache_items
+            await session.close()
 
     assert exception_caught
 
@@ -254,6 +257,9 @@ async def test_async_iterator_pattern_exception_handling_for_subscriptions(
         except ConnectionClosed:
             exception_caught = True
             break
+        for cache_items in w3.provider._request_session_manager.session_cache.items():
+            cache_key, session = cache_items
+            await session.close()
 
         pytest.fail("Expected `ConnectionClosed` exception.")
 

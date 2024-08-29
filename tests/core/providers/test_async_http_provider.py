@@ -45,6 +45,9 @@ async def test_async_no_args() -> None:
     assert not await w3.is_connected()
     with pytest.raises(ProviderConnectionError):
         await w3.is_connected(show_traceback=True)
+    for cached_items in provider._request_session_manager.session_cache.items():
+        cache_key, session = cached_items
+        await session.close()
 
 
 def test_init_kwargs():
@@ -92,6 +95,7 @@ async def test_async_user_provided_session() -> None:
     cached_session = await provider.cache_async_session(session)
     assert len(provider._request_session_manager.session_cache) == 1
     assert cached_session == session
+    await session.close()
 
 
 @pytest.mark.parametrize("provider", (AsyncHTTPProvider(), AsyncHTTPProvider))
