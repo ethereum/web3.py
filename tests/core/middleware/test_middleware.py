@@ -12,7 +12,7 @@ from web3.middleware import (
 )
 
 
-class TestMiddleware(Web3Middleware):
+class MockMiddleware(Web3Middleware):
     def response_processor(self, method, response):
         if method == "eth_blockNumber":
             response["result"] = 1234
@@ -20,7 +20,7 @@ class TestMiddleware(Web3Middleware):
         return response
 
 
-class TestMiddleware2(Web3Middleware):
+class MockMiddleware2(Web3Middleware):
     def response_processor(self, method, response):
         if method == "eth_blockNumber":
             response["result"] = 4321
@@ -32,15 +32,15 @@ def test_middleware_class_eq_magic_method():
     w3_a = Web3()
     w3_b = Web3()
 
-    mw1w3_a = TestMiddleware(w3_a)
+    mw1w3_a = MockMiddleware(w3_a)
     assert mw1w3_a is not None
     assert mw1w3_a != ""
 
-    mw1w3_a_equal = TestMiddleware(w3_a)
+    mw1w3_a_equal = MockMiddleware(w3_a)
     assert mw1w3_a == mw1w3_a_equal
 
-    mw2w3_a = TestMiddleware2(w3_a)
-    mw1w3_b = TestMiddleware(w3_b)
+    mw2w3_a = MockMiddleware2(w3_a)
+    mw1w3_b = MockMiddleware(w3_b)
     assert mw1w3_a != mw2w3_a
     assert mw1w3_a != mw1w3_b
 
@@ -72,10 +72,10 @@ def test_unnamed_middleware_are_given_unique_keys(w3):
 
 
 def test_unnamed_class_middleware_are_given_unique_keys(w3):
-    w3.middleware_onion.add(TestMiddleware)
-    w3.middleware_onion.add(TestMiddleware2)
+    w3.middleware_onion.add(MockMiddleware)
+    w3.middleware_onion.add(MockMiddleware2)
     assert isinstance(w3.eth.block_number, int)
 
     with pytest.raises(Web3ValueError):
         # adding the same middleware again should cause an error
-        w3.middleware_onion.add(TestMiddleware)
+        w3.middleware_onion.add(MockMiddleware)
