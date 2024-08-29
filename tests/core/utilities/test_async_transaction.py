@@ -1,4 +1,8 @@
 import pytest
+from unittest.mock import (
+    AsyncMock,
+    patch,
+)
 
 from eth_typing import (
     BlockNumber,
@@ -14,6 +18,9 @@ from web3._utils.utility_methods import (
 )
 from web3.constants import (
     DYNAMIC_FEE_TXN_PARAMS,
+)
+from web3.eth import (
+    AsyncEth,
 )
 
 SIMPLE_CURRENT_TRANSACTION = {
@@ -77,6 +84,61 @@ async def test_async_fill_transaction_defaults_nondynamic_tranaction_fee(async_w
     )
 
     assert none_in_dict(DYNAMIC_FEE_TXN_PARAMS, default_transaction)
+
+
+@pytest.mark.asyncio
+async def test_async_default_max_fee_per_gas_uses_max_priority_fee_if_exists_in_tx(
+    async_w3,
+):
+    fixed_base_fee = 500
+
+    async def get_block_func(block_number):
+        return {"baseFeePerGas": fixed_base_fee}
+
+    get_block_mock = AsyncMock(side_effect=get_block_func)
+
+    with patch.object(async_w3.eth, "get_block", side_effect=get_block_mock):
+        default_transaction = await async_fill_transaction_defaults(
+            async_w3, {"maxPriorityFeePerGas": 100}
+        )
+
+        assert default_transaction == {
+            "chainId": await async_w3.eth.chain_id,
+            "data": b"",
+            "gas": await async_w3.eth.estimate_gas({}),
+            "value": 0,
+            "maxPriorityFeePerGas": 100,
+            "maxFeePerGas": 1100,
+        }
+
+
+@pytest.mark.asyncio
+async def test_async_default_max_fee_per_gas_uses_default_mpfee_per_gas_if_not_in_tx(
+    async_w3,
+):
+    fixed_base_fee = 500
+
+    async def get_block_func(value):
+        return {"baseFeePerGas": fixed_base_fee}
+
+    get_block_mock = AsyncMock(side_effect=get_block_func)
+
+    @property
+    async def max_priority_fee_mock(arg):
+        return 45
+
+    with patch.object(async_w3.eth, "get_block", side_effect=get_block_mock):
+        with patch.object(AsyncEth, "max_priority_fee", new=max_priority_fee_mock):
+            default_transaction = await async_fill_transaction_defaults(async_w3, {})
+
+            assert default_transaction == {
+                "chainId": await async_w3.eth.chain_id,
+                "data": b"",
+                "gas": await async_w3.eth.estimate_gas({}),
+                "value": 0,
+                "maxPriorityFeePerGas": 45,
+                "maxFeePerGas": 1045,
+            }
 
 
 @pytest.mark.asyncio

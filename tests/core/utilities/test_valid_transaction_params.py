@@ -1,9 +1,15 @@
 import pytest
+from unittest.mock import (
+    patch,
+)
 
 from web3._utils.transactions import (
     assert_valid_transaction_params,
     extract_valid_transaction_params,
     fill_transaction_defaults,
+)
+from web3.eth import (
+    Eth,
 )
 from web3.exceptions import (
     Web3AttributeError,
@@ -159,6 +165,47 @@ def test_fill_transaction_defaults_for_all_params(w3):
         "maxPriorityFeePerGas": w3.eth.max_priority_fee,
         "value": 0,
     }
+
+
+def test_default_max_fee_per_gas_uses_max_priority_fee_if_exists_in_tx(w3):
+    fixed_base_fee = 500
+
+    def get_block_mock(block_number):
+        return {"baseFeePerGas": fixed_base_fee}
+
+    with patch.object(w3.eth, "get_block", side_effect=get_block_mock):
+        default_transaction = fill_transaction_defaults(
+            w3, {"maxPriorityFeePerGas": 100}
+        )
+
+        assert default_transaction == {
+            "chainId": w3.eth.chain_id,
+            "data": b"",
+            "gas": w3.eth.estimate_gas({}),
+            "value": 0,
+            "maxPriorityFeePerGas": 100,
+            "maxFeePerGas": 1100,
+        }
+
+
+def test_default_max_fee_per_gas_based_on_default_max_prio_fee_per_gas_if_not_in_tx(w3):
+    fixed_base_fee = 500
+
+    def get_block_mock(value):
+        return {"baseFeePerGas": fixed_base_fee}
+
+    with patch.object(w3.eth, "get_block", side_effect=get_block_mock):
+        with patch.object(Eth, "max_priority_fee", 45):
+            default_transaction = fill_transaction_defaults(w3, {})
+
+            assert default_transaction == {
+                "chainId": w3.eth.chain_id,
+                "data": b"",
+                "gas": w3.eth.estimate_gas({}),
+                "value": 0,
+                "maxPriorityFeePerGas": 45,
+                "maxFeePerGas": 1045,
+            }
 
 
 def test_fill_transaction_defaults_for_zero_gas_price(w3):
