@@ -6,6 +6,21 @@ v7 Breaking Changes Summary
 
 .. towncrier release notes start
 
+web3.py v7.2.0 (2024-08-29)
+---------------------------
+
+Bugfixes
+~~~~~~~~
+
+- Fix a bug with newer ``hexbytes`` versions that yield non-0x-prefixed hex for ``HexBytes``: ``raw_transaction.hex()`` -> ``raw_transaction.to_0x_hex()``. (`#3471 <https://github.com/ethereum/web3.py/issues/3471>`__)
+
+
+Features
+~~~~~~~~
+
+- HTTPProvider and AsyncHTTPProvider's get_request_headers is now available on both the class and the instance (`#3467 <https://github.com/ethereum/web3.py/issues/3467>`__)
+
+
 web3.py v7.1.0 (2024-08-28)
 ---------------------------
 

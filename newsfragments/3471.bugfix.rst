@@ -1,1 +1,0 @@
-Fix a bug with newer ``hexbytes`` versions that yield non-0x-prefixed hex for ``HexBytes``: ``raw_transaction.hex()`` -> ``raw_transaction.to_0x_hex()``.
