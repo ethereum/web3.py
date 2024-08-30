@@ -17,6 +17,9 @@ async def test_async_tester_provider_is_connected() -> None:
     provider = AsyncEthereumTesterProvider()
     connected = await provider.is_connected()
     assert connected
+    for cache_items in provider._request_cache.items():
+        cache_key, session = cache_items
+        await session.close()
 
 
 @pytest.mark.asyncio
