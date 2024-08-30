@@ -128,7 +128,7 @@ def test_event_data_extraction(
     assert len(txn_receipt["logs"]) == 1
     log_entry = txn_receipt["logs"][0]
 
-    event_abi = emitter._get_event_abi(event_name)
+    event_abi = emitter.get_event_by_name(event_name).abi
 
     event_topic = getattr(emitter_contract_log_topics, event_name)
     is_anonymous = event_abi["anonymous"]
@@ -335,7 +335,7 @@ def test_event_data_extraction_bytes(
     log_entry = txn_receipt["logs"][0]
 
     event_name = "LogListArgs"
-    event_abi = emitter._get_event_abi(event_name)
+    event_abi = emitter.get_event_by_name(event_name).abi
 
     event_topic = getattr(emitter_contract_log_topics, event_name)
 
@@ -386,7 +386,7 @@ def test_event_data_extraction_bytes_non_strict(
     log_entry = txn_receipt["logs"][0]
 
     event_name = "LogListArgs"
-    event_abi = non_strict_emitter._get_event_abi(event_name)
+    event_abi = non_strict_emitter.get_event_by_name(event_name).abi
 
     event_topic = getattr(emitter_contract_log_topics, event_name)
 
@@ -431,7 +431,7 @@ def test_dynamic_length_argument_extraction(
     assert len(txn_receipt["logs"]) == 1
     log_entry = txn_receipt["logs"][0]
 
-    event_abi = emitter._get_event_abi("LogDynamicArgs")
+    event_abi = emitter.get_event_by_name("LogDynamicArgs").abi
 
     event_topic = emitter_contract_log_topics.LogDynamicArgs
     assert event_topic in log_entry["topics"]
@@ -466,7 +466,7 @@ def test_argument_extraction_strict_bytes_types(
     log_entry = txn_receipt["logs"][0]
     assert len(log_entry["topics"]) == 2
 
-    event_abi = emitter._get_event_abi("LogListArgs")
+    event_abi = emitter.get_event_by_name("LogListArgs").abi
 
     event_topic = emitter_contract_log_topics.LogListArgs
     assert event_topic in log_entry["topics"]
@@ -545,14 +545,14 @@ def test_contract_event_get_logs_sorted_by_log_index(w3, emitter, request_mocker
     ]
 
     with request_mocker(w3, mock_results={"eth_getLogs": get_logs_response}):
-        logs = emitter.events.LogNoArguments().get_logs()
+        logs = emitter.events.LogNoArguments.get_logs()
 
         sorted_logs = sorted(
-            emitter.events.LogNoArguments().get_logs(),
+            emitter.events.LogNoArguments.get_logs(),
             key=lambda log: log["logIndex"],
         )
         sorted_logs = sorted(
-            emitter.events.LogNoArguments().get_logs(),
+            emitter.events.LogNoArguments.get_logs(),
             key=lambda log: log["blockNumber"],
         )
 
@@ -796,7 +796,7 @@ def test_event_rich_log(
         txn_hash = emitter_fn(*call_args).transact()
     txn_receipt = wait_for_transaction(w3, txn_hash)
 
-    event_instance = emitter.events[event_name]()
+    event_instance = emitter.events[event_name]
 
     if process_receipt:
         processed_logs = event_instance.process_receipt(txn_receipt)
@@ -819,7 +819,7 @@ def test_event_rich_log(
 
     quiet_event = emitter.events["LogBytes"]
     with pytest.warns(UserWarning, match=warning_msg):
-        empty_rich_log = quiet_event().process_receipt(txn_receipt)
+        empty_rich_log = quiet_event.process_receipt(txn_receipt)
         assert empty_rich_log == tuple()
 
 
@@ -1059,7 +1059,7 @@ def test_event_rich_log_non_strict(
         txn_hash = emitter_fn(*call_args).transact()
     txn_receipt = wait_for_transaction(w3_non_strict_abi, txn_hash)
 
-    event_instance = non_strict_emitter.events[event_name]()
+    event_instance = non_strict_emitter.events[event_name]
 
     if process_receipt:
         processed_logs = event_instance.process_receipt(txn_receipt)
@@ -1082,7 +1082,7 @@ def test_event_rich_log_non_strict(
 
     quiet_event = non_strict_emitter.events["LogBytes"]
     with pytest.warns(UserWarning, match=warning_msg):
-        empty_rich_log = quiet_event().process_receipt(txn_receipt)
+        empty_rich_log = quiet_event.process_receipt(txn_receipt)
         assert empty_rich_log == tuple()
 
 
@@ -1093,7 +1093,7 @@ def test_event_rich_log_with_byte_args(
     txn_hash = emitter.functions.logListArgs([b"13"], [b"54"]).transact()
     txn_receipt = wait_for_transaction(w3, txn_hash)
 
-    event_instance = emitter.events.LogListArgs()
+    event_instance = emitter.events.LogListArgs
 
     if process_receipt:
         processed_logs = event_instance.process_receipt(txn_receipt)
@@ -1122,7 +1122,7 @@ def test_event_rich_log_with_byte_args(
 def test_receipt_processing_with_discard_flag(
     event_contract, indexed_event_contract, dup_txn_receipt, wait_for_transaction
 ):
-    event_instance = indexed_event_contract.events.LogSingleWithIndex()
+    event_instance = indexed_event_contract.events.LogSingleWithIndex
 
     returned_logs = event_instance.process_receipt(dup_txn_receipt, errors=DISCARD)
     assert returned_logs == ()
@@ -1131,7 +1131,7 @@ def test_receipt_processing_with_discard_flag(
 def test_receipt_processing_with_ignore_flag(
     event_contract, indexed_event_contract, dup_txn_receipt, wait_for_transaction
 ):
-    event_instance = indexed_event_contract.events.LogSingleWithIndex()
+    event_instance = indexed_event_contract.events.LogSingleWithIndex
 
     returned_logs = event_instance.process_receipt(dup_txn_receipt, errors=IGNORE)
     assert len(returned_logs) == 2
@@ -1155,7 +1155,7 @@ def test_receipt_processing_with_ignore_flag(
 
 
 def test_receipt_processing_with_warn_flag(indexed_event_contract, dup_txn_receipt):
-    event_instance = indexed_event_contract.events.LogSingleWithIndex()
+    event_instance = indexed_event_contract.events.LogSingleWithIndex
 
     with pytest.warns(UserWarning, match="Expected 1 log topics.  Got 0"):
         returned_logs = event_instance.process_receipt(dup_txn_receipt, errors=WARN)
@@ -1163,21 +1163,21 @@ def test_receipt_processing_with_warn_flag(indexed_event_contract, dup_txn_recei
 
 
 def test_receipt_processing_with_strict_flag(indexed_event_contract, dup_txn_receipt):
-    event_instance = indexed_event_contract.events.LogSingleWithIndex()
+    event_instance = indexed_event_contract.events.LogSingleWithIndex
 
     with pytest.raises(LogTopicError, match="Expected 1 log topics.  Got 0"):
         event_instance.process_receipt(dup_txn_receipt, errors=STRICT)
 
 
 def test_receipt_processing_with_invalid_flag(indexed_event_contract, dup_txn_receipt):
-    event_instance = indexed_event_contract.events.LogSingleWithIndex()
+    event_instance = indexed_event_contract.events.LogSingleWithIndex
 
     with pytest.raises(Web3AttributeError, match="Error flag must be one of: "):
         event_instance.process_receipt(dup_txn_receipt, errors="not-a-flag")
 
 
 def test_receipt_processing_with_no_flag(indexed_event_contract, dup_txn_receipt):
-    event_instance = indexed_event_contract.events.LogSingleWithIndex()
+    event_instance = indexed_event_contract.events.LogSingleWithIndex
 
     with pytest.warns(UserWarning, match="Expected 1 log topics.  Got 0"):
         returned_log = event_instance.process_receipt(dup_txn_receipt)
@@ -1185,7 +1185,7 @@ def test_receipt_processing_with_no_flag(indexed_event_contract, dup_txn_receipt
 
 
 def test_single_log_processing_with_errors(indexed_event_contract, dup_txn_receipt):
-    event_instance = indexed_event_contract.events.LogSingleWithIndex()
+    event_instance = indexed_event_contract.events.LogSingleWithIndex
 
     with pytest.raises(LogTopicError, match="Expected 1 log topics.  Got 0"):
         event_instance.process_log(dup_txn_receipt["logs"][0])
@@ -1244,7 +1244,7 @@ def test_receipt_processing_catches_insufficientdatabytes_error_by_default(
 ):
     txn_hash = emitter.functions.logListArgs([b"13"], [b"54"]).transact()
     txn_receipt = wait_for_transaction(w3, txn_hash)
-    event_instance = emitter.events.LogListArgs()
+    event_instance = emitter.events.LogListArgs
 
     # web3 doesn't generate logs with non-standard lengths, so we have to do it manually
     txn_receipt_dict = copy.deepcopy(txn_receipt)
