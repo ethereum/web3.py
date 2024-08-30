@@ -175,7 +175,7 @@ class AsyncContractEvent(BaseContractEvent):
           same time as ``from_block`` or ``to_block``
         :yield: Tuple of :class:`AttributeDict` instances
         """
-        event_abi = self.abi
+        event_abi = self._get_abi()
 
         # validate ``argument_filters`` if present
         if argument_filters is not None:
@@ -216,7 +216,8 @@ class AsyncContractEvent(BaseContractEvent):
         """
         Create filter object that tracks logs emitted by this contract event.
         """
-        filter_builder = AsyncEventFilterBuilder(self._get_abi(), self.w3.codec)
+        event_abi = self._get_abi()
+        filter_builder = AsyncEventFilterBuilder(event_abi, self.w3.codec)
         self._set_up_filter_builder(
             argument_filters,
             from_block,
@@ -226,17 +227,18 @@ class AsyncContractEvent(BaseContractEvent):
             filter_builder,
         )
         log_filter = await filter_builder.deploy(self.w3)
-        log_filter.log_entry_formatter = get_event_data(self.w3.codec, self._get_abi())
+        log_filter.log_entry_formatter = get_event_data(self.w3.codec, event_abi)
         log_filter.builder = filter_builder
 
         return log_filter
 
     @combomethod
     def build_filter(self) -> AsyncEventFilterBuilder:
+        event_abi = self._get_abi()
         builder = AsyncEventFilterBuilder(
-            self._get_abi(),
+            event_abi,
             self.w3.codec,
-            formatter=get_event_data(self.w3.codec, self._get_abi()),
+            formatter=get_event_data(self.w3.codec, event_abi),
         )
         builder.address = self.address
         return builder

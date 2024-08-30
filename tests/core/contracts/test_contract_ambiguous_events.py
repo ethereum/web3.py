@@ -280,10 +280,10 @@ def test_get_event_abi_with_ambiguous_events_errors(
         MismatchedABI,
         match="Could not identify the intended ABI with name",
     ):
-        ambiguous_event_contract.get_event_abi("NotAnEvent")
+        ambiguous_event_contract._get_event_abi("NotAnEvent")
 
     with pytest.raises(
         MismatchedABI,
         match="Could not identify the intended ABI with name",
     ):
-        ambiguous_event_contract.get_event_abi("LogSingleArg")
+        ambiguous_event_contract._get_event_abi("LogSingleArg")

@@ -47,6 +47,7 @@ from hexbytes import (
 
 from web3._utils.abi import (
     filter_by_argument_name,
+    get_abi_element_identifier,
     map_abi_data,
     named_tree,
 )
@@ -183,22 +184,18 @@ def prepare_transaction(
     fn_args = fn_args or []
     fn_kwargs = fn_kwargs or {}
 
-    if abi_element_identifier == "fallback":
-        abi_element_identifier = FallbackFn
-    elif abi_element_identifier == "receive":
-        abi_element_identifier = ReceiveFn
-
-    if (not fn_args and not fn_kwargs) and (
-        abi_element_identifier not in [FallbackFn, ReceiveFn]
-    ):
-        abi_element_identifier = f"{str(abi_element_identifier).split('(')[0]}()"
+    element_id = get_abi_element_identifier(abi_element_identifier)
+    if element_id == "fallback":
+        element_id = FallbackFn
+    elif element_id == "receive":
+        element_id = ReceiveFn
 
     if abi_callable is None:
         abi_callable = cast(
             ABICallable,
             get_abi_element(
                 contract_abi,
-                abi_element_identifier,
+                element_id,
                 *fn_args,
                 abi_codec=w3.codec,
                 **fn_kwargs,
@@ -220,7 +217,7 @@ def prepare_transaction(
 
     prepared_transaction["data"] = encode_transaction_data(
         w3,
-        abi_element_identifier,
+        element_id,
         contract_abi,
         abi_callable,
         fn_args,

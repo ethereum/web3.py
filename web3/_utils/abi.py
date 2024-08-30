@@ -77,6 +77,10 @@ from eth_utils.toolz import (
     pipe,
 )
 
+from web3._utils.abi_element_identifiers import (
+    FallbackFn,
+    ReceiveFn,
+)
 from web3._utils.decorators import (
     reject_recursive_repeats,
 )
@@ -93,6 +97,7 @@ from web3.exceptions import (
     Web3ValueError,
 )
 from web3.types import (
+    ABIElementIdentifier,
     TReturn,
 )
 
@@ -168,6 +173,34 @@ def filter_by_argument_type(
             continue
 
     return abis_with_matching_args
+
+
+def get_name_from_abi_element_identifier(
+    abi_element_identifier: ABIElementIdentifier,
+) -> str:
+    if abi_element_identifier in ["fallback", FallbackFn]:
+        return "fallback"
+    elif abi_element_identifier in ["receive", ReceiveFn]:
+        return "receive"
+    elif abi_element_identifier == "constructor":
+        return "constructor"
+    elif is_text(abi_element_identifier):
+        return str(abi_element_identifier).split("(")[0]
+    else:
+        raise Web3TypeError("Unsupported function identifier")
+
+
+def get_abi_element_identifier(
+    abi_element_identifier: ABIElementIdentifier,
+    abi_element_argument_types: Optional[Sequence[str]] = None,
+) -> ABIElementIdentifier:
+    element_name = get_name_from_abi_element_identifier(abi_element_identifier)
+    argument_types = ",".join(abi_element_argument_types or [])
+
+    if element_name in ["fallback", "receive", "constructor"]:
+        return element_name
+
+    return f"{element_name}({argument_types})"
 
 
 class AddressEncoder(encoding.AddressEncoder):

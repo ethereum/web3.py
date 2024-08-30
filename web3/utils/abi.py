@@ -45,7 +45,6 @@ from eth_utils.toolz import (
 )
 from eth_utils.types import (
     is_list_like,
-    is_text,
 )
 from hexbytes import (
     HexBytes,
@@ -54,14 +53,10 @@ from hexbytes import (
 from web3._utils.abi import (
     filter_by_argument_name,
     filter_by_argument_type,
-)
-from web3._utils.abi_element_identifiers import (
-    FallbackFn,
-    ReceiveFn,
+    get_name_from_abi_element_identifier,
 )
 from web3.exceptions import (
     MismatchedABI,
-    Web3TypeError,
     Web3ValidationError,
 )
 from web3.types import (
@@ -97,8 +92,8 @@ def _filter_by_signature(signature: str, contract_abi: ABI) -> List[ABIElement]:
 
 def _filter_by_encodability(
     abi_codec: codec.ABIEncoder,
-    args: Optional[Sequence[Any]],
-    kwargs: Optional[Dict[str, Any]],
+    args: Sequence[Any],
+    kwargs: Dict[str, Any],
     contract_abi: ABI,
 ) -> List[ABICallable]:
     return [
@@ -326,18 +321,14 @@ def get_abi_element(
     if abi_codec is None:
         abi_codec = ABICodec(default_registry)
 
+    element_name = get_name_from_abi_element_identifier(abi_element_identifier)
+
     abi_type = None
-    if abi_element_identifier == FallbackFn or abi_element_identifier == "fallback":
-        abi_element_identifier = abi_type = "fallback"
-    elif abi_element_identifier == ReceiveFn or abi_element_identifier == "receive":
-        abi_element_identifier = abi_type = "receive"
-    elif abi_element_identifier == "constructor":
-        abi_element_identifier = abi_type = "constructor"
-
-    if abi_element_identifier is None or not is_text(abi_element_identifier):
-        raise Web3TypeError("Unsupported function identifier")
-
-    abi_element_identifier = cast(str, abi_element_identifier)
+    if element_name in ("fallback", "receive", "constructor"):
+        abi_type = element_name
+        abi_element_identifier = element_name
+    else:
+        abi_element_identifier = str(abi_element_identifier)
 
     abi_element_matches: Sequence[ABIElement] = pipe(
         abi,
@@ -356,7 +347,7 @@ def get_abi_element(
     # Raise MismatchedABI when more than one found
     if num_matches != 1:
         error_diagnosis = _mismatched_abi_error_diagnosis(
-            str(abi_element_identifier),
+            abi_element_identifier,
             abi,
             num_matches,
             len(args) + len(kwargs),
@@ -453,11 +444,21 @@ def _build_abi_filters(
     if abi_type:
         filters.append(functools.partial(filter_abi_by_type, abi_type))
 
-    arg_count = len(argument_names) if argument_names else len(args) + len(kwargs)
+    arg_count = 0
+    if argument_names:
+        arg_count = len(argument_names)
+    elif args or kwargs:
+        abi_element_identifier = get_name_from_abi_element_identifier(
+            abi_element_identifier
+        )
+        arg_count = len(args) + len(kwargs)
 
     if arg_count > 0:
         filters.append(
-            functools.partial(filter_abi_by_name, abi_element_identifier.split("(")[0])
+            functools.partial(
+                filter_abi_by_name,
+                get_name_from_abi_element_identifier(abi_element_identifier),
+            )
         )
         filters.append(functools.partial(_filter_by_argument_count, arg_count))
 
