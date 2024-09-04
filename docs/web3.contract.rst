@@ -323,10 +323,10 @@ Each Contract Factory exposes the following methods.
         filter_builder.from_block = "latest"
         filter_builder.from_block = 0  # raises a ValueError
 
-.. py:classmethod:: Contract.encode_abi(fn_name, args=None, kwargs=None, data=None)
+.. py:classmethod:: Contract.encode_abi(abi_element_identifier, args=None, kwargs=None, data=None)
 
     Encodes the arguments using the Ethereum ABI for the contract function that
-    matches the given ``fn_name`` and arguments ``args``. The ``data`` parameter
+    matches the given ``abi_element_identifier`` and arguments ``args``. The ``data`` parameter
     defaults to the function selector.
 
     .. code-block:: python
