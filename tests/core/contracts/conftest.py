@@ -22,6 +22,7 @@ from web3._utils.contract_sources.contract_data.contract_caller_tester import (
     CONTRACT_CALLER_TESTER_DATA,
 )
 from web3._utils.contract_sources.contract_data.event_contracts import (
+    AMBIGUOUS_EVENT_NAME_CONTRACT_DATA,
     EVENT_CONTRACT_DATA,
     INDEXED_EVENT_CONTRACT_DATA,
 )
@@ -259,6 +260,30 @@ def indexed_event_contract(
     indexed_event_contract = indexed_event_contract_factory(address=contract_address)
     assert indexed_event_contract.address == contract_address
     return indexed_event_contract
+
+
+@pytest.fixture
+def ambiguous_event_contract(
+    w3, wait_for_block, wait_for_transaction, address_conversion_func
+):
+    wait_for_block(w3)
+
+    ambiguous_event_contract_factory = w3.eth.contract(
+        **AMBIGUOUS_EVENT_NAME_CONTRACT_DATA
+    )
+    deploy_txn_hash = ambiguous_event_contract_factory.constructor().transact(
+        {"gas": 1000000}
+    )
+    deploy_receipt = wait_for_transaction(w3, deploy_txn_hash)
+    contract_address = address_conversion_func(deploy_receipt["contractAddress"])
+
+    bytecode = w3.eth.get_code(contract_address)
+    assert bytecode == ambiguous_event_contract_factory.bytecode_runtime
+    ambiguous_event_name_contract = ambiguous_event_contract_factory(
+        address=contract_address
+    )
+    assert ambiguous_event_name_contract.address == contract_address
+    return ambiguous_event_name_contract
 
 
 # --- arrays contract --- #
@@ -759,4 +784,5 @@ def async_call(request):
 
 @pytest.fixture
 def async_estimate_gas(request):
+    return async_partial(async_invoke_contract, api_call_desig="estimate_gas")
     return async_partial(async_invoke_contract, api_call_desig="estimate_gas")
