@@ -36,6 +36,7 @@ from eth_utils import (
     encode_hex,
     filter_abi_by_type,
     function_abi_to_4byte_selector,
+    get_abi_input_types,
     get_normalized_abi_inputs,
     is_list_like,
     is_text,
@@ -48,6 +49,7 @@ from hexbytes import (
 from web3._utils.abi import (
     fallback_func_abi_exists,
     find_constructor_abi_element_by_type,
+    get_abi_element_identifier,
     is_array_type,
     receive_func_abi_exists,
 )
@@ -148,23 +150,40 @@ class BaseContractEvent:
     w3: Union["Web3", "AsyncWeb3"] = None
     contract_abi: ABI = None
     abi: ABIEvent = None
+    argument_types: Tuple[str] = None
 
-    def __init__(self, *argument_names: Tuple[str]) -> None:
+    def __init__(
+        self,
+        *argument_names: Tuple[str],
+        argument_types: Tuple[str] = None,
+    ) -> None:
         if argument_names is None:
             # https://github.com/python/mypy/issues/6283
             self.argument_names = tuple()  # type: ignore
         else:
             self.argument_names = argument_names
 
-        self.abi = self._get_event_abi()
+        self.abi = self._get_event_abi(argument_types)
 
     @classmethod
-    def _get_event_abi(cls) -> ABIEvent:
+    def _get_event_abi(
+        cls,
+        argument_types: Optional[Sequence[str]] = None,
+    ) -> ABIEvent:
         abi_events = filter_abi_by_type("event", cls.contract_abi)
+
+        if argument_types is None:
+            return cast(
+                ABIEvent,
+                get_abi_element(abi_events, cls.event_name),
+            )
 
         return cast(
             ABIEvent,
-            get_abi_element(abi_events, cls.event_name),
+            get_abi_element(
+                abi_events,
+                get_abi_element_identifier(cls.event_name, argument_types),
+            ),
         )
 
     @combomethod
@@ -436,6 +455,7 @@ class BaseContractEvents:
                         contract_abi=self.abi,
                         address=address,
                         event_name=event["name"],
+                        argument_types=get_abi_input_types(event),
                     ),
                 )
 
