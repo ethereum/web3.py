@@ -160,7 +160,12 @@ class BaseContractEvent:
 
     @classmethod
     def _get_event_abi(cls) -> ABIEvent:
-        return get_event_abi(cls.contract_abi, event_name=cls.event_name)
+        abi_events = filter_abi_by_type("event", cls.contract_abi)
+
+        return cast(
+            ABIEvent,
+            get_abi_element(abi_events, cls.event_name),
+        )
 
     @combomethod
     def process_receipt(
