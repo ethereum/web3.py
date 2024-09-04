@@ -139,11 +139,29 @@ SET_VALUE_WITH_TUPLE_ABI: ABIFunction = {
     "type": "function",
 }
 
+AMBIGUOUS_EVENT_ABI: ABIEvent = {
+    "anonymous": False,
+    "inputs": [{"name": "arg0", "type": "uint256"}],
+    "name": "LogSingleArg",
+    "type": "event",
+}
+AMBIGUOUS_EVENT_ABI_NO_INPUTS: ABIEvent = {
+    "anonymous": False,
+    "inputs": [],
+    "name": "LogSingleArg",
+    "type": "event",
+}
+
 CONTRACT_ABI: ABI = [
     LOG_TWO_EVENTS_ABI,
     SET_VALUE_ABI,
     SET_VALUE_WITH_TUPLE_ABI,
     FUNCTION_ABI_NO_INPUTS,
+]
+
+CONTRACT_ABI_AMBIGUOUS_EVENT: ABI = [
+    AMBIGUOUS_EVENT_ABI,
+    AMBIGUOUS_EVENT_ABI_NO_INPUTS,
 ]
 
 ABI_CONSTRUCTOR = ABIConstructor({"type": "constructor"})
@@ -478,6 +496,13 @@ def test_get_abi_element_info_raises_mismatched_abi(contract_abi: ABI) -> None:
             [],
             {},
             ABI_CONSTRUCTOR,
+        ),
+        (
+            CONTRACT_ABI_AMBIGUOUS_EVENT,
+            "LogSingleArg",
+            [12345],
+            {},
+            AMBIGUOUS_EVENT_ABI_NO_INPUTS,
         ),
     ),
 )
