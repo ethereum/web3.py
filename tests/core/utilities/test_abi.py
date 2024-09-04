@@ -499,8 +499,8 @@ def test_get_abi_element_info_raises_mismatched_abi(contract_abi: ABI) -> None:
         ),
         (
             CONTRACT_ABI_AMBIGUOUS_EVENT,
-            "LogSingleArg",
-            [12345],
+            "LogSingleArg()",
+            [],
             {},
             AMBIGUOUS_EVENT_ABI_NO_INPUTS,
         ),

@@ -190,6 +190,19 @@ def get_name_from_abi_element_identifier(
         raise Web3TypeError("Unsupported function identifier")
 
 
+def get_abi_element_identifier(
+    abi_element_identifier: ABIElementIdentifier,
+    abi_element_argument_types: Optional[Sequence[str]] = None,
+) -> ABIElementIdentifier:
+    element_name = get_name_from_abi_element_identifier(abi_element_identifier)
+    argument_types = ",".join(abi_element_argument_types or [])
+
+    if element_name in ["fallback", "receive", "constructor"]:
+        return element_name
+
+    return f"{element_name}({argument_types})"
+
+
 class AddressEncoder(encoding.AddressEncoder):
     @classmethod
     def validate_value(cls, value: Any) -> None:

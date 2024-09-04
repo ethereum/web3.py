@@ -99,9 +99,9 @@ def _filter_by_argument_count(
 
 def _filter_by_encodability(
     abi_codec: codec.ABIEncoder,
+    args: Sequence[Any],
+    kwargs: Dict[str, Any],
     contract_abi: ABI,
-    *args: Optional[Sequence[Any]],
-    **kwargs: Optional[Dict[str, Any]],
 ) -> List[ABICallable]:
     return [
         cast(ABICallable, function_abi)
