@@ -333,7 +333,7 @@ Miscellaneous Changes
   without checking if the ``geth.ipc`` file exists.
 - ``Web3.is_address()`` returns ``True`` for non-checksummed addresses.
 - ``Contract.encodeABI()`` has been renamed to ``Contract.encode_abi()``. The ``fn_name``
-  argument has been changed to ``abi_element_name``.
+  argument has been changed to ``abi_element_identifier``.
 - JSON-RPC responses are now more strictly validated against the JSON-RPC 2.0
   specification while providing more informative error messages for invalid responses.
 
