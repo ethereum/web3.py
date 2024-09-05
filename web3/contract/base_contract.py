@@ -375,12 +375,10 @@ class BaseContractEvent:
 
         _filters = dict(**argument_filters)
 
-        event_abi = self._get_event_abi()
-
-        self.check_for_forbidden_api_filter_arguments(event_abi, _filters)
+        self.check_for_forbidden_api_filter_arguments(self.abi, _filters)
 
         _, event_filter_params = construct_event_filter_params(
-            self._get_event_abi(),
+            self.abi,
             self.w3.codec,
             contract_address=self.address,
             argument_filters=_filters,
@@ -447,9 +445,10 @@ class BaseContractEvents:
             self.abi = abi
             self._events = filter_abi_by_type("event", self.abi)
             for event in self._events:
+                event_signature = abi_to_signature(event)
                 setattr(
                     self,
-                    event["name"],
+                    event_signature,
                     contract_event_type.factory(
                         event["name"],
                         w3=w3,

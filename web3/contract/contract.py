@@ -168,11 +168,9 @@ class ContractEvent(BaseContractEvent):
           same time as ``from_block`` or ``to_block``
         :yield: Tuple of :class:`AttributeDict` instances
         """
-        event_abi = self._get_event_abi()
-
         # validate ``argument_filters`` if present
         if argument_filters is not None:
-            event_arg_names = get_abi_input_names(event_abi)
+            event_arg_names = get_abi_input_names(self.abi)
             if not all(arg in event_arg_names for arg in argument_filters.keys()):
                 raise Web3ValidationError(
                     "When filtering by argument names, all argument names must be "
@@ -180,17 +178,17 @@ class ContractEvent(BaseContractEvent):
                 )
 
         _filter_params = self._get_event_filter_params(
-            event_abi, argument_filters, from_block, to_block, block_hash
+            self.abi, argument_filters, from_block, to_block, block_hash
         )
         # call JSON-RPC API
         logs = self.w3.eth.get_logs(_filter_params)
 
         # convert raw binary data to Python proxy objects as described by ABI:
         all_event_logs = tuple(
-            get_event_data(self.w3.codec, event_abi, entry) for entry in logs
+            get_event_data(self.w3.codec, self.abi, entry) for entry in logs
         )
         filtered_logs = self._process_get_logs_argument_filters(
-            event_abi,
+            self.abi,
             all_event_logs,
             argument_filters,
         )
@@ -211,7 +209,7 @@ class ContractEvent(BaseContractEvent):
         """
         Create filter object that tracks logs emitted by this contract event.
         """
-        filter_builder = EventFilterBuilder(self._get_event_abi(), self.w3.codec)
+        filter_builder = EventFilterBuilder(self.abi, self.w3.codec)
         self._set_up_filter_builder(
             argument_filters,
             from_block,
@@ -221,9 +219,7 @@ class ContractEvent(BaseContractEvent):
             filter_builder,
         )
         log_filter = filter_builder.deploy(self.w3)
-        log_filter.log_entry_formatter = get_event_data(
-            self.w3.codec, self._get_event_abi()
-        )
+        log_filter.log_entry_formatter = get_event_data(self.w3.codec, self.abi)
         log_filter.builder = filter_builder
 
         return log_filter
@@ -231,9 +227,9 @@ class ContractEvent(BaseContractEvent):
     @combomethod
     def build_filter(self) -> EventFilterBuilder:
         builder = EventFilterBuilder(
-            self._get_event_abi(),
+            self.abi,
             self.w3.codec,
-            formatter=get_event_data(self.w3.codec, self._get_event_abi()),
+            formatter=get_event_data(self.w3.codec, self.abi),
         )
         builder.address = self.address
         return builder
