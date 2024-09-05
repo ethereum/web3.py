@@ -36,6 +36,7 @@ from eth_utils import (
     encode_hex,
     filter_abi_by_type,
     function_abi_to_4byte_selector,
+    get_abi_input_types,
     get_normalized_abi_inputs,
     is_list_like,
     is_text,
@@ -122,6 +123,7 @@ from web3.types import (
 )
 from web3.utils.abi import (
     check_if_arguments_can_be_encoded,
+    filter_abi_by_name,
     get_abi_element,
     get_abi_element_info,
     get_event_abi,
@@ -169,23 +171,8 @@ class BaseContractEvent:
     @classmethod
     def _get_event_abi(
         cls,
-        argument_types: Optional[Sequence[str]] = None,
     ) -> ABIEvent:
-        abi_events = filter_abi_by_type("event", cls.contract_abi)
-
-        if argument_types is None:
-            return cast(
-                ABIEvent,
-                get_abi_element(abi_events, cls.event_name),
-            )
-
-        return cast(
-            ABIEvent,
-            get_abi_element(
-                abi_events,
-                get_abi_element_identifier(cls.event_name, argument_types),
-            ),
-        )
+        return cls.abi
 
     @combomethod
     def process_receipt(
@@ -453,7 +440,6 @@ class BaseContractEvents:
                     event_name=event["name"],
                     abi=event,
                 )
-                setattr(self, event["name"], event_factory)
                 setattr(self, abi_to_signature(event), event_factory)
 
     def __getattr__(self, event_name: str) -> Type["BaseContractEvent"]:
@@ -462,12 +448,24 @@ class BaseContractEvents:
                 "The abi for this contract contains no event definitions. ",
                 "Are you sure you provided the correct contract abi?",
             )
-        elif event_name not in [event["name"] for event in self._events]:
+        elif event_name.split("(")[0] not in [
+            event["name"].split("(")[0] for event in self._events
+        ]:
             raise ABIEventNotFound(
                 f"The event '{event_name}' was not found in this contract's abi. ",
                 "Are you sure you provided the correct contract abi?",
             )
         else:
+            # See if there is a single event with the same name
+            event_abi = filter_abi_by_name(event_name.split("(")[0], self._events)
+            if len(event_abi) != 1:
+                raise MismatchedABI(
+                    f"Could not identify the intended event with name `{event_name}`"
+                )
+
+            argument_types = get_abi_input_types(event_abi[0])
+            event_name = f"{event_name}({','.join(argument_types)})"
+
             return super().__getattribute__(event_name)
 
     def __getitem__(self, event_name: str) -> Type["BaseContractEvent"]:
