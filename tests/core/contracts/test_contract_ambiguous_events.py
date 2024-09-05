@@ -9,9 +9,13 @@ from eth_typing import (
 
 from web3.contract.contract import (
     Contract,
+    ContractEvent,
 )
 from web3.exceptions import (
     MismatchedABI,
+)
+from web3.main import (
+    Web3,
 )
 from web3.utils.abi import (
     get_abi_element,
@@ -191,3 +195,80 @@ def test_get_abi_element_by_name_and_arguments_errors(
         match="Could not identify the intended function with name `NotAnEvent`",
     ):
         get_abi_element(ambiguous_event_contract.abi, "NotAnEvent")
+
+
+def test_contract_event_methods(
+    w3: "Web3", ambiguous_event_contract: "Contract"
+) -> None:
+    log_arg_event = cast(
+        ContractEvent, ambiguous_event_contract.events["LogSingleArg(uint256)"]
+    )
+
+    assert log_arg_event.event_name == "LogSingleArg"
+    assert log_arg_event.get_logs() == []
+
+    filter_builder = log_arg_event.build_filter()
+    filter_builder.from_block = "latest"
+    filter_builder.to_block = "latest"
+    filter_builder.args.arg0.match_single(1)
+    filter_instance = filter_builder.deploy(w3)
+
+    assert filter_instance.filter_params == {
+        "fromBlock": "latest",
+        "toBlock": "latest",
+        "address": ambiguous_event_contract.address,
+        "topics": (
+            "0x56d2ef3c5228bf5d88573621e325a4672ab50e033749a601e4f4a5e1dce905d4",
+        ),
+    }
+
+    log_filter = log_arg_event.create_filter(from_block="latest")
+    log_entry = {
+        "address": ambiguous_event_contract.address,
+        "topics": (
+            "0x56d2ef3c5228bf5d88573621e325a4672ab50e033749a601e4f4a5e1dce905d4",
+        ),
+        "data": "0x0000000000000000000000000000000000000000000000000000000000000005",
+        "logIndex": 0,
+        "transactionIndex": 0,
+        "transactionHash": "0x0",
+        "blockHash": "0x0",
+        "blockNumber": 0,
+    }
+    assert log_filter.log_entry_formatter(log_entry) == {
+        "args": {"arg0": 5},
+        "event": "LogSingleArg",
+        "logIndex": 0,
+        "transactionIndex": 0,
+        "transactionHash": "0x0",
+        "address": ambiguous_event_contract.address,
+        "blockHash": "0x0",
+        "blockNumber": 0,
+    }
+
+    assert log_arg_event._get_event_abi(["uint256"]) == {
+        "anonymous": False,
+        "inputs": [
+            {
+                "indexed": False,
+                "internalType": "uint256",
+                "name": "arg0",
+                "type": "uint256",
+            }
+        ],
+        "name": "LogSingleArg",
+        "type": "event",
+    }
+    assert log_arg_event._get_event_abi(["bytes32"]) == {
+        "anonymous": False,
+        "inputs": [
+            {
+                "indexed": False,
+                "internalType": "bytes32",
+                "name": "arg0",
+                "type": "bytes32",
+            }
+        ],
+        "name": "LogSingleArg",
+        "type": "event",
+    }
