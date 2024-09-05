@@ -445,19 +445,16 @@ class BaseContractEvents:
             self.abi = abi
             self._events = filter_abi_by_type("event", self.abi)
             for event in self._events:
-                event_signature = abi_to_signature(event)
-                setattr(
-                    self,
-                    event_signature,
-                    contract_event_type.factory(
-                        event["name"],
-                        w3=w3,
-                        contract_abi=self.abi,
-                        address=address,
-                        event_name=event["name"],
-                        abi=event,
-                    ),
+                event_factory = contract_event_type.factory(
+                    event["name"],
+                    w3=w3,
+                    contract_abi=self.abi,
+                    address=address,
+                    event_name=event["name"],
+                    abi=event,
                 )
+                setattr(self, event["name"], event_factory)
+                setattr(self, abi_to_signature(event), event_factory)
 
     def __getattr__(self, event_name: str) -> Type["BaseContractEvent"]:
         if "_events" not in self.__dict__:
@@ -465,7 +462,7 @@ class BaseContractEvents:
                 "The abi for this contract contains no event definitions. ",
                 "Are you sure you provided the correct contract abi?",
             )
-        elif event_name not in self.__dict__["_events"]:
+        elif event_name not in [event["name"] for event in self._events]:
             raise ABIEventNotFound(
                 f"The event '{event_name}' was not found in this contract's abi. ",
                 "Are you sure you provided the correct contract abi?",
