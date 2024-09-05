@@ -36,7 +36,6 @@ from eth_utils import (
     encode_hex,
     filter_abi_by_type,
     function_abi_to_4byte_selector,
-    get_abi_input_types,
     get_normalized_abi_inputs,
     is_list_like,
     is_text,
@@ -50,6 +49,7 @@ from web3._utils.abi import (
     fallback_func_abi_exists,
     find_constructor_abi_element_by_type,
     get_abi_element_identifier,
+    get_name_from_abi_element_identifier,
     is_array_type,
     receive_func_abi_exists,
 )
@@ -155,7 +155,7 @@ class BaseContractEvent:
     def __init__(
         self,
         *argument_names: Tuple[str],
-        argument_types: Tuple[str] = None,
+        abi: ABIEvent = None,
     ) -> None:
         if argument_names is None:
             # https://github.com/python/mypy/issues/6283
@@ -163,7 +163,7 @@ class BaseContractEvent:
         else:
             self.argument_names = argument_names
 
-        self.abi = self._get_event_abi(argument_types)
+        self.abi = abi
 
     @classmethod
     def _get_event_abi(
@@ -455,7 +455,7 @@ class BaseContractEvents:
                         contract_abi=self.abi,
                         address=address,
                         event_name=event["name"],
-                        argument_types=get_abi_input_types(event),
+                        abi=event,
                     ),
                 )
 
@@ -515,18 +515,39 @@ class BaseContractFunction:
         self.abi = abi
         self.fn_name = type(self).__name__
 
-    def _set_function_info(self) -> None:
-        if not self.abi:
-            self.abi = cast(
+    @classmethod
+    def _get_abi(
+        cls,
+        abi_element_identifier: ABIElementIdentifier,
+        *args: Sequence[Any],
+        **kwargs: Dict[str, Any],
+    ) -> ABIFunction:
+        if not args and not kwargs:
+            return cast(
                 ABIFunction,
                 get_abi_element(
-                    self.contract_abi,
-                    self.abi_element_identifier,
-                    *self.args,
-                    abi_codec=self.w3.codec,
-                    **self.kwargs,
+                    cls.contract_abi, get_abi_element_identifier(abi_element_identifier)
                 ),
             )
+
+        return cast(
+            ABIFunction,
+            get_abi_element(
+                cls.contract_abi,
+                get_name_from_abi_element_identifier(abi_element_identifier),
+                *args,
+                argument_names=None,
+                abi_codec=cls.w3.codec,
+                **kwargs,
+            ),
+        )
+
+    def _set_function_info(self) -> None:
+        self.abi = self._get_abi(
+            self.fn_name,
+            *self.args,
+            **self.kwargs,
+        )
 
         if self.abi_element_identifier in [
             FallbackFn,
@@ -717,6 +738,7 @@ class BaseContractFunctions:
                         address=self.address,
                         decode_tuples=decode_tuples,
                         abi_element_identifier=func["name"],
+                        abi=func,
                     ),
                 )
 
