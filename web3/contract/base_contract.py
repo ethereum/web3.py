@@ -945,6 +945,9 @@ class BaseContract:
         *args: Sequence[Any],
         **kwargs: Dict[str, Any],
     ) -> ABIElement:
+        if not args and not kwargs:
+            fn_identifier = get_abi_element_identifier(fn_identifier)
+
         return get_abi_element(
             cls.abi,
             fn_identifier,
