@@ -139,9 +139,9 @@ def test_get_abi_from_event(ambiguous_event_contract: "Contract") -> None:
         "type": "event",
     }
 
-    event_get_abi_result = ambiguous_event_contract.events.LogSingleArg._get_event_abi(
-        ["uint256"]
-    )
+    event_get_abi_result = ambiguous_event_contract.events[
+        "LogSingleArg(uint256)"
+    ]._get_event_abi()
     assert expected_event_abi == event_get_abi_result
 
 
@@ -204,6 +204,19 @@ def test_contract_event_methods(
         ContractEvent, ambiguous_event_contract.events["LogSingleArg(uint256)"]
     )
 
+    assert log_arg_event._get_event_abi() == {
+        "anonymous": False,
+        "inputs": [
+            {
+                "indexed": False,
+                "internalType": "uint256",
+                "name": "arg0",
+                "type": "uint256",
+            }
+        ],
+        "name": "LogSingleArg",
+        "type": "event",
+    }
     assert log_arg_event.event_name == "LogSingleArg"
     assert log_arg_event.get_logs() == []
 
@@ -244,31 +257,4 @@ def test_contract_event_methods(
         "address": ambiguous_event_contract.address,
         "blockHash": "0x0",
         "blockNumber": 0,
-    }
-
-    assert log_arg_event._get_event_abi(["uint256"]) == {
-        "anonymous": False,
-        "inputs": [
-            {
-                "indexed": False,
-                "internalType": "uint256",
-                "name": "arg0",
-                "type": "uint256",
-            }
-        ],
-        "name": "LogSingleArg",
-        "type": "event",
-    }
-    assert log_arg_event._get_event_abi(["bytes32"]) == {
-        "anonymous": False,
-        "inputs": [
-            {
-                "indexed": False,
-                "internalType": "bytes32",
-                "name": "arg0",
-                "type": "bytes32",
-            }
-        ],
-        "name": "LogSingleArg",
-        "type": "event",
     }
