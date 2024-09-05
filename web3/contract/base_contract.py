@@ -211,7 +211,7 @@ class BaseContractEvent:
 
     @combomethod
     def process_log(self, log: HexStr) -> EventData:
-        return get_event_data(self.w3.codec, self.abi, log)
+        return get_event_data(self.w3.codec, self._get_event_abi(), log)
 
     @combomethod
     def _get_event_filter_params(

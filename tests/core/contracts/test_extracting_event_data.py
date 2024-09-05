@@ -1184,6 +1184,16 @@ def test_receipt_processing_with_no_flag(indexed_event_contract, dup_txn_receipt
         assert len(returned_log) == 0
 
 
+def test_process_log_instance(w3, emitter, wait_for_transaction):
+    txn_hash = emitter.functions.logNoArgs(which=1).transact()
+    txn_receipt = wait_for_transaction(w3, txn_hash)
+    rich_log = emitter.events.LogNoArguments.process_log(txn_receipt["logs"][0])
+    assert rich_log["args"] == {}
+    assert rich_log.args == {}
+    assert is_same_address(rich_log["address"], emitter.address)
+    assert rich_log["event"] == "LogNoArguments"
+
+
 def test_single_log_processing_with_errors(indexed_event_contract, dup_txn_receipt):
     event_instance = indexed_event_contract.events.LogSingleWithIndex()
 
