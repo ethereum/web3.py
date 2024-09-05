@@ -163,7 +163,8 @@ class BaseContractEvent:
         else:
             self.argument_names = argument_names
 
-        self.abi = abi
+        if self.abi is None:
+            self.abi = abi
 
     @classmethod
     def _get_event_abi(
@@ -536,7 +537,6 @@ class BaseContractFunction:
                 cls.contract_abi,
                 get_name_from_abi_element_identifier(abi_element_identifier),
                 *args,
-                argument_names=None,
                 abi_codec=cls.w3.codec,
                 **kwargs,
             ),

@@ -535,14 +535,6 @@ def test_get_abi_element(
             TypeError,
             "Unsupported function identifier",
         ),
-        (
-            CONTRACT_ABI,
-            "logTwoEvents",
-            [],
-            {},
-            MismatchedABI,
-            "Function invocation failed due to improper number of arguments.",
-        ),
     ),
 )
 def test_get_abi_element_raises_with_invalid_parameters(
