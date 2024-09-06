@@ -178,8 +178,9 @@ class BaseContractEvent:
     def process_receipt(
         self, txn_receipt: TxReceipt, errors: EventLogErrorFlags = WARN
     ) -> Iterable[EventData]:
-        return self._parse_logs(txn_receipt, errors)
+        return self._parse_logs(txn_receipt=txn_receipt, errors=errors)
 
+    @combomethod
     @to_tuple
     def _parse_logs(
         self, txn_receipt: TxReceipt, errors: EventLogErrorFlags
