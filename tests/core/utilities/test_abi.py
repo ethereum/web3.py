@@ -438,6 +438,13 @@ def test_get_abi_element_info_raises_mismatched_abi(contract_abi: ABI) -> None:
             LOG_TWO_EVENTS_ABI,
         ),
         (
+            CONTRACT_ABI,
+            "logTwoEvents",
+            [],  # function name is unique so args are optional
+            {},
+            LOG_TWO_EVENTS_ABI,
+        ),
+        (
             [FUNCTION_ABI_NO_INPUTS],
             "myFunction",
             [],

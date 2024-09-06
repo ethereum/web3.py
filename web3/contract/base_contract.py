@@ -157,7 +157,7 @@ class BaseContractEvent:
     def __init__(
         self,
         *argument_names: Tuple[str],
-        abi: ABIEvent = None,
+        abi: Optional[ABIEvent] = None,
     ) -> None:
         if argument_names is None:
             # https://github.com/python/mypy/issues/6283
@@ -521,7 +521,9 @@ class BaseContractFunction:
             return cast(
                 ABIFunction,
                 get_abi_element(
-                    cls.contract_abi, get_abi_element_identifier(abi_element_identifier)
+                    cls.contract_abi,
+                    get_abi_element_identifier(abi_element_identifier),
+                    abi_codec=cls.w3.codec,
                 ),
             )
 

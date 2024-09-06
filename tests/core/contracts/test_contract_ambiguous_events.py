@@ -145,7 +145,7 @@ def test_get_abi_from_event(ambiguous_event_contract: "Contract") -> None:
     assert expected_event_abi == event_get_abi_result
 
 
-def test_get_abi_element_for_amibguous_tuple_events() -> None:
+def test_get_abi_element_for_ambiguous_tuple_events() -> None:
     event_abi = get_abi_element(
         cast(ABI, AMBIGUOUS_EVENT_WITH_TUPLE_CONTRACT_ABI),
         "Deposit",
@@ -171,7 +171,7 @@ def test_get_abi_element_for_amibguous_tuple_events() -> None:
     assert event_abi == ABI_EVENT_DEPOSIT
 
 
-def test_get_abi_element_with_signature_for_amibguous_tuple_events() -> None:
+def test_get_abi_element_with_signature_for_ambiguous_tuple_events() -> None:
     event_abi = get_abi_element(
         cast(ABI, AMBIGUOUS_EVENT_WITH_TUPLE_CONTRACT_ABI),
         "Deposit(address,bytes32,(uint256,uint256))",

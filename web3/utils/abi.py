@@ -265,6 +265,7 @@ def _build_abi_filters(
     if argument_names:
         arg_count = len(argument_names)
     elif args or kwargs:
+        # Use empty signature to check args and kwargs for encodability
         abi_element_identifier = get_name_from_abi_element_identifier(
             abi_element_identifier
         )
@@ -311,7 +312,10 @@ def _build_abi_filters(
                 )
     else:
         filters.append(
-            functools.partial(filter_abi_by_name, abi_element_identifier.split("(")[0])
+            functools.partial(
+                filter_abi_by_name,
+                get_name_from_abi_element_identifier(abi_element_identifier),
+            )
         )
         if "(" in abi_element_identifier:
             filters.append(
