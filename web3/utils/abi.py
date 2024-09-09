@@ -56,6 +56,7 @@ from hexbytes import (
 from web3._utils.abi import (
     filter_by_argument_name,
     filter_by_argument_type,
+    get_abi_element_identifier,
     get_name_from_abi_element_identifier,
 )
 from web3.exceptions import (
@@ -78,6 +79,7 @@ from eth_utils.abi import (  # noqa
     function_abi_to_4byte_selector,
     get_aligned_abi_inputs,
     get_normalized_abi_inputs,
+    get_abi_input_types,
 )
 
 
@@ -157,6 +159,32 @@ def _get_fallback_function_abi(contract_abi: ABI) -> ABIFallback:
         return filtered_abis[0]
     else:
         raise ABIFallbackNotFound("No fallback function was found in the contract ABI.")
+
+
+def _find_abi_identifier_by_name(element_name: str, contract_abi: ABI) -> str:
+    """
+    Match function using the signature identifier, "name(arg1Type,arg2Type,...)".
+    if name does not include argument types, search for a function by name.
+    if multiple functions have the same name, use one without arguments
+    or raise an exception.
+    """
+    try:
+        # search for function abis with the same name
+        function_abi = get_abi_element(
+            contract_abi, get_name_from_abi_element_identifier(element_name)
+        )
+        return abi_to_signature(function_abi)
+    except MismatchedABI as error:
+        # If all matching functions have arguments, cannot determine which one
+        # to use so raise MismatchedABI
+        if all(
+            len(get_abi_input_types(fn)) > 0
+            for fn in filter_abi_by_name(element_name, contract_abi)
+        ):
+            raise error
+
+        # Use signature for function that does not take arguments
+        return str(get_abi_element_identifier(element_name))
 
 
 def _mismatched_abi_error_diagnosis(

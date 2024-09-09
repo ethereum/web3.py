@@ -23,7 +23,9 @@ from eth_typing import (
     TypeStr,
 )
 from eth_utils.abi import (
+    abi_to_signature,
     filter_abi_by_type,
+    get_abi_input_types,
     get_abi_output_types,
 )
 from eth_utils.toolz import (
@@ -35,6 +37,7 @@ from hexbytes import (
 )
 
 from web3._utils.abi import (
+    get_abi_element_identifier,
     map_abi_data,
     named_tree,
     recursive_dict_to_namedtuple,
@@ -338,19 +341,25 @@ def find_functions_by_identifier(
     callable_check: Callable[..., Any],
     function_type: Type[TContractFn],
 ) -> List[TContractFn]:
-    fns_abi = filter_abi_by_type("function", contract_abi)
-    return [
-        function_type.factory(
-            fn_abi["name"],
-            w3=w3,
-            contract_abi=contract_abi,
-            address=address,
-            abi_element_identifier=fn_abi["name"],
-            abi=fn_abi,
+    fns: List[TContractFn] = []
+    for fn_abi in filter_abi_by_type("function", contract_abi):
+        abi_signature = abi_to_signature(fn_abi)
+        abi_element_identifier = get_abi_element_identifier(
+            fn_abi["name"], get_abi_input_types(fn_abi)
         )
-        for fn_abi in fns_abi
-        if callable_check(fn_abi)
-    ]
+        if callable_check(fn_abi):
+            fns.append(
+                function_type.factory(
+                    abi_signature,
+                    w3=w3,
+                    contract_abi=contract_abi,
+                    address=address,
+                    abi_element_identifier=abi_element_identifier,
+                    abi=fn_abi,
+                )
+            )
+
+    return fns
 
 
 def get_function_by_identifier(

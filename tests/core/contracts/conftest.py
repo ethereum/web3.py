@@ -10,6 +10,9 @@ from tests.core.contracts.utils import (
 from tests.utils import (
     async_partial,
 )
+from web3._utils.abi import (
+    get_abi_element_identifier,
+)
 from web3._utils.contract_sources.contract_data.arrays_contract import (
     ARRAYS_CONTRACT_DATA,
 )
@@ -61,6 +64,10 @@ from web3._utils.contract_sources.contract_data.tuple_contracts import (
 )
 from web3.exceptions import (
     Web3ValueError,
+)
+from web3.utils.abi import (
+    abi_to_signature,
+    get_abi_element,
 )
 
 # --- function name tester contract --- #
@@ -473,6 +480,11 @@ def invoke_contract(
     func_kwargs=None,
     tx_params=None,
 ):
+    function_signature = contract_function
+    function_arg_count = len(func_args or ()) + len(func_kwargs or {})
+    if function_arg_count == 0:
+        function_signature = get_abi_element_identifier(contract_function)
+
     if func_args is None:
         func_args = []
     if func_kwargs is None:
@@ -485,7 +497,14 @@ def invoke_contract(
             f"allowable_invoke_method must be one of: {allowable_call_desig}"
         )
 
-    function = contract.functions[contract_function]
+    fn_abi = get_abi_element(
+        contract.abi,
+        function_signature,
+        *func_args,
+        abi_codec=contract.w3.codec,
+        **func_kwargs,
+    )
+    function = contract.functions[abi_to_signature(fn_abi)]
     result = getattr(function(*func_args, **func_kwargs), api_call_desig)(tx_params)
 
     return result
@@ -747,6 +766,11 @@ async def async_invoke_contract(
     func_kwargs=None,
     tx_params=None,
 ):
+    function_signature = contract_function
+    function_arg_count = len(func_args or ()) + len(func_kwargs or {})
+    if function_arg_count == 0:
+        function_signature = get_abi_element_identifier(contract_function)
+
     if func_args is None:
         func_args = []
     if func_kwargs is None:
@@ -759,7 +783,14 @@ async def async_invoke_contract(
             f"allowable_invoke_method must be one of: {allowable_call_desig}"
         )
 
-    function = contract.functions[contract_function]
+    fn_abi = get_abi_element(
+        contract.abi,
+        function_signature,
+        *func_args,
+        abi_codec=contract.w3.codec,
+        **func_kwargs,
+    )
+    function = contract.functions[abi_to_signature(fn_abi)]
     result = await getattr(function(*func_args, **func_kwargs), api_call_desig)(
         tx_params
     )
@@ -784,5 +815,4 @@ def async_call(request):
 
 @pytest.fixture
 def async_estimate_gas(request):
-    return async_partial(async_invoke_contract, api_call_desig="estimate_gas")
     return async_partial(async_invoke_contract, api_call_desig="estimate_gas")

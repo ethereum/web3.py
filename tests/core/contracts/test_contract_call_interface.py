@@ -736,16 +736,19 @@ def test_call_sending_ether_to_nonpayable_function(payable_tester_contract, call
     "function, value",
     (
         # minimum positive unambiguous value (larger than fixed8x1)
-        ("reflect", Decimal("12.8")),
+        ("reflect(fixed8x1)", Decimal("12.8")),
         # maximum value (for ufixed256x1)
-        ("reflect", Decimal(2**256 - 1) / 10),
+        ("reflect(ufixed256x1)", Decimal(2**256 - 1) / 10),
         # maximum negative unambiguous value (less than 0 from ufixed*)
-        ("reflect", Decimal("-0.1")),
+        ("reflect(ufixed256x1)", Decimal("-0.1")),
         # minimum value (for fixed8x1)
-        ("reflect", Decimal("-12.8")),
+        ("reflect(fixed8x1)", Decimal("-12.8")),
         # only ufixed256x80 type supports 2-80 decimals
-        ("reflect", Decimal(2**256 - 1) / 10**80),  # maximum allowed value
-        ("reflect", Decimal(1) / 10**80),  # smallest non-zero value
+        (
+            "reflect(ufixed256x80)",
+            Decimal(2**256 - 1) / 10**80,
+        ),  # maximum allowed value
+        ("reflect(ufixed256x80)", Decimal(1) / 10**80),  # smallest non-zero value
         # minimum value (for ufixed8x1)
         ("reflect_short_u", 0),
         # maximum value (for ufixed8x1)
@@ -768,7 +771,7 @@ DEFAULT_DECIMALS = getcontext().prec
         ("reflect_short_u", Decimal("25.6"), "no matching argument types"),
         ("reflect_short_u", Decimal("-.1"), "no matching argument types"),
         # too many digits for *x1, too large for 256x80
-        ("reflect", Decimal("0.01"), "no matching argument types"),
+        ("reflect(ufixed256x80)", Decimal("0.01"), "no matching argument types"),
         # too many digits
         ("reflect_short_u", Decimal("0.01"), "no matching argument types"),
         (
@@ -781,13 +784,13 @@ DEFAULT_DECIMALS = getcontext().prec
             Decimal("25.4" + "9" * DEFAULT_DECIMALS),
             "no matching argument types",
         ),
-        ("reflect", Decimal(1) / 10**81, "no matching argument types"),
+        ("reflect(ufixed256x80)", Decimal(1) / 10**81, "no matching argument types"),
         # floats not accepted, for floating point error concerns
         ("reflect_short_u", 0.1, "no matching argument types"),
         # ambiguous
-        ("reflect", Decimal("12.7"), "Ambiguous argument encoding"),
-        ("reflect", Decimal(0), "Ambiguous argument encoding"),
-        ("reflect", 0, "Ambiguous argument encoding"),
+        ("reflect(ufixed256x80)", Decimal("12.7"), "Ambiguous argument encoding"),
+        ("reflect(ufixed256x80)", Decimal(0), "Ambiguous argument encoding"),
+        ("reflect(ufixed256x80)", 0, "Ambiguous argument encoding"),
     ),
 )
 def test_invalid_fixed_value_reflections(
@@ -1863,16 +1866,19 @@ async def test_async_call_sending_ether_to_nonpayable_function(
     "function, value",
     (
         # minimum positive unambiguous value (larger than fixed8x1)
-        ("reflect", Decimal("12.8")),
+        ("reflect(fixed8x1)", Decimal("12.8")),
         # maximum value (for ufixed256x1)
-        ("reflect", Decimal(2**256 - 1) / 10),
+        ("reflect(ufixed256x1)", Decimal(2**256 - 1) / 10),
         # maximum negative unambiguous value (less than 0 from ufixed*)
-        ("reflect", Decimal("-0.1")),
+        ("reflect(ufixed256x1)", Decimal("-0.1")),
         # minimum value (for fixed8x1)
-        ("reflect", Decimal("-12.8")),
+        ("reflect(fixed8x1)", Decimal("-12.8")),
         # only ufixed256x80 type supports 2-80 decimals
-        ("reflect", Decimal(2**256 - 1) / 10**80),  # maximum allowed value
-        ("reflect", Decimal(1) / 10**80),  # smallest non-zero value
+        (
+            "reflect(ufixed256x80)",
+            Decimal(2**256 - 1) / 10**80,
+        ),  # maximum allowed value
+        ("reflect(ufixed256x80)", Decimal(1) / 10**80),  # smallest non-zero value
         # minimum value (for ufixed8x1)
         ("reflect_short_u", 0),
         # maximum value (for ufixed8x1)
@@ -1898,7 +1904,7 @@ DEFAULT_DECIMALS = getcontext().prec
         ("reflect_short_u", Decimal("25.6"), "no matching argument types"),
         ("reflect_short_u", Decimal("-.1"), "no matching argument types"),
         # too many digits for *x1, too large for 256x80
-        ("reflect", Decimal("0.01"), "no matching argument types"),
+        ("reflect(ufixed256x80)", Decimal("0.01"), "no matching argument types"),
         # too many digits
         ("reflect_short_u", Decimal("0.01"), "no matching argument types"),
         (
@@ -1911,13 +1917,13 @@ DEFAULT_DECIMALS = getcontext().prec
             Decimal("25.4" + "9" * DEFAULT_DECIMALS),
             "no matching argument types",
         ),
-        ("reflect", Decimal(1) / 10**81, "no matching argument types"),
+        ("reflect(ufixed256x80)", Decimal(1) / 10**81, "no matching argument types"),
         # floats not accepted, for floating point error concerns
         ("reflect_short_u", 0.1, "no matching argument types"),
         # ambiguous
-        ("reflect", Decimal("12.7"), "Ambiguous argument encoding"),
-        ("reflect", Decimal(0), "Ambiguous argument encoding"),
-        ("reflect", 0, "Ambiguous argument encoding"),
+        ("reflect(ufixed256x80)", Decimal("12.7"), "Ambiguous argument encoding"),
+        ("reflect(ufixed256x80)", Decimal(0), "Ambiguous argument encoding"),
+        ("reflect(ufixed256x80)", 0, "Ambiguous argument encoding"),
     ),
 )
 async def test_async_invalid_fixed_value_reflections(

@@ -542,6 +542,15 @@ def test_get_abi_element(
             TypeError,
             "Unsupported function identifier",
         ),
+        (
+            CONTRACT_ABI,
+            "setValue",
+            [],  # function name is ambiguous and cannot be determined without args
+            {},
+            MismatchedABI,
+            r".*Found 2 function\(s\) with the name `setValue`: "
+            r"\['setValue\(uint256\)', 'setValue\(uint256,\(uint256,uint256\)\)'\].*",
+        ),
     ),
 )
 def test_get_abi_element_raises_with_invalid_parameters(
