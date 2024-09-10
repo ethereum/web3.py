@@ -1,4 +1,5 @@
 import itertools
+import logging
 import threading
 from typing import (
     TYPE_CHECKING,
@@ -46,6 +47,8 @@ if TYPE_CHECKING:
 
 
 class BaseProvider:
+    # Set generic logger for the provider. Override in subclasses for more specificity.
+    logger: logging.Logger = logging.getLogger("web3.providers.base.BaseProvider")
     # a tuple of (middleware, request_func)
     _request_func_cache: Tuple[Tuple[Middleware, ...], Callable[..., RPCResponse]] = (
         None,
@@ -104,6 +107,8 @@ class BaseProvider:
 
 
 class JSONBaseProvider(BaseProvider):
+    logger = logging.getLogger("web3.providers.base.JSONBaseProvider")
+
     _is_batching: bool = False
     _batch_request_func_cache: Tuple[
         Tuple[Middleware, ...], Callable[..., List[RPCResponse]]
