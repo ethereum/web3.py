@@ -1,5 +1,6 @@
 import asyncio
 import itertools
+import logging
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -59,6 +60,10 @@ if TYPE_CHECKING:
 
 
 class AsyncBaseProvider:
+    # Set generic logger for the provider. Override in subclasses for more specificity.
+    logger: logging.Logger = logging.getLogger(
+        "web3.providers.async_base.AsyncBaseProvider"
+    )
     _request_func_cache: Tuple[
         Tuple[Middleware, ...], Callable[..., Coroutine[Any, Any, RPCResponse]]
     ] = (None, None)
@@ -159,6 +164,8 @@ class AsyncBaseProvider:
 
 
 class AsyncJSONBaseProvider(AsyncBaseProvider):
+    logger = logging.getLogger("web3.providers.async_base.AsyncJSONBaseProvider")
+
     def __init__(self, **kwargs: Any) -> None:
         self.request_counter = itertools.count()
         super().__init__(**kwargs)
