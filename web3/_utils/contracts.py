@@ -184,7 +184,11 @@ def prepare_transaction(
     fn_args = fn_args or []
     fn_kwargs = fn_kwargs or {}
 
-    element_id = get_abi_element_identifier(abi_element_identifier)
+    if "(" not in str(abi_element_identifier):
+        element_id = get_abi_element_identifier(abi_element_identifier)
+    else:
+        element_id = abi_element_identifier
+
     if element_id == "fallback":
         element_id = FallbackFn
     elif element_id == "receive":

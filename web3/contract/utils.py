@@ -1,3 +1,4 @@
+import copy
 import itertools
 from typing import (
     TYPE_CHECKING,
@@ -25,7 +26,6 @@ from eth_typing import (
 from eth_utils.abi import (
     abi_to_signature,
     filter_abi_by_type,
-    get_abi_input_types,
     get_abi_output_types,
 )
 from eth_utils.toolz import (
@@ -37,7 +37,6 @@ from hexbytes import (
 )
 
 from web3._utils.abi import (
-    get_abi_element_identifier,
     map_abi_data,
     named_tree,
     recursive_dict_to_namedtuple,
@@ -66,6 +65,7 @@ from web3.types import (
     BlockIdentifier,
     RPCEndpoint,
     StateOverride,
+    TContractEvent,
     TContractFn,
     TxParams,
 )
@@ -120,6 +120,34 @@ def format_contract_call_return_data_curried(
         normalized_data = recursive_dict_to_namedtuple(decoded)
 
     return normalized_data[0] if len(normalized_data) == 1 else normalized_data
+
+
+def copy_contract_function(
+    contract_function: TContractFn, *args: Any, **kwargs: Any
+) -> TContractFn:
+    """
+    Copy a contract function instance.
+    """
+    clone = copy.copy(contract_function)
+    clone.args = args or tuple()
+    clone.kwargs = kwargs or dict()
+
+    clone._set_function_info()
+    return clone
+
+
+def copy_contract_event(
+    contract_function: TContractEvent, *args: Any, **kwargs: Any
+) -> TContractEvent:
+    """
+    Copy a contract function instance.
+    """
+    clone = copy.copy(contract_function)
+    clone.args = args or tuple()
+    clone.kwargs = kwargs or dict()
+
+    clone._set_event_info()
+    return clone
 
 
 def call_contract_function(
@@ -344,9 +372,6 @@ def find_functions_by_identifier(
     fns: List[TContractFn] = []
     for fn_abi in filter_abi_by_type("function", contract_abi):
         abi_signature = abi_to_signature(fn_abi)
-        abi_element_identifier = get_abi_element_identifier(
-            fn_abi["name"], get_abi_input_types(fn_abi)
-        )
         if callable_check(fn_abi):
             fns.append(
                 function_type.factory(
@@ -354,7 +379,7 @@ def find_functions_by_identifier(
                     w3=w3,
                     contract_abi=contract_abi,
                     address=address,
-                    abi_element_identifier=abi_element_identifier,
+                    abi_element_identifier=abi_signature,
                     abi=fn_abi,
                 )
             )

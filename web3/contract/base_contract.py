@@ -853,7 +853,7 @@ class BaseContract:
     @combomethod
     def all_functions(
         self,
-    ) -> "BaseContractFunction":
+    ) -> List["BaseContractFunction"]:
         return self.find_functions_by_identifier(
             self.abi, self.w3, self.address, lambda _: True
         )
@@ -875,7 +875,7 @@ class BaseContract:
         return self.get_function_by_identifier(fns, "signature")
 
     @combomethod
-    def find_functions_by_name(self, fn_name: str) -> "BaseContractFunction":
+    def find_functions_by_name(self, fn_name: str) -> List["BaseContractFunction"]:
         def callable_check(fn_abi: ABIFunction) -> bool:
             return fn_abi["name"] == fn_name
 

@@ -1,4 +1,3 @@
-import copy
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -78,6 +77,8 @@ from web3.contract.base_contract import (
 from web3.contract.utils import (
     build_transaction_for_function,
     call_contract_function,
+    copy_contract_event,
+    copy_contract_function,
     estimate_gas_for_function,
     find_functions_by_identifier,
     get_function_by_identifier,
@@ -86,7 +87,6 @@ from web3.contract.utils import (
 from web3.exceptions import (
     ABIEventNotFound,
     ABIFunctionNotFound,
-    MismatchedABI,
     NoABIEventsFound,
     NoABIFound,
     NoABIFunctionsFound,
@@ -116,18 +116,7 @@ class ContractEvent(BaseContractEvent):
     w3: "Web3"
 
     def __call__(self, *args: Any, **kwargs: Any) -> "ContractEvent":
-        clone = copy.copy(self)
-        if args is None:
-            clone.args = tuple()
-        else:
-            clone.args = args
-
-        if kwargs is None:
-            clone.kwargs = {}
-        else:
-            clone.kwargs = kwargs
-        clone._set_event_info()
-        return clone
+        return copy_contract_event(self, *args, **kwargs)
 
     @combomethod
     def get_logs(
@@ -267,7 +256,7 @@ class ContractEvents(BaseContractEvents):
         super().__init__(abi, w3, ContractEvent, address)
 
     def __getattr__(self, event_name: str) -> "ContractEvent":
-        if self.abi is None:
+        if super().__getattribute__("abi") is None:
             raise NoABIFound(
                 "There is no ABI found for this contract.",
             )
@@ -310,18 +299,7 @@ class ContractFunction(BaseContractFunction):
     w3: "Web3"
 
     def __call__(self, *args: Any, **kwargs: Any) -> "ContractFunction":
-        clone = copy.copy(self)
-        if args is None:
-            clone.args = tuple()
-        else:
-            clone.args = args
-
-        if kwargs is None:
-            clone.kwargs = {}
-        else:
-            clone.kwargs = kwargs
-        clone._set_function_info()
-        return clone
+        return copy_contract_function(self, *args, **kwargs)
 
     @classmethod
     def factory(cls, class_name: str, **kwargs: Any) -> Self:
@@ -488,18 +466,16 @@ class ContractFunctions(BaseContractFunctions):
         if function_name in ["abi", "w3", "address"] and super().__getattribute__(
             "_functions"
         ):
-            # Check if abi exists for the function signature
-            try:
-                function_identifier = _find_abi_identifier_by_name(
-                    function_name, super().__getattribute__("_functions")
-                )
-            except MismatchedABI:
-                pass
+            function_identifier = _find_abi_identifier_by_name(
+                function_name, super().__getattribute__("_functions")
+            )
 
         return super().__getattribute__(function_identifier)
 
-    def __getattr__(self, function_name: str) -> "ContractFunction":
-        if self.abi is None:
+    def __getattr__(
+        self, function_name: str
+    ) -> Callable[[Any, Any], "ContractFunction"]:
+        if super().__getattribute__("abi") is None:
             raise NoABIFound(
                 "There is no ABI found for this contract.",
             )
@@ -519,9 +495,7 @@ class ContractFunctions(BaseContractFunctions):
 
         function_identifier = function_name
 
-        if "(" not in function_name or get_name_from_abi_element_identifier(
-            function_name
-        ) in ["abi", "w3", "address"]:
+        if "(" not in function_name:
             function_identifier = _find_abi_identifier_by_name(
                 function_name, self._functions
             )
