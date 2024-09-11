@@ -36,6 +36,7 @@ from .async_exception_handling import (
     async_handle_offchain_lookup,
 )
 from .caching import (
+    RequestCacheValidationThreshold,
     SimpleCache,
 )
 from .exception_handling import (
@@ -67,6 +68,7 @@ __all__ = [
     "log_topic_to_bytes",
     "get_create_address",
     "async_handle_offchain_lookup",
+    "RequestCacheValidationThreshold",
     "SimpleCache",
     "handle_offchain_lookup",
 ]

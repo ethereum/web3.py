@@ -2,6 +2,9 @@ import asyncio
 from collections import (
     OrderedDict,
 )
+from enum import (
+    Enum,
+)
 import time
 from typing import (
     Any,
@@ -10,6 +13,11 @@ from typing import (
     Optional,
     Tuple,
 )
+
+
+class RequestCacheValidationThreshold(Enum):
+    FINALIZED = "finalized"
+    SAFE = "safe"
 
 
 class SimpleCache:

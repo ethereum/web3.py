@@ -6,6 +6,7 @@ from typing import (
     Any,
     Callable,
     List,
+    Optional,
     Set,
     Tuple,
     cast,
@@ -39,6 +40,7 @@ from web3.types import (
     RPCResponse,
 )
 from web3.utils import (
+    RequestCacheValidationThreshold,
     SimpleCache,
 )
 
@@ -68,10 +70,14 @@ class BaseProvider:
         self,
         cache_allowed_requests: bool = False,
         cacheable_requests: Set[RPCEndpoint] = None,
+        request_cache_validation_threshold: Optional[
+            RequestCacheValidationThreshold
+        ] = RequestCacheValidationThreshold.FINALIZED,
     ) -> None:
         self._request_cache = SimpleCache(1000)
         self.cache_allowed_requests = cache_allowed_requests
         self.cacheable_requests = cacheable_requests or CACHEABLE_REQUESTS
+        self.request_cache_validation_threshold = request_cache_validation_threshold
 
     def request_func(
         self, w3: "Web3", middleware_onion: MiddlewareOnion
