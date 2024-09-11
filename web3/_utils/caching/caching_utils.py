@@ -8,11 +8,9 @@ from typing import (
     Coroutine,
     Dict,
     List,
-    Set,
+    Sequence,
     Tuple,
-    TypeVar,
     Union,
-    cast,
 )
 
 from eth_utils import (
@@ -26,6 +24,24 @@ from eth_utils import (
     to_bytes,
 )
 
+from web3._utils.caching import (
+    ASYNC_PROVIDER_TYPE,
+    SYNC_PROVIDER_TYPE,
+)
+from web3._utils.caching.request_caching_validation import (
+    UNCACHEABLE_BLOCK_IDS,
+    always_cache_request,
+    async_always_cache_request,
+    async_validate_blockhash_in_params,
+    async_validate_blocknum_in_params,
+    async_validate_blocknum_in_result,
+    validate_blockhash_in_params,
+    validate_blocknum_in_params,
+    validate_blocknum_in_result,
+)
+from web3._utils.rpc_abi import (
+    RPC,
+)
 from web3.exceptions import (
     Web3TypeError,
 )
@@ -41,10 +57,6 @@ if TYPE_CHECKING:
         RPCEndpoint,
         RPCResponse,
     )
-
-
-SYNC_PROVIDER_TYPE = TypeVar("SYNC_PROVIDER_TYPE", bound="BaseProvider")
-ASYNC_PROVIDER_TYPE = TypeVar("ASYNC_PROVIDER_TYPE", bound="AsyncBaseProvider")
 
 
 def generate_cache_key(value: Any) -> str:
@@ -87,39 +99,72 @@ class RequestInformation:
 
 
 def is_cacheable_request(
-    provider: Union[ASYNC_PROVIDER_TYPE, SYNC_PROVIDER_TYPE], method: "RPCEndpoint"
+    provider: Union[ASYNC_PROVIDER_TYPE, SYNC_PROVIDER_TYPE],
+    method: "RPCEndpoint",
+    params: Any,
 ) -> bool:
-    if provider.cache_allowed_requests and method in provider.cacheable_requests:
-        return True
-    return False
+    if not (provider.cache_allowed_requests and method in provider.cacheable_requests):
+        return False
+    elif method in BLOCKNUM_IN_PARAMS:
+        block_id = params[0]
+        if block_id in UNCACHEABLE_BLOCK_IDS:
+            return False
+    return True
 
 
 # -- request caching -- #
 
+ALWAYS_CACHE = {
+    RPC.eth_chainId,
+    RPC.web3_clientVersion,
+    RPC.net_version,
+}
+BLOCKNUM_IN_PARAMS = {
+    RPC.eth_getBlockByNumber,
+    RPC.eth_getRawTransactionByBlockNumberAndIndex,
+    RPC.eth_getBlockTransactionCountByNumber,
+    RPC.eth_getUncleByBlockNumberAndIndex,
+    RPC.eth_getUncleCountByBlockNumber,
+}
+BLOCKNUM_IN_RESULT = {
+    RPC.eth_getBlockByHash,
+    RPC.eth_getTransactionByHash,
+    RPC.eth_getTransactionByBlockNumberAndIndex,
+    RPC.eth_getTransactionByBlockHashAndIndex,
+    RPC.eth_getBlockTransactionCountByHash,
+}
+BLOCKHASH_IN_PARAMS = {
+    RPC.eth_getRawTransactionByBlockHashAndIndex,
+    RPC.eth_getUncleByBlockHashAndIndex,
+    RPC.eth_getUncleCountByBlockHash,
+}
 
-CACHEABLE_REQUESTS = cast(
-    Set["RPCEndpoint"],
-    (
-        "eth_chainId",
-        "eth_getBlockByHash",
-        "eth_getBlockTransactionCountByHash",
-        "eth_getRawTransactionByHash",
-        "eth_getTransactionByBlockHashAndIndex",
-        "eth_getTransactionByHash",
-        "eth_getUncleByBlockHashAndIndex",
-        "eth_getUncleCountByBlockHash",
-        "net_version",
-        "web3_clientVersion",
-    ),
-)
+INTERNAL_VALIDATION_MAP: Dict[
+    "RPCEndpoint", Callable[[SYNC_PROVIDER_TYPE, Sequence[Any], Dict[str, Any]], bool]
+] = {
+    **{endpoint: always_cache_request for endpoint in ALWAYS_CACHE},
+    **{endpoint: validate_blocknum_in_params for endpoint in BLOCKNUM_IN_PARAMS},
+    **{endpoint: validate_blocknum_in_result for endpoint in BLOCKNUM_IN_RESULT},
+    **{endpoint: validate_blockhash_in_params for endpoint in BLOCKHASH_IN_PARAMS},
+}
+CACHEABLE_REQUESTS = tuple(INTERNAL_VALIDATION_MAP.keys())
 
 
-def _should_cache_response(response: "RPCResponse") -> bool:
-    return (
-        "error" not in response
-        and "result" in response
-        and not is_null(response["result"])
-    )
+def _should_cache_response(
+    provider: SYNC_PROVIDER_TYPE,
+    method: "RPCEndpoint",
+    params: Sequence[Any],
+    response: "RPCResponse",
+) -> bool:
+    result = response.get("result", None)
+    if "error" in response or is_null(result):
+        return False
+    if (
+        method in INTERNAL_VALIDATION_MAP
+        and provider.request_cache_validation_threshold is not None
+    ):
+        return INTERNAL_VALIDATION_MAP[method](provider, params, result)
+    return True
 
 
 def handle_request_caching(
@@ -128,7 +173,7 @@ def handle_request_caching(
     def wrapper(
         provider: SYNC_PROVIDER_TYPE, method: "RPCEndpoint", params: Any
     ) -> "RPCResponse":
-        if is_cacheable_request(provider, method):
+        if is_cacheable_request(provider, method, params):
             request_cache = provider._request_cache
             cache_key = generate_cache_key(
                 f"{threading.get_ident()}:{(method, params)}"
@@ -138,7 +183,7 @@ def handle_request_caching(
                 return cache_result
             else:
                 response = func(provider, method, params)
-                if _should_cache_response(response):
+                if _should_cache_response(provider, method, params, response):
                     with provider._request_cache_lock:
                         request_cache.cache(cache_key, response)
                 return response
@@ -152,6 +197,37 @@ def handle_request_caching(
 
 # -- async -- #
 
+ASYNC_INTERNAL_VALIDATION_MAP: Dict[
+    "RPCEndpoint",
+    Callable[
+        [ASYNC_PROVIDER_TYPE, Sequence[Any], Dict[str, Any]], Coroutine[Any, Any, bool]
+    ],
+] = {
+    **{endpoint: async_always_cache_request for endpoint in ALWAYS_CACHE},
+    **{endpoint: async_validate_blocknum_in_params for endpoint in BLOCKNUM_IN_PARAMS},
+    **{endpoint: async_validate_blocknum_in_result for endpoint in BLOCKNUM_IN_RESULT},
+    **{
+        endpoint: async_validate_blockhash_in_params for endpoint in BLOCKHASH_IN_PARAMS
+    },
+}
+
+
+async def _async_should_cache_response(
+    provider: ASYNC_PROVIDER_TYPE,
+    method: "RPCEndpoint",
+    params: Sequence[Any],
+    response: "RPCResponse",
+) -> bool:
+    result = response.get("result", None)
+    if "error" in response or is_null(result):
+        return False
+    if (
+        method in ASYNC_INTERNAL_VALIDATION_MAP
+        and provider.request_cache_validation_threshold is not None
+    ):
+        return await ASYNC_INTERNAL_VALIDATION_MAP[method](provider, params, result)
+    return True
+
 
 def async_handle_request_caching(
     func: Callable[
@@ -161,7 +237,7 @@ def async_handle_request_caching(
     async def wrapper(
         provider: ASYNC_PROVIDER_TYPE, method: "RPCEndpoint", params: Any
     ) -> "RPCResponse":
-        if is_cacheable_request(provider, method):
+        if is_cacheable_request(provider, method, params):
             request_cache = provider._request_cache
             cache_key = generate_cache_key(
                 f"{threading.get_ident()}:{(method, params)}"
@@ -171,7 +247,9 @@ def async_handle_request_caching(
                 return cache_result
             else:
                 response = await func(provider, method, params)
-                if _should_cache_response(response):
+                if await _async_should_cache_response(
+                    provider, method, params, response
+                ):
                     async with provider._request_cache_lock:
                         request_cache.cache(cache_key, response)
                 return response
