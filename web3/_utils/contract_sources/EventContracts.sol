@@ -20,7 +20,7 @@ contract IndexedEventContract {
     }
 }
 
-contract DuplicateEventContract {
+contract AmbiguousEventNameContract {
     event LogSingleArg(uint256 arg0);
     event LogSingleArg(bytes32 arg0);
 
