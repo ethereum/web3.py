@@ -31,7 +31,7 @@ from hexbytes import (
 
 from web3._utils.abi import (
     fallback_func_abi_exists,
-    get_abi_element_identifier,
+    get_abi_element_signature,
     get_name_from_abi_element_identifier,
     receive_func_abi_exists,
 )
@@ -276,9 +276,7 @@ class ContractEvents(BaseContractEvents):
         else:
             event_abi = get_abi_element(self._events, event_name)
             argument_types = get_abi_input_types(event_abi)
-            event_signature = str(
-                get_abi_element_identifier(event_name, argument_types)
-            )
+            event_signature = str(get_abi_element_signature(event_name, argument_types))
             return super().__getattribute__(event_signature)
 
     def __getitem__(self, event_name: str) -> "ContractEvent":

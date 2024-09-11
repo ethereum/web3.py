@@ -56,7 +56,7 @@ from hexbytes import (
 from web3._utils.abi import (
     filter_by_argument_name,
     filter_by_argument_type,
-    get_abi_element_identifier,
+    get_abi_element_signature,
     get_name_from_abi_element_identifier,
 )
 from web3.exceptions import (
@@ -183,7 +183,7 @@ def _find_abi_identifier_by_name(element_name: str, contract_abi: ABI) -> str:
             return abi_to_signature(function_abis[0])
 
         # Use signature for function that does not take arguments
-        return str(get_abi_element_identifier(element_name))
+        return str(get_abi_element_signature(element_name))
 
 
 def _mismatched_abi_error_diagnosis(
@@ -268,7 +268,7 @@ def _get_argument_readable_type(arg: Any) -> str:
 
 
 def _build_abi_filters(
-    abi_element_identifier: str,
+    abi_element_identifier: ABIElementIdentifier,
     *args: Optional[Any],
     abi_type: Optional[str] = None,
     argument_names: Optional[Sequence[str]] = None,
@@ -276,6 +276,25 @@ def _build_abi_filters(
     abi_codec: Optional[Any] = None,
     **kwargs: Optional[Any],
 ) -> List[Callable[..., Sequence[ABIElement]]]:
+    """
+    Build a list of ABI filters to find an ABI element within a contract ABI. Each
+    filter is a partial function that takes a contract ABI and returns a filtered list.
+    Each parameter is checked before applying the relevant filter.
+
+    When the `abi_element_identifier` is a function name or signature and no arguments
+    are provided, the returned filters include the function name or signature.
+
+    A function ABI may take arguments and keyword arguments. When the ``args`` and
+    ``kwargs`` values are passed, several filters are combined together. Available
+    filters include the function name, argument count, argument name, argument type,
+    and argument encodability.
+
+    `constructor`, `fallback`, and `receive` ABI elements are handled only with a
+    filter by type.
+    """
+    if not isinstance(abi_element_identifier, str):
+        abi_element_identifier = get_abi_element_signature(abi_element_identifier)
+
     if (
         abi_element_identifier == "constructor"
         or abi_element_identifier == "fallback"
@@ -432,11 +451,12 @@ def get_abi_element(
     **kwargs: Optional[Any],
 ) -> ABIElement:
     """
-    Return the interface for an ``ABIElement`` which matches the provided identifier
-    and arguments.
+    Return the interface for an ``ABIElement`` from the `abi` that matches the provided
+    identifier and arguments.
 
-    The ABI which matches the provided identifier, named arguments (``args``) and
-    keyword args (``kwargs``) will be returned.
+    The ``ABIElementIdentifier`` value may be a function name, signature, or a
+    ``FallbackFn`` or ``ReceiveFn``. When named arguments (``args``) and/or keyword args
+    (``kwargs``) are provided, they are included in the search filters.
 
     The `abi_codec` may be overridden if custom encoding and decoding is required. The
     default is used if no codec is provided. More details about customizations are in
@@ -444,7 +464,9 @@ def get_abi_element(
 
     :param abi: Contract ABI.
     :type abi: `ABI`
-    :param abi_element_identifier: Find an element ABI with matching identifier.
+    :param abi_element_identifier: Find an element ABI with matching identifier. The \
+    identifier may be a function name, signature, or ``FallbackFn`` or ``ReceiveFn``. \
+    A function signature is in the form `name(arg1Type,arg2Type,...)`.
     :type abi_element_identifier: `ABIElementIdentifier`
     :param args: Find an element ABI with matching args.
     :type args: `Optional[Sequence[Any]]`

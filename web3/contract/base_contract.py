@@ -48,7 +48,7 @@ from hexbytes import (
 from web3._utils.abi import (
     fallback_func_abi_exists,
     find_constructor_abi_element_by_type,
-    get_abi_element_identifier,
+    get_abi_element_signature,
     get_name_from_abi_element_identifier,
     is_array_type,
     receive_func_abi_exists,
@@ -537,7 +537,7 @@ class BaseContractFunction:
                 ABIFunction,
                 get_abi_element(
                     cls.contract_abi,
-                    get_abi_element_identifier(abi_element_identifier),
+                    get_abi_element_signature(abi_element_identifier),
                     abi_codec=cls.w3.codec,
                 ),
             )
@@ -962,7 +962,7 @@ class BaseContract:
         **kwargs: Dict[str, Any],
     ) -> ABIElement:
         if not args and not kwargs:
-            fn_identifier = get_abi_element_identifier(fn_identifier)
+            fn_identifier = get_abi_element_signature(fn_identifier)
 
         return get_abi_element(
             cls.abi,

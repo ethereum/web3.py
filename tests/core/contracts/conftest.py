@@ -11,7 +11,7 @@ from tests.utils import (
     async_partial,
 )
 from web3._utils.abi import (
-    get_abi_element_identifier,
+    get_abi_element_signature,
 )
 from web3._utils.contract_sources.contract_data.arrays_contract import (
     ARRAYS_CONTRACT_DATA,
@@ -483,7 +483,7 @@ def invoke_contract(
     function_signature = contract_function
     function_arg_count = len(func_args or ()) + len(func_kwargs or {})
     if function_arg_count == 0:
-        function_signature = get_abi_element_identifier(contract_function)
+        function_signature = get_abi_element_signature(contract_function)
 
     if func_args is None:
         func_args = []
@@ -769,7 +769,7 @@ async def async_invoke_contract(
     function_signature = contract_function
     function_arg_count = len(func_args or ()) + len(func_kwargs or {})
     if function_arg_count == 0:
-        function_signature = get_abi_element_identifier(contract_function)
+        function_signature = get_abi_element_signature(contract_function)
 
     if func_args is None:
         func_args = []

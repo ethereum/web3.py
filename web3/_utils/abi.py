@@ -133,7 +133,7 @@ def exclude_indexed_event_inputs(event_abi: ABIEvent) -> Sequence[ABIComponent]:
 
 def filter_by_argument_name(
     argument_names: Collection[str], contract_abi: ABI
-) -> List[ABIElement]:
+) -> Sequence[ABIElement]:
     """
     Return a list of each ``ABIElement`` which contain arguments matching provided
     names.
@@ -190,10 +190,10 @@ def get_name_from_abi_element_identifier(
         raise Web3TypeError("Unsupported function identifier")
 
 
-def get_abi_element_identifier(
+def get_abi_element_signature(
     abi_element_identifier: ABIElementIdentifier,
     abi_element_argument_types: Optional[Sequence[str]] = None,
-) -> ABIElementIdentifier:
+) -> str:
     element_name = get_name_from_abi_element_identifier(abi_element_identifier)
     argument_types = ",".join(abi_element_argument_types or [])
 
