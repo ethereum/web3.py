@@ -164,11 +164,15 @@ def _get_fallback_function_abi(contract_abi: ABI) -> ABIFallback:
         raise ABIFallbackNotFound("No fallback function was found in the contract ABI.")
 
 
-def _find_abi_identifier_by_name(element_name: str, contract_abi: ABI) -> str:
+def _get_any_abi_signature_with_name(element_name: str, contract_abi: ABI) -> str:
     """
-    Find an ABI identifier signature by element name.
-    A signature identifier is returned, "name(arg1Type,arg2Type,...)".
-    If multiple functions have the same name, return one of the function signatures.
+    Find an ABI identifier signature by element name. A signature identifier is
+    returned, "name(arg1Type,arg2Type,...)".
+
+    This function forces a result to be returned even if multiple are found. Depending
+    on the ABIs found, the signature may be returned with or without arguments types.
+    The signature without arguments is returned when there is a matching ABI with no
+    arguments.
     """
     try:
         # search for function abis with the same name
@@ -298,12 +302,8 @@ def _build_abi_filters(
     if not isinstance(abi_element_identifier, str):
         abi_element_identifier = get_abi_element_signature(abi_element_identifier)
 
-    if (
-        abi_element_identifier == "constructor"
-        or abi_element_identifier == "fallback"
-        or abi_element_identifier == "receive"
-    ):
-        return [functools.partial(filter_abi_by_type, abi_type)]
+    if abi_element_identifier in ["constructor", "fallback", "receive"]:
+        return [functools.partial(filter_abi_by_type, abi_element_identifier)]
 
     filters: List[Callable[..., Sequence[ABIElement]]] = []
 
@@ -507,21 +507,11 @@ def get_abi_element(
     if abi_codec is None:
         abi_codec = ABICodec(default_registry)
 
-    element_name = get_name_from_abi_element_identifier(abi_element_identifier)
-
-    abi_type = None
-    if element_name in ("fallback", "receive", "constructor"):
-        abi_type = element_name
-        abi_element_identifier = element_name
-    else:
-        abi_element_identifier = str(abi_element_identifier)
-
     abi_element_matches: Sequence[ABIElement] = pipe(
         abi,
         *_build_abi_filters(
             abi_element_identifier,
             *args,
-            abi_type=abi_type,
             abi_codec=abi_codec,
             **kwargs,
         ),
@@ -532,7 +522,7 @@ def get_abi_element(
     # Raise MismatchedABI when more than one found
     if num_matches != 1:
         error_diagnosis = _mismatched_abi_error_diagnosis(
-            abi_element_identifier,
+            get_name_from_abi_element_identifier(abi_element_identifier),
             abi,
             num_matches,
             len(args) + len(kwargs),

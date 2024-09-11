@@ -369,22 +369,19 @@ def find_functions_by_identifier(
     callable_check: Callable[..., Any],
     function_type: Type[TContractFn],
 ) -> List[TContractFn]:
-    fns: List[TContractFn] = []
-    for fn_abi in filter_abi_by_type("function", contract_abi):
-        abi_signature = abi_to_signature(fn_abi)
-        if callable_check(fn_abi):
-            fns.append(
-                function_type.factory(
-                    abi_signature,
-                    w3=w3,
-                    contract_abi=contract_abi,
-                    address=address,
-                    abi_element_identifier=abi_signature,
-                    abi=fn_abi,
-                )
-            )
-
-    return fns
+    fns_abi = filter_abi_by_type("function", contract_abi)
+    return [
+        function_type.factory(
+            abi_to_signature(fn_abi),
+            w3=w3,
+            contract_abi=contract_abi,
+            address=address,
+            abi_element_identifier=abi_to_signature(fn_abi),
+            abi=fn_abi,
+        )
+        for fn_abi in fns_abi
+        if callable_check(fn_abi)
+    ]
 
 
 def get_function_by_identifier(

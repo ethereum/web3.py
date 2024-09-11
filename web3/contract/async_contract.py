@@ -105,7 +105,7 @@ from web3.types import (
     TxParams,
 )
 from web3.utils.abi import (
-    _find_abi_identifier_by_name,
+    _get_any_abi_signature_with_name,
     get_abi_element,
 )
 
@@ -463,7 +463,7 @@ class AsyncContractFunctions(BaseContractFunctions):
         if function_name in ["abi", "w3", "address"] and super().__getattribute__(
             "_functions"
         ):
-            function_identifier = _find_abi_identifier_by_name(
+            function_identifier = _get_any_abi_signature_with_name(
                 function_name, super().__getattribute__("_functions")
             )
 
@@ -495,7 +495,7 @@ class AsyncContractFunctions(BaseContractFunctions):
         if "(" not in function_name or get_name_from_abi_element_identifier(
             function_name
         ) in ["abi", "w3", "address"]:
-            function_identifier = _find_abi_identifier_by_name(
+            function_identifier = _get_any_abi_signature_with_name(
                 function_name, self._functions
             )
 

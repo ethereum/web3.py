@@ -26,6 +26,6 @@ contract DuplicateEventContract {
 
     function logTwoEvents(uint256 _arg0) external {
         emit LogSingleArg(_arg0);
-        emit LogSingleArg(abi.encodePacked(_arg0));
+        emit LogSingleArg(bytes32(abi.encode(_arg0)));
     }
 }
