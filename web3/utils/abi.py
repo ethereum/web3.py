@@ -59,6 +59,9 @@ from web3._utils.abi import (
     get_abi_element_signature,
     get_name_from_abi_element_identifier,
 )
+from web3._utils.decorators import (
+    deprecated_for,
+)
 from web3.exceptions import (
     ABIConstructorNotFound,
     ABIFallbackNotFound,
@@ -605,12 +608,17 @@ def check_if_arguments_can_be_encoded(
     )
 
 
+@deprecated_for("get_abi_element")
 def get_event_abi(
     abi: ABI,
     event_name: str,
     argument_names: Optional[Sequence[str]] = None,
 ) -> ABIEvent:
     """
+    .. warning::
+        This function is deprecated. It is unable to distinguish between
+        overloaded events. Use `get_abi_element` instead.
+
     Find the event interface with the given name and/or arguments.
 
     :param abi: Contract ABI.

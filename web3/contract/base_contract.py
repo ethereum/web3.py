@@ -123,7 +123,6 @@ from web3.utils.abi import (
     check_if_arguments_can_be_encoded,
     get_abi_element,
     get_abi_element_info,
-    get_event_abi,
 )
 
 if TYPE_CHECKING:
@@ -978,8 +977,13 @@ class BaseContract:
         event_name: Optional[str] = None,
         argument_names: Optional[Sequence[str]] = None,
     ) -> ABIEvent:
-        return get_event_abi(
-            abi=cls.abi, event_name=event_name, argument_names=argument_names
+        return cast(
+            ABIEvent,
+            get_abi_element(
+                abi=cls.abi,
+                abi_element_identifier=event_name,
+                argument_names=argument_names,
+            ),
         )
 
     @combomethod
