@@ -124,19 +124,62 @@ options on the provider instance:
 
 - ``cache_allowed_requests: bool = False``
 - ``cacheable_requests: Set[RPCEndpoint] = CACHEABLE_REQUESTS``
+- ``request_cache_validation_threshold: RequestCacheValidationThreshold = RequestCacheValidationThreshold.FINALIZED``
+
+For requests that don't rely on block data (e.g., ``eth_chainId``), enabling request
+caching by setting the ``cache_allowed_requests`` option to ``True`` will cache all
+responses. This is safe to do.
+
+However, for requests that rely on block data (e.g., ``eth_getBlockByNumber``), it is
+not safe to always cache their responses because block data can change - during a
+chain reorganization, for example. The ``request_cache_validation_threshold`` option
+allows configuring a safe threshold for caching responses that depend on block data. By
+default, the ``finalized`` block number is used as the validation threshold, meaning
+that a request's response will be cached if the block number it relies on is less than
+or equal to the ``finalized`` block number. If the block number exceeds the
+``finalized`` block number, the response won't be cached.
+
+This behavior can be modified by setting the ``request_cache_validation_threshold``
+option to ``RequestCacheValidationThreshold.SAFE``, which uses the ``safe`` block as
+the threshold, or to ``None``, which disables cache validation and caches all
+requests (this is not recommended). The ``RequestCacheValidationThreshold`` enum is
+imported from the ``web3.utils`` module.
+
+The current list of requests that are validated by this configuration before being
+cached is:
+
+    - RPC.eth_getBlockByNumber
+    - RPC.eth_getRawTransactionByBlockNumberAndIndex
+    - RPC.eth_getBlockTransactionCountByNumber
+    - RPC.eth_getUncleByBlockNumberAndIndex
+    - RPC.eth_getUncleCountByBlockNumber
+    - RPC.eth_getBlockByHash
+    - RPC.eth_getTransactionByHash
+    - RPC.eth_getTransactionByBlockNumberAndIndex
+    - RPC.eth_getTransactionByBlockHashAndIndex
+    - RPC.eth_getBlockTransactionCountByHash
+    - RPC.eth_getRawTransactionByBlockHashAndIndex
+    - RPC.eth_getUncleByBlockHashAndIndex
+    - RPC.eth_getUncleCountByBlockHash
 
 .. code-block:: python
 
     from web3 import Web3, HTTPProvider
+    from web3.utils import RequestCacheValidationThreshold
 
     w3 = Web3(HTTPProvider(
         endpoint_uri="...",
 
-        # optional flag to turn on cached requests, defaults to False
+        # optional flag to turn on cached requests, defaults to ``False``
         cache_allowed_requests=True,
 
         # optional, defaults to an internal list of deemed-safe-to-cache endpoints
         cacheable_requests={"eth_chainId", "eth_getBlockByNumber"},
+
+        # optional, defaults to ``RequestCacheValidationThreshold.FINALIZED``
+        # can be set to ``RequestCacheValidationThreshold.SAFE`` or turned off
+        # by setting to ``None``.
+        request_cache_validation_threshold=RequestCacheValidationThreshold.SAFE,
     ))
 
 .. _http_retry_requests:
