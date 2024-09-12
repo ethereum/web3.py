@@ -82,10 +82,6 @@ def validate_blockhash_in_params(
 # -- async -- #
 
 
-async def async_always_cache_request(*_args: Any, **_kwargs: Any) -> bool:
-    return True
-
-
 async def async_is_beyond_validation_threshold(
     provider: ASYNC_PROVIDER_TYPE, blocknum: int
 ) -> bool:

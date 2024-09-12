@@ -240,7 +240,8 @@ def test_blocknum_validation_against_validation_threshold_when_caching(
     ):
         assert len(w3.provider._request_cache.items()) == 0
         w3.manager.request_blocking(endpoint, [blocknum, False])
-        assert len(w3.provider._request_cache.items()) == int(should_cache)
+        cached_items = len(w3.provider._request_cache.items())
+        assert cached_items == 1 if should_cache else cached_items == 0
 
 
 @pytest.mark.parametrize(
@@ -281,7 +282,8 @@ def test_block_id_param_caching(
     ):
         assert len(w3.provider._request_cache.items()) == 0
         w3.manager.request_blocking(RPCEndpoint(endpoint), [block_id, False])
-        assert len(w3.provider._request_cache.items()) == int(should_cache)
+        cached_items = len(w3.provider._request_cache.items())
+        assert cached_items == 1 if should_cache else cached_items == 0
 
 
 @pytest.mark.parametrize(
@@ -530,7 +532,8 @@ async def test_async_blocknum_validation_against_validation_threshold(
     ):
         assert len(async_w3.provider._request_cache.items()) == 0
         await async_w3.manager.coro_request(endpoint, [blocknum, False])
-        assert len(async_w3.provider._request_cache.items()) == int(should_cache)
+        cached_items = len(async_w3.provider._request_cache.items())
+        assert cached_items == 1 if should_cache else cached_items == 0
 
 
 @pytest.mark.asyncio
@@ -572,7 +575,8 @@ async def test_async_block_id_param_caching(
     ):
         assert len(async_w3.provider._request_cache.items()) == 0
         await async_w3.manager.coro_request(RPCEndpoint(endpoint), [block_id, False])
-        assert len(async_w3.provider._request_cache.items()) == int(should_cache)
+        cached_items = len(async_w3.provider._request_cache.items())
+        assert cached_items == 1 if should_cache else cached_items == 0
 
 
 @pytest.mark.asyncio

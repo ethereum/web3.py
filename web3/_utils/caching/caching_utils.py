@@ -1,3 +1,6 @@
+from asyncio import (
+    iscoroutinefunction,
+)
 import collections
 import hashlib
 import threading
@@ -31,7 +34,6 @@ from web3._utils.caching import (
 from web3._utils.caching.request_caching_validation import (
     UNCACHEABLE_BLOCK_IDS,
     always_cache_request,
-    async_always_cache_request,
     async_validate_blockhash_in_params,
     async_validate_blocknum_in_params,
     async_validate_blocknum_in_result,
@@ -197,13 +199,13 @@ def handle_request_caching(
 
 # -- async -- #
 
-ASYNC_INTERNAL_VALIDATION_MAP: Dict[
-    "RPCEndpoint",
-    Callable[
-        [ASYNC_PROVIDER_TYPE, Sequence[Any], Dict[str, Any]], Coroutine[Any, Any, bool]
-    ],
-] = {
-    **{endpoint: async_always_cache_request for endpoint in ALWAYS_CACHE},
+ASYNC_VALIDATOR_TYPE = Callable[
+    ["AsyncBaseProvider", Sequence[Any], Dict[str, Any]],
+    Union[bool, Coroutine[Any, Any, bool]],
+]
+
+ASYNC_INTERNAL_VALIDATION_MAP: Dict["RPCEndpoint", ASYNC_VALIDATOR_TYPE] = {
+    **{endpoint: always_cache_request for endpoint in ALWAYS_CACHE},
     **{endpoint: async_validate_blocknum_in_params for endpoint in BLOCKNUM_IN_PARAMS},
     **{endpoint: async_validate_blocknum_in_result for endpoint in BLOCKNUM_IN_RESULT},
     **{
@@ -225,7 +227,12 @@ async def _async_should_cache_response(
         method in ASYNC_INTERNAL_VALIDATION_MAP
         and provider.request_cache_validation_threshold is not None
     ):
-        return await ASYNC_INTERNAL_VALIDATION_MAP[method](provider, params, result)
+        cache_validator = ASYNC_INTERNAL_VALIDATION_MAP[method]
+        return (
+            await cache_validator(provider, params, result)
+            if iscoroutinefunction(cache_validator)
+            else cache_validator(provider, params, result)
+        )
     return True
 
 
