@@ -1,0 +1,1 @@
+Fix a bug where sensitive requests that make use of block data should not be cached until some validation threshold deems it is safe to do so, when request caching is turned on.
