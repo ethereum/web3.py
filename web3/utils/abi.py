@@ -454,8 +454,8 @@ def get_abi_element(
     **kwargs: Optional[Any],
 ) -> ABIElement:
     """
-    Return the interface for an ``ABIElement`` from the `abi` that matches the provided
-    identifier and arguments.
+    Return the interface for an ``ABIElement`` from the ``abi`` that matches the
+    provided identifier and arguments.
 
     The ``ABIElementIdentifier`` value may be a function name, signature, or a
     ``FallbackFn`` or ``ReceiveFn``. When named arguments (``args``) and/or keyword args
@@ -607,7 +607,7 @@ def get_event_abi(
     """
     .. warning::
         This function is deprecated. It is unable to distinguish between
-        overloaded events. Use `get_abi_element` instead.
+        overloaded events. Use ``get_abi_element`` instead.
 
     Find the event interface with the given name and/or arguments.
 

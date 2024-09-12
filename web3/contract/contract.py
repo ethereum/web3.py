@@ -283,11 +283,6 @@ class ContractEvents(BaseContractEvents):
         return getattr(self, event_name)
 
     def __iter__(self) -> Iterable["ContractEvent"]:
-        """
-        Iterate over supported
-
-        :return: Iterable of :class:`ContractEvent`
-        """
         for event in self._events:
             yield self[event["name"]]
 
