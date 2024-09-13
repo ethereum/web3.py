@@ -288,7 +288,7 @@ def _build_abi_filters(
     filter is a partial function that takes a contract ABI and returns a filtered list.
     Each parameter is checked before applying the relevant filter.
 
-    When the `abi_element_identifier` is a function name or signature and no arguments
+    When the ``abi_element_identifier`` is a function name or signature and no arguments
     are provided, the returned filters include the function name or signature.
 
     A function ABI may take arguments and keyword arguments. When the ``args`` and
@@ -296,7 +296,7 @@ def _build_abi_filters(
     filters include the function name, argument count, argument name, argument type,
     and argument encodability.
 
-    `constructor`, `fallback`, and `receive` ABI elements are handled only with a
+    ``constructor``, ``fallback``, and ``receive`` ABI elements are handled only with a
     filter by type.
     """
     if not isinstance(abi_element_identifier, str):
@@ -469,7 +469,7 @@ def get_abi_element(
     :type abi: `ABI`
     :param abi_element_identifier: Find an element ABI with matching identifier. The \
     identifier may be a function name, signature, or ``FallbackFn`` or ``ReceiveFn``. \
-    A function signature is in the form `name(arg1Type,arg2Type,...)`.
+    A function signature is in the form ``name(arg1Type,arg2Type,...)``.
     :type abi_element_identifier: `ABIElementIdentifier`
     :param args: Find an element ABI with matching args.
     :type args: `Optional[Sequence[Any]]`
