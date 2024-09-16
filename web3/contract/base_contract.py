@@ -210,6 +210,7 @@ class BaseContractEvent:
     ) -> Iterable[EventData]:
         return self._parse_logs(txn_receipt, errors)
 
+    @combomethod
     @to_tuple
     def _parse_logs(
         self, txn_receipt: TxReceipt, errors: EventLogErrorFlags
