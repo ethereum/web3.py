@@ -182,9 +182,10 @@ class ContractEvent(BaseContractEvent):
           same time as ``from_block`` or ``to_block``
         :yield: Tuple of :class:`AttributeDict` instances
         """
+        abi = self._get_event_abi()
         # validate ``argument_filters`` if present
         if argument_filters is not None:
-            event_arg_names = get_abi_input_names(self.abi)
+            event_arg_names = get_abi_input_names(abi)
             if not all(arg in event_arg_names for arg in argument_filters.keys()):
                 raise Web3ValidationError(
                     "When filtering by argument names, all argument names must be "
@@ -192,17 +193,17 @@ class ContractEvent(BaseContractEvent):
                 )
 
         _filter_params = self._get_event_filter_params(
-            self.abi, argument_filters, from_block, to_block, block_hash
+            abi, argument_filters, from_block, to_block, block_hash
         )
         # call JSON-RPC API
         logs = self.w3.eth.get_logs(_filter_params)
 
         # convert raw binary data to Python proxy objects as described by ABI:
         all_event_logs = tuple(
-            get_event_data(self.w3.codec, self.abi, entry) for entry in logs
+            get_event_data(self.w3.codec, abi, entry) for entry in logs
         )
         filtered_logs = self._process_get_logs_argument_filters(
-            self.abi,
+            abi,
             all_event_logs,
             argument_filters,
         )
@@ -223,7 +224,8 @@ class ContractEvent(BaseContractEvent):
         """
         Create filter object that tracks logs emitted by this contract event.
         """
-        filter_builder = EventFilterBuilder(self.abi, self.w3.codec)
+        abi = self._get_event_abi()
+        filter_builder = EventFilterBuilder(abi, self.w3.codec)
         self._set_up_filter_builder(
             argument_filters,
             from_block,
@@ -233,17 +235,18 @@ class ContractEvent(BaseContractEvent):
             filter_builder,
         )
         log_filter = filter_builder.deploy(self.w3)
-        log_filter.log_entry_formatter = get_event_data(self.w3.codec, self.abi)
+        log_filter.log_entry_formatter = get_event_data(self.w3.codec, abi)
         log_filter.builder = filter_builder
 
         return log_filter
 
     @combomethod
     def build_filter(self) -> EventFilterBuilder:
+        abi = self._get_event_abi()
         builder = EventFilterBuilder(
-            self.abi,
+            abi,
             self.w3.codec,
-            formatter=get_event_data(self.w3.codec, self.abi),
+            formatter=get_event_data(self.w3.codec, abi),
         )
         builder.address = self.address
         return builder
@@ -296,9 +299,7 @@ class ContractFunction(BaseContractFunction):
 
     @classmethod
     def factory(cls, class_name: str, **kwargs: Any) -> Self:
-        return PropertyCheckingFactory(class_name, (cls,), kwargs)(
-            abi=kwargs.get("abi")
-        )
+        return PropertyCheckingFactory(class_name, (cls,), kwargs)(kwargs.get("abi"))
 
     def call(
         self,
@@ -661,7 +662,6 @@ class ContractCaller(BaseContractCaller):
                     w3=w3,
                     contract_abi=self.abi,
                     address=self.address,
-                    abi_element_identifier=abi_signature,
                     decode_tuples=decode_tuples,
                 )
 
@@ -673,7 +673,7 @@ class ContractCaller(BaseContractCaller):
                     ccip_read_enabled=ccip_read_enabled,
                 )
 
-                setattr(self, func["name"], caller_method)
+                setattr(self, abi_signature, caller_method)
 
     def __call__(
         self,

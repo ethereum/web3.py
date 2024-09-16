@@ -300,9 +300,7 @@ class AsyncContractFunction(BaseContractFunction):
 
     @classmethod
     def factory(cls, class_name: str, **kwargs: Any) -> Self:
-        return PropertyCheckingFactory(class_name, (cls,), kwargs)(
-            abi=kwargs.get("abi")
-        )
+        return PropertyCheckingFactory(class_name, (cls,), kwargs)(kwargs.get("abi"))
 
     async def call(
         self,
@@ -492,9 +490,7 @@ class AsyncContractFunctions(BaseContractFunctions):
 
         function_identifier = function_name
 
-        if "(" not in function_name or get_name_from_abi_element_identifier(
-            function_name
-        ) in ["abi", "w3", "address"]:
+        if "(" not in function_name:
             function_identifier = _get_any_abi_signature_with_name(
                 function_name, self._functions
             )
@@ -660,7 +656,6 @@ class AsyncContractCaller(BaseContractCaller):
                     w3=w3,
                     contract_abi=self.abi,
                     address=self.address,
-                    abi_element_identifier=abi_signature,
                     decode_tuples=decode_tuples,
                 )
 
@@ -672,7 +667,7 @@ class AsyncContractCaller(BaseContractCaller):
                     ccip_read_enabled=ccip_read_enabled,
                 )
 
-                setattr(self, func["name"], caller_method)
+                setattr(self, abi_signature, caller_method)
 
     def __call__(
         self,

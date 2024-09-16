@@ -131,6 +131,10 @@ def exclude_indexed_event_inputs(event_abi: ABIEvent) -> Sequence[ABIComponent]:
     ]
 
 
+def filter_by_types(types: Collection[str], contract_abi: ABI) -> Sequence[ABIElement]:
+    return [abi_element for abi_element in contract_abi if abi_element["type"] in types]
+
+
 def filter_by_argument_name(
     argument_names: Collection[str], contract_abi: ABI
 ) -> Sequence[ABIElement]:

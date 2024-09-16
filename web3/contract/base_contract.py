@@ -47,6 +47,7 @@ from hexbytes import (
 
 from web3._utils.abi import (
     fallback_func_abi_exists,
+    filter_by_types,
     find_constructor_abi_element_by_type,
     get_abi_element_signature,
     get_name_from_abi_element_identifier,
@@ -120,6 +121,7 @@ from web3.types import (
     TxReceipt,
 )
 from web3.utils.abi import (
+    _get_any_abi_signature_with_name,
     check_if_arguments_can_be_encoded,
     get_abi_element,
     get_abi_element_info,
@@ -158,51 +160,27 @@ class BaseContractEvent:
     args: Any = None
     kwargs: Any = None
 
-    def __init__(
-        self,
-        *argument_names: Tuple[str],
-        abi: Optional[ABIEvent] = None,
-        abi_element_identifier: Optional[ABIElementIdentifier] = None,
-    ) -> None:
-        # event was referenced with parens, juts return the event
-        if not self.abi:
-            self.abi = abi
-
-            if abi_element_identifier is not None:
-                self.event_name = get_name_from_abi_element_identifier(
-                    abi_element_identifier
-                )
-            else:
-                self.event_name = get_name_from_abi_element_identifier(
-                    type(self).__name__
-                )
+    def __init__(self, *argument_names: Tuple[str]) -> None:
+        self.event_name = get_name_from_abi_element_identifier(type(self).__name__)
+        self.abi_element_identifier = type(self).__name__
+        self.abi = self._get_event_abi()
 
     @combomethod
-    def _get_event_abi(
-        cls,
-        abi_element_identifier: Optional[ABIElementIdentifier] = None,
-        *args: Sequence[Any],
-        **kwargs: Dict[str, Any],
-    ) -> ABIEvent:
+    def _get_event_abi(cls) -> ABIEvent:
         if cls.abi:
             return cls.abi
-
-        if not abi_element_identifier:
-            abi_element_identifier = cls.event_name
 
         return cast(
             ABIEvent,
             get_abi_element(
-                cls.contract_abi,
-                get_name_from_abi_element_identifier(abi_element_identifier),
-                *args,
+                filter_abi_by_type("event", cls.contract_abi),
+                cls.abi_element_identifier,
                 abi_codec=cls.w3.codec,
-                **kwargs,
             ),
         )
 
     def _set_event_info(self) -> None:
-        self.abi = self._get_event_abi(self.event_name, *self.args, **self.kwargs)
+        self.abi = self._get_event_abi()
 
     @combomethod
     def process_receipt(
@@ -305,9 +283,7 @@ class BaseContractEvent:
     def factory(
         cls, class_name: str, **kwargs: Any
     ) -> Union["ContractEvent", "AsyncContractEvent"]:
-        return PropertyCheckingFactory(class_name, (cls,), kwargs)(
-            abi=kwargs.get("abi")
-        )
+        return PropertyCheckingFactory(class_name, (cls,), kwargs)()
 
     @staticmethod
     def check_for_forbidden_api_filter_arguments(
@@ -479,7 +455,6 @@ class BaseContractEvents:
                     w3=_w3,
                     contract_abi=_abi,
                     address=_address,
-                    abi=event,
                     event_name=event["name"],
                 )
                 setattr(self, abi_signature, event_factory)
@@ -517,27 +492,31 @@ class BaseContractFunction:
     args: Any = None
     kwargs: Any = None
 
-    def __init__(self, *arguments: Any, abi: Optional[ABIFunction] = None) -> None:
-        self.abi = abi
-        self.fn_name = get_name_from_abi_element_identifier(type(self).__name__)
+    def __init__(self, abi: Optional[ABIFunction] = None) -> None:
+        if not self.abi_element_identifier:
+            self.abi_element_identifier = type(self).__name__
+
+        self.fn_name = get_name_from_abi_element_identifier(self.abi_element_identifier)
+        self.abi = cast(
+            ABIFunction,
+            get_abi_element(
+                filter_by_types(
+                    ["function", "constructor", "fallback", "receive"],
+                    self.contract_abi,
+                ),
+                self.abi_element_identifier,
+            ),
+        )
 
     @combomethod
-    def _get_abi(
-        cls,
-        abi_element_identifier: ABIElementIdentifier,
-        *args: Sequence[Any],
-        **kwargs: Dict[str, Any],
-    ) -> ABIFunction:
-        if not abi_element_identifier:
-            abi_element_identifier = cls.fn_name
-
-        if not args and not kwargs:
+    def _get_abi(cls) -> ABIFunction:
+        if not cls.args and not cls.kwargs:
             # If no args or kwargs are provided, get the ABI element by name
             return cast(
                 ABIFunction,
                 get_abi_element(
                     cls.contract_abi,
-                    get_abi_element_signature(abi_element_identifier),
+                    get_abi_element_signature(cls.abi_element_identifier),
                     abi_codec=cls.w3.codec,
                 ),
             )
@@ -546,39 +525,26 @@ class BaseContractFunction:
             ABIFunction,
             get_abi_element(
                 cls.contract_abi,
-                get_name_from_abi_element_identifier(abi_element_identifier),
-                *args,
+                get_name_from_abi_element_identifier(cls.abi_element_identifier),
+                *cls.args,
                 abi_codec=cls.w3.codec,
-                **kwargs,
+                **cls.kwargs,
             ),
         )
 
     def _set_function_info(self) -> None:
-        self.abi = self._get_abi(
-            self.fn_name,
-            *self.args,
-            **self.kwargs,
-        )
-
-        if self.abi_element_identifier in [
-            FallbackFn,
-            ReceiveFn,
-        ]:
-            self.selector = encode_hex(b"")
-        elif is_text(self.abi_element_identifier):
-            self.selector = encode_hex(function_abi_to_4byte_selector(self.abi))
-        else:
-            raise Web3TypeError("Unsupported function identifier")
-
-        if self.abi_element_identifier in [
-            FallbackFn,
-            ReceiveFn,
-        ]:
+        self.selector = encode_hex(b"")
+        if self.abi_element_identifier in [FallbackFn, ReceiveFn]:
             self.arguments = None
-        else:
+        elif is_text(self.abi_element_identifier):
+            self.abi = self._get_abi()
+
+            self.selector = encode_hex(function_abi_to_4byte_selector(self.abi))
             self.arguments = get_normalized_abi_inputs(
                 self.abi, *self.args, **self.kwargs
             )
+        else:
+            raise Web3TypeError("Unsupported function identifier")
 
     def _get_call_txparams(self, transaction: Optional[TxParams] = None) -> TxParams:
         if transaction is None:
@@ -710,15 +676,13 @@ class BaseContractFunction:
             if self.arguments is not None:
                 _repr += f" bound to {self.arguments!r}"
             return _repr + ">"
-        return f"<Function {self.abi_element_identifier}>"
+        return f"<Function {get_abi_element_signature(self.abi_element_identifier)}>"
 
     @classmethod
     def factory(
         cls, class_name: str, **kwargs: Any
     ) -> Union["ContractFunction", "AsyncContractFunction"]:
-        return PropertyCheckingFactory(class_name, (cls,), kwargs)(
-            abi=kwargs.get("abi")
-        )
+        return PropertyCheckingFactory(class_name, (cls,), kwargs)(kwargs.get("abi"))
 
 
 class BaseContractFunctions:
@@ -756,8 +720,6 @@ class BaseContractFunctions:
                         contract_abi=_abi,
                         address=_address,
                         decode_tuples=decode_tuples,
-                        abi_element_identifier=abi_signature,
-                        abi=func,
                     ),
                 )
 
@@ -1106,7 +1068,9 @@ class BaseContractCaller:
 
     def __getattr__(self, function_name: str) -> Any:
         function_names = [
-            fn["name"] for fn in self._functions if fn.get("type") == "function"
+            get_name_from_abi_element_identifier(fn["name"])
+            for fn in self._functions
+            if fn.get("type") == "function"
         ]
         if self.abi is None:
             raise NoABIFound(
@@ -1117,7 +1081,7 @@ class BaseContractCaller:
                 "The ABI for this contract contains no function definitions. ",
                 "Are you sure you provided the correct contract ABI?",
             )
-        elif function_name not in function_names:
+        elif get_name_from_abi_element_identifier(function_name) not in function_names:
             functions_available = ", ".join(function_names)
             raise ABIFunctionNotFound(
                 f"The function '{function_name}' was not found in this contract's ABI.",
@@ -1126,7 +1090,13 @@ class BaseContractCaller:
                 "Did you mean to call one of those functions?",
             )
         else:
-            return super().__getattribute__(function_name)
+            function_identifier = function_name
+
+            if "(" not in function_name:
+                function_identifier = _get_any_abi_signature_with_name(
+                    function_name, self._functions
+                )
+            return super().__getattribute__(function_identifier)
 
     def __hasattr__(self, function_name: str) -> bool:
         try:
