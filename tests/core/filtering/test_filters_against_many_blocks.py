@@ -50,9 +50,7 @@ def test_event_filter_new_events(
         builder.from_block = "latest"
         event_filter = builder.deploy(w3)
     else:
-        event_filter = emitter.events.LogNoArguments().create_filter(
-            from_block="latest"
-        )
+        event_filter = emitter.events.LogNoArguments.create_filter(from_block="latest")
 
     expected_match_counter = 0
 
