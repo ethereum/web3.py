@@ -50,6 +50,8 @@ from web3._utils.compat import (
 )
 from web3._utils.contracts import (
     async_parse_block_identifier,
+    copy_contract_event,
+    copy_contract_function,
 )
 from web3._utils.datatypes import (
     PropertyCheckingFactory,
@@ -82,8 +84,6 @@ from web3.contract.utils import (
     async_call_contract_function,
     async_estimate_gas_for_function,
     async_transact_with_contract_function,
-    copy_contract_event,
-    copy_contract_function,
     find_functions_by_identifier,
     get_function_by_identifier,
 )

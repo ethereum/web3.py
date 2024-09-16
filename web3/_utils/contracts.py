@@ -1,3 +1,4 @@
+import copy
 import functools
 from typing import (
     TYPE_CHECKING,
@@ -80,6 +81,8 @@ from web3.types import (
     ABIElementIdentifier,
     BlockIdentifier,
     BlockNumber,
+    TContractEvent,
+    TContractFn,
     TxParams,
 )
 from web3.utils.abi import (
@@ -385,4 +388,31 @@ async def async_parse_block_identifier_int(
         if block_num < 0:
             raise BlockNumberOutOfRange
     return BlockNumber(block_num)
-    return BlockNumber(block_num)
+
+
+def copy_contract_function(
+    contract_function: TContractFn, *args: Any, **kwargs: Any
+) -> TContractFn:
+    """
+    Copy a contract function instance.
+    """
+    clone = copy.copy(contract_function)
+    clone.args = args or tuple()
+    clone.kwargs = kwargs or dict()
+
+    clone._set_function_info()
+    return clone
+
+
+def copy_contract_event(
+    contract_function: TContractEvent, *args: Any, **kwargs: Any
+) -> TContractEvent:
+    """
+    Copy a contract function instance.
+    """
+    clone = copy.copy(contract_function)
+    clone.args = args or tuple()
+    clone.kwargs = kwargs or dict()
+
+    clone._set_event_info()
+    return clone

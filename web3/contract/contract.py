@@ -43,6 +43,8 @@ from web3._utils.compat import (
     Self,
 )
 from web3._utils.contracts import (
+    copy_contract_event,
+    copy_contract_function,
     parse_block_identifier,
 )
 from web3._utils.datatypes import (
@@ -77,8 +79,6 @@ from web3.contract.base_contract import (
 from web3.contract.utils import (
     build_transaction_for_function,
     call_contract_function,
-    copy_contract_event,
-    copy_contract_function,
     estimate_gas_for_function,
     find_functions_by_identifier,
     get_function_by_identifier,

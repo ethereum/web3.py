@@ -48,19 +48,19 @@ def test_contract_init_with_abi_function_name(
     function_name_tester_contract_abi,
     function_name_tester_contract,
 ):
-    # test `w3` function name does not throw when creating the contract factory
+    # test `abi` function name does not throw when creating the contract factory
     contract_factory = w3.eth.contract(abi=function_name_tester_contract_abi)
 
     # re-instantiate the contract
     contract = contract_factory(function_name_tester_contract.address)
 
-    # Contract w3 function should not override web3 instance
-    with pytest.raises(AttributeError):
-        contract.functions.abi.get_block("latest")
-
+    # Contract `abi`` function should not override `web3` attribute
     assert contract.abi == function_name_tester_contract_abi
 
-    # assert the `w3` function returns true when called
+    with pytest.raises(TypeError):
+        contract.functions.abi[0]
+
+    # assert the `abi` function returns true when called
     result = contract.functions.abi().call()
     assert result is True
 
@@ -71,19 +71,19 @@ async def test_async_contract_init_with_abi_function_name(
     function_name_tester_contract_abi,
     async_function_name_tester_contract,
 ):
-    # test `w3` function name does not throw when creating the contract factory
+    # test `abi` function name does not throw when creating the contract factory
     contract_factory = async_w3.eth.contract(abi=function_name_tester_contract_abi)
 
     # re-instantiate the contract
     contract = contract_factory(async_function_name_tester_contract.address)
 
-    # Contract w3 function should not override web3 instance
-    with pytest.raises(AttributeError):
-        contract.functions.abi.get_block("latest")
-
+    # Contract `abi` function should not override `web3` attribute
     assert contract.abi == function_name_tester_contract_abi
 
-    # assert the `w3` function returns true when called
+    with pytest.raises(TypeError):
+        contract.functions.abi[0]
+
+    # assert the `abi` function returns true when called
     result = await contract.functions.abi().call()
     assert result is True
 
@@ -101,7 +101,7 @@ def test_contract_init_with_w3_function_name(
 
     # Contract w3 function should not override web3 instance
     with pytest.raises(AttributeError):
-        contract.functions.w3.get_block("latest")
+        contract.functions.w3.eth.get_block("latest")
 
     assert contract.w3.eth.get_block("latest") is not None
 
@@ -124,7 +124,7 @@ async def test_async_contract_init_with_w3_function_name(
 
     # Contract w3 function should not override web3 instance
     with pytest.raises(AttributeError):
-        contract.functions.w3.get_block("latest")
+        contract.functions.w3.eth.get_block("latest")
 
     assert contract.w3.eth.get_block("latest") is not None
 

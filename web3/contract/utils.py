@@ -1,4 +1,3 @@
-import copy
 import itertools
 from typing import (
     TYPE_CHECKING,
@@ -65,7 +64,6 @@ from web3.types import (
     BlockIdentifier,
     RPCEndpoint,
     StateOverride,
-    TContractEvent,
     TContractFn,
     TxParams,
 )
@@ -120,34 +118,6 @@ def format_contract_call_return_data_curried(
         normalized_data = recursive_dict_to_namedtuple(decoded)
 
     return normalized_data[0] if len(normalized_data) == 1 else normalized_data
-
-
-def copy_contract_function(
-    contract_function: TContractFn, *args: Any, **kwargs: Any
-) -> TContractFn:
-    """
-    Copy a contract function instance.
-    """
-    clone = copy.copy(contract_function)
-    clone.args = args or tuple()
-    clone.kwargs = kwargs or dict()
-
-    clone._set_function_info()
-    return clone
-
-
-def copy_contract_event(
-    contract_function: TContractEvent, *args: Any, **kwargs: Any
-) -> TContractEvent:
-    """
-    Copy a contract function instance.
-    """
-    clone = copy.copy(contract_function)
-    clone.args = args or tuple()
-    clone.kwargs = kwargs or dict()
-
-    clone._set_event_info()
-    return clone
 
 
 def call_contract_function(

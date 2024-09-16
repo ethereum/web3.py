@@ -139,9 +139,7 @@ def test_get_abi_from_event(ambiguous_event_contract: "Contract") -> None:
         "type": "event",
     }
 
-    event_get_abi_result = ambiguous_event_contract.events[
-        "LogSingleArg(uint256)"
-    ]._get_event_abi()
+    event_get_abi_result = ambiguous_event_contract.events["LogSingleArg(uint256)"].abi
     assert expected_event_abi == event_get_abi_result
 
 
@@ -204,7 +202,7 @@ def test_contract_event_methods(
         ContractEvent, ambiguous_event_contract.events["LogSingleArg(uint256)"]
     )
 
-    assert log_arg_event._get_event_abi() == {
+    assert log_arg_event.abi == {
         "anonymous": False,
         "inputs": [
             {
@@ -218,6 +216,7 @@ def test_contract_event_methods(
         "type": "event",
     }
     assert log_arg_event.event_name == "LogSingleArg"
+    assert log_arg_event.abi_element_identifier == "LogSingleArg(uint256)"
     assert log_arg_event.get_logs() == []
 
     filter_builder = log_arg_event.build_filter()
