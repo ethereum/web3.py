@@ -1,5 +1,8 @@
 import pytest
 
+from eth.vm.forks.london.transactions import (
+    DynamicFeeTransaction,
+)
 from eth_account import (
     Account,
 )
@@ -27,6 +30,7 @@ from hexbytes import (
     HexBytes,
 )
 import pytest_asyncio
+import rlp
 
 from web3 import (
     AsyncWeb3,
@@ -36,6 +40,7 @@ from web3.exceptions import (
     InvalidAddress,
 )
 from web3.middleware import (
+    BufferedGasEstimateMiddleware,
     SignAndSendRawMiddlewareBuilder,
 )
 from web3.middleware.signing import (
@@ -254,7 +259,9 @@ TEST_SIGNED_TRANSACTION_PARAMS = (
     TEST_SIGN_AND_SEND_RAW_MIDDLEWARE_PARAMS,
 )
 def test_sign_and_send_raw_middleware(w3_dummy, method, from_, expected, key_object):
-    w3_dummy.middleware_onion.add(SignAndSendRawMiddlewareBuilder.build(key_object))
+    w3_dummy.middleware_onion.inject(
+        SignAndSendRawMiddlewareBuilder.build(key_object), layer=0
+    )
 
     legacy_transaction = {
         "to": "0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf",
@@ -364,7 +371,9 @@ def fund_account(w3):
     ],
 )
 def test_signed_transaction(w3, fund_account, transaction, expected, key_object, from_):
-    w3.middleware_onion.add(SignAndSendRawMiddlewareBuilder.build(key_object))
+    w3.middleware_onion.inject(
+        SignAndSendRawMiddlewareBuilder.build(key_object), layer=0
+    )
 
     # Drop any falsy addresses
     to_from = valfilter(bool, {"to": w3.eth.default_account, "from": from_})
@@ -398,7 +407,9 @@ def test_sign_and_send_raw_middleware_with_byte_addresses(
     from_ = from_converter(ADDRESS_1)
     to_ = to_converter(ADDRESS_2)
 
-    w3_dummy.middleware_onion.add(SignAndSendRawMiddlewareBuilder.build(private_key))
+    w3_dummy.middleware_onion.inject(
+        SignAndSendRawMiddlewareBuilder.build(private_key), layer=0
+    )
 
     actual = w3_dummy.manager.request_blocking(
         "eth_sendTransaction",
@@ -417,6 +428,47 @@ def test_sign_and_send_raw_middleware_with_byte_addresses(
     actual_method = actual[0]
     assert actual_method == "eth_sendRawTransaction"
     assert is_hexstr(raw_txn)
+
+
+def test_sign_and_send_raw_middleware_with_buffered_gas_estimate_middleware(
+    w3_dummy, request_mocker
+):
+    gas_buffer = 100000  # the default internal value
+    gas_estimate = 12345 - gas_buffer
+
+    w3_dummy.middleware_onion.add(BufferedGasEstimateMiddleware)
+    w3_dummy.middleware_onion.inject(
+        SignAndSendRawMiddlewareBuilder.build(PRIVATE_KEY_1), layer=0
+    )
+
+    with request_mocker(
+        w3_dummy,
+        mock_results={
+            "eth_getBlockByNumber": {"gasLimit": 200000},  # arbitrary high number
+            "eth_estimateGas": gas_estimate,
+        },
+    ):
+        actual = w3_dummy.manager.request_blocking(
+            "eth_sendTransaction",
+            [
+                {
+                    "to": ADDRESS_2,
+                    "from": ADDRESS_1,
+                    "value": 1,
+                    "nonce": 0,
+                    "maxFeePerGas": 10**9,
+                    "maxPriorityFeePerGas": 10**9,
+                }
+            ],
+        )
+
+    raw_txn = actual[1][0]
+    actual_method = actual[0]
+    assert actual_method == "eth_sendRawTransaction"
+    assert is_hexstr(raw_txn)
+
+    decoded_txn = rlp.decode(HexBytes(raw_txn[4:]), sedes=DynamicFeeTransaction)
+    assert decoded_txn["gas"] == gas_estimate + gas_buffer
 
 
 # -- async -- #
@@ -478,8 +530,8 @@ async def test_async_sign_and_send_raw_middleware(
     expected,
     key_object,
 ):
-    async_w3_dummy.middleware_onion.add(
-        SignAndSendRawMiddlewareBuilder.build(key_object)
+    async_w3_dummy.middleware_onion.inject(
+        SignAndSendRawMiddlewareBuilder.build(key_object), layer=0
     )
 
     legacy_transaction = {
@@ -550,7 +602,9 @@ async def test_async_signed_transaction(
     key_object,
     from_,
 ):
-    async_w3.middleware_onion.add(SignAndSendRawMiddlewareBuilder.build(key_object))
+    async_w3.middleware_onion.inject(
+        SignAndSendRawMiddlewareBuilder.build(key_object), layer=0
+    )
 
     # Drop any falsy addresses
     to_from = valfilter(bool, {"to": async_w3.eth.default_account, "from": from_})
@@ -588,8 +642,8 @@ async def test_async_sign_and_send_raw_middleware_with_byte_addresses(
     from_ = from_converter(ADDRESS_1)
     to_ = to_converter(ADDRESS_2)
 
-    async_w3_dummy.middleware_onion.add(
-        SignAndSendRawMiddlewareBuilder.build(private_key)
+    async_w3_dummy.middleware_onion.inject(
+        SignAndSendRawMiddlewareBuilder.build(private_key), layer=0
     )
 
     actual = await async_w3_dummy.manager.coro_request(
@@ -609,3 +663,45 @@ async def test_async_sign_and_send_raw_middleware_with_byte_addresses(
     actual_method = actual[0]
     assert actual_method == "eth_sendRawTransaction"
     assert is_hexstr(raw_txn)
+
+
+@pytest.mark.asyncio
+async def test_async_sign_and_send_raw_middleware_with_buffered_gas_estimate_middleware(
+    async_w3_dummy, request_mocker
+):
+    gas_buffer = 100000  # the default internal value
+    gas_estimate = 12345 - gas_buffer
+
+    async_w3_dummy.middleware_onion.add(BufferedGasEstimateMiddleware)
+    async_w3_dummy.middleware_onion.inject(
+        SignAndSendRawMiddlewareBuilder.build(PRIVATE_KEY_1), layer=0
+    )
+
+    async with request_mocker(
+        async_w3_dummy,
+        mock_results={
+            "eth_getBlockByNumber": {"gasLimit": 200000},  # arbitrary high number
+            "eth_estimateGas": gas_estimate,
+        },
+    ):
+        actual = await async_w3_dummy.manager.coro_request(
+            "eth_sendTransaction",
+            [
+                {
+                    "to": ADDRESS_2,
+                    "from": ADDRESS_1,
+                    "value": 1,
+                    "nonce": 0,
+                    "maxFeePerGas": 10**9,
+                    "maxPriorityFeePerGas": 10**9,
+                }
+            ],
+        )
+
+    raw_txn = actual[1][0]
+    actual_method = actual[0]
+    assert actual_method == "eth_sendRawTransaction"
+    assert is_hexstr(raw_txn)
+
+    decoded_txn = rlp.decode(HexBytes(raw_txn[4:]), sedes=DynamicFeeTransaction)
+    assert decoded_txn["gas"] == gas_estimate + gas_buffer

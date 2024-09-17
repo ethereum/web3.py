@@ -90,8 +90,8 @@ utilize web3.py middleware to sign transactions from a particular account:
   })
 
   # Add acct2 as auto-signer:
-  w3.middleware_onion.add(SignAndSendRawMiddlewareBuilder.build(acct2))
-  # pk also works: w3.middleware_onion.add(SignAndSendRawMiddlewareBuilder.build(pk))
+  w3.middleware_onion.inject(SignAndSendRawMiddlewareBuilder.build(acct2), layer=0)
+  # pk also works: w3.middleware_onion.inject(SignAndSendRawMiddlewareBuilder.build(pk), layer=0)
 
   # Transactions from `acct2` will then be signed, under the hood, in the middleware:
   tx_hash = w3.eth.send_transaction({

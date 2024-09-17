@@ -423,6 +423,11 @@ The ``build`` method for this middleware builder takes a single argument:
       * An ``eth_keys.PrivateKey`` object
       * A raw private key as a hex string or byte string
 
+.. note::
+        Since this middleware signs the transaction, any middleware that modifies the
+        transaction should run before this middleware. Therefore, it is recommended to
+        inject the signing middleware at the 0th layer of the middleware onion.
+
 .. code-block:: python
 
    >>> from web3 import Web3, EthereumTesterProvider
@@ -430,7 +435,7 @@ The ``build`` method for this middleware builder takes a single argument:
    >>> from web3.middleware import SignAndSendRawMiddlewareBuilder
    >>> from eth_account import Account
    >>> acct = Account.create('KEYSMASH FJAFJKLDSKF7JKFDJ 1530')
-   >>> w3.middleware_onion.add(SignAndSendRawMiddlewareBuilder.build(acct))
+   >>> w3.middleware_onion.inject(SignAndSendRawMiddlewareBuilder.build(acct), layer=0)
    >>> w3.eth.default_account = acct.address
 
 :ref:`Hosted nodes<local_vs_hosted>` (like Infura or Alchemy) only support signed
@@ -446,7 +451,7 @@ Instead, we can automate this process with
     >>> from eth_account import Account
     >>> import os
     >>> acct = w3.eth.account.from_key(os.environ.get('PRIVATE_KEY'))
-    >>> w3.middleware_onion.add(SignAndSendRawMiddlewareBuilder.build(acct))
+    >>> w3.middleware_onion.inject(SignAndSendRawMiddlewareBuilder.build(acct), layer=0)
     >>> w3.eth.default_account = acct.address
 
     >>> # use `eth_sendTransaction` to automatically sign and send the raw transaction
@@ -463,7 +468,7 @@ Similarly, with AsyncWeb3:
     >>> from eth_account import Account
     >>> import os
     >>> acct = async_w3.eth.account.from_key(os.environ.get('PRIVATE_KEY'))
-    >>> async_w3.middleware_onion.add(SignAndSendRawMiddlewareBuilder.build(acct))
+    >>> async_w3.middleware_onion.inject(SignAndSendRawMiddlewareBuilder.build(acct), layer=0)
     >>> async_w3.eth.default_account = acct.address
 
     >>> # use `eth_sendTransaction` to automatically sign and send the raw transaction
