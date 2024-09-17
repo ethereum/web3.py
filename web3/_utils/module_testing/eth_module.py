@@ -737,8 +737,8 @@ class AsyncEthModuleTest:
             "value": Wei(0),
             "gas": 21000,
         }
-        async_w3.middleware_onion.add(
-            SignAndSendRawMiddlewareBuilder.build(keyfile_account), "signing"
+        async_w3.middleware_onion.inject(
+            SignAndSendRawMiddlewareBuilder.build(keyfile_account), "signing", layer=0
         )
         txn_hash = await async_w3.eth.send_transaction(txn)
         assert isinstance(txn_hash, HexBytes)
@@ -3747,8 +3747,8 @@ class EthModuleTest:
             "value": Wei(0),
             "gas": 21000,
         }
-        w3.middleware_onion.add(
-            SignAndSendRawMiddlewareBuilder.build(keyfile_account), "signing"
+        w3.middleware_onion.inject(
+            SignAndSendRawMiddlewareBuilder.build(keyfile_account), "signing", layer=0
         )
         txn_hash = w3.eth.send_transaction(txn)
         assert isinstance(txn_hash, HexBytes)

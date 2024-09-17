@@ -128,7 +128,7 @@ with the necessary parameters via the ``build()`` method.
 
     # v7
     from web3.middleware import SignAndSendRawMiddlewareBuilder
-    w3.middleware_onion.add(SignAndSendRawMiddlewareBuilder.build(private_key))
+    w3.middleware_onion.inject(SignAndSendRawMiddlewareBuilder.build(private_key), layer=0)
 
 
 Middleware Renaming and Removals

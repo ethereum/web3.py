@@ -87,9 +87,7 @@ TRANSACTION_DEFAULTS = {
 async def get_block_gas_limit(
     web3_eth: "AsyncEth", block_identifier: Optional[BlockIdentifier] = None
 ) -> int:
-    if block_identifier is None:
-        block_identifier = await web3_eth.block_number
-    block = await web3_eth.get_block(block_identifier)
+    block = await web3_eth.get_block(block_identifier or "latest")
     return block["gasLimit"]
 
 
@@ -104,8 +102,8 @@ async def get_buffered_gas_estimate(
 
     if gas_estimate > gas_limit:
         raise Web3ValueError(
-            "Contract does not appear to be deployable within the "
-            f"current network gas limits.  Estimated: {gas_estimate}. "
+            "Gas estimate for transaction is higher than current network gas limits. "
+            f"Transaction could not be sent. Estimated: {gas_estimate}. "
             f"Current gas limit: {gas_limit}"
         )
 

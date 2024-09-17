@@ -151,7 +151,7 @@ Example ``account_test_script.py``
     assert private_key.startswith("0x"), "Private key must start with 0x hex prefix"
 
     account: LocalAccount = Account.from_key(private_key)
-    w3.middleware_onion.add(SignAndSendRawMiddlewareBuilder.build(account))
+    w3.middleware_onion.inject(SignAndSendRawMiddlewareBuilder.build(account), layer=0)
 
     print(f"Your hot wallet address is {account.address}")
 

@@ -149,9 +149,7 @@ def fill_transaction_defaults(w3: "Web3", transaction: TxParams) -> TxParams:
 def get_block_gas_limit(
     w3: "Web3", block_identifier: Optional[BlockIdentifier] = None
 ) -> int:
-    if block_identifier is None:
-        block_identifier = w3.eth.block_number
-    block = w3.eth.get_block(block_identifier)
+    block = w3.eth.get_block(block_identifier or "latest")
     return block["gasLimit"]
 
 
@@ -166,8 +164,8 @@ def get_buffered_gas_estimate(
 
     if gas_estimate > gas_limit:
         raise Web3ValueError(
-            "Contract does not appear to be deployable within the "
-            f"current network gas limits.  Estimated: {gas_estimate}. "
+            "Gas estimate for transaction is higher than current network gas limits. "
+            f"Transaction could not be sent. Estimated: {gas_estimate}. "
             f"Current gas limit: {gas_limit}"
         )
 
