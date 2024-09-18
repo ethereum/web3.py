@@ -83,7 +83,7 @@ def test_attach_modules_multiple_levels_deep(module1):
 
 def test_attach_modules_with_wrong_module_format():
     mods = {"eth": (MockEth, MockEth, MockEth)}
-    w3 = Web3(EthereumTesterProvider, modules={})
+    w3 = Web3(EthereumTesterProvider(), modules={})
     with pytest.raises(
         Web3ValidationError, match="Module definitions can only have 1 or 2 elements"
     ):
@@ -94,7 +94,7 @@ def test_attach_modules_with_existing_modules():
     mods = {
         "eth": MockEth,
     }
-    w3 = Web3(EthereumTesterProvider, modules=mods)
+    w3 = Web3(EthereumTesterProvider(), modules=mods)
     with pytest.raises(
         Web3AttributeError,
         match=("The web3 object already has an attribute with that name"),
