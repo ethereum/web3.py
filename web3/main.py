@@ -87,6 +87,7 @@ from web3.eth import (
 )
 from web3.exceptions import (
     Web3TypeError,
+    Web3ValidationError,
     Web3ValueError,
 )
 from web3.geth import (
@@ -350,6 +351,24 @@ class BaseWeb3:
         return self.manager._batch_requests()
 
 
+def _validate_provider(
+    w3: Union["Web3", "AsyncWeb3"],
+    provider: Optional[Union[BaseProvider, AsyncBaseProvider]],
+) -> None:
+    if provider is not None:
+        if isinstance(w3, AsyncWeb3) and not isinstance(provider, AsyncBaseProvider):
+            raise Web3ValidationError(
+                "Provider must be an instance of `AsyncBaseProvider` for "
+                f"`AsyncWeb3`, got {type(provider)}."
+            )
+
+        if isinstance(w3, Web3) and not isinstance(provider, BaseProvider):
+            raise Web3ValidationError(
+                "Provider must be an instance of `BaseProvider` for `Web3`, "
+                f"got {type(provider)}."
+            )
+
+
 class Web3(BaseWeb3):
     # mypy types
     eth: Eth
@@ -372,6 +391,8 @@ class Web3(BaseWeb3):
         ] = None,
         ens: Union[ENS, "Empty"] = empty,
     ) -> None:
+        _validate_provider(self, provider)
+
         self.manager = self.RequestManager(self, provider, middleware)
         self.codec = ABICodec(build_strict_registry())
 
@@ -440,6 +461,8 @@ class AsyncWeb3(BaseWeb3):
         ] = None,
         ens: Union[AsyncENS, "Empty"] = empty,
     ) -> None:
+        _validate_provider(self, provider)
+
         self.manager = self.RequestManager(self, provider, middleware)
         self.codec = ABICodec(build_strict_registry())
 
