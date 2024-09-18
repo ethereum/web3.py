@@ -319,9 +319,13 @@ Proof of Authority
 
 .. py:class:: web3.middleware.ExtraDataToPOAMiddleware
 
-.. note::
-    It's important to inject the middleware at the 0th layer of the middleware onion:
-    ``w3.middleware_onion.inject(ExtraDataToPOAMiddleware, layer=0)``
+.. important::
+    It is **crucial** that this middleware is injected at the 0th layer of the
+    middleware onion, using
+    ``w3.middleware_onion.inject(ExtraDataToPOAMiddleware, layer=0)``, to guarantee
+    it is the *first* middleware to process the response and modify the ``extraData``
+    field. This ensures it processes the field before any other middleware attempts
+    to validate it.
 
 ``ExtraDataToPOAMiddleware`` is required to connect to ``geth --dev`` and may
 also be needed for other EVM compatible blockchains like Polygon or BNB Chain
@@ -423,10 +427,20 @@ The ``build`` method for this middleware builder takes a single argument:
       * An ``eth_keys.PrivateKey`` object
       * A raw private key as a hex string or byte string
 
+.. important::
+    Since this middleware signs transactions, it must always run after any middleware
+    that modifies the transaction. Therefore, it is recommended to inject the signing
+    middleware at the 0th layer of the middleware onion using
+    ``w3.middleware_onion.inject(SignAndSendRawMiddlewareBuilder.build(...), layer=0)``.
+    Ensure that any transaction-modifying middleware exists in a higher layer within the
+    onion so that it runs before the signing middleware.
+
 .. note::
-        Since this middleware signs the transaction, any middleware that modifies the
-        transaction should run before this middleware. Therefore, it is recommended to
-        inject the signing middleware at the 0th layer of the middleware onion.
+    If used with ``ExtraDataToPOAMiddleware``, the injection order doesn't matter, as
+    the ``extraData`` field isn't involved in transaction signing. The key is ensuring
+    ``SignAndSendRawMiddlewareBuilder`` runs after any middleware that modifies the
+    transaction.
+
 
 .. code-block:: python
 
