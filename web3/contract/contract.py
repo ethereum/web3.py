@@ -339,11 +339,13 @@ class ContractFunction(BaseContractFunction):
 
         block_id = parse_block_identifier(self.w3, block_identifier)
 
+        abi_element_identifier = abi_to_signature(self.abi)
+
         return call_contract_function(
             self.w3,
             self.address,
             self._return_data_normalizers,
-            self.abi_element_identifier,
+            abi_element_identifier,
             call_transaction,
             block_id,
             self.contract_abi,
@@ -357,11 +359,12 @@ class ContractFunction(BaseContractFunction):
 
     def transact(self, transaction: Optional[TxParams] = None) -> HexBytes:
         setup_transaction = self._transact(transaction)
+        abi_element_identifier = abi_to_signature(self.abi)
 
         return transact_with_contract_function(
             self.address,
             self.w3,
-            self.abi_element_identifier,
+            abi_element_identifier,
             setup_transaction,
             self.contract_abi,
             self.abi,
@@ -376,10 +379,11 @@ class ContractFunction(BaseContractFunction):
         state_override: Optional[StateOverride] = None,
     ) -> int:
         setup_transaction = self._estimate_gas(transaction)
+        abi_element_identifier = abi_to_signature(self.abi)
         return estimate_gas_for_function(
             self.address,
             self.w3,
-            self.abi_element_identifier,
+            abi_element_identifier,
             setup_transaction,
             self.contract_abi,
             self.abi,
@@ -391,11 +395,12 @@ class ContractFunction(BaseContractFunction):
 
     def build_transaction(self, transaction: Optional[TxParams] = None) -> TxParams:
         built_transaction = self._build_transaction(transaction)
+        abi_element_identifier = abi_to_signature(self.abi)
 
         return build_transaction_for_function(
             self.address,
             self.w3,
-            self.abi_element_identifier,
+            abi_element_identifier,
             built_transaction,
             self.contract_abi,
             self.abi,

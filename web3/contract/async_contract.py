@@ -340,11 +340,13 @@ class AsyncContractFunction(BaseContractFunction):
 
         block_id = await async_parse_block_identifier(self.w3, block_identifier)
 
+        abi_element_identifier = abi_to_signature(self.abi)
+
         return await async_call_contract_function(
             self.w3,
             self.address,
             self._return_data_normalizers,
-            self.abi_element_identifier,
+            abi_element_identifier,
             call_transaction,
             block_id,
             self.contract_abi,
@@ -358,10 +360,11 @@ class AsyncContractFunction(BaseContractFunction):
 
     async def transact(self, transaction: Optional[TxParams] = None) -> HexBytes:
         setup_transaction = self._transact(transaction)
+        abi_element_identifier = abi_to_signature(self.abi)
         return await async_transact_with_contract_function(
             self.address,
             self.w3,
-            self.abi_element_identifier,
+            abi_element_identifier,
             setup_transaction,
             self.contract_abi,
             self.abi,
@@ -376,10 +379,11 @@ class AsyncContractFunction(BaseContractFunction):
         state_override: Optional[StateOverride] = None,
     ) -> int:
         setup_transaction = self._estimate_gas(transaction)
+        abi_element_identifier = abi_to_signature(self.abi)
         return await async_estimate_gas_for_function(
             self.address,
             self.w3,
-            self.abi_element_identifier,
+            abi_element_identifier,
             setup_transaction,
             self.contract_abi,
             self.abi,
@@ -393,10 +397,11 @@ class AsyncContractFunction(BaseContractFunction):
         self, transaction: Optional[TxParams] = None
     ) -> TxParams:
         built_transaction = self._build_transaction(transaction)
+        abi_element_identifier = abi_to_signature(self.abi)
         return await async_build_transaction_for_function(
             self.address,
             self.w3,
-            self.abi_element_identifier,
+            abi_element_identifier,
             built_transaction,
             self.contract_abi,
             self.abi,

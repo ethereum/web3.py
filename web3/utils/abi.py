@@ -314,10 +314,6 @@ def _build_abi_filters(
     if argument_names:
         arg_count = len(argument_names)
     elif args or kwargs:
-        # Use empty signature to check args and kwargs for encodability
-        abi_element_identifier = get_name_from_abi_element_identifier(
-            abi_element_identifier
-        )
         arg_count = len(args) + len(kwargs)
 
     if arg_count > 0:
@@ -328,11 +324,6 @@ def _build_abi_filters(
             )
         )
         filters.append(functools.partial(_filter_by_argument_count, arg_count))
-
-        if "(" in abi_element_identifier:
-            filters.append(
-                functools.partial(_filter_by_signature, abi_element_identifier)
-            )
 
         if args or kwargs:
             if abi_codec is None:
@@ -359,6 +350,11 @@ def _build_abi_filters(
                 filters.append(
                     functools.partial(filter_by_argument_type, argument_types)
                 )
+
+        if "(" in abi_element_identifier:
+            filters.append(
+                functools.partial(_filter_by_signature, abi_element_identifier)
+            )
     else:
         filters.append(
             functools.partial(

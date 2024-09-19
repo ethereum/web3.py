@@ -49,12 +49,9 @@ from hexbytes import (
 from web3._utils.abi import (
     filter_by_argument_name,
     get_abi_element_signature,
+    get_name_from_abi_element_identifier,
     map_abi_data,
     named_tree,
-)
-from web3._utils.abi_element_identifiers import (
-    FallbackFn,
-    ReceiveFn,
 )
 from web3._utils.blocks import (
     is_hex_encoded_block_hash,
@@ -187,10 +184,16 @@ def prepare_transaction(
     fn_args = fn_args or []
     fn_kwargs = fn_kwargs or {}
 
-    if abi_element_identifier not in [FallbackFn, ReceiveFn] and "(" not in str(
-        abi_element_identifier
-    ):
+    if "(" not in str(abi_element_identifier):
         abi_element_identifier = get_abi_element_signature(abi_element_identifier)
+
+    if abi_element_identifier in [
+        "fallback()",
+        "receive()",
+    ]:
+        abi_element_identifier = get_name_from_abi_element_identifier(
+            abi_element_identifier
+        )
 
     if abi_callable is None:
         abi_callable = cast(
@@ -237,11 +240,12 @@ def encode_transaction_data(
     kwargs: Optional[Any] = None,
 ) -> HexStr:
     info_abi: ABIElement
-    if abi_element_identifier is FallbackFn:
+    abi_element_name = get_name_from_abi_element_identifier(abi_element_identifier)
+    if abi_element_name == "fallback":
         info_abi, info_selector, info_arguments = get_fallback_function_info(
             contract_abi, cast(ABIFallback, abi_callable)
         )
-    elif abi_element_identifier is ReceiveFn:
+    elif abi_element_name == "receive":
         info_abi, info_selector, info_arguments = get_receive_function_info(
             contract_abi, cast(ABIReceive, abi_callable)
         )
@@ -405,12 +409,12 @@ def copy_contract_function(
 
 
 def copy_contract_event(
-    contract_function: TContractEvent, *args: Any, **kwargs: Any
+    contract_event: TContractEvent, *args: Any, **kwargs: Any
 ) -> TContractEvent:
     """
     Copy a contract function instance.
     """
-    clone = copy.copy(contract_function)
+    clone = copy.copy(contract_event)
     clone.args = args or tuple()
     clone.kwargs = kwargs or dict()
 
