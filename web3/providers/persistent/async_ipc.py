@@ -1,9 +1,6 @@
 import asyncio
 import errno
 import json
-from json import (
-    JSONDecodeError,
-)
 import logging
 from pathlib import (
     Path,
@@ -16,10 +13,6 @@ from typing import (
     Union,
 )
 
-from eth_utils import (
-    to_text,
-)
-
 from web3.types import (
     RPCResponse,
 )
@@ -28,6 +21,7 @@ from . import (
     PersistentConnectionProvider,
 )
 from ...exceptions import (
+    PersistentConnectionClosedOK,
     ProviderConnectionError,
     Web3TypeError,
 )
@@ -37,7 +31,7 @@ from ..ipc import (
 
 
 async def async_get_ipc_socket(
-    ipc_path: str,
+    ipc_path: str, read_buffer_limit: int
 ) -> Tuple[asyncio.StreamReader, asyncio.StreamWriter]:
     if sys.platform == "win32":
         # On Windows named pipe is used. Simulate socket with it.
@@ -47,7 +41,7 @@ async def async_get_ipc_socket(
 
         return NamedPipe(ipc_path)
     else:
-        return await asyncio.open_unix_connection(ipc_path)
+        return await asyncio.open_unix_connection(ipc_path, limit=read_buffer_limit)
 
 
 class AsyncIPCProvider(PersistentConnectionProvider):
@@ -56,11 +50,11 @@ class AsyncIPCProvider(PersistentConnectionProvider):
     _reader: Optional[asyncio.StreamReader] = None
     _writer: Optional[asyncio.StreamWriter] = None
     _decoder: json.JSONDecoder = json.JSONDecoder()
-    _raw_message: str = ""
 
     def __init__(
         self,
         ipc_path: Optional[Union[str, Path]] = None,
+        read_buffer_limit: int = 20 * 1024 * 1024,  # 20 MB
         # `PersistentConnectionProvider` kwargs can be passed through
         **kwargs: Any,
     ) -> None:
@@ -71,6 +65,7 @@ class AsyncIPCProvider(PersistentConnectionProvider):
         else:
             raise Web3TypeError("ipc_path must be of type string or pathlib.Path")
 
+        self.read_buffer_limit = read_buffer_limit
         super().__init__(**kwargs)
 
     def __str__(self) -> str:
@@ -101,18 +96,10 @@ class AsyncIPCProvider(PersistentConnectionProvider):
         )
 
     async def socket_recv(self) -> RPCResponse:
-        while True:
-            # yield to the event loop to allow other tasks to run
-            await asyncio.sleep(0)
-
-            try:
-                response, pos = self._decoder.raw_decode(self._raw_message)
-                self._raw_message = self._raw_message[pos:].lstrip()
-                return response
-            except JSONDecodeError:
-                # read more data from the socket if the current raw message is
-                # incomplete
-                self._raw_message += to_text(await self._reader.read(4096)).lstrip()
+        data = await self._reader.readline()
+        if not data:
+            raise PersistentConnectionClosedOK("Socket reader received end of stream.")
+        return self.decode_rpc_response(data)
 
     # -- private methods -- #
 
@@ -131,10 +118,14 @@ class AsyncIPCProvider(PersistentConnectionProvider):
     async def _reset_socket(self) -> None:
         self._writer.close()
         await self._writer.wait_closed()
-        self._reader, self._writer = await async_get_ipc_socket(self.ipc_path)
+        self._reader, self._writer = await async_get_ipc_socket(
+            self.ipc_path, self.read_buffer_limit
+        )
 
     async def _provider_specific_connect(self) -> None:
-        self._reader, self._writer = await async_get_ipc_socket(self.ipc_path)
+        self._reader, self._writer = await async_get_ipc_socket(
+            self.ipc_path, self.read_buffer_limit
+        )
 
     async def _provider_specific_disconnect(self) -> None:
         if self._writer and not self._writer.is_closing():
@@ -149,5 +140,3 @@ class AsyncIPCProvider(PersistentConnectionProvider):
 
     def _error_log_listener_task_exception(self, e: Exception) -> None:
         super()._error_log_listener_task_exception(e)
-        # reset the raw message buffer on exception when error logging
-        self._raw_message = ""
