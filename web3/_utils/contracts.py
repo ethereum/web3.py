@@ -184,7 +184,7 @@ def prepare_transaction(
     fn_args = fn_args or []
     fn_kwargs = fn_kwargs or {}
 
-    if "(" not in str(abi_element_identifier):
+    if not fn_args and not fn_kwargs and "(" not in str(abi_element_identifier):
         abi_element_identifier = get_abi_element_signature(abi_element_identifier)
 
     if abi_element_identifier in [
