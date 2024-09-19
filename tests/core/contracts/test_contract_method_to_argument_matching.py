@@ -1,5 +1,6 @@
 import json
 import pytest
+import re
 
 from eth_utils.abi import (
     get_abi_input_types,
@@ -168,14 +169,56 @@ def test_finds_function_with_matching_args_non_strict(
 
 def test_finds_function_with_matching_args_strict_type_checking_by_default(w3):
     contract = w3.eth.contract(abi=MULTIPLE_FUNCTIONS)
-    with pytest.raises(MismatchedABI):
+    with pytest.raises(
+        MismatchedABI,
+        match=re.escape(
+            "\nABI Not Found!\n"
+            "Multiple elements were found matching 1 arguments.\n"
+            "Provided argument types: (str)\n"
+            "Provided keyword argument types: {}\n\n"
+            "Encountered problems with the following elements named `a`.\n"
+            "a()\n"
+            "Function `a` expects 0 arguments but 1 were given.\n"
+            "a(bytes32)\n"
+            "Error! Could not encode argument 1 value `` as `bytes32`.\n"
+            "a(uint256)\n"
+            "Error! Could not encode argument 1 value `` as `uint256`.\n"
+            "a(uint8)\n"
+            "Error! Could not encode argument 1 value `` as `uint8`.\n"
+            "a(int8)\n"
+            "Error! Could not encode argument 1 value `` as `int8`.\n"
+            "a((int256,bool)[])\n"
+            "Error! Arguments do not match types in `a((int256,bool)[])`.\n"
+        ),
+    ):
         contract._find_matching_fn_abi("a", *[""])
 
 
 def test_error_when_duplicate_match(w3):
     Contract = w3.eth.contract(abi=MULTIPLE_FUNCTIONS)
 
-    with pytest.raises(MismatchedABI):
+    with pytest.raises(
+        MismatchedABI,
+        match=re.escape(
+            "\nABI Not Found!\n"
+            "Multiple elements were found matching 1 arguments.\n"
+            "Provided argument types: (int)\n"
+            "Provided keyword argument types: {}\n\n"
+            "Encountered problems with the following elements named `a`.\n"
+            "a()\n"
+            "Function `a` expects 0 arguments but 1 were given.\n"
+            "a(bytes32)\n"
+            "Error! Could not encode argument 1 value `100` as `bytes32`.\n"
+            "a(uint256)\n"
+            "Argument 1 value `100` is encodable as type `uint256`.\n"
+            "a(uint8)\n"
+            "Argument 1 value `100` is encodable as type `uint8`.\n"
+            "a(int8)\n"
+            "Argument 1 value `100` is encodable as type `int8`.\n"
+            "a((int256,bool)[])\n"
+            "Error! Arguments do not match types in `a((int256,bool)[])`.\n"
+        ),
+    ):
         Contract._find_matching_fn_abi("a", *[100])
 
 
@@ -183,7 +226,12 @@ def test_error_when_duplicate_match(w3):
 def test_strict_errors_if_type_is_wrong(w3, arguments):
     Contract = w3.eth.contract(abi=MULTIPLE_FUNCTIONS)
 
-    with pytest.raises(MismatchedABI):
+    with pytest.raises(
+        MismatchedABI,
+        match=re.escape(
+            "\nABI Not Found!\n" "Multiple elements were found matching 1 arguments.\n"
+        ),
+    ):
         Contract._find_matching_fn_abi("a", *arguments)
 
 

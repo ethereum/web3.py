@@ -190,7 +190,7 @@ def test_get_abi_element_by_name_and_arguments_errors(
 ) -> None:
     with pytest.raises(
         MismatchedABI,
-        match="Could not identify the intended function with name `NotAnEvent`",
+        match="ABI Not Found!\nNo declaration found for `NotAnEvent`.",
     ):
         get_abi_element(ambiguous_event_contract.abi, "NotAnEvent")
 

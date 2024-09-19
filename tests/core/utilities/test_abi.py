@@ -1,4 +1,8 @@
+from decimal import (
+    Decimal,
+)
 import pytest
+import re
 from typing import (
     Any,
     Callable,
@@ -117,7 +121,13 @@ LOG_TWO_EVENTS_ABI: ABIFunction = {
 }
 
 SET_VALUE_ABI: ABIFunction = {
-    "inputs": [{"name": "_arg0", "type": "uint256"}],
+    "inputs": [{"name": "_arg0", "type": "fixed8x1"}],
+    "name": "setValue",
+    "stateMutability": "nonpayable",
+    "type": "function",
+}
+SET_VALUE_ABI_UFIXED: ABIFunction = {
+    "inputs": [{"name": "_arg0", "type": "ufixed256x80"}],
     "name": "setValue",
     "stateMutability": "nonpayable",
     "type": "function",
@@ -155,6 +165,7 @@ AMBIGUOUS_EVENT_ABI_NO_INPUTS: ABIEvent = {
 CONTRACT_ABI: ABI = [
     LOG_TWO_EVENTS_ABI,
     SET_VALUE_ABI,
+    SET_VALUE_ABI_UFIXED,
     SET_VALUE_WITH_TUPLE_ABI,
     FUNCTION_ABI_NO_INPUTS,
 ]
@@ -359,7 +370,7 @@ def test_recursive_dict_to_namedtuple(
     "abi_element_identifier,args,kwargs,expected_selector,expected_arguments",
     [
         ("logTwoEvents", [100], {}, "0x5818fad7", (100,)),
-        ("setValue", [99], {}, "0x55241077", (99,)),
+        ("setValue(fixed8x1)", [Decimal("1")], {}, "0xcf20bde8", (Decimal("1"),)),
         (
             "setValue",
             [1],
@@ -403,7 +414,10 @@ def test_get_abi_element_info_without_args_and_kwargs(
 
 
 def test_get_abi_element_info_raises_mismatched_abi(contract_abi: ABI) -> None:
-    with pytest.raises(MismatchedABI, match="Could not identify the intended function"):
+    with pytest.raises(
+        MismatchedABI,
+        match="\nABI Not Found!\nNo declaration found for `foo` with 1 arguments.\n",
+    ):
         args: Sequence[Any] = [1]
         get_abi_element_info(contract_abi, "foo", *args, **{})
 
@@ -413,10 +427,10 @@ def test_get_abi_element_info_raises_mismatched_abi(contract_abi: ABI) -> None:
     (
         (
             CONTRACT_ABI,
-            "setValue",
+            "setValue(ufixed256x80)",
             [0],
             {},
-            SET_VALUE_ABI,
+            SET_VALUE_ABI_UFIXED,
         ),
         (
             CONTRACT_ABI,
@@ -548,8 +562,88 @@ def test_get_abi_element(
             [],  # function name is ambiguous and cannot be determined without args
             {},
             MismatchedABI,
-            r".*Found 2 function\(s\) with the name `setValue`: "
-            r"\['setValue\(uint256\)', 'setValue\(uint256,\(uint256,uint256\)\)'\].*",
+            "\nABI Not Found!\n"
+            "Multiple elements were found matching 0 arguments.\n"
+            "Provided argument types: ()\n"
+            "Provided keyword argument types: {}\n\n"
+            "Encountered problems with the following elements named `setValue`.\n"
+            "setValue(fixed8x1)\n"
+            "Function `setValue` expects 1 arguments but 0 were given.\n"
+            "setValue(ufixed256x80)\n"
+            "Function `setValue` expects 1 arguments but 0 were given.\n"
+            "setValue(uint256,(uint256,uint256))\n"
+            "Function `setValue` expects 2 arguments but 0 were given.\n",
+        ),
+        (
+            CONTRACT_ABI,
+            "setValue",
+            [
+                Decimal("0")
+            ],  # function name is ambiguous and cannot be determined without args
+            {},
+            MismatchedABI,
+            "\nABI Not Found!\n"
+            "Multiple elements were found matching 1 arguments.\n"
+            "Provided argument types: (Decimal)\n"
+            "Provided keyword argument types: {}\n\n"
+            "Encountered problems with the following elements named `setValue`.\n"
+            "setValue(fixed8x1)\n"
+            "Argument 1 value `0` is encodable as type `fixed8x1`.\n"
+            "setValue(ufixed256x80)\n"
+            "Argument 1 value `0` is encodable as type `ufixed256x80`.\n",
+        ),
+        (
+            CONTRACT_ABI,
+            "setValue",
+            [1, (1, "foo")],
+            {},
+            MismatchedABI,
+            "\nABI Not Found!\n"
+            "Found 1 elements named `setValue` that takes 2 arguments.\n"
+            "The provided arguments do not match the expected types.\n"
+            "Provided argument types: (int,int,str)\n"
+            "Provided keyword argument types: {}\n\n"
+            "Encountered problems with the following elements named `setValue`.\n"
+            "setValue(fixed8x1)\n"
+            "Function `setValue` expects 1 arguments but 2 were given.\n"
+            "setValue(ufixed256x80)\n"
+            "Function `setValue` expects 1 arguments but 2 were given.\n"
+            "setValue(uint256,(uint256,uint256))\n"
+            "Argument 1 value `1` is encodable as type `uint256`.\n"
+            "Error! Could not encode argument 2 value `(1, 'foo')` as `(uint256,uint256)`.\n",  # noqa: E501
+        ),
+        (
+            CONTRACT_ABI_AMBIGUOUS_EVENT,
+            "LogSingleArg",
+            [],
+            {},
+            MismatchedABI,
+            "\nABI Not Found!\n"
+            "Multiple elements were found matching 0 arguments.\n"
+            "Provided argument types: ()\n"
+            "Provided keyword argument types: {}\n\n"
+            "Encountered problems with the following elements named `LogSingleArg`.\n"
+            "LogSingleArg(uint256)\n"
+            "Function `LogSingleArg` expects 1 arguments but 0 were given.\n"
+            "LogSingleArg()\n"
+            "The provided identifier matches multiple elements.\n"
+            "If you meant to call `LogSingleArg()`, please specify the full signature.\n",  # noqa: E501
+        ),
+        (
+            CONTRACT_ABI_AMBIGUOUS_EVENT,
+            "noFunc",
+            [],
+            {},
+            MismatchedABI,
+            "No declaration found for `noFunc` with 0 arguments.\n",
+        ),
+        (
+            CONTRACT_ABI_AMBIGUOUS_EVENT,
+            "noFunc(uint256)",
+            [],
+            {},
+            MismatchedABI,
+            "No declaration found for `noFunc(uint256)` with 0 arguments.\n",
         ),
     ),
 )
@@ -561,8 +655,8 @@ def test_get_abi_element_raises_with_invalid_parameters(
     expected_error: Type[Exception],
     expected_message: str,
 ) -> None:
-    with pytest.raises(expected_error, match=expected_message):
-        get_abi_element(abi, abi_element_identifier, *args, **kwargs)  # type: ignore
+    with pytest.raises(expected_error, match=re.escape(expected_message)):
+        get_abi_element(abi, abi_element_identifier, *args, **kwargs)
 
 
 def test_get_abi_element_codec_override(contract_abi: ABI) -> None:

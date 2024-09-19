@@ -4,6 +4,7 @@ from decimal import (
 )
 import json
 import pytest
+import re
 
 from eth_tester.exceptions import (
     TransactionFailed,
@@ -276,7 +277,7 @@ def test_set_byte_array_non_strict(
 def test_set_byte_array_with_invalid_args(arrays_contract, transact, args):
     with pytest.raises(
         MismatchedABI,
-        match="Could not identify the intended function with name `setByteValue`",
+        match="Found 1 elements named `setByteValue` that takes 1 arguments.\n",
     ):
         transact(
             contract=arrays_contract,
@@ -597,52 +598,50 @@ def test_returns_data_from_specified_block(w3, math_contract):
     assert output2 == 2
 
 
-message_regex = (
-    r"\nCould not identify the intended function with name `.*`, positional arguments "
-    r"with type\(s\) `.*` and keyword arguments with type\(s\) `.*`."
-    r"\nFound .* function\(s\) with the name `.*`: .*"
-)
-diagnosis_arg_regex = (
-    r"\nFunction invocation failed due to improper number of arguments."
-)
-diagnosis_encoding_regex = (
-    r"\nFunction invocation failed due to no matching argument types."
-)
-diagnosis_ambiguous_encoding = (
-    r"\nAmbiguous argument encoding. "
-    r"Provided arguments can be encoded to multiple functions matching this call."
-)
-
-
 def test_no_functions_match_identifier(arrays_contract):
     with pytest.raises(MismatchedABI):
         arrays_contract.functions.thisFunctionDoesNotExist().call()
 
 
 def test_function_1_match_identifier_wrong_number_of_args(arrays_contract):
-    regex = message_regex + diagnosis_arg_regex
-    with pytest.raises(MismatchedABI, match=regex):
+    with pytest.raises(
+        MismatchedABI,
+        match="\nABI Not Found!\nNo declaration found for `setBytes32Value\\(\\)` with 0 arguments.\nProvided argument types: \\(\\)\nProvided keyword argument types: \\{\\}\n\nEncountered problems with the following elements named `setBytes32Value`.\nsetBytes32Value\\(bytes32\\[\\]\\)\nFunction `setBytes32Value` expects 1 arguments but 0 were given.\n",  # noqa: E501
+    ):
         arrays_contract.functions.setBytes32Value().call()
 
 
 def test_function_1_match_identifier_wrong_args_encoding(arrays_contract):
-    regex = message_regex + diagnosis_encoding_regex
-    with pytest.raises(MismatchedABI, match=regex):
+    with pytest.raises(
+        MismatchedABI,
+        match="\nABI Not Found!\nFound 1 elements named `setBytes32Value` that takes 1 arguments.\nThe provided arguments do not match the expected types.\nProvided argument types: \\(str\\)\nProvided keyword argument types: \\{\\}\n\nEncountered problems with the following elements named `setBytes32Value`.\nsetBytes32Value\\(bytes32\\[\\]\\)\nError! Could not encode argument 1 value `dog` as `bytes32\\[\\]`.\n",  # noqa: E501
+    ):
         arrays_contract.functions.setBytes32Value("dog").call()
 
 
 @pytest.mark.parametrize(
-    "arg1,arg2,diagnosis",
+    "arg1,arg2,message",
     (
-        (100, "dog", diagnosis_arg_regex),
-        ("dog", None, diagnosis_encoding_regex),
-        (100, None, diagnosis_ambiguous_encoding),
+        (
+            100,
+            "dog",
+            "\nABI Not Found!\nNo declaration found for `a` with 2 arguments.\nProvided argument types: (int,str)\nProvided keyword argument types: {}\n\nEncountered problems with the following elements named `a`.\na()\nFunction `a` expects 0 arguments but 2 were given.\na(bytes32)\nFunction `a` expects 1 arguments but 2 were given.\na(uint256)\nFunction `a` expects 1 arguments but 2 were given.\na(uint8)\nFunction `a` expects 1 arguments but 2 were given.\na(int8)\nFunction `a` expects 1 arguments but 2 were given.\n",  # noqa: E501
+        ),
+        (
+            "dog",
+            None,
+            "\nABI Not Found!\nMultiple elements were found matching 1 arguments.\nProvided argument types: (str)\nProvided keyword argument types: {}\n\nEncountered problems with the following elements named `a`.\na()\nFunction `a` expects 0 arguments but 1 were given.\na(bytes32)\nError! Could not encode argument 1 value `dog` as `bytes32`.\na(uint256)\nError! Could not encode argument 1 value `dog` as `uint256`.\na(uint8)\nError! Could not encode argument 1 value `dog` as `uint8`.\na(int8)\nError! Could not encode argument 1 value `dog` as `int8`.\n",  # noqa: E501
+        ),
+        (
+            100,
+            None,
+            "\nABI Not Found!\nMultiple elements were found matching 1 arguments.\nProvided argument types: (int)\nProvided keyword argument types: {}\n\nEncountered problems with the following elements named `a`.\na()\nFunction `a` expects 0 arguments but 1 were given.\na(bytes32)\nError! Could not encode argument 1 value `100` as `bytes32`.\na(uint256)\nArgument 1 value `100` is encodable as type `uint256`.\na(uint8)\nArgument 1 value `100` is encodable as type `uint8`.\na(int8)\nArgument 1 value `100` is encodable as type `int8`.\n",  # noqa: E501
+        ),
     ),
 )
-def test_function_multiple_error_diagnoses(w3, arg1, arg2, diagnosis):
+def test_function_multiple_error_diagnoses(w3, arg1, arg2, message):
     Contract = w3.eth.contract(abi=MULTIPLE_FUNCTIONS)
-    regex = message_regex + diagnosis
-    with pytest.raises(MismatchedABI, match=regex):
+    with pytest.raises(MismatchedABI, match=re.escape(message)):
         if arg2:
             Contract.functions.a(arg1, arg2).call()
         else:
@@ -672,9 +671,9 @@ def test_function_wrong_args_for_tuple_collapses_args_in_message(
     )
 
     # assert the found method signature is formatted as expected:
-    # ['method((uint256,uint256[],(int256,bool[2],address[])[]))']
+    # 'method((uint256,uint256[],(int256,bool[2],address[])[]))'
     e.match(
-        "\\['method\\(\\(uint256,uint256\\[\\],\\(int256,bool\\[2\\],address\\[\\]\\)\\[\\]\\)\\)'\\]"  # noqa: E501
+        "method\\(\\(uint256,uint256\\[\\],\\(int256,bool\\[2\\],address\\[\\]\\)\\[\\]\\)\\)\n"  # noqa: E501
     )
 
 
@@ -702,7 +701,7 @@ def test_function_wrong_args_for_tuple_collapses_kwargs_in_message(
     # assert the found method signature is formatted as expected:
     # ['method((uint256,uint256[],(int256,bool[2],address[])[]))']
     e.match(
-        "\\['method\\(\\(uint256,uint256\\[\\],\\(int256,bool\\[2\\],address\\[\\]\\)\\[\\]\\)\\)'\\]"  # noqa: E501
+        "method\\(\\(uint256,uint256\\[\\],\\(int256,bool\\[2\\],address\\[\\]\\)\\[\\]\\)\\)\n"  # noqa: E501
     )
 
 
@@ -768,29 +767,65 @@ DEFAULT_DECIMALS = getcontext().prec
     "function, value, error",
     (
         # out of range
-        ("reflect_short_u", Decimal("25.6"), "no matching argument types"),
-        ("reflect_short_u", Decimal("-.1"), "no matching argument types"),
+        (
+            "reflect_short_u",
+            Decimal("25.6"),
+            "Could not encode argument 1 value `25.6` as `ufixed8x1`",
+        ),
+        (
+            "reflect_short_u",
+            Decimal("-.1"),
+            "Could not encode argument 1 value `-0.1` as `ufixed8x1`",
+        ),
         # too many digits for *x1, too large for 256x80
-        ("reflect(ufixed256x80)", Decimal("0.01"), "no matching argument types"),
+        (
+            "reflect(ufixed256x80)",
+            Decimal("0.01"),
+            "Could not encode argument 1 value `0.01` as `ufixed256x80`",
+        ),
         # too many digits
-        ("reflect_short_u", Decimal("0.01"), "no matching argument types"),
+        (
+            "reflect_short_u",
+            Decimal("0.01"),
+            "Could not encode argument 1 value `0.01` as `ufixed8x1`",
+        ),
         (
             "reflect_short_u",
             Decimal(f"1e-{DEFAULT_DECIMALS + 1}"),
-            "no matching argument types",
+            "Could not encode argument 1 value `1E-29` as `ufixed8x1`",
         ),
         (
             "reflect_short_u",
             Decimal("25.4" + "9" * DEFAULT_DECIMALS),
-            "no matching argument types",
+            "Could not encode argument 1 value `25.49999999999999999999999999999` as `ufixed8x1`",  # noqa: E501
         ),
-        ("reflect(ufixed256x80)", Decimal(1) / 10**81, "no matching argument types"),
+        (
+            "reflect(ufixed256x80)",
+            Decimal(1) / 10**81,
+            "Could not encode argument 1 value `1E-81` as `ufixed256x80`",
+        ),
         # floats not accepted, for floating point error concerns
-        ("reflect_short_u", 0.1, "no matching argument types"),
+        (
+            "reflect_short_u",
+            0.1,
+            "Could not encode argument 1 value `0.1` as `ufixed8x1`",
+        ),
         # ambiguous
-        ("reflect(ufixed256x80)", Decimal("12.7"), "Ambiguous argument encoding"),
-        ("reflect(ufixed256x80)", Decimal(0), "Ambiguous argument encoding"),
-        ("reflect(ufixed256x80)", 0, "Ambiguous argument encoding"),
+        (
+            "reflect(ufixed256x80)",
+            Decimal("12.7"),
+            "Multiple elements were found matching 1 arguments.",
+        ),
+        (
+            "reflect(ufixed256x80)",
+            Decimal(0),
+            "Multiple elements were found matching 1 arguments.",
+        ),
+        (
+            "reflect(ufixed256x80)",
+            0,
+            "Multiple elements were found matching 1 arguments.",
+        ),
     ),
 )
 def test_invalid_fixed_value_reflections(
@@ -1792,8 +1827,12 @@ async def test_async_no_functions_match_identifier(async_arrays_contract):
 async def test_async_function_1_match_identifier_wrong_number_of_args(
     async_arrays_contract,
 ):
-    regex = message_regex + diagnosis_arg_regex
-    with pytest.raises(MismatchedABI, match=regex):
+    with pytest.raises(
+        MismatchedABI,
+        match=re.escape(
+            "No declaration found for `setBytes32Value()` with 0 arguments.\nProvided argument types: ()\nProvided keyword argument types: {}\n\nEncountered problems with the following elements named `setBytes32Value`.\nsetBytes32Value(bytes32[])\nFunction `setBytes32Value` expects 1 arguments but 0 were given.\n"  # noqa: E501
+        ),
+    ):
         await async_arrays_contract.functions.setBytes32Value().call()
 
 
@@ -1801,24 +1840,35 @@ async def test_async_function_1_match_identifier_wrong_number_of_args(
 async def test_async_function_1_match_identifier_wrong_args_encoding(
     async_arrays_contract,
 ):
-    regex = message_regex + diagnosis_encoding_regex
-    with pytest.raises(MismatchedABI, match=regex):
+    with pytest.raises(
+        MismatchedABI,
+        match=re.escape(
+            "\nABI Not Found!\nFound 1 elements named `setBytes32Value` that takes 1 arguments.\nThe provided arguments do not match the expected types.\nProvided argument types: (str)\nProvided keyword argument types: {}\n\nEncountered problems with the following elements named `setBytes32Value`.\nsetBytes32Value(bytes32[])\nError! Could not encode argument 1 value `dog` as `bytes32[]`.\n"  # noqa: E501
+        ),
+    ):
         await async_arrays_contract.functions.setBytes32Value("dog").call()
 
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
-    "arg1,arg2,diagnosis",
+    "arg1,arg2,message",
     (
-        (100, "dog", diagnosis_arg_regex),
-        ("dog", None, diagnosis_encoding_regex),
-        (100, None, diagnosis_ambiguous_encoding),
+        (100, "dog", "No declaration found for `a` with 2 arguments."),
+        (
+            "dog",
+            None,
+            "Multiple elements were found matching 1 arguments.",
+        ),
+        (
+            100,
+            None,
+            "Multiple elements were found matching 1 arguments.",
+        ),
     ),
 )
-async def test_async_function_multiple_error_diagnoses(async_w3, arg1, arg2, diagnosis):
+async def test_async_function_multiple_error_diagnoses(async_w3, arg1, arg2, message):
     Contract = async_w3.eth.contract(abi=MULTIPLE_FUNCTIONS)
-    regex = message_regex + diagnosis
-    with pytest.raises(MismatchedABI, match=regex):
+    with pytest.raises(MismatchedABI, match=re.escape(message)):
         if arg2:
             await Contract.functions.a(arg1, arg2).call()
         else:
@@ -1895,35 +1945,38 @@ async def test_async_reflect_fixed_value(
 
 DEFAULT_DECIMALS = getcontext().prec
 
+NO_MATCHING_ARGUMENTS = "The provided arguments do not match the expected types.\n"
+MULTIPLE_MATCHING_ELEMENTS = "Multiple elements were found matching 1 arguments.\n"
+
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
     "function, value, error",
     (
         # out of range
-        ("reflect_short_u", Decimal("25.6"), "no matching argument types"),
-        ("reflect_short_u", Decimal("-.1"), "no matching argument types"),
+        ("reflect_short_u", Decimal("25.6"), NO_MATCHING_ARGUMENTS),
+        ("reflect_short_u", Decimal("-.1"), NO_MATCHING_ARGUMENTS),
         # too many digits for *x1, too large for 256x80
-        ("reflect(ufixed256x80)", Decimal("0.01"), "no matching argument types"),
+        ("reflect(ufixed256x80)", Decimal("0.01"), MULTIPLE_MATCHING_ELEMENTS),
         # too many digits
-        ("reflect_short_u", Decimal("0.01"), "no matching argument types"),
+        ("reflect_short_u", Decimal("0.01"), NO_MATCHING_ARGUMENTS),
         (
             "reflect_short_u",
             Decimal(f"1e-{DEFAULT_DECIMALS + 1}"),
-            "no matching argument types",
+            NO_MATCHING_ARGUMENTS,
         ),
         (
             "reflect_short_u",
             Decimal("25.4" + "9" * DEFAULT_DECIMALS),
-            "no matching argument types",
+            NO_MATCHING_ARGUMENTS,
         ),
-        ("reflect(ufixed256x80)", Decimal(1) / 10**81, "no matching argument types"),
+        ("reflect(ufixed256x80)", Decimal(1) / 10**81, MULTIPLE_MATCHING_ELEMENTS),
         # floats not accepted, for floating point error concerns
-        ("reflect_short_u", 0.1, "no matching argument types"),
+        ("reflect_short_u", 0.1, NO_MATCHING_ARGUMENTS),
         # ambiguous
-        ("reflect(ufixed256x80)", Decimal("12.7"), "Ambiguous argument encoding"),
-        ("reflect(ufixed256x80)", Decimal(0), "Ambiguous argument encoding"),
-        ("reflect(ufixed256x80)", 0, "Ambiguous argument encoding"),
+        ("reflect(ufixed256x80)", Decimal("12.7"), MULTIPLE_MATCHING_ELEMENTS),
+        ("reflect(ufixed256x80)", Decimal(0), MULTIPLE_MATCHING_ELEMENTS),
+        ("reflect(ufixed256x80)", 0, MULTIPLE_MATCHING_ELEMENTS),
     ),
 )
 async def test_async_invalid_fixed_value_reflections(
