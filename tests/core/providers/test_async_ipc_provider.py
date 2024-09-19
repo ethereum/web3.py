@@ -38,6 +38,10 @@ ETH_SUBSCRIBE_RESPONSE = {
     },
 }
 
+TWENTY_MB = 20 * 1024 * 1024
+SIZED_MSG_START = b'{"id": 0, "jsonrpc": "2.0", "result": "'
+SIZED_MSG_END = b'"}\n' b""
+
 
 @pytest.fixture
 def jsonrpc_ipc_pipe_path():
@@ -61,53 +65,80 @@ def simple_ipc_server(jsonrpc_ipc_pipe_path):
         serv.close()
 
 
-@pytest.fixture
-def serve_empty_result(simple_ipc_server):
+def ipc_server_reply(simple_ipc_server, response_fn):
     def reply():
         connection, client_address = simple_ipc_server.accept()
         try:
             connection.recv(1024)
-            connection.sendall(b'{"id": 0, "result": {}')
-            time.sleep(0.1)
-            connection.sendall(b"}")
+            response_fn(connection)
         except BrokenPipeError:
             pass
         finally:
-            # Clean up the connection
             connection.close()
             simple_ipc_server.close()
 
     thd = Thread(target=reply, daemon=True)
     thd.start()
-
-    try:
-        yield
-    finally:
-        thd.join()
+    return thd
 
 
 @pytest.fixture
-def serve_subscription_result(simple_ipc_server):
-    def reply():
-        connection, client_address = simple_ipc_server.accept()
+def ipc_server_fixture(simple_ipc_server):
+    def server_fixture(response_fn):
+        thread = ipc_server_reply(simple_ipc_server, response_fn)
         try:
-            connection.recv(1024)
-            connection.sendall(
-                b'{"jsonrpc": "2.0", "id": 0, "result": "0xf13f7073ddef66a8c1b0c9c9f0e543c3"}'  # noqa: E501
-            )
-            connection.sendall(json.dumps(ETH_SUBSCRIBE_RESPONSE).encode("utf-8"))
+            yield
         finally:
-            # Clean up the connection
-            connection.close()
-            simple_ipc_server.close()
+            thread.join()
 
-    thd = Thread(target=reply, daemon=True)
-    thd.start()
+    return server_fixture
 
-    try:
-        yield
-    finally:
-        thd.join()
+
+@pytest.fixture
+def serve_empty_result(ipc_server_fixture):
+    def response_fn(connection):
+        connection.sendall(b'{"id": 0, "result": {}')
+        time.sleep(0.1)
+        connection.sendall(b"}\n")
+
+    yield from ipc_server_fixture(response_fn)
+
+
+@pytest.fixture
+def serve_20mb_response(ipc_server_fixture):
+    def response_fn(connection):
+        connection.sendall(
+            SIZED_MSG_START
+            + (b"a" * (TWENTY_MB - len(SIZED_MSG_START) - len(SIZED_MSG_END)))
+            + SIZED_MSG_END
+        )
+
+    yield from ipc_server_fixture(response_fn)
+
+
+@pytest.fixture
+def serve_larger_than_20mb_response(ipc_server_fixture):
+    def response_fn(connection):
+        connection.sendall(
+            SIZED_MSG_START
+            + (b"a" * (TWENTY_MB - len(SIZED_MSG_START) - len(SIZED_MSG_END) + 1024))
+            + SIZED_MSG_END
+        )
+
+    yield from ipc_server_fixture(response_fn)
+
+
+@pytest.fixture
+def serve_subscription_result(ipc_server_fixture):
+    def response_fn(connection):
+        connection.sendall(
+            b"{"
+            b'"jsonrpc": "2.0", "id": 0, "result": "0xf13f7073ddef66a8c1b0c9c9f0e543c3"'
+            b"}\n"
+        )
+        connection.sendall(json.dumps(ETH_SUBSCRIBE_RESPONSE).encode("utf-8"))
+
+    yield from ipc_server_fixture(response_fn)
 
 
 def test_ipc_tilde_in_path():
@@ -226,7 +257,7 @@ async def test_async_iterator_pattern_exception_handling_for_requests(
     exception_caught = False
     async for w3 in AsyncWeb3(AsyncIPCProvider(pathlib.Path(jsonrpc_ipc_pipe_path))):
         # patch the listener to raise `ConnectionClosed` on read
-        w3.provider._reader.read = _raise_connection_closed
+        w3.provider._reader.readline = _raise_connection_closed
         try:
             await w3.eth.block_number
         except ConnectionClosed:
@@ -249,7 +280,7 @@ async def test_async_iterator_pattern_exception_handling_for_subscriptions(
     exception_caught = False
     async for w3 in AsyncWeb3(AsyncIPCProvider(pathlib.Path(jsonrpc_ipc_pipe_path))):
         # patch the listener to raise `ConnectionClosed` on read
-        w3.provider._reader.read = _raise_connection_closed
+        w3.provider._reader.readline = _raise_connection_closed
         try:
             async for _ in w3.socket.process_subscriptions():
                 # raises exception
@@ -264,3 +295,37 @@ async def test_async_iterator_pattern_exception_handling_for_subscriptions(
         pytest.fail("Expected `ConnectionClosed` exception.")
 
     assert exception_caught
+
+
+@pytest.mark.asyncio
+async def test_async_ipc_reader_can_read_20mb_message(
+    jsonrpc_ipc_pipe_path, serve_20mb_response
+):
+    async with AsyncWeb3(AsyncIPCProvider(pathlib.Path(jsonrpc_ipc_pipe_path))) as w3:
+        response = await w3.provider.make_request("method", [])
+        assert len(response["result"]) == TWENTY_MB - len(SIZED_MSG_START) - len(
+            SIZED_MSG_END
+        )
+
+
+@pytest.mark.asyncio
+async def test_async_ipc_reader_raises_on_msg_over_20mb(
+    jsonrpc_ipc_pipe_path, serve_larger_than_20mb_response
+):
+    with pytest.raises(ValueError):
+        async with AsyncWeb3(
+            AsyncIPCProvider(pathlib.Path(jsonrpc_ipc_pipe_path))
+        ) as w3:
+            await w3.provider.make_request("method", [])
+
+
+@pytest.mark.asyncio
+async def test_async_ipc_read_buffer_limit_is_configurable(
+    jsonrpc_ipc_pipe_path, serve_larger_than_20mb_response
+):
+    async with AsyncWeb3(
+        AsyncIPCProvider(
+            pathlib.Path(jsonrpc_ipc_pipe_path), read_buffer_limit=TWENTY_MB + 1024
+        )
+    ) as w3:
+        await w3.provider.make_request("method", [])
