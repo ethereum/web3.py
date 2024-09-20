@@ -23,6 +23,7 @@ from . import (
 from ...exceptions import (
     PersistentConnectionClosedOK,
     ProviderConnectionError,
+    ReadBufferLimitReached,
     Web3TypeError,
 )
 from ..ipc import (
@@ -96,7 +97,17 @@ class AsyncIPCProvider(PersistentConnectionProvider):
         )
 
     async def socket_recv(self) -> RPCResponse:
-        data = await self._reader.readline()
+        try:
+            data = await self._reader.readline()
+        except ValueError as e:
+            if all(kw in str(e) for kw in ("limit", "chunk")):
+                raise ReadBufferLimitReached(
+                    f"Read buffer limit of `{self.read_buffer_limit}` bytes was "
+                    "reached. Consider increasing the ``read_buffer_limit`` on the "
+                    "AsyncIPCProvider."
+                ) from e
+            raise
+
         if not data:
             raise PersistentConnectionClosedOK("Socket reader received end of stream.")
         return self.decode_rpc_response(data)

@@ -269,6 +269,10 @@ AsyncIPCProvider
     JSON-RPC server.
 
     *  ``ipc_path`` is the filesystem path to the IPC socket:
+    *  ``read_buffer_limit`` is the maximum size of data, in bytes, that can be read
+       from the socket at one time. Defaults to 20MB (20 * 1024 * 1024). Raises
+       ``ReadBufferLimitReached`` if the limit is reached, suggesting that the buffer
+       limit be increased.
 
     This provider inherits from the
     :class:`~web3.providers.persistent.PersistentConnectionProvider` class. Refer to

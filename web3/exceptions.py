@@ -334,7 +334,20 @@ class TaskNotRunning(Web3Exception):
         super().__init__(message)
 
 
-class PersistentConnectionClosedOK(Web3Exception):
+class PersistentConnectionError(Web3Exception):
+    """
+    Raised when a persistent connection encounters an error.
+    """
+
+
+class ReadBufferLimitReached(PersistentConnectionError):
+    """
+    Raised when the read buffer limit is reached while reading data from a persistent
+    connection.
+    """
+
+
+class PersistentConnectionClosedOK(PersistentConnectionError):
     """
     Raised when a persistent connection is closed gracefully by the server.
     """

@@ -1,1 +1,1 @@
-Add a configuration option for the ``read_buffer_limit`` for ``AsyncIPCProvider`` in order to control the expected message size limit. Set this default value to 20MB.
+Add a configuration option for the ``read_buffer_limit`` for ``AsyncIPCProvider`` in order to control the expected message size limit (defaults to 20MB). Add ``ReadBufferLimitReached`` for when the read limit is reached, extend from ``PersistentConnectionError``.
