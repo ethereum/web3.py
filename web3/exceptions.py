@@ -340,7 +340,7 @@ class PersistentConnectionError(Web3Exception):
     """
 
 
-class ReadBufferLimitReached(PersistentConnectionError):
+class ReadBufferLimitReached(PersistentConnectionError, Web3ValueError):
     """
     Raised when the read buffer limit is reached while reading data from a persistent
     connection.
