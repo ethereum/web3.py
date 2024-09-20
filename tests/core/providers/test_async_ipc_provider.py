@@ -337,4 +337,8 @@ async def test_async_ipc_read_buffer_limit_is_configurable(
             pathlib.Path(jsonrpc_ipc_pipe_path), read_buffer_limit=TWENTY_MB + 1024
         )
     ) as w3:
-        await w3.provider.make_request("method", [])
+        response = await w3.provider.make_request("method", [])
+        assert (
+            len(response["result"])
+            == TWENTY_MB - len(SIZED_MSG_START) - len(SIZED_MSG_END) + 1024
+        )
