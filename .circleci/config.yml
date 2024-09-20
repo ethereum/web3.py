@@ -225,7 +225,7 @@ workflows:
       - common:
           matrix:
             parameters:
-              python_minor_version: ["8", "9", "10", "11", "12"]
+              python_minor_version: ["8", "9", "10", "11", "12", "13"]
               tox_env: [
                 "lint",
                 "core",
@@ -238,7 +238,7 @@ workflows:
       - geth:
           matrix:
             parameters:
-              python_minor_version: ["8", "9", "10", "11", "12"]
+              python_minor_version: ["8", "9", "10", "11", "12", "13"]
               tox_env: [
                 "integration-goethereum-ipc",
                 "integration-goethereum-ipc_async",
@@ -257,7 +257,7 @@ workflows:
       - windows-wheel:
           matrix:
             parameters:
-              python_minor_version: ["10", "11", "12"]
+              python_minor_version: ["10", "11", "12", "13"]
           name: "py3<< matrix.python_minor_version >>-windows-wheel"
 
 
