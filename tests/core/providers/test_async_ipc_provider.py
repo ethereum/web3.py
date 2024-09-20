@@ -19,6 +19,9 @@ from web3 import (
 from web3.datastructures import (
     AttributeDict,
 )
+from web3.exceptions import (
+    ReadBufferLimitReached,
+)
 from web3.providers import (
     AsyncIPCProvider,
 )
@@ -312,7 +315,13 @@ async def test_async_ipc_reader_can_read_20mb_message(
 async def test_async_ipc_reader_raises_on_msg_over_20mb(
     jsonrpc_ipc_pipe_path, serve_larger_than_20mb_response
 ):
-    with pytest.raises(ValueError):
+    with pytest.raises(
+        ReadBufferLimitReached,
+        match=(
+            rf"Read buffer limit of `{TWENTY_MB}` bytes was reached. "
+            "Consider increasing the ``read_buffer_limit`` on the AsyncIPCProvider."
+        ),
+    ):
         async with AsyncWeb3(
             AsyncIPCProvider(pathlib.Path(jsonrpc_ipc_pipe_path))
         ) as w3:
