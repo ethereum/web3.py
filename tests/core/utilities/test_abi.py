@@ -778,7 +778,14 @@ def test_get_event_abi(event_name: str, input_args: Sequence[ABIComponent]) -> N
     }
 
     input_names = [arg["name"] for arg in input_args]
-    assert get_event_abi(contract_abi, event_name, input_names) == expected_event_abi
+
+    with pytest.warns(
+        DeprecationWarning,
+        match="get_event_abi is deprecated in favor of get_abi_element",
+    ):
+        assert (
+            get_event_abi(contract_abi, event_name, input_names) == expected_event_abi
+        )
 
 
 @pytest.mark.parametrize(
