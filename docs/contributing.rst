@@ -160,11 +160,12 @@ Typically, you'll just want to run a subset instead, like:
     $ pytest tests/core/eth-module/test_accounts.py
 
 
-You can use ``tox`` to run all the tests for a given version of Python:
+You can use ``tox`` to run all the core tests for a given version of Python. You must
+an available backend for eth-tester to use (currently {'pyevm', 'eels'}).
 
 .. code:: sh
 
-   $ tox -e py38-core
+   $ tox -e py38-core --backend=pyevm
 
 
 Linting is also performed by the CI. You can save yourself some time by checking for

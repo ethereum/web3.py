@@ -9,7 +9,7 @@ from web3._utils.events import (
 )
 
 
-@pytest.fixture()
+@pytest.fixture
 def emitter(
     w3,
     emitter_contract_data,
