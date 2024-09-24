@@ -173,10 +173,11 @@ def test_finds_function_with_matching_args_strict_type_checking_by_default(w3):
         MismatchedABI,
         match=re.escape(
             "\nABI Not Found!\n"
-            "Multiple elements were found matching 1 arguments.\n"
+            "Multiple elements were found that accept 1 argument(s).\n"
             "Provided argument types: (str)\n"
             "Provided keyword argument types: {}\n\n"
-            "Encountered problems with the following elements named `a`.\n"
+            "Tried to find a matching ABI element `a`, but encountered the following "
+            "problems:\n"
             "a()\n"
             "Function `a` expects 0 arguments but 1 were given.\n"
             "a(bytes32)\n"
