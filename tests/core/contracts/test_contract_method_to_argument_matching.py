@@ -176,10 +176,10 @@ def test_finds_function_with_matching_args_strict_type_checking_by_default(w3):
             "Multiple elements were found that accept 1 argument(s).\n"
             "Provided argument types: (str)\n"
             "Provided keyword argument types: {}\n\n"
-            "Tried to find a matching ABI element `a`, but encountered the following "
-            "problems:\n"
+            "Tried to find a matching ABI element named `a`, but encountered the "
+            "following problems:\n"
             "a()\n"
-            "Function `a` expects 0 arguments but 1 were given.\n"
+            "Function `a` expects 0 argument(s) but received 1 argument(s).\n"
             "a(bytes32)\n"
             "Error! Could not encode argument 1 value `` as `bytes32`.\n"
             "a(uint256)\n"
@@ -202,12 +202,13 @@ def test_error_when_duplicate_match(w3):
         MismatchedABI,
         match=re.escape(
             "\nABI Not Found!\n"
-            "Multiple elements were found matching 1 arguments.\n"
+            "Multiple elements were found that accept 1 argument(s).\n"
             "Provided argument types: (int)\n"
             "Provided keyword argument types: {}\n\n"
-            "Encountered problems with the following elements named `a`.\n"
+            "Tried to find a matching ABI element named `a`, but encountered the "
+            "following problems:\n"
             "a()\n"
-            "Function `a` expects 0 arguments but 1 were given.\n"
+            "Function `a` expects 0 argument(s) but received 1 argument(s).\n"
             "a(bytes32)\n"
             "Error! Could not encode argument 1 value `100` as `bytes32`.\n"
             "a(uint256)\n"
@@ -230,7 +231,8 @@ def test_strict_errors_if_type_is_wrong(w3, arguments):
     with pytest.raises(
         MismatchedABI,
         match=re.escape(
-            "\nABI Not Found!\n" "Multiple elements were found matching 1 arguments.\n"
+            "\nABI Not Found!\n"
+            "Multiple elements were found that accept 1 argument(s).\n"
         ),
     ):
         Contract._find_matching_fn_abi("a", *arguments)

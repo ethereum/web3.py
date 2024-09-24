@@ -283,11 +283,11 @@ def _mismatched_abi_error_diagnosis(
             f"{num_args} argument(s).\n"
         )
     elif num_matches > 1 or num_abis_matching_arg_count > 1:
-        error += f"Multiple elements were found matching {num_args} argument(s).\n"
+        error += f"Multiple elements were found that accept {num_args} argument(s).\n"
     elif num_abis_matching_arg_count == 1:
         error += (
-            f"Found {num_abis_matching_arg_count} element(s) named `{name}` that takes "
-            f"{num_args} argument(s).\n"
+            f"Found {num_abis_matching_arg_count} element(s) named `{name}` that "
+            f"accept {num_args} argument(s).\n"
             "The provided arguments do not match the expected types.\n"
         )
     elif num_matches == 0:
@@ -297,9 +297,12 @@ def _mismatched_abi_error_diagnosis(
         )
     arg_types = _extract_argument_types(*args)
     kwarg_types = dict({(k, _extract_argument_types([v])) for k, v in kwargs.items()})
-    error += f"Provided argument types: ({arg_types})\n"
-    error += f"Provided keyword argument types: {kwarg_types}\n\n"
-    error += f"Encountered problems with the following element(s) named `{name}`:\n"
+    error += (
+        f"Provided argument types: ({arg_types})\n"
+        f"Provided keyword argument types: {kwarg_types}\n\n"
+        f"Tried to find a matching ABI element named `{name}`, but encountered "
+        "the following problems:\n"
+    )
 
     for abi_signature in abi_signatures_matching_names:
         error += _build_abi_input_error(

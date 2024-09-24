@@ -277,7 +277,7 @@ def test_set_byte_array_non_strict(
 def test_set_byte_array_with_invalid_args(arrays_contract, transact, args):
     with pytest.raises(
         MismatchedABI,
-        match="Found 1 elements named `setByteValue` that takes 1 arguments.\n",
+        match=r"Found 1 element\(s\) named `setByteValue` that accept 1 argument\(s\).\n",  # noqa: E501
     ):
         transact(
             contract=arrays_contract,
@@ -606,7 +606,7 @@ def test_no_functions_match_identifier(arrays_contract):
 def test_function_1_match_identifier_wrong_number_of_args(arrays_contract):
     with pytest.raises(
         MismatchedABI,
-        match="\nABI Not Found!\nNo declaration found for `setBytes32Value\\(\\)` with 0 arguments.\nProvided argument types: \\(\\)\nProvided keyword argument types: \\{\\}\n\nEncountered problems with the following elements named `setBytes32Value`.\nsetBytes32Value\\(bytes32\\[\\]\\)\nFunction `setBytes32Value` expects 1 arguments but 0 were given.\n",  # noqa: E501
+        match="\nABI Not Found!\nNo declaration found for `setBytes32Value\\(\\)` with 0 argument\\(s\\).\nProvided argument types: \\(\\)\nProvided keyword argument types: \\{\\}\n\nTried to find a matching ABI element named `setBytes32Value`, but encountered the following problems:\nsetBytes32Value\\(bytes32\\[\\]\\)\nFunction `setBytes32Value` expects 1 argument\\(s\\) but received 0 argument\\(s\\).\n",  # noqa: E501
     ):
         arrays_contract.functions.setBytes32Value().call()
 
@@ -614,7 +614,7 @@ def test_function_1_match_identifier_wrong_number_of_args(arrays_contract):
 def test_function_1_match_identifier_wrong_args_encoding(arrays_contract):
     with pytest.raises(
         MismatchedABI,
-        match="\nABI Not Found!\nFound 1 elements named `setBytes32Value` that takes 1 arguments.\nThe provided arguments do not match the expected types.\nProvided argument types: \\(str\\)\nProvided keyword argument types: \\{\\}\n\nEncountered problems with the following elements named `setBytes32Value`.\nsetBytes32Value\\(bytes32\\[\\]\\)\nError! Could not encode argument 1 value `dog` as `bytes32\\[\\]`.\n",  # noqa: E501
+        match="\nABI Not Found!\nFound 1 element\\(s\\) named `setBytes32Value` that accept 1 argument\\(s\\).\nThe provided arguments do not match the expected types.\nProvided argument types: \\(str\\)\nProvided keyword argument types: \\{\\}\n\nTried to find a matching ABI element named `setBytes32Value`, but encountered the following problems:\nsetBytes32Value\\(bytes32\\[\\]\\)\nError! Could not encode argument 1 value `dog` as `bytes32\\[\\]`.\n",  # noqa: E501
     ):
         arrays_contract.functions.setBytes32Value("dog").call()
 
@@ -625,17 +625,17 @@ def test_function_1_match_identifier_wrong_args_encoding(arrays_contract):
         (
             100,
             "dog",
-            "\nABI Not Found!\nNo declaration found for `a` with 2 arguments.\nProvided argument types: (int,str)\nProvided keyword argument types: {}\n\nEncountered problems with the following elements named `a`.\na()\nFunction `a` expects 0 arguments but 2 were given.\na(bytes32)\nFunction `a` expects 1 arguments but 2 were given.\na(uint256)\nFunction `a` expects 1 arguments but 2 were given.\na(uint8)\nFunction `a` expects 1 arguments but 2 were given.\na(int8)\nFunction `a` expects 1 arguments but 2 were given.\n",  # noqa: E501
+            "\nABI Not Found!\nNo declaration found for `a` with 2 argument(s).\nProvided argument types: (int,str)\nProvided keyword argument types: {}\n\nTried to find a matching ABI element named `a`, but encountered the following problems:\na()\nFunction `a` expects 0 argument(s) but received 2 argument(s).\na(bytes32)\nFunction `a` expects 1 argument(s) but received 2 argument(s).\na(uint256)\nFunction `a` expects 1 argument(s) but received 2 argument(s).\na(uint8)\nFunction `a` expects 1 argument(s) but received 2 argument(s).\na(int8)\nFunction `a` expects 1 argument(s) but received 2 argument(s).\n",  # noqa: E501
         ),
         (
             "dog",
             None,
-            "\nABI Not Found!\nMultiple elements were found matching 1 arguments.\nProvided argument types: (str)\nProvided keyword argument types: {}\n\nEncountered problems with the following elements named `a`.\na()\nFunction `a` expects 0 arguments but 1 were given.\na(bytes32)\nError! Could not encode argument 1 value `dog` as `bytes32`.\na(uint256)\nError! Could not encode argument 1 value `dog` as `uint256`.\na(uint8)\nError! Could not encode argument 1 value `dog` as `uint8`.\na(int8)\nError! Could not encode argument 1 value `dog` as `int8`.\n",  # noqa: E501
+            "\nABI Not Found!\nMultiple elements were found that accept 1 argument(s).\nProvided argument types: (str)\nProvided keyword argument types: {}\n\nTried to find a matching ABI element named `a`, but encountered the following problems:\na()\nFunction `a` expects 0 argument(s) but received 1 argument(s).\na(bytes32)\nError! Could not encode argument 1 value `dog` as `bytes32`.\na(uint256)\nError! Could not encode argument 1 value `dog` as `uint256`.\na(uint8)\nError! Could not encode argument 1 value `dog` as `uint8`.\na(int8)\nError! Could not encode argument 1 value `dog` as `int8`.\n",  # noqa: E501
         ),
         (
             100,
             None,
-            "\nABI Not Found!\nMultiple elements were found matching 1 arguments.\nProvided argument types: (int)\nProvided keyword argument types: {}\n\nEncountered problems with the following elements named `a`.\na()\nFunction `a` expects 0 arguments but 1 were given.\na(bytes32)\nError! Could not encode argument 1 value `100` as `bytes32`.\na(uint256)\nArgument 1 value `100` is encodable as type `uint256`.\na(uint8)\nArgument 1 value `100` is encodable as type `uint8`.\na(int8)\nArgument 1 value `100` is encodable as type `int8`.\n",  # noqa: E501
+            "\nABI Not Found!\nMultiple elements were found that accept 1 argument(s).\nProvided argument types: (int)\nProvided keyword argument types: {}\n\nTried to find a matching ABI element named `a`, but encountered the following problems:\na()\nFunction `a` expects 0 argument(s) but received 1 argument(s).\na(bytes32)\nError! Could not encode argument 1 value `100` as `bytes32`.\na(uint256)\nArgument 1 value `100` is encodable as type `uint256`.\na(uint8)\nArgument 1 value `100` is encodable as type `uint8`.\na(int8)\nArgument 1 value `100` is encodable as type `int8`.\n",  # noqa: E501
         ),
     ),
 )
@@ -814,17 +814,17 @@ DEFAULT_DECIMALS = getcontext().prec
         (
             "reflect(ufixed256x80)",
             Decimal("12.7"),
-            "Multiple elements were found matching 1 arguments.",
+            r"Multiple elements were found that accept 1 argument\(s\).",
         ),
         (
             "reflect(ufixed256x80)",
             Decimal(0),
-            "Multiple elements were found matching 1 arguments.",
+            r"Multiple elements were found that accept 1 argument\(s\).",
         ),
         (
             "reflect(ufixed256x80)",
             0,
-            "Multiple elements were found matching 1 arguments.",
+            r"Multiple elements were found that accept 1 argument\(s\).",
         ),
     ),
 )
@@ -1830,7 +1830,7 @@ async def test_async_function_1_match_identifier_wrong_number_of_args(
     with pytest.raises(
         MismatchedABI,
         match=re.escape(
-            "No declaration found for `setBytes32Value()` with 0 arguments.\nProvided argument types: ()\nProvided keyword argument types: {}\n\nEncountered problems with the following elements named `setBytes32Value`.\nsetBytes32Value(bytes32[])\nFunction `setBytes32Value` expects 1 arguments but 0 were given.\n"  # noqa: E501
+            "No declaration found for `setBytes32Value()` with 0 argument(s).\nProvided argument types: ()\nProvided keyword argument types: {}\n\nTried to find a matching ABI element named `setBytes32Value`, but encountered the following problems:\nsetBytes32Value(bytes32[])\nFunction `setBytes32Value` expects 1 argument(s) but received 0 argument(s).\n"  # noqa: E501
         ),
     ):
         await async_arrays_contract.functions.setBytes32Value().call()
@@ -1843,7 +1843,7 @@ async def test_async_function_1_match_identifier_wrong_args_encoding(
     with pytest.raises(
         MismatchedABI,
         match=re.escape(
-            "\nABI Not Found!\nFound 1 elements named `setBytes32Value` that takes 1 arguments.\nThe provided arguments do not match the expected types.\nProvided argument types: (str)\nProvided keyword argument types: {}\n\nEncountered problems with the following elements named `setBytes32Value`.\nsetBytes32Value(bytes32[])\nError! Could not encode argument 1 value `dog` as `bytes32[]`.\n"  # noqa: E501
+            "\nABI Not Found!\nFound 1 element(s) named `setBytes32Value` that accept 1 argument(s).\nThe provided arguments do not match the expected types.\nProvided argument types: (str)\nProvided keyword argument types: {}\n\nTried to find a matching ABI element named `setBytes32Value`, but encountered the following problems:\nsetBytes32Value(bytes32[])\nError! Could not encode argument 1 value `dog` as `bytes32[]`.\n"  # noqa: E501
         ),
     ):
         await async_arrays_contract.functions.setBytes32Value("dog").call()
@@ -1853,16 +1853,16 @@ async def test_async_function_1_match_identifier_wrong_args_encoding(
 @pytest.mark.parametrize(
     "arg1,arg2,message",
     (
-        (100, "dog", "No declaration found for `a` with 2 arguments."),
+        (100, "dog", "No declaration found for `a` with 2 argument(s)."),
         (
             "dog",
             None,
-            "Multiple elements were found matching 1 arguments.",
+            "Multiple elements were found that accept 1 argument(s).",
         ),
         (
             100,
             None,
-            "Multiple elements were found matching 1 arguments.",
+            "Multiple elements were found that accept 1 argument(s).",
         ),
     ),
 )
