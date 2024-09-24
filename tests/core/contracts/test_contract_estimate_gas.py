@@ -214,7 +214,7 @@ async def test_async_estimate_gas_accepts_latest_block(
 async def test_async_estimate_gas_can_be_called_without_parens(
     async_w3, async_math_contract, async_transact
 ):
-    gas_estimate = await async_math_contract.functions.counter.estimate_gas(
+    gas_estimate = await async_math_contract.functions.incrementCounter.estimate_gas(
         block_identifier="latest"
     )
 
