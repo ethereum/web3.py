@@ -9,7 +9,12 @@ from web3.contract import (
     Contract,
 )
 from web3.exceptions import (
+    ABIEventNotFound,
     ABIFallbackNotFound,
+    ABIFunctionNotFound,
+    NoABIEventsFound,
+    NoABIFound,
+    NoABIFunctionsFound,
     Web3AttributeError,
 )
 
@@ -143,3 +148,53 @@ def test_error_to_call_non_existent_fallback(
     )
     with pytest.raises(ABIFallbackNotFound):
         math_contract.fallback.estimate_gas()
+
+
+@pytest.mark.parametrize(
+    "abi,namespace,expected_exception",
+    (
+        (None, "functions", NoABIFound),
+        (None, "events", NoABIFound),
+        ([{"type": "event", "name": "AnEvent"}], "functions", NoABIFunctionsFound),
+        ([{"type": "function", "name": "aFunction"}], "events", NoABIEventsFound),
+        ([{"type": "function", "name": "aFunction"}], "functions", ABIFunctionNotFound),
+        ([{"type": "event", "name": "AnEvent"}], "events", ABIEventNotFound),
+    ),
+)
+def test_appropriate_exceptions_based_on_namespaces(
+    w3, abi, namespace, expected_exception
+):
+    if abi is None:
+        contract = w3.eth.contract()
+    else:
+        contract = w3.eth.contract(abi=abi)
+
+    namespace_instance = getattr(contract, namespace)
+
+    with pytest.raises(expected_exception):
+        namespace_instance.doesNotExist()
+
+
+@pytest.mark.parametrize(
+    "abi,namespace,expected_exception",
+    (
+        (None, "functions", NoABIFound),
+        (None, "events", NoABIFound),
+        ([{"type": "event", "name": "AnEvent"}], "functions", NoABIFunctionsFound),
+        ([{"type": "function", "name": "aFunction"}], "events", NoABIEventsFound),
+        ([{"type": "function", "name": "aFunction"}], "functions", ABIFunctionNotFound),
+        ([{"type": "event", "name": "AnEvent"}], "events", ABIEventNotFound),
+    ),
+)
+def test_async_appropriate_exceptions_based_on_namespaces(
+    async_w3, abi, namespace, expected_exception
+):
+    if abi is None:
+        contract = async_w3.eth.contract()
+    else:
+        contract = async_w3.eth.contract(abi=abi)
+
+    namespace_instance = getattr(contract, namespace)
+
+    with pytest.raises(expected_exception):
+        namespace_instance.doesNotExist()
