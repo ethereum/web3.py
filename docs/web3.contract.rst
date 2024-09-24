@@ -1521,13 +1521,13 @@ Contract Unit Tests in Python
 Here is an example of how one can use the `pytest`_ framework in python, web3.py,
 eth-tester, and PyEVM to perform unit tests entirely in python without any
 additional need for a full featured ethereum node/client. To install needed
-dependencies you can use the pinned extra for eth_tester in web3 and pytest:
+dependencies you can use the pinned extra for testing:
 
 .. _pytest: https://docs.pytest.org/en/latest/
 
 .. code-block:: bash
 
-    $ pip install web3[tester] pytest
+    $ pip install web3[test] pytest
 
 Once you have an environment set up for testing, you can then write your tests
 like so:

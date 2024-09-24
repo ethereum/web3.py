@@ -586,4 +586,4 @@ EthereumTesterProvider
 
 .. NOTE:: To install the needed dependencies to use EthereumTesterProvider, you can install the
     pip extras package that has the correct interoperable versions of the ``eth-tester``
-    and ``py-evm`` dependencies needed to do testing: e.g. ``pip install web3[tester]``
+    and ``py-evm`` dependencies needed: e.g. ``pip install web3[tester]``
