@@ -1946,7 +1946,9 @@ async def test_async_reflect_fixed_value(
 DEFAULT_DECIMALS = getcontext().prec
 
 NO_MATCHING_ARGUMENTS = "The provided arguments do not match the expected types.\n"
-MULTIPLE_MATCHING_ELEMENTS = r"Multiple elements were found matching 1 argument\(s\).\n"
+MULTIPLE_MATCHING_ELEMENTS = (
+    r"Multiple elements were found that accept 1 argument\(s\).\n"
+)
 
 
 @pytest.mark.asyncio
