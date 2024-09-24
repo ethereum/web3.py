@@ -63,7 +63,7 @@ def test_build_transaction_with_contract_no_arguments_no_parens(
         "value": 0,
         "maxFeePerGas": 2750000000,
         "maxPriorityFeePerGas": 10**9,
-        "chainId": 131277322940537,
+        "chainId": w3.eth.chain_id,
     }
 
 
@@ -329,7 +329,7 @@ async def test_async_build_transaction_with_contract_no_arguments_no_parens(
         "value": 0,
         "maxFeePerGas": 2750000000,
         "maxPriorityFeePerGas": 10**9,
-        "chainId": 131277322940537,
+        "chainId": await async_w3.eth.chain_id,
     }
 
 

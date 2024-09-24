@@ -277,7 +277,7 @@ Each Contract Factory exposes the following methods.
     .. doctest:: contractmethods
 
         >>> contract.constructor(1000000).estimate_gas()
-        664971
+        664953
 
 .. py:classmethod:: Contract.constructor(*args, **kwargs).build_transaction(transaction=None)
     :noindex:
