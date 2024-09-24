@@ -143,7 +143,7 @@ First, install the test dependencies:
 
 .. code:: sh
 
-    $ pip install -e ".[tester]"
+    $ pip install -e ".[test]"
 
 You can run all tests with:
 
@@ -351,7 +351,7 @@ Before generating new fixtures, make sure you have the test dependencies install
 
 .. code:: sh
 
-    $ pip install -e ".[tester]"
+    $ pip install -e ".[test]"
 
 .. note::
 
