@@ -191,41 +191,57 @@ class FriendlyJsonSerde:
     helpful information in the raised error messages.
     """
 
-    def _json_mapping_errors(self, mapping: Dict[Any, Any]) -> Iterable[str]:
+    @classmethod
+    def _json_mapping_errors(
+        self,
+        mapping: Dict[Any, Any],
+        encoder_cls: Optional[Type[json.JSONEncoder]] = None,
+    ) -> Iterable[str]:
         for key, val in mapping.items():
             try:
-                self._friendly_json_encode(val)
+                self._friendly_json_encode(val, encoder_cls=encoder_cls)
             except TypeError as exc:
                 yield f"{key!r}: because ({exc})"
 
-    def _json_list_errors(self, iterable: Iterable[Any]) -> Iterable[str]:
+    @classmethod
+    def _json_list_errors(
+        self,
+        iterable: Iterable[Any],
+        encoder_cls: Optional[Type[json.JSONEncoder]] = None,
+    ) -> Iterable[str]:
         for index, element in enumerate(iterable):
             try:
-                self._friendly_json_encode(element)
+                self._friendly_json_encode(element, encoder_cls=encoder_cls)
             except TypeError as exc:
                 yield f"{index}: because ({exc})"
 
+    @classmethod
     def _friendly_json_encode(
-        self, obj: Dict[Any, Any], cls: Optional[Type[json.JSONEncoder]] = None
+        cls, obj: Dict[Any, Any], encoder_cls: Optional[Type[json.JSONEncoder]] = None
     ) -> str:
         try:
-            encoded = json.dumps(obj, cls=cls)
+            encoded = json.dumps(obj, cls=encoder_cls, separators=(",", ":"))
             return encoded
         except TypeError as full_exception:
             if hasattr(obj, "items"):
-                item_errors = "; ".join(self._json_mapping_errors(obj))
+                item_errors = "; ".join(
+                    cls._json_mapping_errors(obj, encoder_cls=encoder_cls)
+                )
                 raise Web3TypeError(
                     f"dict had unencodable value at keys: {{{item_errors}}}"
                 )
             elif is_list_like(obj):
-                element_errors = "; ".join(self._json_list_errors(obj))
+                element_errors = "; ".join(
+                    cls._json_list_errors(obj, encoder_cls=encoder_cls)
+                )
                 raise Web3TypeError(
                     f"list had unencodable value at index: [{element_errors}]"
                 )
             else:
                 raise full_exception
 
-    def json_decode(self, json_str: str) -> Dict[Any, Any]:
+    @classmethod
+    def json_decode(cls, json_str: str) -> Dict[Any, Any]:
         try:
             decoded = json.loads(json_str)
             return decoded
@@ -235,11 +251,12 @@ class FriendlyJsonSerde:
             # so we have to re-raise the same type.
             raise json.decoder.JSONDecodeError(err_msg, exc.doc, exc.pos)
 
+    @classmethod
     def json_encode(
-        self, obj: Dict[Any, Any], cls: Optional[Type[json.JSONEncoder]] = None
+        cls, obj: Dict[Any, Any], encoder_cls: Optional[Type[json.JSONEncoder]] = None
     ) -> str:
         try:
-            return self._friendly_json_encode(obj, cls=cls)
+            return cls._friendly_json_encode(obj, encoder_cls=encoder_cls)
         except TypeError as exc:
             raise Web3TypeError(f"Could not encode to JSON: {exc}")
 
@@ -306,4 +323,4 @@ def to_json(obj: Dict[Any, Any]) -> str:
     """
     Convert a complex object (like a transaction object) to a JSON string
     """
-    return FriendlyJsonSerde().json_encode(obj, cls=Web3JsonEncoder)
+    return FriendlyJsonSerde.json_encode(obj, encoder_cls=Web3JsonEncoder)

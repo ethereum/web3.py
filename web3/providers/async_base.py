@@ -175,23 +175,24 @@ class AsyncJSONBaseProvider(AsyncBaseProvider):
         self.request_counter = itertools.count()
         super().__init__(**kwargs)
 
-    def encode_rpc_request(self, method: RPCEndpoint, params: Any) -> bytes:
-        request_id = next(self.request_counter)
-        rpc_dict = {
+    def _build_rpc_dict(self, method: RPCEndpoint, params: Any) -> dict:
+        return {
             "jsonrpc": "2.0",
             "method": method,
             "params": params or [],
-            "id": request_id,
+            "id": next(self.request_counter),
         }
-        encoded = FriendlyJsonSerde().json_encode(rpc_dict, cls=Web3JsonEncoder)
-        return to_bytes(text=encoded)
+
+    def encode_rpc_request(self, method: RPCEndpoint, params: Any) -> str:
+        rpc_dict = self._build_rpc_dict(method, params)
+        return FriendlyJsonSerde.json_encode(rpc_dict, encoder_cls=Web3JsonEncoder)
 
     @staticmethod
     def decode_rpc_response(raw_response: bytes) -> RPCResponse:
         text_response = str(
             to_text(raw_response) if not is_text(raw_response) else raw_response
         )
-        return cast(RPCResponse, FriendlyJsonSerde().json_decode(text_response))
+        return cast(RPCResponse, FriendlyJsonSerde.json_decode(text_response))
 
     async def is_connected(self, show_traceback: bool = False) -> bool:
         try:
@@ -219,13 +220,8 @@ class AsyncJSONBaseProvider(AsyncBaseProvider):
 
     # -- batch requests -- #
 
-    def encode_batch_rpc_request(
-        self, requests: List[Tuple[RPCEndpoint, Any]]
-    ) -> bytes:
-        return (
-            b"["
-            + b", ".join(
-                self.encode_rpc_request(method, params) for method, params in requests
-            )
-            + b"]"
-        )
+    def encode_batch_rpc_request(self, requests: List[Tuple[RPCEndpoint, Any]]) -> str:
+        rpc_dicts = [
+            self._build_rpc_dict(method, params) for method, params in requests
+        ]
+        return FriendlyJsonSerde.json_encode(rpc_dicts, encoder_cls=Web3JsonEncoder)

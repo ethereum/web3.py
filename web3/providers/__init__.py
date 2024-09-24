@@ -1,5 +1,6 @@
 from .async_base import (
     AsyncBaseProvider,
+    AsyncJSONBaseProvider,
 )
 from .rpc import (
     AsyncHTTPProvider,
@@ -33,6 +34,7 @@ from .auto import (
 
 __all__ = [
     "AsyncBaseProvider",
+    "AsyncJSONBaseProvider",
     "AsyncEthereumTesterProvider",
     "AsyncHTTPProvider",
     "AsyncIPCProvider",
