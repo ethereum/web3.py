@@ -6,21 +6,16 @@ from setuptools import (
 
 extras_require = {
     "tester": [
+        # Note: ethereum-maintained libraries in this list should be added to the
+        # `install_pre_releases.py` script.
         "eth-tester[py-evm]>=0.11.0b1,<0.13.0b1",
         "py-geth>=5.0.0",
     ],
     "dev": [
         "build>=0.9.0",
         "bumpversion>=0.5.3",
-        "flaky>=3.7.0",
-        "hypothesis>=3.31.2",
         "ipython",
-        "mypy==1.10.0",
-        "pre-commit>=3.4.0",
-        "pytest-asyncio>=0.21.2,<0.23",
-        "pytest-mock>=1.10",
         "setuptools>=38.6.0",
-        "tox>=4.0.0",
         "tqdm>4.32",
         "twine>=1.13",
         "wheel",
@@ -32,12 +27,15 @@ extras_require = {
         "towncrier>=21,<22",
     ],
     "test": [
-        # Note: ethereum-maintained libraries in this list should be added to the
-        # `install_pre_releases.py` script.
         "pytest-asyncio>=0.18.1,<0.23",
         "pytest-mock>=1.10",
         "pytest-xdist>=2.4.0",
         "pytest>=7.0.0",
+        "flaky>=3.7.0",
+        "hypothesis>=3.31.2",
+        "tox>=4.0.0",
+        "mypy==1.10.0",
+        "pre-commit>=3.4.0",
     ],
 }
 
@@ -47,6 +45,7 @@ extras_require["dev"] = (
     + extras_require["test"]
     + extras_require["tester"]
 )
+extras_require["test"] = extras_require["test"] + extras_require["tester"]
 
 
 with open("./README.md") as readme:
