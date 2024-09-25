@@ -54,6 +54,7 @@ from web3._utils.normalizers import (
 )
 from web3.exceptions import (
     MismatchedABI,
+    NoABIFound,
     Web3ValidationError,
     Web3ValueError,
 )
@@ -648,6 +649,25 @@ def test_get_abi_element(
             {},
             MismatchedABI,
             "No declaration found for `noFunc(uint256)` with 0 argument(s).\n",
+        ),
+        (
+            [{}],
+            "nonexistent",
+            [],
+            {},
+            MismatchedABI,
+            "\nABI Not Found!\n"
+            "No declaration found for `nonexistent` with 0 argument(s).\n"
+            "Provided argument types: ()\n"
+            "Provided keyword arugment types: {}\n\n",
+        ),
+        (
+            {},
+            "nonexistent",
+            [],
+            {},
+            NoABIFound,
+            "There is no ABI found for this contract.",
         ),
     ),
 )

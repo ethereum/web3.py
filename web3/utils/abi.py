@@ -67,6 +67,7 @@ from web3.exceptions import (
     ABIFallbackNotFound,
     ABIReceiveNotFound,
     MismatchedABI,
+    NoABIFound,
     Web3ValidationError,
     Web3ValueError,
 )
@@ -300,14 +301,18 @@ def _mismatched_abi_error_diagnosis(
     error += (
         f"Provided argument types: ({arg_types})\n"
         f"Provided keyword argument types: {kwarg_types}\n\n"
-        f"Tried to find a matching ABI element named `{name}`, but encountered "
-        "the following problems:\n"
     )
 
-    for abi_signature in abi_signatures_matching_names:
-        error += _build_abi_input_error(
-            abi, abi_signature, num_args, *args, abi_codec=abi_codec, **kwargs
+    if abi_signatures_matching_names:
+        error += (
+            f"Tried to find a matching ABI element named `{name}`, but encountered "
+            "the following problems:\n"
         )
+
+        for abi_signature in abi_signatures_matching_names:
+            error += _build_abi_input_error(
+                abi, abi_signature, num_args, *args, abi_codec=abi_codec, **kwargs
+            )
 
     return f"\n{error}"
 
@@ -570,6 +575,9 @@ def get_abi_element(
 'type': 'uint256'}], 'payable': False, 'stateMutability': 'nonpayable', \
 'type': 'function'}
     """
+    if not abi:
+        raise NoABIFound("There is no ABI found for this contract.")
+
     if abi_codec is None:
         abi_codec = ABICodec(default_registry)
 
