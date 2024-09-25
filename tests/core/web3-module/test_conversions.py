@@ -1,5 +1,4 @@
 import pytest
-
 from hexbytes import (
     HexBytes,
 )
@@ -159,7 +158,7 @@ def test_to_int_hexstr(val, expected):
         (b"\x01", "0x01"),
         (b"\x10", "0x10"),
         (b"\x01\x00", "0x0100"),
-        (b"\x00\x0F", "0x000f"),
+        (b"\x00\x0f", "0x000f"),
         (b"", "0x"),
         (0, "0x0"),
         (1, "0x1"),
@@ -204,13 +203,13 @@ def test_to_hex_cleanup_only(val, expected):
 @pytest.mark.parametrize(
     "val, expected",
     (
-        (AttributeDict({"one": HexBytes("0x1")}), '{"one": "0x01"}'),
-        (AttributeDict({"two": HexBytes(2)}), '{"two": "0x02"}'),
+        (AttributeDict({"one": HexBytes("0x1")}), '{"one":"0x01"}'),
+        (AttributeDict({"two": HexBytes(2)}), '{"two":"0x02"}'),
         (
             AttributeDict({"three": AttributeDict({"four": 4})}),
-            '{"three": {"four": 4}}',
+            '{"three":{"four":4}}',
         ),
-        ({"three": 3}, '{"three": 3}'),
+        ({"three": 3}, '{"three":3}'),
     ),
 )
 def test_to_json(val, expected):
@@ -247,7 +246,7 @@ def test_to_json(val, expected):
                     "value": 2907000000000000,
                 }
             ),
-            '{"blockHash": "0x849044202a39ae36888481f90d62c3826bca8269c2716d7a38696b4f45e61d83", "blockNumber": 6928809, "from": "0xDEA141eF43A2fdF4e795adA55958DAf8ef5FA619", "gas": 21000, "gasPrice": 19110000000, "hash": "0x1ccddd19830e998d7cf4d921b19fafd5021c9d4c4ba29680b66fb535624940fc", "input": "0x", "nonce": 5522, "r": "0x71ef3eed6242230a219d9dc7737cb5a3a16059708ee322e96b8c5774105b9b00", "s": "0x48a076afe10b4e1ae82ef82b747e9be64e0bbb1cc90e173db8d53e7baba8ac46", "to": "0x3a84E09D30476305Eda6b2DA2a4e199E2Dd1bf79", "transactionIndex": 8, "v": 27, "value": 2907000000000000}',  # noqa: E501
+            '{"blockHash":"0x849044202a39ae36888481f90d62c3826bca8269c2716d7a38696b4f45e61d83","blockNumber":6928809,"from":"0xDEA141eF43A2fdF4e795adA55958DAf8ef5FA619","gas":21000,"gasPrice":19110000000,"hash":"0x1ccddd19830e998d7cf4d921b19fafd5021c9d4c4ba29680b66fb535624940fc","input":"0x","nonce":5522,"r":"0x71ef3eed6242230a219d9dc7737cb5a3a16059708ee322e96b8c5774105b9b00","s":"0x48a076afe10b4e1ae82ef82b747e9be64e0bbb1cc90e173db8d53e7baba8ac46","to":"0x3a84E09D30476305Eda6b2DA2a4e199E2Dd1bf79","transactionIndex":8,"v":27,"value":2907000000000000}',  # noqa: E501
         ),
     ),
 )
