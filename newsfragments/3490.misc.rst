@@ -1,2 +1,1 @@
-
 Validate against sync providers on ``AsyncWeb3`` init; validate against async providers on ``Web3`` init. This will provide better messaging when a web3 class is instantiated with an incompatible provider type.
