@@ -6,6 +6,52 @@ v7 Breaking Changes Summary
 
 .. towncrier release notes start
 
+web3.py v7.3.0 (2024-09-25)
+---------------------------
+
+Bugfixes
+~~~~~~~~
+
+- Base default ``maxFeePerGas`` calculation off of existing ``maxPriorityFeePerGas`` key instead of separate RPC call (`#3052 <https://github.com/ethereum/web3.py/issues/3052>`__)
+- Add back dependency extra for 'tester'. (`#3480 <https://github.com/ethereum/web3.py/issues/3480>`__)
+- Fix a bug where sensitive requests that make use of block data should not be cached until some validation threshold deems it is safe to do so, when request caching is turned on. (`#3483 <https://github.com/ethereum/web3.py/issues/3483>`__)
+
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Update ``contract.encode_abi`` signature in docs and migration guide (`#3473 <https://github.com/ethereum/web3.py/issues/3473>`__)
+- Update documentation around ``SignAndSendRawMiddlewareBuilder`` injection into the middleware onion. It should be injected lower in the stack than any middleware that modifies the transaction, in order to ensure those modified fields are signed. (`#3488 <https://github.com/ethereum/web3.py/issues/3488>`__)
+- Docs cleanups related to ``test`` vs ``tester`` install extras. (`#3496 <https://github.com/ethereum/web3.py/issues/3496>`__)
+
+
+Features
+~~~~~~~~
+
+- Add a configuration for request caching that sets a threshold for validating cached requests that make use of block data. This can be turned off altogether by setting the threshold to ``None``. (`#3483 <https://github.com/ethereum/web3.py/issues/3483>`__)
+- Add a configuration option for the ``read_buffer_limit`` for ``AsyncIPCProvider`` in order to control the expected message size limit (defaults to 20MB). Add ``ReadBufferLimitReached`` for when the read limit is reached, extend from ``PersistentConnectionError``. (`#3492 <https://github.com/ethereum/web3.py/issues/3492>`__)
+
+
+Internal Changes - for web3.py Contributors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Test warning cleanup (`#3468 <https://github.com/ethereum/web3.py/issues/3468>`__)
+- Re-compile test contracts with recently released Solidity ``v0.8.27``. (`#3475 <https://github.com/ethereum/web3.py/issues/3475>`__)
+- Re-organize the install extras. Re-define the ``test`` extra to always include the ``tester`` extra since it's needed for testing. (`#3495 <https://github.com/ethereum/web3.py/issues/3495>`__)
+
+
+Miscellaneous Changes
+~~~~~~~~~~~~~~~~~~~~~
+
+- `#3490 <https://github.com/ethereum/web3.py/issues/3490>`__
+
+
+Performance Improvements
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Improve logic for reading from the async IPC socket in order to properly handle and adjust the handling of large messages. This improves reading speeds in general. (`#3492 <https://github.com/ethereum/web3.py/issues/3492>`__)
+
+
 web3.py v7.2.0 (2024-08-29)
 ---------------------------
 

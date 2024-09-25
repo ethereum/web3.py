@@ -1,1 +1,0 @@
-Improve logic for reading from the async IPC socket in order to properly handle and adjust the handling of large messages. This improves reading speeds in general.

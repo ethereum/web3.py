@@ -1,1 +1,0 @@
-Re-organize the install extras. Re-define the ``test`` extra to always include the ``tester`` extra since it's needed for testing.

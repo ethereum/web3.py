@@ -1,1 +1,0 @@
-Docs cleanups related to ``test`` vs ``tester`` install extras.

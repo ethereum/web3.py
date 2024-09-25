@@ -1,1 +1,0 @@
-Update documentation around ``SignAndSendRawMiddlewareBuilder`` injection into the middleware onion. It should be injected lower in the stack than any middleware that modifies the transaction, in order to ensure those modified fields are signed.

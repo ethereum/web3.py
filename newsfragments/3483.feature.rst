@@ -1,1 +1,0 @@
-Add a configuration for request caching that sets a threshold for validating cached requests that make use of block data. This can be turned off altogether by setting the threshold to ``None``.

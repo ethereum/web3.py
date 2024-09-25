@@ -1,1 +1,0 @@
-Update ``contract.encode_abi`` signature in docs and migration guide

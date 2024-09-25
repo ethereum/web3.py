@@ -1,1 +1,0 @@
-Add back dependency extra for 'tester'.

@@ -1,1 +1,0 @@
-Base default ``maxFeePerGas`` calculation off of existing ``maxPriorityFeePerGas`` key instead of separate RPC call

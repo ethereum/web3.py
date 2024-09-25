@@ -1,1 +1,0 @@
-Re-compile test contracts with recently released Solidity ``v0.8.27``.
