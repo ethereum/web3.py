@@ -54,7 +54,6 @@ from web3._utils.normalizers import (
 )
 from web3.exceptions import (
     MismatchedABI,
-    NoABIFound,
     Web3ValidationError,
     Web3ValueError,
 )
@@ -666,27 +665,24 @@ def test_get_abi_element(
             "nonexistent",
             [],
             {},
-            MismatchedABI,
-            "\nABI Not Found!\n"
-            "No declaration found for `nonexistent` with 0 argument(s).\n"
-            "Provided argument types: ()\n"
-            "Provided keyword argument types: {}\n\n",
+            Web3ValueError,
+            "'abi' must contain a list of elements each with a type",
         ),
         (
             {},
             "nonexistent",
             [],
             {},
-            NoABIFound,
-            "The provided ABI is not valid, got:\n`{}`",
+            Web3ValueError,
+            "'abi' is not a list",
         ),
         (
             "ABI",
             "nonexistent",
             [],
             {},
-            NoABIFound,
-            "The provided ABI is not valid, got:\n`ABI`",
+            Web3ValueError,
+            "'abi' is not a list",
         ),
     ),
 )

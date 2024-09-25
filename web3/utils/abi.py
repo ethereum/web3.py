@@ -62,12 +62,14 @@ from web3._utils.abi import (
 from web3._utils.decorators import (
     deprecated_for,
 )
+from web3._utils.validation import (
+    validate_abi,
+)
 from web3.exceptions import (
     ABIConstructorNotFound,
     ABIFallbackNotFound,
     ABIReceiveNotFound,
     MismatchedABI,
-    NoABIFound,
     Web3ValidationError,
     Web3ValueError,
 )
@@ -577,8 +579,7 @@ def get_abi_element(
 'type': 'uint256'}], 'payable': False, 'stateMutability': 'nonpayable', \
 'type': 'function'}
     """
-    if not abi or not isinstance(abi, list):
-        raise NoABIFound(f"The provided ABI is not valid, got:\n`{abi}`")
+    validate_abi(abi)
 
     if abi_codec is None:
         abi_codec = ABICodec(default_registry)
