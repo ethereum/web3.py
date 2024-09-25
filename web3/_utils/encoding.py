@@ -222,7 +222,7 @@ class FriendlyJsonSerde:
     @classmethod
     def _friendly_json_encode(
         cls,
-        obj: Dict[Any, Any] | List[Dict[Any, Any]],
+        obj: Union[Dict[Any, Any], List[Dict[Any, Any]]],
         encoder_cls: Optional[Type[json.JSONEncoder]] = None,
     ) -> str:
         try:
@@ -260,7 +260,7 @@ class FriendlyJsonSerde:
     @classmethod
     def json_encode(
         cls,
-        obj: Dict[Any, Any] | List[Dict[Any, Any]],
+        obj: Union[Dict[Any, Any], List[Dict[Any, Any]]],
         encoder_cls: Optional[Type[json.JSONEncoder]] = None,
     ) -> str:
         try:

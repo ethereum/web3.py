@@ -6,6 +6,7 @@ from typing import (
     Any,
     Callable,
     Coroutine,
+    Dict,
     List,
     Optional,
     Set,
@@ -174,7 +175,7 @@ class AsyncJSONBaseProvider(AsyncBaseProvider):
         self.request_counter = itertools.count()
         super().__init__(**kwargs)
 
-    def _build_rpc_dict(self, method: RPCEndpoint, params: Any) -> dict[str, Any]:
+    def _build_rpc_dict(self, method: RPCEndpoint, params: Any) -> Dict[str, Any]:
         return {
             "jsonrpc": "2.0",
             "method": method,
