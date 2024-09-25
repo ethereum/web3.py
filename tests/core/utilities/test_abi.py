@@ -651,6 +651,17 @@ def test_get_abi_element(
             "No declaration found for `noFunc(uint256)` with 0 argument(s).\n",
         ),
         (
+            [
+                {"type": "function", "name": "Nonexistent"},
+                {"type": "event", "name": "Nonexistent"},
+            ],
+            "Nonexistent",
+            [],
+            {},
+            MismatchedABI,
+            "",
+        ),
+        (
             [{}],
             "nonexistent",
             [],
@@ -659,7 +670,7 @@ def test_get_abi_element(
             "\nABI Not Found!\n"
             "No declaration found for `nonexistent` with 0 argument(s).\n"
             "Provided argument types: ()\n"
-            "Provided keyword arugment types: {}\n\n",
+            "Provided keyword argument types: {}\n\n",
         ),
         (
             {},
@@ -667,7 +678,15 @@ def test_get_abi_element(
             [],
             {},
             NoABIFound,
-            "There is no ABI found for this contract.",
+            "The provided ABI is not valid, got:\n`{}`",
+        ),
+        (
+            "ABI",
+            "nonexistent",
+            [],
+            {},
+            NoABIFound,
+            "The provided ABI is not valid, got:\n`ABI`",
         ),
     ),
 )

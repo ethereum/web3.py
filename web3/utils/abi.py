@@ -196,7 +196,6 @@ def _get_any_abi_signature_with_name(element_name: str, contract_abi: ABI) -> st
 
 def _build_abi_input_error(
     abi: ABI,
-    abi_signature: str,
     num_args: int,
     *args: Any,
     abi_codec: ABICodec,
@@ -205,45 +204,48 @@ def _build_abi_input_error(
     """
     Build a string representation of the ABI input error.
     """
-    abi_element = get_abi_element(abi, abi_signature)
-    abi_element_input_types = get_abi_input_types(abi_element)
-    abi_signature = abi_to_signature(abi_element)
-    abi_element_name = get_name_from_abi_element_identifier(abi_signature)
-    error = f"{abi_signature}\n"
+    error = ""
+    for abi_element in abi:
+        abi_element_input_types = get_abi_input_types(abi_element)
+        abi_signature = abi_to_signature(abi_element)
+        abi_element_name = get_name_from_abi_element_identifier(abi_signature)
+        types: Tuple[str, ...] = tuple()
+        aligned_args: Tuple[Any, ...] = tuple()
+        error += f"{abi_signature}\n"
 
-    if len(abi_element_input_types) == num_args:
-        if num_args == 0:
-            error += (
-                "The provided identifier matches multiple elements.\n"
-                f"If you meant to call `{abi_element_name}()`, "
-                "please specify the full signature.\n"
-            )
-
-        try:
-            arguments = get_normalized_abi_inputs(abi_element, *args, **kwargs)
-            types, aligned_args = get_aligned_abi_inputs(abi_element, arguments)
-        except TypeError:
-            return (
-                f"{abi_signature}\nError! Arguments do not match types in "
-                f"`{abi_signature}`.\n"
-            )
-        for position, (_type, arg) in enumerate(zip(types, aligned_args), start=1):
-            if abi_codec.is_encodable(_type, arg):
+        if len(abi_element_input_types) == num_args:
+            if num_args == 0:
                 error += (
-                    f"Argument {position} value `{arg}` is encodable as type "
-                    f"`{_type}`.\n"
+                    "The provided identifier matches multiple elements.\n"
+                    f"If you meant to call `{abi_element_name}()`, "
+                    "please specify the full signature.\n"
                 )
             else:
-                error += (
-                    f"Error! Could not encode argument {position} value `{arg}` "
-                    f"as `{_type}`.\n"
-                )
-    else:
-        error += (
-            f"Function `{abi_element_name}` expects "
-            f"{len(abi_element_input_types)} argument(s) but received {num_args} "
-            "argument(s).\n"
-        )
+                try:
+                    arguments = get_normalized_abi_inputs(abi_element, *args, **kwargs)
+                    types, aligned_args = get_aligned_abi_inputs(abi_element, arguments)
+                except TypeError:
+                    error += (
+                        f"Error! Arguments do not match types in `{abi_signature}`.\n"
+                    )
+
+            for position, (_type, arg) in enumerate(zip(types, aligned_args), start=1):
+                if abi_codec.is_encodable(_type, arg):
+                    error += (
+                        f"Argument {position} value `{arg}` is encodable as type "
+                        f"`{_type}`.\n"
+                    )
+                else:
+                    error += (
+                        f"Error! Could not encode argument {position} value `{arg}` "
+                        f"as `{_type}`.\n"
+                    )
+        else:
+            error += (
+                f"Function `{abi_element_name}` expects "
+                f"{len(abi_element_input_types)} argument(s) but received {num_args} "
+                "argument(s).\n"
+            )
 
     return error
 
@@ -265,9 +267,6 @@ def _mismatched_abi_error_diagnosis(
     """
     name = get_name_from_abi_element_identifier(abi_element_identifier)
     abis_matching_names = filter_abi_by_name(name, abi)
-    abi_signatures_matching_names = [
-        abi_to_signature(abi) for abi in abis_matching_names
-    ]
     abis_matching_arg_count = [
         abi_to_signature(abi)
         for abi in _filter_by_argument_count(num_args, abis_matching_names)
@@ -303,16 +302,19 @@ def _mismatched_abi_error_diagnosis(
         f"Provided keyword argument types: {kwarg_types}\n\n"
     )
 
-    if abi_signatures_matching_names:
+    if abis_matching_names:
         error += (
             f"Tried to find a matching ABI element named `{name}`, but encountered "
             "the following problems:\n"
         )
 
-        for abi_signature in abi_signatures_matching_names:
-            error += _build_abi_input_error(
-                abi, abi_signature, num_args, *args, abi_codec=abi_codec, **kwargs
-            )
+        error += _build_abi_input_error(
+            abis_matching_names,
+            num_args,
+            *args,
+            abi_codec=abi_codec,
+            **kwargs,
+        )
 
     return f"\n{error}"
 
@@ -575,8 +577,8 @@ def get_abi_element(
 'type': 'uint256'}], 'payable': False, 'stateMutability': 'nonpayable', \
 'type': 'function'}
     """
-    if not abi:
-        raise NoABIFound("There is no ABI found for this contract.")
+    if not abi or not isinstance(abi, list):
+        raise NoABIFound(f"The provided ABI is not valid, got:\n`{abi}`")
 
     if abi_codec is None:
         abi_codec = ABICodec(default_registry)
