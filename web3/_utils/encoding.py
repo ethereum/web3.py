@@ -1,4 +1,7 @@
 # String encodings and numeric representations
+from collections.abc import (
+    Mapping,
+)
 import json
 import re
 from typing import (
@@ -6,6 +9,7 @@ from typing import (
     Callable,
     Dict,
     Iterable,
+    List,
     Optional,
     Sequence,
     Type,
@@ -217,13 +221,15 @@ class FriendlyJsonSerde:
 
     @classmethod
     def _friendly_json_encode(
-        cls, obj: Dict[Any, Any], encoder_cls: Optional[Type[json.JSONEncoder]] = None
+        cls,
+        obj: Dict[Any, Any] | List[Dict[Any, Any]],
+        encoder_cls: Optional[Type[json.JSONEncoder]] = None,
     ) -> str:
         try:
             encoded = json.dumps(obj, cls=encoder_cls, separators=(",", ":"))
             return encoded
         except TypeError as full_exception:
-            if hasattr(obj, "items"):
+            if isinstance(obj, Mapping):
                 item_errors = "; ".join(
                     cls._json_mapping_errors(obj, encoder_cls=encoder_cls)
                 )
@@ -253,7 +259,9 @@ class FriendlyJsonSerde:
 
     @classmethod
     def json_encode(
-        cls, obj: Dict[Any, Any], encoder_cls: Optional[Type[json.JSONEncoder]] = None
+        cls,
+        obj: Dict[Any, Any] | List[Dict[Any, Any]],
+        encoder_cls: Optional[Type[json.JSONEncoder]] = None,
     ) -> str:
         try:
             return cls._friendly_json_encode(obj, encoder_cls=encoder_cls)
