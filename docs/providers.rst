@@ -568,22 +568,26 @@ explicitly.
 EthereumTesterProvider
 ~~~~~~~~~~~~~~~~~~~~~~
 
-.. warning:: Experimental:  This provider is experimental. There are still significant gaps in
-    functionality. However it is being actively developed and supported.
+.. warning:: Experimental:  This provider is experimental. There are still significant
+    gaps in functionality. However it is being actively developed and supported.
 
-.. py:class:: EthereumTesterProvider(eth_tester=None)
+.. py:class:: EthereumTesterProvider(ethereum_tester=None, api_endpoints=None)
+.. py:class:: AsyncEthereumTesterProvider(ethereum_tester=None, api_endpoints=None)
 
-    This provider integrates with the ``eth-tester`` library.  The ``eth_tester`` constructor
-    argument should be an instance of the :class:`~eth_tester.EthereumTester` or a subclass of
-    :class:`~eth_tester.backends.base.BaseChainBackend` class provided by the ``eth-tester`` library.
-    If you would like a custom eth-tester instance to test with, see the
-    ``eth-tester`` library `documentation <https://github.com/ethereum/eth-tester>`_ for details.
+    This provider integrates with the ``eth-tester`` library. The ``ethereum_tester``
+    constructor argument should be an instance of the :class:`~eth_tester.EthereumTester`
+    or a subclass of :class:`~eth_tester.backends.base.BaseChainBackend` class provided
+    by the ``eth-tester`` library. The ``api_endpoints`` argument should be a ``dict``
+    of RPC endpoints. You can see the structure and defaults `here <https://github.com/ethereum/web3.py/blob/283b536c7d53e605c61468941e3fc07a6c5d0c09/web3/providers/eth_tester/defaults.py#L228>`_.
+    If you would like a custom ``eth-tester`` instance to test with, see the
+    ``eth-tester`` library `documentation <https://github.com/ethereum/eth-tester>`_
+    for details.
 
     .. code-block:: python
 
         >>> from web3 import Web3, EthereumTesterProvider
         >>> w3 = Web3(EthereumTesterProvider())
 
-.. NOTE:: To install the needed dependencies to use EthereumTesterProvider, you can install the
-    pip extras package that has the correct interoperable versions of the ``eth-tester``
-    and ``py-evm`` dependencies needed: e.g. ``pip install web3[tester]``
+.. NOTE:: To install the needed dependencies to use EthereumTesterProvider, you can
+    install the pip extras package that has the correct interoperable versions of the
+    ``eth-tester`` and ``py-evm`` dependencies needed: e.g. ``pip install "web3[tester]"``
