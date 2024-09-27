@@ -416,7 +416,7 @@ def test_get_abi_element_info_without_args_and_kwargs(
 def test_get_abi_element_info_raises_mismatched_abi(contract_abi: ABI) -> None:
     with pytest.raises(
         MismatchedABI,
-        match=r"\nABI Not Found!\nNo declaration found for `foo` with 1 argument\(s\).\n",  # noqa: E501
+        match=r"\nABI Not Found!\nNo element named `foo` with 1 argument\(s\).\n",  # noqa: E501
     ):
         args: Sequence[Any] = [1]
         get_abi_element_info(contract_abi, "foo", *args, **{})
@@ -563,17 +563,17 @@ def test_get_abi_element(
             {},
             MismatchedABI,
             "\nABI Not Found!\n"
-            "Multiple elements were found that accept 0 argument(s).\n"
+            "Found multiple elements named `setValue` that accept 0 argument(s).\n"
             "Provided argument types: ()\n"
             "Provided keyword argument types: {}\n\n"
             "Tried to find a matching ABI element named `setValue`, but encountered "
             "the following problems:\n"
-            "setValue(fixed8x1)\n"
-            "Function `setValue` expects 1 argument(s) but received 0 argument(s).\n"
-            "setValue(ufixed256x80)\n"
-            "Function `setValue` expects 1 argument(s) but received 0 argument(s).\n"
-            "setValue(uint256,(uint256,uint256))\n"
-            "Function `setValue` expects 2 argument(s) but received 0 argument(s).\n",
+            "Signature: setValue(fixed8x1), type: function\n"
+            "Expected 1 argument(s) but received 0 argument(s).\n"
+            "Signature: setValue(ufixed256x80), type: function\n"
+            "Expected 1 argument(s) but received 0 argument(s).\n"
+            "Signature: setValue(uint256,(uint256,uint256)), type: function\n"
+            "Expected 2 argument(s) but received 0 argument(s).\n",
         ),
         (
             CONTRACT_ABI,
@@ -584,15 +584,17 @@ def test_get_abi_element(
             {},
             MismatchedABI,
             "\nABI Not Found!\n"
-            "Multiple elements were found that accept 1 argument(s).\n"
+            "Found multiple elements named `setValue` that accept 1 argument(s).\n"
             "Provided argument types: (Decimal)\n"
             "Provided keyword argument types: {}\n\n"
             "Tried to find a matching ABI element named `setValue`, but encountered "
             "the following problems:\n"
-            "setValue(fixed8x1)\n"
-            "Argument 1 value `0` is encodable as type `fixed8x1`.\n"
-            "setValue(ufixed256x80)\n"
-            "Argument 1 value `0` is encodable as type `ufixed256x80`.\n",
+            "Signature: setValue(fixed8x1), type: function\n"
+            "Argument 1 value `0` is valid.\n"
+            "Signature: setValue(ufixed256x80), type: function\n"
+            "Argument 1 value `0` is valid.\n"
+            "Signature: setValue(uint256,(uint256,uint256)), type: function\n"
+            "Expected 2 argument(s) but received 1 argument(s).\n",
         ),
         (
             CONTRACT_ABI,
@@ -602,18 +604,18 @@ def test_get_abi_element(
             MismatchedABI,
             "\nABI Not Found!\n"
             "Found 1 element(s) named `setValue` that accept 2 argument(s).\n"
-            "The provided arguments do not match the expected types.\n"
+            "The provided arguments are not valid.\n"
             "Provided argument types: (int,int,str)\n"
             "Provided keyword argument types: {}\n\n"
             "Tried to find a matching ABI element named `setValue`, but encountered "
             "the following problems:\n"
-            "setValue(fixed8x1)\n"
-            "Function `setValue` expects 1 argument(s) but received 2 argument(s).\n"
-            "setValue(ufixed256x80)\n"
-            "Function `setValue` expects 1 argument(s) but received 2 argument(s).\n"
-            "setValue(uint256,(uint256,uint256))\n"
-            "Argument 1 value `1` is encodable as type `uint256`.\n"
-            "Error! Could not encode argument 2 value `(1, 'foo')` as `(uint256,uint256)`.\n",  # noqa: E501
+            "Signature: setValue(uint256,(uint256,uint256)), type: function\n"
+            "Argument 1 value `1` is valid.\n"
+            "Argument 2 value `(1, 'foo')` is not compatible with type `(uint256,uint256)`.\n"  # noqa: E501
+            "Signature: setValue(fixed8x1), type: function\n"
+            "Expected 1 argument(s) but received 2 argument(s).\n"
+            "Signature: setValue(ufixed256x80), type: function\n"
+            "Expected 1 argument(s) but received 2 argument(s).\n",
         ),
         (
             CONTRACT_ABI_AMBIGUOUS_EVENT,
@@ -622,16 +624,17 @@ def test_get_abi_element(
             {},
             MismatchedABI,
             "\nABI Not Found!\n"
-            "Multiple elements were found that accept 0 argument(s).\n"
+            "Found multiple elements named `LogSingleArg` that accept 0 argument(s).\n"
             "Provided argument types: ()\n"
             "Provided keyword argument types: {}\n\n"
             "Tried to find a matching ABI element named `LogSingleArg`, but "
             "encountered the following problems:\n"
-            "LogSingleArg(uint256)\n"
-            "Function `LogSingleArg` expects 1 argument(s) but received 0 argument(s).\n"  # noqa: E501
-            "LogSingleArg()\n"
             "The provided identifier matches multiple elements.\n"
-            "If you meant to call `LogSingleArg()`, please specify the full signature.\n",  # noqa: E501
+            "If you meant to call `LogSingleArg()`, please specify the full "
+            "signature.\n"
+            " - signature: LogSingleArg(), type: event\n"
+            "Signature: LogSingleArg(uint256), type: event\n"
+            "Expected 1 argument(s) but received 0 argument(s).\n",
         ),
         (
             CONTRACT_ABI_AMBIGUOUS_EVENT,
@@ -639,7 +642,7 @@ def test_get_abi_element(
             [],
             {},
             MismatchedABI,
-            "No declaration found for `noFunc` with 0 argument(s).\n",
+            "No element named `noFunc` with 0 argument(s).\n",
         ),
         (
             CONTRACT_ABI_AMBIGUOUS_EVENT,
@@ -647,7 +650,7 @@ def test_get_abi_element(
             [],
             {},
             MismatchedABI,
-            "No declaration found for `noFunc(uint256)` with 0 argument(s).\n",
+            "No element named `noFunc` with 0 argument(s).\n",
         ),
         (
             [

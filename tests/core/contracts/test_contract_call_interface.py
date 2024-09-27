@@ -606,7 +606,16 @@ def test_no_functions_match_identifier(arrays_contract):
 def test_function_1_match_identifier_wrong_number_of_args(arrays_contract):
     with pytest.raises(
         MismatchedABI,
-        match="\nABI Not Found!\nNo declaration found for `setBytes32Value\\(\\)` with 0 argument\\(s\\).\nProvided argument types: \\(\\)\nProvided keyword argument types: \\{\\}\n\nTried to find a matching ABI element named `setBytes32Value`, but encountered the following problems:\nsetBytes32Value\\(bytes32\\[\\]\\)\nFunction `setBytes32Value` expects 1 argument\\(s\\) but received 0 argument\\(s\\).\n",  # noqa: E501
+        match=re.escape(
+            "\nABI Not Found!\n"
+            "No element named `setBytes32Value` with 0 argument(s).\n"
+            "Provided argument types: ()\n"
+            "Provided keyword argument types: {}\n\n"
+            "Tried to find a matching ABI element named `setBytes32Value`, but "
+            "encountered the following problems:\n"
+            "Signature: setBytes32Value(bytes32[]), type: function\n"
+            "Expected 1 argument(s) but received 0 argument(s).\n"
+        ),
     ):
         arrays_contract.functions.setBytes32Value().call()
 
@@ -614,7 +623,17 @@ def test_function_1_match_identifier_wrong_number_of_args(arrays_contract):
 def test_function_1_match_identifier_wrong_args_encoding(arrays_contract):
     with pytest.raises(
         MismatchedABI,
-        match="\nABI Not Found!\nFound 1 element\\(s\\) named `setBytes32Value` that accept 1 argument\\(s\\).\nThe provided arguments do not match the expected types.\nProvided argument types: \\(str\\)\nProvided keyword argument types: \\{\\}\n\nTried to find a matching ABI element named `setBytes32Value`, but encountered the following problems:\nsetBytes32Value\\(bytes32\\[\\]\\)\nError! Could not encode argument 1 value `dog` as `bytes32\\[\\]`.\n",  # noqa: E501
+        match=re.escape(
+            "\nABI Not Found!\n"
+            "Found 1 element(s) named `setBytes32Value` that accept 1 argument(s).\n"
+            "The provided arguments are not valid.\n"
+            "Provided argument types: (str)\n"
+            "Provided keyword argument types: {}\n\n"
+            "Tried to find a matching ABI element named `setBytes32Value`, but "
+            "encountered the following problems:\n"
+            "Signature: setBytes32Value(bytes32[]), type: function\n"
+            "Argument 1 value `dog` is not compatible with type `bytes32[]`.\n"
+        ),
     ):
         arrays_contract.functions.setBytes32Value("dog").call()
 
@@ -625,17 +644,68 @@ def test_function_1_match_identifier_wrong_args_encoding(arrays_contract):
         (
             100,
             "dog",
-            "\nABI Not Found!\nNo declaration found for `a` with 2 argument(s).\nProvided argument types: (int,str)\nProvided keyword argument types: {}\n\nTried to find a matching ABI element named `a`, but encountered the following problems:\na()\nFunction `a` expects 0 argument(s) but received 2 argument(s).\na(bytes32)\nFunction `a` expects 1 argument(s) but received 2 argument(s).\na(uint256)\nFunction `a` expects 1 argument(s) but received 2 argument(s).\na(uint8)\nFunction `a` expects 1 argument(s) but received 2 argument(s).\na(int8)\nFunction `a` expects 1 argument(s) but received 2 argument(s).\n",  # noqa: E501
+            (
+                "\nABI Not Found!\n"
+                "No element named `a` with 2 argument(s).\n"
+                "Provided argument types: (int,str)\n"
+                "Provided keyword argument types: {}\n\n"
+                "Tried to find a matching ABI element named `a`, but encountered the "
+                "following problems:\n"
+                "Signature: a(), type: function\n"
+                "Expected 0 argument(s) but received 2 argument(s).\n"
+                "Signature: a(bytes32), type: function\n"
+                "Expected 1 argument(s) but received 2 argument(s).\n"
+                "Signature: a(uint256), type: function\n"
+                "Expected 1 argument(s) but received 2 argument(s).\n"
+                "Signature: a(uint8), type: function\n"
+                "Expected 1 argument(s) but received 2 argument(s).\n"
+                "Signature: a(int8), type: function\n"
+                "Expected 1 argument(s) but received 2 argument(s).\n"
+            ),
         ),
         (
             "dog",
             None,
-            "\nABI Not Found!\nMultiple elements were found that accept 1 argument(s).\nProvided argument types: (str)\nProvided keyword argument types: {}\n\nTried to find a matching ABI element named `a`, but encountered the following problems:\na()\nFunction `a` expects 0 argument(s) but received 1 argument(s).\na(bytes32)\nError! Could not encode argument 1 value `dog` as `bytes32`.\na(uint256)\nError! Could not encode argument 1 value `dog` as `uint256`.\na(uint8)\nError! Could not encode argument 1 value `dog` as `uint8`.\na(int8)\nError! Could not encode argument 1 value `dog` as `int8`.\n",  # noqa: E501
+            (
+                "\nABI Not Found!\n"
+                "Found multiple elements named `a` that accept 1 argument(s).\n"
+                "Provided argument types: (str)\n"
+                "Provided keyword argument types: {}\n\n"
+                "Tried to find a matching ABI element named `a`, but encountered the "
+                "following problems:\n"
+                "Signature: a(bytes32), type: function\n"
+                "Argument 1 value `dog` is not compatible with type `bytes32`.\n"
+                "Signature: a(uint256), type: function\n"
+                "Argument 1 value `dog` is not compatible with type `uint256`.\n"
+                "Signature: a(uint8), type: function\n"
+                "Argument 1 value `dog` is not compatible with type `uint8`.\n"
+                "Signature: a(int8), type: function\n"
+                "Argument 1 value `dog` is not compatible with type `int8`.\n"
+                "Signature: a(), type: function\n"
+                "Expected 0 argument(s) but received 1 argument(s).\n"
+            ),
         ),
         (
             100,
             None,
-            "\nABI Not Found!\nMultiple elements were found that accept 1 argument(s).\nProvided argument types: (int)\nProvided keyword argument types: {}\n\nTried to find a matching ABI element named `a`, but encountered the following problems:\na()\nFunction `a` expects 0 argument(s) but received 1 argument(s).\na(bytes32)\nError! Could not encode argument 1 value `100` as `bytes32`.\na(uint256)\nArgument 1 value `100` is encodable as type `uint256`.\na(uint8)\nArgument 1 value `100` is encodable as type `uint8`.\na(int8)\nArgument 1 value `100` is encodable as type `int8`.\n",  # noqa: E501
+            (
+                "\nABI Not Found!\n"
+                "Found multiple elements named `a` that accept 1 argument(s).\n"
+                "Provided argument types: (int)\n"
+                "Provided keyword argument types: {}\n\n"
+                "Tried to find a matching ABI element named `a`, but encountered the "
+                "following problems:\n"
+                "Signature: a(bytes32), type: function\n"
+                "Argument 1 value `100` is not compatible with type `bytes32`.\n"
+                "Signature: a(uint256), type: function\n"
+                "Argument 1 value `100` is valid.\n"
+                "Signature: a(uint8), type: function\n"
+                "Argument 1 value `100` is valid.\n"
+                "Signature: a(int8), type: function\n"
+                "Argument 1 value `100` is valid.\n"
+                "Signature: a(), type: function\n"
+                "Expected 0 argument(s) but received 1 argument(s).\n"
+            ),
         ),
     ),
 )
@@ -673,7 +743,7 @@ def test_function_wrong_args_for_tuple_collapses_args_in_message(
     # assert the found method signature is formatted as expected:
     # 'method((uint256,uint256[],(int256,bool[2],address[])[]))'
     e.match(
-        "method\\(\\(uint256,uint256\\[\\],\\(int256,bool\\[2\\],address\\[\\]\\)\\[\\]\\)\\)\n"  # noqa: E501
+        "\\(\\(uint256,uint256\\[\\],\\(int256,bool\\[2\\],address\\[\\]\\)\\[\\]\\)\\)"  # noqa: E501
     )
 
 
@@ -701,7 +771,7 @@ def test_function_wrong_args_for_tuple_collapses_kwargs_in_message(
     # assert the found method signature is formatted as expected:
     # ['method((uint256,uint256[],(int256,bool[2],address[])[]))']
     e.match(
-        "method\\(\\(uint256,uint256\\[\\],\\(int256,bool\\[2\\],address\\[\\]\\)\\[\\]\\)\\)\n"  # noqa: E501
+        "\\(\\(uint256,uint256\\[\\],\\(int256,bool\\[2\\],address\\[\\]\\)\\[\\]\\)\\)"  # noqa: E501
     )
 
 
@@ -770,61 +840,61 @@ DEFAULT_DECIMALS = getcontext().prec
         (
             "reflect_short_u",
             Decimal("25.6"),
-            "Could not encode argument 1 value `25.6` as `ufixed8x1`",
+            "Argument 1 value `25.6` is not compatible with type `ufixed8x1`.",
         ),
         (
             "reflect_short_u",
             Decimal("-.1"),
-            "Could not encode argument 1 value `-0.1` as `ufixed8x1`",
+            "Argument 1 value `-0.1` is not compatible with type `ufixed8x1`.",
         ),
         # too many digits for *x1, too large for 256x80
         (
             "reflect(ufixed256x80)",
             Decimal("0.01"),
-            "Could not encode argument 1 value `0.01` as `ufixed256x80`",
+            "Argument 1 value `0.01` is not compatible with type `ufixed256x80`.",
         ),
         # too many digits
         (
             "reflect_short_u",
             Decimal("0.01"),
-            "Could not encode argument 1 value `0.01` as `ufixed8x1`",
+            "Argument 1 value `0.01` is not compatible with type `ufixed8x1`.",
         ),
         (
             "reflect_short_u",
             Decimal(f"1e-{DEFAULT_DECIMALS + 1}"),
-            "Could not encode argument 1 value `1E-29` as `ufixed8x1`",
+            "Argument 1 value `1E-29` is not compatible with type `ufixed8x1`.",
         ),
         (
             "reflect_short_u",
             Decimal("25.4" + "9" * DEFAULT_DECIMALS),
-            "Could not encode argument 1 value `25.49999999999999999999999999999` as `ufixed8x1`",  # noqa: E501
+            "Argument 1 value `25.49999999999999999999999999999` is not compatible with type `ufixed8x1`.",  # noqa: E501
         ),
         (
             "reflect(ufixed256x80)",
             Decimal(1) / 10**81,
-            "Could not encode argument 1 value `1E-81` as `ufixed256x80`",
+            "Argument 1 value `1E-81` is not compatible with type `ufixed256x80`.",
         ),
         # floats not accepted, for floating point error concerns
         (
             "reflect_short_u",
             0.1,
-            "Could not encode argument 1 value `0.1` as `ufixed8x1`",
+            "Argument 1 value `0.1` is not compatible with type `ufixed8x1`.",
         ),
         # ambiguous
         (
             "reflect(ufixed256x80)",
             Decimal("12.7"),
-            r"Multiple elements were found that accept 1 argument\(s\).",
+            r"Found multiple elements named `reflect` that accept 1 argument\(s\).",
         ),
         (
             "reflect(ufixed256x80)",
             Decimal(0),
-            r"Multiple elements were found that accept 1 argument\(s\).",
+            r"Found multiple elements named `reflect` that accept 1 argument\(s\).",
         ),
         (
             "reflect(ufixed256x80)",
             0,
-            r"Multiple elements were found that accept 1 argument\(s\).",
+            r"Found multiple elements named `reflect` that accept 1 argument\(s\).",
         ),
     ),
 )
@@ -1830,7 +1900,13 @@ async def test_async_function_1_match_identifier_wrong_number_of_args(
     with pytest.raises(
         MismatchedABI,
         match=re.escape(
-            "No declaration found for `setBytes32Value()` with 0 argument(s).\nProvided argument types: ()\nProvided keyword argument types: {}\n\nTried to find a matching ABI element named `setBytes32Value`, but encountered the following problems:\nsetBytes32Value(bytes32[])\nFunction `setBytes32Value` expects 1 argument(s) but received 0 argument(s).\n"  # noqa: E501
+            "No element named `setBytes32Value` with 0 argument(s).\n"
+            "Provided argument types: ()\n"
+            "Provided keyword argument types: {}\n\n"
+            "Tried to find a matching ABI element named `setBytes32Value`, but "
+            "encountered the following problems:\n"
+            "Signature: setBytes32Value(bytes32[]), type: function\n"
+            "Expected 1 argument(s) but received 0 argument(s).\n"
         ),
     ):
         await async_arrays_contract.functions.setBytes32Value().call()
@@ -1843,7 +1919,15 @@ async def test_async_function_1_match_identifier_wrong_args_encoding(
     with pytest.raises(
         MismatchedABI,
         match=re.escape(
-            "\nABI Not Found!\nFound 1 element(s) named `setBytes32Value` that accept 1 argument(s).\nThe provided arguments do not match the expected types.\nProvided argument types: (str)\nProvided keyword argument types: {}\n\nTried to find a matching ABI element named `setBytes32Value`, but encountered the following problems:\nsetBytes32Value(bytes32[])\nError! Could not encode argument 1 value `dog` as `bytes32[]`.\n"  # noqa: E501
+            "\nABI Not Found!\n"
+            "Found 1 element(s) named `setBytes32Value` that accept 1 argument(s).\n"
+            "The provided arguments are not valid.\n"
+            "Provided argument types: (str)\n"
+            "Provided keyword argument types: {}\n\n"
+            "Tried to find a matching ABI element named `setBytes32Value`, but "
+            "encountered the following problems:\n"
+            "Signature: setBytes32Value(bytes32[]), type: function\n"
+            "Argument 1 value `dog` is not compatible with type `bytes32[]`.\n"
         ),
     ):
         await async_arrays_contract.functions.setBytes32Value("dog").call()
@@ -1853,16 +1937,16 @@ async def test_async_function_1_match_identifier_wrong_args_encoding(
 @pytest.mark.parametrize(
     "arg1,arg2,message",
     (
-        (100, "dog", "No declaration found for `a` with 2 argument(s)."),
+        (100, "dog", "No element named `a` with 2 argument(s)."),
         (
             "dog",
             None,
-            "Multiple elements were found that accept 1 argument(s).",
+            "Found multiple elements named `a` that accept 1 argument(s).",
         ),
         (
             100,
             None,
-            "Multiple elements were found that accept 1 argument(s).",
+            "Found multiple elements named `a` that accept 1 argument(s).",
         ),
     ),
 )
@@ -1945,9 +2029,9 @@ async def test_async_reflect_fixed_value(
 
 DEFAULT_DECIMALS = getcontext().prec
 
-NO_MATCHING_ARGUMENTS = "The provided arguments do not match the expected types.\n"
+NO_MATCHING_ARGUMENTS = "The provided arguments are not valid.\n"
 MULTIPLE_MATCHING_ELEMENTS = (
-    r"Multiple elements were found that accept 1 argument\(s\).\n"
+    r"Found multiple elements named `.*` that accept 1 argument\(s\).\n"
 )
 
 
