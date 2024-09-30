@@ -423,7 +423,7 @@ def normalize_name_ensip15(name: str) -> ENSNormalizedName:
     :raises InvalidName: if ``name`` has invalid syntax
     """
     if not name:
-        raise InvalidName("Name cannot be empty")
+        return ENSNormalizedName([])
     elif isinstance(name, (bytes, bytearray)):
         name = name.decode("utf-8")
 
@@ -455,6 +455,8 @@ def normalize_name_ensip15(name: str) -> ENSNormalizedName:
                 elif 65039 in current_emoji_sequence:
                     current_emoji_sequence.remove(65039)
                     _input.remove(65039)
+                    if len(_input) == 0:
+                        raise InvalidName("Empty name after removing 65039 (0xFE0F)")
                     end_index -= 1  # reset end_index after removing 0xFE0F
 
                 if current_emoji_sequence in NORMALIZATION_SPEC["emoji"]:
