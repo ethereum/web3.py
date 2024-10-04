@@ -1,0 +1,1 @@
+Use `aiohttp.ClientTimeout` for the `request_timeout` in both `Beacon` and `AsyncBeacon` classes.
