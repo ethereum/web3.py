@@ -5,9 +5,6 @@ from typing import (
     Optional,
 )
 
-from aiohttp import (
-    ClientTimeout,
-)
 from eth_typing import (
     URI,
     HexStr,
@@ -65,7 +62,7 @@ class Beacon:
         request_timeout: float = 10.0,
     ) -> None:
         self.base_url = base_url
-        self.request_timeout = ClientTimeout(request_timeout)
+        self.request_timeout = request_timeout
         self._request_session_manager = HTTPSessionManager()
 
     def _make_get_request(
