@@ -79,7 +79,9 @@ from web3.contract.utils import (
     async_call_contract_function,
     async_estimate_gas_for_function,
     async_transact_with_contract_function,
+    find_events_by_identifier,
     find_functions_by_identifier,
+    get_event_by_identifier,
     get_function_by_identifier,
 )
 from web3.exceptions import (
@@ -238,6 +240,12 @@ class AsyncContractEvent(BaseContractEvent):
         )
         builder.address = self.address
         return builder
+
+    @classmethod
+    def factory(cls, class_name: str, **kwargs: Any) -> Self:
+        return PropertyCheckingFactory(class_name, (cls,), kwargs)(
+            abi=kwargs.get("abi")
+        )
 
 
 class AsyncContractEvents(BaseContractEvents):
@@ -555,6 +563,27 @@ class AsyncContract(BaseContract):
         cls, fns: Sequence["AsyncContractFunction"], identifier: str
     ) -> "AsyncContractFunction":
         return get_function_by_identifier(fns, identifier)
+
+    @combomethod
+    def find_events_by_identifier(
+        cls,
+        contract_abi: ABI,
+        w3: "AsyncWeb3",
+        address: ChecksumAddress,
+        callable_check: Callable[..., Any],
+    ) -> List["AsyncContractEvent"]:
+        return cast(
+            List["AsyncContractEvent"],
+            find_events_by_identifier(
+                contract_abi, w3, address, callable_check, AsyncContractEvent
+            ),
+        )
+
+    @combomethod
+    def get_event_by_identifier(
+        cls, events: Sequence["AsyncContractEvent"], identifier: str
+    ) -> "AsyncContractEvent":
+        return get_event_by_identifier(events, identifier)
 
 
 class AsyncContractCaller(BaseContractCaller):
