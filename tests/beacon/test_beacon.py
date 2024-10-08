@@ -41,6 +41,11 @@ def test_beacon_user_defined_request_timeout():
         beacon.get_validators()
 
 
+def test_beacon_request_timeout_type():
+    beacon = Beacon(base_url=BASE_URL, request_timeout=0.001)
+    assert isinstance(beacon.request_timeout, float)
+
+
 # Beacon endpoint tests:
 
 

@@ -3,6 +3,9 @@ from random import (
     randint,
 )
 
+from aiohttp import (
+    ClientTimeout,
+)
 from aiohttp.client_exceptions import (
     InvalidURL,
 )
@@ -50,6 +53,12 @@ async def test_async_beacon_user_request_timeout():
     beacon = AsyncBeacon(base_url=BASE_URL, request_timeout=0.001)
     with pytest.raises(TimeoutError):
         await beacon.get_validators()
+
+
+@pytest.mark.asyncio
+async def test_async_beacon_request_timeout_type():
+    beacon = AsyncBeacon(base_url=BASE_URL)
+    assert isinstance(beacon.request_timeout, ClientTimeout)
 
 
 # Beacon endpoint tests:
