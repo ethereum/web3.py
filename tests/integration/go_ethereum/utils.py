@@ -9,15 +9,16 @@ import requests
 
 def wait_for_socket(ipc_path, timeout=30):
     start = time.time()
+    sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
     while time.time() < start + timeout:
         try:
-            sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
             sock.connect(ipc_path)
             sock.settimeout(timeout)
         except OSError:
             time.sleep(0.01)
         else:
             break
+    sock.close()
 
 
 async def wait_for_async_socket(ipc_path, timeout=30):
