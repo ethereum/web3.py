@@ -16,6 +16,9 @@ from typing import (
     Union,
 )
 
+from eth_typing import (
+    ChainId,
+)
 from eth_utils import (
     is_boolean,
     is_bytes,
@@ -34,18 +37,24 @@ from web3._utils.caching import (
 from web3._utils.caching.request_caching_validation import (
     UNCACHEABLE_BLOCK_IDS,
     always_cache_request,
-    async_validate_blockhash_in_params,
-    async_validate_blocknum_in_params,
-    async_validate_blocknum_in_result,
-    validate_blockhash_in_params,
-    validate_blocknum_in_params,
-    validate_blocknum_in_result,
+    async_validate_from_block_id_in_params,
+    async_validate_from_blockhash_in_params,
+    async_validate_from_blocknum_in_result,
+    validate_from_block_id_in_params,
+    validate_from_blockhash_in_params,
+    validate_from_blocknum_in_result,
+)
+from web3._utils.empty import (
+    empty,
 )
 from web3._utils.rpc_abi import (
     RPC,
 )
 from web3.exceptions import (
     Web3TypeError,
+)
+from web3.utils import (
+    RequestCacheValidationThreshold,
 )
 
 if TYPE_CHECKING:
@@ -100,6 +109,28 @@ class RequestInformation:
         self.middleware_response_processors: List[Callable[..., Any]] = []
 
 
+DEFAULT_VALIDATION_THRESHOLD = 60 * 60  # 1 hour
+
+CHAIN_VALIDATION_THRESHOLD_DEFAULTS: Dict[
+    int, Union[RequestCacheValidationThreshold, int]
+] = {
+    # Suggested safe values as defaults for each chain. Users can configure a different
+    # value if desired.
+    ChainId.ETH.value: RequestCacheValidationThreshold.FINALIZED,
+    ChainId.ARB1.value: 7 * 24 * 60 * 60,  # 7 days
+    ChainId.ZKSYNC.value: 60 * 60,  # 1 hour
+    ChainId.OETH.value: 3 * 60,  # 3 minutes
+    ChainId.MATIC.value: 30 * 60,  # 30 minutes
+    ChainId.ZKEVM.value: 60 * 60,  # 1 hour
+    ChainId.BASE.value: 7 * 24 * 60 * 60,  # 7 days
+    ChainId.SCR.value: 60 * 60,  # 1 hour
+    ChainId.GNO.value: 5 * 60,  # 5 minutes
+    ChainId.AVAX.value: 2 * 60,  # 2 minutes
+    ChainId.BNB.value: 2 * 60,  # 2 minutes
+    ChainId.FTM.value: 60,  # 1 minute
+}
+
+
 def is_cacheable_request(
     provider: Union[ASYNC_PROVIDER_TYPE, SYNC_PROVIDER_TYPE],
     method: "RPCEndpoint",
@@ -128,7 +159,7 @@ BLOCKNUM_IN_PARAMS = {
     RPC.eth_getUncleByBlockNumberAndIndex,
     RPC.eth_getUncleCountByBlockNumber,
 }
-BLOCKNUM_IN_RESULT = {
+BLOCK_IN_RESULT = {
     RPC.eth_getBlockByHash,
     RPC.eth_getTransactionByHash,
     RPC.eth_getTransactionByBlockNumberAndIndex,
@@ -142,14 +173,58 @@ BLOCKHASH_IN_PARAMS = {
 }
 
 INTERNAL_VALIDATION_MAP: Dict[
-    "RPCEndpoint", Callable[[SYNC_PROVIDER_TYPE, Sequence[Any], Dict[str, Any]], bool]
+    "RPCEndpoint",
+    Callable[
+        [SYNC_PROVIDER_TYPE, Sequence[Any], Dict[str, Any]],
+        bool,
+    ],
 ] = {
     **{endpoint: always_cache_request for endpoint in ALWAYS_CACHE},
-    **{endpoint: validate_blocknum_in_params for endpoint in BLOCKNUM_IN_PARAMS},
-    **{endpoint: validate_blocknum_in_result for endpoint in BLOCKNUM_IN_RESULT},
-    **{endpoint: validate_blockhash_in_params for endpoint in BLOCKHASH_IN_PARAMS},
+    **{endpoint: validate_from_block_id_in_params for endpoint in BLOCKNUM_IN_PARAMS},
+    **{endpoint: validate_from_blocknum_in_result for endpoint in BLOCK_IN_RESULT},
+    **{endpoint: validate_from_blockhash_in_params for endpoint in BLOCKHASH_IN_PARAMS},
 }
 CACHEABLE_REQUESTS = tuple(INTERNAL_VALIDATION_MAP.keys())
+
+
+def set_threshold_if_empty(provider: SYNC_PROVIDER_TYPE) -> None:
+    current_threshold = provider.request_cache_validation_threshold
+
+    if current_threshold is empty or isinstance(
+        current_threshold, RequestCacheValidationThreshold
+    ):
+        try:
+            # turn off momentarily to avoid recursion
+            provider.cache_allowed_requests = False
+            chain_id_result = provider.make_request("eth_chainId", [])["result"]
+            chain_id = int(chain_id_result, 16)
+
+            if (
+                isinstance(
+                    current_threshold,
+                    RequestCacheValidationThreshold,
+                )
+                and chain_id != 1
+            ):
+                provider.logger.debug(
+                    "Request cache validation threshold is set to "
+                    f"{current_threshold.value} "
+                    f"for chain with chain_id `{chain_id}` but this value only works "
+                    "on chain_id `1`. Setting to default value for chain_id "
+                    f"`{chain_id}`.",
+                )
+                provider.request_cache_validation_threshold = empty
+
+            if current_threshold is empty:
+                provider.request_cache_validation_threshold = (
+                    CHAIN_VALIDATION_THRESHOLD_DEFAULTS.get(
+                        chain_id, DEFAULT_VALIDATION_THRESHOLD
+                    )
+                )
+        except Exception:
+            provider.request_cache_validation_threshold = DEFAULT_VALIDATION_THRESHOLD
+        finally:
+            provider.cache_allowed_requests = True
 
 
 def _should_cache_response(
@@ -161,6 +236,8 @@ def _should_cache_response(
     result = response.get("result", None)
     if "error" in response or is_null(result):
         return False
+
+    set_threshold_if_empty(provider)
     if (
         method in INTERNAL_VALIDATION_MAP
         and provider.request_cache_validation_threshold is not None
@@ -206,12 +283,58 @@ ASYNC_VALIDATOR_TYPE = Callable[
 
 ASYNC_INTERNAL_VALIDATION_MAP: Dict["RPCEndpoint", ASYNC_VALIDATOR_TYPE] = {
     **{endpoint: always_cache_request for endpoint in ALWAYS_CACHE},
-    **{endpoint: async_validate_blocknum_in_params for endpoint in BLOCKNUM_IN_PARAMS},
-    **{endpoint: async_validate_blocknum_in_result for endpoint in BLOCKNUM_IN_RESULT},
     **{
-        endpoint: async_validate_blockhash_in_params for endpoint in BLOCKHASH_IN_PARAMS
+        endpoint: async_validate_from_block_id_in_params
+        for endpoint in BLOCKNUM_IN_PARAMS
+    },
+    **{
+        endpoint: async_validate_from_blocknum_in_result for endpoint in BLOCK_IN_RESULT
+    },
+    **{
+        endpoint: async_validate_from_blockhash_in_params
+        for endpoint in BLOCKHASH_IN_PARAMS
     },
 }
+
+
+async def async_set_threshold_if_empty(provider: ASYNC_PROVIDER_TYPE) -> None:
+    current_threshold = provider.request_cache_validation_threshold
+
+    if current_threshold is empty or isinstance(
+        current_threshold, RequestCacheValidationThreshold
+    ):
+        try:
+            # turn off momentarily to avoid recursion
+            provider.cache_allowed_requests = False
+            chain_id_result = await provider.make_request("eth_chainId", [])
+            chain_id = int(chain_id_result["result"], 16)
+
+            if (
+                isinstance(
+                    current_threshold,
+                    RequestCacheValidationThreshold,
+                )
+                and chain_id != 1
+            ):
+                provider.logger.debug(
+                    "Request cache validation threshold is set to "
+                    f"{current_threshold.value} "
+                    f"for chain with chain_id `{chain_id}` but this value only works "
+                    "on chain_id `1`. Setting to default value for chain_id "
+                    f"`{chain_id}`.",
+                )
+                provider.request_cache_validation_threshold = empty
+
+            if current_threshold is empty:
+                provider.request_cache_validation_threshold = (
+                    CHAIN_VALIDATION_THRESHOLD_DEFAULTS.get(
+                        chain_id, DEFAULT_VALIDATION_THRESHOLD
+                    )
+                )
+        except Exception:
+            provider.request_cache_validation_threshold = DEFAULT_VALIDATION_THRESHOLD
+        finally:
+            provider.cache_allowed_requests = True
 
 
 async def _async_should_cache_response(
@@ -223,6 +346,8 @@ async def _async_should_cache_response(
     result = response.get("result", None)
     if "error" in response or is_null(result):
         return False
+
+    await async_set_threshold_if_empty(provider)
     if (
         method in ASYNC_INTERNAL_VALIDATION_MAP
         and provider.request_cache_validation_threshold is not None

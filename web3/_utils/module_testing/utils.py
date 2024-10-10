@@ -35,6 +35,14 @@ class RequestMocker:
     Context manager to mock requests made by a web3 instance. This is meant to be used
     via a ``request_mocker`` fixture defined within the appropriate context.
 
+    ************************************************************************************
+    Important: When mocking results, it's important to keep in mind the types that
+        clients return. For example, what we commonly translate to integers are returned
+        as hex strings in the RPC response and should be mocked as such for more
+        accurate testing.
+    ************************************************************************************
+
+
     Example:
     -------
 
