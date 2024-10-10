@@ -515,6 +515,22 @@ class PrestateTrace(TypedDict):
     pre: Dict[str, Dict[str, HexBytes]]
 
 
+class StructLog(TypedDict):
+    pc: int
+    op: str
+    gas: int
+    gasCost: int
+    depth: int
+    stack: List[HexStr]
+
+
+class OpcodeTrace(TypedDict):
+    gas: int
+    failed: bool
+    returnValue: str
+    structLogs: List[StructLog]
+
+
 #
 # web3.geth types
 #
