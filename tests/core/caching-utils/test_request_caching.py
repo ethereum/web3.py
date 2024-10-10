@@ -21,9 +21,11 @@ from web3._utils.caching import (
 )
 from web3._utils.caching.caching_utils import (
     ASYNC_INTERNAL_VALIDATION_MAP,
+    BLOCK_IN_RESULT,
     BLOCKHASH_IN_PARAMS,
     BLOCKNUM_IN_PARAMS,
-    BLOCKNUM_IN_RESULT,
+    CHAIN_VALIDATION_THRESHOLD_DEFAULTS,
+    DEFAULT_VALIDATION_THRESHOLD,
     INTERNAL_VALIDATION_MAP,
 )
 from web3.exceptions import (
@@ -64,6 +66,7 @@ def w3(request_mocker):
         mock_results={
             "fake_endpoint": lambda *_: uuid.uuid4(),
             "not_on_allowlist": lambda *_: uuid.uuid4(),
+            "eth_chainId": "0x1",  # mainnet
         },
     ):
         yield _w3
@@ -134,10 +137,10 @@ def test_caching_requests_does_not_share_state_between_providers(request_mocker)
     # strap w3_a_shared_cache with w3_a's cache
     w3_a_shared_cache.provider._request_cache = w3_a.provider._request_cache
 
-    mock_results_a = {RPCEndpoint("eth_chainId"): 11111}
-    mock_results_a_shared_cache = {RPCEndpoint("eth_chainId"): 00000}
-    mock_results_b = {RPCEndpoint("eth_chainId"): 22222}
-    mock_results_c = {RPCEndpoint("eth_chainId"): 33333}
+    mock_results_a = {RPCEndpoint("eth_chainId"): hex(11111)}
+    mock_results_a_shared_cache = {RPCEndpoint("eth_chainId"): hex(00000)}
+    mock_results_b = {RPCEndpoint("eth_chainId"): hex(22222)}
+    mock_results_c = {RPCEndpoint("eth_chainId"): hex(33333)}
 
     with request_mocker(w3_a, mock_results=mock_results_a):
         with request_mocker(w3_b, mock_results=mock_results_b):
@@ -154,10 +157,10 @@ def test_caching_requests_does_not_share_state_between_providers(request_mocker)
                 "eth_chainId", []
             )
 
-    assert result_a == 11111
-    assert result_b == 22222
-    assert result_c == 33333
-    assert result_a_shared_cache == 11111
+    assert result_a == hex(11111)
+    assert result_b == hex(22222)
+    assert result_c == hex(33333)
+    assert result_a_shared_cache == hex(11111)
 
 
 @pytest.mark.parametrize(
@@ -199,7 +202,7 @@ def test_all_providers_do_not_cache_by_default_and_can_set_caching_properties(pr
     "threshold",
     (RequestCacheValidationThreshold.FINALIZED, RequestCacheValidationThreshold.SAFE),
 )
-@pytest.mark.parametrize("endpoint", BLOCKNUM_IN_PARAMS | BLOCKNUM_IN_RESULT)
+@pytest.mark.parametrize("endpoint", BLOCKNUM_IN_PARAMS | BLOCK_IN_RESULT)
 @pytest.mark.parametrize(
     "blocknum,should_cache",
     (
@@ -211,11 +214,11 @@ def test_all_providers_do_not_cache_by_default_and_can_set_caching_properties(pr
         ("0x5", False),
     ),
 )
-def test_blocknum_validation_against_validation_threshold_when_caching(
+def test_blocknum_validation_against_validation_threshold_when_caching_mainnet(
     threshold, endpoint, blocknum, should_cache, request_mocker
 ):
     w3 = Web3(
-        HTTPProvider(
+        BaseProvider(
             cache_allowed_requests=True, request_cache_validation_threshold=threshold
         )
     )
@@ -224,7 +227,7 @@ def test_blocknum_validation_against_validation_threshold_when_caching(
         mock_results={
             endpoint: (
                 # mock the result to requests that return blocks
-                {"number": blocknum}
+                {"number": blocknum, "timestamp": "0x0"}
                 if "getBlock" in endpoint
                 # mock the result to requests that return transactions
                 else {"blockNumber": blocknum}
@@ -232,16 +235,17 @@ def test_blocknum_validation_against_validation_threshold_when_caching(
             "eth_getBlockByNumber": lambda _method, params: (
                 # mock the threshold block to be blocknum "0x2", return
                 # blocknum otherwise
-                {"number": "0x2"}
+                {"number": "0x2", "timestamp": "0x0"}
                 if params[0] == threshold.value
-                else {"number": params[0]}
+                else {"number": params[0], "timestamp": "0x0"}
             ),
+            "eth_chainId": "0x1",  # mainnet
         },
     ):
         assert len(w3.provider._request_cache.items()) == 0
         w3.manager.request_blocking(endpoint, [blocknum, False])
         cached_items = len(w3.provider._request_cache.items())
-        assert cached_items == 1 if should_cache else cached_items == 0
+        assert cached_items > 0 if should_cache else cached_items == 0
 
 
 @pytest.mark.parametrize(
@@ -260,30 +264,31 @@ def test_blocknum_validation_against_validation_threshold_when_caching(
         ("pending", None, False),
     ),
 )
-def test_block_id_param_caching(
+def test_block_id_param_caching_mainnet(
     threshold, endpoint, block_id, blocknum, should_cache, request_mocker
 ):
     w3 = Web3(
-        HTTPProvider(
+        BaseProvider(
             cache_allowed_requests=True, request_cache_validation_threshold=threshold
         )
     )
     with request_mocker(
         w3,
         mock_results={
+            "eth_chainId": "0x1",  # mainnet
             endpoint: "0x0",
             "eth_getBlockByNumber": lambda _method, params: (
                 # mock the threshold block to be blocknum "0x2" for all test cases
-                {"number": "0x2"}
+                {"number": "0x2", "timestamp": "0x0"}
                 if params[0] == threshold.value
-                else {"number": blocknum}
+                else {"number": blocknum, "timestamp": "0x0"}
             ),
         },
     ):
         assert len(w3.provider._request_cache.items()) == 0
         w3.manager.request_blocking(RPCEndpoint(endpoint), [block_id, False])
         cached_items = len(w3.provider._request_cache.items())
-        assert cached_items == 1 if should_cache else cached_items == 0
+        assert cached_items > 0 if should_cache else cached_items == 0
 
 
 @pytest.mark.parametrize(
@@ -302,24 +307,25 @@ def test_block_id_param_caching(
         ("0x5", False),
     ),
 )
-def test_blockhash_validation_against_validation_threshold_when_caching(
+def test_blockhash_validation_against_validation_threshold_when_caching_mainnet(
     threshold, endpoint, blocknum, should_cache, request_mocker
 ):
     w3 = Web3(
-        HTTPProvider(
+        BaseProvider(
             cache_allowed_requests=True, request_cache_validation_threshold=threshold
         )
     )
     with request_mocker(
         w3,
         mock_results={
+            "eth_chainId": "0x1",  # mainnet
             "eth_getBlockByNumber": lambda _method, params: (
                 # mock the threshold block to be blocknum "0x2"
-                {"number": "0x2"}
+                {"number": "0x2", "timestamp": "0x0"}
                 if params[0] == threshold.value
-                else {"number": params[0]}
+                else {"number": params[0], "timestamp": "0x0"}
             ),
-            "eth_getBlockByHash": {"number": blocknum},
+            "eth_getBlockByHash": {"number": blocknum, "timestamp": "0x0"},
             endpoint: "0x0",
         },
     ):
@@ -329,23 +335,37 @@ def test_blockhash_validation_against_validation_threshold_when_caching(
         assert cached_items == 2 if should_cache else cached_items == 0
 
 
-def test_request_caching_validation_threshold_is_finalized_by_default():
-    w3 = Web3(HTTPProvider(cache_allowed_requests=True))
-    assert (
-        w3.provider.request_cache_validation_threshold
-        == RequestCacheValidationThreshold.FINALIZED
-    )
+@pytest.mark.parametrize(
+    "chain_id,expected_threshold",
+    (
+        *CHAIN_VALIDATION_THRESHOLD_DEFAULTS.items(),
+        (3456787654567654, DEFAULT_VALIDATION_THRESHOLD),
+        (11111111111444444444444444, DEFAULT_VALIDATION_THRESHOLD),
+        (-11111111111111111117, DEFAULT_VALIDATION_THRESHOLD),
+    ),
+)
+def test_request_caching_validation_threshold_defaults(
+    chain_id, expected_threshold, request_mocker
+):
+    w3 = Web3(BaseProvider(cache_allowed_requests=True))
+    with request_mocker(w3, mock_results={"eth_chainId": hex(chain_id)}):
+        w3.manager.request_blocking(RPCEndpoint("eth_chainId"), [])
+        assert w3.provider.request_cache_validation_threshold == expected_threshold
+        # assert chain_id is cached
+        cache_items = w3.provider._request_cache.items()
+        assert len(cache_items) == 1
+        assert cache_items[0][1]["result"] == hex(chain_id)
 
 
 @pytest.mark.parametrize(
-    "endpoint", BLOCKNUM_IN_PARAMS | BLOCKNUM_IN_RESULT | BLOCKHASH_IN_PARAMS
+    "endpoint", BLOCKNUM_IN_PARAMS | BLOCK_IN_RESULT | BLOCKHASH_IN_PARAMS
 )
 @pytest.mark.parametrize("blocknum", ("0x0", "0x1", "0x2", "0x3", "0x4", "0x5"))
 def test_request_caching_with_validation_threshold_set_to_none(
     endpoint, blocknum, request_mocker
 ):
     w3 = Web3(
-        HTTPProvider(
+        BaseProvider(
             cache_allowed_requests=True,
             request_cache_validation_threshold=None,
         )
@@ -376,6 +396,7 @@ async def async_w3(request_mocker):
         mock_results={
             "fake_endpoint": lambda *_: uuid.uuid4(),
             "not_on_allowlist": lambda *_: uuid.uuid4(),
+            "eth_chainId": "0x1",  # mainnet
         },
     ):
         yield _async_w3
@@ -460,10 +481,10 @@ async def test_async_request_caching_does_not_share_state_between_providers(
     # strap async_w3_a_shared_cache with async_w3_a's cache
     async_w3_a_shared_cache.provider._request_cache = async_w3_a.provider._request_cache
 
-    mock_results_a = {RPCEndpoint("eth_chainId"): 11111}
-    mock_results_a_shared_cache = {RPCEndpoint("eth_chainId"): 00000}
-    mock_results_b = {RPCEndpoint("eth_chainId"): 22222}
-    mock_results_c = {RPCEndpoint("eth_chainId"): 33333}
+    mock_results_a = {RPCEndpoint("eth_chainId"): hex(11111)}
+    mock_results_a_shared_cache = {RPCEndpoint("eth_chainId"): hex(00000)}
+    mock_results_b = {RPCEndpoint("eth_chainId"): hex(22222)}
+    mock_results_c = {RPCEndpoint("eth_chainId"): hex(33333)}
 
     async with request_mocker(async_w3_a, mock_results=mock_results_a):
         async with request_mocker(async_w3_b, mock_results=mock_results_b):
@@ -480,10 +501,10 @@ async def test_async_request_caching_does_not_share_state_between_providers(
                 "eth_chainId", []
             )
 
-    assert result_a == 11111
-    assert result_b == 22222
-    assert result_c == 33333
-    assert result_a_shared_cache == 11111
+    assert result_a == hex(11111)
+    assert result_b == hex(22222)
+    assert result_c == hex(33333)
+    assert result_a_shared_cache == hex(11111)
 
 
 @pytest.mark.asyncio
@@ -491,7 +512,7 @@ async def test_async_request_caching_does_not_share_state_between_providers(
     "threshold",
     (RequestCacheValidationThreshold.FINALIZED, RequestCacheValidationThreshold.SAFE),
 )
-@pytest.mark.parametrize("endpoint", BLOCKNUM_IN_PARAMS | BLOCKNUM_IN_RESULT)
+@pytest.mark.parametrize("endpoint", BLOCKNUM_IN_PARAMS | BLOCK_IN_RESULT)
 @pytest.mark.parametrize(
     "blocknum,should_cache",
     (
@@ -503,11 +524,11 @@ async def test_async_request_caching_does_not_share_state_between_providers(
         ("0x5", False),
     ),
 )
-async def test_async_blocknum_validation_against_validation_threshold(
+async def test_async_blocknum_validation_against_validation_threshold_mainnet(
     threshold, endpoint, blocknum, should_cache, request_mocker
 ):
     async_w3 = AsyncWeb3(
-        AsyncHTTPProvider(
+        AsyncBaseProvider(
             cache_allowed_requests=True, request_cache_validation_threshold=threshold
         )
     )
@@ -516,7 +537,7 @@ async def test_async_blocknum_validation_against_validation_threshold(
         mock_results={
             endpoint: (
                 # mock the result to requests that return blocks
-                {"number": blocknum}
+                {"number": blocknum, "timestamp": "0x0"}
                 if "getBlock" in endpoint
                 # mock the result to requests that return transactions
                 else {"blockNumber": blocknum}
@@ -524,16 +545,17 @@ async def test_async_blocknum_validation_against_validation_threshold(
             "eth_getBlockByNumber": lambda _method, params: (
                 # mock the threshold block to be blocknum "0x2", return
                 # blocknum otherwise
-                {"number": "0x2"}
+                {"number": "0x2", "timestamp": "0x0"}
                 if params[0] == threshold.value
-                else {"number": params[0]}
+                else {"number": params[0], "timestamp": "0x0"}
             ),
+            "eth_chainId": "0x1",  # mainnet
         },
     ):
         assert len(async_w3.provider._request_cache.items()) == 0
         await async_w3.manager.coro_request(endpoint, [blocknum, False])
         cached_items = len(async_w3.provider._request_cache.items())
-        assert cached_items == 1 if should_cache else cached_items == 0
+        assert cached_items > 0 if should_cache else cached_items == 0
 
 
 @pytest.mark.asyncio
@@ -553,30 +575,31 @@ async def test_async_blocknum_validation_against_validation_threshold(
         ("pending", None, False),
     ),
 )
-async def test_async_block_id_param_caching(
+async def test_async_block_id_param_caching_mainnet(
     threshold, endpoint, block_id, blocknum, should_cache, request_mocker
 ):
     async_w3 = AsyncWeb3(
-        AsyncHTTPProvider(
+        AsyncBaseProvider(
             cache_allowed_requests=True, request_cache_validation_threshold=threshold
         )
     )
     async with request_mocker(
         async_w3,
         mock_results={
+            "eth_chainId": "0x1",  # mainnet
             endpoint: "0x0",
             "eth_getBlockByNumber": lambda _method, params: (
                 # mock the threshold block to be blocknum "0x2" for all test cases
-                {"number": "0x2"}
+                {"number": "0x2", "timestamp": "0x0"}
                 if params[0] == threshold.value
-                else {"number": blocknum}
+                else {"number": blocknum, "timestamp": "0x0"}
             ),
         },
     ):
         assert len(async_w3.provider._request_cache.items()) == 0
         await async_w3.manager.coro_request(RPCEndpoint(endpoint), [block_id, False])
         cached_items = len(async_w3.provider._request_cache.items())
-        assert cached_items == 1 if should_cache else cached_items == 0
+        assert cached_items > 0 if should_cache else cached_items == 0
 
 
 @pytest.mark.asyncio
@@ -596,24 +619,25 @@ async def test_async_block_id_param_caching(
         ("0x5", False),
     ),
 )
-async def test_async_blockhash_validation_against_validation_threshold(
+async def test_async_blockhash_validation_against_validation_threshold_mainnet(
     threshold, endpoint, blocknum, should_cache, request_mocker
 ):
     async_w3 = AsyncWeb3(
-        AsyncHTTPProvider(
+        AsyncBaseProvider(
             cache_allowed_requests=True, request_cache_validation_threshold=threshold
         )
     )
     async with request_mocker(
         async_w3,
         mock_results={
+            "eth_chainId": "0x1",  # mainnet
             "eth_getBlockByNumber": lambda _method, params: (
                 # mock the threshold block to be blocknum "0x2"
-                {"number": "0x2"}
+                {"number": "0x2", "timestamp": "0x0"}
                 if params[0] == threshold.value
-                else {"number": params[0]}
+                else {"number": params[0], "timestamp": "0x0"}
             ),
-            "eth_getBlockByHash": {"number": blocknum},
+            "eth_getBlockByHash": {"number": blocknum, "timestamp": "0x0"},
             endpoint: "0x0",
         },
     ):
@@ -624,24 +648,39 @@ async def test_async_blockhash_validation_against_validation_threshold(
 
 
 @pytest.mark.asyncio
-async def test_async_request_caching_validation_threshold_is_finalized_by_default():
-    async_w3 = AsyncWeb3(AsyncHTTPProvider(cache_allowed_requests=True))
-    assert (
-        async_w3.provider.request_cache_validation_threshold
-        == RequestCacheValidationThreshold.FINALIZED
-    )
+@pytest.mark.parametrize(
+    "chain_id,expected_threshold",
+    (
+        *CHAIN_VALIDATION_THRESHOLD_DEFAULTS.items(),
+        (3456787654567654, DEFAULT_VALIDATION_THRESHOLD),
+        (11111111111444444444444444, DEFAULT_VALIDATION_THRESHOLD),
+        (-11111111111111111117, DEFAULT_VALIDATION_THRESHOLD),
+    ),
+)
+async def test_async_request_caching_validation_threshold_defaults(
+    chain_id, expected_threshold, request_mocker
+):
+    async_w3 = AsyncWeb3(AsyncBaseProvider(cache_allowed_requests=True))
+    async with request_mocker(async_w3, mock_results={"eth_chainId": hex(chain_id)}):
+        await async_w3.manager.coro_request(RPCEndpoint("eth_chainId"), [])
+        assert (
+            async_w3.provider.request_cache_validation_threshold == expected_threshold
+        )
+        cache_items = async_w3.provider._request_cache.items()
+        assert len(cache_items) == 1
+        assert cache_items[0][1]["result"] == hex(chain_id)
 
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
-    "endpoint", BLOCKNUM_IN_PARAMS | BLOCKNUM_IN_RESULT | BLOCKHASH_IN_PARAMS
+    "endpoint", BLOCKNUM_IN_PARAMS | BLOCK_IN_RESULT | BLOCKHASH_IN_PARAMS
 )
 @pytest.mark.parametrize("blocknum", ("0x0", "0x1", "0x2", "0x3", "0x4", "0x5"))
 async def test_async_request_caching_with_validation_threshold_set_to_none(
     endpoint, blocknum, request_mocker
 ):
     async_w3 = AsyncWeb3(
-        AsyncHTTPProvider(
+        AsyncBaseProvider(
             cache_allowed_requests=True,
             request_cache_validation_threshold=None,
         )
