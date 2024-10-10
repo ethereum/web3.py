@@ -9,6 +9,7 @@ from typing import (
     Optional,
     Set,
     Tuple,
+    Union,
     cast,
 )
 
@@ -20,6 +21,10 @@ from eth_utils import (
 from web3._utils.caching import (
     CACHEABLE_REQUESTS,
     handle_request_caching,
+)
+from web3._utils.empty import (
+    Empty,
+    empty,
 )
 from web3._utils.encoding import (
     FriendlyJsonSerde,
@@ -71,8 +76,8 @@ class BaseProvider:
         cache_allowed_requests: bool = False,
         cacheable_requests: Set[RPCEndpoint] = None,
         request_cache_validation_threshold: Optional[
-            RequestCacheValidationThreshold
-        ] = RequestCacheValidationThreshold.FINALIZED,
+            Union[RequestCacheValidationThreshold, int, Empty]
+        ] = empty,
     ) -> None:
         self._request_cache = SimpleCache(1000)
         self.cache_allowed_requests = cache_allowed_requests
