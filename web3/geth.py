@@ -27,6 +27,7 @@ from web3.types import (
     CallTrace,
     EnodeURI,
     NodeInfo,
+    OpcodeTrace,
     Peer,
     PrestateTrace,
     TraceConfig,
@@ -145,18 +146,16 @@ class GethDebug(Module):
     """
 
     def trace_transaction_munger(
-        self, transaction_hash: _Hash32, trace_config: TraceConfig = None
+        self,
+        transaction_hash: _Hash32,
+        trace_config: Optional[TraceConfig] = None,
     ) -> Tuple[_Hash32, TraceConfig]:
-        if trace_config is None:
-            trace_config = {
-                "tracer": "callTracer",
-            }
         return (transaction_hash, trace_config)
 
     trace_transaction: Method[
         Callable[
             ...,
-            Union[CallTrace, PrestateTrace, Any],
+            Union[CallTrace, PrestateTrace, OpcodeTrace, Any],
         ]
     ] = Method(
         RPC.debug_traceTransaction,
@@ -307,11 +306,8 @@ class AsyncGethDebug(Module):
     async def trace_transaction(
         self,
         transaction_hash: _Hash32,
-        trace_config: TraceConfig = None,
-    ) -> Union[CallTrace, PrestateTrace, Any]:
-        if trace_config is None:
-            trace_config = {"tracer": "callTracer"}
-
+        trace_config: Optional[TraceConfig] = None,
+    ) -> Union[CallTrace, PrestateTrace, OpcodeTrace, Any]:
         return await self._trace_transaction(transaction_hash, trace_config)
 
 
