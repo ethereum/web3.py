@@ -44,6 +44,8 @@ def is_beyond_validation_threshold(
     try:
         threshold = provider.request_cache_validation_threshold
 
+        # turn off caching to prevent recursion
+        provider.cache_allowed_requests = False
         if isinstance(threshold, RequestCacheValidationThreshold):
             # if mainnet and threshold is "finalized" or "safe"
             threshold_block = provider.make_request(
@@ -72,6 +74,8 @@ def is_beyond_validation_threshold(
     except Exception as e:
         _error_log(provider, e)
         return False
+    finally:
+        provider.cache_allowed_requests = True
 
 
 def validate_from_block_id_in_params(
@@ -94,6 +98,9 @@ def validate_from_blocknum_in_result(
     result: Dict[str, Any],
 ) -> bool:
     try:
+        # turn off caching to prevent recursion
+        provider.cache_allowed_requests = False
+
         # transaction results
         if "blockNumber" in result:
             blocknum = result.get("blockNumber")
@@ -121,6 +128,8 @@ def validate_from_blocknum_in_result(
     except Exception as e:
         _error_log(provider, e)
         return False
+    finally:
+        provider.cache_allowed_requests = True
 
 
 def validate_from_blockhash_in_params(
@@ -129,6 +138,9 @@ def validate_from_blockhash_in_params(
     _result: Dict[str, Any],
 ) -> bool:
     try:
+        # turn off caching to prevent recursion
+        provider.cache_allowed_requests = False
+
         # make an extra call to get the block number from the hash
         block = provider.make_request("eth_getBlockByHash", [params[0], False])[
             "result"
@@ -141,6 +153,8 @@ def validate_from_blockhash_in_params(
     except Exception as e:
         _error_log(provider, e)
         return False
+    finally:
+        provider.cache_allowed_requests = True
 
 
 # -- async -- #
@@ -154,6 +168,8 @@ async def async_is_beyond_validation_threshold(
     try:
         threshold = provider.request_cache_validation_threshold
 
+        # turn off caching to prevent recursion
+        provider.cache_allowed_requests = False
         if isinstance(threshold, RequestCacheValidationThreshold):
             # if mainnet and threshold is "finalized" or "safe"
             threshold_block = await provider.make_request(
@@ -180,6 +196,8 @@ async def async_is_beyond_validation_threshold(
     except Exception as e:
         _error_log(provider, e)
         return False
+    finally:
+        provider.cache_allowed_requests = True
 
 
 async def async_validate_from_block_id_in_params(
@@ -202,6 +220,9 @@ async def async_validate_from_blocknum_in_result(
     result: Dict[str, Any],
 ) -> bool:
     try:
+        # turn off caching to prevent recursion
+        provider.cache_allowed_requests = False
+
         # transaction results
         if "blockNumber" in result:
             blocknum = result.get("blockNumber")
@@ -229,12 +250,17 @@ async def async_validate_from_blocknum_in_result(
     except Exception as e:
         _error_log(provider, e)
         return False
+    finally:
+        provider.cache_allowed_requests = True
 
 
 async def async_validate_from_blockhash_in_params(
     provider: ASYNC_PROVIDER_TYPE, params: Sequence[Any], _result: Dict[str, Any]
 ) -> bool:
     try:
+        # turn off caching to prevent recursion
+        provider.cache_allowed_requests = False
+
         # make an extra call to get the block number from the hash
         response = await provider.make_request("eth_getBlockByHash", [params[0], False])
         return await async_is_beyond_validation_threshold(
@@ -245,3 +271,5 @@ async def async_validate_from_blockhash_in_params(
     except Exception as e:
         _error_log(provider, e)
         return False
+    finally:
+        provider.cache_allowed_requests = True
