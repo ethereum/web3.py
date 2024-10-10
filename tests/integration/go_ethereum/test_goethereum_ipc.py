@@ -95,10 +95,6 @@ class TestGoEthereumAdminModuleTest(GoEthereumAdminModuleTest):
         super().test_admin_start_stop_ws(w3)
 
 
-class TestGoEthereumDebugModuleTest(GoEthereumDebugModuleTest):
-    pass
-
-
 # -- async -- #
 
 
@@ -122,10 +118,6 @@ class TestGoEthereumAsyncEthModuleTest(GoEthereumAsyncEthModuleTest):
 
 
 class TestGoEthereumAsyncNetModuleTest(GoEthereumAsyncNetModuleTest):
-    pass
-
-
-class TestGoEthereumAsyncDebugModuleTest(GoEthereumAsyncDebugModuleTest):
     pass
 
 
