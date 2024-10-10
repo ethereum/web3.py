@@ -1,4 +1,5 @@
 from typing import (
+    Any,
     Awaitable,
     Callable,
     List,
@@ -27,6 +28,7 @@ from web3.types import (
     EnodeURI,
     NodeInfo,
     Peer,
+    PrestateTrace,
     TraceConfig,
     TxPoolContent,
     TxPoolInspect,
@@ -142,19 +144,21 @@ class GethDebug(Module):
     https://geth.ethereum.org/docs/interacting-with-geth/rpc/ns-debug
     """
 
-    is_async = False
-
     def trace_transaction_munger(
         self, transaction_hash: _Hash32, trace_config: TraceConfig = None
     ) -> Tuple[_Hash32, TraceConfig]:
         if trace_config is None:
             trace_config = {
                 "tracer": "callTracer",
-                "tracerConfig": {"withLog": False},
             }
         return (transaction_hash, trace_config)
 
-    trace_transaction: Method[Callable[..., Union[CallTrace]]] = Method(
+    trace_transaction: Method[
+        Callable[
+            ...,
+            Union[CallTrace, PrestateTrace, Any],
+        ]
+    ] = Method(
         RPC.debug_traceTransaction,
         mungers=[trace_transaction_munger],
     )
@@ -296,20 +300,17 @@ class AsyncGethDebug(Module):
 
     is_async = True
 
-    _trace_transaction: Method[Callable[..., Awaitable[Union[CallTrace]]]] = Method(
-        RPC.debug_traceTransaction,
-    )
+    _trace_transaction: Method[
+        Callable[..., Awaitable[Union[CallTrace, PrestateTrace, Any]]]
+    ] = Method(RPC.debug_traceTransaction)
 
     async def trace_transaction(
         self,
         transaction_hash: _Hash32,
         trace_config: TraceConfig = None,
-    ) -> Union[CallTrace]:
+    ) -> Union[CallTrace, PrestateTrace, Any]:
         if trace_config is None:
-            trace_config = {
-                "tracer": "callTracer",
-                "tracerConfig": {"withLog": False},
-            }
+            trace_config = {"tracer": "callTracer"}
 
         return await self._trace_transaction(transaction_hash, trace_config)
 

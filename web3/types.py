@@ -509,11 +509,10 @@ CallTrace = TypedDict(
     total=False,
 )
 
-# TODO: add more built-in tracers if needed
-# 1. Struct/opcode logger
-# 2. 4byteTracer
-# 3. prestateTracer
-# 4. ...
+
+class PrestateTrace(TypedDict):
+    post: Dict[str, Dict[str, Union[HexBytes, int]]]
+    pre: Dict[str, Dict[str, HexBytes]]
 
 
 #
