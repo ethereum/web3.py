@@ -635,6 +635,10 @@ DEBUG_CALLTRACE_FORMATTERS = {
     "logs": debug_calltrace_log_list_result_formatter,
 }
 
+OPCODE_TRACE_FORMATTERS = {
+    "gas": to_integer_if_hex,
+}
+
 debug_calltrace_result_formatter = type_aware_apply_formatters_to_dict(
     DEBUG_CALLTRACE_FORMATTERS
 )
