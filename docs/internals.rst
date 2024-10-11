@@ -119,12 +119,21 @@ Provider Configurations
 Request Caching
 ```````````````
 
+.. important::
+    Familiarize yourself with the validation logic for request caching before
+    enabling it. Since this feature often requires making additional requests under the
+    hood to try to guarantee the validity of the data, it may create unnecessary
+    overhead for your use case. Validation can be turned off by setting the
+    ``request_cache_validation_threshold`` option to ``None``, caching all allowed
+    requests, or configured for adjusting performance to your needs.
+
+
 Request caching can be configured at the provider level via the following configuration
 options on the provider instance:
 
 - ``cache_allowed_requests: bool = False``
-- ``cacheable_requests: Set[RPCEndpoint] = CACHEABLE_REQUESTS``
-- ``request_cache_validation_threshold: RequestCacheValidationThreshold = RequestCacheValidationThreshold.FINALIZED``
+- ``cacheable_requests: Optional[Set[RPCEndpoint]]``
+- ``request_cache_validation_threshold: Optional[Union[RequestCacheValidationThreshold, int]]``
 
 For requests that don't rely on block data (e.g., ``eth_chainId``), enabling request
 caching by setting the ``cache_allowed_requests`` option to ``True`` will cache all
@@ -132,35 +141,78 @@ responses. This is safe to do.
 
 However, for requests that rely on block data (e.g., ``eth_getBlockByNumber``), it is
 not safe to always cache their responses because block data can change - during a
-chain reorganization, for example. The ``request_cache_validation_threshold`` option
-allows configuring a safe threshold for caching responses that depend on block data. By
-default, the ``finalized`` block number is used as the validation threshold, meaning
-that a request's response will be cached if the block number it relies on is less than
-or equal to the ``finalized`` block number. If the block number exceeds the
-``finalized`` block number, the response won't be cached.
+chain reorganization or while finality has not been reached, for example. The
+``request_cache_validation_threshold`` option allows configuring a safe threshold for
+caching responses that depend on block data. By default, this option is configured
+to internal values deemed "safe" for the chain id you are connected to. If you are
+connected to mainnet Ethereum, this value is set to the ``finalized`` block number.
+If you are connected to another chain, this value is set to a time internal in seconds,
+from the current time, that is deemed "safe" for that chain's finality mechanism.
+
+**It's important to understand that, in order to perform these validations, extra
+requests are sometimes made to the node to get the appropriate information. For a
+transaction request, for example, it is necessary to get the block information to
+validate the transaction is beyond the safe threshold. This can create overhead,
+especially for high-frequency requests. For this reason, it is important to understand
+when to turn on caching and how to configure the validation appropriately for your
+use case in order to avoid unnecessary overhead.**
+
+We keep a list of some reasonable values for bigger chains and
+use the time interval of 1 hour for everything else. Below is a list of the default
+values for internally configured chains:
+
+    - ETH: RequestCacheValidationThreshold.FINALIZED ("finalized" block)
+    - ARB1: 7 days
+    - ZKSYNC: 1 hour
+    - OETH: 3 minutes
+    - MATIC: 30 minutes
+    - ZKEVM: 1 hour
+    - BASE: 7 days
+    - SCR: 1 hour
+    - GNO: 5 minutes
+    - AVAX: 2 minutes
+    - BNB: 2 minutes
+    - FTM: 1 minute
+
+For Ethereum mainnet, for example, this means that a request's response will be cached
+if the block number the request relies on is less than or equal to the ``finalized``
+block number. If the block number exceeds the ``finalized`` block number, the response
+won't be cached. For all others, the response will be cached if the block timestamp
+related to the data that is being requested is older than or equal to the time interval
+configured for that chain. For any chain not on this list, the default value is set to
+1 hour (this includes all testnets).
 
 This behavior can be modified by setting the ``request_cache_validation_threshold``
 option to ``RequestCacheValidationThreshold.SAFE``, which uses the ``safe`` block as
-the threshold, or to ``None``, which disables cache validation and caches all
-requests (this is not recommended). The ``RequestCacheValidationThreshold`` enum is
-imported from the ``web3.utils`` module.
+the threshold (Ethereum mainnet only), to your own time interval in seconds (for any
+chain, including mainnet Ethereum), or to ``None``, which disables any validation and
+caches all requests (this is not recommended for non testnet chains). The
+``RequestCacheValidationThreshold`` enum, for mainnet ``finalized`` and ``safe`` values,
+is imported from the ``web3.utils`` module.
 
-The current list of requests that are validated by this configuration before being
-cached is:
+Note that the ``cacheable_requests`` option can be used to specify a set of RPC
+endpoints that are allowed to be cached. By default, this option is set to an internal
+list of deemed-safe-to-cache endpoints, excluding endpoints such as ``eth_call``, whose
+responses can vary and are not safe to cache. The default list of cacheable requests is
+below, with requests validated by the ``request_cache_validation_threshold`` option in
+bold:
 
-    - RPC.eth_getBlockByNumber
-    - RPC.eth_getRawTransactionByBlockNumberAndIndex
-    - RPC.eth_getBlockTransactionCountByNumber
-    - RPC.eth_getUncleByBlockNumberAndIndex
-    - RPC.eth_getUncleCountByBlockNumber
-    - RPC.eth_getBlockByHash
-    - RPC.eth_getTransactionByHash
-    - RPC.eth_getTransactionByBlockNumberAndIndex
-    - RPC.eth_getTransactionByBlockHashAndIndex
-    - RPC.eth_getBlockTransactionCountByHash
-    - RPC.eth_getRawTransactionByBlockHashAndIndex
-    - RPC.eth_getUncleByBlockHashAndIndex
-    - RPC.eth_getUncleCountByBlockHash
+    - eth_chainId
+    - web3_clientVersion
+    - net_version
+    - **eth_getBlockByNumber**
+    - **eth_getRawTransactionByBlockNumberAndIndex**
+    - **eth_getBlockTransactionCountByNumber**
+    - **eth_getUncleByBlockNumberAndIndex**
+    - **eth_getUncleCountByBlockNumber**
+    - **eth_getBlockByHash**
+    - **eth_getTransactionByHash**
+    - **eth_getTransactionByBlockNumberAndIndex**
+    - **eth_getTransactionByBlockHashAndIndex**
+    - **eth_getBlockTransactionCountByHash**
+    - **eth_getRawTransactionByBlockHashAndIndex**
+    - **eth_getUncleByBlockHashAndIndex**
+    - **eth_getUncleCountByBlockHash**
 
 .. code-block:: python
 
@@ -173,13 +225,12 @@ cached is:
         # optional flag to turn on cached requests, defaults to ``False``
         cache_allowed_requests=True,
 
-        # optional, defaults to an internal list of deemed-safe-to-cache endpoints
+        # optional, defaults to an internal list of deemed-safe-to-cache endpoints (see above)
         cacheable_requests={"eth_chainId", "eth_getBlockByNumber"},
 
-        # optional, defaults to ``RequestCacheValidationThreshold.FINALIZED``
-        # can be set to ``RequestCacheValidationThreshold.SAFE`` or turned off
-        # by setting to ``None``.
-        request_cache_validation_threshold=RequestCacheValidationThreshold.SAFE,
+        # optional, defaults to a value that is based on the chain id (see above)
+        request_cache_validation_threshold=60 * 60,  # 1 hour
+        # request_cache_validation_threshold=RequestCacheValidationThreshold.SAFE,  # Ethereum mainnet only
     ))
 
 .. _http_retry_requests:
