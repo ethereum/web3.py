@@ -1,0 +1,1 @@
+Fix a bug where non-mainnet chains could not cache requests based on missing ``finalized`` block number.
