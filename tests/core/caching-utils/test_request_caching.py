@@ -289,7 +289,7 @@ def test_block_id_param_caching_mainnet(
         assert len(w3.provider._request_cache.items()) == 0
         w3.manager.request_blocking(RPCEndpoint(endpoint), [block_id, False])
         cached_items = len(w3.provider._request_cache.items())
-        assert cached_items > 0 if should_cache else cached_items == 0
+        assert cached_items == 1 if should_cache else cached_items == 0
 
 
 @pytest.mark.parametrize(

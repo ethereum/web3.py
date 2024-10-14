@@ -193,27 +193,12 @@ def set_threshold_if_empty(provider: SYNC_PROVIDER_TYPE) -> None:
     if current_threshold is empty or isinstance(
         current_threshold, RequestCacheValidationThreshold
     ):
+        cache_allowed_requests = provider.cache_allowed_requests
         try:
             # turn off momentarily to avoid recursion
             provider.cache_allowed_requests = False
             chain_id_result = provider.make_request("eth_chainId", [])["result"]
             chain_id = int(chain_id_result, 16)
-
-            if (
-                isinstance(
-                    current_threshold,
-                    RequestCacheValidationThreshold,
-                )
-                and chain_id != 1
-            ):
-                provider.logger.debug(
-                    "Request cache validation threshold is set to "
-                    f"{current_threshold.value} "
-                    f"for chain with chain_id `{chain_id}` but this value only works "
-                    "on chain_id `1`. Setting to default value for chain_id "
-                    f"`{chain_id}`.",
-                )
-                provider.request_cache_validation_threshold = empty
 
             if current_threshold is empty:
                 provider.request_cache_validation_threshold = (
@@ -224,7 +209,7 @@ def set_threshold_if_empty(provider: SYNC_PROVIDER_TYPE) -> None:
         except Exception:
             provider.request_cache_validation_threshold = DEFAULT_VALIDATION_THRESHOLD
         finally:
-            provider.cache_allowed_requests = True
+            provider.cache_allowed_requests = cache_allowed_requests
 
 
 def _should_cache_response(
@@ -303,27 +288,12 @@ async def async_set_threshold_if_empty(provider: ASYNC_PROVIDER_TYPE) -> None:
     if current_threshold is empty or isinstance(
         current_threshold, RequestCacheValidationThreshold
     ):
+        cache_allowed_requests = provider.cache_allowed_requests
         try:
             # turn off momentarily to avoid recursion
             provider.cache_allowed_requests = False
             chain_id_result = await provider.make_request("eth_chainId", [])
             chain_id = int(chain_id_result["result"], 16)
-
-            if (
-                isinstance(
-                    current_threshold,
-                    RequestCacheValidationThreshold,
-                )
-                and chain_id != 1
-            ):
-                provider.logger.debug(
-                    "Request cache validation threshold is set to "
-                    f"{current_threshold.value} "
-                    f"for chain with chain_id `{chain_id}` but this value only works "
-                    "on chain_id `1`. Setting to default value for chain_id "
-                    f"`{chain_id}`.",
-                )
-                provider.request_cache_validation_threshold = empty
 
             if current_threshold is empty:
                 provider.request_cache_validation_threshold = (
@@ -334,7 +304,7 @@ async def async_set_threshold_if_empty(provider: ASYNC_PROVIDER_TYPE) -> None:
         except Exception:
             provider.request_cache_validation_threshold = DEFAULT_VALIDATION_THRESHOLD
         finally:
-            provider.cache_allowed_requests = True
+            provider.cache_allowed_requests = cache_allowed_requests
 
 
 async def _async_should_cache_response(

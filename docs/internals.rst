@@ -146,7 +146,7 @@ chain reorganization or while finality has not been reached, for example. The
 caching responses that depend on block data. By default, this option is configured
 to internal values deemed "safe" for the chain id you are connected to. If you are
 connected to mainnet Ethereum, this value is set to the ``finalized`` block number.
-If you are connected to another chain, this value is set to a time internal in seconds,
+If you are connected to another chain, this value is set to a time interval in seconds,
 from the current time, that is deemed "safe" for that chain's finality mechanism.
 
 **It's important to understand that, in order to perform these validations, extra
