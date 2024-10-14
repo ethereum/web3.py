@@ -6,6 +6,29 @@ v7 Breaking Changes Summary
 
 .. towncrier release notes start
 
+web3.py v7.3.1 (2024-10-14)
+---------------------------
+
+Bugfixes
+~~~~~~~~
+
+- Properly wrap ``AsyncBeacon.request_timeout`` float in a ``aiohttp.ClientTimeout`` when making requests. (`#3503 <https://github.com/ethereum/web3.py/issues/3503>`__)
+- Changes related to an `eth-typing` bugfix, input types for ``ABIEvent``: ``ABIComponent`` -> ``ABIComponentIndexed``. (`#3510 <https://github.com/ethereum/web3.py/issues/3510>`__)
+
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Fix ``EthereumTesterProvider`` signature in docs, added an ``eth_tester`` example. (`#3500 <https://github.com/ethereum/web3.py/issues/3500>`__)
+- Fix `pip install -e ".[dev]"` command in linux README. (`#3505 <https://github.com/ethereum/web3.py/issues/3505>`__)
+
+
+Internal Changes - for web3.py Contributors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Update the ENSIP-15 to the latest spec and update the test suite. (`#3501 <https://github.com/ethereum/web3.py/issues/3501>`__)
+
+
 web3.py v7.3.0 (2024-09-25)
 ---------------------------
 

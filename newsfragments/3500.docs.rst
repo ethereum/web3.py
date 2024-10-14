@@ -1,1 +1,0 @@
-Fix ``EthereumTesterProvider`` signature in docs, added an ``eth_tester`` example.

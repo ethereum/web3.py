@@ -1,1 +1,0 @@
-Fix `pip install -e ".[dev]"` command in linux README.
