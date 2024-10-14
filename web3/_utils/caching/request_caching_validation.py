@@ -41,6 +41,7 @@ def is_beyond_validation_threshold(
     blocknum: int = None,
     block_timestamp: int = None,
 ) -> bool:
+    cache_allowed_requests = provider.cache_allowed_requests
     try:
         threshold = provider.request_cache_validation_threshold
 
@@ -75,7 +76,7 @@ def is_beyond_validation_threshold(
         _error_log(provider, e)
         return False
     finally:
-        provider.cache_allowed_requests = True
+        provider.cache_allowed_requests = cache_allowed_requests
 
 
 def validate_from_block_id_in_params(
@@ -97,6 +98,7 @@ def validate_from_blocknum_in_result(
     _params: Sequence[Any],
     result: Dict[str, Any],
 ) -> bool:
+    cache_allowed_requests = provider.cache_allowed_requests
     try:
         # turn off caching to prevent recursion
         provider.cache_allowed_requests = False
@@ -129,7 +131,7 @@ def validate_from_blocknum_in_result(
         _error_log(provider, e)
         return False
     finally:
-        provider.cache_allowed_requests = True
+        provider.cache_allowed_requests = cache_allowed_requests
 
 
 def validate_from_blockhash_in_params(
@@ -137,6 +139,7 @@ def validate_from_blockhash_in_params(
     params: Sequence[Any],
     _result: Dict[str, Any],
 ) -> bool:
+    cache_allowed_requests = provider.cache_allowed_requests
     try:
         # turn off caching to prevent recursion
         provider.cache_allowed_requests = False
@@ -154,7 +157,7 @@ def validate_from_blockhash_in_params(
         _error_log(provider, e)
         return False
     finally:
-        provider.cache_allowed_requests = True
+        provider.cache_allowed_requests = cache_allowed_requests
 
 
 # -- async -- #
@@ -165,6 +168,7 @@ async def async_is_beyond_validation_threshold(
     blocknum: int = None,
     block_timestamp: int = None,
 ) -> bool:
+    cache_allowed_requests = provider.cache_allowed_requests
     try:
         threshold = provider.request_cache_validation_threshold
 
@@ -197,7 +201,7 @@ async def async_is_beyond_validation_threshold(
         _error_log(provider, e)
         return False
     finally:
-        provider.cache_allowed_requests = True
+        provider.cache_allowed_requests = cache_allowed_requests
 
 
 async def async_validate_from_block_id_in_params(
@@ -219,6 +223,7 @@ async def async_validate_from_blocknum_in_result(
     _params: Sequence[Any],
     result: Dict[str, Any],
 ) -> bool:
+    cache_allowed_requests = provider.cache_allowed_requests
     try:
         # turn off caching to prevent recursion
         provider.cache_allowed_requests = False
@@ -251,12 +256,13 @@ async def async_validate_from_blocknum_in_result(
         _error_log(provider, e)
         return False
     finally:
-        provider.cache_allowed_requests = True
+        provider.cache_allowed_requests = cache_allowed_requests
 
 
 async def async_validate_from_blockhash_in_params(
     provider: ASYNC_PROVIDER_TYPE, params: Sequence[Any], _result: Dict[str, Any]
 ) -> bool:
+    cache_allowed_requests = provider.cache_allowed_requests
     try:
         # turn off caching to prevent recursion
         provider.cache_allowed_requests = False
@@ -272,4 +278,4 @@ async def async_validate_from_blockhash_in_params(
         _error_log(provider, e)
         return False
     finally:
-        provider.cache_allowed_requests = True
+        provider.cache_allowed_requests = cache_allowed_requests
