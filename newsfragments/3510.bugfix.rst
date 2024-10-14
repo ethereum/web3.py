@@ -1,0 +1,1 @@
+Changes related to an `eth-typing` bugfix, input types for ``ABIEvent``: ``ABIComponent`` -> ``ABIComponentIndexed``.

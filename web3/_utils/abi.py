@@ -110,19 +110,11 @@ def receive_func_abi_exists(contract_abi: ABI) -> Sequence[ABIReceive]:
 
 
 def get_indexed_event_inputs(event_abi: ABIEvent) -> Sequence[ABIComponentIndexed]:
-    return [
-        cast(ABIComponentIndexed, arg)
-        for arg in event_abi["inputs"]
-        if cast(ABIComponentIndexed, arg)["indexed"] is True
-    ]
+    return [arg for arg in event_abi["inputs"] if arg["indexed"] is True]
 
 
-def exclude_indexed_event_inputs(event_abi: ABIEvent) -> Sequence[ABIComponent]:
-    return [
-        arg
-        for arg in event_abi["inputs"]
-        if cast(ABIComponentIndexed, arg)["indexed"] is False
-    ]
+def exclude_indexed_event_inputs(event_abi: ABIEvent) -> Sequence[ABIComponentIndexed]:
+    return [arg for arg in event_abi["inputs"] if arg["indexed"] is False]
 
 
 def filter_by_argument_name(
