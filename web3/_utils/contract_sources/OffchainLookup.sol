@@ -4,7 +4,7 @@
 pragma solidity ^0.8.13;
 
 contract OffchainLookup {
-    string[] urls = ["https://web3.py/gateway/{sender}/{data}.json", "https://web3.py/gateway/{sender}.json"];
+    string[] urls = ["https://web3.py/gateway/{sender}/{data}.json", "https://web3.py/gateway"];
 
     error OffchainLookup(address sender, string[] urls, bytes callData, bytes4 callbackFunction, bytes extraData);
 

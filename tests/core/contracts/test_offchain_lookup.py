@@ -164,7 +164,7 @@ def test_eth_call_offchain_lookup_tries_next_url_for_non_4xx_error_status_and_te
     mock_offchain_lookup_request_response(
         monkeypatch,
         http_method="POST",
-        mocked_request_url=f"https://web3.py/gateway/{normalized_contract_address}.json",  # noqa: E501
+        mocked_request_url="https://web3.py/gateway",
         mocked_status_code=200,
         mocked_json_data=WEB3PY_AS_HEXBYTES,
         sender=normalized_contract_address,
