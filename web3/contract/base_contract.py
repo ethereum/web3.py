@@ -21,7 +21,6 @@ from eth_abi.exceptions import (
 )
 from eth_typing import (
     ABI,
-    ABIComponentIndexed,
     ABIElement,
     ABIEvent,
     ABIFunction,
@@ -295,7 +294,7 @@ class BaseContractEvent:
             # if no non-indexed args in argument filters, since indexed args are
             # filtered pre-call to ``eth_getLogs`` by building specific ``topics``.
             not any(
-                not cast(ABIComponentIndexed, arg)["indexed"]
+                not arg["indexed"]
                 for arg in event_abi["inputs"]
                 if arg["name"] in argument_filters
             )
