@@ -32,6 +32,9 @@ from web3.types import (
 from .._utils.batching import (
     sort_batch_response_by_response_ids,
 )
+from .._utils.caching import (
+    handle_request_caching,
+)
 from ..exceptions import (
     Web3TypeError,
     Web3ValueError,
@@ -189,6 +192,7 @@ class IPCProvider(JSONBaseProvider):
                         timeout.sleep(0)
                         continue
 
+    @handle_request_caching
     def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
         self.logger.debug(
             f"Making request IPC. Path: {self.ipc_path}, Method: {method}"
