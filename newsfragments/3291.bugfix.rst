@@ -1,0 +1,1 @@
+Fix a bug where CCIP-Read expected a ``{sender}`` in the url for a POST request. If ``{data}`` is missing from the url, assume a POST request is being made regardless of whether ``{sender}`` is present.
