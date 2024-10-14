@@ -2,6 +2,10 @@ import itertools
 import pytest
 import threading
 import time
+from typing import (
+    Optional,
+    Union,
+)
 import uuid
 
 import pytest_asyncio
@@ -13,6 +17,7 @@ from web3 import (
     HTTPProvider,
     IPCProvider,
     LegacyWebSocketProvider,
+    PersistentConnectionProvider,
     Web3,
     WebSocketProvider,
 )
@@ -32,14 +37,6 @@ from web3._utils.caching.caching_utils import (
 from web3.exceptions import (
     Web3RPCError,
 )
-from web3.providers import (
-    AsyncBaseProvider,
-    BaseProvider,
-    JSONBaseProvider,
-)
-from web3.providers.async_base import (
-    AsyncJSONBaseProvider,
-)
 from web3.types import (
     RPCEndpoint,
 )
@@ -47,6 +44,17 @@ from web3.utils import (
     RequestCacheValidationThreshold,
     SimpleCache,
 )
+
+SYNC_PROVIDERS = [
+    HTTPProvider,
+    IPCProvider,
+    LegacyWebSocketProvider,  # deprecated
+]
+ASYNC_PROVIDERS = [
+    AsyncHTTPProvider,
+    AsyncIPCProvider,
+    WebSocketProvider,
+]
 
 
 def simple_cache_return_value_a():
@@ -58,9 +66,14 @@ def simple_cache_return_value_a():
     return _cache
 
 
+@pytest.fixture(params=SYNC_PROVIDERS)
+def sync_provider(request):
+    return request.param
+
+
 @pytest.fixture
-def w3(request_mocker):
-    _w3 = Web3(provider=BaseProvider(cache_allowed_requests=True))
+def w3(sync_provider, request_mocker):
+    _w3 = Web3(provider=sync_provider(cache_allowed_requests=True))
     _w3.provider.cacheable_requests += (RPCEndpoint("fake_endpoint"),)
     with request_mocker(
         _w3,
@@ -88,8 +101,8 @@ def test_request_caching_populates_cache(w3):
     assert len(w3.provider._request_cache.items()) == 2
 
 
-def test_request_caching_does_not_cache_none_responses(request_mocker):
-    w3 = Web3(BaseProvider(cache_allowed_requests=True))
+def test_request_caching_does_not_cache_none_responses(sync_provider, request_mocker):
+    w3 = Web3(sync_provider(cache_allowed_requests=True))
     w3.provider.cacheable_requests += (RPCEndpoint("fake_endpoint"),)
 
     counter = itertools.count()
@@ -105,8 +118,8 @@ def test_request_caching_does_not_cache_none_responses(request_mocker):
     assert next(counter) == 2
 
 
-def test_request_caching_does_not_cache_error_responses(request_mocker):
-    w3 = Web3(BaseProvider(cache_allowed_requests=True))
+def test_request_caching_does_not_cache_error_responses(sync_provider, request_mocker):
+    w3 = Web3(sync_provider(cache_allowed_requests=True))
     w3.provider.cacheable_requests += (RPCEndpoint("fake_endpoint"),)
 
     with request_mocker(
@@ -127,12 +140,14 @@ def test_request_caching_does_not_cache_endpoints_not_in_allowlist(w3):
     assert result_a != result_b
 
 
-def test_caching_requests_does_not_share_state_between_providers(request_mocker):
+def test_caching_requests_does_not_share_state_between_providers(
+    sync_provider, request_mocker
+):
     w3_a, w3_b, w3_c, w3_a_shared_cache = (
-        Web3(provider=BaseProvider(cache_allowed_requests=True)),
-        Web3(provider=BaseProvider(cache_allowed_requests=True)),
-        Web3(provider=BaseProvider(cache_allowed_requests=True)),
-        Web3(provider=BaseProvider(cache_allowed_requests=True)),
+        Web3(provider=sync_provider(cache_allowed_requests=True)),
+        Web3(provider=sync_provider(cache_allowed_requests=True)),
+        Web3(provider=sync_provider(cache_allowed_requests=True)),
+        Web3(provider=sync_provider(cache_allowed_requests=True)),
     )
 
     # strap w3_a_shared_cache with w3_a's cache
@@ -164,21 +179,7 @@ def test_caching_requests_does_not_share_state_between_providers(request_mocker)
     assert result_a_shared_cache == hex(11111)
 
 
-@pytest.mark.parametrize(
-    "provider",
-    [
-        BaseProvider,
-        JSONBaseProvider,
-        HTTPProvider,
-        IPCProvider,
-        AsyncBaseProvider,
-        AsyncJSONBaseProvider,
-        AsyncHTTPProvider,
-        AsyncIPCProvider,
-        WebSocketProvider,
-        LegacyWebSocketProvider,  # deprecated
-    ],
-)
+@pytest.mark.parametrize("provider", [*SYNC_PROVIDERS, *ASYNC_PROVIDERS])
 def test_all_providers_do_not_cache_by_default_and_can_set_caching_properties(provider):
     _provider_default_init = provider()
     assert _provider_default_init.cache_allowed_requests is False
@@ -216,10 +217,10 @@ def test_all_providers_do_not_cache_by_default_and_can_set_caching_properties(pr
     ),
 )
 def test_blocknum_validation_against_validation_threshold_when_caching_mainnet(
-    threshold, endpoint, blocknum, should_cache, request_mocker
+    threshold, endpoint, blocknum, should_cache, sync_provider, request_mocker
 ):
     w3 = Web3(
-        BaseProvider(
+        sync_provider(
             cache_allowed_requests=True, request_cache_validation_threshold=threshold
         )
     )
@@ -266,10 +267,10 @@ def test_blocknum_validation_against_validation_threshold_when_caching_mainnet(
     ),
 )
 def test_block_id_param_caching_mainnet(
-    threshold, endpoint, block_id, blocknum, should_cache, request_mocker
+    threshold, endpoint, block_id, blocknum, should_cache, sync_provider, request_mocker
 ):
     w3 = Web3(
-        BaseProvider(
+        sync_provider(
             cache_allowed_requests=True, request_cache_validation_threshold=threshold
         )
     )
@@ -309,10 +310,10 @@ def test_block_id_param_caching_mainnet(
     ),
 )
 def test_blockhash_validation_against_validation_threshold_when_caching_mainnet(
-    threshold, endpoint, blocknum, should_cache, request_mocker
+    threshold, endpoint, blocknum, should_cache, sync_provider, request_mocker
 ):
     w3 = Web3(
-        BaseProvider(
+        sync_provider(
             cache_allowed_requests=True, request_cache_validation_threshold=threshold
         )
     )
@@ -346,9 +347,9 @@ def test_blockhash_validation_against_validation_threshold_when_caching_mainnet(
     ),
 )
 def test_request_caching_validation_threshold_defaults(
-    chain_id, expected_threshold, request_mocker
+    chain_id, expected_threshold, sync_provider, request_mocker
 ):
-    w3 = Web3(BaseProvider(cache_allowed_requests=True))
+    w3 = Web3(sync_provider(cache_allowed_requests=True))
     with request_mocker(w3, mock_results={"eth_chainId": hex(chain_id)}):
         w3.manager.request_blocking(RPCEndpoint("eth_chainId"), [])
         assert w3.provider.request_cache_validation_threshold == expected_threshold
@@ -385,9 +386,10 @@ def test_sync_validation_against_validation_threshold_time_based(
     should_cache,
     chain_id,
     expected_threshold_in_seconds,
+    sync_provider,
     request_mocker,
 ):
-    w3 = Web3(BaseProvider(cache_allowed_requests=True))
+    w3 = Web3(sync_provider(cache_allowed_requests=True))
     blocknum = "0x2"
     # mock the timestamp so that we are at the threshold +/- the time_from_threshold
     mocked_time = hex(
@@ -437,11 +439,11 @@ def test_sync_validation_against_validation_threshold_time_based(
     "endpoint", BLOCKNUM_IN_PARAMS | BLOCK_IN_RESULT | BLOCKHASH_IN_PARAMS
 )
 def test_validation_against_validation_threshold_time_based_configured(
-    time_from_threshold, should_cache, chain_id, endpoint, request_mocker
+    time_from_threshold, should_cache, chain_id, endpoint, sync_provider, request_mocker
 ):
     configured_time_threshold = 60 * 60 * 24 * 7  # 1 week
     w3 = Web3(
-        BaseProvider(
+        sync_provider(
             cache_allowed_requests=True,
             request_cache_validation_threshold=configured_time_threshold,
         )
@@ -487,9 +489,32 @@ def test_async_cacheable_requests_are_the_same_as_sync():
     ), "make sure the async and sync cacheable requests are the same"
 
 
+@pytest_asyncio.fixture(params=ASYNC_PROVIDERS)
+async def async_provider(request):
+    return request.param
+
+
+async def _async_w3_init(
+    async_provider,
+    threshold: Optional[Union[RequestCacheValidationThreshold, int]] = "empty",
+):
+    if isinstance(async_provider, PersistentConnectionProvider):
+        _async_w3 = await AsyncWeb3(
+            provider=async_provider(
+                cache_allowed_requests=True,
+            )
+        )
+    else:
+        _async_w3 = AsyncWeb3(provider=async_provider(cache_allowed_requests=True))
+
+    if threshold != "empty":
+        _async_w3.provider.request_cache_validation_threshold = threshold
+    return _async_w3
+
+
 @pytest_asyncio.fixture
-async def async_w3(request_mocker):
-    _async_w3 = AsyncWeb3(AsyncBaseProvider(cache_allowed_requests=True))
+async def async_w3(async_provider, request_mocker):
+    _async_w3 = await _async_w3_init(async_provider)
     _async_w3.provider.cacheable_requests += (RPCEndpoint("fake_endpoint"),)
     async with request_mocker(
         _async_w3,
@@ -524,8 +549,10 @@ async def test_async_request_caching_populates_cache(async_w3):
 
 
 @pytest.mark.asyncio
-async def test_async_request_caching_does_not_cache_none_responses(request_mocker):
-    async_w3 = AsyncWeb3(AsyncBaseProvider(cache_allowed_requests=True))
+async def test_async_request_caching_does_not_cache_none_responses(
+    async_provider, request_mocker
+):
+    async_w3 = await _async_w3_init(async_provider)
     async_w3.provider.cacheable_requests += (RPCEndpoint("fake_endpoint"),)
 
     counter = itertools.count()
@@ -542,8 +569,10 @@ async def test_async_request_caching_does_not_cache_none_responses(request_mocke
 
 
 @pytest.mark.asyncio
-async def test_async_request_caching_does_not_cache_error_responses(request_mocker):
-    async_w3 = AsyncWeb3(AsyncBaseProvider(cache_allowed_requests=True))
+async def test_async_request_caching_does_not_cache_error_responses(
+    async_provider, request_mocker
+):
+    async_w3 = await _async_w3_init(async_provider)
     async_w3.provider.cacheable_requests += (RPCEndpoint("fake_endpoint"),)
 
     async with request_mocker(
@@ -569,13 +598,14 @@ async def test_async_request_caching_does_not_cache_non_allowlist_endpoints(
 
 @pytest.mark.asyncio
 async def test_async_request_caching_does_not_share_state_between_providers(
+    async_provider,
     request_mocker,
 ):
     async_w3_a, async_w3_b, async_w3_c, async_w3_a_shared_cache = (
-        AsyncWeb3(AsyncBaseProvider(cache_allowed_requests=True)),
-        AsyncWeb3(AsyncBaseProvider(cache_allowed_requests=True)),
-        AsyncWeb3(AsyncBaseProvider(cache_allowed_requests=True)),
-        AsyncWeb3(AsyncBaseProvider(cache_allowed_requests=True)),
+        await _async_w3_init(async_provider),
+        await _async_w3_init(async_provider),
+        await _async_w3_init(async_provider),
+        await _async_w3_init(async_provider),
     )
 
     # strap async_w3_a_shared_cache with async_w3_a's cache
@@ -625,13 +655,9 @@ async def test_async_request_caching_does_not_share_state_between_providers(
     ),
 )
 async def test_async_blocknum_validation_against_validation_threshold_mainnet(
-    threshold, endpoint, blocknum, should_cache, request_mocker
+    threshold, endpoint, blocknum, should_cache, async_provider, request_mocker
 ):
-    async_w3 = AsyncWeb3(
-        AsyncBaseProvider(
-            cache_allowed_requests=True, request_cache_validation_threshold=threshold
-        )
-    )
+    async_w3 = await _async_w3_init(async_provider, threshold=threshold)
     async with request_mocker(
         async_w3,
         mock_results={
@@ -676,13 +702,15 @@ async def test_async_blocknum_validation_against_validation_threshold_mainnet(
     ),
 )
 async def test_async_block_id_param_caching_mainnet(
-    threshold, endpoint, block_id, blocknum, should_cache, request_mocker
+    threshold,
+    endpoint,
+    block_id,
+    blocknum,
+    should_cache,
+    async_provider,
+    request_mocker,
 ):
-    async_w3 = AsyncWeb3(
-        AsyncBaseProvider(
-            cache_allowed_requests=True, request_cache_validation_threshold=threshold
-        )
-    )
+    async_w3 = await _async_w3_init(async_provider, threshold=threshold)
     async with request_mocker(
         async_w3,
         mock_results={
@@ -720,13 +748,9 @@ async def test_async_block_id_param_caching_mainnet(
     ),
 )
 async def test_async_blockhash_validation_against_validation_threshold_mainnet(
-    threshold, endpoint, blocknum, should_cache, request_mocker
+    threshold, endpoint, blocknum, should_cache, async_provider, request_mocker
 ):
-    async_w3 = AsyncWeb3(
-        AsyncBaseProvider(
-            cache_allowed_requests=True, request_cache_validation_threshold=threshold
-        )
-    )
+    async_w3 = await _async_w3_init(async_provider, threshold=threshold)
     async with request_mocker(
         async_w3,
         mock_results={
@@ -758,9 +782,9 @@ async def test_async_blockhash_validation_against_validation_threshold_mainnet(
     ),
 )
 async def test_async_request_caching_validation_threshold_defaults(
-    chain_id, expected_threshold, request_mocker
+    chain_id, expected_threshold, async_provider, request_mocker
 ):
-    async_w3 = AsyncWeb3(AsyncBaseProvider(cache_allowed_requests=True))
+    async_w3 = await _async_w3_init(async_provider)
     async with request_mocker(async_w3, mock_results={"eth_chainId": hex(chain_id)}):
         await async_w3.manager.coro_request(RPCEndpoint("eth_chainId"), [])
         assert (
@@ -796,9 +820,10 @@ async def test_async_validation_against_validation_threshold_time_based(
     should_cache,
     chain_id,
     expected_threshold_in_seconds,
+    async_provider,
     request_mocker,
 ):
-    async_w3 = AsyncWeb3(AsyncBaseProvider(cache_allowed_requests=True))
+    async_w3 = await _async_w3_init(async_provider)
     blocknum = "0x2"
     # mock the timestamp so that we are at the threshold +/- the time_from_threshold
     mocked_time = hex(
@@ -835,14 +860,9 @@ async def test_async_validation_against_validation_threshold_time_based(
 )
 @pytest.mark.parametrize("blocknum", ("0x0", "0x1", "0x2", "0x3", "0x4", "0x5"))
 async def test_async_request_caching_with_validation_threshold_set_to_none(
-    endpoint, blocknum, request_mocker
+    endpoint, blocknum, async_provider, request_mocker
 ):
-    async_w3 = AsyncWeb3(
-        AsyncBaseProvider(
-            cache_allowed_requests=True,
-            request_cache_validation_threshold=None,
-        )
-    )
+    async_w3 = await _async_w3_init(async_provider, threshold=None)
     async with request_mocker(
         async_w3,
         mock_results={
@@ -884,15 +904,15 @@ async def test_async_request_caching_with_validation_threshold_set_to_none(
     "endpoint", BLOCKNUM_IN_PARAMS | BLOCK_IN_RESULT | BLOCKHASH_IN_PARAMS
 )
 async def test_async_validation_against_validation_threshold_time_based_configured(
-    time_from_threshold, should_cache, chain_id, endpoint, request_mocker
+    time_from_threshold,
+    should_cache,
+    chain_id,
+    endpoint,
+    async_provider,
+    request_mocker,
 ):
     configured_time_threshold = 60 * 60 * 24 * 7  # 1 week
-    async_w3 = AsyncWeb3(
-        AsyncBaseProvider(
-            cache_allowed_requests=True,
-            request_cache_validation_threshold=configured_time_threshold,
-        )
-    )
+    async_w3 = await _async_w3_init(async_provider, threshold=configured_time_threshold)
     blocknum = "0x2"
     # mock the timestamp so that we are at the threshold +/- the time_from_threshold
     mocked_time = hex(
