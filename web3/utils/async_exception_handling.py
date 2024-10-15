@@ -59,7 +59,7 @@ async def async_handle_offchain_lookup(
             else:
                 response = await session.post(
                     formatted_url,
-                    data={"data": formatted_data, "sender": formatted_sender},
+                    json={"data": formatted_data, "sender": formatted_sender},
                     timeout=ClientTimeout(DEFAULT_HTTP_TIMEOUT),
                 )
         except Exception:
