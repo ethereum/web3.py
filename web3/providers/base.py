@@ -20,7 +20,6 @@ from eth_utils import (
 
 from web3._utils.caching import (
     CACHEABLE_REQUESTS,
-    handle_request_caching,
 )
 from web3._utils.empty import (
     Empty,
@@ -109,7 +108,6 @@ class BaseProvider:
 
         return self._request_func_cache[-1]
 
-    @handle_request_caching
     def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
         raise NotImplementedError("Providers must implement this method")
 
