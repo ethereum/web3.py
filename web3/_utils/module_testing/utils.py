@@ -1,7 +1,6 @@
 from asyncio import (
     iscoroutinefunction,
 )
-import copy
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -132,7 +131,7 @@ class RequestMocker:
             return self._make_request(method, params)
 
         request_id = (
-            next(copy.deepcopy(self.w3.provider.request_counter))
+            next(self.w3.provider.request_counter)
             if hasattr(self.w3.provider, "request_counter")
             else 1
         )
@@ -201,7 +200,7 @@ class RequestMocker:
             return await self._make_request(method, params)
 
         request_id = (
-            next(copy.deepcopy(self.w3.provider.request_counter))
+            next(self.w3.provider.request_counter)
             if hasattr(self.w3.provider, "request_counter")
             else 1
         )
