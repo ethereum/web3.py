@@ -52,13 +52,9 @@ def handle_offchain_lookup(
             if "{data}" in url and "{sender}" in url:
                 response = session.get(formatted_url, timeout=DEFAULT_HTTP_TIMEOUT)
             else:
-                payload = {
-                    "data": formatted_data,
-                    "sender": formatted_sender,
-                }
                 response = session.post(
                     formatted_url,
-                    json=payload,
+                    json={"data": formatted_data, "sender": formatted_sender},
                     timeout=DEFAULT_HTTP_TIMEOUT,
                 )
         except Exception:
