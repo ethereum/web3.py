@@ -113,10 +113,9 @@ class RequestMocker:
 
         return self
 
-    # define __exit__ with typing information
     def __exit__(self, exc_type: Any, exc_value: Any, traceback: Any) -> None:
         # mypy error: Cannot assign to a method
-        self.w3.provider.make_request = self._make_request  # type: ignore[method-assign]  # noqa: E501
+        self.w3.provider.make_request = self._make_request  # type: ignore[assignment]
         # reset request func cache to re-build request_func with original make_request
         self.w3.provider._request_func_cache = (None, None)
 
@@ -175,6 +174,7 @@ class RequestMocker:
             return mocked_response
 
     # -- async -- #
+
     async def __aenter__(self) -> "Self":
         # mypy error: Cannot assign to a method
         self.w3.provider.make_request = self._async_mock_request_handler  # type: ignore[method-assign]  # noqa: E501
@@ -184,7 +184,7 @@ class RequestMocker:
 
     async def __aexit__(self, exc_type: Any, exc_value: Any, traceback: Any) -> None:
         # mypy error: Cannot assign to a method
-        self.w3.provider.make_request = self._make_request  # type: ignore[method-assign]  # noqa: E501
+        self.w3.provider.make_request = self._make_request  # type: ignore[assignment]
         # reset request func cache to re-build request_func with original make_request
         self.w3.provider._request_func_cache = (None, None)
 

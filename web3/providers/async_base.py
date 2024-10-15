@@ -22,7 +22,6 @@ from eth_utils import (
 
 from web3._utils.caching import (
     CACHEABLE_REQUESTS,
-    async_handle_request_caching,
 )
 from web3._utils.empty import (
     Empty,
@@ -137,7 +136,6 @@ class AsyncBaseProvider:
             self._batch_request_func_cache = (middleware, accumulator_fn)
         return self._batch_request_func_cache[-1]
 
-    @async_handle_request_caching
     async def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
         raise NotImplementedError("Providers must implement this method")
 

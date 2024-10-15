@@ -53,6 +53,9 @@ from web3._utils.rpc_abi import (
 from web3.exceptions import (
     Web3TypeError,
 )
+from web3.types import (
+    RPCEndpoint,
+)
 from web3.utils import (
     RequestCacheValidationThreshold,
 )
@@ -65,7 +68,6 @@ if TYPE_CHECKING:
     from web3.types import (  # noqa: F401
         AsyncMakeRequestFn,
         MakeRequestFn,
-        RPCEndpoint,
         RPCResponse,
     )
 
@@ -93,7 +95,7 @@ def generate_cache_key(value: Any) -> str:
 class RequestInformation:
     def __init__(
         self,
-        method: "RPCEndpoint",
+        method: RPCEndpoint,
         params: Any,
         response_formatters: Tuple[
             Union[Dict[str, Callable[..., Any]], Callable[..., Any]],
@@ -133,7 +135,7 @@ CHAIN_VALIDATION_THRESHOLD_DEFAULTS: Dict[
 
 def is_cacheable_request(
     provider: Union[ASYNC_PROVIDER_TYPE, SYNC_PROVIDER_TYPE],
-    method: "RPCEndpoint",
+    method: RPCEndpoint,
     params: Any,
 ) -> bool:
     if not (provider.cache_allowed_requests and method in provider.cacheable_requests):
@@ -173,7 +175,7 @@ BLOCKHASH_IN_PARAMS = {
 }
 
 INTERNAL_VALIDATION_MAP: Dict[
-    "RPCEndpoint",
+    RPCEndpoint,
     Callable[
         [SYNC_PROVIDER_TYPE, Sequence[Any], Dict[str, Any]],
         bool,
@@ -197,7 +199,9 @@ def set_threshold_if_empty(provider: SYNC_PROVIDER_TYPE) -> None:
         try:
             # turn off momentarily to avoid recursion
             provider.cache_allowed_requests = False
-            chain_id_result = provider.make_request("eth_chainId", [])["result"]
+            chain_id_result = provider.make_request(RPCEndpoint("eth_chainId"), [])[
+                "result"
+            ]
             chain_id = int(chain_id_result, 16)
 
             if current_threshold is empty:
@@ -214,7 +218,7 @@ def set_threshold_if_empty(provider: SYNC_PROVIDER_TYPE) -> None:
 
 def _should_cache_response(
     provider: SYNC_PROVIDER_TYPE,
-    method: "RPCEndpoint",
+    method: RPCEndpoint,
     params: Sequence[Any],
     response: "RPCResponse",
 ) -> bool:
@@ -232,10 +236,10 @@ def _should_cache_response(
 
 
 def handle_request_caching(
-    func: Callable[[SYNC_PROVIDER_TYPE, "RPCEndpoint", Any], "RPCResponse"]
+    func: Callable[[SYNC_PROVIDER_TYPE, RPCEndpoint, Any], "RPCResponse"]
 ) -> Callable[..., "RPCResponse"]:
     def wrapper(
-        provider: SYNC_PROVIDER_TYPE, method: "RPCEndpoint", params: Any
+        provider: SYNC_PROVIDER_TYPE, method: RPCEndpoint, params: Any
     ) -> "RPCResponse":
         if is_cacheable_request(provider, method, params):
             request_cache = provider._request_cache
@@ -266,7 +270,7 @@ ASYNC_VALIDATOR_TYPE = Callable[
     Union[bool, Coroutine[Any, Any, bool]],
 ]
 
-ASYNC_INTERNAL_VALIDATION_MAP: Dict["RPCEndpoint", ASYNC_VALIDATOR_TYPE] = {
+ASYNC_INTERNAL_VALIDATION_MAP: Dict[RPCEndpoint, ASYNC_VALIDATOR_TYPE] = {
     **{endpoint: always_cache_request for endpoint in ALWAYS_CACHE},
     **{
         endpoint: async_validate_from_block_id_in_params
@@ -292,7 +296,9 @@ async def async_set_threshold_if_empty(provider: ASYNC_PROVIDER_TYPE) -> None:
         try:
             # turn off momentarily to avoid recursion
             provider.cache_allowed_requests = False
-            chain_id_result = await provider.make_request("eth_chainId", [])
+            chain_id_result = await provider.make_request(
+                RPCEndpoint("eth_chainId"), []
+            )
             chain_id = int(chain_id_result["result"], 16)
 
             if current_threshold is empty:
@@ -309,7 +315,7 @@ async def async_set_threshold_if_empty(provider: ASYNC_PROVIDER_TYPE) -> None:
 
 async def _async_should_cache_response(
     provider: ASYNC_PROVIDER_TYPE,
-    method: "RPCEndpoint",
+    method: RPCEndpoint,
     params: Sequence[Any],
     response: "RPCResponse",
 ) -> bool:
@@ -333,11 +339,11 @@ async def _async_should_cache_response(
 
 def async_handle_request_caching(
     func: Callable[
-        [ASYNC_PROVIDER_TYPE, "RPCEndpoint", Any], Coroutine[Any, Any, "RPCResponse"]
+        [ASYNC_PROVIDER_TYPE, RPCEndpoint, Any], Coroutine[Any, Any, "RPCResponse"]
     ],
 ) -> Callable[..., Coroutine[Any, Any, "RPCResponse"]]:
     async def wrapper(
-        provider: ASYNC_PROVIDER_TYPE, method: "RPCEndpoint", params: Any
+        provider: ASYNC_PROVIDER_TYPE, method: RPCEndpoint, params: Any
     ) -> "RPCResponse":
         if is_cacheable_request(provider, method, params):
             request_cache = provider._request_cache
