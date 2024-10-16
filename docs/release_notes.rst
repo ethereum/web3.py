@@ -6,6 +6,29 @@ v7 Breaking Changes Summary
 
 .. towncrier release notes start
 
+web3.py v7.4.0 (2024-10-16)
+---------------------------
+
+Bugfixes
+~~~~~~~~
+
+- Fix a bug where CCIP-Read expected a ``{sender}`` in the url for a POST request. If ``{data}`` is missing from the url, assume a POST request is being made regardless of whether ``{sender}`` is present. (`#3291 <https://github.com/ethereum/web3.py/issues/3291>`__)
+- Fix a bug where non-mainnet chains could not cache requests based on missing ``finalized`` block number. (`#3508 <https://github.com/ethereum/web3.py/issues/3508>`__)
+- Send ``json``, not ``data`` with CCIP-Read POST requests. (`#3512 <https://github.com/ethereum/web3.py/issues/3512>`__)
+
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Update the request caching documentation to clarify on when to reach for request caching and how to configure the request validation threshold for certain endpoints. (`#3508 <https://github.com/ethereum/web3.py/issues/3508>`__)
+
+
+Features
+~~~~~~~~
+
+- Allow a time interval, in seconds, to be used as the ``request_cache_validation_threshold`` for request caching. Keep a list of internal default values based on the chain id for some of the bigger chains. (`#3508 <https://github.com/ethereum/web3.py/issues/3508>`__)
+
+
 web3.py v7.3.1 (2024-10-14)
 ---------------------------
 

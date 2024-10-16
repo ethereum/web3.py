@@ -1,1 +1,0 @@
-Send ``json``, not ``data`` with CCIP-Read POST requests.
