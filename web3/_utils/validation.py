@@ -79,6 +79,9 @@ def validate_abi(abi: ABI) -> None:
     if not all(is_dict(e) for e in abi):
         raise Web3ValueError("'abi' is not a list of dictionaries")
 
+    if not all("type" in e for e in abi):
+        raise Web3ValueError("'abi' must contain a list of elements each with a type")
+
     functions = filter_abi_by_type("function", abi)
     selectors = groupby(compose(encode_hex, function_abi_to_4byte_selector), functions)
     duplicates = valfilter(lambda funcs: len(funcs) > 1, selectors)

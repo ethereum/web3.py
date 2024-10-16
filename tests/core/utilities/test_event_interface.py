@@ -3,6 +3,7 @@ import pytest
 from web3.exceptions import (
     MismatchedABI,
     NoABIEventsFound,
+    NoABIFound,
 )
 
 EVENT_1_ABI = {
@@ -18,7 +19,7 @@ EVENT_1_ABI = {
 
 def test_access_event_with_no_abi(w3):
     contract = w3.eth.contract()
-    with pytest.raises(NoABIEventsFound):
+    with pytest.raises(NoABIFound):
         contract.events.thisEventDoesNotExist()
 
 
