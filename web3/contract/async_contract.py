@@ -137,7 +137,7 @@ class AsyncContractEvent(BaseContractEvent):
             from = max(mycontract.web3.eth.block_number - 10, 1)
             to = mycontract.web3.eth.block_number
 
-            events = mycontract.events.Transfer.getLogs(from_block=from, to_block=to)
+            events = mycontract.events.Transfer.get_logs(from_block=from, to_block=to)
 
             for e in events:
                 print(e["args"]["from"],
