@@ -773,6 +773,7 @@ def test_contract_event_get_logs_sorted_by_log_index(w3, emitter, request_mocker
         ),
     ),
 )
+@pytest.mark.parametrize("event_is_instance", (True, False))
 def test_event_rich_log(
     w3,
     emitter,
@@ -784,6 +785,7 @@ def test_event_rich_log(
     call_args,
     process_receipt,
     expected_args,
+    event_is_instance,
 ):
     emitter_fn = emitter.functions[contract_fn]
     if hasattr(emitter_contract_event_ids, event_name):
@@ -796,14 +798,19 @@ def test_event_rich_log(
         txn_hash = emitter_fn(*call_args).transact()
     txn_receipt = wait_for_transaction(w3, txn_hash)
 
-    event_instance = emitter.events[event_name]
+    if event_is_instance:
+        event_object = emitter.events[event_name]()
+    elif not event_is_instance:
+        event_object = emitter.events[event_name]
+    else:
+        raise Exception("Unreachable!")
 
     if process_receipt:
-        processed_logs = event_instance.process_receipt(txn_receipt)
+        processed_logs = event_object.process_receipt(txn_receipt)
         assert len(processed_logs) == 1
         rich_log = processed_logs[0]
     elif not process_receipt:
-        rich_log = event_instance.process_log(txn_receipt["logs"][0])
+        rich_log = event_object.process_log(txn_receipt["logs"][0])
     else:
         raise Exception("Unreachable!")
 
@@ -1036,6 +1043,7 @@ def test_event_rich_log(
         ),
     ),
 )
+@pytest.mark.parametrize("event_is_instance", (True, False))
 def test_event_rich_log_non_strict(
     w3_non_strict_abi,
     non_strict_emitter,
@@ -1047,6 +1055,7 @@ def test_event_rich_log_non_strict(
     call_args,
     process_receipt,
     expected_args,
+    event_is_instance,
 ):
     emitter_fn = non_strict_emitter.functions[contract_fn]
     if hasattr(emitter_contract_event_ids, event_name):
@@ -1059,14 +1068,19 @@ def test_event_rich_log_non_strict(
         txn_hash = emitter_fn(*call_args).transact()
     txn_receipt = wait_for_transaction(w3_non_strict_abi, txn_hash)
 
-    event_instance = non_strict_emitter.events[event_name]
+    if event_is_instance:
+        event_object = non_strict_emitter.events[event_name]()
+    elif not event_is_instance:
+        event_object = non_strict_emitter.events[event_name]
+    else:
+        raise Exception("Unreachable!")
 
     if process_receipt:
-        processed_logs = event_instance.process_receipt(txn_receipt)
+        processed_logs = event_object.process_receipt(txn_receipt)
         assert len(processed_logs) == 1
         rich_log = processed_logs[0]
     elif not process_receipt:
-        rich_log = event_instance.process_log(txn_receipt["logs"][0])
+        rich_log = event_object.process_log(txn_receipt["logs"][0])
     else:
         raise Exception("Unreachable!")
 

@@ -178,8 +178,9 @@ class BaseContractEvent:
     def process_receipt(
         self, txn_receipt: TxReceipt, errors: EventLogErrorFlags = WARN
     ) -> Iterable[EventData]:
-        return self._parse_logs(txn_receipt, errors)
+        return self._parse_logs(txn_receipt=txn_receipt, errors=errors)
 
+    @combomethod
     @to_tuple
     def _parse_logs(
         self, txn_receipt: TxReceipt, errors: EventLogErrorFlags
@@ -944,14 +945,9 @@ class BaseContract:
         Raises a Web3ValueError if the signature is invalid or if there is no match or
         more than one is found.
         """
-        if " " in signature:
-            raise Web3ValueError(
-                "Event signature should not contain any spaces. "
-                f"Found spaces in input: {signature}"
-            )
 
         def callable_check(event_abi: ABIEvent) -> bool:
-            return abi_to_signature(event_abi) == signature
+            return abi_to_signature(event_abi) == signature.replace(" ", "")
 
         events = self.find_events_by_identifier(
             self.abi, self.w3, self.address, callable_check
