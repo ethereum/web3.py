@@ -1,1 +1,0 @@
-Allow a time interval, in seconds, to be used as the ``request_cache_validation_threshold`` for request caching. Keep a list of internal default values based on the chain id for some of the bigger chains.

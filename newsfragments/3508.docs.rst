@@ -1,1 +1,0 @@
-Update the request caching documentation to clarify on when to reach for request caching and how to configure the request validation threshold for certain endpoints.
