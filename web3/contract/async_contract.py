@@ -15,6 +15,7 @@ from typing import (
 
 from eth_typing import (
     ABI,
+    ABIEvent,
     ChecksumAddress,
 )
 from eth_utils import (
@@ -99,6 +100,9 @@ from web3.types import (
     StateOverride,
     TxParams,
 )
+from web3.utils.abi import (
+    get_abi_element,
+)
 
 if TYPE_CHECKING:
     from ens import AsyncENS  # noqa: F401
@@ -108,6 +112,17 @@ if TYPE_CHECKING:
 class AsyncContractEvent(BaseContractEvent):
     # mypy types
     w3: "AsyncWeb3"
+
+    def __call__(self) -> "AsyncContractEvent":
+        clone = copy.copy(self)
+
+        if not self.abi:
+            self.abi = cast(
+                ABIEvent,
+                get_abi_element(self.contract_abi, self.event_name),
+            )
+
+        return clone
 
     @combomethod
     async def get_logs(
@@ -199,7 +214,9 @@ class AsyncContractEvent(BaseContractEvent):
             all_event_logs,
             argument_filters,
         )
-        return cast(Awaitable[Iterable[EventData]], filtered_logs)
+        sorted_logs = sorted(filtered_logs, key=lambda e: e["logIndex"])
+        sorted_logs = sorted(sorted_logs, key=lambda e: e["blockNumber"])
+        return cast(Awaitable[Iterable[EventData]], sorted_logs)
 
     @combomethod
     async def create_filter(

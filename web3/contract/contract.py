@@ -14,6 +14,7 @@ from typing import (
 
 from eth_typing import (
     ABI,
+    ABIEvent,
     ChecksumAddress,
 )
 from eth_utils import (
@@ -96,6 +97,9 @@ from web3.types import (
     StateOverride,
     TxParams,
 )
+from web3.utils.abi import (
+    get_abi_element,
+)
 
 if TYPE_CHECKING:
     from ens import ENS  # noqa: F401
@@ -105,6 +109,17 @@ if TYPE_CHECKING:
 class ContractEvent(BaseContractEvent):
     # mypy types
     w3: "Web3"
+
+    def __call__(self) -> "ContractEvent":
+        clone = copy.copy(self)
+
+        if not self.abi:
+            self.abi = cast(
+                ABIEvent,
+                get_abi_element(self.contract_abi, self.event_name),
+            )
+
+        return clone
 
     @combomethod
     def get_logs(
