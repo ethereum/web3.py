@@ -39,6 +39,7 @@ from web3.exceptions import (
     ProviderConnectionError,
     RequestTimedOut,
     TaskNotRunning,
+    TransactionNotFound,
     Web3RPCError,
     Web3TypeError,
 )
@@ -150,6 +151,7 @@ def _validate_response(
     error_formatters: Optional[Callable[..., Any]],
     is_subscription_response: bool = False,
     logger: Optional[logging.Logger] = None,
+    params: Optional[Any] = None,
 ) -> None:
     if "jsonrpc" not in response or response["jsonrpc"] != "2.0":
         _raise_bad_response_format(
@@ -209,6 +211,13 @@ def _validate_response(
         if not isinstance(error_message, str):
             _raise_bad_response_format(
                 response, 'error["message"] is required and must be a string value.'
+            )
+        elif error_message == "transaction not found":
+            transaction_hash = params[0]
+            web3_rpc_error = TransactionNotFound(
+                repr(error),
+                rpc_response=response,
+                user_message=(f"Transaction with hash {transaction_hash!r} not found."),
             )
 
         # errors must include an integer code
@@ -360,6 +369,7 @@ class RequestManager:
             error_formatters,
             is_subscription_response=is_subscription_response,
             logger=self.logger,
+            params=params,
         )
 
         # format results
