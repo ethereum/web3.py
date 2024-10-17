@@ -63,6 +63,7 @@ from web3.types import (
     BlockIdentifier,
     RPCEndpoint,
     StateOverride,
+    TContractEvent,
     TContractFn,
     TxParams,
 )
@@ -338,6 +339,9 @@ def find_functions_by_identifier(
     callable_check: Callable[..., Any],
     function_type: Type[TContractFn],
 ) -> List[TContractFn]:
+    """
+    Given a contract ABI, return a list of TContractFunction instances.
+    """
     fns_abi = filter_abi_by_type("function", contract_abi)
     return [
         function_type.factory(
@@ -356,13 +360,63 @@ def find_functions_by_identifier(
 def get_function_by_identifier(
     fns: Sequence[TContractFn], identifier: str
 ) -> TContractFn:
+    """
+    Check that the provided list of TContractFunction instances contains one element and
+    return it.
+    """
     if len(fns) > 1:
         raise Web3ValueError(
-            f"Found multiple functions with matching {identifier}. " f"Found: {fns!r}"
+            f"Found multiple functions with matching identifier `{identifier}`. "
+            f"Found: {fns!r}"
         )
     elif len(fns) == 0:
-        raise Web3ValueError(f"Could not find any function with matching {identifier}")
+        raise Web3ValueError(
+            f"Could not find any function with matching identifier `{identifier}`"
+        )
     return fns[0]
+
+
+def find_events_by_identifier(
+    contract_abi: ABI,
+    w3: Union["Web3", "AsyncWeb3"],
+    address: ChecksumAddress,
+    callable_check: Callable[..., Any],
+    event_type: Type[TContractEvent],
+) -> List[TContractEvent]:
+    """
+    Given a contract ABI, return a list of TContractEvent instances.
+    """
+    event_abis = filter_abi_by_type("event", contract_abi)
+    return [
+        event_type.factory(
+            event_abi["name"],
+            w3=w3,
+            contract_abi=contract_abi,
+            address=address,
+            abi=event_abi,
+        )
+        for event_abi in event_abis
+        if callable_check(event_abi)
+    ]
+
+
+def get_event_by_identifier(
+    events: Sequence[TContractEvent], identifier: str
+) -> TContractEvent:
+    """
+    Check that the provided list of TContractEvent instances contains one element and
+    return it.
+    """
+    if len(events) > 1:
+        raise Web3ValueError(
+            f"Found multiple events with matching identifier `{identifier}`. "
+            f"Found: {events!r}"
+        )
+    elif len(events) == 0:
+        raise Web3ValueError(
+            f"Could not find any event with matching identifier `{identifier}`"
+        )
+    return events[0]
 
 
 # --- async --- #
