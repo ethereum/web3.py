@@ -366,10 +366,13 @@ def get_function_by_identifier(
     """
     if len(fns) > 1:
         raise Web3ValueError(
-            f"Found multiple functions with matching {identifier}. " f"Found: {fns!r}"
+            f"Found multiple functions with matching identifier `{identifier}`. "
+            f"Found: {fns!r}"
         )
     elif len(fns) == 0:
-        raise Web3ValueError(f"Could not find any function with matching {identifier}")
+        raise Web3ValueError(
+            f"Could not find any function with matching identifier `{identifier}`"
+        )
     return fns[0]
 
 
@@ -406,10 +409,13 @@ def get_event_by_identifier(
     """
     if len(events) > 1:
         raise Web3ValueError(
-            f"Found multiple events with matching {identifier}. " f"Found: {events!r}"
+            f"Found multiple events with matching identifier `{identifier}`. "
+            f"Found: {events!r}"
         )
     elif len(events) == 0:
-        raise Web3ValueError(f"Could not find any event with matching {identifier}")
+        raise Web3ValueError(
+            f"Could not find any event with matching identifier `{identifier}`"
+        )
     return events[0]
 
 
