@@ -101,8 +101,7 @@ and after the request was made.
 Now, middleware logic can be separated into ``request_processor`` and ``response_processor``
 functions that enable pre-request and post-response logic, respectively. This change offers
 a simpler, clearer interface for defining middleware, gives more flexibility for
-asynchronous operations and also paves the way for supporting batch requests - included in
-the roadmap for web3.py.
+asynchronous operations and also paved the way for supporting :ref:`batch_requests`.
 
 Major changes for migration are highlighted in this section. Consult the
 :ref:`middleware_internals` section of the documentation for specifics and examples on
