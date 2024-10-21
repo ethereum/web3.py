@@ -133,6 +133,53 @@ def test_find_or_get_functions_by_type(w3, method, args, repr_func, expected):
     assert repr_func(function) == expected
 
 
+def test_get_function_by_name(w3):
+    FUNCTION_NAME_OVERLAP_ABI = [
+        {
+            "anonymous": False,
+            "inputs": [],
+            "name": "increment",
+            "type": "function",
+        },
+        {
+            "anonymous": False,
+            "inputs": [],
+            "name": "incrementCount",
+            "type": "function",
+        },
+    ]
+    contract = w3.eth.contract(abi=FUNCTION_NAME_OVERLAP_ABI)
+
+    increment_func = contract.get_function_by_name("increment")
+    increment_count_func = contract.get_function_by_name("incrementCount")
+    assert repr(increment_func) == "<Function increment()>"
+    assert repr(increment_count_func) == "<Function incrementCount()>"
+
+
+def test_get_event_by_name(w3):
+    EVENT_NAME_OVERLAP_ABI = [
+        {
+            "anonymous": False,
+            "inputs": [],
+            "name": "Deposit",
+            "type": "event",
+        },
+        {
+            "anonymous": False,
+            "inputs": [],
+            "name": "Deposited",
+            "type": "event",
+        },
+    ]
+    contract = w3.eth.contract(abi=EVENT_NAME_OVERLAP_ABI)
+
+    deposit_event = contract.get_event_by_name("Deposit")
+    deposited_event = contract.get_event_by_name("Deposited")
+
+    assert repr(deposit_event) == "<Event Deposit()>"
+    assert repr(deposited_event) == "<Event Deposited()>"
+
+
 @pytest.mark.parametrize(
     "method,args,expected_message,expected_error",
     (

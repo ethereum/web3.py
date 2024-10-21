@@ -38,6 +38,8 @@ from eth_utils import (
     get_normalized_abi_inputs,
     is_list_like,
     is_text,
+    keccak,
+    to_bytes,
     to_tuple,
 )
 from hexbytes import (
@@ -66,6 +68,7 @@ from web3._utils.empty import (
     empty,
 )
 from web3._utils.encoding import (
+    hexstr_if_str,
     to_4byte_hex,
     to_hex,
 )
@@ -130,8 +133,14 @@ if TYPE_CHECKING:
         Web3,
     )
 
-    from .async_contract import AsyncContractFunction  # noqa: F401
-    from .contract import ContractFunction  # noqa: F401
+    from .async_contract import (  # noqa: F401
+        AsyncContractEvent,
+        AsyncContractFunction,
+    )
+    from .contract import (  # noqa: F401
+        ContractEvent,
+        ContractFunction,
+    )
 
 
 class BaseContractEvent:
@@ -148,14 +157,18 @@ class BaseContractEvent:
     contract_abi: ABI = None
     abi: ABIEvent = None
 
-    def __init__(self, *argument_names: Tuple[str]) -> None:
+    def __init__(self, *argument_names: Tuple[str], abi: ABIEvent) -> None:
+        self.abi = abi
+        self.name = type(self).__name__
+
         if argument_names is None:
             # https://github.com/python/mypy/issues/6283
             self.argument_names = tuple()  # type: ignore
         else:
             self.argument_names = argument_names
 
-        self.abi = self._get_event_abi()
+    def __repr__(self) -> str:
+        return f"<Event {abi_to_signature(self.abi)}>"
 
     @classmethod
     def _get_event_abi(cls) -> ABIEvent:
@@ -165,8 +178,9 @@ class BaseContractEvent:
     def process_receipt(
         self, txn_receipt: TxReceipt, errors: EventLogErrorFlags = WARN
     ) -> Iterable[EventData]:
-        return self._parse_logs(txn_receipt, errors)
+        return self._parse_logs(txn_receipt=txn_receipt, errors=errors)
 
+    @combomethod
     @to_tuple
     def _parse_logs(
         self, txn_receipt: TxReceipt, errors: EventLogErrorFlags
@@ -258,8 +272,12 @@ class BaseContractEvent:
         return event_filter_params
 
     @classmethod
-    def factory(cls, class_name: str, **kwargs: Any) -> PropertyCheckingFactory:
-        return PropertyCheckingFactory(class_name, (cls,), kwargs)
+    def factory(
+        cls, class_name: str, **kwargs: Any
+    ) -> Union["ContractEvent", "AsyncContractEvent"]:
+        return PropertyCheckingFactory(class_name, (cls,), kwargs)(
+            abi=kwargs.get("abi")
+        )
 
     @staticmethod
     def check_for_forbidden_api_filter_arguments(
@@ -414,7 +432,7 @@ class BaseContractEvents:
         self,
         abi: ABI,
         w3: Union["Web3", "AsyncWeb3"],
-        contract_event_type: Type["BaseContractEvent"],
+        contract_event_type: Union[Type["ContractEvent"], Type["AsyncContractEvent"]],
         address: Optional[ChecksumAddress] = None,
     ) -> None:
         if abi:
@@ -430,6 +448,7 @@ class BaseContractEvents:
                         contract_abi=self.abi,
                         address=address,
                         event_name=event["name"],
+                        abi=event,
                     ),
                 )
 
@@ -658,7 +677,9 @@ class BaseContractFunction:
     def factory(
         cls, class_name: str, **kwargs: Any
     ) -> Union["ContractFunction", "AsyncContractFunction"]:
-        return PropertyCheckingFactory(class_name, (cls,), kwargs)(kwargs.get("abi"))
+        return PropertyCheckingFactory(class_name, (cls,), kwargs)(
+            abi=kwargs.get("abi")
+        )
 
 
 class BaseContractFunctions:
@@ -766,7 +787,7 @@ class BaseContract:
     ) -> HexStr:
         """
         Encodes the arguments using the Ethereum ABI for the contract function
-        that matches the given name and arguments..
+        that matches the given name and arguments.
 
         :param data: defaults to function selector
         """
@@ -786,16 +807,27 @@ class BaseContract:
 
         return encode_abi(cls.w3, element_info["abi"], element_info["arguments"], data)
 
+    #
+    # Functions API
+    #
     @combomethod
     def all_functions(
         self,
     ) -> "BaseContractFunction":
+        """
+        Return all functions in the contract.
+        """
         return self.find_functions_by_identifier(
             self.abi, self.w3, self.address, lambda _: True
         )
 
     @combomethod
     def get_function_by_signature(self, signature: str) -> "BaseContractFunction":
+        """
+        Return a distinct function with matching signature.
+        Raises a Web3ValueError if the signature is invalid or if there is no match or
+        more than one is found.
+        """
         if " " in signature:
             raise Web3ValueError(
                 "Function signature should not contain any spaces. "
@@ -812,6 +844,11 @@ class BaseContract:
 
     @combomethod
     def find_functions_by_name(self, fn_name: str) -> "BaseContractFunction":
+        """
+        Return all functions with matching name.
+        Raises a Web3ValueError if there is no match or more than one is found.
+        """
+
         def callable_check(fn_abi: ABIFunction) -> bool:
             return fn_abi["name"] == fn_name
 
@@ -821,6 +858,10 @@ class BaseContract:
 
     @combomethod
     def get_function_by_name(self, fn_name: str) -> "BaseContractFunction":
+        """
+        Return a distinct function with matching name.
+        Raises a Web3ValueError if there is no match or more than one is found.
+        """
         fns = self.find_functions_by_name(fn_name)
         return self.get_function_by_identifier(fns, "name")
 
@@ -828,6 +869,11 @@ class BaseContract:
     def get_function_by_selector(
         self, selector: Union[bytes, int, HexStr]
     ) -> "BaseContractFunction":
+        """
+        Return a distinct function with matching 4byte selector.
+        Raises a Web3ValueError if there is no match or more than one is found.
+        """
+
         def callable_check(fn_abi: ABIFunction) -> bool:
             return encode_hex(function_abi_to_4byte_selector(fn_abi)) == to_4byte_hex(
                 selector
@@ -842,6 +888,9 @@ class BaseContract:
     def decode_function_input(
         self, data: HexStr
     ) -> Tuple["BaseContractFunction", Dict[str, Any]]:
+        """
+        Return a Tuple of the function selector and decoded arguments.
+        """
         func = self.get_function_by_selector(HexBytes(data)[:4])
         arguments = decode_transaction_data(
             func.abi, data, normalizers=BASE_RETURN_NORMALIZERS
@@ -850,6 +899,11 @@ class BaseContract:
 
     @combomethod
     def find_functions_by_args(self, *args: Any) -> "BaseContractFunction":
+        """
+        Return all functions with matching args, checking each argument can be encoded
+        with the type.
+        """
+
         def callable_check(fn_abi: ABIFunction) -> bool:
             return check_if_arguments_can_be_encoded(
                 fn_abi,
@@ -864,8 +918,195 @@ class BaseContract:
 
     @combomethod
     def get_function_by_args(self, *args: Any) -> "BaseContractFunction":
+        """
+        Return a distinct function with matching args, checking each argument can be
+        encoded with the type.
+        Raises a Web3ValueError if there is no match or more than one is found.
+        """
         fns = self.find_functions_by_args(*args)
         return self.get_function_by_identifier(fns, "args")
+
+    #
+    #  Events API
+    #
+    @combomethod
+    def all_events(self) -> List["BaseContractEvent"]:
+        """
+        Return all events in the contract.
+        """
+        return self.find_events_by_identifier(
+            self.abi, self.w3, self.address, lambda _: True
+        )
+
+    @combomethod
+    def get_event_by_signature(self, signature: str) -> "BaseContractEvent":
+        """
+        Return a distinct event with matching signature.
+        Raises a Web3ValueError if the signature is invalid or if there is no match or
+        more than one is found.
+        """
+
+        def callable_check(event_abi: ABIEvent) -> bool:
+            return abi_to_signature(event_abi) == signature.replace(" ", "")
+
+        events = self.find_events_by_identifier(
+            self.abi, self.w3, self.address, callable_check
+        )
+        return self.get_event_by_identifier(events, "signature")
+
+    @combomethod
+    def find_events_by_name(self, event_name: str) -> List["BaseContractEvent"]:
+        """
+        Return all events with matching name.
+        Raises a Web3ValueError if there is no match or more than one is found.
+        """
+
+        def callable_check(fn_abi: ABIFunction) -> bool:
+            return fn_abi["name"] == event_name
+
+        return self.find_events_by_identifier(
+            self.abi, self.w3, self.address, callable_check
+        )
+
+    @combomethod
+    def get_event_by_name(self, event_name: str) -> "BaseContractEvent":
+        """
+        Return a distinct event with matching name.
+        Raises a Web3ValueError if there is no match or more than one is found.
+        """
+        events = self.find_events_by_name(event_name)
+        return self.get_event_by_identifier(events, "name")
+
+    @combomethod
+    def find_events_by_selector(
+        self, selector: Union[bytes, int, HexStr]
+    ) -> List["BaseContractEvent"]:
+        """
+        Return all events with matching selector.
+        Raises a Web3ValueError if there is no match or more than one is found.
+        """
+
+        def callable_check(event_abi: ABIEvent) -> bool:
+            return encode_hex(
+                keccak(text=abi_to_signature(event_abi).replace(" ", ""))
+            ) == encode_hex(hexstr_if_str(to_bytes, selector))
+
+        return self.find_events_by_identifier(
+            self.abi, self.w3, self.address, callable_check
+        )
+
+    @combomethod
+    def get_event_by_selector(
+        self, selector: Union[bytes, int, HexStr]
+    ) -> "BaseContractEvent":
+        """
+        Return a distinct event with matching keccak selector.
+        Raises a Web3ValueError if there is no match or more than one is found.
+        """
+        events = self.find_events_by_selector(selector)
+        return self.get_event_by_identifier(events, "selector")
+
+    @combomethod
+    def find_events_by_topic(self, topic: HexStr) -> List["BaseContractEvent"]:
+        """
+        Return all events with matching topic.
+        Raises a Web3ValueError if there is no match or more than one is found.
+        """
+
+        def callable_check(event_abi: ABIEvent) -> bool:
+            return (
+                encode_hex(keccak(text=abi_to_signature(event_abi).replace(" ", "")))
+                == topic
+            )
+
+        return self.find_events_by_identifier(
+            self.abi, self.w3, self.address, callable_check
+        )
+
+    @combomethod
+    def get_event_by_topic(self, topic: HexStr) -> "BaseContractEvent":
+        """
+        Return a distinct event with matching topic.
+        Raises a Web3ValueError if there is no match or more than one is found.
+        """
+        events = self.find_events_by_topic(topic)
+        return self.get_event_by_identifier(events, "topic")
+
+    @combomethod
+    def find_functions_by_identifier(
+        cls,
+        contract_abi: ABI,
+        w3: Union["Web3", "AsyncWeb3"],
+        address: ChecksumAddress,
+        callable_check: Callable[..., Any],
+    ) -> List[Any]:
+        raise NotImplementedError(
+            "This method should be implemented in the inherited class"
+        )
+
+    @combomethod
+    def get_function_by_identifier(
+        cls, fns: Sequence["BaseContractFunction"], identifier: str
+    ) -> "BaseContractFunction":
+        raise NotImplementedError(
+            "This method should be implemented in the inherited class"
+        )
+
+    @combomethod
+    def find_events_by_identifier(
+        cls,
+        contract_abi: ABI,
+        w3: Union["Web3", "AsyncWeb3"],
+        address: ChecksumAddress,
+        callable_check: Callable[..., Any],
+    ) -> List[Any]:
+        raise NotImplementedError(
+            "This method should be implemented in the inherited class"
+        )
+
+    @combomethod
+    def get_event_by_identifier(
+        cls, fns: Sequence["BaseContractEvent"], identifier: str
+    ) -> "BaseContractEvent":
+        raise NotImplementedError(
+            "This method should be implemented in the inherited class"
+        )
+
+    @staticmethod
+    def get_fallback_function(
+        abi: ABI,
+        w3: Union["Web3", "AsyncWeb3"],
+        function_type: Type["BaseContractFunction"],
+        address: Optional[ChecksumAddress] = None,
+    ) -> "BaseContractFunction":
+        if abi and fallback_func_abi_exists(abi):
+            return function_type.factory(
+                "fallback",
+                w3=w3,
+                contract_abi=abi,
+                address=address,
+                abi_element_identifier=FallbackFn,
+            )()
+
+        return cast(function_type, NonExistentFallbackFunction())  # type: ignore
+
+    @staticmethod
+    def get_receive_function(
+        abi: ABI,
+        w3: Union["Web3", "AsyncWeb3"],
+        function_type: Type["BaseContractFunction"],
+        address: Optional[ChecksumAddress] = None,
+    ) -> "BaseContractFunction":
+        if abi and receive_func_abi_exists(abi):
+            return function_type.factory(
+                "receive",
+                w3=w3,
+                contract_abi=abi,
+                address=address,
+                abi_element_identifier=ReceiveFn,
+            )()
+
+        return cast(function_type, NonExistentReceiveFunction())  # type: ignore
 
     #
     # Private Helpers
@@ -935,62 +1176,6 @@ class BaseContract:
             deploy_data = to_hex(cls.bytecode)
 
         return deploy_data
-
-    @combomethod
-    def find_functions_by_identifier(
-        cls,
-        contract_abi: ABI,
-        w3: Union["Web3", "AsyncWeb3"],
-        address: ChecksumAddress,
-        callable_check: Callable[..., Any],
-    ) -> List[Any]:
-        raise NotImplementedError(
-            "This method should be implemented in the inherited class"
-        )
-
-    @combomethod
-    def get_function_by_identifier(
-        cls, fns: Sequence["BaseContractFunction"], identifier: str
-    ) -> "BaseContractFunction":
-        raise NotImplementedError(
-            "This method should be implemented in the inherited class"
-        )
-
-    @staticmethod
-    def get_fallback_function(
-        abi: ABI,
-        w3: Union["Web3", "AsyncWeb3"],
-        function_type: Type["BaseContractFunction"],
-        address: Optional[ChecksumAddress] = None,
-    ) -> "BaseContractFunction":
-        if abi and fallback_func_abi_exists(abi):
-            return function_type.factory(
-                "fallback",
-                w3=w3,
-                contract_abi=abi,
-                address=address,
-                abi_element_identifier=FallbackFn,
-            )()
-
-        return cast(function_type, NonExistentFallbackFunction())  # type: ignore
-
-    @staticmethod
-    def get_receive_function(
-        abi: ABI,
-        w3: Union["Web3", "AsyncWeb3"],
-        function_type: Type["BaseContractFunction"],
-        address: Optional[ChecksumAddress] = None,
-    ) -> "BaseContractFunction":
-        if abi and receive_func_abi_exists(abi):
-            return function_type.factory(
-                "receive",
-                w3=w3,
-                contract_abi=abi,
-                address=address,
-                abi_element_identifier=ReceiveFn,
-            )()
-
-        return cast(function_type, NonExistentReceiveFunction())  # type: ignore
 
 
 class BaseContractCaller:

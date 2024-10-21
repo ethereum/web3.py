@@ -15,6 +15,7 @@ from typing import (
 
 from eth_typing import (
     ABI,
+    ABIEvent,
     ChecksumAddress,
 )
 from eth_utils import (
@@ -79,7 +80,9 @@ from web3.contract.utils import (
     async_call_contract_function,
     async_estimate_gas_for_function,
     async_transact_with_contract_function,
+    find_events_by_identifier,
     find_functions_by_identifier,
+    get_event_by_identifier,
     get_function_by_identifier,
 )
 from web3.exceptions import (
@@ -97,6 +100,9 @@ from web3.types import (
     StateOverride,
     TxParams,
 )
+from web3.utils.abi import (
+    get_abi_element,
+)
 
 if TYPE_CHECKING:
     from ens import AsyncENS  # noqa: F401
@@ -106,6 +112,17 @@ if TYPE_CHECKING:
 class AsyncContractEvent(BaseContractEvent):
     # mypy types
     w3: "AsyncWeb3"
+
+    def __call__(self) -> "AsyncContractEvent":
+        clone = copy.copy(self)
+
+        if not self.abi:
+            self.abi = cast(
+                ABIEvent,
+                get_abi_element(self.contract_abi, self.event_name),
+            )
+
+        return clone
 
     @combomethod
     async def get_logs(
@@ -135,7 +152,7 @@ class AsyncContractEvent(BaseContractEvent):
             from = max(mycontract.web3.eth.block_number - 10, 1)
             to = mycontract.web3.eth.block_number
 
-            events = mycontract.events.Transfer.getLogs(from_block=from, to_block=to)
+            events = mycontract.events.Transfer.get_logs(from_block=from, to_block=to)
 
             for e in events:
                 print(e["args"]["from"],
@@ -197,7 +214,9 @@ class AsyncContractEvent(BaseContractEvent):
             all_event_logs,
             argument_filters,
         )
-        return cast(Awaitable[Iterable[EventData]], filtered_logs)
+        sorted_logs = sorted(filtered_logs, key=lambda e: e["logIndex"])
+        sorted_logs = sorted(sorted_logs, key=lambda e: e["blockNumber"])
+        return cast(Awaitable[Iterable[EventData]], sorted_logs)
 
     @combomethod
     async def create_filter(
@@ -238,6 +257,12 @@ class AsyncContractEvent(BaseContractEvent):
         )
         builder.address = self.address
         return builder
+
+    @classmethod
+    def factory(cls, class_name: str, **kwargs: Any) -> Self:
+        return PropertyCheckingFactory(class_name, (cls,), kwargs)(
+            abi=kwargs.get("abi")
+        )
 
 
 class AsyncContractEvents(BaseContractEvents):
@@ -555,6 +580,24 @@ class AsyncContract(BaseContract):
         cls, fns: Sequence["AsyncContractFunction"], identifier: str
     ) -> "AsyncContractFunction":
         return get_function_by_identifier(fns, identifier)
+
+    @combomethod
+    def find_events_by_identifier(
+        cls,
+        contract_abi: ABI,
+        w3: "AsyncWeb3",
+        address: ChecksumAddress,
+        callable_check: Callable[..., Any],
+    ) -> List["AsyncContractEvent"]:
+        return find_events_by_identifier(
+            contract_abi, w3, address, callable_check, AsyncContractEvent
+        )
+
+    @combomethod
+    def get_event_by_identifier(
+        cls, events: Sequence["AsyncContractEvent"], identifier: str
+    ) -> "AsyncContractEvent":
+        return get_event_by_identifier(events, identifier)
 
 
 class AsyncContractCaller(BaseContractCaller):
