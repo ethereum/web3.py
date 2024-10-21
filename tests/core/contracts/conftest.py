@@ -217,6 +217,28 @@ def non_strict_emitter(
     return emitter_contract
 
 
+@pytest.fixture
+def emitter(
+    w3,
+    emitter_contract_data,
+    wait_for_transaction,
+    wait_for_block,
+    address_conversion_func,
+):
+    emitter_contract_factory = w3.eth.contract(**emitter_contract_data)
+
+    wait_for_block(w3)
+    deploy_txn_hash = emitter_contract_factory.constructor().transact({"gas": 30029121})
+    deploy_receipt = wait_for_transaction(w3, deploy_txn_hash)
+    contract_address = address_conversion_func(deploy_receipt["contractAddress"])
+
+    bytecode = w3.eth.get_code(contract_address)
+    assert bytecode == emitter_contract_factory.bytecode_runtime
+    _emitter = emitter_contract_factory(address=contract_address)
+    assert _emitter.address == contract_address
+    return _emitter
+
+
 # --- event contract --- #
 
 
@@ -760,3 +782,27 @@ def async_call(request):
 @pytest.fixture
 def async_estimate_gas(request):
     return async_partial(async_invoke_contract, api_call_desig="estimate_gas")
+
+
+@pytest_asyncio.fixture
+async def async_emitter(
+    async_w3,
+    emitter_contract_data,
+    async_wait_for_transaction,
+    async_wait_for_block,
+    address_conversion_func,
+):
+    async_emitter_contract_factory = async_w3.eth.contract(**emitter_contract_data)
+
+    await async_wait_for_block(async_w3)
+    deploy_txn_hash = await async_emitter_contract_factory.constructor().transact(
+        {"gas": 10000000}
+    )
+    deploy_receipt = await async_wait_for_transaction(async_w3, deploy_txn_hash)
+    contract_address = address_conversion_func(deploy_receipt["contractAddress"])
+
+    bytecode = await async_w3.eth.get_code(contract_address)
+    assert bytecode == async_emitter_contract_factory.bytecode_runtime
+    _emitter = async_emitter_contract_factory(address=contract_address)
+    assert _emitter.address == contract_address
+    return _emitter

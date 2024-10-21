@@ -14,6 +14,7 @@ from typing import (
 
 from eth_typing import (
     ABI,
+    ABIEvent,
     ChecksumAddress,
 )
 from eth_utils import (
@@ -75,7 +76,9 @@ from web3.contract.utils import (
     build_transaction_for_function,
     call_contract_function,
     estimate_gas_for_function,
+    find_events_by_identifier,
     find_functions_by_identifier,
+    get_event_by_identifier,
     get_function_by_identifier,
     transact_with_contract_function,
 )
@@ -94,6 +97,9 @@ from web3.types import (
     StateOverride,
     TxParams,
 )
+from web3.utils.abi import (
+    get_abi_element,
+)
 
 if TYPE_CHECKING:
     from ens import ENS  # noqa: F401
@@ -103,6 +109,17 @@ if TYPE_CHECKING:
 class ContractEvent(BaseContractEvent):
     # mypy types
     w3: "Web3"
+
+    def __call__(self) -> "ContractEvent":
+        clone = copy.copy(self)
+
+        if not self.abi:
+            self.abi = cast(
+                ABIEvent,
+                get_abi_element(self.contract_abi, self.event_name),
+            )
+
+        return clone
 
     @combomethod
     def get_logs(
@@ -237,6 +254,12 @@ class ContractEvent(BaseContractEvent):
         )
         builder.address = self.address
         return builder
+
+    @classmethod
+    def factory(cls, class_name: str, **kwargs: Any) -> Self:
+        return PropertyCheckingFactory(class_name, (cls,), kwargs)(
+            abi=kwargs.get("abi")
+        )
 
 
 class ContractEvents(BaseContractEvents):
@@ -561,6 +584,24 @@ class Contract(BaseContract):
         cls, fns: Sequence["ContractFunction"], identifier: str
     ) -> "ContractFunction":
         return get_function_by_identifier(fns, identifier)
+
+    @combomethod
+    def find_events_by_identifier(
+        cls,
+        contract_abi: ABI,
+        w3: "Web3",
+        address: ChecksumAddress,
+        callable_check: Callable[..., Any],
+    ) -> List["ContractEvent"]:
+        return find_events_by_identifier(
+            contract_abi, w3, address, callable_check, ContractEvent
+        )
+
+    @combomethod
+    def get_event_by_identifier(
+        cls, events: Sequence["ContractEvent"], identifier: str
+    ) -> "ContractEvent":
+        return get_event_by_identifier(events, identifier)
 
 
 class ContractCaller(BaseContractCaller):

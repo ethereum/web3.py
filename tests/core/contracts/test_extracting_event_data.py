@@ -40,28 +40,6 @@ def dup_txn_receipt(w3, indexed_event_contract, wait_for_transaction, event_cont
     return wait_for_transaction(w3, dup_txn_hash)
 
 
-@pytest.fixture
-def emitter(
-    w3,
-    emitter_contract_data,
-    wait_for_transaction,
-    wait_for_block,
-    address_conversion_func,
-):
-    emitter_contract_factory = w3.eth.contract(**emitter_contract_data)
-
-    wait_for_block(w3)
-    deploy_txn_hash = emitter_contract_factory.constructor().transact({"gas": 30029121})
-    deploy_receipt = wait_for_transaction(w3, deploy_txn_hash)
-    contract_address = address_conversion_func(deploy_receipt["contractAddress"])
-
-    bytecode = w3.eth.get_code(contract_address)
-    assert bytecode == emitter_contract_factory.bytecode_runtime
-    _emitter = emitter_contract_factory(address=contract_address)
-    assert _emitter.address == contract_address
-    return _emitter
-
-
 @pytest.mark.parametrize(
     "contract_fn,event_name,call_args,expected_args",
     (
@@ -128,7 +106,7 @@ def test_event_data_extraction(
     assert len(txn_receipt["logs"]) == 1
     log_entry = txn_receipt["logs"][0]
 
-    event_abi = emitter._get_event_abi(event_name)
+    event_abi = emitter.get_event_by_name(event_name).abi
 
     event_topic = getattr(emitter_contract_log_topics, event_name)
     is_anonymous = event_abi["anonymous"]
@@ -335,7 +313,7 @@ def test_event_data_extraction_bytes(
     log_entry = txn_receipt["logs"][0]
 
     event_name = "LogListArgs"
-    event_abi = emitter._get_event_abi(event_name)
+    event_abi = emitter.get_event_by_name(event_name).abi
 
     event_topic = getattr(emitter_contract_log_topics, event_name)
 
@@ -386,7 +364,7 @@ def test_event_data_extraction_bytes_non_strict(
     log_entry = txn_receipt["logs"][0]
 
     event_name = "LogListArgs"
-    event_abi = non_strict_emitter._get_event_abi(event_name)
+    event_abi = non_strict_emitter.get_event_by_name(event_name).abi
 
     event_topic = getattr(emitter_contract_log_topics, event_name)
 
@@ -431,7 +409,7 @@ def test_dynamic_length_argument_extraction(
     assert len(txn_receipt["logs"]) == 1
     log_entry = txn_receipt["logs"][0]
 
-    event_abi = emitter._get_event_abi("LogDynamicArgs")
+    event_abi = emitter.get_event_by_name("LogDynamicArgs").abi
 
     event_topic = emitter_contract_log_topics.LogDynamicArgs
     assert event_topic in log_entry["topics"]
@@ -466,7 +444,7 @@ def test_argument_extraction_strict_bytes_types(
     log_entry = txn_receipt["logs"][0]
     assert len(log_entry["topics"]) == 2
 
-    event_abi = emitter._get_event_abi("LogListArgs")
+    event_abi = emitter.get_event_by_name("LogListArgs").abi
 
     event_topic = emitter_contract_log_topics.LogListArgs
     assert event_topic in log_entry["topics"]
@@ -548,11 +526,88 @@ def test_contract_event_get_logs_sorted_by_log_index(w3, emitter, request_mocker
         logs = emitter.events.LogNoArguments().get_logs()
 
         sorted_logs = sorted(
-            emitter.events.LogNoArguments().get_logs(),
+            emitter.events.LogNoArguments.get_logs(),
             key=lambda log: log["logIndex"],
         )
         sorted_logs = sorted(
-            emitter.events.LogNoArguments().get_logs(),
+            emitter.events.LogNoArguments.get_logs(),
+            key=lambda log: log["blockNumber"],
+        )
+
+    assert len(logs) == 4
+    assert logs == sorted_logs
+
+
+@pytest.mark.asyncio
+async def test_async_contract_event_get_logs_sorted_by_log_index(
+    async_w3, async_emitter, request_mocker
+):
+    get_logs_response = [
+        {
+            "type": "mined",
+            "logIndex": 10,
+            "transactionIndex": 0,
+            "transactionHash": "0xaef7f312d863780b861d8c38984b2a33f77e9508810735e2b042143f7f189f83",  # noqa: E501
+            "blockHash": "0x2200ec3324fdaca4ee2f4629489d2d06fb28108dae61b63b84ef39702e2b64e7",  # noqa: E501
+            "blockNumber": 3,
+            "address": "0xF2E246BB76DF876Cef8b38ae84130F4F55De395b",
+            "data": "0x",
+            "topics": [
+                "0x1e86022f78f8d04f8e3dfd13a2bdb280403e6632877c0dbee5e4eeb259908a5c"
+            ],
+        },
+        {
+            "type": "mined",
+            "logIndex": 0,
+            "transactionIndex": 0,
+            "transactionHash": "0x61e57bb1b5af14ca1b0964a84fb640bf39927961f26311a6450475a749e00cbb",  # noqa: E501
+            "blockHash": "0x73dd9a3b0f581689ebd67adea0debe05672a334c723379dc506fb71a666c1754",  # noqa: E501
+            "blockNumber": 4,
+            "address": "0xF2E246BB76DF876Cef8b38ae84130F4F55De395b",
+            "data": "0x",
+            "topics": [
+                "0x1e86022f78f8d04f8e3dfd13a2bdb280403e6632877c0dbee5e4eeb259908a5c"
+            ],
+        },
+        {
+            "type": "mined",
+            "logIndex": 123,
+            "transactionIndex": 0,
+            "transactionHash": "0x61e57bb1b5af14ca1b0964a84fb640bf39927961f26311a6450475a749e00cbb",  # noqa: E501
+            "blockHash": "0x73dd9a3b0f581689ebd67adea0debe05672a334c723379dc506fb71a666c1754",  # noqa: E501
+            "blockNumber": 1,
+            "address": "0xF2E246BB76DF876Cef8b38ae84130F4F55De395b",
+            "data": "0x",
+            "topics": [
+                "0x1e86022f78f8d04f8e3dfd13a2bdb280403e6632877c0dbee5e4eeb259908a5c"
+            ],
+        },
+        {
+            "type": "mined",
+            "logIndex": 54,
+            "transactionIndex": 0,
+            "transactionHash": "0x61e57bb1b5af14ca1b0964a84fb640bf39927961f26311a6450475a749e00cbb",  # noqa: E501
+            "blockHash": "0x73dd9a3b0f581689ebd67adea0debe05672a334c723379dc506fb71a666c1754",  # noqa: E501
+            "blockNumber": 1,
+            "address": "0xF2E246BB76DF876Cef8b38ae84130F4F55De395b",
+            "data": "0x",
+            "topics": [
+                "0x1e86022f78f8d04f8e3dfd13a2bdb280403e6632877c0dbee5e4eeb259908a5c"
+            ],
+        },
+    ]
+
+    async with request_mocker(
+        async_w3, mock_results={"eth_getLogs": lambda *_: get_logs_response}
+    ):
+        logs = await async_emitter.events.LogNoArguments().get_logs()
+
+        sorted_logs = sorted(
+            await async_emitter.events.LogNoArguments.get_logs(),
+            key=lambda log: log["logIndex"],
+        )
+        sorted_logs = sorted(
+            await async_emitter.events.LogNoArguments.get_logs(),
             key=lambda log: log["blockNumber"],
         )
 
@@ -773,6 +828,7 @@ def test_contract_event_get_logs_sorted_by_log_index(w3, emitter, request_mocker
         ),
     ),
 )
+@pytest.mark.parametrize("event_is_instance", (True, False))
 def test_event_rich_log(
     w3,
     emitter,
@@ -784,6 +840,7 @@ def test_event_rich_log(
     call_args,
     process_receipt,
     expected_args,
+    event_is_instance,
 ):
     emitter_fn = emitter.functions[contract_fn]
     if hasattr(emitter_contract_event_ids, event_name):
@@ -796,14 +853,19 @@ def test_event_rich_log(
         txn_hash = emitter_fn(*call_args).transact()
     txn_receipt = wait_for_transaction(w3, txn_hash)
 
-    event_instance = emitter.events[event_name]()
+    if event_is_instance:
+        event_object = emitter.events[event_name]()
+    elif not event_is_instance:
+        event_object = emitter.events[event_name]
+    else:
+        raise Exception("Unreachable!")
 
     if process_receipt:
-        processed_logs = event_instance.process_receipt(txn_receipt)
+        processed_logs = event_object.process_receipt(txn_receipt)
         assert len(processed_logs) == 1
         rich_log = processed_logs[0]
     elif not process_receipt:
-        rich_log = event_instance.process_log(txn_receipt["logs"][0])
+        rich_log = event_object.process_log(txn_receipt["logs"][0])
     else:
         raise Exception("Unreachable!")
 
@@ -819,7 +881,7 @@ def test_event_rich_log(
 
     quiet_event = emitter.events["LogBytes"]
     with pytest.warns(UserWarning, match=warning_msg):
-        empty_rich_log = quiet_event().process_receipt(txn_receipt)
+        empty_rich_log = quiet_event.process_receipt(txn_receipt)
         assert empty_rich_log == tuple()
 
 
@@ -1036,6 +1098,7 @@ def test_event_rich_log(
         ),
     ),
 )
+@pytest.mark.parametrize("event_is_instance", (True, False))
 def test_event_rich_log_non_strict(
     w3_non_strict_abi,
     non_strict_emitter,
@@ -1047,6 +1110,7 @@ def test_event_rich_log_non_strict(
     call_args,
     process_receipt,
     expected_args,
+    event_is_instance,
 ):
     emitter_fn = non_strict_emitter.functions[contract_fn]
     if hasattr(emitter_contract_event_ids, event_name):
@@ -1059,14 +1123,19 @@ def test_event_rich_log_non_strict(
         txn_hash = emitter_fn(*call_args).transact()
     txn_receipt = wait_for_transaction(w3_non_strict_abi, txn_hash)
 
-    event_instance = non_strict_emitter.events[event_name]()
+    if event_is_instance:
+        event_object = non_strict_emitter.events[event_name]()
+    elif not event_is_instance:
+        event_object = non_strict_emitter.events[event_name]
+    else:
+        raise Exception("Unreachable!")
 
     if process_receipt:
-        processed_logs = event_instance.process_receipt(txn_receipt)
+        processed_logs = event_object.process_receipt(txn_receipt)
         assert len(processed_logs) == 1
         rich_log = processed_logs[0]
     elif not process_receipt:
-        rich_log = event_instance.process_log(txn_receipt["logs"][0])
+        rich_log = event_object.process_log(txn_receipt["logs"][0])
     else:
         raise Exception("Unreachable!")
 
@@ -1082,7 +1151,7 @@ def test_event_rich_log_non_strict(
 
     quiet_event = non_strict_emitter.events["LogBytes"]
     with pytest.warns(UserWarning, match=warning_msg):
-        empty_rich_log = quiet_event().process_receipt(txn_receipt)
+        empty_rich_log = quiet_event.process_receipt(txn_receipt)
         assert empty_rich_log == tuple()
 
 
@@ -1093,7 +1162,7 @@ def test_event_rich_log_with_byte_args(
     txn_hash = emitter.functions.logListArgs([b"13"], [b"54"]).transact()
     txn_receipt = wait_for_transaction(w3, txn_hash)
 
-    event_instance = emitter.events.LogListArgs()
+    event_instance = emitter.events.LogListArgs
 
     if process_receipt:
         processed_logs = event_instance.process_receipt(txn_receipt)
@@ -1122,7 +1191,7 @@ def test_event_rich_log_with_byte_args(
 def test_receipt_processing_with_discard_flag(
     event_contract, indexed_event_contract, dup_txn_receipt, wait_for_transaction
 ):
-    event_instance = indexed_event_contract.events.LogSingleWithIndex()
+    event_instance = indexed_event_contract.events.LogSingleWithIndex
 
     returned_logs = event_instance.process_receipt(dup_txn_receipt, errors=DISCARD)
     assert returned_logs == ()
@@ -1131,7 +1200,7 @@ def test_receipt_processing_with_discard_flag(
 def test_receipt_processing_with_ignore_flag(
     event_contract, indexed_event_contract, dup_txn_receipt, wait_for_transaction
 ):
-    event_instance = indexed_event_contract.events.LogSingleWithIndex()
+    event_instance = indexed_event_contract.events.LogSingleWithIndex
 
     returned_logs = event_instance.process_receipt(dup_txn_receipt, errors=IGNORE)
     assert len(returned_logs) == 2
@@ -1155,7 +1224,7 @@ def test_receipt_processing_with_ignore_flag(
 
 
 def test_receipt_processing_with_warn_flag(indexed_event_contract, dup_txn_receipt):
-    event_instance = indexed_event_contract.events.LogSingleWithIndex()
+    event_instance = indexed_event_contract.events.LogSingleWithIndex
 
     with pytest.warns(UserWarning, match="Expected 1 log topics.  Got 0"):
         returned_logs = event_instance.process_receipt(dup_txn_receipt, errors=WARN)
@@ -1163,21 +1232,21 @@ def test_receipt_processing_with_warn_flag(indexed_event_contract, dup_txn_recei
 
 
 def test_receipt_processing_with_strict_flag(indexed_event_contract, dup_txn_receipt):
-    event_instance = indexed_event_contract.events.LogSingleWithIndex()
+    event_instance = indexed_event_contract.events.LogSingleWithIndex
 
     with pytest.raises(LogTopicError, match="Expected 1 log topics.  Got 0"):
         event_instance.process_receipt(dup_txn_receipt, errors=STRICT)
 
 
 def test_receipt_processing_with_invalid_flag(indexed_event_contract, dup_txn_receipt):
-    event_instance = indexed_event_contract.events.LogSingleWithIndex()
+    event_instance = indexed_event_contract.events.LogSingleWithIndex
 
     with pytest.raises(Web3AttributeError, match="Error flag must be one of: "):
         event_instance.process_receipt(dup_txn_receipt, errors="not-a-flag")
 
 
 def test_receipt_processing_with_no_flag(indexed_event_contract, dup_txn_receipt):
-    event_instance = indexed_event_contract.events.LogSingleWithIndex()
+    event_instance = indexed_event_contract.events.LogSingleWithIndex
 
     with pytest.warns(UserWarning, match="Expected 1 log topics.  Got 0"):
         returned_log = event_instance.process_receipt(dup_txn_receipt)
@@ -1185,7 +1254,7 @@ def test_receipt_processing_with_no_flag(indexed_event_contract, dup_txn_receipt
 
 
 def test_single_log_processing_with_errors(indexed_event_contract, dup_txn_receipt):
-    event_instance = indexed_event_contract.events.LogSingleWithIndex()
+    event_instance = indexed_event_contract.events.LogSingleWithIndex
 
     with pytest.raises(LogTopicError, match="Expected 1 log topics.  Got 0"):
         event_instance.process_log(dup_txn_receipt["logs"][0])
@@ -1244,7 +1313,7 @@ def test_receipt_processing_catches_insufficientdatabytes_error_by_default(
 ):
     txn_hash = emitter.functions.logListArgs([b"13"], [b"54"]).transact()
     txn_receipt = wait_for_transaction(w3, txn_hash)
-    event_instance = emitter.events.LogListArgs()
+    event_instance = emitter.events.LogListArgs
 
     # web3 doesn't generate logs with non-standard lengths, so we have to do it manually
     txn_receipt_dict = copy.deepcopy(txn_receipt)

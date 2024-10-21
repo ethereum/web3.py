@@ -9,28 +9,6 @@ from web3._utils.events import (
 )
 
 
-@pytest.fixture()
-def emitter(
-    w3,
-    emitter_contract_data,
-    wait_for_transaction,
-    wait_for_block,
-    address_conversion_func,
-):
-    emitter_contract_factory = w3.eth.contract(**emitter_contract_data)
-
-    wait_for_block(w3)
-    deploy_txn_hash = emitter_contract_factory.constructor().transact({"gas": 10000000})
-    deploy_receipt = wait_for_transaction(w3, deploy_txn_hash)
-    contract_address = address_conversion_func(deploy_receipt["contractAddress"])
-
-    bytecode = w3.eth.get_code(contract_address)
-    assert bytecode == emitter_contract_factory.bytecode_runtime
-    _emitter = emitter_contract_factory(address=contract_address)
-    assert _emitter.address == contract_address
-    return _emitter
-
-
 @pytest.mark.parametrize(
     "contract_fn,event_name,call_args,expected_args",
     (
@@ -97,7 +75,7 @@ def test_event_data_extraction(
     assert len(txn_receipt["logs"]) == 1
     log_entry = txn_receipt["logs"][0]
 
-    event_abi = emitter._get_event_abi(event_name)
+    event_abi = emitter.get_event_by_name(event_name).abi
 
     event_topic = getattr(emitter_contract_log_topics, event_name)
     is_anonymous = event_abi["anonymous"]
@@ -132,7 +110,7 @@ def test_dynamic_length_argument_extraction(
     assert len(txn_receipt["logs"]) == 1
     log_entry = txn_receipt["logs"][0]
 
-    event_abi = emitter._get_event_abi("LogDynamicArgs")
+    event_abi = emitter.get_event_by_name("LogDynamicArgs").abi
 
     event_topic = emitter_contract_log_topics.LogDynamicArgs
     assert event_topic in log_entry["topics"]
