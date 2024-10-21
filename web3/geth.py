@@ -1,10 +1,12 @@
 from typing import (
+    Any,
     Awaitable,
     Callable,
     List,
     Optional,
     Protocol,
     Tuple,
+    Union,
 )
 
 from eth_typing.evm import (
@@ -22,12 +24,17 @@ from web3.module import (
     Module,
 )
 from web3.types import (
+    CallTrace,
     EnodeURI,
     NodeInfo,
+    OpcodeTrace,
     Peer,
+    PrestateTrace,
+    TraceConfig,
     TxPoolContent,
     TxPoolInspect,
     TxPoolStatus,
+    _Hash32,
 )
 
 
@@ -133,9 +140,33 @@ class GethAdmin(Module):
     )
 
 
+class GethDebug(Module):
+    """
+    https://geth.ethereum.org/docs/interacting-with-geth/rpc/ns-debug
+    """
+
+    def trace_transaction_munger(
+        self,
+        transaction_hash: _Hash32,
+        trace_config: Optional[TraceConfig] = None,
+    ) -> Tuple[_Hash32, TraceConfig]:
+        return (transaction_hash, trace_config)
+
+    trace_transaction: Method[
+        Callable[
+            ...,
+            Union[CallTrace, PrestateTrace, OpcodeTrace, Any],
+        ]
+    ] = Method(
+        RPC.debug_traceTransaction,
+        mungers=[trace_transaction_munger],
+    )
+
+
 class Geth(Module):
     admin: GethAdmin
     txpool: GethTxPool
+    debug: GethDebug
 
 
 # --- async --- #
@@ -261,8 +292,28 @@ class AsyncGethAdmin(Module):
         return await self._stop_ws()
 
 
+class AsyncGethDebug(Module):
+    """
+    https://geth.ethereum.org/docs/interacting-with-geth/rpc/ns-debug
+    """
+
+    is_async = True
+
+    _trace_transaction: Method[
+        Callable[..., Awaitable[Union[CallTrace, PrestateTrace, Any]]]
+    ] = Method(RPC.debug_traceTransaction)
+
+    async def trace_transaction(
+        self,
+        transaction_hash: _Hash32,
+        trace_config: Optional[TraceConfig] = None,
+    ) -> Union[CallTrace, PrestateTrace, OpcodeTrace, Any]:
+        return await self._trace_transaction(transaction_hash, trace_config)
+
+
 class AsyncGeth(Module):
     is_async = True
 
     admin: AsyncGethAdmin
     txpool: AsyncGethTxPool
+    debug: AsyncGethDebug
