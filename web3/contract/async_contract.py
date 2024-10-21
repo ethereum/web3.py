@@ -589,11 +589,8 @@ class AsyncContract(BaseContract):
         address: ChecksumAddress,
         callable_check: Callable[..., Any],
     ) -> List["AsyncContractEvent"]:
-        return cast(
-            List["AsyncContractEvent"],
-            find_events_by_identifier(
-                contract_abi, w3, address, callable_check, AsyncContractEvent
-            ),
+        return find_events_by_identifier(
+            contract_abi, w3, address, callable_check, AsyncContractEvent
         )
 
     @combomethod

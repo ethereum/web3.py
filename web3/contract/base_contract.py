@@ -1032,75 +1032,6 @@ class BaseContract:
         events = self.find_events_by_topic(topic)
         return self.get_event_by_identifier(events, "topic")
 
-    #
-    # Private Helpers
-    #
-    _return_data_normalizers: Tuple[Callable[..., Any], ...] = tuple()
-
-    @classmethod
-    def _prepare_transaction(
-        cls,
-        abi_element_identifier: ABIElementIdentifier,
-        fn_args: Optional[Any] = None,
-        fn_kwargs: Optional[Any] = None,
-        transaction: Optional[TxParams] = None,
-    ) -> TxParams:
-        return prepare_transaction(
-            cls.address,
-            cls.w3,
-            abi_element_identifier=abi_element_identifier,
-            contract_abi=cls.abi,
-            transaction=transaction,
-            fn_args=fn_args,
-            fn_kwargs=fn_kwargs,
-        )
-
-    @classmethod
-    def _find_matching_fn_abi(
-        cls,
-        fn_identifier: Optional[ABIElementIdentifier] = None,
-        *args: Sequence[Any],
-        **kwargs: Dict[str, Any],
-    ) -> ABIElement:
-        return get_abi_element(
-            cls.abi,
-            fn_identifier,
-            *args,
-            abi_codec=cls.w3.codec,
-            **kwargs,
-        )
-
-    @classmethod
-    def _get_event_abi(
-        cls,
-        event_name: Optional[str] = None,
-        argument_names: Optional[Sequence[str]] = None,
-    ) -> ABIEvent:
-        return get_event_abi(
-            abi=cls.abi, event_name=event_name, argument_names=argument_names
-        )
-
-    @combomethod
-    def _encode_constructor_data(
-        cls, *args: Sequence[Any], **kwargs: Dict[str, Any]
-    ) -> HexStr:
-        constructor_abi = find_constructor_abi_element_by_type(cls.abi)
-
-        if constructor_abi:
-            arguments = get_normalized_abi_inputs(constructor_abi, *args, **kwargs)
-
-            deploy_data = add_0x_prefix(
-                encode_abi(cls.w3, constructor_abi, arguments, data=cls.bytecode)
-            )
-        else:
-            if args or kwargs:
-                msg = "Constructor args were provided, but no constructor function was provided."  # noqa: E501
-                raise Web3TypeError(msg)
-
-            deploy_data = to_hex(cls.bytecode)
-
-        return deploy_data
-
     @combomethod
     def find_functions_by_identifier(
         cls,
@@ -1176,6 +1107,75 @@ class BaseContract:
             )()
 
         return cast(function_type, NonExistentReceiveFunction())  # type: ignore
+
+    #
+    # Private Helpers
+    #
+    _return_data_normalizers: Tuple[Callable[..., Any], ...] = tuple()
+
+    @classmethod
+    def _prepare_transaction(
+        cls,
+        abi_element_identifier: ABIElementIdentifier,
+        fn_args: Optional[Any] = None,
+        fn_kwargs: Optional[Any] = None,
+        transaction: Optional[TxParams] = None,
+    ) -> TxParams:
+        return prepare_transaction(
+            cls.address,
+            cls.w3,
+            abi_element_identifier=abi_element_identifier,
+            contract_abi=cls.abi,
+            transaction=transaction,
+            fn_args=fn_args,
+            fn_kwargs=fn_kwargs,
+        )
+
+    @classmethod
+    def _find_matching_fn_abi(
+        cls,
+        fn_identifier: Optional[ABIElementIdentifier] = None,
+        *args: Sequence[Any],
+        **kwargs: Dict[str, Any],
+    ) -> ABIElement:
+        return get_abi_element(
+            cls.abi,
+            fn_identifier,
+            *args,
+            abi_codec=cls.w3.codec,
+            **kwargs,
+        )
+
+    @classmethod
+    def _get_event_abi(
+        cls,
+        event_name: Optional[str] = None,
+        argument_names: Optional[Sequence[str]] = None,
+    ) -> ABIEvent:
+        return get_event_abi(
+            abi=cls.abi, event_name=event_name, argument_names=argument_names
+        )
+
+    @combomethod
+    def _encode_constructor_data(
+        cls, *args: Sequence[Any], **kwargs: Dict[str, Any]
+    ) -> HexStr:
+        constructor_abi = find_constructor_abi_element_by_type(cls.abi)
+
+        if constructor_abi:
+            arguments = get_normalized_abi_inputs(constructor_abi, *args, **kwargs)
+
+            deploy_data = add_0x_prefix(
+                encode_abi(cls.w3, constructor_abi, arguments, data=cls.bytecode)
+            )
+        else:
+            if args or kwargs:
+                msg = "Constructor args were provided, but no constructor function was provided."  # noqa: E501
+                raise Web3TypeError(msg)
+
+            deploy_data = to_hex(cls.bytecode)
+
+        return deploy_data
 
 
 class BaseContractCaller:

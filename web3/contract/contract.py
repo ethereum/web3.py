@@ -593,11 +593,8 @@ class Contract(BaseContract):
         address: ChecksumAddress,
         callable_check: Callable[..., Any],
     ) -> List["ContractEvent"]:
-        return cast(
-            List["ContractEvent"],
-            find_events_by_identifier(
-                contract_abi, w3, address, callable_check, ContractEvent
-            ),
+        return find_events_by_identifier(
+            contract_abi, w3, address, callable_check, ContractEvent
         )
 
     @combomethod
