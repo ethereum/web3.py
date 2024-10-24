@@ -9,6 +9,7 @@ from typing import (
     Iterable,
     NoReturn,
     Tuple,
+    TypeVar,
     Union,
     cast,
 )
@@ -110,6 +111,8 @@ if TYPE_CHECKING:
     from web3.eth import AsyncEth  # noqa: F401
     from web3.eth import Eth  # noqa: F401
     from web3.module import Module  # noqa: F401
+
+TValue = TypeVar("TValue")
 
 
 def bytes_to_ascii(value: bytes) -> str:
@@ -607,6 +610,102 @@ PYTHONIC_REQUEST_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
 }
 
 # --- Result Formatters --- #
+# -- debug -- #
+DEBUG_CALLTRACE_LOG_ENTRY_FORMATTERS = apply_formatter_if(
+    is_not_null,
+    type_aware_apply_formatters_to_dict(
+        {
+            "address": to_checksum_address,
+            "topics": apply_list_to_array_formatter(to_hexbytes(32)),
+            "data": HexBytes,
+            "position": to_integer_if_hex,
+        }
+    ),
+)
+
+
+debug_calltrace_log_list_result_formatter: Callable[
+    [Formatters], Any
+] = apply_formatter_to_array(DEBUG_CALLTRACE_LOG_ENTRY_FORMATTERS)
+
+
+PRETRACE_INNER_FORMATTERS = {
+    "balance": to_integer_if_hex,
+    "nonce": to_integer_if_hex,
+}
+
+
+def has_pretrace_keys(val: Any) -> bool:
+    if isinstance(val, dict) or isinstance(val, AttributeDict):
+        return (
+            val.get("balance")
+            or val.get("nonce")
+            or val.get("code")
+            or val.get("storage")
+        )
+    return False
+
+
+@curry
+def pretrace_formatter(
+    resp: Union[AttributeDict[str, Any], Dict[str, Any]],
+) -> Union[ReadableAttributeDict[str, Any], Dict[str, Any]]:
+    return type_aware_apply_formatters_to_dict_keys_and_values(
+        apply_formatter_if(is_address, to_checksum_address),
+        apply_formatter_if(
+            has_pretrace_keys,
+            type_aware_apply_formatters_to_dict(PRETRACE_INNER_FORMATTERS),
+        ),
+        resp,
+    )
+
+
+DEBUG_PRESTATE_DIFFMODE_FORMATTERS = {
+    "pre": pretrace_formatter,
+    "post": pretrace_formatter,
+}
+
+
+DEBUG_CALLTRACE_FORMATTERS = {
+    "from": to_checksum_address,
+    "to": to_checksum_address,
+    "value": to_integer_if_hex,
+    "gas": to_integer_if_hex,
+    "gasUsed": to_integer_if_hex,
+    "input": HexBytes,
+    "output": HexBytes,
+    "calls": lambda calls: debug_calltrace_list_result_formatter(calls),
+    "logs": debug_calltrace_log_list_result_formatter,
+}
+
+
+OPCODE_TRACE_FORMATTERS = {
+    "pc": to_integer_if_hex,
+    "gas": to_integer_if_hex,
+    "gasCost": to_integer_if_hex,
+    "refund": to_integer_if_hex,
+}
+
+
+DEBUG_TRACE_FORMATTERS = {
+    **DEBUG_CALLTRACE_FORMATTERS,
+    **OPCODE_TRACE_FORMATTERS,
+    **DEBUG_PRESTATE_DIFFMODE_FORMATTERS,
+}
+
+
+trace_result_formatters = type_aware_apply_formatters_to_dict(DEBUG_TRACE_FORMATTERS)
+
+
+debug_calltrace_result_formatter = type_aware_apply_formatters_to_dict(
+    DEBUG_CALLTRACE_FORMATTERS
+)
+
+
+debug_calltrace_list_result_formatter: Callable[
+    [Formatters], Any
+] = apply_formatter_to_array(debug_calltrace_result_formatter)
+
 
 # -- tracing -- #
 
@@ -646,7 +745,7 @@ TRACE_RESULT_FORMATTERS = apply_formatter_if(
 )
 
 # result formatters for the trace field
-TRACE_FORMATTERS = apply_formatter_if(
+TRACE_FORMATTERS: Callable[[TValue], Union[Any, TValue]] = apply_formatter_if(
     is_not_null,
     type_aware_apply_formatters_to_dict(
         {
@@ -795,6 +894,14 @@ PYTHONIC_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     RPC.evm_snapshot: hex_to_integer,
     # Net
     RPC.net_peerCount: to_integer_if_hex,
+    # Debug
+    RPC.debug_traceTransaction: apply_formatter_if(
+        is_not_null,
+        compose(
+            pretrace_formatter,
+            trace_result_formatters,
+        ),
+    ),
     # tracing
     RPC.trace_block: trace_list_result_formatter,
     RPC.trace_call: common_tracing_result_formatter,

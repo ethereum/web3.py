@@ -367,3 +367,175 @@ The following methods are available on the ``web3.geth.txpool`` namespace.
             }
           }
         }
+
+.. py:module:: web3.geth.debug
+
+GethDebug API
+~~~~~~~~~~~~~~
+
+The ``web3.geth.debug`` object exposes methods to interact with the RPC APIs under the
+``debug_`` namespace. These methods are only exposed under the ``geth`` namespace.
+Full documentation around options can be found in the
+`Geth docs <https://geth.ethereum.org/docs/developers/evm-tracing/built-in-tracers>`_.
+
+.. py:method:: Debug.trace_transaction(transaction_hash)
+
+    * Delegates to ``debug_traceTransaction`` RPC Method
+
+    Returns the trace of the transaction with the given ``transaction_hash`` and ``trace_config``.
+
+    .. code-block:: python
+
+        >>> web3.geth.debug.trace_transaction('0x96014f00980a25dc7275a5eb5ed25ce0dd79c9233628c421ae373601236949b3')
+            AttributeDict({
+              'gas': 21000,
+              'failed': False,
+              'returnValue': '',
+              'structLogs': []
+            })
+
+        >>> web3.geth.debug.trace_transaction('0x96014f00980a25dc7275a5eb5ed25ce0dd79c9233628c421ae373601236949b3', {
+                "tracer": "prestateTracer",
+            })
+            AttributeDict({
+              '0x0000000000000000000000000000000000000000': AttributeDict({'balance': 0}),
+              '0x7fE3e4C21bDE162214B715AabcE05391301e9F5B': AttributeDict({'balance': 115792089237316195423570985008687907853269984665640564039457584007913129639927}),
+              '0x91fe3039271d43d3f8479f60Cc5293Bc8A461b75': AttributeDict({'balance': 0})
+            })
+
+        >>> web3.geth.debug.trace_transaction('0x96014f00980a25dc7275a5eb5ed25ce0dd79c9233628c421ae373601236949b3', {
+                "tracer": "prestateTracer",
+                "traceConfig": {"diffMode": True}
+            })
+            AttributeDict({
+              'post': AttributeDict({
+                '0x0000000000000000000000000000000000000000': AttributeDict({'balance': 63000}),
+                '0xcF888Cc4FAe8a3D774e574Ef8C6a261958287d04': AttributeDict({
+                  'balance': 115792089237316195423570985008687907853269984665640564039457583959368602105927,
+                  'nonce': 3
+                }),
+                '0xD2593D3445a9F0f4c776715f5206FBf4CA6A0475': AttributeDict({'balance': 100000})}),
+              'pre': AttributeDict({
+                '0x0000000000000000000000000000000000000000': AttributeDict({'balance': 42000}),
+                '0xcF888Cc4FAe8a3D774e574Ef8C6a261958287d04': AttributeDict({
+                  'balance': 115792089237316195423570985008687907853269984665640564039457583973451623990927,
+                  'nonce': 2
+                }),
+                '0xD2593D3445a9F0f4c776715f5206FBf4CA6A0475': AttributeDict({'balance': 0})
+              })
+            })
+
+        >>> web3.geth.debug.trace_transaction('0x96014f00980a25dc7275a5eb5ed25ce0dd79c9233628c421ae373601236949b3', {
+                "tracer": "callTracer",
+                "tracerConfig": {"withLog": False},
+            })
+            AttributeDict({'calls': [AttributeDict({'from': '0xa0457775a08b175Cbb444eD923556Dc67Ec5Dc11',
+              'gas': 154003,
+              'gasUsed': 275,
+              'input': HexBytes('0xad5c4648'),
+              'output': HexBytes('0x000000000000000000000000c02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'),
+              'to': '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D',
+              'type': 'STATICCALL'}),
+              AttributeDict({'from': '0xa0457775a08b175Cbb444eD923556Dc67Ec5Dc11',
+              'gas': 150633,
+              'gasUsed': 24678,
+              'input': HexBytes('0x095ea7b30000000000000000000000007a250d5630b4cf539739df2c5dacb4c659f2488d000000000000000000000000000000000000007e37be2022c0914b2680000000'),
+              'output': HexBytes('0x0000000000000000000000000000000000000000000000000000000000000001'),
+              'to': '0xec4cF8dCB526080792bC98E1Ef41fB4775777b6B',
+              'type': 'CALL',
+              'value': 0}),
+              AttributeDict({'calls': [AttributeDict({'from': '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D',
+                'gas': 121167,
+                'gasUsed': 27504,
+                'input': HexBytes('0x23b872dd000000000000000000000000a0457775a08b175cbb444ed923556dc67ec5dc1100000000000000000000000036f0548a77bfb1d5935483d25cc40633b46e2f4d000000000000000000000000000000000000007e37be2022c0914b2680000000'),
+                'output': HexBytes('0x0000000000000000000000000000000000000000000000000000000000000001'),
+                'to': '0xec4cF8dCB526080792bC98E1Ef41fB4775777b6B',
+                'type': 'CALL',
+                'value': 0}),
+                AttributeDict({'from': '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D',
+                'gas': 89911,
+                'gasUsed': 2504,
+                'input': HexBytes('0x0902f1ac'),
+                'output': HexBytes('0x00000000000000000000000000000000000000000000000053f54ccde429ceb70000000000000000000000000000000000000000001635eb93ecdb339a7dc022000000000000000000000000000000000000000000000000000000006641f6cf'),
+                'to': '0x36f0548a77BFb1d5935483D25cc40633b46e2f4d',
+                'type': 'STATICCALL'}),
+                AttributeDict({'from': '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D',
+                'gas': 86926,
+                'gasUsed': 621,
+                'input': HexBytes('0x70a0823100000000000000000000000036f0548a77bfb1d5935483d25cc40633b46e2f4d'),
+                'output': HexBytes('0x000000000000000000000000000000000000007e37d4560e547e265a1a7dc022'),
+                'to': '0xec4cF8dCB526080792bC98E1Ef41fB4775777b6B',
+                'type': 'STATICCALL'}),
+                AttributeDict({'calls': [AttributeDict({'from': '0x36f0548a77BFb1d5935483D25cc40633b46e2f4d',
+                  'gas': 70279,
+                  'gasUsed': 29962,
+                  'input': HexBytes('0xa9059cbb0000000000000000000000007a250d5630b4cf539739df2c5dacb4c659f2488d00000000000000000000000000000000000000000000000053f53dfc545d56a6'),
+                  'output': HexBytes('0x0000000000000000000000000000000000000000000000000000000000000001'),
+                  'to': '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+                  'type': 'CALL',
+                  'value': 0}),
+                  AttributeDict({'from': '0x36f0548a77BFb1d5935483D25cc40633b46e2f4d',
+                  'gas': 40164,
+                  'gasUsed': 534,
+                  'input': HexBytes('0x70a0823100000000000000000000000036f0548a77bfb1d5935483d25cc40633b46e2f4d'),
+                  'output': HexBytes('0x00000000000000000000000000000000000000000000000000000ed18fcc7811'),
+                  'to': '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+                  'type': 'STATICCALL'}),
+                  AttributeDict({'from': '0x36f0548a77BFb1d5935483D25cc40633b46e2f4d',
+                  'gas': 39233,
+                  'gasUsed': 621,
+                  'input': HexBytes('0x70a0823100000000000000000000000036f0548a77bfb1d5935483d25cc40633b46e2f4d'),
+                  'output': HexBytes('0x000000000000000000000000000000000000007e37d4560e547e265a1a7dc022'),
+                  'to': '0xec4cF8dCB526080792bC98E1Ef41fB4775777b6B',
+                  'type': 'STATICCALL'})],
+                'from': '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D',
+                'gas': 84769,
+                'gasUsed': 64940,
+                'input': HexBytes('0x022c0d9f00000000000000000000000000000000000000000000000053f53dfc545d56a600000000000000000000000000000000000000000000000000000000000000000000000000000000000000007a250d5630b4cf539739df2c5dacb4c659f2488d00000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000000'),
+                'to': '0x36f0548a77BFb1d5935483D25cc40633b46e2f4d',
+                'type': 'CALL',
+                'value': 0}),
+                AttributeDict({'from': '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D',
+                'gas': 20382,
+                'gasUsed': 534,
+                'input': HexBytes('0x70a082310000000000000000000000007a250d5630b4cf539739df2c5dacb4c659f2488d'),
+                'output': HexBytes('0x00000000000000000000000000000000000000000000000053f53dfc545d56a6'),
+                'to': '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+                'type': 'STATICCALL'}),
+                AttributeDict({'calls': [AttributeDict({'from': '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+                  'gas': 2300,
+                  'gasUsed': 83,
+                  'input': HexBytes('0x'),
+                  'to': '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D',
+                  'type': 'CALL',
+                  'value': 6049809828398585510})],
+                'from': '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D',
+                'gas': 19432,
+                'gasUsed': 9223,
+                'input': HexBytes('0x2e1a7d4d00000000000000000000000000000000000000000000000053f53dfc545d56a6'),
+                'to': '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+                'type': 'CALL',
+                'value': 0}),
+                AttributeDict({'from': '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D',
+                'gas': 3353,
+                'gasUsed': 0,
+                'input': HexBytes('0x'),
+                'to': '0xE11418f9961248da36b1008b1090235f680AE8f5',
+                'type': 'CALL',
+                'value': 6049809828398585510})],
+              'from': '0xa0457775a08b175Cbb444eD923556Dc67Ec5Dc11',
+              'gas': 125270,
+              'gasUsed': 122013,
+              'input': HexBytes('0x791ac947000000000000000000000000000000000000007e37be2022c0914b2680000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000e11418f9961248da36b1008b1090235f680ae8f5000000000000000000000000000000000000000000000000000000006641fe7f0000000000000000000000000000000000000000000000000000000000000002000000000000000000000000ec4cf8dcb526080792bc98e1ef41fb4775777b6b000000000000000000000000c02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'),
+              'to': '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D',
+              'type': 'CALL',
+              'value': 0})],
+            'from': '0xE11418f9961248da36b1008b1090235f680AE8f5',
+            'gas': 185574,
+            'gasUsed': 144300,
+            'input': HexBytes('0x56feb11b000000000000000000000000ec4cf8dcb526080792bc98e1ef41fb4775777b6b000000000000000000000000000000000000007e37be2022c0914b2680000000'),
+            'to': '0xa0457775a08b175Cbb444eD923556Dc67Ec5Dc11',
+            'type': 'CALL',
+            'value': 0})
+
+            >>> w3.geth.debug.trace_transaction(tx_hash, {'tracer': '4byteTracer'})
