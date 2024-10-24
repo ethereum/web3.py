@@ -1,5 +1,4 @@
 from typing import (
-    Any,
     Awaitable,
     Callable,
     List,
@@ -25,7 +24,9 @@ from web3.module import (
 )
 from web3.types import (
     CallTrace,
+    DiffModeTrace,
     EnodeURI,
+    FourByteTrace,
     NodeInfo,
     OpcodeTrace,
     Peer,
@@ -155,7 +156,7 @@ class GethDebug(Module):
     trace_transaction: Method[
         Callable[
             ...,
-            Union[CallTrace, PrestateTrace, OpcodeTrace, Any],
+            Union[CallTrace, PrestateTrace, OpcodeTrace, DiffModeTrace, FourByteTrace],
         ]
     ] = Method(
         RPC.debug_traceTransaction,
@@ -300,14 +301,21 @@ class AsyncGethDebug(Module):
     is_async = True
 
     _trace_transaction: Method[
-        Callable[..., Awaitable[Union[CallTrace, PrestateTrace, Any]]]
+        Callable[
+            ...,
+            Awaitable[
+                Union[
+                    CallTrace, PrestateTrace, OpcodeTrace, FourByteTrace, DiffModeTrace
+                ]
+            ],
+        ]
     ] = Method(RPC.debug_traceTransaction)
 
     async def trace_transaction(
         self,
         transaction_hash: _Hash32,
         trace_config: Optional[TraceConfig] = None,
-    ) -> Union[CallTrace, PrestateTrace, OpcodeTrace, Any]:
+    ) -> Union[CallTrace, PrestateTrace, OpcodeTrace, FourByteTrace, DiffModeTrace]:
         return await self._trace_transaction(transaction_hash, trace_config)
 
 

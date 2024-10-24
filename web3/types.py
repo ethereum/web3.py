@@ -510,9 +510,25 @@ CallTrace = TypedDict(
 )
 
 
-class PrestateTrace(TypedDict):
-    post: Dict[str, Dict[str, Union[HexBytes, int]]]
-    pre: Dict[str, Dict[str, HexBytes]]
+class TraceData(TypedDict, total=False):
+    balance: int
+    nonce: int
+    code: str
+    storage: Dict[str, str]
+
+
+class DiffModeTrace(TypedDict):
+    post: Dict[ChecksumAddress, TraceData]
+    pre: Dict[ChecksumAddress, TraceData]
+
+
+PrestateTrace = Dict[ChecksumAddress, TraceData]
+
+
+# 4byte tracer returns something like:
+# { '0x27dc297e-128' : 1 }
+# which is: { 4byte signature - calldata size : # of occurrences of key }
+FourByteTrace = Dict[str, int]
 
 
 class StructLog(TypedDict):
@@ -524,7 +540,7 @@ class StructLog(TypedDict):
     stack: List[HexStr]
 
 
-class OpcodeTrace(TypedDict):
+class OpcodeTrace(TypedDict, total=False):
     gas: int
     failed: bool
     returnValue: str

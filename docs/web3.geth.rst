@@ -375,9 +375,8 @@ GethDebug API
 
 The ``web3.geth.debug`` object exposes methods to interact with the RPC APIs under the
 ``debug_`` namespace. These methods are only exposed under the ``geth`` namespace.
-
-The following methods are available on the ``web3.geth.debug`` namespace.
-
+Full documentation around options can be found in the
+`Geth docs <https://geth.ethereum.org/docs/developers/evm-tracing/built-in-tracers>`_.
 
 .. py:method:: Debug.trace_transaction(transaction_hash)
 
@@ -386,6 +385,45 @@ The following methods are available on the ``web3.geth.debug`` namespace.
     Returns the trace of the transaction with the given ``transaction_hash`` and ``trace_config``.
 
     .. code-block:: python
+
+        >>> web3.geth.debug.trace_transaction('0x96014f00980a25dc7275a5eb5ed25ce0dd79c9233628c421ae373601236949b3')
+            AttributeDict({
+              'gas': 21000,
+              'failed': False,
+              'returnValue': '',
+              'structLogs': []
+            })
+
+        >>> web3.geth.debug.trace_transaction('0x96014f00980a25dc7275a5eb5ed25ce0dd79c9233628c421ae373601236949b3', {
+                "tracer": "prestateTracer",
+            })
+            AttributeDict({
+              '0x0000000000000000000000000000000000000000': AttributeDict({'balance': 0}),
+              '0x7fE3e4C21bDE162214B715AabcE05391301e9F5B': AttributeDict({'balance': 115792089237316195423570985008687907853269984665640564039457584007913129639927}),
+              '0x91fe3039271d43d3f8479f60Cc5293Bc8A461b75': AttributeDict({'balance': 0})
+            })
+
+        >>> web3.geth.debug.trace_transaction('0x96014f00980a25dc7275a5eb5ed25ce0dd79c9233628c421ae373601236949b3', {
+                "tracer": "prestateTracer",
+                "traceConfig": {"diffMode": True}
+            })
+            AttributeDict({
+              'post': AttributeDict({
+                '0x0000000000000000000000000000000000000000': AttributeDict({'balance': 63000}),
+                '0xcF888Cc4FAe8a3D774e574Ef8C6a261958287d04': AttributeDict({
+                  'balance': 115792089237316195423570985008687907853269984665640564039457583959368602105927,
+                  'nonce': 3
+                }),
+                '0xD2593D3445a9F0f4c776715f5206FBf4CA6A0475': AttributeDict({'balance': 100000})}),
+              'pre': AttributeDict({
+                '0x0000000000000000000000000000000000000000': AttributeDict({'balance': 42000}),
+                '0xcF888Cc4FAe8a3D774e574Ef8C6a261958287d04': AttributeDict({
+                  'balance': 115792089237316195423570985008687907853269984665640564039457583973451623990927,
+                  'nonce': 2
+                }),
+                '0xD2593D3445a9F0f4c776715f5206FBf4CA6A0475': AttributeDict({'balance': 0})
+              })
+            })
 
         >>> web3.geth.debug.trace_transaction('0x96014f00980a25dc7275a5eb5ed25ce0dd79c9233628c421ae373601236949b3', {
                 "tracer": "callTracer",
@@ -499,3 +537,5 @@ The following methods are available on the ``web3.geth.debug`` namespace.
             'to': '0xa0457775a08b175Cbb444eD923556Dc67Ec5Dc11',
             'type': 'CALL',
             'value': 0})
+
+            >>> w3.geth.debug.trace_transaction(tx_hash, {'tracer': '4byteTracer'})
