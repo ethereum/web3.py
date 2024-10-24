@@ -169,6 +169,12 @@ class BaseContractEvent:
         self.name = abi_to_signature(abi)
         self.abi = abi
 
+        if argument_names is None:
+            # https://github.com/python/mypy/issues/6283
+            self.argument_names = tuple()  # type: ignore
+        else:
+            self.argument_names = argument_names
+
     def __repr__(self) -> str:
         if self.abi:
             return f"<Event {abi_to_signature(self.abi)}>"
