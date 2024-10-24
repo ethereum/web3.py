@@ -23,6 +23,7 @@ from eth_typing import (
     TypeStr,
 )
 from eth_utils.abi import (
+    abi_to_signature,
     filter_abi_by_type,
     get_abi_output_types,
 )
@@ -345,11 +346,11 @@ def find_functions_by_identifier(
     fns_abi = filter_abi_by_type("function", contract_abi)
     return [
         function_type.factory(
-            fn_abi["name"],
+            abi_to_signature(fn_abi),
             w3=w3,
             contract_abi=contract_abi,
             address=address,
-            abi_element_identifier=fn_abi["name"],
+            abi_element_identifier=abi_to_signature(fn_abi),
             abi=fn_abi,
         )
         for fn_abi in fns_abi

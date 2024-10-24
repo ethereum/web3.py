@@ -1,0 +1,1 @@
+Contracts with overloaded functions or events are now supported. The Contract initializes functions and events using an identifier to distinguish between them. The identifier is the function or event signature, which consists of the name and the parameter types.

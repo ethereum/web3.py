@@ -19,3 +19,13 @@ contract IndexedEventContract {
         emit LogSingleArg(_arg0);
     }
 }
+
+contract AmbiguousEventNameContract {
+    event LogSingleArg(uint256 arg0);
+    event LogSingleArg(bytes32 arg0);
+
+    function logTwoEvents(uint256 _arg0) external {
+        emit LogSingleArg(_arg0);
+        emit LogSingleArg(bytes32(abi.encode(_arg0)));
+    }
+}
