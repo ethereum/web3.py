@@ -1570,6 +1570,23 @@ You can interact with the web3.py contract API as follows:
 Invoke Ambiguous Contract Functions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+Calling overloaded functions can be done as you would expect. Passing arguments will
+disambiguate which function you want to call.
+
+For example, if you have a contract with two functions with the name ``identity`` that
+accept different types of arguments, you can call them like this:
+
+.. code-block:: python
+
+    >>> ambiguous_contract = w3.eth.contract(address=..., abi=...)
+    >>> ambiguous_contract.functions.identity(1, True).call()
+    1
+    >>> ambiguous_contract.functions.identity("one", 1, True).call()
+    1
+
+If there is a need to first retrieve the function, you can use the contract instance's
+``get_function_by_signature`` method to get the function you want to call.
+
 Below is an example of a contract that has multiple functions of the same name,
 and the arguments are ambiguous. You can use the :meth:`Contract.get_function_by_signature`
 method to reference the intended function and call it with the correct arguments.
@@ -1588,7 +1605,6 @@ method to reference the intended function and call it with the correct arguments
         }
         """
         # fast forward all the steps of compiling and deploying the contract.
-        >>> ambiguous_contract.functions.identity(1, True) # raises Web3ValidationError
 
         >>> identity_func = ambiguous_contract.get_function_by_signature('identity(uint256,bool)')
         >>> identity_func(1, True)

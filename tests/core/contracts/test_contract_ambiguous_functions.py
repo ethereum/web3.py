@@ -84,6 +84,12 @@ map_repr = compose(list, curry(map, repr))
             "<Function identity(uint256,bool)>",
         ),
         (
+            "get_function_by_signature",
+            ("identity(int256,bool)",),
+            repr,
+            "<Function identity(int256,bool)>",
+        ),
+        (
             "find_functions_by_name",
             ("identity",),
             map_repr,

@@ -86,6 +86,7 @@ BYTES_ADDRESS_LEN_GT_20 = bytes(1) * 21
         (MALFORMED_ABI_2, validate_abi, Web3ValueError),
         (MALFORMED_SELECTOR_COLLISION_ABI, validate_abi, Web3ValueError),
         (MALFORMED_SIGNATURE_COLLISION_ABI, validate_abi, Web3ValueError),
+        ([{}], validate_abi, Web3ValueError),
         (ADDRESS, validate_address, None),
         (BYTES_ADDRESS, validate_address, None),
         (PADDED_ADDRESS, validate_address, InvalidAddress),

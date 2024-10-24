@@ -1,4 +1,8 @@
+from decimal import (
+    Decimal,
+)
 import pytest
+import re
 from typing import (
     Any,
     Callable,
@@ -117,7 +121,13 @@ LOG_TWO_EVENTS_ABI: ABIFunction = {
 }
 
 SET_VALUE_ABI: ABIFunction = {
-    "inputs": [{"name": "_arg0", "type": "uint256"}],
+    "inputs": [{"name": "_arg0", "type": "fixed8x1"}],
+    "name": "setValue",
+    "stateMutability": "nonpayable",
+    "type": "function",
+}
+SET_VALUE_ABI_UFIXED: ABIFunction = {
+    "inputs": [{"name": "_arg0", "type": "ufixed256x80"}],
     "name": "setValue",
     "stateMutability": "nonpayable",
     "type": "function",
@@ -139,11 +149,30 @@ SET_VALUE_WITH_TUPLE_ABI: ABIFunction = {
     "type": "function",
 }
 
+AMBIGUOUS_EVENT_ABI: ABIEvent = {
+    "anonymous": False,
+    "inputs": [{"name": "arg0", "type": "uint256"}],
+    "name": "LogSingleArg",
+    "type": "event",
+}
+AMBIGUOUS_EVENT_ABI_NO_INPUTS: ABIEvent = {
+    "anonymous": False,
+    "inputs": [],
+    "name": "LogSingleArg",
+    "type": "event",
+}
+
 CONTRACT_ABI: ABI = [
     LOG_TWO_EVENTS_ABI,
     SET_VALUE_ABI,
+    SET_VALUE_ABI_UFIXED,
     SET_VALUE_WITH_TUPLE_ABI,
     FUNCTION_ABI_NO_INPUTS,
+]
+
+CONTRACT_ABI_AMBIGUOUS_EVENT: ABI = [
+    AMBIGUOUS_EVENT_ABI,
+    AMBIGUOUS_EVENT_ABI_NO_INPUTS,
 ]
 
 ABI_CONSTRUCTOR = ABIConstructor({"type": "constructor"})
@@ -341,7 +370,7 @@ def test_recursive_dict_to_namedtuple(
     "abi_element_identifier,args,kwargs,expected_selector,expected_arguments",
     [
         ("logTwoEvents", [100], {}, "0x5818fad7", (100,)),
-        ("setValue", [99], {}, "0x55241077", (99,)),
+        ("setValue(fixed8x1)", [Decimal("1")], {}, "0xcf20bde8", (Decimal("1"),)),
         (
             "setValue",
             [1],
@@ -385,7 +414,10 @@ def test_get_abi_element_info_without_args_and_kwargs(
 
 
 def test_get_abi_element_info_raises_mismatched_abi(contract_abi: ABI) -> None:
-    with pytest.raises(MismatchedABI, match="Could not identify the intended function"):
+    with pytest.raises(
+        MismatchedABI,
+        match=r"\nABI Not Found!\nNo element named `foo` with 1 argument\(s\).\n",  # noqa: E501
+    ):
         args: Sequence[Any] = [1]
         get_abi_element_info(contract_abi, "foo", *args, **{})
 
@@ -395,10 +427,10 @@ def test_get_abi_element_info_raises_mismatched_abi(contract_abi: ABI) -> None:
     (
         (
             CONTRACT_ABI,
-            "setValue",
+            "setValue(ufixed256x80)",
             [0],
             {},
-            SET_VALUE_ABI,
+            SET_VALUE_ABI_UFIXED,
         ),
         (
             CONTRACT_ABI,
@@ -416,6 +448,13 @@ def test_get_abi_element_info_raises_mismatched_abi(contract_abi: ABI) -> None:
             CONTRACT_ABI,
             "logTwoEvents",
             [1],
+            {},
+            LOG_TWO_EVENTS_ABI,
+        ),
+        (
+            CONTRACT_ABI,
+            "logTwoEvents",
+            [],  # function name is unique so args are optional
             {},
             LOG_TWO_EVENTS_ABI,
         ),
@@ -479,6 +518,13 @@ def test_get_abi_element_info_raises_mismatched_abi(contract_abi: ABI) -> None:
             {},
             ABI_CONSTRUCTOR,
         ),
+        (
+            CONTRACT_ABI_AMBIGUOUS_EVENT,
+            "LogSingleArg()",
+            [],
+            {},
+            AMBIGUOUS_EVENT_ABI_NO_INPUTS,
+        ),
     ),
 )
 def test_get_abi_element(
@@ -512,11 +558,134 @@ def test_get_abi_element(
         ),
         (
             CONTRACT_ABI,
-            "logTwoEvents",
+            "setValue",
+            [],  # function name is ambiguous and cannot be determined without args
+            {},
+            MismatchedABI,
+            "\nABI Not Found!\n"
+            "Found multiple elements named `setValue` that accept 0 argument(s).\n"
+            "Provided argument types: ()\n"
+            "Provided keyword argument types: {}\n\n"
+            "Tried to find a matching ABI element named `setValue`, but encountered "
+            "the following problems:\n"
+            "Signature: setValue(fixed8x1), type: function\n"
+            "Expected 1 argument(s) but received 0 argument(s).\n"
+            "Signature: setValue(ufixed256x80), type: function\n"
+            "Expected 1 argument(s) but received 0 argument(s).\n"
+            "Signature: setValue(uint256,(uint256,uint256)), type: function\n"
+            "Expected 2 argument(s) but received 0 argument(s).\n",
+        ),
+        (
+            CONTRACT_ABI,
+            "setValue",
+            [
+                Decimal("0")
+            ],  # function name is ambiguous and cannot be determined without args
+            {},
+            MismatchedABI,
+            "\nABI Not Found!\n"
+            "Found multiple elements named `setValue` that accept 1 argument(s).\n"
+            "Provided argument types: (Decimal)\n"
+            "Provided keyword argument types: {}\n\n"
+            "Tried to find a matching ABI element named `setValue`, but encountered "
+            "the following problems:\n"
+            "Signature: setValue(fixed8x1), type: function\n"
+            "Argument 1 value `0` is valid.\n"
+            "Signature: setValue(ufixed256x80), type: function\n"
+            "Argument 1 value `0` is valid.\n"
+            "Signature: setValue(uint256,(uint256,uint256)), type: function\n"
+            "Expected 2 argument(s) but received 1 argument(s).\n",
+        ),
+        (
+            CONTRACT_ABI,
+            "setValue",
+            [1, (1, "foo")],
+            {},
+            MismatchedABI,
+            "\nABI Not Found!\n"
+            "Found 1 element(s) named `setValue` that accept 2 argument(s).\n"
+            "The provided arguments are not valid.\n"
+            "Provided argument types: (int,int,str)\n"
+            "Provided keyword argument types: {}\n\n"
+            "Tried to find a matching ABI element named `setValue`, but encountered "
+            "the following problems:\n"
+            "Signature: setValue(uint256,(uint256,uint256)), type: function\n"
+            "Argument 1 value `1` is valid.\n"
+            "Argument 2 value `(1, 'foo')` is not compatible with type `(uint256,uint256)`.\n"  # noqa: E501
+            "Signature: setValue(fixed8x1), type: function\n"
+            "Expected 1 argument(s) but received 2 argument(s).\n"
+            "Signature: setValue(ufixed256x80), type: function\n"
+            "Expected 1 argument(s) but received 2 argument(s).\n",
+        ),
+        (
+            CONTRACT_ABI_AMBIGUOUS_EVENT,
+            "LogSingleArg",
             [],
             {},
             MismatchedABI,
-            "Function invocation failed due to improper number of arguments.",
+            "\nABI Not Found!\n"
+            "Found multiple elements named `LogSingleArg` that accept 0 argument(s).\n"
+            "Provided argument types: ()\n"
+            "Provided keyword argument types: {}\n\n"
+            "Tried to find a matching ABI element named `LogSingleArg`, but "
+            "encountered the following problems:\n"
+            "The provided identifier matches multiple elements.\n"
+            "If you meant to call `LogSingleArg()`, please specify the full "
+            "signature.\n"
+            " - signature: LogSingleArg(), type: event\n"
+            "Signature: LogSingleArg(uint256), type: event\n"
+            "Expected 1 argument(s) but received 0 argument(s).\n",
+        ),
+        (
+            CONTRACT_ABI_AMBIGUOUS_EVENT,
+            "noFunc",
+            [],
+            {},
+            MismatchedABI,
+            "No element named `noFunc` with 0 argument(s).\n",
+        ),
+        (
+            CONTRACT_ABI_AMBIGUOUS_EVENT,
+            "noFunc(uint256)",
+            [],
+            {},
+            MismatchedABI,
+            "No element named `noFunc` with 0 argument(s).\n",
+        ),
+        (
+            [
+                {"type": "function", "name": "Nonexistent"},
+                {"type": "event", "name": "Nonexistent"},
+            ],
+            "Nonexistent",
+            [],
+            {},
+            MismatchedABI,
+            "",
+        ),
+        (
+            [{}],
+            "nonexistent",
+            [],
+            {},
+            Web3ValueError,
+            "'abi' must contain a list of elements each with a type",
+        ),
+        (
+            {},
+            "nonexistent",
+            [],
+            {},
+            Web3ValueError,
+            "'abi' is not a list",
+        ),
+        (
+            "ABI",
+            "nonexistent",
+            [],
+            {},
+            Web3ValueError,
+            "'abi' is not a list",
         ),
     ),
 )
@@ -528,8 +697,8 @@ def test_get_abi_element_raises_with_invalid_parameters(
     expected_error: Type[Exception],
     expected_message: str,
 ) -> None:
-    with pytest.raises(expected_error, match=expected_message):
-        get_abi_element(abi, abi_element_identifier, *args, **kwargs)  # type: ignore
+    with pytest.raises(expected_error, match=re.escape(expected_message)):
+        get_abi_element(abi, abi_element_identifier, *args, **kwargs)
 
 
 def test_get_abi_element_codec_override(contract_abi: ABI) -> None:
@@ -647,7 +816,14 @@ def test_get_event_abi(event_name: str, input_args: Sequence[ABIComponent]) -> N
     }
 
     input_names = [arg["name"] for arg in input_args]
-    assert get_event_abi(contract_abi, event_name, input_names) == expected_event_abi
+
+    with pytest.warns(
+        DeprecationWarning,
+        match="get_event_abi is deprecated in favor of get_abi_element",
+    ):
+        assert (
+            get_event_abi(contract_abi, event_name, input_names) == expected_event_abi
+        )
 
 
 @pytest.mark.parametrize(

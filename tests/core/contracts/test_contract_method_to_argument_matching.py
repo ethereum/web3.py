@@ -1,5 +1,6 @@
 import json
 import pytest
+import re
 
 from eth_utils.abi import (
     get_abi_input_types,
@@ -168,14 +169,61 @@ def test_finds_function_with_matching_args_non_strict(
 
 def test_finds_function_with_matching_args_strict_type_checking_by_default(w3):
     contract = w3.eth.contract(abi=MULTIPLE_FUNCTIONS)
-    with pytest.raises(MismatchedABI):
+    with pytest.raises(
+        MismatchedABI,
+        match=re.escape(
+            "\nABI Not Found!\n"
+            "Found multiple elements named `a` that accept 1 argument(s).\n"
+            "Provided argument types: (str)\n"
+            "Provided keyword argument types: {}\n\n"
+            "Tried to find a matching ABI element named `a`, but encountered the "
+            "following problems:\n"
+            "Signature: a((int256,bool)[]), type: function\n"
+            "Arguments do not match types in `a((int256,bool)[])`.\n"
+            'Error: Expected non-string sequence for "tuple[]" component type: got \n'
+            "Signature: a(bytes32), type: function\n"
+            "Argument 1 value `` is not compatible with type `bytes32`.\n"
+            "Signature: a(uint256), type: function\n"
+            "Argument 1 value `` is not compatible with type `uint256`.\n"
+            "Signature: a(uint8), type: function\n"
+            "Argument 1 value `` is not compatible with type `uint8`.\n"
+            "Signature: a(int8), type: function\n"
+            "Argument 1 value `` is not compatible with type `int8`.\n"
+            "Signature: a(), type: function\n"
+            "Expected 0 argument(s) but received 1 argument(s).\n"
+        ),
+    ):
         contract._find_matching_fn_abi("a", *[""])
 
 
 def test_error_when_duplicate_match(w3):
     Contract = w3.eth.contract(abi=MULTIPLE_FUNCTIONS)
 
-    with pytest.raises(MismatchedABI):
+    with pytest.raises(
+        MismatchedABI,
+        match=re.escape(
+            "\nABI Not Found!\n"
+            "Found multiple elements named `a` that accept 1 argument(s).\n"
+            "Provided argument types: (int)\n"
+            "Provided keyword argument types: {}\n\n"
+            "Tried to find a matching ABI element named `a`, but encountered the "
+            "following problems:\n"
+            "Signature: a((int256,bool)[]), type: function\n"
+            "Arguments do not match types in `a((int256,bool)[])`.\n"
+            'Error: Expected non-string sequence for "tuple[]" component type: '
+            "got 100\n"
+            "Signature: a(bytes32), type: function\n"
+            "Argument 1 value `100` is not compatible with type `bytes32`.\n"
+            "Signature: a(uint256), type: function\n"
+            "Argument 1 value `100` is valid.\n"
+            "Signature: a(uint8), type: function\n"
+            "Argument 1 value `100` is valid.\n"
+            "Signature: a(int8), type: function\n"
+            "Argument 1 value `100` is valid.\n"
+            "Signature: a(), type: function\n"
+            "Expected 0 argument(s) but received 1 argument(s).\n"
+        ),
+    ):
         Contract._find_matching_fn_abi("a", *[100])
 
 
@@ -183,7 +231,13 @@ def test_error_when_duplicate_match(w3):
 def test_strict_errors_if_type_is_wrong(w3, arguments):
     Contract = w3.eth.contract(abi=MULTIPLE_FUNCTIONS)
 
-    with pytest.raises(MismatchedABI):
+    with pytest.raises(
+        MismatchedABI,
+        match=re.escape(
+            "\nABI Not Found!\n"
+            "Found multiple elements named `a` that accept 1 argument(s).\n"
+        ),
+    ):
         Contract._find_matching_fn_abi("a", *arguments)
 
 
