@@ -12,12 +12,14 @@ To get started, fork the repository to your own github account, then clone it to
 development machine:
 
 .. code:: sh
+
     git clone git@github.com:your-github-username/<REPO_NAME>.git
 
 Next, install the development dependencies. We recommend using a virtual environment,
 such as `virtualenv <https://virtualenv.pypa.io/en/stable/>`_.
 
 .. code:: sh
+
     cd <REPO_NAME>
     virtualenv -p python venv
     . venv/bin/activate
@@ -32,6 +34,7 @@ A great way to explore the code base is to run the tests.
 We can run all tests with:
 
 .. code:: sh
+
     pytest tests
 
 Code Style
@@ -42,6 +45,7 @@ the library. This tool runs automatically with every commit, but you can also ru
 manually with:
 
 .. code:: sh
+
     make lint
 
 If you need to make a commit that skips the ``pre-commit`` checks, you can do so with
@@ -91,6 +95,7 @@ Final test before each release
 Before releasing a new version, build and test the package that will be released:
 
 .. code:: sh
+
     git checkout main && git pull
     make package-test
 
@@ -100,6 +105,7 @@ the instructions to activate the venv and test whatever you think is important.
 You can also preview the release notes:
 
 .. code:: sh
+
     towncrier --draft
 
 Build the release notes
@@ -110,6 +116,7 @@ the version to bump (see below), which changes how the version number will show 
 release notes.
 
 .. code:: sh
+
     make notes bump=$$VERSION_PART_TO_BUMP$$
 
 If there are any errors, be sure to re-run make notes until it works.
@@ -120,6 +127,7 @@ Push the release to github & pypi
 After confirming that the release package looks okay, release a new version:
 
 .. code:: sh
+
     make release bump=$$VERSION_PART_TO_BUMP$$
 
 This command will:
