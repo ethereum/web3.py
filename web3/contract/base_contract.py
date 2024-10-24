@@ -165,7 +165,14 @@ class BaseContractEvent:
     def __init__(self, *argument_names: Tuple[str]) -> None:
         self.event_name = get_name_from_abi_element_identifier(type(self).__name__)
         self.abi_element_identifier = type(self).__name__
-        self.abi = self._get_event_abi()
+        abi = self._get_event_abi()
+        self.name = abi_to_signature(abi)
+        self.abi = abi
+
+    def __repr__(self) -> str:
+        if self.abi:
+            return f"<Event {abi_to_signature(self.abi)}>"
+        return f"<Event {get_abi_element_signature(self.abi_element_identifier)}>"
 
     @combomethod
     def _get_event_abi(cls) -> ABIEvent:
@@ -441,32 +448,26 @@ class BaseContractEvents:
         contract_event_type: Union[Type["ContractEvent"], Type["AsyncContractEvent"]],
         address: Optional[ChecksumAddress] = None,
     ) -> None:
-        # Keep a copy of each attribute to prevent variable collisions with
-        # contract event names
-        _abi = abi
-        _w3 = w3
-        _address = address
+        self.abi = abi
+        self.w3 = w3
+        self.address = address
         _events: Sequence[ABIEvent] = None
 
-        if _abi:
-            _events = filter_abi_by_type("event", _abi)
+        if self.abi:
+            _events = filter_abi_by_type("event", abi)
             for event in _events:
                 abi_signature = abi_to_signature(event)
                 event_factory = contract_event_type.factory(
                     abi_signature,
-                    w3=_w3,
-                    contract_abi=_abi,
-                    address=_address,
+                    w3=self.w3,
+                    contract_abi=self.abi,
+                    address=self.address,
                     event_name=event["name"],
                 )
                 setattr(self, abi_signature, event_factory)
 
         if _events:
             self._events = _events
-
-        self.abi = _abi
-        self.w3 = _w3
-        self.address = _address
 
     def __hasattr__(self, event_name: str) -> bool:
         try:
@@ -704,15 +705,13 @@ class BaseContractFunctions:
         address: Optional[ChecksumAddress] = None,
         decode_tuples: Optional[bool] = False,
     ) -> None:
-        # Keep a copy of each attribute to prevent variable collisions with
-        # contract function names
-        _abi = abi
-        _w3 = w3
-        _address = address
+        self.abi = abi
+        self.w3 = w3
+        self.address = address
         _functions: Sequence[ABIFunction] = None
 
-        if _abi:
-            _functions = filter_abi_by_type("function", _abi)
+        if self.abi:
+            _functions = filter_abi_by_type("function", self.abi)
             for func in _functions:
                 abi_signature = abi_to_signature(func)
                 setattr(
@@ -720,19 +719,15 @@ class BaseContractFunctions:
                     abi_signature,
                     contract_function_class.factory(
                         abi_signature,
-                        w3=_w3,
-                        contract_abi=_abi,
-                        address=_address,
+                        w3=self.w3,
+                        contract_abi=self.abi,
+                        address=self.address,
                         decode_tuples=decode_tuples,
                     ),
                 )
 
         if _functions:
             self._functions = _functions
-
-        self.abi = _abi
-        self.w3 = _w3
-        self.address = _address
 
     def __hasattr__(self, function_name: str) -> bool:
         try:

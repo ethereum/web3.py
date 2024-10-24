@@ -14,7 +14,6 @@ from typing import (
 
 from eth_typing import (
     ABI,
-    ABIEvent,
     ChecksumAddress,
 )
 from eth_utils import (
@@ -279,7 +278,7 @@ class AsyncContractEvents(BaseContractEvents):
             raise NoABIFound(
                 "There is no ABI found for this contract.",
             )
-        if "_events" not in self.__dict__:
+        if "_events" not in self.__dict__ or len(self._events) == 0:
             raise NoABIEventsFound(
                 "The abi for this contract contains no event definitions. ",
                 "Are you sure you provided the correct contract abi?",
@@ -470,19 +469,6 @@ class AsyncContractFunctions(BaseContractFunctions):
         for func in self._functions:
             yield self[abi_to_signature(func)]
 
-    def __getattribute__(self, function_name: str) -> "AsyncContractFunction":
-        function_identifier = function_name
-
-        # Function names can override object attributes
-        if function_name in ["abi", "w3", "address"] and super().__getattribute__(
-            "_functions"
-        ):
-            function_identifier = _get_any_abi_signature_with_name(
-                function_name, super().__getattribute__("_functions")
-            )
-
-        return super().__getattribute__(function_identifier)
-
     def __getattr__(
         self, function_name: str
     ) -> Callable[[Any, Any], "AsyncContractFunction"]:
@@ -490,7 +476,7 @@ class AsyncContractFunctions(BaseContractFunctions):
             raise NoABIFound(
                 "There is no ABI found for this contract.",
             )
-        elif "_functions" not in self.__dict__:
+        elif "_functions" not in self.__dict__ or len(self._functions) == 0:
             raise NoABIFunctionsFound(
                 "The abi for this contract contains no function definitions. ",
                 "Are you sure you provided the correct contract abi?",
@@ -584,6 +570,16 @@ class AsyncContract(BaseContract):
                 normalizers=normalizers,
             ),
         )
+
+        if contract.abi:
+            for abi in contract.abi:
+                abi_name = abi.get("name")
+                if abi_name in ["abi", "address"]:
+                    raise Web3AttributeError(
+                        f"Contract contains a reserved word `{abi_name}` "
+                        f"and could not be instantiated."
+                    )
+
         contract.functions = AsyncContractFunctions(
             contract.abi, contract.w3, decode_tuples=contract.decode_tuples
         )

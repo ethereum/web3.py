@@ -6,11 +6,24 @@ Compiled with Solidity v0.8.27.
 # source: web3/_utils/contract_sources/FunctionNameTesterContract.sol:FunctionNameTesterContract  # noqa: E501
 FUNCTION_NAME_TESTER_CONTRACT_BYTECODE = "0x6080604052348015600e575f5ffd5b5060dc80601a5f395ff3fe6080604052348015600e575f5ffd5b50600436106030575f3560e01c8063a044c987146034578063c5d7802e14604e575b5f5ffd5b603a6068565b60405160459190608f565b60405180910390f35b60546070565b604051605f9190608f565b60405180910390f35b5f6001905090565b5f5f905090565b5f8115159050919050565b6089816077565b82525050565b5f60208201905060a05f8301846082565b9291505056fea26469706673582212200a081b5e095d27bf0d18bfdb07b8618bdf1a04e1a4cf660629f12ab2b0d0bdb264736f6c634300081b0033"  # noqa: E501
 FUNCTION_NAME_TESTER_CONTRACT_RUNTIME = "0x6080604052348015600e575f5ffd5b50600436106030575f3560e01c8063a044c987146034578063c5d7802e14604e575b5f5ffd5b603a6068565b60405160459190608f565b60405180910390f35b60546070565b604051605f9190608f565b60405180910390f35b5f6001905090565b5f5f905090565b5f8115159050919050565b6089816077565b82525050565b5f60208201905060a05f8301846082565b9291505056fea26469706673582212200a081b5e095d27bf0d18bfdb07b8618bdf1a04e1a4cf660629f12ab2b0d0bdb264736f6c634300081b0033"  # noqa: E501
-FUNCTION_NAME_TESTER_CONTRACT_ABI = [{'inputs': [], 'name': 'w3', 'outputs': [{'internalType': 'bool', 'name': '', 'type': 'bool'}], 'stateMutability': 'nonpayable', 'type': 'function'}, {'inputs': [], 'name': 'z', 'outputs': [{'internalType': 'bool', 'name': '', 'type': 'bool'}], 'stateMutability': 'nonpayable', 'type': 'function'}]
+FUNCTION_NAME_TESTER_CONTRACT_ABI = [
+    {
+        "inputs": [],
+        "name": "w3",
+        "outputs": [{"internalType": "bool", "name": "", "type": "bool"}],
+        "stateMutability": "nonpayable",
+        "type": "function",
+    },
+    {
+        "inputs": [],
+        "name": "z",
+        "outputs": [{"internalType": "bool", "name": "", "type": "bool"}],
+        "stateMutability": "nonpayable",
+        "type": "function",
+    },
+]
 FUNCTION_NAME_TESTER_CONTRACT_DATA = {
     "bytecode": FUNCTION_NAME_TESTER_CONTRACT_BYTECODE,
     "bytecode_runtime": FUNCTION_NAME_TESTER_CONTRACT_RUNTIME,
     "abi": FUNCTION_NAME_TESTER_CONTRACT_ABI,
 }
-
-
