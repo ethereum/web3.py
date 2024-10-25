@@ -516,6 +516,7 @@ class BaseContractFunction:
                 self.abi_element_identifier,
             ),
         )
+        self.name = abi_to_signature(self.abi)
 
     @combomethod
     def _get_abi(cls) -> ABIFunction:
@@ -691,9 +692,7 @@ class BaseContractFunction:
     def factory(
         cls, class_name: str, **kwargs: Any
     ) -> Union["ContractFunction", "AsyncContractFunction"]:
-        return PropertyCheckingFactory(class_name, (cls,), kwargs)(
-            abi=kwargs.get("abi")
-        )
+        return PropertyCheckingFactory(class_name, (cls,), kwargs)()
 
 
 class BaseContractFunctions:

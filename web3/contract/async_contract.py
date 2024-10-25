@@ -108,6 +108,7 @@ from web3.types import (
 )
 from web3.utils.abi import (
     _get_any_abi_signature_with_name,
+    filter_abi_by_type,
     get_abi_element,
 )
 
@@ -121,7 +122,26 @@ class AsyncContractEvent(BaseContractEvent):
     w3: "AsyncWeb3"
 
     def __call__(self, *args: Any, **kwargs: Any) -> "AsyncContractEvent":
-        return copy_contract_event(self, *args, **kwargs)
+        event_abi = get_abi_element(
+            filter_abi_by_type("event", self.contract_abi),
+            self.name,
+            *args,
+            abi_codec=self.w3.codec,
+            **kwargs,
+        )
+        argument_types = get_abi_input_types(event_abi)
+        event_signature = str(
+            get_abi_element_signature(self.abi_element_identifier, argument_types)
+        )
+        contract_event = AsyncContractEvent.factory(
+            event_signature,
+            w3=self.w3,
+            contract_abi=self.contract_abi,
+            address=self.address,
+            abi_element_identifier=event_signature,
+        )
+
+        return copy_contract_event(contract_event, *args, **kwargs)
 
     @combomethod
     async def get_logs(
@@ -255,9 +275,7 @@ class AsyncContractEvent(BaseContractEvent):
 
     @classmethod
     def factory(cls, class_name: str, **kwargs: Any) -> Self:
-        return PropertyCheckingFactory(class_name, (cls,), kwargs)(
-            abi=kwargs.get("abi")
-        )
+        return PropertyCheckingFactory(class_name, (cls,), kwargs)()
 
 
 class AsyncContractEvents(BaseContractEvents):
@@ -306,11 +324,30 @@ class AsyncContractFunction(BaseContractFunction):
     w3: "AsyncWeb3"
 
     def __call__(self, *args: Any, **kwargs: Any) -> "AsyncContractFunction":
-        return copy_contract_function(self, *args, **kwargs)
+        function_abi = get_abi_element(
+            filter_abi_by_type("function", self.contract_abi),
+            self.name,
+            *args,
+            abi_codec=self.w3.codec,
+            **kwargs,
+        )
+        argument_types = get_abi_input_types(function_abi)
+        function_signature = str(
+            get_abi_element_signature(self.abi_element_identifier, argument_types)
+        )
+        contract_function = AsyncContractFunction.factory(
+            function_signature,
+            w3=self.w3,
+            contract_abi=self.contract_abi,
+            address=self.address,
+            abi_element_identifier=function_signature,
+        )
+
+        return copy_contract_function(contract_function, *args, **kwargs)
 
     @classmethod
     def factory(cls, class_name: str, **kwargs: Any) -> Self:
-        return PropertyCheckingFactory(class_name, (cls,), kwargs)(kwargs.get("abi"))
+        return PropertyCheckingFactory(class_name, (cls,), kwargs)()
 
     async def call(
         self,
@@ -469,9 +506,7 @@ class AsyncContractFunctions(BaseContractFunctions):
         for func in self._functions:
             yield self[abi_to_signature(func)]
 
-    def __getattr__(
-        self, function_name: str
-    ) -> Callable[[Any, Any], "AsyncContractFunction"]:
+    def __getattr__(self, function_name: str) -> "AsyncContractFunction":
         if super().__getattribute__("abi") is None:
             raise NoABIFound(
                 "There is no ABI found for this contract.",
