@@ -176,6 +176,9 @@ CONTRACT_ABI_AMBIGUOUS_EVENT: ABI = [
 ]
 
 ABI_CONSTRUCTOR = ABIConstructor({"type": "constructor"})
+ABI_CONSTRUCTOR_WITH_ARGS = ABIConstructor(
+    {"type": "constructor", "inputs": [{"name": "x", "type": "address"}]}
+)
 
 ABI_FALLBACK = ABIFallback({"type": "fallback"})
 
@@ -517,6 +520,13 @@ def test_get_abi_element_info_raises_mismatched_abi(contract_abi: ABI) -> None:
             [],
             {},
             ABI_CONSTRUCTOR,
+        ),
+        (
+            [ABI_CONSTRUCTOR_WITH_ARGS],
+            "constructor",
+            ["0x0000000000000000000000000000000000000000"],
+            {},
+            ABI_CONSTRUCTOR_WITH_ARGS,
         ),
         (
             CONTRACT_ABI_AMBIGUOUS_EVENT,

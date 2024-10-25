@@ -178,8 +178,6 @@ def get_name_from_abi_element_identifier(
         return "fallback"
     elif abi_element_identifier in ["receive", ReceiveFn]:
         return "receive"
-    elif abi_element_identifier == "constructor":
-        return "constructor"
     elif is_text(abi_element_identifier):
         return str(abi_element_identifier).split("(")[0]
     else:
@@ -193,7 +191,7 @@ def get_abi_element_signature(
     element_name = get_name_from_abi_element_identifier(abi_element_identifier)
     argument_types = ",".join(abi_element_argument_types or [])
 
-    if element_name in ["fallback", "receive", "constructor"]:
+    if element_name in ["fallback", "receive"]:
         return element_name
 
     return f"{element_name}({argument_types})"

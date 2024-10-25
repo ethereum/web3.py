@@ -155,6 +155,7 @@ class BaseContractEvent:
 
     address: ChecksumAddress = None
     event_name: str = None
+    abi_element_identifier: ABIElementIdentifier = None
     w3: Union["Web3", "AsyncWeb3"] = None
     contract_abi: ABI = None
     abi: ABIEvent = None
@@ -491,6 +492,8 @@ class BaseContractFunction:
     """
 
     address: ChecksumAddress = None
+    fn_name: str = None
+    name: str = None
     abi_element_identifier: ABIElementIdentifier = None
     w3: Union["Web3", "AsyncWeb3"] = None
     contract_abi: ABI = None
@@ -544,7 +547,15 @@ class BaseContractFunction:
 
     def _set_function_info(self) -> None:
         self.selector = encode_hex(b"")
-        if self.abi_element_identifier in [FallbackFn, ReceiveFn]:
+        if self.abi_element_identifier in [
+            "fallback",
+            "receive",
+            FallbackFn,
+            ReceiveFn,
+        ]:
+            self.abi = self._get_abi()
+
+            self.selector = encode_hex(function_abi_to_4byte_selector(self.abi))
             self.arguments = None
         elif is_text(self.abi_element_identifier):
             self.abi = self._get_abi()
