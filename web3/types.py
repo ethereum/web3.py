@@ -476,6 +476,84 @@ class TxPoolStatus(TypedDict, total=False):
 
 
 #
+# debug types
+#
+class TraceConfig(TypedDict, total=False):
+    disableStorage: bool
+    disableStack: bool
+    enableMemory: bool
+    enableReturnData: bool
+    tracer: str
+    tracerConfig: Dict[str, Any]
+    timeout: int
+
+
+class CallTraceLog(TypedDict):
+    address: ChecksumAddress
+    data: HexBytes
+    topics: Sequence[HexBytes]
+    position: int
+
+
+# syntax b/c "from" keyword not allowed w/ class construction
+CallTrace = TypedDict(
+    "CallTrace",
+    {
+        "type": str,
+        "from": ChecksumAddress,
+        "to": ChecksumAddress,
+        "value": Wei,
+        "gas": int,
+        "gasUsed": int,
+        "input": HexBytes,
+        "output": HexBytes,
+        "error": str,
+        "revertReason": str,
+        "calls": Sequence["CallTrace"],
+        "logs": Sequence[CallTraceLog],
+    },
+    total=False,
+)
+
+
+class TraceData(TypedDict, total=False):
+    balance: int
+    nonce: int
+    code: str
+    storage: Dict[str, str]
+
+
+class DiffModeTrace(TypedDict):
+    post: Dict[ChecksumAddress, TraceData]
+    pre: Dict[ChecksumAddress, TraceData]
+
+
+PrestateTrace = Dict[ChecksumAddress, TraceData]
+
+
+# 4byte tracer returns something like:
+# { '0x27dc297e-128' : 1 }
+# which is: { 4byte signature - calldata size : # of occurrences of key }
+FourByteTrace = Dict[str, int]
+
+
+class StructLog(TypedDict):
+    pc: int
+    op: str
+    gas: int
+    gasCost: int
+    depth: int
+    stack: List[HexStr]
+
+
+class OpcodeTrace(TypedDict, total=False):
+    gas: int
+    failed: bool
+    returnValue: str
+    structLogs: List[StructLog]
+
+
+#
 # web3.geth types
 #
 

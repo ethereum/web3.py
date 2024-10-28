@@ -5,6 +5,10 @@ from .eth_module import (
 from .go_ethereum_admin_module import (
     GoEthereumAdminModuleTest,
 )
+from .go_ethereum_debug_module import (
+    GoEthereumAsyncDebugModuleTest,
+    GoEthereumDebugModuleTest,
+)
 from .go_ethereum_txpool_module import (
     GoEthereumAsyncTxPoolModuleTest,
     GoEthereumTxPoolModuleTest,

@@ -15,9 +15,11 @@ from web3._utils.module_testing.persistent_connection_provider import (
 
 from .common import (
     GoEthereumAdminModuleTest,
+    GoEthereumAsyncDebugModuleTest,
     GoEthereumAsyncEthModuleTest,
     GoEthereumAsyncNetModuleTest,
     GoEthereumAsyncWeb3ModuleTest,
+    GoEthereumDebugModuleTest,
     GoEthereumEthModuleTest,
     GoEthereumNetModuleTest,
     GoEthereumWeb3ModuleTest,
@@ -61,6 +63,10 @@ class TestGoEthereumWeb3ModuleTest(GoEthereumWeb3ModuleTest):
     pass
 
 
+class TestGoEthereumDebugModuleTest(GoEthereumDebugModuleTest):
+    pass
+
+
 class TestGoEthereumEthModuleTest(GoEthereumEthModuleTest):
     pass
 
@@ -100,6 +106,10 @@ async def async_w3(geth_process, geth_ipc_path):
 
 
 class TestGoEthereumAsyncWeb3ModuleTest(GoEthereumAsyncWeb3ModuleTest):
+    pass
+
+
+class TestGoEthereumAsyncDebugModuleTest(GoEthereumAsyncDebugModuleTest):
     pass
 
 

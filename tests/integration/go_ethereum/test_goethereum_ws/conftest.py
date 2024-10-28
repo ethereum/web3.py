@@ -28,7 +28,7 @@ def _geth_command_arguments(ws_port, base_geth_command_arguments, geth_version):
             "--ws.port",
             ws_port,
             "--ws.api",
-            "admin,eth,net,web3",
+            "admin,debug,eth,net,web3",
             "--ws.origins",
             "*",
             "--ipcdisable",

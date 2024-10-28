@@ -18,10 +18,12 @@ from web3.providers.rpc import (
 
 from .common import (
     GoEthereumAdminModuleTest,
+    GoEthereumAsyncDebugModuleTest,
     GoEthereumAsyncEthModuleTest,
     GoEthereumAsyncNetModuleTest,
     GoEthereumAsyncTxPoolModuleTest,
     GoEthereumAsyncWeb3ModuleTest,
+    GoEthereumDebugModuleTest,
     GoEthereumEthModuleTest,
     GoEthereumNetModuleTest,
     GoEthereumTxPoolModuleTest,
@@ -51,7 +53,7 @@ def _geth_command_arguments(rpc_port, base_geth_command_arguments, geth_version)
             "--http.port",
             rpc_port,
             "--http.api",
-            "admin,eth,net,web3,txpool",
+            "admin,debug,eth,net,web3,txpool",
             "--ipcdisable",
         )
     else:
@@ -93,6 +95,10 @@ class TestGoEthereumAdminModuleTest(GoEthereumAdminModuleTest):
         # This test causes all tests after it to fail on CI if it's allowed to run
         pytest.xfail(reason="Only one WS endpoint is allowed to be active at any time")
         super().test_admin_start_stop_ws(w3)
+
+
+class TestGoEthereumDebugModuleTest(GoEthereumDebugModuleTest):
+    pass
 
 
 class TestGoEthereumEthModuleTest(GoEthereumEthModuleTest):
@@ -142,6 +148,10 @@ class TestGoEthereumAsyncAdminModuleTest(GoEthereumAsyncAdminModuleTest):
         # This test causes all tests after it to fail on CI if it's allowed to run
         pytest.xfail(reason="Only one WS endpoint is allowed to be active at any time")
         await super().test_admin_start_stop_ws(async_w3)
+
+
+class TestGoEthereumAsyncDebugModuleTest(GoEthereumAsyncDebugModuleTest):
+    pass
 
 
 class TestGoEthereumAsyncNetModuleTest(GoEthereumAsyncNetModuleTest):
