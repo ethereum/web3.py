@@ -864,8 +864,9 @@ def test_get_event_abi_raises_on_error(
             "type": "function",
         }
     ]
-    with pytest.raises(error_type, match=expected_value):
-        get_event_abi(contract_abi, name, args)
+    with pytest.warns(DeprecationWarning):
+        with pytest.raises(error_type, match=expected_value):
+            get_event_abi(contract_abi, name, args)
 
 
 def test_get_event_abi_raises_if_multiple_found() -> None:
@@ -883,5 +884,6 @@ def test_get_event_abi_raises_if_multiple_found() -> None:
             "type": "event",
         },
     ]
-    with pytest.raises(ValueError, match="Multiple events found"):
-        get_event_abi(contract_ambiguous_event, "LogSingleArg", ["arg0"])
+    with pytest.warns(DeprecationWarning):
+        with pytest.raises(ValueError, match="Multiple events found"):
+            get_event_abi(contract_ambiguous_event, "LogSingleArg", ["arg0"])

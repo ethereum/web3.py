@@ -82,8 +82,6 @@ def test_error_to_call_non_existent_fallback(
 @pytest.mark.parametrize(
     "abi,namespace,expected_exception",
     (
-        (None, "functions", NoABIFound),
-        (None, "events", NoABIFound),
         ([{"type": "event", "name": "AnEvent"}], "functions", NoABIFunctionsFound),
         ([{"type": "function", "name": "aFunction"}], "events", NoABIEventsFound),
         ([{"type": "function", "name": "aFunction"}], "functions", ABIFunctionNotFound),
@@ -93,10 +91,7 @@ def test_error_to_call_non_existent_fallback(
 def test_appropriate_exceptions_based_on_namespaces(
     w3, abi, namespace, expected_exception
 ):
-    if abi is None:
-        contract = w3.eth.contract()
-    else:
-        contract = w3.eth.contract(abi=abi)
+    contract = w3.eth.contract(abi=abi)
 
     namespace_instance = getattr(contract, namespace)
 
@@ -105,10 +100,21 @@ def test_appropriate_exceptions_based_on_namespaces(
 
 
 @pytest.mark.parametrize(
+    "namespace",
+    ("functions", "events"),
+)
+def test_appropriate_exceptions_based_on_namespaces_no_abi(w3, namespace):
+    contract = w3.eth.contract()
+
+    namespace_instance = getattr(contract, namespace)
+
+    with pytest.raises(NoABIFound):
+        namespace_instance.doesNotExist()
+
+
+@pytest.mark.parametrize(
     "abi,namespace,expected_exception",
     (
-        (None, "functions", NoABIFound),
-        (None, "events", NoABIFound),
         ([{"type": "event", "name": "AnEvent"}], "functions", NoABIFunctionsFound),
         ([{"type": "function", "name": "aFunction"}], "events", NoABIEventsFound),
         ([{"type": "function", "name": "aFunction"}], "functions", ABIFunctionNotFound),
@@ -118,12 +124,23 @@ def test_appropriate_exceptions_based_on_namespaces(
 def test_async_appropriate_exceptions_based_on_namespaces(
     async_w3, abi, namespace, expected_exception
 ):
-    if abi is None:
-        contract = async_w3.eth.contract()
-    else:
-        contract = async_w3.eth.contract(abi=abi)
+    contract = async_w3.eth.contract(abi=abi)
 
     namespace_instance = getattr(contract, namespace)
 
     with pytest.raises(expected_exception):
+        namespace_instance.doesNotExist()
+
+
+@pytest.mark.parametrize(
+    "namespace",
+    ("functions", "events"),
+)
+def test_async_appropriate_exceptions_based_on_namespaces_no_abi(async_w3, namespace):
+    # Initialize without ABI
+    contract = async_w3.eth.contract()
+
+    namespace_instance = getattr(contract, namespace)
+
+    with pytest.raises(NoABIFound):
         namespace_instance.doesNotExist()

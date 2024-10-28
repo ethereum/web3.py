@@ -172,10 +172,9 @@ def _get_any_abi_signature_with_name(element_name: str, contract_abi: ABI) -> st
     Find an ABI identifier signature by element name. A signature identifier is
     returned, "name(arg1Type,arg2Type,...)".
 
-    This function forces a result to be returned even if multiple are found. Depending
-    on the ABIs found, the signature may be returned with or without arguments types.
-    The signature without arguments is returned when there is a matching ABI with no
-    arguments.
+    This function forces one result to be returned even if multiple are found.
+    If multiple ABIs are found and all contain arguments, the first result is returned.
+    Otherwise when one of the ABIs has zero arguments, that signature is returned.
     """
     try:
         # search for function abis with the same name
@@ -551,6 +550,10 @@ def get_abi_element(
     """
     Return the interface for an ``ABIElement`` from the ``abi`` that matches the
     provided identifier and arguments.
+
+    ``abi`` may be a list of all ABI elements in a contract or a subset of elements.
+    Passing only functions or events can be useful when names are not deterministic.
+    For example, if names overlap between functions and events.
 
     The ``ABIElementIdentifier`` value may be a function name, signature, or a
     ``FallbackFn`` or ``ReceiveFn``. When named arguments (``args``) and/or keyword args
