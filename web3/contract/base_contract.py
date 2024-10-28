@@ -500,7 +500,7 @@ class BaseContractFunction:
     abi: ABIFunction = None
     transaction: TxParams = None
     arguments: Tuple[Any, ...] = None
-    decode_tuples: Optional[bool] = False
+    decode_tuples: Optional[bool] = None
     args: Any = None
     kwargs: Any = None
 

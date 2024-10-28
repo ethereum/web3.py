@@ -352,6 +352,7 @@ class ContractFunction(BaseContractFunction):
             contract_abi=self.contract_abi,
             address=self.address,
             abi_element_identifier=function_signature,
+            decode_tuples=self.decode_tuples,
         )
 
         return copy_contract_function(contract_function, *args, **kwargs)
