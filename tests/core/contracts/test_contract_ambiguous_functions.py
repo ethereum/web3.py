@@ -266,6 +266,32 @@ def test_functions_error_messages(w3, method, args, expected_message, expected_e
         getattr(contract, method)(*args)
 
 
+def test_ambiguous_functions_abi_element_identifier(w3):
+    abi = [
+        {
+            "name": "isValidSignature",
+            "type": "function",
+            "inputs": [
+                {"internalType": "bytes32", "name": "id", "type": "bytes32"},
+                {"internalType": "bytes", "name": "id", "type": "bytes"},
+            ],
+        },
+        {
+            "name": "isValidSignature",
+            "type": "function",
+            "inputs": [
+                {"internalType": "bytes", "name": "id", "type": "bytes"},
+                {"internalType": "bytes", "name": "id", "type": "bytes"},
+            ],
+        },
+    ]
+    contract = w3.eth.contract(abi=abi)
+    fn_bytes = contract.get_function_by_signature("isValidSignature(bytes,bytes)")
+    assert fn_bytes.abi_element_identifier == "isValidSignature(bytes,bytes)"
+    fn_bytes32 = contract.get_function_by_signature("isValidSignature(bytes32,bytes)")
+    assert fn_bytes32.abi_element_identifier == "isValidSignature(bytes32,bytes)"
+
+
 def test_contract_function_methods(string_contract):
     set_value_func = string_contract.get_function_by_signature("setValue(string)")
     get_value_func = string_contract.get_function_by_signature("getValue()")
