@@ -18,6 +18,8 @@ from eth_typing import (
 )
 from eth_utils import (
     combomethod,
+    encode_hex,
+    function_abi_to_4byte_selector,
 )
 from eth_utils.abi import (
     abi_to_signature,
@@ -56,6 +58,9 @@ from web3._utils.contracts import (
 )
 from web3._utils.datatypes import (
     PropertyCheckingFactory,
+)
+from web3._utils.encoding import (
+    to_4byte_hex,
 )
 from web3._utils.events import (
     AsyncEventFilterBuilder,
@@ -553,6 +558,52 @@ class AsyncContractFunctions(BaseContractFunctions):
 
     def __getitem__(self, function_name: str) -> "AsyncContractFunction":
         return getattr(self, function_name)
+
+    def find_by_name(self, name: str) -> Sequence["AsyncContractFunction"]:
+        """
+        Return all functions with matching name.
+        Raises a Web3ValueError if there is no match.
+        """
+        functions = [
+            self[abi_to_signature(fn)] for fn in self._functions if fn["name"] == name
+        ]
+
+        if len(functions) == 0:
+            raise Web3ValueError("Could not find any function with matching name.")
+
+        return functions
+
+    def find_by_signature(self, signature: str) -> Sequence["AsyncContractFunction"]:
+        """
+        Return all functions with matching signature.
+        Raises a Web3ValueError if there is no match.
+        """
+        functions = [
+            self[abi_to_signature(fn)]
+            for fn in self._functions
+            if abi_to_signature(fn) == signature
+        ]
+
+        if len(functions) == 0:
+            raise Web3ValueError("Could not find any function with matching signature.")
+
+        return functions
+
+    def find_by_selector(self, selector: str) -> Sequence["AsyncContractFunction"]:
+        """
+        Return all functions with matching hex selector.
+        Raises a Web3ValueError if there is no match.
+        """
+        functions = [
+            self[abi_to_signature(fn)]
+            for fn in self._functions
+            if encode_hex(function_abi_to_4byte_selector(fn)) == to_4byte_hex(selector)
+        ]
+
+        if len(functions) == 0:
+            raise Web3ValueError("Could not find any function with matching selector.")
+
+        return functions
 
 
 class AsyncContract(BaseContract):
