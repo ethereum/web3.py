@@ -1,1 +1,0 @@
-New contract methods to obtain event elements from a contract ABI using a name, signature, selector, or topic.

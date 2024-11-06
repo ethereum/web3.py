@@ -6,6 +6,29 @@ v7 Breaking Changes Summary
 
 .. towncrier release notes start
 
+web3.py v7.5.0 (2024-11-06)
+---------------------------
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Polish docs index page (`#3522 <https://github.com/ethereum/web3.py/issues/3522>`__)
+
+
+Features
+~~~~~~~~
+
+- Add support for Geth Debug traceTransaction. (`#3334 <https://github.com/ethereum/web3.py/issues/3334>`__)
+- New contract methods to obtain event elements from a contract ABI using a name, signature, selector, or topic. (`#3472 <https://github.com/ethereum/web3.py/issues/3472>`__)
+
+
+Internal Changes - for web3.py Contributors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Add python 3.13 support (`#3493 <https://github.com/ethereum/web3.py/issues/3493>`__)
+- Compile test contracts with newly released Solidity ``v0.8.28`` to ensure compatibility. (`#3515 <https://github.com/ethereum/web3.py/issues/3515>`__)
+
+
 web3.py v7.4.0 (2024-10-16)
 ---------------------------
 

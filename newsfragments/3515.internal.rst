@@ -1,1 +1,0 @@
-Compile test contracts with newly released Solidity ``v0.8.28`` to ensure compatibility.
