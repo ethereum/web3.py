@@ -30,6 +30,9 @@ def get_create2_address(
     Determine the resulting `CREATE2` opcode contract address for a sender, salt and
     bytecode.
     """
+    if len(to_bytes(hexstr=salt)) != 32:
+        raise TypeError(f"`salt` must be 32 bytes, {len(to_bytes(hexstr=salt))} != 32")
+
     contract_address = keccak(
         b"\xff"
         + to_bytes(hexstr=sender)
