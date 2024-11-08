@@ -470,7 +470,7 @@ async def test_session_manager_async_unique_cache_keys_created_per_thread_with_s
 async def test_session_manager_async_use_new_session_if_loop_closed_for_cached_session(
     http_session_manager,
 ):
-    # create new loop, cache a session wihin the loop, close the loop
+    # create new loop, cache a session within the loop, close the loop
     loop1 = asyncio.new_event_loop()
 
     session1 = ClientSession(raise_for_status=True)
