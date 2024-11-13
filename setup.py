@@ -78,7 +78,7 @@ setup(
         "requests>=2.23.0",
         "typing-extensions>=4.0.1",
         "types-requests>=2.0.0",
-        "websockets>=10.0.0",
+        "websockets>=10.0.0,<14.0.0",
         "pyunormalize>=15.0.0",
     ],
     python_requires=">=3.8, <4",
