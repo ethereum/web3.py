@@ -836,6 +836,7 @@ def subscription_formatter(value: Any) -> Union[HexBytes, HexStr, Dict[str, Any]
 PYTHONIC_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     # Eth
     RPC.eth_accounts: apply_list_to_array_formatter(to_checksum_address),
+    RPC.eth_blobBaseFee: to_integer_if_hex,
     RPC.eth_blockNumber: to_integer_if_hex,
     RPC.eth_chainId: to_integer_if_hex,
     RPC.eth_call: HexBytes,

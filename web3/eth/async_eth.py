@@ -127,6 +127,17 @@ class AsyncEth(BaseEth):
     async def accounts(self) -> Tuple[ChecksumAddress]:
         return await self._accounts()
 
+    # eth_blobBaseFee
+
+    _eth_blobBaseFee: Method[Callable[[], Awaitable[Wei]]] = Method(
+        RPC.eth_blobBaseFee,
+        is_property=True,
+    )
+
+    @property
+    async def blob_base_fee(self) -> Wei:
+        return await self._eth_blobBaseFee()
+
     # eth_blockNumber
 
     get_block_number: Method[Callable[[], Awaitable[BlockNumber]]] = Method(

@@ -200,6 +200,19 @@ The following methods are available on the ``web3.eth`` namespace.
         >>> web3.eth.get_storage_at('0x6C8f2A135f6ed072DE4503Bd7C4999a1a17F824B', 0)
         '0x00000000000000000000000000000000000000000000000000120a0b063499d4'
 
+.. py:method:: Eth.blob_base_fee
+
+    Fetches the expected base fee for blobs in the next block.
+
+    * Delegates to ``eth_blobBaseFee`` RPC Method
+
+    Returns the expected base fee in Wei.
+
+    .. code-block:: python
+
+        >>> web3.eth.blob_base_fee()
+        537070730
+
 
 .. py:method:: Eth.get_proof(account, positions, block_identifier=eth.default_block)
 

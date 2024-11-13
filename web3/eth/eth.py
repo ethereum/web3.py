@@ -119,6 +119,17 @@ class Eth(BaseEth):
     def accounts(self) -> Tuple[ChecksumAddress]:
         return self._accounts()
 
+    # eth_blobBaseFee
+
+    _eth_blobBaseFee: Method[Callable[[], Wei]] = Method(
+        RPC.eth_blobBaseFee,
+        is_property=True,
+    )
+
+    @property
+    def blob_base_fee(self) -> Wei:
+        return self._eth_blobBaseFee()
+
     # eth_blockNumber
 
     get_block_number: Method[Callable[[], BlockNumber]] = Method(

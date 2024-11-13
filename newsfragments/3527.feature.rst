@@ -1,0 +1,2 @@
+- Support for ``w3.eth.blob_base_fee``
+- Async support for ``w3.eth.blob_base_fee``

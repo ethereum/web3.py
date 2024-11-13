@@ -48,6 +48,7 @@ class RPC:
 
     # eth
     eth_accounts = RPCEndpoint("eth_accounts")
+    eth_blobBaseFee = RPCEndpoint("eth_blobBaseFee")
     eth_blockNumber = RPCEndpoint("eth_blockNumber")
     eth_call = RPCEndpoint("eth_call")
     eth_createAccessList = RPCEndpoint("eth_createAccessList")

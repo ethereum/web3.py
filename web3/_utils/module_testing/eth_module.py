@@ -2613,6 +2613,11 @@ class EthModuleTest:
         assert len(accounts) != 0
         assert all(is_checksum_address(account) for account in accounts)
 
+    def test_eth_blob_base_fee(self, w3: "Web3") -> None:
+        blob_base_fee = w3.eth.blob_base_fee
+        assert is_integer(blob_base_fee)
+        assert blob_base_fee >= 0
+
     def test_eth_block_number(self, w3: "Web3") -> None:
         block_number = w3.eth.block_number
         assert is_integer(block_number)
