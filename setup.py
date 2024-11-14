@@ -74,7 +74,7 @@ setup(
         "pywin32>=223;platform_system=='Windows'",
         "requests>=2.16.0",
         "typing-extensions>=4.0.1",
-        "websockets>=10.0.0",
+        "websockets>=10.0.0,<14.0.0",
         "pyunormalize>=15.0.0",
     ],
     python_requires=">=3.7.2",
