@@ -246,6 +246,7 @@ API_ENDPOINTS = {
         "chainId": static_return(131277322940537),  # from fixture generation file
         "feeHistory": call_eth_tester("get_fee_history"),
         "maxPriorityFeePerGas": static_return(10**9),
+        "blobBaseFee": static_return(10**9),
         "gasPrice": static_return(10**9),  # must be >= base fee post-London
         "accounts": call_eth_tester("get_accounts"),
         "blockNumber": compose(

@@ -1842,6 +1842,12 @@ class AsyncEthModuleTest:
         assert all(is_checksum_address(account) for account in accounts)
 
     @pytest.mark.asyncio
+    async def test_async_eth_blob_base_fee(self, async_w3: "AsyncWeb3") -> None:
+        blob_base_fee = await async_w3.eth.blob_base_fee
+        assert is_integer(blob_base_fee)
+        assert blob_base_fee >= 0
+
+    @pytest.mark.asyncio
     async def test_async_eth_get_logs_without_logs(
         self, async_w3: "AsyncWeb3", async_block_with_txn_with_log: BlockData
     ) -> None:
