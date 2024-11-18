@@ -65,6 +65,7 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
         subscription_response_queue_size: int = 500,
         silence_listener_task_exceptions: bool = False,
         max_connection_retries: int = 5,
+        label: Optional[str] = None,
         **kwargs: Any,
     ) -> None:
         super().__init__(**kwargs)
@@ -75,6 +76,7 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
         self.request_timeout = request_timeout
         self.silence_listener_task_exceptions = silence_listener_task_exceptions
         self._max_connection_retries = max_connection_retries
+        self.label = label or self.get_endpoint_uri_or_ipc_path()
 
     def get_endpoint_uri_or_ipc_path(self) -> str:
         if hasattr(self, "endpoint_uri"):

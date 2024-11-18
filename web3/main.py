@@ -148,6 +148,9 @@ from web3.tracing import (
 from web3.types import (
     Wei,
 )
+from web3.providers.persistent.subscription_manager import (
+    SubscriptionManager,
+)
 
 if TYPE_CHECKING:
     from web3._utils.batching import RequestBatcher  # noqa: F401
@@ -508,7 +511,20 @@ class AsyncWeb3(BaseWeb3):
             new_ens.w3 = self  # set self object reference for ``AsyncENS.w3``
         self._ens = new_ens
 
-    # -- persistent connection methods -- #
+    # -- persistent connection settings -- #
+
+    _subscription_manager: SubscriptionManager = None
+
+    @property
+    @persistent_connection_provider_method()
+    def subscription_manager(self) -> SubscriptionManager:
+        """
+        Access the subscription manager for the current PersistentConnectionProvider.
+        """
+        if not self._subscription_manager:
+            self._subscription_manager = SubscriptionManager(self)
+
+        return self._subscription_manager
 
     @property
     @persistent_connection_provider_method()
