@@ -42,6 +42,9 @@ from .caching import (
 from .exception_handling import (
     handle_offchain_lookup,
 )
+from .subscriptions import (
+    EthSubscription,
+)
 
 __all__ = [
     "abi_to_signature",
@@ -70,5 +73,6 @@ __all__ = [
     "async_handle_offchain_lookup",
     "RequestCacheValidationThreshold",
     "SimpleCache",
+    "EthSubscription",
     "handle_offchain_lookup",
 ]

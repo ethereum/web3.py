@@ -99,7 +99,11 @@ from web3.types import (
     _Hash32,
 )
 from web3.utils import (
+    EthSubscription,
     async_handle_offchain_lookup,
+)
+from web3.utils.subscriptions import (
+    EthSubscriptionHandler,
 )
 
 if TYPE_CHECKING:
@@ -714,6 +718,8 @@ class AsyncEth(BaseEth):
                 bool,  # newPendingTransactions, full_transactions
             ]
         ] = None,
+        handler: Optional[EthSubscriptionHandler] = None,
+        label: Optional[str] = None,
     ) -> HexStr:
         if not isinstance(self.w3.provider, PersistentConnectionProvider):
             raise MethodNotSupported(
@@ -721,10 +727,13 @@ class AsyncEth(BaseEth):
                 "persistent connections."
             )
 
-        if subscription_arg is None:
-            return await self._subscribe(subscription_type)
-
-        return await self._subscribe_with_args(subscription_type, subscription_arg)
+        params = (
+            (subscription_type, subscription_arg)
+            if subscription_arg is not None
+            else (subscription_type,)
+        )
+        sx = EthSubscription(subscription_params=params, handler=handler, label=label)
+        return await self.w3.subscription_manager.subscribe(sx)
 
     _unsubscribe: Method[Callable[[HexStr], Awaitable[bool]]] = Method(
         RPC.eth_unsubscribe,
@@ -738,7 +747,14 @@ class AsyncEth(BaseEth):
                 "persistent connections."
             )
 
-        return await self._unsubscribe(subscription_id)
+        for sx in self.w3.subscription_manager.subscriptions:
+            if sx._id == subscription_id:
+                return await sx.unsubscribe()
+
+        raise Web3ValueError(
+            f"Cannot unsubscribe subscription with id `{subscription_id}`. "
+            "Subscription not found."
+        )
 
     # -- contract methods -- #
 
