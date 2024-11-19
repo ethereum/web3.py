@@ -355,7 +355,6 @@ The following methods are available on the ``web3.eth`` namespace.
             'size': 650,
             'stateRoot': '0x96dbad955b166f5119793815c36f11ffa909859bbfeb64b735cca37cbf10bef1',
             'timestamp': 1470173578,
-            'totalDifficulty': 44010101827705409388,
             'transactions': ['0xc55e2b90168af6972193c1f86fa4d7d7b31a29c156665d15b9cd48618b5177ef'],
             'transactionsRoot': '0xb31f174d27b99cdae8e746bd138a01ce60d8dd7b224f7c60845914def05ecc58',
             'uncles': [],
@@ -416,7 +415,6 @@ The following methods are available on the ``web3.eth`` namespace.
           'sha3Uncles': '0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347',
           'size': None, 'stateRoot': '0x8ce2b1bf8e25a06a8ca34c647ff5fd0fa48ac725cc07f657ae1645ab8ef68c91',
           'timestamp': '0x55c6a972',
-          'totalDifficulty': '0xce4c4f0a0b810b',
           'transactions': [],
           'transactionsRoot': '0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421',
           'uncles': []

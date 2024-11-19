@@ -330,7 +330,6 @@ BLOCK_FORMATTERS = {
     "difficulty": to_integer_if_hex,
     "receiptsRoot": apply_formatter_if(is_not_null, to_hexbytes(32)),
     "stateRoot": apply_formatter_if(is_not_null, to_hexbytes(32)),
-    "totalDifficulty": to_integer_if_hex,
     "transactions": apply_one_of_formatters(
         (
             (
