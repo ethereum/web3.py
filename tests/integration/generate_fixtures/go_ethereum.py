@@ -361,6 +361,50 @@ def setup_chain_state(w3):
     return geth_fixture
 
 
+def update_doc_version(new_version):
+    file_path = "./docs/contributing.rst"
+    with open(file_path) as file:
+        lines = file.readlines()
+
+    replaced = False
+    for i, line in enumerate(lines):
+        if "python -m geth.install " in line:
+            lines[i] = f"      $ python -m geth.install {new_version}\n"
+        if "GETH_BINARY=~" in line:
+            lines[
+                i
+            ] = f"      $ GETH_BINARY=~/.py-geth/geth-{new_version}/bin/geth python ./tests/integration/generate_fixtures/go_ethereum.py\n"  # noqa: E501
+            replaced = True
+            break
+
+    if not replaced:
+        raise ValueError("`geth_version` for conftest not found / replaced.")
+
+    with open(file_path, "w") as file:
+        file.writelines(lines)
+    print(f"Updated geth_version in docs to {new_version}")
+
+
+def update_fixture_generation_version(new_version):
+    file_path = "./tests/integration/go_ethereum/conftest.py"
+    with open(file_path) as file:
+        lines = file.readlines()
+
+    replaced = False
+    for i, line in enumerate(lines):
+        if "GETH_FIXTURE_ZIP" in line:
+            lines[i] = f'GETH_FIXTURE_ZIP = "geth-{new_version}-fixture.zip"'
+            replaced = True
+            break
+
+    if not replaced:
+        raise ValueError("`geth_version` for conftest not found / replaced.")
+
+    with open(file_path, "w") as file:
+        file.writelines(lines)
+    print(f"Updated geth_version in go_ethereum/conftest.py to {new_version}")
+
+
 def update_circleci_geth_version(new_version):
     file_path = "./.circleci/config.yml"
     with open(file_path) as file:
@@ -390,3 +434,5 @@ if __name__ == "__main__":
     geth_version = re.search(r"geth-v([\d.]+)/", geth_binary).group(1)
     generate_go_ethereum_fixture(f"./tests/integration/geth-{geth_version}-fixture")
     update_circleci_geth_version(geth_version)
+    update_fixture_generation_version(geth_version)
+    update_doc_version(geth_version)
