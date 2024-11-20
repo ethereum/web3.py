@@ -34,7 +34,7 @@ from .utils import (
 )
 
 KEYFILE_PW = "web3py-test"
-GETH_FIXTURE_ZIP = "geth-1.14.5-fixture.zip"
+GETH_FIXTURE_ZIP = "geth-1.14.12-fixture.zip"
 
 
 @pytest.fixture(scope="module")
