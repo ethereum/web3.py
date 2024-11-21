@@ -24,7 +24,7 @@ from web3.tools.benchmark.utils import (
     kill_proc_gracefully,
 )
 
-GETH_FIXTURE_ZIP = "geth-1.14.5-fixture.zip"
+GETH_FIXTURE_ZIP = "geth-1.14.12-fixture.zip"
 
 
 class GethBenchmarkFixture:

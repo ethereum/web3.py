@@ -350,7 +350,7 @@ middleware is:
 
     # confirm that the connection succeeded
     >>> w3.client_version
-    'Geth/v1.14.5-stable-4bb3c89d/linux-amd64/go1.22.4'
+    'Geth/v1.14.12-stable-4bb3c89d/linux-amd64/go1.22.4'
 
 This example connects to a local ``geth --dev`` instance on Linux with a
 unique IPC location and loads the middleware:
@@ -369,7 +369,7 @@ unique IPC location and loads the middleware:
 
     # confirm that the connection succeeded
     >>> w3.client_version
-    'Geth/v1.7.3-stable-4bb3c89d/linux-amd64/go1.9'
+    'Geth/v1.14.12-stable-4bb3c89d/linux-amd64/go1.22.4'
 
 Why is ``ExtraDataToPOAMiddleware`` necessary?
 ''''''''''''''''''''''''''''''''''''''''''''''
