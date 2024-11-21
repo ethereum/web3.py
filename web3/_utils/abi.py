@@ -63,6 +63,7 @@ from eth_utils import (
     decode_hex,
     filter_abi_by_type,
     get_abi_input_names,
+    get_abi_input_types,
     is_bytes,
     is_list_like,
     is_string,
@@ -76,6 +77,10 @@ from eth_utils.toolz import (
     pipe,
 )
 
+from web3._utils.abi_element_identifiers import (
+    FallbackFn,
+    ReceiveFn,
+)
 from web3._utils.decorators import (
     reject_recursive_repeats,
 )
@@ -92,6 +97,7 @@ from web3.exceptions import (
     Web3ValueError,
 )
 from web3.types import (
+    ABIElementIdentifier,
     TReturn,
 )
 
@@ -117,9 +123,13 @@ def exclude_indexed_event_inputs(event_abi: ABIEvent) -> Sequence[ABIComponentIn
     return [arg for arg in event_abi["inputs"] if arg["indexed"] is False]
 
 
+def filter_by_types(types: Collection[str], contract_abi: ABI) -> Sequence[ABIElement]:
+    return [abi_element for abi_element in contract_abi if abi_element["type"] in types]
+
+
 def filter_by_argument_name(
     argument_names: Collection[str], contract_abi: ABI
-) -> List[ABIElement]:
+) -> Sequence[ABIElement]:
     """
     Return a list of each ``ABIElement`` which contain arguments matching provided
     names.
@@ -137,6 +147,54 @@ def filter_by_argument_name(
             continue
 
     return abis_with_matching_args
+
+
+def filter_by_argument_type(
+    argument_types: Collection[str], contract_abi: ABI
+) -> List[ABIElement]:
+    """
+    Return a list of each ``ABIElement`` which contain arguments matching provided
+    types.
+    """
+    abis_with_matching_args = []
+    for abi_element in contract_abi:
+        try:
+            abi_arg_types = get_abi_input_types(abi_element)
+
+            if set(argument_types).intersection(abi_arg_types) == set(argument_types):
+                abis_with_matching_args.append(abi_element)
+        except ValueError:
+            # fallback or receive functions do not have arguments
+            # proceed to next ABIElement
+            continue
+
+    return abis_with_matching_args
+
+
+def get_name_from_abi_element_identifier(
+    abi_element_identifier: ABIElementIdentifier,
+) -> str:
+    if abi_element_identifier in ["fallback", FallbackFn]:
+        return "fallback"
+    elif abi_element_identifier in ["receive", ReceiveFn]:
+        return "receive"
+    elif is_text(abi_element_identifier):
+        return str(abi_element_identifier).split("(")[0]
+    else:
+        raise Web3TypeError("Unsupported function identifier")
+
+
+def get_abi_element_signature(
+    abi_element_identifier: ABIElementIdentifier,
+    abi_element_argument_types: Optional[Sequence[str]] = None,
+) -> str:
+    element_name = get_name_from_abi_element_identifier(abi_element_identifier)
+    argument_types = ",".join(abi_element_argument_types or [])
+
+    if element_name in ["fallback", "receive"]:
+        return element_name
+
+    return f"{element_name}({argument_types})"
 
 
 class AddressEncoder(encoding.AddressEncoder):

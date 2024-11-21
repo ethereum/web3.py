@@ -10,6 +10,9 @@ from tests.core.contracts.utils import (
 from tests.utils import (
     async_partial,
 )
+from web3._utils.abi import (
+    get_abi_element_signature,
+)
 from web3._utils.contract_sources.contract_data.arrays_contract import (
     ARRAYS_CONTRACT_DATA,
 )
@@ -22,6 +25,7 @@ from web3._utils.contract_sources.contract_data.contract_caller_tester import (
     CONTRACT_CALLER_TESTER_DATA,
 )
 from web3._utils.contract_sources.contract_data.event_contracts import (
+    AMBIGUOUS_EVENT_NAME_CONTRACT_DATA,
     EVENT_CONTRACT_DATA,
     INDEXED_EVENT_CONTRACT_DATA,
 )
@@ -60,6 +64,10 @@ from web3._utils.contract_sources.contract_data.tuple_contracts import (
 )
 from web3.exceptions import (
     Web3ValueError,
+)
+from web3.utils.abi import (
+    abi_to_signature,
+    get_abi_element,
 )
 
 # --- function name tester contract --- #
@@ -283,6 +291,30 @@ def indexed_event_contract(
     return indexed_event_contract
 
 
+@pytest.fixture
+def ambiguous_event_contract(
+    w3, wait_for_block, wait_for_transaction, address_conversion_func
+):
+    wait_for_block(w3)
+
+    ambiguous_event_contract_factory = w3.eth.contract(
+        **AMBIGUOUS_EVENT_NAME_CONTRACT_DATA
+    )
+    deploy_txn_hash = ambiguous_event_contract_factory.constructor().transact(
+        {"gas": 1000000}
+    )
+    deploy_receipt = wait_for_transaction(w3, deploy_txn_hash)
+    contract_address = address_conversion_func(deploy_receipt["contractAddress"])
+
+    bytecode = w3.eth.get_code(contract_address)
+    assert bytecode == ambiguous_event_contract_factory.bytecode_runtime
+    ambiguous_event_name_contract = ambiguous_event_contract_factory(
+        address=contract_address
+    )
+    assert ambiguous_event_name_contract.address == contract_address
+    return ambiguous_event_name_contract
+
+
 # --- arrays contract --- #
 
 
@@ -470,6 +502,11 @@ def invoke_contract(
     func_kwargs=None,
     tx_params=None,
 ):
+    function_signature = contract_function
+    function_arg_count = len(func_args or ()) + len(func_kwargs or {})
+    if function_arg_count == 0:
+        function_signature = get_abi_element_signature(contract_function)
+
     if func_args is None:
         func_args = []
     if func_kwargs is None:
@@ -482,7 +519,14 @@ def invoke_contract(
             f"allowable_invoke_method must be one of: {allowable_call_desig}"
         )
 
-    function = contract.functions[contract_function]
+    fn_abi = get_abi_element(
+        contract.abi,
+        function_signature,
+        *func_args,
+        abi_codec=contract.w3.codec,
+        **func_kwargs,
+    )
+    function = contract.functions[abi_to_signature(fn_abi)]
     result = getattr(function(*func_args, **func_kwargs), api_call_desig)(tx_params)
 
     return result
@@ -744,6 +788,11 @@ async def async_invoke_contract(
     func_kwargs=None,
     tx_params=None,
 ):
+    function_signature = contract_function
+    function_arg_count = len(func_args or ()) + len(func_kwargs or {})
+    if function_arg_count == 0:
+        function_signature = get_abi_element_signature(contract_function)
+
     if func_args is None:
         func_args = []
     if func_kwargs is None:
@@ -756,7 +805,14 @@ async def async_invoke_contract(
             f"allowable_invoke_method must be one of: {allowable_call_desig}"
         )
 
-    function = contract.functions[contract_function]
+    fn_abi = get_abi_element(
+        contract.abi,
+        function_signature,
+        *func_args,
+        abi_codec=contract.w3.codec,
+        **func_kwargs,
+    )
+    function = contract.functions[abi_to_signature(fn_abi)]
     result = await getattr(function(*func_args, **func_kwargs), api_call_desig)(
         tx_params
     )
