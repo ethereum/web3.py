@@ -49,7 +49,7 @@ setup(
     install_requires=[
         "eth-utils>=2",
     ],
-    python_requires=">=3.8, <4",
+    python_requires=">=3.9, <4",
     extras_require=extras_require,
     py_modules=["<MODULE_NAME>"],
     license="MIT",
@@ -63,10 +63,10 @@ setup(
         "License :: OSI Approved :: MIT License",
         "Natural Language :: English",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
+        "Programming Language :: Python :: 3.13",
     ],
 )
