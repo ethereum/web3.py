@@ -116,7 +116,7 @@ class AsyncIPCProvider(PersistentConnectionProvider):
 
     async def _socket_send(self, request_data: bytes) -> None:
         try:
-            self._writer.write(request_data)
+            self._writer.write(request_data + b"\n")
             await self._writer.drain()
         except OSError as e:
             # Broken pipe
