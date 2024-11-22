@@ -1,1 +1,0 @@
-Update the `ContractEvents` class to raise a `NoABIFound` exception if the `Contract` is initialized without an `ABI` and an attempt to access an event is made. This exception makes `ContractEvents` consistent with `ContractFunctions`.

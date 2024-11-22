@@ -6,6 +6,35 @@ v7 Breaking Changes Summary
 
 .. towncrier release notes start
 
+web3.py v7.6.0 (2024-11-22)
+---------------------------
+
+Bugfixes
+~~~~~~~~
+
+- Update the `ContractEvents` class to raise a `NoABIFound` exception if the `Contract` is initialized without an `ABI` and an attempt to access an event is made. This exception makes `ContractEvents` consistent with `ContractFunctions`. (`#3491 <https://github.com/ethereum/web3.py/issues/3491>`__)
+
+
+Features
+~~~~~~~~
+
+- Contracts with overloaded functions or events are now supported. The Contract initializes functions and events using an identifier to distinguish between them. The identifier is the function or event signature, which consists of the name and the parameter types. (`#3491 <https://github.com/ethereum/web3.py/issues/3491>`__)
+- - Support for ``w3.eth.blob_base_fee``
+  - Async support for ``w3.eth.blob_base_fee`` (`#3527 <https://github.com/ethereum/web3.py/issues/3527>`__)
+
+
+Internal Changes - for web3.py Contributors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Pin ``websockets<14`` due to breaking changes (`#3529 <https://github.com/ethereum/web3.py/issues/3529>`__)
+
+
+Miscellaneous Changes
+~~~~~~~~~~~~~~~~~~~~~
+
+- `#3491 <https://github.com/ethereum/web3.py/issues/3491>`__
+
+
 web3.py v7.5.0 (2024-11-06)
 ---------------------------
 
