@@ -394,11 +394,13 @@ class Web3(BaseWeb3):
             Dict[str, Union[Type[Module], Sequence[Any]]]
         ] = None,
         ens: Union[ENS, "Empty"] = empty,
+        abi_validation: Optional[bool] = True,
     ) -> None:
         _validate_provider(self, provider)
 
         self.manager = self.RequestManager(self, provider, middleware)
         self.codec = ABICodec(build_strict_registry())
+        self.abi_validation = abi_validation
 
         if modules is None:
             modules = get_default_modules()
@@ -464,11 +466,13 @@ class AsyncWeb3(BaseWeb3):
             Dict[str, Union[Type[Module], Sequence[Any]]]
         ] = None,
         ens: Union[AsyncENS, "Empty"] = empty,
+        abi_validation: Optional[bool] = True,
     ) -> None:
         _validate_provider(self, provider)
 
         self.manager = self.RequestManager(self, provider, middleware)
         self.codec = ABICodec(build_strict_registry())
+        self.abi_validation = abi_validation
 
         self._modules = get_async_default_modules() if modules is None else modules
         self._external_modules = None if external_modules is None else external_modules

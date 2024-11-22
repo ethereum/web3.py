@@ -425,6 +425,21 @@ def test_get_abi_element_info_raises_mismatched_abi(contract_abi: ABI) -> None:
         get_abi_element_info(contract_abi, "foo", *args, **{})
 
 
+def test_get_abi_element_info_configurable_abi_validation() -> None:
+    assert (
+        get_abi_element_info(CONTRACT_ABI, "myFunction")["abi"]
+        == FUNCTION_ABI_NO_INPUTS
+    )
+    assert (
+        get_abi_element_info(CONTRACT_ABI, "myFunction", abi_validation=True)["abi"]
+        == FUNCTION_ABI_NO_INPUTS
+    )
+    assert (
+        get_abi_element_info(CONTRACT_ABI, "myFunction", abi_validation=False)["abi"]
+        == FUNCTION_ABI_NO_INPUTS
+    )
+
+
 @pytest.mark.parametrize(
     "abi,abi_element_identifier,args,kwargs,expected_abi",
     (
@@ -709,6 +724,19 @@ def test_get_abi_element_raises_with_invalid_parameters(
 ) -> None:
     with pytest.raises(expected_error, match=re.escape(expected_message)):
         get_abi_element(abi, abi_element_identifier, *args, **kwargs)
+
+
+def test_get_abi_element_configurable_abi_validation() -> None:
+    assert get_abi_element(CONTRACT_ABI, "logTwoEvents", *[1]) == LOG_TWO_EVENTS_ABI
+    assert (
+        get_abi_element(CONTRACT_ABI, "logTwoEvents", *[1], abi_validation=True)
+        == LOG_TWO_EVENTS_ABI
+    )
+
+    assert (
+        get_abi_element(CONTRACT_ABI, "logTwoEvents", *[1], abi_validation=False)
+        == LOG_TWO_EVENTS_ABI
+    )
 
 
 def test_get_abi_element_codec_override(contract_abi: ABI) -> None:

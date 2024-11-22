@@ -473,6 +473,7 @@ def get_abi_element_info(
     abi_element_identifier: ABIElementIdentifier,
     *args: Optional[Sequence[Any]],
     abi_codec: Optional[Any] = None,
+    abi_validation: Optional[bool] = True,
     **kwargs: Optional[Dict[str, Any]],
 ) -> ABIElementInfo:
     """
@@ -490,6 +491,10 @@ def get_abi_element_info(
     :param abi_codec: Codec used for encoding and decoding. Default with \
     `strict_bytes_type_checking` enabled.
     :type abi_codec: `Optional[Any]`
+    :param abi_validation: Enforce ABI validation of elements. Without validation, \
+    elements may contain invalid types or values and may be unusable. If multiple \
+    elements are found, only the first will be returned. Defaults to `True`.
+    :type abi_validation: `Optional[bool]`
     :param kwargs: Find an element ABI with matching kwargs.
     :type kwargs: `Optional[Dict[str, Any]]`
     :return: Element information including the ABI, selector and args.
@@ -524,7 +529,12 @@ def get_abi_element_info(
         (7, 3)
     """
     fn_abi = get_abi_element(
-        abi, abi_element_identifier, *args, abi_codec=abi_codec, **kwargs
+        abi,
+        abi_element_identifier,
+        *args,
+        abi_codec=abi_codec,
+        abi_validation=abi_validation,
+        **kwargs,
     )
     fn_selector = encode_hex(function_abi_to_4byte_selector(fn_abi))
     fn_inputs: Tuple[Any, ...] = tuple()
@@ -545,6 +555,7 @@ def get_abi_element(
     abi_element_identifier: ABIElementIdentifier,
     *args: Optional[Any],
     abi_codec: Optional[Any] = None,
+    abi_validation: Optional[bool] = True,
     **kwargs: Optional[Any],
 ) -> ABIElement:
     """
@@ -574,6 +585,10 @@ def get_abi_element(
     :param abi_codec: Codec used for encoding and decoding. Default with \
     `strict_bytes_type_checking` enabled.
     :type abi_codec: `Optional[Any]`
+    :param abi_validation: Enforce ABI validation of elements. Without validation, \
+    elements may contain invalid types or values and may be unusable. If multiple \
+    elements are found, only the first will be returned. Defaults to `True`.
+    :type abi_validation: `Optional[bool]`
     :param kwargs: Find an element ABI with matching kwargs.
     :type kwargs: `Optional[Dict[str, Any]]`
     :return: ABI element for the specific ABI element.
@@ -602,7 +617,8 @@ def get_abi_element(
 'type': 'uint256'}], 'payable': False, 'stateMutability': 'nonpayable', \
 'type': 'function'}
     """
-    validate_abi(abi)
+    if abi_validation:
+        validate_abi(abi)
 
     if abi_codec is None:
         abi_codec = ABICodec(default_registry)
@@ -620,7 +636,7 @@ def get_abi_element(
     num_matches = len(abi_element_matches)
 
     # Raise MismatchedABI when more than one found
-    if num_matches != 1:
+    if abi_validation and num_matches != 1:
         error_diagnosis = _mismatched_abi_error_diagnosis(
             abi_element_identifier,
             abi,
