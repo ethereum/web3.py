@@ -4,7 +4,7 @@ parameters:
   # NOTE: Do not update the `geth_version` manually. It is updated during the
   # integration test fixture generation.
   geth_version:
-    default: "1.14.5"
+    default: "1.14.12"
     type: string
   go_version:
     default: "1.22.4"

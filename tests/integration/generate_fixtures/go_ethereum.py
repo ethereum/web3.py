@@ -361,25 +361,81 @@ def setup_chain_state(w3):
     return geth_fixture
 
 
-def update_circleci_geth_version(new_version):
-    file_path = "./.circleci/config.yml"
-    with open(file_path) as file:
-        lines = file.readlines()
-
+def update_geth_version_string(what_to_replace, new_version, change_next_line=False):
     replaced = False
-    for i, line in enumerate(lines):
-        if "geth_version:" in line:
-            if "default:" in lines[i + 1]:
-                lines[i + 1] = f'    default: "{new_version}"\n'
-                replaced = True
-                break
+    for file_path, changes in what_to_replace.items():
+        with open(file_path) as file:
+            lines = file.readlines()
 
-    if not replaced:
-        raise ValueError("`geth_version` for circleci not found / replaced.")
+            for i, line in enumerate(lines):
+                for change in changes:
+                    if change["line_to_replace"] in line:
+                        if (
+                            change_next_line
+                            and change["next_line_contains"] in lines[i + 1]
+                        ):
+                            lines[i + 1] = change["replace_with"]
+                            replaced = True
+                            break
+                        else:
+                            lines[i] = change["replace_with"]
+                            replaced = True
+                            break
 
-    with open(file_path, "w") as file:
-        file.writelines(lines)
-    print(f"Updated geth_version to {new_version}")
+        if not replaced:
+            raise ValueError("`geth_version` for {file_path} not found / replaced.")
+
+        with open(file_path, "w") as file:
+            file.writelines(lines)
+        print(f"Updated geth_version in {file_path} to {new_version}")
+
+
+def update_doc_version(new_version):
+    changes = {
+        "./docs/contributing.rst": [
+            {
+                "line_to_replace": "python -m geth.install ",
+                "replace_with": f"      $ python -m geth.install v{new_version}\n",
+            },
+            {
+                "line_to_replace": "GETH_BINARY=~",
+                "replace_with": f"      $ GETH_BINARY=~/.py-geth/geth-v{new_version}/bin/geth python ./tests/integration/generate_fixtures/go_ethereum.py\n",  # noqa: E501,
+            },
+        ]
+    }
+
+    update_geth_version_string(changes, new_version)
+
+
+def update_fixture_generation_version(new_version):
+    changes = {
+        "./tests/integration/go_ethereum/conftest.py": [
+            {
+                "line_to_replace": "GETH_FIXTURE_ZIP = ",
+                "replace_with": f'GETH_FIXTURE_ZIP = "geth-{new_version}-fixture.zip"\n',  # noqa: E501
+            },
+        ],
+        "./web3/tools/benchmark/node.py": [
+            {
+                "line_to_replace": "GETH_FIXTURE_ZIP = ",
+                "replace_with": f'GETH_FIXTURE_ZIP = "geth-{new_version}-fixture.zip"\n',  # noqa: E501
+            },
+        ],
+    }
+    update_geth_version_string(changes, new_version)
+
+
+def update_circleci_geth_version(new_version):
+    changes = {
+        "./.circleci/config.yml": [
+            {
+                "line_to_replace": "geth_version:\n",
+                "replace_with": f'    default: "{new_version}"\n',
+                "next_line_contains": "default:",
+            }
+        ]
+    }
+    update_geth_version_string(changes, new_version, change_next_line=True)
 
 
 if __name__ == "__main__":
@@ -390,3 +446,5 @@ if __name__ == "__main__":
     geth_version = re.search(r"geth-v([\d.]+)/", geth_binary).group(1)
     generate_go_ethereum_fixture(f"./tests/integration/geth-{geth_version}-fixture")
     update_circleci_geth_version(geth_version)
+    update_fixture_generation_version(geth_version)
+    update_doc_version(geth_version)
