@@ -1,0 +1,1 @@
+Include an end-of-line delimiter when writing to the socket with ``AsyncIPCProvider``.
