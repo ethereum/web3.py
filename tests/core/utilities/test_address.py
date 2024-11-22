@@ -1,5 +1,8 @@
 import pytest
 
+from web3.exceptions import (
+    Web3ValidationError,
+)
 from web3.utils.address import (
     get_create2_address,
     get_create_address,
@@ -69,3 +72,16 @@ def test_address_get_create_address(sender, nonce, expected):
 def test_address_get_create2_address(sender, salt, init_code, expected):
     actual = get_create2_address(sender, salt, init_code)
     assert actual == expected
+
+
+@pytest.mark.parametrize(
+    "salt",
+    ("0x", "0x00", "0x0000", f"0x{'00' * 31}", f"0x{'00' * 33}"),
+)
+def test_salt_length_validation(salt):
+    with pytest.raises(Web3ValidationError):
+        get_create2_address(
+            f"0x{'00' * 20}",
+            salt,
+            "0x00",
+        )
