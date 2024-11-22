@@ -1,0 +1,1 @@
+Validate the salt length as 32 bytes for ``web3.utils.address.get_create2_address``.
