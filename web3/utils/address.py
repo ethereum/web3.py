@@ -9,6 +9,9 @@ from eth_utils import (
 )
 import rlp
 
+from web3.exceptions import (
+    Web3ValidationError,
+)
 from web3.types import (
     HexStr,
     Nonce,
@@ -31,7 +34,9 @@ def get_create2_address(
     bytecode.
     """
     if len(to_bytes(hexstr=salt)) != 32:
-        raise TypeError(f"`salt` must be 32 bytes, {len(to_bytes(hexstr=salt))} != 32")
+        raise Web3ValidationError(
+            f"`salt` must be 32 bytes, {len(to_bytes(hexstr=salt))} != 32"
+        )
 
     contract_address = keccak(
         b"\xff"
