@@ -1,1 +1,1 @@
-Include an end-of-line delimiter when writing to the socket with ``AsyncIPCProvider``.
+Include an end-of-line delimiter when sending messages via IPC with the ``IPCProvider`` and ``AsyncIPCProvider``.
