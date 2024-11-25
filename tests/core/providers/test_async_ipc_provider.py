@@ -8,6 +8,10 @@ from threading import (
     Thread,
 )
 import time
+from unittest.mock import (
+    AsyncMock,
+    Mock,
+)
 
 from websockets import (
     ConnectionClosed,
@@ -43,7 +47,7 @@ ETH_SUBSCRIBE_RESPONSE = {
 
 TWENTY_MB = 20 * 1024 * 1024
 SIZED_MSG_START = b'{"id": 0, "jsonrpc": "2.0", "result": "'
-SIZED_MSG_END = b'"}\n' b""
+SIZED_MSG_END = b'"}\n'
 
 
 @pytest.fixture
@@ -100,9 +104,9 @@ def ipc_server_fixture(simple_ipc_server):
 @pytest.fixture
 def serve_empty_result(ipc_server_fixture):
     def response_fn(connection):
-        connection.sendall(b'{"id": 0, "result": {}')
+        connection.sendall(b'{"id": 0, "result": {}}')
         time.sleep(0.1)
-        connection.sendall(b"}\n")
+        connection.sendall(b"\n")
 
     yield from ipc_server_fixture(response_fn)
 
@@ -342,3 +346,20 @@ async def test_async_ipc_read_buffer_limit_is_configurable(
             len(response["result"])
             == TWENTY_MB - len(SIZED_MSG_START) - len(SIZED_MSG_END) + 1024
         )
+
+
+@pytest.mark.asyncio
+async def test_async_ipc_provider_write_messages_end_with_new_line_delimiter(
+    simple_ipc_server,
+    jsonrpc_ipc_pipe_path,
+):
+    async with AsyncWeb3(AsyncIPCProvider(pathlib.Path(jsonrpc_ipc_pipe_path))) as w3:
+        w3.provider._writer.write = Mock()
+        w3.provider._reader.readline = AsyncMock(
+            return_value=b'{"id": 0, "result": {}}\n'
+        )
+
+        await w3.provider.make_request("method", [])
+
+        request_data = b'{"jsonrpc": "2.0", "method": "method", "params": [], "id": 0}'
+        w3.provider._writer.write.assert_called_with(request_data + b"\n")
