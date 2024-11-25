@@ -164,7 +164,7 @@ class IPCProvider(JSONBaseProvider):
     def _make_request(self, request: bytes) -> RPCResponse:
         with self._lock, self._socket as sock:
             try:
-                sock.sendall(request)
+                sock.sendall(request + b"\n")
             except BrokenPipeError:
                 # one extra attempt, then give up
                 sock = self._socket.reset()
