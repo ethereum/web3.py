@@ -123,6 +123,12 @@ jobs:
         environment:
           TOXENV: docs
 
+  py38-core:
+    <<: *common
+    docker:
+      - image: cimg/python:3.8
+        environment:
+          TOXENV: py38-core
   py39-core:
     <<: *common
     docker:
@@ -154,6 +160,12 @@ jobs:
         environment:
           TOXENV: py313-core
 
+  py38-lint:
+    <<: *common
+    docker:
+      - image: cimg/python:3.8
+        environment:
+          TOXENV: py38-lint
   py39-lint:
     <<: *common
     docker:
@@ -185,6 +197,12 @@ jobs:
         environment:
           TOXENV: py313-lint
 
+  py38-wheel:
+    <<: *common
+    docker:
+      - image: cimg/python:3.8
+        environment:
+          TOXENV: py38-wheel
   py39-wheel:
     <<: *common
     docker:
@@ -257,16 +275,19 @@ jobs:
 
 define: &all_jobs
   - docs
+  - py38-core
   - py39-core
   - py310-core
   - py311-core
   - py312-core
   - py313-core
+  - py38-lint
   - py39-lint
   - py310-lint
   - py311-lint
   - py312-lint
   - py313-lint
+  - py38-wheel
   - py39-wheel
   - py310-wheel
   - py311-wheel
