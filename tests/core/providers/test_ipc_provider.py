@@ -9,6 +9,7 @@ from threading import (
 )
 import time
 from unittest.mock import (
+    Mock,
     patch,
 )
 
@@ -185,3 +186,14 @@ def test_web3_auto_gethdev(request_mocker):
 
     assert "extraData" not in block
     assert block.proofOfAuthorityData == b"\xff" * 33
+
+
+def test_ipc_provider_write_messages_end_with_new_line_delimiter(jsonrpc_ipc_pipe_path):
+    provider = IPCProvider(pathlib.Path(jsonrpc_ipc_pipe_path), timeout=3)
+    provider._socket.sock = Mock()
+    provider._socket.sock.recv.return_value = b'{"id":1, "result": {}}\n'
+
+    provider.make_request("method", [])
+
+    request_data = b'{"jsonrpc": "2.0", "method": "method", "params": [], "id": 0}'
+    provider._socket.sock.sendall.assert_called_with(request_data + b"\n")
