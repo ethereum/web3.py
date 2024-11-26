@@ -574,7 +574,8 @@ class Contract(BaseContract):
             )
 
         if address:
-            self.address = normalize_address(cast("ENS", _w3.ens), address)
+            # invoke ``w3._ens`` over ``w3.ens`` to avoid premature instantiation
+            self.address = normalize_address(cast("ENS", _w3._ens), address)
 
         if not self.address:
             raise Web3TypeError(
@@ -609,7 +610,8 @@ class Contract(BaseContract):
 
         normalizers = {
             "abi": normalize_abi,
-            "address": partial(normalize_address, w3.ens),
+            # invoke ``w3._ens`` over ``w3.ens`` to avoid premature instantiation
+            "address": partial(normalize_address, w3._ens),
             "bytecode": normalize_bytecode,
             "bytecode_runtime": normalize_bytecode,
         }
