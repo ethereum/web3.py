@@ -14,7 +14,7 @@ in method.py and property.py respectively.
 
 RequestManager
 Is supplied with one Provider at initialisation which
-can be replaced by calling setProvider(). It uses Jsonrpc
+can be replaced by calling setProvider(). It uses JSON-RPC
 to convert the methods into raw payloads and to validate
 responses attained with receive().
 
@@ -39,7 +39,7 @@ Has three other methods:
     Forwards the data to the provider and returns the
     request id.
 
-- receive(requestid, timeout=0)
+- receive(request_id, timeout=0)
     Implements the timeout functionality described in send.
     If timeout is 0, it returns None if the response was
     not available.
