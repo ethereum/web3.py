@@ -20,7 +20,7 @@ brew install openssl libffi autoconf automake libtool
 brew install leveldb
 ```
 
-> If you are on `>=OSX 10.15 Catalina` you may encounter the following error with the default `ZSH` shell. This can be fixed by wrapping the `[dev]` part in quotes.
+> If you are on `>= macOS 10.15 Catalina` you may encounter the following error with the default `ZSH` shell. This can be fixed by wrapping the `[dev]` part in quotes.
 
 ```sh
 pip install -e .[dev]
