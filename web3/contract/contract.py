@@ -363,7 +363,7 @@ class ContractFunction(BaseContractFunction):
     def call(
         self,
         transaction: Optional[TxParams] = None,
-        block_identifier: BlockIdentifier = None,
+        block_identifier: Optional[BlockIdentifier] = None,
         state_override: Optional[StateOverride] = None,
         ccip_read_enabled: Optional[bool] = None,
     ) -> Any:
@@ -388,9 +388,9 @@ class ContractFunction(BaseContractFunction):
             addr = contract.functions.owner().call()
 
         :param transaction: Dictionary of transaction info for web3 interface
-        :param block_identifier: TODO
-        :param state_override TODO
-        :param ccip_read_enabled TODO
+        :param block_identifier: Block number or string "latest", "pending", "earliest"
+        :param state_override: Dictionary of state override values
+        :param ccip_read_enabled: Enable CCIP read operations for the call
         :return: ``Caller`` object that has contract public functions
             and variables exposed as Python methods
         """
@@ -679,7 +679,7 @@ class Contract(BaseContract):
 
     @combomethod
     def find_functions_by_identifier(
-        cls,
+        self,
         contract_abi: ABI,
         w3: "Web3",
         address: ChecksumAddress,
@@ -694,13 +694,13 @@ class Contract(BaseContract):
 
     @combomethod
     def get_function_by_identifier(
-        cls, fns: Sequence["ContractFunction"], identifier: str
+        self, fns: Sequence["ContractFunction"], identifier: str
     ) -> "ContractFunction":
         return get_function_by_identifier(fns, identifier)
 
     @combomethod
     def find_events_by_identifier(
-        cls,
+        self,
         contract_abi: ABI,
         w3: "Web3",
         address: ChecksumAddress,
@@ -712,7 +712,7 @@ class Contract(BaseContract):
 
     @combomethod
     def get_event_by_identifier(
-        cls, events: Sequence["ContractEvent"], identifier: str
+        self, events: Sequence["ContractEvent"], identifier: str
     ) -> "ContractEvent":
         return get_event_by_identifier(events, identifier)
 
