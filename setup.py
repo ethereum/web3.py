@@ -38,7 +38,7 @@ with open("./README.md") as readme:
 
 setup(
     name="<PYPI_NAME>",
-    # *IMPORTANT*: Don't manually change the version here. Use `make bump`, as described in readme
+    # *IMPORTANT*: Don't manually change the version here. See Contributing docs for the release process.
     version="0.1.0-alpha.0",
     description="""<PYPI_NAME>: <SHORT_DESCRIPTION>""",
     long_description=long_description,
