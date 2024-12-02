@@ -553,13 +553,9 @@ class BaseContractFunction:
             FallbackFn,
             ReceiveFn,
         ]:
-            self.abi = self._get_abi()
-
             self.selector = encode_hex(function_abi_to_4byte_selector(self.abi))
             self.arguments = None
         elif is_text(self.abi_element_identifier):
-            self.abi = self._get_abi()
-
             self.selector = encode_hex(function_abi_to_4byte_selector(self.abi))
             self.arguments = get_normalized_abi_inputs(
                 self.abi, *self.args, **self.kwargs
