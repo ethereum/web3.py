@@ -403,8 +403,6 @@ def copy_contract_function(
     clone = copy.copy(contract_function)
     clone.args = args or tuple()
     clone.kwargs = kwargs or dict()
-
-    clone._set_function_info()
     return clone
 
 

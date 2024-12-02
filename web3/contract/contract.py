@@ -30,7 +30,6 @@ from hexbytes import (
 
 from web3._utils.abi import (
     fallback_func_abi_exists,
-    filter_by_types,
     get_abi_element_signature,
     get_name_from_abi_element_identifier,
     receive_func_abi_exists,
@@ -321,40 +320,7 @@ class ContractFunction(BaseContractFunction):
     w3: "Web3"
 
     def __call__(self, *args: Any, **kwargs: Any) -> "ContractFunction":
-        element_name = self.abi_element_identifier
-        if element_name in ["fallback", "receive"] or len(args) + len(kwargs):
-            # Use only the name if a fallback, receive function
-            # or when args/kwargs are present to find the proper element
-            element_name = self.fn_name
-
-        function_abi = get_abi_element(
-            filter_by_types(
-                ["function", "constructor", "fallback", "receive"],
-                self.contract_abi,
-            ),
-            element_name,
-            *args,
-            abi_codec=self.w3.codec,
-            **kwargs,
-        )
-
-        argument_types = None
-        if function_abi["type"] not in ["fallback", "receive"]:
-            argument_types = get_abi_input_types(function_abi)
-
-        function_signature = str(
-            get_abi_element_signature(self.abi_element_identifier, argument_types)
-        )
-        contract_function = ContractFunction.factory(
-            function_signature,
-            w3=self.w3,
-            contract_abi=self.contract_abi,
-            address=self.address,
-            abi_element_identifier=function_signature,
-            decode_tuples=self.decode_tuples,
-        )
-
-        return copy_contract_function(contract_function, *args, **kwargs)
+        return copy_contract_function(self, *args, **kwargs)
 
     @classmethod
     def factory(cls, class_name: str, **kwargs: Any) -> Self:
