@@ -524,6 +524,7 @@ def invoke_contract(
         function_signature,
         *func_args,
         abi_codec=contract.w3.codec,
+        abi_validation=contract.w3.abi_validation,
         **func_kwargs,
     )
     function = contract.functions[abi_to_signature(fn_abi)]
@@ -810,6 +811,7 @@ async def async_invoke_contract(
         function_signature,
         *func_args,
         abi_codec=contract.w3.codec,
+        abi_validation=contract.w3.abi_validation,
         **func_kwargs,
     )
     function = contract.functions[abi_to_signature(fn_abi)]

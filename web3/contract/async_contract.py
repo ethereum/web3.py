@@ -128,6 +128,7 @@ class AsyncContractEvent(BaseContractEvent):
             self.name,
             *args,
             abi_codec=self.w3.codec,
+            abi_validation=self.w3.abi_validation,
             **kwargs,
         )
         argument_types = get_abi_input_types(event_abi)
@@ -311,7 +312,12 @@ class AsyncContractEvents(BaseContractEvents):
                 "Are you sure you provided the correct contract abi?",
             )
         else:
-            event_abi = get_abi_element(self._events, event_name)
+            event_abi = get_abi_element(
+                self._events,
+                event_name,
+                abi_codec=self.w3.codec,
+                abi_validation=self.w3.abi_validation,
+            )
             argument_types = get_abi_input_types(event_abi)
             event_signature = str(get_abi_element_signature(event_name, argument_types))
             return super().__getattribute__(event_signature)
@@ -339,6 +345,7 @@ class AsyncContractFunction(BaseContractFunction):
             element_name,
             *args,
             abi_codec=self.w3.codec,
+            abi_validation=self.w3.abi_validation,
             **kwargs,
         )
 

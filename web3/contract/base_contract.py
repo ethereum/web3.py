@@ -192,6 +192,7 @@ class BaseContractEvent:
                 filter_abi_by_type("event", cls.contract_abi),
                 cls.abi_element_identifier,
                 abi_codec=cls.w3.codec,
+                abi_validation=cls.w3.abi_validation,
             ),
         )
 
@@ -517,6 +518,8 @@ class BaseContractFunction:
                     self.contract_abi,
                 ),
                 self.abi_element_identifier,
+                abi_codec=self.w3.codec,
+                abi_validation=self.w3.abi_validation,
             ),
         )
         self.name = abi_to_signature(self.abi)
@@ -531,6 +534,7 @@ class BaseContractFunction:
                     cls.contract_abi,
                     get_abi_element_signature(cls.abi_element_identifier),
                     abi_codec=cls.w3.codec,
+                    abi_validation=cls.w3.abi_validation,
                 ),
             )
 
@@ -541,6 +545,7 @@ class BaseContractFunction:
                 get_name_from_abi_element_identifier(cls.abi_element_identifier),
                 *cls.args,
                 abi_codec=cls.w3.codec,
+                abi_validation=cls.w3.abi_validation,
                 **cls.kwargs,
             ),
         )
@@ -819,6 +824,7 @@ class BaseContract:
             abi_element_identifier,
             *args,
             abi_codec=cls.w3.codec,
+            abi_validation=cls.w3.abi_validation,
             **kwargs,
         )
 
@@ -1166,6 +1172,7 @@ class BaseContract:
             fn_identifier,
             *args,
             abi_codec=cls.w3.codec,
+            abi_validation=cls.w3.abi_validation,
             **kwargs,
         )
 
@@ -1181,6 +1188,8 @@ class BaseContract:
                 abi=cls.abi,
                 abi_element_identifier=event_name,
                 argument_names=argument_names,
+                abi_codec=cls.w3.codec,
+                abi_validation=cls.w3.abi_validation,
             ),
         )
 

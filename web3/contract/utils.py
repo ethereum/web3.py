@@ -166,6 +166,7 @@ def call_contract_function(
                 abi_element_identifier,
                 *args,
                 abi_codec=w3.codec,
+                abi_validation=w3.abi_validation,
                 **kwargs,
             ),
         )
@@ -462,6 +463,7 @@ async def async_call_contract_function(
                 abi_element_identifier,
                 *args,
                 abi_codec=async_w3.codec,
+                abi_validation=async_w3.abi_validation,
                 **kwargs,
             ),
         )

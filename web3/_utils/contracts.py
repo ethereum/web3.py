@@ -203,6 +203,7 @@ def prepare_transaction(
                 abi_element_identifier,
                 *fn_args,
                 abi_codec=w3.codec,
+                abi_validation=w3.abi_validation,
                 **fn_kwargs,
             ),
         )
@@ -255,6 +256,7 @@ def encode_transaction_data(
             abi_element_identifier,
             *args,
             abi_codec=w3.codec,
+            abi_validation=w3.abi_validation,
             **kwargs,
         )
         info_abi = fn_info["abi"]
