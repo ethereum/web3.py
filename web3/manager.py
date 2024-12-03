@@ -255,7 +255,8 @@ def _validate_response(
             web3_rpc_error = Web3RPCError(repr(error), rpc_response=response)
 
         response = apply_error_formatters(error_formatters, response)
-
+        logger.debug(f"RPC error response: {response}")
+        
         raise web3_rpc_error
 
     elif "result" not in response and not is_subscription_response:
