@@ -48,7 +48,6 @@ from hexbytes import (
 
 from web3._utils.abi import (
     fallback_func_abi_exists,
-    filter_by_types,
     find_constructor_abi_element_by_type,
     get_abi_element_signature,
     get_name_from_abi_element_identifier,
@@ -123,7 +122,7 @@ from web3.types import (
     TxReceipt,
 )
 from web3.utils.abi import (
-    _get_any_abi_signature_with_name,
+    _get_abi_signature_with_name,
     check_if_arguments_can_be_encoded,
     get_abi_element,
     get_abi_element_info,
@@ -156,25 +155,30 @@ class BaseContractEvent:
     address: ChecksumAddress = None
     event_name: str = None
     abi_element_identifier: ABIElementIdentifier = None
+    signature: str = None
     w3: Union["Web3", "AsyncWeb3"] = None
     contract_abi: ABI = None
     abi: ABIEvent = None
-    argument_types: Tuple[str] = None
+    argument_names: Tuple[str, ...] = tuple()
+    argument_types: Tuple[str, ...] = tuple()
     args: Any = None
     kwargs: Any = None
 
-    def __init__(self, *argument_names: Tuple[str]) -> None:
-        self.event_name = get_name_from_abi_element_identifier(type(self).__name__)
+    def __init__(self, *argument_names: str, abi: Optional[ABIEvent] = None) -> None:
         self.abi_element_identifier = type(self).__name__
-        abi = self._get_event_abi()
-        self.name = abi_to_signature(abi)
-        self.abi = abi
+        self.name = get_name_from_abi_element_identifier(self.abi_element_identifier)
 
-        if argument_names is None:
-            # https://github.com/python/mypy/issues/6283
-            self.argument_names = tuple()  # type: ignore
-        else:
+        if abi:
+            self.abi = abi
+
+        self.signature = abi_to_signature(self.abi)
+
+        if argument_names:
             self.argument_names = argument_names
+
+        event_inputs = self.abi.get("inputs", [])
+        self.argument_names = tuple([input.get("name", None) for input in event_inputs])
+        self.argument_types = tuple([input["type"] for input in event_inputs])
 
     def __repr__(self) -> str:
         if self.abi:
@@ -461,7 +465,10 @@ class BaseContractEvents:
         _events: Sequence[ABIEvent] = None
 
         if self.abi:
-            _events = filter_abi_by_type("event", abi)
+            _events = sorted(
+                filter_abi_by_type("event", self.abi),
+                key=lambda evt: (evt["name"], len(evt.get("inputs", []))),
+            )
             for event in _events:
                 abi_signature = abi_to_signature(event)
                 event_factory = contract_event_type.factory(
@@ -469,9 +476,16 @@ class BaseContractEvents:
                     w3=self.w3,
                     contract_abi=self.abi,
                     address=self.address,
-                    event_name=event["name"],
+                    abi=event,
                 )
-                setattr(self, abi_signature, event_factory)
+
+                # Set event name on instance if it does not already exist
+                if event["name"] not in self.__dict__:
+                    setattr(self, event["name"], event_factory)
+
+                # Set underscore prefixed event signature on instance
+                # Handles ambiguity in overloaded contract events
+                setattr(self, f"_{abi_signature}", event_factory)
 
         if _events:
             self._events = _events
@@ -501,6 +515,8 @@ class BaseContractFunction:
     transaction: TxParams = None
     arguments: Tuple[Any, ...] = None
     decode_tuples: Optional[bool] = None
+    argument_names: Tuple[str, ...] = tuple()
+    argument_types: Tuple[str, ...] = tuple()
     args: Any = None
     kwargs: Any = None
 
@@ -508,20 +524,16 @@ class BaseContractFunction:
         if not self.abi_element_identifier:
             self.abi_element_identifier = type(self).__name__
 
-        self.fn_name = get_name_from_abi_element_identifier(self.abi_element_identifier)
-        self.abi = abi
-        if not abi:
-            self.abi = cast(
-                ABIFunction,
-                get_abi_element(
-                    filter_by_types(
-                        ["function", "constructor", "fallback", "receive"],
-                        self.contract_abi,
-                    ),
-                    self.abi_element_identifier,
-                ),
-            )
-        self.name = abi_to_signature(self.abi)
+        self.name = get_name_from_abi_element_identifier(self.abi_element_identifier)
+
+        if abi:
+            self.abi = abi
+
+        self.signature = abi_to_signature(self.abi)
+
+        event_inputs = self.abi.get("inputs", [])
+        self.argument_names = tuple([input.get("name", None) for input in event_inputs])
+        self.argument_types = tuple([input["type"] for input in event_inputs])
 
     @combomethod
     def _get_abi(cls) -> ABIFunction:
@@ -725,20 +737,32 @@ class BaseContractFunctions:
         _functions: Sequence[ABIFunction] = None
 
         if self.abi:
-            _functions = filter_abi_by_type("function", self.abi)
+            # Fnction with least number of inputs is first
+            # This ensures ambiguity will always be deterministic
+            # Prefer function without arguments if present, otherwise
+            # just use the first available
+            _functions = sorted(
+                filter_abi_by_type("function", self.abi),
+                key=lambda fn: (fn["name"], len(fn.get("inputs", []))),
+            )
             for func in _functions:
                 abi_signature = abi_to_signature(func)
-                setattr(
-                    self,
+                function_factory = contract_function_class.factory(
                     abi_signature,
-                    contract_function_class.factory(
-                        abi_signature,
-                        w3=self.w3,
-                        contract_abi=self.abi,
-                        address=self.address,
-                        decode_tuples=decode_tuples,
-                    ),
+                    w3=self.w3,
+                    contract_abi=self.abi,
+                    address=self.address,
+                    decode_tuples=decode_tuples,
+                    abi=func,
                 )
+
+                # Set function name on instance if it does not already exist
+                if func["name"] not in self.__dict__:
+                    setattr(self, func["name"], function_factory)
+
+                # Set function signature on instance
+                # Handles ambiguity in overloaded contract functions
+                setattr(self, f"_{abi_signature}", function_factory)
 
         if _functions:
             self._functions = _functions
@@ -1098,12 +1122,14 @@ class BaseContract:
         address: Optional[ChecksumAddress] = None,
     ) -> "BaseContractFunction":
         if abi and fallback_func_abi_exists(abi):
+            fallback_abi = filter_abi_by_type("fallback", abi)[0]
             return function_type.factory(
                 "fallback",
                 w3=w3,
                 contract_abi=abi,
                 address=address,
                 abi_element_identifier=FallbackFn,
+                abi=fallback_abi,
             )()
 
         return cast(function_type, NonExistentFallbackFunction())  # type: ignore
@@ -1116,12 +1142,14 @@ class BaseContract:
         address: Optional[ChecksumAddress] = None,
     ) -> "BaseContractFunction":
         if abi and receive_func_abi_exists(abi):
+            receive_abi = filter_abi_by_type("receive", abi)[0]
             return function_type.factory(
                 "receive",
                 w3=w3,
                 contract_abi=abi,
                 address=address,
                 abi_element_identifier=ReceiveFn,
+                abi=receive_abi,
             )()
 
         return cast(function_type, NonExistentReceiveFunction())  # type: ignore
@@ -1270,7 +1298,7 @@ class BaseContractCaller:
             function_identifier = function_name
 
             if "(" not in function_name:
-                function_identifier = _get_any_abi_signature_with_name(
+                function_identifier = _get_abi_signature_with_name(
                     function_name, self._functions
                 )
             return super().__getattribute__(function_identifier)

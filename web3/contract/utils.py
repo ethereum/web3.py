@@ -343,7 +343,10 @@ def find_functions_by_identifier(
     """
     Given a contract ABI, return a list of TContractFunction instances.
     """
-    fns_abi = filter_abi_by_type("function", contract_abi)
+    fns_abi = sorted(
+        filter_abi_by_type("function", contract_abi),
+        key=lambda fn: (fn["name"], len(fn.get("inputs", []))),
+    )
     return [
         function_type.factory(
             abi_to_signature(fn_abi),

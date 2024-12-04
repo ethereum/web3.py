@@ -803,6 +803,17 @@ async def async_nested_tuple_contract_with_decode_tuples(
     )
 
 
+@pytest_asyncio.fixture
+async def async_ambiguous_event_contract(async_w3, address_conversion_func):
+    async_ambiguous_event_contract_factory = async_w3.eth.contract(
+        **AMBIGUOUS_EVENT_NAME_CONTRACT_DATA
+    )
+
+    return await async_deploy(
+        async_w3, async_ambiguous_event_contract_factory, address_conversion_func
+    )
+
+
 async def async_invoke_contract(
     api_call_desig="call",
     contract=None,

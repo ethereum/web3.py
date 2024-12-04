@@ -463,7 +463,7 @@ Each Contract Factory exposes the following methods.
     .. doctest:: contractmethods
 
         >>> contract.all_functions()
-        [<Function name()>, <Function approve(address,uint256)>, <Function totalSupply()>, <Function transferFrom(address,address,uint256)>, <Function decimals()>, <Function balanceOf(address)>, <Function symbol()>, <Function transfer(address,uint256)>, <Function allowance(address,address)>]
+        [<Function allowance(address,address)>, <Function approve(address,uint256)>, <Function balanceOf(address)>, <Function decimals()>, <Function name()>, <Function symbol()>, <Function totalSupply()>, <Function transfer(address,uint256)>, <Function transferFrom(address,address,uint256)>]
 
 
 .. py:classmethod:: Contract.get_function_by_signature(signature)

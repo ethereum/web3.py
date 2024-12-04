@@ -1,4 +1,5 @@
 import pytest
+import re
 from typing import (
     cast,
 )
@@ -15,6 +16,7 @@ from hexbytes import (
 )
 
 from web3.exceptions import (
+    MismatchedABI,
     Web3ValueError,
 )
 from web3.utils.abi import (
@@ -101,9 +103,9 @@ map_repr = compose(list, curry(map, repr))
             map_repr,
             [
                 "<Function blockHashAmphithyronVersify(uint256)>",
+                "<Function identity(bool)>",
                 "<Function identity(uint256,bool)>",
                 "<Function identity(int256,bool)>",
-                "<Function identity(bool)>",
             ],
         ),
         (
@@ -123,9 +125,9 @@ map_repr = compose(list, curry(map, repr))
             ("identity",),
             map_repr,
             [
+                "<Function identity(bool)>",
                 "<Function identity(uint256,bool)>",
                 "<Function identity(int256,bool)>",
-                "<Function identity(bool)>",
             ],
         ),
         (
@@ -322,7 +324,16 @@ def test_ambiguous_function_methods(ambiguous_function_contract):
 
 
 def test_ambiguous_function_methods_and_arguments(ambiguous_function_contract):
-    with pytest.raises(TypeError):
+    # Raises because there exists a function without arguments
+    # So the function that accepts a bytes32 argument is not set
+    # for the ContractFunctions property with just the name
+    with pytest.raises(
+        MismatchedABI,
+        match=re.escape(
+            "Found multiple elements named `isValidSignature` that accept 2 "
+            "argument(s)."
+        ),
+    ):
         ambiguous_function_contract.functions.isValidSignature(
             b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00",  # noqa: E501
             b"0",
