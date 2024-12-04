@@ -31,6 +31,7 @@ from hexbytes import (
 
 from web3._utils.abi import (
     fallback_func_abi_exists,
+    filter_by_types,
     get_abi_element_signature,
     get_name_from_abi_element_identifier,
     receive_func_abi_exists,
@@ -89,7 +90,6 @@ from web3.contract.utils import (
 from web3.exceptions import (
     ABIEventNotFound,
     ABIFunctionNotFound,
-    MismatchedABI,
     NoABIEventsFound,
     NoABIFound,
     NoABIFunctionsFound,
@@ -106,7 +106,6 @@ from web3.types import (
 )
 from web3.utils.abi import (
     _get_any_abi_signature_with_name,
-    check_if_arguments_can_be_encoded,
     get_abi_element,
 )
 
@@ -303,66 +302,31 @@ class ContractFunction(BaseContractFunction):
     w3: "Web3"
 
     def __call__(self, *args: Any, **kwargs: Any) -> "ContractFunction":
-        if (
-            check_if_arguments_can_be_encoded(
-                self.abi,
-                *args,
-                abi_codec=self.w3.codec,
-                **kwargs,
-            )
-            or self.abi_element_identifier in ["fallback", "receive"]
-            or len(args) + len(kwargs) == 0
-        ):
+        if self.abi_element_identifier in ["fallback", "receive"]:
             return copy_contract_function(self, *args, **kwargs)
 
-        def callable_check(fn_abi: ABIFunction) -> bool:
-            return check_if_arguments_can_be_encoded(
-                fn_abi,
-                *args,
-                abi_codec=self.w3.codec,
-                **kwargs,
-            )
-
-        functions = Contract.find_functions_by_identifier(
-            self.contract_abi, self.w3, self.address, callable_check
+        function_abi = get_abi_element(
+            filter_by_types(
+                ["function", "constructor", "fallback", "receive"],
+                self.contract_abi,
+            ),
+            self.fn_name,
+            *args,
+            abi_codec=self.w3.codec,
+            **kwargs,
         )
 
-        contract_function = self
+        def check_signature(fn_abi: ABIFunction) -> bool:
+            return abi_to_signature(fn_abi) == abi_to_signature(function_abi)
+
+        functions = Contract.find_functions_by_identifier(
+            self.contract_abi, self.w3, self.address, check_signature
+        )
+
         if len(functions) == 1:
             contract_function = functions[0]
-        elif len(functions) > 1:
-            raise TypeError(
-                "Multiple functions exist which match the encoded arguments. \n"
-                "Could not determine which function to call. \n"
-                "Please use 'get_function_by_signature' on the Contract instance to \n"
-                "specify the function signature explicitly."
-            )
         else:
-            raise MismatchedABI(
-                "Function and arguments do not match the ABI. \n"
-                "Failed to call the function."
-            )
-
-        # argument_types = None
-        # if function_abi["type"] not in ["fallback", "receive"]:
-        #     argument_types = get_abi_input_types(function_abi)
-
-        #     function_signature = str(
-        #         get_abi_element_signature(self.abi_element_identifier, argument_types)
-        #     )
-
-        #     def callable_check(fn_abi: ABIFunction) -> bool:
-        #         return abi_to_signature(fn_abi) == function_signature
-
-        #     functions = Contract.find_functions_by_identifier(
-        #         self.contract_abi, self.w3, self.address, callable_check
-        #     )
-
-        #     if len(functions) == 1:
-        #         # Use self instead of the function returned by find
-        #         contract_function = self
-        # else:
-        #     contract_function = self
+            TypeError("Could not find function with signature")
 
         return copy_contract_function(contract_function, *args, **kwargs)
 

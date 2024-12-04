@@ -414,6 +414,7 @@ def _build_abi_filters(
     elif args or kwargs:
         arg_count = len(args) + len(kwargs)
 
+    filters.append(functools.partial(_filter_by_argument_count, arg_count))
     if arg_count > 0:
         filters.append(
             functools.partial(
@@ -421,7 +422,6 @@ def _build_abi_filters(
                 get_name_from_abi_element_identifier(abi_element_identifier),
             )
         )
-        filters.append(functools.partial(_filter_by_argument_count, arg_count))
 
         if args or kwargs:
             if abi_codec is None:
