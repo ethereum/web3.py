@@ -71,6 +71,7 @@ setup(
         "eth-hash[pycryptodome]>=0.5.1",
         "eth-typing>=5.0.0",
         "eth-utils>=5.0.0",
+        "cchecksum>=0.0.3,<1",
         "hexbytes>=1.2.0",
         "aiohttp>=3.7.4.post0",
         "pydantic>=2.4.0",

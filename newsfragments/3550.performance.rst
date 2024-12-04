@@ -1,0 +1,1 @@
+replace `eth_utils.to_checksum_address` with `cchecksum.to_checksum_address` for ~2x faster checksumming

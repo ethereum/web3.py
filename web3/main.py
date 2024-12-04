@@ -3,6 +3,9 @@ from types import (
     TracebackType,
 )
 
+from cchecksum import (
+    to_checksum_address,
+)
 from ens import (
     AsyncENS,
     ENS,
@@ -19,7 +22,6 @@ from eth_utils import (
     keccak as eth_utils_keccak,
     remove_0x_prefix,
     to_bytes,
-    to_checksum_address,
     to_int,
     to_text,
     to_wei,

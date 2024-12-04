@@ -13,6 +13,9 @@ from typing import (
     cast,
 )
 
+from cchecksum import (
+    to_checksum_address,
+)
 from eth_typing import (
     HexStr,
 )
@@ -32,7 +35,6 @@ from eth_utils.curried import (
     is_integer,
     is_null,
     is_string,
-    to_checksum_address,
     to_list,
     to_tuple,
 )

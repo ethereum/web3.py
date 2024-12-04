@@ -2,8 +2,10 @@ import collections
 import itertools
 import pytest
 
-from eth_utils import (
+from cchecksum import (
     to_checksum_address,
+)
+from eth_utils import (
     to_int,
 )
 from hexbytes import (
