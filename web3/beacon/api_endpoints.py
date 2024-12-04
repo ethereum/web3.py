@@ -59,6 +59,16 @@ GET_BEACON_HEADS = "/eth/v1/debug/beacon/heads"
 GET_NODE_IDENTITY = "/eth/v1/node/identity"
 GET_PEERS = "/eth/v1/node/peers"
 GET_PEER = "/eth/v1/node/peers/{0}"
+GET_PEER_COUNT = "/eth/v1/node/peer_count"
 GET_HEALTH = "/eth/v1/node/health"
 GET_VERSION = "/eth/v1/node/version"
 GET_SYNCING = "/eth/v1/node/syncing"
+
+# [ VALIDATOR endpoints ]
+
+GET_ATTESTER_DUTIES = "/eth/v1/validator/duties/attester/{0}"
+GET_BLOCK_PROPOSERS_DUTIES = "/eth/v1/validator/duties/proposer/{0}"
+GET_SYNC_COMMITTEE_DUTIES = "/eth/v1/validator/duties/sync/{0}"
+
+# [ REWARDS endpoints ]
+GET_ATTESTATIONS_REWARDS = "/eth/v1/beacon/rewards/attestations/{0}"
