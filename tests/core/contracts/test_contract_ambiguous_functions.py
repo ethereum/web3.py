@@ -292,6 +292,43 @@ def test_ambiguous_functions_abi_element_identifier(w3):
     assert fn_bytes32.abi_element_identifier == "isValidSignature(bytes32,bytes)"
 
 
+def test_ambiguous_function_methods(ambiguous_function_contract):
+    is_valid_signature_func = ambiguous_function_contract.get_function_by_signature(
+        "isValidSignature()"
+    )
+    is_valid_signature_bytes_func = (
+        ambiguous_function_contract.get_function_by_signature(
+            "isValidSignature(bytes,bytes)"
+        )
+    )
+    is_valid_signature_bytes32_func = (
+        ambiguous_function_contract.get_function_by_signature(
+            "isValidSignature(bytes32,bytes)"
+        )
+    )
+    assert is_valid_signature_func().call() == "valid"
+    assert is_valid_signature_bytes_func(b"hi", b"1").call() == 1
+    assert (
+        is_valid_signature_bytes32_func(
+            b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00",  # noqa: E501
+            b"0",
+        ).call()
+        == 0
+    )
+    assert ambiguous_function_contract.functions.isValidSignature().call() == "valid"
+    assert (
+        ambiguous_function_contract.functions.isValidSignature(b"hi", b"1").call() == 1
+    )
+
+
+def test_ambiguous_function_methods_and_arguments(ambiguous_function_contract):
+    with pytest.raises(TypeError):
+        ambiguous_function_contract.functions.isValidSignature(
+            b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00",  # noqa: E501
+            b"0",
+        )
+
+
 def test_contract_function_methods(string_contract):
     set_value_func = string_contract.get_function_by_signature("setValue(string)")
     get_value_func = string_contract.get_function_by_signature("getValue()")

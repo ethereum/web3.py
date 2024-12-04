@@ -13,6 +13,7 @@ from typing import (
 
 from eth_typing import (
     ABI,
+    ABIFunction,
     ChecksumAddress,
 )
 from eth_utils import (
@@ -88,6 +89,7 @@ from web3.contract.utils import (
 from web3.exceptions import (
     ABIEventNotFound,
     ABIFunctionNotFound,
+    MismatchedABI,
     NoABIEventsFound,
     NoABIFound,
     NoABIFunctionsFound,
@@ -104,7 +106,7 @@ from web3.types import (
 )
 from web3.utils.abi import (
     _get_any_abi_signature_with_name,
-    filter_abi_by_type,
+    check_if_arguments_can_be_encoded,
     get_abi_element,
 )
 
@@ -118,26 +120,7 @@ class ContractEvent(BaseContractEvent):
     w3: "Web3"
 
     def __call__(self, *args: Any, **kwargs: Any) -> "ContractEvent":
-        event_abi = get_abi_element(
-            filter_abi_by_type("event", self.contract_abi),
-            self.name,
-            *args,
-            abi_codec=self.w3.codec,
-            **kwargs,
-        )
-        argument_types = get_abi_input_types(event_abi)
-        event_signature = str(
-            get_abi_element_signature(self.abi_element_identifier, argument_types)
-        )
-        contract_event = ContractEvent.factory(
-            event_signature,
-            w3=self.w3,
-            contract_abi=self.contract_abi,
-            address=self.address,
-            abi_element_identifier=event_signature,
-        )
-
-        return copy_contract_event(contract_event, *args, **kwargs)
+        return copy_contract_event(self, *args, **kwargs)
 
     @combomethod
     def get_logs(
@@ -320,7 +303,68 @@ class ContractFunction(BaseContractFunction):
     w3: "Web3"
 
     def __call__(self, *args: Any, **kwargs: Any) -> "ContractFunction":
-        return copy_contract_function(self, *args, **kwargs)
+        if (
+            check_if_arguments_can_be_encoded(
+                self.abi,
+                *args,
+                abi_codec=self.w3.codec,
+                **kwargs,
+            )
+            or self.abi_element_identifier in ["fallback", "receive"]
+            or len(args) + len(kwargs) == 0
+        ):
+            return copy_contract_function(self, *args, **kwargs)
+
+        def callable_check(fn_abi: ABIFunction) -> bool:
+            return check_if_arguments_can_be_encoded(
+                fn_abi,
+                *args,
+                abi_codec=self.w3.codec,
+                **kwargs,
+            )
+
+        functions = Contract.find_functions_by_identifier(
+            self.contract_abi, self.w3, self.address, callable_check
+        )
+
+        contract_function = self
+        if len(functions) == 1:
+            contract_function = functions[0]
+        elif len(functions) > 1:
+            raise TypeError(
+                "Multiple functions exist which match the encoded arguments. \n"
+                "Could not determine which function to call. \n"
+                "Please use 'get_function_by_signature' on the Contract instance to \n"
+                "specify the function signature explicitly."
+            )
+        else:
+            raise MismatchedABI(
+                "Function and arguments do not match the ABI. \n"
+                "Failed to call the function."
+            )
+
+        # argument_types = None
+        # if function_abi["type"] not in ["fallback", "receive"]:
+        #     argument_types = get_abi_input_types(function_abi)
+
+        #     function_signature = str(
+        #         get_abi_element_signature(self.abi_element_identifier, argument_types)
+        #     )
+
+        #     def callable_check(fn_abi: ABIFunction) -> bool:
+        #         return abi_to_signature(fn_abi) == function_signature
+
+        #     functions = Contract.find_functions_by_identifier(
+        #         self.contract_abi, self.w3, self.address, callable_check
+        #     )
+
+        #     if len(functions) == 1:
+        #         # Use self instead of the function returned by find
+        #         contract_function = self
+        # else:
+        #     contract_function = self
+
+        return copy_contract_function(contract_function, *args, **kwargs)
 
     @classmethod
     def factory(cls, class_name: str, **kwargs: Any) -> Self:

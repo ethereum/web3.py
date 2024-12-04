@@ -619,7 +619,7 @@ def get_abi_element(
 
     num_matches = len(abi_element_matches)
 
-    # Raise MismatchedABI when more than one found
+    # Raise MismatchedABI unless one match is found
     if num_matches != 1:
         error_diagnosis = _mismatched_abi_error_diagnosis(
             abi_element_identifier,

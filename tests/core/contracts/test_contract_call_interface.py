@@ -1898,16 +1898,8 @@ async def test_async_function_1_match_identifier_wrong_number_of_args(
     async_arrays_contract,
 ):
     with pytest.raises(
-        MismatchedABI,
-        match=re.escape(
-            "No element named `setBytes32Value` with 0 argument(s).\n"
-            "Provided argument types: ()\n"
-            "Provided keyword argument types: {}\n\n"
-            "Tried to find a matching ABI element named `setBytes32Value`, but "
-            "encountered the following problems:\n"
-            "Signature: setBytes32Value(bytes32[]), type: function\n"
-            "Expected 1 argument(s) but received 0 argument(s).\n"
-        ),
+        TypeError,
+        match=re.escape("Incorrect argument count. Expected '1', got '0'."),
     ):
         await async_arrays_contract.functions.setBytes32Value().call()
 

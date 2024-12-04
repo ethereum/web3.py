@@ -509,16 +509,18 @@ class BaseContractFunction:
             self.abi_element_identifier = type(self).__name__
 
         self.fn_name = get_name_from_abi_element_identifier(self.abi_element_identifier)
-        self.abi = cast(
-            ABIFunction,
-            get_abi_element(
-                filter_by_types(
-                    ["function", "constructor", "fallback", "receive"],
-                    self.contract_abi,
+        self.abi = abi
+        if not abi:
+            self.abi = cast(
+                ABIFunction,
+                get_abi_element(
+                    filter_by_types(
+                        ["function", "constructor", "fallback", "receive"],
+                        self.contract_abi,
+                    ),
+                    self.abi_element_identifier,
                 ),
-                self.abi_element_identifier,
-            ),
-        )
+            )
         self.name = abi_to_signature(self.abi)
 
     @combomethod
