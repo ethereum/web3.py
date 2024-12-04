@@ -32,6 +32,16 @@ from eth_typing import (
     HexStr,
     Primitives,
 )
+from eth_utils.abi import (
+    abi_to_signature,
+    event_abi_to_log_topic,
+    filter_abi_by_name,
+    filter_abi_by_type,
+    function_abi_to_4byte_selector,
+    get_abi_input_types,
+    get_aligned_abi_inputs,
+    get_normalized_abi_inputs,
+)
 from eth_utils.address import (
     is_binary_address,
     is_checksum_address,
@@ -55,7 +65,6 @@ from hexbytes import (
 
 from web3._utils.abi import (
     filter_by_argument_name,
-    filter_by_argument_type,
     get_abi_element_signature,
     get_name_from_abi_element_identifier,
 )
@@ -75,17 +84,6 @@ from web3.exceptions import (
 )
 from web3.types import (
     ABIElementIdentifier,
-)
-
-from eth_utils.abi import (  # noqa
-    abi_to_signature,
-    event_abi_to_log_topic,
-    filter_abi_by_name,
-    filter_abi_by_type,
-    function_abi_to_4byte_selector,
-    get_aligned_abi_inputs,
-    get_normalized_abi_inputs,
-    get_abi_input_types,
 )
 
 
@@ -375,9 +373,6 @@ def _get_argument_readable_type(arg: Any) -> str:
 def _build_abi_filters(
     abi_element_identifier: ABIElementIdentifier,
     *args: Optional[Any],
-    abi_type: Optional[str] = None,
-    argument_names: Optional[Sequence[str]] = None,
-    argument_types: Optional[Sequence[str]] = None,
     abi_codec: Optional[Any] = None,
     **kwargs: Optional[Any],
 ) -> List[Callable[..., Sequence[ABIElement]]]:
@@ -405,14 +400,13 @@ def _build_abi_filters(
 
     filters: List[Callable[..., Sequence[ABIElement]]] = []
 
-    if abi_type:
-        filters.append(functools.partial(filter_abi_by_type, abi_type))
-
     arg_count = 0
-    if argument_names:
-        arg_count = len(argument_names)
-    elif args or kwargs:
+    if args or kwargs:
         arg_count = len(args) + len(kwargs)
+
+    # Filter by arg count only if the identifier contains arguments
+    if "()" not in abi_element_identifier and arg_count:
+        filters.append(functools.partial(_filter_by_argument_count, arg_count))
 
     if arg_count > 0:
         filters.append(
@@ -421,7 +415,6 @@ def _build_abi_filters(
                 get_name_from_abi_element_identifier(abi_element_identifier),
             )
         )
-        filters.append(functools.partial(_filter_by_argument_count, arg_count))
 
         if args or kwargs:
             if abi_codec is None:
@@ -435,19 +428,6 @@ def _build_abi_filters(
                     kwargs,
                 )
             )
-
-        if argument_names:
-            filters.append(functools.partial(filter_by_argument_name, argument_names))
-
-            if argument_types:
-                if arg_count != len(argument_types):
-                    raise Web3ValidationError(
-                        "The number of argument names and types must match."
-                    )
-
-                filters.append(
-                    functools.partial(filter_by_argument_type, argument_types)
-                )
 
         if "(" in abi_element_identifier:
             filters.append(
