@@ -1,6 +1,6 @@
 import pytest
 
-from eth_utils import (
+from cchecksum import (
     to_checksum_address,
 )
 from hexbytes import (
