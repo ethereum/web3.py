@@ -15,6 +15,7 @@ from hexbytes import (
 )
 
 from web3.exceptions import (
+    MismatchedABI,
     Web3ValueError,
 )
 from web3.utils.abi import (
@@ -322,7 +323,7 @@ def test_ambiguous_function_methods(ambiguous_function_contract):
 
 
 def test_ambiguous_function_methods_and_arguments(ambiguous_function_contract):
-    with pytest.raises(TypeError):
+    with pytest.raises(MismatchedABI):
         ambiguous_function_contract.functions.isValidSignature(
             b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00",  # noqa: E501
             b"0",

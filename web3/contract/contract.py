@@ -19,6 +19,7 @@ from eth_typing import (
 from eth_utils import (
     abi_to_signature,
     combomethod,
+    filter_abi_by_type,
     get_abi_input_names,
     get_abi_input_types,
 )
@@ -302,15 +303,32 @@ class ContractFunction(BaseContractFunction):
     w3: "Web3"
 
     def __call__(self, *args: Any, **kwargs: Any) -> "ContractFunction":
-        if self.abi_element_identifier in ["fallback", "receive"]:
+        if self.abi_element_identifier in [FallbackFn, ReceiveFn]:
             return copy_contract_function(self, *args, **kwargs)
+
+        # need signature for cases:
+        # - Args/kwargs present when calling after get_function_by_signature
+        # - No args/kwargs present
+
+        # dont need signature when:
+        # - calling a function with arguments directly
+        function_identifier = self.abi_element_identifier
+        arg_count = len(args) + len(kwargs)
+        if arg_count:
+            # Check self has expected args, if not just search with the name
+            if len(self.abi["inputs"]) != arg_count:
+                function_identifier = self.fn_name
+        else:
+            # No arguments passed, check for abi using signature without arguments
+            if len(self.abi["inputs"]) != arg_count:
+                function_identifier = f"{self.fn_name}()"
 
         function_abi = get_abi_element(
             filter_by_types(
-                ["function", "constructor", "fallback", "receive"],
+                ["function", "constructor"],
                 self.contract_abi,
             ),
-            self.fn_name,
+            function_identifier,
             *args,
             abi_codec=self.w3.codec,
             **kwargs,
@@ -448,12 +466,14 @@ class ContractFunction(BaseContractFunction):
         address: Optional[ChecksumAddress] = None,
     ) -> "ContractFunction":
         if abi and fallback_func_abi_exists(abi):
+            fallback_abi = filter_abi_by_type("fallback", abi)[0]
             return ContractFunction.factory(
                 "fallback",
                 w3=w3,
                 contract_abi=abi,
                 address=address,
                 abi_element_identifier=FallbackFn,
+                abi=fallback_abi,
             )()
         return cast(ContractFunction, NonExistentFallbackFunction())
 
@@ -464,12 +484,14 @@ class ContractFunction(BaseContractFunction):
         address: Optional[ChecksumAddress] = None,
     ) -> "ContractFunction":
         if abi and receive_func_abi_exists(abi):
+            receive_abi = filter_abi_by_type("receive", abi)[0]
             return ContractFunction.factory(
                 "receive",
                 w3=w3,
                 contract_abi=abi,
                 address=address,
                 abi_element_identifier=ReceiveFn,
+                abi=receive_abi,
             )()
         return cast(ContractFunction, NonExistentReceiveFunction())
 
@@ -653,7 +675,7 @@ class Contract(BaseContract):
 
     @combomethod
     def find_functions_by_identifier(
-        self,
+        cls,
         contract_abi: ABI,
         w3: "Web3",
         address: ChecksumAddress,
@@ -668,13 +690,13 @@ class Contract(BaseContract):
 
     @combomethod
     def get_function_by_identifier(
-        self, fns: Sequence["ContractFunction"], identifier: str
+        cls, fns: Sequence["ContractFunction"], identifier: str
     ) -> "ContractFunction":
         return get_function_by_identifier(fns, identifier)
 
     @combomethod
     def find_events_by_identifier(
-        self,
+        cls,
         contract_abi: ABI,
         w3: "Web3",
         address: ChecksumAddress,
