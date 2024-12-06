@@ -91,6 +91,7 @@ from web3.contract.utils import (
 from web3.exceptions import (
     ABIEventNotFound,
     ABIFunctionNotFound,
+    MismatchedABI,
     NoABIEventsFound,
     NoABIFound,
     NoABIFunctionsFound,
@@ -106,7 +107,6 @@ from web3.types import (
     TxParams,
 )
 from web3.utils.abi import (
-    _get_any_abi_signature_with_name,
     get_abi_element,
 )
 
@@ -321,11 +321,11 @@ class ContractFunction(BaseContractFunction):
             else:
                 # Use a signature without arguments to find the correct ABI element
                 function_identifier = f"{self.fn_name}()"
-        else:
-            if arg_count and "(" in function_identifier:
-                # Given a function signature with valid number of arguments
-                # Check contract for ambiguity by searching with the name
-                function_identifier = self.fn_name
+        # else:
+        #     if arg_count and "(" in function_identifier:
+        #         # Given a function signature with valid number of arguments
+        #         # Check contract for ambiguity by searching with the name
+        #         function_identifier = self.fn_name
 
         # Search for a function ABI that matches the arguments used
         function_abi = get_abi_element(
@@ -353,7 +353,7 @@ class ContractFunction(BaseContractFunction):
             if len(functions) == 1:
                 contract_function = functions[0]
             else:
-                TypeError("Could not find function with signature")
+                Web3TypeError("Could not find function with signature")
 
         return copy_contract_function(contract_function, *args, **kwargs)
 
@@ -532,24 +532,34 @@ class ContractFunctions(BaseContractFunctions):
                 "The abi for this contract contains no function definitions. ",
                 "Are you sure you provided the correct contract abi?",
             )
-        elif get_name_from_abi_element_identifier(function_name) not in [
-            get_name_from_abi_element_identifier(function["name"])
+
+        functions_having_name = [
+            abi_to_signature(function)
             for function in self._functions
-        ]:
+            if function["name"] == get_name_from_abi_element_identifier(function_name)
+        ]
+
+        if len(functions_having_name) == 1:
+            function_signature = functions_having_name[0]
+        elif len(functions_having_name) > 1:
+            if f"{function_name}()" in functions_having_name:
+                # Default to function without arguments
+                function_signature = f"{function_name}()"
+            else:
+                raise MismatchedABI(
+                    f"Attempted to find the function '{function_name}' but "
+                    "more than one was found. You must call the function "
+                    "explicitly using the signature and arguments with "
+                    "Contract.get_function_by_signature(function_signature)(args)"
+                )
+        else:
             raise ABIFunctionNotFound(
                 f"The function '{function_name}' was not found in this contract's "
                 "abi. Are you sure you provided the correct contract abi?",
             )
 
-        function_identifier = function_name
-
-        if "(" not in function_name:
-            function_identifier = _get_any_abi_signature_with_name(
-                function_name, self._functions
-            )
-
         return super().__getattribute__(
-            function_identifier,
+            function_signature,
         )
 
     def __getitem__(self, function_name: str) -> "ContractFunction":

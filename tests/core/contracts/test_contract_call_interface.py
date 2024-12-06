@@ -805,7 +805,7 @@ def test_call_sending_ether_to_nonpayable_function(payable_tester_contract, call
     "function, value",
     (
         # minimum positive unambiguous value (larger than fixed8x1)
-        ("reflect(ufixed256x1)", Decimal("12.8")),
+        ("reflect(ufixed256x1)", Decimal("25.5")),
         # maximum value (for ufixed256x1)
         ("reflect(ufixed256x1)", Decimal(2**256 - 1) / 10),
         # maximum negative unambiguous value (less than 0 from ufixed*)
@@ -822,6 +822,10 @@ def test_call_sending_ether_to_nonpayable_function(payable_tester_contract, call
         ("reflect_short_u", 0),
         # maximum value (for ufixed8x1)
         ("reflect_short_u", Decimal("25.5")),
+        ("reflect(fixed8x1)", Decimal("12.1")),
+        ("reflect(fixed8x1)", Decimal(0)),
+        ("reflect(fixed8x1)", 0),
+        ("reflect(ufixed256x80)", 0),
     ),
 )
 def test_reflect_fixed_value(fixed_reflector_contract, function, value):
@@ -880,32 +884,6 @@ DEFAULT_DECIMALS = getcontext().prec
             0.1,
             "Argument 1 value `0.1` is not compatible with type `ufixed8x1`.",
         ),
-        # ambiguous
-        (
-            "reflect(ufixed256x80)",
-            Decimal("12.7"),
-            r"Found multiple elements named `reflect` that accept 1 argument\(s\).",
-        ),
-        (
-            "reflect(fixed8x1)",
-            Decimal(0),
-            r"Found multiple elements named `reflect` that accept 1 argument\(s\).",
-        ),
-        (
-            "reflect(fixed8x1)",
-            0,
-            r"Found multiple elements named `reflect` that accept 1 argument\(s\).",
-        ),
-        (
-            "reflect(ufixed256x80)",
-            0,
-            r"Found multiple elements named `reflect` that accept 1 argument\(s\).",
-        ),
-        (
-            "reflect",
-            0,
-            r"Found multiple elements named `reflect` that accept 1 argument\(s\).",
-        ),
     ),
 )
 def test_invalid_fixed_value_reflections(
@@ -914,6 +892,14 @@ def test_invalid_fixed_value_reflections(
     contract_func = fixed_reflector_contract.functions[function]
     with pytest.raises(MismatchedABI, match=error):
         contract_func(value).call({"gas": 420000})
+
+
+def test_ambiguous_fixed_value_reflections(fixed_reflector_contract):
+    with pytest.raises(
+        MismatchedABI,
+        match="Attempted to find the function 'reflect' but more than one was found.",
+    ):
+        fixed_reflector_contract.functions.reflect(0)
 
 
 @pytest.mark.parametrize(
