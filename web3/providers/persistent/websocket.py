@@ -59,8 +59,6 @@ class WebSocketProvider(PersistentConnectionProvider):
     logger = logging.getLogger("web3.providers.WebSocketProvider")
     is_async: bool = True
 
-    _ws: Optional[WebSocketClientProtocol] = None
-
     def __init__(
         self,
         endpoint_uri: Optional[Union[URI, str]] = None,
@@ -68,9 +66,12 @@ class WebSocketProvider(PersistentConnectionProvider):
         # `PersistentConnectionProvider` kwargs can be passed through
         **kwargs: Any,
     ) -> None:
+        # initialize the endpoint_uri before calling the super constructor
         self.endpoint_uri = (
             URI(endpoint_uri) if endpoint_uri is not None else get_default_endpoint()
         )
+        super().__init__(**kwargs)
+        self._ws: Optional[WebSocketClientProtocol] = None
 
         if not any(
             self.endpoint_uri.startswith(prefix)
@@ -92,8 +93,6 @@ class WebSocketProvider(PersistentConnectionProvider):
                 )
 
         self.websocket_kwargs = merge(DEFAULT_WEBSOCKET_KWARGS, websocket_kwargs or {})
-
-        super().__init__(**kwargs)
 
     def __str__(self) -> str:
         return f"WebSocket connection: {self.endpoint_uri}"
