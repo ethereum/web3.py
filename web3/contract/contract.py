@@ -306,45 +306,44 @@ class ContractFunction(BaseContractFunction):
         if self.abi_element_identifier in [FallbackFn, ReceiveFn]:
             return copy_contract_function(self, *args, **kwargs)
 
-        # need signature for cases:
-        # - Args/kwargs present when calling after get_function_by_signature
-        # - No args/kwargs present
-
-        # dont need signature when:
-        # - calling a function with arguments directly
         function_identifier = self.abi_element_identifier
+        contract_function = self
         arg_count = len(args) + len(kwargs)
-        if arg_count:
-            # Check self has expected args, if not just search with the name
-            if len(self.abi["inputs"]) != arg_count:
+
+        if len(self.abi["inputs"]) != arg_count:
+            if arg_count:
+                # Call was invoked with arguments that do not
+                # match the function in self
+                # Look up the correct function by name
                 function_identifier = self.fn_name
-        else:
-            # No arguments passed, check for abi using signature without arguments
-            if len(self.abi["inputs"]) != arg_count:
+            else:
+                # Call was invoked without arguments but does not
+                # match the function in self
+                # Look up the correct function with no args using signature
                 function_identifier = f"{self.fn_name}()"
 
-        function_abi = get_abi_element(
-            filter_by_types(
-                ["function", "constructor"],
-                self.contract_abi,
-            ),
-            function_identifier,
-            *args,
-            abi_codec=self.w3.codec,
-            **kwargs,
-        )
+            function_abi = get_abi_element(
+                filter_by_types(
+                    ["function", "constructor"],
+                    self.contract_abi,
+                ),
+                function_identifier,
+                *args,
+                abi_codec=self.w3.codec,
+                **kwargs,
+            )
 
-        def check_signature(fn_abi: ABIFunction) -> bool:
-            return abi_to_signature(fn_abi) == abi_to_signature(function_abi)
+            def check_signature(fn_abi: ABIFunction) -> bool:
+                return abi_to_signature(fn_abi) == abi_to_signature(function_abi)
 
-        functions = Contract.find_functions_by_identifier(
-            self.contract_abi, self.w3, self.address, check_signature
-        )
+            functions = Contract.find_functions_by_identifier(
+                self.contract_abi, self.w3, self.address, check_signature
+            )
 
-        if len(functions) == 1:
-            contract_function = functions[0]
-        else:
-            TypeError("Could not find function with signature")
+            if len(functions) == 1:
+                contract_function = functions[0]
+            else:
+                TypeError("Could not find function with signature")
 
         return copy_contract_function(contract_function, *args, **kwargs)
 
