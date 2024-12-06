@@ -310,34 +310,39 @@ class ContractFunction(BaseContractFunction):
         contract_function = self
         arg_count = len(args) + len(kwargs)
 
+        # Check that arguments in call match the function ABI
+
         if len(self.abi["inputs"]) != arg_count:
+            # Call was invoked with a different number of arguments that do not
+            # match the function ABI in self
             if arg_count:
-                # Call was invoked with arguments that do not
-                # match the function in self
-                # Look up the correct function by name
+                # Use the name and arguments to search for the correct ABI element
                 function_identifier = self.fn_name
             else:
-                # Call was invoked without arguments but does not
-                # match the function in self
-                # Look up the correct function with no args using signature
+                # Use a signature without arguments to find the correct ABI element
                 function_identifier = f"{self.fn_name}()"
 
-            function_abi = get_abi_element(
-                filter_by_types(
-                    ["function", "constructor"],
-                    self.contract_abi,
-                ),
-                function_identifier,
-                *args,
-                abi_codec=self.w3.codec,
-                **kwargs,
-            )
+        # Search for a function ABI that matches the arguments used
+        function_abi = get_abi_element(
+            filter_by_types(
+                ["function", "constructor"],
+                self.contract_abi,
+            ),
+            function_identifier,
+            *args,
+            abi_codec=self.w3.codec,
+            **kwargs,
+        )
 
-            def check_signature(fn_abi: ABIFunction) -> bool:
+        if len(self.abi["inputs"]) != arg_count:
+            # call was invoked with arguments that do not match those in self
+            # find the expected function that matches the arguments using the ABI
+
+            def match_function_by_signature(fn_abi: ABIFunction) -> bool:
                 return abi_to_signature(fn_abi) == abi_to_signature(function_abi)
 
             functions = Contract.find_functions_by_identifier(
-                self.contract_abi, self.w3, self.address, check_signature
+                self.contract_abi, self.w3, self.address, match_function_by_signature
             )
 
             if len(functions) == 1:
