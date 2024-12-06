@@ -805,11 +805,11 @@ def test_call_sending_ether_to_nonpayable_function(payable_tester_contract, call
     "function, value",
     (
         # minimum positive unambiguous value (larger than fixed8x1)
-        ("reflect(fixed8x1)", Decimal("12.8")),
+        ("reflect(ufixed256x1)", Decimal("12.8")),
         # maximum value (for ufixed256x1)
         ("reflect(ufixed256x1)", Decimal(2**256 - 1) / 10),
         # maximum negative unambiguous value (less than 0 from ufixed*)
-        ("reflect(ufixed256x1)", Decimal("-0.1")),
+        ("reflect(fixed8x1)", Decimal("-0.1")),
         # minimum value (for fixed8x1)
         ("reflect(fixed8x1)", Decimal("-12.8")),
         # only ufixed256x80 type supports 2-80 decimals
@@ -887,12 +887,22 @@ DEFAULT_DECIMALS = getcontext().prec
             r"Found multiple elements named `reflect` that accept 1 argument\(s\).",
         ),
         (
-            "reflect(ufixed256x80)",
+            "reflect(fixed8x1)",
             Decimal(0),
             r"Found multiple elements named `reflect` that accept 1 argument\(s\).",
         ),
         (
+            "reflect(fixed8x1)",
+            0,
+            r"Found multiple elements named `reflect` that accept 1 argument\(s\).",
+        ),
+        (
             "reflect(ufixed256x80)",
+            0,
+            r"Found multiple elements named `reflect` that accept 1 argument\(s\).",
+        ),
+        (
+            "reflect",
             0,
             r"Found multiple elements named `reflect` that accept 1 argument\(s\).",
         ),

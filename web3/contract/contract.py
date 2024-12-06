@@ -306,7 +306,7 @@ class ContractFunction(BaseContractFunction):
         if self.abi_element_identifier in [FallbackFn, ReceiveFn]:
             return copy_contract_function(self, *args, **kwargs)
 
-        function_identifier = self.abi_element_identifier
+        function_identifier = str(self.abi_element_identifier)
         contract_function = self
         arg_count = len(args) + len(kwargs)
 
@@ -321,6 +321,11 @@ class ContractFunction(BaseContractFunction):
             else:
                 # Use a signature without arguments to find the correct ABI element
                 function_identifier = f"{self.fn_name}()"
+        else:
+            if arg_count and "(" in function_identifier:
+                # Given a function signature with valid number of arguments
+                # Check contract for ambiguity by searching with the name
+                function_identifier = self.fn_name
 
         # Search for a function ABI that matches the arguments used
         function_abi = get_abi_element(
