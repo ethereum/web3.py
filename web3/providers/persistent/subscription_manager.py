@@ -73,6 +73,13 @@ class SubscriptionManager:
             )
 
     async def unsubscribe(self, subscription: EthSubscription) -> bool:
+        """
+        Used to unsubscribe from a subscription that is being managed by the
+        subscription manager.
+
+        :param subscription: The subscription to unsubscribe from.
+        :return: True if unsubscribing was successful, False otherwise.
+        """
         if subscription not in self.subscriptions:
             raise Web3ValueError(
                 f"Subscription not found or is not being managed by the subscription "
@@ -85,6 +92,12 @@ class SubscriptionManager:
         return False
 
     async def unsubscribe_all(self) -> None:
+        """
+        Used to unsubscribe from all subscriptions that are being managed by the
+        subscription manager.
+
+        :return: None
+        """
         for sx in self.subscriptions:
             await self.unsubscribe(sx)
 
@@ -100,4 +113,12 @@ class SubscriptionManager:
         self._provider.logger.info("Subscription manager processing ended.")
 
     async def handle_subscriptions(self, run_forever: bool = False) -> None:
+        """
+        Used to process all subscriptions. It will run until all subscriptions are
+        unsubscribed from or, if `run_forever` is set to `True`, it will run
+        indefinitely.
+
+        :param run_forever: If `True`, the method will run indefinitely.
+        :return: None
+        """
         await self._handle_subscriptions(run_forever=run_forever)
