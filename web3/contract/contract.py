@@ -13,14 +13,15 @@ from typing import (
 
 from eth_typing import (
     ABI,
+    ABIFunction,
     ChecksumAddress,
 )
 from eth_utils import (
     abi_to_signature,
     combomethod,
+    filter_abi_by_type,
     get_abi_input_names,
     get_abi_input_types,
-    get_all_function_abis,
 )
 from eth_utils.toolz import (
     partial,
@@ -90,6 +91,7 @@ from web3.contract.utils import (
 from web3.exceptions import (
     ABIEventNotFound,
     ABIFunctionNotFound,
+    MismatchedABI,
     NoABIEventsFound,
     NoABIFound,
     NoABIFunctionsFound,
@@ -105,8 +107,6 @@ from web3.types import (
     TxParams,
 )
 from web3.utils.abi import (
-    _get_any_abi_signature_with_name,
-    filter_abi_by_type,
     get_abi_element,
 )
 
@@ -120,26 +120,7 @@ class ContractEvent(BaseContractEvent):
     w3: "Web3"
 
     def __call__(self, *args: Any, **kwargs: Any) -> "ContractEvent":
-        event_abi = get_abi_element(
-            filter_abi_by_type("event", self.contract_abi),
-            self.name,
-            *args,
-            abi_codec=self.w3.codec,
-            **kwargs,
-        )
-        argument_types = get_abi_input_types(event_abi)
-        event_signature = str(
-            get_abi_element_signature(self.abi_element_identifier, argument_types)
-        )
-        contract_event = ContractEvent.factory(
-            event_signature,
-            w3=self.w3,
-            contract_abi=self.contract_abi,
-            address=self.address,
-            abi_element_identifier=event_signature,
-        )
-
-        return copy_contract_event(contract_event, *args, **kwargs)
+        return copy_contract_event(self, *args, **kwargs)
 
     @combomethod
     def get_logs(
@@ -322,38 +303,57 @@ class ContractFunction(BaseContractFunction):
     w3: "Web3"
 
     def __call__(self, *args: Any, **kwargs: Any) -> "ContractFunction":
-        element_name = self.abi_element_identifier
-        if element_name in ["fallback", "receive"] or len(args) + len(kwargs):
-            # Use only the name if a fallback, receive function
-            # or when args/kwargs are present to find the proper element
-            element_name = self.fn_name
+        if self.abi_element_identifier in [FallbackFn, ReceiveFn]:
+            return copy_contract_function(self, *args, **kwargs)
 
+        function_identifier = str(self.abi_element_identifier)
+        contract_function = self
+        arg_count = len(args) + len(kwargs)
+
+        # Check that arguments in call match the function ABI
+
+        if len(self.abi["inputs"]) != arg_count:
+            # Call was invoked with a different number of arguments that do not
+            # match the function ABI in self
+            if arg_count:
+                # Use the name and arguments to search for the correct ABI element
+                function_identifier = self.fn_name
+            else:
+                # Use a signature without arguments to find the correct ABI element
+                function_identifier = f"{self.fn_name}()"
+        # else:
+        #     if arg_count and "(" in function_identifier:
+        #         # Given a function signature with valid number of arguments
+        #         # Check contract for ambiguity by searching with the name
+        #         function_identifier = self.fn_name
+
+        # Search for a function ABI that matches the arguments used
         function_abi = get_abi_element(
             filter_by_types(
-                ["function", "constructor", "fallback", "receive"],
+                ["function", "constructor"],
                 self.contract_abi,
             ),
-            element_name,
+            function_identifier,
             *args,
             abi_codec=self.w3.codec,
             **kwargs,
         )
 
-        argument_types = None
-        if function_abi["type"] not in ["fallback", "receive"]:
-            argument_types = get_abi_input_types(function_abi)
+        if len(self.abi["inputs"]) != arg_count:
+            # call was invoked with arguments that do not match those in self
+            # find the expected function that matches the arguments using the ABI
 
-        function_signature = str(
-            get_abi_element_signature(self.abi_element_identifier, argument_types)
-        )
-        contract_function = ContractFunction.factory(
-            function_signature,
-            w3=self.w3,
-            contract_abi=self.contract_abi,
-            address=self.address,
-            abi_element_identifier=function_signature,
-            decode_tuples=self.decode_tuples,
-        )
+            def match_function_by_signature(fn_abi: ABIFunction) -> bool:
+                return abi_to_signature(fn_abi) == abi_to_signature(function_abi)
+
+            functions = Contract.find_functions_by_identifier(
+                self.contract_abi, self.w3, self.address, match_function_by_signature
+            )
+
+            if len(functions) == 1:
+                contract_function = functions[0]
+            else:
+                Web3TypeError("Could not find function with signature")
 
         return copy_contract_function(contract_function, *args, **kwargs)
 
@@ -364,7 +364,7 @@ class ContractFunction(BaseContractFunction):
     def call(
         self,
         transaction: Optional[TxParams] = None,
-        block_identifier: BlockIdentifier = None,
+        block_identifier: Optional[BlockIdentifier] = None,
         state_override: Optional[StateOverride] = None,
         ccip_read_enabled: Optional[bool] = None,
     ) -> Any:
@@ -389,9 +389,9 @@ class ContractFunction(BaseContractFunction):
             addr = contract.functions.owner().call()
 
         :param transaction: Dictionary of transaction info for web3 interface
-        :param block_identifier: TODO
-        :param state_override TODO
-        :param ccip_read_enabled TODO
+        :param block_identifier: Block number or string "latest", "pending", "earliest"
+        :param state_override: Dictionary of state override values
+        :param ccip_read_enabled: Enable CCIP read operations for the call
         :return: ``Caller`` object that has contract public functions
             and variables exposed as Python methods
         """
@@ -475,12 +475,14 @@ class ContractFunction(BaseContractFunction):
         address: Optional[ChecksumAddress] = None,
     ) -> "ContractFunction":
         if abi and fallback_func_abi_exists(abi):
+            fallback_abi = filter_abi_by_type("fallback", abi)[0]
             return ContractFunction.factory(
                 "fallback",
                 w3=w3,
                 contract_abi=abi,
                 address=address,
                 abi_element_identifier=FallbackFn,
+                abi=fallback_abi,
             )()
         return cast(ContractFunction, NonExistentFallbackFunction())
 
@@ -491,12 +493,14 @@ class ContractFunction(BaseContractFunction):
         address: Optional[ChecksumAddress] = None,
     ) -> "ContractFunction":
         if abi and receive_func_abi_exists(abi):
+            receive_abi = filter_abi_by_type("receive", abi)[0]
             return ContractFunction.factory(
                 "receive",
                 w3=w3,
                 contract_abi=abi,
                 address=address,
                 abi_element_identifier=ReceiveFn,
+                abi=receive_abi,
             )()
         return cast(ContractFunction, NonExistentReceiveFunction())
 
@@ -528,24 +532,34 @@ class ContractFunctions(BaseContractFunctions):
                 "The abi for this contract contains no function definitions. ",
                 "Are you sure you provided the correct contract abi?",
             )
-        elif get_name_from_abi_element_identifier(function_name) not in [
-            get_name_from_abi_element_identifier(function["name"])
+
+        functions_having_name = [
+            abi_to_signature(function)
             for function in self._functions
-        ]:
+            if function["name"] == get_name_from_abi_element_identifier(function_name)
+        ]
+
+        if len(functions_having_name) == 1:
+            function_signature = functions_having_name[0]
+        elif len(functions_having_name) > 1:
+            if f"{function_name}()" in functions_having_name:
+                # Default to function without arguments
+                function_signature = f"{function_name}()"
+            else:
+                raise MismatchedABI(
+                    f"Attempted to find the function '{function_name}' but "
+                    "more than one was found. You must call the function "
+                    "explicitly using the signature and arguments with "
+                    "Contract.get_function_by_signature(function_signature)(args)"
+                )
+        else:
             raise ABIFunctionNotFound(
                 f"The function '{function_name}' was not found in this contract's "
                 "abi. Are you sure you provided the correct contract abi?",
             )
 
-        function_identifier = function_name
-
-        if "(" not in function_name:
-            function_identifier = _get_any_abi_signature_with_name(
-                function_name, self._functions
-            )
-
         return super().__getattribute__(
-            function_identifier,
+            function_signature,
         )
 
     def __getitem__(self, function_name: str) -> "ContractFunction":
@@ -574,7 +588,8 @@ class Contract(BaseContract):
             )
 
         if address:
-            self.address = normalize_address(cast("ENS", _w3.ens), address)
+            # invoke ``w3._ens`` over ``w3.ens`` to avoid premature instantiation
+            self.address = normalize_address(cast("ENS", _w3._ens), address)
 
         if not self.address:
             raise Web3TypeError(
@@ -585,7 +600,11 @@ class Contract(BaseContract):
             self.abi, _w3, self.address, decode_tuples=self.decode_tuples
         )
         self.caller = ContractCaller(
-            self.abi, _w3, self.address, decode_tuples=self.decode_tuples
+            self.abi,
+            _w3,
+            self.address,
+            decode_tuples=self.decode_tuples,
+            contract_functions=self.functions,
         )
         self.events = ContractEvents(self.abi, _w3, self.address)
         self.fallback = Contract.get_fallback_function(
@@ -609,7 +628,8 @@ class Contract(BaseContract):
 
         normalizers = {
             "abi": normalize_abi,
-            "address": partial(normalize_address, w3.ens),
+            # invoke ``w3._ens`` over ``w3.ens`` to avoid premature instantiation
+            "address": partial(normalize_address, w3._ens),
             "bytecode": normalize_bytecode,
             "bytecode_runtime": normalize_bytecode,
         }
@@ -641,6 +661,7 @@ class Contract(BaseContract):
             contract.w3,
             contract.address,
             decode_tuples=contract.decode_tuples,
+            contract_functions=contract.functions,
         )
         contract.events = ContractEvents(contract.abi, contract.w3)
         contract.fallback = Contract.get_fallback_function(
@@ -706,7 +727,7 @@ class Contract(BaseContract):
 
     @combomethod
     def get_event_by_identifier(
-        cls, events: Sequence["ContractEvent"], identifier: str
+        self, events: Sequence["ContractEvent"], identifier: str
     ) -> "ContractEvent":
         return get_event_by_identifier(events, identifier)
 
@@ -724,6 +745,7 @@ class ContractCaller(BaseContractCaller):
         block_identifier: BlockIdentifier = None,
         ccip_read_enabled: Optional[bool] = None,
         decode_tuples: Optional[bool] = False,
+        contract_functions: Optional[ContractFunctions] = None,
     ) -> None:
         super().__init__(abi, w3, address, decode_tuples=decode_tuples)
 
@@ -731,18 +753,13 @@ class ContractCaller(BaseContractCaller):
             if transaction is None:
                 transaction = {}
 
-            self._functions = get_all_function_abis(self.abi)
-
-            for func in self._functions:
-                abi_signature = abi_to_signature(func)
-                fn = ContractFunction.factory(
-                    abi_signature,
-                    w3=w3,
-                    contract_abi=self.abi,
-                    address=self.address,
-                    decode_tuples=decode_tuples,
+            if contract_functions is None:
+                contract_functions = ContractFunctions(
+                    abi, w3, address=address, decode_tuples=decode_tuples
                 )
 
+            self._functions = contract_functions._functions
+            for fn in contract_functions.__iter__():
                 caller_method = partial(
                     self.call_function,
                     fn,
@@ -750,8 +767,7 @@ class ContractCaller(BaseContractCaller):
                     block_identifier=block_identifier,
                     ccip_read_enabled=ccip_read_enabled,
                 )
-
-                setattr(self, abi_signature, caller_method)
+                setattr(self, str(fn.abi_element_identifier), caller_method)
 
     def __call__(
         self,

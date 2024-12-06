@@ -48,7 +48,6 @@ from hexbytes import (
 
 from web3._utils.abi import (
     fallback_func_abi_exists,
-    filter_by_types,
     find_constructor_abi_element_by_type,
     get_abi_element_signature,
     get_name_from_abi_element_identifier,
@@ -163,12 +162,14 @@ class BaseContractEvent:
     args: Any = None
     kwargs: Any = None
 
-    def __init__(self, *argument_names: Tuple[str]) -> None:
+    def __init__(
+        self, *argument_names: Tuple[str], abi: Optional[ABIEvent] = None
+    ) -> None:
         self.event_name = get_name_from_abi_element_identifier(type(self).__name__)
         self.abi_element_identifier = type(self).__name__
-        abi = self._get_event_abi()
-        self.name = abi_to_signature(abi)
-        self.abi = abi
+        if abi:
+            self.abi = abi
+        self.name = abi_to_signature(self.abi)
 
         if argument_names is None:
             # https://github.com/python/mypy/issues/6283
@@ -470,6 +471,7 @@ class BaseContractEvents:
                     contract_abi=self.abi,
                     address=self.address,
                     event_name=event["name"],
+                    abi=event,
                 )
                 setattr(self, abi_signature, event_factory)
 
@@ -509,16 +511,8 @@ class BaseContractFunction:
             self.abi_element_identifier = type(self).__name__
 
         self.fn_name = get_name_from_abi_element_identifier(self.abi_element_identifier)
-        self.abi = cast(
-            ABIFunction,
-            get_abi_element(
-                filter_by_types(
-                    ["function", "constructor", "fallback", "receive"],
-                    self.contract_abi,
-                ),
-                self.abi_element_identifier,
-            ),
-        )
+        if abi:
+            self.abi = abi
         self.name = abi_to_signature(self.abi)
 
     @combomethod
@@ -553,13 +547,9 @@ class BaseContractFunction:
             FallbackFn,
             ReceiveFn,
         ]:
-            self.abi = self._get_abi()
-
             self.selector = encode_hex(function_abi_to_4byte_selector(self.abi))
             self.arguments = None
         elif is_text(self.abi_element_identifier):
-            self.abi = self._get_abi()
-
             self.selector = encode_hex(function_abi_to_4byte_selector(self.abi))
             self.arguments = get_normalized_abi_inputs(
                 self.abi, *self.args, **self.kwargs
@@ -739,6 +729,7 @@ class BaseContractFunctions:
                         contract_abi=self.abi,
                         address=self.address,
                         decode_tuples=decode_tuples,
+                        abi=func,
                     ),
                 )
 
@@ -1100,12 +1091,14 @@ class BaseContract:
         address: Optional[ChecksumAddress] = None,
     ) -> "BaseContractFunction":
         if abi and fallback_func_abi_exists(abi):
+            fallback_abi = filter_abi_by_type("fallback", abi)[0]
             return function_type.factory(
                 "fallback",
                 w3=w3,
                 contract_abi=abi,
                 address=address,
                 abi_element_identifier=FallbackFn,
+                abi=fallback_abi,
             )()
 
         return cast(function_type, NonExistentFallbackFunction())  # type: ignore
@@ -1118,12 +1111,14 @@ class BaseContract:
         address: Optional[ChecksumAddress] = None,
     ) -> "BaseContractFunction":
         if abi and receive_func_abi_exists(abi):
+            receive_abi = filter_abi_by_type("receive", abi)[0]
             return function_type.factory(
                 "receive",
                 w3=w3,
                 contract_abi=abi,
                 address=address,
                 abi_element_identifier=ReceiveFn,
+                abi=receive_abi,
             )()
 
         return cast(function_type, NonExistentReceiveFunction())  # type: ignore
