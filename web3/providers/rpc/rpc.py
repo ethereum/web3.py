@@ -71,6 +71,7 @@ class HTTPProvider(JSONBaseProvider):
         ] = empty,
         **kwargs: Any,
     ) -> None:
+        super().__init__(**kwargs)
         self._request_session_manager = HTTPSessionManager()
 
         if endpoint_uri is None:
@@ -87,8 +88,6 @@ class HTTPProvider(JSONBaseProvider):
             self._request_session_manager.cache_and_return_session(
                 self.endpoint_uri, session
             )
-
-        super().__init__(**kwargs)
 
     def __str__(self) -> str:
         return f"RPC connection {self.endpoint_uri}"

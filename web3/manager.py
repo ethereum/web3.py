@@ -292,9 +292,6 @@ class RequestManager:
             provider = cast(PersistentConnectionProvider, self.provider)
             self._request_processor: RequestProcessor = provider._request_processor
 
-    w3: Union["AsyncWeb3", "Web3"] = None
-    _provider = None
-
     @property
     def provider(self) -> Union["BaseProvider", "AsyncBaseProvider"]:
         return self._provider

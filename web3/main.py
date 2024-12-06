@@ -513,7 +513,8 @@ class AsyncWeb3(BaseWeb3):
 
     # -- persistent connection settings -- #
 
-    _subscription_manager: SubscriptionManager = None
+    _subscription_manager: Optional[SubscriptionManager] = None
+    _persistent_connection: Optional["PersistentConnection"] = None
 
     @property
     @persistent_connection_provider_method()
@@ -523,13 +524,14 @@ class AsyncWeb3(BaseWeb3):
         """
         if not self._subscription_manager:
             self._subscription_manager = SubscriptionManager(self)
-
         return self._subscription_manager
 
     @property
     @persistent_connection_provider_method()
     def socket(self) -> PersistentConnection:
-        return PersistentConnection(self)
+        if self._persistent_connection is None:
+            self._persistent_connection = PersistentConnection(self)
+        return self._persistent_connection
 
     # w3 = await AsyncWeb3(PersistentConnectionProvider(...))
     @persistent_connection_provider_method(
