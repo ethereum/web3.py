@@ -1,0 +1,1 @@
+Contract functions and events are initialized so that they can be called without reinitialization. Calls on overloaded functions and events now use the one specified, unless there is ambiguity in cases where the argument types are not specified.
