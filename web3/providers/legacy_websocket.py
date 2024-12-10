@@ -102,6 +102,7 @@ class LegacyWebSocketProvider(JSONBaseProvider):
         websocket_timeout: int = DEFAULT_WEBSOCKET_TIMEOUT,
         **kwargs: Any,
     ) -> None:
+        super().__init__(**kwargs)
         self.endpoint_uri = URI(endpoint_uri)
         self.websocket_timeout = websocket_timeout
         if self.endpoint_uri is None:
@@ -120,7 +121,6 @@ class LegacyWebSocketProvider(JSONBaseProvider):
                     f"in websocket_kwargs, found: {found_restricted_keys}"
                 )
         self.conn = PersistentWebSocket(self.endpoint_uri, websocket_kwargs)
-        super().__init__(**kwargs)
 
     def __str__(self) -> str:
         return f"WS connection {self.endpoint_uri}"
