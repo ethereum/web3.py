@@ -1,0 +1,1 @@
+Bump the eth-tester version to one that works in the tester dependency extras
