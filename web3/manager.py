@@ -69,6 +69,7 @@ from web3.providers.async_base import (
     AsyncJSONBaseProvider,
 )
 from web3.types import (
+    FormattedEthSubscriptionResponse,
     RPCEndpoint,
     RPCResponse,
 )
@@ -472,7 +473,10 @@ class RequestManager:
 
         if isinstance(self.provider, PersistentConnectionProvider):
             # call _process_response for each response in the batch
-            return [await self._process_response(resp) for resp in responses]
+            return [
+                cast(RPCResponse, await self._process_response(resp))
+                for resp in responses
+            ]
 
         formatted_responses = [
             self._format_batched_response(info, resp)
@@ -498,7 +502,9 @@ class RequestManager:
 
     # -- persistent connection -- #
 
-    async def socket_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
+    async def socket_request(
+        self, method: RPCEndpoint, params: Any
+    ) -> Union[RPCResponse, FormattedEthSubscriptionResponse]:
         provider = cast(PersistentConnectionProvider, self._provider)
         request_func = await provider.request_func(
             cast("AsyncWeb3", self.w3), cast("MiddlewareOnion", self.middleware_onion)
@@ -523,7 +529,7 @@ class RequestManager:
         )
         await provider.socket_send(provider.encode_rpc_request(method, params))
 
-    async def recv(self) -> RPCResponse:
+    async def recv(self) -> Union[RPCResponse, FormattedEthSubscriptionResponse]:
         provider = cast(PersistentConnectionProvider, self._provider)
         self.logger.debug(
             "Getting next response from open socket connection: "
@@ -541,12 +547,12 @@ class RequestManager:
     def _persistent_message_stream(self) -> "_AsyncPersistentMessageStream":
         return _AsyncPersistentMessageStream(self)
 
-    async def _get_next_message(self) -> Optional[RPCResponse]:
+    async def _get_next_message(self) -> Optional[FormattedEthSubscriptionResponse]:
         return await self._message_stream().__anext__()
 
     async def _message_stream(
         self,
-    ) -> AsyncGenerator[Optional[RPCResponse], None]:
+    ) -> AsyncGenerator[Optional[FormattedEthSubscriptionResponse], None]:
         if not isinstance(self._provider, PersistentConnectionProvider):
             raise Web3TypeError(
                 "Only providers that maintain an open, persistent connection "
@@ -564,25 +570,19 @@ class RequestManager:
                 response = await self._request_processor.pop_raw_response(
                     subscription=True
                 )
-                if response is not None:
-                    sx_response = await self._process_response(response)
+                formatted_sx_response = cast(
+                    FormattedEthSubscriptionResponse,
+                    await self._process_response(response),
+                )
 
-                    # call the handler is there is one, else yield the response to any
-                    # listeners
-                    for sx in async_w3.subscription_manager.subscriptions:
-                        if (
-                            sx_response.get("subscription") == sx.id
-                            and sx._handler is not None
-                        ):
-                            await sx._handler(async_w3, sx, sx_response["result"])
-                    yield sx_response
-                else:
-                    # if response is not an active subscription response, log it
-                    self.logger.debug(
-                        "Received inactive subscription from socket:\n"
-                        f"    {self._provider.get_endpoint_uri_or_ipc_path()}, "
-                        f"    response: {response}"
-                    )
+                sx = async_w3.subscription_manager.get_by_id(
+                    formatted_sx_response["subscription"]
+                )
+                # call the handler if there is one, else yield response to any listeners
+                if sx and sx._handler:
+                    await sx._handler(async_w3, sx, formatted_sx_response.get("result"))
+                    yield None
+                yield formatted_sx_response
             except TaskNotRunning:
                 await asyncio.sleep(0)
                 self._provider._handle_listener_task_exceptions()
@@ -592,7 +592,9 @@ class RequestManager:
                 )
                 return
 
-    async def _process_response(self, response: RPCResponse) -> RPCResponse:
+    async def _process_response(
+        self, response: RPCResponse
+    ) -> Union[RPCResponse, FormattedEthSubscriptionResponse]:
         provider = cast(PersistentConnectionProvider, self._provider)
         request_info = self._request_processor.get_request_information_for_response(
             response
@@ -655,5 +657,5 @@ class _AsyncPersistentMessageStream:
     def __aiter__(self) -> Self:
         return self
 
-    async def __anext__(self) -> Optional[RPCResponse]:
+    async def __anext__(self) -> Optional[FormattedEthSubscriptionResponse]:
         return await self.manager._get_next_message()

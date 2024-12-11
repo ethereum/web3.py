@@ -5,6 +5,7 @@ from typing import (
     Any,
     Dict,
     Tuple,
+    Union,
     cast,
 )
 
@@ -41,8 +42,12 @@ from web3.utils import (
     EthSubscription,
 )
 from web3.utils.subscriptions import (
+    LogsSubscription,
+    LogsSubscriptionType,
     NewHeadsSubscription,
+    NewHeadsSubscriptionType,
     PendingTxSubscription,
+    PendingTxSubscriptionType,
 )
 
 if TYPE_CHECKING:
@@ -54,6 +59,13 @@ if TYPE_CHECKING:
         AsyncWeb3,
     )
 
+
+# LogIndexedAndNotIndexed event args
+INDEXED_ADDR = "0xdEad000000000000000000000000000000000000"
+INDEXED_UINT256 = 1337
+NON_INDEXED_ADDR = "0xbeeF000000000000000000000000000000000000"
+NON_INDEXED_UINT256 = 1999
+NON_INDEXED_STRING = "test logs subscriptions"
 
 SOME_BLOCK_KEYS = [
     "number",
@@ -70,15 +82,108 @@ SOME_BLOCK_KEYS = [
 ]
 
 
+async def new_heads_handler(
+    async_w3: "AsyncWeb3", sx: NewHeadsSubscriptionType, block: BlockData
+) -> None:
+    assert async_w3 is not None
+    provider = cast(PersistentConnectionProvider, async_w3.provider)
+    assert isinstance(provider.get_endpoint_uri_or_ipc_path(), str)
+
+    assert isinstance(sx, EthSubscription)
+
+    assert block is not None
+    assert all(k in block.keys() for k in SOME_BLOCK_KEYS)
+
+    async_w3.subscription_manager._passed_new_heads = True
+    assert await sx.unsubscribe()
+
+
+async def pending_tx_handler(
+    async_w3: "AsyncWeb3",
+    sx: PendingTxSubscriptionType,
+    tx: Union[TxData, HexBytes],
+) -> None:
+    assert async_w3 is not None
+    provider = cast(PersistentConnectionProvider, async_w3.provider)
+    assert isinstance(provider.get_endpoint_uri_or_ipc_path(), str)
+
+    assert isinstance(sx, PendingTxSubscription)
+
+    assert tx is not None
+    tx = cast(TxData, tx)
+    accts = await async_w3.eth.accounts
+    assert tx["from"] == accts[0]
+    await async_w3.eth.wait_for_transaction_receipt(tx["hash"])
+
+    async_w3.subscription_manager._passed_pending_tx = True
+    assert await sx.unsubscribe()
+
+
+async def logs_handler(
+    async_w3: "AsyncWeb3", sx: LogsSubscriptionType, log_receipt: LogReceipt
+) -> None:
+    assert async_w3 is not None
+    provider = cast(PersistentConnectionProvider, async_w3.provider)
+    assert isinstance(provider.get_endpoint_uri_or_ipc_path(), str)
+
+    assert isinstance(sx, LogsSubscription)
+    event_data = sx.event.process_log(log_receipt)
+    assert event_data.args.indexedAddress == INDEXED_ADDR
+    assert event_data.args.indexedUint256 == INDEXED_UINT256
+    assert event_data.args.nonIndexedAddress == NON_INDEXED_ADDR
+    assert event_data.args.nonIndexedUint256 == NON_INDEXED_UINT256
+    assert event_data.args.nonIndexedString == NON_INDEXED_STRING
+
+    async_w3.subscription_manager._passed_logs = True
+    assert await sx.unsubscribe()
+
+
+async def emit_contract_event(
+    async_w3: "AsyncWeb3",
+    acct: ChecksumAddress,
+    contract_function: "AsyncContractFunction",
+    args: Any = (),
+    delay: float = 0.1,
+) -> None:
+    await asyncio.sleep(delay)
+    tx_hash = await contract_function(*args).transact({"from": acct})
+    receipt = await async_w3.eth.wait_for_transaction_receipt(tx_hash)
+    assert receipt["status"] == 1
+
+
+async def log_indexed_and_non_indexed_args_task(
+    async_w3: "AsyncWeb3",
+    async_emitter_contract: "AsyncContract",
+    acct: ChecksumAddress,
+    delay: float = 0.1,
+) -> "asyncio.Task[None]":
+    return asyncio.create_task(
+        emit_contract_event(
+            async_w3,
+            acct,
+            async_emitter_contract.functions.logIndexedAndNotIndexedArgs,
+            args=(
+                INDEXED_ADDR,
+                INDEXED_UINT256,
+                NON_INDEXED_ADDR,
+                NON_INDEXED_UINT256,
+                NON_INDEXED_STRING,
+            ),
+            delay=delay,
+        )
+    )
+
+
 class PersistentConnectionProviderTest:
     @staticmethod
     async def seed_transactions_to_geth(
         async_w3: "AsyncWeb3",
         acct: ChecksumAddress,
-        nonce: int,
         num_txs: int = 1,
         delay: float = 0.1,
     ) -> None:
+        nonce = int(await async_w3.eth.get_transaction_count(acct))
+
         async def send_tx() -> None:
             nonlocal nonce
             await async_w3.eth.send_transaction(
@@ -95,19 +200,6 @@ class PersistentConnectionProviderTest:
         for _ in range(num_txs):
             await asyncio.sleep(delay)
             await send_tx()
-
-    @staticmethod
-    async def emit_contract_event(
-        async_w3: "AsyncWeb3",
-        acct: ChecksumAddress,
-        contract_function: "AsyncContractFunction",
-        args: Any = (),
-        delay: float = 0.1,
-    ) -> None:
-        await asyncio.sleep(delay)
-        tx_hash = await contract_function(*args).transact({"from": acct})
-        receipt = await async_w3.eth.wait_for_transaction_receipt(tx_hash)
-        assert receipt["status"] == 1
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
@@ -198,7 +290,35 @@ class PersistentConnectionProviderTest:
         assert await async_w3.eth.unsubscribe(sub_id)
 
     @pytest.mark.asyncio
-    async def test_async_eth_subscribe_new_pending_transactions_true(
+    async def test_async_eth_subscribe_creates_and_handles_new_heads_subscription_type(
+        self,
+        async_w3: "AsyncWeb3",
+    ) -> None:
+        sx_manager = async_w3.subscription_manager
+
+        sub_id = await async_w3.eth.subscribe("newHeads", handler=new_heads_handler)
+        assert is_hexstr(sub_id)
+
+        assert len(sx_manager.subscriptions) == 1
+        sx = sx_manager.subscriptions[0]
+        assert isinstance(sx, NewHeadsSubscription)
+
+        # transient flag to track handler success
+        sx_manager._passed_new_heads = False
+
+        await sx_manager.handle_subscriptions()
+        assert len(sx_manager.subscriptions) == 0
+
+        assert sx_manager.total_handler_calls == 1
+        assert sx.handler_call_count == 1
+        assert sx_manager._passed_new_heads
+
+        # cleanup
+        sx_manager.total_handler_calls = 0
+        del sx_manager._passed_new_heads
+
+    @pytest.mark.asyncio
+    async def test_async_eth_subscribe_new_and_process_pending_tx_true(
         self,
         async_w3: "AsyncWeb3",
     ) -> None:
@@ -207,13 +327,11 @@ class PersistentConnectionProviderTest:
 
         accts = await async_w3.eth.accounts
         acct = accts[0]
-        original_nonce = await async_w3.eth.get_transaction_count(acct)
 
         num_txs = 2
+        original_nonce = await async_w3.eth.get_transaction_count(acct)
         tx_seeder_task = asyncio.create_task(
-            self.seed_transactions_to_geth(
-                async_w3, acct, original_nonce, num_txs=num_txs
-            )
+            self.seed_transactions_to_geth(async_w3, acct, num_txs=num_txs)
         )
 
         nonce = int(original_nonce)
@@ -233,12 +351,17 @@ class PersistentConnectionProviderTest:
             if nonce == int(original_nonce) + num_txs:
                 break
 
+        # cleanup
         assert await async_w3.eth.unsubscribe(sub_id)
+        assert len(async_w3.subscription_manager.subscriptions) == 0
+        assert len(async_w3.subscription_manager._subscriptions_by_id) == 0
+        assert len(async_w3.subscription_manager._subscriptions_by_label) == 0
+        async_w3.provider._request_processor.clear_caches()
         await async_w3.eth.wait_for_transaction_receipt(tx_hash)
         tx_seeder_task.cancel()
 
     @pytest.mark.asyncio
-    async def test_async_eth_subscribe_new_pending_transactions_false(
+    async def test_async_eth_subscribe_and_process_pending_tx_false(
         self,
         async_w3: "AsyncWeb3",
     ) -> None:
@@ -247,13 +370,11 @@ class PersistentConnectionProviderTest:
 
         accts = await async_w3.eth.accounts
         acct = accts[0]
-        original_nonce = await async_w3.eth.get_transaction_count(acct)
+        await async_w3.eth.get_transaction_count(acct)
 
         num_txs = 2
         tx_seeder_task = asyncio.create_task(
-            self.seed_transactions_to_geth(
-                async_w3, acct, original_nonce, num_txs=num_txs
-            )
+            self.seed_transactions_to_geth(async_w3, acct, num_txs=num_txs)
         )
 
         tx_hash = None
@@ -268,12 +389,54 @@ class PersistentConnectionProviderTest:
             if i == num_txs:
                 break
 
+        # cleanup
         await async_w3.eth.unsubscribe(sub_id)
+        assert len(async_w3.subscription_manager.subscriptions) == 0
+        assert len(async_w3.subscription_manager._subscriptions_by_id) == 0
+        assert len(async_w3.subscription_manager._subscriptions_by_label) == 0
         await async_w3.eth.wait_for_transaction_receipt(tx_hash)
         tx_seeder_task.cancel()
 
     @pytest.mark.asyncio
-    async def test_async_eth_subscribe_logs(
+    async def test_async_eth_subscribe_creates_and_handles_pending_tx_subscription_type(
+        self,
+        async_w3: "AsyncWeb3",
+    ) -> None:
+        sx_manager = async_w3.subscription_manager
+
+        sub_id = await async_w3.eth.subscribe(
+            "newPendingTransactions", True, handler=pending_tx_handler
+        )
+        assert is_hexstr(sub_id)
+
+        assert len(sx_manager.subscriptions) == 1
+        sx = sx_manager.subscriptions[0]
+        assert isinstance(sx, PendingTxSubscription)
+
+        # seed transactions to geth
+        accts = await async_w3.eth.accounts
+        acct = accts[0]
+        tx_seeder_task = asyncio.create_task(
+            self.seed_transactions_to_geth(async_w3, acct, num_txs=1, delay=0.5)
+        )
+
+        # transient flag to track handler success
+        sx_manager._passed_pending_tx = False
+
+        await sx_manager.handle_subscriptions()
+        assert len(sx_manager.subscriptions) == 0
+
+        assert sx_manager.total_handler_calls == 1
+        assert sx.handler_call_count == 1
+        assert sx_manager._passed_pending_tx
+
+        # cleanup
+        sx_manager.total_handler_calls = 0
+        del sx_manager._passed_pending_tx
+        tx_seeder_task.cancel()
+
+    @pytest.mark.asyncio
+    async def test_async_eth_subscribe_and_process_logs(
         self, async_w3: "AsyncWeb3", async_emitter_contract: "AsyncContract"
     ) -> None:
         event = async_emitter_contract.events.LogIndexedAndNotIndexed
@@ -290,38 +453,72 @@ class PersistentConnectionProviderTest:
 
         accts = await async_w3.eth.accounts
         acct = accts[0]
-        indexed_addr = "0xdEad000000000000000000000000000000000000"
-        indexed_uint256 = 1337
-        non_indexed_addr = "0xbeeF000000000000000000000000000000000000"
-        non_indexed_uint256 = 1999
-        non_indexed_string = "test logs subscriptions"
-        asyncio.create_task(
-            self.emit_contract_event(
-                async_w3,
-                acct,
-                async_emitter_contract.functions.logIndexedAndNotIndexedArgs,
-                args=(
-                    indexed_addr,
-                    indexed_uint256,
-                    non_indexed_addr,
-                    non_indexed_uint256,
-                    non_indexed_string,
-                ),
-            )
+        emit_event_task = await log_indexed_and_non_indexed_args_task(
+            async_w3, async_emitter_contract, acct
         )
+
         async for msg in async_w3.socket.process_subscriptions():
             response = cast(FormattedEthSubscriptionResponse, msg)
             assert response["subscription"] == sub_id
             log_receipt = cast(LogReceipt, response["result"])
             event_data = event.process_log(log_receipt)
-            assert event_data.args.indexedAddress == indexed_addr
-            assert event_data.args.indexedUint256 == indexed_uint256
-            assert event_data.args.nonIndexedAddress == non_indexed_addr
-            assert event_data.args.nonIndexedUint256 == non_indexed_uint256
-            assert event_data.args.nonIndexedString == non_indexed_string
+            assert event_data.args.indexedAddress == INDEXED_ADDR
+            assert event_data.args.indexedUint256 == INDEXED_UINT256
+            assert event_data.args.nonIndexedAddress == NON_INDEXED_ADDR
+            assert event_data.args.nonIndexedUint256 == NON_INDEXED_UINT256
+            assert event_data.args.nonIndexedString == NON_INDEXED_STRING
             break
 
         assert await async_w3.eth.unsubscribe(sub_id)
+        assert len(async_w3.subscription_manager.subscriptions) == 0
+        emit_event_task.cancel()
+
+    @pytest.mark.asyncio
+    async def test_async_eth_subscribe_creates_and_handles_logs_subscription_type(
+        self,
+        async_w3: "AsyncWeb3",
+        async_emitter_contract: "AsyncContract",
+    ) -> None:
+        sx_manager = async_w3.subscription_manager
+
+        event = async_emitter_contract.events.LogIndexedAndNotIndexed
+        event_topic = async_w3.keccak(text=event.abi_element_identifier).to_0x_hex()
+
+        sub_id = await async_w3.eth.subscribe(
+            "logs",
+            {
+                "address": async_emitter_contract.address,
+                "topics": [HexStr(event_topic)],
+            },
+            handler=logs_handler,
+            event=event,
+        )
+        assert is_hexstr(sub_id)
+
+        assert len(sx_manager.subscriptions) == 1
+        sx = sx_manager.subscriptions[0]
+        assert isinstance(sx, LogsSubscription)
+
+        accts = await async_w3.eth.accounts
+        acct = accts[0]
+        emit_event_task = await log_indexed_and_non_indexed_args_task(
+            async_w3, async_emitter_contract, acct
+        )
+
+        # transient flag to track handler success
+        sx_manager._passed_logs = False
+
+        await sx_manager.handle_subscriptions()
+        assert len(sx_manager.subscriptions) == 0
+
+        assert sx_manager.total_handler_calls == 1
+        assert sx.handler_call_count == 1
+        assert sx_manager._passed_logs
+
+        # cleanup
+        sx_manager.total_handler_calls = 0
+        del sx_manager._passed_logs
+        emit_event_task.cancel()
 
     @pytest.mark.asyncio
     async def test_async_extradata_poa_middleware_on_eth_subscription(
@@ -405,7 +602,10 @@ class PersistentConnectionProviderTest:
         assert isinstance(chain_id3, int)
 
     @pytest.mark.asyncio
-    async def test_public_socket_api(self, async_w3: "AsyncWeb3") -> None:
+    async def test_async_public_socket_api(self, async_w3: "AsyncWeb3") -> None:
+        # clear all caches and queues
+        async_w3.provider._request_processor.clear_caches()
+
         # send a request over the socket
         await async_w3.socket.send(
             RPCEndpoint("eth_getBlockByNumber"), ["latest", True]
@@ -429,65 +629,60 @@ class PersistentConnectionProviderTest:
         assert all(k in response["result"].keys() for k in SOME_BLOCK_KEYS)
         assert not isinstance(response["result"]["number"], int)  # assert not processed
 
-    @staticmethod
-    async def new_heads_handler(
-        async_w3: "AsyncWeb3", sx: EthSubscription, result: BlockData
-    ) -> None:
-        assert async_w3 is not None
-        provider = cast(PersistentConnectionProvider, async_w3.provider)
-        assert isinstance(provider.get_endpoint_uri_or_ipc_path(), str)
-
-        assert isinstance(sx, EthSubscription)
-
-        assert result is not None
-        assert all(k in result.keys() for k in SOME_BLOCK_KEYS)
-        previous_block = await async_w3.eth.get_block(result["number"] - 1)
-        if result["transactionsRoot"] != previous_block["transactionsRoot"]:
-            # unsubscribe after a new transaction changes the transactionsRoot
-            # (one of our pending transactions was included in a block)
-            await sx.unsubscribe()
-
-    @staticmethod
-    async def pending_tx_handler(
-        async_w3: "AsyncWeb3", sx: EthSubscription, result: TxData
-    ) -> None:
-        assert async_w3 is not None
-        provider = cast(PersistentConnectionProvider, async_w3.provider)
-        assert isinstance(provider.get_endpoint_uri_or_ipc_path(), str)
-
-        assert isinstance(sx, EthSubscription)
-
-        assert result is not None
-        assert result["gas"] == 21000
-        assert result["from"] == result["to"]
-        assert int(result["value"]) == int(result["nonce"])
-
-        await async_w3.eth.wait_for_transaction_receipt(result["hash"])
-        if len(async_w3.subscription_manager.subscriptions) == 1:
-            # unsubscribe after newHeads unsubscribes
-            await sx.unsubscribe()
-
     @pytest.mark.asyncio
-    async def test_subscription_manager_subscribes_to_many_subscriptions(
-        self, async_w3: "AsyncWeb3"
+    async def test_async_subscription_manager_subscribes_to_many_subscriptions(
+        self, async_w3: "AsyncWeb3", async_emitter_contract: "AsyncContract"
     ) -> None:
         sx_manager = async_w3.subscription_manager
+
+        event = async_emitter_contract.events.LogIndexedAndNotIndexed
+        event_topic = async_w3.keccak(text=event.abi_element_identifier).to_0x_hex()
+
+        # transient flags to track handler calls
+        sx_manager._passed_new_heads = False
+        sx_manager._passed_pending_tx = False
+        sx_manager._passed_logs = False
+
         await sx_manager.subscribe(
             [
-                NewHeadsSubscription(handler=self.new_heads_handler),
+                NewHeadsSubscription(handler=new_heads_handler),
                 PendingTxSubscription(
-                    full_transactions=True, handler=self.pending_tx_handler
+                    full_transactions=True, handler=pending_tx_handler
+                ),
+                LogsSubscription(
+                    address=async_emitter_contract.address,
+                    topics=[HexStr(event_topic)],
+                    event=event,
+                    handler=logs_handler,
                 ),
             ]
         )
 
+        # emit contract event for `logs` subscription
         accts = await async_w3.eth.accounts
         acct = accts[0]
-        original_nonce = await async_w3.eth.get_transaction_count(acct)
-        tx_seeder_task = asyncio.create_task(
-            self.seed_transactions_to_geth(
-                async_w3, acct, original_nonce, num_txs=2, delay=0.5
-            )
+        emit_event_task = await log_indexed_and_non_indexed_args_task(
+            async_w3, async_emitter_contract, acct
         )
+
+        # get subscriptions while before they are unsubscribed and removed
+        sxs = sx_manager.subscriptions
+
         await sx_manager.handle_subscriptions()
-        await tx_seeder_task
+        emit_event_task.cancel()
+
+        # assert unsubscribed and removed subscriptions
+        assert len(sx_manager.subscriptions) == 0
+
+        assert sx_manager.total_handler_calls == 3
+        assert all(sx.handler_call_count == 1 for sx in sxs)
+
+        assert sx_manager._passed_new_heads
+        assert sx_manager._passed_pending_tx
+        assert sx_manager._passed_logs
+
+        # cleanup
+        sx_manager.total_handler_calls = 0
+        del sx_manager._passed_new_heads
+        del sx_manager._passed_pending_tx
+        del sx_manager._passed_logs

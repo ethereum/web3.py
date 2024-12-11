@@ -108,6 +108,7 @@ from web3.utils.subscriptions import (
 
 if TYPE_CHECKING:
     from web3 import AsyncWeb3  # noqa: F401
+    from web3.contract.async_contract import AsyncContractEvent  # noqa: F401
 
 
 class AsyncEth(BaseEth):
@@ -718,7 +719,8 @@ class AsyncEth(BaseEth):
                 bool,  # newPendingTransactions, full_transactions
             ]
         ] = None,
-        handler: Optional[EthSubscriptionHandler] = None,
+        handler: Optional[EthSubscriptionHandler[EthSubscription[Any], Any]] = None,
+        event: Optional["AsyncContractEvent"] = None,
         label: Optional[str] = None,
     ) -> HexStr:
         if not isinstance(self.w3.provider, PersistentConnectionProvider):
@@ -727,12 +729,12 @@ class AsyncEth(BaseEth):
                 "persistent connections."
             )
 
-        params = (
-            (subscription_type, subscription_arg)
-            if subscription_arg is not None
-            else (subscription_type,)
+        sx = EthSubscription._create_type_aware_subscription(
+            subscription_params=(subscription_type, subscription_arg),
+            handler=handler,
+            event=event,
+            label=label,
         )
-        sx = EthSubscription(subscription_params=params, handler=handler, label=label)
         return await self.w3.subscription_manager.subscribe(sx)
 
     _unsubscribe: Method[Callable[[HexStr], Awaitable[bool]]] = Method(
