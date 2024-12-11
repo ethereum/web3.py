@@ -1,5 +1,8 @@
+import logging
 from typing import (
     TYPE_CHECKING,
+    Any,
+    Dict,
     List,
     Sequence,
     Union,
@@ -10,15 +13,12 @@ from typing import (
 from eth_typing import (
     HexStr,
 )
-from typing_extensions import (
-    TypeVar,
-)
 
 from web3.exceptions import (
     Web3TypeError,
     Web3ValueError,
 )
-from web3.utils import (
+from web3.utils.subscriptions import (
     EthSubscription,
 )
 
@@ -27,33 +27,53 @@ if TYPE_CHECKING:
     from web3.providers.persistent import PersistentConnectionProvider  # noqa: F401
 
 
-T = TypeVar("T", bound="EthSubscription")
-
-
 class SubscriptionManager:
+    logger: logging.Logger = logging.getLogger(
+        "web3.providers.persistent.subscription_manager"
+    )
+    total_handler_calls: int = 0
+
     def __init__(self, w3: "AsyncWeb3") -> None:
         self._w3 = w3
         self._provider = cast("PersistentConnectionProvider", w3.provider)
-        self.subscriptions: List[EthSubscription] = []
+        self.subscriptions: List[EthSubscription[Any]] = []
+        self._subscriptions_by_id: Dict[HexStr, EthSubscription[Any]] = {}
+        self._subscriptions_by_label: Dict[str, EthSubscription[Any]] = {}
+
+    def get_by_id(self, sx_id: HexStr) -> EthSubscription[Any]:
+        return self._subscriptions_by_id.get(sx_id)
+
+    def get_by_label(self, label: str) -> EthSubscription[Any]:
+        return self._subscriptions_by_label.get(label)
 
     @overload
-    async def subscribe(self, subscriptions: T) -> HexStr:
+    async def subscribe(self, subscriptions: EthSubscription[Any]) -> HexStr:
         ...
 
     @overload
-    async def subscribe(self, subscriptions: Sequence[T]) -> List[HexStr]:
+    async def subscribe(
+        self, subscriptions: Sequence[EthSubscription[Any]]
+    ) -> List[HexStr]:
         ...
 
     async def subscribe(
-        self, subscriptions: Union[T, Sequence[T]]
+        self, subscriptions: Union[EthSubscription[Any], Sequence[EthSubscription[Any]]]
     ) -> Union[HexStr, List[HexStr]]:
         if isinstance(subscriptions, EthSubscription):
+            if subscriptions.label in self._subscriptions_by_label:
+                raise Web3ValueError(
+                    "Subscription label already exists. Subscriptions must have "
+                    f"unique labels.\n    label: {subscriptions.label}"
+                )
+
             subscriptions._manager = self
             sx_id = await self._w3.eth._subscribe(*subscriptions.subscription_params)
             subscriptions._id = sx_id
+            self._subscriptions_by_label[subscriptions.label] = subscriptions
+            self._subscriptions_by_id[subscriptions.id] = subscriptions
             self.subscriptions.append(subscriptions)
-            self._provider.logger.info(
-                f"Successfully subscribed to subscription:\n    "
+            self.logger.info(
+                "Successfully subscribed to subscription:\n    "
                 f"label: {subscriptions.label}\n    id: {sx_id}"
             )
             return sx_id
@@ -61,18 +81,13 @@ class SubscriptionManager:
             if len(subscriptions) == 0:
                 raise Web3ValueError("No subscriptions provided.")
 
-            sx_ids = []
+            sx_ids: List[HexStr] = []
             for sx in subscriptions:
                 await self.subscribe(sx)
-                sx_ids.append(sx._id)
-
             return sx_ids
-        else:
-            raise Web3TypeError(
-                "Expected a Subscription or a sequence of Subscriptions."
-            )
+        raise Web3TypeError("Expected a Subscription or a sequence of Subscriptions.")
 
-    async def unsubscribe(self, subscription: EthSubscription) -> bool:
+    async def unsubscribe(self, subscription: EthSubscription[Any]) -> bool:
         """
         Used to unsubscribe from a subscription that is being managed by the
         subscription manager.
@@ -82,12 +97,17 @@ class SubscriptionManager:
         """
         if subscription not in self.subscriptions:
             raise Web3ValueError(
-                f"Subscription not found or is not being managed by the subscription "
+                "Subscription not found or is not being managed by the subscription "
                 f"manager.\n    label: {subscription.label}\n    id: {subscription._id}"
             )
-
         if await self._w3.eth._unsubscribe(subscription.id):
             self.subscriptions.remove(subscription)
+            self._subscriptions_by_id.pop(subscription.id)
+            self._subscriptions_by_label.pop(subscription.label)
+            self.logger.info(
+                "Successfully unsubscribed from subscription:\n    "
+                f"label: {subscription.label}\n    id: {subscription.id}"
+            )
             return True
         return False
 
@@ -98,19 +118,18 @@ class SubscriptionManager:
 
         :return: None
         """
-        for sx in self.subscriptions:
-            await self.unsubscribe(sx)
-
-        self._provider.logger.info("Successfully unsubscribed from all subscriptions.")
+        unsubscribed = [await self.unsubscribe(sx) for sx in self.subscriptions.copy()]
+        if all(unsubscribed):
+            self.logger.info("Successfully unsubscribed from all subscriptions.")
+        else:
+            self.logger.warning(
+                "Failed to unsubscribe from all subscriptions. Some subscriptions may "
+                "still be active."
+            )
 
     async def _handle_subscriptions(self, run_forever: bool = False) -> None:
-        self._provider.logger.info("Subscription manager processing started.")
-        while True:
-            if not run_forever and len(self.subscriptions) == 0:
-                break
+        while run_forever or len(self.subscriptions) > 0:
             await self._w3.manager._get_next_message()
-
-        self._provider.logger.info("Subscription manager processing ended.")
 
     async def handle_subscriptions(self, run_forever: bool = False) -> None:
         """

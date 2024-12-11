@@ -117,6 +117,7 @@ from web3.types import (
     BlockIdentifier,
     EventData,
     FilterParams,
+    LogReceipt,
     TContractFn,
     TxParams,
     TxReceipt,
@@ -253,7 +254,7 @@ class BaseContractEvent:
             yield rich_log
 
     @combomethod
-    def process_log(self, log: HexStr) -> EventData:
+    def process_log(self, log: LogReceipt) -> EventData:
         return get_event_data(self.w3.codec, self.abi, log)
 
     @combomethod
