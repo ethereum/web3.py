@@ -276,7 +276,12 @@ class RPCResponse(TypedDict, total=False):
 class FormattedEthSubscriptionResponse(TypedDict):
     subscription: HexStr
     result: Union[
-        BlockData, TxData, LogReceipt, SyncProgress, GethSyncingSubscriptionResult
+        BlockData,  # newHeads
+        TxData,  # newPendingTransactions, full_transactions=True
+        HexBytes,  # newPendingTransactions, full_transactions=False
+        LogReceipt,  # logs
+        SyncProgress,  # syncing
+        GethSyncingSubscriptionResult,  # geth syncing
     ]
 
 

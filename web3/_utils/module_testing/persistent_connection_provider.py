@@ -8,6 +8,9 @@ from typing import (
     cast,
 )
 
+from eth_typing import (
+    ChecksumAddress,
+)
 from eth_utils import (
     is_hexstr,
 )
@@ -15,6 +18,9 @@ from hexbytes import (
     HexBytes,
 )
 
+from web3 import (
+    PersistentConnectionProvider,
+)
 from web3.datastructures import (
     AttributeDict,
 )
@@ -22,8 +28,19 @@ from web3.middleware import (
     ExtraDataToPOAMiddleware,
 )
 from web3.types import (
+    BlockData,
     FormattedEthSubscriptionResponse,
+    Nonce,
     RPCEndpoint,
+    TxData,
+    Wei,
+)
+from web3.utils import (
+    EthSubscription,
+)
+from web3.utils.subscriptions import (
+    NewHeadsSubscription,
+    PendingTxSubscription,
 )
 
 if TYPE_CHECKING:
@@ -39,166 +56,44 @@ SOME_BLOCK_KEYS = [
     "transactionsRoot",
     "stateRoot",
     "receiptsRoot",
-    "size",
     "gasLimit",
     "gasUsed",
     "timestamp",
-    "transactions",
     "baseFeePerGas",
+    "withdrawalsRoot",
 ]
 
 
 class PersistentConnectionProviderTest:
+    @staticmethod
+    async def seed_transactions_to_geth(
+        async_w3: "AsyncWeb3",
+        acct: ChecksumAddress,
+        nonce: int,
+        num_txs: int = 1,
+        delay: float = 0.1,
+    ) -> None:
+        async def send_tx() -> None:
+            nonlocal nonce
+            await async_w3.eth.send_transaction(
+                {
+                    "from": acct,
+                    "to": acct,
+                    "value": Wei(nonce),
+                    "gas": 21000,
+                    "nonce": Nonce(nonce),
+                }
+            )
+            nonce += 1
+
+        for _ in range(num_txs):
+            await asyncio.sleep(delay)
+            await send_tx()
+
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
         "subscription_params,ws_subscription_response,expected_formatted_result",
         (
-            (
-                ("newHeads",),
-                {
-                    "jsonrpc": "2.0",
-                    "method": "eth_subscription",
-                    "params": {
-                        "subscription": "THIS_WILL_BE_REPLACED_IN_THE_TEST",
-                        "result": {
-                            "number": "0x539",
-                            "hash": "0xb46b85928f2c2264c2bf7ad5c6d6985664f1527e744193ef990cc0d3da5afc5e",  # noqa: E501
-                            "parentHash": "0xb46b85928f2c2264c2bf7ad5c6d6985664f1527e744193ef990cc0d3da5afc5e",  # noqa: E501
-                            "sha3Uncles": "0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347",  # noqa: E501
-                            "logsBloom": "0x00",
-                            "transactionsRoot": "0x56260fe8298aff6d360e3a68fa855693f25dcb2708d8a7e509e8519b265d3988",  # noqa: E501
-                            "stateRoot": "0x56260fe8298aff6d360e3a68fa855693f25dcb2708d8a7e509e8519b265d3988",  # noqa: E501
-                            "receiptsRoot": "0x56260fe8298aff6d360e3a68fa855693f25dcb2708d8a7e509e8519b265d3988",  # noqa: E501
-                            "miner": "0x0000000000000000000000000000000000000000",
-                            "difficulty": "0x0",
-                            "extraData": "0x496c6c756d696e61746520446d6f63726174697a6520447374726962757465",  # noqa: E501
-                            "gasLimit": "0x1c9c380",
-                            "gasUsed": "0xd1ce44",
-                            "timestamp": "0x539",
-                            "baseFeePerGas": "0x26f93fef9",
-                            "withdrawalsRoot": "0x56260fe8298aff6d360e3a68fa855693f25dcb2708d8a7e509e8519b265d3988",  # noqa: E501
-                            "nonce": "0x0000000000000000",
-                            "mixHash": "0x73e9e036ec894047f29954571d4b6d9e8717de7304269c263cbf150caa4e0768",  # noqa: E501
-                        },
-                    },
-                },
-                AttributeDict(
-                    {
-                        "number": 1337,
-                        "hash": HexBytes(
-                            "0xb46b85928f2c2264c2bf7ad5c6d6985664f1527e744193ef990cc0d3da5afc5e"  # noqa: E501
-                        ),
-                        "parentHash": HexBytes(
-                            "0xb46b85928f2c2264c2bf7ad5c6d6985664f1527e744193ef990cc0d3da5afc5e"  # noqa: E501
-                        ),
-                        "sha3Uncles": HexBytes(
-                            "0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347"  # noqa: E501
-                        ),
-                        "logsBloom": HexBytes("0x00"),
-                        "transactionsRoot": HexBytes(
-                            "0x56260fe8298aff6d360e3a68fa855693f25dcb2708d8a7e509e8519b265d3988"  # noqa: E501
-                        ),
-                        "stateRoot": HexBytes(
-                            "0x56260fe8298aff6d360e3a68fa855693f25dcb2708d8a7e509e8519b265d3988"  # noqa: E501
-                        ),
-                        "receiptsRoot": HexBytes(
-                            "0x56260fe8298aff6d360e3a68fa855693f25dcb2708d8a7e509e8519b265d3988"  # noqa: E501
-                        ),
-                        "miner": "0x0000000000000000000000000000000000000000",
-                        "difficulty": 0,
-                        "extraData": HexBytes(
-                            "0x496c6c756d696e61746520446d6f63726174697a6520447374726962757465"  # noqa: E501
-                        ),
-                        "gasLimit": 30000000,
-                        "gasUsed": 13749828,
-                        "timestamp": 1337,
-                        "baseFeePerGas": 10461904633,
-                        "withdrawalsRoot": HexBytes(
-                            "0x56260fe8298aff6d360e3a68fa855693f25dcb2708d8a7e509e8519b265d3988"  # noqa: E501
-                        ),
-                        "nonce": HexBytes("0x0000000000000000"),
-                        "mixHash": HexBytes(
-                            "0x73e9e036ec894047f29954571d4b6d9e8717de7304269c263cbf150caa4e0768"  # noqa: E501
-                        ),
-                    }
-                ),
-            ),
-            (
-                ("newPendingTransactions", True),
-                {
-                    "jsonrpc": "2.0",
-                    "method": "eth_subscription",
-                    "params": {
-                        "subscription": "THIS_WILL_BE_REPLACED_IN_THE_TEST",
-                        "result": {
-                            "blockHash": None,
-                            "blockNumber": None,
-                            "from": "0x0000000000000000000000000000000000000000",
-                            "gas": "0xf2f4",
-                            "gasPrice": "0x29035f36f",
-                            "maxFeePerGas": "0x29035f36f",
-                            "maxPriorityFeePerGas": "0x3b9aca00",
-                            "hash": "0xb46b85928f2c2264c2bf7ad5c6d6985664f1527e744193ef990cc0d3da5afc5e",  # noqa: E501
-                            "input": "0x00",
-                            "nonce": "0x2013",
-                            "to": "0x0000000000000000000000000000000000000000",
-                            "transactionIndex": None,
-                            "value": "0x0",
-                            "type": "0x2",
-                            "accessList": [],
-                            "chainId": "0x1",
-                            "v": "0x1",
-                            "r": "0x3c144a7c00ed3118d55445cd5be2ae4620ca377f7c685e9c5f3687671d4dece1",  # noqa: E501
-                            "s": "0x284de67cbf75fec8a9edb368dee3a37cf6faba87f0af4413b2f869ebfa87d002",  # noqa: E501
-                            "yParity": "0x1",
-                        },
-                    },
-                },
-                AttributeDict(
-                    {
-                        "blockHash": None,
-                        "blockNumber": None,
-                        "from": "0x0000000000000000000000000000000000000000",
-                        "gas": 62196,
-                        "gasPrice": 11009389423,
-                        "maxFeePerGas": 11009389423,
-                        "maxPriorityFeePerGas": 1000000000,
-                        "hash": HexBytes(
-                            "0xb46b85928f2c2264c2bf7ad5c6d6985664f1527e744193ef990cc0d3da5afc5e"  # noqa: E501
-                        ),
-                        "input": HexBytes("0x00"),
-                        "nonce": 8211,
-                        "to": "0x0000000000000000000000000000000000000000",
-                        "transactionIndex": None,
-                        "value": 0,
-                        "type": 2,
-                        "accessList": [],
-                        "chainId": 1,
-                        "v": 1,
-                        "r": HexBytes(
-                            "0x3c144a7c00ed3118d55445cd5be2ae4620ca377f7c685e9c5f3687671d4dece1"  # noqa: E501
-                        ),
-                        "s": HexBytes(
-                            "0x284de67cbf75fec8a9edb368dee3a37cf6faba87f0af4413b2f869ebfa87d002"  # noqa: E501
-                        ),
-                        "yParity": 1,
-                    }
-                ),
-            ),
-            (
-                ("newPendingTransactions", False),
-                {
-                    "jsonrpc": "2.0",
-                    "method": "eth_subscription",
-                    "params": {
-                        "subscription": "THIS_WILL_BE_REPLACED_IN_THE_TEST",
-                        "result": "0xb46b85928f2c2264c2bf7ad5c6d6985664f1527e744193ef990cc0d3da5afc5e",  # noqa: E501
-                    },
-                },
-                HexBytes(
-                    "0xb46b85928f2c2264c2bf7ad5c6d6985664f1527e744193ef990cc0d3da5afc5e"
-                ),
-            ),
             (
                 ("logs", {"address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"}),
                 {
@@ -285,9 +180,6 @@ class PersistentConnectionProviderTest:
             ),
         ),
         ids=[
-            "newHeads",
-            "newPendingTransactions-FullTxs",
-            "newPendingTransactions-TxHashes",
             "logs",
             "syncing-False",
             "syncing-True",
@@ -320,6 +212,95 @@ class PersistentConnectionProviderTest:
             # only testing one message, so break here
             await async_w3.eth.unsubscribe(sub_id)
             break
+
+    @pytest.mark.asyncio
+    async def test_async_eth_subscribe_new_heads(self, async_w3: "AsyncWeb3") -> None:
+        sub_id = await async_w3.eth.subscribe("newHeads")
+        assert is_hexstr(sub_id)
+
+        async for msg in async_w3.socket.process_subscriptions():
+            response = cast(FormattedEthSubscriptionResponse, msg)
+            assert response["subscription"] == sub_id
+            result = cast(BlockData, response["result"])
+            assert all(k in result.keys() for k in SOME_BLOCK_KEYS)
+            break
+
+        assert await async_w3.eth.unsubscribe(sub_id)
+
+    @pytest.mark.asyncio
+    async def test_async_eth_subscribe_new_pending_transactions_true(
+        self,
+        async_w3: "AsyncWeb3",
+    ) -> None:
+        sub_id = await async_w3.eth.subscribe("newPendingTransactions", True)
+        assert is_hexstr(sub_id)
+
+        accts = await async_w3.eth.accounts
+        acct = accts[0]
+        original_nonce = await async_w3.eth.get_transaction_count(acct)
+
+        num_txs = 2
+        tx_seeder_task = asyncio.create_task(
+            self.seed_transactions_to_geth(
+                async_w3, acct, original_nonce, num_txs=num_txs
+            )
+        )
+
+        nonce = int(original_nonce)
+        tx_hash = None
+        async for msg in async_w3.socket.process_subscriptions():
+            response = cast(FormattedEthSubscriptionResponse, msg)
+            assert response["subscription"] == sub_id
+            result = cast(TxData, response["result"])
+            assert result["gas"] == 21000
+            assert result["from"] == acct
+            assert result["to"] == acct
+            assert int(result["value"]) == int(nonce)
+            tx_hash = result["hash"]
+            assert tx_hash is not None
+
+            nonce += 1
+            if nonce == int(original_nonce) + num_txs:
+                break
+
+        assert await async_w3.eth.unsubscribe(sub_id)
+        await async_w3.eth.wait_for_transaction_receipt(tx_hash)
+        tx_seeder_task.cancel()
+
+    @pytest.mark.asyncio
+    async def test_async_eth_subscribe_new_pending_transactions_false(
+        self,
+        async_w3: "AsyncWeb3",
+    ) -> None:
+        sub_id = await async_w3.eth.subscribe("newPendingTransactions")
+        assert is_hexstr(sub_id)
+
+        accts = await async_w3.eth.accounts
+        acct = accts[0]
+        original_nonce = await async_w3.eth.get_transaction_count(acct)
+
+        num_txs = 2
+        tx_seeder_task = asyncio.create_task(
+            self.seed_transactions_to_geth(
+                async_w3, acct, original_nonce, num_txs=num_txs
+            )
+        )
+
+        tx_hash = None
+        i = 0
+        async for msg in async_w3.socket.process_subscriptions():
+            response = cast(FormattedEthSubscriptionResponse, msg)
+            assert response["subscription"] == sub_id
+            assert isinstance(response["result"], HexBytes)
+            tx_hash = response["result"]
+
+            i += 1
+            if i == num_txs:
+                break
+
+        await async_w3.eth.unsubscribe(sub_id)
+        await async_w3.eth.wait_for_transaction_receipt(tx_hash)
+        tx_seeder_task.cancel()
 
     @pytest.mark.asyncio
     async def test_async_extradata_poa_middleware_on_eth_subscription(
@@ -361,6 +342,7 @@ class PersistentConnectionProviderTest:
             break
 
         # clean up
+        assert await async_w3.eth.unsubscribe(sub_id)
         async_w3.middleware_onion.remove("poa_middleware")
 
     @pytest.mark.asyncio
@@ -425,3 +407,66 @@ class PersistentConnectionProviderTest:
         assert "result" in response, "Expected 'result' key in response."
         assert all(k in response["result"].keys() for k in SOME_BLOCK_KEYS)
         assert not isinstance(response["result"]["number"], int)  # assert not processed
+
+    @staticmethod
+    async def new_heads_handler(
+        async_w3: "AsyncWeb3", sx: EthSubscription, result: BlockData
+    ) -> None:
+        assert async_w3 is not None
+        provider = cast(PersistentConnectionProvider, async_w3.provider)
+        assert isinstance(provider.get_endpoint_uri_or_ipc_path(), str)
+
+        assert isinstance(sx, EthSubscription)
+
+        assert result is not None
+        assert all(k in result.keys() for k in SOME_BLOCK_KEYS)
+        previous_block = await async_w3.eth.get_block(result["number"] - 1)
+        if result["transactionsRoot"] != previous_block["transactionsRoot"]:
+            # unsubscribe after a new transaction changes the transactionsRoot
+            # (one of our pending transactions was included in a block)
+            await sx.unsubscribe()
+
+    @staticmethod
+    async def pending_tx_handler(
+        async_w3: "AsyncWeb3", sx: EthSubscription, result: TxData
+    ) -> None:
+        assert async_w3 is not None
+        provider = cast(PersistentConnectionProvider, async_w3.provider)
+        assert isinstance(provider.get_endpoint_uri_or_ipc_path(), str)
+
+        assert isinstance(sx, EthSubscription)
+
+        assert result is not None
+        assert result["gas"] == 21000
+        assert result["from"] == result["to"]
+        assert int(result["value"]) == int(result["nonce"])
+
+        await async_w3.eth.wait_for_transaction_receipt(result["hash"])
+        if len(async_w3.subscription_manager.subscriptions) == 1:
+            # unsubscribe after newHeads unsubscribes
+            await sx.unsubscribe()
+
+    @pytest.mark.asyncio
+    async def test_subscription_manager_subscribes_to_many_subscriptions(
+        self, async_w3: "AsyncWeb3"
+    ) -> None:
+        sx_manager = async_w3.subscription_manager
+        await sx_manager.subscribe(
+            [
+                NewHeadsSubscription(handler=self.new_heads_handler),
+                PendingTxSubscription(
+                    full_transactions=True, handler=self.pending_tx_handler
+                ),
+            ]
+        )
+
+        accts = await async_w3.eth.accounts
+        acct = accts[0]
+        original_nonce = await async_w3.eth.get_transaction_count(acct)
+        tx_seeder_task = asyncio.create_task(
+            self.seed_transactions_to_geth(
+                async_w3, acct, original_nonce, num_txs=2, delay=0.5
+            )
+        )
+        await sx_manager.handle_subscriptions()
+        await tx_seeder_task
