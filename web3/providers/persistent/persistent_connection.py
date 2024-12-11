@@ -2,9 +2,11 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Dict,
+    Union,
 )
 
 from web3.types import (
+    FormattedEthSubscriptionResponse,
     RPCEndpoint,
     RPCResponse,
 )
@@ -37,7 +39,9 @@ class PersistentConnection:
         """
         return self._manager._request_processor.active_subscriptions
 
-    async def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
+    async def make_request(
+        self, method: RPCEndpoint, params: Any
+    ) -> Union[RPCResponse, FormattedEthSubscriptionResponse]:
         """
         Make a request to the persistent connection and return the response. This method
         does not process the response as it would when invoking a method via the
@@ -48,7 +52,7 @@ class PersistentConnection:
         :param params: The RPC method parameters, e.g. `["0x1337", False]`.
 
         :return: The processed response from the persistent connection.
-        :rtype: RPCResponse
+        :rtype: Union[RPCResponse, FormattedEthSubscriptionResponse]
         """
         return await self._manager.socket_request(method, params)
 
@@ -63,14 +67,14 @@ class PersistentConnection:
         """
         await self._manager.send(method, params)
 
-    async def recv(self) -> RPCResponse:
+    async def recv(self) -> Union[RPCResponse, FormattedEthSubscriptionResponse]:
         """
         Receive the next unprocessed response for a request from the persistent
         connection.
 
         :return: The next unprocessed response for a request from the persistent
                  connection.
-        :rtype: RPCResponse
+        :rtype: Union[RPCResponse, FormattedEthSubscriptionResponse]
         """
         return await self._manager.recv()
 
