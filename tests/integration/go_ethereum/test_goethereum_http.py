@@ -159,7 +159,45 @@ class TestGoEthereumAsyncNetModuleTest(GoEthereumAsyncNetModuleTest):
 
 
 class TestGoEthereumAsyncEthModuleTest(GoEthereumAsyncEthModuleTest):
-    pass
+    @pytest.mark.asyncio
+    async def test_async_http_provider_disconnects_gracefully_reuses(
+        self, async_w3, endpoint_uri
+    ) -> None:
+        w3_1 = async_w3
+
+        w3_2 = AsyncWeb3(AsyncHTTPProvider(endpoint_uri))
+        assert w3_1 != w3_2
+
+        await w3_1.eth.get_block("latest")
+        await w3_2.eth.get_block("latest")
+
+        w3_1_session_cache = w3_1.provider._request_session_manager.session_cache
+        w3_2_session_cache = w3_2.provider._request_session_manager.session_cache
+
+        for _, session in w3_1_session_cache.items():
+            assert not session.closed
+        for _, session in w3_2_session_cache.items():
+            assert not session.closed
+        assert w3_1_session_cache != w3_2_session_cache
+
+        await w3_1.provider.disconnect()
+        await w3_2.provider.disconnect()
+
+        assert len(w3_1_session_cache) == 0
+        assert len(w3_2_session_cache) == 0
+
+    @pytest.mark.asyncio
+    async def test_async_http_provider_reuses_cached_session(self, async_w3) -> None:
+        await async_w3.eth.get_block("latest")
+        session_cache = async_w3.provider._request_session_manager.session_cache
+        assert len(session_cache) == 1
+        session = list(session_cache._data.values())[0]
+
+        await async_w3.eth.get_block("latest")
+        assert len(session_cache) == 1
+        assert session == list(session_cache._data.values())[0]
+        await async_w3.provider.disconnect()
+        assert len(session_cache) == 0
 
 
 class TestGoEthereumAsyncTxPoolModuleTest(GoEthereumAsyncTxPoolModuleTest):

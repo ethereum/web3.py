@@ -177,3 +177,10 @@ class AsyncHTTPProvider(AsyncJSONBaseProvider):
         self.logger.debug("Received batch response HTTP.")
         responses_list = cast(List[RPCResponse], self.decode_rpc_response(raw_response))
         return sort_batch_response_by_response_ids(responses_list)
+
+    async def disconnect(self) -> None:
+        cache = self._request_session_manager.session_cache
+        await self._request_session_manager.close_all_sessions(cache)
+        cache.clear()
+
+        self.logger.info(f"Successfully disconnected from: {self.endpoint_uri}")
