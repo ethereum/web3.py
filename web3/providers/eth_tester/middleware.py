@@ -312,7 +312,6 @@ result_formatters: Optional[Dict[RPCEndpoint, Callable[..., Any]]] = {
     ),
     RPCEndpoint("eth_newFilter"): integer_to_hex,
     RPCEndpoint("eth_newBlockFilter"): integer_to_hex,
-    RPCEndpoint("eth_newPendingTransactionFilter"): integer_to_hex,
     RPCEndpoint("eth_getLogs"): apply_formatter_if(
         is_array_of_dicts,
         apply_list_to_array_formatter(log_result_remapper),
