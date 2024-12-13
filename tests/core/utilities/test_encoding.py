@@ -38,6 +38,7 @@ from web3.exceptions import (
     Web3ValueError,
 )
 from web3.providers import (
+    AsyncJSONBaseProvider,
     JSONBaseProvider,
 )
 
@@ -144,8 +145,11 @@ def test_text_if_str_on_text(val):
         ),
         (
             {
-                "date": [datetime.datetime.utcnow(), datetime.datetime.now()],
-                "other_date": datetime.datetime.utcnow().date(),
+                "date": [
+                    datetime.datetime.now(datetime.timezone.utc),
+                    datetime.datetime.now(),
+                ],
+                "other_date": datetime.datetime.now(datetime.timezone.utc).date(),
             },
             TypeError,
             "Could not encode to JSON: .*'other_date'.*is not JSON serializable",
@@ -227,11 +231,11 @@ def test_text_if_str_on_text(val):
 def test_friendly_json_encode_with_web3_json_encoder(py_obj, exc_type, expected):
     if exc_type is None:
         assert literal_eval(
-            FriendlyJson().json_encode(py_obj, Web3JsonEncoder)
+            FriendlyJson.json_encode(py_obj, Web3JsonEncoder)
         ) == literal_eval(expected)
     else:
         with pytest.raises(exc_type, match=expected):
-            FriendlyJson().json_encode(py_obj)
+            FriendlyJson.json_encode(py_obj)
 
 
 @pytest.mark.parametrize(
@@ -244,7 +248,7 @@ def test_friendly_json_encode_with_web3_json_encoder(py_obj, exc_type, expected)
     ),
 )
 def test_friendly_json_decode(json_str, expected):
-    assert isinstance(FriendlyJson().json_decode(json_str), expected)
+    assert isinstance(FriendlyJson.json_decode(json_str), expected)
 
 
 @pytest.mark.parametrize(
@@ -287,6 +291,55 @@ def test_encode_rpc_request(rpc_kwargs, exc_type, expected):
             rpc_kwargs["method"], rpc_kwargs["params"]
         )
         assert literal_eval(res.decode("utf8")) == literal_eval(expected)
+    else:
+        with pytest.raises(exc_type, match=expected):
+            JSONBaseProvider().encode_rpc_request(
+                rpc_kwargs["method"],
+                rpc_kwargs["params"],
+            )
+
+
+@pytest.mark.parametrize(
+    "rpc_response, expected",
+    (
+        (
+            '{"jsonrpc": "2.0", "method": "test_method", "params": [], "id": 1}',
+            {"jsonrpc": "2.0", "method": "test_method", "params": [], "id": 1},
+        ),
+    ),
+)
+def test_decode_asyncbase_rpc_response(rpc_response, expected):
+    assert (
+        AsyncJSONBaseProvider().decode_rpc_response(rpc_response.encode("utf8"))
+        == expected
+    )
+
+
+@pytest.mark.parametrize(
+    "rpc_kwargs, exc_type, expected",
+    (
+        (
+            {"id": 1, "method": "test", "params": [], "jsonrpc": "2.0"},
+            None,
+            '{"id": 0, "method": "test", "params": [], "jsonrpc": "2.0",}',
+        ),
+        (
+            {
+                "id": 0,
+                "method": "test",
+                "params": [datetime.datetime(2018, 5, 10, 1, 5, 10)],
+            },
+            TypeError,
+            r"Could not encode to JSON: .*'params'.* is not JSON serializable",
+        ),
+    ),
+)
+def test_encode_asyncbase_rpc_request(rpc_kwargs, exc_type, expected):
+    if exc_type is None:
+        res = AsyncJSONBaseProvider().encode_rpc_request(
+            rpc_kwargs["method"], rpc_kwargs["params"]
+        )
+        assert literal_eval(res) == literal_eval(expected)
     else:
         with pytest.raises(exc_type, match=expected):
             JSONBaseProvider().encode_rpc_request(
