@@ -1,0 +1,1 @@
+Add a ``disconnect`` method to the AsyncHTTPProvider that closes all sessions and clears the cache
