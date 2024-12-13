@@ -270,11 +270,13 @@ async def test_listen_event_awaits_msg_processing_when_subscription_queue_is_ful
     sub_request_information = RequestInformation(
         method=RPCEndpoint("eth_subscribe"),
         params=["mock"],
-        response_formatters=(),
+        response_formatters=[[], [], []],
         subscription_id=sub_id,
     )
     async_w3.provider._request_processor._request_information_cache.cache(
-        "", sub_request_information
+        # cache key is the result of `generate_cache_key` with the sub_id as the arg
+        "0138b5d63d66121d8a6e680d23720fa7",
+        sub_request_information,
     )
 
     mocked_sub = {
@@ -305,8 +307,8 @@ async def test_listen_event_awaits_msg_processing_when_subscription_queue_is_ful
     async_w3.provider._listen_event.set.assert_not_called()
 
     async for message in async_w3.socket.process_subscriptions():
-        # assert the very next message is the mocked subscription
-        assert message == mocked_sub
+        # assert the very next message is the formatted mocked subscription
+        assert message == mocked_sub["params"]
         break
 
     # assert we set the _listen_event after we consume the message
