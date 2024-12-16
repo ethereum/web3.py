@@ -106,6 +106,7 @@ def assert_contains_log(
     emitter_contract_address: ChecksumAddress,
     txn_hash_with_log: HexStr,
 ) -> None:
+    assert len(result) > 0
     log_entry = result[0]
     assert log_entry["blockNumber"] == block_with_txn_with_log["number"]
     assert log_entry["blockHash"] == block_with_txn_with_log["hash"]

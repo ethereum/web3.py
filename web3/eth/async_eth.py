@@ -719,8 +719,8 @@ class AsyncEth(BaseEth):
                 bool,  # newPendingTransactions, full_transactions
             ]
         ] = None,
-        handler: Optional[EthSubscriptionHandler[EthSubscription[Any], Any]] = None,
-        event: Optional["AsyncContractEvent"] = None,
+        handler: Optional[EthSubscriptionHandler] = None,
+        handler_context: Dict[str, Any] = None,
         label: Optional[str] = None,
     ) -> HexStr:
         if not isinstance(self.w3.provider, PersistentConnectionProvider):
@@ -732,7 +732,7 @@ class AsyncEth(BaseEth):
         sx = EthSubscription._create_type_aware_subscription(
             subscription_params=(subscription_type, subscription_arg),
             handler=handler,
-            event=event,
+            handler_context=handler_context or {},
             label=label,
         )
         return await self.w3.subscription_manager.subscribe(sx)

@@ -66,7 +66,7 @@ class SubscriptionManager:
                     f"unique labels.\n    label: {subscriptions.label}"
                 )
 
-            subscriptions._manager = self
+            subscriptions.manager = self
             sx_id = await self._w3.eth._subscribe(*subscriptions.subscription_params)
             subscriptions._id = sx_id
             self._subscriptions_by_label[subscriptions.label] = subscriptions
@@ -93,7 +93,9 @@ class SubscriptionManager:
         subscription manager.
 
         :param subscription: The subscription to unsubscribe from.
-        :return: True if unsubscribing was successful, False otherwise.
+        :type subscription: EthSubscription
+        :return: `True` if unsubscribing was successful, `False` otherwise.
+        :rtype: bool
         """
         if subscription not in self.subscriptions:
             raise Web3ValueError(
@@ -122,10 +124,15 @@ class SubscriptionManager:
         if all(unsubscribed):
             self.logger.info("Successfully unsubscribed from all subscriptions.")
         else:
-            self.logger.warning(
-                "Failed to unsubscribe from all subscriptions. Some subscriptions may "
-                "still be active."
-            )
+            if len(self.subscriptions) > 0:
+                self.logger.warning(
+                    "Failed to unsubscribe from all subscriptions. Some subscriptions "
+                    "are still active."
+                )
+                self.logger.debug(
+                    "Failed to unsubscribe from some subscriptions."
+                    f"\n    subscriptions={self.subscriptions}"
+                )
 
     async def _handle_subscriptions(self, run_forever: bool = False) -> None:
         while run_forever or len(self.subscriptions) > 0:
@@ -138,6 +145,7 @@ class SubscriptionManager:
         indefinitely.
 
         :param run_forever: If `True`, the method will run indefinitely.
+        :type run_forever: bool
         :return: None
         """
         await self._handle_subscriptions(run_forever=run_forever)
