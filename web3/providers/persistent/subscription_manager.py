@@ -66,7 +66,7 @@ class SubscriptionManager:
                     f"unique labels.\n    label: {subscriptions.label}"
                 )
 
-            subscriptions._manager = self
+            subscriptions.manager = self
             sx_id = await self._w3.eth._subscribe(*subscriptions.subscription_params)
             subscriptions._id = sx_id
             self._subscriptions_by_label[subscriptions.label] = subscriptions

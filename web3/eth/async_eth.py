@@ -719,9 +719,10 @@ class AsyncEth(BaseEth):
                 bool,  # newPendingTransactions, full_transactions
             ]
         ] = None,
-        handler: Optional[EthSubscriptionHandler[EthSubscription[Any], Any]] = None,
-        event: Optional["AsyncContractEvent"] = None,
+        handler: Optional[EthSubscriptionHandler] = None,
+        custom_handler_args: Dict[str, Any] = None,
         label: Optional[str] = None,
+        event: Optional["AsyncContractEvent"] = None,
     ) -> HexStr:
         if not isinstance(self.w3.provider, PersistentConnectionProvider):
             raise MethodNotSupported(
@@ -732,6 +733,7 @@ class AsyncEth(BaseEth):
         sx = EthSubscription._create_type_aware_subscription(
             subscription_params=(subscription_type, subscription_arg),
             handler=handler,
+            custom_handler_args=custom_handler_args or {},
             event=event,
             label=label,
         )

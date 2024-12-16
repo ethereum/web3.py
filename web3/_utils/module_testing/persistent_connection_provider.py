@@ -5,7 +5,6 @@ from typing import (
     Any,
     Dict,
     Tuple,
-    Union,
     cast,
 )
 
@@ -22,6 +21,9 @@ from hexbytes import (
 
 from web3 import (
     PersistentConnectionProvider,
+)
+from web3.beacon import (
+    AsyncBeacon,
 )
 from web3.datastructures import (
     AttributeDict,
@@ -43,11 +45,11 @@ from web3.utils import (
 )
 from web3.utils.subscriptions import (
     LogsSubscription,
-    LogsSubscriptionType,
+    LogsSubscriptionContext,
     NewHeadsSubscription,
-    NewHeadsSubscriptionType,
+    NewHeadsSubscriptionContext,
     PendingTxSubscription,
-    PendingTxSubscriptionType,
+    PendingTxSubscriptionContext,
 )
 
 if TYPE_CHECKING:
@@ -83,47 +85,56 @@ SOME_BLOCK_KEYS = [
 
 
 async def new_heads_handler(
-    async_w3: "AsyncWeb3", sx: NewHeadsSubscriptionType, block: BlockData
+    context: NewHeadsSubscriptionContext,
 ) -> None:
-    assert async_w3 is not None
-    provider = cast(PersistentConnectionProvider, async_w3.provider)
+    w3 = context.async_w3
+    sx = context.subscription
+    assert w3 is not None
+    provider = cast(PersistentConnectionProvider, w3.provider)
     assert isinstance(provider.get_endpoint_uri_or_ipc_path(), str)
 
     assert isinstance(sx, EthSubscription)
 
+    block = context.result
     assert block is not None
     assert all(k in block.keys() for k in SOME_BLOCK_KEYS)
 
-    async_w3.subscription_manager._passed_new_heads = True
+    w3.subscription_manager._passed_new_heads = True
     assert await sx.unsubscribe()
 
 
 async def pending_tx_handler(
-    async_w3: "AsyncWeb3",
-    sx: PendingTxSubscriptionType,
-    tx: Union[TxData, HexBytes],
+    context: PendingTxSubscriptionContext,
 ) -> None:
-    assert async_w3 is not None
-    provider = cast(PersistentConnectionProvider, async_w3.provider)
+    w3 = context.async_w3
+    sx = context.subscription
+    tx = context.result
+
+    assert w3 is not None
+    provider = cast(PersistentConnectionProvider, w3.provider)
     assert isinstance(provider.get_endpoint_uri_or_ipc_path(), str)
 
     assert isinstance(sx, PendingTxSubscription)
 
     assert tx is not None
     tx = cast(TxData, tx)
-    accts = await async_w3.eth.accounts
+    accts = await w3.eth.accounts
     assert tx["from"] == accts[0]
-    await async_w3.eth.wait_for_transaction_receipt(tx["hash"])
+    await w3.eth.wait_for_transaction_receipt(tx["hash"])
 
-    async_w3.subscription_manager._passed_pending_tx = True
+    w3.subscription_manager._passed_pending_tx = True
     assert await sx.unsubscribe()
 
 
 async def logs_handler(
-    async_w3: "AsyncWeb3", sx: LogsSubscriptionType, log_receipt: LogReceipt
+    context: LogsSubscriptionContext,
 ) -> None:
-    assert async_w3 is not None
-    provider = cast(PersistentConnectionProvider, async_w3.provider)
+    w3 = context.async_w3
+    sx = context.subscription
+    log_receipt = context.result
+
+    assert w3 is not None
+    provider = cast(PersistentConnectionProvider, w3.provider)
     assert isinstance(provider.get_endpoint_uri_or_ipc_path(), str)
 
     assert isinstance(sx, LogsSubscription)
@@ -134,7 +145,7 @@ async def logs_handler(
     assert event_data.args.nonIndexedUint256 == NON_INDEXED_UINT256
     assert event_data.args.nonIndexedString == NON_INDEXED_STRING
 
-    async_w3.subscription_manager._passed_logs = True
+    w3.subscription_manager._passed_logs = True
     assert await sx.unsubscribe()
 
 
@@ -686,3 +697,54 @@ class PersistentConnectionProviderTest:
         del sx_manager._passed_new_heads
         del sx_manager._passed_pending_tx
         del sx_manager._passed_logs
+
+    @pytest.mark.asyncio
+    async def test_subscription_custom_handler_args(
+        self, async_w3: "AsyncWeb3"
+    ) -> None:
+        base_url = "http://localhost:1337"
+        async_beacon = AsyncBeacon(base_url)
+        int1 = 1337
+        str1 = "foo"
+        int2 = 1999
+        str2 = "bar"
+
+        async def test_sx_handler(
+            context: NewHeadsSubscriptionContext,
+        ) -> None:
+            beacon = context.beacon
+            assert isinstance(beacon, AsyncBeacon)
+            assert beacon.base_url == base_url
+            assert context.int1 == 1337
+            assert context.str1 == "foo"
+            assert context.int2 == 1999
+            assert context.str2 == "bar"
+
+            context.async_w3.subscription_manager._passed_new_heads = True
+            await context.subscription.unsubscribe()
+
+        await async_w3.eth.subscribe(
+            "newHeads",
+            label="foo",
+            handler=test_sx_handler,
+            custom_handler_args={
+                "beacon": async_beacon,
+                "int1": int1,
+                "str1": str1,
+                "int2": int2,
+                "str2": str2,
+            },
+        )
+
+        sx_manager = async_w3.subscription_manager
+        sx_manager._passed_new_heads = False
+
+        await sx_manager.handle_subscriptions()
+
+        assert len(sx_manager.subscriptions) == 0
+        assert sx_manager.total_handler_calls == 1
+        assert sx_manager._passed_new_heads
+
+        # cleanup
+        sx_manager.total_handler_calls = 0
+        del sx_manager._passed_new_heads
