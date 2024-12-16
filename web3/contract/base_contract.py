@@ -122,7 +122,7 @@ from web3.types import (
     TxReceipt,
 )
 from web3.utils.abi import (
-    _get_abi_signature_with_name,
+    _get_any_abi_signature_with_name,
     check_if_arguments_can_be_encoded,
     get_abi_element,
     get_abi_element_info,
@@ -154,6 +154,7 @@ class BaseContractEvent:
 
     address: ChecksumAddress = None
     event_name: str = None
+    name: str = None
     abi_element_identifier: ABIElementIdentifier = None
     signature: str = None
     w3: Union["Web3", "AsyncWeb3"] = None
@@ -167,6 +168,7 @@ class BaseContractEvent:
     def __init__(self, *argument_names: str, abi: Optional[ABIEvent] = None) -> None:
         self.abi_element_identifier = type(self).__name__
         self.name = get_name_from_abi_element_identifier(self.abi_element_identifier)
+        self.event_name = self.name
 
         if abi:
             self.abi = abi
@@ -525,6 +527,7 @@ class BaseContractFunction:
             self.abi_element_identifier = type(self).__name__
 
         self.name = get_name_from_abi_element_identifier(self.abi_element_identifier)
+        self.fn_name = self.name
 
         if abi:
             self.abi = abi
@@ -737,7 +740,7 @@ class BaseContractFunctions:
         _functions: Sequence[ABIFunction] = None
 
         if self.abi:
-            # Fnction with least number of inputs is first
+            # Function with least number of inputs is first
             # This ensures ambiguity will always be deterministic
             # Prefer function without arguments if present, otherwise
             # just use the first available
@@ -1298,7 +1301,7 @@ class BaseContractCaller:
             function_identifier = function_name
 
             if "(" not in function_name:
-                function_identifier = _get_abi_signature_with_name(
+                function_identifier = _get_any_abi_signature_with_name(
                     function_name, self._functions
                 )
             return super().__getattribute__(function_identifier)

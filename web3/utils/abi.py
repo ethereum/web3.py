@@ -165,7 +165,7 @@ def _get_fallback_function_abi(contract_abi: ABI) -> ABIFallback:
         raise ABIFallbackNotFound("No fallback function was found in the contract ABI.")
 
 
-def _get_abi_signature_with_name(
+def _get_any_abi_signature_with_name(
     element_name: str, elements: Sequence[ABIElement]
 ) -> str:
     """

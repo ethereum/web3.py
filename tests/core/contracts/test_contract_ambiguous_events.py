@@ -356,6 +356,7 @@ async def test_async_contract_event_methods(
         "name": "LogSingleArg",
         "type": "event",
     }
+    assert log_arg_event.event_name == "LogSingleArg"
     assert log_arg_event.name == "LogSingleArg"
     assert log_arg_event.abi_element_identifier == "LogSingleArg(uint256)"
     assert await log_arg_event.get_logs() == []

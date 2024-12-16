@@ -105,7 +105,7 @@ from web3.types import (
 )
 from web3.utils.abi import (
     _filter_by_argument_count,
-    _get_abi_signature_with_name,
+    _get_any_abi_signature_with_name,
     _mismatched_abi_error_diagnosis,
     get_abi_element,
 )
@@ -286,7 +286,7 @@ class ContractEvents(BaseContractEvents):
             )
 
         if "(" not in event_name:
-            event_name = _get_abi_signature_with_name(event_name, self._events)
+            event_name = _get_any_abi_signature_with_name(event_name, self._events)
         else:
             event_name = f"_{event_name}"
 
@@ -592,7 +592,9 @@ class ContractFunctions(BaseContractFunctions):
             )
 
         if "(" not in function_name:
-            function_name = _get_abi_signature_with_name(function_name, self._functions)
+            function_name = _get_any_abi_signature_with_name(
+                function_name, self._functions
+            )
         else:
             function_name = f"_{function_name}"
 

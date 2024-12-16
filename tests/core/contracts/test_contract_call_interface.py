@@ -1266,6 +1266,7 @@ def test_functions_iterator(w3, math_contract):
     for fn, expected_fn in zip(iter(functions_iter), all_functions):
         assert isinstance(fn, ContractFunction)
         assert fn.name == expected_fn.name
+        assert fn.fn_name == expected_fn.fn_name  # alias for name
 
 
 # -- async -- #
@@ -2488,3 +2489,4 @@ def test_async_functions_iterator(async_w3, async_math_contract):
     for fn, expected_fn in zip(iter(functions_iter), all_functions):
         assert isinstance(fn, AsyncContractFunction)
         assert fn.name == expected_fn.name
+        assert fn.fn_name == expected_fn.fn_name  # alias for name
