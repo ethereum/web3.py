@@ -73,6 +73,9 @@ from web3.types import (
     RPCEndpoint,
     RPCResponse,
 )
+from web3.utils.subscriptions import (
+    EthSubscriptionContext,
+)
 
 if TYPE_CHECKING:
     from web3.main import (  # noqa: F401
@@ -579,7 +582,14 @@ class RequestManager:
                 )
                 # call the handler if there is one, else yield response to any listeners
                 if sx and sx._handler:
-                    await sx._handler(async_w3, sx, formatted_sx_response.get("result"))
+                    await sx._handler(
+                        EthSubscriptionContext(
+                            async_w3,
+                            sx,
+                            formatted_sx_response["result"],
+                            **sx._handler_context,
+                        )
+                    )
                     yield None
                 yield formatted_sx_response
             except TaskNotRunning:

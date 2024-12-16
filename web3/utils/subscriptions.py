@@ -3,6 +3,7 @@ from typing import (
     Any,
     Callable,
     Coroutine,
+    Dict,
     Generic,
     List,
     Optional,
@@ -21,6 +22,7 @@ from hexbytes import (
 )
 
 from web3.exceptions import (
+    Web3AttributeError,
     Web3ValueError,
 )
 from web3.types import (
@@ -35,9 +37,6 @@ if TYPE_CHECKING:
     from web3 import (
         AsyncWeb3,
     )
-    from web3.contract.async_contract import (
-        AsyncContractEvent,
-    )
     from web3.providers.persistent.subscription_manager import (
         SubscriptionManager,
     )
@@ -47,51 +46,71 @@ if TYPE_CHECKING:
 TSubscriptionResult = TypeVar("TSubscriptionResult", bound="EthSubscriptionResult")
 TSubscription = TypeVar("TSubscription", bound="EthSubscription[Any]")
 
+
+class EthSubscriptionContext(Generic[TSubscription, TSubscriptionResult]):
+    def __init__(
+        self,
+        async_w3: "AsyncWeb3",
+        subscription: TSubscription,
+        result: TSubscriptionResult,
+        **kwargs: Any,
+    ) -> None:
+        self.async_w3 = async_w3
+        self.subscription = subscription
+        self.result = result
+        self.__dict__.update(kwargs)
+
+    def __getattr__(self, item: str) -> Any:
+        if item in self.__dict__:
+            return self.__dict__[item]
+        raise Web3AttributeError(
+            f"'{self.__class__.__name__}' object has no attribute '{item}'"
+        )
+
+
 EthSubscriptionHandler = Callable[
-    ["AsyncWeb3", TSubscription, TSubscriptionResult], Coroutine[Any, Any, None]
+    [EthSubscriptionContext[Any, Any]], Coroutine[Any, Any, None]
 ]
 
 
 def handler_wrapper(
-    handler: Optional[EthSubscriptionHandler[TSubscription, TSubscriptionResult]]
-) -> Optional[EthSubscriptionHandler[TSubscription, TSubscriptionResult]]:
+    handler: Optional[EthSubscriptionHandler],
+) -> Optional[EthSubscriptionHandler]:
+    """Wrap the handler to add bookkeeping and context creation."""
     if handler is None:
         return None
 
     async def wrapped_handler(
-        async_w3: "AsyncWeb3",
-        sx: TSubscription,
-        result: TSubscriptionResult,
+        context: EthSubscriptionContext[TSubscription, TSubscriptionResult],
     ) -> None:
+        sx = context.subscription
         sx.handler_call_count += 1
-        sx._manager.total_handler_calls += 1
-        sx._manager.logger.debug(
-            "Subscription handler called.\n"
+        sx.manager.total_handler_calls += 1
+        sx.manager.logger.debug(
+            f"Subscription handler called.\n"
             f"    label: {sx.label}\n"
             f"    call count: {sx.handler_call_count}\n"
-            f"    total handler calls: {sx._manager.total_handler_calls}"
+            f"    total handler calls: {sx.manager.total_handler_calls}"
         )
-        await handler(async_w3, sx, result)
+        await handler(context)
 
     return wrapped_handler
 
 
 class EthSubscription(Generic[TSubscriptionResult]):
     _id: HexStr = None
-    _manager: "SubscriptionManager" = None
+    manager: "SubscriptionManager" = None
 
     def __init__(
         self: TSubscription,
         subscription_params: Optional[Sequence[Any]] = None,
-        handler: Optional[
-            EthSubscriptionHandler[
-                "EthSubscription[TSubscriptionResult]", TSubscriptionResult
-            ]
-        ] = None,
+        handler: Optional[EthSubscriptionHandler] = None,
+        handler_context: Optional[Dict[str, Any]] = None,
         label: Optional[str] = None,
     ) -> None:
         self._subscription_params = subscription_params
         self._handler = handler_wrapper(handler)
+        self._handler_context = handler_context or {}
         self._label = label
         self.handler_call_count = 0
 
@@ -99,50 +118,54 @@ class EthSubscription(Generic[TSubscriptionResult]):
     def _create_type_aware_subscription(
         cls,
         subscription_params: Optional[Sequence[Any]],
-        handler: Optional[EthSubscriptionHandler["EthSubscription[Any]", Any]] = None,
-        event: Optional["AsyncContractEvent"] = None,
+        handler: Optional[EthSubscriptionHandler] = None,
+        handler_context: Optional[Dict[str, Any]] = None,
         label: Optional[str] = None,
     ) -> "EthSubscription[Any]":
         subscription_type = subscription_params[0]
-        subscription_arg = subscription_params[1]
-
-        if event and subscription_type != "logs":
-            raise Web3ValueError(
-                "Event provided without logs subscription type. "
-                "Please provide a logs subscription type."
-            )
-
+        subscription_arg = (
+            subscription_params[1] if len(subscription_params) > 1 else None
+        )
         if subscription_type == "newHeads":
-            return NewHeadsSubscription(handler=handler, label=label)
+            return NewHeadsSubscription(
+                handler=handler, handler_context=handler_context, label=label
+            )
         elif subscription_type == "logs":
             subscription_arg = subscription_arg or {}
             return LogsSubscription(
-                **subscription_arg, handler=handler, event=event, label=label
+                **subscription_arg,
+                handler=handler,
+                handler_context=handler_context,
+                label=label,
             )
         elif subscription_type == "newPendingTransactions":
             subscription_arg = subscription_arg or False
             return PendingTxSubscription(
-                full_transactions=subscription_arg, handler=handler, label=label
+                full_transactions=subscription_arg,
+                handler=handler,
+                handler_context=handler_context,
+                label=label,
             )
         elif subscription_type == "syncing":
-            return SyncingSubscription(handler=handler, label=label)
+            return SyncingSubscription(
+                handler=handler, handler_context=handler_context, label=label
+            )
         else:
-            # don't pass in the subscription_arg, if it's ``None``, to avoid
-            # client-side errors
             params = (
                 (subscription_type, subscription_arg)
                 if subscription_arg
                 else (subscription_type,)
             )
-            return cls(params, handler=handler, label=label)
+            return cls(
+                params,
+                handler=handler,
+                handler_context=handler_context,
+                label=label,
+            )
 
     @property
     def subscription_params(self) -> Sequence[Any]:
         return self._subscription_params
-
-    @subscription_params.setter
-    def subscription_params(self, value: Optional[Sequence[Any]]) -> None:
-        self._subscription_params = value
 
     @property
     def label(self) -> str:
@@ -150,99 +173,113 @@ class EthSubscription(Generic[TSubscriptionResult]):
             self._label = f"{self.__class__.__name__}{self.subscription_params}"
         return self._label
 
-    @label.setter
-    def label(self, value: str) -> None:
-        self._label = value
-
     @property
     def id(self) -> HexStr:
         if not self._id:
-            raise Web3ValueError(
-                "No `id` found for subscription. Once you are subscribed, "
-                "an `id` will be set by the server."
-            )
+            raise Web3ValueError("No `id` found for subscription.")
         return self._id
 
     async def unsubscribe(self) -> bool:
-        return await self._manager.unsubscribe(self)
+        return await self.manager.unsubscribe(self)
 
 
-LogsSubscriptionType = EthSubscription["LogReceipt"]
+LogsSubscriptionContext = EthSubscriptionContext[
+    "LogsSubscription", "EthSubscriptionResult"
+]
+LogsSubscriptionHandler = Callable[[LogsSubscriptionContext], Coroutine[Any, Any, None]]
 
 
-class LogsSubscription(LogsSubscriptionType):
+class LogsSubscription(EthSubscription[LogReceipt]):
     def __init__(
         self,
         address: Optional[
             Union[Address, ChecksumAddress, List[Address], List[ChecksumAddress]]
         ] = None,
         topics: Optional[List[HexStr]] = None,
-        event: "AsyncContractEvent" = None,
-        handler: Optional[
-            EthSubscriptionHandler[LogsSubscriptionType, "LogReceipt"]
-        ] = None,
+        handler: LogsSubscriptionHandler = None,
+        handler_context: Optional[Dict[str, Any]] = None,
         label: Optional[str] = None,
     ) -> None:
-        self.event = event
         self.address = address
         self.topics = topics
 
-        logs_filter: "FilterParams" = {}
-        if self.address:
-            logs_filter["address"] = self.address
-        if self.topics:
-            logs_filter["topics"] = self.topics
+        logs_filter: FilterParams = {}
+        if address:
+            logs_filter["address"] = address
+        if topics:
+            logs_filter["topics"] = topics
+        self.logs_filter = logs_filter
+
         super().__init__(
-            subscription_params=("logs", logs_filter), handler=handler, label=label
+            subscription_params=("logs", logs_filter),
+            handler=handler,
+            handler_context=handler_context,
+            label=label,
         )
 
 
-NewHeadsSubscriptionType = EthSubscription["BlockData"]
+NewHeadsSubscriptionContext = EthSubscriptionContext["NewHeadsSubscription", BlockData]
+NewHeadsSubscriptionHandler = Callable[
+    [NewHeadsSubscriptionContext], Coroutine[Any, Any, None]
+]
 
 
-class NewHeadsSubscription(NewHeadsSubscriptionType):
+class NewHeadsSubscription(EthSubscription[BlockData]):
     def __init__(
         self,
-        handler: Optional[
-            EthSubscriptionHandler[NewHeadsSubscriptionType, "BlockData"]
-        ] = None,
         label: Optional[str] = None,
+        handler: Optional[NewHeadsSubscriptionHandler] = None,
+        handler_context: Optional[Dict[str, Any]] = None,
     ) -> None:
         super().__init__(
-            subscription_params=("newHeads",), handler=handler, label=label
+            subscription_params=("newHeads",),
+            handler=handler,
+            handler_context=handler_context,
+            label=label,
         )
 
 
-PendingTxSubscriptionType = EthSubscription[Union[HexBytes, TxData]]
+PendingTxSubscriptionContext = EthSubscriptionContext[
+    "PendingTxSubscription", Union[HexBytes, TxData]
+]
+PendingTxSubscriptionHandler = Callable[
+    [PendingTxSubscriptionContext], Coroutine[Any, Any, None]
+]
 
 
-class PendingTxSubscription(PendingTxSubscriptionType):
+class PendingTxSubscription(EthSubscription[Union[HexBytes, TxData]]):
     def __init__(
         self,
         full_transactions: bool = False,
-        handler: Optional[
-            EthSubscriptionHandler[
-                EthSubscription[Union[HexBytes, TxData]], Union[HexBytes, TxData]
-            ]
-        ] = None,
         label: Optional[str] = None,
+        handler: Optional[PendingTxSubscriptionHandler] = None,
+        handler_context: Optional[Dict[str, Any]] = None,
     ) -> None:
         self.full_transactions = full_transactions
-        self.result_type = TxData if full_transactions else HexBytes
         super().__init__(
-            ("newPendingTransactions", full_transactions), handler=handler, label=label
+            subscription_params=("newPendingTransactions", full_transactions),
+            handler=handler,
+            handler_context=handler_context,
+            label=label,
         )
 
 
-SyncingSubscriptionType = EthSubscription[SyncProgress]
+SyncingSubscriptionContext = EthSubscriptionContext["SyncingSubscription", SyncProgress]
+SyncingSubscriptionHandler = Callable[
+    [SyncingSubscriptionContext], Coroutine[Any, Any, None]
+]
 
 
-class SyncingSubscription(SyncingSubscriptionType):
+class SyncingSubscription(EthSubscription[SyncProgress]):
     def __init__(
         self,
-        handler: Optional[
-            EthSubscriptionHandler[SyncingSubscriptionType, SyncProgress]
-        ] = None,
         label: Optional[str] = None,
+        handler: Optional[SyncingSubscriptionHandler] = None,
+        handler_context: Optional[Dict[str, Any]] = None,
     ) -> None:
-        super().__init__(subscription_params=("syncing",), handler=handler, label=label)
+        super().__init__(
+            subscription_params=("syncing",),
+            handler=handler,
+            handler_context=handler_context,
+            label=label,
+        )
