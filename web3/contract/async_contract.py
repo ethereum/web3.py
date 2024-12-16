@@ -687,6 +687,7 @@ class AsyncContract(BaseContract):
             contract.w3,
             contract.address,
             decode_tuples=contract.decode_tuples,
+            contract_functions=contract.functions,
         )
         contract.events = AsyncContractEvents(contract.abi, contract.w3)
         contract.fallback = AsyncContract.get_fallback_function(
