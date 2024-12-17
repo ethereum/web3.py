@@ -323,7 +323,7 @@ class PersistentConnectionProviderTest:
         sub_id = await async_w3.eth.subscribe(
             "newHeads",
             handler=new_heads_handler,
-            custom_handler_args={"new_heads_handler_test": new_heads_handler_test},
+            handler_context={"new_heads_handler_test": new_heads_handler_test},
         )
         assert is_hexstr(sub_id)
 
@@ -434,7 +434,7 @@ class PersistentConnectionProviderTest:
             "newPendingTransactions",
             True,
             handler=pending_tx_handler,
-            custom_handler_args={"pending_tx_handler_test": pending_tx_handler_test},
+            handler_context={"pending_tx_handler_test": pending_tx_handler_test},
         )
         assert is_hexstr(sub_id)
 
@@ -518,7 +518,7 @@ class PersistentConnectionProviderTest:
                 "topics": [HexStr(event_topic)],
             },
             handler=logs_handler,
-            custom_handler_args={"logs_handler_test": logs_handler_test},
+            handler_context={"logs_handler_test": logs_handler_test},
             event=event,
         )
         assert is_hexstr(sub_id)
@@ -671,14 +671,12 @@ class PersistentConnectionProviderTest:
             [
                 NewHeadsSubscription(
                     handler=new_heads_handler,
-                    custom_handler_args={
-                        "new_heads_handler_test": new_heads_handler_test
-                    },
+                    handler_context={"new_heads_handler_test": new_heads_handler_test},
                 ),
                 PendingTxSubscription(
                     full_transactions=True,
                     handler=pending_tx_handler,
-                    custom_handler_args={
+                    handler_context={
                         "pending_tx_handler_test": pending_tx_handler_test
                     },
                 ),
@@ -687,7 +685,7 @@ class PersistentConnectionProviderTest:
                     topics=[HexStr(event_topic)],
                     event=event,
                     handler=logs_handler,
-                    custom_handler_args={
+                    handler_context={
                         "logs_handler_test": logs_handler_test,
                     },
                 ),
@@ -721,13 +719,9 @@ class PersistentConnectionProviderTest:
         sx_manager.total_handler_calls = 0
 
     @pytest.mark.asyncio
-    async def test_subscription_custom_handler_args(
-        self, async_w3: "AsyncWeb3"
-    ) -> None:
+    async def test_subscription_handler_context(self, async_w3: "AsyncWeb3") -> None:
         base_url = "http://localhost:1337"
         async_beacon = AsyncBeacon(base_url)
-        int1 = 1337
-        str1 = "foo"
         handler_test = SubscriptionHandlerTest()
 
         async def test_sx_handler(
@@ -748,10 +742,10 @@ class PersistentConnectionProviderTest:
             "newHeads",
             label="foo",
             handler=test_sx_handler,
-            custom_handler_args={
+            handler_context={
                 "beacon": async_beacon,
-                "int1": int1,
-                "str1": str1,
+                "int1": 1337,
+                "str1": "foo",
                 "int2": 1999,
                 "str2": "bar",
                 "handler_test": handler_test,

@@ -108,12 +108,12 @@ class EthSubscription(Generic[TSubscriptionResult]):
         self: TSubscription,
         subscription_params: Optional[Sequence[Any]] = None,
         handler: Optional[EthSubscriptionHandler] = None,
-        custom_handler_args: Optional[Dict[str, Any]] = None,
+        handler_context: Optional[Dict[str, Any]] = None,
         label: Optional[str] = None,
     ) -> None:
         self._subscription_params = subscription_params
         self._handler = handler_wrapper(handler)
-        self._custom_handler_args = custom_handler_args or {}
+        self._handler_context = handler_context or {}
         self._label = label
         self.handler_call_count = 0
 
@@ -122,7 +122,7 @@ class EthSubscription(Generic[TSubscriptionResult]):
         cls,
         subscription_params: Optional[Sequence[Any]],
         handler: Optional[EthSubscriptionHandler] = None,
-        custom_handler_args: Optional[Dict[str, Any]] = None,
+        handler_context: Optional[Dict[str, Any]] = None,
         label: Optional[str] = None,
         event: Optional["AsyncContractEvent"] = None,
     ) -> "EthSubscription[Any]":
@@ -139,14 +139,14 @@ class EthSubscription(Generic[TSubscriptionResult]):
 
         if subscription_type == "newHeads":
             return NewHeadsSubscription(
-                handler=handler, custom_handler_args=custom_handler_args, label=label
+                handler=handler, handler_context=handler_context, label=label
             )
         elif subscription_type == "logs":
             subscription_arg = subscription_arg or {}
             return LogsSubscription(
                 **subscription_arg,
                 handler=handler,
-                custom_handler_args=custom_handler_args,
+                handler_context=handler_context,
                 label=label,
                 event=event,
             )
@@ -155,12 +155,12 @@ class EthSubscription(Generic[TSubscriptionResult]):
             return PendingTxSubscription(
                 full_transactions=subscription_arg,
                 handler=handler,
-                custom_handler_args=custom_handler_args,
+                handler_context=handler_context,
                 label=label,
             )
         elif subscription_type == "syncing":
             return SyncingSubscription(
-                handler=handler, custom_handler_args=custom_handler_args, label=label
+                handler=handler, handler_context=handler_context, label=label
             )
         else:
             params = (
@@ -171,7 +171,7 @@ class EthSubscription(Generic[TSubscriptionResult]):
             return cls(
                 params,
                 handler=handler,
-                custom_handler_args=custom_handler_args,
+                handler_context=handler_context,
                 label=label,
             )
 
@@ -210,7 +210,7 @@ class LogsSubscription(EthSubscription[LogReceipt]):
         topics: Optional[List[HexStr]] = None,
         event: Optional["AsyncContractEvent"] = None,
         handler: LogsSubscriptionHandler = None,
-        custom_handler_args: Optional[Dict[str, Any]] = None,
+        handler_context: Optional[Dict[str, Any]] = None,
         label: Optional[str] = None,
     ) -> None:
         self.address = address
@@ -227,7 +227,7 @@ class LogsSubscription(EthSubscription[LogReceipt]):
         super().__init__(
             subscription_params=("logs", logs_filter),
             handler=handler,
-            custom_handler_args=custom_handler_args,
+            handler_context=handler_context,
             label=label,
         )
 
@@ -243,12 +243,12 @@ class NewHeadsSubscription(EthSubscription[BlockData]):
         self,
         label: Optional[str] = None,
         handler: Optional[NewHeadsSubscriptionHandler] = None,
-        custom_handler_args: Optional[Dict[str, Any]] = None,
+        handler_context: Optional[Dict[str, Any]] = None,
     ) -> None:
         super().__init__(
             subscription_params=("newHeads",),
             handler=handler,
-            custom_handler_args=custom_handler_args,
+            handler_context=handler_context,
             label=label,
         )
 
@@ -267,13 +267,13 @@ class PendingTxSubscription(EthSubscription[Union[HexBytes, TxData]]):
         full_transactions: bool = False,
         label: Optional[str] = None,
         handler: Optional[PendingTxSubscriptionHandler] = None,
-        custom_handler_args: Optional[Dict[str, Any]] = None,
+        handler_context: Optional[Dict[str, Any]] = None,
     ) -> None:
         self.full_transactions = full_transactions
         super().__init__(
             subscription_params=("newPendingTransactions", full_transactions),
             handler=handler,
-            custom_handler_args=custom_handler_args,
+            handler_context=handler_context,
             label=label,
         )
 
@@ -289,11 +289,11 @@ class SyncingSubscription(EthSubscription[SyncProgress]):
         self,
         label: Optional[str] = None,
         handler: Optional[SyncingSubscriptionHandler] = None,
-        custom_handler_args: Optional[Dict[str, Any]] = None,
+        handler_context: Optional[Dict[str, Any]] = None,
     ) -> None:
         super().__init__(
             subscription_params=("syncing",),
             handler=handler,
-            custom_handler_args=custom_handler_args,
+            handler_context=handler_context,
             label=label,
         )

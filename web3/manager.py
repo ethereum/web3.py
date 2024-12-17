@@ -588,7 +588,7 @@ class RequestManager:
                             async_w3,
                             sx,
                             formatted_sx_response["result"],
-                            **sx._custom_handler_args,
+                            **sx._handler_context,
                         )
                     )
                     yield None
