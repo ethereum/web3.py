@@ -510,6 +510,7 @@ class BaseContractFunction:
     address: ChecksumAddress = None
     fn_name: str = None
     name: str = None
+    signature: str = None
     abi_element_identifier: ABIElementIdentifier = None
     w3: Union["Web3", "AsyncWeb3"] = None
     contract_abi: ABI = None
