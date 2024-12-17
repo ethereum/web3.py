@@ -14,7 +14,7 @@ domains and addresses, add resolver records, or get and set metadata.
 .. note::
 
     web3.py ``v6.6.0`` introduced ENS name normalization standard
-    `ENSIP-15 <https://docs.ens.domains/ens-improvement-proposals/ensip-15-normalization-standard>`_.
+    `ENSIP-15 <https://docs.ens.domains/ensip/15>`_.
     This update to ENS name validation and normalization won't affect ~99%
     of names but may prevent invalid names from being created and from interacting with
     the ENS contracts via web3.py. We feel strongly that this change, though breaking,
@@ -168,7 +168,7 @@ but will not infer a TLD if it is not provided with the name.
 Multichain Address Resolution
 +++++++++++++++++++++++++++++
 
-`ENSIP-9 <https://docs.ens.domains/ens-improvement-proposals/ensip-9-multichain-address-resolution>`_
+`ENSIP-9 <https://docs.ens.domains/ensip/9>`_
 introduced multichain address resolution, allowing users to resolve addresses from
 different chains, specified by the coin type index from
 `SLIP44 <https://github.com/satoshilabs/slips/blob/master/slip-0044.md>`_. The
@@ -196,7 +196,7 @@ Get the ENS Name for an Address
     assert ns.address(domain) == '0xFe89cc7aBB2C4183683ab71653C4cdc9B02D44b7'
 
 .. note:: For accuracy, and as a recommendation from the ENS documentation on
-    `reverse resolution <https://docs.ens.domains/dapp-developer-guide/resolving-names#reverse-resolution>`_,
+    `reverse resolution <https://docs.ens.domains/web/resolution#reverse-resolution>`_,
     the ``ENS`` module now verifies that the forward resolution matches the address with every call to get the
     ``name()`` for an address. This is the only sure way to know whether the reverse resolution is correct. Anyone can
     claim any name, only forward resolution implies that the owner of the name gave their stamp of approval.
@@ -246,7 +246,7 @@ You can claim arbitrarily deep subdomains.
 Multichain Address Support
 ++++++++++++++++++++++++++
 
-`ENSIP-9 <https://docs.ens.domains/ens-improvement-proposals/ensip-9-multichain-address-resolution>`_
+`ENSIP-9 <https://docs.ens.domains/ensip/9>`_
 introduced multichain address resolution, allowing users to resolve addresses from
 different chains, specified by the coin type index from
 `SLIP44 <https://github.com/satoshilabs/slips/blob/master/slip-0044.md>`_. The
@@ -297,7 +297,7 @@ Set Text Metadata for an ENS Record
 
 As the owner of an ENS record, you can add text metadata.
 A list of supported fields can be found in the
-`ENS documentation <https://docs.ens.domains/contract-api-reference/publicresolver#get-text-data>`_.
+`ENS documentation <https://docs.ens.domains/resolvers/public#get-text-data>`_.
 You'll need to setup the address first, and then the text can be set:
 
 .. code-block:: python
@@ -348,7 +348,7 @@ Wildcard Resolution Support
 ---------------------------
 
 The ``ENS`` module supports Wildcard Resolution for resolvers that implement the ``ExtendedResolver`` interface
-as described in `ENSIP-10 <https://docs.ens.domains/ens-improvement-proposals/ensip-10-wildcard-resolution>`_.
+as described in `ENSIP-10 <https://docs.ens.domains/ensip/10>`_.
 Resolvers that implement the extended resolver interface should return ``True`` when calling the
 ``supportsInterface()`` function with the extended resolver interface id ``"0x9061b923"`` and should resolve subdomains
 to a unique address.
