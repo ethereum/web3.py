@@ -1,4 +1,7 @@
 import asyncio
+from dataclasses import (
+    dataclass,
+)
 import pytest
 from typing import (
     TYPE_CHECKING,
@@ -84,6 +87,11 @@ SOME_BLOCK_KEYS = [
 ]
 
 
+@dataclass
+class SubscriptionHandlerTest:
+    passed: bool = False
+
+
 async def new_heads_handler(
     context: NewHeadsSubscriptionContext,
 ) -> None:
@@ -99,7 +107,8 @@ async def new_heads_handler(
     assert block is not None
     assert all(k in block.keys() for k in SOME_BLOCK_KEYS)
 
-    w3.subscription_manager._passed_new_heads = True
+    assert context.new_heads_handler_test.passed is False
+    context.new_heads_handler_test.passed = True
     assert await sx.unsubscribe()
 
 
@@ -122,7 +131,8 @@ async def pending_tx_handler(
     assert tx["from"] == accts[0]
     await w3.eth.wait_for_transaction_receipt(tx["hash"])
 
-    w3.subscription_manager._passed_pending_tx = True
+    assert context.pending_tx_handler_test.passed is False
+    context.pending_tx_handler_test.passed = True
     assert await sx.unsubscribe()
 
 
@@ -145,7 +155,8 @@ async def logs_handler(
     assert event_data.args.nonIndexedUint256 == NON_INDEXED_UINT256
     assert event_data.args.nonIndexedString == NON_INDEXED_STRING
 
-    w3.subscription_manager._passed_logs = True
+    assert context.logs_handler_test.passed is False
+    context.logs_handler_test.passed = True
     assert await sx.unsubscribe()
 
 
@@ -307,26 +318,29 @@ class PersistentConnectionProviderTest:
     ) -> None:
         sx_manager = async_w3.subscription_manager
 
-        sub_id = await async_w3.eth.subscribe("newHeads", handler=new_heads_handler)
+        new_heads_handler_test = SubscriptionHandlerTest()
+
+        sub_id = await async_w3.eth.subscribe(
+            "newHeads",
+            handler=new_heads_handler,
+            custom_handler_args={"new_heads_handler_test": new_heads_handler_test},
+        )
         assert is_hexstr(sub_id)
 
         assert len(sx_manager.subscriptions) == 1
         sx = sx_manager.subscriptions[0]
         assert isinstance(sx, NewHeadsSubscription)
 
-        # transient flag to track handler success
-        sx_manager._passed_new_heads = False
-
         await sx_manager.handle_subscriptions()
+
+        assert new_heads_handler_test.passed
         assert len(sx_manager.subscriptions) == 0
 
         assert sx_manager.total_handler_calls == 1
         assert sx.handler_call_count == 1
-        assert sx_manager._passed_new_heads
 
         # cleanup
         sx_manager.total_handler_calls = 0
-        del sx_manager._passed_new_heads
 
     @pytest.mark.asyncio
     async def test_async_eth_subscribe_new_and_process_pending_tx_true(
@@ -414,9 +428,13 @@ class PersistentConnectionProviderTest:
         async_w3: "AsyncWeb3",
     ) -> None:
         sx_manager = async_w3.subscription_manager
+        pending_tx_handler_test = SubscriptionHandlerTest()
 
         sub_id = await async_w3.eth.subscribe(
-            "newPendingTransactions", True, handler=pending_tx_handler
+            "newPendingTransactions",
+            True,
+            handler=pending_tx_handler,
+            custom_handler_args={"pending_tx_handler_test": pending_tx_handler_test},
         )
         assert is_hexstr(sub_id)
 
@@ -431,19 +449,16 @@ class PersistentConnectionProviderTest:
             self.seed_transactions_to_geth(async_w3, acct, num_txs=1, delay=0.5)
         )
 
-        # transient flag to track handler success
-        sx_manager._passed_pending_tx = False
-
         await sx_manager.handle_subscriptions()
+
+        assert pending_tx_handler_test.passed
         assert len(sx_manager.subscriptions) == 0
 
         assert sx_manager.total_handler_calls == 1
         assert sx.handler_call_count == 1
-        assert sx_manager._passed_pending_tx
 
         # cleanup
         sx_manager.total_handler_calls = 0
-        del sx_manager._passed_pending_tx
         tx_seeder_task.cancel()
 
     @pytest.mark.asyncio
@@ -495,6 +510,7 @@ class PersistentConnectionProviderTest:
         event = async_emitter_contract.events.LogIndexedAndNotIndexed
         event_topic = async_w3.keccak(text=event.abi_element_identifier).to_0x_hex()
 
+        logs_handler_test = SubscriptionHandlerTest()
         sub_id = await async_w3.eth.subscribe(
             "logs",
             {
@@ -502,6 +518,7 @@ class PersistentConnectionProviderTest:
                 "topics": [HexStr(event_topic)],
             },
             handler=logs_handler,
+            custom_handler_args={"logs_handler_test": logs_handler_test},
             event=event,
         )
         assert is_hexstr(sub_id)
@@ -516,19 +533,16 @@ class PersistentConnectionProviderTest:
             async_w3, async_emitter_contract, acct
         )
 
-        # transient flag to track handler success
-        sx_manager._passed_logs = False
-
         await sx_manager.handle_subscriptions()
+
+        assert logs_handler_test.passed
         assert len(sx_manager.subscriptions) == 0
 
         assert sx_manager.total_handler_calls == 1
         assert sx.handler_call_count == 1
-        assert sx_manager._passed_logs
 
         # cleanup
         sx_manager.total_handler_calls = 0
-        del sx_manager._passed_logs
         emit_event_task.cancel()
 
     @pytest.mark.asyncio
@@ -649,22 +663,33 @@ class PersistentConnectionProviderTest:
         event = async_emitter_contract.events.LogIndexedAndNotIndexed
         event_topic = async_w3.keccak(text=event.abi_element_identifier).to_0x_hex()
 
-        # transient flags to track handler calls
-        sx_manager._passed_new_heads = False
-        sx_manager._passed_pending_tx = False
-        sx_manager._passed_logs = False
+        new_heads_handler_test = SubscriptionHandlerTest()
+        pending_tx_handler_test = SubscriptionHandlerTest()
+        logs_handler_test = SubscriptionHandlerTest()
 
         await sx_manager.subscribe(
             [
-                NewHeadsSubscription(handler=new_heads_handler),
+                NewHeadsSubscription(
+                    handler=new_heads_handler,
+                    custom_handler_args={
+                        "new_heads_handler_test": new_heads_handler_test
+                    },
+                ),
                 PendingTxSubscription(
-                    full_transactions=True, handler=pending_tx_handler
+                    full_transactions=True,
+                    handler=pending_tx_handler,
+                    custom_handler_args={
+                        "pending_tx_handler_test": pending_tx_handler_test
+                    },
                 ),
                 LogsSubscription(
                     address=async_emitter_contract.address,
                     topics=[HexStr(event_topic)],
                     event=event,
                     handler=logs_handler,
+                    custom_handler_args={
+                        "logs_handler_test": logs_handler_test,
+                    },
                 ),
             ]
         )
@@ -688,15 +713,12 @@ class PersistentConnectionProviderTest:
         assert sx_manager.total_handler_calls == 3
         assert all(sx.handler_call_count == 1 for sx in sxs)
 
-        assert sx_manager._passed_new_heads
-        assert sx_manager._passed_pending_tx
-        assert sx_manager._passed_logs
+        assert new_heads_handler_test.passed
+        assert pending_tx_handler_test.passed
+        assert logs_handler_test.passed
 
         # cleanup
         sx_manager.total_handler_calls = 0
-        del sx_manager._passed_new_heads
-        del sx_manager._passed_pending_tx
-        del sx_manager._passed_logs
 
     @pytest.mark.asyncio
     async def test_subscription_custom_handler_args(
@@ -706,8 +728,7 @@ class PersistentConnectionProviderTest:
         async_beacon = AsyncBeacon(base_url)
         int1 = 1337
         str1 = "foo"
-        int2 = 1999
-        str2 = "bar"
+        handler_test = SubscriptionHandlerTest()
 
         async def test_sx_handler(
             context: NewHeadsSubscriptionContext,
@@ -720,7 +741,7 @@ class PersistentConnectionProviderTest:
             assert context.int2 == 1999
             assert context.str2 == "bar"
 
-            context.async_w3.subscription_manager._passed_new_heads = True
+            context.handler_test.passed = True
             await context.subscription.unsubscribe()
 
         await async_w3.eth.subscribe(
@@ -731,20 +752,19 @@ class PersistentConnectionProviderTest:
                 "beacon": async_beacon,
                 "int1": int1,
                 "str1": str1,
-                "int2": int2,
-                "str2": str2,
+                "int2": 1999,
+                "str2": "bar",
+                "handler_test": handler_test,
             },
         )
 
         sx_manager = async_w3.subscription_manager
-        sx_manager._passed_new_heads = False
 
         await sx_manager.handle_subscriptions()
 
         assert len(sx_manager.subscriptions) == 0
         assert sx_manager.total_handler_calls == 1
-        assert sx_manager._passed_new_heads
+        assert handler_test.passed
 
         # cleanup
         sx_manager.total_handler_calls = 0
-        del sx_manager._passed_new_heads
