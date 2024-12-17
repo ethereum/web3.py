@@ -445,13 +445,12 @@ the user is done with it.
 .. code-block:: python
 
     >>> async def new_heads_handler(
-    ...     async_w3: AsyncWeb3,
-    ...     sx: EthSubscription,
-    ...     response: BlockData,
+    ...     context: NewHeadsSubscriptionContext,
     ... ) -> None:
-    ...     print(f"New block header: {response}\n")
-    ...     if response["number"] > 1234567:
-    ...         await sx.unsubscribe()
+    ...     result = context.result
+    ...     print(f"New block header: {result}\n")
+    ...     if result["number"] > 1234567:
+    ...         await context.subscription.unsubscribe()
 
     >>> async def ws_subscription_example():
     ...     async with AsyncWeb3(WebSocketProvider(f"ws://127.0.0.1:8546")) as w3:
@@ -483,30 +482,27 @@ connections.
     >>> from web3.utils.subscriptions import (
     ...     EthSubscription,
     ...     NewHeadsSubscription,
+    ...     NewHeadsSubscriptionContext,
     ...     PendingTxSubscription,
+    ...     PendingTxSubscriptionContext,
     ...     LogsSubscription,
+    ...     LogsSubscriptionContext,
     ... )
 
     >>> async def new_heads_handler(
-    ...     async_w3: AsyncWeb3,
-    ...     sx: EthSubscription,
-    ...     response: BlockData,
+    ...     context: NewHeadsSubscriptionContext,
     ... ) -> None:
-    ...     print(f"New block header: {response}\n")
-    ...     if response["number"] > 1234567:
-    ...         await sx.unsubscribe()
+    ...     print(f"New block header: {context.result}\n")
+    ...     if context.result["number"] > 1234567:
+    ...         await context.subscription.unsubscribe()
 
     >>> async def pending_txs_handler(
-    ...     async_w3: AsyncWeb3,
-    ...     sx: EthSubscription,
-    ...     response: TxData,
+    ...     context: PendingTxSubscriptionContext,
     ... ) -> None:
     ...     ...
 
     >>> async def log_handler(
-    ...     async_w3: AsyncWeb3,
-    ...     sx: EthSubscription,
-    ...     response: LogData,
+    ...     context: LogsSubscriptionContext,
     ... ) -> None:
     ...     ...
 
