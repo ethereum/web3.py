@@ -573,7 +573,7 @@ or the classic contract syntax:
 
 ``contract.functions.<function name>.call()``.
 
-Some more concrete examples can be found in the `ContractCaller docs <https://web3py.readthedocs.io/en/latest/contracts.html?highlight=Caller#contractcaller>`_
+Some more concrete examples can be found in the `ContractCaller docs <https://web3py.readthedocs.io/en/latest/web3.contract.html#contractcaller>`_
 
 
 Manager Provider
