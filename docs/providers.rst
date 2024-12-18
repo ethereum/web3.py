@@ -214,6 +214,8 @@ AsyncHTTPProvider
         >>> # If you want to pass in your own session:
         >>> custom_session = ClientSession()
         >>> await w3.provider.cache_async_session(custom_session) # This method is an async method so it needs to be handled accordingly
+        >>> # when you're finished, disconnect:
+        >>> w3.provider.disconnect()
 
     Under the hood, the ``AsyncHTTPProvider`` uses the python
     `aiohttp <https://docs.aiohttp.org/en/stable/>`_ library for making requests.
