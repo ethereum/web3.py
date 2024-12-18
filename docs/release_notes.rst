@@ -6,6 +6,36 @@ v7 Breaking Changes Summary
 
 .. towncrier release notes start
 
+web3.py v7.6.1 (2024-12-18)
+---------------------------
+
+Bugfixes
+~~~~~~~~
+
+- Include an end-of-line delimiter when sending messages via IPC with the ``IPCProvider`` and ``AsyncIPCProvider``. (`#3537 <https://github.com/ethereum/web3.py/issues/3537>`__)
+- Contract functions and events no longer initialize for each call. Retrieval of overloaded functions and events is now deterministic. Any ambiguity will result in an exception being raised. (`#3540 <https://github.com/ethereum/web3.py/issues/3540>`__)
+- Bump the eth-tester version to one that works in the tester dependency extras (`#3555 <https://github.com/ethereum/web3.py/issues/3555>`__)
+
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Update ENS-related links (`#3563 <https://github.com/ethereum/web3.py/issues/3563>`__)
+
+
+Internal Changes - for web3.py Contributors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Upgrade Geth Fixture to 1.14.12 (`#3533 <https://github.com/ethereum/web3.py/issues/3533>`__)
+- Delete ``ARCHITECTURE.md`` as unused (`#3547 <https://github.com/ethereum/web3.py/issues/3547>`__)
+
+
+Miscellaneous Changes
+~~~~~~~~~~~~~~~~~~~~~
+
+- `#3525 <https://github.com/ethereum/web3.py/issues/3525>`__
+
+
 web3.py v7.6.0 (2024-11-22)
 ---------------------------
 
