@@ -11,6 +11,9 @@ from typing import (
     cast,
 )
 
+from cchecksum import (
+    to_checksum_address,
+)
 from eth_abi.exceptions import (
     ParseError,
 )
@@ -26,7 +29,6 @@ from eth_typing import (
 )
 from eth_utils import (
     to_bytes,
-    to_checksum_address,
     to_hex,
     to_text,
 )

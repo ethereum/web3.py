@@ -13,6 +13,9 @@ from typing import (
     cast,
 )
 
+from cchecksum import (
+    to_checksum_address,
+)
 from eth_account import (
     Account,
 )
@@ -30,7 +33,6 @@ from eth_typing import (
     HexStr,
 )
 from eth_utils import (
-    to_checksum_address,
     to_dict,
 )
 from eth_utils.curried import (

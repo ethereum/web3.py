@@ -10,6 +10,9 @@ from typing import (
     cast,
 )
 
+from cchecksum import (
+    to_checksum_address,
+)
 from eth_typing import (
     ChecksumAddress,
 )
@@ -17,7 +20,6 @@ from eth_utils import (
     is_0x_prefixed,
     is_hex,
     is_hex_address,
-    to_checksum_address,
 )
 
 from ens import (
