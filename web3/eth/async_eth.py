@@ -722,7 +722,6 @@ class AsyncEth(BaseEth):
         handler: Optional[EthSubscriptionHandler] = None,
         handler_context: Dict[str, Any] = None,
         label: Optional[str] = None,
-        event: Optional["AsyncContractEvent"] = None,
     ) -> HexStr:
         if not isinstance(self.w3.provider, PersistentConnectionProvider):
             raise MethodNotSupported(
@@ -734,7 +733,6 @@ class AsyncEth(BaseEth):
             subscription_params=(subscription_type, subscription_arg),
             handler=handler,
             handler_context=handler_context or {},
-            event=event,
             label=label,
         )
         return await self.w3.subscription_manager.subscribe(sx)

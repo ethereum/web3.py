@@ -37,9 +37,6 @@ if TYPE_CHECKING:
     from web3 import (
         AsyncWeb3,
     )
-    from web3.contract.async_contract import (
-        AsyncContractEvent,
-    )
     from web3.providers.persistent.subscription_manager import (
         SubscriptionManager,
     )
@@ -124,19 +121,11 @@ class EthSubscription(Generic[TSubscriptionResult]):
         handler: Optional[EthSubscriptionHandler] = None,
         handler_context: Optional[Dict[str, Any]] = None,
         label: Optional[str] = None,
-        event: Optional["AsyncContractEvent"] = None,
     ) -> "EthSubscription[Any]":
         subscription_type = subscription_params[0]
         subscription_arg = (
             subscription_params[1] if len(subscription_params) > 1 else None
         )
-
-        if event and subscription_type != "logs":
-            raise Web3ValueError(
-                "Event provided without logs subscription type. "
-                "Please provide a logs subscription type."
-            )
-
         if subscription_type == "newHeads":
             return NewHeadsSubscription(
                 handler=handler, handler_context=handler_context, label=label
@@ -148,7 +137,6 @@ class EthSubscription(Generic[TSubscriptionResult]):
                 handler=handler,
                 handler_context=handler_context,
                 label=label,
-                event=event,
             )
         elif subscription_type == "newPendingTransactions":
             subscription_arg = subscription_arg or False
@@ -208,14 +196,12 @@ class LogsSubscription(EthSubscription[LogReceipt]):
             Union[Address, ChecksumAddress, List[Address], List[ChecksumAddress]]
         ] = None,
         topics: Optional[List[HexStr]] = None,
-        event: Optional["AsyncContractEvent"] = None,
         handler: LogsSubscriptionHandler = None,
         handler_context: Optional[Dict[str, Any]] = None,
         label: Optional[str] = None,
     ) -> None:
         self.address = address
         self.topics = topics
-        self.event = event
 
         logs_filter: FilterParams = {}
         if address:

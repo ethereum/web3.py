@@ -1,7 +1,4 @@
 import pytest
-from unittest.mock import (
-    Mock,
-)
 
 from web3.utils.subscriptions import (
     LogsSubscription,
@@ -64,9 +61,8 @@ def test_logs_subscription_properties(handler):
         "0x0000000000000000000000000000000000000000000000000000000000000001",
         "0x0000000000000000000000000000000000000000000000000000000000000002",
     ]
-    event = Mock()
     logs_subscription = LogsSubscription(
-        address=address, topics=topics, handler=handler, event=event, label="logs label"
+        address=address, topics=topics, handler=handler, label="logs label"
     )
     assert logs_subscription._handler is handler
     assert logs_subscription.label == "logs label"
@@ -76,7 +72,6 @@ def test_logs_subscription_properties(handler):
     )
     assert logs_subscription.address == address
     assert logs_subscription.topics == topics
-    assert logs_subscription.event is event
 
 
 def test_syncing_subscription_properties(handler):

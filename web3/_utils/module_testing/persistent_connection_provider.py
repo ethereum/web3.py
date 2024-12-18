@@ -148,7 +148,7 @@ async def logs_handler(
     assert isinstance(provider.get_endpoint_uri_or_ipc_path(), str)
 
     assert isinstance(sx, LogsSubscription)
-    event_data = sx.event.process_log(log_receipt)
+    event_data = context.event.process_log(log_receipt)
     assert event_data.args.indexedAddress == INDEXED_ADDR
     assert event_data.args.indexedUint256 == INDEXED_UINT256
     assert event_data.args.nonIndexedAddress == NON_INDEXED_ADDR
@@ -518,8 +518,10 @@ class PersistentConnectionProviderTest:
                 "topics": [HexStr(event_topic)],
             },
             handler=logs_handler,
-            handler_context={"logs_handler_test": logs_handler_test},
-            event=event,
+            handler_context={
+                "logs_handler_test": logs_handler_test,
+                "event": event,
+            },
         )
         assert is_hexstr(sub_id)
 
@@ -683,10 +685,10 @@ class PersistentConnectionProviderTest:
                 LogsSubscription(
                     address=async_emitter_contract.address,
                     topics=[HexStr(event_topic)],
-                    event=event,
                     handler=logs_handler,
                     handler_context={
                         "logs_handler_test": logs_handler_test,
+                        "event": event,
                     },
                 ),
             ]
@@ -699,7 +701,7 @@ class PersistentConnectionProviderTest:
             async_w3, async_emitter_contract, acct
         )
 
-        # get subscriptions while before they are unsubscribed and removed
+        # get subscriptions before they are unsubscribed and removed
         sxs = sx_manager.subscriptions
 
         await sx_manager.handle_subscriptions()
