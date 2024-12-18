@@ -181,14 +181,6 @@ class AsyncHTTPProvider(AsyncJSONBaseProvider):
     async def disconnect(self) -> None:
         cache = self._request_session_manager.session_cache
         for _, session in cache.items():
-            # workaround for aiohttp issue:
-            connectors = [
-                conn[0] for conns in session.connector._conns.values() for conn in conns
-            ]
-            transports = [conn.transport for conn in connectors if conn.transport]
-            for transport in transports:
-                transport.get_extra_info("socket").shutdown(2)
-            # end workaround
             await session.close()
         cache.clear()
 

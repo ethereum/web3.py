@@ -18,6 +18,7 @@ from aiohttp import (
     ClientResponse,
     ClientSession,
     ClientTimeout,
+    TCPConnector,
 )
 from eth_typing import (
     URI,
@@ -174,7 +175,12 @@ class HTTPSessionManager:
         async with async_lock(self.session_pool, self._lock):
             if cache_key not in self.session_cache:
                 if session is None:
-                    session = ClientSession(raise_for_status=True)
+                    session = ClientSession(
+                        raise_for_status=True,
+                        connector=TCPConnector(
+                            force_close=True, enable_cleanup_closed=True
+                        ),
+                    )
 
                 cached_session, evicted_items = self.session_cache.cache(
                     cache_key, session
@@ -213,7 +219,12 @@ class HTTPSessionManager:
                     )
 
                     # replace stale session with a new session at the cache key
-                    _session = ClientSession(raise_for_status=True)
+                    _session = ClientSession(
+                        raise_for_status=True,
+                        connector=TCPConnector(
+                            force_close=True, enable_cleanup_closed=True
+                        ),
+                    )
                     cached_session, evicted_items = self.session_cache.cache(
                         cache_key, _session
                     )
