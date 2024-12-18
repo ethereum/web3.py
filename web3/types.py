@@ -273,11 +273,19 @@ class RPCResponse(TypedDict, total=False):
     params: EthSubscriptionParams
 
 
+EthSubscriptionResult = Union[
+    BlockData,  # newHeads
+    TxData,  # newPendingTransactions, full_transactions=True
+    HexBytes,  # newPendingTransactions, full_transactions=False
+    LogReceipt,  # logs
+    SyncProgress,  # syncing
+    GethSyncingSubscriptionResult,  # geth syncing
+]
+
+
 class FormattedEthSubscriptionResponse(TypedDict):
     subscription: HexStr
-    result: Union[
-        BlockData, TxData, LogReceipt, SyncProgress, GethSyncingSubscriptionResult
-    ]
+    result: EthSubscriptionResult
 
 
 class CreateAccessListResponse(TypedDict):

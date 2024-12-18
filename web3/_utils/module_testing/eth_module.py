@@ -1991,9 +1991,8 @@ class AsyncEthModuleTest:
         # Test with None overflowing
         filter_params: FilterParams = {
             "fromBlock": BlockNumber(0),
-            "topics": [None, None, None],
+            "topics": [None, None, None, None],
         }
-
         result = await async_w3.eth.get_logs(filter_params)
         assert len(result) == 0
 
