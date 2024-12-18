@@ -160,7 +160,7 @@ class TestGoEthereumAsyncNetModuleTest(GoEthereumAsyncNetModuleTest):
 
 class TestGoEthereumAsyncEthModuleTest(GoEthereumAsyncEthModuleTest):
     @pytest.mark.asyncio
-    async def test_async_http_provider_disconnects_gracefully_reuses(
+    async def test_async_http_provider_disconnects_gracefully(
         self, async_w3, endpoint_uri
     ) -> None:
         w3_1 = async_w3

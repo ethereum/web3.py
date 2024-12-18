@@ -301,9 +301,3 @@ class HTTPSessionManager:
                 "Some evicted async sessions were not properly closed: "
                 f"{evicted_sessions}"
             )
-
-    async def close_all_sessions(self, session_cache: SimpleCache) -> None:
-        for _, session in session_cache.items():
-            await session.close()
-        # Give time for the socket to close so a ResourceWarning doesn't get emitted
-        await asyncio.sleep(0.1)
