@@ -106,10 +106,10 @@ a32bytes = b"a".ljust(32, b"\x00")
 def test_contract_abi_decoding(w3, abi, data, method, expected):
     contract = w3.eth.contract(abi=abi)
     func, params = contract.decode_function_input(data)
-    assert func.fn_name == method
+    assert func.name == method
     assert params == expected
 
-    reinvoke_func = contract.functions[func.fn_name](**params)
+    reinvoke_func = contract.functions[func.name](**params)
     rebuild_txn = reinvoke_func.build_transaction(
         {"gas": 0, "nonce": 0, "to": "\x00" * 20}
     )
@@ -139,10 +139,10 @@ def test_contract_abi_decoding(w3, abi, data, method, expected):
 def test_contract_abi_encoding_kwargs(w3, abi, method, expected, data):
     contract = w3.eth.contract(abi=abi)
     func, params = contract.decode_function_input(data)
-    assert func.fn_name == method
+    assert func.name == method
     assert params == expected
 
-    reinvoke_func = contract.functions[func.fn_name](**params)
+    reinvoke_func = contract.functions[func.name](**params)
     rebuild_txn = reinvoke_func.build_transaction(
         {"gas": 0, "nonce": 0, "to": "\x00" * 20}
     )

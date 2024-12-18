@@ -32,6 +32,16 @@ from eth_typing import (
     HexStr,
     Primitives,
 )
+from eth_utils.abi import (
+    abi_to_signature,
+    event_abi_to_log_topic,
+    filter_abi_by_name,
+    filter_abi_by_type,
+    function_abi_to_4byte_selector,
+    get_abi_input_types,
+    get_aligned_abi_inputs,
+    get_normalized_abi_inputs,
+)
 from eth_utils.address import (
     is_binary_address,
     is_checksum_address,
@@ -55,7 +65,6 @@ from hexbytes import (
 
 from web3._utils.abi import (
     filter_by_argument_name,
-    filter_by_argument_type,
     get_abi_element_signature,
     get_name_from_abi_element_identifier,
 )
@@ -75,17 +84,6 @@ from web3.exceptions import (
 )
 from web3.types import (
     ABIElementIdentifier,
-)
-
-from eth_utils.abi import (  # noqa
-    abi_to_signature,
-    event_abi_to_log_topic,
-    filter_abi_by_name,
-    filter_abi_by_type,
-    function_abi_to_4byte_selector,
-    get_aligned_abi_inputs,
-    get_normalized_abi_inputs,
-    get_abi_input_types,
 )
 
 
@@ -167,32 +165,35 @@ def _get_fallback_function_abi(contract_abi: ABI) -> ABIFallback:
         raise ABIFallbackNotFound("No fallback function was found in the contract ABI.")
 
 
-def _get_any_abi_signature_with_name(element_name: str, contract_abi: ABI) -> str:
+def _get_any_abi_signature_with_name(
+    element_name: str, elements: Sequence[ABIElement]
+) -> str:
     """
     Find an ABI identifier signature by element name. A signature identifier is
     returned, "name(arg1Type,arg2Type,...)".
 
-    This function forces one result to be returned even if multiple are found.
-    If multiple ABIs are found and all contain arguments, the first result is returned.
-    Otherwise when one of the ABIs has zero arguments, that signature is returned.
+    If multiple ABIs match the name and every one contain arguments, the first
+    result is returned. Otherwise the signature without arguments is returned.
+    Returns None if no ABI exists with the provided name.
     """
-    try:
-        # search for function abis with the same name
-        function_abi = get_abi_element(
-            contract_abi, get_name_from_abi_element_identifier(element_name)
-        )
-        return abi_to_signature(function_abi)
-    except MismatchedABI:
-        # If all matching functions have arguments, cannot determine which one
-        # to use. Instead of an exception, return the first matching function.
-        function_abis = filter_abi_by_name(element_name, contract_abi)
-        if len(function_abis) > 0 and all(
-            len(get_abi_input_types(fn)) > 0 for fn in function_abis
-        ):
-            return abi_to_signature(function_abis[0])
+    element_signatures_with_name = [
+        abi_to_signature(element)
+        for element in elements
+        if element.get("name", "") == get_name_from_abi_element_identifier(element_name)
+    ]
 
-        # Use signature for function that does not take arguments
-        return str(get_abi_element_signature(element_name))
+    if len(element_signatures_with_name) == 1:
+        return element_signatures_with_name[0]
+    elif len(element_signatures_with_name) > 1:
+        # Check for function signature without args
+        signature_without_args = f"{element_name}()"
+        if signature_without_args not in element_signatures_with_name:
+            # Element without arguments not found, use the first available signature
+            return element_signatures_with_name[0]
+        else:
+            return signature_without_args
+    else:
+        return None
 
 
 def _build_abi_input_error(
@@ -375,9 +376,6 @@ def _get_argument_readable_type(arg: Any) -> str:
 def _build_abi_filters(
     abi_element_identifier: ABIElementIdentifier,
     *args: Optional[Any],
-    abi_type: Optional[str] = None,
-    argument_names: Optional[Sequence[str]] = None,
-    argument_types: Optional[Sequence[str]] = None,
     abi_codec: Optional[Any] = None,
     **kwargs: Optional[Any],
 ) -> List[Callable[..., Sequence[ABIElement]]]:
@@ -405,14 +403,13 @@ def _build_abi_filters(
 
     filters: List[Callable[..., Sequence[ABIElement]]] = []
 
-    if abi_type:
-        filters.append(functools.partial(filter_abi_by_type, abi_type))
-
     arg_count = 0
-    if argument_names:
-        arg_count = len(argument_names)
-    elif args or kwargs:
+    if args or kwargs:
         arg_count = len(args) + len(kwargs)
+
+    # Filter by arg count only if the identifier contains arguments
+    if "()" not in abi_element_identifier and arg_count:
+        filters.append(functools.partial(_filter_by_argument_count, arg_count))
 
     if arg_count > 0:
         filters.append(
@@ -421,7 +418,6 @@ def _build_abi_filters(
                 get_name_from_abi_element_identifier(abi_element_identifier),
             )
         )
-        filters.append(functools.partial(_filter_by_argument_count, arg_count))
 
         if args or kwargs:
             if abi_codec is None:
@@ -435,19 +431,6 @@ def _build_abi_filters(
                     kwargs,
                 )
             )
-
-        if argument_names:
-            filters.append(functools.partial(filter_by_argument_name, argument_names))
-
-            if argument_types:
-                if arg_count != len(argument_types):
-                    raise Web3ValidationError(
-                        "The number of argument names and types must match."
-                    )
-
-                filters.append(
-                    functools.partial(filter_by_argument_type, argument_types)
-                )
 
         if "(" in abi_element_identifier:
             filters.append(
@@ -619,7 +602,7 @@ def get_abi_element(
 
     num_matches = len(abi_element_matches)
 
-    # Raise MismatchedABI when more than one found
+    # Raise MismatchedABI unless one match is found
     if num_matches != 1:
         error_diagnosis = _mismatched_abi_error_diagnosis(
             abi_element_identifier,

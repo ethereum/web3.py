@@ -2,9 +2,16 @@ import json
 import pytest
 
 from eth_utils import (
+    abi_to_signature,
     decode_hex,
+    filter_abi_by_type,
+    get_abi_input_names,
+    get_abi_input_types,
 )
 
+from web3._utils.abi import (
+    get_name_from_abi_element_identifier,
+)
 from web3.contract import (
     Contract,
 )
@@ -31,6 +38,7 @@ def test_class_construction_sets_class_vars(
     assert math_contract_factory.w3 == w3
     assert math_contract_factory.bytecode == decode_hex(math_contract_bytecode)
     assert math_contract_factory.bytecode_runtime == decode_hex(math_contract_runtime)
+    assert math_contract_factory.abi == math_contract_abi
 
 
 def test_error_to_instantiate_base_class():
@@ -77,6 +85,90 @@ def test_error_to_call_non_existent_fallback(
     )
     with pytest.raises(ABIFallbackNotFound):
         math_contract.fallback.estimate_gas()
+
+
+def test_contract_events_init_with_class_vars(
+    w3, math_contract_abi, math_contract_bytecode, math_contract_runtime
+):
+    math_contract = w3.eth.contract(
+        abi=math_contract_abi,
+        bytecode=math_contract_bytecode,
+        bytecode_runtime=math_contract_runtime,
+    )
+
+    for event_abi in filter_abi_by_type("event", math_contract_abi):
+        # Check properties of math_contract.events.EventName
+        event_by_name = math_contract.events[event_abi["name"]]
+        if event_by_name.abi["inputs"] == event_abi["inputs"]:
+            assert event_by_name.name == get_name_from_abi_element_identifier(
+                event_abi["name"]
+            )
+            assert event_by_name.abi == event_abi
+            assert event_by_name.abi_element_identifier == abi_to_signature(event_abi)
+            assert event_by_name.signature == abi_to_signature(event_abi)
+            assert event_by_name.argument_names == tuple(get_abi_input_names(event_abi))
+            assert event_by_name.argument_types == tuple(get_abi_input_types(event_abi))
+
+        # Check properties of math_contract.events._EventName(arg_names)
+        event_by_signature = math_contract.events[f"_{abi_to_signature(event_abi)}"]
+        assert event_by_signature.name == get_name_from_abi_element_identifier(
+            abi_to_signature(event_abi)
+        )
+        assert event_by_signature.abi == event_abi
+        assert event_by_signature.abi_element_identifier == abi_to_signature(event_abi)
+        assert event_by_signature.signature == abi_to_signature(event_abi)
+        assert event_by_signature.argument_names == tuple(
+            get_abi_input_names(event_abi)
+        )
+        assert event_by_signature.argument_types == tuple(
+            get_abi_input_types(event_abi)
+        )
+
+
+def test_contract_functions_init_with_class_vars(
+    w3, math_contract_abi, math_contract_bytecode, math_contract_runtime
+):
+    math_contract = w3.eth.contract(
+        abi=math_contract_abi,
+        bytecode=math_contract_bytecode,
+        bytecode_runtime=math_contract_runtime,
+    )
+
+    for function_abi in filter_abi_by_type("function", math_contract_abi):
+        # Check properties of math_contract.functions.FunctionName
+        function_by_name = math_contract.functions[function_abi["name"]]
+        if function_by_name.abi["inputs"] == function_abi["inputs"]:
+            assert function_by_name.name == get_name_from_abi_element_identifier(
+                function_abi["name"]
+            )
+            assert function_by_name.abi == function_abi
+            assert function_by_name.abi_element_identifier == abi_to_signature(
+                function_abi
+            )
+            assert function_by_name.signature == abi_to_signature(function_abi)
+            assert function_by_name.argument_names == tuple(
+                get_abi_input_names(function_abi)
+            )
+            assert function_by_name.argument_types == tuple(
+                get_abi_input_types(function_abi)
+            )
+
+        # Check properties of math_contract.functions._functionName(arg_names)
+        function_by_signature = math_contract.functions[abi_to_signature(function_abi)]
+        assert function_by_signature.name == get_name_from_abi_element_identifier(
+            abi_to_signature(function_abi)
+        )
+        assert function_by_signature.abi == function_abi
+        assert function_by_signature.abi_element_identifier == abi_to_signature(
+            function_abi
+        )
+        assert function_by_signature.signature == abi_to_signature(function_abi)
+        assert function_by_signature.argument_names == tuple(
+            get_abi_input_names(function_abi)
+        )
+        assert function_by_signature.argument_types == tuple(
+            get_abi_input_types(function_abi)
+        )
 
 
 @pytest.mark.parametrize(

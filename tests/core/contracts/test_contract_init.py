@@ -1,4 +1,5 @@
 import pytest
+import time
 
 from web3._utils.ens import (
     contract_ens_addresses,
@@ -75,3 +76,26 @@ def test_contract_with_name_address_changing(math_contract_factory, math_addr):
     # contract works again when name resolves correctly
     with contract_ens_addresses(mc, [("thedao.eth", math_addr)]):
         assert mc.functions.return13().call({"from": caller}) == 13
+
+
+def test_init_multiple_contracts_performance(w3, emitter_contract_data):
+    start_time = time.time()
+    for _ in range(500):
+        w3.eth.contract(
+            abi=emitter_contract_data["abi"], bytecode=emitter_contract_data["bytecode"]
+        )
+    # assert initializing 500 contracts is within a conservative / reasonable time
+    assert (time.time() - start_time) < 1.5
+
+
+# -- async -- #
+
+
+def test_async_init_multiple_contracts_performance(async_w3, emitter_contract_data):
+    start_time = time.time()
+    for _ in range(500):
+        async_w3.eth.contract(
+            abi=emitter_contract_data["abi"], bytecode=emitter_contract_data["bytecode"]
+        )
+    # assert initializing 500 contracts is within a conservative / reasonable time
+    assert (time.time() - start_time) < 1.5

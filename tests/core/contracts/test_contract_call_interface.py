@@ -805,11 +805,11 @@ def test_call_sending_ether_to_nonpayable_function(payable_tester_contract, call
     "function, value",
     (
         # minimum positive unambiguous value (larger than fixed8x1)
-        ("reflect(fixed8x1)", Decimal("12.8")),
+        ("reflect(ufixed256x1)", Decimal("25.5")),
         # maximum value (for ufixed256x1)
         ("reflect(ufixed256x1)", Decimal(2**256 - 1) / 10),
         # maximum negative unambiguous value (less than 0 from ufixed*)
-        ("reflect(ufixed256x1)", Decimal("-0.1")),
+        ("reflect(fixed8x1)", Decimal("-0.1")),
         # minimum value (for fixed8x1)
         ("reflect(fixed8x1)", Decimal("-12.8")),
         # only ufixed256x80 type supports 2-80 decimals
@@ -822,6 +822,14 @@ def test_call_sending_ether_to_nonpayable_function(payable_tester_contract, call
         ("reflect_short_u", 0),
         # maximum value (for ufixed8x1)
         ("reflect_short_u", Decimal("25.5")),
+        ("reflect(fixed8x1)", Decimal("12.1")),
+        ("reflect(fixed8x1)", Decimal(0)),
+        ("reflect(fixed8x1)", 0),
+        ("reflect(ufixed256x80)", 0),
+        ("reflect", Decimal("12.1")),
+        ("reflect", Decimal(0)),
+        ("reflect", 0),
+        ("reflect", 0),
     ),
 )
 def test_reflect_fixed_value(fixed_reflector_contract, function, value):
@@ -879,22 +887,6 @@ DEFAULT_DECIMALS = getcontext().prec
             "reflect_short_u",
             0.1,
             "Argument 1 value `0.1` is not compatible with type `ufixed8x1`.",
-        ),
-        # ambiguous
-        (
-            "reflect(ufixed256x80)",
-            Decimal("12.7"),
-            r"Found multiple elements named `reflect` that accept 1 argument\(s\).",
-        ),
-        (
-            "reflect(ufixed256x80)",
-            Decimal(0),
-            r"Found multiple elements named `reflect` that accept 1 argument\(s\).",
-        ),
-        (
-            "reflect(ufixed256x80)",
-            0,
-            r"Found multiple elements named `reflect` that accept 1 argument\(s\).",
         ),
     ),
 )
@@ -1273,7 +1265,8 @@ def test_functions_iterator(w3, math_contract):
 
     for fn, expected_fn in zip(iter(functions_iter), all_functions):
         assert isinstance(fn, ContractFunction)
-        assert fn.fn_name == expected_fn.fn_name
+        assert fn.name == expected_fn.name
+        assert fn.fn_name == expected_fn.fn_name  # alias for name
 
 
 # -- async -- #
@@ -2000,11 +1993,11 @@ async def test_async_call_sending_ether_to_nonpayable_function(
     "function, value",
     (
         # minimum positive unambiguous value (larger than fixed8x1)
-        ("reflect(fixed8x1)", Decimal("12.8")),
+        ("reflect(ufixed256x1)", Decimal("25.5")),
         # maximum value (for ufixed256x1)
         ("reflect(ufixed256x1)", Decimal(2**256 - 1) / 10),
         # maximum negative unambiguous value (less than 0 from ufixed*)
-        ("reflect(ufixed256x1)", Decimal("-0.1")),
+        ("reflect(fixed8x1)", Decimal("-0.1")),
         # minimum value (for fixed8x1)
         ("reflect(fixed8x1)", Decimal("-12.8")),
         # only ufixed256x80 type supports 2-80 decimals
@@ -2017,6 +2010,14 @@ async def test_async_call_sending_ether_to_nonpayable_function(
         ("reflect_short_u", 0),
         # maximum value (for ufixed8x1)
         ("reflect_short_u", Decimal("25.5")),
+        ("reflect(fixed8x1)", Decimal("12.1")),
+        ("reflect(fixed8x1)", Decimal(0)),
+        ("reflect(fixed8x1)", 0),
+        ("reflect(ufixed256x80)", 0),
+        ("reflect", Decimal("12.1")),
+        ("reflect", Decimal(0)),
+        ("reflect", 0),
+        ("reflect", 0),
     ),
 )
 async def test_async_reflect_fixed_value(
@@ -2059,10 +2060,6 @@ MULTIPLE_MATCHING_ELEMENTS = (
         ("reflect(ufixed256x80)", Decimal(1) / 10**81, MULTIPLE_MATCHING_ELEMENTS),
         # floats not accepted, for floating point error concerns
         ("reflect_short_u", 0.1, NO_MATCHING_ARGUMENTS),
-        # ambiguous
-        ("reflect(ufixed256x80)", Decimal("12.7"), MULTIPLE_MATCHING_ELEMENTS),
-        ("reflect(ufixed256x80)", Decimal(0), MULTIPLE_MATCHING_ELEMENTS),
-        ("reflect(ufixed256x80)", 0, MULTIPLE_MATCHING_ELEMENTS),
     ),
 )
 async def test_async_invalid_fixed_value_reflections(
@@ -2491,4 +2488,5 @@ def test_async_functions_iterator(async_w3, async_math_contract):
 
     for fn, expected_fn in zip(iter(functions_iter), all_functions):
         assert isinstance(fn, AsyncContractFunction)
-        assert fn.fn_name == expected_fn.fn_name
+        assert fn.name == expected_fn.name
+        assert fn.fn_name == expected_fn.fn_name  # alias for name

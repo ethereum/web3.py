@@ -463,7 +463,7 @@ Each Contract Factory exposes the following methods.
     .. doctest:: contractmethods
 
         >>> contract.all_functions()
-        [<Function name()>, <Function approve(address,uint256)>, <Function totalSupply()>, <Function transferFrom(address,address,uint256)>, <Function decimals()>, <Function balanceOf(address)>, <Function symbol()>, <Function transfer(address,uint256)>, <Function allowance(address,address)>]
+        [<Function allowance(address,address)>, <Function approve(address,uint256)>, <Function balanceOf(address)>, <Function decimals()>, <Function name()>, <Function symbol()>, <Function totalSupply()>, <Function transfer(address,uint256)>, <Function transferFrom(address,address,uint256)>]
 
 
 .. py:classmethod:: Contract.get_function_by_signature(signature)
@@ -589,7 +589,6 @@ size, web3 will invalidate the value. For example, if an abi specifies a type of
      - Needs to have exactly 4 bytes
    * - ``'0x6162636464'``
      - Needs to have exactly 4 bytes
-
 
 However, you may want to be less strict with acceptable values for bytes types.
 This may prove useful if you trust that values coming through are what they are
@@ -778,8 +777,6 @@ Taking the following contract code as an example:
 Contract Functions
 ------------------
 
-.. py:class:: ContractFunction
-
 The named functions exposed through the :py:attr:`Contract.functions` property are
 of the ContractFunction type. This class is not to be used directly,
 but instead through :py:attr:`Contract.functions`.
@@ -808,6 +805,69 @@ take any arguments. For example:
         13
         >>> myContract.functions.return13().call()
         13
+
+In cases where functions are overloaded and use arguments of similar types, a function
+may resolve to an undesired function when using the method syntax. For example, given
+two functions with the same name that take a single argument of differing types of
+``bytes`` and ``bytes32``. When a reference to :meth:`contract.functions.setBytes(b'1')`
+is used, the function will resolve as the one that takes ``bytes``. If a value is passed
+that was meant to be 32 bytes but the given argument was off by one, the function
+reference will still use the one that takes ``bytes``.
+
+When in doubt, use explicit function references to the signature. Use bracket notation
+(:meth:`contract.functions["setBytes(bytes32)"](b'')`) or the contract API
+`contract.get_function_by_signature("setBytes(bytes32)")` to retrieve the desired
+function. This will ensure an exception is raised if the argument is not strictly
+32 bytes in length.
+
+.. py:class:: ContractFunction
+
+Attributes
+~~~~~~~~~~
+
+The :py:class:`ContractFunction` class provides attributes for each function. Access the function attributes through `Contract.functions.myMethod`.
+
+.. py:attribute:: ContractFunction.myMethod(*args, **kwargs).abi_element_identifier
+
+    The signature of the function assigned to the class ``__name__`` during initialization.
+    Fallback and Receive functions will be assigned as classes :py:class:`FallbackFn` or
+    :py:class:`RecieveFn` respectively.
+
+.. py:attribute:: ContractFunction.myMethod(*args, **kwargs).name
+
+    A string representing the function, receive or fallback name.
+
+    Use :py:attr:`ContractFunction.signature` when the function arguments are needed.
+
+    This is an alias of :py:attr:`ContractFunction.fn_name`.
+
+.. py:attribute:: ContractFunction.myMethod(*args, **kwargs).signature
+
+    A string representing the function, receive or fallback signature.
+
+.. py:attribute:: ContractFunction.myMethod(*args, **kwargs).selector
+
+    A HexStr encoded from the first four bytes of the function signature.
+
+.. py:attribute:: ContractFunction.myMethod(*args, **kwargs).abi
+
+    The function ABI with the type, name, inputs and outputs.
+
+.. py:attribute:: ContractFunction.myMethod(*args, **kwargs).arguments
+
+    A tuple of all function inputs, normalized so that `kwargs` themselves are
+    flattened into a tuple as returned by :py:meth:`eth_utils.abi.get_normalized_abi_inputs`.
+
+.. py:attribute:: ContractFunction.myMethod(*args, **kwargs).argument_names
+
+    The function input names.
+
+.. py:attribute:: ContractFunction.myMethod(*args, **kwargs).argument_types
+
+    The function input types.
+
+Methods
+~~~~~~~
 
 :py:class:`ContractFunction` provides methods to interact with contract functions.
 Positional and keyword arguments supplied to the contract function subclass
@@ -846,10 +906,6 @@ If there is an error message with the error, web3.py attempts to parse the
 message that comes back and return it to the user as the error string.
 As of v6.3.0, the raw data is also returned and
 can be accessed via the ``data`` attribute on ``ContractLogicError``.
-
-
-Methods
-~~~~~~~
 
 .. py:method:: ContractFunction.transact(transaction)
 
@@ -1040,12 +1096,10 @@ Fallback Function
 
     Builds a transaction dictionary based on the contract fallback function call.
 
-Events
-------
+Contract Events
+---------------
 
-.. py:class:: ContractEvents
-
-The named events exposed through the :py:attr:`Contract.events` property are of the ContractEvents type. This class is not to be used directly, but instead through :py:attr:`Contract.events`.
+The named events exposed through the :py:attr:`Contract.events` property are of the ContractEvent type. This class is not to be used directly, but instead through :py:attr:`Contract.events`.
 
 For example:
 
@@ -1056,11 +1110,49 @@ For example:
         receipt = web3.eth.get_transaction_receipt(tx_hash)
         myContract.events.myEvent().process_receipt(receipt)
 
+.. py:class:: ContractEvent
+
+Attributes
+~~~~~~~~~~
+
+The :py:class:`ContractEvent` class provides attributes for each event. Access the event attributes through `Contract.events.myEvent`.
+
+.. py:attribute:: ContractEvent.myEvent(*args, **kwargs).abi_element_identifier
+
+    The signature of the event assigned to the class ``__name__`` during initialization.
+
+.. py:attribute:: ContractEvent.myEvent(*args, **kwargs).name
+
+    A string representing the event, receive or fallback name.
+
+    Use :py:attr:`ContractEvent.myEvent(*args, **kwargs).signature` when the event arguments are needed.
+
+    This is an alias of :py:attr:`ContractEvent.myEvent(*args, **kwargs).event_name`.
+
+.. py:attribute:: ContractEvent.myEvent(*args, **kwargs).signature
+
+    A string representing the event signature.
+
+.. py:attribute:: ContractEvent.myEvent(*args, **kwargs).abi
+
+    The event ABI with the type, name, inputs.
+
+.. py:attribute:: ContractEvent.myEvent(*args, **kwargs).argument_names
+
+    The event input names.
+
+.. py:attribute:: ContractEvent.myEvent(*args, **kwargs).argument_types
+
+    The event input types.
+
+Methods
+~~~~~~~
+
 :py:class:`ContractEvent` provides methods to interact with contract events. Positional and keyword arguments supplied to the contract event subclass will be used to find the contract event by signature.
 
 .. _contract_get_logs:
 
-.. py:method:: ContractEvents.myEvent(*args, **kwargs).get_logs(from_block=None, to_block="latest", block_hash=None, argument_filters={})
+.. py:method:: ContractEvent.get_logs(from_block=None, to_block="latest", block_hash=None, argument_filters={})
    :noindex:
 
    Fetches all logs for a given event within the specified block range or block hash.
@@ -1090,7 +1182,7 @@ For example:
 
 .. _process_receipt:
 
-.. py:method:: ContractEvents.myEvent(*args, **kwargs).process_receipt(transaction_receipt, errors=WARN)
+.. py:method:: ContractEvent.process_receipt(transaction_receipt, errors=WARN)
    :noindex:
 
    Extracts the pertinent logs from a transaction receipt.
@@ -1159,7 +1251,7 @@ For example:
        >>> assert processed_logs == ()
        True
 
-.. py:method:: ContractEvents.myEvent(*args, **kwargs).process_log(log)
+.. py:method:: ContractEvent.process_log(log)
 
    Similar to process_receipt_, but only processes one log at a time, instead of a whole transaction receipt.
    Will return a single :ref:`Event Log Object <event-log-object>` if there are no errors encountered during processing. If an error is encountered during processing, it will be raised.

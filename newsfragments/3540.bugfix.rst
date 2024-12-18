@@ -1,0 +1,1 @@
+Contract functions and events no longer initialize for each call. Retrieval of overloaded functions and events is now deterministic. Any ambiguity will result in an exception being raised.
