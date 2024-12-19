@@ -445,12 +445,12 @@ the user is done with it.
 .. code-block:: python
 
     >>> async def new_heads_handler(
-    ...     context: NewHeadsSubscriptionContext,
+    ...     handler_context: NewHeadsSubscriptionContext,
     ... ) -> None:
-    ...     result = context.result
+    ...     result = handler_context.result
     ...     print(f"New block header: {result}\n")
     ...     if result["number"] > 1234567:
-    ...         await context.subscription.unsubscribe()
+    ...         await handler_context.subscription.unsubscribe()
 
     >>> async def ws_subscription_example():
     ...     async with AsyncWeb3(WebSocketProvider(f"ws://127.0.0.1:8546")) as w3:
@@ -470,7 +470,17 @@ The manager can also subscribe to many subscriptions at one time. The
 friendly API for managing subscriptions. Since each connection and provider instance
 has its own message listener task and subscription manager instance, you can subscribe
 to many subscriptions at once and handle the many responses that come in over the socket
-connections.
+connections via handlers. The handlers contain:
+
+- ``async_w3``: The ``AsyncWeb3`` instance that the subscription was made on.
+- ``subscription``: The subscription instance that the handler is attached to.
+- ``result``: The response that came in over the socket connection for the subscription.
+
+Subscriptions also accept a ``handler_context`` argument that can be used to pass
+additional information to the handler when subscribing to a subscription. This can be
+used to pass in an event object, for example, that can be used to parse a log event
+when it comes in.
+
 
 .. code-block:: python
 
@@ -490,23 +500,28 @@ connections.
     ... )
 
     >>> async def new_heads_handler(
-    ...     context: NewHeadsSubscriptionContext,
+    ...     handler_context: NewHeadsSubscriptionContext,
     ... ) -> None:
-    ...     print(f"New block header: {context.result}\n")
-    ...     if context.result["number"] > 1234567:
-    ...         await context.subscription.unsubscribe()
+    ...     header = handler_context.result
+    ...     print(f"New block header: {header}\n")
+    ...     if header["number"] > 1234567:
+    ...         await handler_context.subscription.unsubscribe()
 
     >>> async def pending_txs_handler(
-    ...     context: PendingTxSubscriptionContext,
+    ...     handler_context: PendingTxSubscriptionContext,
     ... ) -> None:
     ...     ...
 
     >>> async def log_handler(
-    ...     context: LogsSubscriptionContext,
+    ...     handler_context: LogsSubscriptionContext,
     ... ) -> None:
-    ...     ...
+    ...     log_receipt = handler_context.result
+    ...     # event is now available in the handler context, because we pass it to in the
+    ...     # ``handler_context`` when subscribing to the log
+    ...     event_data = handler_context.event.process_log(log_receipt)
+    ...     print(f"Log event data: {event_data}\n")
 
-    >>> async def sx_manager():
+    >>> async def sub_manager():
     ...     local_w3 = await AsyncWeb3(AsyncIPCProvider(LOCAL_IPC, label="mainnet-ipc"))
     ...     # subscribe to many subscriptions via the subscription manager with handlers
     ...     await local_w3.subscription_manager.subscribe(
@@ -522,6 +537,8 @@ connections.
     ...                 address=local_w3.to_checksum_address("0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"),
     ...                 topics=[HexStr("0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef")],
     ...                 handler=log_handler,
+    ...                 # optional ``handler_context`` args to help parse a response
+    ...                 handler_context={"event": my_event},
     ...             ),
     ...         ]
     ...     )
@@ -538,7 +555,7 @@ connections.
     ...         local_w3.subscription_manager.handle_subscriptions(),
     ...     )
 
-    >>> asyncio.run(sx_manager())
+    >>> asyncio.run(sub_manager())
 
 
 The ``process_subscriptions()`` method on the

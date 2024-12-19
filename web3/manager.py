@@ -573,26 +573,26 @@ class RequestManager:
                 response = await self._request_processor.pop_raw_response(
                     subscription=True
                 )
-                formatted_sx_response = cast(
+                formatted_sub_response = cast(
                     FormattedEthSubscriptionResponse,
                     await self._process_response(response),
                 )
 
-                sx = async_w3.subscription_manager.get_by_id(
-                    formatted_sx_response["subscription"]
+                sub = async_w3.subscription_manager.get_by_id(
+                    formatted_sub_response["subscription"]
                 )
                 # call the handler if there is one, else yield response to any listeners
-                if sx and sx._handler:
-                    await sx._handler(
+                if sub and sub._handler:
+                    await sub._handler(
                         EthSubscriptionContext(
                             async_w3,
-                            sx,
-                            formatted_sx_response["result"],
-                            **sx._handler_context,
+                            sub,
+                            formatted_sub_response["result"],
+                            **sub._handler_context,
                         )
                     )
                     yield None
-                yield formatted_sx_response
+                yield formatted_sub_response
             except TaskNotRunning:
                 await asyncio.sleep(0)
                 self._provider._handle_listener_task_exceptions()

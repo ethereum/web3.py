@@ -83,14 +83,14 @@ def handler_wrapper(
     async def wrapped_handler(
         context: EthSubscriptionContext[TSubscription, TSubscriptionResult],
     ) -> None:
-        sx = context.subscription
-        sx.handler_call_count += 1
-        sx.manager.total_handler_calls += 1
-        sx.manager.logger.debug(
+        sub = context.subscription
+        sub.handler_call_count += 1
+        sub.manager.total_handler_calls += 1
+        sub.manager.logger.debug(
             f"Subscription handler called.\n"
-            f"    label: {sx.label}\n"
-            f"    call count: {sx.handler_call_count}\n"
-            f"    total handler calls: {sx.manager.total_handler_calls}"
+            f"    label: {sub.label}\n"
+            f"    call count: {sub.handler_call_count}\n"
+            f"    total handler calls: {sub.manager.total_handler_calls}"
         )
         await handler(context)
 

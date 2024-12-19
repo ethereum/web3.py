@@ -720,7 +720,7 @@ class AsyncEth(BaseEth):
             ]
         ] = None,
         handler: Optional[EthSubscriptionHandler] = None,
-        handler_context: Dict[str, Any] = None,
+        handler_context: Optional[Dict[str, Any]] = None,
         label: Optional[str] = None,
     ) -> HexStr:
         if not isinstance(self.w3.provider, PersistentConnectionProvider):
@@ -729,13 +729,13 @@ class AsyncEth(BaseEth):
                 "persistent connections."
             )
 
-        sx = EthSubscription._create_type_aware_subscription(
+        sub = EthSubscription._create_type_aware_subscription(
             subscription_params=(subscription_type, subscription_arg),
             handler=handler,
             handler_context=handler_context or {},
             label=label,
         )
-        return await self.w3.subscription_manager.subscribe(sx)
+        return await self.w3.subscription_manager.subscribe(sub)
 
     _unsubscribe: Method[Callable[[HexStr], Awaitable[bool]]] = Method(
         RPC.eth_unsubscribe,
@@ -749,9 +749,9 @@ class AsyncEth(BaseEth):
                 "persistent connections."
             )
 
-        for sx in self.w3.subscription_manager.subscriptions:
-            if sx._id == subscription_id:
-                return await sx.unsubscribe()
+        for sub in self.w3.subscription_manager.subscriptions:
+            if sub._id == subscription_id:
+                return await sub.unsubscribe()
 
         raise Web3ValueError(
             f"Cannot unsubscribe subscription with id `{subscription_id}`. "
