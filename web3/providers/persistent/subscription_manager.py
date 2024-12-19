@@ -40,8 +40,8 @@ class SubscriptionManager:
         self._subscriptions_by_id: Dict[HexStr, EthSubscription[Any]] = {}
         self._subscriptions_by_label: Dict[str, EthSubscription[Any]] = {}
 
-    def get_by_id(self, sx_id: HexStr) -> EthSubscription[Any]:
-        return self._subscriptions_by_id.get(sx_id)
+    def get_by_id(self, sub_id: HexStr) -> EthSubscription[Any]:
+        return self._subscriptions_by_id.get(sub_id)
 
     def get_by_label(self, label: str) -> EthSubscription[Any]:
         return self._subscriptions_by_label.get(label)
@@ -67,24 +67,24 @@ class SubscriptionManager:
                 )
 
             subscriptions.manager = self
-            sx_id = await self._w3.eth._subscribe(*subscriptions.subscription_params)
-            subscriptions._id = sx_id
+            sub_id = await self._w3.eth._subscribe(*subscriptions.subscription_params)
+            subscriptions._id = sub_id
             self._subscriptions_by_label[subscriptions.label] = subscriptions
             self._subscriptions_by_id[subscriptions.id] = subscriptions
             self.subscriptions.append(subscriptions)
             self.logger.info(
                 "Successfully subscribed to subscription:\n    "
-                f"label: {subscriptions.label}\n    id: {sx_id}"
+                f"label: {subscriptions.label}\n    id: {sub_id}"
             )
-            return sx_id
+            return sub_id
         elif isinstance(subscriptions, Sequence):
             if len(subscriptions) == 0:
                 raise Web3ValueError("No subscriptions provided.")
 
-            sx_ids: List[HexStr] = []
-            for sx in subscriptions:
-                await self.subscribe(sx)
-            return sx_ids
+            sub_ids: List[HexStr] = []
+            for sub in subscriptions:
+                await self.subscribe(sub)
+            return sub_ids
         raise Web3TypeError("Expected a Subscription or a sequence of Subscriptions.")
 
     async def unsubscribe(self, subscription: EthSubscription[Any]) -> bool:
@@ -120,18 +120,16 @@ class SubscriptionManager:
 
         :return: None
         """
-        unsubscribed = [await self.unsubscribe(sx) for sx in self.subscriptions.copy()]
+        unsubscribed = [
+            await self.unsubscribe(sub) for sub in self.subscriptions.copy()
+        ]
         if all(unsubscribed):
             self.logger.info("Successfully unsubscribed from all subscriptions.")
         else:
             if len(self.subscriptions) > 0:
                 self.logger.warning(
                     "Failed to unsubscribe from all subscriptions. Some subscriptions "
-                    "are still active."
-                )
-                self.logger.debug(
-                    "Failed to unsubscribe from some subscriptions."
-                    f"\n    subscriptions={self.subscriptions}"
+                    f"are still active.\n    subscriptions={self.subscriptions}"
                 )
 
     async def _handle_subscriptions(self, run_forever: bool = False) -> None:

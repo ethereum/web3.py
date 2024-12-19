@@ -20,6 +20,7 @@ from web3 import (
 )
 from web3._utils.caching import (
     RequestInformation,
+    generate_cache_key,
 )
 from web3._utils.module_testing.module_testing_utils import (
     WebSocketMessageStreamMock,
@@ -274,8 +275,7 @@ async def test_listen_event_awaits_msg_processing_when_subscription_queue_is_ful
         subscription_id=sub_id,
     )
     async_w3.provider._request_processor._request_information_cache.cache(
-        # cache key is the result of `generate_cache_key` with the sub_id as the arg
-        "0138b5d63d66121d8a6e680d23720fa7",
+        generate_cache_key(sub_id),
         sub_request_information,
     )
 

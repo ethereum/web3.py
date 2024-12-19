@@ -40,39 +40,39 @@ async def subscription_manager():
 
 
 @pytest.mark.asyncio
-async def test_subscription_manager_raises_for_sx_with_the_same_label(
+async def test_subscription_manager_raises_for_sub_with_the_same_label(
     subscription_manager,
 ):
-    sx1 = NewHeadsSubscription(label="foo")
-    await subscription_manager.subscribe(sx1)
+    sub1 = NewHeadsSubscription(label="foo")
+    await subscription_manager.subscribe(sub1)
 
     with pytest.raises(
         Web3ValueError,
         match="Subscription label already exists. Subscriptions must have unique "
         "labels.\n    label: foo",
     ):
-        sx2 = LogsSubscription(label="foo")
-        await subscription_manager.subscribe(sx2)
+        sub2 = LogsSubscription(label="foo")
+        await subscription_manager.subscribe(sub2)
 
     # make sure the subscription was subscribed to and not added to the manager
-    assert subscription_manager.subscriptions == [sx1]
-    assert subscription_manager._subscriptions_by_label == {"foo": sx1}
-    assert subscription_manager._subscriptions_by_id == {"0x0": sx1}
+    assert subscription_manager.subscriptions == [sub1]
+    assert subscription_manager._subscriptions_by_label == {"foo": sub1}
+    assert subscription_manager._subscriptions_by_id == {"0x0": sub1}
 
 
 @pytest.mark.asyncio
 async def test_subscription_manager_get_by_id(subscription_manager):
-    sx = NewHeadsSubscription(label="foo")
-    await subscription_manager.subscribe(sx)
-    assert subscription_manager.get_by_id("0x0") == sx
+    sub = NewHeadsSubscription(label="foo")
+    await subscription_manager.subscribe(sub)
+    assert subscription_manager.get_by_id("0x0") == sub
     assert subscription_manager.get_by_id("0x1") is None
 
 
 @pytest.mark.asyncio
 async def test_subscription_manager_get_by_label(subscription_manager):
-    sx = NewHeadsSubscription(label="foo")
-    await subscription_manager.subscribe(sx)
-    assert subscription_manager.get_by_label("foo") == sx
+    sub = NewHeadsSubscription(label="foo")
+    await subscription_manager.subscribe(sub)
+    assert subscription_manager.get_by_label("foo") == sub
     assert subscription_manager.get_by_label("bar") is None
 
 
@@ -80,23 +80,23 @@ async def test_subscription_manager_get_by_label(subscription_manager):
 async def test_unsubscribe_one_by_one_clears_all_subscriptions(
     subscription_manager,
 ):
-    sx1 = NewHeadsSubscription(label="foo")
-    sx2 = PendingTxSubscription(label="bar")
-    await subscription_manager.subscribe(sx1)
-    await subscription_manager.subscribe(sx2)
+    sub1 = NewHeadsSubscription(label="foo")
+    sub2 = PendingTxSubscription(label="bar")
+    await subscription_manager.subscribe(sub1)
+    await subscription_manager.subscribe(sub2)
 
-    await subscription_manager.unsubscribe(sx1)
-    assert subscription_manager.subscriptions == [sx2]
+    await subscription_manager.unsubscribe(sub1)
+    assert subscription_manager.subscriptions == [sub2]
 
-    await subscription_manager.unsubscribe(sx2)
+    await subscription_manager.unsubscribe(sub2)
     assert subscription_manager.subscriptions == []
 
 
 @pytest.mark.asyncio
 async def test_unsubscribe_all_clears_all_subscriptions(subscription_manager):
-    sx1 = NewHeadsSubscription(label="foo")
-    sx2 = PendingTxSubscription(label="bar")
-    await subscription_manager.subscribe([sx1, sx2])
+    sub1 = NewHeadsSubscription(label="foo")
+    sub2 = PendingTxSubscription(label="bar")
+    await subscription_manager.subscribe([sub1, sub2])
 
     await subscription_manager.unsubscribe_all()
     assert subscription_manager.subscriptions == []
