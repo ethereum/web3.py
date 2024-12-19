@@ -32,6 +32,7 @@ from web3.providers.persistent import (
     PersistentConnectionProvider,
 )
 from web3.types import (
+    FormattedEthSubscriptionResponse,
     RPCEndpoint,
     RPCResponse,
 )
@@ -121,8 +122,17 @@ def retrieve_async_method_call_fn(
     async_w3: "AsyncWeb3",
     module: "Module",
     method: Method[Callable[..., Any]],
-) -> Callable[..., Coroutine[Any, Any, Optional[Union[RPCResponse, AsyncLogFilter]]]]:
-    async def caller(*args: Any, **kwargs: Any) -> Union[RPCResponse, AsyncLogFilter]:
+) -> Callable[
+    ...,
+    Coroutine[
+        Any,
+        Any,
+        Optional[Union[RPCResponse, FormattedEthSubscriptionResponse, AsyncLogFilter]],
+    ],
+]:
+    async def caller(
+        *args: Any, **kwargs: Any
+    ) -> Union[RPCResponse, FormattedEthSubscriptionResponse, AsyncLogFilter]:
         try:
             (method_str, params), response_formatters = method.process_params(
                 module, *args, **kwargs
