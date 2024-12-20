@@ -190,9 +190,12 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
     def _message_listener_callback(
         self, message_listener_task: "asyncio.Task[None]"
     ) -> None:
-        # Puts a `TaskNotRunning` in the queue to signal the end of the listener task
-        # to any running subscription streams that are awaiting a response.
+        # Puts a `TaskNotRunning` in appropriate queues to signal the end of the
+        # listener task to any listeners relying on the queues.
         self._request_processor._subscription_response_queue.put_nowait(
+            TaskNotRunning(message_listener_task)
+        )
+        self._request_processor._handler_subscription_queue.put_nowait(
             TaskNotRunning(message_listener_task)
         )
 

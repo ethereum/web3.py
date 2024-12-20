@@ -56,8 +56,11 @@ async def test_subscription_manager_raises_for_sub_with_the_same_label(
 
     # make sure the subscription was subscribed to and not added to the manager
     assert subscription_manager.subscriptions == [sub1]
-    assert subscription_manager._subscriptions_by_label == {"foo": sub1}
-    assert subscription_manager._subscriptions_by_id == {"0x0": sub1}
+    sub_container = subscription_manager._subscription_container
+    assert len(sub_container) == 1
+    assert sub_container.subscriptions == [sub1]
+    assert sub_container.subscriptions_by_id == {"0x0": sub1}
+    assert sub_container.subscriptions_by_label == {"foo": sub1}
 
 
 @pytest.mark.asyncio
@@ -97,8 +100,13 @@ async def test_unsubscribe_all_clears_all_subscriptions(subscription_manager):
     sub1 = NewHeadsSubscription(label="foo")
     sub2 = PendingTxSubscription(label="bar")
     await subscription_manager.subscribe([sub1, sub2])
+    assert subscription_manager.subscriptions == [sub1, sub2]
 
     await subscription_manager.unsubscribe_all()
     assert subscription_manager.subscriptions == []
-    assert subscription_manager._subscriptions_by_id == {}
-    assert subscription_manager._subscriptions_by_label == {}
+
+    sub_container = subscription_manager._subscription_container
+    assert len(sub_container) == 0
+    assert sub_container.subscriptions == []
+    assert sub_container.subscriptions_by_id == {}
+    assert sub_container.subscriptions_by_label == {}
