@@ -7,7 +7,9 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Dict,
+    List,
     Tuple,
+    Union,
     cast,
 )
 
@@ -60,6 +62,9 @@ if TYPE_CHECKING:
     from web3.contract.async_contract import (
         AsyncContract,
         AsyncContractFunction,
+    )
+    from web3.providers.persistent.subscription_manager import (
+        SubscriptionContainer,
     )
 
 
@@ -158,6 +163,12 @@ async def logs_handler(
     assert await sub.unsubscribe()
 
 
+async def idle_handler(
+    _handler_context: Any,
+) -> None:
+    pass
+
+
 async def emit_contract_event(
     async_w3: AsyncWeb3,
     acct: ChecksumAddress,
@@ -192,6 +203,14 @@ async def log_indexed_and_non_indexed_args_task(
             delay=delay,
         )
     )
+
+
+def assert_no_subscriptions_left(sub_container: "SubscriptionContainer") -> None:
+    assert len(sub_container) == 0
+    assert len(sub_container.subscriptions) == 0
+    assert len(sub_container.subscriptions_by_id) == 0
+    assert len(sub_container.subscriptions_by_label) == 0
+    assert len(sub_container.handler_subscriptions) == 0
 
 
 class PersistentConnectionProviderTest:
@@ -295,6 +314,13 @@ class PersistentConnectionProviderTest:
             await async_w3.eth.unsubscribe(sub_id)
             break
 
+        assert_no_subscriptions_left(
+            async_w3.subscription_manager._subscription_container
+        )
+
+        # cleanup
+        async_w3.provider._request_processor.clear_caches()
+
     @pytest.mark.asyncio
     async def test_async_eth_subscribe_new_heads(self, async_w3: AsyncWeb3) -> None:
         sub_id = await async_w3.eth.subscribe("newHeads")
@@ -308,6 +334,9 @@ class PersistentConnectionProviderTest:
             break
 
         assert await async_w3.eth.unsubscribe(sub_id)
+        assert_no_subscriptions_left(
+            async_w3.subscription_manager._subscription_container
+        )
 
     @pytest.mark.asyncio
     async def test_async_eth_subscribe_creates_and_handles_new_heads_subscription_type(
@@ -315,7 +344,6 @@ class PersistentConnectionProviderTest:
         async_w3: AsyncWeb3,
     ) -> None:
         sub_manager = async_w3.subscription_manager
-
         new_heads_handler_test = SubscriptionHandlerTest()
 
         sub_id = await async_w3.eth.subscribe(
@@ -376,9 +404,9 @@ class PersistentConnectionProviderTest:
 
         # cleanup
         assert await async_w3.eth.unsubscribe(sub_id)
-        assert len(async_w3.subscription_manager.subscriptions) == 0
-        assert len(async_w3.subscription_manager._subscriptions_by_id) == 0
-        assert len(async_w3.subscription_manager._subscriptions_by_label) == 0
+        assert_no_subscriptions_left(
+            async_w3.subscription_manager._subscription_container
+        )
         async_w3.provider._request_processor.clear_caches()
         await async_w3.eth.wait_for_transaction_receipt(tx_hash)
         tx_seeder_task.cancel()
@@ -414,9 +442,9 @@ class PersistentConnectionProviderTest:
 
         # cleanup
         await async_w3.eth.unsubscribe(sub_id)
-        assert len(async_w3.subscription_manager.subscriptions) == 0
-        assert len(async_w3.subscription_manager._subscriptions_by_id) == 0
-        assert len(async_w3.subscription_manager._subscriptions_by_label) == 0
+        assert_no_subscriptions_left(
+            async_w3.subscription_manager._subscription_container
+        )
         await async_w3.eth.wait_for_transaction_receipt(tx_hash)
         tx_seeder_task.cancel()
 
@@ -762,3 +790,76 @@ class PersistentConnectionProviderTest:
 
         # cleanup
         sub_manager.total_handler_calls = 0
+
+    @pytest.mark.asyncio
+    async def test_subscriptions_with_handler_and_without(
+        self, async_w3: AsyncWeb3
+    ) -> None:
+        handler_test = SubscriptionHandlerTest()
+        stream_passed = False
+
+        async def test_sub_handler(
+            handler_context: NewHeadsSubscriptionContext,
+        ) -> None:
+            handler_context.handler_test.passed = True
+            await handler_context.subscription.unsubscribe()
+
+        async def handle_subscription_stream() -> None:
+            nonlocal stream_passed
+            async for msg in async_w3.socket.process_subscriptions():
+                response = cast(FormattedEthSubscriptionResponse, msg)
+                assert sub_manager.get_by_id(response["subscription"]) is not None
+                assert response["result"] is not None
+                # wait for the handler to unsubscribe:
+                stream_passed = True
+                await async_w3.eth.unsubscribe(response["subscription"])
+                break
+
+        await async_w3.eth.subscribe(
+            "newHeads",
+            handler=test_sub_handler,
+            label="managed",
+            handler_context={"handler_test": handler_test},
+        )
+        await async_w3.eth.subscribe("newHeads", label="streamed")
+
+        sub_manager = async_w3.subscription_manager
+        assert len(sub_manager.subscriptions) == 2
+
+        await asyncio.gather(
+            sub_manager.handle_subscriptions(),
+            handle_subscription_stream(),
+        )
+
+        assert len(sub_manager.subscriptions) == 0
+        assert sub_manager.total_handler_calls == 1
+        assert handler_test.passed
+        assert stream_passed
+
+        # cleanup
+        sub_manager.total_handler_calls = 0
+
+    @pytest.mark.asyncio
+    async def test_handle_subscriptions_breaks_on_unsubscribe(
+        self,
+        async_w3: AsyncWeb3,
+    ) -> None:
+        async def unsubscribe_subs(
+            subs: List[Union[NewHeadsSubscription, LogsSubscription]]
+        ) -> None:
+            for sub in subs:
+                await sub.unsubscribe()
+
+        sub_manager = async_w3.subscription_manager
+        sub1 = NewHeadsSubscription(label="foo", handler=idle_handler)
+        sub2 = LogsSubscription(label="bar", handler=idle_handler)
+        await sub_manager.subscribe([sub1, sub2])
+        assert sub_manager.subscriptions == [sub1, sub2]
+
+        asyncio.create_task(unsubscribe_subs([sub1, sub2]))
+        # With no subscriptions in the queue, ``handle_subscriptions`` should hang
+        # indefinitely. Test that when the last subscription is unsubscribed from,
+        # the method breaks out of the loop. This is done via a raised
+        # ``SubscriptionProcessingFinished`` within the ``TaskReliantQueue``.
+        await sub_manager.handle_subscriptions()
+        assert_no_subscriptions_left(sub_manager._subscription_container)
