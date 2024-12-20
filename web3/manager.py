@@ -73,9 +73,6 @@ from web3.types import (
     RPCEndpoint,
     RPCResponse,
 )
-from web3.utils.subscriptions import (
-    EthSubscriptionContext,
-)
 
 if TYPE_CHECKING:
     from web3.main import (  # noqa: F401
@@ -259,9 +256,8 @@ def _validate_response(
             web3_rpc_error = Web3RPCError(repr(error), rpc_response=response)
 
         response = apply_error_formatters(error_formatters, response)
-
-        logger.error(web3_rpc_error.user_message)
         logger.debug(f"RPC error response: {response}")
+
         raise web3_rpc_error
 
     elif "result" not in response and not is_subscription_response:
@@ -550,12 +546,12 @@ class RequestManager:
     def _persistent_message_stream(self) -> "_AsyncPersistentMessageStream":
         return _AsyncPersistentMessageStream(self)
 
-    async def _get_next_message(self) -> Optional[FormattedEthSubscriptionResponse]:
+    async def _get_next_message(self) -> FormattedEthSubscriptionResponse:
         return await self._message_stream().__anext__()
 
     async def _message_stream(
         self,
-    ) -> AsyncGenerator[Optional[FormattedEthSubscriptionResponse], None]:
+    ) -> AsyncGenerator[FormattedEthSubscriptionResponse, None]:
         if not isinstance(self._provider, PersistentConnectionProvider):
             raise Web3TypeError(
                 "Only providers that maintain an open, persistent connection "
@@ -573,26 +569,21 @@ class RequestManager:
                 response = await self._request_processor.pop_raw_response(
                     subscription=True
                 )
-                formatted_sub_response = cast(
-                    FormattedEthSubscriptionResponse,
-                    await self._process_response(response),
+                # if the subscription was unsubscribed from, we won't have a formatted
+                # response because we lost the request information.
+                sub_id = response.get(
+                    "subscription", response.get("params", {}).get("subscription")
                 )
-
-                sub = async_w3.subscription_manager.get_by_id(
-                    formatted_sub_response["subscription"]
-                )
-                # call the handler if there is one, else yield response to any listeners
-                if sub and sub._handler:
-                    await sub._handler(
-                        EthSubscriptionContext(
-                            async_w3,
-                            sub,
-                            formatted_sub_response["result"],
-                            **sub._handler_context,
-                        )
+                if async_w3.subscription_manager.get_by_id(sub_id):
+                    # if active subscription, process and yield the formatted response
+                    formatted_sub_response = cast(
+                        FormattedEthSubscriptionResponse,
+                        await self._process_response(response),
                     )
-                    yield None
-                yield formatted_sub_response
+                    yield formatted_sub_response
+                else:
+                    # if not an active sub, skip processing and continue
+                    continue
             except TaskNotRunning:
                 await asyncio.sleep(0)
                 self._provider._handle_listener_task_exceptions()
@@ -667,5 +658,5 @@ class _AsyncPersistentMessageStream:
     def __aiter__(self) -> Self:
         return self
 
-    async def __anext__(self) -> Optional[FormattedEthSubscriptionResponse]:
+    async def __anext__(self) -> FormattedEthSubscriptionResponse:
         return await self.manager._get_next_message()
