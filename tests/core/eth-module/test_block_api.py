@@ -38,7 +38,6 @@ def test_get_block_formatters_with_null_values(w3, request_mocker):
         "difficulty": None,
         "receiptsRoot": None,
         "stateRoot": None,
-        "totalDifficulty": None,
         "transactionsRoot": None,
         "transactions": [],
         "withdrawalsRoot": None,
@@ -79,7 +78,6 @@ def test_get_block_formatters_with_pre_formatted_values(w3, request_mocker):
         "stateRoot": (
             "0xfeed54faf6bb151112970b460118ed790197d69df7fcdd79801d120851723c88"
         ),
-        "totalDifficulty": "0x9bf9a3",
         "transactionsRoot": (
             "0xafeedbeef5f30efc9baf28e49271302e9b569cfa1e8e9d9512360eb8e7c667a7"
         ),
@@ -134,7 +132,6 @@ def test_get_block_formatters_with_pre_formatted_values(w3, request_mocker):
         "difficulty": int(unformatted_values_block["difficulty"], 16),
         "receiptsRoot": HexBytes(unformatted_values_block["receiptsRoot"]),
         "stateRoot": HexBytes(unformatted_values_block["stateRoot"]),
-        "totalDifficulty": int(unformatted_values_block["totalDifficulty"], 16),
         "transactionsRoot": HexBytes(unformatted_values_block["transactionsRoot"]),
         "transactions": [
             HexBytes(unformatted_values_block["transactions"][0]),
