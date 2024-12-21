@@ -2458,7 +2458,6 @@ class AsyncEthModuleTest:
         self, async_w3: "AsyncWeb3", async_keyfile_account_address: ChecksumAddress
     ) -> None:
         gas_price = async_w3.to_wei(2, "gwei")
-
         txn_params: TxParams = {
             "from": async_keyfile_account_address,
             "to": async_keyfile_account_address,
