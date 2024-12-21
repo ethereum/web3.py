@@ -180,9 +180,11 @@ async def test_disconnect_cleanup(
     provider._request_processor._request_response_cache.cache("0", "0x1337")
     provider._request_processor._request_information_cache.cache("0", "0x1337")
     provider._request_processor._subscription_response_queue.put_nowait({"id": "0"})
+    provider._request_processor._handler_subscription_queue.put_nowait({"id": "0"})
     assert len(provider._request_processor._request_response_cache) == 1
     assert len(provider._request_processor._request_information_cache) == 1
     assert provider._request_processor._subscription_response_queue.qsize() == 1
+    assert provider._request_processor._handler_subscription_queue.qsize() == 1
 
     await w3.provider.disconnect()
 
@@ -192,6 +194,7 @@ async def test_disconnect_cleanup(
     assert len(provider._request_processor._request_response_cache) == 0
     assert len(provider._request_processor._request_information_cache) == 0
     assert provider._request_processor._subscription_response_queue.empty()
+    assert provider._request_processor._handler_subscription_queue.empty()
 
 
 async def _raise_connection_closed(*_args, **_kwargs):

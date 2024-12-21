@@ -27,8 +27,12 @@ from web3._utils.caching import (
     generate_cache_key,
 )
 from web3.exceptions import (
+    SubscriptionProcessingFinished,
     TaskNotRunning,
     Web3ValueError,
+)
+from web3.providers.persistent.subscription_manager import (
+    SubscriptionContainer,
 )
 from web3.types import (
     RPCEndpoint,
@@ -75,17 +79,22 @@ class TaskReliantQueue(_TaskReliantQueue[T]):
 class RequestProcessor:
     _subscription_queue_synced_with_ws_stream: bool = False
 
+    # set by the subscription manager when it is initialized
+    _subscription_container: Optional[SubscriptionContainer] = None
+
     def __init__(
         self,
         provider: "PersistentConnectionProvider",
         subscription_response_queue_size: int = 500,
     ) -> None:
         self._provider = provider
-
         self._request_information_cache: SimpleCache = SimpleCache(500)
         self._request_response_cache: SimpleCache = SimpleCache(500)
         self._subscription_response_queue: TaskReliantQueue[
             Union[RPCResponse, TaskNotRunning]
+        ] = TaskReliantQueue(maxsize=subscription_response_queue_size)
+        self._handler_subscription_queue: TaskReliantQueue[
+            Union[RPCResponse, TaskNotRunning, SubscriptionProcessingFinished]
         ] = TaskReliantQueue(maxsize=subscription_response_queue_size)
 
     @property
@@ -303,7 +312,17 @@ class RequestProcessor:
             self._provider.logger.debug(
                 f"Caching subscription response:\n    response={raw_response}"
             )
-            await self._subscription_response_queue.put(raw_response)
+            subscription_id = raw_response.get("params", {}).get("subscription")
+            sub_container = self._subscription_container
+            if sub_container and sub_container.get_handler_subscription_by_id(
+                subscription_id
+            ):
+                # if the subscription has a handler, put it in the handler queue
+                await self._handler_subscription_queue.put(raw_response)
+            else:
+                # otherwise, put it in the subscription response queue so a response
+                # can be yielded by the message stream
+                await self._subscription_response_queue.put(raw_response)
         elif isinstance(raw_response, list):
             # Since only one batch should be in the cache at all times, we use a
             # constant cache key for the batch response.
@@ -367,7 +386,12 @@ class RequestProcessor:
 
         return raw_response
 
-    # request processor class methods
+    # cache methods
+
+    def _reset_handler_subscription_queue(self) -> None:
+        self._handler_subscription_queue = TaskReliantQueue(
+            maxsize=self._handler_subscription_queue.maxsize
+        )
 
     def clear_caches(self) -> None:
         """Clear the request processor caches."""
@@ -376,3 +400,4 @@ class RequestProcessor:
         self._subscription_response_queue = TaskReliantQueue(
             maxsize=self._subscription_response_queue.maxsize
         )
+        self._reset_handler_subscription_queue()
