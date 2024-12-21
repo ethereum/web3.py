@@ -245,7 +245,9 @@ workflows:
                 "integration-goethereum-http",
                 "integration-goethereum-http_async",
                 "integration-goethereum-legacy_ws",
-                "integration-goethereum-ws",
+                "integration-goethereum-ws_await",
+                "integration-goethereum-ws_ctx_manager",
+                "integration-goethereum-ws_async_iterator",
                 "integration-ethtester"
               ]
           name: "py3<< matrix.python_minor_version >>-<< matrix.tox_env >>"
