@@ -1,5 +1,8 @@
 import pytest
 
+from aiohttp import (
+    ClientTimeout,
+)
 import pytest_asyncio
 
 from tests.utils import (
@@ -70,7 +73,7 @@ def geth_command_arguments(rpc_port, base_geth_command_arguments, get_geth_versi
 @pytest.fixture(scope="module")
 def w3(geth_process, endpoint_uri):
     wait_for_http(endpoint_uri)
-    return Web3(Web3.HTTPProvider(endpoint_uri))
+    return Web3(Web3.HTTPProvider(endpoint_uri, request_kwargs={"timeout": 10}))
 
 
 class TestGoEthereumWeb3ModuleTest(GoEthereumWeb3ModuleTest):
@@ -119,7 +122,9 @@ class TestGoEthereumTxPoolModuleTest(GoEthereumTxPoolModuleTest):
 @pytest_asyncio.fixture(scope="module")
 async def async_w3(geth_process, endpoint_uri):
     await wait_for_aiohttp(endpoint_uri)
-    _w3 = AsyncWeb3(AsyncHTTPProvider(endpoint_uri))
+    _w3 = AsyncWeb3(
+        AsyncHTTPProvider(endpoint_uri, request_kwargs={"timeout": ClientTimeout(10)})
+    )
     return _w3
 
 
