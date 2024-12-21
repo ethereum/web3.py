@@ -94,7 +94,7 @@ def base_geth_command_arguments(geth_binary, datadir):
         datadir,
         "--dev",
         "--dev.period",
-        "1",
+        "2",
         "--password",
         os.path.join(datadir, "keystore", "pw.txt"),
     )

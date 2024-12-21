@@ -7,6 +7,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Dict,
+    Generator,
     List,
     Tuple,
     Union,
@@ -174,7 +175,7 @@ async def emit_contract_event(
     acct: ChecksumAddress,
     contract_function: "AsyncContractFunction",
     args: Any = (),
-    delay: float = 0.1,
+    delay: float = 0.25,
 ) -> None:
     await asyncio.sleep(delay)
     tx_hash = await contract_function(*args).transact({"from": acct})
@@ -213,7 +214,21 @@ def assert_no_subscriptions_left(sub_container: "SubscriptionContainer") -> None
     assert len(sub_container.handler_subscriptions) == 0
 
 
+async def clean_up_task(task: "asyncio.Task[Any]") -> None:
+    task.cancel()
+    try:
+        await task
+    except asyncio.CancelledError:
+        pass
+
+
 class PersistentConnectionProviderTest:
+    @pytest.fixture(autouse=True)
+    def clear_caches(self, async_w3: AsyncWeb3) -> Generator[None, None, None]:
+        yield
+        async_w3.provider._request_processor.clear_caches()
+        async_w3.subscription_manager.total_handler_calls = 0
+
     @staticmethod
     async def seed_transactions_to_geth(
         async_w3: AsyncWeb3,
@@ -318,9 +333,6 @@ class PersistentConnectionProviderTest:
             async_w3.subscription_manager._subscription_container
         )
 
-        # cleanup
-        async_w3.provider._request_processor.clear_caches()
-
     @pytest.mark.asyncio
     async def test_async_eth_subscribe_new_heads(self, async_w3: AsyncWeb3) -> None:
         sub_id = await async_w3.eth.subscribe("newHeads")
@@ -365,11 +377,8 @@ class PersistentConnectionProviderTest:
         assert sub_manager.total_handler_calls == 1
         assert sub.handler_call_count == 1
 
-        # cleanup
-        sub_manager.total_handler_calls = 0
-
     @pytest.mark.asyncio
-    async def test_async_eth_subscribe_new_and_process_pending_tx_true(
+    async def test_async_eth_subscribe_process_pending_tx_true(
         self,
         async_w3: AsyncWeb3,
     ) -> None:
@@ -409,7 +418,7 @@ class PersistentConnectionProviderTest:
         )
         async_w3.provider._request_processor.clear_caches()
         await async_w3.eth.wait_for_transaction_receipt(tx_hash)
-        tx_seeder_task.cancel()
+        await clean_up_task(tx_seeder_task)
 
     @pytest.mark.asyncio
     async def test_async_eth_subscribe_and_process_pending_tx_false(
@@ -446,7 +455,7 @@ class PersistentConnectionProviderTest:
             async_w3.subscription_manager._subscription_container
         )
         await async_w3.eth.wait_for_transaction_receipt(tx_hash)
-        tx_seeder_task.cancel()
+        await clean_up_task(tx_seeder_task)
 
     @pytest.mark.asyncio
     async def test_async_eth_subscribe_creates_and_handles_pending_tx_subscription_type(
@@ -472,9 +481,8 @@ class PersistentConnectionProviderTest:
         accts = await async_w3.eth.accounts
         acct = accts[0]
         tx_seeder_task = asyncio.create_task(
-            self.seed_transactions_to_geth(async_w3, acct, num_txs=1, delay=0.5)
+            self.seed_transactions_to_geth(async_w3, acct)
         )
-
         await sub_manager.handle_subscriptions()
 
         assert pending_tx_handler_test.passed
@@ -485,7 +493,7 @@ class PersistentConnectionProviderTest:
 
         # cleanup
         sub_manager.total_handler_calls = 0
-        tx_seeder_task.cancel()
+        await clean_up_task(tx_seeder_task)
 
     @pytest.mark.asyncio
     async def test_async_eth_subscribe_and_process_logs(
@@ -523,7 +531,7 @@ class PersistentConnectionProviderTest:
 
         assert await async_w3.eth.unsubscribe(sub_id)
         assert len(async_w3.subscription_manager.subscriptions) == 0
-        emit_event_task.cancel()
+        await clean_up_task(emit_event_task)
 
     @pytest.mark.asyncio
     async def test_async_eth_subscribe_creates_and_handles_logs_subscription_type(
@@ -571,7 +579,7 @@ class PersistentConnectionProviderTest:
 
         # cleanup
         sub_manager.total_handler_calls = 0
-        emit_event_task.cancel()
+        await clean_up_task(emit_event_task)
 
     @pytest.mark.asyncio
     async def test_async_extradata_poa_middleware_on_eth_subscription(
@@ -731,7 +739,6 @@ class PersistentConnectionProviderTest:
         subs = sub_manager.subscriptions
 
         await sub_manager.handle_subscriptions()
-        emit_event_task.cancel()
 
         # assert unsubscribed and removed subscriptions
         assert len(sub_manager.subscriptions) == 0
@@ -745,6 +752,7 @@ class PersistentConnectionProviderTest:
 
         # cleanup
         sub_manager.total_handler_calls = 0
+        await clean_up_task(emit_event_task)
 
     @pytest.mark.asyncio
     async def test_subscription_handler_context(self, async_w3: AsyncWeb3) -> None:
@@ -764,9 +772,10 @@ class PersistentConnectionProviderTest:
             assert handler_context.str2 == "bar"
 
             handler_context.handler_test.passed = True
-            await handler_context.subscription.unsubscribe()
+            unsubscribed = await handler_context.subscription.unsubscribe()
+            assert unsubscribed
 
-        await async_w3.eth.subscribe(
+        subscribed = await async_w3.eth.subscribe(
             "newHeads",
             label="foo",
             handler=test_sub_handler,
@@ -779,6 +788,7 @@ class PersistentConnectionProviderTest:
                 "handler_test": handler_test,
             },
         )
+        assert is_hexstr(subscribed)
 
         sub_manager = async_w3.subscription_manager
 
@@ -853,13 +863,17 @@ class PersistentConnectionProviderTest:
         sub_manager = async_w3.subscription_manager
         sub1 = NewHeadsSubscription(label="foo", handler=idle_handler)
         sub2 = LogsSubscription(label="bar", handler=idle_handler)
+
         await sub_manager.subscribe([sub1, sub2])
+
         assert sub_manager.subscriptions == [sub1, sub2]
 
-        asyncio.create_task(unsubscribe_subs([sub1, sub2]))
+        unsubscribe_task = asyncio.create_task(unsubscribe_subs([sub1, sub2]))
         # With no subscriptions in the queue, ``handle_subscriptions`` should hang
         # indefinitely. Test that when the last subscription is unsubscribed from,
         # the method breaks out of the loop. This is done via a raised
         # ``SubscriptionProcessingFinished`` within the ``TaskReliantQueue``.
         await sub_manager.handle_subscriptions()
+
         assert_no_subscriptions_left(sub_manager._subscription_container)
+        await clean_up_task(unsubscribe_task)

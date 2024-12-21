@@ -56,7 +56,7 @@ def geth_ipc_path(datadir):
 @pytest.fixture(scope="module")
 def w3(geth_process, geth_ipc_path):
     wait_for_socket(geth_ipc_path)
-    return Web3(Web3.IPCProvider(geth_ipc_path, timeout=30))
+    return Web3(Web3.IPCProvider(geth_ipc_path, timeout=10))
 
 
 class TestGoEthereumWeb3ModuleTest(GoEthereumWeb3ModuleTest):
@@ -101,7 +101,7 @@ class TestGoEthereumAdminModuleTest(GoEthereumAdminModuleTest):
 @pytest_asyncio.fixture(scope="module")
 async def async_w3(geth_process, geth_ipc_path):
     await wait_for_async_socket(geth_ipc_path)
-    async with AsyncWeb3(AsyncIPCProvider(geth_ipc_path)) as _aw3:
+    async with AsyncWeb3(AsyncIPCProvider(geth_ipc_path, request_timeout=10)) as _aw3:
         yield _aw3
 
 
