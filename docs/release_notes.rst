@@ -872,7 +872,7 @@ Improved Documentation
 
 - Add MEV blocking tutorial to Resources docs page (`#3072 <https://github.com/ethereum/web3.py/issues/3072>`__)
 - Fix documentation around current state of ``get_logs()`` usage and arguments. (`#3073 <https://github.com/ethereum/web3.py/issues/3073>`__)
-- Add an Ape hackathon kit to Resources documenation page (`#3082 <https://github.com/ethereum/web3.py/issues/3082>`__)
+- Add an Ape hackathon kit to Resources documentation page (`#3082 <https://github.com/ethereum/web3.py/issues/3082>`__)
 
 
 web3.py v6.8.0 (2023-08-02)
