@@ -474,12 +474,12 @@ Example code for using Google Cloud HSM:
 .. code-block:: python
 
   from web3_google_hsm.accounts.gcp_kms_account import GCPKmsAccount
-  
+
   account = GCPKmsAccount()
-  
+
   # Get the Ethereum address derived from your GCP KMS key
   print(f"GCP KMS Account address: {account.address}")
-  
+
   tx = {
       "from": account.address,
       "chain_id": w3.eth.chain_id,
@@ -491,15 +491,15 @@ Example code for using Google Cloud HSM:
       "gas_limit": 1000000,
       "gas_price": 300000000000,
   }
-  
+
   # Convert dict to Transaction object and sign
   signed_tx = account.sign_transaction(Transaction.from_dict(tx))
 
   tx_hash = w3.eth.send_raw_transaction(signed_tx)
-  
+
   # Wait for transaction receipt
   receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
-  
+
   print(f"Transaction hash: {receipt['transactionHash'].hex()}")
   print(f"From: {receipt['from']}")
   print(f"To: {receipt['to']}")
