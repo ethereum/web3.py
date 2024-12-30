@@ -217,12 +217,8 @@ class Method(Generic[TFunc]):
             # the first parameter determines which method needs to be called
             self.json_rpc_method = self.method_choice_depends_on_args(value=params[0])
 
-            pending_or_latest_filter_methods = [
-                RPC.eth_newPendingTransactionFilter,
-                RPC.eth_newBlockFilter,
-            ]
-            if self.json_rpc_method in pending_or_latest_filter_methods:
-                # For pending or latest filter methods, use params to determine
+            if self.json_rpc_method == RPC.eth_newBlockFilter:
+                # For latest filter method, use params to determine
                 # which method to call, but don't pass them through with the request
                 params = []
 
