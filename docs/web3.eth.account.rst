@@ -503,6 +503,6 @@ Example code for using Google Cloud HSM:
   print(f"Transaction hash: {receipt['transactionHash'].hex()}")
   print(f"From: {receipt['from']}")
   print(f"To: {receipt['to']}")
-  print(f"Gas used: {receipt['gasUsed']}")  
+  print(f"Gas used: {receipt['gasUsed']}")
 
 Note that HSM does not protect against supply chain attacks, as any software running on the cloud having access to the HSM module can still sign arbitrary transactions. You still need to secure your server access e.g. with two-factor authentication and have audit logs of the software deployments.
