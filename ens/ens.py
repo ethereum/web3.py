@@ -11,6 +11,9 @@ from typing import (
     cast,
 )
 
+from cchecksum import (
+    to_checksum_address,
+)
 from eth_typing import (
     Address,
     ChecksumAddress,
@@ -21,7 +24,6 @@ from eth_utils import (
     is_address,
     is_binary_address,
     is_checksum_address,
-    to_checksum_address,
 )
 from eth_utils.toolz import (
     merge,

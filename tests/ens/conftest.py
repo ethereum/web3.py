@@ -2,11 +2,11 @@ import asyncio
 import json
 import pytest
 
+from cchecksum import (
+    to_checksum_address,
+)
 from eth_tester import (
     EthereumTester,
-)
-from eth_utils import (
-    to_checksum_address,
 )
 import pytest_asyncio
 
