@@ -53,12 +53,6 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
     logger = logging.getLogger("web3.providers.PersistentConnectionProvider")
     has_persistent_connection = True
 
-    _request_processor: RequestProcessor
-    _message_listener_task: Optional["asyncio.Task[None]"] = None
-    _listen_event: asyncio.Event = asyncio.Event()
-
-    _batch_request_counter: Optional[int] = None
-
     def __init__(
         self,
         request_timeout: float = DEFAULT_PERSISTENT_CONNECTION_TIMEOUT,
@@ -72,9 +66,13 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
             self,
             subscription_response_queue_size=subscription_response_queue_size,
         )
+        self._message_listener_task: Optional["asyncio.Task[None]"] = None
+        self._batch_request_counter: Optional[int] = None
+        self._listen_event: asyncio.Event = asyncio.Event()
+        self._max_connection_retries = max_connection_retries
+
         self.request_timeout = request_timeout
         self.silence_listener_task_exceptions = silence_listener_task_exceptions
-        self._max_connection_retries = max_connection_retries
 
     def get_endpoint_uri_or_ipc_path(self) -> str:
         if hasattr(self, "endpoint_uri"):
@@ -192,9 +190,12 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
     def _message_listener_callback(
         self, message_listener_task: "asyncio.Task[None]"
     ) -> None:
-        # Puts a `TaskNotRunning` in the queue to signal the end of the listener task
-        # to any running subscription streams that are awaiting a response.
+        # Puts a `TaskNotRunning` in appropriate queues to signal the end of the
+        # listener task to any listeners relying on the queues.
         self._request_processor._subscription_response_queue.put_nowait(
+            TaskNotRunning(message_listener_task)
+        )
+        self._request_processor._handler_subscription_queue.put_nowait(
             TaskNotRunning(message_listener_task)
         )
 

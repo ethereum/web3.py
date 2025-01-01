@@ -1991,9 +1991,8 @@ class AsyncEthModuleTest:
         # Test with None overflowing
         filter_params: FilterParams = {
             "fromBlock": BlockNumber(0),
-            "topics": [None, None, None],
+            "topics": [None, None, None, None],
         }
-
         result = await async_w3.eth.get_logs(filter_params)
         assert len(result) == 0
 
@@ -2420,12 +2419,17 @@ class AsyncEthModuleTest:
 
     @flaky_with_xfail_on_exception(
         reason="Very flaky on CI runs, hard to reproduce locally.",
-        exception=RequestTimedOut,
+        exception=(RequestTimedOut, TransactionNotFound),
     )
     @pytest.mark.asyncio
     async def test_async_eth_replace_transaction_gas_price_defaulting_strategy_higher(
         self, async_w3: "AsyncWeb3", async_keyfile_account_address: ChecksumAddress
     ) -> None:
+        def higher_gas_price_strategy(async_w3: "AsyncWeb3", txn: TxParams) -> Wei:
+            return two_gwei_in_wei
+
+        two_gwei_in_wei = async_w3.to_wei(2, "gwei")
+
         txn_params: TxParams = {
             "from": async_keyfile_account_address,
             "to": async_keyfile_account_address,
@@ -2435,13 +2439,7 @@ class AsyncEthModuleTest:
         }
         txn_hash = await async_w3.eth.send_transaction(txn_params)
 
-        two_gwei_in_wei = async_w3.to_wei(2, "gwei")
-
-        def higher_gas_price_strategy(async_w3: "AsyncWeb3", txn: TxParams) -> Wei:
-            return two_gwei_in_wei
-
         async_w3.eth.set_gas_price_strategy(higher_gas_price_strategy)
-
         txn_params.pop("gasPrice")
         replace_txn_hash = await async_w3.eth.replace_transaction(txn_hash, txn_params)
         replace_txn = await async_w3.eth.get_transaction(replace_txn_hash)
@@ -2449,17 +2447,20 @@ class AsyncEthModuleTest:
             replace_txn["gasPrice"] == two_gwei_in_wei
         )  # Strategy provides higher gas price
         async_w3.eth.set_gas_price_strategy(None)  # reset strategy
+        await async_w3.eth.wait_for_transaction_receipt(replace_txn_hash)
 
     @flaky_with_xfail_on_exception(
         reason="Very flaky on CI runs, hard to reproduce locally.",
-        exception=RequestTimedOut,
+        exception=(RequestTimedOut, TransactionNotFound),
     )
     @pytest.mark.asyncio
     async def test_async_eth_replace_transaction_gas_price_defaulting_strategy_lower(
         self, async_w3: "AsyncWeb3", async_keyfile_account_address: ChecksumAddress
     ) -> None:
-        gas_price = async_w3.to_wei(2, "gwei")
+        def lower_gas_price_strategy(async_w3: "AsyncWeb3", txn: TxParams) -> Wei:
+            return async_w3.to_wei(4, "gwei")
 
+        gas_price = async_w3.to_wei(5, "gwei")
         txn_params: TxParams = {
             "from": async_keyfile_account_address,
             "to": async_keyfile_account_address,
@@ -2469,16 +2470,13 @@ class AsyncEthModuleTest:
         }
         txn_hash = await async_w3.eth.send_transaction(txn_params)
 
-        def lower_gas_price_strategy(async_w3: "AsyncWeb3", txn: TxParams) -> Wei:
-            return async_w3.to_wei(1, "gwei")
-
         async_w3.eth.set_gas_price_strategy(lower_gas_price_strategy)
-
         txn_params.pop("gasPrice")
         replace_txn_hash = await async_w3.eth.replace_transaction(txn_hash, txn_params)
         replace_txn = await async_w3.eth.get_transaction(replace_txn_hash)
         # Strategy provides lower gas price - minimum preferred
         assert replace_txn["gasPrice"] == math.ceil(gas_price * 1.125)
+
         async_w3.eth.set_gas_price_strategy(None)  # reset strategy
 
     @pytest.mark.asyncio

@@ -83,10 +83,6 @@ class AsyncBaseProvider:
     global_ccip_read_enabled: bool = True
     ccip_read_max_redirects: int = 4
 
-    # request caching
-    _request_cache: SimpleCache
-    _request_cache_lock: asyncio.Lock = asyncio.Lock()
-
     def __init__(
         self,
         cache_allowed_requests: bool = False,
@@ -96,6 +92,8 @@ class AsyncBaseProvider:
         ] = empty,
     ) -> None:
         self._request_cache = SimpleCache(1000)
+        self._request_cache_lock: asyncio.Lock = asyncio.Lock()
+
         self.cache_allowed_requests = cache_allowed_requests
         self.cacheable_requests = cacheable_requests or CACHEABLE_REQUESTS
         self.request_cache_validation_threshold = request_cache_validation_threshold
@@ -172,11 +170,9 @@ class AsyncBaseProvider:
 
 
 class AsyncJSONBaseProvider(AsyncBaseProvider):
-    logger = logging.getLogger("web3.providers.async_base.AsyncJSONBaseProvider")
-
     def __init__(self, **kwargs: Any) -> None:
-        self.request_counter = itertools.count()
         super().__init__(**kwargs)
+        self.request_counter = itertools.count()
 
     def encode_rpc_request(self, method: RPCEndpoint, params: Any) -> bytes:
         request_id = next(self.request_counter)
