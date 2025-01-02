@@ -572,39 +572,7 @@ class ContractFunctions(BaseContractFunctions):
         for func in self._functions:
             yield self[abi_to_signature(func)]
 
-    def __getattr__(self, function_name: str) -> "ContractFunction":
-        if super().__getattribute__("abi") is None:
-            raise NoABIFound(
-                "There is no ABI found for this contract.",
-            )
-        elif "_functions" not in self.__dict__ or len(self._functions) == 0:
-            raise NoABIFunctionsFound(
-                "The abi for this contract contains no function definitions. ",
-                "Are you sure you provided the correct contract abi?",
-            )
-        elif get_name_from_abi_element_identifier(function_name) not in [
-            get_name_from_abi_element_identifier(function["name"])
-            for function in self._functions
-        ]:
-            raise ABIFunctionNotFound(
-                f"The function '{function_name}' was not found in this ",
-                "contract's abi.",
-            )
-
-        if "(" not in function_name:
-            function_name = _get_any_abi_signature_with_name(
-                function_name, self._functions
-            )
-        else:
-            function_name = f"_{function_name}"
-
-        return super().__getattribute__(
-            function_name,
-        )
-
-    def __getitem__(self, function_name: str) -> "ContractFunction":
-        return getattr(self, function_name)
-
+    
 
 class Contract(BaseContract):
     # mypy types
@@ -809,24 +777,7 @@ class ContractCaller(BaseContractCaller):
                 )
                 setattr(self, str(fn.abi_element_identifier), caller_method)
 
-    def __call__(
-        self,
-        transaction: Optional[TxParams] = None,
-        block_identifier: BlockIdentifier = None,
-        ccip_read_enabled: Optional[bool] = None,
-    ) -> "ContractCaller":
-        if transaction is None:
-            transaction = {}
-
-        return type(self)(
-            self.abi,
-            self.w3,
-            self.address,
-            transaction=transaction,
-            block_identifier=block_identifier,
-            ccip_read_enabled=ccip_read_enabled,
-            decode_tuples=self.decode_tuples,
-        )
+    
 
 
 class ContractConstructor(BaseContractConstructor):
