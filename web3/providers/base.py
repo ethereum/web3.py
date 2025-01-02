@@ -134,13 +134,13 @@ class JSONBaseProvider(BaseProvider):
             "params": params or [],
             "id": next(self.request_counter),
         }
-        encoded = FriendlyJsonSerde().json_encode(rpc_dict, Web3JsonEncoder)
+        encoded = FriendlyJsonSerde.json_encode(rpc_dict, encoder_cls=Web3JsonEncoder)
         return to_bytes(text=encoded)
 
     @staticmethod
     def decode_rpc_response(raw_response: bytes) -> RPCResponse:
         text_response = to_text(raw_response)
-        return cast(RPCResponse, FriendlyJsonSerde().json_decode(text_response))
+        return cast(RPCResponse, FriendlyJsonSerde.json_decode(text_response))
 
     def is_connected(self, show_traceback: bool = False) -> bool:
         try:

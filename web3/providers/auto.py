@@ -20,11 +20,17 @@ from eth_typing import (
 from web3.exceptions import (
     CannotHandleRequest,
 )
-from web3.providers import (
+from web3.providers.base import (
     BaseProvider,
-    HTTPProvider,
+)
+from web3.providers.ipc import (
     IPCProvider,
+)
+from web3.providers.legacy_websocket import (
     LegacyWebSocketProvider,
+)
+from web3.providers.rpc import (
+    HTTPProvider,
 )
 from web3.types import (
     RPCEndpoint,
