@@ -555,7 +555,7 @@ The script can be run with: ``python ./eventscanner.py <your JSON-RPC API URL>``
             # # (slow down scan after starting to get hits)
             self.chunk_size_decrease = 0.5
 
-            # Factor how fast we increase chunk size if no results found
+            # Factor how fast we increase chunk size if no results are found
             self.chunk_size_increase = 2.0
 
         @property
