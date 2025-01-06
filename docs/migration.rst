@@ -31,7 +31,7 @@ legacy ``WebsocketProvider``. The ``LegacyWebSocketProvider`` has been deprecate
 If migrating from ``WebSocketProviderV2`` to ``WebSocketProvider``, you can expect the
 following changes:
 
-- Instantiation no longer requires the ``persistant_websocket`` method:
+- Instantiation no longer requires the ``persistent_websocket`` method:
 
   .. code-block:: python
 
