@@ -42,7 +42,7 @@ Tutorials
 - `Decode a signed transaction <https://snakecharmers.ethereum.org/web3-py-patterns-decoding-signed-transactions/>`__
 - Find a historical contract `revert reason <https://snakecharmers.ethereum.org/web3py-revert-reason-parsing/>`__
 - Generate a `vanity address <https://snakecharmers.ethereum.org/web3-py-patterns-mining-addresses/>`__
-- Similate transactions with `call state overrides <https://snakecharmers.ethereum.org/web3-py-patterns-eth_call-overrides/>`__
+- Simulate transactions with `call state overrides <https://snakecharmers.ethereum.org/web3-py-patterns-eth_call-overrides/>`__
 - Configure web3 for `JSON-RPC fallback and MEV blocker providers <https://web3-ethereum-defi.readthedocs.io/tutorials/multi-rpc-configuration.html>`__
 
 
