@@ -262,6 +262,13 @@ EthSubscriptionParams = Union[
 RPCId = Optional[Union[int, str]]
 
 
+class RPCRequest(TypedDict, total=False):
+    id: RPCId
+    jsonrpc: Literal["2.0"]
+    method: RPCEndpoint
+    params: Any
+
+
 class RPCResponse(TypedDict, total=False):
     error: RPCError
     id: RPCId

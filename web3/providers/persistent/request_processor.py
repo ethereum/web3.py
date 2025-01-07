@@ -1,7 +1,4 @@
 import asyncio
-from copy import (
-    copy,
-)
 import sys
 from typing import (
     TYPE_CHECKING,
@@ -36,6 +33,7 @@ from web3.providers.persistent.subscription_manager import (
 )
 from web3.types import (
     RPCEndpoint,
+    RPCId,
     RPCResponse,
 )
 from web3.utils import (
@@ -109,6 +107,7 @@ class RequestProcessor:
 
     def cache_request_information(
         self,
+        request_id: Optional[RPCId],
         method: RPCEndpoint,
         params: Any,
         response_formatters: Tuple[
@@ -129,25 +128,23 @@ class RequestProcessor:
                 )
                 return None
 
-        if self._provider._is_batching:
+        if request_id is None:
+            if not self._provider._is_batching:
+                raise Web3ValueError(
+                    "Request id must be provided when not batching requests."
+                )
             # the _batch_request_counter is set when entering the context manager
-            current_request_id = self._provider._batch_request_counter
+            request_id = self._provider._batch_request_counter
             self._provider._batch_request_counter += 1
-        else:
-            # copy the request counter and find the next request id without incrementing
-            # since this is done when / if the request is successfully sent
-            current_request_id = next(copy(self._provider.request_counter))
-        cache_key = generate_cache_key(current_request_id)
 
-        self._bump_cache_if_key_present(cache_key, current_request_id)
-
+        cache_key = generate_cache_key(request_id)
         request_info = RequestInformation(
             method,
             params,
             response_formatters,
         )
         self._provider.logger.debug(
-            f"Caching request info:\n    request_id={current_request_id},\n"
+            f"Caching request info:\n    request_id={request_id},\n"
             f"    cache_key={cache_key},\n    request_info={request_info.__dict__}"
         )
         self._request_information_cache.cache(
@@ -155,30 +152,6 @@ class RequestProcessor:
             request_info,
         )
         return cache_key
-
-    def _bump_cache_if_key_present(self, cache_key: str, request_id: int) -> None:
-        """
-        If the cache key is present in the cache, bump the cache key and request id
-        by one to make room for the new request. This behavior is necessary when a
-        request is made but inner requests, say to `eth_estimateGas` if the `gas` is
-        missing, are made before the original request is sent.
-        """
-        if cache_key in self._request_information_cache:
-            original_request_info = self._request_information_cache.get_cache_entry(
-                cache_key
-            )
-            bump = generate_cache_key(request_id + 1)
-
-            # recursively bump the cache if the new key is also present
-            self._bump_cache_if_key_present(bump, request_id + 1)
-
-            self._provider.logger.debug(
-                "Caching internal request. Bumping original request in cache:\n"
-                f"    request_id=[{request_id}] -> [{request_id + 1}],\n"
-                f"    cache_key=[{cache_key}] -> [{bump}],\n"
-                f"    request_info={original_request_info.__dict__}"
-            )
-            self._request_information_cache.cache(bump, original_request_info)
 
     def pop_cached_request_information(
         self, cache_key: str

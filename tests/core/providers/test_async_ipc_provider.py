@@ -364,5 +364,5 @@ async def test_async_ipc_provider_write_messages_end_with_new_line_delimiter(
 
         await w3.provider.make_request("method", [])
 
-        request_data = b'{"jsonrpc": "2.0", "method": "method", "params": [], "id": 0}'
+        request_data = b'{"id": 0, "jsonrpc": "2.0", "method": "method", "params": []}'
         w3.provider._writer.write.assert_called_with(request_data + b"\n")
