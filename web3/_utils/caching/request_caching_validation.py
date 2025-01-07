@@ -19,6 +19,7 @@ if TYPE_CHECKING:
     from web3.providers import (  # noqa: F401
         AsyncBaseProvider,
         BaseProvider,
+        PersistentConnectionProvider,
     )
 
 UNCACHEABLE_BLOCK_IDS = {"finalized", "safe", "latest", "pending"}

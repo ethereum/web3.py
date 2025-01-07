@@ -203,7 +203,7 @@ class Method(Generic[TFunc]):
     def process_params(
         self, module: "Module", *args: Any, **kwargs: Any
     ) -> Tuple[
-        Tuple[Union[RPCEndpoint, Callable[..., RPCEndpoint]], Tuple[Any, ...]],
+        Tuple[Union[RPCEndpoint, Callable[..., RPCEndpoint]], Tuple[RPCEndpoint, ...]],
         Tuple[
             Union[TReturn, Dict[str, Callable[..., Any]]],
             Callable[..., Any],

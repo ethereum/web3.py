@@ -3,6 +3,7 @@ from typing import (
     Any,
     Dict,
     Union,
+    cast,
 )
 
 from web3.types import (
@@ -18,6 +19,9 @@ if TYPE_CHECKING:
     from web3.manager import (  # noqa: F401
         _AsyncPersistentMessageStream,
     )
+    from web3.providers.persistent import (  # noqa: F401
+        PersistentConnectionProvider,
+    )
 
 
 class PersistentConnection:
@@ -28,6 +32,7 @@ class PersistentConnection:
 
     def __init__(self, w3: "AsyncWeb3"):
         self._manager = w3.manager
+        self.provider = cast("PersistentConnectionProvider", self._manager.provider)
 
     @property
     def subscriptions(self) -> Dict[str, Any]:
@@ -39,9 +44,7 @@ class PersistentConnection:
         """
         return self._manager._request_processor.active_subscriptions
 
-    async def make_request(
-        self, method: RPCEndpoint, params: Any
-    ) -> Union[RPCResponse, FormattedEthSubscriptionResponse]:
+    async def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
         """
         Make a request to the persistent connection and return the response. This method
         does not process the response as it would when invoking a method via the
@@ -51,10 +54,10 @@ class PersistentConnection:
         :param method: The RPC method, e.g. `eth_getBlockByNumber`.
         :param params: The RPC method parameters, e.g. `["0x1337", False]`.
 
-        :return: The processed response from the persistent connection.
-        :rtype: Union[RPCResponse, FormattedEthSubscriptionResponse]
+        :return: The unprocessed response from the persistent connection.
+        :rtype: RPCResponse
         """
-        return await self._manager.socket_request(method, params)
+        return await self.provider.make_request(method, params)
 
     async def send(self, method: RPCEndpoint, params: Any) -> None:
         """

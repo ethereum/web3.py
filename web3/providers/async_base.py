@@ -6,6 +6,7 @@ from typing import (
     Any,
     Callable,
     Coroutine,
+    Dict,
     List,
     Optional,
     Set,
@@ -43,6 +44,7 @@ from web3.middleware.base import (
 )
 from web3.types import (
     RPCEndpoint,
+    RPCRequest,
     RPCResponse,
 )
 from web3.utils import (
@@ -174,16 +176,26 @@ class AsyncJSONBaseProvider(AsyncBaseProvider):
         super().__init__(**kwargs)
         self.request_counter = itertools.count()
 
-    def encode_rpc_request(self, method: RPCEndpoint, params: Any) -> bytes:
+    def form_request(self, method: RPCEndpoint, params: Any = None) -> RPCRequest:
         request_id = next(self.request_counter)
         rpc_dict = {
+            "id": request_id,
             "jsonrpc": "2.0",
             "method": method,
             "params": params or [],
-            "id": request_id,
         }
-        encoded = FriendlyJsonSerde().json_encode(rpc_dict, cls=Web3JsonEncoder)
+        return cast(RPCRequest, rpc_dict)
+
+    @staticmethod
+    def encode_rpc_dict(rpc_dict: RPCRequest) -> bytes:
+        encoded = FriendlyJsonSerde().json_encode(
+            cast(Dict[str, Any], rpc_dict), cls=Web3JsonEncoder
+        )
         return to_bytes(text=encoded)
+
+    def encode_rpc_request(self, method: RPCEndpoint, params: Any) -> bytes:
+        rpc_dict = self.form_request(method, params)
+        return self.encode_rpc_dict(rpc_dict)
 
     @staticmethod
     def decode_rpc_response(raw_response: bytes) -> RPCResponse:

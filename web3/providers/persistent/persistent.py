@@ -3,10 +3,12 @@ from abc import (
     abstractmethod,
 )
 import asyncio
-import json
 import logging
 from typing import (
+    TYPE_CHECKING,
     Any,
+    Callable,
+    Coroutine,
     List,
     Optional,
     Tuple,
@@ -24,8 +26,11 @@ from web3._utils.batching import (
     sort_batch_response_by_response_ids,
 )
 from web3._utils.caching import (
-    async_handle_request_caching,
     generate_cache_key,
+)
+from web3._utils.caching.caching_utils import (
+    async_handle_recv_caching,
+    async_handle_send_caching,
 )
 from web3.exceptions import (
     PersistentConnectionClosedOK,
@@ -43,8 +48,14 @@ from web3.providers.persistent.request_processor import (
 from web3.types import (
     RPCEndpoint,
     RPCId,
+    RPCRequest,
     RPCResponse,
 )
+
+if TYPE_CHECKING:
+    from web3 import AsyncWeb3  # noqa: F401
+    from web3.middleware.base import MiddlewareOnion  # noqa: F401
+
 
 DEFAULT_PERSISTENT_CONNECTION_TIMEOUT = 30.0
 
@@ -52,6 +63,15 @@ DEFAULT_PERSISTENT_CONNECTION_TIMEOUT = 30.0
 class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
     logger = logging.getLogger("web3.providers.PersistentConnectionProvider")
     has_persistent_connection = True
+
+    _send_func_cache: Tuple[int, Callable[..., Coroutine[Any, Any, RPCRequest]]] = (
+        None,
+        None,
+    )
+    _recv_func_cache: Tuple[int, Callable[..., Coroutine[Any, Any, RPCResponse]]] = (
+        None,
+        None,
+    )
 
     def __init__(
         self,
@@ -73,6 +93,56 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
 
         self.request_timeout = request_timeout
         self.silence_listener_task_exceptions = silence_listener_task_exceptions
+
+    async def send_func(
+        self, async_w3: "AsyncWeb3", middleware_onion: "MiddlewareOnion"
+    ) -> Callable[..., Coroutine[Any, Any, RPCRequest]]:
+        """
+        Cache the middleware chain for `send`.
+        """
+        middleware = middleware_onion.as_tuple_of_middleware()
+        cache_key = hash(tuple(id(mw) for mw in middleware))
+
+        if cache_key != self._send_func_cache[0]:
+
+            async def send_function(method: RPCEndpoint, params: Any) -> RPCRequest:
+                for mw in middleware:
+                    initialized = mw(async_w3)
+                    method, params = await initialized.async_request_processor(
+                        method, params
+                    )
+
+                return await self.send_request(method, params)
+
+            self._send_func_cache = (cache_key, send_function)
+
+        return self._send_func_cache[1]
+
+    async def recv_func(
+        self, async_w3: "AsyncWeb3", middleware_onion: "MiddlewareOnion"
+    ) -> Any:
+        """
+        Cache and compose the middleware stack for `recv`.
+        """
+        middleware = middleware_onion.as_tuple_of_middleware()
+        cache_key = hash(tuple(id(mw) for mw in middleware))
+
+        if cache_key != self._recv_func_cache[0]:
+
+            async def recv_function(rpc_request: RPCRequest) -> RPCResponse:
+                # first, retrieve the response
+                response = await self.recv_for_request(rpc_request)
+                method = rpc_request["method"]
+                for mw in reversed(middleware):
+                    initialized = mw(async_w3)
+                    response = await initialized.async_response_processor(
+                        method, response
+                    )
+                return response
+
+            self._recv_func_cache = (cache_key, recv_function)
+
+        return self._recv_func_cache[1]
 
     def get_endpoint_uri_or_ipc_path(self) -> str:
         if hasattr(self, "endpoint_uri"):
@@ -138,15 +208,23 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
             f"Successfully disconnected from: {self.get_endpoint_uri_or_ipc_path()}"
         )
 
-    @async_handle_request_caching
-    async def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
-        request_data = self.encode_rpc_request(method, params)
-        await self.socket_send(request_data)
+    @async_handle_send_caching
+    async def send_request(self, method: RPCEndpoint, params: Any) -> RPCRequest:
+        request_dict = self.form_request(method, params)
+        await self.socket_send(self.encode_rpc_dict(request_dict))
+        return request_dict
 
-        current_request_id = json.loads(request_data)["id"]
-        response = await self._get_response_for_request_id(current_request_id)
+    @async_handle_recv_caching
+    async def recv_for_request(self, rpc_request: RPCRequest) -> RPCResponse:
+        return await self._get_response_for_request_id(rpc_request["id"])
 
-        return response
+    async def make_request(
+        self,
+        method: RPCEndpoint,
+        params: Any,
+    ) -> RPCResponse:
+        rpc_request = await self.send_request(method, params)
+        return await self.recv_for_request(rpc_request)
 
     async def make_batch_request(
         self, requests: List[Tuple[RPCEndpoint, Any]]

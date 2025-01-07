@@ -14,6 +14,7 @@ from typing import (
 )
 
 from web3.types import (
+    RPCEndpoint,
     RPCResponse,
 )
 
@@ -77,7 +78,7 @@ class AsyncIPCProvider(PersistentConnectionProvider):
             return False
 
         try:
-            await self.make_request("web3_clientVersion", [])
+            await self.make_request(RPCEndpoint("web3_clientVersion"), [])
             return True
         except (OSError, ProviderConnectionError) as e:
             if show_traceback:

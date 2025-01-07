@@ -6,6 +6,7 @@ from typing import (
     AsyncGenerator,
     Callable,
     Coroutine,
+    Dict,
     List,
     Optional,
     Sequence,
@@ -71,6 +72,7 @@ from web3.providers.async_base import (
 from web3.types import (
     FormattedEthSubscriptionResponse,
     RPCEndpoint,
+    RPCRequest,
     RPCResponse,
 )
 
@@ -502,31 +504,62 @@ class RequestManager:
     # -- persistent connection -- #
 
     async def socket_request(
-        self, method: RPCEndpoint, params: Any
-    ) -> Union[RPCResponse, FormattedEthSubscriptionResponse]:
+        self,
+        method: RPCEndpoint,
+        params: Any,
+        response_formatters: Optional[
+            Tuple[Dict[str, Callable[..., Any]], Callable[..., Any], Callable[..., Any]]
+        ] = None,
+    ) -> RPCResponse:
         provider = cast(PersistentConnectionProvider, self._provider)
-        request_func = await provider.request_func(
-            cast("AsyncWeb3", self.w3), cast("MiddlewareOnion", self.middleware_onion)
-        )
         self.logger.debug(
             "Making request to open socket connection and waiting for response: "
-            f"{provider.get_endpoint_uri_or_ipc_path()}, method: {method}"
+            f"{provider.get_endpoint_uri_or_ipc_path()},\n    method: {method},\n"
+            f"    params: {params}"
         )
-        response = await request_func(method, params)
-        return await self._process_response(response)
+        rpc_request = await self.send(method, params)
+        provider._request_processor.cache_request_information(
+            rpc_request["id"],
+            rpc_request["method"],
+            rpc_request["params"],
+            response_formatters=response_formatters or ((), (), ()),
+        )
+        return await self.recv_for_request(rpc_request)
 
-    async def send(self, method: RPCEndpoint, params: Any) -> None:
+    async def send(self, method: RPCEndpoint, params: Any) -> RPCRequest:
         provider = cast(PersistentConnectionProvider, self._provider)
-        # run through the request processors of the middleware
-        for mw_class in self.middleware_onion.as_tuple_of_middleware():
-            mw = mw_class(self.w3)
-            method, params = mw.request_processor(method, params)
-
+        async_w3 = cast("AsyncWeb3", self.w3)
+        middleware_onion = cast("MiddlewareOnion", self.middleware_onion)
+        send_func = await provider.send_func(
+            async_w3,
+            middleware_onion,
+        )
         self.logger.debug(
             "Sending request to open socket connection: "
-            f"{provider.get_endpoint_uri_or_ipc_path()}, method: {method}"
+            f"{provider.get_endpoint_uri_or_ipc_path()},\n    method: {method},\n"
+            f"    params: {params}"
         )
-        await provider.socket_send(provider.encode_rpc_request(method, params))
+        return await send_func(method, params)
+
+    async def recv_for_request(self, rpc_request: RPCRequest) -> RPCResponse:
+        provider = cast(PersistentConnectionProvider, self._provider)
+        async_w3 = cast("AsyncWeb3", self.w3)
+        middleware_onion = cast("MiddlewareOnion", self.middleware_onion)
+        recv_func = await provider.recv_func(
+            async_w3,
+            middleware_onion,
+        )
+        self.logger.debug(
+            "Getting response for request from open socket connection:\n"
+            f"    request: {rpc_request}"
+        )
+        response = await recv_func(rpc_request)
+        try:
+            return cast(RPCResponse, await self._process_response(response))
+        except Exception:
+            response_id_key = generate_cache_key(response["id"])
+            provider._request_processor._request_information_cache.pop(response_id_key)
+            raise
 
     async def recv(self) -> Union[RPCResponse, FormattedEthSubscriptionResponse]:
         provider = cast(PersistentConnectionProvider, self._provider)
