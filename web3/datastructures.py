@@ -15,7 +15,6 @@ from typing import (
     Optional,
     Sequence,
     Tuple,
-    Type,
     TypeVar,
     Union,
     cast,
@@ -25,9 +24,6 @@ from eth_utils import (
     is_integer,
 )
 
-from web3._utils.formatters import (
-    recursive_map,
-)
 from web3.exceptions import (
     Web3AssertionError,
     Web3TypeError,
@@ -81,19 +77,18 @@ class ReadableAttributeDict(Mapping[TKey, TValue]):
         builder.text(")")
 
     @classmethod
-    def _apply_if_mapping(cls: Type[T], value: TValue) -> Union[T, TValue]:
+    def recursive(cls, value: TValue) -> Any:
+        """
+        Recursively convert mappings to ReadableAttributeDict instances and
+        process nested collections (e.g., lists, sets, and dictionaries).
+        """
         if isinstance(value, Mapping):
-            # error: Too many arguments for "object"
-            return cls(value)  # type: ignore
-        else:
-            return value
-
-    @classmethod
-    def recursive(cls, value: TValue) -> "ReadableAttributeDict[TKey, TValue]":
-        return cast(
-            "ReadableAttributeDict[TKey, TValue]",
-            recursive_map(cls._apply_if_mapping, value),
-        )
+            return cls({k: cls.recursive(v) for k, v in value.items()})
+        elif isinstance(value, Sequence) and not isinstance(value, (str, bytes)):
+            return type(value)([cls.recursive(v) for v in value])  # type: ignore
+        elif isinstance(value, set):
+            return {cls.recursive(v) for v in value}
+        return value
 
 
 class MutableAttributeDict(
