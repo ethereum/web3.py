@@ -4,6 +4,7 @@ from abc import (
 )
 import asyncio
 import logging
+import signal
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -176,6 +177,7 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
                 self.logger.info(
                     f"Successfully connected to: {self.get_endpoint_uri_or_ipc_path()}"
                 )
+                self._set_signal_handlers()
                 break
             except (WebSocketException, OSError) as e:
                 if _connection_attempts == self._max_connection_retries:
@@ -192,6 +194,7 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
                 _backoff_time *= _backoff_rate_change
 
     async def disconnect(self) -> None:
+        # this should remain idempotent
         try:
             if self._message_listener_task:
                 self._message_listener_task.cancel()
@@ -260,10 +263,34 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
         raise NotImplementedError("Must be implemented by subclasses")
 
     async def _provider_specific_disconnect(self) -> None:
+        # this method should be idempotent
         raise NotImplementedError("Must be implemented by subclasses")
 
     async def _provider_specific_socket_reader(self) -> RPCResponse:
         raise NotImplementedError("Must be implemented by subclasses")
+
+    def _set_signal_handlers(self) -> None:
+        loop = asyncio.get_event_loop()
+
+        def extended_handler(sig: int, frame: Any, existing_handler: Any) -> None:
+            loop.create_task(self.disconnect())
+
+            # invoke the existing handler, if callable
+            if callable(existing_handler):
+                existing_handler(sig, frame)
+
+        existing_sigint_handler = signal.getsignal(signal.SIGINT)
+        existing_sigterm_handler = signal.getsignal(signal.SIGTERM)
+
+        # extend the existing signal handlers to include the disconnect method
+        signal.signal(
+            signal.SIGINT,
+            lambda sig, frame: extended_handler(sig, frame, existing_sigint_handler),
+        )
+        signal.signal(
+            signal.SIGTERM,
+            lambda sig, frame: extended_handler(sig, frame, existing_sigterm_handler),
+        )
 
     def _message_listener_callback(
         self, message_listener_task: "asyncio.Task[None]"

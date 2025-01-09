@@ -140,6 +140,7 @@ class AsyncIPCProvider(PersistentConnectionProvider):
         )
 
     async def _provider_specific_disconnect(self) -> None:
+        # this should remain idempotent
         if self._writer and not self._writer.is_closing():
             self._writer.close()
             await self._writer.wait_closed()
