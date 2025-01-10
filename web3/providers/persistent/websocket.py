@@ -113,7 +113,7 @@ class WebSocketProvider(PersistentConnectionProvider):
                 ) from e
             return False
 
-    async def socket_send(self, request_data: bytes) -> None:
+    async def socket_send(self, request_data: str) -> None:
         if self._ws is None:
             raise ProviderConnectionError(
                 "Connection to websocket has not been initiated for the provider."

@@ -86,14 +86,14 @@ class AsyncIPCProvider(PersistentConnectionProvider):
                 )
             return False
 
-    async def socket_send(self, request_data: bytes) -> None:
+    async def socket_send(self, request_data: str) -> None:
         if self._writer is None:
             raise ProviderConnectionError(
                 "Connection to ipc socket has not been initiated for the provider."
             )
 
         return await asyncio.wait_for(
-            self._socket_send(request_data), timeout=self.request_timeout
+            self._socket_send(request_data.encode()), timeout=self.request_timeout
         )
 
     async def socket_recv(self) -> RPCResponse:

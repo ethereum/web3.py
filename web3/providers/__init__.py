@@ -1,8 +1,9 @@
 from .async_base import (
     AsyncBaseProvider,
+    AsyncJSONBaseProvider,
 )
-from .rpc import (
-    AsyncHTTPProvider,
+from .auto import (
+    AutoProvider,
 )
 from .base import (
     BaseProvider,
@@ -15,9 +16,6 @@ from .eth_tester import (
 from .ipc import (
     IPCProvider,
 )
-from .rpc import (
-    HTTPProvider,
-)
 from .legacy_websocket import (
     LegacyWebSocketProvider,
 )
@@ -27,12 +25,14 @@ from .persistent import (
     PersistentConnectionProvider,
     WebSocketProvider,
 )
-from .auto import (
-    AutoProvider,
+from .rpc import (
+    AsyncHTTPProvider,
+    HTTPProvider,
 )
 
 __all__ = [
     "AsyncBaseProvider",
+    "AsyncJSONBaseProvider",
     "AsyncEthereumTesterProvider",
     "AsyncHTTPProvider",
     "AsyncIPCProvider",

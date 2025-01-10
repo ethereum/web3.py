@@ -158,7 +158,7 @@ class AsyncHTTPProvider(AsyncJSONBaseProvider):
             f"Making request HTTP. URI: {self.endpoint_uri}, Method: {method}"
         )
         request_data = self.encode_rpc_request(method, params)
-        raw_response = await self._make_request(method, request_data)
+        raw_response = await self._make_request(method, request_data.encode())
         response = self.decode_rpc_response(raw_response)
         self.logger.debug(
             f"Getting response HTTP. URI: {self.endpoint_uri}, "
@@ -172,7 +172,7 @@ class AsyncHTTPProvider(AsyncJSONBaseProvider):
         self.logger.debug(f"Making batch request HTTP - uri: `{self.endpoint_uri}`")
         request_data = self.encode_batch_rpc_request(batch_requests)
         raw_response = await self._request_session_manager.async_make_post_request(
-            self.endpoint_uri, request_data, **self.get_request_kwargs()
+            self.endpoint_uri, request_data.encode(), **self.get_request_kwargs()
         )
         self.logger.debug("Received batch response HTTP.")
         responses_list = cast(List[RPCResponse], self.decode_rpc_response(raw_response))

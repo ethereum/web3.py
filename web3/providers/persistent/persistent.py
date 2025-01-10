@@ -164,7 +164,7 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
     # -- abstract methods -- #
 
     @abstractmethod
-    async def socket_send(self, request_data: bytes) -> None:
+    async def socket_send(self, request_data: str) -> None:
         """
         Send an encoded RPC request to the provider over the persistent connection.
         """
