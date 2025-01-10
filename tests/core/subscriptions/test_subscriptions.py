@@ -28,6 +28,7 @@ def test_pending_tx_subscription_properties_default(handler):
     )
     assert pending_tx_subscription._handler is handler
     assert pending_tx_subscription.label == "pending tx label"
+    assert pending_tx_subscription.full_transactions is False
     assert pending_tx_subscription.subscription_params == (
         "newPendingTransactions",
         False,
@@ -40,6 +41,7 @@ def test_pending_tx_subscription_properties_full_transactions(handler):
     )
     assert pending_tx_subscription._handler is handler
     assert pending_tx_subscription.label == "pending tx label"
+    assert pending_tx_subscription.full_transactions is True
     assert pending_tx_subscription.subscription_params == (
         "newPendingTransactions",
         True,
