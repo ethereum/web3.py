@@ -55,7 +55,19 @@ def test_load_provider_from_env(monkeypatch, uri, expected_type, expected_attrs)
 
 
 def test_get_dev_ipc_path(monkeypatch, tmp_path):
-    uri = str(tmp_path)
+    # test default path
+    path = get_dev_ipc_path()
+    assert path == "/tmp/geth.ipc"
+
+    uri = str(tmp_path) + "/geth.ipc"
+
+    # test setting the "TMPDIR" environment variable
+    monkeypatch.setenv("TMPDIR", str(tmp_path))
+    path = get_dev_ipc_path()
+    assert path == uri
+    monkeypatch.delenv("TMPDIR")  # reset
+
+    # test with WEB3_PROVIDER_URI set
     monkeypatch.setenv("WEB3_PROVIDER_URI", uri)
     path = get_dev_ipc_path()
     assert path == uri

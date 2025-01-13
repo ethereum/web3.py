@@ -1,0 +1,1 @@
+Fix a bug related to building the ipc path for connecting to a geth ``--dev`` instance via ``web3.auto.gethdev``.
