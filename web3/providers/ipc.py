@@ -116,14 +116,15 @@ def get_default_ipc_path() -> str:
 
 
 def get_dev_ipc_path() -> str:
-    if os.environ.get("WEB3_PROVIDER_URI", ""):
-        return os.environ.get("WEB3_PROVIDER_URI")
+    web3_provider_uri = os.environ.get("WEB3_PROVIDER_URI", "")
+    if web3_provider_uri and "geth.ipc" in web3_provider_uri:
+        return web3_provider_uri
 
-    elif sys.platform == "darwin":
-        tmpdir = os.environ.get("TMPDIR", "")
+    elif sys.platform == "darwin" or sys.platform.startswith("linux"):
+        tmpdir = os.environ.get("TMPDIR", "/tmp")
         return os.path.expanduser(os.path.join(tmpdir, "geth.ipc"))
 
-    elif sys.platform.startswith("linux") or sys.platform.startswith("freebsd"):
+    elif sys.platform.endswith("freebsd"):
         return os.path.expanduser(os.path.join("/tmp", "geth.ipc"))
 
     elif sys.platform == "win32":

@@ -97,7 +97,7 @@ def test_get_default_ipc_path(platform, expected_result, expected_error):
     "platform, expected_result, expected_error",
     [
         ("darwin", "/var/path/to/tmp/T/geth.ipc", None),
-        ("linux", "/tmp/geth.ipc", None),
+        ("linux", "/var/path/to/tmp/T/geth.ipc", None),
         ("freebsd", "/tmp/geth.ipc", None),
         ("win32", r"\\.\pipe\geth.ipc", None),
         (
@@ -119,7 +119,7 @@ def test_get_dev_ipc_path_(provider_env_uri, platform, expected_result, expected
             os.environ,
             {
                 "TMPDIR": "/var/path/to/tmp/T/",
-                "WEB3_PROVIDER_URI": provider_env_uri,
+                "WEB3_PROVIDER_URI": provider_env_uri or "",
             },
         ):
             if provider_env_uri:
@@ -130,7 +130,7 @@ def test_get_dev_ipc_path_(provider_env_uri, platform, expected_result, expected
                 ):
                     get_dev_ipc_path()
             else:
-                assert get_dev_ipc_path().endswith(expected_result)
+                assert get_dev_ipc_path() == expected_result
 
 
 @pytest.fixture
