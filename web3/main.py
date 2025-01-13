@@ -540,7 +540,10 @@ class AsyncWeb3(BaseWeb3):
     )
     def __await__(self) -> Generator[Any, None, Self]:
         async def __async_init__() -> Self:
-            await self.provider.connect()
+            provider = cast("PersistentConnectionProvider", self.provider)
+            await provider.connect()
+            # set signal handlers since not within a context manager
+            provider._set_signal_handlers()
             return self
 
         return __async_init__().__await__()
