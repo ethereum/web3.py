@@ -177,7 +177,6 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
                 self.logger.info(
                     f"Successfully connected to: {self.get_endpoint_uri_or_ipc_path()}"
                 )
-                self._set_signal_handlers()
                 break
             except (WebSocketException, OSError) as e:
                 if _connection_attempts == self._max_connection_retries:
