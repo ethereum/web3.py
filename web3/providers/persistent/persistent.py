@@ -270,14 +270,13 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
         raise NotImplementedError("Must be implemented by subclasses")
 
     def _set_signal_handlers(self) -> None:
-        loop = asyncio.get_event_loop()
-
         def extended_handler(sig: int, frame: Any, existing_handler: Any) -> None:
-            loop.create_task(self.disconnect())
+            loop = asyncio.get_event_loop()
 
             # invoke the existing handler, if callable
             if callable(existing_handler):
                 existing_handler(sig, frame)
+            loop.create_task(self.disconnect())
 
         existing_sigint_handler = signal.getsignal(signal.SIGINT)
         existing_sigterm_handler = signal.getsignal(signal.SIGTERM)
