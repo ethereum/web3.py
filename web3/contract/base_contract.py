@@ -165,6 +165,7 @@ class BaseContractEvent:
     argument_types: Tuple[str, ...] = tuple()
     args: Any = None
     kwargs: Any = None
+    _topic: HexStr = None
 
     def __init__(self, *argument_names: str, abi: Optional[ABIEvent] = None) -> None:
         self.abi_element_identifier = type(self).__name__
@@ -175,7 +176,6 @@ class BaseContractEvent:
             self.abi = abi
 
         self.signature = abi_to_signature(self.abi)
-        self.topic = encode_hex(keccak(text=self.signature))
 
         if argument_names:
             self.argument_names = argument_names
@@ -188,6 +188,12 @@ class BaseContractEvent:
         if self.abi:
             return f"<Event {abi_to_signature(self.abi)}>"
         return f"<Event {get_abi_element_signature(self.abi_element_identifier)}>"
+
+    @property
+    def topic(self) -> HexStr:
+        if self._topic is None:
+            self._topic = encode_hex(keccak(text=self.signature))
+        return self._topic
 
     @combomethod
     def _get_event_abi(cls) -> ABIEvent:
@@ -205,7 +211,6 @@ class BaseContractEvent:
 
     def _set_event_info(self) -> None:
         self.abi = self._get_event_abi()
-        self.topic = encode_hex(keccak(text=self.signature))
 
     @combomethod
     def process_receipt(
