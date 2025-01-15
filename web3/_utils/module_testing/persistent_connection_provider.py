@@ -542,14 +542,13 @@ class PersistentConnectionProviderTest:
         sub_manager = async_w3.subscription_manager
 
         event = async_emitter_contract.events.LogIndexedAndNotIndexed
-        event_topic = async_w3.keccak(text=event.abi_element_identifier).to_0x_hex()
 
         logs_handler_test = SubscriptionHandlerTest()
         sub_id = await async_w3.eth.subscribe(
             "logs",
             {
                 "address": async_emitter_contract.address,
-                "topics": [HexStr(event_topic)],
+                "topics": [event.topic],
             },
             handler=logs_handler,
             handler_context={
