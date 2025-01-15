@@ -175,6 +175,7 @@ class BaseContractEvent:
             self.abi = abi
 
         self.signature = abi_to_signature(self.abi)
+        self.topic = encode_hex(keccak(text=self.signature))
 
         if argument_names:
             self.argument_names = argument_names
@@ -204,6 +205,7 @@ class BaseContractEvent:
 
     def _set_event_info(self) -> None:
         self.abi = self._get_event_abi()
+        self.topic = encode_hex(keccak(text=self.signature))
 
     @combomethod
     def process_receipt(

@@ -804,6 +804,26 @@ async def async_nested_tuple_contract_with_decode_tuples(
 
 
 @pytest_asyncio.fixture
+async def async_event_contract(
+    async_w3, async_wait_for_transaction, async_wait_for_block, address_conversion_func
+):
+    async_event_contract_factory = async_w3.eth.contract(**EVENT_CONTRACT_DATA)
+
+    await async_wait_for_block(async_w3)
+    deploy_txn_hash = await async_event_contract_factory.constructor().transact(
+        {"gas": 1000000}
+    )
+    deploy_receipt = await async_wait_for_transaction(async_w3, deploy_txn_hash)
+    contract_address = address_conversion_func(deploy_receipt["contractAddress"])
+
+    bytecode = await async_w3.eth.get_code(contract_address)
+    assert bytecode == async_event_contract_factory.bytecode_runtime
+    event_contract = async_event_contract_factory(address=contract_address)
+    assert event_contract.address == contract_address
+    return event_contract
+
+
+@pytest_asyncio.fixture
 async def async_ambiguous_event_contract(async_w3, address_conversion_func):
     async_ambiguous_event_contract_factory = async_w3.eth.contract(
         **AMBIGUOUS_EVENT_NAME_CONTRACT_DATA
