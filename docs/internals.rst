@@ -518,12 +518,18 @@ when it comes in.
     ...     log_receipt = handler_context.result
     ...     # event is now available in the handler context, because we pass it to in the
     ...     # ``handler_context`` when subscribing to the log
-    ...     event_data = handler_context.event.process_log(log_receipt)
+    ...     event_data = handler_context.transfer_event.process_log(log_receipt)
     ...     print(f"Log event data: {event_data}\n")
 
     >>> async def sub_manager():
-    ...     local_w3 = await AsyncWeb3(AsyncIPCProvider(LOCAL_IPC, label="mainnet-ipc"))
+    ...     local_w3 = await AsyncWeb3(AsyncIPCProvider(LOCAL_IPC))
+    ...
     ...     # subscribe to many subscriptions via the subscription manager with handlers
+    ...     weth_contract = local_w3.eth.contract(
+    ...         address=local_w3.to_checksum_address("0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"),
+    ...         abi=WETH_ABI,
+    ...     )
+    ...     transfer_event = weth_contract.events.Transfer()
     ...     await local_w3.subscription_manager.subscribe(
     ...         [
     ...             NewHeadsSubscription(label="new-heads-mainnet", handler=new_heads_handler),
@@ -534,16 +540,16 @@ when it comes in.
     ...             ),
     ...             LogsSubscription(
     ...                 label="WETH transfers",  # optional label
-    ...                 address=local_w3.to_checksum_address("0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"),
-    ...                 topics=[HexStr("0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef")],
+    ...                 address=weth_contract.address,
+    ...                 topics=[transfer_event.topic],
     ...                 handler=log_handler,
     ...                 # optional ``handler_context`` args to help parse a response
-    ...                 handler_context={"event": my_event},
+    ...                 handler_context={"transfer_event": transfer_event},
     ...             ),
     ...         ]
     ...     )
     ...
-    ...     public_w3 = await AsyncWeb3(WebSocketProvider(PUBLIC_PROVIDER_WS, label="public-ws"))
+    ...     public_w3 = await AsyncWeb3(WebSocketProvider(PUBLIC_PROVIDER_WS))
     ...     # subscribe via eth_subscribe, with handler and label (optional)
     ...     await public_w3.eth.subscribe("public_newHeads", handler=pending_tx_handler, label="new-heads-public-ws")
 
