@@ -1,1 +1,0 @@
-Remove error logging the user message on RPC errors. The user message is available on the exception and the response itself is logged at the debug level.

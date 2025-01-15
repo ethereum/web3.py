@@ -6,6 +6,35 @@ v7 Breaking Changes Summary
 
 .. towncrier release notes start
 
+web3.py v7.7.0 (2025-01-15)
+---------------------------
+
+Bugfixes
+~~~~~~~~
+
+- Add a ``disconnect`` method to the AsyncHTTPProvider that closes all sessions and clears the cache (`#3557 <https://github.com/ethereum/web3.py/issues/3557>`__)
+- Fix a bug related to building the ipc path for connecting to a geth ``--dev`` instance via ``web3.auto.gethdev``. (`#3576 <https://github.com/ethereum/web3.py/issues/3576>`__)
+
+
+Features
+~~~~~~~~
+
+- Add a subscription manager to persistent connection providers, with support for handler methods for ``eth_subscribe`` subscriptions. (`#3554 <https://github.com/ethereum/web3.py/issues/3554>`__)
+- Implement a ``topic`` property for contract events to retrieve the topic for the event. (`#3578 <https://github.com/ethereum/web3.py/issues/3578>`__)
+
+
+Miscellaneous Changes
+~~~~~~~~~~~~~~~~~~~~~
+
+- `#3546 <https://github.com/ethereum/web3.py/issues/3546>`__
+
+
+Performance Improvements
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Improve ``AttributeDict.recursive()`` and ``AttributeDictMiddleware`` performance, effectively speeding up response processing for attrdict middleware by nearly 2x. (`#3575 <https://github.com/ethereum/web3.py/issues/3575>`__)
+
+
 web3.py v7.6.1 (2024-12-18)
 ---------------------------
 

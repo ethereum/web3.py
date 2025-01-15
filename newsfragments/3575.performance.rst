@@ -1,1 +1,0 @@
-Improve ``AttributeDict.recursive()`` and ``AttributeDictMiddleware`` performance, effectively speeding up response processing for attrdict middleware by nearly 2x.

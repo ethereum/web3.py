@@ -1,1 +1,0 @@
-Add a subscription manager to persistent connection providers, with support for handler methods for ``eth_subscribe`` subscriptions.
