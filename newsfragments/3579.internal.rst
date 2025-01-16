@@ -1,0 +1,1 @@
+Move duplicate code into base class in (1) ContractFunction and AsyncContractFunction, (2) ContractEvents and AsyncContractEvents, and (3) ContractFunctions and AsyncContractFunctions.
