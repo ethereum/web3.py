@@ -32,7 +32,6 @@ from hexbytes import (
 
 from web3._utils.abi import (
     fallback_func_abi_exists,
-    get_name_from_abi_element_identifier,
     receive_func_abi_exists,
 )
 from web3._utils.abi_element_identifiers import (
@@ -86,11 +85,6 @@ from web3.contract.utils import (
     get_function_by_identifier,
 )
 from web3.exceptions import (
-    ABIEventNotFound,
-    ABIFunctionNotFound,
-    NoABIEventsFound,
-    NoABIFound,
-    NoABIFunctionsFound,
     Web3AttributeError,
     Web3TypeError,
     Web3ValidationError,
@@ -102,9 +96,6 @@ from web3.types import (
     StateOverride,
     TxParams,
 )
-from web3.utils.abi import (
-    _get_any_abi_signature_with_name,
-)
 
 if TYPE_CHECKING:
     from ens import AsyncENS  # noqa: F401
@@ -115,7 +106,7 @@ class AsyncContractEvent(BaseContractEvent):
     # mypy types
     w3: "AsyncWeb3"
 
-    def __call__(self, *args: Any, **kwargs: Any) -> "AsyncContractEvent":
+    def __call__(self, *args: Any, **kwargs: Any) -> Self:
         return copy_contract_event(self, *args, **kwargs)
 
     @combomethod
@@ -248,52 +239,12 @@ class AsyncContractEvent(BaseContractEvent):
         builder.address = self.address
         return builder
 
-    @classmethod
-    def factory(cls, class_name: str, **kwargs: Any) -> Self:
-        return PropertyCheckingFactory(class_name, (cls,), kwargs)()
 
-
-class AsyncContractEvents(BaseContractEvents):
+class AsyncContractEvents(BaseContractEvents[AsyncContractEvent]):
     def __init__(
         self, abi: ABI, w3: "AsyncWeb3", address: Optional[ChecksumAddress] = None
     ) -> None:
         super().__init__(abi, w3, AsyncContractEvent, address)
-
-    def __iter__(self) -> Iterable["AsyncContractEvent"]:
-        if not hasattr(self, "_events") or not self._events:
-            return
-
-        for event in self._events:
-            yield self[abi_to_signature(event)]
-
-    def __getattr__(self, event_name: str) -> "AsyncContractEvent":
-        if super().__getattribute__("abi") is None:
-            raise NoABIFound(
-                "There is no ABI found for this contract.",
-            )
-        elif "_events" not in self.__dict__ or len(self._events) == 0:
-            raise NoABIEventsFound(
-                "The abi for this contract contains no event definitions. ",
-                "Are you sure you provided the correct contract abi?",
-            )
-        elif get_name_from_abi_element_identifier(event_name) not in [
-            get_name_from_abi_element_identifier(event["name"])
-            for event in self._events
-        ]:
-            raise ABIEventNotFound(
-                f"The event '{event_name}' was not found in this contract's abi. ",
-                "Are you sure you provided the correct contract abi?",
-            )
-
-        if "(" not in event_name:
-            event_name = _get_any_abi_signature_with_name(event_name, self._events)
-        else:
-            event_name = f"_{event_name}"
-
-        return super().__getattribute__(event_name)
-
-    def __getitem__(self, event_name: str) -> "AsyncContractEvent":
-        return getattr(self, event_name)
 
 
 class AsyncContractFunction(BaseContractFunction):
@@ -440,7 +391,7 @@ class AsyncContractFunction(BaseContractFunction):
         return cast(AsyncContractFunction, NonExistentReceiveFunction())
 
 
-class AsyncContractFunctions(BaseContractFunctions):
+class AsyncContractFunctions(BaseContractFunctions[AsyncContractFunction]):
     def __init__(
         self,
         abi: ABI,
@@ -449,46 +400,6 @@ class AsyncContractFunctions(BaseContractFunctions):
         decode_tuples: Optional[bool] = False,
     ) -> None:
         super().__init__(abi, w3, AsyncContractFunction, address, decode_tuples)
-
-    def __iter__(self) -> Iterable["AsyncContractFunction"]:
-        if not hasattr(self, "_functions") or not self._functions:
-            return
-
-        for func in self._functions:
-            yield self[abi_to_signature(func)]
-
-    def __getattr__(self, function_name: str) -> "AsyncContractFunction":
-        if super().__getattribute__("abi") is None:
-            raise NoABIFound(
-                "There is no ABI found for this contract.",
-            )
-        elif "_functions" not in self.__dict__ or len(self._functions) == 0:
-            raise NoABIFunctionsFound(
-                "The abi for this contract contains no function definitions. ",
-                "Are you sure you provided the correct contract abi?",
-            )
-        elif get_name_from_abi_element_identifier(function_name) not in [
-            get_name_from_abi_element_identifier(function["name"])
-            for function in self._functions
-        ]:
-            raise ABIFunctionNotFound(
-                f"The function '{function_name}' was not found in this ",
-                "contract's abi.",
-            )
-
-        if "(" not in function_name:
-            function_name = _get_any_abi_signature_with_name(
-                function_name, self._functions
-            )
-        else:
-            function_name = f"_{function_name}"
-
-        return super().__getattribute__(
-            function_name,
-        )
-
-    def __getitem__(self, function_name: str) -> "AsyncContractFunction":
-        return getattr(self, function_name)
 
 
 class AsyncContract(BaseContract):

@@ -84,9 +84,7 @@ from web3.contract.utils import (
     transact_with_contract_function,
 )
 from web3.exceptions import (
-    ABIEventNotFound,
     ABIFunctionNotFound,
-    NoABIEventsFound,
     NoABIFound,
     NoABIFunctionsFound,
     Web3AttributeError,
@@ -249,52 +247,12 @@ class ContractEvent(BaseContractEvent):
         builder.address = self.address
         return builder
 
-    @classmethod
-    def factory(cls, class_name: str, **kwargs: Any) -> Self:
-        return PropertyCheckingFactory(class_name, (cls,), kwargs)()
 
-
-class ContractEvents(BaseContractEvents):
+class ContractEvents(BaseContractEvents[ContractEvent]):
     def __init__(
         self, abi: ABI, w3: "Web3", address: Optional[ChecksumAddress] = None
     ) -> None:
         super().__init__(abi, w3, ContractEvent, address)
-
-    def __getattr__(self, event_name: str) -> "ContractEvent":
-        if super().__getattribute__("abi") is None:
-            raise NoABIFound(
-                "There is no ABI found for this contract.",
-            )
-        elif "_events" not in self.__dict__ or len(self._events) == 0:
-            raise NoABIEventsFound(
-                "The abi for this contract contains no event definitions. ",
-                "Are you sure you provided the correct contract abi?",
-            )
-        elif get_name_from_abi_element_identifier(event_name) not in [
-            get_name_from_abi_element_identifier(event["name"])
-            for event in self._events
-        ]:
-            raise ABIEventNotFound(
-                f"The event '{event_name}' was not found in this contract's abi. ",
-                "Are you sure you provided the correct contract abi?",
-            )
-
-        if "(" not in event_name:
-            event_name = _get_any_abi_signature_with_name(event_name, self._events)
-        else:
-            event_name = f"_{event_name}"
-
-        return super().__getattribute__(event_name)
-
-    def __getitem__(self, event_name: str) -> "ContractEvent":
-        return getattr(self, event_name)
-
-    def __iter__(self) -> Iterable["ContractEvent"]:
-        if not hasattr(self, "_events") or not self._events:
-            return
-
-        for event in self._events:
-            yield self[abi_to_signature(event)]
 
 
 class ContractFunction(BaseContractFunction):
@@ -445,7 +403,7 @@ class ContractFunction(BaseContractFunction):
         return cast(ContractFunction, NonExistentReceiveFunction())
 
 
-class ContractFunctions(BaseContractFunctions):
+class ContractFunctions(BaseContractFunctions[ContractFunction]):
     def __init__(
         self,
         abi: ABI,
