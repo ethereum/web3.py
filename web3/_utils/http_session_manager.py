@@ -117,20 +117,21 @@ class HTTPSessionManager:
         response.raise_for_status()
         return response.json()
 
+    def get_response_from_post_request(
+        self, endpoint_uri: URI, *args: Any, **kwargs: Any
+    ) -> requests.Response:
+        kwargs.setdefault("timeout", DEFAULT_HTTP_TIMEOUT)
+        session = self.cache_and_return_session(
+            endpoint_uri, request_timeout=kwargs["timeout"]
+        )
+        return session.post(endpoint_uri, *args, **kwargs)
+
     def json_make_post_request(
         self, endpoint_uri: URI, *args: Any, **kwargs: Any
     ) -> Dict[str, Any]:
         response = self.get_response_from_post_request(endpoint_uri, *args, **kwargs)
         response.raise_for_status()
         return response.json()
-
-    def get_response_from_post_request(
-        self, endpoint_uri: URI, *args: Any, **kwargs: Any
-    ) -> requests.Response:
-        session = self.cache_and_return_session(
-            endpoint_uri, request_timeout=kwargs["timeout"]
-        )
-        return session.post(endpoint_uri, *args, **kwargs)
 
     def make_post_request(
         self, endpoint_uri: URI, data: Union[bytes, Dict[str, Any]], **kwargs: Any
@@ -150,8 +151,9 @@ class HTTPSessionManager:
             else:
                 return response.content
 
+    @staticmethod
     def _handle_streaming_response(
-        self, response: requests.Response, start: float, timeout: float
+        response: requests.Response, start: float, timeout: float
     ) -> bytes:
         response_body = b""
         for data in response.iter_content():
@@ -296,15 +298,6 @@ class HTTPSessionManager:
         response = await session.post(endpoint_uri, *args, **kwargs)
         return response
 
-    async def async_make_post_request(
-        self, endpoint_uri: URI, data: Union[bytes, Dict[str, Any]], **kwargs: Any
-    ) -> bytes:
-        response = await self.async_get_response_from_post_request(
-            endpoint_uri, data=data, **kwargs
-        )
-        response.raise_for_status()
-        return await response.read()
-
     async def async_json_make_post_request(
         self, endpoint_uri: URI, *args: Any, **kwargs: Any
     ) -> Dict[str, Any]:
@@ -313,6 +306,15 @@ class HTTPSessionManager:
         )
         response.raise_for_status()
         return await response.json()
+
+    async def async_make_post_request(
+        self, endpoint_uri: URI, data: Union[bytes, Dict[str, Any]], **kwargs: Any
+    ) -> bytes:
+        response = await self.async_get_response_from_post_request(
+            endpoint_uri, data=data, **kwargs
+        )
+        response.raise_for_status()
+        return await response.read()
 
     async def _async_close_evicted_sessions(
         self, timeout: float, evicted_sessions: List[ClientSession]
