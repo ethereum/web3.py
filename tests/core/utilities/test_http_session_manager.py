@@ -112,6 +112,28 @@ def test_session_manager_json_make_get_request(mocker, http_session_manager):
     assert adapter._pool_maxsize == DEFAULT_POOLSIZE
 
 
+def test_session_manager_json_make_post_request(mocker, http_session_manager):
+    mocker.patch("requests.Session.post", return_value=MockedResponse())
+
+    # Submit a first request to create a session with default parameters
+    assert len(http_session_manager.session_cache) == 0
+    response = http_session_manager.json_make_post_request(
+        TEST_URI, json={"data": "request"}
+    )
+    assert response == json.dumps({"data": "content"})
+    assert len(http_session_manager.session_cache) == 1
+    cache_key = generate_cache_key(f"{threading.get_ident()}:{TEST_URI}")
+    session = http_session_manager.session_cache.get_cache_entry(cache_key)
+    session.post.assert_called_once_with(TEST_URI, json={"data": "request"}, timeout=30)
+
+    # Ensure the adapter was created with default values
+    check_adapters_mounted(session)
+    adapter = session.get_adapter(TEST_URI)
+    assert isinstance(adapter, HTTPAdapter)
+    assert adapter._pool_connections == DEFAULT_POOLSIZE
+    assert adapter._pool_maxsize == DEFAULT_POOLSIZE
+
+
 def test_session_manager_make_post_request_no_args(mocker, http_session_manager):
     mocker.patch("requests.Session.post", return_value=MockedResponse())
 
@@ -325,6 +347,32 @@ async def test_session_manager_async_json_make_get_request(
     assert isinstance(session, ClientSession)
     session.get.assert_called_once_with(
         TEST_URI,
+        timeout=ClientTimeout(
+            total=30, connect=None, sock_read=None, sock_connect=None
+        ),
+    )
+    await session.close()
+
+
+@pytest.mark.asyncio
+async def test_session_manager_async_json_make_post_request(
+    mocker, http_session_manager
+):
+    mocker.patch("aiohttp.ClientSession.post", return_value=AsyncMockedResponse())
+
+    # Submit a first request to create a session with default parameters
+    assert len(http_session_manager.session_cache) == 0
+    response = await http_session_manager.async_json_make_post_request(
+        TEST_URI, json={"data": "request"}
+    )
+    assert response == json.dumps({"data": "content"})
+    assert len(http_session_manager.session_cache) == 1
+    cache_key = generate_cache_key(f"{threading.get_ident()}:{TEST_URI}")
+    session = http_session_manager.session_cache.get_cache_entry(cache_key)
+    assert isinstance(session, ClientSession)
+    session.post.assert_called_once_with(
+        TEST_URI,
+        json={"data": "request"},
         timeout=ClientTimeout(
             total=30, connect=None, sock_read=None, sock_connect=None
         ),
