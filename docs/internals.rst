@@ -560,6 +560,10 @@ when it comes in.
     ...         public_w3.subscription_manager.handle_subscriptions(),
     ...         local_w3.subscription_manager.handle_subscriptions(),
     ...     )
+    ...
+    ...     # close the connections
+    ...     await local_w3.provider.disconnect()
+    ...     await public_w3.provider.disconnect()
 
     >>> asyncio.run(sub_manager())
 
