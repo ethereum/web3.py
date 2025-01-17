@@ -2388,6 +2388,7 @@ class AsyncEthModuleTest:
         with pytest.raises(Web3ValueError):
             await async_w3.eth.replace_transaction(txn_hash, txn_params)
 
+    @flaky_geth_dev_mining
     @pytest.mark.asyncio
     async def test_async_eth_replace_transaction_gas_price_defaulting_minimum(
         self, async_w3: "AsyncWeb3", async_keyfile_account_address: ChecksumAddress
@@ -2411,6 +2412,7 @@ class AsyncEthModuleTest:
             gas_price * 1.125
         )  # minimum gas price
 
+    @flaky_geth_dev_mining
     @pytest.mark.asyncio
     async def test_async_eth_replace_transaction_gas_price_defaulting_strategy_higher(
         self, async_w3: "AsyncWeb3", async_keyfile_account_address: ChecksumAddress
@@ -2439,6 +2441,7 @@ class AsyncEthModuleTest:
         )  # Strategy provides higher gas price
         async_w3.eth.set_gas_price_strategy(None)  # reset strategy
 
+    @flaky_geth_dev_mining
     @pytest.mark.asyncio
     async def test_async_eth_replace_transaction_gas_price_defaulting_strategy_lower(
         self, async_w3: "AsyncWeb3", async_keyfile_account_address: ChecksumAddress
