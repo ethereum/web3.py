@@ -152,12 +152,12 @@ class AsyncENS(BaseENS):
         :param int coin_type: if provided, look up the address for this coin type
         :raises InvalidName: if `name` has invalid syntax
         """
-        r = await self.resolver(name)
         if coin_type is None:
             # don't validate `addr(bytes32)` interface id since extended resolvers
             # can implement a "resolve" function as of ENSIP-10
             return cast(ChecksumAddress, await self._resolve(name, "addr"))
         else:
+            r = await self.resolver(name)
             await _async_validate_resolver_and_interface_id(
                 name, r, ENS_MULTICHAIN_ADDRESS_INTERFACE_ID, "addr(bytes32,uint256)"
             )
