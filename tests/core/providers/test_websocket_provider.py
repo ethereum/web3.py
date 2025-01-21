@@ -27,6 +27,7 @@ from web3._utils.module_testing.module_testing_utils import (
 )
 from web3.exceptions import (
     TimeExhausted,
+    Web3RPCError,
 )
 from web3.providers.persistent import (
     WebSocketProvider,
@@ -432,3 +433,24 @@ async def test_listener_task_breaks_out_of_handle_subscriptions_when_cancelled()
     # up the exception.
     with pytest.raises(asyncio.CancelledError):
         await async_w3.subscription_manager.handle_subscriptions(run_forever=True)
+
+
+@pytest.mark.asyncio
+async def test_persistent_connection_provider_empty_batch_response():
+    with patch(
+        "web3.providers.persistent.websocket.connect",
+        new=lambda *_1, **_2: _mocked_ws_conn(),
+    ):
+        async with AsyncWeb3(WebSocketProvider("ws://mocked")) as async_w3:
+            async_w3.provider._ws.recv = AsyncMock()
+            async_w3.provider._ws.recv.return_value = (
+                b'{"jsonrpc": "2.0","id":null,"error": {"code": -32600, "message": '
+                b'"empty batch"}}\n'
+            )
+            async with async_w3.batch_requests() as batch:
+                with pytest.raises(Web3RPCError, match="empty batch"):
+                    await batch.async_execute()
+
+            # assert that event though there was an error, we have reset the batching
+            # state
+            assert not async_w3.provider._is_batching

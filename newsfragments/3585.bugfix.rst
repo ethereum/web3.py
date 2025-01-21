@@ -1,0 +1,1 @@
+Handle the case when a single RPC error response is returned for a batch request, instead of always expecting a list of responses.

@@ -77,7 +77,8 @@ class AsyncBaseProvider:
 
     _is_batching: bool = False
     _batch_request_func_cache: Tuple[
-        Tuple[Middleware, ...], Callable[..., Coroutine[Any, Any, List[RPCResponse]]]
+        Tuple[Middleware, ...],
+        Callable[..., Coroutine[Any, Any, Union[List[RPCResponse], RPCResponse]]],
     ] = (None, None)
 
     is_async = True
@@ -119,7 +120,7 @@ class AsyncBaseProvider:
 
     async def batch_request_func(
         self, async_w3: "AsyncWeb3", middleware_onion: MiddlewareOnion
-    ) -> Callable[..., Coroutine[Any, Any, List[RPCResponse]]]:
+    ) -> Callable[..., Coroutine[Any, Any, Union[List[RPCResponse], RPCResponse]]]:
         middleware: Tuple[Middleware, ...] = middleware_onion.as_tuple_of_middleware()
 
         cache_key = self._batch_request_func_cache[0]
@@ -141,8 +142,8 @@ class AsyncBaseProvider:
 
     async def make_batch_request(
         self, requests: List[Tuple[RPCEndpoint, Any]]
-    ) -> List[RPCResponse]:
-        raise NotImplementedError("Only AsyncHTTPProvider supports this method")
+    ) -> Union[List[RPCResponse], RPCResponse]:
+        raise NotImplementedError("Providers must implement this method")
 
     async def is_connected(self, show_traceback: bool = False) -> bool:
         raise NotImplementedError("Providers must implement this method")
