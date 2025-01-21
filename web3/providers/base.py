@@ -118,7 +118,7 @@ class JSONBaseProvider(BaseProvider):
 
     _is_batching: bool = False
     _batch_request_func_cache: Tuple[
-        Tuple[Middleware, ...], Callable[..., List[RPCResponse]]
+        Tuple[Middleware, ...], Callable[..., Union[List[RPCResponse], RPCResponse]]
     ] = (None, None)
 
     def __init__(self, **kwargs: Any) -> None:
@@ -168,7 +168,7 @@ class JSONBaseProvider(BaseProvider):
 
     def batch_request_func(
         self, w3: "Web3", middleware_onion: MiddlewareOnion
-    ) -> Callable[..., List[RPCResponse]]:
+    ) -> Callable[..., Union[List[RPCResponse], RPCResponse]]:
         middleware: Tuple[Middleware, ...] = middleware_onion.as_tuple_of_middleware()
 
         cache_key = self._batch_request_func_cache[0]
@@ -199,5 +199,5 @@ class JSONBaseProvider(BaseProvider):
 
     def make_batch_request(
         self, requests: List[Tuple[RPCEndpoint, Any]]
-    ) -> List[RPCResponse]:
+    ) -> Union[List[RPCResponse], RPCResponse]:
         raise NotImplementedError("Providers must implement this method")

@@ -301,10 +301,13 @@ class CreateAccessListResponse(TypedDict):
 
 
 MakeRequestFn = Callable[[RPCEndpoint, Any], RPCResponse]
-MakeBatchRequestFn = Callable[[List[Tuple[RPCEndpoint, Any]]], List[RPCResponse]]
+MakeBatchRequestFn = Callable[
+    [List[Tuple[RPCEndpoint, Any]]], Union[List[RPCResponse], RPCResponse]
+]
 AsyncMakeRequestFn = Callable[[RPCEndpoint, Any], Coroutine[Any, Any, RPCResponse]]
 AsyncMakeBatchRequestFn = Callable[
-    [List[Tuple[RPCEndpoint, Any]]], Coroutine[Any, Any, List[RPCResponse]]
+    [List[Tuple[RPCEndpoint, Any]]],
+    Coroutine[Any, Any, Union[List[RPCResponse], RPCResponse]],
 ]
 
 

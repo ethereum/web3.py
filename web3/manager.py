@@ -436,15 +436,27 @@ class RequestManager:
         request_func = provider.batch_request_func(
             cast("Web3", self.w3), cast("MiddlewareOnion", self.middleware_onion)
         )
-        responses = request_func(
+        response = request_func(
             [
                 (method, params)
                 for (method, params), _response_formatters in requests_info
             ]
         )
+
+        if not isinstance(response, list):
+            # Expect a JSON-RPC error response and call _validate_response to raise
+            # the appropriate exception
+            _validate_response(
+                cast(RPCResponse, response),
+                None,
+                is_subscription_response=False,
+                logger=self.logger,
+                params=[],
+            )
+
         formatted_responses = [
-            self._format_batched_response(info, resp)
-            for info, resp in zip(requests_info, responses)
+            self._format_batched_response(info, cast(RPCResponse, resp))
+            for info, resp in zip(requests_info, response)
         ]
         return list(formatted_responses)
 
@@ -465,23 +477,35 @@ class RequestManager:
         # since we add items to the batch without awaiting, we unpack the coroutines
         # and await them all here
         unpacked_requests_info = await asyncio.gather(*requests_info)
-        responses = await request_func(
+        response = await request_func(
             [
                 (method, params)
                 for (method, params), _response_formatters in unpacked_requests_info
             ]
         )
 
+        if not isinstance(response, list):
+            # Expect a JSON-RPC error response and call _validate_response to raise
+            # the appropriate exception
+            _validate_response(
+                cast(RPCResponse, response),
+                None,
+                is_subscription_response=False,
+                logger=self.logger,
+                params=[],
+            )
+
+        response = cast(List[RPCResponse], response)
         if isinstance(self.provider, PersistentConnectionProvider):
             # call _process_response for each response in the batch
             return [
                 cast(RPCResponse, await self._process_response(resp))
-                for resp in responses
+                for resp in response
             ]
 
         formatted_responses = [
             self._format_batched_response(info, resp)
-            for info, resp in zip(unpacked_requests_info, responses)
+            for info, resp in zip(unpacked_requests_info, response)
         ]
         return list(formatted_responses)
 
@@ -491,6 +515,13 @@ class RequestManager:
         response: RPCResponse,
     ) -> RPCResponse:
         result_formatters, error_formatters, null_result_formatters = requests_info[1]
+        _validate_response(
+            response,
+            error_formatters,
+            is_subscription_response=False,
+            logger=self.logger,
+            params=requests_info[0][1],
+        )
         return apply_result_formatters(
             result_formatters,
             self.formatted_response(

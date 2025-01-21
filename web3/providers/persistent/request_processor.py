@@ -6,6 +6,7 @@ from typing import (
     Callable,
     Dict,
     Generic,
+    List,
     Optional,
     Tuple,
     TypeVar,
@@ -270,6 +271,15 @@ class RequestProcessor:
 
     # raw response cache
 
+    def _is_batch_response(
+        self, raw_response: Union[List[RPCResponse], RPCResponse]
+    ) -> bool:
+        return isinstance(raw_response, list) or (
+            isinstance(raw_response, dict)
+            and raw_response.get("id") is None
+            and self._provider._is_batching
+        )
+
     async def cache_raw_response(
         self, raw_response: Any, subscription: bool = False
     ) -> None:
@@ -296,7 +306,7 @@ class RequestProcessor:
                 # otherwise, put it in the subscription response queue so a response
                 # can be yielded by the message stream
                 await self._subscription_response_queue.put(raw_response)
-        elif isinstance(raw_response, list):
+        elif self._is_batch_response(raw_response):
             # Since only one batch should be in the cache at all times, we use a
             # constant cache key for the batch response.
             cache_key = generate_cache_key(BATCH_REQUEST_ID)

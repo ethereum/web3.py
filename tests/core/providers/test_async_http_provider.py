@@ -1,4 +1,8 @@
 import pytest
+from unittest.mock import (
+    AsyncMock,
+    patch,
+)
 
 from aiohttp import (
     ClientSession,
@@ -13,6 +17,7 @@ from web3.eth import (
 )
 from web3.exceptions import (
     ProviderConnectionError,
+    Web3RPCError,
 )
 from web3.geth import (
     AsyncGeth,
@@ -107,3 +112,21 @@ def test_get_request_headers(provider):
         headers["User-Agent"] == f"web3.py/{web3py_version}/"
         f"{AsyncHTTPProvider.__module__}.{AsyncHTTPProvider.__qualname__}"
     )
+
+
+@patch(
+    "web3._utils.http_session_manager.HTTPSessionManager.async_make_post_request",
+    new_callable=AsyncMock,
+)
+@pytest.mark.asyncio
+async def test_async_http_empty_batch_response(mock_async_post):
+    mock_async_post.return_value = (
+        b'{"jsonrpc":"2.0","id":null,"error":{"code":-32600,"message":"empty batch"}}'
+    )
+    async_w3 = AsyncWeb3(AsyncHTTPProvider())
+    async with async_w3.batch_requests() as batch:
+        with pytest.raises(Web3RPCError, match="empty batch"):
+            await batch.async_execute()
+
+    # assert that event though there was an error, we have reset the batching state
+    assert not async_w3.provider._is_batching

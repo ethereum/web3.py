@@ -25,6 +25,7 @@ from web3.datastructures import (
 )
 from web3.exceptions import (
     ReadBufferLimitReached,
+    Web3RPCError,
 )
 from web3.providers import (
     AsyncIPCProvider,
@@ -366,3 +367,24 @@ async def test_async_ipc_provider_write_messages_end_with_new_line_delimiter(
 
         request_data = b'{"id": 0, "jsonrpc": "2.0", "method": "method", "params": []}'
         w3.provider._writer.write.assert_called_with(request_data + b"\n")
+
+
+@pytest.mark.asyncio
+async def test_persistent_connection_provider_empty_batch_response(
+    simple_ipc_server,
+    jsonrpc_ipc_pipe_path,
+):
+    async with AsyncWeb3(
+        AsyncIPCProvider(pathlib.Path(jsonrpc_ipc_pipe_path))
+    ) as async_w3:
+        async_w3.provider._reader.readline = AsyncMock()
+        async_w3.provider._reader.readline.return_value = (
+            b'{"jsonrpc": "2.0","id":null,"error": {"code": -32600, "message": '
+            b'"empty batch"}}\n'
+        )
+        async with async_w3.batch_requests() as batch:
+            with pytest.raises(Web3RPCError, match="empty batch"):
+                await batch.async_execute()
+
+        # assert that event though there was an error, we have reset the batching state
+        assert not async_w3.provider._is_batching
