@@ -1,0 +1,1 @@
+Include ``topic`` attribute in ``ContractEvent`` docs.
