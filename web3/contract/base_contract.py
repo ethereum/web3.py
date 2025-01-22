@@ -880,7 +880,7 @@ class BaseContractFunction:
         """
         Should be implemented by child class.
         """
-        raise NotImplementedError("This method should be implemented by child class")
+        raise NotImplementedError("This method should be implemented in the inherited class")
 
 
 class BaseContractFunctions(Generic[TContractFn]):
