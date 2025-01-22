@@ -1145,6 +1145,10 @@ The :py:class:`ContractEvent` class provides attributes for each event. Access t
 
     The event input types.
 
+.. py:attribute:: ContractEvent.myEvent(*args, **kwargs).topic
+
+    The event topic represented by a hex encoded string from the keccak signature.
+
 Methods
 ~~~~~~~
 
