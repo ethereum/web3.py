@@ -806,13 +806,11 @@ class BaseContractFunction:
                 ABIFunction({"type": "function", "name": function_name})
             ]
 
-        # Check that arguments in call match a function ABI
-        num_attempts = 0
         function_abi_matches = []
         contract_function = None
         for abi in function_abis_with_arg_count:
             try:
-                num_attempts += 1
+                pass
 
                 # Search for a function ABI that matches the arguments used
                 function_abi_matches.append(
@@ -878,9 +876,12 @@ class BaseContractFunction:
         ccip_read_enabled: Optional[bool] = None,
     ) -> Any:
         """
-        Should be implemented by child class.
+        Implementation of ``call`` should create a callable contract function
+        and execute it using the `eth_call` interface.
         """
-        raise NotImplementedError("This method should be implemented in the inherited class")
+        raise NotImplementedError(
+            "This method should be implemented in the inherited class"
+        )
 
 
 class BaseContractFunctions(Generic[TContractFn]):

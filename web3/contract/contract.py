@@ -30,7 +30,6 @@ from hexbytes import (
 
 from web3._utils.abi import (
     fallback_func_abi_exists,
-    get_name_from_abi_element_identifier,
     receive_func_abi_exists,
 )
 from web3._utils.abi_element_identifiers import (
@@ -84,9 +83,6 @@ from web3.contract.utils import (
     transact_with_contract_function,
 )
 from web3.exceptions import (
-    ABIFunctionNotFound,
-    NoABIFound,
-    NoABIFunctionsFound,
     Web3AttributeError,
     Web3TypeError,
     Web3ValidationError,
@@ -97,9 +93,6 @@ from web3.types import (
     EventData,
     StateOverride,
     TxParams,
-)
-from web3.utils.abi import (
-    _get_any_abi_signature_with_name,
 )
 
 if TYPE_CHECKING:
@@ -412,46 +405,6 @@ class ContractFunctions(BaseContractFunctions[ContractFunction]):
         decode_tuples: Optional[bool] = False,
     ) -> None:
         super().__init__(abi, w3, ContractFunction, address, decode_tuples)
-
-    def __iter__(self) -> Iterable["ContractFunction"]:
-        if not hasattr(self, "_functions") or not self._functions:
-            return
-
-        for func in self._functions:
-            yield self[abi_to_signature(func)]
-
-    def __getattr__(self, function_name: str) -> "ContractFunction":
-        if super().__getattribute__("abi") is None:
-            raise NoABIFound(
-                "There is no ABI found for this contract.",
-            )
-        elif "_functions" not in self.__dict__ or len(self._functions) == 0:
-            raise NoABIFunctionsFound(
-                "The abi for this contract contains no function definitions. ",
-                "Are you sure you provided the correct contract abi?",
-            )
-        elif get_name_from_abi_element_identifier(function_name) not in [
-            get_name_from_abi_element_identifier(function["name"])
-            for function in self._functions
-        ]:
-            raise ABIFunctionNotFound(
-                f"The function '{function_name}' was not found in this ",
-                "contract's abi.",
-            )
-
-        if "(" not in function_name:
-            function_name = _get_any_abi_signature_with_name(
-                function_name, self._functions
-            )
-        else:
-            function_name = f"_{function_name}"
-
-        return super().__getattribute__(
-            function_name,
-        )
-
-    def __getitem__(self, function_name: str) -> "ContractFunction":
-        return getattr(self, function_name)
 
 
 class Contract(BaseContract):
