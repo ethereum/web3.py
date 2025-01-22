@@ -1108,44 +1108,44 @@ For example:
         myContract = web3.eth.contract(address=contract_address, abi=contract_abi)
         tx_hash = myContract.functions.myFunction().transact()
         receipt = web3.eth.get_transaction_receipt(tx_hash)
-        myContract.events.myEvent().process_receipt(receipt)
+        myContract.events.MyEvent().process_receipt(receipt)
 
 .. py:class:: ContractEvent
 
 Attributes
 ~~~~~~~~~~
 
-The :py:class:`ContractEvent` class provides attributes for each event. Access the event attributes through `Contract.events.myEvent`.
+The :py:class:`ContractEvent` class provides attributes for each event. Access the event attributes through `Contract.events.MyEvent`.
 
-.. py:attribute:: ContractEvent.myEvent(*args, **kwargs).abi_element_identifier
+.. py:attribute:: ContractEvent.MyEvent(*args, **kwargs).abi_element_identifier
 
     The signature of the event assigned to the class ``__name__`` during initialization.
 
-.. py:attribute:: ContractEvent.myEvent(*args, **kwargs).name
+.. py:attribute:: ContractEvent.MyEvent(*args, **kwargs).name
 
     A string representing the event, receive or fallback name.
 
-    Use :py:attr:`ContractEvent.myEvent(*args, **kwargs).signature` when the event arguments are needed.
+    Use :py:attr:`ContractEvent.MyEvent(*args, **kwargs).signature` when the event arguments are needed.
 
-    This is an alias of :py:attr:`ContractEvent.myEvent(*args, **kwargs).event_name`.
+    This is an alias of :py:attr:`ContractEvent.MyEvent(*args, **kwargs).event_name`.
 
-.. py:attribute:: ContractEvent.myEvent(*args, **kwargs).signature
+.. py:attribute:: ContractEvent.MyEvent(*args, **kwargs).signature
 
     A string representing the event signature.
 
-.. py:attribute:: ContractEvent.myEvent(*args, **kwargs).abi
+.. py:attribute:: ContractEvent.MyEvent(*args, **kwargs).abi
 
     The event ABI with the type, name, inputs.
 
-.. py:attribute:: ContractEvent.myEvent(*args, **kwargs).argument_names
+.. py:attribute:: ContractEvent.MyEvent(*args, **kwargs).argument_names
 
     The event input names.
 
-.. py:attribute:: ContractEvent.myEvent(*args, **kwargs).argument_types
+.. py:attribute:: ContractEvent.MyEvent(*args, **kwargs).argument_types
 
     The event input types.
 
-.. py:attribute:: ContractEvent.myEvent(*args, **kwargs).topic
+.. py:attribute:: ContractEvent.MyEvent(*args, **kwargs).topic
 
     The event topic represented by a hex encoded string from the keccak signature.
 
@@ -1176,9 +1176,9 @@ Methods
 
         my_contract = web3.eth.contract(address=contract_address, abi=contract_abi)
 
-        # get ``myEvent`` logs from block 1337 to block 2337 where the value for the
+        # get ``MyEvent`` logs from block 1337 to block 2337 where the value for the
         # event argument "eventArg1" is either 1, 2, or 3
-        my_contract.events.myEvent().get_logs(
+        my_contract.events.MyEvent().get_logs(
             argument_filters={"eventArg1": [1, 2, 3]},
             from_block=1337,
             to_block=2337,
@@ -1191,14 +1191,14 @@ Methods
 
    Extracts the pertinent logs from a transaction receipt.
 
-   If there are no errors, ``process_receipt`` returns a tuple of :ref:`Event Log Objects <event-log-object>`, emitted from the event (e.g. ``myEvent``),
+   If there are no errors, ``process_receipt`` returns a tuple of :ref:`Event Log Objects <event-log-object>`, emitted from the event (e.g. ``MyEvent``),
    with decoded output.
 
    .. code-block:: python
 
        >>> tx_hash = contract.functions.myFunction(12345).transact({'to':contract_address})
        >>> tx_receipt = w3.eth.get_transaction_receipt(tx_hash)
-       >>> rich_logs = contract.events.myEvent().process_receipt(tx_receipt)
+       >>> rich_logs = contract.events.MyEvent().process_receipt(tx_receipt)
        >>> rich_logs[0]['args']
        {'myArg': 12345}
 
@@ -1215,12 +1215,12 @@ Methods
 
        >>> tx_hash = contract.functions.myFunction(12345).transact({'to':contract_address})
        >>> tx_receipt = w3.eth.get_transaction_receipt(tx_hash)
-       >>> processed_logs = contract.events.myEvent().process_receipt(tx_receipt)
+       >>> processed_logs = contract.events.MyEvent().process_receipt(tx_receipt)
        >>> processed_logs
        (
           AttributeDict({
               'args': AttributeDict({}),
-              'event': 'myEvent',
+              'event': 'MyEvent',
               'logIndex': 0,
               'transactionIndex': 0,
               'transactionHash': HexBytes('0xfb95ccb6ab39e19821fb339dee33e7afe2545527725b61c64490a5613f8d11fa'),
@@ -1233,7 +1233,7 @@ Methods
 
        # Or, if there were errors encountered during processing:
        >>> from web3.logs import STRICT, IGNORE, DISCARD, WARN
-       >>> processed_logs = contract.events.myEvent().process_receipt(tx_receipt, errors=IGNORE)
+       >>> processed_logs = contract.events.MyEvent().process_receipt(tx_receipt, errors=IGNORE)
        >>> processed_logs
        (
            AttributeDict({
@@ -1251,7 +1251,7 @@ Methods
                'errors': LogTopicError('Expected 1 log topics.  Got 0')})
           })
        )
-       >>> processed_logs = contract.events.myEvent().process_receipt(tx_receipt, errors=DISCARD)
+       >>> processed_logs = contract.events.MyEvent().process_receipt(tx_receipt, errors=DISCARD)
        >>> assert processed_logs == ()
        True
 
@@ -1265,11 +1265,11 @@ Methods
        >>> tx_hash = contract.functions.myFunction(12345).transact({'to':contract_address})
        >>> tx_receipt = w3.eth.get_transaction_receipt(tx_hash)
        >>> log_to_process = tx_receipt['logs'][0]
-       >>> processed_log = contract.events.myEvent().process_log(log_to_process)
+       >>> processed_log = contract.events.MyEvent().process_log(log_to_process)
        >>> processed_log
        AttributeDict({
            'args': AttributeDict({}),
-           'event': 'myEvent',
+           'event': 'MyEvent',
            'logIndex': 0,
            'transactionIndex': 0,
            'transactionHash': HexBytes('0xfb95ccb6ab39e19821fb339dee33e7afe2545527725b61c64490a5613f8d11fa'),
