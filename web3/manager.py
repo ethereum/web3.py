@@ -8,6 +8,7 @@ from typing import (
     Coroutine,
     Dict,
     List,
+    NoReturn,
     Optional,
     Sequence,
     Tuple,
@@ -266,6 +267,30 @@ def _validate_response(
         _raise_bad_response_format(response)
 
 
+def _raise_error_for_batch_response(
+    response: RPCResponse,
+    logger: Optional[logging.Logger] = None,
+) -> NoReturn:
+    error = response.get("error")
+    if error is None:
+        _raise_bad_response_format(
+            response,
+            "Batch response must be formatted as a list of responses or "
+            "as a single JSON-RPC error response.",
+        )
+    _validate_response(
+        response,
+        None,
+        is_subscription_response=False,
+        logger=logger,
+        params=[],
+    )
+    # This should not be reached, but if it is, raise a generic `BadResponseFormat`
+    raise BadResponseFormat(
+        "Batch response was in an unexpected format and unable to be parsed."
+    )
+
+
 class RequestManager:
     logger = logging.getLogger("web3.manager.RequestManager")
 
@@ -443,22 +468,16 @@ class RequestManager:
             ]
         )
 
-        if not isinstance(response, list):
-            # Expect a JSON-RPC error response and call _validate_response to raise
-            # the appropriate exception
-            _validate_response(
-                cast(RPCResponse, response),
-                None,
-                is_subscription_response=False,
-                logger=self.logger,
-                params=[],
-            )
-
-        formatted_responses = [
-            self._format_batched_response(info, cast(RPCResponse, resp))
-            for info, resp in zip(requests_info, response)
-        ]
-        return list(formatted_responses)
+        if isinstance(response, list):
+            # expected format
+            formatted_responses = [
+                self._format_batched_response(info, cast(RPCResponse, resp))
+                for info, resp in zip(requests_info, response)
+            ]
+            return list(formatted_responses)
+        else:
+            # expect a single response with an error
+            _raise_error_for_batch_response(response, self.logger)
 
     async def _async_make_batch_request(
         self,
@@ -484,30 +503,24 @@ class RequestManager:
             ]
         )
 
-        if not isinstance(response, list):
-            # Expect a JSON-RPC error response and call _validate_response to raise
-            # the appropriate exception
-            _validate_response(
-                cast(RPCResponse, response),
-                None,
-                is_subscription_response=False,
-                logger=self.logger,
-                params=[],
-            )
+        if isinstance(response, list):
+            # expected format
+            response = cast(List[RPCResponse], response)
+            if isinstance(self.provider, PersistentConnectionProvider):
+                # call _process_response for each response in the batch
+                return [
+                    cast(RPCResponse, await self._process_response(resp))
+                    for resp in response
+                ]
 
-        response = cast(List[RPCResponse], response)
-        if isinstance(self.provider, PersistentConnectionProvider):
-            # call _process_response for each response in the batch
-            return [
-                cast(RPCResponse, await self._process_response(resp))
-                for resp in response
+            formatted_responses = [
+                self._format_batched_response(info, resp)
+                for info, resp in zip(unpacked_requests_info, response)
             ]
-
-        formatted_responses = [
-            self._format_batched_response(info, resp)
-            for info, resp in zip(unpacked_requests_info, response)
-        ]
-        return list(formatted_responses)
+            return list(formatted_responses)
+        else:
+            # expect a single response with an error
+            _raise_error_for_batch_response(response, self.logger)
 
     def _format_batched_response(
         self,

@@ -386,5 +386,5 @@ async def test_persistent_connection_provider_empty_batch_response(
             with pytest.raises(Web3RPCError, match="empty batch"):
                 await batch.async_execute()
 
-        # assert that event though there was an error, we have reset the batching state
+        # assert that even though there was an error, we have reset the batching state
         assert not async_w3.provider._is_batching

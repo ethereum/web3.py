@@ -130,5 +130,5 @@ def test_http_empty_batch_response(mock_post):
         with pytest.raises(Web3RPCError, match="empty batch"):
             batch.execute()
 
-    # assert that event though there was an error, we have reset the batching state
+    # assert that even though there was an error, we have reset the batching state
     assert not w3.provider._is_batching
