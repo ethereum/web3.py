@@ -40,7 +40,6 @@ from web3._utils.compat import (
     Self,
 )
 from web3._utils.contracts import (
-    copy_contract_event,
     parse_block_identifier,
 )
 from web3._utils.datatypes import (
@@ -103,9 +102,6 @@ if TYPE_CHECKING:
 class ContractEvent(BaseContractEvent):
     # mypy types
     w3: "Web3"
-
-    def __call__(self, *args: Any, **kwargs: Any) -> "ContractEvent":
-        return copy_contract_event(self, *args, **kwargs)
 
     @combomethod
     def get_logs(

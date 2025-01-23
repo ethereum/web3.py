@@ -63,6 +63,7 @@ from web3._utils.compat import (
     Self,
 )
 from web3._utils.contracts import (
+    copy_contract_event,
     copy_contract_function,
     decode_transaction_data,
     encode_abi,
@@ -198,6 +199,9 @@ class BaseContractEvent:
         if self.abi:
             return f"<Event {abi_to_signature(self.abi)}>"
         return f"<Event {get_abi_element_signature(self.abi_element_identifier)}>"
+
+    def __call__(self, *args: Any, **kwargs: Any) -> Self:
+        return copy_contract_event(self, *args, **kwargs)
 
     @property
     def topic(self) -> HexStr:
@@ -810,8 +814,6 @@ class BaseContractFunction:
         contract_function = None
         for abi in function_abis_with_arg_count:
             try:
-                pass
-
                 # Search for a function ABI that matches the arguments used
                 function_abi_matches.append(
                     cast(

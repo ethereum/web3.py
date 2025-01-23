@@ -46,7 +46,6 @@ from web3._utils.compat import (
 )
 from web3._utils.contracts import (
     async_parse_block_identifier,
-    copy_contract_event,
 )
 from web3._utils.datatypes import (
     PropertyCheckingFactory,
@@ -105,9 +104,6 @@ if TYPE_CHECKING:
 class AsyncContractEvent(BaseContractEvent):
     # mypy types
     w3: "AsyncWeb3"
-
-    def __call__(self, *args: Any, **kwargs: Any) -> Self:
-        return copy_contract_event(self, *args, **kwargs)
 
     @combomethod
     async def get_logs(
