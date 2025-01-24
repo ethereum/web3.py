@@ -1,13 +1,13 @@
-"""Test the eth_tester sign transaction implementations."""
+"""Tests for eth_tester sign transaction implementations."""
+from typing import (  # noqa: F401
+    Any,
+    Dict,
+)
 
 import pytest
 from eth_utils import (
     is_bytes,
-    is_checksum_address,
     is_hex,
-)
-from hexbytes import (
-    HexBytes,
 )
 
 from web3.exceptions import (
@@ -20,9 +20,8 @@ def test_eth_sign_transaction_legacy(w3, unlocked_account):
     Test eth_signTransaction with legacy (pre-EIP1559) transaction parameters.
     Expect MethodUnavailable as this is not implemented in eth_tester.
     """
-    transaction = {
-        "from": unlocked_account,
-        "to": "0x" + "00" * 20,  # Zero address
+    txn_params: Dict[str, Any] = {
+        "to": "0x" + "00" * 20,
         "value": 100,
         "gas": 21000,
         "gasPrice": w3.eth.gas_price,
@@ -31,7 +30,7 @@ def test_eth_sign_transaction_legacy(w3, unlocked_account):
     }
 
     with pytest.raises(MethodUnavailable):
-        w3.eth.sign_transaction(transaction)
+        w3.eth.sign_transaction(txn_params)
 
 
 def test_eth_sign_transaction(w3, unlocked_account):
@@ -39,9 +38,8 @@ def test_eth_sign_transaction(w3, unlocked_account):
     Test eth_signTransaction with EIP1559 transaction parameters.
     Expect MethodUnavailable as this is not implemented in eth_tester.
     """
-    transaction = {
-        "from": unlocked_account,
-        "to": "0x" + "00" * 20,  # Zero address
+    txn_params: Dict[str, Any] = {
+        "to": "0x" + "00" * 20,
         "value": 100,
         "gas": 21000,
         "maxFeePerGas": 2000000000,
@@ -52,7 +50,7 @@ def test_eth_sign_transaction(w3, unlocked_account):
     }
 
     with pytest.raises(MethodUnavailable):
-        w3.eth.sign_transaction(transaction)
+        w3.eth.sign_transaction(txn_params)
 
 
 def test_eth_sign_transaction_hex_fees(w3, unlocked_account):
@@ -60,9 +58,8 @@ def test_eth_sign_transaction_hex_fees(w3, unlocked_account):
     Test eth_signTransaction with hex values for EIP1559 fee parameters.
     Expect MethodUnavailable as this is not implemented in eth_tester.
     """
-    transaction = {
-        "from": unlocked_account,
-        "to": "0x" + "00" * 20,  # Zero address
+    txn_params: Dict[str, Any] = {
+        "to": "0x" + "00" * 20,
         "value": "0x64",  # 100 in hex
         "gas": "0x5208",  # 21000 in hex
         "maxFeePerGas": "0x77359400",  # 2 Gwei in hex
@@ -73,4 +70,4 @@ def test_eth_sign_transaction_hex_fees(w3, unlocked_account):
     }
 
     with pytest.raises(MethodUnavailable):
-        w3.eth.sign_transaction(transaction)
+        w3.eth.sign_transaction(txn_params)
