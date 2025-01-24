@@ -15,6 +15,10 @@ from web3.exceptions import (
 )
 
 
+@pytest.mark.parametrize(
+    "unlocked_account",
+    ["0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf"],
+)
 def test_eth_sign_transaction_legacy(w3, unlocked_account):
     """
     Test eth_signTransaction with legacy (pre-EIP1559) transaction parameters.
@@ -33,6 +37,10 @@ def test_eth_sign_transaction_legacy(w3, unlocked_account):
         w3.eth.sign_transaction(txn_params)
 
 
+@pytest.mark.parametrize(
+    "unlocked_account",
+    ["0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf"],
+)
 def test_eth_sign_transaction(w3, unlocked_account):
     """
     Test eth_signTransaction with EIP1559 transaction parameters.
@@ -53,6 +61,10 @@ def test_eth_sign_transaction(w3, unlocked_account):
         w3.eth.sign_transaction(txn_params)
 
 
+@pytest.mark.parametrize(
+    "unlocked_account",
+    ["0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf"],
+)
 def test_eth_sign_transaction_hex_fees(w3, unlocked_account):
     """
     Test eth_signTransaction with hex values for EIP1559 fee parameters.
