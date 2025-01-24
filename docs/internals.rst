@@ -571,7 +571,7 @@ when it comes in.
 The ``process_subscriptions()`` method on the
 :class:`~web3.providers.persistent.PersistentConnection` class, the public API for
 interacting with the active persistent socket connection, is also set up to receive
-``eth_subscription`` responses over an asynchronous interator pattern. You can use this
+``eth_subscription`` responses over an asynchronous iterator pattern. You can use this
 method to listen for raw messages and process them as they come in.
 
 .. code-block:: python
