@@ -323,7 +323,7 @@ Miscellaneous Changes
   than the function names.
 - ``BaseContractFunction`` class attribute ``function_identifier`` has been removed in
   favor of the ``abi_element_identifier`` attribute.
-- ``web3.contract.utils.call_contract_function()`` no longers uses ``fn_abi`` as a
+- ``web3.contract.utils.call_contract_function()`` no longer uses ``fn_abi`` as a
   parameter. Instead, the ``abi_callable`` parameter of type ``ABICallable`` is used.
 - Beacon API filename change: ``beacon/main.py`` -> ``beacon/beacon.py``.
 - The asynchronous version of ``w3.eth.wait_for_transaction_receipt()`` changes its
