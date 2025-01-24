@@ -299,7 +299,7 @@ types have been introduced in the ``eth_typing`` ``v5`` package for ABIs. Improv
 been made to make required types more explicit and to offer better semantics.
 
 The following types from ``web3.types`` have been removed:
-- ``ABIEventParams`` is no longer avaiable. Use ``ABIComponentIndexed`` from
+- ``ABIEventParams`` is no longer available. Use ``ABIComponentIndexed`` from
 ``eth_typing`` to represent event input components.
 - ``ABIEvent`` now resides in ``eth_typing``. ``ABIEvent.type`` and ``ABIEvent.name``
 are now required fields.
