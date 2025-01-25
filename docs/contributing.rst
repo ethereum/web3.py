@@ -76,7 +76,7 @@ GitHub interface and make sure all tests are passing. In general pull requests t
 do not pass the CI build yet won't get reviewed unless explicitly requested.
 
 If the pull request introduces changes that should be reflected in the release notes,
-please add a `newsfragment` file as explained
+please add a newsfragment file as explained
 `here <https://github.com/ethereum/<REPO_NAME>/blob/main/newsfragments/README.md>`_.
 
 If possible, the change to the release notes file should be included in the commit that
