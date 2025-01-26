@@ -419,7 +419,7 @@ shown below.
     ...     await w3.provider.disconnect()
 
     # run the example
-    >>> asyncio.run(await_instantiation_example)
+    >>> asyncio.run(await_instantiation_example())
 
 .. code-block:: python
 
@@ -434,7 +434,7 @@ shown below.
     ...     await w3.provider.disconnect()
 
     # run the example
-    >>> asyncio.run(await_provider_connect_example)
+    >>> asyncio.run(await_provider_connect_example())
 
 :class:`~web3.providers.persistent.PersistentConnectionProvider` classes use the
 :class:`~web3.providers.persistent.request_processor.RequestProcessor` class under the
