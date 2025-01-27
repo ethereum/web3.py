@@ -1,17 +1,11 @@
-import asyncio
 from asyncio.exceptions import (
     TimeoutError,
 )
 import pytest
-from threading import (
-    Thread,
-)
 
+import pytest_asyncio
 import websockets
 
-from tests.utils import (
-    wait_for_ws,
-)
 from web3 import (
     Web3,
 )
@@ -24,36 +18,23 @@ from web3.providers.legacy_websocket import (
 )
 
 
-@pytest.fixture
-def start_websocket_server(open_port):
-    event_loop = asyncio.new_event_loop()
+@pytest_asyncio.fixture
+async def start_websocket_server(open_port):
+    async def _serve(websocket, path):
+        await websocket.send(b'{"jsonrpc":"2.0","id":1,"result":1}')
 
-    def run_server():
-        async def empty_server(websocket, path):
-            data = await websocket.recv()
-            await asyncio.sleep(0.02)
-            await websocket.send(data)
+    server = await websockets.serve(_serve, "127.0.0.1", open_port)
 
-        asyncio.set_event_loop(event_loop)
-        server = websockets.serve(empty_server, "127.0.0.1", open_port)
-        event_loop.run_until_complete(server)
-        event_loop.run_forever()
+    yield
 
-    thd = Thread(target=run_server)
-    thd.start()
-    try:
-        yield
-    finally:
-        event_loop.call_soon_threadsafe(event_loop.stop)
+    server.close()
+    await server.wait_closed()
 
 
 @pytest.fixture
 def w3(open_port, start_websocket_server):
-    # need new event loop as the one used by server is already running
-    event_loop = asyncio.new_event_loop()
     endpoint_uri = f"ws://127.0.0.1:{open_port}"
-    event_loop.run_until_complete(wait_for_ws(endpoint_uri))
-    provider = LegacyWebSocketProvider(endpoint_uri, websocket_timeout=0.01)
+    provider = LegacyWebSocketProvider(endpoint_uri, websocket_timeout=0.001)
     return Web3(provider)
 
 
