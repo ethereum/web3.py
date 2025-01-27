@@ -53,13 +53,12 @@ from web3.utils import (
 )
 
 if TYPE_CHECKING:
-    from websockets import (
-        WebSocketClientProtocol,
-    )
-
     from web3 import (  # noqa: F401
         AsyncWeb3,
         WebSocketProvider,
+    )
+    from web3._utils.compat import (
+        WebSocketClientProtocol,
     )
     from web3.providers.persistent import (  # noqa: F401
         RequestProcessor,

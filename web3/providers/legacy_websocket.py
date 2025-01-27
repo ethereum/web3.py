@@ -21,11 +21,8 @@ from typing import (
 from eth_typing import (
     URI,
 )
-from websockets.client import (
+from websockets import (
     connect,
-)
-from websockets.legacy.client import (
-    WebSocketClientProtocol,
 )
 
 from web3._utils.batching import (
@@ -33,6 +30,9 @@ from web3._utils.batching import (
 )
 from web3._utils.caching import (
     handle_request_caching,
+)
+from web3._utils.compat import (
+    WebSocketClientProtocol,
 )
 from web3.exceptions import (
     Web3ValidationError,

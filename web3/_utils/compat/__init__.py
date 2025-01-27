@@ -1,3 +1,5 @@
+# mypy: no-warn-unused-ignores
+
 # Changelog for `typing_extensions` for checking which types were added when
 # https://github.com/python/typing_extensions/blob/main/CHANGELOG.md
 
@@ -14,3 +16,10 @@ from typing_extensions import (
     Unpack,  # py311
     TypeAlias,  # py310
 )
+
+try:
+    # TODO: remove this from compat once websockets>=14 is required
+    from websockets.client import WebSocketClientProtocol  # type: ignore
+except ImportError:
+    # websockets>=14
+    from websockets import ClientProtocol as WebSocketClientProtocol  # type: ignore

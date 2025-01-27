@@ -16,9 +16,6 @@ from toolz import (
     merge,
 )
 from websockets import (
-    WebSocketClientProtocol,
-)
-from websockets.client import (
     connect,
 )
 from websockets.exceptions import (
@@ -26,6 +23,9 @@ from websockets.exceptions import (
     WebSocketException,
 )
 
+from web3._utils.compat import (
+    WebSocketClientProtocol,
+)
 from web3.exceptions import (
     PersistentConnectionClosedOK,
     ProviderConnectionError,
