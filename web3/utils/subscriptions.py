@@ -114,6 +114,10 @@ class EthSubscription(Generic[TSubscriptionResult]):
         self._label = label
         self.handler_call_count = 0
 
+    @property
+    def _default_label(self) -> str:
+        return f"{self.__class__.__name__}{self.subscription_params}"
+
     @classmethod
     def _create_type_aware_subscription(
         cls,
@@ -170,7 +174,7 @@ class EthSubscription(Generic[TSubscriptionResult]):
     @property
     def label(self) -> str:
         if not self._label:
-            self._label = f"{self.__class__.__name__}{self.subscription_params}"
+            self._label = self._default_label
         return self._label
 
     @property

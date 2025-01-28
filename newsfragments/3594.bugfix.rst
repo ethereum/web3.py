@@ -1,0 +1,1 @@
+Don't raise on non-unique default subscription labels (no label provided). Only raise if a non-unique custom label is explicitly set for a subscription.

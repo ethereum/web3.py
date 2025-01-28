@@ -69,6 +69,23 @@ class SubscriptionManager:
     def _remove_subscription(self, subscription: EthSubscription[Any]) -> None:
         self._subscription_container.remove_subscription(subscription)
 
+    def _validate_and_normalize_label(self, subscription: EthSubscription[Any]) -> None:
+        if subscription.label == subscription._default_label:
+            # if no custom label was provided, generate a unique label
+            i = 2
+            while self.get_by_label(subscription._label) is not None:
+                subscription._label = f"{subscription._default_label}#{i}"
+                i += 1
+        else:
+            if (
+                subscription._label
+                in self._subscription_container.subscriptions_by_label
+            ):
+                raise Web3ValueError(
+                    "Subscription label already exists. Subscriptions must have unique "
+                    f"labels.\n    label: {subscription._label}"
+                )
+
     @property
     def subscriptions(self) -> List[EthSubscription[Any]]:
         return self._subscription_container.subscriptions
@@ -100,16 +117,8 @@ class SubscriptionManager:
         :return:
         """
         if isinstance(subscriptions, EthSubscription):
-            if (
-                subscriptions.label
-                in self._subscription_container.subscriptions_by_label
-            ):
-                raise Web3ValueError(
-                    "Subscription label already exists. Subscriptions must have "
-                    f"unique labels.\n    label: {subscriptions.label}"
-                )
-
             subscriptions.manager = self
+            self._validate_and_normalize_label(subscriptions)
             sub_id = await self._w3.eth._subscribe(*subscriptions.subscription_params)
             subscriptions._id = sub_id
             self._add_subscription(subscriptions)
