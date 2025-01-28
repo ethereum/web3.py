@@ -40,19 +40,42 @@ async def subscription_manager():
 
 
 @pytest.mark.asyncio
-async def test_subscription_manager_raises_for_sub_with_the_same_label(
+async def test_subscription_default_labels_are_unique(subscription_manager):
+    sub1 = NewHeadsSubscription()
+    sub2 = NewHeadsSubscription()
+    sub3 = NewHeadsSubscription()
+    sub4 = NewHeadsSubscription()
+
+    await subscription_manager.subscribe([sub1, sub2, sub3, sub4])
+
+    assert sub1.label != sub2.label != sub3.label != sub4.label
+    assert sub1.label == "NewHeadsSubscription('newHeads',)"
+    assert sub2.label == "NewHeadsSubscription('newHeads',)#2"
+    assert sub3.label == "NewHeadsSubscription('newHeads',)#3"
+    assert sub4.label == "NewHeadsSubscription('newHeads',)#4"
+
+    # assert no issues unsubscribing
+    await subscription_manager.unsubscribe_all()
+
+    assert subscription_manager.subscriptions == []
+    assert subscription_manager._subscription_container.subscriptions == []
+    assert subscription_manager._subscription_container.subscriptions_by_id == {}
+    assert subscription_manager._subscription_container.subscriptions_by_label == {}
+
+
+@pytest.mark.asyncio
+async def test_subscription_manager_raises_for_new_subs_with_the_same_custom_label(
     subscription_manager,
 ):
     sub1 = NewHeadsSubscription(label="foo")
-    await subscription_manager.subscribe(sub1)
+    sub2 = LogsSubscription(label="foo")
 
     with pytest.raises(
         Web3ValueError,
         match="Subscription label already exists. Subscriptions must have unique "
         "labels.\n    label: foo",
     ):
-        sub2 = LogsSubscription(label="foo")
-        await subscription_manager.subscribe(sub2)
+        await subscription_manager.subscribe([sub1, sub2])
 
     # make sure the subscription was subscribed to and not added to the manager
     assert subscription_manager.subscriptions == [sub1]
