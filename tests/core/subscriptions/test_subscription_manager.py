@@ -4,6 +4,9 @@ from unittest.mock import (
     AsyncMock,
 )
 
+from eth_typing import (
+    HexStr,
+)
 import pytest_asyncio
 
 from web3 import (
@@ -137,20 +140,51 @@ async def test_unsubscribe_all_clears_all_subscriptions(subscription_manager):
 
 
 @pytest.mark.asyncio
-async def test_unsubscribe_with_hex_ids(subscription_manager):
+async def test_unsubscribe_with_one_or_multiple(subscription_manager):
     sub1 = NewHeadsSubscription()
     sub2 = PendingTxSubscription()
     sub3 = NewHeadsSubscription()
     sub4 = LogsSubscription()
+    sub5 = NewHeadsSubscription()
+    sub6 = PendingTxSubscription()
 
-    sub_id1, sub_id2, sub_id3, sub_id4 = await subscription_manager.subscribe(
-        [sub1, sub2, sub3, sub4]
-    )
+    (
+        sub_id1,
+        sub_id2,
+        sub_id3,
+        sub_id4,
+        sub_id5,
+        sub_id6,
+    ) = await subscription_manager.subscribe([sub1, sub2, sub3, sub4, sub5, sub6])
+    assert sub_id1 == "0x0"
+    assert sub_id2 == "0x1"
+    assert sub_id3 == "0x2"
+    assert sub_id4 == "0x3"
+    assert sub_id5 == "0x4"
+    assert sub_id6 == "0x5"
 
-    assert subscription_manager.subscriptions == [sub1, sub2, sub3, sub4]
+    assert subscription_manager.subscriptions == [sub1, sub2, sub3, sub4, sub5, sub6]
 
+    # unsubscribe single by hex id
     assert await subscription_manager.unsubscribe(sub_id1) is True
-    assert subscription_manager.subscriptions == [sub2, sub3, sub4]
+    assert subscription_manager.subscriptions == [sub2, sub3, sub4, sub5, sub6]
 
+    # unsubscribe many by hex id
     assert await subscription_manager.unsubscribe([sub_id2, sub_id3]) is True
-    assert subscription_manager.subscriptions == [sub4]
+    assert subscription_manager.subscriptions == [sub4, sub5, sub6]
+
+    # unsubscribe non-existent hex id
+    with pytest.raises(Web3ValueError, match=f"Subscription not found|{0x7}"):
+        await subscription_manager.unsubscribe(HexStr("0x7"))
+
+    # unsubscribe by subscription object
+    assert await subscription_manager.unsubscribe(sub4) is True
+    assert subscription_manager.subscriptions == [sub5, sub6]
+
+    # unsubscribe many by subscription object
+    assert await subscription_manager.unsubscribe([sub5, sub6]) is True
+    assert subscription_manager.subscriptions == []
+
+    # unsubscribe non-existent subscription object
+    with pytest.raises(Web3ValueError, match=f"Subscription not found|{sub5.id}"):
+        await subscription_manager.unsubscribe(sub5)
