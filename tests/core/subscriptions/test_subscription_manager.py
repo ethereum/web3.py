@@ -46,7 +46,8 @@ async def test_subscription_default_labels_are_unique(subscription_manager):
     sub3 = NewHeadsSubscription()
     sub4 = NewHeadsSubscription()
 
-    await subscription_manager.subscribe([sub1, sub2, sub3, sub4])
+    sub_ids = await subscription_manager.subscribe([sub1, sub2, sub3, sub4])
+    assert sub_ids == ["0x0", "0x1", "0x2", "0x3"]
 
     assert sub1.label != sub2.label != sub3.label != sub4.label
     assert sub1.label == "NewHeadsSubscription('newHeads',)"
@@ -133,3 +134,23 @@ async def test_unsubscribe_all_clears_all_subscriptions(subscription_manager):
     assert sub_container.subscriptions == []
     assert sub_container.subscriptions_by_id == {}
     assert sub_container.subscriptions_by_label == {}
+
+
+@pytest.mark.asyncio
+async def test_unsubscribe_with_hex_ids(subscription_manager):
+    sub1 = NewHeadsSubscription()
+    sub2 = PendingTxSubscription()
+    sub3 = NewHeadsSubscription()
+    sub4 = LogsSubscription()
+
+    sub_id1, sub_id2, sub_id3, sub_id4 = await subscription_manager.subscribe(
+        [sub1, sub2, sub3, sub4]
+    )
+
+    assert subscription_manager.subscriptions == [sub1, sub2, sub3, sub4]
+
+    assert await subscription_manager.unsubscribe(sub_id1) is True
+    assert subscription_manager.subscriptions == [sub2, sub3, sub4]
+
+    assert await subscription_manager.unsubscribe([sub_id2, sub_id3]) is True
+    assert subscription_manager.subscriptions == [sub4]
