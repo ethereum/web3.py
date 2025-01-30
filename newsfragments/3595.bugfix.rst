@@ -1,0 +1,1 @@
+Fix bugs related to subscription manager: ``run_forever`` can start with ``0`` subscriptions and remains alive, ``unsubscribe`` accepts single or multiple subs as objects or hexstrs, ``subscribe`` for many subs returns a list of hexstr ids.
