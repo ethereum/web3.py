@@ -876,3 +876,41 @@ class PersistentConnectionProviderTest:
 
         assert_no_subscriptions_left(sub_manager._subscription_container)
         await clean_up_task(unsubscribe_task)
+
+    @pytest.mark.asyncio
+    async def test_run_forever_starts_with_0_subs_and_runs_until_task_cancelled(
+        self, async_w3: AsyncWeb3
+    ) -> None:
+        sub_manager = async_w3.subscription_manager
+        assert_no_subscriptions_left(sub_manager._subscription_container)
+
+        run_forever_task = asyncio.create_task(
+            sub_manager.handle_subscriptions(run_forever=True)
+        )
+
+        await asyncio.sleep(0.1)
+        assert run_forever_task.done() is False
+        assert sub_manager.subscriptions == []
+
+        # subscribe to newHeads and validate it
+        new_heads_handler_test = SubscriptionHandlerTest()
+        sub1 = NewHeadsSubscription(
+            label="foo",
+            handler=new_heads_handler,
+            handler_context={"new_heads_handler_test": new_heads_handler_test},
+        )
+        sub_id = await sub_manager.subscribe(sub1)
+        assert is_hexstr(sub_id)
+        assert len(sub_manager.subscriptions) == 1
+        assert sub_manager.subscriptions[0] == sub1
+
+        # wait for the handler to unsubscribe
+        while sub_manager.subscriptions:
+            await asyncio.sleep(0.1)
+
+        assert new_heads_handler_test.passed
+        assert run_forever_task.done() is False
+        assert run_forever_task.cancelled() is False
+
+        # cleanup
+        await clean_up_task(run_forever_task)

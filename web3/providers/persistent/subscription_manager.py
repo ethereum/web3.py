@@ -133,34 +133,88 @@ class SubscriptionManager:
 
             sub_ids: List[HexStr] = []
             for sub in subscriptions:
-                await self.subscribe(sub)
+                sub_ids.append(await self.subscribe(sub))
             return sub_ids
         raise Web3TypeError("Expected a Subscription or a sequence of Subscriptions.")
 
-    async def unsubscribe(self, subscription: EthSubscription[Any]) -> bool:
-        """
-        Used to unsubscribe from a subscription.
+    @overload
+    async def unsubscribe(self, subscriptions: EthSubscription[Any]) -> bool:
+        ...
 
-        :param subscription: The subscription to unsubscribe from.
-        :type subscription: EthSubscription
-        :return: ``True`` if unsubscribing was successful, ``False`` otherwise.
+    @overload
+    async def unsubscribe(self, subscriptions: HexStr) -> bool:
+        ...
+
+    @overload
+    async def unsubscribe(
+        self,
+        subscriptions: Sequence[Union[EthSubscription[Any], HexStr]],
+    ) -> bool:
+        ...
+
+    async def unsubscribe(
+        self,
+        subscriptions: Union[
+            EthSubscription[Any],
+            HexStr,
+            Sequence[Union[EthSubscription[Any], HexStr]],
+        ],
+    ) -> bool:
+        """
+        Used to unsubscribe from one or multiple subscriptions.
+
+        :param subscriptions: The subscription(s) to unsubscribe from.
+        :type subscriptions: Union[EthSubscription, Sequence[EthSubscription], HexStr,
+            Sequence[HexStr]]
+        :return: ``True`` if unsubscribing to all was successful, ``False`` otherwise
+            with a warning.
         :rtype: bool
         """
-        if subscription not in self.subscriptions:
-            raise Web3ValueError(
-                "Subscription not found or is not being managed by the subscription "
-                f"manager.\n    label: {subscription.label}\n    id: {subscription._id}"
-            )
-        if await self._w3.eth._unsubscribe(subscription.id):
-            self._remove_subscription(subscription)
-            self.logger.info(
-                "Successfully unsubscribed from subscription:\n    "
-                f"label: {subscription.label}\n    id: {subscription.id}"
-            )
-            if len(self._subscription_container.handler_subscriptions) == 0:
-                queue = self._provider._request_processor._handler_subscription_queue
-                await queue.put(SubscriptionProcessingFinished())
-            return True
+        if isinstance(subscriptions, EthSubscription) or isinstance(subscriptions, str):
+            if isinstance(subscriptions, str):
+                subscription_id = subscriptions
+                subscriptions = self.get_by_id(subscription_id)
+                if subscriptions is None:
+                    raise Web3ValueError(
+                        "Subscription not found or is not being managed by the "
+                        f"subscription manager.\n    id: {subscription_id}"
+                    )
+
+            if subscriptions not in self.subscriptions:
+                raise Web3ValueError(
+                    "Subscription not found or is not being managed by the "
+                    "subscription manager.\n    "
+                    f"label: {subscriptions.label}\n    id: {subscriptions._id}"
+                )
+
+            if await self._w3.eth._unsubscribe(subscriptions.id):
+                self._remove_subscription(subscriptions)
+                self.logger.info(
+                    "Successfully unsubscribed from subscription:\n    "
+                    f"label: {subscriptions.label}\n    id: {subscriptions.id}"
+                )
+
+                if len(self._subscription_container.handler_subscriptions) == 0:
+                    queue = (
+                        self._provider._request_processor._handler_subscription_queue
+                    )
+                    await queue.put(SubscriptionProcessingFinished())
+                return True
+
+        elif isinstance(subscriptions, Sequence):
+            if len(subscriptions) == 0:
+                raise Web3ValueError("No subscriptions provided.")
+
+            unsubscribed: List[bool] = []
+            for sub in subscriptions:
+                if isinstance(sub, str):
+                    sub = HexStr(sub)
+                unsubscribed.append(await self.unsubscribe(sub))
+            return all(unsubscribed)
+
+        self.logger.warning(
+            f"Failed to unsubscribe from subscription\n    subscription={subscriptions}"
+        )
         return False
 
     async def unsubscribe_all(self) -> bool:
@@ -195,15 +249,15 @@ class SubscriptionManager:
         :type run_forever: bool
         :return: None
         """
-        if not self._subscription_container.handler_subscriptions:
+        if not self._subscription_container.handler_subscriptions and not run_forever:
             self.logger.warning(
                 "No handler subscriptions found. Subscription handler did not run."
             )
             return
 
         queue = self._provider._request_processor._handler_subscription_queue
-        try:
-            while run_forever or self._subscription_container.handler_subscriptions:
+        while run_forever or self._subscription_container.handler_subscriptions:
+            try:
                 response = cast(RPCResponse, await queue.get())
                 formatted_sub_response = cast(
                     FormattedEthSubscriptionResponse,
@@ -225,18 +279,20 @@ class SubscriptionManager:
                             **sub._handler_context,
                         )
                     )
-        except SubscriptionProcessingFinished:
-            self.logger.info(
-                "All handler subscriptions have been unsubscribed from. "
-                "Stopping subscription handling."
-            )
-        except TaskNotRunning:
-            await asyncio.sleep(0)
-            self._provider._handle_listener_task_exceptions()
-            self.logger.error(
-                "Message listener background task for the provider has stopped "
-                "unexpectedly. Stopping subscription handling."
-            )
+            except SubscriptionProcessingFinished:
+                if not run_forever:
+                    self.logger.info(
+                        "All handler subscriptions have been unsubscribed from. "
+                        "Stopping subscription handling."
+                    )
+                    break
+            except TaskNotRunning:
+                await asyncio.sleep(0)
+                self._provider._handle_listener_task_exceptions()
+                self.logger.error(
+                    "Message listener background task for the provider has stopped "
+                    "unexpectedly. Stopping subscription handling."
+                )
 
         # no active handler subscriptions, clear the handler subscription queue
         self._provider._request_processor._reset_handler_subscription_queue()
