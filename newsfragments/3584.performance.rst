@@ -1,0 +1,1 @@
+Avoid unnecessary extra call to resolver when resolving an ENS address with no ``coin_type`` specified (default).
