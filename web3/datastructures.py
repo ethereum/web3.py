@@ -17,6 +17,7 @@ from typing import (
     Tuple,
     TypeVar,
     Union,
+    ValuesView,
     cast,
 )
 
@@ -337,3 +338,6 @@ class NamedElementOnion(Mapping[TKey, TValue]):
         # This leads to typing issues, so it's better to use
         # ``as_tuple_of_middleware()`` to achieve the same result.
         return iter(self._reversed_middleware())  # type: ignore
+
+    def values(self) -> ValuesView[TValue]:
+        return ValuesView(self._queue)
