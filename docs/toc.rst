@@ -18,6 +18,7 @@ Table of Contents
     transactions
     web3.contract
     filters
+    subscriptions
     middleware
     internals
     ens_overview
