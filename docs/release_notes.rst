@@ -40,7 +40,7 @@ Features
 Internal Changes - for web3.py Contributors
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- Move duplicate code into ``BaseContract`` class from ``Contract`` and ``AsyncContract``. (1) ``ContractFunction`` and ``AsyncContractFunction`` (2) ``ContractFunctions`` and ``AsyncContractFunctions``, (3) ``ContractEvent`` and ``AsyncContractEvent``, and (4) ``ContractEvents`` and ``AsyncContractEvents``. (`#3579 <https://github.com/ethereum/web3.py/issues/3579>`__)
+- Move duplicate code into ``BaseContract`` class from ``Contract`` and ``AsyncContract``. (`#3579 <https://github.com/ethereum/web3.py/issues/3579>`__)
 - Address flaky tests in CI runs. (`#3583 <https://github.com/ethereum/web3.py/issues/3583>`__)
 - Update copyright year from 2024 to 2025 in the LICENSE file. (`#3592 <https://github.com/ethereum/web3.py/issues/3592>`__)
 
