@@ -49,7 +49,7 @@ As of v7.7.0, web3.py includes some additional convenient subscription managemen
 1.) The subscription_manager
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-First, your w3 instance now includes a new module, subscription_manager. While you may still use the w3.eth.subscribe method from the previous example, the subscription_manager offers an additional way to start one or more subscriptions. We're going to pass in a list of events we want to subscribe to within the w3.subscription_manager.subscribe method.
+First, your ``w3`` (``AsyncWeb3``) instance now includes a new module, ``subscription_manager``. While you may still use the ``w3.eth.subscribe`` method from the previous example, the ``subscription_manager`` offers an additional way to start one or more subscriptions. We're going to pass in a list of events we want to subscribe to within the ``w3.subscription_manager.subscribe`` method.
 
 .. code-block:: python
 
@@ -59,7 +59,7 @@ First, your w3 instance now includes a new module, subscription_manager. While y
 2.) Subscription types
 ~~~~~~~~~~~~~~~~~~~~~~
 
-To aid in defining those subscriptions, subscription type classes have been introduced: NewHeadsSubscription, PendingTxSubscription, LogsSubscription, and SyncingSubscription. Each class is context aware, meaning it will throw an error if you provide an unexpected data type.
+To aid in defining those subscriptions, subscription type classes have been introduced: ``NewHeadsSubscription``, ``PendingTxSubscription``, ``LogsSubscription``, and ``SyncingSubscription``. Each class is context aware, meaning it will throw an error if you provide an unexpected data type.
 
 .. code-block:: python
 
@@ -94,7 +94,7 @@ To aid in defining those subscriptions, subscription type classes have been intr
 ~~~~~~~~~~~~
 
 In the example above, there is a handler specified for each subscription. These are context-aware functions that you can declare separate from the subscription logic. Within each handler, parse and perform whatever logic you require.
-Note that in addition to the result being processed, the handler_context in each handler provides access to your async_w3 instance, the subscription instance, and any custom values declared within the handler_context of the subscription. from web3.utils.subscriptions import LogsSubscriptionContext
+Note that in addition to the result being processed, the ``handler_context`` in each handler provides access to your ``AsyncWeb3`` instance, the subscription instance, and any custom values declared within the ``handler_context`` of the subscription: ``from web3.utils.subscriptions import LogsSubscriptionContext``
 
 .. code-block:: python
 
@@ -136,10 +136,10 @@ Finally, when all your subscriptions are configured, utilize the handle_subscrip
 5.) Unsubscribing
 ~~~~~~~~~~~~~~~~~
 
-If you don't want to subscribe indefinitely to an event, you can unsubscribe at any point. The first example in this post demonstrated the manual approach:await w3.eth.unsubscribe(subscription_id)
+If you don't want to subscribe indefinitely to an event, you can unsubscribe at any point. The first example in this post demonstrated the manual approach: ``await w3.eth.unsubscribe(subscription_id)``
 
 
-The new handler pattern will keep track of the subscription ID for you however, so the same can be accomplished via the handler_context without an ID:
+The new handler pattern will keep track of the subscription ID for you however, so the same can be accomplished via the ``handler_context`` without an ID:
 
 .. code-block:: python
 
@@ -149,7 +149,7 @@ The new handler pattern will keep track of the subscription ID for you however, 
             await handler_context.subscription.unsubscribe()
 
 
-Lastly, if you're wrapping up the whole show, you can reach for unsubscribe_all on the subscription_manager:
+Lastly, if you're wrapping up the whole show, you can reach for ``unsubscribe_all`` on the subscription_manager:
 
 .. code-block:: python
 
@@ -222,7 +222,7 @@ FAQ
 How can I subscribe to additional events once my application is running?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Wherever you have an instance of the ``w3`` object, you can use the ``subscription_manager`` to subscribe to new events.
+Wherever you have a ``w3`` instance of the ``AsyncWeb3`` object, you can use the ``subscription_manager`` to subscribe to new events.
 
 For example, the handler of one subscription could initialize a new subscription:
 
