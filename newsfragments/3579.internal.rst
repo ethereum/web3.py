@@ -1,0 +1,1 @@
+Move duplicate code into ``BaseContract`` class from ``Contract`` and ``AsyncContract``. (1) ``ContractFunction`` and ``AsyncContractFunction`` (2) ``ContractFunctions`` and ``AsyncContractFunctions``, (3) ``ContractEvent`` and ``AsyncContractEvent``, and (4) ``ContractEvents`` and ``AsyncContractEvents``.
