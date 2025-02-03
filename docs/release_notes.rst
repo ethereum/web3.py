@@ -6,6 +6,51 @@ v7 Breaking Changes Summary
 
 .. towncrier release notes start
 
+web3.py v7.8.0 (2025-02-03)
+---------------------------
+
+Breaking Changes
+~~~~~~~~~~~~~~~~
+
+- The bugfix to match ``unsubscribe`` to ``subscribe`` for multiple subscriptions breaks the function signature for ``unsubscribe``, changing the ``subscription`` argument to ``subscriptions``. (`#3585 <https://github.com/ethereum/web3.py/issues/3585>`__)
+
+
+Bugfixes
+~~~~~~~~
+
+- Handle the case when a single RPC error response is returned for a batch request, instead of always expecting a list of responses. (`#3585 <https://github.com/ethereum/web3.py/issues/3585>`__)
+- Don't raise on non-unique default subscription labels (no label provided). Only raise if a non-unique custom label is explicitly set for a subscription. (`#3594 <https://github.com/ethereum/web3.py/issues/3594>`__)
+- Fix bugs related to subscription manager: ``run_forever`` can start with ``0`` subscriptions and remains alive, ``unsubscribe`` accepts single or multiple subs as objects or hexstrs, ``subscribe`` for many subs returns a list of hexstr ids. (`#3595 <https://github.com/ethereum/web3.py/issues/3595>`__)
+- Fix issue where ``.values()`` raised a ``KeyError`` in ``NamedTupledOnion`` (`#3596 <https://github.com/ethereum/web3.py/issues/3596>`__)
+
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Include ``topic`` attribute in ``ContractEvent`` docs. (`#3586 <https://github.com/ethereum/web3.py/issues/3586>`__)
+- Introduce Event Subscriptions docs guide (`#3600 <https://github.com/ethereum/web3.py/issues/3600>`__)
+
+
+Features
+~~~~~~~~
+
+- New ``Beacon`` and ``AsyncBeacon`` endpoints: ``get_peer_count``, ``get_attester_duties``, ``get_block_proposer_duties``, ``get_sync_committee_duties``, and ``get_attestation_rewards``. (`#3504 <https://github.com/ethereum/web3.py/issues/3504>`__)
+
+
+Internal Changes - for web3.py Contributors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Move duplicate code into ``BaseContract`` class from ``Contract`` and ``AsyncContract``. (1) ``ContractFunction`` and ``AsyncContractFunction`` (2) ``ContractFunctions`` and ``AsyncContractFunctions``, (3) ``ContractEvent`` and ``AsyncContractEvent``, and (4) ``ContractEvents`` and ``AsyncContractEvents``. (`#3579 <https://github.com/ethereum/web3.py/issues/3579>`__)
+- Address flaky tests in CI runs. (`#3583 <https://github.com/ethereum/web3.py/issues/3583>`__)
+- Update copyright year from 2024 to 2025 in the LICENSE file. (`#3592 <https://github.com/ethereum/web3.py/issues/3592>`__)
+
+
+Performance Improvements
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Avoid unnecessary extra call to resolver when resolving an ENS address with no ``coin_type`` specified (default). (`#3584 <https://github.com/ethereum/web3.py/issues/3584>`__)
+
+
 web3.py v7.7.0 (2025-01-15)
 ---------------------------
 

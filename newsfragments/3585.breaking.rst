@@ -1,1 +1,0 @@
-The bugfix to match ``unsubscribe`` to ``subscribe`` for multiple subscriptions breaks the function signature for ``unsubscribe``, changing the ``subscription`` argument to ``subscriptions``.

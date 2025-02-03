@@ -1,1 +1,0 @@
-Update copyright year from 2024 to 2025 in the LICENSE file.
