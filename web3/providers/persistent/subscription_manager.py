@@ -206,7 +206,10 @@ class SubscriptionManager:
                 raise Web3ValueError("No subscriptions provided.")
 
             unsubscribed: List[bool] = []
-            for sub in subscriptions:
+            # re-create the subscription list to prevent modifying the original list
+            # in case ``subscription_manager.subscriptions`` was passed in directly
+            subs = [sub for sub in subscriptions]
+            for sub in subs:
                 if isinstance(sub, str):
                     sub = HexStr(sub)
                 unsubscribed.append(await self.unsubscribe(sub))
@@ -226,7 +229,9 @@ class SubscriptionManager:
         :rtype: bool
         """
         unsubscribed = [
-            await self.unsubscribe(sub) for sub in self.subscriptions.copy()
+            await self.unsubscribe(sub)
+            # use copy to prevent modifying the list while iterating over it
+            for sub in self.subscriptions.copy()
         ]
         if all(unsubscribed):
             self.logger.info("Successfully unsubscribed from all subscriptions.")
