@@ -4714,14 +4714,6 @@ class EthModuleTest:
         assert log_entry["transactionIndex"] == 0
         assert log_entry["transactionHash"] == HexBytes(txn_hash_with_log)
 
-    def test_eth_getUncleByBlockHashAndIndex(self, w3: "Web3") -> None:
-        # TODO: how do we make uncles....
-        pass
-
-    def test_eth_getUncleByBlockNumberAndIndex(self, w3: "Web3") -> None:
-        # TODO: how do we make uncles....
-        pass
-
     def test_eth_new_filter(self, w3: "Web3") -> None:
         filter = w3.eth.filter({})
 
