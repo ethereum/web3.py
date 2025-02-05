@@ -72,6 +72,12 @@ Batch Requests
             responses = batch.execute()
             assert len(responses) == 3
 
+    .. note::
+
+       Within the batching context above, calls are suspended until
+       ``batch.execute()`` is called. Calling a method without
+       passing it to ``batch.add`` might result in unexpected behavior.
+
     Using the batch object directly:
 
     .. code-block:: python
