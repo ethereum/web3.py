@@ -76,6 +76,17 @@ def w3(geth_process, endpoint_uri):
     return Web3(Web3.HTTPProvider(endpoint_uri, request_kwargs={"timeout": 10}))
 
 
+@pytest.fixture(scope="module")
+def auto_w3(geth_process, endpoint_uri):
+    wait_for_http(endpoint_uri)
+
+    from web3.auto import (
+        w3,
+    )
+
+    return w3
+
+
 class TestGoEthereumWeb3ModuleTest(GoEthereumWeb3ModuleTest):
     pass
 
@@ -105,7 +116,15 @@ class TestGoEthereumDebugModuleTest(GoEthereumDebugModuleTest):
 
 
 class TestGoEthereumEthModuleTest(GoEthereumEthModuleTest):
-    pass
+    def test_auto_provider_batching(
+        self,
+        auto_w3: "Web3",
+        monkeypatch,
+        endpoint_uri,
+    ) -> None:
+        monkeypatch.setenv("WEB3_PROVIDER_URI", endpoint_uri)
+        # test that batch_requests doesn't error out when using the auto provider
+        auto_w3.batch_requests()
 
 
 class TestGoEthereumNetModuleTest(GoEthereumNetModuleTest):

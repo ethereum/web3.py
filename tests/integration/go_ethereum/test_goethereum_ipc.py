@@ -54,6 +54,17 @@ def geth_ipc_path(datadir):
 
 
 @pytest.fixture(scope="module")
+def auto_w3(geth_process, geth_ipc_path):
+    wait_for_socket(geth_ipc_path)
+
+    from web3.auto import (
+        w3,
+    )
+
+    return w3
+
+
+@pytest.fixture(scope="module")
 def w3(geth_process, geth_ipc_path):
     wait_for_socket(geth_ipc_path)
     return Web3(Web3.IPCProvider(geth_ipc_path, timeout=10))
@@ -68,7 +79,15 @@ class TestGoEthereumDebugModuleTest(GoEthereumDebugModuleTest):
 
 
 class TestGoEthereumEthModuleTest(GoEthereumEthModuleTest):
-    pass
+    def test_auto_provider_batching(
+        self,
+        auto_w3: "Web3",
+        monkeypatch,
+        geth_ipc_path,
+    ) -> None:
+        monkeypatch.setenv("WEB3_PROVIDER_URI", f"file:///{geth_ipc_path}")
+        # test that batch_requests doesn't error out when using the auto provider
+        auto_w3.batch_requests()
 
 
 class TestGoEthereumNetModuleTest(GoEthereumNetModuleTest):
