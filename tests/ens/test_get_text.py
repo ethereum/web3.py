@@ -112,7 +112,7 @@ async def test_async_set_text_fails_with_bad_address(async_ens):
 
 
 @pytest.mark.asyncio
-async def async_test_set_text_pass_in_transaction_dict(async_ens):
+async def test_async_set_text_pass_in_transaction_dict(async_ens):
     accounts = await async_ens.w3.eth.accounts
     address = accounts[2]
 

@@ -1,0 +1,1 @@
+Rename test so pytest finds it, a couple typo fixes

@@ -42,7 +42,7 @@ def emitter_contract_data():
     return EMITTER_CONTRACT_DATA
 
 
-# This class defines events for the EmitterContract and are used to construct
+# This class defines events for the EmitterContract and is used to construct
 # a fixture for contract event logs. Parameterized tests that utilize an `emitter`
 # contract fixture will use this data.
 class LogFunctions:
@@ -71,7 +71,7 @@ def emitter_contract_event_ids():
     return LogFunctions
 
 
-# This class defines topics for the EmitterContract and are used to construct
+# This class defines topics for the EmitterContract and is used to construct
 # a fixture for contract event log topics. Parameterized tests that utilize
 # an `emitter` contract fixture will use this data.
 class LogTopics:
