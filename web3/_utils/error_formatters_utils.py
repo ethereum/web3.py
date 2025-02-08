@@ -43,7 +43,7 @@ PANIC_ERROR_CODES = {
     "11": "Panic error 0x11: Arithmetic operation results in underflow or overflow.",
     "12": "Panic error 0x12: Division by zero.",
     "21": "Panic error 0x21: Cannot convert value into an enum type.",
-    "22": "Panic error 0x12: Storage byte array is incorrectly encoded.",
+    "22": "Panic error 0x22: Storage byte array is incorrectly encoded.",
     "31": "Panic error 0x31: Call to 'pop()' on an empty array.",
     "32": "Panic error 0x32: Array index is out of bounds.",
     "41": "Panic error 0x41: Allocation of too much memory or array too large.",
