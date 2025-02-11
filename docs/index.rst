@@ -16,9 +16,6 @@ block data, and a variety of other use cases.
 For project updates, follow `@EthereumPython`_ and sign up
 for new post notifications on the `blog`_.
 
-.. toctree::
-    :maxdepth: 1
-    :caption: Community
 
 Getting Started
 ---------------

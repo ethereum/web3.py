@@ -54,7 +54,7 @@ Finally, install all development dependencies:
 
 .. code:: sh
 
-    $ pip install -e ".[dev]"
+    $ python -m pip install -e ".[dev]"
     $ pre-commit install
 
 
@@ -74,24 +74,27 @@ To start up the test environment, run:
 This will build a Docker container set up with an environment to run the
 Python test code.
 
-.. note::
-
-    This container does not have `go-ethereum` installed, so you cannot run
-    the go-ethereum test suite.
-
-To run the Python tests from your local machine:
+To run the core tests from your local machine:
 
 .. code:: sh
 
-    $ docker compose exec sandbox bash -c 'pytest -n 4 -f -k "not goethereum"'
+    $ docker compose exec sandbox bash -c 'pytest tests/core'
+
+
+The container does not have ``go-ethereum`` installed, so you can exclude those tests
+by using the ``-k "not goethereum"`` flag.
+
+.. code:: sh
+
+    $ docker compose exec sandbox bash -c 'pytest tests/integration -k "not goethereum"'
 
 
 You can run arbitrary commands inside the Docker container by using the
-`bash -c` prefix.
+``bash -c`` prefix.
 
 .. code:: sh
 
-    $ docker compose exec sandbox bash -c ''
+    $ docker compose exec sandbox bash -c 'pwd && ls'
 
 
 Or, if you would like to open a session to the container, run:
@@ -99,39 +102,6 @@ Or, if you would like to open a session to the container, run:
 .. code:: sh
 
     $ docker compose exec sandbox bash
-
-
-Code Style
-~~~~~~~~~~
-
-We value code consistency. To ensure your contribution conforms to the style
-being used in this project, we encourage you to read our `style guide`_.
-
-We use Black for linting. To ignore the commits that introduced Black in
-git history, you can configure your git environment like so:
-
-.. code:: sh
-
-   git config blame.ignoreRevsFile .git-blame-ignore-revs
-
-
-Type Hints
-~~~~~~~~~~
-
-This code base makes use of `type hints`_. Type hints make it easy to prevent
-certain types of bugs, enable richer tooling, and enhance the documentation,
-making the code easier to follow.
-
-All new code is required to include type hints, with the exception of tests.
-
-All parameters, as well as the return type of functions, are expected to be typed,
-with the exception of ``self`` and ``cls`` as seen in the following example.
-
-.. code:: python
-
-    def __init__(self, wrapped_db: DatabaseAPI) -> None:
-        self.wrapped_db = wrapped_db
-        self.reset()
 
 
 Running The Tests
@@ -144,7 +114,8 @@ First, install the test dependencies:
 
 .. code:: sh
 
-    $ pip install -e ".[test]"
+    $ python -m pip install -e ".[test]"
+
 
 You can run all tests with:
 
@@ -161,15 +132,8 @@ Typically, you'll just want to run a subset instead, like:
     $ pytest tests/core/eth-module/test_accounts.py
 
 
-You can use ``tox`` to run all the tests for a given version of Python:
-
-.. code:: sh
-
-   $ tox -e py38-core
-
-
-Linting is also performed by the CI. You can save yourself some time by checking for
-linting errors locally:
+Linting is also performed by the CI and locally with each commit. You can save yourself
+some time by checking for linting errors manually:
 
 .. code:: sh
 
@@ -256,12 +220,11 @@ Arguments for the script are:
 
 
 To run the script, you will need the ``py-solc-x`` library for compiling the files
-as well as ``black`` for code formatting. You can install those independently or
-install the full ``[dev]`` package extra as shown below.
+as well as ``black`` for code formatting. You can install those with:
 
 .. code:: sh
 
-    $ pip install "web3[dev]"
+    $ python -m pip install py-solc-x black
 
 The following example compiles all the contracts and generates their respective
 contract data that is used across our test files for the test suites. This data gets
@@ -304,7 +267,35 @@ you can install it from your development directory:
 
 .. code:: sh
 
-   $ pip install -e ../path/to/web3py
+   $ python -m pip install -e ../path/to/web3py
+
+
+Code Style
+~~~~~~~~~~
+
+We use `pre-commit <https://pre-commit.com/>`_ to enforce a consistent code style across
+the library. This tool runs automatically with every commit, but you can also run it
+manually with:
+
+.. code:: sh
+
+   $ make lint
+
+
+If you need to make a commit that skips the ``pre-commit`` checks, you can do so with
+``git commit --no-verify``.
+
+We use Black as part of our linting. To ignore the commits that introduced Black in
+git history, you can configure your git environment like so:
+
+.. code:: sh
+
+   $ git config blame.ignoreRevsFile .git-blame-ignore-revs
+
+
+This library uses `type hints`_, which are enforced by the ``mypy`` tool (part of the
+``pre-commit`` checks). All new code is required to land with type hints, with the
+exception of code within the ``tests`` directory.
 
 
 Documentation
@@ -352,7 +343,7 @@ Before generating new fixtures, make sure you have the test dependencies install
 
 .. code:: sh
 
-    $ pip install -e ".[test]"
+    $ python -m pip install -e ".[test]"
 
 .. note::
 
@@ -436,8 +427,8 @@ Before releasing a new version, build and test the package that will be released
 
 .. code:: sh
 
-    git checkout main && git pull
-    make package-test
+    $ git checkout main && git pull
+    $ make package-test
 
 This will build the package and install it in a temporary virtual environment. Follow
 the instructions to activate the venv and test whatever you think is important.
@@ -446,13 +437,13 @@ Review the documentation that will get published:
 
 .. code:: sh
 
-    make docs
+    $ make docs
 
 Validate and preview the release notes:
 
 .. code:: sh
 
-    make validate-newsfragments
+    $ make validate-newsfragments
 
 Build the release notes
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -463,7 +454,7 @@ release notes.
 
 .. code:: sh
 
-    make notes bump=$$VERSION_PART_TO_BUMP$$
+    $ make notes bump=$$VERSION_PART_TO_BUMP$$
 
 If there are any errors, be sure to re-run make notes until it works.
 
@@ -474,7 +465,7 @@ After confirming that the release package looks okay, release a new version:
 
 .. code:: sh
 
-    make release bump=$$VERSION_PART_TO_BUMP$$
+    $ make release bump=$$VERSION_PART_TO_BUMP$$
 
 This command will:
 
@@ -497,10 +488,10 @@ beta).
 If you are in a beta version, ``make release bump=stage`` will switch to a stable.
 
 To issue an unstable version when the current version is stable, specify the new version
-explicitly, like ``make release bump="--new-version 4.0.0-alpha.1"``
+explicitly, like ``make release bump="--new-version 4.0.0-alpha.1"``.
 
 You can see what the result of bumping any particular version part would be with
-``bump-my-version show-bump``
+``bump-my-version show-bump``.
 
 .. _Python Discord server: https://discord.gg/GHryRvPB84
 .. _style guide: https://github.com/ethereum/snake-charmers-tactical-manual/blob/main/style-guide.md
