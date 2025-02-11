@@ -1,5 +1,5 @@
-import copy
 import pytest
+import copy
 import re
 
 from eth_abi.exceptions import (

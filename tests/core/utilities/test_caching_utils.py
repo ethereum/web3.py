@@ -1,8 +1,8 @@
+import pytest
 import asyncio
 from concurrent.futures import (
     ThreadPoolExecutor,
 )
-import pytest
 import threading
 
 from web3._utils.async_caching import (

@@ -1,5 +1,5 @@
-import json
 import pytest
+import json
 
 from web3 import (
     constants,

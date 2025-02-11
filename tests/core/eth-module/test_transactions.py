@@ -1,6 +1,6 @@
+import pytest
 import collections
 import itertools
-import pytest
 
 from eth_utils import (
     to_checksum_address,

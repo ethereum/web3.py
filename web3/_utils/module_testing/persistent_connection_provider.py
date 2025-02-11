@@ -1,8 +1,8 @@
+import pytest
 import asyncio
 from dataclasses import (
     dataclass,
 )
-import pytest
 from typing import (
     TYPE_CHECKING,
     Any,

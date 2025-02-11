@@ -1,7 +1,7 @@
+import pytest
 import asyncio
 import json
 import math
-import pytest
 from random import (
     randint,
 )

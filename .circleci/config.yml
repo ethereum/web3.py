@@ -121,15 +121,11 @@ docs: &docs
         command: |
           python -m pip install --upgrade pip
           python -m pip install tox
-    # latexpdf turned off for now - won't build due to long line lengths
-    # - run:
-    #     name: install latexpdf dependencies
-    #     command: |
-    #       sudo apt-get update
-    #       sudo apt-get install latexmk tex-gyre texlive-fonts-extra texlive-xetex xindy
     - run:
         name: run tox
         command: python -m tox run -r
+    - store_artifacts:
+          path: /home/circleci/repo/docs/_build
     - save_cache:
         paths:
           - .tox

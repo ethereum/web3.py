@@ -1,8 +1,8 @@
+import pytest
 import asyncio
 from asyncio.exceptions import (
     TimeoutError,
 )
-import pytest
 from threading import (
     Thread,
 )

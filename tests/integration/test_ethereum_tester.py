@@ -1,5 +1,5 @@
-import functools
 import pytest
+import functools
 from typing import (
     cast,
 )

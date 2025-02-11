@@ -1,9 +1,9 @@
+import pytest
 import json
 import os
 from pathlib import (
     Path,
 )
-import pytest
 import subprocess
 import zipfile
 

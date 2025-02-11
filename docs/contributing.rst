@@ -55,6 +55,7 @@ Finally, install all development dependencies:
 .. code:: sh
 
     $ pip install -e ".[dev]"
+    $ pre-commit install
 
 
 Using Docker
@@ -424,93 +425,82 @@ published and the test runs are updated to use the new stable version.
 Releasing
 ~~~~~~~~~
 
-Final Test Before Each Release
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Releases are typically done from the ``main`` branch, except when releasing a beta (in
+which case the beta is released from ``main``, and the previous stable branch is
+released from said branch).
 
-Before releasing a new version, build and test the package that will be released.
-There's a script to build and install the wheel locally, then generate a temporary
-virtualenv for smoke testing:
+Final test before each release
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. code:: sh
-
-    $ git checkout main && git pull
-
-    $ make package
-
-    # in another shell, navigate to the virtualenv mentioned in output of ^
-
-    # load the virtualenv with the packaged web3.py release
-    $ source package-smoke-test/bin/activate
-
-    # smoke test the release
-    $ pip install ipython
-    $ ipython
-    >>> from web3 import Web3, IPCProvider
-    >>> w3 = Web3(IPCProvider(provider_url))
-    >>> w3.is_connected()
-    >>> ...
-
-
-Verify The Latest Documentation
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-To preview the documentation that will get published:
+Before releasing a new version, build and test the package that will be released:
 
 .. code:: sh
 
-    $ make docs
+    git checkout main && git pull
+    make package-test
 
+This will build the package and install it in a temporary virtual environment. Follow
+the instructions to activate the venv and test whatever you think is important.
 
-Preview The Release Notes
-^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. code:: sh
-
-   $ towncrier build --draft
-
-
-Compile The Release Notes
-^^^^^^^^^^^^^^^^^^^^^^^^^
-
-After confirming that the release package looks okay, compile the release notes:
+Review the documentation that will get published:
 
 .. code:: sh
 
-    $ make notes bump=$$VERSION_PART_TO_BUMP$$
+    make docs
 
-
-You may need to fix up any broken release note fragments before committing. Keep
-running ``make build-docs`` until it passes, then commit and carry on.
-
-
-Push The Release to GitHub & PyPI
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-After committing the compiled release notes and pushing them to the main
-branch, release a new version:
+Validate and preview the release notes:
 
 .. code:: sh
 
-    $ make release bump=$$VERSION_PART_TO_BUMP$$
+    make validate-newsfragments
 
+Build the release notes
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Which Version Part to Bump
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+Before bumping the version number, build the release notes. You must include the part of
+the version to bump (see below), which changes how the version number will show in the
+release notes.
 
-The version format for this repo is ``{major}.{minor}.{patch}`` for
-stable, and ``{major}.{minor}.{patch}-{stage}.{devnum}`` for unstable
-(``stage`` can be alpha or beta).
+.. code:: sh
 
-During a release, specify which part to bump, like
-``make release bump=minor`` or ``make release bump=devnum``.
+    make notes bump=$$VERSION_PART_TO_BUMP$$
 
-If you are in an alpha version, ``make release bump=stage`` will bump to beta.
-If you are in a beta version, ``make release bump=stage`` will bump to a stable
-version.
+If there are any errors, be sure to re-run make notes until it works.
 
-To issue an unstable version when the current version is stable, specify the new
-version explicitly, like ``make release bump="--new-version 4.0.0-alpha.1 devnum"``.
+Push the release to github & pypi
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+After confirming that the release package looks okay, release a new version:
+
+.. code:: sh
+
+    make release bump=$$VERSION_PART_TO_BUMP$$
+
+This command will:
+
+- Bump the version number as specified in ``.pyproject.toml`` and ``setup.py``.
+- Create a git commit and tag for the new version.
+- Build the package.
+- Push the commit and tag to github.
+- Push the new package files to pypi.
+
+Which version part to bump
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+``$$VERSION_PART_TO_BUMP$$`` must be one of: ``major``, ``minor``, ``patch``, ``stage``,
+or ``devnum``.
+
+The version format for this repo is ``{major}.{minor}.{patch}`` for stable, and
+``{major}.{minor}.{patch}-{stage}.{devnum}`` for unstable (``stage`` can be alpha or
+beta).
+
+If you are in a beta version, ``make release bump=stage`` will switch to a stable.
+
+To issue an unstable version when the current version is stable, specify the new version
+explicitly, like ``make release bump="--new-version 4.0.0-alpha.1"``
+
+You can see what the result of bumping any particular version part would be with
+``bump-my-version show-bump``
 
 .. _Python Discord server: https://discord.gg/GHryRvPB84
 .. _style guide: https://github.com/ethereum/snake-charmers-tactical-manual/blob/main/style-guide.md

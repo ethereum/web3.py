@@ -13,7 +13,7 @@ extras_require = {
     ],
     "dev": [
         "build>=0.9.0",
-        "bumpversion>=0.5.3",
+        "bump_my_version>=0.19.0",
         "ipython",
         "setuptools>=38.6.0",
         "tqdm>4.32",
@@ -24,7 +24,7 @@ extras_require = {
         "sphinx>=6.0.0",
         "sphinx-autobuild>=2021.3.14",
         "sphinx_rtd_theme>=1.0.0",
-        "towncrier>=21,<22",
+        "towncrier>=24,<25",
     ],
     "test": [
         "pytest-asyncio>=0.18.1,<0.23",
@@ -54,7 +54,7 @@ with open("./README.md") as readme:
 
 setup(
     name="web3",
-    # *IMPORTANT*: Don't manually change the version here. Use `make bump`, as described in readme
+    # *IMPORTANT*: Don't manually change the version here. See Contributing docs for the release process.
     version="7.8.0",
     description="""web3: A Python library for interacting with Ethereum""",
     long_description=long_description,

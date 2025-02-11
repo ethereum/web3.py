@@ -1,8 +1,8 @@
+import pytest
 from binascii import (
     unhexlify,
 )
 import json
-import pytest
 
 ABI_A = json.loads(
     '[{"constant":false,"inputs":[],"name":"noargfunc","outputs":[],"type":"function"}]'  # noqa: E501

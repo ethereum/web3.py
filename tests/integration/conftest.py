@@ -1,5 +1,5 @@
-import asyncio
 import pytest
+import asyncio
 
 from web3._utils.contract_sources.contract_data.emitter_contract import (
     EMITTER_CONTRACT_ABI,
