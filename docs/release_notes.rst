@@ -2930,7 +2930,7 @@ Improved Documentation
 
   Matomo is an Open Source web analytics platform that allows us
   to get better insights and optimize for our audience without
-  the negative consequences of other compareable platforms.
+  the negative consequences of other comparable platforms.
 
   Read more: https://matomo.org/why-matomo/ (`#1541 <https://github.com/ethereum/web3.py/issues/1541>`__)
 - Fix web3 typo in docs (`#1559 <https://github.com/ethereum/web3.py/issues/1559>`__)
@@ -3502,7 +3502,7 @@ Released January 23rd, 2019
 
 - Features
 
-  - Stablize the ``PM`` module
+  - Stabilize the ``PM`` module
     - `#1125 <https://github.com/ethereum/web3.py/pull/1125>`_
   - Implement async ``Version`` module
     - `#1166 <https://github.com/ethereum/web3.py/pull/1166>`_
@@ -4206,7 +4206,7 @@ v4.0.0-beta.1
 3.13.1
 ------
 
-* Fix mispelled ``attrdict_middleware`` (was spelled ``attrdict_middlware``).
+* Fix misspelled ``attrdict_middleware`` (was spelled ``attrdict_middlware``).
 
 
 3.13.0
@@ -4373,7 +4373,7 @@ v4.0.0-beta.1
 3.0.1
 -----
 
-* Better RPC compliance to be compatable with the Parity JSON-RPC server.
+* Better RPC compliance to be compatible with the Parity JSON-RPC server.
 
 3.0.0
 -----
