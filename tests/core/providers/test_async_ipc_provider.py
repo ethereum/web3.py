@@ -1,7 +1,7 @@
+import pytest
 import json
 import os
 import pathlib
-import pytest
 import socket
 import tempfile
 from threading import (

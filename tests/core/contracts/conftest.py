@@ -1,5 +1,5 @@
-import functools
 import pytest
+import functools
 
 import pytest_asyncio
 

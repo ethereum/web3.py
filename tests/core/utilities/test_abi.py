@@ -1,7 +1,7 @@
+import pytest
 from decimal import (
     Decimal,
 )
-import pytest
 import re
 from typing import (
     Any,

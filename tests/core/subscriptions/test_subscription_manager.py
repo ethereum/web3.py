@@ -1,5 +1,5 @@
-import itertools
 import pytest
+import itertools
 from unittest.mock import (
     AsyncMock,
 )

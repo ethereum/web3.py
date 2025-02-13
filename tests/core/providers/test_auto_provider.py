@@ -1,5 +1,5 @@
-import os
 import pytest
+import os
 
 from web3.providers import (
     HTTPProvider,

@@ -1,6 +1,6 @@
+import pytest
 import asyncio
 import json
-import pytest
 
 from eth_tester import (
     EthereumTester,

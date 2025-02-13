@@ -1,9 +1,9 @@
+import pytest
 from decimal import (
     Decimal,
     getcontext,
 )
 import json
-import pytest
 import re
 
 from eth_tester.exceptions import (

@@ -1,7 +1,7 @@
+import pytest
 from io import (
     UnsupportedOperation,
 )
-import pytest
 
 from eth_utils import (
     is_integer,

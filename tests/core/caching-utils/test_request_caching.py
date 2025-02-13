@@ -1,5 +1,5 @@
-import itertools
 import pytest
+import itertools
 import threading
 import time
 from typing import (

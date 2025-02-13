@@ -1,5 +1,5 @@
-import functools
 import pytest
+import functools
 
 from eth_utils import (
     apply_key_map,

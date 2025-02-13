@@ -1,5 +1,5 @@
-import json
 import pytest
+import json
 
 from eth_utils import (
     abi_to_signature,

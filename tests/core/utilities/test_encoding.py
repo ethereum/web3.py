@@ -1,8 +1,8 @@
+import pytest
 from ast import (
     literal_eval,
 )
 import datetime
-import pytest
 from unittest.mock import (
     Mock,
 )

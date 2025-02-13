@@ -1,7 +1,7 @@
+import pytest
 from decimal import (
     Decimal,
 )
-import pytest
 
 from eth_abi.exceptions import (
     ValueOutOfBounds,

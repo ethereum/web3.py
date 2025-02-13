@@ -1,5 +1,5 @@
-import asyncio
 import pytest
+import asyncio
 
 from tests.integration.common import (
     COINBASE,

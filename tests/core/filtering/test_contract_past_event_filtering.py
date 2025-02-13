@@ -1,5 +1,5 @@
-import asyncio
 import pytest
+import asyncio
 
 from eth_utils import (
     is_same_address,

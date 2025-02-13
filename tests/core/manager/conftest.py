@@ -1,5 +1,5 @@
-import itertools
 import pytest
+import itertools
 
 from web3.middleware.base import (
     Web3Middleware,
