@@ -172,7 +172,7 @@ def _get_any_abi_signature_with_name(
     Find an ABI identifier signature by element name. A signature identifier is
     returned, "name(arg1Type,arg2Type,...)".
 
-    If multiple ABIs match the name and every one contain arguments, the first
+    If multiple ABIs match the name and every one contains arguments, the first
     result is returned. Otherwise the signature without arguments is returned.
     Returns None if no ABI exists with the provided name.
     """
