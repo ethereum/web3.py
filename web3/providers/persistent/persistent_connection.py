@@ -27,7 +27,7 @@ if TYPE_CHECKING:
 class PersistentConnection:
     """
     A class that houses the public API for interacting with the persistent connection
-    via a `AsyncWeb3` instance instantiated with a `PersistentConnectionProvider` class.
+    via an `AsyncWeb3` instance instantiated with a `PersistentConnectionProvider` class.
     """
 
     def __init__(self, w3: "AsyncWeb3"):
