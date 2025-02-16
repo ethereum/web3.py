@@ -70,12 +70,12 @@ if TYPE_CHECKING:
 def construct_event_filter_params(
     event_abi: ABIEvent,
     abi_codec: ABICodec,
-    contract_address: Optional[ChecksumAddress] = None,
+    contract_address: Optional[ChecksumAddress | Sequence[ChecksumAddress]] = None,
     argument_filters: Optional[Dict[str, Any]] = None,
     topics: Optional[Sequence[HexStr]] = None,
     from_block: Optional[BlockIdentifier] = None,
     to_block: Optional[BlockIdentifier] = None,
-    address: Optional[ChecksumAddress] = None,
+    address: Optional[ChecksumAddress | Sequence[ChecksumAddress]] = None,
 ) -> Tuple[List[List[Optional[HexStr]]], FilterParams]:
     filter_params: FilterParams = {}
     topic_set: Sequence[HexStr] = construct_event_topic_set(
@@ -94,7 +94,11 @@ def construct_event_filter_params(
 
     if address and contract_address:
         if is_list_like(address):
-            filter_params["address"] = list(set(address + contract_address))
+            filter_params["address"] = address
+            if is_list_like(contract_address):
+                filter_params["address"] += contract_address
+            else:
+                filter_params["address"] += [contract_address]
         elif is_string(address):
             filter_params["address"] = (
                 [address, contract_address]
@@ -108,7 +112,7 @@ def construct_event_filter_params(
     elif address:
         filter_params["address"] = address
     elif contract_address:
-        filter_params["address"] = contract_address
+        filter_params["address"] = [contract_address]
 
     if "address" not in filter_params:
         pass
