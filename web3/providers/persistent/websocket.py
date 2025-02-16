@@ -63,6 +63,7 @@ class WebSocketProvider(PersistentConnectionProvider):
         self,
         endpoint_uri: Optional[Union[URI, str]] = None,
         websocket_kwargs: Optional[Dict[str, Any]] = None,
+        use_text_frames: Optional[bool] = False,
         # `PersistentConnectionProvider` kwargs can be passed through
         **kwargs: Any,
     ) -> None:
@@ -71,6 +72,7 @@ class WebSocketProvider(PersistentConnectionProvider):
             URI(endpoint_uri) if endpoint_uri is not None else get_default_endpoint()
         )
         super().__init__(**kwargs)
+        self.use_text_frames = use_text_frames
         self._ws: Optional[WebSocketClientProtocol] = None
 
         if not any(
@@ -117,6 +119,9 @@ class WebSocketProvider(PersistentConnectionProvider):
             raise ProviderConnectionError(
                 "Connection to websocket has not been initiated for the provider."
             )
+
+        if self.use_text_frames:
+            request_data = request_data.decode("utf-8")
 
         await asyncio.wait_for(
             self._ws.send(request_data), timeout=self.request_timeout
