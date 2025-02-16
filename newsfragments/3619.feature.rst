@@ -1,0 +1,1 @@
+Add `use_text_frames` flag for `WebSocketProvider` to work around websocket servers that don't support binary frames

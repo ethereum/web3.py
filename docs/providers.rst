@@ -291,7 +291,7 @@ AsyncIPCProvider
 WebSocketProvider
 +++++++++++++++++
 
-.. py:class:: web3.providers.persistent.WebSocketProvider(endpoint_uri: str, websocket_kwargs: Dict[str, Any] = {})
+.. py:class:: web3.providers.persistent.WebSocketProvider(endpoint_uri: str, websocket_kwargs: Dict[str, Any] = {}, use_text_frames: bool = False)
 
     This provider handles interactions with an WS or WSS based JSON-RPC server.
 
@@ -299,6 +299,8 @@ WebSocketProvider
       ``'ws://localhost:8546'``.
     * ``websocket_kwargs`` this should be a dictionary of keyword arguments which
       will be passed onto the ws/wss websocket connection.
+    * ``use_text_frames`` will ensure websocket data is sent as text frames
+      for servers that do not support binary communication.
 
     This provider inherits from the
     :class:`~web3.providers.persistent.PersistentConnectionProvider` class. Refer to
