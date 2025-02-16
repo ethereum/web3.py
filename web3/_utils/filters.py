@@ -94,7 +94,7 @@ def construct_event_filter_params(
 
     if address and contract_address:
         if is_list_like(address):
-            filter_params["address"] = [address] + [contract_address]
+            filter_params["address"] = list(set(address + contract_address))
         elif is_string(address):
             filter_params["address"] = (
                 [address, contract_address]
