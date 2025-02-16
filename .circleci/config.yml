@@ -290,7 +290,7 @@ workflows:
           matrix:
             parameters:
               # eels only supports 3.10 and above
-              python_minor_version: ["10", "11", "12"]
+              python_minor_version: ["10", "11", "12", "13"]
               tox_env: [
                 "core-eels",
                 "core-eels_async",
