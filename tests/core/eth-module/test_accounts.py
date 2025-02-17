@@ -9,6 +9,9 @@ from eth_account.messages import (
 from eth_account.signers.local import (
     LocalAccount,
 )
+from eth_tester import (
+    EthereumTester,
+)
 from eth_utils import (
     is_bytes,
     is_checksum_address,
@@ -98,9 +101,9 @@ def acct(request, w3):
     raise Exception("Unreachable!")
 
 
-@pytest.fixture()
-def w3():
-    return Web3(EthereumTesterProvider())
+@pytest.fixture
+def w3(backend_class):
+    return Web3(EthereumTesterProvider(EthereumTester(backend=backend_class())))
 
 
 def test_eth_default_account_is_empty_by_default(w3):
@@ -560,9 +563,11 @@ def test_eth_account_sign_and_send_EIP155_transaction_to_eth_tester(
 # -- async -- #
 
 
-@pytest.fixture()
-def async_w3():
-    return AsyncWeb3(AsyncEthereumTesterProvider())
+@pytest.fixture
+def async_w3(backend_class):
+    return AsyncWeb3(
+        AsyncEthereumTesterProvider(EthereumTester(backend=backend_class()))
+    )
 
 
 @patch("web3.eth.BaseEth.account", "wired via BaseEth")
