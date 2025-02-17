@@ -55,6 +55,14 @@ class WSException(Exception):
     pass
 
 
+GET_BLOCK_JSON_MESSAGE = {
+    "id": 0,
+    "jsonrpc": "2.0",
+    "method": "eth_getBlockByNumber",
+    "params": ["latest", False],
+}
+
+
 def test_get_endpoint_uri_or_ipc_path_returns_endpoint_uri():
     provider = WebSocketProvider("ws://mocked")
     assert (
@@ -65,6 +73,14 @@ def test_get_endpoint_uri_or_ipc_path_returns_endpoint_uri():
 
 
 # -- async -- #
+
+
+def test_websocket_provider_default_values():
+    ws_uri = "ws://127.0.0.1:1337"
+    with patch.dict("os.environ", {"WEB3_WS_PROVIDER_URI": ws_uri}):
+        provider = WebSocketProvider()
+        assert provider.endpoint_uri == ws_uri
+        assert provider.use_text_frames is False
 
 
 @pytest.mark.asyncio
@@ -454,3 +470,26 @@ async def test_persistent_connection_provider_empty_batch_response():
             # assert that even though there was an error, we have reset the batching
             # state
             assert not async_w3.provider._is_batching
+
+
+@pytest.mark.parametrize(
+    "use_text_frames, expected_send_arg",
+    (
+        (False, to_bytes(text=json.dumps(GET_BLOCK_JSON_MESSAGE))),
+        (True, json.dumps(GET_BLOCK_JSON_MESSAGE)),
+    ),
+)
+@pytest.mark.asyncio
+async def test_websocket_provider_use_text_frames(use_text_frames, expected_send_arg):
+    provider = WebSocketProvider("ws://mocked", use_text_frames=use_text_frames)
+    assert provider.use_text_frames is use_text_frames
+
+    # mock provider and add a mocked response to the cache
+    _mock_ws(provider)
+    provider._ws.send = AsyncMock()
+    provider._request_processor._request_response_cache.cache(
+        generate_cache_key(0), "0x1337"
+    )
+
+    await provider.make_request(RPCEndpoint("eth_getBlockByNumber"), ["latest", False])
+    provider._ws.send.assert_called_once_with(expected_send_arg)

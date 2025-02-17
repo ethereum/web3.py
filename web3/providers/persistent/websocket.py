@@ -63,6 +63,7 @@ class WebSocketProvider(PersistentConnectionProvider):
         self,
         endpoint_uri: Optional[Union[URI, str]] = None,
         websocket_kwargs: Optional[Dict[str, Any]] = None,
+        # uses binary frames by default
         use_text_frames: Optional[bool] = False,
         # `PersistentConnectionProvider` kwargs can be passed through
         **kwargs: Any,
@@ -120,12 +121,11 @@ class WebSocketProvider(PersistentConnectionProvider):
                 "Connection to websocket has not been initiated for the provider."
             )
 
+        payload: Union[bytes, str] = request_data
         if self.use_text_frames:
-            request_data = request_data.decode("utf-8")
+            payload = request_data.decode("utf-8")
 
-        await asyncio.wait_for(
-            self._ws.send(request_data), timeout=self.request_timeout
-        )
+        await asyncio.wait_for(self._ws.send(payload), timeout=self.request_timeout)
 
     async def socket_recv(self) -> RPCResponse:
         raw_response = await self._ws.recv()
