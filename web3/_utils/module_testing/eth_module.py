@@ -1691,6 +1691,52 @@ class AsyncEthModuleTest:
             await async_offchain_lookup_contract.caller().continuousOffchainLookup()  # noqa: E501 type: ignore
 
     @pytest.mark.asyncio
+    async def test_eth_simulateV1(self, async_w3: "AsyncWeb3") -> None:
+        simulate_result = await async_w3.eth.simulateV1(
+            {
+                "blockStateCalls": [
+                    {
+                        "blockOverrides": {
+                            "baseFeePerGas": Wei(10),
+                        },
+                        "stateOverrides": {
+                            "0xc100000000000000000000000000000000000000": {
+                                "balance": Wei(500000000),
+                            }
+                        },
+                        "calls": [
+                            {
+                                "from": "0xc100000000000000000000000000000000000000",
+                                "to": "0xc100000000000000000000000000000000000000",
+                                "maxFeePerGas": Wei(10),
+                                "maxPriorityFeePerGas": Wei(10),
+                            }
+                        ],
+                    }
+                ],
+                "validation": True,
+                "traceTransfers": True,
+            },
+            "latest",
+        )
+
+        assert len(simulate_result) == 1
+
+        result = simulate_result[0]
+        assert result.get("baseFeePerGas") == 10
+
+        calls_result = result.get("calls")
+        assert calls_result is not None
+        assert len(calls_result) == 1
+        call_entry = calls_result[0]
+
+        assert all(
+            key in call_entry for key in ("returnData", "logs", "gasUsed", "status")
+        )
+        assert call_entry["status"] == 1
+        assert call_entry["gasUsed"] == int("0x5208", 16)
+
+    @pytest.mark.asyncio
     async def test_async_eth_chain_id(self, async_w3: "AsyncWeb3") -> None:
         chain_id = await async_w3.eth.chain_id
         # chain id value from geth fixture genesis file
@@ -3821,7 +3867,7 @@ class EthModuleTest:
         math_contract: "Contract",
         params: StateOverrideParams,
     ) -> None:
-        txn_params: TxParams = {"from": w3.eth.accounts[0]}
+        txn_params: TxParams = {"from": w3.eth.accounts[0], "to": math_contract.address}
 
         # assert does not raise
         w3.eth.call(txn_params, "latest", {math_contract.address: params})
@@ -3913,6 +3959,51 @@ class EthModuleTest:
         with pytest.raises(ContractCustomError, match=data) as excinfo:
             w3.eth.call(txn_params)
         assert excinfo.value.data == data
+
+    def test_eth_simulateV1(self, w3: "Web3") -> None:
+        simulate_result = w3.eth.simulateV1(
+            {
+                "blockStateCalls": [
+                    {
+                        "blockOverrides": {
+                            "baseFeePerGas": Wei(10),
+                        },
+                        "stateOverrides": {
+                            "0xc100000000000000000000000000000000000000": {
+                                "balance": Wei(500000000),
+                            }
+                        },
+                        "calls": [
+                            {
+                                "from": "0xc100000000000000000000000000000000000000",
+                                "to": "0xc100000000000000000000000000000000000000",
+                                "maxFeePerGas": Wei(10),
+                                "maxPriorityFeePerGas": Wei(10),
+                            }
+                        ],
+                    }
+                ],
+                "validation": True,
+                "traceTransfers": True,
+            },
+            "latest",
+        )
+
+        assert len(simulate_result) == 1
+
+        result = simulate_result[0]
+        assert result.get("baseFeePerGas") == 10
+
+        calls_result = result.get("calls")
+        assert calls_result is not None
+        assert len(calls_result) == 1
+        call_entry = calls_result[0]
+
+        assert all(
+            key in call_entry for key in ("returnData", "logs", "gasUsed", "status")
+        )
+        assert call_entry["status"] == 1
+        assert call_entry["gasUsed"] == int("0x5208", 16)
 
     @pytest.mark.parametrize(
         "panic_error,params",

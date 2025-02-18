@@ -51,6 +51,7 @@ class RPC:
     eth_blobBaseFee = RPCEndpoint("eth_blobBaseFee")
     eth_blockNumber = RPCEndpoint("eth_blockNumber")
     eth_call = RPCEndpoint("eth_call")
+    eth_simulateV1 = RPCEndpoint("eth_simulateV1")
     eth_createAccessList = RPCEndpoint("eth_createAccessList")
     eth_chainId = RPCEndpoint("eth_chainId")
     eth_estimateGas = RPCEndpoint("eth_estimateGas")

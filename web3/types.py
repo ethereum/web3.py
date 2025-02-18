@@ -197,10 +197,10 @@ class LogReceipt(TypedDict):
     blockNumber: BlockNumber
     data: HexBytes
     logIndex: int
+    removed: bool
     topics: Sequence[HexBytes]
     transactionHash: HexBytes
     transactionIndex: int
-    removed: bool
 
 
 class SubscriptionResponse(TypedDict):
@@ -336,7 +336,7 @@ class StateOverrideParams(TypedDict, total=False):
     stateDiff: Optional[Dict[HexStr, HexStr]]
 
 
-StateOverride = Dict[ChecksumAddress, StateOverrideParams]
+StateOverride = Dict[Union[str, Address, ChecksumAddress], StateOverrideParams]
 
 
 GasPriceStrategy = Union[
@@ -565,6 +565,30 @@ class OpcodeTrace(TypedDict, total=False):
     failed: bool
     returnValue: str
     structLogs: List[StructLog]
+
+
+class BlockStateCallV1(TypedDict):
+    blockOverrides: NotRequired[BlockData]
+    stateOverrides: NotRequired[StateOverride]
+    calls: Sequence[TxParams]
+
+
+class SimulateV1Payload(TypedDict):
+    blockStateCalls: Sequence[BlockStateCallV1]
+    validation: NotRequired[bool]
+    traceTransfers: NotRequired[bool]
+
+
+class SimulateV1CallResult(TypedDict):
+    returnData: HexBytes
+    logs: Sequence[LogReceipt]
+    gasUsed: int
+    status: int
+    error: NotRequired[RPCError]
+
+
+class SimulateV1Result(BlockData):
+    calls: Sequence[SimulateV1CallResult]
 
 
 #

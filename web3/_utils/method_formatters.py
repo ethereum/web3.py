@@ -101,6 +101,7 @@ from web3.types import (
     BlockIdentifier,
     Formatters,
     RPCEndpoint,
+    SimulateV1Payload,
     StateOverrideParams,
     TReturn,
     TxParams,
@@ -309,7 +310,32 @@ RECEIPT_FORMATTERS = {
 
 receipt_formatter = type_aware_apply_formatters_to_dict(RECEIPT_FORMATTERS)
 
-BLOCK_FORMATTERS = {
+BLOCK_REQUEST_FORMATTERS = {
+    "baseFeePerGas": to_hex_if_integer,
+    "extraData": to_hex_if_bytes,
+    "gasLimit": to_hex_if_integer,
+    "gasUsed": to_hex_if_integer,
+    "size": to_hex_if_integer,
+    "timestamp": to_hex_if_integer,
+    "hash": to_hex_if_bytes,
+    "logsBloom": to_hex_if_bytes,
+    "miner": to_checksum_address,
+    "mixHash": to_hex_if_bytes,
+    "nonce": to_hex_if_bytes,
+    "number": to_hex_if_integer,
+    "parentHash": to_hex_if_bytes,
+    "sha3Uncles": to_hex_if_bytes,
+    "difficulty": to_hex_if_integer,
+    "receiptsRoot": to_hex_if_bytes,
+    "stateRoot": to_hex_if_bytes,
+    "totalDifficulty": to_hex_if_integer,
+    "transactionsRoot": to_hex_if_bytes,
+    "withdrawalsRoot": to_hex_if_bytes,
+    "parentBeaconBlockRoot": to_hex_if_bytes,
+}
+block_request_formatter = type_aware_apply_formatters_to_dict(BLOCK_REQUEST_FORMATTERS)
+
+BLOCK_RESULT_FORMATTERS = {
     "baseFeePerGas": to_integer_if_hex,
     "extraData": apply_formatter_if(is_not_null, to_hexbytes(32, variable_length=True)),
     "gasLimit": to_integer_if_hex,
@@ -349,9 +375,7 @@ BLOCK_FORMATTERS = {
     "excessBlobGas": to_integer_if_hex,
     "parentBeaconBlockRoot": apply_formatter_if(is_not_null, to_hexbytes(32)),
 }
-
-
-block_formatter = type_aware_apply_formatters_to_dict(BLOCK_FORMATTERS)
+block_result_formatter = type_aware_apply_formatters_to_dict(BLOCK_RESULT_FORMATTERS)
 
 
 SYNCING_FORMATTERS = {
@@ -442,6 +466,22 @@ filter_result_formatter = apply_one_of_formatters(
     )
 )
 
+TRANSACTION_REQUEST_FORMATTER = {
+    "from": to_checksum_address,
+    "to": apply_formatter_if(is_address, to_checksum_address),
+    "gas": to_hex_if_integer,
+    "gasPrice": to_hex_if_integer,
+    "value": to_hex_if_integer,
+    "data": to_hex_if_bytes,
+    "nonce": to_hex_if_integer,
+    "maxFeePerGas": to_hex_if_integer,
+    "maxPriorityFeePerGas": to_hex_if_integer,
+    "chainId": to_hex_if_integer,
+}
+transaction_request_formatter = type_aware_apply_formatters_to_dict(
+    TRANSACTION_REQUEST_FORMATTER
+)
+
 ACCESS_LIST_REQUEST_FORMATTER = type_aware_apply_formatters_to_dict(
     {
         "accessList": apply_formatter_if(
@@ -472,11 +512,15 @@ call_without_override: Callable[
     ]
 )
 
-CALL_OVERRIDE_FORMATTERS = {
+STATE_OVERRIDE_FORMATTERS = {
     "balance": to_hex_if_integer,
     "nonce": to_hex_if_integer,
     "code": to_hex_if_bytes,
 }
+state_override_formatter = type_aware_apply_formatters_to_dict(
+    STATE_OVERRIDE_FORMATTERS
+)
+
 call_with_override: Callable[
     [Tuple[TxParams, BlockIdentifier, StateOverrideParams]],
     Tuple[Dict[str, Any], int, Dict[str, Any]],
@@ -486,29 +530,24 @@ call_with_override: Callable[
         to_hex_if_integer,
         lambda val: type_aware_apply_formatters_to_dict_keys_and_values(
             to_checksum_address,
-            type_aware_apply_formatters_to_dict(CALL_OVERRIDE_FORMATTERS),
+            state_override_formatter,
             val,
         ),
     ]
 )
 
 
-estimate_gas_without_block_id: Callable[[Dict[str, Any]], Dict[str, Any]]
-estimate_gas_without_block_id = apply_formatter_at_index(transaction_param_formatter, 0)
+estimate_gas_without_block_id: Callable[
+    [Dict[str, Any]], Dict[str, Any]
+] = apply_formatter_at_index(transaction_param_formatter, 0)
 estimate_gas_with_block_id: Callable[
     [Tuple[Dict[str, Any], BlockIdentifier]], Tuple[Dict[str, Any], int]
-]
-estimate_gas_with_block_id = apply_formatters_to_sequence(
+] = apply_formatters_to_sequence(
     [
         transaction_param_formatter,
         to_hex_if_integer,
     ]
 )
-ESTIMATE_GAS_OVERRIDE_FORMATTERS = {
-    "balance": to_hex_if_integer,
-    "nonce": to_hex_if_integer,
-    "code": to_hex_if_bytes,
-}
 estimate_gas_with_override: Callable[
     [Tuple[Dict[str, Any], BlockIdentifier, StateOverrideParams]],
     Tuple[Dict[str, Any], int, Dict[str, Any]],
@@ -518,11 +557,70 @@ estimate_gas_with_override: Callable[
         to_hex_if_integer,
         lambda val: type_aware_apply_formatters_to_dict_keys_and_values(
             to_checksum_address,
-            type_aware_apply_formatters_to_dict(ESTIMATE_GAS_OVERRIDE_FORMATTERS),
+            state_override_formatter,
             val,
         ),
     ]
 )
+
+# -- eth_simulateV1 -- #
+
+block_state_calls_formatter: Callable[
+    [Dict[str, Any]], Dict[str, Any]
+] = apply_formatter_to_array(
+    apply_formatters_to_dict(
+        {
+            "blockOverrides": block_request_formatter,
+            "stateOverrides": (
+                lambda val: type_aware_apply_formatters_to_dict_keys_and_values(
+                    to_checksum_address,
+                    state_override_formatter,
+                    val,
+                )
+            ),
+            "calls": apply_formatter_to_array(transaction_request_formatter),
+        },
+    ),
+)
+
+simulate_v1_request_formatter: Callable[
+    [Tuple[Dict[str, Any], bool, bool], BlockIdentifier],
+    Tuple[SimulateV1Payload, BlockIdentifier],
+] = apply_formatters_to_sequence(
+    [
+        # payload
+        apply_formatters_to_dict(
+            {
+                "blockStateCalls": block_state_calls_formatter,
+            },
+        ),
+        # block_identifier
+        to_hex_if_integer,
+    ]
+)
+
+block_result_formatters_copy = BLOCK_RESULT_FORMATTERS.copy()
+block_result_formatters_copy.update(
+    {
+        "calls": apply_list_to_array_formatter(
+            type_aware_apply_formatters_to_dict(
+                {
+                    "returnData": HexBytes,
+                    "logs": apply_list_to_array_formatter(log_entry_formatter),
+                    "gasUsed": to_integer_if_hex,
+                    "status": to_integer_if_hex,
+                }
+            )
+        )
+    }
+)
+simulate_v1_result_formatter = apply_formatter_if(
+    is_not_null,
+    apply_list_to_array_formatter(
+        type_aware_apply_formatters_to_dict(block_result_formatters_copy)
+    ),
+)
+
 
 SIGNED_TX_FORMATTER = {
     "raw": HexBytes,
@@ -587,6 +685,7 @@ PYTHONIC_REQUEST_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
             (is_length(3), call_with_override),
         )
     ),
+    RPC.eth_simulateV1: simulate_v1_request_formatter,
     RPC.eth_createAccessList: apply_formatter_at_index(transaction_param_formatter, 0),
     RPC.eth_estimateGas: apply_one_of_formatters(
         (
@@ -610,6 +709,7 @@ PYTHONIC_REQUEST_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
 }
 
 # --- Result Formatters --- #
+
 # -- debug -- #
 DEBUG_CALLTRACE_LOG_ENTRY_FORMATTERS = apply_formatter_if(
     is_not_null,
@@ -795,11 +895,11 @@ def subscription_formatter(value: Any) -> Union[HexBytes, HexStr, Dict[str, Any]
             # handle dict subscription responses
             if either_set_is_a_subset(
                 result_key_set,
-                set(BLOCK_FORMATTERS.keys()),
+                set(BLOCK_RESULT_FORMATTERS.keys()),
                 percentage=90,
             ):
                 # block format, newHeads
-                result_formatter = block_formatter
+                result_formatter = block_result_formatter
 
             elif either_set_is_a_subset(
                 result_key_set, set(LOG_ENTRY_FORMATTERS.keys()), percentage=75
@@ -846,8 +946,8 @@ PYTHONIC_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     RPC.eth_maxPriorityFeePerGas: to_integer_if_hex,
     RPC.eth_gasPrice: to_integer_if_hex,
     RPC.eth_getBalance: to_integer_if_hex,
-    RPC.eth_getBlockByHash: apply_formatter_if(is_not_null, block_formatter),
-    RPC.eth_getBlockByNumber: apply_formatter_if(is_not_null, block_formatter),
+    RPC.eth_getBlockByHash: apply_formatter_if(is_not_null, block_result_formatter),
+    RPC.eth_getBlockByNumber: apply_formatter_if(is_not_null, block_result_formatter),
     RPC.eth_getBlockReceipts: apply_formatter_to_array(receipt_formatter),
     RPC.eth_getBlockTransactionCountByHash: to_integer_if_hex,
     RPC.eth_getBlockTransactionCountByNumber: to_integer_if_hex,
@@ -887,6 +987,7 @@ PYTHONIC_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     RPC.eth_sign: HexBytes,
     RPC.eth_signTransaction: apply_formatter_if(is_not_null, signed_tx_formatter),
     RPC.eth_signTypedData: HexBytes,
+    RPC.eth_simulateV1: simulate_v1_result_formatter,
     RPC.eth_syncing: apply_formatter_if(is_not_false, syncing_formatter),
     # Transaction Pool
     RPC.txpool_content: transaction_pool_content_formatter,
