@@ -947,6 +947,76 @@ The following methods are available on the ``web3.eth`` namespace.
     can be accessed via the ``data`` attribute on ``ContractLogicError``.
 
 
+.. py:method:: Eth.simulateV1(payload, block_identifier)
+
+    * Delegates to ``eth_simulateV1`` RPC Method
+
+    Executes a simulation for the given payload at the given block. Returns the simulation results.
+
+    .. code-block:: python
+
+        >>> w3.eth.simulateV1(
+        ...   {
+        ...     "blockStateCalls": [
+        ...       {
+        ...         "blockOverrides": {
+        ...           "baseFeePerGas": Wei(10),
+        ...         },
+        ...         "stateOverrides": {
+        ...           "0xc100000000000000000000000000000000000000": {
+        ...             "balance": Wei(500000000),
+        ...           }
+        ...         },
+        ...         "calls": [
+        ...           {
+        ...             "from": "0xc100000000000000000000000000000000000000",
+        ...             "to": "0xc100000000000000000000000000000000000000",
+        ...             "maxFeePerGas": Wei(10),
+        ...             "maxPriorityFeePerGas": Wei(10),
+        ...           }
+        ...         ],
+        ...       }
+        ...     ],
+        ...     "validation": True,
+        ...     "traceTransfers": True,
+        ...   },
+        ...   "latest",
+        ... )
+        [AttributeDict({
+          'baseFeePerGas': 10,
+          'blobGasUsed': 0,
+          'calls': [AttributeDict({
+            'returnData': HexBytes('0x'),
+            'logs': [],
+            'gasUsed': 21000,
+            'status': 1
+          })],
+          'difficulty': 0,
+          'excessBlobGas': 0,
+          'extraData': HexBytes('0x'),
+          'gasLimit': 983527531,
+          'gasUsed': 21000,
+          'hash': HexBytes('0xb2dba64c905dea42e940d67b8e0f44019f4a61c4833a9cba99c426b748d9e1a4'),
+          'logsBloom': HexBytes('0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000'),
+          'miner': '0x0000000000000000000000000000000000000000',
+          'mixHash': HexBytes('0x0000000000000000000000000000000000000000000000000000000000000000'),
+          'nonce': HexBytes('0x0000000000000000'),
+          'number': 18,
+          'parentBeaconBlockRoot': HexBytes('0x0000000000000000000000000000000000000000000000000000000000000000'),
+          'parentHash': HexBytes('0x71d32db179a1291de86b5f7fa15224292ef9ee6ebb3fa62484896601d9f20d5f'),
+          'receiptsRoot': HexBytes('0xf78dfb743fbd92ade140711c8bbc542b5e307f0ab7984eff35d751969fe57efa'),
+          'sha3Uncles': HexBytes('0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347'),
+          'size': 626,
+          'stateRoot': HexBytes('0xbbbe846b616911d13780f58f500f8948e0878ba6f55cae7432da915cab3ba2b6'),
+          'timestamp': 1739921487,
+          'transactions': [HexBytes('0xfd801060af398c615f1ffb61586604aaf4fc688615cb1ff088531638a9b9e8e6')],
+          'transactionsRoot': HexBytes('0xa6bc01d7707e94b62dccb8d097df1db25d6b44fad35463ecc99c9e5822e7aa5f'),
+          'uncles': [],
+          'withdrawals': [],
+          'withdrawalsRoot': HexBytes('0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421')
+        })]
+
+
 .. py:method:: Eth.create_access_list(transaction, block_identifier=web3.eth.default_block)
 
     * Delegates to ``eth_createAccessList`` RPC Method
