@@ -338,6 +338,10 @@ class TestEthereumTesterEthModule(EthModuleTest):
         EthModuleTest.test_eth_getBlockReceipts_finalized,
         MethodUnavailable,
     )
+    test_eth_simulateV1 = not_implemented(
+        EthModuleTest.test_eth_simulateV1,
+        MethodUnavailable,
+    )
 
     def test_eth_getBlockByHash_pending(self, w3: "Web3") -> None:
         block = w3.eth.get_block("pending")
