@@ -85,6 +85,8 @@ from web3.types import (
     MerkleProof,
     Nonce,
     SignedTx,
+    SimulateV1Payload,
+    SimulateV1Result,
     StateOverride,
     SyncStatus,
     TxData,
@@ -269,6 +271,19 @@ class Eth(BaseEth):
                 transaction["data"] = durin_calldata
 
         raise TooManyRequests("Too many CCIP read redirects")
+
+    # eth_simulateV1
+
+    _simulateV1: Method[
+        Callable[[SimulateV1Payload, BlockIdentifier], Sequence[SimulateV1Result]]
+    ] = Method(RPC.eth_simulateV1)
+
+    def simulateV1(
+        self,
+        payload: SimulateV1Payload,
+        block_identifier: BlockIdentifier,
+    ) -> Sequence[SimulateV1Result]:
+        return self._simulateV1(payload, block_identifier)
 
     # eth_createAccessList
 

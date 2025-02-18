@@ -7,6 +7,7 @@ from typing import (
     Dict,
     List,
     Optional,
+    Sequence,
     Tuple,
     Type,
     Union,
@@ -89,6 +90,8 @@ from web3.types import (
     LogsSubscriptionArg,
     Nonce,
     SignedTx,
+    SimulateV1Payload,
+    SimulateV1Result,
     StateOverride,
     SubscriptionType,
     SyncStatus,
@@ -287,6 +290,22 @@ class AsyncEth(BaseEth):
                 transaction["data"] = durin_calldata
 
         raise TooManyRequests("Too many CCIP read redirects")
+
+    # eth_simulateV1
+
+    _simulateV1: Method[
+        Callable[
+            [SimulateV1Payload, BlockIdentifier],
+            Awaitable[Sequence[SimulateV1Result]],
+        ]
+    ] = Method(RPC.eth_simulateV1)
+
+    async def simulateV1(
+        self,
+        payload: SimulateV1Payload,
+        block_identifier: BlockIdentifier,
+    ) -> Sequence[SimulateV1Result]:
+        return await self._simulateV1(payload, block_identifier)
 
     # eth_createAccessList
 
