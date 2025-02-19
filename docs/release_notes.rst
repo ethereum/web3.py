@@ -6,6 +6,15 @@ v6 Breaking Changes Summary
 
 .. towncrier release notes start
 
+web3.py v6.20.4 (2025-02-19)
+----------------------------
+
+Internal Changes - for web3.py Contributors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Pin to ``websockets<14`` due to breaking changes (`#3531 <https://github.com/ethereum/web3.py/issues/3531>`__)
+
+
 web3.py v6.20.3 (2024-08-22)
 ----------------------------
 
