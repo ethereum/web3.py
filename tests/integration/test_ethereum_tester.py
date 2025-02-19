@@ -338,8 +338,8 @@ class TestEthereumTesterEthModule(EthModuleTest):
         EthModuleTest.test_eth_getBlockReceipts_finalized,
         MethodUnavailable,
     )
-    test_eth_simulateV1 = not_implemented(
-        EthModuleTest.test_eth_simulateV1,
+    test_eth_simulate_v1 = not_implemented(
+        EthModuleTest.test_eth_simulate_v1,
         MethodUnavailable,
     )
 

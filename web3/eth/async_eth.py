@@ -300,7 +300,7 @@ class AsyncEth(BaseEth):
         ]
     ] = Method(RPC.eth_simulateV1)
 
-    async def simulateV1(
+    async def simulate_v1(
         self,
         payload: SimulateV1Payload,
         block_identifier: BlockIdentifier,
