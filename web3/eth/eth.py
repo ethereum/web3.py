@@ -278,7 +278,7 @@ class Eth(BaseEth):
         Callable[[SimulateV1Payload, BlockIdentifier], Sequence[SimulateV1Result]]
     ] = Method(RPC.eth_simulateV1)
 
-    def simulateV1(
+    def simulate_v1(
         self,
         payload: SimulateV1Payload,
         block_identifier: BlockIdentifier,

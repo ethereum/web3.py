@@ -1691,8 +1691,8 @@ class AsyncEthModuleTest:
             await async_offchain_lookup_contract.caller().continuousOffchainLookup()  # noqa: E501 type: ignore
 
     @pytest.mark.asyncio
-    async def test_eth_simulateV1(self, async_w3: "AsyncWeb3") -> None:
-        simulate_result = await async_w3.eth.simulateV1(
+    async def test_eth_simulate_v1(self, async_w3: "AsyncWeb3") -> None:
+        simulate_result = await async_w3.eth.simulate_v1(
             {
                 "blockStateCalls": [
                     {
@@ -3960,8 +3960,8 @@ class EthModuleTest:
             w3.eth.call(txn_params)
         assert excinfo.value.data == data
 
-    def test_eth_simulateV1(self, w3: "Web3") -> None:
-        simulate_result = w3.eth.simulateV1(
+    def test_eth_simulate_v1(self, w3: "Web3") -> None:
+        simulate_result = w3.eth.simulate_v1(
             {
                 "blockStateCalls": [
                     {
