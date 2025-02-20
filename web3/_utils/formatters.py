@@ -6,6 +6,7 @@ from typing import (
     Callable,
     Dict,
     Iterable,
+    Optional,
     Tuple,
     TypeVar,
 )
@@ -26,10 +27,14 @@ from eth_utils.toolz import (
     compose,
     curry,
     dissoc,
+    pipe,
 )
 
 from web3._utils.decorators import (
     reject_recursive_repeats,
+)
+from web3.types import (
+    RPCResponse,
 )
 
 TReturn = TypeVar("TReturn")
@@ -131,3 +136,26 @@ def remove_key_if(
         return dissoc(input_dict, key)
     else:
         return input_dict
+
+
+def apply_error_formatters(
+    error_formatters: Callable[..., Any],
+    response: RPCResponse,
+) -> RPCResponse:
+    if error_formatters:
+        formatted_resp = pipe(response, error_formatters)
+        return formatted_resp
+    else:
+        return response
+
+
+def apply_null_result_formatters(
+    null_result_formatters: Callable[..., Any],
+    response: RPCResponse,
+    params: Optional[Any] = None,
+) -> RPCResponse:
+    if null_result_formatters:
+        formatted_resp = pipe(params, null_result_formatters)
+        return formatted_resp
+    else:
+        return response

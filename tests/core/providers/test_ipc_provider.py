@@ -191,7 +191,9 @@ def test_web3_auto_gethdev(request_mocker):
 def test_ipc_provider_write_messages_end_with_new_line_delimiter(jsonrpc_ipc_pipe_path):
     provider = IPCProvider(pathlib.Path(jsonrpc_ipc_pipe_path), timeout=3)
     provider._socket.sock = Mock()
-    provider._socket.sock.recv.return_value = b'{"id":1, "result": {}}\n'
+    provider._socket.sock.recv.return_value = (
+        b'{"id":0, "jsonrpc": "2.0", "result": {}}\n'
+    )
 
     provider.make_request("method", [])
 

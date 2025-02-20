@@ -8,7 +8,6 @@ from typing import (
     Coroutine,
     Dict,
     List,
-    NoReturn,
     Optional,
     Sequence,
     Tuple,
@@ -32,17 +31,19 @@ from web3._utils.caching import (
 from web3._utils.compat import (
     Self,
 )
+from web3._utils.formatters import (
+    apply_null_result_formatters,
+)
+from web3._utils.validation import (
+    raise_error_for_batch_response,
+    validate_rpc_response_and_raise_if_error,
+)
 from web3.datastructures import (
     NamedElementOnion,
 )
 from web3.exceptions import (
-    BadResponseFormat,
-    MethodUnavailable,
     ProviderConnectionError,
-    RequestTimedOut,
     TaskNotRunning,
-    TransactionNotFound,
-    Web3RPCError,
     Web3TypeError,
 )
 from web3.method import (
@@ -95,200 +96,6 @@ if TYPE_CHECKING:
 
 
 NULL_RESPONSES = [None, HexBytes("0x"), "0x"]
-KNOWN_REQUEST_TIMEOUT_MESSAGING = {
-    # Note: It's important to be very explicit here and not too broad. We don't want
-    # to accidentally catch a message that is not for a request timeout. In the worst
-    # case, we raise something more generic like `Web3RPCError`. JSON-RPC unfortunately
-    # has not standardized error codes for request timeouts.
-    "request timed out",  # go-ethereum
-}
-METHOD_NOT_FOUND = -32601
-
-
-def _raise_bad_response_format(response: RPCResponse, error: str = "") -> None:
-    message = "The response was in an unexpected format and unable to be parsed."
-    raw_response = f"The raw response is: {response}"
-
-    if error is not None and error != "":
-        error = error[:-1] if error.endswith(".") else error
-        message = f"{message} {error}. {raw_response}"
-    else:
-        message = f"{message} {raw_response}"
-
-    raise BadResponseFormat(message)
-
-
-def apply_error_formatters(
-    error_formatters: Callable[..., Any],
-    response: RPCResponse,
-) -> RPCResponse:
-    if error_formatters:
-        formatted_resp = pipe(response, error_formatters)
-        return formatted_resp
-    else:
-        return response
-
-
-def apply_null_result_formatters(
-    null_result_formatters: Callable[..., Any],
-    response: RPCResponse,
-    params: Optional[Any] = None,
-) -> RPCResponse:
-    if null_result_formatters:
-        formatted_resp = pipe(params, null_result_formatters)
-        return formatted_resp
-    else:
-        return response
-
-
-def _validate_subscription_fields(response: RPCResponse) -> None:
-    params = response["params"]
-    subscription = params["subscription"]
-    if not isinstance(subscription, str) and not len(subscription) == 34:
-        _raise_bad_response_format(
-            response, "eth_subscription 'params' must include a 'subscription' field."
-        )
-
-
-def _validate_response(
-    response: RPCResponse,
-    error_formatters: Optional[Callable[..., Any]],
-    is_subscription_response: bool = False,
-    logger: Optional[logging.Logger] = None,
-    params: Optional[Any] = None,
-) -> None:
-    if "jsonrpc" not in response or response["jsonrpc"] != "2.0":
-        _raise_bad_response_format(
-            response, 'The "jsonrpc" field must be present with a value of "2.0".'
-        )
-
-    response_id = response.get("id")
-    if "id" in response:
-        int_error_msg = (
-            '"id" must be an integer or a string representation of an integer.'
-        )
-        if response_id is None and "error" in response:
-            # errors can sometimes have null `id`, according to the JSON-RPC spec
-            pass
-        elif not isinstance(response_id, (str, int)):
-            _raise_bad_response_format(response, int_error_msg)
-        elif isinstance(response_id, str):
-            try:
-                int(response_id)
-            except ValueError:
-                _raise_bad_response_format(response, int_error_msg)
-    elif is_subscription_response:
-        # if `id` is not present, this must be a subscription response
-        _validate_subscription_fields(response)
-    else:
-        _raise_bad_response_format(
-            response,
-            'Response must include an "id" field or be formatted as an '
-            "`eth_subscription` response.",
-        )
-
-    if all(key in response for key in {"error", "result"}):
-        _raise_bad_response_format(
-            response, 'Response cannot include both "error" and "result".'
-        )
-    elif (
-        not any(key in response for key in {"error", "result"})
-        and not is_subscription_response
-    ):
-        _raise_bad_response_format(
-            response, 'Response must include either "error" or "result".'
-        )
-    elif "error" in response:
-        web3_rpc_error: Optional[Web3RPCError] = None
-        error = response["error"]
-
-        # raise the error when the value is a string
-        if error is None or not isinstance(error, dict):
-            _raise_bad_response_format(
-                response,
-                'response["error"] must be a valid object as defined by the '
-                "JSON-RPC 2.0 specification.",
-            )
-
-        # errors must include a message
-        error_message = error.get("message")
-        if not isinstance(error_message, str):
-            _raise_bad_response_format(
-                response, 'error["message"] is required and must be a string value.'
-            )
-        elif error_message == "transaction not found":
-            transaction_hash = params[0]
-            web3_rpc_error = TransactionNotFound(
-                repr(error),
-                rpc_response=response,
-                user_message=(f"Transaction with hash {transaction_hash!r} not found."),
-            )
-
-        # errors must include an integer code
-        code = error.get("code")
-        if not isinstance(code, int):
-            _raise_bad_response_format(
-                response, 'error["code"] is required and must be an integer value.'
-            )
-        elif code == METHOD_NOT_FOUND:
-            web3_rpc_error = MethodUnavailable(
-                repr(error),
-                rpc_response=response,
-                user_message=(
-                    "This method is not available. Check your node provider or your "
-                    "client's API docs to see what methods are supported and / or "
-                    "currently enabled."
-                ),
-            )
-        elif any(
-            # parse specific timeout messages
-            timeout_str in error_message.lower()
-            for timeout_str in KNOWN_REQUEST_TIMEOUT_MESSAGING
-        ):
-            web3_rpc_error = RequestTimedOut(
-                repr(error),
-                rpc_response=response,
-                user_message=(
-                    "The request timed out. Check the connection to your node and "
-                    "try again."
-                ),
-            )
-
-        if web3_rpc_error is None:
-            # if no condition was met above, raise a more generic `Web3RPCError`
-            web3_rpc_error = Web3RPCError(repr(error), rpc_response=response)
-
-        response = apply_error_formatters(error_formatters, response)
-        logger.debug(f"RPC error response: {response}")
-
-        raise web3_rpc_error
-
-    elif "result" not in response and not is_subscription_response:
-        _raise_bad_response_format(response)
-
-
-def _raise_error_for_batch_response(
-    response: RPCResponse,
-    logger: Optional[logging.Logger] = None,
-) -> NoReturn:
-    error = response.get("error")
-    if error is None:
-        _raise_bad_response_format(
-            response,
-            "Batch response must be formatted as a list of responses or "
-            "as a single JSON-RPC error response.",
-        )
-    _validate_response(
-        response,
-        None,
-        is_subscription_response=False,
-        logger=logger,
-        params=[],
-    )
-    # This should not be reached, but if it is, raise a generic `BadResponseFormat`
-    raise BadResponseFormat(
-        "Batch response was in an unexpected format and unable to be parsed."
-    )
 
 
 class RequestManager:
@@ -388,7 +195,7 @@ class RequestManager:
             and response["params"].get("result") is not None
         )
 
-        _validate_response(
+        validate_rpc_response_and_raise_if_error(
             response,
             error_formatters,
             is_subscription_response=is_subscription_response,
@@ -479,7 +286,7 @@ class RequestManager:
             return list(formatted_responses)
         else:
             # expect a single response with an error
-            _raise_error_for_batch_response(response, self.logger)
+            raise_error_for_batch_response(response, self.logger)
 
     async def _async_make_batch_request(
         self,
@@ -522,7 +329,7 @@ class RequestManager:
             return list(formatted_responses)
         else:
             # expect a single response with an error
-            _raise_error_for_batch_response(response, self.logger)
+            raise_error_for_batch_response(response, self.logger)
 
     def _format_batched_response(
         self,
@@ -530,7 +337,7 @@ class RequestManager:
         response: RPCResponse,
     ) -> RPCResponse:
         result_formatters, error_formatters, null_result_formatters = requests_info[1]
-        _validate_response(
+        validate_rpc_response_and_raise_if_error(
             response,
             error_formatters,
             is_subscription_response=False,
