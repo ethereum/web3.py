@@ -33,6 +33,9 @@ from web3._utils.caching.caching_utils import (
     async_handle_recv_caching,
     async_handle_send_caching,
 )
+from web3._utils.validation import (
+    validate_rpc_response_and_raise_if_error,
+)
 from web3.exceptions import (
     PersistentConnectionClosedOK,
     ProviderConnectionError,
@@ -302,6 +305,27 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
             TaskNotRunning(message_listener_task)
         )
 
+    def _raise_stray_errors_from_cache(self) -> None:
+        """
+        Check the request response cache for any errors not tied to current requests
+        and raise them if found.
+        """
+        if not self._is_batching:
+            for (
+                response
+            ) in self._request_processor._request_response_cache._data.values():
+                request = (
+                    self._request_processor._request_information_cache.get_cache_entry(
+                        generate_cache_key(response["id"])
+                    )
+                )
+                if "error" in response and request is None:
+                    # if we find an error response in the cache without a corresponding
+                    # request, raise the error
+                    validate_rpc_response_and_raise_if_error(
+                        response, None, logger=self.logger
+                    )
+
     async def _message_listener(self) -> None:
         self.logger.info(
             f"{self.__class__.__qualname__} listener background task started. Storing "
@@ -327,6 +351,7 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
                 await self._request_processor.cache_raw_response(
                     response, subscription=subscription
                 )
+                self._raise_stray_errors_from_cache()
             except PersistentConnectionClosedOK as e:
                 self.logger.info(
                     "Message listener background task has ended gracefully: "
@@ -376,6 +401,10 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
             request_cache_key = generate_cache_key(request_id)
 
             while True:
+                # check if an exception was recorded in the listener task and raise
+                # it in the main loop if so
+                self._handle_listener_task_exceptions()
+
                 if request_cache_key in self._request_processor._request_response_cache:
                     self.logger.debug(
                         f"Popping response for id {request_id} from cache."
@@ -385,9 +414,6 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
                     )
                     return popped_response
                 else:
-                    # check if an exception was recorded in the listener task and raise
-                    # it in the main loop if so
-                    self._handle_listener_task_exceptions()
                     await asyncio.sleep(0)
 
         try:

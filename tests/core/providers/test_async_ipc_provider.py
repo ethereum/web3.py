@@ -360,7 +360,7 @@ async def test_async_ipc_provider_write_messages_end_with_new_line_delimiter(
     async with AsyncWeb3(AsyncIPCProvider(pathlib.Path(jsonrpc_ipc_pipe_path))) as w3:
         w3.provider._writer.write = Mock()
         w3.provider._reader.readline = AsyncMock(
-            return_value=b'{"id": 0, "result": {}}\n'
+            return_value=b'{"id": 0, "jsonrpc": "2.0", "result": {}}\n'
         )
 
         await w3.provider.make_request("method", [])

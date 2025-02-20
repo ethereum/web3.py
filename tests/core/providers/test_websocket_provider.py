@@ -493,3 +493,20 @@ async def test_websocket_provider_use_text_frames(use_text_frames, expected_send
 
     await provider.make_request(RPCEndpoint("eth_getBlockByNumber"), ["latest", False])
     provider._ws.send.assert_called_once_with(expected_send_arg)
+
+
+@pytest.mark.asyncio
+async def test_websocket_provider_raises_errors_from_cache_not_tied_to_a_request():
+    with patch(
+        "web3.providers.persistent.websocket.connect",
+        new=lambda *_1, **_2: WebSocketMessageStreamMock(
+            messages=[
+                b'{"id": 0, "jsonrpc": "2.0", "result": "0x0"}\n',
+                b'{"id": null, "jsonrpc": "2.0", "error": {"code": 21, "message": "Request shutdown"}}\n',  # noqa: E501
+            ]
+        ),
+    ):
+        async_w3 = await AsyncWeb3(WebSocketProvider("ws://mocked"))
+        with pytest.raises(Web3RPCError, match="Request shutdown"):
+            await asyncio.sleep(0.1)
+            await async_w3.eth.block_number

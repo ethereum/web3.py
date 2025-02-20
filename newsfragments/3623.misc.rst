@@ -1,0 +1,1 @@
+Raise stray errors a client may send that is not tied to any outstanding requests.
