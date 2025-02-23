@@ -848,7 +848,7 @@ def test_event_rich_log(
         txn_hash = emitter_fn(event_id, *call_args).transact()
     else:
         # Some tests do not rely on the event_id. Rather than
-        # changing this test too much,bypass this here and just
+        # changing this test too much, bypass this here and just
         # call the function with the provided args.
         txn_hash = emitter_fn(*call_args).transact()
     txn_receipt = wait_for_transaction(w3, txn_hash)
