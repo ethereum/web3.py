@@ -182,7 +182,6 @@ BLOCK_RESULT_KEY_MAPPING = {
     "logs_bloom": "logsBloom",
     "state_root": "stateRoot",
     "receipts_root": "receiptsRoot",
-    "total_difficulty": "totalDifficulty",
     "extra_data": "extraData",
     "gas_used": "gasUsed",
     "base_fee_per_gas": "baseFeePerGas",
