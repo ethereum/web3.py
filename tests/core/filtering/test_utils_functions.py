@@ -20,7 +20,7 @@ from web3.exceptions import (
     (
         (
             pytest.param(
-                (-12345, 000, 111, Decimal(2) + Decimal(1) / Decimal(10)),
+                (-12345, 0, 111, Decimal(2) + Decimal(1) / Decimal(10)),
                 False,
                 (
                     ("int", (-12345,)),
@@ -33,7 +33,7 @@ from web3.exceptions import (
         ),
         (
             pytest.param(
-                (-12345, 000, 111, Decimal(2) + Decimal(1) / Decimal(10)),
+                (-12345, 0, 111, Decimal(2) + Decimal(1) / Decimal(10)),
                 True,
                 (
                     ("int", (-12345,)),
@@ -65,7 +65,7 @@ from web3.exceptions import (
                     ("string", ("aye",)),
                     ("string", ("bee",)),
                     ("string", ("sea",)),
-                    ("bytes", (b"\x124",)),
+                    ("bytes", (b"\x12\x34",)),
                 ),
                 id="tuple with valid string and hex values",
             )
@@ -147,7 +147,7 @@ def test_match_fn_with_various_data_types(w3, data, expected, match_data_and_abi
             pytest.param(
                 (("0x12343434",)),
                 True,
-                (("bytes4", (b"\x12444",)),),
+                (("bytes4", (b"\x12\x34\x34\x34",)),),
                 id="tuple with valid hex string",
             )
         ),
@@ -171,7 +171,7 @@ def test_match_fn_with_various_data_types(w3, data, expected, match_data_and_abi
             pytest.param(
                 (("0x1212", b"34"),),
                 False,
-                (("bytes2[]", ((b"12", b"34"),)),),
+                (("bytes2[]", ((b"\x12", b"34"),)),),
                 id="list with incorrect hexstring and byte return values",
             )
         ),
