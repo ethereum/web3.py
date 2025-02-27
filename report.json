@@ -1,0 +1,123 @@
+{
+  "success": true,
+  "error": null,
+  "results": {
+    "detectors": [
+      {
+        "elements": [
+          {
+            "type": "pragma",
+            "name": "^0.8.20",
+            "source_mapping": {
+              "start": 33,
+              "length": 24,
+              "filename_relative": "example_contract.sol",
+              "filename_absolute": "/content/web3.py/example_contract.sol",
+              "filename_short": "example_contract.sol",
+              "is_dependency": false,
+              "lines": [
+                3
+              ],
+              "starting_column": 1,
+              "ending_column": 25
+            },
+            "type_specific_fields": {
+              "directive": [
+                "solidity",
+                "^",
+                "0.8",
+                ".20"
+              ]
+            }
+          }
+        ],
+        "description": "Version constraint ^0.8.20 contains known severe issues (https://solidity.readthedocs.io/en/latest/bugs.html)\n\t- VerbatimInvalidDeduplication\n\t- FullInlinerNonExpressionSplitArgumentEvaluationOrder\n\t- MissingSideEffectsOnSelectorAccess.\nIt is used by:\n\t- ^0.8.20 (example_contract.sol#3)\n",
+        "markdown": "Version constraint ^0.8.20 contains known severe issues (https://solidity.readthedocs.io/en/latest/bugs.html)\n\t- VerbatimInvalidDeduplication\n\t- FullInlinerNonExpressionSplitArgumentEvaluationOrder\n\t- MissingSideEffectsOnSelectorAccess.\nIt is used by:\n\t- [^0.8.20](example_contract.sol#L3)\n",
+        "first_markdown_element": "example_contract.sol#L3",
+        "id": "74bd2f0c18c427c73898916985fe04e6e0008f3c11457ee2516096cdc935203b",
+        "check": "solc-version",
+        "impact": "Informational",
+        "confidence": "High"
+      },
+      {
+        "elements": [
+          {
+            "type": "variable",
+            "name": "_value",
+            "source_mapping": {
+              "start": 124,
+              "length": 11,
+              "filename_relative": "example_contract.sol",
+              "filename_absolute": "/content/web3.py/example_contract.sol",
+              "filename_short": "example_contract.sol",
+              "is_dependency": false,
+              "lines": [
+                8
+              ],
+              "starting_column": 23,
+              "ending_column": 34
+            },
+            "type_specific_fields": {
+              "parent": {
+                "type": "function",
+                "name": "setValue",
+                "source_mapping": {
+                  "start": 106,
+                  "length": 69,
+                  "filename_relative": "example_contract.sol",
+                  "filename_absolute": "/content/web3.py/example_contract.sol",
+                  "filename_short": "example_contract.sol",
+                  "is_dependency": false,
+                  "lines": [
+                    8,
+                    9,
+                    10
+                  ],
+                  "starting_column": 5,
+                  "ending_column": 6
+                },
+                "type_specific_fields": {
+                  "parent": {
+                    "type": "contract",
+                    "name": "Example",
+                    "source_mapping": {
+                      "start": 59,
+                      "length": 118,
+                      "filename_relative": "example_contract.sol",
+                      "filename_absolute": "/content/web3.py/example_contract.sol",
+                      "filename_short": "example_contract.sol",
+                      "is_dependency": false,
+                      "lines": [
+                        5,
+                        6,
+                        7,
+                        8,
+                        9,
+                        10,
+                        11
+                      ],
+                      "starting_column": 1,
+                      "ending_column": 2
+                    }
+                  },
+                  "signature": "setValue(uint256)"
+                }
+              }
+            },
+            "additional_fields": {
+              "target": "parameter",
+              "convention": "mixedCase"
+            }
+          }
+        ],
+        "description": "Parameter Example.setValue(uint256)._value (example_contract.sol#8) is not in mixedCase\n",
+        "markdown": "Parameter [Example.setValue(uint256)._value](example_contract.sol#L8) is not in mixedCase\n",
+        "first_markdown_element": "example_contract.sol#L8",
+        "id": "588a387ceab560425855bdeed4a3e4b68bdf064d1f77582f4d495d36364a686c",
+        "check": "naming-convention",
+        "impact": "Informational",
+        "confidence": "High"
+      }
+    ]
+  }
+}
