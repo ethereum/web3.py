@@ -4,14 +4,14 @@ import pytest
 @pytest.mark.parametrize(
     "value,_type,expected",
     (
-        # Some sanity checks to make sure our custom registrations didn't bork
+        # Some sanity checks to make sure our custom registrations didn't break
         # anything
         ("0x" + "00" * 20, "address", True),
         ("0x" + "00" * 32, "address", False),  # no oversized addresses
         ("0xff", "address", False),  # no undersized addresses
         (None, "address", False),  # no wrong types
-        (b"\x01\x23", "bytes2", True),  # valid cases should be same
-        (b"\x01\x23", "bytes1", False),  # no oversize bytes
+        (b"\x01\x23", "bytes2", True),  # valid cases should be the same
+        (b"\x01\x23", "bytes1", False),  # no oversized bytes
         (True, "bytes32", False),  # no wrong types
         (0, "bytes32", False),  # no wrong types
         (b"\x12", "bytes", True),
@@ -38,7 +38,7 @@ import pytest
         ),  # no underscore in domain names
         # Special bytes<M> behavior
         ("0x1234", "bytes2", True),  # with or without 0x OK
-        (b"\x124", "bytes2", True),  # as bytes value undersize not OK
+        (b"\x124", "bytes2", True),  # as bytes value undersized not OK
         ("1", "bytes2", False),  # no odd length
         ("0x1", "bytes2", False),  # no odd length
         # Special bytes behavior
