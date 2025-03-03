@@ -3,7 +3,7 @@
 Related to Issue #
 Closes #
 
-### How was it fixed?
+### How was this fixed?
 
 ### Todo:
 
