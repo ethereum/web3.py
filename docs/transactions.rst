@@ -139,7 +139,7 @@ if you don't opt for the middleware, you'll need to:
   assert tx["from"] == acct2.address
 
 
-Chapter 3: Contract transactions
+Chapter 3: Contract transactions:
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The same concepts apply for contract interactions, at least under the hood.
