@@ -4,7 +4,7 @@ import pytest
 @pytest.mark.parametrize(
     "value,_type,expected",
     (
-        # Some sanity checks to make sure our custom registrations didn't bork
+        # Some sanity checks to make sure our custom registrations didn't break
         # anything
         ("0x" + "00" * 20, "address", True),
         ("0x" + "00" * 32, "address", False),  # no oversized addresses
