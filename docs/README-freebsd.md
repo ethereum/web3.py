@@ -5,7 +5,7 @@
 ### Prerequisites
 
 Make sure you've UTF-8 defined for charset and lang in your [~/.login_conf](https://www.freebsd.org/doc/en_US.ISO8859-1/books/handbook/using-localization.html),
-otherwise almost every Python 3 module will fail to install.
+otherwise almost every Python 3 module will fails to install.
 
 `~/.login_conf`:
 
