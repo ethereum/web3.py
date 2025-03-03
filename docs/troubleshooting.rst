@@ -337,7 +337,7 @@ Your Ethereum node JSON-RPC API might be slow when fetching multiple and large r
 Why am I getting Visual C++ or Cython not installed error?
 ----------------------------------------------------------
 
-Some Windows users that do not have Microsoft Visual C++ version 14.0 or greater installed may see an error message
+Some Windows users who do not have Microsoft Visual C++ version 14.0 or greater installed may see an error message
 when installing web3.py as shown below:
 
 .. code-block:: shell
