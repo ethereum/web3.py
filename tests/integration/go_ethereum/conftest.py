@@ -34,7 +34,7 @@ from .utils import (
 )
 
 KEYFILE_PW = "web3py-test"
-GETH_FIXTURE_ZIP = "geth-1.14.12-fixture.zip"
+GETH_FIXTURE_ZIP = "geth-1.15.5-fixture.zip"
 
 
 @pytest.fixture(scope="module")
@@ -97,12 +97,16 @@ def base_geth_command_arguments(geth_binary, datadir):
         "2",
         "--password",
         os.path.join(datadir, "keystore", "pw.txt"),
+        # in order to raise on underpriced transactions, ``txpool.nolocals`` is now
+        # necessary: https://github.com/ethereum/go-ethereum/pull/31202
+        "--txpool.nolocals",
     )
 
 
 @pytest.fixture(scope="module")
 def geth_zipfile_version(get_geth_version):
-    if get_geth_version.major == 1 and get_geth_version.minor in [13, 14]:
+    # TODO: Remove support for 1.13.x in next major version
+    if get_geth_version.major == 1 and get_geth_version.minor in [13, 14, 15]:
         return GETH_FIXTURE_ZIP
     raise AssertionError("Unsupported geth version")
 
