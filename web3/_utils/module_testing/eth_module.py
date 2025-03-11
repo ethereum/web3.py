@@ -2329,6 +2329,9 @@ class AsyncEthModuleTest:
         async_w3: "AsyncWeb3",
         async_keyfile_account_address_dual_type: ChecksumAddress,
     ) -> None:
+        # Note: `underpriced transaction` error is only consistent with
+        # ``txpool.nolocals`` flag as of Geth ``v1.15.4``.
+        # https://github.com/ethereum/web3.py/pull/3636
         txn_params: TxParams = {
             "from": async_keyfile_account_address_dual_type,
             "to": async_keyfile_account_address_dual_type,
@@ -3528,6 +3531,9 @@ class EthModuleTest:
     def test_eth_replace_transaction_underpriced(
         self, w3: "Web3", keyfile_account_address_dual_type: ChecksumAddress
     ) -> None:
+        # Note: `underpriced transaction` error is only consistent with
+        # ``txpool.nolocals`` flag as of Geth ``v1.15.4``.
+        # https://github.com/ethereum/web3.py/pull/3636
         txn_params: TxParams = {
             "from": keyfile_account_address_dual_type,
             "to": keyfile_account_address_dual_type,
