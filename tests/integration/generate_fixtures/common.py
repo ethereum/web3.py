@@ -59,6 +59,11 @@ GENESIS_DATA = {
         # post-merge, timestamp is used for network transitions
         "shanghaiTime": 0,
         "cancunTime": 0,
+        "pragueTime": 0,
+        "blobSchedule": {
+            "cancun": {"target": 3, "max": 6, "baseFeeUpdateFraction": 3338477},
+            "prague": {"target": 6, "max": 9, "baseFeeUpdateFraction": 5007716},
+        },
     },
     "nonce": "0x0",
     "alloc": {

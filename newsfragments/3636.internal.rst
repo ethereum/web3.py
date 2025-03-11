@@ -1,0 +1,1 @@
+Update integration test fixture to use latest geth version ``v1.15.5``.
