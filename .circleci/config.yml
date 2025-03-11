@@ -77,7 +77,7 @@ geth_steps: &geth_steps
               sudo apt-get install -y build-essential
               pygeth_version=$(python web3/scripts/parse_pygeth_version.py)
               echo "installing py-geth$pygeth_version"
-              pip install --user "py-geth$pygeth_version"
+              pip install -U --user "py-geth$pygeth_version"
               python -m geth.install v<< pipeline.parameters.geth_version >>
             fi
             sudo ln -s /home/circleci/.py-geth/geth-v<< pipeline.parameters.geth_version >>/bin/geth /usr/local/bin/geth
