@@ -11,17 +11,6 @@ The :mod:`ens` module is included with web3.py. It provides an interface to look
 domains and addresses, add resolver records, or get and set metadata.
 
 
-.. note::
-
-    web3.py ``v6.6.0`` introduced ENS name normalization standard
-    `ENSIP-15 <https://docs.ens.domains/ensip/15>`_.
-    This update to ENS name validation and normalization won't affect ~99%
-    of names but may prevent invalid names from being created and from interacting with
-    the ENS contracts via web3.py. We feel strongly that this change, though breaking,
-    is in the best interest of our users as it ensures compatibility with the latest ENS
-    standards.
-
-
 Setup
 -----
 
