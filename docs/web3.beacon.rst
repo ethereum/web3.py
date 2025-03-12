@@ -35,7 +35,7 @@ Methods
         >>> beacon.get_hash_root()
         {
           "data": {
-            "root":"0xbb399fda70617a6f198b3d9f1c1cdbd70077677231b84f34e58568c9dc903558"
+            'root':"0xbb399fda70617a6f198b3d9f1c1cdbd70077677231b84f34e58568c9dc903558"
           }
         }
 
