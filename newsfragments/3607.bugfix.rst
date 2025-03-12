@@ -1,1 +1,0 @@
-Batching can now be used with the AutoProvider

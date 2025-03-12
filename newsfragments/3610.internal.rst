@@ -1,1 +1,0 @@
-Merge template, replacing ``bumpversion`` with ``bump-my-version``.

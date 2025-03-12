@@ -1,1 +1,0 @@
-Use ``-U`` to install latest `py-geth` version for CI geth steps. This is usually a requirement if we're missing the binary for the newly-generated fixture geth version.

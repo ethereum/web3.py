@@ -1,1 +1,0 @@
-Prevent mutating list of subscriptions when unsubscribing via the ``subscription_manager`` by iterating over a copy of the provided list.

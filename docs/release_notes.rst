@@ -6,6 +6,45 @@ v7 Breaking Changes Summary
 
 .. towncrier release notes start
 
+web3.py v7.9.0 (2025-03-12)
+---------------------------
+
+Bugfixes
+~~~~~~~~
+
+- Prevent mutating list of subscriptions when unsubscribing via the ``subscription_manager`` by iterating over a copy of the provided list. (`#3604 <https://github.com/ethereum/web3.py/issues/3604>`__)
+- Batching can now be used with the AutoProvider (`#3607 <https://github.com/ethereum/web3.py/issues/3607>`__)
+
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Update and clean up Contributing docs. (`#3610 <https://github.com/ethereum/web3.py/issues/3610>`__)
+
+
+Features
+~~~~~~~~
+
+- Add ``use_text_frames`` flag for ``WebSocketProvider`` to work around websocket servers that don't support binary frames (`#3619 <https://github.com/ethereum/web3.py/issues/3619>`__)
+- Sync and async support for ``eth_simulateV1`` RPC method. (`#3622 <https://github.com/ethereum/web3.py/issues/3622>`__)
+
+
+Internal Changes - for web3.py Contributors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Renames a test so pytest finds it. (`#3606 <https://github.com/ethereum/web3.py/issues/3606>`__)
+- Merge template, replacing ``bumpversion`` with ``bump-my-version``. (`#3610 <https://github.com/ethereum/web3.py/issues/3610>`__)
+- Update integration test fixture to use latest geth version ``v1.15.5``. (`#3636 <https://github.com/ethereum/web3.py/issues/3636>`__)
+- Use ``-U`` to install latest `py-geth` version for CI geth steps. This is usually a requirement if we're missing the binary for the newly-generated fixture geth version. (`#3637 <https://github.com/ethereum/web3.py/issues/3637>`__)
+- Re-compile test contracts with newly released Solidity ``v0.8.29``. (`#3640 <https://github.com/ethereum/web3.py/issues/3640>`__)
+
+
+Miscellaneous Changes
+~~~~~~~~~~~~~~~~~~~~~
+
+- `#3623 <https://github.com/ethereum/web3.py/issues/3623>`__
+
+
 web3.py v7.8.0 (2025-02-03)
 ---------------------------
 
