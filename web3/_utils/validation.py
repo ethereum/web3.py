@@ -131,7 +131,7 @@ def validate_abi_value(abi_type: TypeStr, value: Any) -> None:
                 )
             if specified_length != len(value):
                 raise Web3TypeError(
-                    "The following array length does not the length specified"
+                    "The following array length does not match the length specified "
                     f"by the abi-type, {abi_type}: {value}"
                 )
 

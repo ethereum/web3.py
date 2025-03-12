@@ -68,11 +68,15 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
     logger = logging.getLogger("web3.providers.PersistentConnectionProvider")
     has_persistent_connection = True
 
-    _send_func_cache: Tuple[int, Callable[..., Coroutine[Any, Any, RPCRequest]]] = (
+    _send_func_cache: Tuple[
+        Optional[int], Optional[Callable[..., Coroutine[Any, Any, RPCRequest]]]
+    ] = (
         None,
         None,
     )
-    _recv_func_cache: Tuple[int, Callable[..., Coroutine[Any, Any, RPCResponse]]] = (
+    _recv_func_cache: Tuple[
+        Optional[int], Optional[Callable[..., Coroutine[Any, Any, RPCResponse]]]
+    ] = (
         None,
         None,
     )
