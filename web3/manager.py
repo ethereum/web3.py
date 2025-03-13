@@ -159,7 +159,7 @@ class RequestManager:
         request_func = provider.request_func(
             cast("Web3", self.w3), cast("MiddlewareOnion", self.middleware_onion)
         )
-        self.logger.debug(f"Making request. Method: {method}")
+        self.logger.debug("Making request. Method: %s", method)
         return request_func(method, params)
 
     async def _coro_make_request(
@@ -169,7 +169,7 @@ class RequestManager:
         request_func = await provider.request_func(
             cast("AsyncWeb3", self.w3), cast("MiddlewareOnion", self.middleware_onion)
         )
-        self.logger.debug(f"Making request. Method: {method}")
+        self.logger.debug("Making request. Method: %s", method)
         return await request_func(method, params)
 
     #
@@ -366,9 +366,12 @@ class RequestManager:
     ) -> RPCResponse:
         provider = cast(PersistentConnectionProvider, self._provider)
         self.logger.debug(
-            "Making request to open socket connection and waiting for response: "
-            f"{provider.get_endpoint_uri_or_ipc_path()},\n    method: {method},\n"
-            f"    params: {params}"
+            "Making request to open socket connection and waiting for response: %s,\n"
+            "    method: %s,\n"
+            "    params: %s",
+            provider.get_endpoint_uri_or_ipc_path(),
+            method,
+            params,
         )
         rpc_request = await self.send(method, params)
         provider._request_processor.cache_request_information(
@@ -388,9 +391,12 @@ class RequestManager:
             middleware_onion,
         )
         self.logger.debug(
-            "Sending request to open socket connection: "
-            f"{provider.get_endpoint_uri_or_ipc_path()},\n    method: {method},\n"
-            f"    params: {params}"
+            "Sending request to open socket connection: %s,\n"
+            "    method: %s,\n"
+            "    params: %s",
+            provider.get_endpoint_uri_or_ipc_path(),
+            method,
+            params,
         )
         return await send_func(method, params)
 
@@ -404,7 +410,8 @@ class RequestManager:
         )
         self.logger.debug(
             "Getting response for request from open socket connection:\n"
-            f"    request: {rpc_request}"
+            "    request: %s",
+            rpc_request,
         )
         response = await recv_func(rpc_request)
         try:
@@ -417,8 +424,8 @@ class RequestManager:
     async def recv(self) -> Union[RPCResponse, FormattedEthSubscriptionResponse]:
         provider = cast(PersistentConnectionProvider, self._provider)
         self.logger.debug(
-            "Getting next response from open socket connection: "
-            f"{provider.get_endpoint_uri_or_ipc_path()}"
+            "Getting next response from open socket connection: %s",
+            provider.get_endpoint_uri_or_ipc_path(),
         )
         # pop from the queue since the listener task is responsible for reading
         # directly from the socket
@@ -501,9 +508,11 @@ class RequestManager:
                     # subscription as it comes in
                     request_info.subscription_id = subscription_id
                     provider.logger.debug(
-                        "Caching eth_subscription info:\n    "
-                        f"cache_key={cache_key},\n    "
-                        f"request_info={request_info.__dict__}"
+                        "Caching eth_subscription info:\n"
+                        "    cache_key=%s,\n"
+                        "    request_info=%s",
+                        cache_key,
+                        request_info.__dict__,
                     )
                     self._request_processor._request_information_cache.cache(
                         cache_key, request_info
