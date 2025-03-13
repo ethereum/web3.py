@@ -226,7 +226,7 @@ class HTTPSessionManager:
                         # if loop was closed but not the session, close the session
                         await cached_session.close()
                     self.logger.debug(
-                        "Async session closed and evicted from cache: %s", 
+                        "Async session closed and evicted from cache: %s",
                         cached_session,
                     )
 

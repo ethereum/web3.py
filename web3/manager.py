@@ -410,7 +410,7 @@ class RequestManager:
         )
         self.logger.debug(
             "Getting response for request from open socket connection:\n"
-            "    request: %s", 
+            "    request: %s",
             rpc_request,
         )
         response = await recv_func(rpc_request)
@@ -425,7 +425,7 @@ class RequestManager:
         provider = cast(PersistentConnectionProvider, self._provider)
         self.logger.debug(
             "Getting next response from open socket connection: %s",
-            provider.get_endpoint_uri_or_ipc_path()
+            provider.get_endpoint_uri_or_ipc_path(),
         )
         # pop from the queue since the listener task is responsible for reading
         # directly from the socket

@@ -194,7 +194,7 @@ class SubscriptionManager:
                     "Successfully unsubscribed from subscription:\n"
                     "    label: %s\n    id: %s",
                     subscriptions.label,
-                    subscriptions.id
+                    subscriptions.id,
                 )
 
                 if len(self._subscription_container.handler_subscriptions) == 0:
@@ -219,7 +219,8 @@ class SubscriptionManager:
             return all(unsubscribed)
 
         self.logger.warning(
-            "Failed to unsubscribe from subscription\n    subscription=%s", subscriptions
+            "Failed to unsubscribe from subscription\n    subscription=%s",
+            subscriptions,
         )
         return False
 
