@@ -133,7 +133,7 @@ def test_construct_event_data_set_strict(w3, arguments, expected):
         ),
         (
             {"arg0": b"131414"},
-            ValueOutOfBounds,
+            EncodingTypeError,
         ),
         (
             {"arg0": b"13"},
