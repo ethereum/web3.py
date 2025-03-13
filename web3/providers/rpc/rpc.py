@@ -164,14 +164,16 @@ class HTTPProvider(JSONBaseProvider):
     @handle_request_caching
     def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
         self.logger.debug(
-            f"Making request HTTP. URI: {self.endpoint_uri}, Method: {method}"
+            "Making request HTTP. URI: %s, Method: %s", self.endpoint_uri, method
         )
         request_data = self.encode_rpc_request(method, params)
         raw_response = self._make_request(method, request_data)
         response = self.decode_rpc_response(raw_response)
         self.logger.debug(
-            f"Getting response HTTP. URI: {self.endpoint_uri}, "
-            f"Method: {method}, Response: {response}"
+            "Getting response HTTP. URI: %s, Method: %s, Response: %s",
+            self.endpoint_uri,
+            method,
+            response,
         )
         return response
 
@@ -179,7 +181,7 @@ class HTTPProvider(JSONBaseProvider):
     def make_batch_request(
         self, batch_requests: List[Tuple[RPCEndpoint, Any]]
     ) -> Union[List[RPCResponse], RPCResponse]:
-        self.logger.debug(f"Making batch request HTTP, uri: `{self.endpoint_uri}`")
+        self.logger.debug("Making batch request HTTP, uri: `%s`", self.endpoint_uri)
         request_data = self.encode_batch_rpc_request(batch_requests)
         raw_response = self._request_session_manager.make_post_request(
             self.endpoint_uri, request_data, **self.get_request_kwargs()
