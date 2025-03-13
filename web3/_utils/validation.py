@@ -396,7 +396,7 @@ def validate_rpc_response_and_raise_if_error(
 
         response = apply_error_formatters(error_formatters, response)
         if logger is not None:
-            logger.debug(f"RPC error response: {response}")
+            logger.debug("RPC error response: %s", response)
 
         raise web3_rpc_error
 

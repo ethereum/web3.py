@@ -73,7 +73,8 @@ def is_beyond_validation_threshold(
         else:
             provider.logger.error(
                 "Invalid request_cache_validation_threshold value. This should not "
-                f"have happened. Request not cached.\n    threshold: {threshold}"
+                "have happened. Request not cached.\n    threshold: %s",
+                threshold,
             )
             return False
     except Exception as e:
@@ -128,7 +129,8 @@ def validate_from_blocknum_in_result(
         else:
             provider.logger.error(
                 "Could not find block number in result. This should not have happened. "
-                f"Request not cached.\n    result: {result}",
+                "Request not cached.\n    result: %s",
+                result,
             )
             return False
     except Exception as e:
@@ -198,7 +200,8 @@ async def async_is_beyond_validation_threshold(
         else:
             provider.logger.error(
                 "Invalid request_cache_validation_threshold value. This should not "
-                f"have happened. Request not cached.\n    threshold: {threshold}"
+                "have happened. Request not cached.\n    threshold: %s",
+                threshold,
             )
             return False
     except Exception as e:
@@ -253,7 +256,8 @@ async def async_validate_from_blocknum_in_result(
         else:
             provider.logger.error(
                 "Could not find block number in result. This should not have happened. "
-                f"Request not cached.\n    result: {result}",
+                "Request not cached.\n    result: %s",
+                result,
             )
             return False
     except Exception as e:

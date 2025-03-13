@@ -197,7 +197,7 @@ class IPCProvider(JSONBaseProvider):
     @handle_request_caching
     def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
         self.logger.debug(
-            f"Making request IPC. Path: {self.ipc_path}, Method: {method}"
+            "Making request IPC. Path: %s, Method: %s", self.ipc_path, method
         )
         request = self.encode_rpc_request(method, params)
         return self._make_request(request)
@@ -206,7 +206,7 @@ class IPCProvider(JSONBaseProvider):
     def make_batch_request(
         self, requests: List[Tuple[RPCEndpoint, Any]]
     ) -> List[RPCResponse]:
-        self.logger.debug(f"Making batch request IPC. Path: {self.ipc_path}")
+        self.logger.debug("Making batch request IPC. Path: %s", self.ipc_path)
         request_data = self.encode_batch_rpc_request(requests)
         response = cast(List[RPCResponse], self._make_request(request_data))
         return sort_batch_response_by_response_ids(response)
