@@ -124,7 +124,8 @@ class SubscriptionManager:
             self._add_subscription(subscriptions)
             self.logger.info(
                 "Successfully subscribed to subscription:\n    label: %s\n    id: %s",
-                subscriptions.label, sub_id,
+                subscriptions.label,
+                sub_id,
             )
             return sub_id
         elif isinstance(subscriptions, Sequence):
@@ -242,7 +243,8 @@ class SubscriptionManager:
             if len(self.subscriptions) > 0:
                 self.logger.warning(
                     "Failed to unsubscribe from all subscriptions. Some subscriptions "
-                    "are still active.\n    subscriptions=%s", self.subscriptions
+                    "are still active.\n    subscriptions=%s",
+                    self.subscriptions,
                 )
             return False
 

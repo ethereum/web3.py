@@ -410,7 +410,8 @@ class RequestManager:
         )
         self.logger.debug(
             "Getting response for request from open socket connection:\n"
-            "    request: %s", rpc_request,
+            "    request: %s", 
+            rpc_request,
         )
         response = await recv_func(rpc_request)
         try:

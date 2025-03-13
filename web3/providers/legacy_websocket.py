@@ -150,7 +150,8 @@ class LegacyWebSocketProvider(JSONBaseProvider):
     ) -> List[RPCResponse]:
         self.logger.debug(
             "Making batch request WebSocket. URI: %s, Methods: %s",
-            self.endpoint_uri, requests,
+            self.endpoint_uri, 
+            requests,
         )
         request_data = self.encode_batch_rpc_request(requests)
         future = asyncio.run_coroutine_threadsafe(

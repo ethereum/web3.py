@@ -164,6 +164,7 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
             )
 
     async def connect(self) -> None:
+        endpoint = self.get_endpoint_uri_or_ipc_path()
         _connection_attempts = 0
         _backoff_rate_change = 1.75
         _backoff_time = 1.75
@@ -171,7 +172,7 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
         while _connection_attempts != self._max_connection_retries:
             try:
                 _connection_attempts += 1
-                self.logger.info("Connecting to: %s", self.get_endpoint_uri_or_ipc_path())
+                self.logger.info("Connecting to: %s", endpoint)
                 await self._provider_specific_connect()
                 self._message_listener_task = asyncio.create_task(
                     self._message_listener()
@@ -179,17 +180,17 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
                 self._message_listener_task.add_done_callback(
                     self._message_listener_callback
                 )
-                self.logger.info("Successfully connected to: %s", self.get_endpoint_uri_or_ipc_path())
+                self.logger.info("Successfully connected to: %s", endpoint)
                 break
             except (WebSocketException, OSError) as e:
                 if _connection_attempts == self._max_connection_retries:
                     raise ProviderConnectionError(
-                        f"Could not connect to: {self.get_endpoint_uri_or_ipc_path()}. "
+                        f"Could not connect to: {endpoint}. "
                         f"Retries exceeded max of {self._max_connection_retries}."
                     ) from e
                 self.logger.info(
                     "Could not connect to: %s. Retrying in %s seconds.",
-                    self.get_endpoint_uri_or_ipc_path(),
+                    endpoint,
                     round(_backoff_time, 1),
                     exc_info=True,
                 )
@@ -210,7 +211,9 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
 
         await self._provider_specific_disconnect()
         self._request_processor.clear_caches()
-        self.logger.info("Successfully disconnected from: %s", self.get_endpoint_uri_or_ipc_path())
+        self.logger.info(
+            "Successfully disconnected from: %s", self.get_endpoint_uri_or_ipc_path(),
+        )
 
     @async_handle_send_caching
     async def send_request(self, method: RPCEndpoint, params: Any) -> RPCRequest:
@@ -327,9 +330,9 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
 
     async def _message_listener(self) -> None:
         self.logger.info(
-            "%s listener background task started. Storing "
-            "all messages in appropriate request processor queues / caches to be "
-            "processed.", self.__class__.__qualname__
+            "%s listener background task started. Storing all messages in "
+            "appropriate request processor queues / caches to be processed.", 
+            self.__class__.__qualname__
         )
         while True:
             # the use of sleep(0) seems to be the most efficient way to yield control
@@ -373,7 +376,8 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
         self.logger.error(
             "Exception caught in listener, error logging and keeping "
             "listener background task alive.\n    error=%s: %s",
-            e.__class__.__name__, e
+            e.__class__.__name__, 
+            e,
         )
 
     def _handle_listener_task_exceptions(self) -> None:
@@ -405,7 +409,9 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
                 self._handle_listener_task_exceptions()
 
                 if request_cache_key in self._request_processor._request_response_cache:
-                    self.logger.debug("Popping response for id %s from cache.", request_id)
+                    self.logger.debug(
+                        "Popping response for id %s from cache.", request_id,
+                    )
                     popped_response = await self._request_processor.pop_raw_response(
                         cache_key=request_cache_key,
                     )
