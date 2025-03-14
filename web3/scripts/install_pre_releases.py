@@ -11,7 +11,6 @@ import sys
 ETHEREUM_LIBRARIES = [
     "eth-account",
     "eth-abi",
-    "eth-account",
     "eth-hash[pycryptodome]",
     "eth-typing",
     "eth-utils",
