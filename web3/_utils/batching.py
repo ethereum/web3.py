@@ -201,7 +201,7 @@ def sort_batch_response_by_response_ids(
     responses: List["RPCResponse"],
 ) -> List["RPCResponse"]:
     if all(response.get("id") is not None for response in responses):
-        # If all responses have an `id`, sort them by `id, since the JSON-RPC 2.0 spec
+        # If all responses have an `id`, sort them by `id`, since the JSON-RPC 2.0 spec
         # doesn't guarantee order.
         return sorted(responses, key=lambda response: response["id"])
     else:
