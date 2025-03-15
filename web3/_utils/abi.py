@@ -448,7 +448,7 @@ INT_SIZES = range(8, 257, 8)
 BYTES_SIZES = range(1, 33)
 UINT_TYPES = [f"uint{i}" for i in INT_SIZES]
 INT_TYPES = [f"int{i}" for i in INT_SIZES]
-BYTES_TYPES = [f"bytes{i}" for i in BYTES_SIZES] + ["bytes32"]
+BYTES_TYPES = [f"bytes{i}" for i in BYTES_SIZES] + ["bytes32.byte"]
 
 STATIC_TYPES = list(
     itertools.chain(
