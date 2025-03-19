@@ -13,4 +13,4 @@ Closes #
 
 #### Cute Animal Picture
 
-![Put a link to a cute animal picture inside the parenthesis-->](<>)
+![Put a link to a cute animal picture inside the parentheses-->](<>)
