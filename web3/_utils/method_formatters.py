@@ -358,6 +358,7 @@ BLOCK_REQUEST_FORMATTERS = {
     "transactionsRoot": to_hex_if_bytes,
     "withdrawalsRoot": to_hex_if_bytes,
     "parentBeaconBlockRoot": to_hex_if_bytes,
+    "requestsHash": to_hex_if_bytes,
 }
 block_request_formatter = type_aware_apply_formatters_to_dict(BLOCK_REQUEST_FORMATTERS)
 
@@ -400,6 +401,7 @@ BLOCK_RESULT_FORMATTERS = {
     "blobGasUsed": to_integer_if_hex,
     "excessBlobGas": to_integer_if_hex,
     "parentBeaconBlockRoot": apply_formatter_if(is_not_null, to_hexbytes(32)),
+    "requestsHash": apply_formatter_if(is_not_null, to_hexbytes(32)),
 }
 block_result_formatter = type_aware_apply_formatters_to_dict(BLOCK_RESULT_FORMATTERS)
 

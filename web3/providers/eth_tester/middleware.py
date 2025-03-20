@@ -203,6 +203,7 @@ BLOCK_RESULT_KEY_MAPPING = {
     "parent_beacon_block_root": "parentBeaconBlockRoot",
     "blob_gas_used": "blobGasUsed",
     "excess_blob_gas": "excessBlobGas",
+    "requests_hash": "requestsHash",
 }
 block_result_remapper = apply_key_map(BLOCK_RESULT_KEY_MAPPING)
 

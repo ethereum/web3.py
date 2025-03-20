@@ -46,6 +46,7 @@ def test_get_block_formatters_with_null_values(w3, request_mocker):
         "blobGasUsed": None,
         "excessBlobGas": None,
         "parentBeaconBlockRoot": None,
+        "requestsHash": None,
     }
     with request_mocker(w3, mock_results={"eth_getBlockByNumber": null_values_block}):
         received_block = w3.eth.get_block("pending")
@@ -109,6 +110,9 @@ def test_get_block_formatters_with_pre_formatted_values(w3, request_mocker):
         "parentBeaconBlockRoot": (
             "0x6470e77f1b8a55a49a57b3f74c2a10a76185636d65122053752ea5e4bb4dac59"
         ),
+        "requestsHash": (
+            "0xe3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        ),
     }
 
     with request_mocker(
@@ -170,4 +174,5 @@ def test_get_block_formatters_with_pre_formatted_values(w3, request_mocker):
         "parentBeaconBlockRoot": HexBytes(
             unformatted_values_block["parentBeaconBlockRoot"]
         ),
+        "requestsHash": HexBytes(unformatted_values_block["requestsHash"]),
     }
