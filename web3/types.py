@@ -202,6 +202,7 @@ class BlockData(TypedDict, total=False):
     parentBeaconBlockRoot: HexBytes
     blobGasUsed: int
     excessBlobGas: int
+    requestsHash: HexBytes
 
     # ExtraDataToPOAMiddleware replaces extraData w/ proofOfAuthorityData
     proofOfAuthorityData: HexBytes
