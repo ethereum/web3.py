@@ -21,11 +21,9 @@ from typing import (
 from eth_typing import (
     URI,
 )
-from websockets.client import (
-    connect,
-)
 from websockets.legacy.client import (
     WebSocketClientProtocol,
+    connect,
 )
 
 from web3._utils.batching import (

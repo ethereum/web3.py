@@ -1,6 +1,31 @@
 Migration Guide
 ===============
 
+.. _migrating_v7_to_v8:
+
+Migrating from v7 to v8
+-----------------------
+
+web3.py follows `Semantic Versioning <http://semver.org>`_, which means that
+version 8 introduced backwards-incompatible changes. If you're upgrading from
+web3.py ``v7``, you can expect to need to make some changes. Refer
+to this guide for a summary of breaking changes when updating from ``v7`` to
+``v8``. If you are more than one major version behind, you should also review
+the migration guides for the versions in between.
+
+Dependency Updates
+~~~~~~~~~~~~~~~~~~
+
+websockets
+``````````
+
+The ``websockets`` library has been updated to version 15+. This version
+drops support for Python 3.8 and below. If you are using Python 3.8 or below,
+you will need to upgrade to Python 3.9 or above to use web3.py ``v8``. Additionally,
+the minimum required version of ``websockets`` has been bumped to ``15.0.0``. If you
+are using a version of ``websockets`` below ``15.0.0``, you will need to upgrade to
+``15.0.0`` or above to use web3.py ``v8``.
+
 .. _migrating_v6_to_v7:
 
 Migrating from v6 to v7

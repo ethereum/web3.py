@@ -7,7 +7,9 @@ from threading import (
     Thread,
 )
 
-import websockets
+from websockets.legacy.server import (
+    serve,
+)
 
 from tests.utils import (
     wait_for_ws,
@@ -35,7 +37,7 @@ def start_websocket_server(open_port):
             await websocket.send(data)
 
         asyncio.set_event_loop(event_loop)
-        server = websockets.serve(empty_server, "127.0.0.1", open_port)
+        server = serve(empty_server, "127.0.0.1", open_port)
         event_loop.run_until_complete(server)
         event_loop.run_forever()
 
