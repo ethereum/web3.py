@@ -53,7 +53,7 @@ from web3.utils import (
 )
 
 if TYPE_CHECKING:
-    from websockets import (
+    from websockets.legacy.client import (
         WebSocketClientProtocol,
     )
 

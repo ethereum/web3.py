@@ -15,15 +15,13 @@ from eth_typing import (
 from toolz import (
     merge,
 )
-from websockets import (
-    WebSocketClientProtocol,
-)
-from websockets.client import (
-    connect,
-)
 from websockets.exceptions import (
     ConnectionClosedOK,
     WebSocketException,
+)
+from websockets.legacy.client import (
+    WebSocketClientProtocol,
+    connect,
 )
 
 from web3.exceptions import (

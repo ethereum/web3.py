@@ -2,7 +2,9 @@ import asyncio
 import socket
 import time
 
-import websockets
+from websockets.legacy.client import (
+    connect,
+)
 
 from web3._utils.threads import (
     Timeout,
@@ -43,7 +45,7 @@ async def wait_for_ws(endpoint_uri, timeout=10):
     start = time.time()
     while time.time() < start + timeout:
         try:
-            async with websockets.connect(uri=endpoint_uri):
+            async with connect(uri=endpoint_uri):
                 pass
         except OSError:
             await asyncio.sleep(0.01)
