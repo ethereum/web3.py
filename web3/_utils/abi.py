@@ -131,7 +131,7 @@ def filter_by_argument_name(
     argument_names: Collection[str], contract_abi: ABI
 ) -> Sequence[ABIElement]:
     """
-    Return a list of each ``ABIElement`` which contain arguments matching provided
+    Return a list of each ``ABIElement`` which contains arguments matching provided
     names.
     """
     abis_with_matching_args = []
@@ -153,7 +153,7 @@ def filter_by_argument_type(
     argument_types: Collection[str], contract_abi: ABI
 ) -> List[ABIElement]:
     """
-    Return a list of each ``ABIElement`` which contain arguments matching provided
+    Return a list of each ``ABIElement`` which contains arguments matching provided
     types.
     """
     abis_with_matching_args = []
@@ -429,7 +429,7 @@ def find_constructor_abi_element_by_type(contract_abi: ABI) -> ABIConstructor:
     Find the constructor ABI element in the contract ABI.
 
     This function is often used in place of `web3.utils.abi.get_abi_element` to find
-    a constructor without considering it's argument types. This is used prior to
+    a constructor without considering its argument types. This is used prior to
     encoding the abi, since the argument types are not known at that time.
     """
     candidates = [abi for abi in contract_abi if abi["type"] == "constructor"]
