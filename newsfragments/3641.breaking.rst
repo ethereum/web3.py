@@ -1,6 +1,0 @@
-Bump websockets to >=15.0.0,<16.0.0
-
-This is potentially a breaking change in two ways:
-1. Users directly depending on websockets 13.0 or lower will have to bump to websockets 15.0
-2. Users on Python 3.8 or lower will have to bump to Python 3.9, since websockets 14.0 dropped
-support for Python 3.8

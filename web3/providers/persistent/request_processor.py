@@ -1,4 +1,5 @@
 import asyncio
+import sys
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -47,8 +48,20 @@ if TYPE_CHECKING:
 
 T = TypeVar("T")
 
+# TODO: This is an ugly hack for python 3.8. Remove this after we drop support for it
+#  and use `asyncio.Queue[T]` type directly in the `TaskReliantQueue` class.
+if sys.version_info >= (3, 9):
 
-class TaskReliantQueue(asyncio.Queue[T], Generic[T]):
+    class _TaskReliantQueue(asyncio.Queue[T], Generic[T]):
+        pass
+
+else:
+
+    class _TaskReliantQueue(asyncio.Queue, Generic[T]):  # type: ignore
+        pass
+
+
+class TaskReliantQueue(_TaskReliantQueue[T]):
     """
     A queue that relies on a task to be running to process items in the queue.
     """
