@@ -831,7 +831,7 @@ The :py:class:`ContractFunction` class provides attributes for each function. Ac
 
     The signature of the function assigned to the class ``__name__`` during initialization.
     Fallback and Receive functions will be assigned as classes :py:class:`FallbackFn` or
-    :py:class:`RecieveFn` respectively.
+    :py:class:`ReceiveFn` respectively.
 
 .. py:attribute:: ContractFunction.myMethod(*args, **kwargs).name
 
