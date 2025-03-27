@@ -36,7 +36,6 @@ from eth_utils.curried import (
     is_string,
     to_checksum_address,
     to_list,
-    to_tuple,
 )
 from eth_utils.toolz import (
     complement,
