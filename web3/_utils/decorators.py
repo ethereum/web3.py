@@ -25,8 +25,7 @@ def reject_recursive_repeats(to_wrap: Callable[..., Any]) -> Callable[..., Any]:
 
     @functools.wraps(to_wrap)
     def wrapped(*args: Any) -> Any:
-        thread_id = threading.get_ident()
-        thread_local_args = tuple(interpose(thread_id, map(id, args)))
+        thread_local_args = (threading.get_ident(), *map(id, args)))
         if thread_local_args in already_called:  # type: ignore
             raise Web3ValueError(f"Recursively called {to_wrap} with {args!r}")
         already_called.add(thread_local_args)
