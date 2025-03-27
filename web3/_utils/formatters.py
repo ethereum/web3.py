@@ -6,9 +6,11 @@ from typing import (
     Callable,
     Dict,
     Iterable,
+    Mapping,
     Optional,
     Tuple,
     TypeVar,
+    overload,
 )
 
 from eth_typing import (
@@ -39,6 +41,8 @@ from web3.types import (
 
 TReturn = TypeVar("TReturn")
 TValue = TypeVar("TValue")
+TMapping = TypeVar("TMapping", bound=Mapping)
+TIterable = TypeVar("TIterable", bound=Iterable)
 
 
 def hex_to_integer(value: HexStr) -> int:
@@ -59,6 +63,12 @@ def apply_formatters_to_args(
     )
 
 
+@overload
+def map_collection(func: Callable[[TValue], TReturn], collection: TMapping[Any, TValue]) -> TMapping[Any, TReturn]:...
+@overload
+def map_collection(func: Callable[..., TReturn], collection: str) -> str:...
+@overload
+def map_collection(func: Callable[[TValue], TReturn], collection: TIterable[TValue]) -> TIterable[TReturn]:...
 def map_collection(func: Callable[..., TReturn], collection: Any) -> Any:
     """
     Apply func to each element of a collection, or value of a dictionary.
