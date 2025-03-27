@@ -613,9 +613,12 @@ def map_abi_data(
     """
     return pipe(
         data, 
+        # 1. Decorating the data tree with types
         abi_data_tree(types), 
+        # 2. Recursively mapping each of the normalizers to the data
         *map(data_tree_map, normalizers), 
-        partial(recursive_map, strip_abi_type)
+        # 3. Stripping the types back out of the tree
+        strip_abi_types,
     )
 
 
@@ -717,6 +720,10 @@ def strip_abi_type(elements: Any) -> Any:
         return elements.data
     else:
         return elements
+
+
+def strip_abi_types(elements: Any) -> Any:
+    return recursive_map(strip_abi_type, elements)
 
 
 def build_non_strict_registry() -> ABIRegistry:
