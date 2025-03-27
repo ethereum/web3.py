@@ -101,6 +101,7 @@ from web3.types import (
     BlockIdentifier,
     Formatters,
     RPCEndpoint,
+    RPCResponse,
     SimulateV1Payload,
     StateOverrideParams,
     TReturn,
@@ -1199,7 +1200,7 @@ def apply_module_to_formatters(
 def get_result_formatters(
     method_name: Union[RPCEndpoint, Callable[..., RPCEndpoint]],
     module: "Module",
-) -> Callable[..., Any]:
+) -> Callable[RPCResponse, Any]:
     formatters = combine_formatters((PYTHONIC_RESULT_FORMATTERS,), method_name)
     formatters_requiring_module = combine_formatters(
         (FILTER_RESULT_FORMATTERS,), method_name
@@ -1212,7 +1213,7 @@ def get_result_formatters(
 
 def get_error_formatters(
     method_name: Union[RPCEndpoint, Callable[..., RPCEndpoint]]
-) -> Callable[..., Any]:
+) -> Callable[RPCResponse, Any]:
     #  Note error formatters work on the full response dict
     error_formatter_maps = (ERROR_FORMATTERS,)
     formatters = combine_formatters(error_formatter_maps, method_name)
@@ -1222,7 +1223,7 @@ def get_error_formatters(
 
 def get_null_result_formatters(
     method_name: Union[RPCEndpoint, Callable[..., RPCEndpoint]]
-) -> Callable[..., Any]:
+) -> Callable[RPCResponse, Any]:
     formatters = combine_formatters((NULL_RESULT_FORMATTERS,), method_name)
 
     return compose(*formatters)
