@@ -630,10 +630,7 @@ def abi_data_tree(types: Sequence[TypeStr], data: Sequence[Any]) -> List[Any]:
     >>> abi_data_tree(types=["bool[2]", "uint"], data=[[True, False], 0])
     [("bool[2]", [("bool", True), ("bool", False)]), ("uint256", 0)]
     """
-    return [
-        abi_sub_tree(data_type, data_value)
-        for data_type, data_value in zip(types, data)
-    ]
+    return list(map(abi_sub_tree, types, data))
 
 
 @curry
