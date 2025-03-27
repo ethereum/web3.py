@@ -24,7 +24,8 @@ def all_in_dict(
     :return:       True if ALL values exist in keys;
                    False if NOT ALL values exist in keys
     """
-    return all(_ in dict(d) for _ in values)
+    d = dict(d)
+    return all(_ in d for _ in values)
 
 
 def any_in_dict(
@@ -39,7 +40,8 @@ def any_in_dict(
     :return:       True if ANY value exists in keys;
                    False if NONE of the values exist in keys
     """
-    return any(_ in dict(d) for _ in values)
+    d = dict(d)
+    return any(_ in d for _ in values)
 
 
 def none_in_dict(
