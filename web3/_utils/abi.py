@@ -620,7 +620,7 @@ def map_abi_data(
 
 
 @curry
-def abi_data_tree(types: Sequence[TypeStr], data: Sequence[Any]) -> List[Any]:
+def abi_data_tree(types: Sequence[TypeStr], data: Sequence[Any]) -> List[ABITypedData]:
     """
     Decorate the data tree with pairs of (type, data). The pair tuple is actually an
     ABITypedData, but can be accessed as a tuple.
