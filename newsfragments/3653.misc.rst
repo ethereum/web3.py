@@ -1,1 +1,0 @@
-Bump ``websockets`` upper range to ``<16``. For now, use legacy paths to deprecated classes in order to open up new version compatibility without breaking changes.
