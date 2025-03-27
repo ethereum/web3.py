@@ -217,7 +217,7 @@ class Method(Generic[TFunc]):
         )
 
         if request_formatters := self.request_formatters(method):
-            params = request_formatters(params)
+            params = tuple(request_formatters(params))
             
         request = method, params
 
