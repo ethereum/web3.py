@@ -611,13 +611,12 @@ def map_abi_data(
     2. Recursively mapping each of the normalizers to the data
     3. Stripping the types back out of the tree
     """
-    pipeline = itertools.chain(
-        [abi_data_tree(types)],
-        map(data_tree_map, normalizers),
-        [partial(recursive_map, strip_abi_type)],
+    return pipe(
+        data, 
+        abi_data_tree(types), 
+        *map(data_tree_map, normalizers), 
+        partial(recursive_map, strip_abi_type)
     )
-
-    return pipe(data, *pipeline)
 
 
 @curry
