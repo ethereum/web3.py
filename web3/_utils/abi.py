@@ -874,7 +874,7 @@ def abi_decoded_namedtuple_factory(
 
 
 class IteratorProxy(Iterable[TValue]):
-    """Wraps an iterator to yield from when iterated upon"""
+    """Wraps an iterator to return when iterated upon."""
     def __init__(self, iterator: Iterator[TValue]):
         self.__wrapped = iterator
     def __iter__(self) -> Iterator[TValue]:
