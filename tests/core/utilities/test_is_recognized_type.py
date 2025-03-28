@@ -115,8 +115,8 @@ def test_is_int_type(abi_type, should_match):
     (
         ("address", True),
         ("uint", False),
-        ("saddress", False),
-        ("addresss", False),
+        ("address", False),
+        ("address", False),
     ),
 )
 def test_is_address_type(abi_type, should_match):
