@@ -228,7 +228,7 @@ def abi_ens_resolver(
                 return type_str, validate_name_has_address(_ens, val)
             except NameNotFound as e:
                 # TODO: This try/except is to keep backwards compatibility when we
-                #  removed the mainnet requirement. Remove this in web3.py v7 and allow
+                #  removed the mainnet requirement. Remove this in web3.py v8 and allow
                 #  NameNotFound to raise.
                 if not isinstance(_ens, StaticENS):
                     raise InvalidAddress(f"{e}")
