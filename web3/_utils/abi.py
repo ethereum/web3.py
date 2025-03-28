@@ -616,6 +616,7 @@ def map_abi_data(
         # 1. Decorating the data tree with types
         abi_data_tree(types), 
         # 2. Recursively mapping each of the normalizers to the data
+        IteratorProxy,
         *map(data_tree_map, normalizers), 
         # 3. Stripping the types back out of the tree
         strip_abi_types,
@@ -623,7 +624,7 @@ def map_abi_data(
 
 
 @curry
-def abi_data_tree(types: Sequence[TypeStr], data: Sequence[Any]) -> List[ABITypedData]:
+def abi_data_tree(types: Sequence[TypeStr], data: Sequence[Any]) -> "map[ABITypedData]":
     """
     Decorate the data tree with pairs of (type, data). The pair tuple is actually an
     ABITypedData, but can be accessed as a tuple.
@@ -633,7 +634,7 @@ def abi_data_tree(types: Sequence[TypeStr], data: Sequence[Any]) -> List[ABIType
     >>> abi_data_tree(types=["bool[2]", "uint"], data=[[True, False], 0])
     [("bool[2]", [("bool", True), ("bool", False)]), ("uint256", 0)]
     """
-    return list(map(abi_sub_tree, types, data))
+    return map(abi_sub_tree, types, data)
 
 
 @curry
@@ -870,6 +871,19 @@ def abi_decoded_namedtuple_factory(
             return super().__new__(self, *args)
 
     return ABIDecodedNamedTuple
+
+
+class IteratorProxy(Iterable[TValue]):
+    """Wraps an iterator to yield from when iterated upon"""
+    def __init__(self, iterator: Iterator[TValue]):
+        self.__wrapped = iterator
+    def __iter__(self) -> Iterator[TValue]:
+        try:
+            return self.__dict__.pop("_IteratorProxy__wrapped")
+        except KeyError as e:
+            raise RuntimeError(
+                f"{type(self).__name__} has already been consumed"
+            ) from e.__cause__
 
 
 # -- async -- #
