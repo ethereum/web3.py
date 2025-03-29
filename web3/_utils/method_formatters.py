@@ -1,5 +1,6 @@
 import codecs
 import operator
+from functools import lru_cache
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -1211,6 +1212,7 @@ def get_result_formatters(
     return compose(*partial_formatters, *formatters)
 
 
+@lru_cache(maxsize=None)
 def get_error_formatters(
     method_name: Union[RPCEndpoint, Callable[..., RPCEndpoint]]
 ) -> Callable[RPCResponse, Any]:
@@ -1221,6 +1223,7 @@ def get_error_formatters(
     return compose(*formatters)
 
 
+@lru_cache(maxsize=None)
 def get_null_result_formatters(
     method_name: Union[RPCEndpoint, Callable[..., RPCEndpoint]]
 ) -> Callable[RPCResponse, Any]:
