@@ -89,11 +89,12 @@ def map_collection(func: Callable[..., TReturn], collection: Any) -> Any:
     Apply `func` to each element of a collection, or value of a mapping.
     If `collection` is not a collection, return it unmodified.
     """
-    datatype = type(collection)
     if isinstance(collection, Mapping):
-        return datatype(zip(collection.keys(), map(func, collection.values())))
+        return type(collection)(
+            zip(collection.keys(), map(func, collection.values()))
+        )
     elif not is_string(collection) and isinstance(collection, Iterable):
-        return datatype(map(func, collection))
+        return type(collection)(map(func, collection))
     else:
         return collection
 
