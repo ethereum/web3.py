@@ -60,7 +60,7 @@ def test_get_formatters_default_formatter_for_falsy_config():
     default_result_formatters = method.result_formatters(
         method.method_selector_fn(), "some module"
     )
-    assert default_request_formatters(["a", "b", "c"]) == ("a", "b", "c")
+    assert default_request_formatters(["a", "b", "c"]) == ["a", "b", "c"]
     assert apply_result_formatters(default_result_formatters, ["a", "b", "c"]) == [
         "a",
         "b",
