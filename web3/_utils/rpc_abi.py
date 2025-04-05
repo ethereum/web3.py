@@ -219,7 +219,9 @@ def apply_abi_formatters_to_dict(
         [data[field] for field in fields],
     )
     formatted_items = zip(fields, formatted_values)
-    return dict(data, **formatted_items)
+    new_dict = data.copy()
+    new_dict.update(formatted_items)
+    return new_dict
 
 
 @to_dict
