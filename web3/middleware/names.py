@@ -58,7 +58,7 @@ async def async_format_all_ens_names_to_address(
     data: Sequence[Any],
 ) -> Sequence[Any]:
     # provide a stepwise version of what the curried formatters do
-    abi_typed_params = abi_data_tree(abi_types_for_method, data)
+    abi_typed_params = list(abi_data_tree(abi_types_for_method, data))
     formatted_data_tree = await async_data_tree_map(
         async_web3,
         async_abi_ens_resolver,
