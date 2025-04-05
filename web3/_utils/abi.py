@@ -20,6 +20,7 @@ from typing import (
     Sequence,
     Tuple,
     Type,
+    TypeVar,
     Union,
     cast,
 )
@@ -105,6 +106,9 @@ if TYPE_CHECKING:
     from web3 import (  # noqa: F401
         AsyncWeb3,
     )
+
+
+__TValue = TypeVar("__TValue")
 
 
 def fallback_func_abi_exists(contract_abi: ABI) -> Sequence[ABIFallback]:
@@ -874,11 +878,11 @@ def abi_decoded_namedtuple_factory(
     return ABIDecodedNamedTuple
 
 
-class IteratorProxy(Iterable[TValue]):
+class IteratorProxy(Iterable[__TValue]):
     """Wraps an iterator to return when iterated upon."""
-    def __init__(self, iterator: Iterator[TValue]):
+    def __init__(self, iterator: Iterator[__TValue]):
         self.__wrapped = iterator
-    def __iter__(self) -> Iterator[TValue]:
+    def __iter__(self) -> Iterator[__TValue]:
         try:
             return self.__dict__.pop("_IteratorProxy__wrapped")
         except KeyError as e:
