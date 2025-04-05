@@ -22,18 +22,20 @@ def reject_recursive_repeats(to_wrap: Callable[..., Any]) -> Callable[..., Any]:
     # types ignored b/c dynamically set attribute
     already_called: Set[Tuple[int, ...]] = set()
     to_wrap.__already_called = already_called  # type: ignore
+    
+    add_call = already_called.add
+    remove_call = already_called.remove
 
     @functools.wraps(to_wrap)
     def wrapped(*args: Any) -> Any:
-        thread_local_args = (threading.get_ident(), *map(id, args)))
+        thread_local_args = (threading.get_ident(), *map(id, args))
         if thread_local_args in already_called:
             raise Web3ValueError(f"Recursively called {to_wrap} with {args!r}")
-        already_called.add(thread_local_args)
+        add_call(thread_local_args)
         try:
-            wrapped_val = to_wrap(*args)
+            return to_wrap(*args)
         finally:
-            already_called.remove(thread_local_args)
-        return wrapped_val
+            remove_call(thread_local_args)
 
     return wrapped
 
