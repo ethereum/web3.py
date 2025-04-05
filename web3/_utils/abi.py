@@ -109,7 +109,7 @@ if TYPE_CHECKING:
     )
 
 
-__TValue = TypeVar("__TValue")
+_TValue = TypeVar("_TValue")
 
 
 def fallback_func_abi_exists(contract_abi: ABI) -> Sequence[ABIFallback]:
@@ -879,11 +879,11 @@ def abi_decoded_namedtuple_factory(
     return ABIDecodedNamedTuple
 
 
-class IteratorProxy(Iterable[__TValue]):
+class IteratorProxy(Iterable[_TValue]):
     """Wraps an iterator to return when iterated upon."""
-    def __init__(self, iterator: Iterator[__TValue]):
+    def __init__(self, iterator: Iterator[_TValue]):
         self.__wrapped = iterator
-    def __iter__(self) -> Iterator[__TValue]:
+    def __iter__(self) -> Iterator[_TValue]:
         try:
             return self.__dict__.pop("_IteratorProxy__wrapped")
         except KeyError as e:
