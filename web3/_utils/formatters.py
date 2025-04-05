@@ -39,10 +39,9 @@ from web3.types import (
     RPCResponse,
 )
 
-TReturn = TypeVar("TReturn")
-TValue = TypeVar("TValue")
-TMapping = TypeVar("TMapping", bound=Mapping)
-TIterable = TypeVar("TIterable", bound=Iterable)
+__TReturn = TypeVar("__TReturn")
+__TKey = TypeVar("__TKey")
+__TValue = TypeVar("__TValue")
 
 
 def hex_to_integer(value: HexStr) -> int:
@@ -53,8 +52,8 @@ integer_to_hex = hex
 
 
 def apply_formatters_to_args(
-    *formatters: Callable[[TValue], TReturn]
-) -> Callable[..., TReturn]:
+    *formatters: Callable[[__TValue], __TReturn]
+) -> Callable[..., __TReturn]:
     return compose(
         *(
             apply_formatter_at_index(formatter, index)
@@ -64,27 +63,32 @@ def apply_formatters_to_args(
 
 
 @overload
-def map_collection(func: Callable[[TValue], TReturn], mapping: TMapping[Any, TValue]) -> TMapping[Any, TReturn]:
+def map_collection(func: Callable[[__TValue], __TReturn], mapping: Mapping[__TKey, __TValue]) -> Mapping[__TKey, __TReturn]:
     """
     Apply `func` to each value of a mapping.
     If `collection` is not a collection, return it unmodified.
     """
 @overload
-def map_collection(func: Callable[..., TReturn], collection: str) -> str:
+def map_collection(func: Callable[..., __TReturn], collection: str) -> str:
     """
     Return `collection` unmodified, since it is not a collection.
     """
 @overload
-def map_collection(func: Callable[[TValue], TReturn], iterable: TIterable[TValue]) -> TIterable[TReturn]:
+def map_collection(func: Callable[[__TValue], __TReturn], iterable: Iterator[__TValue]) -> Iterator[__TReturn]:
+    """
+    Apply `func` to each element of an iteratol.
+    """
+@overload
+def map_collection(func: Callable[[__TValue], __TReturn], iterable: Iterable[__TValue]) -> Iterable[__TReturn]:
     """
     Apply `func` to each element of an iterable.
     """
 @overload
-def map_collection(func: Callable[[TValue], TReturn], collection: TValue) -> TValue:
+def map_collection(func: Callable[[__TValue], __TReturn], collection: __TValue) -> __TValue:
     """
     Return `collection` unmodified, since it is not a collection.
     """
-def map_collection(func: Callable[..., TReturn], collection: Any) -> Any:
+def map_collection(func: Callable[..., __TReturn], collection: Any) -> Any:
     """
     Apply `func` to each element of a collection, or value of a mapping.
     If `collection` is not a collection, return it unmodified.
@@ -100,29 +104,29 @@ def map_collection(func: Callable[..., TReturn], collection: Any) -> Any:
 
 
 @reject_recursive_repeats
-def recursive_map(func: Callable[..., TReturn], data: Any) -> TReturn:
+def recursive_map(func: Callable[..., __TReturn], data: Any) -> __TReturn:
     """
     Apply func to data, and any collection items inside data (using map_collection).
     Define func so that it only applies to the type of value that you
     want it to apply to.
     """
 
-    def recurse(item: Any) -> TReturn:
+    def recurse(item: Any) -> __TReturn:
         return recursive_map(func, item)
 
     items_mapped = map_collection(recurse, data)
     return func(items_mapped)
 
 
-def static_return(value: TValue) -> Callable[..., TValue]:
-    def inner(*args: Any, **kwargs: Any) -> TValue:
+def static_return(value: __TValue) -> Callable[..., __TValue]:
+    def inner(*args: Any, **kwargs: Any) -> __TValue:
         return value
 
     return inner
 
 
-def static_result(value: TValue) -> Callable[..., Dict[str, TValue]]:
-    def inner(*args: Any, **kwargs: Any) -> Dict[str, TValue]:
+def static_result(value: __TValue) -> Callable[..., Dict[str, __TValue]]:
+    def inner(*args: Any, **kwargs: Any) -> Dict[str, __TValue]:
         return {"result": value}
 
     return inner
