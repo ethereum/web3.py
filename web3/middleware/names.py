@@ -24,6 +24,7 @@ from web3.types import (
 )
 
 from .._utils.abi import (
+    IteratorProxy,
     abi_data_tree,
     async_data_tree_map,
     strip_abi_type,
@@ -62,7 +63,7 @@ async def async_format_all_ens_names_to_address(
     formatted_data_tree = await async_data_tree_map(
         async_web3,
         async_abi_ens_resolver,
-        abi_typed_params,
+        IteratorProxy(abi_typed_params),
     )
     formatted_params = recursive_map(strip_abi_type, formatted_data_tree)
     return formatted_params
