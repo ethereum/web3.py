@@ -6,6 +6,7 @@ from typing import (
     Callable,
     Dict,
     Iterable,
+    Iterator,
     Mapping,
     Optional,
     Tuple,
@@ -72,6 +73,11 @@ def map_collection(func: Callable[[__TValue], __TReturn], mapping: Mapping[__TKe
 def map_collection(func: Callable[..., __TReturn], collection: str) -> str:
     """
     Return `collection` unmodified, since it is not a collection.
+    """
+@overload
+def map_collection(func: Callable[[__TValue], __TReturn], iterable: "map[__TValue]") -> "map[__TReturn]":
+    """
+    Apply `func` to each element of a map.
     """
 @overload
 def map_collection(func: Callable[[__TValue], __TReturn], iterable: Iterator[__TValue]) -> Iterator[__TReturn]:
