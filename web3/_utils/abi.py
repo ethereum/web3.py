@@ -14,6 +14,7 @@ from typing import (
     Coroutine,
     Dict,
     Iterable,
+    Iterator,
     List,
     Mapping,
     Optional,
