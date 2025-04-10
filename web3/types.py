@@ -16,6 +16,9 @@ from typing import (
     Union,
 )
 
+from eth_account.datastructures import (
+    SignedSetCodeAuthorization,
+)
 from eth_typing import (
     Address,
     BlockNumber,
@@ -125,11 +128,24 @@ TxData = TypedDict(
     total=False,
 )
 
+
+class SetCodeAuthorizationParams(TypedDict):
+    chainId: int
+    address: Union[Address, ChecksumAddress, str]
+    nonce: Nonce
+    r: int
+    s: int
+    v: int
+
+
 # syntax b/c "from" keyword not allowed w/ class construction
 TxParams = TypedDict(
     "TxParams",
     {
         "accessList": AccessList,
+        "authorizationList": Sequence[
+            Union[SetCodeAuthorizationParams, SignedSetCodeAuthorization]
+        ],
         "blobVersionedHashes": Sequence[Union[str, HexStr, bytes, HexBytes]],
         "chainId": int,
         "data": Union[bytes, HexStr],
@@ -186,6 +202,7 @@ class BlockData(TypedDict, total=False):
     parentBeaconBlockRoot: HexBytes
     blobGasUsed: int
     excessBlobGas: int
+    requestsHash: HexBytes
 
     # ExtraDataToPOAMiddleware replaces extraData w/ proofOfAuthorityData
     proofOfAuthorityData: HexBytes
