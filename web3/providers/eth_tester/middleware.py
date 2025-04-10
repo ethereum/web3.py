@@ -78,6 +78,7 @@ TRANSACTION_REQUEST_KEY_MAPPING = {
     "maxFeePerGas": "max_fee_per_gas",
     "maxPriorityFeePerGas": "max_priority_fee_per_gas",
     "accessList": "access_list",
+    "authorizationList": "authorization_list",
     "chainId": "chain_id",
 }
 transaction_request_remapper = apply_key_map(TRANSACTION_REQUEST_KEY_MAPPING)
@@ -93,6 +94,9 @@ TRANSACTION_REQUEST_FORMATTERS = {
     "maxPriorityFeePerGas": to_integer_if_hex,
     "accessList": apply_list_to_array_formatter(
         apply_key_map({"storageKeys": "storage_keys"})
+    ),
+    "authorizationList": apply_list_to_array_formatter(
+        apply_key_map({"chainId": "chain_id", "yParity": "y_parity"})
     ),
 }
 transaction_request_formatter = apply_formatters_to_dict(TRANSACTION_REQUEST_FORMATTERS)
@@ -125,6 +129,7 @@ filter_request_transformer = compose(
 
 TRANSACTION_RESULT_KEY_MAPPING = {
     "access_list": "accessList",
+    "authorization_list": "authorizationList",
     "blob_versioned_hashes": "blobVersionedHashes",
     "block_hash": "blockHash",
     "block_number": "blockNumber",
@@ -144,6 +149,9 @@ TRANSACTION_RESULT_FORMATTERS = {
     "to": apply_formatter_if(partial(operator.eq, ""), static_return(None)),
     "access_list": apply_list_to_array_formatter(
         apply_key_map({"storage_keys": "storageKeys"}),
+    ),
+    "authorization_list": apply_list_to_array_formatter(
+        apply_key_map({"chain_id": "chainId", "y_parity": "yParity"}),
     ),
 }
 transaction_result_formatter = apply_formatters_to_dict(TRANSACTION_RESULT_FORMATTERS)

@@ -16,6 +16,9 @@ from typing import (
     Union,
 )
 
+from eth_account.datastructures import (
+    SignedSetCodeAuthorization,
+)
 from eth_typing import (
     Address,
     BlockNumber,
@@ -94,11 +97,21 @@ class RPCError(TypedDict):
     data: NotRequired[str]
 
 
+class SetCodeAuthorizationData(TypedDict):
+    chainId: int
+    address: ChecksumAddress
+    nonce: Nonce
+    yParity: int
+    r: HexBytes
+    s: HexBytes
+
+
 # syntax b/c "from" keyword not allowed w/ class construction
 TxData = TypedDict(
     "TxData",
     {
         "accessList": AccessList,
+        "authorizationList": Sequence[SetCodeAuthorizationData],
         "blobVersionedHashes": Sequence[HexBytes],
         "blockHash": HexBytes,
         "blockNumber": BlockNumber,
@@ -125,11 +138,24 @@ TxData = TypedDict(
     total=False,
 )
 
+
+class SetCodeAuthorizationParams(TypedDict):
+    chainId: int
+    address: Union[Address, ChecksumAddress, str]
+    nonce: Nonce
+    y_parity: int
+    r: int
+    s: int
+
+
 # syntax b/c "from" keyword not allowed w/ class construction
 TxParams = TypedDict(
     "TxParams",
     {
         "accessList": AccessList,
+        "authorizationList": Sequence[
+            Union[SetCodeAuthorizationParams, SignedSetCodeAuthorization]
+        ],
         "blobVersionedHashes": Sequence[Union[str, HexStr, bytes, HexBytes]],
         "chainId": int,
         "data": Union[bytes, HexStr],
