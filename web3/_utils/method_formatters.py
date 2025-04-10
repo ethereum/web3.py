@@ -47,6 +47,9 @@ from eth_utils.toolz import (
 from hexbytes import (
     HexBytes,
 )
+from pydantic import (
+    BaseModel,
+)
 
 from web3._utils.abi import (
     is_length,
@@ -161,6 +164,9 @@ def type_aware_apply_formatters_to_dict(
     """
     Preserve ``AttributeDict`` types if original ``value`` was an ``AttributeDict``.
     """
+    if isinstance(value, BaseModel):
+        value = value.model_dump(by_alias=True)
+
     formatted_dict: Dict[str, Any] = apply_formatters_to_dict(formatters, dict(value))
     return (
         AttributeDict.recursive(formatted_dict)
@@ -177,6 +183,9 @@ def type_aware_apply_formatters_to_dict_keys_and_values(
     """
     Preserve ``AttributeDict`` types if original ``value`` was an ``AttributeDict``.
     """
+    if isinstance(dict_like_object, BaseModel):
+        dict_like_object = dict_like_object.model_dump(by_alias=True)
+
     formatted_dict = {
         key_formatters(k): value_formatters(v) for k, v in dict_like_object.items()
     }
@@ -466,6 +475,22 @@ filter_result_formatter = apply_one_of_formatters(
     )
 )
 
+AUTH_LIST_FORMATTER = apply_formatter_if(
+    is_not_null,
+    apply_formatter_to_array(
+        type_aware_apply_formatters_to_dict(
+            {
+                "chainId": to_hex_if_integer,
+                "address": to_checksum_address,
+                "nonce": to_hex_if_integer,
+                "yParity": to_hex_if_integer,
+                "r": to_hex_if_integer,
+                "s": to_hex_if_integer,
+            }
+        ),
+    ),
+)
+
 TRANSACTION_REQUEST_FORMATTER = {
     "from": to_checksum_address,
     "to": apply_formatter_if(is_address, to_checksum_address),
@@ -477,12 +502,13 @@ TRANSACTION_REQUEST_FORMATTER = {
     "maxFeePerGas": to_hex_if_integer,
     "maxPriorityFeePerGas": to_hex_if_integer,
     "chainId": to_hex_if_integer,
+    "authorizationList": AUTH_LIST_FORMATTER,
 }
 transaction_request_formatter = type_aware_apply_formatters_to_dict(
     TRANSACTION_REQUEST_FORMATTER
 )
 
-ACCESS_LIST_REQUEST_FORMATTER = type_aware_apply_formatters_to_dict(
+ETH_CALL_TX_FORMATTER = type_aware_apply_formatters_to_dict(
     {
         "accessList": apply_formatter_if(
             is_not_null,
@@ -494,10 +520,11 @@ ACCESS_LIST_REQUEST_FORMATTER = type_aware_apply_formatters_to_dict(
                 )
             ),
         ),
+        "authorizationList": AUTH_LIST_FORMATTER,
     }
 )
 transaction_param_formatter = compose(
-    ACCESS_LIST_REQUEST_FORMATTER,
+    ETH_CALL_TX_FORMATTER,
     remove_key_if("to", lambda txn: txn["to"] in {"", b"", None}),
     remove_key_if("gasPrice", lambda txn: txn["gasPrice"] in {"", b"", None}),
 )
@@ -1057,7 +1084,7 @@ def combine_formatters(
 
 
 def get_request_formatters(
-    method_name: Union[RPCEndpoint, Callable[..., RPCEndpoint]]
+    method_name: Union[RPCEndpoint, Callable[..., RPCEndpoint]],
 ) -> Dict[str, Callable[..., Any]]:
     request_formatter_maps = (
         ABI_REQUEST_FORMATTERS,
@@ -1083,7 +1110,7 @@ def raise_block_not_found(params: Tuple[BlockIdentifier, bool]) -> NoReturn:
 
 
 def raise_block_not_found_for_uncle_at_index(
-    params: Tuple[BlockIdentifier, Union[HexStr, int]]
+    params: Tuple[BlockIdentifier, Union[HexStr, int]],
 ) -> NoReturn:
     try:
         block_identifier = params[0]
@@ -1109,7 +1136,7 @@ def raise_transaction_not_found(params: Tuple[_Hash32]) -> NoReturn:
 
 
 def raise_transaction_not_found_with_index(
-    params: Tuple[BlockIdentifier, int]
+    params: Tuple[BlockIdentifier, int],
 ) -> NoReturn:
     try:
         block_identifier = params[0]
@@ -1213,7 +1240,7 @@ def get_result_formatters(
 
 
 def get_error_formatters(
-    method_name: Union[RPCEndpoint, Callable[..., RPCEndpoint]]
+    method_name: Union[RPCEndpoint, Callable[..., RPCEndpoint]],
 ) -> Callable[..., Any]:
     #  Note error formatters work on the full response dict
     error_formatter_maps = (ERROR_FORMATTERS,)
@@ -1223,7 +1250,7 @@ def get_error_formatters(
 
 
 def get_null_result_formatters(
-    method_name: Union[RPCEndpoint, Callable[..., RPCEndpoint]]
+    method_name: Union[RPCEndpoint, Callable[..., RPCEndpoint]],
 ) -> Callable[..., Any]:
     formatters = combine_formatters((NULL_RESULT_FORMATTERS,), method_name)
 
