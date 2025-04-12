@@ -116,14 +116,14 @@ class BaseProvider:
 class JSONBaseProvider(BaseProvider):
     logger = logging.getLogger("web3.providers.base.JSONBaseProvider")
 
-    _is_batching: bool = False
-    _batch_request_func_cache: Tuple[
-        Tuple[Middleware, ...], Callable[..., Union[List[RPCResponse], RPCResponse]]
-    ] = (None, None)
-
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         self.request_counter = itertools.count()
+
+        self._is_batching: bool = False
+        self._batch_request_func_cache: Tuple[
+            Tuple[Middleware, ...], Callable[..., Union[List[RPCResponse], RPCResponse]]
+        ] = (None, None)
 
     def encode_rpc_request(self, method: RPCEndpoint, params: Any) -> bytes:
         rpc_dict = {
