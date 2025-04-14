@@ -233,7 +233,9 @@ Persistent Connection Base Class
 .. py:class:: web3.providers.persistent.PersistentConnectionProvider(\
         request_timeout: float = 50.0, \
         subscription_response_queue_size: int = 500, \
-        silence_listener_task_exceptions: bool = False\
+        silence_listener_task_exceptions: bool = False \
+        max_connection_retries: int = 5, \
+        request_information_cache_size: int = 500, \
     )
 
     This is a base provider class, inherited by the following providers:
@@ -261,6 +263,13 @@ Persistent Connection Base Class
     * ``silence_listener_task_exceptions`` is a boolean that determines whether
       exceptions raised by the listener task are silenced. Defaults to ``False``,
       raising any exceptions that occur in the listener task.
+
+    * ``max_connection_retries`` is the maximum number of times to retry a connection
+      to the provider when initializing the provider. Defaults to ``5``.
+
+    * ``request_information_cache_size`` specifies the size of the transient cache for
+      storing request details, enabling the provider to process responses based on the
+      original request information. Defaults to ``500``.
 
 AsyncIPCProvider
 ++++++++++++++++
