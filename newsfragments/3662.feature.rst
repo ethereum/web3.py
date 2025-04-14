@@ -1,0 +1,1 @@
+Allow setting the ``request_information_cache_size`` for ``PersistentConnectionProvider`` implementations.

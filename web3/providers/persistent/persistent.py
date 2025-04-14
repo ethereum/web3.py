@@ -87,12 +87,14 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
         subscription_response_queue_size: int = 500,
         silence_listener_task_exceptions: bool = False,
         max_connection_retries: int = 5,
+        request_information_cache_size: int = 500,
         **kwargs: Any,
     ) -> None:
         super().__init__(**kwargs)
         self._request_processor = RequestProcessor(
             self,
             subscription_response_queue_size=subscription_response_queue_size,
+            request_information_cache_size=request_information_cache_size,
         )
         self._message_listener_task: Optional["asyncio.Task[None]"] = None
         self._batch_request_counter: Optional[int] = None
