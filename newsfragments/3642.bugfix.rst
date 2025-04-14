@@ -1,0 +1,1 @@
+Checks that ``PersistentConnectionProvider`` response cache value is a dict before attempting to access it like one.
