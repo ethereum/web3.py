@@ -199,3 +199,18 @@ def test_ipc_provider_write_messages_end_with_new_line_delimiter(jsonrpc_ipc_pip
 
     request_data = b'{"jsonrpc": "2.0", "method": "method", "params": [], "id": 0}'
     provider._socket.sock.sendall.assert_called_with(request_data + b"\n")
+
+
+def test_ipc_provider_is_batching_when_make_batch_request(jsonrpc_ipc_pipe_path):
+    def assert_is_batching_and_return_response(*_args, **_kwargs) -> bytes:
+        assert provider._is_batching
+        return [{"id": 0, "jsonrpc": "2.0", "result": {}}]
+
+    provider = IPCProvider(pathlib.Path(jsonrpc_ipc_pipe_path), timeout=3)
+    provider._make_request = Mock()
+    provider._make_request.side_effect = assert_is_batching_and_return_response
+
+    assert not provider._is_batching
+
+    provider.make_batch_request([("eth_blockNumber", [])])
+    assert not provider._is_batching
