@@ -240,13 +240,18 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
     async def make_batch_request(
         self, requests: List[Tuple[RPCEndpoint, Any]]
     ) -> List[RPCResponse]:
-        request_data = self.encode_batch_rpc_request(requests)
-        await self.socket_send(request_data)
+        self._is_batching = True
+        try:
+            request_data = self.encode_batch_rpc_request(requests)
+            await self.socket_send(request_data)
 
-        response = cast(
-            List[RPCResponse], await self._get_response_for_request_id(BATCH_REQUEST_ID)
-        )
-        return response
+            response = cast(
+                List[RPCResponse],
+                await self._get_response_for_request_id(BATCH_REQUEST_ID),
+            )
+            return response
+        finally:
+            self._is_batching = False
 
     # -- abstract methods -- #
 

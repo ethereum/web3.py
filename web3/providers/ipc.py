@@ -204,10 +204,14 @@ class IPCProvider(JSONBaseProvider):
     def make_batch_request(
         self, requests: List[Tuple[RPCEndpoint, Any]]
     ) -> List[RPCResponse]:
-        self.logger.debug(f"Making batch request IPC. Path: {self.ipc_path}")
-        request_data = self.encode_batch_rpc_request(requests)
-        response = cast(List[RPCResponse], self._make_request(request_data))
-        return sort_batch_response_by_response_ids(response)
+        self._is_batching = True
+        try:
+            self.logger.debug(f"Making batch request IPC. Path: {self.ipc_path}")
+            request_data = self.encode_batch_rpc_request(requests)
+            response = cast(List[RPCResponse], self._make_request(request_data))
+            return sort_batch_response_by_response_ids(response)
+        finally:
+            self._is_batching = False
 
 
 # A valid JSON RPC response can only end in } or ] http://www.jsonrpc.org/specification
