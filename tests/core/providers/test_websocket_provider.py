@@ -537,7 +537,7 @@ async def test_req_info_cache_size_can_be_set_and_warns_when_full(caplog):
 
 
 @pytest.mark.asyncio
-async def test_raise_stray_errors_from_cache_handles_list_response():
+async def test_raise_stray_errors_from_cache_handles_list_response_without_error():
     provider = WebSocketProvider("ws://mocked")
     _mock_ws(provider)
 
@@ -546,7 +546,23 @@ async def test_raise_stray_errors_from_cache_handles_list_response():
     ]
     provider._request_processor._request_response_cache._data["bad_key"] = bad_response
 
-    try:
-        provider._raise_stray_errors_from_cache()
-    except Exception as e:
-        pytest.fail(f"{e}")
+    # assert no errors raised
+    provider._raise_stray_errors_from_cache()
+
+
+@pytest.mark.asyncio
+async def test_websocket_provider_is_batching_when_make_batch_request():
+    def assert_is_batching_and_return_response(*_args, **_kwargs) -> bytes:
+        assert provider._is_batching
+        return b'{"jsonrpc":"2.0","id":1,"result":["0x1"]}'
+
+    provider = WebSocketProvider("ws://mocked")
+    _mock_ws(provider)
+    provider._get_response_for_request_id = AsyncMock()
+    provider._get_response_for_request_id.side_effect = (
+        assert_is_batching_and_return_response
+    )
+
+    assert not provider._is_batching
+    await provider.make_batch_request([("eth_blockNumber", [])])
+    assert not provider._is_batching

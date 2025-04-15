@@ -130,3 +130,21 @@ async def test_async_http_empty_batch_response(mock_async_post):
 
     # assert that even though there was an error, we have reset the batching state
     assert not async_w3.provider._is_batching
+
+
+@patch(
+    "web3._utils.http_session_manager.HTTPSessionManager.async_make_post_request",
+    new_callable=AsyncMock,
+)
+@pytest.mark.asyncio
+async def test_async_provider_is_batching_when_make_batch_request(mock_post):
+    def assert_is_batching_and_return_response(*_args, **_kwargs) -> bytes:
+        assert provider._is_batching
+        return b'{"jsonrpc":"2.0","id":1,"result":["0x1"]}'
+
+    mock_post.side_effect = assert_is_batching_and_return_response
+    provider = AsyncHTTPProvider()
+
+    assert not provider._is_batching
+    await provider.make_batch_request([("eth_blockNumber", [])])
+    assert not provider._is_batching
