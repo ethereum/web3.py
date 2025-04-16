@@ -75,12 +75,6 @@ class AsyncBaseProvider:
         Tuple[Middleware, ...], Callable[..., Coroutine[Any, Any, RPCResponse]]
     ] = (None, None)
 
-    _is_batching: bool = False
-    _batch_request_func_cache: Tuple[
-        Tuple[Middleware, ...],
-        Callable[..., Coroutine[Any, Any, Union[List[RPCResponse], RPCResponse]]],
-    ] = (None, None)
-
     is_async = True
     has_persistent_connection = False
     global_ccip_read_enabled: bool = True
@@ -100,6 +94,11 @@ class AsyncBaseProvider:
         self.cache_allowed_requests = cache_allowed_requests
         self.cacheable_requests = cacheable_requests or CACHEABLE_REQUESTS
         self.request_cache_validation_threshold = request_cache_validation_threshold
+        self._is_batching: bool = False
+        self._batch_request_func_cache: Tuple[
+            Tuple[Middleware, ...],
+            Callable[..., Coroutine[Any, Any, Union[List[RPCResponse], RPCResponse]]],
+        ] = (None, None)
 
     async def request_func(
         self, async_w3: "AsyncWeb3", middleware_onion: MiddlewareOnion
