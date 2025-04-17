@@ -112,6 +112,26 @@ def test_updating_greeting_emits_event(w3, foo_contract):
     assert event.args._bar == "testing contracts is easy"
 
 
+def test_functions_abi_state_mutability(w3, foo_contract):
+    assert foo_contract.functions.setBar.state_mutability == "nonpayable"
+    assert foo_contract.functions.bar.state_mutability == "view"
+
+
+def test_functions_abi_type(w3, foo_contract):
+    assert foo_contract.functions.setBar.type == "function"
+    assert foo_contract.functions.bar.type == "function"
+
+
+def test_functions_abi_inputs(w3, foo_contract):
+    assert foo_contract.functions.setBar.inputs == [{"name": "_bar", "type": "string"}]
+    assert foo_contract.functions.bar.inputs == []
+
+
+def test_functions_abi_outputs(w3, foo_contract):
+    assert foo_contract.functions.setBar.outputs == []
+    assert foo_contract.functions.bar.outputs == [{"name": "", "type": "string"}]
+
+
 @pytest.fixture
 def async_eth_tester():
     return AsyncEthereumTesterProvider().ethereum_tester

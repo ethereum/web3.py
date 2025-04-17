@@ -596,6 +596,22 @@ class BaseContractFunction:
         self.argument_names = tuple([input.get("name", None) for input in event_inputs])
         self.argument_types = tuple([input["type"] for input in event_inputs])
 
+    @property
+    def state_mutability(self) -> str:
+        return self.abi["stateMutability"]
+
+    @property
+    def type(self) -> str:
+        return "function"
+
+    @property
+    def inputs(self) -> Optional[List]:
+        return self.abi.get("inputs")
+
+    @property
+    def outputs(self) -> Optional[List]:
+        return self.abi.get("outputs")
+
     @combomethod
     def _get_abi(cls) -> ABIFunction:
         if not cls.args and not cls.kwargs:
