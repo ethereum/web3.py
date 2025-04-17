@@ -10,6 +10,8 @@ from web3.providers.eth_tester import (
     EthereumTesterProvider,
 )
 
+MAX_UINT_256 = 2**256 - 1
+
 
 def _w3_fixture_logic(request):
     use_filter_middleware = request.param
