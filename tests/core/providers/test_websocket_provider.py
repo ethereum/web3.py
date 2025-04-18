@@ -534,3 +534,19 @@ async def test_req_info_cache_size_can_be_set_and_warns_when_full(caplog):
             "behavior. Consider increasing the ``request_information_cache_size`` "
             "on the provider."
         ) in caplog.text
+
+
+@pytest.mark.asyncio
+async def test_raise_stray_errors_from_cache_handles_list_response():
+    provider = WebSocketProvider("ws://mocked")
+    _mock_ws(provider)
+
+    bad_response = [
+        {"id": None, "jsonrpc": "2.0", "error": {"code": 21, "message": "oops"}}
+    ]
+    provider._request_processor._request_response_cache._data["bad_key"] = bad_response
+
+    try:
+        provider._raise_stray_errors_from_cache()
+    except Exception as e:
+        pytest.fail(f"{e}")

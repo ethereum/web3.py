@@ -146,13 +146,17 @@ class LegacyWebSocketProvider(JSONBaseProvider):
     def make_batch_request(
         self, requests: List[Tuple[RPCEndpoint, Any]]
     ) -> List[RPCResponse]:
-        self.logger.debug(
-            f"Making batch request WebSocket. URI: {self.endpoint_uri}, "
-            f"Methods: {requests}"
-        )
-        request_data = self.encode_batch_rpc_request(requests)
-        future = asyncio.run_coroutine_threadsafe(
-            self.coro_make_request(request_data), LegacyWebSocketProvider._loop
-        )
-        response = cast(List[RPCResponse], future.result())
-        return sort_batch_response_by_response_ids(response)
+        self._is_batching = True
+        try:
+            self.logger.debug(
+                f"Making batch request WebSocket. URI: {self.endpoint_uri}, "
+                f"Methods: {requests}"
+            )
+            request_data = self.encode_batch_rpc_request(requests)
+            future = asyncio.run_coroutine_threadsafe(
+                self.coro_make_request(request_data), LegacyWebSocketProvider._loop
+            )
+            response = cast(List[RPCResponse], future.result())
+            return sort_batch_response_by_response_ids(response)
+        finally:
+            self._is_batching = False

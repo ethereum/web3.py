@@ -169,19 +169,23 @@ class AsyncHTTPProvider(AsyncJSONBaseProvider):
     async def make_batch_request(
         self, batch_requests: List[Tuple[RPCEndpoint, Any]]
     ) -> Union[List[RPCResponse], RPCResponse]:
-        self.logger.debug(f"Making batch request HTTP - uri: `{self.endpoint_uri}`")
-        request_data = self.encode_batch_rpc_request(batch_requests)
-        raw_response = await self._request_session_manager.async_make_post_request(
-            self.endpoint_uri, request_data, **self.get_request_kwargs()
-        )
-        self.logger.debug("Received batch response HTTP.")
-        response = self.decode_rpc_response(raw_response)
-        if not isinstance(response, list):
-            # RPC errors return only one response with the error object
-            return response
-        return sort_batch_response_by_response_ids(
-            cast(List[RPCResponse], sort_batch_response_by_response_ids(response))
-        )
+        self._is_batching = True
+        try:
+            self.logger.debug(f"Making batch request HTTP - uri: `{self.endpoint_uri}`")
+            request_data = self.encode_batch_rpc_request(batch_requests)
+            raw_response = await self._request_session_manager.async_make_post_request(
+                self.endpoint_uri, request_data, **self.get_request_kwargs()
+            )
+            self.logger.debug("Received batch response HTTP.")
+            response = self.decode_rpc_response(raw_response)
+            if not isinstance(response, list):
+                # RPC errors return only one response with the error object
+                return response
+            return sort_batch_response_by_response_ids(
+                cast(List[RPCResponse], sort_batch_response_by_response_ids(response))
+            )
+        finally:
+            self._is_batching = False
 
     async def disconnect(self) -> None:
         cache = self._request_session_manager.session_cache
