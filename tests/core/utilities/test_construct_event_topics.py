@@ -155,7 +155,7 @@ def test_construct_event_topics_non_strict(w3_non_strict_abi, arguments, expecte
         ),
         (
             {"arg0": [""]},
-            EncodingTypeError,
+            ValueOutOfBounds,
         ),
     ),
 )
