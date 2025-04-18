@@ -1187,7 +1187,7 @@ FILTER_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
 
 @to_tuple
 def apply_module_to_formatters(
-    formatters: Tuple[Callable[..., TReturn]],
+    formatters: Iterable[Callable[..., TReturn]],
     module: "Module",
     method_name: Union[RPCEndpoint, Callable[..., RPCEndpoint]],
 ) -> Iterable[Callable[..., TReturn]]:
