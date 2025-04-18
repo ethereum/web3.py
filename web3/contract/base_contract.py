@@ -22,6 +22,8 @@ from eth_abi.exceptions import (
 )
 from eth_typing import (
     ABI,
+    ABIComponent,
+    ABIComponentIndexed,
     ABIElement,
     ABIEvent,
     ABIFunction,
@@ -218,7 +220,7 @@ class BaseContractEvent:
         return self.abi.get("anonymous")
 
     @property
-    def inputs(self) -> Optional[List]:
+    def inputs(self) -> Optional[Sequence["ABIComponentIndexed"]]:
         return self.abi.get("inputs")
 
     @combomethod
@@ -617,11 +619,11 @@ class BaseContractFunction:
         return "function"
 
     @property
-    def inputs(self) -> Optional[List]:
+    def inputs(self) -> Optional[Sequence["ABIComponent"]]:
         return self.abi.get("inputs")
 
     @property
-    def outputs(self) -> Optional[List]:
+    def outputs(self) -> Optional[Sequence["ABIComponent"]]:
         return self.abi.get("outputs")
 
     @combomethod
