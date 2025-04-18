@@ -7,6 +7,7 @@ from typing import (
     Collection,
     Dict,
     Iterable,
+    Iterator,
     NoReturn,
     Tuple,
     TypeVar,
@@ -35,7 +36,6 @@ from eth_utils.curried import (
     is_string,
     to_checksum_address,
     to_list,
-    to_tuple,
 )
 from eth_utils.toolz import (
     complement,
@@ -101,6 +101,7 @@ from web3.types import (
     BlockIdentifier,
     Formatters,
     RPCEndpoint,
+    RPCResponse,
     SimulateV1Payload,
     StateOverrideParams,
     TReturn,
@@ -114,6 +115,11 @@ if TYPE_CHECKING:
     from web3.module import Module  # noqa: F401
 
 TValue = TypeVar("TValue")
+
+CachedFormatters = Dict[
+    Union[RPCEndpoint, Callable[..., RPCEndpoint]], 
+    Callable[[RPCResponse], Any],
+]
 
 
 def bytes_to_ascii(value: bytes) -> str:
@@ -600,19 +606,15 @@ simulate_v1_request_formatter: Callable[
 )
 
 block_result_formatters_copy = BLOCK_RESULT_FORMATTERS.copy()
-block_result_formatters_copy.update(
-    {
-        "calls": apply_list_to_array_formatter(
-            type_aware_apply_formatters_to_dict(
-                {
-                    "returnData": HexBytes,
-                    "logs": apply_list_to_array_formatter(log_entry_formatter),
-                    "gasUsed": to_integer_if_hex,
-                    "status": to_integer_if_hex,
-                }
-            )
-        )
-    }
+block_result_formatters_copy["calls"] = apply_list_to_array_formatter(
+    type_aware_apply_formatters_to_dict(
+        {
+            "returnData": HexBytes,
+            "logs": apply_list_to_array_formatter(log_entry_formatter),
+            "gasUsed": to_integer_if_hex,
+            "status": to_integer_if_hex,
+        }
+    )
 )
 simulate_v1_result_formatter = apply_formatter_if(
     is_not_null,
@@ -1046,11 +1048,10 @@ ERROR_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
 }
 
 
-@to_tuple
 def combine_formatters(
     formatter_maps: Collection[Dict[RPCEndpoint, Callable[..., TReturn]]],
     method_name: RPCEndpoint,
-) -> Iterable[Callable[..., TReturn]]:
+) -> Iterator[Callable[..., TReturn]]:
     for formatter_map in formatter_maps:
         if method_name in formatter_map:
             yield formatter_map[method_name]
@@ -1069,7 +1070,7 @@ def get_request_formatters(
         PYTHONIC_REQUEST_FORMATTERS,
     )
     formatters = combine_formatters(request_formatter_maps, method_name)
-    return compose(*formatters)
+    return compose(tuple, *formatters)
 
 
 def raise_block_not_found(params: Tuple[BlockIdentifier, bool]) -> NoReturn:
@@ -1188,12 +1189,11 @@ FILTER_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
 }
 
 
-@to_tuple
 def apply_module_to_formatters(
-    formatters: Tuple[Callable[..., TReturn]],
+    formatters: Iterable[Callable[..., TReturn]],
     module: "Module",
     method_name: Union[RPCEndpoint, Callable[..., RPCEndpoint]],
-) -> Iterable[Callable[..., TReturn]]:
+) -> Iterator[Callable[..., TReturn]]:
     for f in formatters:
         yield partial(f, module, method_name)
 
@@ -1201,7 +1201,7 @@ def apply_module_to_formatters(
 def get_result_formatters(
     method_name: Union[RPCEndpoint, Callable[..., RPCEndpoint]],
     module: "Module",
-) -> Dict[str, Callable[..., Any]]:
+) -> Callable[[RPCResponse], Any]:
     formatters = combine_formatters((PYTHONIC_RESULT_FORMATTERS,), method_name)
     formatters_requiring_module = combine_formatters(
         (FILTER_RESULT_FORMATTERS,), method_name
@@ -1212,19 +1212,28 @@ def get_result_formatters(
     return compose(*partial_formatters, *formatters)
 
 
+_error_formatters: CachedFormatters = {}
+
 def get_error_formatters(
     method_name: Union[RPCEndpoint, Callable[..., RPCEndpoint]]
-) -> Callable[..., Any]:
+) -> Callable[[RPCResponse], Any]:
     #  Note error formatters work on the full response dict
-    error_formatter_maps = (ERROR_FORMATTERS,)
-    formatters = combine_formatters(error_formatter_maps, method_name)
+    formatters = _error_formatters.get(method_name)
+    if formatters is None:
+        formatters = _error_formatters[method_name] = compose(
+            *combine_formatters((ERROR_FORMATTERS,), method_name)
+        )
+    return formatters
 
-    return compose(*formatters)
 
+_null_result_formatters: CachedFormatters = {}
 
 def get_null_result_formatters(
     method_name: Union[RPCEndpoint, Callable[..., RPCEndpoint]]
-) -> Callable[..., Any]:
-    formatters = combine_formatters((NULL_RESULT_FORMATTERS,), method_name)
-
-    return compose(*formatters)
+) -> Callable[[RPCResponse], Any]:
+    formatters = _null_result_formatters.get(method_name)
+    if formatters is None:
+        formatters = _null_result_formatters[method_name] = compose(
+            *combine_formatters((NULL_RESULT_FORMATTERS,), method_name)
+        )
+    return formatters
