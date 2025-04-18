@@ -116,6 +116,11 @@ if TYPE_CHECKING:
 
 TValue = TypeVar("TValue")
 
+CachedFormatters = Dict[
+    Union[RPCEndpoint, Callable[..., RPCEndpoint]], 
+    Callable[[RPCResponse], Any],
+]
+
 
 def bytes_to_ascii(value: bytes) -> str:
     return codecs.decode(value, "ascii")
@@ -1209,19 +1214,28 @@ def get_result_formatters(
     return compose(*partial_formatters, *formatters)
 
 
+_error_formatters: CachedFormatters = {}
+
 def get_error_formatters(
     method_name: Union[RPCEndpoint, Callable[..., RPCEndpoint]]
 ) -> Callable[[RPCResponse], Any]:
     #  Note error formatters work on the full response dict
-    error_formatter_maps = (ERROR_FORMATTERS,)
-    formatters = combine_formatters(error_formatter_maps, method_name)
+    formatters = _error_formatters.get(method_name)
+    if formatters is None:
+        formatters = _error_formatters[method_name] = compose(
+            *combine_formatters((ERROR_FORMATTERS,), method_name)
+        )
+    return formatters
 
-    return compose(*formatters)
 
+_null_result_formatters: CachedFormatters = {}
 
 def get_null_result_formatters(
     method_name: Union[RPCEndpoint, Callable[..., RPCEndpoint]]
 ) -> Callable[[RPCResponse], Any]:
-    formatters = combine_formatters((NULL_RESULT_FORMATTERS,), method_name)
-
-    return compose(*formatters)
+    formatters = _null_result_formatters.get(method_name)
+    if formatters is None:
+        formatters = _null_result_formatters[method_name] = compose(
+            *combine_formatters((NULL_RESULT_FORMATTERS,), method_name)
+        )
+    return formatters
