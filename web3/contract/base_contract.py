@@ -209,6 +209,18 @@ class BaseContractEvent:
             self._topic = encode_hex(keccak(text=self.signature))
         return self._topic
 
+    @property
+    def type(self) -> str:
+        return "event"
+
+    @property
+    def anonymous(self) -> Optional[bool]:
+        return self.abi.get("anonymous")
+
+    @property
+    def inputs(self) -> Optional[List]:
+        return self.abi.get("inputs")
+
     @combomethod
     def _get_event_abi(cls) -> ABIEvent:
         if cls.abi:

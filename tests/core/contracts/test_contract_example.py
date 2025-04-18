@@ -132,6 +132,14 @@ def test_functions_abi_outputs(w3, foo_contract):
     assert foo_contract.functions.bar.outputs == [{"name": "", "type": "string"}]
 
 
+def test_events_abi(w3, foo_contract):
+    assert foo_contract.events.barred.type == "event"
+    assert foo_contract.events.barred.anonymous is False
+    assert foo_contract.events.barred.inputs == [
+        {"indexed": False, "name": "_bar", "type": "string"}
+    ]
+
+
 @pytest.fixture
 def async_eth_tester():
     return AsyncEthereumTesterProvider().ethereum_tester
