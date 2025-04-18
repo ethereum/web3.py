@@ -9,6 +9,7 @@ from hypothesis import (
 import pytest_asyncio
 
 from tests.core.filtering.utils import (
+    MAX_UINT_256,
     _async_emitter_fixture_logic,
     _async_w3_fixture_logic,
     _emitter_fixture_logic,
@@ -39,14 +40,16 @@ def dynamic_values(draw):
 
 @st.composite
 def fixed_values(draw):
-    non_matching_1 = draw(st.integers(min_value=0))
-    non_matching_2 = draw(st.integers(min_value=0))
-    non_matching_3 = draw(st.integers(min_value=0))
-    non_matching_4 = draw(st.integers(min_value=0))
+    non_matching_1 = draw(st.integers(min_value=0, max_value=MAX_UINT_256))
+    non_matching_2 = draw(st.integers(min_value=0, max_value=MAX_UINT_256))
+    non_matching_3 = draw(st.integers(min_value=0, max_value=MAX_UINT_256))
+    non_matching_4 = draw(st.integers(min_value=0, max_value=MAX_UINT_256))
     exclusions = (non_matching_1, non_matching_2, non_matching_3, non_matching_4)
     matching_values = draw(
         st.lists(
-            elements=st.integers(min_value=0).filter(lambda x: x not in exclusions),
+            elements=st.integers(min_value=0, max_value=MAX_UINT_256).filter(
+                lambda x: x not in exclusions
+            ),
             min_size=4,
             max_size=4,
         )
