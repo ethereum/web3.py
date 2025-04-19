@@ -215,8 +215,8 @@ def apply_abi_formatters_to_dict(
     fields = list(abi_dict.keys() & data.keys())
     formatted_values = map_abi_data(
         normalizers,
-        [abi_dict[field] for field in fields],
-        [data[field] for field in fields],
+        (abi_dict[field] for field in fields),
+        (data[field] for field in fields),
     )
     formatted_dict = data.copy()
     formatted_dict.update(zip(fields, formatted_values))
