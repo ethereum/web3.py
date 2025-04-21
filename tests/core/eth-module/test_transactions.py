@@ -2,6 +2,9 @@ import pytest
 import collections
 import itertools
 
+from eth_account import (
+    Account,
+)
 from eth_utils import (
     to_checksum_address,
     to_int,
@@ -9,7 +12,15 @@ from eth_utils import (
 from hexbytes import (
     HexBytes,
 )
+import pytest_asyncio
 
+from tests.core.contracts.utils import (
+    async_deploy,
+    deploy,
+)
+from web3._utils.contract_sources.contract_data.math_contract import (
+    MATH_CONTRACT_DATA,
+)
 from web3._utils.ens import (
     ens_addresses,
 )
@@ -27,6 +38,12 @@ from web3.exceptions import (
 )
 
 RECEIPT_TIMEOUT = 0.2
+
+
+@pytest.fixture
+def math_contract(w3):
+    factory = w3.eth.contract(**MATH_CONTRACT_DATA)
+    return deploy(w3, factory)
 
 
 def _tx_indexing_response_iterator():
@@ -371,7 +388,84 @@ def test_eth_send_raw_blob_transaction(w3):
     )
 
 
+def test_send_set_code_transaction(w3, math_contract):
+    pkey = w3.provider.ethereum_tester.backend.account_keys[0]
+    acct = Account.from_key(pkey)
+
+    nonce = w3.eth.get_transaction_count(acct.address)
+    chain_id = w3.eth.chain_id
+
+    auth = {
+        "chainId": chain_id,
+        "address": math_contract.address,
+        "nonce": nonce + 1,
+    }
+    signed_auth = acct.sign_authorization(auth)
+
+    # get current math counter and increase it only in the delegation by n
+    math_counter = math_contract.functions.counter().call()
+    built_tx = math_contract.functions.incrementCounter(
+        math_counter + 1337
+    ).build_transaction({})
+    txn = {
+        "chainId": chain_id,
+        "to": acct.address,
+        "value": 0,
+        "gas": 200_000,
+        "nonce": nonce,
+        "maxPriorityFeePerGas": 10**9,
+        "maxFeePerGas": 10**9,
+        "data": built_tx["data"],
+        "authorizationList": [signed_auth],
+    }
+
+    tx_hash = w3.eth.send_transaction(txn)
+    get_tx = w3.eth.get_transaction(tx_hash)
+    w3.eth.wait_for_transaction_receipt(tx_hash, timeout=10)
+
+    code = w3.eth.get_code(acct.address)
+
+    assert code.to_0x_hex().lower() == f"0xef0100{math_contract.address[2:].lower()}"
+    delegated = w3.eth.contract(address=acct.address, abi=math_contract.abi)
+    # assert the math counter is increased by 1337 only in delegated acct
+    assert math_contract.functions.counter().call() == math_counter
+    delegated_call = delegated.functions.counter().call()
+    assert delegated_call == math_counter + 1337
+
+    assert len(get_tx["authorizationList"]) == 1
+    get_auth = get_tx["authorizationList"][0]
+    assert get_auth["chainId"] == chain_id
+    assert get_auth["address"].lower() == math_contract.address.lower()
+    assert get_auth["nonce"] == nonce + 1
+    assert isinstance(get_auth["yParity"], int)
+    assert isinstance(get_auth["r"], HexBytes)
+    assert isinstance(get_auth["s"], HexBytes)
+
+    # reset code
+    reset_auth = {
+        "chainId": chain_id,
+        "address": "0x" + ("00" * 20),
+        "nonce": nonce + 3,
+    }
+    signed_reset_auth = acct.sign_authorization(reset_auth)
+    new_txn = dict(txn)
+    new_txn["authorizationList"] = [signed_reset_auth]
+    new_txn["nonce"] = nonce + 2
+
+    reset_tx_hash = w3.eth.send_transaction(new_txn)
+    w3.eth.wait_for_transaction_receipt(reset_tx_hash, timeout=10)
+
+    reset_code = w3.eth.get_code(acct.address)
+    assert reset_code == HexBytes("0x")
+
+
 # --- async --- #
+
+
+@pytest_asyncio.fixture
+async def async_math_contract(async_w3):
+    factory = async_w3.eth.contract(**MATH_CONTRACT_DATA)
+    return await async_deploy(async_w3, factory)
 
 
 @pytest.mark.asyncio
@@ -420,3 +514,77 @@ async def test_async_send_raw_blob_transaction(async_w3):
     assert transaction["blobVersionedHashes"][0] == HexBytes(
         "0x0127c38bcad458d932e828b580b9ad97310be01407dfa0ed88118735980a3e9a"
     )
+
+
+@pytest.mark.asyncio
+async def test_async_send_set_code_transaction(async_w3, async_math_contract):
+    pkey = async_w3.provider.ethereum_tester.backend.account_keys[0]
+    acct = Account.from_key(pkey)
+
+    nonce = await async_w3.eth.get_transaction_count(acct.address)
+    chain_id = await async_w3.eth.chain_id
+
+    auth = {
+        "chainId": chain_id,
+        "address": async_math_contract.address,
+        "nonce": nonce + 1,
+    }
+    signed_auth = acct.sign_authorization(auth)
+
+    # get current math counter and increase it only in the delegation by n
+    math_counter = await async_math_contract.functions.counter().call()
+    built_tx = await async_math_contract.functions.incrementCounter(
+        math_counter + 1337
+    ).build_transaction({})
+    txn = {
+        "chainId": chain_id,
+        "to": acct.address,
+        "value": 0,
+        "gas": 200_000,
+        "nonce": nonce,
+        "maxPriorityFeePerGas": 10**9,
+        "maxFeePerGas": 10**9,
+        "data": built_tx["data"],
+        "authorizationList": [signed_auth],
+    }
+
+    tx_hash = await async_w3.eth.send_transaction(txn)
+    get_tx = await async_w3.eth.get_transaction(tx_hash)
+    await async_w3.eth.wait_for_transaction_receipt(tx_hash, timeout=10)
+
+    code = await async_w3.eth.get_code(acct.address)
+
+    assert (
+        code.to_0x_hex().lower() == f"0xef0100{async_math_contract.address[2:].lower()}"
+    )
+    delegated = async_w3.eth.contract(address=acct.address, abi=async_math_contract.abi)
+    # assert the math counter is increased by 1337 only in delegated acct
+    assert await async_math_contract.functions.counter().call() == math_counter
+    delegated_call = await delegated.functions.counter().call()
+    assert delegated_call == math_counter + 1337
+
+    assert len(get_tx["authorizationList"]) == 1
+    get_auth = get_tx["authorizationList"][0]
+    assert get_auth["chainId"] == chain_id
+    assert get_auth["address"].lower() == async_math_contract.address.lower()
+    assert get_auth["nonce"] == nonce + 1
+    assert isinstance(get_auth["yParity"], int)
+    assert isinstance(get_auth["r"], HexBytes)
+    assert isinstance(get_auth["s"], HexBytes)
+
+    # reset code
+    reset_auth = {
+        "chainId": chain_id,
+        "address": "0x" + ("00" * 20),
+        "nonce": nonce + 3,
+    }
+    signed_reset_auth = acct.sign_authorization(reset_auth)
+    new_txn = dict(txn)
+    new_txn["authorizationList"] = [signed_reset_auth]
+    new_txn["nonce"] = nonce + 2
+
+    reset_tx_hash = await async_w3.eth.send_transaction(new_txn)
+    await async_w3.eth.wait_for_transaction_receipt(reset_tx_hash, timeout=10)
+
+    reset_code = await async_w3.eth.get_code(acct.address)
+    assert reset_code == HexBytes("0x")

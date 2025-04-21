@@ -721,6 +721,74 @@ class AsyncEthModuleTest:
         async_w3.middleware_onion.remove("signing")
 
     @pytest.mark.asyncio
+    async def test_async_sign_authorization_and_send_raw_set_code_transaction(
+        self,
+        async_w3: "AsyncWeb3",
+        keyfile_account_pkey: HexStr,
+        async_math_contract: "AsyncContract",
+    ) -> None:
+        keyfile_account = async_w3.eth.account.from_key(keyfile_account_pkey)
+
+        chain_id = await async_w3.eth.chain_id
+        nonce = await async_w3.eth.get_transaction_count(keyfile_account.address)
+
+        auth = {
+            "chainId": chain_id,
+            "address": async_math_contract.address,
+            "nonce": nonce + 1,
+        }
+        signed_auth = keyfile_account.sign_authorization(auth)
+
+        txn: TxParams = {
+            "chainId": chain_id,
+            "to": keyfile_account.address,
+            "value": Wei(0),
+            "gas": 200_000,
+            "nonce": nonce,
+            "maxPriorityFeePerGas": Wei(10**9),
+            "maxFeePerGas": Wei(10**9),
+            "data": HexBytes("0x"),
+            "authorizationList": [signed_auth],
+        }
+
+        signed = keyfile_account.sign_transaction(txn)
+        tx_hash = await async_w3.eth.send_raw_transaction(signed.raw_transaction)
+        get_tx = await async_w3.eth.get_transaction(tx_hash)
+        await async_w3.eth.wait_for_transaction_receipt(tx_hash, timeout=10)
+
+        code = await async_w3.eth.get_code(keyfile_account.address)
+        assert code.to_0x_hex() == f"0xef0100{async_math_contract.address[2:].lower()}"
+
+        assert len(get_tx["authorizationList"]) == 1
+        get_auth = get_tx["authorizationList"][0]
+        assert get_auth["chainId"] == chain_id
+        assert get_auth["address"] == async_math_contract.address
+        assert get_auth["nonce"] == nonce + 1
+        assert isinstance(get_auth["yParity"], int)
+        assert isinstance(get_auth["r"], HexBytes)
+        assert isinstance(get_auth["s"], HexBytes)
+
+        # reset code
+        reset_auth = {
+            "chainId": chain_id,
+            "address": "0x" + ("00" * 20),
+            "nonce": nonce + 3,
+        }
+        signed_reset_auth = keyfile_account.sign_authorization(reset_auth)
+        new_txn = dict(txn)
+        new_txn["authorizationList"] = [signed_reset_auth]
+        new_txn["nonce"] = nonce + 2
+
+        signed_reset = keyfile_account.sign_transaction(new_txn)
+        reset_tx_hash = await async_w3.eth.send_raw_transaction(
+            signed_reset.raw_transaction
+        )
+        await async_w3.eth.wait_for_transaction_receipt(reset_tx_hash, timeout=10)
+
+        reset_code = await async_w3.eth.get_code(keyfile_account.address)
+        assert reset_code == HexBytes("0x")
+
+    @pytest.mark.asyncio
     async def test_GasPriceStrategyMiddleware(
         self,
         async_w3: "AsyncWeb3",
@@ -3777,6 +3845,68 @@ class EthModuleTest:
 
         # cleanup
         w3.middleware_onion.remove("signing")
+
+    def test_sign_authorization_and_send_raw_set_code_transaction(
+        self, w3: "Web3", keyfile_account_pkey: HexStr, math_contract: "Contract"
+    ) -> None:
+        keyfile_account = w3.eth.account.from_key(keyfile_account_pkey)
+
+        chain_id = w3.eth.chain_id
+        nonce = w3.eth.get_transaction_count(keyfile_account.address)
+
+        auth = {
+            "chainId": chain_id,
+            "address": math_contract.address,
+            "nonce": nonce + 1,
+        }
+        signed_auth = keyfile_account.sign_authorization(auth)
+
+        txn: TxParams = {
+            "chainId": chain_id,
+            "to": keyfile_account.address,
+            "value": Wei(0),
+            "gas": 200_000,
+            "nonce": nonce,
+            "maxPriorityFeePerGas": Wei(10**9),
+            "maxFeePerGas": Wei(10**9),
+            "data": HexBytes("0x"),
+            "authorizationList": [signed_auth],
+        }
+
+        signed = keyfile_account.sign_transaction(txn)
+        tx_hash = w3.eth.send_raw_transaction(signed.raw_transaction)
+        get_tx = w3.eth.get_transaction(tx_hash)
+        w3.eth.wait_for_transaction_receipt(tx_hash, timeout=10)
+
+        code = w3.eth.get_code(keyfile_account.address)
+        assert code.to_0x_hex() == f"0xef0100{math_contract.address[2:].lower()}"
+
+        assert len(get_tx["authorizationList"]) == 1
+        get_auth = get_tx["authorizationList"][0]
+        assert get_auth["chainId"] == chain_id
+        assert get_auth["address"] == math_contract.address
+        assert get_auth["nonce"] == nonce + 1
+        assert isinstance(get_auth["yParity"], int)
+        assert isinstance(get_auth["r"], HexBytes)
+        assert isinstance(get_auth["s"], HexBytes)
+
+        # reset code
+        reset_auth = {
+            "chainId": chain_id,
+            "address": "0x" + ("00" * 20),
+            "nonce": nonce + 3,
+        }
+        signed_reset_auth = keyfile_account.sign_authorization(reset_auth)
+        new_txn = dict(txn)
+        new_txn["authorizationList"] = [signed_reset_auth]
+        new_txn["nonce"] = nonce + 2
+
+        signed_reset = keyfile_account.sign_transaction(new_txn)
+        reset_tx_hash = w3.eth.send_raw_transaction(signed_reset.raw_transaction)
+        w3.eth.wait_for_transaction_receipt(reset_tx_hash, timeout=10)
+
+        reset_code = w3.eth.get_code(keyfile_account.address)
+        assert reset_code == HexBytes("0x")
 
     def test_eth_call(self, w3: "Web3", math_contract: "Contract") -> None:
         txn_params = math_contract._prepare_transaction(

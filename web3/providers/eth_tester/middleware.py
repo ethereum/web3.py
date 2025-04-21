@@ -96,7 +96,18 @@ TRANSACTION_REQUEST_FORMATTERS = {
         apply_key_map({"storageKeys": "storage_keys"})
     ),
     "authorizationList": apply_list_to_array_formatter(
-        apply_key_map({"chainId": "chain_id", "yParity": "y_parity"})
+        compose(
+            apply_formatters_to_dict(
+                {
+                    "chain_id": to_integer_if_hex,
+                    "nonce": to_integer_if_hex,
+                    "y_parity": to_integer_if_hex,
+                    "r": to_integer_if_hex,
+                    "s": to_integer_if_hex,
+                },
+            ),
+            apply_key_map({"chainId": "chain_id", "yParity": "y_parity"}),
+        )
     ),
 }
 transaction_request_formatter = apply_formatters_to_dict(TRANSACTION_REQUEST_FORMATTERS)
