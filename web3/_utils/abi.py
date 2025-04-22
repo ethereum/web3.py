@@ -73,7 +73,6 @@ from eth_utils import (
 )
 from eth_utils.toolz import (
     curry,
-    partial,
     pipe,
 )
 
@@ -115,21 +114,21 @@ def receive_func_abi_exists(contract_abi: ABI) -> Sequence[ABIReceive]:
     return filter_abi_by_type("receive", contract_abi)
 
 
-def get_indexed_event_inputs(event_abi: ABIEvent) -> Sequence[ABIComponentIndexed]:
+def get_indexed_event_inputs(event_abi: ABIEvent) -> List[ABIComponentIndexed]:
     return [arg for arg in event_abi["inputs"] if arg["indexed"] is True]
 
 
-def exclude_indexed_event_inputs(event_abi: ABIEvent) -> Sequence[ABIComponentIndexed]:
+def exclude_indexed_event_inputs(event_abi: ABIEvent) -> List[ABIComponentIndexed]:
     return [arg for arg in event_abi["inputs"] if arg["indexed"] is False]
 
 
-def filter_by_types(types: Collection[str], contract_abi: ABI) -> Sequence[ABIElement]:
+def filter_by_types(types: Collection[str], contract_abi: ABI) -> List[ABIElement]:
     return [abi_element for abi_element in contract_abi if abi_element["type"] in types]
 
 
 def filter_by_argument_name(
     argument_names: Collection[str], contract_abi: ABI
-) -> Sequence[ABIElement]:
+) -> List[ABIElement]:
     """
     Return a list of each ``ABIElement`` which contains arguments matching provided
     names.
@@ -186,7 +185,7 @@ def get_name_from_abi_element_identifier(
 
 def get_abi_element_signature(
     abi_element_identifier: ABIElementIdentifier,
-    abi_element_argument_types: Optional[Sequence[str]] = None,
+    abi_element_argument_types: Optional[Iterable[str]] = None,
 ) -> str:
     element_name = get_name_from_abi_element_identifier(abi_element_identifier)
     argument_types = ",".join(abi_element_argument_types or [])
@@ -585,9 +584,9 @@ def normalize_event_input_types(
 
 @curry
 def map_abi_data(
-    normalizers: Sequence[Callable[[TypeStr, Any], Tuple[TypeStr, Any]]],
-    types: Sequence[TypeStr],
-    data: Sequence[Any],
+    normalizers: Iterable[Callable[[TypeStr, Any], Tuple[TypeStr, Any]]],
+    types: Iterable[TypeStr],
+    data: Iterable[Any],
 ) -> Any:
     """
     Applies normalizers to your data, in the context of the relevant types.
@@ -611,17 +610,21 @@ def map_abi_data(
     2. Recursively mapping each of the normalizers to the data
     3. Stripping the types back out of the tree
     """
-    pipeline = itertools.chain(
-        [abi_data_tree(types)],
-        map(data_tree_map, normalizers),
-        [partial(recursive_map, strip_abi_type)],
+    return pipe(
+        data,
+        # 1. Decorating the data tree with types
+        abi_data_tree(types),
+        # 2. Recursively mapping each of the normalizers to the data
+        *map(data_tree_map, normalizers),
+        # 3. Stripping the types back out of the tree
+        strip_abi_types,
     )
-
-    return pipe(data, *pipeline)
 
 
 @curry
-def abi_data_tree(types: Sequence[TypeStr], data: Sequence[Any]) -> List[Any]:
+def abi_data_tree(
+    types: Iterable[TypeStr], data: Iterable[Any]
+) -> List["ABITypedData"]:
     """
     Decorate the data tree with pairs of (type, data). The pair tuple is actually an
     ABITypedData, but can be accessed as a tuple.
@@ -631,10 +634,7 @@ def abi_data_tree(types: Sequence[TypeStr], data: Sequence[Any]) -> List[Any]:
     >>> abi_data_tree(types=["bool[2]", "uint"], data=[[True, False], 0])
     [("bool[2]", [("bool", True), ("bool", False)]), ("uint256", 0)]
     """
-    return [
-        abi_sub_tree(data_type, data_value)
-        for data_type, data_value in zip(types, data)
-    ]
+    return list(map(abi_sub_tree, types, data))
 
 
 @curry
@@ -721,6 +721,10 @@ def strip_abi_type(elements: Any) -> Any:
         return elements.data
     else:
         return elements
+
+
+def strip_abi_types(elements: Any) -> Any:
+    return recursive_map(strip_abi_type, elements)
 
 
 def build_non_strict_registry() -> ABIRegistry:
