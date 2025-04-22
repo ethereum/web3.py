@@ -3,6 +3,8 @@ import threading
 from typing import (
     Any,
     Callable,
+    Set,
+    Tuple,
     TypeVar,
     cast,
 )
@@ -20,21 +22,22 @@ def reject_recursive_repeats(to_wrap: Callable[..., Any]) -> Callable[..., Any]:
     Prevent simple cycles by returning None when called recursively with same instance
     """
     # types ignored b/c dynamically set attribute
-    to_wrap.__already_called = {}  # type: ignore
+    already_called: Set[Tuple[int, ...]] = set()
+    to_wrap.__already_called = already_called  # type: ignore
+
+    add_call = already_called.add
+    remove_call = already_called.remove
 
     @functools.wraps(to_wrap)
     def wrapped(*args: Any) -> Any:
-        arg_instances = tuple(map(id, args))
-        thread_id = threading.get_ident()
-        thread_local_args = (thread_id,) + arg_instances
-        if thread_local_args in to_wrap.__already_called:  # type: ignore
+        thread_local_args = (threading.get_ident(), *map(id, args))
+        if thread_local_args in already_called:
             raise Web3ValueError(f"Recursively called {to_wrap} with {args!r}")
-        to_wrap.__already_called[thread_local_args] = True  # type: ignore
+        add_call(thread_local_args)
         try:
-            wrapped_val = to_wrap(*args)
+            return to_wrap(*args)
         finally:
-            del to_wrap.__already_called[thread_local_args]  # type: ignore
-        return wrapped_val
+            remove_call(thread_local_args)
 
     return wrapped
 
