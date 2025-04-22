@@ -1069,7 +1069,7 @@ def get_request_formatters(
         PYTHONIC_REQUEST_FORMATTERS,
     )
     formatters = combine_formatters(request_formatter_maps, method_name)
-    return compose(*formatters)
+    return compose(tuple, *formatters)
 
 
 def raise_block_not_found(params: Tuple[BlockIdentifier, bool]) -> NoReturn:
