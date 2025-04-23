@@ -38,12 +38,12 @@ def _geth_command_arguments(geth_ipc_path, base_geth_command_arguments):
     )
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def geth_command_arguments(geth_ipc_path, base_geth_command_arguments):
     return _geth_command_arguments(geth_ipc_path, base_geth_command_arguments)
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def geth_ipc_path(datadir):
     geth_ipc_dir_path = tempfile.mkdtemp()
     _geth_ipc_path = os.path.join(geth_ipc_dir_path, "geth.ipc")
@@ -53,7 +53,7 @@ def geth_ipc_path(datadir):
         os.remove(_geth_ipc_path)
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def auto_w3(geth_process, geth_ipc_path):
     wait_for_socket(geth_ipc_path)
 
@@ -64,7 +64,7 @@ def auto_w3(geth_process, geth_ipc_path):
     return w3
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def w3(geth_process, geth_ipc_path):
     wait_for_socket(geth_ipc_path)
     return Web3(Web3.IPCProvider(geth_ipc_path, timeout=10))
@@ -117,7 +117,7 @@ class TestGoEthereumAdminModuleTest(GoEthereumAdminModuleTest):
 # -- async -- #
 
 
-@pytest_asyncio.fixture(scope="module")
+@pytest_asyncio.fixture
 async def async_w3(geth_process, geth_ipc_path):
     await wait_for_async_socket(geth_ipc_path)
     async with AsyncWeb3(AsyncIPCProvider(geth_ipc_path, request_timeout=10)) as _aw3:

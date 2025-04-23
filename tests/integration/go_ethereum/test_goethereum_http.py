@@ -38,12 +38,12 @@ from .utils import (
 )
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def rpc_port():
     return get_open_port()
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def endpoint_uri(rpc_port):
     return f"http://localhost:{rpc_port}"
 
@@ -63,20 +63,20 @@ def _geth_command_arguments(rpc_port, base_geth_command_arguments, geth_version)
         raise AssertionError("Unsupported Geth version")
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def geth_command_arguments(rpc_port, base_geth_command_arguments, get_geth_version):
     return _geth_command_arguments(
         rpc_port, base_geth_command_arguments, get_geth_version
     )
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def w3(geth_process, endpoint_uri):
     wait_for_http(endpoint_uri)
     return Web3(Web3.HTTPProvider(endpoint_uri, request_kwargs={"timeout": 10}))
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def auto_w3(geth_process, endpoint_uri):
     wait_for_http(endpoint_uri)
 
@@ -138,7 +138,7 @@ class TestGoEthereumTxPoolModuleTest(GoEthereumTxPoolModuleTest):
 # -- async -- #
 
 
-@pytest_asyncio.fixture(scope="module")
+@pytest_asyncio.fixture
 async def async_w3(geth_process, endpoint_uri):
     await wait_for_aiohttp(endpoint_uri)
     _w3 = AsyncWeb3(
