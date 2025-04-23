@@ -739,6 +739,11 @@ class AsyncEthModuleTest:
         }
         signed_auth = keyfile_account.sign_authorization(auth)
 
+        # get current math counter and increase it only in the delegation by n
+        math_counter = await async_math_contract.functions.counter().call()
+        built_tx = await async_math_contract.functions.incrementCounter(
+            math_counter + 1337
+        ).build_transaction({})
         txn: TxParams = {
             "chainId": chain_id,
             "to": keyfile_account.address,
@@ -747,7 +752,7 @@ class AsyncEthModuleTest:
             "nonce": nonce,
             "maxPriorityFeePerGas": Wei(10**9),
             "maxFeePerGas": Wei(10**9),
-            "data": HexBytes("0x"),
+            "data": built_tx["data"],
             "authorizationList": [signed_auth],
         }
 
@@ -758,6 +763,13 @@ class AsyncEthModuleTest:
 
         code = await async_w3.eth.get_code(keyfile_account.address)
         assert code.to_0x_hex() == f"0xef0100{async_math_contract.address[2:].lower()}"
+        delegated = async_w3.eth.contract(
+            address=keyfile_account.address, abi=async_math_contract.abi
+        )
+        # assert the math counter is increased by 1337 only in delegated acct
+        assert await async_math_contract.functions.counter().call() == math_counter
+        delegated_call = await delegated.functions.counter().call()
+        assert delegated_call == math_counter + 1337
 
         assert len(get_tx["authorizationList"]) == 1
         get_auth = get_tx["authorizationList"][0]
@@ -3861,6 +3873,11 @@ class EthModuleTest:
         }
         signed_auth = keyfile_account.sign_authorization(auth)
 
+        # get current math counter and increase it only in the delegation by n
+        math_counter = math_contract.functions.counter().call()
+        data = math_contract.functions.incrementCounter(
+            math_counter + 1337
+        ).build_transaction({})["data"]
         txn: TxParams = {
             "chainId": chain_id,
             "to": keyfile_account.address,
@@ -3869,7 +3886,7 @@ class EthModuleTest:
             "nonce": nonce,
             "maxPriorityFeePerGas": Wei(10**9),
             "maxFeePerGas": Wei(10**9),
-            "data": HexBytes("0x"),
+            "data": data,
             "authorizationList": [signed_auth],
         }
 
@@ -3880,6 +3897,12 @@ class EthModuleTest:
 
         code = w3.eth.get_code(keyfile_account.address)
         assert code.to_0x_hex() == f"0xef0100{math_contract.address[2:].lower()}"
+        delegated = w3.eth.contract(
+            address=keyfile_account.address, abi=math_contract.abi
+        )
+        # assert the math counter is increased by 1337 only in delegated acct
+        assert math_contract.functions.counter().call() == math_counter
+        assert delegated.functions.counter().call() == math_counter + 1337
 
         assert len(get_tx["authorizationList"]) == 1
         get_auth = get_tx["authorizationList"][0]
@@ -3890,7 +3913,7 @@ class EthModuleTest:
         assert isinstance(get_auth["r"], HexBytes)
         assert isinstance(get_auth["s"], HexBytes)
 
-        # reset code
+        # reset storage value and code
         reset_auth = {
             "chainId": chain_id,
             "address": "0x" + ("00" * 20),
