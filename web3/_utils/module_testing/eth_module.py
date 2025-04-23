@@ -454,9 +454,6 @@ class AsyncEthModuleTest:
         assert result["tx"]["nonce"] == txn_params["nonce"]
 
     @pytest.mark.asyncio
-    @pytest.mark.xfail(
-        reason="async name_to_address_middleware has not been implemented yet"
-    )
     async def test_async_eth_sign_transaction_ens_names(
         self, async_w3: "AsyncWeb3", async_keyfile_account_address: ChecksumAddress
     ) -> None:
@@ -2086,7 +2083,6 @@ class AsyncEthModuleTest:
         assert bytes(slot_4[:4]) == b"four"
 
     @pytest.mark.asyncio
-    @pytest.mark.xfail
     async def test_async_eth_get_storage_at_ens_name(
         self, async_w3: "AsyncWeb3", async_storage_contract: "AsyncContract"
     ) -> None:
@@ -2238,9 +2234,6 @@ class AsyncEthModuleTest:
         assert new_signature != signature
 
     @pytest.mark.asyncio
-    @pytest.mark.xfail(
-        reason="Async middleware to convert ENS names to addresses is missing"
-    )
     async def test_async_eth_sign_ens_names(
         self,
         async_w3: "AsyncWeb3",
