@@ -164,6 +164,9 @@ def type_aware_apply_formatters_to_dict(
     """
     Preserve ``AttributeDict`` types if original ``value`` was an ``AttributeDict``.
     """
+    # TODO: In v8, Use eth-utils 5.3.0 as lower pin where ``apply_formatters_to_dict``
+    #  already handles the CamelModel case, rather than generalizing to all BaseModel
+    #  instances.
     if isinstance(value, BaseModel):
         value = value.model_dump(by_alias=True)
 
