@@ -1,0 +1,1 @@
+Run each integration test in isolation and parallelize, instead of running them all within a single `geth` (for example) process. This prevents muddied test contexts.

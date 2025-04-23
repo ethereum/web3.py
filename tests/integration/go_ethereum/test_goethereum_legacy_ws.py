@@ -22,12 +22,12 @@ from .common import (
 )
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def ws_port():
     return get_open_port()
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def endpoint_uri(ws_port):
     return f"ws://localhost:{ws_port}"
 
@@ -55,7 +55,7 @@ def _geth_command_arguments(ws_port, base_geth_command_arguments, geth_version):
         raise AssertionError("Unsupported Geth version")
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def geth_command_arguments(
     geth_binary, get_geth_version, datadir, ws_port, base_geth_command_arguments
 ):
@@ -64,7 +64,7 @@ def geth_command_arguments(
     )
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def w3(geth_process, endpoint_uri):
     event_loop = asyncio.new_event_loop()
     event_loop.run_until_complete(wait_for_ws(endpoint_uri))
