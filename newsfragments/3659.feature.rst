@@ -1,0 +1,1 @@
+Support for Prague network upgrade, mainly ``requests_hash`` and ``authorization_list`` formatters. Add support for serializing ``SignedSetCodeTransaction`` (`eth-account` pydantic model) directly added to transaction dicts.
