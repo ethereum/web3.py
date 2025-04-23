@@ -8,7 +8,7 @@ extras_require = {
     "tester": [
         # Note: ethereum-maintained libraries in this list should be added to the
         # `install_pre_releases.py` script.
-        "eth-tester[py-evm]>=0.12.0b1,<0.13.0b1",
+        "eth-tester[py-evm]>=0.13.0b1,<0.14.0b1",
         "py-geth>=5.1.0",
     ],
     "dev": [
