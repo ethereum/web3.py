@@ -57,6 +57,9 @@ class SubscriptionManager:
         self._provider = cast("PersistentConnectionProvider", w3.provider)
         self._subscription_container = SubscriptionContainer()
 
+        # turn on if order of subscription processing is not important
+        self.task_based = False
+
         # share the subscription container with the request processor so it can separate
         # subscriptions into different queues based on ``sub._handler`` presence
         self._provider._request_processor._subscription_container = (
@@ -281,14 +284,17 @@ class SubscriptionManager:
                     sub_id
                 )
                 if sub:
-                    await sub._handler(
-                        EthSubscriptionContext(
-                            self._w3,
-                            sub,
-                            formatted_sub_response["result"],
-                            **sub._handler_context,
-                        )
+                    sub_context = EthSubscriptionContext(
+                        self._w3,
+                        sub,
+                        formatted_sub_response["result"],
+                        **sub._handler_context,
                     )
+                    if self.task_based:
+                        asyncio.create_task(sub._handler(sub_context))
+                    else:
+                        await sub._handler(sub_context)
+
             except SubscriptionProcessingFinished:
                 if not run_forever:
                     self.logger.info(

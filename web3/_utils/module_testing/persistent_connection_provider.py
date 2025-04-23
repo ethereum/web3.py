@@ -3,6 +3,7 @@ import asyncio
 from dataclasses import (
     dataclass,
 )
+import time
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -37,6 +38,9 @@ from web3.datastructures import (
 )
 from web3.middleware import (
     ExtraDataToPOAMiddleware,
+)
+from web3.providers.persistent.request_processor import (
+    TaskReliantQueue,
 )
 from web3.types import (
     BlockData,
@@ -914,3 +918,59 @@ class PersistentConnectionProviderTest:
 
         # cleanup
         await clean_up_task(run_forever_task)
+
+    @pytest.mark.asyncio
+    async def test_high_throughput_subscription_task_based(
+        self, async_w3: AsyncWeb3
+    ) -> None:
+        async_w3.provider._request_processor._handler_subscription_queue = (
+            TaskReliantQueue(maxsize=5_000)
+        )
+        sub_manager = async_w3.subscription_manager
+        sub_manager.task_based = True  # turn on task-based processing
+
+        class Counter:
+            val: int = 0
+
+        counter = Counter()
+
+        async def high_throughput_handler(
+            handler_context: Any,
+        ) -> None:
+            handler_context.counter.val += 1
+            if handler_context.counter.val == 5_000:
+                await handler_context.subscription.unsubscribe()
+            # if we awaited all 5_000 messages, we would sleep at least 5 seconds
+            await asyncio.sleep(5 // 5_000)
+
+        # build a meaningless subscription since we are fabricating the messages
+        sub_id = await async_w3.eth.subscribe(
+            "syncing",
+            handler=high_throughput_handler,
+            handler_context={"counter": counter},
+        )
+        async_w3.provider._request_processor.cache_request_information(
+            request_id=sub_id,
+            method=RPCEndpoint("eth_subscribe"),
+            params=[],
+            response_formatters=((), (), ()),  # type: ignore
+        )
+
+        # put 5_000 messages in the queue
+        for _ in range(5_000):
+            async_w3.provider._request_processor._handler_subscription_queue.put_nowait(
+                {
+                    "jsonrpc": "2.0",
+                    "method": "eth_subscription",
+                    "params": {"subscription": HexBytes(sub_id), "result": False},
+                }
+            )
+
+        start = time.time()
+        await sub_manager.handle_subscriptions()
+        stop = time.time()
+
+        assert counter.val == 5_000
+
+        assert sub_manager.total_handler_calls == 5_000
+        assert stop - start < 3, "subscription handling took too long!"
