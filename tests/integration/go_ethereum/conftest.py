@@ -4,12 +4,13 @@ import os
 from pathlib import (
     Path,
 )
+import re
 import subprocess
+import time
 import zipfile
 
 from eth_utils import (
     is_dict,
-    to_text,
 )
 import pytest_asyncio
 
@@ -133,36 +134,51 @@ def genesis_file(datadir):
     return genesis_file_path
 
 
+def wait_for_port(proc, timeout=10):
+    start = time.time()
+    wait_time = start + timeout
+
+    while time.time() < wait_time:
+        line = proc.stderr.readline()
+        if not line:
+            continue
+
+        if match := re.compile(r"127\.0\.0\.1:(\d+)").search(line):
+            port = int(match.group(1))
+            if port not in {0, 80}:
+                # remove false positive matches
+                return port
+
+    raise TimeoutError(f"Did not find port in logs within {timeout} seconds")
+
+
 @pytest.fixture
-def geth_process(geth_binary, datadir, genesis_file, geth_command_arguments):
-    init_datadir_command = (
+def start_geth_process_and_yield_port(
+    geth_binary, datadir, genesis_file, geth_command_arguments
+):
+    init_cmd = (
         geth_binary,
         "--datadir",
         str(datadir),
         "init",
         str(genesis_file),
     )
-    subprocess.check_output(
-        init_datadir_command,
-        stdin=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-    )
+    subprocess.check_output(init_cmd, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
     proc = subprocess.Popen(
         geth_command_arguments,
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
+        text=True,
+        bufsize=1,
     )
-    try:
-        yield proc
-    finally:
-        kill_proc_gracefully(proc)
-        output, errors = proc.communicate()
-        print(
-            "Geth Process Exited:\n"
-            f"stdout:{to_text(output)}\n\n"
-            f"stderr:{to_text(errors)}\n\n"
-        )
+
+    port = wait_for_port(proc)
+    yield port
+
+    kill_proc_gracefully(proc)
+    output, errors = proc.communicate(timeout=5)
+    print("Geth Process Exited:\n" f"stdout: {output}\n\n" f"stderr: {errors}\n\n")
 
 
 @pytest.fixture

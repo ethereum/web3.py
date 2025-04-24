@@ -2,6 +2,9 @@ import asyncio
 import socket
 import time
 
+from websockets import (
+    WebSocketException,
+)
 from websockets.legacy.client import (
     connect,
 )
@@ -45,12 +48,24 @@ async def wait_for_ws(endpoint_uri, timeout=10):
     start = time.time()
     while time.time() < start + timeout:
         try:
-            async with connect(uri=endpoint_uri):
-                pass
-        except OSError:
-            await asyncio.sleep(0.01)
-        else:
-            break
+            async with connect(uri=endpoint_uri) as ws:
+                await ws.send(
+                    '{"jsonrpc":"2.0","method":"web3_clientVersion","params":[],"id":1}'
+                )
+                r = await ws.recv()
+                if isinstance(r, bytes):
+                    r = r.decode("utf-8")
+
+                if "geth" in r.lower():
+                    return
+        except (OSError, WebSocketException):
+            pass
+        except Exception:
+            raise
+        await asyncio.sleep(0.01)
+    raise TimeoutError(
+        f"Geth WebSocket did not respond on {endpoint_uri} within {timeout} seconds."
+    )
 
 
 async def _async_wait_for_block_fixture_logic(async_w3, block_number=1, timeout=None):
