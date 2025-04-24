@@ -5,9 +5,6 @@ from aiohttp import (
 )
 import pytest_asyncio
 
-from tests.utils import (
-    get_open_port,
-)
 from web3 import (
     AsyncWeb3,
     Web3,
@@ -32,29 +29,15 @@ from .common import (
     GoEthereumTxPoolModuleTest,
     GoEthereumWeb3ModuleTest,
 )
-from .utils import (
-    wait_for_aiohttp,
-    wait_for_http,
-)
 
 
-@pytest.fixture
-def rpc_port():
-    return get_open_port()
-
-
-@pytest.fixture
-def endpoint_uri(rpc_port):
-    return f"http://localhost:{rpc_port}"
-
-
-def _geth_command_arguments(rpc_port, base_geth_command_arguments, geth_version):
+def _geth_command_arguments(base_geth_command_arguments, geth_version):
     yield from base_geth_command_arguments
     if geth_version.major == 1:
         yield from (
             "--http",
             "--http.port",
-            rpc_port,
+            "0",
             "--http.api",
             "admin,debug,eth,net,web3,txpool",
             "--ipcdisable",
@@ -64,25 +47,27 @@ def _geth_command_arguments(rpc_port, base_geth_command_arguments, geth_version)
 
 
 @pytest.fixture
-def geth_command_arguments(rpc_port, base_geth_command_arguments, get_geth_version):
-    return _geth_command_arguments(
-        rpc_port, base_geth_command_arguments, get_geth_version
+def geth_command_arguments(base_geth_command_arguments, get_geth_version):
+    return _geth_command_arguments(base_geth_command_arguments, get_geth_version)
+
+
+@pytest.fixture
+def w3(start_geth_process_and_yield_port):
+    port = start_geth_process_and_yield_port
+    _w3 = Web3(
+        Web3.HTTPProvider(f"http://127.0.0.1:{port}", request_kwargs={"timeout": 10})
     )
+    return _w3
 
 
 @pytest.fixture
-def w3(geth_process, endpoint_uri):
-    wait_for_http(endpoint_uri)
-    return Web3(Web3.HTTPProvider(endpoint_uri, request_kwargs={"timeout": 10}))
-
-
-@pytest.fixture
-def auto_w3(geth_process, endpoint_uri):
-    wait_for_http(endpoint_uri)
-
+def auto_w3(start_geth_process_and_yield_port, monkeypatch):
     from web3.auto import (
         w3,
     )
+
+    port = start_geth_process_and_yield_port
+    monkeypatch.setenv("WEB3_PROVIDER_URI", f"http://127.0.0.1:{port}")
 
     return w3
 
@@ -116,13 +101,7 @@ class TestGoEthereumDebugModuleTest(GoEthereumDebugModuleTest):
 
 
 class TestGoEthereumEthModuleTest(GoEthereumEthModuleTest):
-    def test_auto_provider_batching(
-        self,
-        auto_w3: "Web3",
-        monkeypatch,
-        endpoint_uri,
-    ) -> None:
-        monkeypatch.setenv("WEB3_PROVIDER_URI", endpoint_uri)
+    def test_auto_provider_batching(self, auto_w3: "Web3") -> None:
         # test that batch_requests doesn't error out when using the auto provider
         auto_w3.batch_requests()
 
@@ -139,12 +118,15 @@ class TestGoEthereumTxPoolModuleTest(GoEthereumTxPoolModuleTest):
 
 
 @pytest_asyncio.fixture
-async def async_w3(geth_process, endpoint_uri):
-    await wait_for_aiohttp(endpoint_uri)
+async def async_w3(start_geth_process_and_yield_port):
+    port = start_geth_process_and_yield_port
     _w3 = AsyncWeb3(
-        AsyncHTTPProvider(endpoint_uri, request_kwargs={"timeout": ClientTimeout(10)})
+        AsyncHTTPProvider(
+            f"http://127.0.0.1:{port}", request_kwargs={"timeout": ClientTimeout(10)}
+        )
     )
-    return _w3
+    yield _w3
+    await _w3.provider.disconnect()
 
 
 class TestGoEthereumAsyncWeb3ModuleTest(GoEthereumAsyncWeb3ModuleTest):

@@ -19,14 +19,12 @@ from ..common import (
     GoEthereumAsyncNetModuleTest,
     GoEthereumAsyncWeb3ModuleTest,
 )
-from ..utils import (
-    wait_for_aiohttp,
-)
 
 
 @pytest_asyncio.fixture
-async def async_w3(geth_process, endpoint_uri):
-    await wait_for_aiohttp(endpoint_uri)
+async def async_w3(start_geth_process_and_yield_port):
+    port = start_geth_process_and_yield_port
+    endpoint_uri = f"ws://127.0.0.1:{port}"
     # async iterator pattern
     async for w3 in AsyncWeb3(WebSocketProvider(endpoint_uri, request_timeout=10)):
         return w3

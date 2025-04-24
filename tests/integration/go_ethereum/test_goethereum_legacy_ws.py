@@ -1,13 +1,8 @@
 import pytest
-import asyncio
 
 from tests.integration.common import (
     COINBASE,
     MiscWebSocketTest,
-)
-from tests.utils import (
-    get_open_port,
-    wait_for_ws,
 )
 from web3 import (
     Web3,
@@ -22,17 +17,7 @@ from .common import (
 )
 
 
-@pytest.fixture
-def ws_port():
-    return get_open_port()
-
-
-@pytest.fixture
-def endpoint_uri(ws_port):
-    return f"ws://localhost:{ws_port}"
-
-
-def _geth_command_arguments(ws_port, base_geth_command_arguments, geth_version):
+def _geth_command_arguments(base_geth_command_arguments, geth_version):
     yield from base_geth_command_arguments
     if geth_version.major == 1:
         yield from (
@@ -40,7 +25,7 @@ def _geth_command_arguments(ws_port, base_geth_command_arguments, geth_version):
             COINBASE[2:],
             "--ws",
             "--ws.port",
-            ws_port,
+            "0",
             "--ws.api",
             "admin,debug,eth,net,web3",
             "--ws.origins",
@@ -57,17 +42,15 @@ def _geth_command_arguments(ws_port, base_geth_command_arguments, geth_version):
 
 @pytest.fixture
 def geth_command_arguments(
-    geth_binary, get_geth_version, datadir, ws_port, base_geth_command_arguments
+    geth_binary, get_geth_version, datadir, base_geth_command_arguments
 ):
-    return _geth_command_arguments(
-        ws_port, base_geth_command_arguments, get_geth_version
-    )
+    return _geth_command_arguments(base_geth_command_arguments, get_geth_version)
 
 
 @pytest.fixture
-def w3(geth_process, endpoint_uri):
-    event_loop = asyncio.new_event_loop()
-    event_loop.run_until_complete(wait_for_ws(endpoint_uri))
+def w3(start_geth_process_and_yield_port):
+    port = start_geth_process_and_yield_port
+    endpoint_uri = f"ws://127.0.0.1:{port}"
     _w3 = Web3(Web3.LegacyWebSocketProvider(endpoint_uri, websocket_timeout=30))
     return _w3
 

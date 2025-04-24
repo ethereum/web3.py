@@ -3,22 +3,9 @@ import pytest
 from tests.integration.common import (
     COINBASE,
 )
-from tests.utils import (
-    get_open_port,
-)
 
 
-@pytest.fixture
-def ws_port():
-    return get_open_port()
-
-
-@pytest.fixture
-def endpoint_uri(ws_port):
-    return f"ws://localhost:{ws_port}"
-
-
-def _geth_command_arguments(ws_port, base_geth_command_arguments, geth_version):
+def _geth_command_arguments(base_geth_command_arguments, geth_version):
     yield from base_geth_command_arguments
     if geth_version.major == 1:
         yield from (
@@ -26,7 +13,7 @@ def _geth_command_arguments(ws_port, base_geth_command_arguments, geth_version):
             COINBASE[2:],
             "--ws",
             "--ws.port",
-            ws_port,
+            "0",
             "--ws.api",
             "admin,debug,eth,net,web3",
             "--ws.origins",
@@ -42,8 +29,6 @@ def _geth_command_arguments(ws_port, base_geth_command_arguments, geth_version):
 
 @pytest.fixture
 def geth_command_arguments(
-    geth_binary, get_geth_version, datadir, ws_port, base_geth_command_arguments
+    geth_binary, get_geth_version, datadir, base_geth_command_arguments
 ):
-    return _geth_command_arguments(
-        ws_port, base_geth_command_arguments, get_geth_version
-    )
+    return _geth_command_arguments(base_geth_command_arguments, get_geth_version)
