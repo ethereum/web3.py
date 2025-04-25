@@ -1053,9 +1053,7 @@ def combine_formatters(
             yield formatter_map[method_name]
 
 
-def get_request_formatters(
-    method_name: Union[RPCEndpoint, Callable[..., RPCEndpoint]]
-) -> Dict[str, Callable[..., Any]]:
+def get_request_formatters(method_name: RPCEndpoint) -> Callable[[RPCResponse], Any]]:
     request_formatter_maps = (
         ABI_REQUEST_FORMATTERS,
         # METHOD_NORMALIZERS needs to be after ABI_REQUEST_FORMATTERS
@@ -1196,7 +1194,7 @@ def apply_module_to_formatters(
 
 
 def get_result_formatters(
-    method_name: Union[RPCEndpoint, Callable[..., RPCEndpoint]],
+    method_name: RPCEndpoint,
     module: "Module",
 ) -> Callable[[RPCResponse], Any]:
     formatters = combine_formatters((PYTHONIC_RESULT_FORMATTERS,), method_name)
@@ -1209,9 +1207,7 @@ def get_result_formatters(
     return compose(*partial_formatters, *formatters)
 
 
-def get_error_formatters(
-    method_name: Union[RPCEndpoint, Callable[..., RPCEndpoint]]
-) -> Callable[[RPCResponse], Any]:
+def get_error_formatters(method_name: RPCEndpoint) -> Callable[[RPCResponse], Any]:
     #  Note error formatters work on the full response dict
     error_formatter_maps = (ERROR_FORMATTERS,)
     formatters = combine_formatters(error_formatter_maps, method_name)
@@ -1219,9 +1215,7 @@ def get_error_formatters(
     return compose(*formatters)
 
 
-def get_null_result_formatters(
-    method_name: Union[RPCEndpoint, Callable[..., RPCEndpoint]]
-) -> Callable[[RPCResponse], Any]:
+def get_null_result_formatters(method_name: RPCEndpoint) -> Callable[[RPCResponse], Any]:
     formatters = combine_formatters((NULL_RESULT_FORMATTERS,), method_name)
 
     return compose(*formatters)
