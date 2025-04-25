@@ -1053,7 +1053,7 @@ def combine_formatters(
             yield formatter_map[method_name]
 
 
-def get_request_formatters(method_name: RPCEndpoint) -> Callable[[RPCResponse], Any]]:
+def get_request_formatters(method_name: RPCEndpoint) -> Callable[[RPCResponse], Any]:
     request_formatter_maps = (
         ABI_REQUEST_FORMATTERS,
         # METHOD_NORMALIZERS needs to be after ABI_REQUEST_FORMATTERS
