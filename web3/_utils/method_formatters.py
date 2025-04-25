@@ -1216,7 +1216,7 @@ def get_error_formatters(method_name: RPCEndpoint) -> Callable[[RPCResponse], An
 
 
 def get_null_result_formatters(
-    method_name: RPCEndpoint
+    method_name: RPCEndpoint,
 ) -> Callable[[RPCResponse], Any]:
     formatters = combine_formatters((NULL_RESULT_FORMATTERS,), method_name)
 
