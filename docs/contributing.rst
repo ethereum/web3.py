@@ -160,6 +160,7 @@ Within the ``pytest`` scope, :file:`conftest.py` files are used for common code
 shared between modules that exist within the same directory as that particular
 :file:`conftest.py` file.
 
+
 Unit Testing and eth-tester Tests
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -199,6 +200,16 @@ tests are written across different files within ``/web3/_utils/module_testing``.
 * ``test_{client}_{provider}.py`` files (e.g. :file:`test_goethereum_http.py`) are where
   client-and-provider-specific test configurations exist. This is mostly used to
   override tests specific to the provider type for the respective client.
+
+The integration tests are each run in insolation to prevent muddied contexts. Because
+they are run in isolation, they can be parallelized with ``pytest-xdist`` in order to
+speed up the test suite. To run the tests in parallel, you can use the ``-n`` flag
+with ``pytest``. For example, to run the tests in parallel with 4 workers, you can
+use the following command:
+
+.. code:: sh
+
+    $ pytest tests/integration/go_ethereum/path/to/module/or/test -n 4
 
 
 Working With Test Contracts
