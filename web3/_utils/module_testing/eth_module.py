@@ -2807,18 +2807,24 @@ class EthModuleTest:
     def test_eth_getUncleCountByBlockHash(
         self, w3: "Web3", empty_block: BlockData
     ) -> None:
-        uncle_count = w3.eth.get_uncle_count(empty_block["hash"])
+        with pytest.warns(
+            DeprecationWarning, match=r"All get_uncle\* methods have been deprecated"
+        ):
+            uncle_count = w3.eth.get_uncle_count(empty_block["hash"])
 
-        assert is_integer(uncle_count)
-        assert uncle_count == 0
+            assert is_integer(uncle_count)
+            assert uncle_count == 0
 
     def test_eth_getUncleCountByBlockNumber(
         self, w3: "Web3", empty_block: BlockData
     ) -> None:
-        uncle_count = w3.eth.get_uncle_count(empty_block["number"])
+        with pytest.warns(
+            DeprecationWarning, match=r"All get_uncle\* methods have been deprecated"
+        ):
+            uncle_count = w3.eth.get_uncle_count(empty_block["number"])
 
-        assert is_integer(uncle_count)
-        assert uncle_count == 0
+            assert is_integer(uncle_count)
+            assert uncle_count == 0
 
     def test_eth_get_code(
         self, w3: "Web3", math_contract_address: ChecksumAddress
