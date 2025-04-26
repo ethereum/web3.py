@@ -13,11 +13,11 @@ COINBASE = "0xdc544d1aa88ff8bbd2f2aec754b1f1e99e1812fd"
 
 
 class MiscWebSocketTest:
-    def test_websocket_max_size_error(self, w3, endpoint_uri):
-        w3 = Web3(
+    def test_websocket_max_size_error(self, w3):
+        w3_ = Web3(
             Web3.LegacyWebSocketProvider(
-                endpoint_uri=endpoint_uri, websocket_kwargs={"max_size": 1}
+                endpoint_uri=w3.provider.endpoint_uri, websocket_kwargs={"max_size": 1}
             )
         )
         with pytest.raises((OSError, ConnectionClosed)):
-            w3.eth.get_block(0)
+            w3_.eth.get_block(0)

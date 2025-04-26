@@ -166,12 +166,10 @@ class TestGoEthereumAsyncNetModuleTest(GoEthereumAsyncNetModuleTest):
 
 class TestGoEthereumAsyncEthModuleTest(GoEthereumAsyncEthModuleTest):
     @pytest.mark.asyncio
-    async def test_async_http_provider_disconnects_gracefully(
-        self, async_w3, endpoint_uri
-    ) -> None:
+    async def test_async_http_provider_disconnects_gracefully(self, async_w3) -> None:
         w3_1 = async_w3
 
-        w3_2 = AsyncWeb3(AsyncHTTPProvider(endpoint_uri))
+        w3_2 = AsyncWeb3(AsyncHTTPProvider(async_w3.provider.endpoint_uri))
         assert w3_1 != w3_2
 
         await w3_1.eth.get_block("latest")

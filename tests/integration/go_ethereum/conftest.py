@@ -142,8 +142,10 @@ def wait_for_port(proc, timeout=10):
         line = proc.stderr.readline()
         if not line:
             continue
-
-        if match := re.compile(r"127\.0\.0\.1:(\d+)").search(line):
+        elif "geth.ipc" in line:
+            # ipc path will be retrieved via ``get_ipc_path()`` fixture
+            return None
+        elif match := re.compile(r"127\.0\.0\.1:(\d+)").search(line):
             port = int(match.group(1))
             if port not in {0, 80}:
                 # remove false positive matches
