@@ -39,7 +39,7 @@ Getting Started
 .. include:: toc.rst
 
 
-.. _decentralized apps (dapps): https://ethereum.org/dapps/
+.. _decentralized apps (dapps): https://ethereum.org/en/dapps/
 .. _@EthereumPython: https://twitter.com/EthereumPython
 .. _blog: https://snakecharmers.ethereum.org/
 .. _blog post series: https://snakecharmers.ethereum.org/a-developers-guide-to-ethereum-pt-1
