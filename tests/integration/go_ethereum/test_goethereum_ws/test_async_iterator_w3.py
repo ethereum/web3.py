@@ -27,7 +27,10 @@ async def async_w3(start_geth_process_and_yield_port):
     endpoint_uri = f"ws://127.0.0.1:{port}"
     # async iterator pattern
     async for w3 in AsyncWeb3(WebSocketProvider(endpoint_uri, request_timeout=10)):
-        return w3
+        yield w3
+        # we won't be iterating to the next w3 instance, so disconnect explicitly
+        await w3.provider.disconnect()
+        break
 
 
 class TestGoEthereumAsyncWeb3ModuleTest(GoEthereumAsyncWeb3ModuleTest):
