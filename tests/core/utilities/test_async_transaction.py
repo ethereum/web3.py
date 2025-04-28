@@ -74,15 +74,14 @@ async def test_async_fill_transaction_defaults_for_all_params(async_w3):
     }
 
 
-@pytest.mark.asyncio()
-async def test_async_fill_transaction_defaults_nondynamic_transaction_fee(async_w3):
-    gasPrice_transaction = {
-        "gasPrice": 10,
+@pytest.mark.asyncio
+async def test_async_fill_transaction_defaults_non_dynamic_transaction_fee(async_w3):
+    gas_price_transaction = {
+        "gasPrice": 10**9,
     }
     default_transaction = await async_fill_transaction_defaults(
-        async_w3, gasPrice_transaction
+        async_w3, gas_price_transaction
     )
-
     assert none_in_dict(DYNAMIC_FEE_TXN_PARAMS, default_transaction)
 
 

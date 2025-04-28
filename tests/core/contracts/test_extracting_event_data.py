@@ -28,7 +28,7 @@ from web3.logs import (
 )
 
 
-@pytest.fixture()
+@pytest.fixture
 def dup_txn_receipt(w3, indexed_event_contract, wait_for_transaction, event_contract):
     emitter_fn = indexed_event_contract.functions.logTwoEvents
 

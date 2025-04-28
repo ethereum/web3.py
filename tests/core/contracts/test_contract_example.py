@@ -2,6 +2,9 @@
 # of how to write unit tests with web3.py
 import pytest
 
+from eth_tester import (
+    EthereumTester,
+)
 import pytest_asyncio
 
 from web3 import (
@@ -15,8 +18,8 @@ from web3.providers.eth_tester.main import (
 
 
 @pytest.fixture
-def tester_provider():
-    return EthereumTesterProvider()
+def tester_provider(backend_class):
+    return EthereumTesterProvider(EthereumTester(backend=backend_class()))
 
 
 @pytest.fixture
@@ -118,8 +121,10 @@ def async_eth_tester():
 
 
 @pytest_asyncio.fixture()
-async def async_w3():
-    async_w3 = AsyncWeb3(AsyncEthereumTesterProvider())
+async def async_w3(backend_class):
+    async_w3 = AsyncWeb3(
+        AsyncEthereumTesterProvider(EthereumTester(backend=backend_class()))
+    )
     accounts = await async_w3.eth.accounts
     async_w3.eth.default_account = accounts[0]
     return async_w3
