@@ -2172,19 +2172,31 @@ class AsyncEthModuleTest:
     async def test_eth_getUncleCountByBlockHash(
         self, async_w3: "AsyncWeb3", async_empty_block: BlockData
     ) -> None:
-        uncle_count = await async_w3.eth.get_uncle_count(async_empty_block["hash"])
+        with pytest.warns(
+            DeprecationWarning,
+            match=r"get_uncle_count is deprecated: all get_uncle\* "
+            r"methods will be removed in v8",
+        ):
+            uncle_count = await async_w3.eth.get_uncle_count(async_empty_block["hash"])
 
-        assert is_integer(uncle_count)
-        assert uncle_count == 0
+            assert is_integer(uncle_count)
+            assert uncle_count == 0
 
     @pytest.mark.asyncio
     async def test_eth_getUncleCountByBlockNumber(
         self, async_w3: "AsyncWeb3", async_empty_block: BlockData
     ) -> None:
-        uncle_count = await async_w3.eth.get_uncle_count(async_empty_block["number"])
+        with pytest.warns(
+            DeprecationWarning,
+            match=r"get_uncle_count is deprecated: all get_uncle\* "
+            r"methods will be removed in v8",
+        ):
+            uncle_count = await async_w3.eth.get_uncle_count(
+                async_empty_block["number"]
+            )
 
-        assert is_integer(uncle_count)
-        assert uncle_count == 0
+            assert is_integer(uncle_count)
+            assert uncle_count == 0
 
     @pytest.mark.asyncio
     async def test_eth_getBlockTransactionCountByNumber_block_with_txn(
