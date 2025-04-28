@@ -95,7 +95,7 @@ def base_geth_command_arguments(geth_binary, datadir):
         datadir,
         "--dev",
         "--dev.period",
-        "1",
+        "3",
         "--password",
         os.path.join(datadir, "keystore", "pw.txt"),
         # in order to raise on underpriced transactions, ``txpool.nolocals`` is now
