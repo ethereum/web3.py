@@ -6,6 +6,43 @@ v7 Breaking Changes Summary
 
 .. towncrier release notes start
 
+web3.py v7.11.0 (2025-04-29)
+----------------------------
+
+Bugfixes
+~~~~~~~~
+
+- Checks that ``PersistentConnectionProvider`` response cache value is a dict before attempting to access it like one. Also adds checks to ``make_batch_request`` to make sure it is in batching mode before being called and is not after. (`#3642 <https://github.com/ethereum/web3.py/issues/3642>`__)
+- Moves base providers' ``_is_batching`` and ``_batch_request_func_cache`` from class to instance attrs to help with thread safety. (`#3661 <https://github.com/ethereum/web3.py/issues/3661>`__)
+
+
+Features
+~~~~~~~~
+
+- Support for Prague network upgrade, mainly ``requests_hash`` and ``authorization_list`` formatters. Add support for serializing ``SignedSetCodeTransaction`` (`eth-account` pydantic model) directly added to transaction dicts. (`#3659 <https://github.com/ethereum/web3.py/issues/3659>`__)
+- Allow setting the ``request_information_cache_size`` for ``PersistentConnectionProvider`` implementations. (`#3662 <https://github.com/ethereum/web3.py/issues/3662>`__)
+
+
+Internal Changes - for web3.py Contributors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Update some outdated TODO notes in code & remove old un-tested uncles tests as no longer relevant post-merge. (`#3605 <https://github.com/ethereum/web3.py/issues/3605>`__)
+- Run each integration test in isolation and parallelize, instead of running them all within a single `geth` (for example) process. This prevents muddied test contexts. (`#3659 <https://github.com/ethereum/web3.py/issues/3659>`__)
+- Bound hypothesis integers in some tests to a max of uint256 value (`#3665 <https://github.com/ethereum/web3.py/issues/3665>`__)
+- AsyncENS tests were xfailing for the wrong reason. (`#3675 <https://github.com/ethereum/web3.py/issues/3675>`__)
+
+
+Performance Improvements
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Optimize performance for:
+
+  * web3._utils.utility_methods.all_in_dict
+  * web3._utils.utility_methods.any_in_dict
+  * web3._utils.utility_methods.none_in_dict (`#3667 <https://github.com/ethereum/web3.py/issues/3667>`__)
+- optimize web3._utils.rpc_abi.apply_abi_formatters_to_dict (`#3671 <https://github.com/ethereum/web3.py/issues/3671>`__)
+
+
 web3.py v7.10.0 (2025-03-27)
 ----------------------------
 

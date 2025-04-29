@@ -1,1 +1,0 @@
-Moves base providers' ``_is_batching`` and ``_batch_request_func_cache`` from class to instance attrs to help with thread safety.

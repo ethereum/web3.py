@@ -1,5 +1,0 @@
-Optimize performance for:
-
-* web3._utils.utility_methods.all_in_dict
-* web3._utils.utility_methods.any_in_dict
-* web3._utils.utility_methods.none_in_dict
