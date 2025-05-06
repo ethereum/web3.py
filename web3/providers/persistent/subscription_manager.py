@@ -298,6 +298,7 @@ class SubscriptionManager:
                     "Message listener background task for the provider has stopped "
                     "unexpectedly. Stopping subscription handling."
                 )
+                break
 
         # no active handler subscriptions, clear the handler subscription queue
         self._provider._request_processor._reset_handler_subscription_queue()

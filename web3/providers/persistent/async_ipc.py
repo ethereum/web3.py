@@ -110,7 +110,9 @@ class AsyncIPCProvider(PersistentConnectionProvider):
             raise
 
         if not data:
-            raise PersistentConnectionClosedOK("Socket reader received end of stream.")
+            raise PersistentConnectionClosedOK(
+                user_message="Socket reader received end of stream."
+            )
         return self.decode_rpc_response(data)
 
     # -- private methods -- #
