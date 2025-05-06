@@ -397,7 +397,7 @@ async def test_async_iterator_pattern_exception_handling_for_subscriptions():
 
 
 @pytest.mark.asyncio
-async def test_connection_closed_ok_breaks_message_iteration():
+async def test_connection_closed_ok_breaks_process_subscriptions_iteration():
     with patch(
         "web3.providers.persistent.websocket.connect",
         new=lambda *_1, **_2: WebSocketMessageStreamMock(
@@ -407,6 +407,22 @@ async def test_connection_closed_ok_breaks_message_iteration():
         w3 = await AsyncWeb3(WebSocketProvider("ws://mocked"))
         async for _ in w3.socket.process_subscriptions():
             pytest.fail("Should not reach this point.")
+
+
+@pytest.mark.asyncio
+async def test_connection_closed_ok_breaks_handle_subscriptions_iteration():
+    with patch(
+        "web3.providers.persistent.websocket.connect",
+        new=lambda *_1, **_2: WebSocketMessageStreamMock(
+            raise_exception=ConnectionClosedOK(None, None)
+        ),
+    ):
+        w3 = await AsyncWeb3(WebSocketProvider("ws://mocked"))
+        # would fail with a ``TimeoutError`` if the iteration did not break properly
+        # on ``ConnectionClosedOK``
+        await asyncio.wait_for(
+            w3.subscription_manager.handle_subscriptions(run_forever=True), timeout=1
+        )
 
 
 @pytest.mark.asyncio
