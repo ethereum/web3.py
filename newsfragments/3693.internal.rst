@@ -1,0 +1,1 @@
+Remove old test fixtures when generating a new test fixture.

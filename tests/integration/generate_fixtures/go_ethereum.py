@@ -438,6 +438,20 @@ def update_circleci_geth_version(new_version):
     update_geth_version_string(changes, new_version, change_next_line=True)
 
 
+def remove_old_fixtures(current_geth_version):
+    """
+    Remove any geth fixture files that are not for the current version.
+    """
+    for file in os.listdir("./tests/integration"):
+        if (
+            file.startswith("geth-")
+            and file.endswith("-fixture.zip")
+            and current_geth_version not in file
+        ):
+            os.remove(os.path.join("./tests/integration", file))
+            print(f"Removed old fixture: {file}")
+
+
 if __name__ == "__main__":
     geth_binary = os.environ.get("GETH_BINARY", None)
     if not geth_binary:
@@ -445,6 +459,7 @@ if __name__ == "__main__":
 
     geth_version = re.search(r"geth-v([\d.]+)/", geth_binary).group(1)
     generate_go_ethereum_fixture(f"./tests/integration/geth-{geth_version}-fixture")
+    remove_old_fixtures(geth_version)
     update_circleci_geth_version(geth_version)
     update_fixture_generation_version(geth_version)
     update_doc_version(geth_version)
