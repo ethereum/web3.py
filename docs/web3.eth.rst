@@ -398,6 +398,8 @@ The following methods are available on the ``web3.eth`` namespace.
 
 .. py:method:: Eth.get_uncle_by_block(block_identifier, uncle_index)
 
+    .. warning:: Deprecated. Will be removed in v8.
+
     * Delegates to ``eth_getUncleByBlockHashAndIndex`` or
       ``eth_getUncleByBlockNumberAndIndex`` RPC methods
 
@@ -443,6 +445,8 @@ The following methods are available on the ``web3.eth`` namespace.
 
 
 .. py:method:: Eth.get_uncle_count(block_identifier)
+
+    .. warning:: Deprecated. Will be removed in v8.
 
     * Delegates to ``eth_getUncleCountByBlockHash`` or
       ``eth_getUncleCountByBlockNumber`` RPC methods

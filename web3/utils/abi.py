@@ -682,7 +682,7 @@ def check_if_arguments_can_be_encoded(
     )
 
 
-@deprecated_for("get_abi_element")
+@deprecated_for("use get_abi_element instead")
 def get_event_abi(
     abi: ABI,
     event_name: str,
