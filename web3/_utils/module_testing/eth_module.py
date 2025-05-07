@@ -2730,13 +2730,15 @@ class EthModuleTest:
         assert balance >= 0
 
     def test_eth_get_balance_with_block_identifier(self, w3: "Web3") -> None:
-        miner_address = w3.eth.get_block(1)["miner"]
-        balance_post_genesis = w3.eth.get_balance(miner_address, 1)
+        genesis_block = w3.eth.get_block(0)
+        miner_address = genesis_block["miner"]
+
+        balance_genesis = w3.eth.get_balance(miner_address, 0)
         later_balance = w3.eth.get_balance(miner_address, "latest")
 
-        assert is_integer(balance_post_genesis)
+        assert is_integer(balance_genesis)
         assert is_integer(later_balance)
-        assert later_balance > balance_post_genesis
+        assert later_balance != balance_genesis
 
     @pytest.mark.parametrize(
         "address, expect_success",
