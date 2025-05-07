@@ -8,6 +8,7 @@ from eth_utils import (
 )
 
 from web3.exceptions import (
+    BlockNotFound,
     ContractCustomError,
     ContractLogicError,
     ContractPanicError,
@@ -183,5 +184,21 @@ def raise_transaction_indexing_error_if_indexing(response: RPCResponse) -> RPCRe
                 idx_key_phrases in message for idx_key_phrases in ("index", "progress")
             ):
                 raise TransactionIndexingInProgress(message)
+
+    return response
+
+
+def raise_block_not_found_on_error(response: RPCResponse) -> RPCResponse:
+    """
+    Raise ``BlockNotFound`` on specific error message(s).
+    """
+    error = response.get("error")
+    if not isinstance(error, str) and error is not None:
+        message = error.get("message")
+        if message is not None:
+            if "not found" in message.lower() and any(
+                key in message.lower() for key in ("block", "header")
+            ):
+                raise BlockNotFound(message)
 
     return response
