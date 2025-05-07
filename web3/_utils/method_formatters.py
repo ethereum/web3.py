@@ -55,6 +55,7 @@ from web3._utils.abi import (
     is_length,
 )
 from web3._utils.error_formatters_utils import (
+    raise_block_not_found_on_error,
     raise_contract_logic_error_on_revert,
     raise_transaction_indexing_error_if_indexing,
 )
@@ -1092,6 +1093,7 @@ ERROR_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     RPC.eth_estimateGas: raise_contract_logic_error_on_revert,
     RPC.eth_call: raise_contract_logic_error_on_revert,
     RPC.eth_getTransactionReceipt: raise_transaction_indexing_error_if_indexing,
+    RPC.eth_getBlockReceipts: raise_block_not_found_on_error,
 }
 
 
