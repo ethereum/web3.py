@@ -67,15 +67,44 @@ if TYPE_CHECKING:
     from web3.eth import Eth  # noqa: F401
 
 
+def _validate_addresses_as_list(
+    address: Union[ChecksumAddress, List[ChecksumAddress]],
+) -> List[ChecksumAddress]:
+    """
+    Validates the address or list of addresses and returns a list of
+    ChecksumAddress.
+    Raises Web3ValueError if the address is not valid.
+
+    :param address: A single address or a list of addresses.
+    :return: A list of ChecksumAddress.
+    """
+    address_list: List[ChecksumAddress] = []
+    if address:
+        if isinstance(address, List):
+            address_list = address
+        else:
+            address_list = [address]
+
+        for addr in address_list:
+            try:
+                validate_address(addr)
+            except Web3ValidationError:
+                raise Web3ValueError(
+                    f"Unsupported type for `address` parameter: {type(address)}"
+                )
+
+    return address_list
+
+
 def construct_event_filter_params(
     event_abi: ABIEvent,
     abi_codec: ABICodec,
-    contract_address: Optional[ChecksumAddress | Sequence[ChecksumAddress]] = None,
+    contract_address: Optional[Union[ChecksumAddress, List[ChecksumAddress]]] = None,
     argument_filters: Optional[Dict[str, Any]] = None,
     topics: Optional[Sequence[HexStr]] = None,
     from_block: Optional[BlockIdentifier] = None,
     to_block: Optional[BlockIdentifier] = None,
-    address: Optional[ChecksumAddress | Sequence[ChecksumAddress]] = None,
+    address: Optional[Union[ChecksumAddress, List[ChecksumAddress]]] = None,
 ) -> Tuple[List[List[Optional[HexStr]]], FilterParams]:
     filter_params: FilterParams = {}
     topic_set: Sequence[HexStr] = construct_event_topic_set(
@@ -93,35 +122,19 @@ def construct_event_filter_params(
     filter_params["topics"] = topic_set
 
     if address and contract_address:
+        filter_params["address"] = _validate_addresses_as_list(
+            address
+        ) + _validate_addresses_as_list(contract_address)
+    elif address and not contract_address:
         if is_list_like(address):
-            filter_params["address"] = address
-            if address != contract_address:
-                if is_list_like(contract_address):
-                    filter_params["address"] += contract_address
-                else:
-                    filter_params["address"] += [contract_address]
-        elif is_string(address):
-            filter_params["address"] = (
-                [address, contract_address]
-                if address != contract_address
-                else [address]
-            )
+            filter_params["address"] = _validate_addresses_as_list(address)
         else:
-            raise Web3ValueError(
-                f"Unsupported type for `address` parameter: {type(address)}"
-            )
-    elif address:
-        filter_params["address"] = address
+            filter_params["address"] = address
     elif contract_address:
-        filter_params["address"] = [contract_address]
-
-    if "address" not in filter_params:
-        pass
-    elif is_list_like(filter_params["address"]):
-        for addr in filter_params["address"]:
-            validate_address(addr)
-    else:
-        validate_address(filter_params["address"])
+        if is_list_like(contract_address):
+            filter_params["address"] = _validate_addresses_as_list(contract_address)
+        else:
+            filter_params["address"] = contract_address
 
     if from_block is not None:
         filter_params["fromBlock"] = from_block
