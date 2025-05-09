@@ -119,7 +119,7 @@ class Method(Generic[TFunc]):
         self,
         json_rpc_method: Optional[RPCEndpoint] = None,
         mungers: Optional[Sequence[Munger]] = None,
-        request_formatters: Optional[Callable[..., TReturn]] = None,
+        request_formatters: Optional[Callable[RPCEndpoint, Callable[..., TReturn]]] = None,
         result_formatters: Optional[Callable[..., TReturn]] = None,
         null_result_formatters: Optional[Callable[..., TReturn]] = None,
         method_choice_depends_on_args: Optional[Callable[..., RPCEndpoint]] = None,
