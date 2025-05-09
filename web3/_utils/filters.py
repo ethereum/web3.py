@@ -8,6 +8,7 @@ from typing import (
     List,
     Optional,
     Sequence,
+    Set,
     Tuple,
     Union,
 )
@@ -26,7 +27,6 @@ from eth_typing import (
 )
 from eth_utils import (
     is_hex,
-    is_list_like,
     is_string,
     is_text,
 )
@@ -67,33 +67,37 @@ if TYPE_CHECKING:
     from web3.eth import Eth  # noqa: F401
 
 
-def _validate_addresses_as_list(
-    address: Union[ChecksumAddress, List[ChecksumAddress]],
-) -> List[ChecksumAddress]:
+def _sanitize_addresses(
+    *address: Union[ChecksumAddress, List[ChecksumAddress]],
+) -> Union[ChecksumAddress, List[ChecksumAddress]]:
     """
-    Validates the address or list of addresses and returns a list of
-    ChecksumAddress.
+    Validates an address or list of addresses and returns a single
+    ChecksumAddress or a list of ChecksumAddresses.
     Raises Web3ValueError if the address is not valid.
 
     :param address: A single address or a list of addresses.
     :return: A list of ChecksumAddress.
     """
-    address_list: List[ChecksumAddress] = []
-    if address:
-        if isinstance(address, List):
-            address_list = address
+    address_set: Set[ChecksumAddress] = set()
+    for arg in address:
+        if not arg:
+            continue
+        elif isinstance(arg, str):
+            address_set.add(arg)
+        elif isinstance(arg, list):
+            address_set.update(arg)
         else:
-            address_list = [address]
+            raise Web3ValueError(
+                f"Unsupported type for `address` parameter: {type(address)}"
+            )
 
-        for addr in address_list:
-            try:
-                validate_address(addr)
-            except Web3ValidationError:
-                raise Web3ValueError(
-                    f"Unsupported type for `address` parameter: {type(address)}"
-                )
+    if not address_set:
+        return []
+    else:
+        for addr in address_set:
+            validate_address(addr)
 
-    return address_list
+        return list(address_set) if len(address_set) > 1 else address_set.pop()
 
 
 def construct_event_filter_params(
@@ -121,20 +125,9 @@ def construct_event_filter_params(
 
     filter_params["topics"] = topic_set
 
-    if address and contract_address:
-        filter_params["address"] = _validate_addresses_as_list(
-            address
-        ) + _validate_addresses_as_list(contract_address)
-    elif address and not contract_address:
-        if is_list_like(address):
-            filter_params["address"] = _validate_addresses_as_list(address)
-        else:
-            filter_params["address"] = address
-    elif contract_address:
-        if is_list_like(contract_address):
-            filter_params["address"] = _validate_addresses_as_list(contract_address)
-        else:
-            filter_params["address"] = contract_address
+    sanitized_addresses = _sanitize_addresses(address, contract_address)
+    if sanitized_addresses:
+        filter_params["address"] = sanitized_addresses
 
     if from_block is not None:
         filter_params["fromBlock"] = from_block
