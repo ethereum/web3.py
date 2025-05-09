@@ -655,11 +655,11 @@ class PersistentConnectionProviderTest:
         assert all(k in pending.keys() for k in SOME_BLOCK_KEYS)
 
         assert isinstance(block_num, int)
-        assert latest["number"] == block_num
-
         assert isinstance(chain_id, int)
         assert isinstance(chain_id2, int)
         assert isinstance(chain_id3, int)
+        # chain id is set in fixture file
+        assert chain_id == chain_id2 == chain_id3 == 131277322940537
 
     @pytest.mark.asyncio
     async def test_async_public_socket_api(self, async_w3: AsyncWeb3) -> None:
@@ -854,7 +854,7 @@ class PersistentConnectionProviderTest:
         async_w3: AsyncWeb3,
     ) -> None:
         async def unsubscribe_subs(
-            subs: List[Union[NewHeadsSubscription, LogsSubscription]]
+            subs: List[Union[NewHeadsSubscription, LogsSubscription]],
         ) -> None:
             for sub in subs:
                 await sub.unsubscribe()

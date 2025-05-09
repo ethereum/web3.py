@@ -38,12 +38,12 @@ def _geth_command_arguments(geth_ipc_path, base_geth_command_arguments):
     )
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def geth_command_arguments(geth_ipc_path, base_geth_command_arguments):
     return _geth_command_arguments(geth_ipc_path, base_geth_command_arguments)
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def geth_ipc_path(datadir):
     geth_ipc_dir_path = tempfile.mkdtemp()
     _geth_ipc_path = os.path.join(geth_ipc_dir_path, "geth.ipc")
@@ -53,19 +53,20 @@ def geth_ipc_path(datadir):
         os.remove(_geth_ipc_path)
 
 
-@pytest.fixture(scope="module")
-def auto_w3(geth_process, geth_ipc_path):
-    wait_for_socket(geth_ipc_path)
-
+@pytest.fixture
+def auto_w3(start_geth_process_and_yield_port, geth_ipc_path, monkeypatch):
     from web3.auto import (
         w3,
     )
 
+    wait_for_socket(geth_ipc_path)
+    monkeypatch.setenv("WEB3_PROVIDER_URI", f"file:///{geth_ipc_path}")
+
     return w3
 
 
-@pytest.fixture(scope="module")
-def w3(geth_process, geth_ipc_path):
+@pytest.fixture
+def w3(start_geth_process_and_yield_port, geth_ipc_path):
     wait_for_socket(geth_ipc_path)
     return Web3(Web3.IPCProvider(geth_ipc_path, timeout=10))
 
@@ -79,13 +80,7 @@ class TestGoEthereumDebugModuleTest(GoEthereumDebugModuleTest):
 
 
 class TestGoEthereumEthModuleTest(GoEthereumEthModuleTest):
-    def test_auto_provider_batching(
-        self,
-        auto_w3: "Web3",
-        monkeypatch,
-        geth_ipc_path,
-    ) -> None:
-        monkeypatch.setenv("WEB3_PROVIDER_URI", f"file:///{geth_ipc_path}")
+    def test_auto_provider_batching(self, auto_w3: "Web3") -> None:
         # test that batch_requests doesn't error out when using the auto provider
         auto_w3.batch_requests()
 
@@ -117,8 +112,8 @@ class TestGoEthereumAdminModuleTest(GoEthereumAdminModuleTest):
 # -- async -- #
 
 
-@pytest_asyncio.fixture(scope="module")
-async def async_w3(geth_process, geth_ipc_path):
+@pytest_asyncio.fixture
+async def async_w3(start_geth_process_and_yield_port, geth_ipc_path):
     await wait_for_async_socket(geth_ipc_path)
     async with AsyncWeb3(AsyncIPCProvider(geth_ipc_path, request_timeout=10)) as _aw3:
         yield _aw3

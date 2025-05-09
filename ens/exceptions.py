@@ -32,7 +32,7 @@ class AddressMismatch(ENSException):
 class InvalidName(idna.IDNAError, ENSException):
     """
     Raised if the provided name does not meet the normalization
-    standards specified in `ENSIP-15
+    standards specified in `ENSIP-15`
     <https://docs.ens.domains/ens-improvement-proposals/ensip-15-normalization-standard>`_.
     """
 

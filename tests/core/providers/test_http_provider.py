@@ -132,3 +132,21 @@ def test_http_empty_batch_response(mock_post):
 
     # assert that even though there was an error, we have reset the batching state
     assert not w3.provider._is_batching
+
+
+@patch(
+    "web3._utils.http_session_manager.HTTPSessionManager.make_post_request",
+    new_callable=Mock,
+)
+def test_sync_provider_is_batching_when_make_batch_request(mock_post):
+    def assert_is_batching_and_return_response(*_args, **_kwargs) -> bytes:
+        assert provider._is_batching
+        return b'{"jsonrpc":"2.0","id":1,"result":["0x1"]}'
+
+    provider = HTTPProvider()
+    assert not provider._is_batching
+
+    mock_post.side_effect = assert_is_batching_and_return_response
+
+    provider.make_batch_request([("eth_blockNumber", [])])
+    assert not provider._is_batching

@@ -30,6 +30,7 @@ from web3.types import (
 )
 
 from .._utils.batching import (
+    batching_context,
     sort_batch_response_by_response_ids,
 )
 from .._utils.caching import (
@@ -201,6 +202,7 @@ class IPCProvider(JSONBaseProvider):
         request = self.encode_rpc_request(method, params)
         return self._make_request(request)
 
+    @batching_context
     def make_batch_request(
         self, requests: List[Tuple[RPCEndpoint, Any]]
     ) -> List[RPCResponse]:

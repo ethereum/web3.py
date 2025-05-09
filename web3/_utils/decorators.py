@@ -43,7 +43,7 @@ def deprecated_for(replace_message: str) -> Callable[..., Any]:
     """
     Decorate a deprecated function, with info about what to use instead, like:
 
-    @deprecated_for("to_bytes()")
+    @deprecated_for("use to_bytes() instead")
     def toAscii(arg):
         ...
     """
@@ -52,7 +52,7 @@ def deprecated_for(replace_message: str) -> Callable[..., Any]:
         @functools.wraps(to_wrap)
         def wrapper(*args: Any, **kwargs: Any) -> Callable[..., Any]:
             warnings.warn(
-                f"{to_wrap.__name__} is deprecated in favor of {replace_message}",
+                f"{to_wrap.__name__} is deprecated: {replace_message}",
                 category=DeprecationWarning,
                 stacklevel=2,
             )

@@ -1,6 +1,9 @@
 from copy import (
     copy,
 )
+from functools import (
+    wraps,
+)
 from types import (
     TracebackType,
 )
@@ -12,9 +15,11 @@ from typing import (
     Dict,
     Generic,
     List,
+    Protocol,
     Sequence,
     Tuple,
     Type,
+    TypeVar,
     Union,
     cast,
 )
@@ -33,6 +38,7 @@ from web3.exceptions import (
     Web3ValueError,
 )
 from web3.types import (
+    RPCEndpoint,
     TFunc,
     TReturn,
 )
@@ -55,7 +61,6 @@ if TYPE_CHECKING:
         JSONBaseProvider,
     )
     from web3.types import (  # noqa: F401
-        RPCEndpoint,
         RPCResponse,
     )
 
@@ -215,3 +220,39 @@ def sort_batch_response_by_response_ids(
             stacklevel=2,
         )
         return responses
+
+
+class SupportsBatching(Protocol):
+    _is_batching: bool
+
+
+R = TypeVar("R")
+T = TypeVar("T", bound=SupportsBatching)
+
+
+def async_batching_context(
+    method: Callable[[T, List[Tuple[RPCEndpoint, Any]]], Coroutine[Any, Any, R]]
+) -> Callable[[T, List[Tuple[RPCEndpoint, Any]]], Coroutine[Any, Any, R]]:
+    @wraps(method)
+    async def wrapper(self: T, requests: List[Tuple[RPCEndpoint, Any]]) -> R:
+        self._is_batching = True
+        try:
+            return await method(self, requests)
+        finally:
+            self._is_batching = False
+
+    return wrapper
+
+
+def batching_context(
+    method: Callable[[T, List[Tuple[RPCEndpoint, Any]]], R]
+) -> Callable[[T, List[Tuple[RPCEndpoint, Any]]], R]:
+    @wraps(method)
+    def wrapper(self: T, requests: List[Tuple[RPCEndpoint, Any]]) -> R:
+        self._is_batching = True
+        try:
+            return method(self, requests)
+        finally:
+            self._is_batching = False
+
+    return wrapper

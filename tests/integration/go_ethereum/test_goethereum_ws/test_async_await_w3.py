@@ -19,16 +19,17 @@ from ..common import (
     GoEthereumAsyncNetModuleTest,
     GoEthereumAsyncWeb3ModuleTest,
 )
-from ..utils import (
-    wait_for_aiohttp,
-)
 
 
-@pytest_asyncio.fixture(scope="module")
-async def async_w3(geth_process, endpoint_uri):
-    await wait_for_aiohttp(endpoint_uri)
+@pytest_asyncio.fixture
+async def async_w3(start_geth_process_and_yield_port):
+    port = start_geth_process_and_yield_port
     # await the persistent connection itself
-    return await AsyncWeb3(WebSocketProvider(endpoint_uri, request_timeout=10))
+    _async_w3 = await AsyncWeb3(
+        WebSocketProvider(f"ws://127.0.0.1:{port}", request_timeout=10)
+    )
+    yield _async_w3
+    await _async_w3.provider.disconnect()
 
 
 class TestGoEthereumAsyncWeb3ModuleTest(GoEthereumAsyncWeb3ModuleTest):

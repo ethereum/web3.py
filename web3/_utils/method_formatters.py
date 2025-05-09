@@ -47,11 +47,15 @@ from eth_utils.toolz import (
 from hexbytes import (
     HexBytes,
 )
+from pydantic import (
+    BaseModel,
+)
 
 from web3._utils.abi import (
     is_length,
 )
 from web3._utils.error_formatters_utils import (
+    raise_block_not_found_on_error,
     raise_contract_logic_error_on_revert,
     raise_transaction_indexing_error_if_indexing,
 )
@@ -162,6 +166,12 @@ def type_aware_apply_formatters_to_dict(
     """
     Preserve ``AttributeDict`` types if original ``value`` was an ``AttributeDict``.
     """
+    # TODO: In v8, Use eth-utils 5.3.0 as lower pin where ``apply_formatters_to_dict``
+    #  already handles the CamelModel case, rather than generalizing to all BaseModel
+    #  instances.
+    if isinstance(value, BaseModel):
+        value = value.model_dump(by_alias=True)
+
     formatted_dict: Dict[str, Any] = apply_formatters_to_dict(formatters, dict(value))
     return (
         AttributeDict.recursive(formatted_dict)
@@ -178,6 +188,9 @@ def type_aware_apply_formatters_to_dict_keys_and_values(
     """
     Preserve ``AttributeDict`` types if original ``value`` was an ``AttributeDict``.
     """
+    if isinstance(dict_like_object, BaseModel):
+        dict_like_object = dict_like_object.model_dump(by_alias=True)
+
     formatted_dict = {
         key_formatters(k): value_formatters(v) for k, v in dict_like_object.items()
     }
@@ -224,6 +237,22 @@ ACCESS_LIST_RESPONSE_FORMATTER = type_aware_apply_formatters_to_dict(
     }
 )
 
+AUTH_LIST_RESULT_FORMATTER = apply_formatter_if(
+    is_not_null,
+    apply_formatter_to_array(
+        type_aware_apply_formatters_to_dict(
+            {
+                "chainId": to_integer_if_hex,
+                "address": to_checksum_address,
+                "nonce": to_integer_if_hex,
+                "yParity": to_integer_if_hex,
+                "r": to_hexbytes(32, variable_length=True),
+                "s": to_hexbytes(32, variable_length=True),
+            }
+        ),
+    ),
+)
+
 TRANSACTION_RESULT_FORMATTERS = {
     "blockHash": apply_formatter_if(is_not_null, to_hexbytes(32)),
     "blockNumber": apply_formatter_if(is_not_null, to_integer_if_hex),
@@ -256,6 +285,7 @@ TRANSACTION_RESULT_FORMATTERS = {
     "blobVersionedHashes": apply_formatter_if(
         is_not_null, apply_formatter_to_array(to_hexbytes(32))
     ),
+    "authorizationList": AUTH_LIST_RESULT_FORMATTER,
 }
 
 
@@ -333,6 +363,7 @@ BLOCK_REQUEST_FORMATTERS = {
     "transactionsRoot": to_hex_if_bytes,
     "withdrawalsRoot": to_hex_if_bytes,
     "parentBeaconBlockRoot": to_hex_if_bytes,
+    "requestsHash": to_hex_if_bytes,
 }
 block_request_formatter = type_aware_apply_formatters_to_dict(BLOCK_REQUEST_FORMATTERS)
 
@@ -375,6 +406,7 @@ BLOCK_RESULT_FORMATTERS = {
     "blobGasUsed": to_integer_if_hex,
     "excessBlobGas": to_integer_if_hex,
     "parentBeaconBlockRoot": apply_formatter_if(is_not_null, to_hexbytes(32)),
+    "requestsHash": apply_formatter_if(is_not_null, to_hexbytes(32)),
 }
 block_result_formatter = type_aware_apply_formatters_to_dict(BLOCK_RESULT_FORMATTERS)
 
@@ -467,6 +499,22 @@ filter_result_formatter = apply_one_of_formatters(
     )
 )
 
+AUTH_LIST_REQUEST_FORMATTER = apply_formatter_if(
+    is_not_null,
+    apply_formatter_to_array(
+        type_aware_apply_formatters_to_dict(
+            {
+                "chainId": to_hex_if_integer,
+                "address": to_checksum_address,
+                "nonce": to_hex_if_integer,
+                "yParity": to_hex_if_integer,
+                "r": to_hex_if_integer,
+                "s": to_hex_if_integer,
+            }
+        ),
+    ),
+)
+
 TRANSACTION_REQUEST_FORMATTER = {
     "from": to_checksum_address,
     "to": apply_formatter_if(is_address, to_checksum_address),
@@ -478,12 +526,13 @@ TRANSACTION_REQUEST_FORMATTER = {
     "maxFeePerGas": to_hex_if_integer,
     "maxPriorityFeePerGas": to_hex_if_integer,
     "chainId": to_hex_if_integer,
+    "authorizationList": AUTH_LIST_REQUEST_FORMATTER,
 }
 transaction_request_formatter = type_aware_apply_formatters_to_dict(
     TRANSACTION_REQUEST_FORMATTER
 )
 
-ACCESS_LIST_REQUEST_FORMATTER = type_aware_apply_formatters_to_dict(
+ETH_CALL_TX_FORMATTER = type_aware_apply_formatters_to_dict(
     {
         "accessList": apply_formatter_if(
             is_not_null,
@@ -495,10 +544,11 @@ ACCESS_LIST_REQUEST_FORMATTER = type_aware_apply_formatters_to_dict(
                 )
             ),
         ),
+        "authorizationList": AUTH_LIST_REQUEST_FORMATTER,
     }
 )
 transaction_param_formatter = compose(
-    ACCESS_LIST_REQUEST_FORMATTER,
+    ETH_CALL_TX_FORMATTER,
     remove_key_if("to", lambda txn: txn["to"] in {"", b"", None}),
     remove_key_if("gasPrice", lambda txn: txn["gasPrice"] in {"", b"", None}),
 )
@@ -1040,6 +1090,7 @@ ERROR_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     RPC.eth_estimateGas: raise_contract_logic_error_on_revert,
     RPC.eth_call: raise_contract_logic_error_on_revert,
     RPC.eth_getTransactionReceipt: raise_transaction_indexing_error_if_indexing,
+    RPC.eth_getBlockReceipts: raise_block_not_found_on_error,
 }
 
 
@@ -1078,7 +1129,7 @@ def raise_block_not_found(params: Tuple[BlockIdentifier, bool]) -> NoReturn:
 
 
 def raise_block_not_found_for_uncle_at_index(
-    params: Tuple[BlockIdentifier, Union[HexStr, int]]
+    params: Tuple[BlockIdentifier, Union[HexStr, int]],
 ) -> NoReturn:
     try:
         block_identifier = params[0]
@@ -1104,7 +1155,7 @@ def raise_transaction_not_found(params: Tuple[_Hash32]) -> NoReturn:
 
 
 def raise_transaction_not_found_with_index(
-    params: Tuple[BlockIdentifier, int]
+    params: Tuple[BlockIdentifier, int],
 ) -> NoReturn:
     try:
         block_identifier = params[0]

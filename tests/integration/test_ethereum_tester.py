@@ -68,13 +68,13 @@ def _deploy_contract(w3, contract_factory):
     return contract_factory(contract_address)
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def eth_tester():
     _eth_tester = EthereumTester()
     return _eth_tester
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def eth_tester_provider(eth_tester):
     provider = EthereumTesterProvider(eth_tester)
     return provider
@@ -96,7 +96,7 @@ def _eth_tester_state_setup(w3):
     )
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def w3(eth_tester_provider):
     _w3 = Web3(eth_tester_provider)
     _w3.eth.default_account = _w3.eth.accounts[0]
@@ -104,7 +104,7 @@ def w3(eth_tester_provider):
     return _w3
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def math_contract_deploy_txn_hash(w3, math_contract_factory):
     deploy_txn_hash = math_contract_factory.constructor().transact(
         {"from": w3.eth.default_account}
@@ -112,7 +112,7 @@ def math_contract_deploy_txn_hash(w3, math_contract_factory):
     return deploy_txn_hash
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def math_contract(w3, math_contract_factory, math_contract_deploy_txn_hash):
     deploy_receipt = w3.eth.wait_for_transaction_receipt(math_contract_deploy_txn_hash)
     assert is_dict(deploy_receipt)
@@ -121,28 +121,28 @@ def math_contract(w3, math_contract_factory, math_contract_deploy_txn_hash):
     return math_contract_factory(contract_address)
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def math_contract_address(math_contract, address_conversion_func):
     return address_conversion_func(math_contract.address)
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def storage_contract(w3):
     contract_factory = w3.eth.contract(**STORAGE_CONTRACT_DATA)
     return _deploy_contract(w3, contract_factory)
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def emitter_contract(w3, emitter_contract_factory):
     return _deploy_contract(w3, emitter_contract_factory)
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def emitter_contract_address(emitter_contract, address_conversion_func):
     return address_conversion_func(emitter_contract.address)
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def empty_block(w3):
     w3.testing.mine()
     block = w3.eth.get_block("latest")
@@ -150,7 +150,7 @@ def empty_block(w3):
     return block
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def block_with_txn(w3):
     txn_hash = w3.eth.send_transaction(
         {
@@ -168,12 +168,12 @@ def block_with_txn(w3):
     return block
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def mined_txn_hash(block_with_txn):
     return block_with_txn["transactions"][0]
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def block_with_txn_with_log(w3, emitter_contract):
     txn_hash = emitter_contract.functions.logDouble(
         which=EMITTER_ENUM["LogDoubleWithIndex"],
@@ -185,12 +185,12 @@ def block_with_txn_with_log(w3, emitter_contract):
     return block
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def txn_hash_with_log(block_with_txn_with_log):
     return block_with_txn_with_log["transactions"][0]
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def revert_contract(w3, revert_contract_factory):
     return _deploy_contract(w3, revert_contract_factory)
 
@@ -198,23 +198,23 @@ def revert_contract(w3, revert_contract_factory):
 #
 # Offchain Lookup Contract Setup
 #
-@pytest.fixture(scope="module")
+@pytest.fixture
 def offchain_lookup_contract(w3, offchain_lookup_contract_factory):
     return _deploy_contract(w3, offchain_lookup_contract_factory)
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def panic_errors_contract(w3):
     panic_errors_contract_factory = w3.eth.contract(**PANIC_ERRORS_CONTRACT_DATA)
     return _deploy_contract(w3, panic_errors_contract_factory)
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def keyfile_account_pkey():
     yield KEYFILE_ACCOUNT_PKEY
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def keyfile_account_address():
     yield KEYFILE_ACCOUNT_ADDRESS
 

@@ -3,9 +3,6 @@ import signal
 import socket
 import time
 
-import aiohttp
-import requests
-
 
 def wait_for_socket(ipc_path, timeout=30):
     start = time.time()
@@ -27,29 +24,6 @@ async def wait_for_async_socket(ipc_path, timeout=30):
         try:
             await asyncio.open_unix_connection(ipc_path)
         except OSError:
-            time.sleep(0.01)
-        else:
-            break
-
-
-def wait_for_http(endpoint_uri, timeout=60):
-    start = time.time()
-    while time.time() < start + timeout:
-        try:
-            requests.get(endpoint_uri)
-        except requests.ConnectionError:
-            time.sleep(0.01)
-        else:
-            break
-
-
-async def wait_for_aiohttp(endpoint_uri, timeout=60):
-    start = time.time()
-    while time.time() < start + timeout:
-        try:
-            async with aiohttp.ClientSession() as session:
-                await session.get(endpoint_uri)
-        except aiohttp.client_exceptions.ClientConnectorError:
             time.sleep(0.01)
         else:
             break

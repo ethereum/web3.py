@@ -69,6 +69,7 @@ from web3.exceptions import (
     Web3ValueError,
 )
 from web3.method import (
+    DeprecatedMethod,
     Method,
     default_root_munger,
 )
@@ -566,7 +567,7 @@ class Eth(BaseEth):
     # eth_getUncleCountByBlockHash
     # eth_getUncleCountByBlockNumber
 
-    get_uncle_count: Method[Callable[[BlockIdentifier], int]] = Method(
+    _get_uncle_count: Method[Callable[[BlockIdentifier], int]] = Method(
         method_choice_depends_on_args=select_method_for_block_identifier(
             if_predefined=RPC.eth_getUncleCountByBlockNumber,
             if_hash=RPC.eth_getUncleCountByBlockHash,
@@ -574,17 +575,29 @@ class Eth(BaseEth):
         ),
         mungers=[default_root_munger],
     )
+    get_uncle_count = DeprecatedMethod(
+        _get_uncle_count,
+        old_name="_get_uncle_count",
+        new_name="get_uncle_count",
+        msg="All get_uncle* methods have been deprecated",
+    )
 
     # eth_getUncleByBlockHashAndIndex
     # eth_getUncleByBlockNumberAndIndex
 
-    get_uncle_by_block: Method[Callable[[BlockIdentifier, int], Uncle]] = Method(
+    _get_uncle_by_block: Method[Callable[[BlockIdentifier, int], Uncle]] = Method(
         method_choice_depends_on_args=select_method_for_block_identifier(
             if_predefined=RPC.eth_getUncleByBlockNumberAndIndex,
             if_hash=RPC.eth_getUncleByBlockHashAndIndex,
             if_number=RPC.eth_getUncleByBlockNumberAndIndex,
         ),
         mungers=[default_root_munger],
+    )
+    get_uncle_by_block = DeprecatedMethod(
+        _get_uncle_by_block,
+        old_name="_get_uncle_by_block",
+        new_name="get_uncle_by_block",
+        msg="All get_uncle* methods have been deprecated",
     )
 
     def replace_transaction(
