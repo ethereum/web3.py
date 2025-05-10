@@ -82,7 +82,7 @@ def _sanitize_addresses(
     for arg in address:
         if not arg:
             continue
-        elif isinstance(arg, str):
+        elif isinstance(arg, str) or isinstance(arg, bytes):
             address_set.add(arg)
         elif isinstance(arg, list):
             address_set.update(arg)

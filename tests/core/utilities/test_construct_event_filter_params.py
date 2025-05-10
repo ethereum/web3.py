@@ -106,6 +106,32 @@ def event_abi():
             id="address-string",
         ),
         pytest.param(
+            {"address": b"\xf2\xe2F\xbbv\xdf\x87l\xef\x8b8\xae\x84\x13\x0fOU\xde9["},
+            {
+                "topics": [
+                    "0xb470a829ed7792f06947f0ca3730a570cb378329ddcf09f2b4efabd6326f51f6"
+                ],
+                "address": b"\xf2\xe2F\xbbv\xdf\x87l\xef\x8b8\xae\x84\x13\x0fOU\xde9[",
+            },
+            id="address-bytes",
+        ),
+        pytest.param(
+            {
+                "contract_address": b"\xf2\xe2F\xbbv\xdf\x87l\xef\x8b8\xae\x84\x13\x0fOU\xde9[",  # noqa: E501
+                "address": [
+                    b"\xf2\xe2F\xbbv\xdf\x87l\xef\x8b8\xae\x84\x13\x0fOU\xde9[",
+                    b"\xf2\xe2F\xbbv\xdf\x87l\xef\x8b8\xae\x84\x13\x0fOU\xde9[",
+                ],
+            },
+            {
+                "topics": [
+                    "0xb470a829ed7792f06947f0ca3730a570cb378329ddcf09f2b4efabd6326f51f6"
+                ],
+                "address": b"\xf2\xe2F\xbbv\xdf\x87l\xef\x8b8\xae\x84\x13\x0fOU\xde9[",
+            },
+            id="address-bytes-list",
+        ),
+        pytest.param(
             {"address": ["0xd3CdA913deB6f67967B99D67aCDFa1712C293601"]},
             {
                 "topics": [
