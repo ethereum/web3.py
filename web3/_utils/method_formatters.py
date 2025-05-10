@@ -105,6 +105,7 @@ from web3.types import (
     BlockIdentifier,
     Formatters,
     RPCEndpoint,
+    RPCResponse,
     SimulateV1Payload,
     StateOverrideParams,
     TReturn,
@@ -650,19 +651,15 @@ simulate_v1_request_formatter: Callable[
 )
 
 block_result_formatters_copy = BLOCK_RESULT_FORMATTERS.copy()
-block_result_formatters_copy.update(
-    {
-        "calls": apply_list_to_array_formatter(
-            type_aware_apply_formatters_to_dict(
-                {
-                    "returnData": HexBytes,
-                    "logs": apply_list_to_array_formatter(log_entry_formatter),
-                    "gasUsed": to_integer_if_hex,
-                    "status": to_integer_if_hex,
-                }
-            )
-        )
-    }
+block_result_formatters_copy["calls"] = apply_list_to_array_formatter(
+    type_aware_apply_formatters_to_dict(
+        {
+            "returnData": HexBytes,
+            "logs": apply_list_to_array_formatter(log_entry_formatter),
+            "gasUsed": to_integer_if_hex,
+            "status": to_integer_if_hex,
+        }
+    )
 )
 simulate_v1_result_formatter = apply_formatter_if(
     is_not_null,
@@ -1107,9 +1104,7 @@ def combine_formatters(
             yield formatter_map[method_name]
 
 
-def get_request_formatters(
-    method_name: Union[RPCEndpoint, Callable[..., RPCEndpoint]],
-) -> Dict[str, Callable[..., Any]]:
+def get_request_formatters(method_name: RPCEndpoint) -> Callable[[RPCResponse], Any]:
     request_formatter_maps = (
         ABI_REQUEST_FORMATTERS,
         # METHOD_NORMALIZERS needs to be after ABI_REQUEST_FORMATTERS
@@ -1241,7 +1236,7 @@ FILTER_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
 
 @to_tuple
 def apply_module_to_formatters(
-    formatters: Tuple[Callable[..., TReturn]],
+    formatters: Iterable[Callable[..., TReturn]],
     module: "Module",
     method_name: Union[RPCEndpoint, Callable[..., RPCEndpoint]],
 ) -> Iterable[Callable[..., TReturn]]:
@@ -1250,9 +1245,9 @@ def apply_module_to_formatters(
 
 
 def get_result_formatters(
-    method_name: Union[RPCEndpoint, Callable[..., RPCEndpoint]],
+    method_name: RPCEndpoint,
     module: "Module",
-) -> Dict[str, Callable[..., Any]]:
+) -> Callable[[RPCResponse], Any]:
     formatters = combine_formatters((PYTHONIC_RESULT_FORMATTERS,), method_name)
     formatters_requiring_module = combine_formatters(
         (FILTER_RESULT_FORMATTERS,), method_name
@@ -1263,9 +1258,7 @@ def get_result_formatters(
     return compose(*partial_formatters, *formatters)
 
 
-def get_error_formatters(
-    method_name: Union[RPCEndpoint, Callable[..., RPCEndpoint]],
-) -> Callable[..., Any]:
+def get_error_formatters(method_name: RPCEndpoint) -> Callable[[RPCResponse], Any]:
     #  Note error formatters work on the full response dict
     error_formatter_maps = (ERROR_FORMATTERS,)
     formatters = combine_formatters(error_formatter_maps, method_name)
@@ -1274,8 +1267,8 @@ def get_error_formatters(
 
 
 def get_null_result_formatters(
-    method_name: Union[RPCEndpoint, Callable[..., RPCEndpoint]],
-) -> Callable[..., Any]:
+    method_name: RPCEndpoint,
+) -> Callable[[RPCResponse], Any]:
     formatters = combine_formatters((NULL_RESULT_FORMATTERS,), method_name)
 
     return compose(*formatters)
