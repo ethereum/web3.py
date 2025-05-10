@@ -128,7 +128,9 @@ class RequestProcessor:
             if cache_key in self._request_information_cache:
                 self._provider.logger.debug(
                     "This is a cached request, not caching request info because it is "
-                    f"not unique:\n    method={method},\n    params={params}"
+                    "not unique:\n    method=%s,\n    params=%s",
+                    method,
+                    params,
                 )
                 return None
 
@@ -148,8 +150,11 @@ class RequestProcessor:
             response_formatters,
         )
         self._provider.logger.debug(
-            f"Caching request info:\n    request_id={request_id},\n"
-            f"    cache_key={cache_key},\n    request_info={request_info.__dict__}"
+            "Caching request info:\n    request_id=%s,\n"
+            "    cache_key=%s,\n    request_info=%s",
+            request_id,
+            cache_key,
+            request_info.__dict__,
         )
         self._request_information_cache.cache(
             cache_key,
@@ -170,7 +175,9 @@ class RequestProcessor:
         if request_info is not None:
             self._provider.logger.debug(
                 "Request info popped from cache:\n"
-                f"    cache_key={cache_key},\n    request_info={request_info.__dict__}"
+                "    cache_key=%s,\n    request_info=%s",
+                cache_key,
+                request_info.__dict__,
             )
         return request_info
 
@@ -247,8 +254,9 @@ class RequestProcessor:
             )
         else:
             self._provider.logger.debug(
-                f"No cached request info for response id `{request_id}`. Cannot "
-                f"append response formatter for response."
+                "No cached request info for response id `%s`. Cannot "
+                "append response formatter for response.",
+                request_id,
             )
 
     def append_middleware_response_processor(
@@ -269,13 +277,16 @@ class RequestProcessor:
                 )
             else:
                 self._provider.logger.debug(
-                    f"No cached request info for response id `{response_id}`. Cannot "
-                    f"append middleware response processor for response: {response}"
+                    "No cached request info for response id `%s`. Cannot "
+                    "append middleware response processor for response: %s",
+                    response_id,
+                    response,
                 )
         else:
             self._provider.logger.debug(
                 "No response `id` in response. Cannot append middleware response "
-                f"processor for response: {response}"
+                "processor for response: %s",
+                response,
             )
 
     # raw response cache
@@ -302,7 +313,7 @@ class RequestProcessor:
                 await self._provider._listen_event.wait()
 
             self._provider.logger.debug(
-                f"Caching subscription response:\n    response={raw_response}"
+                "Caching subscription response:\n    response=%s", raw_response
             )
             subscription_id = raw_response.get("params", {}).get("subscription")
             sub_container = self._subscription_container
@@ -320,16 +331,20 @@ class RequestProcessor:
             # constant cache key for the batch response.
             cache_key = generate_cache_key(BATCH_REQUEST_ID)
             self._provider.logger.debug(
-                f"Caching batch response:\n    cache_key={cache_key},\n"
-                f"    response={raw_response}"
+                "Caching batch response:\n    cache_key=%s,\n    response=%s",
+                cache_key,
+                raw_response,
             )
             self._request_response_cache.cache(cache_key, raw_response)
         else:
             response_id = raw_response.get("id")
             cache_key = generate_cache_key(response_id)
             self._provider.logger.debug(
-                f"Caching response:\n    response_id={response_id},\n"
-                f"    cache_key={cache_key},\n    response={raw_response}"
+                "Caching response:\n    response_id=%s,\n"
+                "    cache_key=%s,\n    response=%s",
+                response_id,
+                cache_key,
+                raw_response,
             )
             self._request_response_cache.cache(cache_key, raw_response)
 
@@ -354,13 +369,15 @@ class RequestProcessor:
                 if self._subscription_queue_synced_with_ws_stream:
                     self._subscription_queue_synced_with_ws_stream = False
                 self._provider.logger.info(
-                    f"Subscription response queue has {qsize} subscriptions. "
-                    "Processing as FIFO."
+                    "Subscription response queue has %s subscriptions. "
+                    "Processing as FIFO.",
+                    qsize,
                 )
 
             self._provider.logger.debug(
                 "Subscription response popped from queue to be processed:\n"
-                f"    raw_response={raw_response}"
+                "    raw_response=%s",
+                raw_response,
             )
         else:
             if not cache_key:
@@ -372,8 +389,9 @@ class RequestProcessor:
             if raw_response is not None:
                 self._provider.logger.debug(
                     "Cached response popped from cache to be processed:\n"
-                    f"    cache_key={cache_key},\n"
-                    f"    raw_response={raw_response}"
+                    "    cache_key=%s,\n    raw_response=%s",
+                    cache_key,
+                    raw_response,
                 )
 
         return raw_response

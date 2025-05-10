@@ -87,10 +87,13 @@ def handler_wrapper(
         sub.handler_call_count += 1
         sub.manager.total_handler_calls += 1
         sub.manager.logger.debug(
-            f"Subscription handler called.\n"
-            f"    label: {sub.label}\n"
-            f"    call count: {sub.handler_call_count}\n"
-            f"    total handler calls: {sub.manager.total_handler_calls}"
+            "Subscription handler called.\n"
+            "    label: %s\n"
+            "    call count: %s\n"
+            "    total handler calls: %s",
+            sub.label,
+            sub.handler_call_count,
+            sub.manager.total_handler_calls,
         )
         await handler(context)
 
