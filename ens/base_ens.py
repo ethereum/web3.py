@@ -6,6 +6,7 @@ from typing import (
     Any,
     Type,
     Union,
+    Optional,
 )
 
 from eth_typing import (
@@ -38,10 +39,10 @@ if TYPE_CHECKING:
 
 
 class BaseENS:
-    w3: Union["AsyncWeb3", "Web3"] = None
-    ens: Union["Contract", "AsyncContract"] = None
-    _resolver_contract: Union[Type["Contract"], Type["AsyncContract"]] = None
-    _reverse_resolver_contract: Union[Type["Contract"], Type["AsyncContract"]] = None
+    w3: Optional[Union["AsyncWeb3", "Web3"]] = None
+    ens: Optional[Union["Contract", "AsyncContract"]] = None
+    _resolver_contract: Optional[Type[Union["Contract", "AsyncContract"]]] = None
+    _reverse_resolver_contract: Optional[Type[Union["Contract", "AsyncContract"]]] = None
 
     @property
     def strict_bytes_type_checking(self) -> bool:
