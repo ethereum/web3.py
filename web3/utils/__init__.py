@@ -45,6 +45,9 @@ from .exception_handling import (
 from .subscriptions import (
     EthSubscription,
 )
+from .transaction import (
+    Web3Transaction,
+)
 
 __all__ = [
     "abi_to_signature",
@@ -75,4 +78,5 @@ __all__ = [
     "SimpleCache",
     "EthSubscription",
     "handle_offchain_lookup",
+    "Web3Transaction",
 ]
