@@ -1,1 +1,0 @@
-Properly handle ``PersistentConnectionClosedOK`` for ``subscription_manager.handle_subscriptions()``.

@@ -1,1 +1,0 @@
-Fix contract event ``FilterParams`` to validate and normalize ``address`` parameters.

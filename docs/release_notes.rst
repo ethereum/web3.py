@@ -6,6 +6,30 @@ v7 Breaking Changes Summary
 
 .. towncrier release notes start
 
+web3.py v7.11.1 (2025-05-12)
+----------------------------
+
+Bugfixes
+~~~~~~~~
+
+- Fix contract event ``FilterParams`` to validate and normalize ``address`` parameters. (`#3618 <https://github.com/ethereum/web3.py/issues/3618>`__)
+- Properly handle ``PersistentConnectionClosedOK`` for ``subscription_manager.handle_subscriptions()``. (`#3690 <https://github.com/ethereum/web3.py/issues/3690>`__)
+
+
+Deprecations
+~~~~~~~~~~~~
+
+- Deprecate eth.get_uncle* methods. Will be removed in v8. (`#3683 <https://github.com/ethereum/web3.py/issues/3683>`__)
+
+
+Internal Changes - for web3.py Contributors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Re-compile test contracts with new Solidity ``v0.8.30`` and re-generate integration test fixture to test against latest geth ``v1.15.11``. (`#3692 <https://github.com/ethereum/web3.py/issues/3692>`__)
+- Remove old test fixtures when generating a new test fixture. (`#3693 <https://github.com/ethereum/web3.py/issues/3693>`__)
+- Address some flaky tests due to a geth bug in state synchronization. (`#3695 <https://github.com/ethereum/web3.py/issues/3695>`__)
+
+
 web3.py v7.11.0 (2025-04-29)
 ----------------------------
 

@@ -1,1 +1,0 @@
-Deprecate eth.get_uncle* methods. Will be removed in v8.
