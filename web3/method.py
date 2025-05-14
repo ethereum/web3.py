@@ -49,7 +49,7 @@ if TYPE_CHECKING:
 Munger = Callable[..., Any]
 RequestArgs = Tuple[RPCEndpoint, Sequence[Any]]
 ResponseFormatters = Tuple[
-    ResponseFormatter[TReturn], ResponseFormatter[TReturn], ResponseFormatter[TReturn]
+    ResponseFormatter[Any], ResponseFormatter[Any], ResponseFormatter[Any]
 ]
 
 
@@ -193,7 +193,7 @@ class Method(Generic[TFunc]):
 
     def process_params(
         self, module: "Module", *args: Any, **kwargs: Any
-    ) -> Tuple[RequestArgs, ResponseFormatters[TReturn]]:
+    ) -> Tuple[RequestArgs, ResponseFormatters]:
         params = self.input_munger(module, args, kwargs)
 
         if self.method_choice_depends_on_args:
