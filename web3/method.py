@@ -179,15 +179,15 @@ class Method(Generic[TFunc]):
     def __call__(self, *args: Any, **kwargs: Any) -> Any:
         return self.__get__(self._module)(*args, **kwargs)
 
-    @property
+    @functools.cached_property
     def method_selector_fn(
         self,
-    ) -> Callable[..., Union[RPCEndpoint, Callable[..., RPCEndpoint]]]:
+    ) -> Callable[[], RPCEndpoint]:
         """Gets the method selector from the config."""
         if callable(self.json_rpc_method):
             return self.json_rpc_method
         elif isinstance(self.json_rpc_method, (str,)):
-            return lambda *_: self.json_rpc_method
+            return lambda: self.json_rpc_method
         raise Web3ValueError(
             "``json_rpc_method`` config invalid.  May be a string or function"
         )
