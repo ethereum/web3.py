@@ -123,9 +123,7 @@ class Method(Generic[TFunc]):
         self,
         json_rpc_method: Optional[RPCEndpoint] = None,
         mungers: Optional[Sequence[Munger]] = None,
-        request_formatters: Optional[
-            Callable[[RPCEndpoint], Formatter[Any]]
-        ] = None,
+        request_formatters: Optional[Callable[[RPCEndpoint], Formatter[Any]]] = None,
         result_formatters: Optional[
             Callable[[RPCEndpoint, "Module"], ResponseFormatter[TReturn]]
         ] = None,
@@ -165,7 +163,7 @@ class Method(Generic[TFunc]):
                     f"Method `{self.json_rpc_method}` is not supported within a batch "
                     "request."
                 )
-            return module.retrieve_request_information(self)
+            return module.retrieve_request_information(self)  # type: ignore [return-value]
         else:
             return module.retrieve_caller_fn(self)
 
