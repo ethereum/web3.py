@@ -6,7 +6,6 @@ from typing import (
     AsyncGenerator,
     Callable,
     Coroutine,
-    Dict,
     List,
     Optional,
     Sequence,
@@ -48,6 +47,7 @@ from web3.exceptions import (
 )
 from web3.method import (
     Method,
+    ResponseFormatters,
 )
 from web3.middleware import (
     AttributeDictMiddleware,
@@ -360,9 +360,7 @@ class RequestManager:
         self,
         method: RPCEndpoint,
         params: Any,
-        response_formatters: Optional[
-            Tuple[Dict[str, Callable[..., Any]], Callable[..., Any], Callable[..., Any]]
-        ] = None,
+        response_formatters: Optional[ResponseFormatters[Any]] = None,
     ) -> RPCResponse:
         provider = cast(PersistentConnectionProvider, self._provider)
         self.logger.debug(

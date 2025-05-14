@@ -5,11 +5,10 @@ from typing import (
     Coroutine,
     Dict,
     Optional,
-    Sequence,
     Tuple,
     TypeVar,
     Union,
-    cast,
+    overload,
 )
 
 from eth_abi.codec import (
@@ -27,14 +26,16 @@ from web3._utils.filters import (
 )
 from web3.method import (
     Method,
+    RequestArgs,
+    ResponseFormatters,
 )
 from web3.providers.persistent import (
     PersistentConnectionProvider,
 )
 from web3.types import (
     FormattedEthSubscriptionResponse,
-    RPCEndpoint,
     RPCResponse,
+    TFunc,
 )
 
 if TYPE_CHECKING:
@@ -58,34 +59,52 @@ def apply_result_formatters(
 TReturn = TypeVar("TReturn")
 
 
+@overload
+def retrieve_request_information_for_batching(
+    w3: "AsyncWeb3",
+    module: "Module",
+    method: Method[Callable[..., Any]],
+) -> Callable[..., Coroutine[Any, Any, Tuple[RequestArgs, ResponseFormatters[Any]]]]:
+    ...
+
+
+@overload
+def retrieve_request_information_for_batching(
+    w3: "Web3",
+    module: "Module",
+    method: Method[Callable[..., Any]],
+) -> Callable[..., Tuple[RequestArgs, ResponseFormatters[Any]]]:
+    ...
+
+
 @curry
 def retrieve_request_information_for_batching(
     w3: Union["AsyncWeb3", "Web3"],
     module: "Module",
     method: Method[Callable[..., Any]],
 ) -> Union[
-    Callable[..., Tuple[Tuple[RPCEndpoint, Any], Sequence[Any]]],
-    Callable[..., Coroutine[Any, Any, Tuple[Tuple[RPCEndpoint, Any], Sequence[Any]]]],
+    Callable[..., Tuple[RequestArgs, ResponseFormatters[Any]]],
+    Callable[..., Coroutine[Any, Any, Tuple[RequestArgs, ResponseFormatters[Any]]]],
 ]:
     async def async_inner(
         *args: Any, **kwargs: Any
-    ) -> Tuple[Tuple[RPCEndpoint, Any], Sequence[Any]]:
+    ) -> Tuple[RequestArgs, ResponseFormatters[Any]]:
+        response_formatters: ResponseFormatters[Any]
         (method_str, params), response_formatters = method.process_params(
             module, *args, **kwargs
         )
         if isinstance(w3.provider, PersistentConnectionProvider):
             w3.provider._request_processor.cache_request_information(
-                None, cast(RPCEndpoint, method_str), params, response_formatters
+                None, method_str, params, response_formatters
             )
-        return (cast(RPCEndpoint, method_str), params), response_formatters
+        return (method_str, params), response_formatters
 
-    def inner(
-        *args: Any, **kwargs: Any
-    ) -> Tuple[Tuple[RPCEndpoint, Any], Sequence[Any]]:
+    def inner(*args: Any, **kwargs: Any) -> Tuple[RequestArgs, ResponseFormatters[Any]]:
+        response_formatters: ResponseFormatters[Any]
         (method_str, params), response_formatters = method.process_params(
             module, *args, **kwargs
         )
-        return (cast(RPCEndpoint, method_str), params), response_formatters
+        return (method_str, params), response_formatters
 
     return async_inner if module.is_async else inner
 
@@ -97,6 +116,8 @@ def retrieve_blocking_method_call_fn(
     method: Method[Callable[..., TReturn]],
 ) -> Callable[..., Union[TReturn, LogFilter]]:
     def caller(*args: Any, **kwargs: Any) -> Union[TReturn, LogFilter]:
+        response_formatters: ResponseFormatters[Any]
+
         try:
             (method_str, params), response_formatters = method.process_params(
                 module, *args, **kwargs
@@ -133,6 +154,8 @@ def retrieve_async_method_call_fn(
     async def caller(
         *args: Any, **kwargs: Any
     ) -> Union[RPCResponse, FormattedEthSubscriptionResponse, AsyncLogFilter]:
+        response_formatters: ResponseFormatters[Any]
+
         try:
             (method_str, params), response_formatters = method.process_params(
                 module, *args, **kwargs
@@ -142,7 +165,7 @@ def retrieve_async_method_call_fn(
 
         if isinstance(async_w3.provider, PersistentConnectionProvider):
             return await async_w3.manager.socket_request(
-                cast(RPCEndpoint, method_str),
+                method_str,
                 params,
                 response_formatters=response_formatters,
             )
@@ -167,12 +190,22 @@ def retrieve_async_method_call_fn(
 class Module:
     is_async = False
 
+    retrieve_request_information: Callable[
+        [Method[TFunc]],
+        Union[
+            Callable[..., Tuple[RequestArgs, ResponseFormatters[Any]]],
+            Callable[
+                ..., Coroutine[Any, Any, Tuple[RequestArgs, ResponseFormatters[Any]]]
+            ],
+        ],
+    ]
+
     def __init__(self, w3: Union["AsyncWeb3", "Web3"]) -> None:
         if self.is_async:
             self.retrieve_caller_fn = retrieve_async_method_call_fn(w3, self)
         else:
             self.retrieve_caller_fn = retrieve_blocking_method_call_fn(w3, self)
-        self.retrieve_request_information = retrieve_request_information_for_batching(
+        self.retrieve_request_information = retrieve_request_information_for_batching(  # type: ignore [call-overload]
             w3, self
         )
         self.w3 = w3
