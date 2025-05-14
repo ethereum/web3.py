@@ -89,7 +89,6 @@ def retrieve_request_information_for_batching(
     async def async_inner(
         *args: Any, **kwargs: Any
     ) -> Tuple[RequestArgs, ResponseFormatters[Any]]:
-        response_formatters: ResponseFormatters[Any]
         (method_str, params), response_formatters = method.process_params(
             module, *args, **kwargs
         )
@@ -100,7 +99,6 @@ def retrieve_request_information_for_batching(
         return (method_str, params), response_formatters
 
     def inner(*args: Any, **kwargs: Any) -> Tuple[RequestArgs, ResponseFormatters[Any]]:
-        response_formatters: ResponseFormatters[Any]
         (method_str, params), response_formatters = method.process_params(
             module, *args, **kwargs
         )
@@ -116,8 +114,6 @@ def retrieve_blocking_method_call_fn(
     method: Method[Callable[..., TReturn]],
 ) -> Callable[..., Union[TReturn, LogFilter]]:
     def caller(*args: Any, **kwargs: Any) -> Union[TReturn, LogFilter]:
-        response_formatters: ResponseFormatters[Any]
-
         try:
             (method_str, params), response_formatters = method.process_params(
                 module, *args, **kwargs
@@ -154,8 +150,6 @@ def retrieve_async_method_call_fn(
     async def caller(
         *args: Any, **kwargs: Any
     ) -> Union[RPCResponse, FormattedEthSubscriptionResponse, AsyncLogFilter]:
-        response_formatters: ResponseFormatters[Any]
-
         try:
             (method_str, params), response_formatters = method.process_params(
                 module, *args, **kwargs
