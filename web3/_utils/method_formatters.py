@@ -172,7 +172,7 @@ def type_aware_apply_formatters_to_dict(
         value = value.model_dump(by_alias=True)
 
     formatted: Dict[str, Any]
-    formatted = apply_formatters_to_dict(formatters, value)
+    formatted = apply_formatters_to_dict(formatters, value)  # type: ignore [arg-type]
     return AttributeDict.recursive(formatted) if is_attrdict(value) else formatted
 
 
