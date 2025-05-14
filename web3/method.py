@@ -31,7 +31,7 @@ from web3.exceptions import (
     Web3ValueError,
 )
 from web3.types import (
-    RequestFormatter,
+    Formatter,
     ResponseFormatter,
     RPCEndpoint,
     TFunc,
@@ -124,7 +124,7 @@ class Method(Generic[TFunc]):
         json_rpc_method: Optional[RPCEndpoint] = None,
         mungers: Optional[Sequence[Munger]] = None,
         request_formatters: Optional[
-            Callable[[RPCEndpoint], RequestFormatter[Any]]
+            Callable[[RPCEndpoint], Formatter[Any]]
         ] = None,
         result_formatters: Optional[
             Callable[[RPCEndpoint, "Module"], ResponseFormatter[TReturn]]
