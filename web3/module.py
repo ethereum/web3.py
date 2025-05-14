@@ -205,8 +205,10 @@ class Module:
             self.retrieve_caller_fn = retrieve_async_method_call_fn(w3, self)
         else:
             self.retrieve_caller_fn = retrieve_blocking_method_call_fn(w3, self)
-        self.retrieve_request_information = retrieve_request_information_for_batching(  # type: ignore [call-overload]
-            w3, self
+        self.retrieve_request_information = (
+            retrieve_request_information_for_batching(  # type: ignore [call-overload]
+                w3, self
+            )
         )
         self.w3 = w3
 
