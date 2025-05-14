@@ -64,7 +64,7 @@ def retrieve_request_information_for_batching(
     w3: "AsyncWeb3",
     module: "Module",
     method: Method[Callable[..., Any]],
-) -> Callable[..., Coroutine[Any, Any, Tuple[RequestArgs, ResponseFormatters[Any]]]]:
+) -> Callable[..., Coroutine[Any, Any, Tuple[RequestArgs, ResponseFormatters]]]:
     ...
 
 
@@ -73,7 +73,7 @@ def retrieve_request_information_for_batching(
     w3: "Web3",
     module: "Module",
     method: Method[Callable[..., Any]],
-) -> Callable[..., Tuple[RequestArgs, ResponseFormatters[Any]]]:
+) -> Callable[..., Tuple[RequestArgs, ResponseFormatters]]:
     ...
 
 
@@ -83,12 +83,12 @@ def retrieve_request_information_for_batching(
     module: "Module",
     method: Method[Callable[..., Any]],
 ) -> Union[
-    Callable[..., Tuple[RequestArgs, ResponseFormatters[Any]]],
-    Callable[..., Coroutine[Any, Any, Tuple[RequestArgs, ResponseFormatters[Any]]]],
+    Callable[..., Tuple[RequestArgs, ResponseFormatters]],
+    Callable[..., Coroutine[Any, Any, Tuple[RequestArgs, ResponseFormatters]]],
 ]:
     async def async_inner(
         *args: Any, **kwargs: Any
-    ) -> Tuple[RequestArgs, ResponseFormatters[Any]]:
+    ) -> Tuple[RequestArgs, ResponseFormatters]:
         (method_str, params), response_formatters = method.process_params(
             module, *args, **kwargs
         )
@@ -98,7 +98,7 @@ def retrieve_request_information_for_batching(
             )
         return (method_str, params), response_formatters
 
-    def inner(*args: Any, **kwargs: Any) -> Tuple[RequestArgs, ResponseFormatters[Any]]:
+    def inner(*args: Any, **kwargs: Any) -> Tuple[RequestArgs, ResponseFormatters]:
         (method_str, params), response_formatters = method.process_params(
             module, *args, **kwargs
         )
@@ -187,9 +187,9 @@ class Module:
     retrieve_request_information: Callable[
         [Method[TFunc]],
         Union[
-            Callable[..., Tuple[RequestArgs, ResponseFormatters[Any]]],
+            Callable[..., Tuple[RequestArgs, ResponseFormatters]],
             Callable[
-                ..., Coroutine[Any, Any, Tuple[RequestArgs, ResponseFormatters[Any]]]
+                ..., Coroutine[Any, Any, Tuple[RequestArgs, ResponseFormatters]]
             ],
         ],
     ]
