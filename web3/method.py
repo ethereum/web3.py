@@ -166,7 +166,7 @@ class Method(Generic[TFunc]):
             )
 
         provider = module.w3.provider
-        if hasattr(provider, "_is_batching") and provider._is_batching:
+        if getattr(provider, "_is_batching", False):
             if self.json_rpc_method in RPC_METHODS_UNSUPPORTED_DURING_BATCH:
                 raise MethodNotSupported(
                     f"Method `{self.json_rpc_method}` is not supported within a batch "
