@@ -69,8 +69,8 @@ RPCEndpoint = NewType("RPCEndpoint", str)
 Timestamp = NewType("Timestamp", int)
 Wei = NewType("Wei", int)
 Gwei = NewType("Gwei", int)
-RequestFormatter = Callable[..., TReturn]
-RequestFormatters = Dict[RPCEndpoint, RequestFormatter[Any]]
+Formatter = Callable[TParams, TReturn]
+Formatters = Dict[RPCEndpoint, Formatter[Any]]
 ResponseFormatter = Callable[["RPCResponse"], TReturn]
 ResponseFormatters = Dict[RPCEndpoint, ResponseFormatter[Any]]
 
