@@ -14,13 +14,6 @@ from typing import (
 )
 import warnings
 
-from eth_utils.curried import (
-    to_tuple,
-)
-from eth_utils.toolz import (
-    pipe,
-)
-
 from web3._utils.batching import (
     RPC_METHODS_UNSUPPORTED_DURING_BATCH,
 )
@@ -54,16 +47,6 @@ if TYPE_CHECKING:
 
 
 Munger = Callable[..., Any]
-
-
-@to_tuple
-def _apply_request_formatters(
-    params: Any, request_formatters: Dict[RPCEndpoint, Callable[..., TReturn]]
-) -> Tuple[Any, ...]:
-    if request_formatters:
-        formatted_params = pipe(params, request_formatters)
-        return formatted_params
-    return params
 
 
 def _set_mungers(
@@ -232,10 +215,12 @@ class Method(Generic[TFunc]):
             get_error_formatters(method),
             self.null_result_formatters(method),
         )
-        request = (
-            method,
-            _apply_request_formatters(params, self.request_formatters(method)),
-        )
+
+        if request_formatters := self.request_formatters(method):
+            params = tuple(request_formatters(params))  # type: ignore[assignment]
+
+        request = method, params
+
         return request, response_formatters
 
 

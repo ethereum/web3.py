@@ -17,7 +17,6 @@ from web3.exceptions import (
 )
 from web3.method import (
     Method,
-    _apply_request_formatters,
     default_root_munger,
 )
 from web3.module import (
@@ -61,11 +60,7 @@ def test_get_formatters_default_formatter_for_falsy_config():
     default_result_formatters = method.result_formatters(
         method.method_selector_fn(), "some module"
     )
-    assert _apply_request_formatters(["a", "b", "c"], default_request_formatters) == (
-        "a",
-        "b",
-        "c",
-    )
+    assert default_request_formatters(["a", "b", "c"]) == ("a", "b", "c")
     assert apply_result_formatters(default_result_formatters, ["a", "b", "c"]) == [
         "a",
         "b",
