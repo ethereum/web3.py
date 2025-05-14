@@ -69,7 +69,10 @@ RPCEndpoint = NewType("RPCEndpoint", str)
 Timestamp = NewType("Timestamp", int)
 Wei = NewType("Wei", int)
 Gwei = NewType("Gwei", int)
-Formatters = Dict[RPCEndpoint, Callable[..., Any]]
+RequestFormatter = Callable[..., TReturn]
+RequestFormatters = Dict[RPCEndpoint, RequestFormatter[Any]]
+ResponseFormatter = Callable[["RPCResponse"], TReturn]
+ResponseFormatters = Dict[RPCEndpoint, ResponseFormatter[Any]]
 
 
 class AccessListEntry(TypedDict):
@@ -335,9 +338,9 @@ AsyncMakeBatchRequestFn = Callable[
 
 
 class FormattersDict(TypedDict, total=False):
-    error_formatters: Optional[Formatters]
-    request_formatters: Optional[Formatters]
-    result_formatters: Optional[Formatters]
+    error_formatters: Optional[ResponseFormatters]
+    request_formatters: Optional[ResponseFormatters]
+    result_formatters: Optional[ResponseFormatters]
 
 
 class FilterParams(TypedDict, total=False):
