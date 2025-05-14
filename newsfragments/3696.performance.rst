@@ -1,1 +1,0 @@
-cache Method.method_selector_function
