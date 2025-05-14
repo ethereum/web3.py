@@ -36,8 +36,8 @@ from web3.middleware.formatting import (
     FormattingMiddlewareBuilder,
 )
 from web3.types import (
+    Formatters,
     FormattersDict,
-    RequestFormatters,
     RPCEndpoint,
     TxParams,
 )
@@ -151,7 +151,7 @@ def build_method_validators(w3: "Web3", method: RPCEndpoint) -> FormattersDict:
 async def async_build_method_validators(
     async_w3: "AsyncWeb3", method: RPCEndpoint
 ) -> FormattersDict:
-    request_formatters: RequestFormatters = {}
+    request_formatters: Formatters = {}
     if RPCEndpoint(method) in METHODS_TO_VALIDATE:
         w3_chain_id = await async_w3.eth.chain_id
         for method in METHODS_TO_VALIDATE:
