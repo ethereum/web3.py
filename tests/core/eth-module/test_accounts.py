@@ -264,6 +264,7 @@ def test_eth_account_sign(
     acct, message_text, key, expected_bytes, expected_hash, v, r, s, signature
 ):
     message = encode_defunct(text=message_text)
+    assert message.body == expected_bytes
     signed_message = Web3.keccak(
         b"\x19Ethereum Signed Message:\n"
         + bytes(f"{len(message.body)}", encoding="utf-8")
@@ -357,9 +358,9 @@ def test_eth_account_sign(
         ),
         (
             {
-                "gas": 100000,
-                "maxFeePerGas": 2000000000,
-                "maxPriorityFeePerGas": 2000000000,
+                "gas": "0x186a0",
+                "maxFeePerGas": "0x77359400",
+                "maxPriorityFeePerGas": "0x77359400",
                 "data": "0x5544",
                 "nonce": "0x2",
                 "to": "0x96216849c49358B10257cb55b28eA603c874b05E",
