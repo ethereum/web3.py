@@ -654,7 +654,7 @@ The script can be run with: ``python ./eventscanner.py <your JSON-RPC API URL>``
                     # from our in-memory cache
                     block_when = get_block_when(block_number)
 
-                    logger.debug(f"Processing event {evt['event']}, block: {evt['blockNumber']} count: {evt['blockNumber']}")
+                    logger.debug("Processing event %s, block: %s count: %s", evt['event'], block_number, block_number)
                     processed = self.state.process_event(block_when, evt)
                     all_processed.append(processed)
 
@@ -726,7 +726,8 @@ The script can be run with: ``python ./eventscanner.py <your JSON-RPC API URL>``
                 # Print some diagnostics to logs to try to fiddle with real world JSON-RPC API performance
                 estimated_end_block = min(current_block + chunk_size, end_block)
                 logger.debug(
-                    f"Scanning token transfers for blocks: {current_block} - {estimated_end_block}, chunk size {chunk_size}, last chunk scan took {last_scan_duration}, last logs found {last_logs_found}"
+                    "Scanning token transfers for blocks: %s - %s, chunk size %s, last chunk scan took %s, last logs found %s",
+                    current_block, estimated_end_block, chunk_size, last_scan_duration, last_logs_found,
                 )
 
                 start = time.time()
@@ -778,7 +779,9 @@ The script can be run with: ``python ./eventscanner.py <your JSON-RPC API URL>``
                 if i < retries - 1:
                     # Give some more verbose info than the default middleware
                     logger.warning(
-                        f"Retrying events for block range {start_block} - {end_block} ({end_block-start_block}) failed with {e} , retrying in {delay} seconds")
+                        "Retrying events for block range %s - %s (%s) failed with %s , retrying in %s seconds",
+                        start_block, end_block, end_block-start_block, e, delay,
+                    )
                     # Decrease the `eth_getBlocks` range
                     end_block = start_block + ((end_block - start_block) // 2)
                     # Let the JSON-RPC to recover e.g. from restart
@@ -832,7 +835,7 @@ The script can be run with: ``python ./eventscanner.py <your JSON-RPC API URL>``
             to_block=to_block
         )
 
-        logger.debug(f"Querying eth_getLogs with the following parameters: {event_filter_params}")
+        logger.debug("Querying eth_getLogs with the following parameters: %s", event_filter_params)
 
         # Call JSON-RPC API on your Ethereum node.
         # get_logs() returns raw AttributedDict entries

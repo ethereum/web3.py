@@ -123,8 +123,9 @@ class SubscriptionManager:
             subscriptions._id = sub_id
             self._add_subscription(subscriptions)
             self.logger.info(
-                "Successfully subscribed to subscription:\n    "
-                f"label: {subscriptions.label}\n    id: {sub_id}"
+                "Successfully subscribed to subscription:\n    label: %s\n    id: %s",
+                subscriptions.label,
+                sub_id,
             )
             return sub_id
         elif isinstance(subscriptions, Sequence):
@@ -190,8 +191,10 @@ class SubscriptionManager:
             if await self._w3.eth._unsubscribe(subscriptions.id):
                 self._remove_subscription(subscriptions)
                 self.logger.info(
-                    "Successfully unsubscribed from subscription:\n    "
-                    f"label: {subscriptions.label}\n    id: {subscriptions.id}"
+                    "Successfully unsubscribed from subscription:\n"
+                    "    label: %s\n    id: %s",
+                    subscriptions.label,
+                    subscriptions.id,
                 )
 
                 if len(self._subscription_container.handler_subscriptions) == 0:
@@ -208,7 +211,7 @@ class SubscriptionManager:
             unsubscribed: List[bool] = []
             # re-create the subscription list to prevent modifying the original list
             # in case ``subscription_manager.subscriptions`` was passed in directly
-            subs = [sub for sub in subscriptions]
+            subs = list(subscriptions)
             for sub in subs:
                 if isinstance(sub, str):
                     sub = HexStr(sub)
@@ -216,7 +219,8 @@ class SubscriptionManager:
             return all(unsubscribed)
 
         self.logger.warning(
-            f"Failed to unsubscribe from subscription\n    subscription={subscriptions}"
+            "Failed to unsubscribe from subscription\n    subscription=%s",
+            subscriptions,
         )
         return False
 
@@ -240,7 +244,8 @@ class SubscriptionManager:
             if len(self.subscriptions) > 0:
                 self.logger.warning(
                     "Failed to unsubscribe from all subscriptions. Some subscriptions "
-                    f"are still active.\n    subscriptions={self.subscriptions}"
+                    "are still active.\n    subscriptions=%s",
+                    self.subscriptions,
                 )
             return False
 
