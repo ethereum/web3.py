@@ -618,6 +618,7 @@ def map_abi_data(
         *map(data_tree_map, normalizers),
         # 3. Stripping the types back out of the tree
         strip_abi_types,
+        list,
     )
 
 
