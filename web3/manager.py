@@ -360,7 +360,7 @@ class RequestManager:
         self,
         method: RPCEndpoint,
         params: Any,
-        response_formatters: Optional[ResponseFormatters[Any]] = None,
+        response_formatters: Optional[ResponseFormatters] = None,
     ) -> RPCResponse:
         provider = cast(PersistentConnectionProvider, self._provider)
         self.logger.debug(
