@@ -170,7 +170,7 @@ class Method(Generic[TFunc]):
     def __call__(self, *args: Any, **kwargs: Any) -> Any:
         return self.__get__(self._module)(*args, **kwargs)
 
-    @functools.cached_property
+    @property
     def method_selector_fn(
         self,
     ) -> Callable[[], RPCEndpoint]:
