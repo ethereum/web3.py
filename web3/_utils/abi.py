@@ -624,7 +624,7 @@ def map_abi_data(
 @curry
 def abi_data_tree(
     types: Iterable[TypeStr], data: Iterable[Any]
-) -> List["ABITypedData"]:
+) -> "map[ABITypedData]":
     """
     Decorate the data tree with pairs of (type, data). The pair tuple is actually an
     ABITypedData, but can be accessed as a tuple.
@@ -634,7 +634,7 @@ def abi_data_tree(
     >>> abi_data_tree(types=["bool[2]", "uint"], data=[[True, False], 0])
     [("bool[2]", [("bool", True), ("bool", False)]), ("uint256", 0)]
     """
-    return list(map(abi_sub_tree, types, data))
+    return map(abi_sub_tree, types, data)
 
 
 @curry
@@ -929,6 +929,8 @@ async def async_map_if_collection(
     If the value is not a collection, return it unmodified.
     """
     datatype = type(value)
+    if datatype is map:
+        return [await func(item) for item in value]
     if isinstance(value, Mapping):
         return datatype({key: await func(val) for key, val in value.values()})
     if is_string(value):

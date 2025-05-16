@@ -65,6 +65,8 @@ def map_collection(func: Callable[..., TReturn], collection: Any) -> Any:
     If the value is not a collection, return it unmodified
     """
     datatype = type(collection)
+    if datatype is map:
+        return map(func, collection)
     if isinstance(collection, Mapping):
         return datatype((key, func(val)) for key, val in collection.items())
     if is_string(collection):

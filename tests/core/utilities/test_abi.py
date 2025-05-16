@@ -262,7 +262,7 @@ def test_get_tuple_type_str_parts(
 def test_abi_data_tree(
     types: List[str], data: Tuple[List[bool], bytes], expected: List[Any]
 ) -> None:
-    assert abi_data_tree(types, data) == expected
+    assert list(abi_data_tree(types, data)) == expected
 
 
 @pytest.mark.parametrize(
