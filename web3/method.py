@@ -182,7 +182,7 @@ class Method(Generic[TFunc]):
     @property
     def method_selector_fn(
         self,
-    ) -> Callable[..., Union[RPCEndpoint, Callable[..., RPCEndpoint]]]:
+    ) -> Callable[..., RPCEndpoint]:
         """Gets the method selector from the config."""
         if callable(self.json_rpc_method):
             return self.json_rpc_method
