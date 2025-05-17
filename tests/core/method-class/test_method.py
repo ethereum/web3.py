@@ -76,7 +76,7 @@ def test_get_formatters_non_falsy_config_retrieval():
     method_name = method.method_selector_fn()
     first_formatter = (method.request_formatters(method_name).first,)
     all_other_formatters = method.request_formatters(method_name).funcs
-    assert len(first_formatter + all_other_formatters) == 2
+    assert len(first_formatter + all_other_formatters) == 3
     assert (method.request_formatters("eth_getBalance").first,) == first_formatter
 
 
