@@ -7,6 +7,7 @@ from typing import (
     Collection,
     Dict,
     Iterable,
+    Iterator,
     NoReturn,
     Tuple,
     TypeVar,
@@ -35,7 +36,6 @@ from eth_utils.curried import (
     is_string,
     to_checksum_address,
     to_list,
-    to_tuple,
 )
 from eth_utils.toolz import (
     complement,
@@ -1094,11 +1094,10 @@ ERROR_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
 }
 
 
-@to_tuple
 def combine_formatters(
     formatter_maps: Collection[Dict[RPCEndpoint, Callable[..., TReturn]]],
     method_name: RPCEndpoint,
-) -> Iterable[Callable[..., TReturn]]:
+) -> Iterator[Callable[..., TReturn]]:
     for formatter_map in formatter_maps:
         if method_name in formatter_map:
             yield formatter_map[method_name]
@@ -1234,12 +1233,11 @@ FILTER_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
 }
 
 
-@to_tuple
 def apply_module_to_formatters(
     formatters: Iterable[Callable[..., TReturn]],
     module: "Module",
     method_name: Union[RPCEndpoint, Callable[..., RPCEndpoint]],
-) -> Iterable[Callable[..., TReturn]]:
+) -> Iterator[Callable[..., TReturn]]:
     for f in formatters:
         yield partial(f, module, method_name)
 
