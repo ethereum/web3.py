@@ -172,12 +172,9 @@ def type_aware_apply_formatters_to_dict(
     if isinstance(value, BaseModel):
         value = value.model_dump(by_alias=True)
 
-    formatted_dict: Dict[str, Any] = apply_formatters_to_dict(formatters, dict(value))
-    return (
-        AttributeDict.recursive(formatted_dict)
-        if is_attrdict(value)
-        else formatted_dict
-    )
+    formatted: Dict[str, Any]
+    formatted = apply_formatters_to_dict(formatters, value)  # type: ignore [arg-type]
+    return AttributeDict.recursive(formatted) if is_attrdict(value) else formatted
 
 
 def type_aware_apply_formatters_to_dict_keys_and_values(
@@ -1115,7 +1112,7 @@ def get_request_formatters(method_name: RPCEndpoint) -> Callable[[RPCResponse], 
         PYTHONIC_REQUEST_FORMATTERS,
     )
     formatters = combine_formatters(request_formatter_maps, method_name)
-    return compose(*formatters)
+    return compose(tuple, *formatters)
 
 
 def raise_block_not_found(params: Tuple[BlockIdentifier, bool]) -> NoReturn:
