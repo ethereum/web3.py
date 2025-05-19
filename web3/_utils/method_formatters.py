@@ -1262,6 +1262,7 @@ def get_result_formatters(
 
 _error_formatters: CachedFormatters = {}
 
+
 def get_error_formatters(method_name: RPCEndpoint) -> Callable[[RPCResponse], Any]:
     #  Note error formatters work on the full response dict
     try:
@@ -1274,6 +1275,7 @@ def get_error_formatters(method_name: RPCEndpoint) -> Callable[[RPCResponse], An
 
 
 _null_result_formatters: CachedFormatters = {}
+
 
 def get_null_result_formatters(
     method_name: RPCEndpoint,
