@@ -19,6 +19,7 @@ from eth_utils.toolz import (
 
 from web3._utils.batching import (
     BATCH_REQUEST_ID,
+    is_batching_context,
 )
 from web3._utils.caching import (
     RequestInformation,
@@ -135,7 +136,7 @@ class RequestProcessor:
                 return None
 
         if request_id is None:
-            if not self._provider._is_batching:
+            if not is_batching_context():
                 raise Web3ValueError(
                     "Request id must be provided when not batching requests."
                 )
@@ -297,7 +298,7 @@ class RequestProcessor:
         return isinstance(raw_response, list) or (
             isinstance(raw_response, dict)
             and raw_response.get("id") is None
-            and self._provider._is_batching
+            and is_batching_context()
         )
 
     async def cache_raw_response(
