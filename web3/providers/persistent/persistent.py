@@ -24,7 +24,7 @@ from websockets import (
 
 from web3._utils.batching import (
     BATCH_REQUEST_ID,
-    async_batching_context,
+    is_batching_context,
     sort_batch_response_by_response_ids,
 )
 from web3._utils.caching import (
@@ -237,14 +237,12 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
         rpc_request = await self.send_request(method, params)
         return await self.recv_for_request(rpc_request)
 
-    @async_batching_context
     async def make_batch_request(
         self, requests: List[Tuple[RPCEndpoint, Any]]
     ) -> List[RPCResponse]:
         request_data = self.encode_batch_rpc_request(requests)
         await self.socket_send(request_data)
 
-        # breakpoint()
         response = cast(
             List[RPCResponse],
             await self._get_response_for_request_id(BATCH_REQUEST_ID),
@@ -319,7 +317,7 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
         Check the request response cache for any errors not tied to current requests
         and raise them if found.
         """
-        if not self._is_batching:
+        if not is_batching_context():
             for (
                 response
             ) in self._request_processor._request_response_cache._data.values():

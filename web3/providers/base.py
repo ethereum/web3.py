@@ -120,7 +120,6 @@ class JSONBaseProvider(BaseProvider):
         super().__init__(**kwargs)
         self.request_counter = itertools.count()
 
-        self._is_batching: bool = False
         self._batch_request_func_cache: Tuple[
             Tuple[Middleware, ...], Callable[..., Union[List[RPCResponse], RPCResponse]]
         ] = (None, None)

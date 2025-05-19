@@ -36,7 +36,6 @@ from web3.types import (
 )
 
 from ..._utils.batching import (
-    async_batching_context,
     sort_batch_response_by_response_ids,
 )
 from ..._utils.caching import (
@@ -169,7 +168,6 @@ class AsyncHTTPProvider(AsyncJSONBaseProvider):
         )
         return response
 
-    @async_batching_context
     async def make_batch_request(
         self, batch_requests: List[Tuple[RPCEndpoint, Any]]
     ) -> Union[List[RPCResponse], RPCResponse]:

@@ -27,7 +27,6 @@ from websockets.legacy.client import (
 )
 
 from web3._utils.batching import (
-    batching_context,
     sort_batch_response_by_response_ids,
 )
 from web3._utils.caching import (
@@ -144,7 +143,6 @@ class LegacyWebSocketProvider(JSONBaseProvider):
         )
         return future.result()
 
-    @batching_context
     def make_batch_request(
         self, requests: List[Tuple[RPCEndpoint, Any]]
     ) -> List[RPCResponse]:

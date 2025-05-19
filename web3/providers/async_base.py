@@ -94,7 +94,6 @@ class AsyncBaseProvider:
         self.cache_allowed_requests = cache_allowed_requests
         self.cacheable_requests = cacheable_requests or CACHEABLE_REQUESTS
         self.request_cache_validation_threshold = request_cache_validation_threshold
-        self._is_batching: bool = False
         self._batch_request_func_cache: Tuple[
             Tuple[Middleware, ...],
             Callable[..., Coroutine[Any, Any, Union[List[RPCResponse], RPCResponse]]],
