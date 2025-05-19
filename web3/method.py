@@ -51,6 +51,7 @@ RequestArgs = Tuple[RPCEndpoint, Sequence[Any]]
 ResponseFormatters = Tuple[
     ResponseFormatter[Any], ResponseFormatter[Any], ResponseFormatter[Any]
 ]
+RequestAndFormatters = Tuple[RequestArgs, ResponseFormatters]
 
 
 def _set_mungers(
@@ -194,7 +195,7 @@ class Method(Generic[TFunc]):
 
     def process_params(
         self, module: "Module", *args: Any, **kwargs: Any
-    ) -> Tuple[RequestArgs, ResponseFormatters]:
+    ) -> RequestAndFormatters:
         params = self.input_munger(module, args, kwargs)
 
         if self.method_choice_depends_on_args:

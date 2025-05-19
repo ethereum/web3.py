@@ -5,7 +5,6 @@ from typing import (
     Coroutine,
     Dict,
     Optional,
-    Tuple,
     TypeVar,
     Union,
     overload,
@@ -26,8 +25,7 @@ from web3._utils.filters import (
 )
 from web3.method import (
     Method,
-    RequestArgs,
-    ResponseFormatters,
+    RequestAndFormatters,
 )
 from web3.providers.persistent import (
     PersistentConnectionProvider,
@@ -64,7 +62,7 @@ def retrieve_request_information_for_batching(
     w3: "AsyncWeb3",
     module: "Module",
     method: Method[Callable[..., Any]],
-) -> Callable[..., Coroutine[Any, Any, Tuple[RequestArgs, ResponseFormatters]]]:
+) -> Callable[..., Coroutine[Any, Any, RequestAndFormatters]]:
     ...
 
 
@@ -73,7 +71,7 @@ def retrieve_request_information_for_batching(
     w3: "Web3",
     module: "Module",
     method: Method[Callable[..., Any]],
-) -> Callable[..., Tuple[RequestArgs, ResponseFormatters]]:
+) -> Callable[..., RequestAndFormatters]:
     ...
 
 
@@ -83,12 +81,12 @@ def retrieve_request_information_for_batching(
     module: "Module",
     method: Method[Callable[..., Any]],
 ) -> Union[
-    Callable[..., Tuple[RequestArgs, ResponseFormatters]],
-    Callable[..., Coroutine[Any, Any, Tuple[RequestArgs, ResponseFormatters]]],
+    Callable[..., RequestAndFormatters],
+    Callable[..., Coroutine[Any, Any, RequestAndFormatters]],
 ]:
     async def async_inner(
         *args: Any, **kwargs: Any
-    ) -> Tuple[RequestArgs, ResponseFormatters]:
+    ) -> RequestAndFormatters:
         (method_str, params), response_formatters = method.process_params(
             module, *args, **kwargs
         )
@@ -98,7 +96,7 @@ def retrieve_request_information_for_batching(
             )
         return (method_str, params), response_formatters
 
-    def inner(*args: Any, **kwargs: Any) -> Tuple[RequestArgs, ResponseFormatters]:
+    def inner(*args: Any, **kwargs: Any) -> RequestAndFormatters:
         (method_str, params), response_formatters = method.process_params(
             module, *args, **kwargs
         )
@@ -187,10 +185,8 @@ class Module:
     retrieve_request_information: Callable[
         [Method[TFunc]],
         Union[
-            Callable[..., Tuple[RequestArgs, ResponseFormatters]],
-            Callable[
-                ..., Coroutine[Any, Any, Tuple[RequestArgs, ResponseFormatters]]
-            ],
+            Callable[..., RequestAndFormatters],
+            Callable[..., Coroutine[Any, Any, RequestAndFormatters]],
         ],
     ]
 
