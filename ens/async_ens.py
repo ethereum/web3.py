@@ -57,7 +57,7 @@ from ens.utils import (
     address_in,
     address_to_reverse_domain,
     default,
-    ens_encode_name,
+    dns_encode_name,
     init_async_web3,
     is_empty_name,
     is_none_or_zero_address,
@@ -500,7 +500,7 @@ class AsyncENS(BaseENS):
 
             calldata = resolver.encode_abi(*contract_func_with_args)
             contract_call_result = await resolver.caller.resolve(
-                ens_encode_name(normal_name),
+                dns_encode_name(normal_name),
                 calldata,
             )
             result = self._decode_ensip10_resolve_data(

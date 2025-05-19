@@ -1,0 +1,1 @@
+Deprecate ``ens_encode_name`` in favor of ``dns_encode_name``.

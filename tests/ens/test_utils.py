@@ -1,4 +1,7 @@
 import pytest
+from unittest import (
+    mock,
+)
 from unittest.mock import (
     patch,
 )
@@ -20,6 +23,7 @@ from ens.exceptions import (
     ENSValidationError,
 )
 from ens.utils import (
+    dns_encode_name,
     ens_encode_name,
     init_async_web3,
     init_web3,
@@ -70,8 +74,8 @@ def test_init_web3_adds_expected_middleware():
         (f"abc-123.{'b' * 255}", b"\x07abc-123" + b"\xff" + b"b" * 255 + b"\x00"),
     ),
 )
-def test_ens_encode_name(name, expected):
-    assert ens_encode_name(name) == expected
+def test_dns_encode_name(name, expected):
+    assert dns_encode_name(name) == expected
 
 
 @pytest.mark.parametrize(
@@ -101,19 +105,19 @@ def test_ens_encode_name(name, expected):
         ),
     ),
 )
-def test_ens_encode_name_validating_total_encoded_name_size(name, expected):
+def test_dns_encode_name_validating_total_encoded_name_size(name, expected):
     # This test is important because dns validation technically limits the
     # total encoded domain name size to 255. ENSIP-10 expects the name to be
     # DNS encoded with one of the validation exceptions being that the
     # total encoded size can be any length.
-    ens_encoded = ens_encode_name(name)
-    assert len(ens_encoded) > 255
-    assert ens_encoded == expected
+    dns_encoded = dns_encode_name(name)
+    assert len(dns_encoded) > 255
+    assert dns_encoded == expected
 
 
 @pytest.mark.parametrize("empty_name", ("", ".", None, " ", "  "))
-def test_ens_encode_name_returns_single_zero_byte_for_empty_name(empty_name):
-    assert ens_encode_name(empty_name) == b"\00"
+def test_dns_encode_name_returns_single_zero_byte_for_empty_name(empty_name):
+    assert dns_encode_name(empty_name) == b"\00"
 
 
 @pytest.mark.parametrize(
@@ -127,21 +131,21 @@ def test_ens_encode_name_returns_single_zero_byte_for_empty_name(empty_name):
         (f"{'a' * 255}.{'1' * 255}.{'b' * 256}", 2),
     ),
 )
-def test_ens_encode_name_raises_ValidationError_on_label_lengths_over_63(
+def test_dns_encode_name_raises_validation_error_on_label_lengths_over_63(
     name, invalid_label_index
 ):
     with pytest.raises(
         ENSValidationError, match=f"Label at position {invalid_label_index} too long"
     ):
-        ens_encode_name(name)
+        dns_encode_name(name)
 
 
-def test_ens_encode_name_normalizes_name_before_encoding():
-    assert ens_encode_name("Öbb.at") == ens_encode_name("öbb.at")
-    assert ens_encode_name("nhÉéÉéÉé.eth") == ens_encode_name("nhéééééé.eth")
-    assert ens_encode_name("TESTER.eth") == ens_encode_name("tester.eth")
-    assert ens_encode_name("test\u200btest.com") == ens_encode_name("testtest.com")
-    assert ens_encode_name("O\u0308bb.at") == ens_encode_name("öbb.at")
+def test_dns_encode_name_normalizes_name_before_encoding():
+    assert dns_encode_name("Öbb.at") == dns_encode_name("öbb.at")
+    assert dns_encode_name("nhÉéÉéÉé.eth") == dns_encode_name("nhéééééé.eth")
+    assert dns_encode_name("TESTER.eth") == dns_encode_name("tester.eth")
+    assert dns_encode_name("test\u200btest.com") == dns_encode_name("testtest.com")
+    assert dns_encode_name("O\u0308bb.at") == dns_encode_name("öbb.at")
 
 
 @pytest.mark.parametrize(
@@ -167,7 +171,7 @@ def test_normal_name_to_hash(name, hashed):
         is_valid_name,
         BaseENS.namehash,
         BaseENS.nameprep,
-        ens_encode_name,
+        dns_encode_name,
         raw_name_to_hash,
     ),
 )
@@ -203,6 +207,16 @@ def test_label_to_hash_normalizes_name_using_ensip15():
     assert label_to_hash("foo").to_0x_hex() == (
         "0x41b1a0649752af1b28b3dc29a1556eee781e4a4c3a1f7f53f90fa834de098c4d"
     )
+
+
+@mock.patch("ens.utils.dns_encode_name")
+def test_ens_encode_name_issues_deprecation_warning_and_calls_dns_encode_name(
+    mock_dns_encode_name,
+):
+    with pytest.warns(DeprecationWarning, match=r"``ens_encode_name`` is deprecated"):
+        ens_encode_name("foo")
+
+    mock_dns_encode_name.assert_called_once_with("foo")
 
 
 # -- async -- #

@@ -13,6 +13,7 @@ from typing import (
     Union,
     cast,
 )
+import warnings
 
 from eth_typing import (
     Address,
@@ -132,7 +133,7 @@ def normalize_name(name: str) -> str:
     return normalize_name_ensip15(name).as_text
 
 
-def ens_encode_name(name: str) -> bytes:
+def dns_encode_name(name: str) -> HexBytes:
     r"""
     Encode a name according to DNS standards specified in section 3.1
     of RFC1035 with the following validations:
@@ -145,7 +146,7 @@ def ens_encode_name(name: str) -> bytes:
     :param str name: the dot-separated ENS name
     """
     if is_empty_name(name):
-        return b"\x00"
+        return HexBytes(b"\x00")
 
     normalized_name = normalize_name(name)
 
@@ -163,7 +164,17 @@ def ens_encode_name(name: str) -> bytes:
     dns_prepped_labels = [to_bytes(len(label)) + label for label in labels_as_bytes]
 
     # return the joined prepped labels in order and append the zero byte at the end:
-    return b"".join(dns_prepped_labels) + b"\x00"
+    return HexBytes(b"".join(dns_prepped_labels) + b"\x00")
+
+
+def ens_encode_name(name: str) -> bytes:
+    warnings.warn(
+        "``ens_encode_name`` is deprecated and will be removed in the next "
+        "major version. Use ``dns_encode_name`` instead.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    return bytes(dns_encode_name(name))
 
 
 def is_valid_name(name: str) -> bool:
