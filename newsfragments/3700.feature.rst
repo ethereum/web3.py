@@ -1,0 +1,1 @@
+Introduce ``ens.utils.dns_encode_name`` as a rename of the current ``ens_encode_name``, for consistency across other language implementations and with the ENS docs. Returns ``HexBytes`` instead of ``bytes``.
