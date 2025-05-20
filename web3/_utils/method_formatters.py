@@ -1236,7 +1236,7 @@ FILTER_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
 def apply_module_to_formatters(
     formatters: Iterable[Callable[..., TReturn]],
     module: "Module",
-    method_name: Union[RPCEndpoint, Callable[..., RPCEndpoint]],
+    method_name: RPCEndpoint,
 ) -> Iterator[Callable[..., TReturn]]:
     for f in formatters:
         yield partial(f, module, method_name)
