@@ -1,3 +1,4 @@
+import contextvars
 import itertools
 import logging
 import threading
@@ -50,6 +51,9 @@ from web3.utils import (
 
 if TYPE_CHECKING:
     from web3 import Web3  # noqa: F401
+    from web3._utils.batching import (
+        RequestBatcher,
+    )
 
 
 class BaseProvider:
@@ -80,6 +84,20 @@ class BaseProvider:
         self.cache_allowed_requests = cache_allowed_requests
         self.cacheable_requests = cacheable_requests or CACHEABLE_REQUESTS
         self.request_cache_validation_threshold = request_cache_validation_threshold
+
+        self._batching_context: contextvars.ContextVar[
+            Optional["RequestBatcher[Any]"]
+        ] = contextvars.ContextVar("batching_context", default=None)
+        self._batch_request_func_cache: Tuple[
+            Tuple[Middleware, ...], Callable[..., Union[List[RPCResponse], RPCResponse]]
+        ] = (None, None)
+
+    @property
+    def _is_batching(self) -> bool:
+        """
+        Check if the provider is currently batching requests.
+        """
+        return self._batching_context.get() is not None
 
     def request_func(
         self, w3: "Web3", middleware_onion: MiddlewareOnion
@@ -119,10 +137,6 @@ class JSONBaseProvider(BaseProvider):
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         self.request_counter = itertools.count()
-
-        self._batch_request_func_cache: Tuple[
-            Tuple[Middleware, ...], Callable[..., Union[List[RPCResponse], RPCResponse]]
-        ] = (None, None)
 
     def encode_rpc_request(self, method: RPCEndpoint, params: Any) -> bytes:
         rpc_dict = {

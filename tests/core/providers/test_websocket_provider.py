@@ -18,9 +18,6 @@ from websockets import (
 from web3 import (
     AsyncWeb3,
 )
-from web3._utils.batching import (
-    is_batching_context,
-)
 from web3._utils.caching import (
     RequestInformation,
     generate_cache_key,
@@ -479,7 +476,7 @@ async def test_persistent_connection_provider_empty_batch_response():
         with pytest.raises(Web3RPCError, match="empty batch"):
             async with AsyncWeb3(WebSocketProvider("ws://mocked")) as async_w3:
                 async with async_w3.batch_requests() as batch:
-                    assert is_batching_context()
+                    assert async_w3.provider._is_batching
                     async_w3.provider._ws.recv = AsyncMock()
                     async_w3.provider._ws.recv.return_value = (
                         b'{"jsonrpc": "2.0","id":null,"error": {"code": -32600, '
@@ -489,7 +486,7 @@ async def test_persistent_connection_provider_empty_batch_response():
 
         # assert that even though there was an error, we have reset the batching
         # state
-        assert not is_batching_context()
+        assert not async_w3.provider._is_batching
 
 
 @pytest.mark.parametrize(

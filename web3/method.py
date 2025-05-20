@@ -23,7 +23,6 @@ from eth_utils.toolz import (
 
 from web3._utils.batching import (
     RPC_METHODS_UNSUPPORTED_DURING_BATCH,
-    is_batching_context,
 )
 from web3._utils.method_formatters import (
     get_error_formatters,
@@ -166,7 +165,7 @@ class Method(Generic[TFunc]):
                 "usually attached to a web3 instance."
             )
 
-        if is_batching_context():
+        if module.w3.provider._is_batching:
             if self.json_rpc_method in RPC_METHODS_UNSUPPORTED_DURING_BATCH:
                 raise MethodNotSupported(
                     f"Method `{self.json_rpc_method}` is not supported within a batch "

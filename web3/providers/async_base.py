@@ -1,4 +1,5 @@
 import asyncio
+import contextvars
 import itertools
 import logging
 from typing import (
@@ -61,6 +62,9 @@ if TYPE_CHECKING:
         AsyncWeb3,
         WebSocketProvider,
     )
+    from web3._utils.batching import (  # noqa: F401
+        RequestBatcher,
+    )
     from web3.providers.persistent import (  # noqa: F401
         RequestProcessor,
     )
@@ -94,10 +98,18 @@ class AsyncBaseProvider:
         self.cache_allowed_requests = cache_allowed_requests
         self.cacheable_requests = cacheable_requests or CACHEABLE_REQUESTS
         self.request_cache_validation_threshold = request_cache_validation_threshold
+
+        self._batching_context: contextvars.ContextVar[
+            Optional["RequestBatcher[Any]"]
+        ] = contextvars.ContextVar("batching_context", default=None)
         self._batch_request_func_cache: Tuple[
             Tuple[Middleware, ...],
             Callable[..., Coroutine[Any, Any, Union[List[RPCResponse], RPCResponse]]],
         ] = (None, None)
+
+    @property
+    def _is_batching(self) -> bool:
+        return self._batching_context.get() is not None
 
     async def request_func(
         self, async_w3: "AsyncWeb3", middleware_onion: MiddlewareOnion
@@ -239,3 +251,6 @@ class AsyncJSONBaseProvider(AsyncBaseProvider):
             )
             + b"]"
         )
+
+    def encode_batch_request_dicts(self, request_dicts: List[RPCRequest]) -> bytes:
+        return b"[" + b",".join(self.encode_rpc_dict(d) for d in request_dicts) + b"]"

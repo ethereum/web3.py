@@ -12,9 +12,6 @@ from web3 import (
     AsyncWeb3,
     __version__ as web3py_version,
 )
-from web3._utils.batching import (
-    is_batching_context,
-)
 from web3.eth import (
     AsyncEth,
 )
@@ -131,4 +128,4 @@ async def test_async_http_empty_batch_response(mock_async_post):
         with pytest.raises(Web3RPCError, match="empty batch"):
             await batch.async_execute()
 
-    assert not is_batching_context()
+    assert not async_w3.provider._is_batching

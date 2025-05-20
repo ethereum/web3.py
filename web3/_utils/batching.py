@@ -1,7 +1,3 @@
-import contextvars
-from copy import (
-    copy,
-)
 from types import (
     TracebackType,
 )
@@ -13,8 +9,6 @@ from typing import (
     Dict,
     Generic,
     List,
-    Optional,
-    Sequence,
     Tuple,
     Type,
     Union,
@@ -29,7 +23,6 @@ from web3.exceptions import (
     Web3ValueError,
 )
 from web3.types import (
-    RPCEndpoint,
     TFunc,
     TReturn,
 )
@@ -58,24 +51,14 @@ if TYPE_CHECKING:
         JSONBaseProvider,
     )
     from web3.types import (  # noqa: F401
+        RPCEndpoint,
         RPCResponse,
     )
 
 
 BATCH_REQUEST_ID = "batch_request"  # for use as the cache key for batch requests
 
-# control batching context via a context var
-_batching_context: contextvars.ContextVar[
-    Optional["RequestBatcher[Any]"]
-] = contextvars.ContextVar("batching_context", default=None)
-
-
-def is_batching_context() -> bool:
-    """Check if we're currently in a batching context."""
-    return _batching_context.get() is not None
-
-
-BatchRequestInformation = Tuple[Tuple["RPCEndpoint", Any], Sequence[Any]]
+BatchRequestInformation = Tuple[Tuple["RPCEndpoint", Any], Tuple[Any, ...]]
 RPC_METHODS_UNSUPPORTED_DURING_BATCH = {
     "eth_subscribe",
     "eth_unsubscribe",
@@ -105,22 +88,19 @@ class RequestBatcher(Generic[TFunc]):
         )
 
     def _validate_is_batching(self) -> None:
-        if not is_batching_context():
+        if not self._provider._is_batching:
             raise Web3ValueError(
                 "Batch has already been executed or cancelled. Create a new batch to "
                 "issue batched requests."
             )
 
     def _initialize_batching(self) -> None:
-        _batching_context.set(self)
+        self._provider._batching_context.set(self)
         self.clear()
 
     def _end_batching(self) -> None:
-        _batching_context.set(None)
         self.clear()
-        if self._provider.has_persistent_connection:
-            provider = cast("PersistentConnectionProvider", self._provider)
-            provider._batch_request_counter = None
+        self._provider._batching_context.set(None)
 
     def add(self, batch_payload: TReturn) -> None:
         self._validate_is_batching()
@@ -164,9 +144,6 @@ class RequestBatcher(Generic[TFunc]):
     def clear(self) -> None:
         self._requests_info = []
         self._async_requests_info = []
-        if self._provider.has_persistent_connection:
-            provider = cast("PersistentConnectionProvider", self._provider)
-            provider._batch_request_counter = next(copy(provider.request_counter))
 
     def cancel(self) -> None:
         self._end_batching()
@@ -189,9 +166,14 @@ class RequestBatcher(Generic[TFunc]):
 
     async def async_execute(self) -> List["RPCResponse"]:
         self._validate_is_batching()
-        responses = await self.web3.manager._async_make_batch_request(
-            self._async_requests_info
-        )
+        if self._provider.has_persistent_connection:
+            responses = await self.web3.manager._async_make_socket_batch_request(
+                self._async_requests_info
+            )
+        else:
+            responses = await self.web3.manager._async_make_batch_request(
+                self._async_requests_info
+            )
         self._end_batching()
         return responses
 
