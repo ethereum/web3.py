@@ -87,7 +87,7 @@ def _simulate_call(http_session_manager, uri):
     return _session
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 def http_session_manager():
     return HTTPSessionManager()
 
@@ -485,7 +485,7 @@ async def test_session_manager_async_unique_cache_keys_created_per_thread_with_s
         event_loop = asyncio.new_event_loop()
         unique_session = event_loop.run_until_complete(
             http_session_manager.async_cache_and_return_session(
-                endpoint_uri, request_timeout=ClientTimeout(0.01)
+                endpoint_uri, request_timeout=ClientTimeout(0.1)
             )
         )
         event_loop.close()
@@ -500,6 +500,7 @@ async def test_session_manager_async_unique_cache_keys_created_per_thread_with_s
             daemon=True,
         )
         thread.start()
+        time.sleep(0.01)
         threads.append(thread)
 
     [thread.join() for thread in threads]

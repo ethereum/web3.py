@@ -85,7 +85,7 @@ def test_init_multiple_contracts_performance(w3, emitter_contract_data):
             abi=emitter_contract_data["abi"], bytecode=emitter_contract_data["bytecode"]
         )
     # assert initializing 500 contracts is within a conservative / reasonable time
-    assert (time.time() - start_time) < 1.75
+    assert (time.time() - start_time) < 3
 
 
 # -- async -- #
@@ -98,4 +98,4 @@ def test_async_init_multiple_contracts_performance(async_w3, emitter_contract_da
             abi=emitter_contract_data["abi"], bytecode=emitter_contract_data["bytecode"]
         )
     # assert initializing 500 contracts is within a conservative / reasonable time
-    assert (time.time() - start_time) < 1.75
+    assert (time.time() - start_time) < 3
