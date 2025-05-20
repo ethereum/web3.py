@@ -129,7 +129,15 @@ AnyFilter = Union[
     LogFilter,
 ]
 
-TFilter = TypeVar("TFilter", bound=AnyFilter)
+TFilter = TypeVar(
+    "TFilter",
+    AsyncBlockFilter,
+    AsyncTransactionFilter,
+    AsyncLogFilter,
+    BlockFilter,
+    TransactionFilter,
+    LogFilter,
+)
 
 FilterResultFormatter = Callable[[Union["AsyncEth", "Eth"], RPCEndpoint, TValue], TFilter]
 
