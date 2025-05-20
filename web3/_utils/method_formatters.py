@@ -1234,10 +1234,10 @@ FILTER_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
 
 
 def apply_module_to_formatters(
-    formatters: Iterable[Callable[..., TReturn]],
+    formatters: Iterable[Callable[["Module", RPCEndpoint, TValue], TReturn]],
     module: "Module",
     method_name: RPCEndpoint,
-) -> Iterator[Callable[..., TReturn]]:
+) -> Iterator[Callable[[TValue], TReturn]]:
     for f in formatters:
         yield partial(f, module, method_name)
 
