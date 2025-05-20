@@ -20,6 +20,9 @@ from websockets import (
 from web3 import (
     AsyncWeb3,
 )
+from web3._utils.batching import (
+    is_batching_context,
+)
 from web3.datastructures import (
     AttributeDict,
 )
@@ -374,17 +377,19 @@ async def test_persistent_connection_provider_empty_batch_response(
     simple_ipc_server,
     jsonrpc_ipc_pipe_path,
 ):
-    async with AsyncWeb3(
-        AsyncIPCProvider(pathlib.Path(jsonrpc_ipc_pipe_path))
-    ) as async_w3:
-        async_w3.provider._reader.readline = AsyncMock()
-        async_w3.provider._reader.readline.return_value = (
-            b'{"jsonrpc": "2.0","id":null,"error": {"code": -32600, "message": '
-            b'"empty batch"}}\n'
-        )
-        async with async_w3.batch_requests() as batch:
-            with pytest.raises(Web3RPCError, match="empty batch"):
+    with pytest.raises(Web3RPCError, match="empty batch"):
+        async with AsyncWeb3(
+            AsyncIPCProvider(pathlib.Path(jsonrpc_ipc_pipe_path))
+        ) as async_w3:
+            async_w3.provider._reader.readline = AsyncMock(
+                return_value=(
+                    b'{"jsonrpc": "2.0","id":null,"error": {"code": -32600, "message": '
+                    b'"empty batch"}}\n'
+                )
+            )
+            async with async_w3.batch_requests() as batch:
+                assert is_batching_context()
                 await batch.async_execute()
 
         # assert that even though there was an error, we have reset the batching state
-        assert not async_w3.provider._is_batching
+        assert not is_batching_context()

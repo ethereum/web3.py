@@ -1,4 +1,7 @@
 import pytest
+import asyncio
+import threading
+import time
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -44,6 +47,9 @@ if TYPE_CHECKING:
     from web3.contract import (  # noqa: F401
         AsyncContract,
     )
+
+
+SOME_BLOCK_KEYS = {"number", "hash", "parentHash", "stateRoot", "transactions"}
 
 
 class Web3ModuleTest:
@@ -516,6 +522,43 @@ class Web3ModuleTest:
                 batch.add(w3.eth.sign(Address(b"\x00" * 20)))
                 batch.execute()
 
+    def test_batch_requests_concurrently_with_regular_requests(
+        self, w3: "Web3"
+    ) -> None:
+        num_requests = 40
+        responses = []
+        batch_response = []
+
+        def make_regular_requests() -> None:
+            for _ in range(num_requests):
+                responses.append(w3.eth.get_block(0))
+                time.sleep(0.01)
+
+        def make_batch_request() -> None:
+            with w3.batch_requests() as batch:
+                for _ in range(num_requests):
+                    batch.add(w3.eth.get_block(0))
+                    time.sleep(0.01)
+                batch_response.extend(batch.execute())
+
+        # split into threads
+        regular_thread = threading.Thread(target=make_regular_requests)
+        batch_thread = threading.Thread(target=make_batch_request)
+
+        regular_thread.start()
+        batch_thread.start()
+
+        # wait for threads to finish
+        regular_thread.join()
+        batch_thread.join()
+        assert not regular_thread.is_alive()
+        assert not batch_thread.is_alive()
+
+        assert len(responses) == num_requests
+        assert len(batch_response) == num_requests
+        assert all(SOME_BLOCK_KEYS.issubset(response.keys()) for response in responses)
+        assert set(responses) == set(batch_response)
+
 
 # -- async -- #
 
@@ -737,3 +780,33 @@ class AsyncWeb3ModuleTest(Web3ModuleTest):
             with pytest.raises(MethodNotSupported, match="eth_sign"):
                 batch.add(async_w3.eth.sign(Address(b"\x00" * 20)))
                 await batch.async_execute()
+
+    @pytest.mark.asyncio
+    async def test_batch_requests_concurrently_with_regular_requests(  # type: ignore[override]  # noqa: E501
+        self, async_w3: AsyncWeb3  # type: ignore[override]
+    ) -> None:
+        num_requests = 40
+        responses = []
+        batch_response = []
+
+        async def make_regular_requests() -> None:
+            for _ in range(num_requests):
+                responses.append(await async_w3.eth.get_block(0))
+                await asyncio.sleep(0.01)
+
+        async def make_batch_request() -> None:
+            async with async_w3.batch_requests() as batch:
+                for _ in range(num_requests):
+                    batch.add(async_w3.eth.get_block(0))
+                    await asyncio.sleep(0.01)
+                batch_response.extend(await batch.async_execute())
+
+        await asyncio.gather(
+            make_regular_requests(),
+            make_batch_request(),
+        )
+
+        assert len(responses) == num_requests
+        assert len(batch_response) == num_requests
+        assert all(SOME_BLOCK_KEYS.issubset(response.keys()) for response in responses)
+        assert set(responses) == set(batch_response)
