@@ -269,6 +269,12 @@ class TestEthereumTesterWeb3Module(Web3ModuleTest):
         Web3ModuleTest.test_batch_requests_clear, Web3TypeError
     )
 
+    @pytest.mark.skip("EthereumTesterProvider does not support batch requests")
+    def test_batch_requests_concurrently_with_regular_requests(self, w3):
+        # batching is not supported by ``EthereumTesterProvider`` and the exception
+        # is triggered in a different thread so not caught by it. Skip it here instead.
+        pass
+
 
 class TestEthereumTesterEthModule(EthModuleTest):
     test_eth_sign = not_implemented(EthModuleTest.test_eth_sign, MethodUnavailable)
