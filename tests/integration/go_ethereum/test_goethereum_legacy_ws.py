@@ -56,7 +56,10 @@ def w3(start_geth_process_and_yield_port):
 
 
 class TestGoEthereumWeb3ModuleTest(GoEthereumWeb3ModuleTest):
-    pass
+    def test_batch_requests_concurrently_with_regular_requests(
+        self, w3: "Web3"
+    ) -> None:
+        pytest.skip("LegacyWebSocketProvider does not support concurrent requests")
 
 
 class TestGoEthereumAdminModuleTest(GoEthereumAdminModuleTest):
