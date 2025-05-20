@@ -1230,7 +1230,7 @@ def filter_wrapper(
         )
 
 
-FILTER_RESULT_FORMATTERS: Dict[RPCEndpoint, FilterResultFormatter[HexStr, Filter]] = {
+FILTER_RESULT_FORMATTERS: Dict[RPCEndpoint, FilterResultFormatter[HexStr, AnyFilter]] = {
     RPC.eth_newPendingTransactionFilter: filter_wrapper,
     RPC.eth_newBlockFilter: filter_wrapper,
     RPC.eth_newFilter: filter_wrapper,
