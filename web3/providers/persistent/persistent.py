@@ -24,7 +24,6 @@ from websockets import (
 
 from web3._utils.batching import (
     BATCH_REQUEST_ID,
-    is_batching_context,
     sort_batch_response_by_response_ids,
 )
 from web3._utils.caching import (
@@ -317,17 +316,17 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
         Check the request response cache for any errors not tied to current requests
         and raise them if found.
         """
-        if not is_batching_context():
-            for (
-                response
-            ) in self._request_processor._request_response_cache._data.values():
-                if isinstance(response, dict):
+        for response in self._request_processor._request_response_cache._data.values():
+            if isinstance(response, dict):
+                if "id" not in response:
+                    validate_rpc_response_and_raise_if_error(
+                        cast(RPCResponse, response), None, logger=self.logger
+                    )
+                else:
                     request = self._request_processor._request_information_cache.get_cache_entry(  # noqa: E501
                         generate_cache_key(response["id"])
                     )
                     if "error" in response and request is None:
-                        # if we find an error response in the cache without a
-                        # corresponding request, raise the error
                         validate_rpc_response_and_raise_if_error(
                             cast(RPCResponse, response), None, logger=self.logger
                         )
