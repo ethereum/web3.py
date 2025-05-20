@@ -119,6 +119,18 @@ if TYPE_CHECKING:
     from web3.module import Module  # noqa: F401
 
 TValue = TypeVar("TValue")
+TReturn = TypeVar("TReturn")
+
+Filter = Union[
+    AsyncBlockFilter,
+    AsyncTransactionFilter,
+    AsyncLogFilter,
+    BlockFilter,
+    TransactionFilter,
+    LogFilter,
+]
+
+FilterResultFormatter = Callable[["Module", RPCEndpoint, TValue], TReturn]
 
 
 def bytes_to_ascii(value: bytes) -> str:
@@ -1193,14 +1205,7 @@ def filter_wrapper(
     module: Union["AsyncEth", "Eth"],
     method: RPCEndpoint,
     filter_id: HexStr,
-) -> Union[
-    AsyncBlockFilter,
-    AsyncTransactionFilter,
-    AsyncLogFilter,
-    BlockFilter,
-    TransactionFilter,
-    LogFilter,
-]:
+) -> Filter:
     if method == RPC.eth_newBlockFilter:
         if module.is_async:
             return AsyncBlockFilter(filter_id, eth_module=cast("AsyncEth", module))
@@ -1226,7 +1231,7 @@ def filter_wrapper(
         )
 
 
-FILTER_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
+FILTER_RESULT_FORMATTERS: Dict[RPCEndpoint, FilterResultFormatter[HexStr, Filter]] = {
     RPC.eth_newPendingTransactionFilter: filter_wrapper,
     RPC.eth_newBlockFilter: filter_wrapper,
     RPC.eth_newFilter: filter_wrapper,
@@ -1234,7 +1239,7 @@ FILTER_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
 
 
 def apply_module_to_formatters(
-    formatters: Iterable[Callable[["Module", RPCEndpoint, TValue], TReturn]],
+    formatters: Iterable[FilterResultFormatter[TValue, TReturn]],
     module: "Module",
     method_name: RPCEndpoint,
 ) -> Iterator[Callable[[TValue], TReturn]]:
