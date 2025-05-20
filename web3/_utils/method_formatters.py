@@ -119,7 +119,6 @@ if TYPE_CHECKING:
     from web3.module import Module  # noqa: F401
 
 TValue = TypeVar("TValue")
-TReturn = TypeVar("TReturn")
 
 Filter = Union[
     AsyncBlockFilter,
