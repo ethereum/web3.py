@@ -129,7 +129,7 @@ Filter = Union[
     LogFilter,
 ]
 
-FilterResultFormatter = Callable[["Module", RPCEndpoint, TValue], TReturn]
+FilterResultFormatter = Callable[[Union["AsyncEth", "Eth"], RPCEndpoint, TValue], TReturn]
 
 
 def bytes_to_ascii(value: bytes) -> str:
