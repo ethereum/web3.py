@@ -261,7 +261,7 @@ class RequestManager:
         return RequestBatcher(self.w3)
 
     def _make_batch_request(
-        self, requests_info: List[Tuple[Tuple["RPCEndpoint", Any], Sequence[Any]]]
+        self, requests_info: List[Tuple[Tuple["RPCEndpoint", Any], Tuple[Any, ...]]]
     ) -> List[RPCResponse]:
         """
         Make a batch request using the provider
@@ -291,7 +291,7 @@ class RequestManager:
     async def _async_make_batch_request(
         self,
         requests_info: List[
-            Coroutine[Any, Any, Tuple[Tuple["RPCEndpoint", Any], Sequence[Any]]]
+            Coroutine[Any, Any, Tuple[Tuple["RPCEndpoint", Any], Tuple[Any]]]
         ],
     ) -> List[RPCResponse]:
         """
@@ -315,13 +315,6 @@ class RequestManager:
         if isinstance(response, list):
             # expected format
             response = cast(List[RPCResponse], response)
-            if isinstance(self.provider, PersistentConnectionProvider):
-                # call _process_response for each response in the batch
-                return [
-                    cast(RPCResponse, await self._process_response(resp))
-                    for resp in response
-                ]
-
             formatted_responses = [
                 self._format_batched_response(info, resp)
                 for info, resp in zip(unpacked_requests_info, response)
@@ -330,6 +323,86 @@ class RequestManager:
         else:
             # expect a single response with an error
             raise_error_for_batch_response(response, self.logger)
+
+    async def _async_send_batch(
+        self, requests: List[Tuple["RPCEndpoint", Any]]
+    ) -> List[RPCRequest]:
+        """
+        Send a batch request via socket.
+        """
+        if not isinstance(self._provider, PersistentConnectionProvider):
+            raise Web3TypeError(
+                "Only providers that maintain an open, persistent connection "
+                "can send batch requests."
+            )
+        send_func = await self._provider.send_batch_func(
+            cast("AsyncWeb3", self.w3),
+            cast("MiddlewareOnion", self.middleware_onion),
+        )
+        self.logger.debug(
+            "Sending batch request to open socket connection: %s",
+            self._provider.get_endpoint_uri_or_ipc_path(),
+        )
+        return await send_func(requests)
+
+    async def _async_recv_batch(self, requests: List[RPCRequest]) -> List[RPCResponse]:
+        """
+        Receive a batch request via socket.
+        """
+        if not isinstance(self._provider, PersistentConnectionProvider):
+            raise Web3TypeError(
+                "Only providers that maintain an open, persistent connection "
+                "can receive batch requests."
+            )
+        recv_func = await self._provider.recv_batch_func(
+            cast("AsyncWeb3", self.w3),
+            cast("MiddlewareOnion", self.middleware_onion),
+        )
+        self.logger.debug(
+            "Receiving batch request from open socket connection: %s",
+            self._provider.get_endpoint_uri_or_ipc_path(),
+        )
+        return await recv_func(requests)
+
+    async def _async_make_socket_batch_request(
+        self,
+        requests_info: List[
+            Coroutine[Any, Any, Tuple[Tuple["RPCEndpoint", Any], Tuple[Any, ...]]]
+        ],
+    ) -> List[RPCResponse]:
+        """
+        Send and receive a batch request via a socket.
+        """
+        if not isinstance(self._provider, PersistentConnectionProvider):
+            raise Web3TypeError(
+                "Only providers that maintain an open, persistent connection "
+                "can send and receive batch requests."
+            )
+
+        unpacked_requests_info = await asyncio.gather(*requests_info)
+        reqs = [req for req, _ in unpacked_requests_info]
+        response_formatters = [resp_f for _, resp_f in unpacked_requests_info]
+
+        requests = await self._async_send_batch(reqs)
+
+        for i, request in enumerate(requests):
+            self._provider._request_processor.cache_request_information(
+                request["id"],
+                request["method"],
+                request["params"],
+                response_formatters=response_formatters[i],
+            )
+
+        responses = await self._async_recv_batch(requests)
+        if isinstance(responses, list):
+            # expected format
+            return [
+                cast(RPCResponse, await self._process_response(resp))
+                for resp in responses
+            ]
+        else:
+            # expect a single response with an error
+            raise_error_for_batch_response(responses, self.logger)
 
     def _format_batched_response(
         self,

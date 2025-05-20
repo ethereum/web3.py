@@ -25,9 +25,6 @@ from web3 import (
     AsyncWeb3,
     Web3,
 )
-from web3._utils.batching import (
-    is_batching_context,
-)
 from web3._utils.ens import (
     ens_addresses,
 )
@@ -345,7 +342,7 @@ class Web3ModuleTest:
 
             # assert proper batch cleanup after execution
             assert batch._requests_info == []
-            assert not is_batching_context()
+            assert not w3.provider._is_batching
 
             # assert batch cannot be added to after execution
             with pytest.raises(
@@ -404,7 +401,7 @@ class Web3ModuleTest:
 
         # assert proper batch cleanup after execution
         assert batch._requests_info == []
-        assert not is_batching_context()
+        assert not w3.provider._is_batching
 
         # assert batch cannot be added to after execution
         with pytest.raises(
@@ -597,7 +594,7 @@ class AsyncWeb3ModuleTest(Web3ModuleTest):
 
             # assert proper batch cleanup after execution
             assert batch._async_requests_info == []
-            assert not is_batching_context()
+            assert not async_w3.provider._is_batching
 
             # assert batch cannot be added to after execution
             with pytest.raises(
@@ -660,7 +657,7 @@ class AsyncWeb3ModuleTest(Web3ModuleTest):
 
         # assert proper batch cleanup after execution
         assert batch._async_requests_info == []
-        assert not is_batching_context()
+        assert not async_w3.provider._is_batching
 
         # assert batch cannot be added to after execution
         with pytest.raises(
@@ -785,19 +782,20 @@ class AsyncWeb3ModuleTest(Web3ModuleTest):
     async def test_batch_requests_concurrently_with_regular_requests(  # type: ignore[override]  # noqa: E501
         self, async_w3: AsyncWeb3  # type: ignore[override]
     ) -> None:
-        num_requests = 40
         responses = []
         batch_response = []
 
+        num_blocks = await async_w3.eth.block_number
+
         async def make_regular_requests() -> None:
-            for _ in range(num_requests):
-                responses.append(await async_w3.eth.get_block(0))
+            for i in range(num_blocks):
+                responses.append(await async_w3.eth.get_block(i))
                 await asyncio.sleep(0.01)
 
         async def make_batch_request() -> None:
             async with async_w3.batch_requests() as batch:
-                for _ in range(num_requests):
-                    batch.add(async_w3.eth.get_block(0))
+                for i in range(num_blocks):
+                    batch.add(async_w3.eth.get_block(i))
                     await asyncio.sleep(0.01)
                 batch_response.extend(await batch.async_execute())
 
@@ -806,7 +804,7 @@ class AsyncWeb3ModuleTest(Web3ModuleTest):
             make_batch_request(),
         )
 
-        assert len(responses) == num_requests
-        assert len(batch_response) == num_requests
+        assert len(responses) == num_blocks
+        assert len(batch_response) == num_blocks
         assert all(SOME_BLOCK_KEYS.issubset(response.keys()) for response in responses)
         assert set(responses) == set(batch_response)

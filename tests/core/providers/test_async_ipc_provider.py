@@ -20,9 +20,6 @@ from websockets import (
 from web3 import (
     AsyncWeb3,
 )
-from web3._utils.batching import (
-    is_batching_context,
-)
 from web3.datastructures import (
     AttributeDict,
 )
@@ -388,8 +385,8 @@ async def test_persistent_connection_provider_empty_batch_response(
                 )
             )
             async with async_w3.batch_requests() as batch:
-                assert is_batching_context()
+                assert async_w3.provider._is_batching
                 await batch.async_execute()
 
         # assert that even though there was an error, we have reset the batching state
-        assert not is_batching_context()
+        assert not async_w3.provider._is_batching

@@ -15,9 +15,6 @@ from web3 import (
     Web3,
     __version__ as web3py_version,
 )
-from web3._utils.batching import (
-    is_batching_context,
-)
 from web3.eth import (
     Eth,
 )
@@ -130,9 +127,9 @@ def test_http_empty_batch_response(mock_post):
     )
     w3 = Web3(HTTPProvider())
     with w3.batch_requests() as batch:
-        assert is_batching_context()
+        assert w3.provider._is_batching
         with pytest.raises(Web3RPCError, match="empty batch"):
             batch.execute()
 
     # assert that even though there was an error, we have reset the batching state
-    assert not is_batching_context()
+    assert not w3.provider._is_batching
