@@ -120,7 +120,7 @@ if TYPE_CHECKING:
 
 TValue = TypeVar("TValue")
 
-Filter = Union[
+AnyFilter = Union[
     AsyncBlockFilter,
     AsyncTransactionFilter,
     AsyncLogFilter,
@@ -1204,7 +1204,7 @@ def filter_wrapper(
     module: Union["AsyncEth", "Eth"],
     method: RPCEndpoint,
     filter_id: HexStr,
-) -> Filter:
+) -> AnyFilter:
     if method == RPC.eth_newBlockFilter:
         if module.is_async:
             return AsyncBlockFilter(filter_id, eth_module=cast("AsyncEth", module))
