@@ -18,6 +18,11 @@ from hexbytes import (
 
 
 class Web3Transaction:
+    __slots__ = (
+        "typed_transaction",
+        "_dict",
+    )
+
     def __init__(self, typed_transaction: TypedTransaction):
         self.typed_transaction = typed_transaction
         self._dict = typed_transaction.as_dict()
