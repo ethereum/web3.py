@@ -129,7 +129,9 @@ AnyFilter = Union[
     LogFilter,
 ]
 
-FilterResultFormatter = Callable[[Union["AsyncEth", "Eth"], RPCEndpoint, TValue], TReturn]
+TFilter = TypeVar("TFilter", bound=AnyFilter)
+
+FilterResultFormatter = Callable[[Union["AsyncEth", "Eth"], RPCEndpoint, TValue], TFilter]
 
 
 def bytes_to_ascii(value: bytes) -> str:
@@ -1238,10 +1240,10 @@ FILTER_RESULT_FORMATTERS: Dict[RPCEndpoint, FilterResultFormatter[HexStr, AnyFil
 
 
 def apply_module_to_formatters(
-    formatters: Iterable[FilterResultFormatter[TValue, TReturn]],
+    formatters: Iterable[FilterResultFormatter[TValue, TFilter]],
     module: "Module",
     method_name: RPCEndpoint,
-) -> Iterator[Callable[[TValue], TReturn]]:
+) -> Iterator[Callable[[TValue], TFilter]]:
     for f in formatters:
         yield partial(f, module, method_name)
 
