@@ -178,7 +178,7 @@ class HTTPSessionManager:
         request_timeout: Optional[ClientTimeout] = None,
     ) -> ClientSession:
         # cache key should have a unique thread identifier
-        cache_key = generate_cache_key(f"{threading.get_ident()}:{endpoint_uri}")
+        cache_key = generate_cache_key(f"{id(asyncio.get_event_loop())}:{endpoint_uri}")
 
         evicted_items = None
         async with async_lock(self.session_pool, self._lock):
