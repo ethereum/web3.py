@@ -37,6 +37,7 @@ from eth_utils import (
 )
 from eth_utils.toolz import (
     assoc,
+    merge,
 )
 from hexbytes import (
     HexBytes,
@@ -717,7 +718,7 @@ class AsyncEthModuleTest:
         async_w3.middleware_onion.remove("signing")
 
     @pytest.mark.asyncio
-    async def test_async_sign_authorization_and_send_raw_set_code_transaction(
+    async def test_async_sign_authorization_send_raw_and_send_set_code_transactions(
         self,
         async_w3: "AsyncWeb3",
         keyfile_account_pkey: HexStr,
@@ -752,6 +753,7 @@ class AsyncEthModuleTest:
             "authorizationList": [signed_auth],
         }
 
+        # test eth_sendRawTransaction
         signed = keyfile_account.sign_transaction(txn)
         tx_hash = await async_w3.eth.send_raw_transaction(signed.raw_transaction)
         get_tx = await async_w3.eth.get_transaction(tx_hash)
@@ -790,14 +792,17 @@ class AsyncEthModuleTest:
             "nonce": nonce + 3,
         }
         signed_reset_auth = keyfile_account.sign_authorization(reset_auth)
-        new_txn = dict(txn)
-        new_txn["authorizationList"] = [signed_reset_auth]
-        new_txn["nonce"] = nonce + 2
-
-        signed_reset = keyfile_account.sign_transaction(new_txn)
-        reset_tx_hash = await async_w3.eth.send_raw_transaction(
-            signed_reset.raw_transaction
+        reset_code_txn = merge(
+            txn,
+            {
+                "from": keyfile_account.address,
+                "authorizationList": [signed_reset_auth],
+                "nonce": nonce + 2,
+            },
         )
+
+        # test eth_sendTransaction
+        reset_tx_hash = await async_w3.eth.send_transaction(reset_code_txn)
         reset_tx_receipt = await async_w3.eth.wait_for_transaction_receipt(
             reset_tx_hash, timeout=10
         )
@@ -3867,7 +3872,7 @@ class EthModuleTest:
         # cleanup
         w3.middleware_onion.remove("signing")
 
-    def test_sign_authorization_and_send_raw_set_code_transaction(
+    def test_sign_authorization_send_raw_and_send_set_code_transactions(
         self, w3: "Web3", keyfile_account_pkey: HexStr, math_contract: "Contract"
     ) -> None:
         # TODO: remove blockNumber block_id from eth_call and eth_getCode calls once
@@ -3899,6 +3904,7 @@ class EthModuleTest:
             "authorizationList": [signed_auth],
         }
 
+        # test eth_sendRawTransaction
         signed = keyfile_account.sign_transaction(txn)
         tx_hash = w3.eth.send_raw_transaction(signed.raw_transaction)
         get_tx = w3.eth.get_transaction(tx_hash)
@@ -3939,12 +3945,17 @@ class EthModuleTest:
             "nonce": nonce + 3,
         }
         signed_reset_auth = keyfile_account.sign_authorization(reset_auth)
-        new_txn = dict(txn)
-        new_txn["authorizationList"] = [signed_reset_auth]
-        new_txn["nonce"] = nonce + 2
+        reset_code_txn = merge(
+            txn,
+            {
+                "from": keyfile_account.address,
+                "authorizationList": [signed_reset_auth],
+                "nonce": nonce + 2,
+            },
+        )
 
-        signed_reset = keyfile_account.sign_transaction(new_txn)
-        reset_tx_hash = w3.eth.send_raw_transaction(signed_reset.raw_transaction)
+        # test eth_sendTransaction
+        reset_tx_hash = w3.eth.send_transaction(reset_code_txn)
         reset_tx_receipt = w3.eth.wait_for_transaction_receipt(
             reset_tx_hash, timeout=10
         )
