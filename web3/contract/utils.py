@@ -46,9 +46,6 @@ from web3._utils.async_transactions import (
 from web3._utils.batching import (
     BatchRequestInformation,
 )
-from web3._utils.compat import (
-    TypeAlias,
-)
 from web3._utils.contracts import (
     prepare_transaction,
 )
@@ -65,7 +62,6 @@ from web3.exceptions import (
 from web3.types import (
     ABIElementIdentifier,
     BlockIdentifier,
-    RPCEndpoint,
     StateOverride,
     TContractEvent,
     TContractFn,
@@ -485,8 +481,7 @@ async def async_call_contract_function(
             output_types,
         )
 
-        BatchingReturnData: TypeAlias = Tuple[Tuple[RPCEndpoint, Any], Tuple[Any, ...]]
-        request_information = tuple(cast(BatchingReturnData, return_data))
+        request_information = tuple(cast(BatchRequestInformation, return_data))
         method_and_params = request_information[0]
 
         # append return data formatter to result formatters
@@ -502,8 +497,6 @@ async def async_call_contract_function(
             current_response_formatters[2],  # null result formatters
         )
         return (method_and_params, response_formatters)
-
-        return return_data
 
     try:
         output_data = async_w3.codec.decode(output_types, return_data)

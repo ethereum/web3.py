@@ -13,10 +13,6 @@ from typing import (
     Union,
 )
 
-from eth_utils.toolz import (
-    compose,
-)
-
 from web3._utils.batching import (
     BATCH_REQUEST_ID,
 )
@@ -227,34 +223,6 @@ class RequestProcessor:
                 self.pop_cached_request_information(subscribe_cache_key)
 
         return request_info
-
-    def append_result_formatter_for_request(
-        self, request_id: int, result_formatter: Callable[..., Any]
-    ) -> None:
-        cache_key = generate_cache_key(request_id)
-        cached_request_info_for_id: RequestInformation = (
-            self._request_information_cache.get_cache_entry(cache_key)
-        )
-        if cached_request_info_for_id is not None:
-            (
-                current_result_formatters,
-                error_formatters,
-                null_result_formatters,
-            ) = cached_request_info_for_id.response_formatters
-            cached_request_info_for_id.response_formatters = (
-                compose(
-                    result_formatter,
-                    current_result_formatters,
-                ),
-                error_formatters,
-                null_result_formatters,
-            )
-        else:
-            self._provider.logger.debug(
-                "No cached request info for response id `%s`. Cannot "
-                "append response formatter for response.",
-                request_id,
-            )
 
     def append_middleware_response_processor(
         self,
