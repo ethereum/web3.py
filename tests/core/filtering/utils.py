@@ -1,3 +1,7 @@
+from eth_tester import (
+    EthereumTester,
+)
+
 from web3 import (
     AsyncWeb3,
     Web3,
@@ -13,10 +17,9 @@ from web3.providers.eth_tester import (
 MAX_UINT_256 = 2**256 - 1
 
 
-def _w3_fixture_logic(request):
+def _w3_fixture_logic(request, backend_class):
     use_filter_middleware = request.param
-    provider = EthereumTesterProvider()
-    w3 = Web3(provider)
+    w3 = Web3(EthereumTesterProvider(EthereumTester(backend=backend_class())))
     w3.eth.default_account = w3.eth.accounts[0]
     if use_filter_middleware:
         w3.middleware_onion.add(LocalFilterMiddleware)
@@ -45,10 +48,11 @@ def _emitter_fixture_logic(
 # --- async --- #
 
 
-async def _async_w3_fixture_logic(request):
+async def _async_w3_fixture_logic(request, backend_class):
     use_filter_middleware = request.param
-    provider = AsyncEthereumTesterProvider()
-    async_w3 = AsyncWeb3(provider)
+    async_w3 = AsyncWeb3(
+        AsyncEthereumTesterProvider(EthereumTester(backend=backend_class()))
+    )
 
     accounts = await async_w3.eth.accounts
     async_w3.eth.default_account = accounts[0]

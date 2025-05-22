@@ -2,6 +2,9 @@ import pytest
 import time
 import warnings
 
+from eth_tester import (
+    EthereumTester,
+)
 import pytest_asyncio
 
 from tests.utils import (
@@ -71,15 +74,15 @@ def wait_for_transaction():
 
 
 @pytest.fixture
-def w3():
-    w3 = Web3(EthereumTesterProvider())
+def w3(backend_class):
+    w3 = Web3(EthereumTesterProvider(EthereumTester(backend=backend_class())))
     w3.eth.default_account = w3.eth.accounts[0]
     return w3
 
 
 @pytest.fixture(scope="module")
-def w3_non_strict_abi():
-    w3 = Web3(EthereumTesterProvider())
+def w3_non_strict_abi(backend_class):
+    w3 = Web3(EthereumTesterProvider(EthereumTester(backend=backend_class())))
     w3.eth.default_account = w3.eth.accounts[0]
     w3.strict_bytes_type_checking = False
     return w3

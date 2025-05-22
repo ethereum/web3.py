@@ -11,6 +11,10 @@ parameters:
     type: string
 
 common: &common
+  parameters:
+    python_exec:
+      type: string
+      default: "python"
   working_directory: ~/repo
   steps:
     - checkout
@@ -29,6 +33,38 @@ common: &common
         keys:
           - cache-v1-{{ arch }}-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
     - run:
+        name: install pypy3 if python_exec is pypy3
+        command: |
+          if [ "<< parameters.python_exec >>" == "pypy3" ]; then
+            sudo apt-get update
+
+            # If .pyenv already exists, remove and reinstall to get latest version
+            if [ -d "$HOME/.pyenv" ]; then
+                echo "Removing existing .pyenv directory..."
+                rm -rf $HOME/.pyenv
+            fi
+            curl https://pyenv.run | bash
+            export PATH="$HOME/.pyenv/bin:$PATH"
+            eval "$(pyenv init --path)"
+            eval "$(pyenv init -)"
+            eval "$(pyenv virtualenv-init -)"
+
+            # Find the latest PyPy version matching the python minor version
+            latest_pypy_version=$(pyenv install --list | grep -E "pypy3\.<< parameters.python_minor_version >>" | grep -v "\-src" | tail -1 | tr -d ' ')
+            echo "Latest PyPy version: $latest_pypy_version"
+
+            # Install the latest PyPy 3.10 version using pyenv if not already installed
+            pyenv install "$latest_pypy_version"
+            pyenv global "$latest_pypy_version"
+
+            # Verify the correct PyPy version is being used
+            pypy3 --version
+
+            # Install pip using the newly installed PyPy version
+            curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+            pypy3 get-pip.py
+          fi
+    - run:
         name: install dependencies
         command: |
           python -m pip install --upgrade pip
@@ -36,7 +72,7 @@ common: &common
           python web3/scripts/install_pre_releases.py
     - run:
         name: run tox
-        command: python -m tox run -r
+        command: << parameters.python_exec >> -m tox -r
     - save_cache:
         paths:
           - .hypothesis
@@ -141,11 +177,29 @@ jobs:
         type: string
       tox_env:
         type: string
+      python_exec:
+        type: string
+        default: "python"
     <<: *common
     docker:
       - image: cimg/python:3.<< parameters.python_minor_version >>
     environment:
       TOXENV: py3<< parameters.python_minor_version >>-<< parameters.tox_env >>
+
+  common-pypy:
+    parameters:
+      python_minor_version:
+        type: string
+      tox_env:
+        type: string
+      python_exec:
+        type: string
+        default: "pypy3"
+    <<: *common
+    docker:
+      - image: cimg/python:3.<< parameters.python_minor_version >>
+    environment:
+      TOXENV: pypy3<< parameters.python_minor_version >>-<< parameters.tox_env >>
 
   geth:
     parameters:
@@ -224,13 +278,44 @@ workflows:
               python_minor_version: ["8", "9", "10", "11", "12", "13"]
               tox_env: [
                 "lint",
-                "core",
-                "core_async",
-                "ens",
+                "core-pyevm",
+                "core-pyevm_async",
+                "ens-pyevm",
                 "ensip15",
                 "wheel"
               ]
+          python_exec: "python"
           name: "py3<< matrix.python_minor_version >>-<< matrix.tox_env >>"
+      - common:
+          matrix:
+            parameters:
+              # eels only supports 3.10 and above
+              python_minor_version: ["10", "11", "12", "13"]
+              tox_env: [
+                "core-eels",
+                "core-eels_async",
+                "ens-eels",
+                "integration-ethtester-eels"
+              ]
+          python_exec: "python"
+          name: "py3<< matrix.python_minor_version >>-<< matrix.tox_env >>"
+      - common-pypy:
+          matrix:
+            parameters:
+              # eels only supports 3.10 and above; pyenv only has pypy3.10 available
+              python_minor_version: ["10"]
+              tox_env: [
+                "core-eels",
+                "core-eels_async",
+                "ens-eels",
+                "integration-ethtester-eels",
+                "core-pyevm",
+                "core-pyevm_async",
+                "ens-pyevm",
+                "integration-ethtester-pyevm"
+              ]
+          python_exec: "pypy3"
+          name: "pypy3<< matrix.python_minor_version >>-<< matrix.tox_env >>"
       - geth:
           matrix:
             parameters:
@@ -242,7 +327,7 @@ workflows:
                 "integration-goethereum-http_async",
                 "integration-goethereum-legacy_ws",
                 "integration-goethereum-ws",
-                "integration-ethtester"
+                "integration-ethtester-pyevm"
               ]
           name: "py3<< matrix.python_minor_version >>-<< matrix.tox_env >>"
       - docs:
@@ -255,7 +340,6 @@ workflows:
             parameters:
               python_minor_version: ["10", "11", "12", "13"]
           name: "py3<< matrix.python_minor_version >>-windows-wheel"
-
 
   nightly:
     triggers:

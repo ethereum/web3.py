@@ -27,7 +27,10 @@ if TYPE_CHECKING:
 def _validate_init_params_and_return_if_found(module_class: Any) -> List[str]:
     init_params_raw = list(inspect.signature(module_class.__init__).parameters)
     module_init_params = [
-        param for param in init_params_raw if param not in ["self", "args", "kwargs"]
+        param
+        for param in init_params_raw
+        # pypy uses `obj` and `keywords` instead of `self` and `kwargs`, respectively
+        if param not in ["self", "obj", "args", "kwargs", "keywords"]
     ]
 
     if len(module_init_params) > 1:

@@ -200,7 +200,7 @@ ABI_EVENT_TRANSFER = ABIEvent(
 ABI_ERROR = ABIError({"type": "error", "name": "error"})
 
 
-@pytest.fixture()
+@pytest.fixture
 def contract_abi() -> ABI:
     return CONTRACT_ABI
 

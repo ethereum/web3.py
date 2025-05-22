@@ -243,7 +243,7 @@ API_ENDPOINTS = {
     "eth": {
         "protocolVersion": static_return(63),
         "syncing": static_return(False),
-        "chainId": static_return(131277322940537),  # from fixture generation file
+        "chainId": call_eth_tester("chain_id"),
         "feeHistory": call_eth_tester("get_fee_history"),
         "maxPriorityFeePerGas": static_return(10**9),
         "blobBaseFee": static_return(10**9),
@@ -302,6 +302,10 @@ API_ENDPOINTS = {
         "getTransactionByHash": null_if_transaction_not_found(
             call_eth_tester("get_transaction_by_hash")
         ),
+        "eth_getBlockTransactionCountByHash": not_implemented,
+        "eth_getBlockTransactionCountByNumber": not_implemented,
+        "eth_getRawTransactionByBlockNumberAndIndex": not_implemented,
+        "eth_getRawTransactionByBlockHashAndIndex": not_implemented,
         "getTransactionByBlockHashAndIndex": get_transaction_by_block_hash_and_index,
         "getTransactionByBlockNumberAndIndex": get_transaction_by_block_number_and_index,  # noqa: E501
         "getTransactionReceipt": null_if_transaction_not_found(

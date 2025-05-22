@@ -11,7 +11,7 @@ from web3.exceptions import (
 )
 
 
-@pytest.fixture()
+@pytest.fixture
 def math_addr(math_contract_factory, address_conversion_func):
     w3 = math_contract_factory.w3
     deploy_txn = math_contract_factory.constructor().transact(

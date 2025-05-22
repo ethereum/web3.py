@@ -1,5 +1,8 @@
 import pytest
 
+from eth_tester import (
+    EthereumTester,
+)
 import pytest_asyncio
 
 from web3 import (
@@ -30,8 +33,11 @@ class TempENS:
 
 
 @pytest.fixture
-def _w3_setup():
-    return Web3(provider=EthereumTesterProvider(), middleware=[])
+def _w3_setup(backend_class):
+    return Web3(
+        provider=EthereumTesterProvider(EthereumTester(backend=backend_class())),
+        middleware=[],
+    )
 
 
 @pytest.fixture

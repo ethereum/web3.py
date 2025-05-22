@@ -163,8 +163,8 @@ def ens(ens_setup, mocker):
 
 # session scope for performance
 @pytest.fixture(scope="session")
-def ens_setup():
-    w3 = Web3(EthereumTesterProvider(EthereumTester()))
+def ens_setup(backend_class):
+    w3 = Web3(EthereumTesterProvider(EthereumTester(backend=backend_class())))
 
     # ** Set up ENS contracts **
 
@@ -355,7 +355,7 @@ def ens_setup():
     return ENS.from_web3(w3, ens_contract.address)
 
 
-@pytest.fixture()
+@pytest.fixture
 def TEST_ADDRESS(address_conversion_func):
     return address_conversion_func("0x000000000000000000000000000000000000dEaD")
 
@@ -364,8 +364,10 @@ def TEST_ADDRESS(address_conversion_func):
 
 
 @pytest_asyncio.fixture(scope="session")
-def async_w3():
-    _async_w3 = AsyncWeb3(AsyncEthereumTesterProvider())
+def async_w3(backend_class):
+    _async_w3 = AsyncWeb3(
+        AsyncEthereumTesterProvider(EthereumTester(backend=backend_class()))
+    )
     return _async_w3
 
 
@@ -461,8 +463,11 @@ def event_loop():
 
 # add session scope with above session-scoped `event_loop` for better performance
 @pytest_asyncio.fixture(scope="session")
-async def async_ens_setup(async_w3):
+async def async_ens_setup(backend_class):
     # ** Set up ENS contracts **
+    async_w3 = AsyncWeb3(
+        AsyncEthereumTesterProvider(EthereumTester(backend=backend_class()))
+    )
 
     # remove account that creates ENS, so test transactions don't have write access
     accounts = await async_w3.eth.accounts
@@ -479,7 +484,7 @@ async def async_ens_setup(async_w3):
     )
     reverse_tld_namehash = bytes32(
         0xA097F6721CE401E757D1223A763FEF49B8B5F90BB18567DDB86FD205DFF71D34
-    )  # noqa: E501
+    )
     reverser_namehash = bytes32(
         0x91D1777781884D03A6757A803996E38DE2A42967FB37EEACA72729271025A9E2
     )
