@@ -1,1 +1,0 @@
-Update some types in ``web3._utils.method_formatters``

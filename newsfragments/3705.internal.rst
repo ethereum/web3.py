@@ -1,1 +1,0 @@
-Fix issues and start running the core tests with `pytest-xdist`, effectively reducing the CI test times by ~75-80%.

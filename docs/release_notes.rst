@@ -6,6 +6,46 @@ v7 Breaking Changes Summary
 
 .. towncrier release notes start
 
+web3.py v7.12.0 (2025-05-22)
+----------------------------
+
+Bugfixes
+~~~~~~~~
+
+- Thread safety for batching and better consistency with ``PersistentConnectionProvider`` implementations:
+
+    - Make request batching threadsafe by using ``contextvars.ContextVar`` rather than a global flag for setting the batching state.
+    - Deterministically match responses with request ids for ``PersistentConnectionProvider`` batch requests. (`#3705 <https://github.com/ethereum/web3.py/issues/3705>`__)
+
+
+Deprecations
+~~~~~~~~~~~~
+
+- Deprecate ``ens_encode_name`` in favor of ``dns_encode_name``. (`#3700 <https://github.com/ethereum/web3.py/issues/3700>`__)
+
+
+Features
+~~~~~~~~
+
+- Introduce ``ens.utils.dns_encode_name`` as a rename of the current ``ens_encode_name``, for consistency across other language implementations and with the ENS docs. Returns ``HexBytes`` instead of ``bytes``. (`#3700 <https://github.com/ethereum/web3.py/issues/3700>`__)
+
+
+Internal Changes - for web3.py Contributors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Update some types in ``web3._utils.method_formatters`` (`#3669 <https://github.com/ethereum/web3.py/issues/3669>`__)
+- Fix issues and start running the core tests with `pytest-xdist`, effectively reducing the CI test times by ~75-80%. (`#3705 <https://github.com/ethereum/web3.py/issues/3705>`__)
+
+
+Performance Improvements
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+- optimize message formatting for logging (`#3643 <https://github.com/ethereum/web3.py/issues/3643>`__)
+- Optimize web3._utils.decorators.reject_recursive_repeats (`#3668 <https://github.com/ethereum/web3.py/issues/3668>`__)
+- optimize Method.method_selector_function (`#3696 <https://github.com/ethereum/web3.py/issues/3696>`__)
+- optimize map_abi_data (`#3697 <https://github.com/ethereum/web3.py/issues/3697>`__)
+
+
 web3.py v7.11.1 (2025-05-12)
 ----------------------------
 

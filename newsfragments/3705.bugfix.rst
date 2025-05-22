@@ -1,4 +1,0 @@
-Thread safety for batching and better consistency with ``PersistentConnectionProvider`` implementations:
-
-  - Make request batching threadsafe by using ``contextvars.ContextVar`` rather than a global flag for setting the batching state.
-  - Deterministically match responses with request ids for ``PersistentConnectionProvider`` batch requests.
