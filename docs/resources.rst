@@ -43,7 +43,7 @@ Tutorials
 - Find a historical contract `revert reason <https://snakecharmers.ethereum.org/web3py-revert-reason-parsing/>`__
 - Generate a `vanity address <https://snakecharmers.ethereum.org/web3-py-patterns-mining-addresses/>`__
 - Simulate transactions with `call state overrides <https://snakecharmers.ethereum.org/web3-py-patterns-eth_call-overrides/>`__
-- Configure web3 for `JSON-RPC fallback and MEV blocker providers <https://web3-ethereum-defi.readthedocs.io/tutorials/multi-rpc-configuration.html>`__
+- Configure web3 for `JSON-RPC fallback and MEV blocker providers <https://web3-ethereum-defi.readthedocs.io/tutorials/mev-blocker.html#mev-protection-and-multiple-json-rpcs-configuration>`__
 
 
 Conference Presentations and Videos
