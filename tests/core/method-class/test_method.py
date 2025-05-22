@@ -17,7 +17,6 @@ from web3.exceptions import (
 )
 from web3.method import (
     Method,
-    _apply_request_formatters,
     default_root_munger,
 )
 from web3.module import (
@@ -61,11 +60,7 @@ def test_get_formatters_default_formatter_for_falsy_config():
     default_result_formatters = method.result_formatters(
         method.method_selector_fn(), "some module"
     )
-    assert _apply_request_formatters(["a", "b", "c"], default_request_formatters) == (
-        "a",
-        "b",
-        "c",
-    )
+    assert default_request_formatters(["a", "b", "c"]) == ("a", "b", "c")
     assert apply_result_formatters(default_result_formatters, ["a", "b", "c"]) == [
         "a",
         "b",
@@ -81,7 +76,7 @@ def test_get_formatters_non_falsy_config_retrieval():
     method_name = method.method_selector_fn()
     first_formatter = (method.request_formatters(method_name).first,)
     all_other_formatters = method.request_formatters(method_name).funcs
-    assert len(first_formatter + all_other_formatters) == 2
+    assert len(first_formatter + all_other_formatters) == 3
     assert (method.request_formatters("eth_getBalance").first,) == first_formatter
 
 
