@@ -139,7 +139,9 @@ TFilter = TypeVar(
     LogFilter,
 )
 
-FilterResultFormatter = Callable[[Union["AsyncEth", "Eth"], RPCEndpoint, TValue], TFilter]
+FilterResultFormatter = Callable[
+    [Union["AsyncEth", "Eth"], RPCEndpoint, TValue], TFilter
+]
 
 
 def bytes_to_ascii(value: bytes) -> str:
@@ -1240,7 +1242,9 @@ def filter_wrapper(
         )
 
 
-FILTER_RESULT_FORMATTERS: Dict[RPCEndpoint, FilterResultFormatter[HexStr, AnyFilter]] = {
+FILTER_RESULT_FORMATTERS: Dict[
+    RPCEndpoint, FilterResultFormatter[HexStr, AnyFilter]
+] = {
     RPC.eth_newPendingTransactionFilter: filter_wrapper,
     RPC.eth_newBlockFilter: filter_wrapper,
     RPC.eth_newFilter: filter_wrapper,
