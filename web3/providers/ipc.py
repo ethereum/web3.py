@@ -59,7 +59,7 @@ def get_ipc_socket(ipc_path: str, timeout: float = 2.0) -> socket.socket:
         return sock
 
 
-class PersistantSocket:
+class PersistentSocket:
     sock = None
 
     def __init__(self, ipc_path: str) -> None:
@@ -157,7 +157,7 @@ class IPCProvider(JSONBaseProvider):
 
         self.timeout = timeout
         self._lock = threading.Lock()
-        self._socket = PersistantSocket(self.ipc_path)
+        self._socket = PersistentSocket(self.ipc_path)
 
     def __str__(self) -> str:
         return f"<{self.__class__.__name__} {self.ipc_path}>"
