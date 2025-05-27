@@ -550,13 +550,10 @@ class RequestManager:
                 else:
                     # if not an active sub, skip processing and continue
                     continue
-            except TaskNotRunning:
+            except TaskNotRunning as e:
                 await asyncio.sleep(0)
                 self._provider._handle_listener_task_exceptions()
-                self.logger.error(
-                    "Message listener background task has stopped unexpectedly. "
-                    "Stopping message stream."
-                )
+                self.logger.error("Stopping message stream: %s", e.message)
                 return
 
     async def _process_response(
