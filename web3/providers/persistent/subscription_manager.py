@@ -5,6 +5,7 @@ from typing import (
     Any,
     List,
     Sequence,
+    Set,
     Union,
     cast,
     overload,
@@ -15,6 +16,7 @@ from eth_typing import (
 )
 
 from web3.exceptions import (
+    SubscriptionHandlerTaskException,
     SubscriptionProcessingFinished,
     TaskNotRunning,
     Web3TypeError,
@@ -50,21 +52,25 @@ class SubscriptionManager:
     logger: logging.Logger = logging.getLogger(
         "web3.providers.persistent.subscription_manager"
     )
-    total_handler_calls: int = 0
 
     def __init__(self, w3: "AsyncWeb3") -> None:
         self._w3 = w3
         self._provider = cast("PersistentConnectionProvider", w3.provider)
         self._subscription_container = SubscriptionContainer()
 
-        # turn on if order of subscription processing is not important
+        # task-based subscription handling, only if processing order doesn't matter
         self.task_based = False
+        self.task_timeout = 1
+        self.ignore_task_exceptions = False
+        self._tasks: Set[asyncio.Task[None]] = set()
 
         # share the subscription container with the request processor so it can separate
         # subscriptions into different queues based on ``sub._handler`` presence
         self._provider._request_processor._subscription_container = (
             self._subscription_container
         )
+
+        self.total_handler_calls: int = 0
 
     def _add_subscription(self, subscription: EthSubscription[Any]) -> None:
         self._subscription_container.add_subscription(subscription)
@@ -88,6 +94,34 @@ class SubscriptionManager:
                     "Subscription label already exists. Subscriptions must have unique "
                     f"labels.\n    label: {subscription._label}"
                 )
+
+    def _handler_task_callback(self, task: asyncio.Task[None]) -> None:
+        """
+        Callback when a handler task completes. Similar to _message_listener_callback.
+        Puts handler exceptions into the queue to be raised in the main loop, else
+        removes the task from the set of active tasks.
+        """
+        if task.done() and not task.cancelled():
+            try:
+                task.result()
+                self._tasks.discard(task)
+            except Exception as e:
+                self.logger.exception("Subscription handler task raised an exception.")
+                self._provider._request_processor._handler_subscription_queue.put_nowait(  # noqa: E501
+                    SubscriptionHandlerTaskException(task, message=str(e))
+                )
+
+    async def _cleanup_remaining_tasks(self) -> None:
+        """Cancel and clean up all remaining tasks."""
+        if not self._tasks:
+            return
+
+        self.logger.debug("Cleaning up %d remaining tasks...", len(self._tasks))
+        for task in self._tasks:
+            if not task.done():
+                task.cancel()
+
+        self._tasks.clear()
 
     @property
     def subscriptions(self) -> List[EthSubscription[Any]]:
@@ -291,7 +325,10 @@ class SubscriptionManager:
                         **sub._handler_context,
                     )
                     if self.task_based:
-                        asyncio.create_task(sub._handler(sub_context))
+                        # if task-based, create a new task for each handler
+                        task = asyncio.create_task(sub._handler(sub_context))
+                        task.add_done_callback(self._handler_task_callback)
+                        self._tasks.add(task)
                     else:
                         await sub._handler(sub_context)
 
@@ -302,14 +339,26 @@ class SubscriptionManager:
                         "Stopping subscription handling."
                     )
                     break
-            except TaskNotRunning:
-                await asyncio.sleep(0)
+            except SubscriptionHandlerTaskException:
+                if not self.ignore_task_exceptions:
+                    self.logger.error(
+                        "An exception occurred in a subscription handler task. "
+                        "Stopping subscription handling."
+                    )
+                    await self._cleanup_remaining_tasks()
+                    raise
+                else:
+                    self.logger.warning(
+                        "An exception occurred in a subscription handler task but "
+                        "was ignored, ``ignore_task_exceptions==True``."
+                    )
+            except TaskNotRunning as e:
+                self.logger.error("Stopping subscription handling: %s", e.message)
                 self._provider._handle_listener_task_exceptions()
-                self.logger.error(
-                    "Message listener background task for the provider has stopped "
-                    "unexpectedly. Stopping subscription handling."
-                )
                 break
 
         # no active handler subscriptions, clear the handler subscription queue
         self._provider._request_processor._reset_handler_subscription_queue()
+
+        if self._tasks:
+            await self._cleanup_remaining_tasks()

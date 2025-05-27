@@ -353,10 +353,17 @@ class PersistentConnectionClosedOK(PersistentConnectionError):
     """
 
 
-class SubscriptionProcessingFinished(Web3Exception):
+class SubscriptionProcessingFinished(PersistentConnectionError):
     """
     Raised to alert the subscription manager that the processing of subscriptions
     has finished.
+    """
+
+
+class SubscriptionHandlerTaskException(TaskNotRunning):
+    """
+    Raised to alert the subscription manager that an exception occurred in the
+    subscription processing task.
     """
 
 

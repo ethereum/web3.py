@@ -164,7 +164,7 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
         if cache_key != self._send_batch_func_cache[0]:
 
             async def send_func(
-                requests: List[Tuple[RPCEndpoint, Any]]
+                requests: List[Tuple[RPCEndpoint, Any]],
             ) -> List[RPCRequest]:
                 for mw in middleware:
                     initialized = mw(async_w3)
@@ -376,11 +376,12 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
     ) -> None:
         # Puts a `TaskNotRunning` in appropriate queues to signal the end of the
         # listener task to any listeners relying on the queues.
+        message = "Message listener task has ended."
         self._request_processor._subscription_response_queue.put_nowait(
-            TaskNotRunning(message_listener_task)
+            TaskNotRunning(message_listener_task, message=message)
         )
         self._request_processor._handler_subscription_queue.put_nowait(
-            TaskNotRunning(message_listener_task)
+            TaskNotRunning(message_listener_task, message=message)
         )
 
     def _raise_stray_errors_from_cache(self) -> None:
