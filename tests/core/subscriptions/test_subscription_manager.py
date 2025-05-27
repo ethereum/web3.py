@@ -1,5 +1,8 @@
 import pytest
+import asyncio
 import itertools
+import logging
+import time
 from unittest.mock import (
     AsyncMock,
 )
@@ -14,7 +17,11 @@ from web3 import (
     PersistentConnectionProvider,
 )
 from web3.exceptions import (
+    SubscriptionHandlerTaskException,
     Web3ValueError,
+)
+from web3.providers.persistent.request_processor import (
+    TaskReliantQueue,
 )
 from web3.providers.persistent.subscription_manager import (
     SubscriptionManager,
@@ -213,3 +220,161 @@ async def test_unsubscribe_with_subscriptions_reference_does_not_mutate_the_list
 
     await subscription_manager.unsubscribe_all()
     assert subscription_manager.subscriptions == []
+
+
+@pytest.mark.asyncio
+async def test_high_throughput_subscription_task_based(
+    subscription_manager,
+) -> None:
+    provider = subscription_manager._w3.provider
+    num_msgs = 5_000
+
+    provider._request_processor._handler_subscription_queue = TaskReliantQueue(
+        maxsize=num_msgs
+    )
+
+    # Turn on task-based processing. This test should fail the time constraint if this
+    # is not set to ``True`` (not task-based processing).
+    subscription_manager.task_based = True
+
+    class Counter:
+        val: int = 0
+
+    counter = Counter()
+
+    async def high_throughput_handler(handler_context) -> None:
+        # if we awaited all `num_msgs`, we would sleep at least 5 seconds total
+        await asyncio.sleep(5 / num_msgs)
+
+        handler_context.counter.val += 1
+        if handler_context.counter.val == num_msgs:
+            await handler_context.subscription.unsubscribe()
+
+    # build a meaningless subscription since we are fabricating the messages
+    sub_id = await subscription_manager.subscribe(
+        NewHeadsSubscription(
+            handler=high_throughput_handler, handler_context={"counter": counter}
+        ),
+    )
+    provider._request_processor.cache_request_information(
+        request_id=sub_id,
+        method="eth_subscribe",
+        params=[],
+        response_formatters=((), (), ()),
+    )
+
+    # put `num_msgs` messages in the queue
+    for _ in range(num_msgs):
+        provider._request_processor._handler_subscription_queue.put_nowait(
+            {
+                "jsonrpc": "2.0",
+                "method": "eth_subscription",
+                "params": {"subscription": sub_id, "result": "0x0"},
+            }
+        )
+
+    start = time.time()
+    await subscription_manager.handle_subscriptions()
+    stop = time.time()
+
+    assert counter.val == num_msgs
+
+    assert subscription_manager.total_handler_calls == num_msgs
+    assert stop - start < 3, "subscription handling took too long!"
+
+
+@pytest.mark.asyncio
+async def test_task_based_subscription_handling_error_propagation(
+    subscription_manager,
+) -> None:
+    provider = subscription_manager._w3.provider
+    subscription_manager.task_based = True
+
+    async def high_throughput_handler(_handler_context) -> None:
+        raise ValueError("Test error msg.")
+
+    # build a meaningless subscription since we are fabricating the messages
+    sub_id = await subscription_manager.subscribe(
+        NewHeadsSubscription(handler=high_throughput_handler)
+    )
+    provider._request_processor.cache_request_information(
+        request_id=sub_id,
+        method="eth_subscribe",
+        params=[],
+        response_formatters=((), (), ()),
+    )
+    provider._request_processor._handler_subscription_queue.put_nowait(
+        {
+            "jsonrpc": "2.0",
+            "method": "eth_subscription",
+            "params": {"subscription": sub_id, "result": "0x0"},
+        }
+    )
+
+    with pytest.raises(
+        SubscriptionHandlerTaskException,
+        match="Test error msg.",
+    ):
+        await subscription_manager.handle_subscriptions()
+
+
+@pytest.mark.asyncio
+async def test_task_based_subscription_handling_ignore_errors(
+    subscription_manager, caplog
+) -> None:
+    provider = subscription_manager._w3.provider
+    subscription_manager.task_based = True
+    subscription_manager.ignore_task_exceptions = True
+
+    class TestObject:
+        exception = None
+
+    async def sub_handler(handler_context) -> None:
+        if handler_context.obj.exception:
+            # on the second call, yield to loop so we log, unsubscribe, and return
+            await asyncio.sleep(0.01)
+            await handler_context.subscription.unsubscribe()
+            return
+
+        e = ValueError("Test error msg.")
+        handler_context.obj.exception = e
+        raise e
+
+    # build a meaningless subscription since we are fabricating the messages
+    test_obj = TestObject()
+    sub_id = await subscription_manager.subscribe(
+        NewHeadsSubscription(handler=sub_handler, handler_context={"obj": test_obj})
+    )
+    provider._request_processor.cache_request_information(
+        request_id=sub_id,
+        method="eth_subscribe",
+        params=[],
+        response_formatters=((), (), ()),
+    )
+    for _ in range(2):
+        provider._request_processor._handler_subscription_queue.put_nowait(
+            {
+                "jsonrpc": "2.0",
+                "method": "eth_subscription",
+                "params": {"subscription": sub_id, "result": "0x0"},
+            }
+        )
+
+    with caplog.at_level(
+        logging.WARNING, logger="web3.providers.persistent.subscription_manager"
+    ):
+        await subscription_manager.handle_subscriptions()
+
+    # find the warning so and assert it was logged
+    warning_records = [r for r in caplog.records if r.levelname == "WARNING"]
+    assert len(warning_records) == 1
+    record = warning_records[0]
+    assert (
+        "An exception occurred in a subscription handler task but was ignored, `"
+        "`ignore_task_exceptions==True``." in record.message
+    )
+    await subscription_manager.handle_subscriptions()
+
+    assert subscription_manager.total_handler_calls == 2
+    assert subscription_manager.subscriptions == []
+    assert subscription_manager._tasks == set()
