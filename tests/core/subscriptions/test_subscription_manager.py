@@ -490,3 +490,42 @@ async def test_performance_difference_with_subscription_overrides(
 
     assert subscription_manager.total_handler_calls == 3
     assert len(manager_tasks) == 0  # all tasks cleaned up
+
+
+@pytest.mark.asyncio
+async def test_eth_subscribe_api_call_with_all_kwargs(subscription_manager):
+    async_w3 = subscription_manager._w3
+    provider = subscription_manager._w3.provider
+
+    label = "test_subscription"
+    test_ctx = "test context"
+
+    async def parallel_handler(context) -> None:
+        assert asyncio.current_task() in subscription_manager._tasks
+        assert context.test_ctx == test_ctx
+        sub = subscription_manager.get_by_id(context.subscription.id)
+        assert sub.label == label
+
+        await context.subscription.unsubscribe()
+
+    sub_id = await async_w3.eth.subscribe(
+        "newHeads",
+        handler=parallel_handler,
+        handler_context={"test_ctx": test_ctx},
+        label=label,
+        parallelize=True,
+    )
+    provider._request_processor.cache_request_information(
+        request_id=sub_id,
+        method="eth_subscribe",
+        params=[],
+        response_formatters=((), (), ()),
+    )
+    provider._request_processor._handler_subscription_queue.put_nowait(
+        create_subscription_message(sub_id)
+    )
+
+    await subscription_manager.handle_subscriptions()
+
+    assert subscription_manager.total_handler_calls == 1
+    assert len(async_w3.subscription_manager._tasks) == 0

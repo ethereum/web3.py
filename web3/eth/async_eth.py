@@ -720,19 +720,6 @@ class AsyncEth(BaseEth):
         mungers=[default_root_munger],
     )
 
-    _subscribe_with_args: Method[
-        Callable[
-            [
-                SubscriptionType,
-                Optional[Union[LogsSubscriptionArg, bool]],
-            ],
-            Awaitable[HexStr],
-        ]
-    ] = Method(
-        RPC.eth_subscribe,
-        mungers=[default_root_munger],
-    )
-
     async def subscribe(
         self,
         subscription_type: SubscriptionType,
@@ -745,6 +732,7 @@ class AsyncEth(BaseEth):
         handler: Optional[EthSubscriptionHandler] = None,
         handler_context: Optional[Dict[str, Any]] = None,
         label: Optional[str] = None,
+        parallelize: Optional[bool] = None,
     ) -> HexStr:
         if not isinstance(self.w3.provider, PersistentConnectionProvider):
             raise MethodNotSupported(
@@ -757,6 +745,7 @@ class AsyncEth(BaseEth):
             handler=handler,
             handler_context=handler_context or {},
             label=label,
+            parallelize=parallelize,
         )
         return await self.w3.subscription_manager.subscribe(sub)
 
