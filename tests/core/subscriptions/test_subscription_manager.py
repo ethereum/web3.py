@@ -1,8 +1,10 @@
 import pytest
 import asyncio
 import itertools
-import logging
 import time
+from typing import (
+    cast,
+)
 from unittest.mock import (
     AsyncMock,
 )
@@ -23,8 +25,8 @@ from web3.exceptions import (
 from web3.providers.persistent.request_processor import (
     TaskReliantQueue,
 )
-from web3.providers.persistent.subscription_manager import (
-    SubscriptionManager,
+from web3.types import (
+    RPCResponse,
 )
 from web3.utils.subscriptions import (
     LogsSubscription,
@@ -41,12 +43,23 @@ class MockProvider(PersistentConnectionProvider):
 @pytest_asyncio.fixture
 async def subscription_manager():
     countr = itertools.count()
-    _w3 = AsyncWeb3(MockProvider())
-    _w3.eth._subscribe = AsyncMock()
-    _w3.eth._subscribe.side_effect = lambda *_: f"0x{str(next(countr))}"
-    _w3.eth._unsubscribe = AsyncMock()
-    _w3.eth._unsubscribe.return_value = True
-    yield SubscriptionManager(_w3)
+    w3 = AsyncWeb3(MockProvider())
+    w3.eth._subscribe = AsyncMock()
+    w3.eth._subscribe.side_effect = lambda *_: f"0x{str(next(countr))}"
+    w3.eth._unsubscribe = AsyncMock()
+    w3.eth._unsubscribe.return_value = True
+    yield w3.subscription_manager
+
+
+def create_subscription_message(sub_id):
+    return cast(
+        RPCResponse,
+        {
+            "jsonrpc": "2.0",
+            "method": "eth_subscription",
+            "params": {"subscription": sub_id, "result": "0x0"},
+        },
+    )
 
 
 @pytest.mark.asyncio
@@ -223,7 +236,7 @@ async def test_unsubscribe_with_subscriptions_reference_does_not_mutate_the_list
 
 
 @pytest.mark.asyncio
-async def test_high_throughput_subscription_task_based(
+async def test_high_throughput_subscription_with_parallelize(
     subscription_manager,
 ) -> None:
     provider = subscription_manager._w3.provider
@@ -235,7 +248,7 @@ async def test_high_throughput_subscription_task_based(
 
     # Turn on task-based processing. This test should fail the time constraint if this
     # is not set to ``True`` (not task-based processing).
-    subscription_manager.task_based = True
+    subscription_manager.parallelize = True
 
     class Counter:
         val: int = 0
@@ -266,11 +279,7 @@ async def test_high_throughput_subscription_task_based(
     # put `num_msgs` messages in the queue
     for _ in range(num_msgs):
         provider._request_processor._handler_subscription_queue.put_nowait(
-            {
-                "jsonrpc": "2.0",
-                "method": "eth_subscription",
-                "params": {"subscription": sub_id, "result": "0x0"},
-            }
+            create_subscription_message(sub_id)
         )
 
     start = time.time()
@@ -280,15 +289,15 @@ async def test_high_throughput_subscription_task_based(
     assert counter.val == num_msgs
 
     assert subscription_manager.total_handler_calls == num_msgs
-    assert stop - start < 3, "subscription handling took too long!"
+    assert stop - start < 3
 
 
 @pytest.mark.asyncio
-async def test_task_based_subscription_handling_error_propagation(
+async def test_parallelize_with_error_propagation(
     subscription_manager,
 ) -> None:
     provider = subscription_manager._w3.provider
-    subscription_manager.task_based = True
+    subscription_manager.parallelize = True
 
     async def high_throughput_handler(_handler_context) -> None:
         raise ValueError("Test error msg.")
@@ -304,11 +313,7 @@ async def test_task_based_subscription_handling_error_propagation(
         response_formatters=((), (), ()),
     )
     provider._request_processor._handler_subscription_queue.put_nowait(
-        {
-            "jsonrpc": "2.0",
-            "method": "eth_subscription",
-            "params": {"subscription": sub_id, "result": "0x0"},
-        }
+        create_subscription_message(sub_id)
     )
 
     with pytest.raises(
@@ -319,62 +324,169 @@ async def test_task_based_subscription_handling_error_propagation(
 
 
 @pytest.mark.asyncio
-async def test_task_based_subscription_handling_ignore_errors(
-    subscription_manager, caplog
+async def test_subscription_parallelize_false_overrides_manager_true(
+    subscription_manager,
 ) -> None:
     provider = subscription_manager._w3.provider
-    subscription_manager.task_based = True
-    subscription_manager.ignore_task_exceptions = True
+    subscription_manager.parallelize = True  # manager parallelizing
 
-    class TestObject:
-        exception = None
+    async def test_handler(context) -> None:
+        # assert not parallelized
+        assert context.subscription.parallelize is False
+        assert subscription_manager._tasks == set()
+        await context.subscription.unsubscribe()
 
-    async def sub_handler(handler_context) -> None:
-        if handler_context.obj.exception:
-            # on the second call, yield to loop so we log, unsubscribe, and return
-            await asyncio.sleep(0.01)
-            await handler_context.subscription.unsubscribe()
-            return
-
-        e = ValueError("Test error msg.")
-        handler_context.obj.exception = e
-        raise e
-
-    # build a meaningless subscription since we are fabricating the messages
-    test_obj = TestObject()
     sub_id = await subscription_manager.subscribe(
-        NewHeadsSubscription(handler=sub_handler, handler_context={"obj": test_obj})
+        # parallelize=False overrides manager's parallelization setting
+        NewHeadsSubscription(handler=test_handler, parallelize=False)
     )
+
     provider._request_processor.cache_request_information(
         request_id=sub_id,
         method="eth_subscribe",
         params=[],
         response_formatters=((), (), ()),
     )
-    for _ in range(2):
-        provider._request_processor._handler_subscription_queue.put_nowait(
-            {
-                "jsonrpc": "2.0",
-                "method": "eth_subscription",
-                "params": {"subscription": sub_id, "result": "0x0"},
-            }
-        )
 
-    with caplog.at_level(
-        logging.WARNING, logger="web3.providers.persistent.subscription_manager"
-    ):
-        await subscription_manager.handle_subscriptions()
-
-    # find the warning so and assert it was logged
-    warning_records = [r for r in caplog.records if r.levelname == "WARNING"]
-    assert len(warning_records) == 1
-    record = warning_records[0]
-    assert (
-        "An exception occurred in a subscription handler task but was ignored, `"
-        "`ignore_task_exceptions==True``." in record.message
+    provider._request_processor._handler_subscription_queue.put_nowait(
+        create_subscription_message(sub_id)
     )
+
     await subscription_manager.handle_subscriptions()
 
-    assert subscription_manager.total_handler_calls == 2
-    assert subscription_manager.subscriptions == []
-    assert subscription_manager._tasks == set()
+    assert subscription_manager.total_handler_calls == 1
+
+
+@pytest.mark.asyncio
+async def test_subscription_parallelize_true_overrides_manager_default_false(
+    subscription_manager,
+) -> None:
+    provider = subscription_manager._w3.provider
+    assert subscription_manager.parallelize is False
+
+    async def test_handler(context) -> None:
+        # check that the subscription is parallelized
+        assert context.subscription.parallelize is True
+        assert len(context.async_w3.subscription_manager._tasks) == 1
+        assert asyncio.current_task() in context.async_w3.subscription_manager._tasks
+        await context.subscription.unsubscribe()
+
+    sub_id = await subscription_manager.subscribe(
+        NewHeadsSubscription(handler=test_handler, parallelize=True)
+    )
+
+    provider._request_processor.cache_request_information(
+        request_id=sub_id,
+        method="eth_subscribe",
+        params=[],
+        response_formatters=((), (), ()),
+    )
+
+    provider._request_processor._handler_subscription_queue.put_nowait(
+        create_subscription_message(sub_id)
+    )
+
+    await subscription_manager.handle_subscriptions()
+
+    assert subscription_manager.total_handler_calls == 1
+    assert len(subscription_manager._tasks) == 0  # assert cleaned up
+
+
+@pytest.mark.asyncio
+async def test_mixed_subscription_parallelization_settings(
+    subscription_manager,
+) -> None:
+    provider = subscription_manager._w3.provider
+    subscription_manager.parallelize = True  # manager wants parallel
+
+    completion_order = []
+
+    async def fast_parallel_handler(_ctx) -> None:
+        await asyncio.sleep(0.05)
+        completion_order.append("fast_parallel")
+        assert asyncio.current_task() in subscription_manager._tasks
+
+    async def slow_sequential_handler(_ctx) -> None:
+        await asyncio.sleep(0.15)
+        completion_order.append("slow_sequential")
+        assert asyncio.current_task() not in subscription_manager._tasks
+
+    async def medium_default_handler(_ctx) -> None:
+        await asyncio.sleep(0.10)
+        completion_order.append("medium_default")
+        assert asyncio.current_task() in subscription_manager._tasks
+
+        # we assume this should be the last task to complete so unsubscribe only here
+        await subscription_manager.unsubscribe_all()
+
+    # subscriptions with different settings
+    fast_sub_id = await subscription_manager.subscribe(
+        NewHeadsSubscription(handler=fast_parallel_handler, parallelize=True)
+    )
+    slow_sub_id = await subscription_manager.subscribe(
+        NewHeadsSubscription(handler=slow_sequential_handler, parallelize=False)
+    )
+    medium_sub_id = await subscription_manager.subscribe(
+        # uses the manager default parallelization setting (True)
+        NewHeadsSubscription(handler=medium_default_handler)
+    )
+
+    for sub_id in {slow_sub_id, fast_sub_id, medium_sub_id}:
+        provider._request_processor.cache_request_information(
+            request_id=sub_id,
+            method="eth_subscribe",
+            params=[],
+            response_formatters=((), (), ()),
+        )
+
+    # send messages in order of slow (but main loop), fast (parallel), medium (parallel)
+    for sub_id in [slow_sub_id, fast_sub_id, medium_sub_id]:
+        provider._request_processor._handler_subscription_queue.put_nowait(
+            create_subscription_message(sub_id)
+        )
+
+    await subscription_manager.handle_subscriptions()
+
+    # `slow_sequential` should complete first despite taking longest because it
+    # blocks the main loop. The next two run in parallel after, so the fastest of the
+    # two should complete next, leaving the `medium_default` last.
+    assert len(completion_order) == 3
+    assert completion_order[0] == "slow_sequential"
+    assert "fast_parallel" == completion_order[1]
+    assert "medium_default" == completion_order[2]
+
+
+@pytest.mark.asyncio
+async def test_performance_difference_with_subscription_overrides(
+    subscription_manager,
+) -> None:
+    provider = subscription_manager._w3.provider
+    assert subscription_manager.parallelize is False
+
+    manager_tasks = subscription_manager._tasks
+
+    async def parallel_handler(_ctx) -> None:
+        await asyncio.sleep(0.1)
+        assert asyncio.current_task() in manager_tasks
+        if len(manager_tasks) >= 3:
+            await subscription_manager.unsubscribe_all()
+
+    # create 3 subscriptions, override all to parallel despite manager default False
+    for _ in range(3):
+        sub_id = await subscription_manager.subscribe(
+            NewHeadsSubscription(handler=parallel_handler, parallelize=True)
+        )
+        provider._request_processor.cache_request_information(
+            request_id=sub_id,
+            method="eth_subscribe",
+            params=[],
+            response_formatters=((), (), ()),
+        )
+        provider._request_processor._handler_subscription_queue.put_nowait(
+            create_subscription_message(sub_id)
+        )
+
+    await subscription_manager.handle_subscriptions()
+
+    assert subscription_manager.total_handler_calls == 3
+    assert len(manager_tasks) == 0  # all tasks cleaned up
