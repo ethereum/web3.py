@@ -58,10 +58,9 @@ class SubscriptionManager:
         self._provider = cast("PersistentConnectionProvider", w3.provider)
         self._subscription_container = SubscriptionContainer()
 
-        # task-based subscription handling, only if processing order doesn't matter
-        self.task_based = False
+        # parallelize all subscription handler calls
+        self.parallelize = False
         self.task_timeout = 1
-        self.ignore_task_exceptions = False
         # TODO: can remove quotes from type hints once Python 3.8 support is dropped
         self._tasks: Set["asyncio.Task[None]"] = set()
 
@@ -326,12 +325,15 @@ class SubscriptionManager:
                         formatted_sub_response["result"],
                         **sub._handler_context,
                     )
-                    if self.task_based:
-                        # if task-based, create a new task for each handler
+                    if sub.parallelize is True or (
+                        sub.parallelize is None and self.parallelize
+                    ):
+                        # run the handler in a task to allow parallel processing
                         task = asyncio.create_task(sub._handler(sub_context))
-                        task.add_done_callback(self._handler_task_callback)
                         self._tasks.add(task)
+                        task.add_done_callback(self._handler_task_callback)
                     else:
+                        # await the handler in the main loop to ensure order
                         await sub._handler(sub_context)
 
             except SubscriptionProcessingFinished:
@@ -342,18 +344,12 @@ class SubscriptionManager:
                     )
                     break
             except SubscriptionHandlerTaskException:
-                if not self.ignore_task_exceptions:
-                    self.logger.error(
-                        "An exception occurred in a subscription handler task. "
-                        "Stopping subscription handling."
-                    )
-                    await self._cleanup_remaining_tasks()
-                    raise
-                else:
-                    self.logger.warning(
-                        "An exception occurred in a subscription handler task but "
-                        "was ignored, ``ignore_task_exceptions==True``."
-                    )
+                self.logger.error(
+                    "An exception occurred in a subscription handler task. "
+                    "Stopping subscription handling."
+                )
+                await self._cleanup_remaining_tasks()
+                raise
             except TaskNotRunning as e:
                 self.logger.error("Stopping subscription handling: %s", e.message)
                 self._provider._handle_listener_task_exceptions()

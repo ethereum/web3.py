@@ -110,11 +110,14 @@ class EthSubscription(Generic[TSubscriptionResult]):
         handler: Optional[EthSubscriptionHandler] = None,
         handler_context: Optional[Dict[str, Any]] = None,
         label: Optional[str] = None,
+        parallelize: Optional[bool] = None,
     ) -> None:
         self._subscription_params = subscription_params
         self._handler = handler_wrapper(handler)
         self._handler_context = handler_context or {}
         self._label = label
+
+        self.parallelize = parallelize
         self.handler_call_count = 0
 
     @property
@@ -128,6 +131,7 @@ class EthSubscription(Generic[TSubscriptionResult]):
         handler: Optional[EthSubscriptionHandler] = None,
         handler_context: Optional[Dict[str, Any]] = None,
         label: Optional[str] = None,
+        parallelize: Optional[bool] = None,
     ) -> "EthSubscription[Any]":
         subscription_type = subscription_params[0]
         subscription_arg = (
@@ -135,7 +139,10 @@ class EthSubscription(Generic[TSubscriptionResult]):
         )
         if subscription_type == "newHeads":
             return NewHeadsSubscription(
-                handler=handler, handler_context=handler_context, label=label
+                handler=handler,
+                handler_context=handler_context,
+                label=label,
+                parallelize=parallelize,
             )
         elif subscription_type == "logs":
             subscription_arg = subscription_arg or {}
@@ -144,6 +151,7 @@ class EthSubscription(Generic[TSubscriptionResult]):
                 handler=handler,
                 handler_context=handler_context,
                 label=label,
+                parallelize=parallelize,
             )
         elif subscription_type == "newPendingTransactions":
             subscription_arg = subscription_arg or False
@@ -152,10 +160,14 @@ class EthSubscription(Generic[TSubscriptionResult]):
                 handler=handler,
                 handler_context=handler_context,
                 label=label,
+                parallelize=parallelize,
             )
         elif subscription_type == "syncing":
             return SyncingSubscription(
-                handler=handler, handler_context=handler_context, label=label
+                handler=handler,
+                handler_context=handler_context,
+                label=label,
+                parallelize=parallelize,
             )
         else:
             params = (
@@ -168,6 +180,7 @@ class EthSubscription(Generic[TSubscriptionResult]):
                 handler=handler,
                 handler_context=handler_context,
                 label=label,
+                parallelize=parallelize,
             )
 
     @property
@@ -206,6 +219,7 @@ class LogsSubscription(EthSubscription[LogReceipt]):
         handler: LogsSubscriptionHandler = None,
         handler_context: Optional[Dict[str, Any]] = None,
         label: Optional[str] = None,
+        parallelize: Optional[bool] = None,
     ) -> None:
         self.address = address
         self.topics = topics
@@ -222,6 +236,7 @@ class LogsSubscription(EthSubscription[LogReceipt]):
             handler=handler,
             handler_context=handler_context,
             label=label,
+            parallelize=parallelize,
         )
 
 
@@ -237,12 +252,14 @@ class NewHeadsSubscription(EthSubscription[BlockData]):
         label: Optional[str] = None,
         handler: Optional[NewHeadsSubscriptionHandler] = None,
         handler_context: Optional[Dict[str, Any]] = None,
+        parallelize: Optional[bool] = None,
     ) -> None:
         super().__init__(
             subscription_params=("newHeads",),
             handler=handler,
             handler_context=handler_context,
             label=label,
+            parallelize=parallelize,
         )
 
 
@@ -261,6 +278,7 @@ class PendingTxSubscription(EthSubscription[Union[HexBytes, TxData]]):
         label: Optional[str] = None,
         handler: Optional[PendingTxSubscriptionHandler] = None,
         handler_context: Optional[Dict[str, Any]] = None,
+        parallelize: Optional[bool] = None,
     ) -> None:
         self.full_transactions = full_transactions
         super().__init__(
@@ -268,6 +286,7 @@ class PendingTxSubscription(EthSubscription[Union[HexBytes, TxData]]):
             handler=handler,
             handler_context=handler_context,
             label=label,
+            parallelize=parallelize,
         )
 
 
@@ -283,10 +302,12 @@ class SyncingSubscription(EthSubscription[SyncProgress]):
         label: Optional[str] = None,
         handler: Optional[SyncingSubscriptionHandler] = None,
         handler_context: Optional[Dict[str, Any]] = None,
+        parallelize: Optional[bool] = None,
     ) -> None:
         super().__init__(
             subscription_params=("syncing",),
             handler=handler,
             handler_context=handler_context,
             label=label,
+            parallelize=parallelize,
         )
