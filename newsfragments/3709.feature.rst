@@ -1,0 +1,1 @@
+Support parallelization of subscription handling via the subscription manager if processing order does not matter.
