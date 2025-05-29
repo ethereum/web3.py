@@ -254,9 +254,9 @@ class RequestManager:
         """
         Context manager for making batch requests
         """
-        if isinstance(self.provider, AutoProvider):
-            self.provider = self.provider._get_active_provider(use_cache=True)
-        if not isinstance(self.provider, (AsyncJSONBaseProvider, JSONBaseProvider)):
+        if not isinstance(
+            self.provider, (AsyncJSONBaseProvider, JSONBaseProvider, AutoProvider)
+        ):
             raise Web3TypeError("Batch requests are not supported by this provider.")
         return RequestBatcher(self.w3)
 
