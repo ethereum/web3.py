@@ -7,6 +7,7 @@ import pytest_asyncio
 from web3 import (
     AsyncIPCProvider,
     AsyncWeb3,
+    AutoProvider,
     Web3,
 )
 from web3._utils.module_testing.persistent_connection_provider import (
@@ -81,8 +82,17 @@ class TestGoEthereumDebugModuleTest(GoEthereumDebugModuleTest):
 
 class TestGoEthereumEthModuleTest(GoEthereumEthModuleTest):
     def test_auto_provider_batching(self, auto_w3: "Web3") -> None:
-        # test that batch_requests doesn't error out when using the auto provider
-        auto_w3.batch_requests()
+        with auto_w3.batch_requests() as batch:
+            assert isinstance(auto_w3.provider, AutoProvider)
+            assert auto_w3.provider._is_batching
+            assert auto_w3.provider._batching_context is not None
+            batch.add(auto_w3.eth.get_block("latest"))
+            batch.add(auto_w3.eth.get_block("earliest"))
+            batch.add(auto_w3.eth.get_block("pending"))
+            results = batch.execute()
+
+        assert not auto_w3.provider._is_batching
+        assert len(results) == 3
 
 
 class TestGoEthereumNetModuleTest(GoEthereumNetModuleTest):
