@@ -8,6 +8,7 @@ from typing import (
     Dict,
     Iterable,
     NoReturn,
+    Optional,
     Tuple,
     TypeVar,
     Union,
@@ -1246,9 +1247,12 @@ def apply_module_to_formatters(
 
 def get_result_formatters(
     method_name: RPCEndpoint,
-    module: "Module",
+    module: Optional["Module"] = None,
 ) -> Callable[[RPCResponse], Any]:
     formatters = combine_formatters((PYTHONIC_RESULT_FORMATTERS,), method_name)
+    if module is None:
+        return compose(*formatters)
+
     formatters_requiring_module = combine_formatters(
         (FILTER_RESULT_FORMATTERS,), method_name
     )

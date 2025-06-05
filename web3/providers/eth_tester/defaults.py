@@ -116,7 +116,7 @@ def call_eth_tester(
 
 
 def without_eth_tester(
-    fn: Callable[[TParams], TReturn]
+    fn: Callable[[TParams], TReturn],
 ) -> Callable[["EthereumTester", TParams], TReturn]:
     # workaround for: https://github.com/pytoolz/cytoolz/issues/103
     # @functools.wraps(fn)
@@ -127,7 +127,7 @@ def without_eth_tester(
 
 
 def without_params(
-    fn: Callable[[TParams], TReturn]
+    fn: Callable[[TParams], TReturn],
 ) -> Callable[["EthereumTester", TParams], TReturn]:
     # workaround for: https://github.com/pytoolz/cytoolz/issues/103
     # @functools.wraps(fn)
@@ -311,7 +311,7 @@ API_ENDPOINTS = {
         "getTransactionReceipt": null_if_transaction_not_found(
             compose(
                 apply_formatter_if(
-                    compose(is_null, operator.itemgetter("block_number")),
+                    compose(is_null, operator.itemgetter("blockNumber")),
                     static_return(None),
                 ),
                 call_eth_tester("get_transaction_receipt"),

@@ -22,9 +22,9 @@ from web3.types import (  # noqa: F401
 )
 
 from .common import (
-    EthereumTesterEthModule,
-    EthereumTesterNetModule,
-    EthereumTesterWeb3Module,
+    EthereumTesterEthModuleTest,
+    EthereumTesterNetModuleTest,
+    EthereumTesterWeb3ModuleTest,
 )
 
 
@@ -60,15 +60,15 @@ def w3(eth_tester, keyfile_account_address, keyfile_account_pkey):
 # -- test classes -- #
 
 
-class TestEthereumTesterWeb3Module(EthereumTesterWeb3Module):
+class TestEthereumTesterWeb3Module(EthereumTesterWeb3ModuleTest):
     pass
 
 
-class TestEthereumTesterEthModule(EthereumTesterEthModule):
+class TestEthereumTesterEthModule(EthereumTesterEthModuleTest):
     def test_eth_chain_id(self, w3):
         chain_id = w3.eth.chain_id
         assert chain_id == 131277322940537
 
 
-class TestEthereumTesterNetModule(EthereumTesterNetModule):
+class TestEthereumTesterNetModule(EthereumTesterNetModuleTest):
     pass

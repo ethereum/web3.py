@@ -237,18 +237,18 @@ def disable_auto_mine(func):
     @functools.wraps(func)
     def func_wrapper(self, eth_tester, *args, **kwargs):
         snapshot = eth_tester.take_snapshot()
-        eth_tester.disable_auto_mine_transactions()
+        eth_tester.disable_auto_transactions_inclusion()
         try:
             func(self, eth_tester, *args, **kwargs)
         finally:
-            eth_tester.enable_auto_mine_transactions()
-            eth_tester.mine_block()
+            eth_tester.enable_auto_transaction_inclusion()
+            eth_tester.include_block()
             eth_tester.revert_to_snapshot(snapshot)
 
     return func_wrapper
 
 
-class TestEthereumTesterWeb3Module(Web3ModuleTest):
+class EthereumTesterWeb3ModuleTest(Web3ModuleTest):
     def _check_web3_client_version(self, client_version):
         assert client_version.startswith("EthereumTester/")
 
@@ -270,7 +270,7 @@ class TestEthereumTesterWeb3Module(Web3ModuleTest):
     )
 
 
-class TestEthereumTesterEthModule(EthModuleTest):
+class EthereumTesterEthModuleTest(EthModuleTest):
     test_eth_sign = not_implemented(EthModuleTest.test_eth_sign, MethodUnavailable)
     test_eth_sign_ens_names = not_implemented(
         EthModuleTest.test_eth_sign_ens_names, MethodUnavailable
@@ -673,5 +673,5 @@ class TestEthereumTesterEthModule(EthModuleTest):
         assert later_balance > genesis_balance
 
 
-class TestEthereumTesterNetModule(NetModuleTest):
+class EthereumTesterNetModuleTest(NetModuleTest):
     pass
