@@ -38,7 +38,7 @@ def _json_list_mapping_to_dict(
     return f
 
 
-# get the normalization spec json files downloaded from links in ENSIP-15
+# get the normalization spec json files downloaded from links in `ENSIP-15`
 # https://docs.ens.domains/ens-improvement-proposals/ensip-15-normalization-standard
 specs_dir_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "specs"))
 with open(os.path.join(specs_dir_path, "normalization_spec.json")) as spec:
@@ -416,7 +416,7 @@ def _buffer_codepoints_to_chars(buffer: Union[List[int], List[List[int]]]) -> st
 
 def normalize_name_ensip15(name: str) -> ENSNormalizedName:
     """
-    Normalize an ENS name according to ENSIP-15
+    Normalize an ENS name according to `ENSIP-15`
     https://docs.ens.domains/ens-improvement-proposals/ensip-15-normalization-standard
 
     :param str name: the dot-separated ENS name
@@ -498,7 +498,7 @@ def normalize_name_ensip15(name: str) -> ENSNormalizedName:
 
         # create a `Label` instance from tokens
         # - Apply NFC to each `Text` token
-        # - Run tokens through "Validation" section of ENSIP-15
+        # - Run tokens through "Validation" section of `ENSIP-15`
         normalized_label = _build_and_validate_label_from_tokens(tokens)
         normalized_labels.append(normalized_label)
 
