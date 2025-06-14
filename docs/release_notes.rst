@@ -3651,7 +3651,7 @@ Released January 23rd, 2019
 
 - Features
 
-  - Stablize the ``PM`` module
+  - Stabilize the ``PM`` module
     - `#1125 <https://github.com/ethereum/web3.py/pull/1125>`_
   - Implement async ``Version`` module
     - `#1166 <https://github.com/ethereum/web3.py/pull/1166>`_
