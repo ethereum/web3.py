@@ -20,8 +20,8 @@ def _geth_command_arguments(base_geth_command_arguments, geth_version):
             "*",
             "--ipcdisable",
         )
-        if geth_version.minor not in [13, 14, 15]:
-            # TODO: remove support for 1.13.x in the next major release
+        if geth_version.minor not in [13, 14, 15, 16]:
+            # TODO: remove support for 13 + 14 in the next major release
             raise AssertionError("Unsupported Geth version")
     else:
         raise AssertionError("Unsupported Geth version")
