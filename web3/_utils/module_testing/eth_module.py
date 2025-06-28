@@ -724,8 +724,6 @@ class AsyncEthModuleTest:
         keyfile_account_pkey: HexStr,
         async_math_contract: "AsyncContract",
     ) -> None:
-        # TODO: remove blockNumber block_id from eth_call and eth_getCode calls once
-        #  geth behavior for "latest" seems stable again.
         keyfile_account = async_w3.eth.account.from_key(keyfile_account_pkey)
 
         chain_id = await async_w3.eth.chain_id
@@ -757,13 +755,9 @@ class AsyncEthModuleTest:
         signed = keyfile_account.sign_transaction(txn)
         tx_hash = await async_w3.eth.send_raw_transaction(signed.raw_transaction)
         get_tx = await async_w3.eth.get_transaction(tx_hash)
-        tx_receipt = await async_w3.eth.wait_for_transaction_receipt(
-            tx_hash, timeout=10
-        )
+        await async_w3.eth.wait_for_transaction_receipt(tx_hash)
 
-        code = await async_w3.eth.get_code(
-            keyfile_account.address, block_identifier=tx_receipt["blockNumber"]
-        )
+        code = await async_w3.eth.get_code(keyfile_account.address)
         assert code.to_0x_hex() == f"0xef0100{async_math_contract.address[2:].lower()}"
         delegated = async_w3.eth.contract(
             address=keyfile_account.address, abi=async_math_contract.abi
@@ -772,7 +766,7 @@ class AsyncEthModuleTest:
         # assert the math counter is increased by 1337 only in delegated acct
         assert await async_math_contract.functions.counter().call() == math_counter
         delegated_call = await delegated.functions.counter().call(
-            block_identifier=tx_receipt["blockNumber"]
+            block_identifier="latest"
         )
         assert delegated_call == math_counter + 1337
 
@@ -803,13 +797,9 @@ class AsyncEthModuleTest:
 
         # test eth_sendTransaction
         reset_tx_hash = await async_w3.eth.send_transaction(reset_code_txn)
-        reset_tx_receipt = await async_w3.eth.wait_for_transaction_receipt(
-            reset_tx_hash, timeout=10
-        )
+        await async_w3.eth.wait_for_transaction_receipt(reset_tx_hash, timeout=10)
 
-        reset_code = await async_w3.eth.get_code(
-            keyfile_account.address, reset_tx_receipt["blockNumber"]
-        )
+        reset_code = await async_w3.eth.get_code(keyfile_account.address)
         assert reset_code == HexBytes("0x")
 
     @pytest.mark.asyncio
@@ -3875,8 +3865,6 @@ class EthModuleTest:
     def test_sign_authorization_send_raw_and_send_set_code_transactions(
         self, w3: "Web3", keyfile_account_pkey: HexStr, math_contract: "Contract"
     ) -> None:
-        # TODO: remove blockNumber block_id from eth_call and eth_getCode calls once
-        #  geth behavior for "latest" seems stable again.
         keyfile_account = w3.eth.account.from_key(keyfile_account_pkey)
 
         chain_id = w3.eth.chain_id
@@ -3906,28 +3894,18 @@ class EthModuleTest:
 
         # test eth_sendRawTransaction
         signed = keyfile_account.sign_transaction(txn)
-        tx_hash = w3.eth.send_raw_transaction(signed.raw_transaction)
-        get_tx = w3.eth.get_transaction(tx_hash)
-        receipt = w3.eth.wait_for_transaction_receipt(tx_hash, timeout=10)
+        w3.eth.send_raw_transaction(signed.raw_transaction)
+        get_tx = w3.eth.get_transaction(signed.hash)
+        w3.eth.wait_for_transaction_receipt(signed.hash)
 
-        code = w3.eth.get_code(
-            keyfile_account.address, block_identifier=receipt["blockNumber"]
-        )
+        code = w3.eth.get_code(keyfile_account.address)
         assert code.to_0x_hex() == f"0xef0100{math_contract.address[2:].lower()}"
         delegated = w3.eth.contract(
             address=keyfile_account.address, abi=math_contract.abi
         )
         # assert the math counter is increased by 1337 only in delegated acct
-        assert (
-            math_contract.functions.counter().call(
-                block_identifier=receipt["blockNumber"]
-            )
-            == math_counter
-        )
-        assert (
-            delegated.functions.counter().call(block_identifier=receipt["blockNumber"])
-            == math_counter + 1337
-        )
+        assert math_contract.functions.counter().call() == math_counter
+        assert delegated.functions.counter().call() == math_counter + 1337
 
         assert len(get_tx["authorizationList"]) == 1
         get_auth = get_tx["authorizationList"][0]
@@ -3938,7 +3916,7 @@ class EthModuleTest:
         assert isinstance(get_auth["r"], HexBytes)
         assert isinstance(get_auth["s"], HexBytes)
 
-        # reset storage value and code
+        # reset code
         reset_auth = {
             "chainId": chain_id,
             "address": "0x" + ("00" * 20),
@@ -3956,13 +3934,9 @@ class EthModuleTest:
 
         # test eth_sendTransaction
         reset_tx_hash = w3.eth.send_transaction(reset_code_txn)
-        reset_tx_receipt = w3.eth.wait_for_transaction_receipt(
-            reset_tx_hash, timeout=10
-        )
+        w3.eth.wait_for_transaction_receipt(reset_tx_hash)
 
-        reset_code = w3.eth.get_code(
-            keyfile_account.address, block_identifier=reset_tx_receipt["blockNumber"]
-        )
+        reset_code = w3.eth.get_code(keyfile_account.address)
         assert reset_code == HexBytes("0x")
 
     def test_eth_call(self, w3: "Web3", math_contract: "Contract") -> None:
