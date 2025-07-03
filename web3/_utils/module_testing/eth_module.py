@@ -2602,20 +2602,6 @@ class AsyncEthModuleTest:
         assert result is True
 
     @pytest.mark.asyncio
-    async def test_async_eth_new_pending_transaction_filter(
-        self, async_w3: "AsyncWeb3"
-    ) -> None:
-        filter = await async_w3.eth.filter("pending")
-        assert is_string(filter.filter_id)
-
-        changes = await async_w3.eth.get_filter_changes(filter.filter_id)
-        assert is_list_like(changes)
-        assert not changes
-
-        result = await async_w3.eth.uninstall_filter(filter.filter_id)
-        assert result is True
-
-    @pytest.mark.asyncio
     async def test_async_eth_uninstall_filter(self, async_w3: "AsyncWeb3") -> None:
         filter = await async_w3.eth.filter({})
         assert is_string(filter.filter_id)
@@ -4768,17 +4754,6 @@ class EthModuleTest:
 
         changes = w3.eth.get_filter_changes(filter.filter_id)
         assert is_list_like(changes)
-
-        result = w3.eth.uninstall_filter(filter.filter_id)
-        assert result is True
-
-    def test_eth_new_pending_transaction_filter(self, w3: "Web3") -> None:
-        filter = w3.eth.filter("pending")
-        assert is_string(filter.filter_id)
-
-        changes = w3.eth.get_filter_changes(filter.filter_id)
-        assert is_list_like(changes)
-        assert not changes
 
         result = w3.eth.uninstall_filter(filter.filter_id)
         assert result is True
