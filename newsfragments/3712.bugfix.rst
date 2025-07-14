@@ -1,1 +1,0 @@
-Fix ``AutoProvider`` batching setup by adding a proxy batch request.

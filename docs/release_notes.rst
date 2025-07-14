@@ -6,6 +6,27 @@ v7 Breaking Changes Summary
 
 .. towncrier release notes start
 
+web3.py v7.12.1 (2025-07-14)
+----------------------------
+
+Bugfixes
+~~~~~~~~
+
+- Fix ``AutoProvider`` batching setup by adding a proxy batch request. (`#3712 <https://github.com/ethereum/web3.py/issues/3712>`__)
+
+
+Internal Changes - for web3.py Contributors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Update integrations tests to use geth ``v1.16.0``. (`#3727 <https://github.com/ethereum/web3.py/issues/3727>`__)
+
+
+Miscellaneous Changes
+~~~~~~~~~~~~~~~~~~~~~
+
+- `#3698 <https://github.com/ethereum/web3.py/issues/3698>`__, `#3710 <https://github.com/ethereum/web3.py/issues/3710>`__
+
+
 web3.py v7.12.0 (2025-05-22)
 ----------------------------
 

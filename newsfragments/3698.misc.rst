@@ -1,1 +1,0 @@
-Add a check against previously unused ``expected_bytes`` parametrized variable when testing ``eth_account`` sign.
