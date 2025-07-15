@@ -57,7 +57,7 @@ def handle_offchain_lookup(
                     json={"data": formatted_data, "sender": formatted_sender},
                     timeout=DEFAULT_HTTP_TIMEOUT,
                 )
-        except Exception:
+        except requests.RequestException:
             continue  # try next url if timeout or issues making the request
 
         if (
