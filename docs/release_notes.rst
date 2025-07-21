@@ -3672,7 +3672,7 @@ Released January 23rd, 2019
 
 - Features
 
-  - Stablize the ``PM`` module
+  - Stabilize the ``PM`` module
     - `#1125 <https://github.com/ethereum/web3.py/pull/1125>`_
   - Implement async ``Version`` module
     - `#1166 <https://github.com/ethereum/web3.py/pull/1166>`_
@@ -4543,7 +4543,7 @@ v4.0.0-beta.1
 3.0.1
 -----
 
-* Better RPC compliance to be compatable with the Parity JSON-RPC server.
+* Better RPC compliance to be compatible with the Parity JSON-RPC server.
 
 3.0.0
 -----
