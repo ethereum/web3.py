@@ -16,6 +16,7 @@ from eth_utils.toolz import (
 )
 
 from web3.exceptions import (
+    BadResponseFormat,
     Web3ValueError,
 )
 from web3.middleware.base import (
@@ -77,7 +78,12 @@ def _apply_response_formatters(
                 response, response_type, method_response_formatter(appropriate_response)
             )
 
-    if response.get("result") is not None and method in result_formatters:
+    if not isinstance(response, dict):
+        raise BadResponseFormat(
+            "Malformed response: expected a valid JSON-RPC response object, got: "
+            "`{}`".format(response)
+        )
+    elif response.get("result") is not None and method in result_formatters:
         return _format_response("result", result_formatters[method])
     elif (
         # eth_subscription responses
