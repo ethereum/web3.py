@@ -3,7 +3,11 @@ from unittest.mock import (
     Mock,
 )
 
+import pytest_asyncio
+
 from web3 import (
+    AsyncBaseProvider,
+    AsyncWeb3,
     Web3,
 )
 from web3.exceptions import (
@@ -118,3 +122,32 @@ def test_formatting_middleware_raises_for_non_dict_responses(w3, request_mocker)
         r"got: `a string`",
     ):
         _ = w3.eth.chain_id
+
+
+# -- async -- #
+
+
+@pytest_asyncio.fixture
+async def async_w3():
+    return AsyncWeb3(provider=AsyncBaseProvider(), middleware=[])
+
+
+@pytest.mark.asyncio
+async def test_async_formatting_middleware_raises_for_non_dict_responses(async_w3):
+    async_w3.middleware_onion.add(
+        FormattingMiddlewareBuilder.build(
+            result_formatters={"test_endpoint": lambda x: x}
+        )
+    )
+
+    async def _make_request(*_):
+        return "a string"
+
+    async_w3.provider.make_request = _make_request
+
+    with pytest.raises(
+        BadResponseFormat,
+        match=r"Malformed response: expected a valid JSON-RPC response object, "
+        r"got: `a string`",
+    ):
+        _ = await async_w3.eth.chain_id
