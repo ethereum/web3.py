@@ -133,6 +133,89 @@ async def async_w3():
 
 
 @pytest.mark.asyncio
+async def test_async_formatting_middleware(async_w3, request_mocker):
+    # No formatters by default
+    expected = "done"
+    async with request_mocker(async_w3, mock_results={"test_endpoint": "done"}):
+        actual = await async_w3.manager.coro_request(RPCEndpoint("test_endpoint"), [])
+        assert actual == expected
+
+
+@pytest.mark.asyncio
+async def test_async_formatting_middleware_no_method(async_w3):
+    async_w3.middleware_onion.add(FormattingMiddlewareBuilder.build())
+
+    # Formatting middleware requires an endpoint
+    with pytest.raises(NotImplementedError):
+        await async_w3.manager.coro_request("test_endpoint", [])
+
+
+@pytest.mark.asyncio
+async def test_async_formatting_middleware_request_formatters(async_w3, request_mocker):
+    callable_mock = Mock()
+    async_w3.middleware_onion.add(
+        FormattingMiddlewareBuilder.build(
+            request_formatters={"test_endpoint": callable_mock}
+        )
+    )
+
+    expected = "done"
+    async with request_mocker(async_w3, mock_results={"test_endpoint": "done"}):
+        actual = await async_w3.manager.coro_request("test_endpoint", ["param1"])
+
+    callable_mock.assert_called_once_with(["param1"])
+    assert actual == expected
+
+
+@pytest.mark.asyncio
+async def test_async_formatting_middleware_result_formatters(async_w3, request_mocker):
+    async_w3.middleware_onion.add(
+        FormattingMiddlewareBuilder.build(
+            result_formatters={"test_endpoint": lambda x: f"STATUS: {x}"}
+        )
+    )
+
+    expected = "STATUS: done"
+    async with request_mocker(async_w3, mock_results={"test_endpoint": "done"}):
+        actual = await async_w3.manager.coro_request("test_endpoint", [])
+
+    assert actual == expected
+
+
+@pytest.mark.asyncio
+async def test_async_formatting_middleware_result_formatters_for_none(
+    async_w3, request_mocker
+):
+    async_w3.middleware_onion.add(
+        FormattingMiddlewareBuilder.build(
+            result_formatters={"test_endpoint": lambda x: hex(x)}
+        )
+    )
+
+    expected = None
+    async with request_mocker(async_w3, mock_results={"test_endpoint": expected}):
+        actual = await async_w3.manager.coro_request("test_endpoint", [])
+    assert actual == expected
+
+
+@pytest.mark.asyncio
+async def test_async_formatting_middleware_error_formatters(async_w3, request_mocker):
+    async_w3.middleware_onion.add(
+        FormattingMiddlewareBuilder.build(
+            result_formatters={"test_endpoint": lambda x: f"STATUS: {x}"}
+        )
+    )
+
+    expected = "error"
+    async with request_mocker(
+        async_w3, mock_errors={"test_endpoint": {"message": "error"}}
+    ):
+        with pytest.raises(Web3RPCError) as err:
+            await async_w3.manager.coro_request("test_endpoint", [])
+            assert str(err.value) == expected
+
+
+@pytest.mark.asyncio
 async def test_async_formatting_middleware_raises_for_non_dict_responses(async_w3):
     async_w3.middleware_onion.add(
         FormattingMiddlewareBuilder.build(
