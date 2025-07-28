@@ -1,0 +1,1 @@
+Add missing async tests for ``FormattingMiddleware`` as a sanity check.
