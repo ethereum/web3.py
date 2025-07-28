@@ -7,6 +7,7 @@ from web3 import (
     Web3,
 )
 from web3.exceptions import (
+    BadResponseFormat,
     Web3RPCError,
 )
 from web3.middleware import (
@@ -101,3 +102,19 @@ def test_formatting_middleware_error_formatters(w3, request_mocker):
         with pytest.raises(Web3RPCError) as err:
             w3.manager.request_blocking("test_endpoint", [])
             assert str(err.value) == expected
+
+
+def test_formatting_middleware_raises_for_non_dict_responses(w3, request_mocker):
+    w3.middleware_onion.add(
+        FormattingMiddlewareBuilder.build(
+            result_formatters={"test_endpoint": lambda x: x}
+        )
+    )
+    w3.provider.make_request = lambda *_: "a string"
+
+    with pytest.raises(
+        BadResponseFormat,
+        match=r"Malformed response: expected a valid JSON-RPC response object, "
+        r"got: `a string`",
+    ):
+        _ = w3.eth.chain_id
