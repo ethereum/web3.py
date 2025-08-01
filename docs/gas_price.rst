@@ -76,7 +76,7 @@ Available gas price strategies
 .. py:method:: rpc_gas_price_strategy(web3, transaction_params=None)
 
     Makes a call to the `JSON-RPC eth_gasPrice
-    method <https://github.com/ethereum/wiki/wiki/JSON-RPC#eth_gasprice>`_ which returns
+    method <https://ethereum.org/en/developers/docs/apis/json-rpc#eth_gasprice>`_ which returns
     the gas price configured by the connected Ethereum node.
 
 .. py:module:: web3.gas_strategies.time_based
