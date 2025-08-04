@@ -588,3 +588,48 @@ async def test_async_send_set_code_transaction(async_w3, async_math_contract):
 
     reset_code = await async_w3.eth.get_code(acct.address)
     assert reset_code == HexBytes("0x")
+
+
+def test_send_type1_transaction_with_access_list(w3):
+    txn = {
+        "from": w3.eth.accounts[0],
+        "to": w3.eth.accounts[1],
+        "gas": 50000,
+        "gasPrice": w3.to_wei(1, "gwei"),
+        "accessList": [
+            {
+                "address": w3.eth.accounts[2],
+                "storageKeys": [
+                    "0x0000000000000000000000000000000000000000000000000000000000000000"
+                ],
+            }
+        ],
+    }
+
+    tx_hash = w3.eth.send_transaction(txn)
+    receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
+    assert receipt["status"] == 1
+    assert receipt["transactionHash"] == tx_hash
+
+
+def test_send_type2_transaction_with_access_list(w3):
+    txn = {
+        "from": w3.eth.accounts[0],
+        "to": w3.eth.accounts[1],
+        "gas": 50000,
+        "maxFeePerGas": w3.to_wei(2, "gwei"),
+        "maxPriorityFeePerGas": w3.to_wei(1, "gwei"),
+        "accessList": [
+            {
+                "address": w3.eth.accounts[2],
+                "storageKeys": [
+                    "0x0000000000000000000000000000000000000000000000000000000000000000"
+                ],
+            }
+        ],
+    }
+
+    tx_hash = w3.eth.send_transaction(txn)
+    receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
+    assert receipt["status"] == 1
+    assert receipt["transactionHash"] == tx_hash
