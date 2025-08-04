@@ -1,1 +1,0 @@
-Raise ``BadResponseFormat`` from within ``FormattingMiddleware`` if the raw response is not a dict.

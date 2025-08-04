@@ -1,1 +1,0 @@
-Fix broken link to external ``eth_gasPrice`` documentation.

@@ -6,6 +6,35 @@ v7 Breaking Changes Summary
 
 .. towncrier release notes start
 
+web3.py v7.13.0 (2025-08-04)
+----------------------------
+
+Bugfixes
+~~~~~~~~
+
+- Raise ``BadResponseFormat`` from within ``FormattingMiddleware`` if the raw response is not a dict. (`#3735 <https://github.com/ethereum/web3.py/issues/3735>`__)
+
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Fix broken link to external ``eth_gasPrice`` documentation. (`#3717 <https://github.com/ethereum/web3.py/issues/3717>`__)
+
+
+Features
+~~~~~~~~
+
+- Add testing against Geth v1.16.2 (`#1162 <https://github.com/ethereum/web3.py/issues/1162>`__)
+- Support parallelization of subscription handling globally via the subscription manager ``parallelize`` flag, and on a per-subscription basis via the ``parallelize`` flag on the subscription itself. (`#3709 <https://github.com/ethereum/web3.py/issues/3709>`__)
+
+
+Internal Changes - for web3.py Contributors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Update integration test suite fixture to test against geth ``v1.16.1``. (`#3731 <https://github.com/ethereum/web3.py/issues/3731>`__)
+- Add missing async tests for ``FormattingMiddleware`` as a sanity check. (`#3735 <https://github.com/ethereum/web3.py/issues/3735>`__)
+
+
 web3.py v7.12.1 (2025-07-14)
 ----------------------------
 
