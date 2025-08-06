@@ -60,4 +60,3 @@ msgstr ""
 #: ../../web3.net.rst:44
 msgid "Returns the current network id."
 msgstr ""
-

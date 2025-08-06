@@ -179,4 +179,3 @@ msgid ""
 "Returns the trace of the transaction with the given ``transaction_hash`` "
 "and ``trace_config``."
 msgstr ""
-

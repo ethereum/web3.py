@@ -288,4 +288,3 @@ msgid ""
 "``supportsInterface()`` function with the extended resolver interface id "
 "``\"0x9061b923\"`` and should resolve subdomains to a unique address."
 msgstr ""
-

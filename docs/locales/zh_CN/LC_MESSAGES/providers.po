@@ -658,4 +658,3 @@ msgid ""
 "versions of the ``eth-tester`` and ``py-evm`` dependencies needed: e.g. "
 "``pip install \"web3[tester]\"``"
 msgstr ""
-

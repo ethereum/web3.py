@@ -499,4 +499,3 @@ msgid ""
 "The script can be run with: ``python ./eventscanner.py <your JSON-RPC API"
 " URL>``."
 msgstr ""
-

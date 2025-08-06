@@ -9331,4 +9331,3 @@ msgstr ""
 #: ../../release_notes.rst:4762
 msgid "Initial release"
 msgstr ""
-

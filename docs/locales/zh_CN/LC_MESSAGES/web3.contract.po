@@ -1366,4 +1366,3 @@ msgid ""
 "Once you have an environment set up for testing, you can then write your "
 "tests like so:"
 msgstr ""
-

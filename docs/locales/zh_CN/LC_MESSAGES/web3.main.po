@@ -353,4 +353,3 @@ msgid ""
 " a similarly built `dict` containing the submodule information as the 1st"
 " index. This pattern may be repeated as necessary."
 msgstr ""
-

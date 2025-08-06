@@ -33,4 +33,3 @@ msgstr ""
 #: ../../web3.tracing.rst:8
 msgid "The following methods are available on the ``web3.tracing`` namespace:"
 msgstr ""
-

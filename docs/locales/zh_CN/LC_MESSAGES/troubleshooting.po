@@ -589,4 +589,3 @@ msgid ""
 "If you want to run your application logging in debug mode, below is an "
 "example of how to make some JSON-RPC traffic quieter."
 msgstr ""
-

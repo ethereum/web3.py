@@ -389,4 +389,3 @@ msgstr ""
 #: ../../web3.eth.account.rst:392
 msgid "Broadcast the transaction with :meth:`~web3.eth.Eth.send_raw_transaction`"
 msgstr ""
-

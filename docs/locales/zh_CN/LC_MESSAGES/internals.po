@@ -703,4 +703,3 @@ msgid ""
 "the ``process_subscriptions()`` method, as soon as a subscription is "
 "made."
 msgstr ""
-

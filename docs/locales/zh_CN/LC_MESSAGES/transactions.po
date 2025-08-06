@@ -182,4 +182,3 @@ msgid ""
 ":meth:`~web3.contract.ContractFunction.build_transaction`, then signing "
 "and sending the raw transaction."
 msgstr ""
-

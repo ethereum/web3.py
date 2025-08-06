@@ -159,4 +159,3 @@ msgid ""
 "a caching solution be used to reduce the amount of chain data that needs "
 "to be re-fetched for each request."
 msgstr ""
-

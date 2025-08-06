@@ -510,4 +510,3 @@ msgid ""
 "the :ref:`middleware_stack_api`. The ``name`` kwarg is optional. For "
 "example:"
 msgstr ""
-

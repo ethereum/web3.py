@@ -74,4 +74,3 @@ msgid ""
 "The async version of the ``handle_offchain_lookup()`` utility method "
 "described above."
 msgstr ""
-

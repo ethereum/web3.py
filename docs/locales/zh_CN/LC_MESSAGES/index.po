@@ -143,4 +143,3 @@ msgstr ":ref:`modindex`"
 #: ../../toc.rst:56
 msgid ":ref:`search`"
 msgstr ":ref:`search`"
-

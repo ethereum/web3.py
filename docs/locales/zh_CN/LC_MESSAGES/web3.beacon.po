@@ -44,4 +44,3 @@ msgstr ""
 #: ../../web3.beacon.rst:16
 msgid "Methods"
 msgstr ""
-

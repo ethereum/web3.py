@@ -709,4 +709,3 @@ msgid ""
 "You can see what the result of bumping any particular version part would "
 "be with ``bump-my-version show-bump``."
 msgstr ""
-

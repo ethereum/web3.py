@@ -215,4 +215,3 @@ msgid ""
 "For example, the handler of one subscription could initialize a new "
 "subscription:"
 msgstr ""
-

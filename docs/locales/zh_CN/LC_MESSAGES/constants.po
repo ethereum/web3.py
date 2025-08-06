@@ -34,4 +34,3 @@ msgstr ""
 #: ../../constants.rst:23
 msgid "Int"
 msgstr ""
-

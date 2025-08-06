@@ -310,4 +310,3 @@ msgid ""
 "`py-signer <https://github.com/wolovim/py-signer>`__ - Demo of typed data"
 " message signing (EIP-712) with eth-account and Ape"
 msgstr ""
-

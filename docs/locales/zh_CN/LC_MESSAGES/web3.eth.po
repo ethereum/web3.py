@@ -1137,4 +1137,3 @@ msgid ""
 "``contractFactoryClass``. Future calls to ``Eth.contract()`` will then "
 "default to ``contractFactoryClass``."
 msgstr ""
-

@@ -1372,4 +1372,3 @@ msgid ""
 ":meth:`w3.personal.sendTransaction() <web3.personal.sendTransaction>` "
 "instead."
 msgstr ""
-
