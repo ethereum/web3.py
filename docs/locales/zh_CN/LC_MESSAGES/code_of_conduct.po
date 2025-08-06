@@ -1,0 +1,167 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2016-2025, The Ethereum Foundation
+# This file is distributed under the same license as the web3.py package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: web3.py 7.13\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-08-06 10:49+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.17.0\n"
+
+#: ../../code_of_conduct.rst:2
+msgid "Code of Conduct"
+msgstr "行为准则"
+
+#: ../../code_of_conduct.rst:5
+msgid "Our Pledge"
+msgstr "我们的承诺"
+
+#: ../../code_of_conduct.rst:7
+msgid ""
+"In the interest of fostering an open and welcoming environment, we as "
+"contributors and maintainers pledge to make participation in our project "
+"and our community a harassment-free experience for everyone, regardless "
+"of age, body size, disability, ethnicity, gender identity and expression,"
+" level of experience, education, socio-economic status, nationality, "
+"personal appearance, race, religion, or sexual identity and orientation."
+msgstr ""
+
+#: ../../code_of_conduct.rst:15
+msgid "Our Standards"
+msgstr ""
+
+#: ../../code_of_conduct.rst:17
+msgid ""
+"Examples of behavior that contributes to creating a positive environment "
+"include:"
+msgstr ""
+
+#: ../../code_of_conduct.rst:20
+msgid "Using welcoming and inclusive language"
+msgstr ""
+
+#: ../../code_of_conduct.rst:21
+msgid "Being respectful of differing viewpoints and experiences"
+msgstr ""
+
+#: ../../code_of_conduct.rst:22
+msgid "Gracefully accepting constructive criticism"
+msgstr ""
+
+#: ../../code_of_conduct.rst:23
+msgid "Focusing on what is best for the community"
+msgstr ""
+
+#: ../../code_of_conduct.rst:24
+msgid "Showing empathy towards other community members"
+msgstr ""
+
+#: ../../code_of_conduct.rst:26
+msgid "Examples of unacceptable behavior by participants include:"
+msgstr ""
+
+#: ../../code_of_conduct.rst:28
+msgid ""
+"The use of sexualized language or imagery and unwelcome sexual attention "
+"or advances"
+msgstr ""
+
+#: ../../code_of_conduct.rst:30
+msgid "Trolling, insulting/derogatory comments, and personal or political attacks"
+msgstr ""
+
+#: ../../code_of_conduct.rst:31
+msgid "Public or private harassment"
+msgstr ""
+
+#: ../../code_of_conduct.rst:32
+msgid ""
+"Publishing others' private information, such as a physical or electronic "
+"address, without explicit permission"
+msgstr ""
+
+#: ../../code_of_conduct.rst:34
+msgid ""
+"Other conduct which could reasonably be considered inappropriate in a "
+"professional setting"
+msgstr ""
+
+#: ../../code_of_conduct.rst:38
+msgid "Our Responsibilities"
+msgstr ""
+
+#: ../../code_of_conduct.rst:40
+msgid ""
+"Project maintainers are responsible for clarifying the standards of "
+"acceptable behavior and are expected to take appropriate and fair "
+"corrective action in response to any instances of unacceptable behavior."
+msgstr ""
+
+#: ../../code_of_conduct.rst:44
+msgid ""
+"Project maintainers have the right and responsibility to remove, edit, or"
+" reject comments, commits, code, wiki edits, issues, and other "
+"contributions that are not aligned to this Code of Conduct, or to ban "
+"temporarily or permanently any contributor for other behaviors that they "
+"deem inappropriate, threatening, offensive, or harmful."
+msgstr ""
+
+#: ../../code_of_conduct.rst:51
+msgid "Scope"
+msgstr ""
+
+#: ../../code_of_conduct.rst:53
+msgid ""
+"This Code of Conduct applies both within project spaces and in public "
+"spaces when an individual is representing the project or its community. "
+"Examples of representing a project or community include using an official"
+" project e-mail address, posting via an official social media account, or"
+" acting as an appointed representative at an online or offline event. "
+"Representation of a project may be further defined and clarified by "
+"project maintainers."
+msgstr ""
+
+#: ../../code_of_conduct.rst:61
+msgid "Enforcement"
+msgstr ""
+
+#: ../../code_of_conduct.rst:63
+msgid ""
+"Instances of abusive, harassing, or otherwise unacceptable behavior may "
+"be reported by contacting the project team at snakecharmers@ethereum.org."
+" All complaints will be reviewed and investigated and will result in a "
+"response that is deemed necessary and appropriate to the circumstances. "
+"The project team is obligated to maintain confidentiality with regard to "
+"the reporter of an incident. Further details of specific enforcement "
+"policies may be posted separately."
+msgstr ""
+
+#: ../../code_of_conduct.rst:70
+msgid ""
+"Project maintainers who do not follow or enforce the Code of Conduct in "
+"good faith may face temporary or permanent repercussions as determined by"
+" other members of the project's leadership."
+msgstr ""
+
+#: ../../code_of_conduct.rst:75
+msgid "Attribution"
+msgstr ""
+
+#: ../../code_of_conduct.rst:77
+msgid ""
+"This Code of Conduct is adapted from the `Contributor Covenant "
+"<https://www.contributor-covenant.org>`_, version 1.4, available at "
+"https://www.contributor-covenant.org/version/1/4/code-of-conduct.html"
+msgstr ""
+
