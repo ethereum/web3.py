@@ -97,7 +97,7 @@ from web3.types import (
     Wei,
     _Hash32,
 )
-from web3.utils import (
+from web3._utils import (
     handle_offchain_lookup,
 )
 
