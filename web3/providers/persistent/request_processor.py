@@ -334,8 +334,7 @@ class RequestProcessor:
                 if self._subscription_queue_synced_with_ws_stream:
                     self._subscription_queue_synced_with_ws_stream = False
                 self._provider.logger.info(
-                    "Subscription response queue has %s subscriptions. "
-                    "Processing as FIFO.",
+                    "Subscription response queue size is %s. Processing as FIFO.",
                     qsize,
                 )
 
