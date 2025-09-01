@@ -30,6 +30,7 @@ from web3.types import (
     FilterParams,
     LogReceipt,
     SyncProgress,
+    TopicFilter,
     TxData,
 )
 
@@ -215,7 +216,7 @@ class LogsSubscription(EthSubscription[LogReceipt]):
         address: Optional[
             Union[Address, ChecksumAddress, List[Address], List[ChecksumAddress]]
         ] = None,
-        topics: Optional[List[HexStr]] = None,
+        topics: Optional[Sequence[TopicFilter]] = None,
         handler: LogsSubscriptionHandler = None,
         handler_context: Optional[Dict[str, Any]] = None,
         label: Optional[str] = None,

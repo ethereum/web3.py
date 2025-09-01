@@ -62,6 +62,19 @@ ABIElementIdentifier = Union[str, Type[FallbackFn], Type[ReceiveFn]]
 
 # bytes, hexbytes, or hexstr representing a 32 byte hash
 _Hash32 = Union[Hash32, HexBytes, HexStr]
+
+# --- ``TopicFilter`` type for event log filtering with AND/OR patterns --- #
+# - ``None``: wildcard, matches any value at this position
+# - ``_Hash32``: single topic that must match exactly
+# - ``Sequence[Union[None, _Hash32]]``: OR condition, at least one must match
+# - ``Sequence[Sequence[...]]``: nested OR conditions
+TopicFilter = Union[
+    None,
+    _Hash32,
+    Sequence[Union[None, _Hash32]],
+    Sequence["TopicFilter"],
+]
+
 EnodeURI = NewType("EnodeURI", str)
 ENS = NewType("ENS", str)
 Nonce = NewType("Nonce", int)
@@ -345,7 +358,7 @@ class FilterParams(TypedDict, total=False):
     blockHash: HexBytes
     fromBlock: BlockIdentifier
     toBlock: BlockIdentifier
-    topics: Sequence[Optional[Union[_Hash32, Sequence[_Hash32]]]]
+    topics: Sequence[TopicFilter]
 
 
 class FeeHistory(TypedDict):
@@ -667,4 +680,4 @@ class LogsSubscriptionArg(TypedDict, total=False):
         ENS,
         Sequence[Union[Address, ChecksumAddress, ENS]],
     ]
-    topics: Sequence[Union[HexStr, Sequence[HexStr]]]
+    topics: Sequence[TopicFilter]

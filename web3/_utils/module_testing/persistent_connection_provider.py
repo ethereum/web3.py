@@ -9,6 +9,7 @@ from typing import (
     Dict,
     Generator,
     List,
+    Sequence,
     Tuple,
     Union,
     cast,
@@ -44,6 +45,7 @@ from web3.types import (
     LogReceipt,
     Nonce,
     RPCEndpoint,
+    TopicFilter,
     TxData,
     Wei,
 )
@@ -579,6 +581,112 @@ class PersistentConnectionProviderTest:
         # cleanup
         sub_manager.total_handler_calls = 0
         await clean_up_task(emit_event_task)
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        "topics",
+        [
+            pytest.param(
+                [
+                    HexStr(
+                        "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"  # noqa: E501
+                    )
+                ],
+                id="Single specific topic at position 0",
+            ),
+            pytest.param(
+                [
+                    None,
+                    HexStr(
+                        "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890"  # noqa: E501
+                    ),
+                ],
+                id="Wildcard at position 0, specific topic at position 1",
+            ),
+            pytest.param(
+                [
+                    [
+                        HexStr(
+                            "0x1111111111111111111111111111111111111111111111111111111111111111"  # noqa: E501
+                        ),
+                        HexStr(
+                            "0x2222222222222222222222222222222222222222222222222222222222222222"  # noqa: E501
+                        ),
+                    ]
+                ],
+                id="OR pattern: topic A or B at position 0",
+            ),
+            pytest.param(
+                [
+                    [
+                        HexStr(
+                            "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"  # noqa: E501
+                        ),
+                        HexStr(
+                            "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"  # noqa: E501
+                        ),
+                    ],
+                    HexStr(
+                        "0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"  # noqa: E501
+                    ),
+                ],
+                id="Complex: (A or B) at position 0 AND C at position 1",
+            ),
+            pytest.param(
+                [
+                    HexBytes(
+                        "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"  # noqa: E501
+                    )
+                ],
+                id="Single specific topic at position 0 with HexBytes",
+            ),
+            pytest.param(
+                [
+                    [
+                        HexBytes(
+                            "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"  # noqa: E501
+                        ),
+                        HexStr(
+                            "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"  # noqa: E501
+                        ),
+                        b"\xcc" * 32,
+                    ]
+                ],
+                id="OR pattern with mixed HexBytes, HexStr, and bytes at position 0",
+            ),
+        ],
+    )
+    async def test_async_logs_subscription_with_and_or_topic_patterns(
+        self,
+        async_w3: AsyncWeb3,
+        async_emitter_contract: "AsyncContract",
+        topics: Sequence[TopicFilter],
+    ) -> None:
+        """Test that LogsSubscription properly handles AND/OR topic patterns."""
+        sub_manager = async_w3.subscription_manager
+
+        subscription = LogsSubscription(
+            address=async_emitter_contract.address,
+            topics=topics,
+            handler=idle_handler,
+        )
+
+        await sub_manager.subscribe(subscription)
+        assert len(sub_manager.subscriptions) == 1
+        assert isinstance(sub_manager.subscriptions[0], LogsSubscription)
+        assert sub_manager.subscriptions[0].topics == topics
+
+        assert subscription.subscription_params == (
+            "logs",
+            {
+                "address": async_emitter_contract.address,
+                "topics": topics,
+            },
+        )
+
+        # clean up
+        await sub_manager.unsubscribe(subscription)
+        assert len(sub_manager.subscriptions) == 0
 
     @pytest.mark.asyncio
     async def test_async_extradata_poa_middleware_on_eth_subscription(
