@@ -1,4 +1,7 @@
-from __future__ import annotations
+from __future__ import (
+    annotations,
+)
+
 import asyncio
 import json
 import logging
@@ -6,9 +9,6 @@ import os
 import typing
 from typing import (
     Any,
-    Dict,
-    Optional,
-    Union,
 )
 
 from eth_typing import (
@@ -17,12 +17,12 @@ from eth_typing import (
 from toolz import (
     merge,
 )
+from websockets import (
+    connect,
+)
 from websockets.exceptions import (
     ConnectionClosedOK,
     WebSocketException,
-)
-from websockets import (
-    connect,
 )
 
 from web3.exceptions import (
@@ -38,7 +38,9 @@ from web3.types import (
 )
 
 if typing.TYPE_CHECKING:
-    from websockets import ClientConnection
+    from websockets import (
+        ClientConnection,
+    )
 
 DEFAULT_PING_INTERVAL = 30  # 30 seconds
 DEFAULT_PING_TIMEOUT = 300  # 5 minutes

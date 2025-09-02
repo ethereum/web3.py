@@ -4,8 +4,6 @@ import time
 
 from websockets import (
     WebSocketException,
-)
-from websockets import (
     connect,
 )
 
