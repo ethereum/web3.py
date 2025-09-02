@@ -174,9 +174,6 @@ class AsyncBaseProvider:
             "Persistent connection providers must implement this method"
         )
 
-    # WebSocket typing
-    _ws: "WebSocketClientProtocol"
-
     # IPC typing
     _reader: Optional[asyncio.StreamReader]
     _writer: Optional[asyncio.StreamWriter]
