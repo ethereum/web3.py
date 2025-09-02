@@ -1,7 +1,9 @@
+from __future__ import annotations
 import asyncio
 import json
 import logging
 import os
+import typing
 from threading import (
     Thread,
 )
@@ -21,10 +23,6 @@ from typing import (
 from eth_typing import (
     URI,
 )
-from websockets.legacy.client import (
-    WebSocketClientProtocol,
-    connect,
-)
 
 from web3._utils.batching import (
     sort_batch_response_by_response_ids,
@@ -42,6 +40,11 @@ from web3.types import (
     RPCEndpoint,
     RPCResponse,
 )
+
+if typing.TYPE_CHECKING:
+    from websockets.legacy.client import (
+        WebSocketClientProtocol,
+    )
 
 RESTRICTED_WEBSOCKET_KWARGS = {"uri", "loop"}
 DEFAULT_WEBSOCKET_TIMEOUT = 30
@@ -72,6 +75,7 @@ class PersistentWebSocket:
 
     async def __aenter__(self) -> WebSocketClientProtocol:
         if self.ws is None:
+            from websockets.legacy.client import connect
             self.ws = await connect(uri=self.endpoint_uri, **self.websocket_kwargs)
         return self.ws
 
