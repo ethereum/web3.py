@@ -5,7 +5,7 @@ import time
 from websockets import (
     WebSocketException,
 )
-from websockets.legacy.client import (
+from websockets import (
     connect,
 )
 
