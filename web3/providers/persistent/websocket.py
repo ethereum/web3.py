@@ -6,7 +6,6 @@ import asyncio
 import json
 import logging
 import os
-import typing
 from typing import (
     Any,
 )
@@ -17,7 +16,15 @@ from eth_typing import (
 from toolz import (
     merge,
 )
-from websockets import (
+
+# python3.8 supports up to version 13,
+# which does not default to the asyncio implementation yet.
+# For this reason connect and ClientConnection need to be imported
+# from asyncio.client explicitly.
+# When web3.py stops supporting python3.8,
+# it'll be possible to use `from websockets import connect, ClientConnection`.
+from websockets.asyncio.client import (
+    ClientConnection,
     connect,
 )
 from websockets.exceptions import (
@@ -36,11 +43,6 @@ from web3.providers.persistent import (
 from web3.types import (
     RPCResponse,
 )
-
-if typing.TYPE_CHECKING:
-    from websockets import (
-        ClientConnection,
-    )
 
 DEFAULT_PING_INTERVAL = 30  # 30 seconds
 DEFAULT_PING_TIMEOUT = 300  # 5 minutes
