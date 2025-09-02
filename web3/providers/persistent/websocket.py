@@ -142,7 +142,7 @@ class WebSocketProvider(PersistentConnectionProvider):
 
     async def _provider_specific_disconnect(self) -> None:
         # this should remain idempotent
-        if self._ws is not None and not self._ws.closed:
+        if self._ws is not None:
             await self._ws.close()
             self._ws = None
 
