@@ -4,7 +4,9 @@ from eth_utils import (
     to_dict,
 )
 from hypothesis import (
+    HealthCheck,
     given,
+    settings,
     strategies as st,
 )
 
@@ -42,6 +44,9 @@ def recursive_shuffle_dict(v):
         return v
 
 
+# Generating data for the `all_st` strategy can be slow, so we disable the
+# "too_slow" health check for this test.
+@settings(suppress_health_check=[HealthCheck.too_slow])
 @given(value=all_st)
 def test_key_generation_is_deterministic(value):
     left = recursive_shuffle_dict(value)
