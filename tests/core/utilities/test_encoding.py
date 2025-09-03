@@ -144,8 +144,11 @@ def test_text_if_str_on_text(val):
         ),
         (
             {
-                "date": [datetime.datetime.utcnow(), datetime.datetime.now()],
-                "other_date": datetime.datetime.utcnow().date(),
+                "date": [
+                    datetime.datetime.now(datetime.timezone.utc),
+                    datetime.datetime.now(),
+                ],
+                "other_date": datetime.datetime.now(datetime.timezone.utc).date(),
             },
             TypeError,
             "Could not encode to JSON: .*'other_date'.*is not JSON serializable",
