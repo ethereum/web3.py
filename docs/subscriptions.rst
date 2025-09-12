@@ -23,19 +23,19 @@ When you subscribe to an event – new block headers, for example – you'll rec
         # connect to a node:
         async with AsyncWeb3(WebSocketProvider("wss://...")) as w3:
 
-        # subscribe to new block headers:
-        subscription_id = await w3.eth.subscribe("newHeads")
-        print(subscription_id)
+            # subscribe to new block headers:
+            subscription_id = await w3.eth.subscribe("newHeads")
+            print(subscription_id)
 
-        # listen for events as they occur:
-        async for response in w3.socket.process_subscriptions():
-            # handle each event:
-            print(response)
+            # listen for events as they occur:
+            async for response in w3.socket.process_subscriptions():
+                # handle each event:
+                print(response)
 
-            # unsubscribe:
-            if response["number"] > 42012345:
-                await w3.eth.unsubscribe(subscription_id)
-                break
+                # unsubscribe:
+                if response["number"] > 42012345:
+                    await w3.eth.unsubscribe(subscription_id)
+                    break
 
     asyncio.run(example())
 
