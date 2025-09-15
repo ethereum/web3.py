@@ -12,8 +12,8 @@ from threading import (
 from types import (
     TracebackType,
 )
-import typing
 from typing import (
+    TYPE_CHECKING,
     Any,
     List,
     cast,
@@ -40,7 +40,7 @@ from web3.types import (
     RPCResponse,
 )
 
-if typing.TYPE_CHECKING:
+if TYPE_CHECKING:
     from websockets.legacy.client import (
         WebSocketClientProtocol,
     )
