@@ -1,1 +1,1 @@
-Fix tests flakiness due to slow data generation from hypotesis triggering a timeout.
+Fix tests flakiness due to slow data generation from hypothesis triggering a timeout.
