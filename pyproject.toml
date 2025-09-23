@@ -15,7 +15,7 @@ multi_line_output = 3
 profile = "black"
 use_parentheses = true
 # skip `__init__.py` files because sometimes order of initialization is important
-skip="__init__.py,web3/main.py,web3/utils/windows.py"
+skip="__init__.py,web3/main.py,web3/_utils/windows.py"
 
 [tool.mypy]
 check_untyped_defs = true
