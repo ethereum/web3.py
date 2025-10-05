@@ -1,767 +1,3 @@
-def percentile(values, percentile):
-    values :: object
-    percentile :: float
-    r0 :: i32
-    r1 :: bit
-    r2 :: bool
-    r3, r4, r5, r6, r7 :: str
-    r8 :: object[3]
-    r9 :: object_ptr
-    r10 :: object
-    r11 :: str
-    r12 :: list
-    r13, r14, r15 :: ptr
-    r16 :: str
-    r17 :: dict
-    r18 :: str
-    r19 :: object
-    r20 :: object[1]
-    r21 :: object_ptr
-    r22 :: object
-    r23, r24 :: bit
-    r25 :: str
-    r26 :: dict
-    r27 :: str
-    r28 :: object
-    r29 :: object[1]
-    r30 :: object_ptr
-    r31 :: object
-    r32 :: list
-    r33 :: int
-    r34 :: float
-    r35 :: bit
-    r36, r37, r38 :: float
-    r39 :: bit
-    r40, r41 :: object
-    r42 :: int
-    r43 :: float
-    r44 :: bit
-    r45 :: object
-    r46, r47 :: float
-    r48, r49, r50, r51 :: bit
-    r52, r53, fractional :: float
-    r54 :: bit
-    r55 :: int
-    r56 :: object
-    r57 :: int
-    r58 :: float
-    r59 :: bit
-    r60 :: object
-    r61 :: float
-    r62 :: int
-    r63 :: object
-    r64, r65 :: int
-    r66 :: object
-    r67, r68 :: int
-    r69 :: float
-    r70 :: bit
-    r71, r72 :: float
-    r73 :: bit
-    r74 :: object
-    r75 :: float
-    r76 :: object
-    r77 :: float
-L0:
-    r0 = PyObject_IsTrue(values)
-    r1 = r0 >= 0 :: signed
-    if not r1 goto L47 (error at percentile:11) else goto L1 :: bool
-L1:
-    r2 = truncate r0: i32 to builtins.bool
-    if r2 goto L10 else goto L2 :: bool
-L2:
-    r3 = ''
-    r4 = 'Expected a sequence of at least 1 integers, got '
-    r5 = '{!r:{}}'
-    r6 = ''
-    r7 = 'format'
-    r8 = [r5, values, r6]
-    r9 = load_address r8
-    r10 = PyObject_VectorcallMethod(r7, r9, 9223372036854775811, 0)
-    if is_error(r10) goto L47 (error at percentile:15) else goto L3
-L3:
-    r11 = cast(str, r10)
-    if is_error(r11) goto L47 (error at percentile:15) else goto L4
-L4:
-    r12 = PyList_New(2)
-    if is_error(r12) goto L48 (error at percentile:15) else goto L5
-L5:
-    r13 = get_element_ptr r12 ob_item :: PyListObject
-    r14 = load_mem r13 :: ptr*
-    inc_ref r4
-    set_mem r14, r4 :: builtins.object*
-    r15 = r14 + 8
-    set_mem r15, r11 :: builtins.object*
-    r16 = PyUnicode_Join(r3, r12)
-    dec_ref r12
-    if is_error(r16) goto L47 (error at percentile:15) else goto L6
-L6:
-    r17 = faster_web3._utils.math.globals :: static
-    r18 = 'InsufficientData'
-    r19 = CPyDict_GetItem(r17, r18)
-    if is_error(r19) goto L49 (error at percentile:14) else goto L7
-L7:
-    r20 = [r16]
-    r21 = load_address r20
-    r22 = PyObject_Vectorcall(r19, r21, 1, 0)
-    dec_ref r19
-    if is_error(r22) goto L49 (error at percentile:14) else goto L8
-L8:
-    dec_ref r16
-    CPy_Raise(r22)
-    dec_ref r22
-    if not 0 goto L47 (error at percentile:14) else goto L9 :: bool
-L9:
-    unreachable
-L10:
-    r23 = percentile < 0.0
-    if r23 goto L12 else goto L11 :: bool
-L11:
-    r24 = percentile > 100.0
-    if r24 goto L12 else goto L16 :: bool
-L12:
-    r25 = 'percentile must be in the range [0, 100]'
-    r26 = faster_web3._utils.math.globals :: static
-    r27 = 'Web3ValueError'
-    r28 = CPyDict_GetItem(r26, r27)
-    if is_error(r28) goto L47 (error at percentile:18) else goto L13
-L13:
-    r29 = [r25]
-    r30 = load_address r29
-    r31 = PyObject_Vectorcall(r28, r30, 1, 0)
-    dec_ref r28
-    if is_error(r31) goto L47 (error at percentile:18) else goto L14
-L14:
-    CPy_Raise(r31)
-    dec_ref r31
-    if not 0 goto L47 (error at percentile:18) else goto L15 :: bool
-L15:
-    unreachable
-L16:
-    r32 = CPySequence_Sort(values)
-    if is_error(r32) goto L47 (error at percentile:20) else goto L17
-L17:
-    r33 = CPyObject_Size(values)
-    if is_error(r33) goto L50 (error at percentile:22) else goto L18
-L18:
-    r34 = CPyFloat_FromTagged(r33)
-    dec_ref r33 :: int
-    r35 = r34 == -113.0
-    if r35 goto L20 else goto L19 :: bool
-L19:
-    r36 = r34 * percentile
-    r37 = r36 / 100.0
-    r38 = r37 - 1.0
-    r39 = r38 < 0.0
-    if r39 goto L21 else goto L26 :: bool
-L20:
-    r40 = PyErr_Occurred()
-    if not is_error(r40) goto L50 (error at percentile:22) else goto L19
-L21:
-    r41 = CPyList_GetItemShort(r32, 0)
-    dec_ref r32
-    if is_error(r41) goto L47 (error at percentile:24) else goto L22
-L22:
-    r42 = unbox(int, r41)
-    dec_ref r41
-    if is_error(r42) goto L47 (error at percentile:24) else goto L23
-L23:
-    r43 = CPyFloat_FromTagged(r42)
-    dec_ref r42 :: int
-    r44 = r43 == -113.0
-    if r44 goto L25 else goto L24 :: bool
-L24:
-    return r43
-L25:
-    r45 = PyErr_Occurred()
-    if not is_error(r45) goto L47 (error at percentile:24) else goto L24
-L26:
-    r46 = r38 % 1.0
-    r47 = r46
-    r48 = r47 == 0.0
-    if r48 goto L29 else goto L27 :: bool
-L27:
-    r49 = r38 < 0.0
-    r50 = 1.0 < 0.0
-    r51 = r49 == r50
-    if r51 goto L30 else goto L28 :: bool
-L28:
-    r52 = r47 + 1.0
-    r47 = r52
-    goto L30
-L29:
-    r53 = copysign(0.0, 1.0)
-    r47 = r53
-L30:
-    fractional = r47
-    r54 = fractional == 0.0
-    if r54 goto L31 else goto L37 :: bool
-L31:
-    r55 = CPyTagged_FromFloat(r38)
-    if is_error(r55) goto L50 (error at percentile:28) else goto L32
-L32:
-    r56 = CPyList_GetItem(r32, r55)
-    dec_ref r32
-    dec_ref r55 :: int
-    if is_error(r56) goto L47 (error at percentile:28) else goto L33
-L33:
-    r57 = unbox(int, r56)
-    dec_ref r56
-    if is_error(r57) goto L47 (error at percentile:28) else goto L34
-L34:
-    r58 = CPyFloat_FromTagged(r57)
-    dec_ref r57 :: int
-    r59 = r58 == -113.0
-    if r59 goto L36 else goto L35 :: bool
-L35:
-    return r58
-L36:
-    r60 = PyErr_Occurred()
-    if not is_error(r60) goto L47 (error at percentile:28) else goto L35
-L37:
-    r61 = r38 - fractional
-    r62 = CPyTagged_FromFloat(r61)
-    if is_error(r62) goto L50 (error at percentile:30) else goto L38
-L38:
-    r63 = CPyList_GetItem(r32, r62)
-    if is_error(r63) goto L51 (error at percentile:31) else goto L39
-L39:
-    r64 = unbox(int, r63)
-    dec_ref r63
-    if is_error(r64) goto L51 (error at percentile:31) else goto L40
-L40:
-    r65 = CPyTagged_Add(r62, 2)
-    dec_ref r62 :: int
-    r66 = CPyList_GetItem(r32, r65)
-    dec_ref r32
-    dec_ref r65 :: int
-    if is_error(r66) goto L52 (error at percentile:32) else goto L41
-L41:
-    r67 = unbox(int, r66)
-    dec_ref r66
-    if is_error(r67) goto L52 (error at percentile:32) else goto L42
-L42:
-    r68 = CPyTagged_Subtract(r67, r64)
-    dec_ref r67 :: int
-    r69 = CPyFloat_FromTagged(r68)
-    dec_ref r68 :: int
-    r70 = r69 == -113.0
-    if r70 goto L44 else goto L43 :: bool
-L43:
-    r71 = fractional * r69
-    r72 = CPyFloat_FromTagged(r64)
-    dec_ref r64 :: int
-    r73 = r72 == -113.0
-    if r73 goto L46 else goto L45 :: bool
-L44:
-    r74 = PyErr_Occurred()
-    if not is_error(r74) goto L52 (error at percentile:33) else goto L43
-L45:
-    r75 = r72 + r71
-    return r75
-L46:
-    r76 = PyErr_Occurred()
-    if not is_error(r76) goto L47 (error at percentile:33) else goto L45
-L47:
-    r77 = <error> :: float
-    return r77
-L48:
-    dec_ref r11
-    goto L47
-L49:
-    dec_ref r16
-    goto L47
-L50:
-    dec_ref r32
-    goto L47
-L51:
-    dec_ref r32
-    dec_ref r62 :: int
-    goto L47
-L52:
-    dec_ref r64 :: int
-    goto L47
-
-def __top_level__():
-    r0, r1 :: object
-    r2 :: bit
-    r3 :: str
-    r4, r5 :: object
-    r6 :: str
-    r7 :: dict
-    r8, r9 :: object
-    r10 :: str
-    r11 :: dict
-    r12 :: object
-    r13 :: None
-L0:
-    r0 = builtins :: module
-    r1 = load_address _Py_NoneStruct
-    r2 = r0 != r1
-    if r2 goto L3 else goto L1 :: bool
-L1:
-    r3 = 'builtins'
-    r4 = PyImport_Import(r3)
-    if is_error(r4) goto L6 (error at <module>:-1) else goto L2
-L2:
-    builtins = r4 :: module
-    dec_ref r4
-L3:
-    r5 = ('Sequence',)
-    r6 = 'typing'
-    r7 = faster_web3._utils.math.globals :: static
-    r8 = CPyImport_ImportFromMany(r6, r5, r5, r7)
-    if is_error(r8) goto L6 (error at <module>:1) else goto L4
-L4:
-    typing = r8 :: module
-    dec_ref r8
-    r9 = ('InsufficientData', 'Web3ValueError')
-    r10 = 'faster_web3.exceptions'
-    r11 = faster_web3._utils.math.globals :: static
-    r12 = CPyImport_ImportFromMany(r10, r9, r9, r11)
-    if is_error(r12) goto L6 (error at <module>:5) else goto L5
-L5:
-    faster_web3.exceptions = r12 :: module
-    dec_ref r12
-    return 1
-L6:
-    r13 = <error> :: None
-    return r13
-
-def construct_user_agent(module, class_name):
-    module, class_name :: str
-    r0, r1 :: object
-    r2 :: str
-    r3 :: dict
-    r4 :: object
-    r5 :: str
-    r6 :: dict
-    r7 :: str
-    r8 :: object
-    r9, r10, r11, r12, r13 :: str
-L0:
-    r0 = ('__version__',)
-    r1 = ('web3_version',)
-    r2 = 'faster_web3'
-    r3 = faster_web3._utils.http.globals :: static
-    r4 = CPyImport_ImportFromMany(r2, r0, r1, r3)
-    if is_error(r4) goto L5 (error at construct_user_agent:11) else goto L1
-L1:
-    faster_web3 = r4 :: module
-    dec_ref r4
-    r5 = 'faster_web3.py/'
-    r6 = faster_web3._utils.http.globals :: static
-    r7 = 'web3_version'
-    r8 = CPyDict_GetItem(r6, r7)
-    if is_error(r8) goto L5 (error at construct_user_agent:15) else goto L2
-L2:
-    r9 = cast(str, r8)
-    if is_error(r9) goto L5 (error at construct_user_agent:15) else goto L3
-L3:
-    r10 = '/'
-    r11 = '.'
-    r12 = CPyStr_Build(6, r5, r9, r10, module, r11, class_name)
-    dec_ref r9
-    if is_error(r12) goto L5 (error at construct_user_agent:15) else goto L4
-L4:
-    return r12
-L5:
-    r13 = <error> :: str
-    return r13
-
-def __top_level__():
-    r0, r1 :: object
-    r2 :: bit
-    r3 :: str
-    r4, r5 :: object
-    r6 :: str
-    r7 :: dict
-    r8 :: object
-    r9 :: dict
-    r10 :: str
-    r11 :: object
-    r12 :: i32
-    r13 :: bit
-    r14 :: None
-L0:
-    r0 = builtins :: module
-    r1 = load_address _Py_NoneStruct
-    r2 = r0 != r1
-    if r2 goto L3 else goto L1 :: bool
-L1:
-    r3 = 'builtins'
-    r4 = PyImport_Import(r3)
-    if is_error(r4) goto L6 (error at <module>:-1) else goto L2
-L2:
-    builtins = r4 :: module
-    dec_ref r4
-L3:
-    r5 = ('Final',)
-    r6 = 'typing'
-    r7 = faster_web3._utils.http.globals :: static
-    r8 = CPyImport_ImportFromMany(r6, r5, r5, r7)
-    if is_error(r8) goto L6 (error at <module>:1) else goto L4
-L4:
-    typing = r8 :: module
-    dec_ref r8
-    r9 = faster_web3._utils.http.globals :: static
-    r10 = 'DEFAULT_HTTP_TIMEOUT'
-    r11 = box(float, 30.0)
-    r12 = CPyDict_SetItem(r9, r10, r11)
-    dec_ref r11
-    r13 = r12 >= 0 :: signed
-    if not r13 goto L6 (error at <module>:4) else goto L5 :: bool
-L5:
-    return 1
-L6:
-    r14 = <error> :: None
-    return r14
-
-def all_in_dict(values, d):
-    values :: object
-    d :: union[object, dict]
-    r0 :: dict
-    r1 :: bool
-    r2, r3 :: object
-    r4 :: dict
-    r5 :: i32
-    r6 :: bit
-    r7, r8 :: bool
-    r9 :: bit
-    r10 :: bool
-L0:
-    r0 = CPyDict_FromAny(d)
-    if is_error(r0) goto L9 (error at all_in_dict:27) else goto L1
-L1:
-    d = r0
-    r1 = 1
-    r2 = PyObject_GetIter(values)
-    if is_error(r2) goto L10 (error at all_in_dict:28) else goto L2
-L2:
-    r3 = PyIter_Next(r2)
-    if is_error(r3) goto L11 else goto L3
-L3:
-    inc_ref d
-    r4 = cast(dict, d)
-    if is_error(r4) goto L12 (error at all_in_dict:28) else goto L4
-L4:
-    r5 = PyDict_Contains(r4, r3)
-    dec_ref r4
-    dec_ref r3
-    r6 = r5 >= 0 :: signed
-    if not r6 goto L13 (error at all_in_dict:28) else goto L5 :: bool
-L5:
-    r7 = truncate r5: i32 to builtins.bool
-    r8 = r7 ^ 1
-    if r8 goto L14 else goto L2 :: bool
-L6:
-    r1 = 0
-    goto L8
-L7:
-    r9 = CPy_NoErrOccurred()
-    if not r9 goto L9 (error at all_in_dict:28) else goto L8 :: bool
-L8:
-    return r1
-L9:
-    r10 = <error> :: bool
-    return r10
-L10:
-    dec_ref d
-    goto L9
-L11:
-    dec_ref d
-    dec_ref r2
-    goto L7
-L12:
-    dec_ref d
-    dec_ref r2
-    dec_ref r3
-    goto L9
-L13:
-    dec_ref d
-    dec_ref r2
-    goto L9
-L14:
-    dec_ref d
-    dec_ref r2
-    goto L6
-
-def any_in_dict(values, d):
-    values :: object
-    d :: union[object, dict]
-    r0 :: dict
-    r1 :: bool
-    r2, r3 :: object
-    r4 :: dict
-    r5 :: i32
-    r6 :: bit
-    r7 :: bool
-    r8 :: bit
-    r9 :: bool
-L0:
-    r0 = CPyDict_FromAny(d)
-    if is_error(r0) goto L9 (error at any_in_dict:43) else goto L1
-L1:
-    d = r0
-    r1 = 0
-    r2 = PyObject_GetIter(values)
-    if is_error(r2) goto L10 (error at any_in_dict:44) else goto L2
-L2:
-    r3 = PyIter_Next(r2)
-    if is_error(r3) goto L11 else goto L3
-L3:
-    inc_ref d
-    r4 = cast(dict, d)
-    if is_error(r4) goto L12 (error at any_in_dict:44) else goto L4
-L4:
-    r5 = PyDict_Contains(r4, r3)
-    dec_ref r4
-    dec_ref r3
-    r6 = r5 >= 0 :: signed
-    if not r6 goto L13 (error at any_in_dict:44) else goto L5 :: bool
-L5:
-    r7 = truncate r5: i32 to builtins.bool
-    if r7 goto L14 else goto L2 :: bool
-L6:
-    r1 = 1
-    goto L8
-L7:
-    r8 = CPy_NoErrOccurred()
-    if not r8 goto L9 (error at any_in_dict:44) else goto L8 :: bool
-L8:
-    return r1
-L9:
-    r9 = <error> :: bool
-    return r9
-L10:
-    dec_ref d
-    goto L9
-L11:
-    dec_ref d
-    dec_ref r2
-    goto L7
-L12:
-    dec_ref d
-    dec_ref r2
-    dec_ref r3
-    goto L9
-L13:
-    dec_ref d
-    dec_ref r2
-    goto L9
-L14:
-    dec_ref d
-    dec_ref r2
-    goto L6
-
-def none_in_dict(values, d):
-    values :: object
-    d :: union[object, dict]
-    r0, r1, r2 :: bool
-L0:
-    r0 = any_in_dict(values, d)
-    if is_error(r0) goto L2 (error at none_in_dict:59) else goto L1
-L1:
-    r1 = r0 ^ 1
-    return r1
-L2:
-    r2 = <error> :: bool
-    return r2
-
-def either_set_is_a_subset(set1, set2, percentage):
-    set1, set2 :: set
-    percentage :: int
-    r0 :: float
-    r1 :: bit
-    r2 :: str
-    r3 :: object[2]
-    r4 :: object_ptr
-    r5, r6 :: object
-    r7 :: set
-    r8 :: ptr
-    r9 :: native_int
-    r10 :: short_int
-    r11 :: ptr
-    r12 :: native_int
-    r13 :: short_int
-    r14, r15, r16 :: object
-    r17 :: float
-    r18 :: bit
-    r19, r20, r21, r22 :: object
-    r23, r24 :: bool
-    r25 :: str
-    r26 :: object[2]
-    r27 :: object_ptr
-    r28 :: object
-    r29 :: set
-    r30 :: ptr
-    r31 :: native_int
-    r32 :: short_int
-    r33 :: ptr
-    r34 :: native_int
-    r35 :: short_int
-    r36, r37, r38 :: object
-    r39 :: float
-    r40 :: bit
-    r41, r42, r43, r44 :: object
-    r45, r46 :: bool
-L0:
-    if is_error(percentage) goto L1 else goto L23
-L1:
-    percentage = 200
-L2:
-    r0 = CPyTagged_TrueDivide(percentage, 200)
-    dec_ref percentage :: int
-    r1 = r0 == -113.0
-    if r1 goto L4 else goto L3 :: bool
-L3:
-    r2 = 'intersection'
-    r3 = [set1, set2]
-    r4 = load_address r3
-    r5 = PyObject_VectorcallMethod(r2, r4, 9223372036854775810, 0)
-    if is_error(r5) goto L22 (error at either_set_is_a_subset:82) else goto L5
-L4:
-    r6 = PyErr_Occurred()
-    if not is_error(r6) goto L22 (error at either_set_is_a_subset:79) else goto L3
-L5:
-    r7 = cast(set, r5)
-    if is_error(r7) goto L22 (error at either_set_is_a_subset:82) else goto L6
-L6:
-    r8 = get_element_ptr r7 used :: PySetObject
-    r9 = load_mem r8 :: native_int*
-    dec_ref r7
-    r10 = r9 << 1
-    r11 = get_element_ptr set1 used :: PySetObject
-    r12 = load_mem r11 :: native_int*
-    r13 = r12 << 1
-    r14 = box(short_int, r13)
-    r15 = box(float, r0)
-    r16 = PyNumber_Multiply(r14, r15)
-    dec_ref r14
-    dec_ref r15
-    if is_error(r16) goto L22 (error at either_set_is_a_subset:82) else goto L7
-L7:
-    r17 = unbox(float, r16)
-    dec_ref r16
-    r18 = r17 == -113.0
-    if r18 goto L9 else goto L8 :: bool
-L8:
-    r19 = box(short_int, r10)
-    r20 = box(float, r17)
-    r21 = PyObject_RichCompare(r19, r20, 5)
-    dec_ref r19
-    dec_ref r20
-    if is_error(r21) goto L22 (error at either_set_is_a_subset:82) else goto L10
-L9:
-    r22 = PyErr_Occurred()
-    if not is_error(r22) goto L22 (error at either_set_is_a_subset:82) else goto L8
-L10:
-    r23 = unbox(bool, r21)
-    dec_ref r21
-    if is_error(r23) goto L22 (error at either_set_is_a_subset:82) else goto L11
-L11:
-    if r23 goto L12 else goto L13 :: bool
-L12:
-    r24 = r23
-    goto L21
-L13:
-    r25 = 'intersection'
-    r26 = [set2, set1]
-    r27 = load_address r26
-    r28 = PyObject_VectorcallMethod(r25, r27, 9223372036854775810, 0)
-    if is_error(r28) goto L22 (error at either_set_is_a_subset:83) else goto L14
-L14:
-    r29 = cast(set, r28)
-    if is_error(r29) goto L22 (error at either_set_is_a_subset:83) else goto L15
-L15:
-    r30 = get_element_ptr r29 used :: PySetObject
-    r31 = load_mem r30 :: native_int*
-    dec_ref r29
-    r32 = r31 << 1
-    r33 = get_element_ptr set2 used :: PySetObject
-    r34 = load_mem r33 :: native_int*
-    r35 = r34 << 1
-    r36 = box(short_int, r35)
-    r37 = box(float, r0)
-    r38 = PyNumber_Multiply(r36, r37)
-    dec_ref r36
-    dec_ref r37
-    if is_error(r38) goto L22 (error at either_set_is_a_subset:83) else goto L16
-L16:
-    r39 = unbox(float, r38)
-    dec_ref r38
-    r40 = r39 == -113.0
-    if r40 goto L18 else goto L17 :: bool
-L17:
-    r41 = box(short_int, r32)
-    r42 = box(float, r39)
-    r43 = PyObject_RichCompare(r41, r42, 5)
-    dec_ref r41
-    dec_ref r42
-    if is_error(r43) goto L22 (error at either_set_is_a_subset:83) else goto L19
-L18:
-    r44 = PyErr_Occurred()
-    if not is_error(r44) goto L22 (error at either_set_is_a_subset:83) else goto L17
-L19:
-    r45 = unbox(bool, r43)
-    dec_ref r43
-    if is_error(r45) goto L22 (error at either_set_is_a_subset:83) else goto L20
-L20:
-    r24 = r45
-L21:
-    return r24
-L22:
-    r46 = <error> :: bool
-    return r46
-L23:
-    inc_ref percentage :: int
-    goto L2
-
-def __top_level__():
-    r0, r1 :: object
-    r2 :: bit
-    r3 :: str
-    r4, r5 :: object
-    r6 :: str
-    r7 :: dict
-    r8, r9 :: object
-    r10 :: str
-    r11 :: dict
-    r12 :: object
-    r13 :: None
-L0:
-    r0 = builtins :: module
-    r1 = load_address _Py_NoneStruct
-    r2 = r0 != r1
-    if r2 goto L3 else goto L1 :: bool
-L1:
-    r3 = 'builtins'
-    r4 = PyImport_Import(r3)
-    if is_error(r4) goto L6 (error at <module>:-1) else goto L2
-L2:
-    builtins = r4 :: module
-    dec_ref r4
-L3:
-    r5 = ('Any', 'Iterable', 'Mapping', 'Set', 'Union')
-    r6 = 'typing'
-    r7 = faster_web3._utils.utility_methods.globals :: static
-    r8 = CPyImport_ImportFromMany(r6, r5, r5, r7)
-    if is_error(r8) goto L6 (error at <module>:1) else goto L4
-L4:
-    typing = r8 :: module
-    dec_ref r8
-    r9 = ('TxData', 'TxParams')
-    r10 = 'faster_web3.types'
-    r11 = faster_web3._utils.utility_methods.globals :: static
-    r12 = CPyImport_ImportFromMany(r10, r9, r9, r11)
-    if is_error(r12) goto L6 (error at <module>:9) else goto L5
-L5:
-    faster_web3.types = r12 :: module
-    dec_ref r12
-    return 1
-L6:
-    r13 = <error> :: None
-    return r13
-
 def to_hex_if_bytes(val):
     val :: union[str, bytes, object]
     r0 :: bit
@@ -1935,3 +1171,767 @@ L41:
 L42:
     dec_ref r88
     goto L37
+
+def all_in_dict(values, d):
+    values :: object
+    d :: union[object, dict]
+    r0 :: dict
+    r1 :: bool
+    r2, r3 :: object
+    r4 :: dict
+    r5 :: i32
+    r6 :: bit
+    r7, r8 :: bool
+    r9 :: bit
+    r10 :: bool
+L0:
+    r0 = CPyDict_FromAny(d)
+    if is_error(r0) goto L9 (error at all_in_dict:27) else goto L1
+L1:
+    d = r0
+    r1 = 1
+    r2 = PyObject_GetIter(values)
+    if is_error(r2) goto L10 (error at all_in_dict:28) else goto L2
+L2:
+    r3 = PyIter_Next(r2)
+    if is_error(r3) goto L11 else goto L3
+L3:
+    inc_ref d
+    r4 = cast(dict, d)
+    if is_error(r4) goto L12 (error at all_in_dict:28) else goto L4
+L4:
+    r5 = PyDict_Contains(r4, r3)
+    dec_ref r4
+    dec_ref r3
+    r6 = r5 >= 0 :: signed
+    if not r6 goto L13 (error at all_in_dict:28) else goto L5 :: bool
+L5:
+    r7 = truncate r5: i32 to builtins.bool
+    r8 = r7 ^ 1
+    if r8 goto L14 else goto L2 :: bool
+L6:
+    r1 = 0
+    goto L8
+L7:
+    r9 = CPy_NoErrOccurred()
+    if not r9 goto L9 (error at all_in_dict:28) else goto L8 :: bool
+L8:
+    return r1
+L9:
+    r10 = <error> :: bool
+    return r10
+L10:
+    dec_ref d
+    goto L9
+L11:
+    dec_ref d
+    dec_ref r2
+    goto L7
+L12:
+    dec_ref d
+    dec_ref r2
+    dec_ref r3
+    goto L9
+L13:
+    dec_ref d
+    dec_ref r2
+    goto L9
+L14:
+    dec_ref d
+    dec_ref r2
+    goto L6
+
+def any_in_dict(values, d):
+    values :: object
+    d :: union[object, dict]
+    r0 :: dict
+    r1 :: bool
+    r2, r3 :: object
+    r4 :: dict
+    r5 :: i32
+    r6 :: bit
+    r7 :: bool
+    r8 :: bit
+    r9 :: bool
+L0:
+    r0 = CPyDict_FromAny(d)
+    if is_error(r0) goto L9 (error at any_in_dict:43) else goto L1
+L1:
+    d = r0
+    r1 = 0
+    r2 = PyObject_GetIter(values)
+    if is_error(r2) goto L10 (error at any_in_dict:44) else goto L2
+L2:
+    r3 = PyIter_Next(r2)
+    if is_error(r3) goto L11 else goto L3
+L3:
+    inc_ref d
+    r4 = cast(dict, d)
+    if is_error(r4) goto L12 (error at any_in_dict:44) else goto L4
+L4:
+    r5 = PyDict_Contains(r4, r3)
+    dec_ref r4
+    dec_ref r3
+    r6 = r5 >= 0 :: signed
+    if not r6 goto L13 (error at any_in_dict:44) else goto L5 :: bool
+L5:
+    r7 = truncate r5: i32 to builtins.bool
+    if r7 goto L14 else goto L2 :: bool
+L6:
+    r1 = 1
+    goto L8
+L7:
+    r8 = CPy_NoErrOccurred()
+    if not r8 goto L9 (error at any_in_dict:44) else goto L8 :: bool
+L8:
+    return r1
+L9:
+    r9 = <error> :: bool
+    return r9
+L10:
+    dec_ref d
+    goto L9
+L11:
+    dec_ref d
+    dec_ref r2
+    goto L7
+L12:
+    dec_ref d
+    dec_ref r2
+    dec_ref r3
+    goto L9
+L13:
+    dec_ref d
+    dec_ref r2
+    goto L9
+L14:
+    dec_ref d
+    dec_ref r2
+    goto L6
+
+def none_in_dict(values, d):
+    values :: object
+    d :: union[object, dict]
+    r0, r1, r2 :: bool
+L0:
+    r0 = any_in_dict(values, d)
+    if is_error(r0) goto L2 (error at none_in_dict:59) else goto L1
+L1:
+    r1 = r0 ^ 1
+    return r1
+L2:
+    r2 = <error> :: bool
+    return r2
+
+def either_set_is_a_subset(set1, set2, percentage):
+    set1, set2 :: set
+    percentage :: int
+    r0 :: float
+    r1 :: bit
+    r2 :: str
+    r3 :: object[2]
+    r4 :: object_ptr
+    r5, r6 :: object
+    r7 :: set
+    r8 :: ptr
+    r9 :: native_int
+    r10 :: short_int
+    r11 :: ptr
+    r12 :: native_int
+    r13 :: short_int
+    r14, r15, r16 :: object
+    r17 :: float
+    r18 :: bit
+    r19, r20, r21, r22 :: object
+    r23, r24 :: bool
+    r25 :: str
+    r26 :: object[2]
+    r27 :: object_ptr
+    r28 :: object
+    r29 :: set
+    r30 :: ptr
+    r31 :: native_int
+    r32 :: short_int
+    r33 :: ptr
+    r34 :: native_int
+    r35 :: short_int
+    r36, r37, r38 :: object
+    r39 :: float
+    r40 :: bit
+    r41, r42, r43, r44 :: object
+    r45, r46 :: bool
+L0:
+    if is_error(percentage) goto L1 else goto L23
+L1:
+    percentage = 200
+L2:
+    r0 = CPyTagged_TrueDivide(percentage, 200)
+    dec_ref percentage :: int
+    r1 = r0 == -113.0
+    if r1 goto L4 else goto L3 :: bool
+L3:
+    r2 = 'intersection'
+    r3 = [set1, set2]
+    r4 = load_address r3
+    r5 = PyObject_VectorcallMethod(r2, r4, 9223372036854775810, 0)
+    if is_error(r5) goto L22 (error at either_set_is_a_subset:82) else goto L5
+L4:
+    r6 = PyErr_Occurred()
+    if not is_error(r6) goto L22 (error at either_set_is_a_subset:79) else goto L3
+L5:
+    r7 = cast(set, r5)
+    if is_error(r7) goto L22 (error at either_set_is_a_subset:82) else goto L6
+L6:
+    r8 = get_element_ptr r7 used :: PySetObject
+    r9 = load_mem r8 :: native_int*
+    dec_ref r7
+    r10 = r9 << 1
+    r11 = get_element_ptr set1 used :: PySetObject
+    r12 = load_mem r11 :: native_int*
+    r13 = r12 << 1
+    r14 = box(short_int, r13)
+    r15 = box(float, r0)
+    r16 = PyNumber_Multiply(r14, r15)
+    dec_ref r14
+    dec_ref r15
+    if is_error(r16) goto L22 (error at either_set_is_a_subset:82) else goto L7
+L7:
+    r17 = unbox(float, r16)
+    dec_ref r16
+    r18 = r17 == -113.0
+    if r18 goto L9 else goto L8 :: bool
+L8:
+    r19 = box(short_int, r10)
+    r20 = box(float, r17)
+    r21 = PyObject_RichCompare(r19, r20, 5)
+    dec_ref r19
+    dec_ref r20
+    if is_error(r21) goto L22 (error at either_set_is_a_subset:82) else goto L10
+L9:
+    r22 = PyErr_Occurred()
+    if not is_error(r22) goto L22 (error at either_set_is_a_subset:82) else goto L8
+L10:
+    r23 = unbox(bool, r21)
+    dec_ref r21
+    if is_error(r23) goto L22 (error at either_set_is_a_subset:82) else goto L11
+L11:
+    if r23 goto L12 else goto L13 :: bool
+L12:
+    r24 = r23
+    goto L21
+L13:
+    r25 = 'intersection'
+    r26 = [set2, set1]
+    r27 = load_address r26
+    r28 = PyObject_VectorcallMethod(r25, r27, 9223372036854775810, 0)
+    if is_error(r28) goto L22 (error at either_set_is_a_subset:83) else goto L14
+L14:
+    r29 = cast(set, r28)
+    if is_error(r29) goto L22 (error at either_set_is_a_subset:83) else goto L15
+L15:
+    r30 = get_element_ptr r29 used :: PySetObject
+    r31 = load_mem r30 :: native_int*
+    dec_ref r29
+    r32 = r31 << 1
+    r33 = get_element_ptr set2 used :: PySetObject
+    r34 = load_mem r33 :: native_int*
+    r35 = r34 << 1
+    r36 = box(short_int, r35)
+    r37 = box(float, r0)
+    r38 = PyNumber_Multiply(r36, r37)
+    dec_ref r36
+    dec_ref r37
+    if is_error(r38) goto L22 (error at either_set_is_a_subset:83) else goto L16
+L16:
+    r39 = unbox(float, r38)
+    dec_ref r38
+    r40 = r39 == -113.0
+    if r40 goto L18 else goto L17 :: bool
+L17:
+    r41 = box(short_int, r32)
+    r42 = box(float, r39)
+    r43 = PyObject_RichCompare(r41, r42, 5)
+    dec_ref r41
+    dec_ref r42
+    if is_error(r43) goto L22 (error at either_set_is_a_subset:83) else goto L19
+L18:
+    r44 = PyErr_Occurred()
+    if not is_error(r44) goto L22 (error at either_set_is_a_subset:83) else goto L17
+L19:
+    r45 = unbox(bool, r43)
+    dec_ref r43
+    if is_error(r45) goto L22 (error at either_set_is_a_subset:83) else goto L20
+L20:
+    r24 = r45
+L21:
+    return r24
+L22:
+    r46 = <error> :: bool
+    return r46
+L23:
+    inc_ref percentage :: int
+    goto L2
+
+def __top_level__():
+    r0, r1 :: object
+    r2 :: bit
+    r3 :: str
+    r4, r5 :: object
+    r6 :: str
+    r7 :: dict
+    r8, r9 :: object
+    r10 :: str
+    r11 :: dict
+    r12 :: object
+    r13 :: None
+L0:
+    r0 = builtins :: module
+    r1 = load_address _Py_NoneStruct
+    r2 = r0 != r1
+    if r2 goto L3 else goto L1 :: bool
+L1:
+    r3 = 'builtins'
+    r4 = PyImport_Import(r3)
+    if is_error(r4) goto L6 (error at <module>:-1) else goto L2
+L2:
+    builtins = r4 :: module
+    dec_ref r4
+L3:
+    r5 = ('Any', 'Iterable', 'Mapping', 'Set', 'Union')
+    r6 = 'typing'
+    r7 = faster_web3._utils.utility_methods.globals :: static
+    r8 = CPyImport_ImportFromMany(r6, r5, r5, r7)
+    if is_error(r8) goto L6 (error at <module>:1) else goto L4
+L4:
+    typing = r8 :: module
+    dec_ref r8
+    r9 = ('TxData', 'TxParams')
+    r10 = 'faster_web3.types'
+    r11 = faster_web3._utils.utility_methods.globals :: static
+    r12 = CPyImport_ImportFromMany(r10, r9, r9, r11)
+    if is_error(r12) goto L6 (error at <module>:9) else goto L5
+L5:
+    faster_web3.types = r12 :: module
+    dec_ref r12
+    return 1
+L6:
+    r13 = <error> :: None
+    return r13
+
+def construct_user_agent(module, class_name):
+    module, class_name :: str
+    r0, r1 :: object
+    r2 :: str
+    r3 :: dict
+    r4 :: object
+    r5 :: str
+    r6 :: dict
+    r7 :: str
+    r8 :: object
+    r9, r10, r11, r12, r13 :: str
+L0:
+    r0 = ('__version__',)
+    r1 = ('web3_version',)
+    r2 = 'faster_web3'
+    r3 = faster_web3._utils.http.globals :: static
+    r4 = CPyImport_ImportFromMany(r2, r0, r1, r3)
+    if is_error(r4) goto L5 (error at construct_user_agent:11) else goto L1
+L1:
+    faster_web3 = r4 :: module
+    dec_ref r4
+    r5 = 'faster_web3.py/'
+    r6 = faster_web3._utils.http.globals :: static
+    r7 = 'web3_version'
+    r8 = CPyDict_GetItem(r6, r7)
+    if is_error(r8) goto L5 (error at construct_user_agent:15) else goto L2
+L2:
+    r9 = cast(str, r8)
+    if is_error(r9) goto L5 (error at construct_user_agent:15) else goto L3
+L3:
+    r10 = '/'
+    r11 = '.'
+    r12 = CPyStr_Build(6, r5, r9, r10, module, r11, class_name)
+    dec_ref r9
+    if is_error(r12) goto L5 (error at construct_user_agent:15) else goto L4
+L4:
+    return r12
+L5:
+    r13 = <error> :: str
+    return r13
+
+def __top_level__():
+    r0, r1 :: object
+    r2 :: bit
+    r3 :: str
+    r4, r5 :: object
+    r6 :: str
+    r7 :: dict
+    r8 :: object
+    r9 :: dict
+    r10 :: str
+    r11 :: object
+    r12 :: i32
+    r13 :: bit
+    r14 :: None
+L0:
+    r0 = builtins :: module
+    r1 = load_address _Py_NoneStruct
+    r2 = r0 != r1
+    if r2 goto L3 else goto L1 :: bool
+L1:
+    r3 = 'builtins'
+    r4 = PyImport_Import(r3)
+    if is_error(r4) goto L6 (error at <module>:-1) else goto L2
+L2:
+    builtins = r4 :: module
+    dec_ref r4
+L3:
+    r5 = ('Final',)
+    r6 = 'typing'
+    r7 = faster_web3._utils.http.globals :: static
+    r8 = CPyImport_ImportFromMany(r6, r5, r5, r7)
+    if is_error(r8) goto L6 (error at <module>:1) else goto L4
+L4:
+    typing = r8 :: module
+    dec_ref r8
+    r9 = faster_web3._utils.http.globals :: static
+    r10 = 'DEFAULT_HTTP_TIMEOUT'
+    r11 = box(float, 30.0)
+    r12 = CPyDict_SetItem(r9, r10, r11)
+    dec_ref r11
+    r13 = r12 >= 0 :: signed
+    if not r13 goto L6 (error at <module>:4) else goto L5 :: bool
+L5:
+    return 1
+L6:
+    r14 = <error> :: None
+    return r14
+
+def percentile(values, percentile):
+    values :: object
+    percentile :: float
+    r0 :: i32
+    r1 :: bit
+    r2 :: bool
+    r3, r4, r5, r6, r7 :: str
+    r8 :: object[3]
+    r9 :: object_ptr
+    r10 :: object
+    r11 :: str
+    r12 :: list
+    r13, r14, r15 :: ptr
+    r16 :: str
+    r17 :: dict
+    r18 :: str
+    r19 :: object
+    r20 :: object[1]
+    r21 :: object_ptr
+    r22 :: object
+    r23, r24 :: bit
+    r25 :: str
+    r26 :: dict
+    r27 :: str
+    r28 :: object
+    r29 :: object[1]
+    r30 :: object_ptr
+    r31 :: object
+    r32 :: list
+    r33 :: int
+    r34 :: float
+    r35 :: bit
+    r36, r37, r38 :: float
+    r39 :: bit
+    r40, r41 :: object
+    r42 :: int
+    r43 :: float
+    r44 :: bit
+    r45 :: object
+    r46, r47 :: float
+    r48, r49, r50, r51 :: bit
+    r52, r53, fractional :: float
+    r54 :: bit
+    r55 :: int
+    r56 :: object
+    r57 :: int
+    r58 :: float
+    r59 :: bit
+    r60 :: object
+    r61 :: float
+    r62 :: int
+    r63 :: object
+    r64, r65 :: int
+    r66 :: object
+    r67, r68 :: int
+    r69 :: float
+    r70 :: bit
+    r71, r72 :: float
+    r73 :: bit
+    r74 :: object
+    r75 :: float
+    r76 :: object
+    r77 :: float
+L0:
+    r0 = PyObject_IsTrue(values)
+    r1 = r0 >= 0 :: signed
+    if not r1 goto L47 (error at percentile:11) else goto L1 :: bool
+L1:
+    r2 = truncate r0: i32 to builtins.bool
+    if r2 goto L10 else goto L2 :: bool
+L2:
+    r3 = ''
+    r4 = 'Expected a sequence of at least 1 integers, got '
+    r5 = '{!r:{}}'
+    r6 = ''
+    r7 = 'format'
+    r8 = [r5, values, r6]
+    r9 = load_address r8
+    r10 = PyObject_VectorcallMethod(r7, r9, 9223372036854775811, 0)
+    if is_error(r10) goto L47 (error at percentile:15) else goto L3
+L3:
+    r11 = cast(str, r10)
+    if is_error(r11) goto L47 (error at percentile:15) else goto L4
+L4:
+    r12 = PyList_New(2)
+    if is_error(r12) goto L48 (error at percentile:15) else goto L5
+L5:
+    r13 = get_element_ptr r12 ob_item :: PyListObject
+    r14 = load_mem r13 :: ptr*
+    inc_ref r4
+    set_mem r14, r4 :: builtins.object*
+    r15 = r14 + 8
+    set_mem r15, r11 :: builtins.object*
+    r16 = PyUnicode_Join(r3, r12)
+    dec_ref r12
+    if is_error(r16) goto L47 (error at percentile:15) else goto L6
+L6:
+    r17 = faster_web3._utils.math.globals :: static
+    r18 = 'InsufficientData'
+    r19 = CPyDict_GetItem(r17, r18)
+    if is_error(r19) goto L49 (error at percentile:14) else goto L7
+L7:
+    r20 = [r16]
+    r21 = load_address r20
+    r22 = PyObject_Vectorcall(r19, r21, 1, 0)
+    dec_ref r19
+    if is_error(r22) goto L49 (error at percentile:14) else goto L8
+L8:
+    dec_ref r16
+    CPy_Raise(r22)
+    dec_ref r22
+    if not 0 goto L47 (error at percentile:14) else goto L9 :: bool
+L9:
+    unreachable
+L10:
+    r23 = percentile < 0.0
+    if r23 goto L12 else goto L11 :: bool
+L11:
+    r24 = percentile > 100.0
+    if r24 goto L12 else goto L16 :: bool
+L12:
+    r25 = 'percentile must be in the range [0, 100]'
+    r26 = faster_web3._utils.math.globals :: static
+    r27 = 'Web3ValueError'
+    r28 = CPyDict_GetItem(r26, r27)
+    if is_error(r28) goto L47 (error at percentile:18) else goto L13
+L13:
+    r29 = [r25]
+    r30 = load_address r29
+    r31 = PyObject_Vectorcall(r28, r30, 1, 0)
+    dec_ref r28
+    if is_error(r31) goto L47 (error at percentile:18) else goto L14
+L14:
+    CPy_Raise(r31)
+    dec_ref r31
+    if not 0 goto L47 (error at percentile:18) else goto L15 :: bool
+L15:
+    unreachable
+L16:
+    r32 = CPySequence_Sort(values)
+    if is_error(r32) goto L47 (error at percentile:20) else goto L17
+L17:
+    r33 = CPyObject_Size(values)
+    if is_error(r33) goto L50 (error at percentile:22) else goto L18
+L18:
+    r34 = CPyFloat_FromTagged(r33)
+    dec_ref r33 :: int
+    r35 = r34 == -113.0
+    if r35 goto L20 else goto L19 :: bool
+L19:
+    r36 = r34 * percentile
+    r37 = r36 / 100.0
+    r38 = r37 - 1.0
+    r39 = r38 < 0.0
+    if r39 goto L21 else goto L26 :: bool
+L20:
+    r40 = PyErr_Occurred()
+    if not is_error(r40) goto L50 (error at percentile:22) else goto L19
+L21:
+    r41 = CPyList_GetItemShort(r32, 0)
+    dec_ref r32
+    if is_error(r41) goto L47 (error at percentile:24) else goto L22
+L22:
+    r42 = unbox(int, r41)
+    dec_ref r41
+    if is_error(r42) goto L47 (error at percentile:24) else goto L23
+L23:
+    r43 = CPyFloat_FromTagged(r42)
+    dec_ref r42 :: int
+    r44 = r43 == -113.0
+    if r44 goto L25 else goto L24 :: bool
+L24:
+    return r43
+L25:
+    r45 = PyErr_Occurred()
+    if not is_error(r45) goto L47 (error at percentile:24) else goto L24
+L26:
+    r46 = r38 % 1.0
+    r47 = r46
+    r48 = r47 == 0.0
+    if r48 goto L29 else goto L27 :: bool
+L27:
+    r49 = r38 < 0.0
+    r50 = 1.0 < 0.0
+    r51 = r49 == r50
+    if r51 goto L30 else goto L28 :: bool
+L28:
+    r52 = r47 + 1.0
+    r47 = r52
+    goto L30
+L29:
+    r53 = copysign(0.0, 1.0)
+    r47 = r53
+L30:
+    fractional = r47
+    r54 = fractional == 0.0
+    if r54 goto L31 else goto L37 :: bool
+L31:
+    r55 = CPyTagged_FromFloat(r38)
+    if is_error(r55) goto L50 (error at percentile:28) else goto L32
+L32:
+    r56 = CPyList_GetItem(r32, r55)
+    dec_ref r32
+    dec_ref r55 :: int
+    if is_error(r56) goto L47 (error at percentile:28) else goto L33
+L33:
+    r57 = unbox(int, r56)
+    dec_ref r56
+    if is_error(r57) goto L47 (error at percentile:28) else goto L34
+L34:
+    r58 = CPyFloat_FromTagged(r57)
+    dec_ref r57 :: int
+    r59 = r58 == -113.0
+    if r59 goto L36 else goto L35 :: bool
+L35:
+    return r58
+L36:
+    r60 = PyErr_Occurred()
+    if not is_error(r60) goto L47 (error at percentile:28) else goto L35
+L37:
+    r61 = r38 - fractional
+    r62 = CPyTagged_FromFloat(r61)
+    if is_error(r62) goto L50 (error at percentile:30) else goto L38
+L38:
+    r63 = CPyList_GetItem(r32, r62)
+    if is_error(r63) goto L51 (error at percentile:31) else goto L39
+L39:
+    r64 = unbox(int, r63)
+    dec_ref r63
+    if is_error(r64) goto L51 (error at percentile:31) else goto L40
+L40:
+    r65 = CPyTagged_Add(r62, 2)
+    dec_ref r62 :: int
+    r66 = CPyList_GetItem(r32, r65)
+    dec_ref r32
+    dec_ref r65 :: int
+    if is_error(r66) goto L52 (error at percentile:32) else goto L41
+L41:
+    r67 = unbox(int, r66)
+    dec_ref r66
+    if is_error(r67) goto L52 (error at percentile:32) else goto L42
+L42:
+    r68 = CPyTagged_Subtract(r67, r64)
+    dec_ref r67 :: int
+    r69 = CPyFloat_FromTagged(r68)
+    dec_ref r68 :: int
+    r70 = r69 == -113.0
+    if r70 goto L44 else goto L43 :: bool
+L43:
+    r71 = fractional * r69
+    r72 = CPyFloat_FromTagged(r64)
+    dec_ref r64 :: int
+    r73 = r72 == -113.0
+    if r73 goto L46 else goto L45 :: bool
+L44:
+    r74 = PyErr_Occurred()
+    if not is_error(r74) goto L52 (error at percentile:33) else goto L43
+L45:
+    r75 = r72 + r71
+    return r75
+L46:
+    r76 = PyErr_Occurred()
+    if not is_error(r76) goto L47 (error at percentile:33) else goto L45
+L47:
+    r77 = <error> :: float
+    return r77
+L48:
+    dec_ref r11
+    goto L47
+L49:
+    dec_ref r16
+    goto L47
+L50:
+    dec_ref r32
+    goto L47
+L51:
+    dec_ref r32
+    dec_ref r62 :: int
+    goto L47
+L52:
+    dec_ref r64 :: int
+    goto L47
+
+def __top_level__():
+    r0, r1 :: object
+    r2 :: bit
+    r3 :: str
+    r4, r5 :: object
+    r6 :: str
+    r7 :: dict
+    r8, r9 :: object
+    r10 :: str
+    r11 :: dict
+    r12 :: object
+    r13 :: None
+L0:
+    r0 = builtins :: module
+    r1 = load_address _Py_NoneStruct
+    r2 = r0 != r1
+    if r2 goto L3 else goto L1 :: bool
+L1:
+    r3 = 'builtins'
+    r4 = PyImport_Import(r3)
+    if is_error(r4) goto L6 (error at <module>:-1) else goto L2
+L2:
+    builtins = r4 :: module
+    dec_ref r4
+L3:
+    r5 = ('Sequence',)
+    r6 = 'typing'
+    r7 = faster_web3._utils.math.globals :: static
+    r8 = CPyImport_ImportFromMany(r6, r5, r5, r7)
+    if is_error(r8) goto L6 (error at <module>:1) else goto L4
+L4:
+    typing = r8 :: module
+    dec_ref r8
+    r9 = ('InsufficientData', 'Web3ValueError')
+    r10 = 'faster_web3.exceptions'
+    r11 = faster_web3._utils.math.globals :: static
+    r12 = CPyImport_ImportFromMany(r10, r9, r9, r11)
+    if is_error(r12) goto L6 (error at <module>:5) else goto L5
+L5:
+    faster_web3.exceptions = r12 :: module
+    dec_ref r12
+    return 1
+L6:
+    r13 = <error> :: None
+    return r13

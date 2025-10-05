@@ -1,11 +1,10 @@
 import warnings
+from typing import (
+    Final,
+)
 
-from faster_eth_abi import (
-    abi,
-)
-from faster_eth_utils import (
-    to_bytes,
-)
+import faster_eth_abi.abi
+import faster_eth_utils
 
 from faster_web3.exceptions import (
     BlockNotFound,
@@ -20,14 +19,17 @@ from faster_web3.types import (
     RPCResponse,
 )
 
+decode: Final = faster_eth_abi.abi.decode
+to_bytes: Final = faster_eth_utils.to_bytes
+
 # func selector for "Error(string)"
-SOLIDITY_ERROR_FUNC_SELECTOR = "0x08c379a0"
+SOLIDITY_ERROR_FUNC_SELECTOR: Final = "0x08c379a0"
 
 # --- CCIP Read - EIP-3668 --- #
 # the first 4 bytes of keccak hash (func selector) for:
 # "OffchainLookup(address,string[],bytes,bytes4,bytes)"
-OFFCHAIN_LOOKUP_FUNC_SELECTOR = "0x556f1830"
-OFFCHAIN_LOOKUP_FIELDS = {
+OFFCHAIN_LOOKUP_FUNC_SELECTOR: Final = "0x556f1830"
+OFFCHAIN_LOOKUP_FIELDS: Final = {
     "sender": "address",
     "urls": "string[]",
     "callData": "bytes",
@@ -37,8 +39,8 @@ OFFCHAIN_LOOKUP_FIELDS = {
 
 
 # --- Solidity Panic Error, as of Solidity 0.8.0 --- #
-PANIC_ERROR_FUNC_SELECTOR = "0x4e487b71"
-PANIC_ERROR_CODES = {
+PANIC_ERROR_FUNC_SELECTOR: Final = "0x4e487b71"
+PANIC_ERROR_CODES: Final = {
     "00": "Panic error 0x00: Generic compiler inserted panics.",
     "01": "Panic error 0x01: Assert evaluates to false.",
     "11": "Panic error 0x11: Arithmetic operation results in underflow or overflow.",
@@ -52,7 +54,7 @@ PANIC_ERROR_CODES = {
     "function type.",
 }
 
-MISSING_DATA = "no data"
+MISSING_DATA: Final = "no data"
 
 
 def _parse_error_with_reverted_prefix(data: str) -> str:
@@ -105,7 +107,7 @@ def _raise_contract_error(response_error_data: str) -> None:
     elif response_error_data[:10] == OFFCHAIN_LOOKUP_FUNC_SELECTOR:
         # --- EIP-3668 | CCIP read error --- #
         parsed_data_as_bytes = to_bytes(hexstr=response_error_data[10:])
-        abi_decoded_data = abi.decode(
+        abi_decoded_data = decode(
             list(OFFCHAIN_LOOKUP_FIELDS.values()), parsed_data_as_bytes
         )
         offchain_lookup_payload = dict(
