@@ -61,8 +61,7 @@ class SubscriptionManager:
         # parallelize all subscription handler calls
         self.parallelize = False
         self.task_timeout = 1
-        # TODO: can remove quotes from type hints once Python 3.8 support is dropped
-        self._tasks: Set["asyncio.Task[None]"] = set()
+        self._tasks: Set[asyncio.Task[None]] = set()
 
         # share the subscription container with the request processor so it can separate
         # subscriptions into different queues based on ``sub._handler`` presence
@@ -95,8 +94,7 @@ class SubscriptionManager:
                     f"labels.\n    label: {subscription._label}"
                 )
 
-    # TODO: can remove quotes from type hints once Python 3.8 support is dropped
-    def _handler_task_callback(self, task: "asyncio.Task[None]") -> None:
+    def _handler_task_callback(self, task: asyncio.Task[None]) -> None:
         """
         Callback when a handler task completes. Similar to _message_listener_callback.
         Puts handler exceptions into the queue to be raised in the main loop, else
