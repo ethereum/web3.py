@@ -14,7 +14,7 @@ def wait_for_socket(ipc_path: str, timeout: int = 30) -> None:
     start = time.time()
     while time.time() < start + timeout:
         try:
-            sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+            sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)  # type: ignore [attr-defined]
             sock.connect(ipc_path)
             sock.settimeout(timeout)
         except OSError:

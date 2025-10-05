@@ -1,5 +1,6 @@
 import pytest
 import os
+import sys
 import tempfile
 
 from faster_web3.providers import (
@@ -38,7 +39,7 @@ def delete_environment_variables(monkeypatch):
         (
             "file:///root/path/to/file.ipc",
             IPCProvider,
-            {"ipc_path": "/root/path/to/file.ipc"},
+            {"ipc_path": "D:\\root\\path\\to\\file.ipc" if sys.platform.startswith("win") else "/root/path/to/file.ipc"},
         ),
         (
             "ws://1.2.3.4:5679",
@@ -58,7 +59,12 @@ def test_load_provider_from_env(monkeypatch, uri, expected_type, expected_attrs)
 def test_get_dev_ipc_path(monkeypatch, tmp_path):
     # test default path (portable)
     path = get_dev_ipc_path()
-    assert path == os.path.join(tempfile.gettempdir(), "geth.ipc")
+    expected = (
+        "\\.\pipe\geth.ipc"
+        if sys.platform.startswith("win")
+        os.path.join(tempfile.gettempdir(), "geth.ipc")
+    )
+    assert path == expected
 
     uri = str(tmp_path) + "/geth.ipc"
 
