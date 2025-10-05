@@ -86,7 +86,7 @@ setup(
     name="faster_web3",
     # *IMPORTANT*: Don't manually change the version here. See Contributing docs for the release process.
     version="7.13.0",
-    description="""web3: A Python library for interacting with Ethereum""",
+    description="""A faster fork of web3: A Python library for interacting with Ethereum. Implemented in C.""",
     long_description=long_description,
     long_description_content_type="text/markdown",
     author="The Ethereum Foundation",
