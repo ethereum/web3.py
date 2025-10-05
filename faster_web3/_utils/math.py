@@ -1,5 +1,4 @@
 from typing import (
-    Optional,
     Sequence,
 )
 
@@ -9,16 +8,12 @@ from faster_web3.exceptions import (
 )
 
 
-def percentile(
-    values: Optional[Sequence[int]] = None, percentile: Optional[float] = None
-) -> float:
+def percentile(values: Sequence[int], percentile: float) -> float:
     """Calculates a simplified weighted average percentile"""
-    if values in [None, tuple(), []] or len(values) < 1:
+    if not values:
         raise InsufficientData(
             f"Expected a sequence of at least 1 integers, got {values!r}"
         )
-    if percentile is None:
-        raise Web3ValueError(f"Expected a percentile choice, got {percentile}")
     if percentile < 0 or percentile > 100:
         raise Web3ValueError("percentile must be in the range [0, 100]")
 

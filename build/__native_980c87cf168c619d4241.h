@@ -1,5 +1,5 @@
-#ifndef MYPYC_NATIVE_faster_web3____utils___type_conversion_H
-#define MYPYC_NATIVE_faster_web3____utils___type_conversion_H
+#ifndef MYPYC_NATIVE_980c87cf168c619d4241_H
+#define MYPYC_NATIVE_980c87cf168c619d4241_H
 #include <Python.h>
 #include <CPy.h>
 #ifndef MYPYC_DECLARED_tuple_T2OO

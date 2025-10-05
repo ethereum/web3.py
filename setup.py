@@ -55,6 +55,8 @@ with open("./README.md") as readme:
 
 ext_modules = mypycify(
     [
+        "faster_web3/_utils/http.py",
+        "faster_web3/_utils/math.py",
         "faster_web3/_utils/type_conversion.py",
         "--pretty",
         "--disable-error-code=return-value",

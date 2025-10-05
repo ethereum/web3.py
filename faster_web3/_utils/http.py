@@ -1,4 +1,7 @@
-DEFAULT_HTTP_TIMEOUT = 30.0
+from typing import Final
+
+
+DEFAULT_HTTP_TIMEOUT: Final = 30.0
 
 
 def construct_user_agent(
