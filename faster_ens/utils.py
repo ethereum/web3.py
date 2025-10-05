@@ -31,7 +31,7 @@ from hexbytes import (
     HexBytes,
 )
 
-from ens.exceptions import (
+from faster_ens.exceptions import (
     ENSTypeError,
     ENSValueError,
 )

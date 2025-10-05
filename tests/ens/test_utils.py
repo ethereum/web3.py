@@ -11,18 +11,18 @@ from eth_utils import (
     to_bytes,
 )
 
-from ens import (
+from faster_ens import (
     BaseENS,
 )
-from ens._normalization import (
+from faster_ens._normalization import (
     ENSNormalizedName,
     Label,
     TextToken,
 )
-from ens.exceptions import (
+from faster_ens.exceptions import (
     ENSValidationError,
 )
-from ens.utils import (
+from faster_ens.utils import (
     dns_encode_name,
     ens_encode_name,
     init_async_web3,
@@ -179,7 +179,7 @@ def test_name_utility_methods_normalize_the_name_using_ensip15(utility_method):
     # we already have tests for `normalize_name_ensip15` so we just need to make sure
     # the utility methods call it under the hood with the correct arguments
     with patch(
-        "ens._normalization.normalize_name_ensip15"
+        "faster_ens._normalization.normalize_name_ensip15"
     ) as normalize_name_ensip15_mock:
         utility_method("foo.eth")
         normalize_name_ensip15_mock.assert_called_once_with("foo.eth")
@@ -195,7 +195,7 @@ def test_label_to_hash_normalizes_name_using_ensip15():
     assert normalized_name.as_text == "foo.eth"
 
     with patch(
-        "ens._normalization.normalize_name_ensip15"
+        "faster_ens._normalization.normalize_name_ensip15"
     ) as mock_normalize_name_ensip15:
         for label in normalized_name.labels:
             mock_normalize_name_ensip15.return_value = ENSNormalizedName([label])
@@ -209,7 +209,7 @@ def test_label_to_hash_normalizes_name_using_ensip15():
     )
 
 
-@mock.patch("ens.utils.dns_encode_name")
+@mock.patch("faster_ens.utils.dns_encode_name")
 def test_ens_encode_name_issues_deprecation_warning_and_calls_dns_encode_name(
     mock_dns_encode_name,
 ):

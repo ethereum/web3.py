@@ -4,7 +4,7 @@ from eth_typing import (
     HexStr,
 )
 
-from ens import (
+from faster_ens import (
     AddressMismatch,
     UnauthorizedError,
     UnownedName,

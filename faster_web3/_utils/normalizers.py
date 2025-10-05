@@ -40,7 +40,7 @@ from hexbytes import (
     HexBytes,
 )
 
-from ens import (
+from faster_ens import (
     ENS,
     AsyncENS,
 )

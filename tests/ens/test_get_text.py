@@ -4,7 +4,7 @@ from eth_utils import (
     ValidationError as EthUtilsValidationError,
 )
 
-from ens.exceptions import (
+from faster_ens.exceptions import (
     ResolverNotFound,
     UnsupportedFunction,
 )

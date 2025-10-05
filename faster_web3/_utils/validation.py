@@ -42,7 +42,7 @@ from eth_utils.toolz import (
     valmap,
 )
 
-from ens.utils import (
+from faster_ens.utils import (
     is_valid_ens_name,
 )
 from faster_web3._utils.abi import (

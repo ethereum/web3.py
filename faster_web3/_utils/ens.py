@@ -20,7 +20,7 @@ from eth_utils import (
     to_checksum_address,
 )
 
-from ens import (
+from faster_ens import (
     ENS,
     AsyncENS,
 )

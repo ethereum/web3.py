@@ -3,10 +3,10 @@ from unittest.mock import (
     patch,
 )
 
-from ens import (
+from faster_ens import (
     ENS,
 )
-from ens.exceptions import (
+from faster_ens.exceptions import (
     ENSValueError,
 )
 from faster_web3 import (

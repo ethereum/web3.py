@@ -1,4 +1,4 @@
-from ens import (
+from faster_ens import (
     ENS,
 )
 

@@ -10,11 +10,11 @@ from eth_utils import (
 )
 import pytest_asyncio
 
-from ens import (
+from faster_ens import (
     ENS,
     AsyncENS,
 )
-from ens.contract_data import (
+from faster_ens.contract_data import (
     registrar_abi,
     registrar_bytecode,
     registrar_bytecode_runtime,
@@ -28,7 +28,7 @@ from ens.contract_data import (
     reverse_resolver_bytecode,
     reverse_resolver_bytecode_runtime,
 )
-from ens.exceptions import (
+from faster_ens.exceptions import (
     ENSTypeError,
 )
 from faster_web3 import (

@@ -3,7 +3,7 @@ from types import (
     TracebackType,
 )
 
-from ens import (
+from faster_ens import (
     AsyncENS,
     ENS,
 )

@@ -95,7 +95,7 @@ from faster_web3.types import (
 )
 
 if TYPE_CHECKING:
-    from ens import ENS  # noqa: F401
+    from faster_ens import ENS  # noqa: F401
     from faster_web3 import Web3  # noqa: F401
 
 

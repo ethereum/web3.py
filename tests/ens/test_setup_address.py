@@ -11,10 +11,10 @@ from eth_utils import (
     to_bytes,
 )
 
-from ens import (
+from faster_ens import (
     UnauthorizedError,
 )
-from ens.constants import (
+from faster_ens.constants import (
     EMPTY_ADDR_HEX,
 )
 from faster_web3 import (

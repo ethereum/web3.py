@@ -31,13 +31,13 @@ from hexbytes import (
     HexBytes,
 )
 
-from ens import (
+from faster_ens import (
     abis,
 )
-from ens.base_ens import (
+from faster_ens.base_ens import (
     BaseENS,
 )
-from ens.constants import (
+from faster_ens.constants import (
     EMPTY_ADDR_HEX,
     ENS_EXTENDED_RESOLVER_INTERFACE_ID,
     ENS_MAINNET_ADDR,
@@ -45,7 +45,7 @@ from ens.constants import (
     ENS_TEXT_INTERFACE_ID,
     REVERSE_REGISTRAR_DOMAIN,
 )
-from ens.exceptions import (
+from faster_ens.exceptions import (
     AddressMismatch,
     ENSValueError,
     ResolverNotFound,
@@ -53,7 +53,7 @@ from ens.exceptions import (
     UnownedName,
     UnsupportedFunction,
 )
-from ens.utils import (
+from faster_ens.utils import (
     address_in,
     address_to_reverse_domain,
     default,

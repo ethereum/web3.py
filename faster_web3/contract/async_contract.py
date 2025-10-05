@@ -97,7 +97,7 @@ from faster_web3.types import (
 )
 
 if TYPE_CHECKING:
-    from ens import AsyncENS  # noqa: F401
+    from faster_ens import AsyncENS  # noqa: F401
     from faster_web3 import AsyncWeb3  # noqa: F401
 
 

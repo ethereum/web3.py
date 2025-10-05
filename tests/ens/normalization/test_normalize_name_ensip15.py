@@ -2,10 +2,10 @@ import pytest
 import json
 import os
 
-from ens import (
+from faster_ens import (
     InvalidName,
 )
-from ens._normalization import (
+from faster_ens._normalization import (
     normalize_name_ensip15,
 )
 

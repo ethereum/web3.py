@@ -5,14 +5,14 @@ from unittest.mock import (
     patch,
 )
 
-from ens import (
+from faster_ens import (
     ENS,
     AsyncENS,
 )
-from ens._normalization import (
+from faster_ens._normalization import (
     normalize_name_ensip15,
 )
-from ens.utils import (
+from faster_ens.utils import (
     raw_name_to_hash,
 )
 from faster_web3 import (
@@ -124,7 +124,7 @@ def test_ens_methods_normalize_name(
     expected_call_args = {"tester.eth", "tester", "eth"}
 
     with patch(
-        "ens._normalization.normalize_name_ensip15"
+        "faster_ens._normalization.normalize_name_ensip15"
     ) as mock_normalize_name_ensip15:
         mock_normalize_name_ensip15.side_effect = normalize_name_ensip15
 
@@ -156,8 +156,8 @@ def test_ens_address_lookup_when_no_coin_type(ens):
     name = "tester.eth"
     address = ens.w3.eth.accounts[0]
 
-    with patch("ens.ENS.resolver") as mock_resolver_for_coin_types:
-        with patch("ens.ENS._resolve") as mock_resolver:
+    with patch("faster_ens.ENS.resolver") as mock_resolver_for_coin_types:
+        with patch("faster_ens.ENS._resolve") as mock_resolver:
             mock_resolver.return_value = address
 
             returned_address = ens.address(name)
@@ -182,10 +182,10 @@ def test_ens_address_lookup_with_coin_type(ens):
     mock_resolver = MagicMock()
     mock_resolver.caller.addr.return_value = address
 
-    with patch("ens.ENS.resolver") as resolver:
+    with patch("faster_ens.ENS.resolver") as resolver:
         resolver.return_value = mock_resolver
 
-        with patch("ens.ens._validate_resolver_and_interface_id") as mock_validate:
+        with patch("faster_ens.ens._validate_resolver_and_interface_id") as mock_validate:
             returned_address = ens.address(name, coin_type=coin_type)
 
             mock_validate.assert_called_once()
@@ -296,7 +296,7 @@ async def test_async_ens_methods_normalize_name_with_ensip15(
     expected_call_args = {"tester.eth", "tester", "eth"}
 
     with patch(
-        "ens._normalization.normalize_name_ensip15"
+        "faster_ens._normalization.normalize_name_ensip15"
     ) as mock_normalize_name_ensip15:
         mock_normalize_name_ensip15.side_effect = normalize_name_ensip15
 
@@ -330,8 +330,8 @@ async def test_async_ens_address_lookup_when_no_coin_type(async_ens):
     accounts = await async_ens.w3.eth.accounts
     address = accounts[2]
 
-    with patch("ens.AsyncENS.resolver") as mock_resolver_for_coin_types:
-        with patch("ens.AsyncENS._resolve") as mock_resolver:
+    with patch("faster_ens.AsyncENS.resolver") as mock_resolver_for_coin_types:
+        with patch("faster_ens.AsyncENS._resolve") as mock_resolver:
             mock_resolver.return_value = address
 
             returned_address = await async_ens.address(name)
@@ -358,11 +358,11 @@ async def test_async_ens_address_lookup_with_coin_type(async_ens):
     mock_resolver = AsyncMock()
     mock_resolver.caller.addr.return_value = address
 
-    with patch("ens.AsyncENS.resolver") as resolver:
+    with patch("faster_ens.AsyncENS.resolver") as resolver:
         resolver.return_value = mock_resolver
 
         with patch(
-            "ens.async_ens._async_validate_resolver_and_interface_id"
+            "faster_ens.async_ens._async_validate_resolver_and_interface_id"
         ) as mock_validate:
             returned_address = await async_ens.address(name, coin_type=coin_type)
 

@@ -5,7 +5,7 @@ from aiohttp import (
 )
 import requests
 
-from ens.utils import (
+from faster_ens.utils import (
     dns_encode_name,
 )
 from faster_web3.exceptions import (
