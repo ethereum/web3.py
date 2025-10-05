@@ -73,7 +73,7 @@ def run_500(func, *args, **kwargs):
 
 @pytest.mark.benchmark(group="ReadableAttributeDict-init")
 @pytest.mark.parametrize("d", init_dicts, ids=init_dict_ids)
-def test_web3_readableattributedict_init(benchmark: BenchmarkFixture, d):
+def test_readableattributedict_init(benchmark: BenchmarkFixture, d):
     benchmark(run_100, ReadableAttributeDict, d)
 
 @pytest.mark.benchmark(group="ReadableAttributeDict-init")
@@ -83,7 +83,7 @@ def test_faster_readableattributedict_init(benchmark: BenchmarkFixture, d):
 
 @pytest.mark.benchmark(group="ReadableAttributeDict-getitem")
 @pytest.mark.parametrize("d,key", getitem_cases, ids=getitem_ids)
-def test_web3_readableattributedict_getitem(benchmark: BenchmarkFixture, d, key):
+def test_readableattributedict_getitem(benchmark: BenchmarkFixture, d, key):
     rad = ReadableAttributeDict(d)
     benchmark(run_100, lambda: rad[key])
 
@@ -95,7 +95,7 @@ def test_faster_readableattributedict_getitem(benchmark: BenchmarkFixture, d, ke
 
 @pytest.mark.benchmark(group="ReadableAttributeDict-recursive")
 @pytest.mark.parametrize("val", recursive_vals, ids=recursive_ids)
-def test_web3_readableattributedict_recursive(benchmark: BenchmarkFixture, val):
+def test_readableattributedict_recursive(benchmark: BenchmarkFixture, val):
     benchmark(run_100, ReadableAttributeDict.recursive, val)
 
 @pytest.mark.benchmark(group="ReadableAttributeDict-recursive")
@@ -106,7 +106,7 @@ def test_faster_readableattributedict_recursive(benchmark: BenchmarkFixture, val
 # --- Benchmarks for MutableAttributeDict ---
 
 @pytest.mark.benchmark(group="MutableAttributeDict-setitem")
-def test_web3_mutableattributedict_setitem(benchmark: BenchmarkFixture):
+def test_mutableattributedict_setitem(benchmark: BenchmarkFixture):
     def setitem():
         mad = MutableAttributeDict({})
         for i in range(20):
@@ -122,7 +122,7 @@ def test_faster_mutableattributedict_setitem(benchmark: BenchmarkFixture):
     benchmark(run_100, setitem)
 
 @pytest.mark.benchmark(group="MutableAttributeDict-delitem")
-def test_web3_mutableattributedict_delitem(benchmark: BenchmarkFixture):
+def test_mutableattributedict_delitem(benchmark: BenchmarkFixture):
     def delitem():
         mad = MutableAttributeDict({i: i for i in range(20)})
         for i in range(20):
@@ -141,7 +141,7 @@ def test_faster_mutableattributedict_delitem(benchmark: BenchmarkFixture):
 
 @pytest.mark.benchmark(group="AttributeDict-init")
 @pytest.mark.parametrize("d", init_dicts, ids=init_dict_ids)
-def test_web3_attributedict_init(benchmark: BenchmarkFixture, d):
+def test_attributedict_init(benchmark: BenchmarkFixture, d):
     benchmark(run_100, AttributeDict, d)
 
 @pytest.mark.benchmark(group="AttributeDict-init")
@@ -151,7 +151,7 @@ def test_faster_attributedict_init(benchmark: BenchmarkFixture, d):
 
 @pytest.mark.benchmark(group="AttributeDict-hash")
 @pytest.mark.parametrize("d", hash_dicts, ids=hash_ids)
-def test_web3_attributedict_hash(benchmark: BenchmarkFixture, d):
+def test_attributedict_hash(benchmark: BenchmarkFixture, d):
     ad = AttributeDict(d)
     benchmark(run_100, hash, ad)
 
@@ -162,7 +162,7 @@ def test_faster_attributedict_hash(benchmark: BenchmarkFixture, d):
     benchmark(run_100, hash, ad)
 
 @pytest.mark.benchmark(group="AttributeDict-eq")
-def test_web3_attributedict_eq(benchmark: BenchmarkFixture):
+def test_attributedict_eq(benchmark: BenchmarkFixture):
     d1 = {"a": 1, "b": 2}
     d2 = {"b": 2, "a": 1}
     ad1 = AttributeDict(d1)
@@ -181,7 +181,7 @@ def test_faster_attributedict_eq(benchmark: BenchmarkFixture):
 
 @pytest.mark.benchmark(group="tupleize_lists_nested")
 @pytest.mark.parametrize("d", tupleize_dicts, ids=tupleize_ids)
-def test_web3_tupleize_lists_nested(benchmark: BenchmarkFixture, d):
+def test_tupleize_lists_nested(benchmark: BenchmarkFixture, d):
     benchmark(run_100, tupleize_lists_nested, d)
 
 @pytest.mark.benchmark(group="tupleize_lists_nested")
@@ -193,7 +193,7 @@ def test_faster_tupleize_lists_nested(benchmark: BenchmarkFixture, d):
 
 @pytest.mark.benchmark(group="NamedElementOnion-init")
 @pytest.mark.parametrize("elements", onion_elements, ids=onion_ids)
-def test_web3_namedelementonion_init(benchmark: BenchmarkFixture, elements):
+def test_namedelementonion_init(benchmark: BenchmarkFixture, elements):
     benchmark(run_100, NamedElementOnion, elements)
 
 @pytest.mark.benchmark(group="NamedElementOnion-init")
@@ -202,7 +202,7 @@ def test_faster_namedelementonion_init(benchmark: BenchmarkFixture, elements):
     benchmark(run_100, FasterNamedElementOnion, elements)
 
 @pytest.mark.benchmark(group="NamedElementOnion-add")
-def test_web3_namedelementonion_add(benchmark: BenchmarkFixture):
+def test_namedelementonion_add(benchmark: BenchmarkFixture):
     onion = NamedElementOnion([make_callable(i) for i in range(10)])
     def add():
         for i in range(100, 200):
@@ -218,7 +218,7 @@ def test_faster_namedelementonion_add(benchmark: BenchmarkFixture):
     benchmark(run_100, add)
 
 @pytest.mark.benchmark(group="NamedElementOnion-inject")
-def test_web3_namedelementonion_inject(benchmark: BenchmarkFixture):
+def test_namedelementonion_inject(benchmark: BenchmarkFixture):
     onion = NamedElementOnion([make_callable(i) for i in range(10)])
     def inject():
         for i in range(100, 200):
@@ -234,7 +234,7 @@ def test_faster_namedelementonion_inject(benchmark: BenchmarkFixture):
     benchmark(run_100, inject)
 
 @pytest.mark.benchmark(group="NamedElementOnion-replace")
-def test_web3_namedelementonion_replace(benchmark: BenchmarkFixture):
+def test_namedelementonion_replace(benchmark: BenchmarkFixture):
     middlewares = [make_callable(i) for i in range(10)]
     def replace():
         onion = NamedElementOnion(middlewares)
@@ -252,7 +252,7 @@ def test_faster_namedelementonion_replace(benchmark: BenchmarkFixture):
     benchmark(run_100, replace)
 
 @pytest.mark.benchmark(group="NamedElementOnion-remove")
-def test_web3_namedelementonion_remove(benchmark: BenchmarkFixture):
+def test_namedelementonion_remove(benchmark: BenchmarkFixture):
     middlewares = [make_callable(i) for i in range(10)]
     def remove():
         onion = NamedElementOnion(middlewares)
@@ -270,7 +270,7 @@ def test_faster_namedelementonion_remove(benchmark: BenchmarkFixture):
     benchmark(run_100, remove)
 
 @pytest.mark.benchmark(group="NamedElementOnion-contains")
-def test_web3_namedelementonion_contains(benchmark: BenchmarkFixture):
+def test_namedelementonion_contains(benchmark: BenchmarkFixture):
     middlewares = [make_callable(i) for i in range(10)]
     onion = NamedElementOnion(middlewares)
     middleware = middlewares[4]
@@ -284,7 +284,7 @@ def test_faster_namedelementonion_contains(benchmark: BenchmarkFixture):
     benchmark(run_100, lambda: middleware in onion)
 
 @pytest.mark.benchmark(group="NamedElementOnion-getitem")
-def test_web3_namedelementonion_getitem(benchmark: BenchmarkFixture):
+def test_namedelementonion_getitem(benchmark: BenchmarkFixture):
     middlewares = [make_callable(i) for i in range(10)]
     onion = NamedElementOnion(middlewares)
     middleware = middlewares[4]
@@ -298,7 +298,7 @@ def test_faster_namedelementonion_getitem(benchmark: BenchmarkFixture):
     benchmark(run_100, lambda: onion[middleware])
 
 @pytest.mark.benchmark(group="NamedElementOnion-iter")
-def test_web3_namedelementonion_iter(benchmark: BenchmarkFixture):
+def test_namedelementonion_iter(benchmark: BenchmarkFixture):
     onion = NamedElementOnion([make_callable(i) for i in range(10)])
     benchmark(run_100, list, onion)
 
@@ -308,7 +308,7 @@ def test_faster_namedelementonion_iter(benchmark: BenchmarkFixture):
     benchmark(run_100, list, onion)
 
 @pytest.mark.benchmark(group="NamedElementOnion-as_tuple_of_middleware")
-def test_web3_namedelementonion_as_tuple_of_middleware(benchmark: BenchmarkFixture):
+def test_namedelementonion_as_tuple_of_middleware(benchmark: BenchmarkFixture):
     onion = NamedElementOnion([make_callable(i) for i in range(10)])
     benchmark(run_100, onion.as_tuple_of_middleware)
 
