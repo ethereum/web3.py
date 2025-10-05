@@ -1,14 +1,14 @@
 #include <Python.h>
 
 PyMODINIT_FUNC
-PyInit_datatypes(void)
+PyInit_types(void)
 {
     PyObject *tmp;
     if (!(tmp = PyImport_ImportModule("79d9659ed20c5f72db6b__mypyc"))) return NULL;
-    PyObject *capsule = PyObject_GetAttrString(tmp, "init_faster_web3____utils___datatypes");
+    PyObject *capsule = PyObject_GetAttrString(tmp, "init_faster_web3___types");
     Py_DECREF(tmp);
     if (capsule == NULL) return NULL;
-    void *init_func = PyCapsule_GetPointer(capsule, "79d9659ed20c5f72db6b__mypyc.init_faster_web3____utils___datatypes");
+    void *init_func = PyCapsule_GetPointer(capsule, "79d9659ed20c5f72db6b__mypyc.init_faster_web3___types");
     Py_DECREF(capsule);
     if (!init_func) {
         return NULL;
@@ -18,4 +18,4 @@ PyInit_datatypes(void)
 
 // distutils sometimes spuriously tells cl to export CPyInit___init__,
 // so provide that so it chills out
-PyMODINIT_FUNC PyInit___init__(void) { return PyInit_datatypes(); }
+PyMODINIT_FUNC PyInit___init__(void) { return PyInit_types(); }

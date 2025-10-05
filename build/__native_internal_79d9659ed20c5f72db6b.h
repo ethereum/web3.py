@@ -1,12 +1,12 @@
-#ifndef MYPYC_NATIVE_INTERNAL_375413d3c5455dc0fb2a_H
-#define MYPYC_NATIVE_INTERNAL_375413d3c5455dc0fb2a_H
+#ifndef MYPYC_NATIVE_INTERNAL_79d9659ed20c5f72db6b_H
+#define MYPYC_NATIVE_INTERNAL_79d9659ed20c5f72db6b_H
 #include <Python.h>
 #include <CPy.h>
-#include "__native_375413d3c5455dc0fb2a.h"
+#include "__native_79d9659ed20c5f72db6b.h"
 
 int CPyGlobalsInit(void);
 
-extern PyObject *CPyStatics[269];
+extern PyObject *CPyStatics[557];
 extern const char * const CPyLit_Str[];
 extern const char * const CPyLit_Bytes[];
 extern const char * const CPyLit_Int[];
@@ -37,6 +37,7 @@ extern CPyModule *CPyModule_eth_typing;
 extern CPyModule *CPyModule_faster_web3____utils___utility_methods__internal;
 extern CPyModule *CPyModule_faster_web3____utils___utility_methods;
 extern PyObject *CPyStatic_utility_methods___globals;
+extern CPyModule *CPyModule_faster_web3___types__internal;
 extern CPyModule *CPyModule_faster_web3___types;
 extern CPyModule *CPyModule_faster_web3___auto__internal;
 extern CPyModule *CPyModule_faster_web3___auto;
@@ -72,6 +73,14 @@ extern CPyModule *CPyModule_faster_web3___utils___caching;
 extern PyObject *CPyStatic_caching___globals;
 extern CPyModule *CPyModule_collections;
 extern CPyModule *CPyModule_enum;
+extern CPyModule *CPyModule_faster_web3___constants__internal;
+extern CPyModule *CPyModule_faster_web3___constants;
+extern PyObject *CPyStatic_constants___globals;
+extern PyObject *CPyStatic_types___globals;
+extern CPyModule *CPyModule_eth_account___datastructures;
+extern CPyModule *CPyModule_faster_hexbytes;
+extern CPyModule *CPyModule_faster_web3____utils___abi_element_identifiers;
+extern CPyModule *CPyModule_faster_web3____utils___compat;
 extern PyObject *CPyStatic_datatypes___apply_formatters_to_dict;
 extern PyObject *CPyStatic_datatypes___concat;
 extern PyTypeObject *CPyType_datatypes___PropertyCheckingFactory;
@@ -242,4 +251,60 @@ extern PyObject *CPyPy_caching___async_await_and_popitem_SimpleCache_gen_____awa
 extern PyObject *CPyDef_caching___SimpleCache___async_await_and_popitem(PyObject *cpy_r_self, char cpy_r_last, double cpy_r_timeout, uint32_t cpy_r___bitmap);
 extern PyObject *CPyPy_caching___SimpleCache___async_await_and_popitem(PyObject *self, PyObject *const *args, size_t nargs, PyObject *kwnames);
 extern char CPyDef_caching_____top_level__(void);
+extern PyObject *CPyStatic_constants___ADDRESS_ZERO;
+extern PyObject *CPyStatic_constants___CHECKSUM_ADDRESSS_ZERO;
+extern PyObject *CPyStatic_constants___MAX_INT;
+extern PyObject *CPyStatic_constants___HASH_ZERO;
+extern tuple_T2OO CPyStatic_constants___DYNAMIC_FEE_TXN_PARAMS;
+extern char CPyDef_constants_____top_level__(void);
+extern PyTypeObject *CPyType_types___AccessListEntry;
+extern PyTypeObject *CPyType_types___EventData;
+extern PyTypeObject *CPyType_types___RPCError;
+extern PyTypeObject *CPyType_types___SetCodeAuthorizationData;
+extern PyTypeObject *CPyType_types___SetCodeAuthorizationParams;
+extern PyTypeObject *CPyType_types___WithdrawalData;
+extern PyTypeObject *CPyType_types___BlockData;
+extern PyTypeObject *CPyType_types___LogReceipt;
+extern PyTypeObject *CPyType_types___SubscriptionResponse;
+extern PyTypeObject *CPyType_types___BlockTypeSubscriptionResponse;
+extern PyTypeObject *CPyType_types___TransactionTypeSubscriptionResponse;
+extern PyTypeObject *CPyType_types___LogsSubscriptionResponse;
+extern PyTypeObject *CPyType_types___SyncProgress;
+extern PyTypeObject *CPyType_types___SyncingSubscriptionResponse;
+extern PyTypeObject *CPyType_types___GethSyncingStatus;
+extern PyTypeObject *CPyType_types___GethSyncingSubscriptionResult;
+extern PyTypeObject *CPyType_types___GethSyncingSubscriptionResponse;
+extern PyTypeObject *CPyType_types___RPCRequest;
+extern PyTypeObject *CPyType_types___RPCResponse;
+extern PyTypeObject *CPyType_types___FormattedEthSubscriptionResponse;
+extern PyTypeObject *CPyType_types___CreateAccessListResponse;
+extern PyTypeObject *CPyType_types___FormattersDict;
+extern PyTypeObject *CPyType_types___FilterParams;
+extern PyTypeObject *CPyType_types___FeeHistory;
+extern PyTypeObject *CPyType_types___StateOverrideParams;
+extern PyTypeObject *CPyType_types___SignedTx;
+extern PyTypeObject *CPyType_types___StorageProof;
+extern PyTypeObject *CPyType_types___MerkleProof;
+extern PyTypeObject *CPyType_types___Protocol;
+extern PyTypeObject *CPyType_types___NodeInfo;
+extern PyTypeObject *CPyType_types___Peer;
+extern PyTypeObject *CPyType_types___SyncStatus;
+extern PyTypeObject *CPyType_types___Uncle;
+extern PyTypeObject *CPyType_types___TxPoolContent;
+extern PyTypeObject *CPyType_types___TxPoolInspect;
+extern PyTypeObject *CPyType_types___TxPoolStatus;
+extern PyTypeObject *CPyType_types___TraceConfig;
+extern PyTypeObject *CPyType_types___CallTraceLog;
+extern PyTypeObject *CPyType_types___TraceData;
+extern PyTypeObject *CPyType_types___DiffModeTrace;
+extern PyTypeObject *CPyType_types___StructLog;
+extern PyTypeObject *CPyType_types___OpcodeTrace;
+extern PyTypeObject *CPyType_types___BlockStateCallV1;
+extern PyTypeObject *CPyType_types___SimulateV1Payload;
+extern PyTypeObject *CPyType_types___SimulateV1CallResult;
+extern PyTypeObject *CPyType_types___SimulateV1Result;
+extern PyTypeObject *CPyType_types___GethWallet;
+extern PyTypeObject *CPyType_types___TraceFilterParams;
+extern PyTypeObject *CPyType_types___LogsSubscriptionArg;
+extern char CPyDef_types_____top_level__(void);
 #endif
