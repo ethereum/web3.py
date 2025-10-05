@@ -10,8 +10,10 @@ from tempfile import (
 )
 from typing import (
     Any,
+    Final,
     Generator,
     Sequence,
+    final,
 )
 import zipfile
 
@@ -24,22 +26,22 @@ from faster_web3.tools.benchmark.utils import (
     kill_proc_gracefully,
 )
 
-GETH_FIXTURE_ZIP = "geth-1.16.2-fixture.zip"
+GETH_FIXTURE_ZIP: Final = "geth-1.16.2-fixture.zip"
 
 
+@final
 class GethBenchmarkFixture:
     def __init__(self) -> None:
-        self.rpc_port = self._rpc_port()
-        self.endpoint_uri = self._endpoint_uri()
-        self.geth_binary = self._geth_binary()
+        self.rpc_port: Final = self._rpc_port()
+        self.endpoint_uri: Final = self._endpoint_uri()
+        self.geth_binary: Final = self._geth_binary()
 
     def build(self) -> Generator[Any, None, None]:
         with TemporaryDirectory() as base_dir:
             zipfile_path = os.path.abspath(
                 os.path.join(
                     os.path.dirname(__file__),
-                    "../../../tests/integration/",
-                    GETH_FIXTURE_ZIP,
+                    f"../../../tests/integration/{GETH_FIXTURE_ZIP}",
                 )
             )
             tmp_datadir = os.path.join(str(base_dir), "datadir")
