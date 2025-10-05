@@ -2,12 +2,12 @@ import pytest
 import random
 import re
 
-from web3.datastructures import (
+from faster_web3.datastructures import (
     AttributeDict,
     NamedElementOnion,
     tupleize_lists_nested,
 )
-from web3.middleware import (
+from faster_web3.middleware import (
     GasPriceStrategyMiddleware,
 )
 

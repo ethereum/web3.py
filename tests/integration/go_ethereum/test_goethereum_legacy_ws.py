@@ -4,7 +4,7 @@ from tests.integration.common import (
     COINBASE,
     MiscWebSocketTest,
 )
-from web3 import (
+from faster_web3 import (
     Web3,
 )
 

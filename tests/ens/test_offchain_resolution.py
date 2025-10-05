@@ -8,7 +8,7 @@ import requests
 from ens.utils import (
     dns_encode_name,
 )
-from web3.exceptions import (
+from faster_web3.exceptions import (
     OffchainLookup,
     Web3ValidationError,
 )

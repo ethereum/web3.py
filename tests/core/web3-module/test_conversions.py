@@ -4,10 +4,10 @@ from hexbytes import (
     HexBytes,
 )
 
-from web3 import (
+from faster_web3 import (
     Web3,
 )
-from web3.datastructures import (
+from faster_web3.datastructures import (
     AttributeDict,
 )
 

@@ -16,13 +16,13 @@ from eth_utils.toolz import (
     curry,
 )
 
-from web3 import (
+from faster_web3 import (
     Web3,
 )
-from web3.contract.async_contract import (
+from faster_web3.contract.async_contract import (
     AsyncContractEvent,
 )
-from web3.contract.contract import (
+from faster_web3.contract.contract import (
     Contract,
     ContractEvent,
 )

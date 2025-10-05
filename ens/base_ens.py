@@ -27,11 +27,11 @@ from .utils import (
 )
 
 if TYPE_CHECKING:
-    from web3 import (  # noqa: F401
+    from faster_web3 import (  # noqa: F401
         AsyncWeb3,
         Web3,
     )
-    from web3.contract import (  # noqa: F401
+    from faster_web3.contract import (  # noqa: F401
         AsyncContract,
         Contract,
     )

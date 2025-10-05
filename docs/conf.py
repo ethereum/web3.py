@@ -51,7 +51,7 @@ source_suffix = ".rst"
 master_doc = "index"
 
 # General information about the project.
-project = "web3.py"
+project = "faster-web3.py"
 copyright = "2016-2025, The Ethereum Foundation"
 
 __version__ = setup_version
@@ -79,17 +79,17 @@ release = __version__
 exclude_patterns = [
     "_build",
     "modules.rst",
-    "web3.auto.rst",
-    "web3.gas_strategies.rst",
-    "web3.middleware.rst",
-    "web3.providers.eth_tester.rst",
-    "web3.providers.persistent.rst",
-    "web3.providers.rpc.rst",
-    "web3.providers.rst",
-    "web3.rst",
-    "web3.scripts.*",
-    "web3.testing.rst",
-    "web3.tools.*",
+    "faster_web3.auto.rst",
+    "faster_web3.gas_strategies.rst",
+    "faster_web3.middleware.rst",
+    "faster_web3.providers.eth_tester.rst",
+    "faster_web3.providers.persistent.rst",
+    "faster_web3.providers.rpc.rst",
+    "faster_web3.providers.rst",
+    "faster_web3.rst",
+    "faster_web3.scripts.*",
+    "faster_web3.testing.rst",
+    "faster_web3.tools.*",
 ]
 
 # The reST default role (used for this markup: `text`) to use for all
@@ -227,8 +227,8 @@ latex_elements = {
 latex_documents = [
     (
         "index",
-        "web3.tex",
-        "web3.py Documentation",
+        "faster-web3.tex",
+        "faster-web3.py Documentation",
         "The Ethereum Foundation",
         "manual",
     ),
@@ -262,8 +262,8 @@ latex_documents = [
 man_pages = [
     (
         "index",
-        "web3",
-        "web3.py Documentation",
+        "faster-web3",
+        "faster-web3.py Documentation",
         ["The Ethereum Foundation"],
         1,
     )
@@ -281,10 +281,10 @@ man_pages = [
 texinfo_documents = [
     (
         "index",
-        "web3.py",
-        "web3.py Documentation",
+        "faster-web3.py",
+        "faster-web3.py Documentation",
         "The Ethereum Foundation",
-        "web3.py",
+        "faster-web3.py",
         "A Python library for interacting with Ethereum",
         "Miscellaneous",
     ),

@@ -1,11 +1,11 @@
 import pytest
 import time
 
-from web3._utils.ens import (
+from faster_web3._utils.ens import (
     contract_ens_addresses,
     ens_addresses,
 )
-from web3.exceptions import (
+from faster_web3.exceptions import (
     BadFunctionCallOutput,
     NameNotFound,
 )

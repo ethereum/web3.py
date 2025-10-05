@@ -1,9 +1,9 @@
 import pytest
 
-from web3._utils.empty import (
+from faster_web3._utils.empty import (
     empty,
 )
-from web3.exceptions import (
+from faster_web3.exceptions import (
     Web3ValidationError,
 )
 

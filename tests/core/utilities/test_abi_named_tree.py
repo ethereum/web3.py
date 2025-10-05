@@ -7,15 +7,15 @@ from eth_abi.registry import (
     registry as default_registry,
 )
 
-from web3._utils.abi import (
+from faster_web3._utils.abi import (
     abi_decoded_namedtuple_factory,
     named_tree,
     recursive_dict_to_namedtuple,
 )
-from web3.exceptions import (
+from faster_web3.exceptions import (
     MismatchedABI,
 )
-from web3.utils import (
+from faster_web3.utils import (
     check_if_arguments_can_be_encoded,
 )
 

@@ -7,7 +7,7 @@ from toolz import (
     merge,
 )
 
-from web3.middleware import (
+from faster_web3.middleware import (
     GasPriceStrategyMiddleware,
 )
 

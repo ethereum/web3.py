@@ -7,12 +7,12 @@ from hexbytes import (
     HexBytes,
 )
 
-from web3._utils.contract_sources.contract_data.constructor_contracts import (
+from faster_web3._utils.contract_sources.contract_data.constructor_contracts import (
     CONSTRUCTOR_WITH_ADDRESS_ARGUMENT_CONTRACT_RUNTIME,
     CONSTRUCTOR_WITH_ARGUMENTS_CONTRACT_RUNTIME,
     SIMPLE_CONSTRUCTOR_CONTRACT_RUNTIME,
 )
-from web3.exceptions import (
+from faster_web3.exceptions import (
     Web3ValueError,
 )
 

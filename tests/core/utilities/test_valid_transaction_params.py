@@ -3,15 +3,15 @@ from unittest.mock import (
     patch,
 )
 
-from web3._utils.transactions import (
+from faster_web3._utils.transactions import (
     assert_valid_transaction_params,
     extract_valid_transaction_params,
     fill_transaction_defaults,
 )
-from web3.eth import (
+from faster_web3.eth import (
     Eth,
 )
-from web3.exceptions import (
+from faster_web3.exceptions import (
     Web3AttributeError,
     Web3ValueError,
 )

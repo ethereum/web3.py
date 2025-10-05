@@ -13,19 +13,19 @@ from unittest.mock import (
     patch,
 )
 
-from web3.auto.gethdev import (
+from faster_web3.auto.gethdev import (
     w3,
 )
-from web3.exceptions import (
+from faster_web3.exceptions import (
     ProviderConnectionError,
     Web3ValueError,
 )
-from web3.providers.ipc import (
+from faster_web3.providers.ipc import (
     IPCProvider,
     get_default_ipc_path,
     get_dev_ipc_path,
 )
-from web3.types import (
+from faster_web3.types import (
     RPCEndpoint,
 )
 

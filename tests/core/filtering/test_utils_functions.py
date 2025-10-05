@@ -7,10 +7,10 @@ from eth_abi.exceptions import (
     ValueOutOfBounds,
 )
 
-from web3._utils.filters import (
+from faster_web3._utils.filters import (
     match_fn,
 )
-from web3.exceptions import (
+from faster_web3.exceptions import (
     Web3ValueError,
 )
 

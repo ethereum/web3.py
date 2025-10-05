@@ -1,11 +1,11 @@
-from web3 import (
+from faster_web3 import (
     AsyncWeb3,
     Web3,
 )
-from web3.middleware import (
+from faster_web3.middleware import (
     LocalFilterMiddleware,
 )
-from web3.providers.eth_tester import (
+from faster_web3.providers.eth_tester import (
     AsyncEthereumTesterProvider,
     EthereumTesterProvider,
 )

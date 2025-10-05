@@ -7,21 +7,21 @@ from eth_typing import (
     ABI,
 )
 
-from web3.contract.async_contract import (
+from faster_web3.contract.async_contract import (
     AsyncContract,
 )
-from web3.contract.contract import (
+from faster_web3.contract.contract import (
     Contract,
     ContractEvent,
 )
-from web3.exceptions import (
+from faster_web3.exceptions import (
     MismatchedABI,
 )
-from web3.main import (
+from faster_web3.main import (
     AsyncWeb3,
     Web3,
 )
-from web3.utils.abi import (
+from faster_web3.utils.abi import (
     get_abi_element,
 )
 

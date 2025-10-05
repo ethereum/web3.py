@@ -15,11 +15,11 @@ from hexbytes import (
     HexBytes,
 )
 
-from web3.exceptions import (
+from faster_web3.exceptions import (
     MismatchedABI,
     Web3ValueError,
 )
-from web3.utils.abi import (
+from faster_web3.utils.abi import (
     get_abi_element,
 )
 

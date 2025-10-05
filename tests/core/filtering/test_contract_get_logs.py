@@ -1,9 +1,9 @@
 import pytest
 
-from web3._utils.contract_sources.contract_data._custom_contract_data import (
+from faster_web3._utils.contract_sources.contract_data._custom_contract_data import (
     EMITTER_ENUM,
 )
-from web3.exceptions import (
+from faster_web3.exceptions import (
     Web3ValidationError,
 )
 

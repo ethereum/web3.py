@@ -1,10 +1,10 @@
 import pytest
 
-from web3 import (
+from faster_web3 import (
     EthereumTesterProvider,
     Web3,
 )
-from web3.method import (
+from faster_web3.method import (
     Method,
 )
 

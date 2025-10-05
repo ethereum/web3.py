@@ -21,35 +21,35 @@ from eth_utils.toolz import (
     valmap,
 )
 
-from web3 import (
+from faster_web3 import (
     Web3,
 )
-from web3._utils.contract_sources.contract_data._custom_contract_data import (
+from faster_web3._utils.contract_sources.contract_data._custom_contract_data import (
     EMITTER_ENUM,
 )
-from web3._utils.contract_sources.contract_data.emitter_contract import (
+from faster_web3._utils.contract_sources.contract_data.emitter_contract import (
     EMITTER_CONTRACT_ABI,
     EMITTER_CONTRACT_BYTECODE,
 )
-from web3._utils.contract_sources.contract_data.math_contract import (
+from faster_web3._utils.contract_sources.contract_data.math_contract import (
     MATH_CONTRACT_ABI,
     MATH_CONTRACT_BYTECODE,
 )
-from web3._utils.contract_sources.contract_data.offchain_lookup import (
+from faster_web3._utils.contract_sources.contract_data.offchain_lookup import (
     OFFCHAIN_LOOKUP_ABI,
     OFFCHAIN_LOOKUP_BYTECODE,
 )
-from web3._utils.contract_sources.contract_data.panic_errors_contract import (
+from faster_web3._utils.contract_sources.contract_data.panic_errors_contract import (
     PANIC_ERRORS_CONTRACT_DATA,
 )
-from web3._utils.contract_sources.contract_data.revert_contract import (
+from faster_web3._utils.contract_sources.contract_data.revert_contract import (
     REVERT_CONTRACT_ABI,
     REVERT_CONTRACT_BYTECODE,
 )
-from web3._utils.contract_sources.contract_data.storage_contract import (
+from faster_web3._utils.contract_sources.contract_data.storage_contract import (
     STORAGE_CONTRACT_DATA,
 )
-from web3.exceptions import (
+from faster_web3.exceptions import (
     Web3ValueError,
 )
 

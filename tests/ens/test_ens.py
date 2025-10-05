@@ -15,14 +15,14 @@ from ens._normalization import (
 from ens.utils import (
     raw_name_to_hash,
 )
-from web3 import (
+from faster_web3 import (
     AsyncWeb3,
 )
-from web3.middleware import (
+from faster_web3.middleware import (
     GasPriceStrategyMiddleware,
     ValidationMiddleware,
 )
-from web3.providers.eth_tester import (
+from faster_web3.providers.eth_tester import (
     AsyncEthereumTesterProvider,
 )
 

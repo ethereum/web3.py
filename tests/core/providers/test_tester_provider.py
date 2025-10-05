@@ -9,10 +9,10 @@ from eth_tester.exceptions import (
     TransactionFailed,
 )
 
-from web3 import (
+from faster_web3 import (
     EthereumTesterProvider,
 )
-from web3.types import (
+from faster_web3.types import (
     RPCEndpoint,
 )
 

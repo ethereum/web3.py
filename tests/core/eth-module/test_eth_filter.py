@@ -2,10 +2,10 @@ import pytest
 
 import pytest_asyncio
 
-from web3 import (
+from faster_web3 import (
     AsyncWeb3,
 )
-from web3._utils.filters import (
+from faster_web3._utils.filters import (
     AsyncBlockFilter,
     AsyncLogFilter,
     AsyncTransactionFilter,
@@ -13,7 +13,7 @@ from web3._utils.filters import (
     LogFilter,
     TransactionFilter,
 )
-from web3.providers.eth_tester.main import (
+from faster_web3.providers.eth_tester.main import (
     AsyncEthereumTesterProvider,
 )
 

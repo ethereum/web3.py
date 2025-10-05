@@ -1,6 +1,6 @@
 import pytest
 
-from web3.datastructures import (
+from faster_web3.datastructures import (
     AttributeDict,
 )
 

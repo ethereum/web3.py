@@ -5,26 +5,26 @@ from hexbytes import (
 )
 import pytest_asyncio
 
-from web3 import (
+from faster_web3 import (
     AsyncWeb3,
     Web3,
 )
-from web3.datastructures import (
+from faster_web3.datastructures import (
     AttributeDict,
 )
-from web3.middleware import (
+from faster_web3.middleware import (
     AttributeDictMiddleware,
     LocalFilterMiddleware,
 )
-from web3.middleware.filter import (
+from faster_web3.middleware.filter import (
     async_iter_latest_block_ranges,
     block_ranges,
     iter_latest_block_ranges,
 )
-from web3.providers.async_base import (
+from faster_web3.providers.async_base import (
     AsyncBaseProvider,
 )
-from web3.providers.base import (
+from faster_web3.providers.base import (
     BaseProvider,
 )
 

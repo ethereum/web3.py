@@ -5,7 +5,7 @@ from eth_utils import (
     remove_0x_prefix,
 )
 
-from web3._utils.contract_sources.contract_data.constructor_contracts import (
+from faster_web3._utils.contract_sources.contract_data.constructor_contracts import (
     SIMPLE_CONSTRUCTOR_CONTRACT_BYTECODE,
 )
 

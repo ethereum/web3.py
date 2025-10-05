@@ -2,14 +2,14 @@ import pytest
 
 import pytest_asyncio
 
-from web3 import (
+from faster_web3 import (
     AsyncWeb3,
     WebSocketProvider,
 )
-from web3._utils.module_testing.go_ethereum_admin_module import (
+from faster_web3._utils.module_testing.go_ethereum_admin_module import (
     GoEthereumAsyncAdminModuleTest,
 )
-from web3._utils.module_testing.persistent_connection_provider import (
+from faster_web3._utils.module_testing.persistent_connection_provider import (
     PersistentConnectionProviderTest,
 )
 

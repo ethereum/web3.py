@@ -1,6 +1,6 @@
 import pytest
 
-from web3.utils.subscriptions import (
+from faster_web3.utils.subscriptions import (
     LogsSubscription,
     NewHeadsSubscription,
     PendingTxSubscription,

@@ -12,15 +12,15 @@ from eth_utils.toolz import (
     dissoc,
 )
 
-from web3._utils.events import (
+from faster_web3._utils.events import (
     get_event_data,
 )
-from web3.exceptions import (
+from faster_web3.exceptions import (
     LogTopicError,
     MismatchedABI,
     Web3AttributeError,
 )
-from web3.logs import (
+from faster_web3.logs import (
     DISCARD,
     IGNORE,
     STRICT,

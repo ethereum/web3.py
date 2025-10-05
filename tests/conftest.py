@@ -12,10 +12,10 @@ from eth_utils.toolz import (
 )
 import pytest_asyncio
 
-from web3._utils.contract_sources.contract_data.emitter_contract import (
+from faster_web3._utils.contract_sources.contract_data.emitter_contract import (
     EMITTER_CONTRACT_DATA,
 )
-from web3._utils.module_testing.utils import (
+from faster_web3._utils.module_testing.utils import (
     RequestMocker,
 )
 

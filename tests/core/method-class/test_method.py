@@ -7,20 +7,20 @@ from eth_utils.toolz import (
     compose,
 )
 
-from web3 import (
+from faster_web3 import (
     EthereumTesterProvider,
     Web3,
 )
-from web3.exceptions import (
+from faster_web3.exceptions import (
     Web3ValidationError,
     Web3ValueError,
 )
-from web3.method import (
+from faster_web3.method import (
     Method,
     _apply_request_formatters,
     default_root_munger,
 )
-from web3.module import (
+from faster_web3.module import (
     Module,
     apply_result_formatters,
 )

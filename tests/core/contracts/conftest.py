@@ -10,65 +10,65 @@ from tests.core.contracts.utils import (
 from tests.utils import (
     async_partial,
 )
-from web3._utils.abi import (
+from faster_web3._utils.abi import (
     get_abi_element_signature,
 )
-from web3._utils.contract_sources.contract_data.ambiguous_function_contract import (
+from faster_web3._utils.contract_sources.contract_data.ambiguous_function_contract import (
     AMBIGUOUS_FUNCTION_CONTRACT_DATA,
 )
-from web3._utils.contract_sources.contract_data.arrays_contract import (
+from faster_web3._utils.contract_sources.contract_data.arrays_contract import (
     ARRAYS_CONTRACT_DATA,
 )
-from web3._utils.contract_sources.contract_data.constructor_contracts import (
+from faster_web3._utils.contract_sources.contract_data.constructor_contracts import (
     CONSTRUCTOR_WITH_ADDRESS_ARGUMENT_CONTRACT_DATA,
     CONSTRUCTOR_WITH_ARGUMENTS_CONTRACT_DATA,
     SIMPLE_CONSTRUCTOR_CONTRACT_DATA,
 )
-from web3._utils.contract_sources.contract_data.contract_caller_tester import (
+from faster_web3._utils.contract_sources.contract_data.contract_caller_tester import (
     CONTRACT_CALLER_TESTER_DATA,
 )
-from web3._utils.contract_sources.contract_data.event_contracts import (
+from faster_web3._utils.contract_sources.contract_data.event_contracts import (
     AMBIGUOUS_EVENT_NAME_CONTRACT_DATA,
     EVENT_CONTRACT_DATA,
     INDEXED_EVENT_CONTRACT_DATA,
 )
-from web3._utils.contract_sources.contract_data.fallback_function_contract import (
+from faster_web3._utils.contract_sources.contract_data.fallback_function_contract import (
     FALLBACK_FUNCTION_CONTRACT_DATA,
 )
-from web3._utils.contract_sources.contract_data.function_name_tester_contract import (
+from faster_web3._utils.contract_sources.contract_data.function_name_tester_contract import (
     FUNCTION_NAME_TESTER_CONTRACT_ABI,
     FUNCTION_NAME_TESTER_CONTRACT_DATA,
 )
-from web3._utils.contract_sources.contract_data.math_contract import (
+from faster_web3._utils.contract_sources.contract_data.math_contract import (
     MATH_CONTRACT_ABI,
     MATH_CONTRACT_BYTECODE,
     MATH_CONTRACT_DATA,
     MATH_CONTRACT_RUNTIME,
 )
-from web3._utils.contract_sources.contract_data.payable_tester import (
+from faster_web3._utils.contract_sources.contract_data.payable_tester import (
     PAYABLE_TESTER_CONTRACT_DATA,
 )
-from web3._utils.contract_sources.contract_data.receive_function_contracts import (
+from faster_web3._utils.contract_sources.contract_data.receive_function_contracts import (
     NO_RECEIVE_FUNCTION_CONTRACT_DATA,
     RECEIVE_FUNCTION_CONTRACT_DATA,
 )
-from web3._utils.contract_sources.contract_data.reflector_contracts import (
+from faster_web3._utils.contract_sources.contract_data.reflector_contracts import (
     ADDRESS_REFLECTOR_CONTRACT_DATA,
 )
-from web3._utils.contract_sources.contract_data.revert_contract import (
+from faster_web3._utils.contract_sources.contract_data.revert_contract import (
     REVERT_CONTRACT_DATA,
 )
-from web3._utils.contract_sources.contract_data.string_contract import (
+from faster_web3._utils.contract_sources.contract_data.string_contract import (
     STRING_CONTRACT_DATA,
 )
-from web3._utils.contract_sources.contract_data.tuple_contracts import (
+from faster_web3._utils.contract_sources.contract_data.tuple_contracts import (
     NESTED_TUPLE_CONTRACT_DATA,
     TUPLE_CONTRACT_DATA,
 )
-from web3.exceptions import (
+from faster_web3.exceptions import (
     Web3ValueError,
 )
-from web3.utils.abi import (
+from faster_web3.utils.abi import (
     abi_to_signature,
     get_abi_element,
 )

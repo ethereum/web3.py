@@ -15,27 +15,27 @@ from websockets import (
     ConnectionClosedOK,
 )
 
-from web3 import (
+from faster_web3 import (
     AsyncWeb3,
 )
-from web3._utils.caching import (
+from faster_web3._utils.caching import (
     RequestInformation,
     generate_cache_key,
 )
-from web3._utils.module_testing.module_testing_utils import (
+from faster_web3._utils.module_testing.module_testing_utils import (
     WebSocketMessageStreamMock,
 )
-from web3.exceptions import (
+from faster_web3.exceptions import (
     TimeExhausted,
     Web3RPCError,
 )
-from web3.providers.persistent import (
+from faster_web3.providers.persistent import (
     WebSocketProvider,
 )
-from web3.types import (
+from faster_web3.types import (
     RPCEndpoint,
 )
-from web3.utils import (
+from faster_web3.utils import (
     EthSubscription,
 )
 
@@ -88,7 +88,7 @@ async def test_disconnect_cleanup():
     provider = WebSocketProvider("ws://mocked")
 
     with patch(
-        "web3.providers.persistent.websocket.connect",
+        "faster_web3.providers.persistent.websocket.connect",
         new=lambda *_1, **_2: _mocked_ws_conn(),
     ):
         await provider.connect()
@@ -120,7 +120,7 @@ async def test_async_make_request_returns_desired_response():
     provider = WebSocketProvider("ws://mocked")
 
     with patch(
-        "web3.providers.persistent.websocket.connect",
+        "faster_web3.providers.persistent.websocket.connect",
         new=lambda *_1, **_2: _mocked_ws_conn(),
     ):
         await provider.connect()
@@ -189,7 +189,7 @@ async def test_msg_listener_task_starts_on_provider_connect_and_clears_on_discon
     assert provider._message_listener_task is None
 
     with patch(
-        "web3.providers.persistent.websocket.connect",
+        "faster_web3.providers.persistent.websocket.connect",
         new=lambda *_1, **_2: _mocked_ws_conn(),
     ):
         await provider.connect()  # connect
@@ -208,7 +208,7 @@ async def test_msg_listener_task_raises_exceptions_by_default():
     _mock_ws(provider)
 
     with patch(
-        "web3.providers.persistent.websocket.connect",
+        "faster_web3.providers.persistent.websocket.connect",
         new=lambda *_1, **_2: _mocked_ws_conn(),
     ):
         await provider.connect()
@@ -232,7 +232,7 @@ async def test_msg_listener_task_silences_exceptions_and_error_logs_when_configu
     _mock_ws(provider)
 
     with patch(
-        "web3.providers.persistent.websocket.connect",
+        "faster_web3.providers.persistent.websocket.connect",
         new=lambda *_1, **_2: _mocked_ws_conn(),
     ):
         await provider.connect()
@@ -265,7 +265,7 @@ async def test_listen_event_awaits_msg_processing_when_subscription_queue_is_ful
     is full.
     """
     with patch(
-        "web3.providers.persistent.websocket.connect",
+        "faster_web3.providers.persistent.websocket.connect",
         new=lambda *_1, **_2: _mocked_ws_conn(),
     ):
         async_w3 = await AsyncWeb3(WebSocketProvider("ws://mocked"))
@@ -349,7 +349,7 @@ async def test_async_iterator_pattern_exception_handling_for_requests():
     iterations = 1
 
     with patch(
-        "web3.providers.persistent.websocket.connect",
+        "faster_web3.providers.persistent.websocket.connect",
         new=lambda *_1, **_2: WebSocketMessageStreamMock(
             raise_exception=ConnectionClosed(None, None)
         ),
@@ -374,7 +374,7 @@ async def test_async_iterator_pattern_exception_handling_for_subscriptions():
     iterations = 1
 
     with patch(
-        "web3.providers.persistent.websocket.connect",
+        "faster_web3.providers.persistent.websocket.connect",
         new=lambda *_1, **_2: WebSocketMessageStreamMock(
             raise_exception=ConnectionClosed(None, None)
         ),
@@ -399,7 +399,7 @@ async def test_async_iterator_pattern_exception_handling_for_subscriptions():
 @pytest.mark.asyncio
 async def test_connection_closed_ok_breaks_process_subscriptions_iteration():
     with patch(
-        "web3.providers.persistent.websocket.connect",
+        "faster_web3.providers.persistent.websocket.connect",
         new=lambda *_1, **_2: WebSocketMessageStreamMock(
             raise_exception=ConnectionClosedOK(None, None)
         ),
@@ -412,7 +412,7 @@ async def test_connection_closed_ok_breaks_process_subscriptions_iteration():
 @pytest.mark.asyncio
 async def test_connection_closed_ok_breaks_handle_subscriptions_iteration():
     with patch(
-        "web3.providers.persistent.websocket.connect",
+        "faster_web3.providers.persistent.websocket.connect",
         new=lambda *_1, **_2: WebSocketMessageStreamMock(
             raise_exception=ConnectionClosedOK(None, None)
         ),
@@ -428,7 +428,7 @@ async def test_connection_closed_ok_breaks_handle_subscriptions_iteration():
 @pytest.mark.asyncio
 async def test_listener_task_breaks_out_of_stream_when_cancelled():
     with patch(
-        "web3.providers.persistent.websocket.connect",
+        "faster_web3.providers.persistent.websocket.connect",
         new=lambda *_1, **_2: _mocked_ws_conn(),
     ):
         async_w3 = await AsyncWeb3(WebSocketProvider("ws://mocked"))
@@ -449,7 +449,7 @@ async def test_listener_task_breaks_out_of_stream_when_cancelled():
 @pytest.mark.asyncio
 async def test_listener_task_breaks_out_of_handle_subscriptions_when_cancelled():
     with patch(
-        "web3.providers.persistent.websocket.connect",
+        "faster_web3.providers.persistent.websocket.connect",
         new=lambda *_1, **_2: _mocked_ws_conn(),
     ):
         async_w3 = await AsyncWeb3(WebSocketProvider("ws://mocked"))
@@ -470,7 +470,7 @@ async def test_listener_task_breaks_out_of_handle_subscriptions_when_cancelled()
 @pytest.mark.asyncio
 async def test_persistent_connection_provider_empty_batch_response():
     with patch(
-        "web3.providers.persistent.websocket.connect",
+        "faster_web3.providers.persistent.websocket.connect",
         new=lambda *_1, **_2: _mocked_ws_conn(),
     ):
         with pytest.raises(Web3RPCError, match="empty batch"):
@@ -515,7 +515,7 @@ async def test_websocket_provider_use_text_frames(use_text_frames, expected_send
 @pytest.mark.asyncio
 async def test_websocket_provider_raises_errors_from_cache_not_tied_to_a_request():
     with patch(
-        "web3.providers.persistent.websocket.connect",
+        "faster_web3.providers.persistent.websocket.connect",
         new=lambda *_1, **_2: WebSocketMessageStreamMock(
             messages=[
                 b'{"id": 0, "jsonrpc": "2.0", "result": "0x0"}\n',
@@ -532,7 +532,7 @@ async def test_websocket_provider_raises_errors_from_cache_not_tied_to_a_request
 @pytest.mark.asyncio
 async def test_req_info_cache_size_can_be_set_and_warns_when_full(caplog):
     with patch(
-        "web3.providers.persistent.websocket.connect",
+        "faster_web3.providers.persistent.websocket.connect",
         new=lambda *_1, **_2: _mocked_ws_conn(),
     ):
         async_w3 = await AsyncWeb3(

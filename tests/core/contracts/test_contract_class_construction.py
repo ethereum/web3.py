@@ -9,13 +9,13 @@ from eth_utils import (
     get_abi_input_types,
 )
 
-from web3._utils.abi import (
+from faster_web3._utils.abi import (
     get_name_from_abi_element_identifier,
 )
-from web3.contract import (
+from faster_web3.contract import (
     Contract,
 )
-from web3.exceptions import (
+from faster_web3.exceptions import (
     ABIEventNotFound,
     ABIFallbackNotFound,
     ABIFunctionNotFound,

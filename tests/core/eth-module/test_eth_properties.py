@@ -1,9 +1,9 @@
 import pytest
 
-from web3 import (
+from faster_web3 import (
     AsyncWeb3,
 )
-from web3.providers.eth_tester.main import (
+from faster_web3.providers.eth_tester.main import (
     AsyncEthereumTesterProvider,
 )
 

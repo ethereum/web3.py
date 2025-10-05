@@ -31,30 +31,30 @@ from ens.contract_data import (
 from ens.exceptions import (
     ENSTypeError,
 )
-from web3 import (
+from faster_web3 import (
     AsyncWeb3,
     Web3,
 )
-from web3._utils.contract_sources.contract_data.extended_resolver import (
+from faster_web3._utils.contract_sources.contract_data.extended_resolver import (
     EXTENDED_RESOLVER_ABI,
     EXTENDED_RESOLVER_BYTECODE,
     EXTENDED_RESOLVER_RUNTIME,
 )
-from web3._utils.contract_sources.contract_data.offchain_resolver import (
+from faster_web3._utils.contract_sources.contract_data.offchain_resolver import (
     OFFCHAIN_RESOLVER_ABI,
     OFFCHAIN_RESOLVER_BYTECODE,
     OFFCHAIN_RESOLVER_RUNTIME,
 )
-from web3._utils.contract_sources.contract_data.simple_resolver import (
+from faster_web3._utils.contract_sources.contract_data.simple_resolver import (
     SIMPLE_RESOLVER_ABI,
     SIMPLE_RESOLVER_BYTECODE,
     SIMPLE_RESOLVER_RUNTIME,
 )
-from web3.contract import (
+from faster_web3.contract import (
     AsyncContract,
     Contract,
 )
-from web3.providers.eth_tester import (
+from faster_web3.providers.eth_tester import (
     AsyncEthereumTesterProvider,
     EthereumTesterProvider,
 )
@@ -156,7 +156,7 @@ def ENSRegistryFactory(w3):
 
 @pytest.fixture
 def ens(ens_setup, mocker):
-    mocker.patch("web3.middleware.stalecheck._is_fresh", return_value=True)
+    mocker.patch("faster_web3.middleware.stalecheck._is_fresh", return_value=True)
     ens_setup.w3.eth.default_account = ens_setup.w3.eth.accounts[0]
     return ens_setup
 
@@ -657,7 +657,7 @@ async def async_ens_setup(async_w3):
 
 @pytest_asyncio.fixture
 async def async_ens(async_ens_setup, mocker):
-    mocker.patch("web3.middleware.stalecheck._is_fresh", return_value=True)
+    mocker.patch("faster_web3.middleware.stalecheck._is_fresh", return_value=True)
     accounts = await async_ens_setup.w3.eth.accounts
     async_ens_setup.w3.eth.default_account = accounts[0]
     return async_ens_setup

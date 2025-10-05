@@ -17,7 +17,7 @@ from ens import (
 from ens.constants import (
     EMPTY_ADDR_HEX,
 )
-from web3 import (
+from faster_web3 import (
     Web3,
 )
 

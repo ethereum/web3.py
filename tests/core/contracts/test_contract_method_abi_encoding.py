@@ -1,10 +1,10 @@
 import pytest
 import json
 
-from web3 import (
+from faster_web3 import (
     constants,
 )
-from web3.exceptions import (
+from faster_web3.exceptions import (
     MismatchedABI,
 )
 

@@ -18,19 +18,19 @@ from tests.core.contracts.utils import (
     async_deploy,
     deploy,
 )
-from web3._utils.contract_sources.contract_data.math_contract import (
+from faster_web3._utils.contract_sources.contract_data.math_contract import (
     MATH_CONTRACT_DATA,
 )
-from web3._utils.ens import (
+from faster_web3._utils.ens import (
     ens_addresses,
 )
-from web3._utils.rpc_abi import (
+from faster_web3._utils.rpc_abi import (
     RPC,
 )
-from web3.datastructures import (
+from faster_web3.datastructures import (
     AttributeDict,
 )
-from web3.exceptions import (
+from faster_web3.exceptions import (
     NameNotFound,
     TimeExhausted,
     TransactionNotFound,

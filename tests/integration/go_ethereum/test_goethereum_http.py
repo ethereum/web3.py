@@ -5,15 +5,15 @@ from aiohttp import (
 )
 import pytest_asyncio
 
-from web3 import (
+from faster_web3 import (
     AsyncWeb3,
     AutoProvider,
     Web3,
 )
-from web3._utils.module_testing.go_ethereum_admin_module import (
+from faster_web3._utils.module_testing.go_ethereum_admin_module import (
     GoEthereumAsyncAdminModuleTest,
 )
-from web3.providers.rpc import (
+from faster_web3.providers.rpc import (
     AsyncHTTPProvider,
 )
 
@@ -63,7 +63,7 @@ def w3(start_geth_process_and_yield_port):
 
 @pytest.fixture
 def auto_w3(start_geth_process_and_yield_port, monkeypatch):
-    from web3.auto import (
+    from faster_web3.auto import (
         w3,
     )
 

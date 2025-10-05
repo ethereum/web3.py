@@ -6,12 +6,12 @@ from eth_utils.toolz import (
     merge,
 )
 
-from web3._utils.method_formatters import (
+from faster_web3._utils.method_formatters import (
     raise_block_not_found,
     raise_block_not_found_for_uncle_at_index,
     raise_transaction_not_found,
 )
-from web3.exceptions import (
+from faster_web3.exceptions import (
     BadResponseFormat,
     BlockNotFound,
     ContractLogicError,

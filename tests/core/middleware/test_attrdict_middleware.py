@@ -1,17 +1,17 @@
 import pytest
 
-from web3 import (
+from faster_web3 import (
     AsyncWeb3,
     EthereumTesterProvider,
     Web3,
 )
-from web3.datastructures import (
+from faster_web3.datastructures import (
     AttributeDict,
 )
-from web3.middleware import (
+from faster_web3.middleware import (
     AttributeDictMiddleware,
 )
-from web3.providers.eth_tester import (
+from faster_web3.providers.eth_tester import (
     AsyncEthereumTesterProvider,
 )
 

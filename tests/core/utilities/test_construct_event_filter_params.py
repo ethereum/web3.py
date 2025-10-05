@@ -1,9 +1,9 @@
 import pytest
 
-from web3._utils.filters import (
+from faster_web3._utils.filters import (
     construct_event_filter_params,
 )
-from web3.exceptions import (
+from faster_web3.exceptions import (
     InvalidAddress,
     Web3ValueError,
 )

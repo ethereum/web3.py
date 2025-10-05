@@ -1,10 +1,10 @@
 import pytest
 
-from web3.exceptions import (
+from faster_web3.exceptions import (
     BlockNotFound,
     ExtraDataLengthError,
 )
-from web3.middleware import (
+from faster_web3.middleware import (
     ExtraDataToPOAMiddleware,
 )
 

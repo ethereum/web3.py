@@ -53,7 +53,7 @@ with open("./README.md") as readme:
 
 
 setup(
-    name="web3",
+    name="faster_web3",
     # *IMPORTANT*: Don't manually change the version here. See Contributing docs for the release process.
     version="7.13.0",
     description="""web3: A Python library for interacting with Ethereum""",
@@ -83,12 +83,12 @@ setup(
     ],
     python_requires=">=3.8, <4",
     extras_require=extras_require,
-    py_modules=["web3", "ens"],
+    py_modules=["faster_web3", "ens"],
     license="MIT",
     zip_safe=False,
     keywords="ethereum",
     packages=find_packages(exclude=["scripts", "scripts.*", "tests", "tests.*"]),
-    package_data={"web3": ["py.typed"]},
+    package_data={"faster_web3": ["py.typed"]},
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",

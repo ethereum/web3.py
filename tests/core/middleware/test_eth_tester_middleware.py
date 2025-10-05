@@ -3,10 +3,10 @@ from unittest.mock import (
     Mock,
 )
 
-from web3.providers.eth_tester.middleware import (
+from faster_web3.providers.eth_tester.middleware import (
     default_transaction_fields_middleware,
 )
-from web3.types import (
+from faster_web3.types import (
     BlockData,
 )
 

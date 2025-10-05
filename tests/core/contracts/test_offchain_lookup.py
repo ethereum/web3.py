@@ -4,16 +4,16 @@ from eth_abi import (
     abi,
 )
 
-from web3._utils.contract_sources.contract_data.offchain_lookup import (
+from faster_web3._utils.contract_sources.contract_data.offchain_lookup import (
     OFFCHAIN_LOOKUP_DATA,
 )
-from web3._utils.module_testing.module_testing_utils import (
+from faster_web3._utils.module_testing.module_testing_utils import (
     mock_offchain_lookup_request_response,
 )
-from web3._utils.type_conversion import (
+from faster_web3._utils.type_conversion import (
     to_hex_if_bytes,
 )
-from web3.exceptions import (
+from faster_web3.exceptions import (
     OffchainLookup,
     TooManyRequests,
     Web3ValidationError,

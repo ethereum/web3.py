@@ -2,13 +2,13 @@ import pytest
 
 import pytest_asyncio
 
-from web3 import (
+from faster_web3 import (
     AsyncWeb3,
 )
-from web3.module import (
+from faster_web3.module import (
     Module,
 )
-from web3.providers.eth_tester.main import (
+from faster_web3.providers.eth_tester.main import (
     AsyncEthereumTesterProvider,
 )
 

@@ -8,33 +8,33 @@ from aiohttp import (
     ClientSession,
 )
 
-from web3 import (
+from faster_web3 import (
     AsyncWeb3,
     __version__ as web3py_version,
 )
-from web3.eth import (
+from faster_web3.eth import (
     AsyncEth,
 )
-from web3.exceptions import (
+from faster_web3.exceptions import (
     ProviderConnectionError,
     Web3RPCError,
 )
-from web3.geth import (
+from faster_web3.geth import (
     AsyncGeth,
     AsyncGethAdmin,
     AsyncGethTxPool,
 )
-from web3.middleware import (
+from faster_web3.middleware import (
     AttributeDictMiddleware,
     BufferedGasEstimateMiddleware,
     ENSNameToAddressMiddleware,
     GasPriceStrategyMiddleware,
     ValidationMiddleware,
 )
-from web3.net import (
+from faster_web3.net import (
     AsyncNet,
 )
-from web3.providers.rpc import (
+from faster_web3.providers.rpc import (
     AsyncHTTPProvider,
 )
 
@@ -109,13 +109,13 @@ def test_get_request_headers(provider):
     assert len(headers) == 2
     assert headers["Content-Type"] == "application/json"
     assert (
-        headers["User-Agent"] == f"web3.py/{web3py_version}/"
+        headers["User-Agent"] == f"faster_web3.py/{web3py_version}/"
         f"{AsyncHTTPProvider.__module__}.{AsyncHTTPProvider.__qualname__}"
     )
 
 
 @patch(
-    "web3._utils.http_session_manager.HTTPSessionManager.async_make_post_request",
+    "faster_web3._utils.http_session_manager.HTTPSessionManager.async_make_post_request",
     new_callable=AsyncMock,
 )
 @pytest.mark.asyncio

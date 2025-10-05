@@ -348,8 +348,8 @@ can be found in the `websockets connection`_ docs.
         >>> LOG = True  # toggle debug logging
         >>> if LOG:
         ...     import logging
-        ...     # logger = logging.getLogger("web3.providers.AsyncIPCProvider")  # for the AsyncIPCProvider
-        ...     logger = logging.getLogger("web3.providers.WebSocketProvider")  # for the WebSocketProvider
+        ...     # logger = logging.getLogger("faster_web3.providers.AsyncIPCProvider")  # for the AsyncIPCProvider
+        ...     logger = logging.getLogger("faster_web3.providers.WebSocketProvider")  # for the WebSocketProvider
         ...     logger.setLevel(logging.DEBUG)
         ...     logger.addHandler(logging.StreamHandler())
 

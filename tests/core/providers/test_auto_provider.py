@@ -2,15 +2,15 @@ import pytest
 import os
 import tempfile
 
-from web3.providers import (
+from faster_web3.providers import (
     HTTPProvider,
     IPCProvider,
     LegacyWebSocketProvider,
 )
-from web3.providers.auto import (
+from faster_web3.providers.auto import (
     load_provider_from_environment,
 )
-from web3.providers.ipc import (
+from faster_web3.providers.ipc import (
     get_dev_ipc_path,
 )
 

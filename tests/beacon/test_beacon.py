@@ -10,7 +10,7 @@ from requests.exceptions import (
     InvalidURL,
 )
 
-from web3.beacon import (
+from faster_web3.beacon import (
     Beacon,
 )
 

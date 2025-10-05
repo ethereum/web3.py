@@ -53,21 +53,21 @@ default = object()
 
 
 if TYPE_CHECKING:
-    from web3 import (  # noqa: F401
+    from faster_web3 import (  # noqa: F401
         AsyncWeb3,
         Web3 as _Web3,
     )
-    from web3.middleware.base import (
+    from faster_web3.middleware.base import (
         Middleware,
     )
-    from web3.providers import (  # noqa: F401
+    from faster_web3.providers import (  # noqa: F401
         AsyncBaseProvider,
         BaseProvider,
     )
 
 
 def Web3() -> Type["_Web3"]:
-    from web3 import (
+    from faster_web3 import (
         Web3 as Web3Main,
     )
 
@@ -78,10 +78,10 @@ def init_web3(
     provider: "BaseProvider" = None,
     middleware: Optional[Sequence[Tuple["Middleware", str]]] = None,
 ) -> "_Web3":
-    from web3 import (
+    from faster_web3 import (
         Web3 as Web3Main,
     )
-    from web3.eth import (
+    from faster_web3.eth import (
         Eth as EthMain,
     )
 
@@ -95,7 +95,7 @@ def init_web3(
 
 
 def customize_web3(w3: "_Web3") -> "_Web3":
-    from web3.middleware import (
+    from faster_web3.middleware import (
         StalecheckMiddlewareBuilder,
     )
 
@@ -303,13 +303,13 @@ def init_async_web3(
     provider: "AsyncBaseProvider" = None,
     middleware: Optional[Sequence[Tuple["Middleware", str]]] = (),
 ) -> "AsyncWeb3":
-    from web3 import (
+    from faster_web3 import (
         AsyncWeb3 as AsyncWeb3Main,
     )
-    from web3.eth import (
+    from faster_web3.eth import (
         AsyncEth as AsyncEthMain,
     )
-    from web3.middleware import (
+    from faster_web3.middleware import (
         StalecheckMiddlewareBuilder,
     )
 

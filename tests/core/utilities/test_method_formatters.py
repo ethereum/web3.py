@@ -4,19 +4,19 @@ from eth_typing import (
     HexStr,
 )
 
-from web3._utils.method_formatters import (
+from faster_web3._utils.method_formatters import (
     get_error_formatters,
     raise_contract_logic_error_on_revert,
     storage_key_to_hexstr,
 )
-from web3._utils.rpc_abi import (
+from faster_web3._utils.rpc_abi import (
     RPC,
 )
-from web3.exceptions import (
+from faster_web3.exceptions import (
     ContractLogicError,
     Web3ValueError,
 )
-from web3.types import (
+from faster_web3.types import (
     RPCResponse,
 )
 

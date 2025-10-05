@@ -10,7 +10,7 @@ from hypothesis import (
     strategies as st,
 )
 
-from web3._utils.caching import (
+from faster_web3._utils.caching import (
     generate_cache_key,
 )
 

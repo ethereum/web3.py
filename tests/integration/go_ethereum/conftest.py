@@ -14,19 +14,19 @@ from eth_utils import (
 )
 import pytest_asyncio
 
-from web3._utils.contract_sources.contract_data.emitter_contract import (
+from faster_web3._utils.contract_sources.contract_data.emitter_contract import (
     EMITTER_CONTRACT_DATA,
 )
-from web3._utils.contract_sources.contract_data.math_contract import (
+from faster_web3._utils.contract_sources.contract_data.math_contract import (
     MATH_CONTRACT_DATA,
 )
-from web3._utils.contract_sources.contract_data.panic_errors_contract import (
+from faster_web3._utils.contract_sources.contract_data.panic_errors_contract import (
     PANIC_ERRORS_CONTRACT_DATA,
 )
-from web3._utils.contract_sources.contract_data.revert_contract import (
+from faster_web3._utils.contract_sources.contract_data.revert_contract import (
     REVERT_CONTRACT_DATA,
 )
-from web3._utils.contract_sources.contract_data.storage_contract import (
+from faster_web3._utils.contract_sources.contract_data.storage_contract import (
     STORAGE_CONTRACT_DATA,
 )
 

@@ -17,17 +17,17 @@ from websockets import (
     ConnectionClosed,
 )
 
-from web3 import (
+from faster_web3 import (
     AsyncWeb3,
 )
-from web3.datastructures import (
+from faster_web3.datastructures import (
     AttributeDict,
 )
-from web3.exceptions import (
+from faster_web3.exceptions import (
     ReadBufferLimitReached,
     Web3RPCError,
 )
-from web3.providers import (
+from faster_web3.providers import (
     AsyncIPCProvider,
 )
 

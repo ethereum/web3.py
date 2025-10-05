@@ -7,7 +7,7 @@ from hexbytes import (
     HexBytes,
 )
 
-from web3.exceptions import (
+from faster_web3.exceptions import (
     Web3ValueError,
 )
 

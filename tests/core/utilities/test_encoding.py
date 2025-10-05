@@ -20,24 +20,24 @@ from hypothesis import (
     strategies as st,
 )
 
-from web3._utils.encoding import (
+from faster_web3._utils.encoding import (
     FriendlyJsonSerde as FriendlyJson,
     Web3JsonEncoder,
     hex_encode_abi_type,
     hexstr_if_str,
     text_if_str,
 )
-from web3._utils.hypothesis import (
+from faster_web3._utils.hypothesis import (
     hexstr_strategy,
 )
-from web3.datastructures import (
+from faster_web3.datastructures import (
     AttributeDict,
 )
-from web3.exceptions import (
+from faster_web3.exceptions import (
     Web3TypeError,
     Web3ValueError,
 )
-from web3.providers import (
+from faster_web3.providers import (
     JSONBaseProvider,
 )
 

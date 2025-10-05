@@ -5,7 +5,7 @@ from concurrent.futures import (
 )
 import threading
 
-from web3._utils.async_caching import (
+from faster_web3._utils.async_caching import (
     async_lock,
 )
 

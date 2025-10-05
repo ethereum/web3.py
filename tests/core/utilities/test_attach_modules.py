@@ -7,20 +7,20 @@ from eth_utils import (
     is_integer,
 )
 
-from web3 import (
+from faster_web3 import (
     Web3,
 )
-from web3._utils.module import (
+from faster_web3._utils.module import (
     attach_modules,
 )
-from web3.exceptions import (
+from faster_web3.exceptions import (
     Web3AttributeError,
     Web3ValidationError,
 )
-from web3.module import (
+from faster_web3.module import (
     Module,
 )
-from web3.providers.eth_tester import (
+from faster_web3.providers.eth_tester import (
     EthereumTesterProvider,
 )
 

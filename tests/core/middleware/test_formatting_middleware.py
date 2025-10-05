@@ -5,22 +5,22 @@ from unittest.mock import (
 
 import pytest_asyncio
 
-from web3 import (
+from faster_web3 import (
     AsyncBaseProvider,
     AsyncWeb3,
     Web3,
 )
-from web3.exceptions import (
+from faster_web3.exceptions import (
     BadResponseFormat,
     Web3RPCError,
 )
-from web3.middleware import (
+from faster_web3.middleware import (
     FormattingMiddlewareBuilder,
 )
-from web3.providers.base import (
+from faster_web3.providers.base import (
     BaseProvider,
 )
-from web3.types import (
+from faster_web3.types import (
     RPCEndpoint,
 )
 

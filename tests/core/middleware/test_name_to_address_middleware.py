@@ -2,18 +2,18 @@ import pytest
 
 import pytest_asyncio
 
-from web3 import (
+from faster_web3 import (
     AsyncWeb3,
     Web3,
 )
-from web3.exceptions import (
+from faster_web3.exceptions import (
     InvalidAddress,
     NameNotFound,
 )
-from web3.middleware import (
+from faster_web3.middleware import (
     ENSNameToAddressMiddleware,
 )
-from web3.providers.eth_tester import (
+from faster_web3.providers.eth_tester import (
     AsyncEthereumTesterProvider,
     EthereumTesterProvider,
 )

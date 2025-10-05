@@ -466,9 +466,9 @@ If you want to run your application logging in debug mode, below is an example o
         coloredlogs.install(level=log_level, fmt=fmt, logger=logger)
 
         # Disable logging of JSON-RPC requests and replies
-        logging.getLogger("web3.RequestManager").setLevel(logging.WARNING)
-        logging.getLogger("web3.providers.HTTPProvider").setLevel(logging.WARNING)
-        # logging.getLogger("web3.RequestManager").propagate = False
+        logging.getLogger("faster_web3.RequestManager").setLevel(logging.WARNING)
+        logging.getLogger("faster_web3.providers.HTTPProvider").setLevel(logging.WARNING)
+        # logging.getLogger("faster_web3.RequestManager").propagate = False
 
         # Disable all internal debug logging of requests and urllib3
         # E.g. HTTP traffic

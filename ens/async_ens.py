@@ -68,19 +68,19 @@ from ens.utils import (
 )
 
 if TYPE_CHECKING:
-    from web3.contract.async_contract import (  # noqa: F401
+    from faster_web3.contract.async_contract import (  # noqa: F401
         AsyncContract,
         AsyncContractFunction,
     )
-    from web3.main import AsyncWeb3  # noqa: F401
-    from web3.middleware.base import (  # noqa: F401
+    from faster_web3.main import AsyncWeb3  # noqa: F401
+    from faster_web3.middleware.base import (  # noqa: F401
         Middleware,
     )
-    from web3.providers import (  # noqa: F401
+    from faster_web3.providers import (  # noqa: F401
         AsyncBaseProvider,
         BaseProvider,
     )
-    from web3.types import (  # noqa: F401
+    from faster_web3.types import (  # noqa: F401
         TxParams,
     )
 

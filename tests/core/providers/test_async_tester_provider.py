@@ -4,10 +4,10 @@ from eth_tester.exceptions import (
     TransactionFailed,
 )
 
-from web3.providers.eth_tester.main import (
+from faster_web3.providers.eth_tester.main import (
     AsyncEthereumTesterProvider,
 )
-from web3.types import (
+from faster_web3.types import (
     RPCEndpoint,
 )
 

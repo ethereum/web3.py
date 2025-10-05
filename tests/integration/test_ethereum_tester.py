@@ -19,34 +19,34 @@ from eth_utils import (
     is_integer,
 )
 
-from web3 import (
+from faster_web3 import (
     Web3,
 )
-from web3._utils.contract_sources.contract_data._custom_contract_data import (
+from faster_web3._utils.contract_sources.contract_data._custom_contract_data import (
     EMITTER_ENUM,
 )
-from web3._utils.contract_sources.contract_data.panic_errors_contract import (
+from faster_web3._utils.contract_sources.contract_data.panic_errors_contract import (
     PANIC_ERRORS_CONTRACT_DATA,
 )
-from web3._utils.contract_sources.contract_data.storage_contract import (
+from faster_web3._utils.contract_sources.contract_data.storage_contract import (
     STORAGE_CONTRACT_DATA,
 )
-from web3._utils.module_testing import (
+from faster_web3._utils.module_testing import (
     EthModuleTest,
     NetModuleTest,
     Web3ModuleTest,
 )
-from web3._utils.module_testing.eth_module import (
+from faster_web3._utils.module_testing.eth_module import (
     UNKNOWN_ADDRESS,
 )
-from web3.exceptions import (
+from faster_web3.exceptions import (
     MethodUnavailable,
     Web3TypeError,
 )
-from web3.providers.eth_tester import (
+from faster_web3.providers.eth_tester import (
     EthereumTesterProvider,
 )
-from web3.types import (  # noqa: F401
+from faster_web3.types import (  # noqa: F401
     BlockData,
 )
 

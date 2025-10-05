@@ -1,6 +1,6 @@
 import pytest
 
-from web3 import (
+from faster_web3 import (
     AsyncBaseProvider,
     AsyncEthereumTesterProvider,
     AsyncHTTPProvider,
@@ -14,7 +14,7 @@ from web3 import (
     Web3,
     WebSocketProvider,
 )
-from web3.exceptions import (
+from faster_web3.exceptions import (
     Web3ValidationError,
 )
 

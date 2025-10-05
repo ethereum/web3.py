@@ -4,16 +4,16 @@ from eth_utils.toolz import (
     compose,
 )
 
-from web3 import (
+from faster_web3 import (
     Web3,
 )
-from web3.method import (
+from faster_web3.method import (
     Method,
 )
-from web3.module import (
+from faster_web3.module import (
     Module,
 )
-from web3.providers import (
+from faster_web3.providers import (
     BaseProvider,
 )
 

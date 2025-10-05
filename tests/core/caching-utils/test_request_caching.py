@@ -10,7 +10,7 @@ import uuid
 
 import pytest_asyncio
 
-from web3 import (
+from faster_web3 import (
     AsyncHTTPProvider,
     AsyncIPCProvider,
     AsyncWeb3,
@@ -21,11 +21,11 @@ from web3 import (
     Web3,
     WebSocketProvider,
 )
-from web3._utils.caching import (
+from faster_web3._utils.caching import (
     CACHEABLE_REQUESTS,
     generate_cache_key,
 )
-from web3._utils.caching.caching_utils import (
+from faster_web3._utils.caching.caching_utils import (
     ASYNC_INTERNAL_VALIDATION_MAP,
     BLOCK_IN_RESULT,
     BLOCKHASH_IN_PARAMS,
@@ -34,13 +34,13 @@ from web3._utils.caching.caching_utils import (
     DEFAULT_VALIDATION_THRESHOLD,
     INTERNAL_VALIDATION_MAP,
 )
-from web3.exceptions import (
+from faster_web3.exceptions import (
     Web3RPCError,
 )
-from web3.types import (
+from faster_web3.types import (
     RPCEndpoint,
 )
-from web3.utils import (
+from faster_web3.utils import (
     RequestCacheValidationThreshold,
     SimpleCache,
 )

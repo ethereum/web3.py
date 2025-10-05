@@ -4,11 +4,11 @@ from eth_utils.curried import (
     apply_formatters_to_dict,
 )
 
-from web3._utils.formatters import (
+from faster_web3._utils.formatters import (
     map_collection,
     recursive_map,
 )
-from web3.exceptions import (
+from faster_web3.exceptions import (
     Web3ValueError,
 )
 

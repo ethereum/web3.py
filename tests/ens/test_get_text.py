@@ -8,7 +8,7 @@ from ens.exceptions import (
     ResolverNotFound,
     UnsupportedFunction,
 )
-from web3 import (
+from faster_web3 import (
     Web3,
 )
 

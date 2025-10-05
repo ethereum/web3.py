@@ -4,13 +4,13 @@ import tempfile
 
 import pytest_asyncio
 
-from web3 import (
+from faster_web3 import (
     AsyncIPCProvider,
     AsyncWeb3,
     AutoProvider,
     Web3,
 )
-from web3._utils.module_testing.persistent_connection_provider import (
+from faster_web3._utils.module_testing.persistent_connection_provider import (
     PersistentConnectionProviderTest,
 )
 
@@ -56,7 +56,7 @@ def geth_ipc_path(datadir):
 
 @pytest.fixture
 def auto_w3(start_geth_process_and_yield_port, geth_ipc_path, monkeypatch):
-    from web3.auto import (
+    from faster_web3.auto import (
         w3,
     )
 

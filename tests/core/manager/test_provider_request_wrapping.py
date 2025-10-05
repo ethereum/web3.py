@@ -1,7 +1,7 @@
-from web3.manager import (
+from faster_web3.manager import (
     RequestManager,
 )
-from web3.providers import (
+from faster_web3.providers import (
     BaseProvider,
 )
 

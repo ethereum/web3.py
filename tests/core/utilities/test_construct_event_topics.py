@@ -5,7 +5,7 @@ from eth_abi.exceptions import (
     ValueOutOfBounds,
 )
 
-from web3._utils.events import (
+from faster_web3._utils.events import (
     construct_event_topic_set,
 )
 

@@ -9,13 +9,13 @@ from tests.utils import (
     _async_wait_for_block_fixture_logic,
     _async_wait_for_transaction_fixture_logic,
 )
-from web3._utils.threads import (
+from faster_web3._utils.threads import (
     Timeout,
 )
-from web3.main import (
+from faster_web3.main import (
     Web3,
 )
-from web3.providers.eth_tester import (
+from faster_web3.providers.eth_tester import (
     AsyncEthereumTesterProvider,
     EthereumTesterProvider,
 )

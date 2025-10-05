@@ -5,10 +5,10 @@ from hypothesis import (
     strategies as st,
 )
 
-from web3._utils.math import (
+from faster_web3._utils.math import (
     percentile,
 )
-from web3.exceptions import (
+from faster_web3.exceptions import (
     InsufficientData,
     Web3ValueError,
 )

@@ -33,10 +33,10 @@ from ens.utils import (
     normalize_name,
     raw_name_to_hash,
 )
-from web3.eth import (
+from faster_web3.eth import (
     AsyncEth,
 )
-from web3.providers.eth_tester import (
+from faster_web3.providers.eth_tester import (
     AsyncEthereumTesterProvider,
 )
 

@@ -36,31 +36,31 @@ from hexbytes import (
     HexBytes,
 )
 
-from web3._utils.abi import (
+from faster_web3._utils.abi import (
     ExactLengthBytesEncoder,
     abi_data_tree,
     get_tuple_type_str_parts,
     map_abi_data,
     recursive_dict_to_namedtuple,
 )
-from web3._utils.abi_element_identifiers import (
+from faster_web3._utils.abi_element_identifiers import (
     FallbackFn,
     ReceiveFn,
 )
-from web3._utils.normalizers import (
+from faster_web3._utils.normalizers import (
     BASE_RETURN_NORMALIZERS,
     abi_string_to_text,
     addresses_checksummed,
 )
-from web3.exceptions import (
+from faster_web3.exceptions import (
     MismatchedABI,
     Web3ValidationError,
     Web3ValueError,
 )
-from web3.types import (
+from faster_web3.types import (
     ABIElementIdentifier,
 )
-from web3.utils.abi import (
+from faster_web3.utils.abi import (
     get_abi_element,
     get_abi_element_info,
     get_event_abi,

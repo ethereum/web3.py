@@ -4,7 +4,7 @@ from eth_utils import (
     is_same_address,
 )
 
-from web3._utils.events import (
+from faster_web3._utils.events import (
     get_event_data,
 )
 

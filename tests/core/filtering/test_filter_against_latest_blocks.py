@@ -1,6 +1,6 @@
 import pytest
 
-from web3._utils.threads import (
+from faster_web3._utils.threads import (
     Timeout,
 )
 

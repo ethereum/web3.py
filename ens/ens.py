@@ -67,18 +67,18 @@ from .utils import (
 )
 
 if TYPE_CHECKING:
-    from web3 import Web3  # noqa: F401
-    from web3.contract.contract import (  # noqa: F401
+    from faster_web3 import Web3  # noqa: F401
+    from faster_web3.contract.contract import (  # noqa: F401
         Contract,
         ContractFunction,
     )
-    from web3.middleware.base import (  # noqa: F401
+    from faster_web3.middleware.base import (  # noqa: F401
         Middleware,
     )
-    from web3.providers import (  # noqa: F401
+    from faster_web3.providers import (  # noqa: F401
         BaseProvider,
     )
-    from web3.types import (  # noqa: F401
+    from faster_web3.types import (  # noqa: F401
         TxParams,
     )
 

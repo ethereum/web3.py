@@ -4,10 +4,10 @@ from eth_utils.toolz import (
     partial,
 )
 
-from web3._utils.blocks import (
+from faster_web3._utils.blocks import (
     select_method_for_block_identifier,
 )
-from web3.exceptions import (
+from faster_web3.exceptions import (
     Web3ValueError,
 )
 

@@ -1,9 +1,9 @@
 import pytest
 
-from web3._utils.datatypes import (
+from faster_web3._utils.datatypes import (
     PropertyCheckingFactory,
 )
-from web3.exceptions import (
+from faster_web3.exceptions import (
     Web3AttributeError,
 )
 

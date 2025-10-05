@@ -1,6 +1,6 @@
 import pytest
 
-from web3._utils.abi import (
+from faster_web3._utils.abi import (
     is_address_type,
     is_array_type,
     is_bool_type,

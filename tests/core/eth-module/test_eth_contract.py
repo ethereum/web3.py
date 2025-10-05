@@ -7,7 +7,7 @@ from eth_utils import (
     to_bytes,
 )
 
-from web3.exceptions import (
+from faster_web3.exceptions import (
     InvalidAddress,
 )
 

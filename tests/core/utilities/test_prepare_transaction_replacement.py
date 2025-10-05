@@ -1,9 +1,9 @@
 import pytest
 
-from web3._utils.transactions import (
+from faster_web3._utils.transactions import (
     prepare_replacement_transaction,
 )
-from web3.exceptions import (
+from faster_web3.exceptions import (
     Web3ValueError,
 )
 

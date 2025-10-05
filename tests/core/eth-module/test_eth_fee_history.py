@@ -14,7 +14,7 @@ from unittest.mock import (
         ((1, "latest", [50]), (1, "latest", [50])),
     ),
 )
-@patch("web3.eth.Eth._fee_history", new=MagicMock())
+@patch("faster_web3.eth.Eth._fee_history", new=MagicMock())
 def test_eth_fee_history_reward_percentiles_default_is_empty_list(
     w3, fee_history_args, expected
 ) -> None:

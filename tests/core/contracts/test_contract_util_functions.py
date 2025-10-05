@@ -1,13 +1,13 @@
 import pytest
 
-from web3._utils.contracts import (
+from faster_web3._utils.contracts import (
     async_parse_block_identifier,
     async_parse_block_identifier_int,
     parse_block_identifier,
     parse_block_identifier_int,
     validate_payable,
 )
-from web3.exceptions import (
+from faster_web3.exceptions import (
     BlockNumberOutOfRange,
 )
 

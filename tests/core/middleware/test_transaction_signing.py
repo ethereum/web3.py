@@ -32,25 +32,25 @@ from hexbytes import (
 import pytest_asyncio
 import rlp
 
-from web3 import (
+from faster_web3 import (
     AsyncWeb3,
     Web3,
 )
-from web3.exceptions import (
+from faster_web3.exceptions import (
     InvalidAddress,
 )
-from web3.middleware import (
+from faster_web3.middleware import (
     BufferedGasEstimateMiddleware,
     SignAndSendRawMiddlewareBuilder,
 )
-from web3.middleware.signing import (
+from faster_web3.middleware.signing import (
     gen_normalized_accounts,
 )
-from web3.providers import (
+from faster_web3.providers import (
     AsyncBaseProvider,
     BaseProvider,
 )
-from web3.providers.eth_tester import (
+from faster_web3.providers.eth_tester import (
     AsyncEthereumTesterProvider,
     EthereumTesterProvider,
 )

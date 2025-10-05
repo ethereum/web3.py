@@ -6,13 +6,13 @@ from unittest.mock import (
 
 import pytest_asyncio
 
-from web3.datastructures import (
+from faster_web3.datastructures import (
     AttributeDict,
 )
-from web3.middleware import (
+from faster_web3.middleware import (
     StalecheckMiddlewareBuilder,
 )
-from web3.middleware.stalecheck import (
+from faster_web3.middleware.stalecheck import (
     StaleBlockchain,
     _is_fresh,
 )
@@ -64,7 +64,7 @@ def test_is_fresh(now):
 
 
 def test_stalecheck_pass(request_middleware):
-    with patch("web3.middleware.stalecheck._is_fresh", return_value=True):
+    with patch("faster_web3.middleware.stalecheck._is_fresh", return_value=True):
         make_request = Mock()
         inner = request_middleware.wrap_make_request(make_request)
 
@@ -75,7 +75,7 @@ def test_stalecheck_pass(request_middleware):
 
 
 def test_stalecheck_fail(request_middleware, now):
-    with patch("web3.middleware.stalecheck._is_fresh", return_value=False):
+    with patch("faster_web3.middleware.stalecheck._is_fresh", return_value=False):
         request_middleware._w3.eth.get_block.return_value = stub_block(now)
 
         response = object()
@@ -93,7 +93,7 @@ def test_stalecheck_fail(request_middleware, now):
 def test_stalecheck_ignores_get_by_block_methods(request_middleware, rpc_method):
     # This is especially critical for get_block('latest')
     # which would cause infinite recursion
-    with patch("web3.middleware.stalecheck._is_fresh", side_effect=[False, True]):
+    with patch("faster_web3.middleware.stalecheck._is_fresh", side_effect=[False, True]):
         inner = request_middleware.wrap_make_request(lambda *_: None)
         inner(rpc_method, [])
         assert not request_middleware._w3.eth.get_block.called
@@ -103,7 +103,7 @@ def test_stalecheck_calls_is_fresh_with_empty_cache(
     request_middleware, allowable_delay
 ):
     with patch(
-        "web3.middleware.stalecheck._is_fresh", side_effect=[False, True]
+        "faster_web3.middleware.stalecheck._is_fresh", side_effect=[False, True]
     ) as fresh_spy:
         block = object()
         request_middleware._w3.eth.get_block.return_value = block
@@ -116,7 +116,7 @@ def test_stalecheck_calls_is_fresh_with_empty_cache(
 
 def test_stalecheck_adds_block_to_cache(request_middleware, allowable_delay):
     with patch(
-        "web3.middleware.stalecheck._is_fresh", side_effect=[False, True, True]
+        "faster_web3.middleware.stalecheck._is_fresh", side_effect=[False, True, True]
     ) as fresh_spy:
         block = object()
         request_middleware._w3.eth.get_block.return_value = block
@@ -160,7 +160,7 @@ async def test_async_stalecheck_pass(async_request_middleware):
         AsyncMock,
     )
 
-    with patch("web3.middleware.stalecheck._is_fresh", return_value=True):
+    with patch("faster_web3.middleware.stalecheck._is_fresh", return_value=True):
         make_request = AsyncMock()
         inner = await async_request_middleware.async_wrap_make_request(make_request)
 
@@ -172,7 +172,7 @@ async def test_async_stalecheck_pass(async_request_middleware):
 
 @pytest.mark.asyncio
 async def test_async_stalecheck_fail(async_request_middleware, now):
-    with patch("web3.middleware.stalecheck._is_fresh", return_value=False):
+    with patch("faster_web3.middleware.stalecheck._is_fresh", return_value=False):
         async_request_middleware._w3.eth.get_block.return_value = stub_block(now)
 
         with pytest.raises(StaleBlockchain):
@@ -187,7 +187,7 @@ async def test_async_stalecheck_ignores_get_by_block_methods(
 ):
     # This is especially critical for get_block("latest") which would cause
     # infinite recursion
-    with patch("web3.middleware.stalecheck._is_fresh", side_effect=[False, True]):
+    with patch("faster_web3.middleware.stalecheck._is_fresh", side_effect=[False, True]):
         inner = await async_request_middleware.async_wrap_make_request(_coro)
         await inner(rpc_method, [])
         assert not async_request_middleware._w3.eth.get_block.called
@@ -198,7 +198,7 @@ async def test_async_stalecheck_calls_is_fresh_with_empty_cache(
     async_request_middleware, allowable_delay
 ):
     with patch(
-        "web3.middleware.stalecheck._is_fresh", side_effect=[False, True]
+        "faster_web3.middleware.stalecheck._is_fresh", side_effect=[False, True]
     ) as fresh_spy:
         block = object()
         async_request_middleware._w3.eth.get_block.return_value = block
@@ -214,7 +214,7 @@ async def test_async_stalecheck_adds_block_to_cache(
     async_request_middleware, allowable_delay
 ):
     with patch(
-        "web3.middleware.stalecheck._is_fresh", side_effect=[False, True, True]
+        "faster_web3.middleware.stalecheck._is_fresh", side_effect=[False, True, True]
     ) as fresh_spy:
         block = object()
         async_request_middleware._w3.eth.get_block.return_value = block

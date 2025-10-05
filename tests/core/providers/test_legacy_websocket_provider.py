@@ -1,13 +1,13 @@
 import pytest
 
-from web3 import (
+from faster_web3 import (
     Web3,
 )
-from web3.exceptions import (
+from faster_web3.exceptions import (
     ProviderConnectionError,
     Web3ValidationError,
 )
-from web3.providers.legacy_websocket import (
+from faster_web3.providers.legacy_websocket import (
     LegacyWebSocketProvider,
 )
 

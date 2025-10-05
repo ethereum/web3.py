@@ -12,10 +12,10 @@ from eth_utils import (
     to_text,
 )
 
-from web3 import (
+from faster_web3 import (
     constants,
 )
-from web3.exceptions import (
+from faster_web3.exceptions import (
     Web3ValueError,
 )
 

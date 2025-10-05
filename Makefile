@@ -111,6 +111,6 @@ endif
 check-git:
 	# require that upstream is configured for ethereum/web3.py
 	@if ! git remote -v | grep "upstream[[:space:]]git@github.com:ethereum/web3.py.git (push)\|upstream[[:space:]]https://github.com/ethereum/web3.py (push)"; then \
-		echo "Error: You must have a remote named 'upstream' that points to 'web3.py'"; \
+		echo "Error: You must have a remote named 'upstream' that points to 'faster_web3.py'"; \
 		exit 1; \
 	fi

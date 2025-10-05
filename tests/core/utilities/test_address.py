@@ -1,9 +1,9 @@
 import pytest
 
-from web3.exceptions import (
+from faster_web3.exceptions import (
     Web3ValidationError,
 )
-from web3.utils.address import (
+from faster_web3.utils.address import (
     get_create2_address,
     get_create_address,
 )

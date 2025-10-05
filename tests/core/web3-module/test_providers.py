@@ -1,10 +1,10 @@
-from web3 import (
+from faster_web3 import (
     Web3,
 )
-from web3.providers.auto import (
+from faster_web3.providers.auto import (
     AutoProvider,
 )
-from web3.providers.eth_tester import (
+from faster_web3.providers.eth_tester import (
     EthereumTesterProvider,
 )
 

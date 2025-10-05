@@ -8,7 +8,7 @@ from aiohttp.client_exceptions import (
 )
 import pytest_asyncio
 
-from web3.beacon import (
+from faster_web3.beacon import (
     AsyncBeacon,
 )
 

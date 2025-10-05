@@ -4,10 +4,10 @@ from eth_utils import (
     decode_hex,
 )
 
-from web3 import (
+from faster_web3 import (
     constants,
 )
-from web3._utils.contract_sources.contract_data.constructor_contracts import (
+from faster_web3._utils.contract_sources.contract_data.constructor_contracts import (
     CONSTRUCTOR_WITH_ADDRESS_ARGUMENT_CONTRACT_RUNTIME,
     CONSTRUCTOR_WITH_ARGUMENTS_CONTRACT_RUNTIME,
     SIMPLE_CONSTRUCTOR_CONTRACT_RUNTIME,

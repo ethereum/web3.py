@@ -1,12 +1,12 @@
 import pytest
 import time
 
-from web3._utils.threads import (
+from faster_web3._utils.threads import (
     ThreadWithReturn,
     Timeout,
     spawn,
 )
-from web3.exceptions import (
+from faster_web3.exceptions import (
     Web3ValueError,
 )
 

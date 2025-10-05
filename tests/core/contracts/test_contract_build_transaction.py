@@ -4,7 +4,7 @@ from eth_utils.toolz import (
     dissoc,
 )
 
-from web3.exceptions import (
+from faster_web3.exceptions import (
     Web3ValidationError,
     Web3ValueError,
 )

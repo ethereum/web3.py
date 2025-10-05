@@ -6,11 +6,11 @@ from eth_utils.abi import (
     get_abi_input_types,
 )
 
-from web3._utils.abi_element_identifiers import (
+from faster_web3._utils.abi_element_identifiers import (
     FallbackFn,
     ReceiveFn,
 )
-from web3.exceptions import (
+from faster_web3.exceptions import (
     MismatchedABI,
 )
 

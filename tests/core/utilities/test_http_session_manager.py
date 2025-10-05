@@ -23,16 +23,16 @@ from requests.adapters import (
     HTTPAdapter,
 )
 
-from web3._utils.caching import (
+from faster_web3._utils.caching import (
     generate_cache_key,
 )
-from web3._utils.http_session_manager import (
+from faster_web3._utils.http_session_manager import (
     HTTPSessionManager,
 )
-from web3.exceptions import (
+from faster_web3.exceptions import (
     TimeExhausted,
 )
-from web3.utils.caching import (
+from faster_web3.utils.caching import (
     SimpleCache,
 )
 

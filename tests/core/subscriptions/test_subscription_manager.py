@@ -14,21 +14,21 @@ from eth_typing import (
 )
 import pytest_asyncio
 
-from web3 import (
+from faster_web3 import (
     AsyncWeb3,
     PersistentConnectionProvider,
 )
-from web3.exceptions import (
+from faster_web3.exceptions import (
     SubscriptionHandlerTaskException,
     Web3ValueError,
 )
-from web3.providers.persistent.request_processor import (
+from faster_web3.providers.persistent.request_processor import (
     TaskReliantQueue,
 )
-from web3.types import (
+from faster_web3.types import (
     RPCResponse,
 )
-from web3.utils.subscriptions import (
+from faster_web3.utils.subscriptions import (
     LogsSubscription,
     NewHeadsSubscription,
     PendingTxSubscription,

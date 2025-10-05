@@ -1,6 +1,6 @@
 import pytest
 
-from web3._utils.abi import (
+from faster_web3._utils.abi import (
     filter_by_argument_name,
 )
 

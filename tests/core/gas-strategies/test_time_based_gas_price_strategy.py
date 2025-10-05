@@ -1,16 +1,16 @@
 import pytest
 
-from web3 import (
+from faster_web3 import (
     Web3,
     constants,
 )
-from web3.exceptions import (
+from faster_web3.exceptions import (
     Web3ValidationError,
 )
-from web3.gas_strategies.time_based import (
+from faster_web3.gas_strategies.time_based import (
     construct_time_based_gas_price_strategy,
 )
-from web3.providers.base import (
+from faster_web3.providers.base import (
     BaseProvider,
 )
 

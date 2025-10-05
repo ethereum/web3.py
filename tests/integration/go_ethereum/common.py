@@ -7,7 +7,7 @@ from eth_typing import (
     ChecksumAddress,
 )
 
-from web3._utils.module_testing import (  # noqa: F401
+from faster_web3._utils.module_testing import (  # noqa: F401
     AsyncEthModuleTest,
     AsyncNetModuleTest,
     EthModuleTest,
@@ -19,15 +19,15 @@ from web3._utils.module_testing import (  # noqa: F401
     NetModuleTest,
     Web3ModuleTest,
 )
-from web3._utils.module_testing.web3_module import (
+from faster_web3._utils.module_testing.web3_module import (
     AsyncWeb3ModuleTest,
 )
-from web3.types import (
+from faster_web3.types import (
     BlockData,
 )
 
 if TYPE_CHECKING:
-    from web3 import (  # noqa: F401
+    from faster_web3 import (  # noqa: F401
         Web3,
     )
 
