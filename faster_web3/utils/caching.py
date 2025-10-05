@@ -9,21 +9,30 @@ import time
 from typing import (
     Any,
     Dict,
+    Final,
+    Generic,
     List,
     Optional,
     Tuple,
+    TypeVar,
+    final,
 )
 
 
+T = TypeVar("T")
+
+
+@final
 class RequestCacheValidationThreshold(Enum):
-    FINALIZED = "finalized"
-    SAFE = "safe"
+    FINALIZED: Final = "finalized"
+    SAFE: Final = "safe"
 
 
-class SimpleCache:
-    def __init__(self, size: int = 100):
-        self._size = size
-        self._data: OrderedDict[str, Any] = OrderedDict()
+@final
+class SimpleCache(Generic[T]):
+    def __init__(self, size: int = 100) -> None:
+        self._size: Final = size
+        self._data: Final[OrderedDict[str, T]] = OrderedDict()
 
     def __contains__(self, key: str) -> bool:
         return key in self._data
@@ -31,7 +40,7 @@ class SimpleCache:
     def __len__(self) -> int:
         return len(self._data)
 
-    def cache(self, key: str, value: Any) -> Tuple[Any, Dict[str, Any]]:
+    def cache(self, key: str, value: T) -> Tuple[T, Optional[Dict[str, T]]]:
         evicted_items = {}
         # If the key is already in the OrderedDict just update it
         # and don't evict any values. Ideally, we could still check to see
