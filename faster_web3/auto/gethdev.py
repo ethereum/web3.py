@@ -1,3 +1,7 @@
+from typing import (
+    Final,
+)
+
 from faster_web3 import (
     AsyncIPCProvider,
     AsyncWeb3,
@@ -11,8 +15,8 @@ from faster_web3.providers.ipc import (
     get_dev_ipc_path,
 )
 
-w3 = Web3(IPCProvider(get_dev_ipc_path()))
+w3: Final = Web3(IPCProvider(get_dev_ipc_path()))
 w3.middleware_onion.inject(ExtraDataToPOAMiddleware, layer=0)
 
-async_w3 = AsyncWeb3(AsyncIPCProvider(get_dev_ipc_path()))
+async_w3: Final = AsyncWeb3(AsyncIPCProvider(get_dev_ipc_path()))
 async_w3.middleware_onion.inject(ExtraDataToPOAMiddleware, layer=0)

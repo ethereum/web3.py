@@ -4,11 +4,11 @@ PyMODINIT_FUNC
 PyInit_caching(void)
 {
     PyObject *tmp;
-    if (!(tmp = PyImport_ImportModule("211de080822a4a868b8f__mypyc"))) return NULL;
+    if (!(tmp = PyImport_ImportModule("0950d42ce8653accdef5__mypyc"))) return NULL;
     PyObject *capsule = PyObject_GetAttrString(tmp, "init_faster_web3___utils___caching");
     Py_DECREF(tmp);
     if (capsule == NULL) return NULL;
-    void *init_func = PyCapsule_GetPointer(capsule, "211de080822a4a868b8f__mypyc.init_faster_web3___utils___caching");
+    void *init_func = PyCapsule_GetPointer(capsule, "0950d42ce8653accdef5__mypyc.init_faster_web3___utils___caching");
     Py_DECREF(capsule);
     if (!init_func) {
         return NULL;

@@ -1,12 +1,12 @@
-#ifndef MYPYC_NATIVE_INTERNAL_211de080822a4a868b8f_H
-#define MYPYC_NATIVE_INTERNAL_211de080822a4a868b8f_H
+#ifndef MYPYC_NATIVE_INTERNAL_0950d42ce8653accdef5_H
+#define MYPYC_NATIVE_INTERNAL_0950d42ce8653accdef5_H
 #include <Python.h>
 #include <CPy.h>
-#include "__native_211de080822a4a868b8f.h"
+#include "__native_0950d42ce8653accdef5.h"
 
 int CPyGlobalsInit(void);
 
-extern PyObject *CPyStatics[133];
+extern PyObject *CPyStatics[151];
 extern const char * const CPyLit_Str[];
 extern const char * const CPyLit_Bytes[];
 extern const char * const CPyLit_Int[];
@@ -38,6 +38,14 @@ extern CPyModule *CPyModule_faster_web3____utils___utility_methods__internal;
 extern CPyModule *CPyModule_faster_web3____utils___utility_methods;
 extern PyObject *CPyStatic_utility_methods___globals;
 extern CPyModule *CPyModule_faster_web3___types;
+extern CPyModule *CPyModule_faster_web3___auto__internal;
+extern CPyModule *CPyModule_faster_web3___auto;
+extern PyObject *CPyStatic_auto___globals;
+extern CPyModule *CPyModule_faster_web3___auto___gethdev__internal;
+extern CPyModule *CPyModule_faster_web3___auto___gethdev;
+extern PyObject *CPyStatic_gethdev___globals;
+extern CPyModule *CPyModule_faster_web3___middleware;
+extern CPyModule *CPyModule_faster_web3___providers___ipc;
 extern CPyModule *CPyModule_faster_web3___utils___caching__internal;
 extern CPyModule *CPyModule_faster_web3___utils___caching;
 extern PyObject *CPyStatic_caching___globals;
@@ -87,6 +95,11 @@ extern PyObject *CPyPy_utility_methods___none_in_dict(PyObject *self, PyObject *
 extern char CPyDef_utility_methods___either_set_is_a_subset(PyObject *cpy_r_set1, PyObject *cpy_r_set2, CPyTagged cpy_r_percentage);
 extern PyObject *CPyPy_utility_methods___either_set_is_a_subset(PyObject *self, PyObject *const *args, size_t nargs, PyObject *kwnames);
 extern char CPyDef_utility_methods_____top_level__(void);
+extern PyObject *CPyStatic_auto___w3;
+extern char CPyDef_auto_____top_level__(void);
+extern PyObject *CPyStatic_gethdev___w3;
+extern PyObject *CPyStatic_gethdev___async_w3;
+extern char CPyDef_gethdev_____top_level__(void);
 extern PyObject *CPyStatic_caching___RequestCacheValidationThreshold___FINALIZED;
 extern PyObject *CPyStatic_caching___RequestCacheValidationThreshold___SAFE;
 extern PyTypeObject *CPyType_caching___RequestCacheValidationThreshold;
