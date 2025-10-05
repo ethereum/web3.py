@@ -43,10 +43,6 @@ def insert_and_evict(cls, size, keys, values):
 def test_simplecache_eviction(benchmark: BenchmarkFixture, size):
     keys = list(map(str, range(size * 2)))
     values = list(range(size * 2))
-    def insert_and_evict():
-        cache = web3.utils.caching.SimpleCache(size=size)
-        for k, v in zip(keys, values):
-            cache.cache(k, v)
     benchmark(run_100, insert_and_evict, web3.utils.caching.SimpleCache, size, keys, values)
 
 
