@@ -1,9 +1,11 @@
 from typing import (
     Any,
     Dict,
+    Final,
     List,
     Optional,
     Union,
+    final,
 )
 
 from eth_typing import (
@@ -61,15 +63,16 @@ from faster_web3.beacon.api_endpoints import (
 )
 
 
+@final
 class Beacon:
     def __init__(
         self,
         base_url: str,
         request_timeout: float = 10.0,
     ) -> None:
-        self.base_url = base_url
-        self.request_timeout = request_timeout
-        self._request_session_manager = HTTPSessionManager()
+        self.base_url: Final = base_url
+        self.request_timeout: Final = request_timeout
+        self._request_session_manager: Final = HTTPSessionManager()
 
     def _make_get_request(
         self, endpoint_url: str, params: Optional[Dict[str, str]] = None
