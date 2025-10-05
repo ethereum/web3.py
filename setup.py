@@ -60,6 +60,7 @@ ext_modules = mypycify(
         "faster_web3/_utils/math.py",
         "faster_web3/_utils/type_conversion.py",
         "faster_web3/_utils/utility_methods.py",
+        "faster_web3/utils/caching.py",
         "--pretty",
         "--disable-error-code=return-value",
         "--disable-error-code=arg-type",

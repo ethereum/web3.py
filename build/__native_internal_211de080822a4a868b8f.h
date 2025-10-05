@@ -1,12 +1,12 @@
-#ifndef MYPYC_NATIVE_INTERNAL_e60543e00a47358a5fd8_H
-#define MYPYC_NATIVE_INTERNAL_e60543e00a47358a5fd8_H
+#ifndef MYPYC_NATIVE_INTERNAL_211de080822a4a868b8f_H
+#define MYPYC_NATIVE_INTERNAL_211de080822a4a868b8f_H
 #include <Python.h>
 #include <CPy.h>
-#include "__native_e60543e00a47358a5fd8.h"
+#include "__native_211de080822a4a868b8f.h"
 
 int CPyGlobalsInit(void);
 
-extern PyObject *CPyStatics[93];
+extern PyObject *CPyStatics[133];
 extern const char * const CPyLit_Str[];
 extern const char * const CPyLit_Bytes[];
 extern const char * const CPyLit_Int[];
@@ -38,6 +38,13 @@ extern CPyModule *CPyModule_faster_web3____utils___utility_methods__internal;
 extern CPyModule *CPyModule_faster_web3____utils___utility_methods;
 extern PyObject *CPyStatic_utility_methods___globals;
 extern CPyModule *CPyModule_faster_web3___types;
+extern CPyModule *CPyModule_faster_web3___utils___caching__internal;
+extern CPyModule *CPyModule_faster_web3___utils___caching;
+extern PyObject *CPyStatic_caching___globals;
+extern CPyModule *CPyModule_asyncio;
+extern CPyModule *CPyModule_collections;
+extern CPyModule *CPyModule_enum;
+extern CPyModule *CPyModule_time;
 extern PyObject *CPyStatic_datatypes___apply_formatters_to_dict;
 extern PyObject *CPyStatic_datatypes___concat;
 extern PyTypeObject *CPyType_datatypes___PropertyCheckingFactory;
@@ -80,4 +87,48 @@ extern PyObject *CPyPy_utility_methods___none_in_dict(PyObject *self, PyObject *
 extern char CPyDef_utility_methods___either_set_is_a_subset(PyObject *cpy_r_set1, PyObject *cpy_r_set2, CPyTagged cpy_r_percentage);
 extern PyObject *CPyPy_utility_methods___either_set_is_a_subset(PyObject *self, PyObject *const *args, size_t nargs, PyObject *kwnames);
 extern char CPyDef_utility_methods_____top_level__(void);
+extern PyObject *CPyStatic_caching___RequestCacheValidationThreshold___FINALIZED;
+extern PyObject *CPyStatic_caching___RequestCacheValidationThreshold___SAFE;
+extern PyTypeObject *CPyType_caching___RequestCacheValidationThreshold;
+extern PyTypeObject *CPyType_caching___SimpleCache;
+extern PyObject *CPyDef_caching___SimpleCache(CPyTagged cpy_r_size);
+extern PyTypeObject *CPyType_caching___async_await_and_popitem_SimpleCache_gen;
+extern PyObject *CPyDef_caching___async_await_and_popitem_SimpleCache_gen(void);
+extern CPyThreadLocal faster_web3___utils___caching___async_await_and_popitem_SimpleCache_genObject *caching___async_await_and_popitem_SimpleCache_gen_free_instance;
+extern char CPyDef_caching___SimpleCache_____init__(PyObject *cpy_r_self, CPyTagged cpy_r_size);
+extern PyObject *CPyPy_caching___SimpleCache_____init__(PyObject *self, PyObject *args, PyObject *kw);
+extern char CPyDef_caching___SimpleCache_____contains__(PyObject *cpy_r_self, PyObject *cpy_r_key);
+extern PyObject *CPyPy_caching___SimpleCache_____contains__(PyObject *self, PyObject *const *args, size_t nargs, PyObject *kwnames);
+extern CPyTagged CPyDef_caching___SimpleCache_____len__(PyObject *cpy_r_self);
+extern PyObject *CPyPy_caching___SimpleCache_____len__(PyObject *self, PyObject *const *args, size_t nargs, PyObject *kwnames);
+extern tuple_T2OO CPyDef_caching___SimpleCache___cache(PyObject *cpy_r_self, PyObject *cpy_r_key, PyObject *cpy_r_value);
+extern PyObject *CPyPy_caching___SimpleCache___cache(PyObject *self, PyObject *const *args, size_t nargs, PyObject *kwnames);
+extern PyObject *CPyDef_caching___SimpleCache___get_cache_entry(PyObject *cpy_r_self, PyObject *cpy_r_key);
+extern PyObject *CPyPy_caching___SimpleCache___get_cache_entry(PyObject *self, PyObject *const *args, size_t nargs, PyObject *kwnames);
+extern char CPyDef_caching___SimpleCache___clear(PyObject *cpy_r_self);
+extern PyObject *CPyPy_caching___SimpleCache___clear(PyObject *self, PyObject *const *args, size_t nargs, PyObject *kwnames);
+extern PyObject *CPyDef_caching___SimpleCache___items(PyObject *cpy_r_self);
+extern PyObject *CPyPy_caching___SimpleCache___items(PyObject *self, PyObject *const *args, size_t nargs, PyObject *kwnames);
+extern PyObject *CPyDef_caching___SimpleCache___pop(PyObject *cpy_r_self, PyObject *cpy_r_key);
+extern PyObject *CPyPy_caching___SimpleCache___pop(PyObject *self, PyObject *const *args, size_t nargs, PyObject *kwnames);
+extern tuple_T2OO CPyDef_caching___SimpleCache___popitem(PyObject *cpy_r_self, char cpy_r_last);
+extern PyObject *CPyPy_caching___SimpleCache___popitem(PyObject *self, PyObject *const *args, size_t nargs, PyObject *kwnames);
+extern char CPyDef_caching___SimpleCache___is_full(PyObject *cpy_r_self);
+extern PyObject *CPyPy_caching___SimpleCache___is_full(PyObject *self, PyObject *const *args, size_t nargs, PyObject *kwnames);
+extern PyObject *CPyDef_caching___async_await_and_popitem_SimpleCache_gen_____mypyc_generator_helper__(PyObject *cpy_r___mypyc_self__, PyObject *cpy_r_type, PyObject *cpy_r_value, PyObject *cpy_r_traceback, PyObject *cpy_r_arg, PyObject **cpy_r_stop_iter_ptr);
+extern PyObject *CPyDef_caching___async_await_and_popitem_SimpleCache_gen_____next__(PyObject *cpy_r___mypyc_self__);
+extern PyObject *CPyPy_caching___async_await_and_popitem_SimpleCache_gen_____next__(PyObject *self, PyObject *const *args, size_t nargs, PyObject *kwnames);
+extern PyObject *CPyDef_caching___async_await_and_popitem_SimpleCache_gen___send(PyObject *cpy_r___mypyc_self__, PyObject *cpy_r_arg);
+extern PyObject *CPyPy_caching___async_await_and_popitem_SimpleCache_gen___send(PyObject *self, PyObject *const *args, size_t nargs, PyObject *kwnames);
+extern PyObject *CPyDef_caching___async_await_and_popitem_SimpleCache_gen_____iter__(PyObject *cpy_r___mypyc_self__);
+extern PyObject *CPyPy_caching___async_await_and_popitem_SimpleCache_gen_____iter__(PyObject *self, PyObject *const *args, size_t nargs, PyObject *kwnames);
+extern PyObject *CPyDef_caching___async_await_and_popitem_SimpleCache_gen___throw(PyObject *cpy_r___mypyc_self__, PyObject *cpy_r_type, PyObject *cpy_r_value, PyObject *cpy_r_traceback);
+extern PyObject *CPyPy_caching___async_await_and_popitem_SimpleCache_gen___throw(PyObject *self, PyObject *const *args, size_t nargs, PyObject *kwnames);
+extern PyObject *CPyDef_caching___async_await_and_popitem_SimpleCache_gen___close(PyObject *cpy_r___mypyc_self__);
+extern PyObject *CPyPy_caching___async_await_and_popitem_SimpleCache_gen___close(PyObject *self, PyObject *const *args, size_t nargs, PyObject *kwnames);
+extern PyObject *CPyDef_caching___async_await_and_popitem_SimpleCache_gen_____await__(PyObject *cpy_r___mypyc_self__);
+extern PyObject *CPyPy_caching___async_await_and_popitem_SimpleCache_gen_____await__(PyObject *self, PyObject *const *args, size_t nargs, PyObject *kwnames);
+extern PyObject *CPyDef_caching___SimpleCache___async_await_and_popitem(PyObject *cpy_r_self, char cpy_r_last, double cpy_r_timeout, uint32_t cpy_r___bitmap);
+extern PyObject *CPyPy_caching___SimpleCache___async_await_and_popitem(PyObject *self, PyObject *const *args, size_t nargs, PyObject *kwnames);
+extern char CPyDef_caching_____top_level__(void);
 #endif
