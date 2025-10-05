@@ -2,21 +2,25 @@ from typing import (
     Any,
     Collection,
     Dict,
+    Final,
     Optional,
     Tuple,
     Type,
 )
 
-from faster_eth_utils import (
-    apply_formatters_to_dict,
-)
-from faster_eth_utils.toolz import (
-    concat,
+import faster_eth_utils
+import faster_eth_utils.toolz
+from mypy_extensions import (
+    mypyc_attr,
 )
 
 from faster_web3.exceptions import (
     Web3AttributeError,
 )
+
+
+apply_formatters_to_dict: Final = faster_eth_utils.apply_formatters_to_dict
+concat: Final = faster_eth_utils.toolz.concat
 
 
 def verify_attr(class_name: str, key: str, namespace: Collection[str]) -> None:
@@ -28,6 +32,7 @@ def verify_attr(class_name: str, key: str, namespace: Collection[str]) -> None:
         )
 
 
+@mypyc_attr(native_class=False)
 class PropertyCheckingFactory(type):
     def __init__(
         cls,
@@ -38,7 +43,7 @@ class PropertyCheckingFactory(type):
     ) -> None:
         # see PEP487.  To accept kwargs in __new__, they need to be
         # filtered out here.
-        super().__init__(name, bases, namespace)
+        type.__init__(cls, name, bases, namespace)
 
     # __new__ must return a class instance
     def __new__(
@@ -62,4 +67,4 @@ class PropertyCheckingFactory(type):
         else:
             processed_namespace = namespace
 
-        return super().__new__(mcs, name, bases, processed_namespace)
+        return type.__new__(mcs, name, bases, processed_namespace)

@@ -1,0 +1,83 @@
+#ifndef MYPYC_NATIVE_INTERNAL_e60543e00a47358a5fd8_H
+#define MYPYC_NATIVE_INTERNAL_e60543e00a47358a5fd8_H
+#include <Python.h>
+#include <CPy.h>
+#include "__native_e60543e00a47358a5fd8.h"
+
+int CPyGlobalsInit(void);
+
+extern PyObject *CPyStatics[93];
+extern const char * const CPyLit_Str[];
+extern const char * const CPyLit_Bytes[];
+extern const char * const CPyLit_Int[];
+extern const double CPyLit_Float[];
+extern const double CPyLit_Complex[];
+extern const int CPyLit_Tuple[];
+extern const int CPyLit_FrozenSet[];
+extern CPyModule *CPyModule_faster_web3____utils___datatypes__internal;
+extern CPyModule *CPyModule_faster_web3____utils___datatypes;
+extern PyObject *CPyStatic_datatypes___globals;
+extern CPyModule *CPyModule_builtins;
+extern CPyModule *CPyModule_typing;
+extern CPyModule *CPyModule_faster_eth_utils;
+extern CPyModule *CPyModule_faster_eth_utils___toolz;
+extern CPyModule *CPyModule_mypy_extensions;
+extern CPyModule *CPyModule_faster_web3___exceptions;
+extern CPyModule *CPyModule_faster_web3____utils___http__internal;
+extern CPyModule *CPyModule_faster_web3____utils___http;
+extern PyObject *CPyStatic_http___globals;
+extern CPyModule *CPyModule_faster_web3;
+extern CPyModule *CPyModule_faster_web3____utils___math__internal;
+extern CPyModule *CPyModule_faster_web3____utils___math;
+extern PyObject *CPyStatic_math___globals;
+extern CPyModule *CPyModule_faster_web3____utils___type_conversion__internal;
+extern CPyModule *CPyModule_faster_web3____utils___type_conversion;
+extern PyObject *CPyStatic_type_conversion___globals;
+extern CPyModule *CPyModule_eth_typing;
+extern CPyModule *CPyModule_faster_web3____utils___utility_methods__internal;
+extern CPyModule *CPyModule_faster_web3____utils___utility_methods;
+extern PyObject *CPyStatic_utility_methods___globals;
+extern CPyModule *CPyModule_faster_web3___types;
+extern PyObject *CPyStatic_datatypes___apply_formatters_to_dict;
+extern PyObject *CPyStatic_datatypes___concat;
+extern PyTypeObject *CPyType_datatypes___PropertyCheckingFactory;
+extern PyTypeObject *CPyType_datatypes_____init___3_PropertyCheckingFactory_obj;
+extern PyObject *CPyDef_datatypes_____init___3_PropertyCheckingFactory_obj(void);
+extern CPyThreadLocal faster_web3____utils___datatypes_____init___3_PropertyCheckingFactory_objObject *datatypes_____init___3_PropertyCheckingFactory_obj_free_instance;
+extern PyTypeObject *CPyType_datatypes_____new___3_PropertyCheckingFactory_obj;
+extern PyObject *CPyDef_datatypes_____new___3_PropertyCheckingFactory_obj(void);
+extern CPyThreadLocal faster_web3____utils___datatypes_____new___3_PropertyCheckingFactory_objObject *datatypes_____new___3_PropertyCheckingFactory_obj_free_instance;
+extern char CPyDef_datatypes___verify_attr(PyObject *cpy_r_class_name, PyObject *cpy_r_key, PyObject *cpy_r_namespace);
+extern PyObject *CPyPy_datatypes___verify_attr(PyObject *self, PyObject *const *args, size_t nargs, PyObject *kwnames);
+extern PyObject *CPyDef_datatypes_____init___3_PropertyCheckingFactory_obj_____get__(PyObject *cpy_r___mypyc_self__, PyObject *cpy_r_instance, PyObject *cpy_r_owner);
+extern PyObject *CPyPy_datatypes_____init___3_PropertyCheckingFactory_obj_____get__(PyObject *self, PyObject *const *args, size_t nargs, PyObject *kwnames);
+extern char CPyDef_datatypes_____init___3_PropertyCheckingFactory_obj_____call__(PyObject *cpy_r___mypyc_self__, PyObject *cpy_r_cls, PyObject *cpy_r_name, PyObject *cpy_r_bases, PyObject *cpy_r_namespace, PyObject *cpy_r_kwargs);
+extern PyObject *CPyPy_datatypes_____init___3_PropertyCheckingFactory_obj_____call__(PyObject *self, PyObject *const *args, size_t nargs, PyObject *kwnames);
+extern PyObject *CPyDef_datatypes_____new___3_PropertyCheckingFactory_obj_____get__(PyObject *cpy_r___mypyc_self__, PyObject *cpy_r_instance, PyObject *cpy_r_owner);
+extern PyObject *CPyPy_datatypes_____new___3_PropertyCheckingFactory_obj_____get__(PyObject *self, PyObject *const *args, size_t nargs, PyObject *kwnames);
+extern PyObject *CPyDef_datatypes_____new___3_PropertyCheckingFactory_obj_____call__(PyObject *cpy_r___mypyc_self__, PyObject *cpy_r_mcs, PyObject *cpy_r_name, tuple_T1O cpy_r_bases, PyObject *cpy_r_namespace, PyObject *cpy_r_normalizers);
+extern PyObject *CPyPy_datatypes_____new___3_PropertyCheckingFactory_obj_____call__(PyObject *self, PyObject *const *args, size_t nargs, PyObject *kwnames);
+extern char CPyDef_datatypes_____top_level__(void);
+extern PyObject *CPyDef_http___construct_user_agent(PyObject *cpy_r_module, PyObject *cpy_r_class_name);
+extern PyObject *CPyPy_http___construct_user_agent(PyObject *self, PyObject *const *args, size_t nargs, PyObject *kwnames);
+extern char CPyDef_http_____top_level__(void);
+extern double CPyDef_math___percentile(PyObject *cpy_r_values, double cpy_r_percentile);
+extern PyObject *CPyPy_math___percentile(PyObject *self, PyObject *const *args, size_t nargs, PyObject *kwnames);
+extern char CPyDef_math_____top_level__(void);
+extern PyObject *CPyStatic_type_conversion___to_bytes;
+extern PyObject *CPyStatic_type_conversion___to_hex;
+extern PyObject *CPyDef_type_conversion___to_hex_if_bytes(PyObject *cpy_r_val);
+extern PyObject *CPyPy_type_conversion___to_hex_if_bytes(PyObject *self, PyObject *const *args, size_t nargs, PyObject *kwnames);
+extern PyObject *CPyDef_type_conversion___to_bytes_if_hex(PyObject *cpy_r_val);
+extern PyObject *CPyPy_type_conversion___to_bytes_if_hex(PyObject *self, PyObject *const *args, size_t nargs, PyObject *kwnames);
+extern char CPyDef_type_conversion_____top_level__(void);
+extern char CPyDef_utility_methods___all_in_dict(PyObject *cpy_r_values, PyObject *cpy_r_d);
+extern PyObject *CPyPy_utility_methods___all_in_dict(PyObject *self, PyObject *const *args, size_t nargs, PyObject *kwnames);
+extern char CPyDef_utility_methods___any_in_dict(PyObject *cpy_r_values, PyObject *cpy_r_d);
+extern PyObject *CPyPy_utility_methods___any_in_dict(PyObject *self, PyObject *const *args, size_t nargs, PyObject *kwnames);
+extern char CPyDef_utility_methods___none_in_dict(PyObject *cpy_r_values, PyObject *cpy_r_d);
+extern PyObject *CPyPy_utility_methods___none_in_dict(PyObject *self, PyObject *const *args, size_t nargs, PyObject *kwnames);
+extern char CPyDef_utility_methods___either_set_is_a_subset(PyObject *cpy_r_set1, PyObject *cpy_r_set2, CPyTagged cpy_r_percentage);
+extern PyObject *CPyPy_utility_methods___either_set_is_a_subset(PyObject *self, PyObject *const *args, size_t nargs, PyObject *kwnames);
+extern char CPyDef_utility_methods_____top_level__(void);
+#endif
