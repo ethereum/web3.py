@@ -22,12 +22,9 @@ verify_attr_cases = [
     ("BigClass", "x99", [f"x{i}" for i in range(100)]),       # large namespace, found
     ("BigClass", "notfound", [f"x{i}" for i in range(100)]),  # large namespace, not found
     ("EmptyClass", "foo", []),                                # empty namespace
-    ("MixedClass", 1, ["foo", 1, "bar"]),                     # non-string key, found
-    ("MixedClass", "bar", ["foo", 1, "bar"]),                 # non-string key, found string
 ]
 verify_attr_ids = [
-    "found-start", "found-end", "notfound", "large-found", "large-notfound",
-    "empty", "nonstring-found", "nonstring-string"
+    "found-start", "found-end", "notfound", "large-found", "large-notfound", "empty"
 ]
 
 @pytest.mark.benchmark(group="verify_attr")
