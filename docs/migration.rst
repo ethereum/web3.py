@@ -421,10 +421,10 @@ ValidationError
 The Python dev tooling ecosystem is moving towards standardizing
 ``ValidationError``, so users know that they're catching the correct
 ``ValidationError``. The base ``ValidationError`` is imported from
-``eth_utils``. However, we also wanted to empower users to catch all errors emitted
+``faster_eth_utils``. However, we also wanted to empower users to catch all errors emitted
 by a particular module. So we now have a ``Web3ValidationError``, ``EthPMValidationError``,
 and an ``ENSValidationError`` that all inherit from the generic
-``eth_utils.exceptions.ValidationError``.
+``faster_eth_utils.exceptions.ValidationError``.
 
 Web3 class split into Web3 and AsyncWeb3
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -661,7 +661,7 @@ After switching to Python 3, these would instead be executed as:
     >>> Web3.sha3(text='I♥SF')
     HexBytes('0x50a826df121f4d076a3686d74558f40082a8e70b3469d8e9a16ceb2a79102e5e')
 
-Note that the return value is different too: you can treat :class:`hexbytes.main.HexBytes`
+Note that the return value is different too: you can treat :class:`faster_hexbytes.main.HexBytes`
 like any other bytes value, but the representation on the console shows you the hex encoding of
 those bytes, for easier visual comparison.
 

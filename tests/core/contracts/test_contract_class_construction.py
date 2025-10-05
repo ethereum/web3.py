@@ -1,7 +1,7 @@
 import pytest
 import json
 
-from eth_utils import (
+from faster_eth_utils import (
     abi_to_signature,
     decode_hex,
     filter_abi_by_type,

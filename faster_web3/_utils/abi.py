@@ -24,23 +24,23 @@ from typing import (
     cast,
 )
 
-from eth_abi import (
+from faster_eth_abi import (
     decoding,
     encoding,
 )
-from eth_abi.base import (
+from faster_eth_abi.from_type_str import (
     parse_type_str,
 )
-from eth_abi.exceptions import (
+from faster_eth_abi.exceptions import (
     ValueOutOfBounds,
 )
-from eth_abi.grammar import (
+from faster_eth_abi.grammar import (
     ABIType,
     BasicType,
     TupleType,
     parse,
 )
-from eth_abi.registry import (
+from faster_eth_abi.registry import (
     ABIRegistry,
     BaseEquals,
     registry as default_registry,
@@ -58,7 +58,7 @@ from eth_typing import (
     HexStr,
     TypeStr,
 )
-from eth_utils import (
+from faster_eth_utils import (
     collapse_if_tuple,
     decode_hex,
     filter_abi_by_type,
@@ -71,7 +71,7 @@ from eth_utils import (
     to_text,
     to_tuple,
 )
-from eth_utils.toolz import (
+from faster_eth_utils.toolz import (
     curry,
     pipe,
 )

@@ -16,14 +16,14 @@ from typing import (
     cast,
 )
 
-import eth_abi as abi
+import faster_eth_abi as abi
 from eth_typing import (
     BlockNumber,
     ChecksumAddress,
     HexAddress,
     HexStr,
 )
-from eth_utils import (
+from faster_eth_utils import (
     is_boolean,
     is_bytes,
     is_checksum_address,
@@ -35,11 +35,11 @@ from eth_utils import (
     remove_0x_prefix,
     to_bytes,
 )
-from eth_utils.toolz import (
+from faster_eth_utils.toolz import (
     assoc,
     merge,
 )
-from hexbytes import (
+from faster_hexbytes import (
     HexBytes,
 )
 

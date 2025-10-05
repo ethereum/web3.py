@@ -12,7 +12,7 @@ from typing import (
     cast,
 )
 
-from eth_abi.exceptions import (
+from faster_eth_abi.exceptions import (
     DecodingError,
 )
 from eth_typing import (
@@ -22,16 +22,16 @@ from eth_typing import (
     ChecksumAddress,
     TypeStr,
 )
-from eth_utils.abi import (
+from faster_eth_utils.abi import (
     abi_to_signature,
     filter_abi_by_type,
     get_abi_output_types,
 )
-from eth_utils.toolz import (
+from faster_eth_utils.toolz import (
     compose,
     curry,
 )
-from hexbytes import (
+from faster_hexbytes import (
     HexBytes,
 )
 

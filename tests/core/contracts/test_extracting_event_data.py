@@ -2,13 +2,13 @@ import pytest
 import copy
 import re
 
-from eth_abi.exceptions import (
+from faster_eth_abi.exceptions import (
     InsufficientDataBytes,
 )
-from eth_utils import (
+from faster_eth_utils import (
     is_same_address,
 )
-from eth_utils.toolz import (
+from faster_eth_utils.toolz import (
     dissoc,
 )
 

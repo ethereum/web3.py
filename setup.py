@@ -64,11 +64,17 @@ ext_modules = mypycify(
         "--disable-error-code=union-attr",
         "--disable-error-code=redundant-cast",
         "--disable-error-code=type-arg",
+        "--disable-error-code=type-var",
+        "--disable-error-code=call-arg",
+        "--disable-error-code=call-overload",
+        "--disable-error-code=str-bytes-safe",
+        "--disable-error-code=dict-item",
         "--disable-error-code=typeddict-item",
         "--disable-error-code=truthy-function",
         "--disable-error-code=assignment",
         "--disable-error-code=index",
         "--disable-error-code=operator",
+        "--disable-error-code=override",
         "--disable-error-code=misc",
         "--disable-error-code=unused-ignore",
     ]
@@ -88,12 +94,12 @@ setup(
     install_requires=[
         # Note: ethereum-maintained libraries in this list should be added to the
         # `install_pre_releases.py` script.
-        "eth-abi>=5.0.1",
         "eth-account>=0.13.6",
         "eth-hash[pycryptodome]>=0.5.1",
         "eth-typing>=5.0.0",
-        "eth-utils>=5.0.0",
-        "hexbytes>=1.2.0",
+        "faster-eth-abi>=5.0.1",
+        "faster-eth-utils>=5.3.8",
+        "faster-hexbytes>=1.2.0",
         "aiohttp>=3.7.4.post0",
         "pydantic>=2.4.0",
         "pywin32>=223;platform_system=='Windows'",

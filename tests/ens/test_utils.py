@@ -6,7 +6,7 @@ from unittest.mock import (
     patch,
 )
 
-from eth_utils import (
+from faster_eth_utils import (
     is_integer,
     to_bytes,
 )

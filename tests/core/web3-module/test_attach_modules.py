@@ -3,7 +3,7 @@ from io import (
     UnsupportedOperation,
 )
 
-from eth_utils import (
+from faster_eth_utils import (
     is_integer,
 )
 

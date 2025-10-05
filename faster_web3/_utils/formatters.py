@@ -14,16 +14,16 @@ from typing import (
 from eth_typing import (
     HexStr,
 )
-from eth_utils import (
+from faster_eth_utils import (
     is_dict,
     is_list_like,
     is_string,
     to_dict,
 )
-from eth_utils.curried import (
+from faster_eth_utils.curried import (
     apply_formatter_at_index,
 )
-from eth_utils.toolz import (
+from faster_eth_utils.toolz import (
     compose,
     curry,
     dissoc,

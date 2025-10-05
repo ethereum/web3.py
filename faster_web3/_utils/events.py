@@ -20,10 +20,10 @@ from typing import (
     cast,
 )
 
-from eth_abi import (
+from faster_eth_abi import (
     grammar,
 )
-from eth_abi.codec import (
+from faster_eth_abi.codec import (
     ABICodec,
 )
 from eth_typing import (
@@ -35,7 +35,7 @@ from eth_typing import (
     Primitives,
     TypeStr,
 )
-from eth_utils import (
+from faster_eth_utils import (
     encode_hex,
     is_list_like,
     keccak,
@@ -44,15 +44,15 @@ from eth_utils import (
     to_hex,
     to_tuple,
 )
-from eth_utils.abi import (
+from faster_eth_utils.abi import (
     collapse_if_tuple,
     event_abi_to_log_topic,
     get_abi_input_names,
 )
-from eth_utils.curried import (
+from faster_eth_utils.curried import (
     apply_formatter_if,
 )
-from eth_utils.toolz import (
+from faster_eth_utils.toolz import (
     complement,
     compose,
     cons,

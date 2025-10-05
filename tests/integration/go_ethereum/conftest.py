@@ -9,7 +9,7 @@ import subprocess
 import time
 import zipfile
 
-from eth_utils import (
+from faster_eth_utils import (
     is_dict,
 )
 import pytest_asyncio

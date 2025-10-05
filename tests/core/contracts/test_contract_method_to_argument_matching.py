@@ -2,7 +2,7 @@ import pytest
 import json
 import re
 
-from eth_utils.abi import (
+from faster_eth_utils.abi import (
     get_abi_input_types,
 )
 

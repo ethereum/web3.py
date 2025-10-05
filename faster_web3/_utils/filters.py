@@ -13,10 +13,10 @@ from typing import (
     Union,
 )
 
-from eth_abi.codec import (
+from faster_eth_abi.codec import (
     ABICodec,
 )
-from eth_abi.grammar import (
+from faster_eth_abi.grammar import (
     parse as parse_type_string,
 )
 from eth_typing import (
@@ -25,19 +25,19 @@ from eth_typing import (
     HexStr,
     TypeStr,
 )
-from eth_utils import (
+from faster_eth_utils import (
     is_hex,
     is_string,
     is_text,
 )
-from eth_utils.curried import (
+from faster_eth_utils.curried import (
     apply_formatter_if,
 )
-from eth_utils.toolz import (
+from faster_eth_utils.toolz import (
     complement,
     curry,
 )
-from hexbytes import (
+from faster_hexbytes import (
     HexBytes,
 )
 

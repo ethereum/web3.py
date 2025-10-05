@@ -13,7 +13,7 @@ from eth_tester.exceptions import (
 from eth_typing import (
     ChecksumAddress,
 )
-from eth_utils import (
+from faster_eth_utils import (
     is_checksum_address,
     is_dict,
     is_integer,

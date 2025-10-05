@@ -255,7 +255,7 @@ The following methods are available on the ``web3.eth`` namespace.
 
     .. code-block:: python
 
-        from eth_utils import (
+        from faster_eth_utils import (
             keccak,
         )
         import rlp

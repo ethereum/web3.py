@@ -20,7 +20,7 @@ from typing import (
 from eth_typing import (
     ChainId,
 )
-from eth_utils import (
+from faster_eth_utils import (
     is_boolean,
     is_bytes,
     is_dict,

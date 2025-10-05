@@ -23,7 +23,7 @@ from eth_typing import (
     Hash32,
     HexStr,
 )
-from eth_utils import (
+from faster_eth_utils import (
     apply_key_map,
     is_hex,
     is_string,
@@ -31,7 +31,7 @@ from eth_utils import (
     to_int,
     to_list,
 )
-from eth_utils.toolz import (
+from faster_eth_utils.toolz import (
     concat,
     valfilter,
 )

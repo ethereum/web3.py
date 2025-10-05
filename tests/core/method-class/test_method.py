@@ -3,7 +3,7 @@ from inspect import (
     isclass,
 )
 
-from eth_utils.toolz import (
+from faster_eth_utils.toolz import (
     compose,
 )
 

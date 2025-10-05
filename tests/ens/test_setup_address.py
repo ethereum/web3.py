@@ -6,7 +6,7 @@ from unittest.mock import (
 from eth_typing import (
     HexStr,
 )
-from eth_utils import (
+from faster_eth_utils import (
     is_same_address,
     to_bytes,
 )

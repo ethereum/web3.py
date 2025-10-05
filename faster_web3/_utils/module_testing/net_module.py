@@ -3,7 +3,7 @@ from typing import (
     TYPE_CHECKING,
 )
 
-from eth_utils import (
+from faster_eth_utils import (
     is_boolean,
     is_integer,
     is_string,

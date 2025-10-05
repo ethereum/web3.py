@@ -9,10 +9,10 @@ import re
 from eth_tester.exceptions import (
     TransactionFailed,
 )
-from eth_utils import (
+from faster_eth_utils import (
     is_address,
 )
-from hexbytes import (
+from faster_hexbytes import (
     HexBytes,
 )
 import pytest_asyncio
@@ -196,7 +196,7 @@ def test_call_get_w3_value(function_name_tester_contract, call):
 
 def test_call_get_string_value(string_contract, call):
     result = call(contract=string_contract, contract_function="getValue")
-    # eth_abi.decode() does not assume implicit utf-8
+    # faster_eth_abi.decode() does not assume implicit utf-8
     # encoding of string return values. Thus, we need to decode
     # ourselves for fair comparison.
     assert result == "Caqalai"
@@ -1433,7 +1433,7 @@ async def test_async_call_get_string_value(async_string_contract, async_call):
     result = await async_call(
         contract=async_string_contract, contract_function="getValue"
     )
-    # eth_abi.decode() does not assume implicit utf-8
+    # faster_eth_abi.decode() does not assume implicit utf-8
     # encoding of string return values. Thus, we need to decode
     # ourselves for fair comparison.
     assert result == "Caqalai"

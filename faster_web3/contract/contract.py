@@ -15,16 +15,16 @@ from eth_typing import (
     ABI,
     ChecksumAddress,
 )
-from eth_utils import (
+from faster_eth_utils import (
     abi_to_signature,
     combomethod,
     filter_abi_by_type,
     get_abi_input_names,
 )
-from eth_utils.toolz import (
+from faster_eth_utils.toolz import (
     partial,
 )
-from hexbytes import (
+from faster_hexbytes import (
     HexBytes,
 )
 

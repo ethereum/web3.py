@@ -1,6 +1,6 @@
 import pytest
 
-from hexbytes import (
+from faster_hexbytes import (
     HexBytes,
 )
 

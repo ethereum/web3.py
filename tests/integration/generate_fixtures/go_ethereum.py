@@ -9,14 +9,14 @@ import subprocess
 import time
 
 import common
-from eth_utils.curried import (
+from faster_eth_utils.curried import (
     apply_formatter_if,
     is_bytes,
     is_dict,
     to_hex,
     to_text,
 )
-from eth_utils.toolz import (
+from faster_eth_utils.toolz import (
     merge,
     valmap,
 )

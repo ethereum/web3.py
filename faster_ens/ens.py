@@ -17,16 +17,16 @@ from eth_typing import (
     HexAddress,
     HexStr,
 )
-from eth_utils import (
+from faster_eth_utils import (
     is_address,
     is_binary_address,
     is_checksum_address,
     to_checksum_address,
 )
-from eth_utils.toolz import (
+from faster_eth_utils.toolz import (
     merge,
 )
-from hexbytes import (
+from faster_hexbytes import (
     HexBytes,
 )
 

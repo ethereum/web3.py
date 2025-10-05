@@ -11,15 +11,15 @@ from typing import (
 from eth_typing import (
     ChecksumAddress,
 )
-from eth_utils import (
+from faster_eth_utils import (
     to_tuple,
 )
-from eth_utils.toolz import (
+from faster_eth_utils.toolz import (
     curry,
     groupby,
     sliding_window,
 )
-from hexbytes import (
+from faster_hexbytes import (
     HexBytes,
 )
 

@@ -13,7 +13,7 @@ from typing import (
 from eth_typing import (
     ChecksumAddress,
 )
-from eth_utils import (
+from faster_eth_utils import (
     is_0x_prefixed,
     is_hex,
     is_hex_address,

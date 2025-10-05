@@ -11,13 +11,13 @@ from typing import (
 from eth_typing import (
     TypeStr,
 )
-from eth_utils import (
+from faster_eth_utils import (
     to_dict,
 )
-from eth_utils.curried import (
+from faster_eth_utils.curried import (
     apply_formatter_at_index,
 )
-from eth_utils.toolz import (
+from faster_eth_utils.toolz import (
     curry,
 )
 

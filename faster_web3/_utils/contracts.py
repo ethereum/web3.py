@@ -13,10 +13,10 @@ from typing import (
     cast,
 )
 
-from eth_abi.codec import (
+from faster_eth_abi.codec import (
     ABICodec,
 )
-from eth_abi.registry import (
+from faster_eth_abi.registry import (
     registry as default_registry,
 )
 from eth_typing import (
@@ -32,17 +32,17 @@ from eth_typing import (
     HexStr,
     TypeStr,
 )
-from eth_utils import (
+from faster_eth_utils import (
     add_0x_prefix,
     encode_hex,
     filter_abi_by_name,
     filter_abi_by_type,
     get_abi_input_types,
 )
-from eth_utils.toolz import (
+from faster_eth_utils.toolz import (
     pipe,
 )
-from hexbytes import (
+from faster_hexbytes import (
     HexBytes,
 )
 

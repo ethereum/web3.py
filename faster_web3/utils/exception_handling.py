@@ -3,7 +3,7 @@ from typing import (
     Dict,
 )
 
-from eth_abi import (
+from faster_eth_abi import (
     abi,
 )
 from eth_typing import (

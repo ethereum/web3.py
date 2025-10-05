@@ -19,10 +19,10 @@ from eth_typing import (
     ChecksumAddress,
     HexStr,
 )
-from eth_utils import (
+from faster_eth_utils import (
     is_hexstr,
 )
-from hexbytes import (
+from faster_hexbytes import (
     HexBytes,
 )
 

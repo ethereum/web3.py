@@ -49,7 +49,7 @@ See an advanced example of fetching log history :ref:`here <advanced_token_fetch
 
     import asyncio
     from web3 import AsyncWeb3, WebSocketProvider
-    from eth_abi.abi import decode
+    from faster_eth_abi.abi import decode
 
     WETH_ADDRESS = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
 
@@ -458,7 +458,7 @@ The script can be run with: ``python ./eventscanner.py <your JSON-RPC API URL>``
     from web3.contract import Contract
     from web3.datastructures import AttributeDict
     from web3.exceptions import BlockNotFound
-    from eth_abi.codec import ABICodec
+    from faster_eth_abi.codec import ABICodec
 
     # Currently this method is not exposed over official web3 API,
     # but we need it to construct eth_getLogs parameters

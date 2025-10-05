@@ -7,7 +7,7 @@ from aiohttp import (
     ClientSession,
     ClientTimeout,
 )
-from eth_abi import (
+from faster_eth_abi import (
     abi,
 )
 from eth_typing import (

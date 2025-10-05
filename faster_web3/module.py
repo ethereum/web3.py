@@ -12,10 +12,10 @@ from typing import (
     cast,
 )
 
-from eth_abi.codec import (
+from faster_eth_abi.codec import (
     ABICodec,
 )
-from eth_utils.toolz import (
+from faster_eth_utils.toolz import (
     curry,
     pipe,
 )

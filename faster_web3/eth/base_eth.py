@@ -15,11 +15,11 @@ from eth_typing import (
     ChecksumAddress,
     HexStr,
 )
-from eth_utils import (
+from faster_eth_utils import (
     is_checksum_address,
     is_string,
 )
-from eth_utils.toolz import (
+from faster_eth_utils.toolz import (
     assoc,
 )
 

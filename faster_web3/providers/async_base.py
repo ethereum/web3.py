@@ -16,7 +16,7 @@ from typing import (
     cast,
 )
 
-from eth_utils import (
+from faster_eth_utils import (
     is_text,
     to_bytes,
     to_text,

@@ -1,7 +1,7 @@
 import pytest
 import functools
 
-from eth_utils import (
+from faster_eth_utils import (
     apply_key_map,
 )
 import pytest_asyncio

@@ -15,7 +15,7 @@ from typing import (
 from eth_typing import (
     URI,
 )
-from eth_utils import (
+from faster_eth_utils import (
     combomethod,
     to_dict,
 )

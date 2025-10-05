@@ -10,13 +10,13 @@ from typing import (
     cast,
 )
 
-from eth_abi import (
+from faster_eth_abi import (
     abi,
 )
-from eth_abi.exceptions import (
+from faster_eth_abi.exceptions import (
     DecodingError,
 )
-from eth_utils import (
+from faster_eth_utils import (
     is_bytes,
 )
 

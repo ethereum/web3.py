@@ -2,7 +2,7 @@ from eth_typing import (
     ChecksumAddress,
     HexAddress,
 )
-from eth_utils import (
+from faster_eth_utils import (
     keccak,
     to_bytes,
     to_checksum_address,

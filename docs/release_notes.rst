@@ -458,7 +458,7 @@ web3.py v7.2.0 (2024-08-29)
 Bugfixes
 ~~~~~~~~
 
-- Fix a bug with newer ``hexbytes`` versions that yield non-0x-prefixed hex for ``HexBytes``: ``raw_transaction.hex()`` -> ``raw_transaction.to_0x_hex()``. (`#3471 <https://github.com/ethereum/web3.py/issues/3471>`__)
+- Fix a bug with newer ``faster_hexbytes`` versions that yield non-0x-prefixed hex for ``HexBytes``: ``raw_transaction.hex()`` -> ``raw_transaction.to_0x_hex()``. (`#3471 <https://github.com/ethereum/web3.py/issues/3471>`__)
 
 
 Features
@@ -733,7 +733,7 @@ Internal Changes - for web3.py Contributors
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 - Use ``pre-commit`` for linting, run updated lint tools and fix errors (`#3297 <https://github.com/ethereum/web3.py/issues/3297>`__)
-- Dependency updates: ``eth-abi>=5.0.1``, ``eth-account>=0.12.0`` ``eth-typing>=4.0.0`` and ``hexbytes>=1.2.0`` with relevant changes to support these. (`#3298 <https://github.com/ethereum/web3.py/issues/3298>`__)
+- Dependency updates: ``eth-abi>=5.0.1``, ``eth-account>=0.12.0`` ``eth-typing>=4.0.0`` and ``faster_hexbytes>=1.2.0`` with relevant changes to support these. (`#3298 <https://github.com/ethereum/web3.py/issues/3298>`__)
 - Remove code conditionally necessary for ``python<=3.7`` (`#3317 <https://github.com/ethereum/web3.py/issues/3317>`__)
 
 
@@ -1039,7 +1039,7 @@ Internal Changes - for web3.py Contributors
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 - Updates and refactoring for the ``WebsocketProviderV2`` class and its internal supporting classes and logic. Separation of one-to-one and one-to-many request responses. Storing of one-to-many responses in a ``deque`` and one-to-one responses in a ``SimpleCache`` class. Provide an async lock around the websocket ``recv()``. (`#3125 <https://github.com/ethereum/web3.py/issues/3125>`__)
-- Add upper pin to ``hexbytes`` dependency to due incoming breaking change (`#3127 <https://github.com/ethereum/web3.py/issues/3127>`__)
+- Add upper pin to ``faster_hexbytes`` dependency to due incoming breaking change (`#3127 <https://github.com/ethereum/web3.py/issues/3127>`__)
 
 
 Miscellaneous Changes
@@ -1811,7 +1811,7 @@ Deprecations and Removals
 Internal Changes - for web3.py Contributors
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- Clean up remaining uses of deprecated ``eth_abi`` methods. (`#2668
+- Clean up remaining uses of deprecated ``faster_eth_abi`` methods. (`#2668
   <https://github.com/ethereum/web3.py/issues/2668>`__)
 
 
@@ -1913,9 +1913,9 @@ Features
 - Expose public abi utility methods: ``get_abi_output_names()`` and
   ``get_abi_input_names()`` (`#2596
   <https://github.com/ethereum/web3.py/issues/2596>`__)
-- update all references to deprecated `eth_abi.encode_abi` to `eth_abi.encode`
+- update all references to deprecated `faster_eth_abi.encode_abi` to `faster_eth_abi.encode`
   (`#2621 <https://github.com/ethereum/web3.py/issues/2621>`__)
-- update all references to deprecated `eth_abi.decode_abi` to `eth_abi.decode`
+- update all references to deprecated `faster_eth_abi.decode_abi` to `faster_eth_abi.decode`
   (`#2636 <https://github.com/ethereum/web3.py/issues/2636>`__)
 - Add Sepolia auto provider (`#2639
   <https://github.com/ethereum/web3.py/issues/2639>`__)
@@ -2227,7 +2227,7 @@ Bugfixes
 - In ENS the contract function to resolve an ENS address was being called twice
   in error. One of those calls was removed. (`#2318
   <https://github.com/ethereum/web3.py/issues/2318>`__)
-- ``to_hexbytes`` block formatters no longer throw when value is ``None``
+- ``to_faster_hexbytes`` block formatters no longer throw when value is ``None``
   (`#2321 <https://github.com/ethereum/web3.py/issues/2321>`__)
 
 
@@ -3161,7 +3161,7 @@ v5.3.1 (2019-12-05)
 Bugfixes
 ~~~~~~~~
 
-- Only apply hexbytes formatting to r and s values in transaction if present (`#1531 <https://github.com/ethereum/web3.py/issues/1531>`__)
+- Only apply faster_hexbytes formatting to r and s values in transaction if present (`#1531 <https://github.com/ethereum/web3.py/issues/1531>`__)
 - Update eth-utils dependency which contains mypy bugfix. (`#1537 <https://github.com/ethereum/web3.py/issues/1537>`__)
 
 
@@ -3468,7 +3468,7 @@ Released May 13, 2019
 
 - Misc
 
-  - Replace ``web3._utils.toolz`` imports with ``eth_utils.toolz``
+  - Replace ``web3._utils.toolz`` imports with ``faster_eth_utils.toolz``
     - `#1317 <https://github.com/ethereum/web3.py/pull/1317>`_
 
 
@@ -4149,7 +4149,7 @@ Released Mar 27, 2018
 
   - eth-abi
   - eth-utils
-  - hexbytes
+  - faster_hexbytes
   - *not included: eth-tester and eth-account*
 - Switch the default EthereumTesterProvider backend from eth-testrpc to eth-tester:
   :class:`web3.providers.eth_tester.EthereumTesterProvider`

@@ -17,7 +17,7 @@ from eth_typing import (
     ChecksumAddress,
     HexStr,
 )
-from hexbytes import (
+from faster_hexbytes import (
     HexBytes,
 )
 

@@ -10,16 +10,16 @@ from typing import (
 from eth_typing import (
     ChecksumAddress,
 )
-from eth_utils import (
+from faster_eth_utils import (
     is_dict,
     is_hex,
     is_string,
 )
-from eth_utils.curried import (
+from faster_eth_utils.curried import (
     apply_formatter_if,
     apply_formatters_to_dict,
 )
-from eth_utils.toolz import (
+from faster_eth_utils.toolz import (
     assoc,
     complement,
     compose,

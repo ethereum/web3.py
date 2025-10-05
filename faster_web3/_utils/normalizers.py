@@ -11,10 +11,10 @@ from typing import (
     cast,
 )
 
-from eth_abi.exceptions import (
+from faster_eth_abi.exceptions import (
     ParseError,
 )
-from eth_abi.grammar import (
+from faster_eth_abi.grammar import (
     BasicType,
     parse,
 )
@@ -24,19 +24,19 @@ from eth_typing import (
     HexStr,
     TypeStr,
 )
-from eth_utils import (
+from faster_eth_utils import (
     to_bytes,
     to_checksum_address,
     to_hex,
     to_text,
 )
-from eth_utils.address import (
+from faster_eth_utils.address import (
     is_binary_address,
 )
-from eth_utils.toolz import (
+from faster_eth_utils.toolz import (
     curry,
 )
-from hexbytes import (
+from faster_hexbytes import (
     HexBytes,
 )
 

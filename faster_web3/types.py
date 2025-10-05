@@ -26,7 +26,7 @@ from eth_typing import (
     Hash32,
     HexStr,
 )
-from hexbytes import (
+from faster_hexbytes import (
     HexBytes,
 )
 

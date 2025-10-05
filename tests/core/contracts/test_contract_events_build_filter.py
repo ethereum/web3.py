@@ -1,9 +1,9 @@
 import pytest
 
-from eth_utils import (
+from faster_eth_utils import (
     keccak,
 )
-from hexbytes import (
+from faster_hexbytes import (
     HexBytes,
 )
 

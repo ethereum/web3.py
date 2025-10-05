@@ -1,7 +1,7 @@
 import pytest
 import random
 
-from eth_utils import (
+from faster_eth_utils import (
     to_tuple,
 )
 

@@ -1,6 +1,6 @@
 import pytest
 
-from eth_utils.curried import (
+from faster_eth_utils.curried import (
     apply_formatters_to_dict,
 )
 

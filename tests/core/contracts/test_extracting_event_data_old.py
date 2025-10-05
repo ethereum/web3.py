@@ -1,6 +1,6 @@
 import pytest
 
-from eth_utils import (
+from faster_eth_utils import (
     is_same_address,
 )
 

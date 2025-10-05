@@ -9,11 +9,11 @@ from typing import (
 from eth_typing import (
     ChecksumAddress,
 )
-from eth_utils.toolz import (
+from faster_eth_utils.toolz import (
     assoc,
     merge,
 )
-from hexbytes import (
+from faster_hexbytes import (
     HexBytes,
 )
 

@@ -1,6 +1,6 @@
 import pytest as pytest
 
-from eth_abi.exceptions import (
+from faster_eth_abi.exceptions import (
     DecodingError,
     InsufficientDataBytes,
     NonEmptyPaddingBytes,
@@ -111,7 +111,7 @@ def test_eth_tester_provider_properly_handles_transaction_failed_with_decode_err
         "eth_tester.main.EthereumTester.get_block_by_number",
         side_effect=TransactionFailed(b"0x1234"),
     )
-    mocker.patch("eth_abi.abi.decode", side_effect=exception_type())
+    mocker.patch("faster_eth_abi.abi.decode", side_effect=exception_type())
 
     provider = EthereumTesterProvider()
     with pytest.raises(TransactionFailed, match="execution reverted: b'0x1234'"):

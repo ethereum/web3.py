@@ -1,6 +1,6 @@
 import pytest
 
-from eth_utils import (
+from faster_eth_utils import (
     encode_hex,
     remove_0x_prefix,
 )

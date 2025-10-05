@@ -5,20 +5,20 @@ from typing import (
     Dict,
 )
 
-from eth_utils.curried import (
+from faster_eth_utils.curried import (
     apply_formatter_at_index,
     apply_formatter_if,
     apply_formatters_to_dict,
     is_null,
     is_string,
 )
-from eth_utils.toolz import (
+from faster_eth_utils.toolz import (
     complement,
     compose,
     curry,
     dissoc,
 )
-from hexbytes import (
+from faster_hexbytes import (
     HexBytes,
 )
 

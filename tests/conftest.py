@@ -3,11 +3,11 @@ from typing import (
     Type,
 )
 
-from eth_utils import (
+from faster_eth_utils import (
     event_signature_to_log_topic,
     to_bytes,
 )
-from eth_utils.toolz import (
+from faster_eth_utils.toolz import (
     identity,
 )
 import pytest_asyncio

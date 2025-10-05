@@ -12,7 +12,7 @@ from typing import (
     Union,
 )
 
-from eth_abi.encoding import (
+from faster_eth_abi.encoding import (
     BaseArrayEncoder,
 )
 from eth_typing import (
@@ -20,7 +20,7 @@ from eth_typing import (
     Primitives,
     TypeStr,
 )
-from eth_utils import (
+from faster_eth_utils import (
     add_0x_prefix,
     encode_hex,
     is_bytes,
@@ -30,10 +30,10 @@ from eth_utils import (
     to_bytes,
     to_hex,
 )
-from eth_utils.toolz import (
+from faster_eth_utils.toolz import (
     curry,
 )
-from hexbytes import (
+from faster_hexbytes import (
     HexBytes,
 )
 from pydantic import (
@@ -272,10 +272,10 @@ class DynamicArrayPackedEncoder(BaseArrayEncoder):
 def encode_single_packed(_type: TypeStr, value: Any) -> bytes:
     import codecs
 
-    from eth_abi import (
+    from faster_eth_abi import (
         grammar as abi_type_parser,
     )
-    from eth_abi.registry import (
+    from faster_eth_abi.registry import (
         has_arrlist,
         registry,
     )

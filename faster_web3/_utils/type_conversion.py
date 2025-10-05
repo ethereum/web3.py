@@ -3,7 +3,7 @@ from typing import (
     Union,
 )
 
-import eth_utils
+import faster_eth_utils
 from eth_typing import (
     HexStr,
 )
@@ -13,8 +13,8 @@ from faster_web3.exceptions import (
 )
 
 
-to_bytes: Final = eth_utils.to_bytes
-to_hex: Final = eth_utils.to_hex
+to_bytes: Final = faster_eth_utils.to_bytes
+to_hex: Final = faster_eth_utils.to_hex
 
 
 def to_hex_if_bytes(val: Union[HexStr, str, bytes, bytearray]) -> HexStr:

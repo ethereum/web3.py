@@ -3,7 +3,7 @@ from unittest.mock import (
     Mock,
 )
 
-from eth_utils import (
+from faster_eth_utils import (
     to_bytes,
 )
 

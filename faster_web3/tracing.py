@@ -9,10 +9,10 @@ from typing import (
 from eth_typing import (
     HexStr,
 )
-from eth_utils import (
+from faster_eth_utils import (
     is_checksum_address,
 )
-from eth_utils.toolz import (
+from faster_eth_utils.toolz import (
     assoc,
 )
 

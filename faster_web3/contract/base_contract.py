@@ -17,7 +17,7 @@ from typing import (
 )
 import warnings
 
-from eth_abi.exceptions import (
+from faster_eth_abi.exceptions import (
     InsufficientDataBytes,
 )
 from eth_typing import (
@@ -29,7 +29,7 @@ from eth_typing import (
     ChecksumAddress,
     HexStr,
 )
-from eth_utils import (
+from faster_eth_utils import (
     abi_to_signature,
     add_0x_prefix,
     combomethod,
@@ -43,7 +43,7 @@ from eth_utils import (
     to_bytes,
     to_tuple,
 )
-from hexbytes import (
+from faster_hexbytes import (
     HexBytes,
 )
 

@@ -7,10 +7,10 @@ from typing import (
     Type,
 )
 
-from eth_utils import (
+from faster_eth_utils import (
     apply_formatters_to_dict,
 )
-from eth_utils.toolz import (
+from faster_eth_utils.toolz import (
     concat,
 )
 

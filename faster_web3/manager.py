@@ -15,10 +15,10 @@ from typing import (
     cast,
 )
 
-from eth_utils.toolz import (
+from faster_eth_utils.toolz import (
     pipe,
 )
-from hexbytes import (
+from faster_hexbytes import (
     HexBytes,
 )
 

@@ -9,16 +9,16 @@ from eth_account.messages import (
 from eth_account.signers.local import (
     LocalAccount,
 )
-from eth_utils import (
+from faster_eth_utils import (
     is_bytes,
     is_checksum_address,
     to_bytes,
     to_hex,
 )
-from eth_utils.toolz import (
+from faster_eth_utils.toolz import (
     dissoc,
 )
-from hexbytes import (
+from faster_hexbytes import (
     HexBytes,
 )
 

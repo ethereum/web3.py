@@ -5,7 +5,7 @@ import json
 from eth_tester import (
     EthereumTester,
 )
-from eth_utils import (
+from faster_eth_utils import (
     to_checksum_address,
 )
 import pytest_asyncio

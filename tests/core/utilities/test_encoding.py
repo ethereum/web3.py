@@ -7,11 +7,11 @@ from unittest.mock import (
     Mock,
 )
 
-from eth_utils import (
+from faster_eth_utils import (
     is_hex,
     to_hex,
 )
-from hexbytes import (
+from faster_hexbytes import (
     HexBytes,
 )
 from hypothesis import (

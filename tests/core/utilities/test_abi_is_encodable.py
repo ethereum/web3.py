@@ -26,7 +26,7 @@ import pytest
             "dennisthepeasant.eth",
             "address",
             True,
-        ),  # passes because eth_utils converts to bytes :/
+        ),  # passes because faster_eth_utils converts to bytes :/
         ("autonomouscollective.eth", "address", True),
         ("all-TLDs-valid-now.test", "address", True),
         ("ff", "address", True),  # this could theoretically be a top-level domain (TLD)

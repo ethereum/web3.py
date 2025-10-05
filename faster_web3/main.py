@@ -7,16 +7,16 @@ from faster_ens import (
     AsyncENS,
     ENS,
 )
-from eth_abi.codec import (
+from faster_eth_abi.codec import (
     ABICodec,
 )
-from eth_utils import (
+from faster_eth_utils import (
     add_0x_prefix,
     apply_to_return_value,
     from_wei,
     is_address,
     is_checksum_address,
-    keccak as eth_utils_keccak,
+    keccak as faster_eth_utils_keccak,
     remove_0x_prefix,
     to_bytes,
     to_checksum_address,
@@ -27,7 +27,7 @@ from eth_utils import (
 from functools import (
     wraps,
 )
-from hexbytes import (
+from faster_hexbytes import (
     HexBytes,
 )
 from typing import (
@@ -52,7 +52,7 @@ from eth_typing import (
     Primitives,
 )
 from eth_typing.abi import TypeStr
-from eth_utils import (
+from faster_eth_utils import (
     combomethod,
 )
 
@@ -295,7 +295,7 @@ class BaseWeb3:
     ) -> bytes:
         if isinstance(primitive, (bytes, int, type(None))):
             input_bytes = to_bytes(primitive, hexstr=hexstr, text=text)
-            return eth_utils_keccak(input_bytes)
+            return faster_eth_utils_keccak(input_bytes)
 
         raise Web3TypeError(
             f"You called keccak with first arg {primitive!r} and keywords "

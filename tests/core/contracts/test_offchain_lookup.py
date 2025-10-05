@@ -1,6 +1,6 @@
 import pytest
 
-from eth_abi import (
+from faster_eth_abi import (
     abi,
 )
 

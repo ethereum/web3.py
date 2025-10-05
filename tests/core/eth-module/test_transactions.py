@@ -5,11 +5,11 @@ import itertools
 from eth_account import (
     Account,
 )
-from eth_utils import (
+from faster_eth_utils import (
     to_checksum_address,
     to_int,
 )
-from hexbytes import (
+from faster_hexbytes import (
     HexBytes,
 )
 import pytest_asyncio

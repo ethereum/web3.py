@@ -7,7 +7,7 @@ import subprocess
 import tempfile
 import time
 
-from eth_utils import (
+from faster_eth_utils import (
     is_checksum_address,
     to_text,
 )

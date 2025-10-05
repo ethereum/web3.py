@@ -14,7 +14,7 @@ from eth_typing import (
     HexStr,
     TypeStr,
 )
-from eth_utils import (
+from faster_eth_utils import (
     abi_to_signature,
     filter_abi_by_type,
     function_abi_to_4byte_selector,
@@ -29,13 +29,13 @@ from eth_utils import (
     is_list_like,
     is_string,
 )
-from eth_utils.curried import (
+from faster_eth_utils.curried import (
     apply_formatter_to_array,
 )
-from eth_utils.hexadecimal import (
+from faster_eth_utils.hexadecimal import (
     encode_hex,
 )
-from eth_utils.toolz import (
+from faster_eth_utils.toolz import (
     compose,
     groupby,
     valfilter,

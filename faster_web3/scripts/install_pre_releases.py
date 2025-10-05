@@ -15,7 +15,7 @@ ETHEREUM_LIBRARIES = [
     "eth-hash[pycryptodome]",
     "eth-typing",
     "eth-utils",
-    "hexbytes",
+    "faster_hexbytes",
     "eth-tester[py-evm]",
     "py-geth",
 ]

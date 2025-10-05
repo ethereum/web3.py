@@ -1,6 +1,6 @@
 import pytest
 
-from eth_abi.exceptions import (
+from faster_eth_abi.exceptions import (
     EncodingTypeError,
     ValueOutOfBounds,
 )

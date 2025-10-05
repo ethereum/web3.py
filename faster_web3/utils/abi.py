@@ -11,13 +11,13 @@ from typing import (
     cast,
 )
 
-from eth_abi import (
+from faster_eth_abi import (
     codec,
 )
-from eth_abi.codec import (
+from faster_eth_abi.codec import (
     ABICodec,
 )
-from eth_abi.registry import (
+from faster_eth_abi.registry import (
     registry as default_registry,
 )
 from eth_typing import (
@@ -32,7 +32,7 @@ from eth_typing import (
     HexStr,
     Primitives,
 )
-from eth_utils.abi import (
+from faster_eth_utils.abi import (
     abi_to_signature,
     event_abi_to_log_topic,
     filter_abi_by_name,
@@ -42,24 +42,24 @@ from eth_utils.abi import (
     get_aligned_abi_inputs,
     get_normalized_abi_inputs,
 )
-from eth_utils.address import (
+from faster_eth_utils.address import (
     is_binary_address,
     is_checksum_address,
 )
-from eth_utils.conversions import (
+from faster_eth_utils.conversions import (
     hexstr_if_str,
     to_bytes,
 )
-from eth_utils.hexadecimal import (
+from faster_eth_utils.hexadecimal import (
     encode_hex,
 )
-from eth_utils.toolz import (
+from faster_eth_utils.toolz import (
     pipe,
 )
-from eth_utils.types import (
+from faster_eth_utils.types import (
     is_list_like,
 )
-from hexbytes import (
+from faster_hexbytes import (
     HexBytes,
 )
 

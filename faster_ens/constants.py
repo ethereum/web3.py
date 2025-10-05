@@ -3,7 +3,7 @@ from eth_typing import (
     HexAddress,
     HexStr,
 )
-from hexbytes import (
+from faster_hexbytes import (
     HexBytes,
 )
 

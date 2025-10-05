@@ -8,10 +8,10 @@ from typing import (
 from eth_typing import (
     ABIEvent,
 )
-from eth_utils import (
+from faster_eth_utils import (
     encode_hex,
 )
-from eth_utils.toolz import (
+from faster_eth_utils.toolz import (
     compose,
     curry,
 )

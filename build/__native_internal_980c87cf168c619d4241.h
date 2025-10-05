@@ -27,7 +27,7 @@ extern CPyModule *CPyModule_faster_web3___exceptions;
 extern CPyModule *CPyModule_faster_web3____utils___type_conversion__internal;
 extern CPyModule *CPyModule_faster_web3____utils___type_conversion;
 extern PyObject *CPyStatic_type_conversion___globals;
-extern CPyModule *CPyModule_eth_utils;
+extern CPyModule *CPyModule_faster_eth_utils;
 extern CPyModule *CPyModule_eth_typing;
 extern PyObject *CPyDef_http___construct_user_agent(PyObject *cpy_r_module, PyObject *cpy_r_class_name);
 extern PyObject *CPyPy_http___construct_user_agent(PyObject *self, PyObject *const *args, size_t nargs, PyObject *kwnames);

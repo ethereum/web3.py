@@ -1,7 +1,7 @@
 import pytest
 import re
 
-from eth_utils.toolz import (
+from faster_eth_utils.toolz import (
     identity,
     merge,
 )

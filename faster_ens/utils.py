@@ -21,13 +21,13 @@ from eth_typing import (
     HexAddress,
     HexStr,
 )
-from eth_utils import (
+from faster_eth_utils import (
     is_same_address,
     remove_0x_prefix,
     to_bytes,
     to_normalized_address,
 )
-from hexbytes import (
+from faster_hexbytes import (
     HexBytes,
 )
 

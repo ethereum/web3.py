@@ -3,7 +3,7 @@ NOTE: This is a public utility module. Any changes to these utility methods woul
 classify as breaking changes.
 """
 
-from eth_utils.abi import (
+from faster_eth_utils.abi import (
     abi_to_signature,
     collapse_if_tuple,
     event_abi_to_log_topic,

@@ -29,14 +29,14 @@ from eth_typing import (
     ChecksumAddress,
     HexStr,
 )
-from eth_utils import (
+from faster_eth_utils import (
     to_checksum_address,
     to_dict,
 )
-from eth_utils.curried import (
+from faster_eth_utils.curried import (
     apply_formatter_if,
 )
-from eth_utils.toolz import (
+from faster_eth_utils.toolz import (
     compose,
 )
 from toolz import (

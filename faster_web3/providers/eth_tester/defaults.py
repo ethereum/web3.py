@@ -13,7 +13,7 @@ from typing import (
     Type,
 )
 
-from eth_abi import (
+from faster_eth_abi import (
     abi,
 )
 from eth_tester.exceptions import (
@@ -26,16 +26,16 @@ from eth_typing import (
     HexAddress,
     HexStr,
 )
-from eth_utils import (
+from faster_eth_utils import (
     decode_hex,
     encode_hex,
     is_null,
     keccak,
 )
-from eth_utils.curried import (
+from faster_eth_utils.curried import (
     apply_formatter_if,
 )
-from eth_utils.toolz import (
+from faster_eth_utils.toolz import (
     compose,
     curry,
     excepts,

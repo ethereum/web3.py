@@ -128,7 +128,7 @@ def test_transacting_with_contract_with_string_argument(
 def test_transacting_with_contract_with_encoded_string_argument_non_strict(
     w3_non_strict_abi, non_strict_string_contract, transact, call
 ):
-    # eth_abi will pass as raw bytes, no encoding
+    # faster_eth_abi will pass as raw bytes, no encoding
     # unless we encode ourselves
     txn_hash = transact(
         contract=non_strict_string_contract,
@@ -577,7 +577,7 @@ async def test_async_auto_gas_computation_when_transacting(
 
     gas_estimate = await string_contract.functions.setValue("ÄLÄMÖLÖ").estimate_gas()
 
-    # eth_abi will pass as raw bytes, no encoding
+    # faster_eth_abi will pass as raw bytes, no encoding
     # unless we encode ourselves
     txn_hash = await async_transact(
         contract=string_contract,

@@ -15,18 +15,20 @@ from eth_tester.exceptions import (
 )
 from eth_utils import (
     ValidationError as EthUtilsValidationError,
+)
+from faster_eth_utils import (
     is_hexstr,
     to_bytes,
     to_hex,
 )
-from eth_utils.toolz import (
+from faster_eth_utils.toolz import (
     assoc,
     dissoc,
     identity,
     merge,
     valfilter,
 )
-from hexbytes import (
+from faster_hexbytes import (
     HexBytes,
 )
 import pytest_asyncio

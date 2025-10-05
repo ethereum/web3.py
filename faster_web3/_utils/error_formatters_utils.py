@@ -1,9 +1,9 @@
 import warnings
 
-from eth_abi import (
+from faster_eth_abi import (
     abi,
 )
-from eth_utils import (
+from faster_eth_utils import (
     to_bytes,
 )
 

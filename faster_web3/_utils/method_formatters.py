@@ -17,10 +17,10 @@ from typing import (
 from eth_typing import (
     HexStr,
 )
-from eth_utils import (
+from faster_eth_utils import (
     is_hexstr,
 )
-from eth_utils.curried import (
+from faster_eth_utils.curried import (
     apply_formatter_at_index,
     apply_formatter_if,
     apply_formatter_to_array,
@@ -37,14 +37,14 @@ from eth_utils.curried import (
     to_list,
     to_tuple,
 )
-from eth_utils.toolz import (
+from faster_eth_utils.toolz import (
     complement,
     compose,
     curried,
     curry,
     partial,
 )
-from hexbytes import (
+from faster_hexbytes import (
     HexBytes,
 )
 from pydantic import (

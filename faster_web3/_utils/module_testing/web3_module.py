@@ -17,7 +17,7 @@ from eth_typing import (
     HexStr,
     TypeStr,
 )
-from hexbytes import (
+from faster_hexbytes import (
     HexBytes,
 )
 

@@ -2,20 +2,20 @@ from typing import (
     TYPE_CHECKING,
 )
 
-from eth_utils import (
+from faster_eth_utils import (
     is_dict,
 )
-from eth_utils.curried import (
+from faster_eth_utils.curried import (
     apply_formatter_if,
     apply_formatters_to_dict,
     apply_key_map,
     is_null,
 )
-from eth_utils.toolz import (
+from faster_eth_utils.toolz import (
     complement,
     compose,
 )
-from hexbytes import (
+from faster_hexbytes import (
     HexBytes,
 )
 

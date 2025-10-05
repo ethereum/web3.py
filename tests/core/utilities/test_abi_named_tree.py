@@ -1,9 +1,9 @@
 import pytest
 
-from eth_abi.codec import (
+from faster_eth_abi.codec import (
     ABICodec,
 )
-from eth_abi.registry import (
+from faster_eth_abi.registry import (
     registry as default_registry,
 )
 
