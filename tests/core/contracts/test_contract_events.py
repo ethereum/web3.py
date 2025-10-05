@@ -8,6 +8,9 @@ from typing import (
 from eth_typing import (
     ABIEvent,
 )
+from eth_utils import (
+    encode_hex,
+)
 from eth_utils.toolz import (
     compose,
     curry,
@@ -136,6 +139,95 @@ def test_events_iterator(math_contract):
         assert event.name == expected_event.name
 
 
+def test_contract_event_topic(event_contract):
+    event = event_contract.events.LogSingleArg()
+    assert event.topic == encode_hex(event_contract.w3.keccak(text=event.signature))
+
+
+def test_contract_event_topic_no_parens(event_contract):
+    event = event_contract.events.LogSingleArg
+    assert event.topic == encode_hex(event_contract.w3.keccak(text=event.signature))
+
+
+@pytest.mark.parametrize(
+    "event_abi,expected_signature",
+    (
+        (
+            {
+                "name": "Transfer",
+                "type": "event",
+                "inputs": [
+                    {"type": "address", "name": "from", "indexed": True},
+                    {"type": "address", "name": "to", "indexed": True},
+                    {"type": "uint256", "name": "value", "indexed": False},
+                ],
+            },
+            "Transfer(address,address,uint256)",
+        ),
+        (
+            {
+                "name": "TransferBatch",
+                "type": "event",
+                "inputs": [
+                    {"type": "address", "name": "operator", "indexed": True},
+                    {"type": "address", "name": "from", "indexed": True},
+                    {"type": "address", "name": "to", "indexed": True},
+                    {"type": "uint256[]", "name": "ids", "indexed": False},
+                    {"type": "uint256[]", "name": "values", "indexed": False},
+                ],
+            },
+            "TransferBatch(address,address,address,uint256[],uint256[])",
+        ),
+        (
+            {
+                "name": "Approval",
+                "type": "event",
+                "inputs": [
+                    {"type": "address", "name": "owner", "indexed": True},
+                    {"type": "address", "name": "approved", "indexed": True},
+                    {"type": "uint256", "name": "tokenId", "indexed": True},
+                ],
+            },
+            "Approval(address,address,uint256)",
+        ),
+        (
+            {
+                "name": "ApprovalForAll",
+                "type": "event",
+                "inputs": [
+                    {"type": "address", "name": "owner", "indexed": True},
+                    {"type": "address", "name": "operator", "indexed": True},
+                    {"type": "bool", "name": "approved", "indexed": False},
+                ],
+            },
+            "ApprovalForAll(address,address,bool)",
+        ),
+        (
+            {
+                "name": "OwnershipTransferred",
+                "type": "event",
+                "inputs": [
+                    {"type": "address", "name": "previousOwner", "indexed": True},
+                    {"type": "address", "name": "newOwner", "indexed": True},
+                ],
+            },
+            "OwnershipTransferred(address,address)",
+        ),
+    ),
+)
+def test_contract_event_signatures_and_topics(w3, event_abi, expected_signature):
+    event = ContractEvent(abi=event_abi)
+    assert event.signature == expected_signature
+    assert event.topic == encode_hex(w3.keccak(text=expected_signature))
+
+    async_event = AsyncContractEvent(abi=event_abi)
+    assert async_event.signature == expected_signature
+    assert async_event.topic == encode_hex(w3.keccak(text=expected_signature))
+
+
+# -- async -- #
+
+
 def test_async_events_iterator(async_math_contract):
     all_events = async_math_contract.all_events()
     events_iter = async_math_contract.events
@@ -143,3 +235,19 @@ def test_async_events_iterator(async_math_contract):
     for event, expected_event in zip(iter(events_iter), all_events):
         assert isinstance(event, AsyncContractEvent)
         assert event.name == expected_event.name
+
+
+def test_async_contract_event_topic(async_event_contract):
+    event = async_event_contract.events.LogSingleArg()
+    assert event.signature == "LogSingleArg(uint256)"
+    assert event.topic == encode_hex(
+        async_event_contract.w3.keccak(text=event.signature)
+    )
+
+
+def test_async_contract_event_topic_no_parens(async_event_contract):
+    event = async_event_contract.events.LogSingleArg
+    assert event.signature == "LogSingleArg(uint256)"
+    assert event.topic == encode_hex(
+        async_event_contract.w3.keccak(text=event.signature)
+    )

@@ -335,7 +335,7 @@ def validate_payable(transaction: TxParams, abi_callable: ABICallable) -> None:
 
 
 def parse_block_identifier(
-    w3: "Web3", block_identifier: BlockIdentifier
+    w3: "Web3", block_identifier: Optional[BlockIdentifier]
 ) -> BlockIdentifier:
     if block_identifier is None:
         return w3.eth.default_block

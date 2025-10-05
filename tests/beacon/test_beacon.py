@@ -214,6 +214,11 @@ def test_cl_node_get_peer(beacon):
     _assert_valid_response(response)
 
 
+def test_cl_node_get_peer_count(beacon):
+    response = beacon.get_peer_count()
+    _assert_valid_response(response)
+
+
 def test_cl_node_get_health(beacon):
     response = beacon.get_health()
     assert isinstance(response, int)
@@ -239,3 +244,74 @@ def test_cl_node_get_blob_sidecars(beacon):
     # test with indices
     with_indices = beacon.get_blob_sidecars("head", [0, 1])
     _assert_valid_response(with_indices)
+
+
+# Validator endpoint tests:
+
+
+def test_cl_validator_get_attester_duties(beacon):
+    finality_checkpoint_response = beacon.get_finality_checkpoint()
+    _assert_valid_response(finality_checkpoint_response)
+
+    finality_checkpoint = finality_checkpoint_response["data"]
+    epoch = finality_checkpoint["finalized"]["epoch"]
+
+    validators_response = beacon.get_validators()
+    _assert_valid_response(validators_response)
+
+    validators = validators_response["data"]
+    random_validator = validators[randint(0, len(validators))]
+    random_validator_index = random_validator["index"]
+
+    response = beacon.get_attester_duties(epoch, [random_validator_index])
+    _assert_valid_response(response)
+
+
+def test_cl_validator_get_block_proposer_duties(beacon):
+    finality_checkpoint_response = beacon.get_finality_checkpoint()
+    _assert_valid_response(finality_checkpoint_response)
+
+    finality_checkpoint = finality_checkpoint_response["data"]
+    epoch = finality_checkpoint["finalized"]["epoch"]
+
+    response = beacon.get_block_proposer_duties(epoch)
+    _assert_valid_response(response)
+
+
+def test_cl_validator_get_sync_committee_duties(beacon):
+    finality_checkpoint_response = beacon.get_finality_checkpoint()
+    _assert_valid_response(finality_checkpoint_response)
+
+    finality_checkpoint = finality_checkpoint_response["data"]
+    epoch = finality_checkpoint["finalized"]["epoch"]
+
+    validators_response = beacon.get_validators()
+    _assert_valid_response(validators_response)
+
+    validators = validators_response["data"]
+    random_validator = validators[randint(0, len(validators))]
+    random_validator_index = random_validator["index"]
+
+    response = beacon.get_sync_committee_duties(epoch, [random_validator_index])
+    _assert_valid_response(response)
+
+
+# Rewards endpoint tests:
+
+
+def test_cl_validator_get_attestations_rewards(beacon):
+    finality_checkpoint_response = beacon.get_finality_checkpoint()
+    _assert_valid_response(finality_checkpoint_response)
+
+    finality_checkpoint = finality_checkpoint_response["data"]
+    epoch = finality_checkpoint["finalized"]["epoch"]
+
+    validators_response = beacon.get_validators()
+    _assert_valid_response(validators_response)
+
+    validators = validators_response["data"]
+    random_validator = validators[randint(0, len(validators))]
+    random_validator_index = random_validator["index"]
+
+    response = beacon.get_attestations_rewards(epoch, [random_validator_index])
+    _assert_valid_response(response)

@@ -7,10 +7,6 @@ from typing import (
     cast,
 )
 
-from eth_utils.toolz import (
-    assoc,
-)
-
 from web3.datastructures import (
     AttributeDict,
 )
@@ -33,21 +29,18 @@ if TYPE_CHECKING:
 
 
 def _handle_async_response(response: "RPCResponse") -> "RPCResponse":
+    """
+    Process the RPC response by converting nested dictionaries into AttributeDict.
+    """
     if "result" in response:
-        return assoc(response, "result", AttributeDict.recursive(response["result"]))
+        response["result"] = AttributeDict.recursive(response["result"])
     elif "params" in response and "result" in response["params"]:
-        # this is a subscription response
-        return assoc(
-            response,
-            "params",
-            assoc(
-                response["params"],
-                "result",
-                AttributeDict.recursive(response["params"]["result"]),
-            ),
+        # subscription response
+        response["params"]["result"] = AttributeDict.recursive(
+            response["params"]["result"]
         )
-    else:
-        return response
+
+    return response
 
 
 class AttributeDictMiddleware(Web3Middleware, ABC):
@@ -60,11 +53,9 @@ class AttributeDictMiddleware(Web3Middleware, ABC):
 
     def response_processor(self, method: "RPCEndpoint", response: "RPCResponse") -> Any:
         if "result" in response:
-            return assoc(
-                response, "result", AttributeDict.recursive(response["result"])
-            )
-        else:
-            return response
+            new_result = AttributeDict.recursive(response["result"])
+            response = {**response, "result": new_result}
+        return response
 
     # -- async -- #
 
@@ -72,7 +63,6 @@ class AttributeDictMiddleware(Web3Middleware, ABC):
         self, method: "RPCEndpoint", response: "RPCResponse"
     ) -> Any:
         if self._w3.provider.has_persistent_connection:
-            # asynchronous response processing
             provider = cast("PersistentConnectionProvider", self._w3.provider)
             provider._request_processor.append_middleware_response_processor(
                 response, _handle_async_response

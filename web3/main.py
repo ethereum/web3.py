@@ -148,6 +148,9 @@ from web3.tracing import (
 from web3.types import (
     Wei,
 )
+from web3.providers.persistent.subscription_manager import (
+    SubscriptionManager,
+)
 
 if TYPE_CHECKING:
     from web3._utils.batching import RequestBatcher  # noqa: F401
@@ -508,12 +511,27 @@ class AsyncWeb3(BaseWeb3):
             new_ens.w3 = self  # set self object reference for ``AsyncENS.w3``
         self._ens = new_ens
 
-    # -- persistent connection methods -- #
+    # -- persistent connection settings -- #
+
+    _subscription_manager: Optional[SubscriptionManager] = None
+    _persistent_connection: Optional["PersistentConnection"] = None
+
+    @property
+    @persistent_connection_provider_method()
+    def subscription_manager(self) -> SubscriptionManager:
+        """
+        Access the subscription manager for the current PersistentConnectionProvider.
+        """
+        if not self._subscription_manager:
+            self._subscription_manager = SubscriptionManager(self)
+        return self._subscription_manager
 
     @property
     @persistent_connection_provider_method()
     def socket(self) -> PersistentConnection:
-        return PersistentConnection(self)
+        if self._persistent_connection is None:
+            self._persistent_connection = PersistentConnection(self)
+        return self._persistent_connection
 
     # w3 = await AsyncWeb3(PersistentConnectionProvider(...))
     @persistent_connection_provider_method(
@@ -522,7 +540,10 @@ class AsyncWeb3(BaseWeb3):
     )
     def __await__(self) -> Generator[Any, None, Self]:
         async def __async_init__() -> Self:
-            await self.provider.connect()
+            provider = cast("PersistentConnectionProvider", self.provider)
+            await provider.connect()
+            # set signal handlers since not within a context manager
+            provider._set_signal_handlers()
             return self
 
         return __async_init__().__await__()

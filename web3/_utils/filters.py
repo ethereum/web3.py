@@ -8,6 +8,7 @@ from typing import (
     List,
     Optional,
     Sequence,
+    Set,
     Tuple,
     Union,
 )
@@ -26,7 +27,6 @@ from eth_typing import (
 )
 from eth_utils import (
     is_hex,
-    is_list_like,
     is_string,
     is_text,
 )
@@ -67,15 +67,48 @@ if TYPE_CHECKING:
     from web3.eth import Eth  # noqa: F401
 
 
+def _sanitize_addresses(
+    *address: Union[ChecksumAddress, List[ChecksumAddress]],
+) -> Union[ChecksumAddress, List[ChecksumAddress]]:
+    """
+    Validates an address or list of addresses and returns a single
+    ChecksumAddress or a list of ChecksumAddresses.
+    Raises Web3ValueError if the address is not valid.
+
+    :param address: A single address or a list of addresses.
+    :return: A list of ChecksumAddress.
+    """
+    address_set: Set[ChecksumAddress] = set()
+    for arg in address:
+        if not arg:
+            continue
+        elif isinstance(arg, str) or isinstance(arg, bytes):
+            address_set.add(arg)
+        elif isinstance(arg, list):
+            address_set.update(arg)
+        else:
+            raise Web3ValueError(
+                f"Unsupported type for `address` parameter: {type(address)}"
+            )
+
+    if not address_set:
+        return []
+    else:
+        for addr in address_set:
+            validate_address(addr)
+
+        return list(address_set) if len(address_set) > 1 else address_set.pop()
+
+
 def construct_event_filter_params(
     event_abi: ABIEvent,
     abi_codec: ABICodec,
-    contract_address: Optional[ChecksumAddress] = None,
+    contract_address: Optional[Union[ChecksumAddress, List[ChecksumAddress]]] = None,
     argument_filters: Optional[Dict[str, Any]] = None,
     topics: Optional[Sequence[HexStr]] = None,
     from_block: Optional[BlockIdentifier] = None,
     to_block: Optional[BlockIdentifier] = None,
-    address: Optional[ChecksumAddress] = None,
+    address: Optional[Union[ChecksumAddress, List[ChecksumAddress]]] = None,
 ) -> Tuple[List[List[Optional[HexStr]]], FilterParams]:
     filter_params: FilterParams = {}
     topic_set: Sequence[HexStr] = construct_event_topic_set(
@@ -92,31 +125,9 @@ def construct_event_filter_params(
 
     filter_params["topics"] = topic_set
 
-    if address and contract_address:
-        if is_list_like(address):
-            filter_params["address"] = [address] + [contract_address]
-        elif is_string(address):
-            filter_params["address"] = (
-                [address, contract_address]
-                if address != contract_address
-                else [address]
-            )
-        else:
-            raise Web3ValueError(
-                f"Unsupported type for `address` parameter: {type(address)}"
-            )
-    elif address:
-        filter_params["address"] = address
-    elif contract_address:
-        filter_params["address"] = contract_address
-
-    if "address" not in filter_params:
-        pass
-    elif is_list_like(filter_params["address"]):
-        for addr in filter_params["address"]:
-            validate_address(addr)
-    else:
-        validate_address(filter_params["address"])
+    sanitized_addresses = _sanitize_addresses(address, contract_address)
+    if sanitized_addresses:
+        filter_params["address"] = sanitized_addresses
 
     if from_block is not None:
         filter_params["fromBlock"] = from_block

@@ -430,10 +430,149 @@ request. The initial ``eth_subscribe`` request expects only one response, the
 subscription *id* value, but it also expects to receive many ``eth_subscription``
 messages if and when the request is successful. For this reason, the original request
 is considered a one-to-one request so that a subscription *id* can be returned to the
-user on the same line, but the ``process_subscriptions()`` method on the
+user on the same line. The many responses this call will produce can be handled in one
+of a few ways.
+
+The recommended way to handle one-to-many responses is to use the subscription manager
+API. The subscription manager API is a public API on the ``AsyncWeb3`` class, when
+connected to a ``PersistentConnectionProvider`` instance, that allows the user to
+subscribe to a subscription and handle the many responses asynchronously. The
+``subscription_manager`` instance is responsible for handling the many responses that
+come in over the socket connection, as long as handlers are passed to each subscription
+call. The subscription manager can also be used to unsubscribe from a subscription when
+the user is done with it.
+
+.. code-block:: python
+
+    >>> async def new_heads_handler(
+    ...     handler_context: NewHeadsSubscriptionContext,
+    ... ) -> None:
+    ...     result = handler_context.result
+    ...     print(f"New block header: {result}\n")
+    ...     if result["number"] > 1234567:
+    ...         await handler_context.subscription.unsubscribe()
+
+    >>> async def ws_subscription_example():
+    ...     async with AsyncWeb3(WebSocketProvider(f"ws://127.0.0.1:8546")) as w3:
+    ...         # Subscribe to new block headers and receive the subscription_id.
+    ...         # A one-to-one call with a trigger for many responses
+    ...         subscription_id = await w3.eth.subscribe("newHeads", handler=new_heads_handler)
+    ...
+    ...         # Handle the subscription messages asynchronously using the subscription
+    ...         # manager. This will continue until no more subscriptions are present in
+    ...         # the subscription manager, or indefinitely if the `run_forever` flag
+    ...         # is set to `True`.
+    ...         await w3.subscription_manager.handle_subscriptions(run_forever=False)
+    >>> asyncio.run(ws_subscription_example())
+
+The manager can also subscribe to many subscriptions at one time. The
+``EthSubscription`` classes, available via ``web3.utils.subscriptions``, provide a
+friendly API for managing subscriptions. Since each connection and provider instance
+has its own message listener task and subscription manager instance, you can subscribe
+to many subscriptions at once and handle the many responses that come in over the socket
+connections via handlers. The handlers contain:
+
+- ``async_w3``: The ``AsyncWeb3`` instance that the subscription was made on.
+- ``subscription``: The subscription instance that the handler is attached to.
+- ``result``: The response that came in over the socket connection for the subscription.
+
+Subscriptions also accept a ``handler_context`` argument that can be used to pass
+additional information to the handler when subscribing to a subscription. This can be
+used to pass in an event object, for example, that can be used to parse a log event
+when it comes in.
+
+
+.. code-block:: python
+
+    >>> from web3 import (
+    ...     AsyncWeb3,
+    ...     WebSocketProvider,
+    ...     AsyncIPCProvider,
+    ... )
+    >>> from web3.utils.subscriptions import (
+    ...     EthSubscription,
+    ...     NewHeadsSubscription,
+    ...     NewHeadsSubscriptionContext,
+    ...     PendingTxSubscription,
+    ...     PendingTxSubscriptionContext,
+    ...     LogsSubscription,
+    ...     LogsSubscriptionContext,
+    ... )
+
+    >>> async def new_heads_handler(
+    ...     handler_context: NewHeadsSubscriptionContext,
+    ... ) -> None:
+    ...     header = handler_context.result
+    ...     print(f"New block header: {header}\n")
+    ...     if header["number"] > 1234567:
+    ...         await handler_context.subscription.unsubscribe()
+
+    >>> async def pending_txs_handler(
+    ...     handler_context: PendingTxSubscriptionContext,
+    ... ) -> None:
+    ...     ...
+
+    >>> async def log_handler(
+    ...     handler_context: LogsSubscriptionContext,
+    ... ) -> None:
+    ...     log_receipt = handler_context.result
+    ...     # event is now available in the handler context, because we pass it to in the
+    ...     # ``handler_context`` when subscribing to the log
+    ...     event_data = handler_context.transfer_event.process_log(log_receipt)
+    ...     print(f"Log event data: {event_data}\n")
+
+    >>> async def sub_manager():
+    ...     local_w3 = await AsyncWeb3(AsyncIPCProvider(LOCAL_IPC))
+    ...
+    ...     # subscribe to many subscriptions via the subscription manager with handlers
+    ...     weth_contract = local_w3.eth.contract(
+    ...         address=local_w3.to_checksum_address("0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"),
+    ...         abi=WETH_ABI,
+    ...     )
+    ...     transfer_event = weth_contract.events.Transfer()
+    ...     await local_w3.subscription_manager.subscribe(
+    ...         [
+    ...             NewHeadsSubscription(label="new-heads-mainnet", handler=new_heads_handler),
+    ...             PendingTxSubscription(
+    ...                 label="pending-tx-mainnet",  # optional label
+    ...                 full_transactions=True,
+    ...                 handler=pending_tx_handler,
+    ...             ),
+    ...             LogsSubscription(
+    ...                 label="WETH transfers",  # optional label
+    ...                 address=weth_contract.address,
+    ...                 topics=[transfer_event.topic],
+    ...                 handler=log_handler,
+    ...                 # optional ``handler_context`` args to help parse a response
+    ...                 handler_context={"transfer_event": transfer_event},
+    ...             ),
+    ...         ]
+    ...     )
+    ...
+    ...     public_w3 = await AsyncWeb3(WebSocketProvider(PUBLIC_PROVIDER_WS))
+    ...     # subscribe via eth_subscribe, with handler and label (optional)
+    ...     await public_w3.eth.subscribe("public_newHeads", handler=pending_tx_handler, label="new-heads-public-ws")
+
+    >>>     # This will handle all subscriptions until no more subscriptions are present
+    ...     # in either subscription manager instance. If the `run_forever` flag is set
+    ...     # to `True` on any manager instance, this will run indefinitely.
+    >>>     await asyncio.gather(
+    ...         public_w3.subscription_manager.handle_subscriptions(),
+    ...         local_w3.subscription_manager.handle_subscriptions(),
+    ...     )
+    ...
+    ...     # close the connections
+    ...     await local_w3.provider.disconnect()
+    ...     await public_w3.provider.disconnect()
+
+    >>> asyncio.run(sub_manager())
+
+
+The ``process_subscriptions()`` method on the
 :class:`~web3.providers.persistent.PersistentConnection` class, the public API for
-interacting with the active persistent socket connection, is set up to receive
-``eth_subscription`` responses over an asynchronous interator pattern.
+interacting with the active persistent socket connection, is also set up to receive
+``eth_subscription`` responses over an asynchronous iterator pattern. You can use this
+method to listen for raw messages and process them as they come in.
 
 .. code-block:: python
 

@@ -19,19 +19,10 @@ from web3._utils.module_testing.utils import (
     RequestMocker,
 )
 
-from .utils import (
-    get_open_port,
-)
-
 
 @pytest.fixture(scope="module", params=[lambda x: to_bytes(hexstr=x), identity])
 def address_conversion_func(request):
     return request.param
-
-
-@pytest.fixture()
-def open_port():
-    return get_open_port()
 
 
 # --- session-scoped constants --- #
@@ -42,7 +33,7 @@ def emitter_contract_data():
     return EMITTER_CONTRACT_DATA
 
 
-# This class defines events for the EmitterContract and are used to construct
+# This class defines events for the EmitterContract and is used to construct
 # a fixture for contract event logs. Parameterized tests that utilize an `emitter`
 # contract fixture will use this data.
 class LogFunctions:
@@ -71,7 +62,7 @@ def emitter_contract_event_ids():
     return LogFunctions
 
 
-# This class defines topics for the EmitterContract and are used to construct
+# This class defines topics for the EmitterContract and is used to construct
 # a fixture for contract event log topics. Parameterized tests that utilize
 # an `emitter` contract fixture will use this data.
 class LogTopics:

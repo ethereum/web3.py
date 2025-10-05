@@ -15,15 +15,13 @@ from eth_typing import (
 from toolz import (
     merge,
 )
-from websockets import (
-    WebSocketClientProtocol,
-)
-from websockets.client import (
-    connect,
-)
 from websockets.exceptions import (
     ConnectionClosedOK,
     WebSocketException,
+)
+from websockets.legacy.client import (
+    WebSocketClientProtocol,
+    connect,
 )
 
 from web3.exceptions import (
@@ -59,18 +57,22 @@ class WebSocketProvider(PersistentConnectionProvider):
     logger = logging.getLogger("web3.providers.WebSocketProvider")
     is_async: bool = True
 
-    _ws: Optional[WebSocketClientProtocol] = None
-
     def __init__(
         self,
         endpoint_uri: Optional[Union[URI, str]] = None,
         websocket_kwargs: Optional[Dict[str, Any]] = None,
+        # uses binary frames by default
+        use_text_frames: Optional[bool] = False,
         # `PersistentConnectionProvider` kwargs can be passed through
         **kwargs: Any,
     ) -> None:
+        # initialize the endpoint_uri before calling the super constructor
         self.endpoint_uri = (
             URI(endpoint_uri) if endpoint_uri is not None else get_default_endpoint()
         )
+        super().__init__(**kwargs)
+        self.use_text_frames = use_text_frames
+        self._ws: Optional[WebSocketClientProtocol] = None
 
         if not any(
             self.endpoint_uri.startswith(prefix)
@@ -92,8 +94,6 @@ class WebSocketProvider(PersistentConnectionProvider):
                 )
 
         self.websocket_kwargs = merge(DEFAULT_WEBSOCKET_KWARGS, websocket_kwargs or {})
-
-        super().__init__(**kwargs)
 
     def __str__(self) -> str:
         return f"WebSocket connection: {self.endpoint_uri}"
@@ -119,9 +119,11 @@ class WebSocketProvider(PersistentConnectionProvider):
                 "Connection to websocket has not been initiated for the provider."
             )
 
-        await asyncio.wait_for(
-            self._ws.send(request_data), timeout=self.request_timeout
-        )
+        payload: Union[bytes, str] = request_data
+        if self.use_text_frames:
+            payload = request_data.decode("utf-8")
+
+        await asyncio.wait_for(self._ws.send(payload), timeout=self.request_timeout)
 
     async def socket_recv(self) -> RPCResponse:
         raw_response = await self._ws.recv()
@@ -133,6 +135,7 @@ class WebSocketProvider(PersistentConnectionProvider):
         self._ws = await connect(self.endpoint_uri, **self.websocket_kwargs)
 
     async def _provider_specific_disconnect(self) -> None:
+        # this should remain idempotent
         if self._ws is not None and not self._ws.closed:
             await self._ws.close()
             self._ws = None

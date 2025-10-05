@@ -21,11 +21,9 @@ from typing import (
 from eth_typing import (
     URI,
 )
-from websockets.client import (
-    connect,
-)
 from websockets.legacy.client import (
     WebSocketClientProtocol,
+    connect,
 )
 
 from web3._utils.batching import (
@@ -102,6 +100,7 @@ class LegacyWebSocketProvider(JSONBaseProvider):
         websocket_timeout: int = DEFAULT_WEBSOCKET_TIMEOUT,
         **kwargs: Any,
     ) -> None:
+        super().__init__(**kwargs)
         self.endpoint_uri = URI(endpoint_uri)
         self.websocket_timeout = websocket_timeout
         if self.endpoint_uri is None:
@@ -120,7 +119,6 @@ class LegacyWebSocketProvider(JSONBaseProvider):
                     f"in websocket_kwargs, found: {found_restricted_keys}"
                 )
         self.conn = PersistentWebSocket(self.endpoint_uri, websocket_kwargs)
-        super().__init__(**kwargs)
 
     def __str__(self) -> str:
         return f"WS connection {self.endpoint_uri}"
@@ -137,7 +135,7 @@ class LegacyWebSocketProvider(JSONBaseProvider):
     @handle_request_caching
     def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
         self.logger.debug(
-            f"Making request WebSocket. URI: {self.endpoint_uri}, " f"Method: {method}"
+            "Making request WebSocket. URI: %s, Method: %s", self.endpoint_uri, method
         )
         request_data = self.encode_rpc_request(method, params)
         future = asyncio.run_coroutine_threadsafe(
@@ -149,8 +147,9 @@ class LegacyWebSocketProvider(JSONBaseProvider):
         self, requests: List[Tuple[RPCEndpoint, Any]]
     ) -> List[RPCResponse]:
         self.logger.debug(
-            f"Making batch request WebSocket. URI: {self.endpoint_uri}, "
-            f"Methods: {requests}"
+            "Making batch request WebSocket. URI: %s, Methods: %s",
+            self.endpoint_uri,
+            requests,
         )
         request_data = self.encode_batch_rpc_request(requests)
         future = asyncio.run_coroutine_threadsafe(

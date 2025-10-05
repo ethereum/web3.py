@@ -7,6 +7,7 @@ from typing import (
     Dict,
     List,
     Optional,
+    Sequence,
     Tuple,
     Type,
     Union,
@@ -37,6 +38,9 @@ from web3._utils.blocks import (
 )
 from web3._utils.compat import (
     Unpack,
+)
+from web3._utils.decorators import (
+    deprecated_for,
 )
 from web3._utils.fee_utils import (
     async_fee_history_priority_fee,
@@ -89,6 +93,8 @@ from web3.types import (
     LogsSubscriptionArg,
     Nonce,
     SignedTx,
+    SimulateV1Payload,
+    SimulateV1Result,
     StateOverride,
     SubscriptionType,
     SyncStatus,
@@ -99,11 +105,16 @@ from web3.types import (
     _Hash32,
 )
 from web3.utils import (
+    EthSubscription,
     async_handle_offchain_lookup,
+)
+from web3.utils.subscriptions import (
+    EthSubscriptionHandler,
 )
 
 if TYPE_CHECKING:
     from web3 import AsyncWeb3  # noqa: F401
+    from web3.contract.async_contract import AsyncContractEvent  # noqa: F401
 
 
 class AsyncEth(BaseEth):
@@ -282,6 +293,22 @@ class AsyncEth(BaseEth):
                 transaction["data"] = durin_calldata
 
         raise TooManyRequests("Too many CCIP read redirects")
+
+    # eth_simulateV1
+
+    _simulateV1: Method[
+        Callable[
+            [SimulateV1Payload, BlockIdentifier],
+            Awaitable[Sequence[SimulateV1Result]],
+        ]
+    ] = Method(RPC.eth_simulateV1)
+
+    async def simulate_v1(
+        self,
+        payload: SimulateV1Payload,
+        block_identifier: BlockIdentifier,
+    ) -> Sequence[SimulateV1Result]:
+        return await self._simulateV1(payload, block_identifier)
 
     # eth_createAccessList
 
@@ -645,6 +672,7 @@ class AsyncEth(BaseEth):
         mungers=[default_root_munger],
     )
 
+    @deprecated_for("all get_uncle* methods will be removed in v8")
     async def get_uncle_count(self, block_identifier: BlockIdentifier) -> int:
         return await self._get_uncle_count(block_identifier)
 
@@ -692,19 +720,6 @@ class AsyncEth(BaseEth):
         mungers=[default_root_munger],
     )
 
-    _subscribe_with_args: Method[
-        Callable[
-            [
-                SubscriptionType,
-                Optional[Union[LogsSubscriptionArg, bool]],
-            ],
-            Awaitable[HexStr],
-        ]
-    ] = Method(
-        RPC.eth_subscribe,
-        mungers=[default_root_munger],
-    )
-
     async def subscribe(
         self,
         subscription_type: SubscriptionType,
@@ -714,6 +729,10 @@ class AsyncEth(BaseEth):
                 bool,  # newPendingTransactions, full_transactions
             ]
         ] = None,
+        handler: Optional[EthSubscriptionHandler] = None,
+        handler_context: Optional[Dict[str, Any]] = None,
+        label: Optional[str] = None,
+        parallelize: Optional[bool] = None,
     ) -> HexStr:
         if not isinstance(self.w3.provider, PersistentConnectionProvider):
             raise MethodNotSupported(
@@ -721,10 +740,14 @@ class AsyncEth(BaseEth):
                 "persistent connections."
             )
 
-        if subscription_arg is None:
-            return await self._subscribe(subscription_type)
-
-        return await self._subscribe_with_args(subscription_type, subscription_arg)
+        sub = EthSubscription._create_type_aware_subscription(
+            subscription_params=(subscription_type, subscription_arg),
+            handler=handler,
+            handler_context=handler_context or {},
+            label=label,
+            parallelize=parallelize,
+        )
+        return await self.w3.subscription_manager.subscribe(sub)
 
     _unsubscribe: Method[Callable[[HexStr], Awaitable[bool]]] = Method(
         RPC.eth_unsubscribe,
@@ -738,7 +761,14 @@ class AsyncEth(BaseEth):
                 "persistent connections."
             )
 
-        return await self._unsubscribe(subscription_id)
+        for sub in self.w3.subscription_manager.subscriptions:
+            if sub._id == subscription_id:
+                return await sub.unsubscribe()
+
+        raise Web3ValueError(
+            f"Cannot unsubscribe subscription with id `{subscription_id}`. "
+            "Subscription not found."
+        )
 
     # -- contract methods -- #
 

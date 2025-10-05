@@ -59,7 +59,7 @@ def get_ipc_socket(ipc_path: str, timeout: float = 2.0) -> socket.socket:
         return sock
 
 
-class PersistantSocket:
+class PersistentSocket:
     sock = None
 
     def __init__(self, ipc_path: str) -> None:
@@ -116,14 +116,15 @@ def get_default_ipc_path() -> str:
 
 
 def get_dev_ipc_path() -> str:
-    if os.environ.get("WEB3_PROVIDER_URI", ""):
-        return os.environ.get("WEB3_PROVIDER_URI")
+    web3_provider_uri = os.environ.get("WEB3_PROVIDER_URI", "")
+    if web3_provider_uri and "geth.ipc" in web3_provider_uri:
+        return web3_provider_uri
 
-    elif sys.platform == "darwin":
-        tmpdir = os.environ.get("TMPDIR", "")
+    elif sys.platform == "darwin" or sys.platform.startswith("linux"):
+        tmpdir = os.environ.get("TMPDIR", "/tmp")
         return os.path.expanduser(os.path.join(tmpdir, "geth.ipc"))
 
-    elif sys.platform.startswith("linux") or sys.platform.startswith("freebsd"):
+    elif sys.platform.endswith("freebsd"):
         return os.path.expanduser(os.path.join("/tmp", "geth.ipc"))
 
     elif sys.platform == "win32":
@@ -146,6 +147,7 @@ class IPCProvider(JSONBaseProvider):
         timeout: int = 30,
         **kwargs: Any,
     ) -> None:
+        super().__init__(**kwargs)
         if ipc_path is None:
             self.ipc_path = get_default_ipc_path()
         elif isinstance(ipc_path, str) or isinstance(ipc_path, Path):
@@ -155,8 +157,7 @@ class IPCProvider(JSONBaseProvider):
 
         self.timeout = timeout
         self._lock = threading.Lock()
-        self._socket = PersistantSocket(self.ipc_path)
-        super().__init__(**kwargs)
+        self._socket = PersistentSocket(self.ipc_path)
 
     def __str__(self) -> str:
         return f"<{self.__class__.__name__} {self.ipc_path}>"
@@ -195,7 +196,7 @@ class IPCProvider(JSONBaseProvider):
     @handle_request_caching
     def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
         self.logger.debug(
-            f"Making request IPC. Path: {self.ipc_path}, Method: {method}"
+            "Making request IPC. Path: %s, Method: %s", self.ipc_path, method
         )
         request = self.encode_rpc_request(method, params)
         return self._make_request(request)
@@ -203,7 +204,7 @@ class IPCProvider(JSONBaseProvider):
     def make_batch_request(
         self, requests: List[Tuple[RPCEndpoint, Any]]
     ) -> List[RPCResponse]:
-        self.logger.debug(f"Making batch request IPC. Path: {self.ipc_path}")
+        self.logger.debug("Making batch request IPC. Path: %s", self.ipc_path)
         request_data = self.encode_batch_rpc_request(requests)
         response = cast(List[RPCResponse], self._make_request(request_data))
         return sort_batch_response_by_response_ids(response)

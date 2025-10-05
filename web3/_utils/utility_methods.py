@@ -1,7 +1,7 @@
 from typing import (
     Any,
-    Dict,
     Iterable,
+    Mapping,
     Set,
     Union,
 )
@@ -13,7 +13,7 @@ from web3.types import (
 
 
 def all_in_dict(
-    values: Iterable[Any], d: Union[Dict[Any, Any], TxData, TxParams]
+    values: Iterable[Any], d: Union[Mapping[Any, Any], TxData, TxParams]
 ) -> bool:
     """
     Returns a bool based on whether ALL of the provided values exist
@@ -29,7 +29,7 @@ def all_in_dict(
 
 
 def any_in_dict(
-    values: Iterable[Any], d: Union[Dict[Any, Any], TxData, TxParams]
+    values: Iterable[Any], d: Union[Mapping[Any, Any], TxData, TxParams]
 ) -> bool:
     """
     Returns a bool based on whether ANY of the provided values exist
@@ -45,7 +45,7 @@ def any_in_dict(
 
 
 def none_in_dict(
-    values: Iterable[Any], d: Union[Dict[Any, Any], TxData, TxParams]
+    values: Iterable[Any], d: Union[Mapping[Any, Any], TxData, TxParams]
 ) -> bool:
     """
     Returns a bool based on whether NONE of the provided values exist

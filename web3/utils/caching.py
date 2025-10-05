@@ -25,6 +25,12 @@ class SimpleCache:
         self._size = size
         self._data: OrderedDict[str, Any] = OrderedDict()
 
+    def __contains__(self, key: str) -> bool:
+        return key in self._data
+
+    def __len__(self) -> int:
+        return len(self._data)
+
     def cache(self, key: str, value: Any) -> Tuple[Any, Dict[str, Any]]:
         evicted_items = {}
         # If the key is already in the OrderedDict just update it
@@ -59,11 +65,8 @@ class SimpleCache:
     def popitem(self, last: bool = True) -> Tuple[str, Any]:
         return self._data.popitem(last=last)
 
-    def __contains__(self, key: str) -> bool:
-        return key in self._data
-
-    def __len__(self) -> int:
-        return len(self._data)
+    def is_full(self) -> bool:
+        return len(self._data) >= self._size
 
     # -- async utility methods -- #
 

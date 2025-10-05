@@ -65,13 +65,21 @@ class StaticENS:
         return self.registry.get(name, None)
 
 
+class AsyncStaticENS:
+    def __init__(self, name_addr_pairs: Dict[str, ChecksumAddress]) -> None:
+        self.registry = dict(name_addr_pairs)
+
+    async def address(self, name: str) -> ChecksumAddress:
+        return self.registry.get(name, None)
+
+
 @contextmanager
 def ens_addresses(
     w3: Union["Web3", "AsyncWeb3"], name_addr_pairs: Dict[str, ChecksumAddress]
 ) -> Iterator[None]:
     original_ens = w3.ens
     if w3.provider.is_async:
-        w3.ens = cast(AsyncENS, StaticENS(name_addr_pairs))
+        w3.ens = cast(AsyncENS, AsyncStaticENS(name_addr_pairs))
     else:
         w3.ens = cast(ENS, StaticENS(name_addr_pairs))
     yield

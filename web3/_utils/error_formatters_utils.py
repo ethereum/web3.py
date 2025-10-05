@@ -8,6 +8,7 @@ from eth_utils import (
 )
 
 from web3.exceptions import (
+    BlockNotFound,
     ContractCustomError,
     ContractLogicError,
     ContractPanicError,
@@ -43,7 +44,7 @@ PANIC_ERROR_CODES = {
     "11": "Panic error 0x11: Arithmetic operation results in underflow or overflow.",
     "12": "Panic error 0x12: Division by zero.",
     "21": "Panic error 0x21: Cannot convert value into an enum type.",
-    "22": "Panic error 0x12: Storage byte array is incorrectly encoded.",
+    "22": "Panic error 0x22: Storage byte array is incorrectly encoded.",
     "31": "Panic error 0x31: Call to 'pop()' on an empty array.",
     "32": "Panic error 0x32: Array index is out of bounds.",
     "41": "Panic error 0x41: Allocation of too much memory or array too large.",
@@ -183,5 +184,21 @@ def raise_transaction_indexing_error_if_indexing(response: RPCResponse) -> RPCRe
                 idx_key_phrases in message for idx_key_phrases in ("index", "progress")
             ):
                 raise TransactionIndexingInProgress(message)
+
+    return response
+
+
+def raise_block_not_found_on_error(response: RPCResponse) -> RPCResponse:
+    """
+    Raise ``BlockNotFound`` on specific error message(s).
+    """
+    error = response.get("error")
+    if not isinstance(error, str) and error is not None:
+        message = error.get("message")
+        if message is not None:
+            if "not found" in message.lower() and any(
+                key in message.lower() for key in ("block", "header")
+            ):
+                raise BlockNotFound(message)
 
     return response

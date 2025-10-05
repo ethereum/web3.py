@@ -2,9 +2,12 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Dict,
+    Union,
+    cast,
 )
 
 from web3.types import (
+    FormattedEthSubscriptionResponse,
     RPCEndpoint,
     RPCResponse,
 )
@@ -16,6 +19,9 @@ if TYPE_CHECKING:
     from web3.manager import (  # noqa: F401
         _AsyncPersistentMessageStream,
     )
+    from web3.providers.persistent import (  # noqa: F401
+        PersistentConnectionProvider,
+    )
 
 
 class PersistentConnection:
@@ -26,6 +32,7 @@ class PersistentConnection:
 
     def __init__(self, w3: "AsyncWeb3"):
         self._manager = w3.manager
+        self.provider = cast("PersistentConnectionProvider", self._manager.provider)
 
     @property
     def subscriptions(self) -> Dict[str, Any]:
@@ -47,10 +54,10 @@ class PersistentConnection:
         :param method: The RPC method, e.g. `eth_getBlockByNumber`.
         :param params: The RPC method parameters, e.g. `["0x1337", False]`.
 
-        :return: The processed response from the persistent connection.
+        :return: The unprocessed response from the persistent connection.
         :rtype: RPCResponse
         """
-        return await self._manager.socket_request(method, params)
+        return await self.provider.make_request(method, params)
 
     async def send(self, method: RPCEndpoint, params: Any) -> None:
         """
@@ -63,14 +70,14 @@ class PersistentConnection:
         """
         await self._manager.send(method, params)
 
-    async def recv(self) -> RPCResponse:
+    async def recv(self) -> Union[RPCResponse, FormattedEthSubscriptionResponse]:
         """
         Receive the next unprocessed response for a request from the persistent
         connection.
 
         :return: The next unprocessed response for a request from the persistent
                  connection.
-        :rtype: RPCResponse
+        :rtype: Union[RPCResponse, FormattedEthSubscriptionResponse]
         """
         return await self._manager.recv()
 

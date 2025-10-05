@@ -52,7 +52,7 @@ master_doc = "index"
 
 # General information about the project.
 project = "web3.py"
-copyright = "2016-2024, The Ethereum Foundation"
+copyright = "2016-2025, The Ethereum Foundation"
 
 __version__ = setup_version
 # The version info for the project you're documenting, acts as replacement for

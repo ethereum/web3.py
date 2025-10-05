@@ -16,6 +16,9 @@ from typing import (
     Union,
 )
 
+from eth_account.datastructures import (
+    SignedSetCodeAuthorization,
+)
 from eth_typing import (
     Address,
     BlockNumber,
@@ -36,13 +39,9 @@ from web3._utils.compat import (
 )
 
 if TYPE_CHECKING:
-    from web3.contract.async_contract import (  # noqa: F401
-        AsyncContractEvent,
-        AsyncContractFunction,
-    )
-    from web3.contract.contract import (  # noqa: F401
-        ContractEvent,
-        ContractFunction,
+    from web3.contract.base_contract import (
+        BaseContractEvent,
+        BaseContractFunction,
     )
     from web3.main import (  # noqa: F401
         AsyncWeb3,
@@ -63,6 +62,19 @@ ABIElementIdentifier = Union[str, Type[FallbackFn], Type[ReceiveFn]]
 
 # bytes, hexbytes, or hexstr representing a 32 byte hash
 _Hash32 = Union[Hash32, HexBytes, HexStr]
+
+# --- ``TopicFilter`` type for event log filtering with AND/OR patterns --- #
+# - ``None``: wildcard, matches any value at this position
+# - ``_Hash32``: single topic that must match exactly
+# - ``Sequence[Union[None, _Hash32]]``: OR condition, at least one must match
+# - ``Sequence[Sequence[...]]``: nested OR conditions
+TopicFilter = Union[
+    None,
+    _Hash32,
+    Sequence[Union[None, _Hash32]],
+    Sequence["TopicFilter"],
+]
+
 EnodeURI = NewType("EnodeURI", str)
 ENS = NewType("ENS", str)
 Nonce = NewType("Nonce", int)
@@ -98,11 +110,21 @@ class RPCError(TypedDict):
     data: NotRequired[str]
 
 
+class SetCodeAuthorizationData(TypedDict):
+    chainId: int
+    address: ChecksumAddress
+    nonce: Nonce
+    yParity: int
+    r: HexBytes
+    s: HexBytes
+
+
 # syntax b/c "from" keyword not allowed w/ class construction
 TxData = TypedDict(
     "TxData",
     {
         "accessList": AccessList,
+        "authorizationList": Sequence[SetCodeAuthorizationData],
         "blobVersionedHashes": Sequence[HexBytes],
         "blockHash": HexBytes,
         "blockNumber": BlockNumber,
@@ -129,11 +151,24 @@ TxData = TypedDict(
     total=False,
 )
 
+
+class SetCodeAuthorizationParams(TypedDict):
+    chainId: int
+    address: Union[Address, ChecksumAddress, str]
+    nonce: Nonce
+    y_parity: int
+    r: int
+    s: int
+
+
 # syntax b/c "from" keyword not allowed w/ class construction
 TxParams = TypedDict(
     "TxParams",
     {
         "accessList": AccessList,
+        "authorizationList": Sequence[
+            Union[SetCodeAuthorizationParams, SignedSetCodeAuthorization]
+        ],
         "blobVersionedHashes": Sequence[Union[str, HexStr, bytes, HexBytes]],
         "chainId": int,
         "data": Union[bytes, HexStr],
@@ -190,6 +225,7 @@ class BlockData(TypedDict, total=False):
     parentBeaconBlockRoot: HexBytes
     blobGasUsed: int
     excessBlobGas: int
+    requestsHash: HexBytes
 
     # ExtraDataToPOAMiddleware replaces extraData w/ proofOfAuthorityData
     proofOfAuthorityData: HexBytes
@@ -201,10 +237,10 @@ class LogReceipt(TypedDict):
     blockNumber: BlockNumber
     data: HexBytes
     logIndex: int
+    removed: bool
     topics: Sequence[HexBytes]
     transactionHash: HexBytes
     transactionIndex: int
-    removed: bool
 
 
 class SubscriptionResponse(TypedDict):
@@ -262,6 +298,13 @@ EthSubscriptionParams = Union[
 RPCId = Optional[Union[int, str]]
 
 
+class RPCRequest(TypedDict, total=False):
+    id: RPCId
+    jsonrpc: Literal["2.0"]
+    method: RPCEndpoint
+    params: Any
+
+
 class RPCResponse(TypedDict, total=False):
     error: RPCError
     id: RPCId
@@ -273,11 +316,19 @@ class RPCResponse(TypedDict, total=False):
     params: EthSubscriptionParams
 
 
+EthSubscriptionResult = Union[
+    BlockData,  # newHeads
+    TxData,  # newPendingTransactions, full_transactions=True
+    HexBytes,  # newPendingTransactions, full_transactions=False
+    LogReceipt,  # logs
+    SyncProgress,  # syncing
+    GethSyncingSubscriptionResult,  # geth syncing
+]
+
+
 class FormattedEthSubscriptionResponse(TypedDict):
     subscription: HexStr
-    result: Union[
-        BlockData, TxData, LogReceipt, SyncProgress, GethSyncingSubscriptionResult
-    ]
+    result: EthSubscriptionResult
 
 
 class CreateAccessListResponse(TypedDict):
@@ -286,10 +337,13 @@ class CreateAccessListResponse(TypedDict):
 
 
 MakeRequestFn = Callable[[RPCEndpoint, Any], RPCResponse]
-MakeBatchRequestFn = Callable[[List[Tuple[RPCEndpoint, Any]]], List[RPCResponse]]
+MakeBatchRequestFn = Callable[
+    [List[Tuple[RPCEndpoint, Any]]], Union[List[RPCResponse], RPCResponse]
+]
 AsyncMakeRequestFn = Callable[[RPCEndpoint, Any], Coroutine[Any, Any, RPCResponse]]
 AsyncMakeBatchRequestFn = Callable[
-    [List[Tuple[RPCEndpoint, Any]]], Coroutine[Any, Any, List[RPCResponse]]
+    [List[Tuple[RPCEndpoint, Any]]],
+    Coroutine[Any, Any, Union[List[RPCResponse], RPCResponse]],
 ]
 
 
@@ -304,7 +358,7 @@ class FilterParams(TypedDict, total=False):
     blockHash: HexBytes
     fromBlock: BlockIdentifier
     toBlock: BlockIdentifier
-    topics: Sequence[Optional[Union[_Hash32, Sequence[_Hash32]]]]
+    topics: Sequence[TopicFilter]
 
 
 class FeeHistory(TypedDict):
@@ -322,7 +376,7 @@ class StateOverrideParams(TypedDict, total=False):
     stateDiff: Optional[Dict[HexStr, HexStr]]
 
 
-StateOverride = Dict[ChecksumAddress, StateOverrideParams]
+StateOverride = Dict[Union[str, Address, ChecksumAddress], StateOverrideParams]
 
 
 GasPriceStrategy = Union[
@@ -553,6 +607,30 @@ class OpcodeTrace(TypedDict, total=False):
     structLogs: List[StructLog]
 
 
+class BlockStateCallV1(TypedDict):
+    blockOverrides: NotRequired[BlockData]
+    stateOverrides: NotRequired[StateOverride]
+    calls: Sequence[TxParams]
+
+
+class SimulateV1Payload(TypedDict):
+    blockStateCalls: Sequence[BlockStateCallV1]
+    validation: NotRequired[bool]
+    traceTransfers: NotRequired[bool]
+
+
+class SimulateV1CallResult(TypedDict):
+    returnData: HexBytes
+    logs: Sequence[LogReceipt]
+    gasUsed: int
+    status: int
+    error: NotRequired[RPCError]
+
+
+class SimulateV1Result(BlockData):
+    calls: Sequence[SimulateV1CallResult]
+
+
 #
 # web3.geth types
 #
@@ -566,8 +644,8 @@ class GethWallet(TypedDict):
 
 # Contract types
 
-TContractFn = TypeVar("TContractFn", "ContractFunction", "AsyncContractFunction")
-TContractEvent = TypeVar("TContractEvent", "ContractEvent", "AsyncContractEvent")
+TContractFn = TypeVar("TContractFn", bound="BaseContractFunction")
+TContractEvent = TypeVar("TContractEvent", bound="BaseContractEvent")
 
 
 # Tracing types
@@ -602,4 +680,4 @@ class LogsSubscriptionArg(TypedDict, total=False):
         ENS,
         Sequence[Union[Address, ChecksumAddress, ENS]],
     ]
-    topics: Sequence[Union[HexStr, Sequence[HexStr]]]
+    topics: Sequence[TopicFilter]

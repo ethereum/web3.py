@@ -441,7 +441,7 @@ Methods
           "data": [
             {
               "index": "1",
-              "blob": ..., # ommitted
+              "blob": ..., # omitted
               "kzg_commitment": "0x93247f2209abcacf57b75a51dafae777f9dd38bc7053d1af526f220a7489a6d3a2753e5f3e8b1cfe39b56f43611df74a",
               "kzg_proof": "0x7FB0A12D11Ffe8A48c2fF80dCA17adbCC1da5F6aADaAEF2b338717dcDEECf6DaB9FD7C4e4265CfBc097cD31dCB19E836",
               "signed_block_header": {

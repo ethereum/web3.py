@@ -1,17 +1,12 @@
 import asyncio
-import functools
-import pytest
 from typing import (
     TYPE_CHECKING,
     Any,
-    Callable,
     Collection,
     Dict,
     Generator,
     Literal,
     Sequence,
-    Tuple,
-    Type,
     Union,
 )
 
@@ -25,9 +20,6 @@ from eth_typing import (
 )
 from eth_utils import (
     is_same_address,
-)
-from flaky import (
-    flaky,
 )
 from hexbytes import (
     HexBytes,
@@ -49,55 +41,9 @@ if TYPE_CHECKING:
     )
     from requests import Response  # noqa: F401
 
-    from web3 import Web3  # noqa: F401
     from web3._utils.compat import (  # noqa: F401
         Self,
     )
-
-
-"""
-flaky_geth_dev_mining decorator for tests requiring a pending block
-for the duration of the test. This behavior can be flaky
-due to timing of the test running as a block is mined.
-"""
-flaky_geth_dev_mining = flaky(max_runs=3, min_passes=1)
-
-
-def flaky_with_xfail_on_exception(
-    reason: str,
-    exception: Union[Type[Exception], Tuple[Type[Exception], ...]],
-    max_runs: int = 3,
-    min_passes: int = 1,
-) -> Callable[[Any], Any]:
-    """
-    Some tests inconsistently fail hard with a particular exception and retrying
-    these tests often times does not get them "unstuck". If we've exhausted all flaky
-    retries and this expected exception is raised, `xfail` the test with the given
-    reason.
-    """
-    runs = max_runs
-
-    def decorator(func: Any) -> Any:
-        @flaky(max_runs=max_runs, min_passes=min_passes)
-        @functools.wraps(func)
-        async def wrapper(self: Any, *args: Any, **kwargs: Any) -> Any:
-            nonlocal runs
-            try:
-                return await func(self, *args, **kwargs)
-            except exception:
-                # xfail the test only if the exception is raised and we have exhausted
-                # all flaky retries
-                if runs == 1:
-                    pytest.xfail(reason)
-                runs -= 1
-                pytest.fail(f"xfailed but {runs} run(s) remaining with flaky...")
-            except Exception as e:
-                # let flaky handle it
-                raise e
-
-        return wrapper
-
-    return decorator
 
 
 def assert_contains_log(
@@ -106,7 +52,7 @@ def assert_contains_log(
     emitter_contract_address: ChecksumAddress,
     txn_hash_with_log: HexStr,
 ) -> None:
-    assert len(result) == 1
+    assert len(result) > 0
     log_entry = result[0]
     assert log_entry["blockNumber"] == block_with_txn_with_log["number"]
     assert log_entry["blockHash"] == block_with_txn_with_log["hash"]

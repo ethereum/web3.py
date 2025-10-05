@@ -31,7 +31,7 @@ legacy ``WebsocketProvider``. The ``LegacyWebSocketProvider`` has been deprecate
 If migrating from ``WebSocketProviderV2`` to ``WebSocketProvider``, you can expect the
 following changes:
 
-- Instantiation no longer requires the ``persistant_websocket`` method:
+- Instantiation no longer requires the ``persistent_websocket`` method:
 
   .. code-block:: python
 
@@ -299,7 +299,7 @@ types have been introduced in the ``eth_typing`` ``v5`` package for ABIs. Improv
 been made to make required types more explicit and to offer better semantics.
 
 The following types from ``web3.types`` have been removed:
-- ``ABIEventParams`` is no longer avaiable. Use ``ABIComponentIndexed`` from
+- ``ABIEventParams`` is no longer available. Use ``ABIComponentIndexed`` from
 ``eth_typing`` to represent event input components.
 - ``ABIEvent`` now resides in ``eth_typing``. ``ABIEvent.type`` and ``ABIEvent.name``
 are now required fields.
@@ -323,7 +323,7 @@ Miscellaneous Changes
   than the function names.
 - ``BaseContractFunction`` class attribute ``function_identifier`` has been removed in
   favor of the ``abi_element_identifier`` attribute.
-- ``web3.contract.utils.call_contract_function()`` no longers uses ``fn_abi`` as a
+- ``web3.contract.utils.call_contract_function()`` no longer uses ``fn_abi`` as a
   parameter. Instead, the ``abi_callable`` parameter of type ``ABICallable`` is used.
 - Beacon API filename change: ``beacon/main.py`` -> ``beacon/beacon.py``.
 - The asynchronous version of ``w3.eth.wait_for_transaction_receipt()`` changes its
@@ -573,7 +573,7 @@ or the classic contract syntax:
 
 ``contract.functions.<function name>.call()``.
 
-Some more concrete examples can be found in the `ContractCaller docs <https://web3py.readthedocs.io/en/latest/contracts.html?highlight=Caller#contractcaller>`_
+Some more concrete examples can be found in the `ContractCaller docs <https://web3py.readthedocs.io/en/stable/web3.contract.html#contractcaller>`_
 
 
 Manager Provider

@@ -1,7 +1,7 @@
+import pytest
 import json
 import os
 import pathlib
-import pytest
 import socket
 import tempfile
 from threading import (
@@ -25,6 +25,7 @@ from web3.datastructures import (
 )
 from web3.exceptions import (
     ReadBufferLimitReached,
+    Web3RPCError,
 )
 from web3.providers import (
     AsyncIPCProvider,
@@ -180,9 +181,11 @@ async def test_disconnect_cleanup(
     provider._request_processor._request_response_cache.cache("0", "0x1337")
     provider._request_processor._request_information_cache.cache("0", "0x1337")
     provider._request_processor._subscription_response_queue.put_nowait({"id": "0"})
+    provider._request_processor._handler_subscription_queue.put_nowait({"id": "0"})
     assert len(provider._request_processor._request_response_cache) == 1
     assert len(provider._request_processor._request_information_cache) == 1
     assert provider._request_processor._subscription_response_queue.qsize() == 1
+    assert provider._request_processor._handler_subscription_queue.qsize() == 1
 
     await w3.provider.disconnect()
 
@@ -192,6 +195,7 @@ async def test_disconnect_cleanup(
     assert len(provider._request_processor._request_response_cache) == 0
     assert len(provider._request_processor._request_information_cache) == 0
     assert provider._request_processor._subscription_response_queue.empty()
+    assert provider._request_processor._handler_subscription_queue.empty()
 
 
 async def _raise_connection_closed(*_args, **_kwargs):
@@ -356,10 +360,33 @@ async def test_async_ipc_provider_write_messages_end_with_new_line_delimiter(
     async with AsyncWeb3(AsyncIPCProvider(pathlib.Path(jsonrpc_ipc_pipe_path))) as w3:
         w3.provider._writer.write = Mock()
         w3.provider._reader.readline = AsyncMock(
-            return_value=b'{"id": 0, "result": {}}\n'
+            return_value=b'{"id": 0, "jsonrpc": "2.0", "result": {}}\n'
         )
 
         await w3.provider.make_request("method", [])
 
-        request_data = b'{"jsonrpc": "2.0", "method": "method", "params": [], "id": 0}'
+        request_data = b'{"id": 0, "jsonrpc": "2.0", "method": "method", "params": []}'
         w3.provider._writer.write.assert_called_with(request_data + b"\n")
+
+
+@pytest.mark.asyncio
+async def test_persistent_connection_provider_empty_batch_response(
+    simple_ipc_server,
+    jsonrpc_ipc_pipe_path,
+):
+    with pytest.raises(Web3RPCError, match="empty batch"):
+        async with AsyncWeb3(
+            AsyncIPCProvider(pathlib.Path(jsonrpc_ipc_pipe_path))
+        ) as async_w3:
+            async_w3.provider._reader.readline = AsyncMock(
+                return_value=(
+                    b'{"jsonrpc": "2.0","id":null,"error": {"code": -32600, "message": '
+                    b'"empty batch"}}\n'
+                )
+            )
+            async with async_w3.batch_requests() as batch:
+                assert async_w3.provider._is_batching
+                await batch.async_execute()
+
+        # assert that even though there was an error, we have reset the batching state
+        assert not async_w3.provider._is_batching

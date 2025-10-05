@@ -31,7 +31,7 @@ A block as returned by `web3.eth.get_block` that has a single transaction.
 
 #### `math_contract`
 
-An deployed Contract instance of the *Math* contract found in
+A deployed Contract instance of the *Math* contract found in
 `web3._utils.contract_sources.MathContract.sol`.
 
 #### `keyfile_account_address`

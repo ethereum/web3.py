@@ -6,7 +6,7 @@ from aiohttp import (
 import requests
 
 from ens.utils import (
-    ens_encode_name,
+    dns_encode_name,
 )
 from web3.exceptions import (
     OffchainLookup,
@@ -172,14 +172,14 @@ def test_offchain_resolver_function_call_raises_with_ccip_read_disabled(
     # should fail here with `ccip_read_enabled` flag set to False
     with pytest.raises(OffchainLookup):
         offchain_resolver.functions.resolve(
-            ens_encode_name("offchainexample.eth"),
+            dns_encode_name("offchainexample.eth"),
             ENCODED_ADDR_CALLDATA,
         ).call(ccip_read_enabled=False)
 
     # pass flag on specific call via ContractCaller is also an option
     with pytest.raises(OffchainLookup):
         offchain_resolver.caller(ccip_read_enabled=False).resolve(
-            ens_encode_name("offchainexample.eth"),
+            dns_encode_name("offchainexample.eth"),
             ENCODED_ADDR_CALLDATA,
         )
 

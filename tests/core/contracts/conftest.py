@@ -1,5 +1,5 @@
-import functools
 import pytest
+import functools
 
 import pytest_asyncio
 
@@ -12,6 +12,9 @@ from tests.utils import (
 )
 from web3._utils.abi import (
     get_abi_element_signature,
+)
+from web3._utils.contract_sources.contract_data.ambiguous_function_contract import (
+    AMBIGUOUS_FUNCTION_CONTRACT_DATA,
 )
 from web3._utils.contract_sources.contract_data.arrays_contract import (
     ARRAYS_CONTRACT_DATA,
@@ -193,6 +196,26 @@ def non_strict_string_contract(
         address_conversion_func,
         args=["Caqalai"],
     )
+
+
+# --- ambiguous function contract --- #
+
+
+@pytest.fixture(scope="session")
+def ambiguous_function_contract_data():
+    return AMBIGUOUS_FUNCTION_CONTRACT_DATA
+
+
+@pytest.fixture
+def ambiguous_function_contract_factory(w3):
+    return w3.eth.contract(**AMBIGUOUS_FUNCTION_CONTRACT_DATA)
+
+
+@pytest.fixture
+def ambiguous_function_contract(
+    w3, ambiguous_function_contract_factory, address_conversion_func
+):
+    return deploy(w3, ambiguous_function_contract_factory, address_conversion_func)
 
 
 # --- emitter contract --- #
@@ -777,6 +800,37 @@ async def async_nested_tuple_contract_with_decode_tuples(
     )
     return await async_deploy(
         async_w3, async_nested_tuple_contract_factory, address_conversion_func
+    )
+
+
+@pytest_asyncio.fixture
+async def async_event_contract(
+    async_w3, async_wait_for_transaction, async_wait_for_block, address_conversion_func
+):
+    async_event_contract_factory = async_w3.eth.contract(**EVENT_CONTRACT_DATA)
+
+    await async_wait_for_block(async_w3)
+    deploy_txn_hash = await async_event_contract_factory.constructor().transact(
+        {"gas": 1000000}
+    )
+    deploy_receipt = await async_wait_for_transaction(async_w3, deploy_txn_hash)
+    contract_address = address_conversion_func(deploy_receipt["contractAddress"])
+
+    bytecode = await async_w3.eth.get_code(contract_address)
+    assert bytecode == async_event_contract_factory.bytecode_runtime
+    event_contract = async_event_contract_factory(address=contract_address)
+    assert event_contract.address == contract_address
+    return event_contract
+
+
+@pytest_asyncio.fixture
+async def async_ambiguous_event_contract(async_w3, address_conversion_func):
+    async_ambiguous_event_contract_factory = async_w3.eth.contract(
+        **AMBIGUOUS_EVENT_NAME_CONTRACT_DATA
+    )
+
+    return await async_deploy(
+        async_w3, async_ambiguous_event_contract_factory, address_conversion_func
     )
 
 

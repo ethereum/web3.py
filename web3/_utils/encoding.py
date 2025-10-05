@@ -36,6 +36,9 @@ from eth_utils.toolz import (
 from hexbytes import (
     HexBytes,
 )
+from pydantic import (
+    BaseModel,
+)
 
 from web3._utils.abi import (
     is_address_type,
@@ -299,6 +302,11 @@ class Web3JsonEncoder(json.JSONEncoder):
             return obj.__dict__
         elif isinstance(obj, (HexBytes, bytes)):
             return to_hex(obj)
+        elif isinstance(obj, BaseModel):
+            # TODO: For now we can assume all BaseModel objects behave this way, but
+            #  internally we will start to use the CamelModel from eth-utils. Perhaps
+            #  we should check for that type instead.
+            return obj.model_dump(by_alias=True)
         return json.JSONEncoder.default(self, obj)
 
 

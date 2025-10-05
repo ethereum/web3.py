@@ -51,6 +51,7 @@ class RPC:
     eth_blobBaseFee = RPCEndpoint("eth_blobBaseFee")
     eth_blockNumber = RPCEndpoint("eth_blockNumber")
     eth_call = RPCEndpoint("eth_call")
+    eth_simulateV1 = RPCEndpoint("eth_simulateV1")
     eth_createAccessList = RPCEndpoint("eth_createAccessList")
     eth_chainId = RPCEndpoint("eth_chainId")
     eth_estimateGas = RPCEndpoint("eth_estimateGas")
@@ -214,11 +215,12 @@ def apply_abi_formatters_to_dict(
     fields = list(abi_dict.keys() & data.keys())
     formatted_values = map_abi_data(
         normalizers,
-        [abi_dict[field] for field in fields],
-        [data[field] for field in fields],
+        (abi_dict[field] for field in fields),
+        (data[field] for field in fields),
     )
-    formatted_dict = dict(zip(fields, formatted_values))
-    return dict(data, **formatted_dict)
+    formatted_dict = data.copy()
+    formatted_dict.update(zip(fields, formatted_values))
+    return formatted_dict
 
 
 @to_dict

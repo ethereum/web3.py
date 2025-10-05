@@ -214,6 +214,8 @@ AsyncHTTPProvider
         >>> # If you want to pass in your own session:
         >>> custom_session = ClientSession()
         >>> await w3.provider.cache_async_session(custom_session) # This method is an async method so it needs to be handled accordingly
+        >>> # when you're finished, disconnect:
+        >>> w3.provider.disconnect()
 
     Under the hood, the ``AsyncHTTPProvider`` uses the python
     `aiohttp <https://docs.aiohttp.org/en/stable/>`_ library for making requests.
@@ -231,7 +233,9 @@ Persistent Connection Base Class
 .. py:class:: web3.providers.persistent.PersistentConnectionProvider(\
         request_timeout: float = 50.0, \
         subscription_response_queue_size: int = 500, \
-        silence_listener_task_exceptions: bool = False\
+        silence_listener_task_exceptions: bool = False \
+        max_connection_retries: int = 5, \
+        request_information_cache_size: int = 500, \
     )
 
     This is a base provider class, inherited by the following providers:
@@ -259,6 +263,13 @@ Persistent Connection Base Class
     * ``silence_listener_task_exceptions`` is a boolean that determines whether
       exceptions raised by the listener task are silenced. Defaults to ``False``,
       raising any exceptions that occur in the listener task.
+
+    * ``max_connection_retries`` is the maximum number of times to retry a connection
+      to the provider when initializing the provider. Defaults to ``5``.
+
+    * ``request_information_cache_size`` specifies the size of the transient cache for
+      storing request details, enabling the provider to process responses based on the
+      original request information. Defaults to ``500``.
 
 AsyncIPCProvider
 ++++++++++++++++
@@ -289,7 +300,7 @@ AsyncIPCProvider
 WebSocketProvider
 +++++++++++++++++
 
-.. py:class:: web3.providers.persistent.WebSocketProvider(endpoint_uri: str, websocket_kwargs: Dict[str, Any] = {})
+.. py:class:: web3.providers.persistent.WebSocketProvider(endpoint_uri: str, websocket_kwargs: Dict[str, Any] = {}, use_text_frames: bool = False)
 
     This provider handles interactions with an WS or WSS based JSON-RPC server.
 
@@ -297,6 +308,8 @@ WebSocketProvider
       ``'ws://localhost:8546'``.
     * ``websocket_kwargs`` this should be a dictionary of keyword arguments which
       will be passed onto the ws/wss websocket connection.
+    * ``use_text_frames`` will ensure websocket data is sent as text frames
+      for servers that do not support binary communication.
 
     This provider inherits from the
     :class:`~web3.providers.persistent.PersistentConnectionProvider` class. Refer to
@@ -417,7 +430,7 @@ shown below.
     ...     await w3.provider.disconnect()
 
     # run the example
-    >>> asyncio.run(await_instantiation_example)
+    >>> asyncio.run(await_instantiation_example())
 
 .. code-block:: python
 
@@ -432,7 +445,7 @@ shown below.
     ...     await w3.provider.disconnect()
 
     # run the example
-    >>> asyncio.run(await_provider_connect_example)
+    >>> asyncio.run(await_provider_connect_example())
 
 :class:`~web3.providers.persistent.PersistentConnectionProvider` classes use the
 :class:`~web3.providers.persistent.request_processor.RequestProcessor` class under the

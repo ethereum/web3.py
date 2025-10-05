@@ -353,6 +353,20 @@ class PersistentConnectionClosedOK(PersistentConnectionError):
     """
 
 
+class SubscriptionProcessingFinished(PersistentConnectionError):
+    """
+    Raised to alert the subscription manager that the processing of subscriptions
+    has finished.
+    """
+
+
+class SubscriptionHandlerTaskException(TaskNotRunning):
+    """
+    Raised to alert the subscription manager that an exception occurred in the
+    subscription processing task.
+    """
+
+
 class Web3RPCError(Web3Exception):
     """
     Raised when a JSON-RPC response contains an error field.

@@ -1,5 +1,5 @@
-import json
 import pytest
+import json
 import re
 
 from eth_utils.abi import (

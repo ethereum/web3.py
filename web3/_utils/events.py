@@ -325,7 +325,7 @@ normalize_topic_list = compose(
 
 
 def is_indexed(arg: Any) -> bool:
-    if isinstance(arg, TopicArgumentFilter) is True:
+    if isinstance(arg, TopicArgumentFilter):
         return True
     return False
 

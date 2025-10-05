@@ -1,4 +1,5 @@
 import pytest
+import re
 from typing import (
     cast,
 )
@@ -15,6 +16,7 @@ from hexbytes import (
 )
 
 from web3.exceptions import (
+    MismatchedABI,
     Web3ValueError,
 )
 from web3.utils.abi import (
@@ -101,9 +103,9 @@ map_repr = compose(list, curry(map, repr))
             map_repr,
             [
                 "<Function blockHashAmphithyronVersify(uint256)>",
+                "<Function identity(bool)>",
                 "<Function identity(uint256,bool)>",
                 "<Function identity(int256,bool)>",
-                "<Function identity(bool)>",
             ],
         ),
         (
@@ -123,9 +125,9 @@ map_repr = compose(list, curry(map, repr))
             ("identity",),
             map_repr,
             [
+                "<Function identity(bool)>",
                 "<Function identity(uint256,bool)>",
                 "<Function identity(int256,bool)>",
-                "<Function identity(bool)>",
             ],
         ),
         (
@@ -290,6 +292,52 @@ def test_ambiguous_functions_abi_element_identifier(w3):
     assert fn_bytes.abi_element_identifier == "isValidSignature(bytes,bytes)"
     fn_bytes32 = contract.get_function_by_signature("isValidSignature(bytes32,bytes)")
     assert fn_bytes32.abi_element_identifier == "isValidSignature(bytes32,bytes)"
+
+
+def test_ambiguous_function_methods(ambiguous_function_contract):
+    is_valid_signature_func = ambiguous_function_contract.get_function_by_signature(
+        "isValidSignature()"
+    )
+    is_valid_signature_bytes_func = (
+        ambiguous_function_contract.get_function_by_signature(
+            "isValidSignature(bytes,bytes)"
+        )
+    )
+    is_valid_signature_bytes32_func = (
+        ambiguous_function_contract.get_function_by_signature(
+            "isValidSignature(bytes32,bytes)"
+        )
+    )
+    assert is_valid_signature_func().call() == "valid"
+    assert is_valid_signature_bytes_func(b"hi", b"1").call() == 1
+    assert (
+        is_valid_signature_bytes32_func(
+            b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00",  # noqa: E501
+            b"0",
+        ).call()
+        == 0
+    )
+    assert ambiguous_function_contract.functions.isValidSignature().call() == "valid"
+    assert (
+        ambiguous_function_contract.functions.isValidSignature(b"hi", b"1").call() == 1
+    )
+
+
+def test_ambiguous_function_methods_and_arguments(ambiguous_function_contract):
+    # Raises because there exists a function without arguments
+    # So the function that accepts a bytes32 argument is not set
+    # for the ContractFunctions property with just the name
+    with pytest.raises(
+        MismatchedABI,
+        match=re.escape(
+            "Found multiple elements named `isValidSignature` that accept 2 "
+            "argument(s)."
+        ),
+    ):
+        ambiguous_function_contract.functions.isValidSignature(
+            b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00",  # noqa: E501
+            b"0",
+        )
 
 
 def test_contract_function_methods(string_contract):

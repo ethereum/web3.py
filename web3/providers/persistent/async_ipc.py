@@ -14,6 +14,7 @@ from typing import (
 )
 
 from web3.types import (
+    RPCEndpoint,
     RPCResponse,
 )
 
@@ -59,15 +60,15 @@ class AsyncIPCProvider(PersistentConnectionProvider):
         # `PersistentConnectionProvider` kwargs can be passed through
         **kwargs: Any,
     ) -> None:
+        # initialize the ipc_path before calling the super constructor
         if ipc_path is None:
             self.ipc_path = get_default_ipc_path()
         elif isinstance(ipc_path, str) or isinstance(ipc_path, Path):
             self.ipc_path = str(Path(ipc_path).expanduser().resolve())
         else:
             raise Web3TypeError("ipc_path must be of type string or pathlib.Path")
-
-        self.read_buffer_limit = read_buffer_limit
         super().__init__(**kwargs)
+        self.read_buffer_limit = read_buffer_limit
 
     def __str__(self) -> str:
         return f"<{self.__class__.__name__} {self.ipc_path}>"
@@ -77,7 +78,7 @@ class AsyncIPCProvider(PersistentConnectionProvider):
             return False
 
         try:
-            await self.make_request("web3_clientVersion", [])
+            await self.make_request(RPCEndpoint("web3_clientVersion"), [])
             return True
         except (OSError, ProviderConnectionError) as e:
             if show_traceback:
@@ -109,7 +110,9 @@ class AsyncIPCProvider(PersistentConnectionProvider):
             raise
 
         if not data:
-            raise PersistentConnectionClosedOK("Socket reader received end of stream.")
+            raise PersistentConnectionClosedOK(
+                user_message="Socket reader received end of stream."
+            )
         return self.decode_rpc_response(data)
 
     # -- private methods -- #
@@ -139,6 +142,7 @@ class AsyncIPCProvider(PersistentConnectionProvider):
         )
 
     async def _provider_specific_disconnect(self) -> None:
+        # this should remain idempotent
         if self._writer and not self._writer.is_closing():
             self._writer.close()
             await self._writer.wait_closed()

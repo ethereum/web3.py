@@ -1,5 +1,5 @@
-import os
 import pytest
+import os
 import tempfile
 
 import pytest_asyncio
@@ -7,6 +7,7 @@ import pytest_asyncio
 from web3 import (
     AsyncIPCProvider,
     AsyncWeb3,
+    AutoProvider,
     Web3,
 )
 from web3._utils.module_testing.persistent_connection_provider import (
@@ -38,12 +39,12 @@ def _geth_command_arguments(geth_ipc_path, base_geth_command_arguments):
     )
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def geth_command_arguments(geth_ipc_path, base_geth_command_arguments):
     return _geth_command_arguments(geth_ipc_path, base_geth_command_arguments)
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def geth_ipc_path(datadir):
     geth_ipc_dir_path = tempfile.mkdtemp()
     _geth_ipc_path = os.path.join(geth_ipc_dir_path, "geth.ipc")
@@ -53,10 +54,22 @@ def geth_ipc_path(datadir):
         os.remove(_geth_ipc_path)
 
 
-@pytest.fixture(scope="module")
-def w3(geth_process, geth_ipc_path):
+@pytest.fixture
+def auto_w3(start_geth_process_and_yield_port, geth_ipc_path, monkeypatch):
+    from web3.auto import (
+        w3,
+    )
+
     wait_for_socket(geth_ipc_path)
-    return Web3(Web3.IPCProvider(geth_ipc_path, timeout=30))
+    monkeypatch.setenv("WEB3_PROVIDER_URI", f"file:///{geth_ipc_path}")
+
+    return w3
+
+
+@pytest.fixture
+def w3(start_geth_process_and_yield_port, geth_ipc_path):
+    wait_for_socket(geth_ipc_path)
+    return Web3(Web3.IPCProvider(geth_ipc_path, timeout=10))
 
 
 class TestGoEthereumWeb3ModuleTest(GoEthereumWeb3ModuleTest):
@@ -68,7 +81,18 @@ class TestGoEthereumDebugModuleTest(GoEthereumDebugModuleTest):
 
 
 class TestGoEthereumEthModuleTest(GoEthereumEthModuleTest):
-    pass
+    def test_auto_provider_batching(self, auto_w3: "Web3") -> None:
+        with auto_w3.batch_requests() as batch:
+            assert isinstance(auto_w3.provider, AutoProvider)
+            assert auto_w3.provider._is_batching
+            assert auto_w3.provider._batching_context is not None
+            batch.add(auto_w3.eth.get_block("latest"))
+            batch.add(auto_w3.eth.get_block("earliest"))
+            batch.add(auto_w3.eth.get_block("pending"))
+            results = batch.execute()
+
+        assert not auto_w3.provider._is_batching
+        assert len(results) == 3
 
 
 class TestGoEthereumNetModuleTest(GoEthereumNetModuleTest):
@@ -98,10 +122,10 @@ class TestGoEthereumAdminModuleTest(GoEthereumAdminModuleTest):
 # -- async -- #
 
 
-@pytest_asyncio.fixture(scope="module")
-async def async_w3(geth_process, geth_ipc_path):
+@pytest_asyncio.fixture
+async def async_w3(start_geth_process_and_yield_port, geth_ipc_path):
     await wait_for_async_socket(geth_ipc_path)
-    async with AsyncWeb3(AsyncIPCProvider(geth_ipc_path)) as _aw3:
+    async with AsyncWeb3(AsyncIPCProvider(geth_ipc_path, request_timeout=10)) as _aw3:
         yield _aw3
 
 

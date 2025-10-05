@@ -64,10 +64,12 @@ if TYPE_CHECKING:
     from web3.providers import (  # noqa: F401
         AsyncBaseProvider,
         BaseProvider,
+        PersistentConnectionProvider,
     )
     from web3.types import (  # noqa: F401
         AsyncMakeRequestFn,
         MakeRequestFn,
+        RPCRequest,
         RPCResponse,
     )
 
@@ -366,4 +368,66 @@ def async_handle_request_caching(
 
     # save a reference to the decorator on the wrapped function
     wrapper._decorator = async_handle_request_caching  # type: ignore
+    return wrapper
+
+
+def async_handle_send_caching(
+    func: Callable[
+        [ASYNC_PROVIDER_TYPE, RPCEndpoint, Any],
+        Coroutine[Any, Any, "RPCRequest"],
+    ],
+) -> Callable[..., Coroutine[Any, Any, "RPCRequest"]]:
+    async def wrapper(
+        provider: ASYNC_PROVIDER_TYPE, method: RPCEndpoint, params: Any
+    ) -> "RPCRequest":
+        if is_cacheable_request(provider, method, params):
+            request_cache = provider._request_cache
+            cache_key = generate_cache_key(
+                f"{threading.get_ident()}:{(method, params)}"
+            )
+            cached_response = request_cache.get_cache_entry(cache_key)
+            if cached_response is not None:
+                # The request data isn't used, this just prevents a cached request from
+                # being sent - return an empty request object
+                return {"id": -1, "method": RPCEndpoint(""), "params": []}
+        return await func(provider, method, params)
+
+    # save a reference to the decorator on the wrapped function
+    wrapper._decorator = async_handle_send_caching  # type: ignore
+    return wrapper
+
+
+def async_handle_recv_caching(
+    func: Callable[
+        ["PersistentConnectionProvider", "RPCRequest"],
+        Coroutine[Any, Any, "RPCResponse"],
+    ]
+) -> Callable[..., Coroutine[Any, Any, "RPCResponse"]]:
+    async def wrapper(
+        provider: "PersistentConnectionProvider",
+        rpc_request: "RPCRequest",
+    ) -> "RPCResponse":
+        method = rpc_request["method"]
+        params = rpc_request["params"]
+        if is_cacheable_request(provider, method, params):
+            request_cache = provider._request_cache
+            cache_key = generate_cache_key(
+                f"{threading.get_ident()}:{(method, params)}"
+            )
+            cache_result = request_cache.get_cache_entry(cache_key)
+            if cache_result is not None:
+                return cache_result
+            else:
+                response = await func(provider, rpc_request)
+                if await _async_should_cache_response(
+                    provider, method, params, response
+                ):
+                    async with provider._request_cache_lock:
+                        request_cache.cache(cache_key, response)
+                return response
+        else:
+            return await func(provider, rpc_request)
+
+    # save a reference to the decorator on the wrapped function
+    wrapper._decorator = async_handle_recv_caching  # type: ignore
     return wrapper

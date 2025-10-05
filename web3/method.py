@@ -165,8 +165,7 @@ class Method(Generic[TFunc]):
                 "usually attached to a web3 instance."
             )
 
-        provider = module.w3.provider
-        if hasattr(provider, "_is_batching") and provider._is_batching:
+        if module.w3.provider._is_batching:
             if self.json_rpc_method in RPC_METHODS_UNSUPPORTED_DURING_BATCH:
                 raise MethodNotSupported(
                     f"Method `{self.json_rpc_method}` is not supported within a batch "
@@ -182,12 +181,13 @@ class Method(Generic[TFunc]):
     @property
     def method_selector_fn(
         self,
-    ) -> Callable[..., Union[RPCEndpoint, Callable[..., RPCEndpoint]]]:
+    ) -> Callable[[], RPCEndpoint]:
         """Gets the method selector from the config."""
-        if callable(self.json_rpc_method):
-            return self.json_rpc_method
-        elif isinstance(self.json_rpc_method, (str,)):
-            return lambda *_: self.json_rpc_method
+        method = self.json_rpc_method
+        if callable(method):
+            return method
+        elif isinstance(method, str):
+            return lambda: method
         raise Web3ValueError(
             "``json_rpc_method`` config invalid.  May be a string or function"
         )
@@ -203,7 +203,7 @@ class Method(Generic[TFunc]):
     def process_params(
         self, module: "Module", *args: Any, **kwargs: Any
     ) -> Tuple[
-        Tuple[Union[RPCEndpoint, Callable[..., RPCEndpoint]], Tuple[Any, ...]],
+        Tuple[Union[RPCEndpoint, Callable[..., RPCEndpoint]], Tuple[RPCEndpoint, ...]],
         Tuple[
             Union[TReturn, Dict[str, Callable[..., Any]]],
             Callable[..., Any],
@@ -241,17 +241,25 @@ class Method(Generic[TFunc]):
 
 class DeprecatedMethod:
     def __init__(
-        self, method: Method[Callable[..., Any]], old_name: str, new_name: str
+        self,
+        method: Method[Callable[..., Any]],
+        old_name: Optional[str] = None,
+        new_name: Optional[str] = None,
+        msg: Optional[str] = None,
     ) -> None:
         self.method = method
         self.old_name = old_name
         self.new_name = new_name
+        self.msg = msg
 
     def __get__(
         self, obj: Optional["Module"] = None, obj_type: Optional[Type["Module"]] = None
     ) -> Any:
+        message = f"{self.old_name} is deprecated in favor of {self.new_name}"
+        if self.msg is not None:
+            message = self.msg
         warnings.warn(
-            f"{self.old_name} is deprecated in favor of {self.new_name}",
+            message,
             category=DeprecationWarning,
             stacklevel=2,
         )

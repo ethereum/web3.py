@@ -32,6 +32,7 @@ from web3.providers.persistent import (
     PersistentConnectionProvider,
 )
 from web3.types import (
+    FormattedEthSubscriptionResponse,
     RPCEndpoint,
     RPCResponse,
 )
@@ -74,7 +75,7 @@ def retrieve_request_information_for_batching(
         )
         if isinstance(w3.provider, PersistentConnectionProvider):
             w3.provider._request_processor.cache_request_information(
-                cast(RPCEndpoint, method_str), params, response_formatters
+                None, cast(RPCEndpoint, method_str), params, response_formatters
             )
         return (cast(RPCEndpoint, method_str), params), response_formatters
 
@@ -121,8 +122,17 @@ def retrieve_async_method_call_fn(
     async_w3: "AsyncWeb3",
     module: "Module",
     method: Method[Callable[..., Any]],
-) -> Callable[..., Coroutine[Any, Any, Optional[Union[RPCResponse, AsyncLogFilter]]]]:
-    async def caller(*args: Any, **kwargs: Any) -> Union[RPCResponse, AsyncLogFilter]:
+) -> Callable[
+    ...,
+    Coroutine[
+        Any,
+        Any,
+        Optional[Union[RPCResponse, FormattedEthSubscriptionResponse, AsyncLogFilter]],
+    ],
+]:
+    async def caller(
+        *args: Any, **kwargs: Any
+    ) -> Union[RPCResponse, FormattedEthSubscriptionResponse, AsyncLogFilter]:
         try:
             (method_str, params), response_formatters = method.process_params(
                 module, *args, **kwargs
@@ -131,31 +141,17 @@ def retrieve_async_method_call_fn(
             return AsyncLogFilter(eth_module=module, filter_id=err.filter_id)
 
         if isinstance(async_w3.provider, PersistentConnectionProvider):
-            provider = async_w3.provider
-            cache_key = provider._request_processor.cache_request_information(
-                cast(RPCEndpoint, method_str), params, response_formatters
+            return await async_w3.manager.socket_request(
+                cast(RPCEndpoint, method_str),
+                params,
+                response_formatters=response_formatters,
             )
-
-            try:
-                method_str = cast(RPCEndpoint, method_str)
-                return await async_w3.manager.socket_request(method_str, params)
-            except Exception as e:
-                if (
-                    cache_key is not None
-                    and cache_key
-                    in provider._request_processor._request_information_cache
-                ):
-                    provider._request_processor.pop_cached_request_information(
-                        cache_key
-                    )
-                raise e
         else:
             (
                 result_formatters,
                 error_formatters,
                 null_result_formatters,
             ) = response_formatters
-
             result = await async_w3.manager.coro_request(
                 method_str, params, error_formatters, null_result_formatters
             )

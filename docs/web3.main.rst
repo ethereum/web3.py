@@ -72,6 +72,12 @@ Batch Requests
             responses = batch.execute()
             assert len(responses) == 3
 
+    .. note::
+
+       Within the batching context above, calls are suspended until
+       ``batch.execute()`` is called. Calling a method without
+       passing it to ``batch.add`` might result in unexpected behavior.
+
     Using the batch object directly:
 
     .. code-block:: python
@@ -202,7 +208,7 @@ Encoding and Decoding Helpers
         >>> Web3.to_hex(text='cowmö')
         '0x636f776dc3b6'
 
-.. _JSON-RPC spec: https://github.com/ethereum/wiki/wiki/JSON-RPC#hex-value-encoding
+.. _JSON-RPC spec: https://ethereum.org/en/developers/docs/apis/json-rpc/#hex-encoding
 
 .. py:method:: Web3.to_text(primitive=None, hexstr=None, text=None)
 

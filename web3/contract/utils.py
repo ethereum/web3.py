@@ -43,8 +43,8 @@ from web3._utils.abi import (
 from web3._utils.async_transactions import (
     async_fill_transaction_defaults,
 )
-from web3._utils.compat import (
-    TypeAlias,
+from web3._utils.batching import (
+    BatchRequestInformation,
 )
 from web3._utils.contracts import (
     prepare_transaction,
@@ -62,7 +62,6 @@ from web3.exceptions import (
 from web3.types import (
     ABIElementIdentifier,
     BlockIdentifier,
-    RPCEndpoint,
     StateOverride,
     TContractEvent,
     TContractFn,
@@ -175,10 +174,8 @@ def call_contract_function(
     if abi_callable["type"] == "function":
         output_types = get_abi_output_types(abi_callable)
 
-    provider = w3.provider
-    if hasattr(provider, "_is_batching") and provider._is_batching:
-        BatchingReturnData: TypeAlias = Tuple[Tuple[RPCEndpoint, Any], Tuple[Any, ...]]
-        request_information = tuple(cast(BatchingReturnData, return_data))
+    if w3.provider._is_batching:
+        request_information = tuple(cast(BatchRequestInformation, return_data))
         method_and_params = request_information[0]
 
         # append return data formatting to result formatters
@@ -343,7 +340,10 @@ def find_functions_by_identifier(
     """
     Given a contract ABI, return a list of TContractFunction instances.
     """
-    fns_abi = filter_abi_by_type("function", contract_abi)
+    fns_abi = sorted(
+        filter_abi_by_type("function", contract_abi),
+        key=lambda fn: (fn["name"], len(fn.get("inputs", []))),
+    )
     return [
         function_type.factory(
             abi_to_signature(fn_abi),
@@ -480,35 +480,23 @@ async def async_call_contract_function(
             normalizers,
             output_types,
         )
-        if async_w3.provider.has_persistent_connection:
-            # get the current request id
-            provider = cast("PersistentConnectionProvider", async_w3.provider)
-            current_request_id = provider._batch_request_counter - 1
-            provider._request_processor.append_result_formatter_for_request(
-                current_request_id, contract_call_return_data_formatter
-            )
-        else:
-            BatchingReturnData: TypeAlias = Tuple[
-                Tuple[RPCEndpoint, Any], Tuple[Any, ...]
-            ]
-            request_information = tuple(cast(BatchingReturnData, return_data))
-            method_and_params = request_information[0]
 
-            # append return data formatter to result formatters
-            current_response_formatters = request_information[1]
-            current_result_formatters = current_response_formatters[0]
-            updated_result_formatters = compose(
-                contract_call_return_data_formatter,
-                current_result_formatters,
-            )
-            response_formatters = (
-                updated_result_formatters,  # result formatters
-                current_response_formatters[1],  # error formatters
-                current_response_formatters[2],  # null result formatters
-            )
-            return (method_and_params, response_formatters)
+        request_information = tuple(cast(BatchRequestInformation, return_data))
+        method_and_params = request_information[0]
 
-        return return_data
+        # append return data formatter to result formatters
+        current_response_formatters = request_information[1]
+        current_result_formatters = current_response_formatters[0]
+        updated_result_formatters = compose(
+            contract_call_return_data_formatter,
+            current_result_formatters,
+        )
+        response_formatters = (
+            updated_result_formatters,  # result formatters
+            current_response_formatters[1],  # error formatters
+            current_response_formatters[2],  # null result formatters
+        )
+        return (method_and_params, response_formatters)
 
     try:
         output_data = async_w3.codec.decode(output_types, return_data)

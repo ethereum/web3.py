@@ -1,4 +1,5 @@
 import asyncio
+import contextvars
 import itertools
 import logging
 from typing import (
@@ -6,6 +7,7 @@ from typing import (
     Any,
     Callable,
     Coroutine,
+    Dict,
     List,
     Optional,
     Set,
@@ -43,6 +45,7 @@ from web3.middleware.base import (
 )
 from web3.types import (
     RPCEndpoint,
+    RPCRequest,
     RPCResponse,
 )
 from web3.utils import (
@@ -51,13 +54,16 @@ from web3.utils import (
 )
 
 if TYPE_CHECKING:
-    from websockets import (
+    from websockets.legacy.client import (
         WebSocketClientProtocol,
     )
 
     from web3 import (  # noqa: F401
         AsyncWeb3,
         WebSocketProvider,
+    )
+    from web3._utils.batching import (  # noqa: F401
+        RequestBatcher,
     )
     from web3.providers.persistent import (  # noqa: F401
         RequestProcessor,
@@ -73,19 +79,10 @@ class AsyncBaseProvider:
         Tuple[Middleware, ...], Callable[..., Coroutine[Any, Any, RPCResponse]]
     ] = (None, None)
 
-    _is_batching: bool = False
-    _batch_request_func_cache: Tuple[
-        Tuple[Middleware, ...], Callable[..., Coroutine[Any, Any, List[RPCResponse]]]
-    ] = (None, None)
-
     is_async = True
     has_persistent_connection = False
     global_ccip_read_enabled: bool = True
     ccip_read_max_redirects: int = 4
-
-    # request caching
-    _request_cache: SimpleCache
-    _request_cache_lock: asyncio.Lock = asyncio.Lock()
 
     def __init__(
         self,
@@ -96,9 +93,23 @@ class AsyncBaseProvider:
         ] = empty,
     ) -> None:
         self._request_cache = SimpleCache(1000)
+        self._request_cache_lock: asyncio.Lock = asyncio.Lock()
+
         self.cache_allowed_requests = cache_allowed_requests
         self.cacheable_requests = cacheable_requests or CACHEABLE_REQUESTS
         self.request_cache_validation_threshold = request_cache_validation_threshold
+
+        self._batching_context: contextvars.ContextVar[
+            Optional["RequestBatcher[Any]"]
+        ] = contextvars.ContextVar("batching_context", default=None)
+        self._batch_request_func_cache: Tuple[
+            Tuple[Middleware, ...],
+            Callable[..., Coroutine[Any, Any, Union[List[RPCResponse], RPCResponse]]],
+        ] = (None, None)
+
+    @property
+    def _is_batching(self) -> bool:
+        return self._batching_context.get() is not None
 
     async def request_func(
         self, async_w3: "AsyncWeb3", middleware_onion: MiddlewareOnion
@@ -119,7 +130,7 @@ class AsyncBaseProvider:
 
     async def batch_request_func(
         self, async_w3: "AsyncWeb3", middleware_onion: MiddlewareOnion
-    ) -> Callable[..., Coroutine[Any, Any, List[RPCResponse]]]:
+    ) -> Callable[..., Coroutine[Any, Any, Union[List[RPCResponse], RPCResponse]]]:
         middleware: Tuple[Middleware, ...] = middleware_onion.as_tuple_of_middleware()
 
         cache_key = self._batch_request_func_cache[0]
@@ -141,8 +152,8 @@ class AsyncBaseProvider:
 
     async def make_batch_request(
         self, requests: List[Tuple[RPCEndpoint, Any]]
-    ) -> List[RPCResponse]:
-        raise NotImplementedError("Only AsyncHTTPProvider supports this method")
+    ) -> Union[List[RPCResponse], RPCResponse]:
+        raise NotImplementedError("Providers must implement this method")
 
     async def is_connected(self, show_traceback: bool = False) -> bool:
         raise NotImplementedError("Providers must implement this method")
@@ -172,22 +183,30 @@ class AsyncBaseProvider:
 
 
 class AsyncJSONBaseProvider(AsyncBaseProvider):
-    logger = logging.getLogger("web3.providers.async_base.AsyncJSONBaseProvider")
-
     def __init__(self, **kwargs: Any) -> None:
-        self.request_counter = itertools.count()
         super().__init__(**kwargs)
+        self.request_counter = itertools.count()
 
-    def encode_rpc_request(self, method: RPCEndpoint, params: Any) -> bytes:
+    def form_request(self, method: RPCEndpoint, params: Any = None) -> RPCRequest:
         request_id = next(self.request_counter)
         rpc_dict = {
+            "id": request_id,
             "jsonrpc": "2.0",
             "method": method,
             "params": params or [],
-            "id": request_id,
         }
-        encoded = FriendlyJsonSerde().json_encode(rpc_dict, cls=Web3JsonEncoder)
+        return cast(RPCRequest, rpc_dict)
+
+    @staticmethod
+    def encode_rpc_dict(rpc_dict: RPCRequest) -> bytes:
+        encoded = FriendlyJsonSerde().json_encode(
+            cast(Dict[str, Any], rpc_dict), cls=Web3JsonEncoder
+        )
         return to_bytes(text=encoded)
+
+    def encode_rpc_request(self, method: RPCEndpoint, params: Any) -> bytes:
+        rpc_dict = self.form_request(method, params)
+        return self.encode_rpc_dict(rpc_dict)
 
     @staticmethod
     def decode_rpc_response(raw_response: bytes) -> RPCResponse:
@@ -232,3 +251,6 @@ class AsyncJSONBaseProvider(AsyncBaseProvider):
             )
             + b"]"
         )
+
+    def encode_batch_request_dicts(self, request_dicts: List[RPCRequest]) -> bytes:
+        return b"[" + b",".join(self.encode_rpc_dict(d) for d in request_dicts) + b"]"

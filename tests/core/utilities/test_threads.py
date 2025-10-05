@@ -100,7 +100,7 @@ def test_with_custom_exception_type():
 
 
 def test_with_custom_exception_instance():
-    exc = Web3ValueError("an instance of an excepiton")
+    exc = Web3ValueError("an instance of an exception")
     timeout = Timeout(0.01, exc)
     timeout.start()
     time.sleep(0.02)

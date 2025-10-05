@@ -77,7 +77,7 @@ def test_eth_tester_provider_properly_handles_eth_tester_key_error_messages():
     assert response["error"]["message"] == "Unknown RPC Endpoint: eth_blockNumber"
 
 
-def test_eth_tester_provider_properly_handles_eth_tester_not_implmented_error_messages(
+def test_eth_tester_provider_properly_handles_eth_tester_not_implemented_error_messages(
     mocker,
 ):
     mocker.patch(

@@ -18,6 +18,7 @@ from aiohttp import (
     ClientResponse,
     ClientSession,
     ClientTimeout,
+    TCPConnector,
 )
 from eth_typing import (
     URI,
@@ -80,14 +81,14 @@ class HTTPSessionManager:
 
         with self._lock:
             cached_session, evicted_items = self.session_cache.cache(cache_key, session)
-            self.logger.debug(f"Session cached: {endpoint_uri}, {cached_session}")
+            self.logger.debug("Session cached: %s, %s", endpoint_uri, cached_session)
 
         if evicted_items is not None:
             evicted_sessions = evicted_items.values()
             for evicted_session in evicted_sessions:
                 self.logger.debug(
-                    "Session cache full. Session evicted from cache: "
-                    f"{evicted_session}",
+                    "Session cache full. Session evicted from cache: %s",
+                    evicted_session,
                 )
             threading.Timer(
                 # If `request_timeout` is `None`, don't wait forever for the closing
@@ -119,10 +120,18 @@ class HTTPSessionManager:
     def get_response_from_post_request(
         self, endpoint_uri: URI, *args: Any, **kwargs: Any
     ) -> requests.Response:
+        kwargs.setdefault("timeout", DEFAULT_HTTP_TIMEOUT)
         session = self.cache_and_return_session(
             endpoint_uri, request_timeout=kwargs["timeout"]
         )
         return session.post(endpoint_uri, *args, **kwargs)
+
+    def json_make_post_request(
+        self, endpoint_uri: URI, *args: Any, **kwargs: Any
+    ) -> Dict[str, Any]:
+        response = self.get_response_from_post_request(endpoint_uri, *args, **kwargs)
+        response.raise_for_status()
+        return response.json()
 
     def make_post_request(
         self, endpoint_uri: URI, data: Union[bytes, Dict[str, Any]], **kwargs: Any
@@ -142,8 +151,9 @@ class HTTPSessionManager:
             else:
                 return response.content
 
+    @staticmethod
     def _handle_streaming_response(
-        self, response: requests.Response, start: float, timeout: float
+        response: requests.Response, start: float, timeout: float
     ) -> bytes:
         response_body = b""
         for data in response.iter_content():
@@ -157,7 +167,7 @@ class HTTPSessionManager:
     def _close_evicted_sessions(self, evicted_sessions: List[requests.Session]) -> None:
         for evicted_session in evicted_sessions:
             evicted_session.close()
-            self.logger.debug(f"Closed evicted session: {evicted_session}")
+            self.logger.debug("Closed evicted session: %s", evicted_session)
 
     # -- async -- #
 
@@ -168,19 +178,24 @@ class HTTPSessionManager:
         request_timeout: Optional[ClientTimeout] = None,
     ) -> ClientSession:
         # cache key should have a unique thread identifier
-        cache_key = generate_cache_key(f"{threading.get_ident()}:{endpoint_uri}")
+        cache_key = generate_cache_key(f"{id(asyncio.get_event_loop())}:{endpoint_uri}")
 
         evicted_items = None
         async with async_lock(self.session_pool, self._lock):
             if cache_key not in self.session_cache:
                 if session is None:
-                    session = ClientSession(raise_for_status=True)
+                    session = ClientSession(
+                        raise_for_status=True,
+                        connector=TCPConnector(
+                            force_close=True, enable_cleanup_closed=True
+                        ),
+                    )
 
                 cached_session, evicted_items = self.session_cache.cache(
                     cache_key, session
                 )
                 self.logger.debug(
-                    f"Async session cached: {endpoint_uri}, {cached_session}"
+                    "Async session cached: %s, %s", endpoint_uri, cached_session
                 )
 
             else:
@@ -200,8 +215,10 @@ class HTTPSessionManager:
                 )
                 if warning:
                     self.logger.debug(
-                        f"{warning}: {endpoint_uri}, {cached_session}. "
-                        f"Creating and caching a new async session for uri."
+                        "%s: %s, %s. Creating and caching a new async session for uri.",
+                        warning,
+                        endpoint_uri,
+                        cached_session,
                     )
 
                     self.session_cache._data.pop(cache_key)
@@ -209,16 +226,22 @@ class HTTPSessionManager:
                         # if loop was closed but not the session, close the session
                         await cached_session.close()
                     self.logger.debug(
-                        f"Async session closed and evicted from cache: {cached_session}"
+                        "Async session closed and evicted from cache: %s",
+                        cached_session,
                     )
 
                     # replace stale session with a new session at the cache key
-                    _session = ClientSession(raise_for_status=True)
+                    _session = ClientSession(
+                        raise_for_status=True,
+                        connector=TCPConnector(
+                            force_close=True, enable_cleanup_closed=True
+                        ),
+                    )
                     cached_session, evicted_items = self.session_cache.cache(
                         cache_key, _session
                     )
                     self.logger.debug(
-                        f"Async session cached: {endpoint_uri}, {cached_session}"
+                        "Async session cached: %s, %s", endpoint_uri, cached_session
                     )
 
         if evicted_items is not None:
@@ -228,8 +251,8 @@ class HTTPSessionManager:
             evicted_sessions = list(evicted_items.values())
             for evicted_session in evicted_sessions:
                 self.logger.debug(
-                    "Async session cache full. Session evicted from cache: "
-                    f"{evicted_session}",
+                    "Async session cache full. Session evicted from cache: %s",
+                    evicted_session,
                 )
             # Kick off an asyncio `Task` to close the evicted sessions. In the case
             # that the cache filled very quickly and some sessions have been evicted
@@ -278,6 +301,15 @@ class HTTPSessionManager:
         response = await session.post(endpoint_uri, *args, **kwargs)
         return response
 
+    async def async_json_make_post_request(
+        self, endpoint_uri: URI, *args: Any, **kwargs: Any
+    ) -> Dict[str, Any]:
+        response = await self.async_get_response_from_post_request(
+            endpoint_uri, *args, **kwargs
+        )
+        response.raise_for_status()
+        return await response.json()
+
     async def async_make_post_request(
         self, endpoint_uri: URI, data: Union[bytes, Dict[str, Any]], **kwargs: Any
     ) -> bytes:
@@ -294,10 +326,10 @@ class HTTPSessionManager:
 
         for evicted_session in evicted_sessions:
             await evicted_session.close()
-            self.logger.debug(f"Closed evicted async session: {evicted_session}")
+            self.logger.debug("Closed evicted async session: %s", evicted_session)
 
         if any(not evicted_session.closed for evicted_session in evicted_sessions):
             self.logger.warning(
-                "Some evicted async sessions were not properly closed: "
-                f"{evicted_sessions}"
+                "Some evicted async sessions were not properly closed: %s",
+                evicted_sessions,
             )

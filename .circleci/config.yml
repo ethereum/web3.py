@@ -4,10 +4,10 @@ parameters:
   # NOTE: Do not update the `geth_version` manually. It is updated during the
   # integration test fixture generation.
   geth_version:
-    default: "1.14.12"
+    default: "1.16.2"
     type: string
   go_version:
-    default: "1.22.4"
+    default: "1.24.1"
     type: string
 
 common: &common
@@ -77,7 +77,7 @@ geth_steps: &geth_steps
               sudo apt-get install -y build-essential
               pygeth_version=$(python web3/scripts/parse_pygeth_version.py)
               echo "installing py-geth$pygeth_version"
-              pip install --user "py-geth$pygeth_version"
+              pip install -U --user "py-geth$pygeth_version"
               python -m geth.install v<< pipeline.parameters.geth_version >>
             fi
             sudo ln -s /home/circleci/.py-geth/geth-v<< pipeline.parameters.geth_version >>/bin/geth /usr/local/bin/geth
@@ -121,15 +121,11 @@ docs: &docs
         command: |
           python -m pip install --upgrade pip
           python -m pip install tox
-    # latexpdf turned off for now - won't build due to long line lengths
-    # - run:
-    #     name: install latexpdf dependencies
-    #     command: |
-    #       sudo apt-get update
-    #       sudo apt-get install latexmk tex-gyre texlive-fonts-extra texlive-xetex xindy
     - run:
         name: run tox
         command: python -m tox run -r
+    - store_artifacts:
+          path: /home/circleci/repo/docs/_build
     - save_cache:
         paths:
           - .tox

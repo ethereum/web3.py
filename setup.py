@@ -8,12 +8,12 @@ extras_require = {
     "tester": [
         # Note: ethereum-maintained libraries in this list should be added to the
         # `install_pre_releases.py` script.
-        "eth-tester[py-evm]>=0.12.0b1,<0.13.0b1",
+        "eth-tester[py-evm]>=0.13.0b1,<0.14.0b1",
         "py-geth>=5.1.0",
     ],
     "dev": [
         "build>=0.9.0",
-        "bumpversion>=0.5.3",
+        "bump_my_version>=0.19.0",
         "ipython",
         "setuptools>=38.6.0",
         "tqdm>4.32",
@@ -24,7 +24,7 @@ extras_require = {
         "sphinx>=6.0.0",
         "sphinx-autobuild>=2021.3.14",
         "sphinx_rtd_theme>=1.0.0",
-        "towncrier>=21,<22",
+        "towncrier>=24,<25",
     ],
     "test": [
         "pytest-asyncio>=0.18.1,<0.23",
@@ -54,8 +54,8 @@ with open("./README.md") as readme:
 
 setup(
     name="web3",
-    # *IMPORTANT*: Don't manually change the version here. Use `make bump`, as described in readme
-    version="7.6.0",
+    # *IMPORTANT*: Don't manually change the version here. See Contributing docs for the release process.
+    version="7.13.0",
     description="""web3: A Python library for interacting with Ethereum""",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -67,7 +67,7 @@ setup(
         # Note: ethereum-maintained libraries in this list should be added to the
         # `install_pre_releases.py` script.
         "eth-abi>=5.0.1",
-        "eth-account>=0.13.1",
+        "eth-account>=0.13.6",
         "eth-hash[pycryptodome]>=0.5.1",
         "eth-typing>=5.0.0",
         "eth-utils>=5.0.0",
@@ -78,7 +78,7 @@ setup(
         "requests>=2.23.0",
         "typing-extensions>=4.0.1",
         "types-requests>=2.0.0",
-        "websockets>=10.0.0,<14.0.0",
+        "websockets>=10.0.0,<16.0.0",
         "pyunormalize>=15.0.0",
     ],
     python_requires=">=3.8, <4",

@@ -158,7 +158,7 @@ def _compute_gas_price(
 
     :param probabilities: An iterable of `Probability` named-tuples
         sorted in reverse order.
-    :param desired_probability: An floating point representation of the desired
+    :param desired_probability: A floating point representation of the desired
         probability. (e.g. ``85% -> 0.85``)
     """
     first = probabilities[0]

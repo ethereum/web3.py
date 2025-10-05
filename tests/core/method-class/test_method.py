@@ -1,7 +1,7 @@
+import pytest
 from inspect import (
     isclass,
 )
-import pytest
 
 from eth_utils.toolz import (
     compose,
