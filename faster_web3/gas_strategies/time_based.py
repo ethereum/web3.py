@@ -2,10 +2,11 @@ import collections
 import math
 import operator
 from typing import (
+    Final,
     Iterable,
+    Optional,
     Sequence,
     Tuple,
-    cast,
 )
 
 from eth_typing import (
@@ -86,7 +87,6 @@ def _get_raw_miner_data(
     latest = w3.eth.get_block("latest", full_transactions=True)
 
     for transaction in latest["transactions"]:
-        transaction = cast(TxData, transaction)
         yield (latest["miner"], latest["hash"], transaction["gasPrice"])
 
     block = latest
@@ -99,7 +99,6 @@ def _get_raw_miner_data(
         # block numbers to make caching the data easier to implement.
         block = w3.eth.get_block(block["parentHash"], full_transactions=True)
         for transaction in block["transactions"]:
-            transaction = cast(TxData, transaction)
             yield (block["miner"], block["hash"], transaction["gasPrice"])
 
 
@@ -217,7 +216,7 @@ def construct_time_based_gas_price_strategy(
         and 100 means 100%.
     """
 
-    def time_based_gas_price_strategy(w3: Web3, transaction_params: TxParams) -> Wei:
+    def time_based_gas_price_strategy(w3: Web3, transaction_params: Optional[TxParams]) -> Wei:
         # return gas price when no transactions available to sample
         if w3.eth.get_block("latest")["number"] == 0:
             return w3.eth.gas_price
@@ -244,22 +243,22 @@ def construct_time_based_gas_price_strategy(
 
 
 # fast: mine within 1 minute
-fast_gas_price_strategy = construct_time_based_gas_price_strategy(
+fast_gas_price_strategy: Final = construct_time_based_gas_price_strategy(
     max_wait_seconds=60,
     sample_size=120,
 )
 # medium: mine within 10 minutes
-medium_gas_price_strategy = construct_time_based_gas_price_strategy(
+medium_gas_price_strategy: Final = construct_time_based_gas_price_strategy(
     max_wait_seconds=600,
     sample_size=120,
 )
 # slow: mine within 1 hour (60 minutes)
-slow_gas_price_strategy = construct_time_based_gas_price_strategy(
+slow_gas_price_strategy: Final = construct_time_based_gas_price_strategy(
     max_wait_seconds=60 * 60,
     sample_size=120,
 )
 # glacial: mine within the next 24 hours.
-glacial_gas_price_strategy = construct_time_based_gas_price_strategy(
+glacial_gas_price_strategy: Final = construct_time_based_gas_price_strategy(
     max_wait_seconds=24 * 60 * 60,
     sample_size=720,
 )

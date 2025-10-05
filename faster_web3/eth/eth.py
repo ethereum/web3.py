@@ -55,6 +55,9 @@ from faster_web3.contract import (
     Contract,
     ContractCaller,
 )
+from faster_web3.datastructures import (
+    AttributeDict,
+)
 from faster_web3.eth.base_eth import (
     BaseEth,
 )
@@ -409,7 +412,7 @@ class Eth(BaseEth):
 
     def get_block(
         self, block_identifier: BlockIdentifier, full_transactions: bool = False
-    ) -> BlockData:
+    ) -> Union[BlockData, AttributeDict]:
         return self._get_block(block_identifier, full_transactions)
 
     # eth_getBlockReceipts
