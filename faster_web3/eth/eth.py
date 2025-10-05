@@ -9,7 +9,6 @@ from typing import (
     Tuple,
     Type,
     Union,
-    cast,
     overload,
 )
 import warnings
@@ -609,7 +608,7 @@ class Eth(BaseEth):
     def modify_transaction(
         self, transaction_hash: _Hash32, **transaction_params: Unpack[TxParams]
     ) -> HexBytes:
-        assert_valid_transaction_params(cast(TxParams, transaction_params))
+        assert_valid_transaction_params(transaction_params)
         current_transaction = get_required_transaction(self.w3, transaction_hash)
         current_transaction_params = extract_valid_transaction_params(
             current_transaction

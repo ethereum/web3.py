@@ -15,6 +15,7 @@ from types import (
 from typing import (
     Any,
     List,
+    Optional,
     Tuple,
     Type,
     Union,
@@ -143,7 +144,7 @@ class IPCProvider(JSONBaseProvider):
 
     def __init__(
         self,
-        ipc_path: Union[str, Path] = None,
+        ipc_path: Optional[Union[str, Path]] = None,
         timeout: int = 30,
         **kwargs: Any,
     ) -> None:

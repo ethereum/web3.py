@@ -75,7 +75,7 @@ def Web3() -> Type["_Web3"]:
 
 
 def init_web3(
-    provider: "BaseProvider" = None,
+    provider: Optional["BaseProvider"] = None,
     middleware: Optional[Sequence[Tuple["Middleware", str]]] = None,
 ) -> "_Web3":
     from faster_web3 import (
@@ -300,7 +300,7 @@ def is_valid_ens_name(ens_name: str) -> bool:
 
 
 def init_async_web3(
-    provider: "AsyncBaseProvider" = None,
+    provider: Optional["AsyncBaseProvider"] = None,
     middleware: Optional[Sequence[Tuple["Middleware", str]]] = (),
 ) -> "AsyncWeb3":
     from faster_web3 import (

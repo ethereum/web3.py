@@ -103,8 +103,8 @@ class Label:
 
     def __init__(
         self,
-        type: str = None,
-        tokens: List[Token] = None,
+        type: Optional[str] = None,
+        tokens: Optional[List[Token]] = None,
     ) -> None:
         self.type = type
         self.tokens = tokens
@@ -135,7 +135,7 @@ for d in NORMALIZATION_SPEC["groups"]:
     GROUP_COMBINED_VALID_CPS.extend(d["primary"])
     GROUP_COMBINED_VALID_CPS.extend(d["secondary"])
 
-VALID_BY_GROUPS = {
+VALID_BY_GROUPS: Dict[str, Set] = {
     d["name"]: set(d["primary"] + d["secondary"]) for d in NORMALIZATION_SPEC["groups"]
 }
 

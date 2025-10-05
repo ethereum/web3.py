@@ -73,7 +73,7 @@ class BaseProvider:
     def __init__(
         self,
         cache_allowed_requests: bool = False,
-        cacheable_requests: Set[RPCEndpoint] = None,
+        cacheable_requests: Optional[Set[RPCEndpoint]] = None,
         request_cache_validation_threshold: Optional[
             Union[RequestCacheValidationThreshold, int, Empty]
         ] = empty,

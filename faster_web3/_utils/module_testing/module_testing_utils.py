@@ -6,6 +6,7 @@ from typing import (
     Dict,
     Generator,
     Literal,
+    Optional,
     Sequence,
     Union,
 )
@@ -65,13 +66,13 @@ def assert_contains_log(
 def mock_offchain_lookup_request_response(
     monkeypatch: "MonkeyPatch",
     http_method: Literal["GET", "POST"] = "GET",
-    mocked_request_url: str = None,
+    mocked_request_url: Optional[str] = None,
     mocked_status_code: int = 200,
     mocked_json_data: str = "0x",
     json_data_field: str = "data",
     # required only for POST validation:
-    sender: str = None,
-    calldata: str = None,
+    sender: Optional[str] = None,
+    calldata: Optional[str] = None,
 ) -> None:
     class MockedResponse:
         status_code = mocked_status_code
@@ -111,13 +112,13 @@ def mock_offchain_lookup_request_response(
 def async_mock_offchain_lookup_request_response(
     monkeypatch: "MonkeyPatch",
     http_method: Literal["GET", "POST"] = "GET",
-    mocked_request_url: str = None,
+    mocked_request_url: Optional[str] = None,
     mocked_status_code: int = 200,
     mocked_json_data: str = "0x",
     json_data_field: str = "data",
     # required only for POST validation:
-    sender: str = None,
-    calldata: str = None,
+    sender: Optional[str] = None,
+    calldata: Optional[str] = None,
 ) -> None:
     class AsyncMockedResponse:
         status = mocked_status_code

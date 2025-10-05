@@ -504,7 +504,7 @@ def _normalize_match_values(match_values: Collection[Any]) -> Iterable[Any]:
 
 
 class BaseArgumentFilter(ABC):
-    _match_values: Tuple[Any, ...] = None
+    _match_values: Optional[Tuple[Any, ...]] = None
     _immutable = False
 
     def __init__(self, arg_type: TypeStr) -> None:

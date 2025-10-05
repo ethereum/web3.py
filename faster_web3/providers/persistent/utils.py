@@ -3,6 +3,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
+    Optional,
 )
 
 from faster_web3.exceptions import (
@@ -18,7 +19,7 @@ if TYPE_CHECKING:
     )
 
 
-def persistent_connection_provider_method(message: str = None) -> Callable[..., Any]:
+def persistent_connection_provider_method(message: Optional[str] = None) -> Callable[..., Any]:
     """
     Decorator that raises an exception if the provider is not an instance of
     ``PersistentConnectionProvider``.

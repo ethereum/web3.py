@@ -53,7 +53,7 @@ class Tracing(Module):
         self._default_block = value
 
     def trace_replay_transaction_munger(
-        self, block_identifier: Union[_Hash32, BlockIdentifier], mode: TraceMode = None
+        self, block_identifier: Union[_Hash32, BlockIdentifier], mode: Optional[TraceMode] = None
     ) -> Tuple[Union[BlockIdentifier, _Hash32], TraceMode]:
         if mode is None:
             mode = ["trace"]
@@ -86,7 +86,7 @@ class Tracing(Module):
     def trace_call_munger(
         self,
         transaction: TxParams,
-        mode: TraceMode = None,
+        mode: Optional[TraceMode] = None,
         block_identifier: Optional[BlockIdentifier] = None,
     ) -> Tuple[TxParams, TraceMode, BlockIdentifier]:
         if mode is None:
@@ -107,7 +107,7 @@ class Tracing(Module):
     )
 
     def trace_transactions_munger(
-        self, raw_transaction: HexStr, mode: TraceMode = None
+        self, raw_transaction: HexStr, mode: Optional[TraceMode] = None
     ) -> Tuple[HexStr, TraceMode]:
         if mode is None:
             mode = ["trace"]

@@ -49,6 +49,7 @@ from typing import (
     Any,
     Dict,
     List,
+    Optional,
 )
 
 import solcx
@@ -93,7 +94,7 @@ def _compile_dot_sol_files(dot_sol_filename: str) -> Dict[str, Any]:
 def _get_compiled_contract_data(
     sol_file_output: Dict[str, Dict[str, str]],
     dot_sol_filename: str,
-    contract_name: str = None,
+    contract_name: Optional[str] = None,
 ) -> Dict[str, str]:
     if not contract_name:
         contract_name = dot_sol_filename.replace(".sol", "")

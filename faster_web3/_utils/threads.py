@@ -13,6 +13,7 @@ from typing import (
     Callable,
     Generic,
     Literal,
+    Optional,
     Type,
 )
 
@@ -36,8 +37,8 @@ class Timeout(Exception):
 
     def __init__(
         self,
-        seconds: float = None,
-        exception: Type[BaseException] = None,
+        seconds: Optional[float] = None,
+        exception: Optional[Type[BaseException]] = None,
         *args: Any,
         **kwargs: Any,
     ) -> None:
@@ -108,7 +109,7 @@ class Timeout(Exception):
 class ThreadWithReturn(threading.Thread, Generic[TReturn]):
     def __init__(
         self,
-        target: Callable[..., TReturn] = None,
+        target: Optional[Callable[..., TReturn]] = None,
         args: Any = None,
         kwargs: Any = None,
     ) -> None:
@@ -124,7 +125,7 @@ class ThreadWithReturn(threading.Thread, Generic[TReturn]):
     def run(self) -> None:
         self._return = self.target(*self.args, **self.kwargs)
 
-    def get(self, timeout: float = None) -> TReturn:
+    def get(self, timeout: Optional[float] = None) -> TReturn:
         self.join(timeout)
         try:
             return self._return

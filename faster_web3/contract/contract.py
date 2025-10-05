@@ -407,10 +407,10 @@ class Contract(BaseContract):
     # mypy types
     w3: "Web3"
     functions: ContractFunctions = None
-    caller: "ContractCaller" = None
+    caller: Optional["ContractCaller"] = None
 
     # Instance of :class:`ContractEvents` presenting available Event ABIs
-    events: ContractEvents = None
+    events: Optional[ContractEvents] = None
 
     def __init__(self, address: Optional[ChecksumAddress] = None) -> None:
         """

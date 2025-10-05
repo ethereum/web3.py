@@ -1,3 +1,14 @@
+[build-system]
+requires = [
+    "setuptools", 
+    "wheel", 
+    "mypy[mypyc]==1.18.2",
+	"types-requests",
+    "eth-typing>=5,<6",
+	"faster-eth-utils>=5.3.8,<5.4",
+	"faster-eth-abi>=5.2,<5.3",
+]
+
 [tool.autoflake]
 exclude = "__init__.py"
 remove_all_unused_imports = true
@@ -23,13 +34,10 @@ disallow_any_generics = true
 disallow_incomplete_defs = true
 disallow_subclassing_any = true
 disallow_untyped_calls = true
-disallow_untyped_decorators = false
 disallow_untyped_defs = true
 ignore_missing_imports = true
 strict_equality = true
-strict_optional = false
 warn_redundant_casts = true
-warn_return_any = false
 warn_unused_configs = true
 warn_unused_ignores = true
 

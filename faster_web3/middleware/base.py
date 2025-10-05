@@ -159,7 +159,7 @@ class Web3MiddlewareBuilder(Web3Middleware):
 
         ```py
         class MyMiddleware(Web3BuilderMiddleware):
-            internal_property: str = None
+            internal_property: Optional[str] = None
 
             @staticmethod
             @curry

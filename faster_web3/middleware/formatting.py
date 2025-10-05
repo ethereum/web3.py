@@ -105,9 +105,9 @@ ASYNC_FORMATTERS_BUILDER = Callable[
 
 
 class FormattingMiddlewareBuilder(Web3MiddlewareBuilder):
-    request_formatters: Formatters = None
-    result_formatters: Formatters = None
-    error_formatters: Formatters = None
+    request_formatters: Optional[Formatters] = None
+    result_formatters: Optional[Formatters] = None
+    error_formatters: Optional[Formatters] = None
     sync_formatters_builder: SYNC_FORMATTERS_BUILDER = None
     async_formatters_builder: ASYNC_FORMATTERS_BUILDER = None
 

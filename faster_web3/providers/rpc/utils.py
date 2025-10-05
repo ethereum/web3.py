@@ -1,4 +1,5 @@
 from typing import (
+    Optional,
     Sequence,
     Type,
 )
@@ -60,7 +61,7 @@ REQUEST_RETRY_ALLOWLIST = [
 
 def check_if_retry_on_failure(
     method: RPCEndpoint,
-    allowlist: Sequence[str] = None,
+    allowlist: Optional[Sequence[str]] = None,
 ) -> bool:
     if allowlist is None:
         allowlist = REQUEST_RETRY_ALLOWLIST
@@ -79,10 +80,10 @@ class ExceptionRetryConfiguration(BaseModel):
 
     def __init__(
         self,
-        errors: Sequence[Type[BaseException]] = None,
+        errors: Optional[Sequence[Type[BaseException]]] = None,
         retries: int = 5,
         backoff_factor: float = 0.125,
-        method_allowlist: Sequence[str] = None,
+        method_allowlist: Optional[Sequence[str]] = None,
     ):
         super().__init__(
             errors=errors,

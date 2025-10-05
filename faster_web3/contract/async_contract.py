@@ -399,14 +399,14 @@ class AsyncContractFunctions(BaseContractFunctions[AsyncContractFunction]):
 
 
 class AsyncContract(BaseContract):
-    functions: AsyncContractFunctions = None
-    caller: "AsyncContractCaller" = None
+    functions: Optional[AsyncContractFunctions] = None
+    caller: Optional["AsyncContractCaller"] = None
 
     # mypy types
     w3: "AsyncWeb3"
 
     #: Instance of :class:`ContractEvents` presenting available Event ABIs
-    events: AsyncContractEvents = None
+    events: Optional[AsyncContractEvents] = None
 
     def __init__(self, address: Optional[ChecksumAddress] = None) -> None:
         """

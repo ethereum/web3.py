@@ -239,8 +239,8 @@ class LogFilter(Filter):
     data_filter_set_regex = None
     data_filter_set_function = None
     log_entry_formatter = None
-    filter_params: FilterParams = None
-    builder: EventFilterBuilder = None
+    filter_params: Optional[FilterParams] = None
+    builder: Optional[EventFilterBuilder] = None
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.log_entry_formatter = kwargs.pop(
@@ -282,7 +282,7 @@ class AsyncLogFilter(AsyncFilter):
     data_filter_set_regex = None
     data_filter_set_function = None
     log_entry_formatter = None
-    filter_params: FilterParams = None
+    filter_params: Optional[FilterParams] = None
     builder: AsyncEventFilterBuilder = None
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:

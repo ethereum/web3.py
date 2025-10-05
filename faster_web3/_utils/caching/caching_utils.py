@@ -11,6 +11,7 @@ from typing import (
     Coroutine,
     Dict,
     List,
+    Optional,
     Sequence,
     Tuple,
     Union,
@@ -104,7 +105,7 @@ class RequestInformation:
             Callable[..., Any],
             Callable[..., Any],
         ],
-        subscription_id: str = None,
+        subscription_id: Optional[str] = None,
     ):
         self.method = method
         self.params = params

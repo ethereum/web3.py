@@ -1,3 +1,4 @@
+# mypy: disable-error-code=union-attr
 import asyncio
 import errno
 import json

@@ -102,8 +102,8 @@ def handler_wrapper(
 
 
 class EthSubscription(Generic[TSubscriptionResult]):
-    _id: HexStr = None
-    manager: "SubscriptionManager" = None
+    _id: Optional[HexStr] = None
+    manager: Optional["SubscriptionManager"] = None
 
     def __init__(
         self: TSubscription,
@@ -217,7 +217,7 @@ class LogsSubscription(EthSubscription[LogReceipt]):
             Union[Address, ChecksumAddress, List[Address], List[ChecksumAddress]]
         ] = None,
         topics: Optional[Sequence[TopicFilter]] = None,
-        handler: LogsSubscriptionHandler = None,
+        handler: Optional[LogsSubscriptionHandler] = None,
         handler_context: Optional[Dict[str, Any]] = None,
         label: Optional[str] = None,
         parallelize: Optional[bool] = None,

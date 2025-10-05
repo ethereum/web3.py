@@ -6,6 +6,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Dict,
+    Optional,
     Union,
     cast,
 )
@@ -214,7 +215,7 @@ class RequestMocker:
             self.w3.provider._recv_func_cache = (None, None)
 
     async def _async_build_mock_result(
-        self, method: "RPCEndpoint", params: Any, request_id: int = None
+        self, method: "RPCEndpoint", params: Any, request_id: Optional[int] = None
     ) -> "RPCResponse":
         request_id = request_id if request_id else self._build_request_id()
         response_dict = {"jsonrpc": "2.0", "id": request_id}

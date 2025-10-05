@@ -3,6 +3,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Dict,
+    Optional,
     Sequence,
     TypeVar,
     Union,
@@ -42,8 +43,8 @@ def always_cache_request(*_args: Any, **_kwargs: Any) -> bool:
 
 def is_beyond_validation_threshold(
     provider: SYNC_PROVIDER_TYPE,
-    blocknum: int = None,
-    block_timestamp: int = None,
+    blocknum: Optional[int] = None,
+    block_timestamp: Optional[int] = None,
 ) -> bool:
     cache_allowed_requests = provider.cache_allowed_requests
     try:
@@ -171,8 +172,8 @@ def validate_from_blockhash_in_params(
 
 async def async_is_beyond_validation_threshold(
     provider: ASYNC_PROVIDER_TYPE,
-    blocknum: int = None,
-    block_timestamp: int = None,
+    blocknum: Optional[int] = None,
+    block_timestamp: Optional[int] = None,
 ) -> bool:
     cache_allowed_requests = provider.cache_allowed_requests
     try:

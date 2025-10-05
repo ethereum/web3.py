@@ -164,19 +164,19 @@ class BaseContractEvent:
     is a subclass of this class.
     """
 
-    address: ChecksumAddress = None
-    event_name: str = None
-    name: str = None
-    abi_element_identifier: ABIElementIdentifier = None
-    signature: str = None
-    w3: Union["Web3", "AsyncWeb3"] = None
-    contract_abi: ABI = None
+    address: Optional[ChecksumAddress] = None
+    event_name: Optional[str] = None
+    name: Optional[str] = None
+    abi_element_identifier: Optional[ABIElementIdentifier] = None
+    signature: Optional[str] = None
+    w3: Optional[Union["Web3", "AsyncWeb3"]] = None
+    contract_abi: Optional[ABI] = None
     abi: ABIEvent = None
     argument_names: Tuple[str, ...] = tuple()
     argument_types: Tuple[str, ...] = tuple()
     args: Any = None
     kwargs: Any = None
-    _topic: HexStr = None
+    _topic: Optional[HexStr] = None
 
     def __init__(self, *argument_names: str, abi: Optional[ABIEvent] = None) -> None:
         self.abi_element_identifier = type(self).__name__
@@ -485,7 +485,7 @@ class BaseContractEvents(Generic[TContractEvent]):
         self.w3 = w3
         self.address = address
         self.contract_event_type = contract_event_type
-        _events: Sequence[ABIEvent] = None
+        _events: Optional[Sequence[ABIEvent]] = None
 
         if self.abi:
             _events = sorted(
@@ -564,16 +564,16 @@ class BaseContractFunction:
     is a subclass of this class.
     """
 
-    address: ChecksumAddress = None
-    fn_name: str = None
-    name: str = None
-    signature: str = None
-    abi_element_identifier: ABIElementIdentifier = None
-    w3: Union["Web3", "AsyncWeb3"] = None
-    contract_abi: ABI = None
-    abi: ABIFunction = None
-    transaction: TxParams = None
-    arguments: Tuple[Any, ...] = None
+    address: Optional[ChecksumAddress] = None
+    fn_name: Optional[str] = None
+    name: Optional[str] = None
+    signature: Optional[str] = None
+    abi_element_identifier: Optional[ABIElementIdentifier] = None
+    w3: Optional[Union["Web3", "AsyncWeb3"]] = None
+    contract_abi: Optional[ABI] = None
+    abi: Optional[ABIFunction] = None
+    transaction: Optional[TxParams] = None
+    arguments: Optional[Tuple[Any, ...]] = None
     decode_tuples: Optional[bool] = None
     argument_names: Tuple[str, ...] = tuple()
     argument_types: Tuple[str, ...] = tuple()
@@ -889,7 +889,7 @@ class BaseContractFunction:
 class BaseContractFunctions(Generic[TContractFn]):
     """Class containing contract function objects"""
 
-    _functions: Sequence[ABIFunction] = None
+    _functions: Optional[Sequence[ABIFunction]] = None
 
     def __init__(
         self,
@@ -902,7 +902,7 @@ class BaseContractFunctions(Generic[TContractFn]):
         self.abi = abi
         self.w3 = w3
         self.address = address
-        _functions: Sequence[ABIFunction] = None
+        _functions: Optional[Sequence[ABIFunction]] = None
 
         if self.abi:
             # Function with least number of inputs is first
@@ -1001,13 +1001,13 @@ class BaseContract:
     """
 
     # set during class construction
-    w3: Union["Web3", "AsyncWeb3"] = None
+    w3: Optional[Union["Web3", "AsyncWeb3"]] = None
 
     # instance level properties
-    address: ChecksumAddress = None
+    address: Optional[ChecksumAddress] = None
 
     # class properties (overridable at instance level)
-    abi: ABI = None
+    abi: Optional[ABI] = None
 
     asm = None
     ast = None

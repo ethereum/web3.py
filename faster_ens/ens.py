@@ -98,8 +98,8 @@ class ENS(BaseENS):
 
     def __init__(
         self,
-        provider: "BaseProvider" = None,
-        addr: ChecksumAddress = None,
+        provider: Optional["BaseProvider"] = None,
+        addr: Optional[ChecksumAddress] = None,
         middleware: Optional[Sequence[Tuple["Middleware", str]]] = None,
     ) -> None:
         """
@@ -122,7 +122,7 @@ class ENS(BaseENS):
         )
 
     @classmethod
-    def from_web3(cls, w3: "Web3", addr: ChecksumAddress = None) -> "ENS":
+    def from_web3(cls, w3: "Web3", addr: Optional[ChecksumAddress] = None) -> "ENS":
         """
         Generate an ENS instance from a Web3 instance
 
@@ -309,7 +309,7 @@ class ENS(BaseENS):
     def setup_owner(
         self,
         name: str,
-        new_owner: ChecksumAddress = None,
+        new_owner: Optional[ChecksumAddress] = None,
         transact: Optional["TxParams"] = None,
     ) -> Optional[ChecksumAddress]:
         """
@@ -398,7 +398,7 @@ class ENS(BaseENS):
         name: str,
         key: str,
         value: str,
-        transact: "TxParams" = None,
+        transact: Optional["TxParams"] = None,
     ) -> HexBytes:
         """
         Set the value of a text record of an ENS name.
@@ -569,7 +569,7 @@ class ENS(BaseENS):
         name: str,
         func: "ContractFunction",
         args: Sequence[Any],
-        transact: "TxParams" = None,
+        transact: Optional["TxParams"] = None,
     ) -> HexBytes:
         if not transact:
             transact = {}

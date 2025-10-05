@@ -11,7 +11,6 @@ from typing import (
     Tuple,
     Type,
     Union,
-    cast,
     overload,
 )
 import warnings
@@ -605,7 +604,7 @@ class AsyncEth(BaseEth):
     async def modify_transaction(
         self, transaction_hash: _Hash32, **transaction_params: Unpack[TxParams]
     ) -> HexBytes:
-        assert_valid_transaction_params(cast(TxParams, transaction_params))
+        assert_valid_transaction_params(transaction_params)
 
         current_transaction = await async_get_required_transaction(
             self.w3, transaction_hash
@@ -628,9 +627,9 @@ class AsyncEth(BaseEth):
     async def sign(
         self,
         account: Union[Address, ChecksumAddress, ENS],
-        data: Union[int, bytes] = None,
-        hexstr: HexStr = None,
-        text: str = None,
+        data: Optional[Union[int, bytes]] = None,
+        hexstr: Optional[HexStr] = None,
+        text: Optional[str] = None,
     ) -> HexStr:
         return await self._sign(account, data, hexstr, text)
 

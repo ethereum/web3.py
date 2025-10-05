@@ -1,3 +1,4 @@
+# mypy: disable-error-code="arg-type"
 from copy import (
     deepcopy,
 )
@@ -100,8 +101,8 @@ class AsyncENS(BaseENS):
 
     def __init__(
         self,
-        provider: "AsyncBaseProvider" = None,
-        addr: ChecksumAddress = None,
+        provider: Optional["AsyncBaseProvider"] = None,
+        addr: Optional[ChecksumAddress] = None,
         middleware: Optional[Sequence[Tuple["Middleware", str]]] = None,
     ) -> None:
         """
@@ -123,7 +124,7 @@ class AsyncENS(BaseENS):
         )
 
     @classmethod
-    def from_web3(cls, w3: "AsyncWeb3", addr: ChecksumAddress = None) -> "AsyncENS":
+    def from_web3(cls, w3: "AsyncWeb3", addr: Optional[ChecksumAddress] = None) -> "AsyncENS":
         """
         Generate an AsyncENS instance with web3
 
@@ -308,7 +309,7 @@ class AsyncENS(BaseENS):
     async def setup_owner(
         self,
         name: str,
-        new_owner: ChecksumAddress = None,
+        new_owner: Optional[ChecksumAddress] = None,
         transact: Optional["TxParams"] = None,
     ) -> Optional[ChecksumAddress]:
         """
@@ -401,7 +402,7 @@ class AsyncENS(BaseENS):
         name: str,
         key: str,
         value: str,
-        transact: "TxParams" = None,
+        transact: Optional["TxParams"] = None,
     ) -> HexBytes:
         """
         Set the value of a text record of an ENS name.
@@ -594,7 +595,7 @@ class AsyncENS(BaseENS):
         name: str,
         func: "AsyncContractFunction",
         args: Sequence[Any],
-        transact: "TxParams" = None,
+        transact: Optional["TxParams"] = None,
     ) -> HexBytes:
         if not transact:
             transact = {}

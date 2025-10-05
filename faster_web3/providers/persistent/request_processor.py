@@ -302,7 +302,7 @@ class RequestProcessor:
             self._request_response_cache.cache(cache_key, raw_response)
 
     async def pop_raw_response(
-        self, cache_key: str = None, subscription: bool = False
+        self, cache_key: Optional[str] = None, subscription: bool = False
     ) -> Any:
         if subscription:
             qsize = self._subscription_response_queue.qsize()

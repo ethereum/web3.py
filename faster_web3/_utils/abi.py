@@ -207,10 +207,10 @@ class AddressEncoder(encoding.AddressEncoder):
 
 class AcceptsHexStrEncoder(encoding.BaseEncoder):
     subencoder_cls: Type[encoding.BaseEncoder] = None
-    is_strict: bool = None
+    is_strict: Optional[bool] = None
     is_big_endian: bool = False
-    data_byte_size: int = None
-    value_bit_size: int = None
+    data_byte_size: Optional[int] = None
+    value_bit_size: Optional[int] = None
 
     def __init__(
         self,
