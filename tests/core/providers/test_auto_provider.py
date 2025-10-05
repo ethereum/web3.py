@@ -1,5 +1,6 @@
 import pytest
 import os
+import tempfile
 
 from web3.providers import (
     HTTPProvider,
@@ -55,9 +56,9 @@ def test_load_provider_from_env(monkeypatch, uri, expected_type, expected_attrs)
 
 
 def test_get_dev_ipc_path(monkeypatch, tmp_path):
-    # test default path
+    # test default path (portable)
     path = get_dev_ipc_path()
-    assert path == "/tmp/geth.ipc"
+    assert path == os.path.join(tempfile.gettempdir(), "geth.ipc")
 
     uri = str(tmp_path) + "/geth.ipc"
 

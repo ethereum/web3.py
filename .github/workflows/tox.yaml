@@ -1,0 +1,51 @@
+name: Tox
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  schedule:
+    - cron: '0 12 * * 1-5'  # Weekdays 12:00 UTC
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Test (${{ matrix.jobtype }}, ${{ matrix.python-version}}, ${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13"]
+        jobtype: [core, lint, wheel]
+    env:
+      TOXENV: py${{ matrix.python-version }}-${{ matrix.jobtype }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Upgrade pip and install tox
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install tox
+
+      - name: Cache tox, pip, and hypothesis
+        uses: actions/cache@v4
+        with:
+          path: |
+            .tox
+            .hypothesis
+            ~/.cache/pip
+            ~/.local
+          key: ${{ runner.os }}-tox-${{ matrix.python-version }}-${{ matrix.jobtype }}-${{ hashFiles('setup.py', 'tox.ini') }}
+
+      - name: Run tox
+        run: python -m tox run -r
