@@ -3,6 +3,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Dict,
+    Final,
     Optional,
     Sequence,
     TypeVar,
@@ -23,7 +24,7 @@ if TYPE_CHECKING:
         PersistentConnectionProvider,
     )
 
-UNCACHEABLE_BLOCK_IDS = {"finalized", "safe", "latest", "pending"}
+UNCACHEABLE_BLOCK_IDS: Final = frozenset({"finalized", "safe", "latest", "pending"})
 
 ASYNC_PROVIDER_TYPE = TypeVar("ASYNC_PROVIDER_TYPE", bound="AsyncBaseProvider")
 SYNC_PROVIDER_TYPE = TypeVar("SYNC_PROVIDER_TYPE", bound="BaseProvider")
@@ -88,7 +89,7 @@ def is_beyond_validation_threshold(
 def validate_from_block_id_in_params(
     provider: SYNC_PROVIDER_TYPE,
     params: Sequence[Any],
-    _result: Dict[str, Any],
+    _result: Any,
 ) -> bool:
     block_id = params[0]
     if block_id == "earliest":
@@ -144,7 +145,7 @@ def validate_from_blocknum_in_result(
 def validate_from_blockhash_in_params(
     provider: SYNC_PROVIDER_TYPE,
     params: Sequence[Any],
-    _result: Dict[str, Any],
+    _result: Any,
 ) -> bool:
     cache_allowed_requests = provider.cache_allowed_requests
     try:

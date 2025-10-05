@@ -60,9 +60,9 @@ def test_get_dev_ipc_path(monkeypatch, tmp_path):
     # test default path (portable)
     path = get_dev_ipc_path()
     expected = (
-        "\\.\pipe\geth.ipc"
+        "\\\\.\pipe\geth.ipc"
         if sys.platform.startswith("win")
-        os.path.join(tempfile.gettempdir(), "geth.ipc")
+        else os.path.join(tempfile.gettempdir(), "geth.ipc")
     )
     assert path == expected
 

@@ -1,7 +1,4 @@
-from asyncio import (
-    iscoroutinefunction,
-)
-import collections
+import asyncio
 import hashlib
 import threading
 from typing import (
@@ -10,25 +7,19 @@ from typing import (
     Callable,
     Coroutine,
     Dict,
+    Final,
+    Generator,
     List,
     Optional,
     Sequence,
     Tuple,
     Union,
+    final,
 )
 
+import faster_eth_utils
 from eth_typing import (
     ChainId,
-)
-from faster_eth_utils import (
-    is_boolean,
-    is_bytes,
-    is_dict,
-    is_list_like,
-    is_null,
-    is_number,
-    is_text,
-    to_bytes,
 )
 
 from faster_web3._utils.caching import (
@@ -75,19 +66,40 @@ if TYPE_CHECKING:
     )
 
 
+iscoroutinefunction: Final = asyncio.iscoroutinefunction
+
+md5: Final = hashlib.md5
+
+get_ident: Final = threading.get_ident
+
+is_boolean: Final = faster_eth_utils.is_boolean
+is_bytes: Final = faster_eth_utils.is_bytes
+is_dict: Final = faster_eth_utils.is_dict
+is_list_like: Final = faster_eth_utils.is_list_like
+is_null: Final = faster_eth_utils.is_null
+is_number: Final = faster_eth_utils.is_number
+is_text: Final = faster_eth_utils.is_text
+to_bytes: Final = faster_eth_utils.to_bytes
+
+
 def generate_cache_key(value: Any) -> str:
     """
     Generates a cache key for the *args and **kwargs
     """
     if is_bytes(value):
-        return hashlib.md5(value).hexdigest()
+        return md5(value).hexdigest()
     elif is_text(value):
         return generate_cache_key(to_bytes(text=value))
-    elif is_boolean(value) or is_null(value) or is_number(value):
+    # I separated the next 3 lines so the compiler can specialize the repr calls
+    elif is_boolean(value):
+        return generate_cache_key(repr(value))
+    elif is_null(value):
+        return generate_cache_key(repr(value))
+    elif is_number(value):
         return generate_cache_key(repr(value))
     elif is_dict(value):
-        return generate_cache_key((key, value[key]) for key in sorted(value.keys()))
-    elif is_list_like(value) or isinstance(value, collections.abc.Generator):
+        return generate_cache_key([(key, value[key]) for key in sorted(value.keys())])
+    elif is_list_like(value) or isinstance(value, Generator):
         return generate_cache_key("".join(generate_cache_key(item) for item in value))
     else:
         raise Web3TypeError(
@@ -95,6 +107,7 @@ def generate_cache_key(value: Any) -> str:
         )
 
 
+@final
 class RequestInformation:
     def __init__(
         self,
@@ -107,17 +120,17 @@ class RequestInformation:
         ],
         subscription_id: Optional[str] = None,
     ):
-        self.method = method
-        self.params = params
-        self.response_formatters = response_formatters
-        self.subscription_id = subscription_id
-        self.middleware_response_processors: List[Callable[..., Any]] = []
+        self.method: Final = method
+        self.params: Final = params
+        self.response_formatters: Final = response_formatters
+        self.subscription_id: Final = subscription_id
+        self.middleware_response_processors: Final[List[Callable[..., Any]]] = []
 
 
-DEFAULT_VALIDATION_THRESHOLD = 60 * 60  # 1 hour
+DEFAULT_VALIDATION_THRESHOLD: Final = 60 * 60  # 1 hour
 
-CHAIN_VALIDATION_THRESHOLD_DEFAULTS: Dict[
-    int, Union[RequestCacheValidationThreshold, int]
+CHAIN_VALIDATION_THRESHOLD_DEFAULTS: Final[
+    Dict[int, Union[RequestCacheValidationThreshold, int]]
 ] = {
     # Suggested safe values as defaults for each chain. Users can configure a different
     # value if desired.
@@ -152,36 +165,38 @@ def is_cacheable_request(
 
 # -- request caching -- #
 
-ALWAYS_CACHE = {
+ALWAYS_CACHE: Final = frozenset({
     RPC.eth_chainId,
     RPC.web3_clientVersion,
     RPC.net_version,
-}
-BLOCKNUM_IN_PARAMS = {
+})
+BLOCKNUM_IN_PARAMS: Final = frozenset({
     RPC.eth_getBlockByNumber,
     RPC.eth_getRawTransactionByBlockNumberAndIndex,
     RPC.eth_getBlockTransactionCountByNumber,
     RPC.eth_getUncleByBlockNumberAndIndex,
     RPC.eth_getUncleCountByBlockNumber,
-}
-BLOCK_IN_RESULT = {
+})
+BLOCK_IN_RESULT: Final = frozenset({
     RPC.eth_getBlockByHash,
     RPC.eth_getTransactionByHash,
     RPC.eth_getTransactionByBlockNumberAndIndex,
     RPC.eth_getTransactionByBlockHashAndIndex,
     RPC.eth_getBlockTransactionCountByHash,
-}
-BLOCKHASH_IN_PARAMS = {
+})
+BLOCKHASH_IN_PARAMS: Final = frozenset({
     RPC.eth_getRawTransactionByBlockHashAndIndex,
     RPC.eth_getUncleByBlockHashAndIndex,
     RPC.eth_getUncleCountByBlockHash,
-}
+})
 
-INTERNAL_VALIDATION_MAP: Dict[
-    RPCEndpoint,
-    Callable[
-        [SYNC_PROVIDER_TYPE, Sequence[Any], Dict[str, Any]],
-        bool,
+INTERNAL_VALIDATION_MAP: Final[
+    Dict[
+        RPCEndpoint,
+        Callable[
+            [SYNC_PROVIDER_TYPE, Sequence[Any], Dict[str, Any]],
+            bool,
+        ],
     ],
 ] = {
     **{endpoint: always_cache_request for endpoint in ALWAYS_CACHE},
@@ -189,7 +204,7 @@ INTERNAL_VALIDATION_MAP: Dict[
     **{endpoint: validate_from_blocknum_in_result for endpoint in BLOCK_IN_RESULT},
     **{endpoint: validate_from_blockhash_in_params for endpoint in BLOCKHASH_IN_PARAMS},
 }
-CACHEABLE_REQUESTS = tuple(INTERNAL_VALIDATION_MAP.keys())
+CACHEABLE_REQUESTS: Final = tuple(INTERNAL_VALIDATION_MAP.keys())
 
 
 def set_threshold_if_empty(provider: SYNC_PROVIDER_TYPE) -> None:
@@ -247,7 +262,7 @@ def handle_request_caching(
         if is_cacheable_request(provider, method, params):
             request_cache = provider._request_cache
             cache_key = generate_cache_key(
-                f"{threading.get_ident()}:{(method, params)}"
+                f"{get_ident()}:{(method, params)}"
             )
             cache_result = request_cache.get_cache_entry(cache_key)
             if cache_result is not None:
@@ -273,7 +288,7 @@ ASYNC_VALIDATOR_TYPE = Callable[
     Union[bool, Coroutine[Any, Any, bool]],
 ]
 
-ASYNC_INTERNAL_VALIDATION_MAP: Dict[RPCEndpoint, ASYNC_VALIDATOR_TYPE] = {
+ASYNC_INTERNAL_VALIDATION_MAP: Final[Dict[RPCEndpoint, ASYNC_VALIDATOR_TYPE]] = {
     **{endpoint: always_cache_request for endpoint in ALWAYS_CACHE},
     **{
         endpoint: async_validate_from_block_id_in_params
@@ -351,7 +366,7 @@ def async_handle_request_caching(
         if is_cacheable_request(provider, method, params):
             request_cache = provider._request_cache
             cache_key = generate_cache_key(
-                f"{threading.get_ident()}:{(method, params)}"
+                f"{get_ident()}:{(method, params)}"
             )
             cache_result = request_cache.get_cache_entry(cache_key)
             if cache_result is not None:
@@ -384,7 +399,7 @@ def async_handle_send_caching(
         if is_cacheable_request(provider, method, params):
             request_cache = provider._request_cache
             cache_key = generate_cache_key(
-                f"{threading.get_ident()}:{(method, params)}"
+                f"{get_ident()}:{(method, params)}"
             )
             cached_response = request_cache.get_cache_entry(cache_key)
             if cached_response is not None:
@@ -413,7 +428,7 @@ def async_handle_recv_caching(
         if is_cacheable_request(provider, method, params):
             request_cache = provider._request_cache
             cache_key = generate_cache_key(
-                f"{threading.get_ident()}:{(method, params)}"
+                f"{get_ident()}:{(method, params)}"
             )
             cache_result = request_cache.get_cache_entry(cache_key)
             if cache_result is not None:

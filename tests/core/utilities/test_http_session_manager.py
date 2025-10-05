@@ -183,6 +183,7 @@ def test_session_manager_make_post_request_streaming(mocker, http_session_manage
 
 @pytest.mark.xfail(
     sys.platform.startswith("win"),
+    strict=False,
     reason=(
         "This test occasionally doesn't raise the exc on Windows. "
         "I'll debug it if it gives somebody an issue."
