@@ -25,10 +25,10 @@ percentile_ids = [
 
 @pytest.mark.benchmark(group="percentile")
 @pytest.mark.parametrize("values,percentile", percentile_cases, ids=percentile_ids)
-def test_web3_percentile(benchmark: BenchmarkFixture, values, percentile):
+def test_percentile(benchmark: BenchmarkFixture, values, percentile):
     benchmark(run_100, web3._utils.math.percentile, values, percentile)
 
 @pytest.mark.benchmark(group="percentile")
 @pytest.mark.parametrize("values,percentile", percentile_cases, ids=percentile_ids)
-def test_faster_web3_percentile(benchmark: BenchmarkFixture, values, percentile):
+def test_faster_percentile(benchmark: BenchmarkFixture, values, percentile):
     benchmark(run_100, faster_web3._utils.math.percentile, values, percentile)

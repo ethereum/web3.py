@@ -29,12 +29,12 @@ verify_attr_ids = [
 
 @pytest.mark.benchmark(group="verify_attr")
 @pytest.mark.parametrize("class_name,key,namespace", verify_attr_cases, ids=verify_attr_ids)
-def test_web3_verify_attr(benchmark: BenchmarkFixture, class_name, key, namespace):
+def test_verify_attr(benchmark: BenchmarkFixture, class_name, key, namespace):
     benchmark(run_100, web3._utils.datatypes.verify_attr, class_name, key, namespace)
 
 @pytest.mark.benchmark(group="verify_attr")
 @pytest.mark.parametrize("class_name,key,namespace", verify_attr_cases, ids=verify_attr_ids)
-def test_faster_web3_verify_attr(benchmark: BenchmarkFixture, class_name, key, namespace):
+def test_faster_verify_attr(benchmark: BenchmarkFixture, class_name, key, namespace):
     benchmark(run_100, faster_web3._utils.datatypes.verify_attr, class_name, key, namespace)
 
 # More varied parameterization for PropertyCheckingFactory
@@ -70,10 +70,10 @@ property_factory_ids = [
 
 @pytest.mark.benchmark(group="PropertyCheckingFactory")
 @pytest.mark.parametrize("name,bases,namespace,normalizers", property_factory_cases, ids=property_factory_ids)
-def test_property_checking_factory(benchmark: BenchmarkFixture, name, bases, namespace, normalizers):
+def test_PropertyCheckingFactory(benchmark: BenchmarkFixture, name, bases, namespace, normalizers):
     benchmark(run_100, make_class_with_factory, name, bases, namespace, normalizers)
 
 @pytest.mark.benchmark(group="PropertyCheckingFactory")
 @pytest.mark.parametrize("name,bases,namespace,normalizers", property_factory_cases, ids=property_factory_ids)
-def test_faster_property_checking_factory(benchmark: BenchmarkFixture, name, bases, namespace, normalizers):
+def test_faster_PropertyCheckingFactory(benchmark: BenchmarkFixture, name, bases, namespace, normalizers):
     benchmark(run_100, faster_make_class_with_factory, name, bases, namespace, normalizers)
