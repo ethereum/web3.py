@@ -128,7 +128,7 @@ setup(
     license="MIT",
     zip_safe=False,
     keywords="ethereum",
-    packages=find_packages(exclude=["scripts", "scripts.*", "tests", "tests.*"]),
+    packages=find_packages(exclude=["scripts", "scripts.*", "tests", "tests.*", "benchmarks", "benchmarks.*"]),
     ext_modules=ext_modules,
     package_data={"faster_web3": ["py.typed"], "faster_ens": ["py.typed"]},
     classifiers=[

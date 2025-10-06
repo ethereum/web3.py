@@ -9,7 +9,9 @@
 dist
 build/**/*.o
 build/**/*.py
+build/**/*.json
 build/**/py.typed
+build/ops.txt
 .build
 eggs
 .eggs
