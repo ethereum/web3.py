@@ -11,7 +11,6 @@ from typing import (
     Tuple,
     Type,
     Union,
-    cast,
 )
 import warnings
 
@@ -85,8 +84,7 @@ def init_web3(
         Eth as EthMain,
     )
 
-    provider = provider or cast("BaseProvider", default)
-    if provider is default:
+    if provider is None:
         w3 = Web3Main(ens=None, modules={"eth": (EthMain)})
     else:
         w3 = Web3Main(provider, middleware, ens=None, modules={"eth": (EthMain)})
@@ -151,7 +149,6 @@ def dns_encode_name(name: str) -> HexBytes:
     normalized_name = normalize_name(name)
 
     labels = normalized_name.split(".")
-    labels_as_bytes = [to_bytes(text=label) for label in labels]
 
     # raises if len(label) > 255:
     for index, label in enumerate(labels):
@@ -161,6 +158,7 @@ def dns_encode_name(name: str) -> HexBytes:
             )
 
     # concat label size in bytes to each label:
+    labels_as_bytes = (to_bytes(text=label) for label in labels)
     dns_prepped_labels = [to_bytes(len(label)) + label for label in labels_as_bytes]
 
     # return the joined prepped labels in order and append the zero byte at the end:
@@ -260,7 +258,7 @@ def address_in(
 
 def address_to_reverse_domain(address: ChecksumAddress) -> str:
     lower_unprefixed_address = remove_0x_prefix(HexStr(to_normalized_address(address)))
-    return lower_unprefixed_address + "." + REVERSE_REGISTRAR_DOMAIN
+    return f"{lower_unprefixed_address}.{REVERSE_REGISTRAR_DOMAIN}"
 
 
 def estimate_auction_start_gas(labels: Collection[str]) -> int:
@@ -313,7 +311,6 @@ def init_async_web3(
         StalecheckMiddlewareBuilder,
     )
 
-    provider = provider or cast("AsyncBaseProvider", default)
     middleware = list(middleware)
     for i, (_mw, name) in enumerate(middleware):
         if name == "ens_name_to_address":
@@ -327,7 +324,7 @@ def init_async_web3(
             )
         )
 
-    if provider is default:
+    if provider is None:
         async_w3 = AsyncWeb3Main(
             middleware=middleware, ens=None, modules={"eth": (AsyncEthMain)}
         )

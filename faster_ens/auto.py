@@ -1,5 +1,10 @@
+from typing import (
+    Final,
+)
+
 from faster_ens import (
     ENS,
 )
 
-ns = ENS()
+
+ns: Final = ENS()
