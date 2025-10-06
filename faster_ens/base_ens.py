@@ -1,6 +1,3 @@
-from functools import (
-    wraps,
-)
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -17,6 +14,9 @@ from faster_eth_utils.abi import (
 )
 from faster_hexbytes import (
     HexBytes,
+)
+from mypy_extensions import (
+    mypyc_attr,
 )
 
 from .utils import (
@@ -38,8 +38,9 @@ if TYPE_CHECKING:
     )
 
 
+@mypyc_attr(allow_interpreted_subclasses=True)
 class BaseENS:
-    w3: Optional[Union["AsyncWeb3", "Web3"]] = None
+    w3: Union["AsyncWeb3", "Web3"]
     ens: Optional[Union["Contract", "AsyncContract"]] = None
     _resolver_contract: Optional[Union[Type["Contract"], Type["AsyncContract"]]] = None
     _reverse_resolver_contract: Optional[Union[Type["Contract"], Type["AsyncContract"]]] = None
@@ -53,27 +54,22 @@ class BaseENS:
         self.w3.strict_bytes_type_checking = strict_bytes_type_check
 
     @staticmethod
-    @wraps(label_to_hash)
     def labelhash(label: str) -> HexBytes:
         return label_to_hash(label)
 
     @staticmethod
-    @wraps(raw_name_to_hash)
     def namehash(name: str) -> HexBytes:
         return raw_name_to_hash(name)
 
     @staticmethod
-    @wraps(normalize_name)
     def nameprep(name: str) -> str:
         return normalize_name(name)
 
     @staticmethod
-    @wraps(is_valid_name)
     def is_valid_name(name: str) -> bool:
         return is_valid_name(name)
 
     @staticmethod
-    @wraps(address_to_reverse_domain)
     def reverse_domain(address: ChecksumAddress) -> str:
         return address_to_reverse_domain(address)
 
