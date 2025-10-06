@@ -3,7 +3,7 @@ parse_benchmark_output.py
 
 Extracts per-function benchmark timings from pytest-benchmark's benchmark.json output.
 Parses the JSON file, finds all test function results, and writes a JSON file
-mapping submodules (e.g., Python submodules like faster_web3.abi) to groups and their test functions and results.
+mapping modules (e.g., ens/base_ens) to groups and their test functions and results.
 
 Usage:
     python parse_benchmark_output.py <benchmark.json> [output.json]
@@ -15,16 +15,20 @@ import re
 from collections import defaultdict
 from typing import Dict, Any
 
-
-def get_submodule(bench: dict) -> str:
-    # Extract Python submodule from fullname, e.g., "benchmarks/test_abi_benchmarks.py::test_abi_to_signature"
+def get_module_path(bench: dict) -> str:
+    # Extracts the relative module path from the test file path.
+    # E.g., benchmarks/ens/test_base_ens_benchmarks.py -> ens/base_ens
     fullname = bench.get("fullname", "")
-    # Try to extract the submodule from the test file path
-    m = re.search(r"benchmarks/test_([a-zA-Z0-9_]+)_benchmarks\.py", fullname)
+    m = re.search(r"benchmarks/(.+)/test_([a-zA-Z0-9_]+)_benchmarks\.py", fullname)
     if m:
-        return f"faster_web3.{m.group(1)}"
+        subdir = m.group(1)
+        base = m.group(2)
+        return f"{subdir}/{base}"
+    # Try for top-level: benchmarks/test_foo_benchmarks.py -> foo
+    m2 = re.search(r"benchmarks/test_([a-zA-Z0-9_]+)_benchmarks\.py", fullname)
+    if m2:
+        return m2.group(1)
     return "unknown"
-
 
 def get_group_name(test_name: str) -> str:
     # Extract group from test name, e.g., test_foo, test_faster_foo -> group: foo
@@ -36,20 +40,19 @@ def get_group_name(test_name: str) -> str:
         return m.group(1)
     return test_name
 
-
 def parse_pytest_benchmark_json(data: dict) -> Dict[str, Dict[str, Dict[str, Any]]]:
     """
     Parses pytest-benchmark's benchmark.json and extracts per-function timings,
-    grouped by submodule and group name.
-    Returns a dict: {submodule: {group: {function_name: {...}}}}
+    grouped by module path and group name.
+    Returns a dict: {module_path: {group: {function_name: {...}}}}
     """
     results = defaultdict(lambda: defaultdict(dict))
     for bench in data.get("benchmarks", []):
         name = bench["name"]
-        submodule = get_submodule(bench)
+        module_path = get_module_path(bench)
         group = get_group_name(name)
         stats = bench["stats"]
-        results[submodule][group][name] = {
+        results[module_path][group][name] = {
             "mean": stats.get("mean"),
             "stddev": stats.get("stddev", None),
             "iqr": stats.get("iqr", None),
@@ -58,7 +61,6 @@ def parse_pytest_benchmark_json(data: dict) -> Dict[str, Dict[str, Dict[str, Any
             "rounds": stats.get("rounds", None),
         }
     return results
-
 
 def main() -> None:
     if len(sys.argv) < 2:
@@ -72,7 +74,6 @@ def main() -> None:
     with open(outfile, "w") as f:
         json.dump(results, f, indent=2)
     print(f"Parsed results written to {outfile}")
-
 
 if __name__ == "__main__":
     main()

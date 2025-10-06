@@ -13,23 +13,38 @@ def main():
     with open(diff_path, "r", encoding="utf-8") as f:
         diff = json.load(f)
 
-    for submodule, groupDiffs in diff.items():
-        # Convert submodule name to submodule file path (e.g., faster_web3.abi -> faster_web3/abi.py)
-        submoduleFile = "unknown"
-        benchmarkFile = "unknown"
-        m = None
-        if submodule.startswith("faster_web3."):
-            m = submodule[len("faster_web3."):]
+    for module_path, groupDiffs in diff.items():
+        # module_path is like "ens/base_ens" or "web3/foo"
+        # Build output path and ensure subdirectories exist
+        out_path = os.path.join(results_dir, f"{module_path}.md")
+        out_dir = os.path.dirname(out_path)
+        os.makedirs(out_dir, exist_ok=True)
 
-        if m:
-            submoduleFile = f"faster_web3/{m}.py"
-            benchmarkFile = f"benchmarks/test_{m}_benchmarks.py"
+        # Build links to source and benchmark files (best effort)
+        # Try to infer package and file names for links
+        parts = module_path.split("/")
+        if len(parts) >= 2:
+            package = parts[0]
+            base = parts[1]
+            submoduleFile = f"{package}/{base}.py"
+            benchmarkFile = f"benchmarks/{package}/test_{base}_benchmarks.py"
+        elif len(parts) == 1:
+            package = ""
+            base = parts[0]
+            submoduleFile = f"{base}.py"
+            benchmarkFile = f"benchmarks/test_{base}_benchmarks.py"
+        else:
+            submoduleFile = "unknown"
+            benchmarkFile = "unknown"
 
         submoduleUrl = f"https://github.com/{repo}/blob/{branch}/{submoduleFile}"
         benchmarkUrl = f"https://github.com/{repo}/blob/{branch}/{benchmarkFile}"
 
         md_lines = []
-        md_lines.append(f"#### [{submodule}]({submoduleUrl}) - [view benchmarks]({benchmarkUrl})\n")
+        # Collapsible section for the whole benchmark table
+        md_lines.append(f"<details>")
+        md_lines.append(f"<summary>Benchmarks for [{module_path}]({submoduleUrl}) ([view benchmarks]({benchmarkUrl}))</summary>\n")
+        md_lines.append("")
         md_lines.append("| Function | Reference Mean | Faster Mean | % Change | Speedup (%) | x Faster | Faster |")
         md_lines.append("|----------|---------------|-------------|----------|-------------|----------|--------|")
 
@@ -49,12 +64,11 @@ def main():
             elif data.get("note"):
                 md_lines.append(f"| `{group}` |  |  |  |  |  | ➖ |")
 
+        md_lines.append("</details>")
         md_lines.append("")  # Blank line at end
         md_content = "\n".join(md_lines)
 
         # Write to file
-        module_name = submodule.split(".")[-1]
-        out_path = os.path.join(results_dir, f"{module_name}.md")
         with open(out_path, "w", encoding="utf-8") as outf:
             outf.write(md_content)
 
