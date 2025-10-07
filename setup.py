@@ -55,6 +55,7 @@ with open("./README.md") as readme:
 
 ext_modules = mypycify(
     [
+        "faster_ens/_normalization.py",
         # "faster_ens/async_ens.py",  figure out `default`
         "faster_ens/auto.py",
         "faster_ens/base_ens.py",

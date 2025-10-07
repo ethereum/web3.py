@@ -1,11 +1,15 @@
+import json
+import sys
 from enum import (
     Enum,
 )
-import json
-import os
+from pathlib import (
+    Path,
+)
 from typing import (
     Any,
     Dict,
+    Final,
     List,
     Literal,
     Optional,
@@ -40,18 +44,18 @@ def _json_list_mapping_to_dict(
 
 # get the normalization spec json files downloaded from links in ENSIP-15
 # https://docs.ens.domains/ens-improvement-proposals/ensip-15-normalization-standard
-specs_dir_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "specs"))
-with open(os.path.join(specs_dir_path, "normalization_spec.json")) as spec:
+specs_dir_path = Path(sys.modules["faster_ens"].__file__).parent.joinpath("specs")
+with specs_dir_path.joinpath("normalization_spec.json").open() as spec:
     f = json.load(spec)
 
-    NORMALIZATION_SPEC = _json_list_mapping_to_dict(f, "mapped")
+    NORMALIZATION_SPEC: Final = _json_list_mapping_to_dict(f, "mapped")
     # clean `FE0F` (65039) from entries since it's optional
     for e in NORMALIZATION_SPEC["emoji"]:
         if 65039 in e:
             for _ in range(e.count(65039)):
                 e.remove(65039)
 
-with open(os.path.join(specs_dir_path, "nf.json")) as nf:
+with specs_dir_path.joinpath("nf.json").open() as nf:
     f = json.load(nf)
     NF = _json_list_mapping_to_dict(f, "decomp")
 
@@ -98,19 +102,16 @@ class TextToken(Token):
 
 
 class Label:
-    type: str
-    tokens: List[Token]
-
     def __init__(
         self,
         type: Optional[str] = None,
         tokens: Optional[List[Token]] = None,
     ) -> None:
-        self.type = type
-        self.tokens = tokens
+        self.type: Final = type
+        self.tokens: Final = tokens
 
     @property
-    def text(self) -> str:
+    def text(self) -> str:  # sourcery skip: assign-if-exp
         if not self.tokens:
             return ""
 
@@ -201,7 +202,7 @@ def _construct_whole_confusable_map() -> Dict[int, Set[str]]:
 
 WHOLE_CONFUSABLE_MAP = _construct_whole_confusable_map()
 VALID_CODEPOINTS = _extract_valid_codepoints()
-MAX_LEN_EMOJI_PATTERN = max(len(e) for e in NORMALIZATION_SPEC["emoji"])
+MAX_LEN_EMOJI_PATTERN = max(map(len, NORMALIZATION_SPEC["emoji"]))
 NSM_MAX = NORMALIZATION_SPEC["nsm_max"]
 
 
@@ -479,8 +480,7 @@ def normalize_name_ensip15(name: str) -> ENSNormalizedName:
                 if leading_codepoint in NORMALIZATION_SPEC["ignored"]:
                     pass
 
-                elif leading_codepoint in NORMALIZATION_SPEC["mapped"]:
-                    mapped = NORMALIZATION_SPEC["mapped"][leading_codepoint]
+                elif (mapped := NORMALIZATION_SPEC["mapped"].get(leading_codepoint)) is not None:
                     for cp in mapped:
                         buffer.append(cp)
 

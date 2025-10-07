@@ -280,18 +280,15 @@ def is_none_or_zero_address(addr: Union[Address, ChecksumAddress, HexAddress]) -
     return not addr or addr == EMPTY_ADDR_HEX
 
 
-def is_empty_name(name: str) -> bool:
-    return name is None or name.strip() in {"", "."}
+def is_empty_name(name: str) -> bool:  # sourcery skip: collection-into-set
+    return name is None or name.strip() in ("", ".")
 
 
 def is_valid_ens_name(ens_name: str) -> bool:
     split_domain = ens_name.split(".")
     if len(split_domain) == 1:
         return False
-    for name in split_domain:
-        if not is_valid_name(name):
-            return False
-    return True
+    return all(map(is_valid_name, split_domain))
 
 
 # -- async -- #
@@ -325,15 +322,13 @@ def init_async_web3(
         )
 
     if provider is None:
-        async_w3 = AsyncWeb3Main(
+        return AsyncWeb3Main(
             middleware=middleware, ens=None, modules={"eth": (AsyncEthMain)}
         )
     else:
-        async_w3 = AsyncWeb3Main(
+        return AsyncWeb3Main(
             provider,
             middleware=middleware,
             ens=None,
             modules={"eth": (AsyncEthMain)},
         )
-
-    return async_w3
