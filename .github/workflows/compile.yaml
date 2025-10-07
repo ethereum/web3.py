@@ -4,6 +4,10 @@ on:
   pull_request:
     branches:
       - master
+    paths-ignore:
+      - '.github/workflows/**'
+      - '!.github/workflows/compile.yaml'
+      - 'benchmarks/**'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

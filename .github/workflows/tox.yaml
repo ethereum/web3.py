@@ -3,8 +3,16 @@ name: Tox
 on:
   push:
     branches: [main, master]
+    paths-ignore:
+      - '.github/workflows/**'
+      - '!.github/workflows/tox.yaml'
+      - 'benchmarks/**'
   pull_request:
     branches: [main, master]
+    paths-ignore:
+      - '.github/workflows/**'
+      - '!.github/workflows/tox.yaml'
+      - 'benchmarks/**'
   schedule:
     - cron: '0 12 * * 1-5'  # Weekdays 12:00 UTC
 
