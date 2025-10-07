@@ -173,7 +173,7 @@ async def idle_handler(
 
 
 async def emit_contract_event(
-    async_w3: AsyncWeb3,
+    async_w3: "AsyncWeb3[Any]",
     acct: ChecksumAddress,
     contract_function: "AsyncContractFunction",
     args: Any = (),
@@ -186,7 +186,7 @@ async def emit_contract_event(
 
 
 async def log_indexed_and_non_indexed_args_task(
-    async_w3: AsyncWeb3,
+    async_w3: "AsyncWeb3[Any]",
     async_emitter_contract: "AsyncContract",
     acct: ChecksumAddress,
     delay: float = 0.1,
@@ -226,14 +226,14 @@ async def clean_up_task(task: "asyncio.Task[Any]") -> None:
 
 class PersistentConnectionProviderTest:
     @pytest.fixture(autouse=True)
-    def clear_caches(self, async_w3: AsyncWeb3) -> Generator[None, None, None]:
+    def clear_caches(self, async_w3: "AsyncWeb3[Any]") -> Generator[None, None, None]:
         yield
         async_w3.provider._request_processor.clear_caches()
         async_w3.subscription_manager.total_handler_calls = 0
 
     @staticmethod
     async def seed_transactions_to_geth(
-        async_w3: AsyncWeb3,
+        async_w3: "AsyncWeb3[Any]",
         acct: ChecksumAddress,
         num_txs: int = 1,
         delay: float = 0.1,
@@ -305,7 +305,7 @@ class PersistentConnectionProviderTest:
     )
     async def test_async_eth_subscribe_syncing_mocked(
         self,
-        async_w3: AsyncWeb3,
+        async_w3: "AsyncWeb3[Any]",
         subscription_params: Tuple[Any, ...],
         ws_subscription_response: Dict[str, Any],
         expected_formatted_result: Any,
@@ -336,7 +336,9 @@ class PersistentConnectionProviderTest:
         )
 
     @pytest.mark.asyncio
-    async def test_async_eth_subscribe_new_heads(self, async_w3: AsyncWeb3) -> None:
+    async def test_async_eth_subscribe_new_heads(
+        self, async_w3: "AsyncWeb3[Any]"
+    ) -> None:
         sub_id = await async_w3.eth.subscribe("newHeads")
         assert is_hexstr(sub_id)
 
@@ -355,7 +357,7 @@ class PersistentConnectionProviderTest:
     @pytest.mark.asyncio
     async def test_async_eth_subscribe_creates_and_handles_new_heads_subscription_type(
         self,
-        async_w3: AsyncWeb3,
+        async_w3: "AsyncWeb3[Any]",
     ) -> None:
         sub_manager = async_w3.subscription_manager
         new_heads_handler_test = SubscriptionHandlerTest()
@@ -382,7 +384,7 @@ class PersistentConnectionProviderTest:
     @pytest.mark.asyncio
     async def test_async_eth_subscribe_process_pending_tx_true(
         self,
-        async_w3: AsyncWeb3,
+        async_w3: "AsyncWeb3[Any]",
     ) -> None:
         sub_id = await async_w3.eth.subscribe("newPendingTransactions", True)
         assert is_hexstr(sub_id)
@@ -425,7 +427,7 @@ class PersistentConnectionProviderTest:
     @pytest.mark.asyncio
     async def test_async_eth_subscribe_and_process_pending_tx_false(
         self,
-        async_w3: AsyncWeb3,
+        async_w3: "AsyncWeb3[Any]",
     ) -> None:
         sub_id = await async_w3.eth.subscribe("newPendingTransactions")
         assert is_hexstr(sub_id)
@@ -462,7 +464,7 @@ class PersistentConnectionProviderTest:
     @pytest.mark.asyncio
     async def test_async_eth_subscribe_creates_and_handles_pending_tx_subscription_type(
         self,
-        async_w3: AsyncWeb3,
+        async_w3: "AsyncWeb3[Any]",
     ) -> None:
         sub_manager = async_w3.subscription_manager
         pending_tx_handler_test = SubscriptionHandlerTest()
@@ -499,7 +501,7 @@ class PersistentConnectionProviderTest:
 
     @pytest.mark.asyncio
     async def test_async_eth_subscribe_and_process_logs(
-        self, async_w3: AsyncWeb3, async_emitter_contract: "AsyncContract"
+        self, async_w3: "AsyncWeb3[Any]", async_emitter_contract: "AsyncContract"
     ) -> None:
         event = async_emitter_contract.events.LogIndexedAndNotIndexed
         event_topic = async_w3.keccak(text=event.abi_element_identifier).to_0x_hex()
@@ -538,7 +540,7 @@ class PersistentConnectionProviderTest:
     @pytest.mark.asyncio
     async def test_async_eth_subscribe_creates_and_handles_logs_subscription_type(
         self,
-        async_w3: AsyncWeb3,
+        async_w3: "AsyncWeb3[Any]",
         async_emitter_contract: "AsyncContract",
     ) -> None:
         sub_manager = async_w3.subscription_manager
@@ -658,7 +660,7 @@ class PersistentConnectionProviderTest:
     )
     async def test_async_logs_subscription_with_and_or_topic_patterns(
         self,
-        async_w3: AsyncWeb3,
+        async_w3: "AsyncWeb3[Any]",
         async_emitter_contract: "AsyncContract",
         topics: Sequence[TopicFilter],
     ) -> None:
@@ -691,7 +693,7 @@ class PersistentConnectionProviderTest:
     @pytest.mark.asyncio
     async def test_async_extradata_poa_middleware_on_eth_subscription(
         self,
-        async_w3: AsyncWeb3,
+        async_w3: "AsyncWeb3[Any]",
     ) -> None:
         async_w3.middleware_onion.inject(
             ExtraDataToPOAMiddleware, "poa_middleware", layer=0
@@ -734,7 +736,7 @@ class PersistentConnectionProviderTest:
     @pytest.mark.asyncio
     async def test_asyncio_gather_for_multiple_requests_matches_the_responses(
         self,
-        async_w3: AsyncWeb3,
+        async_w3: "AsyncWeb3[Any]",
     ) -> None:
         (
             latest,
@@ -770,7 +772,7 @@ class PersistentConnectionProviderTest:
         assert chain_id == chain_id2 == chain_id3 == 131277322940537
 
     @pytest.mark.asyncio
-    async def test_async_public_socket_api(self, async_w3: AsyncWeb3) -> None:
+    async def test_async_public_socket_api(self, async_w3: "AsyncWeb3[Any]") -> None:
         # clear all caches and queues
         async_w3.provider._request_processor.clear_caches()
 
@@ -799,7 +801,7 @@ class PersistentConnectionProviderTest:
 
     @pytest.mark.asyncio
     async def test_async_subscription_manager_subscribes_to_many_subscriptions(
-        self, async_w3: AsyncWeb3, async_emitter_contract: "AsyncContract"
+        self, async_w3: "AsyncWeb3[Any]", async_emitter_contract: "AsyncContract"
     ) -> None:
         sub_manager = async_w3.subscription_manager
 
@@ -862,7 +864,9 @@ class PersistentConnectionProviderTest:
         await clean_up_task(emit_event_task)
 
     @pytest.mark.asyncio
-    async def test_subscription_handler_context(self, async_w3: AsyncWeb3) -> None:
+    async def test_subscription_handler_context(
+        self, async_w3: "AsyncWeb3[Any]"
+    ) -> None:
         base_url = "http://localhost:1337"
         async_beacon = AsyncBeacon(base_url)
         handler_test = SubscriptionHandlerTest()
@@ -910,7 +914,7 @@ class PersistentConnectionProviderTest:
 
     @pytest.mark.asyncio
     async def test_subscriptions_with_handler_and_without(
-        self, async_w3: AsyncWeb3
+        self, async_w3: "AsyncWeb3[Any]"
     ) -> None:
         handler_test = SubscriptionHandlerTest()
         stream_passed = False
@@ -959,7 +963,7 @@ class PersistentConnectionProviderTest:
     @pytest.mark.asyncio
     async def test_handle_subscriptions_breaks_on_unsubscribe(
         self,
-        async_w3: AsyncWeb3,
+        async_w3: "AsyncWeb3[Any]",
     ) -> None:
         async def unsubscribe_subs(
             subs: List[Union[NewHeadsSubscription, LogsSubscription]],
@@ -987,7 +991,7 @@ class PersistentConnectionProviderTest:
 
     @pytest.mark.asyncio
     async def test_run_forever_starts_with_0_subs_and_runs_until_task_cancelled(
-        self, async_w3: AsyncWeb3
+        self, async_w3: "AsyncWeb3[Any]"
     ) -> None:
         sub_manager = async_w3.subscription_manager
         assert_no_subscriptions_left(sub_manager._subscription_container)

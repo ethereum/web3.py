@@ -106,7 +106,7 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
     # -- cached middleware request/response functions -- #
 
     async def send_func(
-        self, async_w3: "AsyncWeb3", middleware_onion: "MiddlewareOnion"
+        self, async_w3: "AsyncWeb3[Any]", middleware_onion: "MiddlewareOnion"
     ) -> Callable[..., Coroutine[Any, Any, RPCRequest]]:
         """
         Cache the middleware chain for `send`.
@@ -130,7 +130,7 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
         return self._send_func_cache[1]
 
     async def recv_func(
-        self, async_w3: "AsyncWeb3", middleware_onion: "MiddlewareOnion"
+        self, async_w3: "AsyncWeb3[Any]", middleware_onion: "MiddlewareOnion"
     ) -> Any:
         """
         Cache and compose the middleware stack for `recv`.
@@ -156,7 +156,7 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
         return self._recv_func_cache[1]
 
     async def send_batch_func(
-        self, async_w3: "AsyncWeb3", middleware_onion: "MiddlewareOnion"
+        self, async_w3: "AsyncWeb3[Any]", middleware_onion: "MiddlewareOnion"
     ) -> Callable[..., Coroutine[Any, Any, List[RPCRequest]]]:
         middleware = middleware_onion.as_tuple_of_middleware()
         cache_key = hash(tuple(id(mw) for mw in middleware))
@@ -179,7 +179,7 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
         return self._send_batch_func_cache[1]
 
     async def recv_batch_func(
-        self, async_w3: "AsyncWeb3", middleware_onion: "MiddlewareOnion"
+        self, async_w3: "AsyncWeb3[Any]", middleware_onion: "MiddlewareOnion"
     ) -> Callable[..., Coroutine[Any, Any, List[RPCResponse]]]:
         middleware = middleware_onion.as_tuple_of_middleware()
         cache_key = hash(tuple(id(mw) for mw in middleware))

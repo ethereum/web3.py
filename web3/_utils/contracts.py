@@ -121,7 +121,7 @@ def find_matching_event_abi(
 
 
 def encode_abi(
-    w3: Union["AsyncWeb3", "Web3"],
+    w3: Union["AsyncWeb3[Any]", "Web3"],
     abi: ABIElement,
     arguments: Sequence[Any],
     data: Optional[HexStr] = None,
@@ -168,7 +168,7 @@ def encode_abi(
 
 def prepare_transaction(
     address: ChecksumAddress,
-    w3: Union["AsyncWeb3", "Web3"],
+    w3: Union["AsyncWeb3[Any]", "Web3"],
     abi_element_identifier: ABIElementIdentifier,
     contract_abi: Optional[ABI] = None,
     abi_callable: Optional[ABICallable] = None,
@@ -232,7 +232,7 @@ def prepare_transaction(
 
 
 def encode_transaction_data(
-    w3: Union["AsyncWeb3", "Web3"],
+    w3: Union["AsyncWeb3[Any]", "Web3"],
     abi_element_identifier: ABIElementIdentifier,
     contract_abi: Optional[ABI] = None,
     abi_callable: Optional[ABICallable] = None,
@@ -363,7 +363,7 @@ def parse_block_identifier_int(w3: "Web3", block_identifier_int: int) -> BlockNu
 
 
 async def async_parse_block_identifier(
-    async_w3: "AsyncWeb3", block_identifier: BlockIdentifier
+    async_w3: "AsyncWeb3[Any]", block_identifier: BlockIdentifier
 ) -> BlockIdentifier:
     if block_identifier is None:
         return async_w3.eth.default_block
@@ -381,7 +381,7 @@ async def async_parse_block_identifier(
 
 
 async def async_parse_block_identifier_int(
-    async_w3: "AsyncWeb3", block_identifier_int: int
+    async_w3: "AsyncWeb3[Any]", block_identifier_int: int
 ) -> BlockNumber:
     if block_identifier_int >= 0:
         block_num = block_identifier_int

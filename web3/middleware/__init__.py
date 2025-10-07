@@ -78,7 +78,7 @@ def combine_middleware(
 
 async def async_combine_middleware(
     middleware: Sequence[Middleware],
-    async_w3: "AsyncWeb3",
+    async_w3: "AsyncWeb3[Any]",
     provider_request_fn: AsyncMakeRequestFn,
 ) -> Callable[..., Coroutine[Any, Any, "RPCResponse"]]:
     """

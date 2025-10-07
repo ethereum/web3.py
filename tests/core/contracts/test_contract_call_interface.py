@@ -238,8 +238,8 @@ def test_call_get_byte_array_non_strict(non_strict_arrays_contract, call):
     "args,expected",
     [
         ([b"1"], [b"1"]),
-        (["0xDe"], [b"\xDe"]),
-        (["0xDe", "0xDe"], [b"\xDe", b"\xDe"]),
+        (["0xDe"], [b"\xde"]),
+        (["0xDe", "0xDe"], [b"\xde", b"\xde"]),
     ],
 )
 def test_set_byte_array(arrays_contract, call, transact, args, expected):
@@ -257,8 +257,8 @@ def test_set_byte_array(arrays_contract, call, transact, args, expected):
     "args,expected",
     [
         ([b"1"], [b"1"]),
-        (["0xDe"], [b"\xDe"]),
-        (["0xDe", "0xDe"], [b"\xDe", b"\xDe"]),
+        (["0xDe"], [b"\xde"]),
+        (["0xDe", "0xDe"], [b"\xde", b"\xde"]),
     ],
 )
 def test_set_byte_array_non_strict(
@@ -1503,7 +1503,7 @@ async def test_async_set_byte_array_non_strict(
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("args,expected", [([b"1"], [b"1"]), (["0xDe"], [b"\xDe"])])
+@pytest.mark.parametrize("args,expected", [([b"1"], [b"1"]), (["0xDe"], [b"\xde"])])
 async def test_async_set_byte_array_strict_by_default(
     async_arrays_contract, async_call, async_transact, args, expected
 ):

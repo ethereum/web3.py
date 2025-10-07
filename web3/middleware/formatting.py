@@ -100,7 +100,7 @@ def _apply_response_formatters(
 
 SYNC_FORMATTERS_BUILDER = Callable[["Web3", RPCEndpoint], FormattersDict]
 ASYNC_FORMATTERS_BUILDER = Callable[
-    ["AsyncWeb3", RPCEndpoint], Coroutine[Any, Any, FormattersDict]
+    ["AsyncWeb3[Any]", RPCEndpoint], Coroutine[Any, Any, FormattersDict]
 ]
 
 
@@ -114,7 +114,7 @@ class FormattingMiddlewareBuilder(Web3MiddlewareBuilder):
     @staticmethod
     @curry
     def build(
-        w3: Union["AsyncWeb3", "Web3"],
+        w3: Union["Web3", "AsyncWeb3[Any]"],
         # formatters option:
         request_formatters: Optional[Formatters] = None,
         result_formatters: Optional[Formatters] = None,
@@ -186,7 +186,7 @@ class FormattingMiddlewareBuilder(Web3MiddlewareBuilder):
             formatters = merge(
                 FORMATTER_DEFAULTS,
                 await self.async_formatters_builder(
-                    cast("AsyncWeb3", self._w3), method
+                    cast("AsyncWeb3[Any]", self._w3), method
                 ),
             )
             self.request_formatters = formatters.pop("request_formatters")
@@ -204,7 +204,7 @@ class FormattingMiddlewareBuilder(Web3MiddlewareBuilder):
             formatters = merge(
                 FORMATTER_DEFAULTS,
                 await self.async_formatters_builder(
-                    cast("AsyncWeb3", self._w3), method
+                    cast("AsyncWeb3[Any]", self._w3), method
                 ),
             )
             self.result_formatters = formatters["result_formatters"]

@@ -37,10 +37,12 @@ from typing import (
     Callable,
     Dict,
     Generator,
+    Generic,
     List,
     Optional,
     Sequence,
     Type,
+    TypeVar,
     Union,
     cast,
 )
@@ -359,7 +361,7 @@ class BaseWeb3:
 
 
 def _validate_provider(
-    w3: Union["Web3", "AsyncWeb3"],
+    w3: Union["Web3", "AsyncWeb3[Any]"],
     provider: Optional[Union[BaseProvider, AsyncBaseProvider]],
 ) -> None:
     if provider is not None:
@@ -447,7 +449,10 @@ class Web3(BaseWeb3):
 # -- async -- #
 
 
-class AsyncWeb3(BaseWeb3):
+AsyncProviderT = TypeVar("AsyncProviderT", bound=AsyncBaseProvider)
+
+
+class AsyncWeb3(BaseWeb3, Generic[AsyncProviderT]):
     # mypy Types
     eth: AsyncEth
     net: AsyncNet
@@ -460,7 +465,7 @@ class AsyncWeb3(BaseWeb3):
 
     def __init__(
         self,
-        provider: Optional[AsyncBaseProvider] = None,
+        provider: Optional[AsyncProviderT] = None,
         middleware: Optional[Sequence[Any]] = None,
         modules: Optional[Dict[str, Union[Type[Module], Sequence[Any]]]] = None,
         external_modules: Optional[
@@ -486,11 +491,11 @@ class AsyncWeb3(BaseWeb3):
         return await self.provider.is_connected(show_traceback)
 
     @property
-    def provider(self) -> AsyncBaseProvider:
-        return cast(AsyncBaseProvider, self.manager.provider)
+    def provider(self) -> AsyncProviderT:
+        return cast(AsyncProviderT, self.manager.provider)
 
     @provider.setter
-    def provider(self, provider: AsyncBaseProvider) -> None:
+    def provider(self, provider: AsyncProviderT) -> None:
         self.manager.provider = provider
 
     @property

@@ -97,7 +97,7 @@ class RequestMocker:
 
     def __init__(
         self,
-        w3: Union["AsyncWeb3", "Web3"],
+        w3: Union["AsyncWeb3[Any]", "Web3"],
         mock_results: Dict[Union["RPCEndpoint", str], Any] = None,
         mock_errors: Dict[Union["RPCEndpoint", str], Any] = None,
         mock_responses: Dict[Union["RPCEndpoint", str], Any] = None,
@@ -131,8 +131,9 @@ class RequestMocker:
         return self
 
     def __exit__(self, exc_type: Any, exc_value: Any, traceback: Any) -> None:
-        # mypy error: Cannot assign to a method
-        self.w3.provider.make_request = self._make_request  # type: ignore[assignment]
+        self.w3.provider.make_request = (  # type: ignore[method-assign]
+            self._make_request
+        )
         # reset request func cache to re-build request_func with original make_request
         self.w3.provider._request_func_cache = (None, None)
 
@@ -204,7 +205,7 @@ class RequestMocker:
     async def __aexit__(self, exc_type: Any, exc_value: Any, traceback: Any) -> None:
         if not isinstance(self.w3.provider, PersistentConnectionProvider):
             # mypy error: Cannot assign to a method
-            self.w3.provider.make_request = self._make_request  # type: ignore[assignment]  # noqa: E501
+            self.w3.provider.make_request = self._make_request  # type: ignore[method-assign]  # noqa: E501
             # reset request func cache to re-build request_func w/ original make_request
             self.w3.provider._request_func_cache = (None, None)
         else:
@@ -261,7 +262,7 @@ class RequestMocker:
     async def _async_mock_request_handler(
         self, method: "RPCEndpoint", params: Any
     ) -> "RPCResponse":
-        self.w3 = cast("AsyncWeb3", self.w3)
+        self.w3 = cast("AsyncWeb3[Any]", self.w3)
         self._make_request = cast("AsyncMakeRequestFn", self._make_request)
         if all(
             method not in mock_dict
@@ -299,7 +300,7 @@ class RequestMocker:
     async def _async_mock_recv_handler(
         self, rpc_request: "RPCRequest"
     ) -> "RPCResponse":
-        self.w3 = cast("AsyncWeb3", self.w3)
+        self.w3 = cast("AsyncWeb3[Any]", self.w3)
         method = rpc_request["method"]
         request_id = rpc_request["id"]
         if all(

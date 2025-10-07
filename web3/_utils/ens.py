@@ -75,7 +75,7 @@ class AsyncStaticENS:
 
 @contextmanager
 def ens_addresses(
-    w3: Union["Web3", "AsyncWeb3"], name_addr_pairs: Dict[str, ChecksumAddress]
+    w3: Union["Web3", "AsyncWeb3[Any]"], name_addr_pairs: Dict[str, ChecksumAddress]
 ) -> Iterator[None]:
     original_ens = w3.ens
     if w3.provider.is_async:

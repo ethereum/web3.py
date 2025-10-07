@@ -38,7 +38,7 @@ if TYPE_CHECKING:
 
 
 class BaseENS:
-    w3: Union["AsyncWeb3", "Web3"] = None
+    w3: Union["AsyncWeb3[Any]", "Web3"] = None
     ens: Union["Contract", "AsyncContract"] = None
     _resolver_contract: Union[Type["Contract"], Type["AsyncContract"]] = None
     _reverse_resolver_contract: Union[Type["Contract"], Type["AsyncContract"]] = None

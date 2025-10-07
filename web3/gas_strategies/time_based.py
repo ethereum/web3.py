@@ -104,7 +104,7 @@ def _get_raw_miner_data(
 
 
 def _aggregate_miner_data(
-    raw_data: Iterable[Tuple[ChecksumAddress, HexBytes, Wei]]
+    raw_data: Iterable[Tuple[ChecksumAddress, HexBytes, Wei]],
 ) -> Iterable[MinerData]:
     data_by_miner = groupby(0, raw_data)
 

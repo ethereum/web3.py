@@ -106,7 +106,7 @@ class GasPriceStrategyMiddleware(Web3Middleware):
     async def async_request_processor(self, method: RPCEndpoint, params: Any) -> Any:
         if method == "eth_sendTransaction":
             transaction = params[0]
-            w3 = cast("AsyncWeb3", self._w3)
+            w3 = cast("AsyncWeb3[Any]", self._w3)
             generated_gas_price = w3.eth.generate_gas_price(transaction)
             latest_block = await w3.eth.get_block("latest")
             transaction = validate_transaction_params(

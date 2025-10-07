@@ -96,7 +96,7 @@ class AsyncENS(BaseENS):
     """
 
     # mypy types
-    w3: "AsyncWeb3"
+    w3: "AsyncWeb3[Any]"
 
     def __init__(
         self,
@@ -123,7 +123,9 @@ class AsyncENS(BaseENS):
         )
 
     @classmethod
-    def from_web3(cls, w3: "AsyncWeb3", addr: ChecksumAddress = None) -> "AsyncENS":
+    def from_web3(
+        cls, w3: "AsyncWeb3[Any]", addr: ChecksumAddress = None
+    ) -> "AsyncENS":
         """
         Generate an AsyncENS instance with web3
 

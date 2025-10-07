@@ -71,7 +71,7 @@ RPC_METHODS_UNSUPPORTED_DURING_BATCH = {
 
 
 class RequestBatcher(Generic[TFunc]):
-    def __init__(self, web3: Union["AsyncWeb3", "Web3"]) -> None:
+    def __init__(self, web3: Union["AsyncWeb3[Any]", "Web3"]) -> None:
         self.web3 = web3
         self._requests_info: List[BatchRequestInformation] = []
         self._async_requests_info: List[
@@ -167,9 +167,9 @@ class RequestBatcher(Generic[TFunc]):
     async def async_execute(self) -> List["RPCResponse"]:
         self._validate_is_batching()
         if self._provider.has_persistent_connection:
-            responses = await self.web3.manager._async_make_socket_batch_request(
-                self._async_requests_info
-            )
+            responses = await cast(
+                "AsyncWeb3[Any]", self.web3
+            ).manager._async_make_socket_batch_request(self._async_requests_info)
         else:
             responses = await self.web3.manager._async_make_batch_request(
                 self._async_requests_info

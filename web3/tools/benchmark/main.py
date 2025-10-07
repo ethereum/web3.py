@@ -64,7 +64,7 @@ def build_web3_http(endpoint_uri: str) -> Web3:
     return _w3
 
 
-async def build_async_w3_http(endpoint_uri: str) -> AsyncWeb3:
+async def build_async_w3_http(endpoint_uri: str) -> AsyncWeb3[Any]:
     await wait_for_aiohttp(endpoint_uri)
     _w3 = AsyncWeb3(
         AsyncHTTPProvider(endpoint_uri),

@@ -52,7 +52,7 @@ class BufferedGasEstimateMiddleware(Web3Middleware):
             transaction = params[0]
             if "gas" not in transaction:
                 gas_estimate = await async_get_buffered_gas_estimate(
-                    cast("AsyncWeb3", self._w3), transaction
+                    cast("AsyncWeb3[Any]", self._w3), transaction
                 )
                 transaction = assoc(transaction, "gas", hex(gas_estimate))
                 params = (transaction,)

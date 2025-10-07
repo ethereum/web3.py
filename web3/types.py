@@ -380,7 +380,7 @@ StateOverride = Dict[Union[str, Address, ChecksumAddress], StateOverrideParams]
 
 
 GasPriceStrategy = Union[
-    Callable[["Web3", TxParams], Wei], Callable[["AsyncWeb3", TxParams], Wei]
+    Callable[["Web3", TxParams], Wei], Callable[["AsyncWeb3[Any]", TxParams], Wei]
 ]
 
 

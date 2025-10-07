@@ -376,7 +376,7 @@ def fill_default(
 
 
 async def async_guess_from(
-    async_w3: "AsyncWeb3", _: TxParams
+    async_w3: "AsyncWeb3[Any]", _: TxParams
 ) -> Optional[ChecksumAddress]:
     accounts = await async_w3.eth.accounts
     if accounts is not None and len(accounts) > 0:
@@ -388,7 +388,7 @@ async def async_guess_from(
 async def async_fill_default(
     field: str,
     guess_func: Callable[..., Any],
-    async_w3: "AsyncWeb3",
+    async_w3: "AsyncWeb3[Any]",
     transaction: TxParams,
 ) -> TxParams:
     # type ignored b/c TxParams keys must be string literal types

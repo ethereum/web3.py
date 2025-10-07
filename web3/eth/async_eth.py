@@ -119,7 +119,7 @@ if TYPE_CHECKING:
 
 class AsyncEth(BaseEth):
     # mypy types
-    w3: "AsyncWeb3"
+    w3: "AsyncWeb3[Any]"
 
     is_async = True
 
