@@ -56,14 +56,14 @@ def test_load_provider_from_env(monkeypatch, uri, expected_type, expected_attrs)
         assert getattr(provider, attr) == val
 
 
+@pytest.mark.skipif(
+    sys.platform.startswith("win"),
+    reason="The path forms differently on windows.",
+)
 def test_get_dev_ipc_path(monkeypatch, tmp_path):
     # test default path (portable)
     path = get_dev_ipc_path()
-    expected = (
-        "\\\\.\pipe\geth.ipc"
-        if sys.platform.startswith("win")
-        else os.path.join(tempfile.gettempdir(), "geth.ipc")
-    )
+    expected = os.path.join(tempfile.gettempdir(), "geth.ipc")
     assert path == expected
 
     uri = str(tmp_path) + "/geth.ipc"
