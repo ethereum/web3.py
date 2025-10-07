@@ -6,6 +6,8 @@ on:
     paths-ignore:
       - '.github/workflows/**'
       - '!.github/workflows/codspeed.yaml'
+      - 'scripts/**'
+      - 'tests/**'
   push:
     branches: [main, master]
     paths-ignore:
