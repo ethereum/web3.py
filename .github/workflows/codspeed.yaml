@@ -6,13 +6,11 @@ on:
     paths-ignore:
       - '.github/workflows/**'
       - '!.github/workflows/codspeed.yaml'
-      - 'benchmarks/**'
   push:
     branches: [main, master]
     paths-ignore:
       - '.github/workflows/**'
       - '!.github/workflows/codspeed.yaml'
-      - 'benchmarks/**'
   workflow_dispatch:
 
 concurrency:
