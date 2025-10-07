@@ -210,28 +210,28 @@ class BaseWeb3:
     @staticmethod
     @wraps(to_bytes)
     def to_bytes(
-        primitive: Primitives = None, hexstr: HexStr = None, text: str = None
+        primitive: Primitives = None, hexstr: HexStr = None, text: Optional[str] = None
     ) -> bytes:
         return to_bytes(primitive, hexstr, text)
 
     @staticmethod
     @wraps(to_int)
     def to_int(
-        primitive: Primitives = None, hexstr: HexStr = None, text: str = None
+        primitive: Primitives = None, hexstr: HexStr = None, text: Optional[str] = None
     ) -> int:
         return to_int(primitive, hexstr, text)
 
     @staticmethod
     @wraps(to_hex)
     def to_hex(
-        primitive: Primitives = None, hexstr: HexStr = None, text: str = None
+        primitive: Primitives = None, hexstr: HexStr = None, text: Optional[str] = None
     ) -> HexStr:
         return to_hex(primitive, hexstr, text)
 
     @staticmethod
     @wraps(to_text)
     def to_text(
-        primitive: Primitives = None, hexstr: HexStr = None, text: str = None
+        primitive: Primitives = None, hexstr: HexStr = None, text: Optional[str] = None
     ) -> str:
         return to_text(primitive, hexstr, text)
 
