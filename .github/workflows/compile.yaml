@@ -33,6 +33,20 @@ jobs:
           MYPYC_STRICT_DUNDER_TYPING: 1
         run: pip install .
 
+      - name: Normalize C files for diffchecking
+        # This makes it much easier to diffcheck changes in the C files
+        run: |
+          # Insert DIFFCHECK_PLACEHOLDER macro at the top if not present
+          for f in build/*.c; do
+            if ! grep -q 'DIFFCHECK_PLACEHOLDER' "$f"; then
+              sed -i '1i#ifndef DIFFCHECK_PLACEHOLDER\n#define DIFFCHECK_PLACEHOLDER 0\n#endif' "$f"
+            fi
+          done
+          # Replace line number in CPy_AddTraceback with macro
+          sed -i 's/\(CPy_AddTraceback([^,]*, *[^,]*, *\)[0-9]\+\(, *[^)]*)\)/\1DIFFCHECK_PLACEHOLDER\2/g' build/*.c
+          # Replace index in CPyStatics[...] with macro
+          sed -i 's/CPyStatics\[[0-9]\+\]/CPyStatics[DIFFCHECK_PLACEHOLDER]/g' build/*.c
+
       - name: Check for changes
         run: |
           if [[ -n $(git status --porcelain) ]]; then
