@@ -8,26 +8,28 @@ from pathlib import (
 )
 from typing import (
     Any,
+    ClassVar,
     Dict,
     Final,
+    FrozenSet,
     List,
     Literal,
     Optional,
     Set,
     Tuple,
     Union,
+    final,
 )
 
-from pyunormalize import (
-    NFC,
-    NFD,
-)
+import pyunormalize
 
 from .exceptions import (
     InvalidName,
 )
 
 # -- setup -- #
+NFC: Final = pyunormalize.NFC
+NFD: Final = pyunormalize.NFD
 
 
 def _json_list_mapping_to_dict(
@@ -49,8 +51,9 @@ with specs_dir_path.joinpath("normalization_spec.json").open() as spec:
     f = json.load(spec)
 
     NORMALIZATION_SPEC: Final = _json_list_mapping_to_dict(f, "mapped")
+    EMOJI_NORMALIZATION_SPEC: Final[List[List[int]]] = NORMALIZATION_SPEC["emoji"]
     # clean `FE0F` (65039) from entries since it's optional
-    for e in NORMALIZATION_SPEC["emoji"]:
+    for e in EMOJI_NORMALIZATION_SPEC:
         if 65039 in e:
             for _ in range(e.count(65039)):
                 e.remove(65039)
@@ -63,50 +66,47 @@ with specs_dir_path.joinpath("nf.json").open() as nf:
 # --- Classes -- #
 
 
+@final
 class TokenType(Enum):
     EMOJI = "emoji"
     TEXT = "text"
 
 
 class Token:
-    type: Literal[TokenType.TEXT, TokenType.EMOJI]
+    type: ClassVar[Literal[TokenType.TEXT, TokenType.EMOJI]]
     _original_text: str
     _original_codepoints: List[int]
-    _normalized_codepoints: Optional[List[int]] = None
+    _normalized_codepoints: Optional[List[int]]
 
-    restricted: bool = False
+    restricted: Final = False
 
     def __init__(self, codepoints: List[int]) -> None:
-        self._original_codepoints = codepoints
-        self._original_text = "".join(chr(cp) for cp in codepoints)
+        self._original_codepoints: Final = codepoints
+        self._original_text: Final = "".join(chr(cp) for cp in codepoints)
+        self._normalized_codepoints = None
 
     @property
     def codepoints(self) -> List[int]:
-        return (
-            self._normalized_codepoints
-            if self._normalized_codepoints
-            else self._original_codepoints
-        )
+        return self._normalized_codepoints or self._original_codepoints
 
     @property
     def text(self) -> str:
         return _codepoints_to_text(self.codepoints)
 
 
+@final
 class EmojiToken(Token):
-    type: Literal[TokenType.EMOJI] = TokenType.EMOJI
+    type: ClassVar = TokenType.EMOJI
 
 
+@final
 class TextToken(Token):
-    type: Literal[TokenType.TEXT] = TokenType.TEXT
+    type: ClassVar = TokenType.TEXT
 
 
+@final
 class Label:
-    def __init__(
-        self,
-        type: Optional[str] = None,
-        tokens: Optional[List[Token]] = None,
-    ) -> None:
+    def __init__(self, type: str, tokens: List[Token]) -> None:
         self.type: Final = type
         self.tokens: Final = tokens
 
@@ -118,11 +118,12 @@ class Label:
         return "".join(token.text for token in self.tokens)
 
 
+@final
 class ENSNormalizedName:
     labels: List[Label]
 
     def __init__(self, normalized_labels: List[Label]) -> None:
-        self.labels = normalized_labels
+        self.labels: Final = normalized_labels
 
     @property
     def as_text(self) -> str:
@@ -131,25 +132,25 @@ class ENSNormalizedName:
 
 # -----
 
-GROUP_COMBINED_VALID_CPS = []
+GROUP_COMBINED_VALID_CPS: Final[List[int]] = []
 for d in NORMALIZATION_SPEC["groups"]:
     GROUP_COMBINED_VALID_CPS.extend(d["primary"])
     GROUP_COMBINED_VALID_CPS.extend(d["secondary"])
 
-VALID_BY_GROUPS: Dict[str, Set] = {
-    d["name"]: set(d["primary"] + d["secondary"]) for d in NORMALIZATION_SPEC["groups"]
+VALID_BY_GROUPS: Final[Dict[str, FrozenSet[int]]] = {
+    d["name"]: frozenset(d["primary"] + d["secondary"]) for d in NORMALIZATION_SPEC["groups"]
 }
 
 
-def _extract_valid_codepoints() -> Set[int]:
-    all_valid = set()
+def _extract_valid_codepoints() -> FrozenSet[int]:
+    all_valid: Set[int] = set()
     for _name, valid_cps in VALID_BY_GROUPS.items():
         all_valid.update(valid_cps)
     all_valid.update(map(ord, NFD("".join(map(chr, all_valid)))))
-    return all_valid
+    return frozenset(all_valid)
 
 
-def _construct_whole_confusable_map() -> Dict[int, Set[str]]:
+def _construct_whole_confusable_map() -> Dict[int, FrozenSet[str]]:
     """
     Create a mapping, per confusable, that contains all the groups in the cp's whole
     confusable excluding the confusable extent of the cp itself - as per the spec at
@@ -197,13 +198,13 @@ def _construct_whole_confusable_map() -> Dict[int, Set[str]]:
                     confusable_cp_extent_groups
                 )
 
-    return whole_map
+    return {k: frozenset(whole_map[k]) for k in whole_map}
 
 
-WHOLE_CONFUSABLE_MAP = _construct_whole_confusable_map()
-VALID_CODEPOINTS = _extract_valid_codepoints()
-MAX_LEN_EMOJI_PATTERN = max(map(len, NORMALIZATION_SPEC["emoji"]))
-NSM_MAX = NORMALIZATION_SPEC["nsm_max"]
+WHOLE_CONFUSABLE_MAP: Final = _construct_whole_confusable_map()
+VALID_CODEPOINTS: Final = _extract_valid_codepoints()
+MAX_LEN_EMOJI_PATTERN: Final = max(map(len, EMOJI_NORMALIZATION_SPEC))
+NSM_MAX: Final[int] = NORMALIZATION_SPEC["nsm_max"]
 
 
 def _is_fenced(cp: int) -> bool:
@@ -399,10 +400,7 @@ def _build_and_validate_label_from_tokens(tokens: List[Token]) -> Label:
 
     label_type = _validate_tokens_and_get_label_type(tokens)
 
-    label = Label()
-    label.type = label_type
-    label.tokens = tokens
-    return label
+    return Label(label_type, tokens)
 
 
 def _buffer_codepoints_to_chars(buffer: Union[List[int], List[List[int]]]) -> str:
@@ -460,7 +458,7 @@ def normalize_name_ensip15(name: str) -> ENSNormalizedName:
                         raise InvalidName("Empty name after removing 65039 (0xFE0F)")
                     end_index -= 1  # reset end_index after removing 0xFE0F
 
-                if current_emoji_sequence in NORMALIZATION_SPEC["emoji"]:
+                if current_emoji_sequence in EMOJI_NORMALIZATION_SPEC:
                     emoji_codepoint = current_emoji_sequence
                 end_index += 1
 

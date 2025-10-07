@@ -20,6 +20,15 @@ typedef struct tuple_T2OO {
 } tuple_T2OO;
 #endif
 
+#ifndef MYPYC_DECLARED_tuple_T3CIO
+#define MYPYC_DECLARED_tuple_T3CIO
+typedef struct tuple_T3CIO {
+    char f0;
+    CPyTagged f1;
+    PyObject *f2;
+} tuple_T3CIO;
+#endif
+
 #ifndef MYPYC_DECLARED_tuple_T3OOO
 #define MYPYC_DECLARED_tuple_T3OOO
 typedef struct tuple_T3OOO {
@@ -41,15 +50,6 @@ typedef struct tuple_T1O {
 typedef struct tuple_T0 {
     int empty_struct_error_flag;
 } tuple_T0;
-#endif
-
-#ifndef MYPYC_DECLARED_tuple_T3CIO
-#define MYPYC_DECLARED_tuple_T3CIO
-typedef struct tuple_T3CIO {
-    char f0;
-    CPyTagged f1;
-    PyObject *f2;
-} tuple_T3CIO;
 #endif
 
 #ifndef MYPYC_DECLARED_tuple_T2OI
@@ -117,7 +117,6 @@ typedef struct tuple_T4OOOO {
 typedef struct {
     PyObject_HEAD
     CPyVTableItem *vtable;
-    PyObject *_type;
     PyObject *__original_text;
     PyObject *__original_codepoints;
     PyObject *__normalized_codepoints;
@@ -127,7 +126,6 @@ typedef struct {
 typedef struct {
     PyObject_HEAD
     CPyVTableItem *vtable;
-    PyObject *_type;
     PyObject *__original_text;
     PyObject *__original_codepoints;
     PyObject *__normalized_codepoints;
@@ -137,7 +135,6 @@ typedef struct {
 typedef struct {
     PyObject_HEAD
     CPyVTableItem *vtable;
-    PyObject *_type;
     PyObject *__original_text;
     PyObject *__original_codepoints;
     PyObject *__normalized_codepoints;

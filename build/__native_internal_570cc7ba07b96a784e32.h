@@ -6,7 +6,7 @@
 
 int CPyGlobalsInit(void);
 
-extern PyObject *CPyStatics[1072];
+extern PyObject *CPyStatics[1076];
 extern const char * const CPyLit_Str[];
 extern const char * const CPyLit_Bytes[];
 extern const char * const CPyLit_Int[];
@@ -142,9 +142,18 @@ extern PyObject *CPyStatic_types___globals;
 extern CPyModule *CPyModule_eth_account___datastructures;
 extern CPyModule *CPyModule_faster_web3____utils___abi_element_identifiers;
 extern CPyModule *CPyModule_faster_web3____utils___compat;
+extern PyObject *CPyStatic__normalization___NFC;
+extern PyObject *CPyStatic__normalization___NFD;
 extern PyObject *CPyStatic__normalization___NORMALIZATION_SPEC;
+extern PyObject *CPyStatic__normalization___EMOJI_NORMALIZATION_SPEC;
 extern PyObject *CPyStatic__normalization___TokenType___EMOJI;
 extern PyObject *CPyStatic__normalization___TokenType___TEXT;
+extern PyObject *CPyStatic__normalization___GROUP_COMBINED_VALID_CPS;
+extern PyObject *CPyStatic__normalization___VALID_BY_GROUPS;
+extern PyObject *CPyStatic__normalization___WHOLE_CONFUSABLE_MAP;
+extern PyObject *CPyStatic__normalization___VALID_CODEPOINTS;
+extern CPyTagged CPyStatic__normalization___MAX_LEN_EMOJI_PATTERN;
+extern CPyTagged CPyStatic__normalization___NSM_MAX;
 extern PyTypeObject *CPyType__normalization___TokenType;
 extern PyTypeObject *CPyType__normalization___Token;
 extern PyObject *CPyDef__normalization___Token(PyObject *cpy_r_codepoints);
