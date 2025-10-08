@@ -107,7 +107,7 @@ geth_steps: &geth_steps
         key: cache-v1-{{ arch }}-{{ .Environment.CIRCLE_JOB }}-{{ checksum "setup.py" }}-{{ checksum "tox.ini" }}
 
 orbs:
-  win: circleci/windows@5.0.0
+  win: circleci/windows@5.1.0
 
 docs: &docs
   working_directory: ~/repo
