@@ -81,7 +81,7 @@ jobs:
           name: pytest-benchmark-diff
           path: pytest_benchmark_diff.json
       - name: Post Pytest Benchmark Diff as PR Comment
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const fs = require('fs');
