@@ -28,6 +28,11 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.13"
+          cache: pip
+          cache-dependency-path: |
+            pyproject.toml
+            setup.py
+            tox.ini
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip

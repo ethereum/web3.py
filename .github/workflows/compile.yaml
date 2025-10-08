@@ -27,6 +27,11 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.14"
+          cache: pip
+          cache-dependency-path: |
+            pyproject.toml
+            setup.py
+            tox.ini
 
       - name: Run Mypyc
         env:

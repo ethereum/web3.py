@@ -87,6 +87,7 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: "3.11"
+          cache: pip
 
       - name: Install cibuildwheel
         run: |
@@ -125,6 +126,11 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: "3.11"
+          cache: pip
+          cache-dependency-path: |
+            pyproject.toml
+            setup.py
+            tox.ini
 
       - name: Install dependencies
         run: |

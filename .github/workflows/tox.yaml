@@ -32,6 +32,7 @@ jobs:
         jobtype: [core, ens, integration-goethereum, integration-ethtester, lint, wheel]
     env:
       TOXENV: py${{ matrix.python-version }}-${{ matrix.jobtype }}
+      TOX_RECREATE_FLAG: ${{ github.event_name == 'schedule' && '-r' || '' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -39,21 +40,25 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: |
+            pyproject.toml
+            setup.py
+            tox.ini
 
       - name: Upgrade pip and install tox
         run: |
           python -m pip install --upgrade pip
           python -m pip install tox
 
-      - name: Cache tox, pip, and hypothesis
+      - name: Cache tox environment and hypothesis examples
         uses: actions/cache@v4
         with:
           path: |
             .tox
             .hypothesis
-            ~/.cache/pip
-            ~/.local
-          key: ${{ runner.os }}-tox-${{ matrix.python-version }}-${{ matrix.jobtype }}-${{ hashFiles('setup.py', 'tox.ini') }}
+          key: ${{ runner.os }}-tox-${{ hashFiles('pyproject.toml', 'setup.py', 'tox.ini') }}-${{ matrix.python-version }}-${{ matrix.jobtype }}
+          save-always: ${{ env.TOX_RECREATE_FLAG == '-r' }}
 
       - name: Run tox
-        run: python -m tox run -r
+        run: python -m tox run  ${{ env.TOX_RECREATE_FLAG }}
