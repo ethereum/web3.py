@@ -34,7 +34,7 @@ jobs:
       TOXENV: py${{ matrix.python-version }}-${{ matrix.jobtype }}
       TOX_RECREATE_FLAG: ${{ github.event_name == 'schedule' && '-r' || '' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Set up Python
         uses: actions/setup-python@v5
