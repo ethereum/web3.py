@@ -18,9 +18,6 @@ from .ipc import (
 from .rpc import (
     HTTPProvider,
 )
-from .legacy_websocket import (
-    LegacyWebSocketProvider,
-)
 from .persistent import (
     AsyncIPCProvider,
     PersistentConnection,
@@ -42,7 +39,6 @@ __all__ = [
     "HTTPProvider",
     "IPCProvider",
     "JSONBaseProvider",
-    "LegacyWebSocketProvider",
     "PersistentConnection",
     "PersistentConnectionProvider",
     "WebSocketProvider",

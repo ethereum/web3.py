@@ -16,7 +16,6 @@ from web3 import (
     AsyncWeb3,
     HTTPProvider,
     IPCProvider,
-    LegacyWebSocketProvider,
     PersistentConnectionProvider,
     Web3,
     WebSocketProvider,
@@ -48,7 +47,6 @@ from web3.utils import (
 SYNC_PROVIDERS = [
     HTTPProvider,
     IPCProvider,
-    LegacyWebSocketProvider,  # deprecated
 ]
 ASYNC_PROVIDERS = [
     AsyncHTTPProvider,

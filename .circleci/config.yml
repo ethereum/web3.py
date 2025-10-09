@@ -240,7 +240,6 @@ workflows:
                 "integration-goethereum-ipc_async",
                 "integration-goethereum-http",
                 "integration-goethereum-http_async",
-                "integration-goethereum-legacy_ws",
                 "integration-goethereum-ws",
                 "integration-ethtester"
               ]

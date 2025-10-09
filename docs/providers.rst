@@ -527,48 +527,6 @@ Interacting with the Persistent Connection
         For example, use ``w3.eth.get_block("latest")`` instead of
         ``w3.socket.make_request("eth_getBlockByNumber", ["latest", True])``.
 
-
-LegacyWebSocketProvider
-~~~~~~~~~~~~~~~~~~~~~~~
-
-.. warning::
-
-        ``LegacyWebSocketProvider`` is deprecated and is likely to be removed in a
-        future major release. Please use ``WebSocketProvider`` instead.
-
-.. py:class:: web3.providers.legacy_websocket.LegacyWebSocketProvider(endpoint_uri[, websocket_timeout, websocket_kwargs])
-
-    This provider handles interactions with an WS or WSS based JSON-RPC server.
-
-    * ``endpoint_uri`` should be the full URI to the RPC endpoint such as
-      ``'ws://localhost:8546'``.
-    * ``websocket_timeout`` is the timeout in seconds, used when receiving or
-      sending data over the connection. Defaults to 10.
-    * ``websocket_kwargs`` this should be a dictionary of keyword arguments which
-      will be passed onto the ws/wss websocket connection.
-
-    .. code-block:: python
-
-        >>> from web3 import Web3
-        >>> w3 = Web3(Web3.LegacyWebSocketProvider("ws://127.0.0.1:8546"))
-
-    Under the hood, ``LegacyWebSocketProvider`` uses the python ``websockets`` library for
-    making requests.  If you would like to modify how requests are made, you can
-    use the ``websocket_kwargs`` to do so.  See the `websockets documentation`_ for
-    available arguments.
-
-    .. _`websockets documentation`: https://websockets.readthedocs.io/en/stable/reference/asyncio/client.html#websockets.client.WebSocketClientProtocol
-
-    Unlike HTTP connections, the timeout for WS connections is controlled by a
-    separate ``websocket_timeout`` argument, as shown below.
-
-
-    .. code-block:: python
-
-        >>> from web3 import Web3
-        >>> w3 = Web3(Web3.LegacyWebSocketProvider("ws://127.0.0.1:8546", websocket_timeout=60))
-
-
 AutoProvider
 ~~~~~~~~~~~~
 

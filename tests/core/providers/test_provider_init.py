@@ -10,7 +10,6 @@ from web3 import (
     EthereumTesterProvider,
     HTTPProvider,
     IPCProvider,
-    LegacyWebSocketProvider,
     Web3,
     WebSocketProvider,
 )
@@ -49,7 +48,6 @@ def test_init_web3_with_async_provider(provider_class):
         BaseProvider,
         ExtendsBaseProvider,
         HTTPProvider,
-        LegacyWebSocketProvider,
         IPCProvider,
         EthereumTesterProvider,
     ),
