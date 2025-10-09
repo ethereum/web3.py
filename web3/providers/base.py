@@ -194,7 +194,7 @@ class JSONBaseProvider(BaseProvider):
                 # which breaks the type hinting for this particular case.
                 accumulator_fn = initialized.wrap_make_batch_request(
                     accumulator_fn
-                )  # type: ignore  # noqa: E501
+                )  # type: ignore
             self._batch_request_func_cache = (middleware, accumulator_fn)
 
         return self._batch_request_func_cache[-1]
