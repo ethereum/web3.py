@@ -39,72 +39,72 @@ abi_type_ids = [
 @pytest.mark.benchmark(group="is_bool_type")
 @pytest.mark.parametrize("abi_type", abi_type_cases, ids=abi_type_ids)
 def test_is_bool_type(benchmark: BenchmarkFixture, abi_type):
-    benchmark(run_100, web3._utils.abi.is_bool_type, abi_type)
+    benchmark(run_500, web3._utils.abi.is_bool_type, abi_type)
 
 @pytest.mark.benchmark(group="is_bool_type")
 @pytest.mark.parametrize("abi_type", abi_type_cases, ids=abi_type_ids)
 def test_faster_is_bool_type(benchmark: BenchmarkFixture, abi_type):
-    benchmark(run_100, faster_web3._utils.abi.is_bool_type, abi_type)
+    benchmark(run_500, faster_web3._utils.abi.is_bool_type, abi_type)
 
 @pytest.mark.benchmark(group="is_uint_type")
 @pytest.mark.parametrize("abi_type", abi_type_cases, ids=abi_type_ids)
 def test_is_uint_type(benchmark: BenchmarkFixture, abi_type):
-    benchmark(run_100, web3._utils.abi.is_uint_type, abi_type)
+    benchmark(run_500, web3._utils.abi.is_uint_type, abi_type)
 
 @pytest.mark.benchmark(group="is_uint_type")
 @pytest.mark.parametrize("abi_type", abi_type_cases, ids=abi_type_ids)
 def test_faster_is_uint_type(benchmark: BenchmarkFixture, abi_type):
-    benchmark(run_100, faster_web3._utils.abi.is_uint_type, abi_type)
+    benchmark(run_500, faster_web3._utils.abi.is_uint_type, abi_type)
 
 @pytest.mark.benchmark(group="is_int_type")
 @pytest.mark.parametrize("abi_type", abi_type_cases, ids=abi_type_ids)
 def test_is_int_type(benchmark: BenchmarkFixture, abi_type):
-    benchmark(run_100, web3._utils.abi.is_int_type, abi_type)
+    benchmark(run_500, web3._utils.abi.is_int_type, abi_type)
 
 @pytest.mark.benchmark(group="is_int_type")
 @pytest.mark.parametrize("abi_type", abi_type_cases, ids=abi_type_ids)
 def test_faster_is_int_type(benchmark: BenchmarkFixture, abi_type):
-    benchmark(run_100, faster_web3._utils.abi.is_int_type, abi_type)
+    benchmark(run_500, faster_web3._utils.abi.is_int_type, abi_type)
 
 @pytest.mark.benchmark(group="is_address_type")
 @pytest.mark.parametrize("abi_type", abi_type_cases, ids=abi_type_ids)
 def test_is_address_type(benchmark: BenchmarkFixture, abi_type):
-    benchmark(run_100, web3._utils.abi.is_address_type, abi_type)
+    benchmark(run_500, web3._utils.abi.is_address_type, abi_type)
 
 @pytest.mark.benchmark(group="is_address_type")
 @pytest.mark.parametrize("abi_type", abi_type_cases, ids=abi_type_ids)
 def test_faster_is_address_type(benchmark: BenchmarkFixture, abi_type):
-    benchmark(run_100, faster_web3._utils.abi.is_address_type, abi_type)
+    benchmark(run_500, faster_web3._utils.abi.is_address_type, abi_type)
 
 @pytest.mark.benchmark(group="is_bytes_type")
 @pytest.mark.parametrize("abi_type", abi_type_cases, ids=abi_type_ids)
 def test_is_bytes_type(benchmark: BenchmarkFixture, abi_type):
-    benchmark(run_100, web3._utils.abi.is_bytes_type, abi_type)
+    benchmark(run_500, web3._utils.abi.is_bytes_type, abi_type)
 
 @pytest.mark.benchmark(group="is_bytes_type")
 @pytest.mark.parametrize("abi_type", abi_type_cases, ids=abi_type_ids)
 def test_faster_is_bytes_type(benchmark: BenchmarkFixture, abi_type):
-    benchmark(run_100, faster_web3._utils.abi.is_bytes_type, abi_type)
+    benchmark(run_500, faster_web3._utils.abi.is_bytes_type, abi_type)
 
 @pytest.mark.benchmark(group="is_string_type")
 @pytest.mark.parametrize("abi_type", abi_type_cases, ids=abi_type_ids)
 def test_is_string_type(benchmark: BenchmarkFixture, abi_type):
-    benchmark(run_100, web3._utils.abi.is_string_type, abi_type)
+    benchmark(run_500, web3._utils.abi.is_string_type, abi_type)
 
 @pytest.mark.benchmark(group="is_string_type")
 @pytest.mark.parametrize("abi_type", abi_type_cases, ids=abi_type_ids)
 def test_faster_is_string_type(benchmark: BenchmarkFixture, abi_type):
-    benchmark(run_100, faster_web3._utils.abi.is_string_type, abi_type)
+    benchmark(run_500, faster_web3._utils.abi.is_string_type, abi_type)
 
 @pytest.mark.benchmark(group="is_array_type")
 @pytest.mark.parametrize("abi_type", abi_type_cases, ids=abi_type_ids)
 def test_is_array_type(benchmark: BenchmarkFixture, abi_type):
-    benchmark(run_100, web3._utils.abi.is_array_type, abi_type)
+    benchmark(run_500, web3._utils.abi.is_array_type, abi_type)
 
 @pytest.mark.benchmark(group="is_array_type")
 @pytest.mark.parametrize("abi_type", abi_type_cases, ids=abi_type_ids)
 def test_faster_is_array_type(benchmark: BenchmarkFixture, abi_type):
-    benchmark(run_100, faster_web3._utils.abi.is_array_type, abi_type)
+    benchmark(run_500, faster_web3._utils.abi.is_array_type, abi_type)
 
 probably_enum_cases =  [
     "MyEnum",

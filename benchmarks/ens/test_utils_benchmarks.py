@@ -16,6 +16,11 @@ def run_10_exc(exc, func, *args, **kwargs):
         except exc:
             pass
 
+def run_500(func, *args, **kwargs):
+    for _ in range(500):
+        func(*args, **kwargs)
+
+
 @pytest.mark.benchmark(group="normalize_name")
 @pytest.mark.parametrize("name", NAMES)
 def test_normalize_name(benchmark: BenchmarkFixture, name):
@@ -89,42 +94,42 @@ def test_faster_raw_name_to_hash(benchmark: BenchmarkFixture, name):
 @pytest.mark.benchmark(group="address_to_reverse_domain")
 @pytest.mark.parametrize("address", ADDRESSES)
 def test_address_to_reverse_domain(benchmark: BenchmarkFixture, address):
-    benchmark(run_10, ens.utils.address_to_reverse_domain, address)
+    benchmark(run_500, ens.utils.address_to_reverse_domain, address)
 
 @pytest.mark.benchmark(group="address_to_reverse_domain")
 @pytest.mark.parametrize("address", ADDRESSES)
 def test_faster_address_to_reverse_domain(benchmark: BenchmarkFixture, address):
-    benchmark(run_10, faster_ens.utils.address_to_reverse_domain, address)
+    benchmark(run_500, faster_ens.utils.address_to_reverse_domain, address)
 
 @pytest.mark.benchmark(group="estimate_auction_start_gas")
 @pytest.mark.parametrize("labels", LABEL_LISTS)
 def test_estimate_auction_start_gas(benchmark: BenchmarkFixture, labels):
-    benchmark(run_10, ens.utils.estimate_auction_start_gas, labels)
+    benchmark(run_500, ens.utils.estimate_auction_start_gas, labels)
 
 @pytest.mark.benchmark(group="estimate_auction_start_gas")
 @pytest.mark.parametrize("labels", LABEL_LISTS)
 def test_faster_estimate_auction_start_gas(benchmark: BenchmarkFixture, labels):
-    benchmark(run_10, faster_ens.utils.estimate_auction_start_gas, labels)
+    benchmark(run_500, faster_ens.utils.estimate_auction_start_gas, labels)
 
 @pytest.mark.benchmark(group="is_none_or_zero_address")
 @pytest.mark.parametrize("address", ADDRESSES + [""])
 def test_is_none_or_zero_address(benchmark: BenchmarkFixture, address):
-    benchmark(run_10, ens.utils.is_none_or_zero_address, address)
+    benchmark(run_500, ens.utils.is_none_or_zero_address, address)
 
 @pytest.mark.benchmark(group="is_none_or_zero_address")
 @pytest.mark.parametrize("address", ADDRESSES + [""])
 def test_faster_is_none_or_zero_address(benchmark: BenchmarkFixture, address):
-    benchmark(run_10, faster_ens.utils.is_none_or_zero_address, address)
+    benchmark(run_500, faster_ens.utils.is_none_or_zero_address, address)
 
 @pytest.mark.benchmark(group="is_empty_name")
 @pytest.mark.parametrize("name", NAMES + ["", ".", " "])
 def test_is_empty_name(benchmark: BenchmarkFixture, name):
-    benchmark(run_10, ens.utils.is_empty_name, name)
+    benchmark(run_500, ens.utils.is_empty_name, name)
 
 @pytest.mark.benchmark(group="is_empty_name")
 @pytest.mark.parametrize("name", NAMES + ["", ".", " "])
 def test_faster_is_empty_name(benchmark: BenchmarkFixture, name):
-    benchmark(run_10, faster_ens.utils.is_empty_name, name)
+    benchmark(run_500, faster_ens.utils.is_empty_name, name)
 
 @pytest.mark.benchmark(group="is_valid_ens_name")
 @pytest.mark.parametrize("ens_name", NAMES + ["foo", "bar", "baz"])
