@@ -5,6 +5,7 @@ from typing import (
     List,
     Optional,
     Union,
+    cast,
     final,
 )
 
@@ -78,9 +79,10 @@ class Beacon:
         self, endpoint_url: str, params: Optional[Dict[str, str]] = None
     ) -> Dict[str, Any]:
         uri = URI(self.base_url + endpoint_url)
-        return self._request_session_manager.json_make_get_request(
+        response = self._request_session_manager.json_make_get_request(
             uri, params=params, timeout=self.request_timeout
         )
+        return cast(Dict[str, Any], response)
 
     def _make_post_request(
         self, endpoint_url: str, body: Union[List[str], Dict[str, Any]]

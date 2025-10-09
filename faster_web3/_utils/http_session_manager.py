@@ -9,9 +9,11 @@ import time
 from typing import (
     Any,
     Dict,
+    Final,
     List,
     Optional,
     Union,
+    final,
 )
 
 from aiohttp import (
@@ -42,17 +44,23 @@ from faster_web3.utils.caching import (
 )
 
 
+create_task: Final = asyncio.create_task
+get_event_loop: Final = asyncio.get_event_loop
+sleep: Final = asyncio.sleep
+
+
+@final
 class HTTPSessionManager:
-    logger = logging.getLogger("faster_web3._utils.http_session_manager.HTTPSessionManager")
-    _lock: threading.Lock = threading.Lock()
+    logger: Final = logging.getLogger("faster_web3._utils.http_session_manager.HTTPSessionManager")
+    _lock: Final[threading.Lock] = threading.Lock()
 
     def __init__(
         self,
         cache_size: int = 100,
         session_pool_max_workers: int = 5,
     ) -> None:
-        self.session_cache = SimpleCache(cache_size)
-        self.session_pool = ThreadPoolExecutor(max_workers=session_pool_max_workers)
+        self.session_cache: Final = SimpleCache(cache_size)
+        self.session_pool: Final = ThreadPoolExecutor(max_workers=session_pool_max_workers)
 
     @staticmethod
     def get_default_http_endpoint() -> URI:
@@ -84,7 +92,7 @@ class HTTPSessionManager:
             self.logger.debug("Session cached: %s, %s", endpoint_uri, cached_session)
 
         if evicted_items is not None:
-            evicted_sessions = evicted_items.values()
+            evicted_sessions = list(evicted_items.values())
             for evicted_session in evicted_sessions:
                 self.logger.debug(
                     "Session cache full. Session evicted from cache: %s",
@@ -107,12 +115,11 @@ class HTTPSessionManager:
         session = self.cache_and_return_session(
             endpoint_uri, request_timeout=kwargs["timeout"]
         )
-        response = session.get(endpoint_uri, *args, **kwargs)
-        return response
+        return session.get(endpoint_uri, *args, **kwargs)
 
     def json_make_get_request(
         self, endpoint_uri: URI, *args: Any, **kwargs: Any
-    ) -> Dict[str, Any]:
+    ) -> Any:
         response = self.get_response_from_get_request(endpoint_uri, *args, **kwargs)
         response.raise_for_status()
         return response.json()
@@ -128,14 +135,14 @@ class HTTPSessionManager:
 
     def json_make_post_request(
         self, endpoint_uri: URI, *args: Any, **kwargs: Any
-    ) -> Dict[str, Any]:
+    ) -> Any:
         response = self.get_response_from_post_request(endpoint_uri, *args, **kwargs)
         response.raise_for_status()
         return response.json()
 
     def make_post_request(
         self, endpoint_uri: URI, data: Union[bytes, Dict[str, Any]], **kwargs: Any
-    ) -> bytes:
+    ) -> Union[bytes, str]:
         kwargs.setdefault("timeout", DEFAULT_HTTP_TIMEOUT)
         kwargs.setdefault("stream", False)
 
@@ -178,7 +185,7 @@ class HTTPSessionManager:
         request_timeout: Optional[ClientTimeout] = None,
     ) -> ClientSession:
         # cache key should have a unique thread identifier
-        cache_key = generate_cache_key(f"{id(asyncio.get_event_loop())}:{endpoint_uri}")
+        cache_key = generate_cache_key(f"{id(get_event_loop())}:{endpoint_uri}")
 
         evicted_items = None
         async with async_lock(self.session_pool, self._lock):
@@ -260,7 +267,7 @@ class HTTPSessionManager:
             # more than the `request_timeout` for a call. This should make it so that
             # any call from an evicted session can still be made before the session
             # is closed.
-            asyncio.create_task(
+            create_task(
                 self._async_close_evicted_sessions(
                     # if `ClientTimeout.total` is `None`, don't wait forever for the
                     # closing session to finish the request. Instead, use the default
@@ -279,12 +286,11 @@ class HTTPSessionManager:
         session = await self.async_cache_and_return_session(
             endpoint_uri, request_timeout=kwargs["timeout"]
         )
-        response = await session.get(endpoint_uri, *args, **kwargs)
-        return response
+        return await session.get(endpoint_uri, *args, **kwargs)
 
     async def async_json_make_get_request(
         self, endpoint_uri: URI, *args: Any, **kwargs: Any
-    ) -> Dict[str, Any]:
+    ) -> Any:
         response = await self.async_get_response_from_get_request(
             endpoint_uri, *args, **kwargs
         )
@@ -298,12 +304,11 @@ class HTTPSessionManager:
         session = await self.async_cache_and_return_session(
             endpoint_uri, request_timeout=kwargs["timeout"]
         )
-        response = await session.post(endpoint_uri, *args, **kwargs)
-        return response
+        return await session.post(endpoint_uri, *args, **kwargs)
 
     async def async_json_make_post_request(
         self, endpoint_uri: URI, *args: Any, **kwargs: Any
-    ) -> Dict[str, Any]:
+    ) -> Any:
         response = await self.async_get_response_from_post_request(
             endpoint_uri, *args, **kwargs
         )
@@ -322,7 +327,7 @@ class HTTPSessionManager:
     async def _async_close_evicted_sessions(
         self, timeout: float, evicted_sessions: List[ClientSession]
     ) -> None:
-        await asyncio.sleep(timeout)
+        await sleep(timeout)
 
         for evicted_session in evicted_sessions:
             await evicted_session.close()
