@@ -350,7 +350,7 @@ class BaseWeb3:
         return cls.keccak(hexstr=hex_string)
 
     def attach_modules(
-        self, modules: Optional[Dict[str, Union[Type[Module], Sequence[Any]]]]
+        self, modules: Dict[str, Union[Type[Module], Sequence[Any]]]
     ) -> None:
         """
         Attach modules to the `Web3` instance.
