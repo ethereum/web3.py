@@ -318,7 +318,7 @@ WebSocketProvider
 
     Under the hood, the ``WebSocketProvider`` uses the python websockets library for
     making requests.  If you would like to modify how requests are made, you can
-    use the ``websocket_kwargs`` to do so.  See the `websockets documentation`_ for
+    use the ``websocket_kwargs`` to do so.  See the `websockets connection`_ docs for
     available arguments.
 
 
