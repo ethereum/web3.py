@@ -33,6 +33,9 @@ jobs:
             setup.py
             tox.ini
 
+      - name: Drop existing build files
+        run: rm -rf build
+        
       - name: Run Mypyc
         env:
           MYPYC_STRICT_DUNDER_TYPING: 1
