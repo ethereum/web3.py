@@ -67,6 +67,7 @@ ext_modules = mypycify(
         "faster_web3/_utils/blocks.py",
         "faster_web3/_utils/caching",
         "faster_web3/_utils/datatypes.py",
+        "faster_web3/_utils/fee_utils.py",
         "faster_web3/_utils/http.py",
         "faster_web3/_utils/math.py",
         "faster_web3/_utils/type_conversion.py",

@@ -59,6 +59,9 @@ from faster_web3.contract import (
     AsyncContract,
     AsyncContractCaller,
 )
+from faster_web3.datastructures import (
+    AttributeDict,
+)
 from faster_web3.eth.base_eth import (
     BaseEth,
 )
@@ -230,7 +233,7 @@ class AsyncEth(BaseEth):
         block_count: int,
         newest_block: Union[BlockParams, BlockNumber],
         reward_percentiles: Optional[List[float]] = None,
-    ) -> FeeHistory:
+    ) -> Union[FeeHistory, AttributeDict]:
         reward_percentiles = reward_percentiles or []
         return await self._fee_history(block_count, newest_block, reward_percentiles)
 
