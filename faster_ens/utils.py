@@ -276,7 +276,7 @@ def assert_signer_in_modifier_kwargs(modifier_kwargs: Any) -> ChecksumAddress:
     return modifier_dict["from"]
 
 
-def is_none_or_zero_address(addr: Union[Address, ChecksumAddress, HexAddress]) -> bool:
+def is_none_or_zero_address(addr: Union[Address, ChecksumAddress, HexAddress, None]) -> bool:
     return not addr or addr == EMPTY_ADDR_HEX
 
 
