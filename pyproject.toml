@@ -5,8 +5,9 @@ requires = [
     "mypy[mypyc]==1.18.2",
 	"types-requests",
     "eth-typing>=5,<6",
-	"faster-eth-utils>=5.3.8,<5.4",
-	"faster-eth-abi>=5.2,<5.3",
+	# pydantic-core (installed with faster-eth-utils) is unable to build on Python3.14 on 32-bit Linux distros
+	"faster-eth-utils>=5.3.8,<5.4; platform_system != 'Linux' or python_version != '3.14' or platform_machine != 'i686'",
+	"faster-eth-abi>=5.2,<5.3; platform_system != 'Linux' or python_version != '3.14' or platform_machine != 'i686'",
 	"faster-hexbytes<3",
 ]
 
