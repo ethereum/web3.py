@@ -135,30 +135,33 @@ class HTTPProvider(JSONBaseProvider):
         If exception_retry_configuration is set, retry on failure; otherwise, make
         the request without retrying.
         """
+        session_manager = self._request_session_manager
+        retry_config = self.exception_retry_configuration
+        endpoint = self.endpoint_uri
         if (
-            self.exception_retry_configuration is not None
-            and check_if_retry_on_failure(
-                method, self.exception_retry_configuration.method_allowlist
+            retry_config is None
+            or not check_if_retry_on_failure(
+                method, retry_config.method_allowlist
             )
         ):
-            for i in range(self.exception_retry_configuration.retries):
-                try:
-                    return self._request_session_manager.make_post_request(
-                        self.endpoint_uri, request_data, **self.get_request_kwargs()
-                    )
-                except tuple(self.exception_retry_configuration.errors) as e:
-                    if i < self.exception_retry_configuration.retries - 1:
-                        time.sleep(
-                            self.exception_retry_configuration.backoff_factor * 2**i
-                        )
-                        continue
-                    else:
-                        raise e
-            return None
-        else:
-            return self._request_session_manager.make_post_request(
-                self.endpoint_uri, request_data, **self.get_request_kwargs()
+            return session_manager.make_post_request(
+                endpoint, request_data, **self.get_request_kwargs()
             )
+        
+        retry_on_errs = tuple(retry_config.errors)
+        for i in range(retries := retry_config.retries):
+            try:
+                return session_manager.make_post_request(
+                    endpoint, request_data, **self.get_request_kwargs()
+                )
+            except retry_on_errs as e:
+                if i < retries - 1:
+                    time.sleep(
+                        retry_config.backoff_factor * 2**i
+                    )
+                else:
+                    raise e
+        return None
 
     @handle_request_caching
     def make_request(self, method: RPCEndpoint, params: Any) -> RPCResponse:
