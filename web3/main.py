@@ -135,7 +135,6 @@ from web3.providers.rpc import (
     HTTPProvider,
 )
 from web3.providers import (
-    LegacyWebSocketProvider,
     WebSocketProvider,
 )
 from web3.providers.persistent import (
@@ -396,7 +395,6 @@ class Web3(BaseWeb3):
     HTTPProvider = HTTPProvider
     IPCProvider = IPCProvider
     EthereumTesterProvider = EthereumTesterProvider
-    LegacyWebSocketProvider = LegacyWebSocketProvider
 
     def __init__(
         self,

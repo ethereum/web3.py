@@ -32,9 +32,6 @@ from web3.providers.rpc import (  # noqa: E402
     AsyncHTTPProvider,
     HTTPProvider,
 )
-from web3.providers.legacy_websocket import (  # noqa: E402
-    LegacyWebSocketProvider,
-)
 
 
 __all__ = [
@@ -54,7 +51,6 @@ __all__ = [
     "HTTPProvider",
     "IPCProvider",
     "JSONBaseProvider",
-    "LegacyWebSocketProvider",
     "PersistentConnection",
     "PersistentConnectionProvider",
     "WebSocketProvider",
