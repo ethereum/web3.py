@@ -4,11 +4,11 @@ PyMODINIT_FUNC
 PyInit_api_endpoints(void)
 {
     PyObject *tmp;
-    if (!(tmp = PyImport_ImportModule("3780dc7050cd4d05fe1b__mypyc"))) return NULL;
+    if (!(tmp = PyImport_ImportModule("d5b4baa1f9b4011ff1bd__mypyc"))) return NULL;
     PyObject *capsule = PyObject_GetAttrString(tmp, "init_faster_web3___beacon___api_endpoints");
     Py_DECREF(tmp);
     if (capsule == NULL) return NULL;
-    void *init_func = PyCapsule_GetPointer(capsule, "3780dc7050cd4d05fe1b__mypyc.init_faster_web3___beacon___api_endpoints");
+    void *init_func = PyCapsule_GetPointer(capsule, "d5b4baa1f9b4011ff1bd__mypyc.init_faster_web3___beacon___api_endpoints");
     Py_DECREF(capsule);
     if (!init_func) {
         return NULL;
