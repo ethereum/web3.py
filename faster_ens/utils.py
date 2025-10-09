@@ -108,7 +108,7 @@ def customize_web3(w3: "_Web3") -> "_Web3":
     return w3
 
 
-def normalize_name(name: str) -> str:
+def normalize_name(name: Optional[str]) -> str:
     """
     Clean the fully qualified name, as defined in ENS `EIP-137
     <https://github.com/ethereum/EIPs/blob/master/EIPS/eip-137.md#name-syntax>`_  # blocklint: pragma # noqa: E501
