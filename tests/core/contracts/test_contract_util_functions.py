@@ -42,15 +42,15 @@ def test_parse_block_identifier_bytes_and_hex(w3):
 
 
 @pytest.mark.parametrize(
-    "block_identifier",
+    "block_identifier,exception",
     (
-        1.5,
-        "cats",
-        -70,
+        (1.5, TypeError),
+        ("cats", BlockNumberOutOfRange),
+        (-70, BlockNumberOutOfRange),
     ),
 )
-def test_parse_block_identifier_error(w3, block_identifier):
-    with pytest.raises(BlockNumberOutOfRange):
+def test_parse_block_identifier_error(w3, block_identifier, exception):
+    with pytest.raises(exception):
         parse_block_identifier(w3, block_identifier)
 
 

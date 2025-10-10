@@ -185,7 +185,7 @@ TxParams = TypedDict(
         # addr or ens
         "to": Union[Address, ChecksumAddress, str],
         "type": Union[int, HexStr],
-        "value": Wei,
+        "value": Union[Wei, HexStr],
     },
     total=False,
 )

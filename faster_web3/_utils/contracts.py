@@ -13,12 +13,6 @@ from typing import (
     cast,
 )
 
-from faster_eth_abi.codec import (
-    ABICodec,
-)
-from faster_eth_abi.registry import (
-    registry as default_registry,
-)
 from eth_typing import (
     ABI,
     ABICallable,
@@ -28,9 +22,16 @@ from eth_typing import (
     ABIFallback,
     ABIFunction,
     ABIReceive,
+    Address,
     ChecksumAddress,
     HexStr,
     TypeStr,
+)
+from faster_eth_abi.codec import (
+    ABICodec,
+)
+from faster_eth_abi.registry import (
+    registry as default_registry,
 )
 from faster_eth_utils import (
     add_0x_prefix,
@@ -124,14 +125,13 @@ def encode_abi(
     w3: Union["AsyncWeb3", "Web3"],
     abi: ABIElement,
     arguments: Sequence[Any],
-    data: Optional[HexStr] = None,
+    data: Optional[Union[HexStr, HexBytes]] = None,
 ) -> HexStr:
-    argument_types = []
     try:
         argument_types = get_abi_input_types(abi)
     except ValueError:
         # Use the default argument_types if the abi doesn't have inputs
-        pass
+        argument_types = []
 
     if not check_if_arguments_can_be_encoded(
         abi,
@@ -167,7 +167,7 @@ def encode_abi(
 
 
 def prepare_transaction(
-    address: ChecksumAddress,
+    address: Union[ChecksumAddress, Address, None],
     w3: Union["AsyncWeb3", "Web3"],
     abi_element_identifier: ABIElementIdentifier,
     contract_abi: Optional[ABI] = None,
@@ -275,9 +275,10 @@ def decode_transaction_data(
     types = get_abi_input_types(fn_abi)
     abi_codec = ABICodec(default_registry)
     decoded = abi_codec.decode(types, data_bytes[4:])
+    inputs = fn_abi["inputs"]
     if normalizers:
-        decoded = map_abi_data(normalizers, types, decoded)
-    return named_tree(fn_abi["inputs"], decoded)
+        return named_tree(inputs, map_abi_data(normalizers, types, decoded))
+    return named_tree(inputs, decoded)
 
 
 def get_constructor_function_info(
@@ -317,15 +318,12 @@ def validate_payable(transaction: TxParams, abi_callable: ABICallable) -> None:
     Raise Web3ValidationError if non-zero ether
     is sent to a non-payable function.
     """
+    value = transaction.get("value")
+    if value is None or to_integer_if_hex(value) == 0:
+        return
     if (
-        "value" in transaction
-        and to_integer_if_hex(transaction["value"]) != 0
-        and (
-            "payable" in abi_callable
-            and not abi_callable["payable"]
-            or "stateMutability" in abi_callable
-            and abi_callable["stateMutability"] == "nonpayable"
-        )
+        abi_callable.get("payable") is False
+        or abi_callable.get("stateMutability") == "nonpayable"
     ):
         raise Web3ValidationError(
             "Sending non-zero ether to a contract function "
