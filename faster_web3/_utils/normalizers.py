@@ -5,6 +5,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
+    Final,
     Optional,
     Tuple,
     Union,
@@ -237,9 +238,7 @@ def abi_ens_resolver(
         return type_str, val
 
 
-BASE_RETURN_NORMALIZERS = [
-    addresses_checksummed,
-]
+BASE_RETURN_NORMALIZERS: Final = (addresses_checksummed,)
 
 
 #

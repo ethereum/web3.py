@@ -4,11 +4,11 @@ PyMODINIT_FUNC
 PyInit__normalization(void)
 {
     PyObject *tmp;
-    if (!(tmp = PyImport_ImportModule("d3a4f7a67f1084c42c9b__mypyc"))) return NULL;
+    if (!(tmp = PyImport_ImportModule("01be6d551d5308175663__mypyc"))) return NULL;
     PyObject *capsule = PyObject_GetAttrString(tmp, "init_faster_ens____normalization");
     Py_DECREF(tmp);
     if (capsule == NULL) return NULL;
-    void *init_func = PyCapsule_GetPointer(capsule, "d3a4f7a67f1084c42c9b__mypyc.init_faster_ens____normalization");
+    void *init_func = PyCapsule_GetPointer(capsule, "01be6d551d5308175663__mypyc.init_faster_ens____normalization");
     Py_DECREF(capsule);
     if (!init_func) {
         return NULL;
