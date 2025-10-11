@@ -280,7 +280,7 @@ def is_none_or_zero_address(addr: Union[Address, ChecksumAddress, HexAddress, No
     return not addr or addr == EMPTY_ADDR_HEX
 
 
-def is_empty_name(name: str) -> bool:  # sourcery skip: collection-into-set
+def is_empty_name(name: Optional[str]) -> bool:  # sourcery skip: collection-into-set
     return name is None or name.strip() in ("", ".")
 
 
