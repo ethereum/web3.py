@@ -17,6 +17,7 @@ import warnings
 
 from eth_typing import (
     Address,
+    AnyAddress,
     ChecksumAddress,
     HexAddress,
     HexStr,
@@ -257,7 +258,7 @@ def address_in(
     return any(is_same_address(address, item) for item in addresses)
 
 
-def address_to_reverse_domain(address: ChecksumAddress) -> str:
+def address_to_reverse_domain(address: AnyAddress) -> str:
     lower_unprefixed_address = remove_0x_prefix(HexStr(to_normalized_address(address)))
     return f"{lower_unprefixed_address}.{REVERSE_REGISTRAR_DOMAIN}"
 
