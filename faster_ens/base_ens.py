@@ -7,6 +7,7 @@ from typing import (
 )
 
 from eth_typing import (
+    AnyAddress,
     ChecksumAddress,
 )
 from faster_eth_utils.abi import (
@@ -70,7 +71,7 @@ class BaseENS:
         return is_valid_name(name)
 
     @staticmethod
-    def reverse_domain(address: ChecksumAddress) -> str:
+    def reverse_domain(address: AnyAddress) -> str:
         return address_to_reverse_domain(address)
 
     @staticmethod
