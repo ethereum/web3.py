@@ -201,12 +201,12 @@ class AsyncENS(BaseENS):
         transact = deepcopy(transact)
         owner = await self.setup_owner(name, transact=transact)
         await self._assert_control(owner, name)
-        if is_none_or_zero_address(address):
-            address = None
-        elif address is default:
+        if address is default:
             address = owner
+        elif is_none_or_zero_address(address):
+            address = None
         elif is_binary_address(address):
-            address = to_checksum_address(cast(str, address))
+            address = to_checksum_address(address)
         elif not is_checksum_address(address):
             raise ENSValueError("You must supply the address in checksum format")
         if await self.address(name) == address:

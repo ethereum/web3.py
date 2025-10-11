@@ -6,6 +6,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Collection,
+    Final,
     Optional,
     Sequence,
     Tuple,
@@ -50,7 +51,7 @@ from .exceptions import (
     InvalidName,
 )
 
-default = object()
+default: Final = object()
 
 
 if TYPE_CHECKING:

@@ -295,6 +295,7 @@ extern PyObject *CPyStatic_faster_ens___constants___ENS_CONTENT_HASH_INTERFACE_I
 extern PyObject *CPyStatic_faster_ens___constants___ENS_MULTICHAIN_ADDRESS_INTERFACE_ID;
 extern PyObject *CPyStatic_faster_ens___constants___ENS_EXTENDED_RESOLVER_INTERFACE_ID;
 extern char CPyDef_faster_ens___constants_____top_level__(void);
+extern PyObject *CPyStatic_faster_ens___utils___default;
 extern PyObject *CPyDef_faster_ens___utils___Web3(void);
 extern PyObject *CPyPy_faster_ens___utils___Web3(PyObject *self, PyObject *const *args, size_t nargs, PyObject *kwnames);
 extern PyObject *CPyDef_faster_ens___utils___init_web3(PyObject *cpy_r_provider, PyObject *cpy_r_middleware);
