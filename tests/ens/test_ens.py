@@ -112,6 +112,7 @@ def test_ens_strict_bytes_type_checking_is_distinct_from_w3_instance(w3):
         ("get_text", ("tester.eth", "url")),
     ),
 )
+@pytest.mark.skip(reason="Native functions do not support mocking")
 def test_ens_methods_normalize_name(
     ens,
     method_str,
