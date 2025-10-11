@@ -1159,7 +1159,6 @@ class BaseContract:
                 fn_abi,
                 *args,
                 abi_codec=self.w3.codec,
-                **{},
             )
 
         return self.find_functions_by_identifier(
