@@ -133,7 +133,7 @@ def normalize_name(name: Optional[str]) -> str:
     return normalize_name_ensip15(name).as_text
 
 
-def dns_encode_name(name: str) -> HexBytes:
+def dns_encode_name(name: Optional[str]) -> HexBytes:
     r"""
     Encode a name according to DNS standards specified in section 3.1
     of RFC1035 with the following validations:
