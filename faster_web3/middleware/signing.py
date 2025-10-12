@@ -6,8 +6,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Collection,
-    Iterable,
-    Tuple,
+    Dict,
     TypeVar,
     Union,
     cast,
@@ -31,7 +30,6 @@ from eth_typing import (
 )
 from faster_eth_utils import (
     to_checksum_address,
-    to_dict,
 )
 from faster_eth_utils.curried import (
     apply_formatter_if,
@@ -91,25 +89,15 @@ key_normalizer = compose(
 _PrivateKey = Union[LocalAccount, PrivateKey, HexStr, bytes]
 
 
-@to_dict
 def gen_normalized_accounts(
     val: Union[_PrivateKey, Collection[_PrivateKey]]
-) -> Iterable[Tuple[ChecksumAddress, LocalAccount]]:
-    if isinstance(
-        val,
-        (
-            list,
-            tuple,
-            set,
-        ),
-    ):
-        for i in val:
-            account: LocalAccount = to_account(i)
-            yield account.address, account
+) -> Dict[ChecksumAddress, LocalAccount]:
+    # sourcery skip: remove-unnecessary-else
+    if isinstance(val, (list, tuple, set)):
+        return {account.address: account for account in map(to_account, val)}
     else:
         account = to_account(val)
-        yield account.address, account
-        return
+        return {account.address: account}
 
 
 @singledispatch

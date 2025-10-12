@@ -110,11 +110,12 @@ class HTTPProvider(JSONBaseProvider):
     ) -> None:
         self._exception_retry_configuration = value
 
-    @to_dict
-    def get_request_kwargs(self) -> Iterable[Tuple[str, Any]]:
-        if "headers" not in self._request_kwargs:
-            yield "headers", self.get_request_headers()
-        yield from self._request_kwargs.items()
+    def get_request_kwargs(self) -> Dict[str, Any]:
+        provider_request_kwargs = self._request_kwargs
+        if "headers" in provider_request_kwargs:
+            return provider_request_kwargs.copy()
+        headers = {"headers": self.get_request_headers()}
+        return headers | provider_request_kwargs
 
     @combomethod
     def get_request_headers(cls) -> Dict[str, str]:

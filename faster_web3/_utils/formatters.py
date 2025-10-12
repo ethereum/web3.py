@@ -7,7 +7,6 @@ from typing import (
     Dict,
     Iterable,
     Optional,
-    Tuple,
     TypeVar,
 )
 
@@ -18,7 +17,6 @@ from faster_eth_utils import (
     is_dict,
     is_list_like,
     is_string,
-    to_dict,
 )
 from faster_eth_utils.curried import (
     apply_formatter_at_index,
@@ -98,22 +96,25 @@ def static_return(value: TValue) -> Callable[..., TValue]:
 
 
 def static_result(value: TValue) -> Callable[..., Dict[str, TValue]]:
+    result = {"result": value}
+
     def inner(*args: Any, **kwargs: Any) -> Dict[str, TValue]:
-        return {"result": value}
+        return result
 
     return inner
 
 
-@curry
-@to_dict
 def apply_key_map(
-    key_mappings: Dict[Any, Any], value: Dict[Any, Any]
-) -> Iterable[Tuple[Any, Any]]:
-    for key, item in value.items():
-        if key in key_mappings:
-            yield key_mappings[key], item
-        else:
-            yield key, item
+    key_mappings: Dict[Any, Any]
+) -> Callable[[Dict[Any, Any]], Dict[Any, Any]]:
+    
+    def get_key(key: Any) -> Any:
+        return key_mappings[key] if key in key_mappings else key
+    
+    def apply_key_map_curried(value: Dict[Any, Any]) -> Dict[Any, Any]:
+        return {get_key(k): v for k, v in value.items()}
+
+    return apply_key_map_curried
 
 
 def is_array_of_strings(value: Any) -> bool:
