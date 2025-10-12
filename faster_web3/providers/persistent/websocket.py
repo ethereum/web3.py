@@ -12,7 +12,7 @@ from typing import (
 from eth_typing import (
     URI,
 )
-from toolz import (
+from faster_eth_utils.toolz import (
     merge,
 )
 from websockets.exceptions import (

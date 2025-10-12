@@ -10,7 +10,7 @@ from typing import (  # noqa: F401
     cast,
 )
 
-from toolz import (
+from faster_eth_utils.toolz import (
     curry,
 )
 

@@ -39,7 +39,7 @@ from faster_eth_utils.curried import (
 from faster_eth_utils.toolz import (
     compose,
 )
-from toolz import (
+from faster_eth_utils.toolz import (
     curry,
 )
 

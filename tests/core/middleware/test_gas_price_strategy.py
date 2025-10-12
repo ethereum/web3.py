@@ -3,7 +3,7 @@ from unittest.mock import (
     Mock,
 )
 
-from toolz import (
+from faster_eth_utils.toolz import (
     merge,
 )
 
