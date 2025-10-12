@@ -215,7 +215,7 @@ def test_get_error_formatters() -> None:
             HexStr("0x" + "1" * 64),
         ),
         (3567, Web3ValueError),
-        (3.14, Web3ValueError),
+        (3.14, TypeError),
     ],
     ids=[
         "valid-0x-hex-string",

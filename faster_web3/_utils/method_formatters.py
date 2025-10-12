@@ -6,7 +6,9 @@ from typing import (
     Callable,
     Collection,
     Dict,
+    Final,
     Iterable,
+    Literal,
     NoReturn,
     Tuple,
     TypeVar,
@@ -49,6 +51,9 @@ from faster_hexbytes import (
 )
 from pydantic import (
     BaseModel,
+)
+from typing_extensions import (
+    TypeGuard,
 )
 
 from faster_web3._utils.abi import (
@@ -125,13 +130,13 @@ def bytes_to_ascii(value: bytes) -> str:
     return codecs.decode(value, "ascii")
 
 
-to_ascii_if_bytes = apply_formatter_if(is_bytes, bytes_to_ascii)
-to_integer_if_hex = apply_formatter_if(is_string, hex_to_integer)
-to_hex_if_integer = apply_formatter_if(is_integer, integer_to_hex)
+to_ascii_if_bytes: Final = apply_formatter_if(is_bytes, bytes_to_ascii)
+to_integer_if_hex: Final = apply_formatter_if(is_string, hex_to_integer)
+to_hex_if_integer: Final = apply_formatter_if(is_integer, integer_to_hex)
 
-is_false = partial(operator.is_, False)
-is_not_false = complement(is_false)
-is_not_null = complement(is_null)
+is_false: Final[Callable[[Any], TypeGuard[Literal[False]]]] = partial(operator.is_, False)
+is_not_false: Final = complement(is_false)
+is_not_null: Final = complement(is_null)
 
 
 @curry
@@ -154,7 +159,7 @@ def to_hexbytes(
         )
 
 
-def is_attrdict(val: Any) -> bool:
+def is_attrdict(val: Any) -> TypeGuard[AttributeDict]:
     return isinstance(val, AttributeDict)
 
 
@@ -223,21 +228,21 @@ def storage_key_to_hexstr(value: Union[bytes, int, str]) -> HexStr:
     raise Web3ValueError(f"Storage key must be a 32-byte value, got {value!r}")
 
 
-ACCESS_LIST_FORMATTER = type_aware_apply_formatters_to_dict(
+ACCESS_LIST_FORMATTER: Final = type_aware_apply_formatters_to_dict(
     {
         "address": to_checksum_address,
         "storageKeys": apply_list_to_array_formatter(storage_key_to_hexstr),
     }
 )
 
-ACCESS_LIST_RESPONSE_FORMATTER = type_aware_apply_formatters_to_dict(
+ACCESS_LIST_RESPONSE_FORMATTER: Final = type_aware_apply_formatters_to_dict(
     {
         "accessList": apply_list_to_array_formatter(ACCESS_LIST_FORMATTER),
         "gasUsed": to_integer_if_hex,
     }
 )
 
-AUTH_LIST_RESULT_FORMATTER = apply_formatter_if(
+AUTH_LIST_RESULT_FORMATTER: Final = apply_formatter_if(
     is_not_null,
     apply_formatter_to_array(
         type_aware_apply_formatters_to_dict(
@@ -253,7 +258,7 @@ AUTH_LIST_RESULT_FORMATTER = apply_formatter_if(
     ),
 )
 
-TRANSACTION_RESULT_FORMATTERS = {
+TRANSACTION_RESULT_FORMATTERS: Final = {
     "blockHash": apply_formatter_if(is_not_null, to_hexbytes(32)),
     "blockNumber": apply_formatter_if(is_not_null, to_integer_if_hex),
     "transactionIndex": apply_formatter_if(is_not_null, to_integer_if_hex),
@@ -289,22 +294,22 @@ TRANSACTION_RESULT_FORMATTERS = {
 }
 
 
-transaction_result_formatter = type_aware_apply_formatters_to_dict(
+transaction_result_formatter: Final = type_aware_apply_formatters_to_dict(
     TRANSACTION_RESULT_FORMATTERS
 )
 
-WITHDRAWAL_RESULT_FORMATTERS = {
+WITHDRAWAL_RESULT_FORMATTERS: Final = {
     "index": to_integer_if_hex,
     "validatorIndex": to_integer_if_hex,
     "address": to_checksum_address,
     "amount": to_integer_if_hex,
 }
-withdrawal_result_formatter = type_aware_apply_formatters_to_dict(
+withdrawal_result_formatter: Final = type_aware_apply_formatters_to_dict(
     WITHDRAWAL_RESULT_FORMATTERS
 )
 
 
-LOG_ENTRY_FORMATTERS = {
+LOG_ENTRY_FORMATTERS: Final = {
     "blockHash": apply_formatter_if(is_not_null, to_hexbytes(32)),
     "blockNumber": apply_formatter_if(is_not_null, to_integer_if_hex),
     "transactionIndex": apply_formatter_if(is_not_null, to_integer_if_hex),
@@ -316,10 +321,10 @@ LOG_ENTRY_FORMATTERS = {
 }
 
 
-log_entry_formatter = type_aware_apply_formatters_to_dict(LOG_ENTRY_FORMATTERS)
+log_entry_formatter: Final = type_aware_apply_formatters_to_dict(LOG_ENTRY_FORMATTERS)
 
 
-RECEIPT_FORMATTERS = {
+RECEIPT_FORMATTERS: Final = {
     "blockHash": apply_formatter_if(is_not_null, to_hexbytes(32)),
     "blockNumber": apply_formatter_if(is_not_null, to_integer_if_hex),
     "transactionIndex": apply_formatter_if(is_not_null, to_integer_if_hex),
@@ -339,9 +344,9 @@ RECEIPT_FORMATTERS = {
 }
 
 
-receipt_formatter = type_aware_apply_formatters_to_dict(RECEIPT_FORMATTERS)
+receipt_formatter: Final = type_aware_apply_formatters_to_dict(RECEIPT_FORMATTERS)
 
-BLOCK_REQUEST_FORMATTERS = {
+BLOCK_REQUEST_FORMATTERS: Final = {
     "baseFeePerGas": to_hex_if_integer,
     "extraData": to_hex_if_bytes,
     "gasLimit": to_hex_if_integer,
@@ -365,9 +370,9 @@ BLOCK_REQUEST_FORMATTERS = {
     "parentBeaconBlockRoot": to_hex_if_bytes,
     "requestsHash": to_hex_if_bytes,
 }
-block_request_formatter = type_aware_apply_formatters_to_dict(BLOCK_REQUEST_FORMATTERS)
+block_request_formatter: Final = type_aware_apply_formatters_to_dict(BLOCK_REQUEST_FORMATTERS)
 
-BLOCK_RESULT_FORMATTERS = {
+BLOCK_RESULT_FORMATTERS: Final = {
     "baseFeePerGas": to_integer_if_hex,
     "extraData": apply_formatter_if(is_not_null, to_hexbytes(32, variable_length=True)),
     "gasLimit": to_integer_if_hex,
@@ -408,23 +413,23 @@ BLOCK_RESULT_FORMATTERS = {
     "parentBeaconBlockRoot": apply_formatter_if(is_not_null, to_hexbytes(32)),
     "requestsHash": apply_formatter_if(is_not_null, to_hexbytes(32)),
 }
-block_result_formatter = type_aware_apply_formatters_to_dict(BLOCK_RESULT_FORMATTERS)
+block_result_formatter: Final = type_aware_apply_formatters_to_dict(BLOCK_RESULT_FORMATTERS)
 
 
-SYNCING_FORMATTERS = {
+SYNCING_FORMATTERS: Final = {
     "startingBlock": to_integer_if_hex,
     "currentBlock": to_integer_if_hex,
     "highestBlock": to_integer_if_hex,
     "knownStates": to_integer_if_hex,
     "pulledStates": to_integer_if_hex,
 }
-syncing_formatter = type_aware_apply_formatters_to_dict(SYNCING_FORMATTERS)
+syncing_formatter: Final = type_aware_apply_formatters_to_dict(SYNCING_FORMATTERS)
 
-GETH_SYNCING_SUBSCRIPTION_FORMATTERS = {
+GETH_SYNCING_SUBSCRIPTION_FORMATTERS: Final = {
     "status": SYNCING_FORMATTERS,
 }
 
-TRANSACTION_POOL_CONTENT_FORMATTERS = {
+TRANSACTION_POOL_CONTENT_FORMATTERS: Final = {
     "pending": compose(
         curried.keymap(to_ascii_if_bytes),
         curried.valmap(transaction_result_formatter),
@@ -436,22 +441,22 @@ TRANSACTION_POOL_CONTENT_FORMATTERS = {
 }
 
 
-transaction_pool_content_formatter = type_aware_apply_formatters_to_dict(
+transaction_pool_content_formatter: Final = type_aware_apply_formatters_to_dict(
     TRANSACTION_POOL_CONTENT_FORMATTERS
 )
 
 
-TRANSACTION_POOL_INSPECT_FORMATTERS = {
+TRANSACTION_POOL_INSPECT_FORMATTERS: Final = {
     "pending": curried.keymap(to_ascii_if_bytes),
     "queued": curried.keymap(to_ascii_if_bytes),
 }
 
 
-transaction_pool_inspect_formatter = type_aware_apply_formatters_to_dict(
+transaction_pool_inspect_formatter: Final = type_aware_apply_formatters_to_dict(
     TRANSACTION_POOL_INSPECT_FORMATTERS
 )
 
-FEE_HISTORY_FORMATTERS = {
+FEE_HISTORY_FORMATTERS: Final = {
     "baseFeePerGas": apply_formatter_to_array(to_integer_if_hex),
     "gasUsedRatio": apply_formatter_if(is_not_null, apply_formatter_to_array(float)),
     "oldestBlock": to_integer_if_hex,
@@ -461,15 +466,15 @@ FEE_HISTORY_FORMATTERS = {
     ),
 }
 
-fee_history_formatter = type_aware_apply_formatters_to_dict(FEE_HISTORY_FORMATTERS)
+fee_history_formatter: Final = type_aware_apply_formatters_to_dict(FEE_HISTORY_FORMATTERS)
 
-STORAGE_PROOF_FORMATTERS = {
+STORAGE_PROOF_FORMATTERS: Final = {
     "key": HexBytes,
     "value": HexBytes,
     "proof": apply_list_to_array_formatter(HexBytes),
 }
 
-ACCOUNT_PROOF_FORMATTERS = {
+ACCOUNT_PROOF_FORMATTERS: Final = {
     "address": to_checksum_address,
     "accountProof": apply_list_to_array_formatter(HexBytes),
     "balance": to_integer_if_hex,
@@ -481,25 +486,25 @@ ACCOUNT_PROOF_FORMATTERS = {
     ),
 }
 
-proof_formatter = type_aware_apply_formatters_to_dict(ACCOUNT_PROOF_FORMATTERS)
+proof_formatter: Final = type_aware_apply_formatters_to_dict(ACCOUNT_PROOF_FORMATTERS)
 
-FILTER_PARAMS_FORMATTERS = {
+FILTER_PARAMS_FORMATTERS: Final = {
     "fromBlock": to_hex_if_integer,
     "toBlock": to_hex_if_integer,
 }
 
 
-filter_params_formatter = type_aware_apply_formatters_to_dict(FILTER_PARAMS_FORMATTERS)
+filter_params_formatter: Final = type_aware_apply_formatters_to_dict(FILTER_PARAMS_FORMATTERS)
 
 
-filter_result_formatter = apply_one_of_formatters(
+filter_result_formatter: Final = apply_one_of_formatters(
     (
         (is_array_of_dicts, apply_list_to_array_formatter(log_entry_formatter)),
         (is_array_of_strings, apply_list_to_array_formatter(to_hexbytes(32))),
     )
 )
 
-AUTH_LIST_REQUEST_FORMATTER = apply_formatter_if(
+AUTH_LIST_REQUEST_FORMATTER: Final = apply_formatter_if(
     is_not_null,
     apply_formatter_to_array(
         type_aware_apply_formatters_to_dict(
@@ -515,7 +520,7 @@ AUTH_LIST_REQUEST_FORMATTER = apply_formatter_if(
     ),
 )
 
-TRANSACTION_REQUEST_FORMATTER = {
+TRANSACTION_REQUEST_FORMATTER: Final = {
     "from": to_checksum_address,
     "to": apply_formatter_if(is_address, to_checksum_address),
     "gas": to_hex_if_integer,
@@ -528,11 +533,11 @@ TRANSACTION_REQUEST_FORMATTER = {
     "chainId": to_hex_if_integer,
     "authorizationList": AUTH_LIST_REQUEST_FORMATTER,
 }
-transaction_request_formatter = type_aware_apply_formatters_to_dict(
+transaction_request_formatter: Final = type_aware_apply_formatters_to_dict(
     TRANSACTION_REQUEST_FORMATTER
 )
 
-ETH_CALL_TX_FORMATTER = type_aware_apply_formatters_to_dict(
+ETH_CALL_TX_FORMATTER: Final = type_aware_apply_formatters_to_dict(
     {
         "accessList": apply_formatter_if(
             is_not_null,
@@ -547,15 +552,18 @@ ETH_CALL_TX_FORMATTER = type_aware_apply_formatters_to_dict(
         "authorizationList": AUTH_LIST_REQUEST_FORMATTER,
     }
 )
-transaction_param_formatter = compose(
+transaction_param_formatter: Final = compose(
     ETH_CALL_TX_FORMATTER,
     remove_key_if("to", lambda txn: txn["to"] in {"", b"", None}),
     remove_key_if("gasPrice", lambda txn: txn["gasPrice"] in {"", b"", None}),
 )
 
 
-call_without_override: Callable[
-    [Tuple[TxParams, BlockIdentifier]], Tuple[Dict[str, Any], int]
+call_without_override: Final[
+    Callable[
+        [Tuple[TxParams, BlockIdentifier]],
+        Tuple[Dict[str, Any], int],
+    ]
 ] = apply_formatters_to_sequence(
     [
         transaction_param_formatter,
@@ -563,18 +571,20 @@ call_without_override: Callable[
     ]
 )
 
-STATE_OVERRIDE_FORMATTERS = {
+STATE_OVERRIDE_FORMATTERS: Final = {
     "balance": to_hex_if_integer,
     "nonce": to_hex_if_integer,
     "code": to_hex_if_bytes,
 }
-state_override_formatter = type_aware_apply_formatters_to_dict(
+state_override_formatter: Final = type_aware_apply_formatters_to_dict(
     STATE_OVERRIDE_FORMATTERS
 )
 
-call_with_override: Callable[
-    [Tuple[TxParams, BlockIdentifier, StateOverrideParams]],
-    Tuple[Dict[str, Any], int, Dict[str, Any]],
+call_with_override: Final[
+    Callable[
+        [Tuple[TxParams, BlockIdentifier, StateOverrideParams]],
+        Tuple[Dict[str, Any], int, Dict[str, Any]],
+    ]
 ] = apply_formatters_to_sequence(
     [
         transaction_param_formatter,
@@ -588,20 +598,27 @@ call_with_override: Callable[
 )
 
 
-estimate_gas_without_block_id: Callable[
-    [Dict[str, Any]], Dict[str, Any]
+estimate_gas_without_block_id: Final[
+    Callable[[Dict[str, Any]], Dict[str, Any]]
 ] = apply_formatter_at_index(transaction_param_formatter, 0)
-estimate_gas_with_block_id: Callable[
-    [Tuple[Dict[str, Any], BlockIdentifier]], Tuple[Dict[str, Any], int]
+
+estimate_gas_with_block_id: Final[
+    Callable[
+        [Tuple[Dict[str, Any], BlockIdentifier]],
+        Tuple[Dict[str, Any], int],
+    ]
 ] = apply_formatters_to_sequence(
     [
         transaction_param_formatter,
         to_hex_if_integer,
     ]
 )
-estimate_gas_with_override: Callable[
-    [Tuple[Dict[str, Any], BlockIdentifier, StateOverrideParams]],
-    Tuple[Dict[str, Any], int, Dict[str, Any]],
+
+estimate_gas_with_override: Final[
+    Callable[
+        [Tuple[Dict[str, Any], BlockIdentifier, StateOverrideParams]],
+        Tuple[Dict[str, Any], int, Dict[str, Any]],
+    ]
 ] = apply_formatters_to_sequence(
     [
         transaction_param_formatter,
@@ -616,8 +633,8 @@ estimate_gas_with_override: Callable[
 
 # -- eth_simulateV1 -- #
 
-block_state_calls_formatter: Callable[
-    [Dict[str, Any]], Dict[str, Any]
+block_state_calls_formatter: Final[
+    Callable[[Dict[str, Any]], Dict[str, Any]]
 ] = apply_formatter_to_array(
     apply_formatters_to_dict(
         {
@@ -634,9 +651,11 @@ block_state_calls_formatter: Callable[
     ),
 )
 
-simulate_v1_request_formatter: Callable[
-    [Tuple[Dict[str, Any], bool, bool], BlockIdentifier],
-    Tuple[SimulateV1Payload, BlockIdentifier],
+simulate_v1_request_formatter: Final[
+    Callable[
+        [Tuple[Dict[str, Any], bool, bool], BlockIdentifier],
+        Tuple[SimulateV1Payload, BlockIdentifier],
+    ]
 ] = apply_formatters_to_sequence(
     [
         # payload
@@ -650,7 +669,7 @@ simulate_v1_request_formatter: Callable[
     ]
 )
 
-block_result_formatters_copy = BLOCK_RESULT_FORMATTERS.copy()
+block_result_formatters_copy: Final = BLOCK_RESULT_FORMATTERS.copy()
 block_result_formatters_copy["calls"] = apply_list_to_array_formatter(
     type_aware_apply_formatters_to_dict(
         {
@@ -661,7 +680,7 @@ block_result_formatters_copy["calls"] = apply_list_to_array_formatter(
         }
     )
 )
-simulate_v1_result_formatter = apply_formatter_if(
+simulate_v1_result_formatter: Final = apply_formatter_if(
     is_not_null,
     apply_list_to_array_formatter(
         type_aware_apply_formatters_to_dict(block_result_formatters_copy)
@@ -669,29 +688,29 @@ simulate_v1_result_formatter = apply_formatter_if(
 )
 
 
-SIGNED_TX_FORMATTER = {
+SIGNED_TX_FORMATTER: Final = {
     "raw": HexBytes,
     "tx": transaction_result_formatter,
 }
 
-signed_tx_formatter = type_aware_apply_formatters_to_dict(SIGNED_TX_FORMATTER)
+signed_tx_formatter: Final = type_aware_apply_formatters_to_dict(SIGNED_TX_FORMATTER)
 
-FILTER_PARAM_NORMALIZERS = type_aware_apply_formatters_to_dict(
+FILTER_PARAM_NORMALIZERS: Final = type_aware_apply_formatters_to_dict(
     {"address": apply_formatter_if(is_string, lambda x: [x])}
 )
 
 
-GETH_WALLET_FORMATTER = {"address": to_checksum_address}
+GETH_WALLET_FORMATTER: Final = {"address": to_checksum_address}
 
-geth_wallet_formatter = type_aware_apply_formatters_to_dict(GETH_WALLET_FORMATTER)
+geth_wallet_formatter: Final = type_aware_apply_formatters_to_dict(GETH_WALLET_FORMATTER)
 
-GETH_WALLETS_FORMATTER = {
+GETH_WALLETS_FORMATTER: Final = {
     "accounts": apply_list_to_array_formatter(geth_wallet_formatter),
 }
 
-geth_wallets_formatter = type_aware_apply_formatters_to_dict(GETH_WALLETS_FORMATTER)
+geth_wallets_formatter: Final = type_aware_apply_formatters_to_dict(GETH_WALLETS_FORMATTER)
 
-PYTHONIC_REQUEST_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
+PYTHONIC_REQUEST_FORMATTERS: Final[Dict[RPCEndpoint, Callable[..., Any]]] = {
     # Eth
     RPC.eth_feeHistory: compose(
         apply_formatter_at_index(to_hex_if_integer, 0),
@@ -758,7 +777,7 @@ PYTHONIC_REQUEST_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
 # --- Result Formatters --- #
 
 # -- debug -- #
-DEBUG_CALLTRACE_LOG_ENTRY_FORMATTERS = apply_formatter_if(
+DEBUG_CALLTRACE_LOG_ENTRY_FORMATTERS: Final = apply_formatter_if(
     is_not_null,
     type_aware_apply_formatters_to_dict(
         {
@@ -771,12 +790,12 @@ DEBUG_CALLTRACE_LOG_ENTRY_FORMATTERS = apply_formatter_if(
 )
 
 
-debug_calltrace_log_list_result_formatter: Callable[
-    [Formatters], Any
+debug_calltrace_log_list_result_formatter: Final[
+    Callable[[Formatters], Any]
 ] = apply_formatter_to_array(DEBUG_CALLTRACE_LOG_ENTRY_FORMATTERS)
 
 
-PRETRACE_INNER_FORMATTERS = {
+PRETRACE_INNER_FORMATTERS: Final = {
     "balance": to_integer_if_hex,
     "nonce": to_integer_if_hex,
 }
@@ -807,13 +826,13 @@ def pretrace_formatter(
     )
 
 
-DEBUG_PRESTATE_DIFFMODE_FORMATTERS = {
+DEBUG_PRESTATE_DIFFMODE_FORMATTERS: Final = {
     "pre": pretrace_formatter,
     "post": pretrace_formatter,
 }
 
 
-DEBUG_CALLTRACE_FORMATTERS = {
+DEBUG_CALLTRACE_FORMATTERS: Final = {
     "from": to_checksum_address,
     "to": to_checksum_address,
     "value": to_integer_if_hex,
@@ -826,7 +845,7 @@ DEBUG_CALLTRACE_FORMATTERS = {
 }
 
 
-OPCODE_TRACE_FORMATTERS = {
+OPCODE_TRACE_FORMATTERS: Final = {
     "pc": to_integer_if_hex,
     "gas": to_integer_if_hex,
     "gasCost": to_integer_if_hex,
@@ -834,30 +853,30 @@ OPCODE_TRACE_FORMATTERS = {
 }
 
 
-DEBUG_TRACE_FORMATTERS = {
+DEBUG_TRACE_FORMATTERS: Final = {
     **DEBUG_CALLTRACE_FORMATTERS,
     **OPCODE_TRACE_FORMATTERS,
     **DEBUG_PRESTATE_DIFFMODE_FORMATTERS,
 }
 
 
-trace_result_formatters = type_aware_apply_formatters_to_dict(DEBUG_TRACE_FORMATTERS)
+trace_result_formatters: Final = type_aware_apply_formatters_to_dict(DEBUG_TRACE_FORMATTERS)
 
 
-debug_calltrace_result_formatter = type_aware_apply_formatters_to_dict(
+debug_calltrace_result_formatter: Final = type_aware_apply_formatters_to_dict(
     DEBUG_CALLTRACE_FORMATTERS
 )
 
 
-debug_calltrace_list_result_formatter: Callable[
-    [Formatters], Any
+debug_calltrace_list_result_formatter: Final[
+    Callable[[Formatters], Any]
 ] = apply_formatter_to_array(debug_calltrace_result_formatter)
 
 
 # -- tracing -- #
 
 # result formatters for the trace field "action"
-TRACE_ACTION_FORMATTERS = apply_formatter_if(
+TRACE_ACTION_FORMATTERS: Final = apply_formatter_if(
     is_not_null,
     type_aware_apply_formatters_to_dict(
         {
@@ -879,7 +898,7 @@ TRACE_ACTION_FORMATTERS = apply_formatter_if(
 )
 
 # result formatters for the trace field "result"
-TRACE_RESULT_FORMATTERS = apply_formatter_if(
+TRACE_RESULT_FORMATTERS: Final = apply_formatter_if(
     is_not_null,
     type_aware_apply_formatters_to_dict(
         {
@@ -892,7 +911,7 @@ TRACE_RESULT_FORMATTERS = apply_formatter_if(
 )
 
 # result formatters for the trace field
-TRACE_FORMATTERS: Callable[[TValue], Union[Any, TValue]] = apply_formatter_if(
+TRACE_FORMATTERS: Final[Callable[[TValue], Union[Any, TValue]]] = apply_formatter_if(
     is_not_null,
     type_aware_apply_formatters_to_dict(
         {
@@ -906,12 +925,12 @@ TRACE_FORMATTERS: Callable[[TValue], Union[Any, TValue]] = apply_formatter_if(
 )
 
 # trace formatter for a list of traces
-trace_list_result_formatter: Callable[[Formatters], Any] = apply_formatter_to_array(
+trace_list_result_formatter: Final[Callable[[Formatters], Any]] = apply_formatter_to_array(
     TRACE_FORMATTERS,
 )
 
 # shared formatter for common `tracing` module rpc responses
-common_tracing_result_formatter = type_aware_apply_formatters_to_dict(
+common_tracing_result_formatter: Final = type_aware_apply_formatters_to_dict(
     {
         "trace": apply_formatter_if(is_not_null, trace_list_result_formatter),
         "output": HexBytes,
@@ -980,7 +999,7 @@ def subscription_formatter(value: Any) -> Union[HexBytes, HexStr, Dict[str, Any]
     return value
 
 
-PYTHONIC_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
+PYTHONIC_RESULT_FORMATTERS: Final[Dict[RPCEndpoint, Callable[..., Any]]] = {
     # Eth
     RPC.eth_accounts: apply_list_to_array_formatter(to_checksum_address),
     RPC.eth_blobBaseFee: to_integer_if_hex,
@@ -1068,12 +1087,12 @@ PYTHONIC_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     ),
 }
 
-METHOD_NORMALIZERS: Dict[RPCEndpoint, Callable[..., Any]] = {
+METHOD_NORMALIZERS: Final[Dict[RPCEndpoint, Callable[..., Any]]] = {
     RPC.eth_getLogs: apply_formatter_at_index(FILTER_PARAM_NORMALIZERS, 0),
     RPC.eth_newFilter: apply_formatter_at_index(FILTER_PARAM_NORMALIZERS, 0),
 }
 
-STANDARD_NORMALIZERS = [
+STANDARD_NORMALIZERS: Final = [
     abi_bytes_to_hex,
     abi_int_to_hex,
     abi_string_to_hex,
@@ -1081,12 +1100,12 @@ STANDARD_NORMALIZERS = [
 ]
 
 
-ABI_REQUEST_FORMATTERS: Formatters = abi_request_formatters(
+ABI_REQUEST_FORMATTERS: Final[Formatters] = abi_request_formatters(
     STANDARD_NORMALIZERS, RPC_ABIS
 )
 
 
-ERROR_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
+ERROR_FORMATTERS: Final[Dict[RPCEndpoint, Callable[..., Any]]] = {
     RPC.eth_estimateGas: raise_contract_logic_error_on_revert,
     RPC.eth_call: raise_contract_logic_error_on_revert,
     RPC.eth_getTransactionReceipt: raise_transaction_indexing_error_if_indexing,
@@ -1118,7 +1137,13 @@ def get_request_formatters(method_name: RPCEndpoint) -> Callable[[RPCResponse], 
     return compose(*formatters)
 
 
-def raise_block_not_found(params: Tuple[BlockIdentifier, bool]) -> NoReturn:
+def raise_block_not_found(
+    params: Union[
+        Tuple[BlockIdentifier],
+        Tuple[BlockIdentifier, bool],
+        Tuple[()],
+    ]
+) -> NoReturn:
     try:
         block_identifier = params[0]
         message = f"Block with id: {block_identifier!r} not found."
@@ -1129,7 +1154,11 @@ def raise_block_not_found(params: Tuple[BlockIdentifier, bool]) -> NoReturn:
 
 
 def raise_block_not_found_for_uncle_at_index(
-    params: Tuple[BlockIdentifier, Union[HexStr, int]],
+    params: Union[
+        Tuple[BlockIdentifier],
+        Tuple[BlockIdentifier, Union[HexStr, int]],
+        Tuple[()],
+    ]
 ) -> NoReturn:
     try:
         block_identifier = params[0]
@@ -1144,7 +1173,7 @@ def raise_block_not_found_for_uncle_at_index(
     raise BlockNotFound(message)
 
 
-def raise_transaction_not_found(params: Tuple[_Hash32]) -> NoReturn:
+def raise_transaction_not_found(params: Union[Tuple[_Hash32], Tuple[()]]) -> NoReturn:
     try:
         transaction_hash = params[0]
         message = f"Transaction with hash: {transaction_hash!r} not found."
@@ -1170,7 +1199,7 @@ def raise_transaction_not_found_with_index(
     raise TransactionNotFound(message)
 
 
-NULL_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
+NULL_RESULT_FORMATTERS: Final[Dict[RPCEndpoint, Callable[..., Any]]] = {
     RPC.eth_getBlockByHash: raise_block_not_found,
     RPC.eth_getBlockByNumber: raise_block_not_found,
     RPC.eth_getBlockReceipts: raise_block_not_found,
@@ -1227,7 +1256,7 @@ def filter_wrapper(
         )
 
 
-FILTER_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
+FILTER_RESULT_FORMATTERS: Final[Dict[RPCEndpoint, Callable[..., Any]]] = {
     RPC.eth_newPendingTransactionFilter: filter_wrapper,
     RPC.eth_newBlockFilter: filter_wrapper,
     RPC.eth_newFilter: filter_wrapper,
