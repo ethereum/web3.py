@@ -2,6 +2,9 @@ import decimal
 from types import (
     TracebackType,
 )
+from typing import (
+    Mapping,
+)
 
 from faster_ens import (
     AsyncENS,
@@ -237,7 +240,7 @@ class BaseWeb3:
 
     @staticmethod
     @wraps(to_json)
-    def to_json(obj: Dict[Any, Any]) -> str:
+    def to_json(obj: Mapping[Any, Any]) -> str:
         return to_json(obj)
 
     # Currency Utility

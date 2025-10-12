@@ -81,7 +81,7 @@ def test_hex_encode_abi_type(abi_type, value, expected):
 def test_hexstr_if_str_passthrough(val):
     to_type = Mock(return_value="zoot")
     assert hexstr_if_str(to_type, val) == "zoot"
-    assert to_type.call_args == ((val,), {"hexstr": None})
+    assert to_type.call_args == ((val,), {})
 
 
 def test_hexstr_if_str_curried():
@@ -95,7 +95,7 @@ def test_hexstr_if_str_curried():
 def test_hexstr_if_str_on_valid_hex(val):
     to_type = Mock(return_value="zoot")
     assert hexstr_if_str(to_type, val) == "zoot"
-    assert to_type.call_args == ((None,), {"hexstr": val})
+    assert to_type.call_args == ((), {"hexstr": val})
 
 
 @given(st.text())
@@ -233,7 +233,12 @@ def test_friendly_json_encode_with_web3_json_encoder(py_obj, exc_type, expected)
             FriendlyJson().json_encode(py_obj, Web3JsonEncoder)
         ) == literal_eval(expected)
     else:
-        with pytest.raises(exc_type, match=expected):
+        with pytest.raises(
+            exc_type, 
+            # faster-web3.py TypeError will have different text
+            # than web3.py, but should still raise TypeError.
+            match=None if exc_type is TypeError else expected,
+        ):
             FriendlyJson().json_encode(py_obj)
 
 

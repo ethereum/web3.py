@@ -5,11 +5,15 @@ from typing import (
     Any,
     Callable,
     Dict,
+    Final,
     Iterable,
+    Mapping,
     Optional,
     Sequence,
     Type,
+    TypeVar,
     Union,
+    final,
 )
 
 from faster_eth_abi.encoding import (
@@ -64,6 +68,9 @@ from faster_web3.exceptions import (
 )
 
 
+TReturn = TypeVar("TReturn")
+
+
 def hex_encode_abi_type(
     abi_type: TypeStr, value: Any, force_size: Optional[int] = None
 ) -> HexStr:
@@ -100,7 +107,7 @@ def hex_encode_abi_type(
         raise Web3ValueError(f"Unsupported ABI type: {abi_type}")
 
 
-def to_hex_twos_compliment(value: Any, bit_size: int) -> HexStr:
+def to_hex_twos_compliment(value: int, bit_size: int) -> HexStr:
     """
     Converts integer value to twos compliment hex representation with given bit_size
     """
@@ -109,8 +116,7 @@ def to_hex_twos_compliment(value: Any, bit_size: int) -> HexStr:
 
     value = (1 << bit_size) + value
     hex_value = hex(value)
-    hex_value = HexStr(hex_value.rstrip("L"))
-    return hex_value
+    return HexStr(hex_value.rstrip("L"))
 
 
 def to_hex_with_size(value: Any, bit_size: int) -> HexStr:
@@ -164,8 +170,8 @@ def text_if_str(
 
 @curry
 def hexstr_if_str(
-    to_type: Callable[..., HexStr], hexstr_or_primitive: Union[Primitives, HexStr, str]
-) -> HexStr:
+    to_type: Callable[..., TReturn], hexstr_or_primitive: Union[Primitives, HexStr, str]
+) -> TReturn:
     """
     Convert to a type, assuming that strings can be only hexstr (not unicode text)
 
@@ -173,18 +179,18 @@ def hexstr_if_str(
         text=text), eg~ to_bytes, to_text, to_hex, to_int, etc
     @param hexstr_or_primitive in bytes, str, or int.
     """
-    if isinstance(hexstr_or_primitive, str):
-        (primitive, hexstr) = (None, hexstr_or_primitive)
-        if remove_0x_prefix(HexStr(hexstr)) and not is_hex(hexstr):
-            raise Web3ValueError(
-                "when sending a str, it must be a hex string. "
-                f"Got: {hexstr_or_primitive!r}"
-            )
-    else:
-        (primitive, hexstr) = (hexstr_or_primitive, None)
-    return to_type(primitive, hexstr=hexstr)
+    if not isinstance(hexstr_or_primitive, str):
+        return to_type(hexstr_or_primitive)
+    hexstr = hexstr_or_primitive
+    if remove_0x_prefix(HexStr(hexstr)) and not is_hex(hexstr):
+        raise Web3ValueError(
+            "when sending a str, it must be a hex string. "
+            f"Got: {hexstr_or_primitive!r}"
+        )
+    return to_type(hexstr=hexstr)
 
 
+@final
 class FriendlyJsonSerde:
     """
     Friendly JSON serializer & deserializer
@@ -209,11 +215,10 @@ class FriendlyJsonSerde:
                 yield f"{index}: because ({exc})"
 
     def _friendly_json_encode(
-        self, obj: Dict[Any, Any], cls: Optional[Type[json.JSONEncoder]] = None
+        self, obj: Mapping[Any, Any], cls: Optional[Type[json.JSONEncoder]] = None
     ) -> str:
         try:
-            encoded = json.dumps(obj, cls=cls)
-            return encoded
+            return json.dumps(obj, cls=cls)
         except TypeError as full_exception:
             if hasattr(obj, "items"):
                 item_errors = "; ".join(self._json_mapping_errors(obj))
@@ -230,8 +235,7 @@ class FriendlyJsonSerde:
 
     def json_decode(self, json_str: str) -> Dict[Any, Any]:
         try:
-            decoded = json.loads(json_str)
-            return decoded
+            return json.loads(json_str)
         except json.decoder.JSONDecodeError as exc:
             err_msg = f"Could not decode {json_str!r} because of {exc}."
             # Calling code may rely on catching JSONDecodeError to recognize bad json
@@ -239,7 +243,7 @@ class FriendlyJsonSerde:
             raise json.decoder.JSONDecodeError(err_msg, exc.doc, exc.pos)
 
     def json_encode(
-        self, obj: Dict[Any, Any], cls: Optional[Type[json.JSONEncoder]] = None
+        self, obj: Mapping[Any, Any], cls: Optional[Type[json.JSONEncoder]] = None
     ) -> str:
         try:
             return self._friendly_json_encode(obj, cls=cls)
@@ -258,14 +262,12 @@ def to_4byte_hex(hex_or_str_or_bytes: Union[HexStr, str, bytes, int]) -> HexStr:
     return pad_hex(hex_str, size_of_4bytes)
 
 
+@final
 class DynamicArrayPackedEncoder(BaseArrayEncoder):
-    is_dynamic = True
+    is_dynamic: Final = True
 
     def encode(self, value: Sequence[Any]) -> bytes:
-        encoded_elements = self.encode_elements(value)  # type: ignore[no-untyped-call]
-        encoded_value = encoded_elements
-
-        return encoded_value
+        return self.encode_elements(value)
 
 
 #  TODO: Replace with eth-abi packed encoder once web3 requires eth-abi>=2
@@ -310,7 +312,7 @@ class Web3JsonEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, obj)
 
 
-def to_json(obj: Dict[Any, Any]) -> str:
+def to_json(obj: Mapping[Any, Any]) -> str:
     """
     Convert a complex object (like a transaction object) to a JSON string
     """

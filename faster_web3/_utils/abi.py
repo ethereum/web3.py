@@ -503,7 +503,7 @@ def is_length(target_length: int, value: abc.Sized) -> bool:
     return len(value) == target_length
 
 
-def size_of_type(abi_type: TypeStr) -> int:
+def size_of_type(abi_type: TypeStr) -> Optional[int]:
     # sourcery skip: assign-if-exp, reintroduce-else
     """
     Returns size in bits of abi_type
