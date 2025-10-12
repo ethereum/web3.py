@@ -79,6 +79,7 @@ else:
             "faster_web3/_utils/decorators.py",
             "faster_web3/_utils/encoding.py",
             "faster_web3/_utils/fee_utils.py",
+            "faster_web3/_utils/formatters.py",
             "faster_web3/_utils/http.py",
             "faster_web3/_utils/http_session_manager.py",
             "faster_web3/_utils/math.py",

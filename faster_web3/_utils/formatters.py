@@ -6,8 +6,10 @@ from typing import (
     Callable,
     Dict,
     Iterable,
+    Iterator,
     Optional,
     TypeVar,
+    Union,
 )
 
 from eth_typing import (
@@ -25,7 +27,6 @@ from faster_eth_utils.toolz import (
     compose,
     curry,
     dissoc,
-    pipe,
 )
 
 from faster_web3._utils.decorators import (
@@ -118,15 +119,11 @@ def apply_key_map(
 
 
 def is_array_of_strings(value: Any) -> bool:
-    if not is_list_like(value):
-        return False
-    return all(is_string(item) for item in value)
+    return is_list_like(value) and all(map(is_string, value))
 
 
 def is_array_of_dicts(value: Any) -> bool:
-    if not is_list_like(value):
-        return False
-    return all(is_dict(item) for item in value)
+    return is_list_like(value) and all(map(is_dict, value))
 
 
 @curry
@@ -140,23 +137,21 @@ def remove_key_if(
 
 
 def apply_error_formatters(
-    error_formatters: Callable[..., Any],
+    error_formatters: Union[Callable[..., TReturn], None],
     response: RPCResponse,
-) -> RPCResponse:
+) -> Union[RPCResponse, TReturn]:  # sourcery skip: assign-if-exp
     if error_formatters:
-        formatted_resp = pipe(response, error_formatters)
-        return formatted_resp
+        return error_formatters(response)
     else:
         return response
 
 
 def apply_null_result_formatters(
-    null_result_formatters: Callable[..., Any],
+    null_result_formatters: Union[Callable[..., TReturn], None],
     response: RPCResponse,
     params: Optional[Any] = None,
-) -> RPCResponse:
+) -> Union[RPCResponse, TReturn]:  # sourcery skip: assign-if-exp
     if null_result_formatters:
-        formatted_resp = pipe(params, null_result_formatters)
-        return formatted_resp
+        return null_result_formatters(params)
     else:
         return response
