@@ -504,6 +504,7 @@ def is_length(target_length: int, value: abc.Sized) -> bool:
 
 
 def size_of_type(abi_type: TypeStr) -> int:
+    # sourcery skip: assign-if-exp, reintroduce-else
     """
     Returns size in bits of abi_type
     """
@@ -530,17 +531,16 @@ def sub_type_of_array_type(abi_type: TypeStr) -> str:
     return re.sub(END_BRACKETS_OF_ARRAY_TYPE_REGEX, "", abi_type, count=1)
 
 
-def length_of_array_type(abi_type: TypeStr) -> int:
+def length_of_array_type(abi_type: TypeStr) -> Optional[int]:
     if not is_array_type(abi_type):
         raise Web3ValueError(f"Cannot parse length of nonarray abi-type: {abi_type}")
 
-    inner_brackets = (
-        re.search(END_BRACKETS_OF_ARRAY_TYPE_REGEX, abi_type).group(0).strip("[]")
-    )
-    if not inner_brackets:
-        return None
-    else:
+    if inner_brackets := (
+        re.search(END_BRACKETS_OF_ARRAY_TYPE_REGEX, abi_type)[0].strip("[]")
+    ):
         return int(inner_brackets)
+    else:
+        return None
 
 
 ARRAY_REGEX = ("^" "[a-zA-Z0-9_]+" "({sub_type})+" "$").format(sub_type=SUB_TYPE_REGEX)
@@ -827,8 +827,7 @@ def _named_subtree(
     if abi_type.is_array:
         item_type = abi_type.item_type.to_type_str()
         item_abi = {**abi, "type": item_type, "name": ""}
-        items = [_named_subtree(item_abi, item) for item in data]
-        return items
+        return [_named_subtree(item_abi, item) for item in data]
 
     elif isinstance(abi_type, TupleType):
         if abi.get("indexed"):

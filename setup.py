@@ -83,6 +83,7 @@ else:
             "faster_web3/_utils/method_formatters.py",
             "faster_web3/_utils/type_conversion.py",
             "faster_web3/_utils/utility_methods.py",
+            "faster_web3/_utils/validation.py",
             "faster_web3/auto",
             "faster_web3/contract/utils.py",
             "faster_web3/gas_strategies",
