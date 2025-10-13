@@ -1,12 +1,21 @@
+from typing import (
+    final,
+)
+
 import idna
+from mypy_extensions import (
+    mypyc_attr,
+)
 
 
+@mypyc_attr(native_class=False)
 class ENSException(Exception):
     """
     Base class for all ENS Errors
     """
 
 
+@final
 class ENSValueError(ENSException, ValueError):
     """
     An ENS exception wrapper for `ValueError`, for better control over
@@ -14,6 +23,8 @@ class ENSValueError(ENSException, ValueError):
     """
 
 
+@final
+@mypyc_attr(native_class=False)
 class ENSTypeError(ENSException, TypeError):
     """
     An ENS exception wrapper for `TypeError`, for better control over
@@ -21,6 +32,7 @@ class ENSTypeError(ENSException, TypeError):
     """
 
 
+@final
 class AddressMismatch(ENSException):
     """
     In order to set up reverse resolution correctly, the ENS name should first
@@ -29,6 +41,8 @@ class AddressMismatch(ENSException):
     """
 
 
+@final
+@mypyc_attr(native_class=False)
 class InvalidName(idna.IDNAError, ENSException):
     """
     Raised if the provided name does not meet the normalization
@@ -37,6 +51,7 @@ class InvalidName(idna.IDNAError, ENSException):
     """
 
 
+@final
 class UnauthorizedError(ENSException):
     """
     Raised if the sending account is not the owner of the name
@@ -45,6 +60,7 @@ class UnauthorizedError(ENSException):
     """
 
 
+@final
 class UnownedName(ENSException):
     """
     Raised if you are trying to modify a name that no one owns.
@@ -54,36 +70,42 @@ class UnownedName(ENSException):
     """
 
 
+@final
 class ResolverNotFound(ENSException):
     """
     Raised if no resolver was found for the name you are trying to resolve.
     """
 
 
+@final
 class UnsupportedFunction(ENSException):
     """
     Raised if a resolver does not support a particular method.
     """
 
 
+@final
 class BidTooLow(ENSException):
     """
     Raised if you bid less than the minimum amount
     """
 
 
+@final
 class InvalidBidHash(ENSException):
     """
     Raised if you supply incorrect data to generate the bid hash.
     """
 
 
+@final
 class InvalidLabel(ENSException):
     """
     Raised if you supply an invalid label
     """
 
 
+@final
 class OversizeTransaction(ENSException):
     """
     Raised if a transaction you are trying to create would cost so
@@ -93,6 +115,7 @@ class OversizeTransaction(ENSException):
     """
 
 
+@final
 class UnderfundedBid(ENSException):
     """
     Raised if you send less wei with your bid than you declared
@@ -100,6 +123,7 @@ class UnderfundedBid(ENSException):
     """
 
 
+@final
 class ENSValidationError(ENSException):
     """
     Raised if there is a validation error
