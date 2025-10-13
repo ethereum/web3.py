@@ -284,6 +284,7 @@ def test_async_ens_strict_bytes_type_checking_is_distinct_from_w3_instance(
     ),
 )
 @pytest.mark.asyncio
+@pytest.mark.skip(reason="Native functions do not support mocking.")
 async def test_async_ens_methods_normalize_name_with_ensip15(
     async_ens,
     method_str,
