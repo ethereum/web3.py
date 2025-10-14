@@ -1,8 +1,10 @@
-import pytest
+import sys
 from typing import (
     Type,
 )
 
+import pytest
+import pytest_asyncio
 from faster_eth_utils import (
     event_signature_to_log_topic,
     to_bytes,
@@ -10,7 +12,6 @@ from faster_eth_utils import (
 from faster_eth_utils.toolz import (
     identity,
 )
-import pytest_asyncio
 
 from faster_web3._utils.contract_sources.contract_data.emitter_contract import (
     EMITTER_CONTRACT_DATA,
@@ -112,4 +113,9 @@ def emitter_contract_log_topics():
 
 @pytest_asyncio.fixture(scope="function")
 def request_mocker() -> Type[RequestMocker]:
+    if sys.version_info >= (3, 14):
+        pytest.skip(
+            reason="This test is broken on Python3.14 because itertools.Counter objects are no longer picklable"
+        )
+    
     return RequestMocker
