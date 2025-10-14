@@ -50,6 +50,12 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install tox
+            
+      - name: Cache .mypy_cache
+        uses: actions/cache@v4
+        with:
+          path: .mypy_cache
+          key: mypy-cache-${{ runner.os }}-${{ hashFiles('**/*.py', 'pyproject.toml') }}
 
       - name: Cache tox environment and hypothesis examples
         uses: actions/cache@v4
