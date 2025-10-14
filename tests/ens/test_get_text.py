@@ -1,6 +1,8 @@
 import pytest
 
-from faster_eth_utils import (
+# NOTE: this comes from eth_utils and not faster_eth_utils since the
+# exception is raised within ethvm lib which uses the OG version
+from eth_utils import (
     ValidationError as EthUtilsValidationError,
 )
 
