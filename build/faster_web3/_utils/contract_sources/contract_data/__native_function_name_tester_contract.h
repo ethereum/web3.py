@@ -1,0 +1,5 @@
+#ifndef MYPYC_NATIVE_faster_web3____utils___contract_sources___contract_data___function_name_tester_contract_H
+#define MYPYC_NATIVE_faster_web3____utils___contract_sources___contract_data___function_name_tester_contract_H
+#include <Python.h>
+#include <CPy.h>
+#endif
