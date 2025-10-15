@@ -1,6 +1,14 @@
 # flake8: noqa
+from typing import (
+    Final,
+    List,
+)
 
-ENS = [
+from eth_typing import (
+    ABIElement,
+)
+
+ENS: Final[List[ABIElement]] = [
     {
         "constant": True,
         "inputs": [{"name": "node", "type": "bytes32"}],
@@ -109,7 +117,7 @@ ENS = [
     },
 ]
 
-AUCTION_REGISTRAR = [
+AUCTION_REGISTRAR: Final[List[ABIElement]] = [
     {
         "constant": False,
         "inputs": [{"name": "_hash", "type": "bytes32"}],
@@ -397,7 +405,7 @@ AUCTION_REGISTRAR = [
     },
 ]
 
-DEED = [
+DEED: Final[List[ABIElement]] = [
     {
         "constant": True,
         "inputs": [],
@@ -473,7 +481,7 @@ DEED = [
     {"anonymous": False, "inputs": [], "name": "DeedClosed", "type": "event"},
 ]
 
-FIFS_REGISTRAR = [
+FIFS_REGISTRAR: Final[List[ABIElement]] = [
     {
         "constant": True,
         "inputs": [],
@@ -518,7 +526,7 @@ FIFS_REGISTRAR = [
     },
 ]
 
-PUBLIC_RESOLVER_2 = [
+PUBLIC_RESOLVER_2: Final[List[ABIElement]] = [
     {
         "inputs": [{"internalType": "contract ENS", "name": "_ens", "type": "address"}],
         "payable": False,
@@ -1084,7 +1092,7 @@ PUBLIC_RESOLVER_2 = [
     },
 ]
 
-PUBLIC_RESOLVER_2_EXTENDED = PUBLIC_RESOLVER_2 + [
+PUBLIC_RESOLVER_2_EXTENDED: Final[List[ABIElement]] = PUBLIC_RESOLVER_2 + [
     {
         "constant": False,
         "inputs": [
@@ -1109,7 +1117,7 @@ PUBLIC_RESOLVER_2_EXTENDED = PUBLIC_RESOLVER_2 + [
     },
 ]
 
-REVERSE_RESOLVER = [
+REVERSE_RESOLVER: Final[List[ABIElement]] = [
     {
         "constant": True,
         "inputs": [],
@@ -1148,7 +1156,7 @@ REVERSE_RESOLVER = [
     },
 ]
 
-REVERSE_REGISTRAR = [
+REVERSE_REGISTRAR: Final[List[ABIElement]] = [
     {
         "constant": False,
         "inputs": [

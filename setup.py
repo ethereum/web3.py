@@ -62,63 +62,82 @@ skip_mypyc = any(
 if skip_mypyc:
     ext_modules = []
 else:
-    ext_modules = mypycify(
-        [
-            "faster_ens/_normalization.py",
-            # "faster_ens/async_ens.py",  figure out `default`
-            "faster_ens/auto.py",
-            "faster_ens/base_ens.py",
-            "faster_ens/constants.py",
-            # "faster_ens/ens.py",  figure out `default`
-            "faster_ens/exceptions.py",
-            "faster_ens/utils.py",
-            "faster_web3/beacon",
-            "faster_web3/_utils/blocks.py",
-            "faster_web3/_utils/caching",
-            "faster_web3/_utils/contracts.py",
-            "faster_web3/_utils/datatypes.py",
-            "faster_web3/_utils/decorators.py",
-            "faster_web3/_utils/encoding.py",
-            "faster_web3/_utils/fee_utils.py",
-            "faster_web3/_utils/formatters.py",
-            "faster_web3/_utils/http.py",
-            "faster_web3/_utils/http_session_manager.py",
-            "faster_web3/_utils/math.py",
-            "faster_web3/_utils/method_formatters.py",
-            "faster_web3/_utils/type_conversion.py",
-            "faster_web3/_utils/utility_methods.py",
-            "faster_web3/_utils/validation.py",
-            "faster_web3/auto",
-            "faster_web3/contract/utils.py",
-            "faster_web3/gas_strategies",
-            "faster_web3/tools/benchmark/node.py",
-            "faster_web3/tools/benchmark/reporting.py",
-            "faster_web3/tools/benchmark/utils.py",
-            "faster_web3/utils/caching.py",
-            "faster_web3/constants.py",
-            "faster_web3/types.py",
-            "--pretty",
-            "--disable-error-code=return-value",
-            "--disable-error-code=arg-type",
-            "--disable-error-code=union-attr",
-            "--disable-error-code=redundant-cast",
-            "--disable-error-code=type-arg",
-            "--disable-error-code=type-var",
-            "--disable-error-code=call-arg",
-            "--disable-error-code=call-overload",
-            "--disable-error-code=str-bytes-safe",
-            "--disable-error-code=dict-item",
-            "--disable-error-code=typeddict-item",
-            "--disable-error-code=truthy-function",
-            "--disable-error-code=var-annotated",
-            "--disable-error-code=assignment",
-            "--disable-error-code=index",
-            "--disable-error-code=operator",
-            "--disable-error-code=override",
-            "--disable-error-code=misc",
-            "--disable-error-code=unused-ignore",
-        ]
-    )
+    main_files = [
+        "faster_ens/__init__.py",
+        "faster_ens/_normalization.py",
+        # "faster_ens/async_ens.py",  figure out `default`
+        "faster_ens/auto.py",
+        "faster_ens/base_ens.py",
+        "faster_ens/constants.py",
+        # "faster_ens/ens.py",  figure out `default`
+        "faster_ens/exceptions.py",
+        "faster_ens/utils.py",
+        "faster_web3/beacon",
+        "faster_web3/_utils/blocks.py",
+        "faster_web3/_utils/caching",
+        "faster_web3/_utils/contracts.py",
+        "faster_web3/_utils/datatypes.py",
+        "faster_web3/_utils/decorators.py",
+        "faster_web3/_utils/encoding.py",
+        "faster_web3/_utils/fee_utils.py",
+        "faster_web3/_utils/formatters.py",
+        "faster_web3/_utils/http.py",
+        "faster_web3/_utils/http_session_manager.py",
+        "faster_web3/_utils/math.py",
+        "faster_web3/_utils/method_formatters.py",
+        "faster_web3/_utils/type_conversion.py",
+        "faster_web3/_utils/utility_methods.py",
+        "faster_web3/_utils/validation.py",
+        "faster_web3/auto",
+        "faster_web3/contract/utils.py",
+        "faster_web3/gas_strategies",
+        "faster_web3/tools/benchmark/node.py",
+        "faster_web3/tools/benchmark/reporting.py",
+        "faster_web3/tools/benchmark/utils.py",
+        "faster_web3/utils/caching.py",
+        "faster_web3/constants.py",
+        "faster_web3/types.py",
+    ]
+
+    # these do not need to be part of the same compilation unit as the rest of the library
+    data_files = [
+        "faster_ens/abis.py",
+        "faster_ens/contract_data.py",
+    ]
+
+    flags = [
+        "--pretty",
+        "--disable-error-code=return-value",
+        "--disable-error-code=arg-type",
+        "--disable-error-code=union-attr",
+        "--disable-error-code=redundant-cast",
+        "--disable-error-code=type-arg",
+        "--disable-error-code=type-var",
+        "--disable-error-code=call-arg",
+        "--disable-error-code=call-overload",
+        "--disable-error-code=str-bytes-safe",
+        "--disable-error-code=dict-item",
+        "--disable-error-code=typeddict-item",
+        "--disable-error-code=truthy-function",
+        "--disable-error-code=var-annotated",
+        "--disable-error-code=assignment",
+        "--disable-error-code=index",
+        "--disable-error-code=operator",
+        "--disable-error-code=override",
+        "--disable-error-code=misc",
+        "--disable-error-code=unused-ignore",
+    ]
+
+    ext_modules = []
+    
+    main_unit = mypycify(main_files + flags)
+    ext_modules.extend(main_unit)
+    
+    # these do not need to be part of the same compilation unit as the rest of the library
+    for data_file in data_files:
+        data_unit = mypycify([data_file] + flags)
+        ext_modules.extend(data_unit)
+        
 
 setup(
     name="faster_web3",
