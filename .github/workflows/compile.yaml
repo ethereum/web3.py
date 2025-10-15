@@ -42,10 +42,22 @@ jobs:
         with:
           path: .mypy_cache
           key: mypy-cache-${{ runner.os }}-${{ hashFiles('**/*.py', 'pyproject.toml') }}
+      
+      - name: Restore ccache cache
+        id: restore-ccache
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.cache/ccache
+          key: ccache-${{ runner.os }}-${{ hashFiles('setup.py', 'pyproject.toml') }}-${{ hashFiles('**/*.h', '**/*.c', '**/*.py') }}
+          restore-keys: ccache-${{ runner.os }}-${{ hashFiles('setup.py', 'pyproject.toml') }}-
+
+      - name: Install ccache
+        run: sudo apt-get update && sudo apt-get install -y ccache
         
       - name: Run Mypyc
         env:
           MYPYC_STRICT_DUNDER_TYPING: 1
+          CC: ccache gcc
         run: pip install .
 
       - name: Normalize C files for diffchecking
@@ -78,3 +90,9 @@ jobs:
           git add .
           git commit -m "chore: compile C files for source control"
           git push
+      
+      - name: Save ccache cache
+        uses: actions/cache/save@v4
+        with:
+          path: ~/.cache/ccache
+          key: ccache-${{ runner.os }}-${{ hashFiles('setup.py', 'pyproject.toml') }}-${{ hashFiles('**/*.h', '**/*.c', '**/*.py') }}

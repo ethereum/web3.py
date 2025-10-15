@@ -41,8 +41,21 @@ jobs:
         with:
           path: .mypy_cache
           key: mypy-cache-${{ runner.os }}-${{ hashFiles('**/*.py', 'pyproject.toml') }}
+        
+      - name: Restore ccache cache
+        id: restore-ccache
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.cache/ccache
+          key: ccache-${{ runner.os }}-${{ hashFiles('setup.py', 'pyproject.toml') }}-${{ hashFiles('**/*.h', '**/*.c', '**/*.py') }}
+          restore-keys: ccache-${{ runner.os }}-${{ hashFiles('setup.py', 'pyproject.toml') }}-
+
+      - name: Install ccache
+        run: sudo apt-get update && sudo apt-get install -y ccache
           
       - name: Install dependencies
+        env:
+          CC: ccache gcc
         run: |
           python -m pip install --upgrade pip
           pip install .[dev] pytest-codspeed web3
@@ -57,3 +70,9 @@ jobs:
         with:
           mode: instrumentation
           run: pytest --codspeed -k "test_faster_" benchmarks/
+
+      - name: Save ccache cache
+        uses: actions/cache/save@v4
+        with:
+          path: ~/.cache/ccache
+          key: ccache-${{ runner.os }}-${{ hashFiles('setup.py', 'pyproject.toml') }}-${{ hashFiles('**/*.h', '**/*.c', '**/*.py') }}
