@@ -79,7 +79,7 @@ class AsyncEthereumTesterProvider(AsyncBaseProvider):
         )
 
         self.ethereum_tester = EthereumTester()
-        self.api_endpoints = API_ENDPOINTS
+        self.api_endpoints = API_ENDPOINTS.copy()
 
     async def request_func(
         self, async_w3: "AsyncWeb3", middleware_onion: "MiddlewareOnion"
@@ -160,7 +160,7 @@ class EthereumTesterProvider(BaseProvider):
                 API_ENDPOINTS,
             )
 
-            self.api_endpoints = API_ENDPOINTS
+            self.api_endpoints = API_ENDPOINTS.copy()
         else:
             self.api_endpoints = api_endpoints
 

@@ -75,7 +75,6 @@ else:
         # "faster_ens/ens.py",  figure out `default`
         "faster_ens/exceptions.py",
         "faster_ens/utils.py",
-        "faster_web3/beacon",
         "faster_web3/_utils/blocks.py",
         "faster_web3/_utils/caching",
         "faster_web3/_utils/contracts.py",
@@ -92,14 +91,17 @@ else:
         "faster_web3/_utils/utility_methods.py",
         "faster_web3/_utils/validation.py",
         "faster_web3/auto",
+        "faster_web3/beacon",
+        "faster_web3/constants.py",
         "faster_web3/contract/utils.py",
         "faster_web3/gas_strategies",
+        "faster_web3/providers/eth_tester/defaults.py",
+        "faster_web3/providers/eth_tester/middleware.py",
         "faster_web3/tools/benchmark/node.py",
         "faster_web3/tools/benchmark/reporting.py",
         "faster_web3/tools/benchmark/utils.py",
-        "faster_web3/utils/caching.py",
-        "faster_web3/constants.py",
         "faster_web3/types.py",
+        "faster_web3/utils/caching.py",
     ]
 
     # these do not need to be part of the same compilation unit as the rest of the library

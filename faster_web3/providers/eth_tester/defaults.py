@@ -6,11 +6,13 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
+    Final,
     List,
     NoReturn,
     Optional,
     Tuple,
     Type,
+    TypeVar,
 )
 
 from faster_eth_abi import (
@@ -40,6 +42,9 @@ from faster_eth_utils.toolz import (
     curry,
     excepts,
 )
+from typing_extensions import (
+    ParamSpec,
+)
 
 from faster_web3 import (
     Web3,
@@ -65,6 +70,10 @@ if TYPE_CHECKING:
     from eth_tester import (  # noqa: F401
         EthereumTester,
     )
+
+
+P = ParamSpec("P")
+T = TypeVar("T")
 
 
 def not_implemented(*args: Any, **kwargs: Any) -> NoReturn:
@@ -161,21 +170,22 @@ def client_version(eth_tester: "EthereumTester", params: Any) -> str:
     return f"EthereumTester/{__version__}/{sys.platform}/python{v.major}.{v.minor}.{v.micro}"  # noqa: E501
 
 
-@curry
 def null_if_excepts(
-    exc_type: Type[BaseException], fn: Callable[..., TReturn]
-) -> Callable[..., TReturn]:
-    return excepts(
-        exc_type,
-        fn,
-        static_return(None),
-    )
+    exc_type: Type[BaseException],
+) -> Callable[[Callable[P, T]], Callable[P, Optional[T]]]:
+    def null_if_excepts_decorator(fn: Callable[P, T]) -> Callable[P, Optional[T]]:
+        return excepts(
+            exc_type,
+            fn,
+            static_return(None),
+        )
+    return null_if_excepts_decorator
 
 
-null_if_block_not_found = null_if_excepts(BlockNotFound)
-null_if_transaction_not_found = null_if_excepts(TransactionNotFound)
-null_if_filter_not_found = null_if_excepts(FilterNotFound)
-null_if_indexerror = null_if_excepts(IndexError)
+null_if_block_not_found: Final = null_if_excepts(BlockNotFound)
+null_if_transaction_not_found: Final = null_if_excepts(TransactionNotFound)
+null_if_filter_not_found: Final = null_if_excepts(FilterNotFound)
+null_if_indexerror: Final = null_if_excepts(IndexError)
 
 
 @null_if_indexerror
@@ -225,7 +235,7 @@ def create_new_account(eth_tester: "EthereumTester") -> HexAddress:
     return eth_tester.add_account(_generate_random_private_key())
 
 
-API_ENDPOINTS = {
+API_ENDPOINTS: Final = {
     "web3": {
         "clientVersion": client_version,
         "sha3": compose(
