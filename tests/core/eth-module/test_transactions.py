@@ -517,6 +517,126 @@ async def test_async_send_raw_blob_transaction(async_w3):
 
 
 @pytest.mark.asyncio
+async def test_async_send_raw_blob_transaction_with_access_list(async_w3):
+    """
+    Test Type 3 (blob) transaction WITH accessList field.
+    
+    This test combines EIP-4844 (blob data) with EIP-2930 (access list).
+    Closes gap identified in issue #3707.
+    """
+    # `eth-tester` account #1's pkey is "0x00000000...01"
+    acct = async_w3.eth.account.from_key(f"0x{'00' * 31}01")
+
+    # Prepare blob data (same as existing blob test)
+    text = "We are the music makers and we are the dreamers of dreams."
+    encoded_text = async_w3.codec.encode(["string"], [text])
+    blob_data = (b"\x00" * 32 * (4096 - len(encoded_text) // 32)) + encoded_text
+
+    # Type 3 transaction with BOTH blob fields AND accessList
+    tx = {
+        "type": 3,  # Blob transaction
+        "chainId": 1337,
+        "from": acct.address,
+        "to": "0xb45BEc6eeCA2a09f4689Dd308F550Ad7855051B5",
+        "value": 0,
+        "gas": 21000,
+        "maxFeePerGas": 10**10,
+        "maxPriorityFeePerGas": 10**10,
+        "maxFeePerBlobGas": 10**10,
+        "nonce": await async_w3.eth.get_transaction_count(acct.address),
+        # Add accessList field (this was missing in current tests)
+        "accessList": (
+            {
+                "address": "0xd3CdA913deB6f67967B99D67aCDFa1712C293601",
+                "storageKeys": (
+                    "0x0000000000000000000000000000000000000000000000000000000000000003",
+                    "0x0000000000000000000000000000000000000000000000000000000000000007",
+                ),
+            },
+            {
+                "address": "0xbb9bc244d798123fde783fcc1c72d3bb8c189413",
+                "storageKeys": (),
+            },
+        ),
+    }
+
+    # Sign transaction with blob data
+    signed = acct.sign_transaction(tx, blobs=[blob_data])
+
+    # Send and verify
+    tx_hash = await async_w3.eth.send_raw_transaction(signed.raw_transaction)
+    transaction = await async_w3.eth.get_transaction(tx_hash)
+
+    # Verify BOTH blob fields AND accessList are present
+    assert len(transaction["blobVersionedHashes"]) == 1
+    assert transaction["blobVersionedHashes"][0] == HexBytes(
+        "0x0127c38bcad458d932e828b580b9ad97310be01407dfa0ed88118735980a3e9a"
+    )
+    
+    # Verify accessList was included
+    assert "accessList" in transaction
+    assert len(transaction["accessList"]) == 2
+    assert transaction["accessList"][0]["address"] == "0xd3CdA913deB6f67967B99D67aCDFa1712C293601"
+    assert len(transaction["accessList"][0]["storageKeys"]) == 2
+
+
+def test_send_raw_blob_transaction_with_access_list(w3):
+    """
+    Test Type 3 (blob) transaction WITH accessList field (sync version).
+    
+    This is the synchronous version of test_async_send_raw_blob_transaction_with_access_list.
+    Closes gap identified in issue #3707.
+    """
+    # `eth-tester` account #1's pkey is "0x00000000...01"
+    acct = w3.eth.account.from_key(f"0x{'00' * 31}01")
+
+    # Prepare blob data
+    text = "We are the music makers and we are the dreamers of dreams."
+    encoded_text = w3.codec.encode(["string"], [text])
+    blob_data = (b"\x00" * 32 * (4096 - len(encoded_text) // 32)) + encoded_text
+
+    # Type 3 transaction with BOTH blob fields AND accessList
+    tx = {
+        "type": 3,
+        "chainId": 1337,
+        "from": acct.address,
+        "to": "0xb45BEc6eeCA2a09f4689Dd308F550Ad7855051B5",
+        "value": 0,
+        "gas": 21000,
+        "maxFeePerGas": 10**10,
+        "maxPriorityFeePerGas": 10**10,
+        "maxFeePerBlobGas": 10**10,
+        "nonce": w3.eth.get_transaction_count(acct.address),
+        "accessList": (
+            {
+                "address": "0xd3CdA913deB6f67967B99D67aCDFa1712C293601",
+                "storageKeys": (
+                    "0x0000000000000000000000000000000000000000000000000000000000000003",
+                    "0x0000000000000000000000000000000000000000000000000000000000000007",
+                ),
+            },
+            {
+                "address": "0xbb9bc244d798123fde783fcc1c72d3bb8c189413",
+                "storageKeys": (),
+            },
+        ),
+    }
+
+    # Sign and send
+    signed = acct.sign_transaction(tx, blobs=[blob_data])
+    tx_hash = w3.eth.send_raw_transaction(signed.raw_transaction)
+    transaction = w3.eth.get_transaction(tx_hash)
+
+    # Assertions
+    assert len(transaction["blobVersionedHashes"]) == 1
+    assert transaction["blobVersionedHashes"][0] == HexBytes(
+        "0x0127c38bcad458d932e828b580b9ad97310be01407dfa0ed88118735980a3e9a"
+    )
+    assert "accessList" in transaction
+    assert len(transaction["accessList"]) == 2
+
+
+@pytest.mark.asyncio
 async def test_async_send_set_code_transaction(async_w3, async_math_contract):
     pkey = async_w3.provider.ethereum_tester.backend.account_keys[0]
     acct = Account.from_key(pkey)
