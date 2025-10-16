@@ -72,7 +72,9 @@ if TYPE_CHECKING:
         AsyncContract,
         AsyncContractFunction,
     )
-    from web3.main import AsyncWeb3  # noqa: F401
+    from web3.main import (  # noqa: F401
+        AsyncWeb3,
+    )
     from web3.middleware.base import (  # noqa: F401
         Middleware,
     )
@@ -100,8 +102,8 @@ class AsyncENS(BaseENS):
 
     def __init__(
         self,
-        provider: "AsyncBaseProvider" = None,
-        addr: ChecksumAddress = None,
+        provider: Optional["AsyncBaseProvider"] = None,
+        addr: Optional[ChecksumAddress] = None,
         middleware: Optional[Sequence[Tuple["Middleware", str]]] = None,
     ) -> None:
         """

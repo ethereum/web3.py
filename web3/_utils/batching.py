@@ -167,9 +167,9 @@ class RequestBatcher(Generic[TFunc]):
     async def async_execute(self) -> List["RPCResponse"]:
         self._validate_is_batching()
         if self._provider.has_persistent_connection:
-            responses = await cast(
-                "AsyncWeb3[Any]", self.web3
-            ).manager._async_make_socket_batch_request(self._async_requests_info)
+            responses = await self.web3.manager._async_make_socket_batch_request(
+                self._async_requests_info
+            )
         else:
             responses = await self.web3.manager._async_make_batch_request(
                 self._async_requests_info

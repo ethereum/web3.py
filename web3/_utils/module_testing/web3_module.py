@@ -717,9 +717,7 @@ class AsyncWeb3ModuleTest(Web3ModuleTest):
         assert cast(BlockData, r3)["number"] == 6
 
     @pytest.mark.asyncio
-    async def test_batch_requests_cancel(
-        self, async_w3: AsyncWeb3[Any]
-    ) -> None:  # noqa: E501
+    async def test_batch_requests_cancel(self, async_w3: AsyncWeb3[Any]) -> None:
         # as context manager
         async with async_w3.batch_requests() as batch:
             batch.add(async_w3.eth.get_block(1))
@@ -759,10 +757,10 @@ class AsyncWeb3ModuleTest(Web3ModuleTest):
         assert isinstance(block_num, int)
 
     @pytest.mark.asyncio
-    async def test_batch_requests_raises_for_common_unsupported_methods(  # noqa: E501
+    async def test_batch_requests_raises_for_common_unsupported_methods(
         self,
         async_w3: AsyncWeb3[Any],
-        async_math_contract: "AsyncContract",  # noqa: E501
+        async_math_contract: "AsyncContract",
     ) -> None:
         async with async_w3.batch_requests() as batch:
             with pytest.raises(MethodNotSupported, match="eth_sendTransaction"):
@@ -785,7 +783,7 @@ class AsyncWeb3ModuleTest(Web3ModuleTest):
                 await batch.async_execute()
 
     @pytest.mark.asyncio
-    async def test_batch_requests_concurrently_with_regular_requests(  # noqa: E501
+    async def test_batch_requests_concurrently_with_regular_requests(
         self, async_w3: AsyncWeb3[Any]
     ) -> None:
         responses = []

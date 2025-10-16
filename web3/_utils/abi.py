@@ -101,7 +101,9 @@ from web3.types import (
 )
 
 if TYPE_CHECKING:
-    from web3.main import AsyncWeb3  # noqa: F401
+    from web3 import (  # noqa: F401
+        AsyncWeb3,
+    )
 
 
 def fallback_func_abi_exists(contract_abi: ABI) -> Sequence[ABIFallback]:
