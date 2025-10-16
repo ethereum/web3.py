@@ -35,9 +35,9 @@ class Web3Middleware:
     but instead inherited from.
     """
 
-    _w3: Union["AsyncWeb3", "Web3"]
+    _w3: Union["AsyncWeb3[Any]", "Web3"]
 
-    def __init__(self, w3: Union["AsyncWeb3", "Web3"]) -> None:
+    def __init__(self, w3: Union["AsyncWeb3[Any]", "Web3"]) -> None:
         self._w3 = w3
 
     def __hash__(self) -> int:
@@ -61,7 +61,7 @@ class Web3Middleware:
         self, make_batch_request: "MakeBatchRequestFn"
     ) -> "MakeBatchRequestFn":
         def middleware(
-            requests_info: List[Tuple["RPCEndpoint", Any]]
+            requests_info: List[Tuple["RPCEndpoint", Any]],
         ) -> Union[List["RPCResponse"], "RPCResponse"]:
             req_processed = [
                 self.request_processor(method, params)
@@ -106,7 +106,7 @@ class Web3Middleware:
         self, make_batch_request: "AsyncMakeBatchRequestFn"
     ) -> "AsyncMakeBatchRequestFn":
         async def middleware(
-            requests_info: List[Tuple["RPCEndpoint", Any]]
+            requests_info: List[Tuple["RPCEndpoint", Any]],
         ) -> Union[List["RPCResponse"], "RPCResponse"]:
             req_processed = [
                 await self.async_request_processor(method, params)
@@ -145,7 +145,7 @@ class Web3MiddlewareBuilder(Web3Middleware):
     @staticmethod
     @abstractmethod
     def build(
-        w3: Union["AsyncWeb3", "Web3"],
+        w3: Union["AsyncWeb3[Any]", "Web3"],
         *args: Any,
         **kwargs: Any,
     ) -> Web3Middleware:

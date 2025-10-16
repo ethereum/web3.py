@@ -357,7 +357,8 @@ def block_hashes_in_range(
 
 
 async def async_iter_latest_block(
-    w3: "AsyncWeb3", to_block: Optional[Union[BlockNumber, LatestBlockParam]] = None
+    w3: "AsyncWeb3[Any]",
+    to_block: Optional[Union[BlockNumber, LatestBlockParam]] = None,
 ) -> AsyncIterable[BlockNumber]:
     """
     Returns a generator that dispenses the latest block, if
@@ -394,7 +395,7 @@ async def async_iter_latest_block(
 
 
 async def async_iter_latest_block_ranges(
-    w3: "AsyncWeb3",
+    w3: "AsyncWeb3[Any]",
     from_block: BlockNumber,
     to_block: Optional[Union[BlockNumber, LatestBlockParam]] = None,
 ) -> AsyncIterable[Tuple[Optional[BlockNumber], Optional[BlockNumber]]]:
@@ -425,7 +426,7 @@ async def async_iter_latest_block_ranges(
 
 
 async def async_get_logs_multipart(
-    w3: "AsyncWeb3",
+    w3: "AsyncWeb3[Any]",
     start_block: BlockNumber,
     stop_block: BlockNumber,
     address: Union[Address, ChecksumAddress, List[Union[Address, ChecksumAddress]]],
@@ -458,7 +459,7 @@ class AsyncRequestLogs:
 
     def __init__(
         self,
-        w3: "AsyncWeb3",
+        w3: "AsyncWeb3[Any]",
         from_block: Optional[Union[BlockNumber, LatestBlockParam]] = None,
         to_block: Optional[Union[BlockNumber, LatestBlockParam]] = None,
         address: Optional[
@@ -544,7 +545,7 @@ class AsyncRequestLogs:
 
 
 class AsyncRequestBlocks:
-    def __init__(self, w3: "AsyncWeb3") -> None:
+    def __init__(self, w3: "AsyncWeb3[Any]") -> None:
         self.w3 = w3
 
     def __await__(self) -> Generator[Any, None, "AsyncRequestBlocks"]:
@@ -569,7 +570,7 @@ class AsyncRequestBlocks:
 
 
 async def async_block_hashes_in_range(
-    w3: "AsyncWeb3", block_range: Tuple[BlockNumber, BlockNumber]
+    w3: "AsyncWeb3[Any]", block_range: Tuple[BlockNumber, BlockNumber]
 ) -> List[Union[None, Hash32]]:
     from_block, to_block = block_range
     if from_block is None or to_block is None:
@@ -594,7 +595,7 @@ def _simulate_rpc_response_with_result(filter_id: str) -> "RPCResponse":
 
 
 class LocalFilterMiddleware(Web3Middleware):
-    def __init__(self, w3: Union["Web3", "AsyncWeb3"]):
+    def __init__(self, w3: Union["Web3", "AsyncWeb3[Any]"]):
         self.filters: Dict[str, SyncFilter] = {}
         self.async_filters: Dict[str, AsyncFilter] = {}
         self.filter_id_counter = itertools.count()
@@ -660,12 +661,12 @@ class LocalFilterMiddleware(Web3Middleware):
 
                 if method == RPC.eth_newFilter:
                     _filter = await AsyncRequestLogs(
-                        cast("AsyncWeb3", self._w3),
+                        cast("AsyncWeb3[Any]", self._w3),
                         **apply_key_map(FILTER_PARAMS_KEY_MAP, params[0])
                     )
 
                 elif method == RPC.eth_newBlockFilter:
-                    _filter = await AsyncRequestBlocks(cast("AsyncWeb3", self._w3))
+                    _filter = await AsyncRequestBlocks(cast("AsyncWeb3[Any]", self._w3))
 
                 else:
                     raise NotImplementedError(method)

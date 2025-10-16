@@ -112,7 +112,7 @@ class AsyncBaseProvider:
         return self._batching_context.get() is not None
 
     async def request_func(
-        self, async_w3: "AsyncWeb3", middleware_onion: MiddlewareOnion
+        self, async_w3: "AsyncWeb3[Any]", middleware_onion: MiddlewareOnion
     ) -> Callable[..., Coroutine[Any, Any, RPCResponse]]:
         middleware: Tuple[Middleware, ...] = middleware_onion.as_tuple_of_middleware()
 
@@ -129,7 +129,7 @@ class AsyncBaseProvider:
         return self._request_func_cache[-1]
 
     async def batch_request_func(
-        self, async_w3: "AsyncWeb3", middleware_onion: MiddlewareOnion
+        self, async_w3: "AsyncWeb3[Any]", middleware_onion: MiddlewareOnion
     ) -> Callable[..., Coroutine[Any, Any, Union[List[RPCResponse], RPCResponse]]]:
         middleware: Tuple[Middleware, ...] = middleware_onion.as_tuple_of_middleware()
 

@@ -105,7 +105,7 @@ class RequestManager:
 
     def __init__(
         self,
-        w3: Union["AsyncWeb3", "Web3"],
+        w3: Union["AsyncWeb3[Any]", "Web3"],
         provider: Optional[Union["BaseProvider", "AsyncBaseProvider"]] = None,
         middleware: Optional[Sequence[Tuple[Middleware, str]]] = None,
     ) -> None:
@@ -167,7 +167,8 @@ class RequestManager:
     ) -> RPCResponse:
         provider = cast("AsyncBaseProvider", self.provider)
         request_func = await provider.request_func(
-            cast("AsyncWeb3", self.w3), cast("MiddlewareOnion", self.middleware_onion)
+            cast("AsyncWeb3[Any]", self.w3),
+            cast("MiddlewareOnion", self.middleware_onion),
         )
         self.logger.debug("Making request. Method: %s", method)
         return await request_func(method, params)
@@ -299,7 +300,7 @@ class RequestManager:
         """
         provider = cast(AsyncJSONBaseProvider, self.provider)
         request_func = await provider.batch_request_func(
-            cast("AsyncWeb3", self.w3),
+            cast("AsyncWeb3[Any]", self.w3),
             cast("MiddlewareOnion", self.middleware_onion),
         )
         # since we add items to the batch without awaiting, we unpack the coroutines
@@ -336,7 +337,7 @@ class RequestManager:
                 "can send batch requests."
             )
         send_func = await self._provider.send_batch_func(
-            cast("AsyncWeb3", self.w3),
+            cast("AsyncWeb3[Any]", self.w3),
             cast("MiddlewareOnion", self.middleware_onion),
         )
         self.logger.debug(
@@ -355,7 +356,7 @@ class RequestManager:
                 "can receive batch requests."
             )
         recv_func = await self._provider.recv_batch_func(
-            cast("AsyncWeb3", self.w3),
+            cast("AsyncWeb3[Any]", self.w3),
             cast("MiddlewareOnion", self.middleware_onion),
         )
         self.logger.debug(
@@ -457,7 +458,7 @@ class RequestManager:
 
     async def send(self, method: RPCEndpoint, params: Any) -> RPCRequest:
         provider = cast(PersistentConnectionProvider, self._provider)
-        async_w3 = cast("AsyncWeb3", self.w3)
+        async_w3 = cast("AsyncWeb3[Any]", self.w3)
         middleware_onion = cast("MiddlewareOnion", self.middleware_onion)
         send_func = await provider.send_func(
             async_w3,
@@ -475,7 +476,7 @@ class RequestManager:
 
     async def recv_for_request(self, rpc_request: RPCRequest) -> RPCResponse:
         provider = cast(PersistentConnectionProvider, self._provider)
-        async_w3 = cast("AsyncWeb3", self.w3)
+        async_w3 = cast("AsyncWeb3[Any]", self.w3)
         middleware_onion = cast("MiddlewareOnion", self.middleware_onion)
         recv_func = await provider.recv_func(
             async_w3,
@@ -523,7 +524,7 @@ class RequestManager:
                 "Only providers that maintain an open, persistent connection "
                 "can listen to streams."
             )
-        async_w3 = cast("AsyncWeb3", self.w3)
+        async_w3 = cast("AsyncWeb3[Any]", self.w3)
 
         if self._provider._message_listener_task is None:
             raise ProviderConnectionError(

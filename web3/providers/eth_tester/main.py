@@ -82,7 +82,7 @@ class AsyncEthereumTesterProvider(AsyncBaseProvider):
         self.api_endpoints = API_ENDPOINTS
 
     async def request_func(
-        self, async_w3: "AsyncWeb3", middleware_onion: "MiddlewareOnion"
+        self, async_w3: "AsyncWeb3[Any]", middleware_onion: "MiddlewareOnion"
     ) -> Callable[..., Coroutine[Any, Any, RPCResponse]]:
         # override the request_func to add the ethereum_tester_middleware
 

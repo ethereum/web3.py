@@ -51,7 +51,7 @@ class StalecheckMiddlewareBuilder(Web3MiddlewareBuilder):
     @curry
     def build(
         allowable_delay: int,
-        w3: Union["Web3", "AsyncWeb3"],
+        w3: Union["Web3", "AsyncWeb3[Any]"],
         skip_stalecheck_for_methods: Collection[str] = SKIP_STALECHECK_FOR_METHODS,
     ) -> Web3Middleware:
         if allowable_delay <= 0:
@@ -82,7 +82,7 @@ class StalecheckMiddlewareBuilder(Web3MiddlewareBuilder):
     async def async_request_processor(self, method: "RPCEndpoint", params: Any) -> Any:
         if method not in self.skip_stalecheck_for_methods:
             if not _is_fresh(self.cache["latest"], self.allowable_delay):
-                w3 = cast("AsyncWeb3", self._w3)
+                w3 = cast("AsyncWeb3[Any]", self._w3)
                 latest = await w3.eth.get_block("latest")
 
                 if _is_fresh(latest, self.allowable_delay):

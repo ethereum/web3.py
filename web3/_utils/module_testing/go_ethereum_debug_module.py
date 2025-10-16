@@ -1,5 +1,6 @@
 import pytest
 from typing import (
+    Any,
     cast,
 )
 
@@ -24,7 +25,7 @@ from web3.types import (
 class GoEthereumAsyncDebugModuleTest:
     @pytest.mark.asyncio
     async def test_async_geth_debug_trace_transaction_opcode_logger(
-        self, async_w3: "AsyncWeb3", txn_hash_with_log: HexStr
+        self, async_w3: "AsyncWeb3[Any]", txn_hash_with_log: HexStr
     ) -> None:
         result = await async_w3.geth.debug.trace_transaction(txn_hash_with_log)
         assert "structLogs" in dict(result).keys()
@@ -33,7 +34,7 @@ class GoEthereumAsyncDebugModuleTest:
 
     @pytest.mark.asyncio
     async def test_async_geth_debug_trace_transaction_call_tracer(
-        self, async_w3: "AsyncWeb3", txn_hash_with_log: HexStr
+        self, async_w3: "AsyncWeb3[Any]", txn_hash_with_log: HexStr
     ) -> None:
         result = cast(
             CallTrace,
@@ -45,7 +46,7 @@ class GoEthereumAsyncDebugModuleTest:
 
     @pytest.mark.asyncio
     async def test_async_geth_debug_trace_transaction_prestate_tracer_diffMode(
-        self, async_w3: "AsyncWeb3", txn_hash_with_log: HexStr
+        self, async_w3: "AsyncWeb3[Any]", txn_hash_with_log: HexStr
     ) -> None:
         result = cast(
             DiffModeTrace,
@@ -60,7 +61,7 @@ class GoEthereumAsyncDebugModuleTest:
     @pytest.mark.asyncio
     async def test_async_geth_debug_trace_transaction_prestate_tracer(
         self,
-        async_w3: "AsyncWeb3",
+        async_w3: "AsyncWeb3[Any]",
         txn_hash_with_log: HexStr,
         async_block_with_txn_with_log: BlockData,
     ) -> None:

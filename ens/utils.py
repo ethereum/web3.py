@@ -302,7 +302,7 @@ def is_valid_ens_name(ens_name: str) -> bool:
 def init_async_web3(
     provider: "AsyncBaseProvider" = None,
     middleware: Optional[Sequence[Tuple["Middleware", str]]] = (),
-) -> "AsyncWeb3":
+) -> "AsyncWeb3[Any]":
     from web3 import (
         AsyncWeb3 as AsyncWeb3Main,
     )
@@ -327,6 +327,7 @@ def init_async_web3(
             )
         )
 
+    async_w3: "AsyncWeb3[Any]"
     if provider is default:
         async_w3 = AsyncWeb3Main(
             middleware=middleware, ens=None, modules={"eth": (AsyncEthMain)}

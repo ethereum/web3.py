@@ -132,7 +132,7 @@ def async_mock_offchain_lookup_request_response(
 
         @staticmethod
         def raise_for_status() -> None:
-            raise Exception("called raise_for_status()")  # noqa: E501, E704
+            raise Exception("called raise_for_status()")  # noqa: E704
 
     async def _mock_specific_request(
         *args: Any, **kwargs: Any

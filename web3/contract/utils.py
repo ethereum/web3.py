@@ -85,7 +85,7 @@ ACCEPTABLE_EMPTY_STRINGS = ["0x", b"0x", "", b""]
 
 @curry
 def format_contract_call_return_data_curried(
-    async_w3: Union["AsyncWeb3", "Web3"],
+    async_w3: Union["AsyncWeb3[Any]", "Web3"],
     decode_tuples: bool,
     fn_abi: ABICallable,
     abi_element_identifier: ABIElementIdentifier,
@@ -332,7 +332,7 @@ def build_transaction_for_function(
 
 def find_functions_by_identifier(
     contract_abi: ABI,
-    w3: Union["Web3", "AsyncWeb3"],
+    w3: Union["Web3", "AsyncWeb3[Any]"],
     address: ChecksumAddress,
     callable_check: Callable[..., Any],
     function_type: Type[TContractFn],
@@ -376,7 +376,7 @@ def get_function_by_identifier(
 
 def find_events_by_identifier(
     contract_abi: ABI,
-    w3: Union["Web3", "AsyncWeb3"],
+    w3: Union["Web3", "AsyncWeb3[Any]"],
     address: ChecksumAddress,
     callable_check: Callable[..., Any],
     event_type: Type[TContractEvent],
@@ -418,7 +418,7 @@ def get_event_by_identifier(
 
 
 async def async_call_contract_function(
-    async_w3: "AsyncWeb3",
+    async_w3: "AsyncWeb3[Any]",
     address: ChecksumAddress,
     normalizers: Tuple[Callable[..., Any], ...],
     abi_element_identifier: ABIElementIdentifier,
@@ -534,7 +534,7 @@ async def async_call_contract_function(
 
 async def async_transact_with_contract_function(
     address: ChecksumAddress,
-    async_w3: "AsyncWeb3",
+    async_w3: "AsyncWeb3[Any]",
     abi_element_identifier: Optional[ABIElementIdentifier] = None,
     transaction: Optional[TxParams] = None,
     contract_abi: Optional[ABI] = None,
@@ -563,7 +563,7 @@ async def async_transact_with_contract_function(
 
 async def async_estimate_gas_for_function(
     address: ChecksumAddress,
-    async_w3: "AsyncWeb3",
+    async_w3: "AsyncWeb3[Any]",
     abi_element_identifier: Optional[ABIElementIdentifier] = None,
     transaction: Optional[TxParams] = None,
     contract_abi: Optional[ABI] = None,
@@ -597,7 +597,7 @@ async def async_estimate_gas_for_function(
 
 async def async_build_transaction_for_function(
     address: ChecksumAddress,
-    async_w3: "AsyncWeb3",
+    async_w3: "AsyncWeb3[Any]",
     abi_element_identifier: Optional[ABIElementIdentifier] = None,
     transaction: Optional[TxParams] = None,
     contract_abi: Optional[ABI] = None,

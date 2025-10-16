@@ -103,7 +103,7 @@ if TYPE_CHECKING:
 
 class AsyncContractEvent(BaseContractEvent):
     # mypy types
-    w3: "AsyncWeb3"
+    w3: "AsyncWeb3[Any]"
 
     @combomethod
     async def get_logs(
@@ -238,14 +238,14 @@ class AsyncContractEvent(BaseContractEvent):
 
 class AsyncContractEvents(BaseContractEvents[AsyncContractEvent]):
     def __init__(
-        self, abi: ABI, w3: "AsyncWeb3", address: Optional[ChecksumAddress] = None
+        self, abi: ABI, w3: "AsyncWeb3[Any]", address: Optional[ChecksumAddress] = None
     ) -> None:
         super().__init__(abi, w3, AsyncContractEvent, address)
 
 
 class AsyncContractFunction(BaseContractFunction):
     # mypy types
-    w3: "AsyncWeb3"
+    w3: "AsyncWeb3[Any]"
 
     async def call(
         self,
@@ -357,7 +357,7 @@ class AsyncContractFunction(BaseContractFunction):
     @staticmethod
     def get_fallback_function(
         abi: ABI,
-        async_w3: "AsyncWeb3",
+        async_w3: "AsyncWeb3[Any]",
         address: Optional[ChecksumAddress] = None,
     ) -> "AsyncContractFunction":
         if abi and fallback_func_abi_exists(abi):
@@ -373,7 +373,7 @@ class AsyncContractFunction(BaseContractFunction):
     @staticmethod
     def get_receive_function(
         abi: ABI,
-        async_w3: "AsyncWeb3",
+        async_w3: "AsyncWeb3[Any]",
         address: Optional[ChecksumAddress] = None,
     ) -> "AsyncContractFunction":
         if abi and receive_func_abi_exists(abi):
@@ -391,7 +391,7 @@ class AsyncContractFunctions(BaseContractFunctions[AsyncContractFunction]):
     def __init__(
         self,
         abi: ABI,
-        w3: "AsyncWeb3",
+        w3: "AsyncWeb3[Any]",
         address: Optional[ChecksumAddress] = None,
         decode_tuples: Optional[bool] = False,
     ) -> None:
@@ -403,7 +403,7 @@ class AsyncContract(BaseContract):
     caller: "AsyncContractCaller" = None
 
     # mypy types
-    w3: "AsyncWeb3"
+    w3: "AsyncWeb3[Any]"
 
     #: Instance of :class:`ContractEvents` presenting available Event ABIs
     events: AsyncContractEvents = None
@@ -447,7 +447,7 @@ class AsyncContract(BaseContract):
 
     @classmethod
     def factory(
-        cls, w3: "AsyncWeb3", class_name: Optional[str] = None, **kwargs: Any
+        cls, w3: "AsyncWeb3[Any]", class_name: Optional[str] = None, **kwargs: Any
     ) -> Type[Self]:
         kwargs["w3"] = w3
 
@@ -519,7 +519,7 @@ class AsyncContract(BaseContract):
     def find_functions_by_identifier(
         cls,
         contract_abi: ABI,
-        w3: "AsyncWeb3",
+        w3: "AsyncWeb3[Any]",
         address: ChecksumAddress,
         callable_check: Callable[..., Any],
     ) -> List["AsyncContractFunction"]:
@@ -540,7 +540,7 @@ class AsyncContract(BaseContract):
     def find_events_by_identifier(
         cls,
         contract_abi: ABI,
-        w3: "AsyncWeb3",
+        w3: "AsyncWeb3[Any]",
         address: ChecksumAddress,
         callable_check: Callable[..., Any],
     ) -> List["AsyncContractEvent"]:
@@ -557,12 +557,12 @@ class AsyncContract(BaseContract):
 
 class AsyncContractCaller(BaseContractCaller):
     # mypy types
-    w3: "AsyncWeb3"
+    w3: "AsyncWeb3[Any]"
 
     def __init__(
         self,
         abi: ABI,
-        w3: "AsyncWeb3",
+        w3: "AsyncWeb3[Any]",
         address: ChecksumAddress,
         transaction: Optional[TxParams] = None,
         block_identifier: BlockIdentifier = None,
@@ -613,7 +613,7 @@ class AsyncContractCaller(BaseContractCaller):
 
 class AsyncContractConstructor(BaseContractConstructor):
     # mypy types
-    w3: "AsyncWeb3"
+    w3: "AsyncWeb3[Any]"
 
     @combomethod
     async def transact(self, transaction: Optional[TxParams] = None) -> HexBytes:

@@ -238,7 +238,7 @@ def _should_cache_response(
 
 
 def handle_request_caching(
-    func: Callable[[SYNC_PROVIDER_TYPE, RPCEndpoint, Any], "RPCResponse"]
+    func: Callable[[SYNC_PROVIDER_TYPE, RPCEndpoint, Any], "RPCResponse"],
 ) -> Callable[..., "RPCResponse"]:
     def wrapper(
         provider: SYNC_PROVIDER_TYPE, method: RPCEndpoint, params: Any
@@ -401,7 +401,7 @@ def async_handle_recv_caching(
     func: Callable[
         ["PersistentConnectionProvider", "RPCRequest"],
         Coroutine[Any, Any, "RPCResponse"],
-    ]
+    ],
 ) -> Callable[..., Coroutine[Any, Any, "RPCResponse"]]:
     async def wrapper(
         provider: "PersistentConnectionProvider",

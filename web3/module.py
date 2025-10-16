@@ -60,7 +60,7 @@ TReturn = TypeVar("TReturn")
 
 @curry
 def retrieve_request_information_for_batching(
-    w3: Union["AsyncWeb3", "Web3"],
+    w3: Union["AsyncWeb3[Any]", "Web3"],
     module: "Module",
     method: Method[Callable[..., Any]],
 ) -> Union[
@@ -119,7 +119,7 @@ def retrieve_blocking_method_call_fn(
 
 @curry
 def retrieve_async_method_call_fn(
-    async_w3: "AsyncWeb3",
+    async_w3: "AsyncWeb3[Any]",
     module: "Module",
     method: Method[Callable[..., Any]],
 ) -> Callable[
@@ -167,7 +167,7 @@ def retrieve_async_method_call_fn(
 class Module:
     is_async = False
 
-    def __init__(self, w3: Union["AsyncWeb3", "Web3"]) -> None:
+    def __init__(self, w3: Union["AsyncWeb3[Any]", "Web3"]) -> None:
         if self.is_async:
             self.retrieve_caller_fn = retrieve_async_method_call_fn(w3, self)
         else:

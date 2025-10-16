@@ -72,7 +72,9 @@ if TYPE_CHECKING:
         AsyncContract,
         AsyncContractFunction,
     )
-    from web3.main import AsyncWeb3  # noqa: F401
+    from web3.main import (  # noqa: F401
+        AsyncWeb3,
+    )
     from web3.middleware.base import (  # noqa: F401
         Middleware,
     )
@@ -96,12 +98,12 @@ class AsyncENS(BaseENS):
     """
 
     # mypy types
-    w3: "AsyncWeb3"
+    w3: "AsyncWeb3[Any]"
 
     def __init__(
         self,
-        provider: "AsyncBaseProvider" = None,
-        addr: ChecksumAddress = None,
+        provider: Optional["AsyncBaseProvider"] = None,
+        addr: Optional[ChecksumAddress] = None,
         middleware: Optional[Sequence[Tuple["Middleware", str]]] = None,
     ) -> None:
         """
@@ -123,7 +125,9 @@ class AsyncENS(BaseENS):
         )
 
     @classmethod
-    def from_web3(cls, w3: "AsyncWeb3", addr: ChecksumAddress = None) -> "AsyncENS":
+    def from_web3(
+        cls, w3: "AsyncWeb3[Any]", addr: ChecksumAddress = None
+    ) -> "AsyncENS":
         """
         Generate an AsyncENS instance with web3
 

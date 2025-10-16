@@ -71,7 +71,7 @@ RPC_METHODS_UNSUPPORTED_DURING_BATCH = {
 
 
 class RequestBatcher(Generic[TFunc]):
-    def __init__(self, web3: Union["AsyncWeb3", "Web3"]) -> None:
+    def __init__(self, web3: Union["AsyncWeb3[Any]", "Web3"]) -> None:
         self.web3 = web3
         self._requests_info: List[BatchRequestInformation] = []
         self._async_requests_info: List[

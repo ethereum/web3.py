@@ -26,7 +26,7 @@ def persistent_connection_provider_method(message: str = None) -> Callable[..., 
 
     def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
         @functools.wraps(func)
-        def inner(self: "AsyncWeb3", *args: Any, **kwargs: Any) -> Any:
+        def inner(self: "AsyncWeb3[Any]", *args: Any, **kwargs: Any) -> Any:
             nonlocal message
             if message is None:
                 message = (

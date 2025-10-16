@@ -852,7 +852,7 @@ def _named_subtree(
 
 def recursive_dict_to_namedtuple(data: Dict[str, Any]) -> Tuple[Any, ...]:
     def _dict_to_namedtuple(
-        value: Union[Dict[str, Any], List[Any]]
+        value: Union[Dict[str, Any], List[Any]],
     ) -> Union[Tuple[Any, ...], List[Any]]:
         if not isinstance(value, dict):
             return value
@@ -864,7 +864,7 @@ def recursive_dict_to_namedtuple(data: Dict[str, Any]) -> Tuple[Any, ...]:
 
 
 def abi_decoded_namedtuple_factory(
-    fields: Tuple[Any, ...]
+    fields: Tuple[Any, ...],
 ) -> Callable[..., Tuple[Any, ...]]:
     class ABIDecodedNamedTuple(namedtuple("ABIDecodedNamedTuple", fields, rename=True)):  # type: ignore # noqa: E501
         def __new__(self, args: Any) -> "ABIDecodedNamedTuple":
@@ -877,9 +877,9 @@ def abi_decoded_namedtuple_factory(
 
 
 async def async_data_tree_map(
-    async_w3: "AsyncWeb3",
+    async_w3: "AsyncWeb3[Any]",
     func: Callable[
-        ["AsyncWeb3", TypeStr, Any], Coroutine[Any, Any, Tuple[TypeStr, Any]]
+        ["AsyncWeb3[Any]", TypeStr, Any], Coroutine[Any, Any, Tuple[TypeStr, Any]]
     ],
     data_tree: Any,
 ) -> "ABITypedData":
@@ -902,7 +902,7 @@ async def async_data_tree_map(
 
 @reject_recursive_repeats
 async def async_recursive_map(
-    async_w3: "AsyncWeb3",
+    async_w3: "AsyncWeb3[Any]",
     func: Callable[[Any], Coroutine[Any, Any, TReturn]],
     data: Any,
 ) -> TReturn:

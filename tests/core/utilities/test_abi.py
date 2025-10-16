@@ -249,8 +249,8 @@ def test_get_tuple_type_str_parts(
     [
         (
             ["bool[2]", "bytes"],
-            [[True, False], b"\x00\xFF"],
-            [("bool[2]", [("bool", True), ("bool", False)]), ("bytes", b"\x00\xFF")],
+            [[True, False], b"\x00\xff"],
+            [("bool[2]", [("bool", True), ("bool", False)]), ("bytes", b"\x00\xff")],
         ),
         (
             ["uint256[]"],
@@ -337,7 +337,7 @@ def test_map_abi_data(
 
 @pytest.mark.parametrize("arg", (6, 7, 9, 12, 20, 30))
 def test_exact_length_bytes_encoder_raises_on_non_multiples_of_8_bit_size(
-    arg: Tuple[int, ...]
+    arg: Tuple[int, ...],
 ) -> None:
     with pytest.raises(Web3ValueError, match="multiple of 8"):
         _ = ExactLengthBytesEncoder(None, data_byte_size=2, value_bit_size=arg)

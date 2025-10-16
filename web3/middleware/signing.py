@@ -93,7 +93,7 @@ _PrivateKey = Union[LocalAccount, PrivateKey, HexStr, bytes]
 
 @to_dict
 def gen_normalized_accounts(
-    val: Union[_PrivateKey, Collection[_PrivateKey]]
+    val: Union[_PrivateKey, Collection[_PrivateKey]],
 ) -> Iterable[Tuple[ChecksumAddress, LocalAccount]]:
     if isinstance(
         val,
@@ -158,7 +158,7 @@ class SignAndSendRawMiddlewareBuilder(Web3MiddlewareBuilder):
     @curry
     def build(
         private_key_or_account: Union[_PrivateKey, Collection[_PrivateKey]],
-        w3: Union["Web3", "AsyncWeb3"],
+        w3: Union["Web3", "AsyncWeb3[Any]"],
     ) -> "SignAndSendRawMiddlewareBuilder":
         middleware = SignAndSendRawMiddlewareBuilder(w3)
         middleware._accounts = gen_normalized_accounts(private_key_or_account)
@@ -199,7 +199,7 @@ class SignAndSendRawMiddlewareBuilder(Web3MiddlewareBuilder):
             return method, params
 
         else:
-            w3 = cast("AsyncWeb3", self._w3)
+            w3 = cast("AsyncWeb3[Any]", self._w3)
 
             formatted_transaction = format_transaction(params[0])
             filled_transaction = await async_fill_transaction_defaults(

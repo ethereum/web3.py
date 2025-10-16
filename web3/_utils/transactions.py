@@ -1,6 +1,7 @@
 import math
 from typing import (
     TYPE_CHECKING,
+    Any,
     Dict,
     List,
     Literal,
@@ -230,7 +231,7 @@ def assert_valid_transaction_params(transaction_params: TxParams) -> None:
 
 
 def prepare_replacement_transaction(
-    w3: Union["Web3", "AsyncWeb3"],
+    w3: Union["Web3", "AsyncWeb3[Any]"],
     original_transaction: TxData,
     replacement_transaction: TxParams,
     gas_multiplier: float = 1.125,
