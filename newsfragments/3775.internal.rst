@@ -1,0 +1,1 @@
+Use latest Geth version ``v1.16.5`` for integration tests.
