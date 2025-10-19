@@ -272,9 +272,7 @@ class BaseWeb3:
 
     @staticmethod
     @wraps(from_wei_decimals)
-    def from_wei_decimals(
-        number: int, decimals: int
-    ) -> Union[int, decimal.Decimal]:
+    def from_wei_decimals(number: int, decimals: int) -> Union[int, decimal.Decimal]:
         return from_wei_decimals(number, decimals)
 
     # Address Utility
