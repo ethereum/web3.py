@@ -104,3 +104,15 @@ class ENSValidationError(ENSException):
     """
     Raised if there is a validation error
     """
+
+
+class EnsAvatarUriResolutionError(ENSException):
+    """
+    Raised when an avatar URI cannot be resolved to a usable form.
+    """
+
+
+class EnsAvatarInvalidNftUriError(ENSException):
+    """
+    Raised when an NFT avatar URI is malformed or unsupported.
+    """
