@@ -106,6 +106,12 @@ class ENSValidationError(ENSException):
     """
 
 
+class EnsAvatarError(ENSException):
+    """
+    Raised when an avatar resolution fails in specific ways
+    """
+
+
 class EnsAvatarUriResolutionError(ENSException):
     """
     Raised when an avatar URI cannot be resolved to a usable form.
