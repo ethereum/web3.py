@@ -1,7 +1,5 @@
 from typing import (
     Callable,
-    Optional,
-    Union,
 )
 
 from eth_typing import (
@@ -51,8 +49,8 @@ class Tracing(Module):
         self._default_block = value
 
     def trace_replay_transaction_munger(
-        self, block_identifier: Union[_Hash32, BlockIdentifier], mode: TraceMode = None
-    ) -> tuple[Union[BlockIdentifier, _Hash32], TraceMode]:
+        self, block_identifier: _Hash32 | BlockIdentifier, mode: TraceMode = None
+    ) -> tuple[BlockIdentifier | _Hash32, TraceMode]:
         if mode is None:
             mode = ["trace"]
         return (block_identifier, mode)
@@ -85,7 +83,7 @@ class Tracing(Module):
         self,
         transaction: TxParams,
         mode: TraceMode = None,
-        block_identifier: Optional[BlockIdentifier] = None,
+        block_identifier: BlockIdentifier | None = None,
     ) -> tuple[TxParams, TraceMode, BlockIdentifier]:
         if mode is None:
             mode = ["trace"]

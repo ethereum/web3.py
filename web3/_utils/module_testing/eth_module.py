@@ -1204,7 +1204,7 @@ class AsyncEthModuleTest:
     async def test_eth_get_raw_transaction_by_block_raises_error(
         self,
         async_w3: "AsyncWeb3[Any]",
-        unknown_block_num_or_hash: Union[int, HexBytes],
+        unknown_block_num_or_hash: int | HexBytes,
     ) -> None:
         with pytest.raises(
             TransactionNotFound,
@@ -5014,7 +5014,7 @@ class EthModuleTest:
 
     @pytest.mark.parametrize("unknown_block_num_or_hash", (1234567899999, UNKNOWN_HASH))
     def test_eth_get_raw_transaction_by_block_raises_error(
-        self, w3: "Web3", unknown_block_num_or_hash: Union[int, HexBytes]
+        self, w3: "Web3", unknown_block_num_or_hash: int | HexBytes
     ) -> None:
         with pytest.raises(
             TransactionNotFound,

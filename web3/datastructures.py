@@ -2,19 +2,17 @@ from collections import (
     OrderedDict,
 )
 from collections.abc import (
-    Hashable,
-    Iterator,
-    Mapping,
     MutableMapping,
-    Sequence,
     ValuesView,
 )
 from typing import (
     Any,
     Callable,
-    Optional,
+    Hashable,
+    Iterator,
+    Mapping,
+    Sequence,
     TypeVar,
-    Union,
     cast,
 )
 
@@ -136,7 +134,7 @@ def tupleize_lists_nested(d: Mapping[TKey, TValue]) -> AttributeDict[TKey, TValu
     Other unhashable types found will raise a TypeError
     """
 
-    def _to_tuple(value: Union[list[Any], tuple[Any, ...]]) -> Any:
+    def _to_tuple(value: list[Any] | tuple[Any, ...]) -> Any:
         return tuple(_to_tuple(i) if isinstance(i, (list, tuple)) else i for i in value)
 
     ret = dict()
@@ -171,7 +169,7 @@ class NamedElementOnion(Mapping[TKey, TValue]):
             else:
                 self.add(*element)
 
-    def add(self, element: TValue, name: Optional[TKey] = None) -> None:
+    def add(self, element: TValue, name: TKey | None = None) -> None:
         if name is None:
             name = cast(TKey, element)
 
@@ -188,7 +186,7 @@ class NamedElementOnion(Mapping[TKey, TValue]):
         self._queue[name] = element
 
     def inject(
-        self, element: TValue, name: Optional[TKey] = None, layer: Optional[int] = None
+        self, element: TValue, name: TKey | None = None, layer: int | None = None
     ) -> None:
         """
         Inject a named element to an arbitrary layer in the onion.

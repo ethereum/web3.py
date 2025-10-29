@@ -1,9 +1,6 @@
-from collections.abc import (
-    Iterator,
-)
 from typing import (
     Any,
-    Optional,
+    Iterator,
 )
 
 from eth_typing import (
@@ -49,7 +46,7 @@ class SubscriptionContainer:
 
     def get_handler_subscription_by_id(
         self, sub_id: HexStr
-    ) -> Optional[EthSubscription[Any]]:
+    ) -> EthSubscription[Any] | None:
         sub = self.get_by_id(sub_id)
         if sub and sub._handler:
             return sub

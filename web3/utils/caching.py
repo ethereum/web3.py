@@ -8,7 +8,6 @@ from enum import (
 import time
 from typing import (
     Any,
-    Optional,
 )
 
 
@@ -44,7 +43,7 @@ class SimpleCache:
         # need to reach back into the cache to grab the value.
         return value, evicted_items or None
 
-    def get_cache_entry(self, key: str) -> Optional[Any]:
+    def get_cache_entry(self, key: str) -> Any | None:
         return self._data[key] if key in self._data else None
 
     def clear(self) -> None:
@@ -53,7 +52,7 @@ class SimpleCache:
     def items(self) -> list[tuple[str, Any]]:
         return list(self._data.items())
 
-    def pop(self, key: str) -> Optional[Any]:
+    def pop(self, key: str) -> Any | None:
         if key not in self._data:
             return None
 

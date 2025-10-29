@@ -1,15 +1,12 @@
 import asyncio
-from collections.abc import (
-    AsyncGenerator,
-    Coroutine,
-    Sequence,
-)
 import logging
 from typing import (
     TYPE_CHECKING,
     Any,
+    AsyncGenerator,
     Callable,
-    Optional,
+    Coroutine,
+    Sequence,
     Union,
     cast,
 )
@@ -105,8 +102,8 @@ class RequestManager:
     def __init__(
         self,
         w3: Union["AsyncWeb3[Any]", "Web3"],
-        provider: Optional[Union["BaseProvider", "AsyncBaseProvider"]] = None,
-        middleware: Optional[Sequence[tuple[Middleware, str]]] = None,
+        provider: Union["BaseProvider", "AsyncBaseProvider"] | None = None,
+        middleware: Sequence[tuple[Middleware, str]] | None = None,
     ) -> None:
         self.w3 = w3
 
@@ -152,7 +149,7 @@ class RequestManager:
     # Provider requests and response
     #
     def _make_request(
-        self, method: Union[RPCEndpoint, Callable[..., RPCEndpoint]], params: Any
+        self, method: RPCEndpoint | Callable[..., RPCEndpoint], params: Any
     ) -> RPCResponse:
         provider = cast("BaseProvider", self.provider)
         request_func = provider.request_func(
@@ -162,7 +159,7 @@ class RequestManager:
         return request_func(method, params)
 
     async def _coro_make_request(
-        self, method: Union[RPCEndpoint, Callable[..., RPCEndpoint]], params: Any
+        self, method: RPCEndpoint | Callable[..., RPCEndpoint], params: Any
     ) -> RPCResponse:
         provider = cast("AsyncBaseProvider", self.provider)
         request_func = await provider.request_func(
@@ -185,8 +182,8 @@ class RequestManager:
         self,
         response: RPCResponse,
         params: Any,
-        error_formatters: Optional[Callable[..., Any]] = None,
-        null_result_formatters: Optional[Callable[..., Any]] = None,
+        error_formatters: Callable[..., Any] | None = None,
+        null_result_formatters: Callable[..., Any] | None = None,
     ) -> Any:
         is_subscription_response = (
             response.get("method") == "eth_subscription"
@@ -220,10 +217,10 @@ class RequestManager:
 
     def request_blocking(
         self,
-        method: Union[RPCEndpoint, Callable[..., RPCEndpoint]],
+        method: RPCEndpoint | Callable[..., RPCEndpoint],
         params: Any,
-        error_formatters: Optional[Callable[..., Any]] = None,
-        null_result_formatters: Optional[Callable[..., Any]] = None,
+        error_formatters: Callable[..., Any] | None = None,
+        null_result_formatters: Callable[..., Any] | None = None,
     ) -> Any:
         """
         Make a synchronous request using the provider
@@ -235,10 +232,10 @@ class RequestManager:
 
     async def coro_request(
         self,
-        method: Union[RPCEndpoint, Callable[..., RPCEndpoint]],
+        method: RPCEndpoint | Callable[..., RPCEndpoint],
         params: Any,
-        error_formatters: Optional[Callable[..., Any]] = None,
-        null_result_formatters: Optional[Callable[..., Any]] = None,
+        error_formatters: Callable[..., Any] | None = None,
+        null_result_formatters: Callable[..., Any] | None = None,
     ) -> Any:
         """
         Coroutine for making a request using the provider
@@ -433,9 +430,10 @@ class RequestManager:
         self,
         method: RPCEndpoint,
         params: Any,
-        response_formatters: Optional[
+        response_formatters: None
+        | (
             tuple[dict[str, Callable[..., Any]], Callable[..., Any], Callable[..., Any]]
-        ] = None,
+        ) = None,
     ) -> RPCResponse:
         provider = cast(PersistentConnectionProvider, self._provider)
         self.logger.debug(
@@ -494,7 +492,7 @@ class RequestManager:
             provider._request_processor._request_information_cache.pop(response_id_key)
             raise
 
-    async def recv(self) -> Union[RPCResponse, FormattedEthSubscriptionResponse]:
+    async def recv(self) -> RPCResponse | FormattedEthSubscriptionResponse:
         provider = cast(PersistentConnectionProvider, self._provider)
         self.logger.debug(
             "Getting next response from open socket connection: %s",
@@ -558,7 +556,7 @@ class RequestManager:
 
     async def _process_response(
         self, response: RPCResponse
-    ) -> Union[RPCResponse, FormattedEthSubscriptionResponse]:
+    ) -> RPCResponse | FormattedEthSubscriptionResponse:
         provider = cast(PersistentConnectionProvider, self._provider)
         request_info = self._request_processor.get_request_information_for_response(
             response

@@ -1,12 +1,9 @@
-from collections.abc import (
-    Coroutine,
-)
 from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
+    Coroutine,
     Literal,
-    Optional,
     Union,
     cast,
 )
@@ -118,12 +115,12 @@ class FormattingMiddlewareBuilder(Web3MiddlewareBuilder):
     def build(
         w3: Union["Web3", "AsyncWeb3[Any]"],
         # formatters option:
-        request_formatters: Optional[Formatters] = None,
-        result_formatters: Optional[Formatters] = None,
-        error_formatters: Optional[Formatters] = None,
+        request_formatters: Formatters | None = None,
+        result_formatters: Formatters | None = None,
+        error_formatters: Formatters | None = None,
         # formatters builder option:
-        sync_formatters_builder: Optional[SYNC_FORMATTERS_BUILDER] = None,
-        async_formatters_builder: Optional[ASYNC_FORMATTERS_BUILDER] = None,
+        sync_formatters_builder: SYNC_FORMATTERS_BUILDER | None = None,
+        async_formatters_builder: ASYNC_FORMATTERS_BUILDER | None = None,
     ) -> "FormattingMiddlewareBuilder":
         # if not both sync and async formatters are specified, raise error
         if (

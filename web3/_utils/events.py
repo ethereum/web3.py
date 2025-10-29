@@ -2,11 +2,6 @@ from abc import (
     ABC,
     abstractmethod,
 )
-from collections.abc import (
-    Collection,
-    Iterable,
-    Sequence,
-)
 from enum import (
     Enum,
 )
@@ -14,8 +9,9 @@ import itertools
 from typing import (
     TYPE_CHECKING,
     Any,
-    Optional,
-    Union,
+    Collection,
+    Iterable,
+    Sequence,
     cast,
 )
 
@@ -104,7 +100,7 @@ if TYPE_CHECKING:
 
 
 def _log_entry_data_to_bytes(
-    log_entry_data: Union[Primitives, HexStr, str],
+    log_entry_data: Primitives | HexStr | str,
 ) -> bytes:
     return hexstr_if_str(to_bytes, log_entry_data)
 
@@ -112,7 +108,7 @@ def _log_entry_data_to_bytes(
 def construct_event_topic_set(
     event_abi: ABIEvent,
     abi_codec: ABICodec,
-    arguments: Optional[Union[list[Any], tuple[Any], dict[str, Any]]] = None,
+    arguments: list[Any] | tuple[Any] | dict[str, Any] | None = None,
 ) -> list[HexStr]:
     if arguments is None:
         arguments = {}
@@ -155,8 +151,8 @@ def construct_event_topic_set(
 def construct_event_data_set(
     event_abi: ABIEvent,
     abi_codec: ABICodec,
-    arguments: Optional[Union[Sequence[Any], dict[str, Any]]] = None,
-) -> list[list[Optional[HexStr]]]:
+    arguments: Sequence[Any] | dict[str, Any] | None = None,
+) -> list[list[HexStr | None]]:
     if arguments is None:
         arguments = {}
     if isinstance(arguments, (list, tuple)):
@@ -206,7 +202,7 @@ def is_dynamic_sized_type(type_str: TypeStr) -> bool:
 
 @to_tuple
 def get_event_abi_types_for_decoding(
-    event_inputs: Sequence[Union[ABIComponent, ABIComponentIndexed]],
+    event_inputs: Sequence[ABIComponent | ABIComponentIndexed],
 ) -> Iterable[TypeStr]:
     """
     Event logs use the `keccak(value)` for indexed inputs of type `bytes` or
@@ -309,7 +305,7 @@ def pop_singlets(seq: Sequence[Any]) -> Iterable[Any]:
 
 @curry
 def remove_trailing_from_seq(
-    seq: Sequence[Any], remove_value: Optional[Any] = None
+    seq: Sequence[Any], remove_value: Any | None = None
 ) -> Sequence[Any]:
     index = len(seq)
     while index > 0 and seq[index - 1] == remove_value:
@@ -343,7 +339,7 @@ class BaseEventFilterBuilder:
         self,
         event_abi: ABIEvent,
         abi_codec: ABICodec,
-        formatter: Optional[EventData] = None,
+        formatter: EventData | None = None,
     ) -> None:
         self.event_abi = event_abi
         self.abi_codec = abi_codec
@@ -470,7 +466,7 @@ class AsyncEventFilterBuilder(BaseEventFilterBuilder):
         return log_filter
 
 
-def initialize_event_topics(event_abi: ABIEvent) -> Union[bytes, list[Any]]:
+def initialize_event_topics(event_abi: ABIEvent) -> bytes | list[Any]:
     if event_abi["anonymous"] is False:
         return event_abi_to_log_topic(event_abi)
     else:
@@ -553,7 +549,7 @@ class TopicArgumentFilter(BaseArgumentFilter):
 
     # type ignore b/c conflict with BaseArgumentFilter.match_values type
     @property
-    def match_values(self) -> Optional[tuple[HexStr, ...]]:  # type: ignore
+    def match_values(self) -> tuple[HexStr, ...] | None:  # type: ignore
         if self._match_values is not None:
             return self._get_match_values()
         else:

@@ -1,16 +1,13 @@
 import pytest
 import asyncio
-from collections.abc import (
-    Generator,
-    Sequence,
-)
 from dataclasses import (
     dataclass,
 )
 from typing import (
     TYPE_CHECKING,
     Any,
-    Union,
+    Generator,
+    Sequence,
     cast,
 )
 
@@ -965,7 +962,7 @@ class PersistentConnectionProviderTest:
         async_w3: "AsyncWeb3[Any]",
     ) -> None:
         async def unsubscribe_subs(
-            subs: list[Union[NewHeadsSubscription, LogsSubscription]],
+            subs: list[NewHeadsSubscription | LogsSubscription],
         ) -> None:
             for sub in subs:
                 await sub.unsubscribe()

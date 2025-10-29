@@ -1,12 +1,8 @@
-from collections.abc import (
-    Sequence,
-)
 import functools
 from typing import (
     Any,
     Callable,
-    Optional,
-    Union,
+    Sequence,
     cast,
 )
 
@@ -276,9 +272,9 @@ def _mismatched_abi_error_diagnosis(
     abi: ABI,
     num_matches: int = 0,
     num_args: int = 0,
-    *args: Optional[Any],
-    abi_codec: Optional[Any] = None,
-    **kwargs: Optional[Any],
+    *args: Any | None,
+    abi_codec: Any | None = None,
+    **kwargs: Any | None,
 ) -> str:
     """
     Raise a ``MismatchedABI`` when a function ABI lookup results in an error.
@@ -374,9 +370,9 @@ def _get_argument_readable_type(arg: Any) -> str:
 
 def _build_abi_filters(
     abi_element_identifier: ABIElementIdentifier,
-    *args: Optional[Any],
-    abi_codec: Optional[Any] = None,
-    **kwargs: Optional[Any],
+    *args: Any | None,
+    abi_codec: Any | None = None,
+    **kwargs: Any | None,
 ) -> list[Callable[..., Sequence[ABIElement]]]:
     """
     Build a list of ABI filters to find an ABI element within a contract ABI. Each
@@ -453,9 +449,9 @@ def _build_abi_filters(
 def get_abi_element_info(
     abi: ABI,
     abi_element_identifier: ABIElementIdentifier,
-    *args: Optional[Sequence[Any]],
-    abi_codec: Optional[Any] = None,
-    **kwargs: Optional[dict[str, Any]],
+    *args: Sequence[Any] | None,
+    abi_codec: Any | None = None,
+    **kwargs: dict[str, Any] | None,
 ) -> ABIElementInfo:
     """
     Information about the function ABI, selector and input arguments.
@@ -525,9 +521,9 @@ def get_abi_element_info(
 def get_abi_element(
     abi: ABI,
     abi_element_identifier: ABIElementIdentifier,
-    *args: Optional[Any],
-    abi_codec: Optional[Any] = None,
-    **kwargs: Optional[Any],
+    *args: Any | None,
+    abi_codec: Any | None = None,
+    **kwargs: Any | None,
 ) -> ABIElement:
     """
     Return the interface for an ``ABIElement`` from the ``abi`` that matches the
@@ -620,9 +616,9 @@ def get_abi_element(
 
 def check_if_arguments_can_be_encoded(
     abi_element: ABIElement,
-    *args: Optional[Sequence[Any]],
-    abi_codec: Optional[Any] = None,
-    **kwargs: Optional[dict[str, Any]],
+    *args: Sequence[Any] | None,
+    abi_codec: Any | None = None,
+    **kwargs: dict[str, Any] | None,
 ) -> bool:
     """
     Check if the provided arguments can be encoded with the element ABI.
@@ -685,7 +681,7 @@ def check_if_arguments_can_be_encoded(
 def get_event_abi(
     abi: ABI,
     event_name: str,
-    argument_names: Optional[Sequence[str]] = None,
+    argument_names: Sequence[str] | None = None,
 ) -> ABIEvent:
     """
     .. warning::
@@ -781,7 +777,7 @@ def get_event_log_topics(
 
 
 def log_topic_to_bytes(
-    log_topic: Union[Primitives, HexStr, str],
+    log_topic: Primitives | HexStr | str,
 ) -> bytes:
     r"""
     Return topic signature as bytes.

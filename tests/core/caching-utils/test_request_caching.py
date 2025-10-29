@@ -2,10 +2,6 @@ import pytest
 import itertools
 import threading
 import time
-from typing import (
-    Optional,
-    Union,
-)
 import uuid
 
 import pytest_asyncio
@@ -494,7 +490,7 @@ async def async_provider(request):
 
 async def _async_w3_init(
     async_provider,
-    threshold: Optional[Union[RequestCacheValidationThreshold, int]] = "empty",
+    threshold: RequestCacheValidationThreshold | int | None = "empty",
 ):
     if isinstance(async_provider, PersistentConnectionProvider):
         _async_w3 = await AsyncWeb3(

@@ -1,11 +1,8 @@
-from collections.abc import (
-    Iterable,
-    Sequence,
-)
 from typing import (
     Any,
     Callable,
-    Union,
+    Iterable,
+    Sequence,
 )
 
 from eth_typing import (
@@ -174,7 +171,7 @@ TRACE_FILTER_PARAM_ABIS = {
     "count": "int",
 }
 
-RPC_ABIS: dict[str, Union[Sequence[Any], dict[str, str]]] = {
+RPC_ABIS: dict[str, Sequence[Any] | dict[str, str]] = {
     # eth
     "eth_call": TRANSACTION_PARAMS_ABIS,
     "eth_createAccessList": TRANSACTION_PARAMS_ABIS,

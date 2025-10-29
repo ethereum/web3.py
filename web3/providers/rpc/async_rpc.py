@@ -1,12 +1,8 @@
 import asyncio
-from collections.abc import (
-    Iterable,
-)
 import logging
 from typing import (
     Any,
-    Optional,
-    Union,
+    Iterable,
     cast,
 )
 
@@ -59,11 +55,10 @@ class AsyncHTTPProvider(AsyncJSONBaseProvider):
 
     def __init__(
         self,
-        endpoint_uri: Optional[Union[URI, str]] = None,
-        request_kwargs: Optional[Any] = None,
-        exception_retry_configuration: Optional[
-            Union[ExceptionRetryConfiguration, Empty]
-        ] = empty,
+        endpoint_uri: URI | str | None = None,
+        request_kwargs: Any | None = None,
+        exception_retry_configuration: None
+        | (ExceptionRetryConfiguration | Empty) = empty,
         **kwargs: Any,
     ) -> None:
         self._request_session_manager = HTTPSessionManager()
@@ -98,7 +93,7 @@ class AsyncHTTPProvider(AsyncJSONBaseProvider):
 
     @exception_retry_configuration.setter
     def exception_retry_configuration(
-        self, value: Union[ExceptionRetryConfiguration, Empty]
+        self, value: ExceptionRetryConfiguration | Empty
     ) -> None:
         self._exception_retry_configuration = value
 
@@ -169,7 +164,7 @@ class AsyncHTTPProvider(AsyncJSONBaseProvider):
 
     async def make_batch_request(
         self, batch_requests: list[tuple[RPCEndpoint, Any]]
-    ) -> Union[list[RPCResponse], RPCResponse]:
+    ) -> list[RPCResponse] | RPCResponse:
         self.logger.debug("Making batch request HTTP - uri: `%s`", self.endpoint_uri)
         request_data = self.encode_batch_rpc_request(batch_requests)
         raw_response = await self._request_session_manager.async_make_post_request(

@@ -14,7 +14,6 @@ from types import (
 )
 from typing import (
     Any,
-    Union,
     cast,
 )
 
@@ -140,7 +139,7 @@ class IPCProvider(JSONBaseProvider):
 
     def __init__(
         self,
-        ipc_path: Union[str, Path] = None,
+        ipc_path: str | Path = None,
         timeout: int = 30,
         **kwargs: Any,
     ) -> None:
@@ -173,7 +172,7 @@ class IPCProvider(JSONBaseProvider):
                 while True:
                     try:
                         raw_response += sock.recv(4096)
-                    except socket.timeout:
+                    except TimeoutError:
                         timeout.sleep(0)
                         continue
                     if raw_response == b"":

@@ -1,12 +1,9 @@
-from collections.abc import (
-    Coroutine,
-    Sequence,
-)
 from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    Optional,
+    Coroutine,
+    Sequence,
     TypeVar,
     Union,
     cast,
@@ -63,10 +60,10 @@ def retrieve_request_information_for_batching(
     w3: Union["AsyncWeb3[Any]", "Web3"],
     module: "Module",
     method: Method[Callable[..., Any]],
-) -> Union[
-    Callable[..., tuple[tuple[RPCEndpoint, Any], Sequence[Any]]],
-    Callable[..., Coroutine[Any, Any, tuple[tuple[RPCEndpoint, Any], Sequence[Any]]]],
-]:
+) -> (
+    Callable[..., tuple[tuple[RPCEndpoint, Any], Sequence[Any]]]
+    | Callable[..., Coroutine[Any, Any, tuple[tuple[RPCEndpoint, Any], Sequence[Any]]]]
+):
     async def async_inner(
         *args: Any, **kwargs: Any
     ) -> tuple[tuple[RPCEndpoint, Any], Sequence[Any]]:
@@ -95,8 +92,8 @@ def retrieve_blocking_method_call_fn(
     w3: "Web3",
     module: "Module",
     method: Method[Callable[..., TReturn]],
-) -> Callable[..., Union[TReturn, LogFilter]]:
-    def caller(*args: Any, **kwargs: Any) -> Union[TReturn, LogFilter]:
+) -> Callable[..., TReturn | LogFilter]:
+    def caller(*args: Any, **kwargs: Any) -> TReturn | LogFilter:
         try:
             (method_str, params), response_formatters = method.process_params(
                 module, *args, **kwargs
@@ -127,12 +124,12 @@ def retrieve_async_method_call_fn(
     Coroutine[
         Any,
         Any,
-        Optional[Union[RPCResponse, FormattedEthSubscriptionResponse, AsyncLogFilter]],
+        RPCResponse | FormattedEthSubscriptionResponse | AsyncLogFilter | None,
     ],
 ]:
     async def caller(
         *args: Any, **kwargs: Any
-    ) -> Union[RPCResponse, FormattedEthSubscriptionResponse, AsyncLogFilter]:
+    ) -> RPCResponse | FormattedEthSubscriptionResponse | AsyncLogFilter:
         try:
             (method_str, params), response_formatters = method.process_params(
                 module, *args, **kwargs

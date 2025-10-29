@@ -1,16 +1,13 @@
-from collections.abc import (
-    AsyncIterable,
-    AsyncIterator,
-    Generator,
-    Iterable,
-    Iterator,
-)
 import itertools
 import os
 from typing import (
     TYPE_CHECKING,
     Any,
-    Optional,
+    AsyncIterable,
+    AsyncIterator,
+    Generator,
+    Iterable,
+    Iterator,
     Union,
     cast,
 )
@@ -120,7 +117,7 @@ def gen_bounded_segments(start: int, stop: int, step: int) -> Iterable[tuple[int
 
 
 def block_ranges(
-    start_block: BlockNumber, last_block: Optional[BlockNumber], step: int = 5
+    start_block: BlockNumber, last_block: BlockNumber | None, step: int = 5
 ) -> Iterable[tuple[BlockNumber, BlockNumber]]:
     """
     Returns 2-tuple ranges describing ranges of block from start_block to last_block
@@ -141,7 +138,7 @@ def block_ranges(
 
 
 def iter_latest_block(
-    w3: "Web3", to_block: Optional[Union[BlockNumber, LatestBlockParam]] = None
+    w3: "Web3", to_block: BlockNumber | LatestBlockParam | None = None
 ) -> Iterable[BlockNumber]:
     """
     Returns a generator that dispenses the latest block, if
@@ -179,8 +176,8 @@ def iter_latest_block(
 def iter_latest_block_ranges(
     w3: "Web3",
     from_block: BlockNumber,
-    to_block: Optional[Union[BlockNumber, LatestBlockParam]] = None,
-) -> Iterable[tuple[Optional[BlockNumber], Optional[BlockNumber]]]:
+    to_block: BlockNumber | LatestBlockParam | None = None,
+) -> Iterable[tuple[BlockNumber | None, BlockNumber | None]]:
     """
     Returns an iterator unloading ranges of available blocks
 
@@ -214,8 +211,8 @@ def get_logs_multipart(
     w3: "Web3",
     start_block: BlockNumber,
     stop_block: BlockNumber,
-    address: Union[Address, ChecksumAddress, list[Union[Address, ChecksumAddress]]],
-    topics: list[Optional[Union[_Hash32, list[_Hash32]]]],
+    address: Address | ChecksumAddress | list[Address | ChecksumAddress],
+    topics: list[_Hash32 | list[_Hash32] | None],
     max_blocks: int,
 ) -> Iterable[list[LogReceipt]]:
     """
@@ -241,12 +238,11 @@ class RequestLogs:
     def __init__(
         self,
         w3: "Web3",
-        from_block: Optional[Union[BlockNumber, LatestBlockParam]] = None,
-        to_block: Optional[Union[BlockNumber, LatestBlockParam]] = None,
-        address: Optional[
-            Union[Address, ChecksumAddress, list[Union[Address, ChecksumAddress]]]
-        ] = None,
-        topics: Optional[list[Optional[Union[_Hash32, list[_Hash32]]]]] = None,
+        from_block: BlockNumber | LatestBlockParam | None = None,
+        to_block: BlockNumber | LatestBlockParam | None = None,
+        address: None
+        | (Address | ChecksumAddress | list[Address | ChecksumAddress]) = None,
+        topics: list[_Hash32 | list[_Hash32] | None] | None = None,
     ) -> None:
         self.address = address
         self.topics = topics
@@ -357,7 +353,7 @@ def block_hashes_in_range(
 
 async def async_iter_latest_block(
     w3: "AsyncWeb3[Any]",
-    to_block: Optional[Union[BlockNumber, LatestBlockParam]] = None,
+    to_block: BlockNumber | LatestBlockParam | None = None,
 ) -> AsyncIterable[BlockNumber]:
     """
     Returns a generator that dispenses the latest block, if
@@ -396,8 +392,8 @@ async def async_iter_latest_block(
 async def async_iter_latest_block_ranges(
     w3: "AsyncWeb3[Any]",
     from_block: BlockNumber,
-    to_block: Optional[Union[BlockNumber, LatestBlockParam]] = None,
-) -> AsyncIterable[tuple[Optional[BlockNumber], Optional[BlockNumber]]]:
+    to_block: BlockNumber | LatestBlockParam | None = None,
+) -> AsyncIterable[tuple[BlockNumber | None, BlockNumber | None]]:
     """
     Returns an iterator unloading ranges of available blocks
 
@@ -428,8 +424,8 @@ async def async_get_logs_multipart(
     w3: "AsyncWeb3[Any]",
     start_block: BlockNumber,
     stop_block: BlockNumber,
-    address: Union[Address, ChecksumAddress, list[Union[Address, ChecksumAddress]]],
-    topics: list[Optional[Union[_Hash32, list[_Hash32]]]],
+    address: Address | ChecksumAddress | list[Address | ChecksumAddress],
+    topics: list[_Hash32 | list[_Hash32] | None],
     max_blocks: int,
 ) -> AsyncIterable[list[LogReceipt]]:
     """
@@ -459,12 +455,12 @@ class AsyncRequestLogs:
     def __init__(
         self,
         w3: "AsyncWeb3[Any]",
-        from_block: Optional[Union[BlockNumber, LatestBlockParam]] = None,
-        to_block: Optional[Union[BlockNumber, LatestBlockParam]] = None,
-        address: Optional[
-            Union[Address, ChecksumAddress, list[Union[Address, ChecksumAddress]]]
-        ] = None,
-        topics: Optional[list[Optional[Union[_Hash32, list[_Hash32]]]]] = None,
+        from_block: BlockNumber | LatestBlockParam | None = None,
+        to_block: BlockNumber | LatestBlockParam | None = None,
+        address: (
+            Address | ChecksumAddress | list[Address | ChecksumAddress] | None
+        ) = None,
+        topics: list[_Hash32 | list[_Hash32] | None] | None = None,
     ) -> None:
         self.address = address
         self.topics = topics
@@ -570,7 +566,7 @@ class AsyncRequestBlocks:
 
 async def async_block_hashes_in_range(
     w3: "AsyncWeb3[Any]", block_range: tuple[BlockNumber, BlockNumber]
-) -> list[Union[None, Hash32]]:
+) -> list[None | Hash32]:
     from_block, to_block = block_range
     if from_block is None or to_block is None:
         return []

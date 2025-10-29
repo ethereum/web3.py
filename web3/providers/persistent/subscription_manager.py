@@ -1,12 +1,9 @@
 import asyncio
-from collections.abc import (
-    Sequence,
-)
 import logging
 from typing import (
     TYPE_CHECKING,
     Any,
-    Union,
+    Sequence,
     cast,
     overload,
 )
@@ -144,8 +141,8 @@ class SubscriptionManager:
 
     async def subscribe(
         self,
-        subscriptions: Union[EthSubscription[Any], Sequence[EthSubscription[Any]]],
-    ) -> Union[HexStr, list[HexStr]]:
+        subscriptions: EthSubscription[Any] | Sequence[EthSubscription[Any]],
+    ) -> HexStr | list[HexStr]:
         """
         Used to subscribe to a single or multiple subscriptions.
 
@@ -186,17 +183,15 @@ class SubscriptionManager:
     @overload
     async def unsubscribe(
         self,
-        subscriptions: Sequence[Union[EthSubscription[Any], HexStr]],
+        subscriptions: Sequence[EthSubscription[Any] | HexStr],
     ) -> bool:
         ...
 
     async def unsubscribe(
         self,
-        subscriptions: Union[
-            EthSubscription[Any],
-            HexStr,
-            Sequence[Union[EthSubscription[Any], HexStr]],
-        ],
+        subscriptions: (
+            EthSubscription[Any] | HexStr | Sequence[EthSubscription[Any] | HexStr]
+        ),
     ) -> bool:
         """
         Used to unsubscribe from one or multiple subscriptions.

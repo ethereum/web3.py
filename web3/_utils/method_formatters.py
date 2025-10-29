@@ -1,13 +1,11 @@
 import codecs
-from collections.abc import (
-    Collection,
-    Iterable,
-)
 import operator
 from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
+    Collection,
+    Iterable,
     NoReturn,
     TypeVar,
     Union,
@@ -136,7 +134,7 @@ is_not_null = complement(is_null)
 
 @curry
 def to_hexbytes(
-    num_bytes: int, val: Union[str, int, bytes], variable_length: bool = False
+    num_bytes: int, val: str | int | bytes, variable_length: bool = False
 ) -> HexBytes:
     if isinstance(val, (str, int, bytes)):
         result = HexBytes(val)
@@ -161,8 +159,8 @@ def is_attrdict(val: Any) -> bool:
 @curry
 def type_aware_apply_formatters_to_dict(
     formatters: Formatters,
-    value: Union[AttributeDict[str, Any], dict[str, Any]],
-) -> Union[ReadableAttributeDict[str, Any], dict[str, Any]]:
+    value: AttributeDict[str, Any] | dict[str, Any],
+) -> ReadableAttributeDict[str, Any] | dict[str, Any]:
     """
     Preserve ``AttributeDict`` types if original ``value`` was an ``AttributeDict``.
     """
@@ -183,8 +181,8 @@ def type_aware_apply_formatters_to_dict(
 def type_aware_apply_formatters_to_dict_keys_and_values(
     key_formatters: Callable[[Any], Any],
     value_formatters: Callable[[Any], Any],
-    dict_like_object: Union[AttributeDict[str, Any], dict[str, Any]],
-) -> Union[ReadableAttributeDict[str, Any], dict[str, Any]]:
+    dict_like_object: AttributeDict[str, Any] | dict[str, Any],
+) -> ReadableAttributeDict[str, Any] | dict[str, Any]:
     """
     Preserve ``AttributeDict`` types if original ``value`` was an ``AttributeDict``.
     """
@@ -205,7 +203,7 @@ def apply_list_to_array_formatter(formatter: Any) -> Callable[..., Any]:
     return to_list(apply_formatter_to_array(formatter))
 
 
-def storage_key_to_hexstr(value: Union[bytes, int, str]) -> HexStr:
+def storage_key_to_hexstr(value: bytes | int | str) -> HexStr:
     if not isinstance(value, (bytes, int, str)):
         raise Web3ValueError(
             f"Storage key must be one of bytes, int, str, got {type(value)}"
@@ -795,8 +793,8 @@ def has_pretrace_keys(val: Any) -> bool:
 
 @curry
 def pretrace_formatter(
-    resp: Union[AttributeDict[str, Any], dict[str, Any]],
-) -> Union[ReadableAttributeDict[str, Any], dict[str, Any]]:
+    resp: AttributeDict[str, Any] | dict[str, Any],
+) -> ReadableAttributeDict[str, Any] | dict[str, Any]:
     return type_aware_apply_formatters_to_dict_keys_and_values(
         apply_formatter_if(is_address, to_checksum_address),
         apply_formatter_if(
@@ -892,7 +890,7 @@ TRACE_RESULT_FORMATTERS = apply_formatter_if(
 )
 
 # result formatters for the trace field
-TRACE_FORMATTERS: Callable[[TValue], Union[Any, TValue]] = apply_formatter_if(
+TRACE_FORMATTERS: Callable[[TValue], Any | TValue] = apply_formatter_if(
     is_not_null,
     type_aware_apply_formatters_to_dict(
         {
@@ -921,7 +919,7 @@ common_tracing_result_formatter = type_aware_apply_formatters_to_dict(
 
 
 # -- eth_subscribe -- #
-def subscription_formatter(value: Any) -> Union[HexBytes, HexStr, dict[str, Any]]:
+def subscription_formatter(value: Any) -> HexBytes | HexStr | dict[str, Any]:
     if is_hexstr(value):
         # subscription id from the original subscription request
         return HexStr(value)
@@ -1129,7 +1127,7 @@ def raise_block_not_found(params: tuple[BlockIdentifier, bool]) -> NoReturn:
 
 
 def raise_block_not_found_for_uncle_at_index(
-    params: tuple[BlockIdentifier, Union[HexStr, int]],
+    params: tuple[BlockIdentifier, HexStr | int],
 ) -> NoReturn:
     try:
         block_identifier = params[0]
@@ -1194,14 +1192,14 @@ def filter_wrapper(
     module: Union["AsyncEth", "Eth"],
     method: RPCEndpoint,
     filter_id: HexStr,
-) -> Union[
-    AsyncBlockFilter,
-    AsyncTransactionFilter,
-    AsyncLogFilter,
-    BlockFilter,
-    TransactionFilter,
-    LogFilter,
-]:
+) -> (
+    AsyncBlockFilter
+    | AsyncTransactionFilter
+    | AsyncLogFilter
+    | BlockFilter
+    | TransactionFilter
+    | LogFilter
+):
     if method == RPC.eth_newBlockFilter:
         if module.is_async:
             return AsyncBlockFilter(filter_id, eth_module=cast("AsyncEth", module))
@@ -1238,7 +1236,7 @@ FILTER_RESULT_FORMATTERS: dict[RPCEndpoint, Callable[..., Any]] = {
 def apply_module_to_formatters(
     formatters: Iterable[Callable[..., TReturn]],
     module: "Module",
-    method_name: Union[RPCEndpoint, Callable[..., RPCEndpoint]],
+    method_name: RPCEndpoint | Callable[..., RPCEndpoint],
 ) -> Iterable[Callable[..., TReturn]]:
     for f in formatters:
         yield partial(f, module, method_name)

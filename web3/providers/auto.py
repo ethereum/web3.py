@@ -1,12 +1,8 @@
-from collections.abc import (
-    Sequence,
-)
 import os
 from typing import (
     Any,
     Callable,
-    Optional,
-    Union,
+    Sequence,
 )
 from urllib.parse import (
     urlparse,
@@ -33,7 +29,7 @@ HTTP_SCHEMES = {"http", "https"}
 WS_SCHEMES = {"ws", "wss"}
 
 
-def load_provider_from_environment() -> Optional[JSONBaseProvider]:
+def load_provider_from_environment() -> JSONBaseProvider | None:
     uri_string = URI(os.environ.get("WEB3_PROVIDER_URI", ""))
     if not uri_string:
         return None
@@ -42,7 +38,7 @@ def load_provider_from_environment() -> Optional[JSONBaseProvider]:
 
 
 def load_provider_from_uri(
-    uri_string: URI, headers: Optional[dict[str, tuple[str, str]]] = None
+    uri_string: URI, headers: dict[str, tuple[str, str]] | None = None
 ) -> JSONBaseProvider:
     uri = urlparse(uri_string)
     if uri.scheme == "file":
@@ -66,9 +62,8 @@ class AutoProvider(JSONBaseProvider):
 
     def __init__(
         self,
-        potential_providers: Optional[
-            Sequence[Union[Callable[..., JSONBaseProvider], type[JSONBaseProvider]]]
-        ] = None,
+        potential_providers: None
+        | (Sequence[Callable[..., JSONBaseProvider] | type[JSONBaseProvider]]) = None,
     ) -> None:
         """
         :param iterable potential_providers: ordered series of provider classes
@@ -92,7 +87,7 @@ class AutoProvider(JSONBaseProvider):
 
     def make_batch_request(
         self, requests: list[tuple[RPCEndpoint, Any]]
-    ) -> Union[list[RPCResponse], RPCResponse]:
+    ) -> list[RPCResponse] | RPCResponse:
         try:
             return self._proxy_batch_request(requests)
         except OSError:
@@ -116,7 +111,7 @@ class AutoProvider(JSONBaseProvider):
 
     def _proxy_batch_request(
         self, requests: list[tuple[RPCEndpoint, Any]], use_cache: bool = True
-    ) -> Union[list[RPCResponse], RPCResponse]:
+    ) -> list[RPCResponse] | RPCResponse:
         provider = self._get_active_provider(use_cache)
         if provider is None:
             raise CannotHandleRequest(
@@ -126,7 +121,7 @@ class AutoProvider(JSONBaseProvider):
 
         return provider.make_batch_request(requests)
 
-    def _get_active_provider(self, use_cache: bool) -> Optional[JSONBaseProvider]:
+    def _get_active_provider(self, use_cache: bool) -> JSONBaseProvider | None:
         if use_cache and self._active_provider is not None:
             return self._active_provider
 

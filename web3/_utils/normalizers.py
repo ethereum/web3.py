@@ -5,8 +5,6 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    Optional,
-    Union,
     cast,
 )
 
@@ -139,7 +137,7 @@ def parse_basic_type_str(
 @parse_basic_type_str
 def abi_bytes_to_hex(
     abi_type: BasicType, type_str: TypeStr, data: Any
-) -> Optional[tuple[TypeStr, HexStr]]:
+) -> tuple[TypeStr, HexStr] | None:
     if abi_type.base != "bytes" or abi_type.is_array:
         return None
 
@@ -162,7 +160,7 @@ def abi_bytes_to_hex(
 @parse_basic_type_str
 def abi_int_to_hex(
     abi_type: BasicType, type_str: TypeStr, data: Any
-) -> Optional[tuple[TypeStr, HexStr]]:
+) -> tuple[TypeStr, HexStr] | None:
     if abi_type.base == "uint" and not abi_type.is_array:
         # double check?
         return type_str, hexstr_if_str(to_hex, data)
@@ -170,14 +168,14 @@ def abi_int_to_hex(
 
 
 @implicitly_identity
-def abi_string_to_hex(type_str: TypeStr, data: Any) -> Optional[tuple[TypeStr, str]]:
+def abi_string_to_hex(type_str: TypeStr, data: Any) -> tuple[TypeStr, str] | None:
     if type_str == "string":
         return type_str, text_if_str(to_hex, data)
     return None
 
 
 @implicitly_identity
-def abi_string_to_text(type_str: TypeStr, data: Any) -> Optional[tuple[TypeStr, str]]:
+def abi_string_to_text(type_str: TypeStr, data: Any) -> tuple[TypeStr, str] | None:
     if type_str == "string":
         return type_str, text_if_str(to_text, data)
     return None
@@ -187,7 +185,7 @@ def abi_string_to_text(type_str: TypeStr, data: Any) -> Optional[tuple[TypeStr, 
 @parse_basic_type_str
 def abi_bytes_to_bytes(
     abi_type: BasicType, type_str: TypeStr, data: Any
-) -> Optional[tuple[TypeStr, HexStr]]:
+) -> tuple[TypeStr, HexStr] | None:
     if abi_type.base == "bytes" and not abi_type.is_array:
         return type_str, hexstr_if_str(to_bytes, data)
     return None
@@ -196,7 +194,7 @@ def abi_bytes_to_bytes(
 @implicitly_identity
 def abi_address_to_hex(
     type_str: TypeStr, data: Any
-) -> Optional[tuple[TypeStr, ChecksumAddress]]:
+) -> tuple[TypeStr, ChecksumAddress] | None:
     if type_str == "address":
         validate_address(data)
         if is_binary_address(data):
@@ -246,7 +244,7 @@ BASE_RETURN_NORMALIZERS = [
 #
 
 
-def normalize_abi(abi: Union[ABI, str]) -> ABI:
+def normalize_abi(abi: ABI | str) -> ABI:
     if isinstance(abi, str):
         abi = json.loads(abi)
     validate_abi(cast(ABI, abi))
@@ -254,8 +252,8 @@ def normalize_abi(abi: Union[ABI, str]) -> ABI:
 
 
 def normalize_address(
-    ens: ENS, address: Optional[ChecksumAddress]
-) -> Union[ChecksumAddress, None]:
+    ens: ENS, address: ChecksumAddress | None
+) -> ChecksumAddress | None:
     if address:
         if is_ens_name(address):
             validate_name_has_address(ens, address)
@@ -265,14 +263,14 @@ def normalize_address(
 
 
 def normalize_address_no_ens(
-    address: Optional[ChecksumAddress],
-) -> Union[ChecksumAddress, None]:
+    address: ChecksumAddress | None,
+) -> ChecksumAddress | None:
     if address:
         validate_address(address)
     return address
 
 
-def normalize_bytecode(bytecode: Optional[bytes]) -> Union[HexBytes, None]:
+def normalize_bytecode(bytecode: bytes | None) -> HexBytes | None:
     if bytecode is not None:
         return HexBytes(bytecode)
     return bytecode

@@ -1,13 +1,10 @@
-from collections.abc import (
-    Awaitable,
-    Iterable,
-    Sequence,
-)
 from typing import (
     TYPE_CHECKING,
     Any,
+    Awaitable,
     Callable,
-    Optional,
+    Iterable,
+    Sequence,
     cast,
 )
 
@@ -107,10 +104,10 @@ class AsyncContractEvent(BaseContractEvent):
     @combomethod
     async def get_logs(
         self,
-        argument_filters: Optional[dict[str, Any]] = None,
-        from_block: Optional[BlockIdentifier] = None,
-        to_block: Optional[BlockIdentifier] = None,
-        block_hash: Optional[HexBytes] = None,
+        argument_filters: dict[str, Any] | None = None,
+        from_block: BlockIdentifier | None = None,
+        to_block: BlockIdentifier | None = None,
+        block_hash: HexBytes | None = None,
     ) -> Awaitable[Iterable[EventData]]:
         """
         Get events for this contract instance using eth_getLogs API.
@@ -200,11 +197,11 @@ class AsyncContractEvent(BaseContractEvent):
     async def create_filter(
         self,
         *,  # PEP 3102
-        argument_filters: Optional[dict[str, Any]] = None,
-        from_block: Optional[BlockIdentifier] = None,
+        argument_filters: dict[str, Any] | None = None,
+        from_block: BlockIdentifier | None = None,
         to_block: BlockIdentifier = "latest",
-        address: Optional[ChecksumAddress] = None,
-        topics: Optional[Sequence[Any]] = None,
+        address: ChecksumAddress | None = None,
+        topics: Sequence[Any] | None = None,
     ) -> AsyncLogFilter:
         """
         Create filter object that tracks logs emitted by this contract event.
@@ -237,7 +234,7 @@ class AsyncContractEvent(BaseContractEvent):
 
 class AsyncContractEvents(BaseContractEvents[AsyncContractEvent]):
     def __init__(
-        self, abi: ABI, w3: "AsyncWeb3[Any]", address: Optional[ChecksumAddress] = None
+        self, abi: ABI, w3: "AsyncWeb3[Any]", address: ChecksumAddress | None = None
     ) -> None:
         super().__init__(abi, w3, AsyncContractEvent, address)
 
@@ -248,10 +245,10 @@ class AsyncContractFunction(BaseContractFunction):
 
     async def call(
         self,
-        transaction: Optional[TxParams] = None,
+        transaction: TxParams | None = None,
         block_identifier: BlockIdentifier = None,
-        state_override: Optional[StateOverride] = None,
-        ccip_read_enabled: Optional[bool] = None,
+        state_override: StateOverride | None = None,
+        ccip_read_enabled: bool | None = None,
     ) -> Any:
         """
         Execute a contract function call using the `eth_call` interface.
@@ -302,7 +299,7 @@ class AsyncContractFunction(BaseContractFunction):
             **self.kwargs or {},
         )
 
-    async def transact(self, transaction: Optional[TxParams] = None) -> HexBytes:
+    async def transact(self, transaction: TxParams | None = None) -> HexBytes:
         setup_transaction = self._transact(transaction)
         abi_element_identifier = abi_to_signature(self.abi)
         return await async_transact_with_contract_function(
@@ -318,9 +315,9 @@ class AsyncContractFunction(BaseContractFunction):
 
     async def estimate_gas(
         self,
-        transaction: Optional[TxParams] = None,
-        block_identifier: Optional[BlockIdentifier] = None,
-        state_override: Optional[StateOverride] = None,
+        transaction: TxParams | None = None,
+        block_identifier: BlockIdentifier | None = None,
+        state_override: StateOverride | None = None,
     ) -> int:
         setup_transaction = self._estimate_gas(transaction)
         abi_element_identifier = abi_to_signature(self.abi)
@@ -337,9 +334,7 @@ class AsyncContractFunction(BaseContractFunction):
             **self.kwargs or {},
         )
 
-    async def build_transaction(
-        self, transaction: Optional[TxParams] = None
-    ) -> TxParams:
+    async def build_transaction(self, transaction: TxParams | None = None) -> TxParams:
         built_transaction = self._build_transaction(transaction)
         abi_element_identifier = abi_to_signature(self.abi)
         return await async_build_transaction_for_function(
@@ -357,7 +352,7 @@ class AsyncContractFunction(BaseContractFunction):
     def get_fallback_function(
         abi: ABI,
         async_w3: "AsyncWeb3[Any]",
-        address: Optional[ChecksumAddress] = None,
+        address: ChecksumAddress | None = None,
     ) -> "AsyncContractFunction":
         if abi and fallback_func_abi_exists(abi):
             return AsyncContractFunction.factory(
@@ -373,7 +368,7 @@ class AsyncContractFunction(BaseContractFunction):
     def get_receive_function(
         abi: ABI,
         async_w3: "AsyncWeb3[Any]",
-        address: Optional[ChecksumAddress] = None,
+        address: ChecksumAddress | None = None,
     ) -> "AsyncContractFunction":
         if abi and receive_func_abi_exists(abi):
             return AsyncContractFunction.factory(
@@ -391,8 +386,8 @@ class AsyncContractFunctions(BaseContractFunctions[AsyncContractFunction]):
         self,
         abi: ABI,
         w3: "AsyncWeb3[Any]",
-        address: Optional[ChecksumAddress] = None,
-        decode_tuples: Optional[bool] = False,
+        address: ChecksumAddress | None = None,
+        decode_tuples: bool | None = False,
     ) -> None:
         super().__init__(abi, w3, AsyncContractFunction, address, decode_tuples)
 
@@ -407,7 +402,7 @@ class AsyncContract(BaseContract):
     #: Instance of :class:`ContractEvents` presenting available Event ABIs
     events: AsyncContractEvents = None
 
-    def __init__(self, address: Optional[ChecksumAddress] = None) -> None:
+    def __init__(self, address: ChecksumAddress | None = None) -> None:
         """
         Create a new smart contract proxy object.
 
@@ -446,7 +441,7 @@ class AsyncContract(BaseContract):
 
     @classmethod
     def factory(
-        cls, w3: "AsyncWeb3[Any]", class_name: Optional[str] = None, **kwargs: Any
+        cls, w3: "AsyncWeb3[Any]", class_name: str | None = None, **kwargs: Any
     ) -> type[Self]:
         kwargs["w3"] = w3
 
@@ -563,11 +558,11 @@ class AsyncContractCaller(BaseContractCaller):
         abi: ABI,
         w3: "AsyncWeb3[Any]",
         address: ChecksumAddress,
-        transaction: Optional[TxParams] = None,
+        transaction: TxParams | None = None,
         block_identifier: BlockIdentifier = None,
-        ccip_read_enabled: Optional[bool] = None,
-        decode_tuples: Optional[bool] = False,
-        contract_functions: Optional[AsyncContractFunctions] = None,
+        ccip_read_enabled: bool | None = None,
+        decode_tuples: bool | None = False,
+        contract_functions: AsyncContractFunctions | None = None,
     ) -> None:
         super().__init__(abi, w3, address, decode_tuples=decode_tuples)
 
@@ -593,9 +588,9 @@ class AsyncContractCaller(BaseContractCaller):
 
     def __call__(
         self,
-        transaction: Optional[TxParams] = None,
+        transaction: TxParams | None = None,
         block_identifier: BlockIdentifier = None,
-        ccip_read_enabled: Optional[bool] = None,
+        ccip_read_enabled: bool | None = None,
     ) -> "AsyncContractCaller":
         if transaction is None:
             transaction = {}
@@ -615,13 +610,11 @@ class AsyncContractConstructor(BaseContractConstructor):
     w3: "AsyncWeb3[Any]"
 
     @combomethod
-    async def transact(self, transaction: Optional[TxParams] = None) -> HexBytes:
+    async def transact(self, transaction: TxParams | None = None) -> HexBytes:
         return await self.w3.eth.send_transaction(self._get_transaction(transaction))
 
     @combomethod
-    async def build_transaction(
-        self, transaction: Optional[TxParams] = None
-    ) -> TxParams:
+    async def build_transaction(self, transaction: TxParams | None = None) -> TxParams:
         """
         Build the transaction dictionary without sending
         """
@@ -631,8 +624,8 @@ class AsyncContractConstructor(BaseContractConstructor):
     @combomethod
     async def estimate_gas(
         self,
-        transaction: Optional[TxParams] = None,
-        block_identifier: Optional[BlockIdentifier] = None,
+        transaction: TxParams | None = None,
+        block_identifier: BlockIdentifier | None = None,
     ) -> int:
         transaction = self._estimate_gas(transaction)
 

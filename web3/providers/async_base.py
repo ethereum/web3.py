@@ -1,7 +1,4 @@
 import asyncio
-from collections.abc import (
-    Coroutine,
-)
 import contextvars
 import itertools
 import logging
@@ -9,8 +6,8 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
+    Coroutine,
     Optional,
-    Union,
     cast,
 )
 
@@ -86,9 +83,8 @@ class AsyncBaseProvider:
         self,
         cache_allowed_requests: bool = False,
         cacheable_requests: set[RPCEndpoint] = None,
-        request_cache_validation_threshold: Optional[
-            Union[RequestCacheValidationThreshold, int, Empty]
-        ] = empty,
+        request_cache_validation_threshold: None
+        | (RequestCacheValidationThreshold | int | Empty) = empty,
     ) -> None:
         self._request_cache = SimpleCache(1000)
         self._request_cache_lock: asyncio.Lock = asyncio.Lock()
@@ -102,7 +98,7 @@ class AsyncBaseProvider:
         ] = contextvars.ContextVar("batching_context", default=None)
         self._batch_request_func_cache: tuple[
             tuple[Middleware, ...],
-            Callable[..., Coroutine[Any, Any, Union[list[RPCResponse], RPCResponse]]],
+            Callable[..., Coroutine[Any, Any, list[RPCResponse] | RPCResponse]],
         ] = (None, None)
 
     @property
@@ -128,7 +124,7 @@ class AsyncBaseProvider:
 
     async def batch_request_func(
         self, async_w3: "AsyncWeb3[Any]", middleware_onion: MiddlewareOnion
-    ) -> Callable[..., Coroutine[Any, Any, Union[list[RPCResponse], RPCResponse]]]:
+    ) -> Callable[..., Coroutine[Any, Any, list[RPCResponse] | RPCResponse]]:
         middleware: tuple[Middleware, ...] = middleware_onion.as_tuple_of_middleware()
 
         cache_key = self._batch_request_func_cache[0]
@@ -150,7 +146,7 @@ class AsyncBaseProvider:
 
     async def make_batch_request(
         self, requests: list[tuple[RPCEndpoint, Any]]
-    ) -> Union[list[RPCResponse], RPCResponse]:
+    ) -> list[RPCResponse] | RPCResponse:
         raise NotImplementedError("Providers must implement this method")
 
     async def is_connected(self, show_traceback: bool = False) -> bool:
@@ -176,8 +172,8 @@ class AsyncBaseProvider:
     _ws: "WebSocketClientProtocol"
 
     # IPC typing
-    _reader: Optional[asyncio.StreamReader]
-    _writer: Optional[asyncio.StreamWriter]
+    _reader: asyncio.StreamReader | None
+    _writer: asyncio.StreamWriter | None
 
 
 class AsyncJSONBaseProvider(AsyncBaseProvider):

@@ -2,8 +2,9 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
+    Coroutine,
+    Sequence,
 )
-from collections.abc import Coroutine, Sequence
 
 from .attrdict import (
     AttributeDictMiddleware,

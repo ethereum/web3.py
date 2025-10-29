@@ -1,11 +1,7 @@
-from collections.abc import (
-    Awaitable,
-)
 from typing import (
+    Awaitable,
     Callable,
-    Optional,
     Protocol,
-    Union,
 )
 
 from eth_typing.evm import (
@@ -44,7 +40,7 @@ class UnlockAccountWrapper(Protocol):
         self,
         account: ChecksumAddress,
         passphrase: str,
-        duration: Optional[int] = None,
+        duration: int | None = None,
     ) -> bool:
         pass
 
@@ -149,14 +145,14 @@ class GethDebug(Module):
     def trace_transaction_munger(
         self,
         transaction_hash: _Hash32,
-        trace_config: Optional[TraceConfig] = None,
+        trace_config: TraceConfig | None = None,
     ) -> tuple[_Hash32, TraceConfig]:
         return (transaction_hash, trace_config)
 
     trace_transaction: Method[
         Callable[
             ...,
-            Union[CallTrace, PrestateTrace, OpcodeTrace, DiffModeTrace, FourByteTrace],
+            CallTrace | PrestateTrace | OpcodeTrace | DiffModeTrace | FourByteTrace,
         ]
     ] = Method(
         RPC.debug_traceTransaction,
@@ -304,9 +300,13 @@ class AsyncGethDebug(Module):
         Callable[
             ...,
             Awaitable[
-                Union[
-                    CallTrace, PrestateTrace, OpcodeTrace, FourByteTrace, DiffModeTrace
-                ]
+                (
+                    CallTrace
+                    | PrestateTrace
+                    | OpcodeTrace
+                    | FourByteTrace
+                    | DiffModeTrace
+                )
             ],
         ]
     ] = Method(RPC.debug_traceTransaction)
@@ -314,8 +314,8 @@ class AsyncGethDebug(Module):
     async def trace_transaction(
         self,
         transaction_hash: _Hash32,
-        trace_config: Optional[TraceConfig] = None,
-    ) -> Union[CallTrace, PrestateTrace, OpcodeTrace, FourByteTrace, DiffModeTrace]:
+        trace_config: TraceConfig | None = None,
+    ) -> CallTrace | PrestateTrace | OpcodeTrace | FourByteTrace | DiffModeTrace:
         return await self._trace_transaction(transaction_hash, trace_config)
 
 

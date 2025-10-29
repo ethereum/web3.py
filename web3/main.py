@@ -30,17 +30,21 @@ from functools import (
 from hexbytes import (
     HexBytes,
 )
+from collections.abc import (
+    AsyncIterator,
+)
 from typing import (
-    TYPE_CHECKING,
     Any,
     Callable,
+    Generator,
     Generic,
     Optional,
+    Sequence,
+    TYPE_CHECKING,
     TypeVar,
     Union,
     cast,
 )
-from collections.abc import AsyncIterator, Generator, Sequence
 
 from eth_typing import (
     AnyAddress,
@@ -154,7 +158,7 @@ if TYPE_CHECKING:
     from web3.providers.persistent import PersistentConnectionProvider  # noqa: F401
 
 
-def get_async_default_modules() -> dict[str, Union[type[Module], Sequence[Any]]]:
+def get_async_default_modules() -> dict[str, type[Module] | Sequence[Any]]:
     return {
         "eth": AsyncEth,
         "net": AsyncNet,
@@ -169,7 +173,7 @@ def get_async_default_modules() -> dict[str, Union[type[Module], Sequence[Any]]]
     }
 
 
-def get_default_modules() -> dict[str, Union[type[Module], Sequence[Any]]]:
+def get_default_modules() -> dict[str, type[Module] | Sequence[Any]]:
     return {
         "eth": Eth,
         "net": Net,
@@ -194,9 +198,9 @@ class BaseWeb3:
     manager: DefaultRequestManager
 
     # mypy types
-    eth: Union[Eth, AsyncEth]
-    net: Union[Net, AsyncNet]
-    geth: Union[Geth, AsyncGeth]
+    eth: Eth | AsyncEth
+    net: Net | AsyncNet
+    geth: Geth | AsyncGeth
 
     @property
     def middleware_onion(self) -> MiddlewareOnion:
@@ -206,36 +210,36 @@ class BaseWeb3:
     @staticmethod
     @wraps(to_bytes)
     def to_bytes(
-        primitive: Optional[Primitives] = None,
-        hexstr: Optional[HexStr] = None,
-        text: Optional[str] = None,
+        primitive: Primitives | None = None,
+        hexstr: HexStr | None = None,
+        text: str | None = None,
     ) -> bytes:
         return to_bytes(primitive, hexstr, text)
 
     @staticmethod
     @wraps(to_int)
     def to_int(
-        primitive: Optional[Primitives] = None,
-        hexstr: Optional[HexStr] = None,
-        text: Optional[str] = None,
+        primitive: Primitives | None = None,
+        hexstr: HexStr | None = None,
+        text: str | None = None,
     ) -> int:
         return to_int(primitive, hexstr, text)
 
     @staticmethod
     @wraps(to_hex)
     def to_hex(
-        primitive: Optional[Primitives] = None,
-        hexstr: Optional[HexStr] = None,
-        text: Optional[str] = None,
+        primitive: Primitives | None = None,
+        hexstr: HexStr | None = None,
+        text: str | None = None,
     ) -> HexStr:
         return to_hex(primitive, hexstr, text)
 
     @staticmethod
     @wraps(to_text)
     def to_text(
-        primitive: Optional[Primitives] = None,
-        hexstr: Optional[HexStr] = None,
-        text: Optional[str] = None,
+        primitive: Primitives | None = None,
+        hexstr: HexStr | None = None,
+        text: str | None = None,
     ) -> str:
         return to_text(primitive, hexstr, text)
 
@@ -247,12 +251,12 @@ class BaseWeb3:
     # Currency Utility
     @staticmethod
     @wraps(to_wei)
-    def to_wei(number: Union[int, float, str, decimal.Decimal], unit: str) -> Wei:
+    def to_wei(number: int | float | str | decimal.Decimal, unit: str) -> Wei:
         return cast(Wei, to_wei(number, unit))
 
     @staticmethod
     @wraps(from_wei)
-    def from_wei(number: int, unit: str) -> Union[int, decimal.Decimal]:
+    def from_wei(number: int, unit: str) -> int | decimal.Decimal:
         return from_wei(number, unit)
 
     # Address Utility
@@ -268,7 +272,7 @@ class BaseWeb3:
 
     @staticmethod
     @wraps(to_checksum_address)
-    def to_checksum_address(value: Union[AnyAddress, str, bytes]) -> ChecksumAddress:
+    def to_checksum_address(value: AnyAddress | str | bytes) -> ChecksumAddress:
         return to_checksum_address(value)
 
     @property
@@ -293,9 +297,9 @@ class BaseWeb3:
     @staticmethod
     @apply_to_return_value(HexBytes)
     def keccak(
-        primitive: Optional[Primitives] = None,
-        text: Optional[str] = None,
-        hexstr: Optional[HexStr] = None,
+        primitive: Primitives | None = None,
+        text: str | None = None,
+        hexstr: HexStr | None = None,
     ) -> bytes:
         if isinstance(primitive, (bytes, int, type(None))):
             input_bytes = to_bytes(primitive, hexstr=hexstr, text=text)
@@ -343,9 +347,7 @@ class BaseWeb3:
         )
         return cls.keccak(hexstr=hex_string)
 
-    def attach_modules(
-        self, modules: dict[str, Union[type[Module], Sequence[Any]]]
-    ) -> None:
+    def attach_modules(self, modules: dict[str, type[Module] | Sequence[Any]]) -> None:
         """
         Attach modules to the `Web3` instance.
         """
@@ -364,7 +366,7 @@ class BaseWeb3:
 
 def _validate_provider(
     w3: Union["Web3", "AsyncWeb3[Any]"],
-    provider: Optional[Union[BaseProvider, AsyncBaseProvider]],
+    provider: BaseProvider | AsyncBaseProvider | None,
 ) -> None:
     if provider is not None:
         if isinstance(w3, AsyncWeb3) and not isinstance(provider, AsyncBaseProvider):
@@ -393,12 +395,10 @@ class Web3(BaseWeb3):
 
     def __init__(
         self,
-        provider: Optional[BaseProvider] = None,
-        middleware: Optional[Sequence[Any]] = None,
-        modules: Optional[dict[str, Union[type[Module], Sequence[Any]]]] = None,
-        external_modules: Optional[
-            dict[str, Union[type[Module], Sequence[Any]]]
-        ] = None,
+        provider: BaseProvider | None = None,
+        middleware: Sequence[Any] | None = None,
+        modules: dict[str, type[Module] | Sequence[Any]] | None = None,
+        external_modules: None | (dict[str, type[Module] | Sequence[Any]]) = None,
         ens: Union[ENS, "Empty"] = empty,
     ) -> None:
         _validate_provider(self, provider)
@@ -466,12 +466,10 @@ class AsyncWeb3(BaseWeb3, Generic[AsyncProviderT]):
 
     def __init__(
         self,
-        provider: Optional[AsyncProviderT] = None,
-        middleware: Optional[Sequence[Any]] = None,
-        modules: Optional[dict[str, Union[type[Module], Sequence[Any]]]] = None,
-        external_modules: Optional[
-            dict[str, Union[type[Module], Sequence[Any]]]
-        ] = None,
+        provider: AsyncProviderT | None = None,
+        middleware: Sequence[Any] | None = None,
+        modules: dict[str, type[Module] | Sequence[Any]] | None = None,
+        external_modules: None | (dict[str, type[Module] | Sequence[Any]]) = None,
         ens: Union[AsyncENS, "Empty"] = empty,
     ) -> None:
         _validate_provider(self, provider)
@@ -519,7 +517,7 @@ class AsyncWeb3(BaseWeb3, Generic[AsyncProviderT]):
 
     # -- persistent connection settings -- #
 
-    _subscription_manager: Optional[SubscriptionManager] = None
+    _subscription_manager: SubscriptionManager | None = None
     _persistent_connection: Optional["PersistentConnection"] = None
 
     @property
