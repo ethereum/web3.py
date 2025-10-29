@@ -6,10 +6,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    List,
     Optional,
-    Set,
-    Tuple,
     Union,
     cast,
 )
@@ -60,7 +57,7 @@ class BaseProvider:
     # Set generic logger for the provider. Override in subclasses for more specificity.
     logger: logging.Logger = logging.getLogger("web3.providers.base.BaseProvider")
     # a tuple of (middleware, request_func)
-    _request_func_cache: Tuple[Tuple[Middleware, ...], Callable[..., RPCResponse]] = (
+    _request_func_cache: tuple[tuple[Middleware, ...], Callable[..., RPCResponse]] = (
         None,
         None,
     )
@@ -73,7 +70,7 @@ class BaseProvider:
     def __init__(
         self,
         cache_allowed_requests: bool = False,
-        cacheable_requests: Set[RPCEndpoint] = None,
+        cacheable_requests: set[RPCEndpoint] = None,
         request_cache_validation_threshold: Optional[
             Union[RequestCacheValidationThreshold, int, Empty]
         ] = empty,
@@ -88,8 +85,8 @@ class BaseProvider:
         self._batching_context: contextvars.ContextVar[
             Optional["RequestBatcher[Any]"]
         ] = contextvars.ContextVar("batching_context", default=None)
-        self._batch_request_func_cache: Tuple[
-            Tuple[Middleware, ...], Callable[..., Union[List[RPCResponse], RPCResponse]]
+        self._batch_request_func_cache: tuple[
+            tuple[Middleware, ...], Callable[..., Union[list[RPCResponse], RPCResponse]]
         ] = (None, None)
 
     @property
@@ -109,7 +106,7 @@ class BaseProvider:
         @returns a function that calls all the middleware and
             eventually self.make_request()
         """
-        middleware: Tuple[Middleware, ...] = middleware_onion.as_tuple_of_middleware()
+        middleware: tuple[Middleware, ...] = middleware_onion.as_tuple_of_middleware()
 
         cache_key = self._request_func_cache[0]
         if cache_key != middleware:
@@ -181,8 +178,8 @@ class JSONBaseProvider(BaseProvider):
 
     def batch_request_func(
         self, w3: "Web3", middleware_onion: MiddlewareOnion
-    ) -> Callable[..., Union[List[RPCResponse], RPCResponse]]:
-        middleware: Tuple[Middleware, ...] = middleware_onion.as_tuple_of_middleware()
+    ) -> Callable[..., Union[list[RPCResponse], RPCResponse]]:
+        middleware: tuple[Middleware, ...] = middleware_onion.as_tuple_of_middleware()
 
         cache_key = self._batch_request_func_cache[0]
         if cache_key != middleware:
@@ -200,7 +197,7 @@ class JSONBaseProvider(BaseProvider):
         return self._batch_request_func_cache[-1]
 
     def encode_batch_rpc_request(
-        self, requests: List[Tuple[RPCEndpoint, Any]]
+        self, requests: list[tuple[RPCEndpoint, Any]]
     ) -> bytes:
         return (
             b"["
@@ -211,6 +208,6 @@ class JSONBaseProvider(BaseProvider):
         )
 
     def make_batch_request(
-        self, requests: List[Tuple[RPCEndpoint, Any]]
-    ) -> Union[List[RPCResponse], RPCResponse]:
+        self, requests: list[tuple[RPCEndpoint, Any]]
+    ) -> Union[list[RPCResponse], RPCResponse]:
         raise NotImplementedError("Providers must implement this method")

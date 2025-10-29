@@ -1,6 +1,8 @@
+from collections.abc import (
+    Sequence,
+)
 from typing import (
     Optional,
-    Sequence,
 )
 
 from web3.exceptions import (

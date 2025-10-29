@@ -3,7 +3,6 @@ import time
 from typing import (
     TYPE_CHECKING,
     Any,
-    Dict,
     Optional,
     Union,
 )
@@ -262,7 +261,7 @@ class ContractLogicError(Web3Exception):
     def __init__(
         self,
         message: Optional[str] = None,
-        data: Optional[Union[str, Dict[str, str]]] = None,
+        data: Optional[Union[str, dict[str, str]]] = None,
     ):
         super().__init__(message, data)
         self.message = message
@@ -286,7 +285,7 @@ class OffchainLookup(ContractLogicError):
     Raised when a contract reverts with OffchainLookup as described in EIP-3668
     """
 
-    def __init__(self, payload: Dict[str, Any], data: Optional[str] = None) -> None:
+    def __init__(self, payload: dict[str, Any], data: Optional[str] = None) -> None:
         self.payload = payload
         self.data = data
         super().__init__(data=data)

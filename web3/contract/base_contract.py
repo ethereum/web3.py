@@ -1,17 +1,15 @@
+from collections.abc import (
+    Collection,
+    Iterable,
+    Sequence,
+)
 from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    Collection,
-    Dict,
     Generic,
-    Iterable,
-    List,
     NoReturn,
     Optional,
-    Sequence,
-    Tuple,
-    Type,
     Union,
     cast,
 )
@@ -172,8 +170,8 @@ class BaseContractEvent:
     w3: Union["Web3", "AsyncWeb3[Any]"] = None
     contract_abi: ABI = None
     abi: ABIEvent = None
-    argument_names: Tuple[str, ...] = tuple()
-    argument_types: Tuple[str, ...] = tuple()
+    argument_names: tuple[str, ...] = tuple()
+    argument_types: tuple[str, ...] = tuple()
     args: Any = None
     kwargs: Any = None
     _topic: HexStr = None
@@ -282,7 +280,7 @@ class BaseContractEvent:
     def _get_event_filter_params(
         self,
         abi: ABIEvent,
-        argument_filters: Optional[Dict[str, Any]] = None,
+        argument_filters: Optional[dict[str, Any]] = None,
         from_block: Optional[BlockIdentifier] = None,
         to_block: Optional[BlockIdentifier] = None,
         block_hash: Optional[HexBytes] = None,
@@ -329,7 +327,7 @@ class BaseContractEvent:
 
     @staticmethod
     def check_for_forbidden_api_filter_arguments(
-        event_abi: ABIEvent, _filters: Dict[str, Any]
+        event_abi: ABIEvent, _filters: dict[str, Any]
     ) -> None:
         name_indexed_inputs = {_input["name"]: _input for _input in event_abi["inputs"]}
 
@@ -351,7 +349,7 @@ class BaseContractEvent:
     def _process_get_logs_argument_filters(
         event_abi: ABIEvent,
         event_logs: Sequence[EventData],
-        argument_filters: Optional[Dict[str, Any]],
+        argument_filters: Optional[dict[str, Any]],
     ) -> Iterable[EventData]:
         if (
             argument_filters is None
@@ -398,7 +396,7 @@ class BaseContractEvent:
     @combomethod
     def _set_up_filter_builder(
         self,
-        argument_filters: Optional[Dict[str, Any]] = None,
+        argument_filters: Optional[dict[str, Any]] = None,
         from_block: Optional[BlockIdentifier] = None,
         to_block: BlockIdentifier = "latest",
         address: Optional[ChecksumAddress] = None,
@@ -478,7 +476,7 @@ class BaseContractEvents(Generic[TContractEvent]):
         self,
         abi: ABI,
         w3: Union["Web3", "AsyncWeb3[Any]"],
-        contract_event_type: Type[TContractEvent],
+        contract_event_type: type[TContractEvent],
         address: Optional[ChecksumAddress] = None,
     ) -> None:
         self.abi = abi
@@ -573,10 +571,10 @@ class BaseContractFunction:
     contract_abi: ABI = None
     abi: ABIFunction = None
     transaction: TxParams = None
-    arguments: Tuple[Any, ...] = None
+    arguments: tuple[Any, ...] = None
     decode_tuples: Optional[bool] = None
-    argument_names: Tuple[str, ...] = tuple()
-    argument_types: Tuple[str, ...] = tuple()
+    argument_names: tuple[str, ...] = tuple()
+    argument_types: tuple[str, ...] = tuple()
     args: Any = None
     kwargs: Any = None
 
@@ -760,7 +758,7 @@ class BaseContractFunction:
     def _encode_transaction_data(cls) -> HexStr:
         return add_0x_prefix(encode_abi(cls.w3, cls.abi, cls.arguments, cls.selector))
 
-    _return_data_normalizers: Optional[Tuple[Callable[..., Any], ...]] = tuple()
+    _return_data_normalizers: Optional[tuple[Callable[..., Any], ...]] = tuple()
 
     def __repr__(self) -> str:
         if self.abi:
@@ -782,7 +780,7 @@ class BaseContractFunction:
             return copy_contract_function(self, *args, **kwargs)
 
         all_functions = cast(
-            List[ABIFunction],
+            list[ABIFunction],
             filter_abi_by_type(
                 "function",
                 self.contract_abi,
@@ -797,7 +795,7 @@ class BaseContractFunction:
         ]
         num_args = len(args) + len(kwargs)
         function_abis_with_arg_count = cast(
-            List[ABIFunction],
+            list[ABIFunction],
             _filter_by_argument_count(
                 num_args,
                 function_abis,
@@ -895,7 +893,7 @@ class BaseContractFunctions(Generic[TContractFn]):
         self,
         abi: ABI,
         w3: Union["Web3", "AsyncWeb3[Any]"],
-        contract_function_class: Type[TContractFn],
+        contract_function_class: type[TContractFn],
         address: Optional[ChecksumAddress] = None,
         decode_tuples: Optional[bool] = False,
     ) -> None:
@@ -1062,7 +1060,7 @@ class BaseContract:
     @combomethod
     def all_functions(
         self,
-    ) -> List["BaseContractFunction"]:
+    ) -> list["BaseContractFunction"]:
         """
         Return all functions in the contract.
         """
@@ -1092,7 +1090,7 @@ class BaseContract:
         return self.get_function_by_identifier(fns, "signature")
 
     @combomethod
-    def find_functions_by_name(self, fn_name: str) -> List["BaseContractFunction"]:
+    def find_functions_by_name(self, fn_name: str) -> list["BaseContractFunction"]:
         """
         Return all functions with matching name.
         Raises a Web3ValueError if there is no match or more than one is found.
@@ -1136,7 +1134,7 @@ class BaseContract:
     @combomethod
     def decode_function_input(
         self, data: HexStr
-    ) -> Tuple["BaseContractFunction", Dict[str, Any]]:
+    ) -> tuple["BaseContractFunction", dict[str, Any]]:
         """
         Return a Tuple of the function selector and decoded arguments.
         """
@@ -1179,7 +1177,7 @@ class BaseContract:
     #  Events API
     #
     @combomethod
-    def all_events(self) -> List["BaseContractEvent"]:
+    def all_events(self) -> list["BaseContractEvent"]:
         """
         Return all events in the contract.
         """
@@ -1204,7 +1202,7 @@ class BaseContract:
         return self.get_event_by_identifier(events, "signature")
 
     @combomethod
-    def find_events_by_name(self, event_name: str) -> List["BaseContractEvent"]:
+    def find_events_by_name(self, event_name: str) -> list["BaseContractEvent"]:
         """
         Return all events with matching name.
         Raises a Web3ValueError if there is no match or more than one is found.
@@ -1229,7 +1227,7 @@ class BaseContract:
     @combomethod
     def find_events_by_selector(
         self, selector: Union[bytes, int, HexStr]
-    ) -> List["BaseContractEvent"]:
+    ) -> list["BaseContractEvent"]:
         """
         Return all events with matching selector.
         Raises a Web3ValueError if there is no match or more than one is found.
@@ -1256,7 +1254,7 @@ class BaseContract:
         return self.get_event_by_identifier(events, "selector")
 
     @combomethod
-    def find_events_by_topic(self, topic: HexStr) -> List["BaseContractEvent"]:
+    def find_events_by_topic(self, topic: HexStr) -> list["BaseContractEvent"]:
         """
         Return all events with matching topic.
         Raises a Web3ValueError if there is no match or more than one is found.
@@ -1288,7 +1286,7 @@ class BaseContract:
         w3: Union["Web3", "AsyncWeb3[Any]"],
         address: ChecksumAddress,
         callable_check: Callable[..., Any],
-    ) -> List[Any]:
+    ) -> list[Any]:
         raise NotImplementedError(
             "This method should be implemented in the inherited class"
         )
@@ -1308,7 +1306,7 @@ class BaseContract:
         w3: Union["Web3", "AsyncWeb3[Any]"],
         address: ChecksumAddress,
         callable_check: Callable[..., Any],
-    ) -> List[Any]:
+    ) -> list[Any]:
         raise NotImplementedError(
             "This method should be implemented in the inherited class"
         )
@@ -1325,7 +1323,7 @@ class BaseContract:
     def get_fallback_function(
         abi: ABI,
         w3: Union["Web3", "AsyncWeb3[Any]"],
-        function_type: Type["BaseContractFunction"],
+        function_type: type["BaseContractFunction"],
         address: Optional[ChecksumAddress] = None,
     ) -> "BaseContractFunction":
         if abi and fallback_func_abi_exists(abi):
@@ -1345,7 +1343,7 @@ class BaseContract:
     def get_receive_function(
         abi: ABI,
         w3: Union["Web3", "AsyncWeb3[Any]"],
-        function_type: Type["BaseContractFunction"],
+        function_type: type["BaseContractFunction"],
         address: Optional[ChecksumAddress] = None,
     ) -> "BaseContractFunction":
         if abi and receive_func_abi_exists(abi):
@@ -1364,7 +1362,7 @@ class BaseContract:
     #
     # Private Helpers
     #
-    _return_data_normalizers: Tuple[Callable[..., Any], ...] = tuple()
+    _return_data_normalizers: tuple[Callable[..., Any], ...] = tuple()
 
     @classmethod
     def _prepare_transaction(
@@ -1389,7 +1387,7 @@ class BaseContract:
         cls,
         fn_identifier: Optional[ABIElementIdentifier] = None,
         *args: Sequence[Any],
-        **kwargs: Dict[str, Any],
+        **kwargs: dict[str, Any],
     ) -> ABIElement:
         if not args and not kwargs:
             fn_identifier = get_abi_element_signature(fn_identifier)
@@ -1419,7 +1417,7 @@ class BaseContract:
 
     @combomethod
     def _encode_constructor_data(
-        cls, *args: Sequence[Any], **kwargs: Dict[str, Any]
+        cls, *args: Sequence[Any], **kwargs: dict[str, Any]
     ) -> HexStr:
         constructor_abi = find_constructor_abi_element_by_type(cls.abi)
 

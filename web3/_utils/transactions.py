@@ -2,8 +2,6 @@ import math
 from typing import (
     TYPE_CHECKING,
     Any,
-    Dict,
-    List,
     Literal,
     Optional,
     Union,
@@ -57,7 +55,7 @@ TX_PARAM_LITERALS = Literal[
     "blobVersionedHashes",
 ]
 
-VALID_TRANSACTION_PARAMS: List[TX_PARAM_LITERALS] = [
+VALID_TRANSACTION_PARAMS: list[TX_PARAM_LITERALS] = [
     "type",
     "from",
     "to",
@@ -121,7 +119,7 @@ def fill_transaction_defaults(w3: "Web3", transaction: TxParams) -> TxParams:
         or any_in_dict(DYNAMIC_FEE_TXN_PARAMS, transaction)
     )
 
-    defaults: Dict[str, Union[bytes, int]] = {}
+    defaults: dict[str, Union[bytes, int]] = {}
     for key, default_getter in TRANSACTION_DEFAULTS.items():
         if key not in transaction:
             if (

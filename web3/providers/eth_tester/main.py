@@ -1,9 +1,10 @@
+from collections.abc import (
+    Coroutine,
+)
 from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    Coroutine,
-    Dict,
     Literal,
     Optional,
     Union,
@@ -122,13 +123,13 @@ class EthereumTesterProvider(BaseProvider):
         ethereum_tester_middleware,
     )
     ethereum_tester = None
-    api_endpoints: Optional[Dict[str, Dict[str, Callable[..., RPCResponse]]]] = None
+    api_endpoints: Optional[dict[str, dict[str, Callable[..., RPCResponse]]]] = None
 
     def __init__(
         self,
         ethereum_tester: Optional[Union["EthereumTester", "BaseChainBackend"]] = None,
         api_endpoints: Optional[
-            Dict[str, Dict[str, Callable[..., RPCResponse]]]
+            dict[str, dict[str, Callable[..., RPCResponse]]]
         ] = None,
     ) -> None:
         # do not import eth_tester until runtime, it is not a default dependency
@@ -215,7 +216,7 @@ def _make_response(result: Any, response_id: str, message: str = "") -> RPCRespo
 def _make_request(
     method: RPCEndpoint,
     params: Any,
-    api_endpoints: Dict[str, Dict[str, Any]],
+    api_endpoints: dict[str, dict[str, Any]],
     ethereum_tester_instance: "EthereumTester",
     request_id: str,
 ) -> RPCResponse:

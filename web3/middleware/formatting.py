@@ -1,8 +1,10 @@
+from collections.abc import (
+    Coroutine,
+)
 from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    Coroutine,
     Literal,
     Optional,
     Union,

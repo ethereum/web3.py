@@ -1,7 +1,6 @@
 from typing import (
     TYPE_CHECKING,
     Any,
-    Dict,
     Optional,
     Union,
     cast,
@@ -47,13 +46,13 @@ if TYPE_CHECKING:
 
 # unused vars present in these funcs because they all need to have the same signature
 async def _estimate_gas(
-    async_w3: "AsyncWeb3[Any]", tx: TxParams, _defaults: Dict[str, Union[bytes, int]]
+    async_w3: "AsyncWeb3[Any]", tx: TxParams, _defaults: dict[str, Union[bytes, int]]
 ) -> int:
     return await async_w3.eth.estimate_gas(tx)
 
 
 async def _max_fee_per_gas(
-    async_w3: "AsyncWeb3[Any]", tx: TxParams, defaults: Dict[str, Union[bytes, int]]
+    async_w3: "AsyncWeb3[Any]", tx: TxParams, defaults: dict[str, Union[bytes, int]]
 ) -> Wei:
     block = await async_w3.eth.get_block("latest")
     max_priority_fee = tx.get(
@@ -63,13 +62,13 @@ async def _max_fee_per_gas(
 
 
 async def _max_priority_fee_gas(
-    async_w3: "AsyncWeb3[Any]", _tx: TxParams, _defaults: Dict[str, Union[bytes, int]]
+    async_w3: "AsyncWeb3[Any]", _tx: TxParams, _defaults: dict[str, Union[bytes, int]]
 ) -> Wei:
     return await async_w3.eth.max_priority_fee
 
 
 async def _chain_id(
-    async_w3: "AsyncWeb3[Any]", _tx: TxParams, _defaults: Dict[str, Union[bytes, int]]
+    async_w3: "AsyncWeb3[Any]", _tx: TxParams, _defaults: dict[str, Union[bytes, int]]
 ) -> int:
     return await async_w3.eth.chain_id
 
@@ -136,7 +135,7 @@ async def async_fill_transaction_defaults(
         or any_in_dict(DYNAMIC_FEE_TXN_PARAMS, transaction)
     )
 
-    defaults: Dict[str, Union[bytes, int]] = {}
+    defaults: dict[str, Union[bytes, int]] = {}
     for key, default_getter in TRANSACTION_DEFAULTS.items():
         if key not in transaction:
             if (

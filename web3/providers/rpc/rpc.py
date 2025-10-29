@@ -1,13 +1,12 @@
+from collections.abc import (
+    Iterable,
+)
 import logging
 import time
 from typing import (
     TYPE_CHECKING,
     Any,
-    Dict,
-    Iterable,
-    List,
     Optional,
-    Tuple,
     Union,
     cast,
 )
@@ -111,13 +110,13 @@ class HTTPProvider(JSONBaseProvider):
         self._exception_retry_configuration = value
 
     @to_dict
-    def get_request_kwargs(self) -> Iterable[Tuple[str, Any]]:
+    def get_request_kwargs(self) -> Iterable[tuple[str, Any]]:
         if "headers" not in self._request_kwargs:
             yield "headers", self.get_request_headers()
         yield from self._request_kwargs.items()
 
     @combomethod
-    def get_request_headers(cls) -> Dict[str, str]:
+    def get_request_headers(cls) -> dict[str, str]:
         if isinstance(cls, HTTPProvider):
             cls_name = cls.__class__.__name__
         else:
@@ -177,8 +176,8 @@ class HTTPProvider(JSONBaseProvider):
         return response
 
     def make_batch_request(
-        self, batch_requests: List[Tuple[RPCEndpoint, Any]]
-    ) -> Union[List[RPCResponse], RPCResponse]:
+        self, batch_requests: list[tuple[RPCEndpoint, Any]]
+    ) -> Union[list[RPCResponse], RPCResponse]:
         self.logger.debug("Making batch request HTTP, uri: `%s`", self.endpoint_uri)
         request_data = self.encode_batch_rpc_request(batch_requests)
         raw_response = self._request_session_manager.make_post_request(
@@ -190,5 +189,5 @@ class HTTPProvider(JSONBaseProvider):
             # RPC errors return only one response with the error object
             return response
         return sort_batch_response_by_response_ids(
-            cast(List[RPCResponse], sort_batch_response_by_response_ids(response))
+            cast(list[RPCResponse], sort_batch_response_by_response_ids(response))
         )

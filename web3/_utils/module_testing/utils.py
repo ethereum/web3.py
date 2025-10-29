@@ -5,7 +5,6 @@ import copy
 from typing import (
     TYPE_CHECKING,
     Any,
-    Dict,
     Union,
     cast,
 )
@@ -98,9 +97,9 @@ class RequestMocker:
     def __init__(
         self,
         w3: Union["AsyncWeb3[Any]", "Web3"],
-        mock_results: Dict[Union["RPCEndpoint", str], Any] = None,
-        mock_errors: Dict[Union["RPCEndpoint", str], Any] = None,
-        mock_responses: Dict[Union["RPCEndpoint", str], Any] = None,
+        mock_results: dict[Union["RPCEndpoint", str], Any] = None,
+        mock_errors: dict[Union["RPCEndpoint", str], Any] = None,
+        mock_responses: dict[Union["RPCEndpoint", str], Any] = None,
     ):
         self.w3 = w3
         self.mock_results = mock_results or {}
@@ -327,7 +326,7 @@ class RequestMocker:
             return mocked_result
 
     @staticmethod
-    def _create_error_object(error: Dict[str, Any]) -> Dict[str, Any]:
+    def _create_error_object(error: dict[str, Any]) -> dict[str, Any]:
         code = error.get("code", -32000)
         message = error.get("message", "Mocked error")
         return {"error": merge({"code": code, "message": message}, error)}

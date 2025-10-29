@@ -3,7 +3,6 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    Dict,
     Optional,
 )
 
@@ -307,7 +306,7 @@ request_formatters = {
     RPCEndpoint("evm_revert"): apply_formatters_to_args(hex_to_integer),
 }
 
-result_formatters: Optional[Dict[RPCEndpoint, Callable[..., Any]]] = {
+result_formatters: Optional[dict[RPCEndpoint, Callable[..., Any]]] = {
     RPCEndpoint("eth_getBlockByHash"): apply_formatter_if(
         is_dict, compose(block_result_remapper, block_result_formatter)
     ),

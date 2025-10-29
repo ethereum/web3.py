@@ -1,15 +1,13 @@
+from collections.abc import (
+    Collection,
+    Iterator,
+    Sequence,
+)
 from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    Collection,
-    Dict,
-    Iterator,
-    List,
     Optional,
-    Sequence,
-    Set,
-    Tuple,
     Union,
 )
 
@@ -68,8 +66,8 @@ if TYPE_CHECKING:
 
 
 def _sanitize_addresses(
-    *address: Union[ChecksumAddress, List[ChecksumAddress]],
-) -> Union[ChecksumAddress, List[ChecksumAddress]]:
+    *address: Union[ChecksumAddress, list[ChecksumAddress]],
+) -> Union[ChecksumAddress, list[ChecksumAddress]]:
     """
     Validates an address or list of addresses and returns a single
     ChecksumAddress or a list of ChecksumAddresses.
@@ -78,7 +76,7 @@ def _sanitize_addresses(
     :param address: A single address or a list of addresses.
     :return: A list of ChecksumAddress.
     """
-    address_set: Set[ChecksumAddress] = set()
+    address_set: set[ChecksumAddress] = set()
     for arg in address:
         if not arg:
             continue
@@ -103,13 +101,13 @@ def _sanitize_addresses(
 def construct_event_filter_params(
     event_abi: ABIEvent,
     abi_codec: ABICodec,
-    contract_address: Optional[Union[ChecksumAddress, List[ChecksumAddress]]] = None,
-    argument_filters: Optional[Dict[str, Any]] = None,
+    contract_address: Optional[Union[ChecksumAddress, list[ChecksumAddress]]] = None,
+    argument_filters: Optional[dict[str, Any]] = None,
     topics: Optional[Sequence[HexStr]] = None,
     from_block: Optional[BlockIdentifier] = None,
     to_block: Optional[BlockIdentifier] = None,
-    address: Optional[Union[ChecksumAddress, List[ChecksumAddress]]] = None,
-) -> Tuple[List[List[Optional[HexStr]]], FilterParams]:
+    address: Optional[Union[ChecksumAddress, list[ChecksumAddress]]] = None,
+) -> tuple[list[list[Optional[HexStr]]], FilterParams]:
     filter_params: FilterParams = {}
     topic_set: Sequence[HexStr] = construct_event_topic_set(
         event_abi, abi_codec, argument_filters
@@ -141,7 +139,7 @@ def construct_event_filter_params(
 
 
 class BaseFilter:
-    callbacks: List[Callable[..., Any]] = None
+    callbacks: list[Callable[..., Any]] = None
     stopped = False
     poll_interval = None
     filter_id = None
@@ -174,7 +172,7 @@ class BaseFilter:
 
     def _format_log_entries(
         self, log_entries: Optional[Iterator[LogReceipt]] = None
-    ) -> List[LogReceipt]:
+    ) -> list[LogReceipt]:
         if log_entries is None:
             return []
 
@@ -189,13 +187,13 @@ class Filter(BaseFilter):
         self.eth_module = eth_module
         super().__init__(filter_id)
 
-    def get_new_entries(self) -> List[LogReceipt]:
+    def get_new_entries(self) -> list[LogReceipt]:
         log_entries = self._filter_valid_entries(
             self.eth_module.get_filter_changes(self.filter_id)
         )
         return self._format_log_entries(log_entries)
 
-    def get_all_entries(self) -> List[LogReceipt]:
+    def get_all_entries(self) -> list[LogReceipt]:
         log_entries = self._filter_valid_entries(
             self.eth_module.get_filter_logs(self.filter_id)
         )
@@ -207,12 +205,12 @@ class AsyncFilter(BaseFilter):
         self.eth_module = eth_module
         super().__init__(filter_id)
 
-    async def get_new_entries(self) -> List[LogReceipt]:
+    async def get_new_entries(self) -> list[LogReceipt]:
         filter_changes = await self.eth_module.get_filter_changes(self.filter_id)
         log_entries = self._filter_valid_entries(filter_changes)
         return self._format_log_entries(log_entries)
 
-    async def get_all_entries(self) -> List[LogReceipt]:
+    async def get_all_entries(self) -> list[LogReceipt]:
         filter_logs = await self.eth_module.get_filter_logs(self.filter_id)
         log_entries = self._filter_valid_entries(filter_logs)
         return self._format_log_entries(log_entries)
@@ -257,7 +255,7 @@ class LogFilter(Filter):
         return entry
 
     def set_data_filters(
-        self, data_filter_set: Collection[Tuple[TypeStr, Any]]
+        self, data_filter_set: Collection[tuple[TypeStr, Any]]
     ) -> None:
         """
         Sets the data filters (non indexed argument filters)
@@ -300,7 +298,7 @@ class AsyncLogFilter(AsyncFilter):
         return entry
 
     def set_data_filters(
-        self, data_filter_set: Collection[Tuple[TypeStr, Any]]
+        self, data_filter_set: Collection[tuple[TypeStr, Any]]
     ) -> None:
         """
         Sets the data filters (non indexed argument filters)
@@ -346,7 +344,7 @@ def normalize_data_values(type_string: TypeStr, data_value: Any) -> Any:
 
 @curry
 def match_fn(
-    codec: ABICodec, match_values_and_abi: Collection[Tuple[str, Any]], data: Any
+    codec: ABICodec, match_values_and_abi: Collection[tuple[str, Any]], data: Any
 ) -> bool:
     """
     Match function used for filtering non-indexed event arguments.

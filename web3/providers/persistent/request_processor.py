@@ -1,14 +1,9 @@
 import asyncio
-import sys
 from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    Dict,
-    Generic,
-    List,
     Optional,
-    Tuple,
     TypeVar,
     Union,
 )
@@ -44,20 +39,15 @@ if TYPE_CHECKING:
 
 T = TypeVar("T")
 
-# TODO: This is an ugly hack for python 3.8. Remove this after we drop support for it
-#  and use `asyncio.Queue[T]` type directly in the `TaskReliantQueue` class.
-if sys.version_info >= (3, 9):
-
-    class _TaskReliantQueue(asyncio.Queue[T], Generic[T]):
-        pass
-
-else:
-
-    class _TaskReliantQueue(asyncio.Queue, Generic[T]):  # type: ignore
-        pass
+# # TODO: This is an ugly hack for python 3.8. Remove this after we drop support for it
+# #  and use `asyncio.Queue[T]` type directly in the `TaskReliantQueue` class.
 
 
-class TaskReliantQueue(_TaskReliantQueue[T]):
+# class _TaskReliantQueue(asyncio.Queue[T], Generic[T]):
+#     pass
+
+
+class TaskReliantQueue(asyncio.Queue[T]):
     """
     A queue that relies on a task to be running to process items in the queue.
     """
@@ -96,7 +86,7 @@ class RequestProcessor:
         ] = TaskReliantQueue(maxsize=subscription_response_queue_size)
 
     @property
-    def active_subscriptions(self) -> Dict[str, Any]:
+    def active_subscriptions(self) -> dict[str, Any]:
         return {
             value.subscription_id: {"params": value.params}
             for key, value in self._request_information_cache.items()
@@ -110,8 +100,8 @@ class RequestProcessor:
         request_id: Optional[RPCId],
         method: RPCEndpoint,
         params: Any,
-        response_formatters: Tuple[
-            Union[Dict[str, Callable[..., Any]], Callable[..., Any]],
+        response_formatters: tuple[
+            Union[dict[str, Callable[..., Any]], Callable[..., Any]],
             Callable[..., Any],
             Callable[..., Any],
         ],
@@ -257,7 +247,7 @@ class RequestProcessor:
     # raw response cache
 
     def _is_batch_response(
-        self, raw_response: Union[List[RPCResponse], RPCResponse]
+        self, raw_response: Union[list[RPCResponse], RPCResponse]
     ) -> bool:
         return isinstance(raw_response, list) or (
             isinstance(raw_response, dict)

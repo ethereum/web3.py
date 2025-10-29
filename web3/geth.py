@@ -1,10 +1,10 @@
-from typing import (
+from collections.abc import (
     Awaitable,
+)
+from typing import (
     Callable,
-    List,
     Optional,
     Protocol,
-    Tuple,
     Union,
 )
 
@@ -89,7 +89,7 @@ def admin_start_params_munger(
     port: int = 8546,
     cors: str = "",
     apis: str = "eth,net,web3",
-) -> Tuple[str, int, str, str]:
+) -> tuple[str, int, str, str]:
     return (host, port, cors, apis)
 
 
@@ -115,7 +115,7 @@ class GethAdmin(Module):
         is_property=True,
     )
 
-    peers: Method[Callable[[], List[Peer]]] = Method(
+    peers: Method[Callable[[], list[Peer]]] = Method(
         RPC.admin_peers,
         is_property=True,
     )
@@ -150,7 +150,7 @@ class GethDebug(Module):
         self,
         transaction_hash: _Hash32,
         trace_config: Optional[TraceConfig] = None,
-    ) -> Tuple[_Hash32, TraceConfig]:
+    ) -> tuple[_Hash32, TraceConfig]:
         return (transaction_hash, trace_config)
 
     trace_transaction: Method[
@@ -236,12 +236,12 @@ class AsyncGethAdmin(Module):
     async def node_info(self) -> NodeInfo:
         return await self._node_info()
 
-    _peers: Method[Callable[[], Awaitable[List[Peer]]]] = Method(
+    _peers: Method[Callable[[], Awaitable[list[Peer]]]] = Method(
         RPC.admin_peers,
         is_property=True,
     )
 
-    async def peers(self) -> List[Peer]:
+    async def peers(self) -> list[Peer]:
         return await self._peers()
 
     # start_http and stop_http

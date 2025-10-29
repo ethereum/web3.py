@@ -4,7 +4,6 @@ import logging
 import os
 from typing import (
     Any,
-    Dict,
     Optional,
     Union,
 )
@@ -60,7 +59,7 @@ class WebSocketProvider(PersistentConnectionProvider):
     def __init__(
         self,
         endpoint_uri: Optional[Union[URI, str]] = None,
-        websocket_kwargs: Optional[Dict[str, Any]] = None,
+        websocket_kwargs: Optional[dict[str, Any]] = None,
         # uses binary frames by default
         use_text_frames: Optional[bool] = False,
         # `PersistentConnectionProvider` kwargs can be passed through
