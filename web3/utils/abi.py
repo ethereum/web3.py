@@ -1,12 +1,11 @@
+from collections.abc import (
+    Sequence,
+)
 import functools
 from typing import (
     Any,
     Callable,
-    Dict,
-    List,
     Optional,
-    Sequence,
-    Tuple,
     Union,
     cast,
 )
@@ -87,13 +86,13 @@ from web3.types import (
 )
 
 
-def _filter_by_signature(signature: str, contract_abi: ABI) -> List[ABIElement]:
+def _filter_by_signature(signature: str, contract_abi: ABI) -> list[ABIElement]:
     return [abi for abi in contract_abi if abi_to_signature(abi) == signature]
 
 
 def _filter_by_argument_count(
     num_arguments: int, contract_abi: ABI
-) -> List[ABIElement]:
+) -> list[ABIElement]:
     return [
         abi
         for abi in contract_abi
@@ -106,9 +105,9 @@ def _filter_by_argument_count(
 def _filter_by_encodability(
     abi_codec: codec.ABIEncoder,
     args: Sequence[Any],
-    kwargs: Dict[str, Any],
+    kwargs: dict[str, Any],
     contract_abi: ABI,
-) -> List[ABICallable]:
+) -> list[ABICallable]:
     return [
         cast(ABICallable, function_abi)
         for function_abi in contract_abi
@@ -206,7 +205,7 @@ def _build_abi_input_error(
     """
     Build a string representation of the ABI input error.
     """
-    errors: Dict[str, str] = dict(
+    errors: dict[str, str] = dict(
         {
             "zero_args": "",
             "invalid_args": "",
@@ -219,8 +218,8 @@ def _build_abi_input_error(
         abi_element_input_types = get_abi_input_types(abi_element)
         abi_signature = abi_to_signature(abi_element)
         abi_element_name = get_name_from_abi_element_identifier(abi_signature)
-        types: Tuple[str, ...] = tuple()
-        aligned_args: Tuple[Any, ...] = tuple()
+        types: tuple[str, ...] = tuple()
+        aligned_args: tuple[Any, ...] = tuple()
 
         if len(abi_element_input_types) == num_args:
             if num_args == 0:
@@ -378,7 +377,7 @@ def _build_abi_filters(
     *args: Optional[Any],
     abi_codec: Optional[Any] = None,
     **kwargs: Optional[Any],
-) -> List[Callable[..., Sequence[ABIElement]]]:
+) -> list[Callable[..., Sequence[ABIElement]]]:
     """
     Build a list of ABI filters to find an ABI element within a contract ABI. Each
     filter is a partial function that takes a contract ABI and returns a filtered list.
@@ -401,7 +400,7 @@ def _build_abi_filters(
     if abi_element_identifier in ["constructor", "fallback", "receive"]:
         return [functools.partial(filter_abi_by_type, abi_element_identifier)]
 
-    filters: List[Callable[..., Sequence[ABIElement]]] = []
+    filters: list[Callable[..., Sequence[ABIElement]]] = []
 
     arg_count = 0
     if args or kwargs:
@@ -456,7 +455,7 @@ def get_abi_element_info(
     abi_element_identifier: ABIElementIdentifier,
     *args: Optional[Sequence[Any]],
     abi_codec: Optional[Any] = None,
-    **kwargs: Optional[Dict[str, Any]],
+    **kwargs: Optional[dict[str, Any]],
 ) -> ABIElementInfo:
     """
     Information about the function ABI, selector and input arguments.
@@ -510,7 +509,7 @@ def get_abi_element_info(
         abi, abi_element_identifier, *args, abi_codec=abi_codec, **kwargs
     )
     fn_selector = encode_hex(function_abi_to_4byte_selector(fn_abi))
-    fn_inputs: Tuple[Any, ...] = tuple()
+    fn_inputs: tuple[Any, ...] = tuple()
 
     if fn_abi["type"] == "fallback" or fn_abi["type"] == "receive":
         return ABIElementInfo(abi=fn_abi, selector=fn_selector, arguments=tuple())
@@ -623,7 +622,7 @@ def check_if_arguments_can_be_encoded(
     abi_element: ABIElement,
     *args: Optional[Sequence[Any]],
     abi_codec: Optional[Any] = None,
-    **kwargs: Optional[Dict[str, Any]],
+    **kwargs: Optional[dict[str, Any]],
 ) -> bool:
     """
     Check if the provided arguments can be encoded with the element ABI.
@@ -715,7 +714,7 @@ def get_event_abi(
         >>> get_event_abi(abi, 'MyEvent')
         {'type': 'event', 'name': 'MyEvent', 'inputs': []}
     """
-    filters: List[functools.partial[Sequence[ABIElement]]] = [
+    filters: list[functools.partial[Sequence[ABIElement]]] = [
         functools.partial(filter_abi_by_type, "event"),
     ]
 

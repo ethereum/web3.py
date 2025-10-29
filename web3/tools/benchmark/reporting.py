@@ -3,7 +3,6 @@ from logging import (
 )
 from typing import (
     Any,
-    Dict,
 )
 
 
@@ -22,7 +21,7 @@ def print_header(logger: Logger, num_calls: int) -> None:
 
 def print_entry(
     logger: Logger,
-    method_benchmarks: Dict[str, Any],
+    method_benchmarks: dict[str, Any],
 ) -> None:
     logger.info(
         "|{:^26}|{:^20.10}|{:^20.10}|{:^20.10}|{:^20.10}|".format(

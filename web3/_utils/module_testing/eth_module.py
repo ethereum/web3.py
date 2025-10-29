@@ -10,8 +10,6 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    List,
-    Type,
     Union,
     cast,
 )
@@ -660,7 +658,7 @@ class AsyncEthModuleTest:
 
     @pytest.mark.asyncio
     async def test_ExtraDataToPOAMiddleware(
-        self, async_w3: "AsyncWeb3[Any]", request_mocker: Type[RequestMocker]
+        self, async_w3: "AsyncWeb3[Any]", request_mocker: type[RequestMocker]
     ) -> None:
         async_w3.middleware_onion.inject(ExtraDataToPOAMiddleware, "poa", layer=0)
         extra_data = f"0x{'ff' * 33}"
@@ -1011,7 +1009,7 @@ class AsyncEthModuleTest:
 
     @pytest.mark.asyncio
     async def test_eth_max_priority_fee_with_fee_history_calculation(
-        self, async_w3: "AsyncWeb3[Any]", request_mocker: Type[RequestMocker]
+        self, async_w3: "AsyncWeb3[Any]", request_mocker: type[RequestMocker]
     ) -> None:
         async with request_mocker(
             async_w3,
@@ -1519,7 +1517,7 @@ class AsyncEthModuleTest:
         async_w3: "AsyncWeb3[Any]",
         async_panic_errors_contract: "AsyncContract",
         panic_error: str,
-        params: List[Any],
+        params: list[Any],
     ) -> None:
         method = getattr(
             async_panic_errors_contract.functions,
@@ -2697,7 +2695,7 @@ class EthModuleTest:
         assert is_integer(max_priority_fee)
 
     def test_eth_max_priority_fee_with_fee_history_calculation(
-        self, w3: "Web3", request_mocker: Type[RequestMocker]
+        self, w3: "Web3", request_mocker: type[RequestMocker]
     ) -> None:
         with request_mocker(
             w3,
@@ -4171,7 +4169,7 @@ class EthModuleTest:
         w3: "Web3",
         panic_errors_contract: "Contract",
         panic_error: str,
-        params: List[Any],
+        params: list[Any],
     ) -> None:
         method = getattr(
             panic_errors_contract.functions,

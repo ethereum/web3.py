@@ -1,3 +1,6 @@
+from collections.abc import (
+    Sequence,
+)
 from copy import (
     deepcopy,
 )
@@ -5,8 +8,6 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Optional,
-    Sequence,
-    Tuple,
     Union,
     cast,
 )
@@ -100,7 +101,7 @@ class ENS(BaseENS):
         self,
         provider: "BaseProvider" = None,
         addr: ChecksumAddress = None,
-        middleware: Optional[Sequence[Tuple["Middleware", str]]] = None,
+        middleware: Optional[Sequence[tuple["Middleware", str]]] = None,
     ) -> None:
         """
         :param provider: a single provider used to connect to Ethereum
@@ -428,7 +429,7 @@ class ENS(BaseENS):
         self,
         normal_name: str,
         fn_name: str = "addr",
-    ) -> Tuple[Optional["Contract"], str]:
+    ) -> tuple[Optional["Contract"], str]:
         current_name = normal_name
 
         # look for a resolver, starting at the full name and taking the parent
@@ -511,7 +512,7 @@ class ENS(BaseENS):
 
     def _first_owner(
         self, name: str
-    ) -> Tuple[Optional[ChecksumAddress], Sequence[str], str]:
+    ) -> tuple[Optional[ChecksumAddress], Sequence[str], str]:
         """
         Takes a name, and returns the owner of the deepest subdomain that has an owner
 

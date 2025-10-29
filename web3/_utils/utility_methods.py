@@ -1,8 +1,9 @@
-from typing import (
-    Any,
+from collections.abc import (
     Iterable,
     Mapping,
-    Set,
+)
+from typing import (
+    Any,
     Union,
 )
 
@@ -60,8 +61,8 @@ def none_in_dict(
 
 
 def either_set_is_a_subset(
-    set1: Set[Any],
-    set2: Set[Any],
+    set1: set[Any],
+    set2: set[Any],
     percentage: int = 100,
 ) -> bool:
     """

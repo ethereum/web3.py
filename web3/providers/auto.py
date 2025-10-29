@@ -1,13 +1,11 @@
+from collections.abc import (
+    Sequence,
+)
 import os
 from typing import (
     Any,
     Callable,
-    Dict,
-    List,
     Optional,
-    Sequence,
-    Tuple,
-    Type,
     Union,
 )
 from urllib.parse import (
@@ -44,7 +42,7 @@ def load_provider_from_environment() -> Optional[JSONBaseProvider]:
 
 
 def load_provider_from_uri(
-    uri_string: URI, headers: Optional[Dict[str, Tuple[str, str]]] = None
+    uri_string: URI, headers: Optional[dict[str, tuple[str, str]]] = None
 ) -> JSONBaseProvider:
     uri = urlparse(uri_string)
     if uri.scheme == "file":
@@ -69,7 +67,7 @@ class AutoProvider(JSONBaseProvider):
     def __init__(
         self,
         potential_providers: Optional[
-            Sequence[Union[Callable[..., JSONBaseProvider], Type[JSONBaseProvider]]]
+            Sequence[Union[Callable[..., JSONBaseProvider], type[JSONBaseProvider]]]
         ] = None,
     ) -> None:
         """
@@ -93,8 +91,8 @@ class AutoProvider(JSONBaseProvider):
             return self._proxy_request(method, params, use_cache=False)
 
     def make_batch_request(
-        self, requests: List[Tuple[RPCEndpoint, Any]]
-    ) -> Union[List[RPCResponse], RPCResponse]:
+        self, requests: list[tuple[RPCEndpoint, Any]]
+    ) -> Union[list[RPCResponse], RPCResponse]:
         try:
             return self._proxy_batch_request(requests)
         except OSError:
@@ -117,8 +115,8 @@ class AutoProvider(JSONBaseProvider):
         return provider.make_request(method, params)
 
     def _proxy_batch_request(
-        self, requests: List[Tuple[RPCEndpoint, Any]], use_cache: bool = True
-    ) -> Union[List[RPCResponse], RPCResponse]:
+        self, requests: list[tuple[RPCEndpoint, Any]], use_cache: bool = True
+    ) -> Union[list[RPCResponse], RPCResponse]:
         provider = self._get_active_provider(use_cache)
         if provider is None:
             raise CannotHandleRequest(

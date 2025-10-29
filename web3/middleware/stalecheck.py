@@ -1,9 +1,11 @@
+from collections.abc import (
+    Collection,
+)
 import time
 from typing import (  # noqa: F401
     TYPE_CHECKING,
     Any,
     Callable,
-    Collection,
     Dict,
     Optional,
     Union,
@@ -45,7 +47,7 @@ def _is_fresh(block: BlockData, allowable_delay: int) -> bool:
 class StalecheckMiddlewareBuilder(Web3MiddlewareBuilder):
     allowable_delay: int
     skip_stalecheck_for_methods: Collection[str]
-    cache: Dict[str, Optional[BlockData]]
+    cache: dict[str, Optional[BlockData]]
 
     @staticmethod
     @curry

@@ -1,16 +1,15 @@
 import asyncio
+from collections.abc import (
+    AsyncGenerator,
+    Coroutine,
+    Sequence,
+)
 import logging
 from typing import (
     TYPE_CHECKING,
     Any,
-    AsyncGenerator,
     Callable,
-    Coroutine,
-    Dict,
-    List,
     Optional,
-    Sequence,
-    Tuple,
     Union,
     cast,
 )
@@ -107,7 +106,7 @@ class RequestManager:
         self,
         w3: Union["AsyncWeb3[Any]", "Web3"],
         provider: Optional[Union["BaseProvider", "AsyncBaseProvider"]] = None,
-        middleware: Optional[Sequence[Tuple[Middleware, str]]] = None,
+        middleware: Optional[Sequence[tuple[Middleware, str]]] = None,
     ) -> None:
         self.w3 = w3
 
@@ -136,7 +135,7 @@ class RequestManager:
         self._provider = provider
 
     @staticmethod
-    def get_default_middleware() -> List[Tuple[Middleware, str]]:
+    def get_default_middleware() -> list[tuple[Middleware, str]]:
         """
         List the default middleware for the request manager.
         Documentation should remain in sync with these defaults.
@@ -262,8 +261,8 @@ class RequestManager:
         return RequestBatcher(self.w3)
 
     def _make_batch_request(
-        self, requests_info: List[Tuple[Tuple["RPCEndpoint", Any], Tuple[Any, ...]]]
-    ) -> List[RPCResponse]:
+        self, requests_info: list[tuple[tuple["RPCEndpoint", Any], tuple[Any, ...]]]
+    ) -> list[RPCResponse]:
         """
         Make a batch request using the provider
         """
@@ -291,10 +290,10 @@ class RequestManager:
 
     async def _async_make_batch_request(
         self,
-        requests_info: List[
-            Coroutine[Any, Any, Tuple[Tuple["RPCEndpoint", Any], Tuple[Any]]]
+        requests_info: list[
+            Coroutine[Any, Any, tuple[tuple["RPCEndpoint", Any], tuple[Any]]]
         ],
-    ) -> List[RPCResponse]:
+    ) -> list[RPCResponse]:
         """
         Make an asynchronous batch request using the provider
         """
@@ -315,7 +314,7 @@ class RequestManager:
 
         if isinstance(response, list):
             # expected format
-            response = cast(List[RPCResponse], response)
+            response = cast(list[RPCResponse], response)
             formatted_responses = [
                 self._format_batched_response(info, resp)
                 for info, resp in zip(unpacked_requests_info, response)
@@ -326,8 +325,8 @@ class RequestManager:
             raise_error_for_batch_response(response, self.logger)
 
     async def _async_send_batch(
-        self, requests: List[Tuple["RPCEndpoint", Any]]
-    ) -> List[RPCRequest]:
+        self, requests: list[tuple["RPCEndpoint", Any]]
+    ) -> list[RPCRequest]:
         """
         Send a batch request via socket.
         """
@@ -346,7 +345,7 @@ class RequestManager:
         )
         return await send_func(requests)
 
-    async def _async_recv_batch(self, requests: List[RPCRequest]) -> List[RPCResponse]:
+    async def _async_recv_batch(self, requests: list[RPCRequest]) -> list[RPCResponse]:
         """
         Receive a batch request via socket.
         """
@@ -367,10 +366,10 @@ class RequestManager:
 
     async def _async_make_socket_batch_request(
         self,
-        requests_info: List[
-            Coroutine[Any, Any, Tuple[Tuple["RPCEndpoint", Any], Tuple[Any, ...]]]
+        requests_info: list[
+            Coroutine[Any, Any, tuple[tuple["RPCEndpoint", Any], tuple[Any, ...]]]
         ],
-    ) -> List[RPCResponse]:
+    ) -> list[RPCResponse]:
         """
         Send and receive a batch request via a socket.
         """
@@ -407,7 +406,7 @@ class RequestManager:
 
     def _format_batched_response(
         self,
-        requests_info: Tuple[Tuple[RPCEndpoint, Any], Sequence[Any]],
+        requests_info: tuple[tuple[RPCEndpoint, Any], Sequence[Any]],
         response: RPCResponse,
     ) -> RPCResponse:
         result_formatters, error_formatters, null_result_formatters = requests_info[1]
@@ -435,7 +434,7 @@ class RequestManager:
         method: RPCEndpoint,
         params: Any,
         response_formatters: Optional[
-            Tuple[Dict[str, Callable[..., Any]], Callable[..., Any], Callable[..., Any]]
+            tuple[dict[str, Callable[..., Any]], Callable[..., Any], Callable[..., Any]]
         ] = None,
     ) -> RPCResponse:
         provider = cast(PersistentConnectionProvider, self._provider)

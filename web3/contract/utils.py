@@ -1,13 +1,12 @@
+from collections.abc import (
+    Sequence,
+)
 import itertools
 from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    List,
     Optional,
-    Sequence,
-    Tuple,
-    Type,
     Union,
     cast,
 )
@@ -89,7 +88,7 @@ def format_contract_call_return_data_curried(
     decode_tuples: bool,
     fn_abi: ABICallable,
     abi_element_identifier: ABIElementIdentifier,
-    normalizers: Tuple[Callable[..., Any], ...],
+    normalizers: tuple[Callable[..., Any], ...],
     output_types: Sequence[TypeStr],
     return_data: Any,
 ) -> Any:
@@ -123,7 +122,7 @@ def format_contract_call_return_data_curried(
 def call_contract_function(
     w3: "Web3",
     address: ChecksumAddress,
-    normalizers: Tuple[Callable[..., Any], ...],
+    normalizers: tuple[Callable[..., Any], ...],
     abi_element_identifier: ABIElementIdentifier,
     transaction: TxParams,
     block_id: Optional[BlockIdentifier] = None,
@@ -335,8 +334,8 @@ def find_functions_by_identifier(
     w3: Union["Web3", "AsyncWeb3[Any]"],
     address: ChecksumAddress,
     callable_check: Callable[..., Any],
-    function_type: Type[TContractFn],
-) -> List[TContractFn]:
+    function_type: type[TContractFn],
+) -> list[TContractFn]:
     """
     Given a contract ABI, return a list of TContractFunction instances.
     """
@@ -379,8 +378,8 @@ def find_events_by_identifier(
     w3: Union["Web3", "AsyncWeb3[Any]"],
     address: ChecksumAddress,
     callable_check: Callable[..., Any],
-    event_type: Type[TContractEvent],
-) -> List[TContractEvent]:
+    event_type: type[TContractEvent],
+) -> list[TContractEvent]:
     """
     Given a contract ABI, return a list of TContractEvent instances.
     """
@@ -420,7 +419,7 @@ def get_event_by_identifier(
 async def async_call_contract_function(
     async_w3: "AsyncWeb3[Any]",
     address: ChecksumAddress,
-    normalizers: Tuple[Callable[..., Any], ...],
+    normalizers: tuple[Callable[..., Any], ...],
     abi_element_identifier: ABIElementIdentifier,
     transaction: TxParams,
     block_id: Optional[BlockIdentifier] = None,

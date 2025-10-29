@@ -9,7 +9,6 @@ import timeit
 from typing import (
     Any,
     Callable,
-    Dict,
     Union,
 )
 
@@ -159,9 +158,9 @@ def main(logger: logging.Logger, num_calls: int) -> None:
             ]
 
             def benchmark(
-                method: Dict[str, Any], loop: asyncio.AbstractEventLoop = loop
+                method: dict[str, Any], loop: asyncio.AbstractEventLoop = loop
             ) -> None:
-                outcomes: Dict[str, Union[str, float]] = defaultdict(lambda: "N/A")
+                outcomes: dict[str, Union[str, float]] = defaultdict(lambda: "N/A")
                 outcomes["name"] = method["name"]
                 outcomes["HTTPProvider"] = sync_benchmark(
                     method["exec"],

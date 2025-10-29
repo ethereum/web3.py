@@ -8,10 +8,7 @@ from enum import (
 import time
 from typing import (
     Any,
-    Dict,
-    List,
     Optional,
-    Tuple,
 )
 
 
@@ -31,7 +28,7 @@ class SimpleCache:
     def __len__(self) -> int:
         return len(self._data)
 
-    def cache(self, key: str, value: Any) -> Tuple[Any, Dict[str, Any]]:
+    def cache(self, key: str, value: Any) -> tuple[Any, dict[str, Any]]:
         evicted_items = {}
         # If the key is already in the OrderedDict just update it
         # and don't evict any values. Ideally, we could still check to see
@@ -53,7 +50,7 @@ class SimpleCache:
     def clear(self) -> None:
         self._data.clear()
 
-    def items(self) -> List[Tuple[str, Any]]:
+    def items(self) -> list[tuple[str, Any]]:
         return list(self._data.items())
 
     def pop(self, key: str) -> Optional[Any]:
@@ -62,7 +59,7 @@ class SimpleCache:
 
         return self._data.pop(key)
 
-    def popitem(self, last: bool = True) -> Tuple[str, Any]:
+    def popitem(self, last: bool = True) -> tuple[str, Any]:
         return self._data.popitem(last=last)
 
     def is_full(self) -> bool:
@@ -72,7 +69,7 @@ class SimpleCache:
 
     async def async_await_and_popitem(
         self, last: bool = True, timeout: float = 10.0
-    ) -> Tuple[str, Any]:
+    ) -> tuple[str, Any]:
         start = time.time()
         end_time = start + timeout
         while True:

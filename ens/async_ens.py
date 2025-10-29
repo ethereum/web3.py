@@ -1,13 +1,14 @@
+from collections.abc import (
+    Coroutine,
+    Sequence,
+)
 from copy import (
     deepcopy,
 )
 from typing import (
     TYPE_CHECKING,
     Any,
-    Coroutine,
     Optional,
-    Sequence,
-    Tuple,
     Union,
     cast,
 )
@@ -104,7 +105,7 @@ class AsyncENS(BaseENS):
         self,
         provider: Optional["AsyncBaseProvider"] = None,
         addr: Optional[ChecksumAddress] = None,
-        middleware: Optional[Sequence[Tuple["Middleware", str]]] = None,
+        middleware: Optional[Sequence[tuple["Middleware", str]]] = None,
     ) -> None:
         """
         :param provider: a single provider used to connect to Ethereum
@@ -437,7 +438,7 @@ class AsyncENS(BaseENS):
         self,
         normal_name: str,
         fn_name: str = "addr",
-    ) -> Tuple[Optional["AsyncContract"], str]:
+    ) -> tuple[Optional["AsyncContract"], str]:
         current_name = normal_name
 
         # look for a resolver, starting at the full name and taking the
@@ -533,7 +534,7 @@ class AsyncENS(BaseENS):
 
     async def _first_owner(
         self, name: str
-    ) -> Tuple[Optional[ChecksumAddress], Sequence[str], str]:
+    ) -> tuple[Optional[ChecksumAddress], Sequence[str], str]:
         """
         Takes a name, and returns the owner of the deepest subdomain that has an owner
 

@@ -1,16 +1,15 @@
 import pytest
 import asyncio
+from collections.abc import (
+    Generator,
+    Sequence,
+)
 from dataclasses import (
     dataclass,
 )
 from typing import (
     TYPE_CHECKING,
     Any,
-    Dict,
-    Generator,
-    List,
-    Sequence,
-    Tuple,
     Union,
     cast,
 )
@@ -306,8 +305,8 @@ class PersistentConnectionProviderTest:
     async def test_async_eth_subscribe_syncing_mocked(
         self,
         async_w3: "AsyncWeb3[Any]",
-        subscription_params: Tuple[Any, ...],
-        ws_subscription_response: Dict[str, Any],
+        subscription_params: tuple[Any, ...],
+        ws_subscription_response: dict[str, Any],
         expected_formatted_result: Any,
     ) -> None:
         sub_id = await async_w3.eth.subscribe(*subscription_params)
@@ -966,7 +965,7 @@ class PersistentConnectionProviderTest:
         async_w3: "AsyncWeb3[Any]",
     ) -> None:
         async def unsubscribe_subs(
-            subs: List[Union[NewHeadsSubscription, LogsSubscription]],
+            subs: list[Union[NewHeadsSubscription, LogsSubscription]],
         ) -> None:
             for sub in subs:
                 await sub.unsubscribe()

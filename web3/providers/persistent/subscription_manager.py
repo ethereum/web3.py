@@ -1,11 +1,11 @@
 import asyncio
+from collections.abc import (
+    Sequence,
+)
 import logging
 from typing import (
     TYPE_CHECKING,
     Any,
-    List,
-    Sequence,
-    Set,
     Union,
     cast,
     overload,
@@ -61,8 +61,7 @@ class SubscriptionManager:
         # parallelize all subscription handler calls
         self.parallelize = False
         self.task_timeout = 1
-        # TODO: can remove quotes from type hints once Python 3.8 support is dropped
-        self._tasks: Set["asyncio.Task[None]"] = set()
+        self._tasks: set[asyncio.Task[None]] = set()
 
         # share the subscription container with the request processor so it can separate
         # subscriptions into different queues based on ``sub._handler`` presence
@@ -95,8 +94,7 @@ class SubscriptionManager:
                     f"labels.\n    label: {subscription._label}"
                 )
 
-    # TODO: can remove quotes from type hints once Python 3.8 support is dropped
-    def _handler_task_callback(self, task: "asyncio.Task[None]") -> None:
+    def _handler_task_callback(self, task: asyncio.Task[None]) -> None:
         """
         Callback when a handler task completes. Similar to _message_listener_callback.
         Puts handler exceptions into the queue to be raised in the main loop, else
@@ -125,7 +123,7 @@ class SubscriptionManager:
         self._tasks.clear()
 
     @property
-    def subscriptions(self) -> List[EthSubscription[Any]]:
+    def subscriptions(self) -> list[EthSubscription[Any]]:
         return self._subscription_container.subscriptions
 
     def get_by_id(self, sub_id: HexStr) -> EthSubscription[Any]:
@@ -141,12 +139,13 @@ class SubscriptionManager:
     @overload
     async def subscribe(
         self, subscriptions: Sequence[EthSubscription[Any]]
-    ) -> List[HexStr]:
+    ) -> list[HexStr]:
         ...
 
     async def subscribe(
-        self, subscriptions: Union[EthSubscription[Any], Sequence[EthSubscription[Any]]]
-    ) -> Union[HexStr, List[HexStr]]:
+        self,
+        subscriptions: Union[EthSubscription[Any], Sequence[EthSubscription[Any]]],
+    ) -> Union[HexStr, list[HexStr]]:
         """
         Used to subscribe to a single or multiple subscriptions.
 
@@ -170,7 +169,7 @@ class SubscriptionManager:
             if len(subscriptions) == 0:
                 raise Web3ValueError("No subscriptions provided.")
 
-            sub_ids: List[HexStr] = []
+            sub_ids: list[HexStr] = []
             for sub in subscriptions:
                 sub_ids.append(await self.subscribe(sub))
             return sub_ids
@@ -246,7 +245,7 @@ class SubscriptionManager:
             if len(subscriptions) == 0:
                 raise Web3ValueError("No subscriptions provided.")
 
-            unsubscribed: List[bool] = []
+            unsubscribed: list[bool] = []
             # re-create the subscription list to prevent modifying the original list
             # in case ``subscription_manager.subscriptions`` was passed in directly
             subs = list(subscriptions)

@@ -7,7 +7,6 @@ from typing import (
     Any,
     Collection,
     Iterable,
-    Tuple,
     TypeVar,
     Union,
     cast,
@@ -94,7 +93,7 @@ _PrivateKey = Union[LocalAccount, PrivateKey, HexStr, bytes]
 @to_dict
 def gen_normalized_accounts(
     val: Union[_PrivateKey, Collection[_PrivateKey]],
-) -> Iterable[Tuple[ChecksumAddress, LocalAccount]]:
+) -> Iterable[tuple[ChecksumAddress, LocalAccount]]:
     if isinstance(
         val,
         (

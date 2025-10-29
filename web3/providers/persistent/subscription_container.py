@@ -1,8 +1,8 @@
+from collections.abc import (
+    Iterator,
+)
 from typing import (
     Any,
-    Dict,
-    Iterator,
-    List,
     Optional,
 )
 
@@ -17,9 +17,9 @@ from web3.utils import (
 
 class SubscriptionContainer:
     def __init__(self) -> None:
-        self.subscriptions: List[EthSubscription[Any]] = []
-        self.subscriptions_by_id: Dict[HexStr, EthSubscription[Any]] = {}
-        self.subscriptions_by_label: Dict[str, EthSubscription[Any]] = {}
+        self.subscriptions: list[EthSubscription[Any]] = []
+        self.subscriptions_by_id: dict[HexStr, EthSubscription[Any]] = {}
+        self.subscriptions_by_label: dict[str, EthSubscription[Any]] = {}
 
     def __len__(self) -> int:
         return len(self.subscriptions)
@@ -44,7 +44,7 @@ class SubscriptionContainer:
         return self.subscriptions_by_label.get(label)
 
     @property
-    def handler_subscriptions(self) -> List[EthSubscription[Any]]:
+    def handler_subscriptions(self) -> list[EthSubscription[Any]]:
         return [sub for sub in self.subscriptions if sub._handler is not None]
 
     def get_handler_subscription_by_id(

@@ -1,14 +1,13 @@
+from collections.abc import (
+    Sequence,
+)
 import copy
 import functools
 from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    Dict,
-    List,
     Optional,
-    Sequence,
-    Tuple,
     Union,
     cast,
 )
@@ -100,7 +99,7 @@ def find_matching_event_abi(
     event_name: Optional[str] = None,
     argument_names: Optional[Sequence[str]] = None,
 ) -> ABIEvent:
-    filters: List[functools.partial[Sequence[ABIElement]]] = [
+    filters: list[functools.partial[Sequence[ABIElement]]] = [
         functools.partial(filter_abi_by_type, "event"),
     ]
 
@@ -269,8 +268,8 @@ def encode_transaction_data(
 def decode_transaction_data(
     fn_abi: ABIFunction,
     data: HexStr,
-    normalizers: Sequence[Callable[[TypeStr, Any], Tuple[TypeStr, Any]]] = None,
-) -> Dict[str, Any]:
+    normalizers: Sequence[Callable[[TypeStr, Any], tuple[TypeStr, Any]]] = None,
+) -> dict[str, Any]:
     data_bytes = HexBytes(data)
     types = get_abi_input_types(fn_abi)
     abi_codec = ABICodec(default_registry)
@@ -282,33 +281,33 @@ def decode_transaction_data(
 
 def get_constructor_function_info(
     contract_abi: Optional[ABI] = None, constructor_abi: Optional[ABIConstructor] = None
-) -> Tuple[ABIConstructor, HexStr, Tuple[Any, ...]]:
+) -> tuple[ABIConstructor, HexStr, tuple[Any, ...]]:
     if constructor_abi is None:
         constructor_abi = cast(
             ABIConstructor, get_abi_element(contract_abi, "constructor")
         )
     fn_selector = encode_hex(b"")
-    fn_arguments: Tuple[Any, ...] = tuple()
+    fn_arguments: tuple[Any, ...] = tuple()
     return constructor_abi, fn_selector, fn_arguments
 
 
 def get_fallback_function_info(
     contract_abi: Optional[ABI] = None, fallback_abi: Optional[ABIFallback] = None
-) -> Tuple[ABIFallback, HexStr, Tuple[Any, ...]]:
+) -> tuple[ABIFallback, HexStr, tuple[Any, ...]]:
     if fallback_abi is None:
         fallback_abi = cast(ABIFallback, get_abi_element(contract_abi, "fallback"))
     fn_selector = encode_hex(b"")
-    fn_arguments: Tuple[Any, ...] = tuple()
+    fn_arguments: tuple[Any, ...] = tuple()
     return fallback_abi, fn_selector, fn_arguments
 
 
 def get_receive_function_info(
     contract_abi: Optional[ABI] = None, receive_abi: Optional[ABIReceive] = None
-) -> Tuple[ABIReceive, HexStr, Tuple[Any, ...]]:
+) -> tuple[ABIReceive, HexStr, tuple[Any, ...]]:
     if receive_abi is None:
         receive_abi = cast(ABIReceive, get_abi_element(contract_abi, "receive"))
     fn_selector = encode_hex(b"")
-    fn_arguments: Tuple[Any, ...] = tuple()
+    fn_arguments: tuple[Any, ...] = tuple()
     return receive_abi, fn_selector, fn_arguments
 
 

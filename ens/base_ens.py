@@ -4,7 +4,6 @@ from functools import (
 from typing import (
     TYPE_CHECKING,
     Any,
-    Type,
     Union,
 )
 
@@ -40,8 +39,8 @@ if TYPE_CHECKING:
 class BaseENS:
     w3: Union["AsyncWeb3[Any]", "Web3"] = None
     ens: Union["Contract", "AsyncContract"] = None
-    _resolver_contract: Union[Type["Contract"], Type["AsyncContract"]] = None
-    _reverse_resolver_contract: Union[Type["Contract"], Type["AsyncContract"]] = None
+    _resolver_contract: Union[type["Contract"], type["AsyncContract"]] = None
+    _reverse_resolver_contract: Union[type["Contract"], type["AsyncContract"]] = None
 
     @property
     def strict_bytes_type_checking(self) -> bool:

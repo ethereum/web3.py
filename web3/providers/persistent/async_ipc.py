@@ -9,7 +9,6 @@ import sys
 from typing import (
     Any,
     Optional,
-    Tuple,
     Union,
 )
 
@@ -34,7 +33,7 @@ from ..ipc import (
 
 async def async_get_ipc_socket(
     ipc_path: str, read_buffer_limit: int
-) -> Tuple[asyncio.StreamReader, asyncio.StreamWriter]:
+) -> tuple[asyncio.StreamReader, asyncio.StreamWriter]:
     if sys.platform == "win32":
         # On Windows named pipe is used. Simulate socket with it.
         from web3._utils.windows import (

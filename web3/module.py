@@ -1,12 +1,12 @@
+from collections.abc import (
+    Coroutine,
+    Sequence,
+)
 from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    Coroutine,
-    Dict,
     Optional,
-    Sequence,
-    Tuple,
     TypeVar,
     Union,
     cast,
@@ -64,12 +64,12 @@ def retrieve_request_information_for_batching(
     module: "Module",
     method: Method[Callable[..., Any]],
 ) -> Union[
-    Callable[..., Tuple[Tuple[RPCEndpoint, Any], Sequence[Any]]],
-    Callable[..., Coroutine[Any, Any, Tuple[Tuple[RPCEndpoint, Any], Sequence[Any]]]],
+    Callable[..., tuple[tuple[RPCEndpoint, Any], Sequence[Any]]],
+    Callable[..., Coroutine[Any, Any, tuple[tuple[RPCEndpoint, Any], Sequence[Any]]]],
 ]:
     async def async_inner(
         *args: Any, **kwargs: Any
-    ) -> Tuple[Tuple[RPCEndpoint, Any], Sequence[Any]]:
+    ) -> tuple[tuple[RPCEndpoint, Any], Sequence[Any]]:
         (method_str, params), response_formatters = method.process_params(
             module, *args, **kwargs
         )
@@ -81,7 +81,7 @@ def retrieve_request_information_for_batching(
 
     def inner(
         *args: Any, **kwargs: Any
-    ) -> Tuple[Tuple[RPCEndpoint, Any], Sequence[Any]]:
+    ) -> tuple[tuple[RPCEndpoint, Any], Sequence[Any]]:
         (method_str, params), response_formatters = method.process_params(
             module, *args, **kwargs
         )
@@ -184,7 +184,7 @@ class Module:
 
     def attach_methods(
         self,
-        methods: Dict[str, Method[Callable[..., Any]]],
+        methods: dict[str, Method[Callable[..., Any]]],
     ) -> None:
         for method_name, method_class in methods.items():
             klass = (

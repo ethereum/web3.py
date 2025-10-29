@@ -1,3 +1,7 @@
+from collections.abc import (
+    Collection,
+    Sequence,
+)
 from datetime import (
     datetime,
     timezone,
@@ -5,11 +9,7 @@ from datetime import (
 from typing import (
     TYPE_CHECKING,
     Any,
-    Collection,
     Optional,
-    Sequence,
-    Tuple,
-    Type,
     Union,
     cast,
 )
@@ -66,7 +66,7 @@ if TYPE_CHECKING:
     )
 
 
-def Web3() -> Type["_Web3"]:
+def Web3() -> type["_Web3"]:
     from web3 import (
         Web3 as Web3Main,
     )
@@ -76,7 +76,7 @@ def Web3() -> Type["_Web3"]:
 
 def init_web3(
     provider: "BaseProvider" = None,
-    middleware: Optional[Sequence[Tuple["Middleware", str]]] = None,
+    middleware: Optional[Sequence[tuple["Middleware", str]]] = None,
 ) -> "_Web3":
     from web3 import (
         Web3 as Web3Main,
@@ -301,7 +301,7 @@ def is_valid_ens_name(ens_name: str) -> bool:
 
 def init_async_web3(
     provider: "AsyncBaseProvider" = None,
-    middleware: Optional[Sequence[Tuple["Middleware", str]]] = (),
+    middleware: Optional[Sequence[tuple["Middleware", str]]] = (),
 ) -> "AsyncWeb3[Any]":
     from web3 import (
         AsyncWeb3 as AsyncWeb3Main,

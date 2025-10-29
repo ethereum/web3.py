@@ -1,14 +1,14 @@
 import codecs
+from collections.abc import (
+    Collection,
+    Iterable,
+)
 import operator
 from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    Collection,
-    Dict,
-    Iterable,
     NoReturn,
-    Tuple,
     TypeVar,
     Union,
     cast,
@@ -161,8 +161,8 @@ def is_attrdict(val: Any) -> bool:
 @curry
 def type_aware_apply_formatters_to_dict(
     formatters: Formatters,
-    value: Union[AttributeDict[str, Any], Dict[str, Any]],
-) -> Union[ReadableAttributeDict[str, Any], Dict[str, Any]]:
+    value: Union[AttributeDict[str, Any], dict[str, Any]],
+) -> Union[ReadableAttributeDict[str, Any], dict[str, Any]]:
     """
     Preserve ``AttributeDict`` types if original ``value`` was an ``AttributeDict``.
     """
@@ -172,7 +172,7 @@ def type_aware_apply_formatters_to_dict(
     if isinstance(value, BaseModel):
         value = value.model_dump(by_alias=True)
 
-    formatted_dict: Dict[str, Any] = apply_formatters_to_dict(formatters, dict(value))
+    formatted_dict: dict[str, Any] = apply_formatters_to_dict(formatters, dict(value))
     return (
         AttributeDict.recursive(formatted_dict)
         if is_attrdict(value)
@@ -183,8 +183,8 @@ def type_aware_apply_formatters_to_dict(
 def type_aware_apply_formatters_to_dict_keys_and_values(
     key_formatters: Callable[[Any], Any],
     value_formatters: Callable[[Any], Any],
-    dict_like_object: Union[AttributeDict[str, Any], Dict[str, Any]],
-) -> Union[ReadableAttributeDict[str, Any], Dict[str, Any]]:
+    dict_like_object: Union[AttributeDict[str, Any], dict[str, Any]],
+) -> Union[ReadableAttributeDict[str, Any], dict[str, Any]]:
     """
     Preserve ``AttributeDict`` types if original ``value`` was an ``AttributeDict``.
     """
@@ -555,7 +555,7 @@ transaction_param_formatter = compose(
 
 
 call_without_override: Callable[
-    [Tuple[TxParams, BlockIdentifier]], Tuple[Dict[str, Any], int]
+    [tuple[TxParams, BlockIdentifier]], tuple[dict[str, Any], int]
 ] = apply_formatters_to_sequence(
     [
         transaction_param_formatter,
@@ -573,8 +573,8 @@ state_override_formatter = type_aware_apply_formatters_to_dict(
 )
 
 call_with_override: Callable[
-    [Tuple[TxParams, BlockIdentifier, StateOverrideParams]],
-    Tuple[Dict[str, Any], int, Dict[str, Any]],
+    [tuple[TxParams, BlockIdentifier, StateOverrideParams]],
+    tuple[dict[str, Any], int, dict[str, Any]],
 ] = apply_formatters_to_sequence(
     [
         transaction_param_formatter,
@@ -589,10 +589,10 @@ call_with_override: Callable[
 
 
 estimate_gas_without_block_id: Callable[
-    [Dict[str, Any]], Dict[str, Any]
+    [dict[str, Any]], dict[str, Any]
 ] = apply_formatter_at_index(transaction_param_formatter, 0)
 estimate_gas_with_block_id: Callable[
-    [Tuple[Dict[str, Any], BlockIdentifier]], Tuple[Dict[str, Any], int]
+    [tuple[dict[str, Any], BlockIdentifier]], tuple[dict[str, Any], int]
 ] = apply_formatters_to_sequence(
     [
         transaction_param_formatter,
@@ -600,8 +600,8 @@ estimate_gas_with_block_id: Callable[
     ]
 )
 estimate_gas_with_override: Callable[
-    [Tuple[Dict[str, Any], BlockIdentifier, StateOverrideParams]],
-    Tuple[Dict[str, Any], int, Dict[str, Any]],
+    [tuple[dict[str, Any], BlockIdentifier, StateOverrideParams]],
+    tuple[dict[str, Any], int, dict[str, Any]],
 ] = apply_formatters_to_sequence(
     [
         transaction_param_formatter,
@@ -617,7 +617,7 @@ estimate_gas_with_override: Callable[
 # -- eth_simulateV1 -- #
 
 block_state_calls_formatter: Callable[
-    [Dict[str, Any]], Dict[str, Any]
+    [dict[str, Any]], dict[str, Any]
 ] = apply_formatter_to_array(
     apply_formatters_to_dict(
         {
@@ -635,8 +635,8 @@ block_state_calls_formatter: Callable[
 )
 
 simulate_v1_request_formatter: Callable[
-    [Tuple[Dict[str, Any], bool, bool], BlockIdentifier],
-    Tuple[SimulateV1Payload, BlockIdentifier],
+    [tuple[dict[str, Any], bool, bool], BlockIdentifier],
+    tuple[SimulateV1Payload, BlockIdentifier],
 ] = apply_formatters_to_sequence(
     [
         # payload
@@ -691,7 +691,7 @@ GETH_WALLETS_FORMATTER = {
 
 geth_wallets_formatter = type_aware_apply_formatters_to_dict(GETH_WALLETS_FORMATTER)
 
-PYTHONIC_REQUEST_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
+PYTHONIC_REQUEST_FORMATTERS: dict[RPCEndpoint, Callable[..., Any]] = {
     # Eth
     RPC.eth_feeHistory: compose(
         apply_formatter_at_index(to_hex_if_integer, 0),
@@ -795,8 +795,8 @@ def has_pretrace_keys(val: Any) -> bool:
 
 @curry
 def pretrace_formatter(
-    resp: Union[AttributeDict[str, Any], Dict[str, Any]],
-) -> Union[ReadableAttributeDict[str, Any], Dict[str, Any]]:
+    resp: Union[AttributeDict[str, Any], dict[str, Any]],
+) -> Union[ReadableAttributeDict[str, Any], dict[str, Any]]:
     return type_aware_apply_formatters_to_dict_keys_and_values(
         apply_formatter_if(is_address, to_checksum_address),
         apply_formatter_if(
@@ -921,7 +921,7 @@ common_tracing_result_formatter = type_aware_apply_formatters_to_dict(
 
 
 # -- eth_subscribe -- #
-def subscription_formatter(value: Any) -> Union[HexBytes, HexStr, Dict[str, Any]]:
+def subscription_formatter(value: Any) -> Union[HexBytes, HexStr, dict[str, Any]]:
     if is_hexstr(value):
         # subscription id from the original subscription request
         return HexStr(value)
@@ -980,7 +980,7 @@ def subscription_formatter(value: Any) -> Union[HexBytes, HexStr, Dict[str, Any]
     return value
 
 
-PYTHONIC_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
+PYTHONIC_RESULT_FORMATTERS: dict[RPCEndpoint, Callable[..., Any]] = {
     # Eth
     RPC.eth_accounts: apply_list_to_array_formatter(to_checksum_address),
     RPC.eth_blobBaseFee: to_integer_if_hex,
@@ -1068,7 +1068,7 @@ PYTHONIC_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
     ),
 }
 
-METHOD_NORMALIZERS: Dict[RPCEndpoint, Callable[..., Any]] = {
+METHOD_NORMALIZERS: dict[RPCEndpoint, Callable[..., Any]] = {
     RPC.eth_getLogs: apply_formatter_at_index(FILTER_PARAM_NORMALIZERS, 0),
     RPC.eth_newFilter: apply_formatter_at_index(FILTER_PARAM_NORMALIZERS, 0),
 }
@@ -1086,7 +1086,7 @@ ABI_REQUEST_FORMATTERS: Formatters = abi_request_formatters(
 )
 
 
-ERROR_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
+ERROR_FORMATTERS: dict[RPCEndpoint, Callable[..., Any]] = {
     RPC.eth_estimateGas: raise_contract_logic_error_on_revert,
     RPC.eth_call: raise_contract_logic_error_on_revert,
     RPC.eth_getTransactionReceipt: raise_transaction_indexing_error_if_indexing,
@@ -1096,7 +1096,7 @@ ERROR_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
 
 @to_tuple
 def combine_formatters(
-    formatter_maps: Collection[Dict[RPCEndpoint, Callable[..., TReturn]]],
+    formatter_maps: Collection[dict[RPCEndpoint, Callable[..., TReturn]]],
     method_name: RPCEndpoint,
 ) -> Iterable[Callable[..., TReturn]]:
     for formatter_map in formatter_maps:
@@ -1118,7 +1118,7 @@ def get_request_formatters(method_name: RPCEndpoint) -> Callable[[RPCResponse], 
     return compose(*formatters)
 
 
-def raise_block_not_found(params: Tuple[BlockIdentifier, bool]) -> NoReturn:
+def raise_block_not_found(params: tuple[BlockIdentifier, bool]) -> NoReturn:
     try:
         block_identifier = params[0]
         message = f"Block with id: {block_identifier!r} not found."
@@ -1129,7 +1129,7 @@ def raise_block_not_found(params: Tuple[BlockIdentifier, bool]) -> NoReturn:
 
 
 def raise_block_not_found_for_uncle_at_index(
-    params: Tuple[BlockIdentifier, Union[HexStr, int]],
+    params: tuple[BlockIdentifier, Union[HexStr, int]],
 ) -> NoReturn:
     try:
         block_identifier = params[0]
@@ -1144,7 +1144,7 @@ def raise_block_not_found_for_uncle_at_index(
     raise BlockNotFound(message)
 
 
-def raise_transaction_not_found(params: Tuple[_Hash32]) -> NoReturn:
+def raise_transaction_not_found(params: tuple[_Hash32]) -> NoReturn:
     try:
         transaction_hash = params[0]
         message = f"Transaction with hash: {transaction_hash!r} not found."
@@ -1155,7 +1155,7 @@ def raise_transaction_not_found(params: Tuple[_Hash32]) -> NoReturn:
 
 
 def raise_transaction_not_found_with_index(
-    params: Tuple[BlockIdentifier, int],
+    params: tuple[BlockIdentifier, int],
 ) -> NoReturn:
     try:
         block_identifier = params[0]
@@ -1170,7 +1170,7 @@ def raise_transaction_not_found_with_index(
     raise TransactionNotFound(message)
 
 
-NULL_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
+NULL_RESULT_FORMATTERS: dict[RPCEndpoint, Callable[..., Any]] = {
     RPC.eth_getBlockByHash: raise_block_not_found,
     RPC.eth_getBlockByNumber: raise_block_not_found,
     RPC.eth_getBlockReceipts: raise_block_not_found,
@@ -1227,7 +1227,7 @@ def filter_wrapper(
         )
 
 
-FILTER_RESULT_FORMATTERS: Dict[RPCEndpoint, Callable[..., Any]] = {
+FILTER_RESULT_FORMATTERS: dict[RPCEndpoint, Callable[..., Any]] = {
     RPC.eth_newPendingTransactionFilter: filter_wrapper,
     RPC.eth_newBlockFilter: filter_wrapper,
     RPC.eth_newFilter: filter_wrapper,
