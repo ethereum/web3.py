@@ -1,11 +1,11 @@
 import asyncio
+from collections.abc import (
+    Callable,
+)
 from typing import (
     TYPE_CHECKING,
     Any,
-    Callable,
-    Optional,
     TypeVar,
-    Union,
 )
 
 from web3._utils.batching import (
@@ -65,7 +65,7 @@ class RequestProcessor:
     _subscription_queue_synced_with_ws_stream: bool = False
 
     # set by the subscription manager when it is initialized
-    _subscription_container: Optional[SubscriptionContainer] = None
+    _subscription_container: SubscriptionContainer | None = None
 
     def __init__(
         self,
@@ -79,10 +79,10 @@ class RequestProcessor:
         )
         self._request_response_cache: SimpleCache = SimpleCache(500)
         self._subscription_response_queue: TaskReliantQueue[
-            Union[RPCResponse, TaskNotRunning]
+            RPCResponse | TaskNotRunning
         ] = TaskReliantQueue(maxsize=subscription_response_queue_size)
         self._handler_subscription_queue: TaskReliantQueue[
-            Union[RPCResponse, TaskNotRunning, SubscriptionProcessingFinished]
+            RPCResponse | TaskNotRunning | SubscriptionProcessingFinished
         ] = TaskReliantQueue(maxsize=subscription_response_queue_size)
 
     @property
@@ -97,15 +97,15 @@ class RequestProcessor:
 
     def cache_request_information(
         self,
-        request_id: Optional[RPCId],
+        request_id: RPCId | None,
         method: RPCEndpoint,
         params: Any,
         response_formatters: tuple[
-            Union[dict[str, Callable[..., Any]], Callable[..., Any]],
+            dict[str, Callable[..., Any]] | Callable[..., Any],
             Callable[..., Any],
             Callable[..., Any],
         ],
-    ) -> Optional[str]:
+    ) -> str | None:
         cached_requests_key = generate_cache_key((method, params))
         if cached_requests_key in self._provider._request_cache._data:
             cached_response = self._provider._request_cache._data[cached_requests_key]
@@ -153,7 +153,7 @@ class RequestProcessor:
 
     def pop_cached_request_information(
         self, cache_key: str
-    ) -> Optional[RequestInformation]:
+    ) -> RequestInformation | None:
         request_info = self._request_information_cache.pop(cache_key)
         if request_info is not None:
             self._provider.logger.debug(
@@ -246,9 +246,7 @@ class RequestProcessor:
 
     # raw response cache
 
-    def _is_batch_response(
-        self, raw_response: Union[list[RPCResponse], RPCResponse]
-    ) -> bool:
+    def _is_batch_response(self, raw_response: list[RPCResponse] | RPCResponse) -> bool:
         return isinstance(raw_response, list) or (
             isinstance(raw_response, dict)
             and raw_response.get("id") is None

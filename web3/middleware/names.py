@@ -4,7 +4,6 @@ from collections.abc import (
 from typing import (
     TYPE_CHECKING,
     Any,
-    Union,
     cast,
 )
 
@@ -72,7 +71,7 @@ async def async_format_all_ens_names_to_address(
 async def async_apply_ens_to_address_conversion(
     async_web3: "AsyncWeb3[Any]",
     params: Any,
-    abi_types_for_method: Union[Sequence[str], dict[str, str]],
+    abi_types_for_method: Sequence[str] | dict[str, str],
 ) -> Any:
     if isinstance(abi_types_for_method, Sequence):
         formatted_params = await async_format_all_ens_names_to_address(

@@ -3,6 +3,9 @@ A minimal implementation of the various gevent APIs used within this codebase.
 """
 
 import asyncio
+from collections.abc import (
+    Callable,
+)
 import threading
 import time
 from types import (
@@ -10,7 +13,6 @@ from types import (
 )
 from typing import (
     Any,
-    Callable,
     Generic,
     Literal,
 )

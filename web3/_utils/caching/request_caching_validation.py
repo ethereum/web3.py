@@ -6,7 +6,6 @@ from typing import (
     TYPE_CHECKING,
     Any,
     TypeVar,
-    Union,
 )
 
 from web3.types import (
@@ -30,7 +29,7 @@ SYNC_PROVIDER_TYPE = TypeVar("SYNC_PROVIDER_TYPE", bound="BaseProvider")
 
 
 def _error_log(
-    provider: Union[ASYNC_PROVIDER_TYPE, SYNC_PROVIDER_TYPE], e: Exception
+    provider: ASYNC_PROVIDER_TYPE | SYNC_PROVIDER_TYPE, e: Exception
 ) -> None:
     provider.logger.error(
         "There was an exception while caching the request.", exc_info=e

@@ -1,11 +1,10 @@
 from collections.abc import (
+    Callable,
     Iterable,
     Mapping,
 )
 from typing import (
     Any,
-    Callable,
-    Optional,
     TypeVar,
 )
 
@@ -150,7 +149,7 @@ def apply_error_formatters(
 def apply_null_result_formatters(
     null_result_formatters: Callable[..., Any],
     response: RPCResponse,
-    params: Optional[Any] = None,
+    params: Any | None = None,
 ) -> RPCResponse:
     if null_result_formatters:
         formatted_resp = pipe(params, null_result_formatters)

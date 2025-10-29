@@ -1,10 +1,11 @@
+from collections.abc import (
+    Callable,
+)
 import itertools
 import logging
 from typing import (
     Any,
-    Callable,
     NoReturn,
-    Optional,
 )
 
 from eth_typing import (
@@ -263,7 +264,7 @@ def _raise_bad_response_format(response: RPCResponse, error: str = "") -> None:
 
 def raise_error_for_batch_response(
     response: RPCResponse,
-    logger: Optional[logging.Logger] = None,
+    logger: logging.Logger | None = None,
 ) -> NoReturn:
     error = response.get("error")
     if error is None:
@@ -287,10 +288,10 @@ def raise_error_for_batch_response(
 
 def validate_rpc_response_and_raise_if_error(
     response: RPCResponse,
-    error_formatters: Optional[Callable[..., Any]],
+    error_formatters: Callable[..., Any] | None,
     is_subscription_response: bool = False,
-    logger: Optional[logging.Logger] = None,
-    params: Optional[Any] = None,
+    logger: logging.Logger | None = None,
+    params: Any | None = None,
 ) -> None:
     if "jsonrpc" not in response or response["jsonrpc"] != "2.0":
         _raise_bad_response_format(
@@ -334,7 +335,7 @@ def validate_rpc_response_and_raise_if_error(
             response, 'Response must include either "error" or "result".'
         )
     elif "error" in response:
-        web3_rpc_error: Optional[Web3RPCError] = None
+        web3_rpc_error: Web3RPCError | None = None
         error = response["error"]
 
         # raise the error when the value is a string

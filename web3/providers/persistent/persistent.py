@@ -4,6 +4,7 @@ from abc import (
 )
 import asyncio
 from collections.abc import (
+    Callable,
     Coroutine,
 )
 import logging
@@ -11,9 +12,7 @@ import signal
 from typing import (
     TYPE_CHECKING,
     Any,
-    Callable,
     Optional,
-    Union,
     cast,
 )
 
@@ -69,16 +68,16 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
     has_persistent_connection = True
 
     _send_func_cache: tuple[
-        Optional[int], Optional[Callable[..., Coroutine[Any, Any, RPCRequest]]]
+        int | None, Callable[..., Coroutine[Any, Any, RPCRequest]] | None
     ] = (None, None)
     _recv_func_cache: tuple[
-        Optional[int], Optional[Callable[..., Coroutine[Any, Any, RPCResponse]]]
+        int | None, Callable[..., Coroutine[Any, Any, RPCResponse]] | None
     ] = (None, None)
     _send_batch_func_cache: tuple[
-        Optional[int], Optional[Callable[..., Coroutine[Any, Any, list[RPCRequest]]]]
+        int | None, Callable[..., Coroutine[Any, Any, list[RPCRequest]]] | None
     ] = (None, None)
     _recv_batch_func_cache: tuple[
-        Optional[int], Optional[Callable[..., Coroutine[Any, Any, list[RPCResponse]]]]
+        int | None, Callable[..., Coroutine[Any, Any, list[RPCResponse]]] | None
     ] = (None, None)
 
     def __init__(
@@ -471,7 +470,7 @@ class PersistentConnectionProvider(AsyncJSONBaseProvider, ABC):
             raise msg_listener_task.exception()
 
     async def _get_response_for_request_id(
-        self, request_id: Union[RPCId, list[RPCId]], timeout: Optional[float] = None
+        self, request_id: RPCId | list[RPCId], timeout: float | None = None
     ) -> RPCResponse:
         if timeout is None:
             timeout = self.request_timeout

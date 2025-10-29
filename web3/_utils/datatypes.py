@@ -3,7 +3,6 @@ from collections.abc import (
 )
 from typing import (
     Any,
-    Optional,
 )
 
 from eth_utils import (
@@ -45,7 +44,7 @@ class PropertyCheckingFactory(type):
         name: str,
         bases: tuple[type],
         namespace: dict[str, Any],
-        normalizers: Optional[dict[str, Any]] = None,
+        normalizers: dict[str, Any] | None = None,
     ) -> "PropertyCheckingFactory":
         all_bases = set(concat(base.__mro__ for base in bases))
         all_keys = set(concat(base.__dict__.keys() for base in all_bases))

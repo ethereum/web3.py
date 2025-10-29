@@ -10,8 +10,6 @@ from types import (
 )
 from typing import (
     Any,
-    Optional,
-    Union,
     cast,
 )
 
@@ -63,7 +61,7 @@ def get_default_endpoint() -> URI:
 
 class PersistentWebSocket:
     def __init__(self, endpoint_uri: URI, websocket_kwargs: Any) -> None:
-        self.ws: Optional[WebSocketClientProtocol] = None
+        self.ws: WebSocketClientProtocol | None = None
         self.endpoint_uri = endpoint_uri
         self.websocket_kwargs = websocket_kwargs
 
@@ -92,8 +90,8 @@ class LegacyWebSocketProvider(JSONBaseProvider):
 
     def __init__(
         self,
-        endpoint_uri: Optional[Union[URI, str]] = None,
-        websocket_kwargs: Optional[Any] = None,
+        endpoint_uri: URI | str | None = None,
+        websocket_kwargs: Any | None = None,
         websocket_timeout: int = DEFAULT_WEBSOCKET_TIMEOUT,
         **kwargs: Any,
     ) -> None:

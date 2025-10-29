@@ -3,6 +3,7 @@ from asyncio import (
 )
 import collections
 from collections.abc import (
+    Callable,
     Coroutine,
     Sequence,
 )
@@ -11,7 +12,6 @@ import threading
 from typing import (
     TYPE_CHECKING,
     Any,
-    Callable,
     Union,
 )
 
@@ -99,7 +99,7 @@ class RequestInformation:
         method: RPCEndpoint,
         params: Any,
         response_formatters: tuple[
-            Union[dict[str, Callable[..., Any]], Callable[..., Any]],
+            dict[str, Callable[..., Any]] | Callable[..., Any],
             Callable[..., Any],
             Callable[..., Any],
         ],
@@ -115,7 +115,7 @@ class RequestInformation:
 DEFAULT_VALIDATION_THRESHOLD = 60 * 60  # 1 hour
 
 CHAIN_VALIDATION_THRESHOLD_DEFAULTS: dict[
-    int, Union[RequestCacheValidationThreshold, int]
+    int, RequestCacheValidationThreshold | int
 ] = {
     # Suggested safe values as defaults for each chain. Users can configure a different
     # value if desired.
@@ -135,7 +135,7 @@ CHAIN_VALIDATION_THRESHOLD_DEFAULTS: dict[
 
 
 def is_cacheable_request(
-    provider: Union[ASYNC_PROVIDER_TYPE, SYNC_PROVIDER_TYPE],
+    provider: ASYNC_PROVIDER_TYPE | SYNC_PROVIDER_TYPE,
     method: RPCEndpoint,
     params: Any,
 ) -> bool:

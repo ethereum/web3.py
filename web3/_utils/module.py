@@ -8,7 +8,6 @@ from io import (
 from typing import (
     TYPE_CHECKING,
     Any,
-    Optional,
     Union,
 )
 
@@ -43,7 +42,7 @@ def _validate_init_params_and_return_if_found(module_class: Any) -> list[str]:
 def attach_modules(
     parent_module: Union["BaseWeb3", "Module"],
     module_definitions: dict[str, Any],
-    w3: Optional[Union["BaseWeb3", "Module"]] = None,
+    w3: Union["BaseWeb3", "Module"] | None = None,
 ) -> None:
     for module_name, module_info in module_definitions.items():
         module_info_is_list_like = isinstance(module_info, Sequence)

@@ -1,7 +1,6 @@
 from typing import (
     TYPE_CHECKING,
     Any,
-    Union,
     cast,
 )
 
@@ -69,7 +68,7 @@ class PersistentConnection:
         """
         await self._manager.send(method, params)
 
-    async def recv(self) -> Union[RPCResponse, FormattedEthSubscriptionResponse]:
+    async def recv(self) -> RPCResponse | FormattedEthSubscriptionResponse:
         """
         Receive the next unprocessed response for a request from the persistent
         connection.

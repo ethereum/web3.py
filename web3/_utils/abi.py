@@ -4,6 +4,7 @@ from collections import (
     namedtuple,
 )
 from collections.abc import (
+    Callable,
     Collection,
     Coroutine,
     Iterable,
@@ -16,9 +17,6 @@ import re
 from typing import (
     TYPE_CHECKING,
     Any,
-    Callable,
-    Optional,
-    Union,
     cast,
 )
 
@@ -183,7 +181,7 @@ def get_name_from_abi_element_identifier(
 
 def get_abi_element_signature(
     abi_element_identifier: ABIElementIdentifier,
-    abi_element_argument_types: Optional[Iterable[str]] = None,
+    abi_element_argument_types: Iterable[str] | None = None,
 ) -> str:
     element_name = get_name_from_abi_element_identifier(abi_element_identifier)
     argument_types = ",".join(abi_element_argument_types or [])
@@ -356,7 +354,7 @@ class TextStringEncoder(encoding.TextStringEncoder):
 TUPLE_TYPE_STR_RE = re.compile(r"^(tuple)((\[([1-9]\d*\b)?])*)??$")
 
 
-def get_tuple_type_str_parts(s: str) -> Optional[tuple[str, Optional[str]]]:
+def get_tuple_type_str_parts(s: str) -> tuple[str, str | None] | None:
     """
     Takes a JSON ABI type string.  For tuple type strings, returns the separated
     prefix and array dimension parts.  For all other strings, returns ``None``.
@@ -373,7 +371,7 @@ def get_tuple_type_str_parts(s: str) -> Optional[tuple[str, Optional[str]]]:
 
 
 def _align_abi_input(
-    arg_abi: Union[ABIComponent, ABIComponentIndexed], arg: Any
+    arg_abi: ABIComponent | ABIComponentIndexed, arg: Any
 ) -> tuple[Any, ...]:
     """
     Aligns the values of any mapping at any level of nesting in ``arg``
@@ -563,7 +561,7 @@ def is_probably_enum(abi_type: TypeStr) -> bool:
 @to_tuple
 def normalize_event_input_types(
     abi_args: Collection[ABIEvent],
-) -> Iterable[Union[ABIEvent, dict[TypeStr, Any]]]:
+) -> Iterable[ABIEvent | dict[TypeStr, Any]]:
     for arg in abi_args:
         if is_recognized_type(arg["type"]):
             yield arg
@@ -677,7 +675,7 @@ class ABITypedData(namedtuple("ABITypedData", "abi_type, data")):
 
 
 def abi_sub_tree(
-    type_str_or_abi_type: Optional[Union[TypeStr, ABIType]], data_value: Any
+    type_str_or_abi_type: TypeStr | ABIType | None, data_value: Any
 ) -> ABITypedData:
     if type_str_or_abi_type is None:
         return ABITypedData([None, data_value])
@@ -799,9 +797,13 @@ def build_strict_registry() -> ABIRegistry:
 
 def named_tree(
     abi: Iterable[
-        Union[
-            ABIComponent, ABIComponentIndexed, ABIFunction, ABIEvent, dict[TypeStr, Any]
-        ]
+        (
+            ABIComponent
+            | ABIComponentIndexed
+            | ABIFunction
+            | ABIEvent
+            | dict[TypeStr, Any]
+        )
     ],
     data: Iterable[tuple[Any, ...]],
 ) -> dict[str, Any]:
@@ -815,11 +817,11 @@ def named_tree(
 
 
 def _named_subtree(
-    abi: Union[
-        ABIComponent, ABIComponentIndexed, ABIFunction, ABIEvent, dict[TypeStr, Any]
-    ],
+    abi: (
+        ABIComponent | ABIComponentIndexed | ABIFunction | ABIEvent | dict[TypeStr, Any]
+    ),
     data: tuple[Any, ...],
-) -> Union[dict[str, Any], tuple[Any, ...], list[Any]]:
+) -> dict[str, Any] | tuple[Any, ...] | list[Any]:
     abi_type = parse(collapse_if_tuple(cast(dict[str, Any], abi)))
 
     if abi_type.is_array:
@@ -850,8 +852,8 @@ def _named_subtree(
 
 def recursive_dict_to_namedtuple(data: dict[str, Any]) -> tuple[Any, ...]:
     def _dict_to_namedtuple(
-        value: Union[dict[str, Any], list[Any]],
-    ) -> Union[tuple[Any, ...], list[Any]]:
+        value: dict[str, Any] | list[Any],
+    ) -> tuple[Any, ...] | list[Any]:
         if not isinstance(value, dict):
             return value
 

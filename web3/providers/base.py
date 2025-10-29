@@ -1,3 +1,6 @@
+from collections.abc import (
+    Callable,
+)
 import contextvars
 import itertools
 import logging
@@ -5,9 +8,7 @@ import threading
 from typing import (
     TYPE_CHECKING,
     Any,
-    Callable,
     Optional,
-    Union,
     cast,
 )
 
@@ -71,9 +72,8 @@ class BaseProvider:
         self,
         cache_allowed_requests: bool = False,
         cacheable_requests: set[RPCEndpoint] = None,
-        request_cache_validation_threshold: Optional[
-            Union[RequestCacheValidationThreshold, int, Empty]
-        ] = empty,
+        request_cache_validation_threshold: None
+        | (RequestCacheValidationThreshold | int | Empty) = empty,
     ) -> None:
         self._request_cache = SimpleCache(1000)
         self._request_cache_lock: threading.Lock = threading.Lock()
@@ -86,7 +86,7 @@ class BaseProvider:
             Optional["RequestBatcher[Any]"]
         ] = contextvars.ContextVar("batching_context", default=None)
         self._batch_request_func_cache: tuple[
-            tuple[Middleware, ...], Callable[..., Union[list[RPCResponse], RPCResponse]]
+            tuple[Middleware, ...], Callable[..., list[RPCResponse] | RPCResponse]
         ] = (None, None)
 
     @property
@@ -178,7 +178,7 @@ class JSONBaseProvider(BaseProvider):
 
     def batch_request_func(
         self, w3: "Web3", middleware_onion: MiddlewareOnion
-    ) -> Callable[..., Union[list[RPCResponse], RPCResponse]]:
+    ) -> Callable[..., list[RPCResponse] | RPCResponse]:
         middleware: tuple[Middleware, ...] = middleware_onion.as_tuple_of_middleware()
 
         cache_key = self._batch_request_func_cache[0]
@@ -209,5 +209,5 @@ class JSONBaseProvider(BaseProvider):
 
     def make_batch_request(
         self, requests: list[tuple[RPCEndpoint, Any]]
-    ) -> Union[list[RPCResponse], RPCResponse]:
+    ) -> list[RPCResponse] | RPCResponse:
         raise NotImplementedError("Providers must implement this method")

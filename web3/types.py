@@ -1,11 +1,11 @@
 from collections.abc import (
+    Callable,
     Coroutine,
     Sequence,
 )
 from typing import (
     TYPE_CHECKING,
     Any,
-    Callable,
     Literal,
     NewType,
     Optional,
@@ -152,7 +152,7 @@ TxData = TypedDict(
 
 class SetCodeAuthorizationParams(TypedDict):
     chainId: int
-    address: Union[Address, ChecksumAddress, str]
+    address: Address | ChecksumAddress | str
     nonce: Nonce
     y_parity: int
     r: int
@@ -215,7 +215,7 @@ class BlockData(TypedDict, total=False):
     stateRoot: HexBytes
     timestamp: Timestamp
     totalDifficulty: int
-    transactions: Union[Sequence[HexBytes], Sequence[TxData]]
+    transactions: Sequence[HexBytes] | Sequence[TxData]
     transactionsRoot: HexBytes
     uncles: Sequence[HexBytes]
     withdrawals: Sequence[WithdrawalData]
@@ -250,7 +250,7 @@ class BlockTypeSubscriptionResponse(SubscriptionResponse):
 
 
 class TransactionTypeSubscriptionResponse(SubscriptionResponse):
-    result: Union[HexBytes, TxData]
+    result: HexBytes | TxData
 
 
 class LogsSubscriptionResponse(SubscriptionResponse):
@@ -265,7 +265,7 @@ class SyncProgress(TypedDict):
 
 
 class SyncingSubscriptionResponse(SubscriptionResponse):
-    result: Union[Literal[False], SyncProgress]
+    result: Literal[False] | SyncProgress
 
 
 class GethSyncingStatus(TypedDict):
@@ -346,13 +346,13 @@ AsyncMakeBatchRequestFn = Callable[
 
 
 class FormattersDict(TypedDict, total=False):
-    error_formatters: Optional[Formatters]
-    request_formatters: Optional[Formatters]
-    result_formatters: Optional[Formatters]
+    error_formatters: Formatters | None
+    request_formatters: Formatters | None
+    result_formatters: Formatters | None
 
 
 class FilterParams(TypedDict, total=False):
-    address: Union[Address, ChecksumAddress, list[Address], list[ChecksumAddress]]
+    address: Address | ChecksumAddress | list[Address] | list[ChecksumAddress]
     blockHash: HexBytes
     fromBlock: BlockIdentifier
     toBlock: BlockIdentifier
@@ -367,11 +367,11 @@ class FeeHistory(TypedDict):
 
 
 class StateOverrideParams(TypedDict, total=False):
-    balance: Optional[Wei]
-    nonce: Optional[int]
-    code: Optional[Union[bytes, HexStr]]
-    state: Optional[dict[HexStr, HexStr]]
-    stateDiff: Optional[dict[HexStr, HexStr]]
+    balance: Wei | None
+    nonce: int | None
+    code: bytes | HexStr | None
+    state: dict[HexStr, HexStr] | None
+    stateDiff: dict[HexStr, HexStr] | None
 
 
 StateOverride = dict[Union[str, Address, ChecksumAddress], StateOverrideParams]
@@ -655,9 +655,9 @@ TraceMode = Sequence[Literal["trace", "vmTrace", "stateDiff"]]
 class TraceFilterParams(TypedDict, total=False):
     after: int
     count: int
-    fromAddress: Sequence[Union[Address, ChecksumAddress, ENS]]
+    fromAddress: Sequence[Address | ChecksumAddress | ENS]
     fromBlock: BlockIdentifier
-    toAddress: Sequence[Union[Address, ChecksumAddress, ENS]]
+    toAddress: Sequence[Address | ChecksumAddress | ENS]
     toBlock: BlockIdentifier
 
 
@@ -672,10 +672,7 @@ SubscriptionType = Literal[
 
 
 class LogsSubscriptionArg(TypedDict, total=False):
-    address: Union[
-        Address,
-        ChecksumAddress,
-        ENS,
-        Sequence[Union[Address, ChecksumAddress, ENS]],
-    ]
+    address: (
+        Address | ChecksumAddress | ENS | Sequence[Address | ChecksumAddress | ENS]
+    )
     topics: Sequence[TopicFilter]

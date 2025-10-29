@@ -1,7 +1,5 @@
 from typing import (
     Any,
-    Optional,
-    Union,
 )
 
 from aiohttp import (
@@ -75,7 +73,7 @@ class AsyncBeacon:
         self._request_session_manager = HTTPSessionManager()
 
     async def _async_make_get_request(
-        self, endpoint_uri: str, params: Optional[dict[str, str]] = None
+        self, endpoint_uri: str, params: dict[str, str] | None = None
     ) -> dict[str, Any]:
         uri = URI(self.base_url + endpoint_uri)
         return await self._request_session_manager.async_json_make_get_request(
@@ -83,7 +81,7 @@ class AsyncBeacon:
         )
 
     async def _async_make_post_request(
-        self, endpoint_uri: str, body: Union[list[str], dict[str, Any]]
+        self, endpoint_uri: str, body: list[str] | dict[str, Any]
     ) -> dict[str, Any]:
         uri = URI(self.base_url + endpoint_uri)
         return await self._request_session_manager.async_json_make_post_request(
@@ -247,7 +245,7 @@ class AsyncBeacon:
     # [ BLOB endpoints ]
 
     async def get_blob_sidecars(
-        self, block_id: str, indices: Optional[list[int]] = None
+        self, block_id: str, indices: list[int] | None = None
     ) -> dict[str, Any]:
         indices_param = {"indices": ",".join(map(str, indices))} if indices else None
         return await self._async_make_get_request(

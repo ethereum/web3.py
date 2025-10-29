@@ -1,9 +1,10 @@
+from collections.abc import (
+    Callable,
+)
 import operator
 from typing import (
     TYPE_CHECKING,
     Any,
-    Callable,
-    Optional,
 )
 
 from eth_typing import (
@@ -306,7 +307,7 @@ request_formatters = {
     RPCEndpoint("evm_revert"): apply_formatters_to_args(hex_to_integer),
 }
 
-result_formatters: Optional[dict[RPCEndpoint, Callable[..., Any]]] = {
+result_formatters: dict[RPCEndpoint, Callable[..., Any]] | None = {
     RPCEndpoint("eth_getBlockByHash"): apply_formatter_if(
         is_dict, compose(block_result_remapper, block_result_formatter)
     ),
@@ -376,7 +377,7 @@ def fill_default(
 
 async def async_guess_from(
     async_w3: "AsyncWeb3[Any]", _: TxParams
-) -> Optional[ChecksumAddress]:
+) -> ChecksumAddress | None:
     accounts = await async_w3.eth.accounts
     if accounts is not None and len(accounts) > 0:
         return accounts[0]

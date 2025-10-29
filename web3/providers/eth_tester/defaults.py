@@ -1,13 +1,14 @@
 import ast
+from collections.abc import (
+    Callable,
+)
 import operator
 import random
 import sys
 from typing import (
     TYPE_CHECKING,
     Any,
-    Callable,
     NoReturn,
-    Optional,
 )
 
 from eth_abi import (
@@ -73,7 +74,7 @@ def call_eth_tester(
     fn_name: str,
     eth_tester: "EthereumTester",
     fn_args: Any,
-    fn_kwargs: Optional[Any] = None,
+    fn_kwargs: Any | None = None,
 ) -> RPCResponse:
     if fn_kwargs is None:
         fn_kwargs = {}

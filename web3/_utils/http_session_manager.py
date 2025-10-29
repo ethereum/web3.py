@@ -8,8 +8,6 @@ import threading
 import time
 from typing import (
     Any,
-    Optional,
-    Union,
 )
 
 from aiohttp import (
@@ -60,7 +58,7 @@ class HTTPSessionManager:
         self,
         endpoint_uri: URI,
         session: requests.Session = None,
-        request_timeout: Optional[float] = None,
+        request_timeout: float | None = None,
     ) -> requests.Session:
         # cache key should have a unique thread identifier
         cache_key = generate_cache_key(f"{threading.get_ident()}:{endpoint_uri}")
@@ -132,7 +130,7 @@ class HTTPSessionManager:
         return response.json()
 
     def make_post_request(
-        self, endpoint_uri: URI, data: Union[bytes, dict[str, Any]], **kwargs: Any
+        self, endpoint_uri: URI, data: bytes | dict[str, Any], **kwargs: Any
     ) -> bytes:
         kwargs.setdefault("timeout", DEFAULT_HTTP_TIMEOUT)
         kwargs.setdefault("stream", False)
@@ -172,8 +170,8 @@ class HTTPSessionManager:
     async def async_cache_and_return_session(
         self,
         endpoint_uri: URI,
-        session: Optional[ClientSession] = None,
-        request_timeout: Optional[ClientTimeout] = None,
+        session: ClientSession | None = None,
+        request_timeout: ClientTimeout | None = None,
     ) -> ClientSession:
         # cache key should have a unique thread identifier
         cache_key = generate_cache_key(f"{id(asyncio.get_event_loop())}:{endpoint_uri}")
@@ -309,7 +307,7 @@ class HTTPSessionManager:
         return await response.json()
 
     async def async_make_post_request(
-        self, endpoint_uri: URI, data: Union[bytes, dict[str, Any]], **kwargs: Any
+        self, endpoint_uri: URI, data: bytes | dict[str, Any], **kwargs: Any
     ) -> bytes:
         response = await self.async_get_response_from_post_request(
             endpoint_uri, data=data, **kwargs

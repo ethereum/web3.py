@@ -39,8 +39,8 @@ if TYPE_CHECKING:
 class BaseENS:
     w3: Union["AsyncWeb3[Any]", "Web3"] = None
     ens: Union["Contract", "AsyncContract"] = None
-    _resolver_contract: Union[type["Contract"], type["AsyncContract"]] = None
-    _reverse_resolver_contract: Union[type["Contract"], type["AsyncContract"]] = None
+    _resolver_contract: type["Contract"] | type["AsyncContract"] = None
+    _reverse_resolver_contract: type["Contract"] | type["AsyncContract"] = None
 
     @property
     def strict_bytes_type_checking(self) -> bool:

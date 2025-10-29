@@ -94,7 +94,7 @@ _PrivateKey = Union[LocalAccount, PrivateKey, HexStr, bytes]
 
 @to_dict
 def gen_normalized_accounts(
-    val: Union[_PrivateKey, Collection[_PrivateKey]],
+    val: _PrivateKey | Collection[_PrivateKey],
 ) -> Iterable[tuple[ChecksumAddress, LocalAccount]]:
     if isinstance(
         val,
@@ -158,7 +158,7 @@ class SignAndSendRawMiddlewareBuilder(Web3MiddlewareBuilder):
     @staticmethod
     @curry
     def build(
-        private_key_or_account: Union[_PrivateKey, Collection[_PrivateKey]],
+        private_key_or_account: _PrivateKey | Collection[_PrivateKey],
         w3: Union["Web3", "AsyncWeb3[Any]"],
     ) -> "SignAndSendRawMiddlewareBuilder":
         middleware = SignAndSendRawMiddlewareBuilder(w3)

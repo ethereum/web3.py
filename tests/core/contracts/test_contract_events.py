@@ -1,10 +1,10 @@
 import pytest
 from collections.abc import (
+    Callable,
     Sequence,
 )
 from typing import (
     Any,
-    Callable,
 )
 
 from eth_typing import (

@@ -1,7 +1,9 @@
+from collections.abc import (
+    Callable,
+)
 from typing import (
     TYPE_CHECKING,
     Any,
-    Callable,
 )
 
 from eth_utils.curried import (

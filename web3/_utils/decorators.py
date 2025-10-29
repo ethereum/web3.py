@@ -1,8 +1,10 @@
+from collections.abc import (
+    Callable,
+)
 import functools
 import threading
 from typing import (
     Any,
-    Callable,
     TypeVar,
     cast,
 )

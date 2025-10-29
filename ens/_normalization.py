@@ -6,8 +6,6 @@ import os
 from typing import (
     Any,
     Literal,
-    Optional,
-    Union,
 )
 
 from pyunormalize import (
@@ -64,7 +62,7 @@ class Token:
     type: Literal[TokenType.TEXT, TokenType.EMOJI]
     _original_text: str
     _original_codepoints: list[int]
-    _normalized_codepoints: Optional[list[int]] = None
+    _normalized_codepoints: list[int] | None = None
 
     restricted: bool = False
 
@@ -205,7 +203,7 @@ def _is_fenced(cp: int) -> bool:
     return cp in [fenced[0] for fenced in NORMALIZATION_SPEC["fenced"]]
 
 
-def _codepoints_to_text(cps: Union[list[list[int]], list[int]]) -> str:
+def _codepoints_to_text(cps: list[list[int]] | list[int]) -> str:
     return "".join(
         chr(cp) if isinstance(cp, int) else _codepoints_to_text(cp) for cp in cps
     )
@@ -400,7 +398,7 @@ def _build_and_validate_label_from_tokens(tokens: list[Token]) -> Label:
     return label
 
 
-def _buffer_codepoints_to_chars(buffer: Union[list[int], list[list[int]]]) -> str:
+def _buffer_codepoints_to_chars(buffer: list[int] | list[list[int]]) -> str:
     return "".join(
         "".join(chr(c) for c in char) if isinstance(char, list) else chr(char)
         for char in buffer

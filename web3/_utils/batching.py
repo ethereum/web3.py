@@ -1,4 +1,5 @@
 from collections.abc import (
+    Callable,
     Coroutine,
 )
 from types import (
@@ -7,7 +8,6 @@ from types import (
 from typing import (
     TYPE_CHECKING,
     Any,
-    Callable,
     Generic,
     Union,
     cast,

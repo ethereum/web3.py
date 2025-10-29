@@ -1,5 +1,6 @@
 import pytest
 from collections.abc import (
+    Callable,
     Sequence,
 )
 from decimal import (
@@ -8,8 +9,6 @@ from decimal import (
 import re
 from typing import (
     Any,
-    Callable,
-    Optional,
 )
 
 from eth_abi.codec import (
@@ -237,7 +236,7 @@ def contract_abi() -> ABI:
     ),
 )
 def test_get_tuple_type_str_parts(
-    input: str, expected: Optional[tuple[str, Optional[str]]]
+    input: str, expected: tuple[str, str | None] | None
 ) -> None:
     assert get_tuple_type_str_parts(input) == expected
 
@@ -700,8 +699,8 @@ def test_get_abi_element(
 def test_get_abi_element_raises_with_invalid_parameters(
     abi: ABI,
     abi_element_identifier: ABIElementIdentifier,
-    args: Optional[Sequence[Any]],
-    kwargs: Optional[dict[str, Any]],
+    args: Sequence[Any] | None,
+    kwargs: dict[str, Any] | None,
     expected_error: type[Exception],
     expected_message: str,
 ) -> None:
