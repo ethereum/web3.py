@@ -78,7 +78,7 @@ setup(
         "requests>=2.23.0",
         "typing-extensions>=4.0.1",
         "types-requests>=2.0.0",
-        "websockets>=10.0.0,<16.0.0",
+        "websockets>=14.0.0",
         "pyunormalize>=15.0.0",
     ],
     python_requires=">=3.10, <4",
@@ -99,5 +99,6 @@ setup(
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
         "Programming Language :: Python :: 3.13",
+        "Programming Language :: Python :: 3.14",
     ],
 )
