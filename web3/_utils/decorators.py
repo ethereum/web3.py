@@ -1,10 +1,10 @@
+from collections.abc import (
+    Callable,
+)
 import functools
 import threading
 from typing import (
     Any,
-    Callable,
-    Set,
-    Tuple,
     TypeVar,
     cast,
 )
@@ -22,7 +22,7 @@ def reject_recursive_repeats(to_wrap: Callable[..., Any]) -> Callable[..., Any]:
     Prevent simple cycles by returning None when called recursively with same instance
     """
     # types ignored b/c dynamically set attribute
-    already_called: Set[Tuple[int, ...]] = set()
+    already_called: set[tuple[int, ...]] = set()
     to_wrap.__already_called = already_called  # type: ignore
 
     add_call = already_called.add

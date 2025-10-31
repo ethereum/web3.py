@@ -1,6 +1,5 @@
 from typing import (
     Any,
-    Optional,
 )
 
 from eth_utils import (
@@ -62,7 +61,7 @@ def is_hex_encoded_block_number(value: Any) -> bool:
 @curry
 def select_method_for_block_identifier(
     value: Any, if_hash: RPCEndpoint, if_number: RPCEndpoint, if_predefined: RPCEndpoint
-) -> Optional[RPCEndpoint]:
+) -> RPCEndpoint | None:
     if is_predefined_block_number(value):
         return if_predefined
     elif isinstance(value, bytes):

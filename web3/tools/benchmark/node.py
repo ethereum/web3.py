@@ -1,3 +1,7 @@
+from collections.abc import (
+    Generator,
+    Sequence,
+)
 import os
 import socket
 from subprocess import (
@@ -10,8 +14,6 @@ from tempfile import (
 )
 from typing import (
     Any,
-    Generator,
-    Sequence,
 )
 import zipfile
 

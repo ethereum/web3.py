@@ -1,7 +1,4 @@
 import pytest
-from typing import (
-    Type,
-)
 
 from eth_utils import (
     event_signature_to_log_topic,
@@ -111,5 +108,5 @@ def emitter_contract_log_topics():
 
 
 @pytest_asyncio.fixture(scope="function")
-def request_mocker() -> Type[RequestMocker]:
+def request_mocker() -> type[RequestMocker]:
     return RequestMocker

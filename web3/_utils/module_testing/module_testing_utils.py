@@ -1,12 +1,13 @@
 import asyncio
+from collections.abc import (
+    Collection,
+    Generator,
+    Sequence,
+)
 from typing import (
     TYPE_CHECKING,
     Any,
-    Collection,
-    Dict,
-    Generator,
     Literal,
-    Sequence,
     Union,
 )
 
@@ -77,7 +78,7 @@ def mock_offchain_lookup_request_response(
         status_code = mocked_status_code
 
         @staticmethod
-        def json() -> Dict[str, str]:
+        def json() -> dict[str, str]:
             return {json_data_field: mocked_json_data}  # noqa: E704
 
         @staticmethod
@@ -127,7 +128,7 @@ def async_mock_offchain_lookup_request_response(
             return self
 
         @staticmethod
-        async def json() -> Dict[str, str]:
+        async def json() -> dict[str, str]:
             return {json_data_field: mocked_json_data}  # noqa: E704
 
         @staticmethod

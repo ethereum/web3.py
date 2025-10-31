@@ -1,10 +1,8 @@
+from collections.abc import (
+    Collection,
+)
 from typing import (
     Any,
-    Collection,
-    Dict,
-    Optional,
-    Tuple,
-    Type,
 )
 
 from eth_utils import (
@@ -32,9 +30,9 @@ class PropertyCheckingFactory(type):
     def __init__(
         cls,
         name: str,
-        bases: Tuple[Type[Any], ...],
-        namespace: Dict[str, Any],
-        **kwargs: Dict[str, Any],
+        bases: tuple[type[Any], ...],
+        namespace: dict[str, Any],
+        **kwargs: dict[str, Any],
     ) -> None:
         # see PEP487.  To accept kwargs in __new__, they need to be
         # filtered out here.
@@ -44,9 +42,9 @@ class PropertyCheckingFactory(type):
     def __new__(
         mcs,
         name: str,
-        bases: Tuple[type],
-        namespace: Dict[str, Any],
-        normalizers: Optional[Dict[str, Any]] = None,
+        bases: tuple[type],
+        namespace: dict[str, Any],
+        normalizers: dict[str, Any] | None = None,
     ) -> "PropertyCheckingFactory":
         all_bases = set(concat(base.__mro__ for base in bases))
         all_keys = set(concat(base.__dict__.keys() for base in all_bases))

@@ -1,17 +1,15 @@
+from collections.abc import (
+    AsyncIterable,
+    AsyncIterator,
+    Generator,
+    Iterable,
+    Iterator,
+)
 import itertools
 import os
 from typing import (
     TYPE_CHECKING,
     Any,
-    AsyncIterable,
-    AsyncIterator,
-    Dict,
-    Generator,
-    Iterable,
-    Iterator,
-    List,
-    Optional,
-    Tuple,
     Union,
     cast,
 )
@@ -73,7 +71,7 @@ else:
     MAX_BLOCK_REQUEST = 50
 
 
-def segment_count(start: int, stop: int, step: int = 5) -> Iterable[Tuple[int, int]]:
+def segment_count(start: int, stop: int, step: int = 5) -> Iterable[tuple[int, int]]:
     """
     Creates a segment counting generator
 
@@ -104,7 +102,7 @@ def segment_count(start: int, stop: int, step: int = 5) -> Iterable[Tuple[int, i
     return gen_bounded_segments(start, stop, step)
 
 
-def gen_bounded_segments(start: int, stop: int, step: int) -> Iterable[Tuple[int, int]]:
+def gen_bounded_segments(start: int, stop: int, step: int) -> Iterable[tuple[int, int]]:
     #  If the initial range is less than the step
     #  just return (start, stop)
     if start + step >= stop:
@@ -121,8 +119,8 @@ def gen_bounded_segments(start: int, stop: int, step: int) -> Iterable[Tuple[int
 
 
 def block_ranges(
-    start_block: BlockNumber, last_block: Optional[BlockNumber], step: int = 5
-) -> Iterable[Tuple[BlockNumber, BlockNumber]]:
+    start_block: BlockNumber, last_block: BlockNumber | None, step: int = 5
+) -> Iterable[tuple[BlockNumber, BlockNumber]]:
     """
     Returns 2-tuple ranges describing ranges of block from start_block to last_block
 
@@ -142,7 +140,7 @@ def block_ranges(
 
 
 def iter_latest_block(
-    w3: "Web3", to_block: Optional[Union[BlockNumber, LatestBlockParam]] = None
+    w3: "Web3", to_block: BlockNumber | LatestBlockParam | None = None
 ) -> Iterable[BlockNumber]:
     """
     Returns a generator that dispenses the latest block, if
@@ -180,8 +178,8 @@ def iter_latest_block(
 def iter_latest_block_ranges(
     w3: "Web3",
     from_block: BlockNumber,
-    to_block: Optional[Union[BlockNumber, LatestBlockParam]] = None,
-) -> Iterable[Tuple[Optional[BlockNumber], Optional[BlockNumber]]]:
+    to_block: BlockNumber | LatestBlockParam | None = None,
+) -> Iterable[tuple[BlockNumber | None, BlockNumber | None]]:
     """
     Returns an iterator unloading ranges of available blocks
 
@@ -207,7 +205,7 @@ def iter_latest_block_ranges(
             from_block = BlockNumber(latest_block + 1)
 
 
-def drop_items_with_none_value(params: Dict[str, Any]) -> Dict[str, Any]:
+def drop_items_with_none_value(params: dict[str, Any]) -> dict[str, Any]:
     return valfilter(lambda x: x is not None, params)
 
 
@@ -215,10 +213,10 @@ def get_logs_multipart(
     w3: "Web3",
     start_block: BlockNumber,
     stop_block: BlockNumber,
-    address: Union[Address, ChecksumAddress, List[Union[Address, ChecksumAddress]]],
-    topics: List[Optional[Union[_Hash32, List[_Hash32]]]],
+    address: Address | ChecksumAddress | list[Address | ChecksumAddress],
+    topics: list[_Hash32 | list[_Hash32] | None],
     max_blocks: int,
-) -> Iterable[List[LogReceipt]]:
+) -> Iterable[list[LogReceipt]]:
     """
     Used to break up requests to ``eth_getLogs``
 
@@ -242,12 +240,11 @@ class RequestLogs:
     def __init__(
         self,
         w3: "Web3",
-        from_block: Optional[Union[BlockNumber, LatestBlockParam]] = None,
-        to_block: Optional[Union[BlockNumber, LatestBlockParam]] = None,
-        address: Optional[
-            Union[Address, ChecksumAddress, List[Union[Address, ChecksumAddress]]]
-        ] = None,
-        topics: Optional[List[Optional[Union[_Hash32, List[_Hash32]]]]] = None,
+        from_block: BlockNumber | LatestBlockParam | None = None,
+        to_block: BlockNumber | LatestBlockParam | None = None,
+        address: None
+        | (Address | ChecksumAddress | list[Address | ChecksumAddress]) = None,
+        topics: list[_Hash32 | list[_Hash32] | None] | None = None,
     ) -> None:
         self.address = address
         self.topics = topics
@@ -278,7 +275,7 @@ class RequestLogs:
 
         return to_block
 
-    def _get_filter_changes(self) -> Iterator[List[LogReceipt]]:
+    def _get_filter_changes(self) -> Iterator[list[LogReceipt]]:
         for start, stop in iter_latest_block_ranges(
             self.w3, self.from_block, self.to_block
         ):
@@ -298,7 +295,7 @@ class RequestLogs:
                     )
                 )
 
-    def get_logs(self) -> List[LogReceipt]:
+    def get_logs(self) -> list[LogReceipt]:
         return list(
             concat(
                 get_logs_multipart(
@@ -332,10 +329,10 @@ class RequestBlocks:
         self.start_block = BlockNumber(w3.eth.block_number + 1)
 
     @property
-    def filter_changes(self) -> Iterator[List[Hash32]]:
+    def filter_changes(self) -> Iterator[list[Hash32]]:
         return self.get_filter_changes()
 
-    def get_filter_changes(self) -> Iterator[List[Hash32]]:
+    def get_filter_changes(self) -> Iterator[list[Hash32]]:
         block_range_iter = iter_latest_block_ranges(self.w3, self.start_block, None)
 
         for block_range in block_range_iter:
@@ -344,7 +341,7 @@ class RequestBlocks:
 
 @to_list
 def block_hashes_in_range(
-    w3: "Web3", block_range: Tuple[BlockNumber, BlockNumber]
+    w3: "Web3", block_range: tuple[BlockNumber, BlockNumber]
 ) -> Iterable[Hash32]:
     from_block, to_block = block_range
     if from_block is None or to_block is None:
@@ -358,7 +355,7 @@ def block_hashes_in_range(
 
 async def async_iter_latest_block(
     w3: "AsyncWeb3[Any]",
-    to_block: Optional[Union[BlockNumber, LatestBlockParam]] = None,
+    to_block: BlockNumber | LatestBlockParam | None = None,
 ) -> AsyncIterable[BlockNumber]:
     """
     Returns a generator that dispenses the latest block, if
@@ -397,8 +394,8 @@ async def async_iter_latest_block(
 async def async_iter_latest_block_ranges(
     w3: "AsyncWeb3[Any]",
     from_block: BlockNumber,
-    to_block: Optional[Union[BlockNumber, LatestBlockParam]] = None,
-) -> AsyncIterable[Tuple[Optional[BlockNumber], Optional[BlockNumber]]]:
+    to_block: BlockNumber | LatestBlockParam | None = None,
+) -> AsyncIterable[tuple[BlockNumber | None, BlockNumber | None]]:
     """
     Returns an iterator unloading ranges of available blocks
 
@@ -429,10 +426,10 @@ async def async_get_logs_multipart(
     w3: "AsyncWeb3[Any]",
     start_block: BlockNumber,
     stop_block: BlockNumber,
-    address: Union[Address, ChecksumAddress, List[Union[Address, ChecksumAddress]]],
-    topics: List[Optional[Union[_Hash32, List[_Hash32]]]],
+    address: Address | ChecksumAddress | list[Address | ChecksumAddress],
+    topics: list[_Hash32 | list[_Hash32] | None],
     max_blocks: int,
-) -> AsyncIterable[List[LogReceipt]]:
+) -> AsyncIterable[list[LogReceipt]]:
     """
     Used to break up requests to ``eth_getLogs``
 
@@ -460,12 +457,11 @@ class AsyncRequestLogs:
     def __init__(
         self,
         w3: "AsyncWeb3[Any]",
-        from_block: Optional[Union[BlockNumber, LatestBlockParam]] = None,
-        to_block: Optional[Union[BlockNumber, LatestBlockParam]] = None,
-        address: Optional[
-            Union[Address, ChecksumAddress, List[Union[Address, ChecksumAddress]]]
-        ] = None,
-        topics: Optional[List[Optional[Union[_Hash32, List[_Hash32]]]]] = None,
+        from_block: BlockNumber | LatestBlockParam | None = None,
+        to_block: BlockNumber | LatestBlockParam | None = None,
+        address: None
+        | (Address | ChecksumAddress | list[Address | ChecksumAddress]) = None,
+        topics: list[_Hash32 | list[_Hash32] | None] | None = None,
     ) -> None:
         self.address = address
         self.topics = topics
@@ -505,7 +501,7 @@ class AsyncRequestLogs:
 
         return to_block
 
-    async def _get_filter_changes(self) -> AsyncIterator[List[LogReceipt]]:
+    async def _get_filter_changes(self) -> AsyncIterator[list[LogReceipt]]:
         self_from_block = await self.from_block
         self_to_block = await self.to_block
         async for start, stop in async_iter_latest_block_ranges(
@@ -527,7 +523,7 @@ class AsyncRequestLogs:
                     for item in sublist
                 ]
 
-    async def get_logs(self) -> List[LogReceipt]:
+    async def get_logs(self) -> list[LogReceipt]:
         self_from_block = await self.from_block
         self_to_block = await self.to_block
         return [
@@ -557,10 +553,10 @@ class AsyncRequestBlocks:
         return closure().__await__()
 
     @property
-    def filter_changes(self) -> AsyncIterator[List[Hash32]]:
+    def filter_changes(self) -> AsyncIterator[list[Hash32]]:
         return self.get_filter_changes()
 
-    async def get_filter_changes(self) -> AsyncIterator[List[Hash32]]:
+    async def get_filter_changes(self) -> AsyncIterator[list[Hash32]]:
         block_range_iter = async_iter_latest_block_ranges(
             self.w3, self.start_block, None
         )
@@ -570,8 +566,8 @@ class AsyncRequestBlocks:
 
 
 async def async_block_hashes_in_range(
-    w3: "AsyncWeb3[Any]", block_range: Tuple[BlockNumber, BlockNumber]
-) -> List[Union[None, Hash32]]:
+    w3: "AsyncWeb3[Any]", block_range: tuple[BlockNumber, BlockNumber]
+) -> list[None | Hash32]:
     from_block, to_block = block_range
     if from_block is None or to_block is None:
         return []
@@ -596,8 +592,8 @@ def _simulate_rpc_response_with_result(filter_id: str) -> "RPCResponse":
 
 class LocalFilterMiddleware(Web3Middleware):
     def __init__(self, w3: Union["Web3", "AsyncWeb3[Any]"]):
-        self.filters: Dict[str, SyncFilter] = {}
-        self.async_filters: Dict[str, AsyncFilter] = {}
+        self.filters: dict[str, SyncFilter] = {}
+        self.async_filters: dict[str, AsyncFilter] = {}
         self.filter_id_counter = itertools.count()
         super().__init__(w3)
 

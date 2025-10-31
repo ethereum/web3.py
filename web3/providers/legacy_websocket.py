@@ -10,11 +10,6 @@ from types import (
 )
 from typing import (
     Any,
-    List,
-    Optional,
-    Tuple,
-    Type,
-    Union,
     cast,
 )
 
@@ -66,7 +61,7 @@ def get_default_endpoint() -> URI:
 
 class PersistentWebSocket:
     def __init__(self, endpoint_uri: URI, websocket_kwargs: Any) -> None:
-        self.ws: Optional[WebSocketClientProtocol] = None
+        self.ws: WebSocketClientProtocol | None = None
         self.endpoint_uri = endpoint_uri
         self.websocket_kwargs = websocket_kwargs
 
@@ -77,7 +72,7 @@ class PersistentWebSocket:
 
     async def __aexit__(
         self,
-        exc_type: Type[BaseException],
+        exc_type: type[BaseException],
         exc_val: BaseException,
         exc_tb: TracebackType,
     ) -> None:
@@ -95,8 +90,8 @@ class LegacyWebSocketProvider(JSONBaseProvider):
 
     def __init__(
         self,
-        endpoint_uri: Optional[Union[URI, str]] = None,
-        websocket_kwargs: Optional[Any] = None,
+        endpoint_uri: URI | str | None = None,
+        websocket_kwargs: Any | None = None,
         websocket_timeout: int = DEFAULT_WEBSOCKET_TIMEOUT,
         **kwargs: Any,
     ) -> None:
@@ -144,8 +139,8 @@ class LegacyWebSocketProvider(JSONBaseProvider):
         return future.result()
 
     def make_batch_request(
-        self, requests: List[Tuple[RPCEndpoint, Any]]
-    ) -> List[RPCResponse]:
+        self, requests: list[tuple[RPCEndpoint, Any]]
+    ) -> list[RPCResponse]:
         self.logger.debug(
             "Making batch request WebSocket. URI: %s, Methods: %s",
             self.endpoint_uri,
@@ -155,5 +150,5 @@ class LegacyWebSocketProvider(JSONBaseProvider):
         future = asyncio.run_coroutine_threadsafe(
             self.coro_make_request(request_data), LegacyWebSocketProvider._loop
         )
-        response = cast(List[RPCResponse], future.result())
+        response = cast(list[RPCResponse], future.result())
         return sort_batch_response_by_response_ids(response)

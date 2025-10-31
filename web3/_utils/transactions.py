@@ -2,10 +2,7 @@ import math
 from typing import (
     TYPE_CHECKING,
     Any,
-    Dict,
-    List,
     Literal,
-    Optional,
     Union,
     cast,
 )
@@ -57,7 +54,7 @@ TX_PARAM_LITERALS = Literal[
     "blobVersionedHashes",
 ]
 
-VALID_TRANSACTION_PARAMS: List[TX_PARAM_LITERALS] = [
+VALID_TRANSACTION_PARAMS: list[TX_PARAM_LITERALS] = [
     "type",
     "from",
     "to",
@@ -121,7 +118,7 @@ def fill_transaction_defaults(w3: "Web3", transaction: TxParams) -> TxParams:
         or any_in_dict(DYNAMIC_FEE_TXN_PARAMS, transaction)
     )
 
-    defaults: Dict[str, Union[bytes, int]] = {}
+    defaults: dict[str, bytes | int] = {}
     for key, default_getter in TRANSACTION_DEFAULTS.items():
         if key not in transaction:
             if (
@@ -148,7 +145,7 @@ def fill_transaction_defaults(w3: "Web3", transaction: TxParams) -> TxParams:
 
 
 def get_block_gas_limit(
-    w3: "Web3", block_identifier: Optional[BlockIdentifier] = None
+    w3: "Web3", block_identifier: BlockIdentifier | None = None
 ) -> int:
     block = w3.eth.get_block(block_identifier or "latest")
     return block["gasLimit"]

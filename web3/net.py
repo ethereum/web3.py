@@ -1,4 +1,4 @@
-from typing import (
+from collections.abc import (
     Awaitable,
     Callable,
 )
