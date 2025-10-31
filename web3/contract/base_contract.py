@@ -32,6 +32,7 @@ from eth_typing import (
 from eth_utils import (
     abi_to_signature,
     add_0x_prefix,
+    collapse_if_tuple,
     combomethod,
     encode_hex,
     filter_abi_by_type,
@@ -193,7 +194,9 @@ class BaseContractEvent:
 
         event_inputs = self.abi.get("inputs", [])
         self.argument_names = tuple([input.get("name", None) for input in event_inputs])
-        self.argument_types = tuple([input["type"] for input in event_inputs])
+        self.argument_types = tuple(
+            [collapse_if_tuple(input) for input in event_inputs]
+        )
 
     def __repr__(self) -> str:
         if self.abi:
@@ -594,7 +597,9 @@ class BaseContractFunction:
 
         event_inputs = self.abi.get("inputs", [])
         self.argument_names = tuple([input.get("name", None) for input in event_inputs])
-        self.argument_types = tuple([input["type"] for input in event_inputs])
+        self.argument_types = tuple(
+            [collapse_if_tuple(input) for input in event_inputs]
+        )
 
     @combomethod
     def _get_abi(cls) -> ABIFunction:
