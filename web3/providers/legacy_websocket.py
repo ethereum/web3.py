@@ -1,3 +1,7 @@
+from __future__ import (
+    annotations,
+)
+
 import asyncio
 import json
 import logging
@@ -9,21 +13,14 @@ from types import (
     TracebackType,
 )
 from typing import (
+    TYPE_CHECKING,
     Any,
     List,
-    Optional,
-    Tuple,
-    Type,
-    Union,
     cast,
 )
 
 from eth_typing import (
     URI,
-)
-from websockets.legacy.client import (
-    WebSocketClientProtocol,
-    connect,
 )
 
 from web3._utils.batching import (
@@ -42,6 +39,11 @@ from web3.types import (
     RPCEndpoint,
     RPCResponse,
 )
+
+if TYPE_CHECKING:
+    from websockets.legacy.client import (
+        WebSocketClientProtocol,
+    )
 
 RESTRICTED_WEBSOCKET_KWARGS = {"uri", "loop"}
 DEFAULT_WEBSOCKET_TIMEOUT = 30
@@ -66,18 +68,22 @@ def get_default_endpoint() -> URI:
 
 class PersistentWebSocket:
     def __init__(self, endpoint_uri: URI, websocket_kwargs: Any) -> None:
-        self.ws: Optional[WebSocketClientProtocol] = None
+        self.ws: WebSocketClientProtocol | None = None
         self.endpoint_uri = endpoint_uri
         self.websocket_kwargs = websocket_kwargs
 
     async def __aenter__(self) -> WebSocketClientProtocol:
         if self.ws is None:
+            from websockets.legacy.client import (
+                connect,
+            )
+
             self.ws = await connect(uri=self.endpoint_uri, **self.websocket_kwargs)
         return self.ws
 
     async def __aexit__(
         self,
-        exc_type: Type[BaseException],
+        exc_type: type[BaseException],
         exc_val: BaseException,
         exc_tb: TracebackType,
     ) -> None:
@@ -95,8 +101,8 @@ class LegacyWebSocketProvider(JSONBaseProvider):
 
     def __init__(
         self,
-        endpoint_uri: Optional[Union[URI, str]] = None,
-        websocket_kwargs: Optional[Any] = None,
+        endpoint_uri: URI | str | None = None,
+        websocket_kwargs: Any | None = None,
         websocket_timeout: int = DEFAULT_WEBSOCKET_TIMEOUT,
         **kwargs: Any,
     ) -> None:
@@ -144,8 +150,8 @@ class LegacyWebSocketProvider(JSONBaseProvider):
         return future.result()
 
     def make_batch_request(
-        self, requests: List[Tuple[RPCEndpoint, Any]]
-    ) -> List[RPCResponse]:
+        self, requests: list[tuple[RPCEndpoint, Any]]
+    ) -> list[RPCResponse]:
         self.logger.debug(
             "Making batch request WebSocket. URI: %s, Methods: %s",
             self.endpoint_uri,
