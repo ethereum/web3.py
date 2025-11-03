@@ -216,7 +216,6 @@ class BlockData(TypedDict, total=False):
     size: int
     stateRoot: HexBytes
     timestamp: Timestamp
-    totalDifficulty: int
     transactions: Union[Sequence[HexBytes], Sequence[TxData]]
     transactionsRoot: HexBytes
     uncles: Sequence[HexBytes]
@@ -482,7 +481,6 @@ class Uncle(TypedDict):
     size: int
     stateRoot: HexBytes
     timestamp: Timestamp
-    totalDifficulty: HexStr
     transactions: Sequence[HexBytes]
     transactionsRoot: HexBytes
     uncles: Sequence[HexBytes]

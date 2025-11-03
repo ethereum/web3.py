@@ -143,7 +143,6 @@ to interact with the Ethereum blockchain. Try getting all the information about 
      'size': 622,
      'stateRoot': HexBytes('0x1f5e460eb84dc0606ab74189dbcfe617300549f8f4778c3c9081c119b5b5d1c1'),
      'timestamp': 0,
-     'totalDifficulty': 1,
      'transactions': [],
      'transactionsRoot': HexBytes('0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421'),
      'uncles': []}
