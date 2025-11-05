@@ -9,10 +9,7 @@ from typing import (
     Any,
     Callable,
     Coroutine,
-    Dict,
-    List,
     Sequence,
-    Tuple,
     Union,
 )
 
@@ -99,8 +96,8 @@ class RequestInformation:
         self,
         method: RPCEndpoint,
         params: Any,
-        response_formatters: Tuple[
-            Union[Dict[str, Callable[..., Any]], Callable[..., Any]],
+        response_formatters: tuple[
+            dict[str, Callable[..., Any]] | Callable[..., Any],
             Callable[..., Any],
             Callable[..., Any],
         ],
@@ -110,13 +107,13 @@ class RequestInformation:
         self.params = params
         self.response_formatters = response_formatters
         self.subscription_id = subscription_id
-        self.middleware_response_processors: List[Callable[..., Any]] = []
+        self.middleware_response_processors: list[Callable[..., Any]] = []
 
 
 DEFAULT_VALIDATION_THRESHOLD = 60 * 60  # 1 hour
 
-CHAIN_VALIDATION_THRESHOLD_DEFAULTS: Dict[
-    int, Union[RequestCacheValidationThreshold, int]
+CHAIN_VALIDATION_THRESHOLD_DEFAULTS: dict[
+    int, RequestCacheValidationThreshold | int
 ] = {
     # Suggested safe values as defaults for each chain. Users can configure a different
     # value if desired.
@@ -136,7 +133,7 @@ CHAIN_VALIDATION_THRESHOLD_DEFAULTS: Dict[
 
 
 def is_cacheable_request(
-    provider: Union[ASYNC_PROVIDER_TYPE, SYNC_PROVIDER_TYPE],
+    provider: ASYNC_PROVIDER_TYPE | SYNC_PROVIDER_TYPE,
     method: RPCEndpoint,
     params: Any,
 ) -> bool:
@@ -176,10 +173,10 @@ BLOCKHASH_IN_PARAMS = {
     RPC.eth_getUncleCountByBlockHash,
 }
 
-INTERNAL_VALIDATION_MAP: Dict[
+INTERNAL_VALIDATION_MAP: dict[
     RPCEndpoint,
     Callable[
-        [SYNC_PROVIDER_TYPE, Sequence[Any], Dict[str, Any]],
+        [SYNC_PROVIDER_TYPE, Sequence[Any], dict[str, Any]],
         bool,
     ],
 ] = {
@@ -268,11 +265,11 @@ def handle_request_caching(
 # -- async -- #
 
 ASYNC_VALIDATOR_TYPE = Callable[
-    ["AsyncBaseProvider", Sequence[Any], Dict[str, Any]],
+    ["AsyncBaseProvider", Sequence[Any], dict[str, Any]],
     Union[bool, Coroutine[Any, Any, bool]],
 ]
 
-ASYNC_INTERNAL_VALIDATION_MAP: Dict[RPCEndpoint, ASYNC_VALIDATOR_TYPE] = {
+ASYNC_INTERNAL_VALIDATION_MAP: dict[RPCEndpoint, ASYNC_VALIDATOR_TYPE] = {
     **{endpoint: always_cache_request for endpoint in ALWAYS_CACHE},
     **{
         endpoint: async_validate_from_block_id_in_params

@@ -2,10 +2,8 @@ import time
 from typing import (
     TYPE_CHECKING,
     Any,
-    Dict,
     Sequence,
     TypeVar,
-    Union,
 )
 
 from web3.types import (
@@ -29,7 +27,7 @@ SYNC_PROVIDER_TYPE = TypeVar("SYNC_PROVIDER_TYPE", bound="BaseProvider")
 
 
 def _error_log(
-    provider: Union[ASYNC_PROVIDER_TYPE, SYNC_PROVIDER_TYPE], e: Exception
+    provider: ASYNC_PROVIDER_TYPE | SYNC_PROVIDER_TYPE, e: Exception
 ) -> None:
     provider.logger.error(
         "There was an exception while caching the request.", exc_info=e
@@ -87,7 +85,7 @@ def is_beyond_validation_threshold(
 def validate_from_block_id_in_params(
     provider: SYNC_PROVIDER_TYPE,
     params: Sequence[Any],
-    _result: Dict[str, Any],
+    _result: dict[str, Any],
 ) -> bool:
     block_id = params[0]
     if block_id == "earliest":
@@ -101,7 +99,7 @@ def validate_from_block_id_in_params(
 def validate_from_blocknum_in_result(
     provider: SYNC_PROVIDER_TYPE,
     _params: Sequence[Any],
-    result: Dict[str, Any],
+    result: dict[str, Any],
 ) -> bool:
     cache_allowed_requests = provider.cache_allowed_requests
     try:
@@ -143,7 +141,7 @@ def validate_from_blocknum_in_result(
 def validate_from_blockhash_in_params(
     provider: SYNC_PROVIDER_TYPE,
     params: Sequence[Any],
-    _result: Dict[str, Any],
+    _result: dict[str, Any],
 ) -> bool:
     cache_allowed_requests = provider.cache_allowed_requests
     try:
@@ -214,7 +212,7 @@ async def async_is_beyond_validation_threshold(
 async def async_validate_from_block_id_in_params(
     provider: ASYNC_PROVIDER_TYPE,
     params: Sequence[Any],
-    _result: Dict[str, Any],
+    _result: dict[str, Any],
 ) -> bool:
     block_id = params[0]
     if block_id == "earliest":
@@ -228,7 +226,7 @@ async def async_validate_from_block_id_in_params(
 async def async_validate_from_blocknum_in_result(
     provider: ASYNC_PROVIDER_TYPE,
     _params: Sequence[Any],
-    result: Dict[str, Any],
+    result: dict[str, Any],
 ) -> bool:
     cache_allowed_requests = provider.cache_allowed_requests
     try:
@@ -268,7 +266,7 @@ async def async_validate_from_blocknum_in_result(
 
 
 async def async_validate_from_blockhash_in_params(
-    provider: ASYNC_PROVIDER_TYPE, params: Sequence[Any], _result: Dict[str, Any]
+    provider: ASYNC_PROVIDER_TYPE, params: Sequence[Any], _result: dict[str, Any]
 ) -> bool:
     cache_allowed_requests = provider.cache_allowed_requests
     try:

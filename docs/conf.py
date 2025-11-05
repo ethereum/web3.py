@@ -17,7 +17,7 @@
 import os
 
 DIR = os.path.dirname(__file__)
-with open(os.path.join(DIR, "../setup.py"), "r") as f:
+with open(os.path.join(DIR, "../setup.py")) as f:
     for line in f:
         if "version=" in line:
             setup_version = line.split('"')[1]

@@ -6,11 +6,7 @@ from typing import (
     AsyncGenerator,
     Callable,
     Coroutine,
-    Dict,
-    List,
-    Optional,
     Sequence,
-    Tuple,
     Union,
     cast,
 )
@@ -106,8 +102,8 @@ class RequestManager:
     def __init__(
         self,
         w3: Union["AsyncWeb3[Any]", "Web3"],
-        provider: Optional[Union["BaseProvider", "AsyncBaseProvider"]] = None,
-        middleware: Optional[Sequence[Tuple[Middleware, str]]] = None,
+        provider: Union["BaseProvider", "AsyncBaseProvider"] | None = None,
+        middleware: Sequence[tuple[Middleware, str]] | None = None,
     ) -> None:
         self.w3 = w3
 
@@ -136,7 +132,7 @@ class RequestManager:
         self._provider = provider
 
     @staticmethod
-    def get_default_middleware() -> List[Tuple[Middleware, str]]:
+    def get_default_middleware() -> list[tuple[Middleware, str]]:
         """
         List the default middleware for the request manager.
         Documentation should remain in sync with these defaults.
@@ -153,7 +149,7 @@ class RequestManager:
     # Provider requests and response
     #
     def _make_request(
-        self, method: Union[RPCEndpoint, Callable[..., RPCEndpoint]], params: Any
+        self, method: RPCEndpoint | Callable[..., RPCEndpoint], params: Any
     ) -> RPCResponse:
         provider = cast("BaseProvider", self.provider)
         request_func = provider.request_func(
@@ -163,7 +159,7 @@ class RequestManager:
         return request_func(method, params)
 
     async def _coro_make_request(
-        self, method: Union[RPCEndpoint, Callable[..., RPCEndpoint]], params: Any
+        self, method: RPCEndpoint | Callable[..., RPCEndpoint], params: Any
     ) -> RPCResponse:
         provider = cast("AsyncBaseProvider", self.provider)
         request_func = await provider.request_func(
@@ -186,8 +182,8 @@ class RequestManager:
         self,
         response: RPCResponse,
         params: Any,
-        error_formatters: Optional[Callable[..., Any]] = None,
-        null_result_formatters: Optional[Callable[..., Any]] = None,
+        error_formatters: Callable[..., Any] | None = None,
+        null_result_formatters: Callable[..., Any] | None = None,
     ) -> Any:
         is_subscription_response = (
             response.get("method") == "eth_subscription"
@@ -221,10 +217,10 @@ class RequestManager:
 
     def request_blocking(
         self,
-        method: Union[RPCEndpoint, Callable[..., RPCEndpoint]],
+        method: RPCEndpoint | Callable[..., RPCEndpoint],
         params: Any,
-        error_formatters: Optional[Callable[..., Any]] = None,
-        null_result_formatters: Optional[Callable[..., Any]] = None,
+        error_formatters: Callable[..., Any] | None = None,
+        null_result_formatters: Callable[..., Any] | None = None,
     ) -> Any:
         """
         Make a synchronous request using the provider
@@ -236,10 +232,10 @@ class RequestManager:
 
     async def coro_request(
         self,
-        method: Union[RPCEndpoint, Callable[..., RPCEndpoint]],
+        method: RPCEndpoint | Callable[..., RPCEndpoint],
         params: Any,
-        error_formatters: Optional[Callable[..., Any]] = None,
-        null_result_formatters: Optional[Callable[..., Any]] = None,
+        error_formatters: Callable[..., Any] | None = None,
+        null_result_formatters: Callable[..., Any] | None = None,
     ) -> Any:
         """
         Coroutine for making a request using the provider
@@ -262,8 +258,8 @@ class RequestManager:
         return RequestBatcher(self.w3)
 
     def _make_batch_request(
-        self, requests_info: List[Tuple[Tuple["RPCEndpoint", Any], Tuple[Any, ...]]]
-    ) -> List[RPCResponse]:
+        self, requests_info: list[tuple[tuple["RPCEndpoint", Any], tuple[Any, ...]]]
+    ) -> list[RPCResponse]:
         """
         Make a batch request using the provider
         """
@@ -291,10 +287,10 @@ class RequestManager:
 
     async def _async_make_batch_request(
         self,
-        requests_info: List[
-            Coroutine[Any, Any, Tuple[Tuple["RPCEndpoint", Any], Tuple[Any]]]
+        requests_info: list[
+            Coroutine[Any, Any, tuple[tuple["RPCEndpoint", Any], tuple[Any]]]
         ],
-    ) -> List[RPCResponse]:
+    ) -> list[RPCResponse]:
         """
         Make an asynchronous batch request using the provider
         """
@@ -315,7 +311,7 @@ class RequestManager:
 
         if isinstance(response, list):
             # expected format
-            response = cast(List[RPCResponse], response)
+            response = cast(list[RPCResponse], response)
             formatted_responses = [
                 self._format_batched_response(info, resp)
                 for info, resp in zip(unpacked_requests_info, response)
@@ -326,8 +322,8 @@ class RequestManager:
             raise_error_for_batch_response(response, self.logger)
 
     async def _async_send_batch(
-        self, requests: List[Tuple["RPCEndpoint", Any]]
-    ) -> List[RPCRequest]:
+        self, requests: list[tuple["RPCEndpoint", Any]]
+    ) -> list[RPCRequest]:
         """
         Send a batch request via socket.
         """
@@ -346,7 +342,7 @@ class RequestManager:
         )
         return await send_func(requests)
 
-    async def _async_recv_batch(self, requests: List[RPCRequest]) -> List[RPCResponse]:
+    async def _async_recv_batch(self, requests: list[RPCRequest]) -> list[RPCResponse]:
         """
         Receive a batch request via socket.
         """
@@ -367,10 +363,10 @@ class RequestManager:
 
     async def _async_make_socket_batch_request(
         self,
-        requests_info: List[
-            Coroutine[Any, Any, Tuple[Tuple["RPCEndpoint", Any], Tuple[Any, ...]]]
+        requests_info: list[
+            Coroutine[Any, Any, tuple[tuple["RPCEndpoint", Any], tuple[Any, ...]]]
         ],
-    ) -> List[RPCResponse]:
+    ) -> list[RPCResponse]:
         """
         Send and receive a batch request via a socket.
         """
@@ -407,7 +403,7 @@ class RequestManager:
 
     def _format_batched_response(
         self,
-        requests_info: Tuple[Tuple[RPCEndpoint, Any], Sequence[Any]],
+        requests_info: tuple[tuple[RPCEndpoint, Any], Sequence[Any]],
         response: RPCResponse,
     ) -> RPCResponse:
         result_formatters, error_formatters, null_result_formatters = requests_info[1]
@@ -434,9 +430,10 @@ class RequestManager:
         self,
         method: RPCEndpoint,
         params: Any,
-        response_formatters: Optional[
-            Tuple[Dict[str, Callable[..., Any]], Callable[..., Any], Callable[..., Any]]
-        ] = None,
+        response_formatters: None
+        | (
+            tuple[dict[str, Callable[..., Any]], Callable[..., Any], Callable[..., Any]]
+        ) = None,
     ) -> RPCResponse:
         provider = cast(PersistentConnectionProvider, self._provider)
         self.logger.debug(
@@ -495,7 +492,7 @@ class RequestManager:
             provider._request_processor._request_information_cache.pop(response_id_key)
             raise
 
-    async def recv(self) -> Union[RPCResponse, FormattedEthSubscriptionResponse]:
+    async def recv(self) -> RPCResponse | FormattedEthSubscriptionResponse:
         provider = cast(PersistentConnectionProvider, self._provider)
         self.logger.debug(
             "Getting next response from open socket connection: %s",
@@ -559,7 +556,7 @@ class RequestManager:
 
     async def _process_response(
         self, response: RPCResponse
-    ) -> Union[RPCResponse, FormattedEthSubscriptionResponse]:
+    ) -> RPCResponse | FormattedEthSubscriptionResponse:
         provider = cast(PersistentConnectionProvider, self._provider)
         request_info = self._request_processor.get_request_information_for_response(
             response

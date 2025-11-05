@@ -9,8 +9,6 @@ import timeit
 from typing import (
     Any,
     Callable,
-    Dict,
-    Union,
 )
 
 from web3 import (
@@ -73,7 +71,7 @@ async def build_async_w3_http(endpoint_uri: str) -> AsyncWeb3[Any]:
     return _w3
 
 
-def sync_benchmark(func: Callable[..., Any], n: int) -> Union[float, str]:
+def sync_benchmark(func: Callable[..., Any], n: int) -> float | str:
     try:
         starttime = timeit.default_timer()
         for _ in range(n):
@@ -85,7 +83,7 @@ def sync_benchmark(func: Callable[..., Any], n: int) -> Union[float, str]:
         return "N/A"
 
 
-async def async_benchmark(func: Callable[..., Any], n: int) -> Union[float, str]:
+async def async_benchmark(func: Callable[..., Any], n: int) -> float | str:
     try:
         starttime = timeit.default_timer()
         for result in asyncio.as_completed([func() for _ in range(n)]):
@@ -159,9 +157,9 @@ def main(logger: logging.Logger, num_calls: int) -> None:
             ]
 
             def benchmark(
-                method: Dict[str, Any], loop: asyncio.AbstractEventLoop = loop
+                method: dict[str, Any], loop: asyncio.AbstractEventLoop = loop
             ) -> None:
-                outcomes: Dict[str, Union[str, float]] = defaultdict(lambda: "N/A")
+                outcomes: dict[str, str | float] = defaultdict(lambda: "N/A")
                 outcomes["name"] = method["name"]
                 outcomes["HTTPProvider"] = sync_benchmark(
                     method["exec"],

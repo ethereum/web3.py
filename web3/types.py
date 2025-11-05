@@ -3,14 +3,10 @@ from typing import (
     Any,
     Callable,
     Coroutine,
-    Dict,
-    List,
     Literal,
     NewType,
     Optional,
     Sequence,
-    Tuple,
-    Type,
     TypedDict,
     TypeVar,
     Union,
@@ -58,7 +54,7 @@ BlockParams = Literal["latest", "earliest", "pending", "safe", "finalized"]
 BlockIdentifier = Union[BlockParams, BlockNumber, Hash32, HexStr, HexBytes, int]
 LatestBlockParam = Literal["latest"]
 
-ABIElementIdentifier = Union[str, Type[FallbackFn], Type[ReceiveFn]]
+ABIElementIdentifier = Union[str, type[FallbackFn], type[ReceiveFn]]
 
 # bytes, hexbytes, or hexstr representing a 32 byte hash
 _Hash32 = Union[Hash32, HexBytes, HexStr]
@@ -82,7 +78,7 @@ RPCEndpoint = NewType("RPCEndpoint", str)
 Timestamp = NewType("Timestamp", int)
 Wei = NewType("Wei", int)
 Gwei = NewType("Gwei", int)
-Formatters = Dict[RPCEndpoint, Callable[..., Any]]
+Formatters = dict[RPCEndpoint, Callable[..., Any]]
 
 
 class AccessListEntry(TypedDict):
@@ -95,7 +91,7 @@ AccessList = NewType("AccessList", Sequence[AccessListEntry])
 
 class EventData(TypedDict):
     address: ChecksumAddress
-    args: Dict[str, Any]
+    args: dict[str, Any]
     blockHash: HexBytes
     blockNumber: int
     event: str
@@ -154,7 +150,7 @@ TxData = TypedDict(
 
 class SetCodeAuthorizationParams(TypedDict):
     chainId: int
-    address: Union[Address, ChecksumAddress, str]
+    address: Address | ChecksumAddress | str
     nonce: Nonce
     y_parity: int
     r: int
@@ -217,7 +213,7 @@ class BlockData(TypedDict, total=False):
     stateRoot: HexBytes
     timestamp: Timestamp
     totalDifficulty: int
-    transactions: Union[Sequence[HexBytes], Sequence[TxData]]
+    transactions: Sequence[HexBytes] | Sequence[TxData]
     transactionsRoot: HexBytes
     uncles: Sequence[HexBytes]
     withdrawals: Sequence[WithdrawalData]
@@ -252,7 +248,7 @@ class BlockTypeSubscriptionResponse(SubscriptionResponse):
 
 
 class TransactionTypeSubscriptionResponse(SubscriptionResponse):
-    result: Union[HexBytes, TxData]
+    result: HexBytes | TxData
 
 
 class LogsSubscriptionResponse(SubscriptionResponse):
@@ -267,7 +263,7 @@ class SyncProgress(TypedDict):
 
 
 class SyncingSubscriptionResponse(SubscriptionResponse):
-    result: Union[Literal[False], SyncProgress]
+    result: Literal[False] | SyncProgress
 
 
 class GethSyncingStatus(TypedDict):
@@ -338,23 +334,23 @@ class CreateAccessListResponse(TypedDict):
 
 MakeRequestFn = Callable[[RPCEndpoint, Any], RPCResponse]
 MakeBatchRequestFn = Callable[
-    [List[Tuple[RPCEndpoint, Any]]], Union[List[RPCResponse], RPCResponse]
+    [list[tuple[RPCEndpoint, Any]]], Union[list[RPCResponse], RPCResponse]
 ]
 AsyncMakeRequestFn = Callable[[RPCEndpoint, Any], Coroutine[Any, Any, RPCResponse]]
 AsyncMakeBatchRequestFn = Callable[
-    [List[Tuple[RPCEndpoint, Any]]],
-    Coroutine[Any, Any, Union[List[RPCResponse], RPCResponse]],
+    [list[tuple[RPCEndpoint, Any]]],
+    Coroutine[Any, Any, Union[list[RPCResponse], RPCResponse]],
 ]
 
 
 class FormattersDict(TypedDict, total=False):
-    error_formatters: Optional[Formatters]
-    request_formatters: Optional[Formatters]
-    result_formatters: Optional[Formatters]
+    error_formatters: Formatters | None
+    request_formatters: Formatters | None
+    result_formatters: Formatters | None
 
 
 class FilterParams(TypedDict, total=False):
-    address: Union[Address, ChecksumAddress, List[Address], List[ChecksumAddress]]
+    address: Address | ChecksumAddress | list[Address] | list[ChecksumAddress]
     blockHash: HexBytes
     fromBlock: BlockIdentifier
     toBlock: BlockIdentifier
@@ -362,21 +358,21 @@ class FilterParams(TypedDict, total=False):
 
 
 class FeeHistory(TypedDict):
-    baseFeePerGas: List[Wei]
-    gasUsedRatio: List[float]
+    baseFeePerGas: list[Wei]
+    gasUsedRatio: list[float]
     oldestBlock: BlockNumber
-    reward: List[List[Wei]]
+    reward: list[list[Wei]]
 
 
 class StateOverrideParams(TypedDict, total=False):
-    balance: Optional[Wei]
-    nonce: Optional[int]
-    code: Optional[Union[bytes, HexStr]]
-    state: Optional[Dict[HexStr, HexStr]]
-    stateDiff: Optional[Dict[HexStr, HexStr]]
+    balance: Wei | None
+    nonce: int | None
+    code: bytes | HexStr | None
+    state: dict[HexStr, HexStr] | None
+    stateDiff: dict[HexStr, HexStr] | None
 
 
-StateOverride = Dict[Union[str, Address, ChecksumAddress], StateOverrideParams]
+StateOverride = dict[Union[str, Address, ChecksumAddress], StateOverrideParams]
 
 
 GasPriceStrategy = Union[
@@ -395,7 +391,7 @@ TxReceipt = TypedDict(
         "effectiveGasPrice": Wei,
         "gasUsed": int,
         "from": ChecksumAddress,
-        "logs": List[LogReceipt],
+        "logs": list[LogReceipt],
         "logsBloom": HexBytes,
         "root": HexStr,
         "status": int,
@@ -406,7 +402,7 @@ TxReceipt = TypedDict(
     },
 )
 
-BlockReceipts = List[TxReceipt]
+BlockReceipts = list[TxReceipt]
 
 
 class SignedTx(TypedDict, total=False):
@@ -443,16 +439,16 @@ class NodeInfo(TypedDict):
     ip: str
     listenAddr: str
     name: str
-    ports: Dict[str, int]
-    protocols: Dict[str, Protocol]
+    ports: dict[str, int]
+    protocols: dict[str, Protocol]
 
 
 class Peer(TypedDict, total=False):
     caps: Sequence[str]
     id: HexStr
     name: str
-    network: Dict[str, str]
-    protocols: Dict[str, Protocol]
+    network: dict[str, str]
+    protocols: dict[str, Protocol]
 
 
 class SyncStatus(TypedDict):
@@ -515,13 +511,13 @@ PendingTx = TypedDict(
 
 
 class TxPoolContent(TypedDict, total=False):
-    pending: Dict[ChecksumAddress, Dict[Nonce, List[PendingTx]]]
-    queued: Dict[ChecksumAddress, Dict[Nonce, List[PendingTx]]]
+    pending: dict[ChecksumAddress, dict[Nonce, list[PendingTx]]]
+    queued: dict[ChecksumAddress, dict[Nonce, list[PendingTx]]]
 
 
 class TxPoolInspect(TypedDict, total=False):
-    pending: Dict[ChecksumAddress, Dict[Nonce, str]]
-    queued: Dict[ChecksumAddress, Dict[Nonce, str]]
+    pending: dict[ChecksumAddress, dict[Nonce, str]]
+    queued: dict[ChecksumAddress, dict[Nonce, str]]
 
 
 class TxPoolStatus(TypedDict, total=False):
@@ -538,7 +534,7 @@ class TraceConfig(TypedDict, total=False):
     enableMemory: bool
     enableReturnData: bool
     tracer: str
-    tracerConfig: Dict[str, Any]
+    tracerConfig: dict[str, Any]
     timeout: int
 
 
@@ -574,21 +570,21 @@ class TraceData(TypedDict, total=False):
     balance: int
     nonce: int
     code: str
-    storage: Dict[str, str]
+    storage: dict[str, str]
 
 
 class DiffModeTrace(TypedDict):
-    post: Dict[ChecksumAddress, TraceData]
-    pre: Dict[ChecksumAddress, TraceData]
+    post: dict[ChecksumAddress, TraceData]
+    pre: dict[ChecksumAddress, TraceData]
 
 
-PrestateTrace = Dict[ChecksumAddress, TraceData]
+PrestateTrace = dict[ChecksumAddress, TraceData]
 
 
 # 4byte tracer returns something like:
 # { '0x27dc297e-128' : 1 }
 # which is: { 4byte signature - calldata size : # of occurrences of key }
-FourByteTrace = Dict[str, int]
+FourByteTrace = dict[str, int]
 
 
 class StructLog(TypedDict):
@@ -597,14 +593,14 @@ class StructLog(TypedDict):
     gas: int
     gasCost: int
     depth: int
-    stack: List[HexStr]
+    stack: list[HexStr]
 
 
 class OpcodeTrace(TypedDict, total=False):
     gas: int
     failed: bool
     returnValue: str
-    structLogs: List[StructLog]
+    structLogs: list[StructLog]
 
 
 class BlockStateCallV1(TypedDict):
@@ -637,7 +633,7 @@ class SimulateV1Result(BlockData):
 
 
 class GethWallet(TypedDict):
-    accounts: Sequence[Dict[str, str]]
+    accounts: Sequence[dict[str, str]]
     status: str
     url: str
 
@@ -649,17 +645,17 @@ TContractEvent = TypeVar("TContractEvent", bound="BaseContractEvent")
 
 
 # Tracing types
-BlockTrace = NewType("BlockTrace", Dict[str, Any])
-FilterTrace = NewType("FilterTrace", Dict[str, Any])
+BlockTrace = NewType("BlockTrace", dict[str, Any])
+FilterTrace = NewType("FilterTrace", dict[str, Any])
 TraceMode = Sequence[Literal["trace", "vmTrace", "stateDiff"]]
 
 
 class TraceFilterParams(TypedDict, total=False):
     after: int
     count: int
-    fromAddress: Sequence[Union[Address, ChecksumAddress, ENS]]
+    fromAddress: Sequence[Address | ChecksumAddress | ENS]
     fromBlock: BlockIdentifier
-    toAddress: Sequence[Union[Address, ChecksumAddress, ENS]]
+    toAddress: Sequence[Address | ChecksumAddress | ENS]
     toBlock: BlockIdentifier
 
 
@@ -674,10 +670,7 @@ SubscriptionType = Literal[
 
 
 class LogsSubscriptionArg(TypedDict, total=False):
-    address: Union[
-        Address,
-        ChecksumAddress,
-        ENS,
-        Sequence[Union[Address, ChecksumAddress, ENS]],
-    ]
+    address: (
+        Address | ChecksumAddress | ENS | Sequence[Address | ChecksumAddress | ENS]
+    )
     topics: Sequence[TopicFilter]

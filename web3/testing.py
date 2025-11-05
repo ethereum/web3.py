@@ -1,7 +1,3 @@
-from typing import (
-    Optional,
-)
-
 from web3._utils.rpc_abi import (
     RPC,
 )
@@ -24,7 +20,7 @@ class Testing(Module):
     def reset(self) -> None:
         self.w3.manager.request_blocking(RPC.evm_reset, [])
 
-    def revert(self, snapshot_idx: Optional[int] = None) -> None:
+    def revert(self, snapshot_idx: int | None = None) -> None:
         if snapshot_idx is None:
             revert_target = self.last_snapshot_idx
         else:

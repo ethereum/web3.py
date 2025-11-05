@@ -1,10 +1,6 @@
 from typing import (
     Any,
-    List,
     NoReturn,
-    Optional,
-    Tuple,
-    Union,
 )
 
 from eth_account import (
@@ -49,7 +45,7 @@ from web3.types import (
 
 
 class BaseEth(Module):
-    _default_account: Union[ChecksumAddress, Empty] = empty
+    _default_account: ChecksumAddress | Empty = empty
     _default_block: BlockIdentifier = "latest"
     _default_contract_factory: Any = None
     _gas_price_strategy = None
@@ -72,40 +68,40 @@ class BaseEth(Module):
         self._default_block = value
 
     @property
-    def default_account(self) -> Union[ChecksumAddress, Empty]:
+    def default_account(self) -> ChecksumAddress | Empty:
         return self._default_account
 
     @default_account.setter
-    def default_account(self, account: Union[ChecksumAddress, Empty]) -> None:
+    def default_account(self, account: ChecksumAddress | Empty) -> None:
         self._default_account = account
 
-    def send_transaction_munger(self, transaction: TxParams) -> Tuple[TxParams]:
+    def send_transaction_munger(self, transaction: TxParams) -> tuple[TxParams]:
         if "from" not in transaction and is_checksum_address(self.default_account):
             transaction = assoc(transaction, "from", self.default_account)
 
         return (transaction,)
 
     def generate_gas_price(
-        self, transaction_params: Optional[TxParams] = None
-    ) -> Optional[Wei]:
+        self, transaction_params: TxParams | None = None
+    ) -> Wei | None:
         if self._gas_price_strategy:
             return self._gas_price_strategy(self.w3, transaction_params)
         return None
 
     def set_gas_price_strategy(
-        self, gas_price_strategy: Optional[GasPriceStrategy]
+        self, gas_price_strategy: GasPriceStrategy | None
     ) -> None:
         self._gas_price_strategy = gas_price_strategy
 
     def _eth_call_and_estimate_gas_munger(
         self,
         transaction: TxParams,
-        block_identifier: Optional[BlockIdentifier] = None,
-        state_override: Optional[StateOverride] = None,
-    ) -> Union[
-        Tuple[TxParams, BlockIdentifier],
-        Tuple[TxParams, BlockIdentifier, StateOverride],
-    ]:
+        block_identifier: BlockIdentifier | None = None,
+        state_override: StateOverride | None = None,
+    ) -> (
+        tuple[TxParams, BlockIdentifier]
+        | tuple[TxParams, BlockIdentifier, StateOverride]
+    ):
         # TODO: move to middleware
         if "from" not in transaction and is_checksum_address(self.default_account):
             transaction = assoc(transaction, "from", self.default_account)
@@ -122,36 +118,36 @@ class BaseEth(Module):
     def estimate_gas_munger(
         self,
         transaction: TxParams,
-        block_identifier: Optional[BlockIdentifier] = None,
-        state_override: Optional[StateOverride] = None,
-    ) -> Union[
-        Tuple[TxParams, BlockIdentifier],
-        Tuple[TxParams, BlockIdentifier, StateOverride],
-    ]:
+        block_identifier: BlockIdentifier | None = None,
+        state_override: StateOverride | None = None,
+    ) -> (
+        tuple[TxParams, BlockIdentifier]
+        | tuple[TxParams, BlockIdentifier, StateOverride]
+    ):
         return self._eth_call_and_estimate_gas_munger(
             transaction, block_identifier, state_override
         )
 
     def get_block_munger(
         self, block_identifier: BlockIdentifier, full_transactions: bool = False
-    ) -> Tuple[BlockIdentifier, bool]:
+    ) -> tuple[BlockIdentifier, bool]:
         return (block_identifier, full_transactions)
 
     def block_id_munger(
         self,
-        account: Union[Address, ChecksumAddress, ENS],
-        block_identifier: Optional[BlockIdentifier] = None,
-    ) -> Tuple[Union[Address, ChecksumAddress, ENS], BlockIdentifier]:
+        account: Address | ChecksumAddress | ENS,
+        block_identifier: BlockIdentifier | None = None,
+    ) -> tuple[Address | ChecksumAddress | ENS, BlockIdentifier]:
         if block_identifier is None:
             block_identifier = self.default_block
         return (account, block_identifier)
 
     def get_storage_at_munger(
         self,
-        account: Union[Address, ChecksumAddress, ENS],
+        account: Address | ChecksumAddress | ENS,
         position: int,
-        block_identifier: Optional[BlockIdentifier] = None,
-    ) -> Tuple[Union[Address, ChecksumAddress, ENS], int, BlockIdentifier]:
+        block_identifier: BlockIdentifier | None = None,
+    ) -> tuple[Address | ChecksumAddress | ENS, int, BlockIdentifier]:
         if block_identifier is None:
             block_identifier = self.default_block
         return (account, position, block_identifier)
@@ -159,19 +155,19 @@ class BaseEth(Module):
     def call_munger(
         self,
         transaction: TxParams,
-        block_identifier: Optional[BlockIdentifier] = None,
-        state_override: Optional[StateOverride] = None,
-    ) -> Union[
-        Tuple[TxParams, BlockIdentifier],
-        Tuple[TxParams, BlockIdentifier, StateOverride],
-    ]:
+        block_identifier: BlockIdentifier | None = None,
+        state_override: StateOverride | None = None,
+    ) -> (
+        tuple[TxParams, BlockIdentifier]
+        | tuple[TxParams, BlockIdentifier, StateOverride]
+    ):
         return self._eth_call_and_estimate_gas_munger(
             transaction, block_identifier, state_override
         )
 
     def create_access_list_munger(
-        self, transaction: TxParams, block_identifier: Optional[BlockIdentifier] = None
-    ) -> Tuple[TxParams, BlockIdentifier]:
+        self, transaction: TxParams, block_identifier: BlockIdentifier | None = None
+    ) -> tuple[TxParams, BlockIdentifier]:
         # TODO: move to middleware
         if "from" not in transaction and is_checksum_address(self.default_account):
             transaction = assoc(transaction, "from", self.default_account)
@@ -184,19 +180,19 @@ class BaseEth(Module):
 
     def sign_munger(
         self,
-        account: Union[Address, ChecksumAddress, ENS],
-        data: Union[int, bytes] = None,
+        account: Address | ChecksumAddress | ENS,
+        data: int | bytes = None,
         hexstr: HexStr = None,
         text: str = None,
-    ) -> Tuple[Union[Address, ChecksumAddress, ENS], HexStr]:
+    ) -> tuple[Address | ChecksumAddress | ENS, HexStr]:
         message_hex = to_hex(data, hexstr=hexstr, text=text)
         return (account, message_hex)
 
     def filter_munger(
         self,
-        filter_params: Optional[Union[str, FilterParams]] = None,
-        filter_id: Optional[HexStr] = None,
-    ) -> Union[List[FilterParams], List[HexStr], List[str]]:
+        filter_params: str | FilterParams | None = None,
+        filter_id: HexStr | None = None,
+    ) -> list[FilterParams] | list[HexStr] | list[str]:
         if filter_id and filter_params:
             raise Web3TypeError(
                 "Ambiguous invocation: provide either a `filter_params` or a "
