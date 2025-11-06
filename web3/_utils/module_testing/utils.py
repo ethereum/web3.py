@@ -1,6 +1,4 @@
-from asyncio import (
-    iscoroutinefunction,
-)
+import inspect
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -226,7 +224,7 @@ class RequestMocker:
 
             if callable(mock_return):
                 mock_return = mock_return(method, params)
-            elif iscoroutinefunction(mock_return):
+            elif inspect.iscoroutinefunction(mock_return):
                 # this is the "correct" way to mock the async make_request
                 mock_return = await mock_return(method, params)
 
@@ -241,7 +239,7 @@ class RequestMocker:
             if callable(mock_return):
                 # handle callable to make things easier since we're mocking
                 mock_return = mock_return(method, params)
-            elif iscoroutinefunction(mock_return):
+            elif inspect.iscoroutinefunction(mock_return):
                 # this is the "correct" way to mock the async make_request
                 mock_return = await mock_return(method, params)
 
@@ -251,7 +249,7 @@ class RequestMocker:
             error = self.mock_errors[method]
             if callable(error):
                 error = error(method, params)
-            elif iscoroutinefunction(error):
+            elif inspect.iscoroutinefunction(error):
                 error = await error(method, params)
             mocked_result = merge(response_dict, self._create_error_object(error))
 
