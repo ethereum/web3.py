@@ -1334,8 +1334,7 @@ async def async_mismatched_math_contract(
     return _mismatched_math_contract
 
 
-@pytest.fixture
-@pytest.mark.asyncio
+@pytest_asyncio.fixture
 async def test_async_deploy_raises_due_to_strict_byte_checking_by_default(
     async_w3, async_bytes_contract_factory, address_conversion_func
 ):
