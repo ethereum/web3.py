@@ -1,8 +1,6 @@
-from asyncio import (
-    iscoroutinefunction,
-)
 import collections
 import hashlib
+import inspect
 import threading
 from typing import (
     TYPE_CHECKING,
@@ -330,7 +328,7 @@ async def _async_should_cache_response(
         cache_validator = ASYNC_INTERNAL_VALIDATION_MAP[method]
         return (
             await cache_validator(provider, params, result)
-            if iscoroutinefunction(cache_validator)
+            if inspect.iscoroutinefunction(cache_validator)
             else cache_validator(provider, params, result)
         )
     return True
