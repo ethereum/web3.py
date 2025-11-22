@@ -85,7 +85,7 @@ class AsyncBeacon:
     ) -> dict[str, Any]:
         uri = URI(self.base_url + endpoint_uri)
         return await self._request_session_manager.async_json_make_post_request(
-            uri, json=body, timeout=self.request_timeout
+            uri, json=body, timeout=ClientTimeout(self.request_timeout)
         )
 
     # [ BEACON endpoints ]
