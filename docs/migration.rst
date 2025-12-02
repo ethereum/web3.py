@@ -251,10 +251,16 @@ errors:
 
 
 End of Support and Feature Removals
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Python 3.8 and 3.9 Support Dropped
+``````````````````````````````````
+
+Support for Python 3.8 and 3.9 has been dropped. The library now requires Python 3.10 or greater and we want to focus our efforts on supporting
+the latest versions of Python.
+
 
 Python 3.7 Support Dropped
-``````````````````````````
+```````````````````````````
 
 Python 3.7 support has been dropped in favor of Python 3.8+. Python 3.7 is no longer
 supported by the Python core team, and we want to focus our efforts on supporting
