@@ -174,6 +174,8 @@ def prepare_transaction(
 ) -> TxParams:
     """
     Returns a dictionary of the transaction that could be used to call this
+    function.
+    
     TODO: make this a public API
     TODO: add new prepare_deploy_transaction API
     """
