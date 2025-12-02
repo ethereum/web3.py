@@ -22,10 +22,11 @@ WebSocketProvider
 `````````````````
 
 ``WebsocketProviderV2``, introduced in web3.py ``v6``, has taken priority over the
-legacy ``WebsocketProvider``. The ``LegacyWebSocketProvider`` has been deprecated in
-``v7`` and is slated for removal in the next major version of the library. In summary:
+legacy ``WebsocketProvider``. The LegacyWebSocketProvider (formerly WebsocketProvider) has been removed in v7.
 
-- ``WebsocketProvider`` -> ``LegacyWebSocketProvider`` (and deprecated)
+In summary:
+
+- ``WebsocketProvider`` -> ``LegacyWebSocketProvider`` (and Removed)
 - ``WebsocketProviderV2`` -> ``WebSocketProvider``
 
 If migrating from ``WebSocketProviderV2`` to ``WebSocketProvider``, you can expect the
