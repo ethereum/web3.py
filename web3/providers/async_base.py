@@ -49,8 +49,8 @@ from web3.utils import (
 )
 
 if TYPE_CHECKING:
-    from websockets.legacy.client import (
-        WebSocketClientProtocol,
+    from websockets.asyncio.client import (
+        ClientConnection,
     )
 
     from web3 import (  # noqa: F401
@@ -169,7 +169,7 @@ class AsyncBaseProvider:
         )
 
     # WebSocket typing
-    _ws: "WebSocketClientProtocol"
+    _ws: "ClientConnection"
 
     # IPC typing
     _reader: asyncio.StreamReader | None
