@@ -99,7 +99,12 @@ class MutableAttributeDict(
 
 class AttributeDict(ReadableAttributeDict[TKey, TValue], Hashable):
     """
-    Provides superficial immutability, someone could hack around it
+    Provides superficial immutability.
+
+    Note: This class prevents direct attribute modification through normal
+    means, but advanced users could still modify the underlying dictionary
+    through direct access to ``__dict__``. For true immutability, consider
+    using ``frozenmap`` or similar immutable data structures.
     """
 
     def __setattr__(self, attr: str, val: TValue) -> None:

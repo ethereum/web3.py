@@ -271,9 +271,9 @@ class AsyncContractFunction(BaseContractFunction):
             addr = contract.functions.owner().call()
 
         :param transaction: Dictionary of transaction info for web3 interface
-        :param block_identifier TODO
-        :param state_override TODO
-        :param ccip_read_enabled TODO
+        :param block_identifier: Block number or string "latest", "pending", "earliest"
+        :param state_override: Dictionary of state override values
+        :param ccip_read_enabled: Enable CCIP read operations for the call
         :return: ``Caller`` object that has contract public functions
             and variables exposed as Python methods
         """

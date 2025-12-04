@@ -24,7 +24,7 @@ class Web3Exception(Exception):
             some_call()
         except Web3Exception:
             # deal with web3 exception
-        except:
+        except Exception:
             # deal with other exceptions
     """
 
