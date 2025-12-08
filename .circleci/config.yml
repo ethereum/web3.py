@@ -7,7 +7,7 @@ parameters:
     default: "1.16.7"
     type: string
   go_version:
-    default: "1.24.1"
+    default: "1.25.5"
     type: string
 
 common: &common
