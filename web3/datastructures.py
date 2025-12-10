@@ -2,22 +2,17 @@ from collections import (
     OrderedDict,
 )
 from collections.abc import (
-    Hashable,
+    MutableMapping,
+    ValuesView,
 )
 from typing import (
     Any,
     Callable,
-    Dict,
+    Hashable,
     Iterator,
-    List,
     Mapping,
-    MutableMapping,
-    Optional,
     Sequence,
-    Tuple,
     TypeVar,
-    Union,
-    ValuesView,
     cast,
 )
 
@@ -47,7 +42,7 @@ class ReadableAttributeDict(Mapping[TKey, TValue]):
     """
 
     def __init__(
-        self, dictionary: Dict[TKey, TValue], *args: Any, **kwargs: Any
+        self, dictionary: dict[TKey, TValue], *args: Any, **kwargs: Any
     ) -> None:
         # type ignored on 46/50 b/c dict() expects str index type not TKey
         self.__dict__ = dict(dictionary)  # type: ignore
@@ -139,7 +134,7 @@ def tupleize_lists_nested(d: Mapping[TKey, TValue]) -> AttributeDict[TKey, TValu
     Other unhashable types found will raise a TypeError
     """
 
-    def _to_tuple(value: Union[List[Any], Tuple[Any, ...]]) -> Any:
+    def _to_tuple(value: list[Any] | tuple[Any, ...]) -> Any:
         return tuple(_to_tuple(i) if isinstance(i, (list, tuple)) else i for i in value)
 
     ret = dict()
@@ -174,7 +169,7 @@ class NamedElementOnion(Mapping[TKey, TValue]):
             else:
                 self.add(*element)
 
-    def add(self, element: TValue, name: Optional[TKey] = None) -> None:
+    def add(self, element: TValue, name: TKey | None = None) -> None:
         if name is None:
             name = cast(TKey, element)
 
@@ -191,7 +186,7 @@ class NamedElementOnion(Mapping[TKey, TValue]):
         self._queue[name] = element
 
     def inject(
-        self, element: TValue, name: Optional[TKey] = None, layer: Optional[int] = None
+        self, element: TValue, name: TKey | None = None, layer: int | None = None
     ) -> None:
         """
         Inject a named element to an arbitrary layer in the onion.
@@ -296,7 +291,7 @@ class NamedElementOnion(Mapping[TKey, TValue]):
             return NotImplemented
         combined = self._queue.copy()
         combined.update(other._queue)
-        return NamedElementOnion(cast(List[Any], combined.items()))
+        return NamedElementOnion(cast(list[Any], combined.items()))
 
     def __contains__(self, element: Any) -> bool:
         element_name = self._build_name(element)
@@ -310,7 +305,7 @@ class NamedElementOnion(Mapping[TKey, TValue]):
         return len(self._queue)
 
     def __reversed__(self) -> Iterator[TValue]:
-        elements = cast(List[Any], self._queue.values())
+        elements = cast(list[Any], self._queue.values())
         if not isinstance(elements, Sequence):
             elements = list(elements)
         return iter(elements)
@@ -324,7 +319,7 @@ class NamedElementOnion(Mapping[TKey, TValue]):
             elements = list(elements)  # type: ignore
         return reversed(elements)
 
-    def as_tuple_of_middleware(self) -> Tuple[TValue, ...]:
+    def as_tuple_of_middleware(self) -> tuple[TValue, ...]:
         """
         Helps with type hinting since we return `Iterator[TKey]` type, though it's
         actually a `Iterator[TValue]` type, for the `__iter__()` method. This is in

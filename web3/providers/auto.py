@@ -2,13 +2,7 @@ import os
 from typing import (
     Any,
     Callable,
-    Dict,
-    List,
-    Optional,
     Sequence,
-    Tuple,
-    Type,
-    Union,
 )
 from urllib.parse import (
     urlparse,
@@ -66,7 +60,7 @@ def load_provider_from_environment() -> JSONBaseProvider | None:
 
 
 def load_provider_from_uri(
-    uri_string: URI, headers: Optional[Dict[str, Tuple[str, str]]] = None
+    uri_string: URI, headers: dict[str, tuple[str, str]] | None = None
 ) -> JSONBaseProvider:
     """
     Create a synchronous provider based on a URI string.
@@ -242,9 +236,8 @@ class AutoProvider(JSONBaseProvider):
 
     def __init__(
         self,
-        potential_providers: Optional[
-            Sequence[Union[Callable[..., JSONBaseProvider], Type[JSONBaseProvider]]]
-        ] = None,
+        potential_providers: None
+        | (Sequence[Callable[..., JSONBaseProvider] | type[JSONBaseProvider]]) = None,
     ) -> None:
         """
         Initialize AutoProvider.

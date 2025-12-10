@@ -3,14 +3,8 @@ from typing import (
     Any,
     Callable,
     Collection,
-    Dict,
     Iterator,
-    List,
-    Optional,
     Sequence,
-    Set,
-    Tuple,
-    Union,
 )
 
 from eth_abi.codec import (
@@ -68,8 +62,8 @@ if TYPE_CHECKING:
 
 
 def _sanitize_addresses(
-    *address: Union[ChecksumAddress, List[ChecksumAddress]],
-) -> Union[ChecksumAddress, List[ChecksumAddress]]:
+    *address: ChecksumAddress | list[ChecksumAddress],
+) -> ChecksumAddress | list[ChecksumAddress]:
     """
     Validates an address or list of addresses and returns a single
     ChecksumAddress or a list of ChecksumAddresses.
@@ -78,7 +72,7 @@ def _sanitize_addresses(
     :param address: A single address or a list of addresses.
     :return: A list of ChecksumAddress.
     """
-    address_set: Set[ChecksumAddress] = set()
+    address_set: set[ChecksumAddress] = set()
     for arg in address:
         if not arg:
             continue
@@ -103,13 +97,13 @@ def _sanitize_addresses(
 def construct_event_filter_params(
     event_abi: ABIEvent,
     abi_codec: ABICodec,
-    contract_address: Optional[Union[ChecksumAddress, List[ChecksumAddress]]] = None,
-    argument_filters: Optional[Dict[str, Any]] = None,
-    topics: Optional[Sequence[HexStr]] = None,
-    from_block: Optional[BlockIdentifier] = None,
-    to_block: Optional[BlockIdentifier] = None,
-    address: Optional[Union[ChecksumAddress, List[ChecksumAddress]]] = None,
-) -> Tuple[List[List[Optional[HexStr]]], FilterParams]:
+    contract_address: ChecksumAddress | list[ChecksumAddress] | None = None,
+    argument_filters: dict[str, Any] | None = None,
+    topics: Sequence[HexStr] | None = None,
+    from_block: BlockIdentifier | None = None,
+    to_block: BlockIdentifier | None = None,
+    address: ChecksumAddress | list[ChecksumAddress] | None = None,
+) -> tuple[list[list[HexStr | None]], FilterParams]:
     filter_params: FilterParams = {}
     topic_set: Sequence[HexStr] = construct_event_topic_set(
         event_abi, abi_codec, argument_filters
@@ -141,7 +135,7 @@ def construct_event_filter_params(
 
 
 class BaseFilter:
-    callbacks: List[Callable[..., Any]] = None
+    callbacks: list[Callable[..., Any]] = None
     stopped = False
     poll_interval = None
     filter_id = None
@@ -173,8 +167,8 @@ class BaseFilter:
         return filter(self.is_valid_entry, entries)
 
     def _format_log_entries(
-        self, log_entries: Optional[Iterator[LogReceipt]] = None
-    ) -> List[LogReceipt]:
+        self, log_entries: Iterator[LogReceipt] | None = None
+    ) -> list[LogReceipt]:
         if log_entries is None:
             return []
 
@@ -189,13 +183,13 @@ class Filter(BaseFilter):
         self.eth_module = eth_module
         super().__init__(filter_id)
 
-    def get_new_entries(self) -> List[LogReceipt]:
+    def get_new_entries(self) -> list[LogReceipt]:
         log_entries = self._filter_valid_entries(
             self.eth_module.get_filter_changes(self.filter_id)
         )
         return self._format_log_entries(log_entries)
 
-    def get_all_entries(self) -> List[LogReceipt]:
+    def get_all_entries(self) -> list[LogReceipt]:
         log_entries = self._filter_valid_entries(
             self.eth_module.get_filter_logs(self.filter_id)
         )
@@ -207,12 +201,12 @@ class AsyncFilter(BaseFilter):
         self.eth_module = eth_module
         super().__init__(filter_id)
 
-    async def get_new_entries(self) -> List[LogReceipt]:
+    async def get_new_entries(self) -> list[LogReceipt]:
         filter_changes = await self.eth_module.get_filter_changes(self.filter_id)
         log_entries = self._filter_valid_entries(filter_changes)
         return self._format_log_entries(log_entries)
 
-    async def get_all_entries(self) -> List[LogReceipt]:
+    async def get_all_entries(self) -> list[LogReceipt]:
         filter_logs = await self.eth_module.get_filter_logs(self.filter_id)
         log_entries = self._filter_valid_entries(filter_logs)
         return self._format_log_entries(log_entries)
@@ -257,7 +251,7 @@ class LogFilter(Filter):
         return entry
 
     def set_data_filters(
-        self, data_filter_set: Collection[Tuple[TypeStr, Any]]
+        self, data_filter_set: Collection[tuple[TypeStr, Any]]
     ) -> None:
         """
         Sets the data filters (non indexed argument filters)
@@ -300,7 +294,7 @@ class AsyncLogFilter(AsyncFilter):
         return entry
 
     def set_data_filters(
-        self, data_filter_set: Collection[Tuple[TypeStr, Any]]
+        self, data_filter_set: Collection[tuple[TypeStr, Any]]
     ) -> None:
         """
         Sets the data filters (non indexed argument filters)
@@ -346,7 +340,7 @@ def normalize_data_values(type_string: TypeStr, data_value: Any) -> Any:
 
 @curry
 def match_fn(
-    codec: ABICodec, match_values_and_abi: Collection[Tuple[str, Any]], data: Any
+    codec: ABICodec, match_values_and_abi: Collection[tuple[str, Any]], data: Any
 ) -> bool:
     """
     Match function used for filtering non-indexed event arguments.
@@ -382,17 +376,17 @@ class _UseExistingFilter(Exception):
     Internal exception, raised when a filter_id is passed into w3.eth.filter()
     """
 
-    def __init__(self, filter_id: Union[str, FilterParams, HexStr]) -> None:
+    def __init__(self, filter_id: str | FilterParams | HexStr) -> None:
         self.filter_id = filter_id
 
 
 @curry
 def select_filter_method(
-    value: Union[str, FilterParams, HexStr],
+    value: str | FilterParams | HexStr,
     if_new_block_filter: RPCEndpoint,
     if_new_pending_transaction_filter: RPCEndpoint,
     if_new_filter: RPCEndpoint,
-) -> Optional[RPCEndpoint]:
+) -> RPCEndpoint | None:
     if is_string(value):
         if value == "latest":
             return if_new_block_filter

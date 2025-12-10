@@ -4,7 +4,6 @@ from contextlib import (
 from typing import (
     TYPE_CHECKING,
     Any,
-    Dict,
     Iterator,
     Union,
     cast,
@@ -58,7 +57,7 @@ def validate_name_has_address(ens: ENS, name: str) -> ChecksumAddress:
 
 
 class StaticENS:
-    def __init__(self, name_addr_pairs: Dict[str, ChecksumAddress]) -> None:
+    def __init__(self, name_addr_pairs: dict[str, ChecksumAddress]) -> None:
         self.registry = dict(name_addr_pairs)
 
     def address(self, name: str) -> ChecksumAddress:
@@ -66,7 +65,7 @@ class StaticENS:
 
 
 class AsyncStaticENS:
-    def __init__(self, name_addr_pairs: Dict[str, ChecksumAddress]) -> None:
+    def __init__(self, name_addr_pairs: dict[str, ChecksumAddress]) -> None:
         self.registry = dict(name_addr_pairs)
 
     async def address(self, name: str) -> ChecksumAddress:
@@ -75,7 +74,7 @@ class AsyncStaticENS:
 
 @contextmanager
 def ens_addresses(
-    w3: Union["Web3", "AsyncWeb3[Any]"], name_addr_pairs: Dict[str, ChecksumAddress]
+    w3: Union["Web3", "AsyncWeb3[Any]"], name_addr_pairs: dict[str, ChecksumAddress]
 ) -> Iterator[None]:
     original_ens = w3.ens
     if w3.provider.is_async:
@@ -88,7 +87,7 @@ def ens_addresses(
 
 @contextmanager
 def contract_ens_addresses(
-    contract: "Contract", name_addr_pairs: Dict[str, ChecksumAddress]
+    contract: "Contract", name_addr_pairs: dict[str, ChecksumAddress]
 ) -> Iterator[None]:
     """
     Use this context manager to temporarily resolve name/address pairs

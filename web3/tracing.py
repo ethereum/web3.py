@@ -1,9 +1,5 @@
 from typing import (
     Callable,
-    List,
-    Optional,
-    Tuple,
-    Union,
 )
 
 from eth_typing import (
@@ -53,8 +49,8 @@ class Tracing(Module):
         self._default_block = value
 
     def trace_replay_transaction_munger(
-        self, block_identifier: Union[_Hash32, BlockIdentifier], mode: TraceMode = None
-    ) -> Tuple[Union[BlockIdentifier, _Hash32], TraceMode]:
+        self, block_identifier: _Hash32 | BlockIdentifier, mode: TraceMode = None
+    ) -> tuple[BlockIdentifier | _Hash32, TraceMode]:
         if mode is None:
             mode = ["trace"]
         return (block_identifier, mode)
@@ -64,21 +60,21 @@ class Tracing(Module):
         mungers=[trace_replay_transaction_munger],
     )
 
-    trace_replay_block_transactions: Method[Callable[..., List[BlockTrace]]] = Method(
+    trace_replay_block_transactions: Method[Callable[..., list[BlockTrace]]] = Method(
         RPC.trace_replayBlockTransactions, mungers=[trace_replay_transaction_munger]
     )
 
-    trace_block: Method[Callable[[BlockIdentifier], List[BlockTrace]]] = Method(
+    trace_block: Method[Callable[[BlockIdentifier], list[BlockTrace]]] = Method(
         RPC.trace_block,
         mungers=[default_root_munger],
     )
 
-    trace_filter: Method[Callable[[TraceFilterParams], List[FilterTrace]]] = Method(
+    trace_filter: Method[Callable[[TraceFilterParams], list[FilterTrace]]] = Method(
         RPC.trace_filter,
         mungers=[default_root_munger],
     )
 
-    trace_transaction: Method[Callable[[_Hash32], List[FilterTrace]]] = Method(
+    trace_transaction: Method[Callable[[_Hash32], list[FilterTrace]]] = Method(
         RPC.trace_transaction,
         mungers=[default_root_munger],
     )
@@ -87,8 +83,8 @@ class Tracing(Module):
         self,
         transaction: TxParams,
         mode: TraceMode = None,
-        block_identifier: Optional[BlockIdentifier] = None,
-    ) -> Tuple[TxParams, TraceMode, BlockIdentifier]:
+        block_identifier: BlockIdentifier | None = None,
+    ) -> tuple[TxParams, TraceMode, BlockIdentifier]:
         if mode is None:
             mode = ["trace"]
         if "from" not in transaction and is_checksum_address(
@@ -108,7 +104,7 @@ class Tracing(Module):
 
     def trace_transactions_munger(
         self, raw_transaction: HexStr, mode: TraceMode = None
-    ) -> Tuple[HexStr, TraceMode]:
+    ) -> tuple[HexStr, TraceMode]:
         if mode is None:
             mode = ["trace"]
         return raw_transaction, mode

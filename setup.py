@@ -9,7 +9,7 @@ extras_require = {
         # Note: ethereum-maintained libraries in this list should be added to the
         # `install_pre_releases.py` script.
         "eth-tester[py-evm]>=0.13.0b1,<0.14.0b1",
-        "py-geth>=5.1.0",
+        "py-geth>=6.4.0",
     ],
     "dev": [
         "build>=0.9.0",
@@ -81,7 +81,7 @@ setup(
         "websockets>=10.0.0,<16.0.0",
         "pyunormalize>=15.0.0",
     ],
-    python_requires=">=3.8, <4",
+    python_requires=">=3.10, <4",
     extras_require=extras_require,
     py_modules=["web3", "ens"],
     license="MIT",
@@ -95,8 +95,6 @@ setup(
         "License :: OSI Approved :: MIT License",
         "Natural Language :: English",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",

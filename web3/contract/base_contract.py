@@ -3,15 +3,10 @@ from typing import (
     Any,
     Callable,
     Collection,
-    Dict,
     Generic,
     Iterable,
-    List,
     NoReturn,
-    Optional,
     Sequence,
-    Tuple,
-    Type,
     Union,
     cast,
 )
@@ -172,13 +167,13 @@ class BaseContractEvent:
     w3: Union["Web3", "AsyncWeb3[Any]"] = None
     contract_abi: ABI = None
     abi: ABIEvent = None
-    argument_names: Tuple[str, ...] = tuple()
-    argument_types: Tuple[str, ...] = tuple()
+    argument_names: tuple[str, ...] = tuple()
+    argument_types: tuple[str, ...] = tuple()
     args: Any = None
     kwargs: Any = None
     _topic: HexStr = None
 
-    def __init__(self, *argument_names: str, abi: Optional[ABIEvent] = None) -> None:
+    def __init__(self, *argument_names: str, abi: ABIEvent | None = None) -> None:
         self.abi_element_identifier = type(self).__name__
         self.name = get_name_from_abi_element_identifier(self.abi_element_identifier)
         self.event_name = self.name
@@ -282,10 +277,10 @@ class BaseContractEvent:
     def _get_event_filter_params(
         self,
         abi: ABIEvent,
-        argument_filters: Optional[Dict[str, Any]] = None,
-        from_block: Optional[BlockIdentifier] = None,
-        to_block: Optional[BlockIdentifier] = None,
-        block_hash: Optional[HexBytes] = None,
+        argument_filters: dict[str, Any] | None = None,
+        from_block: BlockIdentifier | None = None,
+        to_block: BlockIdentifier | None = None,
+        block_hash: HexBytes | None = None,
     ) -> FilterParams:
         if not self.address:
             raise Web3TypeError(
@@ -329,7 +324,7 @@ class BaseContractEvent:
 
     @staticmethod
     def check_for_forbidden_api_filter_arguments(
-        event_abi: ABIEvent, _filters: Dict[str, Any]
+        event_abi: ABIEvent, _filters: dict[str, Any]
     ) -> None:
         name_indexed_inputs = {_input["name"]: _input for _input in event_abi["inputs"]}
 
@@ -351,7 +346,7 @@ class BaseContractEvent:
     def _process_get_logs_argument_filters(
         event_abi: ABIEvent,
         event_logs: Sequence[EventData],
-        argument_filters: Optional[Dict[str, Any]],
+        argument_filters: dict[str, Any] | None,
     ) -> Iterable[EventData]:
         if (
             argument_filters is None
@@ -398,12 +393,12 @@ class BaseContractEvent:
     @combomethod
     def _set_up_filter_builder(
         self,
-        argument_filters: Optional[Dict[str, Any]] = None,
-        from_block: Optional[BlockIdentifier] = None,
+        argument_filters: dict[str, Any] | None = None,
+        from_block: BlockIdentifier | None = None,
         to_block: BlockIdentifier = "latest",
-        address: Optional[ChecksumAddress] = None,
-        topics: Optional[Sequence[Any]] = None,
-        filter_builder: Union[EventFilterBuilder, AsyncEventFilterBuilder] = None,
+        address: ChecksumAddress | None = None,
+        topics: Sequence[Any] | None = None,
+        filter_builder: EventFilterBuilder | AsyncEventFilterBuilder = None,
     ) -> None:
         if from_block is None:
             raise Web3TypeError(
@@ -478,8 +473,8 @@ class BaseContractEvents(Generic[TContractEvent]):
         self,
         abi: ABI,
         w3: Union["Web3", "AsyncWeb3[Any]"],
-        contract_event_type: Type[TContractEvent],
-        address: Optional[ChecksumAddress] = None,
+        contract_event_type: type[TContractEvent],
+        address: ChecksumAddress | None = None,
     ) -> None:
         self.abi = abi
         self.w3 = w3
@@ -573,14 +568,14 @@ class BaseContractFunction:
     contract_abi: ABI = None
     abi: ABIFunction = None
     transaction: TxParams = None
-    arguments: Tuple[Any, ...] = None
-    decode_tuples: Optional[bool] = None
-    argument_names: Tuple[str, ...] = tuple()
-    argument_types: Tuple[str, ...] = tuple()
+    arguments: tuple[Any, ...] = None
+    decode_tuples: bool | None = None
+    argument_names: tuple[str, ...] = tuple()
+    argument_types: tuple[str, ...] = tuple()
     args: Any = None
     kwargs: Any = None
 
-    def __init__(self, abi: Optional[ABIFunction] = None) -> None:
+    def __init__(self, abi: ABIFunction | None = None) -> None:
         if not self.abi_element_identifier:
             self.abi_element_identifier = type(self).__name__
 
@@ -638,7 +633,7 @@ class BaseContractFunction:
         else:
             raise Web3TypeError("Unsupported function identifier")
 
-    def _get_call_txparams(self, transaction: Optional[TxParams] = None) -> TxParams:
+    def _get_call_txparams(self, transaction: TxParams | None = None) -> TxParams:
         if transaction is None:
             call_transaction: TxParams = {}
         else:
@@ -669,7 +664,7 @@ class BaseContractFunction:
 
         return call_transaction
 
-    def _transact(self, transaction: Optional[TxParams] = None) -> TxParams:
+    def _transact(self, transaction: TxParams | None = None) -> TxParams:
         if transaction is None:
             transact_transaction: TxParams = {}
         else:
@@ -697,7 +692,7 @@ class BaseContractFunction:
                 )
         return transact_transaction
 
-    def _estimate_gas(self, transaction: Optional[TxParams] = None) -> TxParams:
+    def _estimate_gas(self, transaction: TxParams | None = None) -> TxParams:
         if transaction is None:
             estimate_gas_transaction: TxParams = {}
         else:
@@ -727,7 +722,7 @@ class BaseContractFunction:
                 )
         return estimate_gas_transaction
 
-    def _build_transaction(self, transaction: Optional[TxParams] = None) -> TxParams:
+    def _build_transaction(self, transaction: TxParams | None = None) -> TxParams:
         if transaction is None:
             built_transaction: TxParams = {}
         else:
@@ -760,7 +755,7 @@ class BaseContractFunction:
     def _encode_transaction_data(cls) -> HexStr:
         return add_0x_prefix(encode_abi(cls.w3, cls.abi, cls.arguments, cls.selector))
 
-    _return_data_normalizers: Optional[Tuple[Callable[..., Any], ...]] = tuple()
+    _return_data_normalizers: tuple[Callable[..., Any], ...] | None = tuple()
 
     def __repr__(self) -> str:
         if self.abi:
@@ -782,7 +777,7 @@ class BaseContractFunction:
             return copy_contract_function(self, *args, **kwargs)
 
         all_functions = cast(
-            List[ABIFunction],
+            list[ABIFunction],
             filter_abi_by_type(
                 "function",
                 self.contract_abi,
@@ -797,7 +792,7 @@ class BaseContractFunction:
         ]
         num_args = len(args) + len(kwargs)
         function_abis_with_arg_count = cast(
-            List[ABIFunction],
+            list[ABIFunction],
             _filter_by_argument_count(
                 num_args,
                 function_abis,
@@ -872,10 +867,10 @@ class BaseContractFunction:
 
     def call(
         self,
-        transaction: Optional[TxParams] = None,
-        block_identifier: Optional[BlockIdentifier] = None,
-        state_override: Optional[StateOverride] = None,
-        ccip_read_enabled: Optional[bool] = None,
+        transaction: TxParams | None = None,
+        block_identifier: BlockIdentifier | None = None,
+        state_override: StateOverride | None = None,
+        ccip_read_enabled: bool | None = None,
     ) -> Any:
         """
         Implementation of ``call`` should create a callable contract function
@@ -895,9 +890,9 @@ class BaseContractFunctions(Generic[TContractFn]):
         self,
         abi: ABI,
         w3: Union["Web3", "AsyncWeb3[Any]"],
-        contract_function_class: Type[TContractFn],
-        address: Optional[ChecksumAddress] = None,
-        decode_tuples: Optional[bool] = False,
+        contract_function_class: type[TContractFn],
+        address: ChecksumAddress | None = None,
+        decode_tuples: bool | None = False,
     ) -> None:
         self.abi = abi
         self.w3 = w3
@@ -1030,9 +1025,9 @@ class BaseContract:
     def encode_abi(
         cls,
         abi_element_identifier: str,
-        args: Optional[Any] = None,
-        kwargs: Optional[Any] = None,
-        data: Optional[HexStr] = None,
+        args: Any | None = None,
+        kwargs: Any | None = None,
+        data: HexStr | None = None,
     ) -> HexStr:
         """
         Encodes the arguments using the Ethereum ABI for the contract function
@@ -1062,7 +1057,7 @@ class BaseContract:
     @combomethod
     def all_functions(
         self,
-    ) -> List["BaseContractFunction"]:
+    ) -> list["BaseContractFunction"]:
         """
         Return all functions in the contract.
         """
@@ -1092,7 +1087,7 @@ class BaseContract:
         return self.get_function_by_identifier(fns, "signature")
 
     @combomethod
-    def find_functions_by_name(self, fn_name: str) -> List["BaseContractFunction"]:
+    def find_functions_by_name(self, fn_name: str) -> list["BaseContractFunction"]:
         """
         Return all functions with matching name.
         Raises a Web3ValueError if there is no match or more than one is found.
@@ -1116,7 +1111,7 @@ class BaseContract:
 
     @combomethod
     def get_function_by_selector(
-        self, selector: Union[bytes, int, HexStr]
+        self, selector: bytes | int | HexStr
     ) -> "BaseContractFunction":
         """
         Return a distinct function with matching 4byte selector.
@@ -1136,7 +1131,7 @@ class BaseContract:
     @combomethod
     def decode_function_input(
         self, data: HexStr
-    ) -> Tuple["BaseContractFunction", Dict[str, Any]]:
+    ) -> tuple["BaseContractFunction", dict[str, Any]]:
         """
         Return a Tuple of the function selector and decoded arguments.
         """
@@ -1179,7 +1174,7 @@ class BaseContract:
     #  Events API
     #
     @combomethod
-    def all_events(self) -> List["BaseContractEvent"]:
+    def all_events(self) -> list["BaseContractEvent"]:
         """
         Return all events in the contract.
         """
@@ -1204,7 +1199,7 @@ class BaseContract:
         return self.get_event_by_identifier(events, "signature")
 
     @combomethod
-    def find_events_by_name(self, event_name: str) -> List["BaseContractEvent"]:
+    def find_events_by_name(self, event_name: str) -> list["BaseContractEvent"]:
         """
         Return all events with matching name.
         Raises a Web3ValueError if there is no match or more than one is found.
@@ -1228,8 +1223,8 @@ class BaseContract:
 
     @combomethod
     def find_events_by_selector(
-        self, selector: Union[bytes, int, HexStr]
-    ) -> List["BaseContractEvent"]:
+        self, selector: bytes | int | HexStr
+    ) -> list["BaseContractEvent"]:
         """
         Return all events with matching selector.
         Raises a Web3ValueError if there is no match or more than one is found.
@@ -1246,7 +1241,7 @@ class BaseContract:
 
     @combomethod
     def get_event_by_selector(
-        self, selector: Union[bytes, int, HexStr]
+        self, selector: bytes | int | HexStr
     ) -> "BaseContractEvent":
         """
         Return a distinct event with matching keccak selector.
@@ -1256,7 +1251,7 @@ class BaseContract:
         return self.get_event_by_identifier(events, "selector")
 
     @combomethod
-    def find_events_by_topic(self, topic: HexStr) -> List["BaseContractEvent"]:
+    def find_events_by_topic(self, topic: HexStr) -> list["BaseContractEvent"]:
         """
         Return all events with matching topic.
         Raises a Web3ValueError if there is no match or more than one is found.
@@ -1288,7 +1283,7 @@ class BaseContract:
         w3: Union["Web3", "AsyncWeb3[Any]"],
         address: ChecksumAddress,
         callable_check: Callable[..., Any],
-    ) -> List[Any]:
+    ) -> list[Any]:
         raise NotImplementedError(
             "This method should be implemented in the inherited class"
         )
@@ -1308,7 +1303,7 @@ class BaseContract:
         w3: Union["Web3", "AsyncWeb3[Any]"],
         address: ChecksumAddress,
         callable_check: Callable[..., Any],
-    ) -> List[Any]:
+    ) -> list[Any]:
         raise NotImplementedError(
             "This method should be implemented in the inherited class"
         )
@@ -1325,8 +1320,8 @@ class BaseContract:
     def get_fallback_function(
         abi: ABI,
         w3: Union["Web3", "AsyncWeb3[Any]"],
-        function_type: Type["BaseContractFunction"],
-        address: Optional[ChecksumAddress] = None,
+        function_type: type["BaseContractFunction"],
+        address: ChecksumAddress | None = None,
     ) -> "BaseContractFunction":
         if abi and fallback_func_abi_exists(abi):
             fallback_abi = filter_abi_by_type("fallback", abi)[0]
@@ -1345,8 +1340,8 @@ class BaseContract:
     def get_receive_function(
         abi: ABI,
         w3: Union["Web3", "AsyncWeb3[Any]"],
-        function_type: Type["BaseContractFunction"],
-        address: Optional[ChecksumAddress] = None,
+        function_type: type["BaseContractFunction"],
+        address: ChecksumAddress | None = None,
     ) -> "BaseContractFunction":
         if abi and receive_func_abi_exists(abi):
             receive_abi = filter_abi_by_type("receive", abi)[0]
@@ -1364,15 +1359,15 @@ class BaseContract:
     #
     # Private Helpers
     #
-    _return_data_normalizers: Tuple[Callable[..., Any], ...] = tuple()
+    _return_data_normalizers: tuple[Callable[..., Any], ...] = tuple()
 
     @classmethod
     def _prepare_transaction(
         cls,
         abi_element_identifier: ABIElementIdentifier,
-        fn_args: Optional[Any] = None,
-        fn_kwargs: Optional[Any] = None,
-        transaction: Optional[TxParams] = None,
+        fn_args: Any | None = None,
+        fn_kwargs: Any | None = None,
+        transaction: TxParams | None = None,
     ) -> TxParams:
         return prepare_transaction(
             cls.address,
@@ -1387,9 +1382,9 @@ class BaseContract:
     @classmethod
     def _find_matching_fn_abi(
         cls,
-        fn_identifier: Optional[ABIElementIdentifier] = None,
+        fn_identifier: ABIElementIdentifier | None = None,
         *args: Sequence[Any],
-        **kwargs: Dict[str, Any],
+        **kwargs: dict[str, Any],
     ) -> ABIElement:
         if not args and not kwargs:
             fn_identifier = get_abi_element_signature(fn_identifier)
@@ -1405,8 +1400,8 @@ class BaseContract:
     @classmethod
     def _get_event_abi(
         cls,
-        event_name: Optional[str] = None,
-        argument_names: Optional[Sequence[str]] = None,
+        event_name: str | None = None,
+        argument_names: Sequence[str] | None = None,
     ) -> ABIEvent:
         return cast(
             ABIEvent,
@@ -1419,7 +1414,7 @@ class BaseContract:
 
     @combomethod
     def _encode_constructor_data(
-        cls, *args: Sequence[Any], **kwargs: Dict[str, Any]
+        cls, *args: Sequence[Any], **kwargs: dict[str, Any]
     ) -> HexStr:
         constructor_abi = find_constructor_abi_element_by_type(cls.abi)
 
@@ -1470,7 +1465,7 @@ class BaseContractCaller:
         abi: ABI,
         w3: Union["Web3", "AsyncWeb3[Any]"],
         address: ChecksumAddress,
-        decode_tuples: Optional[bool] = False,
+        decode_tuples: bool | None = False,
     ) -> None:
         self.w3 = w3
         self.address = address
@@ -1520,9 +1515,9 @@ class BaseContractCaller:
     def call_function(
         fn: TContractFn,
         *args: Any,
-        transaction: Optional[TxParams] = None,
+        transaction: TxParams | None = None,
         block_identifier: BlockIdentifier = None,
-        ccip_read_enabled: Optional[bool] = None,
+        ccip_read_enabled: bool | None = None,
         **kwargs: Any,
     ) -> Any:
         if transaction is None:
@@ -1573,7 +1568,7 @@ class BaseContractConstructor:
         return data
 
     @combomethod
-    def _estimate_gas(self, transaction: Optional[TxParams] = None) -> TxParams:
+    def _estimate_gas(self, transaction: TxParams | None = None) -> TxParams:
         if transaction is None:
             estimate_gas_transaction: TxParams = {}
         else:
@@ -1591,7 +1586,7 @@ class BaseContractConstructor:
 
         return estimate_gas_transaction
 
-    def _get_transaction(self, transaction: Optional[TxParams] = None) -> TxParams:
+    def _get_transaction(self, transaction: TxParams | None = None) -> TxParams:
         if transaction is None:
             transact_transaction: TxParams = {}
         else:
@@ -1610,14 +1605,14 @@ class BaseContractConstructor:
         return transact_transaction
 
     @combomethod
-    def _build_transaction(self, transaction: Optional[TxParams] = None) -> TxParams:
+    def _build_transaction(self, transaction: TxParams | None = None) -> TxParams:
         built_transaction = self._get_transaction(transaction)
         built_transaction["to"] = Address(b"")
         return built_transaction
 
     @staticmethod
     def check_forbidden_keys_in_transaction(
-        transaction: TxParams, forbidden_keys: Optional[Collection[str]] = None
+        transaction: TxParams, forbidden_keys: Collection[str] | None = None
     ) -> None:
         keys_found = transaction.keys() & forbidden_keys
         if keys_found:

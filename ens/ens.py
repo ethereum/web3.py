@@ -6,8 +6,6 @@ from typing import (
     Any,
     Optional,
     Sequence,
-    Tuple,
-    Union,
     cast,
 )
 
@@ -100,7 +98,7 @@ class ENS(BaseENS):
         self,
         provider: "BaseProvider" = None,
         addr: ChecksumAddress = None,
-        middleware: Optional[Sequence[Tuple["Middleware", str]]] = None,
+        middleware: Sequence[tuple["Middleware", str]] | None = None,
     ) -> None:
         """
         :param provider: a single provider used to connect to Ethereum
@@ -142,8 +140,8 @@ class ENS(BaseENS):
     def address(
         self,
         name: str,
-        coin_type: Optional[int] = None,
-    ) -> Optional[ChecksumAddress]:
+        coin_type: int | None = None,
+    ) -> ChecksumAddress | None:
         """
         Look up the Ethereum address that `name` currently points to.
 
@@ -172,12 +170,12 @@ class ENS(BaseENS):
     def setup_address(
         self,
         name: str,
-        address: Union[Address, ChecksumAddress, HexAddress] = cast(  # noqa: B008
-            ChecksumAddress, default
-        ),
-        coin_type: Optional[int] = None,
+        address: Address
+        | ChecksumAddress
+        | HexAddress = cast(ChecksumAddress, default),  # noqa: B008
+        coin_type: int | None = None,
         transact: Optional["TxParams"] = None,
-    ) -> Optional[HexBytes]:
+    ) -> HexBytes | None:
         """
         Set up the name to point to the supplied address.
         The sender of the transaction must own the name, or
@@ -227,7 +225,7 @@ class ENS(BaseENS):
                 transact
             )
 
-    def name(self, address: ChecksumAddress) -> Optional[str]:
+    def name(self, address: ChecksumAddress) -> str | None:
         """
         Look up the name that the address points to, using a
         reverse lookup. Reverse lookup is opt-in for name owners.
@@ -245,7 +243,7 @@ class ENS(BaseENS):
     def setup_name(
         self,
         name: str,
-        address: Optional[ChecksumAddress] = None,
+        address: ChecksumAddress | None = None,
         transact: Optional["TxParams"] = None,
     ) -> HexBytes:
         """
@@ -311,7 +309,7 @@ class ENS(BaseENS):
         name: str,
         new_owner: ChecksumAddress = None,
         transact: Optional["TxParams"] = None,
-    ) -> Optional[ChecksumAddress]:
+    ) -> ChecksumAddress | None:
         """
         Set the owner of the supplied name to `new_owner`.
 
@@ -428,7 +426,7 @@ class ENS(BaseENS):
         self,
         normal_name: str,
         fn_name: str = "addr",
-    ) -> Tuple[Optional["Contract"], str]:
+    ) -> tuple[Optional["Contract"], str]:
         current_name = normal_name
 
         # look for a resolver, starting at the full name and taking the parent
@@ -453,7 +451,7 @@ class ENS(BaseENS):
     def _set_resolver(
         self,
         name: str,
-        resolver_addr: Optional[ChecksumAddress] = None,
+        resolver_addr: ChecksumAddress | None = None,
         transact: Optional["TxParams"] = None,
     ) -> "Contract":
         if not transact:
@@ -468,7 +466,7 @@ class ENS(BaseENS):
 
     def _resolve(
         self, name: str, fn_name: str = "addr"
-    ) -> Optional[Union[ChecksumAddress, str]]:
+    ) -> ChecksumAddress | str | None:
         normal_name = normalize_name(name)
         resolver, current_name = self._get_resolver(normal_name, fn_name)
         if not resolver:
@@ -501,7 +499,7 @@ class ENS(BaseENS):
         self,
         account: ChecksumAddress,
         name: str,
-        parent_owned: Optional[str] = None,
+        parent_owned: str | None = None,
     ) -> None:
         if not address_in(account, self.w3.eth.accounts):
             raise UnauthorizedError(
@@ -511,7 +509,7 @@ class ENS(BaseENS):
 
     def _first_owner(
         self, name: str
-    ) -> Tuple[Optional[ChecksumAddress], Sequence[str], str]:
+    ) -> tuple[ChecksumAddress | None, Sequence[str], str]:
         """
         Takes a name, and returns the owner of the deepest subdomain that has an owner
 
@@ -532,7 +530,7 @@ class ENS(BaseENS):
         owner: ChecksumAddress,
         unowned: Sequence[str],
         owned: str,
-        old_owner: Optional[ChecksumAddress] = None,
+        old_owner: ChecksumAddress | None = None,
         transact: Optional["TxParams"] = None,
     ) -> None:
         if not transact:
@@ -549,7 +547,7 @@ class ENS(BaseENS):
 
     def _setup_reverse(
         self,
-        name: Optional[str],
+        name: str | None,
         address: ChecksumAddress,
         transact: Optional["TxParams"] = None,
     ) -> HexBytes:

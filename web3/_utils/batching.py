@@ -6,11 +6,7 @@ from typing import (
     Any,
     Callable,
     Coroutine,
-    Dict,
     Generic,
-    List,
-    Tuple,
-    Type,
     Union,
     cast,
 )
@@ -58,7 +54,7 @@ if TYPE_CHECKING:
 
 BATCH_REQUEST_ID = "batch_request"  # for use as the cache key for batch requests
 
-BatchRequestInformation = Tuple[Tuple["RPCEndpoint", Any], Tuple[Any, ...]]
+BatchRequestInformation = tuple[tuple["RPCEndpoint", Any], tuple[Any, ...]]
 RPC_METHODS_UNSUPPORTED_DURING_BATCH = {
     "eth_subscribe",
     "eth_unsubscribe",
@@ -73,8 +69,8 @@ RPC_METHODS_UNSUPPORTED_DURING_BATCH = {
 class RequestBatcher(Generic[TFunc]):
     def __init__(self, web3: Union["AsyncWeb3[Any]", "Web3"]) -> None:
         self.web3 = web3
-        self._requests_info: List[BatchRequestInformation] = []
-        self._async_requests_info: List[
+        self._requests_info: list[BatchRequestInformation] = []
+        self._async_requests_info: list[
             Coroutine[Any, Any, BatchRequestInformation]
         ] = []
         self._initialize_batching()
@@ -120,14 +116,14 @@ class RequestBatcher(Generic[TFunc]):
 
     def add_mapping(
         self,
-        batch_payload: Dict[
+        batch_payload: dict[
             Union[
                 "Method[Callable[..., Any]]",
                 Callable[..., Any],
                 "ContractFunction",
                 "AsyncContractFunction",
             ],
-            List[Any],
+            list[Any],
         ],
     ) -> None:
         self._validate_is_batching()
@@ -135,7 +131,7 @@ class RequestBatcher(Generic[TFunc]):
             for param in params:
                 self.add(method(param))
 
-    def execute(self) -> List["RPCResponse"]:
+    def execute(self) -> list["RPCResponse"]:
         self._validate_is_batching()
         responses = self.web3.manager._make_batch_request(self._requests_info)
         self._end_batching()
@@ -156,7 +152,7 @@ class RequestBatcher(Generic[TFunc]):
 
     def __exit__(
         self,
-        exc_type: Type[BaseException],
+        exc_type: type[BaseException],
         exc_val: BaseException,
         exc_tb: TracebackType,
     ) -> None:
@@ -164,7 +160,7 @@ class RequestBatcher(Generic[TFunc]):
 
     # -- async -- #
 
-    async def async_execute(self) -> List["RPCResponse"]:
+    async def async_execute(self) -> list["RPCResponse"]:
         self._validate_is_batching()
         if self._provider.has_persistent_connection:
             responses = await self.web3.manager._async_make_socket_batch_request(
@@ -185,7 +181,7 @@ class RequestBatcher(Generic[TFunc]):
 
     async def __aexit__(
         self,
-        exc_type: Type[BaseException],
+        exc_type: type[BaseException],
         exc_val: BaseException,
         exc_tb: TracebackType,
     ) -> None:
@@ -193,8 +189,8 @@ class RequestBatcher(Generic[TFunc]):
 
 
 def sort_batch_response_by_response_ids(
-    responses: List["RPCResponse"],
-) -> List["RPCResponse"]:
+    responses: list["RPCResponse"],
+) -> list["RPCResponse"]:
     if all(response.get("id") is not None for response in responses):
         # If all responses have an `id`, sort them by `id`, since the JSON-RPC 2.0 spec
         # doesn't guarantee order.

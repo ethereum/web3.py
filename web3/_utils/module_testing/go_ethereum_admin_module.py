@@ -2,7 +2,6 @@ import pytest
 from typing import (
     TYPE_CHECKING,
     Any,
-    List,
 )
 
 from web3.datastructures import (
@@ -83,7 +82,7 @@ class GoEthereumAsyncAdminModuleTest:
     @pytest.mark.asyncio
     async def test_async_nodes(self, async_w3: "AsyncWeb3[Any]") -> None:
         nodes = await async_w3.geth.admin.peers()
-        assert isinstance(nodes, List)
+        assert isinstance(nodes, list)
 
     @pytest.mark.asyncio
     async def test_admin_peers(self, async_w3: "AsyncWeb3[Any]") -> None:

@@ -3,9 +3,6 @@ import time
 from typing import (
     TYPE_CHECKING,
     Any,
-    Dict,
-    Optional,
-    Union,
 )
 
 from web3.types import (
@@ -31,12 +28,12 @@ class Web3Exception(Exception):
             # deal with other exceptions
     """
 
-    user_message: Optional[str] = None
+    user_message: str | None = None
 
     def __init__(
         self,
         *args: Any,
-        user_message: Optional[str] = None,
+        user_message: str | None = None,
     ):
         super().__init__(*args)
 
@@ -261,8 +258,8 @@ class ContractLogicError(Web3Exception):
 
     def __init__(
         self,
-        message: Optional[str] = None,
-        data: Optional[Union[str, Dict[str, str]]] = None,
+        message: str | None = None,
+        data: str | dict[str, str] | None = None,
     ):
         super().__init__(message, data)
         self.message = message
@@ -286,7 +283,7 @@ class OffchainLookup(ContractLogicError):
     Raised when a contract reverts with OffchainLookup as described in EIP-3668
     """
 
-    def __init__(self, payload: Dict[str, Any], data: Optional[str] = None) -> None:
+    def __init__(self, payload: dict[str, Any], data: str | None = None) -> None:
         self.payload = payload
         self.data = data
         super().__init__(data=data)
@@ -324,9 +321,7 @@ class TaskNotRunning(Web3Exception):
     is not currently running.
     """
 
-    def __init__(
-        self, task: "asyncio.Task[Any]", message: Optional[str] = None
-    ) -> None:
+    def __init__(self, task: "asyncio.Task[Any]", message: str | None = None) -> None:
         self.task = task
         if message is None:
             message = f"Task {task} is not running."
@@ -375,8 +370,8 @@ class Web3RPCError(Web3Exception):
     def __init__(
         self,
         message: str,
-        rpc_response: Optional[RPCResponse] = None,
-        user_message: Optional[str] = None,
+        rpc_response: RPCResponse | None = None,
+        user_message: str | None = None,
     ) -> None:
         if user_message is None:
             user_message = (

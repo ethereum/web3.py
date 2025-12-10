@@ -4,9 +4,6 @@ import logging
 import os
 from typing import (
     Any,
-    Dict,
-    Optional,
-    Union,
 )
 
 from eth_typing import (
@@ -59,10 +56,10 @@ class WebSocketProvider(PersistentConnectionProvider):
 
     def __init__(
         self,
-        endpoint_uri: Optional[Union[URI, str]] = None,
-        websocket_kwargs: Optional[Dict[str, Any]] = None,
+        endpoint_uri: URI | str | None = None,
+        websocket_kwargs: dict[str, Any] | None = None,
         # uses binary frames by default
-        use_text_frames: Optional[bool] = False,
+        use_text_frames: bool | None = False,
         # `PersistentConnectionProvider` kwargs can be passed through
         **kwargs: Any,
     ) -> None:
@@ -72,7 +69,7 @@ class WebSocketProvider(PersistentConnectionProvider):
         )
         super().__init__(**kwargs)
         self.use_text_frames = use_text_frames
-        self._ws: Optional[WebSocketClientProtocol] = None
+        self._ws: WebSocketClientProtocol | None = None
 
         if not any(
             self.endpoint_uri.startswith(prefix)
@@ -119,7 +116,7 @@ class WebSocketProvider(PersistentConnectionProvider):
                 "Connection to websocket has not been initiated for the provider."
             )
 
-        payload: Union[bytes, str] = request_data
+        payload: bytes | str = request_data
         if self.use_text_frames:
             payload = request_data.decode("utf-8")
 

@@ -1,16 +1,9 @@
 import asyncio
-import sys
 from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    Dict,
-    Generic,
-    List,
-    Optional,
-    Tuple,
     TypeVar,
-    Union,
 )
 
 from web3._utils.batching import (
@@ -44,20 +37,8 @@ if TYPE_CHECKING:
 
 T = TypeVar("T")
 
-# TODO: This is an ugly hack for python 3.8. Remove this after we drop support for it
-#  and use `asyncio.Queue[T]` type directly in the `TaskReliantQueue` class.
-if sys.version_info >= (3, 9):
 
-    class _TaskReliantQueue(asyncio.Queue[T], Generic[T]):
-        pass
-
-else:
-
-    class _TaskReliantQueue(asyncio.Queue, Generic[T]):  # type: ignore
-        pass
-
-
-class TaskReliantQueue(_TaskReliantQueue[T]):
+class TaskReliantQueue(asyncio.Queue[T]):
     """
     A queue that relies on a task to be running to process items in the queue.
     """
@@ -75,7 +56,7 @@ class RequestProcessor:
     _subscription_queue_synced_with_ws_stream: bool = False
 
     # set by the subscription manager when it is initialized
-    _subscription_container: Optional[SubscriptionContainer] = None
+    _subscription_container: SubscriptionContainer | None = None
 
     def __init__(
         self,
@@ -89,14 +70,14 @@ class RequestProcessor:
         )
         self._request_response_cache: SimpleCache = SimpleCache(500)
         self._subscription_response_queue: TaskReliantQueue[
-            Union[RPCResponse, TaskNotRunning]
+            RPCResponse | TaskNotRunning
         ] = TaskReliantQueue(maxsize=subscription_response_queue_size)
         self._handler_subscription_queue: TaskReliantQueue[
-            Union[RPCResponse, TaskNotRunning, SubscriptionProcessingFinished]
+            RPCResponse | TaskNotRunning | SubscriptionProcessingFinished
         ] = TaskReliantQueue(maxsize=subscription_response_queue_size)
 
     @property
-    def active_subscriptions(self) -> Dict[str, Any]:
+    def active_subscriptions(self) -> dict[str, Any]:
         return {
             value.subscription_id: {"params": value.params}
             for key, value in self._request_information_cache.items()
@@ -107,15 +88,15 @@ class RequestProcessor:
 
     def cache_request_information(
         self,
-        request_id: Optional[RPCId],
+        request_id: RPCId | None,
         method: RPCEndpoint,
         params: Any,
-        response_formatters: Tuple[
-            Union[Dict[str, Callable[..., Any]], Callable[..., Any]],
+        response_formatters: tuple[
+            dict[str, Callable[..., Any]] | Callable[..., Any],
             Callable[..., Any],
             Callable[..., Any],
         ],
-    ) -> Optional[str]:
+    ) -> str | None:
         cached_requests_key = generate_cache_key((method, params))
         if cached_requests_key in self._provider._request_cache._data:
             cached_response = self._provider._request_cache._data[cached_requests_key]
@@ -163,7 +144,7 @@ class RequestProcessor:
 
     def pop_cached_request_information(
         self, cache_key: str
-    ) -> Optional[RequestInformation]:
+    ) -> RequestInformation | None:
         request_info = self._request_information_cache.pop(cache_key)
         if request_info is not None:
             self._provider.logger.debug(
@@ -256,9 +237,7 @@ class RequestProcessor:
 
     # raw response cache
 
-    def _is_batch_response(
-        self, raw_response: Union[List[RPCResponse], RPCResponse]
-    ) -> bool:
+    def _is_batch_response(self, raw_response: list[RPCResponse] | RPCResponse) -> bool:
         return isinstance(raw_response, list) or (
             isinstance(raw_response, dict)
             and raw_response.get("id") is None
