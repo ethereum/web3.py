@@ -1,0 +1,1 @@
+Bump eth-utils dependency to require >=5.3.0
