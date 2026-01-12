@@ -156,7 +156,7 @@ class SetCodeAuthorizationParams(TypedDict):
     chainId: int
     address: Union[Address, ChecksumAddress, str]
     nonce: Nonce
-    y_parity: int
+    yParity: int
     r: int
     s: int
 
@@ -193,7 +193,7 @@ TxParams = TypedDict(
 
 class WithdrawalData(TypedDict):
     index: int
-    validator_index: int
+    validatorIndex: int
     address: ChecksumAddress
     amount: Gwei
 
