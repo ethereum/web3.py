@@ -1,7 +1,6 @@
+import pytest
 import concurrent.futures
 import threading
-
-import pytest
 from unittest.mock import (
     Mock,
     patch,

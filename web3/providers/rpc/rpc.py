@@ -68,9 +68,7 @@ class HTTPProvider(JSONBaseProvider):
         super().__init__(**kwargs)
         # Pass explicit session to manager so it's used for ALL requests,
         # regardless of which thread makes them
-        self._request_session_manager = HTTPSessionManager(
-            explicit_session=session
-        )
+        self._request_session_manager = HTTPSessionManager(explicit_session=session)
 
         if endpoint_uri is None:
             self.endpoint_uri = (
