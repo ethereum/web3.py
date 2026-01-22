@@ -206,12 +206,22 @@ def test_no_explicit_session_creates_per_thread_sessions():
         futures = [executor.submit(get_session_from_thread) for _ in range(3)]
         concurrent.futures.wait(futures)
 
-    # Each unique thread should have created its own session
-    unique_thread_ids = {tid for tid, _ in sessions_from_threads}
-    assert len(unique_thread_ids) == 3, "Should have 3 unique thread IDs"
-
-    # Sessions from different threads should NOT be the main thread's session
+    # Group sessions by thread ID
+    sessions_by_thread = {}
     for thread_id, session in sessions_from_threads:
+        if thread_id not in sessions_by_thread:
+            sessions_by_thread[thread_id] = []
+        sessions_by_thread[thread_id].append(session)
+
+    # Verify thread isolation: same thread always gets the same session
+    for thread_id, sessions in sessions_by_thread.items():
+        assert all(
+            s is sessions[0] for s in sessions
+        ), "Same thread should always get the same session"
+
+    # Verify different threads get different sessions (not the main thread's)
+    for thread_id, sessions in sessions_by_thread.items():
         if thread_id != main_thread_id:
-            # Different threads should have different sessions
-            assert session is not main_thread_session
+            assert sessions[0] is not main_thread_session, (
+                "Different threads should have different sessions"
+            )
