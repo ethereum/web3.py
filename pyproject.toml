@@ -33,6 +33,10 @@ warn_return_any = false
 warn_unused_configs = true
 warn_unused_ignores = true
 
+[[tool.mypy.overrides]]
+module = "sphinx.*"
+follow_imports = "skip"
+
 [tool.pydocstyle]
 # All error codes found here:
 # http://www.pydocstyle.org/en/3.0.0/error_codes.html
