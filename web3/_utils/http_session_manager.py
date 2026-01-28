@@ -51,7 +51,7 @@ class HTTPSessionManager:
         self.session_cache = SimpleCache(cache_size)
         self.session_pool = ThreadPoolExecutor(max_workers=session_pool_max_workers)
         self._explicit_session = explicit_session
-        self.aiohttp_evicted_sessions = set()
+        self.aiohttp_evicted_sessions: set[ClientSession] = set()
 
     @staticmethod
     def get_default_http_endpoint() -> URI:
