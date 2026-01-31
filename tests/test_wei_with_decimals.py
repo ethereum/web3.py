@@ -1,10 +1,15 @@
-from decimal import Decimal
 import pytest
-from web3 import Web3
+from decimal import (
+    Decimal,
+)
+
+from web3 import (
+    Web3,
+)
 
 
 def test_to_wei_with_decimals_int_default_18():
-    assert Web3.to_wei_with_decimals(1, 18) == 10 ** 18
+    assert Web3.to_wei_with_decimals(1, 18) == 10**18
 
 
 def test_to_wei_with_decimals_str_and_decimal_inputs():

@@ -262,54 +262,61 @@ class BaseWeb3:
     @staticmethod
     def to_wei_with_decimals(value: int | str | decimal.Decimal, decimals: int) -> int:
         """
-        Convert a numeric value with a custom number of decimals to wei as an integer.
+        Convert a numeric value to wei using a custom number of decimals.
 
-        Parameters
-        - value: int, str, or Decimal representing the value in units with `decimals` precision
-        - decimals: non-negative int number of decimals
+        The value is scaled by ``10 ** decimals``. The conversion must result in an
+        exact integer number of wei; fractional wei values are not allowed.
 
-        Returns
-        - int: the amount in wei (value * 10**decimals)
-
-        Raises
-        - ValueError: on invalid decimals, invalid value, or if the conversion would produce a non-integer wei.
+        :param value: The numeric value to convert. May be an int, str, or Decimal.
+        :param decimals: The number of decimal places to scale by. Must be non-negative.
+        :raises ValueError: If the inputs are invalid or the conversion would result
+            in fractional wei.
+        :return: The converted value in wei.
         """
         if not isinstance(decimals, int) or decimals < 0:
             raise ValueError("decimals must be an integer >= 0")
 
         # Fast path for ints
         if isinstance(value, int):
-            return value * (10 ** decimals)
+            return value * (10**decimals)
 
         # Convert strings and Decimals using Decimal for precision-safe arithmetic
         try:
-            dec_value = value if isinstance(value, decimal.Decimal) else decimal.Decimal(str(value))
+            dec_value = (
+                value
+                if isinstance(value, decimal.Decimal)
+                else decimal.Decimal(str(value))
+            )
         except (decimal.InvalidOperation, TypeError):
-            raise ValueError("value must be int, str or Decimal and represent a numeric value")
+            raise ValueError(
+                "value must be int, str or Decimal and represent a numeric value"
+            )
 
         factor = decimal.Decimal(10) ** decimals
         wei_dec = dec_value * factor
 
         # Ensure result is an integer number of wei (no rounding allowed)
         if wei_dec != wei_dec.quantize(decimal.Decimal(1)):
-            raise ValueError("conversion results in fractional wei; increase `decimals` or provide exact value")
+            raise ValueError(
+                "conversion results in fractional wei; increase `decimals`"
+                "or provide exact value"
+            )
 
         return int(wei_dec)
 
     @staticmethod
-    def from_wei_with_decimals(value: int | str | decimal.Decimal, decimals: int) -> decimal.Decimal:
+    def from_wei_with_decimals(
+        value: int | str | decimal.Decimal, decimals: int
+    ) -> decimal.Decimal:
         """
-        Convert a wei integer (or numeric string/Decimal) to a Decimal with a custom number of decimals.
+        Convert a wei value to a Decimal using a custom number of decimals.
 
-        Parameters
-        - value: int, str, or Decimal representing wei
-        - decimals: non-negative int number of decimals
+        The value is divided by ``10 ** decimals`` to produce a Decimal result.
 
-        Returns
-        - Decimal: the value in units (wei / 10**decimals)
-
-        Raises
-        - ValueError: on invalid decimals or invalid value.
+        :param value: The value expressed in wei. May be an int, str, or Decimal.
+        :param decimals: The number of decimal places to scale by. Must be non-negative.
+        :raises ValueError: If the inputs are invalid.
+        :return: The converted value in units.
         """
         if not isinstance(decimals, int) or decimals < 0:
             raise ValueError("decimals must be an integer >= 0")
@@ -319,9 +326,15 @@ class BaseWeb3:
             wei_dec = decimal.Decimal(value)
         else:
             try:
-                wei_dec = value if isinstance(value, decimal.Decimal) else decimal.Decimal(str(value))
+                wei_dec = (
+                    value
+                    if isinstance(value, decimal.Decimal)
+                    else decimal.Decimal(str(value))
+                )
             except (decimal.InvalidOperation, TypeError):
-                raise ValueError("value must be int, str or Decimal and represent a numeric value")
+                raise ValueError(
+                    "value must be int, str or Decimal and represent a numeric value"
+                )
 
         factor = decimal.Decimal(10) ** decimals
         return wei_dec / factor
