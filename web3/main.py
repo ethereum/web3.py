@@ -269,12 +269,12 @@ class BaseWeb3:
 
         :param value: The numeric value to convert. May be an int, str, or Decimal.
         :param decimals: The number of decimal places to scale by. Must be non-negative.
-        :raises ValueError: If the inputs are invalid or the conversion would result
+        :raises Web3ValueError: If the inputs are invalid or the conversion would result
             in fractional wei.
         :return: The converted value in wei.
         """
         if not isinstance(decimals, int) or decimals < 0:
-            raise ValueError("decimals must be an integer >= 0")
+            raise Web3ValueError("decimals must be an integer >= 0")
 
         # Fast path for ints
         if isinstance(value, int):
@@ -288,7 +288,7 @@ class BaseWeb3:
                 else decimal.Decimal(str(value))
             )
         except (decimal.InvalidOperation, TypeError):
-            raise ValueError(
+            raise Web3ValueError(
                 "value must be int, str or Decimal and represent a numeric value"
             )
 
@@ -297,7 +297,7 @@ class BaseWeb3:
 
         # Ensure result is an integer number of wei (no rounding allowed)
         if wei_dec != wei_dec.quantize(decimal.Decimal(1)):
-            raise ValueError(
+            raise Web3ValueError(
                 "conversion results in fractional wei; increase `decimals`"
                 "or provide exact value"
             )
@@ -315,11 +315,11 @@ class BaseWeb3:
 
         :param value: The value expressed in wei. May be an int, str, or Decimal.
         :param decimals: The number of decimal places to scale by. Must be non-negative.
-        :raises ValueError: If the inputs are invalid.
+        :raises Web3ValueError: If the inputs are invalid.
         :return: The converted value in units.
         """
         if not isinstance(decimals, int) or decimals < 0:
-            raise ValueError("decimals must be an integer >= 0")
+            raise Web3ValueError("decimals must be an integer >= 0")
 
         # Accept ints directly
         if isinstance(value, int):
@@ -332,7 +332,7 @@ class BaseWeb3:
                     else decimal.Decimal(str(value))
                 )
             except (decimal.InvalidOperation, TypeError):
-                raise ValueError(
+                raise Web3ValueError(
                     "value must be int, str or Decimal and represent a numeric value"
                 )
 
