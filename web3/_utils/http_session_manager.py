@@ -50,7 +50,7 @@ class HTTPSessionManager:
         self,
         cache_size: int = 100,
         session_pool_max_workers: int = 5,
-        explicit_session: requests.Session | None = None,
+        explicit_session: Optional[requests.Session] = None,
     ) -> None:
         self.session_cache = SimpleCache(cache_size)
         self.session_pool = ThreadPoolExecutor(max_workers=session_pool_max_workers)
