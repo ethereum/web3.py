@@ -8,9 +8,6 @@ from pathlib import (
 import sys
 from typing import (
     Any,
-    Optional,
-    Tuple,
-    Union,
 )
 
 from web3.types import (
@@ -34,7 +31,7 @@ from ..ipc import (
 
 async def async_get_ipc_socket(
     ipc_path: str, read_buffer_limit: int
-) -> Tuple[asyncio.StreamReader, asyncio.StreamWriter]:
+) -> tuple[asyncio.StreamReader, asyncio.StreamWriter]:
     if sys.platform == "win32":
         # On Windows named pipe is used. Simulate socket with it.
         from web3._utils.windows import (
@@ -49,13 +46,13 @@ async def async_get_ipc_socket(
 class AsyncIPCProvider(PersistentConnectionProvider):
     logger = logging.getLogger("web3.providers.AsyncIPCProvider")
 
-    _reader: Optional[asyncio.StreamReader] = None
-    _writer: Optional[asyncio.StreamWriter] = None
+    _reader: asyncio.StreamReader | None = None
+    _writer: asyncio.StreamWriter | None = None
     _decoder: json.JSONDecoder = json.JSONDecoder()
 
     def __init__(
         self,
-        ipc_path: Optional[Union[str, Path]] = None,
+        ipc_path: str | Path | None = None,
         read_buffer_limit: int = 20 * 1024 * 1024,  # 20 MB
         # `PersistentConnectionProvider` kwargs can be passed through
         **kwargs: Any,

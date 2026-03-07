@@ -3,7 +3,6 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Collection,
-    Dict,
     Generator,
     Literal,
     Sequence,
@@ -25,6 +24,9 @@ from hexbytes import (
     HexBytes,
 )
 import requests
+from websockets.protocol import (
+    State,
+)
 
 from web3._utils.http import (
     DEFAULT_HTTP_TIMEOUT,
@@ -77,7 +79,7 @@ def mock_offchain_lookup_request_response(
         status_code = mocked_status_code
 
         @staticmethod
-        def json() -> Dict[str, str]:
+        def json() -> dict[str, str]:
             return {json_data_field: mocked_json_data}  # noqa: E704
 
         @staticmethod
@@ -127,7 +129,7 @@ def async_mock_offchain_lookup_request_response(
             return self
 
         @staticmethod
-        async def json() -> Dict[str, str]:
+        async def json() -> dict[str, str]:
             return {json_data_field: mocked_json_data}  # noqa: E704
 
         @staticmethod
@@ -160,10 +162,12 @@ def async_mock_offchain_lookup_request_response(
 
 
 class WebSocketMessageStreamMock:
-    closed: bool = False
+    state: State = State.OPEN
 
     def __init__(
-        self, messages: Collection[bytes] = None, raise_exception: Exception = None
+        self,
+        messages: Collection[bytes] = None,
+        raise_exception: Exception = None,
     ) -> None:
         self.queue = asyncio.Queue()  # type: ignore  # py38 issue
         for msg in messages or []:

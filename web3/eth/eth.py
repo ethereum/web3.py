@@ -2,13 +2,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    Dict,
-    List,
-    Optional,
     Sequence,
-    Tuple,
-    Type,
-    Union,
     cast,
     overload,
 )
@@ -109,17 +103,17 @@ class Eth(BaseEth):
     # mypy types
     w3: "Web3"
 
-    _default_contract_factory: Type[Union[Contract, ContractCaller]] = Contract
+    _default_contract_factory: type[Contract | ContractCaller] = Contract
 
     # eth_accounts
 
-    _accounts: Method[Callable[[], Tuple[ChecksumAddress]]] = Method(
+    _accounts: Method[Callable[[], tuple[ChecksumAddress]]] = Method(
         RPC.eth_accounts,
         is_property=True,
     )
 
     @property
-    def accounts(self) -> Tuple[ChecksumAddress]:
+    def accounts(self) -> tuple[ChecksumAddress]:
         return self._accounts()
 
     # eth_blobBaseFee
@@ -192,28 +186,26 @@ class Eth(BaseEth):
 
     # eth_syncing
 
-    _syncing: Method[Callable[[], Union[SyncStatus, bool]]] = Method(
+    _syncing: Method[Callable[[], SyncStatus | bool]] = Method(
         RPC.eth_syncing,
         is_property=True,
     )
 
     @property
-    def syncing(self) -> Union[SyncStatus, bool]:
+    def syncing(self) -> SyncStatus | bool:
         return self._syncing()
 
     # eth_feeHistory
 
     _fee_history: Method[
-        Callable[
-            [int, Union[BlockParams, BlockNumber], Optional[List[float]]], FeeHistory
-        ]
+        Callable[[int, BlockParams | BlockNumber, list[float] | None], FeeHistory]
     ] = Method(RPC.eth_feeHistory, mungers=[default_root_munger])
 
     def fee_history(
         self,
         block_count: int,
-        newest_block: Union[BlockParams, BlockNumber],
-        reward_percentiles: Optional[List[float]] = None,
+        newest_block: BlockParams | BlockNumber,
+        reward_percentiles: list[float] | None = None,
     ) -> FeeHistory:
         reward_percentiles = reward_percentiles or []
         return self._fee_history(block_count, newest_block, reward_percentiles)
@@ -222,7 +214,7 @@ class Eth(BaseEth):
 
     _call: Method[
         Callable[
-            [TxParams, Optional[BlockIdentifier], Optional[StateOverride]],
+            [TxParams, BlockIdentifier | None, StateOverride | None],
             HexBytes,
         ]
     ] = Method(RPC.eth_call, mungers=[BaseEth.call_munger])
@@ -230,9 +222,9 @@ class Eth(BaseEth):
     def call(
         self,
         transaction: TxParams,
-        block_identifier: Optional[BlockIdentifier] = None,
-        state_override: Optional[StateOverride] = None,
-        ccip_read_enabled: Optional[bool] = None,
+        block_identifier: BlockIdentifier | None = None,
+        state_override: StateOverride | None = None,
+        ccip_read_enabled: bool | None = None,
     ) -> HexBytes:
         ccip_read_enabled_on_provider = self.w3.provider.global_ccip_read_enabled
         if (
@@ -251,8 +243,8 @@ class Eth(BaseEth):
     def _durin_call(
         self,
         transaction: TxParams,
-        block_identifier: Optional[BlockIdentifier] = None,
-        state_override: Optional[StateOverride] = None,
+        block_identifier: BlockIdentifier | None = None,
+        state_override: StateOverride | None = None,
     ) -> HexBytes:
         max_redirects = self.w3.provider.ccip_read_max_redirects
 
@@ -290,7 +282,7 @@ class Eth(BaseEth):
 
     _create_access_list: Method[
         Callable[
-            [TxParams, Optional[BlockIdentifier]],
+            [TxParams, BlockIdentifier | None],
             CreateAccessListResponse,
         ]
     ] = Method(RPC.eth_createAccessList, mungers=[BaseEth.create_access_list_munger])
@@ -298,21 +290,21 @@ class Eth(BaseEth):
     def create_access_list(
         self,
         transaction: TxParams,
-        block_identifier: Optional[BlockIdentifier] = None,
+        block_identifier: BlockIdentifier | None = None,
     ) -> CreateAccessListResponse:
         return self._create_access_list(transaction, block_identifier)
 
     # eth_estimateGas
 
     _estimate_gas: Method[
-        Callable[[TxParams, Optional[BlockIdentifier], Optional[StateOverride]], int]
+        Callable[[TxParams, BlockIdentifier | None, StateOverride | None], int]
     ] = Method(RPC.eth_estimateGas, mungers=[BaseEth.estimate_gas_munger])
 
     def estimate_gas(
         self,
         transaction: TxParams,
-        block_identifier: Optional[BlockIdentifier] = None,
-        state_override: Optional[StateOverride] = None,
+        block_identifier: BlockIdentifier | None = None,
+        state_override: StateOverride | None = None,
     ) -> int:
         return self._estimate_gas(transaction, block_identifier, state_override)
 
@@ -388,12 +380,12 @@ class Eth(BaseEth):
 
     # eth_sendRawTransaction
 
-    _send_raw_transaction: Method[Callable[[Union[HexStr, bytes]], HexBytes]] = Method(
+    _send_raw_transaction: Method[Callable[[HexStr | bytes], HexBytes]] = Method(
         RPC.eth_sendRawTransaction,
         mungers=[default_root_munger],
     )
 
-    def send_raw_transaction(self, transaction: Union[HexStr, bytes]) -> HexBytes:
+    def send_raw_transaction(self, transaction: HexStr | bytes) -> HexBytes:
         return self._send_raw_transaction(transaction)
 
     # eth_getBlockByHash
@@ -426,7 +418,7 @@ class Eth(BaseEth):
     # eth_getBalance
 
     _get_balance: Method[
-        Callable[[Union[Address, ChecksumAddress, ENS], Optional[BlockIdentifier]], Wei]
+        Callable[[Address | ChecksumAddress | ENS, BlockIdentifier | None], Wei]
     ] = Method(
         RPC.eth_getBalance,
         mungers=[BaseEth.block_id_munger],
@@ -434,44 +426,40 @@ class Eth(BaseEth):
 
     def get_balance(
         self,
-        account: Union[Address, ChecksumAddress, ENS],
-        block_identifier: Optional[BlockIdentifier] = None,
+        account: Address | ChecksumAddress | ENS,
+        block_identifier: BlockIdentifier | None = None,
     ) -> Wei:
         return self._get_balance(account, block_identifier)
 
     # eth_getCode
 
     _get_code: Method[
-        Callable[
-            [Union[Address, ChecksumAddress, ENS], Optional[BlockIdentifier]], HexBytes
-        ]
+        Callable[[Address | ChecksumAddress | ENS, BlockIdentifier | None], HexBytes]
     ] = Method(RPC.eth_getCode, mungers=[BaseEth.block_id_munger])
 
     def get_code(
         self,
-        account: Union[Address, ChecksumAddress, ENS],
-        block_identifier: Optional[BlockIdentifier] = None,
+        account: Address | ChecksumAddress | ENS,
+        block_identifier: BlockIdentifier | None = None,
     ) -> HexBytes:
         return self._get_code(account, block_identifier)
 
     # eth_getLogs
 
-    _get_logs: Method[Callable[[FilterParams], List[LogReceipt]]] = Method(
+    _get_logs: Method[Callable[[FilterParams], list[LogReceipt]]] = Method(
         RPC.eth_getLogs, mungers=[default_root_munger]
     )
 
     def get_logs(
         self,
         filter_params: FilterParams,
-    ) -> List[LogReceipt]:
+    ) -> list[LogReceipt]:
         return self._get_logs(filter_params)
 
     # eth_getTransactionCount
 
     _get_transaction_count: Method[
-        Callable[
-            [Union[Address, ChecksumAddress, ENS], Optional[BlockIdentifier]], Nonce
-        ]
+        Callable[[Address | ChecksumAddress | ENS, BlockIdentifier | None], Nonce]
     ] = Method(
         RPC.eth_getTransactionCount,
         mungers=[BaseEth.block_id_munger],
@@ -479,8 +467,8 @@ class Eth(BaseEth):
 
     def get_transaction_count(
         self,
-        account: Union[Address, ChecksumAddress, ENS],
-        block_identifier: Optional[BlockIdentifier] = None,
+        account: Address | ChecksumAddress | ENS,
+        block_identifier: BlockIdentifier | None = None,
     ) -> Nonce:
         return self._get_transaction_count(account, block_identifier)
 
@@ -518,7 +506,7 @@ class Eth(BaseEth):
 
     _get_storage_at: Method[
         Callable[
-            [Union[Address, ChecksumAddress, ENS], int, Optional[BlockIdentifier]],
+            [Address | ChecksumAddress | ENS, int, BlockIdentifier | None],
             HexBytes,
         ]
     ] = Method(
@@ -528,9 +516,9 @@ class Eth(BaseEth):
 
     def get_storage_at(
         self,
-        account: Union[Address, ChecksumAddress, ENS],
+        account: Address | ChecksumAddress | ENS,
         position: int,
-        block_identifier: Optional[BlockIdentifier] = None,
+        block_identifier: BlockIdentifier | None = None,
     ) -> HexBytes:
         return self._get_storage_at(account, position, block_identifier)
 
@@ -538,12 +526,10 @@ class Eth(BaseEth):
 
     def get_proof_munger(
         self,
-        account: Union[Address, ChecksumAddress, ENS],
+        account: Address | ChecksumAddress | ENS,
         positions: Sequence[int],
-        block_identifier: Optional[BlockIdentifier] = None,
-    ) -> Tuple[
-        Union[Address, ChecksumAddress, ENS], Sequence[int], Optional[BlockIdentifier]
-    ]:
+        block_identifier: BlockIdentifier | None = None,
+    ) -> tuple[Address | ChecksumAddress | ENS, Sequence[int], BlockIdentifier | None]:
         if block_identifier is None:
             block_identifier = self.default_block
         return (account, positions, block_identifier)
@@ -551,10 +537,10 @@ class Eth(BaseEth):
     get_proof: Method[
         Callable[
             [
-                Tuple[
-                    Union[Address, ChecksumAddress, ENS],
+                tuple[
+                    Address | ChecksumAddress | ENS,
                     Sequence[int],
-                    Optional[BlockIdentifier],
+                    BlockIdentifier | None,
                 ]
             ],
             MerkleProof,
@@ -633,7 +619,7 @@ class Eth(BaseEth):
     # eth_signTypedData
 
     sign_typed_data: Method[
-        Callable[[Union[Address, ChecksumAddress, ENS], Dict[str, Any]], HexStr]
+        Callable[[Address | ChecksumAddress | ENS, dict[str, Any]], HexStr]
     ] = Method(
         RPC.eth_signTypedData,
         mungers=[default_root_munger],
@@ -641,9 +627,7 @@ class Eth(BaseEth):
 
     # eth_newFilter, eth_newBlockFilter, eth_newPendingTransactionFilter
 
-    filter: Method[
-        Callable[[Optional[Union[str, FilterParams, HexStr]]], Filter]
-    ] = Method(
+    filter: Method[Callable[[str | FilterParams | HexStr | None], Filter]] = Method(
         method_choice_depends_on_args=select_filter_method(
             if_new_block_filter=RPC.eth_newBlockFilter,
             if_new_pending_transaction_filter=RPC.eth_newPendingTransactionFilter,
@@ -654,11 +638,11 @@ class Eth(BaseEth):
 
     # eth_getFilterChanges, eth_getFilterLogs, eth_uninstallFilter
 
-    get_filter_changes: Method[Callable[[HexStr], List[LogReceipt]]] = Method(
+    get_filter_changes: Method[Callable[[HexStr], list[LogReceipt]]] = Method(
         RPC.eth_getFilterChanges, mungers=[default_root_munger]
     )
 
-    get_filter_logs: Method[Callable[[HexStr], List[LogReceipt]]] = Method(
+    get_filter_logs: Method[Callable[[HexStr], list[LogReceipt]]] = Method(
         RPC.eth_getFilterLogs, mungers=[default_root_munger]
     )
 
@@ -668,20 +652,20 @@ class Eth(BaseEth):
     )
 
     @overload
-    def contract(self, address: None = None, **kwargs: Any) -> Type[Contract]:
+    def contract(self, address: None = None, **kwargs: Any) -> type[Contract]:
         ...
 
     @overload
     def contract(
-        self, address: Union[Address, ChecksumAddress, ENS], **kwargs: Any
+        self, address: Address | ChecksumAddress | ENS, **kwargs: Any
     ) -> Contract:
         ...
 
     def contract(
         self,
-        address: Optional[Union[Address, ChecksumAddress, ENS]] = None,
+        address: Address | ChecksumAddress | ENS | None = None,
         **kwargs: Any,
-    ) -> Union[Type[Contract], Contract]:
+    ) -> type[Contract] | Contract:
         ContractFactoryClass = kwargs.pop(
             "ContractFactoryClass", self._default_contract_factory
         )
@@ -695,6 +679,6 @@ class Eth(BaseEth):
 
     def set_contract_factory(
         self,
-        contract_factory: Type[Union[Contract, ContractCaller]],
+        contract_factory: type[Contract | ContractCaller],
     ) -> None:
         self._default_contract_factory = contract_factory

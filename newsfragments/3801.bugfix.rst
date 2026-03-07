@@ -1,0 +1,1 @@
+Fix TypedDict field names to use camelCase (``validatorIndex``, ``yParity``) matching JSON-RPC conventions and formatter outputs.

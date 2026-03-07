@@ -1,0 +1,1 @@
+Added documentation for formatters explaining how they work, what the default formatters do, and how to customize them.

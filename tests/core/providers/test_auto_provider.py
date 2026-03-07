@@ -4,7 +4,6 @@ import os
 from web3.providers import (
     HTTPProvider,
     IPCProvider,
-    LegacyWebSocketProvider,
 )
 from web3.providers.auto import (
     load_provider_from_environment,
@@ -38,11 +37,6 @@ def delete_environment_variables(monkeypatch):
             "file:///root/path/to/file.ipc",
             IPCProvider,
             {"ipc_path": "/root/path/to/file.ipc"},
-        ),
-        (
-            "ws://1.2.3.4:5679",
-            LegacyWebSocketProvider,
-            {"endpoint_uri": "ws://1.2.3.4:5679"},
         ),
     ),
 )

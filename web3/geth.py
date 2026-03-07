@@ -1,11 +1,7 @@
 from typing import (
     Awaitable,
     Callable,
-    List,
-    Optional,
     Protocol,
-    Tuple,
-    Union,
 )
 
 from eth_typing.evm import (
@@ -44,7 +40,7 @@ class UnlockAccountWrapper(Protocol):
         self,
         account: ChecksumAddress,
         passphrase: str,
-        duration: Optional[int] = None,
+        duration: int | None = None,
     ) -> bool:
         pass
 
@@ -89,7 +85,7 @@ def admin_start_params_munger(
     port: int = 8546,
     cors: str = "",
     apis: str = "eth,net,web3",
-) -> Tuple[str, int, str, str]:
+) -> tuple[str, int, str, str]:
     return (host, port, cors, apis)
 
 
@@ -115,7 +111,7 @@ class GethAdmin(Module):
         is_property=True,
     )
 
-    peers: Method[Callable[[], List[Peer]]] = Method(
+    peers: Method[Callable[[], list[Peer]]] = Method(
         RPC.admin_peers,
         is_property=True,
     )
@@ -149,14 +145,14 @@ class GethDebug(Module):
     def trace_transaction_munger(
         self,
         transaction_hash: _Hash32,
-        trace_config: Optional[TraceConfig] = None,
-    ) -> Tuple[_Hash32, TraceConfig]:
+        trace_config: TraceConfig | None = None,
+    ) -> tuple[_Hash32, TraceConfig]:
         return (transaction_hash, trace_config)
 
     trace_transaction: Method[
         Callable[
             ...,
-            Union[CallTrace, PrestateTrace, OpcodeTrace, DiffModeTrace, FourByteTrace],
+            CallTrace | PrestateTrace | OpcodeTrace | DiffModeTrace | FourByteTrace,
         ]
     ] = Method(
         RPC.debug_traceTransaction,
@@ -236,12 +232,12 @@ class AsyncGethAdmin(Module):
     async def node_info(self) -> NodeInfo:
         return await self._node_info()
 
-    _peers: Method[Callable[[], Awaitable[List[Peer]]]] = Method(
+    _peers: Method[Callable[[], Awaitable[list[Peer]]]] = Method(
         RPC.admin_peers,
         is_property=True,
     )
 
-    async def peers(self) -> List[Peer]:
+    async def peers(self) -> list[Peer]:
         return await self._peers()
 
     # start_http and stop_http
@@ -304,9 +300,13 @@ class AsyncGethDebug(Module):
         Callable[
             ...,
             Awaitable[
-                Union[
-                    CallTrace, PrestateTrace, OpcodeTrace, FourByteTrace, DiffModeTrace
-                ]
+                (
+                    CallTrace
+                    | PrestateTrace
+                    | OpcodeTrace
+                    | FourByteTrace
+                    | DiffModeTrace
+                )
             ],
         ]
     ] = Method(RPC.debug_traceTransaction)
@@ -314,8 +314,8 @@ class AsyncGethDebug(Module):
     async def trace_transaction(
         self,
         transaction_hash: _Hash32,
-        trace_config: Optional[TraceConfig] = None,
-    ) -> Union[CallTrace, PrestateTrace, OpcodeTrace, FourByteTrace, DiffModeTrace]:
+        trace_config: TraceConfig | None = None,
+    ) -> CallTrace | PrestateTrace | OpcodeTrace | FourByteTrace | DiffModeTrace:
         return await self._trace_transaction(transaction_hash, trace_config)
 
 

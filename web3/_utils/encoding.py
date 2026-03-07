@@ -4,12 +4,8 @@ import re
 from typing import (
     Any,
     Callable,
-    Dict,
     Iterable,
-    Optional,
     Sequence,
-    Type,
-    Union,
 )
 
 from eth_abi.encoding import (
@@ -65,7 +61,7 @@ from web3.exceptions import (
 
 
 def hex_encode_abi_type(
-    abi_type: TypeStr, value: Any, force_size: Optional[int] = None
+    abi_type: TypeStr, value: Any, force_size: int | None = None
 ) -> HexStr:
     """
     Encodes value into a hex string in format of abi_type
@@ -146,7 +142,7 @@ zpad_bytes = pad_bytes(b"\0")
 
 @curry
 def text_if_str(
-    to_type: Callable[..., str], text_or_primitive: Union[Primitives, HexStr, str]
+    to_type: Callable[..., str], text_or_primitive: Primitives | HexStr | str
 ) -> str:
     """
     Convert to a type, assuming that strings can be only unicode text (not a hexstr)
@@ -164,7 +160,7 @@ def text_if_str(
 
 @curry
 def hexstr_if_str(
-    to_type: Callable[..., HexStr], hexstr_or_primitive: Union[Primitives, HexStr, str]
+    to_type: Callable[..., HexStr], hexstr_or_primitive: Primitives | HexStr | str
 ) -> HexStr:
     """
     Convert to a type, assuming that strings can be only hexstr (not unicode text)
@@ -194,7 +190,7 @@ class FriendlyJsonSerde:
     helpful information in the raised error messages.
     """
 
-    def _json_mapping_errors(self, mapping: Dict[Any, Any]) -> Iterable[str]:
+    def _json_mapping_errors(self, mapping: dict[Any, Any]) -> Iterable[str]:
         for key, val in mapping.items():
             try:
                 self._friendly_json_encode(val)
@@ -209,7 +205,7 @@ class FriendlyJsonSerde:
                 yield f"{index}: because ({exc})"
 
     def _friendly_json_encode(
-        self, obj: Dict[Any, Any], cls: Optional[Type[json.JSONEncoder]] = None
+        self, obj: dict[Any, Any], cls: type[json.JSONEncoder] | None = None
     ) -> str:
         try:
             encoded = json.dumps(obj, cls=cls)
@@ -228,7 +224,7 @@ class FriendlyJsonSerde:
             else:
                 raise full_exception
 
-    def json_decode(self, json_str: str) -> Dict[Any, Any]:
+    def json_decode(self, json_str: str) -> dict[Any, Any]:
         try:
             decoded = json.loads(json_str)
             return decoded
@@ -239,7 +235,7 @@ class FriendlyJsonSerde:
             raise json.decoder.JSONDecodeError(err_msg, exc.doc, exc.pos)
 
     def json_encode(
-        self, obj: Dict[Any, Any], cls: Optional[Type[json.JSONEncoder]] = None
+        self, obj: dict[Any, Any], cls: type[json.JSONEncoder] | None = None
     ) -> str:
         try:
             return self._friendly_json_encode(obj, cls=cls)
@@ -247,7 +243,7 @@ class FriendlyJsonSerde:
             raise Web3TypeError(f"Could not encode to JSON: {exc}")
 
 
-def to_4byte_hex(hex_or_str_or_bytes: Union[HexStr, str, bytes, int]) -> HexStr:
+def to_4byte_hex(hex_or_str_or_bytes: HexStr | str | bytes | int) -> HexStr:
     size_of_4bytes = 4 * 8
     byte_str = hexstr_if_str(to_bytes, hex_or_str_or_bytes)
     if len(byte_str) > 4:
@@ -297,7 +293,7 @@ def encode_single_packed(_type: TypeStr, value: Any) -> bytes:
 
 
 class Web3JsonEncoder(json.JSONEncoder):
-    def default(self, obj: Any) -> Union[Dict[Any, Any], HexStr]:
+    def default(self, obj: Any) -> dict[Any, Any] | HexStr:
         if isinstance(obj, AttributeDict):
             return obj.__dict__
         elif isinstance(obj, (HexBytes, bytes)):
@@ -310,7 +306,7 @@ class Web3JsonEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, obj)
 
 
-def to_json(obj: Dict[Any, Any]) -> str:
+def to_json(obj: dict[Any, Any]) -> str:
     """
     Convert a complex object (like a transaction object) to a JSON string
     """

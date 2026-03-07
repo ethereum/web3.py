@@ -6,11 +6,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Collection,
-    Optional,
     Sequence,
-    Tuple,
-    Type,
-    Union,
     cast,
 )
 import warnings
@@ -66,7 +62,7 @@ if TYPE_CHECKING:
     )
 
 
-def Web3() -> Type["_Web3"]:
+def Web3() -> type["_Web3"]:
     from web3 import (
         Web3 as Web3Main,
     )
@@ -76,7 +72,7 @@ def Web3() -> Type["_Web3"]:
 
 def init_web3(
     provider: "BaseProvider" = None,
-    middleware: Optional[Sequence[Tuple["Middleware", str]]] = None,
+    middleware: Sequence[tuple["Middleware", str]] | None = None,
 ) -> "_Web3":
     from web3 import (
         Web3 as Web3Main,
@@ -195,11 +191,11 @@ def is_valid_name(name: str) -> bool:
         return False
 
 
-def to_utc_datetime(timestamp: float) -> Optional[datetime]:
+def to_utc_datetime(timestamp: float) -> datetime | None:
     return datetime.fromtimestamp(timestamp, timezone.utc) if timestamp else None
 
 
-def sha3_text(val: Union[str, bytes]) -> HexBytes:
+def sha3_text(val: str | bytes) -> HexBytes:
     if isinstance(val, str):
         val = val.encode("utf-8")
     return Web3().keccak(val)
@@ -278,7 +274,7 @@ def assert_signer_in_modifier_kwargs(modifier_kwargs: Any) -> ChecksumAddress:
     return modifier_dict["from"]
 
 
-def is_none_or_zero_address(addr: Union[Address, ChecksumAddress, HexAddress]) -> bool:
+def is_none_or_zero_address(addr: Address | ChecksumAddress | HexAddress) -> bool:
     return not addr or addr == EMPTY_ADDR_HEX
 
 
@@ -301,7 +297,7 @@ def is_valid_ens_name(ens_name: str) -> bool:
 
 def init_async_web3(
     provider: "AsyncBaseProvider" = None,
-    middleware: Optional[Sequence[Tuple["Middleware", str]]] = (),
+    middleware: Sequence[tuple["Middleware", str]] | None = (),
 ) -> "AsyncWeb3[Any]":
     from web3 import (
         AsyncWeb3 as AsyncWeb3Main,

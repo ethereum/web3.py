@@ -4,11 +4,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    Dict,
-    List,
-    Optional,
     Sequence,
-    Tuple,
     Union,
     cast,
 )
@@ -97,10 +93,10 @@ if TYPE_CHECKING:
 
 def find_matching_event_abi(
     abi: ABI,
-    event_name: Optional[str] = None,
-    argument_names: Optional[Sequence[str]] = None,
+    event_name: str | None = None,
+    argument_names: Sequence[str] | None = None,
 ) -> ABIEvent:
-    filters: List[functools.partial[Sequence[ABIElement]]] = [
+    filters: list[functools.partial[Sequence[ABIElement]]] = [
         functools.partial(filter_abi_by_type, "event"),
     ]
 
@@ -124,7 +120,7 @@ def encode_abi(
     w3: Union["AsyncWeb3[Any]", "Web3"],
     abi: ABIElement,
     arguments: Sequence[Any],
-    data: Optional[HexStr] = None,
+    data: HexStr | None = None,
 ) -> HexStr:
     argument_types = []
     try:
@@ -170,11 +166,11 @@ def prepare_transaction(
     address: ChecksumAddress,
     w3: Union["AsyncWeb3[Any]", "Web3"],
     abi_element_identifier: ABIElementIdentifier,
-    contract_abi: Optional[ABI] = None,
-    abi_callable: Optional[ABICallable] = None,
-    transaction: Optional[TxParams] = None,
-    fn_args: Optional[Sequence[Any]] = None,
-    fn_kwargs: Optional[Any] = None,
+    contract_abi: ABI | None = None,
+    abi_callable: ABICallable | None = None,
+    transaction: TxParams | None = None,
+    fn_args: Sequence[Any] | None = None,
+    fn_kwargs: Any | None = None,
 ) -> TxParams:
     """
     Returns a dictionary of the transaction that could be used to call this
@@ -234,10 +230,10 @@ def prepare_transaction(
 def encode_transaction_data(
     w3: Union["AsyncWeb3[Any]", "Web3"],
     abi_element_identifier: ABIElementIdentifier,
-    contract_abi: Optional[ABI] = None,
-    abi_callable: Optional[ABICallable] = None,
-    args: Optional[Sequence[Any]] = None,
-    kwargs: Optional[Any] = None,
+    contract_abi: ABI | None = None,
+    abi_callable: ABICallable | None = None,
+    args: Sequence[Any] | None = None,
+    kwargs: Any | None = None,
 ) -> HexStr:
     info_abi: ABIElement
     abi_element_name = get_name_from_abi_element_identifier(abi_element_identifier)
@@ -269,8 +265,8 @@ def encode_transaction_data(
 def decode_transaction_data(
     fn_abi: ABIFunction,
     data: HexStr,
-    normalizers: Sequence[Callable[[TypeStr, Any], Tuple[TypeStr, Any]]] = None,
-) -> Dict[str, Any]:
+    normalizers: Sequence[Callable[[TypeStr, Any], tuple[TypeStr, Any]]] = None,
+) -> dict[str, Any]:
     data_bytes = HexBytes(data)
     types = get_abi_input_types(fn_abi)
     abi_codec = ABICodec(default_registry)
@@ -281,34 +277,34 @@ def decode_transaction_data(
 
 
 def get_constructor_function_info(
-    contract_abi: Optional[ABI] = None, constructor_abi: Optional[ABIConstructor] = None
-) -> Tuple[ABIConstructor, HexStr, Tuple[Any, ...]]:
+    contract_abi: ABI | None = None, constructor_abi: ABIConstructor | None = None
+) -> tuple[ABIConstructor, HexStr, tuple[Any, ...]]:
     if constructor_abi is None:
         constructor_abi = cast(
             ABIConstructor, get_abi_element(contract_abi, "constructor")
         )
     fn_selector = encode_hex(b"")
-    fn_arguments: Tuple[Any, ...] = tuple()
+    fn_arguments: tuple[Any, ...] = tuple()
     return constructor_abi, fn_selector, fn_arguments
 
 
 def get_fallback_function_info(
-    contract_abi: Optional[ABI] = None, fallback_abi: Optional[ABIFallback] = None
-) -> Tuple[ABIFallback, HexStr, Tuple[Any, ...]]:
+    contract_abi: ABI | None = None, fallback_abi: ABIFallback | None = None
+) -> tuple[ABIFallback, HexStr, tuple[Any, ...]]:
     if fallback_abi is None:
         fallback_abi = cast(ABIFallback, get_abi_element(contract_abi, "fallback"))
     fn_selector = encode_hex(b"")
-    fn_arguments: Tuple[Any, ...] = tuple()
+    fn_arguments: tuple[Any, ...] = tuple()
     return fallback_abi, fn_selector, fn_arguments
 
 
 def get_receive_function_info(
-    contract_abi: Optional[ABI] = None, receive_abi: Optional[ABIReceive] = None
-) -> Tuple[ABIReceive, HexStr, Tuple[Any, ...]]:
+    contract_abi: ABI | None = None, receive_abi: ABIReceive | None = None
+) -> tuple[ABIReceive, HexStr, tuple[Any, ...]]:
     if receive_abi is None:
         receive_abi = cast(ABIReceive, get_abi_element(contract_abi, "receive"))
     fn_selector = encode_hex(b"")
-    fn_arguments: Tuple[Any, ...] = tuple()
+    fn_arguments: tuple[Any, ...] = tuple()
     return receive_abi, fn_selector, fn_arguments
 
 
@@ -335,7 +331,7 @@ def validate_payable(transaction: TxParams, abi_callable: ABICallable) -> None:
 
 
 def parse_block_identifier(
-    w3: "Web3", block_identifier: Optional[BlockIdentifier]
+    w3: "Web3", block_identifier: BlockIdentifier | None
 ) -> BlockIdentifier:
     if block_identifier is None:
         return w3.eth.default_block

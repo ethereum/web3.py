@@ -2,12 +2,8 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    Dict,
     Iterable,
-    List,
-    Optional,
     Sequence,
-    Type,
     cast,
 )
 
@@ -106,10 +102,10 @@ class ContractEvent(BaseContractEvent):
     @combomethod
     def get_logs(
         self,
-        argument_filters: Optional[Dict[str, Any]] = None,
-        from_block: Optional[BlockIdentifier] = None,
-        to_block: Optional[BlockIdentifier] = None,
-        block_hash: Optional[HexBytes] = None,
+        argument_filters: dict[str, Any] | None = None,
+        from_block: BlockIdentifier | None = None,
+        to_block: BlockIdentifier | None = None,
+        block_hash: HexBytes | None = None,
     ) -> Iterable[EventData]:
         """
         Get events for this contract instance using eth_getLogs API.
@@ -200,11 +196,11 @@ class ContractEvent(BaseContractEvent):
     def create_filter(
         self,
         *,  # PEP 3102
-        argument_filters: Optional[Dict[str, Any]] = None,
-        from_block: Optional[BlockIdentifier] = None,
+        argument_filters: dict[str, Any] | None = None,
+        from_block: BlockIdentifier | None = None,
         to_block: BlockIdentifier = "latest",
-        address: Optional[ChecksumAddress] = None,
-        topics: Optional[Sequence[Any]] = None,
+        address: ChecksumAddress | None = None,
+        topics: Sequence[Any] | None = None,
     ) -> LogFilter:
         """
         Create filter object that tracks logs emitted by this contract event.
@@ -239,7 +235,7 @@ class ContractEvent(BaseContractEvent):
 
 class ContractEvents(BaseContractEvents[ContractEvent]):
     def __init__(
-        self, abi: ABI, w3: "Web3", address: Optional[ChecksumAddress] = None
+        self, abi: ABI, w3: "Web3", address: ChecksumAddress | None = None
     ) -> None:
         super().__init__(abi, w3, ContractEvent, address)
 
@@ -250,10 +246,10 @@ class ContractFunction(BaseContractFunction):
 
     def call(
         self,
-        transaction: Optional[TxParams] = None,
-        block_identifier: Optional[BlockIdentifier] = None,
-        state_override: Optional[StateOverride] = None,
-        ccip_read_enabled: Optional[bool] = None,
+        transaction: TxParams | None = None,
+        block_identifier: BlockIdentifier | None = None,
+        state_override: StateOverride | None = None,
+        ccip_read_enabled: bool | None = None,
     ) -> Any:
         """
         Execute a contract function call using the `eth_call` interface.
@@ -304,7 +300,7 @@ class ContractFunction(BaseContractFunction):
             **self.kwargs or {},
         )
 
-    def transact(self, transaction: Optional[TxParams] = None) -> HexBytes:
+    def transact(self, transaction: TxParams | None = None) -> HexBytes:
         setup_transaction = self._transact(transaction)
         abi_element_identifier = abi_to_signature(self.abi)
 
@@ -321,9 +317,9 @@ class ContractFunction(BaseContractFunction):
 
     def estimate_gas(
         self,
-        transaction: Optional[TxParams] = None,
-        block_identifier: Optional[BlockIdentifier] = None,
-        state_override: Optional[StateOverride] = None,
+        transaction: TxParams | None = None,
+        block_identifier: BlockIdentifier | None = None,
+        state_override: StateOverride | None = None,
     ) -> int:
         setup_transaction = self._estimate_gas(transaction)
         abi_element_identifier = abi_to_signature(self.abi)
@@ -340,7 +336,7 @@ class ContractFunction(BaseContractFunction):
             **self.kwargs or {},
         )
 
-    def build_transaction(self, transaction: Optional[TxParams] = None) -> TxParams:
+    def build_transaction(self, transaction: TxParams | None = None) -> TxParams:
         built_transaction = self._build_transaction(transaction)
         abi_element_identifier = abi_to_signature(self.abi)
 
@@ -359,7 +355,7 @@ class ContractFunction(BaseContractFunction):
     def get_fallback_function(
         abi: ABI,
         w3: "Web3",
-        address: Optional[ChecksumAddress] = None,
+        address: ChecksumAddress | None = None,
     ) -> "ContractFunction":
         if abi and fallback_func_abi_exists(abi):
             fallback_abi = filter_abi_by_type("fallback", abi)[0]
@@ -377,7 +373,7 @@ class ContractFunction(BaseContractFunction):
     def get_receive_function(
         abi: ABI,
         w3: "Web3",
-        address: Optional[ChecksumAddress] = None,
+        address: ChecksumAddress | None = None,
     ) -> "ContractFunction":
         if abi and receive_func_abi_exists(abi):
             receive_abi = filter_abi_by_type("receive", abi)[0]
@@ -397,8 +393,8 @@ class ContractFunctions(BaseContractFunctions[ContractFunction]):
         self,
         abi: ABI,
         w3: "Web3",
-        address: Optional[ChecksumAddress] = None,
-        decode_tuples: Optional[bool] = False,
+        address: ChecksumAddress | None = None,
+        decode_tuples: bool | None = False,
     ) -> None:
         super().__init__(abi, w3, ContractFunction, address, decode_tuples)
 
@@ -412,7 +408,7 @@ class Contract(BaseContract):
     # Instance of :class:`ContractEvents` presenting available Event ABIs
     events: ContractEvents = None
 
-    def __init__(self, address: Optional[ChecksumAddress] = None) -> None:
+    def __init__(self, address: ChecksumAddress | None = None) -> None:
         """
         Create a new smart contract proxy object.
         :param address: Contract address as 0x hex string
@@ -459,8 +455,8 @@ class Contract(BaseContract):
 
     @classmethod
     def factory(
-        cls, w3: "Web3", class_name: Optional[str] = None, **kwargs: Any
-    ) -> Type[Self]:
+        cls, w3: "Web3", class_name: str | None = None, **kwargs: Any
+    ) -> type[Self]:
         kwargs["w3"] = w3
 
         normalizers = {
@@ -472,7 +468,7 @@ class Contract(BaseContract):
         }
 
         contract = cast(
-            Type[Self],
+            type[Self],
             PropertyCheckingFactory(
                 class_name or cls.__name__,
                 (cls,),
@@ -536,9 +532,9 @@ class Contract(BaseContract):
         w3: "Web3",
         address: ChecksumAddress,
         callable_check: Callable[..., Any],
-    ) -> List["ContractFunction"]:
+    ) -> list["ContractFunction"]:
         return cast(
-            List["ContractFunction"],
+            list["ContractFunction"],
             find_functions_by_identifier(
                 contract_abi, w3, address, callable_check, ContractFunction
             ),
@@ -557,7 +553,7 @@ class Contract(BaseContract):
         w3: "Web3",
         address: ChecksumAddress,
         callable_check: Callable[..., Any],
-    ) -> List["ContractEvent"]:
+    ) -> list["ContractEvent"]:
         return find_events_by_identifier(
             contract_abi, w3, address, callable_check, ContractEvent
         )
@@ -578,11 +574,11 @@ class ContractCaller(BaseContractCaller):
         abi: ABI,
         w3: "Web3",
         address: ChecksumAddress,
-        transaction: Optional[TxParams] = None,
+        transaction: TxParams | None = None,
         block_identifier: BlockIdentifier = None,
-        ccip_read_enabled: Optional[bool] = None,
-        decode_tuples: Optional[bool] = False,
-        contract_functions: Optional[ContractFunctions] = None,
+        ccip_read_enabled: bool | None = None,
+        decode_tuples: bool | None = False,
+        contract_functions: ContractFunctions | None = None,
     ) -> None:
         super().__init__(abi, w3, address, decode_tuples=decode_tuples)
 
@@ -608,9 +604,9 @@ class ContractCaller(BaseContractCaller):
 
     def __call__(
         self,
-        transaction: Optional[TxParams] = None,
+        transaction: TxParams | None = None,
         block_identifier: BlockIdentifier = None,
-        ccip_read_enabled: Optional[bool] = None,
+        ccip_read_enabled: bool | None = None,
     ) -> "ContractCaller":
         if transaction is None:
             transaction = {}
@@ -631,11 +627,11 @@ class ContractConstructor(BaseContractConstructor):
     w3: "Web3"
 
     @combomethod
-    def transact(self, transaction: Optional[TxParams] = None) -> HexBytes:
+    def transact(self, transaction: TxParams | None = None) -> HexBytes:
         return self.w3.eth.send_transaction(self._get_transaction(transaction))
 
     @combomethod
-    def build_transaction(self, transaction: Optional[TxParams] = None) -> TxParams:
+    def build_transaction(self, transaction: TxParams | None = None) -> TxParams:
         """
         Build the transaction dictionary without sending
         """
@@ -645,8 +641,8 @@ class ContractConstructor(BaseContractConstructor):
     @combomethod
     def estimate_gas(
         self,
-        transaction: Optional[TxParams] = None,
-        block_identifier: Optional[BlockIdentifier] = None,
+        transaction: TxParams | None = None,
+        block_identifier: BlockIdentifier | None = None,
     ) -> int:
         transaction = self._estimate_gas(transaction)
 

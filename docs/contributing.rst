@@ -376,13 +376,13 @@ Geth Fixtures
 
    .. code:: sh
 
-      $ python -m geth.install v1.16.2
+      $ python -m geth.install v1.16.7
 
 2. Specify the Geth binary and run the fixture creation script (from within the web3.py directory):
 
    .. code:: sh
 
-      $ GETH_BINARY=~/.py-geth/geth-v1.16.2/bin/geth python ./tests/integration/generate_fixtures/go_ethereum.py
+      $ GETH_BINARY=~/.py-geth/geth-v1.16.7/bin/geth python ./tests/integration/generate_fixtures/go_ethereum.py
 
 3. The output of this script is your fixture, a zip file, which is now stored in ``/tests/integration/``.
    The ``/tests/integration/go_ethereum/conftest.py`` and

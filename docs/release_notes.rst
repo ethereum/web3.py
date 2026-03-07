@@ -6,6 +6,54 @@ v7 Breaking Changes Summary
 
 .. towncrier release notes start
 
+web3.py v8.0.0-beta.1 (2025-12-18)
+----------------------------------
+
+Breaking Changes
+~~~~~~~~~~~~~~~~
+
+- Drop support for Python 3.8 and 3.9 and upgrade syntax accordingly (`#3774 <https://github.com/ethereum/web3.py/issues/3774>`__)
+- Upgrade websockets requirement to >=14.0. (`#3779 <https://github.com/ethereum/web3.py/issues/3779>`__)
+- Bump eth-utils dependency to require >=5.3.0 (`#3790 <https://github.com/ethereum/web3.py/issues/3790>`__)
+
+
+Bugfixes
+~~~~~~~~
+
+- Fix tests flakiness due to slow data generation from hypothesis triggering a timeout. (`#3730 <https://github.com/ethereum/web3.py/issues/3730>`__)
+- Fix ``topics`` type for ``LogsSubscription`` to reflect AND / OR nested list conditions on log filters. (`#3748 <https://github.com/ethereum/web3.py/issues/3748>`__)
+- Make `AsyncWeb3` with respect to the provider it is instantiated with, fixing static type issues. (`#3761 <https://github.com/ethereum/web3.py/issues/3761>`__)
+- Wrap timeout in ClientTimeout for AsyncBeacon post request (`#3784 <https://github.com/ethereum/web3.py/issues/3784>`__)
+
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Update a few broken links (`#3746 <https://github.com/ethereum/web3.py/issues/3746>`__)
+- Fix indentation in the code block in "An introduction to subscriptions" (`#3752 <https://github.com/ethereum/web3.py/issues/3752>`__)
+
+
+Features
+~~~~~~~~
+
+- Add the ``TopicFilter`` type to better describe the cases for filtering logs by topics. (`#3748 <https://github.com/ethereum/web3.py/issues/3748>`__)
+- Add support for Python 3.14 (`#3779 <https://github.com/ethereum/web3.py/issues/3779>`__)
+- Upgrade geth version in CI (`#3787 <https://github.com/ethereum/web3.py/issues/3787>`__)
+
+
+Internal Changes - for web3.py Contributors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Resolve the DeprecationWarning for the usage of `datetime.datetime.utcnow()` (`#3751 <https://github.com/ethereum/web3.py/issues/3751>`__)
+- Use latest Geth version ``v1.16.5`` for integration tests. (`#3775 <https://github.com/ethereum/web3.py/issues/3775>`__)
+
+
+Removals
+~~~~~~~~
+
+- Removal of the deprecated ``LegacyWebSocketProvider``. (`#3762 <https://github.com/ethereum/web3.py/issues/3762>`__)
+
+
 web3.py v7.13.0 (2025-08-04)
 ----------------------------
 

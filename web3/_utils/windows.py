@@ -1,7 +1,4 @@
 import sys
-from typing import (
-    Tuple,
-)
 
 import pywintypes  # noqa: E402
 import win32file  # noqa: E402
@@ -31,7 +28,7 @@ class NamedPipe:
             raise OSError(err)
         return data
 
-    def sendall(self, data: str) -> Tuple[int, int]:
+    def sendall(self, data: str) -> tuple[int, int]:
         return win32file.WriteFile(self.handle, data)
 
     def close(self) -> None:

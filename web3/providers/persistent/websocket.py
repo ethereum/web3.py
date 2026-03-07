@@ -4,9 +4,6 @@ import logging
 import os
 from typing import (
     Any,
-    Dict,
-    Optional,
-    Union,
 )
 
 from eth_typing import (
@@ -15,13 +12,16 @@ from eth_typing import (
 from toolz import (
     merge,
 )
+from websockets.asyncio.client import (
+    ClientConnection,
+    connect,
+)
 from websockets.exceptions import (
     ConnectionClosedOK,
     WebSocketException,
 )
-from websockets.legacy.client import (
-    WebSocketClientProtocol,
-    connect,
+from websockets.protocol import (
+    State,
 )
 
 from web3.exceptions import (
@@ -59,10 +59,10 @@ class WebSocketProvider(PersistentConnectionProvider):
 
     def __init__(
         self,
-        endpoint_uri: Optional[Union[URI, str]] = None,
-        websocket_kwargs: Optional[Dict[str, Any]] = None,
+        endpoint_uri: URI | str | None = None,
+        websocket_kwargs: dict[str, Any] | None = None,
         # uses binary frames by default
-        use_text_frames: Optional[bool] = False,
+        use_text_frames: bool | None = False,
         # `PersistentConnectionProvider` kwargs can be passed through
         **kwargs: Any,
     ) -> None:
@@ -72,7 +72,7 @@ class WebSocketProvider(PersistentConnectionProvider):
         )
         super().__init__(**kwargs)
         self.use_text_frames = use_text_frames
-        self._ws: Optional[WebSocketClientProtocol] = None
+        self._ws: ClientConnection | None = None
 
         if not any(
             self.endpoint_uri.startswith(prefix)
@@ -119,7 +119,7 @@ class WebSocketProvider(PersistentConnectionProvider):
                 "Connection to websocket has not been initiated for the provider."
             )
 
-        payload: Union[bytes, str] = request_data
+        payload: bytes | str = request_data
         if self.use_text_frames:
             payload = request_data.decode("utf-8")
 
@@ -134,9 +134,12 @@ class WebSocketProvider(PersistentConnectionProvider):
     async def _provider_specific_connect(self) -> None:
         self._ws = await connect(self.endpoint_uri, **self.websocket_kwargs)
 
+    def is_open(self) -> bool:
+        return self._ws.state == State.OPEN
+
     async def _provider_specific_disconnect(self) -> None:
         # this should remain idempotent
-        if self._ws is not None and not self._ws.closed:
+        if self._ws is not None and self.is_open():
             await self._ws.close()
             self._ws = None
 

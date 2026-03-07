@@ -8,10 +8,6 @@ import threading
 import time
 from typing import (
     Any,
-    Dict,
-    List,
-    Optional,
-    Union,
 )
 
 from aiohttp import (
@@ -50,9 +46,11 @@ class HTTPSessionManager:
         self,
         cache_size: int = 100,
         session_pool_max_workers: int = 5,
+        explicit_session: requests.Session | None = None,
     ) -> None:
         self.session_cache = SimpleCache(cache_size)
         self.session_pool = ThreadPoolExecutor(max_workers=session_pool_max_workers)
+        self._explicit_session = explicit_session
 
     @staticmethod
     def get_default_http_endpoint() -> URI:
@@ -62,8 +60,13 @@ class HTTPSessionManager:
         self,
         endpoint_uri: URI,
         session: requests.Session = None,
-        request_timeout: Optional[float] = None,
+        request_timeout: float | None = None,
     ) -> requests.Session:
+        # If an explicit session was provided at init time, always use it
+        # regardless of which thread is making the request
+        if self._explicit_session is not None:
+            return self._explicit_session
+
         # cache key should have a unique thread identifier
         cache_key = generate_cache_key(f"{threading.get_ident()}:{endpoint_uri}")
 
@@ -112,7 +115,7 @@ class HTTPSessionManager:
 
     def json_make_get_request(
         self, endpoint_uri: URI, *args: Any, **kwargs: Any
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         response = self.get_response_from_get_request(endpoint_uri, *args, **kwargs)
         response.raise_for_status()
         return response.json()
@@ -128,13 +131,13 @@ class HTTPSessionManager:
 
     def json_make_post_request(
         self, endpoint_uri: URI, *args: Any, **kwargs: Any
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         response = self.get_response_from_post_request(endpoint_uri, *args, **kwargs)
         response.raise_for_status()
         return response.json()
 
     def make_post_request(
-        self, endpoint_uri: URI, data: Union[bytes, Dict[str, Any]], **kwargs: Any
+        self, endpoint_uri: URI, data: bytes | dict[str, Any], **kwargs: Any
     ) -> bytes:
         kwargs.setdefault("timeout", DEFAULT_HTTP_TIMEOUT)
         kwargs.setdefault("stream", False)
@@ -164,7 +167,7 @@ class HTTPSessionManager:
                 raise TimeExhausted
         return response_body
 
-    def _close_evicted_sessions(self, evicted_sessions: List[requests.Session]) -> None:
+    def _close_evicted_sessions(self, evicted_sessions: list[requests.Session]) -> None:
         for evicted_session in evicted_sessions:
             evicted_session.close()
             self.logger.debug("Closed evicted session: %s", evicted_session)
@@ -174,8 +177,8 @@ class HTTPSessionManager:
     async def async_cache_and_return_session(
         self,
         endpoint_uri: URI,
-        session: Optional[ClientSession] = None,
-        request_timeout: Optional[ClientTimeout] = None,
+        session: ClientSession | None = None,
+        request_timeout: ClientTimeout | None = None,
     ) -> ClientSession:
         # cache key should have a unique thread identifier
         cache_key = generate_cache_key(f"{id(asyncio.get_event_loop())}:{endpoint_uri}")
@@ -284,7 +287,7 @@ class HTTPSessionManager:
 
     async def async_json_make_get_request(
         self, endpoint_uri: URI, *args: Any, **kwargs: Any
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         response = await self.async_get_response_from_get_request(
             endpoint_uri, *args, **kwargs
         )
@@ -303,7 +306,7 @@ class HTTPSessionManager:
 
     async def async_json_make_post_request(
         self, endpoint_uri: URI, *args: Any, **kwargs: Any
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         response = await self.async_get_response_from_post_request(
             endpoint_uri, *args, **kwargs
         )
@@ -311,7 +314,7 @@ class HTTPSessionManager:
         return await response.json()
 
     async def async_make_post_request(
-        self, endpoint_uri: URI, data: Union[bytes, Dict[str, Any]], **kwargs: Any
+        self, endpoint_uri: URI, data: bytes | dict[str, Any], **kwargs: Any
     ) -> bytes:
         response = await self.async_get_response_from_post_request(
             endpoint_uri, data=data, **kwargs
@@ -320,7 +323,7 @@ class HTTPSessionManager:
         return await response.read()
 
     async def _async_close_evicted_sessions(
-        self, timeout: float, evicted_sessions: List[ClientSession]
+        self, timeout: float, evicted_sessions: list[ClientSession]
     ) -> None:
         await asyncio.sleep(timeout)
 

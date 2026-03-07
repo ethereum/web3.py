@@ -3,14 +3,9 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    Dict,
     Generic,
-    List,
     Optional,
     Sequence,
-    Tuple,
-    Type,
-    Union,
 )
 import warnings
 
@@ -58,17 +53,15 @@ Munger = Callable[..., Any]
 
 @to_tuple
 def _apply_request_formatters(
-    params: Any, request_formatters: Dict[RPCEndpoint, Callable[..., TReturn]]
-) -> Tuple[Any, ...]:
+    params: Any, request_formatters: dict[RPCEndpoint, Callable[..., TReturn]]
+) -> tuple[Any, ...]:
     if request_formatters:
         formatted_params = pipe(params, request_formatters)
         return formatted_params
     return params
 
 
-def _set_mungers(
-    mungers: Optional[Sequence[Munger]], is_property: bool
-) -> Sequence[Any]:
+def _set_mungers(mungers: Sequence[Munger] | None, is_property: bool) -> Sequence[Any]:
     if is_property and mungers:
         raise Web3ValidationError("Mungers cannot be used with a property.")
 
@@ -81,13 +74,13 @@ def _set_mungers(
     )
 
 
-def default_munger(_module: "Module", *args: Any, **kwargs: Any) -> Tuple[()]:
+def default_munger(_module: "Module", *args: Any, **kwargs: Any) -> tuple[()]:
     if args or kwargs:
         raise Web3ValidationError("Parameters cannot be passed to a property.")
     return ()
 
 
-def default_root_munger(_module: "Module", *args: Any) -> List[Any]:
+def default_root_munger(_module: "Module", *args: Any) -> list[Any]:
     return [*args]
 
 
@@ -134,12 +127,12 @@ class Method(Generic[TFunc]):
 
     def __init__(
         self,
-        json_rpc_method: Optional[RPCEndpoint] = None,
-        mungers: Optional[Sequence[Munger]] = None,
-        request_formatters: Optional[Callable[..., TReturn]] = None,
-        result_formatters: Optional[Callable[..., TReturn]] = None,
-        null_result_formatters: Optional[Callable[..., TReturn]] = None,
-        method_choice_depends_on_args: Optional[Callable[..., RPCEndpoint]] = None,
+        json_rpc_method: RPCEndpoint | None = None,
+        mungers: Sequence[Munger] | None = None,
+        request_formatters: Callable[..., TReturn] | None = None,
+        result_formatters: Callable[..., TReturn] | None = None,
+        null_result_formatters: Callable[..., TReturn] | None = None,
+        method_choice_depends_on_args: Callable[..., RPCEndpoint] | None = None,
         is_property: bool = False,
     ):
         self.json_rpc_method = json_rpc_method
@@ -155,7 +148,7 @@ class Method(Generic[TFunc]):
     def __get__(
         self,
         module: Optional["Module"] = None,
-        _type: Optional[Type["Module"]] = None,
+        _type: type["Module"] | None = None,
     ) -> TFunc:
         self._module = module
         if module is None:
@@ -192,7 +185,7 @@ class Method(Generic[TFunc]):
             "``json_rpc_method`` config invalid.  May be a string or function"
         )
 
-    def input_munger(self, module: "Module", args: Any, kwargs: Any) -> List[Any]:
+    def input_munger(self, module: "Module", args: Any, kwargs: Any) -> list[Any]:
         # This function takes the input parameters and munges them.
         # See the test_process_params test in ``tests/core/method-class/test_method.py``
         # for an example with multiple mungers.
@@ -202,12 +195,12 @@ class Method(Generic[TFunc]):
 
     def process_params(
         self, module: "Module", *args: Any, **kwargs: Any
-    ) -> Tuple[
-        Tuple[Union[RPCEndpoint, Callable[..., RPCEndpoint]], Tuple[RPCEndpoint, ...]],
-        Tuple[
-            Union[TReturn, Dict[str, Callable[..., Any]]],
+    ) -> tuple[
+        tuple[RPCEndpoint | Callable[..., RPCEndpoint], tuple[RPCEndpoint, ...]],
+        tuple[
+            TReturn | dict[str, Callable[..., Any]],
             Callable[..., Any],
-            Union[TReturn, Callable[..., Any]],
+            TReturn | Callable[..., Any],
         ],
     ]:
         params = self.input_munger(module, args, kwargs)
@@ -243,9 +236,9 @@ class DeprecatedMethod:
     def __init__(
         self,
         method: Method[Callable[..., Any]],
-        old_name: Optional[str] = None,
-        new_name: Optional[str] = None,
-        msg: Optional[str] = None,
+        old_name: str | None = None,
+        new_name: str | None = None,
+        msg: str | None = None,
     ) -> None:
         self.method = method
         self.old_name = old_name
@@ -253,7 +246,7 @@ class DeprecatedMethod:
         self.msg = msg
 
     def __get__(
-        self, obj: Optional["Module"] = None, obj_type: Optional[Type["Module"]] = None
+        self, obj: Optional["Module"] = None, obj_type: type["Module"] | None = None
     ) -> Any:
         message = f"{self.old_name} is deprecated in favor of {self.new_name}"
         if self.msg is not None:

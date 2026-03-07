@@ -14,10 +14,6 @@ from types import (
 )
 from typing import (
     Any,
-    List,
-    Tuple,
-    Type,
-    Union,
     cast,
 )
 
@@ -77,7 +73,7 @@ class PersistentSocket:
 
     def __exit__(
         self,
-        exc_type: Type[BaseException],
+        exc_type: type[BaseException],
         exc_value: BaseException,
         traceback: TracebackType,
     ) -> None:
@@ -143,7 +139,7 @@ class IPCProvider(JSONBaseProvider):
 
     def __init__(
         self,
-        ipc_path: Union[str, Path] = None,
+        ipc_path: str | Path = None,
         timeout: int = 30,
         **kwargs: Any,
     ) -> None:
@@ -176,7 +172,7 @@ class IPCProvider(JSONBaseProvider):
                 while True:
                     try:
                         raw_response += sock.recv(4096)
-                    except socket.timeout:
+                    except TimeoutError:
                         timeout.sleep(0)
                         continue
                     if raw_response == b"":
@@ -202,11 +198,11 @@ class IPCProvider(JSONBaseProvider):
         return self._make_request(request)
 
     def make_batch_request(
-        self, requests: List[Tuple[RPCEndpoint, Any]]
-    ) -> List[RPCResponse]:
+        self, requests: list[tuple[RPCEndpoint, Any]]
+    ) -> list[RPCResponse]:
         self.logger.debug("Making batch request IPC. Path: %s", self.ipc_path)
         request_data = self.encode_batch_rpc_request(requests)
-        response = cast(List[RPCResponse], self._make_request(request_data))
+        response = cast(list[RPCResponse], self._make_request(request_data))
         return sort_batch_response_by_response_ids(response)
 
 
