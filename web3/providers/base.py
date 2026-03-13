@@ -50,6 +50,9 @@ if TYPE_CHECKING:
     from web3._utils.batching import (
         RequestBatcher,
     )
+    from web3.utils.ccip_url_validation import (
+        CcipUrlValidator,
+    )
 
 
 class BaseProvider:
@@ -65,6 +68,8 @@ class BaseProvider:
     has_persistent_connection = False
     global_ccip_read_enabled: bool = True
     ccip_read_max_redirects: int = 4
+    ccip_read_allow_http: bool = False
+    ccip_read_url_validator: "CcipUrlValidator | None" = None
 
     def __init__(
         self,

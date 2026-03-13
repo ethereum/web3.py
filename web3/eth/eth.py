@@ -260,6 +260,8 @@ class Eth(BaseEth):
                 durin_calldata = handle_offchain_lookup(
                     offchain_lookup.payload,
                     transaction,
+                    allow_http=self.w3.provider.ccip_read_allow_http,
+                    url_validator=self.w3.provider.ccip_read_url_validator,
                 )
                 transaction["data"] = durin_calldata
 
