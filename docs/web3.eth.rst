@@ -944,6 +944,32 @@ The following methods are available on the ``web3.eth`` namespace.
     ``OffchainLookup`` instead of properly handling the exception according to EIP-3668. This may be useful for
     "preflighting" a transaction with a call (see :ref:`ccip-read-example` within the examples section).
 
+    CCIP Read enforces URL validation before every outbound request. By default:
+
+    - Only ``https://`` URLs are permitted (``http://`` is rejected).
+    - Redirects are not followed.
+    - URLs whose hostnames resolve to private or reserved IP ranges (e.g. ``127.0.0.0/8``, ``10.0.0.0/8``,
+      ``192.168.0.0/16``, ``169.254.0.0/16``, ``::1``, etc.) are blocked.
+
+    These defaults can be adjusted at the provider level:
+
+    - ``ccip_read_allow_http``: Set to ``True`` to allow ``http://`` URLs. Defaults to ``False``.
+    - ``ccip_read_url_validator``: An optional callable that receives each URL (``str``) before the request is made.
+      Raise a ``Web3ValidationError`` to reject the URL and skip to the next one. This runs in addition to the
+      built-in scheme and host validation. For async providers, this should be an async callable.
+
+    .. code-block:: python
+
+        # allow http:// URLs for CCIP Read
+        w3.provider.ccip_read_allow_http = True
+
+        # add a custom URL policy on top of the built-in validation
+        def my_url_validator(url):
+            if "untrusted.com" in url:
+                raise Web3ValidationError(f"Blocked: {url}")
+
+        w3.provider.ccip_read_url_validator = my_url_validator
+
     If the function called results in a ``revert`` error, a ``ContractLogicError`` will be raised.
     If there is an error message with the error, web3.py attempts to parse the
     message that comes back and return it to the user as the error string.
