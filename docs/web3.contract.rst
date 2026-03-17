@@ -901,6 +901,11 @@ enabled on a per-call basis - overriding the global flag. This ensures only expl
         >>> # does not raise the revert since explicitly enabled on the call:
         >>> response = myContract.functions.revertsWithOffchainLookup(myData).call(ccip_read_enabled=True)
 
+CCIP Read enforces URL validation before every outbound request: only HTTPS is permitted, redirects are not
+followed, and hostnames that resolve to private/reserved IP ranges are blocked. These defaults can be adjusted via
+``ccip_read_allow_http`` and ``ccip_read_url_validator`` on the provider. See :meth:`~web3.eth.Eth.call` for
+details.
+
 If the function called results in a ``revert`` error, a ``ContractLogicError`` will be raised.
 If there is an error message with the error, web3.py attempts to parse the
 message that comes back and return it to the user as the error string.
