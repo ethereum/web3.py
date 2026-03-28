@@ -17,7 +17,7 @@ If you are unsure which path to pick, prefer WSL.
    - `git`
    - Miniconda or Anaconda
 
-2. Open **Anaconda Prompt** or **PowerShell** and create a dedicated environment:
+1. Open **Anaconda Prompt** or **PowerShell** and create a dedicated environment:
 
 ```powershell
 conda create -n web3py-dev python=3.12
@@ -58,7 +58,7 @@ WSL is the closest Windows experience to the standard Linux contributor setup.
 
 1. Install WSL and a Linux distribution such as Ubuntu.
 
-2. Open the WSL shell and install system dependencies:
+1. Open the WSL shell and install system dependencies:
 
 ```sh
 sudo apt-get update
