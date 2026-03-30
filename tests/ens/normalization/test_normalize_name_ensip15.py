@@ -1,3 +1,14 @@
+"""
+ENSIP-15 normalization tests sourced from the upstream ens-normalize.js repository.
+
+Spec: https://docs.ens.domains/ensip/15
+
+To verify that the local spec and test files are up to date with the latest
+upstream versions, run:
+
+    python scripts/verify_ensip15_specs.py
+"""
+
 import pytest
 import json
 import os
