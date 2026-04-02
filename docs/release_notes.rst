@@ -82,6 +82,68 @@ Removals
 
 - Removal of the deprecated ``LegacyWebSocketProvider``. (`#3762 <https://github.com/ethereum/web3.py/issues/3762>`__)
 
+web3.py v7.15.0 (2026-04-02)
+----------------------------
+
+Features
+~~~~~~~~
+
+- Added configurations for CCIP-Read, defaulting to a more secure configuration based on the EIP recommendations. (`#3818 <https://github.com/ethereum/web3.py/issues/3818>`__)
+
+
+web3.py v7.14.1 (2026-02-03)
+----------------------------
+
+Bugfixes
+~~~~~~~~
+
+- Wrap timeout in ClientTimeout for AsyncBeacon post request (`#3784 <https://github.com/ethereum/web3.py/issues/3784>`__)
+- Fix ``HTTPProvider`` to share an explicitly provided ``session`` across all threads, rather than only the creating thread. (`#3800 <https://github.com/ethereum/web3.py/issues/3800>`__)
+- Fix TypedDict field names to use camelCase (``validatorIndex``, ``yParity``) matching JSON-RPC conventions and formatter outputs. (`#3801 <https://github.com/ethereum/web3.py/issues/3801>`__)
+- Exclude type checking in Sphinx module and submodules (`#3803 <https://github.com/ethereum/web3.py/issues/3803>`__)
+
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Added documentation for formatters explaining how they work, what the default formatters do, and how to customize them. (`#2994 <https://github.com/ethereum/web3.py/issues/2994>`__)
+
+
+Internal Changes - for web3.py Contributors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Upgrade geth version in CI (`#3787 <https://github.com/ethereum/web3.py/issues/3787>`__)
+
+
+web3.py v7.14.0 (2025-10-16)
+----------------------------
+
+Bugfixes
+~~~~~~~~
+
+- Fix tests flakiness due to slow data generation from hypothesis triggering a timeout. (`#3730 <https://github.com/ethereum/web3.py/issues/3730>`__)
+- Fix ``topics`` type for ``LogsSubscription`` to reflect AND / OR nested list conditions on log filters. (`#3748 <https://github.com/ethereum/web3.py/issues/3748>`__)
+- Make `AsyncWeb3` with respect to the provider it is instantiated with, fixing static type issues. (`#3761 <https://github.com/ethereum/web3.py/issues/3761>`__)
+
+
+Improved Documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+- Update a few broken links (`#3746 <https://github.com/ethereum/web3.py/issues/3746>`__)
+- Fix indentation in the code block in "An introduction to subscriptions" (`#3752 <https://github.com/ethereum/web3.py/issues/3752>`__)
+
+
+Features
+~~~~~~~~
+
+- Add the ``TopicFilter`` type to better describe the cases for filtering logs by topics. (`#3748 <https://github.com/ethereum/web3.py/issues/3748>`__)
+
+
+Internal Changes - for web3.py Contributors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Resolve the DeprecationWarning for the usage of `datetime.datetime.utcnow()` (`#3751 <https://github.com/ethereum/web3.py/issues/3751>`__)
+
 
 web3.py v7.13.0 (2025-08-04)
 ----------------------------
