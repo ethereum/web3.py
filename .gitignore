@@ -120,4 +120,5 @@ crashlytics.properties
 crashlytics-build.properties
 fabric.properties
 
-# END JetBrains section
+# uv
+uv.lock
