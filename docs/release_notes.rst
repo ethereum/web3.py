@@ -6,6 +6,15 @@ v7 Breaking Changes Summary
 
 .. towncrier release notes start
 
+web3.py v7.15.0 (2026-04-02)
+----------------------------
+
+Features
+~~~~~~~~
+
+- Added configurations for CCIP-Read, defaulting to a more secure configuration based on the EIP recommendations. (`#3818 <https://github.com/ethereum/web3.py/issues/3818>`__)
+
+
 web3.py v7.14.1 (2026-02-03)
 ----------------------------
 
