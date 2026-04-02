@@ -1,1 +1,0 @@
-Update ENSIP-15 specs and tests to latest. Add a script to verify our versions of each of the files relevant for ENSIP-15 tests are up-to-date with those in the ENSIP-15 repository.

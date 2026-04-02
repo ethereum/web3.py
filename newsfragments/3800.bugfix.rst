@@ -1,1 +1,0 @@
-Fix ``HTTPProvider`` to share an explicitly provided ``session`` across all threads, rather than only the creating thread.
