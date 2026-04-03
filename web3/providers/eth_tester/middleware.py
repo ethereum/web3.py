@@ -253,18 +253,11 @@ request_formatters = {
     RPCEndpoint("eth_getBlockTransactionCountByNumber"): apply_formatters_to_args(
         apply_formatter_if(is_not_named_block, to_integer_if_hex),
     ),
-    RPCEndpoint("eth_getUncleCountByBlockNumber"): apply_formatters_to_args(
-        apply_formatter_if(is_not_named_block, to_integer_if_hex),
-    ),
     RPCEndpoint("eth_getTransactionByBlockHashAndIndex"): apply_formatters_to_args(
         identity,
         to_integer_if_hex,
     ),
     RPCEndpoint("eth_getTransactionByBlockNumberAndIndex"): apply_formatters_to_args(
-        apply_formatter_if(is_not_named_block, to_integer_if_hex),
-        to_integer_if_hex,
-    ),
-    RPCEndpoint("eth_getUncleByBlockNumberAndIndex"): apply_formatters_to_args(
         apply_formatter_if(is_not_named_block, to_integer_if_hex),
         to_integer_if_hex,
     ),
@@ -360,7 +353,10 @@ def guess_from(w3: "Web3", _: TxParams) -> ChecksumAddress:
 
 @curry
 def fill_default(
-    field: str, guess_func: Callable[..., Any], w3: "Web3", transaction: TxParams
+    field: str,
+    guess_func: Callable[..., Any],
+    w3: "Web3",
+    transaction: TxParams,
 ) -> TxParams:
     # type ignored b/c TxParams keys must be string literal types
     if field in transaction and transaction[field] is not None:  # type: ignore

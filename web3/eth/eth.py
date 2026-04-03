@@ -63,7 +63,6 @@ from web3.exceptions import (
     Web3ValueError,
 )
 from web3.method import (
-    DeprecatedMethod,
     Method,
     default_root_munger,
 )
@@ -87,7 +86,6 @@ from web3.types import (
     TxData,
     TxParams,
     TxReceipt,
-    Uncle,
     Wei,
     _Hash32,
 )
@@ -403,7 +401,9 @@ class Eth(BaseEth):
     )
 
     def get_block(
-        self, block_identifier: BlockIdentifier, full_transactions: bool = False
+        self,
+        block_identifier: BlockIdentifier,
+        full_transactions: bool = False,
     ) -> BlockData:
         return self._get_block(block_identifier, full_transactions)
 
@@ -484,14 +484,20 @@ class Eth(BaseEth):
         return self._transaction_receipt(transaction_hash)
 
     def wait_for_transaction_receipt(
-        self, transaction_hash: _Hash32, timeout: float = 120, poll_latency: float = 0.1
+        self,
+        transaction_hash: _Hash32,
+        timeout: float = 120,
+        poll_latency: float = 0.1,
     ) -> TxReceipt:
         try:
             with Timeout(timeout) as _timeout:
                 while True:
                     try:
                         tx_receipt = self._transaction_receipt(transaction_hash)
-                    except (TransactionNotFound, TransactionIndexingInProgress):
+                    except (
+                        TransactionNotFound,
+                        TransactionIndexingInProgress,
+                    ):
                         tx_receipt = None
                     if tx_receipt is not None:
                         break
@@ -550,42 +556,6 @@ class Eth(BaseEth):
     ] = Method(
         RPC.eth_getProof,
         mungers=[get_proof_munger],
-    )
-
-    # eth_getUncleCountByBlockHash
-    # eth_getUncleCountByBlockNumber
-
-    _get_uncle_count: Method[Callable[[BlockIdentifier], int]] = Method(
-        method_choice_depends_on_args=select_method_for_block_identifier(
-            if_predefined=RPC.eth_getUncleCountByBlockNumber,
-            if_hash=RPC.eth_getUncleCountByBlockHash,
-            if_number=RPC.eth_getUncleCountByBlockNumber,
-        ),
-        mungers=[default_root_munger],
-    )
-    get_uncle_count = DeprecatedMethod(
-        _get_uncle_count,
-        old_name="_get_uncle_count",
-        new_name="get_uncle_count",
-        msg="All get_uncle* methods have been deprecated",
-    )
-
-    # eth_getUncleByBlockHashAndIndex
-    # eth_getUncleByBlockNumberAndIndex
-
-    _get_uncle_by_block: Method[Callable[[BlockIdentifier, int], Uncle]] = Method(
-        method_choice_depends_on_args=select_method_for_block_identifier(
-            if_predefined=RPC.eth_getUncleByBlockNumberAndIndex,
-            if_hash=RPC.eth_getUncleByBlockHashAndIndex,
-            if_number=RPC.eth_getUncleByBlockNumberAndIndex,
-        ),
-        mungers=[default_root_munger],
-    )
-    get_uncle_by_block = DeprecatedMethod(
-        _get_uncle_by_block,
-        old_name="_get_uncle_by_block",
-        new_name="get_uncle_by_block",
-        msg="All get_uncle* methods have been deprecated",
     )
 
     def replace_transaction(

@@ -8,7 +8,6 @@ from eth_utils.toolz import (
 
 from web3._utils.method_formatters import (
     raise_block_not_found,
-    raise_block_not_found_for_uncle_at_index,
     raise_transaction_not_found,
 )
 from web3.exceptions import (
@@ -36,7 +35,11 @@ METHOD_UNAVAILABLE_MSG = (
 )
 
 
-VALID_RESULT_OBJ_RESPONSE = {"jsonrpc": "2.0", "id": 1, "result": {"foo": "bar"}}
+VALID_RESULT_OBJ_RESPONSE = {
+    "jsonrpc": "2.0",
+    "id": 1,
+    "result": {"foo": "bar"},
+}
 VALID_RESPONSE_EXTRA_FIELDS = merge(VALID_RESULT_OBJ_RESPONSE, {"unexpected": "field"})
 VALID_RESPONSE_STRING_ID = merge(VALID_RESULT_OBJ_RESPONSE, {"id": "1"})
 
@@ -321,27 +324,6 @@ def test_formatted_response_error_responses_with_formatters_raise_expected_excep
         ),
         (
             (),
-            # test raise_block_not_found_for_uncle_at_index
-            raise_block_not_found_for_uncle_at_index,
-            BlockNotFound,
-            "Unknown block identifier or uncle index",
-        ),
-        (
-            ("0x01",),  # test handles missing param
-            # test raise_block_not_found_for_uncle_at_index
-            raise_block_not_found_for_uncle_at_index,
-            BlockNotFound,
-            "Unknown block identifier or uncle index",
-        ),
-        (
-            ("0x01", "0x00"),  # both params
-            # test raise_block_not_found_for_uncle_at_index
-            raise_block_not_found_for_uncle_at_index,
-            BlockNotFound,
-            "Uncle at index: 0 of block with id: '0x01' not found.",
-        ),
-        (
-            (),
             # test raise_transaction_not_found
             raise_transaction_not_found,
             TransactionNotFound,
@@ -362,7 +344,10 @@ def test_formatted_response_null_and_0x_results_with_formatters(
     with pytest.raises(error, match=re.escape(error_message)):
         # test null result response
         w3.manager.formatted_response(
-            VALID_RESPONSE_NULL_RESULT, params, identity, null_result_formatters
+            VALID_RESPONSE_NULL_RESULT,
+            params,
+            identity,
+            null_result_formatters,
         )
 
     with pytest.raises(error, match=re.escape(error_message)):

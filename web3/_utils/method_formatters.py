@@ -393,7 +393,10 @@ BLOCK_RESULT_FORMATTERS = {
                 is_array_of_dicts,
                 apply_list_to_array_formatter(transaction_result_formatter),
             ),
-            (is_array_of_strings, apply_list_to_array_formatter(to_hexbytes(32))),
+            (
+                is_array_of_strings,
+                apply_list_to_array_formatter(to_hexbytes(32)),
+            ),
         )
     ),
     "transactionsRoot": apply_formatter_if(is_not_null, to_hexbytes(32)),
@@ -492,7 +495,10 @@ filter_params_formatter = type_aware_apply_formatters_to_dict(FILTER_PARAMS_FORM
 
 filter_result_formatter = apply_one_of_formatters(
     (
-        (is_array_of_dicts, apply_list_to_array_formatter(log_entry_formatter)),
+        (
+            is_array_of_dicts,
+            apply_list_to_array_formatter(log_entry_formatter),
+        ),
         (is_array_of_strings, apply_list_to_array_formatter(to_hexbytes(32))),
     )
 )
@@ -716,12 +722,6 @@ PYTHONIC_REQUEST_FORMATTERS: dict[RPCEndpoint, Callable[..., Any]] = {
     RPC.eth_getRawTransactionByBlockHashAndIndex: apply_formatter_at_index(
         to_hex_if_integer, 1
     ),
-    RPC.eth_getUncleCountByBlockNumber: apply_formatter_at_index(to_hex_if_integer, 0),
-    RPC.eth_getUncleByBlockNumberAndIndex: compose(
-        apply_formatter_at_index(to_hex_if_integer, 0),
-        apply_formatter_at_index(to_hex_if_integer, 1),
-    ),
-    RPC.eth_getUncleByBlockHashAndIndex: apply_formatter_at_index(to_hex_if_integer, 1),
     RPC.eth_newFilter: apply_formatter_at_index(filter_params_formatter, 0),
     RPC.eth_getLogs: apply_formatter_at_index(filter_params_formatter, 0),
     RPC.eth_call: apply_one_of_formatters(
@@ -953,7 +953,9 @@ def subscription_formatter(value: Any) -> HexBytes | HexStr | dict[str, Any]:
                 result_formatter = log_entry_formatter
 
             elif either_set_is_a_subset(
-                result_key_set, set(TRANSACTION_RESULT_FORMATTERS.keys()), percentage=75
+                result_key_set,
+                set(TRANSACTION_RESULT_FORMATTERS.keys()),
+                percentage=75,
             ):
                 # newPendingTransactions, full transactions
                 result_formatter = transaction_result_formatter
@@ -1021,8 +1023,6 @@ PYTHONIC_RESULT_FORMATTERS: dict[RPCEndpoint, Callable[..., Any]] = {
         is_not_null,
         receipt_formatter,
     ),
-    RPC.eth_getUncleCountByBlockHash: to_integer_if_hex,
-    RPC.eth_getUncleCountByBlockNumber: to_integer_if_hex,
     RPC.eth_protocolVersion: compose(
         apply_formatter_if(is_0x_prefixed, to_integer_if_hex),
         apply_formatter_if(is_integer, str),
@@ -1102,7 +1102,9 @@ def combine_formatters(
             yield formatter_map[method_name]
 
 
-def get_request_formatters(method_name: RPCEndpoint) -> Callable[[RPCResponse], Any]:
+def get_request_formatters(
+    method_name: RPCEndpoint,
+) -> Callable[[RPCResponse], Any]:
     request_formatter_maps = (
         ABI_REQUEST_FORMATTERS,
         # METHOD_NORMALIZERS needs to be after ABI_REQUEST_FORMATTERS
@@ -1122,22 +1124,6 @@ def raise_block_not_found(params: tuple[BlockIdentifier, bool]) -> NoReturn:
         message = f"Block with id: {block_identifier!r} not found."
     except IndexError:
         message = "Unknown block identifier"
-
-    raise BlockNotFound(message)
-
-
-def raise_block_not_found_for_uncle_at_index(
-    params: tuple[BlockIdentifier, HexStr | int],
-) -> NoReturn:
-    try:
-        block_identifier = params[0]
-        uncle_index = to_integer_if_hex(params[1])
-        message = (
-            f"Uncle at index: {uncle_index} of block with id: "
-            f"{block_identifier!r} not found."
-        )
-    except IndexError:
-        message = "Unknown block identifier or uncle index"
 
     raise BlockNotFound(message)
 
@@ -1174,10 +1160,6 @@ NULL_RESULT_FORMATTERS: dict[RPCEndpoint, Callable[..., Any]] = {
     RPC.eth_getBlockReceipts: raise_block_not_found,
     RPC.eth_getBlockTransactionCountByHash: raise_block_not_found,
     RPC.eth_getBlockTransactionCountByNumber: raise_block_not_found,
-    RPC.eth_getUncleCountByBlockHash: raise_block_not_found,
-    RPC.eth_getUncleCountByBlockNumber: raise_block_not_found,
-    RPC.eth_getUncleByBlockHashAndIndex: raise_block_not_found_for_uncle_at_index,
-    RPC.eth_getUncleByBlockNumberAndIndex: raise_block_not_found_for_uncle_at_index,
     RPC.eth_getTransactionByHash: raise_transaction_not_found,
     RPC.eth_getTransactionByBlockHashAndIndex: raise_transaction_not_found_with_index,
     RPC.eth_getTransactionByBlockNumberAndIndex: raise_transaction_not_found_with_index,
@@ -1256,7 +1238,9 @@ def get_result_formatters(
     return compose(*partial_formatters, *formatters)
 
 
-def get_error_formatters(method_name: RPCEndpoint) -> Callable[[RPCResponse], Any]:
+def get_error_formatters(
+    method_name: RPCEndpoint,
+) -> Callable[[RPCResponse], Any]:
     #  Note error formatters work on the full response dict
     error_formatter_maps = (ERROR_FORMATTERS,)
     formatters = combine_formatters(error_formatter_maps, method_name)

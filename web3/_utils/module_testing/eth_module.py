@@ -195,7 +195,9 @@ class AsyncEthModuleTest:
         txn_hash = await async_w3.eth.send_transaction(txn_params)
 
         modified_txn_hash = await async_w3.eth.modify_transaction(
-            txn_hash, gasPrice=(cast(Wei, txn_params["gasPrice"] * 2)), value=Wei(2)
+            txn_hash,
+            gasPrice=(cast(Wei, txn_params["gasPrice"] * 2)),
+            value=Wei(2),
         )
         modified_txn = await async_w3.eth.get_transaction(modified_txn_hash)
 
@@ -323,7 +325,8 @@ class AsyncEthModuleTest:
         async_skip_if_testrpc(async_w3)
         signature = HexBytes(
             await async_w3.eth.sign_typed_data(
-                async_keyfile_account_address_dual_type, json.loads(validJSONMessage)
+                async_keyfile_account_address_dual_type,
+                json.loads(validJSONMessage),
             )
         )
         assert len(signature) == 32 + 32 + 1
@@ -386,7 +389,9 @@ class AsyncEthModuleTest:
 
     @pytest.mark.asyncio
     async def test_async_eth_sign_transaction_legacy(
-        self, async_w3: "AsyncWeb3[Any]", async_keyfile_account_address: ChecksumAddress
+        self,
+        async_w3: "AsyncWeb3[Any]",
+        async_keyfile_account_address: ChecksumAddress,
     ) -> None:
         txn_params: TxParams = {
             "from": async_keyfile_account_address,
@@ -407,7 +412,9 @@ class AsyncEthModuleTest:
 
     @pytest.mark.asyncio
     async def test_async_eth_sign_transaction_hex_fees(
-        self, async_w3: "AsyncWeb3[Any]", async_keyfile_account_address: ChecksumAddress
+        self,
+        async_w3: "AsyncWeb3[Any]",
+        async_keyfile_account_address: ChecksumAddress,
     ) -> None:
         txn_params: TxParams = {
             "from": async_keyfile_account_address,
@@ -432,7 +439,9 @@ class AsyncEthModuleTest:
 
     @pytest.mark.asyncio
     async def test_async_eth_sign_transaction_ens_names(
-        self, async_w3: "AsyncWeb3[Any]", async_keyfile_account_address: ChecksumAddress
+        self,
+        async_w3: "AsyncWeb3[Any]",
+        async_keyfile_account_address: ChecksumAddress,
     ) -> None:
         with ens_addresses(
             async_w3, {"unlocked-account.eth": async_keyfile_account_address}
@@ -627,7 +636,8 @@ class AsyncEthModuleTest:
             "maxPriorityFeePerGas": Wei(2 * 10**9),
         }
         with pytest.raises(
-            InvalidTransaction, match="maxFeePerGas must be >= maxPriorityFeePerGas"
+            InvalidTransaction,
+            match="maxFeePerGas must be >= maxPriorityFeePerGas",
         ):
             await async_w3.eth.send_transaction(txn_params)
 
@@ -707,7 +717,9 @@ class AsyncEthModuleTest:
             "gas": 21000,
         }
         async_w3.middleware_onion.inject(
-            SignAndSendRawMiddlewareBuilder.build(keyfile_account), "signing", layer=0
+            SignAndSendRawMiddlewareBuilder.build(keyfile_account),
+            "signing",
+            layer=0,
         )
         txn_hash = await async_w3.eth.send_transaction(txn)
         assert isinstance(txn_hash, HexBytes)
@@ -1154,7 +1166,8 @@ class AsyncEthModuleTest:
         self, async_w3: "AsyncWeb3[Any]"
     ) -> None:
         with pytest.raises(
-            TransactionNotFound, match=f"Transaction with hash: '{UNKNOWN_HASH}'"
+            TransactionNotFound,
+            match=f"Transaction with hash: '{UNKNOWN_HASH}'",
         ):
             await async_w3.eth.get_raw_transaction(UNKNOWN_HASH)
 
@@ -1250,7 +1263,9 @@ class AsyncEthModuleTest:
 
     @pytest.mark.asyncio
     async def test_eth_get_code(
-        self, async_w3: "AsyncWeb3[Any]", async_math_contract_address: ChecksumAddress
+        self,
+        async_w3: "AsyncWeb3[Any]",
+        async_math_contract_address: ChecksumAddress,
     ) -> None:
         code = await async_w3.eth.get_code(async_math_contract_address)
         assert isinstance(code, HexBytes)
@@ -1269,7 +1284,9 @@ class AsyncEthModuleTest:
 
     @pytest.mark.asyncio
     async def test_eth_get_code_with_block_identifier(
-        self, async_w3: "AsyncWeb3[Any]", async_emitter_contract: "AsyncContract"
+        self,
+        async_w3: "AsyncWeb3[Any]",
+        async_emitter_contract: "AsyncContract",
     ) -> None:
         block_id = await async_w3.eth.block_number
         code = await async_w3.eth.get_code(async_emitter_contract.address, block_id)
@@ -1415,7 +1432,10 @@ class AsyncEthModuleTest:
         txn_params = async_math_contract._prepare_transaction(
             abi_element_identifier="add",
             fn_args=(0, 0),
-            transaction={"from": accounts[0], "to": async_math_contract.address},
+            transaction={
+                "from": accounts[0],
+                "to": async_math_contract.address,
+            },
         )
         call_result = await async_w3.eth.call(txn_params)
         assert is_string(call_result)
@@ -1437,7 +1457,8 @@ class AsyncEthModuleTest:
             },
         )
         with pytest.raises(
-            ContractLogicError, match="execution reverted: Function has been reverted"
+            ContractLogicError,
+            match="execution reverted: Function has been reverted",
         ):
             await async_w3.eth.call(txn_params)
 
@@ -1729,7 +1750,8 @@ class AsyncEthModuleTest:
     ) -> None:
         # GET and POST requests should fail since responses are not mocked
         with pytest.raises(
-            MultipleFailedRequests, match="Offchain lookup failed for supplied urls"
+            MultipleFailedRequests,
+            match="Offchain lookup failed for supplied urls",
         ):
             await async_offchain_lookup_contract.caller().testOffchainLookup(
                 OFFCHAIN_LOOKUP_TEST_DATA
@@ -1957,7 +1979,9 @@ class AsyncEthModuleTest:
 
     @pytest.mark.asyncio
     async def test_async_eth_get_logs_without_logs(
-        self, async_w3: "AsyncWeb3[Any]", async_block_with_txn_with_log: BlockData
+        self,
+        async_w3: "AsyncWeb3[Any]",
+        async_block_with_txn_with_log: BlockData,
     ) -> None:
         # Test with block range
 
@@ -2124,7 +2148,9 @@ class AsyncEthModuleTest:
 
     @pytest.mark.asyncio
     async def test_async_eth_get_storage_at(
-        self, async_w3: "AsyncWeb3[Any]", async_storage_contract: "AsyncContract"
+        self,
+        async_w3: "AsyncWeb3[Any]",
+        async_storage_contract: "AsyncContract",
     ) -> None:
         async_storage_contract_address = async_storage_contract.address
 
@@ -2151,7 +2177,9 @@ class AsyncEthModuleTest:
 
     @pytest.mark.asyncio
     async def test_async_eth_get_storage_at_ens_name(
-        self, async_w3: "AsyncWeb3[Any]", async_storage_contract: "AsyncContract"
+        self,
+        async_w3: "AsyncWeb3[Any]",
+        async_storage_contract: "AsyncContract",
     ) -> None:
         with ens_addresses(async_w3, {"storage.eth": async_storage_contract.address}):
             storage = await async_w3.eth.get_storage_at(ENS("storage.eth"), 1)
@@ -2232,36 +2260,6 @@ class AsyncEthModuleTest:
         assert transaction_count >= 1
 
     @pytest.mark.asyncio
-    async def test_eth_getUncleCountByBlockHash(
-        self, async_w3: "AsyncWeb3[Any]", async_empty_block: BlockData
-    ) -> None:
-        with pytest.warns(
-            DeprecationWarning,
-            match=r"get_uncle_count is deprecated: all get_uncle\* "
-            r"methods will be removed in v8",
-        ):
-            uncle_count = await async_w3.eth.get_uncle_count(async_empty_block["hash"])
-
-            assert is_integer(uncle_count)
-            assert uncle_count == 0
-
-    @pytest.mark.asyncio
-    async def test_eth_getUncleCountByBlockNumber(
-        self, async_w3: "AsyncWeb3[Any]", async_empty_block: BlockData
-    ) -> None:
-        with pytest.warns(
-            DeprecationWarning,
-            match=r"get_uncle_count is deprecated: all get_uncle\* "
-            r"methods will be removed in v8",
-        ):
-            uncle_count = await async_w3.eth.get_uncle_count(
-                async_empty_block["number"]
-            )
-
-            assert is_integer(uncle_count)
-            assert uncle_count == 0
-
-    @pytest.mark.asyncio
     async def test_eth_getBlockTransactionCountByNumber_block_with_txn(
         self, async_w3: "AsyncWeb3[Any]", async_block_with_txn: BlockData
     ) -> None:
@@ -2319,10 +2317,12 @@ class AsyncEthModuleTest:
         async_keyfile_account_address_dual_type: ChecksumAddress,
     ) -> None:
         with ens_addresses(
-            async_w3, {"unlocked-acct.eth": async_keyfile_account_address_dual_type}
+            async_w3,
+            {"unlocked-acct.eth": async_keyfile_account_address_dual_type},
         ):
             signature = await async_w3.eth.sign(
-                ENS("unlocked-acct.eth"), text="Message tö sign. Longer than hash!"
+                ENS("unlocked-acct.eth"),
+                text="Message tö sign. Longer than hash!",
             )
             assert is_bytes(signature)
             assert len(signature) == 32 + 32 + 1
@@ -2464,7 +2464,9 @@ class AsyncEthModuleTest:
 
     @pytest.mark.asyncio
     async def test_async_eth_replace_transaction_incorrect_nonce(
-        self, async_w3: "AsyncWeb3[Any]", async_keyfile_account_address: ChecksumAddress
+        self,
+        async_w3: "AsyncWeb3[Any]",
+        async_keyfile_account_address: ChecksumAddress,
     ) -> None:
         txn_params: TxParams = {
             "from": async_keyfile_account_address,
@@ -2504,7 +2506,9 @@ class AsyncEthModuleTest:
 
     @pytest.mark.asyncio
     async def test_async_eth_replace_transaction_gas_price_defaulting_minimum(
-        self, async_w3: "AsyncWeb3[Any]", async_keyfile_account_address: ChecksumAddress
+        self,
+        async_w3: "AsyncWeb3[Any]",
+        async_keyfile_account_address: ChecksumAddress,
     ) -> None:
         gas_price = async_w3.to_wei(1, "gwei")
 
@@ -2869,28 +2873,6 @@ class EthModuleTest:
 
         assert is_integer(transaction_count)
         assert transaction_count >= 1
-
-    def test_eth_getUncleCountByBlockHash(
-        self, w3: "Web3", empty_block: BlockData
-    ) -> None:
-        with pytest.warns(
-            DeprecationWarning, match=r"All get_uncle\* methods have been deprecated"
-        ):
-            uncle_count = w3.eth.get_uncle_count(empty_block["hash"])
-
-            assert is_integer(uncle_count)
-            assert uncle_count == 0
-
-    def test_eth_getUncleCountByBlockNumber(
-        self, w3: "Web3", empty_block: BlockData
-    ) -> None:
-        with pytest.warns(
-            DeprecationWarning, match=r"All get_uncle\* methods have been deprecated"
-        ):
-            uncle_count = w3.eth.get_uncle_count(empty_block["number"])
-
-            assert is_integer(uncle_count)
-            assert uncle_count == 0
 
     def test_eth_get_code(
         self, w3: "Web3", math_contract_address: ChecksumAddress

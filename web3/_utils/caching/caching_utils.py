@@ -155,8 +155,6 @@ BLOCKNUM_IN_PARAMS = {
     RPC.eth_getBlockByNumber,
     RPC.eth_getRawTransactionByBlockNumberAndIndex,
     RPC.eth_getBlockTransactionCountByNumber,
-    RPC.eth_getUncleByBlockNumberAndIndex,
-    RPC.eth_getUncleCountByBlockNumber,
 }
 BLOCK_IN_RESULT = {
     RPC.eth_getBlockByHash,
@@ -167,8 +165,6 @@ BLOCK_IN_RESULT = {
 }
 BLOCKHASH_IN_PARAMS = {
     RPC.eth_getRawTransactionByBlockHashAndIndex,
-    RPC.eth_getUncleByBlockHashAndIndex,
-    RPC.eth_getUncleCountByBlockHash,
 }
 
 INTERNAL_VALIDATION_MAP: dict[
@@ -336,7 +332,8 @@ async def _async_should_cache_response(
 
 def async_handle_request_caching(
     func: Callable[
-        [ASYNC_PROVIDER_TYPE, RPCEndpoint, Any], Coroutine[Any, Any, "RPCResponse"]
+        [ASYNC_PROVIDER_TYPE, RPCEndpoint, Any],
+        Coroutine[Any, Any, "RPCResponse"],
     ],
 ) -> Callable[..., Coroutine[Any, Any, "RPCResponse"]]:
     async def wrapper(

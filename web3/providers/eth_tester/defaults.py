@@ -97,7 +97,8 @@ def call_eth_tester(
                     zip(OFFCHAIN_LOOKUP_FIELDS.keys(), abi_decoded_data)
                 )
                 raise OffchainLookup(
-                    offchain_lookup_payload, data=Web3.to_hex(parsed_data_as_bytes)
+                    offchain_lookup_payload,
+                    data=Web3.to_hex(parsed_data_as_bytes),
                 )
             elif possible_data[2:6] == "NH{q":
                 # Solidity >= 0.8.0 Panic Error
@@ -135,7 +136,9 @@ def without_params(
 
 @curry
 def preprocess_params(
-    eth_tester: "EthereumTester", params: Any, preprocessor_fn: Callable[..., Any]
+    eth_tester: "EthereumTester",
+    params: Any,
+    preprocessor_fn: Callable[..., Any],
 ) -> tuple["EthereumTester", Callable[..., Any]]:
     return eth_tester, preprocessor_fn(params)
 
@@ -269,20 +272,6 @@ API_ENDPOINTS = {
                 call_eth_tester("get_block_by_number"),
             )
         ),
-        "getUncleCountByBlockHash": null_if_block_not_found(
-            compose(
-                len,
-                operator.itemgetter("uncles"),
-                call_eth_tester("get_block_by_hash"),
-            )
-        ),
-        "getUncleCountByBlockNumber": null_if_block_not_found(
-            compose(
-                len,
-                operator.itemgetter("uncles"),
-                call_eth_tester("get_block_by_number"),
-            )
-        ),
         "getCode": call_eth_tester("get_code"),
         "sign": not_implemented,
         "signTransaction": not_implemented,
@@ -309,8 +298,6 @@ API_ENDPOINTS = {
                 call_eth_tester("get_transaction_receipt"),
             )
         ),
-        "getUncleByBlockHashAndIndex": not_implemented,
-        "getUncleByBlockNumberAndIndex": not_implemented,
         "getCompilers": not_implemented,
         "compileLLL": not_implemented,
         "compileSolidity": not_implemented,
