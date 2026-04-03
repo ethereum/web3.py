@@ -270,8 +270,9 @@ class BaseContractEvent:
             yield rich_log
 
     @combomethod
-    def process_log(self, log: LogReceipt) -> EventData:
-        return get_event_data(self.w3.codec, self.abi, log)
+    def process_log(cls, log: LogReceipt) -> EventData:
+        abi = getattr(cls, "abi", None) or cls._get_event_abi()
+        return get_event_data(cls.w3.codec, abi, log)
 
     @combomethod
     def _get_event_filter_params(
