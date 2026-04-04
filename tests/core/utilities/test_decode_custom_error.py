@@ -1,5 +1,3 @@
-import pytest
-
 from eth_abi import (
     abi,
 )
@@ -11,7 +9,6 @@ from eth_utils import (
 from web3._utils.error_formatters_utils import (
     decode_custom_error,
 )
-
 
 # --- test ABIs --- #
 

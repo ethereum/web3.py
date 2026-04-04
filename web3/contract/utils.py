@@ -159,9 +159,9 @@ def call_contract_function(
         )
     except ContractCustomError as e:
         if contract_abi is not None and e.data is not None:
-            decoded = decode_custom_error(contract_abi, str(e.data))
-            if decoded is not None:
-                raise ContractCustomError(decoded, data=e.data) from e
+            decoded_error = decode_custom_error(contract_abi, str(e.data))
+            if decoded_error is not None:
+                raise ContractCustomError(decoded_error, data=e.data) from e
         raise
 
     if abi_callable is None:
@@ -463,9 +463,9 @@ async def async_call_contract_function(
         )
     except ContractCustomError as e:
         if contract_abi is not None and e.data is not None:
-            decoded = decode_custom_error(contract_abi, str(e.data))
-            if decoded is not None:
-                raise ContractCustomError(decoded, data=e.data) from e
+            decoded_error = decode_custom_error(contract_abi, str(e.data))
+            if decoded_error is not None:
+                raise ContractCustomError(decoded_error, data=e.data) from e
         raise
 
     if fn_abi is None:
