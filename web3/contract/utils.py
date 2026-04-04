@@ -45,14 +45,14 @@ from web3._utils.batching import (
 from web3._utils.contracts import (
     prepare_transaction,
 )
+from web3._utils.error_formatters_utils import (
+    decode_custom_error,
+)
 from web3._utils.normalizers import (
     BASE_RETURN_NORMALIZERS,
 )
 from web3._utils.transactions import (
     fill_transaction_defaults,
-)
-from web3._utils.error_formatters_utils import (
-    decode_custom_error,
 )
 from web3.exceptions import (
     BadFunctionCallOutput,
