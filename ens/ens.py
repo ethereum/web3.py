@@ -13,7 +13,6 @@ from eth_typing import (
     Address,
     ChecksumAddress,
     HexAddress,
-    HexStr,
 )
 from eth_utils import (
     is_address,
@@ -36,11 +35,9 @@ from .base_ens import (
 )
 from .constants import (
     EMPTY_ADDR_HEX,
-    ENS_EXTENDED_RESOLVER_INTERFACE_ID,
     ENS_MAINNET_ADDR,
-    ENS_MULTICHAIN_ADDRESS_INTERFACE_ID,
-    ENS_TEXT_INTERFACE_ID,
     REVERSE_REGISTRAR_DOMAIN,
+    UNIVERSAL_RESOLVER_ADDR,
 )
 from .exceptions import (
     AddressMismatch,
@@ -48,7 +45,6 @@ from .exceptions import (
     ResolverNotFound,
     UnauthorizedError,
     UnownedName,
-    UnsupportedFunction,
 )
 from .utils import (
     address_in,
@@ -56,7 +52,6 @@ from .utils import (
     default,
     dns_encode_name,
     init_web3,
-    is_empty_name,
     is_none_or_zero_address,
     label_to_hash,
     normal_name_to_hash,
@@ -118,6 +113,10 @@ class ENS(BaseENS):
         self._reverse_resolver_contract = self.w3.eth.contract(
             abi=abis.REVERSE_RESOLVER
         )
+        self._universal_resolver = self.w3.eth.contract(
+            abi=abis.UNIVERSAL_RESOLVER,
+            address=UNIVERSAL_RESOLVER_ADDR,
+        )
 
     @classmethod
     def from_web3(cls, w3: "Web3", addr: ChecksumAddress = None) -> "ENS":
@@ -149,20 +148,30 @@ class ENS(BaseENS):
         :param int coin_type: if provided, look up the address for this coin type
         :raises InvalidName: if `name` has invalid syntax
         :raises ResolverNotFound: if no resolver found for `name`
-        :raises UnsupportedFunction: if the resolver does not support the ``addr()``
-                function
         """
+        from web3.exceptions import (
+            ContractLogicError,
+        )
+
         if coin_type is None:
-            # don't validate `addr(bytes32)` interface id since extended resolvers
-            # can implement a "resolve" function as of ENSIP-10
             return cast(ChecksumAddress, self._resolve(name, "addr"))
         else:
-            r = self.resolver(name)
-            _validate_resolver_and_interface_id(
-                name, r, ENS_MULTICHAIN_ADDRESS_INTERFACE_ID, "addr(bytes32,uint256)"
-            )
             node = raw_name_to_hash(name)
-            address_as_bytes = r.caller.addr(node, coin_type)
+            normal_name = normalize_name(name)
+            dns_name = dns_encode_name(normal_name)
+            calldata = self._resolver_contract.encode_abi(
+                "addr", args=[node, coin_type]
+            )
+            try:
+                result, resolver_addr = self._universal_resolver.caller.resolve(
+                    dns_name, calldata
+                )
+            except ContractLogicError:
+                return None
+            if not result or result == b"" or result == b"\x00" * 20:
+                return None
+            decoded = self.w3.codec.decode(["bytes"], result)
+            address_as_bytes = decoded[0]
             if is_none_or_zero_address(address_as_bytes):
                 return None
             return to_checksum_address(address_as_bytes)
@@ -235,6 +244,9 @@ class ENS(BaseENS):
         """
         reversed_domain = address_to_reverse_domain(address)
         name = self._resolve(reversed_domain, fn_name="name")
+
+        if name is None:
+            return None
 
         # To be absolutely certain of the name, via reverse resolution,
         # the address must match in the forward resolution
@@ -364,8 +376,19 @@ class ENS(BaseENS):
 
         :param str name: The ENS name
         """
+        from web3.exceptions import (
+            ContractLogicError,
+        )
+
         normal_name = normalize_name(name)
-        return self._get_resolver(normal_name)[0]
+        dns_name = dns_encode_name(normal_name)
+        try:
+            resolver_addr, _, _ = self._universal_resolver.caller.findResolver(dns_name)
+        except ContractLogicError:
+            return None
+        if is_none_or_zero_address(resolver_addr):
+            return None
+        return cast("Contract", self._resolver_contract(address=resolver_addr))
 
     def reverser(self, target_address: ChecksumAddress) -> Optional["Contract"]:
         reversed_domain = address_to_reverse_domain(target_address)
@@ -381,15 +404,29 @@ class ENS(BaseENS):
         :param str key: ENS name's text record key
         :return: ENS name's text record value
         :rtype: str
-        :raises UnsupportedFunction: If the resolver does not support
-            the "0x59d1d43c" interface id
         :raises ResolverNotFound: If no resolver is found for the provided name
         """
-        node = raw_name_to_hash(name)
+        from web3.exceptions import (
+            ContractLogicError,
+        )
 
-        r = self.resolver(name)
-        _validate_resolver_and_interface_id(name, r, ENS_TEXT_INTERFACE_ID, "text")
-        return r.caller.text(node, key)
+        node = raw_name_to_hash(name)
+        normal_name = normalize_name(name)
+        dns_name = dns_encode_name(normal_name)
+        calldata = self._resolver_contract.encode_abi("text", args=[node, key])
+        try:
+            result, resolver_addr = self._universal_resolver.caller.resolve(
+                dns_name, calldata
+            )
+        except ContractLogicError:
+            raise ResolverNotFound(
+                f"No resolver found for name `{name}`. It is likely the name "
+                "contains an unsupported top level domain (tld)."
+            )
+        if not result or result == b"":
+            return ""
+        decoded = self.w3.codec.decode(["string"], result)
+        return decoded[0]
 
     def set_text(
         self,
@@ -408,12 +445,14 @@ class ENS(BaseENS):
             :meth:`~web3.eth.Eth.send_transaction`
         :return: Transaction hash
         :rtype: HexBytes
-        :raises UnsupportedFunction: If the resolver does not support
-            the "0x59d1d43c" interface id
         :raises ResolverNotFound: If no resolver is found for the provided name
         """
         r = self.resolver(name)
-        _validate_resolver_and_interface_id(name, r, ENS_TEXT_INTERFACE_ID, "text")
+        if not r:
+            raise ResolverNotFound(
+                f"No resolver found for name `{name}`. It is likely the name "
+                "contains an unsupported top level domain (tld)."
+            )
         node = raw_name_to_hash(name)
 
         return self._set_property(
@@ -421,32 +460,6 @@ class ENS(BaseENS):
         )
 
     # -- private methods -- #
-
-    def _get_resolver(
-        self,
-        normal_name: str,
-        fn_name: str = "addr",
-    ) -> tuple[Optional["Contract"], str]:
-        current_name = normal_name
-
-        # look for a resolver, starting at the full name and taking the parent
-        # each time that no resolver is found
-        while True:
-            if is_empty_name(current_name):
-                # if no resolver found across all iterations, current_name
-                # will eventually be the empty string '' which returns here
-                return None, current_name
-
-            resolver_addr = self.ens.caller.resolver(normal_name_to_hash(current_name))
-            if not is_none_or_zero_address(resolver_addr):
-                # if resolver found, return it
-                resolver = cast(
-                    "Contract", self._type_aware_resolver(resolver_addr, fn_name)
-                )
-                return resolver, current_name
-
-            # set current_name to parent and try again
-            current_name = self.parent(current_name)
 
     def _set_resolver(
         self,
@@ -467,33 +480,43 @@ class ENS(BaseENS):
     def _resolve(
         self, name: str, fn_name: str = "addr"
     ) -> ChecksumAddress | str | None:
+        from web3.exceptions import (
+            ContractLogicError,
+        )
+
         normal_name = normalize_name(name)
-        resolver, current_name = self._get_resolver(normal_name, fn_name)
-        if not resolver:
+        node = self.namehash(normal_name)
+        dns_name = dns_encode_name(normal_name)
+
+        # Use the appropriate contract ABI to encode the calldata
+        if fn_name == "name":
+            calldata = self._reverse_resolver_contract.encode_abi(fn_name, args=[node])
+            resolver_contract = cast("Contract", self._reverse_resolver_contract)
+        else:
+            calldata = self._resolver_contract.encode_abi(fn_name, args=[node])
+            resolver_contract = cast("Contract", self._resolver_contract)
+
+        try:
+            result, resolver_addr = self._universal_resolver.caller.resolve(
+                dns_name, calldata
+            )
+        except ContractLogicError:
             return None
 
-        node = self.namehash(normal_name)
+        if not result or result == b"":
+            return None
 
-        # handle extended resolver case
-        if _resolver_supports_interface(resolver, ENS_EXTENDED_RESOLVER_INTERFACE_ID):
-            contract_func_with_args = (fn_name, [node])
+        decoded_result = self._decode_ensip10_resolve_data(
+            result, resolver_contract, fn_name
+        )
 
-            calldata = resolver.encode_abi(*contract_func_with_args)
-            contract_call_result = resolver.caller.resolve(
-                dns_encode_name(normal_name),
-                calldata,
-            )
-            result = self._decode_ensip10_resolve_data(
-                contract_call_result, resolver, fn_name
-            )
-            return to_checksum_address(result) if is_address(result) else result
-        elif normal_name == current_name:
-            lookup_function = getattr(resolver.functions, fn_name)
-            result = lookup_function(node).call()
-            if is_none_or_zero_address(result):
-                return None
-            return to_checksum_address(result) if is_address(result) else result
-        return None
+        if is_none_or_zero_address(decoded_result):
+            return None
+        return (
+            to_checksum_address(decoded_result)
+            if is_address(decoded_result)
+            else decoded_result
+        )
 
     def _assert_control(
         self,
@@ -576,30 +599,3 @@ class ENS(BaseENS):
         transact_from_owner = merge({"from": owner}, transact)
 
         return func(*args).transact(transact_from_owner)
-
-
-def _validate_resolver_and_interface_id(
-    ens_name: str,
-    resolver: "Contract",
-    ens_interface_id: HexStr,
-    interface_name: str,
-) -> None:
-    if not resolver:
-        raise ResolverNotFound(
-            f"No resolver found for name `{ens_name}`. It is likely the name "
-            "contains an unsupported top level domain (tld)."
-        )
-    elif not _resolver_supports_interface(resolver, ens_interface_id):
-        raise UnsupportedFunction(
-            f"Resolver for name `{ens_name}` does not support the `{interface_name}` "
-            f"interface."
-        )
-
-
-def _resolver_supports_interface(
-    resolver: "Contract",
-    ens_interface_id: HexStr,
-) -> bool:
-    return any(
-        "supportsInterface" in repr(func) for func in resolver.all_functions()
-    ) and resolver.caller.supportsInterface(ens_interface_id)
