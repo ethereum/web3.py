@@ -54,6 +54,7 @@ REQUEST_RETRY_ALLOWLIST = [
     "eth_sign",
     "eth_signTypedData",
     "eth_sendRawTransaction",
+    "eth_sendRawTransactionSync",
 ]
 
 
