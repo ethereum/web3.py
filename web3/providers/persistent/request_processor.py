@@ -1,4 +1,5 @@
 import asyncio
+import threading
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -97,7 +98,9 @@ class RequestProcessor:
             Callable[..., Any],
         ],
     ) -> str | None:
-        cached_requests_key = generate_cache_key((method, params))
+        cached_requests_key = generate_cache_key(
+            f"{threading.get_ident()}:{generate_cache_key((method, params))}"
+        )
         if cached_requests_key in self._provider._request_cache._data:
             cached_response = self._provider._request_cache._data[cached_requests_key]
             cached_response_id = cached_response.get("id")

@@ -241,7 +241,7 @@ def handle_request_caching(
         if is_cacheable_request(provider, method, params):
             request_cache = provider._request_cache
             cache_key = generate_cache_key(
-                f"{threading.get_ident()}:{(method, params)}"
+                f"{threading.get_ident()}:{generate_cache_key((method, params))}"
             )
             cache_result = request_cache.get_cache_entry(cache_key)
             if cache_result is not None:
@@ -345,7 +345,7 @@ def async_handle_request_caching(
         if is_cacheable_request(provider, method, params):
             request_cache = provider._request_cache
             cache_key = generate_cache_key(
-                f"{threading.get_ident()}:{(method, params)}"
+                f"{threading.get_ident()}:{generate_cache_key((method, params))}"
             )
             cache_result = request_cache.get_cache_entry(cache_key)
             if cache_result is not None:
@@ -378,13 +378,14 @@ def async_handle_send_caching(
         if is_cacheable_request(provider, method, params):
             request_cache = provider._request_cache
             cache_key = generate_cache_key(
-                f"{threading.get_ident()}:{(method, params)}"
+                f"{threading.get_ident()}:{generate_cache_key((method, params))}"
             )
             cached_response = request_cache.get_cache_entry(cache_key)
             if cached_response is not None:
-                # The request data isn't used, this just prevents a cached request from
-                # being sent - return an empty request object
-                return {"id": -1, "method": RPCEndpoint(""), "params": []}
+                # The request data isn't used to send, this just prevents a cached
+                # request from being sent. Preserve method and params so that
+                # async_handle_recv_caching can look up the cached response correctly.
+                return {"id": -1, "method": method, "params": params}
         return await func(provider, method, params)
 
     # save a reference to the decorator on the wrapped function
@@ -407,7 +408,7 @@ def async_handle_recv_caching(
         if is_cacheable_request(provider, method, params):
             request_cache = provider._request_cache
             cache_key = generate_cache_key(
-                f"{threading.get_ident()}:{(method, params)}"
+                f"{threading.get_ident()}:{generate_cache_key((method, params))}"
             )
             cache_result = request_cache.get_cache_entry(cache_key)
             if cache_result is not None:
