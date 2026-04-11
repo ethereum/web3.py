@@ -996,7 +996,9 @@ async def test_ws_send_caching_dummy_request_preserves_method_and_params(
     async_handle_recv_caching to fall through to _get_response_for_request_id(-1)
     and eventually raise TimeExhausted.
     """
-    from web3._utils.caching.caching_utils import async_handle_send_caching
+    from web3._utils.caching.caching_utils import (
+        async_handle_send_caching,
+    )
 
     async def fake_send(provider, method, params):
         return {"id": 1, "method": method, "params": params}
@@ -1012,7 +1014,9 @@ async def test_ws_send_caching_dummy_request_preserves_method_and_params(
     cache_key = generate_cache_key(
         f"{threading.get_ident()}:{generate_cache_key((method, params))}"
     )
-    provider._request_cache.cache(cache_key, {"jsonrpc": "2.0", "id": 99, "result": "0x1"})
+    provider._request_cache.cache(
+        cache_key, {"jsonrpc": "2.0", "id": 99, "result": "0x1"}
+    )
 
     dummy = await wrapped(provider, method, params)
 
